@@ -125,7 +125,7 @@ bool  PropertiesCalculator::finalise ( bool isComplete ) {
    if( isComplete and status and m_rank == 0 ) {
       displayProgress( "Project file", Start_Time, "Start saving " );
 
-      m_projectHandle->setSimulationDetails ( "fastproperties", "Default", "" );
+      m_projectHandle->setSimulationDetails ( "fastproperties", m_simulationMode, m_commandLine );
 
       char outputFileName[ PETSC_MAX_PATH_LEN ];
       outputFileName[0] = '\0';
@@ -377,6 +377,11 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
       snapshots.push_back( zeroSnapshot );
     }
 
+    if(  m_vizFormat ) {
+       updateFormationsKRange();
+    }
+   
+
    struct stat fileStatus;
    int fileError;
 
@@ -419,7 +424,8 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
             if( m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY ) {
                continue;
             }
-            if( not m_extract2D and surface != 0 and property->getName() != "Reflectivity" ) {
+                 
+            if( not m_extract2D and surface != 0 and property->getPropertyAttribute() != DataModel::SURFACE_2D_PROPERTY ) {
                continue;
             }
 
@@ -1434,15 +1440,14 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueDiscontinuous ( O
       vizFormation.reset(new CauldronIO::Formation(static_cast<int>(info->kStart), static_cast<int>(info->kEnd), daFormation->getName()));
       m_vizProject->addFormation( vizFormation );    
       if( debug ) { 
-         cout << "Add formation " << daFormation->getName() << " kstart " << info->kStart << " kend " << info->kEnd << " depth " << propertyValue->getDepth() << endl;
+         cout << "Add formation disc " << daFormation->getName() << " kstart " << info->kStart << " kend " << info->kEnd << " depth " << propertyValue->getDepth() << endl;
       }
-      if( not vizFormation->isDepthRangeDefined() ) {
-         vizFormation->updateK_range(static_cast<int>(info->kStart), static_cast<int>(info->kEnd));
-         if( debug ) {
-            cout << "update krange " <<  daFormation->getName()<< " " << info->kStart << " " << info->kEnd << endl;
-         }
+   }
+   if( not vizFormation->isDepthRangeDefined() ) {
+      vizFormation->updateK_range(static_cast<int>(info->kStart), static_cast<int>(info->kEnd));
+      if( debug ) {
+         cout << "update krange disc " <<  daFormation->getName()<< " " << info->kStart << " " << info->kEnd << endl;
       }
-     
    }
 
    //create geometry
@@ -1603,7 +1608,23 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueMap ( OutputPrope
    CauldronIO::SubsurfaceKind kind = CauldronIO::None;
    
    std::shared_ptr< CauldronIO::Formation> vizFormation = m_vizProject->findFormation( daFormation->getName() );
-   
+ 
+   if( not vizFormation->isDepthRangeDefined() ) {
+      //find info and geometry for the formation
+      std::shared_ptr<CauldronIO::FormationInfo> info;
+      for (size_t i = 0; i < m_formInfoList->size(); ++i)  {
+         std::shared_ptr<CauldronIO::FormationInfo>& depthInfo = m_formInfoList->at(i);
+         
+         if( depthInfo->formation == formation ) {
+            info = m_formInfoList->at(i);
+         }
+      }
+      vizFormation->updateK_range(static_cast<int>(info->kStart), static_cast<int>(info->kEnd));
+      if( debug ) {
+         cout << "update krange map " <<  daFormation->getName()<< " " << info->kStart << " " << info->kEnd << endl;
+      }
+   }
+  
    if( daSurface != 0 ) {
       vizSurface = getSurface( vizSnapshot, surfaceName );
       if( not vizSurface ) {
@@ -1704,6 +1725,30 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueMap ( OutputPrope
    }
    
    return true;
+}
+
+//------------------------------------------------------------//
+void PropertiesCalculator::updateFormationsKRange() {
+
+   // Compute k-range for all stratigraphy formations at present day
+   const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot( 0 );
+   std::shared_ptr<CauldronIO::FormationInfoList> depthFormations = getDepthFormations( m_projectHandle, zeroSnapshot );
+
+   // Capture global k-range
+   for (unsigned int i = 0; i < depthFormations->size(); ++i)
+    {
+       std::shared_ptr<CauldronIO::FormationInfo>& info = depthFormations->at(i);
+       std::shared_ptr<CauldronIO::Formation> vizFormation = m_vizProject->findFormation(info->formation->getName());
+
+       if(vizFormation) {
+          if(not vizFormation->isDepthRangeDefined()) {
+             vizFormation->updateK_range(static_cast<int>(info->kStart), static_cast<int>(info->kEnd));
+          }
+       } else {
+         vizFormation.reset(new CauldronIO::Formation(static_cast<int>(info->kStart), static_cast<int>(info->kEnd), info->formation->getName()));
+         m_vizProject->addFormation( vizFormation );         
+       }
+    }
 }
 //------------------------------------------------------------//
 
@@ -1915,8 +1960,14 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
          return false;
       }
    }
+
+   for ( int i = 1; i < argc; ++i ) {
+      m_commandLine += std::string ( argv [ i ]) + ( i == argc - 1 ? "" : " " );
+   }
+
    return true;
 }
+
 //------------------------------------------------------------//
 void PropertiesCalculator::startTimer() {
    PetscTime( &m_startTime );

@@ -129,6 +129,8 @@ private:
    std::vector<float> m_data; ///< Buffer to convert a property to visualization format
    std::shared_ptr<CauldronIO::FormationInfoList> m_formInfoList; ///< List of formations grid info
 
+   std::string  m_commandLine;
+
    /// \brief Check if the property the formation/surface is allowed to be output
    bool allowOutput ( const string & propertyName, const Interface::Formation * formation, const Interface::Surface * surface ) const;
    /// \brief Check if the property the formation/surface is selected to be output in the project file
@@ -164,6 +166,9 @@ private:
    bool createVizSnapshotResultPropertyValue ( OutputPropertyValuePtr propertyValue, 
                                                const Snapshot* snapshot, const Interface::Formation * formation,
                                                const Interface::Surface * surface );
+
+   /// \brief Calculate k-range (offsets in depth) for all stratigraphy formations.
+   void updateFormationsKRange();
 public:
 
    GeoPhysics::ProjectHandle* getProjectHandle() const;
