@@ -1077,6 +1077,15 @@ namespace CauldronIO
         float getMinValue();
         /// \returns the maximum value of this volume
         float getMaxValue();
+	/// Set the value range of this volume
+	void setMinMax(float minValue, float maxValue);
+
+	/// \returns the minimum value of this volume for the part that is sediment only
+	float getSedimentMinValue() const;
+	/// \returns the maximum value of this volume for the part that is sediment only
+	float getSedimentMaxValue() const;
+	/// Set the value range of this volume, for the part that is sediment only
+	void setSedimentMinMax(float minValue, float maxValue);
 
         /// VisualizationIOData implementation
         //////////////////////////////////////////////////////////////////////////
@@ -1101,6 +1110,8 @@ namespace CauldronIO
         float* m_internalDataIJK;
         float* m_internalDataKIJ;
         float m_minValue, m_maxValue;
+	float m_sedimentMinValue;
+	float m_sedimentMaxValue;
         bool m_updateMinMax;
         float m_constantValue;
         bool m_isConstant;

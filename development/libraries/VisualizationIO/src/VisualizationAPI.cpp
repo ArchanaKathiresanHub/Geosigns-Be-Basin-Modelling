@@ -2203,6 +2203,8 @@ CauldronIO::VolumeData::VolumeData(const std::shared_ptr<Geometry3D>& geometry, 
     m_minValue = minValue;
     m_maxValue = maxValue;
     m_updateMinMax = minValue == DefaultUndefinedValue; // if the min/max values are not set they need to be updated
+    m_sedimentMinValue = DefaultUndefinedValue;
+    m_sedimentMaxValue = DefaultUndefinedValue;
 
     updateGeometry();
 }
@@ -2555,6 +2557,30 @@ float CauldronIO::VolumeData::getMaxValue()
     if (m_updateMinMax)
         updateMinMax();
     return m_maxValue;
+}
+
+void CauldronIO::VolumeData::setMinMax(float minValue, float maxValue)
+{
+  m_minValue = minValue;
+  m_maxValue = maxValue;
+
+  m_updateMinMax = false;
+}
+
+float CauldronIO::VolumeData::getSedimentMinValue() const
+{
+  return m_sedimentMinValue;
+}
+
+float CauldronIO::VolumeData::getSedimentMaxValue() const
+{
+  return m_sedimentMaxValue;
+}
+
+void CauldronIO::VolumeData::setSedimentMinMax(float minValue, float maxValue)
+{
+  m_sedimentMinValue = minValue;
+  m_sedimentMaxValue = maxValue;
 }
 
 float CauldronIO::VolumeData::getConstantValue() const throw (CauldronIOException)

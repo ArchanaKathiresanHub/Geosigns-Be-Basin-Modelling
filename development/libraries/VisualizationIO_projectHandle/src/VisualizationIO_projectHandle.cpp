@@ -280,6 +280,13 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
     size_t detected_minK = 16384;
     size_t detected_maxK = 0;
 
+    // Determine range of values
+    const float fltMax = std::numeric_limits<float>::max();
+    float minValue =  fltMax;
+    float maxValue = -fltMax;
+    float sedimentMinValue =  fltMax;
+    float sedimentMaxValue = -fltMax;
+
     // Get data
     for (size_t i = 0; i < m_info.size(); ++i)
     {
@@ -288,6 +295,11 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
 
         std::shared_ptr<CauldronIO::FormationInfo> depthInfo = findDepthInfo(m_depthFormations, m_propValues->at(i)->getFormation());
         size_t thisNumK = 1 + depthInfo->kEnd - depthInfo->kStart;
+
+	// Find local min and max values for each formation, and combine them later into
+	// the minValue / maxValue and sedimentMinValue / sedimentMaxValue
+	float localMinValue =  fltMax;
+	float localMaxValue = -fltMax;
 
         for (size_t k = 0; k <thisNumK; ++k)
         {
@@ -308,6 +320,12 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
                     float val = hdfData[hdfKIndex + thisNumK * j + i * thisNumK * m_numJ];
                     inputData[index++] = val;
 
+		    if(val != DefaultUndefinedValue)
+		    {
+		      localMinValue = std::min(localMinValue, val);
+		      localMaxValue = std::max(localMaxValue, val);
+		    }
+
                     if (firstConstant)
                     {
                         constantValue = val;
@@ -316,6 +334,15 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
                     if (isConstant) isConstant = val == constantValue;
                 }
             }
+
+	    minValue = std::min(minValue, localMinValue);
+	    maxValue = std::max(maxValue, localMaxValue);
+
+	    if(depthInfo->formation->kind() == DataAccess::Interface::SEDIMENT_FORMATION)
+	    {
+	      sedimentMinValue = std::min(sedimentMinValue, localMinValue);
+	      sedimentMaxValue = std::max(sedimentMaxValue, localMaxValue);
+	    }
         }
     }
 
@@ -347,6 +374,12 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
     else
         setConstantValue(constantValue);
 
+    if(minValue != fltMax && maxValue != -fltMax)
+      setMinMax(minValue, maxValue);
+
+    if(sedimentMinValue != fltMax && sedimentMaxValue != -fltMax)
+      setSedimentMinMax(sedimentMinValue, sedimentMaxValue);
+
     m_retrieved = true;
 
     delete[] inputData;
@@ -372,6 +405,10 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFromHDF()
 
     float* inputData = new float[m_numI * m_numJ * m_numK];
 
+    const float fltMax = std::numeric_limits<float>::max();
+    float minValue = fltMax;
+    float maxValue = -fltMax;
+
     for (unsigned int k = 0; k < m_numK; ++k)
     {
         size_t hdfKIndex = (m_numK - 1) - k;  /// in the HDF file, depth is always inverse to k index
@@ -388,6 +425,12 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFromHDF()
                 float val = hdfData[hdfKIndex + m_numK * j + i * m_numK * m_numJ];
                 inputData[index++] = val;
 
+		if(val != DefaultUndefinedValue)
+		{
+		  minValue = std::min(minValue, val);
+		  maxValue = std::max(maxValue, val);
+		}
+
                 if (firstConstant)
                 {
                     constantValue = val;
@@ -396,6 +439,14 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFromHDF()
                 if (isConstant) isConstant = val == constantValue;
             }
         }
+    }
+
+    if(minValue != fltMax && maxValue != -fltMax)
+    {
+      setMinMax(minValue, maxValue);
+
+      if(m_depthInfo->formation->kind() == DataAccess::Interface::SEDIMENT_FORMATION)
+	setSedimentMinMax(minValue, maxValue);
     }
 
     // Assign the data

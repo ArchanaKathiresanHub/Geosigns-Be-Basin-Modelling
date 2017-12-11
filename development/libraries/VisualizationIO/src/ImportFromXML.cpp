@@ -766,6 +766,15 @@ std::shared_ptr<Volume> CauldronIO::ImportFromXML::getVolume(pugi::xml_node volu
             geometry->getDeltaJ(), geometry->getMinI(), geometry->getMinJ()));
         std::shared_ptr<VolumeData> volData(new VolumeDataNative(geometry3D, minValue, maxValue));
 
+	pugi::xml_attribute sedimentMinValueAttr = propertyVolNode.attribute("sedimentMin");
+	pugi::xml_attribute sedimentMaxValueAttr = propertyVolNode.attribute("sedimentMax");
+	if(sedimentMinValueAttr && sedimentMaxValueAttr)
+	{
+	  volData->setSedimentMinMax(
+	    sedimentMinValueAttr.as_float(),
+	    sedimentMaxValueAttr.as_float());
+	}
+
         // Get the datastore xml node or constantvalue
         pugi::xml_attribute constantVal = propertyVolNode.attribute("constantvalue");
         if (constantVal)

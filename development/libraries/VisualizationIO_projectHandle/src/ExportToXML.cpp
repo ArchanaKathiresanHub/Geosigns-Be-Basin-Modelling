@@ -449,8 +449,17 @@ void CauldronIO::ExportToXML::addVolume(DataStoreSave& dataStore, const std::sha
             node.append_attribute("min") = data->getMinValue();
             node.append_attribute("max") = data->getMaxValue();
 
-			// Check for reference volume
-			ReferenceVolume* refVolume = dynamic_cast<ReferenceVolume*>(data.get());
+	    float sedMinVal = data->getSedimentMinValue();
+	    float sedMaxVal = data->getSedimentMaxValue();
+	    // Only add attributes for sediment value range if values are defined
+	    if(sedMinVal != DefaultUndefinedValue && sedMaxVal != DefaultUndefinedValue)
+	    {
+	      node.append_attribute("sedimentMin") = sedMinVal;
+	      node.append_attribute("sedimentMax") = sedMaxVal;
+	    }
+
+	    // Check for reference volume
+	    ReferenceVolume* refVolume = dynamic_cast<ReferenceVolume*>(data.get());
 
             if (data->isConstant())
             {
