@@ -40,7 +40,6 @@ Surface::Surface (ProjectHandle * projectHandle, Record * record) : DAObject (pr
       m_kind = BASEMENT_SURFACE;
       m_formationDepositionSequenceNumber = DefaultUndefinedScalarIntValue;
    }
-
 }
 
 Surface::Surface (ProjectHandle * projectHandle) : DAObject (projectHandle, nullptr), m_mangledName ( "" ), m_top (nullptr), m_bottom (nullptr), m_snapshot (nullptr)
@@ -193,6 +192,9 @@ GridMap * Surface::loadDepthMap (void) const
       if (depthGridMapId.length () != 0)
       {
 	      gridMap = m_projectHandle->loadInputMap ("StratIoTbl", depthGridMapId);
+         // If a surface depth map referenced in the project file cannot be found throw runtime ERROR
+         if (gridMap == nullptr)
+            throw std::runtime_error( "Could not open input depth map for Surface " + getName() + "\n" );
       }
    }
    return gridMap;

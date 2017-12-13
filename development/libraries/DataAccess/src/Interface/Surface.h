@@ -88,7 +88,6 @@ namespace DataAccess
 
        SurfaceKind m_kind;
        int m_formationDepositionSequenceNumber;
-
       };
 
       /// \brief Functor class for ordering surfaces.

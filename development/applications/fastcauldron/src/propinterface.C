@@ -308,7 +308,7 @@ void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
         // cout << "Attaching ddd to " << *args[ 0 ] << " (pid: " << Process_Id << ") Please wait..." << endl;
 
         if ( MY_DEBUGGERDIR == 0 or strlen (MY_DEBUGGERDIR) == 0 or not File_Exists ( MY_DEBUGGERDIR )) {
-           Debug_Command = "/apps/3rdparty/share/ddd " + string( *args[ 0 ] ) + " " + Process_Id + "&";
+           Debug_Command = "ddd " + string( *args[ 0 ] ) + " " + Process_Id + "&";
         } else {
            Debug_Command = string ( MY_DEBUGGERDIR ) + ' ' + string( *args[ 0 ] ) + " " + Process_Id + "&";
         }
