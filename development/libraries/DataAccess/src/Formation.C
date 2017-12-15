@@ -245,6 +245,9 @@ GridMap * Formation::loadThicknessMap (void) const
       if (thicknessGridMapId.length() != 0)
       {
           gridMap = m_projectHandle->loadInputMap("StratIoTbl", thicknessGridMapId);
+          // If a thickness depth map referenced in the project file cannot be found throw runtime ERROR
+          if (gridMap == nullptr)
+             throw std::runtime_error( "Could not open input thickness map for Layer " + getName() + "\n" );
       }
    }
    return gridMap;
