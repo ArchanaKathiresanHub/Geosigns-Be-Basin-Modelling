@@ -1379,45 +1379,16 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueContinuous ( Outp
    }
    propertyValue->retrieveData();
 
-   float minValue = std::numeric_limits<float>::max();
-   float maxValue = -minValue;
-
    for ( int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
       for ( int i = grid->firstI(); i <= grid->lastI (); ++i ) {
          unsigned int pk = 0;
          for ( int k = lastK; k >= firstK; --k, ++ pk) {
 	   float value = static_cast<float>(propertyValue->getValue( i, j, pk ));
-
-	   if(value != CauldronIO::DefaultUndefinedValue)
-	   {
-	     minValue = std::min(minValue, value);
-	     maxValue = std::max(maxValue, value);
-	   }
-
 	   internalData[volDataNew->computeIndex_IJK(i, j, k)] = value;
 	 }
       }
    }
    propertyValue->restoreData ();
-
-   if(daFormation->kind() == SEDIMENT_FORMATION)
-   {
-     float sedimentMinValue = volDataNew->getSedimentMinValue();
-     float sedimentMaxValue = volDataNew->getSedimentMaxValue();
-
-     if(
-       sedimentMinValue == DefaultUndefinedValue && 
-       sedimentMaxValue == DefaultUndefinedValue)
-     {
-       volDataNew->setSedimentMinMax(minValue, maxValue);
-     }
-     else
-     {
-       volDataNew->setSedimentMinMax(
-   	 std::min(minValue, sedimentMinValue),
-   	 std::max(maxValue, sedimentMaxValue));
-     }
-   }
 
    if( not propertyVolumeExisting ) {
       CauldronIO::PropertyVolumeData propVolDataNew(vizProperty, volDataNew);
