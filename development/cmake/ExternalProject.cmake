@@ -225,9 +225,9 @@ macro( add_external_project_to_repository )
       # Replace the {ROOT} keyword with the installation directory
       string(REPLACE "{ROOT}" "${extProj_ROOT}" extProj_${parameter} "${extProj_${parameter}}")
 
-	  # Replace the {SRCBUILD} keyword with the source and build directory
+      # Replace the {SRCBUILD} keyword with the source and build directory
       string(REPLACE "{SRCBUILD}" "${extProj_srcdir}" extProj_${parameter} "${extProj_${parameter}}")
-	  
+
       # Replace the {CurrentPlatform} keyword with the current platform ID
       string(REPLACE "{CurrentPlatform}" "${BM_PLATFORM_ID}" extProj_${parameter} "${extProj_${parameter}}")
 
@@ -249,7 +249,7 @@ macro( add_external_project_to_repository )
    # assigning them to a CMake variable called 
    #     extProd_CFG_OPT_{flavourType}_{flavourName}
    # where {flavourType} is substituted by one of the flavour types: COMPILER, MPI, SPEED, OS, or LINK
-   # and {flavourName} is subtituted by the users name for this particular value.
+   # and {flavourName} is substituted by the users name for this particular value.
    # In short, it parses the CONFIGURE_OPTIONS into a dictionary.
    list(LENGTH extProj_CONFIGURE_OPTIONS optionsLength)
    set(cfgOpts "COMPILER" "MPI" "SPEED" "OS" "LINK")

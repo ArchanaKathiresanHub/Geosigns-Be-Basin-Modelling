@@ -61,18 +61,6 @@ set( LSF_HOME "LSF_HOME-NOTFOUND" CACHE PATH "Home dir for LSF binary files")
 # Paraview plugin setup
 set(PARAVIEW_CONFIG_ROOT "PARAVIEW_CONFIG_ROOT-NOTFOUND" CACHE PATH "Path where ParaViewConfig.cmake can be found")
 
-# TSLib Geocosm library setup
-set( TSLIB_ROOT "${CBM_HOME}/hpc-library/tslib/tslib-${TSLIB_VERSION}" CACHE PATH "Path to Geocosm's TsLib" )
-set( TSLIB_LIBRARY_DIR "${TSLIB_ROOT}/bin/x86_64_linux/Release" CACHE PATH "Path to Geocosm's TsLib library directory")
-
+# Matlab MCR (needed by TSLib Geocosm library)
 set( MCR_ROOT "/glb/data/opt/matlab/v80/" CACHE PATH "Path to Matlab")
 set( MCR_VERSION "8.0" CACHE STRING "Matlab Version")
-
-set( XERCES_ROOT "${TSLIB_ROOT}/3rdparty/Xerces/xerces-c-3.1.0-x86_64-linux-gcc-3.4" CACHE PATH "Path to Xerces-C library" )
-set( XERCES_LIBRARIES "${XERCES_ROOT}/lib/libxerces-c-3.1.so" )
-set( XSD_ROOT "${TSLIB_ROOT}/3rdparty/xsd/xsd-3.3.0-x86_64-linux-gnu/libxsd" CACHE PATH "Path to Codesynthesis's XSD library")
-
-
-
-
-

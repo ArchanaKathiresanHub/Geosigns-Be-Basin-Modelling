@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2017 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -16,15 +16,57 @@ include(cmake/AddPackage.cmake)
 # Add Geocosm's Touchstone libraries + all its 3rd party components
 #
 
-set( TSLIB_ROOT "TSLIB-NOTFOUND" CACHE PATH "Path to Geocosm's TsLib" )
-set( TSLIB_LIBRARY_DIR "TSLIB_LIBRARY_DIR-NOTFOUND" CACHE PATH "Path to Geocosm's TsLib library dir" )
-set( TSLIB_INCLUDE_DIRS "${TSLIB_ROOT}/include;${TSLIB_ROOT}/geocosmxml" )
-find_library( TSLIB_GEOCOSMBASECPP "geocosmxmllibbasecpp" PATHS "${TSLIB_LIBRARY_DIR}" NO_DEFAULT_PATH)
-find_library( TSLIB_GEOCOSMEXCEPTION "geocosmexception"   PATHS "${TSLIB_LIBRARY_DIR}" NO_DEFAULT_PATH)
-set( TSLIB_LIBRARIES )
-list(APPEND TSLIB_LIBRARIES "${TSLIB_GEOCOSMBASECPP}" "${TSLIB_GEOCOSMEXCEPTION}")
-mark_as_advanced( TSLIB_GEOCOSMBASECPP TSLIB_GEOCOSMEXCEPTION )
+if (UNIX)
 
+   add_external_project_to_repository(
+         NAME TSLIB
+         VERSION ${TSLIB_VERSION}
+         ARCHIVE "${THIRD_PARTY_DIR}/sources/geocosm.tar.gz"
+         ARCHIVE_MD5 "26daf94d85aa65a3a65a22c1272b51fa"
+         PATCH_COMMAND     "${CMAKE_COMMAND}" "-E" "copy_directory" "." "{ROOT}"
+         CONFIGURE_COMMAND "${CMAKE_COMMAND}" "-E" "echo" "TSLIB does not require configuration."
+         BUILD_COMMAND     "${CMAKE_COMMAND}" "-E" "echo" "TSLIB does not require build."
+         TEST_COMMAND      "ls" "bin/x86_64_linux/Release/libgeocosmxmllibbasecpp.so" "bin/x86_64_linux/Release/libgeocosmexception.so"
+         INSTALL_COMMAND   "${CMAKE_COMMAND}" "-E" "echo" "TSLIB does not require install."
+         CONFIGURE_OPTIONS 
+           COMPILER "{CurrentCompiler}"  "--with-cc={CC}" "--with-cxx={CXX}"
+           MPI      "{CurrentMPI}"
+           SPEED    "Release"
+           SPEED    "Debug"
+           SPEED    "DebugAll"
+           SPEED    "MemCheck"
+           SPEED    "CodeCoverage"
+           OS       "{CurrentPlatform}"
+           LINK     "Dynamic"
+           LINK     "Static"
+         YIELD_LIBRARIES "tslib"
+   )
+   
+   # TSLIB
+   set( TSLIB_ROOT "${TSLIB_ROOT}" )
+   set( TSLIB_LIBRARY_DIR "${TSLIB_ROOT}/bin/x86_64_linux/Release" CACHE PATH "Path to Geocosm's TsLib library directory" )
+   set( TSLIB_INCLUDE_DIRS "${TSLIB_ROOT}/include;${TSLIB_ROOT}/geocosmxml" )
+   set( TSLIB_LIBRARIES )
+   list(APPEND TSLIB_LIBRARIES "${TSLIB_LIBRARY_DIR}/libgeocosmxmllibbasecpp.so" "${TSLIB_LIBRARY_DIR}/libgeocosmexception.so" )
+   
+   # Xerces
+   set( XERCES_ROOT "${TSLIB_ROOT}/3rdparty/Xerces/xerces-c-3.1.0-x86_64-linux-gcc-3.4" CACHE PATH "Path to Xerces-C library" )
+   set( XERCES_INCLUDE_DIRS "${XERCES_ROOT}/include" )
+   set( XERCES_LIBRARIES "${XERCES_ROOT}/lib/libxerces-c-3.1.so" )
+   
+   # XSD
+   set( XSD_ROOT "${TSLIB_ROOT}/3rdparty/xsd/xsd-3.3.0-x86_64-linux-gnu/libxsd" CACHE PATH "Path to Codesynthesis's XSD library" )
+   set( XSD_INCLUDE_DIRS "${XSD_ROOT}" )
+
+elseif (WIN32) # windows
+
+   message(STATUS "Geocosm's Touchstone not supported yet on Windows")
+   
+endif ()
+
+# -------------
+# Packages info
+# -------------
 add_external_package_info(
       CAPABILITY TsLib
       NAME    "TsLib"
@@ -43,9 +85,6 @@ add_external_package_info(
       ECCN         "EAR99"
 )
 
-set( XERCES_ROOT "XERCES-NOTFOUND" CACHE PATH "Path to Xerces-C library" )
-set( XERCES_INCLUDE_DIRS "${XERCES_ROOT}/include")
-find_library( XERCES_LIBRARIES "xerces-c-3.1" PATHS "${XERCES_ROOT}/lib" NO_DEFAULT_PATH)
 add_external_package_info(
       CAPABILITY XercesC
       NAME    "Xerces-C"
@@ -65,8 +104,6 @@ add_external_package_info(
       ECCN         "EAR99"
 )
 
-set( XSD_ROOT "XSD-NOTFOUND" CACHE PATH "Path to Codesynthesis's XSD library")
-set( XSD_INCLUDE_DIRS "${XSD_ROOT}")
 add_external_package_info(
       CAPABILITY XSD
       NAME    "XSD"
@@ -86,8 +123,6 @@ add_external_package_info(
       ECCN         "Unknown"
 )
 
-set( MCR_ROOT "MCR-NOTFOUND" CACHE PATH "Path to Matlab ")
-set( MCR_VERSION "Unknown" CACHE STRING "Matlab version")
 add_external_package_info(
       CAPABILITY Matlab
       NAME       "Matlab"
@@ -105,7 +140,7 @@ add_external_package_info(
       USEABLE_STAND_ALONE "Yes"
       CONTAINS_CRYPTO "No"
 )
-	
+
 add_external_package_info(
       CAPABILITY Matlab_JRE
       NAME       "Java Runtime Environment"
@@ -122,7 +157,10 @@ add_external_package_info(
       INCLUSION_TYPE "Separate Executable"
       USEABLE_STAND_ALONE "Yes"
       CONTAINS_CRYPTO "Yes"
-)  
+)
 
-
-
+# Local Variables:
+# mode: cmake
+# cmake-tab-width: 4
+# tab-width: 4
+# End:

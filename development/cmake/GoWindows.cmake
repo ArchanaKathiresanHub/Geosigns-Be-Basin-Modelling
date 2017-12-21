@@ -105,16 +105,6 @@ else()
    message( WARNING "Can not find LSF in ${BM_EXTERNAL_COMPONENTS_DIR}/LSF." )
 endif()
 
-# TSLib Geocosm library setup
-set( TSLIB_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/geocosm" CACHE PATH "Path to Geocosm's TsLib" )
-set( TSLIB_LIBRARY_DIR "${TSLIB_ROOT}/lib/x64")
-set( TSLIB_GEOCOSMBASECPP "${TSLIB_LIBRARY_DIR}/geocosmxmllibbasecppD.lib" CACHE FILEPATH "Path to geocosm basecpp library")
-set( TSLIB_GEOCOSMEXCEPTION "${TSLIB_LIBRARY_DIR}/GeocosmExceptionD.lib" CACHE FILEPATH "Path to geocosm exception library")
-
+# Matlab MCR (needed by TSLib Geocosm library)
 set( MCR_ROOT "${TSLIB_ROOT}/3rdparty/matlabmcr/matlab/v80" CACHE PATH "Location of Matlab Compiler Runtime" )
 set( MCR_VERSION "80" CACHE STRING "Versio number of Matlab Compiler Runtime")
-
-set( XERCES_ROOT "${TSLIB_ROOT}/3rdparty/Xerces/xerces-c-3.1.0-x86_64-windows-vc-9.0" CACHE PATH "Path to Xerces-C library" )
-set( XERCES_LIBRARIES "${XERCES_ROOT}/lib/xerces-c_3D.lib" CACHE FILEPATH "Xerces-C library")
-set( XSD_ROOT "${TSLIB_ROOT}/3rdparty/xsd/xsd-3.3.0-i686-windows/libxsd" CACHE PATH "Path to Codesynthesis's XSD library")
-

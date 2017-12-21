@@ -1,8 +1,8 @@
 #!/bin/bash -xl
 
 # Essential parameters
-LIBS="Boost PETSC HDF5 Eigen Hypre"
-SRC=`dirname $0`/..
+LIBS="Boost PETSC HDF5 Eigen Hypre Touchstone"
+SRC="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
 
 if [ `hostname -s` == "okapi" ]; then
     USERGROUP='okapi_bm_dev'
