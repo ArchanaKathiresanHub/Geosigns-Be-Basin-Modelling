@@ -71,7 +71,6 @@ set( CPACK_SOURCE_IGNORE_FILES
       "/3rdparty/sources/petsc-3.4.5.tar.gz"
       
       # There is no need to redistribute Geocosm stuff
-      "/3rdparty/sources/geocosm.tar.gz"
       "/3rdparty/sources/tslibredist_2014-09-03_7-4-2-4680.zip"
 
       # Other non-relevant stuff
