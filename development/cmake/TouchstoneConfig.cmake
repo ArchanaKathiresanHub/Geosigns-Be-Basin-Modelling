@@ -22,7 +22,7 @@ if (UNIX)
          NAME TSLIB
          VERSION ${TSLIB_VERSION}
          ARCHIVE "${THIRD_PARTY_DIR}/sources/geocosm.tar.gz"
-         ARCHIVE_MD5 "26daf94d85aa65a3a65a22c1272b51fa"
+         ARCHIVE_MD5 "815bbc6d6bc001791e6004538cd014ff"
          PATCH_COMMAND     "${CMAKE_COMMAND}" "-E" "copy_directory" "." "{ROOT}"
          CONFIGURE_COMMAND "${CMAKE_COMMAND}" "-E" "echo" "TSLIB does not require configuration."
          BUILD_COMMAND     "${CMAKE_COMMAND}" "-E" "echo" "TSLIB does not require build."
