@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2017 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -131,16 +131,19 @@ if (BM_PARALLEL AND TSLIB_ROOT)
    )
 
    ### Unit Tests
-
    add_gtest(NAME WriteReadBurialHistory
       SOURCES test/BurialHistory.C src/WriteBurial.C src/ReadBurial.C
-      LIBRARIES ${TS7_LIBRARIES} ${TS_LIBRARIES} ${XERCES_LIBRARIES} 
+      INCLUDE_DIRS ${TSLIB_INCLUDE_DIRS} ${XERCES_INCLUDE_DIRS} ${XSD_INCLUDE_DIRS}
+      DEPENDS TSLIB
+      LIBRARIES ${TSLIB_LIBRARIES} ${XERCES_LIBRARIES}
       FOLDER "${BASE_FOLDER}/${APP_NAME}"
    )
 
    add_gtest(NAME WriteReadTouchstone
       SOURCES test/Touchstone.C src/TouchstoneFiles.C
-      LIBRARIES ${TS7_LIBRARIES} ${TS_LIBRARIES} ${XERCES_LIBRARIES} 
+      INCLUDE_DIRS ${TSLIB_INCLUDE_DIRS} ${XERCES_INCLUDE_DIRS} ${XSD_INCLUDE_DIRS}
+      DEPENDS TSLIB
+      LIBRARIES ${TSLIB_LIBRARIES} ${XERCES_LIBRARIES}
       FOLDER "${BASE_FOLDER}/${APP_NAME}"
    )
 
