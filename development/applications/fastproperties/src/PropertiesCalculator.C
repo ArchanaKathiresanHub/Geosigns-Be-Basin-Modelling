@@ -430,7 +430,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
             }
 
             if ( not m_projectProperties or ( m_projectProperties and allowOutput( property->getCauldronName(), formation, surface ))) {
-               OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty ( * m_propertyManager, property, snapshot, * formationIter );
+               OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty ( * m_propertyManager, property, snapshot, * formationIter, m_basement );
                
                if ( outputProperty != 0 ) {
                   if( m_debug && m_rank == 0 ) {
@@ -1231,7 +1231,7 @@ void PropertiesCalculator::createVizSnapshotFormationData( const Snapshot * snap
 //------------------------------------------------------------//
 
 bool PropertiesCalculator::createVizSnapshotResultPropertyValueContinuous ( OutputPropertyValuePtr propertyValue, 
-                                                                          const Snapshot* snapshot, const Interface::Formation * formation ) {
+                                                                            const Snapshot* snapshot, const Interface::Formation * formation ) {
    
    bool debug = false;
 
@@ -1377,19 +1377,54 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueContinuous ( Outp
    if( not internalData ) {
       return false;
    }
+
    propertyValue->retrieveData();
+
+   float minValue = std::numeric_limits<float>::max();
+   float maxValue = -minValue;
+
+   // Write the formation part of a continuous property
+
+   // Do not re-write the bottom value of the sediment - some continous properties are not calculated for the basement
+   int fK = (daFormation->kind () == BASEMENT_FORMATION and firstK > 0 ? firstK + 1 : firstK);
 
    for ( int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
       for ( int i = grid->firstI(); i <= grid->lastI (); ++i ) {
          unsigned int pk = 0;
-         for ( int k = lastK; k >= firstK; --k, ++ pk) {
-	   float value = static_cast<float>(propertyValue->getValue( i, j, pk ));
-	   internalData[volDataNew->computeIndex_IJK(i, j, k)] = value;
-	 }
+         for ( int k = lastK; k >= fK; --k, ++ pk) {
+            float value = static_cast<float>(propertyValue->getValue( i, j, pk ));
+            
+            if(value != CauldronIO::DefaultUndefinedValue)
+            {
+               minValue = std::min(minValue, value);
+               maxValue = std::max(maxValue, value);
+            }
+            
+            internalData[volDataNew->computeIndex_IJK(i, j, k)] = value;
+         }
       }
    }
    propertyValue->restoreData ();
-
+   
+   if(daFormation->kind() == SEDIMENT_FORMATION)
+   {
+      float sedimentMinValue = volDataNew->getSedimentMinValue();
+      float sedimentMaxValue = volDataNew->getSedimentMaxValue();
+      
+      if(
+         sedimentMinValue == DefaultUndefinedValue && 
+         sedimentMaxValue == DefaultUndefinedValue)
+      {
+         volDataNew->setSedimentMinMax(minValue, maxValue);
+      }
+      else
+      {
+         volDataNew->setSedimentMinMax(
+                                       std::min(minValue, sedimentMinValue),
+                                       std::max(maxValue, sedimentMaxValue));
+      }
+   }
+   
    if( not propertyVolumeExisting ) {
       CauldronIO::PropertyVolumeData propVolDataNew(vizProperty, volDataNew);
       snapshotVolume->addPropertyVolumeData(propVolDataNew);

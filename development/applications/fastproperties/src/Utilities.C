@@ -190,12 +190,28 @@ void DerivedProperties::collectVolumeData( const std::shared_ptr<SnapShot>& snap
                
                float * internalData = const_cast<float *>(valueMap->getVolumeValues_IJK());
                
+               // Collect the data from all processors on rank 0
                MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD );
-               
+              
                if( rank == 0 ) {
-                  std::memcpy( internalData, data, dataSize * sizeof(float));
+                  std::memcpy(internalData, data, dataSize * sizeof(float));
                }
-            }
+
+               // Find the global min and max sediment values and set on rank 0
+               float sedimentMinValue = valueMap->getSedimentMinValue();
+               float sedimentMaxValue = valueMap->getSedimentMaxValue();
+
+               if(sedimentMinValue == DefaultUndefinedValue) sedimentMinValue =  std::numeric_limits<float>::max();
+               if(sedimentMaxValue == DefaultUndefinedValue) sedimentMaxValue = - std::numeric_limits<float>::max();
+               
+               float globalMinValue, globalMaxValue;
+               MPI_Reduce(&sedimentMinValue, &globalMinValue, 1, MPI_FLOAT, MPI_MIN, 0, PETSC_COMM_WORLD);
+               MPI_Reduce(&sedimentMaxValue, &globalMaxValue, 1, MPI_FLOAT, MPI_MAX, 0, PETSC_COMM_WORLD);
+              
+               if( rank == 0 ) {
+                  valueMap->setSedimentMinMax(globalMinValue, globalMaxValue);
+               }
+            } 
          }
       }
    }

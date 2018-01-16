@@ -201,7 +201,8 @@ void  DerivedProperties::outputSnapshotFormationData( GeoPhysics::ProjectHandle*
 OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedProperties::AbstractPropertyManager& propertyManager, 
                                                                     const DataModel::AbstractProperty* property, 
                                                                     const DataModel::AbstractSnapshot* snapshot,
-                                                                    const FormationSurface& formationItem ) {
+                                                                    const FormationSurface& formationItem,
+                                                                    const bool basementIncluded ) {
 
    OutputPropertyValuePtr outputProperty;
 
@@ -246,17 +247,15 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedPrope
 
          if ( topSurface != 0 ) {
 
-            printDebugMsg( "Allocating Surface", property, 0, topSurface, snapshot );
+            printDebugMsg( "Allocating Top Surface", property, 0, topSurface, snapshot );
+ 
             outputProperty.reset ( new SurfaceOutputPropertyValue ( propertyManager, property, snapshot, topSurface ));
          } else if ( bottomSurface != 0 ) {
-            bool allowOutput = false;
 
-            if( bottomSurface->getName() == "Bottom of Lithospheric Mantle" or bottomSurface->getBottomFormationName() == "Crust" ) {
-               allowOutput = true;
-            }
-            if( allowOutput ) {
+            // Allocate the bottom surface of the domain 
+            if( bottomSurface->getName() == "Bottom of Lithospheric Mantle" or ( bottomSurface->getBottomFormation()->kind() == BASEMENT_FORMATION and not basementIncluded  )) {
 
-               printDebugMsg( "Allocating Surface", property, 0, bottomSurface, snapshot );
+               printDebugMsg( "Allocating Bottom Surface", property, 0, bottomSurface, snapshot );
                outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( propertyManager, property, snapshot, bottomSurface ));
             }
          }

@@ -277,7 +277,7 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
     assert(m_numJ == m_info[0]->numJ);
 
     // Make sure all k-range is accounted for
-    size_t detected_minK = 16384;
+    size_t detected_minK = std::numeric_limits<size_t>::max();
     size_t detected_maxK = 0;
 
     // Determine range of values

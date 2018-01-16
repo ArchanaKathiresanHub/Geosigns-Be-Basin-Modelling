@@ -410,18 +410,6 @@ void CauldronIO::ExportToHDF::writeContVolToHDF( const std::shared_ptr<SnapShot>
                continue;
             }
 
-            // Find out if the property was calculated for the basement
-            const DataAccess::Interface::Property * property = m_projectHandle->findProperty(pname);
-            const DataAccess::Interface::Formation * crustForm = dynamic_cast<const DataAccess::Interface::Formation *>( m_projectHandle->getCrustFormation() );
-            DataAccess::Interface::PropertyValueList * projectProps = m_projectHandle->getPropertyValues( DataAccess::Interface::FORMATION, property,
-                                                                                                          m_projectHandle->findSnapshot(snapshotAge), 0, 
-                                                                                                          crustForm, 0, DataAccess::Interface::VOLUME );
-            if( projectProps->size() < 1 and (name == "Crust" or name == "Mantle" )) {
-               delete projectProps;
-               continue;
-             }
-             delete projectProps;
-
 #ifdef DEBUG
             std::cout << "     " << pname << std::endl;
 #endif            

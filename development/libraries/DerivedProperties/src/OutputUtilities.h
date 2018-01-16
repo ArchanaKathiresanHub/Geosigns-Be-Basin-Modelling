@@ -77,7 +77,8 @@ namespace DerivedProperties {
    OutputPropertyValuePtr allocateOutputProperty ( DerivedProperties::AbstractPropertyManager& propertyManager, 
                                                    const DataModel::AbstractProperty* property, 
                                                    const DataModel::AbstractSnapshot* snapshot,
-                                                   const FormationSurface& formationSurfaceItem );
+                                                   const FormationSurface& formationSurfaceItem,
+                                                   const bool basementIncluded = true );
    
    /// \brief Create the property values in the project handle for the list of properties at the snapshot age.
    ///

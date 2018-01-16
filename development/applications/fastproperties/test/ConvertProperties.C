@@ -120,6 +120,10 @@ void TestUnit::AddDerivedContVolume() {
    float * internalData = const_cast<float *>(volDataNew->getVolumeValues_IJK());
 
    CauldronIO::FormationList formations = vizProject->getFormations();
+
+   float sedimentMinValue = (rank == 0 ? 0 : CauldronIO::DefaultUndefinedValue);
+   float sedimentMaxValue = rank + 41.0;
+
    BOOST_FOREACH(const std::shared_ptr<CauldronIO::Formation>& formation, formations)
    {
       int firstK, lastK;
@@ -132,7 +136,10 @@ void TestUnit::AddDerivedContVolume() {
             }
          }
       }
+
+      volDataNew->setSedimentMinMax(sedimentMinValue, sedimentMaxValue);
    }
+
    CauldronIO::PropertyVolumeData propVolDataNew(vizProperty, volDataNew);
    snapshotVolume->addPropertyVolumeData(propVolDataNew);
 
@@ -144,6 +151,21 @@ void TestUnit::AddDerivedContVolume() {
       std::memcpy(internalData, dataCollect, dataSize * sizeof(float));
    }
    delete [] dataCollect;
+
+   // Find the global min and max sediment values and set on rank 0
+   sedimentMinValue = volDataNew->getSedimentMinValue();
+   sedimentMaxValue = volDataNew->getSedimentMaxValue();
+   
+   if(sedimentMinValue == DefaultUndefinedValue) sedimentMinValue =  std::numeric_limits<float>::max();
+   if(sedimentMaxValue == DefaultUndefinedValue) sedimentMaxValue = - std::numeric_limits<float>::max();
+   
+   float globalMinValue, globalMaxValue;
+   MPI_Reduce(&sedimentMinValue, &globalMinValue, 1, MPI_FLOAT, MPI_MIN, 0, MPI_COMM_WORLD);
+   MPI_Reduce(&sedimentMaxValue, &globalMaxValue, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
+   
+   if( rank == 0 ) {
+      volDataNew->setSedimentMinMax(globalMinValue, globalMaxValue);
+   }
 }
 
 
@@ -167,12 +189,20 @@ TEST(ConvertProperties, AddVolume)
    EXPECT_EQ(1, propVolList.size());
 
    int rank = MPIHelper::rank();
+
+
    if(rank == 0) {
       BOOST_FOREACH(PropertyVolumeData& propVolume, propVolList) {
          std::string propName = propVolume.first->getName();
          std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
          std::shared_ptr<const Geometry3D> geometry = valueMap->getGeometry();
          
+         float sedimentMinValue = valueMap->getSedimentMinValue();
+         float sedimentMaxValue = valueMap->getSedimentMaxValue();
+         
+         EXPECT_FLOAT_EQ(0.0, sedimentMinValue);
+         EXPECT_FLOAT_EQ(42.0, sedimentMaxValue);
+
          int lastK  = static_cast<int>(geometry->getNumK() - 1);
          int firstK = static_cast<int>(geometry->getFirstK());
          
