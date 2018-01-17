@@ -23,10 +23,10 @@ add_external_project_to_repository(
       ARCHIVE_MD5 "781af0eec1e821f82fb3ecc7a2dfda8e"
       DEPENDS_NAME "Hypre"
       DEPENDS_VER "2.9.1"
-      CONFIGURE_COMMAND 
-         "./configure" 
-            "--prefix={ROOT}" 
-            "--with-clanguage=cxx" 
+      CONFIGURE_COMMAND
+         "./configure"
+            "--prefix={ROOT}"
+            "--with-clanguage=cxx"
             "--with-large-file-io=1"
             "--with-precision=double"
             "--with-x=0"
@@ -45,15 +45,15 @@ add_external_project_to_repository(
       BUILD_COMMAND   "make"
       TEST_COMMAND    "make" "test"
       INSTALL_COMMAND "make" "install"
-      CONFIGURE_OPTIONS 
+      CONFIGURE_OPTIONS
         COMPILER "{CurrentCompiler}"  "--with-cc={CC}" "--with-cxx={CXX}"
         MPI      "{CurrentMPI}"    "--with-mpi=1" "--with-mpi-dir=${INTEL_MPI_ROOT}"
-        SPEED    "Release"         "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--CXXFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--with-debugging=no"
-        SPEED    "Debug"           "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--CXXFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--with-debugging=no"
+        SPEED    "Release"         "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g" "--CXXFLAGS=-g" "--with-debugging=no"
+        SPEED    "Debug"           "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g" "--CXXFLAGS=-g" "--with-debugging=no"
         SPEED    "DebugAll"        "--with-debugging"
         SPEED    "MemCheck"        "--with-debugging"
-        SPEED    "CodeCoverage"    "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--CXXFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--with-debugging=no"
-        OS       "{CurrentPlatform}"     
+        SPEED    "CodeCoverage"    "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g" "--CXXFLAGS=-g" "--with-debugging=no"
+        OS       "{CurrentPlatform}"
         LINK     "Dynamic"    "--with-shared-libraries=1"
         LINK     "Static"     "--with-shared-libraries=0"
       YIELD_LIBRARIES "petsc"
@@ -70,10 +70,10 @@ add_external_project_to_repository(
       VERSION ${PETSC_VERSION}
       ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-${PETSC_VERSION}.tar.gz"
       ARCHIVE_MD5 "781af0eec1e821f82fb3ecc7a2dfda8e"
-      CONFIGURE_COMMAND 
-         "./configure" 
-            "--prefix={ROOT}" 
-            "--with-clanguage=cxx" 
+      CONFIGURE_COMMAND
+         "./configure"
+            "--prefix={ROOT}"
+            "--with-clanguage=cxx"
             "--with-large-file-io=1"
             "--with-precision=double"
             "--with-x=0"
@@ -90,15 +90,15 @@ add_external_project_to_repository(
       BUILD_COMMAND   "make"
       TEST_COMMAND    "make" "test"
       INSTALL_COMMAND "make" "install"
-      CONFIGURE_OPTIONS 
+      CONFIGURE_OPTIONS
         COMPILER "{CurrentCompiler}"  "--with-cc={CC}" "--with-cxx={CXX}"
         MPI      "{CurrentMPI}"    "--with-mpi=1" "--with-mpi-dir=${INTEL_MPI_ROOT}"
-        SPEED    "Release"         "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--CXXFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--with-debugging=no"
-        SPEED    "Debug"           "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--CXXFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--with-debugging=no"
+        SPEED    "Release"         "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g" "--CXXFLAGS=-g" "--with-debugging=no"
+        SPEED    "Debug"           "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g" "--CXXFLAGS=-g" "--with-debugging=no"
         SPEED    "DebugAll"        "--with-debugging"
         SPEED    "MemCheck"        "--with-debugging"
-        SPEED    "CodeCoverage"    "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--CXXFLAGS=-g -DPETSC-KERNEL-USE-UNROLL-2" "--with-debugging=no"
-        OS       "{CurrentPlatform}"     
+        SPEED    "CodeCoverage"    "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g" "--CXXFLAGS=-g" "--with-debugging=no"
+        OS       "{CurrentPlatform}"
         LINK     "Dynamic"    "--with-shared-libraries=1"
         LINK     "Static"     "--with-shared-libraries=0"
       YIELD_LIBRARIES "petsc"
@@ -115,7 +115,7 @@ elseif (WIN32) # windows
    set(PETSC_DEBUG "${PETSC_HOME}/PETSc/debug" CACHE PATH "Debug path")
    set(PETSC_RELEASE "${PETSC_HOME}/PETSc/release" CACHE PATH "Release path")
    set(PETSC_INCLUDE_DIRS "${PETSC_HOME}/PETSc/include")
-   set(PETSC_LIBRARIES 
+   set(PETSC_LIBRARIES
           "${BLAS_LIBRARIES}"
           "${MPI_LIBRARIES}"
    )
@@ -134,7 +134,7 @@ elseif (WIN32) # windows
 
 endif ()
 
-add_external_package_info( 
+add_external_package_info(
     CAPABILITY  PETScLib
     NAME         "PETSc"
     VENDOR       "Argonne National Laboratory"
@@ -150,7 +150,7 @@ add_external_package_info(
     USEABLE_STAND_ALONE "No"
     CONTAINS_CRYPTO "No"
     ECCN         "EAR99"
-)                   
+)
 
 # Local Variables:
 # mode: cmake
