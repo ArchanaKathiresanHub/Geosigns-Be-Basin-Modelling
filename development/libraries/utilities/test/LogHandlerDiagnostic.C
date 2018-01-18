@@ -18,11 +18,11 @@
 //Initialize constants for comparaison
 const std::string expectedLog[] =                ///< Expected parsed lines from the log file and console
 {                                                      
-   "MeSsAgE FATAL    This is a fatal error: 0",
-   "MeSsAgE ERROR    This is an error: 1",
-   "MeSsAgE WARNING  This is a warning: 2",
+   "Basin_Fatal    This is a fatal error: 0",
+   "Basin_Error    This is an error: 1",
+   "Basin_Warning  This is a warning: 2",
    "This is an info: 3",
-   "MeSsAgE DEBUG    This is a debug info: 4"
+   "Basin_Debug    This is a debug info: 4"
 };
                                                        
 //Initialise variables                                 

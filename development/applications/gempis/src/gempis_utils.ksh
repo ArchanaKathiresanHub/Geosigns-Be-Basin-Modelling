@@ -46,7 +46,7 @@ get_datetime()
 # Returns: nothing
 #
 # Output:
-#  MeSsAgE <message>
+#  Basin_ <message>
 #
 # Notes:
 # 1. GEMPIS_FORMAT_MESSAGE is set to yes by interactive applications so 
@@ -60,7 +60,7 @@ send_message()
     shift
 
     # display format when when running gempis tools
-    [ -n "$GEMPIS_FORMAT_MESSAGES" ] && echo -n "MeSsAgE "
+    [ -n "$GEMPIS_FORMAT_MESSAGES" ] && echo -n "Gempis_"
 
     # display message type
     echo -n "$type "
@@ -80,9 +80,9 @@ send_message()
 #         the message must be in quotes
 #
 # Returns: nothing
-#GEMPIS_SEND_NOFORMAT
+# GEMPIS_SEND_NOFORMAT
 # Output: when GEMPIS_VERBOSE is defined
-#  MeSsAgE VERBOSE     <message>
+#  Gempis_VERBOSE     <message>
 #
 verbose()
 {
@@ -273,12 +273,12 @@ appwrap_trap_handler()
 # Returns: doesn't return. exits with an error value
 #
 # Output: (format is defined so it will display in the gempil resource window)
-#   MeSsAgE DATA TOTAL ?
-#   MeSsAgE DATA AVAILABLE ?
-#   MeSsAgE DATA MEMORYPER ?
-#   MeSsAgE BLOCK INUSEBY
+#   Gempis_DATA TOTAL ?
+#   Gempis_DATA AVAILABLE ?
+#   Gempis_DATA MEMORYPER ?
+#   Gempis_BLOCK INUSEBY
 #   <error message>
-#   MeSsAgE BLOCKEND 
+#   Gempis_BLOCKEND 
 # ------------------------------------------------
 # job id is defined
 #
@@ -287,12 +287,12 @@ appwrap_trap_handler()
 #    2 for error
 #
 # Output: (format is defined so it will display in the gempil resource window)
-#   MeSsAgE DATA TOTAL ?
-#   MeSsAgE DATA AVAILABLE ?
-#   MeSsAgE DATA MEMORYPER ?
-#   MeSsAgE BLOCK INUSEBY
+#   Gempis_DATA TOTAL ?
+#   Gempis_DATA AVAILABLE ?
+#   Gempis_DATA MEMORYPER ?
+#   Gempis_BLOCK INUSEBY
 #   <error message>
-#   MeSsAgE BLOCKEND 
+#   Gempis_BLOCKEND
 # ------------------------------------------------
 #
 terminate()

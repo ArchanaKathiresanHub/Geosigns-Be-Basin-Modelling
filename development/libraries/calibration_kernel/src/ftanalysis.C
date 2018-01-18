@@ -63,7 +63,7 @@ void FtAnalysis::addGrain( const std::string& sampleId, int grainId, int spontTr
    int indexCl = params.indexFromClWeightPercent( grain->getClWeightPercent() );
 
    if( !m_predSamples[ grain -> getSampleId() ] -> addClIndexIfNotYetExists( indexCl )) {
-      std::cout << "MeSsAgE ERROR  Invalid Fission track chlorine weight percentage: " << clWeightPercent << std::endl;
+      std::cout << "Basin_Error  Invalid Fission track chlorine weight percentage: " << clWeightPercent << std::endl;
       return;
    };
 

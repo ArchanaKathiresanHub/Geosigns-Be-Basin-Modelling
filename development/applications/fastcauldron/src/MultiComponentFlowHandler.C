@@ -44,8 +44,8 @@ const std::string& MultiComponentFlowHandler::getErrorString ( const DarcyErrorI
 
       // Set ERROR_CALCULATING_SATURATION string.
       buffer.str ( "" );
-      buffer << " MeSsAgE ERROR  Error when calculating the saturations. " << std::endl;
-      buffer << " MeSsAgE ERROR  To fix this try reducing the Darcy time-step size." << std::endl;
+      buffer << " Basin_Error  Error when calculating the saturations. " << std::endl;
+      buffer << " Basin_Error  To fix this try reducing the Darcy time-step size." << std::endl;
 
       names [ ERROR_CALCULATING_SATURATION ] = buffer.str ();
 
@@ -53,8 +53,8 @@ const std::string& MultiComponentFlowHandler::getErrorString ( const DarcyErrorI
 
       // Set ERROR_CALCULATING_CONCENTRATION string.
       buffer.str ( "" );
-      buffer << " MeSsAgE ERROR  Error when calculating the concentrations. " << std::endl;
-      buffer << " MeSsAgE ERROR  To fix this try reducing the Darcy time-step size." << std::endl;
+      buffer << " Basin_Error  Error when calculating the concentrations. " << std::endl;
+      buffer << " Basin_Error  To fix this try reducing the Darcy time-step size." << std::endl;
 
       names [ ERROR_CALCULATING_CONCENTRATION ] = buffer.str ();
 
@@ -62,7 +62,7 @@ const std::string& MultiComponentFlowHandler::getErrorString ( const DarcyErrorI
 
       // Set UNKNOWN_DARCY_ERROR string.
       buffer.str ( "" );
-      buffer << " MeSsAgE ERROR An unknown error occurred " << std::endl;
+      buffer << " Basin_Error An unknown error occurred " << std::endl;
       names [ UNKNOWN_DARCY_ERROR ] = buffer.str ();
 
       initialised = true;
@@ -668,8 +668,8 @@ void MultiComponentFlowHandler::addSubdomains ( const int* formationRangeArray,
          ++rangeCount;
 
          if ( not NumericFunctions::inRange<int>( start, 0, numberOfFormations ) or not NumericFunctions::inRange<int>( end, 0, numberOfFormations )) {
-            PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR invalid formation range: [%i,%i]\n", start, end );
-            PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR This formation range will not be a part of the multi-component flow solver.\n" );              
+            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error invalid formation range: [%i,%i]\n", start, end );
+            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error This formation range will not be a part of the multi-component flow solver.\n" );              
          } else {
             subdomain = new Subdomain ( *layers [ start ], *layers [ end ]);
             subdomainWasAdded = addSubdomain ( subdomain );
@@ -696,8 +696,8 @@ void MultiComponentFlowHandler::addSubdomains ( const int* formationRangeArray,
          ++rangeCount;
 
          if ( not NumericFunctions::inRange<int>( start, 0, numberOfFormations ) or not NumericFunctions::inRange<int>( end, 0, numberOfFormations )) {
-            PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR invalid formation range: [%i,%i]\n", start, end );
-            PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR This formation range will not be a part of the multi-component flow solver.\n" );              
+            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error invalid formation range: [%i,%i]\n", start, end );
+            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error This formation range will not be a part of the multi-component flow solver.\n" );              
          } else {
             subdomain = new Subdomain ( *layers [ start ], *layers [ end ]);
             subdomainWasAdded = addSubdomain ( subdomain );
@@ -728,8 +728,8 @@ void MultiComponentFlowHandler::addSubdomains ( const int* formationRangeArray,
       ++rangeCount;
 
       if ( not NumericFunctions::inRange<int>( start, 0, numberOfFormations ) or not NumericFunctions::inRange<int>( end, 0, numberOfFormations )) {
-         PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR invalid formation range: [%i,%i]\n", start, end );
-         PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR This formation range will not be a part of the multi-component flow solver.\n" );              
+         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error invalid formation range: [%i,%i]\n", start, end );
+         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error This formation range will not be a part of the multi-component flow solver.\n" );              
       } else {
          subdomain = new Subdomain ( *layers [ start ], *layers [ end ]);
          subdomainWasAdded = addSubdomain ( subdomain );

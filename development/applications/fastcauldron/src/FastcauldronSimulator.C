@@ -596,7 +596,7 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, con
    }
 
    if( not started ) {
-      PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR Could not open the output file.\n");
+      PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error Could not open the output file.\n");
       return started;
    }
    setToConstantDensity ();
@@ -628,7 +628,7 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, con
    }
 
    if ( not gridHasActiveElements ) {
-      PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR there are no active elements in the mesh.\n");
+      PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error there are no active elements in the mesh.\n");
    }
 
    return started and gridHasActiveElements;
@@ -857,13 +857,13 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
                if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {
                   if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), APPEND ))) {
                      status = false;
-                     PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
+                     PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Could not merge the file %s.\n", filePathName.cpath() );
                   }
                }
             } else {
                if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
                   status = false;
-                  PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
+                  PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Could not merge the file %s.\n", filePathName.cpath() );
                }
             }
          }
@@ -886,7 +886,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          displayTime( "Total merging time: ", StartMergingTime );
       }
     } else {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
+      PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Could not merge the file %s.\n", filePathName.cpath() );
    }
    return status;
 #else
@@ -972,7 +972,7 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
                      if( filePathName.exists() ) {
                         if( !mergeFiles ( allocateFileHandler( newComm, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), APPEND ), false )) {
                            status = false;
-                           PetscPrintf ( newComm, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
+                           PetscPrintf ( newComm, "  Basin_Error Could not merge the file %s.\n", filePathName.cpath() );
                         }
                      } else {
                         status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
@@ -1021,7 +1021,7 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
       if( status ) {
          displayTime( "Total merging time: ", StartMergingTime );
       } else {
-         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
+         PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Could not merge the file %s.\n", filePathName.cpath() );
       }
    }
 
@@ -1710,7 +1710,7 @@ void FastcauldronSimulator::deleteMinorSnapshots () {
             int status = std::remove( fileName.cpath () );
 
             if (status == -1)
-               cerr << "MeSsAgE WARNING  Unable to remove minor snapshot file, because '"
+               cerr << "Basin_Warning  Unable to remove minor snapshot file, because '"
                     << std::strerror(errno) << "'" << endl;
          }
       }
@@ -2398,7 +2398,7 @@ bool FastcauldronSimulator::checkMobileLayerThicknesses () const {
       if ( layer->isMobile () and layer->getMinimumThickness () < -0.01 ) {
 	 if (getRank () == 0)
 	 {
-	    cerr << "MeSsAgE ERROR mobile layer " << layer->layername << " has (too large) negative thicknesses" << endl;
+	    cerr << "Basin_Error mobile layer " << layer->layername << " has (too large) negative thicknesses" << endl;
 	 }
          ret = false;
       }

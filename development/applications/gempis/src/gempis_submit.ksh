@@ -60,7 +60,7 @@
 
 # if we are not running under CSCE then setup our own environment.
 if [ -z "$EXEDIR" -o -n "$GEMPIS_NOT_CSCE" ]; then
-    echo "MeSsAgE INFO Gempis is not running under CSCE."
+    echo "Gempis_INFO Gempis is not running under CSCE."
 
     # set executable directory to that used by this script
     export EXEDIR=`dirname $0`

@@ -72,10 +72,7 @@ void Gempis::send( const GempisMessageType id,
     }
   
 
-  cout << "MeSsAgE " << b_id << " " << message << endl;
+  cout << "Gempis_" << b_id << " " << message << endl;
 
-  //  sprintf( buffer, "MeSsAgE %s %s\n", b_id, message );
-  // cout << buffer << endl;
-  // write the message
-  // PetscPrintf(PETSC_COMM_WORLD, buffer );
+
 }

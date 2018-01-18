@@ -73,7 +73,7 @@ void DarcyCalculations::initialiseOtgcSimulator () {
 
       } else {
          //should throw instead...
-         std::cout<<" MeSsAgE WARNING: OTGCDIR environment variable is not set. No OTGC functionality is available"<<std::endl;
+         std::cout<<" Basin_Warning: OTGCDIR environment variable is not set. No OTGC functionality is available"<<std::endl;
       }
 
    }

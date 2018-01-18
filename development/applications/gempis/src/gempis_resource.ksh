@@ -69,8 +69,8 @@ update_resource_limits()
     )
 
     # update this user's resource total and memory per processor
-    reftot=`cat $datfile 2>/dev/null | grep 'MeSsAgE DATA TOTAL' | awk '{ print $4 }'`
-    refmem=`cat $datfile 2>/dev/null | grep 'MeSsAgE DATA MEMORYPER' | awk '{ print $4 }'`
+    reftot=`cat $datfile 2>/dev/null | grep 'Gempis_DATA TOTAL' | awk '{ print $4 }'`
+    refmem=`cat $datfile 2>/dev/null | grep 'Gempis_DATA MEMORYPER' | awk '{ print $4 }'`
     if [ "$reftot" = "?" -o "$refmem" = "?" ]; then
 	verbose "Resource is in error."
 	if [ -f $resfile ]; then
@@ -119,13 +119,13 @@ update_resource_limits()
 # create resource availability
 #
 # Output:
-#   MeSsAgE DATA TOTAL <total nodes>
-#   MeSsAgE DATA AVAILABLE <nodes available>
-#   MeSsAgE DATA MEMORYPER <MB memory per processor>
-#   MeSsAgE BLOCK INUSEBY
+#   Gempis_DATA TOTAL <total nodes>
+#   Gempis_DATA AVAILABLE <nodes available>
+#   Gempis_DATA MEMORYPER <MB memory per processor>
+#   Gempis_BLOCK INUSEBY
 #    JOBID STATE PROCS     USER COMMAND                  START      "grep  
 #    <job list>
-#   MeSsAgE BLOCKEND
+#   Gempis_BLOCKEND
 #
 create_resource_usage()
 {

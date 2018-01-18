@@ -334,7 +334,7 @@ void GenericSnapshotInterpolator<InterpolatorCalculator>::setTimeStepData ( cons
 
   if ( ! File_Exists ( fileName )) {
     PetscPrintf ( PETSC_COMM_WORLD,
-                  "MeSsAgE ERROR GenericSnapshotInterpolator<InterpolatorCalculator>::setInterval   fault file, %s, could not be found\n", 
+                  "Basin_Error GenericSnapshotInterpolator<InterpolatorCalculator>::setInterval   fault file, %s, could not be found\n", 
                   fileName.c_str ());
   }
 

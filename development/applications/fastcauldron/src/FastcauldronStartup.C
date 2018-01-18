@@ -119,7 +119,7 @@ bool FastcauldronStartup::prepare()
 
    if ( m_checkLicense && rc != EPTFLEXLM_OK &&  rc != EPTFLEXLM_WARN )
    {
-      m_errorMessage = "MeSsAgE ERROR FastcauldronStartup::prepare() failed";
+      m_errorMessage = "Basin_Error FastcauldronStartup::prepare() failed";
       return false;
    }
 
@@ -162,7 +162,7 @@ bool FastcauldronStartup::startup( int        argc,
 
    if ( not m_cauldron->readProjectName() )
    {
-      m_errorMessage = "MeSsAgE ERROR Error when reading the project file";
+      m_errorMessage = "Basin_Error Error when reading the project file";
       return false;
    }
 
@@ -178,7 +178,7 @@ bool FastcauldronStartup::startup( int        argc,
 
    if ( not FastcauldronSimulator::getInstance().setCalculationMode( m_cauldron->getCalculationMode(), saveAsInputGrid, createResultsFile ) )
    {
-      m_errorMessage = "MeSsAgE ERROR Error when setting calculation mode";
+      m_errorMessage = "Basin_Error Error when setting calculation mode";
       return false;
    }
 
@@ -187,7 +187,7 @@ bool FastcauldronStartup::startup( int        argc,
 
    if ( not m_cauldron->readProjectFile() )
    {
-      m_errorMessage = "MeSsAgE ERROR Error when reading the project file";
+      m_errorMessage = "Basin_Error Error when reading the project file";
       return false;
    }
 
@@ -206,7 +206,7 @@ bool FastcauldronStartup::startup( int        argc,
 
    if ( not m_cauldron->createFormationLithologies( m_canRunSaltModelling ) )
    {
-      m_errorMessage = "MeSsAgE ERROR Unable to create lithologies";
+      m_errorMessage = "Basin_Error Unable to create lithologies";
       return false;
    }
 
@@ -238,7 +238,7 @@ bool FastcauldronStartup::startup( int        argc,
 
    if ( not FastcauldronSimulator::getInstance().initialiseLayerThicknessHistory( overpressureCalculation ) )
    {
-      m_errorMessage = "MeSsAgE ERROR when initialising thickness history.";
+      m_errorMessage = "Basin_Error when initialising thickness history.";
       return false;
    }
 
@@ -327,7 +327,7 @@ void FastcauldronStartup::run()
 
       if ( !FastcauldronSimulator::getInstance().mergeOutputFiles() )
       {
-         PetscPrintf( PETSC_COMM_WORLD, "  MeSsAgE ERROR Unable to merge output files\n" );
+         PetscPrintf( PETSC_COMM_WORLD, "  Basin_Error Unable to merge output files\n" );
          m_runOk = false;
       }
 
@@ -404,7 +404,7 @@ bool FastcauldronStartup::determineSaltModellingCapability()
 
       if ( rc != EPTFLEXLM_OK )
       {
-         cout << endl << "@@@@@@@@@@@@@@@\n MeSsAgE ERROR: FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@" << endl;
+         cout << endl << "@@@@@@@@@@@@@@@\n Basin_Error: FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@" << endl;
          capable = 0;
       }
       else {
@@ -413,12 +413,12 @@ bool FastcauldronStartup::determineSaltModellingCapability()
          rc = EPTFlexLmCheckOut( m_feauture, version, errmessage );
 
          if ( rc == EPTFLEXLM_WARN ) {
-            cout << endl << "@@@@@@@@@@@@@@@\n MeSsAgE WARNING: fastcauldron will still start the salt modelling capabilities anyway.\n@@@@@@@@@@@@@@@" << endl;
+            cout << endl << "@@@@@@@@@@@@@@@\n Basin_Warning: fastcauldron will still start the salt modelling capabilities anyway.\n@@@@@@@@@@@@@@@" << endl;
             capable = 1;
          }
          else if ( rc != EPTFLEXLM_OK )
          {
-            cout << endl << "@@@@@@@@@@@@@@@\n MeSsAgE WARNING: FlexLm license error: fastcauldron cannot start the salt modelling capabilities.\n Please contact your helpdesk.\n@@@@@@@@@@@@@@@" << endl;
+            cout << endl << "@@@@@@@@@@@@@@@\n Basin_Warning: FlexLm license error: fastcauldron cannot start the salt modelling capabilities.\n Please contact your helpdesk.\n@@@@@@@@@@@@@@@" << endl;
             capable = 0;
          }
          else

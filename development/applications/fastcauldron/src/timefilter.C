@@ -31,7 +31,7 @@ TimeFilter::TimeFilter(){
    }
 
    if ( sizeof ( PropertyName ) / sizeof ( std::string ) != ENDPROPERTYLIST + 1 ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR The number of items in the PropertyName list does not match the number of enumerations in the PropertyName enumeration type.\n" );
+      PetscPrintf ( PETSC_COMM_WORLD, "Basin_Error The number of items in the PropertyName list does not match the number of enumerations in the PropertyName enumeration type.\n" );
       assert ( sizeof ( PropertyName ) / sizeof ( std::string ) == ENDPROPERTYLIST + 1 );
    }
 

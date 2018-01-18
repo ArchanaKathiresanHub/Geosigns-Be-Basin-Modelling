@@ -119,7 +119,7 @@ void GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness () {
                                                  getPresentDayThickness () + crust->getCrustMaximumThicknessHistory ( 0.0 ));
 
 #if 0
-   cout << " MeSsAgE WARNING Check out the maximum mantle thickness.  "
+   cout << " Basin_Warning Check out the maximum mantle thickness.  "
         << getPresentDayThickness () << "  "
         << crust->getCrustMaximumThicknessHistory ( 0.0 ) << "  "
         << crust->getMinimumThickness () << "  "

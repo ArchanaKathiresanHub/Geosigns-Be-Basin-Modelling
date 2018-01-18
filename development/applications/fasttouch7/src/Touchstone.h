@@ -54,7 +54,7 @@ class TouchstoneWrapper
    {  
       if ( level >= m_verboseLevel )
       {
-         (level > 0 ? std::cout : std::cerr) << "MeSsAgE " << (level > 0 ? "warning " : "error " ) << msg << std::endl;
+         (level > 0 ? std::cout : std::cerr) << "Basin_" << (level > 0 ? "Warning " : "Error " ) << msg << std::endl;
       }
    }
 

@@ -73,7 +73,7 @@ namespace Utilities
 			while (not mc->exitLoop()) {
 
 				if (mc->getMemoryUsed() > memoryPerProcess) {
-					std::cerr << " MeSsAgE WARNING: Current memory used in rank "<< rank <<" is " << mc->getMemoryUsed() << " MB, which exceeds the memory per process of " << memoryPerProcess << " MB" << std::endl;
+					std::cerr << " Basin_Warning: Current memory used in rank "<< rank <<" is " << mc->getMemoryUsed() << " MB, which exceeds the memory per process of " << memoryPerProcess << " MB" << std::endl;
 				}
 
 				boost::this_thread::sleep(boost::posix_time::seconds(mc->m_timeBetweenSamples));

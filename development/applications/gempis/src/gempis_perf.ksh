@@ -257,7 +257,7 @@ else
     fi
 
     # get the amounty of memory required
-    line=`fastreq $version -project $modelfile | grep "MeSsAgE DATA MEMORY"`
+    line=`fastreq $version -project $modelfile | grep "Gempis_DATA MEMORY"`
     verbose "Checking line [$line] for memory info."
     recomendedmemory=`echo "$line" | awk '{ 
 if ( $4 >= 1024 )

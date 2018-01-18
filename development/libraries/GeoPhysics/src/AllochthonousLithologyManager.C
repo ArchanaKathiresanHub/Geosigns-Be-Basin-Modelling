@@ -115,7 +115,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolators ( const 
     allochthonousLithology = m_projectHandle->getLithologyManager ().getCompoundLithology ( database::getLithotype ( *iter ));
 
     if ( allochthonousLithology == 0 ) {
-      cout << "MeSsAgE  ERROR Could not find the lithology "
+      cout << "Basin_Error Could not find the lithology "
            << database::getLithotype ( *iter )
            << " required by the allochthonous modelling " << endl;
       return false;
@@ -137,7 +137,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolators ( const 
       fileId = H5Fopen ( fullFileName.cpath (), H5F_ACC_RDONLY, H5P_DEFAULT );
 
       if ( fileId < 0 ) {
-        cout << "MeSsAgE  ERROR Could not open HDF file "
+        cout << "Basin_Error Could not open HDF file "
              << database::getInterpFileName ( *iter )
              << " required by the allochthonous modelling " << endl;
         return false;
@@ -147,7 +147,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolators ( const 
       H5Fclose ( fileId );
 
       if ( ! initialisedOkay ) {
-        cout << "MeSsAgE  ERROR Could not create the interpolator " << endl;
+        cout << "Basin_Error Could not create the interpolator " << endl;
         return false;
       }
 
@@ -249,7 +249,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolator ( hid_t& 
   H5Dclose ( dataSetId );
 
   if ( status < 0 ) {
-    cout << "MeSsAgE  ERROR Could not read in data for the 'Points' group from HDF file " << endl;
+    cout << "Basin_Error Could not read in data for the 'Points' group from HDF file " << endl;
     return false;
   }
 
@@ -270,7 +270,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolator ( hid_t& 
   H5Dclose ( dataSetId );
 
   if ( status < 0 ) {
-    cout << "MeSsAgE  ERROR Could not read in data for the 'Coefficients' group from HDF file " << endl;
+    cout << "Basin_Error Could not read in data for the 'Coefficients' group from HDF file " << endl;
     return false;
   }
 
@@ -288,7 +288,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolator ( hid_t& 
   H5Dclose ( dataSetId );
 
   if ( status < 0 ) {
-    cout << "MeSsAgE  ERROR Could not read in data for the 'Scaling' group from HDF file " << endl;
+    cout << "Basin_Error Could not read in data for the 'Scaling' group from HDF file " << endl;
     return false;
   }
 
@@ -303,7 +303,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolator ( hid_t& 
   H5Dclose ( dataSetId );
 
   if ( status < 0 ) {
-    cout << "MeSsAgE  ERROR Could not read in data for the 'Translation' group from HDF file " << endl;
+    cout << "Basin_Error Could not read in data for the 'Translation' group from HDF file " << endl;
     return false;
   }
 
@@ -333,7 +333,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolator ( hid_t& 
     // Add the interpolant to the correct formation interpolant.
     allochthonousInterpolator->second->insert ( interp );
   } else {
-    cout << "MeSsAgE  ERROR Could not find formation " << getLayerName ( interpRecord ) << " to add the interpolant." << endl;
+    cout << "Basin_Error Could not find formation " << getLayerName ( interpRecord ) << " to add the interpolant." << endl;
     return false;
   }
 

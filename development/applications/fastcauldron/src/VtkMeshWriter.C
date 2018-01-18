@@ -172,7 +172,7 @@ void VtkMeshWriter::getLocalNodes ( const ComputationalDomain& domain,
          break;
 
       default :
-         PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR: dof ordering incorrectly defined.\n" );
+         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: dof ordering incorrectly defined.\n" );
          exit ( 1 );
    }
 

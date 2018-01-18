@@ -320,7 +320,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
    }
 
    if ( not createdLithologies ) {
-      cout << "MeSsAgE ERROR Could not create lithologies for layer: " << getName () << endl;
+      cout << "Basin_Error Could not create lithologies for layer: " << getName () << endl;
    }
 
 
@@ -446,8 +446,8 @@ void GeoPhysics::Formation::setFaultLithologies ( bool& layerHasFaults,
                         // ERROR:
                         //
 
-                        m_projectHandle->getMessageHandler ().printLine ( "MeSsAgE ERROR Fault::setBasinFault Unable to find or create the fault lithology ");
-                        m_projectHandle->getMessageHandler ().print ( "MeSsAgE ERROR Fault::setBasinFault so for age " );
+                        m_projectHandle->getMessageHandler ().printLine ( "Basin_Error Fault::setBasinFault Unable to find or create the fault lithology ");
+                        m_projectHandle->getMessageHandler ().print ( "Basin_Error Fault::setBasinFault so for age " );
                         m_projectHandle->getMessageHandler ().print ( startAge );
                         m_projectHandle->getMessageHandler ().print ( " not fault lithology will be set" );
                         m_projectHandle->getMessageHandler ().newLine ();

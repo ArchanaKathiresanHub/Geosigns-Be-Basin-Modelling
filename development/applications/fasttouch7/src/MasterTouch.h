@@ -151,7 +151,7 @@ namespace fasttouch
       bool checkZombie(pid_t pid);
 
       /// @brief prints logging messages
-      void message(const std::string & msg, int level = 0) { if ( level >= m_verboseLevel ) (level > 0 ? std::cout : std::cerr) << "MeSsAgE " << msg << std::endl; }
+      void message(const std::string & msg, int level = 0) { if ( level >= m_verboseLevel ) (level > 0 ? std::cout : std::cerr) << "Basin_" << msg << std::endl; }
 
       /// Class members
 

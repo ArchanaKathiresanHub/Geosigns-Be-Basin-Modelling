@@ -116,7 +116,7 @@ bool  PropertiesCalculator::finalise ( bool isComplete ) {
    bool status = true;
    if( isComplete ) {
       if( ! copyFiles ()) {
-         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Unable to copy output files\n");
+         PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Unable to copy output files\n");
 
          status = false;
       }
@@ -1117,7 +1117,7 @@ bool PropertiesCalculator::copyFiles( ) {
 
          int status = std::remove( fileName.cpath() ); //c_str ());
          if (status == -1)
-            cerr << fileName.cpath() << " MeSsAgE WARNING  Unable to remove snapshot file, because '"
+            cerr << fileName.cpath() << " Basin_Warning  Unable to remove snapshot file, because '"
                  << std::strerror(errno) << "'" << endl;
       }
    }
@@ -1138,7 +1138,7 @@ bool PropertiesCalculator::copyFiles( ) {
       int status = std::remove( fileName.cpath() );
 
       if (status == -1) {
-         cerr << fileName.cpath () << " MeSsAgE WARNING  Unable to remove file, because '"
+         cerr << fileName.cpath () << " Basin_Warning  Unable to remove file, because '"
               << std::strerror(errno) << "'" << endl;
       }
 
@@ -1150,14 +1150,14 @@ bool PropertiesCalculator::copyFiles( ) {
       status = std::remove( dirName.cpath() );
 
       if (status == -1)
-         cerr << dirName.cpath () << " MeSsAgE WARNING  Unable to remove the directory, because '"
+         cerr << dirName.cpath () << " Basin_Warning  Unable to remove the directory, because '"
               << std::strerror(errno) << "'" << endl;
    }
 
    if( status ) {
       displayTime( StartMergingTime, "Total merging time: " );
    } else {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
+      PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Could not merge the file %s.\n", filePathName.cpath() );
    }
 
    delete snapshots;

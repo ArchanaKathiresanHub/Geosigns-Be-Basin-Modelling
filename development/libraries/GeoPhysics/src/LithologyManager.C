@@ -63,7 +63,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
            
         } else {
 
-           m_projectHandle->getMessageHandler ().print ( "MeSsAgE ERROR GeoPhysics::LithologyManager::getCompoundLithology  could not find simple lithology " );
+           m_projectHandle->getMessageHandler ().print ( "Basin_Error GeoPhysics::LithologyManager::getCompoundLithology  could not find simple lithology " );
            m_projectHandle->getMessageHandler ().print ( composition.lithologyName ( I ));
            m_projectHandle->getMessageHandler ().newLine ();
 
@@ -81,7 +81,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
     if ( mixedSuccessfully ) {
       compoundLithologies [ composition ] = compoundLithology;
     } else {
-       m_projectHandle->getMessageHandler ().printLine ( "MeSsAgE ERROR GeoPhysics::LithologyManager::getCompoundLithology  the mixing of the compound lithology was not successful" );
+       m_projectHandle->getMessageHandler ().printLine ( "Basin_Error GeoPhysics::LithologyManager::getCompoundLithology  the mixing of the compound lithology was not successful" );
        delete compoundLithology;
        compoundLithology = 0;
     }
@@ -233,7 +233,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
           faultLithology->addLithology ( simpleFaultLithology, faultComposition.lithologyFraction ( I ));
         } else {
 
-           m_projectHandle->getMessageHandler ().print ( "MeSsAgE ERROR GeoPhysics::LithologyManager::getCompoundFaultLithology  could not find simple lithology " );
+           m_projectHandle->getMessageHandler ().print ( "Basin_Error GeoPhysics::LithologyManager::getCompoundFaultLithology  could not find simple lithology " );
            m_projectHandle->getMessageHandler ().print ( composition.lithologyName ( I ));
            m_projectHandle->getMessageHandler ().newLine ();
 
@@ -255,7 +255,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
 
       // If the compound lithology was not mixed correctly then
       // return a null pointer, since this lithology cannot be used.
-      m_projectHandle->getMessageHandler ().printLine ( "MeSsAgE ERROR GeoPhysics::LithologyManager::getCompoundFaultLithology  the mixing of the compound lithology was not successful. " );
+      m_projectHandle->getMessageHandler ().printLine ( "Basin_Error GeoPhysics::LithologyManager::getCompoundFaultLithology  the mixing of the compound lithology was not successful. " );
 
       // ERROR: Could not create the compounnd lithology with the fault composition.
       delete faultLithology;

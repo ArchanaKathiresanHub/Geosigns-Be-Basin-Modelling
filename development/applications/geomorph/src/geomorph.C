@@ -81,16 +81,16 @@ int main ( int argc, char* argv []) {
 
   if ( rc != EPTFLEXLM_OK ) {
     fprintf(stderr,
-            "\n@@@@@@@@@@@@@@@\n MeSsAgE ERROR: FlexLm license init problems: GeoMorph cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
+            "\n@@@@@@@@@@@@@@@\n Basin_Error: FlexLm license init problems: GeoMorph cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
   }
 
   // FlexLM license handling: Checkout
   rc = EPTFlexLmCheckOut( feature, version, errmessage );
 
   if (rc == EPTFLEXLM_WARN) {
-    fprintf(stderr,"\n@@@@@@@@@@@@@@@\n MeSsAgE WARNING: FlexLm license warning: GeoMorph will still start anyway.\n@@@@@@@@@@@@@@@\n");
+    fprintf(stderr,"\n@@@@@@@@@@@@@@@\n Basin_Warning: FlexLm license warning: GeoMorph will still start anyway.\n@@@@@@@@@@@@@@@\n");
   } else if ( rc != EPTFLEXLM_OK ) {
-    fprintf(stderr,"\n@@@@@@@@@@@@@@@\n MeSsAgE ERROR: FlexLm license error: GeoMorph cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
+    fprintf(stderr,"\n@@@@@@@@@@@@@@@\n Basin_Error: FlexLm license error: GeoMorph cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
   }
 
   if( rc != EPTFLEXLM_OK && rc != EPTFLEXLM_WARN) {
@@ -125,7 +125,7 @@ int main ( int argc, char* argv []) {
         projectFileName = argv [ i + 1 ];
         i++;
       } else {
-        std::cout << " MeSsAgE  ERROR No project file name given " << std::endl;
+        std::cout << " Basin_Error No project file name given " << std::endl;
         printUsage ( argv [ 0 ]);
         return 1;
       }
@@ -136,7 +136,7 @@ int main ( int argc, char* argv []) {
         outputProjectFileName = argv [ i + 1 ];
         i++;
       } else {
-        std::cout << " MeSsAgE  ERROR No output project file name given " << std::endl;
+        std::cout << " Basin_Error No output project file name given " << std::endl;
         printUsage ( argv [ 0 ]);
         return 1;
       }
@@ -151,13 +151,13 @@ int main ( int argc, char* argv []) {
       if ( i < argc - 1 ) {
         stringToInt ( argv [ i + 1 ], debugLevel, error );
       } else {
-        std::cout << " MeSsAgE  ERROR No debug level given " << std::endl;
+        std::cout << " Basin_Error No debug level given " << std::endl;
         printUsage ( argv [ 0 ]);
         return 1;
       }
 
       if ( error ) {
-        std::cout << " MeSsAgE  ERROR Could not convert '" << argv [ i + 1 ] << "' to an integer " << std::endl;
+        std::cout << " Basin_Error Could not convert '" << argv [ i + 1 ] << "' to an integer " << std::endl;
         printUsage ( argv [ 0 ]);
         return 1;
       }
@@ -170,7 +170,7 @@ int main ( int argc, char* argv []) {
   }
 
   if ( projectFileName == "" ) {
-    std::cout << " MeSsAgE  ERROR no project name given " << std::endl;
+    std::cout << " Basin_Error no project name given " << std::endl;
     printUsage ( argv [ 0 ]);
     return 1;
   }

@@ -191,7 +191,7 @@ int main (int argc, char ** argv)
    }
 
    catch ( std::string& s ) {
-      std::cerr << "MeSsAgE ERROR " << s << std::endl;
+      std::cerr << "Basin_Error " << s << std::endl;
       exit (1);
    }
 

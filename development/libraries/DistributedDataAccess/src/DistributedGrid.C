@@ -77,7 +77,7 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
 
    if ( lowResNumI <= 1 or lowResNumJ <= 1 ) {
       PetscPrintf (PETSC_COMM_WORLD,
-                   "\nMeSsAgE ERROR Unable to partition a %d x %d grid, please increase the number of grid nodes.\nThere must be at least two nodes in each direction \n", lowResNumI, lowResNumJ );
+                   "\nBasin_Error Unable to partition a %d x %d grid, please increase the number of grid nodes.\nThere must be at least two nodes in each direction \n", lowResNumI, lowResNumJ );
       PetscPrintf(PETSC_COMM_WORLD, "\nExiting ...\n\n");
       
       MPI_Finalize ();

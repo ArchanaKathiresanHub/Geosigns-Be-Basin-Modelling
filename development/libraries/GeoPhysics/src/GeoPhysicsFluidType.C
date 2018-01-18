@@ -82,7 +82,7 @@ void GeoPhysics::FluidType::loadPropertyTables ()
    thermalConductivitySamples = m_projectHandle->getFluidThermalConductivitySampleList (m_projectHandle->findFluid (getThermalConductivityFluidName ()));
    if ((*thermalConductivitySamples).size () != GeoPhysics::Brine::Conductivity::s_thCondArraySize)
    {
-      throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  Size of FltThCondIoTbl in project file is not correct\n\n";
+      throw formattingexception::GeneralException() << "\nBasin_Error  Size of FltThCondIoTbl in project file is not correct\n\n";
    }
 
    Interface::FluidHeatCapacitySampleList::const_iterator heatCapacitySampleIter;
@@ -148,7 +148,7 @@ double GeoPhysics::FluidType::density( const double temperature, const double pr
         phase.set( temperature, pressure );
         return m_density->get(phase);
      }
-     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+     default : throw formattingexception::GeneralException() << "\nBasin_Error  " << __FUNCTION__
                                                              << " - Density calculation model not set\n\n";
    }
 
@@ -169,7 +169,7 @@ void GeoPhysics::FluidType::density( const GeoPhysics::Brine::PhaseStateVec & ph
         m_density->get( phases, density );
         break;
 
-     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+     default : throw formattingexception::GeneralException() << "\nBasin_Error  " << __FUNCTION__
                                                              << " - Density calculation model not set\n\n";
    }
 }
@@ -222,7 +222,7 @@ double GeoPhysics::FluidType::computeDensityDerivativeWRTPressure( const double 
         return m_density->computeDerivativeP( phase );
      }
      case CBMGenerics::waterDensity::Constant   : return 0.0;
-     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+     default : throw formattingexception::GeneralException() << "\nBasin_Error  " << __FUNCTION__
                                                              << " - Density calculation model not set\n\n";
    }
 
@@ -244,7 +244,7 @@ void GeoPhysics::FluidType::computeDensityDerivativeWRTPressure( const GeoPhysic
         std::fill_n(densityDerivative, phases.getVectorSize(), 0.0);
         break;
 
-     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+     default : throw formattingexception::GeneralException() << "\nBasin_Error  " << __FUNCTION__
                                                              << " - Density calculation model not set\n\n";
    }
 }
@@ -260,7 +260,7 @@ double GeoPhysics::FluidType::computeDensityDerivativeWRTTemperature( const doub
         return m_density->computeDerivativeT( phase );
      }
      case CBMGenerics::waterDensity::Constant   : return 0.0;
-     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+     default : throw formattingexception::GeneralException() << "\nBasin_Error  " << __FUNCTION__
                                                              << " - Density calculation model not set\n\n";
    }
 
@@ -281,7 +281,7 @@ void GeoPhysics::FluidType::computeDensityDerivativeWRTTemperature( const GeoPhy
         std::fill_n(densityDerivative, phases.getVectorSize(), 0.0);
         break;
 
-     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+     default : throw formattingexception::GeneralException() << "\nBasin_Error  " << __FUNCTION__
                                                              << " - Density calculation model not set\n\n";
    }
 }
@@ -446,7 +446,7 @@ double GeoPhysics::FluidType::seismicVelocity( const double temperature, const d
         return m_velocity->get( phase );
      }
      case Interface::CONSTANT_MODEL   : return m_seismicVelocityVal;
-     default: throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+     default: throw formattingexception::GeneralException() << "\nBasin_Error  " << __FUNCTION__
                                                             << " - Seismic velocity calculation model not set\n\n";
    }
 
@@ -461,7 +461,7 @@ void GeoPhysics::FluidType::seismicVelocity( const GeoPhysics::Brine::PhaseState
    {
      case Interface::CALCULATED_MODEL : m_velocity->get( phases, seismicVelocity );
      case Interface::CONSTANT_MODEL   : std::fill_n(seismicVelocity, phases.getVectorSize(), m_seismicVelocityVal);
-     default: throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+     default: throw formattingexception::GeneralException() << "\nBasin_Error  " << __FUNCTION__
                                                             << " - Seismic velocity calculation model not set\n\n";
    }
 }

@@ -43,7 +43,7 @@ namespace BrineConductivity_UnitTests
       thermalConductivitySamples = projectHandle->getFluidThermalConductivitySampleList(projectHandle->findFluid(geoPhysicsFluidType->getThermalConductivityFluidName()));
       if ((*thermalConductivitySamples).size() != GeoPhysics::Brine::Conductivity::s_thCondArraySize)
       {
-         throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  Size of FltThCondIoTbl in project file is not correct\n\n";
+         throw formattingexception::GeneralException() << "\nBasin_Error  Size of FltThCondIoTbl in project file is not correct\n\n";
       }
 
       DataAccess::Interface::FluidThermalConductivitySampleList::const_iterator thermalConductivitySampleIter;

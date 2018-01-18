@@ -35,7 +35,7 @@ int main( int argc, char ** argv)
    }
    catch ( const TouchstoneWrapper::Exception & e )
    {
-      std::cerr << "MeSsAgE error " << e.what() << std::endl;
+      std::cerr << "Basin_Error" << e.what() << std::endl;
       return -1;
    }
 

@@ -318,7 +318,7 @@ bool Migrator::compute (const bool overpressuredLeakage)
    bool status = true;
    if (!mergeOutputFiles ())
    {
-      PetscPrintf (PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
+      PetscPrintf (PETSC_COMM_WORLD, "Basin_Error Unable to merge output files\n");
       status = false;
    }
 

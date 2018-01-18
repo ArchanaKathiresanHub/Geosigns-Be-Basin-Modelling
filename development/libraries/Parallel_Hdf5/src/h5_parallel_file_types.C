@@ -187,7 +187,7 @@ bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathNam
 
           status = copyFile ( filePathName, curPath.path() );
           if( !status ) {
-             PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );               
+             PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Could not copy the file %s.\n", filePathName.c_str() );               
           }
        }
    }
@@ -265,7 +265,7 @@ bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, 
    MPI_Barrier( PETSC_COMM_WORLD );
    
    if( !status ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge/copy the file %s.\n", filePathName.cpath() );
+      PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Could not merge/copy the file %s.\n", filePathName.cpath() );
    }
    
    return status;
@@ -279,7 +279,7 @@ bool H5_Parallel_PropertyList ::removeOutputFile ( const string & filePathName )
   
    int status = std::remove( fileName.cpath() ); 
    if (status == -1) {
-      PetscPrintf ( PETSC_COMM_WORLD, " %s  MeSsAgE WARNING  Unable to remove the file, because '%s' \n", filePathName.c_str (), std::strerror(errno) );
+      PetscPrintf ( PETSC_COMM_WORLD, " %s  Basin_Warning  Unable to remove the file, because '%s' \n", filePathName.c_str (), std::strerror(errno) );
       return false;
    }
    return true;

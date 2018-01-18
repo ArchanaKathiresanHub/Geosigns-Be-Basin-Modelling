@@ -100,7 +100,7 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
 
    if ( M <= 1 or N <= 1 ) {
       PetscPrintf (PETSC_COMM_WORLD,
-                   "\n MeSsAgE ERROR Unable to partition a %d x %d grid, please select a larger number of grid nodes.\nThere must be at least two nodes in each direction. \n", M, N );
+                   "\n Basin_Error Unable to partition a %d x %d grid, please select a larger number of grid nodes.\nThere must be at least two nodes in each direction. \n", M, N );
 
       PetscPrintf(PETSC_COMM_WORLD, "\nExiting ...\n\n");
       
@@ -323,7 +323,7 @@ bool ProjectHandle::makeOutputDir() const
       }
       catch( PathException & e)
       {
-         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR TMPDIR '%s' couldn't be created, because: %s\n", tmpdir.path().c_str(),  e.what() );
+         PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error TMPDIR '%s' couldn't be created, because: %s\n", tmpdir.path().c_str(),  e.what() );
          return false;
       }
    }
@@ -340,7 +340,7 @@ bool ProjectHandle::makeOutputDir() const
       }
       catch( PathException & e)
       {
-         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Directory at the final location '%s' couldn't be created, because: %s\n", dirpath.path().c_str(),  e.what() );
+         PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Directory at the final location '%s' couldn't be created, because: %s\n", dirpath.path().c_str(),  e.what() );
          return false;
       }
    }
@@ -352,7 +352,7 @@ bool ProjectHandle::makeOutputDir() const
    }
    catch( PathException & e)
    {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Directory to final write location '%s' couldn't be created, because: %s\n", getFullOutputDir().c_str(),  e.what() );
+      PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Directory to final write location '%s' couldn't be created, because: %s\n", getFullOutputDir().c_str(),  e.what() );
       return false;
    }
    

@@ -298,8 +298,8 @@ void Simulator::LoadDataFromConfigurationFile()
    
    if(!ConfigurationFile) {
      //throw
-      cerr<<"MeSsAgE ERROR Attempting to open file : " + FullPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... "<<endl;
-      throw ( "MeSsAgE ERROR Attempting to open file : " + FullPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... ");
+      cerr<<"Basin_Error Attempting to open file : " + FullPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... "<<endl;
+      throw ( "Basin_Error Attempting to open file : " + FullPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... ");
    }
 
    bool finishReadingFile = false;  

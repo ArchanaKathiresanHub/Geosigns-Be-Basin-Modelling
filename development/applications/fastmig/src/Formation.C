@@ -1824,7 +1824,7 @@ namespace migration
 
       double stuckHCs = SumAll (stuckHCMass);
       if (GetRank () == 0 and stuckHCs > 0.0)
-         std::cout << "MeSsAgE WARNING: Hydrocarbons expelled from SR " << getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were eliminated.\n";
+         std::cout << "Basin_Warning: Hydrocarbons expelled from SR " << getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were eliminated.\n";
 
       if (genexMinorSnapshots and m_genexData != nullptr)
          m_genexData->restoreData();      
@@ -1950,7 +1950,7 @@ namespace migration
 
       double stuckHCs = SumAll (stuckHCMass);
       if (GetRank () == 0 and stuckHCs > 0.0)
-         std::cout << "MeSsAgE WARNING: Hydrocarbons leaked from " << leakingReservoir->getFormation()->getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were elinminated.\n";
+         std::cout << "Basin_Warning: Hydrocarbons leaked from " << leakingReservoir->getFormation()->getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were elinminated.\n";
   
    }
 
@@ -2026,7 +2026,7 @@ namespace migration
 
       double stuckHCs = SumAll (stuckHCMass);
       if (GetRank () == 0 and stuckHCs > 0.0)
-         std::cout << "MeSsAgE WARNING: Hydrocarbons expelled from SR " << getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were eliminated.\n";
+         std::cout << "Basin_Warning: Hydrocarbons expelled from SR " << getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were eliminated.\n";
 
       if (genexMinorSnapshots and m_genexData != nullptr)
          m_genexData->restoreData();
@@ -2130,7 +2130,7 @@ namespace migration
 
       double stuckHCs = SumAll (stuckHCMass);
       if (GetRank () == 0 and stuckHCs > 0.0)
-         std::cout << "MeSsAgE WARNING: Hydrocarbons leaked from " << leakingReservoir->getFormation()->getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were elinminated.\n";
+         std::cout << "Basin_Warning: Hydrocarbons leaked from " << leakingReservoir->getFormation()->getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were elinminated.\n";
  
       return true;
    }
