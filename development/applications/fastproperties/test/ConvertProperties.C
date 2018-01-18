@@ -38,6 +38,7 @@ class TestUnit
 {
 public:
    TestUnit();
+   ~TestUnit();
 
    void AddDerivedContVolume();
 
@@ -55,6 +56,8 @@ public:
    int numK;
       
    int dataSize;
+
+   MPI_Op mop;
 
    const string pname = "Depth";
    const string pnameToAdd = "LithoStaticPressure";
@@ -100,8 +103,14 @@ TestUnit::TestUnit() {
    vizProject->addSnapShot(snapshot);
    vizProject->addGeometry(geometry);
 
-}
+   MPI_Op_create((MPI_User_function *)minmax_op, true, & mop);
+ }
 
+TestUnit::~TestUnit() {      
+
+   MPI_Op_free (&mop);  
+}
+   
 void TestUnit::AddDerivedContVolume() {
 
    int rank = MPIHelper::rank();
@@ -153,18 +162,16 @@ void TestUnit::AddDerivedContVolume() {
    delete [] dataCollect;
 
    // Find the global min and max sediment values and set on rank 0
-   sedimentMinValue = volDataNew->getSedimentMinValue();
-   sedimentMaxValue = volDataNew->getSedimentMaxValue();
-   
-   if(sedimentMinValue == DefaultUndefinedValue) sedimentMinValue =  std::numeric_limits<float>::max();
-   if(sedimentMaxValue == DefaultUndefinedValue) sedimentMaxValue = - std::numeric_limits<float>::max();
-   
-   float globalMinValue, globalMaxValue;
-   MPI_Reduce(&sedimentMinValue, &globalMinValue, 1, MPI_FLOAT, MPI_MIN, 0, MPI_COMM_WORLD);
-   MPI_Reduce(&sedimentMaxValue, &globalMaxValue, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
+   float localValues[2];
+   float globalValues[2];
+
+   localValues[0] = volDataNew->getSedimentMinValue();
+   localValues[1] = volDataNew->getSedimentMaxValue();
+
+   MPI_Reduce(localValues, globalValues, 2, MPI_FLOAT, mop, 0, MPI_COMM_WORLD);
    
    if( rank == 0 ) {
-      volDataNew->setSedimentMinMax(globalMinValue, globalMaxValue);
+      volDataNew->setSedimentMinMax(globalValues[0], globalValues[1]);
    }
 }
 

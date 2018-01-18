@@ -131,6 +131,8 @@ private:
 
    std::string  m_commandLine;
 
+   MPI_Op m_op; ///< Custom MPI operation to find maximum and minimum of sediment properties
+
    /// \brief Check if the property the formation/surface is allowed to be output
    bool allowOutput ( const string & propertyName, const Interface::Formation * formation, const Interface::Surface * surface ) const;
    /// \brief Check if the property the formation/surface is selected to be output in the project file
@@ -169,6 +171,10 @@ private:
 
    /// \brief Calculate k-range (offsets in depth) for all stratigraphy formations.
    void updateFormationsKRange();
+
+   /// \brief Collect continuous volume on rank 0
+   void collectVolumeData( const std::shared_ptr<CauldronIO::SnapShot>& snapShot );
+   
 public:
 
    GeoPhysics::ProjectHandle* getProjectHandle() const;

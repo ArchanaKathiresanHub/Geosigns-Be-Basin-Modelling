@@ -361,6 +361,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
 
     if(  m_vizFormat ) {
        createXML();
+       MPI_Op_create((MPI_User_function *)minmax_op, true, & m_op);
     }
 
 
@@ -467,7 +468,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
       
          displayProgress( snapshot->getFileName (), m_startTime, "Saving is finished for " );
       } else {
-         collectVolumeData(  DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() ), m_data );
+         collectVolumeData(DerivedProperties::getSnapShot(m_vizProject, snapshot->getTime()));
         
          if( m_rank == 0 ) {
             std::shared_ptr<CauldronIO::SnapShot> snap = DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() );
@@ -488,6 +489,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
 
    if( m_vizFormat ) {
       saveXML();
+      MPI_Op_free (&m_op);  
    }
 
    if( m_vizFormatHDF and m_rank == 0 ) {
@@ -1786,6 +1788,59 @@ void PropertiesCalculator::updateFormationsKRange() {
        }
     }
 }
+//------------------------------------------------------------//
+void PropertiesCalculator::collectVolumeData(const std::shared_ptr<CauldronIO::SnapShot>& snapshot) {
+
+   const std::shared_ptr<Volume> volume = snapshot->getVolume();
+   if (volume)  
+   {
+      PropertyVolumeDataList& propVolList = volume->getPropertyVolumeDataList();
+      if (propVolList.size() > 0) 
+      {
+         int rank;
+         MPI_Comm_rank (PETSC_COMM_WORLD, &rank);
+ 
+         for (auto& propVolume : propVolList) 
+         {
+            std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
+            if (valueMap->isRetrieved()) 
+            {
+               std::shared_ptr<const Geometry3D> geometry = valueMap->getGeometry();
+               unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
+               if (dataSize > m_data.size()) 
+               {
+                  m_data.resize(dataSize);
+               }
+               float * data = &m_data[0];
+               
+               float * internalData = const_cast<float *>(valueMap->getVolumeValues_IJK());
+               
+               // Collect the data from all processors on rank 0
+               MPI_Reduce((void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD);
+              
+               if (rank == 0) 
+               {
+                  std::memcpy(internalData, data, dataSize * sizeof(float));
+               }
+
+               // Find the global min and max sediment values and set on rank 0
+               float globalValues[2];
+               float localValues[2];
+
+               localValues[0] = valueMap->getSedimentMinValue();
+               localValues[1] = valueMap->getSedimentMaxValue();
+
+               MPI_Reduce(localValues, globalValues, 2, MPI_FLOAT, m_op, 0, PETSC_COMM_WORLD);
+               if (rank == 0) 
+               {
+                  valueMap->setSedimentMinMax(globalValues[0], globalValues[1]);
+               }
+            } 
+         }
+      }
+   }
+}
+
 //------------------------------------------------------------//
 
 bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {

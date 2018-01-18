@@ -26,8 +26,8 @@ namespace DerivedProperties {
    void updateVolumeDataConstantValue( shared_ptr<CauldronIO::VolumeData>& volDataNew );
    CauldronIO::SnapShotKind getSnapShotKind(const Interface::Snapshot* snapShot);
    void saveVizSnapshot( const std::shared_ptr<SnapShot>& snapShot, const std::string& absPath);
-   void collectVolumeData( const std::shared_ptr<SnapShot>& snapShot, vector<float>& inData );
    void addVolume( GeoPhysics::ProjectHandle* projectHandle, OutputPropertyValuePtr propertyValue, unsigned int firstK, unsigned int lastK,  unsigned int numK, vector<float> & inData );
+   void minmax_op( float *invec, float *inoutvec, int *len, MPI_Datatype *datatype );
 }
 
 #endif

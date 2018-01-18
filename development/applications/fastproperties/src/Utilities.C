@@ -160,61 +160,10 @@ std::shared_ptr< CauldronIO::Surface > DerivedProperties::getSurface( std::share
 std::shared_ptr< CauldronIO::Surface > DerivedProperties::getSurface( std::shared_ptr< CauldronIO::SnapShot>& snapshot, std::shared_ptr< CauldronIO::Formation>& formation )
 {
 
-   for(auto& surface : snapshot->getSurfaceList() )
+   for(auto& surface : snapshot->getSurfaceList())
       if (surface->getBottomFormation() == formation.get() && surface->getTopFormation() == formation.get()) return surface;
 
    return std::shared_ptr< CauldronIO::Surface >();
-}
-
-//------------------------------------------------------------//
-void DerivedProperties::collectVolumeData( const std::shared_ptr<SnapShot>& snapshot, vector<float> & inData ) {
-
-   const std::shared_ptr<Volume> volume = snapshot->getVolume();
-   if (volume)  {
-
-      PropertyVolumeDataList& propVolList = volume->getPropertyVolumeDataList();
-      if( propVolList.size() > 0 ) {
-         int rank;
-         MPI_Comm_rank ( PETSC_COMM_WORLD, &rank );
-         
- 
-         for(auto& propVolume : propVolList) {
-            std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
-            if( valueMap->isRetrieved() ) {
-               std::shared_ptr<const Geometry3D> geometry = valueMap->getGeometry();
-               unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
-               if( dataSize > inData.size() ) {
-                  inData.resize( dataSize );
-               }
-               float *data = &inData[0];
-               
-               float * internalData = const_cast<float *>(valueMap->getVolumeValues_IJK());
-               
-               // Collect the data from all processors on rank 0
-               MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD );
-              
-               if( rank == 0 ) {
-                  std::memcpy(internalData, data, dataSize * sizeof(float));
-               }
-
-               // Find the global min and max sediment values and set on rank 0
-               float sedimentMinValue = valueMap->getSedimentMinValue();
-               float sedimentMaxValue = valueMap->getSedimentMaxValue();
-
-               if(sedimentMinValue == DefaultUndefinedValue) sedimentMinValue =  std::numeric_limits<float>::max();
-               if(sedimentMaxValue == DefaultUndefinedValue) sedimentMaxValue = - std::numeric_limits<float>::max();
-               
-               float globalMinValue, globalMaxValue;
-               MPI_Reduce(&sedimentMinValue, &globalMinValue, 1, MPI_FLOAT, MPI_MIN, 0, PETSC_COMM_WORLD);
-               MPI_Reduce(&sedimentMaxValue, &globalMaxValue, 1, MPI_FLOAT, MPI_MAX, 0, PETSC_COMM_WORLD);
-              
-               if( rank == 0 ) {
-                  valueMap->setSedimentMinMax(globalMinValue, globalMaxValue);
-               }
-            } 
-         }
-      }
-   }
 }
 
 
@@ -389,7 +338,7 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
                   const std::shared_ptr<VolumeData>& data = propVolume.second;
                   const std::shared_ptr<Geometry3D>& thisGeometry = data->getGeometry();
                   size_t numBytes = thisGeometry->getSize() * sizeof(float);
-                  if ( not data->isConstant())
+                  if (not data->isConstant())
                   {
                      volumeStore.addVolume(data, node, numBytes);
                   }
@@ -404,3 +353,19 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
     snapShot->release();
  
  }
+
+//------------------------------------------------------------//
+void DerivedProperties::minmax_op( float *invec, float *inoutvec, int *len, MPI_Datatype *datatype ) {  
+   
+   // Find the minimum (0 index) and maximum (1 index)
+   if( invec[0] != DefaultUndefinedValue and inoutvec[0] != DefaultUndefinedValue ) {
+      inoutvec[0] = min(invec[0], inoutvec[0]);
+   } else if ( invec[0] != DefaultUndefinedValue ) {
+      inoutvec[0] = invec[0];
+   }
+   if( invec[1] != DefaultUndefinedValue and inoutvec[1] != DefaultUndefinedValue ) {
+      inoutvec[1] = max(invec[1], inoutvec[1]);
+   } else if ( invec[1] != DefaultUndefinedValue ) {
+      inoutvec[1] = invec[1];
+   }
+}
