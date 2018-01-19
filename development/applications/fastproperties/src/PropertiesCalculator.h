@@ -196,7 +196,7 @@ public:
    /// @pre -all-2D-properties must be specified as a command line parameter
    void acquireAll2Dproperties();
    void acquireFormationsSurfaces( FormationSurfaceVector & formationSurfaceItems );
-   void acquireProperties( PropertyList & properties );
+   void acquireProperties( Interface::PropertyList & properties );
 
    /// @brief Print all outputable 2D and 3D properties from project handle
    /// @pre -list-properties must be specified as a command line parameter

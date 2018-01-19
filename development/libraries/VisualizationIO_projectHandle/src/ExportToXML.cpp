@@ -148,7 +148,7 @@ void ExportToXML::addProjectData(pugi::xml_node pt, std::shared_ptr<Project>& pr
    // Write stratigraphy table & formations
    ///////////////////////////////////////////////
    {
-      // Create datastore	for input surfaces
+      // Create datastore for input surfaces
       ibs::FilePath inputSurfaceStorePath(m_fullPath);
       inputSurfaceStorePath << "Input_surfaces.cldrn";
       DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append);
@@ -258,101 +258,101 @@ void CauldronIO::ExportToXML::addFormation(DataStoreSave& dataStore, pugi::xml_n
     subNode.append_attribute("kstart") = start;
     subNode.append_attribute("kend") = end;
     
-	if (formation->isSourceRock())
-	{
-		subNode.append_attribute("isSR") = true;
-	}
-	if (formation->isMobileLayer())
-	{
-		subNode.append_attribute("isML") = true;
-	}
+   if (formation->isSourceRock())
+   {
+      subNode.append_attribute("isSR") = true;
+   }
+   if (formation->isMobileLayer())
+   {
+      subNode.append_attribute("isML") = true;
+   }
 
-	// Add thicknessmap if present
-	pugi::xml_node subsubNode;
-	if (formation->hasThicknessMap())
-	{
-		subsubNode = subNode.append_child("thicknessmap");
-		addPropertySurfaceData(subsubNode, dataStore, formation->getThicknessMap());
-	}
-	if (formation->hasSourceRockMixingHIMap())
-	{
-		subsubNode = subNode.append_child("mixingHImap");
-		addPropertySurfaceData(subsubNode, dataStore, formation->getSourceRockMixingHIMap());
-	}
-	if (formation->hasLithoType1PercentageMap())
-	{
-		subsubNode = subNode.append_child("lithoType1Perc1map");
-		addPropertySurfaceData(subsubNode, dataStore, formation->getLithoType1PercentageMap());
-	}
-	if (formation->hasLithoType2PercentageMap())
-	{
-		subsubNode = subNode.append_child("lithoType1Perc2map");
-		addPropertySurfaceData(subsubNode, dataStore, formation->getLithoType2PercentageMap());
-	}
-	if (formation->hasLithoType3PercentageMap())
-	{
-		subsubNode = subNode.append_child("lithoType1Perc3map");
-		addPropertySurfaceData(subsubNode, dataStore, formation->getLithoType3PercentageMap());
-	}
+   // Add thicknessmap if present
+   pugi::xml_node subsubNode;
+   if (formation->hasThicknessMap())
+   {
+      subsubNode = subNode.append_child("thicknessmap");
+      addPropertySurfaceData(subsubNode, dataStore, formation->getThicknessMap());
+   }
+   if (formation->hasSourceRockMixingHIMap())
+   {
+      subsubNode = subNode.append_child("mixingHImap");
+      addPropertySurfaceData(subsubNode, dataStore, formation->getSourceRockMixingHIMap());
+   }
+   if (formation->hasLithoType1PercentageMap())
+   {
+      subsubNode = subNode.append_child("lithoType1Perc1map");
+      addPropertySurfaceData(subsubNode, dataStore, formation->getLithoType1PercentageMap());
+   }
+   if (formation->hasLithoType2PercentageMap())
+   {
+      subsubNode = subNode.append_child("lithoType1Perc2map");
+      addPropertySurfaceData(subsubNode, dataStore, formation->getLithoType2PercentageMap());
+   }
+   if (formation->hasLithoType3PercentageMap())
+   {
+      subsubNode = subNode.append_child("lithoType1Perc3map");
+      addPropertySurfaceData(subsubNode, dataStore, formation->getLithoType3PercentageMap());
+   }
 
-	// Add other properties
-	if (formation->getSourceRock1Name().length() > 0)
-	{
-		subNode.append_attribute("sr1name") = formation->getSourceRock1Name().c_str();
-	}
-	if (formation->getSourceRock2Name().length() > 0)
-	{
-		subNode.append_attribute("sr2name") = formation->getSourceRock2Name().c_str();
-	}
-	if (formation->getFluidType().length() > 0)
-	{
-		subNode.append_attribute("fluid_type") = formation->getFluidType().c_str();
-	}
-	if (formation->getEnableSourceRockMixing())
-	{
-		subNode.append_attribute("sr_mixing") = true;
-	}
-	if (formation->hasAllochthonousLithology())
-	{
-		subNode.append_attribute("allocht_lith") = true;
-		subNode.append_attribute("allocht_lith_name") = formation->getAllochthonousLithologyName().c_str();
-	}
-	if (formation->hasConstrainedOverpressure())
-	{
-		subNode.append_attribute("constrained_op") = true;
-	}
-	if (formation->hasChemicalCompaction())
-	{
-		subNode.append_attribute("chem_compact") = true;
-	}
-	if (formation->isIgneousIntrusion())
-	{
-		subNode.append_attribute("ignious_intr") = true;
-		subNode.append_attribute("ignious_intr_age") = formation->getIgneousIntrusionAge();
-	}
-	subNode.append_attribute("depo_sequence") = formation->getDepoSequence();
-	subNode.append_attribute("elem_refinement") = formation->getElementRefinement();
-	subNode.append_attribute("mixing_model") = formation->getMixingModel().c_str();
-	if (formation->getLithoType1Name().length() > 0)
-	{
-		subNode.append_attribute("litho1_name") = formation->getLithoType1Name().c_str();
-	}
-	if (formation->getLithoType2Name().length() > 0)
-	{
-		subNode.append_attribute("litho2_name") = formation->getLithoType2Name().c_str();
-	}
-	if (formation->getLithoType3Name().length() > 0)
-	{
-		subNode.append_attribute("litho3_name") = formation->getLithoType3Name().c_str();
-	}
+   // Add other properties
+   if (formation->getSourceRock1Name().length() > 0)
+   {
+      subNode.append_attribute("sr1name") = formation->getSourceRock1Name().c_str();
+   }
+   if (formation->getSourceRock2Name().length() > 0)
+   {
+      subNode.append_attribute("sr2name") = formation->getSourceRock2Name().c_str();
+   }
+   if (formation->getFluidType().length() > 0)
+   {
+      subNode.append_attribute("fluid_type") = formation->getFluidType().c_str();
+   }
+   if (formation->getEnableSourceRockMixing())
+   {
+      subNode.append_attribute("sr_mixing") = true;
+   }
+   if (formation->hasAllochthonousLithology())
+   {
+      subNode.append_attribute("allocht_lith") = true;
+      subNode.append_attribute("allocht_lith_name") = formation->getAllochthonousLithologyName().c_str();
+   }
+   if (formation->hasConstrainedOverpressure())
+   {
+      subNode.append_attribute("constrained_op") = true;
+   }
+   if (formation->hasChemicalCompaction())
+   {
+      subNode.append_attribute("chem_compact") = true;
+   }
+   if (formation->isIgneousIntrusion())
+   {
+      subNode.append_attribute("ignious_intr") = true;
+      subNode.append_attribute("ignious_intr_age") = formation->getIgneousIntrusionAge();
+   }
+   subNode.append_attribute("depo_sequence") = formation->getDepoSequence();
+   subNode.append_attribute("elem_refinement") = formation->getElementRefinement();
+   subNode.append_attribute("mixing_model") = formation->getMixingModel().c_str();
+   if (formation->getLithoType1Name().length() > 0)
+   {
+      subNode.append_attribute("litho1_name") = formation->getLithoType1Name().c_str();
+   }
+   if (formation->getLithoType2Name().length() > 0)
+   {
+      subNode.append_attribute("litho2_name") = formation->getLithoType2Name().c_str();
+   }
+   if (formation->getLithoType3Name().length() > 0)
+   {
+      subNode.append_attribute("litho3_name") = formation->getLithoType3Name().c_str();
+   }
 }
 
 void CauldronIO::ExportToXML::addSurface(DataStoreSave& dataStore, pugi::xml_node& surfacesNode, const std::shared_ptr<Surface>& surfaceIO) const
 {
-	// General properties
-	pugi::xml_node ptree = surfacesNode.append_child("surface");
-	
-	// Retrieve data if necessary: if the getDataStoreParams is unequal to zero this means data is saved and does not need to be saved again
+   // General properties
+   pugi::xml_node ptree = surfacesNode.append_child("surface");
+   
+   // Retrieve data if necessary: if the getDataStoreParams is unequal to zero this means data is saved and does not need to be saved again
     if (!surfaceIO->isRetrieved() && !m_append)
         surfaceIO->retrieve();
 
@@ -363,8 +363,8 @@ void CauldronIO::ExportToXML::addSurface(DataStoreSave& dataStore, pugi::xml_nod
         ptree.append_attribute("top-formation") = surfaceIO->getTopFormation()->getName().c_str();
     if (surfaceIO->getBottomFormation())
         ptree.append_attribute("bottom-formation") = surfaceIO->getBottomFormation()->getName().c_str();
-	if (surfaceIO->isAgeDefined())
-		ptree.append_attribute("age") = surfaceIO->getAge();
+   if (surfaceIO->isAgeDefined())
+      ptree.append_attribute("age") = surfaceIO->getAge();
 
     // Iterate over all contained valuemaps
     const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
@@ -374,48 +374,48 @@ void CauldronIO::ExportToXML::addSurface(DataStoreSave& dataStore, pugi::xml_nod
         pugi::xml_node valueMapsNode = ptree.append_child("propertymaps");
         BOOST_FOREACH(const PropertySurfaceData& propertySurfaceData, valueMaps)
         {
-			pugi::xml_node node = valueMapsNode.append_child("propertymap");
-			addPropertySurfaceData(node, dataStore, propertySurfaceData);
-		}
+         pugi::xml_node node = valueMapsNode.append_child("propertymap");
+         addPropertySurfaceData(node, dataStore, propertySurfaceData);
+      }
     }
 }
 
 
 void CauldronIO::ExportToXML::addPropertySurfaceData(pugi::xml_node &node, DataStoreSave &dataStore, const PropertySurfaceData &propertySurfaceData) const
 {
-	node.append_attribute("property") = propertySurfaceData.first->getName().c_str();
+   node.append_attribute("property") = propertySurfaceData.first->getName().c_str();
 
-	const std::shared_ptr<SurfaceData>& surfaceData = propertySurfaceData.second;
-	if (surfaceData->getFormation())
-		node.append_attribute("formation") = surfaceData->getFormation()->getName().c_str();
-	if (surfaceData->getReservoir())
-		node.append_attribute("reservoir") = surfaceData->getReservoir()->getName().c_str();
+   const std::shared_ptr<SurfaceData>& surfaceData = propertySurfaceData.second;
+   if (surfaceData->getFormation())
+      node.append_attribute("formation") = surfaceData->getFormation()->getName().c_str();
+   if (surfaceData->getReservoir())
+      node.append_attribute("reservoir") = surfaceData->getReservoir()->getName().c_str();
 
-	// Write the geometry
-	node.append_attribute("geom-index") = (int)m_project->getGeometryIndex(surfaceData->getGeometry());
+   // Write the geometry
+   node.append_attribute("geom-index") = (int)m_project->getGeometryIndex(surfaceData->getGeometry());
 
-	// Min/max values
-	node.append_attribute("min") = surfaceData->getMinValue();
-	node.append_attribute("max") = surfaceData->getMaxValue();
+   // Min/max values
+   node.append_attribute("min") = surfaceData->getMinValue();
+   node.append_attribute("max") = surfaceData->getMaxValue();
 
-	// Check for reference volume
-	ReferenceMap* refMap = dynamic_cast<ReferenceMap*>(surfaceData.get());
+   // Check for reference volume
+   ReferenceMap* refMap = dynamic_cast<ReferenceMap*>(surfaceData.get());
 
-	if (surfaceData->isConstant())
-	{
-		node.append_attribute("constantvalue") = surfaceData->getConstantValue();
+   if (surfaceData->isConstant())
+   {
+      node.append_attribute("constantvalue") = surfaceData->getConstantValue();
         if(m_project-> getModelingMode() ==  MODE1D) {
            node.append_attribute("depo_sequence") = surfaceData->getDepoSequence();
          }
-	}
-	else if (refMap != nullptr)
-	{
-		addReferenceData(node, refMap->getDataStoreParams(), false, false);
-	}
-	else
-	{
-		dataStore.addSurface(surfaceData, node);
-	}
+   }
+   else if (refMap != nullptr)
+   {
+      addReferenceData(node, refMap->getDataStoreParams(), false, false);
+   }
+   else
+   {
+      dataStore.addSurface(surfaceData, node);
+   }
 }
 
 void CauldronIO::ExportToXML::addVolume(DataStoreSave& dataStore, const std::shared_ptr<Volume>& volume, pugi::xml_node volNode)
@@ -449,61 +449,61 @@ void CauldronIO::ExportToXML::addVolume(DataStoreSave& dataStore, const std::sha
             node.append_attribute("min") = data->getMinValue();
             node.append_attribute("max") = data->getMaxValue();
 
-	    float sedMinVal = data->getSedimentMinValue();
-	    float sedMaxVal = data->getSedimentMaxValue();
-	    // Only add attributes for sediment value range if values are defined
-	    if(sedMinVal != DefaultUndefinedValue && sedMaxVal != DefaultUndefinedValue)
-	    {
-	      node.append_attribute("sedimentMin") = sedMinVal;
-	      node.append_attribute("sedimentMax") = sedMaxVal;
-	    }
+       float sedMinVal = data->getSedimentMinValue();
+       float sedMaxVal = data->getSedimentMaxValue();
+       // Only add attributes for sediment value range if values are defined
+       if(sedMinVal != DefaultUndefinedValue && sedMaxVal != DefaultUndefinedValue)
+       {
+         node.append_attribute("sedimentMin") = sedMinVal;
+         node.append_attribute("sedimentMax") = sedMaxVal;
+       }
 
-	    // Check for reference volume
-	    ReferenceVolume* refVolume = dynamic_cast<ReferenceVolume*>(data.get());
+       // Check for reference volume
+       ReferenceVolume* refVolume = dynamic_cast<ReferenceVolume*>(data.get());
 
             if (data->isConstant())
             {
                 node.append_attribute("constantvalue") = data->getConstantValue();
             }
-			else if (refVolume) //TODO: relative path of existing project needs to be added to filename
-			{
-				if (refVolume->getDataStoreParamsIJK())
-				{
-					const DataStoreParams* params = refVolume->getDataStoreParamsIJK();
-					addReferenceData(node, params, true, false);
-				}
-				if (refVolume->getDataStoreParamsKIJ())
-				{
-					const DataStoreParams* params = refVolume->getDataStoreParamsKIJ();
-					addReferenceData(node, params, false, true);
-				}
-			}
-			else
-			{
-				dataStore.addVolume(data, node, numBytes);
-			}
+         else if (refVolume) //TODO: relative path of existing project needs to be added to filename
+         {
+            if (refVolume->getDataStoreParamsIJK())
+            {
+               const DataStoreParams* params = refVolume->getDataStoreParamsIJK();
+               addReferenceData(node, params, true, false);
+            }
+            if (refVolume->getDataStoreParamsKIJ())
+            {
+               const DataStoreParams* params = refVolume->getDataStoreParamsKIJ();
+               addReferenceData(node, params, false, true);
+            }
+         }
+         else
+         {
+            dataStore.addVolume(data, node, numBytes);
+         }
         }
     }
 }
 
 void CauldronIO::ExportToXML::addReferenceData(pugi::xml_node &node, const DataStoreParams* params, bool dataIJK, bool dataKIJ) const
 {
-	pugi::xml_node subNode = node.append_child("datastore");
-	subNode.append_attribute("file") = params->fileName.c_str();
+   pugi::xml_node subNode = node.append_child("datastore");
+   subNode.append_attribute("file") = params->fileName.c_str();
 
-	if (params->compressed)
-		subNode.append_attribute("compression") = params->compressed_lz4 ? "lz4" : "gzip";
-	else
-		subNode.append_attribute("compression") = "none";
+   if (params->compressed)
+      subNode.append_attribute("compression") = params->compressed_lz4 ? "lz4" : "gzip";
+   else
+      subNode.append_attribute("compression") = "none";
 
-	subNode.append_attribute("partialpath") = false;
-	
-	if (dataIJK || dataKIJ)
-	{
-		subNode.append_attribute("dataIJK") = dataIJK;
-	}
-	subNode.append_attribute("size") = (unsigned int)params->size;
-	subNode.append_attribute("offset") = (unsigned int)params->offset;
+   subNode.append_attribute("partialpath") = false;
+   
+   if (dataIJK || dataKIJ)
+   {
+      subNode.append_attribute("dataIJK") = dataIJK;
+   }
+   subNode.append_attribute("size") = (unsigned long long)params->size;
+   subNode.append_attribute("offset") = (unsigned long long)params->offset;
 }
 
 void CauldronIO::ExportToXML::addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry) const
@@ -542,14 +542,14 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     node.append_attribute("kind") = snapShot->getKind();
     node.append_attribute("isminor") = snapShot->isMinorShapshot();
 
-	// If there is an existing project, find references to replace data 
-	if (m_projectExisting)
-	{
-		VisualizationUtils::replaceExistingProperties(snapShot, m_projectExisting);
-	}
+   // If there is an existing project, find references to replace data 
+   if (m_projectExisting)
+   {
+      VisualizationUtils::replaceExistingProperties(snapShot, m_projectExisting);
+   }
 
     // Read all data into memory: if there is an existing project, this is too late...
-	std::vector < VisualizationIOData* > data = snapShot->getAllRetrievableData();
+   std::vector < VisualizationIOData* > data = snapShot->getAllRetrievableData();
     CauldronIO::VisualizationUtils::retrieveAllData(data, m_numThreads);
     
     // Cell center data if necessary
@@ -558,8 +558,8 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
         CauldronIO::VisualizationUtils::cellCenterAllMaps(snapShot, m_project);
         CauldronIO::VisualizationUtils::cellCenterVolume(snapShot->getVolume(), m_project);
         
-		// This should be the slowest operation: parallellize
-		CauldronIO::VisualizationUtils::cellCenterFormationVolumes(snapShot, m_project, m_numThreads);
+      // This should be the slowest operation: parallellize
+      CauldronIO::VisualizationUtils::cellCenterFormationVolumes(snapShot, m_project, m_numThreads);
     }
 
     // Add surfaces
@@ -695,16 +695,16 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
 
 void CauldronIO::ExportToXML::addStratTableNode(pugi::xml_node& stratTableNode, const StratigraphyTableEntry& entry, DataStoreSave& dataStoreSave)
 {
-	if (entry.getFormation())
-	{
-		// Do not store the actual formation, it is in the formationlist
-		pugi::xml_node formationNode = stratTableNode.append_child("formation");
-		formationNode.append_attribute("name") = entry.getFormation()->getName().c_str();
-	}
-	else if (entry.getSurface())
-	{
-		addSurface(dataStoreSave, stratTableNode, entry.getSurface());
-	}
+   if (entry.getFormation())
+   {
+      // Do not store the actual formation, it is in the formationlist
+      pugi::xml_node formationNode = stratTableNode.append_child("formation");
+      formationNode.append_attribute("name") = entry.getFormation()->getName().c_str();
+   }
+   else if (entry.getSurface())
+   {
+      addSurface(dataStoreSave, stratTableNode, entry.getSurface());
+   }
 }
 
 
@@ -733,14 +733,14 @@ bool CauldronIO::ExportToXML::detectAppend(std::shared_ptr<Project>& project)
         }
 
         const std::shared_ptr<Volume>& volume = snapShot->getVolume();
-		if (volume)
-		{
-			BOOST_FOREACH(const PropertyVolumeData& volumeData, volume->getPropertyVolumeDataList())
-			{
-				if (dynamic_cast<VolumeDataNative*>(volumeData.second.get()) != nullptr) return true;
-				return false;
-			}
-		}
+      if (volume)
+      {
+         BOOST_FOREACH(const PropertyVolumeData& volumeData, volume->getPropertyVolumeDataList())
+         {
+            if (dynamic_cast<VolumeDataNative*>(volumeData.second.get()) != nullptr) return true;
+            return false;
+         }
+      }
     }
 
     // This should not happen
@@ -1071,9 +1071,9 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
     }
     // 1DTimeIoTbl
     nr_events = m_project->get1DTimeIoTable().size();
-	char * data = 0;
-	size_t record_size = 0;
-	size_t dataIndex = 0;
+    char * data = 0;
+    size_t record_size = 0;
+    size_t dataIndex = 0;
     if (nr_events != 0) {
 
        TimeIo1DList timeio1d_events = m_project->get1DTimeIoTable();

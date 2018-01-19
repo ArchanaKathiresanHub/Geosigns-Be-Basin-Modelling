@@ -201,8 +201,8 @@ CauldronIO::DataStoreParams* CauldronIO::DataStoreLoad::getDatastoreParams(pugi:
     std::string compression = datastoreNode.attribute("compression").value();
     paramsNative->compressed = compression == "gzip" || compression == "lz4";
     paramsNative->compressed_lz4 = compression == "lz4";
-    paramsNative->size = (size_t)datastoreNode.attribute("size").as_uint();
-    paramsNative->offset = (size_t)datastoreNode.attribute("offset").as_uint();
+    paramsNative->size = (size_t)datastoreNode.attribute("size").as_ullong();
+    paramsNative->offset = (size_t)datastoreNode.attribute("offset").as_ullong();
 
     return paramsNative;
 }
@@ -345,8 +345,8 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
        const DataStoreParams* const params = mapNative->getDataStoreParams();
        assert(m_fileName == params->fileName.string());
  
-       subNode.append_attribute("offset") = (unsigned int)m_offset;
-       subNode.append_attribute("size") = (unsigned int)params->size;
+       subNode.append_attribute("offset") = (unsigned long long)m_offset;
+       subNode.append_attribute("size") = (unsigned long long)params->size;
        m_offset += params->size;
     }
 }
@@ -404,8 +404,8 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
         const DataStoreParams* const params = nativeVolume->getDataStoreParamsIJK();
         assert(m_fileName == params->fileName.string());
         
-        subNode.append_attribute("offset") = (unsigned int)m_offset;
-        subNode.append_attribute("size") = (unsigned int)params->size;
+        subNode.append_attribute("offset") = (unsigned long long)m_offset;
+        subNode.append_attribute("size") = (unsigned long long)params->size;
         m_offset += params->size;
     }
 }
@@ -504,8 +504,8 @@ void CauldronIO::DataToCompress::setXmlNode(pugi::xml_node node)
 void CauldronIO::DataToCompress::updateXmlNode()
 {
     assert(m_node_set);
-    m_node.append_attribute("size") = (unsigned int)m_outputNrBytes;
-    m_node.append_attribute("offset") = (unsigned int)m_offset;
+    m_node.append_attribute("size") = (unsigned long long)m_outputNrBytes;
+    m_node.append_attribute("offset") = (unsigned long long)m_offset;
 
     // If compression failed reset compression (none)
     if (m_compress && m_outputData == nullptr)

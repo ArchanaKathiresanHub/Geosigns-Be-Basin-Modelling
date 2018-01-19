@@ -33,7 +33,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::importFromXML(const std::str
         throw CauldronIOException("Cannot open file");
     
     pugi::xml_document doc;
-    std::cout << "Reading XML into pugiXML DOM" << std::endl;
     pugi::xml_parse_result result = doc.load_file(filename.c_str());
 
     if (!result)
