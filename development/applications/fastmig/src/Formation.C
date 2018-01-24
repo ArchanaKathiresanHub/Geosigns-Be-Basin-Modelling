@@ -260,7 +260,7 @@ namespace migration
                if ( compoundLithology )
                {
                   const double capC1 = compoundLithology->capC1();
-                  const double capC2 = compoundLithology->capC2();                  
+                  const double capC2 = compoundLithology->capC2();
 
                   double capSealStrength_Air_Hg = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg( capC1, capC2, vPermeability );
 
@@ -295,7 +295,7 @@ namespace migration
 
                      capillaryEntryPressureLiquid = capillaryEntryPressureVapour;
                      liquidDensity = vapourDensity;
-                  }                     
+                  }
                }
 
                if (capillaryEntryPressureLiquid == Interface::DefaultUndefinedMapValue or capillaryEntryPressureVapour == Interface::DefaultUndefinedMapValue)
@@ -590,7 +590,7 @@ namespace migration
       DerivedProperties::PropertyRetriever overPressurePropertyRetriever (m_formationPropertyPtr[OVERPRESSUREPROPERTY]);
 
       const int k = getMaximumNumberOfElements();
-      
+
       if (m_formationPropertyPtr[OVERPRESSUREPROPERTY] != nullptr)
       {
          // Array has first value at the bottom and second at the top of the formation
@@ -604,7 +604,7 @@ namespace migration
             overPressures[1] = 0.0;
          }
       }
-      
+
       return;
    }
 
@@ -723,7 +723,7 @@ namespace migration
    {
       LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
 
-	  if (!IsValid (formationNode)) 
+	  if (!IsValid (formationNode))
 		  return true;
       else
       return formationNode->computeTargetFormationNode ();
@@ -1029,7 +1029,7 @@ namespace migration
          {
 
             const DerivedProperties::PrimarySurfaceProperty * thePrimaryProperty = dynamic_cast<const DerivedProperties::PrimarySurfaceProperty *>(theProperty.get ());
- 
+
             if (thePrimaryProperty != 0)
             {
                theMap = thePrimaryProperty->getGridMap ();
@@ -1115,7 +1115,7 @@ namespace migration
       gridMap->retrieveData ();
 
       // Get the reservoir object of this formation (if it hosts a reservoir)
-      // in order to use FlowDirectionIJ values for lateral migration 
+      // in order to use FlowDirectionIJ values for lateral migration
       DataAccess::Interface::ReservoirList * reservoirList = m_migrator->getReservoirs (this);
       const Reservoir * reservoir = 0;
       if (!reservoirList->empty ())
@@ -1340,8 +1340,8 @@ namespace migration
       return false;
    }
 
-   // Loop through the uppermost cells and check if a trap crests exist with m_height_oil > minOilColumnHeight OR m_height_gas > minGasColumnHeight 
-   // Stop as soon as a trap crest is found. 
+   // Loop through the uppermost cells and check if a trap crests exist with m_height_oil > minOilColumnHeight OR m_height_gas > minGasColumnHeight
+   // Stop as soon as a trap crest is found.
    bool Formation::detectReservoirCrests ()
    {
       //cout << " Rank, Formation, m_detectedReservoir " << GetRank () << " " << getName () << " " << m_detectedReservoir << endl;
@@ -1352,7 +1352,7 @@ namespace migration
          RequestHandling::StartRequestHandling (getMigrator (), "detectReservoirCrests");
 
          int upperIndex = getNodeDepth () - 1;
-         // First  oil 
+         // First  oil
          for (int i = (int)m_formationNodeArray->firstILocal (); i <= (int)m_formationNodeArray->lastILocal (); ++i)
          {
             for (int j = (int)m_formationNodeArray->firstJLocal (); j <= (int)m_formationNodeArray->lastJLocal (); ++j)
@@ -1364,7 +1364,7 @@ namespace migration
             if (reservoirCrestDetected) break;
          }
 
-         // Then gas 
+         // Then gas
          if (!reservoirCrestDetected)
          {
             for (int i = (int)m_formationNodeArray->firstILocal (); i <= (int)m_formationNodeArray->lastILocal (); ++i)
@@ -1465,7 +1465,7 @@ namespace migration
             assert (reservoir);
 
             double formationThickness = getDepth (i, j, 0) - getDepth (i, j, depthIndex + 1);
-			
+
             // if offset is not used or the mode is non legacy, topOffsetThickness == 0
             double topOffsetThickness = reservoir->getLocalColumn(i, j)->getTopDepthOffset() * formationThickness;
 
@@ -1777,7 +1777,7 @@ namespace migration
                      composition.add ((ComponentId)componentId, correctedMass);
                   }
                }
-                  
+
                Column *targetColumn = targetReservoir->getColumn (iTarget, jTarget);
 
                if (IsValid (targetColumn) and !targetColumn->isSealing ())
@@ -1797,7 +1797,7 @@ namespace migration
                      {
                         Column *altTargetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
                                                                            jTarget + offsets[offsetIndex][1]);
-                        
+
                         if (IsValid (altTargetColumn) and !altTargetColumn->isSealing () and (shallowestColumn == 0 || altTargetColumn->getTopDepth () < shallowestDepth))
                         {
                            shallowestColumn = altTargetColumn;
@@ -1827,7 +1827,7 @@ namespace migration
          std::cout << "Basin_Warning: Hydrocarbons expelled from SR " << getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were eliminated.\n";
 
       if (genexMinorSnapshots and m_genexData != nullptr)
-         m_genexData->restoreData();      
+         m_genexData->restoreData();
    }
 
    // Refactor this. Too big, too complex
@@ -1921,7 +1921,7 @@ namespace migration
                         {
                            Column *altTargetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
                                                                                  jTarget + offsets[offsetIndex][1]);
-                        
+
                            if (IsValid (altTargetColumn) and !altTargetColumn->isSealing () and (shallowestColumn == 0 || altTargetColumn->getTopDepth () < shallowestDepth))
                            {
                               shallowestColumn = altTargetColumn;
@@ -1940,7 +1940,7 @@ namespace migration
             }
             else if (isValidNodeBelowFormation(targetFormationNode, targetReservoir->getFormation ()))
             {
-               stuckHCMass += leakingColumn->getComposition ().getWeight(); 
+               stuckHCMass += leakingColumn->getComposition ().getWeight();
             }
          }
       }
@@ -1951,7 +1951,7 @@ namespace migration
       double stuckHCs = SumAll (stuckHCMass);
       if (GetRank () == 0 and stuckHCs > 0.0)
          std::cout << "Basin_Warning: Hydrocarbons leaked from " << leakingReservoir->getFormation()->getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were elinminated.\n";
-  
+
    }
 
    bool Formation::calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool advancedMigration)
@@ -2030,7 +2030,7 @@ namespace migration
 
       if (genexMinorSnapshots and m_genexData != nullptr)
          m_genexData->restoreData();
-     
+
       return true;
    }
 
@@ -2075,7 +2075,7 @@ namespace migration
 
                // If that also doesn't work, try the leaking node, it must be at the top.
                if (!IsValid (formationNode))
-                  formationNode = leakingNode;                  
+                  formationNode = leakingNode;
             }
 
             FormationNode *targetFormationNode;
@@ -2120,7 +2120,7 @@ namespace migration
             }
             else if (isValidNodeBelowFormation(targetFormationNode, topActiveFormation))
             {
-               stuckHCMass += leakingColumn->getComposition ().getWeight(); 
+               stuckHCMass += leakingColumn->getComposition ().getWeight();
             }
          }
       }
@@ -2131,7 +2131,7 @@ namespace migration
       double stuckHCs = SumAll (stuckHCMass);
       if (GetRank () == 0 and stuckHCs > 0.0)
          std::cout << "Basin_Warning: Hydrocarbons leaked from " << leakingReservoir->getFormation()->getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were elinminated.\n";
- 
+
       return true;
    }
 

@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -44,8 +44,8 @@ const std::string& MultiComponentFlowHandler::getErrorString ( const DarcyErrorI
 
       // Set ERROR_CALCULATING_SATURATION string.
       buffer.str ( "" );
-      buffer << " Basin_Error  Error when calculating the saturations. " << std::endl;
-      buffer << " Basin_Error  To fix this try reducing the Darcy time-step size." << std::endl;
+      buffer << " Basin_Error:  Error when calculating the saturations. " << std::endl;
+      buffer << " Basin_Error:  To fix this try reducing the Darcy time-step size." << std::endl;
 
       names [ ERROR_CALCULATING_SATURATION ] = buffer.str ();
 
@@ -53,8 +53,8 @@ const std::string& MultiComponentFlowHandler::getErrorString ( const DarcyErrorI
 
       // Set ERROR_CALCULATING_CONCENTRATION string.
       buffer.str ( "" );
-      buffer << " Basin_Error  Error when calculating the concentrations. " << std::endl;
-      buffer << " Basin_Error  To fix this try reducing the Darcy time-step size." << std::endl;
+      buffer << " Basin_Error:  Error when calculating the concentrations. " << std::endl;
+      buffer << " Basin_Error:  To fix this try reducing the Darcy time-step size." << std::endl;
 
       names [ ERROR_CALCULATING_CONCENTRATION ] = buffer.str ();
 
@@ -62,7 +62,7 @@ const std::string& MultiComponentFlowHandler::getErrorString ( const DarcyErrorI
 
       // Set UNKNOWN_DARCY_ERROR string.
       buffer.str ( "" );
-      buffer << " Basin_Error An unknown error occurred " << std::endl;
+      buffer << " Basin_Error: An unknown error occurred " << std::endl;
       names [ UNKNOWN_DARCY_ERROR ] = buffer.str ();
 
       initialised = true;
@@ -99,7 +99,7 @@ std::string MultiComponentFlowHandler::getCommandLineOptions () {
    commandLineOptions << "           -mcfnootgc                  Do not include oil-to-gas cracking in the multi-component flow solver." << endl;
    commandLineOptions << "           -mcfimmobsat                Include the immobile-species in the porosity calculation (only valid when otgc is on)." << endl;
 
-   commandLineOptions << "           -mcfmaxts <ts>              Set the maximum time-step to be used in the multi-component solver, this does not" << endl 
+   commandLineOptions << "           -mcfmaxts <ts>              Set the maximum time-step to be used in the multi-component solver, this does not" << endl
                       << "                                       affect time-stepping in the pressure/temperature solvers, ts > 0." << endl;
    commandLineOptions << "           -mcfcflts                   Use the time-step size given by the adaptive time-stepping function." << endl;
    commandLineOptions << "           -mcfcflfrac <frac>          Scale the adaptive time-stepping value by this fraction, frac > 0." << endl;
@@ -125,7 +125,7 @@ std::string MultiComponentFlowHandler::getCommandLineOptions () {
    commandLineOptions << "           -mcfknode <k>               " << endl;
 
    commandLineOptions << "           -mcftssubsamp <n>           Time step sub-sampling for sub-processes, n > 1." << endl;
-   commandLineOptions << "           -mcftssubsampproc proc1,proc2,proc3 " << endl 
+   commandLineOptions << "           -mcftssubsampproc proc1,proc2,proc3 " << endl
                       << "                                       The comma separated list of sub-processes that should use sub-sampling of the Darcy time-steps, currently: otgc, pvt, flux." << endl;
 
    commandLineOptions << "           -mcfmaps                    Include maps in the Darcy output." << endl;
@@ -215,7 +215,7 @@ MultiComponentFlowHandler::~MultiComponentFlowHandler () {
 
    if ( m_explicitFlowSolver != 0 ) {
       delete m_explicitFlowSolver;
-   } 
+   }
 
 }
 
@@ -327,14 +327,14 @@ void MultiComponentFlowHandler::initialise () {
 
    PetscOptionsHasName ( PETSC_NULL, "-mcfnootgc",  &doNotApplyOtgc );
    PetscOptionsHasName ( PETSC_NULL, "-mcfotgc",  &applyOtgc );
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfinode", &m_debugINode, &iNodeWanted ); 
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfjnode", &m_debugJNode, &jNodeWanted ); 
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfknode", &m_debugKNode, &kNodeWanted ); 
+   PetscOptionsGetInt  ( PETSC_NULL, "-mcfinode", &m_debugINode, &iNodeWanted );
+   PetscOptionsGetInt  ( PETSC_NULL, "-mcfjnode", &m_debugJNode, &jNodeWanted );
+   PetscOptionsGetInt  ( PETSC_NULL, "-mcfknode", &m_debugKNode, &kNodeWanted );
 
    PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxgp", &newGradPressureMaximum, &gradPressureMaximumChanged );
    PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxperm", &newFluxPermeabilityMaximum, &fluxPermeabilityMaximumChanged );
 
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfdebug", &m_debugLevel, &mcfDebugLevelSet ); 
+   PetscOptionsGetInt  ( PETSC_NULL, "-mcfdebug", &m_debugLevel, &mcfDebugLevelSet );
    PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxts", &newMaximumMcfTimeStep, &maximumMcfTimeStepChanged );
    PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxfluxfrac", &newMaximumMcfHCFractionForFlux, &maximumMcfHCFractionForFluxChanged );
 
@@ -668,16 +668,16 @@ void MultiComponentFlowHandler::addSubdomains ( const int* formationRangeArray,
          ++rangeCount;
 
          if ( not NumericFunctions::inRange<int>( start, 0, numberOfFormations ) or not NumericFunctions::inRange<int>( end, 0, numberOfFormations )) {
-            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error invalid formation range: [%i,%i]\n", start, end );
-            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error This formation range will not be a part of the multi-component flow solver.\n" );              
+            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: invalid formation range: [%i,%i]\n", start, end );
+            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: This formation range will not be a part of the multi-component flow solver.\n" );
          } else {
             subdomain = new Subdomain ( *layers [ start ], *layers [ end ]);
             subdomainWasAdded = addSubdomain ( subdomain );
 
             if ( not subdomainWasAdded ) {
                PetscPrintf ( PETSC_COMM_WORLD, "Subdomain %i with range [%i,%i] was not added to the calculator.\n", rangeCount, start, end );
-               PetscPrintf ( PETSC_COMM_WORLD, "Subdomain %i with range [%s,%s] was not added to the calculator.\n", 
-                             rangeCount, 
+               PetscPrintf ( PETSC_COMM_WORLD, "Subdomain %i with range [%s,%s] was not added to the calculator.\n",
+                             rangeCount,
                              layers [ start ]->getName ().c_str (),
                              layers [ end ]->getName ().c_str ());
                delete subdomain;
@@ -696,16 +696,16 @@ void MultiComponentFlowHandler::addSubdomains ( const int* formationRangeArray,
          ++rangeCount;
 
          if ( not NumericFunctions::inRange<int>( start, 0, numberOfFormations ) or not NumericFunctions::inRange<int>( end, 0, numberOfFormations )) {
-            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error invalid formation range: [%i,%i]\n", start, end );
-            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error This formation range will not be a part of the multi-component flow solver.\n" );              
+            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: invalid formation range: [%i,%i]\n", start, end );
+            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: This formation range will not be a part of the multi-component flow solver.\n" );
          } else {
             subdomain = new Subdomain ( *layers [ start ], *layers [ end ]);
             subdomainWasAdded = addSubdomain ( subdomain );
 
             if ( not subdomainWasAdded ) {
                PetscPrintf ( PETSC_COMM_WORLD, "Subdomain %i with range [%i,%i] was not added to the calculator.\n", rangeCount, start, end );
-               PetscPrintf ( PETSC_COMM_WORLD, "Subdomain %i with range [%s,%s] was not added to the calculator.\n", 
-                             rangeCount, 
+               PetscPrintf ( PETSC_COMM_WORLD, "Subdomain %i with range [%s,%s] was not added to the calculator.\n",
+                             rangeCount,
                              layers [ start ]->getName ().c_str (),
                              layers [ end ]->getName ().c_str ());
                delete subdomain;
@@ -728,16 +728,16 @@ void MultiComponentFlowHandler::addSubdomains ( const int* formationRangeArray,
       ++rangeCount;
 
       if ( not NumericFunctions::inRange<int>( start, 0, numberOfFormations ) or not NumericFunctions::inRange<int>( end, 0, numberOfFormations )) {
-         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error invalid formation range: [%i,%i]\n", start, end );
-         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error This formation range will not be a part of the multi-component flow solver.\n" );              
+         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: invalid formation range: [%i,%i]\n", start, end );
+         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: This formation range will not be a part of the multi-component flow solver.\n" );
       } else {
          subdomain = new Subdomain ( *layers [ start ], *layers [ end ]);
          subdomainWasAdded = addSubdomain ( subdomain );
 
          if ( not subdomainWasAdded ) {
             PetscPrintf ( PETSC_COMM_WORLD, "Subdomain %i with range [%i,%i] was not added to the calculator.\n", rangeCount, start, end );
-            PetscPrintf ( PETSC_COMM_WORLD, "Subdomain %i with range [%s,%s] was not added to the calculator.\n", 
-                          rangeCount, 
+            PetscPrintf ( PETSC_COMM_WORLD, "Subdomain %i with range [%s,%s] was not added to the calculator.\n",
+                          rangeCount,
                           layers [ start ]->getName ().c_str (),
                           layers [ end ]->getName ().c_str ());
             delete subdomain;
@@ -785,7 +785,7 @@ void MultiComponentFlowHandler::determineSubdomains () {
 
       }
 
-      // If we have found the start of the Darcy domain search for the 
+      // If we have found the start of the Darcy domain search for the
       // end of the range of layers that are a part of the domain.
       if ( foundStart ) {
 
@@ -919,7 +919,7 @@ int MultiComponentFlowHandler::numberOfActiveSubdomains () const {
 
 //------------------------------------------------------------//
 
-void MultiComponentFlowHandler::solve ( const double previousTime, 
+void MultiComponentFlowHandler::solve ( const double previousTime,
                                         const double currentTime,
                                               bool&  errorOccurred ) {
 

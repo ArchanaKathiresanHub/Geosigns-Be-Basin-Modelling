@@ -166,7 +166,7 @@ bool GenexSimulator::run()
    setSimulationDetails ( "fastgenex", "Default", "" );
 
    if( !mergeOutputFiles ()) {
-      PetscPrintf ( PETSC_COMM_WORLD, "Basin_Error Unable to merge output files\n");
+      PetscPrintf ( PETSC_COMM_WORLD, "Basin_Error: Unable to merge output files\n");
 
       started = 0;
    }

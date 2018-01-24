@@ -922,7 +922,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
         }
 
      } else {
-        PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning Crust thinning model, %i, is not known, setting to defualt, 1. Allowable values are: 1, 2, 3.\n", crustThinningModel );
+        PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning: Crust thinning model, %i, is not known, setting to defualt, 1. Allowable values are: 1, 2, 3.\n", crustThinningModel );
         m_crustThinningModel = DefaultCrustThinningModel;
      }
 
@@ -931,7 +931,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
         if ( mantleElementScaling > 0.0 ) {
            m_inferiorMantleElementHeightScaling = mantleElementScaling;
         } else {
-           PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning Inferior mantle element height scaling is zero or less, %f, setting value to 1.\n", mantleElementScaling );
+           PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning: Inferior mantle element height scaling is zero or less, %f, setting value to 1.\n", mantleElementScaling );
            m_inferiorMantleElementHeightScaling = 1.0;
         }
 
@@ -955,7 +955,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
   if ( vesScaleChanged ) {
 
      if ( not NumericFunctions::inRange ( vesScale, 0.0, 1.0 )) {
-        PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning ves scaling factor, %f, is not in interval [ 0.0 .. 1.0 ], some clipping will occur.\n", vesScale );
+        PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning: ves scaling factor, %f, is not in interval [ 0.0 .. 1.0 ], some clipping will occur.\n", vesScale );
      }
 
      m_vesScaling = NumericFunctions::clipValueToRange<double> ( vesScale, 0.0, 1.0 );
@@ -1195,36 +1195,36 @@ void AppCtx::setParametersFromEnvironment () {
 
     if ( strEnd == chemicalCompactionVesValue ) {
       PetscPrintf ( PETSC_COMM_WORLD,
-                    " Basin_Warning  CHEMICAL_COMPACTION_VES_VALUE environment variable is not set correctly.\n" );
+                    " Basin_Warning:  CHEMICAL_COMPACTION_VES_VALUE environment variable is not set correctly.\n" );
       PetscPrintf ( PETSC_COMM_WORLD,
-                    " Basin_Warning  Cannot convert value '%s' to a double.\n",
+                    " Basin_Warning:  Cannot convert value '%s' to a double.\n",
                     chemicalCompactionVesValue );
       PetscPrintf ( PETSC_COMM_WORLD,
-                    " Basin_Warning  Chemical compaction will not be affected by the environment variable.\n" );
+                    " Basin_Warning:  Chemical compaction will not be affected by the environment variable.\n" );
     } else {
       chemicalCompactionVesValueWellDefined = (( strEnd == 0 ) or ( strlen ( strEnd ) == 0 ));
 
       if ( chemicalCompactionVesValueWellDefined ) {
         PetscPrintf ( PETSC_COMM_WORLD,
-                      " Basin_Warning  CHEMICAL_COMPACTION_VES_VALUE environment variable is set correctly: %s.\n",
+                      " Basin_Warning:  CHEMICAL_COMPACTION_VES_VALUE environment variable is set correctly: %s.\n",
                       chemicalCompactionVesValue );
         PetscPrintf ( PETSC_COMM_WORLD,
-                      " Basin_Warning  Setting ves to value: %5.5f.\n",
+                      " Basin_Warning:  Setting ves to value: %5.5f.\n",
                       vesValue );
         PetscPrintf ( PETSC_COMM_WORLD,
-                      " Basin_Warning  These warning messages serve only as a reminder that the environment variable is set to a valid value.\n" );
+                      " Basin_Warning:  These warning messages serve only as a reminder that the environment variable is set to a valid value.\n" );
       } else {
         PetscPrintf ( PETSC_COMM_WORLD,
-                      " Basin_Warning  CHEMICAL_COMPACTION_VES_VALUE environment variable is set incorrectly: %s.\n",
+                      " Basin_Warning:  CHEMICAL_COMPACTION_VES_VALUE environment variable is set incorrectly: %s.\n",
                       chemicalCompactionVesValue );
         PetscPrintf ( PETSC_COMM_WORLD,
-                      " Basin_Warning  However setting ves to value: %5.5f. This was extracted from the leading substring of the environment variable.\n",
+                      " Basin_Warning:  However setting ves to value: %5.5f. This was extracted from the leading substring of the environment variable.\n",
                       vesValue );
         PetscPrintf ( PETSC_COMM_WORLD,
-                      " Basin_Warning  The trailing substring of the environment variable is: %s. For correct execution please remove this trailing substring.\n",
+                      " Basin_Warning:  The trailing substring of the environment variable is: %s. For correct execution please remove this trailing substring.\n",
                       strEnd );
         PetscPrintf ( PETSC_COMM_WORLD,
-                      " Basin_Warning  These warning messages serve only as a reminder that the environment variable is set to a valid value.\n" );
+                      " Basin_Warning:  These warning messages serve only as a reminder that the environment variable is set to a valid value.\n" );
       }
 
       for ( i = 0; i < layers.size() - 2; ++i ) {
@@ -1249,10 +1249,10 @@ bool AppCtx::setProjectFileName(const string& projectFileName) {
   m_ProjectFileName = projectFileName;
 
   if ( m_ProjectFileName.length() == 0 ) {
-    PetscPrintf( PETSC_COMM_WORLD, " Basin_Error project file name is empty. \n");
+    PetscPrintf( PETSC_COMM_WORLD, " Basin_Error: project file name is empty. \n");
     returnStatus = false;
   } else if ( ! File_Exists ( projectFileName )) {
-    PetscPrintf( PETSC_COMM_WORLD, " Basin_Error project file '%s' does not exist. \n",
+    PetscPrintf( PETSC_COMM_WORLD, " Basin_Error: project file '%s' does not exist. \n",
                  projectFileName.c_str ());
     returnStatus = false;
   } else {
@@ -3022,7 +3022,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
   Created_Lithologies = FastcauldronSimulator::getInstance ().setFormationLithologies ( enableHalokinesis, true );
 
   if ( not successfulExecution ( Created_Lithologies )) {
-     cout << "Basin_Error Could not create lithologies " << endl;
+     cout << "Basin_Error: Could not create lithologies " << endl;
      return false;
   }
 
@@ -3893,7 +3893,7 @@ void AppCtx::addBottomSedimentSurfaceIsoPointsToIsolines(void)
 {
    const AppCtx::DoubleVector & vreMilestoneValues = this->getContourMilestones(AppCtx::ISOVRE);
 
-   AppCtx::DoubleVector::const_iterator itVre    = vreMilestoneValues.begin(); 
+   AppCtx::DoubleVector::const_iterator itVre    = vreMilestoneValues.begin();
    AppCtx::DoubleVector::const_iterator itVreEnd = vreMilestoneValues.end();
 
    while(itVre != itVreEnd)

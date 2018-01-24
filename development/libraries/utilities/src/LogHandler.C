@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "LogHandler.h"
 
@@ -177,11 +177,11 @@ LogHandler::~LogHandler(){
             applyStyle();
             switch (m_severity)
             {
-            case LogHandler::DEBUG_SEVERITY:     BOOST_LOG_TRIVIAL( debug )   << "Basin_Debug    " << m_oss.str(); break;
+            case LogHandler::DEBUG_SEVERITY:     BOOST_LOG_TRIVIAL( debug )   << "Basin_Debug:    " << m_oss.str(); break;
             case LogHandler::INFO_SEVERITY:      BOOST_LOG_TRIVIAL( info )                           << m_oss.str(); break;
-            case LogHandler::WARNING_SEVERITY:   BOOST_LOG_TRIVIAL( warning ) << "Basin_Warning  " << m_oss.str(); break;
-            case LogHandler::ERROR_SEVERITY:     BOOST_LOG_TRIVIAL( error )   << "Basin_Error    " << m_oss.str(); break;
-            case LogHandler::FATAL_SEVERITY:     BOOST_LOG_TRIVIAL( fatal )   << "Basin_Fatal    " << m_oss.str(); break;
+            case LogHandler::WARNING_SEVERITY:   BOOST_LOG_TRIVIAL( warning ) << "Basin_Warning:  " << m_oss.str(); break;
+            case LogHandler::ERROR_SEVERITY:     BOOST_LOG_TRIVIAL( error )   << "Basin_Error:    " << m_oss.str(); break;
+            case LogHandler::FATAL_SEVERITY:     BOOST_LOG_TRIVIAL( fatal )   << "Basin_Fatal:    " << m_oss.str(); break;
             default: throw LogHandlerException() << "Unknwon severity level '" << m_severity << "'."; break;
             }
          }
@@ -192,10 +192,10 @@ LogHandler::~LogHandler(){
          }
       }
       catch (LogHandlerException ex) {
-         BOOST_LOG_TRIVIAL( error ) << "Basin_Error    " << ex.what();
+         BOOST_LOG_TRIVIAL( error ) << "Basin_Error:    " << ex.what();
       }
       catch (...){
-         BOOST_LOG_TRIVIAL( fatal ) << "Basin_Fatal    " << "Fatal log error.";
+         BOOST_LOG_TRIVIAL( fatal ) << "Basin_Fatal:    " << "Fatal log error.";
       }
    }
 }

@@ -59,13 +59,13 @@ int main ( int argc, char* argv []) {
   // FLEX licence manager
   //
   // Attempt to check out the license.
-  
+
   int rc = EPTFLEXLM_OK;
 
   char feature[EPTFLEXLM_MAX_FEATURE_LEN];
   char version[EPTFLEXLM_MAX_VER_LEN];
   char errmessage[EPTFLEXLM_MAX_MESS_LEN];
-   
+
   // FlexLM license handling only for node with rank = 0
   sprintf(feature, "ibs_cauldron_halo");
 
@@ -101,8 +101,8 @@ int main ( int argc, char* argv []) {
   }
   //------------------------------------------------------------//
   #else
-  std::cout << std::endl << std::endl 
-            << " **************** GeoMorph warning FLEXLM is currently not active  ****************" 
+  std::cout << std::endl << std::endl
+            << " **************** GeoMorph warning FLEXLM is currently not active  ****************"
             << std::endl << std::endl;
   #endif
 
@@ -125,7 +125,7 @@ int main ( int argc, char* argv []) {
         projectFileName = argv [ i + 1 ];
         i++;
       } else {
-        std::cout << " Basin_Error No project file name given " << std::endl;
+        std::cout << " Basin_Error: No project file name given " << std::endl;
         printUsage ( argv [ 0 ]);
         return 1;
       }
@@ -136,7 +136,7 @@ int main ( int argc, char* argv []) {
         outputProjectFileName = argv [ i + 1 ];
         i++;
       } else {
-        std::cout << " Basin_Error No output project file name given " << std::endl;
+        std::cout << " Basin_Error: No output project file name given " << std::endl;
         printUsage ( argv [ 0 ]);
         return 1;
       }
@@ -151,13 +151,13 @@ int main ( int argc, char* argv []) {
       if ( i < argc - 1 ) {
         stringToInt ( argv [ i + 1 ], debugLevel, error );
       } else {
-        std::cout << " Basin_Error No debug level given " << std::endl;
+        std::cout << " Basin_Error: No debug level given " << std::endl;
         printUsage ( argv [ 0 ]);
         return 1;
       }
 
       if ( error ) {
-        std::cout << " Basin_Error Could not convert '" << argv [ i + 1 ] << "' to an integer " << std::endl;
+        std::cout << " Basin_Error: Could not convert '" << argv [ i + 1 ] << "' to an integer " << std::endl;
         printUsage ( argv [ 0 ]);
         return 1;
       }
@@ -170,7 +170,7 @@ int main ( int argc, char* argv []) {
   }
 
   if ( projectFileName == "" ) {
-    std::cout << " Basin_Error no project name given " << std::endl;
+    std::cout << " Basin_Error: no project name given " << std::endl;
     printUsage ( argv [ 0 ]);
     return 1;
   }

@@ -77,9 +77,9 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
 
    if ( lowResNumI <= 1 or lowResNumJ <= 1 ) {
       PetscPrintf (PETSC_COMM_WORLD,
-                   "\nBasin_Error Unable to partition a %d x %d grid, please increase the number of grid nodes.\nThere must be at least two nodes in each direction \n", lowResNumI, lowResNumJ );
+                   "\nBasin_Error: Unable to partition a %d x %d grid, please increase the number of grid nodes.\nThere must be at least two nodes in each direction \n", lowResNumI, lowResNumJ );
       PetscPrintf(PETSC_COMM_WORLD, "\nExiting ...\n\n");
-      
+
       MPI_Finalize ();
       exit (-1);
    }
@@ -90,15 +90,15 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
       PetscPrintf (PETSC_COMM_WORLD,
                    "\nUnable to partition a %d (%d) x %d (%d) grid using %d cores, please select a different number of cores:\n", lowResNumI, numIGlobal (),  lowResNumJ, numJGlobal (), size);
       PetscPrintf(PETSC_COMM_WORLD, "Exiting ...\n\n");
-      
+
       MPI_Finalize ();
       exit (-1);
    }
 
 
    DMDACreate2d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
-                  numIGlobal (), numJGlobal (), 
-                  numICores, numJCores, 1, 1, 
+                  numIGlobal (), numJGlobal (),
+                  numICores, numJCores, 1, 1,
                   PETSC_NULL, PETSC_NULL, &m_localInfo.da );
 
    DMDAGetLocalInfo (m_localInfo.da, &m_localInfo);
@@ -430,7 +430,7 @@ int DistributedGrid::numProcsI (void) const
    if (m_numProcsI < 0)
    {
    DMDAGetInfo( m_localInfo.da, PETSC_NULL,
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                PETSC_NULL, PETSC_NULL, PETSC_NULL,
                 &m_numProcsI, PETSC_NULL, PETSC_NULL,
                 PETSC_NULL,PETSC_NULL,
                 PETSC_NULL,PETSC_NULL,PETSC_NULL,
@@ -445,7 +445,7 @@ int DistributedGrid::numProcsJ (void) const
    if (m_numProcsJ < 0)
    {
    DMDAGetInfo( m_localInfo.da, PETSC_NULL,
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                PETSC_NULL, PETSC_NULL, PETSC_NULL,
                 PETSC_NULL, &m_numProcsJ, PETSC_NULL,
                 PETSC_NULL,PETSC_NULL,
                 PETSC_NULL,PETSC_NULL,PETSC_NULL,
@@ -478,7 +478,7 @@ bool DistributedGrid::getGridPoint (double posI, double posJ, unsigned int & i, 
 // getGridPoint(....) is an abstract overloaded function. Some of its implementations are
 // missing in the distributed version. Missing are implemented by simply
 // throwing an error. return m_globalGrid.getGridPoint (posI, posJ, i, j) may
-// also work here but I am not sure. 
+// also work here but I am not sure.
 bool DistributedGrid::getGridPoint (double posI, double posJ, double & i, double & j) const
 {
    throw "bool Grid::getGridPoint (double posI, double posJ, double & i, double & j) const is not implemented in distributed version. Use bool Grid::getGridPoint (double posI, double posJ, unsigned int & i, unsigned int & j) instead.";
@@ -493,7 +493,7 @@ bool DistributedGrid::getPosition (unsigned int i, unsigned int j, double &posI,
 {
    return m_globalGrid.getPosition (i, j, posI, posJ);
 }
-   
+
 bool DistributedGrid::getPosition (double i, double j, double &posI, double &posJ) const
 {
    return m_globalGrid.getPosition (i, j, posI, posJ);
@@ -691,19 +691,19 @@ void DistributedGrid::printDistributionOn (MPI_Comm comm) const
     PetscPrintf (comm, "%4d", pointRank);
       }
       PetscPrintf (comm, "\n");
-   } 
+   }
    PetscPrintf (comm, "\n");
 }
 
 bool DistributedGrid::hasSameGridding( const Grid& grid ) const
 {
-   return ( 
-      this->numI()  == grid.numI()   && 
+   return (
+      this->numI()  == grid.numI()   &&
       this->numJ()  == grid.numJ()   &&
-      this->firstI()== grid.firstI() && 
+      this->firstI()== grid.firstI() &&
       this->firstJ()== grid.firstJ() &&
-      this->lastI() == grid.lastI()  && 
-      this->lastJ() == grid.lastJ() 
+      this->lastI() == grid.lastI()  &&
+      this->lastJ() == grid.lastJ()
    );
-   
+
 }

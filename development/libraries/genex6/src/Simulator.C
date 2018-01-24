@@ -1,9 +1,9 @@
-//                                                      
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -35,7 +35,7 @@ using Utilities::Physics::BoltzmannOverPlanckByMillionYear;
 namespace Genex6
 {
 
-Simulator::Simulator() 
+Simulator::Simulator()
 {
    s_cfgFileExtension = ".cfg";
    s_dT = 0.0;
@@ -55,12 +55,12 @@ Simulator::Simulator()
    m_useDefaultGeneralParameters  = true;
    m_numberOfTimesteps = 400;
    m_maximumTimeStepSize = 1.0;
-   m_openConditions = true;   
+   m_openConditions = true;
 
    m_simulationType = 0;
    m_fullPathToConfigurationFileDirectory = "";
    m_type = "";
-} 
+}
 
 ChemicalModel * Simulator::loadChemicalModel(const std::string in_fullPathToConfigurationFileDirectory,
                                              const int in_simulationType,
@@ -81,9 +81,9 @@ ChemicalModel * Simulator::loadChemicalModel(const std::string in_fullPathToConf
    //build chemical model, get boundary conditions
    CreateInstance();
    SetApproximateFlag(inApproximateFlag);
-   
-   Preprocess(in_SC, in_HC, in_Emean, in_VRE, in_asphalteneDiffusionEnergy, in_resinDiffusionEnergy, 
-              in_C15AroDiffusionEnergy, in_C15SatDiffusionEnergy); 
+
+   Preprocess(in_SC, in_HC, in_Emean, in_VRE, in_asphalteneDiffusionEnergy, in_resinDiffusionEnergy,
+              in_C15AroDiffusionEnergy, in_C15SatDiffusionEnergy);
 
    return m_theChemicalModel;
 }
@@ -122,14 +122,14 @@ Simulator::Simulator(const std::string in_fullPathToConfigurationFileDirectory,
    m_useDefaultGeneralParameters  = true;
    m_numberOfTimesteps = 400;
    m_maximumTimeStepSize = 1.0;
-   m_openConditions = true;   
+   m_openConditions = true;
 
    //build chemical model, get boundary conditions
    CreateInstance();
    SetApproximateFlag(inApproximateFlag);
 
-   Preprocess(in_SC, in_HC, in_Emean, in_VRE, in_asphalteneDiffusionEnergy, in_resinDiffusionEnergy, 
-              in_C15AroDiffusionEnergy, in_C15SatDiffusionEnergy); 
+   Preprocess(in_SC, in_HC, in_Emean, in_VRE, in_asphalteneDiffusionEnergy, in_resinDiffusionEnergy,
+              in_C15AroDiffusionEnergy, in_C15SatDiffusionEnergy);
 }
 
 //meant to work with old configuration file...
@@ -137,10 +137,10 @@ Simulator::Simulator(const std::string in_fullPathConfigurationFileName,
                      const int in_simulationType,
                      const double in_HC,
                      const double in_SC,
-                     const double in_Emean, 
+                     const double in_Emean,
                      bool PreprocessChemicalModel,
-                     const bool inApproximateFlag) 
-{ 
+                     const bool inApproximateFlag)
+{
 
    s_cfgFileExtension = ".cfg";
    s_dT = 0.0;
@@ -161,15 +161,15 @@ Simulator::Simulator(const std::string in_fullPathConfigurationFileName,
    m_useDefaultGeneralParameters  = true;
    m_numberOfTimesteps = 400;
    m_maximumTimeStepSize = 1.0;
-   m_openConditions = true;   
+   m_openConditions = true;
 
    m_theChemicalModel = new Genex6::ChemicalModel(in_fullPathConfigurationFileName, m_simulationType);
    SetApproximateFlag(inApproximateFlag);
-   
+
    if(PreprocessChemicalModel) {
       cout<<"PREPROCESSING CHEMICAL MODEL"<<endl;
       m_theChemicalModel->UpdateSpeciesCompositionsByElementName(m_theChemicalModel->getSpeciesManager ().getPreasphaltId (),
-                                                                 m_theChemicalModel->getSpeciesManager ().getHydrogenId (), in_HC); 
+                                                                 m_theChemicalModel->getSpeciesManager ().getHydrogenId (), in_HC);
       m_theChemicalModel->SetSCratio(in_SC);
       m_theChemicalModel->SetHCratio(in_HC);
       m_theChemicalModel->CompEarlySpecies();
@@ -178,14 +178,14 @@ Simulator::Simulator(const std::string in_fullPathConfigurationFileName,
       //m_theChemicalModel->SetSpeciesReactionOrder(); no need for that here
 
       m_theChemicalModel->UpdateSpeciesProperties();
-   }                  
+   }
 }
-void Simulator::SetSimulatorState(SimulatorStateBase * theState) 
+void Simulator::SetSimulatorState(SimulatorStateBase * theState)
 {
    m_currentState = theState;
 }
 
-SimulatorStateBase* Simulator::GetSimulatorState() const 
+SimulatorStateBase* Simulator::GetSimulatorState() const
 {
    return m_currentState;
 }
@@ -195,7 +195,7 @@ void Simulator::addSubProcess ( SubProcessSimulator* subProcess ) {
 
 #if USE_PRIORITY_QUEUE
    m_subProcesses.push ( subProcess );
-#else 
+#else
    m_subProcesses.push_back ( subProcess );
    std::sort ( m_subProcesses.begin (), m_subProcesses.end (), SubProcessPriorityComparator ());
 #endif
@@ -203,7 +203,7 @@ void Simulator::addSubProcess ( SubProcessSimulator* subProcess ) {
 }
 */
 
-int Simulator::GetSpeciesIdByName(const std::string & name) 
+int Simulator::GetSpeciesIdByName(const std::string & name)
 {
    Species * spec = m_theChemicalModel->GetByNameSpecies(name);
    if(spec) {
@@ -211,7 +211,7 @@ int Simulator::GetSpeciesIdByName(const std::string & name)
    }
    return -1;
 }
-const Species ** Simulator::getSpeciesInChemicalModel() 
+const Species ** Simulator::getSpeciesInChemicalModel()
 {
    return  m_theChemicalModel->GetSpecies();
 }
@@ -222,7 +222,7 @@ void Simulator::SetApproximateFlag(const bool in_approximateFlag)
       if((spec = m_theChemicalModel->GetSpeciesById(i)) != NULL){
          spec->SetApproximateFlag(in_approximateFlag);
       }
-   } 
+   }
 }
 
 void Simulator::Preprocess(const double in_SC,
@@ -232,7 +232,7 @@ void Simulator::Preprocess(const double in_SC,
                            const double in_asphalteneDiffusionEnergy,
                            const double in_resinDiffusionEnergy,
                            const double in_C15AroDiffusionEnergy,
-                           const double in_C15SatDiffusionEnergy) 
+                           const double in_C15SatDiffusionEnergy)
 {
 
    const SpeciesManager& speciesManager = m_theChemicalModel->getSpeciesManager ();
@@ -242,14 +242,14 @@ void Simulator::Preprocess(const double in_SC,
       HC1 = CheckInitialHC(in_VRE, in_HC);
    }
 
-   m_theChemicalModel->UpdateSpeciesCompositionsByElementName(speciesManager.getPreasphaltId (), 
-                                                              speciesManager.getHydrogenId (), HC1); 
-   m_theChemicalModel->SetSCratio(in_SC); 
-   m_theChemicalModel->SetHCratio(HC1); 
-  
+   m_theChemicalModel->UpdateSpeciesCompositionsByElementName(speciesManager.getPreasphaltId (),
+                                                              speciesManager.getHydrogenId (), HC1);
+   m_theChemicalModel->SetSCratio(in_SC);
+   m_theChemicalModel->SetHCratio(HC1);
+
    if(m_preProcessSpeciesComposition) {
       m_theChemicalModel->CompEarlySpecies();
-   } 
+   }
 
    if(m_preProcessSpeciesKinetics) {
       m_theChemicalModel->KineticsEarlySpecies(in_Emean);
@@ -260,7 +260,7 @@ void Simulator::Preprocess(const double in_SC,
    m_theChemicalModel->UpdateSpeciesDiffusionEnergy1(speciesManager.getAsphaltenesId (), in_asphalteneDiffusionEnergy);
    m_theChemicalModel->UpdateSpeciesDiffusionEnergy1(speciesManager.getResinsId (), in_resinDiffusionEnergy);
    m_theChemicalModel->UpdateSpeciesDiffusionEnergy1(speciesManager.getC15plusAroId (), in_C15AroDiffusionEnergy);
-   m_theChemicalModel->UpdateSpeciesDiffusionEnergy1(speciesManager.getC15plusSatId (), in_C15SatDiffusionEnergy); 
+   m_theChemicalModel->UpdateSpeciesDiffusionEnergy1(speciesManager.getC15plusSatId (), in_C15SatDiffusionEnergy);
 
    m_theChemicalModel->SetSpeciesReactionOrder();//Depends on ChemicalModel::UpdateSpeciesProperties
 
@@ -268,7 +268,7 @@ void Simulator::Preprocess(const double in_SC,
 }
 
 Simulator::~Simulator() {
-   delete m_theChemicalModel; 
+   delete m_theChemicalModel;
 
    /*
    SubProcessSimulatorList::iterator processIterator;
@@ -284,31 +284,31 @@ Simulator::~Simulator() {
    */
 }
 
-void Simulator:: CreateInstance() 
+void Simulator:: CreateInstance()
 {
-   
+
    m_theChemicalModel = new Genex6::ChemicalModel(m_simulationType);
    LoadDataFromConfigurationFile();
 }
-void Simulator::LoadDataFromConfigurationFile() 
-{ 
+void Simulator::LoadDataFromConfigurationFile()
+{
    std:: string FullPathConfigurationFileName = m_fullPathToConfigurationFileDirectory + m_type + s_cfgFileExtension;
    ifstream  ConfigurationFile;
    ConfigurationFile.open(FullPathConfigurationFileName.c_str());
-   
+
    if(!ConfigurationFile) {
      //throw
-      cerr<<"Basin_Error Attempting to open file : " + FullPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... "<<endl;
-      throw ( "Basin_Error Attempting to open file : " + FullPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... ");
+      cerr<<"Basin_Error: Attempting to open file : " + FullPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... "<<endl;
+      throw ( "Basin_Error: Attempting to open file : " + FullPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... ");
    }
 
-   bool finishReadingFile = false;  
+   bool finishReadingFile = false;
    std::string line;
 
    while(!ConfigurationFile.eof() && finishReadingFile == false) {
 
       std::getline (ConfigurationFile, line, '\n');
-     
+
       if(line==Genex6::CFG::TableSimulatorProperties || line.find(Genex6::CFG::TableSimulatorProperties, 0) != std::string::npos) {
         LoadSimulatorProperties(ConfigurationFile);
       } else if(line==Genex6::CFG::TableElements || line.find(Genex6::CFG::TableElements, 0) != std::string::npos) {
@@ -353,27 +353,27 @@ void Simulator::LoadDataFromConfigurationFile()
 
    ConfigurationFile.close();
 }
-bool Simulator::Validate() const 
+bool Simulator::Validate() const
 {
    bool status = m_theChemicalModel->Validate();
    return status;
 }
-void Simulator::LoadSimulatorProperties(ifstream &ConfigurationFile) 
+void Simulator::LoadSimulatorProperties(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
    const char delim = ',';
-   
+
    for(;;) {
 
       std::getline (ConfigurationFile, line, '\n');
-        
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
-      
+
       StringHandler::parseLine( line, delim, theTokens );
-      
+
       if(theTokens.size() == 2) {
          if(theTokens[0] == Genex6::CFG::PreprocessSpeciesKinetics) {
             //transform(theTokens[1].begin(), theTokens[1].end(), theTokens[1].begin(), toupper) ;
@@ -381,8 +381,8 @@ void Simulator::LoadSimulatorProperties(ifstream &ConfigurationFile)
             if(theTokens[1] == "TRUE") {
                m_preProcessSpeciesKinetics = true;
             } else  {
-               m_preProcessSpeciesKinetics = false;  
-            } 
+               m_preProcessSpeciesKinetics = false;
+            }
          } else if(theTokens[0] == Genex6::CFG::PreprocessSpeciesComposition) {
             //std::transform(theTokens[1].begin(), theTokens[1].end(), theTokens[1].begin(), toupper) ;
             TransformStringToUpper(theTokens[1]);
@@ -420,7 +420,7 @@ void Simulator::LoadSimulatorProperties(ifstream &ConfigurationFile)
       theTokens.clear();
    }
 }
-void Simulator::LoadGeneralParameters(ifstream &ConfigurationFile) 
+void Simulator::LoadGeneralParameters(ifstream &ConfigurationFile)
 {
    //change values stored in singleton
    std::string line;
@@ -431,12 +431,12 @@ void Simulator::LoadGeneralParameters(ifstream &ConfigurationFile)
    for(;;) {
 
       std::getline (ConfigurationFile, line, '\n');
-      
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
       StringHandler::parseLine( line, delim, theTokens );
-      
+
       //2Do, implement here the interface for parameters
       if(theTokens.size() == 2) {
          cout << theTokens[0] << endl;
@@ -452,10 +452,10 @@ void Simulator::LoadGeneralParameters(ifstream &ConfigurationFile)
 //(sometimes called Vogel-Fulcher temperature in ploymer science)
 //as a function of aromatic solid OM content (Waso)
 //n.b. Waso = Clump(2) / Clump(1); see ConcLump for full definition of Clump(2)
-double Simulator::ComputeVogelFulcherTemperature(const double in_Waso) 
+double Simulator::ComputeVogelFulcherTemperature(const double in_Waso)
 {
    GeneralParametersHandler & theHandler = GeneralParametersHandler::getInstance();
-   
+
    static double T0torbanite = theHandler.GetParameterById(GeneralParametersHandler::T0torbanite);
    static double TuningConst = theHandler.GetParameterById(GeneralParametersHandler::TuningConst);
    static double T0aromatic  = theHandler.GetParameterById(GeneralParametersHandler::T0aromatic);
@@ -467,7 +467,7 @@ double Simulator::ComputeVogelFulcherTemperature(const double in_Waso)
 }
 
 //timestep with reference to the saved simulator state
-double Simulator::ComputeTimestepSize(const Input &theInput) const 
+double Simulator::ComputeTimestepSize(const Input &theInput) const
 {
   double dT = 0.0;
   double currentTime = theInput.GetTime();
@@ -476,12 +476,12 @@ double Simulator::ComputeTimestepSize(const Input &theInput) const
   dT = fabs(currentTime - previousTime);
   return dT;
 }
-void Simulator::PreprocessTimeStepComputation(const Input &theInput) 
+void Simulator::PreprocessTimeStepComputation(const Input &theInput)
 {
-   s_dT = ComputeTimestepSize(theInput); 
-   
+   s_dT = ComputeTimestepSize(theInput);
+
    s_Peff = theInput.GetPressure();
-   
+
    //TK = TC(J) + TCabs
    s_TK = theInput.GetTemperatureKelvin();
 
@@ -489,24 +489,24 @@ void Simulator::PreprocessTimeStepComputation(const Input &theInput)
 
    s_kerogenTransformationRatio = m_currentState->ComputeKerogenTransformatioRatio ( getChemicalModel ().getSpeciesManager (),
                                                                                      m_simulationType);
-    
-   s_Waso = m_currentState->ComputeWaso(); 
+
+   s_Waso = m_currentState->ComputeWaso();
    s_DiffusionConcDependence = m_currentState->ComputeDiffusionConcDependence(s_Waso);
 
    //T0 = FunVogelFulcherTemperature(Waso)
    s_VogelFulcherTemperature = ComputeVogelFulcherTemperature(s_Waso);
 
    ComputePrecokeTransformatioRatio();
-   
+
    ComputeCoke2TransformatioRatio();
    m_currentState->SetLumpedConcentrationsToZero();
    m_currentState->SetResultsToZero();
    m_currentState->setTotalOilForTSR ( 0.0 );
 }
 
-void Simulator::ProcessTimeStepComputation() 
+void Simulator::ProcessTimeStepComputation()
 {
-   const double T1 = (m_simulationType & Genex6::Constants::SIMGENEX ? 
+   const double T1 = (m_simulationType & Genex6::Constants::SIMGENEX ?
                       s_kerogenTransformationRatio : m_currentState->getMaxPrecokeTransfRatio());
    //compute time step, update m_currentState, compute output
    m_theChemicalModel->ComputeTimeStep(*m_currentState,
@@ -519,15 +519,15 @@ void Simulator::ProcessTimeStepComputation()
                                        m_currentState->getMaxCoke2TransTransfRatio(),
                                        s_DiffusionConcDependence,
                                        s_VogelFulcherTemperature,
-                                       m_openConditions); 
+                                       m_openConditions);
 
 }
-void Simulator::PrintBenchmarkOutput(ofstream &outputTestingSetFile) const 
-{                                  
+void Simulator::PrintBenchmarkOutput(ofstream &outputTestingSetFile) const
+{
    m_theChemicalModel->PrintBenchmarkSpeciesProperties(outputTestingSetFile);
    m_theChemicalModel->PrintBenchmarkStoichiometry(outputTestingSetFile);
 }
-void Simulator::PrintConfigurationFile(const std::string &FullPathConfigurationFileName, const bool PreprocessChemicalModel) 
+void Simulator::PrintConfigurationFile(const std::string &FullPathConfigurationFileName, const bool PreprocessChemicalModel)
 {
    ofstream outfile;
    outfile.open(FullPathConfigurationFileName.c_str());
@@ -541,7 +541,7 @@ void Simulator::PrintConfigurationFile(const std::string &FullPathConfigurationF
    outfile << "[EndOfTable]" << endl;
    outfile << endl;
    //-----------------------------------------------------------------------------
-  
+
    outfile << "Table:[SimulatorProperties]" << endl;
    outfile << "Property,Value" << endl;
    outfile << "PreprocessSpeciesKinetics" << "," << (!PreprocessChemicalModel ? "TRUE": "FALSE") << endl;
@@ -561,12 +561,12 @@ void Simulator::PrintConfigurationFile(const std::string &FullPathConfigurationF
    //2DO
    //outfile << "More to come here..." << endl;
    GeneralParametersHandler &theHandler = GeneralParametersHandler::getInstance();
-   theHandler.PrintConfigurationFileGeneralParameters(outfile);   
+   theHandler.PrintConfigurationFileGeneralParameters(outfile);
    outfile << "[EndOfTable]" << endl;
-   outfile.close(); 
+   outfile.close();
 }
 
-void Simulator::ComputePrecokeTransformatioRatio() 
+void Simulator::ComputePrecokeTransformatioRatio()
 {
    //double precokeUltimateMass = m_theChemicalModel->getSpeciesUltimateMassByName("precoke");
    double precokeUltimateMass = m_currentState->getSpeciesUltimateMassByName(m_theChemicalModel->getSpeciesManager ().getPrecokeId ());
@@ -587,7 +587,7 @@ void Simulator::ComputePrecokeTransformatioRatio()
 
 }
 
-void Simulator::ComputeCoke2TransformatioRatio() 
+void Simulator::ComputeCoke2TransformatioRatio()
 {
 
    //double coke2UltimateMass = m_theChemicalModel->getSpeciesUltimateMassByName("coke2");
@@ -597,32 +597,32 @@ void Simulator::ComputeCoke2TransformatioRatio()
    if(coke2UltimateMass > 1e-30) {
       tempCoke2transRatio = m_currentState->GetSpeciesConcentrationByName(m_theChemicalModel->getSpeciesManager ().getCoke2Id ()) / coke2UltimateMass;
       if( tempCoke2transRatio > 1 ) {
-         tempCoke2transRatio = 1.0; 
+         tempCoke2transRatio = 1.0;
       }
    }
 
    if(tempCoke2transRatio > m_currentState->getMaxCoke2TransTransfRatio())	{
       m_currentState->setMaxCoke2TransTransfRatio(tempCoke2transRatio);
-   } 
+   }
 }
-double Simulator::CheckInitialHC(const double in_VRE, const double in_HC) 
+double Simulator::CheckInitialHC(const double in_VRE, const double in_HC)
 {
    GeneralParametersHandler & theHandler = GeneralParametersHandler::getInstance();
-   
+
    double HCmax = theHandler.GetParameterById(GeneralParametersHandler::HCmax);
    double HCmin = theHandler.GetParameterById(GeneralParametersHandler::HCmin);
    double out_HC = in_HC;
-  
+
    if(fabs(in_VRE - Genex6::Constants::VRE2) > Genex6::Constants::Zero) {
       out_HC = this->TransformHC(in_VRE, in_HC);
    }
    if(out_HC > HCmax) { out_HC = HCmax; }
-   if(out_HC < HCmin) { out_HC = HCmin; }  
+   if(out_HC < HCmin) { out_HC = HCmin; }
 
    return out_HC;
 }
 
-void Simulator::advanceSimulatorState(const Input &theInput) 
+void Simulator::advanceSimulatorState(const Input &theInput)
 {
 
    if(false == m_currentState->isInitialized())	{
@@ -635,24 +635,24 @@ void Simulator::advanceSimulatorState(const Input &theInput)
    //data of m_currentState updated, now update explicitly the reference time, put here for clarity
    computeToc ( theInput );
    m_currentState->SetReferenceTime(theInput.GetTime());	//update timeStep number as well
-} 
-void Simulator::initializeSimulatorState( const Input &theInput ) 
+}
+void Simulator::initializeSimulatorState( const Input &theInput )
 {
 
    m_theChemicalModel->ComputeSpeciesUltimateMasses(m_currentState);
    if(m_simulationType & Genex6::Constants::SIMGENEX) {
-      m_currentState->ComputeFirstTimeInstance(m_theChemicalModel); 
+      m_currentState->ComputeFirstTimeInstance(m_theChemicalModel);
    }
-   
+
    computeToc ( theInput );
    m_currentState->setInitializationStatus(true);
 
 }
 // Genex
-double Simulator::GetMaximumTimeStepSize(const double depositionTime) const 
+double Simulator::GetMaximumTimeStepSize(const double depositionTime) const
 {
    double sizeBasedOnNumberOfTimeSteps = depositionTime / (double)m_numberOfTimesteps;
-   double ret = sizeBasedOnNumberOfTimeSteps <= m_maximumTimeStepSize ? 
+   double ret = sizeBasedOnNumberOfTimeSteps <= m_maximumTimeStepSize ?
       sizeBasedOnNumberOfTimeSteps : m_maximumTimeStepSize;
 
    return ret;
@@ -660,7 +660,7 @@ double Simulator::GetMaximumTimeStepSize(const double depositionTime) const
 
 
 // Genex
-double Simulator::ComputeNodeInitialOrganicMatterDensity(const double TOC, const double InorganicDensity) 
+double Simulator::ComputeNodeInitialOrganicMatterDensity(const double TOC, const double InorganicDensity)
 {
 //--------------Initial Organic Matter Density In Source Rock--------------------
    const double AtomWeightC = m_theChemicalModel->GetElemAtomWeightByName(m_theChemicalModel->getSpeciesManager ().getCarbonId ());
@@ -669,10 +669,10 @@ double Simulator::ComputeNodeInitialOrganicMatterDensity(const double TOC, const
 
    //Call InitOM(AtWt(IatomC), FW(Lpreasphalt), TOCi, ConcKi, DensRocki)
    //Sub InitOM(ByVal AtWtC As Single, ByVal FwK As Single, ByVal TOCi As Single, ByRef ConcKi As Single, ByRef DensRocki As Single)
-   
+
    //n.b. kerogen changed to preasphaltene, which is "kerogen" at VRE 0.5%
    //initial proportions of om in source rock
-   
+
    //mass fraction om in rock
    //FwK and TOCi are now formula wt and TOCi of preasphaltee
    //Wori = FwK * TOCi / (AtWtC * 100!)
@@ -689,10 +689,10 @@ double Simulator::ComputeNodeInitialOrganicMatterDensity(const double TOC, const
    //mass conc of kerogen per rock volume (kg/m3)
    //ConcKi = Dens(Lpreasphalt) * Vori
    double ConcKi = PreashaltDensity * Vori;
-   
+
    return  ConcKi;
 }
-double Simulator::TransformHC(const double in_VRE, const double in_HC) 
+double Simulator::TransformHC(const double in_VRE, const double in_HC)
 {
    double out_HC = in_HC;
 
@@ -734,9 +734,9 @@ double Simulator::TransformHC(const double in_VRE, const double in_HC)
       double DeltaHCBound = HCVRE4 - HCVRE3;
       double DeltaVREBound = Genex6::Constants::VRE4 - Genex6::Constants::VRE3 ;
       double DeltaVRE_New = in_VRE - Genex6::Constants::VRE3;
-       
+
       out_HC =  HCVRE3 + DeltaVRE_New * (DeltaHCBound / DeltaVREBound);
-   }  
+   }
    return out_HC;
 }
 void Simulator::computeInterval(SimulatorStateBase &theState,
@@ -747,11 +747,11 @@ void Simulator::computeInterval(SimulatorStateBase &theState,
    //Must have timeStart > timeEnd (convention in Cauldron) but just in case
    double computationInterval = fabs(timeStart - timeEnd);
    double currentTime = timeStart;
-   
+
    //compute number of timesteps
-   int timesteps = computationInterval < getMaximumTimeStepSize() ? 1 : 
+   int timesteps = computationInterval < getMaximumTimeStepSize() ? 1 :
       static_cast<int>(std::ceil(computationInterval / getMaximumTimeStepSize()));
-   
+
    //   m_currentState = &theState;
    SetSimulatorState(&theState);
 
@@ -770,7 +770,7 @@ void Simulator::computeInterval(SimulatorStateBase &theState,
       // advanceState
       for(int i = 0; i < timesteps - 1; ++i) { //compute all except from the last one
          currentTime -= timeStepSize;
-         
+
          const Genex6::Input theInput (currentTime, tempCoefficientA + tempCoefficientB * currentTime,
                                        pressureCoefficientA + pressureCoefficientB * currentTime);
 
@@ -820,7 +820,7 @@ void Simulator::computeToc ( const Input &theInput ) {
       }
 
       toc *= m_currentState->getInitialToc () / m_currentState->getTocAtVre05 ();
-   } 
+   }
 
    m_currentState->setCurrentToc ( toc );
 }

@@ -84,7 +84,7 @@ GeoPhysics::ProjectHandle::ProjectHandle ( database::ProjectFileHandlerPtr pfh, 
 
    if( not loadALCConfigurationFile( "InterfaceData.cfg" ) ) {
       LogHandler( LogHandler::WARNING_SEVERITY ) << "Can't load ALC configuration file. Default values will be used";
-   } 
+   }
 
    // Now load anything that was not loaded by default in the constructor of the default project handle.
    loadFaults ();
@@ -254,7 +254,7 @@ bool GeoPhysics::ProjectHandle::startActivity ( const std::string& name, const D
 
       m_cauldronGridDescription.deltaI = activityGrid->deltaIGlobal ();
       m_cauldronGridDescription.deltaJ = activityGrid->deltaJGlobal ();
-      
+
    }
 
    return started;
@@ -525,7 +525,7 @@ void GeoPhysics::ProjectHandle::addMantleUndefinedAreas ( const Interface::Mantl
       Interface::PaleoFormationPropertyList* thicknesses = mantle->getPaleoThicknessHistory ();
       if( thicknesses != 0 ) {
          Interface::PaleoFormationPropertyList::const_iterator thicknessIter;
-         
+
          for ( thicknessIter = thicknesses->begin (); thicknessIter != thicknesses->end (); ++thicknessIter ) {
             addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*thicknessIter)->getMap ( Interface::MantleThicknessHistoryInstanceThicknessMap )));
          }
@@ -966,7 +966,7 @@ bool GeoPhysics::ProjectHandle::createSeaBottomTemperature () {
    } else {
       status = false;
 
-      getMessageHandler ().printLine (  "Basin_Error  Surface temperature is not defined." );
+      getMessageHandler ().printLine (  "Basin_Error:  Surface temperature is not defined." );
    }
 
    return status;
@@ -1026,7 +1026,7 @@ bool GeoPhysics::ProjectHandle::createPaleoBathymetry () {
    } else {
       status = false;
 
-      getMessageHandler ().printLine (  "Basin_Error  Surface depth is not defined." );
+      getMessageHandler ().printLine (  "Basin_Error:  Surface depth is not defined." );
    }
 
    return status;
@@ -1197,8 +1197,8 @@ bool GeoPhysics::ProjectHandle::createCrustThickness () {
                      m_contCrustThicknessHistory ( i, j ).AddPoint( age, currentThickness );
                      if( age == m_basinAge ) {
                         flag = true;
-                        localInitialCrustThickness = NumericFunctions::Maximum ( localInitialCrustThickness, currentThickness );  
-                     } 
+                        localInitialCrustThickness = NumericFunctions::Maximum ( localInitialCrustThickness, currentThickness );
+                     }
                      if( age == oldestMapAge ) {
                         localMaximumCrustThickness = NumericFunctions::Maximum ( localMaximumCrustThickness, currentThickness );
                      }
@@ -1318,13 +1318,13 @@ bool GeoPhysics::ProjectHandle::determineCrustThinningRatio () {
 
 
    if ( not status ) {
-      getMessageHandler ().printLine ( " Basin_Error  Crust has some non-positive thickness values." );
-      getMessageHandler ().printLine ( " Basin_Error  For correct execution all crust thickness values must be positive" );
+      getMessageHandler ().printLine ( " Basin_Error:  Crust has some non-positive thickness values." );
+      getMessageHandler ().printLine ( " Basin_Error:  For correct execution all crust thickness values must be positive" );
    } else if ( status and maximumCrustThinningRatio > MaximumReasonableCrustThinningRatio and not m_isALCMode ) {
-      getMessageHandler ().printLine ( " Basin_Warning  Crust has very large ratio of crust thicknesses." );
-      getMessageHandler ().printLine ( " Basin_Warning  This can result in an unreasonable number of elements in the basement." );
-      getMessageHandler ().printLine ( " Basin_Warning  Possibly, resulting in extended execution-times." );
-      getMessageHandler ().print ( " Basin_Warning  The mantle will have approximately " );
+      getMessageHandler ().printLine ( " Basin_Warning:  Crust has very large ratio of crust thicknesses." );
+      getMessageHandler ().printLine ( " Basin_Warning:  This can result in an unreasonable number of elements in the basement." );
+      getMessageHandler ().printLine ( " Basin_Warning:  Possibly, resulting in extended execution-times." );
+      getMessageHandler ().print ( " Basin_Warning:  The mantle will have approximately " );
       getMessageHandler ().print ( int ( std::ceil ((( maximumBasementThickness - minimumCrustThickness ) / mantleElementHeight ) * maximumCrustThinningRatio )));
       getMessageHandler ().printLine ( " elements in the depth-direction." );
    }
@@ -1564,7 +1564,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
    for ( i = 0; i < numberOfErrorsPerLayer.size (); ++i ) {
 
       if ( numberOfErrorsPerLayer [ i ] > MaximumNumberOfErrorsPerLayer ) {
-         cout << " Basin_Error formation '" << m_formations [ numberOfErrorsPerLayer.size () - i - 1 ]->getName () << "' has multiple errors, more than is indicated." << endl;
+         cout << " Basin_Error: formation '" << m_formations [ numberOfErrorsPerLayer.size () - i - 1 ]->getName () << "' has multiple errors, more than is indicated." << endl;
       }
 
    }
@@ -1710,14 +1710,14 @@ bool GeoPhysics::ProjectHandle::setHistoriesForUnconformity ( const unsigned int
             uncThickness = 0.0;
             continue;
          } else {
-            cout << "Basin_Error Erosion of mobile layer [" << currentFormation->getName () << "] at position (" << i << ", " << j << ") " << thickness <<  "  is not permitted " << endl;
+            cout << "Basin_Error: Erosion of mobile layer [" << currentFormation->getName () << "] at position (" << i << ", " << j << ") " << thickness <<  "  is not permitted " << endl;
             return false;
          }
 
       }
 
       if ( currentFormation->getIsIgneousIntrusion ()) {
-         cout << "Basin_Error Erosion of igneousIntrusion [" << currentFormation->getName () << "] is not permitted " << endl;
+         cout << "Basin_Error: Erosion of igneousIntrusion [" << currentFormation->getName () << "] is not permitted " << endl;
          return false;
       }
 
@@ -1913,7 +1913,7 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
             ++numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ];
 
             if ( numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ] <= MaximumNumberOfErrorsPerLayer ) {
-               cout << " Basin_Error negative mobile layer thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ").  " << formation->getInputThicknessMap ()->getValue ( i, j ) << endl;
+               cout << " Basin_Error: negative mobile layer thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ").  " << formation->getInputThicknessMap ()->getValue ( i, j ) << endl;
             }
 
          }
@@ -2015,7 +2015,7 @@ bool GeoPhysics::ProjectHandle::setIgneousIntrusionThicknessHistory ( const unsi
          ++numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ];
 
          if ( numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ] <= MaximumNumberOfErrorsPerLayer ) {
-            cout << " Basin_Error negative igneous intrusion thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ")." << endl;
+            cout << " Basin_Error: negative igneous intrusion thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ")." << endl;
          }
 
       }
@@ -2662,8 +2662,8 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
       ConfigurationFile.open( fullpath );
 
       if (!ConfigurationFile) {
-         getMessageHandler().printLine( "Basin_Error Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
-         throw RecordException( "Basin_Error Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+         getMessageHandler().printLine( "Basin_Error: Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+         throw RecordException( "Basin_Error: Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
       }
 
       m_basementLithoProps = new ConfigFileParameterAlc();
@@ -2671,7 +2671,7 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
          ConfigurationFile.close();
          return false;
       };
-      
+
       m_minimumLithosphereThickness   = m_basementLithoProps->m_HLmin;
       m_maximumNumberOfMantleElements = m_basementLithoProps->m_NLMEmax;
       m_constrainedBasaltTemperature  = m_basementLithoProps->m_bT;

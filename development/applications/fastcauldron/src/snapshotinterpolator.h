@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #ifndef _SNAPSHOT_INTERPOLATOR_H_
 #define _SNAPSHOT_INTERPOLATOR_H_
 
@@ -334,7 +334,7 @@ void GenericSnapshotInterpolator<InterpolatorCalculator>::setTimeStepData ( cons
 
   if ( ! File_Exists ( fileName )) {
     PetscPrintf ( PETSC_COMM_WORLD,
-                  "Basin_Error GenericSnapshotInterpolator<InterpolatorCalculator>::setInterval   fault file, %s, could not be found\n", 
+                  "Basin_Error: GenericSnapshotInterpolator<InterpolatorCalculator>::setInterval   fault file, %s, could not be found\n",
                   fileName.c_str ());
   }
 
@@ -343,13 +343,13 @@ void GenericSnapshotInterpolator<InterpolatorCalculator>::setTimeStepData ( cons
 
   if ( ! readTimeStepData ( inFile, layerDA, savedProperties [ T ])) {
     ///
-    /// If data cannot be read from the file for whatever reason, then 
+    /// If data cannot be read from the file for whatever reason, then
     /// fill the array with the default value.
     ///
     for ( J = 0; J < dimensionInfo.xm * dimensionInfo.ym * dimensionInfo.zm; J++ ) {
       savedProperties [ T ][ 0 ][ 0 ][ J ] = defaultValue;
     }
-    
+
   }
 
   inFile.close ();

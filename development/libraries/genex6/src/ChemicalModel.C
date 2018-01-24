@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -58,11 +58,11 @@ ChemicalModel::ChemicalModel(const int in_simulationType)
 
    for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++ i) {
       m_theSpecies[i] = NULL;
-   } 
+   }
 
-   s_numberOfElements = 0;  
-   s_numberOfSpecies = 0;  
-   s_numberOfReactions = 0; 
+   s_numberOfElements = 0;
+   s_numberOfSpecies = 0;
+   s_numberOfReactions = 0;
 
 }
 ChemicalModel::~ChemicalModel()
@@ -78,7 +78,7 @@ void ChemicalModel::clearElements()
 
    for(std::vector<Element*>::iterator it = m_theElements.begin(); it != itEnd; ++it) {
       delete (*it);
-   } 
+   }
 
    m_theElements.clear();
 }
@@ -86,7 +86,7 @@ void ChemicalModel::clearSpecies()
 {
    for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++ i) {
       delete m_theSpecies[i];
-   } 
+   }
 }
 void ChemicalModel::clearReactions()
 {
@@ -94,7 +94,7 @@ void ChemicalModel::clearReactions()
 
    for(std::map<int,Reaction*>::iterator it = m_theReactions.begin(); it != itEnd; ++it) {
       delete (it->second);
-   } 
+   }
 
    m_theReactions.clear();
 }
@@ -114,7 +114,7 @@ std::string ChemicalModel::GetSpeciesNameById(const int id) const
          ret = itId->first;
          break;
       }
-   } 
+   }
    return ret;
 }
 int ChemicalModel::GetSpeciesIdByName(const string &in_name) const
@@ -124,7 +124,7 @@ int ChemicalModel::GetSpeciesIdByName(const string &in_name) const
    if(it != s_mapSpeciesId2Name.end()) {
       ret = it->second;
    }
-   
+
    return ret;
 }
 const Species** ChemicalModel::GetSpecies() const
@@ -143,7 +143,7 @@ void ChemicalModel::AddElement(Element *theElement)
    m_speciesManager.setElementNum(elementName, index);
 
    theElement->SetId(index);
-   m_theElements.push_back(theElement);   
+   m_theElements.push_back(theElement);
 }
 Element *ChemicalModel::GetElementByName(const int in_name) const
 {
@@ -155,7 +155,7 @@ Species *ChemicalModel::GetByNameSpecies(const std::string &in_name) const
    Species *functionReturn = 0;
    std::map<std::string,int >::const_iterator it = s_mapSpeciesId2Name.find(in_name);
    if(it != s_mapSpeciesId2Name.end()) {
-      functionReturn = m_theSpecies[it->second-1]; 
+      functionReturn = m_theSpecies[it->second-1];
    }
    return functionReturn;
 }
@@ -171,15 +171,15 @@ Reaction *ChemicalModel::GetReactionByMotherName (const int theMotherId) const
 void ChemicalModel::AddSpecies(Species *theSpecies)
 {
    int speciesId = theSpecies->GetId();
- 
+
    if(speciesId > m_speciesManager.getNumberOfSpecies () || speciesId <= 0) {
       cout << "Warning. Species id=" << speciesId << " is wrong (too big or negative)." << endl;
    }
    if(m_theSpecies[speciesId - 1] != NULL) {
       cout << "Warning. Species with id=" << speciesId <<" already exist." << endl;
    }
-   m_theSpecies[speciesId - 1] = theSpecies; 
-  
+   m_theSpecies[speciesId - 1] = theSpecies;
+
    m_speciesManager.setSpeciesNum(theSpecies->GetName(), speciesId);
 
    AddPairInSpeciesId2Name(speciesId, theSpecies->GetName());
@@ -192,8 +192,8 @@ void ChemicalModel::AddReaction(Reaction *theReaction)
 }
 
 void ChemicalModel::UpdateSpeciesCompositionsByElementName(const int in_Species,
-                                                           const int in_Element, 
-                                                           const double in_CompositionFactor)  
+                                                           const int in_Element,
+                                                           const double in_CompositionFactor)
 {
    Element *theElem = GetElementByName(in_Element);
    Species *curSpecies = GetSpeciesById(in_Species);
@@ -202,7 +202,7 @@ void ChemicalModel::UpdateSpeciesCompositionsByElementName(const int in_Species,
       curSpecies->UpdateCompositionByElement(theElem, in_CompositionFactor);
    }
 }
-void ChemicalModel::CompEarlySpecies() 
+void ChemicalModel::CompEarlySpecies()
 {
    Element *const HYDROGEN = GetElementByName(m_speciesManager.getHydrogenId ());
    Element *const OXYGEN   = GetElementByName(m_speciesManager.getOxygenId ());
@@ -212,7 +212,7 @@ void ChemicalModel::CompEarlySpecies()
    GeneralParametersHandler & theHandler = GeneralParametersHandler::getInstance();
 
    //bool s_c = (theHandler.GetParameterById(GeneralParametersHandler::SCratio) != 0.0 && SULPHUR != 0 ? true: false);
-   bool s_c = (m_SC != 0.0 && SULPHUR != 0 ? true: false); 
+   bool s_c = (m_SC != 0.0 && SULPHUR != 0 ? true: false);
 
    Species *curSpecies=0;
    //Kerogen initial start for getting value for AtomN
@@ -231,7 +231,7 @@ void ChemicalModel::CompEarlySpecies()
       //OCpreasphalt2 * Atom(IatomH, Lpreasphalt) + OCpreasphalt3
 
       PreashalteneAtomH = curSpecies->GetCompositionByElement(m_speciesManager.getHydrogenId ());
-      PreashalteneAtomO = 
+      PreashalteneAtomO =
          theHandler.GetParameterById(GeneralParametersHandler::OCpreasphalt1) * pow(PreashalteneAtomH, 2.0) +
          theHandler.GetParameterById(GeneralParametersHandler::OCpreasphalt2) * PreashalteneAtomH +
          theHandler.GetParameterById(GeneralParametersHandler::OCpreasphalt3);
@@ -243,11 +243,11 @@ void ChemicalModel::CompEarlySpecies()
    }
    //KEROGEN H/C & O/C as functions of those of preasphaltene
    //-------------Atom(IatomH, Lkerogen) = HCkerogen1 * Atom(IatomH, Lpreasphalt) + HCkerogen2
-   double KerogenAtomH = theHandler.GetParameterById(GeneralParametersHandler::HCkerogen1) * 
+   double KerogenAtomH = theHandler.GetParameterById(GeneralParametersHandler::HCkerogen1) *
       PreashalteneAtomH + theHandler.GetParameterById(GeneralParametersHandler::HCkerogen2);
 
    //-------------Atom(IatomO, Lkerogen) = OCkerogen1 * Atom(IatomO, Lpreasphalt) + OCkerogen2
-   double KerogenAtomO = theHandler.GetParameterById(GeneralParametersHandler::OCkerogen1) * 
+   double KerogenAtomO = theHandler.GetParameterById(GeneralParametersHandler::OCkerogen1) *
       PreashalteneAtomO + theHandler.GetParameterById(GeneralParametersHandler::OCkerogen2);
 
    //-----------------------Atom(IatomN, Lkerogen) = Atom(IatomO, Lkerogen) * Nkerogen
@@ -268,20 +268,20 @@ void ChemicalModel::CompEarlySpecies()
       PreashalteneAtomN = KerogenAtomN * theHandler.GetParameterById(GeneralParametersHandler::Npreasphalt);
       curSpecies->UpdateCompositionByElement(NITROGEN, PreashalteneAtomN);
    }
- 
+
    //ASPHALTENE H/C and O/C
    //-----------------------Call AsphalComp
    //------------Atom(IatomH, Lasphaltene) = HCAsphOverPreasphalt * Atom(IatomH, Lpreasphalt)
-   //double HCAsphOverPreasphalt = (isSim5() ?  
+   //double HCAsphOverPreasphalt = (isSim5() ?
    //                               theHandler.GetParameterById(GeneralParametersHandler::HCAsphOverPreasphaltGX5) :
    //                               theHandler.GetParameterById(GeneralParametersHandler::HCAsphOverPreasphalt));
-   
+
    double HCAsphOverPreasphalt =  theHandler.GetParameterById(GeneralParametersHandler::HCAsphOverPreasphaltGX5);
    if (!isSim5()) { HCAsphOverPreasphalt -= m_SC * 0.5;}
    double AsphalteneAtomH = HCAsphOverPreasphalt * PreashalteneAtomH;
-   
+
    //------------Atom(IatomO, Lasphaltene) = OCAsphOverPreasphalt * Atom(IatomO, Lpreasphalt)
-   //double OCAsphOverPreasphalt = (isSim5() ?  
+   //double OCAsphOverPreasphalt = (isSim5() ?
    //                               theHandler.GetParameterById(GeneralParametersHandler::OCAsphOverPreasphaltGX5) :
    //                               theHandler.GetParameterById(GeneralParametersHandler::OCAsphOverPreasphalt));
    double OCAsphOverPreasphalt =  theHandler.GetParameterById(GeneralParametersHandler::OCAsphOverPreasphaltGX5);
@@ -289,7 +289,7 @@ void ChemicalModel::CompEarlySpecies()
 
    double AsphalteneAtomO = OCAsphOverPreasphalt * PreashalteneAtomO;
    if(!isSim5()) AsphalteneAtomO += 0.01; //0.01 Genex6
-   
+
    //------------Atom(IatomN, Lasphaltene) = Atom(IatomN, Lpreasphalt) * Nasphaltene
    double  AsphalteneAtomN = PreashalteneAtomN * theHandler.GetParameterById(GeneralParametersHandler::Nasphaltene);
 
@@ -335,10 +335,10 @@ void ChemicalModel::CompEarlySpecies()
 
    if(isGX5()) {
       OCprecokeWhenHCpreasphaltZero = theHandler.GetParameterById(GeneralParametersHandler::OCprecokeWhenHCpreasphaltZeroGX5);
-      OCprecokePerPreasphalt = theHandler.GetParameterById(GeneralParametersHandler::OCprecokePerPreasphaltGX5);   
+      OCprecokePerPreasphalt = theHandler.GetParameterById(GeneralParametersHandler::OCprecokePerPreasphaltGX5);
    } else if(isOTGC5()) {
       OCprecokeWhenHCpreasphaltZero = theHandler.GetParameterById(GeneralParametersHandler::OCprecokeWhenHCpreasphaltZeroOTGC5);
-      OCprecokePerPreasphalt = theHandler.GetParameterById(GeneralParametersHandler::OCprecokePerPreasphaltOTGC5);   
+      OCprecokePerPreasphalt = theHandler.GetParameterById(GeneralParametersHandler::OCprecokePerPreasphaltOTGC5);
    } else {
 //      OCprecokeWhenHCpreasphaltZero =  theHandler.GetParameterById(GeneralParametersHandler::OCprecokeWhenHCpreasphaltZero);
 //      OCprecokePerPreasphalt = theHandler.GetParameterById(GeneralParametersHandler::OCprecokePerPreasphalt);
@@ -370,7 +370,7 @@ void ChemicalModel::CompEarlySpecies()
    //Hetero1
    //--------------------Atom(IatomN, Lhetero1) = Atom(IatomN, Lprecoke) * Nhetero1
    double Nhetero1 = (isSim5() ?
-                      theHandler.GetParameterById(GeneralParametersHandler::Nhetero1GX5): 
+                      theHandler.GetParameterById(GeneralParametersHandler::Nhetero1GX5):
                       theHandler.GetParameterById(GeneralParametersHandler::Nhetero1));
    double Hetero1AtomN = PrecokeAtomN * Nhetero1;
    curSpecies = GetSpeciesById(m_speciesManager.getHetero1Id ());
@@ -405,8 +405,8 @@ void ChemicalModel::KineticsEarlySpecies(const double Emean)
    Species *curSpecies = 0;
    //preasphaltene cracking activation energies as function of input mean activation energy
    //-----------------------Emean = Range("Input!Emean").Value
-   //-----------------------Easph1 = 2 * Emean - EcrackingCC   
-   
+   //-----------------------Easph1 = 2 * Emean - EcrackingCC
+
    double Easph1 = 2.0 * Emean - theHandler.GetParameterById(GeneralParametersHandler::EcrackingCC);
    //double EdropForS = theHandler.GetParameterById(GeneralParametersHandler::EdropPerS) * m_SC;
    //theHandler.GetParameterById(GeneralParametersHandler::SCratio);
@@ -473,7 +473,7 @@ void ChemicalModel::ComputeStoichiometry()
 }
 void ChemicalModel::SetSpeciesReactionOrder()
 {
-   SpeciesProperties *curSpeciesProp; 
+   SpeciesProperties *curSpeciesProp;
 
    if(isGX5()) {
 
@@ -495,7 +495,7 @@ void ChemicalModel::SetSpeciesReactionOrder()
       }
       curSpeciesProp = GetSpeciesById(m_speciesManager.getC2Id ())->GetSpeciesProperties();
 
-      if(curSpeciesProp->IsReactive()) { 
+      if(curSpeciesProp->IsReactive()) {
          curSpeciesProp->SetReactionOrder(2.0);
       }
 
@@ -509,11 +509,11 @@ void ChemicalModel::SetSpeciesReactionOrder()
          }
       }
       curSpeciesProp = GetSpeciesById(m_speciesManager.getC1Id ())->GetSpeciesProperties();
- 
+
       if(curSpeciesProp->IsReactive()) {
          curSpeciesProp->SetReactionOrder( 1.0 );
       }
-     
+
    } else {
       double reactionOrderToSet;
       for(int i = 0, curSpecId = 1; i < m_speciesManager.getNumberOfSpecies (); ++i, ++ curSpecId) {
@@ -533,7 +533,7 @@ void ChemicalModel::SetSpeciesReactionOrder()
                curSpecId == m_speciesManager.getC4Id () ||
                curSpecId == m_speciesManager.getC3Id () ||
                curSpecId == m_speciesManager.getC2Id () ||
-               
+
                curSpecId == m_speciesManager.getC15plusAroSId () ||
                curSpecId == m_speciesManager.getC15plusSatSId () ||
                curSpecId == m_speciesManager.getLSCId () ||
@@ -543,7 +543,7 @@ void ChemicalModel::SetSpeciesReactionOrder()
                curSpecId == m_speciesManager.getC6to14BPId () ||
                curSpecId == m_speciesManager.getC6to14AroSId () ||
                curSpecId == m_speciesManager.getC6to14SatSId ()) {
-              
+
                reactionOrderToSet = 1.5;
             } else {
                reactionOrderToSet = 1.0;
@@ -567,17 +567,17 @@ void ChemicalModel::ComputeSpeciesUltimateMasses(SimulatorStateBase *theState)
       if(currentSpecies == NULL) continue;
 
       // There is no check for kerogen in OTGC-5.
-      if(id != m_speciesManager.getKerogenId ()) { 
+      if(id != m_speciesManager.getKerogenId ()) {
          double currentUltimateMass = ultMasses[i];
-         
+
          if(currentSpecies->GetSpeciesProperties()->IsReactive()) {
             const double * SpeciesProducts = currentSpecies->GetProductMassFactors();
-            
+
             for(int j = 0; j < m_speciesManager.getNumberOfSpecies (); ++ j) {
                if(SpeciesProducts[j] > 0.0) {
                   ultMasses[j] += SpeciesProducts[j] * currentUltimateMass;
                }
-            }	
+            }
          }
       }
    }
@@ -633,7 +633,7 @@ double ChemicalModel::GetSpeciesDensityByName(const int SpeciesName) const
    if(theSpecies) {
       ret = theSpecies->GetDensity();
    }
-   return ret; 
+   return ret;
 }
 double ChemicalModel::GetSpeciesB0ByName(const int SpeciesId) const
 {
@@ -642,28 +642,28 @@ double ChemicalModel::GetSpeciesB0ByName(const int SpeciesId) const
    if(theSpecies) {
       ret = theSpecies->GetSpeciesProperties()->GetB0();
    }
-   return ret; 
+   return ret;
 }
 void ChemicalModel::InitializeSpeciesTimeStepVariables()
 {
    //Species::SetSpeciesTimeStepVariablesToZero();
 
    double initialTimeStepGenRate = 0.0;
-   
+
    for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++ i) {
       if(m_theSpecies[i] != NULL) {
          m_theSpecies[i]->SetPositiveGenRate(initialTimeStepGenRate);
       }
    }
 }
-bool ChemicalModel::Validate() const  
+bool ChemicalModel::Validate() const
 {
    bool status = true;
-  
+
    using namespace CBMGenerics;
    ComponentManager & theManager = ComponentManager::getInstance();
-   
-   int i, speciesId; 
+
+   int i, speciesId;
 
 #if 0 // has been moved to Species::validate method
 	 Species *theSpecies;
@@ -676,20 +676,20 @@ bool ChemicalModel::Validate() const
       }
    }
 #endif
-   
+
    for(i = 0, speciesId = 1; i < ComponentManager::NUMBER_OF_SPECIES; ++i, ++ speciesId) {
-      Species *theSpecies = (GetByNameSpecies(theManager.getSpeciesName(i)));  
+      Species *theSpecies = (GetByNameSpecies(theManager.getSpeciesName(i)));
 
       // status = (theSpecies == 0) ? false : theSpecies->validate();
       if( theSpecies != 0 ) { // to support GX5 and GX6 configuration files (different species)
          status = theSpecies->validate();
          if(status == false) {
             break;
-         } 
-      }                         
+         }
+      }
    }
    return status;
-}          
+}
 void ChemicalModel::DebugOutput()
 {
    for(int i = 0, id = 1; i < m_speciesManager.getNumberOfSpecies (); ++ i, ++ id) {
@@ -697,7 +697,7 @@ void ChemicalModel::DebugOutput()
          cout<< "Name(" << id << ") = " << m_theSpecies[i]->GetName() << "; CompCode = " << m_theSpecies[i]->GetCompositionCode() << endl;
       }
    }
-}                      
+}
 void ChemicalModel::ComputeTimeStep(SimulatorStateBase &theSimulatorState,
                                     const double in_dT,
                                     const double s_Peff,
@@ -730,10 +730,10 @@ void ChemicalModel::ComputeTimeStep(SimulatorStateBase &theSimulatorState,
                                      s_TK,
                                      s_FrequencyFactor,
                                      s_kerogenTransformationRatio,
-                                     
+
                                      s_precokeTransformationRatio,
                                      s_coke2TransformationRatio,
-                                     
+
                                      s_DiffusionConcDependence,
                                      s_VogelFulcherTemperature,
                                      in_OpenSourceRockConditions);
@@ -768,7 +768,7 @@ void ChemicalModel::SetTheOutputSpecies()
          theSpecies->OutputResults(true);
       }
    }
-   
+
 }
 void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
 {
@@ -800,7 +800,7 @@ void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
       if(m_theSpecies[id] != NULL) {
          m_theSpecies[id]->OutputCompositionOnFile(outfile);
       }
-   }   
+   }
    outfile << "[EndOfTable]" << endl;
    //-----------------------------------------------------------------------------
    outfile << endl;
@@ -810,7 +810,7 @@ void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
       if(m_theSpecies[id] != NULL) {
          m_theSpecies[id]->OutputPropertiesOnFile(outfile);
       }
-   }   
+   }
    outfile << "[EndOfTable]" << endl;
    //-----------------------------------------------------------------------------
    outfile << endl;
@@ -877,7 +877,7 @@ void ChemicalModel::PrintBenchmarkSpeciesProperties(ofstream &outfile) const
 }
 void ChemicalModel::PrintBenchmarkStoichiometryHeader(ofstream &outfile) const
 {
-   outfile << "[Table:StoichiometryC++]" << endl;	
+   outfile << "[Table:StoichiometryC++]" << endl;
    outfile << "MotherName,";
    for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++ i) {
       if(m_theSpecies[i] != NULL) {
@@ -897,7 +897,7 @@ void ChemicalModel::LoadBenchmarkStoichiometry(string & namefile)
       while(itR != m_theReactions.end()) {
          itR->second->GetMother()->LoadStoichiometry(inputFile);
          ++ itR;
-      }   
+      }
       inputFile.close();
    }
 }
@@ -927,20 +927,20 @@ void ChemicalModel::LoadElements(ifstream &ConfigurationFile)
    for(;;) {
 
       std::getline (ConfigurationFile, line, '\n');
-     
+
       if(line==Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
-      
+
       StringHandler::parseLine(line, delim, theTokens);
-      
+
       Element *theElement = new Genex6::Element(theTokens[0]);
       theElement->SetAtomWeight(atof(theTokens[1].c_str()));
       this->AddElement(theElement);
-      
+
       theTokens.clear();
    }
-   
+
    s_numberOfElements = (int)m_theElements.size();
 }
 void ChemicalModel::LoadSpecies(ifstream &ConfigurationFile)
@@ -953,21 +953,21 @@ void ChemicalModel::LoadSpecies(ifstream &ConfigurationFile)
 
    std::getline (ConfigurationFile, line, '\n');
 
-   int numberOfSpeciesInConfigFile = 0; 
+   int numberOfSpeciesInConfigFile = 0;
    for(;;) {
       std::getline (ConfigurationFile, line, '\n');
 
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
-      
+
       StringHandler::parseLine(line, delim, theTokens);
-      
+
       Species *theSpecies = new Species(theTokens[1], atoi(theTokens[0].c_str()), this);
       this->AddSpecies(theSpecies);
-      
+
       ++ numberOfSpeciesInConfigFile;
-      
+
       theTokens.clear();
    }
    s_numberOfSpecies = numberOfSpeciesInConfigFile;
@@ -978,10 +978,10 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
    std::string line;
    std::vector<std::string> theTokens;
    const char delim = ',';
-   
+
    std::getline (ConfigurationFile, line, '\n');
    StringHandler::parseLine(line, delim, theTokens);
-   
+
    int i, j;
    int theElements[m_speciesManager.numberOfElements];
 
@@ -1012,13 +1012,13 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
-      
+
       StringHandler::parseLine(line, delim, theTokens);
-      
+
       if(tokenSize - 2 > m_speciesManager.getNumberOfElements ()) {
          cout << "Warning!! Wrong number of elements in Species composition." << endl;
       }
-      
+
       Species *theSpecies = this->GetByNameSpecies(theTokens[0]);
       for(i = 2, j = 0; i < tokenSize; ++ i, ++ j) {
          double compositionCode = atof(theTokens[i].c_str());
@@ -1038,7 +1038,7 @@ void ChemicalModel::LoadSpeciesProperties(ifstream &ConfigurationFile)
    const char delim = ',';
 
    std::getline (ConfigurationFile, line, '\n');
-   
+
    for(;;) {
       std::getline (ConfigurationFile, line, '\n');
 
@@ -1046,11 +1046,11 @@ void ChemicalModel::LoadSpeciesProperties(ifstream &ConfigurationFile)
       {
          break;
       }
-      
+
       StringHandler::parseLine(line, delim, theTokens);
-      
+
       //SpeciesName,Weight,Density,activationEnergy1,activationEnergy2,entropy,volume,reactionOrder,diffusionEnergy1,diffusionEnergy2,jumpLength, B0,aromaticity
-      
+
       //SpeciesProperties
       double weight             = atof(theTokens[1].c_str());
       double density            = atof(theTokens[2].c_str());
@@ -1058,15 +1058,15 @@ void ChemicalModel::LoadSpeciesProperties(ifstream &ConfigurationFile)
       double activationEnergy2  = atof(theTokens[4].c_str());
       double entropy            = atof(theTokens[5].c_str());
       double volume             = atof(theTokens[6].c_str());
-      double reactionOrder      = atof(theTokens[7].c_str());     
-      double diffusionEnergy1   = atof(theTokens[8].c_str());           
+      double reactionOrder      = atof(theTokens[7].c_str());
+      double diffusionEnergy1   = atof(theTokens[8].c_str());
       double diffusionEnergy2   = atof(theTokens[9].c_str());
       double jumpLength         = atof(theTokens[10].c_str());
       double B0                 = atof(theTokens[11].c_str());
       double Aromaticity        = atof(theTokens[12].c_str());
-      
+
       if(reactionOrder == 0) reactionOrder = 1.0;
-      
+
       Species *theSpecies = this->GetByNameSpecies(theTokens[0]);
       SpeciesProperties *theProperties = new SpeciesProperties(theSpecies,
                                                                activationEnergy1,
@@ -1090,16 +1090,16 @@ void ChemicalModel::LoadReactions(ifstream &ConfigurationFile)
    std::string line;
    std::vector<std::string> theTokens;
    const char delim = ',';
-   
+
    std::getline (ConfigurationFile, line, '\n');
 
    for(;;) {
       std::getline (ConfigurationFile, line, '\n');
- 
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
-      
+
       StringHandler::parseLine(line, delim, theTokens);
       Reaction * currentReaction = 0;
       std::vector<std::string>::size_type i = 0;
@@ -1140,36 +1140,36 @@ void ChemicalModel::LoadReactionRatios(ifstream &ConfigurationFile)
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
-      
+
       StringHandler::parseLine(line, delim, theTokens);
-      
+
       Reaction *currentReaction = GetReactionByMotherName(s_mapSpeciesId2Name[theTokens[0]]);
       if(currentReaction && theTokens.size() == 4) {
          Species *Reactant1 = GetByNameSpecies(theTokens[1]);
          Species *Reactant2 = GetByNameSpecies(theTokens[2]);
          ReactionRatio *theRatio = new ReactionRatio(Reactant1,Reactant2,theTokens[3]);
-         
+
          currentReaction->AddReactionRatio(theRatio);
       } else {
          //throw
       }
       theTokens.clear();
-   } 
+   }
 }
 ChemicalModel::ChemicalModel(const std::string &in_FulPathConfigurationFileName, const int in_simulationType)
 {
    m_simulationType = in_simulationType;
    for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++ i) {
       m_theSpecies[i] = NULL;
-   } 
+   }
 
    ifstream theReactFile;
-   
+
    theReactFile.open(in_FulPathConfigurationFileName.c_str());
- 
+
    if(!theReactFile) {
-      cerr << "Basin_Error Attempting to open file : " + in_FulPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... " << endl;
-      throw ("Basin_Error Attempting to open file : " + in_FulPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... ");
+      cerr << "Basin_Error: Attempting to open file : " + in_FulPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... " << endl;
+      throw ("Basin_Error: Attempting to open file : " + in_FulPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... ");
    }
    std::string line;
    //temp values just for the C++ prototype
@@ -1188,7 +1188,7 @@ ChemicalModel::ChemicalModel(const std::string &in_FulPathConfigurationFileName,
    std::string delim(",\n0");
    std::string::size_type startPos = 0;
    std::string::size_type endPos = 0;
-   
+
    while(endPos != std::string::npos) {
       endPos = line.find_first_of(delim,startPos);
       std::string::size_type increment = endPos - startPos;
@@ -1198,46 +1198,46 @@ ChemicalModel::ChemicalModel(const std::string &in_FulPathConfigurationFileName,
    }
    s_numberOfElements = atoi(theTokens[1].c_str());
    s_numberOfSpecies = atoi(theTokens[0].c_str());
-   
+
    theTokens.clear();
 
-   //DEBUG MAD   
+   //DEBUG MAD
    cout << "Number of Elements " << s_numberOfElements << endl;
-   //DEBUG MAD  
+   //DEBUG MAD
    cout << "Number of Species  " << s_numberOfSpecies  << endl;
    //------------------------------------------------------------------------------------------------
    SetTheElements(theReactFile);
    SetTheSpecies(theReactFile);
    //------------------------------------------------------------------------------------------------
-   
+
    std::getline (theReactFile, line, '\n');
 
    if(!line.empty()) {
       s_numberOfReactions = atoi(line.c_str());
    }
-   //DEBUG  MAD 
+   //DEBUG  MAD
    cout << "Number of Reactions " << s_numberOfReactions << endl;
    SetTheReactions(theReactFile);
-   
+
    //DEBUG std::cout<<"Operation finished"<<std::endl;
    theReactFile.close();
 }
-   
+
 void ChemicalModel::SetTheElements(ifstream &theStream)
 {
    clearElements();
-   
+
    std::string line;
 
    std::getline (theStream, line, '\n');
 
    cout << line << endl;
-   
+
    std::vector<std::string> theTokens;
    std::string delim(",");
    std::string::size_type startPos = 0;
    std::string::size_type endPos = 0;
-   
+
    while(endPos!=std::string::npos) {
       endPos = line.find_first_of(delim,startPos);
       std::string::size_type increment = endPos - startPos;
@@ -1278,7 +1278,7 @@ void ChemicalModel::SetTheSpecies(ifstream &theStream)
       std::string::size_type endPos = 0;
 
       //DEBUG MAD
-      
+
       while(endPos != std::string::npos) {
          endPos = line.find_first_of(delim,startPos);
          std::string::size_type increment = endPos - startPos;
@@ -1341,7 +1341,7 @@ void ChemicalModel::SetTheSpecies(ifstream &theStream)
                case 5:  elementId = m_speciesManager.getNitrogenId (); break;
                case 6:  elementId = m_speciesManager.getSulphurId (); break;
                default:;
-               } 
+               }
             }
             if(elementId >= 0) {
                elem2Add = this->GetElementByName(elementId);
@@ -1376,23 +1376,23 @@ void ChemicalModel::SetTheReactions(ifstream &theStream)
       //DEBUG std::cout<<"---------------Start of Reaction----------Number:"<<i<<std::endl;
       //DEBUG MAD
       cout << line << endl;
-      
+
       StringHandler::parseLine(line, delim, Tokens);
-      
+
       Tokens.pop_back();
       std::vector<std::string>::iterator endOfReactants = std::find(Tokens.begin(), Tokens.end(), "0");
-      
-      for(std::vector<std::string>::iterator reactantsIt = Tokens.begin(); 
+
+      for(std::vector<std::string>::iterator reactantsIt = Tokens.begin();
           reactantsIt != endOfReactants; ++ reactantsIt) {
          cout<<(*reactantsIt) << endl;
          tempReactants.push_back((*reactantsIt));
       }
-      
-      if(endOfReactants != Tokens.end()) {    
-         cout << "No end" << endl;  
-         
-         for(std::vector<std::string>::iterator ratiosIt = endOfReactants + 1; 
-             ratiosIt != Tokens.end(); ++ ratiosIt) {  
+
+      if(endOfReactants != Tokens.end()) {
+         cout << "No end" << endl;
+
+         for(std::vector<std::string>::iterator ratiosIt = endOfReactants + 1;
+             ratiosIt != Tokens.end(); ++ ratiosIt) {
             cout << (*ratiosIt) << endl;
             tempRatios.push_back(*ratiosIt);
          }
@@ -1405,7 +1405,7 @@ void ChemicalModel::SetTheReactions(ifstream &theStream)
       //-------------------------Set up the Reaction-----------------------------------------------
       Reaction * currentReaction = 0;
       std::vector<std::string>::size_type index = 0;
-      
+
       if(!tempReactants.empty()) {
          //last one is always the mother in VBA prototype cfg file
          //Species   *theMother=GetSpeciesById(atoi(tempReactants[tempReactants.size()-1].c_str()));
@@ -1414,7 +1414,7 @@ void ChemicalModel::SetTheReactions(ifstream &theStream)
 
          //DEBUG MAD
          cout << "Mother Name and id: "<< MotherName << " "<< theId << endl;
-         
+
          Species * theMother = GetSpeciesById(theId);
          if(theMother) {
             currentReaction = new Reaction(theMother);
@@ -1423,7 +1423,7 @@ void ChemicalModel::SetTheReactions(ifstream &theStream)
             theId = atoi(tempReactants[index].c_str());
             //Species *theProduct=GetSpeciesById(atoi(tempReactants[index].c_str()));
             const std::string productName = GetSpeciesNameById(theId);
-            
+
             Species *theProduct = GetSpeciesById(theId);
             if(theProduct) {
                currentReaction->AddProduct(theProduct);
@@ -1480,16 +1480,16 @@ void ChemicalModel::ComputePseudoActEnergyRadical()
             if(curSpecId == m_speciesManager.getC15plusAroId () ||
                curSpecId == m_speciesManager.getC15plusAroSId ()) {
                curSpecProps->SetB0radical(GetSpeciesB0ByName(m_speciesManager.getC5Id ()));
-            } else if(curSpecId == m_speciesManager.getC15plusSatId () || 
-                      curSpecId == m_speciesManager.getC15plusSatSId () || 
+            } else if(curSpecId == m_speciesManager.getC15plusSatId () ||
+                      curSpecId == m_speciesManager.getC15plusSatSId () ||
                       curSpecId == m_speciesManager.getC6to14AroId () ||
-                      curSpecId == m_speciesManager.getC6to14BTId () || 
-                      curSpecId == m_speciesManager.getC6to14DBTId () || 
+                      curSpecId == m_speciesManager.getC6to14BTId () ||
+                      curSpecId == m_speciesManager.getC6to14DBTId () ||
                       curSpecId == m_speciesManager.getC6to14BPId () ||
                       curSpecId == m_speciesManager.getLSCId ()) {
                curSpecProps->SetB0radical(GetSpeciesB0ByName(m_speciesManager.getC6to14SatId ()));
-            } else if(curSpecId == m_speciesManager.getC6to14SatId () || 
-                      curSpecId == m_speciesManager.getC5Id () || 
+            } else if(curSpecId == m_speciesManager.getC6to14SatId () ||
+                      curSpecId == m_speciesManager.getC5Id () ||
                       curSpecId == m_speciesManager.getC4Id () ||
                       curSpecId == m_speciesManager.getC15plusATId () ||
                       curSpecId == m_speciesManager.getC6to14AroSId () ||

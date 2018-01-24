@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifdef _WIN32
 #include <direct.h>
@@ -35,7 +35,7 @@ using namespace database;
 #include "MasterTouch.h"
 
 using namespace fasttouch;
- 
+
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 #include "Interface/Formation.h"
@@ -72,9 +72,9 @@ bool FastTouch::removeResqPropertyValues (void)
 {
    const Property * resqProperty = m_projectHandle->findProperty ("Resq: ");
    if (!resqProperty) return false;
-    
+
    m_projectHandle->deletePropertyValues (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE,
-                                          resqProperty, 0, 0, 0, 0, Interface::MAP); 
+                                          resqProperty, 0, 0, 0, 0, Interface::MAP);
    return true;
 }
 
@@ -84,12 +84,12 @@ bool FastTouch::compute (void)
    H5_Parallel_PropertyList::setOneFilePerProcessOption ();
 
    bool started = m_projectHandle->startActivity (FastTouchActivityName, m_projectHandle->getLowResolutionOutputGrid ());
- 
+
    if (!started) return false;
- 
+
    TouchstoneMapList * touchstoneMaps = m_projectHandle->getTouchstoneMaps ();
    TouchstoneMapList::iterator mapIter;
- 
+
    for (mapIter = touchstoneMaps->begin (); mapIter != touchstoneMaps->end (); ++mapIter)
    {
       const TouchstoneMap * touchstoneMap = * mapIter;
@@ -104,26 +104,26 @@ bool FastTouch::compute (void)
          cerr << "Found PropertyValue for " << str << endl;
       }
    }
- 
+
    bool status = m_masterTouch.run ();
 
-   if ( MinimumAll(status ? 1.0 : -1 ) < 0.0 ) 
+   if ( MinimumAll(status ? 1.0 : -1 ) < 0.0 )
    {
       //Print message error
-      PetscPrintf ( PETSC_COMM_WORLD, "Basin_Error MasterTouch::calculate failed more than %d times\n",MAX_RUNS);
+      PetscPrintf ( PETSC_COMM_WORLD, "Basin_Error: MasterTouch::calculate failed more than %d times\n",MAX_RUNS);
       return false;
    }
- 
+
    delete touchstoneMaps;
- 
+
    m_projectHandle->finishActivity ();
    m_projectHandle->setSimulationDetails ( "fasttouch", "Default", "" );
- 
+
    status = true;
    if( !mergeOutputFiles ()) {
-      PetscPrintf ( PETSC_COMM_WORLD, "Basin_Error Unable to merge output files\n");
+      PetscPrintf ( PETSC_COMM_WORLD, "Basin_Error: Unable to merge output files\n");
       status = false;
-   } 
+   }
    return status;
 }
 
@@ -142,11 +142,11 @@ bool FastTouch::mergeOutputFiles ( ) {
 
   if( m_projectHandle->getModellingMode () == Interface::MODE1D ) return true;
 
-#ifndef _MSC_VER   
+#ifndef _MSC_VER
   ibs::FilePath localPath  ( m_projectHandle->getProjectPath () );
   localPath <<  m_projectHandle->getOutputDir ();
   const bool status = H5_Parallel_PropertyList ::mergeOutputFiles ( FastTouchActivityName, localPath.path() );
-  
+
   return status;
 #else
    return true;

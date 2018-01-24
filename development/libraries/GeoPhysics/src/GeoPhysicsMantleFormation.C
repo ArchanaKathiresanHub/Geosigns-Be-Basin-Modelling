@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -34,7 +34,7 @@ GeoPhysics::GeoPhysicsMantleFormation::GeoPhysicsMantleFormation ( DataAccess::I
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::Formation ( projectHandle, record ),
    DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::MantleFormationName, m_projectHandle->getMantleLithoName() ),
-   DataAccess::Interface::MantleFormation ( projectHandle, record ) 
+   DataAccess::Interface::MantleFormation ( projectHandle, record )
 {
    // Nothing to do here!
 }
@@ -114,12 +114,12 @@ void GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness () {
    }
 
    const GeoPhysics::ProjectHandle* project = dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle);
-   double maximumPresentDayBasementThickness = ( project->isALC() ? 
+   double maximumPresentDayBasementThickness = ( project->isALC() ?
                                                  getInitialLithosphericMantleThickness() + crust->getInitialCrustalThickness() :
                                                  getPresentDayThickness () + crust->getCrustMaximumThicknessHistory ( 0.0 ));
 
 #if 0
-   cout << " Basin_Warning Check out the maximum mantle thickness.  "
+   cout << " Basin_Warning: Check out the maximum mantle thickness.  "
         << getPresentDayThickness () << "  "
         << crust->getCrustMaximumThicknessHistory ( 0.0 ) << "  "
         << crust->getMinimumThickness () << "  "
@@ -144,7 +144,7 @@ unsigned int GeoPhysics::GeoPhysicsMantleFormation::setMaximumNumberOfElements (
      // numberOfUniformElements0 = PetscMin( numberOfUniformElements0, 10.0 );
      int numberOfUniformElements0 = ( curNumberOfUniformElements0 > 10 ? 10 : ( curNumberOfUniformElements0 < 4 ? 4 : curNumberOfUniformElements0 ));
      double initLithoThickness = getInitialLithosphericMantleThickness () + crust->getInitialCrustalThickness();
-     m_mantleElementHeight0 = getInitialLithosphericMantleThickness () / numberOfUniformElements0; 
+     m_mantleElementHeight0 = getInitialLithosphericMantleThickness () / numberOfUniformElements0;
      m_maximumNumberOfElements = static_cast<int>(ceil (( initLithoThickness - crust->getMinimumThickness()  ) /  ( m_mantleElementHeight0 / crust->getCrustThinningRatio () )));
 
      if( project->getRank() == 0 ) {
@@ -158,7 +158,7 @@ unsigned int GeoPhysics::GeoPhysicsMantleFormation::setMaximumNumberOfElements (
   }
   return m_maximumNumberOfElements;
 }
- 
+
 //------------------------------------------------------------//
 
 void GeoPhysics::GeoPhysicsMantleFormation::retrieveAllThicknessMaps () {

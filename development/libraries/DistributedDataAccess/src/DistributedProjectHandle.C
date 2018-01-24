@@ -57,7 +57,7 @@ struct MapFileCache {
 void ProjectHandle::mapFileCacheConstructor (void)
 {
     m_mapFileCache = new struct MapFileCache [4];
-    for (int i = 0; i < 4; ++i) 
+    for (int i = 0; i < 4; ++i)
     {
         static_cast<struct MapFileCache * > (m_mapFileCache) [i].fileName = "";
     }
@@ -65,7 +65,7 @@ void ProjectHandle::mapFileCacheConstructor (void)
 void ProjectHandle::mapFileCacheDestructor (void)
 {
    if( m_mapFileCache != nullptr ) {
-      for (int i = 0; i < 4; ++i) 
+      for (int i = 0; i < 4; ++i)
       {
          if (static_cast<struct MapFileCache * > (m_mapFileCache) [i].fileName != "")
          {
@@ -100,10 +100,10 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
 
    if ( M <= 1 or N <= 1 ) {
       PetscPrintf (PETSC_COMM_WORLD,
-                   "\n Basin_Error Unable to partition a %d x %d grid, please select a larger number of grid nodes.\nThere must be at least two nodes in each direction. \n", M, N );
+                   "\n Basin_Error: Unable to partition a %d x %d grid, please select a larger number of grid nodes.\nThere must be at least two nodes in each direction. \n", M, N );
 
       PetscPrintf(PETSC_COMM_WORLD, "\nExiting ...\n\n");
-      
+
       MPI_Finalize ();
       exit (-1);
    }
@@ -120,7 +120,7 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
     PetscPrintf(PETSC_COMM_WORLD, "\tPlease note that these numbers may still be too high (application-dependent)!\n");
       }
       PetscPrintf(PETSC_COMM_WORLD, "\nExiting ...\n\n");
-      
+
       MPI_Finalize ();
       exit (-1);
    }
@@ -147,7 +147,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    if (filePathName.find ("HighResDecompaction_Results") != string::npos)
    {
       mapFileCachePtr = &  static_cast<struct MapFileCache * > (m_mapFileCache) [hrdecompaction];
-      
+
    }
    else if (filePathName.find ("Genex5_Results") != string::npos ||
     filePathName.find ("Genex6_Results") != string::npos)
@@ -235,7 +235,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    undefinedValue = mapFileCache.undefinedValue;
 
 
-   // create petsc type 
+   // create petsc type
    PetscDimensions *petscD;
 
    if (depth == 1)
@@ -248,13 +248,13 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    }
 
    const Grid *grid = findGrid (numI, numJ);
-   
+
    assert (grid);
-   
+
    DistributedGridMap *gridMap = 0;
-   
+
    const Grid *theActivityOutputGrid = getActivityOutputGrid ();
-  
+
    const bool equalGrids = theActivityOutputGrid == 0 || grid == theActivityOutputGrid;
 
    //create
@@ -271,10 +271,10 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    hid_t dtype       = H5Dget_type( dataId );
    ssize_t dataSize  = H5Tget_size(dtype);
    bool isDoubleType = ( dataSize == H5_SIZEOF_DOUBLE );
-   
+
    H5Dclose (dataId);
    H5Tclose( dtype );
- 
+
    if( isDoubleType ) {
       PetscVector_ReadWrite < double >reader;
       reader.read (&gridMapFile, fileId, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
@@ -285,23 +285,23 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
 
    if( not equalGrids ) {
       DistributedGridMap *gridMapInActivityOutputGrid = 0;
-      
+
       gridMapInActivityOutputGrid =
          dynamic_cast<DistributedGridMap *> (getFactory ()->produceGridMap (parent, childIndex, theActivityOutputGrid, undefinedValue, depth));
-      
+
       //map gridMap to gridMapInOutputGrid
-      //bool ret = mapGridMapAtoGridMapB( gridMap, grid, gridMapInActivityOutputGrid, theActivityOutputGrid ); 
+      //bool ret = mapGridMapAtoGridMapB( gridMap, grid, gridMapInActivityOutputGrid, theActivityOutputGrid );
       bool ret = gridMap->convertToGridMap (gridMapInActivityOutputGrid);
-      
+
       delete gridMap;
       gridMap = 0;
-      
+
       if (ret)
       {
          //if the transformation was sucessful return the map otherwise 0. it should throw here...
          gridMap = gridMapInActivityOutputGrid;
       }
-         
+
    }
    delete petscD;
 
@@ -311,7 +311,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
 bool ProjectHandle::makeOutputDir() const
 {
    using namespace ibs;
-   if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) 
+   if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() )
    {  // in case we need a temporary location
 
       // Create the directory in the temporary location
@@ -323,14 +323,14 @@ bool ProjectHandle::makeOutputDir() const
       }
       catch( PathException & e)
       {
-         PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error TMPDIR '%s' couldn't be created, because: %s\n", tmpdir.path().c_str(),  e.what() );
+         PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error: TMPDIR '%s' couldn't be created, because: %s\n", tmpdir.path().c_str(),  e.what() );
          return false;
       }
    }
- 
+
    if( H5_Parallel_PropertyList::isPrimaryPodEnabled() ) {
      // in this case getFullOutputDir() points to the temporary dir (shared scratch) and we need to create the dir in the final location
-  
+
       // Create the directory in the final location
       FolderPath dirpath ( getProjectPath() );
       dirpath << getOutputDir();
@@ -340,7 +340,7 @@ bool ProjectHandle::makeOutputDir() const
       }
       catch( PathException & e)
       {
-         PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Directory at the final location '%s' couldn't be created, because: %s\n", dirpath.path().c_str(),  e.what() );
+         PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error: Directory at the final location '%s' couldn't be created, because: %s\n", dirpath.path().c_str(),  e.what() );
          return false;
       }
    }
@@ -352,10 +352,10 @@ bool ProjectHandle::makeOutputDir() const
    }
    catch( PathException & e)
    {
-      PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error Directory to final write location '%s' couldn't be created, because: %s\n", getFullOutputDir().c_str(),  e.what() );
+      PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error: Directory to final write location '%s' couldn't be created, because: %s\n", getFullOutputDir().c_str(),  e.what() );
       return false;
    }
-   
+
    return true;
 }
 //------------------------------------------------------------//
@@ -363,7 +363,7 @@ const std::string ProjectHandle::getFullOutputDir() const
 {
 
    using namespace ibs;
- 
+
    if( H5_Parallel_PropertyList::isPrimaryPodEnabled()) {
 
       FilePath ppath( H5_Parallel_PropertyList::getTempDirName() );// +  "/" + getProjectPath() + "/" + getOutputDir()  );

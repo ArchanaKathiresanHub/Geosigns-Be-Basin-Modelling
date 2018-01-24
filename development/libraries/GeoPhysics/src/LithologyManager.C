@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -42,9 +42,9 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
 
   CompoundLithologyIterator compoundIter = compoundLithologies.find ( composition );
 
-  // If the compound lithology could not be found on the 
+  // If the compound lithology could not be found on the
   // list then it must be created and added to the list.
-  // Basalt, as a part of mantle or Crust, can have differnent type of a thermal model 
+  // Basalt, as a part of mantle or Crust, can have differnent type of a thermal model
   if ( compoundIter == compoundLithologies.end() || ( composition.lithologyName( 3 ) == DataAccess::Interface::ALCBasalt )) {
     bool   mixedSuccessfully;
 
@@ -58,12 +58,12 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
 
         if ( simpleLithology != 0 ) {
            simpleLithology->setThermalModel( composition.thermalModel() );;
-        
+
            compoundLithology->addLithology ( simpleLithology, composition.lithologyFraction ( I ));
-           
+
         } else {
 
-           m_projectHandle->getMessageHandler ().print ( "Basin_Error GeoPhysics::LithologyManager::getCompoundLithology  could not find simple lithology " );
+           m_projectHandle->getMessageHandler ().print ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundLithology  could not find simple lithology " );
            m_projectHandle->getMessageHandler ().print ( composition.lithologyName ( I ));
            m_projectHandle->getMessageHandler ().newLine ();
 
@@ -81,7 +81,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
     if ( mixedSuccessfully ) {
       compoundLithologies [ composition ] = compoundLithology;
     } else {
-       m_projectHandle->getMessageHandler ().printLine ( "Basin_Error GeoPhysics::LithologyManager::getCompoundLithology  the mixing of the compound lithology was not successful" );
+       m_projectHandle->getMessageHandler ().printLine ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundLithology  the mixing of the compound lithology was not successful" );
        delete compoundLithology;
        compoundLithology = 0;
     }
@@ -118,8 +118,8 @@ void GeoPhysics::LithologyManager::printSimpleLithologies () const {
 
   for ( I = 0; I < simpleLithologies.size(); I++ ) {
     simpleLithologies [ I ]->print ();
-  } 
-  
+  }
+
 }
 
 //------------------------------------------------------------//
@@ -151,8 +151,8 @@ GeoPhysics::SimpleLithology* GeoPhysics::LithologyManager::getSimpleFaultLitholo
       std::vector<double> defaultPermeabilities(2);
       std::vector<double> defaultPorosities(2);
 
-      defaultPorosities[0] = 70.0 ; 
-      defaultPorosities[1] = 3.0  ; 
+      defaultPorosities[0] = 70.0 ;
+      defaultPorosities[1] = 3.0  ;
 
       double anisotropy;
 
@@ -210,11 +210,11 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
 
   // Create the lithology composition for the fault lithology from the given lithology composition.
   generateCompoundFaultLithologyComposition ( composition, verticalStatus, lateralStatus, faultComposition );
-  
+
   // Find the fault lithology in the set of compound lithologies.
   CompoundLithologyIterator compoundIter = compoundLithologies.find ( faultComposition );
 
-  // If the fault lithology composition was not found on the list 
+  // If the fault lithology composition was not found on the list
   // of lithologies then it must be created.
   if ( compoundIter == compoundLithologies.end ()) {
     bool mixedSuccessfully;
@@ -233,7 +233,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
           faultLithology->addLithology ( simpleFaultLithology, faultComposition.lithologyFraction ( I ));
         } else {
 
-           m_projectHandle->getMessageHandler ().print ( "Basin_Error GeoPhysics::LithologyManager::getCompoundFaultLithology  could not find simple lithology " );
+           m_projectHandle->getMessageHandler ().print ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundFaultLithology  could not find simple lithology " );
            m_projectHandle->getMessageHandler ().print ( composition.lithologyName ( I ));
            m_projectHandle->getMessageHandler ().newLine ();
 
@@ -255,7 +255,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
 
       // If the compound lithology was not mixed correctly then
       // return a null pointer, since this lithology cannot be used.
-      m_projectHandle->getMessageHandler ().printLine ( "Basin_Error GeoPhysics::LithologyManager::getCompoundFaultLithology  the mixing of the compound lithology was not successful. " );
+      m_projectHandle->getMessageHandler ().printLine ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundFaultLithology  the mixing of the compound lithology was not successful. " );
 
       // ERROR: Could not create the compounnd lithology with the fault composition.
       delete faultLithology;
@@ -276,9 +276,9 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
 
    CompoundLithology* compoundFaultLithology;
 
-   if ( simpleLithologyName == FaultDefaultSealingLithologyName ) { 
+   if ( simpleLithologyName == FaultDefaultSealingLithologyName ) {
       compoundFaultLithology = getCompoundFaultLithology ( composition, Interface::SEAL_WATER, Interface::SEAL_WATER );
-   } else if ( simpleLithologyName == FaultDefaultPassingLithologyName ) { 
+   } else if ( simpleLithologyName == FaultDefaultPassingLithologyName ) {
       compoundFaultLithology = getCompoundFaultLithology ( composition, Interface::PASS_WATER, Interface::PASS_WATER );
    } else {
       std::string      faultLithologyName = generateSimpleFaultLithologyName ( simpleLithologyName );
@@ -377,7 +377,7 @@ void GeoPhysics::LithologyManager::generateCompoundFaultLithologyComposition ( c
                                                                                const Interface::PressureFaultStatus verticalStatus,
                                                                                const Interface::PressureFaultStatus lateralStatus,
                                                                                      CompoundLithologyComposition&  faultComposition ) const {
-  
+
   faultComposition.setComposition ( generateSimpleFaultLithologyName ( composition.lithologyName ( 1 ), verticalStatus, lateralStatus ),
                                     generateSimpleFaultLithologyName ( composition.lithologyName ( 2 ), verticalStatus, lateralStatus ),
                                     generateSimpleFaultLithologyName ( composition.lithologyName ( 3 ), verticalStatus, lateralStatus ),

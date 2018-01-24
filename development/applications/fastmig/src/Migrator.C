@@ -187,7 +187,7 @@ bool Migrator::compute (const bool overpressuredLeakage)
 
       m_projectHandle->deleteTrappers ();
       database::Table * trapperIoTbl = m_projectHandle->getTable ("TrapperIoTbl");
-      trapperIoTbl->clear ();      
+      trapperIoTbl->clear ();
    }
 
    bool started = m_projectHandle->startActivity (activityName, m_projectHandle->getHighResolutionOutputGrid ());
@@ -318,7 +318,7 @@ bool Migrator::compute (const bool overpressuredLeakage)
    bool status = true;
    if (!mergeOutputFiles ())
    {
-      PetscPrintf (PETSC_COMM_WORLD, "Basin_Error Unable to merge output files\n");
+      PetscPrintf (PETSC_COMM_WORLD, "Basin_Error: Unable to merge output files\n");
       status = false;
    }
 
@@ -1568,7 +1568,7 @@ void Migrator::getMinimumColumnHeights ()
       catch (const boost::bad_lexical_cast & e)
       {
          LogHandler( LogHandler::WARNING_SEVERITY ) << "Something wrong with getting the default values for minimum column heights. Using the ones in the project file\n";
-        
+
          m_minOilColumnHeight = m_projectHandle->getReservoirOptions()->getMinOilColumnHeight();
          m_minGasColumnHeight = m_projectHandle->getReservoirOptions()->getMinGasColumnHeight();
       }

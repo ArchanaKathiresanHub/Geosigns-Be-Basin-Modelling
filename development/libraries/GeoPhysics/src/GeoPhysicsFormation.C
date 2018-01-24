@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -37,7 +37,7 @@ using namespace DataAccess;
 //------------------------------------------------------------//
 
 GeoPhysics::Formation::Formation ( DataAccess::Interface::ProjectHandle* projectHandle,
-                                   database::Record*                          record ) : 
+                                   database::Record*                          record ) :
    DataAccess::Interface::Formation ( projectHandle, record )
 {
 
@@ -184,23 +184,23 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
                maximumPercentage = NumericFunctions::Maximum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 );
                percentageSum = lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3;
 
-               if ( minimumPercentage < -LithologyTolerance or 
+               if ( minimumPercentage < -LithologyTolerance or
                     maximumPercentage > 100.0 + LithologyTolerance or
                     not NumericFunctions::isEqual<double> ( percentageSum, 100.0, LithologyTolerance )) {
 
                   createdLithologies = false;
 
                   std::ostringstream errorBuffer;
-                  errorBuffer << " Percentage Maps incorrect: ( " << i << ", " << j << " ) " 
+                  errorBuffer << " Percentage Maps incorrect: ( " << i << ", " << j << " ) "
                               << (lithoMap1 ? lithoMap1->getValue ( i, j ) : 0) << "  "
                               << (lithoMap2 ? lithoMap2->getValue ( i, j ) : 0) << "  "
-                              << (lithoMap3 ? lithoMap3->getValue ( i, j ) : 0) << "  " 
+                              << (lithoMap3 ? lithoMap3->getValue ( i, j ) : 0) << "  "
                               << std::endl
                               << "          min (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << -LithologyTolerance << "; or " << endl
                               << "          max (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << 100 + LithologyTolerance << "; or " << endl
-                              << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = " 
+                              << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = "
                               << lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3 << " /= " << 100 + LithologyTolerance << ". " << endl;
-                
+
                   errorMessage = errorBuffer.str ();
 
                   cout << " Error message: "  << errorMessage << endl;
@@ -287,7 +287,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
 
          pMixedLitho = ((GeoPhysics::ProjectHandle*)(m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
          createdLithologies = pMixedLitho != 0;
-      } else if ( NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) < -LithologyTolerance or 
+      } else if ( NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) < -LithologyTolerance or
                   NumericFunctions::Maximum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) > 100.0 + LithologyTolerance or
                   not NumericFunctions::isEqual ( lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3, 100.0, LithologyTolerance )) {
 
@@ -297,9 +297,9 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
          errorBuffer << " Percentage values incorrect: " << std::endl
                      << "          min (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << -LithologyTolerance << "; or " << endl
                      << "          max (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << 100 + LithologyTolerance << "; or " << endl
-                     << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = " 
+                     << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = "
                      << lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3 << " /= " << 100 + LithologyTolerance << ". " << endl;
-                
+
          errorMessage = errorBuffer.str ();
 
          cout << " Error message: "  << errorMessage << endl;
@@ -320,7 +320,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
    }
 
    if ( not createdLithologies ) {
-      cout << "Basin_Error Could not create lithologies for layer: " << getName () << endl;
+      cout << "Basin_Error: Could not create lithologies for layer: " << getName () << endl;
    }
 
 
@@ -335,7 +335,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
    if ( lithoMap3 != 0 ) {
       lithoMap3->restoreData ( false, true );
    }
-   
+
    if ( lithoMap1 ) lithoMap1->release();
    if ( lithoMap2 ) lithoMap2->release();
    if ( lithoMap3 ) lithoMap3->release();
@@ -367,7 +367,7 @@ void GeoPhysics::Formation::setAllochthonousLayer ( AllochthonousLithologyInterp
       }
 
     }
-    
+
   }
 
   m_compoundLithologies.setAllochthonousInterpolator ( interpolator );
@@ -421,7 +421,7 @@ void GeoPhysics::Formation::setFaultLithologies ( bool& layerHasFaults,
             if ( event.getUsedInOverpressureCalculation ()) {
                const double startAge = event.getSnapshot ()->getTime ();
 
-               // Set here because even though the fault may not lie in any element of this process, 
+               // Set here because even though the fault may not lie in any element of this process,
                // the formation nevertheless has faults.
                layerHasFaults = true;
                const std::string& lithologyName = event.getFaultLithologyName ();
@@ -433,7 +433,7 @@ void GeoPhysics::Formation::setFaultLithologies ( bool& layerHasFaults,
 
                   // Check to see if the element is a valid element on this subdomain.
                   if ( m_compoundLithologies.validIndex ( element ( X_COORD ), element ( Y_COORD ))) {
-                     faultLithology = project->getLithologyManager ().getCompoundFaultLithology ( lithologyName, 
+                     faultLithology = project->getLithologyManager ().getCompoundFaultLithology ( lithologyName,
                                                                                                   getCompoundLithology ( element ( X_COORD ), element ( Y_COORD ))->getComposition ());
 
                      if ( faultLithology != 0 ) {
@@ -446,8 +446,8 @@ void GeoPhysics::Formation::setFaultLithologies ( bool& layerHasFaults,
                         // ERROR:
                         //
 
-                        m_projectHandle->getMessageHandler ().printLine ( "Basin_Error Fault::setBasinFault Unable to find or create the fault lithology ");
-                        m_projectHandle->getMessageHandler ().print ( "Basin_Error Fault::setBasinFault so for age " );
+                        m_projectHandle->getMessageHandler ().printLine ( "Basin_Error: Fault::setBasinFault Unable to find or create the fault lithology ");
+                        m_projectHandle->getMessageHandler ().print ( "Basin_Error: Fault::setBasinFault so for age " );
                         m_projectHandle->getMessageHandler ().print ( startAge );
                         m_projectHandle->getMessageHandler ().print ( " not fault lithology will be set" );
                         m_projectHandle->getMessageHandler ().newLine ();
@@ -478,7 +478,7 @@ void GeoPhysics::Formation::switchLithologies ( const double age ) {
   bool switchHasOccurred = m_compoundLithologies.setCurrentLithologies ( age );
 
 #if 0
-  cout << " GeoPhysics::Formation::switchLithologies " << getName () << "  " 
+  cout << " GeoPhysics::Formation::switchLithologies " << getName () << "  "
        << ( switchHasOccurred ? " TRUE " : " FALSE " ) << endl;
 #endif
 

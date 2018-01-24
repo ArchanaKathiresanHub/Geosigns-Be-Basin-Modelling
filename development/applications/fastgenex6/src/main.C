@@ -70,7 +70,7 @@ int main (int argc, char ** argv)
       char cmd[150];
 
       sprintf (cmd, "/usr/bin/ddd --debugger /usr/bin/gdb %s %d &", argv[0],  getpid ());
-      
+
       system (cmd);
       sleep (20);
    }
@@ -82,7 +82,7 @@ int main (int argc, char ** argv)
       char cmd[150];
 
       sprintf (cmd, "myddd  %s %d &", argv[0],  getpid ());
-      
+
       system (cmd);
       sleep (20);
    }
@@ -108,18 +108,18 @@ int main (int argc, char ** argv)
       sleep (20);
    }
 #endif
-   
+
    int rank = 99999;
    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
-   
+
 
 #ifdef FLEXLM
    int rc = EPTFLEXLM_OK;
-  
+
    char feature[EPTFLEXLM_MAX_FEATURE_LEN];
    char version[EPTFLEXLM_MAX_VER_LEN];
    char errmessage[EPTFLEXLM_MAX_MESS_LEN];
-   
+
    // FlexLM license handling only for node with rank = 0
    if( rank == 0 ) {
       sprintf(feature, "ibs_cauldron_calc");
@@ -141,11 +141,11 @@ int main (int argc, char ** argv)
 	      fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
       }
    }
-   
+
    MPI_Bcast ( &rc, 1, MPI_INT, 0, PETSC_COMM_WORLD);
-   
+
 #endif
-   
+
 #ifdef FLEXLM
    if( rc != EPTFLEXLM_OK && rc != EPTFLEXLM_WARN) {
       //FlexLM license check in only for node with rank = 0
@@ -156,12 +156,12 @@ int main (int argc, char ** argv)
       }
       // Close PetSc
       PetscFinalize ();
-      
+
       return -1;
    }
 #endif
    bool status = false;
-   
+
    GenexSimulator        *theGenexSimulator = 0;
    GenexSimulatorFactory *theFactory        = 0;
 
@@ -177,7 +177,7 @@ int main (int argc, char ** argv)
    //delete existent properties
    if (status) {
       theGenexSimulator->deleteSourceRockPropertyValues();
-      theGenexSimulator->deletePropertyValues (DataAccess::Interface::RESERVOIR , 0, 0, 0, 0, 0, 
+      theGenexSimulator->deletePropertyValues (DataAccess::Interface::RESERVOIR , 0, 0, 0, 0, 0,
                                                DataAccess::Interface::MAP);
    }
 
@@ -191,21 +191,21 @@ int main (int argc, char ** argv)
    }
 
    catch ( std::string& s ) {
-      std::cerr << "Basin_Error " << s << std::endl;
+      std::cerr << "Basin_Error: " << s << std::endl;
       exit (1);
    }
 
    catch (...) {
       exit (1);
    }
- 
+
    //save results
    if (status) status = theGenexSimulator->saveTo(outputFileName);
-   
+
    //clean up
    delete theGenexSimulator;
    delete theFactory;
-   
+
 #ifdef FLEXLM
    //FlexLM license check in only for node with rank = 0
    if( rank == 0 ) {

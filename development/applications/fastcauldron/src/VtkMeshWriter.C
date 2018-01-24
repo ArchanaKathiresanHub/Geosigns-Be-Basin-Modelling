@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "VtkMeshWriter.h"
 
 #include <sstream>
@@ -252,7 +252,7 @@ void VtkMeshWriter::getLocalNodesIJK ( const ComputationalDomain& domain,
 
          y += deltaY;
       }
- 
+
       x += deltaX;
    }
 
@@ -327,7 +327,7 @@ void VtkMeshWriter::getLocalNodesKIJ ( const ComputationalDomain& domain,
 
          x += deltaX;
       }
- 
+
    }
 
    ///2. Top nodes numbering
@@ -426,7 +426,7 @@ void VtkMeshWriter::getLocalNodesKJI ( const ComputationalDomain& domain,
          }
 
       }
- 
+
    }
 
    ///2. Top nodes numbering
@@ -515,7 +515,7 @@ void VtkMeshWriter::gatherAllNodes ( const DoubleArray&    localNodes,
    }
 
    // The const_cast is okay here because MPI_Gatherv does not modify the array.
-   MPI_Gatherv ( const_cast<double*>(localNodes.data ()), ValuesPerNode * numberOfActiveNodes [ m_rank ], MPI_DOUBLE, 
+   MPI_Gatherv ( const_cast<double*>(localNodes.data ()), ValuesPerNode * numberOfActiveNodes [ m_rank ], MPI_DOUBLE,
                  globalNodes.data (), numberOfActiveNodeValues.data (), nodeOffset.data (), MPI_DOUBLE, 0, PETSC_COMM_WORLD );
 
 }
@@ -535,7 +535,7 @@ void VtkMeshWriter::gatherAllElementDofs ( const IntegerArray& localElementDofs,
    }
 
    // The const_cast is okay here because MPI_Gatherv does not modify the array.
-   MPI_Gatherv ( const_cast<int*>(localElementDofs.data ()), NumberOfElementNodes * numberOfActiveElements [ m_rank ], MPI_INT, 
+   MPI_Gatherv ( const_cast<int*>(localElementDofs.data ()), NumberOfElementNodes * numberOfActiveElements [ m_rank ], MPI_INT,
                  globalElementDofs.data (), numberOfActiveElementDofValues.data (), elementDofOffset.data (), MPI_INT, 0, PETSC_COMM_WORLD );
 
 }
@@ -553,7 +553,7 @@ void VtkMeshWriter::gatherAllElementLayerIds ( const IntegerArray& localElementL
    }
 
    // The const_cast is okay here because MPI_Gatherv does not modify the array.
-   MPI_Gatherv ( const_cast<int*>(localElementLayerIds.data ()), numberOfActiveElements [ m_rank ], MPI_INT, 
+   MPI_Gatherv ( const_cast<int*>(localElementLayerIds.data ()), numberOfActiveElements [ m_rank ], MPI_INT,
                  globalElementLayerIds.data (), const_cast<int*>(numberOfActiveElements.data ()), elementIdOffset.data (), MPI_INT, 0, PETSC_COMM_WORLD );
 
 }

@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "ComputationalDomain.h"
 
 // Access STL library.
@@ -27,7 +27,7 @@
 
 //------------------------------------------------------------//
 
-// This number should be either negative or larger than the maximum 
+// This number should be either negative or larger than the maximum
 // number of nodes we expect to have for even the largest grid.
 const int ComputationalDomain::NullDofNumber = -9999;
 
@@ -82,7 +82,7 @@ ComputationalDomain::~ComputationalDomain () {
    if ( m_local2global != PETSC_NULL ) {
       ISLocalToGlobalMappingDestroy ( &m_local2global );
    }
-   
+
 }
 
 //------------------------------------------------------------//
@@ -354,7 +354,7 @@ void ComputationalDomain::numberGlobalDofsIJK ( int&                      global
                if ( m_activeNodes ( i, j, k )) {
                   dof ( k, j, i ) = globalDofNumber++;
                } else {
-                  // Could the number of the dof that lies directly above this in-active dof be 
+                  // Could the number of the dof that lies directly above this in-active dof be
                   // used to number this one. This may make it easier when extracting the vector
                   // of values and copying them back to the layer 3d array of values.
                   dof ( k, j, i ) = NullDofNumberReal; // Is this the best value?
@@ -394,7 +394,7 @@ void ComputationalDomain::numberGlobalDofsKIJ ( int&                      global
                if ( m_activeNodes ( i, j, k )) {
                   dof ( k, j, i ) = globalDofNumber++;
                } else {
-                  // Could the number of the dof that lies directly above this in-active dof be 
+                  // Could the number of the dof that lies directly above this in-active dof be
                   // used to number this one. This may make it easier when extracting the vector
                   // of values and copying them back to the layer 3d array of values.
                   dof ( k, j, i ) = NullDofNumberReal; // Is this the best value?
@@ -434,7 +434,7 @@ void ComputationalDomain::numberGlobalDofsKJI ( int&                      global
                if ( m_activeNodes ( i, j, k )) {
                   dof ( k, j, i ) = globalDofNumber++;
                } else {
-                  // Could the number of the dof that lies directly above this in-active dof be 
+                  // Could the number of the dof that lies directly above this in-active dof be
                   // used to number this one. This may make it easier when extracting the vector
                   // of values and copying them back to the layer 3d array of values.
                   dof ( k, j, i ) = NullDofNumberReal; // Is this the best value?
@@ -637,7 +637,7 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
    // Only necessary in verbose mode.
    int inactiveNodes = 0;
 
-   // Now that all the necessary information about active nodes has been gathered 
+   // Now that all the necessary information about active nodes has been gathered
    // it is now possible to set the node activity for the local nodes.
    for ( unsigned int i = nodeGrid.firstI (); i <= nodeGrid.lastI (); ++i ) {
 
@@ -684,7 +684,7 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
 
    m_localStartDofNumber = 0;
 
-   // Determine the first global dof number for local dofs by summing the number 
+   // Determine the first global dof number for local dofs by summing the number
    // of active number of nodes in all ranks less than the current rank.
    for ( int i = 0; i < m_rank; ++i ) {
       m_localStartDofNumber += m_numberOfActiveNodesPerProcess [ i ];

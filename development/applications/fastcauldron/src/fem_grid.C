@@ -627,11 +627,11 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      looselyCoupledOutputProperties.push_back( VR );
      looselyCoupledOutputProperties.push_back( DEPTH );
   }
-  
+
   if (Application_Context->primaryOutput() and FastcauldronSimulator::getInstance().getCalculationMode() != OVERPRESSURE_MODE) {
      basinModel->timefilter.setFilter("Depth", "SedimentsPlusBasement");
      FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-     
+
      basinModel->timefilter.setFilter("Temperature", "SedimentsPlusBasement");
      FastcauldronSimulator::getInstance().setOutputPropertyOption( TEMPERATURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
   }
@@ -833,7 +833,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
 
   if ( overpressureHasDiverged ) {
     PetscPrintf ( PETSC_COMM_WORLD,
-                  "Basin_Error Calculation has diverged, see help for possible solutions. \n" );
+                  "Basin_Error: Calculation has diverged, see help for possible solutions. \n" );
   } else {
     displayTime(basinModel->debug1 or basinModel->verbose,"OverPressure Calculation: ");
 
@@ -845,11 +845,11 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
 
     if ( numberOfGeometricIterations > maximumNumberOfGeometricIterations && ! geometryHasConverged ) {
        PetscPrintf ( PETSC_COMM_WORLD,
-                     "Basin_Warning Maximum number of geometric iterations, %d, exceeded and geometry has not converged \n",
+                     "Basin_Warning: Maximum number of geometric iterations, %d, exceeded and geometry has not converged \n",
                      maximumNumberOfGeometricIterations );
 
        PetscPrintf ( PETSC_COMM_WORLD,
-                     "Basin_Warning Look at the ThicknessError maps in Cauldron to see if the error is acceptable\n" );
+                     "Basin_Warning: Look at the ThicknessError maps in Cauldron to see if the error is acceptable\n" );
     }
 
   }
@@ -907,7 +907,7 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
 
   if ( temperatureHasDiverged ) {
     PetscPrintf ( PETSC_COMM_WORLD,
-                  "Basin_Error Calculation has diverged, see help for possible solutions. \n" );
+                  "Basin_Error: Calculation has diverged, see help for possible solutions. \n" );
   } else if ( errorInDarcy ) {
      //
   } else {
@@ -1039,7 +1039,7 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
 
   if ( overpressureHasDiverged ) {
     PetscPrintf ( PETSC_COMM_WORLD,
-                  "Basin_Error Calculation has diverged, see help for possible solutions. \n" );
+                  "Basin_Error: Calculation has diverged, see help for possible solutions. \n" );
   } else if ( errorInDarcy ) {
      //
   } else {
@@ -1060,11 +1060,11 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
 
     if ( numberOfGeometricIterations > maximumNumberOfGeometricIterations && ! geometryHasConverged ) {
        PetscPrintf ( PETSC_COMM_WORLD,
-                     "Basin_Warning Maximum number of geometric iterations, %d, exceeded and geometry has not converged \n",
+                     "Basin_Warning: Maximum number of geometric iterations, %d, exceeded and geometry has not converged \n",
                      maximumNumberOfGeometricIterations );
 
        PetscPrintf ( PETSC_COMM_WORLD,
-                     "Basin_Warning Look at the ThicknessError maps in Cauldron to see if the error is acceptable\n" );
+                     "Basin_Warning: Look at the ThicknessError maps in Cauldron to see if the error is acceptable\n" );
     }
 
   }
@@ -2369,7 +2369,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
          {
             // If the linear solver has diverged due to the maximum number of iterations it then tries HYPRE
             PetscPrintf ( PETSC_COMM_WORLD,
-                          " Basin_Warning The pressure solver exit condition was: %s. Retrying with HYPRE preconditioner. \n",
+                          " Basin_Warning: The pressure solver exit condition was: %s. Retrying with HYPRE preconditioner. \n",
                           getKspConvergedReasonImage ( convergedReason ).c_str ());
 
             pressureLinearSolver->setPCtype( PCHYPRE );
@@ -2383,7 +2383,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
          {
             // If the linear solver has diverged for other reasons it then tries GMRES with several settings
             PetscPrintf ( PETSC_COMM_WORLD,
-                          " Basin_Warning The pressure solver exit condition was: %s. Retrying with another linear solver. \n",
+                          " Basin_Warning: The pressure solver exit condition was: %s. Retrying with another linear solver. \n",
                           getKspConvergedReasonImage ( convergedReason ).c_str ());
 
             // Now iterate several times until the linear system has been solved.
@@ -2423,7 +2423,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
             if( (PETSC_FALSE == disableHypre) && (convergedReason < 0) && (pressureLinearSolver->getPCtype() != PCHYPRE) )
             {
                PetscPrintf ( PETSC_COMM_WORLD,
-                             " Basin_Warning The pressure solver exit condition was: %s. Retrying with HYPRE preconditioner. \n",
+                             " Basin_Warning: The pressure solver exit condition was: %s. Retrying with HYPRE preconditioner. \n",
                              getKspConvergedReasonImage ( convergedReason ).c_str ());
 
                pressureLinearSolver->setPCtype( PCHYPRE );
@@ -2487,9 +2487,9 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
       VecNorm ( Residual, NORM_2, &Residual_Length );
 
       if ( convergedReason < 0 ) {
-         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error pressure solver exit condition was: %s \n",
+         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: pressure solver exit condition was: %s \n",
                        getKspConvergedReasonImage ( convergedReason ).c_str ());
-         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error the linear solver could not converge to a solution after %i attempts and %i iterations. \n",
+         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: the linear solver could not converge to a solution after %i attempts and %i iterations. \n",
                        linearSolveAttempts,
                        linearSolverTotalIterationCount );
          overpressureHasDiverged = true;
@@ -2498,7 +2498,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
          overpressureHasDiverged = std::isnan( Po_Norm ) || std::isnan( Solution_Length ) || std::isnan( Residual_Solution_Length ) || std::isnan( Residual_Length );
 
          if ( overpressureHasDiverged ) {
-            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error pressure solution contains a NaN. \n");
+            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Error: pressure solution contains a NaN. \n");
          }
 
       }

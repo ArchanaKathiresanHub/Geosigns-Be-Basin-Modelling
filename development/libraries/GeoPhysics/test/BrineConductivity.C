@@ -43,7 +43,7 @@ namespace BrineConductivity_UnitTests
       thermalConductivitySamples = projectHandle->getFluidThermalConductivitySampleList(projectHandle->findFluid(geoPhysicsFluidType->getThermalConductivityFluidName()));
       if ((*thermalConductivitySamples).size() != GeoPhysics::Brine::Conductivity::s_thCondArraySize)
       {
-         throw formattingexception::GeneralException() << "\nBasin_Error  Size of FltThCondIoTbl in project file is not correct\n\n";
+         throw formattingexception::GeneralException() << "\nBasin_Error:  Size of FltThCondIoTbl in project file is not correct\n\n";
       }
 
       DataAccess::Interface::FluidThermalConductivitySampleList::const_iterator thermalConductivitySampleIter;
@@ -157,7 +157,7 @@ namespace BrineConductivity_UnitTests
 
          const double highTemp = phase.findT2(pressure);
          const double lowTemp  = phase.findT1(highTemp);
-         
+
          phase.set( lowTemp * (1.0 - epsilon), pressure );
          double cond1 = conductivity.get( phase );
          phase.set( lowTemp * (1.0 + epsilon), pressure );
