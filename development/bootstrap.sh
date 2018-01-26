@@ -12,6 +12,7 @@ if [ ${HOSTNAME} == "okapi" ]; then
    intel_impi_module_name="impi/2017.05"
    intel_imkl_module_name="imkl/2017.05"
    . /usr/share/Modules/init/bash
+   cmake=cmake3
 else
    intel_cxx_module_name="intel/2017.05"
    intel_impi_module_name="impi/2017.4.239-iccifort-2017.5.239-GCC-4.9.3-2.25"
@@ -21,7 +22,9 @@ else
    module purge
    echo "Loading module for CMake ... CMake/3.8.2"
    module load CMake/3.8.2
+   cmake=`which cmake`
 fi
+
 ##########################################################################
 
 ##########################################################################
@@ -248,14 +251,7 @@ fi
 rm -rf CMakeCache.txt CMakeFiles
 
 ### Run CMake
-if [ -d /nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools ]; then
-   cauldron_tools=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools
-   cmake=$cauldron_tools/bin/cmake
-else
-   cmake=`which cmake`
-fi
-
-echo "cmake $extra_cmake_params $@"
+echo "${cmake} $extra_cmake_params $@"
 $cmake $extra_cmake_params $@ $source_directory || exit 1
 
 if [ $module_loaded_in_script -eq 1 ]; then
