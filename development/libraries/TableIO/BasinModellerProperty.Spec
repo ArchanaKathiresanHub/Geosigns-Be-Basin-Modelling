@@ -1993,7 +1993,7 @@ START-properties
     Default             : 0
 
     Identification      : Legacy
-    Description         : Whether to run BPA-compatible migration mode
+    Description         : Whether to run BPA-compatible compaction and migration mode
     Type                : boolean
     Time dependent      : No
     Property I/O        : No
@@ -3172,12 +3172,6 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Unit of measurement : J
     Type                : double
     Default             : 18360.0
-
-    Identification      : GasRatio
-    Description         : Diffusion constant
-    Unit of measurement : ????
-    Type                : double
-    Default             : 8.31451
 
     Identification      : C1_DiffFactor
     Description         : Diffusion factor
@@ -5216,7 +5210,6 @@ START-property-tables
     Column         : MaximumSealThickness
     Column         : DiffSalinity
     Column         : ActEnergy
-    Column         : GasRatio
     Column         : C1_DiffFactor
     Column         : C2_DiffFactor
     Column         : C3_DiffFactor

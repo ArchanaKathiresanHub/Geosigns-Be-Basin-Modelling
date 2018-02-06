@@ -662,9 +662,9 @@
 ;
 [DiffusionIoTbl]
 ;v100
-          DiffusionModel       SealThicknessModel     MaximumSealThickness             DiffSalinity                ActEnergy                 GasRatio            C1_DiffFactor            C2_DiffFactor            C3_DiffFactor            C4_DiffFactor            C5_DiffFactor            C1_ConcFactor            C2_ConcFactor            C3_ConcFactor            C4_ConcFactor            C5_ConcFactor
-                      ()                       ()                      (m)                  (kg/kg)                      (J)                   (????)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
-             "Transient"         "FullOverburden"                        0                      0.2                    18360                  8.31451                3.047e-06                2.484e-06                2.266e-06                2.036e-06                1.908e-06                        1                    0.222                    0.089                     0.02                   0.0067
+          DiffusionModel       SealThicknessModel     MaximumSealThickness             DiffSalinity                ActEnergy            C1_DiffFactor            C2_DiffFactor            C3_DiffFactor            C4_DiffFactor            C5_DiffFactor            C1_ConcFactor            C2_ConcFactor            C3_ConcFactor            C4_ConcFactor            C5_ConcFactor
+                      ()                       ()                      (m)                  (kg/kg)                      (J)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
+             "Transient"         "FullOverburden"                        0                      0.2                    18360                3.047e-06                2.484e-06                2.266e-06                2.036e-06                1.908e-06                        1                    0.222                    0.089                     0.02                   0.0067
 [End]
 ;
 ;

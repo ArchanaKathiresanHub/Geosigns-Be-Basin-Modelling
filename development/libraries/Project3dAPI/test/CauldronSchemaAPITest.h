@@ -1468,7 +1468,6 @@ void FillTableDiffusionIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_DiffusionIoTbl->setMaximumSealThickness(id, 0);
 	ph.m_DiffusionIoTbl->setDiffSalinity(id, 0.2);
 	ph.m_DiffusionIoTbl->setActEnergy(id, 18360);
-	ph.m_DiffusionIoTbl->setGasRatio(id, 8.31451);
 	ph.m_DiffusionIoTbl->setC1_DiffFactor(id, 3.047e-06);
 	ph.m_DiffusionIoTbl->setC2_DiffFactor(id, 2.484e-06);
 	ph.m_DiffusionIoTbl->setC3_DiffFactor(id, 2.266e-06);
