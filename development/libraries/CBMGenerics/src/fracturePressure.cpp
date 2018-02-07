@@ -101,7 +101,7 @@ namespace CBMGenerics
                            depthWrtSedimentSurface + coefficients[0];
 
          // Convert from MPa to Pa:
-         return pressure * MegaPaToPa + hydrostaticPressureAtSedimentSurface - PressureAtSeaLevel;
+         return (pressure + hydrostaticPressureAtSedimentSurface) * MegaPaToPa - PressureAtSeaLevel;
       }
 
       double computeForFunctionOfLithostaticPressure( const double & hydraulicFracture

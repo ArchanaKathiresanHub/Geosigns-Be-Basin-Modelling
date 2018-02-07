@@ -988,8 +988,7 @@ namespace migration
             LocalColumn * column = getLocalColumn (i, j);
             if (IsValid (column))
             {
-               //	    column->setSeaBottomPressure (column->getTopDepth () - gridMap->get (i, j, gridMap->lastK() ));
-               column->setSeaBottomPressure (column->getTopDepth () - gridMap->get (i, j));
+               column->setSeaBottomPressure (gridMap->get (i, j));
             }
          }
       }
