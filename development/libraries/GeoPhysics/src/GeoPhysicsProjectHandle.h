@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -11,20 +11,21 @@
 #ifndef GEOPHYSICS__PROJECT_HANDLE_H
 #define GEOPHYSICS__PROJECT_HANDLE_H
 
+//std
 #include <string>
 #include <list>
 #include <vector>
 
+//CbmGenerics
 #include "Polyfunction.h"
 
 #include "CauldronGridDescription.h"
 
-#include "Local2DArray.h"
-
+//DataAccess
+#include "Interface/Local2DArray.h"
 #include "Interface/ProjectHandle.h"
 
 namespace DataAccess {
-
    namespace Interface {
       class CrustFormation;
       class Formation;
@@ -32,7 +33,6 @@ namespace DataAccess {
       class MantleFormation;
       class ProjectHandle;
    }
-
 }
 
 namespace GeoPhysics {
@@ -48,7 +48,7 @@ namespace GeoPhysics {
 
    class ProjectHandle : public DataAccess::Interface::ProjectHandle
    {
-      typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
+      typedef DataAccess::Interface::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
 
       typedef std::list<double> FloatStack;
 
@@ -58,9 +58,7 @@ namespace GeoPhysics {
 
    public :
 
-      typedef GeoPhysics::Local2DArray <bool>   BooleanLocal2DArray;
-      typedef GeoPhysics::Local2DArray <double> DoubleLocal2DArray;
-
+      typedef DataAccess::Interface::Local2DArray <double> DoubleLocal2DArray;
 
       ProjectHandle ( database::ProjectFileHandlerPtr pfh,
                       const std::string & name,
@@ -98,7 +96,7 @@ namespace GeoPhysics {
       bool initialiseLayerThicknessHistory ( const bool overpressureCalculation );
 
       /// Scale the solid-thicknesses by the correction factor.
-      bool applyFctCorrections ();
+      bool applyFctCorrections () const;
 
       /// @brief Return true if the project has a paleobathymetrie defined in the
       ///   surface depth history (SDH) for the specified age.
@@ -174,12 +172,6 @@ namespace GeoPhysics {
       double getEndOfRiftEvent ( const unsigned int i,
                                  const unsigned int j ) const;
 
-      /// Return the maximum thickness attained by the basement.
-      double getMaximumBasementThickness () const;
-
-      /// Return whether or not the node is defined.
-      bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
-
       /// Return the first index in the 'I' direction.
       ///
       /// \param includeGhosts Whether or not to include the ghost nodes in the boundary.
@@ -200,7 +192,7 @@ namespace GeoPhysics {
       /// \param includeGhosts Whether or not to include the ghost nodes in the boundary.
       unsigned int lastJ  ( const bool includeGhosts = false ) const;
 
-      void printValidNeedles ( std::ostream& o = std::cout );
+      void printValidNeedles ( std::ostream& o = std::cout ) const;
 
       bool isALC() const;
 
@@ -219,11 +211,7 @@ namespace GeoPhysics {
       // Should this be performed during construction?
       void loadFluidPropertyTables ();
 
-      ///
       void loadFracturePressureCalculator ();
-
-      void deleteFracturePressureCalculator ();
-
 
       /// Correct the simple (constant) fluid densities to standard conditions.
       void correctSimpleFluidDensities ();
@@ -236,72 +224,27 @@ namespace GeoPhysics {
       /// Add the simple-lithologies to the lithology-manager.
       void addSimpleLithologiesToLithologyManager ();
 
-      /// Add undefined areas of a grid-map to the undefined-node array.
-      void addUndefinedAreas ( const DataAccess::Interface::GridMap* theMap );
-
-      /// Add undefined areas of formation input maps to the undefined-node array.
-      ///
-      /// Input maps include:
-      ///   o Lithology maps;
-      ///   o Mobile layer thickness maps;
-      ///   o Allochthonous lithology distribution maps;
-      ///   o All reservoir maps.
-      void addFormationUndefinedAreas ( const DataAccess::Interface::Formation* formation );
-
-      /// Add undefined areas of the mantle-formation input maps to the undefined-node array.
-      ///
-      /// Input maps include:
-      ///   o Paleo-thickness history;
-      ///   o Heat-flow history maps.
-      void addMantleUndefinedAreas ( const DataAccess::Interface::MantleFormation* mantle );
-
-      /// Add undefined areas of the crust-formation input maps to the undefined-node array.
-      ///
-      /// Input maps are paleo-thickness history.
-      void addCrustUndefinedAreas ( const DataAccess::Interface::CrustFormation* crust );
-
-      /// Add undefined areas from the property-value map.
-      ///
-      /// The undefined areas may depend on
-      void addUndefinedAreas ( const DataAccess::Interface::PropertyValue* theProperty );
-
-      /// Valid isolated nodes will be removed.
-      /// A valid node is marked as "isolated" when it does not belong to any entirely valid element,
-      /// eg. a 4-points element with all valid nodes.
-      void filterValidNodesByValidElements();
-
-      /// Initialise the valid-node array.
-      ///
-      /// This function uses only the input data maps and is sufficient to construct
-      /// all of the necessary items in the cauldron model, e.g. sea-surface temperature,
-      /// crust-thickness history, etc. It may be necessary to restrict further the
-      /// valid nodes with other input data, e.g. fct-correction maps, or ves property.
-      virtual bool initialiseValidNodes ( const bool readSizeFromVolumeData );
-
       /// Create the paleo-sea-bottom depth.
       bool createPaleoBathymetry ();
 
       /// Create the sea-bottom temperature.
-      bool createSeaBottomTemperature ();
+      bool createSeaBottomTemperature () const;
 
       /// Create the mantle heat-flow.
-      bool createMantleHeatFlow ();
+      bool createMantleHeatFlow () const;
 
       /// Create the crust thickness history.
-      bool createCrustThickness ();
+      void createCrustThickness () const;
 
       /// Create the crust thickness history (= effective crust thickness) and basalt thickness history.
-      bool createBasaltThicknessAndECT ();
+      bool createBasaltThicknessAndECT () const;
 
       /// Find the global maximum and minimum in the thickness of each layer.
       bool determineLayerMinMaxThickness ();
 
       /// Determine the crust thinning ratio.
       // The main reason for this function is to provide easier error handling.
-      bool determineCrustThinningRatio ();
-
-      /// \brief If necessary add a crust thickness property to the sequence of maps at the age at which the simulation starts.
-      bool correctCrustThicknessHistory ();
+      bool determineCrustThinningRatio () const;
 
       /// Compute the maximum number of elements that will be used in each layer.
       bool determineMaximumNumberOfSegmentsPerLayer ( const bool readSizeFromVolumeData,
@@ -314,81 +257,81 @@ namespace GeoPhysics {
       /// Part of the solid-thickness initialisation.
       bool computeThicknessHistories ( const unsigned int i,
                                        const unsigned int j,
-                                             GeoPhysics::Formation* formation,
-                                             IntegerArray& numberOfErrorsPerLayer );
+                                       GeoPhysics::Formation* formation,
+                                       IntegerArray& numberOfErrorsPerLayer ) const;
 
       /// Set the deposition history of the layer.
       ///
       /// Part of the solid-thickness initialisation.
-      bool setDepositionHistory ( const unsigned int i,
-                                  const unsigned int j,
-                                  const double       thickness,
-                                        GeoPhysics::Formation* formation );
+      static bool setDepositionHistory ( const unsigned int     i,
+                                         const unsigned int     j,
+                                         const double           thickness,
+                                         GeoPhysics::Formation* formation );
 
       /// Part of the solid-thickness initialisation.
-      bool setHistoriesForUnconformity ( const unsigned int i,
-                                         const unsigned int j,
-                                         const double       thickness,
-                                               GeoPhysics::Formation* formation );
+      bool setHistoriesForUnconformity ( const unsigned int     i,
+                                         const unsigned int     j,
+                                         const double           thickness,
+                                         GeoPhysics::Formation* formation ) const;
 
       /// Part of the solid-thickness initialisation.
       bool setErosionHistory ( const unsigned int i,
                                const unsigned int j,
-                                     GeoPhysics::Formation* formation,
+                               GeoPhysics::Formation* formation,
                                const double startErosionAge,
                                const double endErosionAge,
-                               const double erodedThickness );
+                               const double erodedThickness ) const;
 
       /// Part of the solid-thickness initialisation.
       bool setMobileLayerThicknessHistory ( const unsigned int i,
                                             const unsigned int j,
-                                                  GeoPhysics::Formation* formation,
-                                                  IntegerArray&          numberOfErrorsPerLayer );
+                                            GeoPhysics::Formation* formation,
+                                            IntegerArray&          numberOfErrorsPerLayer ) const;
 
       /// \brief Part of the solid-thickness initialisation when layer is igneous intrusion.
-      bool setIgneousIntrusionThicknessHistory ( const unsigned int i,
+      static bool setIgneousIntrusionThicknessHistory ( const unsigned int i,
+                                                        const unsigned int j,
+                                                        GeoPhysics::Formation* formation,
+                                                        IntegerArray&          numberOfErrorsPerLayer );
+
+      /// Part of the solid-thickness initialisation.
+      static void storePresentDayThickness ( const unsigned int i,
+                                             const unsigned int j,
+                                             GeoPhysics::Formation* formation );
+
+      /// Part of the solid-thickness initialisation.
+      static bool updateMobileLayerOrIgneousIntrusionMaxVes ( const unsigned int i,
+                                                              const unsigned int j,
+                                                              GeoPhysics::Formation* formation,
+                                                              double &maxVes );
+
+      /// Part of the solid-thickness initialisation.
+      static bool compFCThicknessHistories ( const unsigned int i,
+                                             const unsigned int j,
+                                             const bool overpressureCalculation,
+                                             GeoPhysics::Formation* formation,
+                                             int& nrActUnc,
+                                             FloatStack &uncMaxVes,
+                                             FloatStack &uncThickness );
+
+      /// Part of the solid-thickness initialisation.
+      static bool compactLayerThicknessHistory ( const unsigned int i,
                                                  const unsigned int j,
-                                                       GeoPhysics::Formation* formation,
-                                                       IntegerArray&          numberOfErrorsPerLayer );
+                                                 const bool overpressureCalculation,
+                                                 GeoPhysics::Formation* formation,
+                                                 FloatStack &uncMaxVes,
+                                                 FloatStack &uncThickness,
+                                                 const int nrActUnc );
 
       /// Part of the solid-thickness initialisation.
-      void storePresentDayThickness ( const unsigned int i,
-                                      const unsigned int j,
-                                            GeoPhysics::Formation* formation );
-
-      /// Part of the solid-thickness initialisation.
-      bool updateMobileLayerOrIgneousIntrusionMaxVes ( const unsigned int i,
-                                                       const unsigned int j,
-                                                       GeoPhysics::Formation* formation,
-                                                       double &maxVes );
-
-      /// Part of the solid-thickness initialisation.
-      bool compFCThicknessHistories ( const unsigned int i,
-                                      const unsigned int j,
-                                      const bool     overpressureCalculation,
-                                            GeoPhysics::Formation* formation,
-                                            int& nrActUnc,
-                                            FloatStack &uncMaxVes,
-                                            FloatStack &uncThickness );
-
-      /// Part of the solid-thickness initialisation.
-      bool compactLayerThicknessHistory ( const unsigned int i,
-                                          const unsigned int j,
-                                          const bool     overpressureCalculation,
-                                                GeoPhysics::Formation* formation,
-                                                FloatStack &uncMaxVes,
-                                                FloatStack &uncThickness,
-                                          const int nrActUnc );
-
-      /// Part of the solid-thickness initialisation.
-      bool calcFullCompactedThickness ( const unsigned int i,
-                                        const unsigned int j,
-                                        const bool     overpressureCalculation,
-                                              GeoPhysics::Formation* formation,
-                                        const double compThickness,
-                                              double &uncMaxVes,
-                                        double &fullCompThickness,
-                                        double age );
+      static bool calcFullCompactedThickness ( const unsigned int i,
+                                               const unsigned int j,
+                                               const bool overpressureCalculation,
+                                               GeoPhysics::Formation* formation,
+                                               const double compThickness,
+                                               double &uncMaxVes,
+                                               double &fullCompThickness,
+                                               double age );
 
       /// Load constants from configuration file ( ALC mode )
       bool loadALCConfigurationFile( const string & cfgFileName );
@@ -397,15 +340,10 @@ namespace GeoPhysics {
       LithologyManager* m_lithologyManager;
 
       /// Provides functionality for calculating the fracture-pressure.
-      FracturePressureCalculator* m_fracturePressureCalculator;
+      FracturePressureCalculator* m_fracturePressureCalculator{};
 
       /// Manages the allochthonous-lithologies and the interpolator.
       AllochthonousLithologyManager* m_allochthonousLithologyManager;
-
-      /// Indicates whether a node is valid or not.
-      ///
-      /// I.e. whether it is included in the calculation.
-      BooleanLocal2DArray m_validNodes;
 
       CauldronGridDescription m_cauldronGridDescription;
 
@@ -420,26 +358,26 @@ namespace GeoPhysics {
 
 
       /// The first indexes in the 'I' direction.
-      unsigned int m_firstI [ 2 ];
+      unsigned int m_firstI [ 2 ]{};
 
       /// The first indexes in the 'J' direction.
-      unsigned int m_firstJ [ 2 ];
+      unsigned int m_firstJ [ 2 ]{};
 
       /// The last indexes in the 'I' direction.
-      unsigned int m_lastI  [ 2 ];
+      unsigned int m_lastI  [ 2 ]{};
 
       /// The last indexes in the 'J' direction.
-      unsigned int m_lastJ  [ 2 ];
+      unsigned int m_lastJ  [ 2 ]{};
 
       /// Indicates whether or not the basin has any active faults.
-      bool m_basinHasActiveFaults;
+      bool m_basinHasActiveFaults{};
 
       /// The age of the basin, i.e. the oldest snapshot time in the snapshot-list.
-      double m_basinAge;
+      double m_basinAge{};
 
       /// ALC bottom boundary conditions mode
       bool m_isALCMode;   
-      ConfigFileParameterAlc *m_basementLithoProps;
+      ConfigFileParameterAlc *m_basementLithoProps{};
       double m_minimumLithosphereThickness; // defined in configuration file
       int    m_maximumNumberOfMantleElements; // defined in configuration file
       double m_constrainedBasaltTemperature; // defined in configuration file
@@ -448,7 +386,7 @@ namespace GeoPhysics {
          /// @brief If the ALc version used is v2017.05, checks that there are as much continental as oceanic
          /// crustal thicknesses inputs and that they are defined at the same age
          /// @throw std::invalid_argument if the check fails
-         void checkAlcCrustHistoryInput();
+         void checkAlcCrustHistoryInput() const; 
 
    }; 
 
@@ -484,12 +422,6 @@ inline unsigned int GeoPhysics::ProjectHandle::lastI  ( const bool includeGhosts
 
 inline unsigned int GeoPhysics::ProjectHandle::lastJ  ( const bool includeGhosts ) const {
    return m_lastJ [ includeGhosts ? 1 : 0 ];
-}
-
-//------------------------------------------------------------//
-
-inline bool GeoPhysics::ProjectHandle::getNodeIsValid ( const unsigned int i, const unsigned int j ) const {
-   return m_validNodes ( i, j );
 }
 
 //------------------------------------------------------------//

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -16,16 +16,13 @@
 
 // DataAccess library
 #include "Interface/Interface.h"
-#include "Interface/GridMap.h"
-#include "Interface/PaleoFormationProperty.h"
+#include "Interface/Local2DArray.h"
 #include "Interface/TableOceanicCrustThicknessHistory.h"
-using namespace DataAccess::Interface;
-
-// GeoPhysics library
-#include "Local2DArray.h"
 
 // CBMGenerics library
 #include "Polyfunction.h"
+
+using namespace DataAccess::Interface;
 
 namespace GeoPhysics
 {
@@ -39,10 +36,9 @@ namespace GeoPhysics
          /// @throw std::invalid_argument When one of the input is missing or invalid
          EffectiveCrustalThicknessCalculator( const PaleoFormationPropertyList*        continentalCrustThicknessHistory,
                                               const TableOceanicCrustThicknessHistory& oceanicCrustThicknessHistory,
-                                              const PolyFunction2DArray&               continentalCrustThicknessPolyfunction,
                                               const double                             initialLithosphericMantleThickness,
                                               const double                             initialCrustThickness,
-                                              const AbstractValidator&                 validator
+                                              const DataModel::AbstractValidator&      validator
          );
 
          /// @brief Computes the Effective Crustal Thickness History, Oceanic Crust Thickness History and End Of Rifting Event History
@@ -54,7 +50,7 @@ namespace GeoPhysics
          /// @throw std::runtime_error if the oceanic crustal thickness history doesn't correspond (in ages) with the continental crustal thickness history
          void compute( PolyFunction2DArray&   effectiveCrustThicknessHistory,
                        PolyFunction2DArray&   oceanicCrustThicknessHistory,
-                       Local2DArray <double>& endOfRiftEvent );
+                       Local2DArray <double>& endOfRiftEvent ) const;
 
       private:
 
@@ -62,7 +58,7 @@ namespace GeoPhysics
          struct Output {
             double basaltThickness; ///< The oceanic crust thickness [m]
             bool   basaltStatus;    ///< False if the computed basalt thickness was negative
-            bool   onsetStatus;     ///< False if the crustal thickness at melt onset equals the present day contiental crust thickness
+            bool   onsetStatus;     ///< False if the crustal thickness at melt onset equals the present day continental crust thickness
          };
 
          /// @brief Stores the (i,j) indexes of a map node
@@ -75,9 +71,9 @@ namespace GeoPhysics
 
          /// @brief Calculates the effective crustal thickness
          /// @param[in] coeff The multiplicative coefficient which is the ration of the inital crust thickness by the total initial crust and lithospheric mantle thickness
-         double calculateEffectiveCrustalThickness( const double continentalCrustThickness,
-                                                    const double basaltThickness,
-                                                    const double coeff) const noexcept;
+      static double calculateEffectiveCrustalThickness( const double continentalCrustThickness,
+                                                        const double basaltThickness,
+                                                        const double coeff) noexcept;
 
          /// @brief Update the end of the rift (last crustal thinning age) of the given node to the given age
          ///    if and only if the current continetal crust is thinner than the previous continental crust
@@ -86,28 +82,27 @@ namespace GeoPhysics
          void updateEndOfRift( const double continentalCrustThickness,
                                const double previousContinentalCrustThickness,
                                const double age,
-                               const EffectiveCrustalThicknessCalculator::Node& node,
+                               const Node& node,
                                Local2DArray <double>& endOfRiftEvent) const noexcept;
 
          /// @brief Retrieve all input maps accoring to the algorithm version
-         void retrieveData();
+         void retrieveData() const;
          /// @breif Retrieve all output maps accoring to the algorithm version
-         void restoreData();
+         void restoreData() const;
 
          /// @brief Check that the given value is positive and throw a detailed exception if not
          /// @throw std::invalid_argument if the given value is negative
-         void checkThicknessValue( const char*        thicknessMapName,
-                                   const unsigned int i,
-                                   const unsigned int j,
-                                   const double       age,
-                                   const double       value) const;
+      static void checkThicknessValue( const char*        thicknessMapName,
+                                       const unsigned int i,
+                                       const unsigned int j,
+                                       const double       age,
+                                       const double       value);
 
          const PaleoFormationPropertyList*       m_continentalCrustThicknessHistory;
          const TableOceanicCrustThicknessHistory m_oceanicCrustThicknessHistory;
-         const PolyFunction2DArray&              m_contCrustThicknessPolyfunction;     ///< The continental crust thickness polyfunction (used to access present day values)
          const double                            m_initialLithosphericMantleThickness;
          const double                            m_initialCrustThickness;
-         const AbstractValidator&                m_validator;                          ///< The validator to check if a node (i,j) is valid or not
+         const DataModel::AbstractValidator&     m_validator;                          ///< The validator to check if a node (i,j) is valid or not
 
          static const double s_minimumEffectiveCrustalThickness; ///< The minimum allowed Effective Crustal Thickness [m]
          static const bool   s_gosthNodes;                       ///< Defines if the input maps should output the gosth nodes

@@ -1,9 +1,9 @@
-//                                                                      
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -20,14 +20,9 @@
 
 // DataAccess library
 #include "Interface/Interface.h"
-#include "Interface/ProjectHandle.h"
 
 // DataMining library
 #include "DataMiningProjectHandle.h"
-
-// GeoPhysics library
-#include "GeoPhysicsProjectHandle.h"
-#include "Local2DArray.h"
 
 // utilitites
 #include "FormattingException.h"
@@ -47,11 +42,11 @@ class CrustalThicknessCalculator : public DataAccess::Mining::ProjectHandle {
    typedef formattingexception::GeneralException CtcException;
 
 public :
-   CrustalThicknessCalculator( database::ProjectFileHandlerPtr database,
+   CrustalThicknessCalculator( const database::ProjectFileHandlerPtr database,
                                const std::string & name,
                                const std::string & accessMode,
-                               DataAccess::Interface::ObjectFactory* factory );
-   ~CrustalThicknessCalculator();
+                               DataAccess::Interface::ObjectFactory* objectFactory );
+   ~CrustalThicknessCalculator() = default;
 
    /// @brief Return the reference to the project data
    static CrustalThicknessCalculator& getInstance ();
@@ -109,7 +104,7 @@ private :
    /// @}
 
    /// @brief Set requested output properties from the Project file
-   void setRequestedOutputProperties( InterfaceOutput & theOutput);
+   void setRequestedOutputProperties( InterfaceOutput & theOutput) const;
 
    /// @brief Smooth the TTS and PWD maps according to the user defined smoothing radius
    void smoothOutputs();

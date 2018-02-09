@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// 
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -16,15 +16,15 @@
 
 /// @class MockValidator class which defines if one node is valid or not according to its member m_isValid
 ///        Should be used only in unit tests
-class MockValidator : public AbstractValidator {
+class MockValidator : public DataModel::AbstractValidator {
 
    public:
-   
+
       MockValidator();
-      ~MockValidator() {};
+      ~MockValidator() = default;
 
       /// @return m_isValid
-      bool isValid( const unsigned int i, const unsigned int j ) const;
+      bool isValid( const unsigned int i, const unsigned int j ) const final;
 
       /// @brief Set the global validity of all node to isValid
       void setIsValid( const bool isValid ) { m_isValid = isValid; };

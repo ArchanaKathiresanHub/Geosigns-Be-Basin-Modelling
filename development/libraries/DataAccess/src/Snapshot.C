@@ -1,24 +1,26 @@
-#include <assert.h>
-#include <iostream>
+//
+// Copyright (C) 2018-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+//std
 #include <sstream>
 #include <iomanip>
-
 using namespace std;
 
-
+//TableIO
 #include "database.h"
 #include "cauldronschemafuncs.h"
-
 using namespace database;
 
+//DataAccess
 #include "Interface/Snapshot.h"
-
-
-using namespace DataAccess;
-using namespace Interface;
-
-//using MINOR;
-//using MAJOR;
+using namespace DataAccess::Interface;
 
 Snapshot::Snapshot (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
 {
@@ -31,25 +33,22 @@ Snapshot::Snapshot (ProjectHandle * projectHandle, Record * record) : DAObject (
    m_appendFile = false;
 }
 
-Snapshot::Snapshot (ProjectHandle * projectHandle, double time) : DAObject (projectHandle, 0)
+Snapshot::Snapshot (ProjectHandle * projectHandle, const double time) : DAObject (projectHandle, nullptr)
 {
    m_time = time;
    m_type = MINOR;
+   m_appendFile = false;
 }
 
-Snapshot::~Snapshot (void)
-{
-}
-
-double Snapshot::getTime (void) const
+double Snapshot::getTime () const
 {
    return m_time;
 }
 
-const string & Snapshot::getFileName (bool setIfNecessary) const
+const string & Snapshot::getFileName (const bool setIfNecessary) const
 {
    const string & fileName = database::getSnapshotFileName (m_record);
-   if (fileName != "") return fileName;
+   if (!fileName.empty()) return fileName;
 
    // generate file name
    ostringstream buf;
@@ -65,7 +64,7 @@ const string & Snapshot::getFileName (bool setIfNecessary) const
    {
       buf << "Time_" << getTime () << ".h5";
    }
-   
+
    if (setIfNecessary)
    {
       database::setSnapshotFileName (m_record, buf.str ());
@@ -78,15 +77,13 @@ const std::string& Snapshot::getKind () const {
    return database::getTypeOfSnapshot ( m_record );
 }
 
-int Snapshot::getType (void) const
+int Snapshot::getType () const
 {
    return m_type;
 }
 
-bool Snapshot::getUseInResQ (void) const {
-	
-	return database::getUseInResQ ( m_record ) == 1;
-
+bool Snapshot::getUseInResQ () const {	
+   return database::getUseInResQ ( m_record ) == 1;
 }
 
 void Snapshot::setAppendFile ( const bool append ) {
@@ -109,7 +106,7 @@ void Snapshot::asString (string & str) const
    str = buf.str ();
 }
 
-const string & Snapshot::asString (void) const
+const string & Snapshot::asString () const
 {
    static string str;
    ostringstream buf;
@@ -148,13 +145,13 @@ bool DataAccess::Interface::operator<= (const Snapshot & ss1, const Snapshot & s
 {
    return !(ss1 > ss2);
 }
-   
+
 bool DataAccess::Interface::operator>= (const Snapshot & ss1, const Snapshot & ss2)
 {
    return !(ss1 < ss2);
 }
 
-bool DataAccess::Interface::SnapshotLessThan::operator ()( const Snapshot* ss1,
-                                                           const Snapshot* ss2 ) const {
+bool SnapshotLessThan::operator ()( const Snapshot* ss1,
+                                    const Snapshot* ss2 ) const {
    return ss1->getTime () < ss2->getTime ();
 }

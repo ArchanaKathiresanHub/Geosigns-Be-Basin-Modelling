@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2017 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -49,6 +49,7 @@ include_directories( SYSTEM
    ${CMAKE_CURRENT_BINARY_DIR}
    ${EIGEN_INCLUDE_DIRS}
    ${NNLIB_INCLUDE_DIR}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(${LIB_NAME}

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// Copyright (C) 2012-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -105,10 +105,10 @@ public:
    std::vector<std::string> tablesList();
    std::vector<std::string> tableColumnsList(   const std::string & tableName, std::vector<datatype::DataType> & colDataTypes );
 
-   int                      tableSize(     const std::string & tableName );
-   void                     clearTable(    const std::string & tableName );
-   void                     addRowToTable( const std::string & tableName );
-   void                     removeRecordFromTable( const std::string & tableName, int ind );
+   int         tableSize(     const std::string & tableName );
+   void        clearTable(    const std::string & tableName );
+   void        addRowToTable( const std::string & tableName );
+   void        removeRecordFromTable( const std::string & tableName, int ind );
 
    long        tableValueAsInteger(  const std::string & tableName, size_t rowNumber, const std::string & propName );
    double      tableValueAsDouble(   const std::string & tableName, size_t rowNumber, const std::string & propName );
@@ -186,6 +186,7 @@ public:
    SnapshotManager     & snapshotManager()     { return m_snpMgr;   } // Snapshots manager
    PropertyManager     & propertyManager()     { return m_prpMgr;   } // Properties manager
    MapsManager         & mapsManager()         { return m_mapMgr;   } // Maps manager
+   std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle() { return m_projHandle; } // project file database (set of tables)
 
    // data members
    LithologyManagerImpl     m_lithMgr;
@@ -196,7 +197,7 @@ public:
    PropertyManagerImpl      m_prpMgr;
    MapsManagerImpl          m_mapMgr;
 
-   std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projHandle;   // project file database (set of tables)
+   std::shared_ptr<DataAccess::Interface::ProjectHandle> m_projHandle;   // project file database (set of tables)
    std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
    std::string                                           m_projFileName; // project files name with path
 };
@@ -434,14 +435,15 @@ Model::ReturnCode Model::saveModelToProjectFile( const char * projectFileName, b
 }
 
 
-std::string           Model::projectFileName(    ) { return m_pimpl->projectFileName(    ); }
-LithologyManager    & Model::lithologyManager(   ) { return m_pimpl->lithologyManager(   ); }
-StratigraphyManager & Model::stratigraphyManager() { return m_pimpl->stratigraphyManager(); }
-FluidManager        & Model::fluidManager(       ) { return m_pimpl->fluidManager(       ); }
-SourceRockManager   & Model::sourceRockManager(  ) { return m_pimpl->sourceRockManager(  ); }
-SnapshotManager     & Model::snapshotManager(    ) { return m_pimpl->snapshotManager(    ); }
-PropertyManager     & Model::propertyManager(    ) { return m_pimpl->propertyManager(    ); }
-MapsManager         & Model::mapsManager(        ) { return m_pimpl->mapsManager(        ); }
+std::string                                           Model::projectFileName(    ) { return m_pimpl->projectFileName(    ); }
+LithologyManager                                    & Model::lithologyManager(   ) { return m_pimpl->lithologyManager(   ); }
+StratigraphyManager                                 & Model::stratigraphyManager() { return m_pimpl->stratigraphyManager(); }
+FluidManager                                        & Model::fluidManager(       ) { return m_pimpl->fluidManager(       ); }
+SourceRockManager                                   & Model::sourceRockManager(  ) { return m_pimpl->sourceRockManager(  ); }
+SnapshotManager                                     & Model::snapshotManager(    ) { return m_pimpl->snapshotManager(    ); }
+PropertyManager                                     & Model::propertyManager(    ) { return m_pimpl->propertyManager(    ); }
+MapsManager                                         & Model::mapsManager(        ) { return m_pimpl->mapsManager(        ); }
+std::shared_ptr<DataAccess::Interface::ProjectHandle> Model::projectHandle(      ) { return m_pimpl->projectHandle(      ); }
 
 
 Model::ReturnCode Model::origin( double & x, double & y )

@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2017 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -54,8 +54,6 @@ set(all_headers
       src/HCDensity.h
       src/LambdaMixer.h
       src/LithologyManager.h
-      src/Local2DArray.h
-      src/Local3DArray.h
       src/MultiCompoundProperty.h
       src/Permeability.h
       src/PermeabilityImpermeable.h
@@ -72,7 +70,6 @@ set(all_headers
       src/SimpleLithology.h
       src/SoilMechanicsPorosity.h
       src/TimeDependentLithology.h
-      src/Validator.h
       src/VreTtiMethod.h
       src/VreArrheniusMethod.h
       src/VitriniteReflectance.h
@@ -126,7 +123,6 @@ set(all_srcs
       src/SimpleLithology.C
       src/SoilMechanicsPorosity.C
       src/TimeDependentLithology.C
-      src/Validator.C
       src/VreTtiMethod.C
       src/VreArrheniusMethod.C
       src/VitriniteReflectance.C
@@ -150,7 +146,7 @@ set(cross_platform_libs
 )
 
 set(all_dependent_libs)
-set(all_dependent_libs ${cross_platform_libs} ${unix_only_libs} )
+set(all_dependent_libs ${cross_platform_libs} ${unix_only_libs})
 
 source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})

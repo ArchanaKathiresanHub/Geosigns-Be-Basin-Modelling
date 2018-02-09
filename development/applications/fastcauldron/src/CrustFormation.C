@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -8,8 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "mpi.h"
-#include <assert.h>
+#include <cassert>
 
 #include "CrustFormation.h"
 #include "GeoPhysicsCrustFormation.h"
@@ -20,7 +19,6 @@
 
 // DAL
 #include "Interface/Interface.h"
-#include "Interface/PaleoFormationProperty.h"
 #include "Interface/GridMap.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
@@ -41,15 +39,15 @@ CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, datab
    GeoPhysics::GeoPhysicsCrustFormation ( projectHandle, record ) {
 
 
-   fluid = 0;
+   fluid = nullptr;
    TopSurface_DepoSeq = 0;
    Layer_Depo_Seq_Nb = -1;
    Calculate_Chemical_Compaction = false;
 
-   m_heatProductionMap = 0;
+   m_heatProductionMap = nullptr;
 
-   basaltThickness = 0;
-   crustalThicknessMeltOnset = 0;
+   m_basaltThickness           = nullptr;
+   m_crustalThicknessMeltOnset = nullptr;
 
    TopBasaltDepth      = nullptr;
    BasaltThickness     = nullptr;
@@ -67,12 +65,12 @@ CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, datab
 //------------------------------------------------------------//
 CrustFormation::~CrustFormation () {
 
-   if ( m_heatProductionMap != 0 and m_heatProductionMap->retrieved ()) {
+   if ( m_heatProductionMap != nullptr and m_heatProductionMap->retrieved ()) {
       m_heatProductionMap->restoreData ( false, true );
    }
    
-   delete crustalThicknessMeltOnset;
-   delete basaltThickness;
+   delete m_crustalThicknessMeltOnset;
+   delete m_basaltThickness;
 
    Destroy_Petsc_Vector ( TopBasaltDepth );
    Destroy_Petsc_Vector ( BasaltThickness );
@@ -105,7 +103,7 @@ void CrustFormation::initialise () {
 //------------------------------------------------------------//
 void CrustFormation::cleanVectors() {
 
-   if(((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->isALC() ) {
+   if(dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::Formation::m_projectHandle)->isALC() ) {
       setVec ( TopBasaltDepth, CauldronNoDataValue );
       setVec ( BottomBasaltDepth, CauldronNoDataValue );
       setVec ( ThicknessBasaltALC, Zero );
@@ -124,40 +122,40 @@ void CrustFormation::allocateBasementVecs() {
    const AppCtx* basinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
 
    if( basinModel->isALC()) {
-      assert(NULL == TopBasaltDepth);
+      assert( nullptr == TopBasaltDepth );
       createCount++;
-      int ierr = DMCreateGlobalVector( * basinModel->mapDA, &TopBasaltDepth );
+      DMCreateGlobalVector( * basinModel->mapDA, &TopBasaltDepth );
       setVec ( TopBasaltDepth, CauldronNoDataValue );
 
-      assert(NULL == BasaltThickness);
+      assert( nullptr == BasaltThickness );
       createCount++;
-      ierr = DMCreateGlobalVector( * basinModel->mapDA, &BasaltThickness );
+      DMCreateGlobalVector( * basinModel->mapDA, &BasaltThickness );
 
-      assert(NULL == BottomBasaltDepth);
+      assert( nullptr == BottomBasaltDepth );
       createCount++;
-      ierr = DMCreateGlobalVector( * basinModel->mapDA, &BottomBasaltDepth );
+      DMCreateGlobalVector( * basinModel->mapDA, &BottomBasaltDepth );
       setVec ( BottomBasaltDepth, CauldronNoDataValue );
 
-      assert( NULL == ThicknessBasaltALC );
+      assert( nullptr == ThicknessBasaltALC );
       createCount++;
-      ierr = DMCreateGlobalVector( * basinModel->mapDA, &ThicknessBasaltALC );
+      DMCreateGlobalVector( * basinModel->mapDA, &ThicknessBasaltALC );
       setVec ( ThicknessBasaltALC, Zero );
 
-      assert( NULL == ThicknessCCrustALC );
+      assert( nullptr == ThicknessCCrustALC );
       createCount++;
-      ierr = DMCreateGlobalVector( * basinModel->mapDA, &ThicknessCCrustALC );
+      DMCreateGlobalVector( * basinModel->mapDA, &ThicknessCCrustALC );
 
-      assert( NULL == SmCCrustThickness );
+      assert( nullptr == SmCCrustThickness );
       createCount++;
-      ierr = DMCreateGlobalVector( * basinModel->mapDA, &SmCCrustThickness );
+      DMCreateGlobalVector( * basinModel->mapDA, &SmCCrustThickness );
 
-      assert( NULL == SmTopBasaltDepth );
+      assert( nullptr == SmTopBasaltDepth );
       createCount++;
-      ierr = DMCreateGlobalVector( * basinModel->mapDA, &SmTopBasaltDepth );
+      DMCreateGlobalVector( * basinModel->mapDA, &SmTopBasaltDepth );
 
-      assert( NULL == SmBottomBasaltDepth );
+      assert( nullptr == SmBottomBasaltDepth );
       createCount++;
-      ierr = DMCreateGlobalVector( * basinModel->mapDA, &SmBottomBasaltDepth );
+      DMCreateGlobalVector( * basinModel->mapDA, &SmBottomBasaltDepth );
 
       if ( BasaltMap.isNull ()) {
          BasaltMap.create ( layerDA );
@@ -171,14 +169,14 @@ void CrustFormation::allocateBasementVecs() {
 
 //------------------------------------------------------------//
 void CrustFormation::initialiseBasementVecs() {
-   TopBasaltDepth           = NULL;
-   BasaltThickness          = NULL;
-   BottomBasaltDepth        = NULL;
-   ThicknessBasaltALC       = NULL;
-   ThicknessCCrustALC       = NULL;
-   SmCCrustThickness        = NULL;
-   SmTopBasaltDepth         = NULL;
-   SmBottomBasaltDepth      = NULL;
+   TopBasaltDepth           = nullptr;
+   BasaltThickness          = nullptr;
+   BottomBasaltDepth        = nullptr;
+   ThicknessBasaltALC       = nullptr;
+   ThicknessCCrustALC       = nullptr;
+   SmCCrustThickness        = nullptr;
+   SmTopBasaltDepth         = nullptr;
+   SmBottomBasaltDepth      = nullptr;
 }
 
 //------------------------------------------------------------//
@@ -197,14 +195,14 @@ void CrustFormation::reInitialiseBasementVecs() {
 //------------------------------------------------------------//
 void CrustFormation::setBasementVectorList() {
 
-   vectorList.VecArray[TOP_BASALT_ALC]                     = &TopBasaltDepth     ; TopBasaltDepth      = NULL;
-   vectorList.VecArray[ALC_SM_THICKNESS_OCEANIC_CRUST]     = &BasaltThickness    ; BasaltThickness     = NULL;
-   vectorList.VecArray[MOHO_ALC]                           = &BottomBasaltDepth  ; BottomBasaltDepth   = NULL;
-   vectorList.VecArray[THICKNESS_CONTINENTAL_CRUST_ALC]    = &ThicknessCCrustALC ; ThicknessCCrustALC  = NULL;
-   vectorList.VecArray[THICKNESS_OCEANIC_CRUST_ALC]        = &ThicknessBasaltALC ; ThicknessBasaltALC  = NULL;
-   vectorList.VecArray[ALC_SM_THICKNESS_CONTINENTAL_CRUST] = &SmCCrustThickness  ; SmCCrustThickness   = NULL;
-   vectorList.VecArray[ALC_SM_TOP_BASALT]                  = &SmTopBasaltDepth   ; SmTopBasaltDepth    = NULL;
-   vectorList.VecArray[ALC_SM_MOHO]                        = &SmBottomBasaltDepth; SmBottomBasaltDepth = NULL;
+   vectorList.VecArray[TOP_BASALT_ALC]                     = &TopBasaltDepth     ; TopBasaltDepth      = nullptr;
+   vectorList.VecArray[ALC_SM_THICKNESS_OCEANIC_CRUST]     = &BasaltThickness    ; BasaltThickness     = nullptr;
+   vectorList.VecArray[MOHO_ALC]                           = &BottomBasaltDepth  ; BottomBasaltDepth   = nullptr;
+   vectorList.VecArray[THICKNESS_CONTINENTAL_CRUST_ALC]    = &ThicknessCCrustALC ; ThicknessCCrustALC  = nullptr;
+   vectorList.VecArray[THICKNESS_OCEANIC_CRUST_ALC]        = &ThicknessBasaltALC ; ThicknessBasaltALC  = nullptr;
+   vectorList.VecArray[ALC_SM_THICKNESS_CONTINENTAL_CRUST] = &SmCCrustThickness  ; SmCCrustThickness   = nullptr;
+   vectorList.VecArray[ALC_SM_TOP_BASALT]                  = &SmTopBasaltDepth   ; SmTopBasaltDepth    = nullptr;
+   vectorList.VecArray[ALC_SM_MOHO]                        = &SmBottomBasaltDepth; SmBottomBasaltDepth = nullptr;
 }
 
 //------------------------------------------------------------//
@@ -235,10 +233,10 @@ const CompoundLithology* CrustFormation::getLithology( const double aTime, const
    const AppCtx* aBasinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
    if( aBasinModel ->isALC() ) {
       // aOffset is a relative depth of the middle point of element - so could be inside Crust or Mantle
-      double basThickness = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getBasaltThickness(iPosition, jPosition, aTime);
+      const double basThickness = dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::Formation::m_projectHandle)->getBasaltThickness(iPosition, jPosition, aTime);
 
       if(basThickness != IbsNoDataValue && basThickness != 0.0) {
-         if( aOffset >= ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getContCrustThickness( iPosition, jPosition, aTime )) {
+         if( aOffset >= dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::Formation::m_projectHandle)->getContCrustThickness( iPosition, jPosition, aTime )) {
             isBasaltLayer = true;
             return m_basaltLithology(iPosition, jPosition);
          } else {
@@ -261,10 +259,10 @@ bool CrustFormation::setLithologiesFromStratTable () {
 
    bool createdLithologies = true;
 
-   if( GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () == false ) {
+   if( not GeoPhysicsCrustFormation::setLithologiesFromStratTable () ) {
       return false;
    }
-   if(((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->isALC() ) {
+   if(dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::Formation::m_projectHandle)->isALC() ) {
      
      m_basaltLithology.allocate ( GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid ());
      
@@ -274,8 +272,8 @@ bool CrustFormation::setLithologiesFromStratTable () {
                                        DataAccess::Interface::CrustFormation::getLayeringIndex());
 
      lc.setThermalModel( m_projectHandle->getCrustPropertyModel() );
-     CompoundLithology* pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
-     createdLithologies = pMixedLitho != 0;
+     CompoundLithology* pMixedLitho = dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::Formation::m_projectHandle)->getLithologyManager ().getCompoundLithology ( lc );
+     createdLithologies = pMixedLitho != nullptr;
      m_basaltLithology.fillWithLithology ( pMixedLitho );
 }
 

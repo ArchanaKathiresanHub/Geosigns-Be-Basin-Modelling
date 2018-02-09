@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -21,7 +21,9 @@
 
 // Forward declare
 class InterfaceInput;
-class AbstractValidator;
+namespace DataModel {
+   class AbstractValidator;
+}
 class AbstractInterfaceOutput;
 
 using namespace DataAccess;
@@ -37,11 +39,10 @@ namespace CrustalThickness
    public:
 
       DensityCalculator( const InterfaceInput& inputData,
-         AbstractInterfaceOutput& outputData,
-         const AbstractValidator& validator );
-      ~DensityCalculator() {
-         // Empty constructor (comment removes SonarQube issue)
-      };
+         AbstractInterfaceOutput&              outputData,
+         const DataModel::AbstractValidator&   validator );
+
+      ~DensityCalculator() = default;
 
       /// @brief Computes the semdiments density, the sediments thickness, the backstrip and the compensation maps
       void compute();
@@ -113,8 +114,8 @@ namespace CrustalThickness
       double m_compensation;      ///< The compensation
       /// @}
 
-      AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
-      const AbstractValidator&  m_validator; ///< The validator to check if a node (i,j) is valid or not
+      AbstractInterfaceOutput& m_outputData;            ///< The global interface output object (contains the output maps)
+      const DataModel::AbstractValidator&  m_validator; ///< The validator to check if a node (i,j) is valid or not
    };
 
 } // End namespace CrustalThickness

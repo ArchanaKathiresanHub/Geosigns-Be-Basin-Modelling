@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2018-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _DATA_MODEL__ABSTRACT_GRID_H_
 #define _DATA_MODEL__ABSTRACT_GRID_H_
 
@@ -11,7 +21,7 @@ namespace DataModel {
 
    public :
 
-      virtual ~AbstractGrid () {}
+      virtual ~AbstractGrid () = default;
 
       /// return the first local horizontal index
       virtual int firstI ( bool includeGhosts ) const = 0;

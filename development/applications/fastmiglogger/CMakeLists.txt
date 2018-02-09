@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -18,10 +18,11 @@ set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET
 
 bm_include_libraries(
    DataModel
-   EosPack   
+   EosPack
    CBMGenerics
    SerialDataAccess
    DataAccess
+   utilities
    TableIO
 )
 
@@ -30,7 +31,7 @@ include_directories( SYSTEM
 )
 
 target_link_libraries(${TARGET_NAME}
-   EosPack   
+   EosPack
    CBMGenerics
    DataAccess
    SerialDataAccess

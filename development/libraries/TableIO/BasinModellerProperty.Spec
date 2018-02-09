@@ -4358,6 +4358,30 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : Name of the group containing the interpolation points, coefficients and rhs in the HDF file.
     Type                : string
 
+#### Advanced lithospheric calculator legacy input (version 1, only used by prograde)
+
+    Identification      : BasaltThickness
+    Description         : present-day basalt thickness
+    Unit of measurement : m
+    Type                : float
+    Default             : 0
+
+    Identification      : BasaltThicknessGrid
+    Description         : MapName of the Basalt Thickness
+    Unit of measurement :
+    Type                : string
+
+    Identification      : CrustThicknessMeltOnset
+    Description         : crust thickness at melt onset
+    Unit of measurement : m
+    Type                : float
+    Default             : 0
+
+    Identification      : CrustThicknessMeltOnsetGrid
+    Description         : MapName of the Crust Thickness at melt onset
+    Unit of measurement :
+    Type                : string
+
 #### Crustal Thickness Calculator input
 
     Identification      : HCuIni
@@ -4899,6 +4923,17 @@ START-property-tables
     Column         : Thickness
     Column         : ThicknessGrid
     Header         : Oceanic Crust Thickness Data
+
+    #Legacy alc table (version 1, used by prograde only to update projects to version 2)
+    Identification : BasaltThicknessIoTbl
+    Description    : table with Basalt thickness data for IO and UI
+    Version        : 100
+    Column         : BasaltThickness
+    Column         : BasaltThicknessGrid
+    Column         : CrustThicknessMeltOnset
+    Column         : CrustThicknessMeltOnsetGrid
+    #limited to 1 layer only:
+    Header         : Basalt Thickness Data
 
  # Source Rock data IO:
 

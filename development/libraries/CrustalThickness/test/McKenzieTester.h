@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -17,7 +17,9 @@
 #include "MockConfigFileParameterCtc.h"
 #include "MockInterfaceInput.h"
 #include "MockInterfaceOutput.h"
-#include "MockValidator.h"
+
+// DataModel library test utilities
+#include "../../DataModel/test/MockValidator.h"
 
 // DataAccess libraries
 #include "../../SerialDataAccess/src/Interface/SerialGrid.h"

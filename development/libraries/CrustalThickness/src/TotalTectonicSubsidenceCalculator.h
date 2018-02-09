@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -14,8 +14,8 @@
 // CBMGenerics library
 #include "Polyfunction.h"
 
-// Geophysics library
-#include "Local2DArray.h"
+// DataAcccess library
+#include "Interface/Local2DArray.h"
 
 // forward declarations
 namespace DataAccess
@@ -26,7 +26,9 @@ namespace DataAccess
    }
 }
 class InterfaceInput;
-class AbstractValidator;
+namespace DataModel {
+   class AbstractValidator;
+}
 class AbstractInterfaceOutput;
 
 using namespace DataAccess;
@@ -36,20 +38,20 @@ namespace  CrustalThickness
    /// @class TotalTectonicSubsidenceCalculator The TTS calculator
    class TotalTectonicSubsidenceCalculator {
 
-      typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
+      typedef Interface::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
 
    public:
 
       /// @brief Constructs the TTS calculator in order to compute the total tectonic subsidence
-      TotalTectonicSubsidenceCalculator( InterfaceInput&            inputData,
-         AbstractInterfaceOutput&   outputData,
-         AbstractValidator&         validator,
-         const double               age,
-         const double               airCorrection,
-         const Interface::GridMap*  previousTTS,
-         const PolyFunction2DArray& depthWaterBottom );
+      TotalTectonicSubsidenceCalculator( InterfaceInput& inputData,
+         AbstractInterfaceOutput&      outputData,
+         const DataModel::AbstractValidator& validator,
+         const double                  age,
+         const double                  airCorrection,
+         const Interface::GridMap*     previousTTS,
+         const PolyFunction2DArray&    depthWaterBottom );
 
-      ~TotalTectonicSubsidenceCalculator() {};
+      ~TotalTectonicSubsidenceCalculator() = default;
 
       /// @brief Computes the total tectonic subsidence map
       void compute();
@@ -88,8 +90,8 @@ namespace  CrustalThickness
       const Interface::GridMap& m_seaLevelAdjustment;   ///< The sea level adjustment                                           [m]
       const PolyFunction2DArray& m_surfaceDepthHistory; ///< The user defined paleobathymetrie (loaded from the project handle) [m]
 
-      AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
-      AbstractValidator&       m_validator;  ///< The validator to check if a node (i,j) is valid or not
+      AbstractInterfaceOutput&      m_outputData;      ///< The global interface output object (contains the output maps)
+      const DataModel::AbstractValidator& m_validator; ///< The validator to check if a node (i,j) is valid or not
    };
 } // End namespace  CrustalThickness
 #endif

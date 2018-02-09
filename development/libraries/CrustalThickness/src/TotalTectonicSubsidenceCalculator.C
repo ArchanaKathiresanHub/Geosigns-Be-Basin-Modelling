@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// 
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -23,13 +23,13 @@ using namespace  CrustalThickness;
 
 //------------------------------------------------------------//
 TotalTectonicSubsidenceCalculator::TotalTectonicSubsidenceCalculator( 
-   InterfaceInput&           inputData,
-   AbstractInterfaceOutput&  outputData,
-   AbstractValidator&        validator,
-   const double              age,
-   const double              airCorrection,
-   const Interface::GridMap* previousTTS,
-   const PolyFunction2DArray& depthWaterBottom ) :
+   InterfaceInput&               inputData,
+   AbstractInterfaceOutput&      outputData,
+   const DataModel::AbstractValidator& validator,
+   const double                  age,
+   const double                  airCorrection,
+   const Interface::GridMap*     previousTTS,
+   const PolyFunction2DArray&    depthWaterBottom ) :
       m_firstI             ( inputData.firstI() ),
       m_firstJ             ( inputData.firstJ() ),
       m_lastI              ( inputData.lastI()  ),

@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -13,7 +13,7 @@
 FILE( GLOB all_headers src/*.h src/Interface/*.h )
 source_group(include FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.C)
+FILE( GLOB all_srcs src/*.C src/*.cpp)
 source_group(source FILES ${all_srcs})
 
 set( LIB_NAME "DataAccess" )
@@ -33,9 +33,7 @@ bm_include_libraries(
    EosPack
 )
 
-include_directories(
-   src
-)
+include_directories( src )
 
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
@@ -72,7 +70,7 @@ generate_dox( src/DataAccess.cfg )
 
 if ( MSVC )
    generate_version_by_git_last_checkin(src/Interface API_FILE_GIT_DATE_AS_VER)
-   
+
    MESSAGE(STATUS "Version extracted for DataAccessAPI as: ${API_FILE_GIT_DATE_AS_VER}")
    ##### Generate the C# API  
    generate_csharp_api(
@@ -88,7 +86,7 @@ if ( MSVC )
       CSPROJ_LIBRARIES              Serial_Hdf5 TableIO DataModel SerialDataAccess ${LIB_NAME} EosPack ${Boost_LIBRARIES}
       CSHARP_UNIT_TESTS_SRC         test/SerialDataAccessTest.cs
    )
-   
+
    configure_file(test/Project.project3d  ${CMAKE_BINARY_DIR}/Project.project3d COPYONLY)   
 endif (MSVC)
 

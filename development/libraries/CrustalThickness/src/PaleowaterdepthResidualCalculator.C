@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -21,10 +21,10 @@ using namespace  CrustalThickness;
 
 //------------------------------------------------------------//
 PaleowaterdepthResidualCalculator::PaleowaterdepthResidualCalculator(
-   InterfaceInput&            inputData,
-   AbstractInterfaceOutput&   outputData,
-   AbstractValidator&         validator,
-   const double               age,
+   InterfaceInput& inputData,
+   AbstractInterfaceOutput& outputData,
+   const DataModel::AbstractValidator& validator,
+   const double age,
    const PolyFunction2DArray& surfaceDepthHistory ) :
       m_firstI             ( inputData.firstI() ),
       m_firstJ             ( inputData.firstJ() ),
@@ -37,13 +37,12 @@ PaleowaterdepthResidualCalculator::PaleowaterdepthResidualCalculator(
 {}
 
 //------------------------------------------------------------//
-void PaleowaterdepthResidualCalculator::compute(){
-
-   unsigned int i, j;
+void PaleowaterdepthResidualCalculator::compute() const
+{
    double PWDR;
 
-   for ( i = m_firstI; i <= m_lastI; ++i ) {
-      for ( j = m_firstJ; j <= m_lastJ; ++j ) {
+   for ( unsigned int i = m_firstI; i <= m_lastI; ++i ) {
+      for ( unsigned int j = m_firstJ; j <= m_lastJ; ++j ) {
          const double PWD = m_outputData.getMapValue( CrustalThicknessInterface::outputMaps::isostaticBathymetry, i, j );
          const double surfaceDepthHistory = m_surfaceDepthHistory( i, j ).F( m_age );
          if ( m_validator.isValid( i, j ) and
@@ -62,6 +61,7 @@ void PaleowaterdepthResidualCalculator::compute(){
 
 //------------------------------------------------------------//
 double PaleowaterdepthResidualCalculator::calculatePWDR( const double  PWD,
-                                                         const double  surfaceDepthHistory ) const {
+                                                         const double  surfaceDepthHistory )
+{
    return PWD - surfaceDepthHistory;
 }

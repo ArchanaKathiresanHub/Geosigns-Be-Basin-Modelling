@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+//
+// Copyright (C) 2012-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -14,6 +14,7 @@
 #ifndef CMB_API
 #define CMB_API
 
+//CMB API
 #include "ErrorHandler.h"
 #include "LithologyManager.h"
 #include "PropertyManager.h"
@@ -26,6 +27,9 @@
 
 // TableIO
 #include "datatype.h"
+
+// DataAccess
+#include "Interface/ProjectData.h"
 
 // STL
 #include <memory>
@@ -237,6 +241,10 @@ namespace mbapi {
       /// @brief Get project file name
       /// @return project file name or empty string if project wasn't loaded or saved before
       std::string projectFileName();
+
+      /// @brief Get the data-access project handle
+      /// @return The project handle
+      std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle();
 
       // Access to some project functionality
 

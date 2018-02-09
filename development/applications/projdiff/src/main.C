@@ -1,5 +1,5 @@
 ///
-// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// Copyright (C) 2012-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -13,19 +13,15 @@
 #include "Path.h"
 
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <string>
 
 #include <cstring>
 
 #include <set>
-#include <map>
 
 // Utilities lib
-#include <NumericFunctions.h>
 #include <WallTime.h>
-
 
 #define PD_ERROR      -1
 #define PD_WARNING     1
@@ -59,7 +55,7 @@ int Usage( const char * pName )
 
 
 // split list of strings divided by sep in to array of strings
-static std::vector<std::string> list2array( const std::string & listOfStr, char sep )
+static std::vector<std::string> List2Array( const std::string & listOfStr, char sep )
 {
    std::vector<std::string> strList;          // array where we will keep strings from list to return
    std::istringstream       iss( listOfStr ); // tokenizer
@@ -110,12 +106,12 @@ int main( int argc, char ** argv )
          else if ( !strcmp( argv[i], "-merge"    )                                      ) { compareFiles = false; mergeFiles = true; }
          else if ( !strcmp( argv[i], "-filter"   ) && argc > i+1 && argv[i+1][0] != '-' ) 
          {
-            const std::vector<std::string> & flist = list2array( argv[++i], ',' );
+            const std::vector<std::string> flist = List2Array( argv[++i], ',' );
             if ( !flist.empty() ) 
             {
                for ( size_t j = 0; j < flist.size(); ++j )
                {
-                  const std::vector<std::string> & flt = list2array( flist[j].c_str(), ':' );
+                  const std::vector<std::string> & flt = List2Array( flist[j].c_str(), ':' );
                   if ( !flt.empty() )
                   {
                      filterList.push_back( std::vector<std::string>( flt.begin(), flt.end() ) );
@@ -129,12 +125,12 @@ int main( int argc, char ** argv )
          }
          else if ( !strcmp( argv[i], "-ignore"   ) && argc > i+1 && argv[i+1][0] != '-' )
          {
-            const std::vector<std::string> & tlist = list2array( argv[++i], ',' );
+            const std::vector<std::string> tlist = List2Array( argv[++i], ',' );
             if ( !tlist.empty() ) ignoreList.insert( tlist.begin(), tlist.end() );
          }
          else if ( !strcmp( argv[i], "-table"    ) && argc > i+1 && argv[i+1][0] != '-' )
          {
-            const std::vector<std::string> & tlist = list2array( argv[++i], ',' );
+            const std::vector<std::string> tlist = List2Array( argv[++i], ',' );
             if ( !tlist.empty() ) procesList.insert( tlist.begin(), tlist.end() );
          }
          else

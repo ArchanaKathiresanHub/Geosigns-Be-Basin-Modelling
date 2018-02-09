@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2012-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef __rbyutilities_multidimensional_array___
 #define __rbyutilities_multidimensional_array___
 
@@ -37,137 +47,154 @@
    if (!myarray) \
    { \
       return 0; \
-   } 
+   }
+
 namespace ibs
 {
-template <class Type>
-class Array {
- public:
-   static Type * create1d (size_t n1)
-   {
-      Type * array = new Type [n1];
-      CheckAlloc (array, Type, n1);
-      return array;
-   }
 
-   static Type * create1d (size_t n1, Type value)
-   {
-      Type * array = Array<Type>::create1d (n1);
-      CheckArray (array);
-      for (size_t j = 0; j < n1; ++j)
+//------------------------------------------------------------//
+
+   template <class Type>
+   class Array {
+    public:
+      static Type * create1d (size_t n1)
       {
-         array[j] = value;
+         Type * array = new Type [n1];
+         CheckAlloc (array, Type, n1);
+         return array;
       }
-      return array;
-   }
-   
-   static void delete1d (Type * array)
-   {
-      delete [] array;
-   }
-   
-   static Type ** create2d (size_t n1, size_t n2)
-   {
-      Type * array1d = Array<Type>::create1d (n1 * n2);
-      CheckArray (array1d);
 
-      Type ** array = Array<Type *>::create1d (n1);
-      CheckArray (array);
+      static Type * create1d (size_t n1, Type value)
+      {
+         Type * array = Array<Type>::create1d (n1);
+         CheckArray (array);
+         for (size_t j = 0; j < n1; ++j)
+         {
+            array[j] = value;
+         }
+         return array;
+      }
+   
+      static void delete1d (Type * array)
+      {
+         delete [] array;
+      }
+   
+      static Type ** create2d (size_t n1, size_t n2)
+      {
+         Type * array1d = Array<Type>::create1d (n1 * n2);
+         CheckArray (array1d);
+
+         Type ** array = Array<Type *>::create1d (n1);
+         CheckArray (array);
       
-      for (size_t j = 0; j < n1; ++j)
-      {
-         array[j] = array1d + j * n2;
+         for (size_t j = 0; j < n1; ++j)
+         {
+            array[j] = array1d + j * n2;
+         }
+
+         return array;
       }
 
-      return array;
-   }
-   
-   static Type ** create2d (size_t n1, size_t n2, Type value)
-   {
-      Type ** array = Array<Type>::create2d (n1, n2);
-      CheckArray (array);
+      static Type ** create2d (size_t n1, size_t n2, Type value)
+      {
+         Type ** array = Array<Type>::create2d (n1, n2);
+         CheckArray (array);
+
+         for (size_t j = 0; j < n1*n2; ++j)
+         {
+            array[0][j] = value;
+         }
+         return array;
+      }
+
+      static Type ** create2d (size_t n1, size_t n2, Type ** array2d)
+      {
+         Type ** array = Array<Type>::create2d (n1, n2);
+         CheckArray (array);
+
+         for (size_t j = 0; j < n1*n2; ++j)
+         {
+            array[0][j] = array2d[0][j];
+         }
+         return array;
+      }
+
+      static void delete2d (Type ** array)
+      {
+         delete [] array[0];
+         Array<Type *>::delete1d (array);
+      }
+
+      static Type *** create3d (size_t n1, size_t n2, size_t n3)
+      {
+         Type * array1d = Array<Type>::create1d (n1 * n2 * n3);
+         CheckArray (array1d);
+
+         Type *** array = Array<Type *>::create2d (n1, n2);
+         CheckArray (array);
+
+         for (size_t j = 0; j < n1*n2; ++j)
+         {
+            array[0][j] = array1d + j * n3;
+         }
+
+         return array;
+      }
+
+      static Type *** create3d (size_t n1, size_t n2, size_t n3, Type value)
+      {
+         Type *** array = Array<Type>::create3d (n1, n2, n3);
+         CheckArray (array);
       
-      for (size_t j = 0; j < n1*n2; ++j)
-      {
-         array[0][j] = value;
-      }
-      return array;
-   }
-
-   static void delete2d (Type ** array)
-   {
-      delete [] array[0];
-      Array<Type *>::delete1d (array);
-   }
-   
-   static Type *** create3d (size_t n1, size_t n2, size_t n3)
-   {
-      Type * array1d = Array<Type>::create1d (n1 * n2 * n3);
-      CheckArray (array1d);
-
-      Type *** array = Array<Type *>::create2d (n1, n2);
-      CheckArray (array);
-      
-      for (size_t j = 0; j < n1*n2; ++j)
-      {
-         array[0][j] = array1d + j * n3;
+         for (size_t j = 0; j < n1*n2*n3; ++j)
+         {
+            array[0][0][j] = value;
+         }
+         return array;
       }
 
-      return array;
-   }
-   
-   static Type *** create3d (size_t n1, size_t n2, size_t n3, Type value)
-   {
-      Type *** array = Array<Type>::create3d (n1, n2, n3);
-      CheckArray (array);
-      
-      for (size_t j = 0; j < n1*n2*n3; ++j)
+      static void delete3d (Type *** array)
       {
-         array[0][0][j] = value;
-      }
-      return array;
-   }
-
-   static void delete3d (Type *** array)
-   {
-      delete [] array[0][0];
-      Array<Type *>::delete2d (array);
-   }
-
-   static Type **** create4d (size_t n1, size_t n2, size_t n3, size_t n4)
-   {
-      Type * array1d = Array<Type>::create1d (n1 * n2 * n3 * n4);
-      CheckArray (array1d);
-
-      Type **** array = Array<Type *>::create3d (n1, n2, n3);
-      CheckArray (array);
-      
-      for (size_t j = 0; j < n1*n2*n3; ++j)
-      {
-         array[0][0][j] = array1d + j * n4;
+         delete [] array[0][0];
+         Array<Type *>::delete2d (array);
       }
 
-      return array;
-   }
-
-   static Type **** create4d (size_t n1, size_t n2,size_t n3, size_t n4, Type value)
-   {
-      Type **** array = Array<Type>::create4d (n1, n2, n3, n4);
-      CheckArray (array);
-      for (size_t j = 0; j < n1*n2*n3*n4; ++j)
+      static Type **** create4d (size_t n1, size_t n2, size_t n3, size_t n4)
       {
-         array[0][0][0][j] = value;
-      }
-      return array;
-   }
-   
-   static void delete4d (Type **** array)
-   {
-      delete [] array[0][0][0];
-      Array<Type *>::delete3d (array);
-   }
-};
+         Type * array1d = Array<Type>::create1d (n1 * n2 * n3 * n4);
+         CheckArray (array1d);
 
+         Type **** array = Array<Type *>::create3d (n1, n2, n3);
+         CheckArray (array);
+
+         for (size_t j = 0; j < n1*n2*n3; ++j)
+         {
+            array[0][0][j] = array1d + j * n4;
+         }
+
+         return array;
+      }
+
+      static Type **** create4d (size_t n1, size_t n2,size_t n3, size_t n4, Type value)
+      {
+         Type **** array = Array<Type>::create4d (n1, n2, n3, n4);
+         CheckArray (array);
+         for (size_t j = 0; j < n1*n2*n3*n4; ++j)
+         {
+            array[0][0][0][j] = value;
+         }
+         return array;
+      }
+
+      static void delete4d (Type **** array)
+      {
+         delete [] array[0][0][0];
+         Array<Type *>::delete3d (array);
+      }
+   };
+
+//------------------------------------------------------------//
 
    template <class Type>
    class Array2D {
@@ -224,48 +251,49 @@ class Array {
 
    };
 
+//------------------------------------------------------------//
 
-  template <class Type>
-  class Array3D {
+   template <class Type>
+   class Array3D {
 
-  public :
+   public :
 
-    Array3D ( const int X_Size, const int Y_Size, const int Z_Size ) {
-      Dimensions [ 0 ] = X_Size;
-      Dimensions [ 1 ] = Y_Size;
-      Dimensions [ 2 ] = Z_Size;
+     Array3D ( const int X_Size, const int Y_Size, const int Z_Size ) {
+       Dimensions [ 0 ] = X_Size;
+       Dimensions [ 1 ] = Y_Size;
+       Dimensions [ 2 ] = Z_Size;
 
-      Entries = Array<Type>::create3d ( X_Size, Y_Size, Z_Size );
-    }
+       Entries = Array<Type>::create3d ( X_Size, Y_Size, Z_Size );
+     }
 
-    ~Array3D () {
-      Array<Type>::delete3d ( Entries );
-    }
+     ~Array3D () {
+       Array<Type>::delete3d ( Entries );
+     }
 
-    Type  operator ()( const int X_Position, const int Y_Position, const int Z_Position ) const {
-      return Entries [ X_Position ][ Y_Position ][ Z_Position ];
-    }
+     Type  operator ()( const int X_Position, const int Y_Position, const int Z_Position ) const {
+       return Entries [ X_Position ][ Y_Position ][ Z_Position ];
+     }
 
-    Type& operator ()( const int X_Position, const int Y_Position, const int Z_Position ) {
-      return Entries [ X_Position ][ Y_Position ][ Z_Position ];
-    }
+     Type& operator ()( const int X_Position, const int Y_Position, const int Z_Position ) {
+       return Entries [ X_Position ][ Y_Position ][ Z_Position ];
+     }
 
-    int First ( const int Dimension ) const {
-      return 0;
-    }
+     int First ( const int Dimension ) const {
+       return 0;
+     }
 
-    int Last ( const int Dimension ) const {
-      return Dimensions [ Dimension - 1 ];
-    }
+     int Last ( const int Dimension ) const {
+       return Dimensions [ Dimension - 1 ];
+     }
 
-  private :
+   private :
 
-    Type*** Entries;
-    int     Dimensions [ 3 ];
+     Type*** Entries;
+     int     Dimensions [ 3 ];
 
-  }; // end class Array3D
+   }; // end class Array3D
 
-}
+} // end namespace ibs
 using namespace ibs;
 
 #endif // __rbyutilities_multidimensional_array___

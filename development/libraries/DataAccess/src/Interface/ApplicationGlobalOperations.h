@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2018-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _DATA_ACCESS__APPLICATION_GLOBAL_OPERATIONS__H_
 #define _DATA_ACCESS__APPLICATION_GLOBAL_OPERATIONS__H_
 
@@ -15,7 +25,7 @@ namespace DataAccess {
 
       public :
 
-         virtual ~ApplicationGlobalOperations () {}
+         virtual ~ApplicationGlobalOperations () = default;
 
          /// \brief Return the global maximum of the value.
          virtual double maximum ( const double val ) const = 0;

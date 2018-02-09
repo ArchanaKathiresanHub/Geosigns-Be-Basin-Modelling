@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -2619,7 +2619,8 @@ namespace migration
       m_firstJLocal (firstJLocal),
       m_lastJLocal (lastJLocal)
    {
-      m_columns = Array<Column*>::create2d (m_numIGlobal, m_numJGlobal, 0);
+      //casting to Column*** to avoid ambiguous call with intel compiler
+      m_columns = Array<Column*>::create2d (m_numIGlobal, m_numJGlobal, static_cast<Column*>(nullptr));
       m_numberOfProxyColumns = 0;
 
       for (unsigned int i = m_firstILocal; i <= m_lastILocal; ++i)

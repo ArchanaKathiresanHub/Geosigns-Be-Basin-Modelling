@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -17,8 +17,8 @@
 // Access to PETSc library
 #include "petsc.h"
 
-// Access Geophysics and DataAccess library.
-#include "Local3DArray.h"
+// Access DataAccess library.
+#include "Interface/Local3DArray.h"
 
 // Access to fastcauldron application code.
 #include "CompositeElementActivityPredicate.h"

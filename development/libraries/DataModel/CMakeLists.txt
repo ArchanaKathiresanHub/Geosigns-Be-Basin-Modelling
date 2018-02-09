@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2017 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -17,13 +17,13 @@ set(all_headers
    src/AbstractReservoir.h
    src/AbstractSnapshot.h
    src/AbstractSurface.h
+   src/AbstractValidator.h
    src/PropertyAttribute.h
 )
 
 set(all_sources
    src/PropertyAttribute.C
 )
-
 
 source_group(include FILES ${all_headers})
 source_group(source  FILES ${all_sources})

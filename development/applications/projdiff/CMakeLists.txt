@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2015 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -29,10 +29,12 @@ bm_include_libraries(
    FileSystem
    DataAccess
    utilities
+   DataModel
 )
 
 include_directories( SYSTEM
    ${SUMPP_INCLUDE_DIR}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries( ${TARGET_NAME}

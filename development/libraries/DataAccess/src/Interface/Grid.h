@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _INTERFACE_GRID_H_
 #define _INTERFACE_GRID_H_
 
@@ -15,9 +24,6 @@ namespace DataAccess
       class Grid : public DataModel::AbstractGrid
       {
       public:
-         /// create a new grid
-         //Grid (double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ);
-         //Grid (const Grid * referenceGrid, double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ);
          virtual ~Grid (void) {};
 
          /// Checks whether the given point is a grid point

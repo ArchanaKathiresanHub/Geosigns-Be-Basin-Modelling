@@ -1,9 +1,9 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -74,8 +74,7 @@ struct Boundary_Set {
 
 typedef vector< Boundary_Set* > Constrained_Property;
 
-typedef GeoPhysics::Local2DArray <int> PETSc_2D_Integer_Array;
-// typedef PETSc_Local_2D_Array<int> PETSc_2D_Integer_Array;
+typedef Interface::Local2DArray <int> PETSc_2D_Integer_Array;
 
 typedef PETSc_Local_3D_Array<bool> PETSc_3D_Boolean_Array;
 

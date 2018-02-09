@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -16,8 +16,8 @@
 #include <set>
 #include <string>
 
-// Geophysics library
-#include "Local3DArray.h"
+// DataAccess library
+#include "Interface/Local3DArray.h"
 
 // utilities library
 #include "array.h"
@@ -385,9 +385,9 @@ typedef PETSc_Local_2D_Array <bool> Boolean2DArray;
 
 typedef PETSc_Local_3D_Array <bool> Boolean3DArray;
 
-typedef GeoPhysics::Local3DArray<bool> LocalBooleanArray3D;
+typedef DataAccess::Interface::Local3DArray<bool> LocalBooleanArray3D;
 
-typedef GeoPhysics::Local3DArray<int> LocalIntegerArray3D;
+typedef DataAccess::Interface::Local3DArray<int> LocalIntegerArray3D;
 
 typedef std::vector<int> IntegerArray;
 

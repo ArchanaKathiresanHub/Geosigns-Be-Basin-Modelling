@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -11,19 +11,21 @@
 #ifndef _GEOPHYSICS__FORMATION_H_
 #define _GEOPHYSICS__FORMATION_H_
 
-
+//TableIO
 #include "database.h"
 
+//DataAccess
 #include "Interface/Formation.h"
 #include "Interface/Interface.h"
+#include "Interface/Local2DArray.h"
+#include "Interface/Local3DArray.h"
 
+//GeoPhysics
 #include "CompoundLithology.h"
 #include "CompoundLithologyArray.h"
 
-#include "Local3DArray.h"
-#include "Local2DArray.h"
-
-#include "Polyfunction.h"//from CBM Generics
+//CMB generics
+#include "Polyfunction.h"
 
 
 namespace DataAccess
@@ -155,15 +157,15 @@ namespace GeoPhysics {
       ///
       /// This assumes a linear burial rate of solid material, used
       /// in geometric loop calculations.
-      GeoPhysics::Local3DArray<CBMGenerics::Polyfunction> m_solidThickness;
+      DataAccess::Interface::Local3DArray<CBMGenerics::Polyfunction> m_solidThickness;
 
       /// The real thickness, derived from the input maps.
       ///
       /// This assumes a linear burial rate of real thickness, used
       /// in non-geometric loop calculations.
-      GeoPhysics::Local3DArray<CBMGenerics::Polyfunction> m_realThickness;
+      DataAccess::Interface::Local3DArray<CBMGenerics::Polyfunction> m_realThickness;
 
-      GeoPhysics::Local2DArray<double> m_presentDayErodedThickness;
+      DataAccess::Interface::Local2DArray<double> m_presentDayErodedThickness;
 
       /// Indicate whether or not the formations contains faults.
       bool m_containsFault;

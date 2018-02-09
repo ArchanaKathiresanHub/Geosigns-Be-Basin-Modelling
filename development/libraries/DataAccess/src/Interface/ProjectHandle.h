@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -10,6 +10,7 @@
 #ifndef INTERFACE_PROJECTHANDLE_H
 #define INTERFACE_PROJECTHANDLE_H
 
+//hdf5 3rdparty
 #include "hdf5.h"
 
 #include <string>
@@ -18,22 +19,23 @@
 #include <set>
 using namespace std;
 
+//DataAccess
 #include "Interface.h"
-
-#include "database.h"
 #include "ProjectFileHandler.h"
-
 #include "PropertyAttribute.h"
-
 #include "MessageHandler.h"
 #include "ApplicationGlobalOperations.h"
-
+#include "Local2DArray.h"
+#include "Validator.h"
 // DataAccess library table classes
 // fastctc
 #include "TableCTC.h"
 #include "TableCTCRiftingHistory.h"
 // alc
 #include "TableOceanicCrustThicknessHistory.h"
+
+//TableIo
+#include "database.h"
 
 /*! \mainpage The Cauldron Distributed Data Access Framework
  * \section intro Introduction
@@ -98,6 +100,9 @@ namespace DataAccess
       /// functions OpenCauldronProject() and CloseCauldronProject(), respectively.
       class ProjectHandle
       {
+
+      typedef Local2DArray <bool> BooleanLocal2DArray;
+
       public:
          /// Constructor
          ProjectHandle( database::ProjectFileHandlerPtr projectFileHandler, const string & name, const string & accessMode, ObjectFactory* objectFactory );
@@ -216,14 +221,14 @@ namespace DataAccess
          /// return the list of snapshots.
          virtual SnapshotList * getSnapshots( int type = MAJOR ) const;
          /// return the list of formations, all or for a given snapshot.
-         virtual FormationList * getFormations( const Snapshot * snapshot = 0, const bool includeBasement = false ) const;
+         virtual FormationList * getFormations( const Snapshot * snapshot = nullptr, const bool includeBasement = false ) const;
          /// return the list of surfaces, all or for a given snapshot.
          // Do we need to include igneous intrusions here, as they will have the same snapshot time as the surface below.
-         virtual SurfaceList * getSurfaces( const Snapshot * snapshot = 0, const bool includeBasement = false ) const;
+         virtual SurfaceList * getSurfaces( const Snapshot * snapshot = nullptr, const bool includeBasement = false ) const;
          /// return the list of TouchstoneMaps
          virtual TouchstoneMapList * getTouchstoneMaps( void ) const;
          /// return the list of reservoirs
-         virtual ReservoirList * getReservoirs( const Formation * formation = 0 ) const;
+         virtual ReservoirList * getReservoirs( const Formation * formation = nullptr ) const;
          /// @return the global reservoir options
          std::shared_ptr<const ReservoirOptions> getReservoirOptions () const;
          /// add a detected reservoir to the list of reservoirs
@@ -249,13 +254,16 @@ namespace DataAccess
          /// return the list of heat-flow paleo-surface properties.
          virtual PaleoSurfacePropertyList * getHeatFlowHistory() const;
 
+         /// @return The data from OceaCrustalThicknessIoTbl
+         const TableOceanicCrustThicknessHistory& getTableOceanicCrustThicknessHistory() const;
+
          /// return the list of AllochthonousLithologyDistributions of the specified AllochthonousLithology.
          /// If allochthonousLithology equals 0, then null is returned.
-         virtual AllochthonousLithologyDistributionList * getAllochthonousLithologyDistributions( const AllochthonousLithology * allochthonousLithology = 0 ) const;
+         virtual AllochthonousLithologyDistributionList * getAllochthonousLithologyDistributions( const AllochthonousLithology * allochthonousLithology = nullptr ) const;
 
          /// return the list of AllochthonousLithologyInterpolations from the specified formation.
          /// If formation equals 0, then all allochthonous lithology interpolations are returned.
-         virtual AllochthonousLithologyInterpolationList * getAllochthonousLithologyInterpolations( const AllochthonousLithology * allochthonousLithology = 0 ) const;
+         virtual AllochthonousLithologyInterpolationList * getAllochthonousLithologyInterpolations( const AllochthonousLithology * allochthonousLithology = nullptr ) const;
 
          /// Return a list of the time-output properties for a current modelling mode.
          virtual OutputPropertyList * getTimeOutputProperties() const;
@@ -263,12 +271,12 @@ namespace DataAccess
          /// Return a list to the heat-capacity samples for the lithology.
          ///
          /// If litho == 0 then all heat capacity samples will be returned.
-         virtual LithologyHeatCapacitySampleList * getLithologyHeatCapacitySampleList( const LithoType* litho = 0 ) const;
+         virtual LithologyHeatCapacitySampleList * getLithologyHeatCapacitySampleList( const LithoType* litho = nullptr ) const;
 
          /// Return a list to the thermal-conductivity samples for the lithology.
          ///
          /// If litho == 0 then all thermal-conductivity samples will be returned.
-         virtual LithologyThermalConductivitySampleList * getLithologyThermalConductivitySampleList( const LithoType* litho = 0 ) const;
+         virtual LithologyThermalConductivitySampleList * getLithologyThermalConductivitySampleList( const LithoType* litho = nullptr ) const;
 
          /// Return a list to the heat-capacity samples for the fluid.
          ///
@@ -340,9 +348,9 @@ namespace DataAccess
          /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
          /// @return                  a list of the selected properties
          virtual PropertyList * getProperties( bool all = false, int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
-            const Snapshot * snapshot = 0,
-            const Reservoir * reservoir = 0, const Formation * formation = 0,
-            const Surface * surface = 0, int propertyTypes = MAP | VOLUME ) const;
+            const Snapshot * snapshot = nullptr,
+            const Reservoir * reservoir = nullptr, const Formation * formation = nullptr,
+            const Surface * surface = nullptr, int propertyTypes = MAP | VOLUME ) const;
 
          /// \brief Get the list of properties that have the particular PropertyAttribute.
          virtual PropertyListPtr getProperties ( const DataModel::PropertyAttribute attr ) const;
@@ -363,9 +371,9 @@ namespace DataAccess
          /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
          /// @return    a list of the selected recorded properties
          virtual PropertyValueList * getPropertyValues( int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
-            const Property * property = 0, const Snapshot * snapshot = 0,
-            const Reservoir * reservoir = 0, const Formation * formation = 0,
-            const Surface * surface = 0, int propertyTypes = MAP | VOLUME ) const;
+            const Property * property = nullptr, const Snapshot * snapshot = nullptr,
+            const Reservoir * reservoir = nullptr, const Formation * formation = nullptr,
+            const Surface * surface = nullptr, int propertyTypes = MAP | VOLUME ) const;
 
          /// @brief Return a list of unrecorded property values based on the given arguments.
          ///
@@ -404,19 +412,19 @@ namespace DataAccess
          /// @return    a list of the selected properties inside the property value list
          virtual PropertyValueList * getPropertyValuesForList( MutablePropertyValueList list,
             int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
-            const Property * property = 0, const Snapshot * snapshot = 0,
-            const Reservoir * reservoir = 0, const Formation * formation = 0,
-            const Surface * surface = 0, int propertyTypes = MAP | VOLUME ) const;
+            const Property * property = nullptr, const Snapshot * snapshot = nullptr,
+            const Reservoir * reservoir = nullptr, const Formation * formation = nullptr,
+            const Surface * surface = nullptr, int propertyTypes = MAP | VOLUME ) const;
 
          virtual unsigned int deletePropertyValueGridMaps( int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
-            const Property * property = 0, const Snapshot * snapshot = 0,
-            const Reservoir * reservoir = 0, const Formation * formation = 0,
-            const Surface * surface = 0, int propertyTypes = MAP | VOLUME ) const;
+            const Property * property = nullptr, const Snapshot * snapshot = nullptr,
+            const Reservoir * reservoir = nullptr, const Formation * formation = nullptr,
+            const Surface * surface = nullptr, int propertyTypes = MAP | VOLUME ) const;
 
          void deletePropertyValues( int selectionFlags,
-            const Property * property = 0, const Snapshot * snapshot = 0,
-            const Reservoir * reservoir = 0, const Formation * formation = 0,
-            const Surface * surface = 0, int propertyTypes = MAP | VOLUME );
+            const Property * property = nullptr, const Snapshot * snapshot = nullptr,
+            const Reservoir * reservoir = nullptr, const Formation * formation = nullptr,
+            const Surface * surface = nullptr, int propertyTypes = MAP | VOLUME );
 
          void deletePropertyValues( void );
          void deleteRecordLessMapPropertyValues( void );
@@ -490,6 +498,7 @@ namespace DataAccess
          virtual bool loadRelatedProjects();
 
          bool addCrustThinningHistoryMaps();
+         bool correctCrustThicknessHistory();
 
          /// Load the input map specified by the given arguments
          GridMap * loadInputMap( const string & referringTable, const string & mapName );
@@ -595,6 +604,19 @@ namespace DataAccess
 
          database::ProjectFileHandlerPtr getProjectFileHandler ();
 
+         /// @defgroup NodesValidation
+         /// @{
+         /// @brief Initialise the valid-node array.
+         /// @details This function uses only the input data maps and is sufficient to construct
+         /// all of the necessary items in the cauldron model, e.g. sea-surface temperature,
+         /// crust-thickness history, etc. It may be necessary to restrict further the
+         /// valid nodes with other input data, e.g. fct-correction maps, or ves property.
+         bool initialiseValidNodes( const bool readSizeFromVolumeData );
+         /// \return Whether or not the node is defined.
+         bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
+         /// \return the validator which contains node validity information
+         const Validator& getValidator () const;
+         /// @}
 
       protected:
 
@@ -705,6 +727,8 @@ namespace DataAccess
          mutable Grid * m_inputGrid;
          mutable Grid * m_highResOutputGrid;
          mutable Grid * m_lowResOutputGrid;
+
+         Validator m_validator; ///< Contains information about nodes validity
 
          const Grid * m_activityOutputGrid; // grid in which the output is computed by the activity
          bool m_saveAsInputGrid; // whether to use the input grid to save the computed output
@@ -904,6 +928,9 @@ namespace DataAccess
 
          void deleteFaultCollections();
 
+         void addUndefinedAreas( const GridMap* theMap );
+
+
          MutableLangmuirAdsorptionIsothermSampleList m_langmuirIsotherms;
          MutableLangmuirAdsorptionTOCEntryList m_langmuirTocAdsorptionEntries;
          MutablePointAdsorptionHistoryList m_adsorptionPointHistoryList;
@@ -931,4 +958,17 @@ namespace DataAccess
       };
    }
 }
+
+//------------------------------------------------------------//
+
+inline bool DataAccess::Interface::ProjectHandle::getNodeIsValid ( const unsigned int i, const unsigned int j ) const {
+   return m_validator.isValid( i, j );
+}
+
+//------------------------------------------------------------//
+
+inline const DataAccess::Interface::Validator& DataAccess::Interface::ProjectHandle::getValidator () const {
+   return m_validator;
+}
+
 #endif // INTERFACE_PROJECTHANDLE_H

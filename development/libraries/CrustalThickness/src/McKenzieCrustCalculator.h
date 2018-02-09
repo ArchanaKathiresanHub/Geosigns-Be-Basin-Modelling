@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -26,7 +26,10 @@ namespace DataAccess
    }
 }
 class InterfaceInput;
-class AbstractValidator;
+
+namespace DataModel {
+   class AbstractValidator;
+}
 class AbstractInterfaceOutput;
 
 using namespace DataAccess;
@@ -56,7 +59,7 @@ namespace  CrustalThickness
       ///    or invalid constants
       McKenzieCrustCalculator( const InterfaceInput&    inputData,
          AbstractInterfaceOutput& outputData,
-         const AbstractValidator& validator,
+         const DataModel::AbstractValidator& validator,
          const double age,
          const Interface::GridMap* previousRiftTTS,
          const Interface::GridMap* previousContinentalCrustThickness,
@@ -255,9 +258,9 @@ namespace  CrustalThickness
 
       const Interface::GridMap* m_previousRiftTTS; ///< The Total Tectonic Subsidence of the previous rift (i.e. we are at rift ID 2, the previous iteration was at rift ID 1)
 
-      const double m_age;                     ///< The calculation age           [Ma]
-      AbstractInterfaceOutput& m_outputData;  ///< The global interface output object (contains the output maps)
-      const AbstractValidator& m_validator;   ///< The validator to check if a node (i,j) is valid or not
+      const double m_age;                                ///< The calculation age [Ma]
+      AbstractInterfaceOutput& m_outputData;             ///< The global interface output object (contains the output maps)
+      const DataModel::AbstractValidator& m_validator;   ///< The validator to check if a node (i,j) is valid or not
    };
 } // End namespace CrustalThickness
 #endif

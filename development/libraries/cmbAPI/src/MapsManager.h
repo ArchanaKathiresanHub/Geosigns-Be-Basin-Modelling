@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -16,6 +16,11 @@
 
 #include "ErrorHandler.h"
 
+namespace DataAccess {
+   namespace Interface {
+      class GridMap;
+   }
+}
 
 /// @page MapsManagerPage Maps Manager
 /// @link mbapi::MapsManager Maps manager @endlink provides set of interfaces to load/modify/save input 2D maps in project file 
@@ -130,7 +135,24 @@ namespace mbapi
       /// @param[in] mapSequenceNbr  the map sequence number in the project3d
       /// @param[in] filePathName the file name of the  HDF file storing the map
       /// @return ErrorHandler::NoError on succes, or error code otherwise
-      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, size_t & mapSequenceNbr, const std::string & filePathName ) = 0;
+      virtual MapID generateMap( const std::string & refferedTable,
+                                 const std::string & mapName,
+                                 const std::vector<double>& values,
+                                 size_t & mapSequenceNbr,
+                                 const std::string & filePathName ) = 0;
+
+      /// @brief Generate a new map in the GridMapIoTbl
+      /// @param[in] refferedTable the name of the table refferenced this map
+      /// @param[in] mapName the name of the map
+      /// @param[in] values new map values
+      /// @param[in] mapSequenceNbr  the map sequence number in the project3d
+      /// @param[in] filePathName the file name of the  HDF file storing the map
+      /// @return ErrorHandler::NoError on succes, or error code otherwise
+      virtual MapID generateMap( const std::string & refferedTable,
+                                 const std::string & mapName,
+                                 DataAccess::Interface::GridMap* values,
+                                 size_t & mapSequenceNbr,
+                                 const std::string & filePathName ) = 0;
 
       /// @brief inizialize the map writer to write 2D HDF maps
       /// @param[in] filePathName the file name 

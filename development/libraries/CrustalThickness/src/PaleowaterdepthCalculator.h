@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// 
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -16,7 +16,9 @@
 
 //Forward declare
 class AbstractInterfaceOutput;
-class AbstractValidator;
+namespace DataModel {
+   class AbstractValidator;
+}
 class InterfaceInput;
 
 namespace DataAccess {
@@ -39,7 +41,7 @@ namespace CrustalThickness
       /// @param[in] presentDayTTS The present day Total Tectonic Subsidence
       PaleowaterdepthCalculator( const InterfaceInput&     inputData,
          AbstractInterfaceOutput&  outputData,
-         const AbstractValidator&  validator,
+         const DataModel::AbstractValidator&  validator,
          const Interface::GridMap* presentDayTTS );
 
       /// @details Restore presentDayPressureBasement and currentPressureBasement data if they are not nullptr
@@ -88,8 +90,8 @@ namespace CrustalThickness
       const DerivedProperties::SurfacePropertyPtr m_currentPressureBasement;    ///< The current snapshot pressure at the current snapshot basement depth [MPa]
       const Interface::GridMap* m_presentDayTTS;                                ///< The present day total tectonic subsidence                            [m]
 
-      AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
-      const AbstractValidator& m_validator;  ///< The validator to check if a node (i,j) is valid or not
+      AbstractInterfaceOutput& m_outputData;            ///< The global interface output object (contains the output maps)
+      const DataModel::AbstractValidator& m_validator;  ///< The validator to check if a node (i,j) is valid or not
    };
 } // End namespace CrustalThickness
 #endif

@@ -1,9 +1,9 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -13,16 +13,19 @@ using namespace CrustalThickness;
 // CrustalThickness library test utilities
 #include "MockInterfaceInput.h"
 #include "MockInterfaceOutput.h"
-#include "MockValidator.h"
+
+// DataModel library test utilities
+#include "../../DataModel/test/MockValidator.h"
 
 // DataAccess libraries
 #include "../../SerialDataAccess/src/Interface/SerialGrid.h"
 #include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
 #include "../../DataAccess/src/Interface/Grid.h"
+#include "../../DataAccess/src/Interface/Local2DArray.h"
 
 #include <gtest/gtest.h>
 
-typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
+typedef DataAccess::Interface::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
 
 using namespace CrustalThicknessInterface;
 

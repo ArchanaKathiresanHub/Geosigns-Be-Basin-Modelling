@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// Copyright (C) 2012-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -20,7 +20,6 @@
 
 // STL
 #include <set>
-#include <memory>
 #include <map>
 
 namespace database
@@ -44,68 +43,81 @@ namespace mbapi
    {
    public:
       /// @brief Constructor
-      MapsManagerImpl();
+      MapsManagerImpl() = default;
 
       // Destructor
-      virtual ~MapsManagerImpl();
+      virtual ~MapsManagerImpl() = default;
+
+      // Copy constructor and operator are disabled
+      MapsManagerImpl( const MapsManagerImpl & otherMapsManagerImpl ) = delete;
+      MapsManagerImpl & operator = ( const MapsManagerImpl & otherMapsManagerImpl ) = delete;
 
       // Get list of input maps in the model
-      virtual std::vector<MapID> mapsIDs() const;
+      std::vector<MapID> mapsIDs() const final;
 
       // Search for map record which has given name
-      virtual MapID findID( const std::string & mName );
+      MapID findID( const std::string & mName ) final;
 
       // Make a copy of the given map. Map must be saved in the separate call of MapManager::saveMapToHDF
-      virtual MapID copyMap( MapID id, const std::string & newMapName );
+      MapID copyMap( MapID id, const std::string & newMapName ) final;
 
       // Save input map to the new HDF file. File with the given name should not exist before.
-      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string & filePathName, size_t mapSequenceNbr );
+      ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string & fileName, size_t mapSequenceNbr ) final;
 
       // Get min/max map values range
-      virtual ErrorHandler::ReturnCode mapValuesRange( MapID id, double & minV, double & maxV );
+      ErrorHandler::ReturnCode mapValuesRange( MapID id, double & minV, double & maxV ) final;
 
       // Linearly rescale input map to the new value range
-      virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff );
+      ErrorHandler::ReturnCode scaleMap( MapID id, double coeff ) final;
 
       // Set values in the map
-      virtual ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double> & vin );
+      ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double> & vin ) final;
 
       // Get the values from the map
-      virtual ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout );
+      ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout ) final;
 
       // Get the value from the map
-      virtual double mapGetValue( MapID id, size_t i, size_t j );
+      double mapGetValue( MapID id, size_t i, size_t j ) final;
 
       // Interpolate between 2 maps, coefficient in range [0:1]
-      virtual ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff );
+      ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff ) final;
 
       // Interpolate input values using the natural neighbour algorithm
-      virtual ErrorHandler::ReturnCode interpolateMap( const std::vector<double> & xin
-                                                     , const std::vector<double> & yin
-                                                     , const std::vector<double> & vin
-                                                     , double                      xmin
-                                                     , double                      xmax
-                                                     , double                      ymin
-                                                     , double                      ymax
-                                                     , int                         numI
-                                                     , int                         numJ
-                                                     , std::vector<double>       & xout
-                                                     , std::vector<double>       & yout
-                                                     , std::vector<double>       & vout
-                                                     );
+      ErrorHandler::ReturnCode interpolateMap( const std::vector<double> & xin
+                                             , const std::vector<double> & yin
+                                             , const std::vector<double> & vin
+                                             , double                      xmin
+                                             , double                      xmax
+                                             , double                      ymin
+                                             , double                      ymax
+                                             , int                         numI
+                                             , int                         numJ
+                                             , std::vector<double>       & xout
+                                             , std::vector<double>       & yout
+                                             , std::vector<double>       & vout
+                                             ) final;
+
       // Generate a new map in the GridMapIoTbl
-      virtual MapID generateMap( const std::string         & refferedTable
-                               , const std::string           mapName
-                               , const std::vector<double> & values
-                               , size_t                    & mapSequenceNbr
-                               , const std::string         & filePathName
-                               );
+      MapID generateMap( const std::string         & refferedTable
+                       , const std::string         & mapName
+                       , const std::vector<double> & values
+                       , size_t                    & mapSequenceNbr
+                       , const std::string         & filePathName
+                       ) final;
+
+      // Generate a new map in the GridMapIoTbl
+      MapID generateMap( const std::string              & refferedTable
+                       , const std::string              & mapName
+                       , DataAccess::Interface::GridMap * gridMap
+                       , size_t                         & mapSequenceNbr
+                       , const std::string              & filePathName
+                       ) final;
 
       // Inizialize the map writer
-      virtual ErrorHandler::ReturnCode inizializeMapWriter( const std::string & filePathName, const bool append );
+      ErrorHandler::ReturnCode inizializeMapWriter( const std::string & filePathName, const bool append ) final;
 
       // Finalize the map writer
-      virtual ErrorHandler::ReturnCode finalizeMapWriter();
+      ErrorHandler::ReturnCode finalizeMapWriter() final;
 
       // Set of interfaces for interacting with a Cauldron model
       // Set project database. Reset all
@@ -124,10 +136,6 @@ namespace mbapi
       static const char * s_StratIoTbl;         // Table name reffered in the GridMapIoTbl for the lithofractions
       static const char * s_mapResultFile;      // The name of the HDF file containing the maps
 
-      // Copy constructor and operator are disabled
-      MapsManagerImpl( const MapsManagerImpl & otherMapsManagerImpl );
-      MapsManagerImpl & operator = ( const MapsManagerImpl & otherMapsManagerImpl );
-
       DataAccess::Interface::ProjectHandle            * m_proj;                    // project handle, to load/save maps
       std::string                                       m_projectFileName;         // project file name
       DataAccess::Interface::MapWriter                * m_mapPropertyValuesWriter; // own map writer to write/append maps to HDF file
@@ -141,6 +149,11 @@ namespace mbapi
       std::set<std::string>                             m_mapsFileList; // unique list of files with project maps
 
       void loadGridMap( MapID id );
+
+      /// @brief Creates a map and registers it in the manager
+      /// @param[out] id The map id
+      void createMap( const std::string& refferedTable, const std::string& mapName, size_t& mapSequenceNbr,
+         const std::string& filePathName, MapsManager::MapID& id, DataAccess::Interface::GridMap* gridMap );
    };
 }
 

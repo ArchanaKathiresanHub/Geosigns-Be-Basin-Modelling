@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// 
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -28,7 +28,7 @@ using Utilities::Maths::Pi2by8;
 McKenzieCrustCalculator::McKenzieCrustCalculator(
    const InterfaceInput&    inputData,
    AbstractInterfaceOutput& outputData,
-   const AbstractValidator& validator,
+   const DataModel::AbstractValidator& validator,
    const double age,
    const Interface::GridMap* previousRiftTTS,
    const Interface::GridMap* previousContinentalCrustThickness,

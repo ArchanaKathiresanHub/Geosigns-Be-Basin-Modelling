@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -35,7 +35,7 @@ using namespace CrustalThickness;
 PaleowaterdepthCalculator::PaleowaterdepthCalculator(
    const InterfaceInput& inputData,
    AbstractInterfaceOutput& outputData,
-   const AbstractValidator& validator,
+   const DataModel::AbstractValidator& validator,
    const Interface::GridMap*presentDayTTS ) : 
       m_firstI                    ( inputData.firstI() ),
       m_firstJ                    ( inputData.firstJ() ),

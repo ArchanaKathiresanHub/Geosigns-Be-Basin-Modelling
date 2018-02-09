@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -33,7 +33,7 @@ namespace DataAccess
       class ProjectHandle;
       class GridMap;
       
-      /// @class CrustalThicknessRiftingHistoryData The Advanced Lithospheric Calculator (ALC) interface
+      /// @class OceanicCrustThicknessHistoryData The Advanced Lithospheric Calculator (ALC) interface
       ///    which reads input data from the OceaCrustalThicknessIoTbl
       class OceanicCrustThicknessHistoryData : public DAObject
       {

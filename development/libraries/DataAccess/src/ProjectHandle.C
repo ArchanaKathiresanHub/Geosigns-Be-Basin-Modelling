@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -220,6 +220,7 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    m_tableCTC                         ( *this ),
    m_tableCTCRiftingHistory           ( *this ),
    m_tableOceanicCrustThicknessHistory( *this ),
+   m_validator( *this ),
    m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 )
 {
    (void) accessMode; // ignore warning about unused parameter
@@ -332,8 +333,6 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    loadIrreducibleWaterSaturationSample();
    loadSGDensitySample();
 
-   //@TODO_Check
-   //  loadPermafrostData();
 }
 
 int ProjectHandle::getRank() const {
@@ -390,17 +389,11 @@ ObjectFactory * ProjectHandle::getFactory( void ) const
 ProjectHandle::~ProjectHandle( void )
 {
    mapFileCacheDestructor();
-   if ( m_inputGrid ) delete m_inputGrid;
-   if ( m_lowResOutputGrid ) delete m_lowResOutputGrid;
-   if ( m_highResOutputGrid ) delete m_highResOutputGrid;
-
-   if ( m_messageHandler != 0 ) {
-      delete m_messageHandler;
-   }
-
-   if ( m_globalOperations != 0 ) {
-      delete m_globalOperations;
-   }
+   delete m_inputGrid;
+   delete m_lowResOutputGrid;
+   delete m_highResOutputGrid;
+   delete m_messageHandler;
+   delete m_globalOperations;
 
    deleteSnapshots();
    deleteLithoTypes();
@@ -640,12 +633,6 @@ void ProjectHandle::resetActivityOutputGrid( void )
 
 bool ProjectHandle::setActivityOutputGrid( const Grid * grid )
 {
-   if ( grid != getLowResolutionOutputGrid() && grid != getHighResolutionOutputGrid() )
-   {
-      m_activityOutputGrid = 0;
-      return false;
-   }
-   else
    {
       m_activityOutputGrid = grid;
       return true;
@@ -1904,9 +1891,8 @@ const string & ProjectHandle::getCrustIoTableName( void )
 bool ProjectHandle::loadCrustThinningHistory( void )
 {
    database::Table* crustThinningTbl = getCrustIoTable();
-   database::Table::iterator tblIter;
 
-   for ( tblIter = crustThinningTbl->begin(); tblIter != crustThinningTbl->end(); ++tblIter )
+   for ( database::Table::iterator tblIter = crustThinningTbl->begin(); tblIter != crustThinningTbl->end(); ++tblIter )
    {
       Record * crustThinningRecord = *tblIter;
       m_crustPaleoThicknesses.push_back( getFactory()->producePaleoFormationProperty( this, crustThinningRecord, m_crustFormation ) );
@@ -1915,11 +1901,7 @@ bool ProjectHandle::loadCrustThinningHistory( void )
    // Sort the items in the table into the correct order.
    sort( m_crustPaleoThicknesses.begin(), m_crustPaleoThicknesses.end(), PaleoPropertyTimeLessThan() );
 
-   if ( m_crustPaleoThicknesses.empty() ) {
-      return false;
-   }
-
-   return true;
+   return not m_crustPaleoThicknesses.empty();
 }
 
 bool CrustIoTblSorter( database::Record * recordL, database::Record * recordR )
@@ -1934,10 +1916,10 @@ bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
       MutablePaleoFormationPropertyList newCrustalThicknesses;
 
       // calculate and insert additional crust thickness maps at all snapshot events
-      MutablePaleoFormationPropertyList::const_iterator thicknessIter2, thicknessIter = m_crustPaleoThicknesses.begin();
+      MutablePaleoFormationPropertyList::const_iterator thicknessIter = m_crustPaleoThicknesses.begin();
 
       const Interface::Snapshot* oldestSnapshot = getCrustFormation()->getTopSurface()->getSnapshot();
-      assert( oldestSnapshot != 0 );
+      assert( oldestSnapshot != nullptr );
 
       Interface::SnapshotList* snapshots = getSnapshots( Interface::MAJOR );
       Interface::SnapshotList::const_iterator snapshotIter = snapshots->begin();
@@ -1949,12 +1931,12 @@ bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
       for ( thicknessIter = m_crustPaleoThicknesses.begin(); thicknessIter != m_crustPaleoThicknesses.end(); ++thicknessIter ) {
          const Interface::GridMap* map1 = ( *thicknessIter )->getMap( Interface::CrustThinningHistoryInstanceThicknessMap );
 
-         thicknessIter2 = thicknessIter + 1;
+         MutablePaleoFormationPropertyList::const_iterator thicknessIter2 = thicknessIter + 1;
 
          const Interface::GridMap* map2 = ( thicknessIter2 != m_crustPaleoThicknesses.end() ?
             ( *thicknessIter2 )->getMap( Interface::CrustThinningHistoryInstanceThicknessMap ) : map1 );
          double age1 = ( *thicknessIter )->getSnapshot()->getTime();
-         double age2 = ( thicknessIter2 != m_crustPaleoThicknesses.end() ? ( *thicknessIter2 )->getSnapshot()->getTime() : age1 );
+         const double age2 = ( thicknessIter2 != m_crustPaleoThicknesses.end() ? ( *thicknessIter2 )->getSnapshot()->getTime() : age1 );
 
          while ( snapshotIter != snapshots->end() && age2 >= ( *snapshotIter )->getTime() ) {
             double age3 = ( *snapshotIter )->getTime();
@@ -1983,6 +1965,74 @@ bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
 
    return true;
 }
+
+
+//------------------------------------------------------------//
+
+bool ProjectHandle::correctCrustThicknessHistory() {
+
+   if (getBottomBoundaryConditions() == MANTLE_HEAT_FLOW) {
+      return true;
+   }
+
+   if (m_crustPaleoThicknesses.size() == 1) {
+      // Should check for bottom BCs.
+      // No correction to the thickness history is necessary.
+      return true;
+   }
+
+   const Interface::Snapshot* firstSimulationSnapshot = m_crustFormation->getTopSurface()->getSnapshot();
+   assert( firstSimulationSnapshot != nullptr );
+
+   size_t i;
+
+   for (i = 0; i < m_crustPaleoThicknesses.size(); ++i) {
+
+      if (m_crustPaleoThicknesses[i]->getSnapshot() == firstSimulationSnapshot) {
+         // No correction to the thickness history is necessary.
+         return true;
+      }
+
+   }
+
+   const Interface::PaleoFormationProperty* beforeSimulation = nullptr;
+   const Interface::PaleoFormationProperty* afterSimulation = nullptr;
+
+   for (i = 0; i < m_crustPaleoThicknesses.size(); ++i) {
+
+      if (m_crustPaleoThicknesses[i]->getSnapshot()->getTime() > firstSimulationSnapshot->getTime()) {
+
+         if (beforeSimulation == nullptr or beforeSimulation->getSnapshot()->getTime() > m_crustPaleoThicknesses[i]->getSnapshot()->getTime()) {
+            beforeSimulation = m_crustPaleoThicknesses[i];
+         }
+
+      }
+
+      if (m_crustPaleoThicknesses[i]->getSnapshot()->getTime() < firstSimulationSnapshot->getTime()) {
+
+         if (afterSimulation == nullptr or afterSimulation->getSnapshot()->getTime() < m_crustPaleoThicknesses[i]->getSnapshot()->getTime()) {
+            afterSimulation = m_crustPaleoThicknesses[i];
+         }
+
+      }
+
+   }
+
+   assert( beforeSimulation != nullptr or afterSimulation != nullptr );
+
+   if (beforeSimulation != nullptr and afterSimulation != nullptr) {
+
+      m_crustPaleoThicknesses.push_back( getFactory()->producePaleoFormationProperty( this, m_crustFormation, beforeSimulation, afterSimulation, firstSimulationSnapshot ) );
+
+      m_mantlePaleoThicknesses.push_back( getFactory()->producePaleoFormationProperty( this, m_crustFormation, beforeSimulation, afterSimulation, firstSimulationSnapshot ) );
+
+      std::sort( m_crustPaleoThicknesses.begin(), m_crustPaleoThicknesses.end(), Interface::PaleoPropertyTimeLessThan() );
+      std::sort( m_mantlePaleoThicknesses.begin(), m_mantlePaleoThicknesses.end(), Interface::PaleoPropertyTimeLessThan() );
+   }
+
+   return true;
+}
+
 bool ProjectHandle::loadMantleThicknessHistory( void ) {
 
    database::Table* crustThinningTbl = getCrustIoTable();
@@ -3242,6 +3292,9 @@ Interface::PaleoSurfacePropertyList * ProjectHandle::getHeatFlowHistory() const 
    return heatFlowHistoryList;
 }
 
+const Interface::TableOceanicCrustThicknessHistory& ProjectHandle::getTableOceanicCrustThicknessHistory() const {
+   return m_tableOceanicCrustThicknessHistory;
+}
 
 Interface::PaleoPropertyList * ProjectHandle::getSurfaceDepthHistory() const
 {
@@ -3257,8 +3310,6 @@ Interface::PaleoPropertyList * ProjectHandle::getSurfaceDepthHistory() const
 
    return surfaceDepthHistoryList;
 }
-
-
 
 
 Interface::PaleoPropertyList * ProjectHandle::getSurfaceTemperatureHistory() const
@@ -5606,4 +5657,12 @@ void ProjectHandle::setPrimaryDouble( const bool PrimaryFlag ) {
 
 bool ProjectHandle::isPrimaryProperty( const string propertyName ) const {
    return m_primaryList.count( propertyName ) == 0 ? false : true;
+}
+
+bool ProjectHandle::initialiseValidNodes( const bool readSizeFromVolumeData ) {
+   return m_validator.initialiseValidNodes( readSizeFromVolumeData );
+}
+
+void ProjectHandle::addUndefinedAreas( const GridMap* theMap ) {
+  m_validator.addUndefinedAreas( theMap );
 }

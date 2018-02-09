@@ -199,72 +199,84 @@ generate_dox( DerivedProperties.cfg )
 
 add_gtest( NAME ${LIB_NAME}::${LIB_NAME}
            SOURCES test/DerivedProperties.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SimplePropertyManagerTest
            SOURCES test/SimplePropertyManagerTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::CompoundFormationMapPropertyManagerTest
            SOURCES test/CompoundFormationMapPropertyManagerTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::CompoundContinuousPropertyManagerTest
            SOURCES test/CompoundContinuousPropertyManagerTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::CompoundDiscontinuousPropertyManagerTest
            SOURCES test/CompoundDiscontinuousPropertyManagerTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultiplePropertyManagerTest
            SOURCES test/MultiplePropertyManagerTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultipleFormationMapPropertyManagerTest
            SOURCES test/MultipleFormationMapPropertyManagerTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultipleFormationSurfacePropertyManagerTest
            SOURCES test/MultipleFormationSurfacePropertyManagerTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultipleFormationPropertyManagerTest
            SOURCES test/MultipleFormationPropertyManagerTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::ThicknessPropertyTest
            SOURCES test/ThicknessPropertyTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::OverpressurePropertyTest
            SOURCES test/OverpressurePropertyTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SurfacePropertyTest
            SOURCES test/SurfacePropertyTest.C
-           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

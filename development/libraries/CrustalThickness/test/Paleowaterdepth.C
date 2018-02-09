@@ -1,4 +1,4 @@
-//                                                                      
+// 
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
@@ -13,7 +13,9 @@
 #include "MockConfigFileParameterCtc.h"
 #include "MockInterfaceInput.h"
 #include "MockInterfaceOutput.h"
-#include "MockValidator.h"
+
+// DataModel library test utilities
+#include "../../DataModel/test/MockValidator.h"
 
 // Derived Properties library test utilities
 #include "../../DerivedProperties/test/MockDerivedSurfaceProperty.h"

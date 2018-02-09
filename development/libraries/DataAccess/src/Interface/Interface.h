@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -301,7 +301,9 @@ namespace DataAccess
       /// Attributes for which a (GridMap) value can be requested via getMap ().
       enum BottomBoundaryConditionsCrustHeatProductionAttributeId {
          // This value must be distinct from all other values used in Formations.
-         CrustHeatProductionMap = 6
+         CrustHeatProductionMap = 6,
+         CrustThicknessMeltOnsetMap, ///< Used for upgrading legacy ALC projects only
+         BasaltThicknessMap          ///< Used for upgrading legacy ALC projects only
       };
 
       /// Attributes for which a (GridMap) value can be requested via getMap ().

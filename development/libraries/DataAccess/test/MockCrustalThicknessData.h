@@ -121,7 +121,7 @@ namespace DataAccess
 
          private:
             int m_smoothingRadius;                    ///< The filter half width
-            double m_upperLowerContinentalCrustRatio; ///< The upper/lower contiental crust ratio
+            double m_upperLowerContinentalCrustRatio; ///< The upper/lower continental crust ratio
             double m_upperLowerOceanicCrustRatio;     ///< The upper/lower oceanic crust ratio
             std::string m_surfaceName;                ///< The base of the syn-rift
             std::vector<double> m_snapshots;          ///< The list of major stratigraphic snapshots
