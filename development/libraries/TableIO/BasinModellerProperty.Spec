@@ -3365,13 +3365,13 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
 
     Identification      : InterfacialTensionGas
     Description         : InterfacialTensionGas
-    Unit of measurement : N/m
+    Unit of measurement : mN/m
     Type                : double
     Default             : -1
 
     Identification      : InterfacialTensionOil
     Description         : InterfacialTensionOil
-    Unit of measurement : N/m
+    Unit of measurement : mN/m
     Type                : double
     Default             : -1
 
@@ -3389,13 +3389,13 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
 
     Identification      : InterfacialTensionVapour
     Description         : InterfacialTensionVapour
-    Unit of measurement : N/m
+    Unit of measurement : mN/m
     Type                : double
     Default             : -1
 
     Identification      : InterfacialTensionLiquid
     Description         : InterfacialTensionLiquid
-    Unit of measurement : N/m
+    Unit of measurement : mN/m
     Type                : double
     Default             : -1
 
