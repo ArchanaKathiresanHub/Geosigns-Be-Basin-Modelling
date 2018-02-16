@@ -1,8 +1,17 @@
+//                                                                      
+// Copyright (C) 2017-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _DATA_MODEL__ABSTRACT_FORMATION_H_
 #define _DATA_MODEL__ABSTRACT_FORMATION_H_
 
 #include <string>
-#include <iostream>
+#include "AbstractCompoundLithologyArray.h"
 
 namespace DataModel {
 
@@ -11,7 +20,7 @@ namespace DataModel {
 
    public :
 
-      virtual ~AbstractFormation () {}
+      virtual ~AbstractFormation() = default;
 
       /// \brief Get the name of the formation.
       virtual const std::string& getName () const = 0;
@@ -28,9 +37,16 @@ namespace DataModel {
 
       /// \brief Output information about the formation to the ostream.
       virtual void printOn ( std::ostream& os ) const = 0;
+      
+      /// \brief Get the Compound lithology array.
+      virtual const AbstractCompoundLithologyArray& getCompoundLithologyArray () const = 0;
+      
+      /// \brief Output the maximum of elements number
+      virtual unsigned int getMaximumNumberOfElements () const = 0;
 
    };
 
 } // namespace DataModel
 
 #endif // _DATA_MODEL__ABSTRACT_FORMATION_H_
+

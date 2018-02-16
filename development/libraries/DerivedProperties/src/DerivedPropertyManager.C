@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -39,6 +39,7 @@
 #include "BulkDensityFormationCalculator.h"
 #include "FluidVelocityFormationCalculator.h"
 #include "FracturePressureFormationCalculator.h"
+#include "GammaRayFormationCalculator.h"
 #include "HeatFlowFormationCalculator.h"
 #include "HydrostaticPressureFormationCalculator.h"
 #include "LithostaticPressureFormationCalculator.h"
@@ -76,9 +77,9 @@ DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::
    loadPrimaryFormationSurfacePropertyCalculators ( debug );
    loadPrimaryFormationMapPropertyCalculators     ( debug );
    loadPrimaryReservoirPropertyCalculators        ( debug );
-   loadDerivedFormationPropertyCalculator         ( debug );
-   loadDerivedFormationMapPropertyCalculator      ( debug );
-   loadDerivedSurfacePropertyCalculator           ( debug );
+   loadDerivedFormationPropertyCalculators        ( debug );
+   loadDerivedFormationMapPropertyCalculators     ( debug );
+   loadDerivedSurfacePropertyCalculators          ( debug );
 }
 
 const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getProjectHandle () const {
@@ -162,153 +163,83 @@ bool DerivedProperties::DerivedPropertyManager::canAddDerivedSurfacePropertyCalc
    return false;
 }
 
-void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalculator ( const bool debug ) {
-
-   FormationPropertyCalculatorPtr formationPropertyCalculator;
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BrineDensityCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
+void  DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr formationPropertyCalculator, const bool debug)
+{
+   if (canAddDerivedFormationPropertyCalculator(formationPropertyCalculator)) {
+      addFormationPropertyCalculator(formationPropertyCalculator, nullptr, debug);
    }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BrineViscosityCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BulkDensityFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new FracturePressureFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-   
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new HydrostaticPressureFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-   
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new LithostaticPressureFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-   
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new OverpressureFormationCalculator );
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-   
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new PermeabilityFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-   
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new PorosityFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-   
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new PressureFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr( new SonicFormationCalculator );
-
-   if (canAddDerivedFormationPropertyCalculator( formationPropertyCalculator )) {
-      addFormationPropertyCalculator( formationPropertyCalculator, 0, debug );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new ThermalConductivityFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-   
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new ThermalDiffusivityFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr( new TwoWayTimeFormationCalculator );
-
-   if (canAddDerivedFormationPropertyCalculator( formationPropertyCalculator )) {
-      addFormationPropertyCalculator( formationPropertyCalculator, 0, debug );
-   }
-   
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new VelocityFormationCalculator );
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new HeatFlowFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new FluidVelocityFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   }
-   
 }
 
-void DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyCalculator ( const bool debug ) {
+void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalculators(const bool debug) {
 
-   FormationMapPropertyCalculatorPtr formationMapPropertyCalculator;
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new BrineDensityCalculator(m_projectHandle)), debug);
 
-   formationMapPropertyCalculator = FormationMapPropertyCalculatorPtr ( new AllochthonousLithologyFormationMapCalculator );
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new BrineViscosityCalculator(m_projectHandle)), debug);
 
-   if ( canAddDerivedFormationMapPropertyCalculator ( formationMapPropertyCalculator )) {
-      addFormationMapPropertyCalculator ( formationMapPropertyCalculator );
-   }
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new BulkDensityFormationCalculator(m_projectHandle)), debug);
 
-   formationMapPropertyCalculator = FormationMapPropertyCalculatorPtr ( new FaultElementFormationMapCalculator );
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new FracturePressureFormationCalculator(m_projectHandle)), debug);
 
-   if ( canAddDerivedFormationMapPropertyCalculator ( formationMapPropertyCalculator )) {
-      addFormationMapPropertyCalculator ( formationMapPropertyCalculator );
-   }
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new GammaRayFormationCalculator), debug);
 
-   formationMapPropertyCalculator = FormationMapPropertyCalculatorPtr ( new ThicknessFormationMapCalculator );
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new HydrostaticPressureFormationCalculator(m_projectHandle)), debug);
 
-   if ( canAddDerivedFormationMapPropertyCalculator ( formationMapPropertyCalculator )) {
-      addFormationMapPropertyCalculator ( formationMapPropertyCalculator );
-   }
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new LithostaticPressureFormationCalculator(m_projectHandle)), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new OverpressureFormationCalculator), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new PermeabilityFormationCalculator(m_projectHandle)), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new PorosityFormationCalculator(m_projectHandle)), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new PressureFormationCalculator(m_projectHandle)), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new SonicFormationCalculator), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new ThermalConductivityFormationCalculator(m_projectHandle)), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new ThermalDiffusivityFormationCalculator(m_projectHandle)), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new TwoWayTimeFormationCalculator), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new VelocityFormationCalculator), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new HeatFlowFormationCalculator(m_projectHandle)), debug);
+
+   loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new FluidVelocityFormationCalculator(m_projectHandle)), debug);
 
 }
 
-void DerivedProperties::DerivedPropertyManager::loadDerivedSurfacePropertyCalculator ( const bool debug ) {
-
-   SurfacePropertyCalculatorPtr surfacePropertyCalculator;
-
-   surfacePropertyCalculator = SurfacePropertyCalculatorPtr ( new ReflectivitySurfaceCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedSurfacePropertyCalculator ( surfacePropertyCalculator )) {
-      addSurfacePropertyCalculator ( surfacePropertyCalculator );
+void  DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyCalculator(FormationMapPropertyCalculatorPtr formationMapPropertyCalculator)
+{
+   if (canAddDerivedFormationMapPropertyCalculator(formationMapPropertyCalculator)) {
+      addFormationMapPropertyCalculator(formationMapPropertyCalculator);
    }
+}
 
-   surfacePropertyCalculator = SurfacePropertyCalculatorPtr( new TwoWayTimeResidualSurfaceCalculator( m_projectHandle ) );
+void DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyCalculators(const bool debug) {
 
-   if (canAddDerivedSurfacePropertyCalculator( surfacePropertyCalculator )) {
-      addSurfacePropertyCalculator( surfacePropertyCalculator );
+   loadDerivedFormationMapPropertyCalculator(FormationMapPropertyCalculatorPtr(new AllochthonousLithologyFormationMapCalculator));
+
+   loadDerivedFormationMapPropertyCalculator(FormationMapPropertyCalculatorPtr(new FaultElementFormationMapCalculator));
+
+   loadDerivedFormationMapPropertyCalculator(FormationMapPropertyCalculatorPtr(new ThicknessFormationMapCalculator));
+
+}
+
+
+void  DerivedProperties::DerivedPropertyManager::loadDerivedSurfacePropertyCalculator(SurfacePropertyCalculatorPtr surfacePropertyCalculator)
+{
+   if (canAddDerivedSurfacePropertyCalculator(surfacePropertyCalculator)) {
+      addSurfacePropertyCalculator(surfacePropertyCalculator);
    }
+}
+
+void DerivedProperties::DerivedPropertyManager::loadDerivedSurfacePropertyCalculators(const bool debug) {
+
+   loadDerivedSurfacePropertyCalculator(SurfacePropertyCalculatorPtr(new ReflectivitySurfaceCalculator(m_projectHandle)));
+
+   loadDerivedSurfacePropertyCalculator(SurfacePropertyCalculatorPtr(new TwoWayTimeResidualSurfaceCalculator(m_projectHandle)));
 
 }
 

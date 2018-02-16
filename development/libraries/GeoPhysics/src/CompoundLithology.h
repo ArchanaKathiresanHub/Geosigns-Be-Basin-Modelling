@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -21,7 +21,7 @@
 // CBMGenerics library
 #include "ComponentManager.h"
 typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
-
+#include "AbstractCompoundLithology.h"
 #include "ArrayDefinitions.h"
 #include "CompoundLithologyComposition.h"
 #include "CompoundProperty.h"
@@ -41,7 +41,7 @@ namespace GeoPhysics {
 namespace GeoPhysics {
 
 
-   class CompoundLithology {
+   class CompoundLithology : public DataModel::AbstractCompoundLithology {
 
    public:
 
@@ -93,7 +93,7 @@ namespace GeoPhysics {
                                   ArrayDefs::Real_ptr      densityXHeatCap ) const;
 
       /// Return the heat-production value for the compound-lithology.
-      double heatproduction() const;
+      double heatproduction() const final;
 
       /// Return the capillary entry pressure coefficient C1
       double capC1() const;
@@ -126,12 +126,6 @@ namespace GeoPhysics {
       /// Compute the porosity.
       double porosity(const double sigma,
          const double sigma_max,
-         const bool   includeChemicalCompaction,
-         const double chemicalCompactionTerm) const;
-
-      /// Compute the void-ratio.
-      double voidRatio(const double ves,
-         const double maxVes,
          const bool   includeChemicalCompaction,
          const double chemicalCompactionTerm) const;
 
@@ -346,8 +340,8 @@ namespace GeoPhysics {
       /// \param  [in] ves                       The ves values for which the porosity is to be calculated.
       /// \param  [in] maxVes                    The max-ves values for which the porosity is to be calculated.
       /// \param  [in] includeChemicalCompaction Indicate whether or not chemical compaction is to be included.
-      /// \param  [in] maxVes                    The chemical compaction values for which the porosity is to be calculated.
-      /// \param [out] porosities                The mixed porosity values.
+      /// \param  [in] chemicalCompactionTerm    The chemical compaction values for which the porosity is to be calculated.
+      /// \param [out] porosity                  The mixed porosity values.
       void getPorosity ( const unsigned int       size,
                          ArrayDefs::ConstReal_ptr ves,
                          ArrayDefs::ConstReal_ptr maxVes,
@@ -552,24 +546,6 @@ namespace GeoPhysics {
 
       double m_mixVerticalExp;//!< Permeability vertical mixing exponent, equals 1-2*m_mixHorizonExp */
       double m_inverseMixVerticalExp; /// 1 / m_mixVerticalExp
-
-      double m_percentRatio2;//!< Value saved to simplify the computation of permeability
-                             //!<  equals percentlitho2/percentlitho1 */
-
-      double m_percentPowerPlane;//!< Value saved to simplify the computation of permeability
-                                 //!< Equals percentlitho1^m_mixHorizonExponent
-
-      double m_percentPowerNormal;//!< Value saved to simplify the computation of permeability
-                                  //!< Equals percentlitho1^m_mixVerticalExponent
-
-      double m_anisoRatioExp2;//!< Value saved to simplify the computation of permeability
-                              //!< Equals anisolitho2/anisolitho1
-
-      double m_percentRatio3;//!< Value saved to simplify the computation of permeability
-                             //!< Equals percentlitho3/percentlitho1
-
-      double m_anisoRatioExp3;//!< Value saved to simplify the computation of permeability
-                              //!< Equals anisolitho3/anisolitho1
 
       /// \brief Performs mixing of permeability values.
       PermeabilityMixer m_permeabilityMixer;

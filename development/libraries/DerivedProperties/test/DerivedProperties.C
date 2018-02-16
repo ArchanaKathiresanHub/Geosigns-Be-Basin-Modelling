@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2017-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "../src/DerivedSurfaceProperty.h"
 #include "../src/DerivedFormationProperty.h"
 #include "../src/DerivedFormationSurfaceProperty.h"
@@ -47,7 +57,7 @@ TEST( DerivedSurfaceProperty, Test1 )
 {
    MockGrid      testGrid( FirstI, FirstGhostI, FirstJ, FirstGhostJ, LastI, LastGhostI, LastJ, LastGhostJ );
    MockSurface   testSurface( SurfaceName );
-   MockSnapshot  testSnapshot( SnapshotAge );
+   DataModel::MockSnapshot  testSnapshot( SnapshotAge );
    MockProperty  testProperty( PropertyName );
    MockFormation testFormation( FormationName );
    

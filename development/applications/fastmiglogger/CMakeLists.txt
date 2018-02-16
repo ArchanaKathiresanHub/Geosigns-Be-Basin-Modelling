@@ -26,6 +26,10 @@ bm_include_libraries(
    TableIO
 )
 
+include_directories(
+  ${PROJECT_SOURCE_DIR}/libraries/utilities/src
+)
+
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -58,10 +58,10 @@ namespace DataModel {
 
    private :
 
-      DataModel::MockGrid             m_mockGrid;
-      const DataModel::MockSurface    m_mockSurface;
-      const DataModel::MockSnapshot   m_mockSnapshot;
-      const DataModel::MockProperty   m_mockProperty;
+      MockGrid             m_mockGrid;
+      const MockSurface    m_mockSurface;
+      const MockSnapshot   m_mockSnapshot;
+      const MockProperty   m_mockProperty;
 
       DerivedProperties::DerivedSurfacePropertyPtr m_derivedSurfacePropertyPtr;
 

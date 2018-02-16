@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2017-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #ifndef _DERIVED_PROPERTIES__MOCK_PROPERTY_H_
 #define _DERIVED_PROPERTIES__MOCK_PROPERTY_H_
 
@@ -9,12 +19,12 @@
 namespace DataModel {
 
    /// \brief Describes a property defined in the cauldron model.
-   class MockProperty : public AbstractProperty {
+   class MockProperty final: public AbstractProperty {
 
    public :
 
       MockProperty ( const std::string&      name,
-                     const PropertyAttribute attr = DataModel::UNKNOWN_PROPERTY_ATTRIBUTE );
+                     const PropertyAttribute attr = UNKNOWN_PROPERTY_ATTRIBUTE );
 
       /// \brief Get the name of the property.
       virtual const std::string& getName () const;
@@ -32,7 +42,7 @@ namespace DataModel {
 } // namespace DataModel
 
 inline DataModel::MockProperty::MockProperty ( const std::string& name,
-                                               const PropertyAttribute attr ) : m_name ( name ), m_propertyAttribute ( attr ) {
+                                               const DataModel::PropertyAttribute attr ) : m_name ( name ), m_propertyAttribute ( attr ) {
 }
 
 inline const std::string& DataModel::MockProperty::getName () const {

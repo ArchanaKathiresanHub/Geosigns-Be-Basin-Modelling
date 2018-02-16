@@ -1,3 +1,12 @@
+// 
+// Copyright (C) 2017-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef _GEOPHYSICS__COMPOUND_LITHOLOGY_ARRAY_H_
 #define _GEOPHYSICS__COMPOUND_LITHOLOGY_ARRAY_H_
 
@@ -6,12 +15,13 @@
 #include "AllochthonousLithologyInterpolator.h"
 #include "CompoundLithology.h"
 #include "TimeDependentLithology.h"
+#include "AbstractCompoundLithologyArray.h"
 
 namespace GeoPhysics {
 
    /// A two-dimensional array of TimeDependentLithology's.
    /// The array includes ghost-nodes.
-   class CompoundLithologyArray {
+   class CompoundLithologyArray : virtual public DataModel::AbstractCompoundLithologyArray {
 
    public :
 

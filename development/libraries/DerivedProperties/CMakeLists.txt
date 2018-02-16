@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -39,6 +39,7 @@ set(all_headers
   src/FormationSurfacePropertyCalculator.h
   src/FormationSurfacePropertyOffsetCalculator.h
   src/FracturePressureFormationCalculator.h
+  src/GammaRayFormationCalculator.h
   src/HeatFlowFormationCalculator.h
   src/HydrostaticPressureFormationCalculator.h
   src/HydrostaticPressureSurfaceCalculator.h
@@ -115,6 +116,7 @@ set(all_srcs
   src/FormationSurfacePropertyAtSurface.C
   src/FormationSurfacePropertyOffsetCalculator.C
   src/FracturePressureFormationCalculator.C
+  src/GammaRayFormationCalculator.C
   src/HeatFlowFormationCalculator.C
   src/HydrostaticPressureFormationCalculator.C
   src/HydrostaticPressureSurfaceCalculator.C
@@ -171,6 +173,8 @@ set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}
 
 target_link_libraries(${LIB_NAME} 
   DataModel
+  DataAccess
+  GeoPhysics
   FiniteElements
   LinearAlgebra
   ${HDF5_LIBRARIES}
@@ -193,9 +197,28 @@ include_directories(
 
 include_directories( SYSTEM
   ${HDF5_INCLUDE_DIRS}
+  ${PETSC_INCLUDE_DIRS} 
 )
 
 generate_dox( DerivedProperties.cfg )
+
+
+################################################################
+######################## UNIT TESTS ############################
+################################################################
+
+#
+# 1. Set files
+#
+set ( MockGRPropertyManagerFiles 
+    test/MockGRPropertyManager.h
+    test/MockGRPropertyManager.C
+)
+
+set ( MockPorosityCalculatorFiles 
+    test/MockPorosityCalculator.h
+    test/MockPorosityCalculator.C
+)
 
 add_gtest( NAME ${LIB_NAME}::${LIB_NAME}
            SOURCES test/DerivedProperties.C
@@ -280,3 +303,30 @@ add_gtest( NAME ${LIB_NAME}::SurfacePropertyTest
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
+
+add_gtest( NAME ${LIB_NAME}::GammaRayFormationCalculatorTest
+           SOURCES test/GammaRayFormationCalculatorTest.C ${MockGRPropertyManagerFiles} ${MockPorosityCalculatorFiles} 
+           INCLUDE_DIRS  ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src ${PETSC_INCLUDE_DIRS}
+           LIBRARIES ${LIB_NAME} ${PETSC_LIBRARIES} Utilities_Petsc GeoPhysics DataAccess DistributedDataAccess
+           LINK_FLAGS "${PETSC_LINK_FLAGS}"
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
+if (UNIX)
+   # In LSF environment (on LSF cluster node, when build is running as a LSF job) mpirun is trying to use job settings
+   # to run mpi unit tests. Sometime it fails because build job requested just 1 cpu. To prevent this we can specify
+   # machines file with localhost list only
+   configure_file(test/machines machines COPYONLY )
+   set( MACHINE_FILE -machinefile machines)
+endif (UNIX)
+
+add_gtest( NAME ${LIB_NAME}::GammaRayFormationCalculatorDistributedTest
+           SOURCES test/GammaRayFormationCalculatorDistributedTest.C ${MockGRPropertyManagerFiles} ${MockPorosityCalculatorFiles} 
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src ${PETSC_INCLUDE_DIRS}
+           LIBRARIES ${LIB_NAME} ${PETSC_LIBRARIES} Utilities_Petsc GeoPhysics DataAccess DistributedDataAccess
+           LINK_FLAGS "${PETSC_LINK_FLAGS}"
+           MPI_SIZE 2
+           MPIRUN_PRMS ${MACHINE_FILE}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+

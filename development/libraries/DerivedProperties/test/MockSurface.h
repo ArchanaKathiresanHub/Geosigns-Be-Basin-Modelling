@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2017-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #ifndef _DERIVED_PROPERTIES__MOCK_SURFACE_H_
 #define _DERIVED_PROPERTIES__MOCK_SURFACE_H_
 
@@ -9,7 +19,7 @@
 namespace DataModel {
 
    /// \brief 
-   class MockSurface : public AbstractSurface {
+   class MockSurface final: public AbstractSurface {
 
    public :
 
@@ -45,11 +55,11 @@ namespace DataModel {
 
    };
 
-}
+} // namespace DataModel
 
 inline DataModel::MockSurface::MockSurface ( const std::string& name,
-                                             const AbstractFormation* topFormation,
-                                             const AbstractFormation* bottomFormation ) :
+                                             const DataModel::AbstractFormation* topFormation,
+                                             const DataModel::AbstractFormation* bottomFormation ) :
    m_name ( name ),
    m_topFormationName ( topFormation == 0 ? "" : topFormation->getName ()),
    m_bottomFormationName ( bottomFormation == 0 ? "" : bottomFormation->getName ()),

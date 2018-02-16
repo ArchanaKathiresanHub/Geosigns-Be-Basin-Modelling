@@ -118,20 +118,35 @@ namespace DerivedProperties {
       /// These are volume properties loaded from the property-values in the project-handle.
       void loadPrimaryFormationPropertyCalculators ( const bool debug );
 
-      /// \brief Load  derived formation property calculators.
+      /// \brief Load derived formation property calculators.
       ///
       /// Here all the calculators for derived properties on formation are added to the set of calculators.
-      void loadDerivedFormationPropertyCalculator ( const bool debug );
+      void loadDerivedFormationPropertyCalculators ( const bool debug );
+
+      /// \brief Load one formation property calculator.
+      ///
+      /// Here one calculator for derived properties on formation is added to the set of calculators.
+      void  loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr formationPropertyCalculator, const bool debug);
 
       /// \brief Load derived formation-map property calculators.
       ///
       /// Here all the calculators for derived properties for formation-map are added to the set of calculators.
-      void loadDerivedFormationMapPropertyCalculator ( const bool debug );
+      void loadDerivedFormationMapPropertyCalculators (const bool debug);
+
+      /// \brief Load one derived formation-map property calculator.
+      ///
+      /// Here one calculator for derived properties for formation-map is added to the set of calculators.
+      void loadDerivedFormationMapPropertyCalculator(FormationMapPropertyCalculatorPtr formationMapPropertyCalculator);
 
       /// \brief Load derived surface property calculators.
       ///
       /// Here all the calculators for derived properties for surfaces are added to the set of calculators.
-      void loadDerivedSurfacePropertyCalculator ( const bool debug );
+      void loadDerivedSurfacePropertyCalculators ( const bool debug );
+
+      /// \brief Load one derived surface property calculator.
+      ///
+      /// Here one calculator for derived properties for surfaces is added to the set of calculators.
+      void loadDerivedSurfacePropertyCalculator(SurfacePropertyCalculatorPtr formationSurfacePropertyCalculator);
 
       /// \brief Determine if the derived property calculator should be added to the property-manager.
       ///

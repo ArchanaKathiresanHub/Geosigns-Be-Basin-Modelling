@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -11,12 +11,15 @@
 #define _INTERFACE_FORMATION_H_
 
 #include "AbstractFormation.h"
-
+#include "AbstractCompoundLithologyArray.h"
 
 #include "Interface/DAObject.h"
 #include "Interface/Interface.h"
 
 #include "../../../CBMGenerics/src/capillarySealStrength.h"
+#include "FormattingException.h"
+
+typedef formattingexception::GeneralException DataAccessInterfaceCompoundLithologyException;
 
 namespace DataAccess
 {
@@ -184,6 +187,12 @@ namespace DataAccess
 
        /// return a string description of this class
        virtual void asString (string &) const;
+       
+       /// return the Compound lithology array.
+       virtual const DataModel::AbstractCompoundLithologyArray& getCompoundLithologyArray () const override;
+       
+       /// return the maximum number of elements
+       virtual unsigned int getMaximumNumberOfElements () const override;
 
     protected :
 
@@ -225,5 +234,15 @@ namespace DataAccess
 
 
    }
+}
+
+inline unsigned int DataAccess::Interface::Formation::getMaximumNumberOfElements ( ) const {
+    //This function should only be used in GeoPhysics::Formation class. Needs to be defined in the AbstractFormation class for testing!
+    throw DataAccessInterfaceCompoundLithologyException() <<"DataAccess::Interface::Formation::getMaximumNumberOfElements is called but not implemented. Should only be called from GeoPhysics::Formation class!";
+}
+
+inline const DataModel::AbstractCompoundLithologyArray& DataAccess::Interface::Formation::getCompoundLithologyArray () const {
+    //This function should only be used in GeoPhysics::Formation class. Needs to be defined in the AbstractFormation class for testing!
+    throw DataAccessInterfaceCompoundLithologyException() <<"DataAccess::Interface::Formation::getMaximumNumberOfElements is called but not implemented. Should only be called from GeoPhysics::Formation class!";
 }
 #endif // _INTERFACE_FORMATION_H_

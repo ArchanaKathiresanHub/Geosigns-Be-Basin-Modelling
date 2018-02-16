@@ -11,6 +11,8 @@
 #########################################################################
 
 set(all_headers
+   src/AbstractCompoundLithology.h
+   src/AbstractCompoundLithologyArray.h
    src/AbstractFormation.h
    src/AbstractGrid.h
    src/AbstractProperty.h

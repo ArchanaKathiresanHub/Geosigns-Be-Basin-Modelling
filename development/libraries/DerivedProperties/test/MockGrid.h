@@ -1,3 +1,12 @@
+// 
+// Copyright (C) 2017-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef _DERIVED_PROPERTIES__MOCK_GRID_H_
 #define _DERIVED_PROPERTIES__MOCK_GRID_H_
 
@@ -21,7 +30,7 @@ namespace DataModel {
    ///
    /// This global grid structure may be defined across multiple processors
    /// an object of this type defines a smaller sub-structre.
-   class MockGrid : public AbstractGrid {
+   class MockGrid final: public DataModel::AbstractGrid {
 
    public :
 

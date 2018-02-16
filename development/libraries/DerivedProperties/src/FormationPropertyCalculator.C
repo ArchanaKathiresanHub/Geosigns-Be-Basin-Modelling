@@ -1,5 +1,18 @@
+// 
+// Copyright (C) 2017-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "FormationPropertyCalculator.h"
 #include "AbstractPropertyManager.h"
+
+#include "AbstractProperty.h"
+#include <string>
 
 bool DerivedProperties::FormationPropertyCalculator::isComputable ( const AbstractPropertyManager&      propManager,
                                                                     const DataModel::AbstractSnapshot*  snapshot,

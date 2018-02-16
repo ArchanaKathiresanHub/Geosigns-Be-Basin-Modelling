@@ -64,7 +64,7 @@ namespace GeoPhysics {
       CompoundLithologyArray& getCompoundLithologyArray ();
 
       // Temporary during transfer phase.
-      const CompoundLithologyArray& getCompoundLithologyArray () const;
+      const CompoundLithologyArray& getCompoundLithologyArray () const final;
 
       virtual void switchLithologies ( const double age );
 
@@ -87,7 +87,7 @@ namespace GeoPhysics {
       /// \brief Get the maximum number of elements in the thickness of the layer.
       ///
       /// This includes all elements that are active and not active.
-      unsigned int getMaximumNumberOfElements () const;
+      unsigned int getMaximumNumberOfElements () const final;
 
       double getSolidThickness ( const unsigned int i,
                                  const unsigned int j,

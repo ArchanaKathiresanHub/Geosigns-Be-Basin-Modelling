@@ -9,6 +9,8 @@ using namespace CBMGenerics;
 
 // Interface to DataModel
 #include "../../DataModel/src/PropertyAttribute.h"
+#include "../../DataModel/src/AbstractCompoundLithology.h"
+#include "../../DataModel/src/AbstractCompoundLithologyArray.h"
 #include "../../DataModel/src/AbstractFormation.h"
 #include "../../DataModel/src/AbstractSurface.h"
 #include "../../DataModel/src/AbstractGrid.h"
@@ -125,6 +127,8 @@ using namespace DataAccess::Interface;
 
 // Interface to DataModel
 %include "../../DataModel/src/PropertyAttribute.h"
+%include "../../DataModel/src/AbstractCompoundLithology.h"
+%include "../../DataModel/src/AbstractCompoundLithologyArray.h"
 %include "../../DataModel/src/AbstractFormation.h"
 %include "../../DataModel/src/AbstractSurface.h"
 %include "../../DataModel/src/AbstractGrid.h"

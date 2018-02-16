@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -60,6 +60,7 @@ static const char * s_FormationPropList[] =
    , "DepthHighRes"
    , "Diffusivity"
    , "FluidVelocity"
+   , "GammaRay"
    , "HopaneIsomerisation"
    , "HorizontalPermeability"
    , "HydroStaticPressure"

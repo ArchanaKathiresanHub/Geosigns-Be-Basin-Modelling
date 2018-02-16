@@ -1,14 +1,20 @@
+// 
+// Copyright (C) 2017-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #ifndef DERIVED_PROPERTIES__FORMATION_PROPERTY_CALCULATOR_H
 #define DERIVED_PROPERTIES__FORMATION_PROPERTY_CALCULATOR_H
 
 #include <vector>
-#include <string>
-
 #include <boost/shared_ptr.hpp>
 
-#include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
-#include "AbstractSurface.h"
 
 #include "FormationProperty.h"
 
@@ -37,7 +43,7 @@ namespace DerivedProperties {
 
    public :
 
-      virtual ~FormationPropertyCalculator () {}
+      virtual ~FormationPropertyCalculator() = default;
 
       /// \brief Calculate the property values and add the property values to the list.
       virtual void calculate ( AbstractPropertyManager&            propManager,

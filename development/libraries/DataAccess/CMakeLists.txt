@@ -33,6 +33,10 @@ bm_include_libraries(
    EosPack
 )
 
+include_directories(
+  ${PROJECT_SOURCE_DIR}/libraries/utilities/src
+)
+
 include_directories( src )
 
 include_directories( SYSTEM
