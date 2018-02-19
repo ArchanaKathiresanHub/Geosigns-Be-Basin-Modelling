@@ -88,7 +88,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( Deri
                 
                for ( unsigned int k = ves->firstK (); k <= ves->lastK (); ++k ) {
                  
-                  lithostaticPressure->set ( i, j, k, ( ves->getA ( i, j, k ) * Utilities::Maths::PaToMegaPa + porePressure->getA ( i, j, k )));
+                  lithostaticPressure->set ( i, j, k, ( ves->get ( i, j, k ) * Utilities::Maths::PaToMegaPa + porePressure->get ( i, j, k )));
                }
             } else {
                for ( unsigned int k = ves->firstK (); k <= ves->lastK (); ++k ) {
@@ -200,25 +200,25 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
                   const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j, snapshot->getTime () );
 
                   if( alcMode ) {
-                     const double topBasaltDepth = basaltDepth->getA( i, j );
-                     const double botBasaltDepth = topBasaltDepth + 1 + basaltThickness->getA( i, j );
+                     const double topBasaltDepth = basaltDepth->get( i, j );
+                     const double botBasaltDepth = topBasaltDepth + 1 + basaltThickness->get( i, j );
 
-                     if(  basaltThickness->getA( i, j ) != 0 and ( topBasaltDepth <= depth->getA ( i, j, k -1 ) and botBasaltDepth >= depth->getA ( i, j, k - 1 ))) {
+                     if(  basaltThickness->get( i, j ) != 0 and ( topBasaltDepth <= depth->get ( i, j, k -1 ) and botBasaltDepth >= depth->get ( i, j, k - 1 ))) {
                    
-                        density = lithology->getSimpleLithology()->getBasaltDensity ( temperature->getA ( i, j, k - 1 ), 
-                                                                                      lithostaticPressure->getA ( i, j, k ));
+                        density = lithology->getSimpleLithology()->getBasaltDensity ( temperature->get ( i, j, k - 1 ), 
+                                                                                      lithostaticPressure->get ( i, j, k ));
                      } else {
-                        density = lithology->getSimpleLithology()->getDensity ( temperature->getA ( i, j, k - 1 ), lithostaticPressure->getA ( i, j, k ));
+                        density = lithology->getSimpleLithology()->getDensity ( temperature->get ( i, j, k - 1 ), lithostaticPressure->get ( i, j, k ));
                      }
                   } else {   
                      density = ( constantDensity ? lithology->getSimpleLithology()->getDensity() :
-                                 lithology->getSimpleLithology()->getDensity ( temperature->getA ( i, j, k - 1 ), lithostaticPressure->getA ( i, j, k )));
+                                 lithology->getSimpleLithology()->getDensity ( temperature->get ( i, j, k - 1 ), lithostaticPressure->get ( i, j, k )));
                   }
-                  segmentThickness = depth->getA ( i, j, k - 1 ) - depth->getA ( i, j, k );
+                  segmentThickness = depth->get ( i, j, k - 1 ) - depth->get ( i, j, k );
 
                   segmentPressure = segmentThickness * density * Utilities::Physics::AccelerationDueToGravity * Utilities::Maths::PaToMegaPa;
 
-                  pressure = lithostaticPressure->getA ( i, j, k ) + segmentPressure;
+                  pressure = lithostaticPressure->get ( i, j, k ) + segmentPressure;
                   lithostaticPressure->set ( i, j, k - 1, pressure );
 
                }
@@ -248,7 +248,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::copyLithostaticP
       for ( unsigned int j = lithostaticPressureAbove->firstJ ( true ); j <= lithostaticPressureAbove->lastJ ( true ); ++j ) {
 
          if ( m_projectHandle->getNodeIsValid ( i, j )) {
-            lithostaticPressure->set ( i, j, topNodeIndex, lithostaticPressureAbove->getA ( i, j, 0 ));
+            lithostaticPressure->set ( i, j, topNodeIndex, lithostaticPressureAbove->get ( i, j, 0 ));
          } else {
             lithostaticPressure->set ( i, j, topNodeIndex, undefinedValue );
          }

@@ -169,7 +169,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
                {
                   for( unsigned int k = firstK; k <= lastK; ++k )
                   {
-                     maxVesHighRes->set(i, j, k, currentVesHighRes->getA(i,j,k) );
+                     maxVesHighRes->set(i, j, k, currentVesHighRes->get(i,j,k) );
                   }
                }
                else
@@ -192,7 +192,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
                {
                   for( unsigned int k = firstK; k <= lastK; ++k )
                   {
-                     maxVesHighRes->set(i, j, k, NumericFunctions::Maximum( currentVesHighRes->getA(i,j,k), previousMaxVesHighRes->getA(i,j,k) ) );
+                     maxVesHighRes->set(i, j, k, NumericFunctions::Maximum( currentVesHighRes->get(i,j,k), previousMaxVesHighRes->get(i,j,k) ) );
                   }
                }
                else

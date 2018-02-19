@@ -168,13 +168,13 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( DerivedPro
                         
                         geometryMatrix ( 1, node ) = originX + (deltaX * GidxX);
                         geometryMatrix ( 2, node ) = originY + (deltaY * GidxY);
-                        geometryMatrix ( 3, node ) = depth->getA ( GidxX, GidxY, LidxZ );
+                        geometryMatrix ( 3, node ) = depth->get ( GidxX, GidxY, LidxZ );
                         
-                        vesVector            ( node ) = ves->getA ( GidxX, GidxY, LidxZ );
-                        maxVesVector         ( node ) = maxVes->getA ( GidxX, GidxY, LidxZ );
-                        porepressureVector   ( node ) = porepressure->getA ( GidxX, GidxY, LidxZ );
-                        temperatureVector    ( node ) = temperature->getA ( GidxX, GidxY, LidxZ );
-                        chemCompactionVector ( node ) = ( chemicalCompactionRequired ? chemicalCompaction->getA ( GidxX, GidxY, LidxZ ) : 0.0 );
+                        vesVector            ( node ) = ves->get ( GidxX, GidxY, LidxZ );
+                        maxVesVector         ( node ) = maxVes->get ( GidxX, GidxY, LidxZ );
+                        porepressureVector   ( node ) = porepressure->get ( GidxX, GidxY, LidxZ );
+                        temperatureVector    ( node ) = temperature->get ( GidxX, GidxY, LidxZ );
+                        chemCompactionVector ( node ) = ( chemicalCompactionRequired ? chemicalCompaction->get ( GidxX, GidxY, LidxZ ) : 0.0 );
                      }
                      
                      const bool degenerateElement = isDegenerate( geometryMatrix );

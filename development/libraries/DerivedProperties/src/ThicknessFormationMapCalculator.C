@@ -41,7 +41,7 @@ void DerivedProperties::ThicknessFormationMapCalculator::calculate ( AbstractPro
          for ( unsigned int j = depth->firstJ ( true ); j <= depth->lastJ ( true ); ++j ) {
 
             if ( propertyManager.getNodeIsValid ( i, j )) {
-               thickness->set ( i, j, depth->getA ( i, j, 0 ) - depth->getA ( i, j, nodeCount ));
+               thickness->set ( i, j, depth->get ( i, j, 0 ) - depth->get ( i, j, nodeCount ));
             } else {
                thickness->set ( i, j, undefinedValue );
             }

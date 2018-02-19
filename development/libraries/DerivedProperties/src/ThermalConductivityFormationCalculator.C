@@ -92,9 +92,9 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
                for ( unsigned int k = thermalConductivity->firstK (); k <= thermalConductivity->lastK (); ++k ) {
 
                   lithology->calcBulkThermCondNP ( fluid,
-                                                   0.01 * porosity->getA ( i, j, k ),
-                                                   temperature->getA ( i, j, k ),
-                                                   porePressure->getA ( i, j, k ),
+                                                   0.01 * porosity->get ( i, j, k ),
+                                                   temperature->get ( i, j, k ),
+                                                   porePressure->get ( i, j, k ),
                                                    thermalConductivityNormal,
                                                    thermalConductivityPlane );
                   
@@ -198,24 +198,24 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculateForBase
 
                   if ( basementFormationAndAlcMode ) {
   
-                     const double topBasaltDepth = basaltDepth->getA( i, j );
-                     const double botBasaltDepth = topBasaltDepth + basaltThickness->getA( i, j ) + 1;
+                     const double topBasaltDepth = basaltDepth->get( i, j );
+                     const double botBasaltDepth = topBasaltDepth + basaltThickness->get( i, j ) + 1;
 
-                     if( basaltThickness->getA( i, j ) != 0 and ( topBasaltDepth <= depth->getA ( i, j, k ) and botBasaltDepth >= depth->getA ( i, j, k  ))) {
-                        lithology->calcBulkThermCondNPBasalt ( temperature->getA ( i, j, k ),
-                                                               lithostaticPressure->getA ( i, j, k ),
+                     if( basaltThickness->get( i, j ) != 0 and ( topBasaltDepth <= depth->get ( i, j, k ) and botBasaltDepth >= depth->get ( i, j, k  ))) {
+                        lithology->calcBulkThermCondNPBasalt ( temperature->get ( i, j, k ),
+                                                               lithostaticPressure->get ( i, j, k ),
                                                                thermalConductivityNormal,
                                                                thermalConductivityPlane );
                      } else {
                         lithology->calcBulkThermCondNPBasement ( 0, 0,
-                                                                 temperature->getA ( i, j, k ),
-                                                                 lithostaticPressure->getA ( i, j, k ),
+                                                                 temperature->get ( i, j, k ),
+                                                                 lithostaticPressure->get ( i, j, k ),
                                                                  thermalConductivityNormal,
                                                                  thermalConductivityPlane );
                      }
                   } else {
                      lithology->calcBulkThermCondNP ( 0, 0,
-                                                      temperature->getA ( i, j, k ),
+                                                      temperature->get ( i, j, k ),
                                                       0.0,
                                                       thermalConductivityNormal,
                                                       thermalConductivityPlane );

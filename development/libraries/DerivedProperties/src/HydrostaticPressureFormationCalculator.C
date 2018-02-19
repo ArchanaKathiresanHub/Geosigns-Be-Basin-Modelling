@@ -156,7 +156,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::copyHydrostaticP
       for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
 
          if ( m_projectHandle->getNodeIsValid ( i, j ) and hydrostaticPressureAbove != 0 ) {
-            hydrostaticPressure->set ( i, j, topNodeIndex, hydrostaticPressureAbove->getA ( i, j, 0 ));
+            hydrostaticPressure->set ( i, j, topNodeIndex, hydrostaticPressureAbove->get ( i, j, 0 ));
          } else {
             hydrostaticPressure->set ( i, j, topNodeIndex, undefinedValue );
          }
@@ -241,10 +241,10 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
                   // index k     is top node of segment
                   // index k - 1 is bottom node of segment
                   
-                  thickness = depth->getA ( i, j, k - 1 ) - depth->getA ( i, j, k );
+                  thickness = depth->get ( i, j, k - 1 ) - depth->get ( i, j, k );
                   
                   segmentPressure = thickness * fluidDensity * Utilities::Physics::AccelerationDueToGravity * Utilities::Maths::PaToMegaPa;
-                  pressure = hydrostaticPressure->getA ( i, j, k ) + segmentPressure;
+                  pressure = hydrostaticPressure->get ( i, j, k ) + segmentPressure;
                   hydrostaticPressure->set ( i, j, k - 1, pressure );
                }
                
@@ -300,7 +300,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
          for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
             
             for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
-               hydrostaticPressure->set ( i, j, k, porePressure->getA ( i, j, k ));
+               hydrostaticPressure->set ( i, j, k, porePressure->get ( i, j, k ));
             }
             
          }
@@ -400,19 +400,19 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
             
             if ( m_projectHandle->getNodeIsValid ( i, j )) {
                
-               fluidDensityTop = ( fluid == 0 ? 0.0 : fluid->density ( temperature->getA ( i, j, topNodeIndex ), porePressure->getA ( i, j, topNodeIndex )));
+               fluidDensityTop = ( fluid == 0 ? 0.0 : fluid->density ( temperature->get ( i, j, topNodeIndex ), porePressure->get ( i, j, topNodeIndex )));
                
                // Loop index is shifted up by 1.
                for ( unsigned int k = hydrostaticPressure->lastK (); k > hydrostaticPressure->firstK (); --k ) {
                   // index k     is top node of segment
                   // index k - 1 is bottom node of segment
                   
-                  thickness = depth->getA ( i, j, k - 1 ) - depth->getA ( i, j, k );
+                  thickness = depth->get ( i, j, k - 1 ) - depth->get ( i, j, k );
                   fluidDensityBottom = ( fluid == 0 ? 0.0 : 
-                                         fluid->density ( temperature->getA ( i, j, k - 1 ), porePressure->getA ( i, j, k - 1 )));
+                                         fluid->density ( temperature->get ( i, j, k - 1 ), porePressure->get ( i, j, k - 1 )));
                   segmentPressure = 0.5 * thickness * ( fluidDensityTop + fluidDensityBottom ) * Utilities::Physics::AccelerationDueToGravity * Utilities::Maths::PaToMegaPa;
                   
-                  pressure = hydrostaticPressure->getA ( i, j, k ) + segmentPressure;
+                  pressure = hydrostaticPressure->get ( i, j, k ) + segmentPressure;
                   
                   hydrostaticPressure->set ( i, j, k - 1, pressure );
                   
@@ -503,7 +503,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeEstimated
 
             for ( unsigned int k = temperature->lastK (); k > temperature->firstK (); --k ) {
 
-               realDepth = depth->getA( i, j, k ) - surfaceDepth;
+               realDepth = depth->get( i, j, k ) - surfaceDepth;
          
                if ( realDepth <= 0.0 ) 
                {

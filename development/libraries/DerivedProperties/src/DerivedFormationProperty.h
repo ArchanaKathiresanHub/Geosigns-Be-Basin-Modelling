@@ -28,20 +28,10 @@ namespace DerivedProperties {
 
       virtual ~DerivedFormationProperty ();
 
-      /// \brief Get the value of the property at the position i,j,k.
+      /// \brief Get the value of the property at the position i,j,k (ascending order)
       virtual double get ( unsigned int i,
                            unsigned int j,
                            unsigned int k ) const;
-
-      /// \brief Get the value of the property at the position i,j,k (ascending order)
-      virtual double getA ( unsigned int i,
-                            unsigned int j,
-                            unsigned int k ) const;
-
-     /// \brief Get the value of the property at the position i,j,k (descending order)
-      virtual double getD ( unsigned int i,
-                            unsigned int j,
-                            unsigned int k ) const;
 
       /// \brief Get the value of the property at the position i,j,k.
       void set ( unsigned int i,
@@ -79,17 +69,6 @@ inline double DerivedProperties::DerivedFormationProperty::get ( unsigned int i,
                                                                  unsigned int j,
                                                                  unsigned int k ) const {
    return m_values [ i - firstI(true)][ j - firstJ(true)][ k - firstK ()];
-}
-inline double DerivedProperties::DerivedFormationProperty::getA ( unsigned int i,
-                                                                  unsigned int j,
-                                                                  unsigned int k ) const {
-   return get( i, j, k );
-}
-
-inline double DerivedProperties::DerivedFormationProperty::getD ( unsigned int i,
-                                                                  unsigned int j,
-                                                                  unsigned int k ) const {
-   return get( i, j, lastK() - k );
 }
 
 inline bool DerivedProperties::DerivedFormationProperty::isPrimary () const {

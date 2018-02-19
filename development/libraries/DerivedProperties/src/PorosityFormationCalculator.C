@@ -48,6 +48,9 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
    
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
+   PropertyRetriever vesRetriever ( ves );
+   PropertyRetriever maxVesRetriever ( maxVes );
+
    derivedProperties.clear ();
    
    if( ves != 0 and maxVes != 0 and geoFormation != 0 ) {
@@ -72,12 +75,12 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
          DerivedFormationPropertyPtr porosityProp =
             DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aPorosityProperty, snapshot, formation, 
                                                                                             propertyManager.getMapGrid (), geoFormation->getMaximumNumberOfElements() + 1 ));
-         ves->retrieveData();
-         maxVes->retrieveData();
 
+         PropertyRetriever chemicalCompactionRetriever; 
          if( chemicalCompactionRequired ) {
-            chemicalCompaction->retrieveData();
+            chemicalCompactionRetriever.reset( chemicalCompaction );
          }
+
          double undefinedValue = ves->getUndefinedValue ();
          double currentTime = snapshot->getTime();
          
@@ -88,8 +91,8 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
                if ( m_projectHandle->getNodeIsValid ( i, j )) {
                   
                   for ( unsigned int k = porosityProp->firstK (); k <= porosityProp->lastK (); ++k ) {
-                     double chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->getA ( i, j, k ) : 0.0 );
-                     double value = 100.0 * (*lithologies)( i, j, currentTime )->porosity ( ves->getA ( i, j, k ), maxVes->getA ( i, j, k ),
+                     double chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j, k ) : 0.0 );
+                     double value = 100.0 * (*lithologies)( i, j, currentTime )->porosity ( ves->get ( i, j, k ), maxVes->get ( i, j, k ),
                                                                                             chemicalCompactionRequired,
                                                                                             chemicalCompactionValue );
                      porosityProp->set ( i, j, k, value );
@@ -102,13 +105,6 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
             }
          }
          derivedProperties.push_back ( porosityProp );
-
-         ves->restoreData();
-         maxVes->restoreData();
-         
-         if( chemicalCompactionRequired ) {
-            chemicalCompaction->restoreData();
-         }
       }
    }
 }

@@ -193,7 +193,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
                {
                   densityDifference = 0.0;
                }
-               vesHighResAboveValue = vesHighRes->getA(i, j, lastK);
+               vesHighResAboveValue = vesHighRes->get(i, j, lastK);
 
                // Loop index is shifted up by 1.
                for( unsigned int k = lastK; k > firstK; --k )
@@ -281,7 +281,7 @@ void DerivedProperties::VesHighResFormationCalculator::initializeTopSurface(    
          {
             for( unsigned int j = firstJ; j <= lastJ; ++j )
             {
-               vesHighRes->set( i, j, topNodeIndex, vesHighResAbove->getA( i, j, 0 ) );
+               vesHighRes->set( i, j, topNodeIndex, vesHighResAbove->get( i, j, 0 ) );
             }
          }
       }

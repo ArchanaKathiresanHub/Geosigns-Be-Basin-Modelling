@@ -27,20 +27,10 @@ namespace DerivedProperties {
 
       ~PrimaryFormationProperty();
 
-      /// \brief Get the value at the position.
+      /// \brief Get the value at the position (ascending order).
       virtual double get ( unsigned int i,
                            unsigned int j,
                            unsigned int k ) const;
-
-      /// \brief Get the value at the position (ascending order).
-      virtual double getA ( unsigned int i,
-                            unsigned int j,
-                            unsigned int k ) const;
-
-      /// \brief Get the value at the position (descending order).
-      virtual double getD ( unsigned int i,
-                            unsigned int j,
-                            unsigned int k ) const;
 
       /// \ brief Get the gridMap
       const DataAccess::Interface::GridMap* getGridMap() const;

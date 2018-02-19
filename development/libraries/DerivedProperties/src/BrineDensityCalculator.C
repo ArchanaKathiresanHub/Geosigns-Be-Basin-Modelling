@@ -98,7 +98,7 @@ void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyMana
             if ( m_projectHandle->getNodeIsValid ( i, j )) {
 
                for ( unsigned int k = brineDensity->firstK (); k <= brineDensity->lastK (); ++k ) {
-                  brineDensity->set ( i, j, k, fluid->density ( temperature->getA ( i, j, k ), porePressure->getA ( i, j, k )));
+                  brineDensity->set ( i, j, k, fluid->density ( temperature->get ( i, j, k ), porePressure->get ( i, j, k )));
                }
 
             } else {

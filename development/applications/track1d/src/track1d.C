@@ -906,7 +906,7 @@ void outputSnapshotFormationData( ostream & outputStream, DoublePair & coordinat
          double kIndex = propertyValue->getDepth() > 1 ? (double)k : 0;
 
          double value;
-         value = propertyValue->getValue( i, j, kIndex );
+         value = propertyValue->getValue( i, j, kInverse );
 
          if ( value != propertyValue->getUndefinedValue ()) 
          {

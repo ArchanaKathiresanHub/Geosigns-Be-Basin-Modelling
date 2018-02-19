@@ -103,10 +103,10 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, doubl
          DerivedProperties::FormationPropertyPtr grid = *depthIter;
 
          if ( count == 0 ) { 
-            topDepth = interpolate2D ( element, grid, 0 );
+            topDepth = interpolate2D ( element, grid, grid->lastK () );
          }
 
-         bottomDepth = interpolate2D( element, grid, grid->lastK ());
+         bottomDepth = interpolate2D( element, grid, 0 );
 
          if ( topDepth == Interface::DefaultUndefinedMapValue or bottomDepth == Interface::DefaultUndefinedMapValue )
          {
@@ -115,11 +115,11 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, doubl
 
          if ( NumericFunctions::inRange( z, topDepth, bottomDepth ) )
          {
-            topDepth = interpolate2D( element, grid, 0 );
+            topDepth = interpolate2D( element, grid, grid->lastK () );
 
-            for ( unsigned int l = 0; l < grid->lengthK () - 1; ++l )
+            for ( int l = grid->lastK(); l > 0; -- l )
             {
-               bottomDepth = interpolate2D( element, grid, l + 1 );
+               bottomDepth = interpolate2D( element, grid, l - 1 );
 
                if ( topDepth < bottomDepth and NumericFunctions::inRange( z, topDepth, bottomDepth ) )
                {
@@ -189,17 +189,14 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
             if ( formation->getTopSurface() == surface )
             {
                // Interpolate the depth at the (x,y) point on the surface.
-               if( grid->isPrimary() ) {
-                  surfaceDepth = interpolate2D ( element, grid, 0 );
-               } else {
-                  surfaceDepth = interpolate2D ( element, grid, grid->lastK() );
-               }
+               surfaceDepth = interpolate2D ( element, grid, grid->lastK() );
+
                if ( surfaceDepth != Interface::DefaultUndefinedMapValue )
                {
                   elementFound = true;
 
                   element.getReferencePoint()( 2 ) = -1.0;
-                  element.setDepthPosition( count, 0 );
+                  element.setDepthPosition( count, grid->lastK() );
 
                   // The grid must be in the mapping.
                   element.setFormation( formation );
@@ -226,6 +223,7 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
 
 bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const Interface::Formation * formation, ElementPosition & element ) const
 {
+   // Formation map property
    bool elementFound = false;
 
    setPlaneElement( element, x, y );
@@ -247,18 +245,14 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
             if ( grid->getFormation () == formation )
             { 
                // Interpolate the depth at the (x,y) point on the surface.
-               if( grid->isPrimary() ) {
-                  surfaceDepth = interpolate2D( element, grid, 0 );
-               } else {
-                  surfaceDepth = interpolate2D( element, grid, grid->lastK() );
-               }
+               surfaceDepth = interpolate2D( element, grid, grid->lastK() );
 
                if ( surfaceDepth != Interface::DefaultUndefinedMapValue )
                {
                   elementFound = true;
 
                   element.getReferencePoint()( 2 ) = -1.0;
-                  element.setDepthPosition( count, 0 );
+                  element.setDepthPosition( count, grid->lastK() );
 
                   // The grid must be in the mapping.
                   element.setFormation( formation );
@@ -307,14 +301,14 @@ void DataAccess::Mining::CauldronDomain::getTopSurface( double x, double y, Elem
          PropertyInterpolator2D interpolate2D;
 
          // Interpolate the depth at the (x,y) point on the surface.
-         surfaceDepth = interpolate2D( element, grid, 0 );
+         surfaceDepth = interpolate2D( element, grid, grid->lastK() );
 
          if ( surfaceDepth != Interface::DefaultUndefinedMapValue )
          {
             foundSurface = true;
 
             element.getReferencePoint ()( 2 ) = -1.0;
-            element.setDepthPosition ( 0, 0 );
+            element.setDepthPosition ( 0, grid->lastK() );
 
             // The grid must be in the mapping.
             element.setFormation ( formation );
@@ -369,7 +363,8 @@ void DataAccess::Mining::CauldronDomain::getBottomSurface( double x, double y, E
       PropertyInterpolator2D interpolate2D;
 
       // Set the k value before interpolating
-      element.setDepthPosition( count, m_domainDerivedDepths [ bottomSedimentGridIndex ]->lengthK () - 1 );
+      //     element.setDepthPosition( count, m_domainDerivedDepths [ bottomSedimentGridIndex ]->lengthK () - 1 );
+      element.setDepthPosition( count, 0 );
 
       // Interpolate the depth at the (x,y) point on the surface.
       surfaceDepth = interpolate2D ( element, grid );

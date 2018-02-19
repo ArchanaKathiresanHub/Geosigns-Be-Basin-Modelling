@@ -16,7 +16,6 @@ DerivedProperties::PrimaryFormationProperty::PrimaryFormationProperty ( const Da
    m_gridMap ( propertyValue->getGridMap () )
 {
    m_depth = 0;
-   m_storedInAscending = true;
    m_gridMap->retrieveData ( true );
    m_depth = m_gridMap->getDepth();
    m_storedInAscending = m_gridMap->isAscendingOrder();
@@ -27,26 +26,11 @@ DerivedProperties::PrimaryFormationProperty::~PrimaryFormationProperty() {
 }
 
 
-double DerivedProperties::PrimaryFormationProperty::getA ( unsigned int i,
-                                                           unsigned int j,
-                                                           unsigned int k ) const {
-   return  m_gridMap->getValue (i, j, ( m_storedInAscending ? k : m_depth - 1 - k ));
-}
-
-double DerivedProperties::PrimaryFormationProperty::getD ( unsigned int i,
-                                                           unsigned int j,
-                                                           unsigned int k ) const {
-
-   return  m_gridMap->getValue (i, j, ( m_storedInAscending ? m_depth - 1 - k : k ));
-}
-
-
 double DerivedProperties::PrimaryFormationProperty::get ( unsigned int i,
                                                           unsigned int j,
                                                           unsigned int k ) const {
-   return m_gridMap->getValue ( i, j, k );
+   return  m_gridMap->getValue (i, j, ( m_storedInAscending ? k : m_depth - 1 - k ));
 }
-
 
 double DerivedProperties::PrimaryFormationProperty::getUndefinedValue ( ) const {
 

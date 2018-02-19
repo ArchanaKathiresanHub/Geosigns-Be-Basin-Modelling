@@ -20,7 +20,3 @@ double DerivedProperties::SurfaceProperty::interpolate ( double i,
    return interpolator.interpolate ( *this, i, j );
 }
 
-double DerivedProperties::SurfaceProperty::getA ( unsigned int i,
-                                                  unsigned int j ) const {
-   return get ( i, j );
-}

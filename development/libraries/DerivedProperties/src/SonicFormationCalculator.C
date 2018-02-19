@@ -67,7 +67,7 @@ void DerivedProperties::SonicFormationCalculator::calculate( DerivedProperties::
 
                for (unsigned int k = sonic->firstK(); k <= sonic->lastK(); ++k) {
 
-                  sonicValue = 1.0e6 / velocity->getA( i, j, k );
+                  sonicValue = 1.0e6 / velocity->get( i, j, k );
 
                   sonic->set( i, j, k, sonicValue );
                }

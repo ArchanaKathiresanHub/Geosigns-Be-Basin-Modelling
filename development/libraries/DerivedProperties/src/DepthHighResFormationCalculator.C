@@ -214,7 +214,7 @@ void DerivedProperties::DepthHighResFormationCalculator::initializeTopSurface(  
          {
             for( unsigned int j = firstJ; j <= lastJ; ++j )
             {
-               depthHighRes->set( i, j, topNodeIndex, depthHighResAbove->getA( i, j, 0 ) );
+               depthHighRes->set( i, j, topNodeIndex, depthHighResAbove->get( i, j, 0 ) );
             }
          }
       }
@@ -290,10 +290,10 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForMantle( const
                }
 
                const double currentMantleThickness  = basementThickness - currentCrustThickness;
-               const double maximumDepth            = depthHighRes->getA( i, j, lastK ) + currentMantleThickness;
+               const double maximumDepth            = depthHighRes->get( i, j, lastK ) + currentMantleThickness;
                for( unsigned int k = lastK; k > firstK; --k )
                {
-                  depthHighRes->set( i, j, k - 1, NumericFunctions::Minimum(maximumDepth, depthHighRes->getA( i, j, k ) + mantleSegmentHeight) );
+                  depthHighRes->set( i, j, k - 1, NumericFunctions::Minimum(maximumDepth, depthHighRes->get( i, j, k ) + mantleSegmentHeight) );
                }
             }
             else
@@ -341,7 +341,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForCoupledRunWit
          {
             if( m_projectHandle->getNodeIsValid(i, j) )
             {
-               depthHighResAboveValue = depthHighRes->getA(i, j, lastK);
+               depthHighResAboveValue = depthHighRes->get(i, j, lastK);
                
                // Loop index is shifted up by 1.
                for( unsigned int k = lastK; k > firstK; --k )
@@ -444,7 +444,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
          {
             if( m_projectHandle->getNodeIsValid(i, j) )
             {
-               depthHighResAboveValue = depthHighRes->getA(i, j, lastK);
+               depthHighResAboveValue = depthHighRes->get(i, j, lastK);
                const GeoPhysics::CompoundLithology * lithology = formation->getCompoundLithology(i, j);
                assert( lithology != 0 );
 
@@ -487,18 +487,18 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
                      {
                         if( m_isCoupledMode )
                         {
-                           segmentThickness = lithology->computeSegmentThickness( maxVesHighRes->getA( i, j, k ),
-                                                                                  maxVesHighRes->getA( i, j, k - 1 ),
-                                                                                  vesHighRes->getA( i, j, k ),
-                                                                                  vesHighRes->getA( i, j, k - 1 ),
+                           segmentThickness = lithology->computeSegmentThickness( maxVesHighRes->get( i, j, k ),
+                                                                                  maxVesHighRes->get( i, j, k - 1 ),
+                                                                                  vesHighRes->get( i, j, k ),
+                                                                                  vesHighRes->get( i, j, k - 1 ),
                                                                                   densityDifference,
                                                                                   solidThickness );
                         }
                         else
                         {
                            // Should the ves be used here too?
-                           segmentThickness = lithology->computeSegmentThickness( maxVesHighRes->getA( i, j, k ),
-                                                                                  maxVesHighRes->getA( i, j, k - 1 ),
+                           segmentThickness = lithology->computeSegmentThickness( maxVesHighRes->get( i, j, k ),
+                                                                                  maxVesHighRes->get( i, j, k - 1 ),
                                                                                   densityDifference,
                                                                                   solidThickness );
                         }

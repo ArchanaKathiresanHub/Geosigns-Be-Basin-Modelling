@@ -78,36 +78,22 @@ namespace DerivedProperties {
       /// If any of the i, j or k values is out of range then a null value will be returned.
       virtual double checkedGet ( unsigned int i,
                                   unsigned int j,
-                                  unsigned int k,
-                                  const bool isAcsendingOrder = true ) const;
+                                  unsigned int k ) const;
 
-      /// \brief Get the value of the property at the position i,j,k.
+      /// \brief Get the value of the property at the position i,j,k (ascending order)
       virtual double get ( unsigned int i,
                            unsigned int j,
                            unsigned int k ) const = 0;
 
-      /// \brief Get the value of the property at the position i,j,k (ascending order)
-      virtual double getA ( unsigned int i,
-                            unsigned int j,
-                            unsigned int k ) const = 0;
-
-
-      /// \brief Get the value of the property at the position i,j,k (descending order)
-      virtual double getD ( unsigned int i,
-                            unsigned int j,
-                            unsigned int k ) const = 0;
-
-       /// \brief Get the value of the property at the position i,j and interpolated at a position k.
+      /// \brief Get the value of the property at the position i,j and interpolated at a position k.
       virtual double interpolate ( unsigned int i,
                                    unsigned int j,
-                                   double       k,
-                                   const bool   isAcsendingOrder = true ) const;
+                                   double       k ) const;
 
       /// \brief Get the value of the property at the position i,j and interpolated at a position k.
       virtual double interpolate ( double i,
                                    double j,
-                                   double k,
-                                   const bool isAcsendingOrder = true ) const;
+                                   double k ) const;
 
       /// \brief Return true if the property is primary.
       virtual bool isPrimary () const = 0;
@@ -191,17 +177,13 @@ inline unsigned int DerivedProperties::FormationProperty::lengthK () const {
 
 inline double DerivedProperties::FormationProperty::checkedGet ( unsigned int i,
                                                                  unsigned int j,
-                                                                 unsigned int k,
-                                                                 const bool isAcsendingOrder ) const {
+                                                                 unsigned int k ) const {
 
    if ( NumericFunctions::inRange<unsigned int>( i, firstI ( true ), lastI ( true )) and
         NumericFunctions::inRange<unsigned int>( j, firstJ ( true ), lastJ ( true )) and
         NumericFunctions::inRange<unsigned int>( k, firstK (), lastK ())) {
-      if( isAcsendingOrder ) {
-         return getA ( i, j, k );
-      } else {
-         return getD ( i, j, k );
-      }
+
+         return get ( i, j, k );
    } else {
       return getUndefinedValue ();
    }

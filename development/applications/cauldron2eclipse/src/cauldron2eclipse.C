@@ -153,7 +153,7 @@ void writeWord (char * word);
 // gets a gridmap value of a point within a cell, even if one of the corners is undefined
 double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double i, double j, double k);
 
-void GetCornerIndices (double kIndices[], int k, int numK);
+void GetCornerIndices (double kIndices[], int k, int numK, bool kind);
 
 /// Conversions between Cauldron properties and Eclipse properties.
 /// Only 3D properties can be converted.
@@ -512,7 +512,8 @@ int main (int argc, char ** argv)
 
    unsigned int numI = grid->numI ();
    unsigned int numJ = grid->numJ ();
-   double bottomIndex = static_cast<double>(bottomFormationValue->lengthK () - 1);
+   double topIndex = static_cast<double>(bottomFormationValue->lengthK () - 1);
+   double bottomIndex = 0.0;
 
    //------------- Binary data
    if (doBinary)
@@ -531,7 +532,8 @@ int main (int argc, char ** argv)
       outputFile << "COORD " << endl;
    }
 
-   unsigned int i, j, k;
+   unsigned int i, j;
+   int k;
    double ii, jj;
    double kk;
 
@@ -564,7 +566,7 @@ int main (int argc, char ** argv)
          maxPosY = Max (maxPosY, posJ);
 
 	 // get values even if one of or more of the cauldron node values are undefined
-         topDepth = GetValue (topFormationValue, ii, jj, 0.0 );
+         topDepth = GetValue (topFormationValue, ii, jj, topIndex );
          bottomDepth = GetValue (bottomFormationValue, ii, jj, bottomIndex );
 
 	 topDepth = -topDepth;
@@ -642,30 +644,30 @@ int main (int argc, char ** argv)
          cout.flush ();
       }
 
-      for (k = 0; k < numK; ++k)
+      for (k = numK - 1; k >= 0; -- k)
       {
 	 double kIndices[2];
-	 GetCornerIndices (kIndices, k, numK);
+         GetCornerIndices (kIndices, k, numK, true);
 
-	 for (int kx = 0; kx < 2; ++kx)
+         for (int kx = 0; kx < 2; ++kx)
 	 {
 	    for (j = 0; j < numJ; ++j)
 	    {
 	       double jIndices[2];
-	       GetCornerIndices (jIndices, j, numJ);
+	       GetCornerIndices (jIndices, j, numJ, false);
 
 	       for (int jx = 0; jx < 2; ++jx)
 	       {
 		  for (i = 0; i < numI; ++i)
 		  {
 		     double iIndices[2];
-		     GetCornerIndices (iIndices, i, numI);
+		     GetCornerIndices (iIndices, i, numI, false);
 
 		     for (int ix = 0; ix < 2; ++ix)
 		     {
-			double kkk = kIndices[kx];
-			double jjj = jIndices[jx];
-			double iii = iIndices[ix];
+                        double kkk = kIndices[kx];
+                        double jjj = jIndices[jx];
+                        double iii = iIndices[ix];
 
 			double depth = GetValue (formationPropertyValue, iii, jjj, kkk);
 			
@@ -744,7 +746,7 @@ int main (int argc, char ** argv)
          cout.flush ();
       }
 
-      for (k = 0; k < numK; ++k)
+      for (k = numK - 1; k >= 0; --k)
       {
          for (j = 0; j < numJ; ++j)
          {
@@ -845,7 +847,7 @@ int main (int argc, char ** argv)
          cout.flush ();
       }
 
-      for (k = 0; k < numK; ++k)
+      for (k = numK - 1; k >= 0; --k)
       {
          for (j = 0; j < numJ; ++j)
          {
@@ -1036,7 +1038,7 @@ int main (int argc, char ** argv)
             cout.flush ();
          }
 
-         for (k = 0; k < numK; ++k)
+         for (k = numK - 1; k >= 0; --k)
          {
             for (j = 0; j < numJ; ++j)
             {
@@ -1266,13 +1268,14 @@ int main (int argc, char ** argv)
             cout << '-';
             cout.flush ();
          }
-         for (k = 0; k < numK; ++k)
+
+         for (k = numK - 1; k >= 0; --k)
          {
             for (j = 0; j < numJ; ++j)
             {
                for (i = 0; i < numI; ++i)
                {
-                  double propValue = formationPropertyValue->getD (i, j, k);
+                  double propValue = formationPropertyValue->get (i, j, k);
 
                   if (propValue == formationPropertyValue->getUndefinedValue ())
                   {
@@ -1430,7 +1433,7 @@ double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double 
    {
       for (unsigned int jInc = 0; jInc < 2; ++jInc)
       {
-         double valueAtIndex = gridMap->interpolate( iBase + iInc, jBase + jInc, k, false );
+         double valueAtIndex = gridMap->interpolate( iBase + iInc, jBase + jInc, k );
          if (valueAtIndex != gridMap->getUndefinedValue ())
          {
             double weightAtIndex = (iInc == 0 ? 1 - iFrac : iFrac) * (jInc == 0 ? 1 - jFrac : jFrac) ;//* (kInc == 1 ? 1 - kFrac : kFrac);
@@ -1451,22 +1454,40 @@ double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double 
 }
 
 // get the petrel corner indices (in a cauldron grid) from a cauldron grid index
-void GetCornerIndices (double kIndices[] , int k, int numK)
+void GetCornerIndices (double kIndices[] , int k, int numK, bool kind)
 {
-   if (k == 0)
-   {
-      kIndices[0] = k;
-      kIndices[1] = k + 0.5;
-   }
-   else if (k == numK - 1)
-   {
-      kIndices[0] = k - 0.5;
-      kIndices[1] = k;
-   }
-   else
-   {
-      kIndices[0] = k - 0.5;
-      kIndices[1] = k + 0.5;
+   if( kind ) {    // k indices
+      if (k == 0)
+      {
+         kIndices[0] = k + 0.5;
+         kIndices[1] = k;
+      }
+      else if (k == numK - 1)
+      {
+         kIndices[0] = k;
+         kIndices[1] = k - 0.5;
+      }
+      else
+      {
+         kIndices[0] = k + 0.5;
+         kIndices[1] = k - 0.5;
+      }
+   } else {
+      if (k == 0)
+      {
+         kIndices[0] = k;
+         kIndices[1] = k + 0.5;
+      }
+      else if (k == numK - 1)
+      {
+         kIndices[0] = k - 0.5;
+         kIndices[1] = k;
+      }
+      else
+      {
+         kIndices[0] = k - 0.5;
+         kIndices[1] = k + 0.5;
+      }
    }
 }
 

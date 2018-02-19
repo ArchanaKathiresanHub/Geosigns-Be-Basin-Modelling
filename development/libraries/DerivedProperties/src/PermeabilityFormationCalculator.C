@@ -108,11 +108,11 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
                if ( m_projectHandle->getNodeIsValid ( i, j )) {
                   
                   for ( unsigned int k = verticalPermeability->firstK (); k <= verticalPermeability->lastK (); ++k ) {
-                     chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->getA ( i, j, k ) : 0.0 );
+                     chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j, k ) : 0.0 );
 
-                     (*lithologies)( i, j, currentAge )->getPorosity ( ves->getA ( i, j, k ) , maxVes->getA ( i, j, k ),
+                     (*lithologies)( i, j, currentAge )->getPorosity ( ves->get ( i, j, k ) , maxVes->get ( i, j, k ),
                                                            chemicalCompactionRequired, chemicalCompactionValue, porosity );
-                     (*lithologies)( i, j, currentAge )->calcBulkPermeabilityNP ( ves->getA ( i, j, k ), maxVes->getA ( i, j, k ), porosity, permNorm, permPlane );
+                     (*lithologies)( i, j, currentAge )->calcBulkPermeabilityNP ( ves->get ( i, j, k ), maxVes->get ( i, j, k ), porosity, permNorm, permPlane );
                      
                      verticalPermeability->set ( i, j, k, permNorm / Utilities::Maths::MilliDarcyToM2 );
                      horizontalPermeability->set ( i, j, k, permPlane / Utilities::Maths::MilliDarcyToM2 );

@@ -236,18 +236,18 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate ( DerivedProperti
                         
                         geometryMatrix ( 1, node ) = originX + (deltaX * GidxX);
                         geometryMatrix ( 2, node ) = originY + (deltaY * GidxY);
-                        geometryMatrix ( 3, node ) = depth->getA ( GidxX, GidxY, LidxZ );
+                        geometryMatrix ( 3, node ) = depth->get ( GidxX, GidxY, LidxZ );
                         
                         if( not basementFormation ) {
-                           vesVector          ( node ) = ves->getA ( GidxX, GidxY, LidxZ );
-                           maxVesVector       ( node ) = maxVes->getA ( GidxX, GidxY, LidxZ );
-                           overpressureVector ( node ) = overpressure->getA ( GidxX, GidxY, LidxZ );
-                           porePressureVector ( node ) = pressure->getA ( GidxX, GidxY, LidxZ );
+                           vesVector          ( node ) = ves->get ( GidxX, GidxY, LidxZ );
+                           maxVesVector       ( node ) = maxVes->get ( GidxX, GidxY, LidxZ );
+                           overpressureVector ( node ) = overpressure->get ( GidxX, GidxY, LidxZ );
+                           porePressureVector ( node ) = pressure->get ( GidxX, GidxY, LidxZ );
                         } else {
-                           lithoPressureVector ( node ) = lithoStaticPressure->getA ( GidxX, GidxY, LidxZ );
+                           lithoPressureVector ( node ) = lithoStaticPressure->get ( GidxX, GidxY, LidxZ );
                         }
-                        temperatureVector    ( node ) = temperature->getA ( GidxX, GidxY, LidxZ );
-                        chemCompactionVector ( node ) = ( chemicalCompactionRequired ? chemicalCompaction->getA ( GidxX, GidxY, LidxZ ) : 0.0 );
+                        temperatureVector    ( node ) = temperature->get ( GidxX, GidxY, LidxZ );
+                        chemCompactionVector ( node ) = ( chemicalCompactionRequired ? chemicalCompaction->get ( GidxX, GidxY, LidxZ ) : 0.0 );
                      }
                      
                      bool isBasalt = false;
@@ -261,11 +261,11 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate ( DerivedProperti
                            LidxZ = k + 1;
                         }
                         
-                        const double topBasaltDepth = basaltDepth->getA(  GidxX, GidxY );
-                        const double botBasaltDepth = topBasaltDepth + basaltThickness->getA( GidxX, GidxY ) + 1;
+                        const double topBasaltDepth = basaltDepth->get(  GidxX, GidxY );
+                        const double botBasaltDepth = topBasaltDepth + basaltThickness->get( GidxX, GidxY ) + 1;
                         
-                        if( basaltThickness->getA( GidxX, GidxY ) != 0 and 
-                            ( topBasaltDepth <= depth->getA ( GidxX, GidxY, LidxZ ) and botBasaltDepth >= depth->getA (  GidxX, GidxY, LidxZ ))) {
+                        if( basaltThickness->get( GidxX, GidxY ) != 0 and 
+                            ( topBasaltDepth <= depth->get ( GidxX, GidxY, LidxZ ) and botBasaltDepth >= depth->get (  GidxX, GidxY, LidxZ ))) {
                            
                            isBasalt = true;
                         }

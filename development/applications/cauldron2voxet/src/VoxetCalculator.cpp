@@ -440,14 +440,14 @@ void VoxetCalculator::calculatorInterpolatorValues ( const DerivedProperties::Fo
                      double topDepth = 1e9;
                      double bottomDepth = -1e9;
 
-                     for (l = 0; l <= depthPropertyValue->lengthK () - 1; ++l)
+                     for (l = depthPropertyValue->lengthK () - 1; l >= 0; -- l)
                      {
-                        depth = depthPropertyValue->interpolate (cauldronI, cauldronJ, (double) l, false );
+                        depth = depthPropertyValue->interpolate (cauldronI, cauldronJ, (double) l);
                         topDepth = Min (depth, topDepth);
                         bottomDepth = Max (depth, bottomDepth);
                         
                            
-                        property = propertyValue->interpolate (cauldronI, cauldronJ, (double) l, false );
+                        property = propertyValue->interpolate (cauldronI, cauldronJ, (double) l);
                         layerInterp.addSample (depth, property);
                      }
 

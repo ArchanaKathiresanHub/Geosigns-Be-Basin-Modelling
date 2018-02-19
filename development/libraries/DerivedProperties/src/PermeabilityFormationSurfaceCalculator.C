@@ -100,14 +100,14 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
                
                if ( m_projectHandle->getNodeIsValid ( i, j )) {
                  
-                     chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->getA ( i, j ) : 0.0 );
+                     chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j ) : 0.0 );
 
 #ifdef FORMATION_PROPERTY
-                     (*lithologies)( i, j, currentTime )->getPorosity ( ves->getA ( i, j, vesK ), maxVes->getA ( i, j, maxVesK ), chemicalCompactionRequired, chemicalCompactionValue, porosity );
-                     (*lithologies)( i, j, currentTime )->calcBulkPermeabilityNP ( ves->getA ( i, j, vesK ), maxVes->getA ( i, j, maxVesK ), porosity, permNorm, permPlane );
+                     (*lithologies)( i, j, currentTime )->getPorosity ( ves->get ( i, j, vesK ), maxVes->get ( i, j, maxVesK ), chemicalCompactionRequired, chemicalCompactionValue, porosity );
+                     (*lithologies)( i, j, currentTime )->calcBulkPermeabilityNP ( ves->get ( i, j, vesK ), maxVes->get ( i, j, maxVesK ), porosity, permNorm, permPlane );
 #else
-                     (*lithologies)( i, j, currentTime )->getPorosity ( ves->getA ( i, j ), maxVes->getA ( i, j ), chemicalCompactionRequired, chemicalCompactionValue, porosity );
-                     (*lithologies)( i, j, currentTime )->calcBulkPermeabilityNP ( ves->getA ( i, j ), maxVes->getA ( i, j ), porosity, permNorm, permPlane );
+                     (*lithologies)( i, j, currentTime )->getPorosity ( ves->get ( i, j ), maxVes->get ( i, j ), chemicalCompactionRequired, chemicalCompactionValue, porosity );
+                     (*lithologies)( i, j, currentTime )->calcBulkPermeabilityNP ( ves->get ( i, j ), maxVes->get ( i, j ), porosity, permNorm, permPlane );
 #endif                     
                      
                      verticalPermeability->set ( i, j, permNorm / Utilities::Maths::MilliDarcyToM2 );

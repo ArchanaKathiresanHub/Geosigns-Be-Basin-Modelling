@@ -84,16 +84,16 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
                for ( unsigned int k = thermalDiffusivity->firstK (); k <= thermalDiffusivity->lastK (); ++k ) {
                   
                      lithology->calcBulkDensXHeatCapacity ( fluid,
-                                                            0.01 * porosity->getA ( i, j, k ),
-                                                            porePressure->getA ( i, j, k ),
-                                                            temperature->getA ( i, j, k ),
+                                                            0.01 * porosity->get ( i, j, k ),
+                                                            porePressure->get ( i, j, k ),
+                                                            temperature->get ( i, j, k ),
                                                             0.0,
                                                             bulkDensityXHeatCapacity );
 
                      lithology->calcBulkThermCondNP ( fluid,
-                                                      0.01 * porosity->getA ( i, j, k ),
-                                                      temperature->getA ( i, j, k ),
-                                                      porePressure->getA ( i, j, k ),
+                                                      0.01 * porosity->get ( i, j, k ),
+                                                      temperature->get ( i, j, k ),
+                                                      porePressure->get ( i, j, k ),
                                                       thermalConductivityNormal,
                                                       thermalConductivityPlane );
 
@@ -177,23 +177,23 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculateForBasem
                   
                   if ( basementFormationAndAlcMode ) {
                      lithology->calcBulkDensXHeatCapacity ( 0, 0.0, 0.0,
-                                                            temperature->getA ( i, j, k ),
-                                                            lithostaticPressure->getA ( i, j, k ),
+                                                            temperature->get ( i, j, k ),
+                                                            lithostaticPressure->get ( i, j, k ),
                                                             bulkDensityXHeatCapacity );
                      lithology->calcBulkThermCondNPBasement ( 0, 0.0,
-                                                              temperature->getA ( i, j, k ),
-                                                              lithostaticPressure->getA ( i, j, k ),
+                                                              temperature->get ( i, j, k ),
+                                                              lithostaticPressure->get ( i, j, k ),
                                                               thermalConductivityNormal,
                                                               thermalConductivityPlane );
 
                   } else {
                      lithology->calcBulkDensXHeatCapacity ( 0, 0.0, 0.0,
-                                                            temperature->getA ( i, j, k ),
+                                                            temperature->get ( i, j, k ),
                                                             0.0,
                                                             bulkDensityXHeatCapacity );
 
                      lithology->calcBulkThermCondNP ( 0, 0.0,
-                                                      temperature->getA ( i, j, k ),
+                                                      temperature->get ( i, j, k ),
                                                       0.0,
                                                       thermalConductivityNormal,
                                                       thermalConductivityPlane );

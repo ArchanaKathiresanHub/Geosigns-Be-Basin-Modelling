@@ -99,10 +99,10 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
                for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
 
                   if ( geophysicsFluid != 0 ) {
-                     seismciVelocityFluid = geophysicsFluid->seismicVelocity(temperature->getA(i, j, k),
-                                                                             pressure->getA(i, j, k));
-                     densityFluid = geophysicsFluid->density(temperature->getA(i, j, k),
-                                                             pressure->getA(i, j, k));
+                     seismciVelocityFluid = geophysicsFluid->seismicVelocity(temperature->get(i, j, k),
+                                                                             pressure->get(i, j, k));
+                     densityFluid = geophysicsFluid->density(temperature->get(i, j, k),
+                                                             pressure->get(i, j, k));
                   } else {
                      seismciVelocityFluid = -1;
                      densityFluid = -1;
@@ -110,10 +110,10 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
 
                   velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().calculate ( seismciVelocityFluid,
                                                                                                    densityFluid,
-                                                                                                   bulkDensity->getA(i, j, k),
-                                                                                                   0.01 * porosity->getA(i, j, k),
-                                                                                                   ves->getA(i, j, k),
-                                                                                                   maxVes->getA(i, j, k));
+                                                                                                   bulkDensity->get(i, j, k),
+                                                                                                   0.01 * porosity->get(i, j, k),
+                                                                                                   ves->get(i, j, k),
+                                                                                                   maxVes->get(i, j, k));
                   velocity->set ( i, j, k, velocityValue );
                }
 
@@ -185,7 +185,7 @@ void DerivedProperties::VelocityFormationCalculator::calculateForBasement ( Deri
 
                   velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().calculate ( seismciVelocityFluid,
                                                                                                    densityFluid,
-                                                                                                   bulkDensity->getA(i, j, k),
+                                                                                                   bulkDensity->get(i, j, k),
                                                                                                    0.0, 0.0, 0.0 );
                   
                   velocity->set ( i, j, k, velocityValue );

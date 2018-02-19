@@ -20,20 +20,10 @@ namespace DerivedProperties
       /// \brief Destructor
       virtual ~IndirectFormationProperty();
 
-      /// \brief Get the value of the property at the position i,j,k.
-      virtual double get( unsigned int i,
-                          unsigned int j,
-                          unsigned int k ) const;
-
       /// \brief Get the value of the property at the position i,j,k (ascending order)
-      virtual double getA ( unsigned int i,
-                            unsigned int j,
-                            unsigned int k ) const;
-
-     /// \brief Get the value of the property at the position i,j,k (descending order)
-      virtual double getD ( unsigned int i,
-                            unsigned int j,
-                            unsigned int k ) const;
+      virtual double get ( unsigned int i,
+                           unsigned int j,
+                           unsigned int k ) const;
 
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
@@ -62,20 +52,6 @@ inline double DerivedProperties::IndirectFormationProperty::get( unsigned int i,
                                                                  unsigned int k) const
 {
    return m_property->get(i, j, k);
-}
-
-inline double DerivedProperties::IndirectFormationProperty::getA ( unsigned int i,
-                                                                   unsigned int j,
-                                                                   unsigned int k ) const
-{
-   return m_property->getA( i, j, k );
-}
-
-inline double DerivedProperties::IndirectFormationProperty::getD ( unsigned int i,
-                                                                   unsigned int j,
-                                                                   unsigned int k ) const
-{
-   return m_property->getD( i, j, k );
 }
 
 inline bool DerivedProperties::IndirectFormationProperty::isPrimary () const {

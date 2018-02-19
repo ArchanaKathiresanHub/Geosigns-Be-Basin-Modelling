@@ -136,7 +136,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
                solidDensity = lithologies ( i, j, currentTime )->density ();
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
-                  const double porosity = 0.01 * layerPorosity->getA ( i, j, k );
+                  const double porosity = 0.01 * layerPorosity->get ( i, j, k );
                   bulkDensity->set ( i, j, k,  ( 1.0 - porosity ) * solidDensity + porosity * fluidDensity );
                }
 
@@ -193,8 +193,8 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
                double solidDensity = lithologies ( i, j, currentTime )->density ();
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
-                  const double porosity = 0.01 * layerPorosity->getA ( i, j, k );
-                  const double fluidDensity = fluid->density ( temperature->getA ( i, j, k ), porePressure->getA ( i, j, k ));
+                  const double porosity = 0.01 * layerPorosity->get ( i, j, k );
+                  const double fluidDensity = fluid->density ( temperature->get ( i, j, k ), porePressure->get ( i, j, k ));
                   bulkDensity->set ( i, j, k, ( 1.0 - porosity ) * solidDensity + porosity * fluidDensity );
                }
 
@@ -309,15 +309,15 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
                   const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j, snapshot->getTime () );
 
-                  const double topBasaltDepth = basaltDepth->getA( i, j );
-                  const double botBasaltDepth = topBasaltDepth + 1 + basaltThickness->getA( i, j );
+                  const double topBasaltDepth = basaltDepth->get( i, j );
+                  const double botBasaltDepth = topBasaltDepth + 1 + basaltThickness->get( i, j );
                   double solidDensity;
 
-                  if( basaltThickness->getA( i, j ) != 0 and ( topBasaltDepth <= depth->getA ( i, j, k ) and botBasaltDepth > depth->getA ( i, j, k  ))) {
+                  if( basaltThickness->get( i, j ) != 0 and ( topBasaltDepth <= depth->get ( i, j, k ) and botBasaltDepth > depth->get ( i, j, k  ))) {
                    
-                     solidDensity = lithology->getSimpleLithology()->getBasaltDensity ( temperature->getA ( i, j, k ), lithostaticPressure->getA ( i, j, k ));
+                     solidDensity = lithology->getSimpleLithology()->getBasaltDensity ( temperature->get ( i, j, k ), lithostaticPressure->get ( i, j, k ));
                   } else {
-                     solidDensity = lithology->computeDensity ( temperature->getA ( i, j, k ), lithostaticPressure->getA ( i, j, k ));
+                     solidDensity = lithology->computeDensity ( temperature->get ( i, j, k ), lithostaticPressure->get ( i, j, k ));
                   }
                   bulkDensity->set ( i, j, k, solidDensity );
                }

@@ -82,9 +82,9 @@ void DerivedProperties::FracturePressureFormationCalculator::calculate ( Derived
                                                                                 fluid,
                                                                                 seaTemperature,
                                                                                 surfaceDepth,
-                                                                                depth->getA ( i, j, k ),
-                                                                                hydrostaticPressure->getA ( i, j, k ),
-                                                                                lithostaticPressure->getA ( i, j, k ));
+                                                                                depth->get ( i, j, k ),
+                                                                                hydrostaticPressure->get ( i, j, k ),
+                                                                                lithostaticPressure->get ( i, j, k ));
                   fracturePressure->set ( i, j, k, pressureValue );
                }
 

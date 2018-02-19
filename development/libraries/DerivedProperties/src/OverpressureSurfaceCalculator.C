@@ -39,8 +39,8 @@ void DerivedProperties::OverpressureSurfaceCalculator::calculate ( DerivedProper
          
          for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
 
-            if( hydrostaticPressure->getA ( i, j ) != undefinedValue && porePressure->getA ( i, j ) != porePressure->getUndefinedValue () ) {
-               overpressure->set ( i, j, porePressure->getA ( i, j ) - hydrostaticPressure->getA ( i, j ));
+            if( hydrostaticPressure->get ( i, j ) != undefinedValue && porePressure->get ( i, j ) != porePressure->getUndefinedValue () ) {
+               overpressure->set ( i, j, porePressure->get ( i, j ) - hydrostaticPressure->get ( i, j ));
             } else {
                overpressure->set ( i, j, undefinedValue );
             }
