@@ -4,6 +4,8 @@
 #include "Interface/Interface.h"
 #include "AbstractProperty.h"
 #include "AbstractSurface.h"
+#include "AbstractReservoir.h"
+#include "AbstractGrid.h"
 
 namespace  DerivedProperties {
 
@@ -31,8 +33,14 @@ namespace  DerivedProperties {
       /// \brief Determine whether or not the property has a grid map allocated
       virtual bool hasMap() const = 0;
       
+      /// \brief Get the grid on which the property values are defined.
+      virtual const DataModel::AbstractGrid* getGrid () const = 0;
+      
       /// \brief Get the surface for which the property values are defined.
       virtual const DataModel::AbstractSurface* getSurface() const { return 0; }
+
+      /// \brief Get the reservoir for which the property values are defined.
+      virtual const DataModel::AbstractReservoir* getReservoir() const { return 0; }
       
       /// \brief Get the property 
       virtual const DataModel::AbstractProperty* getProperty () const;

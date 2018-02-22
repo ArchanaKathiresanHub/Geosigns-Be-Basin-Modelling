@@ -50,6 +50,9 @@ namespace DerivedProperties {
 
       /// \brief Determine whether or not the property has a grid map allocated
       bool hasMap() const;
+      
+      /// \brief Get the grid on which the property values are defined.
+      const DataModel::AbstractGrid* getGrid () const;
 
       /// \brief Get the name of the property
       const string & getName() const;

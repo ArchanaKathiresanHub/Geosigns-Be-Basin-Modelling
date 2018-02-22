@@ -59,6 +59,18 @@ namespace DataModel {
       /// return the topmost grid coordinate value
       virtual int numJGlobal (void) const = 0;
 
+      /// return the leftmost grid coordinate value
+      virtual double minIGlobal (void) const = 0;
+
+      /// return the bottommost grid coordinate value
+      virtual double minJGlobal (void) const = 0;
+
+      /// return the rightmost grid coordinate value
+      virtual double maxIGlobal (void) const = 0;
+
+      /// return the topmost grid coordinate value
+      virtual double maxJGlobal (void) const = 0;
+
    };
 
 } // namespace DataModel

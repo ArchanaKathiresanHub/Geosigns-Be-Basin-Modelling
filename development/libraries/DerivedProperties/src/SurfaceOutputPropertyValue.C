@@ -79,6 +79,14 @@ bool DerivedProperties::SurfaceOutputPropertyValue::hasMap() const {
    return false;
 }
 
+const DataModel::AbstractGrid* DerivedProperties::SurfaceOutputPropertyValue::getGrid () const {
+
+   if( m_surfaceProperty != 0 ) {
+      return m_surfaceProperty->getGrid();
+   }
+   return false;
+}
+
 const string & DerivedProperties::SurfaceOutputPropertyValue::getName() const {
    
    if( m_surfaceProperty != 0 ) {

@@ -98,16 +98,6 @@ int main( int argc, char ** argv )
 
       return 1;
    }
-   if( propCalculator->convert() ) {
-      
-      propCalculator->convertToVisualizationIO();
-      propCalculator->finalise ( false );
-      delete propCalculator;
- 
-      PetscFinalize ();
-
-      return 0;
-   };
 
    if( propCalculator->hdfonly() ) {
       

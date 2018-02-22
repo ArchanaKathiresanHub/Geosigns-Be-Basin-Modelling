@@ -94,7 +94,6 @@ private:
    pugi::xml_node m_pt;
    pugi::xml_node m_snapShotNodes;
 
-   bool m_convert;
    bool m_vizFormat;
    bool m_vizFormatHDF;
    bool m_vizFormatHDFonly;
@@ -132,6 +131,8 @@ private:
    std::string  m_commandLine;
 
    MPI_Op m_op; ///< Custom MPI operation to find maximum and minimum of sediment properties
+
+   const DataAccess::Interface::Grid * m_activeGrid; ///< Active output grid
 
    /// \brief Check if the property the formation/surface is allowed to be output
    bool allowOutput ( const string & propertyName, const Interface::Formation * formation, const Interface::Surface * surface ) const;
@@ -174,7 +175,19 @@ private:
 
    /// \brief Collect continuous volume on rank 0
    void collectVolumeData( const std::shared_ptr<CauldronIO::SnapShot>& snapShot );
-   
+ 
+   /// \brief Create a property in visualization format or find it if already exists
+   shared_ptr<const CauldronIO::Property> findOrCreateProperty(OutputPropertyValuePtr propertyValue, CauldronIO::PropertyAttribute attrib);
+ 
+   /// \brief Create a formation in visualization format or find it if already exists
+   shared_ptr<CauldronIO::Formation> findOrCreateFormation(std::shared_ptr<CauldronIO::FormationInfo>& info);
+
+   /// \brief Create a reservoir in visualization format or find it if already exists
+   shared_ptr<const CauldronIO::Reservoir> findOrCreateReservoir(const Interface::Reservoir* reserv, std::shared_ptr<const CauldronIO::Formation> formationIO);
+
+   /// \brief Reset project handle active grid to read primary properties in high resolution
+   void resetProjectActivityGrid(const DataAccess::Interface::Property * property = 0);
+
 public:
 
    GeoPhysics::ProjectHandle* getProjectHandle() const;

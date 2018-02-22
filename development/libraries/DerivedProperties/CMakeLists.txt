@@ -73,6 +73,7 @@ set(all_headers
   src/ReflectivitySurfaceCalculator.h
   src/ReservoirProperty.h
   src/ReservoirPropertyCalculator.h
+  src/ReservoirOutputPropertyValue.h
   src/SonicFormationCalculator.h
   src/SurfaceOutputPropertyValue.h
   src/SurfaceProperty.h
@@ -147,6 +148,7 @@ set(all_srcs
   src/ReflectivitySurfaceCalculator.C
   src/ReservoirProperty.C
   src/ReservoirPropertyCalculator.C
+  src/ReservoirOutputPropertyValue.C
   src/SonicFormationCalculator.C
   src/SurfaceOutputPropertyValue.C
   src/SurfaceProperty.C

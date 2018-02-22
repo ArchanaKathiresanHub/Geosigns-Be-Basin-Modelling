@@ -37,6 +37,14 @@ bool DerivedProperties::FormationSurfaceOutputPropertyValue::hasMap() const {
    return false;
 }
 
+const DataModel::AbstractGrid* DerivedProperties::FormationSurfaceOutputPropertyValue::getGrid () const {
+
+   if( m_formationSurfaceProperty != 0 ) {
+      return m_formationSurfaceProperty->getGrid();
+   }
+   return false;
+}
+
 double DerivedProperties::FormationSurfaceOutputPropertyValue::getValue ( const double i, const double j, const double k ) const {
 
    if ( m_formationSurfaceProperty != 0 ) {

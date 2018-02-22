@@ -75,7 +75,18 @@ namespace DataModel {
       /// return the topmost grid coordinate value
       virtual int numJGlobal (void) const;
 
-   private :
+      /// return the leftmost grid coordinate value
+      virtual double minIGlobal (void) const;
+
+      /// return the bottommost grid coordinate value
+      virtual double minJGlobal (void) const;
+
+      /// return the rightmost grid coordinate value
+      virtual double maxIGlobal (void) const;
+
+      /// return the topmost grid coordinate value
+      virtual double maxJGlobal (void) const;
+ private :
 
       /// \brief The non-ghost index is in position 0 and the ghost index is in position 1.
       int m_firstI[2];
@@ -155,6 +166,23 @@ inline int DataModel::MockGrid::numIGlobal () const {
 inline int DataModel::MockGrid::numJGlobal () const {
    return lastJ( false ) - firstJ( false ) + 1;
 }
+
+inline double DataModel::MockGrid::maxIGlobal () const {
+   return maxI();
+}
+
+inline double DataModel::MockGrid::minIGlobal () const {
+   return minI();
+}
+
+inline double DataModel::MockGrid::maxJGlobal () const {
+   return maxJ();
+}
+
+inline double DataModel::MockGrid::minJGlobal () const {
+   return minJ();
+}
+
 
 
 

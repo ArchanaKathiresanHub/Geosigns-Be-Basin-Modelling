@@ -79,3 +79,11 @@ bool DerivedProperties::FormationOutputPropertyValue::hasMap() const {
    }
    return false;
 }
+
+const DataModel::AbstractGrid* DerivedProperties::FormationOutputPropertyValue::getGrid () const {
+
+   if( m_formationProperty != 0 ) {
+      return m_formationProperty->getGrid();
+   }
+   return false;
+}

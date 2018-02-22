@@ -7,11 +7,13 @@
 #include "FormationMapOutputPropertyValue.h"
 #include "FormationSurfaceOutputPropertyValue.h"
 #include "SurfaceOutputPropertyValue.h"
+#include "ReservoirOutputPropertyValue.h"
 #include "Interface/Snapshot.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/Property.h"
 #include "Interface/Surface.h"
 #include "Interface/Formation.h"
+#include "Interface/Reservoir.h"
 
 using namespace std;
 using namespace DataAccess;

@@ -40,7 +40,7 @@ bool DerivedProperties::acquireProperties( GeoPhysics::ProjectHandle * projectHa
          isComputable = true;
       }
       else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
-                propertyManager.formationMapPropertyIsComputable ( property )) {
+                ( propertyManager.formationMapPropertyIsComputable ( property ) or propertyManager.reservoirPropertyIsComputable ( property ))) {
 
          isComputable = true;
 
@@ -219,12 +219,26 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedPrope
          printDebugMsg( "Allocating Formation", property, formation, 0, snapshot );
          outputProperty.reset( new FormationOutputPropertyValue ( propertyManager, property, snapshot, formation ));
       }     
-      // check if the formation-map property is computable
-      else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
-                propertyManager.formationMapPropertyIsComputable ( property, snapshot, formation )) {
+      // check if the formation-map or reservoir property is computable
+      else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY ) {
+         if ( propertyManager.formationMapPropertyIsComputable ( property, snapshot, formation )) {
 
-         printDebugMsg( "Allocating FM", property, formation, 0, snapshot );
-         outputProperty.reset ( new FormationMapOutputPropertyValue ( propertyManager, property, snapshot, formation ));
+            printDebugMsg( "Allocating FM", property, formation, 0, snapshot );
+            outputProperty.reset ( new FormationMapOutputPropertyValue ( propertyManager, property, snapshot, formation ));
+         } 
+         else if ( propertyManager.reservoirPropertyIsComputable ( property )) {
+            
+            Interface::ReservoirList * reservoirs = formation->getReservoirs();
+            
+            if(reservoirs != 0) {
+               Interface::ReservoirList::iterator reservoirIter;
+               for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++ reservoirIter) {
+                  const Interface::Reservoir * res = * reservoirIter;
+                  outputProperty.reset (new ReservoirOutputPropertyValue ( propertyManager, property, snapshot, res ));
+                  printDebugMsg( "Allocating Reservoir", property, formation, 0, snapshot );
+               }
+            }
+         }
       }
    }
    
