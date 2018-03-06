@@ -15,16 +15,17 @@
 DerivedProperties::PorosityFormationCalculator::PorosityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "Porosity" );
 
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
+
    // It could be that a particular formation does not have chemical-compaction 
    // enabled butit is not possible to determine this here.
-   bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                                     m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
-                                     m_projectHandle->getRunParameters()->getChemicalCompaction ();
-
+   m_chemicalCompactionRequired = lastFastcauldronRun != 0 and lastFastcauldronRun->getSimulatorMode () != "HydrostaticDecompaction" and
+      m_projectHandle->getRunParameters()->getChemicalCompaction ();
+   
    addDependentPropertyName ( "Ves" );
    addDependentPropertyName ( "MaxVes" );
-
-   if ( chemicalCompactionRequired ) {
+   
+   if ( m_chemicalCompactionRequired ) {
       addDependentPropertyName ( "ChemicalCompaction" );
    }
 
@@ -55,9 +56,7 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
    
    if( ves != 0 and maxVes != 0 and geoFormation != 0 ) {
              
-      bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                                        m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
-                                        geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction ();
+      bool chemicalCompactionRequired = m_chemicalCompactionRequired and geoFormation->hasChemicalCompaction ();
 
       FormationPropertyPtr chemicalCompaction;
 

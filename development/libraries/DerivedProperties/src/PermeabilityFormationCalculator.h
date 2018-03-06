@@ -28,7 +28,7 @@ namespace DerivedProperties {
    private :
 
       const GeoPhysics::ProjectHandle* m_projectHandle;
-
+      bool m_chemicalCompactionRequired;
    };
 
 

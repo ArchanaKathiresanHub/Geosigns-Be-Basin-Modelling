@@ -63,6 +63,7 @@ namespace DerivedProperties {
 
       const GeoPhysics::ProjectHandle* m_projectHandle;
 
+      bool m_hydrostaticDecompactionMode;
    };
 
 

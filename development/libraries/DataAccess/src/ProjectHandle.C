@@ -5354,6 +5354,23 @@ const SimulationDetails* ProjectHandle::getDetailsOfLastSimulation ( const std::
    return 0;
 }
 
+const SimulationDetails* ProjectHandle::getDetailsOfLastFastcauldron () const {
+
+   MutableSimulationDetailsList::const_reverse_iterator simDetailsIter;
+
+   for (simDetailsIter = m_simulationDetails.rbegin (); simDetailsIter != m_simulationDetails.rend (); ++simDetailsIter) {
+
+      if ((*simDetailsIter)->getSimulatorName () == "fastcauldron") {
+         if ((*simDetailsIter)->getSimulatorMode() != "HydrostaticHighResDecompaction" and (*simDetailsIter)->getSimulatorMode () != "CoupledHighResDecompaction") {
+            return *simDetailsIter;
+         }
+      }
+   }
+
+
+   return 0;
+}
+
 void ProjectHandle::deleteSimulationDetails () {
 
    for ( size_t i = 0; i < m_simulationDetails.size (); ++i ) {

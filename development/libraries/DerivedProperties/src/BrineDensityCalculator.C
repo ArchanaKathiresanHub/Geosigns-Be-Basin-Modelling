@@ -18,8 +18,8 @@ DerivedProperties::BrineDensityCalculator::BrineDensityCalculator ( const GeoPhy
 {
    addPropertyName ( "BrineDensity" );
 
-   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
-
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
+ 
    m_hydrostaticMode = false;
 
    if ( lastFastcauldronRun != 0 ) {
@@ -33,7 +33,6 @@ DerivedProperties::BrineDensityCalculator::BrineDensityCalculator ( const GeoPhy
    }
 
 }
-
 
 void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyManager&            propertyManager,
                                                             const DataModel::AbstractSnapshot*  snapshot,

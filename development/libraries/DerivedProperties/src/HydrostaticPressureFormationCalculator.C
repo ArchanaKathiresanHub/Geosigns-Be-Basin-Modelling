@@ -28,7 +28,7 @@ DerivedProperties::HydrostaticPressureFormationCalculator::HydrostaticPressureFo
 {
    addPropertyName ( "HydroStaticPressure" );
 
-   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
 
    m_hydrostaticDecompactionMode = false;
    m_hydrostaticMode             = false;

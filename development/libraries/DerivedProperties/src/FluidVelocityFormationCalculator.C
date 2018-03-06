@@ -31,11 +31,12 @@ DerivedProperties::FluidVelocityFormationCalculator::FluidVelocityFormationCalcu
    addPropertyName( "FluidVelocityY" );
    addPropertyName( "FluidVelocityZ" );
    
-   bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                                     m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
-                                     m_projectHandle->getRunParameters()->getChemicalCompaction ();
+    const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
 
-   if ( chemicalCompactionRequired ) {
+    m_chemicalCompactionRequired = lastFastcauldronRun != 0 and lastFastcauldronRun->getSimulatorMode () != "HydrostaticDecompaction" and
+       m_projectHandle->getRunParameters()->getChemicalCompaction ();
+
+   if ( m_chemicalCompactionRequired ) {
       addDependentPropertyName ( "ChemicalCompaction" );
    }
 
@@ -70,9 +71,7 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( DerivedPro
  
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
  
-   bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-      m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
-      geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction ();
+   bool chemicalCompactionRequired = m_chemicalCompactionRequired and geoFormation->hasChemicalCompaction ();
    
    FormationPropertyPtr chemicalCompaction;   
    if ( chemicalCompactionRequired ) {

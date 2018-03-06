@@ -128,6 +128,8 @@ private:
    std::vector<float> m_data; ///< Buffer to convert a property to visualization format
    std::shared_ptr<CauldronIO::FormationInfoList> m_formInfoList; ///< List of formations grid info
 
+   std::set<std::string>  m_basementPropertiesList; ///< List of the properties output for basement
+
    std::string  m_commandLine;
 
    MPI_Op m_op; ///< Custom MPI operation to find maximum and minimum of sediment properties
@@ -185,8 +187,16 @@ private:
    /// \brief Create a reservoir in visualization format or find it if already exists
    shared_ptr<const CauldronIO::Reservoir> findOrCreateReservoir(const Interface::Reservoir* reserv, std::shared_ptr<const CauldronIO::Formation> formationIO);
 
+   /// \brief Create a trapper list and add to visualization format snapshot
+   void createTrappers(const Interface::Snapshot * snapshot, std::shared_ptr<CauldronIO::SnapShot>& snapShotIO);
+  
+
    /// \brief Reset project handle active grid to read primary properties in high resolution
    void resetProjectActivityGrid(const DataAccess::Interface::Property * property = 0);
+
+   /// \brief Check if the property should be calculated for basement
+   bool isBasementProperty (const string& propertyName) const;
+   bool allowBasementOutput (const string& propertyName3D) const;
 
 public:
 

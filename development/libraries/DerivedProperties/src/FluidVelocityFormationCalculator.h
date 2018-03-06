@@ -38,6 +38,8 @@ namespace DerivedProperties {
 
       const GeoPhysics::ProjectHandle* m_projectHandle;
 
+      bool m_chemicalCompactionRequired;
+
       void computeFluidVelocity ( const GeoPhysics::CompoundLithology*  lithology,
                                   const double                  z,
                                   const GeoPhysics::FluidType*  fluid,

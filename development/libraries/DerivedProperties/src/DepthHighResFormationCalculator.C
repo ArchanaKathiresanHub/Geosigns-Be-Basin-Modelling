@@ -36,7 +36,7 @@ DerivedProperties::DepthHighResFormationCalculator::DepthHighResFormationCalcula
    {
       addPropertyName( "DepthHighRes" );
 
-      const DataAccess::Interface::SimulationDetails * simulationDetails = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+      const DataAccess::Interface::SimulationDetails * simulationDetails = m_projectHandle->getDetailsOfLastFastcauldron ();
 
       if( simulationDetails == 0 )
       {

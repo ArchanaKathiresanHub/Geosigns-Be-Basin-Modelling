@@ -26,7 +26,7 @@
 DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "BulkDensity" );
 
-   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron ();
 
    if ( lastFastcauldronRun != 0 ) {
       m_coupledModeEnabled = lastFastcauldronRun->getSimulatorMode () == "LooselyCoupledTemperature" or

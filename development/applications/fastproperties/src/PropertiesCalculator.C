@@ -19,6 +19,7 @@
 #include "Interface/ProjectData.h"
 #include "Interface/MantleFormation.h"
 #include "Interface/Reservoir.h"
+#include "Interface/Trapper.h"
 #include "GeoPhysicsFormation.h"
 #include "PropertiesCalculator.h"
 #include "FilePath.h"
@@ -43,10 +44,16 @@ static bool snapshotIsEqual (const Interface::Snapshot * snapshot1, const Interf
 void displayTime (const double timeToDisplay, const char * msgToDisplay);
 void displayProgress (const string & fileName, double startTime, const string & message);
 
+static const char * basementProperties [] = {"BulkDensity", "Diffusivity",
+                                             "HeatFlow", "Reflectivity", 
+                                             "SonicSlowness", "ThCond", "Velocity", "Depth",
+                                             "Temperature", "LithoStaticPressure",
+                                             "Thickness", "Lithology", "ALC"};
 
 //------------------------------------------------------------//
 
-PropertiesCalculator::PropertiesCalculator(int aRank) {
+PropertiesCalculator::PropertiesCalculator(int aRank) : m_basementPropertiesList (basementProperties, basementProperties + 13) 
+{
    
    m_rank = aRank;
    
@@ -196,8 +203,10 @@ bool PropertiesCalculator::startActivity() {
    }
    
    const Interface::Grid * grid = m_projectHandle->getLowResolutionOutputGrid();
-   
-   bool started = m_projectHandle->startActivity (m_activityName, grid, false, true, m_activityName != "Fastproperties");
+
+   const bool vizFormatResults = m_vizFormat or m_vizFormatHDF or m_vizFormatHDFonly or m_vizListXml;
+
+   bool started = m_projectHandle->startActivity (m_activityName, grid, false, not vizFormatResults, (m_activityName != "Fastproperties") or vizFormatResults);
    
    // If this table is not present the assume that the last
    // fastcauldron mode was not pressure mode.
@@ -481,6 +490,8 @@ void PropertiesCalculator::calculateProperties(FormationSurfaceVector& formation
          {
             std::shared_ptr<CauldronIO::SnapShot> snap = DerivedProperties::getSnapShot(m_vizProject, snapshot->getTime());
 
+            createTrappers(snapshot, snap);
+
             DerivedProperties::updateConstantValue(snap);
             pugi::xml_node node = m_snapShotNodes.append_child("snapshot");
             m_export->addSnapShot(snap, node);
@@ -629,9 +640,38 @@ PropertyOutputOption PropertiesCalculator::checkTimeFilter3D (const string & nam
 }
 
 //------------------------------------------------------------//
+bool PropertiesCalculator::allowBasementOutput (const string & propertyName3D) const {
+
+   string propertyName = propertyName3D;
+   
+   if (propertyName.find("HeatFlow") != string::npos) 
+   {
+      propertyName = "HeatFlow";
+   } 
+   else if (propertyName.find("FluidVelocity") != string::npos) 
+   {
+      propertyName = "FluidVelocity";
+   } 
+   else if (propertyName.find("ALC") != string::npos) 
+   {
+      propertyName = "ALC";
+   } 
+    else 
+   {
+      size_t len = 4;
+      size_t pos = propertyName.find("Vec2");
+
+      if (pos != string::npos) {
+         // Replace Vec2 with Vec.
+         propertyName.replace(pos, len, "Vec");
+      }
+   }
+   return isBasementProperty(propertyName);
+}
+//------------------------------------------------------------//
 
 bool PropertiesCalculator::allowOutput (const string & propertyName3D,
-                                         const Interface::Formation * formation, const Interface::Surface * surface) const {
+                                        const Interface::Formation * formation, const Interface::Surface * surface) const {
 
 
    string propertyName = propertyName3D;
@@ -1337,18 +1377,28 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueContinuous (Outpu
                                                                            const Snapshot* snapshot, const Interface::Formation * daFormation) {
    
 
+   const string propName = propertyValue->getName();
+
+   if (daFormation->kind() == Interface::BASEMENT_FORMATION and not allowBasementOutput (propName)) 
+   {
+      return true;
+   }
+
    bool debug = false;
 
-   const string propName = propertyValue->getName();
    //find info and geometry for the formation
    std::shared_ptr<CauldronIO::FormationInfo> info;
    size_t maxK = 0;
    size_t minK = std::numeric_limits<size_t>::max();
-   
+   size_t maxSedimentK = 0;
+
    for (size_t i = 0; i < m_formInfoList->size(); ++i)  
    {
       std::shared_ptr<CauldronIO::FormationInfo>& depthInfo = m_formInfoList->at(i);
-
+      if (depthInfo->formation->kind() == Interface::SEDIMENT_FORMATION) 
+      {
+         maxSedimentK = max (maxSedimentK, depthInfo->kEnd);
+      }
       maxK = max(maxK, depthInfo->kEnd);
       minK = min(minK, depthInfo->kStart);
       if (depthInfo->formation == daFormation) 
@@ -1356,6 +1406,7 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueContinuous (Outpu
          info = m_formInfoList->at(i);
       }
    }
+
    size_t depthK = 1 + maxK - minK;
    if (not info) 
    {
@@ -1444,6 +1495,12 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueContinuous (Outpu
 
    if (not propertyVolumeExisting) 
    {
+      if (not allowBasementOutput (propName)) 
+      {
+         depthK = 1 + maxSedimentK - minK;
+         geometry.reset(new CauldronIO::Geometry3D(grid->numIGlobal(), grid->numJGlobal(), depthK, minK,
+                                                   grid->deltaI(), grid->deltaJ(), grid->minIGlobal(), grid->minJGlobal()));
+      }
       volDataNew.reset(new CauldronIO::VolumeDataNative(geometry, CauldronIO::DefaultUndefinedValue));
 
       unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
@@ -1540,9 +1597,15 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueContinuous (Outpu
 bool PropertiesCalculator::createVizSnapshotResultPropertyValueDiscontinuous (OutputPropertyValuePtr propertyValue, 
                                                                               const Snapshot* snapshot, const Interface::Formation * daFormation) {
       
+   const string propName = propertyValue->getName();
+
+   if (daFormation->kind() == Interface::BASEMENT_FORMATION and not allowBasementOutput (propName)) 
+   {
+      return true;
+   }
+
    bool debug = false;
 
-   const string propName = propertyValue->getName();
    shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
    
    std::shared_ptr<CauldronIO::FormationInfo> info;
@@ -1664,6 +1727,12 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueMap (OutputProper
    bool debug = false;
 
    const string propName = propertyValue->getName();
+
+   if (daSurface != 0 and daSurface->kind() == BASEMENT_SURFACE and not allowBasementOutput(propName))
+   {
+      return true;
+   }
+
    const string surfaceName = (daSurface != 0 ? daSurface->getName() : "");
 
    // Create geometry
@@ -1986,7 +2055,48 @@ std::shared_ptr<const CauldronIO::Reservoir> PropertiesCalculator::findOrCreateR
 }
 
 //------------------------------------------------------------//
+void PropertiesCalculator::createTrappers(const Interface::Snapshot * snapShot, std::shared_ptr<CauldronIO::SnapShot>& snapShotIO)
+{  
+   // Find trappers
+   std::shared_ptr<Interface::TrapperList> trapperList(m_projectHandle->getTrappers(0, snapShot, 0, 0));
+   for (size_t i = 0; i < trapperList->size(); ++i)
+   {
+      const Interface::Trapper* trapper = trapperList->at(i);
+      
+      // Get some info
+      int downstreamTrapperID = -1;
+      if (trapper->getDownstreamTrapper())
+         downstreamTrapperID = trapper->getDownstreamTrapper()->getPersistentId();
+      int persistentID = trapper->getPersistentId();
+      int ID = trapper->getId();
+      double spillPointDepth = trapper->getSpillDepth();
+      double spillPointX, spillPointY;
+      trapper->getSpillPointPosition(spillPointX, spillPointY);
+      double depth = trapper->getDepth();
+      double pointX, pointY;
+      trapper->getPosition(pointX, pointY);
+      double GOC = trapper->getGOC();
+      double OWC = trapper->getOWC();
+      
+      const Interface::Reservoir* reservoir = trapper->getReservoir();
+      assert(reservoir);
+      
+      // Create a new Trapper and assign some values
+      std::shared_ptr<CauldronIO::Trapper> trapperIO(new CauldronIO::Trapper(ID, persistentID));
+      trapperIO->setReservoirName(reservoir->getName());
+      trapperIO->setSpillDepth((float)spillPointDepth);
+      trapperIO->setSpillPointPosition((float)spillPointX, (float)spillPointY);
+      trapperIO->setDepth((float)depth);
+      trapperIO->setPosition((float)pointX, (float)pointY);
+      trapperIO->setDownStreamTrapperID(downstreamTrapperID);
+      trapperIO->setOWC((float)OWC);
+      trapperIO->setGOC((float)GOC);
+      
+      snapShotIO->addTrapper(trapperIO);
+   }
+}
 
+//------------------------------------------------------------//
 bool PropertiesCalculator::parseCommandLine(int argc, char ** argv) {
 
    int arg;
@@ -2201,6 +2311,12 @@ bool PropertiesCalculator::parseCommandLine(int argc, char ** argv) {
    }
 
    return true;
+}
+
+//------------------------------------------------------------//
+bool PropertiesCalculator::isBasementProperty(const string& propertyName) const {
+
+   return m_basementPropertiesList.count( propertyName ) != 0;
 }
 
 //------------------------------------------------------------//

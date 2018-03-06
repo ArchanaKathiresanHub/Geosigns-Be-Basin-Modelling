@@ -39,11 +39,11 @@ void DerivedProperties::FracturePressureFormationCalculator::calculate ( Derived
 
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
-
-   bool hydrostaticMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                            ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction" or
-                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticTemperature" ));
-
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
+   bool hydrostaticMode = ( lastFastcauldronRun != 0 and
+                            ( lastFastcauldronRun->getSimulatorMode () == "HydrostaticDecompaction" or
+                              lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" ));
+   
    if ( depth != 0 and hydrostaticPressure != 0 and lithostaticPressure != 0 and geoFormation != 0 ) {
       const double age = snapshot->getTime ();
       const GeoPhysics::FracturePressureCalculator& fracturePressureCalculator = m_projectHandle->getFracturePressureCalculator();

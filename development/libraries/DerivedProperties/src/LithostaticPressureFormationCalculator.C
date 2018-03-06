@@ -36,10 +36,11 @@ DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFo
 
    addDependentPropertyName( "Depth" );
  
-   bool hydrostaticDecompactionMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                                        ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction" ));
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
 
-   if( not hydrostaticDecompactionMode ) {
+   m_hydrostaticDecompactionMode = ( lastFastcauldronRun != 0 and lastFastcauldronRun->getSimulatorMode () == "HydrostaticDecompaction" );
+
+   if( not m_hydrostaticDecompactionMode ) {
       addDependentPropertyName( "Temperature");
    }
    if( m_projectHandle->isALC() ) {
@@ -111,17 +112,12 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
    const bool alcMode = m_projectHandle->isALC();
 
    const DataModel::AbstractProperty* aLithostaticPressureProperty = propertyManager.getProperty ( "LithoStaticPressure" );
-   
-   bool hydrostaticDecompactionMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                                        ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction"  ));
-
-
    const DataModel::AbstractProperty* aDepthProperty = propertyManager.getProperty ( "Depth" );
    const FormationPropertyPtr depth = propertyManager.getFormationProperty ( aDepthProperty, snapshot, formation );
 
    FormationPropertyPtr temperature;
 
-   if( !hydrostaticDecompactionMode ) {
+   if( not m_hydrostaticDecompactionMode ) {
       const DataModel::AbstractProperty* aTempProperty = propertyManager.getProperty ( "Temperature" );
       temperature = propertyManager.getFormationProperty ( aTempProperty, snapshot, formation );
    }
@@ -148,7 +144,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
    
    derivedProperties.clear ();
    
-   if( currentFormation!= 0 and depth != 0 and ( hydrostaticDecompactionMode || temperature != 0 ) and 
+   if( currentFormation!= 0 and depth != 0 and ( m_hydrostaticDecompactionMode or temperature != 0 ) and 
        ( not alcMode or ( basaltDepth != 0 and basaltThickness != 0 ))) {
 
       PropertyRetriever depthRetriever ( depth );
@@ -156,7 +152,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
       PropertyRetriever basaltDepthRetriever;
       PropertyRetriever basaltThicknessRetriever;
 
-      if( !hydrostaticDecompactionMode ) {
+      if( not m_hydrostaticDecompactionMode ) {
          tempRetriever.reset ( temperature );
       }
       if( alcMode ) {
@@ -187,7 +183,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
 
       double undefinedValue = depth->getUndefinedValue ();
       double segmentThickness, density, pressure, segmentPressure;
-      bool constantDensity = hydrostaticDecompactionMode or not alcMode;
+      bool constantDensity = m_hydrostaticDecompactionMode or not alcMode;
 
  
       for ( unsigned int i = depth->firstI ( true ); i <= depth->lastI ( true ); ++i ) {

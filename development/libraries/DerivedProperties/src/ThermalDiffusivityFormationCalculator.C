@@ -43,10 +43,10 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
    const FormationPropertyPtr porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
    const FormationPropertyPtr porosity     = propertyManager.getFormationProperty ( porosityProperty,     snapshot, formation );
 
-   bool hydrostaticMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                            ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction" or
-                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticTemperature" ));
-
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
+   bool hydrostaticMode = ( lastFastcauldronRun != 0 and
+                            ( lastFastcauldronRun->getSimulatorMode () == "HydrostaticDecompaction" or
+                              lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" ));
 
    if ( temperature != 0 and porePressure != 0 and porosity != 0 and geoFormation != 0 ) {
       DerivedFormationPropertyPtr thermalDiffusivity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( thermalDiffusivityProperty,
@@ -139,14 +139,16 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculateForBasem
 
    bool basementFormationAndAlcMode = ( geoFormation != 0 and m_projectHandle->isALC ());
 
-   bool hydrostaticMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                            ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction" or
-                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticTemperature" ));
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
 
+   bool hydrostaticMode = ( lastFastcauldronRun != 0 and
+                            ( lastFastcauldronRun->getSimulatorMode () == "HydrostaticDecompaction" or
+                              lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" ));
+   
    if ( basementFormationAndAlcMode ) {
       lithostaticPressure = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formation );
    }
-
+   
    if ( temperature != 0 and geoFormation != 0 and ( not basementFormationAndAlcMode or ( basementFormationAndAlcMode and lithostaticPressure != 0 ))) {
       DerivedFormationPropertyPtr thermalDiffusivity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( thermalDiffusivityProperty,
                                                                                                                                        snapshot,

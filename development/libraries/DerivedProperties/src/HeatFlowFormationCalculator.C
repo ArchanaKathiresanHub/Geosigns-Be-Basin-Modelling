@@ -30,12 +30,13 @@ DerivedProperties::HeatFlowFormationCalculator::HeatFlowFormationCalculator ( co
    addPropertyName( "HeatFlowX" );
    addPropertyName( "HeatFlowY" );
    addPropertyName( "HeatFlowZ" );
-   
-   bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                                     m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
-                                     m_projectHandle->getRunParameters()->getChemicalCompaction ();
 
-   if ( chemicalCompactionRequired ) {
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun =  m_projectHandle->getDetailsOfLastFastcauldron();
+   
+   m_chemicalCompactionRequired = lastFastcauldronRun != 0 and lastFastcauldronRun->getSimulatorMode () != "HydrostaticDecompaction" and
+      m_projectHandle->getRunParameters()->getChemicalCompaction ();
+
+   if ( m_chemicalCompactionRequired ) {
       addDependentPropertyName ( "ChemicalCompaction" );
    }
 
@@ -108,9 +109,7 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate ( DerivedProperti
       }   
    }
    
-   bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-      m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
-      geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction ();
+   bool chemicalCompactionRequired = m_chemicalCompactionRequired and geoFormation->hasChemicalCompaction ();
    
    FormationPropertyPtr chemicalCompaction;   
    if ( chemicalCompactionRequired ) {

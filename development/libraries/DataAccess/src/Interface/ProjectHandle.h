@@ -137,6 +137,9 @@ namespace DataAccess
          /// \brief Get the details of the last simulation for a particular simulator.
          const SimulationDetails* getDetailsOfLastSimulation ( const std::string& simulatorName ) const;
 
+         /// \brief Get the details of the last fastcauldron simulation other than HighResDecompaction
+         const SimulationDetails* getDetailsOfLastFastcauldron () const;
+
          /// Return the full file name of the project
          virtual const string & getName( void ) const;
          /// Return the directory of the project
