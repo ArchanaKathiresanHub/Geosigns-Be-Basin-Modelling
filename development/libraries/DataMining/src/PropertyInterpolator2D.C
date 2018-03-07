@@ -1,6 +1,18 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "PropertyInterpolator2D.h"
 
 #include "Point.h"
+
+using namespace AbstractDerivedProperties;
 
 double DataAccess::Mining::PropertyInterpolator2D::doInterpolation ( const double  xi,
                                                                      const double  eta,
@@ -33,8 +45,8 @@ double DataAccess::Mining::PropertyInterpolator2D::doInterpolation ( const doubl
 }
 
 
-double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPosition&                element,
-                                                                DerivedProperties::SurfacePropertyPtr property ) const {
+double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPosition&   element,
+                                                                      SurfacePropertyPtr property ) const {
 
    double weights [ 4 ];
 
@@ -57,8 +69,8 @@ double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPos
    return doInterpolation ( xi, eta, weights );
 }
 
-double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPosition&                     element,
-                                                                DerivedProperties::FormationMapPropertyPtr property ) const {
+double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPosition&        element,
+                                                                      FormationMapPropertyPtr property ) const {
 
    double weights [ 4 ];
 
@@ -82,14 +94,14 @@ double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPos
 }
 
 
-double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPosition&                  element,
-                                                                DerivedProperties::FormationPropertyPtr property ) const {
+double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPosition&     element,
+                                                                      FormationPropertyPtr property ) const {
    return operator ()( element, property, element.getLocalK ());
 }
 
-double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPosition&                  element,
-                                                                DerivedProperties::FormationPropertyPtr property,
-                                                                const unsigned int                      k ) const {
+double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPosition&     element,
+                                                                      FormationPropertyPtr property,
+                                                                const unsigned int         k ) const {
 
    double weights [ 4 ];
 

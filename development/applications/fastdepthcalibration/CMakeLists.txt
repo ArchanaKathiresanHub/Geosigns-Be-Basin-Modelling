@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2016 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -67,6 +67,7 @@ bm_include_libraries(
     FastcauldronApplication
     DataModel
     DataAccess
+    AbstractDerivedProperties
     DerivedProperties
     DistributedDataAccess
     utilities
@@ -95,6 +96,7 @@ target_link_libraries(${APP_NAME}
 
 target_link_libraries( ${APP_NAME}
     DataAccess
+    AbstractDerivedProperties
     DerivedProperties
     DistributedDataAccess
     utilities

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "BasementHeatFlowCalculator.h"
 
 #include <iostream>
@@ -17,6 +27,8 @@ using namespace std;
 #include "CompoundLithology.h"
 #include "ElementFunctions.h"
 
+using namespace AbstractDerivedProperties;
+
 DataAccess::Mining::BasementHeatFlowCalculator::BasementHeatFlowCalculator ( const DomainPropertyCollection*            collection,
                                                                              DerivedProperties::DerivedPropertyManager& propertyManager,
                                                                              const Interface::Snapshot*                 snapshot,
@@ -30,7 +42,7 @@ DataAccess::Mining::BasementHeatFlowCalculator::BasementHeatFlowCalculator ( con
 bool DataAccess::Mining::BasementHeatFlowCalculator::initialise () {
 
    if ( not m_initialised ) {
-      DerivedProperties::FormationPropertyPtr propVals;
+      FormationPropertyPtr propVals;
 
       m_crust = dynamic_cast<const GeoPhysics::Formation*>(getProjectHandle ()->findFormation ( "Crust" ));
       m_temperature = getPropertyManager ().getFormationProperty ( getProjectHandle ()->findProperty ( "Temperature" ),

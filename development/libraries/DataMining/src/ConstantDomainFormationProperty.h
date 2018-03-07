@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MINING__CONSTANT_DOMAIN_FORMATION_PROPERTY_H_
 #define _MINING__CONSTANT_DOMAIN_FORMATION_PROPERTY_H_
 
@@ -54,7 +64,7 @@ namespace DataAccess {
       protected :
 
          /// \typedef FormationToGridMapMapping
-         typedef std::map < const DataModel::AbstractFormation*, DerivedProperties::FormationPropertyPtr > FormationToPropertyValueMapping;
+         typedef std::map < const DataModel::AbstractFormation*, AbstractDerivedProperties::FormationPropertyPtr > FormationToPropertyValueMapping;
 
          PropertyInterpolator2D           interpolate2D;
          PropertyInterpolator3D           interpolate3D;

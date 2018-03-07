@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -18,6 +18,8 @@
 #include "Interface/Surface.h"
 #include "Interface/Snapshot.h"
 #include "NumericFunctions.h"
+
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::MaxVesHighResFormationCalculator::MaxVesHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle ) :
    m_projectHandle( projectHandle ),

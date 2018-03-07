@@ -1,12 +1,13 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// 
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
 // 
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
+
 #include "HydrostaticPressureFormationCalculator.h"
 
 #include "Interface/Surface.h"
@@ -22,6 +23,8 @@
 // utilitites library
 #include "ConstantsPhysics.h"
 #include "ConstantsMathematics.h"
+
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::HydrostaticPressureFormationCalculator::HydrostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) :
    m_projectHandle ( projectHandle )
@@ -56,7 +59,7 @@ DerivedProperties::HydrostaticPressureFormationCalculator::HydrostaticPressureFo
    }
 }
  
-void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( AbstractPropertyManager&            propertyManager,
+void DerivedProperties::HydrostaticPressureFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                             const DataModel::AbstractSnapshot*  snapshot,
                                                                             const DataModel::AbstractFormation* formation,
                                                                                   FormationPropertyList&        derivedProperties ) const {
@@ -141,7 +144,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
 
 }
 
-void DerivedProperties::HydrostaticPressureFormationCalculator::copyHydrostaticPressureFromLayerAbove ( AbstractPropertyManager&            propertyManager,
+void DerivedProperties::HydrostaticPressureFormationCalculator::copyHydrostaticPressureFromLayerAbove (       AbstractPropertyManager&      propertyManager,
                                                                                                         const DataModel::AbstractProperty*  hydrostaticPressureProperty,
                                                                                                         const DataModel::AbstractSnapshot*  snapshot,
                                                                                                         const DataModel::AbstractFormation* formationAbove,
@@ -167,10 +170,10 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::copyHydrostaticP
 
 }
 
-void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostaticPressureForDecomapctionMode ( AbstractPropertyManager&            propertyManager,
+void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostaticPressureForDecomapctionMode (       AbstractPropertyManager&      propertyManager,
                                                                                                                 const DataModel::AbstractSnapshot*  snapshot,
                                                                                                                 const DataModel::AbstractFormation* formation,
-                                                                                                                FormationPropertyList&              derivedProperties ) const {
+                                                                                                                      FormationPropertyList&        derivedProperties ) const {
 
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
@@ -265,10 +268,10 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
 }
 
 
-void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostaticPressureForHydrostaticMode ( AbstractPropertyManager&            propertyManager,
+void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostaticPressureForHydrostaticMode (       AbstractPropertyManager&      propertyManager,
                                                                                                                const DataModel::AbstractSnapshot*  snapshot,
                                                                                                                const DataModel::AbstractFormation* formation,
-                                                                                                               FormationPropertyList&              derivedProperties ) const {
+                                                                                                                     FormationPropertyList&        derivedProperties ) const {
 
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
  
@@ -310,10 +313,10 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
    }
 }
 
-void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostaticPressureForCoupledMode ( AbstractPropertyManager&            propertyManager,
+void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostaticPressureForCoupledMode (       AbstractPropertyManager&      propertyManager,
                                                                                                            const DataModel::AbstractSnapshot*  snapshot,
                                                                                                            const DataModel::AbstractFormation* formation,
-                                                                                                           FormationPropertyList&              derivedProperties ) const {
+                                                                                                                 FormationPropertyList&        derivedProperties ) const {
 
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
  
@@ -439,10 +442,10 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
 
 }
 
-void DerivedProperties::HydrostaticPressureFormationCalculator::computeForBasement ( AbstractPropertyManager&            propertyManager,
+void DerivedProperties::HydrostaticPressureFormationCalculator::computeForBasement (       AbstractPropertyManager&      propertyManager,
                                                                                      const DataModel::AbstractSnapshot*  snapshot,
                                                                                      const DataModel::AbstractFormation* formation,
-                                                                                     FormationPropertyList&              derivedProperties ) const {
+                                                                                           FormationPropertyList&        derivedProperties ) const {
    
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
  
@@ -482,9 +485,9 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeForBaseme
    derivedProperties.push_back ( hydrostaticPressure );
 }
 
-void DerivedProperties::HydrostaticPressureFormationCalculator::computeEstimatedTemperature ( const double currentTime,
-                                                                                              const FormationPropertyPtr& depth,
-                                                                                              DerivedFormationPropertyPtr& temperature ) const {
+void DerivedProperties::HydrostaticPressureFormationCalculator::computeEstimatedTemperature ( const double                       currentTime,
+                                                                                              const FormationPropertyPtr&        depth,
+                                                                                                    DerivedFormationPropertyPtr& temperature ) const {
 
    unsigned int topNodeIndex  = temperature->lastK ();
    double temperatureGradient = 0.001 * m_projectHandle->getRunParameters ()->getTemperatureGradient ();
@@ -525,7 +528,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeEstimated
    }
 }
 
-bool DerivedProperties::HydrostaticPressureFormationCalculator::isComputable ( const DerivedProperties::AbstractPropertyManager& propManager,
+bool DerivedProperties::HydrostaticPressureFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,
                                                                                const DataModel::AbstractSnapshot*  snapshot,
                                                                                const DataModel::AbstractFormation* formation ) const {
    

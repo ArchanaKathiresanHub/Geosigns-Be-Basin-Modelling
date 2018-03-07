@@ -1,11 +1,23 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "FormationMapOutputPropertyValue.h"
 
-DerivedProperties::FormationMapOutputPropertyValue::FormationMapOutputPropertyValue ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                                      const DataModel::AbstractProperty*          property,
-                                                                                      const DataModel::AbstractSnapshot*          snapshot,
-                                                                                      const DataModel::AbstractFormation*         formation ) : OutputPropertyValue ( property ) {
+using namespace AbstractDerivedProperties;
 
-   if ( property != 0 and snapshot != 0 and formation != 0 ) {
+DerivedProperties::FormationMapOutputPropertyValue::FormationMapOutputPropertyValue ( AbstractPropertyManager&            propertyManager,
+                                                                                      const DataModel::AbstractProperty*  property,
+                                                                                      const DataModel::AbstractSnapshot*  snapshot,
+                                                                                      const DataModel::AbstractFormation* formation ) : OutputPropertyValue ( property ) {
+
+   if ( property != nullptr and snapshot != nullptr and formation != nullptr ) {
       m_formationMapProperty = propertyManager.getFormationMapProperty ( property, snapshot, formation );
    }
 
@@ -13,7 +25,7 @@ DerivedProperties::FormationMapOutputPropertyValue::FormationMapOutputPropertyVa
 
 double DerivedProperties::FormationMapOutputPropertyValue::getValue ( const double i, const double j, const double k ) const {
 
-   if ( m_formationMapProperty != 0 ) {
+   if ( m_formationMapProperty != nullptr ) {
       return m_formationMapProperty->interpolate ( i, j );
    } else {
       return DataAccess::Interface::DefaultUndefinedMapValue;
@@ -22,20 +34,20 @@ double DerivedProperties::FormationMapOutputPropertyValue::getValue ( const doub
 }
 
 void DerivedProperties::FormationMapOutputPropertyValue::restoreData () const {
-  if ( m_formationMapProperty != 0 ) {
+  if ( m_formationMapProperty != nullptr ) {
      m_formationMapProperty->restoreData();
   }
 }
 
 void DerivedProperties::FormationMapOutputPropertyValue::retrieveData () const {
-  if ( m_formationMapProperty != 0 ) {
+  if ( m_formationMapProperty != nullptr ) {
      m_formationMapProperty->retrieveData();
   }
 }
 
 unsigned int DerivedProperties::FormationMapOutputPropertyValue::getDepth () const {
 
-   if ( m_formationMapProperty != 0 ) {
+   if ( m_formationMapProperty != nullptr ) {
       return 1;
    } else {
       return 0;
@@ -44,28 +56,16 @@ unsigned int DerivedProperties::FormationMapOutputPropertyValue::getDepth () con
 
 const string & DerivedProperties::FormationMapOutputPropertyValue::getName() const {
    
-   if ( m_formationMapProperty != 0 ) {
+   if ( m_formationMapProperty != nullptr ) {
       return m_formationMapProperty->getProperty()->getName(); 
    } else {
       return s_nullString;
    }
 }
 
-bool DerivedProperties::FormationMapOutputPropertyValue::hasMap() const { 
-
-   if( m_formationMapProperty != 0 ) {
-
-      if( m_formationMapProperty->isPrimary() and m_formationMapProperty->getGridMap() == 0 ) {
-         return false;
-      }
-      return true;
-   }
-   return false;
-}
-
 const DataModel::AbstractGrid* DerivedProperties::FormationMapOutputPropertyValue::getGrid () const {
 
-   if( m_formationMapProperty != 0 ) {
+   if( m_formationMapProperty != nullptr ) {
       return m_formationMapProperty->getGrid();
    }
    return false;
@@ -73,9 +73,13 @@ const DataModel::AbstractGrid* DerivedProperties::FormationMapOutputPropertyValu
 
 bool DerivedProperties::FormationMapOutputPropertyValue::isPrimary() const { 
 
-   if( m_formationMapProperty != 0 ) {
+   if( m_formationMapProperty != nullptr ) {
       return m_formationMapProperty->isPrimary();
    } else {
       return false;
    }
+}
+
+bool DerivedProperties::FormationMapOutputPropertyValue::hasProperty() const {
+   return m_formationMapProperty != nullptr;
 }

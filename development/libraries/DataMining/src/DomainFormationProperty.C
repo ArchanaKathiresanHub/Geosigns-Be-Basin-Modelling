@@ -1,8 +1,19 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "DomainFormationProperty.h"
 
 #include "DomainPropertyCollection.h"
 #include "ElementFunctions.h"
 
+using namespace AbstractDerivedProperties;
 
 DataAccess::Mining::DomainFormationProperty::DomainFormationProperty ( const DomainPropertyCollection*            collection,
                                                                        DerivedProperties::DerivedPropertyManager& propertyManager,
@@ -11,7 +22,7 @@ DataAccess::Mining::DomainFormationProperty::DomainFormationProperty ( const Dom
    DomainProperty ( collection, propertyManager, snapshot, property )
 {
 
-   DerivedProperties::FormationPropertyList values = propertyManager.getFormationProperties ( getProperty (), getSnapshot (), true );
+   FormationPropertyList values = propertyManager.getFormationProperties ( getProperty (), getSnapshot (), true );
 
    for ( size_t i = 0; i < values.size (); ++i ) {
       m_values [ values [ i ]->getFormation ()] = values [ i ];
@@ -29,7 +40,7 @@ double DataAccess::Mining::DomainFormationProperty::compute ( const ElementPosit
       FormationToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getFormation ());
 
       if ( propIter != m_values.end ()) {
-         DerivedProperties::FormationPropertyPtr grid = propIter->second;
+         FormationPropertyPtr grid = propIter->second;
 
          if ( position.getSurface () == 0 ) {
             return interpolate3D ( position, grid );
@@ -54,7 +65,7 @@ void DataAccess::Mining::DomainFormationProperty::extractCoefficients ( const El
       FormationToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getFormation ());
 
       if ( propIter != m_values.end ()) {
-         DerivedProperties::FormationPropertyPtr grid = propIter->second;
+         FormationPropertyPtr grid = propIter->second;
 
          getElementCoefficients ( position, grid, coefficients );
       } else {

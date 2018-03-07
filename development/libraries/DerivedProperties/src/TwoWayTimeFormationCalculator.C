@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2016-2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -28,6 +28,8 @@
 
 #include "TwoWayTimeFormationCalculator.h"
 
+using namespace AbstractDerivedProperties;
+
 typedef formattingexception::GeneralException TwoWayTimeException;
 
 DerivedProperties::TwoWayTimeFormationCalculator::TwoWayTimeFormationCalculator() {
@@ -39,7 +41,7 @@ DerivedProperties::TwoWayTimeFormationCalculator::TwoWayTimeFormationCalculator(
    addDependentPropertyName ( "Velocity" );
 }
 
-void DerivedProperties::TwoWayTimeFormationCalculator::calculate( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractPropertyManager&      propertyManager,
                                                                  const DataModel::AbstractSnapshot*  snapshot,
                                                                  const DataModel::AbstractFormation* formation,
                                                                        FormationPropertyList&        derivedProperties ) const {
@@ -192,9 +194,9 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate( DerivedPropert
 
 }
 
-bool DerivedProperties::TwoWayTimeFormationCalculator::isComputable( const DerivedProperties::AbstractPropertyManager& propManager,
-   const DataModel::AbstractSnapshot*  snapshot,
-   const DataModel::AbstractFormation* formation ) const {
+bool DerivedProperties::TwoWayTimeFormationCalculator::isComputable( const AbstractPropertyManager&      propManager,
+                                                                     const DataModel::AbstractSnapshot*  snapshot,
+                                                                     const DataModel::AbstractFormation* formation ) const {
 
    DataModel::AbstractProperty const * const depthProperty       = propManager.getProperty( "Depth" );
    DataModel::AbstractProperty const * const pressureProperty    = propManager.getProperty( "Pressure" );

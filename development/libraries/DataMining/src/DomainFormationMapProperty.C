@@ -1,6 +1,18 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "DomainFormationMapProperty.h"
 
 #include "Interface/PropertyValue.h"
+
+using namespace AbstractDerivedProperties;
 
 namespace DataAccess { namespace Mining
 {
@@ -13,7 +25,7 @@ namespace DataAccess { namespace Mining
       : DomainProperty( collection, propertyManager, snapshot, property )
    {
 
-      DerivedProperties::FormationMapPropertyList values = propertyManager.getFormationMapProperties ( getProperty (), getSnapshot (), true );
+      FormationMapPropertyList values = propertyManager.getFormationMapProperties ( getProperty (), getSnapshot (), true );
 
       for ( size_t i = 0; i < values.size (); ++i ) {
          m_values [ values [ i ]->getFormation ()] = values [ i ];
@@ -35,7 +47,7 @@ namespace DataAccess { namespace Mining
 
          if ( propIter != m_values.end() )
          {
-            DerivedProperties::FormationMapPropertyPtr grid = propIter->second;
+            FormationMapPropertyPtr grid = propIter->second;
             return interpolate2D ( position, grid );
          }
          else

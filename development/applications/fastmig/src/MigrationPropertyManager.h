@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -34,9 +34,9 @@ namespace migration
       /// \brief Destructor.
       ~MigrationPropertyManager ();
 
-      DataAccess::Interface::GridMap * produceDerivedGridMap (DerivedProperties::FormationPropertyPtr aProperty);
-      DataAccess::Interface::GridMap * produceDerivedGridMap (DerivedProperties::FormationSurfacePropertyPtr aProperty);
-      DataAccess::Interface::GridMap * produceDerivedGridMap (DerivedProperties::SurfacePropertyPtr aProperty);
+      DataAccess::Interface::GridMap * produceDerivedGridMap (AbstractDerivedProperties::FormationPropertyPtr aProperty);
+      DataAccess::Interface::GridMap * produceDerivedGridMap (AbstractDerivedProperties::FormationSurfacePropertyPtr aProperty);
+      DataAccess::Interface::GridMap * produceDerivedGridMap (AbstractDerivedProperties::SurfacePropertyPtr aProperty);
 
    private:
       vector <DataAccess::Interface::GridMap *> m_derivedMaps;

@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -68,17 +68,18 @@ add_executable( cauldron2voxet
 )
 
 bm_include_libraries(
-	DerivedProperties
-	GeoPhysics
-	DataAccess
-	SerialDataAccess
-	DataModel
-	Interpolation
-	LinearAlgebra
-	EosPack
-	utilities
-	TableIO
-	CBMGenerics
+   AbstractDerivedProperties
+   DerivedProperties
+   GeoPhysics
+   DataAccess
+   SerialDataAccess
+   DataModel
+   Interpolation
+   LinearAlgebra
+   EosPack
+   utilities
+   TableIO
+   CBMGenerics
 )
 
 include_directories( ${PROJECT_BINARY_DIR}/applications/cauldron2voxet )
@@ -86,19 +87,20 @@ include_directories( ${PROJECT_BINARY_DIR}/applications/cauldron2voxet )
 include_directories( SYSTEM	${HDF5_INCLUDE_DIRS} )
 
 target_link_libraries(cauldron2voxet
-	DerivedProperties
-	DataMining
-	GeoPhysics
-	DataAccess
-	SerialDataAccess
-	Interpolation
-	LinearAlgebra
-	TableIO
-	EosPack
-	CBMGenerics
-	utilities
-	Serial_Hdf5
-	${HDF5_LIBRARIES}
+   AbstractDerivedProperties
+   DerivedProperties
+   DataMining
+   GeoPhysics
+   DataAccess
+   SerialDataAccess
+   Interpolation
+   LinearAlgebra
+   TableIO
+   EosPack
+   CBMGenerics
+   utilities
+   Serial_Hdf5
+   ${HDF5_LIBRARIES}
 )
 
 add_custom_command(OUTPUT ${voxetProjectFormatSources}

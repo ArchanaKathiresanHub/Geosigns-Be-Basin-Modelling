@@ -1,9 +1,19 @@
+//
+// Copyright (C) 2018-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "ReservoirOutputPropertyValue.h"
 
-DerivedProperties::ReservoirOutputPropertyValue::ReservoirOutputPropertyValue ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                                const DataModel::AbstractProperty*          property,
-                                                                                const DataModel::AbstractSnapshot*          snapshot,
-                                                                                const DataModel::AbstractReservoir*         reservoir ) : OutputPropertyValue ( property ) {
+DerivedProperties::ReservoirOutputPropertyValue::ReservoirOutputPropertyValue ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
+                                                                                const DataModel::AbstractProperty*                  property,
+                                                                                const DataModel::AbstractSnapshot*                  snapshot,
+                                                                                const DataModel::AbstractReservoir*                 reservoir ) : OutputPropertyValue ( property ) {
    
    if ( property != 0 and snapshot != 0 and reservoir != 0 ) {
       m_reservoirProperty = propertyManager.getReservoirProperty ( property, snapshot, reservoir );
@@ -59,18 +69,6 @@ const DataModel::AbstractReservoir*  DerivedProperties::ReservoirOutputPropertyV
    return 0;
 }
 
-bool DerivedProperties::ReservoirOutputPropertyValue::hasMap() const { 
-
-   if( m_reservoirProperty != 0 ) {
-
-      if( m_reservoirProperty->isPrimary() and m_reservoirProperty->getGridMap() == 0 ) {
-         return false;
-      }
-      return true;
-   }
-   return false;
-}
-
 const DataModel::AbstractGrid* DerivedProperties::ReservoirOutputPropertyValue::getGrid () const {
 
    if( m_reservoirProperty != 0 ) {
@@ -86,4 +84,8 @@ bool DerivedProperties::ReservoirOutputPropertyValue::isPrimary() const {
    } else {
       return false;
    }
+}
+
+bool DerivedProperties::ReservoirOutputPropertyValue::hasProperty() const {
+   return m_reservoirProperty != nullptr;
 }

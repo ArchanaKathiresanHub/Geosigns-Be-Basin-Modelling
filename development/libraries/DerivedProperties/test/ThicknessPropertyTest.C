@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -16,6 +26,7 @@
 
 using namespace DataModel;
 using namespace DerivedProperties;
+using namespace AbstractDerivedProperties;
 
 static const double initialLayerThickness = 500;
 static const double depthDelta = 100.0;
@@ -24,7 +35,7 @@ static const double topDepthXDiff = 10.0;
 static const double topDepthYDiff = 10.0;
 static const int numberOfNodes = 11;
 
-class TestPropertyManager : public DerivedProperties::AbstractPropertyManager {
+class TestPropertyManager : public AbstractPropertyManager {
 
 public :
 
@@ -59,13 +70,13 @@ private :
 
 };
 
-class DepthCalculator : public DerivedProperties::FormationPropertyCalculator {
+class DepthCalculator : public FormationPropertyCalculator {
 
 public :
 
    DepthCalculator ();
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+   void calculate ( AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*          snapshot,
                     const DataModel::AbstractFormation*         formation,
                           FormationPropertyList&                derivedProperties ) const;
@@ -168,7 +179,7 @@ TestPropertyManager::TestPropertyManager () {
    m_mapGrid = new DataModel::MockGrid ( 0, 0, 0, 0, 10, 10, 10, 10 );
 
    addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new DepthCalculator )); 
-   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new DerivedProperties::ThicknessFormationMapCalculator ));
+   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new ThicknessFormationMapCalculator ));
 }
 
 
@@ -218,14 +229,14 @@ DepthCalculator::DepthCalculator () {
    addPropertyName ( "Depth" );
 }
 
-void DepthCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DepthCalculator::calculate ( AbstractPropertyManager& propertyManager,
                                   const DataModel::AbstractSnapshot*          snapshot,
                                   const DataModel::AbstractFormation*         formation,
                                         FormationPropertyList&                derivedProperties ) const {
 
    const DataModel::AbstractProperty* depth = propertyManager.getProperty ( "Depth" );
 
-   DerivedFormationPropertyPtr depthProp = DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty ( depth,
+   DerivedFormationPropertyPtr depthProp = DerivedFormationPropertyPtr( new DerivedFormationProperty ( depth,
                                                                                                                           snapshot,
                                                                                                                           formation,
                                                                                                                           propertyManager.getMapGrid (),

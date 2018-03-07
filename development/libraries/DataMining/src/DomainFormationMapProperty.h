@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MINING__DOMAIN_FORMATION_MAP_PROPERTY_H_
 #define _MINING__DOMAIN_FORMATION_MAP_PROPERTY_H_
 
@@ -26,7 +36,7 @@ namespace DataAccess
       class DomainFormationMapProperty : public DomainProperty
       {
          /// \typedef SurfaceToGridMapMapping
-         typedef std::map < const DataModel::AbstractFormation *, DerivedProperties::FormationMapPropertyPtr > FormationMapToPropertyValueMapping;
+         typedef std::map < const DataModel::AbstractFormation *, AbstractDerivedProperties::FormationMapPropertyPtr > FormationMapToPropertyValueMapping;
 
       public :
 

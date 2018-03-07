@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -25,6 +25,8 @@
 // utilities library
 #include "ConstantsMathematics.h"
 
+using namespace AbstractDerivedProperties;
+
 DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
 
    const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
@@ -44,10 +46,10 @@ DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalcula
 
 }
 
-void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                     const DataModel::AbstractSnapshot*          snapshot,
-                                                                     const DataModel::AbstractFormation*         formation,
-                                                                           FormationPropertyList&                derivedProperties ) const {
+void DerivedProperties::PermeabilityFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
+                                                                     const DataModel::AbstractSnapshot*  snapshot,
+                                                                     const DataModel::AbstractFormation* formation,
+                                                                           FormationPropertyList&        derivedProperties ) const {
 
 
    const DataModel::AbstractProperty* aVesProperty = propertyManager.getProperty ( "Ves" );

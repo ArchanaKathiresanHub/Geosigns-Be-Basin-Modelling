@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__PRIMARY_FORMATION_SURFACE_PROPERTY_CALCULATOR_H
 #define DERIVED_PROPERTIES__PRIMARY_FORMATION_SURFACE_PROPERTY_CALCULATOR_H
 
@@ -16,16 +26,18 @@
 #include "FormationSurfaceProperty.h"
 #include "FormationSurfacePropertyCalculator.h"
 
-namespace DerivedProperties {
-
+namespace AbstractDerivedProperties {
    // Forward declaration of PropertyManager
    class AbstractPropertyManager;
+}
+
+namespace DerivedProperties {
 
    /// \brief Loads a primary property.
    ///
    /// A primary property is a property that has been computed by one of 
    /// the simulators and saved to a file.
-   class PrimaryFormationSurfacePropertyCalculator : public FormationSurfacePropertyCalculator {
+   class PrimaryFormationSurfacePropertyCalculator : public AbstractDerivedProperties::FormationSurfacePropertyCalculator {
 
    public :
 
@@ -36,17 +48,17 @@ namespace DerivedProperties {
       ~PrimaryFormationSurfacePropertyCalculator ();
 
       /// \brief Calculate the property values and add the property values to the list.
-      virtual void calculate ( AbstractPropertyManager&            propManager,
-                               const DataModel::AbstractSnapshot*  snapshot,
-                               const DataModel::AbstractFormation* formation,
-                               const DataModel::AbstractSurface*   surface,
-                                     FormationSurfacePropertyList& derivedProperties ) const;
+      virtual void calculate (       AbstractDerivedProperties::AbstractPropertyManager&      propManager,
+                               const DataModel::AbstractSnapshot*                             snapshot,
+                               const DataModel::AbstractFormation*                            formation,
+                               const DataModel::AbstractSurface*                              surface,
+                                     AbstractDerivedProperties::FormationSurfacePropertyList& derivedProperties ) const;
 
       /// \brief Determine if the property is computable for the specific combination of formation, surface and snapshot.
-      virtual bool isComputable ( const AbstractPropertyManager&      propManager,
-                                  const DataModel::AbstractSnapshot*  snapshot,
-                                  const DataModel::AbstractFormation* formation,
-                                  const DataModel::AbstractSurface*   surface ) const;
+      virtual bool isComputable ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                                  const DataModel::AbstractSnapshot*                        snapshot,
+                                  const DataModel::AbstractFormation*                       formation,
+                                  const DataModel::AbstractSurface*                         surface ) const;
 
       /// \brief Get the snapshots for which the property is available.
       const DataModel::AbstractSnapshotSet& getSnapshots () const;

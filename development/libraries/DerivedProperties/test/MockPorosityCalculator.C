@@ -19,10 +19,10 @@ namespace DataModel{
       addPropertyName ( "Porosity" );
    }
    
-   void MockPorosityCalculator::calculate (   DerivedProperties::AbstractPropertyManager& propertyManager,
-                                        const DataModel::AbstractSnapshot*                snapshot,
-                                        const DataModel::AbstractFormation*               formation,
-                                              DerivedProperties::FormationPropertyList&   derivedProperties ) const {
+   void MockPorosityCalculator::calculate (   AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
+                                        const DataModel::AbstractSnapshot*                        snapshot,
+                                        const DataModel::AbstractFormation*                       formation,
+                                              AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const {
    
       const DataModel::AbstractProperty* porosity = propertyManager.getProperty ( "Porosity" );
    

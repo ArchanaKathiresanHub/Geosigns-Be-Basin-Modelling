@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "PrimaryFormationMapProperty.h"
 
 #include "Interface/Property.h"
@@ -6,6 +16,8 @@
 #include "Interface/Reservoir.h"
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
+
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::PrimaryFormationMapProperty::PrimaryFormationMapProperty ( const DataAccess::Interface::PropertyValue* propertyValue ) : 
    FormationMapProperty ( propertyValue->getProperty (), 

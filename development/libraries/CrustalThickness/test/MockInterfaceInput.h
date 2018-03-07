@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -75,13 +75,13 @@ class MockInterfaceInput : public InterfaceInput {
       void setHLMuMap     (const GridMap* map  ) { m_HLMuMap = map;          }
       void setRiftingEvent(riftingEvents events) { m_riftingEvents = events; }
 
-      void setPressureBasement            ( const DerivedProperties::SurfacePropertyPtr pressure) { m_pressureBasement           = pressure; }
-      void setPressureBasementAtPresentDay( const DerivedProperties::SurfacePropertyPtr pressure) { m_pressureBasementPresentDay = pressure; }
-      void setPressureWaterBottom         ( const DerivedProperties::SurfacePropertyPtr pressure) { m_pressureWaterBottom        = pressure; }
-      void setPressureMantle              ( const DerivedProperties::SurfacePropertyPtr pressure) { m_pressureMantle             = pressure; }
-      void setPressureMantleAtPresentDay  ( const DerivedProperties::SurfacePropertyPtr pressure) { m_pressureMantleAtPresentDay = pressure; }
-      void setDepthBasement               ( const DerivedProperties::SurfacePropertyPtr depth   ) { m_depthBasement              = depth;    }
-      void setDepthWaterBottom            ( const DerivedProperties::SurfacePropertyPtr depth   ) { m_depthWaterBottom           = depth;    }
+      void setPressureBasement            ( const AbstractDerivedProperties::SurfacePropertyPtr pressure) { m_pressureBasement           = pressure; }
+      void setPressureBasementAtPresentDay( const AbstractDerivedProperties::SurfacePropertyPtr pressure) { m_pressureBasementPresentDay = pressure; }
+      void setPressureWaterBottom         ( const AbstractDerivedProperties::SurfacePropertyPtr pressure) { m_pressureWaterBottom        = pressure; }
+      void setPressureMantle              ( const AbstractDerivedProperties::SurfacePropertyPtr pressure) { m_pressureMantle             = pressure; }
+      void setPressureMantleAtPresentDay  ( const AbstractDerivedProperties::SurfacePropertyPtr pressure) { m_pressureMantleAtPresentDay = pressure; }
+      void setDepthBasement               ( const AbstractDerivedProperties::SurfacePropertyPtr depth   ) { m_depthBasement              = depth;    }
+      void setDepthWaterBottom            ( const AbstractDerivedProperties::SurfacePropertyPtr depth   ) { m_depthWaterBottom           = depth;    }
 
       void setTopOfSedimentSurface(const DataAccess::Interface::Surface* surface) { m_topOfSedimentSurface    = surface; }
       void setBotOfSedimentSurface(const DataAccess::Interface::Surface* surface) { m_bottomOfSedimentSurface = surface; }

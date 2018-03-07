@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -27,12 +27,13 @@
 
 using namespace DataModel;
 using namespace DerivedProperties;
+using namespace AbstractDerivedProperties;
 
 static const double ValueToAdd = 10.0;
 
 typedef formattingexception::GeneralException MultiplePropertyException;
 
-class TestPropertyManager : public DerivedProperties::AbstractPropertyManager {
+class TestPropertyManager : public AbstractPropertyManager {
 
 public :
 
@@ -67,13 +68,13 @@ private :
 };
 
 
-class Property1Calculator : public DerivedProperties::SurfacePropertyCalculator {
+class Property1Calculator : public SurfacePropertyCalculator {
 
 public :
 
    Property1Calculator ();
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+   void calculate ( AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*        snapshot,
                     const DataModel::AbstractSurface*         surface,
                           SurfacePropertyList&                derivedProperties ) const;
@@ -81,13 +82,13 @@ public :
 
 };
 
-class Property2Calculator : public DerivedProperties::SurfacePropertyCalculator {
+class Property2Calculator : public SurfacePropertyCalculator {
 
 public :
 
    Property2Calculator ( const double value );
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+   void calculate ( AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*        snapshot,
                     const DataModel::AbstractSurface*         surface,
                     SurfacePropertyList&                derivedProperties ) const;
@@ -98,13 +99,13 @@ private :
 
 };
 
-class Property4Calculator : public DerivedProperties::SurfacePropertyCalculator {
+class Property4Calculator : public SurfacePropertyCalculator {
 
 public :
 
    Property4Calculator ();
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+   void calculate ( AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*        snapshot,
                     const DataModel::AbstractSurface*         surface,
                     SurfacePropertyList&                derivedProperties ) const;
@@ -267,7 +268,7 @@ Property1Calculator::Property1Calculator () {
    addPropertyName ( "LithoStaticPressure" );
 }
 
-void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void Property1Calculator::calculate ( AbstractPropertyManager& propertyManager,
                                       const DataModel::AbstractSnapshot*        snapshot,
                                       const DataModel::AbstractSurface*         surface,
                                       SurfacePropertyList&                derivedProperties ) const {
@@ -277,7 +278,7 @@ void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager
    if ( surface->getName () == "TopSurface" ) {
       const DataModel::AbstractProperty* property = propertyManager.getProperty ( "LithoStaticPressure" );
 
-      DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( property, snapshot, surface, propertyManager.getMapGrid ()));
+      DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr ( new DerivedSurfaceProperty ( property, snapshot, surface, propertyManager.getMapGrid ()));
       double value = 0.0;
 
       for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
@@ -299,7 +300,7 @@ Property2Calculator::Property2Calculator ( const double value ) : m_value ( valu
    addPropertyName ( "Property3" );
 }
 
-void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void Property2Calculator::calculate ( AbstractPropertyManager& propertyManager,
                                       const DataModel::AbstractSnapshot*        snapshot,
                                       const DataModel::AbstractSurface*         surface,
                                       SurfacePropertyList&                derivedProperties ) const {
@@ -313,8 +314,8 @@ void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager
    derivedProperties.clear ();
 
    if ( prop1 != 0 ) {
-      DerivedSurfacePropertyPtr derivedProp2 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property2, snapshot, surface, propertyManager.getMapGrid ()));
-      DerivedSurfacePropertyPtr derivedProp3 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property3, snapshot, surface, propertyManager.getMapGrid ()));
+      DerivedSurfacePropertyPtr derivedProp2 = DerivedSurfacePropertyPtr( new DerivedSurfaceProperty ( property2, snapshot, surface, propertyManager.getMapGrid ()));
+      DerivedSurfacePropertyPtr derivedProp3 = DerivedSurfacePropertyPtr( new DerivedSurfaceProperty ( property3, snapshot, surface, propertyManager.getMapGrid ()));
 
       for ( unsigned int i = derivedProp2->firstI ( true ); i <= derivedProp2->lastI ( true ); ++i ) {
 
@@ -335,7 +336,7 @@ Property4Calculator::Property4Calculator () {
    addPropertyName ( "Pressure" );
 }
 
-void Property4Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void Property4Calculator::calculate ( AbstractPropertyManager& propertyManager,
                                       const DataModel::AbstractSnapshot*          snapshot,
                                       const DataModel::AbstractSurface*           surface,
                                             SurfacePropertyList&                  derivedProperties ) const {
@@ -350,7 +351,7 @@ void Property4Calculator::calculate ( DerivedProperties::AbstractPropertyManager
    derivedProperties.clear ();
 
    if ( prop1 != 0 and prop2 != 0 ) {
-      DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property4, snapshot, surface, propertyManager.getMapGrid ()));
+      DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr( new DerivedSurfaceProperty ( property4, snapshot, surface, propertyManager.getMapGrid ()));
 
       for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
 

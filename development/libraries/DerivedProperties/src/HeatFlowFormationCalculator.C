@@ -1,12 +1,13 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// 
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
 // 
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedPropertyManager.h"
 
@@ -23,6 +24,7 @@
 #include "ConstantsMathematics.h"
 
 using namespace FiniteElementMethod;
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::HeatFlowFormationCalculator::HeatFlowFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
 
@@ -54,10 +56,10 @@ DerivedProperties::HeatFlowFormationCalculator::HeatFlowFormationCalculator ( co
     }
 }
 
-void DerivedProperties::HeatFlowFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                  const DataModel::AbstractSnapshot*  snapshot,
                                                                  const DataModel::AbstractFormation* formation,
-                                                                 FormationPropertyList&        derivedProperties ) const {
+                                                                       FormationPropertyList&        derivedProperties ) const {
 
    const DataModel::AbstractProperty* aDepthProperty        = propertyManager.getProperty ( "Depth" );
    const DataModel::AbstractProperty* aTemperatureProperty  = propertyManager.getProperty ( "Temperature" );
@@ -544,7 +546,7 @@ void DerivedProperties::HeatFlowFormationCalculator::computeHeatFlow ( const boo
    scale ( heatFlow, 1000.0 );
 }
 
-bool DerivedProperties::HeatFlowFormationCalculator::isComputable ( const DerivedProperties::AbstractPropertyManager& propManager,
+bool DerivedProperties::HeatFlowFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,
                                                                     const DataModel::AbstractSnapshot*  snapshot,
                                                                     const DataModel::AbstractFormation* formation ) const {
    

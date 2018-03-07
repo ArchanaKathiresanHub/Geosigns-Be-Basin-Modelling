@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -23,6 +23,8 @@
 
 // utilities library
 #include "ConstantsPhysics.h"
+
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::VesHighResFormationCalculator::VesHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle ) :
    m_projectHandle( projectHandle ),

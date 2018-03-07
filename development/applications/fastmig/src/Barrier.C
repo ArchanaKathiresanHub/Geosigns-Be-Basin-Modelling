@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016-2017 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -28,6 +28,7 @@ using namespace std;
 using DataAccess::Interface::GridMap;
 
 using namespace migration;
+using namespace AbstractDerivedProperties;
 
 Barrier::Barrier (Reservoir * reservoir) : m_reservoir (reservoir)
 {
@@ -60,7 +61,7 @@ void Barrier::updateBlockingPermeability (const migration::Formation * formation
    cerr << "Update blocking of reservoir " << m_reservoir->getName () << " with formation " << formation->getName () << endl;
 #endif
 
-   DerivedProperties::FormationPropertyPtr gridMap = m_reservoir->getVolumeProperty (formation, "Permeability", snapshot);
+   FormationPropertyPtr gridMap = m_reservoir->getVolumeProperty (formation, "Permeability", snapshot);
 
    if (!gridMap) return;
    gridMap->retrieveData ();
@@ -96,7 +97,7 @@ void Barrier::updateBlockingPorosity (const migration::Formation * formation,
 #if 0
    cerr << "Update blocking of reservoir " << m_reservoir->getName () << " with formation " << formation->getName () << endl;
 #endif
-   DerivedProperties::FormationPropertyPtr gridMap = m_reservoir->getVolumeProperty(formation, "Porosity", snapshot);
+   FormationPropertyPtr gridMap = m_reservoir->getVolumeProperty(formation, "Porosity", snapshot);
    if (!gridMap) return;
    gridMap->retrieveData ();
    unsigned int depth = gridMap->lengthK();

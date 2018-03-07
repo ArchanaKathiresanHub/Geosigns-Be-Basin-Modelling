@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef TRACK1D__SURFACE_OUTPUT_PROPERTY_VALUE__H
 #define TRACK1D__SURFACE_OUTPUT_PROPERTY_VALUE__H
 
@@ -16,12 +26,12 @@ class SurfaceOutputPropertyValue : public OutputPropertyValue {
 
 public :
 
-   SurfaceOutputPropertyValue ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                  const DataModel::AbstractProperty*        property,
-                                  const DataModel::AbstractSnapshot*        snapshot,
-                                  const DataModel::AbstractSurface*         surface );
+   SurfaceOutputPropertyValue (   AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
+                                  const DataModel::AbstractProperty*                  property,
+                                  const DataModel::AbstractSnapshot*                  snapshot,
+                                  const DataModel::AbstractSurface*                   surface );
 
-   SurfaceOutputPropertyValue ( DerivedProperties::SurfacePropertyPtr&    surfaceProperty );
+   SurfaceOutputPropertyValue ( AbstractDerivedProperties::SurfacePropertyPtr&  surfaceProperty );
 
    virtual double getValue ( const double i, const double j, const double k ) const;
 
@@ -30,7 +40,7 @@ public :
    bool isPrimary() const;
 private :
 
-   DerivedProperties::SurfacePropertyPtr m_surfaceProperty;
+   AbstractDerivedProperties::SurfacePropertyPtr m_surfaceProperty;
 
 };
 

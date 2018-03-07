@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -23,7 +23,7 @@ namespace DerivedProperties
 {
 
    /// \brief Calculates the high resolution max VES for a formation.
-   class MaxVesHighResFormationCalculator : public FormationPropertyCalculator
+   class MaxVesHighResFormationCalculator : public AbstractDerivedProperties::FormationPropertyCalculator
    {
 
    public :
@@ -40,24 +40,24 @@ namespace DerivedProperties
       /// \param [out] derivedProperties On exit will contain the newly computed high resolution max VES.
       /// \pre snapshot is not null and is a valid snapshot age.
       /// \pre formation is not null and is a valid formation.
-      virtual void calculate (       AbstractPropertyManager &      propertyManager,
-                               const DataModel::AbstractSnapshot *  snapshot,
-                               const DataModel::AbstractFormation * formation,
-                                     FormationPropertyList &        derivedProperties ) const;
+      virtual void calculate (       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
+                               const DataModel::AbstractSnapshot *                        snapshot,
+                               const DataModel::AbstractFormation *                       formation,
+                                     AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
 
    private :
 
       /// \brief Compute (indirectly, because we actually already have it) high resolution max VES for non subsampled runs.
-      void computeIndirectly(       AbstractPropertyManager &      propertyManager,
-                              const DataModel::AbstractSnapshot *  snapshot,
-                              const DataModel::AbstractFormation * formation,
-                                    FormationPropertyList &        derivedProperties ) const;
+      void computeIndirectly(       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
+                              const DataModel::AbstractSnapshot *                        snapshot,
+                              const DataModel::AbstractFormation *                       formation,
+                                    AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
 
       /// \brief Compute high resolution max VES for subsampled runs.
-      void computeForSubsampledRun(       AbstractPropertyManager &      propertyManager,
-                                    const DataModel::AbstractSnapshot *  snapshot,
-                                    const DataModel::AbstractFormation * formation,
-                                          FormationPropertyList &        derivedProperties ) const;
+      void computeForSubsampledRun(       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
+                                    const DataModel::AbstractSnapshot *                        snapshot,
+                                    const DataModel::AbstractFormation *                       formation,
+                                          AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
 
       const GeoPhysics::ProjectHandle * const m_projectHandle; //!< Project handle
 

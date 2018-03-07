@@ -28,7 +28,7 @@ namespace DataModel{
    /// \brief Mock gamma ray test PropertyManager
    ///
    /// defines a mock porosity and calculate the gamma ray value.
-   class MockGRPropertyManager final: public DerivedProperties::AbstractPropertyManager {
+   class MockGRPropertyManager final: public AbstractDerivedProperties::AbstractPropertyManager {
 
    public :
      

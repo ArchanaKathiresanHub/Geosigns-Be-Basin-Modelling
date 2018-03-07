@@ -73,8 +73,8 @@ namespace DataModel{
       }
       MPIHelper::barrier();
    
-      addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new MockPorosityCalculator ));
-      addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::GammaRayFormationCalculator() ));
+      addFormationPropertyCalculator ( AbstractDerivedProperties::FormationPropertyCalculatorPtr ( new MockPorosityCalculator ));
+      addFormationPropertyCalculator ( AbstractDerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::GammaRayFormationCalculator() ));
    }
  
    const DataModel::AbstractGrid* MockGRPropertyManager::getMapGrid () const {

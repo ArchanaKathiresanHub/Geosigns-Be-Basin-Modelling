@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -123,13 +123,13 @@ public:
    double getContinentalCrustRatio() const { return m_continentalCrustRatio; };
    double getOceanicCrustRatio()     const { return m_oceanicCrustRatio;     };
 
-   DerivedProperties::SurfacePropertyPtr getPressureBasement            () const { return m_pressureBasement;           }
-   DerivedProperties::SurfacePropertyPtr getPressureBasementAtPresentDay() const { return m_pressureBasementPresentDay; }
-   DerivedProperties::SurfacePropertyPtr getPressureWaterBottom         () const { return m_pressureWaterBottom;        }
-   DerivedProperties::SurfacePropertyPtr getPressureMantle              () const { return m_pressureMantle;             }
-   DerivedProperties::SurfacePropertyPtr getPressureMantleAtPresentDay  () const { return m_pressureMantleAtPresentDay; }
-   DerivedProperties::SurfacePropertyPtr getDepthBasement               () const { return m_depthBasement;              }
-   DerivedProperties::SurfacePropertyPtr getDepthWaterBottom            () const { return m_depthWaterBottom;           }
+   AbstractDerivedProperties::SurfacePropertyPtr getPressureBasement            () const { return m_pressureBasement;           }
+   AbstractDerivedProperties::SurfacePropertyPtr getPressureBasementAtPresentDay() const { return m_pressureBasementPresentDay; }
+   AbstractDerivedProperties::SurfacePropertyPtr getPressureWaterBottom         () const { return m_pressureWaterBottom;        }
+   AbstractDerivedProperties::SurfacePropertyPtr getPressureMantle              () const { return m_pressureMantle;             }
+   AbstractDerivedProperties::SurfacePropertyPtr getPressureMantleAtPresentDay  () const { return m_pressureMantleAtPresentDay; }
+   AbstractDerivedProperties::SurfacePropertyPtr getDepthBasement               () const { return m_depthBasement;              }
+   AbstractDerivedProperties::SurfacePropertyPtr getDepthWaterBottom            () const { return m_depthWaterBottom;           }
 
    const Surface* getTopOfSedimentSurface() const { return m_topOfSedimentSurface;    }
    const Surface* getBotOfSedimentSurface() const { return m_bottomOfSedimentSurface; }
@@ -278,14 +278,14 @@ protected:
 
    /// @defgroup DerivedProperties
    /// @{
-   DerivedProperties::DerivedPropertyManager* m_derivedManager;        ///< The derived property manager (we have to use a pointer for forward declaration due to crossdependent libraries)
-   DerivedProperties::SurfacePropertyPtr m_pressureBasement;           ///< The pressure of the basement at the current snapshot
-   DerivedProperties::SurfacePropertyPtr m_pressureBasementPresentDay; ///< The pressure of the basement at the present day
-   DerivedProperties::SurfacePropertyPtr m_pressureWaterBottom;        ///< The pressure of the water bottom at the current snapshot
-   DerivedProperties::SurfacePropertyPtr m_pressureMantle;             ///< The pressure of the bottom of mantle at the current snapshot
-   DerivedProperties::SurfacePropertyPtr m_pressureMantleAtPresentDay; ///< The pressure of the bootom of mantle at the present day
-   DerivedProperties::SurfacePropertyPtr m_depthBasement;              ///< The depth of the basement at the current snapshot
-   DerivedProperties::SurfacePropertyPtr m_depthWaterBottom;           ///< The depth of the water bottom at the current snapshot
+   DerivedProperties::DerivedPropertyManager* m_derivedManager;                ///< The derived property manager (we have to use a pointer for forward declaration due to crossdependent libraries)
+   AbstractDerivedProperties::SurfacePropertyPtr m_pressureBasement;           ///< The pressure of the basement at the current snapshot
+   AbstractDerivedProperties::SurfacePropertyPtr m_pressureBasementPresentDay; ///< The pressure of the basement at the present day
+   AbstractDerivedProperties::SurfacePropertyPtr m_pressureWaterBottom;        ///< The pressure of the water bottom at the current snapshot
+   AbstractDerivedProperties::SurfacePropertyPtr m_pressureMantle;             ///< The pressure of the bottom of mantle at the current snapshot
+   AbstractDerivedProperties::SurfacePropertyPtr m_pressureMantleAtPresentDay; ///< The pressure of the bootom of mantle at the present day
+   AbstractDerivedProperties::SurfacePropertyPtr m_depthBasement;              ///< The depth of the basement at the current snapshot
+   AbstractDerivedProperties::SurfacePropertyPtr m_depthWaterBottom;           ///< The depth of the water bottom at the current snapshot
    /// @}
 
    CrustalThickness::ConfigFileParameterCtc m_constants; ///< Constants loaded from the configuration file

@@ -1,5 +1,17 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "Interface/Interface.h"
 #include "DerivedFormationSurfaceProperty.h"
+
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::DerivedFormationSurfaceProperty::DerivedFormationSurfaceProperty ( const DataModel::AbstractProperty*  property,
                                                                                       const DataModel::AbstractSnapshot*  snapshot,
@@ -27,16 +39,9 @@ void DerivedProperties::DerivedFormationSurfaceProperty::set ( unsigned int i,
 }
 
 double DerivedProperties::DerivedFormationSurfaceProperty::getUndefinedValue () const {
-
    return DataAccess::Interface::DefaultUndefinedMapValue;
 }
 
 bool DerivedProperties::DerivedFormationSurfaceProperty::isPrimary() const {
- 
    return false;
-}
-
-const DataAccess::Interface::GridMap* DerivedProperties::DerivedFormationSurfaceProperty::getGridMap() const {
-
-   return 0;
 }

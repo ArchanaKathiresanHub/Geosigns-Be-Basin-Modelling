@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__PRIMARY_FORMATION_PROPERTY_CALCULATOR_H
 #define DERIVED_PROPERTIES__PRIMARY_FORMATION_PROPERTY_CALCULATOR_H
 
@@ -16,16 +26,18 @@
 #include "FormationProperty.h"
 #include "FormationPropertyCalculator.h"
 
-namespace DerivedProperties {
-
+namespace AbstractDerivedProperties {
    // Forward declaration of PropertyManager
    class AbstractPropertyManager;
+}
+
+namespace DerivedProperties {
 
    /// \brief Loads a primary property.
    ///
    /// A primary property is a property that has been computed by one of 
    /// the simulators and saved to a file.
-   class PrimaryFormationPropertyCalculator : public FormationPropertyCalculator {
+   class PrimaryFormationPropertyCalculator : public AbstractDerivedProperties::FormationPropertyCalculator {
 
    public :
 
@@ -36,15 +48,15 @@ namespace DerivedProperties {
       ~PrimaryFormationPropertyCalculator ();
 
       /// \brief Calculate the property values and add the property values to the list.
-      virtual void calculate ( AbstractPropertyManager&            propManager,
-                               const DataModel::AbstractSnapshot*  snapshot,
-                               const DataModel::AbstractFormation* formation,
-                                     FormationPropertyList&        derivedProperties ) const;
+      virtual void calculate (       AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                               const DataModel::AbstractSnapshot*                        snapshot,
+                               const DataModel::AbstractFormation*                       formation,
+                                     AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
       /// \brief Determine if the property is computable for the specific combination of formatio nand snapshot.
-      virtual bool isComputable ( const AbstractPropertyManager&      propManager,
-                                  const DataModel::AbstractSnapshot*  snapshot,
-                                  const DataModel::AbstractFormation* formation ) const;
+      virtual bool isComputable ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                                  const DataModel::AbstractSnapshot*                        snapshot,
+                                  const DataModel::AbstractFormation*                       formation ) const;
 
 
       /// \brief Get the snapshots for which the property is available.

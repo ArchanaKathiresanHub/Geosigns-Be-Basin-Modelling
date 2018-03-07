@@ -27,7 +27,8 @@
 #endif
 
 using namespace DataModel;
-using namespace DerivedProperties;
+using namespace AbstractDerivedProperties;
+using namespace std;
 
 /// \brief (Unit-)Test of the GammaRay calculator.
 ///  Tested are mock lithologies with different heat production values and the mock grid is alternating between defined and undefined area in the grid. 

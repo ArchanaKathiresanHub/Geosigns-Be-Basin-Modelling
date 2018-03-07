@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -43,6 +43,7 @@ include_directories( SYSTEM
 bm_include_libraries(
     DataModel
     DataAccess
+    AbstractDerivedProperties
     DerivedProperties
     GeoPhysics
     Interpolation
@@ -63,6 +64,7 @@ bm_include_libraries(
 
 target_link_libraries( ${APP_NAME}
     DataAccess
+    AbstractDerivedProperties
     DerivedProperties
     GeoPhysics
     DistributedDataAccess

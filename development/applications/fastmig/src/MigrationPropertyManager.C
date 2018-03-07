@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -24,6 +24,8 @@
 #include "ObjectFactory.h"
 #include "Interface/Snapshot.h"
 
+using namespace AbstractDerivedProperties;
+
 namespace migration
 {
 
@@ -42,7 +44,7 @@ namespace migration
       m_derivedMaps.clear ();
    }
 
-   DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap (DerivedProperties::FormationPropertyPtr aProperty)
+   DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap (FormationPropertyPtr aProperty)
    {
 
       DataAccess::Interface::GridMap * theMap = getProjectHandle ()->getFactory ()->produceGridMap (0, 0, getProjectHandle ()->getActivityOutputGrid (),
@@ -67,7 +69,7 @@ namespace migration
       return theMap;
    }
 
-   DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap (DerivedProperties::FormationSurfacePropertyPtr aProperty)
+   DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap (FormationSurfacePropertyPtr aProperty)
    {
 
       DataAccess::Interface::GridMap * theMap = getProjectHandle ()->getFactory ()->produceGridMap (0, 0, getProjectHandle ()->getActivityOutputGrid (),
@@ -90,7 +92,7 @@ namespace migration
    }
 
 
-   DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap (DerivedProperties::SurfacePropertyPtr aProperty)
+   DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap (SurfacePropertyPtr aProperty)
    {
 
       DataAccess::Interface::GridMap * theMap = getProjectHandle ()->getFactory ()->produceGridMap (0, 0, getProjectHandle ()->getActivityOutputGrid (),

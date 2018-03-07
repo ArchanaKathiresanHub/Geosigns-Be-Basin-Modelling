@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -21,10 +31,11 @@
 
 using namespace DataModel;
 using namespace DerivedProperties;
+using namespace AbstractDerivedProperties;
 
 static const double UndefinedValue = 99999.0;
 
-class TestPropertyManager : public DerivedProperties::AbstractPropertyManager {
+class TestPropertyManager : public AbstractPropertyManager {
 
 public :
 
@@ -53,13 +64,13 @@ private :
 
 
    /// \brief Contains list of all known properties.
-   PropertyList                 m_properties;
-   std::vector<MockProperty*> m_mockProperties;
+   PropertyList                   m_properties;
+   std::vector<MockProperty*>     m_mockProperties;
    const DataModel::AbstractGrid* m_mapGrid;
 
 };
 
-class TestFormationProperty : public DerivedProperties::DerivedFormationProperty {
+class TestFormationProperty : public DerivedFormationProperty {
 
 public :
 
@@ -94,26 +105,26 @@ private :
 };
 
 
-class Property1Calculator : public DerivedProperties::SurfacePropertyCalculator {
+class Property1Calculator : public SurfacePropertyCalculator {
 
 public :
 
    Property1Calculator ();
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                    const DataModel::AbstractSnapshot*          snapshot,
-                    const DataModel::AbstractSurface*           surface,
-                          SurfacePropertyList&                  derivedProperties ) const;
+   void calculate ( AbstractPropertyManager& propertyManager,
+                    const DataModel::AbstractSnapshot*                  snapshot,
+                    const DataModel::AbstractSurface*                   surface,
+                    SurfacePropertyList&     derivedProperties ) const;
 
 };
 
-class FormationProperty1Calculator : public DerivedProperties::FormationPropertyCalculator {
+class FormationProperty1Calculator : public FormationPropertyCalculator {
 
 public :
 
    FormationProperty1Calculator ();
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+   void calculate ( AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*          snapshot,
                     const DataModel::AbstractFormation*         formation,
                           FormationPropertyList&                derivedProperties ) const;
@@ -121,26 +132,26 @@ public :
 };
 
 
-class FormationMapProperty1Calculator : public DerivedProperties::FormationMapPropertyCalculator {
+class FormationMapProperty1Calculator : public FormationMapPropertyCalculator {
 
 public :
 
    FormationMapProperty1Calculator ();
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+   void calculate ( AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*          snapshot,
                     const DataModel::AbstractFormation*         formation,
                           FormationMapPropertyList&             derivedProperties ) const;
 
 };
 
-class FormationSurfaceProperty1Calculator : public DerivedProperties::FormationSurfacePropertyCalculator {
+class FormationSurfaceProperty1Calculator : public FormationSurfacePropertyCalculator {
 
 public :
 
    FormationSurfaceProperty1Calculator ();
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+   void calculate ( AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*          snapshot,
                     const DataModel::AbstractFormation*         formation,
                     const DataModel::AbstractSurface*           surface,
@@ -357,14 +368,14 @@ Property1Calculator::Property1Calculator () {
    addPropertyName ( "Property1" );
 }
 
-void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                      const DataModel::AbstractSnapshot*          snapshot,
-                                      const DataModel::AbstractSurface*           surface,
-                                            SurfacePropertyList&                  derivedProperties ) const {
+void Property1Calculator::calculate ( AbstractPropertyManager& propertyManager,
+                                      const DataModel::AbstractSnapshot*                  snapshot,
+                                      const DataModel::AbstractSurface*                   surface,
+                                      SurfacePropertyList&     derivedProperties ) const {
 
    const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
 
-   DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( property, snapshot, surface, propertyManager.getMapGrid ()));
+   DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr ( new DerivedSurfaceProperty ( property, snapshot, surface, propertyManager.getMapGrid ()));
    double value = 0.0;
 
    derivedProperties.clear ();
@@ -387,14 +398,14 @@ FormationMapProperty1Calculator::FormationMapProperty1Calculator () {
    addPropertyName ( "Property3" );
 }
 
-void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                  const DataModel::AbstractSnapshot*          snapshot,
-                                                  const DataModel::AbstractFormation*         formation,
-                                                        FormationMapPropertyList&             derivedProperties ) const {
+void FormationMapProperty1Calculator::calculate ( AbstractPropertyManager&  propertyManager,
+                                                  const DataModel::AbstractSnapshot*                   snapshot,
+                                                  const DataModel::AbstractFormation*                  formation,
+                                                  FormationMapPropertyList& derivedProperties ) const {
    
    const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property3" );
 
-   DerivedFormationMapPropertyPtr derivedProp = DerivedFormationMapPropertyPtr ( new DerivedProperties::DerivedFormationMapProperty ( property, snapshot, formation, propertyManager.getMapGrid ()));
+   DerivedFormationMapPropertyPtr derivedProp = DerivedFormationMapPropertyPtr ( new DerivedFormationMapProperty ( property, snapshot, formation, propertyManager.getMapGrid ()));
    double value = 0.0; 
 
    derivedProperties.clear ();
@@ -417,10 +428,10 @@ FormationProperty1Calculator::FormationProperty1Calculator () {
    addPropertyName ( "Property1" );
 }
 
-void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                               const DataModel::AbstractSnapshot*          snapshot,
-                                               const DataModel::AbstractFormation*         formation,
-                                                     FormationPropertyList&                derivedProperties ) const {
+void FormationProperty1Calculator::calculate ( AbstractPropertyManager& propertyManager,
+                                               const DataModel::AbstractSnapshot*                  snapshot,
+                                               const DataModel::AbstractFormation*                 formation,
+                                               FormationPropertyList&   derivedProperties ) const {
    
    const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
 
@@ -448,15 +459,15 @@ FormationSurfaceProperty1Calculator::FormationSurfaceProperty1Calculator () {
    addPropertyName ( "Property2" );
 }
 
-void FormationSurfaceProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                      const DataModel::AbstractSnapshot*          snapshot,
-                                                      const DataModel::AbstractFormation*         formation,
-                                                      const DataModel::AbstractSurface*           surface,
-                                                            FormationSurfacePropertyList&         derivedProperties ) const {
+void FormationSurfaceProperty1Calculator::calculate ( AbstractPropertyManager&       propertyManager,
+                                                      const DataModel::AbstractSnapshot*                        snapshot,
+                                                      const DataModel::AbstractFormation*                       formation,
+                                                      const DataModel::AbstractSurface*                         surface,
+                                                      FormationSurfacePropertyList&  derivedProperties ) const {
    
    const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property2" );
 
-   DerivedFormationSurfacePropertyPtr derivedProp = DerivedFormationSurfacePropertyPtr ( new DerivedProperties::DerivedFormationSurfaceProperty ( property, snapshot, formation, surface, propertyManager.getMapGrid () ));
+   DerivedFormationSurfacePropertyPtr derivedProp = DerivedFormationSurfacePropertyPtr ( new DerivedFormationSurfaceProperty ( property, snapshot, formation, surface, propertyManager.getMapGrid () ));
 
    double value = 0.0; 
 
@@ -480,7 +491,7 @@ TestFormationProperty::TestFormationProperty ( const DataModel::AbstractProperty
                                                const DataModel::AbstractFormation* formation,
                                                const DataModel::AbstractGrid*      grid,
                                                const unsigned int                  nk ) :
-   DerivedProperties::DerivedFormationProperty ( property, snapshot, formation, grid, nk )
+   DerivedFormationProperty ( property, snapshot, formation, grid, nk )
 {
    m_hasBeenRetrieved = false;
 }
@@ -490,7 +501,7 @@ double TestFormationProperty::get ( unsigned int i,
                                     unsigned int k ) const {
 
    if ( m_hasBeenRetrieved ) {
-      return DerivedProperties::DerivedFormationProperty::get ( i, j, k );
+      return DerivedFormationProperty::get ( i, j, k );
    } else {
       return UndefinedValue;
    }

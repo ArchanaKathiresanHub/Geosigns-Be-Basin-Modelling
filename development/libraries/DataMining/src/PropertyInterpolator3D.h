@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MINING__PROPERTY_INTERPOLATOR_3D_H_
 #define _MINING__PROPERTY_INTERPOLATOR_3D_H_
 
@@ -16,8 +26,8 @@ namespace DataAccess {
       public :
 
          /// Interpolate a property in a 3d map.
-         double operator ()( const ElementPosition&                  element,
-                             DerivedProperties::FormationPropertyPtr property ) const;
+         double operator ()( const ElementPosition&                          element,
+                             AbstractDerivedProperties::FormationPropertyPtr property ) const;
 
       };
 

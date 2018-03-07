@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _DATA_MINING__ELEMENT_FUNCTIONS__H_
 #define _DATA_MINING__ELEMENT_FUNCTIONS__H_
 
@@ -46,9 +56,9 @@ namespace DataAccess {
 
 
       /// \brief Assembles the element geometry matrix.
-      void getGeometryMatrix ( const ElementPosition&                      element,
-                               DerivedProperties::FormationPropertyPtr     depth,
-                               FiniteElementMethod::ElementGeometryMatrix& geometryMatrix );
+      void getGeometryMatrix ( const ElementPosition&                          element,
+                               AbstractDerivedProperties::FormationPropertyPtr depth,
+                               FiniteElementMethod::ElementGeometryMatrix&     geometryMatrix );
 
 
       // /// \brief Assembles the element geometry matrix.
@@ -59,16 +69,16 @@ namespace DataAccess {
 
 
       /// \brief Extracts the coefficients of the property for the element.
-      void getElementCoefficients ( const ElementPosition&                  element,
-                                    DerivedProperties::FormationPropertyPtr grid,
-                                    FiniteElementMethod::ElementVector&     coefficients );
+      void getElementCoefficients ( const ElementPosition&                          element,
+                                    AbstractDerivedProperties::FormationPropertyPtr grid,
+                                    FiniteElementMethod::ElementVector&             coefficients );
 
       /// \brief Extracts the coefficients of the property for the element.
-      void getElementCoefficients ( const unsigned int                      iStart,
-                                    const unsigned int                      jStart,
-                                    const unsigned int                      kStart,
-                                    DerivedProperties::FormationPropertyPtr grid,
-                                    FiniteElementMethod::ElementVector&     coefficients );
+      void getElementCoefficients ( const unsigned int                              iStart,
+                                    const unsigned int                              jStart,
+                                    const unsigned int                              kStart,
+                                    AbstractDerivedProperties::FormationPropertyPtr grid,
+                                    FiniteElementMethod::ElementVector&             coefficients );
 
 
    }

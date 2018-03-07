@@ -1,9 +1,21 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "DomainReservoirProperty.h"
 
 #include "Interface/Reservoir.h"
 #include "Interface/Formation.h"
 #include "Interface/Surface.h"
 #include "Interface/PropertyValue.h"
+
+using namespace AbstractDerivedProperties;
 
 DataAccess::Mining::DomainReservoirProperty::DomainReservoirProperty ( const DomainPropertyCollection*            collection,
                                                                        DerivedProperties::DerivedPropertyManager& propertyManager,
@@ -13,7 +25,7 @@ DataAccess::Mining::DomainReservoirProperty::DomainReservoirProperty ( const Dom
 {
 
    if ( property->getType () == Interface::RESERVOIRPROPERTY ) {
-      DerivedProperties::FormationMapPropertyList values = propertyManager.getFormationMapProperties ( getProperty (), getSnapshot ());
+      FormationMapPropertyList values = propertyManager.getFormationMapProperties ( getProperty (), getSnapshot ());
 
       for ( size_t i = 0; i < values.size (); ++i ) {
          const Interface::Surface* topSurface = getProjectHandle ()->findSurface ( values [ i ]->getFormation ()->getTopSurfaceName ());
@@ -41,7 +53,7 @@ double DataAccess::Mining::DomainReservoirProperty::compute ( const ElementPosit
       SurfaceToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getSurface ());
 
       if ( propIter != m_values.end ()) {
-         DerivedProperties::FormationMapPropertyPtr grid = propIter->second;
+         FormationMapPropertyPtr grid = propIter->second;
          return interpolate2D ( position, grid );
       } else {
          return DataAccess::Interface::DefaultUndefinedMapValue;

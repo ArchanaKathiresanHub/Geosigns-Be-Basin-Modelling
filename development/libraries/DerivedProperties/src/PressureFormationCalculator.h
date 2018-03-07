@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__PRESSURE_FORMATION_CALCULATOR_H
 #define DERIVED_PROPERTIES__PRESSURE_FORMATION_CALCULATOR_H
 
@@ -12,7 +22,7 @@ namespace DerivedProperties {
 
  
    /// \brief Calculates the pore pressure for a formation.
-   class PressureFormationCalculator : public FormationPropertyCalculator {
+   class PressureFormationCalculator : public AbstractDerivedProperties::FormationPropertyCalculator {
 
    public :
 
@@ -26,10 +36,10 @@ namespace DerivedProperties {
       /// \param [out] derivedProperties On exit will contain the newly computed hydrostatic pressure.
       /// \pre snapshot is not null and is a valid snapshot age.
       /// \pre formation is not null and is a valid formation.
-      virtual void calculate ( AbstractPropertyManager&            propertyManager,
-                               const DataModel::AbstractSnapshot*  snapshot,
-                               const DataModel::AbstractFormation* formation,
-                                     FormationPropertyList&        derivedProperties ) const;
+      virtual void calculate (       AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
+                               const DataModel::AbstractSnapshot*                        snapshot,
+                               const DataModel::AbstractFormation*                       formation,
+                                     AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
    private :
 

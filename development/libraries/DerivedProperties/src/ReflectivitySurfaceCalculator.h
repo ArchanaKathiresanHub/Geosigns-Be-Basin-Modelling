@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__REFLECTIVITY_SURFACE_CALCULATOR_H
 #define DERIVED_PROPERTIES__REFLECTIVITY_SURFACE_CALCULATOR_H
 
@@ -13,7 +23,7 @@
 namespace DerivedProperties {
 
    /// \brief Calculator for the reflectivity of a surface.
-   class  ReflectivitySurfaceCalculator : public SurfacePropertyCalculator {
+   class  ReflectivitySurfaceCalculator : public AbstractDerivedProperties::SurfacePropertyCalculator {
 
    public :
 
@@ -28,10 +38,10 @@ namespace DerivedProperties {
       /// \param [out] derivedProperties On exit will contain a single surface property, the reflectivity of the surface.
       /// \pre snapshot points to a valid snapshot age.
       /// \pre surface points to a valid surface.
-      virtual void calculate ( AbstractPropertyManager&           propManager,
-                               const DataModel::AbstractSnapshot* snapshot,
-                               const DataModel::AbstractSurface*  surface,
-                               SurfacePropertyList&               derivedProperties ) const;
+      virtual void calculate (       AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                               const DataModel::AbstractSnapshot*                        snapshot,
+                               const DataModel::AbstractSurface*                         surface,
+                                     AbstractDerivedProperties::SurfacePropertyList&     derivedProperties ) const;
 
       /// \brief Determine if the property is computable for the specific combination of surface and snapshot.
       ///
@@ -40,9 +50,9 @@ namespace DerivedProperties {
       /// \param [in]  surface     The surface for which the reflectivity is requested.
       /// \pre snapshot points to a valid snapshot age or is null.
       /// \pre surface points to a valid surface or is null.
-      virtual bool isComputable ( const AbstractPropertyManager&     propManager,
-                                  const DataModel::AbstractSnapshot* snapshot,
-                                  const DataModel::AbstractSurface*  surface ) const;
+      virtual bool isComputable ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                                  const DataModel::AbstractSnapshot*                        snapshot,
+                                  const DataModel::AbstractSurface*                         surface ) const;
 
    private :
 

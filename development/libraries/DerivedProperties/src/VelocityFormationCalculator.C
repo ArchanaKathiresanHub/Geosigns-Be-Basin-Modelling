@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -23,6 +23,7 @@
 #include "PropertyRetriever.h"
 #include "VelocityFormationCalculator.h"
 
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::VelocityFormationCalculator::VelocityFormationCalculator () {
    addPropertyName ( "Velocity" );
@@ -35,7 +36,7 @@ DerivedProperties::VelocityFormationCalculator::VelocityFormationCalculator () {
    addDependentPropertyName ( "MaxVes" );
 }
 
-void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::VelocityFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                  const DataModel::AbstractSnapshot*  snapshot,
                                                                  const DataModel::AbstractFormation* formation,
                                                                        FormationPropertyList&        derivedProperties ) const {
@@ -134,10 +135,10 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
 
 }
 
-void DerivedProperties::VelocityFormationCalculator::calculateForBasement ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::VelocityFormationCalculator::calculateForBasement (       AbstractPropertyManager&      propertyManager,
                                                                             const DataModel::AbstractSnapshot*  snapshot,
                                                                             const DataModel::AbstractFormation* formation,
-                                                                            FormationPropertyList&        derivedProperties ) const {
+                                                                                  FormationPropertyList&        derivedProperties ) const {
 
    GeoPhysics::Formation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
@@ -208,7 +209,7 @@ void DerivedProperties::VelocityFormationCalculator::calculateForBasement ( Deri
 
 }
 
-bool DerivedProperties::VelocityFormationCalculator::isComputable ( const DerivedProperties::AbstractPropertyManager& propManager,
+bool DerivedProperties::VelocityFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,
                                                                     const DataModel::AbstractSnapshot*  snapshot,
                                                                     const DataModel::AbstractFormation* formation ) const {
    

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _GENEXSIMULATION_SOURCEROCK_H_
 #define _GENEXSIMULATION_SOURCEROCK_H_
 
@@ -28,7 +38,7 @@ using namespace DataAccess;
 #include "AdsorptionSimulator.h"
 #include "SpeciesManager.h"
 
-namespace DerivedProperties
+namespace AbstractDerivedProperties
 {
    class AbstractPropertyManager;
 }
@@ -82,7 +92,7 @@ public:
 
    ///  set second SR type, mixing parameter, check Sulphur
    bool setFormationData ( const Interface::Formation * aFormation );
-   void setPropertyManager ( DerivedProperties::AbstractPropertyManager * aPropertyManager );
+   void setPropertyManager ( AbstractDerivedProperties::AbstractPropertyManager * aPropertyManager );
 
    /// Whether to perform adsorption 
    bool doOutputAdsorptionProperties (void) const;
@@ -275,7 +285,7 @@ private:
    /// \brief List of all adsorption-history objects.
    Genex6::SourceRockAdsorptionHistoryList m_sourceRockNodeAdsorptionHistory;
 
-   DerivedProperties::AbstractPropertyManager * m_propertyManager;
+   AbstractDerivedProperties::AbstractPropertyManager * m_propertyManager;
 
    std::map<std::string, Interface::GridMap*> m_theSnapShotOutputMaps;
    static std::map<std::string, std::string> s_CfgFileNameBySRType;

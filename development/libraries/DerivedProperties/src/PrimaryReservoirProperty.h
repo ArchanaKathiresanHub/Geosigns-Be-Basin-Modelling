@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__PRIMARY_RESERVOIR_PROPERTY_H
 #define DERIVED_PROPERTIES__PRIMARY_RESERVOIR_PROPERTY_H
 
@@ -20,7 +30,7 @@ namespace DerivedProperties {
    /// \brief Contains the values of the property at the snapshot time for the surface.
    ///
    /// The values are stored in a two dimensional array.
-   class PrimaryReservoirProperty : public ReservoirProperty {
+   class PrimaryReservoirProperty : public AbstractDerivedProperties::ReservoirProperty {
 
 
    public :

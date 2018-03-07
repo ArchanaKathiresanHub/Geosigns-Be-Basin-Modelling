@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2017 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -50,6 +50,7 @@ bm_include_libraries(
     DataModel
     DataAccess
     DistributedDataAccess
+    AbstractDerivedProperties
     DerivedProperties
     FiniteElements
     GeoPhysics
@@ -72,13 +73,14 @@ bm_include_libraries(
 target_link_libraries(${APP_NAME}
     DataModel
     DataAccess
+    AbstractDerivedProperties
     DerivedProperties
     DistributedDataAccess
     GeoPhysics
     Utilities_Petsc
     Serial_Hdf5
     Parallel_Hdf5
-    EosPack    
+    EosPack
     CBMGenerics
     FiniteElements
     genex6
@@ -91,7 +93,7 @@ target_link_libraries(${APP_NAME}
     ${PETSC_LIBRARIES}
     ${HDF5_LIBRARIES}
     ${MPI_LIBRARIES}
-   ${BM_CLOCK_GETTIME_LIB}
+    ${BM_CLOCK_GETTIME_LIB}
 )
 
 set_target_properties(${APP_NAME}

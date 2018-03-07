@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2016-2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -26,13 +26,15 @@
 
 typedef formattingexception::GeneralException TwoWayTimeResidualException;
 
+using namespace AbstractDerivedProperties;
+
 DerivedProperties::TwoWayTimeResidualSurfaceCalculator::TwoWayTimeResidualSurfaceCalculator( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle( projectHandle ) {
    addPropertyName  ( "TwoWayTimeResidual" );
    addDependentPropertyName ( "TwoWayTime" );
 }
 
-void DerivedProperties::TwoWayTimeResidualSurfaceCalculator::calculate( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                  const DataModel::AbstractSnapshot*  snapshot,
+void DerivedProperties::TwoWayTimeResidualSurfaceCalculator::calculate( AbstractPropertyManager&     propertyManager,
+                                                                  const DataModel::AbstractSnapshot* snapshot,
                                                                   const DataModel::AbstractSurface*  surface,
                                                                         SurfacePropertyList&         derivedProperties ) const {
 
@@ -123,9 +125,9 @@ void DerivedProperties::TwoWayTimeResidualSurfaceCalculator::calculate( DerivedP
 }
 
 bool DerivedProperties::TwoWayTimeResidualSurfaceCalculator::isComputable( const AbstractPropertyManager&     propManager,
-   const DataModel::AbstractSnapshot* snapshot,
-   const DataModel::AbstractSurface*  surface ) const {
-   
+                                                                           const DataModel::AbstractSnapshot* snapshot,
+                                                                           const DataModel::AbstractSurface*  surface ) const {
+
    const DataModel::AbstractProperty* twoWayTime = propManager.getProperty( "TwoWayTime" );
    if (!surface){
       ///0. Initial check used when adding calculators

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2017 Shell International Exploration & Production.
+// Copyright (C) 2010-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -234,7 +234,7 @@ namespace migration
       inline double getBlockingPermeability (void);
       inline double getBlockingPorosity (void);
 
-      DerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const;
 
       // Sets all top nodes of the given formation as ends of path due to the formation being a detected reservoir
       void setEndOfPath (void);
@@ -271,7 +271,7 @@ namespace migration
                                      Genex6::LinearGridInterpolator& vre);
 
       // Formation property pointer using the derived properties library
-      DerivedProperties::FormationPropertyPtr m_formationPropertyPtr[NUMBEROFPROPERTYINDICES];
+      AbstractDerivedProperties::FormationPropertyPtr m_formationPropertyPtr[NUMBEROFPROPERTYINDICES];
 
       GridMap * m_expulsionGridMaps[ComponentId::NUMBER_OF_SPECIES];
       int m_index;

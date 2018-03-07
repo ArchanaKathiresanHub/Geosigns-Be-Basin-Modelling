@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__DERIVED_FORMATION_MAP_PROPERTY_H
 #define DERIVED_PROPERTIES__DERIVED_FORMATION_MAP_PROPERTY_H
 
@@ -16,7 +26,7 @@ namespace DerivedProperties {
    /// \brief Contains the values of the property at the snapshot time for the formation.
    ///
    /// The values are stored in a two dimensional array.
-   class DerivedFormationMapProperty : public FormationMapProperty {
+   class DerivedFormationMapProperty : public AbstractDerivedProperties::FormationMapProperty {
 
    public :
 
@@ -43,8 +53,6 @@ namespace DerivedProperties {
        /// \brief Return false
       bool isPrimary () const;
 
-      /// \ brief Return 0
-      const DataAccess::Interface::GridMap* getGridMap() const;
   private :
 
       /// \brief 2 dimensional array containing the formation map property values.
@@ -59,11 +67,6 @@ namespace DerivedProperties {
 inline bool DerivedProperties::DerivedFormationMapProperty::isPrimary () const {
 
    return false;
-}
-
-inline const DataAccess::Interface::GridMap* DerivedProperties::DerivedFormationMapProperty::getGridMap() const {
-
-   return 0;
 }
 
 #endif // DERIVED_PROPERTIES__DERIVED_FORMATION_MAP_PROPERTY_H

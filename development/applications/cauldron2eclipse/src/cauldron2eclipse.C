@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -151,7 +151,7 @@ void startDataBlocks (int numItems, int size = 4);
 void writeWord (char * word);
 
 // gets a gridmap value of a point within a cell, even if one of the corners is undefined
-double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double i, double j, double k);
+double GetValue (const AbstractDerivedProperties::FormationPropertyPtr& gridMap, double i, double j, double k);
 
 void GetCornerIndices (double kIndices[], int k, int numK, bool kind);
 
@@ -437,7 +437,7 @@ int main (int argc, char ** argv)
    }
 
    // Get the depth volumes for all formations to build the eclipse grid.
-   DerivedProperties::FormationPropertyList depthPropertyValueList ( propertyManager.getFormationProperties ( depthProperty, snapshot, basement ));
+   AbstractDerivedProperties::FormationPropertyList depthPropertyValueList ( propertyManager.getFormationProperties ( depthProperty, snapshot, basement ));
 
    if (depthPropertyValueList.size () == 0)
    {
@@ -450,11 +450,11 @@ int main (int argc, char ** argv)
 
    const Grid *grid = projectHandle->getLowResolutionOutputGrid ();
 
-   DerivedProperties::FormationPropertyPtr formationPropertyValue;
-   DerivedProperties::FormationPropertyPtr topFormationValue;
-   DerivedProperties::FormationPropertyPtr bottomFormationValue;
+   AbstractDerivedProperties::FormationPropertyPtr formationPropertyValue;
+   AbstractDerivedProperties::FormationPropertyPtr topFormationValue;
+   AbstractDerivedProperties::FormationPropertyPtr bottomFormationValue;
 
-   DerivedProperties::FormationPropertyList::iterator propertyValueIter;
+   AbstractDerivedProperties::FormationPropertyList::iterator propertyValueIter;
 
    if (debug)
    {
@@ -1205,7 +1205,7 @@ int main (int argc, char ** argv)
          continue;
       }       
  
-      DerivedProperties::FormationPropertyList propertyValueList ( propertyManager.getFormationProperties ( property, snapshot, basement ));
+      AbstractDerivedProperties::FormationPropertyList propertyValueList ( propertyManager.getFormationProperties ( property, snapshot, basement ));
 
       if (propertyValueList.size () == 0)
       {
@@ -1418,7 +1418,7 @@ int findLithologId (double density, double heatprod, double porosurf)
    return index;
 }
 
-double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double i, double j, double k)
+double GetValue (const AbstractDerivedProperties::FormationPropertyPtr& gridMap, double i, double j, double k)
 {
    unsigned int iBase = (unsigned int) i;
    unsigned int jBase = (unsigned int) j;

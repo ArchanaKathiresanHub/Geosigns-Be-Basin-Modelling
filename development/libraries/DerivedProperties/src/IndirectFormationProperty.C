@@ -1,5 +1,17 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "IndirectFormationProperty.h"
 #include "Interface/Interface.h"
+
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::IndirectFormationProperty::IndirectFormationProperty(const DataModel::AbstractProperty * property,
                                                                               FormationPropertyPtr          propertyValues) :

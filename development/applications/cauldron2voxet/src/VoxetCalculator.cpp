@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "VoxetCalculator.h"
 #include <cmath>
 
@@ -51,14 +61,14 @@ void VoxetCalculator::setDepthProperty ( const Property* depth ) {
 
 //------------------------------------------------------------//
 
-void VoxetCalculator::setDefinedNodes ( const DerivedProperties::FormationPropertyList& depthPropertyValueList )
+void VoxetCalculator::setDefinedNodes ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList )
 {
    int i;
    int j;
    unsigned int lastK;
 
-   DerivedProperties::FormationPropertyList::const_iterator depthPropertyIter;
-   DerivedProperties::FormationPropertyPtr depthPropertyValue;
+   AbstractDerivedProperties::FormationPropertyList::const_iterator depthPropertyIter;
+   AbstractDerivedProperties::FormationPropertyPtr depthPropertyValue;
    double undefinedValue = DefaultNullValue;
 
    m_nodeIsDefined = Array<bool>::create2d ( m_gridDescription.getCauldronNodeCount ( 0 ), m_gridDescription.getCauldronNodeCount ( 1 ), true );
@@ -119,7 +129,7 @@ int VoxetCalculator::computeInterpolators ( const Snapshot * snapshot,
    m_interpolatorIsDefined = Array<bool>::create2d ( m_gridDescription.getVoxetNodeCount ( 0 ), m_gridDescription.getVoxetNodeCount ( 1 ), true );
 
    PropertyValueList* depthPropertyValueList = m_projectHandle->getPropertyValues (FORMATION, m_depthProperty, snapshot, 0, 0, 0);
-   DerivedProperties::FormationPropertyList depthDerivedPropertyValueList = m_propertyManager.getFormationProperties ( m_depthProperty, snapshot, useBasement ());
+   AbstractDerivedProperties::FormationPropertyList depthDerivedPropertyValueList = m_propertyManager.getFormationProperties ( m_depthProperty, snapshot, useBasement ());
 
    if ( depthDerivedPropertyValueList.size () == 0 ) {
       cerr << "Could not find the Depth property results in the project file " << endl
@@ -156,9 +166,9 @@ bool VoxetCalculator::validCauldronElement ( const int i, const int j ) const {
 
 //------------------------------------------------------------//
 
-void VoxetCalculator::initialiseInterpolators ( const DerivedProperties::FormationPropertyList& depthPropertyValueList,
-                                                const Snapshot*                                 snapshot,
-                                                const bool                                      verbose )
+void VoxetCalculator::initialiseInterpolators ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList,
+                                                const Snapshot*                                         snapshot,
+                                                const bool                                              verbose )
 {
    int sedimentCount = 0;
    int numberOfLayerDepthNodes;
@@ -173,8 +183,8 @@ void VoxetCalculator::initialiseInterpolators ( const DerivedProperties::Formati
    float yValue;
 
    PropertyInterpolatorMap::iterator propertyIter;
-   DerivedProperties::FormationPropertyPtr depthPropertyValue;
-   DerivedProperties::FormationPropertyList::const_iterator depthPropertyIter;
+   AbstractDerivedProperties::FormationPropertyPtr depthPropertyValue;
+   AbstractDerivedProperties::FormationPropertyList::const_iterator depthPropertyIter;
 
    // Get the property-values lists for each property-interpolator.
    for (propertyIter = m_propertyInterpolators.begin (); propertyIter != m_propertyInterpolators.end (); ++propertyIter)
@@ -312,13 +322,13 @@ void VoxetCalculator::initialiseInterpolators ( const DerivedProperties::Formati
 
 //------------------------------------------------------------//
 
-int VoxetCalculator::getMaximumNumberOfLayerNodes ( const DerivedProperties::FormationPropertyList& depthPropertyValueList ) const {
+int VoxetCalculator::getMaximumNumberOfLayerNodes ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList ) const {
 
    int maximumNumberOfNodes = 0;
    int layerNodeCount;
 
-   DerivedProperties::FormationPropertyList::const_iterator depthPropertyIter;
-   DerivedProperties::FormationPropertyPtr depthPropertyValue;
+   AbstractDerivedProperties::FormationPropertyList::const_iterator depthPropertyIter;
+   AbstractDerivedProperties::FormationPropertyPtr depthPropertyValue;
 
    // Count the number of sediments.
    for (depthPropertyIter = depthPropertyValueList.begin (); depthPropertyIter != depthPropertyValueList.end (); ++depthPropertyIter ) {
@@ -341,8 +351,8 @@ int VoxetCalculator::getMaximumNumberOfLayerNodes ( const DerivedProperties::For
 
 //------------------------------------------------------------//
 
-void VoxetCalculator::calculatorInterpolatorValues ( const DerivedProperties::FormationPropertyList& depthPropertyValueList,
-                                                     const bool                                      verbose )
+void VoxetCalculator::calculatorInterpolatorValues ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList,
+                                                     const bool                                              verbose )
 {
    int i;
    int j;
@@ -364,8 +374,8 @@ void VoxetCalculator::calculatorInterpolatorValues ( const DerivedProperties::Fo
 
    const int maximumNumberOfLayerNodes = getMaximumNumberOfLayerNodes (depthPropertyValueList);
 
-   DerivedProperties::FormationPropertyList::const_iterator depthPropertyIter;
-   DerivedProperties::FormationPropertyPtr depthPropertyValue;
+   AbstractDerivedProperties::FormationPropertyList::const_iterator depthPropertyIter;
+   AbstractDerivedProperties::FormationPropertyPtr depthPropertyValue;
 
    for (propertyIter = m_propertyInterpolators.begin (); propertyIter != m_propertyInterpolators.end (); ++propertyIter)
    {
@@ -411,7 +421,7 @@ void VoxetCalculator::calculatorInterpolatorValues ( const DerivedProperties::Fo
 		     cout << " computing formation: " << depthPropertyValue->getFormation ()->getName () << endl << flush;
 		  }
 
-                  const DerivedProperties::FormationPropertyPtr propertyValue = propertyIter->second->getDerivedProperty (formationCount);
+                  const AbstractDerivedProperties::FormationPropertyPtr propertyValue = propertyIter->second->getDerivedProperty (formationCount);
 
                   if (!propertyValue)
                   {
@@ -708,10 +718,10 @@ const Property* VoxetCalculator::PropertyInterpolator::getProperty () const {
 
 //------------------------------------------------------------//
 
-DerivedProperties::FormationPropertyPtr VoxetCalculator::PropertyInterpolator::getDerivedProperty ( const unsigned int position ) const {
+AbstractDerivedProperties::FormationPropertyPtr VoxetCalculator::PropertyInterpolator::getDerivedProperty ( const unsigned int position ) const {
 
    if (position >= m_derivedPropertyValues.size()) {
-      return DerivedProperties::FormationPropertyPtr ();
+      return AbstractDerivedProperties::FormationPropertyPtr ();
    }
 
    return m_derivedPropertyValues [ position ];

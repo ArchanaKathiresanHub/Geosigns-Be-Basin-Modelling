@@ -12,8 +12,6 @@
 
 
 set(all_headers
-  src/AbstractPropertyManager.h
-  src/AbstractPropertyValues.h
   src/AllochthonousLithologyFormationMapCalculator.h
   src/BrineDensityCalculator.h
   src/BrineViscosityCalculator.h
@@ -27,24 +25,14 @@ set(all_headers
   src/FaultElementFormationMapCalculator.h
   src/FluidVelocityFormationCalculator.h
   src/FormationMapOutputPropertyValue.h 
-  src/FormationMapProperty.h
-  src/FormationMapPropertyCalculator.h
   src/FormationOutputPropertyValue.h
   src/FormationSurfaceOutputPropertyValue.h
-  src/FormationProperty.h
-  src/FormationPropertyAtSurface.h
-  src/FormationPropertyCalculator.h
-  src/FormationSurfaceProperty.h
-  src/FormationSurfacePropertyAtSurface.h
-  src/FormationSurfacePropertyCalculator.h
-  src/FormationSurfacePropertyOffsetCalculator.h
   src/FracturePressureFormationCalculator.h
   src/GammaRayFormationCalculator.h
   src/HeatFlowFormationCalculator.h
   src/HydrostaticPressureFormationCalculator.h
   src/HydrostaticPressureSurfaceCalculator.h
   src/IndirectFormationProperty.h
-  src/Interpolate2DProperty.h
   src/LithostaticPressureFormationCalculator.h
   src/LithostaticPressureSurfaceCalculator.h
   src/MaxVesHighResFormationCalculator.h
@@ -66,19 +54,11 @@ set(all_headers
   src/PrimaryReservoirPropertyCalculator.h
   src/PrimarySurfaceProperty.h
   src/PrimarySurfacePropertyCalculator.h
-  src/PropertyCalculator.h
-  src/PropertyErasePredicate.h
   src/PropertyRetriever.h
-  src/PropertySnapshotCalculatorMap.h
   src/ReflectivitySurfaceCalculator.h
-  src/ReservoirProperty.h
-  src/ReservoirPropertyCalculator.h
   src/ReservoirOutputPropertyValue.h
   src/SonicFormationCalculator.h
   src/SurfaceOutputPropertyValue.h
-  src/SurfaceProperty.h
-  src/SurfacePropertyCalculator.h
-  src/SurfacePropertyOffsetCalculator.h
   src/ThermalConductivityFormationCalculator.h
   src/ThermalDiffusivityFormationCalculator.h
   src/ThicknessFormationMapCalculator.h
@@ -91,7 +71,6 @@ set(all_headers
 )
 
 set(all_srcs
-  src/AbstractPropertyManager.C
   src/AllochthonousLithologyFormationMapCalculator.C
   src/BrineDensityCalculator.C
   src/BrineViscosityCalculator.C
@@ -105,17 +84,8 @@ set(all_srcs
   src/FaultElementFormationMapCalculator.C
   src/FluidVelocityFormationCalculator.C
   src/FormationMapOutputPropertyValue.C
-  src/FormationMapProperty.C
-  src/FormationMapPropertyCalculator.C
   src/FormationOutputPropertyValue.C
   src/FormationSurfaceOutputPropertyValue.C	
-  src/FormationProperty.C
-  src/FormationPropertyAtSurface.C
-  src/FormationPropertyCalculator.C
-  src/FormationSurfaceProperty.C
-  src/FormationSurfacePropertyCalculator.C
-  src/FormationSurfacePropertyAtSurface.C
-  src/FormationSurfacePropertyOffsetCalculator.C
   src/FracturePressureFormationCalculator.C
   src/GammaRayFormationCalculator.C
   src/HeatFlowFormationCalculator.C
@@ -143,17 +113,11 @@ set(all_srcs
   src/PrimaryReservoirPropertyCalculator.C
   src/PrimarySurfaceProperty.C
   src/PrimarySurfacePropertyCalculator.C
-  src/PropertyCalculator.C
   src/PropertyRetriever.C
   src/ReflectivitySurfaceCalculator.C
-  src/ReservoirProperty.C
-  src/ReservoirPropertyCalculator.C
   src/ReservoirOutputPropertyValue.C
   src/SonicFormationCalculator.C
   src/SurfaceOutputPropertyValue.C
-  src/SurfaceProperty.C
-  src/SurfacePropertyCalculator.C
-  src/SurfacePropertyOffsetCalculator.C
   src/ThermalConductivityFormationCalculator.C
   src/ThermalDiffusivityFormationCalculator.C
   src/ThicknessFormationMapCalculator.C
@@ -175,6 +139,8 @@ set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}
 
 target_link_libraries(${LIB_NAME} 
   DataModel
+  utilities
+  AbstractDerivedProperties
   DataAccess
   GeoPhysics
   FiniteElements
@@ -186,10 +152,11 @@ target_link_libraries(${LIB_NAME}
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
+  ${PROJECT_SOURCE_DIR}/libraries/utilities/src
+  ${PROJECT_SOURCE_DIR}/libraries/AbstractDerivedProperties/src
   ${PROJECT_SOURCE_DIR}/libraries/TableIO/src
   ${PROJECT_SOURCE_DIR}/libraries/DataAccess/src
   ${PROJECT_SOURCE_DIR}/libraries/CBMGenerics/src
-  ${PROJECT_SOURCE_DIR}/libraries/utilities/src
   ${PROJECT_SOURCE_DIR}/libraries/EosPack/src
   ${PROJECT_SOURCE_DIR}/libraries/GeoPhysics/src
   ${PROJECT_SOURCE_DIR}/libraries/LinearAlgebra/src

@@ -19,6 +19,7 @@
 #include "FormattingException.h"
 #include "LogHandler.h"
 
+using namespace AbstractDerivedProperties;
 
 typedef formattingexception::GeneralException GammaRayException;
 
@@ -28,10 +29,10 @@ DerivedProperties::GammaRayFormationCalculator::GammaRayFormationCalculator( ) {
    addDependentPropertyName ( "Porosity" );
 }
 
-void DerivedProperties::GammaRayFormationCalculator::calculate(        DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                 const DataModel::AbstractSnapshot*                snapshot,
-                                                                 const DataModel::AbstractFormation*               formation,
-                                                                       FormationPropertyList&                      derivedProperties ) const {
+void DerivedProperties::GammaRayFormationCalculator::calculate(        AbstractPropertyManager&      propertyManager,
+                                                                 const DataModel::AbstractSnapshot*  snapshot,
+                                                                 const DataModel::AbstractFormation* formation,
+                                                                       FormationPropertyList&        derivedProperties ) const {
 
    ///I. Get dependent properties
    DataModel::AbstractProperty const * const porosityProperty = propertyManager.getProperty ( "Porosity" );
@@ -103,9 +104,9 @@ void DerivedProperties::GammaRayFormationCalculator::calculate(        DerivedPr
 
 }
 
-bool DerivedProperties::GammaRayFormationCalculator::isComputable( const DerivedProperties::AbstractPropertyManager& propManager,
-                                                                   const DataModel::AbstractSnapshot*                snapshot,
-                                                                   const DataModel::AbstractFormation*               formation ) const {
+bool DerivedProperties::GammaRayFormationCalculator::isComputable( const AbstractPropertyManager&      propManager,
+                                                                   const DataModel::AbstractSnapshot*  snapshot,
+                                                                   const DataModel::AbstractFormation* formation ) const {
 
    DataModel::AbstractProperty const * const porosityProperty = propManager.getProperty( "Porosity" );
    return  propManager.formationPropertyIsComputable( porosityProperty, snapshot, formation );

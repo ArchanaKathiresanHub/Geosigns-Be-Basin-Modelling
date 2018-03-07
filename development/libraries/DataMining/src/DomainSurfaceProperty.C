@@ -1,6 +1,18 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "DomainSurfaceProperty.h"
 
 #include "Interface/PropertyValue.h"
+
+using namespace AbstractDerivedProperties;
 
 DataAccess::Mining::DomainSurfaceProperty::DomainSurfaceProperty ( const DomainPropertyCollection*            collection,
                                                                    DerivedProperties::DerivedPropertyManager& propertyManager,
@@ -9,7 +21,7 @@ DataAccess::Mining::DomainSurfaceProperty::DomainSurfaceProperty ( const DomainP
    DomainProperty ( collection, propertyManager, snapshot, property )
 {
 
-   DerivedProperties::SurfacePropertyList values = propertyManager.getSurfaceProperties ( getProperty (), getSnapshot (), true );
+   SurfacePropertyList values = propertyManager.getSurfaceProperties ( getProperty (), getSnapshot (), true );
 
    for ( size_t i = 0; i < values.size (); ++i ) {
       m_values [ values [ i ]->getSurface ()] = values [ i ];
@@ -27,7 +39,7 @@ double DataAccess::Mining::DomainSurfaceProperty::compute ( const ElementPositio
       SurfaceToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getSurface ());
 
       if ( propIter != m_values.end ()) {
-         DerivedProperties::SurfacePropertyPtr grid = propIter->second;
+         SurfacePropertyPtr grid = propIter->second;
          return interpolate2D ( position, grid );
       } else {
          return DataAccess::Interface::DefaultUndefinedMapValue;

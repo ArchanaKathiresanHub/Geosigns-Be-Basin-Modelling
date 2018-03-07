@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -29,7 +29,7 @@ namespace DerivedProperties
 {
 
    /// \brief Calculates the high resolution VES for a formation.
-   class VesHighResFormationCalculator : public FormationPropertyCalculator
+   class VesHighResFormationCalculator : public AbstractDerivedProperties::FormationPropertyCalculator
    {
 
    public :
@@ -46,31 +46,31 @@ namespace DerivedProperties
       /// \param [out] derivedProperties On exit will contain the newly computed high resolution VES.
       /// \pre snapshot is not null and is a valid snapshot age.
       /// \pre formation is not null and is a valid formation.
-      virtual void calculate (       AbstractPropertyManager &      propertyManager,
-                               const DataModel::AbstractSnapshot *  snapshot,
-                               const DataModel::AbstractFormation * formation,
-                                     FormationPropertyList &        derivedProperties ) const;
+      virtual void calculate (       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
+                               const DataModel::AbstractSnapshot *                        snapshot,
+                               const DataModel::AbstractFormation *                       formation,
+                                     AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
 
    private :
 
       /// \brief Compute (indirectly, because we actually already have it or interpolate it) high res VES for coupled or non subsampled runs.
-      void computeIndirectly(       AbstractPropertyManager &      propertyManager,
-                              const DataModel::AbstractSnapshot *  snapshot,
-                              const DataModel::AbstractFormation * formation,
-                                    FormationPropertyList &        derivedProperties ) const;
+      void computeIndirectly(       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
+                              const DataModel::AbstractSnapshot *                        snapshot,
+                              const DataModel::AbstractFormation *                       formation,
+                                    AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
 
       /// \brief Compute high resolution VES for subsampled hydrostatic runs using a constant fluid density
-      void computeForSubsampledHydroRun(       AbstractPropertyManager &      propertyManager,
-                                         const DataModel::AbstractSnapshot *  snapshot,
-                                         const DataModel::AbstractFormation * formation,
-                                               FormationPropertyList &        derivedProperties ) const;
+      void computeForSubsampledHydroRun(       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
+                                         const DataModel::AbstractSnapshot *                        snapshot,
+                                         const DataModel::AbstractFormation *                       formation,
+                                               AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
       
       /// \brief Initialize the formation top surface depending on the formation above (if any)
-      void initializeTopSurface(       AbstractPropertyManager &      propertyManager,
-                                 const DataModel::AbstractProperty *  vesHighResProperty,
-                                 const DataModel::AbstractSnapshot *  snapshot,
-                                 const DataModel::AbstractFormation * formationAbove,
-                                       DerivedFormationPropertyPtr &  vesHighRes ) const;
+      void initializeTopSurface(       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
+                                 const DataModel::AbstractProperty *                        vesHighResProperty,
+                                 const DataModel::AbstractSnapshot *                        snapshot,
+                                 const DataModel::AbstractFormation *                       formationAbove,
+                                       DerivedFormationPropertyPtr &                        vesHighRes ) const;
 
       const GeoPhysics::ProjectHandle * const m_projectHandle; //!< Project handle
 

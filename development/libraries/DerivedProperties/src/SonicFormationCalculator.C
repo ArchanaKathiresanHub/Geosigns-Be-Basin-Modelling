@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2016-2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -24,16 +24,17 @@
 #include "SonicFormationCalculator.h"
 
 typedef formattingexception::GeneralException SonicException;
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::SonicFormationCalculator::SonicFormationCalculator() {
    addPropertyName ( "SonicSlowness" );
    addDependentPropertyName ( "Velocity" );
 }
 
-void DerivedProperties::SonicFormationCalculator::calculate( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                 const DataModel::AbstractSnapshot*  snapshot,
-                                                                 const DataModel::AbstractFormation* formation,
-                                                                       FormationPropertyList&        derivedProperties ) const {
+void DerivedProperties::SonicFormationCalculator::calculate(       AbstractPropertyManager&      propertyManager,
+                                                             const DataModel::AbstractSnapshot*  snapshot,
+                                                             const DataModel::AbstractFormation* formation,
+                                                                   FormationPropertyList&        derivedProperties ) const {
 
    DataModel::AbstractProperty const * const velocityProperty = propertyManager.getProperty( "Velocity" );
 

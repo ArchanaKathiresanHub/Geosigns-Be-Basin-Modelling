@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -14,6 +24,8 @@
 #include "ThermalDiffusivityFormationCalculator.h"
 #include "PropertyRetriever.h"
 
+using namespace AbstractDerivedProperties;
+
 DerivedProperties::ThermalDiffusivityFormationCalculator::ThermalDiffusivityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "DiffusivityVec2" );
 
@@ -23,10 +35,10 @@ DerivedProperties::ThermalDiffusivityFormationCalculator::ThermalDiffusivityForm
    addDependentPropertyName ( "Porosity" );
 }
 
-void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                            const DataModel::AbstractSnapshot*          snapshot,
-                                                                            const DataModel::AbstractFormation*         formation,
-                                                                                  FormationPropertyList&                derivedProperties ) const {
+void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate (        AbstractPropertyManager&      propertyManager,
+                                                                            const DataModel::AbstractSnapshot*  snapshot,
+                                                                            const DataModel::AbstractFormation* formation,
+                                                                                  FormationPropertyList&        derivedProperties ) const {
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
    
    if( geoFormation != 0 and geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) {
@@ -122,10 +134,10 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
 
 }
 
-void DerivedProperties::ThermalDiffusivityFormationCalculator::calculateForBasement ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                                      const DataModel::AbstractSnapshot*          snapshot,
-                                                                                      const DataModel::AbstractFormation*         formation,
-                                                                                      FormationPropertyList&                derivedProperties ) const {
+void DerivedProperties::ThermalDiffusivityFormationCalculator::calculateForBasement (       AbstractPropertyManager&      propertyManager,
+                                                                                      const DataModel::AbstractSnapshot*  snapshot,
+                                                                                      const DataModel::AbstractFormation* formation,
+                                                                                            FormationPropertyList&        derivedProperties ) const {
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
    const DataModel::AbstractProperty* thermalDiffusivityProperty  = propertyManager.getProperty ( "DiffusivityVec2" );
@@ -226,7 +238,7 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculateForBasem
 
 }
 
-bool DerivedProperties::ThermalDiffusivityFormationCalculator::isComputable ( const DerivedProperties::AbstractPropertyManager& propManager,
+bool DerivedProperties::ThermalDiffusivityFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,
                                                                               const DataModel::AbstractSnapshot*  snapshot,
                                                                               const DataModel::AbstractFormation* formation ) const {
    

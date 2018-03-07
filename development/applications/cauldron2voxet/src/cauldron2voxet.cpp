@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <vector>
 #include <cmath>
 #include <stdlib.h>
@@ -485,7 +495,7 @@ int main (int argc, char ** argv)
          continue;
       }
 
-      DerivedProperties::FormationPropertyList propertyValueList ( propertyManager.getFormationProperties ( property, snapshot, useBasement ));
+      AbstractDerivedProperties::FormationPropertyList propertyValueList ( propertyManager.getFormationProperties ( property, snapshot, useBasement ));
 
       // Could just ask if property is computable.
       unsigned int size = propertyValueList.size ();
@@ -812,7 +822,8 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
    Interface::SurfaceList* surfaces = cauldronProject->getSurfaces ();
    const Interface::Surface * bottomSurface = surfaces->back ();
 
-   DerivedProperties::SurfacePropertyPtr bottomDepthPropertyValue = propertyManager.getSurfaceProperty ( depthProperty, snapshot, bottomSurface );
+   AbstractDerivedProperties::SurfacePropertyPtr abstractBottomDepthPropertyValue = propertyManager.getSurfaceProperty ( depthProperty, snapshot, bottomSurface );
+   auto bottomDepthPropertyValue = dynamic_pointer_cast<const DerivedProperties::PrimarySurfaceProperty>(abstractBottomDepthPropertyValue);
 
    if (bottomDepthPropertyValue == 0 )
    {
@@ -836,7 +847,8 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
    {
       const Interface::Surface * topSurface = *surfaceIter;
 
-      DerivedProperties::SurfacePropertyPtr topDepthPropertyValue = propertyManager.getSurfaceProperty ( depthProperty, snapshot, topSurface );
+      AbstractDerivedProperties::SurfacePropertyPtr abstractTopDepthPropertyValue = propertyManager.getSurfaceProperty ( depthProperty, snapshot, topSurface );
+      auto topDepthPropertyValue = dynamic_pointer_cast<const DerivedProperties::PrimarySurfaceProperty>(abstractTopDepthPropertyValue);
 
       if ( topDepthPropertyValue == 0 )
       {

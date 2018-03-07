@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -28,11 +28,11 @@ namespace DerivedProperties
 {
 
    /// \brief Calculates the high resolution depth for a formation.
-   class DepthHighResFormationCalculator : public FormationPropertyCalculator
+   class DepthHighResFormationCalculator : public AbstractDerivedProperties::FormationPropertyCalculator
    {
 
    public :
-      
+
       /// \brief Input constructor.
       /// \param [in]  projectHandle   Manager for all derived properties.
       /// \pre SimulationDetails is not null, ie there is at least one last run.
@@ -45,42 +45,42 @@ namespace DerivedProperties
       /// \param [out] derivedProperties On exit will contain the newly computed high resolution depth.
       /// \pre snapshot is not null and is a valid snapshot age.
       /// \pre formation is not null and is a valid formation.
-      virtual void calculate (       AbstractPropertyManager &      propertyManager,
-                               const DataModel::AbstractSnapshot *  snapshot,
-                               const DataModel::AbstractFormation * formation,
-                                     FormationPropertyList &        derivedProperties ) const;
+      virtual void calculate (       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
+                               const DataModel::AbstractSnapshot *                        snapshot,
+                               const DataModel::AbstractFormation *                       formation,
+                                     AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
 
    private :
 
       /// \brief Compute (indirectly, because we actually already have it) high resolution depth for non subsampled runs.
-      void computeIndirectly(       AbstractPropertyManager &      propertyManager,
-                              const DataModel::AbstractSnapshot *  snapshot,
-                              const DataModel::AbstractFormation * formation,
-                                    FormationPropertyList &        derivedProperties ) const;
-      
+      void computeIndirectly(       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
+                              const DataModel::AbstractSnapshot *                        snapshot,
+                              const DataModel::AbstractFormation *                       formation,
+                                    AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
+
       /// \brief Initialize the formation top surface depending on the formation above (if any)
-      void initializeTopSurface(       AbstractPropertyManager &     propertyManager,
-                                 const DataModel::AbstractProperty * depthHighResProperty,
-                                 const DataModel::AbstractSnapshot * snapshot,
-                                 const GeoPhysics::Formation *       currentFormation,
-                                       DerivedFormationPropertyPtr & depthHighRes ) const;
-      
+      void initializeTopSurface(       AbstractDerivedProperties::AbstractPropertyManager &     propertyManager,
+                                 const DataModel::AbstractProperty *                            depthHighResProperty,
+                                 const DataModel::AbstractSnapshot *                            snapshot,
+                                 const GeoPhysics::Formation *                                  currentFormation,
+                                       DerivedFormationPropertyPtr &                            depthHighRes ) const;
+
       /// \brief Compute depth high res for mantle
       void computeForMantle( const DataModel::AbstractSnapshot * snapshot,
                                    DerivedFormationPropertyPtr & depthHighRes ) const;
 
       /// \brief Compute high resolution depth for coupled runs with non-geometric loops active.
-      void computeForCoupledRunWithNonGeometricLoop( const GeoPhysics::Formation *       formation,
-                                                     const DataModel::AbstractSnapshot * snapshot,
-                                                           DerivedFormationPropertyPtr & depthHighRes,
-                                                           FormationPropertyList &       derivedProperties ) const;
+      void computeForCoupledRunWithNonGeometricLoop( const GeoPhysics::Formation *                            formation,
+                                                     const DataModel::AbstractSnapshot *                      snapshot,
+                                                           DerivedFormationPropertyPtr &                      depthHighRes,
+                                                           AbstractDerivedProperties::FormationPropertyList & derivedProperties ) const;
 
       /// \brief Compute high resolution depth for subsampled runs.
-      void computeForSubsampledRun(       AbstractPropertyManager &     propertyManager,
-                                    const GeoPhysics::Formation *       formation,
-                                    const DataModel::AbstractSnapshot * snapshot,
-                                          DerivedFormationPropertyPtr & depthHighRes,
-                                          FormationPropertyList &       derivedProperties ) const;
+      void computeForSubsampledRun(       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
+                                    const GeoPhysics::Formation *                              formation,
+                                    const DataModel::AbstractSnapshot *                        snapshot,
+                                          DerivedFormationPropertyPtr &                        depthHighRes,
+                                          AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
 
       const GeoPhysics::ProjectHandle * const m_projectHandle; //!< Project handle
 

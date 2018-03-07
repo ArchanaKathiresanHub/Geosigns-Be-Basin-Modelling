@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -114,7 +124,7 @@ static bool parseAges( DoubleVector & ages, char * agesString );
 static bool acquireSnapshots( ProjectHandle * projectHandle, SnapshotList & snapshots, DoubleVector & ages );
 
 static bool acquireProperties ( ProjectHandle * projectHandle, 
-                                const AbstractPropertyManager& propertyManager,
+                                const AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                                 PropertyList & properties,
                                 StringVector & propertyNames );
 
@@ -137,7 +147,7 @@ void listOutputableProperties ( const GeoPhysics::ProjectHandle* projectHandle,
                                 const DerivedPropertyManager&    propertyManager );
 
 
-OutputPropertyValuePtr allocateOutputProperty ( DerivedProperties::AbstractPropertyManager& propertyManager, 
+OutputPropertyValuePtr allocateOutputProperty ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                                                 const DataModel::AbstractProperty* property, 
                                                 const DataModel::AbstractSnapshot* snapshot,
                                                 const FormationSurface& formationItem );
@@ -776,7 +786,7 @@ int main( int argc, char ** argv )
 }
 
 
-OutputPropertyValuePtr allocateOutputProperty ( DerivedProperties::AbstractPropertyManager& propertyManager, 
+OutputPropertyValuePtr allocateOutputProperty ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                                                 const DataModel::AbstractProperty* property, 
                                                 const DataModel::AbstractSnapshot* snapshot,
                                                 const FormationSurface& formationItem ) {
@@ -1083,7 +1093,7 @@ bool acquireSnapshots( ProjectHandle * projectHandle, SnapshotList & snapshots, 
 }
 
 bool acquireProperties( ProjectHandle * projectHandle,
-                        const AbstractPropertyManager& propertyManager,
+                        const AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                         PropertyList & properties,
                         StringVector & propertyNames )
 {

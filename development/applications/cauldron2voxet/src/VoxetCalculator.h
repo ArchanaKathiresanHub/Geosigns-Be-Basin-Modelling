@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _VOXET_CALCULATOR_H_
 #define _VOXET_CALCULATOR_H_
 
@@ -59,7 +69,7 @@ class VoxetCalculator {
 
       const Snapshot* getSnapshot () const;
 
-      DerivedProperties::FormationPropertyPtr getDerivedProperty ( const unsigned int position ) const;
+      AbstractDerivedProperties::FormationPropertyPtr getDerivedProperty ( const unsigned int position ) const;
 
       VoxetDomainInterpolator& getInterpolator ();
 
@@ -69,7 +79,7 @@ class VoxetCalculator {
       const Snapshot*         m_snapshot;
       VoxetDomainInterpolator m_interpolators;
 
-      DerivedProperties::FormationPropertyList m_derivedPropertyValues;
+      AbstractDerivedProperties::FormationPropertyList m_derivedPropertyValues;
 
    };
 
@@ -128,16 +138,16 @@ private :
    void calculatorInterpolatorValues ( const PropertyValueList* depthPropertyValueList,
                                        const bool               verbose );
 
-   int getMaximumNumberOfLayerNodes ( const DerivedProperties::FormationPropertyList& depthPropertyValueList ) const;
+   int getMaximumNumberOfLayerNodes ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList ) const;
 
-   void calculatorInterpolatorValues ( const DerivedProperties::FormationPropertyList& depthPropertyValueList,
-                                       const bool                                      verbose );
+   void calculatorInterpolatorValues ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList,
+                                       const bool                                              verbose );
 
-   void initialiseInterpolators ( const DerivedProperties::FormationPropertyList& depthPropertyValueList,
-                                  const Snapshot*                                 snapshot,
-                                  const bool                                      verbose );
+   void initialiseInterpolators ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList,
+                                  const Snapshot*                                         snapshot,
+                                  const bool                                              verbose );
 
-   void setDefinedNodes ( const DerivedProperties::FormationPropertyList& depthPropertyValueList);
+   void setDefinedNodes ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList);
 
    /// Return whether the element {(i,j),(i+1,j),(i+1,j+1),(i,j+1)}, from the cauldron map, has all valid nodes.
    ///

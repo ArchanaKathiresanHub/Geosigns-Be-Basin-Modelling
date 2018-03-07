@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "DerivedPropertyManager.h"
 
@@ -66,6 +66,7 @@
 #include "FormattingException.h"
 
 typedef formattingexception::GeneralException DerivedPropertyManagerException;
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle,
                                                                     const bool                 loadAllProperties,
@@ -366,7 +367,7 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationPropertyCalc
 }
 
 
-DerivedProperties::FormationPropertyList DerivedProperties::DerivedPropertyManager::getFormationProperties ( const DataModel::AbstractProperty* property,
+FormationPropertyList DerivedProperties::DerivedPropertyManager::getFormationProperties ( const DataModel::AbstractProperty* property,
                                                                                                              const DataModel::AbstractSnapshot* snapshot,
                                                                                                              const bool                         includeBasement ) {
 
@@ -388,7 +389,7 @@ DerivedProperties::FormationPropertyList DerivedProperties::DerivedPropertyManag
    return results;
 }
 
-DerivedProperties::FormationMapPropertyList DerivedProperties::DerivedPropertyManager::getFormationMapProperties ( const DataModel::AbstractProperty* property,
+FormationMapPropertyList DerivedProperties::DerivedPropertyManager::getFormationMapProperties ( const DataModel::AbstractProperty* property,
                                                                                                                    const DataModel::AbstractSnapshot* snapshot,
                                                                                                                    const bool                         includeBasement ) {
 
@@ -412,7 +413,7 @@ DerivedProperties::FormationMapPropertyList DerivedProperties::DerivedPropertyMa
 
 
 
-DerivedProperties::SurfacePropertyList DerivedProperties::DerivedPropertyManager::getSurfaceProperties ( const DataModel::AbstractProperty* property,
+SurfacePropertyList DerivedProperties::DerivedPropertyManager::getSurfaceProperties ( const DataModel::AbstractProperty* property,
                                                                                                          const DataModel::AbstractSnapshot* snapshot,
                                                                                                          const bool                         includeBasement ) {
 

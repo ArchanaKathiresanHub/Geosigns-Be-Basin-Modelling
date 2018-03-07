@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -6,6 +16,8 @@
 #include "OverpressureFormationCalculator.h"
 #include "PropertyRetriever.h"
 
+using namespace AbstractDerivedProperties;
+
 DerivedProperties::OverpressureFormationCalculator::OverpressureFormationCalculator () {
    addPropertyName ( "OverPressure" );
 
@@ -13,7 +25,7 @@ DerivedProperties::OverpressureFormationCalculator::OverpressureFormationCalcula
    addDependentPropertyName ( "Pressure" );
 }
 
-void DerivedProperties::OverpressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::OverpressureFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                      const DataModel::AbstractSnapshot*  snapshot,
                                                                      const DataModel::AbstractFormation* formation,
                                                                            FormationPropertyList&        derivedProperties ) const {

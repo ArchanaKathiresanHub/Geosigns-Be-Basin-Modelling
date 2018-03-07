@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -215,7 +215,7 @@ SourceRock::~SourceRock(void)
    }
 }
 
-void SourceRock::setPropertyManager ( DerivedProperties::AbstractPropertyManager * aPropertyManager ) {
+void SourceRock::setPropertyManager ( AbstractDerivedProperties::AbstractPropertyManager * aPropertyManager ) {
 
    m_propertyManager = aPropertyManager;
 }
@@ -739,24 +739,23 @@ bool SourceRock::preprocess()
    GridMap * tempMap = 0;
    if( tempAtPresentDay == 0 ) {
       const DataModel::AbstractProperty *property = m_propertyManager->getProperty( "Temperature" );
-      DerivedProperties::SurfacePropertyPtr surfaceProperty = m_propertyManager->getSurfaceProperty ( property,
-                                                                                                      presentDay, 
-                                                                                                      m_formation->getTopSurface () );
+      AbstractDerivedProperties::SurfacePropertyPtr surfaceProperty = m_propertyManager->getSurfaceProperty ( property,
+                                                                                                              presentDay,
+                                                                                                              m_formation->getTopSurface () );
       if ( surfaceProperty != 0 ) {
-		  tempMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0, 
-                                                                          getProjectHandle()->getActivityOutputGrid (), 
-                                                                          surfaceProperty->getUndefinedValue(), 1 );
+         tempMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0,
+                                                                      getProjectHandle()->getActivityOutputGrid (),
+                                                                      surfaceProperty->getUndefinedValue(), 1 );
          if( tempMap != 0 ) {
             tempMap->retrieveData();
-            
+
             for ( unsigned int i = tempMap->firstI (); i <= tempMap->lastI (); ++i ) {
                for ( unsigned int j = tempMap->firstJ (); j <= tempMap->lastJ (); ++j ) {
                   tempMap->setValue (i, j, surfaceProperty->get( i, j ));
                }
             }
-            
             tempMap->restoreData (true);
-         }      
+         }
       }
    }
    const GridMap * temperatureAtPresentDay = ( tempAtPresentDay ? tempAtPresentDay : tempMap );
@@ -764,7 +763,7 @@ bool SourceRock::preprocess()
    GridMap * vreMap = 0;
    if( vre == 0 ) {
       const DataModel::AbstractProperty *property = m_propertyManager->getProperty( "Vr" );
-      DerivedProperties::FormationSurfacePropertyPtr surfaceProperty = m_propertyManager->getFormationSurfaceProperty ( property, presentDay, 
+      AbstractDerivedProperties::FormationSurfacePropertyPtr surfaceProperty = m_propertyManager->getFormationSurfaceProperty ( property, presentDay, 
                                                                                                                         m_formation, m_formation->getTopSurface () );
       if( surfaceProperty != 0 ) {
          vreMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0, 
@@ -1349,20 +1348,20 @@ bool SourceRock::process()
       }
 
       const DataModel::AbstractProperty* property = m_propertyManager->getProperty ( "Ves" );
-      DerivedProperties::SurfacePropertyPtr startVes = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
-      DerivedProperties::SurfacePropertyPtr endVes   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
+      AbstractDerivedProperties::SurfacePropertyPtr startVes = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
+      AbstractDerivedProperties::SurfacePropertyPtr endVes   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
 
       property = m_propertyManager->getProperty ( "Temperature" );
-      DerivedProperties::SurfacePropertyPtr startTemp = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
-      DerivedProperties::SurfacePropertyPtr endTemp   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
+      AbstractDerivedProperties::SurfacePropertyPtr startTemp = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
+      AbstractDerivedProperties::SurfacePropertyPtr endTemp   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
 
       property = m_propertyManager->getProperty ( "Vr" );
-      DerivedProperties::FormationSurfacePropertyPtr startVr = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart,  m_formation, m_formation->getTopSurface () );
-      DerivedProperties::FormationSurfacePropertyPtr endVr   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd,  m_formation, m_formation->getTopSurface () );
+      AbstractDerivedProperties::FormationSurfacePropertyPtr startVr = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart,  m_formation, m_formation->getTopSurface () );
+      AbstractDerivedProperties::FormationSurfacePropertyPtr endVr   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd,  m_formation, m_formation->getTopSurface () );
 
       property = m_propertyManager->getProperty ( "Pressure" );
-      DerivedProperties::SurfacePropertyPtr startPressure = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
-      DerivedProperties::SurfacePropertyPtr endPressure   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
+      AbstractDerivedProperties::SurfacePropertyPtr startPressure = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
+      AbstractDerivedProperties::SurfacePropertyPtr endPressure   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
 
       if( startTemp == 0 or endTemp == 0 or
           startVes == 0 or endVes == 0 or
@@ -1438,20 +1437,20 @@ bool SourceRock::process()
 
       if( doApplyAdsorption () ) {
          property = m_propertyManager->getProperty ( "LithoStaticPressure" );
-         DerivedProperties::SurfacePropertyPtr startLP = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
-         DerivedProperties::SurfacePropertyPtr endLP   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
+         AbstractDerivedProperties::SurfacePropertyPtr startLP = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
+         AbstractDerivedProperties::SurfacePropertyPtr endLP   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
          
          property = m_propertyManager->getProperty ( "HydroStaticPressure" );
-         DerivedProperties::SurfacePropertyPtr startHP = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
-         DerivedProperties::SurfacePropertyPtr endHP   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
+         AbstractDerivedProperties::SurfacePropertyPtr startHP = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
+         AbstractDerivedProperties::SurfacePropertyPtr endHP   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
          
          property = m_propertyManager->getProperty ( "Porosity" );
-         DerivedProperties::FormationSurfacePropertyPtr startPorosity = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart, m_formation,m_formation->getTopSurface () );
-         DerivedProperties::FormationSurfacePropertyPtr endPorosity   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd, m_formation, m_formation->getTopSurface () );
+         AbstractDerivedProperties::FormationSurfacePropertyPtr startPorosity = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart, m_formation,m_formation->getTopSurface () );
+         AbstractDerivedProperties::FormationSurfacePropertyPtr endPorosity   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd, m_formation, m_formation->getTopSurface () );
          
          property = m_propertyManager->getProperty ( "Permeability" );
-         DerivedProperties::FormationSurfacePropertyPtr startPermeability = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart, m_formation, m_formation->getTopSurface () );
-         DerivedProperties::FormationSurfacePropertyPtr endPermeability   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd, m_formation, m_formation->getTopSurface () );
+         AbstractDerivedProperties::FormationSurfacePropertyPtr startPermeability = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart, m_formation, m_formation->getTopSurface () );
+         AbstractDerivedProperties::FormationSurfacePropertyPtr endPermeability   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd, m_formation, m_formation->getTopSurface () );
          
          if( startLP == 0 or endLP == 0 or
              startHP == 0 or endHP == 0 or
@@ -1510,8 +1509,8 @@ bool SourceRock::process()
 
       property = m_propertyManager->getProperty ( "ErosionFactor" );
       
-      DerivedProperties::FormationMapPropertyPtr thicknessScalingAtStart = m_propertyManager->getFormationMapProperty ( property, intervalStart, m_formation );
-      DerivedProperties::FormationMapPropertyPtr thicknessScalingAtEnd   = m_propertyManager->getFormationMapProperty ( property, intervalEnd, m_formation );
+      AbstractDerivedProperties::FormationMapPropertyPtr thicknessScalingAtStart = m_propertyManager->getFormationMapProperty ( property, intervalStart, m_formation );
+      AbstractDerivedProperties::FormationMapPropertyPtr thicknessScalingAtEnd   = m_propertyManager->getFormationMapProperty ( property, intervalEnd, m_formation );
 
       if(thicknessScalingAtStart && thicknessScalingAtEnd) {
 
@@ -2271,31 +2270,31 @@ bool SourceRock::computeSnapShot ( const double previousTime,
    const DataModel::AbstractProperty* property = 0;
 
    property = m_propertyManager->getProperty ( "Ves" );
-   DerivedProperties::SurfacePropertyPtr calcVes = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
+   AbstractDerivedProperties::SurfacePropertyPtr calcVes = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
 
    property = m_propertyManager->getProperty ( "ErosionFactor" );
-   DerivedProperties::FormationMapPropertyPtr calcErosion = m_propertyManager->getFormationMapProperty ( property, theSnapshot, m_formation  );
+   AbstractDerivedProperties::FormationMapPropertyPtr calcErosion = m_propertyManager->getFormationMapProperty ( property, theSnapshot, m_formation  );
 
    property = m_propertyManager->getProperty ( "Temperature" );
-   DerivedProperties::SurfacePropertyPtr calcTemp = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
+   AbstractDerivedProperties::SurfacePropertyPtr calcTemp = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
 
    property = m_propertyManager->getProperty ( "LithoStaticPressure" );
-   DerivedProperties::SurfacePropertyPtr calcLP = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
+   AbstractDerivedProperties::SurfacePropertyPtr calcLP = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
    
    property = m_propertyManager->getProperty ( "HydroStaticPressure" );
-   DerivedProperties::SurfacePropertyPtr calcHP = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
+   AbstractDerivedProperties::SurfacePropertyPtr calcHP = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
  
    property = m_propertyManager->getProperty ( "Pressure" );
-   DerivedProperties::SurfacePropertyPtr calcPressure = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
+   AbstractDerivedProperties::SurfacePropertyPtr calcPressure = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
 
    property = m_propertyManager->getProperty ( "Porosity" );
-   DerivedProperties::FormationSurfacePropertyPtr calcPorosity = m_propertyManager->getFormationSurfaceProperty ( property, theSnapshot, m_formation, m_formation->getTopSurface () );
+   AbstractDerivedProperties::FormationSurfacePropertyPtr calcPorosity = m_propertyManager->getFormationSurfaceProperty ( property, theSnapshot, m_formation, m_formation->getTopSurface () );
    
    property = m_propertyManager->getProperty ( "Permeability" );
-   DerivedProperties::FormationSurfacePropertyPtr calcPermeability = m_propertyManager->getFormationSurfaceProperty ( property, theSnapshot, m_formation, m_formation->getTopSurface () );
+   AbstractDerivedProperties::FormationSurfacePropertyPtr calcPermeability = m_propertyManager->getFormationSurfaceProperty ( property, theSnapshot, m_formation, m_formation->getTopSurface () );
    
    property =  m_propertyManager->getProperty ( "Vr" );
-   DerivedProperties::FormationSurfacePropertyPtr calcVre = m_propertyManager->getFormationSurfaceProperty ( property, theSnapshot, m_formation, m_formation->getTopSurface () );
+   AbstractDerivedProperties::FormationSurfacePropertyPtr calcVre = m_propertyManager->getFormationSurfaceProperty ( property, theSnapshot, m_formation, m_formation->getTopSurface () );
 
    if( calcVes == 0 || calcTemp == 0 || calcVre == 0 ) {
       status = false;

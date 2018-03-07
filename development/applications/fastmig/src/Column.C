@@ -37,6 +37,8 @@ using namespace std;
 #include "ComponentManager.h"
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
+using namespace AbstractDerivedProperties;
+
 namespace migration
 {
 
@@ -641,7 +643,7 @@ namespace migration
    double LocalColumn::getOWCTemperature (const double hydrocarbonWaterContactDepth) const
    {
       // Obtain a gridMap of temperature thanks to the DerivedProperties   
-      DerivedProperties::FormationPropertyPtr gridMapTemperature = m_reservoir->getFormationPropertyPtr ("Temperature", m_reservoir->getEnd ());
+      FormationPropertyPtr gridMapTemperature = m_reservoir->getFormationPropertyPtr ("Temperature", m_reservoir->getEnd ());
 
       if (gridMapTemperature == 0) // No gridMap, then we use the temperature of the crest column for biodegradation
       {

@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -27,7 +27,8 @@ bm_include_libraries(
    FiniteElements 
    utilities 
    Interpolation 
-   LinearAlgebra 
+   LinearAlgebra
+   AbstractDerivedProperties
    DerivedProperties
    TableIO 
    EosPack 
@@ -51,6 +52,7 @@ target_link_libraries(${LIB_NAME}
    LinearAlgebra
    TableIO
    EosPack
+   AbstractDerivedProperties
    DerivedProperties
    DataAccess
    GeoPhysics

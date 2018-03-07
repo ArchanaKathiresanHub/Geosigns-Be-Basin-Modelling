@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedSurfaceProperty.h"
 #include "DerivedPropertyManager.h"
@@ -6,11 +16,13 @@
 #include "OverpressureSurfaceCalculator.h"
 #include "PropertyRetriever.h"
 
+using namespace AbstractDerivedProperties;
+
 DerivedProperties::OverpressureSurfaceCalculator::OverpressureSurfaceCalculator () {
    addPropertyName ( "OverPressure" );
 }
 
-void DerivedProperties::OverpressureSurfaceCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::OverpressureSurfaceCalculator::calculate (       AbstractPropertyManager&     propertyManager,
                                                                    const DataModel::AbstractSnapshot* snapshot,
                                                                    const DataModel::AbstractSurface*  surface,
                                                                          SurfacePropertyList&         derivedProperties ) const {

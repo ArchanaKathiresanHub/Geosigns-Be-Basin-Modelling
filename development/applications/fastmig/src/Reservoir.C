@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2017 Shell International Exploration & Production.
+// Copyright (C) 2010-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -70,8 +70,9 @@ using Utilities::Physics::AccelerationDueToGravity;
 using Utilities::Maths::PaToMegaPa;
 
 using namespace CBMGenerics;
-
 using namespace DataAccess;
+using namespace AbstractDerivedProperties;
+
 using Interface::GridMap;
 using Interface::Grid;
 using Interface::Snapshot;
@@ -804,7 +805,7 @@ namespace migration
    /// compute the top and bottom depths of the reservoir.
    bool Reservoir::computeDepths (void)
    {
-      DerivedProperties::FormationPropertyPtr formationGridMap = getFormationPropertyPtr ("Depth", getEnd ());
+      FormationPropertyPtr formationGridMap = getFormationPropertyPtr ("Depth", getEnd ());
 
       if (!formationGridMap)
       {
@@ -859,8 +860,8 @@ namespace migration
       }
       else
       {
-         DerivedProperties::SurfacePropertyPtr topSurfaceGridMap = getTopSurfaceProperty ("DepthHighRes", getEnd ());
-         DerivedProperties::SurfacePropertyPtr bottomSurfaceGridMap = getBottomSurfaceProperty ("DepthHighRes", getEnd ());
+         SurfacePropertyPtr topSurfaceGridMap = getTopSurfaceProperty ("DepthHighRes", getEnd ());
+         SurfacePropertyPtr bottomSurfaceGridMap = getBottomSurfaceProperty ("DepthHighRes", getEnd ());
 
          if (!topSurfaceGridMap)
          {
@@ -935,15 +936,15 @@ namespace migration
    bool Reservoir::computeOverburdens (void)
    {
 
-      DerivedProperties::SurfacePropertyPtr gridMap = getSeaBottomProperty (depthPropertyName (), getEnd ());
+      SurfacePropertyPtr gridMap = getSeaBottomProperty (depthPropertyName (), getEnd ());
 
       if (gridMap == 0)
       {
          // If there is no surface property, use formation property
-         DerivedProperties::FormationPropertyPtr gridFormMap = getSeaBottomFormationProperty (depthPropertyName (), getEnd ());
+         FormationPropertyPtr gridFormMap = getSeaBottomFormationProperty (depthPropertyName (), getEnd ());
          const Interface::Formation* seaFormation = getSeaBottomFormation (getEnd ());
 
-         gridMap = DerivedProperties::SurfacePropertyPtr (new DerivedProperties::FormationPropertyAtSurface (gridFormMap, seaFormation->getTopSurface ()));
+         gridMap = SurfacePropertyPtr (new FormationPropertyAtSurface (gridFormMap, seaFormation->getTopSurface ()));
          if (gridMap == 0)
          {
             return false;
@@ -971,8 +972,7 @@ namespace migration
    bool Reservoir::computeSeaBottomPressures (void)
    {
 
-      DerivedProperties::SurfacePropertyPtr gridMap = getSeaBottomProperty ("HydroStaticPressure", getEnd ());
-      //   DerivedProperties::FormationPropertyPtr gridMap = getSeaBottomFormationProperty ( "HydroStaticPressure", getEnd () );
+      SurfacePropertyPtr gridMap = getSeaBottomProperty ("HydroStaticPressure", getEnd ());
 
       if (gridMap == 0)
       {
@@ -1001,19 +1001,16 @@ namespace migration
    /// the reservoir top depth and the reservoir's formation top depth.
    bool Reservoir::adaptOverburdens (void)
    {
-      DerivedProperties::SurfacePropertyPtr gridMap = getTopSurfaceProperty (depthPropertyName (), getEnd ());
+      SurfacePropertyPtr gridMap = getTopSurfaceProperty (depthPropertyName (), getEnd ());
 
       if (gridMap == 0)
       {
-         DerivedProperties::FormationPropertyPtr gridFormMap = getTopFormationProperty (depthPropertyName (), getEnd ());
-         gridMap = DerivedProperties::SurfacePropertyPtr (new DerivedProperties::FormationPropertyAtSurface (gridFormMap, getTopFormation (getEnd ())->getTopSurface ()));
+         FormationPropertyPtr gridFormMap = getTopFormationProperty (depthPropertyName (), getEnd ());
+         gridMap = SurfacePropertyPtr (new FormationPropertyAtSurface (gridFormMap, getTopFormation (getEnd ())->getTopSurface ()));
 
          if (gridMap == 0)
          {
-            if (GetRank ())
-            {
-               LogHandler (LogHandler::ERROR_SEVERITY) << "Cannot allocate " << depthPropertyName () << " FormationPropertyAtSurface " << getEnd ()->getTime ();
-            }
+            LogHandler (LogHandler::ERROR_SEVERITY) << "Cannot allocate " << depthPropertyName () << " FormationPropertyAtSurface " << getEnd ()->getTime ();
             return false;
          }
 
@@ -1437,7 +1434,7 @@ namespace migration
    bool Reservoir::computePorosities (void)
    {
 
-      DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Porosity", getEnd ());
+      FormationPropertyPtr gridMap = getFormationPropertyPtr ("Porosity", getEnd ());
 
       if (gridMap == 0)
       {
@@ -1467,7 +1464,7 @@ namespace migration
    bool Reservoir::computePermeabilities (void)
    {
 
-      DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Permeability", getEnd ());
+      FormationPropertyPtr gridMap = getFormationPropertyPtr ("Permeability", getEnd ());
 
       if (gridMap == 0)
       {
@@ -1496,7 +1493,7 @@ namespace migration
 
    bool Reservoir::computeTemperatures (void)
    {
-      DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Temperature", getEnd ());
+      FormationPropertyPtr gridMap = getFormationPropertyPtr ("Temperature", getEnd ());
       if (gridMap == 0)
       {
          return false;
@@ -1525,7 +1522,7 @@ namespace migration
 
    bool Reservoir::computeViscosities (void)
    {
-      DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("BrineViscosity", getEnd ());
+      FormationPropertyPtr gridMap = getFormationPropertyPtr ("BrineViscosity", getEnd ());
       if (gridMap == 0)
       {
          return false;
@@ -1555,7 +1552,7 @@ namespace migration
 
    bool Reservoir::computePressures (void)
    {
-      DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Pressure", getEnd ());
+      FormationPropertyPtr gridMap = getFormationPropertyPtr ("Pressure", getEnd ());
       if (gridMap)
       {
          unsigned int depth = gridMap->lengthK ();
@@ -1605,7 +1602,7 @@ namespace migration
    bool Reservoir::computeHydrostaticPressures (void)
    {
 
-      DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("HydroStaticPressure", getEnd ());
+      FormationPropertyPtr gridMap = getFormationPropertyPtr ("HydroStaticPressure", getEnd ());
 
       if (gridMap == 0)
       {
@@ -1636,7 +1633,7 @@ namespace migration
 
    bool Reservoir::computeLithostaticPressures (void)
    {
-      DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("LithoStaticPressure", getEnd ());
+      FormationPropertyPtr gridMap = getFormationPropertyPtr ("LithoStaticPressure", getEnd ());
 
       if (gridMap == 0)
       {
@@ -1874,14 +1871,14 @@ namespace migration
       return topFormation;
    }
 
-   DerivedProperties::SurfacePropertyPtr Reservoir::getSeaBottomProperty (const string & propertyName, const Interface::Snapshot * snapshot) const
+   SurfacePropertyPtr Reservoir::getSeaBottomProperty (const string & propertyName, const Interface::Snapshot * snapshot) const
    {
 
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
       const Interface::Formation* seaFormation = getSeaBottomFormation (snapshot);
 
-      DerivedProperties::SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, snapshot,
+      SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, snapshot,
                                                                                                                 (seaFormation ? seaFormation->getTopSurface () : 0));
 
 #ifdef DEBUG
@@ -1898,25 +1895,25 @@ namespace migration
 
    }
 
-   DerivedProperties::FormationPropertyPtr Reservoir::getSeaBottomFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const
+   FormationPropertyPtr Reservoir::getSeaBottomFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const
    {
 
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
       const Interface::Formation* seaFormation = getSeaBottomFormation (snapshot);
 
-      DerivedProperties::FormationPropertyPtr theProperty = m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, seaFormation);
+      FormationPropertyPtr theProperty = m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, seaFormation);
 
       return theProperty;
    }
 
-   DerivedProperties::FormationPropertyPtr Reservoir::getFormationPropertyPtr (const string &              propertyName,
+   FormationPropertyPtr Reservoir::getFormationPropertyPtr (const string &              propertyName,
                                                                                const Interface::Snapshot * snapshot) const
    {
 
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
-      DerivedProperties::FormationPropertyPtr theProperty = m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, getFormation ());
+      FormationPropertyPtr theProperty = m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, getFormation ());
 
       return theProperty;
    }
@@ -1941,30 +1938,30 @@ namespace migration
 
    }
 
-   DerivedProperties::FormationPropertyPtr Reservoir::getTopFormationProperty (const string & propertyName, const Snapshot * snapshot) const
+   FormationPropertyPtr Reservoir::getTopFormationProperty (const string & propertyName, const Snapshot * snapshot) const
    {
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
       const Interface::Formation* topFormation = getTopFormation (snapshot);
 
-      DerivedProperties::FormationPropertyPtr theProperty = m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, topFormation);
+      FormationPropertyPtr theProperty = m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, topFormation);
 
       return theProperty;
    }
 
-   DerivedProperties::SurfacePropertyPtr Reservoir::getTopSurfaceProperty (const string & propertyName, const Snapshot * snapshot) const
+   SurfacePropertyPtr Reservoir::getTopSurfaceProperty (const string & propertyName, const Snapshot * snapshot) const
    {
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
       const Interface::Formation* topFormation = getTopFormation (snapshot);
 
-      DerivedProperties::SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, snapshot, topFormation ? topFormation->getTopSurface () : 0);
+      SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, snapshot, topFormation ? topFormation->getTopSurface () : 0);
 
       return theProperty;
    }
 
 
-   DerivedProperties::SurfacePropertyPtr Reservoir::getBottomSurfaceProperty (const string & propertyName, const Snapshot * snapshot) const
+   SurfacePropertyPtr Reservoir::getBottomSurfaceProperty (const string & propertyName, const Snapshot * snapshot) const
    {
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
@@ -1981,19 +1978,19 @@ namespace migration
          }
       }
 
-      DerivedProperties::SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, snapshot, (bottomFormation ? bottomFormation->getBottomSurface () : 0));
+      SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, snapshot, (bottomFormation ? bottomFormation->getBottomSurface () : 0));
 
       return theProperty;
    }
 
-   DerivedProperties::FormationPropertyPtr Reservoir::getVolumeProperty (const Formation * formation,
+   FormationPropertyPtr Reservoir::getVolumeProperty (const Formation * formation,
                                                                          const string & propertyName,
                                                                          const Interface::Snapshot * snapshot) const
    {
 
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
-      DerivedProperties::FormationPropertyPtr result;
+      FormationPropertyPtr result;
 
 
       if (property != 0)
@@ -2118,8 +2115,8 @@ namespace migration
 
    bool Reservoir::computeDepthOffsets (const Snapshot * presentDay)
    {
-      DerivedProperties::SurfacePropertyPtr formationTopDepthMap = getTopSurfaceProperty (depthPropertyName (), presentDay);
-      DerivedProperties::SurfacePropertyPtr formationBottomDepthMap = getBottomSurfaceProperty (depthPropertyName (), presentDay);
+      SurfacePropertyPtr formationTopDepthMap = getTopSurfaceProperty (depthPropertyName (), presentDay);
+      SurfacePropertyPtr formationBottomDepthMap = getBottomSurfaceProperty (depthPropertyName (), presentDay);
 
       if (!formationTopDepthMap)
       {

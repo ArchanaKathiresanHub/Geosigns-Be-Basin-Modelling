@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _DATAACCESS__DATA_MINING__CAULDRON_DOMAIN_H_
 #define _DATAACCESS__DATA_MINING__CAULDRON_DOMAIN_H_
 
@@ -143,7 +153,7 @@ namespace DataAccess
          const Interface::Property*    m_depthProperty;
 
          /// The depth properties for the layers.
-         DerivedProperties::FormationPropertyList m_domainDerivedDepths;
+         AbstractDerivedProperties::FormationPropertyList m_domainDerivedDepths;
 
 
       };

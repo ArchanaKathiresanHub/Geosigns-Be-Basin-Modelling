@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -14,16 +24,18 @@
 #include "PressureFormationCalculator.h"
 #include "PropertyRetriever.h"
 
+using namespace AbstractDerivedProperties;
+
 DerivedProperties::PressureFormationCalculator::PressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "Pressure" );
 
    addDependentPropertyName ( "HydroStaticPressure" );
 }
 
-void DerivedProperties::PressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::PressureFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                  const DataModel::AbstractSnapshot*  snapshot,
                                                                  const DataModel::AbstractFormation* formation,
-                                                                 FormationPropertyList&        derivedProperties ) const {
+                                                                       FormationPropertyList&        derivedProperties ) const {
    
    const DataModel::AbstractProperty* porePressureProperty = propertyManager.getProperty ( "Pressure" );
    

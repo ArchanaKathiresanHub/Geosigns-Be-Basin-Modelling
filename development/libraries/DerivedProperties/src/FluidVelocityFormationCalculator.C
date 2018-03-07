@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -24,6 +24,7 @@
 #include "ConstantsMathematics.h"
 
 using namespace FiniteElementMethod;
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::FluidVelocityFormationCalculator::FluidVelocityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
 
@@ -47,10 +48,10 @@ DerivedProperties::FluidVelocityFormationCalculator::FluidVelocityFormationCalcu
    addDependentPropertyName ( "Pressure" );
 }
 
-void DerivedProperties::FluidVelocityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPropertyManager&            propertyManager,
                                                                       const DataModel::AbstractSnapshot*  snapshot,
                                                                       const DataModel::AbstractFormation* formation,
-                                                                      FormationPropertyList&        derivedProperties ) const {
+                                                                      FormationPropertyList&              derivedProperties ) const {
 
    const DataModel::AbstractProperty* aDepthProperty        = propertyManager.getProperty ( "Depth" );
    const DataModel::AbstractProperty* aTemperatureProperty  = propertyManager.getProperty ( "Temperature" );

@@ -1,12 +1,13 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
 // 
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -18,11 +19,15 @@
 // utilities library
 #include "ConstantsMathematics.h"
 
+using namespace AbstractDerivedProperties;
+
 DerivedProperties::VesFormationCalculator::VesFormationCalculator () {
    addPropertyName ( "Ves" );
+   addDependentPropertyName("LithoStaticPressure");
+   addDependentPropertyName("Pressure");
 }
 
-void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::VesFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                             const DataModel::AbstractSnapshot*  snapshot,
                                                             const DataModel::AbstractFormation* formation,
                                                                   FormationPropertyList&        derivedProperties ) const {

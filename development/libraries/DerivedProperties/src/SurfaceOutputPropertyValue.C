@@ -1,9 +1,21 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "SurfaceOutputPropertyValue.h"
 
-DerivedProperties::SurfaceOutputPropertyValue::SurfaceOutputPropertyValue ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                         const DataModel::AbstractProperty*          property,
-                                                         const DataModel::AbstractSnapshot*          snapshot,
-                                                         const DataModel::AbstractSurface*           surface ) : OutputPropertyValue ( property ) {
+using namespace AbstractDerivedProperties;
+
+DerivedProperties::SurfaceOutputPropertyValue::SurfaceOutputPropertyValue (       AbstractPropertyManager&     propertyManager,
+                                                                            const DataModel::AbstractProperty* property,
+                                                                            const DataModel::AbstractSnapshot* snapshot,
+                                                                            const DataModel::AbstractSurface*  surface ) : OutputPropertyValue ( property ) {
 
    if ( property != 0 and snapshot != 0 and surface != 0 ) {
       m_surfaceProperty = propertyManager.getSurfaceProperty ( property, snapshot, surface );
@@ -11,7 +23,7 @@ DerivedProperties::SurfaceOutputPropertyValue::SurfaceOutputPropertyValue ( Deri
    m_mapName = "";
 }
 
-DerivedProperties::SurfaceOutputPropertyValue::SurfaceOutputPropertyValue ( DerivedProperties::SurfacePropertyPtr& surfaceProperty ) :
+DerivedProperties::SurfaceOutputPropertyValue::SurfaceOutputPropertyValue ( SurfacePropertyPtr& surfaceProperty ) :
    OutputPropertyValue ( surfaceProperty != 0 ?  surfaceProperty->getProperty() : 0 ) {
 
    m_mapName = "";
@@ -63,20 +75,7 @@ unsigned int DerivedProperties::SurfaceOutputPropertyValue::getDepth () const {
       return 1;
    } else {
       return 0;
-   }  
-}
-
-
-bool DerivedProperties::SurfaceOutputPropertyValue::hasMap() const { 
-
-   if( m_surfaceProperty != 0 ) {
-
-      if( m_surfaceProperty->isPrimary() and m_surfaceProperty->getGridMap() == 0 ) {
-         return false;
-      }
-      return true;
    }
-   return false;
 }
 
 const DataModel::AbstractGrid* DerivedProperties::SurfaceOutputPropertyValue::getGrid () const {
@@ -88,7 +87,7 @@ const DataModel::AbstractGrid* DerivedProperties::SurfaceOutputPropertyValue::ge
 }
 
 const string & DerivedProperties::SurfaceOutputPropertyValue::getName() const {
-   
+
    if( m_surfaceProperty != 0 ) {
       return m_surfaceProperty->getProperty()->getName();
    } else {
@@ -103,4 +102,8 @@ const DataModel::AbstractSurface* DerivedProperties::SurfaceOutputPropertyValue:
    } else {
       return 0;
    }
+}
+
+bool DerivedProperties::SurfaceOutputPropertyValue::hasProperty() const {
+   return m_surfaceProperty != nullptr;
 }

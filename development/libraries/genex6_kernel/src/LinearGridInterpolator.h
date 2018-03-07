@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _GENEX6_LIBRARY__LINEAR_GRID_INTERPOLATOR_H_
 #define _GENEX6_LIBRARY__LINEAR_GRID_INTERPOLATOR_H_
 
@@ -35,24 +45,24 @@ namespace Genex6 {
                      const DataAccess::Interface::GridMap* dataAtEnd);
 
       void compute ( const DataAccess::Interface::Snapshot* start, 
-                     const DerivedProperties::SurfacePropertyPtr dataAtStart, 
+                     const AbstractDerivedProperties::SurfacePropertyPtr dataAtStart, 
                      const DataAccess::Interface::Snapshot* end, 
-                     const DerivedProperties::SurfacePropertyPtr dataAtEnd );
+                     const AbstractDerivedProperties::SurfacePropertyPtr dataAtEnd );
 
       void compute ( const DataAccess::Interface::Snapshot* start, 
-                     const DerivedProperties::FormationPropertyPtr dataAtStart, 
+                     const AbstractDerivedProperties::FormationPropertyPtr dataAtStart, 
                      const DataAccess::Interface::Snapshot* end, 
-                     const DerivedProperties::FormationPropertyPtr dataAtEnd );
+                     const AbstractDerivedProperties::FormationPropertyPtr dataAtEnd );
 
       void compute ( const DataAccess::Interface::Snapshot* start, 
-                     const DerivedProperties::FormationMapPropertyPtr dataAtStart, 
+                     const AbstractDerivedProperties::FormationMapPropertyPtr dataAtStart, 
                      const DataAccess::Interface::Snapshot* end, 
-                     const DerivedProperties::FormationMapPropertyPtr dataAtEnd );
+                     const AbstractDerivedProperties::FormationMapPropertyPtr dataAtEnd );
 
       void compute ( const DataAccess::Interface::Snapshot* start, 
-                     const DerivedProperties::FormationSurfacePropertyPtr dataAtStart, 
+                     const AbstractDerivedProperties::FormationSurfacePropertyPtr dataAtStart, 
                      const DataAccess::Interface::Snapshot* end, 
-                     const DerivedProperties::FormationSurfacePropertyPtr dataAtEnd );
+                     const AbstractDerivedProperties::FormationSurfacePropertyPtr dataAtEnd );
 
       virtual double evaluateProperty(const int &I, const int &J, const double &in_timeInstance) const;
 
@@ -64,10 +74,10 @@ namespace Genex6 {
       double getValueForGrid(const int &GridI, const int &GridJ, BufferType theType) const ;
 
       void initialize(const DataAccess::Interface::GridMap *theGrid);
-      void initialize(const DerivedProperties::SurfacePropertyPtr theProperty);
-      void initialize(const DerivedProperties::FormationPropertyPtr theProperty);
-      void initialize(const DerivedProperties::FormationMapPropertyPtr theProperty);
-      void initialize(const DerivedProperties::FormationSurfacePropertyPtr theProperty);
+      void initialize(const AbstractDerivedProperties::SurfacePropertyPtr theProperty);
+      void initialize(const AbstractDerivedProperties::FormationPropertyPtr theProperty);
+      void initialize(const AbstractDerivedProperties::FormationMapPropertyPtr theProperty);
+      void initialize(const AbstractDerivedProperties::FormationSurfacePropertyPtr theProperty);
 
       void clear();
       double **allocate2DArray(const int &rows, const int &columns);

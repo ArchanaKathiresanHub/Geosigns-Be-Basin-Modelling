@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "PrimaryReservoirPropertyCalculator.h"
 
 #include "Interface/Snapshot.h"
@@ -6,6 +16,8 @@
 #include "Interface/PropertyValue.h"
 
 #include "PrimaryReservoirProperty.h"
+
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::PrimaryReservoirPropertyCalculator::PrimaryReservoirPropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
                                                                                             const DataModel::AbstractProperty* property ) :

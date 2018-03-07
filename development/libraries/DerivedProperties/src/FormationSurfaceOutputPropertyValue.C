@@ -1,10 +1,22 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "FormationSurfaceOutputPropertyValue.h"
 
-DerivedProperties::FormationSurfaceOutputPropertyValue::FormationSurfaceOutputPropertyValue ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                                              const DataModel::AbstractProperty*          property,
-                                                                                              const DataModel::AbstractSnapshot*          snapshot,
-                                                                                              const DataModel::AbstractFormation*         formation,
-                                                                                              const DataModel::AbstractSurface*           surface )  : OutputPropertyValue ( property ){
+using namespace AbstractDerivedProperties;
+
+DerivedProperties::FormationSurfaceOutputPropertyValue::FormationSurfaceOutputPropertyValue (       AbstractPropertyManager&      propertyManager,
+                                                                                              const DataModel::AbstractProperty*  property,
+                                                                                              const DataModel::AbstractSnapshot*  snapshot,
+                                                                                              const DataModel::AbstractFormation* formation,
+                                                                                              const DataModel::AbstractSurface*   surface )  : OutputPropertyValue ( property ){
 
    if ( property != 0 and snapshot != 0 and formation != 0 and surface != 0 ) {
       m_formationSurfaceProperty = propertyManager.getFormationSurfaceProperty ( property, snapshot, formation, surface );
@@ -23,18 +35,6 @@ void DerivedProperties::FormationSurfaceOutputPropertyValue::retrieveData () con
    if ( m_formationSurfaceProperty != 0 ) {
       m_formationSurfaceProperty->retrieveData();
    }
-}
-
-bool DerivedProperties::FormationSurfaceOutputPropertyValue::hasMap() const { 
-
-   if( m_formationSurfaceProperty != 0 ) {
-
-      if( m_formationSurfaceProperty->isPrimary() and m_formationSurfaceProperty->getGridMap() == 0 ) {
-         return false;
-      }
-      return true;
-   }
-   return false;
 }
 
 const DataModel::AbstractGrid* DerivedProperties::FormationSurfaceOutputPropertyValue::getGrid () const {
@@ -99,4 +99,8 @@ const DataModel::AbstractSurface* DerivedProperties::FormationSurfaceOutputPrope
    } else {
       return 0;
    }
+}
+
+bool DerivedProperties::FormationSurfaceOutputPropertyValue::hasProperty() const {
+   return m_formationSurfaceProperty != nullptr;
 }

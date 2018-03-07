@@ -1,12 +1,13 @@
-//                                                                      
-// Copyright (C) 2015-2015 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -22,6 +23,7 @@
 #include "PropertyRetriever.h"
 #include "BulkDensityFormationCalculator.h"
 
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "BulkDensity" );
@@ -66,10 +68,10 @@ DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculato
 }
 
 
-void DerivedProperties::BulkDensityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                    const DataModel::AbstractSnapshot*          snapshot,
-                                                                    const DataModel::AbstractFormation*         formation,
-                                                                    FormationPropertyList&                      derivedProperties ) const {
+void DerivedProperties::BulkDensityFormationCalculator::calculate ( AbstractPropertyManager&            propertyManager,
+                                                                    const DataModel::AbstractSnapshot*  snapshot,
+                                                                    const DataModel::AbstractFormation* formation,
+                                                                    FormationPropertyList&              derivedProperties ) const {
 
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
@@ -98,10 +100,10 @@ void DerivedProperties::BulkDensityFormationCalculator::calculate ( DerivedPrope
 
 }
 
-void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedimentsHydrostatic ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                                                 const DataModel::AbstractSnapshot*          snapshot,
-                                                                                                 const GeoPhysics::Formation*                formation,
-                                                                                                 FormationPropertyList&                      derivedProperties ) const {
+void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedimentsHydrostatic ( AbstractPropertyManager&           propertyManager,
+                                                                                                 const DataModel::AbstractSnapshot* snapshot,
+                                                                                                 const GeoPhysics::Formation*       formation,
+                                                                                                 FormationPropertyList&             derivedProperties ) const {
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* porosityProperty     = propertyManager.getProperty ( "Porosity" );
@@ -158,10 +160,10 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 }
 
 
-void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedimentsCoupled ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                                             const DataModel::AbstractSnapshot*          snapshot,
-                                                                                             const GeoPhysics::Formation*                formation,
-                                                                                             FormationPropertyList&                      derivedProperties ) const {
+void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedimentsCoupled ( AbstractPropertyManager&           propertyManager,
+                                                                                             const DataModel::AbstractSnapshot* snapshot,
+                                                                                             const GeoPhysics::Formation*       formation,
+                                                                                             FormationPropertyList&             derivedProperties ) const {
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* temperatureProperty  = propertyManager.getProperty ( "Temperature" );
@@ -215,10 +217,10 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
 }
 
-void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBasementNonAlc ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                                           const DataModel::AbstractSnapshot*          snapshot,
-                                                                                           const GeoPhysics::Formation*                formation,
-                                                                                           FormationPropertyList&                      derivedProperties ) const {
+void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBasementNonAlc ( AbstractPropertyManager&           propertyManager,
+                                                                                           const DataModel::AbstractSnapshot* snapshot,
+                                                                                           const GeoPhysics::Formation*       formation,
+                                                                                           FormationPropertyList&             derivedProperties ) const {
 
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
@@ -259,10 +261,10 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
    derivedProperties.push_back ( bulkDensity );
 }
 
-void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBasementAlc ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                                        const DataModel::AbstractSnapshot*          snapshot,
-                                                                                        const GeoPhysics::Formation*                formation,
-                                                                                        FormationPropertyList&                      derivedProperties ) const {
+void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBasementAlc ( AbstractPropertyManager&           propertyManager,
+                                                                                        const DataModel::AbstractSnapshot* snapshot,
+                                                                                        const GeoPhysics::Formation*       formation,
+                                                                                        FormationPropertyList&             derivedProperties ) const {
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* temperatureProperty  = propertyManager.getProperty ( "Temperature" );

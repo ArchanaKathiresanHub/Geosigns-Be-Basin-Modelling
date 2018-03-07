@@ -1,9 +1,19 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "SurfaceOutputPropertyValue.h"
 
-SurfaceOutputPropertyValue::SurfaceOutputPropertyValue ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                         const DataModel::AbstractProperty*          property,
-                                                         const DataModel::AbstractSnapshot*          snapshot,
-                                                         const DataModel::AbstractSurface*           surface ) {
+SurfaceOutputPropertyValue::SurfaceOutputPropertyValue ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
+                                                         const DataModel::AbstractProperty*                  property,
+                                                         const DataModel::AbstractSnapshot*                  snapshot,
+                                                         const DataModel::AbstractSurface*                   surface ) {
 
    if ( property != 0 and snapshot != 0 and surface != 0 ) {
       m_surfaceProperty = propertyManager.getSurfaceProperty ( property, snapshot, surface );

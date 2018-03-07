@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MINING__BASEMENT_HEAT_FLOW_CALCULATOR__H_
 #define _MINING__BASEMENT_HEAT_FLOW_CALCULATOR__H_
 
@@ -38,11 +48,11 @@ namespace DataAccess {
 
       private :
 
-         DerivedProperties::FormationPropertyPtr m_temperature;
-         DerivedProperties::FormationPropertyPtr m_pressure;
-         DerivedProperties::FormationPropertyPtr m_depth;
-         DerivedProperties::FormationPropertyPtr m_ves;
-         DerivedProperties::FormationPropertyPtr m_maxVes;
+         AbstractDerivedProperties::FormationPropertyPtr m_temperature;
+         AbstractDerivedProperties::FormationPropertyPtr m_pressure;
+         AbstractDerivedProperties::FormationPropertyPtr m_depth;
+         AbstractDerivedProperties::FormationPropertyPtr m_ves;
+         AbstractDerivedProperties::FormationPropertyPtr m_maxVes;
 
          const GeoPhysics::Formation*   m_crust;
          const GeoPhysics::Formation*   m_bottomSediment;

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _DERIVED_PROPERTIES__INDIRECT_FORMATION_PROPERTY_H_
 #define _DERIVED_PROPERTIES__INDIRECT_FORMATION_PROPERTY_H_
 
@@ -6,7 +16,7 @@
 namespace DerivedProperties
 {
 
-   class IndirectFormationProperty : public FormationProperty
+   class IndirectFormationProperty : public AbstractDerivedProperties::FormationProperty
    {
 
    public:
@@ -14,8 +24,8 @@ namespace DerivedProperties
       /// \brief Input constructor
       /// \param [in]  i_property         Manager for all derived properties
       /// \param [in]  i_propertyValues   The snapshot at which the property is to be calculated
-      IndirectFormationProperty( const DataModel::AbstractProperty* property,
-                                       FormationPropertyPtr         propertyValues );
+      IndirectFormationProperty( const DataModel::AbstractProperty*                    property,
+                                       AbstractDerivedProperties::FormationPropertyPtr propertyValues );
 
       /// \brief Destructor
       virtual ~IndirectFormationProperty();
@@ -31,12 +41,9 @@ namespace DerivedProperties
       /// \brief Return false.
       bool isPrimary () const;
 
-      /// \brief Get the gridMap
-      const DataAccess::Interface::GridMap* getGridMap() const;
-
    private:
 
-      FormationPropertyPtr m_property;    //!< Pointer to FormationProperty storing values
+      AbstractDerivedProperties::FormationPropertyPtr m_property;    //!< Pointer to FormationProperty storing values
    };
 
    typedef boost::shared_ptr<IndirectFormationProperty> IndirectFormationPropertyPtr;
@@ -57,11 +64,6 @@ inline double DerivedProperties::IndirectFormationProperty::get( unsigned int i,
 inline bool DerivedProperties::IndirectFormationProperty::isPrimary () const {
 
    return false; 
-}
-
-inline const DataAccess::Interface::GridMap* DerivedProperties::IndirectFormationProperty::getGridMap() const {
-
-   return m_property->getGridMap();
 }
 
 #endif // _DERIVED_PROPERTIES__INDIRECT_FORMATION_PROPERTY_H_

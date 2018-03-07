@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -16,7 +16,7 @@
 namespace DerivedProperties {
 
    /// \brief Calculator for the velocity of a layer.
-   class VelocityFormationCalculator : public FormationPropertyCalculator {
+   class VelocityFormationCalculator : public AbstractDerivedProperties::FormationPropertyCalculator {
 
    public :
 
@@ -30,19 +30,19 @@ namespace DerivedProperties {
       /// \param [out] derivedProperties On exit will contain a single formation property, the seismic velocity in the layer.
       /// \pre snapshot points to a valid snapshot age.
       /// \pre formation points to a valid formation.
-      virtual void calculate ( AbstractPropertyManager&            propManager,
-                               const DataModel::AbstractSnapshot*  snapshot,
-                               const DataModel::AbstractFormation* formation,
-                                     FormationPropertyList&        derivedProperties ) const;
+      virtual void calculate (       AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                               const DataModel::AbstractSnapshot*                        snapshot,
+                               const DataModel::AbstractFormation*                       formation,
+                                     AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
-      virtual void calculateForBasement ( AbstractPropertyManager&            propManager,
-                                          const DataModel::AbstractSnapshot*  snapshot,
-                                          const DataModel::AbstractFormation* formation,
-                                          FormationPropertyList&        derivedProperties ) const;
+      virtual void calculateForBasement ( AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                                          const DataModel::AbstractSnapshot*                  snapshot,
+                                          const DataModel::AbstractFormation*                 formation,
+                                          AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
-      virtual bool isComputable ( const DerivedProperties::AbstractPropertyManager& propManager,
-                                  const DataModel::AbstractSnapshot*  snapshot,
-                                  const DataModel::AbstractFormation* formation ) const;
+      virtual bool isComputable ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                                  const DataModel::AbstractSnapshot*                        snapshot,
+                                  const DataModel::AbstractFormation*                       formation ) const;
 
    };
 

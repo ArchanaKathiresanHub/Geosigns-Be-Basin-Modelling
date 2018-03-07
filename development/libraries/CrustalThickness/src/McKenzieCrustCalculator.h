@@ -216,15 +216,15 @@ namespace  CrustalThickness
       double getPreviousOceanicCrustThickness( const unsigned int i, const unsigned int j ) const;
       /// @}
 
-      const CrustalThickness::ConfigFileParameterCtc& m_constants;  ///< Constants loaded from the configuration file via InterfaceInput
-      const DerivedProperties::SurfacePropertyPtr m_depthBasement;  ///< The depth of the basement at the current snapshot loaded from InterfaceInput
+      const CrustalThickness::ConfigFileParameterCtc& m_constants;         ///< Constants loaded from the configuration file via InterfaceInput
+      const AbstractDerivedProperties::SurfacePropertyPtr m_depthBasement; ///< The depth of the basement at the current snapshot loaded from InterfaceInput
 
       /// @defgroup InputMaps
       /// Loaded from InterfaceInput
       /// @{
-      const Interface::GridMap& m_HCuMap;       ///< Initial continental crust thickness        [m]
-      const Interface::GridMap& m_HBuMap;       ///< Maximum oceanic (basaltic) crust thickness [m]
-      const Interface::GridMap& m_HLMuMap;      ///< Initial lithospheric mantle thickness      [m]
+      const Interface::GridMap& m_HCuMap;  ///< Initial continental crust thickness        [m]
+      const Interface::GridMap& m_HBuMap;  ///< Maximum oceanic (basaltic) crust thickness [m]
+      const Interface::GridMap& m_HLMuMap; ///< Initial lithospheric mantle thickness      [m]
       /// @}
 
       /// @defgroup InputAges

@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -23,6 +23,7 @@ add_subdirectory(DataAccess)
 add_subdirectory(DataMining)
 add_subdirectory(SerialDataAccess)
 add_subdirectory(GeoPhysics)
+add_subdirectory(AbstractDerivedProperties)
 add_subdirectory(DerivedProperties)
 add_subdirectory(casaAPI)
 add_subdirectory(Project3dAPI)

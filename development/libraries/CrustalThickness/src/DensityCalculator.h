@@ -26,8 +26,6 @@ namespace DataModel {
 }
 class AbstractInterfaceOutput;
 
-using namespace DataAccess;
-
 namespace CrustalThickness
 {
   
@@ -100,10 +98,10 @@ namespace CrustalThickness
       /// @defgroup InputDerivedProperties
       ///   Loaded from InterfaceInput
       /// @{
-      DerivedProperties::SurfacePropertyPtr m_pressureBasement;    ///< The pressure of the basement at the current snapshot
-      DerivedProperties::SurfacePropertyPtr m_pressureWaterBottom; ///< The pressure of the water bottom at the current snapshot
-      DerivedProperties::SurfacePropertyPtr m_depthBasement;       ///< The depth of the basement at the current snapshot
-      DerivedProperties::SurfacePropertyPtr m_depthWaterBottom;    ///< The depth of the water bottom at the current snapshot
+      AbstractDerivedProperties::SurfacePropertyPtr m_pressureBasement;    ///< The pressure of the basement at the current snapshot
+      AbstractDerivedProperties::SurfacePropertyPtr m_pressureWaterBottom; ///< The pressure of the water bottom at the current snapshot
+      AbstractDerivedProperties::SurfacePropertyPtr m_depthBasement;       ///< The depth of the basement at the current snapshot
+      AbstractDerivedProperties::SurfacePropertyPtr m_depthWaterBottom;    ///< The depth of the water bottom at the current snapshot
       /// @}
 
       /// @defgroup Variables

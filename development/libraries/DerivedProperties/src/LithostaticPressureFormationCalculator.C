@@ -1,12 +1,13 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
 // 
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -27,6 +28,8 @@
 // utilitites library
 #include "ConstantsPhysics.h"
 #include "ConstantsMathematics.h"
+
+using namespace AbstractDerivedProperties;
 
 DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "LithoStaticPressure" );
@@ -49,7 +52,7 @@ DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFo
    }
 }
 
-void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::LithostaticPressureFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                             const DataModel::AbstractSnapshot*  snapshot,
                                                                             const DataModel::AbstractFormation* formation,
                                                                                   FormationPropertyList&        derivedProperties ) const {
@@ -104,7 +107,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( Deri
 }
 //------------------------------------------------------------//
 
-void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBasement ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBasement (       AbstractPropertyManager&      propertyManager,
                                                                                        const DataModel::AbstractSnapshot*  snapshot,
                                                                                        const DataModel::AbstractFormation* formation,
                                                                                              FormationPropertyList&        derivedProperties ) const {
@@ -229,11 +232,11 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
       derivedProperties.push_back ( lithostaticPressure );
    }
 }
-void DerivedProperties::LithostaticPressureFormationCalculator::copyLithostaticPressureFromLayerAbove ( AbstractPropertyManager&            propertyManager,
+void DerivedProperties::LithostaticPressureFormationCalculator::copyLithostaticPressureFromLayerAbove (       AbstractPropertyManager&      propertyManager,
                                                                                                         const DataModel::AbstractProperty*  lithostaticPressureProperty,
                                                                                                         const DataModel::AbstractSnapshot*  snapshot,
                                                                                                         const DataModel::AbstractFormation* formationAbove,
-                                                                                                               DerivedFormationPropertyPtr& lithostaticPressure ) const {
+                                                                                                              DerivedFormationPropertyPtr&  lithostaticPressure ) const {
    
    const FormationPropertyPtr lithostaticPressureAbove = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formationAbove );
    double undefinedValue = lithostaticPressureAbove->getUndefinedValue ();
@@ -257,7 +260,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::copyLithostaticP
 
 void DerivedProperties::LithostaticPressureFormationCalculator::computeLithostaticPressureAtSeaBottom ( const AbstractPropertyManager&     propertyManager,
                                                                                                         const double                       snapshotAge,
-                                                                                                        DerivedFormationPropertyPtr& lithostaticPressure ) const {
+                                                                                                              DerivedFormationPropertyPtr& lithostaticPressure ) const {
 
    (void) propertyManager;
    double pressure;

@@ -75,6 +75,7 @@ bm_include_libraries(
    DataAccess
    DataMining
    GeoPhysics
+   AbstractDerivedProperties
    DerivedProperties
    EosPack
    CBMGenerics
@@ -95,6 +96,7 @@ target_link_libraries(${LIB_NAME}
    DataModel
    DataAccess
    DataMining
+   AbstractDerivedProperties
    DerivedProperties
    EosPack
    CBMGenerics

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2016-2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -15,7 +15,7 @@
 namespace DerivedProperties {
 
    /// \brief Calculator for the two-way-(travel)-time residual of a surface.
-   class TwoWayTimeResidualSurfaceCalculator : public SurfacePropertyCalculator {
+   class TwoWayTimeResidualSurfaceCalculator : public AbstractDerivedProperties::SurfacePropertyCalculator {
 
    public :
 
@@ -30,10 +30,10 @@ namespace DerivedProperties {
       /// \pre snapshot points to present day 0.0Ma
       /// \pre surface  points to a valid surface.
       /// \pre surface has a initial two-way-(travel)-time linked to its stratigraphy
-      virtual void calculate( AbstractPropertyManager&            propManager,
-                              const DataModel::AbstractSnapshot*  snapshot,
-                              const DataModel::AbstractSurface*   surface,
-                                    SurfacePropertyList&          derivedProperties ) const;
+      virtual void calculate(       AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                              const DataModel::AbstractSnapshot*                        snapshot,
+                              const DataModel::AbstractSurface*                         surface,
+                                    AbstractDerivedProperties::SurfacePropertyList&     derivedProperties ) const;
 
 
       /// \brief Determine if the property is computable for the specific combination of surface and snapshot.
@@ -44,9 +44,9 @@ namespace DerivedProperties {
       /// \param [in]  surface     The surface for which the two-way-time residual is requested.
       /// \pre snapshot points to a valid snapshot age or is null.
       /// \pre surface points to a valid surface or is null.
-      virtual bool isComputable( const AbstractPropertyManager&     propManager,
-         const DataModel::AbstractSnapshot* snapshot,
-         const DataModel::AbstractSurface*  surface ) const;
+      virtual bool isComputable( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                                 const DataModel::AbstractSnapshot*                        snapshot,
+                                 const DataModel::AbstractSurface*                         surface ) const;
 
    private:
 

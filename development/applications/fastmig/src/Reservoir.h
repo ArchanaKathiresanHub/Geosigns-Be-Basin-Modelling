@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2017 Shell International Exploration & Production.
+// Copyright (C) 2010-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -71,11 +71,11 @@ namespace migration
       bool computeProperties (void);
       /// @brief Reset properties from a previous timestep
       bool clearPreviousProperties (void);
-      DerivedProperties::FormationPropertyPtr getVolumeProperty (const Formation * formation,
-                                                                 const string & propertyName,
-                                                                 const Interface::Snapshot * snapshot) const;
-      DerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName,
-                                                                       const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::FormationPropertyPtr getVolumeProperty (const Formation * formation,
+                                                                         const string & propertyName,
+                                                                         const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName,
+                                                                               const Interface::Snapshot * snapshot) const;
       /// @brief Computes depth offsets according to input (legacy only)
       bool computeDepthOffsets (const Interface::Snapshot * presentDay);
       /// @brief Computes net to gross according to input (legacy only)
@@ -284,11 +284,11 @@ namespace migration
       bool computeFlux (PhaseId phase, unsigned int i, unsigned int j);
       inline bool hasName (const string & name);
       inline const string depthPropertyName () const;
-      DerivedProperties::SurfacePropertyPtr getSeaBottomProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
-      DerivedProperties::SurfacePropertyPtr getTopSurfaceProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
-      DerivedProperties::SurfacePropertyPtr getBottomSurfaceProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
-      DerivedProperties::FormationPropertyPtr getTopFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
-      DerivedProperties::FormationPropertyPtr getSeaBottomFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::SurfacePropertyPtr getSeaBottomProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::SurfacePropertyPtr getTopSurfaceProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::SurfacePropertyPtr getBottomSurfaceProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::FormationPropertyPtr getTopFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      AbstractDerivedProperties::FormationPropertyPtr getSeaBottomFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
       const Interface::Formation* getSeaBottomFormation (const Interface::Snapshot * snapshot) const;
       const Interface::Formation* getTopFormation (const Interface::Snapshot * snapshot) const;
       const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,

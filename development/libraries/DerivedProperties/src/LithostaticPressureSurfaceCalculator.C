@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -18,11 +18,13 @@
 // utilities library
 #include "ConstantsMathematics.h"
 
+using namespace AbstractDerivedProperties;
+
 DerivedProperties::LithostaticPressureSurfaceCalculator::LithostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "LithoStaticPressure" );
 }
 
-void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate (       AbstractPropertyManager&     propertyManager,
                                                                           const DataModel::AbstractSnapshot* snapshot,
                                                                           const DataModel::AbstractSurface*  surface,
                                                                                 SurfacePropertyList&         derivedProperties ) const {

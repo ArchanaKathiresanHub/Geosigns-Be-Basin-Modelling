@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "CauldronDomain.h"
 
 #include "Interface/Interface.h"
@@ -5,6 +15,7 @@
 
 #include "PropertyInterpolator2D.h"
 
+using namespace AbstractDerivedProperties;
 
 //------------------------------------------------------------//
 DataAccess::Mining::CauldronDomain::CauldronDomain( Interface::ProjectHandle * handle ) 
@@ -97,10 +108,10 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, doubl
       int count = 0;
 
 
-      for ( DerivedProperties::FormationPropertyList::const_iterator depthIter = m_domainDerivedDepths.begin(); depthIter != m_domainDerivedDepths.end(); ++depthIter )
+      for ( FormationPropertyList::const_iterator depthIter = m_domainDerivedDepths.begin(); depthIter != m_domainDerivedDepths.end(); ++depthIter )
       {
 
-         DerivedProperties::FormationPropertyPtr grid = *depthIter;
+         FormationPropertyPtr grid = *depthIter;
 
          if ( count == 0 ) { 
             topDepth = interpolate2D ( element, grid, grid->lastK () );
@@ -179,9 +190,9 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
          int  count = 0;
 
 
-         for ( DerivedProperties::FormationPropertyList::const_iterator depthIter = m_domainDerivedDepths.begin(); depthIter != m_domainDerivedDepths.end(); ++depthIter ) {
+         for ( FormationPropertyList::const_iterator depthIter = m_domainDerivedDepths.begin(); depthIter != m_domainDerivedDepths.end(); ++depthIter ) {
 
-            DerivedProperties::FormationPropertyPtr grid = *depthIter;
+            FormationPropertyPtr grid = *depthIter;
 
             // The formation must be in the domain of the map, since the this grid was added at the same time!
             const Interface::Formation* formation = dynamic_cast<const Interface::Formation*>( grid->getFormation ());//m_mapToFormation.find( grid )->second;
@@ -237,9 +248,9 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
       {
          int  count = 0;
 
-         for ( DerivedProperties::FormationPropertyList::const_iterator depthIter = m_domainDerivedDepths.begin(); depthIter != m_domainDerivedDepths.end(); ++depthIter ) {
+         for ( FormationPropertyList::const_iterator depthIter = m_domainDerivedDepths.begin(); depthIter != m_domainDerivedDepths.end(); ++depthIter ) {
 
-            DerivedProperties::FormationPropertyPtr grid = *depthIter;
+            FormationPropertyPtr grid = *depthIter;
 
             // The formation must be in the domain of the map, since the this grid was added at the same time!
             if ( grid->getFormation () == formation )
@@ -291,7 +302,7 @@ void DataAccess::Mining::CauldronDomain::getTopSurface( double x, double y, Elem
    if ( element.isValidPlaneElement() and m_domainDerivedDepths.size() != 0 ) 
    {
 
-      DerivedProperties::FormationPropertyPtr grid = m_domainDerivedDepths [ 0 ];
+      FormationPropertyPtr grid = m_domainDerivedDepths [ 0 ];
       const Interface::Formation*             formation = dynamic_cast<const Interface::Formation*>( grid->getFormation ());
       const Interface::Surface*               topSurface = formation->getTopSurface ();
 
@@ -355,7 +366,7 @@ void DataAccess::Mining::CauldronDomain::getBottomSurface( double x, double y, E
          count += m_domainDerivedDepths [ i ]->lengthK () - 1;
       }
 
-      DerivedProperties::FormationPropertyPtr grid = m_domainDerivedDepths[ bottomSedimentGridIndex ];
+      FormationPropertyPtr grid = m_domainDerivedDepths[ bottomSedimentGridIndex ];
       const Interface::Formation*             formation = dynamic_cast<const Interface::Formation*>( grid->getFormation ());
       const Interface::Surface*               topSurface = formation->getTopSurface ();
 

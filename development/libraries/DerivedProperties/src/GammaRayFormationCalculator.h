@@ -1,4 +1,4 @@
-//                                                                      
+// 
 // Copyright (C) 2017-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
@@ -16,7 +16,7 @@
 namespace DerivedProperties {
 
    /// \brief Calculator for the gamma ray of a layer.
-   class GammaRayFormationCalculator : public FormationPropertyCalculator {
+   class GammaRayFormationCalculator : public AbstractDerivedProperties::FormationPropertyCalculator {
 
    public :
 
@@ -30,10 +30,10 @@ namespace DerivedProperties {
       /// \param [out] derivedProperties On exit will contain a single formation property, the gamma ray in the layer.
       /// \pre snapshot points to a valid snapshot age.
       /// \pre formation points to a valid formation.
-      void calculate ( AbstractPropertyManager&            propManager,
-                       const DataModel::AbstractSnapshot*  snapshot,
-                       const DataModel::AbstractFormation* formation,
-                       FormationPropertyList&        derivedProperties ) const final;
+      void calculate ( AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                       const DataModel::AbstractSnapshot*                  snapshot,
+                       const DataModel::AbstractFormation*                 formation,
+                       AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const final;
 
       /// \brief Determine if the property is computable for the specific combination of surface and snapshot.
       /// \param [in]  propManager The property manager.
@@ -41,9 +41,9 @@ namespace DerivedProperties {
       /// \param [in]  formation   The surface for which the gamma ray is requested.
       /// \pre snapshot points to a valid snapshot age or is null.
       /// \pre surface points to a valid surface or is null.
-      bool isComputable( const DerivedProperties::AbstractPropertyManager& propManager,
-                         const DataModel::AbstractSnapshot*  snapshot,
-                         const DataModel::AbstractFormation* formation ) const final;
+      bool isComputable( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                         const DataModel::AbstractSnapshot*                        snapshot,
+                         const DataModel::AbstractFormation*                       formation ) const final;
 
    };
 

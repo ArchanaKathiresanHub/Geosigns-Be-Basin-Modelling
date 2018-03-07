@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _DERIVED_PROPERTIES__DERIVED_FORMATION_PROPERTY_H_
 #define _DERIVED_PROPERTIES__DERIVED_FORMATION_PROPERTY_H_
 
@@ -11,12 +21,14 @@
 
 #include "FormationProperty.h"
 
+#include "Interface/GridMap.h"
+
 namespace DerivedProperties {
 
    /// \brief Stores the values of the designated property for the formation.
    ///
    /// The indices will use global index numbering.
-   class DerivedFormationProperty : public FormationProperty {
+   class DerivedFormationProperty : public AbstractDerivedProperties::FormationProperty {
 
    public :
 
@@ -45,9 +57,6 @@ namespace DerivedProperties {
       /// \brief Return false.
       bool isPrimary () const;
 
-      /// \ brief Get the gridMap
-      const DataAccess::Interface::GridMap* getGridMap() const;
-
    private :
 
       /// \brief 3D array containing the property values for the formation.
@@ -74,11 +83,6 @@ inline double DerivedProperties::DerivedFormationProperty::get ( unsigned int i,
 inline bool DerivedProperties::DerivedFormationProperty::isPrimary () const {
 
    return false; 
-}
-
-inline const DataAccess::Interface::GridMap* DerivedProperties::DerivedFormationProperty::getGridMap() const {
-
-   return 0;
 }
 
 #endif // _DERIVED_PROPERTIES__DERIVED_FORMATION_PROPERTY_H_

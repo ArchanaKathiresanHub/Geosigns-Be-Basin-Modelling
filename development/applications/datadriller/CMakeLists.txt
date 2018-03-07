@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2014 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -29,6 +29,7 @@ bm_include_libraries(
    SerialDataAccess
    CBMGenerics
    GeoPhysics
+   AbstractDerivedProperties
    DerivedProperties
    CrustalThinkness
    Serial_Hdf5
@@ -50,6 +51,7 @@ target_link_libraries(${TARGET_NAME}
    SerialDataAccess
    CBMGenerics
    GeoPhysics
+   AbstractDerivedProperties
    DerivedProperties
    Serial_Hdf5
    EosPack

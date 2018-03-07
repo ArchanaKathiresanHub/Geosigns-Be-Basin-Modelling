@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -26,16 +26,18 @@
 
 //#define FORMATION_PROPERTY 1
 
+using namespace AbstractDerivedProperties;
+
 DerivedProperties::PermeabilityFormationSurfaceCalculator::PermeabilityFormationSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "PermeabilityVec2" );
    addPropertyName ( "PermeabilityHVec2" );
 }
 
-void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                             const DataModel::AbstractSnapshot*  snapshot,
                                                                             const DataModel::AbstractFormation* formation,
                                                                             const DataModel::AbstractSurface*   surface,
-                                                                            FormationSurfacePropertyList&       derivedProperties ) const {
+                                                                                  FormationSurfacePropertyList& derivedProperties ) const {
 
 
    

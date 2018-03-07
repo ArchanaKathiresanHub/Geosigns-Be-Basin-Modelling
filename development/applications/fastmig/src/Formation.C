@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2017 Shell International Exploration & Production.
+// Copyright (C) 2010-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -57,6 +57,7 @@ using Utilities::Maths::MegaPaToPa;
 using namespace CBMGenerics;
 using namespace DataAccess;
 using namespace FiniteElementMethod;
+using namespace AbstractDerivedProperties;
 
 using Interface::Property;
 using Interface::Snapshot;
@@ -973,12 +974,12 @@ namespace migration
       nd->setValue (request);
    }
 
-   DerivedProperties::FormationPropertyPtr Formation::getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const
+   FormationPropertyPtr Formation::getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const
    {
 
       const DataAccess::Interface::Property* property = m_migrator->getProjectHandle ()->findProperty (propertyName);
 
-      DerivedProperties::FormationPropertyPtr theProperty =
+      FormationPropertyPtr theProperty =
          m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, this);
 
       return theProperty;
@@ -990,7 +991,7 @@ namespace migration
 
       const GridMap* theMap = 0;
 
-      DerivedProperties::FormationPropertyPtr theProperty = m_migrator->getPropertyManager ().getFormationProperty (prop, snapshot, this);
+      FormationPropertyPtr theProperty = m_migrator->getPropertyManager ().getFormationProperty (prop, snapshot, this);
       if (theProperty != 0)
       {
          const DerivedProperties::PrimaryFormationProperty * thePrimaryProperty = dynamic_cast<const DerivedProperties::PrimaryFormationProperty *>(theProperty.get ());
@@ -1012,7 +1013,7 @@ namespace migration
       if (prop->getName ().find ("Permeability") == std::string::npos )
       {
 
-         DerivedProperties::SurfacePropertyPtr theProperty;
+         SurfacePropertyPtr theProperty;
 
          // the way Formation::getSurfacePropertyGridMap is used, we can also return a 0 if the property cannot be computed (it is supposed to do it)
          // However we need to catch the exception, othrwise the program will terminate.
@@ -1042,7 +1043,7 @@ namespace migration
          }
          else
          {
-            DerivedProperties::FormationSurfacePropertyPtr theFormationProperty;
+            FormationSurfacePropertyPtr theFormationProperty;
 
             try
             {
@@ -1062,7 +1063,7 @@ namespace migration
       }
       else
       {
-         DerivedProperties::FormationSurfacePropertyPtr theFormationProperty;
+         FormationSurfacePropertyPtr theFormationProperty;
 
          try
          {
@@ -1237,14 +1238,19 @@ namespace migration
    {
       for (size_t i = 0; i != NUMBEROFPROPERTYINDICES; ++i)
       {
-
-         if (m_formationPropertyPtr[i])
+         if (m_formationPropertyPtr[i] != nullptr)
          {
-            const Interface::GridMap * grid = dynamic_cast<const Interface::GridMap *>(m_formationPropertyPtr[i]->getGridMap ());
-            if (grid)
-            {
-               grid->release ();
+
+            //release only primary formation property grid maps since they are the only ones to have a grid map
+            const auto primaryFormationPropertyPointer = dynamic_pointer_cast<const DerivedProperties::PrimaryFormationProperty>(m_formationPropertyPtr[i]);
+            if(primaryFormationPropertyPointer != nullptr){
+               const auto gridMap = primaryFormationPropertyPointer->getGridMap();
+               if(gridMap != nullptr){
+                  gridMap->release();
+               }
             }
+
+            //reset all formation property pointers
             m_formationPropertyPtr[i].reset ();
          }
       }
@@ -2214,7 +2220,7 @@ namespace migration
          Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots (Interface::MINOR | Interface::MAJOR);
 
          // present day map
-         DerivedProperties::FormationPropertyPtr vrProperty = m_migrator->getPropertyManager ().getFormationProperty (m_migrator->getPropertyManager ().getProperty ("Vr"), *(snapshots->begin ()), this);
+         FormationPropertyPtr vrProperty = m_migrator->getPropertyManager ().getFormationProperty (m_migrator->getPropertyManager ().getProperty ("Vr"), *(snapshots->begin ()), this);
          const GridMap * gridMapEnd = m_migrator->getPropertyManager ().produceDerivedGridMap (vrProperty);
 
          if (!gridMapEnd)
@@ -2360,8 +2366,8 @@ namespace migration
    {
 
       const DataModel::AbstractProperty* property = m_migrator->getPropertyManager ().getProperty ("ErosionFactor");
-      DerivedProperties::FormationMapPropertyPtr startProperty = m_migrator->getPropertyManager ().getFormationMapProperty (property, intervalStart, this);
-      DerivedProperties::FormationMapPropertyPtr endProperty = m_migrator->getPropertyManager ().getFormationMapProperty (property, intervalEnd, this);
+      FormationMapPropertyPtr startProperty = m_migrator->getPropertyManager ().getFormationMapProperty (property, intervalStart, this);
+      FormationMapPropertyPtr endProperty = m_migrator->getPropertyManager ().getFormationMapProperty (property, intervalEnd, this);
 
       bool status = true;
       if (startProperty and endProperty)
@@ -2413,8 +2419,8 @@ namespace migration
 
       if (property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY)
       {
-         DerivedProperties::SurfacePropertyPtr startSurfaceProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, intervalStart, getTopSurface ());
-         DerivedProperties::SurfacePropertyPtr endSurfaceProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, intervalEnd, getTopSurface ());
+         SurfacePropertyPtr startSurfaceProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, intervalStart, getTopSurface ());
+         SurfacePropertyPtr endSurfaceProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, intervalEnd, getTopSurface ());
 
          startSurfaceProperty->retrieveData ();
          endSurfaceProperty->retrieveData ();
@@ -2426,9 +2432,9 @@ namespace migration
       }
       else if (property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY)
       {
-         DerivedProperties::FormationSurfacePropertyPtr startProperty = m_migrator->getPropertyManager ().getFormationSurfaceProperty (property, intervalStart,
+         FormationSurfacePropertyPtr startProperty = m_migrator->getPropertyManager ().getFormationSurfaceProperty (property, intervalStart,
             this, getTopSurface ());
-         DerivedProperties::FormationSurfacePropertyPtr endProperty = m_migrator->getPropertyManager ().getFormationSurfaceProperty (property, intervalEnd,
+         FormationSurfacePropertyPtr endProperty = m_migrator->getPropertyManager ().getFormationSurfaceProperty (property, intervalEnd,
             this, getTopSurface ());
 
          if (startProperty and endProperty)

@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2018 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -11,44 +11,46 @@
 #########################################################################
 
 add_executable(cauldron2bhf
-	src/cauldron2bhf.C
+   src/cauldron2bhf.C
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
-	DataModel
-	DataAccess
-	SerialDataAccess
-	Interpolation
-	LinearAlgebra
-	GeoPhysics
-	DerivedProperties
-	DataAccess
-	TableIO
-	CBMGenerics
-	EosPack
-	utilities
+   DataModel
+   DataAccess
+   SerialDataAccess
+   Interpolation
+   LinearAlgebra
+   GeoPhysics
+   AbstractDerivedProperties
+   DerivedProperties
+   DataAccess
+   TableIO
+   CBMGenerics
+   EosPack
+   utilities
 )
 
 target_link_libraries(cauldron2bhf
-	DerivedProperties
-	DataMining
-	GeoPhysics
-	DataAccess
-	SerialDataAccess
-	Interpolation
-	LinearAlgebra
-	TableIO
-	EosPack
-	utilities
-	${HDF5_LIBRARIES}
+   AbstractDerivedProperties
+   DerivedProperties
+   DataMining
+   GeoPhysics
+   DataAccess
+   SerialDataAccess
+   Interpolation
+   LinearAlgebra
+   TableIO
+   EosPack
+   utilities
+   ${HDF5_LIBRARIES}
 )
 
 install(TARGETS cauldron2bhf
-	RUNTIME DESTINATION bin
+   RUNTIME DESTINATION bin
 )
 # Local Variables:
 # mode: cmake

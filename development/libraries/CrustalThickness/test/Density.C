@@ -262,16 +262,16 @@ TEST_F( DensityCalculatorTest, backstriping )
    // 2. Test that the outputs are 0 and NDV when the sediment thickness is null
    densityCalculator2.calculate( 100, 100, 1000, 500 );
    EXPECT_EQ( 0, densityCalculator2.getSedimentThickness() );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, densityCalculator2.getSedimentDensity()   );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, densityCalculator2.getSedimentDensity()   );
    EXPECT_EQ( 0, densityCalculator2.getBackstrip()    );
    EXPECT_EQ( 0, densityCalculator2.getCompensation() );
 
    //3. Test that the outputs are NDV when the sediment thickness is negative
    densityCalculator2.calculate( 20, 100, 1000, 500 );
    EXPECT_EQ( -80, densityCalculator2.getSedimentThickness() );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, densityCalculator2.getSedimentDensity() );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, densityCalculator2.getBackstrip()       );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, densityCalculator2.getCompensation()    );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, densityCalculator2.getSedimentDensity() );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, densityCalculator2.getBackstrip()       );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, densityCalculator2.getCompensation()    );
 }
 
 
@@ -349,22 +349,22 @@ TEST_F( DensityCalculatorTest, compute )
    validator.setIsValid( false );
    DensityCalculator densityCalculator3( inputData, outputData3, validator );
    densityCalculator3.compute();
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentBackstrip,    0, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentBackstrip,    0, 1 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentBackstrip,    1, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentBackstrip,    1, 1 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( sedimentDensityMap,      0, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( sedimentDensityMap,      0, 1 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( sedimentDensityMap,      1, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( sedimentDensityMap,      1, 1 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentThickness,    0, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentThickness,    0, 1 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentThickness,    1, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentThickness,    1, 1 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumBasementCompensation, 0, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumBasementCompensation, 0, 1 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumBasementCompensation, 1, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumBasementCompensation, 1, 1 ) );
-   
-   
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentBackstrip,    0, 0 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentBackstrip,    0, 1 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentBackstrip,    1, 0 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentBackstrip,    1, 1 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( sedimentDensityMap,      0, 0 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( sedimentDensityMap,      0, 1 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( sedimentDensityMap,      1, 0 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( sedimentDensityMap,      1, 1 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentThickness,    0, 0 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentThickness,    0, 1 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentThickness,    1, 0 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumSedimentThickness,    1, 1 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumBasementCompensation, 0, 0 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumBasementCompensation, 0, 1 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumBasementCompensation, 1, 0 ) );
+   EXPECT_EQ( DataAccess::Interface::DefaultUndefinedMapValue, outputData3.getMapValue( cumBasementCompensation, 1, 1 ) );
+
+
 }

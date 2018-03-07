@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__OUTPUT_UTILITIES_HH
 #define DERIVED_PROPERTIES__OUTPUT_UTILITIES_HH
 
@@ -66,7 +76,8 @@ namespace DerivedProperties {
    /// \param [in]  propertyManager The property manager object
    /// \param [out] properties      On exit will contain a list of the properties
 
-   bool acquireProperties( GeoPhysics::ProjectHandle * projectHandle, const AbstractPropertyManager& propertyManager,
+   bool acquireProperties( GeoPhysics::ProjectHandle * projectHandle,
+                           const AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                            DataAccess::Interface::PropertyList & properties, StringVector & propertyNames );
    
    /// \brief Allocate OutputProperty for the formation-surface pair, the snapshot and the property if the property is computable.
@@ -76,7 +87,7 @@ namespace DerivedProperties {
    /// \param [in]  snapshot               The snapshot for which the property to be allocated
    /// \param [in]  propertyManager        The property manager object
 
-   OutputPropertyValuePtr allocateOutputProperty ( DerivedProperties::AbstractPropertyManager& propertyManager, 
+   OutputPropertyValuePtr allocateOutputProperty ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                                                    const DataModel::AbstractProperty* property, 
                                                    const DataModel::AbstractSnapshot* snapshot,
                                                    const FormationSurface& formationSurfaceItem,

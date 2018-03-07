@@ -1,9 +1,9 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -26,7 +26,7 @@ namespace DerivedProperties {
    /// \brief Contains the values of the property at the snapshot time for the surface.
    ///
    /// The values are stored in a two dimensional array.
-   class DerivedSurfaceProperty : public SurfaceProperty {
+   class DerivedSurfaceProperty : public AbstractDerivedProperties::SurfaceProperty {
 
    public :
 
@@ -56,9 +56,6 @@ namespace DerivedProperties {
       /// \brief Return false.
       bool isPrimary () const;
 
-      /// \ brief Get the gridMap
-      const DataAccess::Interface::GridMap* getGridMap() const;
-
    private :
 
       /// \brief 2 dimensional array containing the surface property values.
@@ -72,13 +69,7 @@ namespace DerivedProperties {
 
 
 inline bool DerivedProperties::DerivedSurfaceProperty::isPrimary () const {
-
    return false;
-}
-
-inline const DataAccess::Interface::GridMap* DerivedProperties::DerivedSurfaceProperty::getGridMap() const {
-
-   return 0;
 }
 
 #endif // DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H

@@ -1,9 +1,21 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "ConstantDomainFormationProperty.h"
 
 #include "DomainPropertyCollection.h"
 #include "ElementFunctions.h"
 
 #include "GeoPhysicsProjectHandle.h"
+
+using namespace AbstractDerivedProperties;
 
 DataAccess::Mining::ConstantDomainFormationProperty::ConstantDomainFormationProperty ( const DomainPropertyCollection*            collection,
                                                                                        DerivedProperties::DerivedPropertyManager& propertyManager,
@@ -12,7 +24,7 @@ DataAccess::Mining::ConstantDomainFormationProperty::ConstantDomainFormationProp
    DomainProperty ( collection, propertyManager, snapshot, property )
 {
 
-   DerivedProperties::FormationPropertyList values = propertyManager.getFormationProperties ( getProperty (), getSnapshot (), true );
+   FormationPropertyList values = propertyManager.getFormationProperties ( getProperty (), getSnapshot (), true );
 
    for ( size_t i = 0; i < values.size (); ++i ) {
       m_values [ values [ i ]->getFormation ()] = values [ i ];
@@ -30,7 +42,7 @@ double DataAccess::Mining::ConstantDomainFormationProperty::compute ( const Elem
       FormationToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getFormation ());
 
       if ( propIter != m_values.end ()) {
-         DerivedProperties::FormationPropertyPtr grid = propIter->second;
+         FormationPropertyPtr grid = propIter->second;
 
          return grid->get ( position.getI (), position.getJ (), position.getLocalK ());
       } else {
@@ -50,7 +62,7 @@ void DataAccess::Mining::ConstantDomainFormationProperty::extractCoefficients ( 
       FormationToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getFormation ());
 
       if ( propIter != m_values.end ()) {
-         DerivedProperties::FormationPropertyPtr grid = propIter->second;
+         FormationPropertyPtr grid = propIter->second;
 
          // Since the property is constant every where on the element setting all coeffs to the same value
          // returns the same constant value in the 3d interpolation functions.

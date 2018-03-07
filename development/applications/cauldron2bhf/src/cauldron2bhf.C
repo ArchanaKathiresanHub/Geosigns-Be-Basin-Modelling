@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -395,7 +405,7 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
          for (p = 0; p < NumPropertyHandles; ++p)
          {
 
-            DerivedProperties::SurfacePropertyPtr topPropertyValues = propertyManager.getSurfaceProperty ( propertyHandles[p].property, snapshot, topSurface );
+            AbstractDerivedProperties::SurfacePropertyPtr topPropertyValues = propertyManager.getSurfaceProperty ( propertyHandles[p].property, snapshot, topSurface );
 
             if ( topPropertyValues == 0 )
 	    {
@@ -403,7 +413,7 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
 	       continue;
 	    }
 
-            DerivedProperties::SurfacePropertyPtr bottomPropertyValues = propertyManager.getSurfaceProperty ( propertyHandles[p].property, snapshot, bottomSurface );
+            AbstractDerivedProperties::SurfacePropertyPtr bottomPropertyValues = propertyManager.getSurfaceProperty ( propertyHandles[p].property, snapshot, bottomSurface );
 
             if ( bottomPropertyValues == 0)
 	    {

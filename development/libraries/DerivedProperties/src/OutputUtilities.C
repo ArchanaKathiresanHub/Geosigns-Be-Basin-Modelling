@@ -1,9 +1,21 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <iostream>
 #include <map>
 
 #include "LogHandler.h"
 #include "OutputUtilities.h"
 #include "AbstractPropertyManager.h"
+
+using namespace AbstractDerivedProperties;
 
 bool DerivedProperties::acquireProperties( GeoPhysics::ProjectHandle * projectHandle, const AbstractPropertyManager& propertyManager,
                                            PropertyList & properties, StringVector & propertyNames  ) {
@@ -198,7 +210,7 @@ void  DerivedProperties::outputSnapshotFormationData( GeoPhysics::ProjectHandle*
 
 //------------------------------------------------------------//
 
-OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedProperties::AbstractPropertyManager& propertyManager, 
+OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty (       AbstractPropertyManager& propertyManager,
                                                                     const DataModel::AbstractProperty* property, 
                                                                     const DataModel::AbstractSnapshot* snapshot,
                                                                     const FormationSurface& formationItem,
@@ -300,9 +312,12 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedPrope
 bool  DerivedProperties::createSnapshotResultPropertyValue (  GeoPhysics::ProjectHandle* projectHandle, OutputPropertyValuePtr propertyValue, 
                                                               const Snapshot* snapshot, const Interface::Formation * formation,
                                                               const Interface::Surface * surface ) {
-   
-   if( not propertyValue->hasMap () ) {
-       return true;
+
+   // This check is needed because some of the derived properties are creating null properties
+   // instead of using the isComputable() function
+   if (not propertyValue->hasProperty())
+   {
+      return true;
    }
 
    unsigned int p_depth = propertyValue->getDepth();
@@ -391,9 +406,4 @@ void DerivedProperties::printDebugMsg ( const string outputMsg,
    LogHandler( LogHandler::DEBUG_SEVERITY) << outputMsg << " " << property->getName() << " " << 
       ( formation != 0 ? formation->getName() : "" ) << " " <<  
       ( surface != 0 ? surface->getName() : "" ) << " at " << snapshot->getTime();
-
-   // cout << outputMsg << " " << property->getName() << " " << 
-   //    ( formation != 0 ? formation->getName() : "" ) << " " <<  
-   //    ( surface != 0 ? surface->getName() : "" ) << " at " << snapshot->getTime() << endl;
-   
 }

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -15,6 +25,8 @@
 #include "FracturePressureFormationCalculator.h"
 #include "PropertyRetriever.h"
 
+using namespace AbstractDerivedProperties;
+
 DerivedProperties::FracturePressureFormationCalculator::FracturePressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "FracturePressure" );
 
@@ -23,10 +35,10 @@ DerivedProperties::FracturePressureFormationCalculator::FracturePressureFormatio
    addDependentPropertyName ( "LithoStaticPressure" );
 }
 
-void DerivedProperties::FracturePressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                         const DataModel::AbstractSnapshot*          snapshot,
-                                                                         const DataModel::AbstractFormation*         formation,
-                                                                               FormationPropertyList&                derivedProperties ) const {
+void DerivedProperties::FracturePressureFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
+                                                                         const DataModel::AbstractSnapshot*  snapshot,
+                                                                         const DataModel::AbstractFormation* formation,
+                                                                               FormationPropertyList&        derivedProperties ) const {
 
    const DataModel::AbstractProperty* depthProperty = propertyManager.getProperty ( "Depth" );
    const DataModel::AbstractProperty* fracturePressureProperty = propertyManager.getProperty ( "FracturePressure" );

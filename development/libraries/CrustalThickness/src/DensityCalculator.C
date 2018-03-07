@@ -9,7 +9,6 @@
 //
 
 #include "DensityCalculator.h"
-using namespace CrustalThickness;
 
 // std library
 #include <cmath>
@@ -17,15 +16,18 @@ using namespace CrustalThickness;
 // CrusltalThickness library
 #include "AbstractInterfaceOutput.h"
 #include "AbstractValidator.h"
+#include "InterfaceInput.h"
 
 // utilitites library
 #include "LogHandler.h"
 #include "ConstantsPhysics.h"
-using Utilities::Physics::AccelerationDueToGravity;
 #include "ConstantsMathematics.h"
-using Utilities::Maths::MegaPaToPa;
 
-#include "InterfaceInput.h"
+using namespace DataAccess;
+using namespace CrustalThickness;
+
+using Utilities::Maths::MegaPaToPa;
+using Utilities::Physics::AccelerationDueToGravity;
 
 //------------------------------------------------------------//
 DensityCalculator::DensityCalculator( 

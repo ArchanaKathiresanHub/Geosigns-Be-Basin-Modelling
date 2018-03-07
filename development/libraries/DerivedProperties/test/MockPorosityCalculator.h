@@ -18,7 +18,7 @@ namespace DataModel{
    /// \brief A Mock porosity calculator class
    ///
    /// This class is used for testing
-   class MockPorosityCalculator final: public DerivedProperties::FormationPropertyCalculator {
+   class MockPorosityCalculator final: public AbstractDerivedProperties::FormationPropertyCalculator {
    
    public :
    
@@ -32,10 +32,10 @@ namespace DataModel{
       /// \param [out] derivedProperties On exit will contain a single formation property, the porosity in the layer.
       /// \pre snapshot points to a valid snapshot age.
       /// \pre formation points to a valid formation.
-      void calculate (       DerivedProperties::AbstractPropertyManager& propertyManager,
-                       const AbstractSnapshot*                snapshot,
-                       const AbstractFormation*               formation,
-                             DerivedProperties::FormationPropertyList&   derivedProperties ) const final;
+      void calculate (       AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
+                       const AbstractSnapshot*                                   snapshot,
+                       const AbstractFormation*                                  formation,
+                             AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const final;
    
    private :
       

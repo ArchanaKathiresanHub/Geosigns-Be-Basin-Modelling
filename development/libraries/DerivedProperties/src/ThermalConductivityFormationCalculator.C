@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -15,7 +25,11 @@
 #include "ThermalConductivityFormationCalculator.h"
 #include "PropertyRetriever.h"
 
-DerivedProperties::ThermalConductivityFormationCalculator::ThermalConductivityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+using namespace AbstractDerivedProperties;
+
+DerivedProperties::ThermalConductivityFormationCalculator::ThermalConductivityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle )
+   : m_projectHandle ( projectHandle )
+{
    addPropertyName ( "ThCondVec2" );
 
    addDependentPropertyName ( "Temperature" );
@@ -31,10 +45,10 @@ DerivedProperties::ThermalConductivityFormationCalculator::ThermalConductivityFo
     }
 }
 
-void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                            const DataModel::AbstractSnapshot*          snapshot,
-                                                                            const DataModel::AbstractFormation*         formation,
-                                                                                  FormationPropertyList&                derivedProperties ) const {
+void DerivedProperties::ThermalConductivityFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
+                                                                            const DataModel::AbstractSnapshot*  snapshot,
+                                                                            const DataModel::AbstractFormation* formation,
+                                                                                  FormationPropertyList&        derivedProperties ) const {
 
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
   
@@ -118,10 +132,10 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
    }
 
 }
-void DerivedProperties::ThermalConductivityFormationCalculator::calculateForBasement ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                                                                       const DataModel::AbstractSnapshot*          snapshot,
-                                                                                       const DataModel::AbstractFormation*         formation,
-                                                                                       FormationPropertyList&                derivedProperties ) const {
+void DerivedProperties::ThermalConductivityFormationCalculator::calculateForBasement ( AbstractPropertyManager&            propertyManager,
+                                                                                       const DataModel::AbstractSnapshot*  snapshot,
+                                                                                       const DataModel::AbstractFormation* formation,
+                                                                                       FormationPropertyList&              derivedProperties ) const {
    
    const DataModel::AbstractProperty* thermalConductivityProperty = propertyManager.getProperty ( "ThCondVec2" );
 
@@ -242,7 +256,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculateForBase
 
 }
 
-bool DerivedProperties::ThermalConductivityFormationCalculator::isComputable ( const DerivedProperties::AbstractPropertyManager& propManager,
+bool DerivedProperties::ThermalConductivityFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,
                                                                                const DataModel::AbstractSnapshot*  snapshot,
                                                                                const DataModel::AbstractFormation* formation ) const {
    

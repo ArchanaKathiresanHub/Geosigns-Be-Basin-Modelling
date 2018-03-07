@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -99,11 +99,11 @@ static const Interface::GridMap * GetPropertyGridMap( Mining::ProjectHandle     
                                                     , const Interface::Reservoir * reservoir
                                                     );
 
-static DerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::ProjectHandle*                     projectHandle,
-                                                                    DerivedProperties::DerivedPropertyManager& propertyManager,
-                                                                    const Interface::Property*                 property,
-                                                                    const Interface::Snapshot*                 snapshot,
-                                                                    const Interface::Reservoir*                reservoir );
+static AbstractDerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::ProjectHandle*                     projectHandle,
+                                                                            DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                      const Interface::Property*                       property,
+                                                                      const Interface::Snapshot*                       snapshot,
+                                                                      const Interface::Reservoir*                      reservoir );
 
 static bool performPVT( double masses[ComponentManager::NUMBER_OF_SPECIES]
                       , double temperature
@@ -336,7 +336,7 @@ double GetTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    assert( grid == projectHandle->getHighResolutionOutputGrid() ); // expecting that this activity always dealing with high resolution grid
 
    const Interface::Property * trapIdProperty = projectHandle->findProperty( "ResRockTrapId" );
-   DerivedProperties::ReservoirPropertyPtr trapIdGridMap = GetPropertyGridMap( projectHandle, propertyManager, trapIdProperty, snapshot, reservoir );
+   AbstractDerivedProperties::ReservoirPropertyPtr trapIdGridMap = GetPropertyGridMap( projectHandle, propertyManager, trapIdProperty, snapshot, reservoir );
    assert (( "Unable to find ResRockTrapId map", trapIdGridMap ));
 
    unsigned int i, j;
@@ -617,7 +617,7 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
       const Interface::Property * reservoirProperty = projectHandle->findProperty( "ResRockPorosity" );
       if ( property )
       {
-         DerivedProperties::ReservoirPropertyPtr reservoirPropertyGridMap = 
+         AbstractDerivedProperties::ReservoirPropertyPtr reservoirPropertyGridMap = 
             GetPropertyGridMap( projectHandle, propertyManager, reservoirProperty, snapshot, reservoir );
          // const Interface::GridMap * reservoirPropertyGridMap = GetPropertyGridMap( projectHandle, reservoirProperty, snapshot, reservoir );
 
@@ -649,14 +649,14 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    return value;
 }
 
-static DerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::ProjectHandle*                     projectHandle
-                                                                  , DerivedProperties::DerivedPropertyManager& propertyManager
-                                                                  , const Interface::Property*                 property
-                                                                  , const Interface::Snapshot*                 snapshot
-                                                                  , const Interface::Reservoir*                reservoir
-                                                                  ) {
+static AbstractDerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::ProjectHandle*                     projectHandle
+                                                                          , DerivedProperties::DerivedPropertyManager& propertyManager
+                                                                          , const Interface::Property*                 property
+                                                                          , const Interface::Snapshot*                 snapshot
+                                                                          , const Interface::Reservoir*                reservoir
+                                                                          ) {
 
-   DerivedProperties::ReservoirPropertyPtr result;
+   AbstractDerivedProperties::ReservoirPropertyPtr result;
 
    if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY ) {
       result = propertyManager.getReservoirProperty ( property, snapshot, reservoir );

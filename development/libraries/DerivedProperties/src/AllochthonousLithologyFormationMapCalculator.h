@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__ALLOCHTHONOUS_LITHOLOGY_FORMATION_MAP_CALCULATOR_H
 #define DERIVED_PROPERTIES__ALLOCHTHONOUS_LITHOLOGY_FORMATION_MAP_CALCULATOR_H
 
@@ -16,7 +26,7 @@
 namespace DerivedProperties {
 
    /// \brief Calculate the allochthonous lithology derived property.
-   class AllochthonousLithologyFormationMapCalculator : public FormationMapPropertyCalculator {
+   class AllochthonousLithologyFormationMapCalculator : public AbstractDerivedProperties::FormationMapPropertyCalculator {
 
    public :
 
@@ -34,10 +44,10 @@ namespace DerivedProperties {
       ///
       /// The floating point number 1.0 indicates that the lithology at a position is defined as allochthonous, 0.0 if it is not.
       /// The undefined value indicates nodes in undefined regions.
-      virtual void calculate ( AbstractPropertyManager&            propManager,
-                               const DataModel::AbstractSnapshot*  snapshot,
-                               const DataModel::AbstractFormation* formation,
-                                     FormationMapPropertyList&     derivedProperties ) const;
+      virtual void calculate (       AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                               const DataModel::AbstractSnapshot*                        snapshot,
+                               const DataModel::AbstractFormation*                       formation,
+                                     AbstractDerivedProperties::FormationMapPropertyList&  derivedProperties ) const;
 
    };
 

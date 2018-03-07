@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__DERIVED_PROPERTY_MANAGER_H
 #define DERIVED_PROPERTIES__DERIVED_PROPERTY_MANAGER_H
 
@@ -19,7 +29,7 @@ namespace DerivedProperties {
    /// \brief Handles derived properties and their calculation.
    ///
    /// First all properties are loaded from disk.
-   class DerivedPropertyManager : public AbstractPropertyManager {
+   class DerivedPropertyManager : public AbstractDerivedProperties::AbstractPropertyManager {
 
    public :
 
@@ -51,9 +61,9 @@ namespace DerivedProperties {
       /// \pre snapshot is not null and points to a valid snapshot age.
       /// \pre A calculator or calculators for this property exists.
       /// \post The result contains a list of values of the required property at all the active formations for the required snapshot age.
-      virtual FormationPropertyList getFormationProperties ( const DataModel::AbstractProperty* property,
-                                                             const DataModel::AbstractSnapshot* snapshot,
-                                                             const bool                         includeBasement = false );
+      virtual AbstractDerivedProperties::FormationPropertyList getFormationProperties ( const DataModel::AbstractProperty* property,
+                                                                                        const DataModel::AbstractSnapshot* snapshot,
+                                                                                        const bool                         includeBasement = false );
 
       /// \brief Get the formation map property values for all formations that are active at the snapshot age.
       ///
@@ -66,9 +76,9 @@ namespace DerivedProperties {
       /// \pre snapshot is not null and points to a valid snapshot age.
       /// \pre A calculator or calculators for this property exists.
       /// \post The result contains a list of values of the required property at all the active formations for the required snapshot age.
-      virtual FormationMapPropertyList getFormationMapProperties ( const DataModel::AbstractProperty* property,
-                                                                   const DataModel::AbstractSnapshot* snapshot,
-                                                                   const bool                         includeBasement = false );
+      virtual AbstractDerivedProperties::FormationMapPropertyList getFormationMapProperties ( const DataModel::AbstractProperty* property,
+                                                                                              const DataModel::AbstractSnapshot* snapshot,
+                                                                                              const bool                         includeBasement = false );
 
       /// \brief Get the surface property values for all surfaces that are active at the snapshot age.
       ///
@@ -81,9 +91,9 @@ namespace DerivedProperties {
       /// \pre snapshot is not null and is a valid snapshot age.
       /// \pre A calculator or calculators for this property exists.
       /// \post The result contains a list of values of the required property at all the active surfaces for the required snapshot age.
-      virtual SurfacePropertyList getSurfaceProperties ( const DataModel::AbstractProperty* property,
-                                                         const DataModel::AbstractSnapshot* snapshot,
-                                                         const bool                         includeBasement = false );
+      virtual AbstractDerivedProperties::SurfacePropertyList getSurfaceProperties ( const DataModel::AbstractProperty* property,
+                                                                                    const DataModel::AbstractSnapshot* snapshot,
+                                                                                    const bool                         includeBasement = false );
 
 
    protected :
@@ -126,7 +136,7 @@ namespace DerivedProperties {
       /// \brief Load one formation property calculator.
       ///
       /// Here one calculator for derived properties on formation is added to the set of calculators.
-      void  loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr formationPropertyCalculator, const bool debug);
+      void  loadDerivedFormationPropertyCalculator(AbstractDerivedProperties::FormationPropertyCalculatorPtr formationPropertyCalculator, const bool debug);
 
       /// \brief Load derived formation-map property calculators.
       ///
@@ -136,7 +146,7 @@ namespace DerivedProperties {
       /// \brief Load one derived formation-map property calculator.
       ///
       /// Here one calculator for derived properties for formation-map is added to the set of calculators.
-      void loadDerivedFormationMapPropertyCalculator(FormationMapPropertyCalculatorPtr formationMapPropertyCalculator);
+      void loadDerivedFormationMapPropertyCalculator(AbstractDerivedProperties::FormationMapPropertyCalculatorPtr formationMapPropertyCalculator);
 
       /// \brief Load derived surface property calculators.
       ///
@@ -146,25 +156,25 @@ namespace DerivedProperties {
       /// \brief Load one derived surface property calculator.
       ///
       /// Here one calculator for derived properties for surfaces is added to the set of calculators.
-      void loadDerivedSurfacePropertyCalculator(SurfacePropertyCalculatorPtr formationSurfacePropertyCalculator);
+      void loadDerivedSurfacePropertyCalculator(AbstractDerivedProperties::SurfacePropertyCalculatorPtr formationSurfacePropertyCalculator);
 
       /// \brief Determine if the derived property calculator should be added to the property-manager.
       ///
       /// This does not look at the properties required for the property to be calculated, only
       /// if a calculator for the property is already in the list.
-      bool canAddDerivedFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& formationPropertyCalculator) const;
+      bool canAddDerivedFormationPropertyCalculator ( const AbstractDerivedProperties::FormationPropertyCalculatorPtr& formationPropertyCalculator) const;
 
       /// \brief Determine if the derived property calculator should be added to the property-manager.
       ///
       /// This does not look at the properties required for the property to be calculated, only
       /// if a calculator for the property is already in the list.
-      bool canAddDerivedFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& formationMapPropertyCalculator) const;
+      bool canAddDerivedFormationMapPropertyCalculator ( const AbstractDerivedProperties::FormationMapPropertyCalculatorPtr& formationMapPropertyCalculator) const;
 
       /// \brief Determine if the derived property calculator should be added to the property-manager.
       ///
       /// This does not look at the properties required for the property to be calculated, only
       /// if a calculator for the property is already in the list.
-      bool canAddDerivedSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr& surfacePropertyCalculator ) const;
+      bool canAddDerivedSurfacePropertyCalculator ( const AbstractDerivedProperties::SurfacePropertyCalculatorPtr& surfacePropertyCalculator ) const;
 
       /// \brief The geophysics project handle
       GeoPhysics::ProjectHandle* m_projectHandle;

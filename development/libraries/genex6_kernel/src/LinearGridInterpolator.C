@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "LinearGridInterpolator.h"
 
 namespace Genex6
@@ -166,7 +176,7 @@ void LinearGridInterpolator::compute ( const double                          sta
 }
 
 
-void LinearGridInterpolator::initialize( const DerivedProperties::SurfacePropertyPtr theProperty )
+void LinearGridInterpolator::initialize( const AbstractDerivedProperties::SurfacePropertyPtr theProperty )
 {
    m_firstI = theProperty->firstI( false );
    m_lastI  = theProperty->lastI( false );
@@ -182,9 +192,9 @@ void LinearGridInterpolator::initialize( const DerivedProperties::SurfacePropert
 
 
 void LinearGridInterpolator::compute ( const Snapshot *startTime,
-                                       const DerivedProperties::SurfacePropertyPtr startProperty,
+                                       const AbstractDerivedProperties::SurfacePropertyPtr startProperty,
                                        const Snapshot *endTime, 
-                                       const DerivedProperties::SurfacePropertyPtr endProperty ) {
+                                       const AbstractDerivedProperties::SurfacePropertyPtr endProperty ) {
 
 
    const double start = startTime->getTime();
@@ -259,7 +269,7 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
    }
 }
 
-void LinearGridInterpolator::initialize( const DerivedProperties::FormationPropertyPtr theProperty )
+void LinearGridInterpolator::initialize( const AbstractDerivedProperties::FormationPropertyPtr theProperty )
 {
    m_firstI = theProperty->firstI( false );
    m_lastI  = theProperty->lastI( false );
@@ -273,7 +283,7 @@ void LinearGridInterpolator::initialize( const DerivedProperties::FormationPrope
    m_B = allocate2DArray(m_rows, m_columns);
 }
 
-void LinearGridInterpolator::initialize( const DerivedProperties::FormationMapPropertyPtr theProperty )
+void LinearGridInterpolator::initialize( const AbstractDerivedProperties::FormationMapPropertyPtr theProperty )
 {
    m_firstI = theProperty->firstI( false );
    m_lastI  = theProperty->lastI( false );
@@ -287,7 +297,7 @@ void LinearGridInterpolator::initialize( const DerivedProperties::FormationMapPr
    m_B = allocate2DArray(m_rows, m_columns);
 }
 
-void LinearGridInterpolator::initialize( const DerivedProperties::FormationSurfacePropertyPtr theProperty )
+void LinearGridInterpolator::initialize( const AbstractDerivedProperties::FormationSurfacePropertyPtr theProperty )
 {
    m_firstI = theProperty->firstI( false );
    m_lastI  = theProperty->lastI( false );
@@ -302,9 +312,9 @@ void LinearGridInterpolator::initialize( const DerivedProperties::FormationSurfa
 }
 
 void LinearGridInterpolator::compute ( const Snapshot *startTime,
-                                       const DerivedProperties::FormationPropertyPtr startProperty,
+                                       const AbstractDerivedProperties::FormationPropertyPtr startProperty,
                                        const Snapshot *endTime, 
-                                       const DerivedProperties::FormationPropertyPtr endProperty ) {
+                                       const AbstractDerivedProperties::FormationPropertyPtr endProperty ) {
 
 
    const double start = startTime->getTime();
@@ -380,9 +390,9 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
 }
 
 void LinearGridInterpolator::compute ( const Snapshot *startTime,
-                                       const DerivedProperties::FormationMapPropertyPtr startProperty,
+                                       const AbstractDerivedProperties::FormationMapPropertyPtr startProperty,
                                        const Snapshot *endTime, 
-                                       const DerivedProperties::FormationMapPropertyPtr endProperty ) {
+                                       const AbstractDerivedProperties::FormationMapPropertyPtr endProperty ) {
 
 
    const double start = startTime->getTime();
@@ -455,9 +465,9 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
    }
 }
 void LinearGridInterpolator::compute ( const Snapshot *startTime,
-                                       const DerivedProperties::FormationSurfacePropertyPtr startProperty,
+                                       const AbstractDerivedProperties::FormationSurfacePropertyPtr startProperty,
                                        const Snapshot *endTime, 
-                                       const DerivedProperties::FormationSurfacePropertyPtr endProperty ) {
+                                       const AbstractDerivedProperties::FormationSurfacePropertyPtr endProperty ) {
 
 
    const double start = startTime->getTime();

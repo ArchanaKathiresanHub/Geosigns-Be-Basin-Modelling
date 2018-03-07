@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2013-2018 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -17,6 +27,7 @@
 
 using namespace DataModel;
 using namespace DerivedProperties;
+using namespace AbstractDerivedProperties;
 
 static const double initialLayerThickness = 500;
 static const double depthDelta = 100.0;
@@ -30,7 +41,7 @@ static const double waterDensity = 1000.0;
 static const double pressureGradient = 1.5;
 
 
-class TestPropertyManager : public DerivedProperties::AbstractPropertyManager {
+class TestPropertyManager : public AbstractPropertyManager {
 
 public :
 
@@ -65,26 +76,26 @@ private :
 
 };
 
-class DepthCalculator : public DerivedProperties::FormationPropertyCalculator {
+class DepthCalculator : public FormationPropertyCalculator {
 
 public :
 
    DepthCalculator ();
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+   void calculate ( AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*          snapshot,
                     const DataModel::AbstractFormation*         formation,
                           FormationPropertyList&                derivedProperties ) const;
 
 };
 
-class HydrostaticCalculator : public DerivedProperties::FormationPropertyCalculator {
+class HydrostaticCalculator : public FormationPropertyCalculator {
 
 public :
 
    HydrostaticCalculator ();
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+   void calculate ( AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*          snapshot,
                     const DataModel::AbstractFormation*         formation,
                           FormationPropertyList&                derivedProperties ) const;
@@ -92,13 +103,13 @@ public :
 };
 
 
-class PressureCalculator : public DerivedProperties::FormationPropertyCalculator {
+class PressureCalculator : public FormationPropertyCalculator {
 
 public :
 
    PressureCalculator ();
 
-   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+   void calculate ( AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*          snapshot,
                     const DataModel::AbstractFormation*         formation,
                           FormationPropertyList&                derivedProperties ) const;
@@ -160,8 +171,8 @@ TestPropertyManager::TestPropertyManager () {
    addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new DepthCalculator )); 
    addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new HydrostaticCalculator )); 
    addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new PressureCalculator )); 
-   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new DerivedProperties::OverpressureFormationCalculator ));
-   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new DerivedProperties::OverpressureSurfaceCalculator ));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new OverpressureFormationCalculator ));
+   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new OverpressureSurfaceCalculator ));
 }
 
 
@@ -210,14 +221,14 @@ DepthCalculator::DepthCalculator () {
    addPropertyName ( "Depth" );
 }
 
-void DepthCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void DepthCalculator::calculate ( AbstractPropertyManager& propertyManager,
                                   const DataModel::AbstractSnapshot*          snapshot,
                                   const DataModel::AbstractFormation*         formation,
                                         FormationPropertyList&                derivedProperties ) const {
 
    const DataModel::AbstractProperty* depth = propertyManager.getProperty ( "Depth" );
 
-   DerivedFormationPropertyPtr depthProp = DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty ( depth,
+   DerivedFormationPropertyPtr depthProp = DerivedFormationPropertyPtr( new DerivedFormationProperty ( depth,
                                                                                                                           snapshot,
                                                                                                                           formation,
                                                                                                                           propertyManager.getMapGrid (),
@@ -246,7 +257,7 @@ HydrostaticCalculator::HydrostaticCalculator () {
    addPropertyName ( "HydroStaticPressure" );
 }
 
-void HydrostaticCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void HydrostaticCalculator::calculate ( AbstractPropertyManager& propertyManager,
                                         const DataModel::AbstractSnapshot*          snapshot,
                                         const DataModel::AbstractFormation*         formation,
                                               FormationPropertyList&                derivedProperties ) const {
@@ -255,7 +266,7 @@ void HydrostaticCalculator::calculate ( DerivedProperties::AbstractPropertyManag
    const DataModel::AbstractProperty* hydrostaticPressureProp = propertyManager.getProperty ( "HydroStaticPressure" );
    const FormationPropertyPtr depth = propertyManager.getFormationProperty ( depthProp, snapshot, formation );
 
-   DerivedFormationPropertyPtr hydrostaticPressure = DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty ( hydrostaticPressureProp,
+   DerivedFormationPropertyPtr hydrostaticPressure = DerivedFormationPropertyPtr( new DerivedFormationProperty ( hydrostaticPressureProp,
                                                                                                                                     snapshot,
                                                                                                                                     formation,
                                                                                                                                     propertyManager.getMapGrid (),
@@ -281,7 +292,7 @@ PressureCalculator::PressureCalculator () {
    addPropertyName ( "Pressure" );
 }
 
-void PressureCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+void PressureCalculator::calculate ( AbstractPropertyManager& propertyManager,
                                      const DataModel::AbstractSnapshot*          snapshot,
                                      const DataModel::AbstractFormation*         formation,
                                            FormationPropertyList&                derivedProperties ) const {
@@ -290,7 +301,7 @@ void PressureCalculator::calculate ( DerivedProperties::AbstractPropertyManager&
    const DataModel::AbstractProperty* pressureProp = propertyManager.getProperty ( "Pressure" );
    const FormationPropertyPtr depth = propertyManager.getFormationProperty ( depthProp, snapshot, formation );
 
-   DerivedFormationPropertyPtr porePressure = DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty ( pressureProp,
+   DerivedFormationPropertyPtr porePressure = DerivedFormationPropertyPtr( new DerivedFormationProperty ( pressureProp,
                                                                                                                              snapshot,
                                                                                                                              formation,
                                                                                                                              propertyManager.getMapGrid (),
