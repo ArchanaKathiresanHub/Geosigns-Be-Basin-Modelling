@@ -404,17 +404,18 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   // Set map properties required by GenEx , they are saved at minor snapshots for Genex
   // In case GenEx is run after fastcauldron
-  genexOutputProperties.push_back ( EROSIONFACTOR );
   genexOutputProperties.push_back ( MAXVES );
   genexOutputProperties.push_back ( PRESSURE );
   genexOutputProperties.push_back ( TEMPERATURE );
   genexOutputProperties.push_back ( VES );
   genexOutputProperties.push_back ( VR );
+  if (not Application_Context->primaryOutput()) { 
+     genexOutputProperties.push_back ( EROSIONFACTOR );
+  }
 
   // Set map properties required by SGS (Shale Gas Simulator) , they are saved at minor snapshots for Genex
   // In case SGS is run after fastcauldron
   shaleGasOutputProperties.push_back ( CHEMICAL_COMPACTION );
-  shaleGasOutputProperties.push_back ( EROSIONFACTOR );
   shaleGasOutputProperties.push_back ( HYDROSTATICPRESSURE );
   shaleGasOutputProperties.push_back ( LITHOSTATICPRESSURE );
   shaleGasOutputProperties.push_back ( MAXVES );
@@ -424,6 +425,9 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   shaleGasOutputProperties.push_back ( TEMPERATURE );
   shaleGasOutputProperties.push_back ( VES );
   shaleGasOutputProperties.push_back ( VR );
+  if (not Application_Context->primaryOutput()) {
+     shaleGasOutputProperties.push_back ( EROSIONFACTOR );
+  }
 
 
   //1.2 Concluding map properties---------
@@ -626,6 +630,9 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      looselyCoupledOutputProperties.push_back( TEMPERATURE );
      looselyCoupledOutputProperties.push_back( VR );
      looselyCoupledOutputProperties.push_back( DEPTH );
+  }
+  if ( Application_Context->primaryOutput() ) {
+     looselyCoupledOutputMapProperties.push_back( EROSIONFACTOR );
   }
 
   if (Application_Context->primaryOutput() and FastcauldronSimulator::getInstance().getCalculationMode() != OVERPRESSURE_MODE) {
@@ -1654,6 +1661,9 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double currentTime ) {
         computeErosionFactorMaps ( basinModel, currentTime );
 
         FastcauldronSimulator::getInstance ().saveSourceRockProperties ( snapshot, genexOutputProperties, shaleGasOutputProperties );
+
+        // Save ErosionFactor for all sediment formations (minor snapshot)
+        FastcauldronSimulator::getInstance ().saveMapProperties ( looselyCoupledOutputMapProperties, snapshot, Interface::SEDIMENTS_ONLY_OUTPUT );
 
         deleteErosionFactorMaps ( basinModel );
      }
