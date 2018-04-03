@@ -350,7 +350,9 @@ namespace migration
    bool DebugColumn (Column * column);
 
    //Specify the simulation details
-   static const std::string simulationModeStr[4] = { "VerticalSecondaryMigration", "HydrodynamicCapillaryPressure", "ReservoirDetection", "InclinedStratigraphy" };
+   const std::string simulationModeStr[4] = { "VerticalSecondaryMigration", "HydrodynamicCapillaryPressure", "ReservoirDetection", "InclinedStratigraphy" };
+
+   const std::string flowPathsFileNamePrefix = "FlowPaths";
 
 #ifndef WIN32
    inline unsigned long getMemoryUsed ()  

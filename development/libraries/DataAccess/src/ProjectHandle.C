@@ -2598,7 +2598,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
             // File will be appended if append-flag is true in the snapshot.
             snapshotUsed = (Snapshot *)propertyValue->getSnapshot();
 
-            const string & fileName = snapshotUsed->getFileName( true );
+            const string & fileName = ( propertyValue->getFileName () == "" ? snapshotUsed->getFileName( true ) : propertyValue->getFileName ());
             ibs::FilePath filePathName( getFullOutputDir() );
             filePathName << fileName;
 
@@ -2704,10 +2704,10 @@ void ProjectHandle::addPropertyToFront( Property * property )
 }
 
 PropertyValue * ProjectHandle::addPropertyValue( database::Record * record, const string & name, const Property * property, const Snapshot * snapshot,
-   const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage )
+   const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName )
 {
    PropertyValue * propertyValue = getFactory()->producePropertyValue( this, record, name, property, snapshot,
-      reservoir, formation, surface, storage );
+      reservoir, formation, surface, storage, fileName );
 
    if ( record )
    {
@@ -2755,7 +2755,8 @@ PropertyValue * ProjectHandle::createMapPropertyValue( const string &    propert
 }
 
 PropertyValue * ProjectHandle::createVolumePropertyValue( const string & propertyValueName, const Snapshot * snapshot,
-   const Reservoir * reservoir, const Formation * formation, unsigned int depth )
+                                                          const Reservoir * reservoir, const Formation * formation,
+                                                          unsigned int depth, const std::string & fileName )
 {
    if ( getActivityName() == "" || getActivityOutputGrid() == 0 ) return nullptr;
 
@@ -2765,7 +2766,7 @@ PropertyValue * ProjectHandle::createVolumePropertyValue( const string & propert
    if ( reservoir && formation ) return nullptr;
    if ( !reservoir && !formation ) return nullptr;
 
-   PropertyValue * propertyValue = addPropertyValue( 0, propertyValueName, property, snapshot, reservoir, formation, 0, THREEDTIMEIOTBL );
+   PropertyValue * propertyValue = addPropertyValue( 0, propertyValueName, property, snapshot, reservoir, formation, 0, THREEDTIMEIOTBL, fileName );
    propertyValue->createGridMap( getActivityOutputGrid(), depth );
 
    return propertyValue;

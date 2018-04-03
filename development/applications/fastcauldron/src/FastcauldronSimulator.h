@@ -151,11 +151,12 @@ public :
                                                             const Interface::Formation * formation,
                                                             const Interface::Surface *   surface );
 
-   Interface::PropertyValue * createVolumePropertyValue ( const string &                    propertyValueName,
-                                                               const Interface::Snapshot *  snapshot,
-                                                               const Interface::Reservoir * reservoir,
-                                                               const Interface::Formation * formation,
-                                                                     unsigned int                depth );
+   Interface::PropertyValue * createVolumePropertyValue ( const string &               propertyValueName,
+                                                          const Interface::Snapshot *  snapshot,
+                                                          const Interface::Reservoir * reservoir,
+                                                          const Interface::Formation * formation,
+                                                          unsigned int                 depth,
+                                                          const std::string &          fileName = "");
 
    void deleteSnapshotProperties ();
 

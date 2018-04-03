@@ -64,13 +64,14 @@ DataAccess::Interface::Property * FastcauldronFactory::produceProperty ( Interfa
 
 Interface::PropertyValue * FastcauldronFactory::producePropertyValue ( Interface::ProjectHandle *   projectHandle,
                                                                        database::Record *           record,
-                                                                       const string &               name,
+                                                                       const std::string &               name,
                                                                        const Interface::Property *  property,
                                                                        const Interface::Snapshot *  snapshot,
                                                                        const Interface::Reservoir * reservoir,
                                                                        const Interface::Formation * formation,
                                                                        const Interface::Surface *   surface,
-                                                                       Interface::PropertyStorage   storage) {
+                                                                       Interface::PropertyStorage   storage,
+                                                                       const std::string & fileName) {
 
    return new PropertyValue ( projectHandle, record, name, property, snapshot, reservoir, formation, surface, storage );
 }

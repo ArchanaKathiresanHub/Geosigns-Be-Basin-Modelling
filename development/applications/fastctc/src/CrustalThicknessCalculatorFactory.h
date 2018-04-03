@@ -55,7 +55,8 @@ public:
                                                       const DataAccess::Interface::Reservoir * reservoir,
                                                       const DataAccess::Interface::Formation * formation,
                                                       const DataAccess::Interface::Surface * surface,
-                                                      DataAccess::Interface::PropertyStorage storage ) override;
+                                                      DataAccess::Interface::PropertyStorage storage,
+                                                      const std::string & fileName = "") override;
 };
 
 #endif

@@ -287,11 +287,11 @@ Property * ObjectFactory::produceProperty (ProjectHandle * projectHandle, databa
 
 PropertyValue * ObjectFactory::producePropertyValue (ProjectHandle * projectHandle, database::Record * record ,const string & name,
       const Property * property, const Snapshot * snapshot,
-      const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage)
+      const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName)
 {
    return new PropertyValue (projectHandle, record, name,
-	 property, snapshot,
-	 reservoir, formation, surface, storage);
+	property, snapshot, reservoir,
+	formation, surface, storage, fileName);
 }
 
 BiodegradationParameters* ObjectFactory::produceBiodegradationParameters (

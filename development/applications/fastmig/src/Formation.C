@@ -1099,14 +1099,21 @@ namespace migration
 
    bool Formation::saveComputedSMFlowPathsByGridOffsets (const Interface::Snapshot * end)
    {
-      ((Interface::Snapshot *) end)->setAppendFile (true);
+      ((Interface::Snapshot *) end)->setAppendFile (false);
       if (!m_formationNodeArray)
          return true;
 
       unsigned int nodeDepth = (unsigned int)getNodeDepth ();
 
+      // generate file name
+      ostringstream buf;
+
+      buf.setf (ios::fixed);
+      buf.precision (6);
+      buf << flowPathsFileNamePrefix << "_" << end->getTime () << ".h5";
+
       Interface::PropertyValue * propertyValue =
-         m_migrator->getProjectHandle ()->createVolumePropertyValue ("FlowDirectionIJK", end, 0, this, nodeDepth + 1);
+         m_migrator->getProjectHandle ()->createVolumePropertyValue ("FlowDirectionIJK", end, 0, this, nodeDepth + 1, buf.str ());
       assert (propertyValue);
 
       GridMap *gridMap = propertyValue->getGridMap ();

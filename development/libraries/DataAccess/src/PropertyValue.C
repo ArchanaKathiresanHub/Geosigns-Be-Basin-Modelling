@@ -23,12 +23,12 @@ using namespace DataAccess;
 using namespace Interface;
 
 PropertyValue::PropertyValue (ProjectHandle * projectHandle, Record * record, const string & name, const Property * property, const Snapshot * snapshot,
-                              const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage) :
+                              const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName) :
    DAObject (projectHandle, record),
    m_name (name),
    m_property (property), m_snapshot (snapshot),
    m_reservoir (reservoir), m_formation (formation), m_surface (surface),
-   m_storage (storage)
+   m_storage (storage), m_fileName (fileName)
 {
 }
 
@@ -88,9 +88,14 @@ bool PropertyValue::matchesConditions (int selectionFlags, const Property * prop
    return selected;
 }
 
-const string & PropertyValue::getName (void) const
+const std::string & PropertyValue::getName (void) const
 {
    return m_name;
+}
+
+const std::string & PropertyValue::getFileName (void) const
+{
+   return m_fileName;
 }
 
 const Snapshot * PropertyValue::getSnapshot (void) const

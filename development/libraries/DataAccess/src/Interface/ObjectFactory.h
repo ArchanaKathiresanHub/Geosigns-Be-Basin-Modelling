@@ -142,8 +142,8 @@ namespace DataAccess
                                              const DataModel::PropertyAttribute attr );
 
          virtual PropertyValue * producePropertyValue (ProjectHandle * projectHandle, database::Record * record,
-                                                       const string & name, const Property * property, const Snapshot * snapshot,
-                                                       const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage);
+                                                       const string & name, const Property * property, const Snapshot * snapshot, const Reservoir * reservoir,
+                                                       const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName = "");
 
          virtual BiodegradationParameters* produceBiodegradationParameters (ProjectHandle * projectHandle,
                                                                             database::Record* bioRecord);

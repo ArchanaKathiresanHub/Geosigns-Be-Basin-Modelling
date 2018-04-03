@@ -69,7 +69,8 @@ public :
                                                           const Interface::Reservoir * reservoir,
                                                           const Interface::Formation * formation,
                                                           const Interface::Surface *   surface,
-                                                          Interface::PropertyStorage   storage);
+                                                          Interface::PropertyStorage   storage,
+                                                          const std::string & fileName = "");
 
 
 

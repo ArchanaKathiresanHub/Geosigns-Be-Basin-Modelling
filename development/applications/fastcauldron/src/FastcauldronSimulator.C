@@ -713,7 +713,8 @@ Interface::PropertyValue * FastcauldronSimulator::createVolumePropertyValue ( co
                                                                               const Interface::Snapshot *  snapshot,
                                                                               const Interface::Reservoir * reservoir,
                                                                               const Interface::Formation * formation,
-                                                                                    unsigned int           depth ) {
+                                                                              unsigned int           depth,
+                                                                              const std::string & fileName) {
 
    Interface::PropertyValue* propertyValue;
 

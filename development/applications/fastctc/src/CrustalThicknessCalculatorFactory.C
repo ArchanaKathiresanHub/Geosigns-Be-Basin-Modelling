@@ -39,7 +39,8 @@ Ctc::PropertyValue * CrustalThicknessCalculatorFactory::producePropertyValue( In
                                                                               const Interface::Reservoir * reservoir,
                                                                               const Interface::Formation * formation,
                                                                               const Interface::Surface *   surface,
-                                                                              Interface::PropertyStorage   storage ) {
+                                                                              Interface::PropertyStorage   storage,
+                                                                              const std::string &          fileName) {
 
    return new Ctc::PropertyValue( projectHandle, record, name, property, snapshot, reservoir, formation, surface, storage );
 

@@ -34,7 +34,7 @@ namespace DataAccess
       public:
          PropertyValue (ProjectHandle * projectHandle, database::Record * record,
                         const string & name, const Property * property, const Snapshot * snapshot,
-                        const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage);
+                        const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName = "");
          
          virtual ~PropertyValue ();
          
@@ -49,6 +49,8 @@ namespace DataAccess
          
          /// Return the name of this PropertyValue
          virtual const string & getName (void) const;
+         /// Return the name of the output file for this PropertyValue
+         virtual const string & getFileName (void) const;
          /// Return the Snapshot for which this PropertyValue was computed
          virtual const Snapshot * getSnapshot (void) const;
          /// Return the Snapshot for which this PropertyValue was computed
@@ -133,7 +135,9 @@ namespace DataAccess
          
          static const unsigned int ValueMap = 0;
          
-         const string m_name;
+         const std::string m_name;
+
+         const std::string m_fileName;
          
          const Property * m_property;
          const Snapshot * m_snapshot;

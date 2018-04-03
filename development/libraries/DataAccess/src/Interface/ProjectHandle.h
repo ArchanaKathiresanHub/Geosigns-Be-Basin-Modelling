@@ -448,7 +448,7 @@ namespace DataAccess
 
          /// Create a Volume-based PropertyValue
          virtual PropertyValue * createVolumePropertyValue( const string & propertyValueName, const Snapshot * snapshot,
-            const Reservoir * reservoir, const Formation * formation, unsigned int depth );
+            const Reservoir * reservoir, const Formation * formation, unsigned int depth, const std::string & fileName = "" );
 
          void printPropertyValues( PropertyValueList * propertyValues ) const;
 
@@ -456,7 +456,7 @@ namespace DataAccess
          void addPropertyToFront( Property * property );
          // Function supporting the implementation
          PropertyValue * addPropertyValue( database::Record * record, const string & name, const Property * property, const Snapshot * snapshot,
-            const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage );
+            const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName = "" );
 
          /// Utilities to parse a HDF5 file
          void setCurrentSnapshot( const Snapshot * snapshot );
