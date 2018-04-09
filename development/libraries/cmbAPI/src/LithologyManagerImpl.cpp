@@ -678,6 +678,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID       
       case PorExponential:
          porModelPrms.push_back( rec->getValue<double>( s_surfPorosityFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( s_ccExponentialFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_minPorosityFieldName ) );
          break;
 
       case PorSoilMechanics:
@@ -707,7 +708,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
    switch ( porModel )
    {
       case PorExponential:
-         if ( porModelPrms.size() != 2 ) return reportError( OutOfRangeValue, "Wrong parameters number for Exponential porosity model" );
+         if ( porModelPrms.size() != 3 ) return reportError( OutOfRangeValue, "Wrong parameters number for Exponential porosity model" );
          break;
 
       case PorSoilMechanics:
@@ -734,10 +735,21 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
    switch ( porModel )
    {
       case PorExponential:
-         if ( porModelPrms[0] < 0 || porModelPrms[0] > 100 ) return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
-         if ( porModelPrms[1] < 0 || porModelPrms[1] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
-         rec->setValue( s_surfPorosityFieldName,  porModelPrms[0] );
-         rec->setValue( s_ccExponentialFieldName, porModelPrms[1] );
+         if ( porModelPrms[PhiSurf] < 0 || porModelPrms[PhiSurf] > 100 ){
+            return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
+         }
+         if ( porModelPrms[CompactionCoef] < 0 || porModelPrms[CompactionCoef] > 50 ){
+            return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
+         }
+         if ( porModelPrms[PhiMin] < 0 || porModelPrms[CompactionCoef] > 100 ){
+            return reportError( OutOfRangeValue, "Minimal porosity value must be in range [0:100]" );
+         }
+         if ( porModelPrms[PhiMin] > porModelPrms[PhiSurf] ){
+            return reportError( OutOfRangeValue, "Minimal porosity value must be less then surface porosity value" );
+         }
+         rec->setValue( s_surfPorosityFieldName,  porModelPrms[PhiSurf] );
+         rec->setValue( s_ccExponentialFieldName, porModelPrms[CompactionCoef] );
+         rec->setValue( s_minPorosityFieldName,   porModelPrms[PhiMin] );
          rec->setValue( s_porosityModelFieldName, std::string( "Exponential" ) );
          break;
 
@@ -864,17 +876,17 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
 
          case PermSandstone:
             rec->setValue<std::string>( s_permeabilityModelFieldName, "Sands" );
-            if ( modelPrms.size() > 0 ) rec->setValue( s_permeabilityAnisotropyFieldName, modelPrms[0] );
-            if ( modelPrms.size() > 1 ) rec->setValue( s_DepositionalPermFieldName,       modelPrms[1] );
-            if ( modelPrms.size() > 2 ) rec->setValue( s_permSandClayPercentage,          modelPrms[2] );
+            if ( modelPrms.size() > 0 ) rec->setValue( s_permeabilityAnisotropyFieldName, modelPrms[AnisotropySand] );
+            if ( modelPrms.size() > 1 ) rec->setValue( s_DepositionalPermFieldName,       modelPrms[PermSurfSand] );
+            if ( modelPrms.size() > 2 ) rec->setValue( s_permSandClayPercentage,          modelPrms[SandClayPercentage] );
             break;
 
          case PermMudstone:
             rec->setValue<std::string>( s_permeabilityModelFieldName, "Shales" );
-            if ( modelPrms.size() > 0 ) rec->setValue( s_permeabilityAnisotropyFieldName, modelPrms[0] );
-            if ( modelPrms.size() > 1 ) rec->setValue( s_DepositionalPermFieldName,       modelPrms[1] );
-            if ( modelPrms.size() > 2 ) rec->setValue( s_mudPermeabilitySensitivityCoeff, modelPrms[2] );
-            if ( modelPrms.size() > 3 ) rec->setValue( s_mudPermeabilityRecoveryCoeff,    modelPrms[3] );
+            if ( modelPrms.size() > 0 ) rec->setValue( s_permeabilityAnisotropyFieldName, modelPrms[AnisotropyMud] );
+            if ( modelPrms.size() > 1 ) rec->setValue( s_DepositionalPermFieldName,       modelPrms[PermSurfMud] );
+            if ( modelPrms.size() > 2 ) rec->setValue( s_mudPermeabilitySensitivityCoeff, modelPrms[SensitivityCoef] );
+            if ( modelPrms.size() > 3 ) rec->setValue( s_mudPermeabilityRecoveryCoeff,    modelPrms[RecoveryCoeff] );
             break;
 
          case PermMultipoint:

@@ -1037,9 +1037,9 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
-   ASSERT_EQ( minV.size(),  2U );
-   ASSERT_EQ( maxV.size(),  2U );
-   ASSERT_EQ( baseV.size(), 2U );
+   ASSERT_EQ( minV.size(),  3U );
+   ASSERT_EQ( maxV.size(),  3U );
+   ASSERT_EQ( baseV.size(), 3U );
 
    // does it range have given min value
    ASSERT_NEAR( minV[0], 30.0, eps );

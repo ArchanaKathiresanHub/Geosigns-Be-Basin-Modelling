@@ -84,3 +84,17 @@ add_gtest( NAME ${TARGET_NAME}::LegacyBasaltThicknessCalculator
            LIBRARIES DataAccess SerialDataAccess DataModel CBMGenerics utilities
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
+
+#
+# 2. Permeability upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::MudstoneToMultipointPermeability
+           SOURCES test/MudstoneToMultipointPermeabilityTest.cpp src/MudstoneToMultipointPermeability.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
+add_gtest( NAME ${TARGET_NAME}::SandstoneToMultipointPermeability
+           SOURCES test/SandstoneToMultipointPermeabilityTest.cpp src/SandstoneToMultipointPermeability.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)

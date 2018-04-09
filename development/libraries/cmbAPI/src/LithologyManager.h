@@ -36,6 +36,7 @@
 /// The model has 2 parameters:
 ///   -# @f$ \phi_0 @f$ - surface porosity [%]
 ///   -# @f$ c_{ef} @f$ - compaction coefficient (effective stress) @f$ [10^{-8} Pa^{-1}] @f$
+///   -# @f$ \phi_min @f$ - minimal porosity [%]
 ///
 /// @subsection SoilMechPorosityModelSubSec Soil mechanics porosity model
 /// in <b>Soil Mechanics</b> porosity model the porosity is calculated according to this formula:
@@ -99,7 +100,7 @@ namespace mbapi {
    class LithologyManager : public ErrorHandler
    {
    public:
-      
+
       /// @{
       /// Set of interfaces for interacting with a Cauldron model
       typedef size_t LithologyID;         ///< unique ID for lithology
@@ -113,6 +114,12 @@ namespace mbapi {
          PorUnknown           = -1 ///< Not any model was defined
       } PorosityModel;
 
+      enum PorExponentialParameters
+      {
+         PhiSurf,
+         CompactionCoef,
+         PhiMin
+      };
 
       // Define permeability models in the same name as in DataAccess interface library
       typedef enum
@@ -124,6 +131,21 @@ namespace mbapi {
          PermMultipoint,      ///< permeability depends on porosity as 1D function
          PermUnknown     = -1 ///< Not any model was defined
       } PermeabilityModel;
+
+      enum PermSandstoneParameters
+      {
+         AnisotropySand,
+         PermSurfSand,
+         SandClayPercentage
+      };
+
+      enum PermMudstoneParameters
+      {
+         AnisotropyMud,
+         PermSurfMud,
+         SensitivityCoef,
+         RecoveryCoeff
+      };
 
       /// @brief Get list of lithologies in the model
       /// @return array with IDs of different lygthologies defined in the model

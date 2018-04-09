@@ -57,12 +57,15 @@ VarPrmPorosityModel::VarPrmPorosityModel( const char * lithoName
       case PrmPorosityModel::Exponential:
          minPorModelPrms.push_back( minSurfPor );
          minPorModelPrms.push_back( minCompCoeff );
+         minPorModelPrms.push_back( minMinPor );
 
          maxPorModelPrms.push_back( maxSurfPor );
          maxPorModelPrms.push_back( maxCompCoeff );
-         
+         maxPorModelPrms.push_back( maxMinPor );
+
          basPorModelPrms.push_back( baseSurfPor );
          basPorModelPrms.push_back( baseCompCoeff );
+         basPorModelPrms.push_back( baseMinPor );
          break;
 
       case PrmPorosityModel::SoilMechanics:
@@ -119,6 +122,7 @@ std::vector<std::string> VarPrmPorosityModel::name() const
          case PrmPorosityModel::Exponential:
             ret.push_back( m_lithoName + ". SurfacePorosity [%]" );
             ret.push_back( m_lithoName + ". Compaction Coefficient [10e-8 Pa-1]" );
+            ret.push_back( m_lithoName + ". MinimalPorosity [%]" );
             break;
 
          case PrmPorosityModel::SoilMechanics:
@@ -167,7 +171,7 @@ size_t VarPrmPorosityModel::dimension() const
 {
    switch ( m_mdlType )
    {
-      case PrmPorosityModel::Exponential:       return 2;
+      case PrmPorosityModel::Exponential:       return 3;
       case PrmPorosityModel::SoilMechanics:     return 1;
       case PrmPorosityModel::DoubleExponential: return 4;
       default: return 0;

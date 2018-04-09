@@ -68,6 +68,7 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
             m_modelType   = Exponential;
             m_surfPor     = modelPrms[0];
             m_compCoef    = modelPrms[1];
+            m_minPorosity = modelPrms[2];
             break;
 
          case mbapi::LithologyManager::PorSoilMechanics:
@@ -117,7 +118,7 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
    switch( m_modelType )
    {
       case Exponential:
-         if ( mdlPrms.size() != 2 ) { throw ex << "Wrong parameters number for Exponential porosity model, expected 2, but given: "  << mdlPrms.size(); }
+         if ( mdlPrms.size() != 3 ) { throw ex << "Wrong parameters number for Exponential porosity model, expected 3, but given: "  << mdlPrms.size(); }
          break;
 
       case SoilMechanics:
@@ -134,8 +135,9 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
    switch( m_modelType )
    {
       case Exponential:
-         m_surfPor  = mdlPrms[0];
-         m_compCoef = mdlPrms[1];
+         m_surfPor     = mdlPrms[0];
+         m_compCoef    = mdlPrms[1];
+         m_minPorosity = mdlPrms[2];
          break;
 
       case SoilMechanics:
@@ -169,6 +171,7 @@ ErrorHandler::ReturnCode PrmPorosityModel::setInModel( mbapi::Model & caldModel,
          mdlType = mbapi::LithologyManager::PorExponential;
          porModelPrms.push_back( m_surfPor );
          porModelPrms.push_back( m_compCoef );
+         porModelPrms.push_back( m_minPorosity );
          break;
 
       case SoilMechanics:
@@ -216,6 +219,7 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
       case Exponential:
          if ( m_surfPor  < 0 || m_surfPor  > 100 ) oss << "Surface porosity for lithology " << m_lithoName << " is out of range [0:100]: " << m_surfPor  << "\n";
          if ( m_compCoef < 0 || m_compCoef > 50  ) oss << "Compaction coef. for lithology " << m_lithoName << " is out of rang [0:50]: "   << m_compCoef << "\n";
+         if ( m_minPorosity < 0 || m_minPorosity >= m_surfPor ) oss << "Min.  porosity for lithology " << m_lithoName << " is out of range [0:surfPor]: " << m_minPorosity  << "\n";
          break;
 
       case SoilMechanics:
@@ -260,14 +264,18 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
          bool sameCCA      = true;
          bool sameCCB      = true;
 
+         int minPoroIdx =2;
+
          switch( porModel )
          {
             case mbapi::LithologyManager::PorExponential:
                samePorModel = m_modelType == Exponential ? true : false;
                if ( samePorModel )
                {
+                  minPoroIdx = 2;
                   sameSurfPor = NumericFunctions::isEqual( m_surfPor,  mdlPrms[0], 1.e-4 ); 
                   sameCC      = NumericFunctions::isEqual( m_compCoef, mdlPrms[1], 1.e-4 );
+                  sameMinPor  = NumericFunctions::isEqual( m_minPorosity, mdlPrms[minPoroIdx], 1.e-4 );
                }
                break;
  
@@ -284,8 +292,9 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
                samePorModel = m_modelType == DoubleExponential ? true : false;
                if ( samePorModel )
                {
+                  minPoroIdx = 1;
                   sameSurfPor = NumericFunctions::isEqual( m_surfPor,     mdlPrms[0], 1.e-4 );
-                  sameMinPor  = NumericFunctions::isEqual( m_minPorosity, mdlPrms[1], 1.e-4 );
+                  sameMinPor  = NumericFunctions::isEqual( m_minPorosity, mdlPrms[minPoroIdx], 1.e-4 );
                   sameCCA     = NumericFunctions::isEqual( m_compCoef,    mdlPrms[2], 1.e-4 );
                   sameCCB     = NumericFunctions::isEqual( m_compCoef1,   mdlPrms[3], 1.e-4 );
                }
@@ -300,11 +309,11 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
                                      " is differ from the parameter value: "  << m_surfPor << std::endl;
          if ( !sameCC       ) oss << "Compaction coeff. for lithology "       << m_lithoName << " in project: "        << mdlPrms[1] << 
                                      " is differ from the parameter value: "  << m_compCoef << std::endl;
-         if ( !sameMinPor   ) oss << "Minimal porosity for lithology "        << m_lithoName << " defined in project " << mdlPrms[2] << 
+         if ( !sameMinPor   ) oss << "Minimal porosity for lithology "        << m_lithoName << " defined in project " << mdlPrms[minPoroIdx] <<
                                      " is differ from the parameter value "   << m_minPorosity << std::endl;
-         if ( !sameCCA      ) oss << "Compaction coeff. \"A\" for lithology " << m_lithoName << " in project: "        << mdlPrms[3] << 
+         if ( !sameCCA      ) oss << "Compaction coeff. \"A\" for lithology " << m_lithoName << " in project: "        << mdlPrms[2] <<
                                      " is differ from the parameter value: "  << m_compCoef << std::endl;
-         if ( !sameCCB      ) oss << "Compaction coeff. \"B\" for lithology " << m_lithoName << " in project: "        << mdlPrms[4] << 
+         if ( !sameCCB      ) oss << "Compaction coeff. \"B\" for lithology " << m_lithoName << " in project: "        << mdlPrms[3] <<
                                      " is differ from the parameter value: "  << m_compCoef1 << std::endl;
       }
    }
@@ -320,6 +329,7 @@ std::vector<double> PrmPorosityModel::asDoubleArray() const
       case Exponential:
          vals.push_back( m_surfPor );
          vals.push_back( m_compCoef );
+         vals.push_back( m_minPorosity );
          break;
 
       case SoilMechanics:
@@ -357,6 +367,7 @@ bool PrmPorosityModel::operator == ( const Parameter & prm ) const
       case Exponential:
          if ( !NumericFunctions::isEqual( m_surfPor,  pp->m_surfPor,  eps ) ) return false;
          if ( !NumericFunctions::isEqual( m_compCoef, pp->m_compCoef, eps ) ) return false;
+         if ( !NumericFunctions::isEqual( m_minPorosity, pp->m_minPorosity, eps ) ) return false;
          break;
 
       case SoilMechanics:

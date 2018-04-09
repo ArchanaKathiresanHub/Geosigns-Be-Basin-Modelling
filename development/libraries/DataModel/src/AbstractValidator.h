@@ -11,7 +11,6 @@
 #ifndef DATAMODEL_ABSTRACTVALIDATOR_H
 #define DATAMODEL_ABSTRACTVALIDATOR_H
 
-///@todo move to DataModel
 /// @class AbstractValidator Abstract class which defines if one node is valid or not
 namespace DataModel {
    class AbstractValidator {

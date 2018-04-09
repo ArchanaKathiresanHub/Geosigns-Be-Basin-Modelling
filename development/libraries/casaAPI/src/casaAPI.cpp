@@ -1266,6 +1266,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                case PrmPorosityModel::Exponential:
                   baseSurfPor  = baseValues[0];
                   baseCompCoef = baseValues[1];
+                  baseMinPor   = baseValues[2];
                   break;
 
                case PrmPorosityModel::SoilMechanics:
@@ -1278,7 +1279,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                   baseCompCoef  = baseValues[1];
                   baseMinPor    = baseValues[2];
                   baseCompCoef1 = baseValues[3];
-                  break;                     
+                  break;
 
                default:
                   assert(0);

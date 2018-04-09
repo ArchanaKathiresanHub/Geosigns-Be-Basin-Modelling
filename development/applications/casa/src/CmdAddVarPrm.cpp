@@ -1170,7 +1170,11 @@ public:
                                   ) const
    {
       size_t pos = 1;
-      const char * layerName   = ( prms.size() == 13 || prms.size() == 9 ) ? prms[pos++].c_str() : NULL;
+      const size_t expModelSize = 11;
+      const size_t sandstoneModelSize = 9;
+      const size_t doubleExpModelSize = 13;
+
+      const char * layerName   = ( prms.size() == doubleExpModelSize || prms.size() == expModelSize || prms.size() == sandstoneModelSize ) ? prms[pos++].c_str() : NULL;
       const char * lithoName   = prms[pos++].c_str();
       const char * modelName   = prms[pos++].c_str();
       double       minSurfPor  = atof( prms[pos++].c_str() );
@@ -1184,14 +1188,19 @@ public:
       double minCompCoef1 = Utilities::Numerical::IbsNoDataValue; 
       double maxCompCoef1 = Utilities::Numerical::IbsNoDataValue; 
 
-      if ( prms.size() == 12 || prms.size() == 13 )
+      //minimum porosity i used in exponential and double exponential models
+      if ( prms.size() >= expModelSize - 1 )
       {
          minMinPor    = atof( prms[pos++].c_str() );
          maxMinPor    = atof( prms[pos++].c_str() );
-         minCompCoef1 = atof( prms[pos++].c_str() ); 
+      }
+      //second compaction coefficient for  double exponential model
+      if ( prms.size() == doubleExpModelSize - 1 || prms.size() == doubleExpModelSize )
+      {
+         minCompCoef1 = atof( prms[pos++].c_str() );
          maxCompCoef1 = atof( prms[pos++].c_str() ); 
       }
-      else if ( prms.size() != 8 && prms.size() != 9 )
+      else if ( prms.size() != sandstoneModelSize - 1 && prms.size() != sandstoneModelSize && prms.size() != expModelSize - 1 && prms.size() != expModelSize )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << prms[0];
       }
@@ -1214,7 +1223,7 @@ public:
                                                                                             )
          ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    }
-      
+
    size_t expectedParametersNumber() const { return 7; } // lay_name, lit_name, mod_name, surf_por mn/mx, cc mn/mx, min_por mn/mx, cc2 mn/mx, pdf
    size_t optionalParametersNumber() const { return 5; } 
 

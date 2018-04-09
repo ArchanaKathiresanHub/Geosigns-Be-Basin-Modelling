@@ -17,6 +17,7 @@
 
 //Prograde
 #include "AlcUpgradeManager.h"
+#include "PermeabilityUpgradeManager.h"
 
 //Prograde
 #include "IUpgradeManager.h"
@@ -27,8 +28,10 @@
 void Prograde::UpgradeManagers::runAll() const{
    ///1. Create list of upgrade managers
    std::vector<std::shared_ptr<Prograde::IUpgradeManager>> managers;
-   // ALCv1 to ALCv2 upgrade manager
+   // ALCv1 to ALCv2
    managers.emplace_back(std::unique_ptr<Prograde::AlcUpgradeManager>(new Prograde::AlcUpgradeManager(m_model)));
+   // Mudstone and Sandstone permeability models to Multipoint permeability model
+   managers.emplace_back(std::unique_ptr<Prograde::PermeabilityUpgradeManager>(new Prograde::PermeabilityUpgradeManager(m_model)));
    // Other managers to be added in the same way
 
    ///2. Run all upgrade managers

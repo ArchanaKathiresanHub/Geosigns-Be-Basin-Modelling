@@ -143,3 +143,10 @@ add_gtest( NAME ${LIB_NAME}::StringHandler
    SOURCES test/StringHandler.C
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
+
+######################
+# MapExtensions tests
+add_gtest( NAME ${LIB_NAME}::MapExtensions
+   SOURCES test/MapExtensionsTest.C
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
