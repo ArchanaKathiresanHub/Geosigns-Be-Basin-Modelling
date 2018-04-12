@@ -10,10 +10,13 @@
 
 #include "MigrationPropertyManager.h"
 
+#include "DepthHighResFormationCalculator.h"
+#include "MaxVesHighResFormationCalculator.h"
 #include "PorosityFormationCalculator.h"
 #include "PermeabilityFormationCalculator.h"
 #include "PermeabilityFormationSurfaceCalculator.h"
 #include "VesFormationCalculator.h"
+#include "VesHighResFormationCalculator.h"
 #include "VesSurfaceCalculator.h"
 #include "HydrostaticPressureSurfaceCalculator.h"
 #include "HydrostaticPressureFormationCalculator.h"
@@ -32,6 +35,9 @@ namespace migration
    MigrationPropertyManager::MigrationPropertyManager (GeoPhysics::ProjectHandle* projectHandle) :
       DerivedProperties::DerivedPropertyManager (projectHandle)
    {
+      loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new DerivedProperties::VesHighResFormationCalculator(projectHandle)), false);
+      loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new DerivedProperties::MaxVesHighResFormationCalculator(projectHandle)), false);
+      loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new DerivedProperties::DepthHighResFormationCalculator(projectHandle)), false);
    }
 
    MigrationPropertyManager::~MigrationPropertyManager ()

@@ -132,7 +132,7 @@ namespace migration
       assert (topDepthGridMap->getGrid () == grid);
 
       // Calculate all properties at once
-      if ((m_formationPropertyPtr[DEPTHPROPERTY] = getFormationPropertyPtr ("Depth", snapshot)) == 0)
+      if ((m_formationPropertyPtr[DEPTHPROPERTY] = getFormationPropertyPtr ("DepthHighRes", snapshot)) == 0)
          return false;
       if ((m_formationPropertyPtr[PRESSUREPROPERTY] = getFormationPropertyPtr ("Pressure", snapshot)) == 0)
          return false;
@@ -690,7 +690,6 @@ namespace migration
 
    bool Formation::computeTargetFormationNodes (int depthIndex)
    {
-      const int MaxLoops = Max (2, NumProcessors () / 2);
       RequestHandling::StartRequestHandling (getMigrator (), "computeTargetFormationNodes");
 
       bool allComputed = false;

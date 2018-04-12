@@ -506,9 +506,9 @@ bool GeoPhysics::ProjectHandle::createPaleoBathymetry () {
          // This should be with ghost nodes.
          surfaceDepthMap->retrieveGhostedData ();
 
-         for ( unsigned int i = surfaceDepthMap->firstI (); i <= surfaceDepthMap->lastI (); ++i ) {
+         for ( unsigned int i = surfaceDepthMap->firstI (true); i <= surfaceDepthMap->lastI (true); ++i ) {
 
-            for ( unsigned int j = surfaceDepthMap->firstJ (); j <= surfaceDepthMap->lastJ (); ++j ) {
+            for ( unsigned int j = surfaceDepthMap->firstJ (true); j <= surfaceDepthMap->lastJ (true); ++j ) {
 
                if (m_validator.isValid( i, j )) {
                   m_seaBottomDepth ( i, j ).AddPoint ( age, surfaceDepthMap->getValue ( i, j ));

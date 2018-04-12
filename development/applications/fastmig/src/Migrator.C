@@ -236,7 +236,7 @@ bool Migrator::compute (const bool overpressuredLeakage)
       createFormationNodes();
       if (!computeFormationPropertyMaps(m_projectHandle->getSnapshots()->front(), overPressureRun)) return false;
    }
-
+   
    if (m_reservoirDetection)
    {
       if (m_ReservoirIoTbl == nullptr) m_ReservoirIoTbl = m_projectHandle->getTable("ReservoirIoTbl");
@@ -497,7 +497,6 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
       }
       else
       {
-
          clearFormationNodeProperties ();
 
          if (!computeFormationPropertyMaps (end, overPressureRun) or

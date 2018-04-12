@@ -101,6 +101,11 @@ namespace DerivedProperties {
       /// \brief Get the geophysics project handle
       const GeoPhysics::ProjectHandle* getProjectHandle () const;
 
+      /// \brief Load one formation property calculator.
+      ///
+      /// Here one calculator for derived properties on formation is added to the set of calculators.
+      void  loadDerivedFormationPropertyCalculator(AbstractDerivedProperties::FormationPropertyCalculatorPtr formationPropertyCalculator, const bool debug);
+
    private :
 
       /// \brief Load primary property calculators that are associated with surface only.
@@ -132,11 +137,6 @@ namespace DerivedProperties {
       ///
       /// Here all the calculators for derived properties on formation are added to the set of calculators.
       void loadDerivedFormationPropertyCalculators ( const bool debug );
-
-      /// \brief Load one formation property calculator.
-      ///
-      /// Here one calculator for derived properties on formation is added to the set of calculators.
-      void  loadDerivedFormationPropertyCalculator(AbstractDerivedProperties::FormationPropertyCalculatorPtr formationPropertyCalculator, const bool debug);
 
       /// \brief Load derived formation-map property calculators.
       ///

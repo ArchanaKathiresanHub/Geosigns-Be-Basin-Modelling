@@ -1121,7 +1121,6 @@ namespace migration
 
       if (!performHDynamicAndCapillary () or capPressureGrad (1) == Interface::DefaultUndefinedMapValue)
       {
-
          ThreeVector vertical;
 
          vertical.zero ();
@@ -1425,8 +1424,6 @@ namespace migration
          return true;
       }
 
-      static int MaxTries = -1;
-
       if (m_isEndOfPath)
       {
          m_targetFormationNode = this;
@@ -1476,7 +1473,7 @@ namespace migration
       {
          FormationNode * adjacentFormationNode = getAdjacentFormationNode ();
          assert (adjacentFormationNode);
-
+         
          m_entered = true; // allows us to check for re-entrancy
 
          adjacentFormationNode->computeTargetFormationNode ();
@@ -1488,7 +1485,7 @@ namespace migration
       return (m_targetFormationNode != 0);
    }
 
-   bool LocalFormationNode::isPartOfUndetectedReservoir()
+   bool LocalFormationNode::isPartOfUndetectedReservoir(void)
    {
       // Check whether the node has the reservoir flag and its formation is a reservoir
       bool isReservoirNode         = (m_isReservoirLiquid or m_isReservoirVapour);
@@ -1499,7 +1496,7 @@ namespace migration
       return isPartOfUndetectedReservoir;
    }
 
-   void LocalFormationNode::dealWithStuckHydrocarbons ()
+   void LocalFormationNode::dealWithStuckHydrocarbons (void)
    {
       bool eliminateHCs = EliminateStuckHCs;
 
@@ -1670,9 +1667,9 @@ namespace migration
    {
       // if this is a top node of the top active formation, m_targetFormationNode will be set, even if it has no thickness.
       // If it has thickness, m_targetFormatioNode should be set if target formation nodes have been computed
-      if (m_targetFormationNode or hasThickness ())
+      if (m_targetFormationNode)
          return m_targetFormationNode;
-      else if (m_topFormationNode)
+      else if (m_topFormationNode and !hasThickness())
          return m_topFormationNode->getTargetFormationNode ();
       else
          return 0;
