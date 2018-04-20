@@ -137,8 +137,6 @@ namespace DataAccess
          
          const std::string m_name;
 
-         const std::string m_fileName;
-         
          const Property * m_property;
          const Snapshot * m_snapshot;
          const Reservoir * m_reservoir;
@@ -146,6 +144,7 @@ namespace DataAccess
          const Surface * m_surface;
          
          PropertyStorage m_storage;
+         const std::string m_fileName;
       };
       
       PropertyStorage PropertyValue::getStorage (void) const
