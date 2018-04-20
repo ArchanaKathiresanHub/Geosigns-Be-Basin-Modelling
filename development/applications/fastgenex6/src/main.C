@@ -172,7 +172,7 @@ int main (int argc, char ** argv)
    theGenexSimulator = GenexSimulator::CreateFrom (inputFileName, theFactory);
    status = (theGenexSimulator != 0);
 
-   H5_Parallel_PropertyList::setOneFilePerProcessOption();
+   H5_Parallel_PropertyList::setOneFilePerProcessOption(false);
 
    //delete existent properties
    if (status) {

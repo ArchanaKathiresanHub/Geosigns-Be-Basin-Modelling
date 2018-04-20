@@ -21,6 +21,9 @@ namespace DataModel {
       /// \brief Get the PropertyAttribute of the property.
       virtual PropertyAttribute getPropertyAttribute () const = 0;
 
+      /// \brief Get the PropertyOutputAttribute of the property.
+      virtual PropertyOutputAttribute getPropertyOutputAttribute () const = 0;
+
    };
 
    typedef std::vector<const AbstractProperty*> AbstractPropertyList;

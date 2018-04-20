@@ -139,7 +139,8 @@ namespace DataAccess
          virtual Property * produceProperty (ProjectHandle * projectHandle, database::Record * record,
                                              const string & userName, const string & cauldronName,
                                              const string & unit, PropertyType type,
-                                             const DataModel::PropertyAttribute attr );
+                                             const DataModel::PropertyAttribute attr,
+                                             const DataModel::PropertyOutputAttribute outputAttr);
 
          virtual PropertyValue * producePropertyValue (ProjectHandle * projectHandle, database::Record * record,
                                                        const string & name, const Property * property, const Snapshot * snapshot, const Reservoir * reservoir,

@@ -19,3 +19,24 @@ const std::string& DataModel::getPropertyAttributeImage ( const PropertyAttribut
    }
 
 }
+const std::string& DataModel::getPropertyOutputAttributeImage ( const PropertyOutputAttribute attr ) {
+
+   static const std::string FastcauldronProperty  = "FASTCAULDRON_PROPERTY";
+   static const std::string FastgenexProperty     = "FASTGENEX_PROPERTY";
+   static const std::string FastmigProperty       = "FASTMIG_PROPERTY";
+   static const std::string FasttouchProperty     = "FASTTOUCH_PROPERTY";
+   static const std::string FastCtcProperty       = "FASTCTC_PROPERTY";
+   static const std::string TrapsProperty         = "TRAPS_PROPERTY";
+   static const std::string UnknownOutputProperty = "UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE";
+
+   switch ( attr ) {
+   case FASTCAULDRON_PROPERTY : return FastcauldronProperty;
+   case FASTGENEX_PROPERTY    : return FastgenexProperty;
+   case FASTMIG_PROPERTY      : return FastmigProperty;
+   case FASTTOUCH_PROPERTY    : return FasttouchProperty;
+   case FASTCTC_PROPERTY      : return FastCtcProperty;
+   case TRAPS_PROPERTY        : return TrapsProperty;
+   default                    : return UnknownOutputProperty;
+   }
+
+}

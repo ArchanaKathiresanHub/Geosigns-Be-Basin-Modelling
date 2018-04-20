@@ -41,6 +41,45 @@ namespace DataModel {
    /// \brief Return the string representation of the PropertyAttribute enumeration type.
    const std::string& getPropertyAttributeImage ( const PropertyAttribute attr );
 
+   /// \enum Output Attribute
+   /// \brief Output Attributes of properties to indicate which simulator are they belong
+   enum PropertyOutputAttribute { 
+      /// Indicates a property is output by fastcauldron
+      ///
+      /// For example Temperature, Pressure.
+      FASTCAULDRON_PROPERTY,
+
+      /// Indicates a property is output by fastgenex
+      ///
+      /// For example C1ExpelledCumulative, HcGasGeneratedRate
+      FASTGENEX_PROPERTY,
+
+      /// Indicates that the property is output by fastmig
+      ///
+      /// E.g. ResRockBarriers, ResRockCapacity
+      FASTMIG_PROPERTY,
+
+      /// Indicates that the property is output by fasttouch
+      ///
+      /// E.g. Resq:
+      FASTTOUCH_PROPERTY,
+
+      /// Indicates that the property is output by fastctc
+      ///
+      /// E.g. SedimentThickness, PaleowaterDepth
+      FASTCTC_PROPERTY,
+
+      /// Indicates that the property associated with a trap
+      ///
+      /// E.g. VolumeFGIIP, VolumeLiquid
+      TRAPS_PROPERTY,
+
+      /// For unknown cases.
+      UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE };
+
+   /// \brief Return the string representation of the PropertyAttribute enumeration type.
+   const std::string& getPropertyOutputAttributeImage ( const PropertyOutputAttribute attr );
+
 } // namespace DataModel
 
 #endif // DATA_MODEL__PROPERTY_ATTRIBUTE__H

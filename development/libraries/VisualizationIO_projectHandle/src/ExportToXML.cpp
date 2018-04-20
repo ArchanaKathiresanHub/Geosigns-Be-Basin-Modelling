@@ -122,6 +122,7 @@ void ExportToXML::addProjectData(pugi::xml_node pt, std::shared_ptr<Project>& pr
    if (m_projectExisting)
    {
       VisualizationUtils::replaceStratigraphyTable(m_project, m_projectExisting);
+      VisualizationUtils::replaceFormations(m_project, m_projectExisting);
    }
     
    if(addSnapshots) {
@@ -489,14 +490,18 @@ void CauldronIO::ExportToXML::addVolume(DataStoreSave& dataStore, const std::sha
 void CauldronIO::ExportToXML::addReferenceData(pugi::xml_node &node, const DataStoreParams* params, bool dataIJK, bool dataKIJ) const
 {
    pugi::xml_node subNode = node.append_child("datastore");
-   subNode.append_attribute("file") = params->fileName.c_str();
+
+   ibs::FilePath fullPath("..");
+   fullPath << params->fileName.c_str();
+
+   subNode.append_attribute("file") = fullPath.cpath();
 
    if (params->compressed)
       subNode.append_attribute("compression") = params->compressed_lz4 ? "lz4" : "gzip";
    else
       subNode.append_attribute("compression") = "none";
 
-   subNode.append_attribute("partialpath") = false;
+   //  subNode.append_attribute("partialpath") = false;
    
    if (dataIJK || dataKIJ)
    {

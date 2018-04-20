@@ -170,7 +170,7 @@ bool Migrator::compute (const bool overpressuredLeakage)
 {
    string activityName = MigrationActivityName;
    activityName += NumProcessorsArg;
-   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+   H5_Parallel_PropertyList::setOneFilePerProcessOption (false);
 
    // let's first clean out the mess from a previous run
    if (GetRank () == 0)

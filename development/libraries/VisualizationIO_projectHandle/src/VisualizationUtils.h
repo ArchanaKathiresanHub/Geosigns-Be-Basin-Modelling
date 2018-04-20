@@ -46,6 +46,10 @@ namespace CauldronIO
         /// \param[in] project the project to add references
         /// \param[in] projectExisting the project with existing stratigraphy
         static void replaceStratigraphyTable(const std::shared_ptr<Project>& project, std::shared_ptr<const Project>& projectExisting);
+        /// \brief For the project, replace formation input surfaces that exist in the existing project by references to that
+        /// \param[in] project the project to add references
+        /// \param[in] projectExisting the project with existing formations
+        static void replaceFormations(const std::shared_ptr<Project>& project, std::shared_ptr<const Project>& projectExisting);
         /// \param[in] map data to retrieve
         static void retrieveSingleData(std::shared_ptr<CauldronIO::SurfaceData> map);
         /// \brief Little method to find data within a project

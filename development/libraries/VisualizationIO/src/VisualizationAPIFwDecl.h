@@ -64,6 +64,9 @@ namespace CauldronIO
                            C6_MINUS_14DBT = 17, C6_MINUS_14BP = 18, C15_PLUS_ARO_S = 19, C15_PLUS_SAT_S = 20, C6_MINUS_14SAT_S = 21, C6_MINUS_14ARO_S = 22,
                            NUMBER_OF_SPECIES = 23 };
 
+    /// \enum FormationMapType
+    enum FormationMapType {FIRSTMAP = 0, THICKNESS = 0, SRMIXINGHI = 1, LITHOTYPE1 = 2,  LITHOTYPE2 = 3, LITHOTYPE3 = 4, LASTMAP = 5}; 
+
     class SnapShot;
     class Project;
     class Surface;

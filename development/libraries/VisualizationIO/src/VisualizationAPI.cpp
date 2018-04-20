@@ -163,6 +163,11 @@ const CauldronIO::MigrationEventList& CauldronIO::Project::getMigrationEventsTab
     return m_migrationEventList;
 }
 
+void CauldronIO::Project::clearMigrationEventsTable() 
+{
+   m_migrationEventList.clear();
+}
+
 
 void CauldronIO::Project::addMigrationEvent(std::shared_ptr<MigrationEvent> event)
 {
@@ -172,6 +177,11 @@ void CauldronIO::Project::addMigrationEvent(std::shared_ptr<MigrationEvent> even
 const CauldronIO::TrapperList& CauldronIO::Project::getTrapperTable() const
 {
     return m_trapperList;
+}
+
+void CauldronIO::Project::clearTrapperTable()
+{
+   m_trapperList.clear();
 }
 
 void CauldronIO::Project::addTrapper(std::shared_ptr<Trapper>& newTrapper) throw (CauldronIOException)
@@ -185,6 +195,11 @@ void CauldronIO::Project::addTrapper(std::shared_ptr<Trapper>& newTrapper) throw
 const CauldronIO::TrapList& CauldronIO::Project::getTrapTable() const
 {
     return m_trapList;
+} 
+
+void CauldronIO::Project::clearTrapTable() 
+{
+   m_trapList.clear();
 }
 
 void CauldronIO::Project::addTrap(std::shared_ptr<Trap>&  newTrap) throw (CauldronIOException)
@@ -1092,6 +1107,42 @@ const PropertySurfaceDataList& CauldronIO::Formation::getPropertySurfaceDataList
 bool CauldronIO::Formation::hasThicknessMap() const
 {
     return m_thicknessMap_index != -1;
+}
+
+bool CauldronIO::Formation::hasMap(CauldronIO::FormationMapType mapType) const
+{
+   switch (mapType) {
+   case THICKNESS:  return m_thicknessMap_index != -1;
+   case SRMIXINGHI: return m_mixingHI_index  != -1;
+   case LITHOTYPE1: return m_lithPerc1_index != -1;
+   case LITHOTYPE2: return m_lithPerc2_index != -1;
+   case LITHOTYPE3: return m_lithPerc3_index != -1;
+   default: return false;
+   }
+}
+
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getMap(CauldronIO::FormationMapType mapType) const throw (CauldronIOException)
+{
+   switch (mapType) {
+   case THICKNESS:  return getThicknessMap();
+   case SRMIXINGHI: return getSourceRockMixingHIMap();
+   case LITHOTYPE1: return getLithoType1PercentageMap();
+   case LITHOTYPE2: return getLithoType2PercentageMap();
+   case LITHOTYPE3: return getLithoType3PercentageMap();
+   default: throw CauldronIOException("No formation map found");
+   }
+}
+
+void CauldronIO::Formation::setMap(CauldronIO::FormationMapType mapType, PropertySurfaceData& thicknessMap)
+{
+   switch (mapType) {
+   case THICKNESS:  return setThicknessMap(thicknessMap);
+   case SRMIXINGHI: return setSourceRockMixingHIMap(thicknessMap);
+   case LITHOTYPE1: return setLithoType1PercentageMap(thicknessMap);
+   case LITHOTYPE2: return setLithoType2PercentageMap(thicknessMap);
+   case LITHOTYPE3: return setLithoType3PercentageMap(thicknessMap);
+   default: break;
+   }
 }
 
 void CauldronIO::Formation::setThicknessMap(PropertySurfaceData& thicknessMap)

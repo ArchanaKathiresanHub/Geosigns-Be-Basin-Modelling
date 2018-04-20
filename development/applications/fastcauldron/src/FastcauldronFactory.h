@@ -46,42 +46,42 @@ public :
 
    /// Allocate a fastcauldron related-project.
    Interface::RelatedProject* produceRelatedProject ( Interface::ProjectHandle* projectHandle,
-                                                      database::Record*              record );
+                                                      database::Record*         record );
 
    Interface::RunParameters * produceRunParameters ( Interface::ProjectHandle * projectHandle,
-                                                     database::Record *              record);
+                                                     database::Record *         record);
 
    /// Allocate a fastcauldron property.
    Interface::Property * produceProperty ( Interface::ProjectHandle * projectHandle,
-                                           database::Record *                 record,
-                                           const string &                     userName,
-                                           const string &                     cauldronName,
-                                           const string &                     unit,
-                                           Interface::PropertyType            type,
-                                           const DataModel::PropertyAttribute attr );
-
+                                           database::Record *         record,
+                                           const string &             userName,
+                                           const string &             cauldronName,
+                                           const string &             unit,
+                                           Interface::PropertyType    type,
+                                           const DataModel::PropertyAttribute       attr,
+                                           const DataModel::PropertyOutputAttribute attrOut);
+   
    /// Allocate a fastcauldron property-value.
    Interface::PropertyValue * producePropertyValue ( Interface::ProjectHandle *   projectHandle,
-                                                          database::Record *                record,
-                                                          const string &                    name,
-                                                          const Interface::Property *  property,
-                                                          const Interface::Snapshot *  snapshot,
-                                                          const Interface::Reservoir * reservoir,
-                                                          const Interface::Formation * formation,
-                                                          const Interface::Surface *   surface,
-                                                          Interface::PropertyStorage   storage,
-                                                          const std::string & fileName = "");
-
+                                                     database::Record *                record,
+                                                     const string &                    name,
+                                                     const Interface::Property *  property,
+                                                     const Interface::Snapshot *  snapshot,
+                                                     const Interface::Reservoir * reservoir,
+                                                     const Interface::Formation * formation,
+                                                     const Interface::Surface *   surface,
+                                                     Interface::PropertyStorage   storage,
+                                                     const std::string & fileName = "");
 
 
    Interface::Formation* produceFormation ( Interface::ProjectHandle *   projectHandle,
-                                                 database::Record *                record );
+                                            database::Record *           record );
 
    Interface::CrustFormation* produceCrustFormation ( Interface::ProjectHandle * projectHandle,
-                                                           database::Record *              record);
+                                                      database::Record *         record);
 
    Interface::MantleFormation* produceMantleFormation ( Interface::ProjectHandle * projectHandle,
-                                                             database::Record *              record);
+                                                        database::Record *         record);
 
 
    GeoPhysics::CompoundLithology* produceCompoundLithology ( GeoPhysics::ProjectHandle * projectHandle );

@@ -749,6 +749,34 @@ void VisualizationUtils::replaceStratigraphyTable(const std::shared_ptr<Project>
    } 
 }
 
+void VisualizationUtils::replaceFormations(const std::shared_ptr<Project>& project, std::shared_ptr<const Project>& projectExisting)
+{
+   for (auto& formation : project->getFormations())
+   {
+      for (auto& formationExisting : projectExisting->getFormations()) {
+         if( formationExisting and formationExisting->getName() == formation->getName() ) {
+            for (int formationMap = FIRSTMAP; formationMap < LASTMAP; ++ formationMap) 
+            {
+               FormationMapType mapType = (FormationMapType) formationMap;
+               if(formation->hasMap(mapType) and formationExisting->hasMap(mapType))
+               {
+                  auto& propSurfaceData = formation->getMap(mapType);
+                  auto& propSurfaceDataExisting = formationExisting->getMap(mapType);
+                  
+                  if ((*propSurfaceData.first == *propSurfaceDataExisting.first) &&
+                      *propSurfaceData.second->getGeometry() == *propSurfaceDataExisting.second->getGeometry())
+                  {
+                     // replace it
+                     PropertySurfaceData surfData(propSurfaceData.first, createReferenceSurfData(propSurfaceDataExisting.second));
+                     formation->setMap(mapType, surfData);
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+
 void VisualizationUtils::replaceExistingProperties(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<const Project>& projectToExtend)
 {
 	// Find the snapshot
@@ -869,6 +897,7 @@ std::shared_ptr<CauldronIO::VolumeData> VisualizationUtils::createReferenceVolDa
 		refVolume->setDataStore(nativeVolume->getDataStoreParamsKIJ(), false);
 	}
 	
+        refVolume->setSedimentMinMax (volData->getSedimentMinValue(), volData->getSedimentMaxValue());
 	return refVolume;
 }
 

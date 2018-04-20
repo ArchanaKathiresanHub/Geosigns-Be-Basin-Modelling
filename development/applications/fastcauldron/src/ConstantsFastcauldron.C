@@ -35,7 +35,7 @@ const std::string& getSimulationModeString ( const CalculationMode mode ) {
                                                                                  "CoupledPressureAndTemperature",
                                                                                  "HydrostaticDarcy",
                                                                                  "CoupledDarcy",
-                                                                                 "NoCalculaction" };
+                                                                                 "NoCalculation" };
 
    if ( mode >= HYDROSTATIC_DECOMPACTION_MODE and mode < NO_CALCULATION_MODE ) {
       return s_simulationModeStr [ mode ];

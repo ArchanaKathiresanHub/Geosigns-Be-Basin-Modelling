@@ -177,6 +177,8 @@ namespace CauldronIO
         void retrieveStratigraphyTable();
         /// \returns the migration events table
         const MigrationEventList& getMigrationEventsTable() const;
+       /// brief Clear the migration events table
+       void clearMigrationEventsTable();
         /// \brief Adds an entry to the migration events table
         /// \param [in] entry a new entry for the migration events table
         void addMigrationEvent(std::shared_ptr<MigrationEvent> event);
@@ -185,6 +187,8 @@ namespace CauldronIO
         void addTrapper(std::shared_ptr<Trapper>& event) throw (CauldronIOException);
         /// \returns the trapper table
         const TrapperList& getTrapperTable() const;
+       /// \brief Clear the trapper table
+       void clearTrapperTable();
         /// \returns the trapper record for trapId and snapshot age
         std::shared_ptr<const Trapper> findTrapper(int trapId, float snapsotAge) const;
         /// \brief Adds an entry to the trap table
@@ -192,6 +196,8 @@ namespace CauldronIO
         void addTrap(std::shared_ptr<Trap>& event) throw (CauldronIOException);
         /// \returns the trap table
         const TrapList& getTrapTable() const;
+       /// \brief Clear the trap table
+       void clearTrapTable();
         /// \returns the list of  genex history files
         const std::vector<std::string>& getGenexHistoryList();
         /// \brief Adds an entry to the genex history list
@@ -582,6 +588,13 @@ namespace CauldronIO
 
         /// \brief get the list of all property-surfaceData pairs contained in this formation
         const PropertySurfaceDataList& getPropertySurfaceDataList() const;
+
+        /// \returns true if this formation has a map of mapType defined 
+        bool hasMap(FormationMapType mapType) const;
+        /// \returns Returns a map of mapType assigned to this formation
+        const PropertySurfaceData& getMap(CauldronIO::FormationMapType mapType) const throw (CauldronIOException);
+        /// \brief Assigns a map of mapType to this formation 
+        void setMap(CauldronIO::FormationMapType mapType, PropertySurfaceData& map);
 
         /// \returns true if this formation has a thickness map defined
         bool hasThicknessMap() const;

@@ -278,11 +278,11 @@ InputValue * ObjectFactory::produceInputValue (ProjectHandle * projectHandle, da
 Property * ObjectFactory::produceProperty (ProjectHandle * projectHandle, database::Record * record,
                                            const string & userName, const string & cauldronName,
                                            const string & unit, PropertyType type,
-                                           const DataModel::PropertyAttribute attr)
+                                           const DataModel::PropertyAttribute attr, const DataModel::PropertyOutputAttribute outputAttr )
 {
    return new Property (projectHandle, record,
                         userName, cauldronName,
-                        unit, type, attr);
+                        unit, type, attr, outputAttr);
 }
 
 PropertyValue * ObjectFactory::producePropertyValue (ProjectHandle * projectHandle, database::Record * record ,const string & name,

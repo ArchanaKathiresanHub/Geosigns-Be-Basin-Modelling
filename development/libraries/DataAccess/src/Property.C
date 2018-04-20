@@ -13,10 +13,10 @@ using namespace Interface;
 Property::Property (ProjectHandle * projectHandle, database::Record * record,
                     const string & userName, const string & cauldronName, const string & unit,
                     PropertyType type,
-                    const DataModel::PropertyAttribute attr) :
+                    const DataModel::PropertyAttribute attr, const DataModel::PropertyOutputAttribute outputAttr) :
    DAObject (projectHandle, record),
    m_userName (userName), m_cauldronName (cauldronName), m_unit (unit), m_type (type),
-   m_propertyAttribute ( attr )
+   m_propertyAttribute ( attr ), m_propertyOutputAttribute ( outputAttr ) 
 {
    m_isPrimaryProperty = projectHandle->isPrimaryProperty( userName );
 }
@@ -61,6 +61,10 @@ PropertyType Property::getType (void) const
 
 DataModel::PropertyAttribute Property::getPropertyAttribute () const {
    return m_propertyAttribute;
+}
+
+DataModel::PropertyOutputAttribute Property::getPropertyOutputAttribute () const {
+   return m_propertyOutputAttribute;
 }
 
 PropertyValueList * Property::getPropertyValues (int selectionFlags,

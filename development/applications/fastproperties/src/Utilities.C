@@ -104,22 +104,6 @@ void DerivedProperties::updateVolumeDataConstantValue( shared_ptr<CauldronIO::Vo
 
 //------------------------------------------------------------//
 
-void DerivedProperties::updateConstantValue( std::shared_ptr< CauldronIO::SnapShot>& snapshot )
-{
-   std::shared_ptr<CauldronIO::Volume> snapshotVolume = snapshot->getVolume();
-   if( snapshotVolume ) {
-      for (size_t i = 0; i <  snapshotVolume->getPropertyVolumeDataList().size(); ++i ) {
-         CauldronIO::PropertyVolumeData& pdata =  snapshotVolume->getPropertyVolumeDataList().at(i); 
-         shared_ptr<CauldronIO::VolumeData> volDataNew = pdata.second;
-         if(volDataNew->isRetrieved()) {
-            DerivedProperties::updateVolumeDataConstantValue( volDataNew );
-         }
-      }
-   }
-}
-
-//------------------------------------------------------------//
-
 CauldronIO::SnapShotKind DerivedProperties::getSnapShotKind(const Interface::Snapshot* snapShot)
 {
     // Get snapshot kind

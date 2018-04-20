@@ -56,9 +56,10 @@ DataAccess::Interface::Property * FastcauldronFactory::produceProperty ( Interfa
                                                                          const string &                  cauldronName,
                                                                          const string &                  unit,
                                                                          Interface::PropertyType         type,
-                                                                         const DataModel::PropertyAttribute attr ) {
+                                                                         const DataModel::PropertyAttribute attr,
+                                                                         const DataModel::PropertyOutputAttribute attrOut) {
 
-   return new Property (projectHandle, record, userName, cauldronName, unit, type, attr );
+   return new Property (projectHandle, record, userName, cauldronName, unit, type, attr, attrOut);
 
 }
 

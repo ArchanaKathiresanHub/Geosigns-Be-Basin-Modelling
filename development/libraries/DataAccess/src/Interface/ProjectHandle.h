@@ -358,6 +358,9 @@ namespace DataAccess
          /// \brief Get the list of properties that have the particular PropertyAttribute.
          virtual PropertyListPtr getProperties ( const DataModel::PropertyAttribute attr ) const;
 
+         /// \brief Get the list of properties that have the particular PropertyOutputAttribute.
+         virtual PropertyListPtr getProperties ( const DataModel::PropertyOutputAttribute attr ) const;
+
          /// @brief Return a list of recorded property values based on the given arguments.
          ///
          /// @param[in] selectionFlags is logical OR for the following flags:
@@ -607,6 +610,12 @@ namespace DataAccess
 
          database::ProjectFileHandlerPtr getProjectFileHandler ();
 
+         /// check of the m_trappers is not empty
+         bool trappersAreAvailable();
+
+         /// check of the m_traps is not empty
+         bool trapsAreAvailable();
+
          /// @defgroup NodesValidation
          /// @{
          /// @brief Initialise the valid-node array.
@@ -847,9 +856,6 @@ namespace DataAccess
 
          /// connect Surfaces to Formations
          bool connectSurfaces( void );
-
-         /// check of the m_trappers is not empty
-         bool trappersAreAvailable();
 
          /// connect Traps to Reservoirs and Snapshots
          bool connectTraps( void );

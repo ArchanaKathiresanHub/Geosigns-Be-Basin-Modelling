@@ -17,7 +17,9 @@ using namespace std;
 #include "LogHandler.h"
 #include "StatisticsHandler.h" 
 
-#include "PropertiesCalculator.h"
+#include "AbstractPropertiesCalculator.h"
+#include "VisualizationPropertiesCalculator.h"
+#include "HdfPropertiesCalculator.h"
 
 using namespace Utilities::CheckMemory;
 
@@ -80,7 +82,20 @@ int main( int argc, char ** argv )
    StatisticsHandler::initialise();
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-   PropertiesCalculator * propCalculator = new PropertiesCalculator( rank );
+      
+   PetscBool vizOption = PETSC_FALSE;
+   PetscOptionsHasName( PETSC_NULL, "-viz", &vizOption );
+
+   AbstractPropertiesCalculator * propCalculator;
+
+   if (vizOption) 
+   {
+      propCalculator = new VisualizationPropertiesCalculator( rank );
+   }
+   else
+   {
+      propCalculator = new HdfPropertiesCalculator( rank );
+   }
    propCalculator->startTimer();
 
    if( !propCalculator->parseCommandLine( argc, argv )) {
@@ -124,6 +139,7 @@ int main( int argc, char ** argv )
    ////////////////////////////////////////////
    ///3. Load data
    propCalculator->printOutputableProperties ();
+   propCalculator->acquireSimulatorProperties();
    propCalculator->acquireAll2Dproperties();
    propCalculator->acquireAll3Dproperties();
 
@@ -149,7 +165,7 @@ int main( int argc, char ** argv )
    };
 
    SnapshotList snapshots;
-   PropertyList properties;
+   Interface::PropertyList properties;
    
    propCalculator->acquireSnapshots( snapshots );
    propCalculator->acquireProperties( properties );

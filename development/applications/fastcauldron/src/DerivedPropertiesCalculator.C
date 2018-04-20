@@ -73,7 +73,7 @@ bool DerivedPropertiesCalculator::compute() {
 
    // add FracturePressure explicitly as it has the same name as trap property
    Interface::Property * fracturePressure = projectHandle->getFactory()->produceProperty( projectHandle, 0, "FracturePressure",   "FracturePressure",   "MPa",
-                                                                                          FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY );
+                                                                                          FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY );
    projectHandle->addPropertyToFront( fracturePressure );
    m_simulator->connectOutputProperty( fracturePressure );
 

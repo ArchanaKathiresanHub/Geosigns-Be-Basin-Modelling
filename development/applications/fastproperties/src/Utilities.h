@@ -22,7 +22,6 @@ namespace DerivedProperties {
    void listProperties( const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project> &project);
      
    std::shared_ptr<CauldronIO::FormationInfoList>  getDepthFormations(GeoPhysics::ProjectHandle* projectHandle, const Snapshot* snapShot);
-   void updateConstantValue( std::shared_ptr< CauldronIO::SnapShot>& snapshot );
    void updateVolumeDataConstantValue( shared_ptr<CauldronIO::VolumeData>& volDataNew );
    CauldronIO::SnapShotKind getSnapShotKind(const Interface::Snapshot* snapShot);
    void saveVizSnapshot( const std::shared_ptr<SnapShot>& snapShot, const std::string& absPath);
