@@ -2,8 +2,12 @@
 #include "petsc.h"
 
 #include <iostream>
+#include <string>
 using namespace std;
 
+//utilities library
+#include "LogHandler.h"
+#include "FormattingException.h"
 
 #include "h5_parallel_file_types.h"
 
@@ -160,6 +164,40 @@ int main (int argc, char ** argv)
       return -1;
    }
 #endif
+
+   // Intitialise fastcauldron loger
+   try
+   {
+      const std::string applicatioName = "fastgenex";
+      PetscBool log = PETSC_FALSE;
+      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      if ( log )
+      {
+         char verbosity[11];
+         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         if      ( !strcmp( verbosity, "quiet"      ))  { LogHandler( applicatioName, LogHandler::QUIET_LEVEL     , rank ); }
+         else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( applicatioName, LogHandler::MINIMAL_LEVEL   , rank ); }
+         else if ( !strcmp( verbosity, "normal"     ) ) { LogHandler( applicatioName, LogHandler::NORMAL_LEVEL    , rank ); }
+         else if ( !strcmp( verbosity, "detailed"   ) ) { LogHandler( applicatioName, LogHandler::DETAILED_LEVEL  , rank ); }
+         else if ( !strcmp( verbosity, "diagnostic" ) ) { LogHandler( applicatioName, LogHandler::DIAGNOSTIC_LEVEL, rank ); }
+         else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
+      }
+      else
+      {
+         LogHandler( applicatioName, LogHandler::DETAILED_LEVEL, rank );
+      }
+   }
+   catch ( formattingexception::GeneralException & ex )
+   {
+      std::cerr << ex.what();
+      return 1;
+   }
+   catch (...)
+   {
+      std::cerr << "Fatal error when initialising log file(s).";
+      return 1;
+   }
+
    bool status = false;
 
    GenexSimulator        *theGenexSimulator = 0;
@@ -182,20 +220,22 @@ int main (int argc, char ** argv)
    }
 
    try {
-
       //run the simulation
       if (theGenexSimulator) {
          status = theGenexSimulator->run();
       }
-
    }
-
    catch ( std::string& s ) {
-      std::cerr << "Basin_Error: " << s << std::endl;
+      LogHandler( LogHandler::ERROR_SEVERITY ) << s;
       exit (1);
    }
-
+   catch ( std::exception& e )
+   {
+      LogHandler( LogHandler::ERROR_SEVERITY ) << e.what( );
+      exit (1);
+   }
    catch (...) {
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "Unknown exception occured.\n";
       exit (1);
    }
 

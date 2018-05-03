@@ -68,6 +68,9 @@ class PropertyManager;
 class SourceRock : public Interface::SourceRock
 {
 public:
+   SourceRock (Interface::ProjectHandle * projectHandle, database::Record * record);
+   virtual ~SourceRock ();
+
    /// \brief Convert H/C value to HI 
    static double convertHCtoHI( double aHI );
 
@@ -76,10 +79,6 @@ public:
 
    /// \brief Get min/max range value for HI
    static void getHIBounds( double &HILower, double &HIUpper );
-
-public:
-   SourceRock (Interface::ProjectHandle * projectHandle, database::Record * record);
-   virtual ~SourceRock (void);
 
    /// Computes generation and expulsion of the source rock
    bool compute();
@@ -165,10 +164,6 @@ protected:
                               const LocalGridInterpolator* porosity,
                               const LocalGridInterpolator* permeability,
                               const LocalGridInterpolator* vre );
-   // void computeTimeInstance(  const double t, 
-   //                            const LocalGridInterpolator *VES,  
-   //                            const LocalGridInterpolator *Temp, 
-   //                            const LocalGridInterpolator *thicknessScaling);
 
    /// Compute the new state and the results at a snapshot for all the valid source rock nodes 
    bool computeSnapShot ( const double previousTime,
@@ -288,6 +283,7 @@ private:
    AbstractDerivedProperties::AbstractPropertyManager * m_propertyManager;
 
    std::map<std::string, Interface::GridMap*> m_theSnapShotOutputMaps;
+   /// \brief Mapping between source rock name and source rock type as written in genex configuration file
    static std::map<std::string, std::string> s_CfgFileNameBySRType;
    static void initializeCfgFileNameBySRType();
 
@@ -352,8 +348,6 @@ inline bool SourceRock::getMinor(void) const {
 }
 
 }
-
-
 
 #endif 
 

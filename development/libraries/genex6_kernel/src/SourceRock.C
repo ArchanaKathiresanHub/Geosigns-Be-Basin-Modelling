@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 // std library
 #include <assert.h>
@@ -14,8 +14,6 @@
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
-
-using namespace std;
 
 // DataAccess library
 #include "Interface/ProjectHandle.h"
@@ -31,29 +29,10 @@ using namespace std;
 #include "Interface/SGDensitySample.h"
 #include "Interface/ObjectFactory.h"
 
-using namespace DataAccess;
-using Interface::GridMap;
-using Interface::Grid;
-using Interface::Snapshot;
-using Interface::Formation;
-using Interface::Surface;
-using Interface::Property;
-using Interface::PropertyValue;
-using Interface::PropertyValueList;
-using Interface::AttributeValue;
-using Interface::LithoType;
-
 // utilities library
-# include "ConstantsMathematics.h"
-using Utilities::Maths::CgrConversionFactor;
-using Utilities::Maths::GorConversionFactor;
-using Utilities::Maths::KilogrammeToUSTon;
-using Utilities::Maths::CubicMetresToCubicFeet;
-using Utilities::Maths::CubicMetresToBarrel;
-using Utilities::Maths::CubicMetresToCubicFeet;
-using Utilities::Maths::MegaPaToPa;
+#include "ConstantsMathematics.h"
 #include "ConstantsNumerical.h"
-using Utilities::Numerical::CauldronNoDataValue;
+#include "LogHandler.h"
 
 #include "SourceRock.h"
 #include "LocalGridInterpolator.h"
@@ -80,23 +59,76 @@ using Utilities::Numerical::CauldronNoDataValue;
 
 #include "AbstractPropertyManager.h"
 
+using namespace std;
+
+using namespace DataAccess;
+using Interface::GridMap;
+using Interface::Grid;
+using Interface::Snapshot;
+using Interface::Formation;
+using Interface::Surface;
+using Interface::Property;
+using Interface::PropertyValue;
+using Interface::PropertyValueList;
+using Interface::AttributeValue;
+using Interface::LithoType;
+
+using Utilities::Maths::CgrConversionFactor;
+using Utilities::Maths::GorConversionFactor;
+using Utilities::Maths::KilogrammeToUSTon;
+using Utilities::Maths::CubicMetresToCubicFeet;
+using Utilities::Maths::CubicMetresToBarrel;
+using Utilities::Maths::CubicMetresToCubicFeet;
+using Utilities::Maths::MegaPaToPa;
+using Utilities::Numerical::CauldronNoDataValue;
+
 namespace Genex6
 {
 class GenexSimulator;
 
-const double SourceRock::conversionCoeffs [8] = { -2.60832073307101E-05, 0.236463623513642, -0.0319467563289369, 0.00185738251210839, 2.36948559032296E-05, -6.62225531134738E-06, 
-                                                    2.38411451425613E-07, -2.692340754443E-09 };  
+std::map<std::string, std::string> SourceRock::s_CfgFileNameBySRType;
+
+const double SourceRock::conversionCoeffs [8] =
+   { -2.60832073307101E-05, 0.236463623513642,
+     -0.0319467563289369, 0.00185738251210839,
+     2.36948559032296E-05, -6.62225531134738E-06,
+     2.38411451425613E-07, -2.692340754443E-09 };
+
+SourceRock::SourceRock (Interface::ProjectHandle * projectHandle, database::Record * record)
+: Interface::SourceRock (projectHandle, record)
+{
+   m_theSimulator = 0;
+   m_formation = 0;
+
+   if(s_CfgFileNameBySRType.empty()) {
+      initializeCfgFileNameBySRType();
+   }
+
+   m_adsorptionSimulator = 0;
+   m_adsorptionSimulator2 = 0;
+
+   m_theChemicalModel  = 0;
+   m_theChemicalModel1 = 0;
+   m_theChemicalModel2 = 0;
+
+   m_applySRMixing = false;
+   m_sourceRockEndMember1 = 0;
+   m_sourceRockEndMember2 = 0;
+   m_tocOutputMap = 0;
+   m_isSulphur = false;
+}
+
+SourceRock::~SourceRock(void)
+{
+   clear();
+   if(!s_CfgFileNameBySRType.empty()) {
+      s_CfgFileNameBySRType.clear();
+   }
+}
 
 void SourceRock::getHIBounds( double &HILower, double &HIUpper ) {
-
    HILower = 28.47;
    HIUpper = 773.6;
-
-   // HILower = 26.32;
-   // HIUpper = 637.44;
-
-   // HILower = 24.36;
-   // HIUpper = 428.26;
 }
 
 double SourceRock::convertHCtoHI( double aHC ) {
@@ -134,20 +166,7 @@ double SourceRock::convertHItoHC( double aHI ) {
       for ( i = 6; i >= 0; --i ) {
          hc = hc * sqrtHI + conversionCoeffs[i];
       }
-      /*
-      double x = aHI;
-      const double a = -2.60832073307101E-05;
-      const double b = 0.236463623513642;
-      const double c = -0.0319467563289369;
-      const double d = 0.00185738251210839;
-      const double e = 2.36948559032296E-05;
-      const double f = -6.62225531134738E-06;
-      const double g = 2.38411451425613E-07;
-      const double h = -2.692340754443E-09;
 
-      double hc = a + b * pow(x, 0.5) + c *pow(x, 1) + d * pow(x, 1.5) + e * pow(x, 2) +
-      f *pow(x, 2.5) + g * pow(x, 3) + h * pow(x, 3.5);
-      */
       return floor( hc * 1000 + 0.5 ) / 1000;
    }
    else {
@@ -155,35 +174,9 @@ double SourceRock::convertHItoHC( double aHI ) {
    }
 }
 
-
-
-std::map<std::string, std::string> SourceRock::s_CfgFileNameBySRType;
-
-SourceRock::SourceRock (Interface::ProjectHandle * projectHandle, database::Record * record)
-: Interface::SourceRock (projectHandle, record)
-{
-   m_theSimulator = 0;
-   m_formation = 0;
-
-   if(s_CfgFileNameBySRType.empty()) {
-      initializeCfgFileNameBySRType();
-   }
-
-   m_adsorptionSimulator = 0;
-   m_adsorptionSimulator2 = 0;
-
-   m_theChemicalModel  = 0;
-   m_theChemicalModel1 = 0;
-   m_theChemicalModel2 = 0;
-
-   m_applySRMixing = false;
-   m_sourceRockEndMember1 = 0;
-   m_sourceRockEndMember2 = 0;
-   m_tocOutputMap = 0;
-   m_isSulphur = false;
-}
 void SourceRock::initializeCfgFileNameBySRType()
 {
+   //BPA1 mappings
    s_CfgFileNameBySRType["LacustrineAlgal"]         = "TypeI";
    s_CfgFileNameBySRType["MesozoicMarineShale"]     = "TypeII";
    s_CfgFileNameBySRType["MesozoicCalcareousShale"] = "TypeIIS";
@@ -206,13 +199,15 @@ void SourceRock::initializeCfgFileNameBySRType()
    s_CfgFileNameBySRType["Type_II_Paleozoic_MarineShale_kin_s"]  = "TypeIIHS";
    s_CfgFileNameBySRType["Type_II_Mesozoic_Marl_kin_s"]          = "TypeIIS";
    s_CfgFileNameBySRType["Type_III_II_Mesozoic_HumicCoal_lit_s"] = "TypeII_III";
-}
-SourceRock::~SourceRock(void)
-{
-   clear();
-   if(!s_CfgFileNameBySRType.empty()) {
-      s_CfgFileNameBySRType.clear();
-   }
+
+   //BPA2 mappings
+   s_CfgFileNameBySRType["Type I - Lacustrine"]         = "TypeI";
+   s_CfgFileNameBySRType["Type I/II - Marine Shale"]    = "TypeI_II";
+   s_CfgFileNameBySRType["Type II - Mesozoic Marine"]   = "TypeII";
+   s_CfgFileNameBySRType["Type II - Marine Marl"]       = "TypeIIS";
+   s_CfgFileNameBySRType["Type II - Paleozoic Marine"]  = "TypeIIHS";
+   s_CfgFileNameBySRType["Type II/III - Humic Coal"]    = "TypeII_III";
+   s_CfgFileNameBySRType["Type III - Terrestrial Coal"] = "Type III";
 }
 
 void SourceRock::setPropertyManager ( AbstractDerivedProperties::AbstractPropertyManager * aPropertyManager ) {
@@ -284,7 +279,7 @@ void SourceRock::clearSimulator()
    if(m_theSimulator) {
       // set ChemicalModel1 to be deleted inside Simulator destructor
       m_theSimulator->setChemicalModel( m_theChemicalModel1 );
-      
+
       delete m_theSimulator;
       m_theSimulator = 0;
 
@@ -345,14 +340,12 @@ AdsorptionSimulator * SourceRock::getAdsorptionSimulator() const
 bool SourceRock::setFormationData( const Interface::Formation * aFormation ) 
 {
    setLayerName( aFormation->getName() );
-   
+
    if( m_layerName == "" ) {
-      if(m_projectHandle->getRank() == 0) {
-         cout<<"Cannot compute SourceRock " << getType() << ": the formation name is not set." << endl;
-      }
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock " << getType() << ": the formation name is not set.";
       return false;
    }
-   
+
    m_formation = aFormation; //m_projectHandle->findFormation (m_layerName);
       
    if(!m_formation->isSourceRock()) { // if SourceRock is currently inactive
@@ -360,9 +353,7 @@ bool SourceRock::setFormationData( const Interface::Formation * aFormation )
    }
    
    if( m_formation->getTopSurface()->getSnapshot()->getTime() == 0 ) {
-      if(m_projectHandle->getRank() == 0) {
-         cout<<"Cannot compute SourceRock with deposition age 0 at : "<< m_formation->getName() << endl;
-      }
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock with deposition age 0 at : " << m_formation->getName();
       return false;
    }
       
@@ -376,9 +367,7 @@ bool SourceRock::setFormationData( const Interface::Formation * aFormation )
    if( m_applySRMixing ) {
       const Interface::SourceRock * sourceRock2 =  m_formation->getSourceRock2();
       if( sourceRock2 == 0 ) {
-         if(m_projectHandle->getRank() == 0) {
-            cout<<"Cannot find SourceRockType2 "<< m_formation->getSourceRockType2Name() << " for mixing at : " << m_layerName << endl;
-         }
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot find SourceRockType2 "<< m_formation->getSourceRockType2Name() << " for mixing at : " << m_layerName;
          return false;
       } else {
          if( ! m_isSulphur ) {
@@ -394,35 +383,7 @@ bool SourceRock::compute()
 {
    bool status = true;
 
-#if 0 // Moved to setFormationData()
-
-   m_formation = m_projectHandle->findFormation (m_layerName);
-
-   if(!m_formation->isSourceRock()) { // if SourceRock is currently inactive
-      return status;
-   }
-   if( m_formation->getTopSurface()->getSnapshot()->getTime() == 0 ) {
-      if( m_projectHandle->getRank () == 0) {
-         cout<<"Cannot compute SourceRock with deposition age 0 at : "<< m_formation->getName() << endl;
-      }
-      return false;
-   }
-
-   m_applySRMixing = m_formation ->getEnableSourceRockMixing();
-
-   if(  m_applySRMixing && m_projectHandle->findSourceRock( m_formation->getSourceRockType2Name() ) == 0 ) {
-      if(m_projectHandle->getRank() == 0) {
-         cout<<"Cannot find SourceRock "<< m_formation->getSourceRockType2Name() << " for mixing at : " << m_formation->getName() << endl;
-      }
-      return false;
-   }
-#endif
-
-   if(m_projectHandle->getRank() == 0) {
-      cout<<"Ready to compute SourceRock at : "<< m_formation->getName()<<endl;
-   }
-
-   // status = preprocess();
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Ready to compute SourceRock at : "<< m_formation->getName();
 
    if(status) status = initialize();
 
@@ -463,9 +424,7 @@ ChemicalModel * SourceRock::loadChemicalModel( const Interface::SourceRock * the
    } else if(GENEXDIR != 0) {
        fullPath = GENEXDIR;
    } else {
-      if(m_projectHandle->getRank() == 0) {
-         cout << "Environment Variable " << (runType & Genex6::Constants::SIMGENEX5 ? "GENEX5DIR" : "GENEX6DIR") << " not set. Aborting..." << endl;
-      } 
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Environment Variable " << (runType & Genex6::Constants::SIMGENEX5 ? "GENEX5DIR" : "GENEX6DIR") << " not set. Aborting...";
       exit(1); //TODO_SK: gracefully exit. Note: this statement used to be: return false; which crashes the application as a pointer should be returned.
    }
 
@@ -495,17 +454,16 @@ ChemicalModel * SourceRock::loadChemicalModel( const Interface::SourceRock * the
                                                                         in_asphalteneDiffusionEnergy, in_resinDiffusionEnergy, 
                                                                         in_C15AroDiffusionEnergy, in_C15SatDiffusionEnergy);
    
-   if(m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
+   if(printInitialisationDetails ) {
 
-      cout << "Source Rock Type  : " << SourceRockType;
-
+      ostringstream sourceRock;
+      sourceRock <<  "Source Rock Type  : " << SourceRockType;
       if( m_applySRMixing ) {
-         cout << " (H/C = " << in_HC << ")" << endl;
-      } else {
-         cout << endl;
+         sourceRock << " (H/C = " << in_HC << ")";
       }
 
-      cout << "Configuration File: " << theType <<  (!(runType & Genex6::Constants::SIMGENEX5) ? " (with sulphur)" : "") << endl;
+      LogHandler( LogHandler::INFO_SEVERITY ) << sourceRock.str();
+      LogHandler( LogHandler::INFO_SEVERITY ) << "Configuration File: " << theType <<  (!(runType & Genex6::Constants::SIMGENEX5) ? " (with sulphur)" : "");
    } 
 
    return theChemicalModel;
@@ -528,9 +486,7 @@ const string & SourceRock::determineConfigurationFileName(const string & SourceR
    if(it != s_CfgFileNameBySRType.end()) {
       return it->second;
    } else {
-      if(m_projectHandle->getRank() == 0) {
-         cout << "!!Warning!!: Source rock " << SourceRockType << " not found. Setting configuration file to TypeI." << endl;
-      }
+      LogHandler( LogHandler::WARNING_SEVERITY ) << "Source rock " << SourceRockType << " not found. Setting configuration file to TypeI.";
    }
    return ret;
 }
@@ -538,17 +494,9 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
 {
    bool status = true;
 
-   if(m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
-      cout << "Start Of Initialization..." << endl;
+   if(printInitialisationDetails ) {
+      LogHandler( LogHandler::INFO_SEVERITY ) << "Start Of Initialization...";
    }
-   
-#if 0 // moved to GenexSimulator::run()
-
-   double theScIni = getScVRe05();
-   double in_SC = (theScIni != 0.0 ? ( validateGuiValue(theScIni, 0.01, 0.09) == true ? theScIni : 0.03 ) : 0.0 );
-
-   m_SC = in_SC;
-#endif
 
    if( m_theSimulator == 0 ) {
       m_theSimulator = new Genex6::Simulator() ;
@@ -582,7 +530,7 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
       if(  m_formation->getSourceRockMixingHIGridName().length() == 0 ) {
          if( m_formation->getSourceRockMixingHI() == Interface::DefaultUndefinedScalarValue ) {
             status = false;
-            cout << "ERROR : The mixing HI value is undefined. Aborting..." << endl;
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "The mixing HI value is undefined. Aborting...";
          } else {
             double hcValueMixing = ( m_formation->getSourceRockMixingHI() != 0 ? convertHItoHC( m_formation->getSourceRockMixingHI() ) : 0 ); 
       
@@ -594,8 +542,8 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
                if( numberOfTimeSteps1 > numberOfTimeSteps2 ) m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
                else m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
             }
-            if ( m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
-               cout << "Applying Source Rock mixing H/C = " << hcValueMixing << endl;
+            if ( printInitialisationDetails ) {
+               LogHandler( LogHandler::INFO_SEVERITY ) << "Applying Source Rock mixing H/C = " << hcValueMixing;
             }
          }
       } else {
@@ -603,8 +551,8 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
          if( numberOfTimeSteps1 > numberOfTimeSteps2 ) m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
          else m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
          
-         if ( m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
-            cout << "Applying Source Rock mixing with HI mixing map" << endl;
+         if ( printInitialisationDetails ) {
+            LogHandler( LogHandler::INFO_SEVERITY ) << "Applying Source Rock mixing with HI mixing map";
          }
       }
       if( status ) {
@@ -615,28 +563,23 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
             m_theChemicalModel = m_theChemicalModel2;
          }
          
-         if(m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
+         if(printInitialisationDetails ) {
             if(status) {
-               cout << "End Of Initialization." << endl;
-               cout << "-------------------------------------" << endl;
+               LogHandler( LogHandler::INFO_SEVERITY ) << "End Of Initialization.";
+               LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
             } else {
-               cout << "ERROR : Invalid Chemical Model. Please check your source rock " << m_formation->getSourceRockType2Name() << " input parameters. Aborting..." << endl;
-               cout << "----------------------------------------------------------------------------------" << endl;
+               LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid Chemical Model. Please check your source rock " << m_formation->getSourceRockType2Name() << " input parameters. Aborting...";
+               LogHandler( LogHandler::INFO_SEVERITY ) << "----------------------------------------------------------------------------------";
             }
          }
       }
    }
    if ( status && m_theSimulator != 0 and doApplyAdsorption ()) {
 
-      if ( m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
-         cerr << "Applying adsorption, TOCDependent is " << (adsorptionIsTOCDependent () ? "true" : "false" ) << ", function is " << getAdsorptionCapacityFunctionName () 
-              << ", OTGC is " << ( doComputeOTGC () ? "on" : "off" ) << endl;
-
-#if 0
-         PetscErrorPrintf ( "Applying adsorption, TOCDependent is %s, function is %s\n",
-                            (adsorptionIsTOCDependent () ? "true" : "false" ),
-                            getAdsorptionCapacityFunctionName ().c_str ());
-#endif
+      if ( printInitialisationDetails ) {
+         LogHandler( LogHandler::INFO_SEVERITY ) << "Applying adsorption, TOCDependent is " << (adsorptionIsTOCDependent () ? "true" : "false" )
+            << ", function is " << getAdsorptionCapacityFunctionName ()
+            << ", OTGC is " << ( doComputeOTGC () ? "on" : "off" );
       }
 
       AdsorptionFunction*  adsorptionFunction = AdsorptionFunctionFactory::getInstance ().getAdsorptionFunction ( m_projectHandle,
@@ -651,9 +594,9 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
 
       status = status and adsorptionFunction->isValid ();
 
-      if ( not adsorptionFunction->isValid () and m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
-         cerr << " ERROR Invalid adsorption function. Please check adsorption function parameters. Aborting ..." << endl;
-         cerr << adsorptionFunction->getErrorMessage () << endl;
+      if ( not adsorptionFunction->isValid () and printInitialisationDetails ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid adsorption function. Please check adsorption function parameters. Aborting ...";
+         LogHandler( LogHandler::ERROR_SEVERITY ) << adsorptionFunction->getErrorMessage ();
       }
 
 
@@ -672,11 +615,10 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
       const Interface::SourceRock * sourceRock2 =  m_formation->getSourceRock2();
       
       if( sourceRock2->doApplyAdsorption () ) {
-         if ( m_projectHandle->getRank() == 0 ) {
-            cerr << "Applying adsorption for SourceRock type 2, TOCDependent is " << (sourceRock2->adsorptionIsTOCDependent () ? "true" : "false" ) << ", function is " << 
-               sourceRock2->getAdsorptionCapacityFunctionName () << ", OTGC is " << (sourceRock2->doComputeOTGC () ? "on" : "off" ) << endl;
-         }
-         
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Applying adsorption for SourceRock type 2, TOCDependent is "
+            << (sourceRock2->adsorptionIsTOCDependent () ? "true" : "false" ) << ", function is "
+            << sourceRock2->getAdsorptionCapacityFunctionName () << ", OTGC is " << (sourceRock2->doComputeOTGC () ? "on" : "off" );
+
          AdsorptionFunction*  adsorptionFunction = AdsorptionFunctionFactory::getInstance ().getAdsorptionFunction ( m_projectHandle,
                                                                                                                      sourceRock2->adsorptionIsTOCDependent (),
                                                                                                                      sourceRock2->getAdsorptionCapacityFunctionName ());
@@ -692,9 +634,9 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
 
          status = status and adsorptionFunction->isValid ();
 
-         if ( not adsorptionFunction->isValid () and m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
-            cerr << " ERROR Invalid adsorption function. Please check adsorption function parameters. Aborting ..." << endl;
-            cerr << adsorptionFunction->getErrorMessage () << endl;
+         if ( not adsorptionFunction->isValid () and printInitialisationDetails ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid adsorption function. Please check adsorption function parameters. Aborting ...";
+            LogHandler( LogHandler::ERROR_SEVERITY ) << adsorptionFunction->getErrorMessage ();
          }
 
          m_adsorptionSimulator2->setAdsorptionFunction ( adsorptionFunction );
@@ -704,14 +646,14 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
    if( status ) {
       status =  m_theChemicalModel1->Validate();
 
-      if(m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
+      if(printInitialisationDetails ) {
          
          if(status) {
-            cout << "End Of Initialization." << endl;
-            cout << "-------------------------------------" << endl;
+            LogHandler( LogHandler::INFO_SEVERITY ) << "End Of Initialization.";
+            LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------" ;
          } else {
-            cout << "ERROR : Invalid Chemical Model. Please check your source rock input parameters. Aborting..." << endl;
-            cout << "----------------------------------------------------------------------------------" << endl;
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid Chemical Model. Please check your source rock input parameters. Aborting...";
+            LogHandler( LogHandler::INFO_SEVERITY )  << "----------------------------------------------------------------------------------";
          }
       }
 
@@ -723,10 +665,7 @@ bool SourceRock::preprocess()
 {
    bool status = true;
 
-   if (m_projectHandle->getRank () == 0)
-   {
-      cout << "Start of preprocessing..." << endl;
-   }
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Start of preprocessing...";
 
    computeSnapshotIntervals ();
 
@@ -787,15 +726,12 @@ bool SourceRock::preprocess()
    status = SourceRock::preprocess ( temperatureAtPresentDay, VREPresentDay );
    
    if( ! status ) {
-      if (m_projectHandle->getRank () == 0 ) {
-
-         if ( temperatureAtPresentDay == 0 ) {
-            cout << "Unsuccessful upload of temperature property for layer : " << getLayerName () <<
-               " Terminating preprocessing..." << endl;
-         } else if ( VREPresentDay == 0 ) {
-            cout << "Unsuccessful upload of VRe property for layer : " << getLayerName () <<
-               " Terminating preprocessing..." << endl;
-         }
+      if ( temperatureAtPresentDay == 0 ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of temperature property for layer : " << getLayerName () <<
+            " Terminating preprocessing...";
+      } else if ( VREPresentDay == 0 ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of VRe property for layer : " << getLayerName () <<
+            " Terminating preprocessing...";
       }
    }
    if ( tempMap != 0 ) delete tempMap;
@@ -838,14 +774,13 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
       if( fabs( Hc1 - Hc2 ) <= Constants::Zero ) {
          if( !testPercentage ) {
             status = false;
-            if (m_projectHandle->getRank () == 0 and printInitialisationDetails ) {
-               cout << "SourceRock Type1 H/C is equal SourceRock Type2 H/C. Terminating preprocessing..." << endl;
+            if (printInitialisationDetails ) {
+               LogHandler( LogHandler::ERROR_SEVERITY ) << "SourceRock Type1 H/C is equal SourceRock Type2 H/C. Terminating preprocessing...";
             } 
             return status;	
          } else {
-
             if ( printInitialisationDetails ) {
-               cout << "SourceRock Type1 H/C is equal SourceRock Type2 H/C. Run the percentage..." << endl;
+               LogHandler( LogHandler::INFO_SEVERITY ) << "SourceRock Type1 H/C is equal SourceRock Type2 H/C. Run the percentage...";
             }
 
          }
@@ -870,11 +805,8 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
             vre->retrieveData ();
          } else {
             status = false;
-
-            if (m_projectHandle->getRank () == 0) {
-               cout << "Unsuccessful upload of Vr property for layer : " << m_layerName <<
-                  " Terminating preprocessing..." << endl;
-            } 
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of Vr property for layer : " << m_layerName <<
+               " Terminating preprocessing...";
             return status;	
          }
       }
@@ -994,7 +926,7 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
                      } else {
                         if(( minHc > hcValue ) || ( maxHc < hcValue ) ) { // may be it's not necessary if already has been done in BPA..
                            status = false;
-                           cout << "HC map value  " << hcValue << " is out of range: H/C1 = " << Hc1 << " and H/C2 = " << Hc2 << "." << endl;
+                           LogHandler( LogHandler::ERROR_SEVERITY ) << "HC map value  " << hcValue << " is out of range: H/C1 = " << Hc1 << " and H/C2 = " << Hc2 << ".";
                            break;
                         }
                         if( hcValue == Hc1 ) { f1 = 1.0; }
@@ -1025,7 +957,7 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
          if (m_theNodes.empty ()) {
             // This is a perfectly legitimate situation!!!
             status = false;
-            cout << "!!Warning!!: No valid Source Rock Nodes. Terminating preprocessing..." << endl;
+            LogHandler( LogHandler::WARNING_SEVERITY ) << "No valid Source Rock Nodes. Terminating preprocessing...";
          }
       }
 #endif
@@ -1050,13 +982,13 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
          litho3PercentageMap->restoreData ();
       }
 
-      if ( m_projectHandle->getRank () == 0 and printInitialisationDetails ) {
+      if (printInitialisationDetails ) {
 
          if( status ) {
-            cout << "End of preprocessing." << endl;
-            cout << "-------------------------------------" << endl;
+            LogHandler( LogHandler::INFO_SEVERITY ) << "End of preprocessing.";
+            LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
          } else {
-            cout << "Terminating preprocessing..." << endl;
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Terminating preprocessing...";
          }
 
       }
@@ -1066,17 +998,15 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
    {
       status = false;
 
-      if ( m_projectHandle->getRank () == 0 && validityMap == 0) {
-         cout << "Unsuccessful upload of temperature property for layer : " << m_layerName <<
-            " Terminating preprocessing..." << endl;
-      } else if ( m_projectHandle->getRank () == 0 && InputThickness == 0) {
-         cout << "Unsuccessful upload of thickness for layer : " << m_layerName << " Terminating preprocessing..."
-              << endl;
-      } else if ( m_projectHandle->getRank () == 0 && TOCmap == 0) {
-         cout << "Unsuccessful upload of TOC for layer : " << m_layerName << " Terminating preprocessing..." <<
-            endl;
+      if ( validityMap == 0) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of temperature property for layer : " << m_layerName <<
+            " Terminating preprocessing...";
+      } else if ( InputThickness == 0) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of thickness for layer : " << m_layerName << " Terminating preprocessing...";
+      } else if ( TOCmap == 0) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of TOC for layer : " << m_layerName << " Terminating preprocessing...";
       } else {
-         cout << "Terminating preprocessing..." << endl;
+         LogHandler( LogHandler::INFO_SEVERITY ) << "Terminating preprocessing...";
       }
 
    }
@@ -1101,10 +1031,6 @@ bool SourceRock::addHistoryToNodes () {
    DataAccess::Interface::PointAdsorptionHistoryList* historyList = m_projectHandle->getPointAdsorptionHistoryList ( m_layerName );
    DataAccess::Interface::PointAdsorptionHistoryList::const_iterator historyIter;
 
-#if 0
-   bool historyAssociatedWithNode;
-#endif
-
    for ( historyIter = historyList->begin (); historyIter != historyList->end (); ++historyIter ) {
 
       const double x = (*historyIter)->getX ();
@@ -1112,10 +1038,6 @@ bool SourceRock::addHistoryToNodes () {
 
       if ( m_projectHandle->getModellingMode () == Interface::MODE1D ||
 	    (NumericFunctions::inRange ( x, originX, northEastCornerX ) && NumericFunctions::inRange ( y, originY, northEastCornerY )) ){
-
-#if 0
-         historyAssociatedWithNode = false;
-#endif
 
          for(std::vector<Genex6::SourceRockNode*>::iterator it = m_theNodes.begin(); it !=itEnd; ++ it) { // and not historyAssociatedWithNode
             Genex6::SourceRockNode* node = *it;
@@ -1128,10 +1050,6 @@ bool SourceRock::addHistoryToNodes () {
             if ( m_projectHandle->getModellingMode () == Interface::MODE1D ||
 		  (i == (int)(node->GetI ()) && j == (int)(node->GetJ ()))) {
 
-#if 0
-               historyAssociatedWithNode = true;
-#endif
-  
                if ( doOutputAdsorptionProperties ()) {
                   SourceRockAdsorptionHistory* history = new SourceRockAdsorptionHistory ( m_projectHandle, *historyIter );
 
@@ -1170,27 +1088,9 @@ bool SourceRock::addHistoryToNodes () {
 
          }
 
-#if 0
-         // This is removed at the moment until we know how to handle multiple active source-rocks
-         // each using the same history point, but some (not all) of the source-rocks have a zero thickness
-         // at this point.
-         if ( not historyAssociatedWithNode ) {
-
-            if(m_projectHandle->getRank() == 0) {
-               cout << " History point (" << x << ", " << y << ") has no active node with which it can be associated." <<  endl;
-            }
-
-         }
-#endif
-
       } else {
-            
-         if( m_projectHandle->getRank () == 0) {
-            cout << " WARNING: History point (" << x << ", " << y << ") lies outside of the domain: (" 
-                 << originX << ", " << originY << ") x (" << northEastCornerX << ", " << northEastCornerY << ")"
-                 <<  endl;
-         }
-         
+         LogHandler( LogHandler::WARNING_SEVERITY ) << "History point (" << x << ", " << y << ") lies outside of the domain: ("
+               << originX << ", " << originY << ") x (" << northEastCornerX << ", " << northEastCornerY << ")";
       }
 
    }
@@ -1293,13 +1193,11 @@ bool SourceRock::process()
    double previousTime;
    double dt                       = m_theSimulator->GetMaximumTimeStepSize(m_depositionTime);
 
-   if(m_projectHandle->getRank() == 0) {      
-      cout << "Chosen maximum timestep size:" << dt << endl;
-      cout << "-------------------------------------" << endl;
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Chosen maximum timestep size:" << dt;
+   LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
 
-      cout << "Start Of processing..." << endl;
-      cout << "-------------------------------------" << endl;
-   }
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Start Of processing...";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
 
    m_runtime = 0.0;
    m_time = 0.0;
@@ -1368,38 +1266,36 @@ bool SourceRock::process()
           startVr == 0 or endVr == 0 or
           startPressure == 0 or endPressure == 0 ) {
 
-         if ( m_projectHandle->getRank () == 0 ) {
-            if ( startTemp == 0 ) {
-               cout << "Missing start temperature map for snapshot " << intervalStart->getTime () << endl;
-            }
-            
-            if ( endTemp == 0 ) {
-               cout << "Missing end temperature map for snapshot " << intervalEnd->getTime () << endl;
-            }
-            
-            if ( startVr == 0 ) {
-               cout << "Missing start Vr map for snapshot " << intervalStart->getTime () << endl;
-            }
-            
-            if ( endVr == 0 ) {
-               cout << "Missing end Vr map for snapshot " << intervalEnd->getTime () << endl;
-            }
-            
-            if ( startVes == 0 ) {
-               cout << "Missing start Ves map for snapshot " << intervalStart->getTime () << endl;
-            }
-            
-            if ( endVes == 0 ) {
-               cout << "Missing end Ves map for snapshot " << intervalEnd->getTime () << endl;
-            }
+         if ( startTemp == 0 ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing start temperature map for snapshot " << intervalStart->getTime ();
+         }
 
-            if ( startPressure == 0 ) {
-               cout << " Missing pressure map for snapshot " << intervalStart->getTime () << endl;
-            }
-      
-            if ( endPressure == 0 ) {
-               cout << " Missing pressure map for snapshot " << intervalEnd->getTime () << endl;
-            }
+         if ( endTemp == 0 ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing end temperature map for snapshot " << intervalEnd->getTime ();
+         }
+
+         if ( startVr == 0 ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing start Vr map for snapshot " << intervalStart->getTime ();
+         }
+
+         if ( endVr == 0 ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing end Vr map for snapshot " << intervalEnd->getTime ();
+         }
+
+         if ( startVes == 0 ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing start Ves map for snapshot " << intervalStart->getTime ();
+         }
+
+         if ( endVes == 0 ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing end Ves map for snapshot " << intervalEnd->getTime ();
+         }
+
+         if ( startPressure == 0 ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing pressure map for snapshot " << intervalStart->getTime ();
+         }
+
+         if ( endPressure == 0 ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing pressure map for snapshot " << intervalEnd->getTime ();
          }
          
          status = false;
@@ -1458,42 +1354,39 @@ bool SourceRock::process()
              startPermeability == 0 or endPermeability == 0 ) {
             
             status = false;
-            
-            if ( m_projectHandle->getRank () == 0 ) {
-               
-               if ( startLP == 0 ) {
-                  cout << " Missing litho-static pressure map for snapshot " << intervalStart->getTime () << endl;
-               }
-               
-               if ( endLP == 0 ) {
-                  cout << " Missing litho-static pressure map for snapshot " << intervalEnd->getTime () << endl;
-               }
-               
-               if ( startHP == 0 ) {
-                  cout << " Missing hydro-static pressure map for snapshot " << intervalStart->getTime () << endl;
-               }
-               
-               if ( endHP == 0 ) {
-                  cout << " Missing hydro-static pressure map for snapshot " << intervalEnd->getTime () << endl;
-               }
-               
-               if ( startPorosity == 0 ) {
-                  cout << " Missing porosity map for snapshot " << intervalStart->getTime () << endl;
-               }
-               
-               if ( endPorosity == 0 ) {
-                  cout << " Missing porosity map for snapshot " << intervalEnd->getTime () << endl;
-               }
-               
-               if ( startPermeability == 0 ) {
-                  cout << " Missing permeability map for snapshot " << intervalStart->getTime () << endl;
-               }
-               
-               if ( endPermeability == 0 ) {
-                  cout << " Missing permeability map for snapshot " << intervalEnd->getTime () << endl;
-               }
+
+            if ( startLP == 0 ) {
+               LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing litho-static pressure map for snapshot " << intervalStart->getTime ();
             }
-            
+
+            if ( endLP == 0 ) {
+               LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing litho-static pressure map for snapshot " << intervalEnd->getTime ();
+            }
+
+            if ( startHP == 0 ) {
+               LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing hydro-static pressure map for snapshot " << intervalStart->getTime ();
+            }
+
+            if ( endHP == 0 ) {
+               LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing hydro-static pressure map for snapshot " << intervalEnd->getTime ();
+            }
+
+            if ( startPorosity == 0 ) {
+               LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing porosity map for snapshot " << intervalStart->getTime ();
+            }
+
+            if ( endPorosity == 0 ) {
+               LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing porosity map for snapshot " << intervalEnd->getTime ();
+            }
+
+            if ( startPermeability == 0 ) {
+               LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing permeability map for snapshot " << intervalStart->getTime ();
+            }
+
+            if ( endPermeability == 0 ) {
+               LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing permeability map for snapshot " << intervalEnd->getTime ();
+            }
+
             break;
          }
          lithostaticPressureInterpolator = new LinearGridInterpolator;
@@ -1554,12 +1447,6 @@ bool SourceRock::process()
             t = snapShotIntervalEndTime;
          }
          
-#if 0
-         if ( NumericFunctions::inRange<double>( t, snapShotIntervalEndTime - Genex6::Constants::TimeStepFraction * deltaT,
-                                                 snapShotIntervalEndTime + Genex6::Constants::TimeStepFraction * deltaT )) {
-            t = snapShotIntervalEndTime;
-         }
-#endif
          
       }
       
@@ -1583,10 +1470,10 @@ bool SourceRock::process()
 
    clearSimulator();
    
-   if(status && m_projectHandle->getRank() == 0) {
-      cout << "-------------------------------------" << endl;
-      cout << "End of processing." << endl;
-      cout << "-------------------------------------" << endl;
+   if(status) {
+      LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
+      LogHandler( LogHandler::INFO_SEVERITY ) << "End of processing.";
+      LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
    }
 
    saveSourceRockNodeAdsorptionHistory ();
@@ -1704,9 +1591,7 @@ void SourceRock::createSnapShotOutputMaps(const Snapshot *theSnapshot)
          (it->second)->retrieveData();
       } else {
 
-         if(m_projectHandle->getRank() == 0) {
-            cout << "Unsuccessful creation of map :" << it->first << endl;
-         }
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful creation of map :" << it->first;
 
       }
 
@@ -2263,9 +2148,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
 {
    bool status = true;
    double time = theSnapshot->getTime();
-   if(m_projectHandle->getRank() == 0) {
-      cout<<"Computing SnapShot t:"<<time<<endl;
-   }
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Computing SnapShot t:" << time;
 
    const DataModel::AbstractProperty* property = 0;
 
@@ -2298,47 +2181,43 @@ bool SourceRock::computeSnapShot ( const double previousTime,
 
    if( calcVes == 0 || calcTemp == 0 || calcVre == 0 ) {
       status = false;
-
-      if(m_projectHandle->getRank() == 0) {
-         if( calcTemp == 0 ) {    
-            cout << "!!Error!!: Missing Temperature map for the shapshot  :" << time << ". Aborting... " << endl;
-            cout << " ------------------------------------:" << endl;
-         }
-         if( calcVre == 0 ) {    
-            cout << "!!Error!!: Missing Vr map for the shapshot  :" << time << ". Aborting... " << endl;
-            cout << " ------------------------------------:" << endl;
-         }
-         if( calcVes == 0 ) {      
-            cout << "!!Error!!: Missing VES map for the shapshot  :" << time << ". Aborting... " << endl;
-            cout << " ------------------------------------:" << endl;
-         }
+      if( calcTemp == 0 ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing Temperature map for the shapshot  :" << time << ". Aborting... ";
+         LogHandler( LogHandler::INFO_SEVERITY ) << " ------------------------------------:";
+      }
+      if( calcVre == 0 ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing Vr map for the shapshot  :" << time << ". Aborting... ";
+         LogHandler( LogHandler::INFO_SEVERITY ) << " ------------------------------------:";
+      }
+      if( calcVes == 0 ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing VES map for the shapshot  :" << time << ". Aborting... ";
+         LogHandler( LogHandler::INFO_SEVERITY ) << " ------------------------------------:";
       }
    }
    if( status && doApplyAdsorption () && ( calcLP == 0 || calcHP == 0 || calcPressure == 0 ||  calcPorosity == 0 || calcPermeability == 0 )) {
       status = false;
 
-      if(m_projectHandle->getRank() == 0) {
-         if( calcLP == 0 ) {    
-            cout << "!!Error!!: Missing lithostatic pressure for the shapshot  :" << time << ". Aborting... " << endl;
-            cout << " ------------------------------------:" << endl;
-         }
-         if( calcHP == 0 ) {    
-            cout << "!!Error!!: Missing hydrostatic pressure for the shapshot  :" << time << ". Aborting... " << endl;
-            cout << " ------------------------------------:" << endl;
-         }
-         if( calcPressure == 0 ) {      
-            cout << "!!Error!!: Missing pore pressure for the shapshot  :" << time << ". Aborting... " << endl;
-            cout << " ------------------------------------:" << endl;
-         }
-         if( calcPorosity == 0 ) {      
-            cout << "!!Error!!: Missing porosity for the shapshot  :" << time << ". Aborting... " << endl;
-            cout << " ------------------------------------:" << endl;
-         }
-         if( calcPermeability == 0 ) {      
-            cout << "!!Error!!: Missing permeability for the shapshot  :" << time << ". Aborting... " << endl;
-            cout << " ------------------------------------:" << endl;
-         }
+      if( calcLP == 0 ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing lithostatic pressure for the shapshot  :" << time << ". Aborting... ";
+         LogHandler( LogHandler::INFO_SEVERITY ) << " ------------------------------------:";
       }
+      if( calcHP == 0 ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing hydrostatic pressure for the shapshot  :" << time << ". Aborting... ";
+         LogHandler( LogHandler::INFO_SEVERITY ) << " ------------------------------------:";
+      }
+      if( calcPressure == 0 ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing pore pressure for the shapshot  :" << time << ". Aborting... ";
+         LogHandler( LogHandler::INFO_SEVERITY ) << " ------------------------------------:";
+      }
+      if( calcPorosity == 0 ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing porosity for the shapshot  :" << time << ". Aborting... ";
+         LogHandler( LogHandler::INFO_SEVERITY ) << " ------------------------------------:";
+      }
+      if( calcPermeability == 0 ) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing permeability for the shapshot  :" << time << ". Aborting... ";
+         LogHandler( LogHandler::INFO_SEVERITY ) << " ------------------------------------:";
+      }
+
    }
    if( status ) {
       calcVes->retrieveData();
@@ -2712,7 +2591,6 @@ void SourceRock::clearOutputHistory () {
 
 }
 
-
 void SourceRock::initialiseNodes () {
 
    std::vector<Genex6::SourceRockNode*>::iterator itEnd = m_theNodes.end();
@@ -2723,30 +2601,5 @@ void SourceRock::initialiseNodes () {
    }
 
 }
-
-#if 0
-void SourceRock::clear () {
-
-   if ( m_theSimulator != 0 ) {
-      delete m_theSimulator;
-      m_theSimulator = 0;
-   }
-
-
-   std::vector<Genex6::SourceRockNode*>::iterator itEnd = m_theNodes.end();
-
-   for(std::vector<Genex6::SourceRockNode*>::iterator it = m_theNodes.begin(); it !=itEnd; ++it)
-   {
-      (*it)->initialise ();
-   }
-
-
-   // clearSourceRockNodes ();
-}
-
-
-#endif
-
-
 
 }//namespace Genex6
