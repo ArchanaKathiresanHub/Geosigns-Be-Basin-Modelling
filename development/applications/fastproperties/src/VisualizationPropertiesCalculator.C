@@ -1309,7 +1309,7 @@ bool VisualizationPropertiesCalculator::checkParameters() {
   
       // Check that the existing XML file and a new file have differnt paths/names
       boost::filesystem::path thePath =  boost::filesystem::canonical(existingXMLFileName.filePath());
-      string existingXMLpath = thePath.c_str();
+      string existingXMLpath = thePath.string(); 
  
       ibs::FolderPath existingXMLOutputDir (existingXMLpath);
       string existingXMLOutputDirName = existingXMLFileName.fileNameNoExtension() + "_vizIO_output";
@@ -1323,7 +1323,7 @@ bool VisualizationPropertiesCalculator::checkParameters() {
 
       ibs::FilePath newXMLFileName(m_fileNameXml);
       thePath = boost::filesystem::canonical(newXMLFileName.filePath());
-      string newXMLpath = thePath.c_str();
+      string newXMLpath = thePath.string(); 
 
       if (newXMLpath == existingXMLpath and m_fileNameExistingXml == m_fileNameXml)
       {
