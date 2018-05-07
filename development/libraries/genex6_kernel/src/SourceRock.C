@@ -207,7 +207,7 @@ void SourceRock::initializeCfgFileNameBySRType()
    s_CfgFileNameBySRType["Type II - Marine Marl"]       = "TypeIIS";
    s_CfgFileNameBySRType["Type II - Paleozoic Marine"]  = "TypeIIHS";
    s_CfgFileNameBySRType["Type II/III - Humic Coal"]    = "TypeII_III";
-   s_CfgFileNameBySRType["Type III - Terrestrial Coal"] = "Type III";
+   s_CfgFileNameBySRType["Type III - Terrestrial Coal"] = "TypeIII";
 }
 
 void SourceRock::setPropertyManager ( AbstractDerivedProperties::AbstractPropertyManager * aPropertyManager ) {
