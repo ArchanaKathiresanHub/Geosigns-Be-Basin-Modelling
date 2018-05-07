@@ -64,7 +64,15 @@ void GeoPhysics::PermeabilityMixer::reset ( const std::vector<double>&          
       m_mixVerticalExp = ( 1.0 - 4.0 * layeringIndex ) / 3.0;
 
       m_inverseMixHorizonExp = 1.0 / m_mixHorizonExp;
-      m_inverseMixVerticalExp = 1.0 / m_mixVerticalExp;
+      m_percentPowerPlane  = std::pow ( m_weights [ 0 ], m_inverseMixHorizonExp );
+
+      if ( layeringIndex != 0.25 ) {
+         m_inverseMixVerticalExp = 1.0 / m_mixVerticalExp;
+         m_percentPowerNormal = std::pow ( m_weights [ 0 ], m_inverseMixVerticalExp );
+      } else {
+         m_inverseMixVerticalExp = DataAccess::Interface::UNDEFINED;
+         m_percentPowerNormal = DataAccess::Interface::UNDEFINED;
+      }
 
       if ( m_weights.size () >= 2 ) {
          m_percentRatio2 = m_weights [ 1 ] / m_weights [ 0 ];
@@ -82,8 +90,6 @@ void GeoPhysics::PermeabilityMixer::reset ( const std::vector<double>&          
          m_anisoRatioExp3 = 0.0;
       }
 
-      m_percentPowerPlane  = std::pow ( m_weights [ 0 ], m_inverseMixHorizonExp );
-      m_percentPowerNormal = std::pow ( m_weights [ 0 ], m_inverseMixVerticalExp );
    } else {
       m_mixHorizonExp = 0.0;
       m_inverseMixHorizonExp = 0.0;
@@ -403,7 +409,7 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeHomogeneous ( const unsigned 
    ArrayDefs::Real_ptr permeabilities3 = simplePermeabilities.getData ( 2 );
 
    double mixedAnisotropy = std::pow ( permeabilityAnisotropy1 / permeabilityAnisotropy3, fractionLithology1 ) *
-                            std::pow ( permeabilityAnisotropy1 / permeabilityAnisotropy3, fractionLithology2 ) * permeabilityAnisotropy3;
+                            std::pow ( permeabilityAnisotropy2 / permeabilityAnisotropy3, fractionLithology2 ) * permeabilityAnisotropy3;
    double mixedPermeability;
 
    // The permeability cannot be zero
@@ -480,81 +486,6 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexZero ( const uns
 
       plane = 1.0 + m_percentRatio2 * m_anisoRatioExp2 * k21 + m_percentRatio3 * m_anisoRatioExp3 * k31;
       permeabilityPlane [ i ] = plane * plane * plane * m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
-   }
-
-}
-
-inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexOne ( const unsigned int           size,
-                                                                    PermeabilityWorkSpaceArrays& simplePermeabilities,
-                                                                    ArrayDefs::Real_ptr          permeabilityNormal,
-                                                                    ArrayDefs::Real_ptr          permeabilityPlane ) const {
-
-   double permeabilityAnisotropy1 = m_anisotropies [ 0 ];
-   double permeabilityAnisotropy2 = m_anisotropies [ 1 ];
-
-   double fractionLithology1 = m_weights [ 0 ];
-   double fractionLithology2 = m_weights [ 1 ]; // = 1 - fractionLithology1
-
-   ArrayDefs::Real_ptr permeabilities1 = simplePermeabilities.getData ( 0 );
-   ArrayDefs::Real_ptr permeabilities2 = simplePermeabilities.getData ( 1 );
-
-   double perm1Inv;
-   double permRatio21;
-   double permRatio21Exp;
-
-#pragma omp simd aligned ( permeabilities1, permeabilities2, permeabilityNormal, permeabilityPlane )
-   for ( unsigned int i = 0; i < size; ++i ) {
-      perm1Inv = 1.0 / permeabilities1 [ i ];
-      permRatio21 = permeabilities2 [ i ] * perm1Inv;
-
-      permRatio21Exp = permRatio21;
-
-      permeabilityNormal [ i ] = 1.0 / ( 1.0 + m_percentRatio2 * permRatio21 / ( permRatio21Exp * permRatio21Exp ));
-      permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MilliDarcyToM2;
-
-      permeabilityPlane  [ i ] = 1.0 + m_percentRatio2 * m_anisoRatioExp2 * permRatio21Exp;
-      permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
-   }
-
-}
-
-inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexOne ( const unsigned int           size,
-                                                                      PermeabilityWorkSpaceArrays& simplePermeabilities,
-                                                                      ArrayDefs::Real_ptr          permeabilityNormal,
-                                                                      ArrayDefs::Real_ptr          permeabilityPlane ) const {
-
-   double permeabilityAnisotropy1 = m_anisotropies [ 0 ];
-   double permeabilityAnisotropy2 = m_anisotropies [ 1 ];
-   double permeabilityAnisotropy3 = m_anisotropies [ 2 ];
-
-   double fractionLithology1 = m_weights [ 0 ];
-   double fractionLithology2 = m_weights [ 1 ];
-   double fractionLithology3 = m_weights [ 2 ]; // = 1 - f1 - f2
-
-   ArrayDefs::Real_ptr permeabilities1 = simplePermeabilities.getData ( 0 );
-   ArrayDefs::Real_ptr permeabilities2 = simplePermeabilities.getData ( 1 );
-   ArrayDefs::Real_ptr permeabilities3 = simplePermeabilities.getData ( 2 );
-
-   double perm1Inv;
-   double permRatio21;
-   double permRatio31;
-   double permRatio21Exp;
-   double permRatio31Exp;
-
-#pragma omp simd aligned ( permeabilities1, permeabilities2, permeabilities3, permeabilityNormal, permeabilityPlane )
-   for ( unsigned int i = 0; i < size; ++i ) {
-      perm1Inv = 1.0 / permeabilities1 [ i ];
-      permRatio21 = permeabilities2 [ i ] * perm1Inv;
-      permRatio31 = permeabilities3 [ i ] * perm1Inv;
-
-      permRatio21Exp = permRatio21;
-      permRatio31Exp = permRatio31;
-
-      permeabilityNormal [ i ] = 1.0 / ( 1.0 + m_percentRatio2 * permRatio21 / ( permRatio21Exp * permRatio21Exp ) + m_percentRatio3 * permRatio31 / (permRatio31Exp * permRatio31Exp ));
-      permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MilliDarcyToM2;
-
-      permeabilityPlane  [ i ] = 1.0 + m_percentRatio2 * m_anisoRatioExp2 * permRatio21Exp + m_percentRatio3 * m_anisoRatioExp3 * permRatio31Exp;
-      permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
    }
 
 }
@@ -724,8 +655,6 @@ void GeoPhysics::PermeabilityMixer::mixPermeabilityArrayTwoLithos ( const unsign
          mixTwoLayeringIndexZero ( size, simplePermeabilities, permeabilityNormal, permeabilityPlane );
       } else if ( m_layeringIndex == 0.25 ) {
          mixTwoLayeringIndexQuarter ( size, simplePermeabilities, permeabilityNormal, permeabilityPlane );
-      } else if ( m_layeringIndex == 1.0 ) {
-         mixTwoLayeringIndexOne ( size, simplePermeabilities, permeabilityNormal, permeabilityPlane );
       } else {
          mixTwoLayeringIndexGeneral ( size, simplePermeabilities, permeabilityNormal, permeabilityPlane );
       }
@@ -749,8 +678,6 @@ void GeoPhysics::PermeabilityMixer::mixPermeabilityArrayThreeLithos ( const unsi
          mixThreeLayeringIndexZero ( size, simplePermeabilities, permeabilityNormal, permeabilityPlane );
       } else if ( m_layeringIndex == 0.25 ) {
          mixThreeLayeringIndexQuarter ( size, simplePermeabilities, permeabilityNormal, permeabilityPlane );
-      } else if ( m_layeringIndex == 1.0 ) {
-         mixThreeLayeringIndexOne ( size, simplePermeabilities, permeabilityNormal, permeabilityPlane );
       } else {
          mixThreeLayeringIndexGeneral ( size, simplePermeabilities, permeabilityNormal, permeabilityPlane );
       }

@@ -189,7 +189,7 @@ generate_dox( GeoPhysics.cfg )
 # BrineConductivity unit test not available since reading the FltThCondIoTbl from the project file
 add_gtest( NAME ${LIB_NAME}::BrineConductivity
       SOURCES test/BrineConductivity.C src/BrinePhases.C
-      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess 
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
       ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
       FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
@@ -267,6 +267,26 @@ add_gtest( NAME ${LIB_NAME}::MultiMixingPermeability
    ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
+
+
+add_gtest( NAME ${LIB_NAME}::MixingPermeabilityArray3litho
+   SOURCES test/MixingPermeabilityArray3Litho.C
+   LIBRARIES ${LIB_NAME} SerialDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
+add_gtest( NAME ${LIB_NAME}::MixingPermeabilityArray2litho
+   SOURCES test/MixingPermeabilityArray2Litho.C
+   LIBRARIES ${LIB_NAME} SerialDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
+add_gtest( NAME ${LIB_NAME}::MixingPermeabilityArray1litho
+   SOURCES test/MixingPermeabilityArray1Litho.C
+   LIBRARIES ${LIB_NAME} SerialDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
 
 add_gtest( NAME ${LIB_NAME}::PermeabilityImpermeable
    SOURCES test/PermeabilityImpermeable.C
