@@ -512,7 +512,7 @@ bool MasterTouch::addOutputFormat(const string & filename,
             return false;
          }
 
-         PropertyValue * propertyValue = m_projectHandle.createMapPropertyValue(propertyValueName, majorSnapshot, 0, formation, surface);
+         PropertyValue * propertyValue = m_projectHandle.createMapPropertyValue(propertyValueName, majorSnapshot, 0, formation, 0);
 
          if ( !propertyValue )
          {

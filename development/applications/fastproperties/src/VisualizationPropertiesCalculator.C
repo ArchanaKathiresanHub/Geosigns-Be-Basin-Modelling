@@ -1231,6 +1231,14 @@ bool VisualizationPropertiesCalculator::parseCommandLine(int argc, char ** argv)
             {
                m_attribute = DataModel::FASTGENEX_PROPERTY;
             }
+            else if (simulatorName == "fastctc")
+            {
+               m_attribute = DataModel::FASTCTC_PROPERTY;
+            }
+            else if (simulatorName == "fasttouch7")
+            {
+               m_attribute = DataModel::FASTTOUCH_PROPERTY;
+            }
             else
             {
                showUsage (argv[0], "Unknown argument for '-sim'");

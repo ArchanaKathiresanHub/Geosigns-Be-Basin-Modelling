@@ -2388,7 +2388,14 @@ bool ProjectHandle::loadMapPropertyValues( void )
             const Surface * surface = dynamic_cast<const Surface *>( findSurface( surfaceName ) );
             if ( formation == 0 && surface == 0 ) continue;
 
-            addPropertyValue( timeIoRecord, propertyValueName, property, snapshot, 0, formation, surface, TIMEIOTBL );
+            if( property->getPropertyOutputAttribute() == DataModel::FASTTOUCH_PROPERTY) {
+               const Property * fasttouchProperty = addFasttouchProperty(propertyValueName);
+               if( fasttouchProperty != 0 ) {
+                  addPropertyValue( timeIoRecord, propertyValueName, fasttouchProperty, snapshot, 0, formation, 0, TIMEIOTBL );
+               }
+            } else {
+               addPropertyValue( timeIoRecord, propertyValueName, property, snapshot, 0, formation, surface, TIMEIOTBL );
+            }
          }
          else if ( property->getType() == RESERVOIRPROPERTY )
          {
@@ -2402,6 +2409,14 @@ bool ProjectHandle::loadMapPropertyValues( void )
       }
    }
    return true;
+}
+
+const Property * ProjectHandle::addFasttouchProperty(const string & propertyValueName) {
+
+   Interface::Property * newProperty = getFactory()->produceProperty( this, 0, propertyValueName, propertyValueName, "", FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTTOUCH_PROPERTY );
+   
+   addPropertyToFront( newProperty );
+   return newProperty;
 }
 
 bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )

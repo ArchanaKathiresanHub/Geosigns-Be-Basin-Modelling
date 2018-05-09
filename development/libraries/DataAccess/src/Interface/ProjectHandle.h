@@ -457,6 +457,7 @@ namespace DataAccess
 
          void addProperty( Property * property );
          void addPropertyToFront( Property * property );
+         const Property * addFasttouchProperty(const string & propertyValueName);
          // Function supporting the implementation
          PropertyValue * addPropertyValue( database::Record * record, const string & name, const Property * property, const Snapshot * snapshot,
             const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName = "" );
