@@ -70,11 +70,19 @@ bool FastTouch::saveTo (const string & outputFileName)
 
 bool FastTouch::removeResqPropertyValues (void)
 {
-   const Property * resqProperty = m_projectHandle->findProperty ("Resq: ");
-   if (!resqProperty) return false;
+   Interface::PropertyListPtr list = m_projectHandle->getProperties(DataModel::FASTTOUCH_PROPERTY);
 
-   m_projectHandle->deletePropertyValues (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE,
-                                          resqProperty, 0, 0, 0, 0, Interface::MAP);
+   if (list->empty()) {
+      return false;
+   }
+
+   for (size_t i = 0; i < list->size (); ++i) 
+   {
+      const Interface::Property* resqProperty = (*list)[ i ];
+   
+      m_projectHandle->deletePropertyValues (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE,
+                                             resqProperty, 0, 0, 0, 0, Interface::MAP);
+   }
    return true;
 }
 
