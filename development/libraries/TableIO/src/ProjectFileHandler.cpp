@@ -176,8 +176,8 @@ void database::ProjectFileHandler::loadOutputTables () {
               ibs::FilePath ( fullFileName ).exists() ) {
             m_outputDataBase.reset( database::Database::CreateFromFile ( fullFileName, *(outputSchema.get()) ) );
          } else {
-            LogHandler ( LogHandler::WARNING_SEVERITY ) << "(" << __FUNCTION__ << ") Output tables file does not exist: "
-                                                        << outputDirectory << "/" << fullFileName;
+            LogHandler ( LogHandler::INFO_SEVERITY ) << "(" << __FUNCTION__ << ") Output tables file does not exist: "
+                                                        <<  fullFileName;
             m_outputDataBase.reset( database::Database::CreateFromSchema ( *(outputSchema.get()) ) );
          }
 
