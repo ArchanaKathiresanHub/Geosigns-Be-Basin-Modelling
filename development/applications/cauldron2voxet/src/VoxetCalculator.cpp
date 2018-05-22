@@ -36,10 +36,12 @@ const float VoxetCalculator::DefaultNullValue = 99999.0;
 
 VoxetCalculator::VoxetCalculator ( const GeoPhysics::ProjectHandle*           projectHandle,
                                    DerivedProperties::DerivedPropertyManager& propertyManager,
-                                   const GridDescription&                     gridDescription ) : 
+                                   const GridDescription&                     gridDescription,
+                                   const std::map<std::string, double >&      propertyNullValueReplaceLookup ) :
    m_projectHandle ( projectHandle ),
    m_propertyManager ( propertyManager ),
    m_gridDescription ( gridDescription ),
+   m_propertyNullValueReplaceLookup ( propertyNullValueReplaceLookup ),
    m_nodeIsDefined ( 0 ),
    m_interpolatorIsDefined ( 0 ),
    m_depthProperty ( 0 )
@@ -61,7 +63,7 @@ void VoxetCalculator::setDepthProperty ( const Property* depth ) {
 
 //------------------------------------------------------------//
 
-void VoxetCalculator::setDefinedNodes ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList )
+void VoxetCalculator::setDefinedNodes ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList, const bool verbose )
 {
    int i;
    int j;
@@ -84,18 +86,22 @@ void VoxetCalculator::setDefinedNodes ( const AbstractDerivedProperties::Formati
          continue;
       }
 
-      if (dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION)
-	 cerr << "  Using basement: " << depthPropertyValue->getFormation ()->getName () << endl;
+      if (dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION){
+         if(verbose){
+	    cout << "  Using basement: " << depthPropertyValue->getFormation ()->getName () << endl;
+         }
+      }
+
 
       lastK = depthPropertyValue->lastK ();
 
       for ( i = 0; i < m_gridDescription.getCauldronNodeCount ( 0 ); ++i ) {
 
          for ( j = 0; j < m_gridDescription.getCauldronNodeCount ( 1 ); ++j ) {
-            m_nodeIsDefined [ i ][ j ] = m_nodeIsDefined [ i ][ j ] && depthPropertyValue->get ( i, j, lastK ) != undefinedValue; 
+            m_nodeIsDefined [ i ][ j ] = m_nodeIsDefined [ i ][ j ] && depthPropertyValue->get ( i, j, lastK ) != undefinedValue;
          }
 
-      } 
+      }
 
    }
 }
@@ -106,6 +112,8 @@ void VoxetCalculator::addProperty ( const Property* property ) {
 
    PropertyInterpolator* newProperty2 = new PropertyInterpolator ( m_gridDescription.getVoxetNodeCount ( 0 ), m_gridDescription.getVoxetNodeCount ( 1 ), property );
    m_propertyInterpolators [ property ] = newProperty2;
+
+   cout<< "  Property added: "<<property->getName()<<endl;
 }
 
 //------------------------------------------------------------//
@@ -114,7 +122,7 @@ void VoxetCalculator::deleteProperty ( const Property* property ) {
 
    PropertyInterpolatorMap::iterator propertyIter = m_propertyInterpolators.find ( property );
 
-   if ( propertyIter != m_propertyInterpolators.end ()) { 
+   if ( propertyIter != m_propertyInterpolators.end ()) {
       m_propertyInterpolators.erase ( propertyIter );
       delete (*propertyIter).second;
    }
@@ -137,7 +145,7 @@ int VoxetCalculator::computeInterpolators ( const Snapshot * snapshot,
       return -1;
    }
 
-   setDefinedNodes ( depthDerivedPropertyValueList );
+   setDefinedNodes ( depthDerivedPropertyValueList,verbose );
    initialiseInterpolators ( depthDerivedPropertyValueList, snapshot, verbose );
    calculatorInterpolatorValues ( depthDerivedPropertyValueList, verbose );
 
@@ -455,8 +463,8 @@ void VoxetCalculator::calculatorInterpolatorValues ( const AbstractDerivedProper
                         depth = depthPropertyValue->interpolate (cauldronI, cauldronJ, (double) l);
                         topDepth = Min (depth, topDepth);
                         bottomDepth = Max (depth, bottomDepth);
-                        
-                           
+
+
                         property = propertyValue->interpolate (cauldronI, cauldronJ, (double) l);
                         layerInterp.addSample (depth, property);
                      }
@@ -501,7 +509,7 @@ void VoxetCalculator::print ( std::ostream& o ) const {
             interpolator ( j, k ).print ( o );
          }
 
-      } 
+      }
 
    }
 
@@ -531,6 +539,14 @@ void VoxetCalculator::computeProperty ( const CauldronProperty*  property,
 
    if ( propertyIter != m_propertyInterpolators.end ()) {
 
+      bool nullValueReplace=false;
+      double nullValueReplaceValue=0.0;
+      if( m_propertyNullValueReplaceLookup.find( propertyIter->first->getName () ) != m_propertyNullValueReplaceLookup.end() ){
+         nullValueReplace=true;
+         nullValueReplaceValue = m_propertyNullValueReplaceLookup[propertyIter->first->getName ()];
+         cout<< "   replacing null value ( "<<this->getNullValue()<<" ) by : "<<nullValueReplaceValue<<endl;
+      }
+
       if ( verbose ) {
          cout << " interpolating voxet for property : " << propertyIter->first->getName () << "  ";
       }
@@ -547,6 +563,9 @@ void VoxetCalculator::computeProperty ( const CauldronProperty*  property,
                   k < m_gridDescription.getVoxetNodeCount ( 2 );
                   ++k, z += m_gridDescription.getVoxetGridDelta ( 2 ), ++count ) {
                propertyValues ( i, j, k ) = conversionFactor * interpolator ( z );
+                  if(nullValueReplace && NumericFunctions::isEqual(propertyValues ( i, j, k ), this->getNullValue(), std::numeric_limits<float>::epsilon()) ){
+                     propertyValues ( i, j, k )=nullValueReplaceValue;
+                  }
 
                if ( verbose && count == outputDotNumber ) {
                   cout << "." << flush;

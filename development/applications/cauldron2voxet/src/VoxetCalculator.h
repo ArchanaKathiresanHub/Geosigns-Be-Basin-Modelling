@@ -91,7 +91,8 @@ public :
 
    VoxetCalculator ( const GeoPhysics::ProjectHandle*           projectHandle,
                      DerivedProperties::DerivedPropertyManager& propertyManager,
-                     const GridDescription&                     gridDescription );
+                     const GridDescription&                     gridDescription,
+                     const std::map<std::string, double >&      propertyNullValueReplaceLookup = std::map<std::string, double >() );
 
    ~VoxetCalculator ();
 
@@ -147,7 +148,8 @@ private :
                                   const Snapshot*                                         snapshot,
                                   const bool                                              verbose );
 
-   void setDefinedNodes ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList);
+   void setDefinedNodes ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList,
+                          const bool                                              verbose);
 
    /// Return whether the element {(i,j),(i+1,j),(i+1,j+1),(i,j+1)}, from the cauldron map, has all valid nodes.
    ///
@@ -159,16 +161,16 @@ private :
    const GeoPhysics::ProjectHandle*           m_projectHandle;
    DerivedProperties::DerivedPropertyManager& m_propertyManager;
    const GridDescription                      m_gridDescription;
-   
+
    bool**                    m_nodeIsDefined;
    bool**                    m_interpolatorIsDefined;
    const Property*           m_depthProperty;
    PropertyInterpolatorMap   m_propertyInterpolators;
    bool                      m_useBasement;
 
+   std::map<std::string, double > m_propertyNullValueReplaceLookup;
 
 };
 
 
 #endif // _VOXET_CALCULATOR_H_
-

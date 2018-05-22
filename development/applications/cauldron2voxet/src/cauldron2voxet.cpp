@@ -94,15 +94,31 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
 void write ( const std::string& name,
             const VoxetPropertyGrid& values );
 
-/// Correct the endian-ness of the array. The voxet format requires that the binary data is written 
+/// Correct the endian-ness of the array. The voxet format requires that the binary data is written
 /// in big-endian format. After this call the numbers will be un-usable in the code.
 void correctEndian ( VoxetPropertyGrid& values );
 
 bool splitString (char * string, char separator, char * & firstPart, char * & secondPart, char * & thirdPart);
 double selectDefined (double undefinedValue, double preferred, double alternative);
 
+/// write the ascii voxet header (vo-file)
+void writeVOheader(       ofstream& file,
+                    const GridDescription & gridDescription,
+                    const string& outputFileName);
+
+/// write the property information into the voxet header (vo-file)
+void writeVOproperty(       ofstream& file,
+                      const int& propertyCount,
+                      const CauldronProperty* cauldronProperty,
+                      const string& propertyFileName,
+                      const float& nullValue);
+
+/// write the tail of the  ascii voxet header (vo-file)
+void writeVOtail( ofstream& file);
+
 bool useBasement = true;
 bool verbose = false;
+bool singlePropertyHeader = false;
 bool debug = false;
 
 int main (int argc, char ** argv)
@@ -118,6 +134,8 @@ int main (int argc, char ** argv)
 
    float interpolatedZOrigin = 0.0;
    float interpolatedZEnd = 4500.0;
+
+   std::map<std::string, double > propertyNullValueReplaceLookup = std::map<std::string, double >();
 
    if ((argv0 = strrchr (argv[0], '/')) != 0)
    {
@@ -173,7 +191,7 @@ int main (int argc, char ** argv)
       {
          if (arg + 1 >= argc)
          {
-            showUsage ("Argument for '-snapshot' is missing");
+            showUsage ("Argument for '-origin' is missing");
             return -1;
          }
          char * c_origins = argv[++arg];
@@ -191,7 +209,7 @@ int main (int argc, char ** argv)
       {
          if (arg + 1 >= argc)
          {
-            showUsage ("Argument for '-snapshot' is missing");
+            showUsage ("Argument for '-delta' is missing");
             return -1;
          }
          char * c_deltas = argv[++arg];
@@ -209,7 +227,7 @@ int main (int argc, char ** argv)
       {
          if (arg + 1 >= argc)
          {
-            showUsage ("Argument for '-snapshot' is missing");
+            showUsage ("Argument for '-count' is missing");
             return -1;
          }
          char * c_counts = argv[++arg];
@@ -223,12 +241,34 @@ int main (int argc, char ** argv)
 	 if (c_countY) countY = atof (c_countY);
 	 if (c_countZ) countZ = atof (c_countZ);
       }
+      else if (strncmp (argv[arg], "-nullvaluereplace", Max (5, strlen (argv[arg]))) == 0){
+         if (arg + 1 >= argc)
+         {
+            showUsage ("Argument for '-nullvaluereplace' is missing");
+            return -1;
+         }
+         while (arg+1<argc && strncmp( argv[arg+1],"-",1)!=0 ){
+            char * c_nullValueReplaceOption = argv[++arg];
+            char * nullValueReplaceName;
+            char * nullValueReplaceValue;
+            char * tmp;
+            splitString (c_nullValueReplaceOption,',',nullValueReplaceName,nullValueReplaceValue,tmp);
+            if(!nullValueReplaceName || !nullValueReplaceValue){
+               showUsage ("Argument for '-nullvalueeplace' wrong format");
+               return -1;
+            }
+            propertyNullValueReplaceLookup.insert(std::pair<std::string,double>(std::string(nullValueReplaceName),
+                                                                                atof (nullValueReplaceValue)));
+         }
+
+
+      }
       else if (strncmp (argv[arg], "-debug", Max (4, strlen (argv[arg]))) == 0)
       {
          debug = true;
       }
-      else if ((strncmp (argv[arg], "-help",  Max (2, strlen (argv[arg]))) == 0) || 
-	           (strncmp (argv[arg], "-?",     Max (2, strlen (argv[arg]))) == 0) || 
+      else if ((strncmp (argv[arg], "-help",  Max (2, strlen (argv[arg]))) == 0) ||
+	           (strncmp (argv[arg], "-?",     Max (2, strlen (argv[arg]))) == 0) ||
 			   (strncmp (argv[arg], "-usage", Max (2, strlen (argv[arg]))) == 0))
       {
          showUsage (" Standard usage.");
@@ -241,6 +281,10 @@ int main (int argc, char ** argv)
       else if (strncmp (argv[arg], "-verbose", Max (4, strlen (argv[arg]))) == 0)
       {
          verbose = true;
+      }
+      else if (strncmp (argv[arg], "-singlepropertyheader", Max (4, strlen (argv[arg]))) == 0)
+      {
+         singlePropertyHeader = true;
       }
       else if (strncmp (argv[arg], "-create-spec", Max (2, strlen (argv[arg]))) == 0)
       {
@@ -297,7 +341,7 @@ int main (int argc, char ** argv)
    } else {
       // If this table is not present the assume that the last
       // fastcauldron mode was not pressure mode.
-      // This table may not be present because we are running c2e on an old 
+      // This table may not be present because we are running c2e on an old
       // project, before this table was added.
       coupledCalculationMode = false;
    }
@@ -378,6 +422,9 @@ int main (int argc, char ** argv)
 
 
    string asciiFileName = outputFileName + ".vo";
+   if(singlePropertyHeader){
+      asciiFileName = outputFileName + "_all.vo";
+   }
    string binaryFileName = outputFileName;
 
    FILE *binaryOutputFile;
@@ -425,7 +472,7 @@ int main (int argc, char ** argv)
 
    const GridDescription & gridDescription = voxetProject->getGridDescription ();
 
-   VoxetCalculator vc (projectHandle, propertyManager, voxetProject->getGridDescription ());
+   VoxetCalculator vc (projectHandle, propertyManager, voxetProject->getGridDescription (),propertyNullValueReplaceLookup);
 
    if (useBasement && verbose) cout << "Using basement" << endl;
    vc.useBasement() = useBasement;
@@ -438,41 +485,7 @@ int main (int argc, char ** argv)
 
    asciiOutputFile.flags (ios::fixed);
 
-   asciiOutputFile << "GOCAD Voxet 1.0" << endl;
-   asciiOutputFile << "HEADER" << endl;
-   asciiOutputFile << "{" << endl;
-   asciiOutputFile << "name:" << outputFileName << endl;
-   asciiOutputFile << "}" << endl;
-
-   asciiOutputFile << "GOCAD_ORIGINAL_COORDINATE_SYSTEM" << endl;
-   asciiOutputFile << "NAME Default" << endl;
-   asciiOutputFile << "AXIS_NAME \"X\" \"Y\" \"Z\" " << endl;
-   asciiOutputFile << "AXIS_UNIT \"m\" \"m\" \"m\" " << endl;
-   asciiOutputFile << "ZPOSITIVE Depth" << endl;
-   asciiOutputFile << "END_ORIGINAL_COORDINATE_SYSTEM" << endl;
-
-   asciiOutputFile << "AXIS_O "
-                   << gridDescription.getVoxetGridOrigin (0) << "  "
-                   << gridDescription.getVoxetGridOrigin (1) << "  "
-                   << gridDescription.getVoxetGridOrigin (2) << "  " << endl;
-
-
-   asciiOutputFile << "AXIS_U " << gridDescription.getVoxetGridMaximum (0) - gridDescription.getVoxetGridOrigin (0) << "  " << " 0.0  0.0 " << endl;
-   asciiOutputFile << "AXIS_V  0.0 " << gridDescription.getVoxetGridMaximum (1) - gridDescription.getVoxetGridOrigin (1) << "  " << " 0.0  " << endl;
-   asciiOutputFile << "AXIS_W 0.0 0.0  " << gridDescription.getVoxetGridMaximum (2) - gridDescription.getVoxetGridOrigin (2) << "  " << endl;
-   asciiOutputFile << "AXIS_MIN 0.0 0.0 0.0 " << endl;
-   asciiOutputFile << "AXIS_MAX 1  1  1" << endl;
-
-   asciiOutputFile << "AXIS_N "
-                   << gridDescription.getVoxetNodeCount (0) << "  "
-                   << gridDescription.getVoxetNodeCount (1) << "  " << gridDescription.getVoxetNodeCount (2) << "  " << endl;
-
-   asciiOutputFile << "AXIS_NAME \"X\" \"Y\" \"Z\" " << endl;
-   asciiOutputFile << "AXIS_UNIT \"m\" \"m\" \"m\" " << endl;
-   asciiOutputFile << "AXIS_TYPE even even even" << endl;
-
-   asciiOutputFile << endl;
-
+   writeVOheader(asciiOutputFile, gridDescription, outputFileName);
 
    CauldronPropertyList::iterator cauldronPropIter;
    for (cauldronPropIter = voxetProject->cauldronPropertyBegin (); cauldronPropIter != voxetProject->cauldronPropertyEnd (); ++cauldronPropIter)
@@ -523,28 +536,7 @@ int main (int argc, char ** argv)
 
 	 string propertyFileName = binaryFileName + "_" + (*cauldronPropIter)->getCauldronName () + "@@";
 
-         asciiOutputFile << "PROPERTY " << propertyCount << "  \"" << (*cauldronPropIter)->getVoxetName () << '"' << endl;
-         asciiOutputFile << "PROPERTY_KIND " << propertyCount << "  \"" << (*cauldronPropIter)->getVoxetName () << '"' << endl;
-	 asciiOutputFile << "PROPERTY_CLASS " << propertyCount << " \"" << (*cauldronPropIter)->getVoxetName () << '"' << endl;
-	 asciiOutputFile << "PROPERTY_CLASS_HEADER " << propertyCount << " \"" << (*cauldronPropIter)->getVoxetName () << "\" {" << endl;
-	 asciiOutputFile << "name:" << (*cauldronPropIter)->getVoxetName () << endl << "}" << endl;
-
-	 if ((*cauldronPropIter)->getCauldronName () == "Depth")
-	 {
-	    asciiOutputFile << "PROPERTY_SUBCLASS " << propertyCount << " " << "LINEARFUNCTION Float -1 0" << endl;
-	 }
-	 else
-	 {
-	    asciiOutputFile << "PROPERTY_SUBCLASS " << propertyCount << " " << "QUANTITY Float" << endl;
-	 }
-
-         asciiOutputFile << "PROP_ORIGINAL_UNIT " << propertyCount << " " << (*cauldronPropIter)->getUnits () << endl;
-         asciiOutputFile << "PROP_UNIT " << propertyCount << " " << (*cauldronPropIter)->getUnits () << endl;
-         asciiOutputFile << "PROP_ESIZE " << propertyCount << " " << sizeof (float) << endl;
-         asciiOutputFile << "PROP_ETYPE " << propertyCount << " IEEE " << endl;
-         asciiOutputFile << "PROP_NO_DATA_VALUE " << propertyCount << " " << vc.getNullValue (property) << endl;
-         asciiOutputFile << "PROP_FILE " << propertyCount << " " << propertyFileName << endl;
-	 asciiOutputFile << endl;
+         writeVOproperty(asciiOutputFile, propertyCount, *cauldronPropIter, propertyFileName, vc.getNullValue(property) );
 
          vc.computeProperty (*cauldronPropIter, interpolatedProperty, verbose);
          correctEndian (interpolatedProperty);
@@ -553,6 +545,30 @@ int main (int argc, char ** argv)
 
          if ( verbose ) {
             cout << " deleting interpolators for property: " << property->getName () << endl;
+         }
+
+         if(singlePropertyHeader){
+            ofstream asciiHeaderOutputFile;
+            string asciiHeaderFileName=outputFileName + "_" + (*cauldronPropIter)->getCauldronName ()+".vo";
+
+            asciiHeaderOutputFile.open (asciiHeaderFileName.c_str ());
+
+            if (asciiHeaderOutputFile.fail ())
+            {
+               cerr << "Could not open output file " << asciiHeaderFileName << endl;
+               return -1;
+            }
+
+            asciiHeaderOutputFile.flags (ios::fixed);
+
+            writeVOheader(asciiHeaderOutputFile, gridDescription, outputFileName);
+
+            writeVOproperty(asciiHeaderOutputFile, 1, *cauldronPropIter, propertyFileName, vc.getNullValue(property) );
+
+            writeVOtail(asciiHeaderOutputFile);
+
+            asciiHeaderOutputFile.close ();
+
          }
 
          vc.deleteProperty (property);
@@ -565,7 +581,7 @@ int main (int argc, char ** argv)
    {
       cout << endl;
    }
-
+   writeVOtail(asciiOutputFile);
    asciiOutputFile.close ();
    CloseCauldronProject (projectHandle);
    delete factory;
@@ -593,26 +609,30 @@ void showUsage (const char * message)
 	 << "                  [-count <countX>,<countY>,<countZ>]" << endl
          << "                  [-output <output-file-name>]" << endl
          << "                  [-create-spec <spec-file>]" << endl
+         << "                  [-nullvaluereplace <PropertyName,Value> [<PropertyName,Value>] [...]]" << endl
          << "                  [-nobasement]" << endl
+         << "                  [-propertyHeader]" << endl
          << "                  [-verbose]" << endl
          << "                  [-help]" << endl
          << "                  [-?]" << endl
          << "                  [-usage]" << endl
          << endl
-         << "    -project           The cauldron project file." << endl
-         << "    -spec              Use the specified spec file. Use a standard spec file if missing." << endl
-         << "    -snapshot          Use the specified snapshot age. Not valid in conjunction with '-spec'," << endl
-	 << "    -origin            Use the specified coordinates as the origin of the sample cube" << endl
-	 << "    -delta             Use the specified values as the sampling distance in the x, y and z direction" << endl
-	 << "    -count             Use the specified values as the number of samples in the x, y and z direction" << endl
-         << "    -output            Output voxet file-name, MUST NOT contain the .vo extension, this will be added." << endl
-         << "    -create-spec       Write a standard spec file into the specified file name," << endl
-         << "                       the cauldron project file must also be specified." << endl
-         << "    -nobasement        Ignore basement layers." << endl
-         << "    -verbose           Generate some extra output." << endl
-         << "    -help              Print this message." << endl
-         << "    -?                 Print this message." << endl
-         << "    -usage             Print this message." << endl << endl;
+         << "    -project              The cauldron project file." << endl
+         << "    -spec                 Use the specified spec file. Use a standard spec file if missing." << endl
+         << "    -snapshot             Use the specified snapshot age. Not valid in conjunction with '-spec'," << endl
+	 << "    -origin               Use the specified coordinates as the origin of the sample cube" << endl
+	 << "    -delta                Use the specified values as the sampling distance in the x, y and z direction" << endl
+	 << "    -count                Use the specified values as the number of samples in the x, y and z direction" << endl
+         << "    -output               Output voxet file-name, MUST NOT contain the .vo extension, this will be added." << endl
+         << "    -create-spec          Write a standard spec file into the specified file name," << endl
+         << "                          the cauldron project file must also be specified." << endl
+         << "    -nullvaluereplace     Replace null values of the property by a given value." << endl
+         << "    -nobasement           Ignore basement layers." << endl
+         << "    -singlepropertyheader Writes one header file for each property. (additional to the multiple property header-file)" << endl
+         << "    -verbose              Generate some extra output." << endl
+         << "    -help                 Print this message." << endl
+         << "    -?                    Print this message." << endl
+         << "    -usage                Print this message." << endl << endl;
    exit (-1);
 }
 
@@ -654,7 +674,7 @@ float correctEndian ( const float x ) {
    result.bytes [ 1 ] = bc.bytes [ 2 ];
    result.bytes [ 2 ] = bc.bytes [ 1 ];
    result.bytes [ 3 ] = bc.bytes [ 0 ];
-   
+
    return result.value;
 }
 
@@ -694,7 +714,7 @@ bool splitString (char * string, char separator, char * & firstPart, char * & se
    tail = strchr (firstPart, separator);
 
    if (tail == 0) return false;
-   
+
    if (tail == firstPart) firstPart = 0;
 
    * tail = '\0';
@@ -707,7 +727,7 @@ bool splitString (char * string, char separator, char * & firstPart, char * & se
    tail = strchr (secondPart, separator);
 
    if (tail == 0) return false;
-   
+
    if (tail == secondPart) secondPart = 0;
 
    * tail = '\0';
@@ -727,7 +747,7 @@ double selectDefined (double undefinedValue, double preferred, double alternativ
 }
 
 
-void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject, 
+void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
                               DerivedProperties::DerivedPropertyManager& propertyManager,
                               ostream &outputStream, const Snapshot * snapshot )
 {
@@ -808,7 +828,7 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
 
    record = table->createRecord ();
    database::setSnapshotTime ( record, snapshot->getTime () );
-   
+
    //------------------------------------------------------------//
 
    const Property *depthProperty = cauldronProject->findProperty ("Depth");
@@ -841,7 +861,7 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
       cerr << " Depth property for bottom surface " << bottomSurface->getName () << " at snapshot " << snapshot->getTime () << " is not available." << endl;
       return;
    }
-   
+
    Interface::SurfaceList::iterator surfaceIter;
    for ( surfaceIter = surfaces->begin (); topDepthGridMap == 0 && surfaceIter != surfaces->end (); ++surfaceIter )
    {
@@ -896,4 +916,78 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
 
    // Now write the stream to stdout.
    database->saveToStream ( outputStream );
+}
+
+void writeVOheader(       ofstream& file,
+                    const GridDescription & gridDescription,
+                    const string& outputFileName){
+
+   file << "GOCAD Voxet 1.0" << endl;
+   file << "HEADER" << endl;
+   file << "{" << endl;
+   file << "name:" << outputFileName << endl;
+   file << "}" << endl;
+
+   file << "GOCAD_ORIGINAL_COORDINATE_SYSTEM" << endl;
+   file << "NAME Default" << endl;
+   file << "AXIS_NAME \"X\" \"Y\" \"Z\" " << endl;
+   file << "AXIS_UNIT \"m\" \"m\" \"m\" " << endl;
+   file << "ZPOSITIVE Depth" << endl;
+   file << "END_ORIGINAL_COORDINATE_SYSTEM" << endl;
+
+   file << "AXIS_O "
+                   << gridDescription.getVoxetGridOrigin (0) << "  "
+                   << gridDescription.getVoxetGridOrigin (1) << "  "
+                   << gridDescription.getVoxetGridOrigin (2) << "  " << endl;
+
+
+   file << "AXIS_U " << gridDescription.getVoxetGridMaximum (0) - gridDescription.getVoxetGridOrigin (0) << "  " << " 0.0  0.0 " << endl;
+   file << "AXIS_V  0.0 " << gridDescription.getVoxetGridMaximum (1) - gridDescription.getVoxetGridOrigin (1) << "  " << " 0.0  " << endl;
+   file << "AXIS_W 0.0 0.0  " << gridDescription.getVoxetGridMaximum (2) - gridDescription.getVoxetGridOrigin (2) << "  " << endl;
+   file << "AXIS_MIN 0.0 0.0 0.0 " << endl;
+   file << "AXIS_MAX 1  1  1" << endl;
+
+   file << "AXIS_N "
+                   << gridDescription.getVoxetNodeCount (0) << "  "
+                   << gridDescription.getVoxetNodeCount (1) << "  "
+                   << gridDescription.getVoxetNodeCount (2) << "  " << endl;
+
+   file << "AXIS_NAME \"X\" \"Y\" \"Z\" " << endl;
+   file << "AXIS_UNIT \"m\" \"m\" \"m\" " << endl;
+   file << "AXIS_TYPE even even even" << endl;
+
+   file << endl;
+}
+
+void writeVOproperty(       ofstream& file,
+                      const int& propertyCount,
+                      const CauldronProperty* cauldronProperty,
+                      const string& propertyFileName,
+                      const float& nullValue){
+   file << "PROPERTY " << propertyCount << "  \"" << cauldronProperty->getVoxetName () << '"' << endl;
+   file << "PROPERTY_KIND " << propertyCount << "  \"" << cauldronProperty->getVoxetName () << '"' << endl;
+   file << "PROPERTY_CLASS " << propertyCount << " \"" << cauldronProperty->getVoxetName () << '"' << endl;
+   file << "PROPERTY_CLASS_HEADER " << propertyCount << " \"" << cauldronProperty->getVoxetName () << "\" {" << endl;
+   file << "name:" << cauldronProperty->getVoxetName () << endl << "}" << endl;
+
+   if (cauldronProperty->getCauldronName () == "Depth")
+   {
+      file << "PROPERTY_SUBCLASS " << propertyCount << " " << "LINEARFUNCTION Float -1 0" << endl;
+   }
+   else
+   {
+      file << "PROPERTY_SUBCLASS " << propertyCount << " " << "QUANTITY Float" << endl;
+   }
+
+   file << "PROP_ORIGINAL_UNIT " << propertyCount << " " << cauldronProperty->getUnits () << endl;
+   file << "PROP_UNIT " << propertyCount << " " << cauldronProperty->getUnits () << endl;
+   file << "PROP_ESIZE " << propertyCount << " " << sizeof (float) << endl;
+   file << "PROP_ETYPE " << propertyCount << " IEEE " << endl;
+   file << "PROP_NO_DATA_VALUE " << propertyCount << " " << nullValue << endl;
+   file << "PROP_FILE " << propertyCount << " " << propertyFileName << endl;
+   file << endl;
+}
+
+void writeVOtail( ofstream& file){
+   file << "END"<<endl;
 }
