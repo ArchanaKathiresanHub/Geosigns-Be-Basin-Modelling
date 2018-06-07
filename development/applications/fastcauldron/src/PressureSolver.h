@@ -101,7 +101,11 @@ public :
    static int getMaximumNumberOfNonlinearIterations ( const int optimisationLevel );
 
    /// The tolerance for the linear solver.
-   double linearSolverTolerance ( const int Optimisation_Level ) const;
+   double getLinearSolverTolerance ( const int Optimisation_Level ) const;
+
+   /// \brief Set the tolerance for the linear solver.
+   static void setLinearSolverTolerance ( const int    optimisationLevel,
+                                          const double newTolerance );
 
    /// Used in the geometric loop for overpressure and coupled calculations.
    ///
@@ -135,6 +139,10 @@ public :
    static void setNewtonSolverTolerance ( const int    optimisationLevel,
                                           const double newTolerance );
 
+   static void setNewtonSolverTolerance ( const int    optimisationLevel,
+                                          const int    glIterationNumber,
+                                          const double newTolerance );
+
    static int getIterationsForIluFillLevelIncrease ( const int optimisationLevel,
                                                      const int currentIluFillLevel );
 
@@ -159,6 +167,7 @@ protected :
 
    static int s_numberOfIterations [ NumberOfOptimisationLevels ];
 
+   static double s_linearSolverTolerances [ NumberOfOptimisationLevels ];
 
    void initialiseFctCorrection ();
 

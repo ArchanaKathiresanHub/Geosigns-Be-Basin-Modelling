@@ -124,14 +124,21 @@ public:
   PetscScalar Maximum_Temperature_Difference_In_Source_Rocks ();
 
 
-  ///
-  /// The maximum number of Newton iterations that can be performed in the
-  /// temperature calculation. It is dependant on the user selecting to do a
-  /// nonlinear temperature calculation and the optimisation level.
-  ///
-  int maximumNumberOfNonlinearIterations ( const int optimisationLevel ) const;
+  /// \brief The maximum number of Newton iterations that can be performed in the non-linear temperature calculation.
+  int getMaximumNumberOfNonlinearIterations ( const int optimisationLevel ) const;
 
-  double linearSolverTolerance ( const int Optimisation_Level ) const;
+  /// \brief Get the tolerance for the non-linear temperature solver.
+  double getNewtonSolverTolerance ( const int optimisationLevel ) const;
+
+  static void setNewtonSolverTolerance ( const int    optimisationLevel,
+                                         const double newTolerance );
+
+  /// \brief Get the tolerance for the linear solver.
+  double getLinearSolverTolerance ( const int Optimisation_Level ) const;
+
+  /// \brief Get the tolerance for the linear solver.
+  static void setLinearSolverTolerance ( const int    optimisationLevel,
+                                         const double newTolerance );
 
 
   int getPlaneQuadratureDegree ( const int optimisationLevel ) const;
@@ -199,11 +206,13 @@ private:
                                 BoundaryConditions&   bcs ) const;
 
   static int PlaneQuadratureDegrees [ NumberOfOptimisationLevels ];
-
   static int DepthQuadratureDegrees [ NumberOfOptimisationLevels ];
 
+  static int    s_numberOfNonlinearIterations [ NumberOfOptimisationLevels ];
+  static double s_nonlinearSolverTolerance    [ NumberOfOptimisationLevels ];
+  static double s_linearSolverTolerances      [ NumberOfOptimisationLevels ];
 
-   AppCtx*        Basin_Model;
+  AppCtx*        Basin_Model;
 
   SmectiteIlliteCalculator m_SmectiteIlliteCalculator;
   BiomarkersCalculator m_BiomarkersCalculator;

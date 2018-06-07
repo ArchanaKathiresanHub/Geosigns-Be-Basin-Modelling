@@ -53,7 +53,11 @@ int Temperature_Solver::PlaneQuadratureDegrees [ NumberOfOptimisationLevels ] = 
 
 int Temperature_Solver::DepthQuadratureDegrees [ NumberOfOptimisationLevels ] = { 2, 2, 2, 3, 4 };
 
+int Temperature_Solver::s_numberOfNonlinearIterations [ NumberOfOptimisationLevels ] = { 10, 10, 10, 12, 15 };
 
+double Temperature_Solver::s_nonlinearSolverTolerance [ NumberOfOptimisationLevels ] = { 1.0e-5, 1.0e-5, 1.0e-5, 1.0e-6, 1.0e-7 };
+
+double Temperature_Solver::s_linearSolverTolerances [ NumberOfOptimisationLevels ] = { 1.0e-6, 1.0e-6, 1.0e-6, 5.0e-8, 1.0e-9 };
 
 //------------------------------------------------------------//
 
@@ -947,22 +951,32 @@ void Temperature_Solver::setDepthQuadratureDegree ( const int optimisationLevel,
 
 //------------------------------------------------------------//
 
-
-int Temperature_Solver::maximumNumberOfNonlinearIterations ( const int optimisationLevel ) const {
-
-  static const int Number_Of_Iterations [ 5 ] = { 1, 2, 5, 5, 5 };
-
-  return Number_Of_Iterations [ optimisationLevel - 1 ];
+int Temperature_Solver::getMaximumNumberOfNonlinearIterations ( const int optimisationLevel ) const {
+   return s_numberOfNonlinearIterations [ optimisationLevel - 1 ];
 }
 
 //------------------------------------------------------------//
 
-double Temperature_Solver::linearSolverTolerance ( const int optimisationLevel ) const {
+double Temperature_Solver::getNewtonSolverTolerance ( const int optimisationLevel ) const {
+   return s_nonlinearSolverTolerance [ optimisationLevel - 1 ];
+}
 
-  static const double linearSolverTolerances [ 5 ] = { 1.0e-6, 1.0e-6, 1.0e-6, 1.0e-6, 1.0e-7 };
+//------------------------------------------------------------//
 
-  return linearSolverTolerances [ optimisationLevel - 1 ];
+void Temperature_Solver::setNewtonSolverTolerance ( const int    optimisationLevel,
+                                                    const double newTolerance ) {
+   s_nonlinearSolverTolerance [ optimisationLevel - 1 ] = newTolerance;
+}
 
+//------------------------------------------------------------//
+
+double Temperature_Solver::getLinearSolverTolerance ( const int optimisationLevel ) const {
+  return s_linearSolverTolerances [ optimisationLevel - 1 ];
+}
+
+void Temperature_Solver::setLinearSolverTolerance ( const int    optimisationLevel,
+                                                    const double newTolerance ) {
+   s_linearSolverTolerances [ optimisationLevel - 1 ] = newTolerance;
 }
 
 

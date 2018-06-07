@@ -199,9 +199,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   Origin_X = grid.originI;
   Origin_Y = grid.originJ;
 
-  Pressure_Newton_Solver_Tolerance = 1.0e-5;
-  Temperature_Newton_Solver_Tolerance = 1.0e-5;
-
   Element_Assembly_Time = 0.0;
   System_Assembly_Time = 0.0;
   System_Solve_Time = 0.0;
@@ -409,7 +406,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   genexOutputProperties.push_back ( TEMPERATURE );
   genexOutputProperties.push_back ( VES );
   genexOutputProperties.push_back ( VR );
-  if (not Application_Context->primaryOutput()) { 
+  if (not Application_Context->primaryOutput()) {
      genexOutputProperties.push_back ( EROSIONFACTOR );
   }
 
@@ -1220,7 +1217,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   numberOfGeom
 void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasDiverged,
                                                            bool& errorInDarcy ) {
 
-  const int MaximumNumberOfNonlinearIterations = Temperature_Calculator.maximumNumberOfNonlinearIterations ( basinModel->Optimisation_Level );
+  const int MaximumNumberOfNonlinearIterations = Temperature_Calculator.getMaximumNumberOfNonlinearIterations ( basinModel->Optimisation_Level );
 
   SnapshotInterval interval;
 
@@ -1259,7 +1256,8 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
 
   timeStep = basinModel->getInitialTimeStep ( currentTime );
 
-  Temperature_Newton_Solver_Tolerance = 1.0e-5;
+  Temperature_Newton_Solver_Tolerance = Temperature_Calculator.getNewtonSolverTolerance ( basinModel->Optimisation_Level );
+
   temperatureHasDiverged = false;
   errorInDarcy = false;
 
@@ -1389,7 +1387,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   numberOfGeome
                                                              bool& errorInDarcy ) {
 
   const int maximumNumberOfNonlinearPressureIterations    = pressureSolver->getMaximumNumberOfNonlinearIterations ( basinModel->Optimisation_Level );
-  const int maximumNumberOfNonlinearTemperatureIterations = Temperature_Calculator.maximumNumberOfNonlinearIterations ( basinModel->Optimisation_Level );
+  const int maximumNumberOfNonlinearTemperatureIterations = Temperature_Calculator.getMaximumNumberOfNonlinearIterations ( basinModel->Optimisation_Level );
 
   int maximumNumberOfOverpressureIterations;
   int numberOfNewtonIterations = -1;
@@ -1430,7 +1428,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   numberOfGeome
 
   hasDiverged = false;
   errorInDarcy = false;
-  Temperature_Newton_Solver_Tolerance = 1.0e-5;
+  Temperature_Newton_Solver_Tolerance = Temperature_Calculator.getNewtonSolverTolerance ( basinModel->Optimisation_Level );
   Pressure_Newton_Solver_Tolerance = pressureSolver->getNewtonSolverTolerance ( basinModel->Optimisation_Level,
                                                                                 basinModel->isGeometricLoop (),
                                                                                 numberOfGeometricIterations );
@@ -2235,7 +2233,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
   PetscScalar Solution_Length = 0.0;
   PetscReal   linearSolverResidualNorm;
 
-  boost::shared_ptr<PetscSolver> pressureLinearSolver ( new PetscCG ( pressureSolver->linearSolverTolerance ( basinModel->Optimisation_Level ),
+  boost::shared_ptr<PetscSolver> pressureLinearSolver ( new PetscCG ( pressureSolver->getLinearSolverTolerance ( basinModel->Optimisation_Level ),
                                                                       PressureSolver::DefaultMaximumPressureLinearSolverIterations ));
   pressureLinearSolver->loadCmdLineOptions();
 
@@ -2717,11 +2715,11 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
 
   if (isSteadyStateCalculation || strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)
   {
-     temperatureLinearSolver.reset ( new PetscCG ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level )));
+     temperatureLinearSolver.reset ( new PetscCG ( Temperature_Calculator.getLinearSolverTolerance ( basinModel->Optimisation_Level )));
   }
   else
   {
-     temperatureLinearSolver.reset ( new PetscGMRES ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
+     temperatureLinearSolver.reset ( new PetscGMRES ( Temperature_Calculator.getLinearSolverTolerance ( basinModel->Optimisation_Level ),
                                                       basinModel->Temperature_GMRes_Restart ));
   }
 
@@ -2975,11 +2973,11 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
 
   if ( strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)
   {
-     temperatureLinearSolver.reset ( new PetscCG ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level )));
+     temperatureLinearSolver.reset ( new PetscCG ( Temperature_Calculator.getLinearSolverTolerance ( basinModel->Optimisation_Level )));
   }
   else
   {
-     temperatureLinearSolver.reset ( new PetscGMRES ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
+     temperatureLinearSolver.reset ( new PetscGMRES ( Temperature_Calculator.getLinearSolverTolerance ( basinModel->Optimisation_Level ),
                                                       basinModel->Temperature_GMRes_Restart ));
   }
 
@@ -3068,7 +3066,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
      mapping.getSolution ( Temperature );
 
      // Switch linear solver to GMRes with a sufficiently large restart value.
-     temperatureLinearSolver.reset ( new PetscGMRES ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
+     temperatureLinearSolver.reset ( new PetscGMRES ( Temperature_Calculator.getLinearSolverTolerance ( basinModel->Optimisation_Level ),
                                                       basinModel->Temperature_GMRes_Restart ));
 
      // Tell the linear solver that the initial guess is not the zero vector.
@@ -3568,7 +3566,7 @@ void Basin_Modelling::FEM_Grid::Initialise_Basin_Temperature ( bool& temperature
   m_temperatureComputationalDomain.resetAge ( basinModel->Crust ()->depoage );
   Solve_Nonlinear_Temperature_For_Time_Step ( currentTime,
                                               FastcauldronSimulator::getInstance ().getAgeOfBasin (),
-                                              10,
+                                              Temperature_Calculator.getMaximumNumberOfNonlinearIterations ( basinModel->Optimisation_Level ),
                                               true, // steady state calculation.
                                               temperatureHasDiverged,
                                               numberOfNewtonIterations,

@@ -68,6 +68,9 @@ int PressureSolver::s_iterationsForiluFillLevelIncrease [ NumberOfOptimisationLe
 
 int PressureSolver::s_numberOfIterations [ NumberOfOptimisationLevels ] = { 8, 12, 15, 20, 30 };
 
+double PressureSolver::s_linearSolverTolerances [ NumberOfOptimisationLevels ] = { 1.0e-5, 1.0e-5, 1.0e-5, 1.0e-6, 1.0e-7 };
+
+
 double PressureSolver::NewtonSolverTolerances [ NumberOfOptimisationLevels ][ 3 ] = {{ 1.0e-2, 1.0e-2, 1.0e-2 },
                                                                                      { 1.0e-2, 1.0e-3, 1.0e-3 },
                                                                                      { 1.0e-2, 1.0e-3, 1.0e-3 },
@@ -226,8 +229,10 @@ PetscScalar PressureSolver::maximumPressureDifference () {
 
   PetscScalar Maximum_Difference = -1.0e10;
   PetscScalar Maximum_Layer_Difference;
+  int maximumLocation;
 
   Layers.Initialise_Iterator ( cauldron->layers, Descending, Sediments_Only, Active_Layers_Only );
+
 
   while ( ! Layers.Iteration_Is_Done ()) {
     Current_Layer = Layers.Current_Layer ();
@@ -237,6 +242,7 @@ PetscScalar PressureSolver::maximumPressureDifference () {
     //
     DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
+
     Current_Overpressure  = Current_Layer->Current_Properties  ( Basin_Modelling::Overpressure );
     Previous_Overpressure = Current_Layer->Previous_Properties ( Basin_Modelling::Overpressure );
 
@@ -244,10 +250,18 @@ PetscScalar PressureSolver::maximumPressureDifference () {
 
     VecWAXPY( Pressure_Difference, NegOne, Previous_Overpressure, Current_Overpressure );
     VecAbs( Pressure_Difference );
-    VecMax( Pressure_Difference,PETSC_NULL,&Maximum_Layer_Difference );
+    VecMax( Pressure_Difference, &maximumLocation, &Maximum_Layer_Difference );
     Destroy_Petsc_Vector( Pressure_Difference );
 
     Maximum_Difference = PetscMax ( Maximum_Difference, Maximum_Layer_Difference );
+
+    if ( cauldron->debug1 or cauldron->verbose ) {
+       PetscPrintf ( PETSC_COMM_WORLD, "Maximum difference for layer: %s   %9.4f   %9.4f  %i \n",
+                     Current_Layer->layername.c_str (),
+                     Maximum_Layer_Difference,
+                     Maximum_Difference,
+                     maximumLocation );
+    }
 
     Layers++;
   }
@@ -375,7 +389,7 @@ PetscScalar PressureSolver::maximumPressureDifference2 () {
 
     localMaximumPressureDifference = NumericFunctions::Maximum ( localMaximumPressureDifference, maximumLayerPressureDifference );
 
-    if ( cauldron->debug2 ) {
+    if ( true or cauldron->debug2 ) {
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD, " Maximum difference for layer: %d  %s   %d %d %d   %3.4f %3.4f %3.4f \n",
                                 FastcauldronSimulator::getInstance ().getRank (),
                                 currentLayer -> layername.c_str (),
@@ -590,12 +604,23 @@ void PressureSolver::setNewtonSolverTolerance ( const int    optimisationLevel,
 
 //------------------------------------------------------------//
 
-double PressureSolver::linearSolverTolerance ( const int optimisationLevel ) const {
+void PressureSolver::setNewtonSolverTolerance ( const int    optimisationLevel,
+                                                const int    glIterationNumber,
+                                                const double newTolerance ) {
+  NewtonSolverTolerances [ optimisationLevel - 1 ][ glIterationNumber - 1 ] = newTolerance;
+}
 
-  static const double LinearSolverTolerances [ NumberOfOptimisationLevels ] = { 1.0e-5, 1.0e-5, 1.0e-5, 1.0e-6, 1.0e-7 };
+//------------------------------------------------------------//
 
-  return LinearSolverTolerances [ optimisationLevel - 1 ];
+double PressureSolver::getLinearSolverTolerance ( const int optimisationLevel ) const {
+  return s_linearSolverTolerances [ optimisationLevel - 1 ];
+}
 
+//------------------------------------------------------------//
+
+void PressureSolver::setLinearSolverTolerance ( const int    optimisationLevel,
+                                                const double newTolerance ) {
+   s_linearSolverTolerances [ optimisationLevel - 1 ] = newTolerance;
 }
 
 //------------------------------------------------------------//

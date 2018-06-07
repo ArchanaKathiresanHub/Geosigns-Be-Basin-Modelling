@@ -189,6 +189,23 @@ constexpr double Dirichlet_Scaling_Value = 1.0e25;
 /// The number of optimisation levels that have been defined.
 constexpr int NumberOfOptimisationLevels = 5;
 
+/// \brief The default maximum number of iterations of the non-linear solver for the pressure.
+constexpr int DefaultMaximumNumberOfNonlinearIterations = 25;
+
+/// \brief The default non-linear solver tolerance for the pressure.
+///
+/// For the first 3 iterations of the geometric loop.
+/// The non-geometric loop method will use the value for the third iteration.
+constexpr double DefaultPressureNewtonSolverToleranceFirstIteration = 5.0e-4;
+constexpr double DefaultPressureNewtonSolverToleranceSecondIteration = 1.0e-4;
+constexpr double DefaultPressureNewtonSolverToleranceThirdIteration = 1.0e-5;
+
+/// \brief Default linear solver tolerance.
+constexpr double DefaultLinearSolverTolerance = 5.0e-8;
+
+/// \brief The default maximum number of iterations of the non-linear solver for the temperature.
+constexpr double DefaultTemperatureNewtonSolverTolerance = 1.0e-6;
+
 //------------------------------------------------------------//
 // Naming constants
 

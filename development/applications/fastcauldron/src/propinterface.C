@@ -507,6 +507,7 @@ void AppCtx::printHelp () const {
   helpBuffer << "    -nohdfoutput                Do not output any data at snapshot times." << endl;
   helpBuffer << "    -nonlintol <tol>            Over-ride the tolerance of the pressure Newton solver, tol > 0.0." << endl;
   helpBuffer << "    -nonlinits <n>              Over-ride the maximum number of iterations used in the pressure Newton solver, n > 0." << endl;
+  helpBuffer << "    -newtolerances              Use tighter tolerances for linear and non-linear solver for both pressure and temperature and maximum number of Newton iterations for the pressure." << endl;
 
   helpBuffer << "    -glfctweight <lambda>       The weighting of the current and previous fct-correction factors, lambda \\in (0,1], default: 1." << endl;
 
@@ -857,6 +858,20 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscBool mantleElementScalingChanged = PETSC_FALSE;
    double     mantleElementScaling;
 
+   PetscBool setNewTolerances = PETSC_FALSE;
+
+   PetscOptionsHasName ( PETSC_NULL, "-newtolerances", &setNewTolerances );
+
+   if ( setNewTolerances ) {
+      PressureSolver::setMaximumNumberOfNonlinearIterations ( Optimisation_Level, DefaultMaximumNumberOfNonlinearIterations );
+      PressureSolver::setNewtonSolverTolerance ( Optimisation_Level, 1, DefaultPressureNewtonSolverToleranceFirstIteration );
+      PressureSolver::setNewtonSolverTolerance ( Optimisation_Level, 2, DefaultPressureNewtonSolverToleranceSecondIteration );
+      PressureSolver::setNewtonSolverTolerance ( Optimisation_Level, 3, DefaultPressureNewtonSolverToleranceThirdIteration );
+      PressureSolver::setLinearSolverTolerance ( Optimisation_Level, DefaultLinearSolverTolerance );
+
+      Temperature_Solver::setNewtonSolverTolerance ( Optimisation_Level, DefaultTemperatureNewtonSolverTolerance );
+      Temperature_Solver::setLinearSolverTolerance ( Optimisation_Level, DefaultLinearSolverTolerance );
+   }
 
    PetscOptionsGetString (PETSC_NULL, "-lateralstress", lateralStressFileName, MaxLineSize, &hasLateralStressFile );
    PetscOptionsGetInt  ( PETSC_NULL, "-pressplanequadrature", &pressurePlaneDegree, &pressurePlaneDegreeChanged );
@@ -1029,6 +1044,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
     }
 
   }
+
 
   if ( m_burialRateTimeStepping and not newtonToleranceChanged ) {
      PressureSolver::setNewtonSolverTolerance ( Optimisation_Level, 0.1 * PressureSolver::getNewtonSolverTolerance ( Optimisation_Level, false, 3 ));
