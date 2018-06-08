@@ -953,10 +953,7 @@ namespace migration
       // if node is not valid, skip the calculations
       if (!IsValid (this))
       {
-         if (phase == GAS)
-            m_isCrestVapour = false;
-         else
-            m_isCrestLiquid = false;
+         unsetCrestFlag (phase);
          return false;
       }
 
@@ -968,6 +965,14 @@ namespace migration
       {
          int neighbourI = getI () + NeighbourOffsets2D[n][I];
          int neighbourJ = getJ () + NeighbourOffsets2D[n][J];
+
+         // Node at the edge of the grid. Can't be crest
+         if (neighbourI < 0 or neighbourJ < 0)
+         {
+            unsetCrestFlag (phase);
+            return false;
+         }
+
          FormationNode * neighbourNode = m_formation->getFormationNode (neighbourI, neighbourJ, top);
 
          if (!IsValid (neighbourNode))
@@ -982,10 +987,7 @@ namespace migration
             {
                // neighbour corner node either undefined (genuine edge case)
                // or at a smaller depth than corner node of 'this' element
-               if (phase == GAS)
-                  m_isCrestVapour = false;
-               else
-                  m_isCrestLiquid = false;
+               unsetCrestFlag (phase);
                return false;
             }
          }
@@ -1015,10 +1017,7 @@ namespace migration
          else if (isDeeperThan (neighbourNode))
          {
             // neighbour is shallower 
-            if (phase == GAS)
-               m_isCrestVapour = false;
-            else
-               m_isCrestLiquid = false;
+            unsetCrestFlag (phase);
             return false;
          }
       }
@@ -1030,6 +1029,14 @@ namespace migration
          return (m_isCrestLiquid and getReservoirLiquid ());
 
    };
+
+   void LocalFormationNode::unsetCrestFlag (const PhaseId phase)
+   {
+      if (phase == GAS)
+         m_isCrestVapour = false;
+      else
+         m_isCrestLiquid = false;
+   }
 
    /// compareDepths returns -1 if this is shallower, 0 if equally deep and 1 if this is deeper
    /// Also used to break the tie between columns with equal top depth

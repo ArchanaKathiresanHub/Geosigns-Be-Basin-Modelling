@@ -341,6 +341,8 @@ namespace migration
 
    private:
 
+      void unsetCrestFlag (const PhaseId phase);
+
       FormationNode *m_targetFormationNode;
 
 #ifdef REGISTERPROXIES
