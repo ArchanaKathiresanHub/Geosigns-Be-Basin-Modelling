@@ -31,13 +31,14 @@
 
 using namespace CauldronIO;
 
-CauldronIO::ExportToHDF::ExportToHDF(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle* projectHandle )
-   : m_fullPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_basement(includeBasement), m_projectHandle( projectHandle )
+CauldronIO::ExportToHDF::ExportToHDF(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle* projectHandle, AbstractPropertiesCalculator * propCalculator)
+   : m_fullPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_basement(includeBasement), m_projectHandle( projectHandle ), m_propCalculator( propCalculator )
+ 
 {
     m_fullPath << relPath.path();
 }
 
-bool CauldronIO::ExportToHDF::exportToHDF(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle* projectHandle)
+bool CauldronIO::ExportToHDF::exportToHDF(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle* projectHandle, AbstractPropertiesCalculator * propCalculator)
 {
    H5Eset_auto( H5E_DEFAULT, 0, 0);
 
@@ -54,7 +55,7 @@ bool CauldronIO::ExportToHDF::exportToHDF(std::shared_ptr<Project>& project, con
       ibs::FolderPath(folderPath.path()).create();
    }
    
-   ExportToHDF newExport(outputPath.filePath(), filenameNoExtension, numThreads, includeBasement, projectHandle);
+   ExportToHDF newExport(outputPath.filePath(), filenameNoExtension, numThreads, includeBasement, projectHandle, propCalculator);
    
    // Create xml property tree and write datastores
    newExport.addProject(project);
@@ -405,8 +406,8 @@ void CauldronIO::ExportToHDF::writeContVolToHDF( const std::shared_ptr<SnapShot>
             std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
             std::string pname = propVolume.first->getName();
 
-            // Pressure and Ves are not calculated for the basement
-            if( (pname == "Pressure" or pname == "Ves")  and  (name == "Crust" or name == "Mantle" )) {
+            // Check if the property was calculated for the basement
+            if ((name == "Crust" or name == "Mantle" ) and not m_propCalculator->allowBasementOutput(pname)) {
                continue;
             }
 

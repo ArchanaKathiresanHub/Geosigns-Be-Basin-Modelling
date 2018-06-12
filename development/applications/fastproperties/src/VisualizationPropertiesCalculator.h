@@ -123,13 +123,16 @@ private:
    /// \brief Returns true
    bool getProperiesActivity() const;
 
+   /// \brief Acquire property names for a given property type attribute
+   void acquireAttributeProperties (DataModel::PropertyOutputAttribute outputAttribute);
+
 public:
 
    bool parseCommandLine(int argc, char ** argv);
 
    void calculateProperties( FormationSurfaceVector& formationItems, Interface::PropertyList properties, Interface::SnapshotList & snapshots );
    
-   /// \brief Acquire a property names for a given property type attribute
+   /// \brief Acquire property names for a simulator (if defined)
    void acquireSimulatorProperties();
 
    /// \brief Acquire the names of the existing properties in the XML file

@@ -330,21 +330,39 @@ void VisualizationPropertiesCalculator::writeToHDF() {
 
    cout << "Writing to HDF from visualization format " << m_fileNameXml << endl;
 
-   CauldronIO::ExportToHDF::exportToHDF(vizProject, m_fileNameXml, 1, m_basement, m_projectHandle);
+   CauldronIO::ExportToHDF::exportToHDF(vizProject, m_fileNameXml, 1, m_basement, m_projectHandle, this);
 }
 
 //------------------------------------------------------------//
-void VisualizationPropertiesCalculator::acquireSimulatorProperties() {
+void VisualizationPropertiesCalculator::acquireAttributeProperties (DataModel::PropertyOutputAttribute outputAttribute) {
+
+   Interface::PropertyListPtr simProperties = m_projectHandle->getProperties(outputAttribute);
+   for (size_t i = 0; i < simProperties->size (); ++i) 
+   {
+      const Interface::Property* property = (*simProperties)[ i ];
+      
+      m_propertyNames.push_back(property->getName());
+      LogHandler(LogHandler::DEBUG_SEVERITY) << "   #" << property->getName();
+   }
+}
+
+//------------------------------------------------------------//
+void VisualizationPropertiesCalculator::acquireSimulatorProperties () {
    
    if (m_attribute != DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE and m_propertyNames.empty()) 
    {
-      Interface::PropertyListPtr simProperties = m_projectHandle->getProperties(m_attribute);
-      for (size_t i = 0; i < simProperties->size (); ++i) 
-      {
-         const Interface::Property* property = (*simProperties)[ i ];
+      acquireAttributeProperties (m_attribute);
+      
+      // add genex properties if the last fastcauldron simulation was Darcy
+      if (m_attribute == DataModel::FASTCAULDRON_PROPERTY)
+      { 
+         // check for Darcy
+         const std::string& commLine = m_projectHandle->getDetailsOfLastSimulation ("fastcauldron")->getSimulatorCommandLineParameters();
          
-         m_propertyNames.push_back(property->getName());
-         LogHandler(LogHandler::DEBUG_SEVERITY) << "   #" << property->getName();
+         if (commLine.find ("-mcf") != string::npos)
+         {
+            acquireAttributeProperties (DataModel::FASTGENEX_PROPERTY);
+         }
       }
    }
 }

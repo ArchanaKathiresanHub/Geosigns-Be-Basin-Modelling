@@ -12,7 +12,6 @@
 
 #include "AbstractPropertiesCalculator.h"
 
-#include "Interface/SimulationDetails.h"
 #include "h5_parallel_file_types.h"
 #include "GeoPhysicsFormation.h"
 

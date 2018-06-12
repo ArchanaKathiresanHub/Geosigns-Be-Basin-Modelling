@@ -26,6 +26,7 @@
 #include "Interface/ObjectFactory.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
+#include "Interface/SimulationDetails.h"
 
 //GeoPhysics
 #include "GeoPhysicsObjectFactory.h"
@@ -122,8 +123,7 @@ protected:
 
    /// \brief Check if the property should be calculated for basement
    bool isBasementProperty (const string& propertyName) const;
-   bool allowBasementOutput (const string& propertyName3D) const;
-
+ 
    /// \brief Indicates whether or not open HDF file (2D data) for writing
    virtual bool getProperiesActivity() const = 0;
 
@@ -154,7 +154,8 @@ public:
    void acquireFormationsSurfaces( FormationSurfaceVector & formationSurfaceItems );
    /// @brief Acquire the proprerties list
    void acquireProperties( Interface::PropertyList & properties );
-   
+   /// @brief Check if the property should be calculated for basement
+   bool allowBasementOutput (const string& propertyName3D) const;
    /// @brief Acquire outputable simulator properties from project handle
    /// @pre -genex or -mig must be specified as a command line parameter
    virtual void acquireSimulatorProperties() { return; };

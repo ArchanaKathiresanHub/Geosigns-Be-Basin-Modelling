@@ -20,6 +20,8 @@
 #include "pugixml.hpp"
 #include <memory>
 #include "GeoPhysicsProjectHandle.h"
+#include "AbstractPropertiesCalculator.h"
+
 
 namespace CauldronIO
 {
@@ -27,10 +29,10 @@ namespace CauldronIO
     {
     public:
 
-       static bool exportToHDF(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle* projectHandle );
+       static bool exportToHDF(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle* projectHandle, AbstractPropertiesCalculator* propCalculator);
        
     private:
-       ExportToHDF(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle* projectHandle);
+       ExportToHDF(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle* projectHandle, AbstractPropertiesCalculator* propCalculator);
  
        void addProject(std::shared_ptr<Project>& project);
        void addSurface( const std::shared_ptr<SnapShot>& snapShot, const std::shared_ptr<Surface>& surfaceIO);
@@ -46,6 +48,7 @@ namespace CauldronIO
        size_t m_numThreads;
        bool m_basement;
        GeoPhysics::ProjectHandle* m_projectHandle;
+       AbstractPropertiesCalculator* m_propCalculator;
     };
 }
 #endif
