@@ -82,6 +82,8 @@ void DerivedProperties::updateVolumeDataConstantValue( shared_ptr<CauldronIO::Vo
    size_t allElements = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
    float minValue = CauldronIO::DefaultUndefinedValue;
    float maxValue = CauldronIO::DefaultUndefinedValue;
+   bool foundUndefined = false;
+   
    const float* internaldata = volDataNew->getVolumeValues_IJK();
    if( internaldata == NULL ) {
       internaldata = volDataNew->getVolumeValues_KIJ();
@@ -95,9 +97,13 @@ void DerivedProperties::updateVolumeDataConstantValue( shared_ptr<CauldronIO::Vo
          minValue = minValue == DefaultUndefinedValue ? val : min(minValue, val);
          maxValue = maxValue == DefaultUndefinedValue ? val : max(maxValue, val);
       }
+      else
+      {
+         foundUndefined = true;
+      }
    }
    
-   if( minValue == maxValue ) {
+   if ((minValue == maxValue and not foundUndefined) or (minValue == DefaultUndefinedValue and maxValue == DefaultUndefinedValue)) {
       volDataNew->setConstantValue( minValue );
    } 
 }
