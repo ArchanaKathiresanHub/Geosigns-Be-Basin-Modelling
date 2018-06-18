@@ -1273,6 +1273,7 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 
    m_srkMgr.setDatabase(   m_projHandle->getProjectFileHandler() );                 // set database in source rock manager
    m_lithMgr.setDatabase(  m_projHandle->getProjectFileHandler(), &m_stratMgr );    // set database in lithologies type manager and link to strigraphy manager
+   m_fluidMgr.setDatabase( m_projHandle->getProjectFileHandler() );					// set database in fluid manager
    m_snpMgr.setDatabase(   m_projHandle->getProjectFileHandler(), m_projFileName ); // set database in snapshot manager
    m_prpMgr.setDatabase(   m_projHandle->getProjectFileHandler(), m_projFileName ); // set database in property manager
    m_stratMgr.setDatabase( m_projHandle->getProjectFileHandler() );                 // set database in stratigraphy manager

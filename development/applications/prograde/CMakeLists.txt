@@ -98,3 +98,16 @@ add_gtest( NAME ${TARGET_NAME}::SandstoneToMultipointPermeability
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
+
+
+#
+# 3. Brine upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::BrineModelConverter
+           SOURCES test/BrineModelConverterTest.cpp src/BrineModelConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/utilities/src
+		   LIBRARIES cmbapi utilities
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)

@@ -26,6 +26,7 @@ public:
    static const char * m_sourceRockTestProject;
    static const char * m_testProject;
    static const char * m_lithologyTestProject;
+   static const char * m_fluidTestProject;
    static const char * m_dupLithologyTestProject;
    static const char * m_mapsTestProject;
    static const char * m_nnTestProject;
@@ -33,6 +34,7 @@ public:
 
 const char * mbapiModelTest::m_sourceRockTestProject   = "SourceRockTesting.project3d";
 const char * mbapiModelTest::m_lithologyTestProject    = "LithologyTesting.project3d";
+const char * mbapiModelTest::m_fluidTestProject        = "FluidTesting.project3d";
 const char * mbapiModelTest::m_testProject             = "Project.project3d";
 const char * mbapiModelTest::m_mapsTestProject         = "MapsTesting.project3d";
 const char * mbapiModelTest::m_dupLithologyTestProject = "DupLithologyTesting.project3d";
@@ -904,4 +906,84 @@ TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
    
    ibs::FilePath( "NNTesting2.project3d" ).remove( );
    masterResults.remove( );
+}
+
+TEST_F(mbapiModelTest, FluidManager)
+{
+	mbapi::Model testModel;
+
+	// load test project
+	ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_fluidTestProject));
+
+	mbapi::FluidManager & flMgr = testModel.fluidManager();
+
+	//get fluid ids
+	auto fluids = flMgr.getFluidsID();
+
+	size_t actualTableSize = 5;
+	//check whether all entries in FluidTypeIOTbl were read
+	ASSERT_EQ(actualTableSize,fluids.size());
+
+	std::vector<std::string> actualFluidNames = {"Std. Water","Std. Marine Water","Std. Hyper Saline Water","Std. Sea Water","NVG_Water"};
+
+	std::string fluidName;
+
+	//Check whether all names are being read correctlty
+	for (auto flId : fluids)
+	{
+		flMgr.getFluidName(flId, fluidName);
+		ASSERT_EQ(actualFluidNames[flId], fluidName);
+	}
+
+	//check whether density model and value can be read and modified
+	{
+		mbapi::FluidManager::FluidID id;
+		mbapi::FluidManager::FluidDensityModel model1, model2;
+		double density1, density2;
+
+		id = 0;
+		flMgr.densityModel(id, model1, density1);
+		ASSERT_EQ(mbapi::FluidManager::FluidDensityModel::Calculated, model1);
+		ASSERT_EQ(double(1000), density1);
+
+		id = 4;
+		flMgr.densityModel(id, model1, density1);
+		ASSERT_EQ(mbapi::FluidManager::FluidDensityModel::Constant, model1);
+		ASSERT_EQ(double(1000), density1);
+		density1 = density1 * 10.0;
+		flMgr.setDensityModel(id, mbapi::FluidManager::FluidDensityModel::Calculated, density1);
+
+		flMgr.densityModel(id, model2, density2);
+		ASSERT_EQ(mbapi::FluidManager::FluidDensityModel::Calculated, model2);
+		ASSERT_EQ(density1, density2);
+
+		density1 = density1 / 10.0;
+		flMgr.setDensityModel(id, mbapi::FluidManager::FluidDensityModel::Constant, density1);
+	}
+
+	//check whether seismic velocity model and value can be read and modified
+	{
+		mbapi::FluidManager::FluidID id;
+		mbapi::FluidManager::CalculationModel model1, model2;
+		double seismicVelocity1, seismicVelocity2;
+
+		id = 0;
+		flMgr.seismicVelocityModel(id, model1, seismicVelocity1);
+		ASSERT_EQ(mbapi::FluidManager::CalculationModel::CalculatedModel, model1);
+		ASSERT_EQ(double(1500), seismicVelocity1);
+
+		id = 4;
+		flMgr.seismicVelocityModel(id, model1, seismicVelocity1);
+		ASSERT_EQ(mbapi::FluidManager::CalculationModel::ConstantModel, model1);
+		ASSERT_EQ(double(1500), seismicVelocity1);
+		seismicVelocity1 = seismicVelocity1 * 10.0;
+		flMgr.setSeismicVelocityModel(id, mbapi::FluidManager::CalculationModel::CalculatedModel, seismicVelocity1);
+
+		flMgr.seismicVelocityModel(id, model2, seismicVelocity2);
+		ASSERT_EQ(mbapi::FluidManager::CalculationModel::CalculatedModel, model2);
+		ASSERT_EQ(seismicVelocity1, seismicVelocity2);
+
+		seismicVelocity1 = seismicVelocity1 / 10.0;
+		flMgr.setSeismicVelocityModel(id, mbapi::FluidManager::CalculationModel::ConstantModel, seismicVelocity1);
+	}
 }

@@ -33,6 +33,23 @@ namespace mbapi {
       /// Set of interfaces for interacting with a Cauldron model
       typedef size_t FluidID;  ///< unique ID for fluid
 
+	  enum FluidDensityModel 
+	  {
+		  Calculated,
+		  Constant,
+		  Table
+	  };
+
+	  enum CalculationModel 
+	  { 
+		  ConstantModel, 
+		  CalculatedModel, 
+		  TableModel, 
+		  StandardModel, 
+		  LowcondModel, 
+		  HighcondModel 
+	  };
+
       /// @brief Get list of fluids in the model
       /// @return array with IDs of different lygthologies defined in the model
       virtual std::vector<FluidID> getFluidsID() const = 0; 
@@ -45,19 +62,56 @@ namespace mbapi {
       /// @param[in] id fluid ID
       /// @param[out] fluidName on success has a fluid name, or empty string otherwise
       /// @return NoError on success or NonexistingID on error
-      virtual ReturnCode getFluidName( FluidID id, std::string & fluidName ) const = 0;
+      virtual ReturnCode getFluidName( FluidID id, std::string & fluidName ) = 0;
 
       /// @}
 
+	  // Density model definition
+	  /// @{
+
+	  /// @brief Get fluid density model
+	  /// @param[in] id fluid ID
+	  /// @param[out] densModel type of density model set for the given fluid
+	  /// @param[out] refDens reference density value.
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode densityModel(FluidID id, FluidDensityModel & densModel, double & refDens) = 0;
+
+	  /// @brief Set fluid density model
+	  /// @param[in] id fluid ID
+	  /// @param[in] densModel type of density model set for the given fluid
+	  /// @param[in] refDens reference density value.
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode setDensityModel(FluidID id, const FluidDensityModel & densModel, const double & refDens) = 0;
+
+	  /// @}
+
+	  // Seismic Velocity model definition
+	  /// @{
+
+	  /// @brief Get fluid seismic velocity model
+	  /// @param[in] id fluid ID
+	  /// @param[out] seisVelModel type of seismic velocity model set for the given fluid
+	  /// @param[out] refSeisVel reference seismic velocity value.
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode seismicVelocityModel(FluidID id, CalculationModel & seisVelModel, double & refSeisVel) = 0;
+
+	  /// @brief Get fluid seismic velocity model
+	  /// @param[in] id fluid ID
+	  /// @param[in] seisVelModel type of seismic velocity model set for the given fluid
+	  /// @param[in] refSeisVel reference seismic velocity value.
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode setSeismicVelocityModel(FluidID id, const CalculationModel & seisVelModel, const double & refSeisVel) = 0;
+
+	  /// @}
    protected:
       /// @{
       /// Constructors/destructor
 
       /// @brief Constructor which creates an empty model
-      FluidManager() {;}
+	   FluidManager() = default;
       
       /// @brief Destructor, no any actual work is needed here, all is done in the implementation part
-      virtual ~FluidManager() {;}
+	   virtual ~FluidManager() = default;
 
       /// @}
 
