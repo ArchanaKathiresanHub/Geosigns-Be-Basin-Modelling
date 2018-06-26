@@ -86,3 +86,9 @@ add_gtest ( NAME JacobianStorageTest
    LIBRARIES ${LIB_NAME} LinearAlgebra
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
  )
+
+add_gtest( NAME FEM::ElementMatrix
+   SOURCES test/ElementMatrixTest.C
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
