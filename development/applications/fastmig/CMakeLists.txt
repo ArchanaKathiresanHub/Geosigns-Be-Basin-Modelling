@@ -120,17 +120,47 @@ set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 ### Unit Tests
 
 add_gtest( NAME "Fastmig::Biodegrade"
-           SOURCES test/BiodegradeTest.C src/Biodegrade.C
-           LIBRARIES DataAccess DistributedDataAccess
-           FOLDER "${BASE_FOLDER}/${APP_NAME}"
-          )
+   SOURCES test/BiodegradeTest.C src/Biodegrade.C
+   LIBRARIES DataAccess DistributedDataAccess
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
+)
 
 add_gtest( NAME "Fastmig::CapillarySealStrength"
-           SOURCES test/CapillarySealStrength.C src/CapillarySealStrength.C src/Composition.C src/Biodegrade.C src/DiffusionLeak.C src/DiffusionCoefficient.C
-           LIBRARIES DataAccess DistributedDataAccess CBMGenerics EosPack GeoPhysics functions
-           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
-           FOLDER "${BASE_FOLDER}/${APP_NAME}"
-          )
+   SOURCES test/CapillarySealStrength.C src/CapillarySealStrength.C src/Composition.C src/Biodegrade.C src/DiffusionLeak.C src/DiffusionCoefficient.C
+   LIBRARIES DataAccess DistributedDataAccess CBMGenerics EosPack GeoPhysics functions
+   ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
+)
+
+add_gtest( NAME "Fastmig::Leak"
+   SOURCES test/Leak.C src/Leak.C
+   LIBRARIES functions
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
+)
+
+add_gtest( NAME "Fastmig::LeakGas"
+   SOURCES test/LeakGas.C src/Leak.C src/LeakGas.C
+   LIBRARIES functions
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
+)
+
+add_gtest( NAME "Fastmig::LeakOrSpill"
+   SOURCES test/LeakOrSpill.C src/Leak.C src/Spill.C src/LeakOrSpill.C
+   LIBRARIES functions
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
+)
+
+add_gtest( NAME "Fastmig::Spill"
+   SOURCES test/Spill.C src/Spill.C 
+   LIBRARIES functions
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
+)
+
+add_gtest( NAME "Fastmig::SpillOilAndGas"
+   SOURCES test/SpillOilAndGas.C src/Spill.C src/SpillOilAndGas.C 
+   LIBRARIES functions
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
+)
 
 endif (BM_PARALLEL)
 
