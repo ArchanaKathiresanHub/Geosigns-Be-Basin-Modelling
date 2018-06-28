@@ -507,7 +507,7 @@ void FiniteElementMethod::GradElementVector::zero () {
 
    int i;
 
-   for ( i = 1; i <= 8; ++i ) {
+   for ( i = 0; i <= 7; ++i ) {
       m_entries [ i ][ 0 ] = 0.0;
       m_entries [ i ][ 1 ] = 0.0;
       m_entries [ i ][ 2 ] = 0.0;

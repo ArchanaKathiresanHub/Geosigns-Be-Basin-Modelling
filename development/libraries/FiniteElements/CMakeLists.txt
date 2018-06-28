@@ -92,3 +92,15 @@ add_gtest( NAME FEM::ElementMatrix
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
+
+add_gtest( NAME FEM::GradElementVector
+   SOURCES test/GradElementVectorTest.C
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+ )
+
+add_gtest( NAME FEM::BooleanVector
+   SOURCES test/BooleanVectorTest.C
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+ )
