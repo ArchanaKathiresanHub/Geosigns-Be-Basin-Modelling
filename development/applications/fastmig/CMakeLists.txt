@@ -162,6 +162,24 @@ add_gtest( NAME "Fastmig::SpillOilAndGas"
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
+add_gtest( NAME "Fastmig::LeakOrWaste"
+           SOURCES test/LeakOrWaste.cpp src/LeakOrWaste.C src/Leak.C src/Waste.C
+           LIBRARIES functions
+           FOLDER "${BASE_FOLDER}/${APP_NAME}"
+          )
+
+add_gtest( NAME "Fastmig::LeakOrWasteGasAndSpillOil"
+           SOURCES test/LeakOrWasteGasAndSpillOil.cpp src/LeakOrWasteGasAndSpillOil.C src/Leak.C src/Waste.C src/Spill.C src/LeakGas.C src/LeakGasAndSpillOil.C src/LeakOrSpill.C src/SpillOilAndGas.C src/WasteGasAndSpillOil.C
+           LIBRARIES functions
+           FOLDER "${BASE_FOLDER}/${APP_NAME}"
+          )
+
+add_gtest( NAME "Fastmig::LeakGasAndSpillOil"
+           SOURCES test/LeakGasAndSpillOil.cpp src/Leak.C src/LeakGas.C src/LeakGasAndSpillOil.C src/Spill.C src/SpillOilAndGas.C
+           LIBRARIES functions
+           FOLDER "${BASE_FOLDER}/${APP_NAME}"
+          )
+
 endif (BM_PARALLEL)
 
 generate_dox( src/fastmig.cfg )
