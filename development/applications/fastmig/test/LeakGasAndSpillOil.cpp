@@ -1,4 +1,4 @@
-﻿//                                                                      
+//                                                                      
 // Copyright (C) 2018-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
