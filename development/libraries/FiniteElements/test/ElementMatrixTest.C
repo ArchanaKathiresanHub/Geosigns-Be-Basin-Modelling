@@ -153,14 +153,14 @@ TEST( ElementMatrixTest, OuterProductTest )
    
    // test C = vector1 * vector2
    FiniteElementMethod::ElementMatrix resMat;
-   OuterProduct( vec1, vec2, resMat ); 
+   FiniteElementMethod::OuterProduct( vec1, vec2, resMat ); 
    
    for ( int i = 1; i <= 8; ++i ) 
       for ( int j = 1; j <= 8; ++j )
          EXPECT_NEAR( resMat( i, j ), i * ( 9 - j ), 1e-6 );    
       
    // test C = grad vector1 * grad vector2
-   OuterProduct( grdvec1, grdvec2, resMat );
+   FiniteElementMethod::OuterProduct( grdvec1, grdvec2, resMat );
    
    double IP;
    for ( int i = 1; i <= 8; ++i ) 
@@ -192,27 +192,27 @@ TEST( ElementMatrixTest, addOuterProductTest )
    for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 25 - i );    
    
    // test C = vector1 * vector2
-   OuterProduct( vec1, vec2, resMat ); 
-   OuterProduct( vec1, vec2, resMat1 ); 
+   FiniteElementMethod::OuterProduct( vec1, vec2, resMat ); 
+   FiniteElementMethod::OuterProduct( vec1, vec2, resMat1 ); 
    // test C += vector1 * vector2   
-   addOuterProduct ( vec1, vec2, resMat1 );
+   FiniteElementMethod::addOuterProduct ( vec1, vec2, resMat1 );
    
    for ( int i = 1; i <= 8; ++i ) 
       for ( int j = 1; j <= 8; ++j )
          EXPECT_NEAR( resMat1( i, j ), resMat( i, j ) + i * ( 9 - j ), 1e-6 );    
 
    // test C = vector1 * vector2
-   OuterProduct( vec1, vec2, resMat1 ); 
+   FiniteElementMethod::OuterProduct( vec1, vec2, resMat1 ); 
    // test C += 3.14 * vector1 * vector2   
-   addOuterProduct( 3.14, vec1, vec2, resMat1 );
+   FiniteElementMethod::addOuterProduct( 3.14, vec1, vec2, resMat1 );
    
    for ( int i = 1; i <= 8; ++i ) 
       for ( int j = 1; j <= 8; ++j )
          EXPECT_NEAR( resMat1( i, j ), resMat( i, j ) + 3.14 * i * ( 9 - j ), 1e-6 );    
       
    // test C += grad vector1 * grad vector2
-   addOuterProduct( grdvec1, grdvec2, resMat );
-   OuterProduct( vec1, vec2, resMat1 );
+   FiniteElementMethod::addOuterProduct( grdvec1, grdvec2, resMat );
+   FiniteElementMethod::OuterProduct( vec1, vec2, resMat1 );
    
    double IP;
    for ( int i = 1; i <= 8; ++i ) 
@@ -222,8 +222,8 @@ TEST( ElementMatrixTest, addOuterProductTest )
       }  
       
    // test C += 3.14 * grad vector1 * grad vector2
-   OuterProduct( vec1, vec2, resMat );
-   addOuterProduct( 3.14, grdvec1, grdvec2, resMat );
+   FiniteElementMethod::OuterProduct( vec1, vec2, resMat );
+   FiniteElementMethod::addOuterProduct( 3.14, grdvec1, grdvec2, resMat );
    
    for ( int i = 1; i <= 8; ++i ) 
       for ( int j = 1; j <= 8; ++j ) {
