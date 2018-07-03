@@ -147,9 +147,9 @@ TEST( ElementMatrixTest, OuterProductTest )
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 1 ) = static_cast<double>( i );
    for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 9 - i );
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 2 ) = static_cast<double>( 8 + i );
-   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 17 - i );
+   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 2 ) = static_cast<double>( 17 - i );
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 3 ) = static_cast<double>( 16 + i );
-   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 25 - i );   
+   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 3 ) = static_cast<double>( 25 - i );   
    
    // test C = vector1 * vector2
    FiniteElementMethod::ElementMatrix resMat;
@@ -187,9 +187,9 @@ TEST( ElementMatrixTest, addOuterProductTest )
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 1 ) = static_cast<double>( i );
    for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 9 - i );
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 2 ) = static_cast<double>( 8 + i );
-   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 17 - i );
+   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 2 ) = static_cast<double>( 17 - i );
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 3 ) = static_cast<double>( 16 + i );
-   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 25 - i );    
+   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 3 ) = static_cast<double>( 25 - i );    
    
    // test C = vector1 * vector2
    FiniteElementMethod::OuterProduct( vec1, vec2, resMat ); 
