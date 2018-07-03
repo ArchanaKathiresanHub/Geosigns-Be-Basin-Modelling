@@ -57,6 +57,25 @@ add_gtest( NAME FEM::ThreeVector
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
+add_gtest( NAME FEM::MultiComponentVector
+   SOURCES test/MultiComponentVectorTest.C
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
+
+add_gtest( NAME FEM::ElementGeometryMatrix
+   SOURCES test/ElementGeometryMatrixTest.C
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
+add_gtest( NAME FEM::FreeFunctions
+   SOURCES test/FreeFunctionsTest.C
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
 add_gtest( NAME FEM::Matrix3x3
    SOURCES test/Matrix3x3Test.C
    LIBRARIES ${LIB_NAME}
