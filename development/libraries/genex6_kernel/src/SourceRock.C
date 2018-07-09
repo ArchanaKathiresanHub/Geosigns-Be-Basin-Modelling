@@ -909,7 +909,7 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
                                Interface::DefaultUndefinedMapValue))
             {
 
-	       if (!isNodeActive (VreAtPresentDay, in_thickness, in_TOC, inorganicDensity))
+	       if (!isNodeActive (VreAtPresentDay, in_thickness, in_TOC, inorganicDensity, validValue))
 	       {
 		  // not sure if this still constitutes an optimization.....
 		  in_thickness = 0;
@@ -1125,17 +1125,19 @@ void SourceRock::clearSourceRockNodeAdsorptionHistory () {
 bool SourceRock::isNodeActive ( const double VreAtPresentDay,
                                 const double in_thickness,
                                 const double in_TOC,
-                                const double inorganicDensity ) const
+                                const double inorganicDensity,
+                                const double temperatureAtPresentDay ) const
 {
    bool ret = true;
 
    // Only active if thickness is greater than 1cm.
-   if ( in_thickness <= 0.01 ) ret = false;
-   if (in_TOC < 0) ret = false;
-   if (inorganicDensity < 0) ret = false;
+   if (in_thickness <= 0.01) ret = false;
+   if (in_TOC < 0.0 or EqualDouble(in_TOC, 0.0)) ret = false;
+   if (inorganicDensity < 0.0 or EqualDouble(inorganicDensity, 0.0)) ret = false;
+   if (EqualDouble(temperatureAtPresentDay, 0.0)) ret = false;
 
    //and if the VRE optimization is enabled, 
-   if (isVREoptimEnabled ())
+   if (ret and isVREoptimEnabled ())
    {
       //the VRE value at present day must be defined...
       static const double &VREthreshold = getVREthreshold ();
@@ -1157,26 +1159,18 @@ bool SourceRock::isNodeValid(const double temperatureAtPresentDay, const double 
    using namespace Genex6;//the fabsEqualDouble and EqualDouble are defined in Utitilies.h of genex5_kernel
    bool ret = false;
    //A node needs to be defined in low res...
-   if((!fabsEqualDouble(temperatureAtPresentDay, mapUndefinedValue) && !EqualDouble(temperatureAtPresentDay, 0.0 )) &&
-      ( thickness > 0.01 && !fabsEqualDouble(thickness, mapUndefinedValue) && !EqualDouble(thickness, 0.0 )) &&
-      ( TOC > 0.0 && !fabsEqualDouble(TOC, mapUndefinedValue) && !EqualDouble(TOC, 0.0 )) &&
-      ( inorganicDensity > 0.0 && !fabsEqualDouble(inorganicDensity, mapUndefinedValue) &&
-        !EqualDouble(inorganicDensity, 0.0 ))) {
+   if ((!fabsEqualDouble(temperatureAtPresentDay, mapUndefinedValue)) &&
+      (!fabsEqualDouble(thickness, mapUndefinedValue)) &&
+      (!fabsEqualDouble(TOC, mapUndefinedValue)) &&
+      (!fabsEqualDouble(inorganicDensity, mapUndefinedValue))) {
 
       ret = true;
 
       //and if the VRE optimization is enabled, 
       if(isVREoptimEnabled()) {
          //the VRE value at present day must be defined...
-         if(!fabsEqualDouble(VreAtPresentDay, mapUndefinedValue)) {
-            static const double & VREthreshold = getVREthreshold();
-            
-            //and above the VRE threshold that was defined through the GUI...
-            if(VreAtPresentDay > (VREthreshold - 0.001)) {
-               ret = true;
-            } else {
-               ret = false;
-            }
+         if(fabsEqualDouble(VreAtPresentDay, mapUndefinedValue)) {
+            ret = false;
          }             
       }
    }  

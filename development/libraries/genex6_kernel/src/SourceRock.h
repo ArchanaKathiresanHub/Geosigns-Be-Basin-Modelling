@@ -175,7 +175,8 @@ protected:
    bool isNodeActive ( const double VreAtPresentDay,
                        const double in_thickness,
                        const double in_TOC,
-                       const double inorganicDensity ) const;
+                       const double inorganicDensity,
+                       const double temperatureAtPresentDay ) const;
 
    bool isNodeValid( const double temperatureAtPresentDay, 
                      const double VreAtPresentDay, 
