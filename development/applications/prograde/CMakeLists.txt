@@ -111,3 +111,15 @@ add_gtest( NAME ${TARGET_NAME}::BrineModelConverter
 		   LIBRARIES cmbapi utilities
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
+
+#
+# 4. Biodegradation factor upgarde testing
+#
+add_gtest( NAME ${TARGET_NAME}::BiodegradeConverter
+           SOURCES test/BiodegradeConverterTest.cpp src/BiodegradeConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/utilities/src
+                   LIBRARIES cmbapi utilities
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)

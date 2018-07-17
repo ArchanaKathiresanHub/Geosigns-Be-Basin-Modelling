@@ -24,6 +24,7 @@
 #include "FluidManager.h"
 #include "MapsManager.h"
 #include "UndefinedValues.h"
+#include "BiodegradeManager.h"
 
 // TableIO
 #include "datatype.h"
@@ -275,6 +276,10 @@ namespace mbapi {
       /// @brief Get input maps manager. It provides access to the GridMapIoTbl in project file
       /// @return reference to maps manager
       MapsManager & mapsManager();
+
+      /// @brief Get Biodegradation manager. It provides access to the BioDegradIoTbl in project file 
+      /// @return reference to the Biodegradation manager. It created/deleted by the model itself.
+      BiodegradeManager & biodegradeManager();
 
 
       // Request some project porperties

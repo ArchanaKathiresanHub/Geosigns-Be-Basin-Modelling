@@ -987,3 +987,48 @@ TEST_F(mbapiModelTest, FluidManager)
 		flMgr.setSeismicVelocityModel(id, mbapi::FluidManager::CalculationModel::ConstantModel, seismicVelocity1);
 	}
 }
+
+TEST_F(mbapiModelTest, BiodegradeManager)
+{
+   mbapi::Model testModel;
+
+   // load test project
+   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_fluidTestProject));
+
+   mbapi::BiodegradeManager & bioDegMgr = testModel.biodegradeManager();
+
+   std::map<std::string, double> mapBioDegConstants = {
+      { "MaxBioTemp", 65.0 },
+      { "TempConstant", 70.0 },
+      { "TimeConstant", 0.2 },
+      { "BioRate", 0.3 },
+      { "C1_BioFactor", 0.0008 },
+      { "C2_BioFactor", 0.0005 },
+      { "C3_BioFactor", 0.0003 },
+      { "C4_BioFactor", 0.0008 },
+      { "C5_BioFactor", 0.001 },
+      { "N2_BioFactor", 0.001 },
+      { "COx_BioFactor", 0.0 },
+      { "C6_14Aro_BioFactor", 0.0015 },
+      { "C6_14Sat_BioFactor", 0.001 },
+      { "C15Aro_BioFactor", 0.03 },
+      { "C15Sat_BioFactor", 0.0009 },
+      { "resins_BioFactor", 0.05 },
+      { "asphaltenes_BioFactor", 0.1 }
+   };
+
+   for (auto& itr : mapBioDegConstants) {
+      double valueFromP3dFile;
+
+      // get biodegradation constant from BioDegradIoTbl in project3d file
+      bioDegMgr.getBioConstant(itr.first, valueFromP3dFile);
+      ASSERT_NEAR(valueFromP3dFile, itr.second, 1e-6);
+
+      valueFromP3dFile = 0.5555;
+      // set biodegradation constant 0.5555
+      bioDegMgr.setBioConstant(itr.first, valueFromP3dFile);
+      // get biodegradation constant 0.5555
+      bioDegMgr.getBioConstant(itr.first, valueFromP3dFile);
+      ASSERT_NEAR(valueFromP3dFile, 0.5555, 1e-6);
+   }
+}
