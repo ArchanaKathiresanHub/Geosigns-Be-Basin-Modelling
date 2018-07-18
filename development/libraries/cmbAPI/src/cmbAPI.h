@@ -23,6 +23,7 @@
 #include "StratigraphyManager.h"
 #include "FluidManager.h"
 #include "MapsManager.h"
+#include "ReservoirManager.h"
 #include "UndefinedValues.h"
 #include "BiodegradeManager.h"
 
@@ -277,6 +278,9 @@ namespace mbapi {
       /// @return reference to maps manager
       MapsManager & mapsManager();
 
+      /// @brief Get input maps manager. It provides access to the GridMapIoTbl in project file
+      /// @return reference to maps manager
+      ReservoirManager & reservoirManager();
       /// @brief Get Biodegradation manager. It provides access to the BioDegradIoTbl in project file 
       /// @return reference to the Biodegradation manager. It created/deleted by the model itself.
       BiodegradeManager & biodegradeManager();

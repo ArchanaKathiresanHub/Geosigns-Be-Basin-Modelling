@@ -19,7 +19,8 @@
 #include "SourceRockManagerImpl.h"
 #include "SnapshotManagerImpl.h"
 #include "PropertyManagerImpl.h"
-#include "MapsManagerImpl.h"  
+#include "MapsManagerImpl.h"
+#include "ReservoirManagerImpl.h"
 #include "BiodegradeManagerImpl.h"
 
 // DataAccess library
@@ -187,6 +188,7 @@ public:
    SnapshotManager     & snapshotManager()     { return m_snpMgr;   } // Snapshots manager
    PropertyManager     & propertyManager()     { return m_prpMgr;   } // Properties manager
    MapsManager         & mapsManager()         { return m_mapMgr;   } // Maps manager
+   ReservoirManager    & reservoirManager()    { return m_reservoirMgr; } // Reservoir manager
    BiodegradeManager   & biodegradeManager()   { return m_BioDegMgr; } // Biodegradation
    std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle() { return m_projHandle; } // project file database (set of tables)
 
@@ -198,6 +200,7 @@ public:
    SnapshotManagerImpl      m_snpMgr;
    PropertyManagerImpl      m_prpMgr;
    MapsManagerImpl          m_mapMgr;
+   ReservoirManagerImpl     m_reservoirMgr;
    BiodegradeManagerImpl    m_BioDegMgr;
 
    std::shared_ptr<DataAccess::Interface::ProjectHandle> m_projHandle;   // project file database (set of tables)
@@ -446,6 +449,7 @@ SourceRockManager                                   & Model::sourceRockManager( 
 SnapshotManager                                     & Model::snapshotManager(    ) { return m_pimpl->snapshotManager(    ); }
 PropertyManager                                     & Model::propertyManager(    ) { return m_pimpl->propertyManager(    ); }
 MapsManager                                         & Model::mapsManager(        ) { return m_pimpl->mapsManager(        ); }
+ReservoirManager                                    & Model::reservoirManager(   ) { return m_pimpl->reservoirManager(   ); }
 BiodegradeManager                                   & Model::biodegradeManager(  ) { return m_pimpl->biodegradeManager(  ); }
 std::shared_ptr<DataAccess::Interface::ProjectHandle> Model::projectHandle(      ) { return m_pimpl->projectHandle(      ); }
 
@@ -1281,6 +1285,7 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
    m_snpMgr.setDatabase(   m_projHandle->getProjectFileHandler(), m_projFileName ); // set database in snapshot manager
    m_prpMgr.setDatabase(   m_projHandle->getProjectFileHandler(), m_projFileName ); // set database in property manager
    m_stratMgr.setDatabase( m_projHandle->getProjectFileHandler() );                 // set database in stratigraphy manager
+   m_reservoirMgr.setDatabase( m_projHandle->getProjectFileHandler() );             // set database in reservoir manager
    m_BioDegMgr.setDatabase(m_projHandle->getProjectFileHandler());                  // set database in biodegradation manager
 
    m_mapMgr.setProject(    m_projHandle.get(),          m_projFileName ); // set project handle in maps manager

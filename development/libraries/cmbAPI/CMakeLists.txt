@@ -80,6 +80,7 @@ configure_file(test/SourceRockTesting.project3d SourceRockTesting.project3d COPY
 configure_file(test/LithologyTesting.project3d LithologyTesting.project3d COPYONLY )
 configure_file(test/DupLithologyTesting.project3d DupLithologyTesting.project3d COPYONLY )
 configure_file(test/FluidTesting.project3d FluidTesting.project3d COPYONLY )
+configure_file(test/ReservoirTesting.project3d ReservoirTesting.project3d COPYONLY )
 configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
 configure_file( test/MapsTesting.project3d MapsTesting.project3d COPYONLY )
 configure_file( test/Inputs.HDF Inputs.HDF COPYONLY )

@@ -19,6 +19,7 @@
 #include "AlcUpgradeManager.h"
 #include "PermeabilityUpgradeManager.h"
 #include "BrineUpgradeManager.h"
+#include "ReservoirUpgradeManager.h"
 #include "BiodegradeUpgradeManager.h"
 
 //Prograde
@@ -36,6 +37,8 @@ void Prograde::UpgradeManagers::runAll() const{
    managers.emplace_back(std::unique_ptr<Prograde::PermeabilityUpgradeManager>(new Prograde::PermeabilityUpgradeManager(m_model)));
    // Constant model to modified B&W model for density and seismic velocity calculations of Brines
    managers.emplace_back(std::unique_ptr<Prograde::BrineUpgradeManager>(new Prograde::BrineUpgradeManager(m_model)));
+   //BPA1 reservoir layer-wise parameters to BPA2 reservoir global parameters
+   managers.emplace_back(std::unique_ptr<Prograde::ReservoirUpgradeManager>(new Prograde::ReservoirUpgradeManager(m_model)));
    // Boidegradation
    managers.emplace_back(std::unique_ptr<Prograde::BiodegradeUpgradeManager>(new Prograde::BiodegradeUpgradeManager(m_model)));
    // Other managers to be added in the same way

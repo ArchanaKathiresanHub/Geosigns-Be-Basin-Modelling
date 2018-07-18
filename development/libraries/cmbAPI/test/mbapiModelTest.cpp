@@ -30,6 +30,7 @@ public:
    static const char * m_dupLithologyTestProject;
    static const char * m_mapsTestProject;
    static const char * m_nnTestProject;
+   static const char * m_reservoirTestProject;
 };
 
 const char * mbapiModelTest::m_sourceRockTestProject   = "SourceRockTesting.project3d";
@@ -39,6 +40,8 @@ const char * mbapiModelTest::m_testProject             = "Project.project3d";
 const char * mbapiModelTest::m_mapsTestProject         = "MapsTesting.project3d";
 const char * mbapiModelTest::m_dupLithologyTestProject = "DupLithologyTesting.project3d";
 const char * mbapiModelTest::m_nnTestProject           = "NNTesting.project3d";
+const char * mbapiModelTest::m_reservoirTestProject    = "ReservoirTesting.project3d";
+
 
 bool mbapiModelTest::compareFiles( const char * projFile1, const char * projFile2 )
 {
@@ -986,6 +989,85 @@ TEST_F(mbapiModelTest, FluidManager)
 		seismicVelocity1 = seismicVelocity1 / 10.0;
 		flMgr.setSeismicVelocityModel(id, mbapi::FluidManager::CalculationModel::ConstantModel, seismicVelocity1);
 	}
+}
+
+TEST_F(mbapiModelTest, ReservoirManager)
+{
+   mbapi::Model testModel;
+
+   // load test project
+  ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_reservoirTestProject));
+
+   mbapi::ReservoirManager & resMgr = testModel.reservoirManager();
+
+   //get reservoir ids
+   auto res = resMgr.getReservoirsID();
+
+   size_t actualTableSize = 2;
+   //check whether all entries in ResevoirIoTbl were read
+   ASSERT_EQ(actualTableSize, res.size());
+
+   std::vector<std::string> actualReservoirNames = { "reservoir 1","reservoir 0"};
+
+   std::string reservoirName;
+//   mbapi::ReservoirManager & resMgrImpl = testModel.reservoirManager();
+   //Check whether all names are being read correctlty
+   
+   for (auto resId : res)
+   {
+      resMgr.getResName(resId, reservoirName);
+      ASSERT_EQ(actualReservoirNames[resId], reservoirName);       
+   }
+   double resCapacity;
+   int bioDegradInd;
+   int oilToGasCrackingInd;
+   int blockingInd;
+   double blockingPermeability;
+   size_t resId = 0;
+   resMgr.getResCapacity(resId, resCapacity);
+   EXPECT_NEAR(resCapacity, 500000, eps);
+   resMgr.getResBioDegradInd(resId, bioDegradInd);
+   EXPECT_EQ(bioDegradInd, 1);
+   resMgr.getResOilToGasCrackingInd(resId, oilToGasCrackingInd);
+   EXPECT_EQ(oilToGasCrackingInd, 1);
+   resMgr.getResBlockingInd(resId, blockingInd);
+   EXPECT_EQ(blockingInd, 0);
+   resMgr.getResBlockingPermeability(resId, blockingPermeability);
+   EXPECT_NEAR(blockingPermeability, 1e-09, eps);
+//
+   resId = 1;
+   resMgr.getResCapacity(resId, resCapacity);
+   EXPECT_NEAR(resCapacity, 400000, eps);
+   resMgr.getResBioDegradInd(resId, bioDegradInd);
+   EXPECT_EQ(bioDegradInd, 0);
+   resMgr.getResOilToGasCrackingInd(resId, oilToGasCrackingInd);
+   EXPECT_EQ(oilToGasCrackingInd, 1);
+   resMgr.getResBlockingInd(resId, blockingInd);
+   EXPECT_EQ(blockingInd, 0);
+   resMgr.getResBlockingPermeability(resId, blockingPermeability);
+   EXPECT_NEAR(blockingPermeability, 1e-09, eps);
+   //checks entries set in ReservoirIoTble
+   resCapacity = 400000;
+   bioDegradInd = 1;
+   oilToGasCrackingInd = 1;
+   blockingInd = 0;
+   blockingPermeability = 1e-9;
+   resId = 0;
+   resMgr.setResCapacity(resId, resCapacity);
+   resMgr.setResBioDegradInd(resId, bioDegradInd);
+   resMgr.setResOilToGasCrackingInd(resId, oilToGasCrackingInd);
+   resMgr.setResBlockingInd(resId, blockingInd);
+   resMgr.setResBlockingPermeability(resId, blockingPermeability);
+   resMgr.getResCapacity(resId, resCapacity);
+   EXPECT_NEAR(resCapacity, 400000, eps);
+   resMgr.getResBioDegradInd(resId, bioDegradInd);
+   EXPECT_EQ(bioDegradInd, 1);
+   resMgr.getResOilToGasCrackingInd(resId, oilToGasCrackingInd);
+   EXPECT_EQ(oilToGasCrackingInd, 1);
+   resMgr.getResBlockingInd(resId, blockingInd);
+   EXPECT_EQ(blockingInd, 0);
+   resMgr.getResBlockingPermeability(resId, blockingPermeability);
+   EXPECT_NEAR(blockingPermeability, 1e-9, eps);
 }
 
 TEST_F(mbapiModelTest, BiodegradeManager)
