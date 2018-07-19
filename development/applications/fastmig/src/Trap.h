@@ -160,12 +160,12 @@ namespace migration
       * \return The Spilling column of the trap.
       */
       Column * getSpillColumn (void) const;
-      Column * getColumnToSpillTo (void);
+      Column * getColumnToSpillTo (const PhaseId phase);
 
-      double getSpillDepth (void);
+      double getSpillDepth (void) const;
 
       void computeSpillTarget (void);
-      Column * getSpillTarget (void);
+      Column * getSpillTarget (const PhaseId phase);
 
       void computeWasteColumns (void);
       Column * getWasteColumn (PhaseId phase);
@@ -513,7 +513,7 @@ namespace migration
 
       IntPairVector m_toBeAdded;
 
-      Column * m_spillTarget;
+      Column * m_spillTarget[NUM_PHASES];
 
       Column * m_wasteColumns[NUM_PHASES];
 

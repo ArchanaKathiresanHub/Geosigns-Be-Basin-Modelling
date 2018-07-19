@@ -1868,7 +1868,7 @@ namespace migration
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
             LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
-            if ( !IsValid(leakingColumn) or leakingColumn->isOnBoundary() ) continue;
+            if ( !IsValid(leakingColumn) or leakingReservoir->isOnBoundary((Column*) leakingColumn) ) continue;
 
             // Make sure the leaking node is a valid one.
             LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
@@ -2072,7 +2072,7 @@ namespace migration
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
             LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
-            if (!IsValid (leakingColumn) or leakingColumn->isOnBoundary ()) continue;
+            if (!IsValid (leakingColumn) or leakingReservoir->isOnBoundary ((Column*) leakingColumn)) continue;
 
             // The "leaking" node probably isEndOfPath (e.g. because it's a trap crest).
             // Then the HC path will be forced to be lateral.

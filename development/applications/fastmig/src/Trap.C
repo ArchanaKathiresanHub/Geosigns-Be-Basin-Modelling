@@ -90,10 +90,10 @@ namespace migration
       setMinimumSpillDepth (column->getTopDepth ());
 #endif
 
-      m_spillTarget = 0;
-
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
       {
+         m_spillTarget[phase] = 0;
+
          m_wasteColumns[phase] = 0;
          m_wasteDepths[phase] = WasteDepth;
 
@@ -447,11 +447,11 @@ namespace migration
 
    void Trap::becomeObsolete (void)
    {
-      // the target of this trap's crest column must be re-pointed to its spill target.
-      Column * targetColumn = getSpillTarget ();
-
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
       {
+         // the target of this trap's crest column must be re-pointed to its spill target.
+         Column * targetColumn = getSpillTarget ((PhaseId)phase);
+
          getCrestColumn ()->setTargetColumn ((PhaseId)phase, targetColumn);
       }
       getCrestColumn ()->resetProxies ();
@@ -488,7 +488,7 @@ namespace migration
       for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
       {
          getCrestColumn ()->setTargetColumn ((PhaseId)phase, absorbingCrestColumn);
-         getCrestColumn ()->setAdjacentColumn ((PhaseId)phase, getSpillTarget ());
+         getCrestColumn ()->setAdjacentColumn ((PhaseId)phase, getSpillTarget ((PhaseId)phase));
       }
 
       getCrestColumn ()->resetProxies ();
@@ -800,7 +800,7 @@ namespace migration
       return m_perimeter.front ();
    }
 
-   double Trap::getSpillDepth ()
+   double Trap::getSpillDepth () const
    {
       // The perimeter is sorted with the sealing columns at the end.
       // So, if the first column of the perimeter (given by getSpillColumn ()) is sealing, all columns in the perimeter are sealing
@@ -810,55 +810,55 @@ namespace migration
          return getSpillColumn ()->getTopDepth ();
    }
 
-   Column * Trap::getColumnToSpillTo (void)
+   Column * Trap::getColumnToSpillTo (const PhaseId phase)
    {
       Column * spillColumn = getSpillColumn ();
 
-      return getReservoir ()->getAdjacentColumn (GAS, spillColumn, this);
+      return getReservoir ()->getAdjacentColumn (phase, spillColumn, this);
    }
 
    // find the column this trap spills to
    void Trap::computeSpillTarget (void)
    {
-      Column * spillingTo = getColumnToSpillTo ();
-      if (spillingTo)
+      for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
       {
-         m_spillTarget = spillingTo;
-      }
-      else
-      {
-         m_spillTarget = getSpillColumn ();
-      }
-      assert (m_spillTarget);
+         Column * spillingTo = getColumnToSpillTo ((PhaseId)phase);
+         if (spillingTo)
+         {
+            m_spillTarget[phase] = spillingTo;
+         }
+         else
+         {
+            m_spillTarget[phase] = getSpillColumn ();
+         }
+         assert (m_spillTarget[phase]);
 
-      assert (m_spillTarget != getCrestColumn ());
+         assert (m_spillTarget[phase] != getCrestColumn ());
 
-      if (getFinalSpillTarget (GAS) == getCrestColumn ())
-      {
-         cerr << "ERROR: final spill target(): "
-              << getFinalSpillTarget (GAS) << " == crest column: " << getCrestColumn () << endl;
-         cerr << GetRankString () << ": " << this << "->getSpillColumn () = " << m_spillTarget << endl;
-         printSpillTrajectory (GAS);
-         printInterior ();
-         printPerimeter ();
+         if (getFinalSpillTarget ((PhaseId)phase) == getCrestColumn ())
+         {
+            cerr << "ERROR: final spill target(): "
+                 << getFinalSpillTarget ((PhaseId)phase) << " == crest column: " << getCrestColumn () << endl;
+            cerr << GetRankString () << ": " << this << "->getSpillColumn () = " << m_spillTarget[phase] << endl;
+            printSpillTrajectory ((PhaseId)phase);
+            printInterior ();
+            printPerimeter ();
 
-         assert (getFinalSpillTarget (GAS) != getCrestColumn ());
+            assert (getFinalSpillTarget ((PhaseId)phase) != getCrestColumn ());
+         }
       }
    }
 
    /// Return the column where charge spilled from this trap finally ends up
    Column * Trap::getFinalSpillTarget (PhaseId phase)
    {
-      if (m_spillTarget->isSealing ())
-         return m_spillTarget;
-      else
-         return getSpillTarget ()->getFinalTargetColumn (phase);
+      return getSpillTarget ((PhaseId)phase)->getFinalTargetColumn (phase);
    }
 
-   Column * Trap::getSpillTarget (void)
+   Column * Trap::getSpillTarget (const PhaseId phase)
    {
-      assert (m_spillTarget != 0);
-      return m_spillTarget;
+      assert (m_spillTarget[phase] != 0);
+      return m_spillTarget[phase];
    }
 
    /// compute the columns at which the trap will waste
@@ -2447,7 +2447,7 @@ namespace migration
 
             targetColumn->addSpillCompositionToBuffer (OIL, position, oilSpilledOrWasted);
             m_reservoir->reportSpill (this, targetColumn, oilSpilledOrWasted);
-            getSpillTarget ()->addMigrated (OIL, oilSpilledOrWasted.getWeight ());
+            getSpillTarget (OIL)->addMigrated (OIL, oilSpilledOrWasted.getWeight ());
             setSpilling ();
          }
       }
@@ -2458,7 +2458,7 @@ namespace migration
 
          targetColumn->addSpillCompositionToBuffer (GAS, position, gasSpilled);
          m_reservoir->reportSpill (this, targetColumn, gasSpilled);
-         getSpillTarget ()->addMigrated (GAS, gasSpilled.getWeight ());
+         getSpillTarget (GAS)->addMigrated (GAS, gasSpilled.getWeight ());
          setSpilling ();
       }
 
@@ -2864,7 +2864,7 @@ namespace migration
       cerr << GetRankString () << ": " << m_reservoir->getName () << "->" << this
            << "->spills to " << targetColumn;
 
-      Column * tmpColumn = getSpillTarget ();
+      Column * tmpColumn = getSpillTarget (phase);
       while (tmpColumn != targetColumn)
       {
          cerr << endl << "\tvia " << tmpColumn;
@@ -2945,7 +2945,7 @@ namespace migration
       {
          m_toBeDistributed[phase].add (m_distributed[phase]);
          m_distributed[phase].reset ();
-         setFillDepth (PhaseId (phase), getFillDepth (PhaseId (phase - 1)));
+         setFillDepth ((PhaseId)phase, getFillDepth (PhaseId (phase - 1)));
       }
    }
 
@@ -2955,7 +2955,7 @@ namespace migration
    {
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
       {
-         moveBackToCrestColumn (PhaseId (phase));
+         moveBackToCrestColumn ((PhaseId)phase);
       }
    }
 
@@ -3001,7 +3001,7 @@ namespace migration
    {
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
       {
-         moveBackToBeMigrated (PhaseId (phase));
+         moveBackToBeMigrated ((PhaseId)phase);
       }
    }
 

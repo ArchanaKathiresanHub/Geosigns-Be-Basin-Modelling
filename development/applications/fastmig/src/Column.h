@@ -119,7 +119,7 @@ namespace migration
       virtual Column * getAdjacentColumn (PhaseId phase) = 0;
 
       virtual Column * getTargetColumn (PhaseId phase) = 0;
-      virtual Column * getSpillTarget (void) = 0;
+      virtual Column * getSpillTarget (const PhaseId phase) = 0;
 
       virtual bool computeTargetColumn (PhaseId phase) = 0;
 
@@ -219,7 +219,7 @@ namespace migration
       virtual Column * getAdjacentColumn (PhaseId phase);
 
       virtual Column * getTargetColumn (PhaseId phase);
-      virtual Column * getSpillTarget (void);
+      virtual Column * getSpillTarget (const PhaseId phase);
 
       virtual bool computeTargetColumn (PhaseId phase);
 
@@ -228,10 +228,10 @@ namespace migration
       void registerWithLocal (void);
       void deregisterWithLocal (void);
 
-	  virtual void addTargetCompositionToBuffer(PhaseId phase, int position, Composition & composition);
-	  virtual void addWasteCompositionToBuffer(PhaseId phase, int position, Composition & composition);
-	  virtual void addSpillCompositionToBuffer(PhaseId phase, int position, Composition & composition);
-	  virtual void addMergingCompositionToBuffer(int position, Composition & composition);
+      virtual void addTargetCompositionToBuffer(PhaseId phase, int position, Composition & composition);
+      virtual void addWasteCompositionToBuffer(PhaseId phase, int position, Composition & composition);
+      virtual void addSpillCompositionToBuffer(PhaseId phase, int position, Composition & composition);
+      virtual void addMergingCompositionToBuffer(int position, Composition & composition);
 
       virtual void addToYourTrap (unsigned int i, unsigned int j);
 
@@ -376,15 +376,12 @@ namespace migration
       virtual Column * getAdjacentColumn (PhaseId phase);
       bool adjacentColumnSet (PhaseId phase);
 
-      /// whether this column lies on the boundary of the model
-      bool isOnBoundary (void);
-
       void setTargetColumn (PhaseId phase, Column * column);
       virtual Column * getTargetColumn (PhaseId phase);
 
       virtual bool computeTargetColumn (PhaseId phase);
 
-      virtual Column * getSpillTarget (void);
+      virtual Column * getSpillTarget (const PhaseId phase);
 
       virtual Column * getTrapSpillColumn (void);
 
@@ -396,7 +393,7 @@ namespace migration
 
       double getValue (ValueSpec valueSpec, PhaseId phase = NO_PHASE);
 
-      bool isMinimum (void);
+      bool isMinimum (const PhaseId phase);
 
       virtual void setWasting (PhaseId phase);
       virtual void setSealing (PhaseId phase);
@@ -410,6 +407,7 @@ namespace migration
       inline double getCompositionWeight (void);
 
       /// \brief Returns the mass of HCs in a specified phase within a column
+      ///
       /// \param the phase for which the mass will be returned
       /// \return the mass of the specified phase
       double getPhaseWeight (PhaseId phase);

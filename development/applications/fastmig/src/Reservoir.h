@@ -159,7 +159,20 @@ namespace migration
       bool resetProxiesBeforeRefine (void);
       double getMassStoredInColumns (void);
       void wasteNonReservoirColumns (const Snapshot * snapshot);
-      Column * avoidSealingColumn (PhaseId phase, Column * column, Trap * trap = 0);
+
+      /// @brief Whether a column has any undefined neighbours
+      ///
+      /// If a column is on boundary, then adjacentColumn = nullptr
+      bool isOnBoundary (const Column* column) const;
+
+      /// \brief Returns a non-sealing away from the immediate perimeter
+      ///
+      /// Looks at progressively further perimeters of neighbours starting
+      /// at distances of 2 columns (immediate neighbours have already 
+      /// been checked by getAdjacentColumn()
+      /// \param HC phase, starting column, trap (if it exists)
+      /// \return the suitable column (if it exists)
+      Column * avoidSealingColumn (const PhaseId phase, const Column * column, const Trap * trap = 0);
       Column * getAdjacentColumn (PhaseId phase, Column * column, Trap * trap = 0);
       LocalColumn * getLocalColumn (unsigned int i, unsigned int j) const;
       Column * getColumn (unsigned int i, unsigned int j) const;
@@ -330,7 +343,7 @@ namespace migration
       /// destroy the column grid of this reservoir.
       void destroyColumns (void);
       bool computeTargetColumn (PhaseId phase, unsigned int i, unsigned int j);
-      Column * findNonSealingColumn (int kappa, int n, PhaseId phase, Column * column, Trap * trap);
+      Column * findNonSealingColumn (int kappa, const int n, const PhaseId phase, const Column * column, const Trap * trap);
       bool computeAdjacentColumn (PhaseId phase, unsigned int i, unsigned int j);
       ProxyColumn * getProxyColumn (unsigned int i, unsigned int j);
       double getNeighbourDistance (int neighbour);

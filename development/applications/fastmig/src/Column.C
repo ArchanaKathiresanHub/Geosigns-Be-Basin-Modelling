@@ -102,44 +102,26 @@ namespace migration
    /// Does not take into account whether columns are sealing or wasting
    int Column::compareDepths (Column * column, bool useTieBreaker)
    {
-      if (!column->isSealing ())
+      // Use top or bottom depths depending on sealing status
+      double depth = isSealing()? getBottomDepth() : getTopDepth();
+      double columnDepth = column->isSealing()? column->getBottomDepth() : column->getTopDepth();
+
+      if (depth < columnDepth) return -1;
+      if (depth > columnDepth) return 1;
+
+      if (useTieBreaker)
       {
-         if (getTopDepth () < column->getTopDepth ()) return -1;
-         if (getTopDepth () > column->getTopDepth ()) return 1;
+         if (getI () + getJ () > column->getI () + column->getJ ()) return -1;
+         if (getI () + getJ () < column->getI () + column->getJ ()) return 1;
 
-         if (useTieBreaker)
-         {
-            if (getI () + getJ () > column->getI () + column->getJ ()) return -1;
-            if (getI () + getJ () < column->getI () + column->getJ ()) return 1;
+         if (getI () > column->getI ()) return -1;
+         if (getI () < column->getI ()) return 1;
+         if (getJ () > column->getJ ()) return -1;
+         if (getJ () < column->getJ ()) return 1;
 
-            if (getI () > column->getI ()) return -1;
-            if (getI () < column->getI ()) return 1;
-            if (getJ () > column->getJ ()) return -1;
-            if (getJ () < column->getJ ()) return 1;
-
-            assert (this == column);
-         }
+         assert (this == column);
       }
-      else
-      {
-         if (getBottomDepth () < column->getBottomDepth ()) return -1;
-         if (getBottomDepth () > column->getBottomDepth ()) return 1;
-
-         if (useTieBreaker)
-         {
-            if (getI () + getJ () > column->getI () + column->getJ ()) return -1;
-            if (getI () + getJ () < column->getI () + column->getJ ()) return 1;
-
-            if (getI () > column->getI ()) return -1;
-            if (getI () < column->getI ()) return 1;
-            if (getJ () > column->getJ ()) return -1;
-            if (getJ () < column->getJ ()) return 1;
-
-            assert (this == column);
-         }
-      }
-
-
+      
       return 0;
    }
 
@@ -190,7 +172,7 @@ namespace migration
 
    Column * Column::getFinalSpillTarget (PhaseId phase)
    {
-      Column * spillTarget = getSpillTarget ();
+      Column * spillTarget = getSpillTarget (phase);
 
       if (!spillTarget or spillTarget->isSealing ()) return 0;
       else return spillTarget->getFinalTargetColumn (phase);
@@ -394,7 +376,7 @@ namespace migration
    {
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
       {
-         if (isSpillingBack (PhaseId (phase)))
+         if (isSpillingBack ((PhaseId)phase))
          {
             return true;
          }
@@ -947,10 +929,9 @@ namespace migration
       return m_lithostaticPressure;
    }
 
-   bool LocalColumn::isMinimum (void)
+   bool LocalColumn::isMinimum (const PhaseId phase)
    {
-      return (m_adjacentColumn[GAS] == this ||
-         m_adjacentColumn[OIL] == this);
+      return m_adjacentColumn[phase] == this;
    }
 
    void LocalColumn::setWasting (PhaseId phase)
@@ -1153,7 +1134,8 @@ namespace migration
          response.value = 0;
          break;
       case SPILLTARGET:
-         targetColumn = getSpillTarget ();
+         response.phase = request.phase;
+         targetColumn = getSpillTarget ((PhaseId)request.phase);
          if (targetColumn)
          {
             response.i = targetColumn->getI ();
@@ -1322,39 +1304,20 @@ namespace migration
       return m_adjacentColumn[phase];
    }
 
-   bool LocalColumn::isOnBoundary (void)
-   {
-      return (getAdjacentColumn (FIRST_PHASE) == 0);
-   }
-
    bool LocalColumn::computeTargetColumn (PhaseId phase)
    {
       if (!m_targetColumn[phase])
       {
-         if (isWasting (phase))
+         // Wasting or zero thickness should result in upward leakage
+         if (isWasting (phase) or getThickness () < MinimumThickness)
          {
             // the stuff is not going anywhere else.
             m_targetColumn[phase] = this;
          }
-         else if (isSealing (phase))
-         {
-            // Find the non-sealing neighbouring column with the shallowest top depth and divert the charge there.
-            Column * nonSealingAdjacentColumn = m_reservoir->avoidSealingColumn (phase, dynamic_cast<Column *> (this));
-
-            if (nonSealingAdjacentColumn)
-            {
-               nonSealingAdjacentColumn->computeTargetColumn (phase);
-               m_targetColumn[phase] = nonSealingAdjacentColumn->getTargetColumn (phase);
-            }
-            // We have checked a large area of elements and they are all sealing.
-            // Leave the charge where it is. It will be leaked upward.
-            else
-               m_targetColumn[phase] = this;
-         }
          else
          {
+            // Even if it is sealing, the adjacent column has been set in Reservoir::getAdjacentColumn()
             Column * adjacentColumn = getAdjacentColumn (phase);
-            assert (!adjacentColumn || !adjacentColumn->isSealing (phase));
 
             if (adjacentColumn == 0 || adjacentColumn == this)
             {
@@ -1382,7 +1345,7 @@ namespace migration
       return m_targetColumn[phase];
    }
 
-   Column * LocalColumn::getSpillTarget ()
+   Column * LocalColumn::getSpillTarget (const PhaseId phase)
    {
       if (!m_trap)
       {
@@ -1390,7 +1353,7 @@ namespace migration
       }
       else
       {
-         Column * targetColumn = m_trap->getSpillTarget ();
+         Column * targetColumn = m_trap->getSpillTarget (phase);
          return targetColumn;
       }
    }
@@ -2544,7 +2507,7 @@ namespace migration
       return false;
    }
 
-   Column * ProxyColumn::getSpillTarget (void)
+   Column * ProxyColumn::getSpillTarget (const PhaseId phase)
    {
       ColumnValueRequest valueRequest;
       ColumnValueRequest valueResponse;
@@ -2553,6 +2516,7 @@ namespace migration
       valueRequest.j = getJ ();
       valueRequest.reservoirIndex = m_reservoir->getIndex ();
       valueRequest.valueSpec = SPILLTARGET;
+      valueRequest.phase = (int)phase;
       RequestHandling::SendRequest (valueRequest, valueResponse);
       if (valueResponse.i >= 0 && valueResponse.j >= 0)
       {

@@ -381,7 +381,7 @@ namespace migration
          return column->computeTargetColumn (phase);
    }
 
-   // compute the column to which column (i,j) spills to
+   // Compute the column to which column (i,j) spills
    bool Reservoir::computeAdjacentColumn (PhaseId phase, unsigned int i, unsigned int j)
    {
       LocalColumn *column = getLocalColumn (i, j);
@@ -399,37 +399,47 @@ namespace migration
       return (adjacentColumn != 0);
    }
 
-   // find the column to which column (i,j) spills to and that is not in the trap
+   // Find the column to which column (i,j) spills and that is not in the trap
    Column *  Reservoir::getAdjacentColumn (PhaseId phase, Column * column, Trap * trap)
    {
       assert (IsValid (column));
 
-      double depth = column->getTopDepth ();
+      // If it's a zero-thickness column, no questions asked, HCs will leak upwards
+      // (i.e. adjacent column is the column itself).
+      // Same if it's wasting for this particular phase.
+      if (column->isWasting(phase) or column->getThickness () < MinimumThickness)
+         return column;
 
-      assert (depth != getUndefinedValue ());
+      // If on bnoundary, set adjacentColumn to nullptr
+      if (isOnBoundary (column))
+         return nullptr;
 
-      double minGradient = SealDepth;
-
+      // Set the adjacent column to be the column itself, so that if
+      // no suitable adjacent column is found HCs will stay there
       Column * adjacentColumn = column;
 
-      // Try to avoid going through a sealing column
-      if (trap and column->isSealing (phase))
-      {
-         adjacentColumn = avoidSealingColumn (phase, column, trap);
-         return (adjacentColumn ? adjacentColumn : column);
-      }
+      // Use top depth for steepest-ascent algorithm, unless it's 
+      // a sealing column, in which case we use the bottom depth.
+      double depth = column->isSealing (phase) ? column->getBottomDepth () : column->getTopDepth ();
 
-      // try to find a higher lying column
+      // Set initial gradient threshold to a large positive number
+      double minGradient = SealDepth;
+
+      // Initialize neighbour column to a column that is guaranteed to
+      // be valid so that we can distinguish the edge cases when deciding
+      // whether to call avoidSealingColumn() or not.
+      Column *neighbourColumn = column;
+
+      // Has the adjacent column be found
+      bool notFound = true;
+
+      // Try to find a higher lying column that has the steepest ascent.
+      // This loop will catch cases where one of the immediate neighbours is:
+      // i)  A non-sealing shallower column (suitable adjacent column)
+      // ii) Not valid (edge case -> adjacent column = nullptr)
       for (int n = 0; n < NumNeighbours; ++n)
       {
-         Column *neighbourColumn = getColumn (column->getI () + NeighbourOffsets2D[n][I], column->getJ () + NeighbourOffsets2D[n][J]);
-
-         if (!IsValid (neighbourColumn))
-         {
-            // column lies on the edge, no adjacentColumn
-            adjacentColumn = 0;
-            break;
-         }
+         neighbourColumn = getColumn (column->getI () + NeighbourOffsets2D[n][I], column->getJ () + NeighbourOffsets2D[n][J]);
 
          if (trap and trap->contains (neighbourColumn))
          {
@@ -442,6 +452,8 @@ namespace migration
             continue;
          }
 
+         // Neighbour column is not sealing and is defined.
+         // But is it shallower than the current one?
          double neighbourDepth = neighbourColumn->getTopDepth ();
 
          if (column->isShallowerThan (neighbourColumn))
@@ -461,61 +473,85 @@ namespace migration
                // set it to be the adjacent column.
                minGradient = gradient;
                adjacentColumn = neighbourColumn;
+               notFound = false;
             }
          }
          else
          {
-            assert (depth == neighbourDepth);
             if (!adjacentColumn or adjacentColumn->isDeeperThan (neighbourColumn))
             {
                minGradient = 0;
                adjacentColumn = neighbourColumn;
+               notFound = false;
             }
          }
+      }
+
+      // Try to avoid going through a sealing column but only
+      // if the adjecent column has not been found yet.
+      if (column->isSealing (phase) and notFound)
+      {
+         adjacentColumn = avoidSealingColumn (phase, column, trap);
+         return (adjacentColumn ? adjacentColumn : column);
       }
 
       return adjacentColumn;
    }
 
-   // Try to find a non-sealing column among the neighbours
-   Column * Reservoir::avoidSealingColumn (PhaseId phase, Column * column, Trap * trap)
+   // Try to find a non-sealing column among the neighbours.
+   // For each kappa (measure of how many steps away a neighbour column is) loop over 
+   // all neighbours at that kappa and call findNonSealingColumn () 
+   Column * Reservoir::avoidSealingColumn (const PhaseId phase, const Column * column, const Trap * trap)
    {
-      int kappa = 1; // Iterating from 1 to MaximumNeighbourOffset
-      Column * nonSealingAdjacentColumn = 0;
-      Column * columnToReturn = 0;
-      double lowerDepth = 199999.0;
+      int kappa = 2; // Iterating from 1 to MaximumNeighbourOffset
+      Column * nonSealingAdjacentColumn = nullptr;
+      Column * columnToReturn = nullptr;
+      // Extreme depth (~200 km)
+      double shallowestDepth = SealDepth;
 
       if (MaximumNeighbourOffset == 0)
          return columnToReturn;
 
       do
       {
+         // Loop over the 8 neighbour directions (i.e. over n) and for each, return the shallowest column that
+         // - Is valid AND
+         // - Is part of a zero thickness area OR
+         // - Is not sealing and not part of the trap (in case of spillage)
+         //
+         // Then compare the depth of that column with the shallowest depth from previous iterations
+         // and save the shallowest. If no suitable column is found after all 8 neighbours have been
+         // investigated, check the neighbours' neighbours (++kappa) and so on.
          for (int n = 0; n < NumNeighbours; ++n)
          {
             nonSealingAdjacentColumn = findNonSealingColumn (kappa, n, phase, column, trap);
 
-            if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
-                !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
+            // The returned column satisfies all criteria, but we still need to compare it
+            // against the shallowest column of previous iterations of n
+            if (nonSealingAdjacentColumn != nullptr and nonSealingAdjacentColumn->getTopDepth () < shallowestDepth)
             {
                columnToReturn = nonSealingAdjacentColumn;
-               lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
+               shallowestDepth = nonSealingAdjacentColumn->getTopDepth ();
             }
          }
 
          if (++kappa > MaximumNeighbourOffset)
             return columnToReturn;
       }
-      while (!columnToReturn);
+      while (columnToReturn != nullptr);
 
       return columnToReturn;
    }
 
-   // Decomposing the neighbour space to cases
-   Column * Reservoir::findNonSealingColumn (int kappa, int n, PhaseId phase, Column * column, Trap * trap)
+   // Decomposing the neighbour space to cases depending on value of n (orthogonal vs diagonal neighbours)
+   // 
+   Column * Reservoir::findNonSealingColumn (int kappa, const int n, const PhaseId phase, const Column * column, const Trap * trap)
    {
-      Column * nonSealingAdjacentColumn = 0;
-      Column * columnToReturn = 0;
-      double lowerDepth = 199999.0;
+      Column * nonSealingAdjacentColumn = nullptr;
+      Column * columnToReturn = nullptr;
+      // Extreme depth (~200 km)
+      double shallowestDepth = SealDepth;
+      double newColumnDepth = (trap ? trap->getSpillDepth () : shallowestDepth);
       int originalKappa = kappa;
 
       // Checking neighbours for which:
@@ -523,45 +559,93 @@ namespace migration
       // 2) Either DeltaI or DeltaJ is zero (orthogonal)
       nonSealingAdjacentColumn = getColumn (column->getI () + kappa * NeighbourOffsets2D[n][I], column->getJ () + kappa * NeighbourOffsets2D[n][J]);
 
-      if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
+      // Check if nonSealingAdjacentColumncolumn is on edge. In that case, whether it's
+      // sealing or is part of a spilling trap doesn't matter, HCs will leak outward.
+      if (IsValid (nonSealingAdjacentColumn) and isOnBoundary(nonSealingAdjacentColumn))
+      {
+         columnToReturn = nonSealingAdjacentColumn;
+         newColumnDepth = nonSealingAdjacentColumn->getTopDepth ();
+      }
+      // Check if it satisfies the basic criteria: valid and of shallower depth
+      // Sealing or not doesn't matter here because it is in a zero-thickness area
+      else if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < newColumnDepth and
+          nonSealingAdjacentColumn->getThickness () < MinimumThickness)
+      {
+         columnToReturn = nonSealingAdjacentColumn;
+         newColumnDepth = nonSealingAdjacentColumn->getTopDepth ();
+      }
+      // Check for validity and depth as usual. Since this isn't zero-thickness area, we demand it's not sealing
+      // Finally, if the column is part of the trap where the spillage came from we don't consider it
+      else if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < newColumnDepth and
           !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
       {
          columnToReturn = nonSealingAdjacentColumn;
-         lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
+         newColumnDepth = nonSealingAdjacentColumn->getTopDepth ();
       }
 
       switch (n)
       {
-         // These are the diagonal cases (see NeighbourOffsets[][] in migration.h). For these cases: abs(DeltaI)=abs(DeltaJ)
+         // These are the diagonal cases (see NeighbourOffsets2D [][] in migration.h). For these cases: abs(DeltaI)=abs(DeltaJ)
+         // Actually, since both diagonal and orthogonal cases were covered above, here we take the diagonal cases and 
+         // explore the nodes that are off the diagonal but not orthogonal. Only relevant when kappa >= 2.
       case 0:
       case 2:
       case 5:
       case 7:
       {
          // Checking neighbours off the diagonal but for which both DeltaI and DeltaJ are non-zero
+         // Divided in two checks: one for which Delta I is decremented (while Delta J is constant)
+         // and one for which Delta J is decremented (while Delta I is constant). This way we are
+         // covering the entire perimeter of all neighbours for any distance measure kappa.
          for (; kappa > 1; --kappa)
          {
+            // Decrement Delta I
             nonSealingAdjacentColumn = getColumn (column->getI () + (kappa - 1) * NeighbourOffsets2D[n][I], column->getJ () + originalKappa * NeighbourOffsets2D[n][J]);
 
-            if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
+            // Same criteria as above
+            if (IsValid (nonSealingAdjacentColumn) and isOnBoundary(nonSealingAdjacentColumn))
+            {
+               columnToReturn = nonSealingAdjacentColumn;
+               newColumnDepth = nonSealingAdjacentColumn->getTopDepth ();
+            }
+            else if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < newColumnDepth and
+                nonSealingAdjacentColumn->getThickness () < MinimumThickness)
+            {
+               columnToReturn =  nonSealingAdjacentColumn;
+               newColumnDepth = nonSealingAdjacentColumn->getTopDepth ();
+            }
+            else if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < newColumnDepth and
                 !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
             {
                columnToReturn = nonSealingAdjacentColumn;
-               lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
+               newColumnDepth = nonSealingAdjacentColumn->getTopDepth ();
             }
 
+            // Decrement Delta J
             nonSealingAdjacentColumn = getColumn (column->getI () + originalKappa * NeighbourOffsets2D[n][I], column->getJ () + (kappa - 1) * NeighbourOffsets2D[n][J]);
 
-            if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
+            // Same criteria as above
+            if (IsValid (nonSealingAdjacentColumn) and isOnBoundary(nonSealingAdjacentColumn))
+            {
+               columnToReturn = nonSealingAdjacentColumn;
+               newColumnDepth = nonSealingAdjacentColumn->getTopDepth ();
+            }
+            else if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < newColumnDepth and
+                nonSealingAdjacentColumn->getThickness () < MinimumThickness)
+            {
+               columnToReturn = nonSealingAdjacentColumn;
+               newColumnDepth = nonSealingAdjacentColumn->getTopDepth ();
+            }
+            else if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < newColumnDepth and
                 !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
             {
                columnToReturn = nonSealingAdjacentColumn;
-               lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
+               newColumnDepth = nonSealingAdjacentColumn->getTopDepth ();
             }
          }
          break;
       }
-      // These are the orthogonal cases
+      // These are the orthogonal cases which have already been covered.
       case 1:
       case 3:
       case 4:
@@ -571,6 +655,23 @@ namespace migration
       }
 
       return columnToReturn;
+   }
+
+   bool Reservoir::isOnBoundary (const Column* column) const
+   {
+      Column * neighbourColumn;
+
+      for (int n = 0; n < NumNeighbours; ++n)
+      {
+         neighbourColumn = getColumn (column->getI () + NeighbourOffsets2D[n][I], column->getJ () + NeighbourOffsets2D[n][J]);
+
+         if (!IsValid (neighbourColumn))
+         {
+            return true;
+         }
+      }
+      
+      return false;
    }
 
    bool Reservoir::computeFlux (PhaseId phase, unsigned int i, unsigned int j)
@@ -618,7 +719,7 @@ namespace migration
    {
       LocalColumn * column = getLocalColumn (i, j);
 
-      if (!IsValid (column) or !column->isMinimum () or
+      if (!IsValid (column) or !column->isMinimum (phase) or
           column->isWasting (phase) or column->isSealing (phase) or
           column->getTrap ())
       {
@@ -2474,8 +2575,7 @@ namespace migration
          {
             LocalColumn * column = getLocalColumn (i, j);
             LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
-            if (IsValid (column) and IsValid (leakingColumn) and
-                !leakingColumn->isOnBoundary ())
+            if (IsValid (column) and IsValid (leakingColumn) and !isOnBoundary (leakingColumn))
             {
                if (barrier and barrier->isBlocking (i, j))
                   addBlocked (leakingColumn->getComposition ());
@@ -2537,7 +2637,7 @@ namespace migration
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
-            if (IsValid (column) and (!onBoundaryOnly or column->isOnBoundary ()))
+            if (IsValid (column) and (!onBoundaryOnly or isOnBoundary (column)))
             {
                total += column->getCompositionWeight ();
             }
