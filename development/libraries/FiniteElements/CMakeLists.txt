@@ -123,3 +123,15 @@ add_gtest( NAME FEM::BooleanVector
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
  )
+
+add_gtest( NAME FEM::ArrayOfVector3_Matrix3x3
+   SOURCES test/ArrayOfVector3_Matrix3x3Test.C
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+ )
+
+add_gtest ( NAME FEM::BasisFunction
+   SOURCES test/BasisFunctionTest.C
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+ )
