@@ -364,7 +364,14 @@ namespace FiniteElementMethod {
 
     ElementMatrix ();
     ~ElementMatrix ();
-
+    /** Copy constructor */
+    ElementMatrix(const ElementMatrix& other) = delete;
+    /** Copy assignment operator */
+    ElementMatrix& operator= (const ElementMatrix& other) = delete;
+    /** Move constructor */
+    ElementMatrix(ElementMatrix&& other) = delete;
+    /** Move assignment operator */
+    ElementMatrix& operator= (ElementMatrix&& other) = delete;
 
     double* C_Array ();
 
@@ -391,7 +398,6 @@ namespace FiniteElementMethod {
     //----------------------------//
 
     //----------------------------//
-
 
   private :
 
@@ -464,7 +470,14 @@ namespace FiniteElementMethod {
 
     ElementGeometryMatrix ();
     ~ElementGeometryMatrix () {}
-
+    /** Copy constructor */
+    ElementGeometryMatrix(const ElementGeometryMatrix& other) = delete;
+    /** Copy assignment operator */
+    ElementGeometryMatrix& operator= (const ElementGeometryMatrix& other) = delete;
+    /** Move constructor */
+    ElementGeometryMatrix(ElementGeometryMatrix&& other) = delete;
+    /** Move assignment operator */
+    ElementGeometryMatrix& operator= (ElementGeometryMatrix&& other) = delete;
 
     double  operator ()( const int row, const int col ) const;
     double& operator ()( const int row, const int col );
@@ -479,7 +492,6 @@ namespace FiniteElementMethod {
                std::ostream&      o = std::cout ) const;
 
      double getMidPoint ();
-
 
   private :
 
