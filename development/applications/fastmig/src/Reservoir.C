@@ -538,7 +538,7 @@ namespace migration
          if (++kappa > MaximumNeighbourOffset)
             return columnToReturn;
       }
-      while (columnToReturn != nullptr);
+      while (nullptr == columnToReturn);
 
       return columnToReturn;
    }
@@ -2569,6 +2569,8 @@ namespace migration
       if (!leakingReservoir)
          return true;
 
+      RequestHandling::StartRequestHandling (m_migrator, "collectLeakedCharges");
+
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
@@ -2584,6 +2586,8 @@ namespace migration
             }
          }
       }
+      RequestHandling::FinishRequestHandling ();
+
       return true;
    }
 
