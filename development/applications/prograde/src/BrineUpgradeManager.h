@@ -2,7 +2,7 @@
 // Copyright (C) 2018-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
-// Developed under license for Shell
+// Developed under license for Shell by CGI
 //
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.

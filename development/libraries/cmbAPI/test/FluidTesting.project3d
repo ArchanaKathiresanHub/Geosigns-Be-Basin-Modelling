@@ -1204,7 +1204,7 @@ Fluidtype Description DefinedBy UserDefined DefinitionDate LastChangedDate LastC
 "Std. Marine Water" "KSEPL's Standard Marine Water" "BPA" 0 "05/30/2018 12:22:04" "" "" 1000 "Calculated" 1500 "Calculated" 0.13 "Std. Water" "Std. Water" "Std. Water" "Std. Water" 0 0
 "Std. Hyper Saline Water" "KSEPL's Standard Ultra Marine Water" "BPA" 0 "05/30/2018 12:22:04" "" "" 1000 "Calculated" 1500 "Calculated" 0.22 "Std. Water" "Std. Water" "Std. Water" "Std. Water" 0 0
 "Std. Sea Water" "KSEPL's Standard Sea Water" "BPA" 0 "05/30/2018 12:22:04" "" "" 1011.04 "Calculated" 1623.35 "Calculated" 0.035 "Std. Water" "Std. Water" "Std. Water" "Std. Water" 0 0
-"NVG_Water" "KSEPL's Standard Water" "BPA" 0 "05/30/2018 15:04:32" "" "" 1000 "User Defined" 1500 "User Defined" 0.09 "Std. Water" "Std. Water" "Std. Water" "Std. Water" 0 0
+"NVG_Water" "KSEPL's Standard Water" "BPA" 1 "05/30/2018 15:04:32" "" "" 1000 "User Defined" 1500 "User Defined" 0.09 "Std. Water" "Std. Water" "Std. Water" "Std. Water" 0 0
 [End]
 ;
 ;

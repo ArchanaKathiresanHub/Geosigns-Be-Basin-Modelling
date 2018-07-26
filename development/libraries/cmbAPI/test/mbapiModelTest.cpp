@@ -920,24 +920,76 @@ TEST_F(mbapiModelTest, FluidManager)
 
 	mbapi::FluidManager & flMgr = testModel.fluidManager();
 
-	//get fluid ids
-	auto fluids = flMgr.getFluidsID();
+   
+   //get fluid ids
+   auto fluids = flMgr.getFluidsID();
 
-	size_t actualTableSize = 5;
-	//check whether all entries in FluidTypeIOTbl were read
-	ASSERT_EQ(actualTableSize,fluids.size());
+   size_t actualTableSize = 5;
+   //check whether all entries in FluidTypeIOTbl were read
+   ASSERT_EQ(actualTableSize,fluids.size());
 
-	std::vector<std::string> actualFluidNames = {"Std. Water","Std. Marine Water","Std. Hyper Saline Water","Std. Sea Water","NVG_Water"};
+   
+   {
+      std::vector<std::string> actualFluidNames = { "Std. Water","Std. Marine Water","Std. Hyper Saline Water","Std. Sea Water","NVG_Water" };
 
-	std::string fluidName;
+      std::string fluidName;
 
-	//Check whether all names are being read correctlty
-	for (auto flId : fluids)
-	{
-		flMgr.getFluidName(flId, fluidName);
-		ASSERT_EQ(actualFluidNames[flId], fluidName);
-	}
+      //Check whether all names are being read correctlty
+      for (auto flId : fluids)
+      {
+         flMgr.getFluidName(flId, fluidName);
+         EXPECT_EQ(actualFluidNames[flId], fluidName);
+      }
+   }
 
+   //check whether user defined flag can be read and modified
+   {
+      mbapi::FluidManager::FluidID id;
+      std::vector<int> actualUserDefined = { 0,0,0,0,1 };
+
+      int myUserDefined;
+
+      //Check whether all names are being read correctlty
+      for (auto flId : fluids)
+      {
+         flMgr.getUserDefined(flId, myUserDefined);
+         EXPECT_EQ(actualUserDefined[flId], myUserDefined);
+      }
+
+      id = 1;
+      flMgr.setUserDefined(id, 1);
+      flMgr.getUserDefined(id, myUserDefined);
+      EXPECT_EQ(1, myUserDefined);
+      flMgr.setUserDefined(id, 0);
+
+      id = 4;
+      flMgr.setUserDefined(id, 0);
+      flMgr.getUserDefined(id, myUserDefined);
+      EXPECT_EQ(0, myUserDefined);
+      flMgr.setUserDefined(id, 1);
+   }
+
+   //check whether fluid description can be read and modified
+   {
+      std::vector<std::string> actualDescription = { "KSEPL's Standard Water","KSEPL's Standard Marine Water",
+         "KSEPL's Standard Ultra Marine Water","KSEPL's Standard Sea Water","KSEPL's Standard Water" };
+      std::string myDescription;
+
+      //Check whether all names are being read correctlty
+      for (auto flId : fluids)
+      {
+         flMgr.getDescription(flId, myDescription);
+         EXPECT_EQ(actualDescription[flId], myDescription);
+      }
+
+      mbapi::FluidManager::FluidID id = 1;
+      flMgr.setDescription(id, "KSEPL's Deprecated Marine Water");
+      flMgr.getDescription(id, myDescription);
+      EXPECT_EQ("KSEPL's Deprecated Marine Water", myDescription);
+      flMgr.setDescription(id, "KSEPL's Standard Marine Water");
+
+
+   }
 	//check whether density model and value can be read and modified
 	{
 		mbapi::FluidManager::FluidID id;
@@ -946,19 +998,19 @@ TEST_F(mbapiModelTest, FluidManager)
 
 		id = 0;
 		flMgr.densityModel(id, model1, density1);
-		ASSERT_EQ(mbapi::FluidManager::FluidDensityModel::Calculated, model1);
-		ASSERT_EQ(double(1000), density1);
+		EXPECT_EQ(mbapi::FluidManager::FluidDensityModel::Calculated, model1);
+		EXPECT_NEAR(1000.0, density1, eps);
 
 		id = 4;
 		flMgr.densityModel(id, model1, density1);
-		ASSERT_EQ(mbapi::FluidManager::FluidDensityModel::Constant, model1);
-		ASSERT_EQ(double(1000), density1);
+		EXPECT_EQ(mbapi::FluidManager::FluidDensityModel::Constant, model1);
+		EXPECT_NEAR(1000.0, density1, eps);
 		density1 = density1 * 10.0;
 		flMgr.setDensityModel(id, mbapi::FluidManager::FluidDensityModel::Calculated, density1);
 
 		flMgr.densityModel(id, model2, density2);
-		ASSERT_EQ(mbapi::FluidManager::FluidDensityModel::Calculated, model2);
-		ASSERT_EQ(density1, density2);
+		EXPECT_EQ(mbapi::FluidManager::FluidDensityModel::Calculated, model2);
+		EXPECT_NEAR(density1, density2, eps);
 
 		density1 = density1 / 10.0;
 		flMgr.setDensityModel(id, mbapi::FluidManager::FluidDensityModel::Constant, density1);
@@ -972,19 +1024,19 @@ TEST_F(mbapiModelTest, FluidManager)
 
 		id = 0;
 		flMgr.seismicVelocityModel(id, model1, seismicVelocity1);
-		ASSERT_EQ(mbapi::FluidManager::CalculationModel::CalculatedModel, model1);
-		ASSERT_EQ(double(1500), seismicVelocity1);
+		EXPECT_EQ(mbapi::FluidManager::CalculationModel::CalculatedModel, model1);
+		EXPECT_NEAR(1500.0, seismicVelocity1, eps);
 
 		id = 4;
 		flMgr.seismicVelocityModel(id, model1, seismicVelocity1);
-		ASSERT_EQ(mbapi::FluidManager::CalculationModel::ConstantModel, model1);
-		ASSERT_EQ(double(1500), seismicVelocity1);
+		EXPECT_EQ(mbapi::FluidManager::CalculationModel::ConstantModel, model1);
+		EXPECT_NEAR(1500.0, seismicVelocity1, eps);
 		seismicVelocity1 = seismicVelocity1 * 10.0;
 		flMgr.setSeismicVelocityModel(id, mbapi::FluidManager::CalculationModel::CalculatedModel, seismicVelocity1);
 
 		flMgr.seismicVelocityModel(id, model2, seismicVelocity2);
-		ASSERT_EQ(mbapi::FluidManager::CalculationModel::CalculatedModel, model2);
-		ASSERT_EQ(seismicVelocity1, seismicVelocity2);
+		EXPECT_EQ(mbapi::FluidManager::CalculationModel::CalculatedModel, model2);
+		EXPECT_NEAR(seismicVelocity1, seismicVelocity2, eps);
 
 		seismicVelocity1 = seismicVelocity1 / 10.0;
 		flMgr.setSeismicVelocityModel(id, mbapi::FluidManager::CalculationModel::ConstantModel, seismicVelocity1);

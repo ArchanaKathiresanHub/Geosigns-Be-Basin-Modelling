@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -38,8 +38,8 @@ namespace mbapi {
 
       // Set of interfaces for interacting with a Cauldron model
 
-	  // Set project database. Reset all
-	  void setDatabase(database::ProjectFileHandlerPtr pfh);
+      // Set project database. Reset all
+      void setDatabase(database::ProjectFileHandlerPtr pfh);
 
       // Get list of fluids in the model
       // return array with IDs of different fluids defined in the model
@@ -53,58 +53,84 @@ namespace mbapi {
       // [in] id fluid ID
       // [out] fluidName on success has a fluid name, or empty string otherwise
       // return NoError on success or NonexistingID on error
-      virtual ReturnCode getFluidName( FluidID id, std::string & fluidName );
+      virtual ReturnCode getFluidName( const FluidID id, std::string & fluidName );
 
-	  // Density model definition
-	  /// @{
+      /// @brief Set description for
+      /// @param[in] id fluid ID
+      /// @param[in] myDescription contains fluid description
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getDescription(const FluidID id, std::string & myDescription);
 
-	  /// @brief Get fluid density model
-	  /// @param[in] id fluid ID
-	  /// @param[out] densModel type of density model set for the given fluid
-	  /// @param[out] refDens reference density value.
-	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
-	  virtual ReturnCode densityModel(FluidID id, FluidDensityModel & densModel, double & refDens);
+      /// @brief Set description for
+      /// @param[in] id fluid ID
+      /// @param[in] myDescription contains fluid description
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setDescription(const FluidID id, const std::string & myDescription);
 
-	  /// @brief Set fluid density model
-	  /// @param[in] id fluid ID
-	  /// @param[in] densModel type of density model set for the given fluid
-	  /// @param[in] refDens reference density value.
-	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
-	  virtual ReturnCode setDensityModel(FluidID id, const FluidDensityModel & densModel, const double & refDens);
+      /// @brief Get UserDefined flag for
+      /// @param[in] id fluid ID
+      /// @param[out] if myUserDefined is 1, the fluid type is user defined, else system generated
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getUserDefined(const FluidID id, int & myUserDefined);
 
-	  /// @}
+      /// @brief Set UserDefined flag for
+      /// @param[in] id fluid ID
+      /// @param[in] if myUserDefined is 1, the fluid type is user defined, else system generated
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setUserDefined(const FluidID id, const int myUserDefined);
 
-	  // Seismic Velocity model definition
-	  /// @{
+      // Density model definition
+      /// @{
 
-	  /// @brief Get fluid seismic velocity model
-	  /// @param[in] id fluid ID
-	  /// @param[out] seisVelModel type of seismic velocity model set for the given fluid
-	  /// @param[out] refSeisVel reference seismic velocity value.
-	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
-	  virtual ReturnCode seismicVelocityModel(FluidID id, CalculationModel & seisVelModel, double & refSeisVel);
+      /// @brief Get fluid density model
+      /// @param[in] id fluid ID
+      /// @param[out] densModel type of density model set for the given fluid
+      /// @param[out] refDens reference density value.
+      /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+      virtual ReturnCode densityModel(const FluidID id, FluidDensityModel & densModel, double & refDens);
 
-	  /// @brief Get fluid seismic velocity model
-	  /// @param[in] id fluid ID
-	  /// @param[in] seisVelModel type of seismic velocity model set for the given fluid
-	  /// @param[in] refSeisVel reference seismic velocity value.
-	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
-	  virtual ReturnCode setSeismicVelocityModel(FluidID id, const CalculationModel & seisVelModel, const double & refSeisVel);
+      /// @brief Set fluid density model
+      /// @param[in] id fluid ID
+      /// @param[in] densModel type of density model set for the given fluid
+      /// @param[in] refDens reference density value.
+      /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+      virtual ReturnCode setDensityModel(const FluidID id, const FluidDensityModel densModel, const double refDens);
 
-	  /// @}
+      /// @}
+
+      // Seismic Velocity model definition
+      /// @{
+
+      /// @brief Get fluid seismic velocity model
+      /// @param[in] id fluid ID
+      /// @param[out] seisVelModel type of seismic velocity model set for the given fluid
+      /// @param[out] refSeisVel reference seismic velocity value.
+      /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+      virtual ReturnCode seismicVelocityModel(const FluidID id, CalculationModel & seisVelModel, double & refSeisVel);
+
+      /// @brief Get fluid seismic velocity model
+      /// @param[in] id fluid ID
+      /// @param[in] seisVelModel type of seismic velocity model set for the given fluid
+      /// @param[in] refSeisVel reference seismic velocity value.
+      /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+      virtual ReturnCode setSeismicVelocityModel(const FluidID id, const CalculationModel seisVelModel, const double refSeisVel);
+
+      /// @}
       
    private:
       // Copy constructor is disabled, use the copy operator instead
       FluidManagerImpl( const FluidManager & );
 
-	  static const char * s_fluidTypesTableName;
-	  database::ProjectFileHandlerPtr m_db;          // cauldron project database
-	  database::Table               * m_fluidIoTbl;  // Fluid Type Io table
-	  static const char * s_fluidTypeFieldName;		// column name for fluid name
-	  static const char * s_densityModelFieldName;        // column name for density model
-	  static const char * s_densityFieldName;        // column name for reference density
-	  static const char * s_seismicVelocityModelFieldName;        // column name for seismic velocity model
-	  static const char * s_seismicVelocityFieldName;        // column name for reference seismic velocity
+      static const char * s_fluidTypesTableName;
+      database::ProjectFileHandlerPtr m_db;                 // cauldron project database
+      database::Table               * m_fluidIoTbl;         // Fluid Type Io table
+      static const char * s_fluidTypeFieldName;		        // column name for fluid name
+      static const char * s_descriptionFieldName;		     // column name for fluid description
+      static const char * s_userDefinedFieldName;           // column name for user defined flag	  
+      static const char * s_densityModelFieldName;          // column name for density model
+      static const char * s_densityFieldName;               // column name for reference density
+      static const char * s_seismicVelocityModelFieldName;  // column name for seismic velocity model
+      static const char * s_seismicVelocityFieldName;       // column name for reference seismic velocity
    };
 }
 

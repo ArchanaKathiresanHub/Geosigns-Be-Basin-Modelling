@@ -192,6 +192,8 @@ public:
    BiodegradeManager   & biodegradeManager()   { return m_BioDegMgr; } // Biodegradation
    std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle() { return m_projHandle; } // project file database (set of tables)
 
+private:
+
    // data members
    LithologyManagerImpl     m_lithMgr;
    StratigraphyManagerImpl  m_stratMgr;
