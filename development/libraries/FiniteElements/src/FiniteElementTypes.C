@@ -1,8 +1,18 @@
+//                                                                      
+// Copyright (C) 2018-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by CGI India Pvt. Ltd.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+
 #include "FiniteElementTypes.h"
 
 #include <string>
 #include <stdlib.h>
-
 #include "NumericFunctions.h"
 #include "FiniteElement.h"
 
@@ -695,6 +705,27 @@ FiniteElementMethod::ElementMatrix::ElementMatrix () {
 FiniteElementMethod::ElementMatrix::~ElementMatrix () {
 }
 
+/** Copy constructor */
+FiniteElementMethod::ElementMatrix::ElementMatrix(const ElementMatrix & other)
+{
+   std::copy(&other.m_allEntries[0], &other.m_allEntries[0] + 64, &m_allEntries[0]);
+   m_entries[0] = &m_allEntries[0];
+   m_entries[1] = &m_allEntries[8];
+   m_entries[2] = &m_allEntries[16];
+   m_entries[3] = &m_allEntries[24];
+   m_entries[4] = &m_allEntries[32];
+   m_entries[5] = &m_allEntries[40];
+   m_entries[6] = &m_allEntries[48];
+   m_entries[7] = &m_allEntries[56];
+}
+
+/** Copy assignment operator */
+FiniteElementMethod::ElementMatrix & FiniteElementMethod::ElementMatrix::operator=(const ElementMatrix & other)
+{
+   std::copy(&other.m_allEntries[0], &other.m_allEntries[0] + 64, &m_allEntries[0]);
+   return *this;
+}
+
 //------------------------------------------------------------//
 
 void FiniteElementMethod::ElementMatrix::zero () {
@@ -980,6 +1011,24 @@ FiniteElementMethod::ElementGeometryMatrix::ElementGeometryMatrix () {
   m_entries [ 1 ] = &m_allEntries [ 8 ];
   m_entries [ 2 ] = &m_allEntries [ 16 ];
 
+}
+
+/** Copy constructor */
+FiniteElementMethod::ElementGeometryMatrix::ElementGeometryMatrix(const ElementGeometryMatrix & other)
+{
+   // copy from other
+   std::copy(&other.m_allEntries[0], &other.m_allEntries[0] + 24, &m_allEntries[0]);
+   m_entries[0] = &m_allEntries[0];
+   m_entries[1] = &m_allEntries[8];
+   m_entries[2] = &m_allEntries[16];
+}
+
+/** Copy assignment operator */
+FiniteElementMethod::ElementGeometryMatrix & FiniteElementMethod::ElementGeometryMatrix::operator=(const ElementGeometryMatrix & other)
+{
+   // copy from other
+   std::copy(&other.m_allEntries[0], &other.m_allEntries[0] + 24, &m_allEntries[0]);
+   return *this;
 }
 
 //------------------------------------------------------------//

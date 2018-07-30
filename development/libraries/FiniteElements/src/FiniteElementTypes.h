@@ -1,3 +1,14 @@
+//                                                                      
+// Copyright (C) 2018-2018 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by CGI India Pvt. Ltd.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+
 #ifndef _FINITE_ELEMENT_METHOD__FEM_TYPES_H_
 #define _FINITE_ELEMENT_METHOD__FEM_TYPES_H_
 
@@ -365,13 +376,9 @@ namespace FiniteElementMethod {
     ElementMatrix ();
     ~ElementMatrix ();
     /** Copy constructor */
-    ElementMatrix(const ElementMatrix& other) = delete;
+    ElementMatrix(const ElementMatrix& other);
     /** Copy assignment operator */
-    ElementMatrix& operator= (const ElementMatrix& other) = delete;
-    /** Move constructor */
-    ElementMatrix(ElementMatrix&& other) = delete;
-    /** Move assignment operator */
-    ElementMatrix& operator= (ElementMatrix&& other) = delete;
+    ElementMatrix& operator= (const ElementMatrix& other) ;
 
     double* C_Array ();
 
@@ -471,13 +478,9 @@ namespace FiniteElementMethod {
     ElementGeometryMatrix ();
     ~ElementGeometryMatrix () {}
     /** Copy constructor */
-//    ElementGeometryMatrix(const ElementGeometryMatrix& other) = delete;
+    ElementGeometryMatrix(const ElementGeometryMatrix& other);
     /** Copy assignment operator */
-//    ElementGeometryMatrix& operator= (const ElementGeometryMatrix& other) = delete;
-    /** Move constructor */
-//    ElementGeometryMatrix(ElementGeometryMatrix&& other) = delete;
-    /** Move assignment operator */
-//    ElementGeometryMatrix& operator= (ElementGeometryMatrix&& other) = delete;
+    ElementGeometryMatrix& operator= (const ElementGeometryMatrix& other);
 
     double  operator ()( const int row, const int col ) const;
     double& operator ()( const int row, const int col );

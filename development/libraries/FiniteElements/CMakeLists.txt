@@ -76,6 +76,12 @@ add_gtest( NAME FEM::FreeFunctions
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
+add_gtest( NAME FEM::CopyTest
+   SOURCES test/CopyTest.cpp
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
 add_gtest( NAME FEM::Matrix3x3
    SOURCES test/Matrix3x3Test.C
    LIBRARIES ${LIB_NAME}
