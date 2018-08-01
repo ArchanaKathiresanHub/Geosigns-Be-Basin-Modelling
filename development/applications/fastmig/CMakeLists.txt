@@ -140,7 +140,7 @@ add_gtest( NAME "Fastmig::Leak"
 
 add_gtest( NAME "Fastmig::LeakGas"
    SOURCES test/LeakGas.C src/Leak.C src/LeakGas.C
-   LIBRARIES functions
+   LIBRARIES functions utilities
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
@@ -170,13 +170,13 @@ add_gtest( NAME "Fastmig::LeakOrWaste"
 
 add_gtest( NAME "Fastmig::LeakOrWasteGasAndSpillOil"
            SOURCES test/LeakOrWasteGasAndSpillOil.cpp src/LeakOrWasteGasAndSpillOil.C src/Leak.C src/Waste.C src/Spill.C src/LeakGas.C src/LeakGasAndSpillOil.C src/LeakOrSpill.C src/SpillOilAndGas.C src/WasteGasAndSpillOil.C
-           LIBRARIES functions
+           LIBRARIES functions utilities
            FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )
 
 add_gtest( NAME "Fastmig::LeakGasAndSpillOil"
            SOURCES test/LeakGasAndSpillOil.cpp src/Leak.C src/LeakGas.C src/LeakGasAndSpillOil.C src/Spill.C src/SpillOilAndGas.C
-           LIBRARIES functions
+           LIBRARIES functions utilities
            FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )
 

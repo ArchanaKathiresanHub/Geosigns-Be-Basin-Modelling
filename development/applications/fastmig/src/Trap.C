@@ -1167,8 +1167,17 @@ namespace migration
          {
             moveDistributedToCrestColumn ();
          }
+         // If there is no spillage, but there is leakage, then crest column only has leaked HCs.
+         // Put those temporarily in leakedBeforeBiodegDiffusion to reflash trap.
+         else if ((getCrestColumn ()->getCompositionState () & SPILLED) == 0 and (getCrestColumn ()->getCompositionState () & LEAKED) != 0)
+         {
+            moveDistributedToCrestColumn ();
+         }
          else
+         {
             moveBackToCrestColumn ();
+         }
+
          m_computedPVT = false;
       }
 
@@ -2390,6 +2399,22 @@ namespace migration
                                  getTemperature () + CelciusToKelvin, m_distributed[GAS], m_distributed[OIL], gasLeaked, gasWasted,
                                  gasSpilled, oilLeaked, oilSpilledOrWasted, finalGasLevel, finalHCLevel, crestPressure);
 
+      // If after distribution the weights of the vapour and the liquid phases are equal to the input weights
+      // down to a billionth, then whatever processes took place are insignificant, and are ignored. In this way,
+      // the possibility for hangs in fillAndSpill due to minute amounts of leakage, spillage and wasting
+      // being calculated is eliminated.
+      if ( NumericFunctions::isEqual(m_toBeDistributed[GAS].getWeight(), m_distributed[GAS].getWeight(), trapTolerance) and
+           NumericFunctions::isEqual(m_toBeDistributed[OIL].getWeight(), m_distributed[OIL].getWeight(), trapTolerance) )
+      {
+         m_toBeDistributed[GAS].reset ();
+         m_toBeDistributed[OIL].reset ();
+
+         setFillDepth (GAS, finalGasLevel + getTopDepth ());
+         setFillDepth (OIL, finalHCLevel + getTopDepth ());
+
+         return true;
+      }
+
 #ifdef DETAILED_MASS_BALANCE
       m_massBalance->subtractFromBalance("gas leaked", gasLeaked.getWeight());
       m_massBalance->subtractFromBalance("gas wasted", gasWasted.getWeight());
@@ -2469,10 +2494,11 @@ namespace migration
       m_toBeDistributed[GAS].reset ();
       m_toBeDistributed[OIL].reset ();
 
-      if (finalGasLevel + getTopDepth () > getSpillDepth () ||
-          finalHCLevel + getTopDepth () > getSpillDepth ())
+      if ( (finalGasLevel + getTopDepth () > getSpillDepth () and !NumericFunctions::isEqual(finalGasLevel + getTopDepth (), getSpillDepth (), trapTolerance)) ||
+           (finalHCLevel  + getTopDepth () > getSpillDepth () and !NumericFunctions::isEqual(finalHCLevel  + getTopDepth (), getSpillDepth (), trapTolerance)) )
       {
-         cerr << GetRankString () << ": " << this << ": finalGasDepth = " << getTopDepth () + finalGasLevel
+         std::cerr.precision(17);
+         std::cerr  << GetRankString () << ": " << this << ": finalGasDepth = " << getTopDepth () + finalGasLevel
               << ", finalHCDepth = " << getTopDepth () + finalHCLevel
               << ", spill depth = " << getSpillDepth () << endl;
       }
@@ -2639,7 +2665,7 @@ namespace migration
    {
       bool result = false;
       if (getCrestColumn ()->containsComposition () &&
-          ((getCrestColumn ()->getCompositionState () & (INITIAL + SPILLED)) != 0))
+          ((getCrestColumn ()->getCompositionState () & (INITIAL+ LEAKED + SPILLED)) != 0))
          result = true;
 
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
@@ -2908,9 +2934,10 @@ namespace migration
       {
          double fillDepth = getFillDepth ((PhaseId)phase);
 
-         if (fillDepth > getSpillDepth ())
+         if (fillDepth > getSpillDepth () and !NumericFunctions::isEqual(fillDepth, getSpillDepth (), trapTolerance))
          {
-            cerr << "Error in " << this <<  ": TrapID " << getGlobalId() << " fillDepth (" << fillDepth << ") for phase " << PhaseNames[phase] << " is larger than spillDepth (" << getSpillDepth () << ")" << endl;
+            std::cerr.precision(17);
+            std::cerr << "Error in " << this <<  ": TrapID " << getGlobalId() << " fillDepth (" << fillDepth << ") for phase " << PhaseNames[phase] << " is larger than spillDepth (" << getSpillDepth () << ")" << endl;
          }
 
          for (ConstColumnIterator iter = m_interior.begin (); iter != m_interior.end (); ++iter)
@@ -2962,7 +2989,7 @@ namespace migration
    // move only the trap content (m_distributed) to the crest column
    void Trap::moveDistributedToCrestColumn (void)
    {
-      // store what was leaked before diffusion
+      // Temporarily store leaked composition in m_leakedBeforeBiodegDiffusion
       LocalColumn * crestColumn = getCrestColumn ();
       if (!m_leakedBeforeBiodegDiffusion) m_leakedBeforeBiodegDiffusion = new Composition;
 
@@ -2980,7 +3007,6 @@ namespace migration
 
       setFillDepth (GAS, getTopDepth ());
       setFillDepth (OIL, getTopDepth ());
-
    }
 
    /// move all the stuff already in the trap back to the trap's crest column.

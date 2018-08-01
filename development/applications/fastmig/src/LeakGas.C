@@ -10,12 +10,16 @@
 
 #include "LeakGas.h"
 
+#include "migration.h"
 #include "FixedOilMaxBuoyancyGasLevel.h"
 #include "LimitedFixedOilMaxBuoyancyHCLevel.h"
+#include "NumericFunctions.h"
 #include "Tuple2.h"
+
+#include "LogHandler.h"
+
 #include <math.h>
 #include <iostream>
-
 
 #ifdef DEBUG_LEAKGAS
 #include <sstream>
@@ -294,8 +298,33 @@ namespace migration
          // Calculate the maximum supported gas volume:
          double finalGasVolume = computeFinalGasVolume (oilVolume, gasLimits, hcLimits);
 
-         // We determined already that leaking occured:
-         assert (gasVolume > finalGasVolume);
+         // We determined already that leaking occured. However, we allow for gasVolume
+         // and finalGasVolume to be very close to each other due to double precission
+         // round-off errors, most likely introduced in LeakGas::computeFinalGasVolume() 
+         if ((gasVolume < finalGasVolume) and !NumericFunctions::isEqual(gasVolume, finalGasVolume, trapTolerance))
+         {
+            std::cout.precision(17);
+            int size_L2V = m_levelToVolume->size();
+            std::ostringstream strstream;
+            strstream << "size = " << size_L2V << std::endl;
+            strstream << "level-to-volume: " << std::endl;
+
+            int it;
+
+            for (it = 0; it < size_L2V; ++it)
+            {
+               strstream << (m_levelToVolume->piece(it)) [0][0] << "\t" <<  (m_levelToVolume->piece(it)) [0][1] << std::endl;
+            }
+            strstream << (m_levelToVolume->piece(it-1)) [1][0] << "\t" <<  (m_levelToVolume->piece(it-1)) [1][1] << std::endl;
+            strstream << "gasVolume = " << gasVolume << "\t" << "finalGasVolume = " << finalGasVolume << std::endl;
+
+            LogHandler (LogHandler::ERROR_SEVERITY) << strstream.str();
+
+            assert (gasVolume > finalGasVolume or NumericFunctions::isEqual(gasVolume, finalGasVolume, trapTolerance));
+         }
+
+         // Correct for numerical errors
+         finalGasVolume = min(gasVolume, finalGasVolume);
 
          // The difference between gasVolume and finalGasVolume has leaked away:
          gasVolumeLeaked = gasVolume - finalGasVolume;
@@ -390,7 +419,7 @@ namespace migration
          // These equations can be written in matrix form:
          //
          //	 /                   \  /        \      /     \
-            //	 | 1-r    0    r   0 |  | x[GAS] |      | g_l |
+         //	 | 1-r    0    r   0 |  | x[GAS] |      | g_l |
          //	 |  0    -1    0   1 |  | y[GAS] |      | o_v |
          //	 |-g_g    1    0   0 |  | x[HC]  |   =  | G   |
          //	 |  0     0  -h_g  1 |  | y[HC]  |      | H   |
@@ -403,7 +432,7 @@ namespace migration
          // Subtracting (iv) from (ii) simplifies these equations to:
          //
          //	 /                   \  /        \      /         \
-            //	 | 1-r    0    r   0 |  | x[GAS] |      | g_l     |
+         //	 | 1-r    0    r   0 |  | x[GAS] |      | g_l     |
          //	 |  0    -1   h_g  0 |  | y[GAS] |      | o_v - H |
          //	 |-g_g    1    0   0 |  | x[HC]  |   =  | G       |
          //	 |  0     0  -h_g  1 |  | y[HC]  |      | H       |
@@ -412,7 +441,7 @@ namespace migration
          // Adding (iii) to (ii) yields:
          //
          //	 /                   \  /        \      /             \
-            //	 | 1-r    0    r   0 |  | x[GAS] |      | g_l         |
+         //	 | 1-r    0    r   0 |  | x[GAS] |      | g_l         |
          //	 |-g_g    0   h_g  0 |  | y[GAS] |      | o_v - H + G |
          //	 |-g_g    1    0   0 |  | x[HC]  |   =  | G           |
          //	 |  0     0  -h_g  1 |  | y[HC]  |      | H           |

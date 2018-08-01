@@ -241,6 +241,8 @@ namespace migration
    /// Only possible when running advanced migration without reservoir detection.
    const bool EliminateStuckHCs = true;
 
+   const double trapTolerance = 1e-12;
+
    const int NoTrapId = -10;
    const int UnknownTrapId = -5;
 
