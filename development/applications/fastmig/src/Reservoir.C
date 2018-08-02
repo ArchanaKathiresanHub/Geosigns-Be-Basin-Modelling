@@ -728,6 +728,7 @@ namespace migration
 
       // column does not have neigbours with smaller depth and left bottom neighbours all have greater depth
 
+      column->resetCompositionState();
       Trap * trap = new Trap (column);
       addTrap (trap);
       column->setGlobalTrapId (trap->getGlobalId ());
