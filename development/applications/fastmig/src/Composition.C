@@ -166,9 +166,9 @@ void Composition::setVolume (const double& volume)
    }
 }
 
-// Compute the lost composition due to biodegradation: switch between the legacy and new biodegradation module depending on the m_legacyMigration flag  
+// Compute the lost composition due to biodegradation  
 void Composition::computeBiodegradation(const double& timeInterval, const double& temperature,
-   const Biodegrade& biodegrade, Composition& compositionLost, const double fractionVolumeBiodegraded, const bool legacyMigration) const
+   const Biodegrade& biodegrade, Composition& compositionLost, const double fractionVolumeBiodegraded) const
 {
    double inputComponents[NumComponents];
    double lostComponents[NumComponents];
@@ -181,14 +181,7 @@ void Composition::computeBiodegradation(const double& timeInterval, const double
       lostComponents[component] = 0.0;
    }
 
-   if (legacyMigration)
-   {
-      biodegrade.calculateLegacy (timeInterval, temperature, inputComponents, lostComponents);
-   }
-   else
-   {
-      biodegrade.calculate (timeInterval, temperature, inputComponents, lostComponents);
-   }
+   biodegrade.calculate (timeInterval, temperature, inputComponents, lostComponents);
    
    for (component = 0; component < NumComponents; ++component)
    {

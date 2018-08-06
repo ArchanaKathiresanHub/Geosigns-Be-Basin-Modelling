@@ -1458,7 +1458,6 @@ namespace migration
       fclose (fres);
    }
 
-   // In the case of reservoir offsets the node to be flagged is the first one 'under' the top reservoir surface for each column
    void Formation::identifyAsReservoir (const bool advancedMigration) const
    {
       int depthIndex = getNodeDepth () - 1;
@@ -1478,19 +1477,16 @@ namespace migration
 
             double formationThickness = getDepth (i, j, 0) - getDepth (i, j, depthIndex + 1);
 
-            // if offset is not used or the mode is non legacy, topOffsetThickness == 0
-            double topOffsetThickness = reservoir->getLocalColumn(i, j)->getTopDepthOffset() * formationThickness;
-
             if (getLocalFormationNode (i, j, depthIndex)->hasThickness () and
-               (topOffsetThickness + getDepth (i, j, depthIndex + 1)) < getDepth (i, j, depthIndex) or depthIndex == 0) // Top node is flagged
+               getDepth (i, j, depthIndex + 1) < getDepth (i, j, depthIndex) or depthIndex == 0) // Top node is flagged
             {
                getLocalFormationNode (i, j, depthIndex)->identifyAsReservoir (advancedMigration);
             }
-            else // There is top offset or zero-thickness elements, so the correct node needs to be found
+            else // There zero-thickness elements, so the correct node needs to be found
             {
                int depth = depthIndex;
                while (depth > 0 and
-                  (getDepth (i, j, depth) < (topOffsetThickness + getDepth (i, j, depthIndex + 1))
+                  (getDepth (i, j, depth) < getDepth (i, j, depthIndex + 1)
                   or !getLocalFormationNode (i, j, depth)->hasThickness ()))
                {
                   --depth;
@@ -1792,6 +1788,7 @@ namespace migration
 
                Column *targetColumn = targetReservoir->getColumn (iTarget, jTarget);
 
+               // In the following lines, a suitable column where the HCs can be put is sought
                if (IsValid (targetColumn) and !targetColumn->isSealing ())
                {
                   targetColumn->addCompositionToBeMigrated (composition);
@@ -1916,6 +1913,7 @@ namespace migration
                {
                   Column *targetColumn = targetReservoir->getColumn (iTarget, jTarget);
 
+                  // In the following lines, a suitable column where the HCs can be put is sought
                   if (IsValid (targetColumn) and !targetColumn->isSealing ())
                   {
                      targetColumn->addCompositionToBeMigrated (composition);

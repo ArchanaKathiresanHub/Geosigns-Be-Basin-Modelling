@@ -1214,7 +1214,6 @@ namespace migration
       }
 
       // compare against ... nearest neighbour directions gridwise above and sideways
-
       if (hasNoThickness () or getFaultStatus () == WASTE)
       {
          // it should just bypass this node upward as it either has no thickness or is a wasting node.
@@ -1304,13 +1303,11 @@ namespace migration
          int kNeighbour = k + kOffset;
 
          // calculate discretizedFlowDirection
-
          discretizedFlowDirection.zero ();
          discretizedFlowDirection (1) = iOffset * dx;
          discretizedFlowDirection (2) = jOffset * dy;
 
          // calculate discretizedFlowDirection (3)
-
          double iQP, jQP, kQP;     // Quadrature point coordinates
 
          // Depth of neighbouring element calculated as the average of its 8 vertices' depth
@@ -1351,7 +1348,6 @@ namespace migration
          normalise (normalizedDiscretizedFlowDirection);
 
          // compute the compound analog flow direction of this node and the neighbour node.
-
          ThreeVector compoundAnalogFlowDirection;
 
          // If the neighbouring node is valid we will use the analog flow direction of the current AND
@@ -1386,7 +1382,6 @@ namespace migration
             // Exit point of the flow vector from the neighbouring element.
             // Can also be seen as the vertex/edge or face of the neighbour
             // of the neighbour if we keep on moving in the same direction.
-
             double neighbourNeighbourDepth = m_formation->getFiniteElementValue (iNeighbour, jNeighbour, kNeighbour, iQP, jQP, kQP, DEPTHPROPERTY);
             if (neighbourNeighbourDepth == Interface::DefaultUndefinedMapValue) continue;
 
@@ -1448,11 +1443,6 @@ namespace migration
 
       if (m_targetFormationNode) // already found
          return true;
-
-      // m_tried > MaxTries used to be a condition for getting in the "if" block that follows.
-      // Not anymore. Results need to be the same for runs with different numbers of processors.
-      //if (MaxTries < 0)
-      //   MaxTries = Max (2, NumProcessors () + 8);
 
       // We will call computeNextAdjacentNode() only if there is a closed loop in the path.
       if (m_entered)

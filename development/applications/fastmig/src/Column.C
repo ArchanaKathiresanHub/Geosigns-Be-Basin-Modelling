@@ -223,8 +223,6 @@ namespace migration
 
    LocalColumn::LocalColumn (unsigned int i, unsigned int j, Reservoir * reservoir) : Column (i, j, reservoir)
    {
-      m_topDepthOffset = 0;
-      m_bottomDepthOffset = 0;
       m_composition = 0;
       m_compositionToBeMigrated = 0;
       /// Local column penetration distance is initially zero
@@ -645,9 +643,9 @@ namespace migration
       double const percentageHeightHydrocarbonWaterContact = (bottomDepth - hydrocarbonWaterContactDepth) / (bottomDepth - topDepth);
       double const nodeHydrocarbonWaterContact = (depth - 1) * percentageHeightHydrocarbonWaterContact;
 
-      double index = nodeHydrocarbonWaterContact - getTopDepthOffset () * (depth - 1);
-      index = Max ((double)0, index);
-      index = Min ((double)depth - 1, index);
+      double index = nodeHydrocarbonWaterContact;
+      index = Max ((double)0, nodeHydrocarbonWaterContact);
+      index = Min ((double)depth - 1, nodeHydrocarbonWaterContact);
 
       double owcTemperature = gridMapTemperature->interpolate (getI (), getJ (), index);
 
@@ -682,32 +680,6 @@ namespace migration
    double LocalColumn::getNetToGross (void) const
    {
       return m_netToGross;
-   }
-
-   void LocalColumn::setTopDepthOffset (double fraction)
-   {
-      fraction = Max (0., fraction);
-      fraction = Min (1., fraction);
-
-      m_topDepthOffset = fraction;
-   }
-
-   double LocalColumn::getTopDepthOffset (void) const
-   {
-      return m_topDepthOffset;
-   }
-
-   void LocalColumn::setBottomDepthOffset (double fraction)
-   {
-      fraction = Max (0., fraction);
-      fraction = Min (1., fraction);
-
-      m_bottomDepthOffset = fraction;
-   }
-
-   double LocalColumn::getBottomDepthOffset (void)
-   {
-      return m_bottomDepthOffset;
    }
 
    void LocalColumn::setOverburden (double overburden)
@@ -1018,11 +990,6 @@ namespace migration
          response.j = getJ ();
          response.value = getBottomDepth ();
          break;
-      case TOPDEPTHOFFSET:
-         response.i = getI ();
-         response.j = getJ ();
-         response.value = getTopDepthOffset ();
-         break;
       case DIFFUSIONSTARTTIME:
          response.i = getI ();
          response.j = getJ ();
@@ -1212,8 +1179,6 @@ namespace migration
          return getTopDepth ();
       case BOTTOMDEPTH:
          return getBottomDepth ();
-      case TOPDEPTHOFFSET:
-         return getTopDepthOffset ();
       case CAPACITY:
          return getCapacity ();
       case THICKNESS:
@@ -2149,25 +2114,6 @@ namespace migration
       }
 
       return m_bottomDepth;
-   }
-
-   double ProxyColumn::getTopDepthOffset (void) const
-   {
-      if (!isCached (TOPDEPTHOFFSETCACHE))
-      {
-         ColumnValueRequest valueRequest;
-         ColumnValueRequest valueResponse;
-
-         valueRequest.i = getI ();
-         valueRequest.j = getJ ();
-         valueRequest.reservoirIndex = m_reservoir->getIndex ();
-         valueRequest.valueSpec = TOPDEPTHOFFSET;
-         RequestHandling::SendRequest (valueRequest, valueResponse);
-         m_topDepthOffset = valueResponse.value;
-         setCached (TOPDEPTHOFFSETCACHE);
-      }
-
-      return m_topDepthOffset;
    }
 
    double ProxyColumn::getNetToGross (void) const

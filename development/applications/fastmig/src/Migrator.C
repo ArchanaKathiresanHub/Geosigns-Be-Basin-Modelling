@@ -214,28 +214,15 @@ bool Migrator::compute (const bool overpressuredLeakage)
       m_reservoirDetection = false;
       m_paleoSeeps = false;
    }
-   m_legacyMigration = m_projectHandle->getRunParameters ()->getLegacy ();
 
    if (!setUpBasinGeometry ()) return false;
-
-   if (m_legacyMigration)
-   {
-      m_advancedMigration = false;
-      m_hdynamicAndCapillary = false;
-      m_reservoirDetection = false;
-      m_paleoSeeps = false;
-      m_overpressuredLeakage = false;
-   }
 
    getMinimumColumnHeights ();
 
    bool overPressureRun = !isHydrostaticCalculation ();
 
-   if (!m_legacyMigration)
-   {
-      createFormationNodes();
-      if (!computeFormationPropertyMaps(m_projectHandle->getSnapshots()->front(), overPressureRun)) return false;
-   }
+   createFormationNodes();
+   if (!computeFormationPropertyMaps(m_projectHandle->getSnapshots()->front(), overPressureRun)) return false;
    
    if (m_reservoirDetection)
    {
@@ -246,11 +233,9 @@ bool Migrator::compute (const bool overpressuredLeakage)
       m_projectHandle->deleteReservoirs();
    }
 
-   //By default the m_topDepthOffset= m_bottomDepthOffset = 0
-   if (!computeDepthOffsets()) return false;
    if (!computeNetToGross()) return false;
 
-   // delete the maps created for computeDepthOffsets and computeNetToGross
+   // delete the maps created for computeNetToGross
    m_propertyManager->removeProperties (m_projectHandle->getSnapshots ()->front ());
    // delete the formation property grid maps
    deleteFormationPropertyMaps ();
@@ -353,25 +338,14 @@ bool Migrator::setUpBasinGeometry (void)
 {
    bool HydrostaticCalculation = isHydrostaticCalculation ();
 
-   if (!m_legacyMigration)
-   {
-      // From GeoPhysics::ProjectHandle
-      if (!m_projectHandle->initialise (true) or
-          !m_projectHandle->setFormationLithologies (true, true) or
-          !m_projectHandle->initialiseLayerThicknessHistory (!HydrostaticCalculation) or // Backstripping
-          !m_projectHandle->applyFctCorrections ())
-         return false;
-      else
-         return true;
-   }
+   // From GeoPhysics::ProjectHandle
+   if (!m_projectHandle->initialise (true) or
+       !m_projectHandle->setFormationLithologies (true, true) or
+       !m_projectHandle->initialiseLayerThicknessHistory (!HydrostaticCalculation) or // Backstripping
+       !m_projectHandle->applyFctCorrections ())
+      return false;
    else
-   {
-      if (!m_projectHandle->initialise (true) or
-          !m_projectHandle->setFormationLithologies (true, true))
-         return false;
-      else
-         return true;
-   }
+      return true;
 }
 
 bool Migrator::isHydrostaticCalculation (void) const
@@ -490,33 +464,25 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
       if (GetRank () == 0)
          std::cout << "Processing snapshot " << end->getTime () << std::endl;
 
-      if (m_legacyMigration)
-      {
-         if (!chargeReservoirs (start, end))
-            return false;
-      }
-      else
-      {
-         clearFormationNodeProperties ();
+      clearFormationNodeProperties ();
 
-         if (!computeFormationPropertyMaps (end, overPressureRun) or
-             !retrieveFormationPropertyMaps (end) or
-             !computeFormationNodeProperties (end) or
-             !flagTopNodes(end, overPressureRun) or
-             !detectReservoirs (start, end, overPressureRun) or
-             !computeSMFlowPaths (start, end) or
-             !restoreFormationPropertyMaps (end) or
-             !loadExpulsionMaps (start, end) or
-             !chargeReservoirs (start, end) or
-             !calculateSeepage (start, end) or
-             !unloadExpulsionMaps (end) or
-             !saveSMFlowPaths (start, end))
-         {
-            return false;
-         }
-
-         deleteFormationPropertyMaps ();
+      if (!computeFormationPropertyMaps (end, overPressureRun) or
+          !retrieveFormationPropertyMaps (end) or
+          !computeFormationNodeProperties (end) or
+          !flagTopNodes(end, overPressureRun) or
+          !detectReservoirs (start, end, overPressureRun) or
+          !computeSMFlowPaths (start, end) or
+          !restoreFormationPropertyMaps (end) or
+          !loadExpulsionMaps (start, end) or
+          !chargeReservoirs (start, end) or
+          !calculateSeepage (start, end) or
+          !unloadExpulsionMaps (end) or
+          !saveSMFlowPaths (start, end))
+      {
+         return false;
       }
+
+      deleteFormationPropertyMaps ();
    }
 
    m_projectHandle->continueActivity ();
@@ -539,25 +505,6 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    m_projectHandle->deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,
                                                  0, start, 0, 0, 0, Interface::MAP | Interface::VOLUME);
 
-
-   return true;
-}
-
-/// compute the positions of the reservoirs within the formations
-bool Migrator::computeDepthOffsets ()
-{
-   Interface::ReservoirList * reservoirs = getReservoirs ();
-
-   Interface::ReservoirList::iterator reservoirIter;
-
-   for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++reservoirIter)
-   {
-	   Reservoir * reservoir = (Reservoir *)* reservoirIter;
-
-	   assert(reservoir);
-
-	   if (!reservoir->computeDepthOffsets(m_projectHandle->findSnapshot(0.))) return false;
-   }
 
    return true;
 }

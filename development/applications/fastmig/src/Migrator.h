@@ -64,9 +64,6 @@ namespace migration
 
       bool createFormationNodes (void);
 
-      /// Compute the offsets of each reservoir from the top and bottom of its formation
-      bool computeDepthOffsets ();
-
       /// Compute the net/gross fractions
       bool computeNetToGross (void);
 
@@ -199,7 +196,6 @@ namespace migration
       bool performAdvancedMigration (void) const;
       bool performHDynamicAndCapillary (void) const;
       bool performReservoirDetection (void) const;
-      bool performLegacyMigration (void) const;
       bool isBlockingOn (void) const;
       double getBlockingPermeability (void) const;
       double getBlockingPorosity (void) const;
@@ -248,8 +244,6 @@ namespace migration
       bool m_paleoSeeps;
       /// Whether the 'blocking' functionality is used
       bool m_isBlockingOn;
-      /// Whether we use GeoSigns-BPA (true) or BPA2 (false) engine
-      bool m_legacyMigration;
       /// Whether overpressure is accounted for in trap leakage
       bool m_overpressuredLeakage;
       /// Whether genex will be run on the fly
@@ -285,11 +279,6 @@ inline bool migration::Migrator::performHDynamicAndCapillary (void) const
 inline bool migration::Migrator::performReservoirDetection (void) const
 {
    return m_reservoirDetection;
-}
-
-inline bool migration::Migrator::performLegacyMigration (void) const
-{
-   return m_legacyMigration;
 }
 
 inline bool migration::Migrator::isBlockingOn (void) const

@@ -340,12 +340,6 @@ namespace migration
 
       double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade);
 
-      /*!
-      * \biodegrade charges as in legacy migration
-      */
-      double biodegradeChargesLegacy (const double& timeInterval, const Biodegrade& biodegrade);
-      double biodegradeChargesLegacy (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase);
-
 	   /*!
       * \brief Check if a trap has already pasteurized columns or not. 
       * Loop over the interior of the trap and if pasteurized columns are present then is not needed to compute the pasteurization state from scratch.
@@ -394,7 +388,7 @@ namespace migration
 
       /// Methods used for seal failure calculations:
       bool computeDistributionParameters (const Interface::FracturePressureFunctionParameters*
-         parameters, const SurfaceGridMapContainer& fullOverburden, const Interface::Snapshot* snapshot, const bool isLegacy);
+         parameters, const SurfaceGridMapContainer& fullOverburden, const Interface::Snapshot* snapshot);
 
       bool computeSealPressureLeakParametersImpl(
          const Interface::FracturePressureFunctionParameters* fracturePressureParameters,
@@ -406,8 +400,7 @@ namespace migration
          vector< vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
          vector< vector<double> >& lithFracs,
          vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
-         vector<double>& permeability,
-         const bool isLegacy ) const;
+         vector<double>& permeability) const;
 
       bool computeForFunctionOfLithostaticPressure (const SurfaceGridMapContainer& fullOverburden,
          const Formation* formation, const vector<double>& lithFracs, double& fracPressure) const;

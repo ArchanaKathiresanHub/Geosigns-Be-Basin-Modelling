@@ -1204,51 +1204,6 @@ namespace migration
       getCrestColumn ()->resetComposition ();
    }
 
-   // legacy biodegradeCharges
-   double Trap::biodegradeChargesLegacy (const double& timeInterval, const Biodegrade& biodegrade)
-   {
-      if (requiresPVT ())
-         computePVT ();
-
-      int phase = LAST_PHASE;
-      if (m_toBeDistributed[phase].isEmpty ())
-      {
-         phase = FIRST_PHASE;
-         if (m_toBeDistributed[phase].isEmpty ())
-            return 0;
-      }
-
-      double biodegraded = biodegradeChargesLegacy (timeInterval, biodegrade, (PhaseId)phase);
-
-#ifdef DETAILED_MASS_BALANCE
-      m_massBalance->subtractFromBalance ("biodegraded", biodegraded);
-#endif
-
-#ifdef DETAILED_VOLUME_BALANCE
-      m_volumeBalance->subtractFromBalance ("biodegraded", biodegraded);
-#endif
-
-      return biodegraded;
-   }
-
-   // legacy biodegradeCharges
-   double Trap::biodegradeChargesLegacy (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase)
-   {
-      Composition biodegraded;
-
-      assert (!m_toBeDistributed[phase].isEmpty ());
-
-      //temperature here is computed at the trap crest
-      m_toBeDistributed[phase].computeBiodegradation (timeInterval, getTemperature (), biodegrade,
-                                                      biodegraded, 1.0, true);
-
-      m_toBeDistributed[phase].subtract (biodegraded);
-
-      m_reservoir->reportBiodegradationLoss (this, biodegraded);
-
-      return biodegraded.getWeight ();
-   }
-
    double Trap::biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade)
    {
       // Charge has been placed in m_toBeDistributed in computeHydrocarbonWaterContactDepth()
@@ -1277,7 +1232,7 @@ namespace migration
          if (volumeFractionOfGasBiodegraded > 0.0)
          {
             m_toBeDistributed[GAS].computeBiodegradation (timeInterval, m_hydrocarbonWaterContactTemperature, biodegrade,
-                                                          biodegradedGas, volumeFractionOfGasBiodegraded, false);
+                                                          biodegradedGas, volumeFractionOfGasBiodegraded);
             m_toBeDistributed[GAS].subtract (biodegradedGas);
             assert (m_toBeDistributed[GAS].getWeight () >= 0.0);
          }
@@ -1285,7 +1240,7 @@ namespace migration
          if (volumeFractionOfOilBiodegraded > 0.0)
          {
             m_toBeDistributed[OIL].computeBiodegradation (timeInterval, m_hydrocarbonWaterContactTemperature, biodegrade,
-                                                          biodegradedOil, volumeFractionOfOilBiodegraded, false);
+                                                          biodegradedOil, volumeFractionOfOilBiodegraded);
             m_toBeDistributed[OIL].subtract (biodegradedOil);
             assert (m_toBeDistributed[OIL].getWeight () >= 0.0);
          }
@@ -1525,10 +1480,8 @@ namespace migration
       // whether the seal is formed by the next formation.  In the last case, the first
       // is the second formation of depths etc:
       begin = depths.begin (); end = depths.end ();
-      if ( getCrestColumn()->getTopDepthOffset() == 0.0 )
-      {
-         ++begin;
-      }
+      ++begin;
+      
       if (begin == end) LogHandler(LogHandler::ERROR_SEVERITY) << "The begin and the end of the depth overbuden array coincide in Trap::iterateToFirstOverburdenFormation";
    }
 
@@ -1922,7 +1875,7 @@ namespace migration
 
    bool Trap::computeDistributionParameters (const Interface::FracturePressureFunctionParameters*
                                              parameters, const SurfaceGridMapContainer& fullOverburden,
-                                             const Snapshot* snapshot, const bool isLegacy )
+                                             const Snapshot* snapshot)
    {
       delete m_distributor;
       m_distributor = 0;
@@ -1938,7 +1891,7 @@ namespace migration
 
       if (!computeSealPressureLeakParametersImpl (parameters, fullOverburden, snapshot, sealPresent,
                                                   fracPressure, sealFluidDensity, lithProps, lithFracs,
-                                                  mixModel, permeability, isLegacy ) )
+                                                  mixModel, permeability) )
          return false;
 
       setFracturePressure (fracPressure);
@@ -1946,12 +1899,7 @@ namespace migration
 
       if (sealPresent)
       {
-
-         if ( isLegacy || getCrestColumn()->getTopDepthOffset() != 0.0 )
-         {
-            setSealPermeability( permeability[0] );
-         }
-         else if ( permeability.size( ) == 2 )
+         if ( permeability.size( ) == 2 )
          {
             //set the seal permeability only if a seal formation is present
             setSealPermeability( permeability[1] );
@@ -2023,7 +1971,7 @@ namespace migration
 
             double overPressureContrast = 0.0;
             bool overpressuredLeakage = m_reservoir->getMigrator()->isOverpressuredLeakageOn();
-            if (!m_reservoir->getMigrator()->isHydrostaticCalculation() and !isLegacy and overpressuredLeakage)
+            if (!m_reservoir->getMigrator()->isHydrostaticCalculation() and overpressuredLeakage)
             {
                boost::array<double,2> overPressures = {0.0, 0.0};
 
@@ -2039,7 +1987,7 @@ namespace migration
             double crestColumnThickness = getCrestColumn()->getThickness();
 
             m_distributor = new LeakWasteAndSpillDistributor( sealFluidDensity, fracSealStrength, overPressureContrast, crestColumnThickness,
-                                                              CapillarySealStrength( lithProps, lithFracs, mixModel, permeability, sealFluidDensity, lambdaPC, isLegacy ),
+                                                              CapillarySealStrength( lithProps, lithFracs, mixModel, permeability, sealFluidDensity, lambdaPC ),
                                                               m_levelToVolume );
          }
          else
@@ -2083,8 +2031,7 @@ namespace migration
       vector< vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
       vector< vector<double> >& lithFracs,
       vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
-      vector<double>& permeability,
-      const bool isLegacy) const
+      vector<double>& permeability) const
    // to implement //
    {
       const SurfaceGridMapContainer::discontinuous_properties & depths =
@@ -2116,20 +2063,10 @@ namespace migration
       unsigned int j = getCrestColumn ()->getJ ();
       vector < const Formation *>formations;
 
-      if ( isLegacy || getCrestColumn()->getTopDepthOffset() != 0.0 )
-      {
-         //if is legacy or there is offset, get only the seal formation (formations[0])
-         if ( !overburden_MPI::getRelevantOverburdenFormations( begin, depths.end( ), snapshot, i, j,
-                                                                numeric_limits < double >::max( ), 1, true, formations ) )
-            return false;
-      }
-      else
-      {
-         //if offset is not present and is not legacy, get the reservoir (formations[0]) and the seal formation (formations[1])
-         if ( !overburden_MPI::getRelevantOverburdenFormations( depths.begin( ), depths.end( ), snapshot, i, j,
-                                                                numeric_limits < double >::max( ), 2, true, formations ) )
-            return false;
-      }
+      // Get the reservoir (formations[0]) and the seal formation (formations[1])
+      if ( !overburden_MPI::getRelevantOverburdenFormations( depths.begin( ), depths.end( ), snapshot, i, j,
+                                                             numeric_limits < double >::max( ), 2, true, formations ) )
+         return false;
 
       // It can happen there are no seal formations.  In that case return:
       sealPresent = formations.size () != 0;
@@ -2216,49 +2153,26 @@ namespace migration
             // the effective capillary parameters:
             mixModel.push_back( ( *f )->getMixModel() );
 
-            // If the trap lies inside the formation the relevant permeability is the permeability
-            // of the trap, else the permeability is the permeability of the base of the overburden
+            // Permeability is the permeability of the base of the overburden
             // formation:
-
-            if ( getCrestColumn()->getTopDepthOffset() != 0.0 )
-               permeability.push_back( getCrestColumn()->getPermeability() );
+            if ( *f == formations.front() && ( *p ).top().valid() )
+            {
+               //reservoir (in case the only valid formation is the reservoir only this is executed)
+               permeability.push_back( ( *p ).top()[functions::Tuple2<unsigned int>( i, j )] );
+            }
+            else if ( formations.size() == 2 && *f == formations.back() && ( *p ).base().valid() )
+            {
+               //seal
+               permeability.push_back( ( *p ).base()[functions::Tuple2<unsigned int>( i, j )] );
+            }
             else
             {
-               // Remove the following if when legacy will be removed.
-               if ( isLegacy )
-               {
-                  if ( !( *p ).base( ).valid( ) )
-                  {
-                     cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid permeability property found for base of formation: '" <<
-                        ( *f )->getName( ) << "' at time: " << snapshot->getTime( ) << "." << endl;
-                     cerr.flush( );
-
-                     return false;
-                  }
-                  else
-                     permeability.push_back(( *p ).base( )[functions::Tuple2<unsigned int>( i, j )]);
-               }
-               else
-               {
-                  if ( *f == formations.front() && ( *p ).top().valid() )
-                  {
-                     //reservoir (in case the only valid formation is the reservoir only this is executed)
-                     permeability.push_back( ( *p ).top()[functions::Tuple2<unsigned int>( i, j )] );
-                  }
-                  else if ( formations.size() == 2 && *f == formations.back() && ( *p ).base().valid() )
-                  {
-                     //seal
-                     permeability.push_back( ( *p ).base()[functions::Tuple2<unsigned int>( i, j )] );
-                  }
-                  else
-                  {
-                     cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid permeability property found for formation: '" <<
-                        ( *f )->getName() << "' at time: " << snapshot->getTime() << "." << endl;
-                     cerr.flush();
-                     return false;
-                  }
-               }
+               cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid permeability property found for formation: '" <<
+                  ( *f )->getName() << "' at time: " << snapshot->getTime() << "." << endl;
+               cerr.flush();
+               return false;
             }
+            
 
             // Finally use the gathered information to calculate the capillary seal strength of gas and oil:
             vector<translateProps::CreateCapillaryLithoProp::output> formlithProps;
@@ -2268,8 +2182,6 @@ namespace migration
 
             // -- Fracture pressure calculations --//
             // Compute sealFluidDensity, fracPressure and the fracture pressure only for the seal.
-            // Note that in case of offset formation[0] is the reservoir formation.
-            // This means that the fracture pressure is calculated for the reservoir formation.
             if ( ( *f ) == formations.back() )
             {
 

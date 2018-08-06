@@ -68,34 +68,4 @@ void Biodegrade::calculate(const double timeInterval, const double temperatureTr
    }
 }
 
-// legacy biodegradation
-// biodegradation processing. pre and pos mean before and after biodegradation is applied
-void Biodegrade::calculateLegacy (const double timeInterval, const double T_C,
-   const double* input, double* lost) const
-{
-   assert (timeInterval > 0.0);
-
-   if (T_C > m_maxBioTemp)
-      return;
-
-   for (int compIdx = 0; compIdx < m_bioConsts.size (); compIdx++)
-   {
-      // Calculate the weight reduction factors by biodegradation:
-      double bigT = pow ((m_maxBioTemp - T_C) / m_maxBioTemp, m_bioConsts[compIdx]);
-      double degradeFactor = pow ((1.0 - bigT), (timeInterval * m_timeFactor));
-
-      lost[compIdx] = (1.0 - degradeFactor) * input[compIdx];
-      if (degradeFactor < 0)
-      {
-         cerr << "Warning: all component " << compIdx << " is biodegraded. The degradeFactor is " << degradeFactor << endl;
-         lost[compIdx] = input[compIdx];
-      }
-      if (degradeFactor > 1)
-      {
-         cerr << "Warning: for component " << compIdx << " the degradeFactor is " << degradeFactor <<", no biodegradation occurs "<< endl;
-         lost[compIdx] = 0;
-      }
-   }
-}
-
 } // namespace migration

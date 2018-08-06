@@ -62,7 +62,6 @@ namespace migration
       virtual double getTopDepth (void) const = 0;
       virtual void setBottomDepth (double depth) = 0;
       virtual double getBottomDepth (void) const = 0;
-      virtual double getTopDepthOffset (void) const = 0;
       virtual double getOWCTemperature (const double hydrocarbonWatercontactDepth) const = 0;
       virtual double getThickness (void);
       virtual double getCapacity (double spillDepth = 1e8);
@@ -178,7 +177,6 @@ namespace migration
       virtual double getTopDepth (void) const;
       virtual void setBottomDepth (double depth);
       virtual double getBottomDepth (void) const;
-      virtual double getTopDepthOffset (void) const;
       virtual double getNetToGross (void) const;
       virtual double getPorosity (void) const;
       virtual double getOWCTemperature (const double hydrocarbonWatercontactDepth) const;
@@ -244,7 +242,6 @@ namespace migration
 
       mutable double m_topDepth;
       mutable double m_bottomDepth;
-      mutable double m_topDepthOffset;
       mutable double m_netToGross;
       mutable double m_porosity;
       mutable int    m_pasteurizationStatus;
@@ -287,12 +284,6 @@ namespace migration
 
       virtual void setNetToGross (double fraction);
       virtual double getNetToGross (void) const;
-
-      virtual void setTopDepthOffset (double fraction);
-      virtual double getTopDepthOffset (void) const;
-
-      virtual void setBottomDepthOffset (double fraction);
-      virtual double getBottomDepthOffset (void);
 
       virtual double getOverburden (void) const;
       virtual void setOverburden (double topSurfaceDepth);
@@ -508,10 +499,6 @@ namespace migration
 
       /// net/gross fractions of the reservoir
       double m_netToGross;
-      /// reservoir top offset from the top of the formation, fraction of the present day thickness
-      double m_topDepthOffset;
-      /// reservoir bottom offset from the bottom of the formation, fraction of the present day thickness
-      double m_bottomDepthOffset;
 
       double m_topDepth;
       double m_bottomDepth;

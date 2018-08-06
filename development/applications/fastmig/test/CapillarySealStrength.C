@@ -72,11 +72,8 @@ TEST(CapillarySealStrength, PositiveStrength)
       // Lambda correction in the reservoir
       double lambdaPc = 1.0;
 
-      // non-legacy run
-      bool legacy = false;
-
       // Put all the above parameters together
-      CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc, legacy);
+      CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
       // Create the vapour and liquid compositions
       Composition vapourComposition;
@@ -167,11 +164,8 @@ TEST(CapillarySealStrength, ZeroStrength)
       // Lambda correction in the reservoir
       double lambdaPc = 2.0;
 
-      // non-legacy run
-      bool legacy = false;
-
       // Put all the above parameters together
-      CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc, legacy);
+      CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
       // Create the vapour and liquid compositions
       Composition vapourComposition;
@@ -264,11 +258,8 @@ TEST(CapillarySealStrength, VapourStrengthDependsOnOil)
             // Lambda correction in the reservoir
             double lambdaPc = 1.0;
 
-            // non-legacy run
-            bool legacy = false;
-
             // Put all the above parameters together
-            CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc, legacy);
+            CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
             // Create the vapour and liquid compositions
             Composition vapourComposition;
@@ -407,11 +398,8 @@ TEST(CapillarySealStrength, LambdaInfluenceLiquid)
    // Lambda is zero this time to make the correction factor equal to one.
    double lambdaPc = 0.0;
 
-   // non-legacy run
-   bool legacy = false;
-
    // Put all the above parameters together
-   CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc, legacy);
+   CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
    // Create the vapour and liquid compositions
    Composition vapourComposition;
@@ -447,7 +435,7 @@ TEST(CapillarySealStrength, LambdaInfluenceLiquid)
    permeabilities.pop_back();
    permeabilities.push_back(permeability_seal);
 
-   CapillarySealStrength capSealStrength2 (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc, legacy);
+   CapillarySealStrength capSealStrength2 (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
    capSealStrength2.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid);
 
@@ -508,11 +496,8 @@ TEST(CapillarySealStrength, LambdaInfluenceVapour)
    // Lambda is zero this time to make the correction factor equal to one.
    double lambdaPc = 0.0;
 
-   // non-legacy run
-   bool legacy = false;
-
    // Put all the above parameters together
-   CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc, legacy);
+   CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
    // Create the vapour and liquid compositions
    Composition vapourComposition;
@@ -559,7 +544,7 @@ TEST(CapillarySealStrength, LambdaInfluenceVapour)
    permeabilities.pop_back();
    permeabilities.push_back(permeability_seal);
 
-   CapillarySealStrength capSealStrength2 (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc, legacy);
+   CapillarySealStrength capSealStrength2 (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
    capSealStrength2.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid);
 
@@ -619,11 +604,8 @@ TEST(CapillarySealStrength, EmptyCompositions)
    // Lambda is zero this time to make the correction factor equal to one.
    double lambdaPc = 0.0;
 
-   // non-legacy run
-   bool legacy = false;
-
    // Put all the above parameters together
-   CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc, legacy);
+   CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
    // Create the vapour and liquid compositions
    Composition vapourComposition;

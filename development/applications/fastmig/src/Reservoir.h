@@ -76,8 +76,6 @@ namespace migration
                                                                          const Interface::Snapshot * snapshot) const;
       AbstractDerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName,
                                                                                const Interface::Snapshot * snapshot) const;
-      /// @brief Computes depth offsets according to input (legacy only)
-      bool computeDepthOffsets (const Interface::Snapshot * presentDay);
       /// @brief Computes net to gross according to input (legacy only)
       bool computeNetToGross (void);
       /// @return Boolean whether a reservoir is active at a given snapshot
