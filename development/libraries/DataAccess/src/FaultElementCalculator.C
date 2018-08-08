@@ -46,7 +46,7 @@ bool FaultElementCalculator::computeFaultGridMap (GridMap * faultMap, FaultColle
       FaultCollection * fc = (FaultCollection *) * fcIter;
       computeFaultGridMap (faultMap, fc);
    }
-   
+
    return true;
 }
 
@@ -59,18 +59,24 @@ bool FaultElementCalculator::computeFaultGridMap (GridMap * faultMap, FaultColle
    {
       Fault * fault = (Fault *) * faultIter;
 
-      ElementSet faultElements;
+      // If a fault has no migration events then do not change the fault status along the fault.
+      if ( fault->getNumberOfMigrationEvents () > 0 ) {
 
-      computeFaultElements (fault->getFaultLine (), faultElements);
+         ElementSet faultElements;
 
-      FaultStatus faultStatus = fault->getStatus (m_snapshot);
+         computeFaultElements (fault->getFaultLine (), faultElements);
 
-      ElementSet::iterator elementIter;
+         FaultStatus faultStatus = fault->getStatus (m_snapshot);
 
-      for (elementIter = faultElements.begin (); elementIter != faultElements.end (); ++elementIter)
-      {
-         faultMap->setValue ((*elementIter) (X_COORD), (*elementIter) (Y_COORD), double (faultStatus));
+         ElementSet::iterator elementIter;
+
+         for (elementIter = faultElements.begin (); elementIter != faultElements.end (); ++elementIter)
+         {
+            faultMap->setValue ((*elementIter) (X_COORD), (*elementIter) (Y_COORD), double (faultStatus));
+         }
+
       }
+
    }
 
    delete faults;
@@ -118,7 +124,7 @@ double LinearPolynomial::constant () const {
 
 //------------------------------------------------------------//
 
-void LineSegment::setPoints ( const Point& P1, 
+void LineSegment::setPoints ( const Point& P1,
                                                       const Point& P2 ) {
 
   Start = P1;
@@ -127,7 +133,7 @@ void LineSegment::setPoints ( const Point& P1,
   double R = separationDistance ( P1, P2 );
   xPoly.setPoints ( P1 ( X_COORD ), P2 ( X_COORD ), R );
   yPoly.setPoints ( P1 ( Y_COORD ), P2 ( Y_COORD ), R );
-  
+
 }
 
 //------------------------------------------------------------//
@@ -263,7 +269,7 @@ void FaultElementCalculator::computeGridIntersectionPoints ( const LineSegment& 
 #endif
 
    ///
-   /// Find x start. To simplify things when finding the y-grid-line-intersection 
+   /// Find x start. To simplify things when finding the y-grid-line-intersection
    /// points, order the startElement and endElement's x-coordinate index.
    ///
    if (startElement (X_COORD) > endElement (X_COORD))
@@ -272,7 +278,7 @@ void FaultElementCalculator::computeGridIntersectionPoints ( const LineSegment& 
    }
 
    ///
-   /// Find y start. To simplify things when finding the x-grid-line-intersection 
+   /// Find y start. To simplify things when finding the x-grid-line-intersection
    /// points, order the startElement and endElement's x-coordinate index.
    ///
    if (startElement (Y_COORD) > endElement (Y_COORD))
@@ -364,7 +370,7 @@ void FaultElementCalculator::computeGridIntersectionPoints ( const LineSegment& 
    newSize = gridIntersectionPoints.size ();
 
    ///
-   /// Only need to compute the translated line IFF the line-segment is not alligned with 
+   /// Only need to compute the translated line IFF the line-segment is not alligned with
    /// the grid lines and some points that lie along the line-segment are not unique.
    /// (The last clause can be expressed because the x-axis and y-axis intersection points
    ///  are computed separately, and so may appear on the set more than once)
@@ -438,7 +444,7 @@ void FaultElementCalculator::getElementsTraversed ( const Point&      P1,
       getElementsTraversed (LS, ES, translatedNeeded);
 
       ///
-      /// If needed then the line must be translated slightly from its original 
+      /// If needed then the line must be translated slightly from its original
       /// position and the elements that the line intersects re-evaluated.
       ///
       if (translatedNeeded)

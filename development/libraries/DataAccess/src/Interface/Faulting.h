@@ -120,6 +120,9 @@ namespace DataAccess
          FaultStatus getStatus (const Snapshot * snapshot) const;
          const std::string & getStatusName (const Snapshot * snapshot) const;
 
+         /// \brief Determine the number of migration events a fault has.
+         size_t getNumberOfMigrationEvents () const;
+
          OverpressureFaultEventIterator beginOverpressureEvents () const;
 
          OverpressureFaultEventIterator endOverpressureEvents () const;

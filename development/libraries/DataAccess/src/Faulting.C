@@ -87,7 +87,7 @@ OverpressureFaultEvent::OverpressureFaultEvent ( const Snapshot*    snapshot,
                                                  const std::string& faultLithology,
                                                  const bool         usedInOverpressure ) :
    m_snapshot ( snapshot ), m_faultLithologyName ( faultLithology ), m_usedInOverpressureCalculation ( usedInOverpressure ) {
-   
+
 }
 
 //------------------------------------------------------------//
@@ -140,6 +140,10 @@ PointList * Fault::getPoints (void) const
    }
 
    return points;
+}
+
+size_t Fault::getNumberOfMigrationEvents () const {
+   return m_events.size ();
 }
 
 void Fault::addEvent (const Snapshot * snapshot, const std::string & status)
