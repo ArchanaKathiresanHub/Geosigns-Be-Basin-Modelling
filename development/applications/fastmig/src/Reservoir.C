@@ -2663,6 +2663,8 @@ namespace migration
       if (!computeDistributionParameters ())
          return false;
 
+      int iterationNumber = 1;
+
       // In BPA2 engine, distribute first (i.e. calculate leakage, wasting and spillage),
       // then biodegrade and then calculate diffusion losses. If something is biodegraded,
       // or diffused, then a final re-distribution will be needed.
@@ -2673,8 +2675,13 @@ namespace migration
 
          mergeSpillingTraps ();
          processMigrationRequests ();
+         
+         ++iterationNumber;
       }
-      while (!allProcessorsFinished (distributionHasFinished ()));
+      while (!allProcessorsFinished (distributionHasFinished ()) and (iterationNumber < maxFillAndSpillIterations));
+
+      if (iterationNumber >= maxFillAndSpillIterations)
+         LogHandler (LogHandler::WARNING_SEVERITY) << "Maximum number of iteration in fill and spill has been reached\n";
 
       m_biodegraded = 0;
       if (isBiodegradationEnabled())
@@ -2700,6 +2707,9 @@ namespace migration
       if (isBiodegradationEnabled() or
           isDiffusionEnabled())
       {
+         // Reset iteration counter
+         iterationNumber = 1;
+
          bool flashCharges = true;
          do
          {
@@ -2712,8 +2722,13 @@ namespace migration
             // Making sure that if spillage occurs, every trap will be re-flashed.
             // No easy way of knowing that in advance.
             flashCharges = false;
+
+            ++iterationNumber;
          }
-         while (!allProcessorsFinished (distributionHasFinished ()));
+         while (!allProcessorsFinished (distributionHasFinished ()) and (iterationNumber < maxFillAndSpillIterations));
+
+         if (iterationNumber >= maxFillAndSpillIterations)
+            LogHandler (LogHandler::WARNING_SEVERITY) << "Maximum number of iteration in fill and spill has been reached\n";
       }
 
       putInitialLeakageBack();

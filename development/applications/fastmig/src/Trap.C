@@ -823,6 +823,7 @@ namespace migration
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
       {
          Column * spillingTo = getColumnToSpillTo ((PhaseId)phase);
+
          if (spillingTo)
          {
             m_spillTarget[phase] = spillingTo;
@@ -832,8 +833,6 @@ namespace migration
             m_spillTarget[phase] = getSpillColumn ();
          }
          assert (m_spillTarget[phase]);
-
-         assert (m_spillTarget[phase] != getCrestColumn ());
 
          if (getFinalSpillTarget ((PhaseId)phase) == getCrestColumn ())
          {
