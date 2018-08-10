@@ -1998,10 +1998,68 @@ bool Migrator::mergeOutputFiles ()
 {
    if (m_projectHandle->getModellingMode () == Interface::MODE1D) return true;
 #ifndef _MSC_VER
-   ibs::FilePath localPath  ( m_projectHandle->getProjectPath () );
-   localPath <<  m_projectHandle->getOutputDir ();
-   const bool status = H5_Parallel_PropertyList ::mergeOutputFiles ( MigrationActivityName, localPath.path() );
 
+   bool status = true;
+ 
+   // clean mpaCache which can hold read-only opened files
+   m_projectHandle->mapFileCacheDestructor();
+
+   const std::string& directoryName = m_projectHandle->getOutputDir ();
+
+   // Merge 3D output 
+   database::Table::iterator timeTableIter;
+   database::Table* snapshotTable =  m_projectHandle->getTable ( "SnapshotIoTbl" );
+   
+   assert ( snapshotTable != 0 );
+   const string timepart = "_";
+   const string flowpart = flowPathsFileNamePrefix;
+ 
+   PetscBool minorSnapshots;
+   PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
+
+   for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
+      bool isMinor = database::getIsMinorSnapshot( *timeTableIter ) == 1;
+      
+      // check if we need to merge minor snapshots
+      if( minorSnapshots or ( not minorSnapshots and not isMinor )) { 
+
+         // constract the file name to megre
+         string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );        
+         if ( !snapshotFileName.empty() ) {
+            // find a time part in the snapshot file name
+            std::size_t found = snapshotFileName.find(timepart);
+         
+            if (found != std::string::npos ) {  
+               // create the file name
+               string flowFile = flowpart + snapshotFileName.substr(found);
+               
+               // check if the temporary file exists
+               std::stringstream tempname;
+               tempname << H5_Parallel_PropertyList::getTempDirName() <<  "/" << directoryName << "/" << flowFile << "_" << GetRank();
+
+               ibs::FilePath tempPathName(tempname.str().c_str());
+                  
+               if( tempPathName.exists()) {
+                     
+                  ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
+                  filePathName << directoryName << flowFile;
+                  
+                  PetscPrintf ( PETSC_COMM_WORLD,  "Merging of %s\n",  flowFile.c_str() );
+                  
+                  if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
+                     status = false;
+                     PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error: Could not merge the file %s.\n", filePathName.cpath() );
+                  }
+               }
+            }
+         }
+      }
+   }
+   // Merge 2D output
+   ibs::FilePath localPath  ( m_projectHandle->getProjectPath () );
+   localPath <<  directoryName; 
+   status = H5_Parallel_PropertyList ::mergeOutputFiles ( MigrationActivityName, localPath.path() );
+   
    return status;
 #else
    return true;
