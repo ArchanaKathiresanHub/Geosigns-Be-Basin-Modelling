@@ -241,7 +241,7 @@ namespace migration
    /// Only possible when running advanced migration without reservoir detection.
    const bool EliminateStuckHCs = true;
 
-   const int maxFillAndSpillIterations = 1000000;
+   const int minFillAndSpillIterations = 100;
 
    const double trapTolerance = 1e-12;
 

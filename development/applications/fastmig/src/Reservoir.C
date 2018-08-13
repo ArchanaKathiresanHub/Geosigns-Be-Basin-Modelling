@@ -2171,6 +2171,21 @@ namespace migration
       return MaximumAll (numberOfTraps);
    }
 
+   int Reservoir::numberOfAllTraps (bool countUndersized)
+   {
+      int numberOfTraps = (int)m_traps.size ();
+      if (!countUndersized)
+      {
+         TrapVector::iterator trapIter;
+         for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+         {
+            if ((*trapIter)->isUndersized ())
+               --numberOfTraps;
+         }
+      }
+      return SumAll (numberOfTraps);
+   }
+
    bool Reservoir::computeNetToGross (void)
    {
       bool reservoirDetection = m_migrator->performReservoirDetection();
@@ -2665,6 +2680,7 @@ namespace migration
 
       int iterationNumber = 1;
 
+      int maxFillAndSpillIterations = max(minFillAndSpillIterations, numberOfAllTraps());
       // In BPA2 engine, distribute first (i.e. calculate leakage, wasting and spillage),
       // then biodegrade and then calculate diffusion losses. If something is biodegraded,
       // or diffused, then a final re-distribution will be needed.

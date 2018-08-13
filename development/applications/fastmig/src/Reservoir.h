@@ -376,6 +376,7 @@ namespace migration
       void removeUndersizedTraps (void);
       void completeTrapExtensions (void);
       int computeMaximumTrapCount (bool countUndersized = true);
+      int numberOfAllTraps (bool countUndersized = false);
       inline unsigned int getMaximumTrapCount (void);
 
 
