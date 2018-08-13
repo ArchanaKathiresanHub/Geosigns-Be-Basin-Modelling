@@ -32,20 +32,21 @@
 namespace mbapi
 {
 
-const char * LithologyManagerImpl::s_lithoTypesTableName        = "LithotypeIoTbl";
+const char * LithologyManagerImpl::s_lithoTypesTableName                = "LithotypeIoTbl";
 
-const char * LithologyManagerImpl::s_lithoTypeNameFieldName     = "Lithotype";
-
+const char * LithologyManagerImpl::s_lithoTypeNameFieldName             = "Lithotype";
+const char * LithologyManagerImpl::s_descriptionFieldName               = "Description";
 // Porosity model
-const char * LithologyManagerImpl::s_porosityModelFieldName     = "Porosity_Model";
-const char * LithologyManagerImpl::s_surfPorosityFieldName      = "SurfacePorosity";
-const char * LithologyManagerImpl::s_ccExponentialFieldName     = "CompacCoefES";
-const char * LithologyManagerImpl::s_ccaDblExponentialFieldName = "CompacCoefESA";
-const char * LithologyManagerImpl::s_ccbDblExponentialFieldName = "CompacCoefESB";
-const char * LithologyManagerImpl::s_ccSoilMechanicsFieldName   = "Compaction_Coefficient_SM";
-const char * LithologyManagerImpl::s_minPorosityFieldName       = "MinimumPorosity";
-const char * LithologyManagerImpl::s_stpThermalCondFieldName    = "StpThCond";
-const char * LithologyManagerImpl::s_seisVelocityFieldName      = "SeisVelocity";
+const char * LithologyManagerImpl::s_porosityModelFieldName             = "Porosity_Model";
+const char * LithologyManagerImpl::s_surfPorosityFieldName              = "SurfacePorosity";
+const char * LithologyManagerImpl::s_ccExponentialFieldName             = "CompacCoefES";
+const char * LithologyManagerImpl::s_ccaDblExponentialFieldName         = "CompacCoefESA";
+const char * LithologyManagerImpl::s_ccbDblExponentialFieldName         = "CompacCoefESB";
+const char * LithologyManagerImpl::s_compacRatioDblExponentialFieldName = "CompacRatioES";
+const char * LithologyManagerImpl::s_ccSoilMechanicsFieldName           = "Compaction_Coefficient_SM";
+const char * LithologyManagerImpl::s_minPorosityFieldName               = "MinimumPorosity";
+const char * LithologyManagerImpl::s_stpThermalCondFieldName            = "StpThCond";
+const char * LithologyManagerImpl::s_seisVelocityFieldName              = "SeisVelocity";
 
 // Permeability model
 const char * LithologyManagerImpl::s_permeabilityModelFieldName      = "PermMixModel";
@@ -509,6 +510,50 @@ std::string LithologyManagerImpl::lithologyName( LithologyID id )
    return lName;
 }
 
+
+// Get Description for lithology type
+std::string LithologyManagerImpl::getDescription(const LithologyID id )
+{
+   if (errorCode() != NoError) resetError();
+
+   std::string myDescription;
+
+   // if table does not exist - report error
+   if (!m_lithIoTbl)
+   {
+      reportError(NonexistingID, std::string(s_lithoTypesTableName) + " table could not be found in project");
+      return myDescription;
+   }
+
+   database::Record * rec = m_lithIoTbl->getRecord(static_cast<int>(id));
+   if (!rec)
+   {
+      reportError(NonexistingID, "No lithology type with such ID");
+      return myDescription;
+   }
+   myDescription = rec->getValue<std::string>(s_descriptionFieldName);
+
+   return myDescription;
+
+}
+
+// Set Description for lithology type
+ErrorHandler::ReturnCode LithologyManagerImpl::setDescription(const LithologyID id, const std::string & myDescription)
+{
+   if (errorCode() != NoError) resetError();
+
+   try
+   {
+      if (!m_lithIoTbl) { throw Exception(NonexistingID) << s_lithoTypesTableName << " table could not be found in project"; }
+      database::Record * rec = m_lithIoTbl->getRecord(static_cast<int>(id));
+      if (!rec) { throw Exception(NonexistingID) << "No lithology type with such ID: " << id; }
+      rec->setValue<std::string>(s_descriptionFieldName, myDescription);
+   }
+   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+   return NoError;
+}
+
+
 // find lithology ID by the lithology name
 LithologyManager::LithologyID LithologyManagerImpl::findID( const std::string & lName )
 {
@@ -688,9 +733,10 @@ ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID       
 
       case PorDoubleExponential:
          porModelPrms.push_back( rec->getValue<double>( s_surfPorosityFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_ccaDblExponentialFieldName));
          porModelPrms.push_back( rec->getValue<double>( s_minPorosityFieldName ) );
-         porModelPrms.push_back( rec->getValue<double>( s_ccaDblExponentialFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( s_ccbDblExponentialFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_compacRatioDblExponentialFieldName ));
          break;
 
       default: return reportError( NonexistingID, std::string( "Unsupported porosity model: " ) + tpName );
@@ -716,7 +762,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
          break;
 
       case PorDoubleExponential:
-         if ( porModelPrms.size() != 4 ) return reportError( OutOfRangeValue, "Wrong parameters number for Double Exponential porosity model" );
+         if ( porModelPrms.size() != 5 ) return reportError( OutOfRangeValue, "Wrong parameters number for Double Exponential porosity model" );
          break;
 
       default: return reportError( NonexistingID, "Unsupported porosity model" );
@@ -741,7 +787,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
          if ( porModelPrms[CompactionCoef] < 0 || porModelPrms[CompactionCoef] > 50 ){
             return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
          }
-         if ( porModelPrms[PhiMin] < 0 || porModelPrms[CompactionCoef] > 100 ){
+         if ( porModelPrms[PhiMin] < 0 || porModelPrms[PhiMin] > 100 ){
             return reportError( OutOfRangeValue, "Minimal porosity value must be in range [0:100]" );
          }
          if ( porModelPrms[PhiMin] > porModelPrms[PhiSurf] ){
@@ -754,25 +800,27 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
          break;
 
       case PorSoilMechanics:
-         if ( porModelPrms[0] < 0 || porModelPrms[0] > 100 ) return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
-         if ( porModelPrms[1] < 0 || porModelPrms[1] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
-         rec->setValue( s_surfPorosityFieldName,    porModelPrms[0] );
-         rec->setValue( s_ccSoilMechanicsFieldName, porModelPrms[1] );
+         if ( porModelPrms[PhiSurf] < 0 || porModelPrms[PhiSurf] > 100 ) return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
+         if ( porModelPrms[CompactionCoef] < 0 || porModelPrms[CompactionCoef] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
+         rec->setValue( s_surfPorosityFieldName,    porModelPrms[PhiSurf] );
+         rec->setValue( s_ccSoilMechanicsFieldName, porModelPrms[CompactionCoef] );
          rec->setValue( s_porosityModelFieldName, std::string( "Soil_Mechanics" ) );
          break;
 
       case PorDoubleExponential:
-         if ( porModelPrms[0] < 0 || porModelPrms[0] > 100 ) return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
-         if ( porModelPrms[1] < 0 || porModelPrms[1] > 100 ) return reportError( OutOfRangeValue, "Minimal porosity value must be in range [0:100]" );
-         if ( porModelPrms[1] > porModelPrms[0]            ) return reportError( OutOfRangeValue, "Minimal porosity value must be less then surface porosity value" );
-         if ( porModelPrms[2] < 0 || porModelPrms[2] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient A value must be in range [0:50]" );
-         if ( porModelPrms[3] < 0 || porModelPrms[3] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient B value must be in range [0:50]" );
+         if ( porModelPrms[PhiSurf] < 0 || porModelPrms[PhiSurf] > 100 ) return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
+         if ( porModelPrms[PhiMin] < 0 || porModelPrms[PhiMin] > 100 ) return reportError( OutOfRangeValue, "Minimal porosity value must be in range [0:100]" );
+         if ( porModelPrms[PhiMin] > porModelPrms[PhiSurf]            ) return reportError( OutOfRangeValue, "Minimal porosity value must be less then surface porosity value" );
+         if ( porModelPrms[CompactionCoef] < 0 || porModelPrms[CompactionCoef] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient A value must be in range [0:50]" );
+         if ( porModelPrms[CompactionCoefB] < 0 || porModelPrms[CompactionCoefB] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient B value must be in range [0:50]" );
+         if ( porModelPrms[CompactionRatio] < 0 || porModelPrms[CompactionRatio] > 1) return reportError(OutOfRangeValue, "Compaction ratio value must be in range [0:1]");
 
-         rec->setValue( s_surfPorosityFieldName,      porModelPrms[0] );
-         rec->setValue( s_minPorosityFieldName,       porModelPrms[1] );
-         rec->setValue( s_ccaDblExponentialFieldName, porModelPrms[2] );
-         rec->setValue( s_ccbDblExponentialFieldName, porModelPrms[3] );
-         rec->setValue( s_porosityModelFieldName, std::string( "Double_Exponential" ) );
+         rec->setValue( s_surfPorosityFieldName,              porModelPrms[PhiSurf] );
+         rec->setValue( s_minPorosityFieldName,               porModelPrms[PhiMin] );
+         rec->setValue( s_ccaDblExponentialFieldName,         porModelPrms[CompactionCoef] );
+         rec->setValue( s_ccbDblExponentialFieldName,         porModelPrms[CompactionCoefB] );
+         rec->setValue( s_compacRatioDblExponentialFieldName, porModelPrms[CompactionRatio] );
+         rec->setValue( s_porosityModelFieldName,             std::string( "Double_Exponential" ) );
          break;
 
       default: return reportError( NonexistingID, "Unsupported porosity model" );

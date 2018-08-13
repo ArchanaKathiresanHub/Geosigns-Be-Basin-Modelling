@@ -81,6 +81,9 @@ namespace DataAccess
          /// Return the double exponential compaction coefficient B.
          virtual double getExponentialCompactionCoefficientB () const;
 
+         /// Return the double exponential compaction ratio.
+         virtual double getExponentialCompactionRatio() const;
+
          /// Return the soil mechanics compaction coefficient.
          virtual double getSoilMechanicsCompactionCoefficient () const;
 

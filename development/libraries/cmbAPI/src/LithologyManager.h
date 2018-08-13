@@ -114,11 +114,13 @@ namespace mbapi {
          PorUnknown           = -1 ///< Not any model was defined
       } PorosityModel;
 
-      enum PorExponentialParameters
+      enum PorModelParameters
       {
          PhiSurf,
          CompactionCoef,
-         PhiMin
+         PhiMin,
+         CompactionCoefB,
+         CompactionRatio
       };
 
       // Define permeability models in the same name as in DataAccess interface library
@@ -159,6 +161,17 @@ namespace mbapi {
       /// @param[in] id lithology ID
       /// @return lithology type name for given lithology ID or empty string in case of error
       virtual std::string lithologyName( LithologyID id ) = 0;
+
+      /// @brief Get lithology description for the given ID
+      /// @param[in] id lithology ID
+      /// @return lithology description for given lithology ID or empty string in case of error
+      virtual std::string getDescription(const LithologyID id) = 0;
+
+      /// @brief Set lithology description for the given ID
+      /// @param[in] id lithology ID
+      /// @param[in] myDescription contains lithology description
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setDescription(const LithologyID id, const std::string & myDescription) = 0;
 
       /// @brief Search for lithology record which has given lithology name 
       /// @param lName lithology name

@@ -687,6 +687,81 @@ TEST_F( mbapiModelTest, SetPermeabilityModelParametersTest )
 }
 
 
+TEST_F(mbapiModelTest, PorosityModelParametersTest)
+{
+   mbapi::Model testModel;
+
+   // load test project
+   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_lithologyTestProject));
+
+   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
+
+   // Check get Exponential porosity model
+   mbapi::LithologyManager::LithologyID lid1 = lthMgr.findID("Std. Sandstone");
+   ASSERT_FALSE(IsValueUndefined(lid1));
+
+   mbapi::LithologyManager::PorosityModel porModel1;
+   std::vector<double> modelPrms1;
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.porosityModel(lid1, porModel1, modelPrms1));
+   ASSERT_EQ(porModel1, mbapi::LithologyManager::PorExponential);
+   ASSERT_EQ(modelPrms1.size(), 3U);
+   ASSERT_NEAR(modelPrms1[0], 48.0, eps);
+   ASSERT_NEAR(modelPrms1[1], 3.22, eps);
+   ASSERT_NEAR(modelPrms1[2], 0.0 , eps);
+
+   // Check get Soil mechanics porosity model
+   mbapi::LithologyManager::LithologyID lid2 = lthMgr.findID("SM.Mudst.40%Clay");
+   ASSERT_FALSE(IsValueUndefined(lid2));
+
+   mbapi::LithologyManager::PorosityModel porModel2;
+   std::vector<double> modelPrms2;
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.porosityModel(lid2, porModel2, modelPrms2));
+   ASSERT_EQ(porModel2, mbapi::LithologyManager::PorSoilMechanics);
+   ASSERT_EQ(modelPrms2.size(), 2U);
+   ASSERT_NEAR(modelPrms2[0], 56.32, eps);
+   ASSERT_NEAR(modelPrms2[1], 0.1988, eps);
+
+   mbapi::LithologyManager::PorosityModel porModel3;
+   std::vector<double> modelPrms3;
+
+   // Check set Soil mechanics porosity model
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setPorosityModel(lid1, porModel2, modelPrms2));
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.porosityModel(lid1, porModel3, modelPrms3));
+   ASSERT_EQ(porModel3, porModel2);
+   ASSERT_EQ(modelPrms3.size(), modelPrms2.size());
+   ASSERT_NEAR(modelPrms3[0], modelPrms2[0], eps);
+   ASSERT_NEAR(modelPrms3[1], modelPrms2[1], eps);
+
+   // Check set Exponential porosity model
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setPorosityModel(lid2, porModel1, modelPrms1));
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.porosityModel(lid2, porModel3, modelPrms3));
+   ASSERT_EQ(porModel3, porModel1);
+   ASSERT_EQ(modelPrms3.size(), modelPrms1.size());
+   ASSERT_NEAR(modelPrms3[0], modelPrms1[0], eps);
+   ASSERT_NEAR(modelPrms3[1], modelPrms1[1], eps);
+   ASSERT_NEAR(modelPrms3[2], modelPrms1[2], eps);
+}
+
+TEST_F(mbapiModelTest, GetSetLithologyDescriptionTest)
+{
+   mbapi::Model testModel;
+
+   // load test project
+   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_lithologyTestProject));
+
+   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
+
+   // Get a lithology description
+   mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Std. Sandstone");
+   ASSERT_EQ("Standard Sandstone", lthMgr.getDescription(lid));
+   // Set a lithology description
+   lthMgr.setDescription(lid, lthMgr.getDescription(lid) + " (upgraded to double exponential model)");
+   ASSERT_EQ("Standard Sandstone (upgraded to double exponential model)", lthMgr.getDescription(lid));
+}
+
+
 TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
 {
    mbapi::Model testModel;

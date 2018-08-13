@@ -113,7 +113,7 @@ add_gtest( NAME ${TARGET_NAME}::BrineModelConverter
 )
 
 #
-# 3. Reservoir upgrade testing
+# 4. Reservoir upgrade testing
 #
 add_gtest( NAME ${TARGET_NAME}::ReservoirConverter
            SOURCES test/ReservoirConverter.cpp src/ReservoirConverter.cpp
@@ -124,7 +124,7 @@ add_gtest( NAME ${TARGET_NAME}::ReservoirConverter
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
-# 4. Biodegradation factor upgarde testing
+# 5. Biodegradation factor upgarde testing
 #
 add_gtest( NAME ${TARGET_NAME}::BiodegradeConverter
            SOURCES test/BiodegradeConverterTest.cpp src/BiodegradeConverter.cpp
@@ -132,5 +132,17 @@ add_gtest( NAME ${TARGET_NAME}::BiodegradeConverter
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/utilities/src
                    LIBRARIES cmbapi utilities
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
+
+#
+# 6. Porosity upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::PorosityModelConverter
+           SOURCES test/PorosityModelConverterTest.cpp src/PorosityModelConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/utilities/src
+		   LIBRARIES cmbapi utilities
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )

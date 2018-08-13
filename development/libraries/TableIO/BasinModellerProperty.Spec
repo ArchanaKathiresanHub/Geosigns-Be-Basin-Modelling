@@ -1357,6 +1357,12 @@ START-properties
     Type                : float
     Default             : 0.0
 
+    Identification      : CompacRatioES
+    Description         : Vertical Effective Stress double exponential compaction ratio
+    Unit of measurement : 
+    Type                : float
+    Default             : 0.5
+
     Identification      : PresFuncName
     Description         : Fracture pressure curve name
     Unit of measurement :
@@ -5589,6 +5595,7 @@ START-property-tables
     Column         : CompacCoefES
     Column         : CompacCoefESA
     Column         : CompacCoefESB
+    Column         : CompacRatioES
     Column         : StpThCond
     Column         : ThCondAnisotropy
     Column         : DepoPerm

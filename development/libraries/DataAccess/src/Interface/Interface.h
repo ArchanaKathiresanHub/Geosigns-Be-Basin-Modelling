@@ -272,7 +272,7 @@ namespace DataAccess
          Density, HeatProd, SurfacePorosity, CompacCoefES,CompacCoefESA, CompacCoefESB, StpThCond,
          ThCondAnisotropy, DepoPerm, PermDecrStressCoef, PermIncrRelaxCoef, PermAnisotropy,
          SeisVelocity, NExponentVelocity, CapC1, CapC2, Compaction_Coefficient_SM, HydraulicFracturingPercent,
-         ReferenceSolidViscosity, ActivationEnergy, MinimumPorosity,
+         ReferenceSolidViscosity, ActivationEnergy, MinimumPorosity, CompacRatioES,
          // Ints
          UserDefined, Number_Of_Data_Points
       };

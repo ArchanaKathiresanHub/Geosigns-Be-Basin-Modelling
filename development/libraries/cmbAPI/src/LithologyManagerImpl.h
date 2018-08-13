@@ -56,6 +56,16 @@ namespace mbapi {
       // return lithology type name for given lithology ID or empty string in case of error
       virtual std::string lithologyName( LithologyID id );
 
+      // Get lithology description for the given ID
+      // return lithology description for given lithology ID or empty string in case of error
+      virtual std::string getDescription( const LithologyID id );
+
+      // Set lithology description for the given ID
+      // [in] id lithology ID
+      // [in] myDescription contains lithology description
+      // return NoError on success or NonexistingID on error
+      virtual ReturnCode setDescription( const LithologyID id, const std::string & myDescription);
+
       // Search for lithology record which has given lithology name
       // return ID of found lithology on success or UndefinedIDValue otherwise
       virtual LithologyID findID( const std::string & lName );
@@ -187,12 +197,14 @@ namespace mbapi {
 
       static const char * s_lithoTypesTableName;        // table name for lithologies type in project file
       static const char * s_lithoTypeNameFieldName;     // column name for lithology type name
+      static const char * s_descriptionFieldName;		  // column name for lithology description
 
-      static const char * s_porosityModelFieldName;     // column name for type of porosity model
-      static const char * s_surfPorosityFieldName;      // column name for surface porosity (porosity model parameter)
-      static const char * s_ccExponentialFieldName;     // column name for compaction coefficient of Exponential porosity model
-      static const char * s_ccaDblExponentialFieldName; // column name for compaction coefficient A of Double Exponential porosity model
-      static const char * s_ccbDblExponentialFieldName; // column name for compaction coefficient B of Double Exponential porosity model
+      static const char * s_porosityModelFieldName;             // column name for type of porosity model
+      static const char * s_surfPorosityFieldName;              // column name for surface porosity (porosity model parameter)
+      static const char * s_ccExponentialFieldName;             // column name for compaction coefficient of Exponential porosity model
+      static const char * s_ccaDblExponentialFieldName;         // column name for compaction coefficient A of Double Exponential porosity model
+      static const char * s_ccbDblExponentialFieldName;         // column name for compaction coefficient B of Double Exponential porosity model
+      static const char * s_compacRatioDblExponentialFieldName; // column name for compaction ratio of Double Exponential porosity model
 
       static const char * s_ccSoilMechanicsFieldName;   // column name for compaction coefficient of the Soil Model porosity model
       static const char * s_minPorosityFieldName;       // column name for minimal porosity of the Double Exponential porosity model

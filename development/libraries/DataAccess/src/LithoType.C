@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -100,7 +100,7 @@ const string LithoType::s_attributeNames[] =
    "Density", "HeatProd", "SurfacePorosity", "CompacCoefES", "CompacCoefESA", "CompacCoefESB", "StpThCond",
    "ThCondAnisotropy", "DepoPerm", "PermDecrStressCoef", "PermIncrRelaxCoef", "PermAnisotropy",
    "SeisVelocity", "NExponentVelocity", "CapC1", "CapC2", "Compaction_Coefficient_SM", "HydraulicFracturingPercent",
-   "ReferenceSolidViscosity", "ActivationEnergy", "MinimumPorosity", "IgneousIntrusionTemperature",
+   "ReferenceSolidViscosity", "ActivationEnergy", "MinimumPorosity", "CompacRatioES",
    // Ints
    "UserDefined", "Number_Of_Data_Points"
 };
@@ -181,6 +181,10 @@ double LithoType::getExponentialCompactionCoefficientA () const {
 
 double LithoType::getExponentialCompactionCoefficientB () const {
    return database::getCompacCoefESB ( m_record );
+}
+
+double LithoType::getExponentialCompactionRatio() const {
+   return database::getCompacRatioES ( m_record );
 }
 
 double LithoType::getSoilMechanicsCompactionCoefficient () const {

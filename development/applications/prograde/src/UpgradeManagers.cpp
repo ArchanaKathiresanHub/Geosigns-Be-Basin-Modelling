@@ -17,6 +17,7 @@
 
 //Prograde
 #include "AlcUpgradeManager.h"
+#include "PorosityUpgradeManager.h"
 #include "PermeabilityUpgradeManager.h"
 #include "BrineUpgradeManager.h"
 #include "ReservoirUpgradeManager.h"
@@ -33,6 +34,8 @@ void Prograde::UpgradeManagers::runAll() const{
    std::vector<std::shared_ptr<Prograde::IUpgradeManager>> managers;
    // ALCv1 to ALCv2
    managers.emplace_back(std::unique_ptr<Prograde::AlcUpgradeManager>(new Prograde::AlcUpgradeManager(m_model)));
+   // Soil mechanics compaction model to Double exponential compaction model
+   managers.emplace_back(std::unique_ptr<Prograde::PorosityUpgradeManager>(new Prograde::PorosityUpgradeManager(m_model)));
    // Mudstone and Sandstone permeability models to Multipoint permeability model
    managers.emplace_back(std::unique_ptr<Prograde::PermeabilityUpgradeManager>(new Prograde::PermeabilityUpgradeManager(m_model)));
    // Constant model to modified B&W model for density and seismic velocity calculations of Brines

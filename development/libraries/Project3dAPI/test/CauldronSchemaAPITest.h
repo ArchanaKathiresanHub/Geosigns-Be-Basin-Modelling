@@ -1607,6 +1607,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 3.22);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 3.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 6000);
@@ -1662,6 +1663,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 3.22);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 3.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 6000);
@@ -1717,6 +1719,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 7.27);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 1.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1.6);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.01);
@@ -1772,6 +1775,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 7.27);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 1.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1.6);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.01);
@@ -1827,6 +1831,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 7.27);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 1.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1.6);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.01);
@@ -1882,6 +1887,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 7.27);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 1.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1.6);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.01);
@@ -1937,6 +1943,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 4);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 1.8);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1.5);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 50);
@@ -1992,6 +1999,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 3.8);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 2.5);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 6000);
@@ -2047,6 +2055,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 3.03);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 5);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 6000);
@@ -2102,6 +2111,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 7.27);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 2.5);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1.5);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.01);
@@ -2157,6 +2167,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 7.27);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 5);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1.5);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.01);
@@ -2212,6 +2223,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 4.83);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 2.9);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.1);
@@ -2267,6 +2279,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 4.83);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 1.6);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1.4);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.01);
@@ -2322,6 +2335,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 5.8);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0);
@@ -2377,6 +2391,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 6.3);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0);
@@ -2432,6 +2447,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 6.95);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0);
@@ -2487,6 +2503,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 4.76);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 0.21);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 0.03);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0);
@@ -2542,6 +2559,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 2.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0);
@@ -2597,6 +2615,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 4.09);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0);
@@ -2652,6 +2671,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 3.2);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0);
@@ -2707,6 +2727,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 3.8);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0);
@@ -2762,6 +2783,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 2.67);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 3.5);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 6000);
@@ -2817,6 +2839,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 5.98);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 2);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1.6);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.01);
@@ -2872,6 +2895,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 3.47);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 1.7);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.01);
@@ -2927,6 +2951,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 1.5);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 3);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.01);
@@ -2982,6 +3007,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 4.83);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 1.5);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 0.1);
@@ -3037,6 +3063,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 3.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 6000);
@@ -3092,6 +3119,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 3.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 6000);
@@ -3147,6 +3175,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 3.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 6000);
@@ -3202,6 +3231,7 @@ void FillTableLithotypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_LithotypeIoTbl->setCompacCoefES(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESA(id, 0);
 	ph.m_LithotypeIoTbl->setCompacCoefESB(id, 0);
+   ph.m_LithotypeIoTbl->setCompacRatioES(id, 0.5);
 	ph.m_LithotypeIoTbl->setStpThCond(id, 3.4);
 	ph.m_LithotypeIoTbl->setThCondAnisotropy(id, 1);
 	ph.m_LithotypeIoTbl->setDepoPerm(id, 6000);
