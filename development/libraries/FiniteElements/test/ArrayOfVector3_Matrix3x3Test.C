@@ -33,17 +33,17 @@ TEST( ArrayOfVector3_Matrix3x3, ArrayOfMatrix3x3methodsTest )
    for (int k = 0; k < matCnt; ++k)
    {
       // init test matrix
-      FiniteElementMethod::Matrix3x3 mat = matArray[matCnt];
-      int k = 0;
+      FiniteElementMethod::Matrix3x3 mat = matArray[k];
+      int kkk = 0;
       for ( int i = 1; i <= 3; ++i ) 
          for ( int j = 1; j <= 3; ++j )
-            mat( i, j ) = static_cast<double>( ++k + kk);  
+            mat( i, j ) = static_cast<double>( ++kkk + kk);  
       
       // test access operator
-      k = 0;
+      kkk = 0;
       for ( int i = 1; i <= 3; ++i ) 
          for ( int j = 1; j <= 3; ++j )   
-            EXPECT_DOUBLE_EQ( mat( i, j ), static_cast<double>( ++k  + kk) );
+            EXPECT_DOUBLE_EQ( mat( i, j ), static_cast<double>( ++kkk  + kk) );
 
       // test A = 0
       mat.zero();
@@ -67,7 +67,7 @@ TEST( ArrayOfVector3_Matrix3x3, ArrayOfVector3methodsTest )
    for (int k = 0; k < matCnt; ++k)
    {
       // init test vector
-      FiniteElementMethod::ThreeVector vec = matArray[matCnt];
+      FiniteElementMethod::ThreeVector vec = matArray[k];
       vec( 1 ) = 16 + kk;
       vec( 2 ) = 10 + kk;
       vec( 3 ) = 70 + kk;
