@@ -33,6 +33,10 @@ VisualizationPropertiesCalculator::VisualizationPropertiesCalculator(int aRank) 
 
    m_export = 0;
 
+   m_localIndices[0]  = m_localIndices[1] = 0;
+   m_globalIndices[0] = m_globalIndices[1] = 0;
+   m_minValue = m_maxValue = CauldronIO::DefaultUndefinedValue;
+
    m_attribute = DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE;
 }
 
@@ -93,9 +97,8 @@ void VisualizationPropertiesCalculator::saveXML() {
       displayProgress(m_fileNameXml, m_startTime, "Writing to visualization format ");
       
       // snapshots are already written - add the project data
-      m_export->addProjectData(m_pt,  m_vizProject, false);
+      m_export->addProjectData(m_pt, m_vizProject, false);
 
-  
       m_doc.save_file(m_fileNameXml.c_str());
       
       displayProgress("", m_startTime, "Writing to visualization format done ");
@@ -155,7 +158,10 @@ void VisualizationPropertiesCalculator::calculateProperties(FormationSurfaceVect
 
    m_sharedProjectHandle.reset(m_projectHandle);
    
-   createXML();
+   if (m_rank == 0)
+   {
+      createXML();
+   }
 
    if (not m_fileNameExistingXml.empty()) 
    {
@@ -166,6 +172,7 @@ void VisualizationPropertiesCalculator::calculateProperties(FormationSurfaceVect
       refinePropertyNames (properties);
    }
    
+   MPI_Op_create((MPI_User_function *)minmaxint_op, true, & m_ind);
    MPI_Op_create((MPI_User_function *)minmax_op, true, & m_op);
    
    Interface::SnapshotList::iterator snapshotIter;
@@ -183,9 +190,6 @@ void VisualizationPropertiesCalculator::calculateProperties(FormationSurfaceVect
    }
    
    updateFormationsKRange();
-   
-   struct stat fileStatus;
-   int fileError;
    
    for (snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter)
    {
@@ -259,7 +263,6 @@ void VisualizationPropertiesCalculator::calculateProperties(FormationSurfaceVect
       removeProperties(snapshot, allOutputPropertyValues);
       m_propertyManager->removeProperties(snapshot);
       
-      collectVolumeData(DerivedProperties::getSnapShot(m_vizProject, snapshot->getTime()));
       
       if (m_rank == 0) 
       {
@@ -267,13 +270,15 @@ void VisualizationPropertiesCalculator::calculateProperties(FormationSurfaceVect
          
          createTrappers(snapshot, snap);
          
-         // updateConstantValue updates a constant value for snapshots volume data
+         // updateConstantValue updates a constant value for snapshots volume data, which is fastcauldron output only
          updateConstantValue(snap);
 
          pugi::xml_node node = m_snapShotNodes.append_child("snapshot");
          m_export->addSnapShot(snap, node);
+
+         // release snapshot
+         DerivedProperties::getSnapShot(m_vizProject, snapshot->getTime())->release();
       }
-      DerivedProperties::getSnapShot(m_vizProject, snapshot->getTime())->release();
       
       m_projectHandle->deletePropertiesValuesMaps (snapshot);
       
@@ -283,6 +288,7 @@ void VisualizationPropertiesCalculator::calculateProperties(FormationSurfaceVect
    saveXML();
    
    MPI_Op_free (&m_op);  
+   MPI_Op_free (&m_ind);
      
    PetscLogDouble End_Time;
    PetscTime(&End_Time);
@@ -429,6 +435,112 @@ void VisualizationPropertiesCalculator::addTables ()
 }
 
 //------------------------------------------------------------//
+void VisualizationPropertiesCalculator::computeMinMax () {
+
+   float localValues[2];
+   float globalValues[2];
+   
+   localValues[0] = m_minValue;
+   localValues[1] = m_maxValue;
+      
+   MPI_Reduce(localValues, globalValues, 2, MPI_FLOAT, m_op, 0, PETSC_COMM_WORLD);
+   if (m_rank == 0) 
+   {
+      m_minValue = globalValues[0];
+      m_maxValue = globalValues[1];
+   }
+}
+//------------------------------------------------------------//
+void  VisualizationPropertiesCalculator::computeVolumeBounds (const DataModel::AbstractGrid* grid, int firstK, int lastK, int minK) {
+
+   int numI = grid->numIGlobal();
+   int numJ = grid->numJGlobal();
+
+   m_localIndices[0] = grid->firstI (false) + grid->firstJ(false) * numI + (firstK - minK) * numI * numJ; // first index
+   m_localIndices[1] = grid->lastI (false) + grid->lastJ(false) * numI + (lastK - minK) * numI * numJ; // last index
+   
+   MPI_Allreduce(m_localIndices, m_globalIndices, 2, MPI_INT, m_ind, PETSC_COMM_WORLD); 
+}
+
+//------------------------------------------------------------//
+bool VisualizationPropertiesCalculator::computeFormationVolume (OutputPropertyValuePtr propertyValue, const DataModel::AbstractGrid* grid, 
+                                                                int firstK, int lastK, int minK, int depthK, bool computeMinMax) {
+
+   propertyValue->retrieveData();
+
+   unsigned int dataSize = grid->numIGlobal()*grid->numJGlobal()*depthK;
+   
+   if (dataSize > m_data.size()) 
+   {
+      m_data.resize(dataSize);
+   }
+
+   float *data = &m_data[0];
+   memset(data, 0, sizeof(float) * dataSize);
+
+   int numI = grid->numIGlobal();
+   int numJ = grid->numJGlobal();
+   m_minValue = std::numeric_limits<float>::max();
+   m_maxValue = -m_minValue;
+   
+   for (int j = grid->firstJ (false); j <= grid->lastJ (false); ++j) 
+   {
+      for (int i = grid->firstI(false); i <= grid->lastI (false); ++i) 
+      {
+         unsigned int pk = 0;
+         for (int k = lastK; k >= firstK; --k, ++ pk) 
+         {
+            float value = static_cast<float>(propertyValue->getValue(i, j, pk));
+            if (computeMinMax and value != CauldronIO::DefaultUndefinedValue)
+            {
+               m_minValue = std::min(m_minValue, value);
+               m_maxValue = std::max(m_maxValue, value);
+            }
+            size_t index =  i + j * numI + (k - minK ) * numI * numJ;
+            m_data[index] = value;
+         }
+      }
+   }
+   propertyValue->restoreData ();
+
+   return true;
+}
+
+//------------------------------------------------------------//
+bool VisualizationPropertiesCalculator::computeFormationMap (OutputPropertyValuePtr propertyValue, const DataModel::AbstractGrid* grid, 
+                                                             int kIndex, float * dest) {
+
+   propertyValue->retrieveData();
+ 
+   unsigned int dataSize = grid->numIGlobal() * grid->numJGlobal();
+   
+   if (dataSize > m_data.size()) 
+   {
+      m_data.resize(dataSize);
+   }
+
+   float *data = &m_data[0];
+   memset(data, 0, sizeof(float) * dataSize);
+
+   int numI = grid->numIGlobal();
+   
+   for (int j = grid->firstJ (false); j <= grid->lastJ (false); ++j) 
+   {
+      for (int i = grid->firstI(false); i <= grid->lastI (false); ++i) 
+      {
+         size_t index =  j * numI + i;
+         float value = static_cast<float>(propertyValue->getValue(i, j, kIndex));
+         m_data[index] = value;
+      }
+   }
+
+   propertyValue->restoreData ();
+   MPI_Reduce((void *)data, (void *)dest,  dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD);
+
+   return true;
+}
+
+//------------------------------------------------------------//
 std::shared_ptr<CauldronIO::Project> VisualizationPropertiesCalculator::createStructureFromProjectHandle(bool verbose) {
 
    // Get modeling mode
@@ -485,17 +597,18 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValue (Ou
    }
 
    unsigned int p_depth = propertyValue->getDepth();
-   
+   bool status = true;
+
    if (p_depth > 1 and surface == 0) 
    {
       //if (not propertyValue->isPrimary()) { // uncomment to convert only derived properties
       if (propertyValue->getProperty ()->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY) 
       {
-         createVizSnapshotResultPropertyValueContinuous (propertyValue, snapshot, formation);
+         status = createVizSnapshotResultPropertyValueContinuous (propertyValue, snapshot, formation);
       }
       else if (propertyValue->getProperty ()->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY) 
       {
-         createVizSnapshotResultPropertyValueDiscontinuous (propertyValue, snapshot, formation);
+         status = createVizSnapshotResultPropertyValueDiscontinuous (propertyValue, snapshot, formation);
       } 
       else 
       {
@@ -507,7 +620,12 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValue (Ou
    } 
    else 
    {
-      return createVizSnapshotResultPropertyValueMap (propertyValue, snapshot, formation, surface);
+      status = createVizSnapshotResultPropertyValueMap (propertyValue, snapshot, formation, surface);
+   }
+
+   if (not status) {
+      PetscPrintf(PETSC_COMM_WORLD, " Basin_Error: cannot convert property %s for formation %s at snapshot %lf\n", 
+                  (propertyValue->getName()).c_str(), (formation->getName()).c_str(), snapshot->getTime());
    }
 
    return true;
@@ -551,7 +669,7 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
    
 
    const string propName = propertyValue->getName();
-
+   
    if (daFormation->kind() == Interface::BASEMENT_FORMATION and not allowBasementOutput (propName)) 
    {
       return true;
@@ -577,18 +695,56 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
          info = m_formInfoList->at(i);
       }
    }
-
-   size_t depthK = 1 + maxK - minK;
    if (not info) 
    {
       PetscPrintf(PETSC_COMM_WORLD, "Continuous property %s: %s formation not found\n", propName.c_str(), (daFormation->getName()).c_str());
       return false;
    } 
+
+   size_t depthK = 1 + maxK - minK;
+ 
+   int firstK = static_cast<int>(info->kStart);
+   int lastK  = static_cast<int>(info->kEnd);
+   int fK = (daFormation->kind () == BASEMENT_FORMATION and firstK > 0 ? firstK + 1 : firstK);
+   unsigned int dataIsAllocated;
+
+   const DataModel::AbstractGrid* grid = propertyValue->getGrid();
+
+   if(m_rank != 0) {
+      // collective check for an error on the rank 0
+      MPI_Bcast (&dataIsAllocated, 1, MPI_UNSIGNED, 0, PETSC_COMM_WORLD);
+      if (dataIsAllocated == 0) 
+      {
+         return false;
+      }
+
+      if (not allowBasementOutput (propName)) 
+      {
+         depthK = 1 + maxSedimentK - minK;
+      }
+
+      computeFormationVolume(propertyValue, grid, fK, lastK, minK, depthK, true);
+      computeVolumeBounds(grid, fK, lastK, minK);
+     
+      float *data = &m_data[m_globalIndices[0]];
+
+      MPI_Reduce((void *)data, NULL,  m_globalIndices[1] - m_globalIndices[0] + 1, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD);
+
+      if (daFormation->kind () == SEDIMENT_FORMATION)
+      {
+         computeMinMax ();
+      }
+  
+      return true;
+   }
+
    // find or create property
    shared_ptr<const CauldronIO::Property> vizProperty = findOrCreateProperty(propertyValue, CauldronIO::Continuous3DProperty);
 
+   // find snapshot
    shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
-    
+   
+   // find or create formation
    if (snapshot->getTime() == 0) 
    {
       std::shared_ptr<CauldronIO::Formation> vizFormation = findOrCreateFormation (info);
@@ -597,11 +753,10 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
    // find or create snapshot volume and geometry
    std::shared_ptr<CauldronIO::Volume> snapshotVolume = vizSnapshot->getVolume();
    std::shared_ptr< CauldronIO::Geometry3D> geometry;
-
+   
    shared_ptr<CauldronIO::VolumeData> volDataNew;
    bool propertyVolumeExisting = false;
    
-   const DataModel::AbstractGrid* grid = propertyValue->getGrid();
    if (not snapshotVolume) 
    {
       // create volume and geometry
@@ -613,7 +768,7 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
    } 
    else 
    {
-      // find volume the property
+      // find volume of the property
       for (size_t i = 0; i <  snapshotVolume->getPropertyVolumeDataList().size(); ++i) 
       {
          CauldronIO::PropertyVolumeData& pdata = snapshotVolume->getPropertyVolumeDataList().at(i); 
@@ -627,7 +782,6 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
             break;
          }
       }
-
       if (propertyVolumeExisting) 
       {
          // get geomerty for the existing property volume
@@ -635,17 +789,20 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
       }
       else 
       {
-         geometry.reset(new CauldronIO::Geometry3D(grid->numIGlobal(), grid->numJGlobal(), depthK, minK,
-                                                   grid->deltaI(), grid->deltaJ(), grid->minIGlobal(), grid->minJGlobal()));
-         m_vizProject->addGeometry(geometry);
+         // get geometry for the first property (assume the same geometry for derived properties)
+         if (snapshotVolume->getPropertyVolumeDataList().size() > 0) 
+         {
+            geometry = snapshotVolume->getPropertyVolumeDataList().at(0).second->getGeometry();
+         }
+         else 
+         {
+            geometry.reset(new CauldronIO::Geometry3D(grid->numIGlobal(), grid->numJGlobal(), depthK, minK,
+                                                      grid->deltaI(), grid->deltaJ(), grid->minIGlobal(), grid->minJGlobal()));
+            m_vizProject->addGeometry(geometry);
+         }
       }
    }
-
-   float * internalData = 0;
-
-   int firstK = static_cast<int>(info->kStart);
-   int lastK  = static_cast<int>(info->kEnd);
-
+   
    if (not propertyVolumeExisting) 
    {
       if (not allowBasementOutput (propName)) 
@@ -655,60 +812,31 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
                                                    grid->deltaI(), grid->deltaJ(), grid->minIGlobal(), grid->minJGlobal()));
       }
       volDataNew.reset(new CauldronIO::VolumeDataNative(geometry, CauldronIO::DefaultUndefinedValue));
-
-      unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
-      if (dataSize > m_data.size()) 
-      {
-         m_data.resize(dataSize);
-      }
-      float *data = &m_data[0];
-      memset(data, 0, sizeof(float) * dataSize);
-      
-      volDataNew->setData_IJK(data);
-      internalData = const_cast<float *>(volDataNew->getVolumeValues_IJK());
-   } 
-   else 
-   {
-      internalData = const_cast<float *>(volDataNew->getVolumeValues_IJK());
+           
+      volDataNew->setData_IJK(nullptr, true, 0);
    }
-   if (not internalData) 
+
+   float * internalData = const_cast<float *>(volDataNew->getVolumeValues_IJK());
+
+   dataIsAllocated = (not internalData ? 0 : 1);
+   MPI_Bcast (&dataIsAllocated, 1, MPI_UNSIGNED, 0, PETSC_COMM_WORLD);
+   if (dataIsAllocated == 0) 
    {
       return false;
    }
 
-   propertyValue->retrieveData();
+   computeFormationVolume(propertyValue, grid, fK, lastK, minK, depthK, true);
+   computeVolumeBounds(grid, fK, lastK, minK);
 
-   float minValue = std::numeric_limits<float>::max();
-   float maxValue = -minValue;
+   float * data = &m_data[m_globalIndices[0]];
+   float * firstInd = &internalData[m_globalIndices[0]];
 
-   // Write the formation part of a continuous property
+   MPI_Reduce((void *)data, (void *)firstInd, m_globalIndices[1] - m_globalIndices[0] + 1, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD);
 
-   // Do not re-write the bottom value of the sediment - some continous properties are not calculated for the basement
-   int fK = (daFormation->kind () == BASEMENT_FORMATION and firstK > 0 ? firstK + 1 : firstK);
-
-   for (int j = grid->firstJ (false); j <= grid->lastJ (false); ++j) 
-   {
-      for (int i = grid->firstI(false); i <= grid->lastI (false); ++i) 
-      {
-         unsigned int pk = 0;
-         for (int k = lastK; k >= fK; --k, ++ pk) 
-         {
-            float value = static_cast<float>(propertyValue->getValue(i, j, pk));
-            
-            if (value != CauldronIO::DefaultUndefinedValue)
-            {
-               minValue = std::min(minValue, value);
-               maxValue = std::max(maxValue, value);
-            }
-
-            internalData[volDataNew->computeIndex_IJK(i, j, k)] = value;
-         }
-      }
-   }
-   propertyValue->restoreData ();
-   
    if (daFormation->kind() == SEDIMENT_FORMATION)
    {
+      computeMinMax ();
+
       float sedimentMinValue = volDataNew->getSedimentMinValue();
       float sedimentMaxValue = volDataNew->getSedimentMaxValue();
       
@@ -716,25 +844,25 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
          sedimentMinValue == DefaultUndefinedValue && 
          sedimentMaxValue == DefaultUndefinedValue)
       {
-         volDataNew->setSedimentMinMax(minValue, maxValue);
-      }
+          volDataNew->setSedimentMinMax(m_minValue, m_maxValue);
+     }
       else
       {
          volDataNew->setSedimentMinMax(
-                                       std::min(minValue, sedimentMinValue),
-                                       std::max(maxValue, sedimentMaxValue));
+                                       std::min(m_minValue, sedimentMinValue),
+                                       std::max(m_maxValue, sedimentMaxValue));
       }
    }
-   
+
    if (not propertyVolumeExisting) 
    {
       CauldronIO::PropertyVolumeData propVolDataNew(vizProperty, volDataNew);
-      snapshotVolume->addPropertyVolumeData(propVolDataNew);     
+      snapshotVolume->addPropertyVolumeData(propVolDataNew);
    }
-
 
    return true;
 }
+
 //------------------------------------------------------------//
 bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueDiscontinuous (OutputPropertyValuePtr propertyValue, 
                                                                                            const Snapshot* snapshot, const Interface::Formation * daFormation) {
@@ -745,8 +873,6 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueDisc
    {
       return true;
    }
-
-   shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
    
    std::shared_ptr<CauldronIO::FormationInfo> info;
 
@@ -765,10 +891,34 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueDisc
       return false;
    } 
 
+   const DataModel::AbstractGrid* grid = propertyValue->getGrid();
+   unsigned int dataSize = grid->numIGlobal() * grid->numJGlobal() * propertyValue->getDepth();
+   int firstK = static_cast<int>(info->kStart);
+   int lastK  = static_cast<int>(info->kStart +  propertyValue->getDepth() - 1);
+   unsigned int dataIsAllocated;
+ 
+   if(m_rank != 0) {
+      computeFormationVolume (propertyValue, grid, firstK, lastK, info->kStart, propertyValue->getDepth(), false);
+
+      // collective check for an error on the rank 0
+      MPI_Bcast( &dataIsAllocated, 1, MPI_UNSIGNED, 0, PETSC_COMM_WORLD);
+      if (dataIsAllocated == 0) 
+      {
+         return false;
+      }
+
+      MPI_Reduce((void *)(&m_data[0]), NULL, dataSize, MPI_FLOAT, MPI_SUM, 0, PETSC_COMM_WORLD);
+
+      return true;
+   }
+   
+   // find snapshot
+   shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
+
+   // find or create formation
    std::shared_ptr< CauldronIO::Formation> vizFormation = findOrCreateFormation (info);
 
    //create geometry
-   const DataModel::AbstractGrid* grid = propertyValue->getGrid();
    const std::shared_ptr<CauldronIO::Geometry3D> geometry(new CauldronIO::Geometry3D(grid->numIGlobal(), grid->numJGlobal(), propertyValue->getDepth(), info->kStart,
                                                                                      grid->deltaI(), grid->deltaJ(), grid->minIGlobal(), grid->minJGlobal()));
    m_vizProject->addGeometry(geometry);
@@ -779,50 +929,19 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueDisc
    // create volume data
    shared_ptr<CauldronIO::VolumeData> volDataNew(new CauldronIO::VolumeDataNative(geometry));
 
-   unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
-   if (m_data.size() < dataSize) 
-   {
-      m_data.resize(dataSize);
-   }
-   float * data = &m_data[0];
-   memset(data, 0, sizeof(float) * dataSize);
+   computeFormationVolume (propertyValue, grid, firstK, lastK, info->kStart, propertyValue->getDepth(), false);
 
-   propertyValue->retrieveData();
+   volDataNew->setData_IJK(nullptr, true, 0);
 
-   volDataNew->setData_IJK(data);
    float * internalData = const_cast<float *>(volDataNew->getVolumeValues_IJK());
-      
-   if (not internalData) 
+
+   dataIsAllocated = (not internalData ? 0 : 1);
+   MPI_Bcast (&dataIsAllocated, 1, MPI_UNSIGNED, 0, PETSC_COMM_WORLD);
+   if (dataIsAllocated == 0) 
    {
       return false;
    }
-
-   int firstK = static_cast<int>(geometry->getFirstK());
-   int lastK  = static_cast<int>(geometry->getFirstK() + geometry->getNumK() - 1);
-
-   for (int i = grid->firstI(false); i <= grid->lastI (false); ++i) 
-   {
-      for (int j = grid->firstJ (false); j <= grid->lastJ (false); ++j) 
-      {
-         unsigned int pk = 0;
-         for (int k = lastK; k >= firstK; --k, ++ pk) 
-         {
-            internalData[volDataNew->computeIndex_IJK(i, j, k)] = static_cast<float>(propertyValue->getValue(i, j, pk));
-         }
-      }
-   }
-
-   propertyValue->restoreData ();
-
-   int rank;
-   MPI_Comm_rank (PETSC_COMM_WORLD, &rank);
-
-   MPI_Reduce((void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD);
-
-   if (rank == 0) 
-   {
-      std::memcpy(internalData, data, dataSize * sizeof(float));
-   }
+   MPI_Reduce((void *)(&m_data[0]), (void *)internalData, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD);
 
    DerivedProperties::updateVolumeDataConstantValue(volDataNew);
    
@@ -870,11 +989,28 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueMap 
    {
       return true;
    }
+   const DataModel::AbstractGrid* grid = propertyValue->getGrid();
+   unsigned int p_depth = propertyValue->getDepth();
+   unsigned int kIndex = 0;
+   unsigned int dataIsAllocated;
 
+   assert(p_depth == 1);
+ 
+   if(m_rank != 0) {
+      // collective check for an error on the rank 0
+      MPI_Bcast (&dataIsAllocated, 1, MPI_UNSIGNED, 0, PETSC_COMM_WORLD);
+      if (dataIsAllocated == 0) 
+      {
+         return false;
+      }
+      
+      computeFormationMap(propertyValue, grid, kIndex, nullptr);
+
+      return true;
+   }
    const string surfaceName = (daSurface != 0 ? daSurface->getName() : "");
 
    // Create geometry
-   const DataModel::AbstractGrid* grid = propertyValue->getGrid();
    std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(), grid->deltaI(), 
                                                                                      grid->deltaJ(), grid->minIGlobal(), grid->minJGlobal()));
    m_vizProject->addGeometry(geometry);
@@ -883,8 +1019,7 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueMap 
    PropertyAttribute attrib = (daSurface != 0 ? CauldronIO::Surface2DProperty : CauldronIO::Formation2DProperty);
    shared_ptr<const CauldronIO::Property> vizProperty = findOrCreateProperty (propertyValue,  attrib);
 
-
-   // find/create snapshot
+   // find snapshot
    shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot(m_vizProject, snapshot->getTime());
    if (not vizSnapshot) 
    {
@@ -954,48 +1089,20 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueMap 
       } 
    }
 
-   // copy property data
-   unsigned int p_depth = propertyValue->getDepth();
-   unsigned int kIndex = 0;
-   if (daSurface != 0 and daSurface == daFormation->getTopSurface ()) 
+   //assign surface map
+   std::shared_ptr< CauldronIO::SurfaceData> valueMap(new CauldronIO::MapNative(geometry));
+   valueMap->setData_IJ(nullptr); 
+  
+   float * internalData = const_cast<float *>(valueMap->getSurfaceValues());
+
+   dataIsAllocated = (not internalData ? 0 : 1);
+   MPI_Bcast (&dataIsAllocated, 1, MPI_UNSIGNED, 0, PETSC_COMM_WORLD);
+   if (dataIsAllocated == 0) 
    {
-      kIndex = p_depth - 1;
+      return false;
    }
    
-   assert(p_depth == 1);
-
-   unsigned int dataSize = geometry->getNumI() * geometry->getNumJ();
-   if (m_data.size() < dataSize) 
-   {
-      m_data.resize(dataSize);
-   }
-
-   float * data = &m_data[0]; 
-   memset(data, 0, sizeof(float) * dataSize);
-
-   // assign surface map
-   std::shared_ptr< CauldronIO::SurfaceData> valueMap(new CauldronIO::MapNative(geometry));
-   valueMap->setData_IJ(data); 
-
-   float * internalData = const_cast<float *>(valueMap->getSurfaceValues());
-   propertyValue->retrieveData();
-   for (int i = grid->firstI(false); i <= grid->lastI (false); ++i) 
-   {
-      for (int j = grid->firstJ (false); j <= grid->lastJ (false); ++j) 
-      {
-         internalData[valueMap->getMapIndex(i, j)] = static_cast<float>(propertyValue->getValue(i, j, kIndex));
-      }
-   }
-   propertyValue->restoreData ();
-
-   int rank;
-   MPI_Comm_rank (PETSC_COMM_WORLD, &rank);
-
-   MPI_Reduce((void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD);
-   if (rank == 0) 
-   {
-      std::memcpy(internalData, data, dataSize * sizeof(float));
-   }
+   computeFormationMap(propertyValue, grid, kIndex, internalData);
 
    CauldronIO::PropertySurfaceData propSurface = CauldronIO::PropertySurfaceData(vizProperty, valueMap);
 
@@ -1027,64 +1134,12 @@ void VisualizationPropertiesCalculator::updateFormationsKRange() {
    const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot(0);
    std::shared_ptr<CauldronIO::FormationInfoList> depthFormations = getDepthFormations(m_projectHandle, zeroSnapshot);
 
-   // Capture global k-range
-   for (unsigned int i = 0; i < depthFormations->size(); ++i)
-   {
-       std::shared_ptr<CauldronIO::FormationInfo>& info = depthFormations->at(i);
-       std::shared_ptr<CauldronIO::Formation> vizFormation = findOrCreateFormation (info);
-    }
-}
-
-//------------------------------------------------------------//
-void VisualizationPropertiesCalculator::collectVolumeData(const std::shared_ptr<CauldronIO::SnapShot>& snapshot) {
-
-   const std::shared_ptr<Volume> volume = snapshot->getVolume();
-   if (volume)  
-   {
-      PropertyVolumeDataList& propVolList = volume->getPropertyVolumeDataList();
-      if (propVolList.size() > 0) 
+   if(m_rank == 0) {
+      // Capture global k-range
+      for (unsigned int i = 0; i < depthFormations->size(); ++i)
       {
-         int rank;
-         MPI_Comm_rank (PETSC_COMM_WORLD, &rank);
- 
-         for (auto& propVolume : propVolList) 
-         {
-            if (propertyExisting (propVolume.first->getName())) continue;
-
-            std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
-            if (valueMap->isRetrieved()) 
-            {
-               std::shared_ptr<const Geometry3D> geometry = valueMap->getGeometry();
-               unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
-               if (dataSize > m_data.size()) 
-               {
-                  m_data.resize(dataSize);
-               }
-               float * data = &m_data[0];
-               float * internalData = const_cast<float *>(valueMap->getVolumeValues_IJK());
-               
-               // Collect the data from all processors on rank 0
-               MPI_Reduce((void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD);
-              
-               if (rank == 0) 
-               {
-                  std::memcpy(internalData, data, dataSize * sizeof(float));
-               }
-
-               // Find the global min and max sediment values and set on rank 0
-               float globalValues[2];
-               float localValues[2];
-
-               localValues[0] = valueMap->getSedimentMinValue();
-               localValues[1] = valueMap->getSedimentMaxValue();
-
-               MPI_Reduce(localValues, globalValues, 2, MPI_FLOAT, m_op, 0, PETSC_COMM_WORLD);
-               if (rank == 0) 
-               {
-                  valueMap->setSedimentMinMax(globalValues[0], globalValues[1]);
-               }
-            } 
-         }
+         std::shared_ptr<CauldronIO::FormationInfo>& info = depthFormations->at(i);
+         std::shared_ptr<CauldronIO::Formation> vizFormation = findOrCreateFormation (info);
       }
    }
 }

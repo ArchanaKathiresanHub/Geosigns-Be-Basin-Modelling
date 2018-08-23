@@ -241,25 +241,26 @@ bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, 
    if( not  H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
       PetscPrintf ( PETSC_COMM_WORLD, "Merging of output files.\n" );
       status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(),( noFileCopy ? CREATE : REUSE )));
-
+      
       if( !noFileCopy and status ) {
          status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
       }
    } else {
+      status = true;
       if( not noFileCopy ) {
          PetscPrintf ( PETSC_COMM_WORLD, "Copying of output files from Lustre to TCS storage.\n" );
-
+         
          status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
-         if( status and rank == 0  and not noFileRemove ) {
-            // remove the file
-            removeOutputFile ( filePathName.cpath () );
-
-            // remove the directory
-            removeOutputFile ( localPath );
-
-            // remove the temporary directory
-            removeOutputFile ( std::string("") );
-         }
+      } 
+      if( status and rank == 0  and not noFileRemove ) {
+         // remove the file
+         removeOutputFile ( filePathName.cpath () );
+          
+         // remove the directory
+         removeOutputFile ( localPath );
+         
+         // remove the temporary directory
+         removeOutputFile ( std::string("") );
       }
    }
    MPI_Barrier( PETSC_COMM_WORLD );

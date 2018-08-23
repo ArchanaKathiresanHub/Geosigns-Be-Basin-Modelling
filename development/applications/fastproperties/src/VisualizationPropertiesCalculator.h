@@ -56,6 +56,13 @@ private:
    std::shared_ptr<CauldronIO::FormationInfoList> m_formInfoList; ///< List of formations grid info
 
    MPI_Op m_op; ///< Custom MPI operation to find maximum and minimum of sediment properties
+   MPI_Op m_ind;
+
+   int m_localIndices[2];
+   int m_globalIndices[2];
+
+   float m_minValue;
+   float m_maxValue;
 
    std::vector<string> m_existingProperties;
 
@@ -122,6 +129,19 @@ private:
 
    /// \brief Returns true
    bool getProperiesActivity() const;
+
+   /// \brief Locally convert volume to viz format
+   bool computeFormationVolume (OutputPropertyValuePtr propertyValue, const DataModel::AbstractGrid* grid, 
+                                int firstK, int lastK, int minK, int depthK, bool computeMinMax);
+
+   /// \brief Compute global boundaries of the viz volume
+   void computeVolumeBounds (const DataModel::AbstractGrid* grid, int firstK, int lastK, int minK);
+   
+   /// \brief Compute global minimum/maximum values
+   void computeMinMax ();
+
+   /// \brief Globally convert map
+   bool computeFormationMap (OutputPropertyValuePtr propertyValue, const DataModel::AbstractGrid* grid, int kIndex, float * dest);
 
    /// \brief Acquire property names for a given property type attribute
    void acquireAttributeProperties (DataModel::PropertyOutputAttribute outputAttribute);

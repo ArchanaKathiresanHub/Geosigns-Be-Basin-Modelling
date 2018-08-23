@@ -1837,7 +1837,8 @@ const std::shared_ptr<const Geometry2D>& CauldronIO::SurfaceData::getGeometry() 
 
 void CauldronIO::SurfaceData::setData_IJ(float* data) throw (CauldronIOException)
 {
-    setData(data);
+   if (!data) setData(nullptr, true, 0);
+   else       setData(data);
 }
 
 void CauldronIO::SurfaceData::setData(float* data, bool setValue, float value) throw (CauldronIOException)

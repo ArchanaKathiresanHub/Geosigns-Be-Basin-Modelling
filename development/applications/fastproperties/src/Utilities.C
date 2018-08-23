@@ -359,3 +359,11 @@ void DerivedProperties::minmax_op( float *invec, float *inoutvec, int *len, MPI_
       inoutvec[1] = invec[1];
    }
 }
+
+//------------------------------------------------------------//
+void DerivedProperties::minmaxint_op( int *invec, int *inoutvec, int *len, MPI_Datatype *datatype ) {  
+   
+   // Find the minimum (0 index) and maximum (1 index)
+   inoutvec[0] = min(invec[0], inoutvec[0]);
+   inoutvec[1] = max(invec[1], inoutvec[1]);
+}
