@@ -47,21 +47,21 @@ TEST( GradElementVectorTest, addTest )
    FiniteElementMethod::GradElementVector grdvec1;
    FiniteElementMethod::GradElementVector grdvec2;
    FiniteElementMethod::GradElementVector resgrdvec;
-   
+   grdvec1.zero(); grdvec2.zero(); resgrdvec.zero();
    // init grad vector1 and vector2
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 1 ) = static_cast<double>( i );
    for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 9 - i );
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 2 ) = static_cast<double>( 8 + i );
-   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 17 - i );
+   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 2 ) = static_cast<double>( 17 - i );
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 3 ) = static_cast<double>( 16 + i );
-   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 25 - i );
+   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 3 ) = static_cast<double>( 25 - i );
    
    // test C = grad vector1 + grad vector2
    add( grdvec1, grdvec2, resgrdvec );
 
-   for ( int i = 1; i <= 8; ++i ) EXPECT_DOUBLE_EQ( resgrdvec( i, 1 ), grdvec1( i, 1 ) + grdvec2( i, 1 ) );
-   for ( int i = 1; i <= 8; ++i ) EXPECT_DOUBLE_EQ( resgrdvec( i, 2 ), grdvec1( i, 2 ) + grdvec2( i, 2 ) );
-   for ( int i = 1; i <= 8; ++i ) EXPECT_DOUBLE_EQ( resgrdvec( i, 3 ), grdvec1( i, 3 ) + grdvec2( i, 3 ) ); 
+   for ( int i = 1; i <= 8; ++i ) EXPECT_DOUBLE_EQ( resgrdvec( i, 1 ), grdvec1( i, 1 ) + grdvec2( i, 1 ));
+   for ( int i = 1; i <= 8; ++i ) EXPECT_DOUBLE_EQ( resgrdvec( i, 2 ), grdvec1( i, 2 ) + grdvec2( i, 2 ));
+   for ( int i = 1; i <= 8; ++i ) EXPECT_DOUBLE_EQ( resgrdvec( i, 3 ), grdvec1( i, 3 ) + grdvec2( i, 3 ));
    
    // test C = grad vector1 + 3.14 * grad vector2
    add( grdvec1, 3.14, grdvec2, resgrdvec );
@@ -88,9 +88,9 @@ TEST( GradElementVectorTest, subtractTest )
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 1 ) = static_cast<double>( i );
    for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 9 - i );
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 2 ) = static_cast<double>( 8 + i );
-   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 17 - i );
+   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 2 ) = static_cast<double>( 17 - i );
    for ( int i = 1; i <= 8; ++i ) grdvec1( i, 3 ) = static_cast<double>( 16 + i );
-   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 1 ) = static_cast<double>( 25 - i );
+   for ( int i = 1; i <= 8; ++i ) grdvec2( i, 3 ) = static_cast<double>( 25 - i );
    
    // test C = grad vector1 - grad vector2
    subtract( grdvec1, grdvec2, resgrdvec );
