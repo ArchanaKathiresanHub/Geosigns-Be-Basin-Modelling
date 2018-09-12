@@ -26,6 +26,7 @@
 #include "ReservoirManager.h"
 #include "UndefinedValues.h"
 #include "BiodegradeManager.h"
+#include "BottomBoundaryManager.h"
 
 // TableIO
 #include "datatype.h"
@@ -284,6 +285,10 @@ namespace mbapi {
       /// @brief Get Biodegradation manager. It provides access to the BioDegradIoTbl in project file 
       /// @return reference to the Biodegradation manager. It created/deleted by the model itself.
       BiodegradeManager & biodegradeManager();
+
+	  /// @brief Get Biodegradation manager. It provides access to the BioDegradIoTbl in project file 
+	  /// @return reference to the Biodegradation manager. It created/deleted by the model itself.
+	  BottomBoundaryManager & bottomBoundaryManager();
 
 
       // Request some project porperties

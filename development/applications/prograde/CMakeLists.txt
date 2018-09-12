@@ -146,3 +146,15 @@ add_gtest( NAME ${TARGET_NAME}::PorosityModelConverter
 		   LIBRARIES cmbapi utilities
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
+
+#
+# 7. Basic crust thinning model upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::BasicCrustThinningModelConverter
+           SOURCES test/BasicCrustThinningConverter.cpp src/BasicCrustThinningModelConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/utilities/src
+		   LIBRARIES cmbapi utilities
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)

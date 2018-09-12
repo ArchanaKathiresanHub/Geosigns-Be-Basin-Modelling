@@ -22,6 +22,7 @@
 #include "MapsManagerImpl.h"
 #include "ReservoirManagerImpl.h"
 #include "BiodegradeManagerImpl.h"
+#include "BottomBoundaryManagerImpl.h"
 
 // DataAccess library
 #include "Interface/ProjectHandle.h"
@@ -190,6 +191,7 @@ public:
    MapsManager         & mapsManager()         { return m_mapMgr;   } // Maps manager
    ReservoirManager    & reservoirManager()    { return m_reservoirMgr; } // Reservoir manager
    BiodegradeManager   & biodegradeManager()   { return m_BioDegMgr; } // Biodegradation
+   BottomBoundaryManager   & bottomBoundaryManager() { return m_BottomBoundaryMgr; } // Bottom Boundary
    std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle() { return m_projHandle; } // project file database (set of tables)
 
 private:
@@ -204,6 +206,7 @@ private:
    MapsManagerImpl          m_mapMgr;
    ReservoirManagerImpl     m_reservoirMgr;
    BiodegradeManagerImpl    m_BioDegMgr;
+   BottomBoundaryManagerImpl    m_BottomBoundaryMgr;
 
    std::shared_ptr<DataAccess::Interface::ProjectHandle> m_projHandle;   // project file database (set of tables)
    std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
@@ -453,6 +456,7 @@ PropertyManager                                     & Model::propertyManager(   
 MapsManager                                         & Model::mapsManager(        ) { return m_pimpl->mapsManager(        ); }
 ReservoirManager                                    & Model::reservoirManager(   ) { return m_pimpl->reservoirManager(   ); }
 BiodegradeManager                                   & Model::biodegradeManager(  ) { return m_pimpl->biodegradeManager(  ); }
+BottomBoundaryManager                               & Model::bottomBoundaryManager() { return m_pimpl->bottomBoundaryManager(); }
 std::shared_ptr<DataAccess::Interface::ProjectHandle> Model::projectHandle(      ) { return m_pimpl->projectHandle(      ); }
 
 
@@ -1289,6 +1293,7 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
    m_stratMgr.setDatabase( m_projHandle->getProjectFileHandler() );                 // set database in stratigraphy manager
    m_reservoirMgr.setDatabase( m_projHandle->getProjectFileHandler() );             // set database in reservoir manager
    m_BioDegMgr.setDatabase(m_projHandle->getProjectFileHandler());                  // set database in biodegradation manager
+   m_BottomBoundaryMgr.setDatabase(m_projHandle->getProjectFileHandler());                  // set database in bottom boundary manager
 
    m_mapMgr.setProject(    m_projHandle.get(),          m_projFileName ); // set project handle in maps manager
 }

@@ -552,8 +552,8 @@ LayerName InterpFileName NumberOfPoints PolynomialDegree InterpGroupName StartAg
 ;
 Age Thickness ThicknessGrid CalibThickness OptimThickness ErrThickness
 () () () () () ()
-0 30000 "" -9999 0 0
-100 30000 "" -9999 0 0
+0 30000 "Crustal Thickness Map1" -9999 0 0
+100 30000 "Crustal Thickness Map2" -9999 0 0
 [End]
 ;
 ;
@@ -563,8 +563,8 @@ Age Thickness ThicknessGrid CalibThickness OptimThickness ErrThickness
 ;
 Age Thickness ThicknessGrid CalibThickness OptimThickness ErrThickness
 () () () () () ()
-0 35000 "" 0 0 0
-100 35000 "" 0 0 0
+0 35000 "MAP Name1" 0 0 0
+100 35000 "MAP Name2" 0 0 0
 [End]
 ;
 ;
@@ -2420,6 +2420,18 @@ SGMeanBulkDensity
 ;
 SimulationSequenceNumber SimulatorName SimulatorMode NumberOfCores SimulatorCommandLineParameters
 () () () () ()
+[End]
+;
+;
+; OceaCrustalThicknessIoTbl
+;
+[OceaCrustalThicknessIoTbl]
+;
+ Age Thickness ThicknessGrid
+()  ()  ()
+   0 0 ""
+   5 150 ""
+   17 320 ""
 [End]
 ;
 ;

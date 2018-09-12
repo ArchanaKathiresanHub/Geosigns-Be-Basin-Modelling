@@ -25,6 +25,8 @@
 #include "../../cmbAPI/src/PropertyManagerImpl.h"
 #include "../../cmbAPI/src/MapsManager.h"
 #include "../../cmbAPI/src/MapsManagerImpl.h"
+#include "../../cmbAPI/src/BottomBoundaryManager.h"
+#include "../../cmbAPI/src/BottomBoundaryManagerImpl.h"
 #include "../../cmbAPI/src/cmbAPI.h"
 // CASA API
 #include "CauldronApp.h"
@@ -175,6 +177,8 @@ CSHARP_ARRAYS(char, byte)
 %include "../../cmbAPI/src/PropertyManagerImpl.h"
 %include "../../cmbAPI/src/MapsManager.h"
 %include "../../cmbAPI/src/MapsManagerImpl.h"
+%include "../../cmbAPI/src/BottomBoundaryManager.h"
+%include "../../cmbAPI/src/BottomBoundaryManagerImpl.h"
 %include "../../cmbAPI/src/cmbAPI.h"
 // CASA API
 %include "CauldronApp.h"
