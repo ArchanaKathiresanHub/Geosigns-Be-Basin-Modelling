@@ -54,3 +54,8 @@ add_gtest( NAME ${LIB_NAME}::Polyfunction
            SOURCES test/Polyfunction.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
+
+add_gtest( NAME ${LIB_NAME}::capillarySealStrength 
+           SOURCES test/capillarySealStrength.cpp
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
