@@ -1978,54 +1978,55 @@ bool AppCtx::calcNodeMaxVes( const double time ) {
 
   while ( ! Layers.Iteration_Is_Done () ) {
 
-    Current_Layer = Layers.Current_Layer ();
+     Current_Layer = Layers.Current_Layer ();
 
-    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm );
+     DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm );
 
-    PETSC_3D_Array ves     ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::VES_FP ));
-    PETSC_3D_Array max_ves ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Max_VES ));
+     PETSC_3D_Array ves     ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::VES_FP ));
+     PETSC_3D_Array max_ves ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Max_VES ));
 
-    // Set the rest of the values
-    for ( i = xs; i < ( xs + xm ); i++)
-    {
-      for ( j = ys; j < ( ys + ym ); j++)
-      {
-
-         if ( not nodeIsDefined ( i, j )) continue;
-
-   Density_Difference = Current_Layer -> calcDiffDensity( i,j );
-
-   for ( k = 0; k < ( zs + zm ); k++)
-   {
-     if ( k == 0 )
+     // Set the rest of the values
+     for ( i = xs; i < ( xs + xm ); i++)
      {
-       Max_Ves = PetscMax( ves( 0,j,i ) , max_ves( 0,j,i ) );
-       max_ves( 0,j,i ) = Max_Ves;
-       continue;
+        for ( j = ys; j < ( ys + ym ); j++)
+        {
+
+           if ( not nodeIsDefined ( i, j )) continue;
+
+           Density_Difference = Current_Layer -> calcDiffDensity( i,j );
+
+           for ( k = 0; k < ( zs + zm ); k++)
+           {
+              if ( k == 0 )
+              {
+                 Max_Ves = PetscMax( ves( 0,j,i ) , max_ves( 0,j,i ) );
+                 max_ves( 0,j,i ) = Max_Ves;
+                 continue;
+              }
+
+              Segment_May_Be_Eroding = Current_Layer->getSolidThickness ( i, j, k - 1 ).descending ( time );
+              double thickness = Current_Layer->getSolidThickness ( i, j, k - 1, time );
+
+              if ( ves( k,j,i ) < 50.0 && ( thickness == 0.0 or Segment_May_Be_Eroding ))
+              {
+                 dVes = AccelerationDueToGravity * Density_Difference * thickness;
+                 Max_Ves = max_ves( k-1,j,i ) - dVes;
+                 Max_Ves = PetscMax( Max_Ves , ves( k,j,i ) );
+                 Max_Ves = PetscMax( Max_Ves , max_ves( k,j,i ) );
+              }
+              else
+              {
+                 Max_Ves = PetscMax( ves( k,j,i ) , max_ves( k,j,i ) );
+              }
+
+              max_ves( k,j,i ) = Max_Ves;
+
+
+           }
+        }
      }
 
-     Segment_May_Be_Eroding = Current_Layer->getSolidThickness ( i, j, k - 1 ).descending ( time );
-
-     if ( ves( k,j,i ) < 50.0 && Segment_May_Be_Eroding )
-     {
-       dVes = AccelerationDueToGravity * Density_Difference * Current_Layer->getSolidThickness ( i, j, k - 1, time);
-       Max_Ves = max_ves( k-1,j,i ) - dVes;
-       Max_Ves = PetscMax( Max_Ves , ves( k,j,i ) );
-       Max_Ves = PetscMax( Max_Ves , max_ves( k,j,i ) );
-     }
-     else
-     {
-       Max_Ves = PetscMax( ves( k,j,i ) , max_ves( k,j,i ) );
-     }
-
-     max_ves( k,j,i ) = Max_Ves;
-
-
-   }
-      }
-    }
-
-    Layers++;
+     Layers++;
   }
 
   return true;
