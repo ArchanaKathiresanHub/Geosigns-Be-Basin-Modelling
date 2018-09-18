@@ -116,6 +116,11 @@ double Formation::getSourceRockMixingHI (void) const
    return database::getSourceRockMixingHI (m_record);
 }
 
+double Formation::getSourceRockMixingHC (void) const
+{
+   return database::getSourceRockMixingHC (m_record);
+}
+
 unsigned int Formation::getElementRefinement () const {
 
    int refinement = database::getElementRefinementZ ( m_record );
@@ -139,6 +144,11 @@ bool Formation::getEnableSourceRockMixing(void) const
 const string &  Formation::getSourceRockMixingHIGridName(void) const
 {
    return getSourceRockMixingHIGrid (m_record);
+}
+
+const string &  Formation::getSourceRockMixingHCGridName(void) const
+{
+   return getSourceRockMixingHCGrid (m_record);
 }
 
 const string & Formation::getMangledName (void) const
@@ -223,6 +233,35 @@ GridMap * Formation::loadMixingHIMap (void) const
       if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
       gridMap = m_projectHandle->getFactory ()->produceGridMap (this, MixingHIMap, grid, value);
       assert (gridMap == getChild (MixingHIMap));
+   }
+   return gridMap;
+}
+
+const GridMap * Formation::getMixingHCMap (void) const
+{
+   const GridMap * gridMap;
+
+   if ((gridMap = (const GridMap *) getChild (MixingHCMap)) != nullptr) return gridMap;
+   else if ((gridMap = loadMixingHCMap ()) != nullptr) return gridMap;
+   else return nullptr;
+}
+
+GridMap * Formation::loadMixingHCMap (void) const
+{
+   double value;
+   GridMap * gridMap = nullptr;
+
+   const string &mixingHCGridMapId = getSourceRockMixingHCGrid (m_record);
+   if (mixingHCGridMapId.length () != 0)
+   {
+      gridMap = m_projectHandle->loadInputMap ("StratIoTbl", mixingHCGridMapId);
+   }
+   else if ((value = getSourceRockMixingHC()) != RecordValueUndefined)
+   {
+      const Grid * grid = m_projectHandle->getActivityOutputGrid();
+      if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
+      gridMap = m_projectHandle->getFactory ()->produceGridMap (this, MixingHCMap, grid, value);
+      assert (gridMap == getChild (MixingHCMap));
    }
    return gridMap;
 }

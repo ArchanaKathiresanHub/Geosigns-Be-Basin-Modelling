@@ -527,12 +527,12 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
       double hcValue1 = getHcVRe05();
       double hcValue2 = sourceRock2->getHcVRe05();
 
-      if(  m_formation->getSourceRockMixingHIGridName().length() == 0 ) {
-         if( m_formation->getSourceRockMixingHI() == Interface::DefaultUndefinedScalarValue ) {
+      if(  m_formation->getSourceRockMixingHCGridName().length() == 0 ) {
+         if( m_formation->getSourceRockMixingHC() == Interface::DefaultUndefinedScalarValue ) {
             status = false;
-            LogHandler( LogHandler::ERROR_SEVERITY ) << "The mixing HI value is undefined. Aborting...";
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "The mixing HC value is undefined. Aborting...";
          } else {
-            double hcValueMixing = ( m_formation->getSourceRockMixingHI() != 0 ? convertHItoHC( m_formation->getSourceRockMixingHI() ) : 0 ); 
+            double hcValueMixing = ( m_formation->getSourceRockMixingHC() != 0 ? m_formation->getSourceRockMixingHC() : 0 ); 
       
             if( hcValue1 == hcValueMixing ) {
                m_theSimulator->setMaximumTimeStepSize( maximumTimeStepSize1 );
@@ -552,7 +552,7 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
          else m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
          
          if ( printInitialisationDetails ) {
-            LogHandler( LogHandler::INFO_SEVERITY ) << "Applying Source Rock mixing with HI mixing map";
+            LogHandler( LogHandler::INFO_SEVERITY ) << "Applying Source Rock mixing with HC mixing map";
          }
       }
       if( status ) {
@@ -758,13 +758,13 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
 
    //
    double f1, f2;
-   const GridMap *HImap = 0;
+   const GridMap *HCmap = 0;
    double Hc1 = 0.0, Hc2 = 0.0, invValue = 1.0, minHc = 0.0, maxHc = 0.0; 
 
    bool testPercentage = false;
 
    if( m_applySRMixing ) {
-      HImap = m_formation->getMixingHIMap ();
+      HCmap = m_formation->getMixingHCMap ();
       Hc1 = getHcVRe05();
       Hc2 = m_theChemicalModel2->getHC();
 
@@ -798,7 +798,7 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
       InputThickness->retrieveData ();
       TOCmap->retrieveData ();
 
-      if( HImap != 0 ) HImap->retrieveData();
+      if( HCmap != 0 ) HCmap->retrieveData();
 
       if (isVreOn) {
          if(vre) {
@@ -854,7 +854,7 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
       unsigned int depthVre = ( vre != 0 ? vre->getDepth () : 0 );
       unsigned int depthThickness = InputThickness->getDepth ();
       unsigned int depthTOC = TOCmap->getDepth ();
-      unsigned int depthHc = ( HImap ? HImap->getDepth () : 0 );
+      unsigned int depthHc = ( HCmap ? HCmap->getDepth () : 0 );
 
       Interface::ModellingMode theMode = m_projectHandle->getModellingMode ();
 
@@ -917,9 +917,9 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
 		  inorganicDensity = 0;
 	       }
                
-               if( HImap != 0 ) {
+               if( HCmap != 0 ) {
 
-                  double hcValue = convertHItoHC( HImap->getValue (lowResI, lowResJ, depthHc - 1) );
+                  double hcValue = HCmap->getValue (lowResI, lowResJ, depthHc - 1);
                   if( hcValue != Interface::DefaultUndefinedMapValue ) {
                      if( testPercentage ) {
                         f1 = hcValue;
@@ -967,7 +967,7 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
       InputThickness->restoreData ();
       TOCmap->restoreData ();
 
-      if( HImap ) HImap->restoreData();
+      if( HCmap ) HCmap->restoreData();
 
       if (vre && isVreOn) {
          vre->restoreData ();

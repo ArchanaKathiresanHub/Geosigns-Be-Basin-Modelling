@@ -114,6 +114,12 @@ namespace DataAccess
        /// Return the name of Mixing HI grid
        virtual const string & getSourceRockMixingHIGridName(void) const;
 
+       /// Return the Mixing Source Rock mode value
+       virtual double getSourceRockMixingHC(void) const;
+
+       /// Return the name of Mixing HC grid
+       virtual const string & getSourceRockMixingHCGridName(void) const;
+
        /// \brief Indicate whether or not the layer is an igneous intrusion.
        virtual bool getIsIgneousIntrusion () const;
 
@@ -182,6 +188,9 @@ namespace DataAccess
 
        virtual GridMap * loadMixingHIMap (void) const;
        virtual const GridMap * getMixingHIMap (void) const;
+ 
+       virtual GridMap * loadMixingHCMap (void) const;
+       virtual const GridMap * getMixingHCMap (void) const;
 
        virtual void printOn (ostream &) const;
 
@@ -203,6 +212,7 @@ namespace DataAccess
        static const unsigned int LithoType2Map = 2;
        static const unsigned int LithoType3Map = 3;
        static const unsigned int MixingHIMap = 4;
+       static const unsigned int MixingHCMap = 5;
 
        Surface * m_top;
        Surface * m_bottom;

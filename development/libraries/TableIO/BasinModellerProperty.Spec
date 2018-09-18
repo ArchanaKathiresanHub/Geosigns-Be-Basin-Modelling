@@ -746,6 +746,17 @@ START-properties
     Type                : string
     Unit of measurement :
 
+    Identification      : SourceRockMixingHC
+    Description         : Value of uniform HC scalar value
+    Type                : float
+    Unit of measurement : kg/tonne C
+    Default             : 0
+
+    Identification      : SourceRockMixingHCGrid
+    Description         : Map of HC values
+    Type                : string
+    Unit of measurement :
+
     Identification      : SourceRockEndMember1
     Unit of measurement : %
     Type                : float
@@ -4864,6 +4875,8 @@ START-property-tables
     Column         : SourceRockType2->SourceRockLithoIoTbl.SourceRockType
     Column         : SourceRockMixingHI
     Column         : SourceRockMixingHIGrid->GridMapIoTbl.MapName
+    Column         : SourceRockMixingHC
+    Column         : SourceRockMixingHCGrid->GridMapIoTbl.MapName
     Column         : ElementRefinementZ
     Column         : IncludeInDarcy
 
