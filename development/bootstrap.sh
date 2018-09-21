@@ -111,11 +111,11 @@ if [ $cmake_param_use_intel -eq 1 ] && [ $cmake_param_intel_root -eq 0 ] ; then
    else
       echo "Module for Intel C++ is already loaded"
    fi
-   
+
    if [ "x${EBVERSIONINTEL}" != "x" ]; then
       intel_version=${EBVERSIONINTEL}
    fi
-   
+
    # extract path to intel compiler installation and it version
    icc_path=`which icc`
    intel_path=`dirname ${icc_path}`   #remove icc from path
@@ -162,8 +162,8 @@ if [ $cmake_param_use_impi -eq 1 ] && [ $cmake_param_impi_root -eq 0 ] ; then
    fi
 
    # extract mpi root and version number
-   impi_path=`   module show ${intel_impi_module_name} 2>&1 | grep I_MPI_ROOT    | cut -d ' ' -f 3`
-   impi_version=`module show ${intel_impi_module_name} 2>&1 | grep EBVERSIONIMPI | cut -d ' ' -f 3`
+   impi_path=${I_MPI_ROOT}
+   impi_version=${EBVERSIONIMPI}
 fi
 
 # Add to cmake parameters path and version number for Intel MPI
@@ -201,8 +201,8 @@ if [ $cmake_param_use_imkl -eq 1 ] && [ $cmake_param_imkl_root -eq 0 ] ; then
    fi
 
    # extract mpi root and version number
-   imkl_path=`   module show ${intel_imkl_module_name} 2>&1 | grep MKLROOT       | cut -d ' ' -f 3`
-   imkl_version=`module show ${intel_imkl_module_name} 2>&1 | grep EBVERSIONIMKL | cut -d ' ' -f 3`
+   imkl_path=${MKLROOT}
+   imkl_version=${EBVERSIONIMKL}
 fi
 
 # Add to cmake parameters path and version number for Intel MPI
@@ -265,7 +265,7 @@ if [ $module_loaded_in_script -eq 1 ]; then
    if [ $cmake_param_use_impi -eq 1 ]; then
       echo "  ${intel_impi_module_name}"
    fi
-   
+
    if [ $cmake_param_use_imkl -eq 1 ] ; then
       echo "  ${intel_imkl_module_name}"
    fi
