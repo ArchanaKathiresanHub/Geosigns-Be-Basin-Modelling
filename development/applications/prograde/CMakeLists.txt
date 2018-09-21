@@ -106,9 +106,8 @@ add_gtest( NAME ${TARGET_NAME}::SandstoneToMultipointPermeability
 add_gtest( NAME ${TARGET_NAME}::BrineModelConverter
            SOURCES test/BrineModelConverterTest.cpp src/BrineModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
-                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/utilities/src
-		   LIBRARIES cmbapi utilities
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src             
+		   LIBRARIES cmbapi
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -119,8 +118,7 @@ add_gtest( NAME ${TARGET_NAME}::ReservoirConverter
            SOURCES test/ReservoirConverter.cpp src/ReservoirConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/utilities/src
-		   LIBRARIES cmbapi utilities
+		   LIBRARIES cmbapi
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -130,8 +128,7 @@ add_gtest( NAME ${TARGET_NAME}::BiodegradeConverter
            SOURCES test/BiodegradeConverterTest.cpp src/BiodegradeConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/utilities/src
-                   LIBRARIES cmbapi utilities
+           LIBRARIES cmbapi 
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -142,8 +139,7 @@ add_gtest( NAME ${TARGET_NAME}::PorosityModelConverter
            SOURCES test/PorosityModelConverterTest.cpp src/PorosityModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/utilities/src
-		   LIBRARIES cmbapi utilities
+		   LIBRARIES cmbapi
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
@@ -154,7 +150,17 @@ add_gtest( NAME ${TARGET_NAME}::BasicCrustThinningModelConverter
            SOURCES test/BasicCrustThinningConverter.cpp src/BasicCrustThinningModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
-                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/utilities/src
-		   LIBRARIES cmbapi utilities
+		   LIBRARIES cmbapi
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
+
+#
+# 8. Alc property model upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::AlcModelConverter
+           SOURCES test/AlcConverter.cpp src/AlcModelConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
+           LIBRARIES cmbapi
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )

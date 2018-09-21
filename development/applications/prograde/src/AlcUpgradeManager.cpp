@@ -24,10 +24,14 @@
 
 //Prograde
 #include "LegacyBasaltThicknessCalculator.h"
+#include "AlcModelConverter.h"
 
 //cmbAPI
 #include "MapsManager.h"
 #include "cmbAPI.h"
+#include "BottomBoundaryManager.h"
+
+using namespace mbapi;
 
 typedef std::pair<const std::shared_ptr<DataModel::AbstractSnapshot const>,
                   const std::shared_ptr<DataAccess::Interface::GridMap const>> SmartAbstractSnapshotSmartGridMapPair;
@@ -61,6 +65,20 @@ void Prograde::AlcUpgradeManager::upgrade() {
       computeBasaltThickness();
       writeOceaCrustalThicknessIoTbl();
       cleanBasaltThicknessIoTbl();
+
+      Prograde::AlcModelConverter modelConverter;
+
+      //upgrading the crust property model to standard conductivity crust
+     
+      BottomBoundaryManager::CrustPropertyModel crstPropModel;
+      m_model.bottomBoundaryManager().getCrustPropertyModel(crstPropModel);
+      m_model.bottomBoundaryManager().setCrustPropertyModel(modelConverter.upgradeAlcCrustPropModel(crstPropModel));
+
+      //upgrading the mantle property model to high conductivity mantle model
+      BottomBoundaryManager::MantlePropertyModel mntlPropModel;
+      m_model.bottomBoundaryManager().getMantlePropertyModel(mntlPropModel);
+      m_model.bottomBoundaryManager().setMantlePropertyModel(modelConverter.upgradeAlcMantlePropModel(mntlPropModel));
+      
       LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS ) << "ALC upgrade done";
    }
    else {
