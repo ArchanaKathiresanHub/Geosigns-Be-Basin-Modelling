@@ -19,7 +19,7 @@
 
 using namespace mbapi;
 
-TEST(BasicCrustThinningModelConverter, upgrade)
+TEST(AlcModelConverter, upgrade)
 {
    Prograde::AlcModelConverter modelConverter;
 
