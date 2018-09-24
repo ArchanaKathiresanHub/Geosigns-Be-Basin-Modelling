@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -68,6 +68,9 @@ namespace GeoPhysics
 
       /// Return Compaction coefficients
       virtual double compactionCoefficientB() const;
+
+      /// Return Compaction Ratio
+      virtual double compactionRatio() const;
 
    private:
       /// @brief Overwrite default assginment operator
@@ -142,5 +145,12 @@ namespace GeoPhysics
    {
       return 0.0;
    }
+
+   inline double
+      soilMechanicsPorosity::compactionRatio() const
+   {
+      return 0.0;
+   }
+
 }
 #endif

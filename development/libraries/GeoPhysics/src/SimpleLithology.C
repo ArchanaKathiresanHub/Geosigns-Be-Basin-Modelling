@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -52,6 +52,7 @@ GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectH
    0.1 * 1.0E-08 * this->getExponentialCompactionCoefficient(),
    0.1 * 1.0E-08 * this->getExponentialCompactionCoefficientA(),
    0.1 * 1.0E-08 * this->getExponentialCompactionCoefficientB(),
+   this->getExponentialCompactionRatio(),
    this->getSoilMechanicsCompactionCoefficient(),
    Interface::LithoType::getLegacy()
    ))
@@ -149,6 +150,7 @@ GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) :
                                    0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficient ( ),
                                    0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficientA ( ),
                                    0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficientB ( ),
+                                   litho.getExponentialCompactionRatio(),
                                    litho.getSoilMechanicsCompactionCoefficient ( ),
                                    Interface::LithoType::getLegacy() ) ),
 

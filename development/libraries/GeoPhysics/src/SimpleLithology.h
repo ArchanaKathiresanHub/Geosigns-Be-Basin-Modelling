@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -67,6 +67,9 @@ namespace GeoPhysics {
 
       /// Return compaction coefficient B for double exponential model.
       double getCompCoeffB() const;
+
+      /// Return compaction ratio for double exponential model.
+      double getCompRatio() const;
 
       /// Return depositional porosity.
       double getDepoPoro() const;
@@ -284,6 +287,10 @@ inline double GeoPhysics::SimpleLithology::getCompCoeffA() const {
 
 inline double GeoPhysics::SimpleLithology::getCompCoeffB() const {
    return m_porosity.getCompactionCoefficientB();
+}
+
+inline double GeoPhysics::SimpleLithology::getCompRatio() const {
+   return m_porosity.getCompactionRatio();
 }
 
 inline DataAccess::Interface::PorosityModel GeoPhysics::SimpleLithology::getPoroModel() const{

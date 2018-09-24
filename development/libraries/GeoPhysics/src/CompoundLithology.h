@@ -453,6 +453,7 @@ namespace GeoPhysics {
     		  double & compactiondecr,
     		  double & compactiondecrA,
     		  double & compactiondecrB,
+           double & compactionRatio,
     		  double & soilMechanicsCompactionCoefficient);
 
       void setMinimumExponentialPorosity();

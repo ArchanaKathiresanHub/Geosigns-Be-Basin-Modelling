@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -24,6 +24,7 @@ namespace GeoPhysics
                                  const double compactionIncrB,
                                  const double compactionDecrA,
                                  const double compactionDecrB,
+                                 const double compactionRatio,
                                  const bool   isLegacy );
 
       /// Return porosity with exponential function
@@ -67,6 +68,7 @@ namespace GeoPhysics
       virtual double compactionCoefficient() const;
       virtual double compactionCoefficientA() const;
       virtual double compactionCoefficientB() const;
+      virtual double compactionRatio() const;
 
    private:
       /// @brief Overwrite default assginment operator
@@ -92,6 +94,8 @@ namespace GeoPhysics
       const double m_compactionIncrB; ///< The seconf member loading phase compaction coefficient
       const double m_compactionDecrA; ///< The first member unloading phase compaction coefficient
       const double m_compactionDecrB; ///< The seconf member unloading phase compaction coefficient
+      const double m_compactionRatio; ///< The compaction ratio
+
    };
 
 
@@ -142,5 +146,12 @@ namespace GeoPhysics
    {
       return m_compactionIncrB;
    }
+
+   inline double
+      DoubleExponentialPorosity::compactionRatio() const
+   {
+      return m_compactionRatio;
+   }
+
 }
 #endif

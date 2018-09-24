@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -106,7 +106,7 @@ TEST( ExponentialPorosity, DerivativesExactValues )
 TEST( ExponentialPorosity, DerivativesLoadingVec )
 {
    // loading phase, no chemical compaction, variations wrt ves, compactionIncr = 2.66E-07, compactionDecr = 2.66E-08
-   Porosity porosity( Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY, 0.4, 0.03, 2.66E-07, 0.0, 0.0, 2.66E-08, 0.0, 0.0, 0.0, false ));
+   Porosity porosity( Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY, 0.4, 0.03, 2.66E-07, 0.0, 0.0, 2.66E-08, 0.0, 0.0, 0.0, 0.0, false ));
    const unsigned int N = 12;
    double* ves = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
    ves[0 ] = 0.0;
@@ -175,7 +175,7 @@ TEST( ExponentialPorosity, DerivativesLoadingVec )
 TEST( ExponentialPorosity, DerivativesUnLoadingVec )
 {
    // unloading phase, no chemical compaction, variations wrt ves, compactionIncr = 2.66E-07, compactionDecr = 2.66E-08
-   Porosity porosity( Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY, 0.4, 0.03, 2.66E-07, 0.0, 0.0, 2.66E-08, 0.0, 0.0, 0.0, false ));
+   Porosity porosity( Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY, 0.4, 0.03, 2.66E-07, 0.0, 0.0, 2.66E-08, 0.0, 0.0, 0.0, 0.0, false ));
    const unsigned int N = 6;
    double* ves = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
    ves[0] = 1.00E+01;
@@ -219,7 +219,7 @@ TEST( ExponentialPorosity, DerivativesUnLoadingVec )
 
 TEST( ExponentialPorosity, DerivativesChemCompVec )
 {
-   Porosity porosity( Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY, 0.4, 0.03, 2.66E-07, 0.0, 0.0, 2.66E-08, 0.0, 0.0, 0.0, false ));
+   Porosity porosity( Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY, 0.4, 0.03, 2.66E-07, 0.0, 0.0, 2.66E-08, 0.0, 0.0, 0.0, 0.0, false ));
    const unsigned int N = 9;
    double* ves = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
    ves[0] = 1.00E+03;

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -664,11 +664,12 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    double compactiondecr;
    double compactiondecrA;
    double compactiondecrB;
+   double compactionRatio;
    double soilMechanicsCompactionCoefficient;
 
    mixPorosityModel(porosityModel);
    mixSurfacePorosity(porosityModel, surfacePorosity, surfaceVoidRatio);
-   mixCompactionCoefficients(compactionincr, compactionincrA, compactionincrB, compactiondecr, compactiondecrA, compactiondecrB, soilMechanicsCompactionCoefficient);
+   mixCompactionCoefficients(compactionincr, compactionincrA, compactionincrB, compactiondecr, compactiondecrA, compactiondecrB, compactionRatio, soilMechanicsCompactionCoefficient);
 
    //Create porosity object
    m_porosity = Porosity::create(porosityModel,
@@ -680,6 +681,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       compactiondecr,
       compactiondecrA,
       compactiondecrB,
+      compactionRatio,
       soilMechanicsCompactionCoefficient,
       m_projectHandle->getRunParameters()->getLegacy());
 
@@ -786,6 +788,7 @@ void GeoPhysics::CompoundLithology::mixCompactionCoefficients(
    double& compactiondecr,
    double& compactiondecrA,
    double& compactiondecrB,
+   double& compactionRatio,
    double& soilMechanicsCompactionCoefficient) {
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
@@ -797,6 +800,7 @@ void GeoPhysics::CompoundLithology::mixCompactionCoefficients(
    compactiondecr                     = 0.0;
    compactiondecrA                    = 0.0;
    compactiondecrB                    = 0.0;
+   compactionRatio                    = 0.0;
 
    double Fraction;
 
@@ -812,6 +816,9 @@ void GeoPhysics::CompoundLithology::mixCompactionCoefficients(
       compactiondecr  = compactiondecr + 0.1 * (*componentIter)->getCompCoeff() * Fraction;
       compactiondecrA = compactiondecrA + 0.1 * (*componentIter)->getCompCoeffA() * Fraction;
       compactiondecrB = compactiondecrB + 0.1 * (*componentIter)->getCompCoeffB() * Fraction;
+
+      compactionRatio = compactionRatio + (*componentIter)->getCompRatio() * Fraction;
+
 
       ++componentIter;
       ++percentIter;

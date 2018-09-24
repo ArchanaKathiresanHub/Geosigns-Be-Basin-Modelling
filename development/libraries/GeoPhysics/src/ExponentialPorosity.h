@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -77,6 +77,9 @@ namespace GeoPhysics
       /// Return Compaction coefficients
       virtual double compactionCoefficientB() const;
 
+      /// Return Compaction ratio
+      virtual double compactionRatio() const;
+
    private:
       /// @brief Overwrite default assginment operator
       ExponentialPorosity& operator= (const ExponentialPorosity&);
@@ -145,6 +148,12 @@ namespace GeoPhysics
 
    inline double
    ExponentialPorosity::compactionCoefficientB () const
+   {
+      return 0.0;
+   }
+
+   inline double
+      ExponentialPorosity::compactionRatio() const
    {
       return 0.0;
    }

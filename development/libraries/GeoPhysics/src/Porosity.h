@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -61,6 +61,7 @@ namespace GeoPhysics
        * \param compactionDecr Compaction coefficient during stress release phase for single exponential model [Pa-1]
        * \param compactionDecrA First compaction coefficient during stress release phase for double exponential model [Pa-1]
        * \param compactionDecrB Second compaction coefficient during stress release phase for double exponential model [Pa-1]
+       * \param compactionRatio Compaction ratio used for double exponential model 
        * \param soilMechanicsCompactionCoefficient Compaction coefficient for soil mechanics model [1]
        */
       static Porosity create(Model PorosityModel,
@@ -72,6 +73,7 @@ namespace GeoPhysics
          double compactionDecr,
          double compactionDecrA,
          double compactionDecrB,
+         double compactionRatio,
          double soilMechanicsCompactionCoefficient,
          bool   isLegacy);
 
@@ -180,6 +182,11 @@ namespace GeoPhysics
       double getCompactionCoefficientB() const;
 
       /*!
+      * \brief Get the compaction ratio used for double exponential model
+      */
+      double getCompactionRatio() const;
+
+      /*!
        * \brief Get the minimum porosity that the model can reach (for example 3%) [fraction of volume]
        */
       double getMinimumMechanicalPorosity() const;
@@ -274,6 +281,11 @@ namespace GeoPhysics
          virtual double compactionCoefficientB () const =0;
 
          /*!
+         * \brief Return the compaction ratio used for double exponential model
+         */
+         virtual double compactionRatio() const = 0;
+
+         /*!
           * \brief Return the minimum porosity [fraction of volume]
           */
          double  minimumMechanicalPorosity( ) const;
@@ -358,6 +370,11 @@ namespace GeoPhysics
          ::getCompactionCoefficientB() const{
          return m_algorithm->compactionCoefficientB();
       }
+
+   inline double Porosity
+      ::getCompactionRatio() const {
+      return m_algorithm->compactionRatio();
+   }
 
    inline double Porosity
      ::calculateDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {

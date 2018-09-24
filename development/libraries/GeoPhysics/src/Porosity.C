@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -48,10 +48,11 @@ namespace GeoPhysics
       double compactionDecr,
       double compactionDecrA,
       double compactionDecrB,
+      double compactionRatio,
       double soilMechanicsCompactionCoefficient,
       bool   isLegacy)
    {
-      
+
      switch (porosityModel)
       {
       case DataAccess::Interface::EXPONENTIAL_POROSITY:
@@ -59,7 +60,7 @@ namespace GeoPhysics
       case DataAccess::Interface::SOIL_MECHANICS_POROSITY:
          return Porosity(new soilMechanicsPorosity(depoPorosity, minimumMechanicalPorosity, soilMechanicsCompactionCoefficient, depoPorosity/(1-depoPorosity)));
       case DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY:
-         return Porosity(new DoubleExponentialPorosity(depoPorosity, minimumMechanicalPorosity, compactionIncrA, compactionIncrB, compactionDecrA, compactionDecrB, isLegacy));
+         return Porosity(new DoubleExponentialPorosity(depoPorosity, minimumMechanicalPorosity, compactionIncrA, compactionIncrB, compactionDecrA, compactionDecrB, compactionRatio, isLegacy));
       default:
          assert(false);
       }
