@@ -13,6 +13,7 @@
 
 bool        H5_Parallel_PropertyList :: s_oneFilePerProcess = false;
 bool        H5_Parallel_PropertyList :: s_primaryPod = false;
+bool        H5_Parallel_PropertyList :: s_oneFileLustre = false;
 
 std::string H5_Parallel_PropertyList :: s_temporaryDirName;
 
@@ -36,7 +37,7 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList( const bool readOnly ) 
       if( not readOnly ) {
          H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);
 
-         if( s_primaryPod ) {
+         if( s_primaryPod or s_oneFileLustre ) {
             // Disable cache
             // set B-tree to roughly same size as 'stripe size' (default stripe size 1Mb)
             // https://www.nersc.gov/users/training/online-tutorials/introduction-to-scientific-i-o/?start=5
@@ -80,13 +81,15 @@ hid_t H5_Parallel_PropertyList :: createDatasetPropertyList( const bool readOnly
 
 bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool createDir )
 {
-   PetscBool noOfpp = PETSC_FALSE;
+   PetscBool noOfpp     = PETSC_FALSE;
    PetscBool primaryPod = PETSC_FALSE;
+   PetscBool ofLustre   = PETSC_FALSE;
 
 #ifndef _MSC_VER
    PetscOptionsHasName ( PETSC_NULL, "-noofpp", &noOfpp );
+   PetscOptionsHasName ( PETSC_NULL, "-lustre", &ofLustre );
 
-   if( !noOfpp ) {
+   if( !noOfpp and !ofLustre ) {
 
       const char * tmpDir = 0;
 
@@ -159,7 +162,11 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool createDi
 #endif
 
    if( not primaryPod ) {
-      setOneFilePerProcess ( !noOfpp );
+      if( not ofLustre ) {
+         setOneFilePerProcess ( !noOfpp );
+      } else {
+         setOneFileLustre ( true );
+      }
    }
    return !noOfpp;
 }

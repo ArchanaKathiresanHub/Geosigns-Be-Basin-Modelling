@@ -15,6 +15,9 @@
 #include "h5_parallel_file_types.h"
 #include "GeoPhysicsFormation.h"
 
+static bool snapshotSorter (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
+static bool snapshotIsEqual (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
+
 static const char * basementProperties [] = {"BulkDensity", "Diffusivity",
                                              "HeatFlow", "Reflectivity", 
                                              "SonicSlowness", "ThCond", "Velocity", "Depth",

@@ -56,9 +56,6 @@ typedef vector < double > DoubleVector;
 
 using namespace Utilities::CheckMemory;
 
-static bool snapshotSorter (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
-static bool snapshotIsEqual (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
-
 void displayTime (const double timeToDisplay, const char * msgToDisplay);
 void displayProgress (const string & fileName, double startTime, const string & message);
 
