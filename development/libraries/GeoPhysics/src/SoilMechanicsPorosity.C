@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -26,7 +26,8 @@ namespace GeoPhysics
                                                  const double soilMechanicsCompactionCoefficient,
                                                  const double depositionVoidRatio ):
      Algorithm(depoPorosity,minimumMechanicalPorosity),
-      m_soilMechanicsCompactionCoefficient(soilMechanicsCompactionCoefficient),
+      m_soilMechanicsCompactionCoefficient((depoPorosity-minimumMechanicalPorosity>porosityTolerance) ?
+         soilMechanicsCompactionCoefficient : 0.0),
       m_depositionVoidRatio(depositionVoidRatio),
       m_percentagePorosityRebound(0.02)
    {}

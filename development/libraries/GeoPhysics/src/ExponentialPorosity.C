@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -30,8 +30,8 @@ namespace GeoPhysics
                                             const double compactionDecr,
                                             const bool   isLegacy) :
       Algorithm(depoPorosity,minimumMechanicalPorosity),
-      m_compactionIncr(compactionIncr),
-      m_compactionDecr(compactionDecr)
+      m_compactionIncr((depoPorosity-minimumMechanicalPorosity>porosityTolerance) ? compactionIncr : 0.0),
+      m_compactionDecr((depoPorosity-minimumMechanicalPorosity>porosityTolerance) ? compactionDecr : 0.0)
    {
       m_isLegacy = isLegacy;
    }
@@ -146,11 +146,11 @@ namespace GeoPhysics
       {
          if( ves >= maxVes )
          {
-            poro = (m_depoPorosity - m_minimumNumericalMechanicalPorosity) * std::exp(-m_compactionIncr * ves) + m_minimumNumericalMechanicalPorosity;
+            poro = (m_depoPorosity - m_minimumMechanicalPorosity) * std::exp(-m_compactionIncr * ves) + m_minimumMechanicalPorosity;
          }
          else
          {
-            poro = (m_depoPorosity - m_minimumNumericalMechanicalPorosity) * std::exp(m_compactionDecr * (maxVes - ves) - m_compactionIncr * maxVes) + m_minimumNumericalMechanicalPorosity;
+            poro = (m_depoPorosity - m_minimumMechanicalPorosity) * std::exp(m_compactionDecr * (maxVes - ves) - m_compactionIncr * maxVes) + m_minimumMechanicalPorosity;
          }
 
          if (includeChemicalCompaction)
@@ -228,11 +228,11 @@ namespace GeoPhysics
          }
          else if (ves >= maxVes)
          {
-            poroDer = -m_compactionIncr * (porosity - m_minimumNumericalMechanicalPorosity - (includeChemicalCompaction?chemicalCompactionTerm:0.0) );
+            poroDer = -m_compactionIncr * (porosity - m_minimumMechanicalPorosity - (includeChemicalCompaction?chemicalCompactionTerm:0.0) );
          }
          else
          {
-            poroDer = -m_compactionDecr * (porosity - m_minimumNumericalMechanicalPorosity - (includeChemicalCompaction?chemicalCompactionTerm:0.0) );
+            poroDer = -m_compactionDecr * (porosity - m_minimumMechanicalPorosity - (includeChemicalCompaction?chemicalCompactionTerm:0.0) );
          }
       }
 

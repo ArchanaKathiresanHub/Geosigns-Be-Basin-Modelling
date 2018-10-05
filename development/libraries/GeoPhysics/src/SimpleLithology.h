@@ -33,7 +33,7 @@ namespace GeoPhysics {
 
 
       SimpleLithology(DataAccess::Interface::ProjectHandle* projectHandle,
-         database::Record*                     record);
+         database::Record*                     record, const bool isBasement = false);
 
       SimpleLithology ( const SimpleLithology& litho );
 

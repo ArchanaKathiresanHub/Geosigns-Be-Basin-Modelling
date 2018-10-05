@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015 Shell International Exploration & Production.
+// Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -29,7 +29,7 @@ public :
 };
 
 inline bool ElementNonZeroPorosityActivityPredicate::isActive ( const LayerElement& element ) const {
-   return element.getLithology () != 0 and element.getLithology ()->surfacePorosity () > 0.0;
+   return element.getLithology () != 0 and element.getLithology ()->surfacePorosity () > MinimumPorosityNonLegacy;
 }
 
 

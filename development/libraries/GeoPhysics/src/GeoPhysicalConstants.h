@@ -39,6 +39,10 @@ namespace GeoPhysics {
    /// Part of the new rock property library feature which is flagged for now
    constexpr double MinimumPorosityNonLegacy = 0.001;
 
+   /// \var porosityTolerance
+   /// tolerance value used to compare porosity values
+   constexpr double porosityTolerance = 1e-6;
+
    /// \var RockViscosityReferenceTemperature
    /// The temperature used in the reference rock viscosity, units Celsius.
    constexpr double RockViscosityReferenceTemperature = 15.0;

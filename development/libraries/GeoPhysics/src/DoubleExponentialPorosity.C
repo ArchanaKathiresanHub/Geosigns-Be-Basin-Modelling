@@ -28,10 +28,10 @@ namespace GeoPhysics
                                                          const double compactionRatio,
                                                          const bool   isLegacy)
       : Algorithm(depoPorosity,minimumMechanicalPorosity),
-        m_compactionIncrA(compactionIncrA),
-        m_compactionIncrB(compactionIncrB),
-        m_compactionDecrA(compactionDecrA),
-        m_compactionDecrB(compactionDecrB),
+        m_compactionIncrA((depoPorosity-minimumMechanicalPorosity>porosityTolerance) ? compactionIncrA : 0.0),
+        m_compactionIncrB((depoPorosity-minimumMechanicalPorosity>porosityTolerance) ? compactionIncrB : 0.0),
+        m_compactionDecrA((depoPorosity-minimumMechanicalPorosity>porosityTolerance) ? compactionDecrA : 0.0),
+        m_compactionDecrB((depoPorosity-minimumMechanicalPorosity>porosityTolerance) ? compactionDecrB : 0.0),
         m_compactionRatio(compactionRatio)
    {
       m_isLegacy = isLegacy;
@@ -112,13 +112,13 @@ namespace GeoPhysics
          // new rock property library behaviour
          if (ves >= maxVes)
          {
-            poro = (m_depoPorosity - m_minimumNumericalMechanicalPorosity)
-                 * ( (m_compactionRatio * std::exp(-m_compactionIncrA * ves)) + ((1.0 - m_compactionRatio) * std::exp(-m_compactionIncrB * ves)) ) + m_minimumNumericalMechanicalPorosity;
+            poro = (m_depoPorosity - m_minimumMechanicalPorosity)
+                 * ( (m_compactionRatio * std::exp(-m_compactionIncrA * ves)) + ((1.0 - m_compactionRatio) * std::exp(-m_compactionIncrB * ves)) ) + m_minimumMechanicalPorosity;
          }
          else
          {
-            poro = (m_depoPorosity - m_minimumNumericalMechanicalPorosity)
-                 * ( (m_compactionRatio * std::exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes)) + ((1.0 - m_compactionRatio) *std::exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes)) ) + m_minimumNumericalMechanicalPorosity;
+            poro = (m_depoPorosity - m_minimumMechanicalPorosity)
+                 * ( (m_compactionRatio * std::exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes)) + ((1.0 - m_compactionRatio) *std::exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes)) ) + m_minimumMechanicalPorosity;
          }
 
          if (includeChemicalCompaction)
@@ -175,8 +175,8 @@ namespace GeoPhysics
       {
          // new rock property library behaviour
          const double localChemicalCompactionTerm = (includeChemicalCompaction?chemicalCompactionTerm:0.0);
-         const double coeffA = m_compactionRatio * (m_minimumNumericalDepoPorosity - m_minimumNumericalMechanicalPorosity - localChemicalCompactionTerm);
-         const double coeffB = (1.0 - m_compactionRatio) * (m_minimumNumericalDepoPorosity - m_minimumNumericalMechanicalPorosity - localChemicalCompactionTerm);
+         const double coeffA = m_compactionRatio * (m_depoPorosity - m_minimumMechanicalPorosity - localChemicalCompactionTerm);
+         const double coeffB = (1.0 - m_compactionRatio) * (m_depoPorosity - m_minimumMechanicalPorosity - localChemicalCompactionTerm);
 
          if( (porosity == MinimumPorosityNonLegacy) )
          {
