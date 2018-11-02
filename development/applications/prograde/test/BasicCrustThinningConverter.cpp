@@ -37,6 +37,6 @@ TEST(BasicCrustThinningModelConverter, upgrade)
    EXPECT_EQ(BottomBoundaryManager::HighCondMnModel, modelConverter.upgradeMantlePropModel(BottomBoundaryManager::HighCondMnModel));
 
    EXPECT_EQ("ContCrustalThicknessIoTbl", modelConverter.upgradeGridMapTable("CrustIoTbl"));
-   EXPECT_EQ("StratIoTbl", modelConverter.upgradeGridMapTable("StratIoTbl"));
+   EXPECT_EQ("TtratIoTbl", modelConverter.upgradeGridMapTable("StratIoTbl"));
 
 }
