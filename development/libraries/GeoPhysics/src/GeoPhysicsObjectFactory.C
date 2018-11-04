@@ -75,7 +75,8 @@ Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType( DataAccess::I
                                                                     database::Record *         record ) {
 
    const string lithoname = database::getLithotype (record);
-   if( lithoname == projectHandle->getCrustLithoName() || lithoname == projectHandle->getMantleLithoName() || lithoname  == DataAccess::Interface::ALCBasalt ) {
+   if ((projectHandle->getBottomBoundaryConditions() == Interface::ADVANCED_LITHOSPHERE_CALCULATOR) &&
+      (lithoname == projectHandle->getCrustLithoName() || lithoname == projectHandle->getMantleLithoName() || lithoname == DataAccess::Interface::ALCBasalt)) {
       return new BasementLithology( projectHandle, record );
    } else {
       return new SimpleLithology ( projectHandle, record );

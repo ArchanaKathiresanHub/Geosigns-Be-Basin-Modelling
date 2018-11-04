@@ -29,7 +29,7 @@ public :
 };
 
 inline bool ElementNonZeroPorosityActivityPredicate::isActive ( const LayerElement& element ) const {
-   return element.getLithology () != 0 and element.getLithology ()->surfacePorosity () > MinimumPorosityNonLegacy;
+   return element.getLithology () != 0 and element.getLithology ()->surfacePorosity () > porosityTolerance;
 }
 
 

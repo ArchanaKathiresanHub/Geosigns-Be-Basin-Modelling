@@ -28,7 +28,7 @@ using namespace GeoPhysics;
 
 BasementLithology::BasementLithology (  DataAccess::Interface::ProjectHandle* projectHandle,
                                         database::Record*                     record ) :
-  SimpleLithology( projectHandle, record, true ){
+  SimpleLithology( projectHandle, record ){
 
    setLithoType();
 

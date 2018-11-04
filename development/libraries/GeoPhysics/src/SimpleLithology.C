@@ -29,7 +29,7 @@ using namespace ibs;
 
 
 GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectHandle,
-   database::Record *              record, bool isBasement)
+   database::Record *              record)
    : Interface::LithoType(projectHandle, record)
    , m_permeability(Permeability::create(
    Interface::LithoType::getPermeabilityModel(),
@@ -45,7 +45,7 @@ GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectH
    //construct porosity object
    , m_porosity(Porosity::create(Interface::LithoType::getPorosityModel(),
    this->getSurfacePorosity() / 100,
-   NumericFunctions::Maximum(Interface::LithoType::getMinimumMechanicalPorosity() / 100.0, (isBasement)?0.0:MinimumPorosityNonLegacy),
+   Interface::LithoType::getMinimumMechanicalPorosity() / 100.0,
    1.0E-08 * this->getExponentialCompactionCoefficient(),
    1.0E-08 * this->getExponentialCompactionCoefficientA(),
    1.0E-08 * this->getExponentialCompactionCoefficientB(),

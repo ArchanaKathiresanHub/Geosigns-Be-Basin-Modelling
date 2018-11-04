@@ -271,3 +271,31 @@ TEST( ExponentialPorosity, DerivativesChemCompVec )
    AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free( poro );
    AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free( poroDer );
 }
+
+TEST(ExponentialPorosity, near_zero_porosity_and_non_zero_compaction_coefficient)
+{
+   double compactionIncr = 0.04e-6;
+   double compactionDecr = 0.04e-7;
+   double depoPoro = 1.e-8;
+
+   {//non legacy mode    
+      Porosity porExp(Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY,
+         depoPoro, 0.0, compactionIncr, 0.0, 0.0, compactionDecr, 0.0, 0.0, 0.0, 0.0, false));
+      double maxVes = 50.0e6;
+      double ves = maxVes;       //for loading
+      EXPECT_NEAR(0.0, porExp.calculate(ves, maxVes, false, 0.0), 1e-10);
+      ves = maxVes / 2.0;          //for unloading
+      EXPECT_NEAR(0.0, porExp.calculate(ves, maxVes, false, 0.0), 1e-10);
+   }
+
+   {//legacy mode    
+      Porosity porExp(Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY,
+         depoPoro, 0.0, compactionIncr, 0.0, 0.0, compactionDecr, 0.0, 0.0, 0.0, 0.0, true));
+      double maxVes = 50.0e6;
+      double ves = maxVes;       //for loading
+      EXPECT_NEAR(0.0, porExp.calculate(ves, maxVes, false, 0.0), 1e-10);
+      ves = maxVes / 2.0;          //for unloading
+      EXPECT_NEAR(0.0, porExp.calculate(ves, maxVes, false, 0.0), 1e-10);
+   }
+
+}

@@ -80,9 +80,9 @@ namespace GeoPhysics
    {}
    
    Porosity::Algorithm::Algorithm(double depoPorosity, double minimumMechanicalPorosity):
-      m_minimumMechanicalPorosity(minimumMechanicalPorosity),
-      m_depoPorosity(NumericFunctions::Maximum(depoPorosity, minimumMechanicalPorosity))
-
+      m_depoPorosity((depoPorosity < MinimumPorosityNonLegacy) ? 0.0 : depoPorosity),
+      m_minimumMechanicalPorosity(NumericFunctions::Minimum(
+         NumericFunctions::Maximum(minimumMechanicalPorosity,MinimumPorosityNonLegacy),m_depoPorosity))
    {
    }
 

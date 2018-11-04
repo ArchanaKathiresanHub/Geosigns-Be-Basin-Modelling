@@ -23,7 +23,7 @@ using namespace GeoPhysics;
 TEST( DoubleExponentialPorosity, sub_arkose )
 {
    // with a typical sub-arkose
-   Porosity porosity( Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY, 0.41, MinimumPorosityNonLegacy, 0.0, 1.631e-8, 3.874e-8, 0.0, 0.1631e-8, 0.3874e-8, 0.5, 0.0, false ));
+   Porosity porosity( Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY, 0.41, 0.0, 0.0, 1.631e-8, 3.874e-8, 0.0, 0.1631e-8, 0.3874e-8, 0.5, 0.0, false ));
 
    //For different values of ves
    EXPECT_NEAR( 0.41 , porosity.calculate( 0.0e6, 0.0e6,false, 0.0 ), 1e-10);
@@ -47,11 +47,11 @@ TEST( DoubleExponentialPorosity, sub_arkose )
 TEST( DoubleExponentialPorosity, extreme_coefficients_and_porosity )
 {
    // with a typical chalk
-   Porosity typicalChalk( Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY, 0.70, MinimumPorosityNonLegacy, 0.0, 5.000e-6, 0.045e-6, 0.0, 5.000e-7, 0.045e-7, 0.5, 0.0, false ));
+   Porosity typicalChalk( Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY, 0.70, 0.0, 0.0, 5.000e-6, 0.045e-6, 0.0, 5.000e-7, 0.045e-7, 0.5, 0.0, false ));
    EXPECT_NEAR( 0.037837028984371586, typicalChalk.calculate( 50.0e6, 50.0e6, false, 0.0 ), 1e-10 );
    
    // with an ooid grainstone limestone
-   Porosity ooidGraistone( Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY, 0.35, MinimumPorosityNonLegacy, 0.0, 0.001e-6, 0.001e-6, 0.0, 0.001e-7, 0.001e-7, 0.5, 0.0, false ));
+   Porosity ooidGraistone( Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY, 0.35, 0.0, 0.0, 0.001e-6, 0.001e-6, 0.0, 0.001e-7, 0.001e-7, 0.5, 0.0, false ));
    EXPECT_NEAR( 0.34825935523824608, ooidGraistone.calculate( 5.0e6, 5.0e6, false, 0.0 ), 1e-10 );
    
    //with nul deposition porosity
@@ -73,7 +73,7 @@ TEST( DoubleExponentialPorosity, extreme_coefficients_and_porosity )
 TEST( DoubleExponentialPorosity, elastic_rebound )
 {
    // with a typical sub-arkose
-   Porosity elasticRebound( Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY, 0.41, MinimumPorosityNonLegacy, 0.0, 1.631e-8, 3.874e-8, 0.0, 0.1631e-8, 0.3874e-8, 0.5, 0.0, false ));
+   Porosity elasticRebound( Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY, 0.41, 0.0, 0.0, 1.631e-8, 3.874e-8, 0.0, 0.1631e-8, 0.3874e-8, 0.5, 0.0, false ));
    double withoutRebound = elasticRebound.calculate( 40.0e6, 40.0e6, false, 0.0 );
    double withoutRebound2 = elasticRebound.calculate( 50.0e6, 50.0e6, false, 0.0 );
    double withRebound = elasticRebound.calculate( 40.0e6, 50.0e6, false, 0.0 );
@@ -105,10 +105,10 @@ TEST( DoubleExponentialPorosity, derivatives_testDepoPoro )
    DoubleExponentialPorosity doubleExp1(0.0, 0.0, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08, 0.5, false );
    EXPECT_NEAR( doubleExp1.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), 0.0, 1e-18);
 
-   DoubleExponentialPorosity doubleExp2(0.2, MinimumPorosityNonLegacy, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08, 0.5, false );
+   DoubleExponentialPorosity doubleExp2(0.2, 0.0, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08, 0.5, false );
    EXPECT_NEAR( doubleExp2.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), -3.6336746305326871E-08, 1e-18 );
 
-   DoubleExponentialPorosity doubleExp3(0.6, MinimumPorosityNonLegacy, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08, 0.5, false );
+   DoubleExponentialPorosity doubleExp3(0.6, 0.0, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08, 0.5, false );
    EXPECT_NEAR( doubleExp3.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), -1.0937543234618491E-07, 1e-18 );
 }
 
@@ -116,7 +116,7 @@ TEST( DoubleExponentialPorosity, derivatives_testDepoPoro )
 TEST( DoubleExponentialPorosity, derivatives_testMinMecPoro )
 {
    // For different minimum mechanical porosities
-   DoubleExponentialPorosity doubleExp1(0.4, MinimumPorosityNonLegacy, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08, 0.5, false );
+   DoubleExponentialPorosity doubleExp1(0.4, 0.0, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08, 0.5, false );
    EXPECT_NEAR( doubleExp1.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), -7.2856089325755894E-08, 1e-18 );
 
    DoubleExponentialPorosity doubleExp2(0.4, 0.4, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08, 0.5, false );
@@ -295,35 +295,67 @@ TEST(DoubleExponentialPorosity, doubleExponential_is_weightedAverage_of_exponent
    double compactionDecrB = 0.08e-7;
    double depoPoro = 0.5;
 
-    Porosity singleExpA(Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY,
-       depoPoro, 0.0, compactionIncrA, 0.0, 0.0, compactionDecrA, 0.0, 0.0, 0.0, 0.0, false));
-    Porosity singleExpB(Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY,
-       depoPoro, 0.0, compactionIncrB, 0.0, 0.0, compactionDecrB, 0.0, 0.0, 0.0, 0.0, false));
+   {//non legacy mode    
+      Porosity singleExpA(Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY,
+         depoPoro, 0.0, compactionIncrA, 0.0, 0.0, compactionDecrA, 0.0, 0.0, 0.0, 0.0, false));
+      Porosity singleExpB(Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY,
+         depoPoro, 0.0, compactionIncrB, 0.0, 0.0, compactionDecrB, 0.0, 0.0, 0.0, 0.0, false));
 
-    double maxVes = 50.0e6;
+      double maxVes = 50.0e6;
 
-    for (size_t i = 0; i < 11; i++)
-    {
-       double compacRatio = static_cast<double>(i) / 10.0;
+      for (size_t i = 0; i < 11; i++)
+      {
+         double compacRatio = static_cast<double>(i) / 10.0;
 
-       Porosity doubleExp(Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY,
-          depoPoro, 0.0, 0.0, compactionIncrA, compactionIncrB, 0.0, compactionDecrA, compactionDecrB, compacRatio, 0.0, false));
-       //check whether double exponential model is the weighted average of exponential models
-       double ves = maxVes;       //for loading
-       EXPECT_NEAR(((compacRatio*singleExpA.calculate(ves, maxVes, false, 0.0)) +
-          ((1.0 - compacRatio)*singleExpB.calculate(ves, maxVes, false, 0.0))),
-          doubleExp.calculate(ves, maxVes, false, 0.0), 1e-10);
-       EXPECT_NEAR(((compacRatio*singleExpA.calculateDerivative(ves, maxVes, false, 0.0)) +
-          ((1.0 - compacRatio)*singleExpB.calculateDerivative(ves, maxVes, false, 0.0))),
-          doubleExp.calculateDerivative(ves, maxVes, false, 0.0), 1e-18);
+         Porosity doubleExp(Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY,
+            depoPoro, 0.0, 0.0, compactionIncrA, compactionIncrB, 0.0, compactionDecrA, compactionDecrB, compacRatio, 0.0, false));
+         //check whether double exponential model is the weighted average of exponential models
+         double ves = maxVes;       //for loading
+         EXPECT_NEAR(((compacRatio*singleExpA.calculate(ves, maxVes, false, 0.0)) +
+            ((1.0 - compacRatio)*singleExpB.calculate(ves, maxVes, false, 0.0))),
+            doubleExp.calculate(ves, maxVes, false, 0.0), 1e-10);
+         EXPECT_NEAR(((compacRatio*singleExpA.calculateDerivative(ves, maxVes, false, 0.0)) +
+            ((1.0 - compacRatio)*singleExpB.calculateDerivative(ves, maxVes, false, 0.0))),
+            doubleExp.calculateDerivative(ves, maxVes, false, 0.0), 1e-18);
 
-       ves = maxVes / 2.0;          //for unloading
-       EXPECT_NEAR(((compacRatio*singleExpA.calculate(ves, maxVes, false, 0.0)) +
-          ((1.0 - compacRatio)*singleExpB.calculate(ves, maxVes, false, 0.0))),
-          doubleExp.calculate(ves, maxVes, false, 0.0), 1e-10);
-       EXPECT_NEAR(((compacRatio*singleExpA.calculateDerivative(ves, maxVes, false, 0.0)) +
-          ((1.0 - compacRatio)*singleExpB.calculateDerivative(ves, maxVes, false, 0.0))),
-          doubleExp.calculateDerivative(ves, maxVes, false, 0.0), 1e-18);
-    }
+         ves = maxVes / 2.0;          //for unloading
+         EXPECT_NEAR(((compacRatio*singleExpA.calculate(ves, maxVes, false, 0.0)) +
+            ((1.0 - compacRatio)*singleExpB.calculate(ves, maxVes, false, 0.0))),
+            doubleExp.calculate(ves, maxVes, false, 0.0), 1e-10);
+         EXPECT_NEAR(((compacRatio*singleExpA.calculateDerivative(ves, maxVes, false, 0.0)) +
+            ((1.0 - compacRatio)*singleExpB.calculateDerivative(ves, maxVes, false, 0.0))),
+            doubleExp.calculateDerivative(ves, maxVes, false, 0.0), 1e-18);
+      }
+   }
+}
+
+TEST(DoubleExponentialPorosity, near_zero_porosity_and_non_zero_compaction_coefficient)
+{
+   double compactionIncrA = 0.04e-6;
+   double compactionIncrB = 0.08e-6;
+   double compactionDecrA = 0.04e-7;
+   double compactionDecrB = 0.08e-7;
+   double compacRatio = 0.5;
+   double depoPoro = 1.e-8;
+
+   {//non legacy mode    
+      Porosity doubleExp(Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY,
+         depoPoro, 0.0, 0.0, compactionIncrA, compactionIncrB, 0.0, compactionDecrA, compactionDecrB, compacRatio, 0.0, false));
+      double maxVes = 50.0e6;
+      double ves = maxVes;       //for loading
+      EXPECT_NEAR(0.0, doubleExp.calculate(ves, maxVes, false, 0.0), 1e-10);
+      ves = maxVes / 2.0;          //for unloading
+      EXPECT_NEAR(0.0, doubleExp.calculate(ves, maxVes, false, 0.0), 1e-10);
+   }
+
+   {//legacy mode    
+      Porosity doubleExp(Porosity::create(DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY,
+         depoPoro, 0.0, 0.0, compactionIncrA, compactionIncrB, 0.0, compactionDecrA, compactionDecrB, compacRatio, 0.0, true));
+      double maxVes = 50.0e6;
+      double ves = maxVes;       //for loading
+      EXPECT_NEAR(0.0, doubleExp.calculate(ves, maxVes, false, 0.0), 1e-10);
+      ves = maxVes / 2.0;          //for unloading
+      EXPECT_NEAR(0.0, doubleExp.calculate(ves, maxVes, false, 0.0), 1e-10);
+   }
 
 }

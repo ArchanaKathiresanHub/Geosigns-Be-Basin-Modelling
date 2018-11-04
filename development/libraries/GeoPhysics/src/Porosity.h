@@ -292,8 +292,8 @@ namespace GeoPhysics
 
       protected:
 
-         const double m_minimumMechanicalPorosity;          /*!< Minimum porosity */
          const double m_depoPorosity;                       /*!< Porosity at deposition */
+         const double m_minimumMechanicalPorosity;          /*!< Minimum attainable porosity */
          bool   m_isLegacy;                           /*!< Legacy behaviour for minimum porosity?
                                                             * Flag for new rock property library (and new migration engine)
                                                             * 0 is the revised minimum porosity behaviour and additional mixing models
