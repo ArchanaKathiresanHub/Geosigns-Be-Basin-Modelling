@@ -1323,6 +1323,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
              false // use current temperature
              )
           );
+       m_vreOutputGrid.setPreviousTime (previousTime);
        //
 
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( previousTime, currentTime, errorInDarcy );
@@ -1391,7 +1392,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   numberOfGeome
 
   int maximumNumberOfOverpressureIterations;
   int numberOfNewtonIterations = -1;
-  double currentTime, previousTime, timeStep;
+  double currentTime, previousTime, timeStep; 
   int numberOfTimesteps = 0;
 
   double Po_Norm;
@@ -1491,7 +1492,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   numberOfGeome
        integrateChemicalCompaction ( previousTime, currentTime );
        integrateGenex ( previousTime, currentTime );
 
-      // Do a time step in the Vre algorithm
+       // Do a time step in the Vre algorithm
        m_vreAlgorithm->doTimestep (
           TemperatureForVreInputGrid(
              basinModel->mapDA,
@@ -1508,6 +1509,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   numberOfGeome
              false // use current temperature
              )
           );
+       m_vreOutputGrid.setPreviousTime (previousTime);
        //
 
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( previousTime, currentTime, errorInDarcy );
@@ -1586,7 +1588,7 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double currentTime ) {
 
      // Compute the derived properties that are to be output.
      m_vreAlgorithm->getResults( m_vreOutputGrid );
-     m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
+     m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles(), currentTime );
 
      if(  basinModel->isModellingMode1D() )
      {
@@ -1647,7 +1649,7 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double currentTime ) {
         assert ( snapshot != 0 );
 
         m_vreAlgorithm->getResults( m_vreOutputGrid );
-        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
+        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles(), currentTime );
 
         if ( ! basinModel->projectSnapshots.projectPrescribesMinorSnapshots ()) {
            FastcauldronSimulator::getInstance ().saveVolumeProperties ( looselyCoupledOutputProperties,
@@ -1668,7 +1670,7 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double currentTime ) {
 
      if ( m_surfaceNodeHistory.IsDefined ()) {
         m_vreAlgorithm->getResults( m_vreOutputGrid );
-        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
+        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles(), currentTime );
         computePermeabilityVectors ( basinModel );
         computeThermalConductivityVectors ( basinModel );
         computeBulkDensityVectors ( basinModel );
