@@ -18,18 +18,11 @@ public:
    // Returns the size of the array of vitrinite reflectance values
    virtual int getSize() const;
 
-   /// Update the VRe values
-   void updateTimeStep( const LayerList & allLayers, const Boolean2DArray & isValidNeedle, const double currentTime );
-
    // Store the vitrinite reflectance values into the propertie vectors of the layers
-   void exportToModel( const LayerList & allLayers, const Boolean2DArray & isValidNeedle, const double time); 
-
-   void setPreviousTime( const double time );
+   void exportToModel( const LayerList & allLayers, const Boolean2DArray & isValidNeedle);
 
 private:
    std::vector< double > m_vitriniteReflectance;
-
-   double m_previousTime;
 };
 
 #endif

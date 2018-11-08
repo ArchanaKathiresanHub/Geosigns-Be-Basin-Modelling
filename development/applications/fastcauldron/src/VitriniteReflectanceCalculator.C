@@ -83,7 +83,7 @@ bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::Outpu
       for ( j = vitriniteReflectanceMap->firstJ (); j <= vitriniteReflectanceMap->lastJ (); ++j ) {
 
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j ) and isSediment ) {
-            usableK = 0;
+            usableK = m_kIndex;
 
             if ( m_formation->getTopSurface () == m_surface ) {
 
@@ -100,7 +100,10 @@ bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::Outpu
 
                }
 
-            } 
+            } else {
+               usableK = 0;
+            }
+
             vitriniteReflectanceMap->setValue ( i, j, propertyVector [ usableK ][ j ][ i ] );
          } else {
             vitriniteReflectanceMap->setValue ( i, j, undefinedValue );
