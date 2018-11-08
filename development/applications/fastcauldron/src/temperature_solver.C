@@ -64,7 +64,8 @@ double Temperature_Solver::s_linearSolverTolerances [ NumberOfOptimisationLevels
 Temperature_Solver::Temperature_Solver( AppCtx* appctx ) :
    m_SmectiteIlliteCalculator( appctx ),
    m_BiomarkersCalculator(appctx),
-   m_FissionTrackCalculator(appctx)
+   m_FissionTrackCalculator(appctx),
+   Crust_Heat_Production(nullptr)
 {
 
   Basin_Model  = appctx;
