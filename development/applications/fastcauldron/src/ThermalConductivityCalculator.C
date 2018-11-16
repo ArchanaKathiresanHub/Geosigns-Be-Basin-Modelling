@@ -134,7 +134,7 @@ bool ThermalConductivityCalculator::initialise ( OutputPropertyMap::PropertyValu
 
    m_porosity = PropertyManager::getInstance().findOutputPropertyMap ( "Porosity", m_formation, m_surface, m_snapshot );
    m_temperature = PropertyManager::getInstance().findOutputPropertyMap ( "Temperature", m_formation, m_surface, m_snapshot );
-   m_porePressure = PropertyManager::getInstance().findOutputPropertyVolume ( "Pressure", m_formation, m_snapshot );
+   m_porePressure = PropertyManager::getInstance().findOutputPropertyMap ( "Pressure", m_formation, m_surface, m_snapshot );
    m_isBasementFormationAndALC = ( m_formation->kind() == Interface::BASEMENT_FORMATION ) && FastcauldronSimulator::getInstance().isALC();
 
    if( m_isBasementFormationAndALC ) {
