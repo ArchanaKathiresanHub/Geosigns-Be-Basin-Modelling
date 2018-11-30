@@ -61,7 +61,7 @@ namespace GeoPhysics
        * \param compactionDecr Compaction coefficient during stress release phase for single exponential model [Pa-1]
        * \param compactionDecrA First compaction coefficient during stress release phase for double exponential model [Pa-1]
        * \param compactionDecrB Second compaction coefficient during stress release phase for double exponential model [Pa-1]
-       * \param compactionRatio Compaction ratio used for double exponential model 
+       * \param compactionRatio Compaction ratio used for double exponential model
        * \param soilMechanicsCompactionCoefficient Compaction coefficient for soil mechanics model [1]
        */
       static Porosity create(Model PorosityModel,
@@ -190,6 +190,9 @@ namespace GeoPhysics
        * \brief Get the minimum porosity that the model can reach (for example 3%) [fraction of volume]
        */
       double getMinimumMechanicalPorosity() const;
+
+      /// \brief Determine whether or not the porosity model for the lithology is incompressible.
+      bool isIncompressible () const;
 
       /*! \class Algorithm
        * \brief Abstract class. Compute porosity.
@@ -403,6 +406,10 @@ namespace GeoPhysics
    inline double Porosity
       ::getMinimumMechanicalPorosity( ) const{
       return m_algorithm->minimumMechanicalPorosity( );
+   }
+
+   inline bool Porosity::isIncompressible () const {
+      return m_algorithm->isIncompressible( );
    }
 
 }

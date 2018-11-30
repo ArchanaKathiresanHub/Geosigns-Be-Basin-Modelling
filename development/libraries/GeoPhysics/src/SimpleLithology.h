@@ -326,7 +326,7 @@ inline double GeoPhysics::SimpleLithology::getSeismicVelocityExponent() const {
 }
 
 inline bool GeoPhysics::SimpleLithology::isIncompressible() const {
-   return (m_porosity.getCompactionCoefficient() == 0.0);
+   return m_porosity.isIncompressible ();
 }
 
 inline double GeoPhysics::SimpleLithology::getReferenceSolidViscosity() const {
