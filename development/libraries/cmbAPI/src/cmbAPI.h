@@ -27,6 +27,7 @@
 #include "UndefinedValues.h"
 #include "BiodegradeManager.h"
 #include "BottomBoundaryManager.h"
+#include "CtcManager.h"
 
 // TableIO
 #include "datatype.h"
@@ -286,9 +287,13 @@ namespace mbapi {
       /// @return reference to the Biodegradation manager. It created/deleted by the model itself.
       BiodegradeManager & biodegradeManager();
 
-	  /// @brief Get Biodegradation manager. It provides access to the BioDegradIoTbl in project file 
-	  /// @return reference to the Biodegradation manager. It created/deleted by the model itself.
+	  /// @brief Get Bottom Boundary manager. It provides access to the BasementIoTbl in project file 
+	  /// @return reference to the Bottom Boundary manager. It created/deleted by the model itself.
 	  BottomBoundaryManager & bottomBoundaryManager();
+
+     /// @brief Get CTC manager. It provides access to the CTCIoTbl in project file 
+     /// @return reference to the CTC manager. It created/deleted by the model itself.
+     CtcManager & ctcManager();
 
 
       // Request some project porperties

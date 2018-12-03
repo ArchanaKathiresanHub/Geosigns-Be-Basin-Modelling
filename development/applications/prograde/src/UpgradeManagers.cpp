@@ -23,6 +23,7 @@
 #include "ReservoirUpgradeManager.h"
 #include "BiodegradeUpgradeManager.h"
 #include "BasicCrustThinningUpgradeManager.h"
+#include "CtcUpgradeManager.h"
 
 //Prograde
 #include "IUpgradeManager.h"
@@ -47,6 +48,8 @@ void Prograde::UpgradeManagers::runAll() const{
    managers.emplace_back(std::unique_ptr<Prograde::BiodegradeUpgradeManager>(new Prograde::BiodegradeUpgradeManager(m_model)));
    // Basic crust thinning bottom boundary model to the new Crust Thinning model
    managers.emplace_back(std::unique_ptr<Prograde::BasicCrustThinningUpgradeManager>(new Prograde::BasicCrustThinningUpgradeManager(m_model)));
+   // CTCv1 to CTCv2
+   managers.emplace_back(std::unique_ptr<Prograde::CtcUpgradeManager>(new Prograde::CtcUpgradeManager(m_model)));
    // Other managers to be added in the same way
 
    ///2. Run all upgrade managers

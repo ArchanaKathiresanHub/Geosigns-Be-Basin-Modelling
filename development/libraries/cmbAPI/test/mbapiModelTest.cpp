@@ -31,6 +31,7 @@ public:
    static const char * m_mapsTestProject;
    static const char * m_nnTestProject;
    static const char * m_reservoirTestProject;
+   static const char * m_CtcTestProject;
 };
 
 const char * mbapiModelTest::m_sourceRockTestProject = "SourceRockTesting.project3d";
@@ -41,6 +42,7 @@ const char * mbapiModelTest::m_mapsTestProject = "MapsTesting.project3d";
 const char * mbapiModelTest::m_dupLithologyTestProject = "DupLithologyTesting.project3d";
 const char * mbapiModelTest::m_nnTestProject = "NNTesting.project3d";
 const char * mbapiModelTest::m_reservoirTestProject = "ReservoirTesting.project3d";
+const char * mbapiModelTest::m_CtcTestProject = "CtcTesting.project3d";
 
 
 bool mbapiModelTest::compareFiles(const char * projFile1, const char * projFile2)
@@ -1471,3 +1473,39 @@ TEST_F(mbapiModelTest, BottomBoundaryManager)
 
 }
 
+TEST_F(mbapiModelTest, CtcManager)
+{
+   mbapi::Model testModel;
+   int filtrHalfWidth;
+   double ULContCrustRat, ULOceaCrustRat;
+
+   // load test project
+   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_CtcTestProject));
+
+   mbapi::CtcManager & ctcMan = testModel.ctcManager();
+
+   //check whether filter half width value can be read and modified correctly
+   ctcMan.getFilterHalfWidthValue(filtrHalfWidth);
+   EXPECT_EQ(10, filtrHalfWidth);
+   int xyz = 6;
+   ctcMan.setFilterHalfWidthValue(xyz);
+   ctcMan.getFilterHalfWidthValue(filtrHalfWidth);
+   EXPECT_EQ(6, filtrHalfWidth);
+
+   //check whether UpperLowerContinentalCrustRatio value can be read and modified correctly
+   ctcMan.getUpperLowerContinentalCrustRatio(ULContCrustRat);
+   EXPECT_EQ(1.0, ULContCrustRat);
+   double temp = 0.5;
+   ctcMan.setUpperLowerContinentalCrustRatio(temp);
+   ctcMan.getUpperLowerContinentalCrustRatio(ULContCrustRat);
+   EXPECT_EQ(0.5, ULContCrustRat);
+
+   //check whether UpperLowerOceanicCrustRatio value can be read and modified correctly
+   ctcMan.getUpperLowerOceanicCrustRatio(ULOceaCrustRat);
+   EXPECT_EQ(1.0, ULOceaCrustRat);
+   double temp1 = 0.7;
+   ctcMan.setUpperLowerOceanicCrustRatio(temp1);
+   ctcMan.getUpperLowerOceanicCrustRatio(ULOceaCrustRat);
+   EXPECT_EQ(0.7, ULOceaCrustRat);
+ 
+}
