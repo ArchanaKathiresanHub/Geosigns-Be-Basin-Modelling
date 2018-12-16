@@ -455,9 +455,9 @@
 ;
 [CTCIoTbl]
 ;v100
-             SurfaceName                   HCuIni               HCuIniGrid                  HLMuIni              HLMuIniGrid          FilterHalfWidth UpperLowerContinentalCrustRatio UpperLowerOceanicCrustRatio
-                      ()                      (m)                       ()                      (m)                       ()                       ()                       ()                       ()
-                      ""                    40000                       ""                   115000                       ""                        5                      0.5                      0.5
+SurfaceName TRIni TRIniGrid HCuIni HCuIniGrid HLMuIni HLMuIniGrid DeltaSL DeltaSLGrid HBu HBuGrid FilterHalfWidth UpperLowerContinentalCrustRatio UpperLowerOceanicCrustRatio
+  () (Ma)   ()  (m)   ()  (m)   ()  (m)   ()  (m)   ()   ()   ()   ()
+  "" 10000  "" 40000  "" 115000 ""    0   "" 7000   ""    5  0.5  0.5
 [End]
 ;
 ;

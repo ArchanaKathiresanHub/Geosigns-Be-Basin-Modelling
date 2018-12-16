@@ -9,12 +9,13 @@
 //
 
 #include "CtcUpgradeManager.h"
-
-//std
-#include <vector>
+#include "MapsManager.h"
 
 //utilities
 #include "LogHandler.h"
+
+//Prograde
+#include "CtcModelConverter.h"
 
 //cmbAPI
 #include "cmbAPI.h"
@@ -39,8 +40,9 @@ Prograde::CtcUpgradeManager::CtcUpgradeManager(mbapi::Model& model) :
 }
 
 //------------------------------------------------------------//
-void Prograde::CtcUpgradeManager::upgrade() {
-  
+void Prograde::CtcUpgradeManager::upgrade() { 
+   Prograde::CtcModelConverter modelConverter;
+
    //Check the default value of FilterHalfWidth which is 5 in BPA-Cauldron and 10 in BPA2-BAsin. If not 5 then set its value in CTCIoTbl to the default value of BPA-Cauldron
    int FHWidth = 5;
    int temp;
@@ -83,5 +85,75 @@ void Prograde::CtcUpgradeManager::upgrade() {
    {
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value of 1 for UpperLowerOceanicCrustRatio is found";
    }
+   std::string EndRiftingMapName;
+   double EndRiftingAge;
+   
+   m_model.ctcManager().getEndRiftingAge(EndRiftingAge);
+   if (EndRiftingAge == -9999)
+   {
+      m_model.ctcManager().getEndRiftingAgeMap(EndRiftingMapName);
+      mbapi::MapsManager::MapID id = m_model.mapsManager().findID(EndRiftingMapName);
+      double min, max;//to store the minimum and maximum value from end rifting map
+      m_model.mapsManager().mapValuesRange(id, min, max);
+      EndRiftingAge = min;
+   }
+   std::string tectonicContext, depthMap, thicknessMap;
+   double depth, thickness;
+
+   m_model.ctcManager().getResidualDepthAnomalyScalar(depth);
+   m_model.ctcManager().getResidualDepthAnomalyMap(depthMap);
+   m_model.ctcManager().getBasaltMeltThicknessValue(thickness);
+   m_model.ctcManager().getBasaltMeltThicknessMap(thicknessMap);
+
+   auto timesteps = m_model.ctcManager().getStratigraphyTblLayerID();
+
+   for (auto tsId : timesteps)
+   {
+      double age;
+      m_model.addRowToTable("CTCRiftingHistoryIoTbl");
+     
+      //copying Age from StratIoTbl to CTCRiftingHistoryIoTbl
+      m_model.ctcManager().getDepoAge(tsId, age);
+      m_model.ctcManager().setCTCRiftingHistoryTblAge(tsId, age);
+
+      m_model.ctcManager().setTectonicFlag(tsId, modelConverter.upgradeTectonicFlag(age, EndRiftingAge));
+      m_model.ctcManager().getTectonicFlag(tsId, tectonicContext);
+      
+      if (tectonicContext == "Flexural Basin")
+      {
+         m_model.ctcManager().setRiftingTblResidualDepthAnomalyScalar(tsId,depth);
+         m_model.ctcManager().setRiftingTblResidualDepthAnomalyMap(tsId, depthMap);
+      }
+      else if (tectonicContext == "Active Rifting")
+      {
+         m_model.ctcManager().setRiftingTblBasaltMeltThicknessScalar(tsId, thickness);
+         m_model.ctcManager().setRiftingTblBasaltMeltThicknessMap(tsId, thicknessMap);
+      }
+
+   }
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CTCRiftingHistoryIoTbl is created";
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Age field of CTCRiftingHistoryIoTbl is populated as per the depositional age of the StratIoTbl";
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "TectonicFlag field of CTCRiftingHistoryIoTbl is populated for each age as per the algorithm";
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "DeltaSL and DeltaSLGrid fields of CTCRiftingHistoryIoTbl are populated for each age";
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HBu and HBuGrid fields of CTCRiftingHistoryIoTbl are populated for each age";
+
+   auto GridMapId = m_model.ctcManager().getGridMapID();
+   std::string basaltThicknessMap,rdaMap,GridMapIoMapName,GridMapIoTblName;
+   m_model.ctcManager().getBasaltMeltThicknessMap(basaltThicknessMap);
+   m_model.ctcManager().getResidualDepthAnomalyMap(rdaMap);
+   GridMapIoTblName = "CTCRiftingHistoryIoTbl";
+   for (auto tsId : GridMapId)
+   {   
+      m_model.ctcManager().getGridMapIoTblMapName(tsId, GridMapIoMapName);
+      if (basaltThicknessMap == GridMapIoMapName || rdaMap== GridMapIoMapName)
+      {
+         m_model.ctcManager().setGridMapTablename(tsId, GridMapIoTblName);
+      }
+   }
+   m_model.ctcManager().setBasaltMeltThicknessMap("");
+   m_model.ctcManager().setResidualDepthAnomalyMap("");
+
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMapIoTbl is updated";
+
 }
 

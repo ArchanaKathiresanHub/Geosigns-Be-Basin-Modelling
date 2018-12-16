@@ -85,6 +85,7 @@ configure_file(test/ReservoirTesting.project3d ReservoirTesting.project3d COPYON
 configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
 configure_file( test/MapsTesting.project3d MapsTesting.project3d COPYONLY )
 configure_file( test/Inputs.HDF Inputs.HDF COPYONLY )
+configure_file( test/Inputs_ctc.HDF Inputs_ctc.HDF COPYONLY )
 configure_file( test/NNTesting.project3d NNTesting.project3d COPYONLY )
 configure_file( test/NNInt NNInt COPYONLY )
 configure_file( test/NNInputLithofractions NNInputLithofractions COPYONLY )

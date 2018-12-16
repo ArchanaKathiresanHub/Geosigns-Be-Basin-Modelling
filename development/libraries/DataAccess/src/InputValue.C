@@ -444,7 +444,8 @@ int InputValue::getMapSequenceNumber () const {
 }
 
 void InputValue::getHDFinfo(string& fileName, string& dataSetName) const
-{   assert(m_record);
+{
+   assert(m_record);
 	if (getMapType() == "HDF5")
 	{
 		ibs::FilePath mapFileName(m_projectHandle->getProjectPath());

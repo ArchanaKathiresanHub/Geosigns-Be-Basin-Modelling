@@ -4401,6 +4401,17 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
 
 #### Crustal Thickness Calculator input
 
+	Identification      : TRIni
+    Description         : Age of ending of rifting
+    Type                : double
+    Unit of measurement : Ma
+    Default             : 10000
+
+    Identification      : TRIniGrid
+    Description         : Age of ending of rifting
+    Type                : string
+    Unit of measurement :
+
     Identification      : HCuIni
     Description         : Initial continental crustal thickness
     Type                : double
@@ -4989,10 +5000,16 @@ START-property-tables
     Description    : Table of user defined global data for calculation of the CTC properties
     Version        : 100
     Column         : SurfaceName
+	Column         : TRIni
+    Column         : TRIniGrid
     Column         : HCuIni
     Column         : HCuIniGrid
     Column         : HLMuIni
     Column         : HLMuIniGrid
+	Column         : DeltaSL
+    Column         : DeltaSLGrid
+    Column         : HBu
+    Column         : HBuGrid
     Column         : FilterHalfWidth
     Column         : UpperLowerContinentalCrustRatio
     Column         : UpperLowerOceanicCrustRatio

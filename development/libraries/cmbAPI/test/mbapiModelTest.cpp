@@ -13,6 +13,7 @@
 #include <gtest/gtest.h>
 
 static const double eps = 1.e-5;
+static const double eps1 = 1.e-4;
 
 class mbapiModelTest : public ::testing::Test
 {
@@ -1478,34 +1479,223 @@ TEST_F(mbapiModelTest, CtcManager)
    mbapi::Model testModel;
    int filtrHalfWidth;
    double ULContCrustRat, ULOceaCrustRat;
+   double age,depth,thickness;
+   std::string TectonicContext,depthGrid,thicknessGrid;
 
    // load test project
    ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_CtcTestProject));
 
    mbapi::CtcManager & ctcMan = testModel.ctcManager();
+   mbapi::MapsManager & mapMan = testModel.mapsManager();
 
    //check whether filter half width value can be read and modified correctly
    ctcMan.getFilterHalfWidthValue(filtrHalfWidth);
    EXPECT_EQ(10, filtrHalfWidth);
-   int xyz = 6;
-   ctcMan.setFilterHalfWidthValue(xyz);
+   ctcMan.setFilterHalfWidthValue(6);
    ctcMan.getFilterHalfWidthValue(filtrHalfWidth);
    EXPECT_EQ(6, filtrHalfWidth);
 
    //check whether UpperLowerContinentalCrustRatio value can be read and modified correctly
    ctcMan.getUpperLowerContinentalCrustRatio(ULContCrustRat);
    EXPECT_EQ(1.0, ULContCrustRat);
-   double temp = 0.5;
-   ctcMan.setUpperLowerContinentalCrustRatio(temp);
+   ctcMan.setUpperLowerContinentalCrustRatio(0.5);
    ctcMan.getUpperLowerContinentalCrustRatio(ULContCrustRat);
    EXPECT_EQ(0.5, ULContCrustRat);
 
    //check whether UpperLowerOceanicCrustRatio value can be read and modified correctly
    ctcMan.getUpperLowerOceanicCrustRatio(ULOceaCrustRat);
    EXPECT_EQ(1.0, ULOceaCrustRat);
-   double temp1 = 0.7;
-   ctcMan.setUpperLowerOceanicCrustRatio(temp1);
+   ctcMan.setUpperLowerOceanicCrustRatio(0.7);
    ctcMan.getUpperLowerOceanicCrustRatio(ULOceaCrustRat);
    EXPECT_EQ(0.7, ULOceaCrustRat);
- 
+
+   //get stratigraphic layer ids from StratIoTbl
+   auto timeStep = ctcMan.getStratigraphyTblLayerID();
+   size_t actualTableSize = 11;
+   //check whether all entries in StratIOTbl were read
+   ASSERT_EQ(actualTableSize, timeStep.size());
+
+   //check whether Age can be read and modified from StratIo table
+   {
+      std::vector<double> actualDepositionalAges = { 0.0,5.0,13.0,54.0,65.0,90.0,142.0,146.0,150.0,155.0,300.0 };
+      
+      //Check whether all entries are being read correctlty
+      for (auto tsId : timeStep)
+      {
+         ctcMan.getDepoAge(tsId, age);
+         EXPECT_NEAR(actualDepositionalAges[tsId], age, eps);
+      }
+      mbapi::CtcManager::StratigraphyTblLayerID id;
+      id = 1;
+      //check whether the age of StratIo table are being read for id=2 
+      ctcMan.getDepoAge(id, age);
+      EXPECT_NEAR(5.0, age, eps);
+      id = 6;
+      //check whether the age of StratIo table are being read for id=6 
+      ctcMan.getDepoAge(id, age);
+      EXPECT_NEAR(142.0, age, eps);
+   }
+   //get time step ids from CTCRiftingHistoryIoTbl
+   timeStep = ctcMan.getTimeStepID();
+   actualTableSize = 3;
+   //check whether all entries in CTCRiftingHistoryIoTbl were read
+   ASSERT_EQ(actualTableSize, timeStep.size());
+   //check whether Age can be read and modified from CTCRiftingHistoryIoTbl
+   {
+      std::vector<double> actualAges = { 10.0,20.0,30.0 };
+      std::vector<std::string> actualTectonicContext = {"Active Rifting", "Passive Margin", "Flexural Basin"};
+      std::vector<double> actualDepth = { -500.0,-501.0,-502.0 };
+      std::vector<std::string> actualDepthMap = { "DeltaSlGridName1", "DeltaSlGridName2", "DeltaSlGridName3" };
+      std::vector<double> actualBasaltMeltDepth = { 120.0,150.0,180.0 };
+      std::vector<std::string> actualBasaltMeltMap = { "BasaltThicknessMap_1", "BasaltThicknessMap_2", "BasaltThicknessMap_3" };
+      
+      //Check whether all entries are being read correctlty
+      for (auto tsId : timeStep)
+      {
+         ctcMan.getCTCRiftingHistoryTblAge(tsId, age);
+         EXPECT_NEAR(actualAges[tsId], age, eps);
+
+         ctcMan.getTectonicFlag(tsId, TectonicContext);
+         EXPECT_EQ(actualTectonicContext[tsId], TectonicContext);
+
+         ctcMan.getRiftingTblResidualDepthAnomalyScalar(tsId, depth);
+         EXPECT_EQ(actualDepth[tsId],depth);
+
+         ctcMan.getRiftingTblResidualDepthAnomalyMap(tsId, depthGrid);
+         EXPECT_EQ(actualDepthMap[tsId], depthGrid);
+
+         ctcMan.getRiftingTblBasaltMeltThicknessScalar(tsId, thickness);
+         EXPECT_EQ(actualBasaltMeltDepth[tsId],thickness);
+
+         ctcMan.getRiftingTblBasaltMeltThicknessMap(tsId,thicknessGrid);
+         EXPECT_EQ(actualBasaltMeltMap[tsId], thicknessGrid);
+         
+      }
+      mbapi::CtcManager::TimeStepID id1;
+      id1 = 1;
+      //check whether the age of CTCRiftingHistoryIoTbl are being read/modified for id=1 
+      ctcMan.getCTCRiftingHistoryTblAge(id1, age);
+      EXPECT_NEAR(20.0, age, eps);
+      //check whether the tectonicFlag of CTCRiftingHistoryIoTbl are being read/modified for id=1 
+      ctcMan.getTectonicFlag(id1, TectonicContext);
+      EXPECT_EQ("Passive Margin", TectonicContext);
+      ctcMan.setTectonicFlag(id1, "Flexural Basin");
+      ctcMan.getTectonicFlag(id1, TectonicContext);
+      EXPECT_EQ("Flexural Basin", TectonicContext);
+      //check whether the relative sealevel adjustment value/map of CTCRiftingHistoryIoTbl are being read/modified for id=1 
+      ctcMan.getRiftingTblResidualDepthAnomalyScalar(id1, depth);
+      EXPECT_EQ(-501.0,depth);
+      ctcMan.setRiftingTblResidualDepthAnomalyScalar(id1, 450.0);
+      ctcMan.getRiftingTblResidualDepthAnomalyScalar(id1, depth);
+      EXPECT_EQ(450.0, depth);
+      ctcMan.getRiftingTblResidualDepthAnomalyMap(id1, depthGrid);
+      EXPECT_EQ("DeltaSlGridName2", depthGrid);
+      depthGrid = "DeltaSlGridName5";
+      ctcMan.setRiftingTblResidualDepthAnomalyMap(id1, depthGrid);
+      ctcMan.getRiftingTblResidualDepthAnomalyMap(id1, depthGrid);
+      EXPECT_EQ("DeltaSlGridName5", depthGrid);
+      //check whether the maximum thickness of basalt melt value/map of CTCRiftingHistoryIoTbl are being read/modified for id=1 
+      ctcMan.getRiftingTblBasaltMeltThicknessScalar(id1, thickness);
+      EXPECT_EQ(150.0, thickness);
+      ctcMan.setRiftingTblBasaltMeltThicknessScalar(id1,175.0);
+      ctcMan.getRiftingTblBasaltMeltThicknessScalar(id1, thickness);
+      EXPECT_EQ(175.0, thickness);
+      ctcMan.getRiftingTblBasaltMeltThicknessMap(id1,thicknessGrid);
+      EXPECT_EQ("BasaltThicknessMap_2", thicknessGrid);
+      ctcMan.setRiftingTblBasaltMeltThicknessMap(id1, "BasaltThicknessMap_2_new");
+      ctcMan.getRiftingTblBasaltMeltThicknessMap(id1, thicknessGrid);
+      EXPECT_EQ("BasaltThicknessMap_2_new", thicknessGrid);
+
+      id1 = 2;
+      //check whether the age of CTCRiftingHistoryIoTbl are being read/modified for id=2 
+      ctcMan.getCTCRiftingHistoryTblAge(id1, age);
+      EXPECT_NEAR(30.0, age, eps);
+      ctcMan.getTectonicFlag(id1, TectonicContext);
+      EXPECT_EQ("Flexural Basin", TectonicContext);
+      ctcMan.setTectonicFlag(id1, "Passive Margin");
+      ctcMan.getTectonicFlag(id1, TectonicContext);
+      EXPECT_EQ("Passive Margin", TectonicContext);
+   }
+
+   std::string MapName;
+
+   ctcMan.getEndRiftingAgeMap(MapName);
+   EXPECT_EQ("TRIni@0", MapName);
+   ctcMan.getEndRiftingAge(age);
+   EXPECT_NEAR(120.0, age, eps);
+
+   std::string mapName = "MAP-1514100163-4";
+   mbapi::MapsManager::MapID id = mapMan.findID(mapName);
+  
+   double minV, maxV;
+   mapMan.mapValuesRange(id, minV, maxV);
+   
+   EXPECT_NEAR(22.586912, minV, eps1);
+   EXPECT_NEAR(2500.5203001, maxV, eps1);
+
+   double value;
+   
+   //check whether Relative sealevel adjustment value/map of CTCIoTbl are being read/modified
+   ctcMan.getResidualDepthAnomalyScalar(value);
+   EXPECT_EQ(-350.0, value);
+   ctcMan.setResidualDepthAnomalyScalar(-300.0);
+   ctcMan.getResidualDepthAnomalyScalar(value);
+   EXPECT_EQ(-300.0, value);
+
+   ctcMan.getResidualDepthAnomalyMap(mapName);
+   EXPECT_EQ("RDA_MapNAme", mapName);
+   ctcMan.setResidualDepthAnomalyMap("RDA_Map_New");
+   ctcMan.getResidualDepthAnomalyMap(mapName);
+   EXPECT_EQ("RDA_Map_New", mapName);
+
+   //check whether Maximum thickness of basalt melt value/map of CTCIoTbl are being read/modified
+   ctcMan.getBasaltMeltThicknessValue(value);
+   EXPECT_EQ(7000.0, value);
+   ctcMan.setBasaltMeltThicknessValue(8000.0);
+   ctcMan.getBasaltMeltThicknessValue(value);
+   EXPECT_EQ(8000.0, value);
+
+   ctcMan.getBasaltMeltThicknessMap(mapName);
+   EXPECT_EQ("BasaltThicknessMap", mapName);
+   ctcMan.setBasaltMeltThicknessMap("new_BasaltThicknessMap");
+   ctcMan.getBasaltMeltThicknessMap(mapName);
+   EXPECT_EQ("new_BasaltThicknessMap", mapName);
+
+   //get row ids from GridMapIoTbl
+   auto GridMapId = ctcMan.getGridMapID();
+   actualTableSize = 10;
+   //check whether number of records of GridMapIoTbl were read
+   ASSERT_EQ(actualTableSize, GridMapId.size());
+
+   //check whether table names can be read and modified from GridMapIo table
+   {
+      std::vector<std::string> actualTblNames = { "StratIoTbl","CTCIoTbl","StratIoTbl","StratIoTbl","StratIoTbl","CTCIoTbl","StratIoTbl","StratIoTbl","StratIoTbl","CTCIoTbl" };
+      std::vector<std::string> actualMapNames = { "MAP-1514100159-4","MAP-1514100171-4","MAP-1514100169-4","MAP-1514100163-4","MAP-1514100167-4","MAP-1514100157-4","MAP-1514100173-4","MAP-1514100161-4","MAP-1514100165-4","MAP-1514100155-4" };
+
+      //Check whether all entries are being read correctlty
+      for (auto tsId : GridMapId)
+      {
+         ctcMan.getGridMapTablename(tsId, mapName);
+         EXPECT_EQ(actualTblNames[tsId], mapName);
+
+         ctcMan.getGridMapIoTblMapName(tsId,thicknessGrid);
+         EXPECT_EQ(actualMapNames[tsId], thicknessGrid);
+      }
+      mbapi::CtcManager::GridMapID id2;
+      id2 = 1;
+      //check whether the ReferredBy and MapName fields are being read/modified for id2=1
+      ctcMan.getGridMapTablename(id2, mapName);
+      EXPECT_EQ("CTCIoTbl", mapName);
+      ctcMan.setGridMapTablename(id2,"SourceRockLithIoTbl");
+      ctcMan.getGridMapTablename(id2, mapName);
+      EXPECT_EQ("SourceRockLithIoTbl", mapName);
+
+      ctcMan.getGridMapIoTblMapName(id2,thicknessGrid);
+      EXPECT_EQ("MAP-1514100171-4", thicknessGrid);
+      ctcMan.setGridMapIoTblMapName(id2, "Expedite_Map_Name");
+      ctcMan.getGridMapIoTblMapName(id2, thicknessGrid);
+      EXPECT_EQ("Expedite_Map_Name", thicknessGrid);
+      
+   }
+
 }

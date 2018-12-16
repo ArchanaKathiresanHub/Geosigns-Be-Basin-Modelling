@@ -164,3 +164,14 @@ add_gtest( NAME ${TARGET_NAME}::AlcModelConverter
            LIBRARIES cmbapi
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
+
+#
+# 9. Ctc model upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::CtcModelConverter
+           SOURCES test/CtcConverter.cpp src/CtcModelConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
+           LIBRARIES cmbapi
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)

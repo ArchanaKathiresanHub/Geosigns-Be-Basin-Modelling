@@ -477,16 +477,16 @@ WellName XCoord YCoord BHFName
 ;
 ReferredBy MapName MapType MapFileName FileId MD5Checksum MapSeqNbr HDF5FileName
 () () () () () () () ()
-"StratIoTbl" "MAP-1514100159-4" "HDF5" "Inputs.HDF" -1 "" 0 ""
-"StratIoTbl" "MAP-1514100171-4" "HDF5" "Inputs.HDF" -1 "" 1 ""
-"StratIoTbl" "MAP-1514100169-4" "HDF5" "Inputs.HDF" -1 "" 2 ""
-"StratIoTbl" "MAP-1514100163-4" "HDF5" "Inputs.HDF" -1 "" 3 ""
-"StratIoTbl" "MAP-1514100167-4" "HDF5" "Inputs.HDF" -1 "" 4 ""
-"StratIoTbl" "MAP-1514100157-4" "HDF5" "Inputs.HDF" -1 "" 5 ""
-"StratIoTbl" "MAP-1514100173-4" "HDF5" "Inputs.HDF" -1 "" 6 ""
-"StratIoTbl" "MAP-1514100161-4" "HDF5" "Inputs.HDF" -1 "" 7 ""
-"StratIoTbl" "MAP-1514100165-4" "HDF5" "Inputs.HDF" -1 "" 8 ""
-"StratIoTbl" "MAP-1514100155-4" "HDF5" "Inputs.HDF" -1 "" 9 ""
+"StratIoTbl" "MAP-1514100159-4" "HDF5" "Inputs_ctc.HDF" -1 "" 0 ""
+"CTCIoTbl" "MAP-1514100171-4" "HDF5" "Inputs_ctc.HDF" -1 "" 1 ""
+"StratIoTbl" "MAP-1514100169-4" "HDF5" "Inputs_ctc.HDF" -1 "" 2 ""
+"StratIoTbl" "MAP-1514100163-4" "HDF5" "Inputs_ctc.HDF" -1 "" 3 ""
+"StratIoTbl" "MAP-1514100167-4" "HDF5" "Inputs_ctc.HDF" -1 "" 4 ""
+"CTCIoTbl" "MAP-1514100157-4" "HDF5" "Inputs_ctc.HDF" -1 "" 5 ""
+"StratIoTbl" "MAP-1514100173-4" "HDF5" "Inputs_ctc.HDF" -1 "" 6 ""
+"StratIoTbl" "MAP-1514100161-4" "HDF5" "Inputs_ctc.HDF" -1 "" 7 ""
+"StratIoTbl" "MAP-1514100165-4" "HDF5" "Inputs_ctc.HDF" -1 "" 8 ""
+"CTCIoTbl" "MAP-1514100155-4" "HDF5" "Inputs_ctc.HDF" -1 "" 9 ""
 [End]
 ;
 ;
@@ -594,7 +594,18 @@ LayerName SourceRockType BaseSourceRockType TocIni TocIniGrid HCInputMode S1Ini 
 ;
 SurfaceName T0Ini T0IniGrid TRIni TRIniGrid HCuIni HCuIniGrid HLMuIni HLMuIniGrid HBu HBuGrid DeltaSL DeltaSLGrid
 () () () () () () () () () () () () ()
-"" 145 "" 120 "" 38000 "" 112000 "" 7000 "" -350 ""
+"" 145 "" 120 "TRIni@0" 38000 "" 112000 "" 7000 "BasaltThicknessMap" -350 "RDA_MapNAme"
+[End]
+;
+;
+; CTCRiftingHistoryIoTbl
+;
+[CTCRiftingHistoryIoTbl]
+;
+ Age TectonicFlag DeltaSL DeltaSLGrid HBu HBuGrid
+ 10	"Active Rifting" -500 "DeltaSlGridName1" 120 "BasaltThicknessMap_1"
+ 20	"Passive Margin" -501 "DeltaSlGridName2" 150 "BasaltThicknessMap_2"
+ 30	"Flexural Basin" -502 "DeltaSlGridName3" 180 "BasaltThicknessMap_3"
 [End]
 ;
 ;
