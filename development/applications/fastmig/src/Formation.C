@@ -2232,7 +2232,7 @@ namespace migration
 
             if (GetRank () == 0)
             {
-               cout << getName () << ": Cannot find Vr present day  map" << endl;
+               cout <<"Basin_Warning: "<< getName () << ": Cannot find Vr present day  map" << endl;
             }
             return false;
          }
@@ -2321,7 +2321,7 @@ namespace migration
          {
             if (GetRank () == 0)
             {
-               cout << getName () << ": Cannot extract  genex interval start = " << start->getTime () << ", end = " << end->getTime () << endl;
+               cout <<"Basin_Warning: "<< getName () << ": Cannot extract  genex interval start = " << start->getTime () << ", end = " << end->getTime () << endl;
             }
 
             return false;
@@ -2390,11 +2390,11 @@ namespace migration
          {
             if (!startProperty)
             {
-               cout << "Property map ErosionFactor " << getTopSurface ()->getName () << " at " << intervalStart->getTime () << " not found" << endl;
+               cout << "Basin_Warning: Property map ErosionFactor " << getTopSurface ()->getName () << " at " << intervalStart->getTime () << " not found" << endl;
             }
             if (!endProperty)
             {
-               cout << "Property map ErosionFactor " << getTopSurface ()->getName () << " at " << intervalEnd->getTime () << " not found" << endl;
+               cout << "Basin_Warning: Property map ErosionFactor " << getTopSurface ()->getName () << " at " << intervalEnd->getTime () << " not found" << endl;
             }
          }
          status = false;
@@ -2457,11 +2457,11 @@ namespace migration
             {
                if (!startProperty)
                {
-                  cout << "Property map " << propertyName << " " << getTopSurface ()->getName () << " at " << intervalStart->getTime () << " not found" << endl;
+                  cout << "Basin_Warning: Property map " << propertyName << " " << getTopSurface ()->getName () << " at " << intervalStart->getTime () << " not found" << endl;
                }
                if (!endProperty)
                {
-                  cout << "Property map " << propertyName << " " << getTopSurface ()->getName () << " at " << intervalEnd->getTime () << " not found" << endl;
+                  cout << "Basin_Warning: Property map " << propertyName << " " << getTopSurface ()->getName () << " at " << intervalEnd->getTime () << " not found" << endl;
                }
             }
             return false;
@@ -2473,7 +2473,7 @@ namespace migration
 
          if (GetRank () == 0)
          {
-            cout << "Property map " << propertyName << " " << getTopSurface ()->getName () << " at " << intervalStart->getTime () << " not found" << endl;
+            cout << "Basin_Warning: Property map " << propertyName << " " << getTopSurface ()->getName () << " at " << intervalStart->getTime () << " not found" << endl;
          }
          return false;
       }
