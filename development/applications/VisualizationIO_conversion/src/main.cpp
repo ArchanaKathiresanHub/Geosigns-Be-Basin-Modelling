@@ -41,7 +41,7 @@ void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData
 			catch (CauldronIO::CauldronIOException&)
 			{
                 // Find out what data did not load
-                std::cout << "Data " << value << " failed to load: ";
+                std::cout << "Basin_Error: Data " << value << " failed to load: ";
                 CauldronIO::VisualizationUtils::findAndOutputData(data, project);
 			}
 		}
@@ -59,7 +59,7 @@ void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData
         catch (CauldronIO::CauldronIOException&)
         {
             // Find out what data did not load
-            std::cout << "Data " << value << " failed to load: ";
+            std::cout << "Basin_Error: Data " << value << " failed to load: ";
             CauldronIO::VisualizationUtils::findAndOutputData(data, project);
         }
     }

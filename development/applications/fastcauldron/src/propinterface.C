@@ -2138,7 +2138,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 
     if ( Current_Layer -> fluid == 0 )
     {
-       cout << "Lithology has no fluid..." << Current_Layer->layername << endl;
+       cout << "Basin_Warning: Lithology has no fluid..." << Current_Layer->layername << endl;
     }
 
     DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm );
@@ -2282,12 +2282,12 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 
      if (std::isnan( Hydrostatic_Pressure ))
      {
-             cout << "Error hydrostatic... " << endl << flush;
+             cout << "Basin_Error: Error hydrostatic... " << endl << flush;
      }
 
      if (std::isnan( Lithostatic_Pressure ))
      {
-             cout << "Error lithostatic ... "
+             cout << "Basin_Error: Error lithostatic ... "
                   << Lithostatic_Pressure << "  "
                   << litho_pressure( k_top,j,i ) << "  "
                   << Segment_Thickness << "  "
@@ -2299,13 +2299,13 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 
      if (std::isnan( Fluid_Pressure ))
      {
-             cout << "Error pore-pressure... " << endl << flush;
+             cout << "Basin_Error: Error pore-pressure... " << endl << flush;
      }
 
 
      if (std::isnan( Excess_Pressure ))
      {
-             cout << "Error overpressure... " << endl << flush;
+             cout << "Basin_Error: Error overpressure... " << endl << flush;
      }
 
      hydro_pressure( k,j,i )  = Hydrostatic_Pressure;
@@ -3389,7 +3389,7 @@ LayerProps* AppCtx::findLayer(const string& LayerName) const
       return layers[nr];
     }
   }
-  cout << "Layer [" << LayerName << "] not found" << endl;
+  cout << "Basin_Warning: Layer [" << LayerName << "] not found" << endl;
   return (LayerProps*)0;
 }
 
@@ -3419,7 +3419,7 @@ LayerProps* AppCtx::Find_Layer_From_Surface(const string& SurfaceName)
       return layers[nr];
     }
   }
-  cout << "Layer associated with Top Surface[" << SurfaceName << "] not found" << endl;
+  cout << "Basin_Warning: Layer associated with Top Surface[" << SurfaceName << "] not found" << endl;
   return (LayerProps*)0;
 }
 

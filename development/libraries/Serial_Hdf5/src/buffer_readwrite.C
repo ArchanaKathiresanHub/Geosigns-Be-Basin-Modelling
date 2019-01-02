@@ -17,7 +17,7 @@ bool Buffer_ReadWrite::writeDataset (H5_Write_File *h5File, hid_t locId,
 {
    if ( ! array )
    {
-      cout << endl << "Buffer_ReadWrite::write Error: Empty Array" << endl;
+      cout << endl << "Basin_Error: Buffer_ReadWrite::write Error: Empty Array" << endl;
       return false;
    }
 
@@ -103,7 +103,7 @@ bool Buffer_ReadWrite::writeAttribute (H5_Write_File *h5File, hid_t locId, const
 {
    if ( ! data )
    {
-      cout << endl << "Buffer_ReadWrite::writeVoidAttribute Error: Empty Array" << endl;
+      cout << endl << "Basin_Error: Buffer_ReadWrite::writeVoidAttribute Error: Empty Array" << endl;
       return false;
    }
 

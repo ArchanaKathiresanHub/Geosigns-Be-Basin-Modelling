@@ -1701,7 +1701,7 @@ bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned in
 
          if (!result)
          {
-            cout << "Could not compute FCT" << endl;
+            cout << "Basin_Warning: Could not compute FCT" << endl;
             delete oldPolyf;
             return false;
          }
@@ -1740,7 +1740,7 @@ bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned in
       result &= calcFullCompactedThickness (i, j, overpressureCalculation, formation, compThickness, uncMaxVes.front (), fullCompThickness, (*endOfEvent)->getX() );
       if (!result)
       {
-         cout << "Could not compute FCT (2)" << endl;
+         cout << "Basin_Warning: Could not compute FCT (2)" << endl;
          delete oldPolyf;
          return false;
       }

@@ -369,7 +369,7 @@ bool ProjectHandle::loadModellingMode( void )
    }
    else
    {
-      cout << "!!Warning!! Modelling mode was not set in table ProjectIoTbl. Setting Modelling mode to 3D..." << endl;
+      cout << "Basin_Warning: Modelling mode was not set in table ProjectIoTbl. Setting Modelling mode to 3D..." << endl;
       m_modellingMode = Interface::MODE3D;
    }
    return true;

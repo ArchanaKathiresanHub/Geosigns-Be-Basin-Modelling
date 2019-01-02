@@ -203,7 +203,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
 
                   errorMessage = errorBuffer.str ();
 
-                  cout << " Error message: "  << errorMessage << endl;
+                  cout << "Basin_Error: "  << errorMessage << endl;
 
                   break;
 
@@ -302,7 +302,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
 
          errorMessage = errorBuffer.str ();
 
-         cout << " Error message: "  << errorMessage << endl;
+         cout << "Basin_Error: "  << errorMessage << endl;
 
       } else {
          CompoundLithologyComposition lc ( lithoName1,           lithoName2,           lithoName3,

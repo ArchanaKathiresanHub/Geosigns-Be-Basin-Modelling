@@ -354,7 +354,7 @@ void Polyfunction::printPoints()
 {
    if (m_points.begin () == m_points.end ())
    {
-      cout << "No points in this polyfunction" << endl;
+      cout << "Basin_Warning: No points in this polyfunction" << endl;
       return;
    }
 

@@ -55,7 +55,7 @@ SeismicVelocityModel RunParameters::getSeismicVelocityAlgorithm() const {
       return KENNANS_VELOCITY_ALGORITHM;
    }
    else {
-      std::cout << " Error in seismic velocity model " << seismicVelocityModelStr << ". Using Gardner seismic velocity as the default value." << endl;
+      std::cout << "Basin_Error: Error in seismic velocity model " << seismicVelocityModelStr << ". Using Gardner seismic velocity as the default value." << endl;
       return GARDNERS_VELOCITY_ALGORITHM;
    }
 }

@@ -70,7 +70,7 @@ int main( int argc, char ** argv )
       return 1;
    }
    catch (...){
-      std::cout << "Fatal error when initialising log file(s).";
+      std::cout << "Basin_Fatal: Fatal error when initialising log file(s).";
       return 1;
    }
 

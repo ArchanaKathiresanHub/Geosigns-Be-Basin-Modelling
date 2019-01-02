@@ -34,7 +34,7 @@ Genex6::LangmuirAdsorptionTOCFunction::LangmuirAdsorptionTOCFunction ( DataAcces
       m_coeffB = adsorptionEntry->getCoeffB ();
       m_langmuirPressure = adsorptionEntry->getLangmuirPressure ();
    } else {
-      std::cout << "Error : entry in LangmuirAdsorptionTOCIsothermIoTbl for function named " << functionName << " was not found." << endl;
+      std::cout << "Basin_Error: entry in LangmuirAdsorptionTOCIsothermIoTbl for function named " << functionName << " was not found." << endl;
       throw functionName;
       // What to do?
    }

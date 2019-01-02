@@ -1092,7 +1092,7 @@ void DarcyCalculations::computeSaturation ( const SubdomainElement&        eleme
    if ( std::isnan ( saturation ( Saturation::WATER  )) or std::isinf ( saturation ( Saturation::WATER  )) or
         std::isnan ( saturation ( Saturation::VAPOUR )) or std::isinf ( saturation ( Saturation::VAPOUR )) or
         std::isnan ( saturation ( Saturation::LIQUID )) or std::isinf ( saturation ( Saturation::LIQUID ))) {
-      cout << " incorrect inter saturation: " << element.getI ()  << "  " << element.getJ ()  << "  " << element.getK ()  << "  " << endl << flush;
+      cout << "Basin_Warning: incorrect inter saturation: " << element.getI ()  << "  " << element.getJ ()  << "  " << element.getK ()  << "  " << endl << flush;
       cout << saturation.image ()       << endl << flush;
       cout << density.image ()          << endl << flush;
       cout << phaseComposition.image () << endl << flush;

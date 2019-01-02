@@ -90,7 +90,7 @@ namespace PetscObjectsIO
             // of local sizes on each processor
             PetscMPIInt mpiSize = 0;
             MPI_Comm_size( PETSC_COMM_WORLD, &mpiSize );
-            if( mpiSize > 1 ) std::cout << "WARNING: Loading matrix with default setup in parallel run";
+            if( mpiSize > 1 ) std::cout << "Basin_Warning: Loading matrix with default setup in parallel run";
             status = MatCreate( PETSC_COMM_WORLD, &matrix );
             status = MatSetFromOptions( matrix );
          }
@@ -164,7 +164,7 @@ namespace PetscObjectsIO
             // of local sizes on each processor
             PetscMPIInt mpiSize = 0;
             MPI_Comm_size( PETSC_COMM_WORLD, &mpiSize );
-            if( mpiSize > 1 ) std::cout << "WARNING: Loading vector with default setup in parallel run";
+            if( mpiSize > 1 ) std::cout << "Basin_Warning: Loading vector with default setup in parallel run";
             status = VecCreate( PETSC_COMM_WORLD, &vector );
             status = VecSetFromOptions( vector );
          }
