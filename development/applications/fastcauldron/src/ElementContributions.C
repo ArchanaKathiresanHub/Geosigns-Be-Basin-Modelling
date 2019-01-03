@@ -497,7 +497,7 @@ FiniteElementMethod::ThreeVector elementBoundaryNormal ( const LayerElement&    
 
    default :
 
-      cout << " Error boundary not known "  << whichBoundary << endl;
+      cout << "Basin_Error: Error boundary not known "  << whichBoundary << endl;
       error = true;
 
    }
@@ -576,7 +576,7 @@ void getCentreOfElementFace ( const LayerElement&          ,
 
    default :
 
-      cout << " Error boundary not known: "  << whichBoundary << endl;
+      cout << "Basin_Error: Error boundary not known: "  << whichBoundary << endl;
 
    }
 

@@ -44,7 +44,7 @@ VitriniteReflectance * VitriniteReflectance::create( const std::string & algorit
    }
    else
    {
-     std::cout << "Invalid Vitrinite calculation algorithm. Previous used" << std::endl;
+     std::cout << "Basin_Warning: Invalid Vitrinite calculation algorithm. Previous used" << std::endl;
      return 0;
    }
 }

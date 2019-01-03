@@ -233,7 +233,7 @@ int SourceRockNode::CreateSimulatorState(int numberOfSourceRock, const double cu
    assert( theState != 0 );
    
    if(( static_cast<int>( m_theSimulatorStates.size() )) != numberOfSourceRock ) {
-      cout<<"Number of Source Rock is wrong in CreateSimulatorState...Aborting...";
+      cout<<"Basin_Fatal: Number of Source Rock is wrong in CreateSimulatorState...Aborting...";
       return FAIL;
    }
    AddSimulatorState( theState );
@@ -316,11 +316,11 @@ int SourceRockNode::RequestComputation1D(int numberOfSourceRock, Simulator *theS
   
    cout<<"1D MODE-GENEX5KERNEL"<<endl;
    if(m_theInput.size() > static_cast<unsigned int>(numberOfSnapshots)) {
-      cout<<"Input sizes are incompatible...Aborting...";
+      cout<<"Basin_Fatal: Input sizes are incompatible...Aborting...";
       return FAIL;
    }
    if(theSimulator == 0) {
-      cout<<"Invalid Simulator...Aborting...";
+      cout<<"Basin_Fatal: Invalid Simulator...Aborting...";
       return FAIL;
    }
 
@@ -634,7 +634,7 @@ void SourceRockNode::LoadTestingPTHistory(std::string in_FullPathFileName)
     }
     PThistoryFile.close();
    } else {
-      cout << "Invalid file :" << in_FullPathFileName << endl;
+      cout << "Basin_Error: Invalid file :" << in_FullPathFileName << endl;
    }
 }
 

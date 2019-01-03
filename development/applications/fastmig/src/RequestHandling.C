@@ -770,7 +770,7 @@ namespace migration
       m_mpi_buffer = new char[m_mpi_buffer_size];
       if (MPI_Buffer_attach (m_mpi_buffer, m_mpi_buffer_size) != MPI_SUCCESS)
       {
-         cout << " MPI_Buffer_attach failure " << endl;
+         cout << "Basin_Warning:  MPI_Buffer_attach failure " << endl;
       }
 
       /// required as this processor might get and handle a finish request before s_finished was reset, otherwise.

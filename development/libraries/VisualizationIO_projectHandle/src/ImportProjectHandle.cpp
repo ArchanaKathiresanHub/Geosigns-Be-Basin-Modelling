@@ -158,7 +158,7 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
     // Bail out if we don't have depthFormations
    if (depthFormations->size() == 0)
    {
-      if (m_verbose) std::cout << "Warning: skipping snapshot as it does not contain depth-information" << std::endl;
+      if (m_verbose) std::cout << "Basin_Warning: skipping snapshot as it does not contain depth-information" << std::endl;
       return snapShotIO;
    }
 

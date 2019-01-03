@@ -171,7 +171,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
       if( getInitialCrustalThickness() < 0 ) {
          setInitialCrustalThickness( m_maximumDepositedThickness );
          if( m_projectHandle->getRank() == 0 ) {
-            cout << " Set initialCrustalThickness to maximum Crustal thickness = " << m_maximumDepositedThickness << endl;
+            cout << "Basin_Warning: Set initialCrustalThickness to maximum Crustal thickness = " << m_maximumDepositedThickness << endl;
          }         
       }
       delete crustThicknesses;

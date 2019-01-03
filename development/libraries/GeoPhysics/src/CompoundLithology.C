@@ -565,7 +565,7 @@ bool GeoPhysics::CompoundLithology::allowableMixing() const {
       Simple_Lithologies = m_lithoComponents.begin();
       Percentages = m_componentPercentage.begin();
 
-      std::cout << "****************  ERROR  Incorrect mixing  ****************" << std::endl;
+      std::cout << "Basin_Error: ****************  ERROR  Incorrect mixing  ****************" << std::endl;
       std::cout << "   Lithotype           Porosity model   percentage" << std::endl;
 
       while (m_lithoComponents.end() != Simple_Lithologies) {

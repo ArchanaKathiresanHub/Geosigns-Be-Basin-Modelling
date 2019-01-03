@@ -136,7 +136,7 @@ void ChemicalModel::AddElement(Element *theElement)
    int index = m_theElements.size();
 
    if(index > m_speciesManager.getNumberOfElements ()) {
-      cout << "Warning!! Too big number of elements." << endl;
+      cout << "Basin_Warning: Too big number of elements." << endl;
    }
    string elementName = theElement->GetName();
 
@@ -173,10 +173,10 @@ void ChemicalModel::AddSpecies(Species *theSpecies)
    int speciesId = theSpecies->GetId();
 
    if(speciesId > m_speciesManager.getNumberOfSpecies () || speciesId <= 0) {
-      cout << "Warning. Species id=" << speciesId << " is wrong (too big or negative)." << endl;
+      cout << "Basin_Warning: Species id=" << speciesId << " is wrong (too big or negative)." << endl;
    }
    if(m_theSpecies[speciesId - 1] != NULL) {
-      cout << "Warning. Species with id=" << speciesId <<" already exist." << endl;
+      cout << "Basin_Warning: Species with id=" << speciesId <<" already exist." << endl;
    }
    m_theSpecies[speciesId - 1] = theSpecies;
 
@@ -990,7 +990,7 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
       theElements[i] = -1;
    }
    if(tokenSize - 2 > m_speciesManager.getNumberOfElements ()) {
-      cout << "Warning!! Wrong number of elements in Species composition." << endl;
+      cout << "Basin_Warning: Wrong number of elements in Species composition." << endl;
    }
    //Process header
    for(i = 2, j = 0; i < tokenSize; ++ i, ++ j) {
@@ -1016,7 +1016,7 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
       StringHandler::parseLine(line, delim, theTokens);
 
       if(tokenSize - 2 > m_speciesManager.getNumberOfElements ()) {
-         cout << "Warning!! Wrong number of elements in Species composition." << endl;
+         cout << "Basin_Warning: Wrong number of elements in Species composition." << endl;
       }
 
       Species *theSpecies = this->GetByNameSpecies(theTokens[0]);
@@ -1399,7 +1399,7 @@ void ChemicalModel::SetTheReactions(ifstream &theStream)
       }
       if(tempRatios.size() % 3 != 0) {
          //MAD DEBUG
-         cout << "Problem with Reaction Ratios" << endl;
+         cout << "Basin_Warning: Problem with Reaction Ratios" << endl;
          //must throw an exception here!
       }
       //-------------------------Set up the Reaction-----------------------------------------------

@@ -169,7 +169,7 @@ void PETSC_3D_Array::Restore_Global_Array ( const Update_Mode Update_Method ) {
 
     default :
       
-      cout << "WARNING: Update Method not recognized in PETSC_3D_Array::Restore_Global_Array" << endl;
+      cout << "Basin_Warning: Update Method not recognized in PETSC_3D_Array::Restore_Global_Array" << endl;
       cout << "         Using No_Update by default" << endl;
       break;
 
@@ -338,7 +338,7 @@ void PETSC_2D_Array::Restore_Global_Array ( const Update_Mode Update_Method ) {
 
     default :
       
-      cout << "WARNING: Update Method not recognized in PETSC_2D_Array::Restore_Global_Array" << endl;
+      cout << "Basin_warning: Update Method not recognized in PETSC_2D_Array::Restore_Global_Array" << endl;
       cout << "         Using No_Update by default" << endl;
       break;
       
@@ -505,7 +505,7 @@ void PETSC_1D_Array::Restore_Global_Array ( const Update_Mode Update_Method )
 
     default :
       
-      cout << "WARNING: Update Method not recognized in PETSC_1D_Array::Restore_Global_Array" << endl;
+      cout << "Basin_Warning: Update Method not recognized in PETSC_1D_Array::Restore_Global_Array" << endl;
       cout << "         Using No_Update by default" << endl;
       break;
       

@@ -24,7 +24,7 @@ Genex6::LangmuirAdsorptionFunction::LangmuirAdsorptionFunction ( DataAccess::Int
    DataAccess::Interface::LangmuirAdsorptionIsothermSampleList* samples = m_projectHandle->getLangmuirAdsorptionIsothermSampleList ( langmuirName );
 
    if ( samples->size () < 2 ) {
-      std::cout << " Formation: " << langmuirName << " does not have enough langmuir isotherm samples" << std::endl;
+      std::cout << "Basin_Warning: Formation: " << langmuirName << " does not have enough langmuir isotherm samples" << std::endl;
       assert ( samples->size () >= 2 );
    }
 

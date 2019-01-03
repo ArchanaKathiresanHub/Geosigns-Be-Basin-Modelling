@@ -37,7 +37,7 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
     if ( pcKrModelStr == "Brooks_Corey" ) {
       m_pcKrModel = BROOKS_COREY;
    } else {
-      std::cout << " Error in Pc-Kr model " << pcKrModelStr << endl;
+      std::cout << "Basin_Error:  Error in Pc-Kr model " << pcKrModelStr << endl;
       // Error
    }
 
@@ -62,7 +62,7 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
                " has a null surface porosity and at least one non-null compaction coefficient.";
        }
    } else {
-      std::cout << " Error in porosity model " << porosityModelStr << ". Using Exponential porosity model as the default value." << endl;
+      std::cout << "Basin_Error: Error in porosity model " << porosityModelStr << ". Using Exponential porosity model as the default value." << endl;
       // Error
       m_porosityModel = EXPONENTIAL_POROSITY;
    }
@@ -78,7 +78,7 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
    } else if ( permeabilityModelStr == "Multipoint" ) {
       m_permeabilityModel = MULTIPOINT_PERMEABILITY;
    } else {
-      std::cout << " Error in permeability model " << permeabilityModelStr << ". Using None as the default value." << endl;
+      std::cout << "Basin_Error: Error in permeability model " << permeabilityModelStr << ". Using None as the default value." << endl;
       // Error
       m_permeabilityModel = NONE_PERMEABILITY;
    }
