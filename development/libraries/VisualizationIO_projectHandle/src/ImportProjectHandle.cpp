@@ -205,7 +205,7 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
         std::shared_ptr<CauldronIO::Formation> formationIO = findOrCreateFormation(formation, depthFormations);
         if (!formationIO || !formationIO->isDepthRangeDefined())
         {
-            if (m_verbose) cerr << "Warning: ignoring formation: " << formation->getName() << " not found as depth formation" << endl;
+            if (m_verbose) cerr << "Basin_Warning: ignoring formation: " << formation->getName() << " not found as depth formation" << endl;
             continue;
         }
 

@@ -49,7 +49,7 @@ namespace migration
       else
       {
          //should throw instead...
-         std::string s = "!!!Warning OTGCDIR environment variable is not set. No OTGC functionality is available";
+         std::string s = "Basin_Warning: !!!Warning OTGCDIR environment variable is not set. No OTGC functionality is available";
          throw s;
       }
 

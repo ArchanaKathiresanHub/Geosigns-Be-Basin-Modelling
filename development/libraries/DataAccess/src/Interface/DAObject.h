@@ -102,7 +102,7 @@ const GridMap * DataAccess::Interface::DAObject::getMap( const T attributeId, co
       gridMap = loadMap( attributeId, mapAttributeNames );
    }
    if (gridMap == nullptr){
-      throw std::runtime_error( "Could not load map " + mapAttributeNames[attributeId] );
+      throw std::runtime_error( "Basin_Error: Could not load map " + mapAttributeNames[attributeId] );
    }
    return gridMap;
 }

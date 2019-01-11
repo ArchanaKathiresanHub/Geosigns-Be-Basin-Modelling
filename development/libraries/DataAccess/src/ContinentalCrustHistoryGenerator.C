@@ -155,7 +155,7 @@ void ContinentalCrustHistoryGenerator::createAdvancedLithosphereCalculatorCrust(
 
       if (initialCrustalThickness < 0)
       {
-         throw std::runtime_error("Could not determine the initial crustal thickness");
+         throw std::runtime_error("Basin_Warning: Could not determine the initial crustal thickness");
       }
       else
       {

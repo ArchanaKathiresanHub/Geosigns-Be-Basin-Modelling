@@ -567,7 +567,7 @@ namespace migration
          break;
 #endif
       default:
-         cerr << "ERROR: illegal request: " << request.valueSpec << endl;
+         cerr << "Basin_Error: illegal request: " << request.valueSpec << endl;
          assert (0);
       }
    }
@@ -682,7 +682,7 @@ namespace migration
          response.value = getFaultStatus ();
          break;
       default:
-         cerr << "ERROR: illegal request: " << request.valueSpec << endl;
+         cerr << "Basin_Error: illegal request: " << request.valueSpec << endl;
          assert (false);
       }
    }
@@ -725,7 +725,7 @@ namespace migration
          response.value = getFiniteElementValue (request.values[0], request.values[1], request.values[2], (PropertyIndex)(int)request.value);
          break;
       default:
-         cerr << "ERROR: illegal request: " << request.valueSpec << endl;
+         cerr << "Basin_Error: illegal request: " << request.valueSpec << endl;
          assert (0);
       }
    }
@@ -757,7 +757,7 @@ namespace migration
       }
       break;
       default:
-         cerr << "ERROR: illegal request: " << request.valueSpec << endl;
+         cerr << "Basin_Error: illegal request: " << request.valueSpec << endl;
          assert (false);
       }
    }

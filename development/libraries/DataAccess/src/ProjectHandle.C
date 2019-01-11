@@ -2363,7 +2363,7 @@ bool ProjectHandle::loadMapPropertyValues( void )
          else
             propertyType = Interface::RESERVOIRPROPERTY;
 
-         cerr << "WARNING: ProjectHandle::loadMapPropertyValues: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
+         cerr << "Basin_Warning: ProjectHandle::loadMapPropertyValues: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
          addProperty( getFactory()->produceProperty( this, 0, propertyValueName, propertyValueName, "", propertyType, DataModel::UNKNOWN_PROPERTY_ATTRIBUTE, DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE ) );
          property = (const Property *)findProperty( propertyValueName );
 
@@ -2834,7 +2834,7 @@ static herr_t ListVolumePropertyValues( hid_t groupId, const char * propertyValu
       else
          propertyType = Interface::RESERVOIRPROPERTY;
 
-      cerr << "WARNING: ListVolumePropertyValues: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
+      cerr << "Basin_Warning: ListVolumePropertyValues: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
       projectHandle->addProperty( projectHandle->getFactory()->produceProperty( projectHandle, 0, propertyValueName, propertyValueName, "", propertyType, DataModel::UNKNOWN_PROPERTY_ATTRIBUTE, DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE ) );
       property = (const Property *)projectHandle->findProperty( propertyValueName );
    }
@@ -2880,7 +2880,7 @@ bool ProjectHandle::loadVolumePropertyValuesVia3DTimeIoTbl( void )
       {
          PropertyType propertyType = Interface::FORMATIONPROPERTY;
 
-         cerr << "WARNING: loadVolumePropertyValuesVia3DTimeIoTbl: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
+         cerr << "Basin_Warning: loadVolumePropertyValuesVia3DTimeIoTbl: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
          addProperty( getFactory()->produceProperty( this, 0, propertyValueName, propertyValueName, "", propertyType, DataModel::UNKNOWN_PROPERTY_ATTRIBUTE, DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE ));
          property = findProperty( propertyValueName );
       }

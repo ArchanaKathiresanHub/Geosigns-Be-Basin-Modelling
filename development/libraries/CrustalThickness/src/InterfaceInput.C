@@ -175,7 +175,7 @@ void InterfaceInput::loadCTCRiftingHistoryIoTblData(){
 void InterfaceInput::loadRiftingEvents(){
 
    if (m_snapshots.size() != m_crustalThicknessRiftingHistoryData.size()){
-      throw std::runtime_error( "The number of snpashots (" + std::to_string( m_snapshots.size() )
+      throw std::runtime_error( "Basin_Error: The number of snpashots (" + std::to_string( m_snapshots.size() )
          + ") differ from the number of rifting events (" + std::to_string( m_crustalThicknessRiftingHistoryData.size() ) + ")" );
    }
    LogHandler( LogHandler::DEBUG_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << std::setw( 15 ) << "Snapshot" << std::setw( 20 ) << "Tectonic Context";
@@ -486,7 +486,7 @@ const GridMap& InterfaceInput::getHBuMap( const double age ) const{
    GridMap const * map = event->getMaximumOceanicCrustThickness();
    if (map == nullptr){
       // should never happen as it is already tested in RiftingEvents
-      throw std::runtime_error( "There is no maximum oceanic crustal thickness defined for the rifting event at " + std::to_string( age ) + "Ma" );
+      throw std::runtime_error( "Basin_Error: There is no maximum oceanic crustal thickness defined for the rifting event at " + std::to_string( age ) + "Ma" );
    }
    return *map;
 }
@@ -497,7 +497,7 @@ const GridMap& InterfaceInput::getDeltaSLMap( const double age ) const{
    GridMap const * map = event->getSeaLevelAdjustment();
    if (map == nullptr){
       // should never happen as it is already tested in RiftingEvents
-      throw std::runtime_error( "There is no sea level adjustment defined for the rifting event at " + std::to_string( age ) + "Ma" );
+      throw std::runtime_error( "Basin_Error: There is no sea level adjustment defined for the rifting event at " + std::to_string( age ) + "Ma" );
    }
    return *map;
 }
@@ -672,7 +672,7 @@ void InterfaceInput::loadPressureData( GeoPhysics::ProjectHandle* projectHandle,
 //------------------------------------------------------------//
 const GridMap& InterfaceInput::getHCuMap() const {
    if (m_HCuMap == nullptr){
-      throw std::runtime_error( "Undefined initial crust thickness map" );
+      throw std::runtime_error( "Basin_Error: Undefined initial crust thickness map" );
    }
    return *m_HCuMap;
 }
@@ -680,7 +680,7 @@ const GridMap& InterfaceInput::getHCuMap() const {
 //------------------------------------------------------------//
 const GridMap& InterfaceInput::getHLMuMap() const {
    if (m_HLMuMap == nullptr){
-      throw std::runtime_error( "Undefined initial lithospheric mantle thickness map" );
+      throw std::runtime_error( "Basin_Error: Undefined initial lithospheric mantle thickness map" );
    }
    return *m_HLMuMap;
 }
@@ -693,10 +693,10 @@ std::shared_ptr<const CrustalThickness::RiftingEvent> InterfaceInput::getRiftEve
          return iterator->second;
       }
       else {
-         throw std::runtime_error( "The rifting event defined at " + std::to_string( age ) + "Ma is corrupted" );
+         throw std::runtime_error( "Basin_Error: The rifting event defined at " + std::to_string( age ) + "Ma is corrupted" );
       }
    }
    else {
-      throw std::runtime_error( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
+      throw std::runtime_error( "Basin_Error: There is no rifting event defined at " + std::to_string( age ) + "Ma" );
    };
 }

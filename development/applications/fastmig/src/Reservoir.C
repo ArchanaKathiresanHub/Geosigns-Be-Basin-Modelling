@@ -907,7 +907,7 @@ namespace migration
 
       if (!formationGridMap)
       {
-         cerr << "ERROR: " << getName () <<
+         cerr << "Basin_Error: " << getName () <<
             "::computing of reservoir depths failed, could not find the formation depth map at " << getEnd ()->getTime () << endl;
          cerr.flush ();
          return false;
@@ -957,7 +957,7 @@ namespace migration
 
          if (!topSurfaceGridMap)
          {
-            cerr << "ERROR: " << getName () <<
+            cerr << "Basin_Error: " << getName () <<
                "::computing of reservoir depths failed, could not find the DepthHighRes map for surface "
                  << getFormation ()->getTopSurface ()->getName () << " or higher at age " << getEnd ()->getTime () << endl;
             cerr.flush ();
@@ -966,7 +966,7 @@ namespace migration
 
          if (!bottomSurfaceGridMap)
          {
-            cerr << "ERROR: " << getName () <<
+            cerr << "Basin_Error: " << getName () <<
                "::computing of reservoir depths failed, could not find the DepthHighRes map for surface " <<
                getFormation ()->getBottomSurface ()->getName () << " or lower at age " << getEnd ()->getTime () << endl;
             cerr.flush ();
@@ -1640,7 +1640,7 @@ namespace migration
       {
          if (GetRank () == 0)
          {
-            cerr << "WARNING: 3D property 'Pressure' does not exist for Formation "
+            cerr << "Basin_Warning: 3D property 'Pressure' does not exist for Formation "
                  << getFormation ()->getName () << " at snapshot " << getEnd ()->getTime ()
                  << "," << endl
                  << "\t using fallback values" << endl;
@@ -2239,7 +2239,7 @@ namespace migration
 
       if (GetRank () == 0)
       {
-         cerr << "ERROR: Undefined activity mode '" << getActivityMode () << "' for Reservoir " << getName () << endl;
+         cerr << "Basin_Error: Undefined activity mode '" << getActivityMode () << "' for Reservoir " << getName () << endl;
          cerr.flush ();
       }
       return true;
@@ -2943,7 +2943,7 @@ namespace migration
 
       if (timeInterval >= 30)
       {
-         getProjectHandle ()->getMessageHandler ().print ("WARNING: The time interval between the two snapshots ");
+         getProjectHandle ()->getMessageHandler ().print ("Basin_Warning: The time interval between the two snapshots ");
          getProjectHandle ()->getMessageHandler ().print (m_start->getTime ());
          getProjectHandle ()->getMessageHandler ().print (" Ma and ");
          getProjectHandle ()->getMessageHandler ().print (m_end->getTime ());
@@ -3290,7 +3290,7 @@ namespace migration
                   {
                      if (column->containsComposition ())
                      {
-                        cerr << GetRankString () << ":: ERROR: " << column << " contains charge ("
+                        cerr << "Basin_Error: " << GetRankString () << ":: " << column << " contains charge ("
                              << column->getCompositionWeight () << ") but shouldn't" << endl;
                         cerr.flush ();
                         result = false;
@@ -3397,7 +3397,7 @@ namespace migration
             {
                if (column->getComponentToBeMigrated (componentId) < 0)
                {
-                  cerr << "Error in " << column << " of Reservoir " << getName () << " at age " << getEnd ()->getTime ()
+                  cerr << "Basin_Error: Error in " << column << " of Reservoir " << getName () << " at age " << getEnd ()->getTime ()
                        << ": expelled weight of " << CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId ) << " is negative (" << column->getComponent (componentId) << ")" << endl;
                   result = false;
                }

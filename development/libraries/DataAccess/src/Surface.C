@@ -194,7 +194,7 @@ GridMap * Surface::loadDepthMap (void) const
 	      gridMap = m_projectHandle->loadInputMap ("StratIoTbl", depthGridMapId);
          // If a surface depth map referenced in the project file cannot be found throw runtime ERROR
          if (gridMap == nullptr)
-            throw std::runtime_error( "Could not open input depth map for Surface " + getName() + "\n" );
+            throw std::runtime_error( "Basin_Error: Could not open input depth map for Surface " + getName() + "\n" );
       }
    }
    return gridMap;

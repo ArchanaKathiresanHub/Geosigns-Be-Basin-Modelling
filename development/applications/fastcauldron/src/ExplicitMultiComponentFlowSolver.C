@@ -717,7 +717,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    }
 
    if ( errorOccurred != NO_DARCY_ERROR ) {
-      PetscPrintf ( PETSC_COMM_WORLD, " Error in Darcy occurred at %f Ma\n", timeStepStartMa );
+      PetscPrintf ( PETSC_COMM_WORLD, "Basin_Error: Error in Darcy occurred at %f Ma\n", timeStepStartMa );
    }
 
 

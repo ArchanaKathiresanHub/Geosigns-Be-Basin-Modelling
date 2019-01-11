@@ -179,17 +179,17 @@ int main (int argc, char ** argv)
       rc = EPTFlexLmInit(errmessage);
       if ( rc != EPTFLEXLM_OK )
       {
-         fprintf(stderr, "\n@@@@@@@@@@@@@@@\n FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
+         fprintf(stderr, "\n@@@@@@@@@@@@@@@\n Basin_Fatal: FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
       }
       // FlexLM license handling: Checkout
       rc = EPTFlexLmCheckOut( feature, version, errmessage );
       if (rc == EPTFLEXLM_WARN)
       {
-         fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license warning: fastcauldron will still start anyway.\n@@@@@@@@@@@@@@@\n");
+         fprintf(stderr,"\n@@@@@@@@@@@@@@@\n Basin_Warning: FlexLm license warning: fastcauldron will still start anyway.\n@@@@@@@@@@@@@@@\n");
       }
       else if ( rc != EPTFLEXLM_OK )
       {
-         fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
+         fprintf(stderr,"\n@@@@@@@@@@@@@@@\n Basin_Error: FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
       }
    }
 
@@ -242,7 +242,7 @@ int main (int argc, char ** argv)
    }
    catch (...)
    {
-      std::cerr << "Fatal error when initialising log file(s).";
+      std::cerr << "Basin_Fatal: Fatal error when initialising log file(s).";
       return 1;
    }
 

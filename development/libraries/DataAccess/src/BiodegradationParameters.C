@@ -62,7 +62,7 @@ double BiodegradationParameters::bioRate() const
    // The biodegradation rate cannot be less than 0.0 m/Ma)
    if (bioRate < 0.0)
    {
-      getProjectHandle()->getMessageHandler().print("Warning: The biodegradation rate coefficient must be positive: ");
+      getProjectHandle()->getMessageHandler().print("Basin_Warning: The biodegradation rate coefficient must be positive: ");
       getProjectHandle()->getMessageHandler().print(bioRate);
       getProjectHandle()->getMessageHandler().printLine(" < 0.0 (in m/Ma)");
 

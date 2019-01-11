@@ -975,7 +975,7 @@ void GenerateDataSchema( const string & schemaName, const string & schemaDir, bo
 
       if ( FieldTables[ fieldName ].size() == 0 )
       {
-         if ( verbose ) { cerr << "Warning: " << fieldName << " is not being used\n"; }
+         if ( verbose ) { cerr << "Basin_Warning: " << fieldName << " is not being used\n"; }
          continue;
       }
 

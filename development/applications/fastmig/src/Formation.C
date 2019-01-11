@@ -747,14 +747,14 @@ namespace migration
       const Property* prop = m_projectHandle->findProperty (propertyName);
       if (!prop)
       {
-         cerr << "ERROR:::Could not find the property " << propertyName << endl;
+         cerr << "Basin_Error: Could not find the property " << propertyName << endl;
          return 0;
       }
 
       const Snapshot * snapshot = m_projectHandle->findSnapshot (snapshotAge);
       if (!snapshot)
       {
-         cerr << "ERROR:::Could not find snapshot with age " << snapshotAge << endl;
+         cerr << "Basin_Error: Could not find snapshot with age " << snapshotAge << endl;
          return 0;
       }
 
@@ -766,7 +766,7 @@ namespace migration
       const Snapshot * snapshot = m_projectHandle->findSnapshot (snapshotAge);
       if (!snapshot)
       {
-         cerr << "ERROR:::Could not find snapshot with age " << snapshotAge << endl;
+         cerr << "Basin_Error: Could not find snapshot with age " << snapshotAge << endl;
          return 0;
       }
 
@@ -778,7 +778,7 @@ namespace migration
       const Property* prop = m_projectHandle->findProperty (propertyName);
       if (!prop)
       {
-         cerr << "ERROR:::Could not find the property " << propertyName << endl;
+         cerr << "Basin_Error: Could not find the property " << propertyName << endl;
          return 0;
       }
 
@@ -796,7 +796,7 @@ namespace migration
       bool state = (propertyValues->size () == 1);
 
       if (!state)
-         cerr << "ERROR:::Could not find the property " << prop->getName () <<
+         cerr << "Basin_Error: Could not find the property " << prop->getName () <<
          " of formation " << getName () <<
          " at snapshot " << snapshot->getTime () << endl;
 
@@ -809,14 +809,14 @@ namespace migration
       const Property* prop = m_projectHandle->findProperty (propertyName);
       if (!prop)
       {
-         cerr << "ERROR:::Could not find the property " << propertyName << endl;
+         cerr << "Basin_Error: Could not find the property " << propertyName << endl;
          return 0;
       }
 
       const Snapshot * snapshot = m_projectHandle->findSnapshot (snapshotAge);
       if (!snapshot)
       {
-         cerr << "ERROR:::Could not find snapshot with age " << snapshotAge << endl;
+         cerr << "Basin_Error: Could not find snapshot with age " << snapshotAge << endl;
          return 0;
       }
 
@@ -828,7 +828,7 @@ namespace migration
       const Snapshot * snapshot = m_projectHandle->findSnapshot (snapshotAge);
       if (!snapshot)
       {
-         cerr << "ERROR:::Could not find snapshot with age " << snapshotAge << endl;
+         cerr << "Basin_Error: Could not find snapshot with age " << snapshotAge << endl;
          return 0;
       }
 
@@ -840,7 +840,7 @@ namespace migration
       const Property* prop = m_projectHandle->findProperty (propertyName);
       if (!prop)
       {
-         cerr << "ERROR:::Could not find the property " << propertyName << endl;
+         cerr << "Basin_Error: Could not find the property " << propertyName << endl;
          return 0;
       }
 
@@ -856,7 +856,7 @@ namespace migration
 
       if (propertyValues->size () != 1)
       {
-         cerr << "ERROR: could not load volume property " << prop->getName () << " for formation " << getName () <<
+         cerr << "Basin_Error: could not load volume property " << prop->getName () << " for formation " << getName () <<
             " at snapshot " << snapshot->getTime () << ": No or too much data available" << endl;
          return 0;
       }
@@ -865,7 +865,7 @@ namespace migration
 
       if (!gridMap)
       {
-         cerr << "ERROR: could not load volume property " << prop->getName () << " for formation " << getName () <<
+         cerr << "Basin_Error: could not load volume property " << prop->getName () << " for formation " << getName () <<
             " at snapshot " << snapshot->getTime () << ": Could not load grid map" << endl;
          return 0;
       }

@@ -23,7 +23,7 @@ using database::Record;
 void TableLoader::load( const ProjectHandle& projectHandle, const std::string& tableName, const std::function<void( Record* )> functor ){
    Table const * const table = projectHandle.getTable( tableName );
    if (table == nullptr) {
-      throw std::runtime_error( "Could not find the table [" + tableName + "]" );
+      throw std::runtime_error( "Basin_Error: Could not find the table [" + tableName + "]" );
    }
    else{
       database::Table::const_iterator tableIter;
@@ -32,13 +32,13 @@ void TableLoader::load( const ProjectHandle& projectHandle, const std::string& t
       {
          Record* record = *tableIter;
          if (record == nullptr){
-            throw std::runtime_error( "Could not find record " + std::to_string(index) + " for table [" + tableName + "]" );
+            throw std::runtime_error( "Basin_Error: Could not find record " + std::to_string(index) + " for table [" + tableName + "]" );
          }
          if(functor){
             functor( record );
          }
          else{
-            throw std::runtime_error( "Undefined functor for table [" + tableName + "]" );
+            throw std::runtime_error( "Basin_Error: Undefined functor for table [" + tableName + "]" );
          }
          
          index++;

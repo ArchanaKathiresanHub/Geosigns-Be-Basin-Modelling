@@ -404,7 +404,7 @@ void MultiComponentFlowHandler::initialise () {
    }
 
    if ( doNotApplyOtgc and applyOtgc ) {
-      PetscPrintf ( PETSC_COMM_WORLD, " WARNING both -mcfotgc and -mcfnootgc have been set. Both will be ignored and the value defined in the project file will be used." );
+      PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning: both -mcfotgc and -mcfnootgc have been set. Both will be ignored and the value defined in the project file will be used." );
    }
 
    //
@@ -423,7 +423,7 @@ void MultiComponentFlowHandler::initialise () {
          } else if ( strcasecmp ( name, "flux" ) == 0 ) {
             m_timeStepSubSampleFlux = true;
          } else {
-            PetscPrintf ( PETSC_COMM_WORLD, " WARNING Option '%s' is not known.\n", name );
+            PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning: Option '%s' is not known.\n", name );
          }
 
       }
@@ -445,7 +445,7 @@ void MultiComponentFlowHandler::initialise () {
    //----------------------------//
 
    if ( uniformTimeStepping and nonuniformTimeStepping ) {
-      PetscPrintf ( PETSC_COMM_WORLD, " WARNING both -mcfcflts and -mcfuniformts have been set. Setting to non-uniform time-stepping." );
+      PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning: both -mcfcflts and -mcfuniformts have been set. Setting to non-uniform time-stepping." );
       nonuniformTimeStepping = PETSC_TRUE;
       uniformTimeStepping = PETSC_FALSE;
    }

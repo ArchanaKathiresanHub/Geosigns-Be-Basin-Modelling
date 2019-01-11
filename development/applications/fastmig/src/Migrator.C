@@ -93,7 +93,7 @@ Migrator::Migrator (const string & name)
 
    if (!m_projectHandle.get ())
    {
-      std::cerr << "Can't open input project file: " << name << std::endl;
+      std::cerr << "Basin_Error: Can't open input project file: " << name << std::endl;
       exit (-1);
    }
 
@@ -1098,7 +1098,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    {
       if (totalStoredInTraps > 0 and Abs (totalStoredInTraps - totalBroadcastFromTraps) / totalStoredInTraps > 0.01)
       {
-         cerr << "Error: Difference between charge as stored in traps and charge as stored in columns is too large" << endl;
+         cerr << "Basin_Error: Difference between charge as stored in traps and charge as stored in columns is too large" << endl;
          cerr << "    Total stored in traps = " << totalStoredInTraps << endl;
          cerr << "    Total stored in columns = " << totalBroadcastFromTraps << endl;
          cerr << "    Error =  " << Abs (totalStoredInTraps - totalBroadcastFromTraps) / totalStoredInTraps << endl;
@@ -1814,7 +1814,7 @@ void Migrator::checkMigrationRecords (void)
    {
       if (*iter == 0)
       {
-         cerr << "Error: MigrationIoTbl[" << index << "] = 0" << endl;
+         cerr << "Basin_Error: MigrationIoTbl[" << index << "] = 0" << endl;
       }
       else if (getSourceAge (*iter) < 0 or getDestinationAge (*iter) < 0)
       {

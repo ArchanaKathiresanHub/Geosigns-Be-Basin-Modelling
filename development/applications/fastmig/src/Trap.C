@@ -430,7 +430,7 @@ namespace migration
 
             if (spillColumn->getThickness () == 0)
             {
-               cerr << "WARNING from Trap::computeArea (): Adding zero thickness column " << spillColumn << " to trap " << this << endl;
+               cerr << "Basin_Warning: from Trap::computeArea (): Adding zero thickness column " << spillColumn << " to trap " << this << endl;
                cerr << "                                   isSealing () = " << spillColumn->isSealing () << endl;
                cerr << "                                   spillColumn = " << getSpillColumn () << endl;
             }
@@ -546,7 +546,7 @@ namespace migration
 
          if (getCrestColumn () != curCrestColumn)
          {
-            cerr << GetRankString () << ": ERROR in " << this << ": old crest column " << curCrestColumn
+            cerr <<"Basin_Error: "<< GetRankString () << ": ERROR in " << this << ": old crest column " << curCrestColumn
                  << " != new crest column " << getCrestColumn () << endl;
          }
          assert (getCrestColumn () == curCrestColumn);
@@ -713,7 +713,7 @@ namespace migration
 
       if (column->getThickness () == 0)
       {
-         cerr << "WARNING from Trap::addToInterior (): Adding zero thickness column " << column << " to trap " << this << endl;
+         cerr << "Basin_Warning: from Trap::addToInterior (): Adding zero thickness column " << column << " to trap " << this << endl;
       }
 
       ColumnIterator iter;
@@ -836,7 +836,7 @@ namespace migration
 
          if (getFinalSpillTarget ((PhaseId)phase) == getCrestColumn ())
          {
-            cerr << "ERROR: final spill target(): "
+            cerr << "Basin_Error: final spill target(): "
                  << getFinalSpillTarget ((PhaseId)phase) << " == crest column: " << getCrestColumn () << endl;
             cerr << GetRankString () << ": " << this << "->getSpillColumn () = " << m_spillTarget[phase] << endl;
             printSpillTrajectory ((PhaseId)phase);
@@ -1613,7 +1613,7 @@ namespace migration
 
             if (!(*d).base ().valid ())
             {
-               cerr << "Trap.C:1369: Exiting as no valid depth property found for base of overburden formation: '" <<
+               cerr << "Basin_Warning: Trap.C:1369: Exiting as no valid depth property found for base of overburden formation: '" <<
                   (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
                cerr.flush ();
 
@@ -1649,7 +1649,7 @@ namespace migration
 
             if (!(*t).valid ())
             {
-               cerr << "Trap.C:1404: Exiting as no valid temperature property found for base of overburden formation: '" <<
+               cerr << "Basin_Error: Trap.C:1404: Exiting as no valid temperature property found for base of overburden formation: '" <<
                   (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
                cerr.flush ();
 
@@ -1659,7 +1659,7 @@ namespace migration
 
             if (!(*p).top ().valid ())
             {
-               cerr << "Trap.C:1413: Exiting as no valid permeability property found for base of overburden formation: '" <<
+               cerr << "Basin_Error: Trap.C:1413: Exiting as no valid permeability property found for base of overburden formation: '" <<
                   (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
                cerr.flush ();
 
@@ -1669,7 +1669,7 @@ namespace migration
 
             if (!(*bv).top ().valid ())
             {
-               cerr << "Exiting as no valid brine viscosity property found for base of overburden formation: '" <<
+               cerr << "Basin_Error: Exiting as no valid brine viscosity property found for base of overburden formation: '" <<
                   (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
                cerr.flush ();
 
@@ -1687,7 +1687,7 @@ namespace migration
 
          if (!(*d).base ().valid ())
          {
-            cerr << "Trap.C:1429: Exiting as no valid depth property found for base of overburden formation: '" <<
+            cerr << "Basin_Error: Trap.C:1429: Exiting as no valid depth property found for base of overburden formation: '" <<
                (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
             cerr.flush ();
 
@@ -1697,7 +1697,7 @@ namespace migration
 
          if (!(*p).top ().valid ())
          {
-            cerr << "Trap.C:1438: Exiting as no valid permeability property found for top of overburden formation: '" <<
+            cerr << "Basin_Error: Trap.C:1438: Exiting as no valid permeability property found for top of overburden formation: '" <<
                (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
             cerr.flush ();
 
@@ -1708,7 +1708,7 @@ namespace migration
 
          if (!(*t).valid ())
          {
-            cerr << "Trap.C:1448: Exiting as no valid temperature property found for top of overburden formation: '" <<
+            cerr << "Basin_Error: Trap.C:1448: Exiting as no valid temperature property found for top of overburden formation: '" <<
                (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
             cerr.flush ();
 
@@ -1718,7 +1718,7 @@ namespace migration
 
          if (!(*bv).top ().valid ())
          {
-            cerr << "Exiting as no valid brine viscosity property found for top of overburden formation: '" <<
+            cerr << "Basin_Error: Exiting as no valid brine viscosity property found for top of overburden formation: '" <<
                (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
             cerr.flush ();
 
@@ -2122,7 +2122,7 @@ namespace migration
             //should always be valid for reservoir and seal;
             if ( !( *d ).base().valid() )
             {
-               cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid depth property found for base of formation: '" <<
+               cerr << "Basin_Error: Trap::computeSealPressureLeakParametersImpl : Exiting as no valid depth property found for base of formation: '" <<
                   ( *f )->getName() << "' at time: " << snapshot->getTime() << "." << endl;
                cerr.flush();
 
@@ -2166,7 +2166,7 @@ namespace migration
             }
             else
             {
-               cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid permeability property found for formation: '" <<
+               cerr << "Basin_Error: Trap::computeSealPressureLeakParametersImpl : Exiting as no valid permeability property found for formation: '" <<
                   ( *f )->getName() << "' at time: " << snapshot->getTime() << "." << endl;
                cerr.flush();
                return false;
@@ -2768,15 +2768,15 @@ namespace migration
    {
       if (getVolume (GAS) < 0.99 * getVolumeByColumns (GAS) || getVolume (GAS) > 1.01 * getVolumeByColumns (GAS))
       {
-         cerr << "        " << this << " :: composition based volume (Gas) = " << getVolume (GAS) << endl;
-         cerr << "        " << this << " :: column based volume (Gas) = " << getVolumeByColumns (GAS) << endl;
+         cerr << "Basin_Warning: " << this << " :: composition based volume (Gas) = " << getVolume (GAS) << endl;
+         cerr << "Basin_Warning: " << this << " :: column based volume (Gas) = " << getVolumeByColumns (GAS) << endl;
          cerr << endl;
       }
 
       if (getVolume (OIL) < 0.99 * getVolumeByColumns (OIL) || getVolume (OIL) > 1.01 * getVolumeByColumns (OIL))
       {
-         cerr << "        " << this << " :: composition based volume (Oil) = " << getVolume (OIL) << endl;
-         cerr << "        " << this << " :: column based volume (Oil) = " << getVolumeByColumns (OIL) << endl;
+         cerr << "Basin_Warning  " << this << " :: composition based volume (Oil) = " << getVolume (OIL) << endl;
+         cerr << "Basin_Warning  " << this << " :: column based volume (Oil) = " << getVolumeByColumns (OIL) << endl;
          cerr << endl;
       }
    }
@@ -2848,7 +2848,7 @@ namespace migration
          if (fillDepth > getSpillDepth () and !NumericFunctions::isEqual(fillDepth, getSpillDepth (), trapTolerance))
          {
             std::cerr.precision(17);
-            std::cerr << "Error in " << this <<  ": TrapID " << getGlobalId() << " fillDepth (" << fillDepth << ") for phase " << PhaseNames[phase] << " is larger than spillDepth (" << getSpillDepth () << ")" << endl;
+            std::cerr << "Basin_Error: in " << this <<  ": TrapID " << getGlobalId() << " fillDepth (" << fillDepth << ") for phase " << PhaseNames[phase] << " is larger than spillDepth (" << getSpillDepth () << ")" << endl;
          }
 
          for (ConstColumnIterator iter = m_interior.begin (); iter != m_interior.end (); ++iter)
