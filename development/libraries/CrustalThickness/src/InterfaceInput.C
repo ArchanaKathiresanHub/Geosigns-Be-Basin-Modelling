@@ -84,15 +84,15 @@ InterfaceInput::InterfaceInput( const std::shared_ptr< const CrustalThicknessDat
    m_baseRiftSurfaceName       ("")
 {
    if (m_crustalThicknessData == nullptr){
-      throw std::invalid_argument( "No crustal thickness data provided to the CTC" );
+      throw std::invalid_argument( "Basin_Error: No crustal thickness data provided to the CTC" );
    }
    else if (m_crustalThicknessRiftingHistoryData.empty()){
-      throw std::invalid_argument( "No crustal thickness rifting history data provided to the CTC" );
+      throw std::invalid_argument( "Basin_Error: No crustal thickness rifting history data provided to the CTC" );
    }
    else{
       for (std::size_t i = 0; i < m_crustalThicknessRiftingHistoryData.size(); i++){
          if (m_crustalThicknessRiftingHistoryData[i] == nullptr){
-            throw std::invalid_argument( "The crustal thickness rifting event data number " +
+            throw std::invalid_argument( "Basin_Error: The crustal thickness rifting event data number " +
                std::to_string(i) + " provided to the CTC is corrupted" );
          }
       }
@@ -122,7 +122,7 @@ void InterfaceInput::loadInputData() {
 //------------------------------------------------------------//
 void InterfaceInput::loadSurfaceDepthHistoryMask( GeoPhysics::ProjectHandle * projectHandle ) {
    if (m_snapshots.empty()) {
-      throw std::invalid_argument("Could not retrieve surface depth history because the snapshots were not loaded");
+      throw std::invalid_argument("Basin_Error: Could not retrieve surface depth history because the snapshots were not loaded");
    }
    else {
       std::for_each( m_snapshots.begin(), m_snapshots.end(), [&](const double age) {
@@ -139,7 +139,7 @@ void InterfaceInput::loadCTCIoTblData() {
    m_HLMuMap      = m_crustalThicknessData->getMap (DataAccess::Interface::HLMuIni);
    const int smoothingRadius = m_crustalThicknessData->getFilterHalfWidth();
    if (smoothingRadius < 0){
-      throw std::invalid_argument( "The smoothing radius is set to a negative value" );
+      throw std::invalid_argument( "Basin_Error: The smoothing radius is set to a negative value" );
    }
    else{
       m_smoothRadius = static_cast<unsigned int>(smoothingRadius);
@@ -151,16 +151,16 @@ void InterfaceInput::loadCTCIoTblData() {
    m_baseRiftSurfaceName   = m_crustalThicknessData->getSurfaceName();
 
    if (m_HCuMap == nullptr){
-      throw std::invalid_argument( "The initial crustal thickness map maps cannot be retreived by the interface input" );
+      throw std::invalid_argument( "Basin_Error: The initial crustal thickness map maps cannot be retreived by the interface input" );
    }
    else if (m_HLMuMap == nullptr) {
-      throw std::invalid_argument( "The initial lithospheric mantle thickness map maps cannot be retreived by the interface input" );
+      throw std::invalid_argument( "Basin_Error: The initial lithospheric mantle thickness map maps cannot be retreived by the interface input" );
    }
    else if ( m_continentalCrustRatio < 0 ) {
-      throw std::invalid_argument( "The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is negative" );
+      throw std::invalid_argument( "Basin_Error: The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is negative" );
    }
    else if ( m_oceanicCrustRatio < 0 ) {
-      throw std::invalid_argument( "The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is negative" );
+      throw std::invalid_argument( "Basin_Error: The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is negative" );
    }
 
 }
@@ -268,7 +268,7 @@ void InterfaceInput::analyseRiftingHistoryStartAge(){
             const std::shared_ptr<CrustalThickness::RiftingEvent> prevEvent = m_riftingEvents[prevAge];
             // RULE_ID #15 Error when there are no SDH defined at the beginning of a rifting event
             if (prevEvent->getTectonicFlag() == PASSIVE_MARGIN) {
-               throw std::invalid_argument( "The begining of rift ID " + std::to_string( id ) +
+               throw std::invalid_argument( "Basin_Error: The begining of rift ID " + std::to_string( id ) +
                   " at age " + std::to_string( age ) + " does not have any surface depth history associated" );
             }
          }
@@ -344,7 +344,7 @@ void InterfaceInput::checkRiftingHistory() const {
 
    // RULE_ID #13 The first deposited formation (at basement age) is not an active event
    if (m_riftingEvents.at(basementAge)->getTectonicFlag() != ACTIVE_RIFTING) {
-      throw std::invalid_argument( "The first rifting event is not an active rifting" );
+      throw std::invalid_argument( "Basin_Error: The first rifting event is not an active rifting" );
    }
 
    std::shared_ptr<CrustalThickness::RiftingEvent> prevEvent = nullptr;
@@ -358,7 +358,7 @@ void InterfaceInput::checkRiftingHistory() const {
          and end   != IbsNoDataValue
          and start <= end) {
          // this should not happen as it is already checked when we set the ages
-         throw  std::invalid_argument( "The start of the rifting event " + std::to_string( start )
+         throw  std::invalid_argument( "Basin_Error: The start of the rifting event " + std::to_string( start )
             + "Ma is anterior or equal to its end " + std::to_string( end ) + "Ma" );
       }
       // if this is flexural check that there was no active or passive event before
@@ -366,13 +366,13 @@ void InterfaceInput::checkRiftingHistory() const {
          atLeastOneFlexuralEvent = true;
          // RULE_ID #11 Error when the first flexural event doesn't have an SDH
          if (not m_hasSurfaceDepthHistory.at( m_snapshots[i] )) {
-            throw std::invalid_argument( "There is no surface depth history defined for the first flexural event" );
+            throw std::invalid_argument( "Basin_Error: There is no surface depth history defined for the first flexural event" );
          }
       }
       else if (event->getTectonicFlag() == ACTIVE_RIFTING) {
          // RULE_ID #14 There are post Flexural Active / Passive events
          if (atLeastOneFlexuralEvent) {
-            throw std::invalid_argument( "An active rifting event is defined after a flexural event" );
+            throw std::invalid_argument( "Basin_Error: An active rifting event is defined after a flexural event" );
          }
          else if (not atLeastOneActiveEvent) {
             atLeastOneActiveEvent = true;
@@ -381,7 +381,7 @@ void InterfaceInput::checkRiftingHistory() const {
       else if (event->getTectonicFlag() == PASSIVE_MARGIN) {
          // RULE_ID #14 There are post Flexural Active / Passive events
          if (atLeastOneFlexuralEvent) {
-            throw std::invalid_argument( "A passive margin event is defined after a flexural event" );
+            throw std::invalid_argument( "Basin_Error: A passive margin event is defined after a flexural event" );
          }
          else if (not atLeastOnePassiveEvent) {
             atLeastOnePassiveEvent = true;
@@ -391,7 +391,7 @@ void InterfaceInput::checkRiftingHistory() const {
       // RULE_ID #11 Only one Maximum Basalt Thickness value can be allowed in one rift
       if (prevEvent != nullptr and prevEvent->getRiftId() == event->getRiftId() and prevEvent->getRiftId() != UnsignedIntNoDataValue) {
          if (prevEvent->getMaximumOceanicCrustThickness()->getConstantValue() != event->getMaximumOceanicCrustThickness()->getConstantValue()) {
-            throw std::invalid_argument( "Only one Maximum Oceanic Thickness value can be allowed within a rift" );
+            throw std::invalid_argument( "Basin_Error: Only one Maximum Oceanic Thickness value can be allowed within a rift" );
          }
       }
 
@@ -400,12 +400,12 @@ void InterfaceInput::checkRiftingHistory() const {
    // check that there is at least one active rifting event defined
    if (not atLeastOneActiveEvent) {
       // RULE_ID #16 There is no rift defined (no active event), in principle RULE ID #13 will catch this error before
-      throw std::invalid_argument( "There is no active rifting event defined in the rifting history" );
+      throw std::invalid_argument( "Basin_Error: There is no active rifting event defined in the rifting history" );
    }
    // check that there is at least one flexural event defined
    else if (not atLeastOneFlexuralEvent) {
       // RULE_ID #17 Error when there is no Flexural event
-      throw std::invalid_argument( "There is no flexural event defined in the rifting history, at least the present day event has to be set to flexural" );
+      throw std::invalid_argument( "Basin_Error: There is no flexural event defined in the rifting history, at least the present day event has to be set to flexural" );
    }
 }
 

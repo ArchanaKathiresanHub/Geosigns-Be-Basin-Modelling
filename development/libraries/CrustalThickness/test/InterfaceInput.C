@@ -38,18 +38,18 @@ TEST_F( InterfaceInputTester, constructor ){
 
    //1. Test that exception is thrown when the ctc data is a null pointer
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that exception is thrown when the ctc data is a null pointer";
-   std::invalid_argument exception1( "No crustal thickness data provided to the CTC");
+   std::invalid_argument exception1( "Basin_Error: No crustal thickness data provided to the CTC");
    EXPECT_EXCEPTION_EQ( InterfaceInput( nullptr, m_ctcRiftingDataVec ), exception1 )
 
    //2. Test that exception is thrown when the ctc rifting history data is empty
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that exception is thrown when the ctc rifting history data is empty";
-   std::invalid_argument exception2( "No crustal thickness rifting history data provided to the CTC");
+   std::invalid_argument exception2( "Basin_Error: No crustal thickness rifting history data provided to the CTC");
    EXPECT_EXCEPTION_EQ( InterfaceInput( m_ctcGlobalData, {} ), exception2 )
 
    //3. Test that exception is thrown when the ctc rifting history data has a null pointer
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that exception is thrown when the ctc rifting history data has a null pointer";
    m_ctcRiftingDataVec.push_back( nullptr );
-   std::invalid_argument exception3( "The crustal thickness rifting event data number " +
+   std::invalid_argument exception3( "Basin_Error: The crustal thickness rifting event data number " +
       std::to_string( m_ctcRiftingDataVec.size()-1 ) + " provided to the CTC is corrupted" );
    EXPECT_EXCEPTION_EQ( InterfaceInput( m_ctcGlobalData, m_ctcRiftingDataVec ), exception3 )
 
@@ -74,11 +74,11 @@ TEST_F( InterfaceInputTester, constructor ){
    EXPECT_EQ( nullptr, interfaceInput.getBotOfSedimentSurface()       );
    // check that HCuMap is a null pointer
    //test if the exception is thrown
-   std::runtime_error exception4( "Undefined initial crust thickness map");
+   std::runtime_error exception4( "Basin_Error: Undefined initial crust thickness map");
    EXPECT_EXCEPTION_EQ( interfaceInput.getHCuMap(), exception4 )
    // check that HLMuMap is a null pointer
    //test if the exception is thrown
-   std::runtime_error exception5("Undefined initial lithospheric mantle thickness map");
+   std::runtime_error exception5("Basin_Error: Undefined initial lithospheric mantle thickness map");
    EXPECT_EXCEPTION_EQ( interfaceInput.getHLMuMap(), exception5 )
 
    //b. from configuration file
@@ -155,7 +155,7 @@ TEST_F( InterfaceInputTester, loadCTCIoTbl_exceptions ){
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when the continental crust ratio is negative";
    m_upperLowerContinentalCrustRatio = -1;
    std::shared_ptr<InterfaceInput> interfaceInput1 = createInterfaceInput();
-   std::invalid_argument exception1( "The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is negative");
+   std::invalid_argument exception1( "Basin_Error: The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is negative");
    EXPECT_EXCEPTION_EQ( interfaceInput1->loadInputData(), exception1 )
    m_upperLowerContinentalCrustRatio = 0.5;
 
@@ -163,7 +163,7 @@ TEST_F( InterfaceInputTester, loadCTCIoTbl_exceptions ){
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when the oceanic crust ratio is negative";
    m_upperLowerOceanicCrustRatio     = -1;
    std::shared_ptr<InterfaceInput> interfaceInput2 = createInterfaceInput();
-   std::invalid_argument exception2( "The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is negative");
+   std::invalid_argument exception2( "Basin_Error: The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is negative");
    EXPECT_EXCEPTION_EQ( interfaceInput2->loadInputData(), exception2 )
    m_upperLowerOceanicCrustRatio = 0.7;
 
@@ -172,7 +172,7 @@ TEST_F( InterfaceInputTester, loadCTCIoTbl_exceptions ){
    auto tempHCuIni = m_HCuIni;
    m_HCuIni = nullptr;
    std::shared_ptr<InterfaceInput> interfaceInput3 = createInterfaceInput();
-   std::invalid_argument exception3( "The initial crustal thickness map maps cannot be retreived by the interface input" );
+   std::invalid_argument exception3( "Basin_Error: The initial crustal thickness map maps cannot be retreived by the interface input" );
    EXPECT_EXCEPTION_EQ( interfaceInput3->loadInputData(), exception3 )
    m_HCuIni = tempHCuIni;
 
@@ -181,7 +181,7 @@ TEST_F( InterfaceInputTester, loadCTCIoTbl_exceptions ){
    auto tempHLMuIni = m_HLMuIni;
    m_HLMuIni = nullptr;
    std::shared_ptr<InterfaceInput> interfaceInput4 = createInterfaceInput();
-   std::invalid_argument exception4( "The initial lithospheric mantle thickness map maps cannot be retreived by the interface input");
+   std::invalid_argument exception4( "Basin_Error: The initial lithospheric mantle thickness map maps cannot be retreived by the interface input");
    EXPECT_EXCEPTION_EQ( interfaceInput4->loadInputData(), exception4 )
    m_HLMuIni = tempHLMuIni;
 
@@ -189,7 +189,7 @@ TEST_F( InterfaceInputTester, loadCTCIoTbl_exceptions ){
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when smoothing radius is negative";
    m_filterHalfWidth = -10;
    std::shared_ptr<InterfaceInput> interfaceInput5 = createInterfaceInput();
-   std::invalid_argument exception5( "The smoothing radius is set to a negative value");
+   std::invalid_argument exception5( "Basin_Error: The smoothing radius is set to a negative value");
    EXPECT_EXCEPTION_EQ( interfaceInput5->loadInputData(), exception5 )
    m_filterHalfWidth = 5;
 }
@@ -420,7 +420,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    auto saveSnapshots = m_snapshots;
    m_snapshots.push_back( 300.0 );
    std::shared_ptr<InterfaceInput> interfaceInput1 = createInterfaceInput();
-   std::runtime_error expectedException1( "The number of snpashots (" + std::to_string( m_snapshots.size() )
+   std::runtime_error expectedException1( "Basin_Error: The number of snpashots (" + std::to_string( m_snapshots.size() )
       + ") differ from the number of rifting events (" + std::to_string( m_ctcRiftingDataVec.size() ) + ")" );
    EXPECT_EXCEPTION_EQ( interfaceInput1->loadInputData(), expectedException1 );
    m_snapshots = saveSnapshots;
@@ -429,7 +429,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when there is no rifting event for the requested age";
    const double age = 2500;
    std::shared_ptr<InterfaceInput> interfaceInput2 = createInterfaceInput();
-   std::runtime_error exception2( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
+   std::runtime_error exception2( "Basin_Error: There is no rifting event defined at " + std::to_string( age ) + "Ma" );
    interfaceInput2->loadInputData();
    EXPECT_EXCEPTION_EQ( interfaceInput2->getRiftingStartAge( age )                   , exception2 );
    EXPECT_EXCEPTION_EQ( interfaceInput2->getRiftingEndAge  ( age )                   , exception2 );
@@ -441,7 +441,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when the first event is not active";
    m_tectonicFalgs = { FLEXURAL_BASIN, PASSIVE_MARGIN, PASSIVE_MARGIN, ACTIVE_RIFTING, ACTIVE_RIFTING,
                        PASSIVE_MARGIN, PASSIVE_MARGIN, PASSIVE_MARGIN, PASSIVE_MARGIN, PASSIVE_MARGIN };
-   std::invalid_argument exception3( "The first rifting event is not an active rifting" );
+   std::invalid_argument exception3( "Basin_Error: The first rifting event is not an active rifting" );
    std::shared_ptr<InterfaceInput> interfaceInput3 = createInterfaceInput();
    EXPECT_EXCEPTION_EQ( interfaceInput3->loadInputData(), exception3);
 
@@ -456,7 +456,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when there are active events after the flexural age";
    m_tectonicFalgs = { FLEXURAL_BASIN, ACTIVE_RIFTING, ACTIVE_RIFTING, FLEXURAL_BASIN, PASSIVE_MARGIN,
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
-   std::invalid_argument exception5( "An active rifting event is defined after a flexural event" );
+   std::invalid_argument exception5( "Basin_Error: An active rifting event is defined after a flexural event" );
    std::shared_ptr<InterfaceInput> interfaceInput5 = createInterfaceInput();
    EXPECT_EXCEPTION_EQ( interfaceInput5->loadInputData(), exception5 );
    
@@ -464,7 +464,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when there are passive events after the flexural age";
    m_tectonicFalgs = { FLEXURAL_BASIN, PASSIVE_MARGIN, PASSIVE_MARGIN, FLEXURAL_BASIN, PASSIVE_MARGIN,
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
-   std::invalid_argument exception6( "A passive margin event is defined after a flexural event" );
+   std::invalid_argument exception6( "Basin_Error: A passive margin event is defined after a flexural event" );
    std::shared_ptr<InterfaceInput> interfaceInput6 = createInterfaceInput();
    EXPECT_EXCEPTION_EQ( interfaceInput6->loadInputData(), exception6 );
 
@@ -472,7 +472,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "There is no flexural event defined in the rifting history, at least the present day event has to be set to flexural";
    m_tectonicFalgs = { PASSIVE_MARGIN, PASSIVE_MARGIN, PASSIVE_MARGIN, PASSIVE_MARGIN, ACTIVE_RIFTING,
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
-   std::invalid_argument exception7( "There is no flexural event defined in the rifting history, at least the present day event has to be set to flexural" );
+   std::invalid_argument exception7( "Basin_Error: There is no flexural event defined in the rifting history, at least the present day event has to be set to flexural" );
    std::shared_ptr<InterfaceInput> interfaceInput7 = createInterfaceInput();
    EXPECT_EXCEPTION_EQ( interfaceInput7->loadInputData(), exception7 );
 
@@ -481,7 +481,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    m_tectonicFalgs = { FLEXURAL_BASIN, PASSIVE_MARGIN, ACTIVE_RIFTING, PASSIVE_MARGIN, ACTIVE_RIFTING,
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
    m_hasSurfaceDepthHistory[m_snapshots[7]] = false;
-   std::invalid_argument exception8( "The begining of rift ID " + std::to_string( 6 ) +
+   std::invalid_argument exception8( "Basin_Error: The begining of rift ID " + std::to_string( 6 ) +
       " at age " + std::to_string( m_snapshots[7] ) + " does not have any surface depth history associated" );
    std::shared_ptr<InterfaceInput> interfaceInput8 = createInterfaceInput();
    EXPECT_EXCEPTION_EQ( interfaceInput8->loadInputData(), exception8 );
@@ -492,7 +492,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    m_tectonicFalgs = { FLEXURAL_BASIN, FLEXURAL_BASIN, ACTIVE_RIFTING, PASSIVE_MARGIN, ACTIVE_RIFTING,
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
    m_hasSurfaceDepthHistory[m_snapshots[8]] = false;
-   std::invalid_argument exception9( "There is no surface depth history defined for the first flexural event" );
+   std::invalid_argument exception9( "Basin_Error: There is no surface depth history defined for the first flexural event" );
    std::shared_ptr<InterfaceInput> interfaceInput9 = createInterfaceInput();
    EXPECT_EXCEPTION_EQ( interfaceInput9->loadInputData(), exception9 );
    m_hasSurfaceDepthHistory[m_snapshots[8]] = true;
@@ -502,7 +502,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    m_tectonicFalgs = { FLEXURAL_BASIN, FLEXURAL_BASIN, ACTIVE_RIFTING, PASSIVE_MARGIN, ACTIVE_RIFTING,
                        PASSIVE_MARGIN, PASSIVE_MARGIN, PASSIVE_MARGIN, ACTIVE_RIFTING, ACTIVE_RIFTING };
    m_HBu[5].setValues( 1000 );
-   std::invalid_argument exception10( "Only one Maximum Oceanic Thickness value can be allowed within a rift" );
+   std::invalid_argument exception10( "Basin_Error: Only one Maximum Oceanic Thickness value can be allowed within a rift" );
    std::shared_ptr<InterfaceInput> interfaceInput10 = createInterfaceInput();
    EXPECT_EXCEPTION_EQ( interfaceInput10->loadInputData(), exception10 );
    m_HBu[5].setValues( 0 );
