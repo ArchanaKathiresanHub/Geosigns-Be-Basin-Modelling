@@ -43,6 +43,10 @@ Prograde::CtcUpgradeManager::CtcUpgradeManager(mbapi::Model& model) :
 void Prograde::CtcUpgradeManager::upgrade() { 
    Prograde::CtcModelConverter modelConverter;
 
+   int TableSize=m_model.tableSize("CTCIoTbl");
+
+   if (TableSize != 0)
+   {
    //Check the default value of FilterHalfWidth which is 5 in BPA-Cauldron and 10 in BPA2-BAsin. If not 5 then set its value in CTCIoTbl to the default value of BPA-Cauldron
    int FHWidth = 5;
    int temp;
@@ -155,5 +159,11 @@ void Prograde::CtcUpgradeManager::upgrade() {
 
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMapIoTbl is updated";
 
+   }
+   else
+   {
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CTC is not used in the selected scenario";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "No upgradation is required related to CTC";
+   }
 }
 
