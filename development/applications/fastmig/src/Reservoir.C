@@ -2940,8 +2940,7 @@ namespace migration
       const BiodegradationParameters* biodegradationParameters =
          getProjectHandle ()->getBiodegradationParameters ();
       double timeInterval = m_start->getTime () - m_end->getTime ();
-      cout<<"Basin_Error: This is error message testing purpose only"<<endl;
-      cout<<"Basin_Fatal: This is fatal message testing purpose only"<<endl;
+
       if (timeInterval >= 30)
       {
          getProjectHandle ()->getMessageHandler ().print ("Basin_Warning: The time interval between the two snapshots ");
