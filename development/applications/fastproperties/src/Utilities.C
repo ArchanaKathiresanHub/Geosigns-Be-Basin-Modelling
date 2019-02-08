@@ -24,7 +24,7 @@ std::shared_ptr<CauldronIO::FormationInfoList> DerivedProperties::getDepthFormat
 
     // Find the depth property formations for this snapshot
     std::shared_ptr<PropertyValueList> propValues( projectHandle->getModellingMode() == Interface::MODE1D ?
-                                                   projectHandle->getPropertyValues(SURFACE, depthProp, snapShot, 0, 0, 0, MAP| VOLUME) :
+                                                   projectHandle->getPropertyValues(SURFACE, depthProp, snapShot, 0, 0, 0, /*MAP|*/ VOLUME) :
                                                    projectHandle->getPropertyValues(FORMATION, depthProp, snapShot, 0, 0, 0, VOLUME));
 
     if (propValues->size() == 0) return depthFormations;

@@ -162,17 +162,15 @@ void  DerivedProperties::removeProperties (  const Snapshot * snapshot,
 
          FormationSurfaceOutputPropertyValueMap map = propertyValueToRemove->second;
          FormationSurfaceOutputPropertyValueMap::iterator mapToRemove;
-         for( mapToRemove = map.begin(); mapToRemove != map.end(); ++ mapToRemove ) {
+         for( mapToRemove = map.begin(); mapToRemove != map.end(); mapToRemove = map.erase( mapToRemove ) ) {
        
             OutputPropertyValueMap map1 = (*mapToRemove).second;
             OutputPropertyValueMap::iterator map2;
-            for( map2 = map1.begin(); map2 != map1.end(); ++ map2 ) {
+            for( map2 = map1.begin(); map2 != map1.end(); map2 = map1.erase( map2 ) ) {
                (map2->second).reset();
-               map1.erase( map2 );
             }
-            map.erase( mapToRemove );
          }
-         allOutputPropertyValues.erase( propertyValueToRemove ++ );
+         propertyValueToRemove = allOutputPropertyValues.erase( propertyValueToRemove );
       } else {
          ++ propertyValueToRemove;
       }
