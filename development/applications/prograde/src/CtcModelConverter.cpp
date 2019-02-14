@@ -12,10 +12,6 @@
 //utilities
 #include "LogHandler.h"
 
-//cmbAPI
-#include "CtcManager.h"
-#include "MapsManager.h"
-
 using namespace mbapi;
 
 std::string Prograde::CtcModelConverter::upgradeTectonicFlag(const double & Age, const double & Min)
@@ -29,4 +25,5 @@ std::string Prograde::CtcModelConverter::upgradeTectonicFlag(const double & Age,
       tectonicFlag = "Passive Margin";
    return tectonicFlag;
 }
+
 

@@ -16,7 +16,7 @@
 
 namespace Prograde
 {
-   /// @class CtcModelConverter Converts bottom boundary models as well as crust/mantle property model
+   /// @class CtcModelConverter Converts CTC model inputs
    class  CtcModelConverter {
 
    public:
@@ -30,6 +30,7 @@ namespace Prograde
       /// @brief Updates the TectonicFlag of CTCRiftingHistoryIoTbl
       /// @details Sets the tectonic context of the formation for each age/timestep  
       std::string upgradeTectonicFlag(const double & Age, const double & Min);
+     
    };
 }
 

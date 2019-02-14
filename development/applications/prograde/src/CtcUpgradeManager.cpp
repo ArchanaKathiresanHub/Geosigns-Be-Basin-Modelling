@@ -93,6 +93,7 @@ void Prograde::CtcUpgradeManager::upgrade() {
    double EndRiftingAge;
    
    m_model.ctcManager().getEndRiftingAge(EndRiftingAge);
+   
    if (EndRiftingAge == -9999)
    {
       m_model.ctcManager().getEndRiftingAgeMap(EndRiftingMapName);
@@ -127,13 +128,10 @@ void Prograde::CtcUpgradeManager::upgrade() {
       {
          m_model.ctcManager().setRiftingTblResidualDepthAnomalyScalar(tsId,depth);
          m_model.ctcManager().setRiftingTblResidualDepthAnomalyMap(tsId, depthMap);
-      }
-      else if (tectonicContext == "Active Rifting")
-      {
          m_model.ctcManager().setRiftingTblBasaltMeltThicknessScalar(tsId, thickness);
          m_model.ctcManager().setRiftingTblBasaltMeltThicknessMap(tsId, thicknessMap);
       }
-
+     
    }
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CTCRiftingHistoryIoTbl is created";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Age field of CTCRiftingHistoryIoTbl is populated as per the depositional age of the StratIoTbl";
@@ -142,22 +140,31 @@ void Prograde::CtcUpgradeManager::upgrade() {
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HBu and HBuGrid fields of CTCRiftingHistoryIoTbl are populated for each age";
 
    auto GridMapId = m_model.ctcManager().getGridMapID();
-   std::string basaltThicknessMap,rdaMap,GridMapIoMapName,GridMapIoTblName;
+   std::string basaltThicknessMap,rdaMap,GridMapIoMapName,GridMapIoTblName,GridMapReferredBy;
    m_model.ctcManager().getBasaltMeltThicknessMap(basaltThicknessMap);
    m_model.ctcManager().getResidualDepthAnomalyMap(rdaMap);
    GridMapIoTblName = "CTCRiftingHistoryIoTbl";
+   int i = 0;
    for (auto tsId : GridMapId)
-   {   
+   {
+      
       m_model.ctcManager().getGridMapIoTblMapName(tsId, GridMapIoMapName);
+      m_model.ctcManager().getGridMapTablename(tsId, GridMapReferredBy);
       if (basaltThicknessMap == GridMapIoMapName || rdaMap== GridMapIoMapName)
       {
          m_model.ctcManager().setGridMapTablename(tsId, GridMapIoTblName);
       }
+      if (GridMapIoMapName != basaltThicknessMap && GridMapIoMapName != rdaMap && GridMapReferredBy == "CTCIoTbl")
+      {
+         m_model.removeRecordFromTable("GridMapIoTbl", i);
+      }
+      i++;
    }
    m_model.ctcManager().setBasaltMeltThicknessMap("");
    m_model.ctcManager().setResidualDepthAnomalyMap("");
-
-   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMapIoTbl is updated";
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "GridMapIoTbl needs to be updated";
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Maps are referred for CTCRiftingHistoryIoTbl";
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Maps related to deprecated fields of CTCIoTbl are removed ";
 
    }
    else

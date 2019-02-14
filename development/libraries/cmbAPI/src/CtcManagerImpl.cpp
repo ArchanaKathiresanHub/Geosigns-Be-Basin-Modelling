@@ -546,7 +546,7 @@ namespace mbapi
       catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
       return NoError;
    }
-   // Get the table name referred in the GridMapIoTbl for a an id
+   // Get the table name referred in the GridMapIoTbl for an id
    ErrorHandler::ReturnCode CtcManagerImpl::getGridMapTablename(const GridMapID id, std::string & tableName)
    {
       if (errorCode() != NoError) resetError();
@@ -561,7 +561,7 @@ namespace mbapi
       catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
       return NoError;
    }
-   // Set the table name referred in the GridMapIoTbl for a an id
+   // Set the table name referred in the GridMapIoTbl for an id
    ErrorHandler::ReturnCode CtcManagerImpl::setGridMapTablename(const GridMapID id, const std::string & tableName)
    {
       if (errorCode() != NoError) resetError();
