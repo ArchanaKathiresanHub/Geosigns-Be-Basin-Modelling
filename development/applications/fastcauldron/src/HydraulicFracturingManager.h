@@ -261,7 +261,10 @@ inline Interface::FracturePressureModel HydraulicFracturingManager::getModel () 
 //------------------------------------------------------------//
 
 inline Interface::FracturePressureFunctionType HydraulicFracturingManager::fracturePressureSelection () const {
-  return m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type ();
+	if (m_fracturePressureCalculator->getFracturePressureFunctionParameters())
+		return m_fracturePressureCalculator->getFracturePressureFunctionParameters()->type();
+	else
+		return DataAccess::Interface::FracturePressureFunctionType::None;
 }
 
 //------------------------------------------------------------//

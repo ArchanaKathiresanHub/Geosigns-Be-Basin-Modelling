@@ -64,7 +64,8 @@ namespace GeoPhysics {
                           const double             lithostaticPressure,
                           const double             porePressure ) const;
 
-      const DataAccess::Interface::FracturePressureFunctionParameters& getFracturePressureFunctionParameters () const;
+	  // its a bad practice to send a reference of derefrenced pointer. Reviewer please remove the comment after review.
+      const DataAccess::Interface::FracturePressureFunctionParameters* getFracturePressureFunctionParameters () const;
 
    private :
 

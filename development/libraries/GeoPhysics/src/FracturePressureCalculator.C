@@ -26,8 +26,10 @@ using Utilities::Physics::AtmosphericPressureMpa;
 GeoPhysics::FracturePressureCalculator::FracturePressureCalculator ( DataAccess::Interface::ProjectHandle* projectHandle ) {
 
    m_fracturePressureFunctionParameters = projectHandle->getFracturePressureFunctionParameters ();
+   m_selectedFunction = DataAccess::Interface::FracturePressureFunctionType::None;
 
-   m_selectedFunction = m_fracturePressureFunctionParameters->type ();
+   if(m_fracturePressureFunctionParameters)
+      m_selectedFunction = m_fracturePressureFunctionParameters->type ();
 
    if ( m_selectedFunction == DataAccess::Interface::FunctionOfDepthWrtSeaLevelSurface or
         m_selectedFunction == DataAccess::Interface::FunctionOfDepthWrtSedimentSurface ) {
@@ -47,8 +49,8 @@ GeoPhysics::FracturePressureCalculator::FracturePressureCalculator ( DataAccess:
 GeoPhysics::FracturePressureCalculator::~FracturePressureCalculator () {
 }
 
-const DataAccess::Interface::FracturePressureFunctionParameters& GeoPhysics::FracturePressureCalculator::getFracturePressureFunctionParameters () const {
-   return *m_fracturePressureFunctionParameters;
+const DataAccess::Interface::FracturePressureFunctionParameters* GeoPhysics::FracturePressureCalculator::getFracturePressureFunctionParameters () const {
+   return m_fracturePressureFunctionParameters;
 }
 
 double GeoPhysics::FracturePressureCalculator::fracturePressure  ( const CompoundLithology* lithology,

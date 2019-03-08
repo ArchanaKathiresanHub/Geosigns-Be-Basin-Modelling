@@ -5284,7 +5284,8 @@ void ProjectHandle::deleteMantleFormation( void )
 
 void ProjectHandle::deleteFracturePressureFunctionParameters( void )
 {
-   delete m_fracturePressureFunctionParameters;
+   if(m_fracturePressureFunctionParameters)
+      delete m_fracturePressureFunctionParameters;
 }
 
 void ProjectHandle::deleteDiffusionLeakageParameters( void )

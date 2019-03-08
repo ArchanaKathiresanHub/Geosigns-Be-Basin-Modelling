@@ -125,6 +125,7 @@ const std::string& fracturePressureModelStr ( const Interface::FracturePressureM
 
 HydraulicFracturingManager::HydraulicFracturingManager () {
   m_basinModel = 0;
+  m_fractureModel = DefaultFractureModel;
 }
 
 //------------------------------------------------------------//
@@ -166,25 +167,27 @@ bool HydraulicFracturingManager::setSelectedFunction () {
   // Initialised as true, only set to false if fractureType 
   // string contains an undefined value.
   bool functionDefined = true;
+  if (m_fracturePressureCalculator->getFracturePressureFunctionParameters() == nullptr)
+	  return functionDefined;
 
-  m_fractureModel = m_fracturePressureCalculator->getFracturePressureFunctionParameters ().getFractureModel ();
+  m_fractureModel = m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->getFractureModel ();
 
   if ( m_basinModel->debug1 or m_basinModel->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, " set selected function: %i  %s \n",
-                  int ( m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type ()),
-                  hydraulicFractureFunctionTypeStr ( m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type ()).c_str ());
+                  int ( m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->type ()),
+                  hydraulicFractureFunctionTypeStr ( m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->type ()).c_str ());
   }
 
 
-   if (( m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type () == DataAccess::Interface::FunctionOfDepthWrtSeaLevelSurface or
-         m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type () == DataAccess::Interface::FunctionOfDepthWrtSedimentSurface ) and
-       m_fracturePressureCalculator->getFracturePressureFunctionParameters ().getName () == "None" ) {
+   if (( m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->type () == DataAccess::Interface::FunctionOfDepthWrtSeaLevelSurface or
+         m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->type () == DataAccess::Interface::FunctionOfDepthWrtSedimentSurface ) and
+       m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->getName () == "None" ) {
 
       PetscPrintf ( PETSC_COMM_WORLD, "\n ERROR Fracture pressure function has been defined incorrectly.\n       'Fracture function type' is a depth function but the 'fracture pressure model' is None.\n" );
       PetscPrintf ( PETSC_COMM_WORLD, "        Fracture function type  = %s\n",
-                    m_fracturePressureCalculator->getFracturePressureFunctionParameters ().getTypeName ().c_str ());
+                    m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->getTypeName ().c_str ());
       PetscPrintf ( PETSC_COMM_WORLD, "        Fracture pressure model = %s\n",
-                    m_fracturePressureCalculator->getFracturePressureFunctionParameters ().getName ().c_str ());
+                    m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->getName ().c_str ());
       functionDefined = false;
      
   }
@@ -227,7 +230,7 @@ void HydraulicFracturingManager::checkForFracturing ( const double currentTime,
 
   using namespace Basin_Modelling;
 
-  if ( m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type () == Interface::None ) {
+  if (m_fracturePressureCalculator->getFracturePressureFunctionParameters() == nullptr ||  m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->type () == Interface::None ) {
 //   if ( m_functionSelection == NO_FRACTURE_PRESSURE ) {
     return;
   }
@@ -428,7 +431,7 @@ void HydraulicFracturingManager::resetFracturing () {
 
   using namespace Basin_Modelling;
 
-  if ( m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type () == Interface::None ) {
+  if (m_fracturePressureCalculator->getFracturePressureFunctionParameters() == nullptr || m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->type () == Interface::None ) {
 //   if ( m_functionSelection == NO_FRACTURE_PRESSURE ) {
     return;
   }
@@ -494,7 +497,7 @@ void HydraulicFracturingManager::restrictPressure ( const double currentTime ) {
 
   using namespace Basin_Modelling;
 
-  if ( m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type () == Interface::None or not isNonConservativeFractureModel ()) {
+  if (m_fracturePressureCalculator->getFracturePressureFunctionParameters() == nullptr || m_fracturePressureCalculator->getFracturePressureFunctionParameters ()->type () == Interface::None or not isNonConservativeFractureModel ()) {
 //   if ( m_functionSelection == NO_FRACTURE_PRESSURE or not isNonConservativeFractureModel ()) {
     return;
   }
