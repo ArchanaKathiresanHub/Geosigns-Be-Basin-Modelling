@@ -2198,30 +2198,32 @@ namespace migration
                // Compute the fracture pressure:
                fracPressure = numeric_limits < double >::max();
 
-               switch ( fracturePressureParameters->type() )
-               {
-               case Interface::None:
-                  break;
-               case Interface::FunctionOfDepthWrtSeaLevelSurface:
-                  fracPressure =
-                     CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSeaLevelSurface( fracturePressureParameters->
-                                                                                                 coefficients(), depth );
-                  break;
-               case Interface::FunctionOfDepthWrtSedimentSurface:
-               {
-                  fracPressure =
-                     CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSedimentSurface( fracturePressureParameters->coefficients(),
-                                                                                                 depthWrtSedimentSurface,
-                                                                                                 getCrestColumn()->getSeaBottomPressure() );
-                  break;
-               }
-               case Interface::FunctionOfLithostaticPressure:
-                  result = computeForFunctionOfLithostaticPressure( fullOverburden, *f, formLithFracs, fracPressure );
-                  break;
-               default:
-                  assert( 0 );
-               }
+			   if (fracturePressureParameters != nullptr) {
 
+				   switch (fracturePressureParameters->type())
+				   {
+				   case Interface::None:
+					   break;
+				   case Interface::FunctionOfDepthWrtSeaLevelSurface:
+					   fracPressure =
+						   CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSeaLevelSurface(fracturePressureParameters->
+							   coefficients(), depth);
+					   break;
+				   case Interface::FunctionOfDepthWrtSedimentSurface:
+				   {
+					   fracPressure =
+						   CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSedimentSurface(fracturePressureParameters->coefficients(),
+							   depthWrtSedimentSurface,
+							   getCrestColumn()->getSeaBottomPressure());
+					   break;
+				   }
+				   case Interface::FunctionOfLithostaticPressure:
+					   result = computeForFunctionOfLithostaticPressure(fullOverburden, *f, formLithFracs, fracPressure);
+					   break;
+				   default:
+					   assert(0);
+				   }
+			   }
                //the end of the formation vector is reached, no need to loop again
                break;
             }

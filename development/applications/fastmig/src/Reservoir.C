@@ -869,34 +869,34 @@ namespace migration
       // FunctionOfLithostaticPressure, also the hydrostatic and lithostatic pressures are needed.
       const FracturePressureFunctionParameters*
          fracturePressureFunctionParameters = getProjectHandle ()->getFracturePressureFunctionParameters ();
-      if (!fracturePressureFunctionParameters)
-         return false;
+	  if (fracturePressureFunctionParameters) {
+
 #if DEBUG
-      if( GetRank() == 0 ) {
-         cout << "fracturePressureFunctionParameters ON" << endl;
-      }
+		  if (GetRank() == 0) {
+			  cout << "fracturePressureFunctionParameters ON" << endl;
+		  }
 #endif
 
-      if (fracturePressureFunctionParameters->type () == Interface::FunctionOfLithostaticPressure)
-      {
-         if (!computeHydrostaticPressures ())
-            return false;
+		  if (fracturePressureFunctionParameters->type() == Interface::FunctionOfLithostaticPressure)
+		  {
+			  if (!computeHydrostaticPressures())
+				  return false;
 #if DEBUG
-         if( GetRank() == 0 ) {
-            cout << "computeHydrostaticPressures done" << endl;
-         }
+			  if (GetRank() == 0) {
+				  cout << "computeHydrostaticPressures done" << endl;
+			  }
 #endif
 
-         if (!computeLithostaticPressures ())
-            return false;
+			  if (!computeLithostaticPressures())
+				  return false;
 #if DEBUG
-         if( GetRank() == 0 ) {
-            cout << "computeLithostaticPressures done" << endl;
-         }
+			  if (GetRank() == 0) {
+				  cout << "computeLithostaticPressures done" << endl;
+			  }
 #endif
 
-      }
-
+		  }
+	  }
       return true;
    }
 
