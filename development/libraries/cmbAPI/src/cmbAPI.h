@@ -28,6 +28,7 @@
 #include "BiodegradeManager.h"
 #include "BottomBoundaryManager.h"
 #include "CtcManager.h"
+#include "FracturePressureManager.h"
 
 // TableIO
 #include "datatype.h"
@@ -294,6 +295,10 @@ namespace mbapi {
      /// @brief Get CTC manager. It provides access to the CTCIoTbl in project file 
      /// @return reference to the CTC manager. It created/deleted by the model itself.
      CtcManager & ctcManager();
+
+     /// @brief Get Fracture Pressure manager. It provides access to the RunOptionsIoTbl/PressureFuncIoTbl in project file 
+     /// @return reference to the Fracture Pressure manager. It created/deleted by the model itself.
+     FracturePressureManager & fracturePressureManager();
 
 
       // Request some project porperties

@@ -33,6 +33,7 @@ public:
    static const char * m_nnTestProject;
    static const char * m_reservoirTestProject;
    static const char * m_CtcTestProject;
+   static const char * m_FracPressTestProject;
 };
 
 const char * mbapiModelTest::m_sourceRockTestProject = "SourceRockTesting.project3d";
@@ -44,6 +45,7 @@ const char * mbapiModelTest::m_dupLithologyTestProject = "DupLithologyTesting.pr
 const char * mbapiModelTest::m_nnTestProject = "NNTesting.project3d";
 const char * mbapiModelTest::m_reservoirTestProject = "ReservoirTesting.project3d";
 const char * mbapiModelTest::m_CtcTestProject = "CtcTesting.project3d";
+const char * mbapiModelTest::m_FracPressTestProject = "FracturePressureTesting.project3d";
 
 
 bool mbapiModelTest::compareFiles(const char * projFile1, const char * projFile2)
@@ -1697,5 +1699,69 @@ TEST_F(mbapiModelTest, CtcManager)
       EXPECT_EQ("Expedite_Map_Name", thicknessGrid);
       
    }
+
+}
+TEST_F(mbapiModelTest, FracturePressureManager)
+{
+   mbapi::Model testModel;
+
+   std::string FPModelName, Name, FracType;
+   int ConstraintMethod, UDFlag;
+
+   // load test project
+   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_FracPressTestProject));
+
+   mbapi::FracturePressureManager & FracPressMan = testModel.fracturePressureManager();
+
+   //check whether fracture pressure function name of RunOptionsIoTbl can be read and modified correctly
+   FracPressMan.getFracturePressureFunctionName(FPModelName);
+   EXPECT_EQ("Nigeria East", FPModelName);
+   FracPressMan.setFracturePressureFunctionName("Brunei Deep");
+   FracPressMan.getFracturePressureFunctionName(FPModelName);
+   EXPECT_EQ("Brunei Deep", FPModelName);
+
+   //get pressure model ids from PressureFuncIoTbl
+   auto timeStep = FracPressMan.getpressFuncTblID();
+   size_t actualTableSize = 13;
+
+   ASSERT_EQ(actualTableSize, timeStep.size());
+
+   //check whether fracture pressure model names can be read and modified from PressureFuncIo table
+   {
+      std::vector<std::string> actualNames = { "None", "C-NorthSea", "Nigeria Deep", "Terschelling","Nigeria East","Nigeria West","Brunei Deep","Linear 70%","Linear 75%","Linear 80%","Linear 85%","Linear 90%","Linear 95%" };
+      std::vector<int> actualValues = {0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+      //Check whether all entries are being read correctlty
+      for (auto tsId : timeStep)
+      {
+         FracPressMan.getPresFuncName(tsId, Name);
+         EXPECT_EQ(actualNames[tsId], Name);
+         FracPressMan.getUserDefinedFlag(tsId, UDFlag);
+         EXPECT_EQ(actualValues[tsId], UDFlag);
+      }
+   }
+   mbapi::FracturePressureManager::pressFuncTblID id;
+   id = 1;
+   //check whether the model name of PressureFuncIo table are being read for id=1 
+   FracPressMan.getPresFuncName(id, FPModelName);
+   EXPECT_EQ("C-NorthSea", FPModelName);
+   FracPressMan.getUserDefinedFlag(id, UDFlag);
+   EXPECT_EQ(0, UDFlag);
+   FracPressMan.setUserDefinedFlag(id, 1);
+   FracPressMan.getUserDefinedFlag(id, UDFlag);
+   EXPECT_EQ(1, UDFlag);
+   //check whether fracture pressure type of RunOptionsIoTbl can be read and modified correctly
+   FracPressMan.getFracturePressureType(FracType);
+   EXPECT_EQ("FunctionOfDepthBelowSedimentSurface", FracType);
+   FracPressMan.setFracturePressureType("None");
+   FracPressMan.getFracturePressureType(FracType);
+   EXPECT_EQ("None", FracType); 
+
+   //check whether fracture pressure type of RunOptionsIoTbl can be read and modified correctly
+   FracPressMan.getFractureConstraintMethod(ConstraintMethod);
+   EXPECT_EQ(1, ConstraintMethod);
+   FracPressMan.setFractureConstraintMethod(3);
+   FracPressMan.getFractureConstraintMethod(ConstraintMethod);
+   EXPECT_EQ(3, ConstraintMethod);
 
 }

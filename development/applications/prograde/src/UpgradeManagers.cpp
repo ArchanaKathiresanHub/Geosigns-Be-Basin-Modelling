@@ -24,6 +24,7 @@
 #include "BiodegradeUpgradeManager.h"
 #include "BasicCrustThinningUpgradeManager.h"
 #include "CtcUpgradeManager.h"
+#include "FracturePressureUpgradeManager.h"
 
 //Prograde
 #include "IUpgradeManager.h"
@@ -50,6 +51,8 @@ void Prograde::UpgradeManagers::runAll() const{
    managers.emplace_back(std::unique_ptr<Prograde::BasicCrustThinningUpgradeManager>(new Prograde::BasicCrustThinningUpgradeManager(m_model)));
    // CTCv1 to CTCv2
    managers.emplace_back(std::unique_ptr<Prograde::CtcUpgradeManager>(new Prograde::CtcUpgradeManager(m_model)));
+   // Fracture pressure 
+   managers.emplace_back(std::unique_ptr<Prograde::FracturePressureUpgradeManager>(new Prograde::FracturePressureUpgradeManager(m_model)));
    // Other managers to be added in the same way
 
    ///2. Run all upgrade managers
