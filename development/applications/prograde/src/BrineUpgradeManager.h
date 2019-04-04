@@ -16,6 +16,7 @@
 
 //std
 #include <memory>
+#include <vector>
 
 namespace mbapi {
 	class Model;
@@ -48,7 +49,10 @@ namespace Prograde
 		/// @brief Upgrades the model to use the modified B&W model only
 		/// @details If the model is already using modified B&W model, then do nothing
 		void upgrade() final;
-
+      std::vector<std::string> StratIoTblReferredFluids();//returns a vector containing the unique fluid type referred in StratIoTbl
+      std::vector<std::string> ThermCondtypeReferred();//returns a vector containing the unique ThermCondtype referred in FluidtypeIoTbl
+      void ResetFltThCondIoTbl();
+      void ResetFltHeatCapIoTbl();
 
 	private:
 

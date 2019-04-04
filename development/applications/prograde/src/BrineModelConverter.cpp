@@ -35,6 +35,16 @@ int Prograde::BrineModelConverter::upgradeUserDefined
          LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << " no upgrade required";
       }
    }
+   else if (fluidName != "Std. Sea Water" && fluidName != "Std. Water" && fluidName != "Std. Hyper Saline Water" )
+   {
+      
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "User defined brine is detected for" << fluidName ;
+      upgradedUserDefined = 1;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << fluidName << " updated to user defined flag value to 1";
+      
+   }
+   
+   
    return upgradedUserDefined;
 }
 
@@ -42,22 +52,36 @@ std::string Prograde::BrineModelConverter::upgradeDescription
 (const std::string & fluidName, const std::string & originalDescription)
 {
    std::string upgradedDescription = originalDescription;
-   if (fluidName == "Std. Marine Water")
+  
+   if (upgradedDescription == "KSEPL's Standard Marine Water")
    {
-      if (upgradedDescription != "KSEPL's Deprecated Marine Water")
-      {
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest description not found for " << fluidName;
-         upgradedDescription = std::string("KSEPL's Deprecated Marine Water");
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Description upgraded for " << fluidName;
-      }
-      else
-      {
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest description found for " << fluidName;
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << " no upgrade required";
-      }
-
-
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest description not found for " << fluidName;
+      upgradedDescription = std::string("Deprecated Marine Water");
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Description upgraded for " << fluidName;
    }
+   
+   if (upgradedDescription == "KSEPL's Standard Water")
+   {
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest description not found for " << fluidName;
+      upgradedDescription = std::string("Standard Water");
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Description is upgraded by removing KSEPL's prefix for " << fluidName;
+   }
+  
+  
+   if (upgradedDescription == "KSEPL's Standard Ultra Marine Water")
+   {
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest description not found for " << fluidName;
+      upgradedDescription = std::string("Standard Ultra Marine Water");
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Description is upgraded by removing KSEPL's prefix for " << fluidName;
+   }
+     
+   if (upgradedDescription == "KSEPL's Standard Sea Water")
+   {
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest description not found for " << fluidName;
+      upgradedDescription = std::string("Standard Sea Water");
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Description is upgraded by removing KSEPL's prefix for " << fluidName;
+   }
+ 
    return upgradedDescription;
 }
 
@@ -111,4 +135,55 @@ FluidManager::CalculationModel Prograde::BrineModelConverter::upgradeSeismicVelo
       break;
    }
    return upgradedModel;
+}
+
+std::string Prograde::BrineModelConverter::upgradeHeatCapType
+(const std::string & fluidName, const std::string & fluidDescription, const std::string & originalHeatCapType)
+{
+   std::string upgradedHeatCapType = originalHeatCapType;
+
+   if(fluidDescription == "KSEPL's Standard Ultra Marine Water")
+   {
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest HeatCapType is not found for " << fluidName;
+      upgradedHeatCapType = "Std. Hyper Saline Water";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType is upgraded for " << fluidName;
+   }
+   else if (fluidDescription == "KSEPL's Standard Sea Water")
+   {
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest HeatCapType is not found for " << fluidName;
+      upgradedHeatCapType = "Std. Sea Water";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType is upgraded for " << fluidName;
+   }
+   else
+   {
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest HeatCapType is found for " << fluidName;
+      upgradedHeatCapType = "Std. Water";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "No upgradation is required for " << fluidName;
+   }
+   return upgradedHeatCapType;
+}
+
+std::string Prograde::BrineModelConverter::upgradeThermCondType
+(const std::string & fluidName, const std::string & fluidDescription, const std::string & originalThermCondType)
+{
+   std::string upgradedThermCondType = originalThermCondType;
+
+   if (fluidDescription == "KSEPL's Standard Ultra Marine Water")
+   {
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest HeatCapType is not found for " << fluidName;
+      upgradedThermCondType = "Std. Hyper Saline Water";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType is upgraded for " << fluidName;
+   }
+   else if (fluidDescription == "KSEPL's Standard Sea Water")
+   {
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest HeatCapType is not found for " << fluidName;
+      upgradedThermCondType = "Std. Sea Water";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType is upgraded for " << fluidName;
+   }
+   else
+   {
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Latest HeatCapType is found for " << fluidName;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "No upgradation is required for " << fluidName;
+   }
+   return upgradedThermCondType;
 }

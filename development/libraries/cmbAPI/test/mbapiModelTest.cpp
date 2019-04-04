@@ -1000,76 +1000,88 @@ TEST_F(mbapiModelTest, FluidManager)
 
    mbapi::FluidManager & flMgr = testModel.fluidManager();
 
-
    //get fluid ids
    auto fluids = flMgr.getFluidsID();
 
    size_t actualTableSize = 5;
-   //check whether all entries in FluidTypeIOTbl were read
+   
    ASSERT_EQ(actualTableSize, fluids.size());
 
+   std::string fluidName,myDescription, heatCapType, thermCond;
+   int myUserDefined;
 
+   //check whether all entries in FluidTypeIOTbl were read and modified correctly
    {
       std::vector<std::string> actualFluidNames = { "Std. Water","Std. Marine Water","Std. Hyper Saline Water","Std. Sea Water","NVG_Water" };
-
-      std::string fluidName;
-
-      //Check whether all names are being read correctlty
-      for (auto flId : fluids)
-      {
-         flMgr.getFluidName(flId, fluidName);
-         EXPECT_EQ(actualFluidNames[flId], fluidName);
-      }
-   }
-
-   //check whether user defined flag can be read and modified
-   {
-      mbapi::FluidManager::FluidID id;
+      std::vector<std::string> actualHeatCapType = { "Std. Water","Std. Hyper Saline Water","Std. Water","Std. Water","Std. Water" };
+      std::vector<std::string> actualThermalCondType = { "Std. Water","Std. Water","Std. Water","Std. Water","Std. Water" };
+      std::vector<std::string> actualDescription = { "KSEPL's Standard Water","KSEPL's Standard Marine Water",
+         "KSEPL's Standard Ultra Marine Water","KSEPL's Standard Sea Water","KSEPL's Standard Water" };
       std::vector<int> actualUserDefined = { 0,0,0,0,1 };
 
-      int myUserDefined;
-
-      //Check whether all names are being read correctlty
+      mbapi::FluidManager::FluidID id;
+     
       for (auto flId : fluids)
       {
+         //Check whether all names are being read correctlty
+         flMgr.getFluidName(flId, fluidName);
+         EXPECT_EQ(actualFluidNames[flId], fluidName);
+
+         //Check whether all heat capacity type are being read correctlty
+         flMgr.getHeatCapType(flId, heatCapType);
+         EXPECT_EQ(actualHeatCapType[flId], heatCapType);
+
+         //Check whether all heat capacity type are being read correctlty
+         flMgr.getThermCondType(flId, thermCond);
+         EXPECT_EQ(actualThermalCondType[flId], thermCond);
+
+         //check whether user defined flag can be read correctlty
          flMgr.getUserDefined(flId, myUserDefined);
          EXPECT_EQ(actualUserDefined[flId], myUserDefined);
-      }
 
+         //check whether fluid description can be read correctlty
+         flMgr.getDescription(flId, myDescription);
+         EXPECT_EQ(actualDescription[flId], myDescription);
+      }
+     
       id = 1;
+      //check whether the UserDefined flag is being read and modified for id=1 
       flMgr.setUserDefined(id, 1);
       flMgr.getUserDefined(id, myUserDefined);
       EXPECT_EQ(1, myUserDefined);
       flMgr.setUserDefined(id, 0);
-
-      id = 4;
-      flMgr.setUserDefined(id, 0);
-      flMgr.getUserDefined(id, myUserDefined);
-      EXPECT_EQ(0, myUserDefined);
-      flMgr.setUserDefined(id, 1);
-   }
-
-   //check whether fluid description can be read and modified
-   {
-      std::vector<std::string> actualDescription = { "KSEPL's Standard Water","KSEPL's Standard Marine Water",
-         "KSEPL's Standard Ultra Marine Water","KSEPL's Standard Sea Water","KSEPL's Standard Water" };
-      std::string myDescription;
-
-      //Check whether all names are being read correctlty
-      for (auto flId : fluids)
-      {
-         flMgr.getDescription(flId, myDescription);
-         EXPECT_EQ(actualDescription[flId], myDescription);
-      }
-
-      mbapi::FluidManager::FluidID id = 1;
+      //check whether the brine description is being read and modified for id=1 
       flMgr.setDescription(id, "KSEPL's Deprecated Marine Water");
       flMgr.getDescription(id, myDescription);
       EXPECT_EQ("KSEPL's Deprecated Marine Water", myDescription);
       flMgr.setDescription(id, "KSEPL's Standard Marine Water");
+      //check whether the heat capacity type is being read and modified for id=1
+      flMgr.setHeatCapType(id,"Std. Hyper Saline Water");
+      flMgr.getHeatCapType(id, heatCapType);
+      EXPECT_EQ("Std. Hyper Saline Water", heatCapType);
+      //check whether the thermal conductivity type is being read and modified for id=1
+      flMgr.setThermCondType(id, "Std. Hyper Saline Water");
+      flMgr.getThermCondType(id, thermCond);
+      EXPECT_EQ("Std. Hyper Saline Water", thermCond);
 
+      id = 4;
+      //check whether the UserDefined flag are being read and modified for id=4
+      flMgr.setUserDefined(id, 0);
+      flMgr.getUserDefined(id, myUserDefined);
+      EXPECT_EQ(0, myUserDefined);
+      flMgr.setUserDefined(id, 1);
 
+      //check whether the heat capacity type is being read and modified for id=4
+      flMgr.setHeatCapType(id, "Std. Sea Water");
+      flMgr.getHeatCapType(id, heatCapType);
+      EXPECT_EQ("Std. Sea Water", heatCapType);
+
+      //check whether the thermal conductivity type is being read and modified for id=4
+      flMgr.setThermCondType(id, "Std. Sea Water");
+      flMgr.getThermCondType(id, thermCond);
+      EXPECT_EQ("Std. Sea Water", thermCond);
    }
+
    //check whether density model and value can be read and modified
    {
       mbapi::FluidManager::FluidID id;
@@ -1121,6 +1133,73 @@ TEST_F(mbapiModelTest, FluidManager)
       seismicVelocity1 = seismicVelocity1 / 10.0;
       flMgr.setSeismicVelocityModel(id, mbapi::FluidManager::CalculationModel::ConstantModel, seismicVelocity1);
    }
+   //get stratigraphic layer ids
+   auto layers = flMgr.getLayerID();
+   actualTableSize = 11;
+   //check whether all entries in StratIoTbl were read
+   ASSERT_EQ(actualTableSize, layers.size());
+   //check whether fluids can be read from stratIoTbl
+   {
+      std::vector<std::string> actualFluidName = { "NVG_Water","NVG_Water","NVG_Water","NVG_Water","NVG_Water",
+         "NVG_Water","NVG_Water","NVG_Water","NVG_Water","NVG_Water","" };
+      std::string FluidNames;
+
+      //Check whether all names are being read correctlty
+      for (auto flId : layers)
+      {
+         flMgr.getBrineType(flId, FluidNames);
+         EXPECT_EQ(actualFluidName[flId], FluidNames);
+      }
+   }
+
+   //get thermal conductivity table ids
+   auto thermalCond = flMgr.getFluidThCondID();
+   actualTableSize = 667;
+   //check whether all entries in FltThCondIoTbl were read
+   ASSERT_EQ(actualTableSize, thermalCond.size());
+
+   mbapi::FluidManager::FluidThCondID id;
+   double TempValue, PressureVal, ThermCond, HeatCapVal;
+   id = 1;
+   //Check whether the TempIndex field of FltThCondIoTbl can be read and modified correctly for id=1
+   flMgr.getThermalCondTblTempIndex(id, TempValue);
+   ASSERT_EQ(25, TempValue);
+   flMgr.setThermalCondTblTempIndex(id, 1500);
+   flMgr.getThermalCondTblTempIndex(id, TempValue);
+   ASSERT_EQ(1500, TempValue);
+   //Check whether the Pressure field of FltThCondIoTbl can be read and modified correctly for id=1
+   flMgr.getThermalCondTblPressure(id, PressureVal);
+   ASSERT_EQ(0.1, PressureVal);
+   flMgr.setThermalCondTblPressure(id, 17.5);
+   flMgr.getThermalCondTblPressure(id, PressureVal);
+   ASSERT_EQ(17.5, PressureVal);
+   //Check whether the ThCond field of FltThCondIoTbl can be read correctly for id=1
+   flMgr.getThermalCond(id, ThermCond);
+   ASSERT_EQ(0.61, ThermCond);
+
+   id = 22;
+   //Check whether the TempIndex field of FltThCondIoTbl can be read and modified correctly for id=22
+   flMgr.getThermalCondTblTempIndex(id, TempValue);
+   ASSERT_EQ(800, TempValue);
+   flMgr.setThermalCondTblTempIndex(id, 150);
+   flMgr.getThermalCondTblTempIndex(id, TempValue);
+   ASSERT_EQ(150, TempValue);
+
+   //get heat capacity table ids
+   auto heatCap = flMgr.getFluidHeatCapID();
+   actualTableSize = 156;
+   //check whether all entries in FltHeatCapIoTbl were read
+   ASSERT_EQ(actualTableSize, heatCap.size());
+
+   mbapi::FluidManager::FluidHeatCapID id1;
+   id1 = 5;
+   //Check whether the TempIndex field of FltHeatCapIoTbl can be read correctly for id=5
+   flMgr.getHeatCapTblTempIndex(id1, TempValue);
+   ASSERT_EQ(250, TempValue);
+   flMgr.getHeatCapTblPressure(id1, PressureVal);
+   ASSERT_EQ(0.1, PressureVal);
+   flMgr.getHeatCap(id1, HeatCapVal);
+   ASSERT_EQ(4200, HeatCapVal);
 }
 
 TEST_F(mbapiModelTest, ReservoirManager)

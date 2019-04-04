@@ -33,6 +33,10 @@ namespace Prograde
 
       std::string upgradeDescription(const std::string &, const std::string &);
 
+      std::string upgradeHeatCapType(const std::string &, const std::string &, const std::string &);
+
+      std::string upgradeThermCondType(const std::string &, const std::string &, const std::string &);
+
       /// @brief Upgrades the corresponding brine models
       /// @details The density models are upgraded using upgradeDensityModel and seismic velocity models are upgraded using upgradeSeismicVelocityModel
       mbapi::FluidManager::FluidDensityModel upgradeDensityModel(const mbapi::FluidManager::FluidDensityModel, const std::string &) const;

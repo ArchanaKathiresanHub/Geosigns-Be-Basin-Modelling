@@ -32,6 +32,9 @@ namespace mbapi {
       /// @{
       /// Set of interfaces for interacting with a Cauldron model
       typedef size_t FluidID;  ///< unique ID for fluid
+      typedef size_t LayerID;  ///< unique ID for stratigraphic layers
+      typedef size_t FluidThCondID;  ///< unique ID for FltThCondIoTbl
+      typedef size_t FluidHeatCapID;  ///< unique ID for FltHeatCapIoTbl
 
       enum FluidDensityModel 
       {
@@ -124,6 +127,96 @@ namespace mbapi {
       /// @param[in] refSeisVel reference seismic velocity value.
       /// @return NoError on success or OutOfRangeValue or NonexistingID on error
       virtual ReturnCode setSeismicVelocityModel(const FluidID id, const CalculationModel seisVelModel, const double refSeisVel) = 0;
+
+      /// @brief Get list of stratigraphic layers defined in the StratIoTbl 
+      /// @return array with IDs of different layers in the model
+      virtual std::vector<LayerID> getLayerID() const = 0;
+
+      /// @brief Get fluid type from the StartIoTbl
+      /// @param[in] id Stratigraphic layer ID
+      /// @param[out] brine specified for particular ID
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getBrineType(LayerID id, std::string & brine) = 0;
+
+      /// @brief Get HeatCaptype for
+      /// @param[in] id fluid ID
+      /// @param[out] HeatCapType specified for a particular fluid
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getHeatCapType(FluidID id, std::string & HeatCapType) = 0;
+
+      /// @brief Set HeatCaptype for
+      /// @param[in] id fluid ID
+      /// @param[in] HeatCapType required to be set for a particular fluid
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setHeatCapType(FluidID id, const std::string & HeatCapType) = 0;
+
+      /// @brief Get ThermCondType for
+      /// @param[in] id fluid ID
+      /// @param[out] ThermCondType specified for a particular fluid
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getThermCondType(FluidID id, std::string & ThermCondType) = 0;
+
+      /// @brief Set ThermCondType for
+      /// @param[in] id fluid ID
+      /// @param[in] ThermCondType required to be set for a particular fluid
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setThermCondType(FluidID id, const std::string & ThermCondType) = 0;
+
+      /// @brief Get list of ids for each row in the FltThCondIoTbl 
+      /// @return array with IDs defined in the FltThCondIoTbl 
+      virtual std::vector<FluidThCondID> getFluidThCondID() const = 0;
+
+      /// @brief Get TempIndex from FltThCondIoTbl 
+      /// @param[in] id of FltThCondIoTbl
+      /// @param[out] Temperature value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getThermalCondTblTempIndex(FluidThCondID id, double & Temperature) = 0;
+
+      /// @brief Set TempIndex in FltThCondIoTbl 
+      /// @param[in] id fluid ID
+      /// @param[in] Temperature value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setThermalCondTblTempIndex(FluidThCondID id, const double & Temperature) = 0;
+
+      /// @brief Get Pressure from FltThCondIoTbl 
+      /// @param[in] id of FltThCondIoTbl
+      /// @param[out] Pressure value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getThermalCondTblPressure(FluidThCondID id, double & Pressure) = 0;
+      
+      /// @brief Set Pressure in FltThCondIoTbl 
+      /// @param[in] id fluid ID
+      /// @param[in] Pressure value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setThermalCondTblPressure(FluidThCondID id, const double & Pressure) = 0;
+
+      /// @brief Get ThCond from FltThCondIoTbl 
+      /// @param[in] id of FltThCondIoTbl
+      /// @param[out] ThCond value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getThermalCond(FluidThCondID id, double & ThCond) = 0;
+
+      /// @brief Get list of ids for each row in the FltHeatCapIoTbl 
+      /// @return array with IDs defined in the FltHeatCapIoTbl 
+      virtual std::vector<FluidHeatCapID> getFluidHeatCapID() const = 0;
+
+      /// @brief Get TempIndex from FltHeatCapIoTbl 
+      /// @param[in] id of FltHeatCapIoTbl
+      /// @param[out] Temperature value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getHeatCapTblTempIndex(FluidHeatCapID id, double & Temperature) = 0;
+
+      /// @brief Get Pressure from FltHeatCapIoTbl 
+      /// @param[in] id of FltHeatCapIoTbl
+      /// @param[out] Pressure value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getHeatCapTblPressure(FluidHeatCapID id, double & Pressure) = 0;
+
+      /// @brief Get HeatCapacity from FltHeatCapIoTbl 
+      /// @param[in] id of FltHeatCapIoTbl
+      /// @param[out] HeatCap value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getHeatCap(FluidHeatCapID id, double & HeatCap) = 0;
 
       /// @}
    protected:

@@ -115,6 +115,96 @@ namespace mbapi {
       /// @return NoError on success or OutOfRangeValue or NonexistingID on error
       virtual ReturnCode setSeismicVelocityModel(const FluidID id, const CalculationModel seisVelModel, const double refSeisVel);
 
+      /// @brief Get list of stratigraphic layers defined in the StratIoTbl 
+      /// @return array with IDs of different layers in the model
+      virtual std::vector<LayerID> getLayerID() const;
+
+      /// @brief Get fluid type from the StartIoTbl
+      /// @param[in] id Stratigraphic layer ID
+      /// @param[out] brine specified for particular ID
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getBrineType(LayerID id, std::string & brine);
+
+      /// @brief Get HeatCaptype for
+      /// @param[in] id fluid ID
+      /// @param[out] HeatCapType specified for a particular fluid
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getHeatCapType(FluidID id, std::string & HeatCapType);
+
+      /// @brief Set HeatCaptype for
+      /// @param[in] id fluid ID
+      /// @param[in] HeatCapType required to be set for a particular fluid
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setHeatCapType(FluidID id, const std::string & HeatCapType);
+
+      /// @brief Get ThermCondType for
+      /// @param[in] id fluid ID
+      /// @param[out] ThermCondType specified for a particular fluid
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getThermCondType(FluidID id, std::string & ThermCondType);
+
+      /// @brief Set ThermCondType for
+      /// @param[in] id fluid ID
+      /// @param[in] ThermCondType required to be set for a particular fluid
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setThermCondType(FluidID id, const std::string & ThermCondType);
+
+      /// @brief Get list of ids for each row in the FltThCondIoTbl 
+      /// @return array with IDs defined in the FltThCondIoTbl 
+      virtual std::vector<FluidThCondID> getFluidThCondID() const;
+
+      /// @brief Get TempIndex from FltThCondIoTbl 
+      /// @param[in] id of FltThCondIoTbl
+      /// @param[out] Temperature value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getThermalCondTblTempIndex(FluidThCondID id, double & Temperature);
+
+      /// @brief Set TempIndex in FltThCondIoTbl 
+      /// @param[in] id fluid ID
+      /// @param[in] Temperature value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setThermalCondTblTempIndex(FluidThCondID id, const double & Temperature);
+
+      /// @brief Get Pressure from FltThCondIoTbl 
+      /// @param[in] id of FltThCondIoTbl
+      /// @param[out] Pressure value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getThermalCondTblPressure(FluidThCondID id, double & Pressure);
+
+      /// @brief Set Pressure in FltThCondIoTbl 
+      /// @param[in] id fluid ID
+      /// @param[in] Pressure value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setThermalCondTblPressure(FluidThCondID id, const double & Pressure);
+
+      /// @brief Get ThCond from FltThCondIoTbl 
+      /// @param[in] id of FltThCondIoTbl
+      /// @param[out] ThCond value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getThermalCond(FluidThCondID id, double & ThCond);
+
+      /// @brief Get list of ids for each row in the FltHeatCapIoTbl 
+      /// @return array with IDs defined in the FltHeatCapIoTbl 
+      virtual std::vector<FluidHeatCapID> getFluidHeatCapID() const;
+
+      /// @brief Get TempIndex from FltHeatCapIoTbl 
+      /// @param[in] id of FltHeatCapIoTbl
+      /// @param[out] Temperature value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getHeatCapTblTempIndex(FluidHeatCapID id, double & Temperature);
+
+      /// @brief Get Pressure from FltHeatCapIoTbl 
+      /// @param[in] id of FltHeatCapIoTbl
+      /// @param[out] Pressure value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getHeatCapTblPressure(FluidHeatCapID id, double & Pressure);
+
+      /// @brief Get HeatCapacity from FltHeatCapIoTbl 
+      /// @param[in] id of FltHeatCapIoTbl
+      /// @param[out] HeatCap value specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getHeatCap(FluidHeatCapID id, double & HeatCap);
+
       /// @}
       
    private:
@@ -122,15 +212,30 @@ namespace mbapi {
       FluidManagerImpl( const FluidManager & );
 
       static const char * s_fluidTypesTableName;
+      static const char * s_startLayersTableName;
+      static const char * s_fltThCondTableName;
+      static const char * s_fltHeatCapTableName;
       database::ProjectFileHandlerPtr m_db;                 // cauldron project database
       database::Table               * m_fluidIoTbl;         // Fluid Type Io table
-      static const char * s_fluidTypeFieldName;		        // column name for fluid name
+      database::Table               * m_stratIoTbl;         // start Io table
+      database::Table               * m_fltThCondIoTbl;     // Fluid Thermal Conductivity Io table
+      database::Table               * m_fltHeatCapIoTbl;     // Fluid heat capacity Io table
+      static const char * s_fluidTypeFieldName;		        // column name for fluid name in FluidTypeIoTbl
       static const char * s_descriptionFieldName;		     // column name for fluid description
       static const char * s_userDefinedFieldName;           // column name for user defined flag	  
       static const char * s_densityModelFieldName;          // column name for density model
       static const char * s_densityFieldName;               // column name for reference density
       static const char * s_seismicVelocityModelFieldName;  // column name for seismic velocity model
       static const char * s_seismicVelocityFieldName;       // column name for reference seismic velocity
+      static const char * s_stratIoTblFluidTypeFieldName;       // column name for fluid type in stratIoTbl
+      static const char * s_fluidIoTblHeatCapTypeFieldName;   // column name for heat capacity type specified in FluidTypeIoTbl
+      static const char * s_fluidIoTblThermCondTypeFieldName; // column name for thermal conductivity type specified in FluidTypeIoTbl
+      static const char * s_fltThCondTableTempIndexFieldName; // column name for TempIndex field of FltThCondIoTbl
+      static const char * s_fltThCondTablePressureFieldName; // column name for Pressure field of FltThCondIoTbl
+      static const char * s_fltThCondFieldName; // column name for ThCond field of FltThCondIoTbl
+      static const char * s_fltHeatCapTableTempIndexFieldName; // column name for TempIndex field of FltHeatCapIoTbl
+      static const char * s_fltHeatCapTablePressureFieldName; // column name for Pressure field of FltHeatCapIoTbl
+      static const char * s_fltHeatCapFieldName; // column name for ThCond field of FltHeatCapIoTbl
    };
 }
 
