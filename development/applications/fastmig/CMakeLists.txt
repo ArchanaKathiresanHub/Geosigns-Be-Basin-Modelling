@@ -90,6 +90,7 @@ target_link_libraries(${APP_NAME}
     utilities
     TableIO
     functions
+    ${Boost_LIBRARIES}
     ${PETSC_LIBRARIES}
     ${HDF5_LIBRARIES}
     ${MPI_LIBRARIES}
@@ -134,7 +135,7 @@ add_gtest( NAME "Fastmig::CapillarySealStrength"
 
 add_gtest( NAME "Fastmig::Leak"
    SOURCES test/Leak.C src/Leak.C
-   LIBRARIES functions
+   LIBRARIES functions ${Boost_LIBRARIES}
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
@@ -146,7 +147,7 @@ add_gtest( NAME "Fastmig::LeakGas"
 
 add_gtest( NAME "Fastmig::LeakOrSpill"
    SOURCES test/LeakOrSpill.C src/Leak.C src/Spill.C src/LeakOrSpill.C
-   LIBRARIES functions
+   LIBRARIES functions ${Boost_LIBRARIES}
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
@@ -164,7 +165,7 @@ add_gtest( NAME "Fastmig::SpillOilAndGas"
 
 add_gtest( NAME "Fastmig::LeakOrWaste"
            SOURCES test/LeakOrWaste.cpp src/LeakOrWaste.C src/Leak.C src/Waste.C
-           LIBRARIES functions
+           LIBRARIES functions ${Boost_LIBRARIES}
            FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )
 
