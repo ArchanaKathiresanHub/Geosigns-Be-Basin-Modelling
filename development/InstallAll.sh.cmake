@@ -71,11 +71,11 @@ if [ -e /apps/sss/share/getos2 ]; then
     ln -s @CSCE_PLATFORM@ LinuxRHEL64
     popd > /dev/null
   fi
-  #if /apps/sss/share/getos2 | grep -q LinuxRHEL64_x86_64_74WS ; then
-  #  pushd $targetDirectory > /dev/null
-  #  ln -s @CSCE_PLATFORM@ LinuxRHEL64
-  #  popd > /dev/null
-  #fi  
+  if /apps/sss/share/getos2 | grep -q LinuxRHEL64_x86_64_74WS ; then
+    pushd $targetDirectory > /dev/null
+    ln -s @CSCE_PLATFORM@ LinuxRHEL64
+    popd > /dev/null
+  fi  
 fi
 
 # Install platform independent files
