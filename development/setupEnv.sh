@@ -16,7 +16,7 @@ if [ "x${loadedMdl}" == "x" ]; then
           [[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
       else
           [[ -r /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh ]] && . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh -d HpcSofwareStack/PRODUCTION
-          module load HpcSofwareStack/PRODUCTION
+          module load HpcSoftwareStack/PRODUCTION
       fi
    fi
    module purge
