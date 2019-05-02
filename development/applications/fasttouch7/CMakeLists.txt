@@ -105,18 +105,18 @@ if (BM_PARALLEL AND TSLIB_ROOT)
      add_definitions(-DNOMINMAX)
    endif()
 
-   
+
    #Touchstone Wrapper
    set( WRAPPER_NAME "touchstoneWrapper" )
    add_executable(${WRAPPER_NAME}
-       src/TouchstoneWrapper.C 
+       src/TouchstoneWrapper.C
        src/TsLibLoader.C
        src/LibLoaderLinux.C
        src/Touchstone.C
        src/ReadBurial.C
        src/TouchstoneFiles.C
    )
-   
+
    add_dependencies(${WRAPPER_NAME} TSLIB)
 
    target_link_libraries(${WRAPPER_NAME}
@@ -127,6 +127,19 @@ if (BM_PARALLEL AND TSLIB_ROOT)
    )
 
    install(TARGETS ${WRAPPER_NAME}
+       RUNTIME DESTINATION bin
+   )
+
+   set( FASTTOUCH_REGTEST_COMPARE "fasttouchRegressionTestCompare" )
+   add_executable( ${FASTTOUCH_REGTEST_COMPARE}
+       regtest/main.C
+   )
+
+   target_link_libraries(${FASTTOUCH_REGTEST_COMPARE}
+       ${HDF5_LIBRARIES}
+   )
+
+   install(TARGETS ${FASTTOUCH_REGTEST_COMPARE}
        RUNTIME DESTINATION bin
    )
 
