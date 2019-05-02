@@ -132,6 +132,37 @@ Simulator::Simulator(const std::string in_fullPathToConfigurationFileDirectory,
               in_C15AroDiffusionEnergy, in_C15SatDiffusionEnergy);
 }
 
+// for conversion from sch to cfg
+Simulator::Simulator( const int in_simulationType, const std::string &in_type, const std::string in_fullPathToConfigurationFileDirectory ):
+
+   m_simulationType(in_simulationType),
+   m_fullPathToConfigurationFileDirectory(in_fullPathToConfigurationFileDirectory + Genex6::Constants::FolderDivider),
+   m_type( in_type )
+{
+   s_cfgFileExtension = ".cfg";
+   s_dT = 0.0;
+   s_Peff = 0.0;
+   s_TK = 0.0;
+   s_FrequencyFactor = 0.0; 
+   s_kerogenTransformationRatio = 0.0;
+   s_Waso = 0.0;
+   s_DiffusionConcDependence = 0.0;
+   s_VogelFulcherTemperature = 0.0;
+
+   m_theChemicalModel = 0;
+   m_currentState = 0;
+
+   m_preProcessSpeciesKinetics = true;
+   m_preProcessSpeciesComposition = true;
+   m_useDefaultGeneralParameters  = true;
+   m_numberOfTimesteps = 400;
+   m_maximumTimeStepSize = 1.0;
+   m_openConditions = true;   
+
+   //build chemical model, get boundary conditions
+   CreateInstance();
+}
+
 //meant to work with old configuration file...
 Simulator::Simulator(const std::string in_fullPathConfigurationFileName,
                      const int in_simulationType,
@@ -489,9 +520,9 @@ void Simulator::PreprocessTimeStepComputation(const Input &theInput)
 
    s_kerogenTransformationRatio = m_currentState->ComputeKerogenTransformatioRatio ( getChemicalModel ().getSpeciesManager (),
                                                                                      m_simulationType);
-
-   s_Waso = m_currentState->ComputeWaso();
-   s_DiffusionConcDependence = m_currentState->ComputeDiffusionConcDependence(s_Waso);
+    
+   s_Waso = m_currentState->ComputeWaso(); 
+   s_DiffusionConcDependence = m_currentState->ComputeDiffusionConcDependence(s_Waso, getChemicalModel ().isGenex7());
 
    //T0 = FunVogelFulcherTemperature(Waso)
    s_VogelFulcherTemperature = ComputeVogelFulcherTemperature(s_Waso);
@@ -499,6 +530,9 @@ void Simulator::PreprocessTimeStepComputation(const Input &theInput)
    ComputePrecokeTransformatioRatio();
 
    ComputeCoke2TransformatioRatio();
+
+   m_currentState->setCarrierBedPermeability( theInput.getCarrierBedPermeability() );
+
    m_currentState->SetLumpedConcentrationsToZero();
    m_currentState->SetResultsToZero();
    m_currentState->setTotalOilForTSR ( 0.0 );

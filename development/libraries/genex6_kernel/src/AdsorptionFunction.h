@@ -32,6 +32,13 @@ namespace Genex6 {
                                  const double       toc,
                                  const CBMGenerics::ComponentManager::SpeciesNamesId species ) const = 0;
 
+       /// \brief Compute the Langmuir volume.
+      virtual double computePL ( const unsigned int i,
+                                 const unsigned int j,
+                                 const double       temperature,
+                                 const double       toc,
+                                 const CBMGenerics::ComponentManager::SpeciesNamesId species ) const = 0;
+
       /// \brief The reference temperature.
       virtual double getReferenceTemperature () const = 0;
 

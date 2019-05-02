@@ -131,11 +131,18 @@ public:
    /// \brief Collect the history data from any nodes selected.
    void collectSourceRockNodeHistory ();
 
-   /// \brief Sets variable that indicates whether output is desired also at minor snapshots
+   double getDepositionTime() const;
+ 
+   void setGenex7( const bool isGenex7 );
+   void setTestAds( const bool isTestAds );
+      /// \brief Sets variable that indicates whether output is desired also at minor snapshots
    void setMinor (const bool minor);
 
    /// \brief Gets variable that indicates whether output is desired also at minor snapshots
    bool getMinor (void) const;
+
+   /// \brief Ouptut only biogenic gas values
+   void setBiogenicGasOnly ( const bool bgOnly );
 
 protected:
 
@@ -145,12 +152,14 @@ protected:
    /// Main processing functionality
    bool process();
 
+   /// Genex7
+   bool postprocessAdsorption();
+   bool postprocessAdsorptionTest();
+
    void computeSnapshotIntervals();
 
    void clearSnapshotIntervals();
    void clearSourceRockNodes();
-
-   double getDepositionTime() const;
 
    /// Compute the new state at a time instance for all the valid source rock nodes
    void computeTimeInstance ( const double &startTime,
@@ -213,9 +222,11 @@ protected:
    const Interface::GridMap * getSurfaceFormationPropertyGridMap (const string & propertyName,
                                                                        const Interface::Snapshot * snapshot) const;
 
-   void createSnapShotOutputMaps(const Interface::Snapshot *theSnapshot);
+   void createSnapShotOutputMaps(const Interface::Snapshot *theSnapshot, const bool outAds = false );
+   void createSnapShotOutputMapsBG(const Interface::Snapshot *theSnapshot);
 
-   void updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode);
+   void updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode, const bool outputOnlyAdsorption = false );
+   void updateSnapShotOutputMapsBG(Genex6::SourceRockNode *theNode );
 
    void saveSnapShotOutputMaps();
 
@@ -249,6 +260,11 @@ private:
    double m_runtime;
    double m_time;
 
+   /// Genex7
+   bool m_genex7;
+   bool m_genex7Ads;
+   bool m_testAds;
+
    /// if Sulphur is included
    bool m_isSulphur;
 
@@ -257,6 +273,9 @@ private:
 
    /// Output results also at minor snapshots
    bool m_minorOutput;
+
+   /// Biogenic gas for shale (not SourceRock) layer
+   bool m_onlyBiogenicGas;
 
    /// The snapshot intervals related to the source rock
    std::vector <SnapshotInterval*> m_theIntervals;
@@ -311,6 +330,9 @@ private:
    Interface::GridMap* m_retainedGor;
    Interface::GridMap* m_retainedCgr;
 
+   Interface::GridMap* m_organoPorosity;
+   Interface::GridMap* m_omphi;
+
    Interface::GridMap* m_overChargeFactor;
    Interface::GridMap* m_porosityLossDueToPyrobitumen;
    Interface::GridMap* m_h2sRisk;
@@ -325,6 +347,7 @@ private:
    std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* > m_freeOutputMaps;
    std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* > m_retainedOutputMaps;
 
+   //static const double conversionCoeffs [ 5 ]; 
    static const double conversionCoeffs [ 8 ]; 
 };
 
@@ -340,12 +363,20 @@ inline const SpeciesManager& SourceRock::getSpeciesManager () const {
    return m_theChemicalModel->getSpeciesManager ();
 }
 
+inline void SourceRock::setGenex7( const bool isGenex7 ) {
+   m_genex7 = isGenex7;
+}
+
 inline void SourceRock::setMinor( const bool minor) {
    m_minorOutput = minor;
 }
 
 inline bool SourceRock::getMinor(void) const {
    return m_minorOutput;
+}
+
+inline void SourceRock::setBiogenicGasOnly( const bool bgOnly ) {
+   m_onlyBiogenicGas = bgOnly;
 }
 
 }

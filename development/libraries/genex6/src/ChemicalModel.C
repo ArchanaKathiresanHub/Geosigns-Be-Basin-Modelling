@@ -204,6 +204,8 @@ void ChemicalModel::UpdateSpeciesCompositionsByElementName(const int in_Species,
 }
 void ChemicalModel::CompEarlySpecies()
 {
+   const bool isSim57 = isSim5() or isGenex7();
+   
    Element *const HYDROGEN = GetElementByName(m_speciesManager.getHydrogenId ());
    Element *const OXYGEN   = GetElementByName(m_speciesManager.getOxygenId ());
    Element *const NITROGEN = GetElementByName(m_speciesManager.getNitrogenId ());
@@ -275,9 +277,10 @@ void ChemicalModel::CompEarlySpecies()
    //double HCAsphOverPreasphalt = (isSim5() ?
    //                               theHandler.GetParameterById(GeneralParametersHandler::HCAsphOverPreasphaltGX5) :
    //                               theHandler.GetParameterById(GeneralParametersHandler::HCAsphOverPreasphalt));
-
-   double HCAsphOverPreasphalt =  theHandler.GetParameterById(GeneralParametersHandler::HCAsphOverPreasphaltGX5);
-   if (!isSim5()) { HCAsphOverPreasphalt -= m_SC * 0.5;}
+   
+   double HCAsphOverPreasphalt =  ( isGenex7() ? theHandler.GetParameterById(GeneralParametersHandler::HCAsphOverPreasphalt) :
+                                    theHandler.GetParameterById(GeneralParametersHandler::HCAsphOverPreasphaltGX5));
+   if (!isSim57) { HCAsphOverPreasphalt -= m_SC * 0.5;}
    double AsphalteneAtomH = HCAsphOverPreasphalt * PreashalteneAtomH;
 
    //------------Atom(IatomO, Lasphaltene) = OCAsphOverPreasphalt * Atom(IatomO, Lpreasphalt)
@@ -285,11 +288,11 @@ void ChemicalModel::CompEarlySpecies()
    //                               theHandler.GetParameterById(GeneralParametersHandler::OCAsphOverPreasphaltGX5) :
    //                               theHandler.GetParameterById(GeneralParametersHandler::OCAsphOverPreasphalt));
    double OCAsphOverPreasphalt =  theHandler.GetParameterById(GeneralParametersHandler::OCAsphOverPreasphaltGX5);
-   if(!isSim5()) OCAsphOverPreasphalt -= m_SC * 0.15;
+   if(!isSim57) OCAsphOverPreasphalt -= m_SC * 0.15;
 
    double AsphalteneAtomO = OCAsphOverPreasphalt * PreashalteneAtomO;
-   if(!isSim5()) AsphalteneAtomO += 0.01; //0.01 Genex6
-
+   if(!isSim57) AsphalteneAtomO += 0.01; //0.01 Genex6
+   
    //------------Atom(IatomN, Lasphaltene) = Atom(IatomN, Lpreasphalt) * Nasphaltene
    double  AsphalteneAtomN = PreashalteneAtomN * theHandler.GetParameterById(GeneralParametersHandler::Nasphaltene);
 
@@ -338,7 +341,10 @@ void ChemicalModel::CompEarlySpecies()
       OCprecokePerPreasphalt = theHandler.GetParameterById(GeneralParametersHandler::OCprecokePerPreasphaltGX5);
    } else if(isOTGC5()) {
       OCprecokeWhenHCpreasphaltZero = theHandler.GetParameterById(GeneralParametersHandler::OCprecokeWhenHCpreasphaltZeroOTGC5);
-      OCprecokePerPreasphalt = theHandler.GetParameterById(GeneralParametersHandler::OCprecokePerPreasphaltOTGC5);
+      OCprecokePerPreasphalt = theHandler.GetParameterById(GeneralParametersHandler::OCprecokePerPreasphaltOTGC5);   
+   } else if ( isGenex7() ){
+       OCprecokePerPreasphalt = theHandler.GetParameterById(GeneralParametersHandler::OCprecokePerPreasphalt);
+       OCprecokeWhenHCpreasphaltZero = theHandler.GetParameterById(GeneralParametersHandler::OCprecokeWhenHCpreasphaltZero);
    } else {
 //      OCprecokeWhenHCpreasphaltZero =  theHandler.GetParameterById(GeneralParametersHandler::OCprecokeWhenHCpreasphaltZero);
 //      OCprecokePerPreasphalt = theHandler.GetParameterById(GeneralParametersHandler::OCprecokePerPreasphalt);
@@ -378,6 +384,17 @@ void ChemicalModel::CompEarlySpecies()
       curSpecies->UpdateCompositionByElement(NITROGEN, Hetero1AtomN);
    }
 
+   if( isGenex7 () ) {
+   // Genex7
+      if( m_speciesManager.getHetero2Id () >= 0 ) {
+         curSpecies =  GetSpeciesById(m_speciesManager.getHetero2Id ());
+         double Hetero2AtomN = theHandler.GetParameterById(GeneralParametersHandler::Nhetero2);
+         if(curSpecies)
+         {
+            curSpecies->UpdateCompositionByElement(NITROGEN,Hetero2AtomN);
+         }
+      }
+   }
 //Hetero2
 //--------------------Atom(IatomN, Lhetero2) = Nhetero2
 //   Taken out in Genex6:
@@ -389,7 +406,7 @@ void ChemicalModel::CompEarlySpecies()
 //    }
 //C15+ Aro
 //--------------------Atom(IatomN, Lc15plusAro) = NC15plusAro
-   if(isSim5()) {
+   if(isSim57) {
       double c15plusAroAtomN =  theHandler.GetParameterById(GeneralParametersHandler::NC15plusAroGX5);
       curSpecies = GetSpeciesById(m_speciesManager.getC15plusAroId ());
       if(curSpecies) {
@@ -397,10 +414,13 @@ void ChemicalModel::CompEarlySpecies()
       }
    }
 }
+
 //value of Emean in Joule
 void ChemicalModel::KineticsEarlySpecies(const double Emean)
 {
    GeneralParametersHandler & theHandler = GeneralParametersHandler::getInstance();
+
+   m_emean = Emean * 0.001;
 
    Species *curSpecies = 0;
    //preasphaltene cracking activation energies as function of input mean activation energy
@@ -417,18 +437,17 @@ void ChemicalModel::KineticsEarlySpecies(const double Emean)
    double EdropForS = 0.0;
    if( !isSim5() ) {
       EdropForS =  (m_SC * (341 * PreashalteneAtomH * PreashalteneAtomH - 439 * PreashalteneAtomH + 155)) * 1000;
-   }
+   } 
 
    if(curSpecies) {
       SpeciesProperties *const PreasphalteneProps = curSpecies->GetSpeciesProperties();
 
       // For compatibility with OTGC-5.
-      double Ediff1 = (isSim5() ?
-                       theHandler.GetParameterById(GeneralParametersHandler::Ediff1GX5) : 0.0);
-      // double Ediff2 = (isGX5() ?
-      //                  theHandler.GetParameterById(GeneralParametersHandler::Ediff2GX5) : 0.0);
+      //  double Ediff1 = 0.0; // Genex7
+      double Ediff1 = (isSim5() ? theHandler.GetParameterById(GeneralParametersHandler::Ediff1GX5) : 0.0);
+      //double Ediff2 = 0.0; // Genex7
       double Ediff2 = (isOTGC5() ?
-                       0.0 : theHandler.GetParameterById(GeneralParametersHandler::Ediff2GX5));
+                       0.0 : ( not isGenex7() ? theHandler.GetParameterById(GeneralParametersHandler::Ediff2GX5) : 0.0 ));
 
       //-------------Act(1, Lpreasphalt) = Easph1 - Ediff1 - EdropForS
       double PreasphalteneactivationEnergy1 = Easph1 - Ediff1 - EdropForS;
@@ -462,6 +481,7 @@ void ChemicalModel::KineticsEarlySpecies(const double Emean)
       ResinProps->SetActivationEnergy2(AsphalteneactivationEnergy2);
    }
 }
+
 void ChemicalModel::ComputeStoichiometry()
 {
    //need of  preasphalteneAromaticity in Reaction::ComputeProductRatios
@@ -471,85 +491,132 @@ void ChemicalModel::ComputeStoichiometry()
    this->ComputeProductRatios(preasphalteneAromaticity);
    this->ComputeMassProductRatios();
 }
+
 void ChemicalModel::SetSpeciesReactionOrder()
 {
-   SpeciesProperties *curSpeciesProp;
-
-   if(isGX5()) {
-
-      curSpeciesProp = GetSpeciesById(m_speciesManager.getKerogenId ())->GetSpeciesProperties();
-      curSpeciesProp->SetReactionOrder(1.5);
-      Species *specPreashalt = GetSpeciesById(m_speciesManager.getPreasphaltId ());
-      curSpeciesProp = specPreashalt->GetSpeciesProperties();
-      curSpeciesProp->SetReactionOrder(specPreashalt->ComputeReactionOrder());
-
-   } else if(( m_simulationType & Genex6::Constants::SIMOTGC ) and ( ! isTSR () )) {
-
-      for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++i) {
-         if(m_theSpecies[i] != NULL) {
-            curSpeciesProp = m_theSpecies[i]->GetSpeciesProperties();
-            if(curSpeciesProp->IsReactive()) {
-               curSpeciesProp->SetReactionOrder(1.5);
-            }
-         }
-      }
-      curSpeciesProp = GetSpeciesById(m_speciesManager.getC2Id ())->GetSpeciesProperties();
-
-      if(curSpeciesProp->IsReactive()) {
-         curSpeciesProp->SetReactionOrder(2.0);
-      }
-
-   } else if( isTSR() ) {
-       for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++i) {
-         if(m_theSpecies[i] != NULL) {
-            curSpeciesProp = m_theSpecies[i]->GetSpeciesProperties();
-            if(curSpeciesProp->IsReactive()) {
-               curSpeciesProp->SetReactionOrder(1.5);
-            }
-         }
-      }
-      curSpeciesProp = GetSpeciesById(m_speciesManager.getC1Id ())->GetSpeciesProperties();
-
-      if(curSpeciesProp->IsReactive()) {
-         curSpeciesProp->SetReactionOrder( 1.0 );
-      }
-
+   // changed for Genex7
+   if( isGenex7() ) {
+      SetSpeciesReactionOrder3();
    } else {
-      double reactionOrderToSet;
-      for(int i = 0, curSpecId = 1; i < m_speciesManager.getNumberOfSpecies (); ++i, ++ curSpecId) {
-         Species *curSpec = m_theSpecies[i];
-         if(curSpec == NULL) continue;
-
-         curSpeciesProp = curSpec->GetSpeciesProperties();
-
-         if(curSpeciesProp->IsReactive()) {
-            if(curSpecId == m_speciesManager.getKerogenId () ||
-               curSpecId == m_speciesManager.getC15plusAroId () ||
-               curSpecId == m_speciesManager.getC15plusSatId () ||
-               curSpecId == m_speciesManager.getC6to14AroId () ||
-               curSpecId == m_speciesManager.getC6to14SatId () ||
-               curSpecId == m_speciesManager.getPreasphaltId () ||
-               curSpecId == m_speciesManager.getC5Id () ||
-               curSpecId == m_speciesManager.getC4Id () ||
-               curSpecId == m_speciesManager.getC3Id () ||
-               curSpecId == m_speciesManager.getC2Id () ||
-
-               curSpecId == m_speciesManager.getC15plusAroSId () ||
-               curSpecId == m_speciesManager.getC15plusSatSId () ||
-               curSpecId == m_speciesManager.getLSCId () ||
-               curSpecId == m_speciesManager.getC15plusATId () ||
-               curSpecId == m_speciesManager.getC6to14BTId () ||
-               curSpecId == m_speciesManager.getC6to14DBTId () ||
-               curSpecId == m_speciesManager.getC6to14BPId () ||
-               curSpecId == m_speciesManager.getC6to14AroSId () ||
-               curSpecId == m_speciesManager.getC6to14SatSId ()) {
-
-               reactionOrderToSet = 1.5;
-            } else {
-               reactionOrderToSet = 1.0;
+   
+      SpeciesProperties *curSpeciesProp; 
+      
+      if(isGX5()) {
+         
+         curSpeciesProp = GetSpeciesById(m_speciesManager.getKerogenId ())->GetSpeciesProperties();
+         curSpeciesProp->SetReactionOrder(1.5);
+         Species *specPreashalt = GetSpeciesById(m_speciesManager.getPreasphaltId ());
+         curSpeciesProp = specPreashalt->GetSpeciesProperties();
+         curSpeciesProp->SetReactionOrder(specPreashalt->ComputeReactionOrder());
+         
+      } else if(( m_simulationType & Genex6::Constants::SIMOTGC ) and ( ! isTSR () )) {
+         
+         for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++i) {
+            if(m_theSpecies[i] != NULL) {
+               curSpeciesProp = m_theSpecies[i]->GetSpeciesProperties();
+               if(curSpeciesProp->IsReactive()) {
+                  curSpeciesProp->SetReactionOrder(1.5);
+               }
             }
-            curSpeciesProp->SetReactionOrder(reactionOrderToSet);
          }
+         curSpeciesProp = GetSpeciesById(m_speciesManager.getC2Id ())->GetSpeciesProperties();
+         
+         if(curSpeciesProp->IsReactive()) { 
+            curSpeciesProp->SetReactionOrder(2.0);
+         }
+         
+      } else if( isTSR() ) {
+         for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++i) {
+            if(m_theSpecies[i] != NULL) {
+               curSpeciesProp = m_theSpecies[i]->GetSpeciesProperties();
+               if(curSpeciesProp->IsReactive()) {
+                  curSpeciesProp->SetReactionOrder(1.5);
+               }
+            }
+         }
+         curSpeciesProp = GetSpeciesById(m_speciesManager.getC1Id ())->GetSpeciesProperties();
+         
+         if(curSpeciesProp->IsReactive()) {
+            curSpeciesProp->SetReactionOrder( 1.0 );
+         }
+         
+      } else {
+         double reactionOrderToSet;
+         for(int i = 0, curSpecId = 1; i < m_speciesManager.getNumberOfSpecies (); ++i, ++ curSpecId) {
+            Species *curSpec = m_theSpecies[i];
+            if(curSpec == NULL) continue;
+            
+            curSpeciesProp = curSpec->GetSpeciesProperties();
+            
+            if(curSpeciesProp->IsReactive()) {
+               if(curSpecId == m_speciesManager.getKerogenId () ||
+                  curSpecId == m_speciesManager.getC15plusAroId () ||
+                  curSpecId == m_speciesManager.getC15plusSatId () ||
+                  curSpecId == m_speciesManager.getC6to14AroId () ||
+                  curSpecId == m_speciesManager.getC6to14SatId () ||
+                  curSpecId == m_speciesManager.getPreasphaltId () ||
+                  curSpecId == m_speciesManager.getC5Id () ||
+                  curSpecId == m_speciesManager.getC4Id () ||
+                  curSpecId == m_speciesManager.getC3Id () ||
+                  curSpecId == m_speciesManager.getC2Id () ||
+                  
+                  curSpecId == m_speciesManager.getC15plusAroSId () ||
+                  curSpecId == m_speciesManager.getC15plusSatSId () ||
+                  curSpecId == m_speciesManager.getLSCId () ||
+                  curSpecId == m_speciesManager.getC15plusATId () ||
+                  curSpecId == m_speciesManager.getC6to14BTId () ||
+                  curSpecId == m_speciesManager.getC6to14DBTId () ||
+                  curSpecId == m_speciesManager.getC6to14BPId () ||
+                  curSpecId == m_speciesManager.getC6to14AroSId () ||
+                  curSpecId == m_speciesManager.getC6to14SatSId ()) {
+                  
+                  reactionOrderToSet = 1.5;
+               } else {
+                  reactionOrderToSet = 1.0;
+               }
+               curSpeciesProp->SetReactionOrder(reactionOrderToSet);
+            }
+         }
+      }
+   }
+}
+void ChemicalModel::SetSpeciesReactionOrder3()
+{
+   SpeciesProperties *curSpeciesProp; 
+   double reactionOrderToSet;
+   for(int i = 0, curSpecId = 1; i < m_speciesManager.getNumberOfSpecies (); ++i, ++ curSpecId) {
+      Species *curSpec = m_theSpecies[i];
+      if(curSpec == NULL) continue;
+      
+      curSpeciesProp = curSpec->GetSpeciesProperties();
+      
+      if(curSpeciesProp->IsReactive()) {
+         if(curSpecId == m_speciesManager.getKerogenId () ||
+            curSpecId == m_speciesManager.getC15plusAroId () ||
+            curSpecId == m_speciesManager.getC15plusSatId () ||
+            curSpecId == m_speciesManager.getC6to14AroId () ||
+            curSpecId == m_speciesManager.getC6to14SatId () ||
+            curSpecId == m_speciesManager.getPreasphaltId () ||
+            curSpecId == m_speciesManager.getC5Id () ||
+            curSpecId == m_speciesManager.getC4Id () ||
+            curSpecId == m_speciesManager.getC3Id () ||
+            curSpecId == m_speciesManager.getC2Id () ||
+            
+            curSpecId == m_speciesManager.getC15plusAroSId () ||
+            curSpecId == m_speciesManager.getC15plusSatSId () ||
+            curSpecId == m_speciesManager.getLSCId () ||
+            curSpecId == m_speciesManager.getC15plusATId () ||
+            curSpecId == m_speciesManager.getC6to14BTId () ||
+            curSpecId == m_speciesManager.getC6to14DBTId () ||
+            curSpecId == m_speciesManager.getC6to14BPId () ||
+            curSpecId == m_speciesManager.getC6to14AroSId () ||
+            curSpecId == m_speciesManager.getC6to14SatSId ()) {
+            
+            reactionOrderToSet = 1.5;
+         } else {
+               reactionOrderToSet = 1.0;
+         }
+         curSpeciesProp->SetReactionOrder(reactionOrderToSet);
       }
    }
 }
@@ -738,7 +805,7 @@ void ChemicalModel::ComputeTimeStep(SimulatorStateBase &theSimulatorState,
                                      s_VogelFulcherTemperature,
                                      in_OpenSourceRockConditions);
 
-         theSimulatorState.PostProcessTimeStep(* theSpecies, in_dT);
+         theSimulatorState.PostProcessTimeStep(* theSpecies, in_dT, s_TK - Utilities::Maths::CelciusToKelvin);
       }
    }
 }
@@ -768,7 +835,65 @@ void ChemicalModel::SetTheOutputSpecies()
          theSpecies->OutputResults(true);
       }
    }
+   
+}
+// Convert CFG file to VBA Sch format
+void ChemicalModel::PrintSchToFile( ofstream &outfile, const string &type ) const
+{  
+   // file name
+   outfile << "\"" << type << "\"" << endl;
+   PrintSchSpeciesPropertiesToFile( outfile );
+   outfile << GetNumberOfReactions() << endl;
+   std::map<int,Reaction*>::const_iterator itR = m_theReactions.begin();
+   while( itR != m_theReactions.end() ) {
+      itR->second->OutputProductsToFile( outfile );
+      itR->second->OutputReactionRatiosToFile( outfile );
+      itR  ++;
+   }
+}
 
+void ChemicalModel::PrintSchSpeciesPropertiesToFile( ofstream &outfile ) const
+{
+   // number of species, number of elements, double no longer needed, beta (no needed)
+   outfile << GetNumberOfSpecies() << ", " << GetNumberOfElements() << ", " << 1e-4 << ", " << 5.0e-10 << endl;
+   // elements atom weights
+   outfile << GetElementByName( getSpeciesManager ().getCarbonId ())->GetAtomWeight() << "," <<
+      GetElementByName( getSpeciesManager ().getHydrogenId () )->GetAtomWeight() << "," <<
+      GetElementByName( getSpeciesManager ().getOxygenId () )->GetAtomWeight() << "," <<
+      GetElementByName( getSpeciesManager ().getNitrogenId ())->GetAtomWeight() << endl;
+
+   // species properties
+   // name; dummy; number of atoms (C,H,O,N); dUa; dUb; dS; dV; order; dUa; spare; dS; jump length; density    
+   for( int i = 0; i < GetNumberOfSpecies(); ++ i ) {
+
+      double atomsC, atomsO, atomsN, atomsH;
+      atomsC = m_theSpecies[i]->GetCompositionByElement(getSpeciesManager ().getCarbonId ());
+      atomsO = m_theSpecies[i]->GetCompositionByElement( getSpeciesManager ().getOxygenId ());
+      atomsN = m_theSpecies[i]->GetCompositionByElement(getSpeciesManager ().getNitrogenId ());
+      atomsH = m_theSpecies[i]->GetCompositionByElement(getSpeciesManager ().getHydrogenId ());
+
+      string sname;
+      if( m_theSpecies[i]->GetName() == "asphaltenes" ) {
+         sname = "\"asphaltene\",";
+      } else if ( m_theSpecies[i]->GetName() == "resins" ) {
+         sname = "\"resin\",";
+      } else if ( m_theSpecies[i]->GetName() == "C15+Aro" ) {
+         sname = "\"C15+ Aro\",";
+      } else if ( m_theSpecies[i]->GetName() == "C15+Sat" ) {
+         sname = "\"C15+ Sat\",";
+      } else {
+         sname = "\"" + m_theSpecies[i]->GetName() + "\",";
+      }
+      outfile << setw(14) << left << sname  
+              << 8;// dummy value
+
+      outputToFile( outfile, atomsC, 6 );
+      outputToFile( outfile, atomsH, 6 );
+      outputToFile( outfile, atomsO, 6 );
+      outputToFile( outfile, atomsN, 6 );
+
+      m_theSpecies[i]->GetSpeciesProperties()->OutputToSchFile( outfile );
+   }
 }
 void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
 {
@@ -869,7 +994,7 @@ void ChemicalModel::PrintBenchmarkSpeciesProperties(ofstream &outfile) const
          m_theSpecies[i]->PrintBenchmarkProperties(outfile);
       }
    }
-   if(isSim5()) {
+   if( isSim5() and not isGX55() ) {
       for(int i = 0; i < 13; ++ i) {
          outfile << endl;
       }
@@ -910,7 +1035,7 @@ void ChemicalModel::PrintBenchmarkStoichiometry(ofstream &outfile) const
          m_theSpecies[i]->PrintBenchmarkStoichiometry(outfile);
       }
    }
-   if(isSim5()) {
+   if( isSim5() and not isGX55() ) {
       for(int i = 0; i < 11; ++ i) {
          outfile << endl;
       }
@@ -1064,9 +1189,10 @@ void ChemicalModel::LoadSpeciesProperties(ifstream &ConfigurationFile)
       double jumpLength         = atof(theTokens[10].c_str());
       double B0                 = atof(theTokens[11].c_str());
       double Aromaticity        = atof(theTokens[12].c_str());
-
-      if(reactionOrder == 0) reactionOrder = 1.0;
-
+      
+      //     if(reactionOrder == 0) reactionOrder = 1.0;
+      if(reactionOrder < Genex6::Constants::Zero) reactionOrder = 1.0;
+      
       Species *theSpecies = this->GetByNameSpecies(theTokens[0]);
       SpeciesProperties *theProperties = new SpeciesProperties(theSpecies,
                                                                activationEnergy1,

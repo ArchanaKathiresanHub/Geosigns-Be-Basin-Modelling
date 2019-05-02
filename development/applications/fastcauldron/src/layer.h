@@ -125,6 +125,8 @@ public:
    bool isBasement () const;
 
    bool isSourceRock () const;
+ 
+   bool isBiogenicGas () const;
 
    bool isMobile () const;
 
@@ -365,6 +367,7 @@ public:
 
   bool             IsSourceRock;
   bool             IsMobile;
+  bool             IsBiogenicGas;
   int              Layer_Depo_Seq_Nb;
    GeoPhysics::FluidType const* fluid;
 
@@ -652,6 +655,10 @@ inline bool LayerProps::isBasement () const {
 
 inline bool LayerProps::isSourceRock () const {
    return IsSourceRock;
+}
+
+inline bool LayerProps::isBiogenicGas () const {
+   return IsBiogenicGas;
 }
 
 inline bool LayerProps::isMobile () const {

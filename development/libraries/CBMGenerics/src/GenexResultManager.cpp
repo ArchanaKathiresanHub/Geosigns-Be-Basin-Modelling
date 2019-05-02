@@ -22,6 +22,7 @@ GenexResultManager::GenexResultManager()
       "InstantaneousExpulsionApi",         "CumulativeExpulsionApi",         "InstantaneousExpulsionCondensateGasRatio", "CumulativeExpulsionCondensateGasRatio",
       "InstantaneousExpulsionGasOilRatio", "CumulativeExpulsionGasOilRatio", "InstantaneousExpulsionGasWetness",         "CumulativeExpulsionGasWetness",
       "InstantaneousExpulsionAromaticity", "CumulativeExpulsionAromaticity", "KerogenConversionRatio", 
+      "FluxOA1",                         "FluxOA2",
       "OilGeneratedCumulative",          "OilGeneratedRate",         "OilExpelledCumulative",         "OilExpelledRate",
       "HcGasGeneratedCumulative",        "HcGasGeneratedRate",       "HcGasExpelledCumulative",       "HcGasExpelledRate",
       "DryGasGeneratedCumulative",       "DryGasGeneratedRate",      "DryGasExpelledCumulative",      "DryGasExpelledRate",
@@ -42,7 +43,8 @@ GenexResultManager::GenexResultManager()
    {
       "°API", "°API", " ", " ",
       " "   , " "   , " ", " ",
-      " "   , " "   , " ",                 
+      " "   , " "   , " ",  
+      " "   , " "   ,
       "kg/m2",          "kg/m2/Ma",       "kg/m2",                  "kg/m2/Ma",
       "kg/m2",          "kg/m2/Ma",       "kg/m2",                  "kg/m2/Ma",
       "kg/m2",          "kg/m2/Ma",       "kg/m2",                  "kg/m2/Ma",

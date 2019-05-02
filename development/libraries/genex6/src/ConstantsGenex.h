@@ -24,11 +24,14 @@ namespace Genex6
       /// @defgroup Simulations_type
       ///    Defines which type of simulation genex6 is performing
       /// @{
-      constexpr int SIMOTGC   = 0x0001; ///< Oil to gas cracking
-      constexpr int SIMGENEX  = 0x0002; ///< Hydorcarbones generation
-      constexpr int SIMGENEX5 = 0x0004; ///< Hydorcarbones generation
-      constexpr int SIMOTGC5  = 0x0008; ///< Oil to gas cracking
-      constexpr int SIMTSR    = 0x0010; ///< Termo-sulfate reduction
+      constexpr int SIMOTGC    = 0x0001; ///< Oil to gas cracking
+      constexpr int SIMGENEX   = 0x0002; ///< Hydorcarbones generation
+      constexpr int SIMGENEX5  = 0x0004; ///< Hydorcarbones generation
+      constexpr int SIMOTGC5   = 0x0008; ///< Oil to gas cracking
+      constexpr int SIMTSR     = 0x0010; ///< Termo-sulfate reduction
+      constexpr int SIMGENEX7  = 0x0020; ///< Unconventional based on GX6
+      constexpr int SIMGENEX55 = 0x0040; ///< Unconventional based on GX5
+      
       /// @}
 
       /// @defgroup OrganicMatter_type
@@ -97,7 +100,43 @@ namespace Genex6
 
       /// \brief The volume of a mole of methane at surface conditions [mol.m^-3]
       constexpr double VolumeMoleMethaneAtSurfaceConditions = 42.306553;
+ 
+      /// @defgroup Genex7 constants
+      /// @{
+      constexpr double pi =  3.14159265358979;         ///< pi constant
+      constexpr double monolayerThick  = 0.0000000004; ///< thickness of adsorbed monolayer of gas (m), currently at 0.4 nm
+      constexpr double C1Tcrit  = 190.45;              ///< Peng-Robinson critical temperature of hydrocarbon gas (K) (***provisionally taken as pure methane)
+      constexpr double C1Pcrit  = 4596000;             ///< Peng-Robinson critical pressure (Pa)
+      constexpr double Omega    = 0.008;               ///< Pitzer's Acentric Factor, which is a measure of the non-sphericity of the molecule (here methane)
+      constexpr double Praconst = 0.45724;             ///< Peng-Robinson constant
+      constexpr double Prbconst = 0.0778;              ///< Peng-Robinson constant
+      constexpr double R        = 8.314511;
+      constexpr double KappaA   = 0.37464;
+      constexpr double KappaB   = 1.54226;
+      constexpr double KappaC   = -0.26992;
       
+      constexpr double Zfactor = 1.6;          ///< an arbitrary Zfactor to see approx behaviour of real gas equation 
+
+      constexpr double VirialA = -0.000001993; ///< Virial EOS constant
+      constexpr double VirialB = 0.000002002;  ///< Virial EOS constant
+      constexpr double VirialC = -1131.0;      ///< Virial EOS constant
+
+      constexpr double TypeIIIconstA = 3366.0; ///< empirical equation of Zhang et al (2012) constant
+      constexpr double TypeIIIconstB = 11.06;  ///< empirical equation of Zhang et al (2012) constant
+
+      constexpr double PackingFactor = 1.0;    ///< to deviate the minimum molar vol from the Peng-Robinson value, if necessary
+
+      constexpr double COxMolWeight = 44.01;
+      constexpr double C5MolWeight  = 72.15;
+      constexpr double C4MolWeight  = 58.12;
+      constexpr double C3MolWeight  = 44.1;
+      constexpr double C2MolWeight  = 30.07;
+      constexpr double C1MolWeight  = 16.04;
+      
+      constexpr double minOrganPorosity = 0.000001; ///< minimum porosity in organic matter; arbitrary
+      constexpr double cpctFactor = 0.7;            ///< provisional factor by which the organoporosity compacts
+     /// @}
+     
       /// \brief Folder structure
 #ifdef WIN32
       const std::string FolderDivider = "\\";

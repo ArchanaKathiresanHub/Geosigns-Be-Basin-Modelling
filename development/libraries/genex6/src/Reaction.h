@@ -27,17 +27,23 @@ public:
    void SetProductId(const int in_id, Species *theProduct);
    Species *GetProductById(const int in_id); // map used only in the C++ prototype
    Species *GetMother();
+   int GetProductIdBySpeciesId( const int id );
 
    void ComputeProductRatios(const double preasphalteneAromaticity);
    void ComputeMassProductRatios(); // changes the state of the mother object
 
    //-------------------------------Output functionality--------------------------------------
+   void OutputMassFractionsOnScreen();
    void OutputProductsOnScreen();
    void OutputReactionRatiosOnScreen();
    void OutputProductRatiosOnScreen();
    void OutputProductsOnFile(ofstream &outfile);
    void OutputReactionRatiosOnFile(ofstream &outfile);
    void OutputProductRatiosOnFile(ofstream &outfile);
+
+   // Output in VBA sch format
+   void OutputReactionRatiosToFile( ofstream &outfile );
+   void OutputProductsToFile( ofstream &outfile );
 
 private:
    Species *m_theMother;

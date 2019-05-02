@@ -710,7 +710,7 @@ namespace database {
       if ( !loadLine( infile, line, true ) ) { return false; }
 
       int version = m_tableDefinition.version(); 
-      if ( line.find( ";v " ) == 0 ) // if table has version - read it
+      if ( line.find( ";v" ) == 0 ) // if table has version - read it
       {
          version = stoi( line.substr( 2 ) );
          if ( !loadLine( infile, line ) ) { return false; }

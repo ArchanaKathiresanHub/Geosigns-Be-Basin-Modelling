@@ -99,6 +99,8 @@ Genex6::OTGCNodeAdsorptionHistory::HistoryItem::HistoryItem () {
    m_oOverC = 0.0;
 
    m_h2sRisk = 0.0;
+
+   m_organoPorosity = 0.0;
 }
 
 
@@ -106,6 +108,8 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
 
    const Genex6::Input* nodeInput = node->getLastInput ();
    Genex6::SimulatorState* simulatorState = &node->getPrincipleSimulatorState ();
+
+   m_genex7 = node->isGenex7();
 
    if ( nodeInput != 0 and simulatorState != 0 ) {
       using namespace Constants;
@@ -231,6 +235,9 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
       hist->m_oOverC = simulatorState->getOC ();
       hist->m_h2sRisk = simulatorState->getH2SFromGenex () + simulatorState->getH2SFromOtgc ();
 
+      if( m_genex7 ) {
+         hist->m_organoPorosity = node->getOrganoPorosity();
+      }
       // Get species-expelled-from-source-rock and species-retained-in-source-rock.
       for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
 
@@ -327,7 +334,9 @@ void Genex6::OTGCNodeAdsorptionHistory::write ( std::ostream& str ) {
    str << setw ( 24 ) << "H/C";
    str << setw ( 24 ) << "O/C";
    str << setw ( 24 ) << "H2SRisk-kg/m^2";
-
+   if( m_genex7 ) {
+      str << setw ( 24 ) << "OrganoPorosity";
+   }
 
    str << std::endl;
 
@@ -388,7 +397,9 @@ void Genex6::OTGCNodeAdsorptionHistory::write ( std::ostream& str ) {
       str << setw ( 24 ) << hist->m_hOverC;
       str << setw ( 24 ) << hist->m_oOverC;
       str << setw ( 24 ) << hist->m_h2sRisk;
-
+      if( m_genex7 ) {
+         str << setw ( 24 ) << hist->m_organoPorosity;
+      }
       str << std::endl;
    }
 

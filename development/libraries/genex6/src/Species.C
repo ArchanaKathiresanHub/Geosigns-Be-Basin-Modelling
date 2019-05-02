@@ -362,18 +362,19 @@ double Species::ComputeArrheniusReactionRate2a( SimulatorStateBase &theSimulator
    double activationEnergy2 = m_theProps->GetActivationEnergy2();
    double ActU = 0.0;
    
+   // Genex7
    if(isGX5()) {
-        ActU = activationEnergy1 * (1.0 - s_kerogenTransformationRatio) + 
-           activationEnergy2 * s_kerogenTransformationRatio;
-    } else {
+      ActU = activationEnergy1 * (1.0 - s_kerogenTransformationRatio) + 
+         activationEnergy2 * s_kerogenTransformationRatio;
+   } else {
       if(m_theChemicalModel->getSpeciesManager ().getKerogenId () == m_id || m_theChemicalModel->getSpeciesManager ().getPreasphaltId () == m_id) {
-
+         
          ActU = activationEnergy1 * (1.0 - s_kerogenTransformationRatio) + activationEnergy2 * s_kerogenTransformationRatio;
       } else if(m_theChemicalModel->getSpeciesManager ().getAsphaltenesId () == m_id || m_theChemicalModel->getSpeciesManager ().getResinsId () == m_id) {
-
+         
          ActU = activationEnergy1 * (1.0 - s_precokeTransformationRatio) + activationEnergy2 * s_precokeTransformationRatio;
       } else {
-
+         
          ActU = activationEnergy1 * (1.0 - s_coke2TransformationRatio) + activationEnergy2 * s_coke2TransformationRatio;
       }
    }
@@ -403,7 +404,7 @@ double Species::ComputeArrheniusReactionRate2a( SimulatorStateBase &theSimulator
    }
 
    GeneralParametersHandler & theHandler = GeneralParametersHandler::getInstance();
-   if(!isGX5()) {
+   if(!isGX5()) { // Genex7
       static double BetaOverAlpha = theHandler.GetParameterById(GeneralParametersHandler::BetaOverAlpha);
       
       double T1 = s_VogelFulcherTemperature + s_Peff * BetaOverAlpha;
@@ -425,7 +426,8 @@ double Species::ComputeArrheniusReactionRate2a( SimulatorStateBase &theSimulator
    if(m_id == m_theChemicalModel->getSpeciesManager ().getAsphaltenesId () || m_id == m_theChemicalModel->getSpeciesManager ().getResinsId ()) {
          ArrheniusReactionRate = s_FrequencyFactor * 
             exp((- (ActU + s_Peff * volume) / s_TK + entropy + dSperCoke * (Coke2Concentration)) / IdealGasConstantGenex);
-   } else if(m_id == m_theChemicalModel->getSpeciesManager ().getC15plusAroId () || m_id == m_theChemicalModel->getSpeciesManager ().getC6to14AroId ()) {
+   } //Genex7
+   else if(m_id == m_theChemicalModel->getSpeciesManager ().getC15plusAroId () || m_id == m_theChemicalModel->getSpeciesManager ().getC6to14AroId ()) {
       if(isGX5()){
          ArrheniusReactionRate = s_FrequencyFactor * 
             exp((- (ActU + s_Peff * volume) / s_TK + entropy + dSperCoke * (Coke2Concentration)) / IdealGasConstantGenex);
@@ -448,7 +450,8 @@ double Species::ComputeArrheniusReactionRate2a( SimulatorStateBase &theSimulator
    }
 
    return ArrheniusReactionRate;
- }
+}
+
 double Species::FunDiffusivityHybrid(const double s_FrequencyFactor, const double s_Peff, 
                                      const double s_TK, const double s_VogelFulcherTemperature)
 {
@@ -480,6 +483,7 @@ double Species::FunDiffusivityHybrid(const double s_FrequencyFactor, const doubl
    }
    return returnValue;
 }
+
 void Species::ComputeTimeStep(SimulatorStateBase &theSimulatorState,
                               const double in_dT,
                               const double s_Peff,
@@ -492,33 +496,31 @@ void Species::ComputeTimeStep(SimulatorStateBase &theSimulatorState,
                               const double s_VogelFulcherTemperature,
                               const bool in_OpenSourceRockConditions)
 {
+   // Genex5 - concentrationApproximation = concentration always (no approximation)
+   // OTGC5  - concentrationApproximation = GetConcentrationApproximation()  (VBA only approximation, m_approximate = true) or no approximation (m_approximate = false)
+   // Genex6, OTGC6, TSR - Cauldron(m_approximate = true) or no approximation (m_approximate = false)
+   // Genex7 (Genex55) - concentrationApproximation = GetConcentrationApproximation()  (VBA only approximation, m_approximate = true) or no approximation (m_approximate = false)
+
    double concentration = 0.0;
    double concentrationApproximation = 0.0;
    bool   isOTGC_5 = m_theChemicalModel->isOTGC5(); //true;
-   int    firstTimeStep = ( isGenex() ? 0 : 1 );
+   int    firstTimeStep = ( isGenex() and not isGenex55() ? 0 : 1 );
    int    firstTimeStepForUpdate = ( isOTGC_5 ? 0 : firstTimeStep );
 
    int  currentTimeStep = theSimulatorState.GetTimeStep();
    bool isTSRapproximation = isTSR() and currentTimeStep > firstTimeStep + 1;
+   // determine if needs to do approx - exclude genex5
+   bool doAppr = (( currentTimeStep > firstTimeStep + 1 ) and not ( isGX5() and not isGenex55() ) and m_approximate );
 
    SpeciesState *currentSpeciesState = theSimulatorState.GetSpeciesStateById(m_id);
-   if(currentSpeciesState) {
-      concentration = currentSpeciesState->GetConcentration();
-      if(isGX5()){
-         concentrationApproximation = concentration;
-      } else if(m_approximate && currentTimeStep > firstTimeStep + 1) {
-         concentrationApproximation = currentSpeciesState->GetConcentrationApproximation( isTSRapproximation );
-      } 
-      else  { 
-         concentrationApproximation = concentration;
-      }
-      if( isTSRapproximation ) {
-         concentrationApproximation = currentSpeciesState->GetConcentrationApproximation( isTSRapproximation );
-      }
-    }
-   
+
+   if( currentSpeciesState == 0 )  return;
+
+   concentration = currentSpeciesState->GetConcentration();
+
+   const double permeability = theSimulatorState.getCarrierBedPermeability();
    ComputeMassTransportCoeff(s_Peff, s_TK, s_FrequencyFactor, s_DiffusionConcDependence,
-                             s_VogelFulcherTemperature, in_OpenSourceRockConditions);   
+                             s_VogelFulcherTemperature, permeability, in_OpenSourceRockConditions);   
 
    if(m_theProps->IsReactive()) {
       double ArrheniusReactionRate = ComputeArrheniusReactionRate2a(theSimulatorState, 
@@ -532,27 +534,31 @@ void Species::ComputeTimeStep(SimulatorStateBase &theSimulatorState,
       
       double reactionOrder = m_theProps->GetReactionOrder();
 
-      // Sometimes  at this point concentrationApproximation = 0 but in VBA it is very small negative number.
-
-//      if(m_approximate && (concentrationApproximation < 0) && (currentTimeStep > firstTimeStep + 1) && !isGX5()) { 
-      if(m_approximate && (currentTimeStep > firstTimeStep + 1) && !isGX5()) { 
-         if( isOTGC_5 ) {
+      if( doAppr or isTSRapproximation ) {
+         concentrationApproximation = currentSpeciesState->GetConcentrationApproximation( isTSRapproximation );
+      } else {
+         concentrationApproximation = concentration;
+      }
+ 
+      if( doAppr ) {
+         if( isOTGC_5 or isGenex55() ) {
             if( concentrationApproximation < 0 ) {
                concentrationApproximation = 0.0;
                reactionOrder = 1.0;
             }
          } else {
+            // genex6, otgc6, tsr
             concentrationApproximation = (concentration + m_positiveGenRate * in_dT) /
                (1.0 + (m_theta + ArrheniusReactionRate * pow(concentration, (reactionOrder - 1.0))) * in_dT);
-            //reactionOrder = 1.0;
           }
       }
-      if( isTSRapproximation ) {
+      if( isTSRapproximation or isGenex55() or isOTGC_5 ) {
          if( concentrationApproximation < 0 ) {
             concentrationApproximation = 0.0;
             reactionOrder = 1.0;
          }
       }
+
       concentration = (concentration + m_positiveGenRate * in_dT) /
          (1.0 + (m_theta + ArrheniusReactionRate * pow(concentrationApproximation, (reactionOrder - 1.0))) * in_dT);
 
@@ -572,6 +578,7 @@ void Species::ComputeMassTransportCoeff(const double s_Peff,
                                         const double s_FrequencyFactor,
                                         const double s_DiffusionConcDependence,
                                         const double s_VogelFulcherTemperature,
+                                        const double permeability,
                                         const bool in_OpenSourceRockConditions)
 {
    m_theta = 0.0;
@@ -587,6 +594,28 @@ void Species::ComputeMassTransportCoeff(const double s_Peff,
       
       //Theta(L) = 4! * BiotOverL2 * Deff
       m_theta = 4.0 * BiotOverL2 * effectiveDiffusionCoeff;
+
+      // permeability <= 1.0 / TransportConst
+      // TransportCoeff = 5.0
+     if( isGenex7() ) {
+         if( permeability <= 0.2 ) {
+            m_theta = m_theta * permeability * 5.0;
+         }
+      } else if ( isGenex55() ) {
+         if( 
+             m_id == m_theChemicalModel->getSpeciesManager ().getC6to14SatId() or
+             m_id == m_theChemicalModel->getSpeciesManager ().getCOxId() or
+             m_id == m_theChemicalModel->getSpeciesManager ().getC5Id() or
+             m_id == m_theChemicalModel->getSpeciesManager ().getC4Id() or
+             m_id == m_theChemicalModel->getSpeciesManager ().getC3Id() or
+             m_id == m_theChemicalModel->getSpeciesManager ().getC2Id() or
+             m_id == m_theChemicalModel->getSpeciesManager ().getC1Id() ) {
+            if( permeability <= 0.2 ) {
+               m_theta = m_theta * permeability * 5.0;
+            }
+         }
+
+      }
    }
 }
 
@@ -602,18 +631,46 @@ bool Species::validate()
    //       m_massFactorsBySpecies[c15plusSat] +=  m_massFactorsBySpecies[precokeId];
    //    }
    // }
-   for(int i = 0; i < m_theChemicalModel->getSpeciesManager ().getNumberOfSpecies (); ++ i) {
-      if(m_massFactorsBySpecies[i] < 0.0) {
-         if( m_theChemicalModel->isSim5() ) { // in GX6 massFactors can be negative 
-            status = false;
-            break;
-         } else {
-            if( !isTSR() ) {
-               m_massFactorsBySpecies[i] = 0.0;
+
+
+   // changed for Genex7
+   if( isGenex55() ) {
+      for(int i = 0; i < m_theChemicalModel->getSpeciesManager ().getNumberOfSpecies (); ++ i) {
+
+         if( m_massFactorsBySpecies[i] < 0.0 ) {
+            // if( fabs( m_massFactorsBySpecies[i] ) > 0.0001 ) {
+            //    status = false;
+            //    break;
+            // } else {
+            m_massFactorsBySpecies[i] = 0.0;
+            //   }
+         }
+      }
+   } else if ( isGenex7 ()) {
+      double sum = 0.0;
+      for(int i = 0; i < m_theChemicalModel->getSpeciesManager ().getNumberOfSpecies (); ++ i) {
+         sum += m_massFactorsBySpecies[i];
+      }
+      if( sum != 0.0 and fabs( sum - 1.0 ) > 0.001 ) {
+         status = false;
+      }
+     
+   } else {
+      for(int i = 0; i < m_theChemicalModel->getSpeciesManager ().getNumberOfSpecies (); ++ i) {
+         if(m_massFactorsBySpecies[i] < 0.0) {
+           // if( m_theChemicalModel->isSim5() and not m_theChemicalModel->isGX55()) { // in GX6 massFactors can be negative 
+           if( m_theChemicalModel->isSim5()) { // in GX6 massFactors can be negative 
+               status = false;
+               break;
+            } else {
+               if( !isTSR() ) {
+                  m_massFactorsBySpecies[i] = 0.0;
+               }
             }
-        }
-      } 
+         } 
+      }
    }
+
    return status;
 }
 void Species::UpdatePositiveGenerationRatesOfDaughters(const double NegativeGenerationRate)

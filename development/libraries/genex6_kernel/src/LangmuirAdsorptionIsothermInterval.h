@@ -36,6 +36,7 @@ namespace Genex6 {
       ///
       /// There is no check to ensure that the temperature lies in the correct range [ low, high ].
       double computeVL ( const double temperature ) const;
+      double computePL ( const double temperature ) const;
 
       /// Return the string representation of the interval.
       std::string image () const;

@@ -49,6 +49,13 @@ namespace Genex6 {
                          const double       toc,
                          const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;
 
+     /// Compute the VL.
+      double computePL ( const unsigned int i,
+                         const unsigned int j,
+                         const double       temperature,
+                         const double       toc,
+                         const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;
+
       double getReferenceTemperature () const;
 
       void initialise ();

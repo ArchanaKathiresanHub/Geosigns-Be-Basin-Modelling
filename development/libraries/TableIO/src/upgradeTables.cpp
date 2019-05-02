@@ -102,5 +102,23 @@ namespace database
       // now we can delete old table and table definition from db
       db->deleteTable( "DetectedReservoirIoTbl" );
    }
+
+   void upgradeStratIoTblTableVer100to101( Database * db, Table * tbl )
+   {
+      bool loaded = db->getTablesInFile().count( "StratIoTbl" ) > 0 ? true : false;
+
+      if ( loaded && tbl->version() > 100 ) return; // version is correct, nothing to do
+
+      if ( loaded )
+      {
+         for ( size_t i = 0; i < tbl->size(); ++i )
+         {
+            Record * record = tbl->getRecord(i);
+            record->setValue( record->getIndex("BiogenicGas"), 0 );
+            record->setValue( record->getIndex("Toc"), 0.1 );
+         }
+      }
+   }
+    
 }
 

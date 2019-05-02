@@ -70,6 +70,8 @@ namespace Genex6 {
 
          double m_h2sRisk;
 
+         double m_organoPorosity;
+
       };
 
       typedef std::vector<HistoryItem*> HistoryItemList;
@@ -90,6 +92,8 @@ namespace Genex6 {
    private :
 
       HistoryItemList m_history;
+
+      bool m_genex7;
 
    };
 

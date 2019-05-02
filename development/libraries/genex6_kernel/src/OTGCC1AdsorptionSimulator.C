@@ -17,6 +17,7 @@
 
 #include "ConstantsGenex.h"
 #include "ChemicalModel.h"
+#include "SpeciesProperties.h"
 
 #include "SimulatorState.h"
 
@@ -26,6 +27,8 @@
 #include "ImmobileSpecies.h"
 
 #include "PVTCalculator.h"
+
+#define TESTADS 1
 
 // utilitites library
 #include "NumericFunctions.h"
@@ -146,6 +149,10 @@ Genex6::OTGCC1AdsorptionSimulator::~OTGCC1AdsorptionSimulator () {
       delete m_otgcSimulator;
       m_otgcSimulator = 0;
    }
+   if(  m_irreducibleWaterSaturation != 0 ) {
+      delete m_irreducibleWaterSaturation;
+      m_irreducibleWaterSaturation = 0;
+   }
 
 }
 
@@ -204,6 +211,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
    // This is the porosiy available after the bitumen has been added to the existing porosity.
    double effectivePorosity;
+   double organoPorosity;
 
    const double& temperatureKelvin = temperature;
    const double  temperatureCelsius = temperature - CelciusToKelvin;
@@ -224,8 +232,8 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
    int s;
    bool output = false;
-   //bool output = ( i == 0 and j == 0 );
-   // bool output = (( startTime == 0.0 or endTime == 0.0 ) and i == 10 and j == 10 );
+   //bool output =  (( startTime == 0.0 or endTime == 0.0 )  and ( i == 2 and j == 2 ));
+   // bool output = (( startTime == 0.0 or endTime == 0.0 ) and i == 0 and j == 0 );
    // bool output = (( endTime == 150.0 or startTime == 150.0 or startTime == 80.0 or endTime == 80.0 or startTime == 0.0 or endTime == 0.0 ) and i == 10 and j == 10 );
 
    // Genex6::SpeciesState* speciesState;
@@ -261,16 +269,23 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
 
       speciesState = simulatorState->GetSpeciesStateById ( m_speciesManager.getC1Id ());
+#ifdef TESTADS
+      SpeciesResult&  result = simulatorState->GetSpeciesResult(  m_speciesManager.getC1Id () );
+#endif
       cout << " immobiles START: " << i << "  " << j << "  "<< immobiles.image () << endl;
-      cout << "C1 before: " << speciesState->GetExpelledMass () << "  " 
+#ifdef TESTADS
+      cout << "C1 before: " << result.GetExpelledMass () << "  "
+#else
+     cout << "C1 before: " << speciesState->GetExpelledMass () << "  " 
+#endif
            << speciesState->getAdsorpedMol () << "  "
            << speciesState->getExpelledMol () << "  "
            << speciesState->getRetained () << "  "
            << endl;
    }
-
-   m_c1AdsorptionSimulator.compute ( sourceRockInput, simulatorState );
-
+   //   if( not isGenex7() ) {
+      m_c1AdsorptionSimulator.compute ( sourceRockInput, simulatorState );
+      //}
    if ( output ) {
       cout << "-------------------------------- BEGIN --------------------------------" << endl;
       cout.flags (ios::scientific );
@@ -282,6 +297,9 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
       const SpeciesState* speciesState = simulatorState->GetSpeciesStateById ( s );
 
+#ifdef TESTADS
+      SpeciesResult&  result = simulatorState->GetSpeciesResult( s );
+#endif
       if ( speciesState == 0 ) {
          continue;
       }
@@ -299,17 +317,30 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
       if ( componentId == CBMGenerics::ComponentManager::H2S ) {
          // H2S is not added to the retained components. for passing to otgc.
          // Only its transient value is added to current state.
-
+#ifdef TESTADS
+         simulatorState->addH2SFromGenex ( result.GetExpelledMassTransient ());
+#else
          simulatorState->addH2SFromGenex ( speciesState->getExpelledMassTransient ());
+#endif
       } else if ( componentId != CBMGenerics::ComponentManager::UNKNOWN ) {
 
+#ifdef TESTADS
+         double speciesRetained = speciesState->getRetained () + result.GetExpelledMass () - result.GetExpelledMassPrev ();
+#else
          double speciesRetained = speciesState->getRetained () + speciesState->GetExpelledMass () - speciesState->getPreviousExpelledMass ();
-
+#endif
+         if( isGenex7() ) {
+            double sConcRetained = result.GetConcentration() -  result.GetConcentrationPrev();
+            //speciesRetained = sConcRetained;
+            //  cout << "concRet vs ret: " << sConcRetained << " " << result.GetExpelledMass () - result.GetExpelledMassPrev () << endl;
+         }
          if ( m_c1AdsorptionSimulator.speciesIsSimulated ( componentId )) {
             // If the species is being modelled in the adsorption then also remove what was adsorped over the time-step.
-            speciesRetained -= speciesState->getTransientAdsorpedMass ();
-            // And add what was desorped over the time-step.
-            speciesRetained += speciesState->getTransientDesorpedMass ();
+            if( not isGenex7() ) {
+               speciesRetained -= speciesState->getTransientAdsorpedMass ();
+               // And add what was desorped over the time-step.
+               speciesRetained += speciesState->getTransientDesorpedMass ();
+            }
          }
 
          if ( CBMGenerics::ComponentManager::getInstance ().isGas ( componentId )) {
@@ -321,8 +352,16 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
          if ( output ) {
             cout << "   mob: "
                  << setw ( 25 ) << speciesState->getRetained () << "  "
+#ifdef TESTADS
+                 << setw ( 25 ) << result.GetExpelledMass () << "  "
+#else
                  << setw ( 25 ) << speciesState->GetExpelledMass () << "  "
+#endif
+#ifdef TESTADS
+                 << setw ( 25 ) << result.GetExpelledMassPrev ();
+#else
                  << setw ( 25 ) << speciesState->getPreviousExpelledMass ();
+#endif
          }
 
       } else {
@@ -334,6 +373,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
          if ( id != Genex6::ImmobileSpecies::UNKNOWN ) {
             retainedSpeciesConcentrations [ speciesName ] = immobiles.getRetained ( id );
 
+            //  if ( immobiles.getRetained ( id ) > 0.0 ) {
             if ( output ) {
                cout << " immob:  " << setw ( 20 ) << immobiles.getName ( id ) << "  "
                     << setw ( 25 ) << immobiles.getRetained ( id );
@@ -447,6 +487,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
          if ( id != Genex6::ImmobileSpecies::UNKNOWN ) {
             immobiles.setRetained ( id, speciesMass );
 
+            //  if ( speciesMass > 0.0 ) {
             if ( output ) {
                cout << " immob retained:  " << setw ( 25 ) << immobiles.getRetained ( id );
             }
@@ -476,7 +517,17 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
    vapourVolume = phaseComponentMasses.sum ( PhaseId::VAPOUR ) / ( thickness * phaseDensity ( PhaseId::VAPOUR ));
 
    bitumenVolume = immobiles.getRetainedVolume ( thickness );
-   effectivePorosity = NumericFunctions::Maximum ( 0.0, porosity - bitumenVolume );
+   // if(  isGenex7() ) {
+   //    effectivePorosity =  NumericFunctions::Maximum ( 0.0, porosity );
+   // } else {
+      effectivePorosity = NumericFunctions::Maximum ( 0.0, porosity - bitumenVolume );
+      //   }
+   organoPorosity = getOrganoPorosity();
+
+   if( organoPorosity > 0.0 and isGenex7() ) {
+      effectivePorosity = effectivePorosity + organoPorosity * 0.01;
+      // cout << effectivePorosity << " " << organoPorosity  * 0.01 << endl;
+   }
 
    if ( effectivePorosity == 0.0 ) {
       hcSaturation = 0.0;
@@ -523,6 +574,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
    phaseComponentMasses.getPhaseComponents ( PhaseId::VAPOUR, vapourComponents );
 
 
+
    if ( output ) {
       cout << " phase component sums: " << phaseComponentMasses.sum ( PhaseId::LIQUID ) << "  " << phaseComponentMasses.sum ( PhaseId::VAPOUR ) << endl;
    }
@@ -542,7 +594,9 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
       if ( speciesState == 0 ) {
          continue;
       }
-
+#ifdef TESTADS
+      SpeciesResult&  result = simulatorState->GetSpeciesResult( s );
+ #endif
       const std::string& name = speciesState->getSpecies ()->GetName ();
 
       int componentId = CBMGenerics::ComponentManager::getInstance ().getSpeciesIdByName ( name );
@@ -557,7 +611,12 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
          if ( std::fabs ( vapourVolume ) > VapourVolumeTolerance ) {
             expelled += vapourComponents ( ComponentId ( componentId )) * ( 1.0 - retainedVapourVolume / vapourVolume );
          }
-
+         if( s ==  m_speciesManager.getC1Id () ) {
+            double vapMoles= vapourComponents ( ComponentId ( componentId ))  * 1000.0 / 16.04;
+            double liqMoles= liquidComponents ( ComponentId ( componentId ))  * 1000.0 / 16.04;
+            //     cout << "C1 moles liquid " << liqMoles << " vapour " << vapMoles << endl;
+            
+         }
          if ( output ) {
             cout << " species: " << name << "  " << componentId << "  " << ", before:  " << speciesState->getMassExpelledFromSourceRock () << "  " 
                  << retainedLiquidVolume << "  " << liquidVolume << "  " << retainedVapourVolume << "  " << vapourVolume << "  ";
@@ -565,7 +624,15 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
          speciesState->setMassExpelledFromSourceRock ( speciesState->getMassExpelledFromSourceRock () + expelled );
          speciesState->setMassExpelledTransientFromSourceRock ( expelled );
-
+  
+         if( isGenex7() ) {
+            // re-set from SpeciesResults for output maps updating and history output
+            speciesState->SetExpelledMass( result.GetExpelledMass () );
+         }
+#ifdef TESTADS
+         // re-set from SpeciesResults for output maps updating and history output
+         speciesState->SetExpelledMass( result.GetExpelledMass () );
+#endif
          if ( output ) {
             cout << ", after: " << speciesState->getMassExpelledFromSourceRock () << "  " << expelled << endl;
          }
@@ -624,7 +691,10 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
          if ( std::fabs ( vapourVolume ) > VapourVolumeTolerance ) {
             retained += simulatorState->getVapourComponents ()( pvtId );
          }
-
+         if( speciesId ==  m_speciesManager.getC1Id () ) {
+            double o = retained;
+         }
+ 
          speciesState->setRetained ( retained );
 
          if ( output ) {
@@ -659,8 +729,15 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
    if ( output ) {
       SpeciesState* speciesState;
       speciesState = simulatorState->GetSpeciesStateById ( m_speciesManager.getC1Id ());
+#ifdef TESTADS
+      SpeciesResult &result = simulatorState->GetSpeciesResult(  m_speciesManager.getC1Id ());
+#endif
       cout << " immobiles END: " << i << "  " << j << "  "<< immobiles.image () << endl;
-      cout << "C1 after: " << speciesState->GetExpelledMass () << "  " 
+#ifdef TESTADS
+      cout << "C1 after: " << result.GetExpelledMass () << " " 
+#else
+         cout << "C1 after: " << speciesState->GetExpelledMass () << "  " 
+#endif
            << speciesState->getAdsorpedMol () << "  "
            << speciesState->getExpelledMol () << "  "
            << endl;
@@ -674,7 +751,6 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
 }
 
-
 bool Genex6::OTGCC1AdsorptionSimulator::speciesIsSimulated ( const ComponentManager::SpeciesNamesId species ) const {
 
    if ( species != ComponentManager::UNKNOWN ) {
@@ -683,6 +759,11 @@ bool Genex6::OTGCC1AdsorptionSimulator::speciesIsSimulated ( const ComponentMana
       return false;
    }
 
+}
+
+void Genex6::OTGCC1AdsorptionSimulator::setSimulatorStateAdsorption( SimulatorStateAdsorption * state ) {
+   Genex6::AdsorptionSimulator::setSimulatorStateAdsorption( state );
+   m_c1AdsorptionSimulator.setSimulatorStateAdsorption( state );
 }
 
 const std::string& Genex6::OTGCC1AdsorptionSimulator::getAdsorpedSpeciesName ( const CBMGenerics::ComponentManager::SpeciesNamesId species ) const {
@@ -721,4 +802,3 @@ Genex6::AdsorptionSimulator* Genex6::allocateOTGCC1AdsorptionSimulator ( DataAcc
                                                                          const bool isManaged ) {
    return new Genex6::OTGCC1AdsorptionSimulator ( projectHandle, speciesManager, applyAdsorption, isManaged );
 }
-

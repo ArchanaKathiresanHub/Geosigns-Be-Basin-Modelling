@@ -22,6 +22,10 @@ namespace Genex6 {
       /// Get singleton instance.
       static AdsorptionFunctionFactory& getInstance ();
 
+      /// Remove singleton instance.
+      static void clear ();
+
+ 
       /// Allocate the adsorption function.
       ///
       /// The function allocated will depend on the adsorption-simulator parameters which-function.

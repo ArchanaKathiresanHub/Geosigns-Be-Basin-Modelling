@@ -12,6 +12,7 @@
 #include "SpeciesManager.h"
 #include "ConstantsGenex.h"
 #include "GeneralParametersHandler.h"
+#include "Utilities.h"
 
 namespace Genex6
 {
@@ -83,6 +84,25 @@ void SpeciesProperties::OutputOnFile(ofstream &outfile) const
             << "," << m_B0
             << "," << m_aromaticity
             << endl;
+}
+// Output in VBA Sch format
+void SpeciesProperties::OutputToSchFile(ofstream &outfile) const
+{
+   outputToFile( outfile, m_activationEnergy1 * 1e-3 );
+   outputToFile( outfile, m_activationEnergy2 * 1e-3 );
+   outputToFile( outfile, m_entropy );
+   outputToFile( outfile, m_volume );
+   outputToFile( outfile, m_reactionOrder );
+   outputToFile( outfile, m_diffusionEnergy1 * 1e-3 );
+   outputToFile( outfile, m_diffusionEnergy2 * 1e-3 );
+   outputToFile( outfile, 0.0 );
+   outputToFile( outfile, 0.0 );
+   outputToFile( outfile, m_jumpLength );
+
+   std::stringstream str;
+   outputToStringWithDot( str, m_density );
+   outfile << "," << str.str();
+   outfile << endl;
 }
 //check for Bounds
 //update changes due to change in composition

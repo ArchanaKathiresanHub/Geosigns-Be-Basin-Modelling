@@ -9,6 +9,9 @@ SimulatorStateBase::SimulatorStateBase ( const double in_referenceTime)
 {
    m_maxprecokeTransformationRatio = 0.0;
    m_maxcoke2TransformationRatio = 0.0;
+
+   m_carrierBedPermeability = 0.0;
+
    m_referenceTime = in_referenceTime;
    m_timeStep = 0;
    m_isInitialized = false;

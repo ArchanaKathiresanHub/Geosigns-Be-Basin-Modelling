@@ -55,3 +55,11 @@ Genex6::AdsorptionSimulatorFactory& Genex6::AdsorptionSimulatorFactory::getInsta
 
    return *s_adsorptionSimulatorFactory;
 }
+
+void Genex6::AdsorptionSimulatorFactory::clear () {
+
+   if ( s_adsorptionSimulatorFactory != 0 ) {
+      delete s_adsorptionSimulatorFactory;
+      s_adsorptionSimulatorFactory = 0;
+   }
+}

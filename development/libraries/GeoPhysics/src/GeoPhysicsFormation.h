@@ -169,7 +169,6 @@ namespace GeoPhysics {
 
       /// Indicate whether or not the formations contains faults.
       bool m_containsFault;
-
    };
 
 }

@@ -59,7 +59,7 @@ namespace Genex6 {
       LangmuirAdsorptionFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
                                    const std::string&                         formationName );
 
-      ~LangmuirAdsorptionFunction () {}
+      ~LangmuirAdsorptionFunction ();
 
       /// Compute the adsorption capacity.
       ///
@@ -73,6 +73,12 @@ namespace Genex6 {
 
       /// Compute the VL.
       double computeVL ( const unsigned int i,
+                         const unsigned int j,
+                         const double       temperature,
+                         const double       toc,
+                         const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;
+     /// Compute the VL.
+      double computePL ( const unsigned int i,
                          const unsigned int j,
                          const double       temperature,
                          const double       toc,

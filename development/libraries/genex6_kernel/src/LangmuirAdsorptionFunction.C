@@ -56,6 +56,15 @@ Genex6::LangmuirAdsorptionFunction::LangmuirAdsorptionFunction ( DataAccess::Int
    delete samples;
 }
 
+Genex6::LangmuirAdsorptionFunction::~LangmuirAdsorptionFunction () {
+
+
+   LangmuirAdsorptionIsothermIntervalVector::iterator intervalEnd = m_isothermIntervals.end ();
+   for( LangmuirAdsorptionIsothermIntervalVector::iterator interval = m_isothermIntervals.begin(); interval != intervalEnd; ++ interval ) {
+      delete (* interval);
+   }
+
+}
 
 double Genex6::LangmuirAdsorptionFunction::compute ( const unsigned int i,
                                                      const unsigned int j,
@@ -103,6 +112,31 @@ double Genex6::LangmuirAdsorptionFunction::computeVL ( const unsigned int i,
 
    if ( interval != m_isothermIntervals.end ()) {
       return (*interval)->computeVL ( temperature );
+   } else {
+      return 0.0;
+   }
+
+}
+
+double Genex6::LangmuirAdsorptionFunction::computePL ( const unsigned int i,
+                                                       const unsigned int j,
+                                                       const double       temperature,
+                                                       const double       toc,
+                                                       const CBMGenerics::ComponentManager::SpeciesNamesId species ) const {
+
+   if ( species != CBMGenerics::ComponentManager::C1 ) {
+      return 0.0;
+   }
+   // Added to prevent a compiler warning about unused parameter.
+   (void) i;
+   (void) j;
+   (void) toc;
+
+   m_temperatureInRange.setTemperature ( temperature );
+   LangmuirAdsorptionIsothermIntervalVector::const_iterator interval = std::find_if ( m_isothermIntervals.begin (), m_isothermIntervals.end (), m_temperatureInRange );
+
+   if ( interval != m_isothermIntervals.end ()) {
+      return (*interval)->computePL ( temperature );
    } else {
       return 0.0;
    }

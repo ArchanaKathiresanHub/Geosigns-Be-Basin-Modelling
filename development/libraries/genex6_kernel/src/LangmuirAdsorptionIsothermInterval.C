@@ -90,6 +90,13 @@ double Genex6::LangmuirAdsorptionIsothermInterval::computeVL ( const double temp
    return vl;
 }
 
+double Genex6::LangmuirAdsorptionIsothermInterval::computePL ( const double temperature ) const {
+
+   double pl = ( m_plLow * ( m_temperatureHigh - temperature ) + m_plHigh * ( temperature - m_temperatureLow  )) * m_temperatureDiff;
+
+   return pl;
+}
+
 
 std::string Genex6::LangmuirAdsorptionIsothermInterval::image () const {
 

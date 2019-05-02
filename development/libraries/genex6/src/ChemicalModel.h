@@ -59,6 +59,8 @@ public:
    bool isOTGC5() const;
    bool isSim5() const;
    bool isGenex() const;
+   bool isGenex7() const;
+   bool isGX55() const;
    bool isTSR() const;
 
    double GetElemAtomWeightByName(const int ElemName) const;
@@ -69,6 +71,7 @@ public:
    const ImmobileSpecies & getImmobileSpecies() const;
 
    void SetSpeciesReactionOrder();
+   void SetSpeciesReactionOrder3();
    void setImmobileDenisty( ImmobileSpecies::SpeciesId anId, double aDensity );
    void ComputeSpeciesUltimateMasses(SimulatorStateBase *theState);
    void ComputeTimeStep(SimulatorStateBase &theSimulatorState,
@@ -98,6 +101,7 @@ public:
    int GetNumberOfElements() const;
    int GetNumberOfSpecies() const;
    int GetNumberOfReactions() const;
+   double getEmean() const;
 
    double getHC() const;
 
@@ -121,6 +125,8 @@ public:
    void PrintBenchmarkSpeciesProperties(ofstream &outfile) const;
    void PrintBenchmarkStoichiometryHeader(ofstream &outfile) const;
    void PrintBenchmarkStoichiometry(ofstream &outfile) const;
+   void PrintSchToFile( ofstream &outfile, const string &type ) const;
+   void PrintSchSpeciesPropertiesToFile( ofstream &outfile ) const;
    //Testing method
    //void ChemicalModel::LoadBenchmarkStoichiometry(string & namefile);
 
@@ -182,7 +188,14 @@ private:
    SpeciesManager  m_speciesManager;
    ImmobileSpecies m_immobileSpecies;
 
+   double m_emean;
+
 };
+
+inline double ChemicalModel::getEmean() const
+{
+   return m_emean;
+}
 
 inline const ImmobileSpecies & ChemicalModel::getImmobileSpecies() const
 {
@@ -236,6 +249,17 @@ inline bool Genex6::ChemicalModel::isGenex() const
 {
    return (m_simulationType & Genex6::Constants::SIMGENEX) ? true : false;
 }
+
+inline bool Genex6::ChemicalModel::isGenex7() const 
+{
+   return (m_simulationType & Genex6::Constants::SIMGENEX7) ? true : false;
+}
+
+inline bool Genex6::ChemicalModel::isGX55() const 
+{
+   return (m_simulationType & Genex6::Constants::SIMGENEX55) ? true : false;
+}
+
 inline double Genex6::ChemicalModel::getHC () const {
    return m_HC;
 }

@@ -75,6 +75,8 @@ public:
 
    bool isGX5() const;
    bool isGenex() const;
+   bool isGenex7() const;
+   bool isGenex55() const;
    bool isTSR() const;
 
    void OutputCompositionOnScreen();
@@ -165,6 +167,7 @@ private:
                                   const double s_FrequencyFactor,
                                   const double s_DiffusionConcDependence,
                                   const double s_VogelFulcherTemperature,
+                                  const double permeability,
                                   const bool in_OpenSourceRockConditions);
 };
 
@@ -231,6 +234,14 @@ inline void Species::SetApproximateFlag(const bool in_approximateFlag)
 inline bool Species::isGenex() const
 {
    return m_theChemicalModel->isGenex();
+}
+inline bool Species::isGenex7() const
+{
+   return m_theChemicalModel->isGenex7();
+}
+inline bool Species::isGenex55() const
+{
+   return m_theChemicalModel->isGX55();
 }
 
 }

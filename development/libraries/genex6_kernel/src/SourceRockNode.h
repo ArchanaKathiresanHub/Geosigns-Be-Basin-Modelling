@@ -11,6 +11,8 @@ using namespace std;
 #include "ChemicalModel.h"
 #include "NodeAdsorptionHistory.h"
 
+#include "SimulatorStateAdsorption.h"
+
 #include "AdsorptionSimulator.h"
 
 namespace Genex6
@@ -27,7 +29,8 @@ class SourceRockNode
 public:
    SourceRockNode(const double in_thickness, const double in_TOCi, const double in_InorganicDensity, 
                   const double in_f1, const double in_f2,
-                  const int in_I = 0, const int in_J = 0);
+                  const int in_I, const int in_J,
+                  const double in_OMfMax = 0.0, const double in_log10ss = 0.0, const double in_poreD = 0.0);
    virtual ~SourceRockNode();
 
    /// \brief Sets the source-rock-node to an initial state.
@@ -36,12 +39,13 @@ public:
    void ClearInputHistory();
    void ClearOutputHistory();
    void ClearSimulatorStates();
-   
+   void clearNodeAdsorptionHistory();
+
    void AddInput(Input* in_theInput);
    void AddOuput(SimulatorState* in_theOuput);
    void AddSimulatorState(SimulatorState* in_theOuput);
 
-   const Input* getLastInput() const;
+   const Input* getLastInput();
 
    /// \brief Get the thickness at the node.
    double getThickness () const;
@@ -56,6 +60,8 @@ public:
 
    /// \brief Returns simulator state of the mixed source rocks in the case of source-rock mixing otherwise returns the state of the single source-rock.
    SimulatorState& getPrincipleSimulatorState () const;
+
+   SimulatorStateAdsorption & getSimulatorStateAdsorption();
   
    double GetF1() const;
    double GetF2() const;
@@ -72,7 +78,7 @@ public:
    * RequestCompuation(Simulator & ), handles a simulation request from a Simulator given the input history available at the moment of the call
    */
   
-   bool RequestComputation(int numOfSourceRock, Simulator & theSimulator );
+   bool RequestComputation(int numOfSourceRock, Simulator & theSimulator, const bool snapshot = false );
    void RequestComputationUnitTest(Simulator & theSimulator);
    int  RequestComputation1D(int numOfSourceRock, Simulator *theSimulator, double snapshots[], const int numberOfSnapshots, 
                             const double depositionAge);
@@ -84,6 +90,10 @@ public:
    void PrintInputHistory(ofstream &outputfile) const;
    void PrintInputHistory(std::string &outputFullPathFileName) const;
 
+   void PrintBenchmarkModelOrganoPorTableHeader(ofstream &outputfile) const;
+
+   void PrintBenchmarkModelOrganoPorTable(const ChemicalModel& chemicalModel, 
+                                     ofstream &outputfile) const;
    void PrintBenchmarkModelConcTableHeader(const ChemicalModel& chemicalModel, 
                                            ofstream &outputfile) const;
 
@@ -130,10 +140,17 @@ public:
                            double& gor,
                            double& cgr,
                            double& oilApi,
-                           double& condensateApi ) const;
+                           double& condensateApi ) ;
 
    /// \brief Compute the charge-factor assuming no expulsion.
-   void computeOverChargeFactor ( double& overChargeFactor ) const;
+   void computeOverChargeFactor ( double& overChargeFactor ) ;
+
+   /// \brief Quartz cementation Index (Stainforth, 200x)
+   double computeQuartzCementationIndex( const double temperature, const double timeStepSize );
+   // \brief VRE by Modified Lopatin algorithm (Stainforth, 1986)
+   double funmLopVRE( const double temperature, const double timeStepSize );
+
+   bool postProcessAdsorption( const ChemicalModel * chemMod );
 
    void collectHistory ();
 
@@ -141,10 +158,18 @@ public:
    void zeroTimeStepAccumulations ();
 
    const SimulatorState& getState () const;
-   
+
+   void setGenex7( const bool isGenex7, const bool applyAds );
+   void setTestAds( const bool isTestAds );
+   bool setOrganoporosityVars( const double inOmPhiMax, const double inPoreD );
+   void setCurrentTimeStep( const int inTimeStep ) { m_currentTimeStep = inTimeStep; };
+   int  getTimeSteps() const;
+   double getOrganoPorosity() const;
+   double getOMPhi() const;
+   bool isGenex7() const;
+   bool isGenex7Ads() const;
+
 private:
-
-
 
    const double m_thickness;
 
@@ -175,6 +200,19 @@ private:
 
    NodeAdsorptionHistoryList m_adsorptionHistoryList;
 
+   // Genex7
+   bool m_genex7;
+   bool m_genex7Ads;
+
+   SimulatorStateAdsorption m_adsorptionCalculator;
+   double m_qciTau;
+   double m_vreTau;
+   double m_log10ss;
+   double m_previousVre;
+
+   bool m_testAds;
+   int m_currentTimeStep;
+
 };
 inline unsigned int SourceRockNode::GetI()const
 {
@@ -195,6 +233,23 @@ inline double SourceRockNode::GetF1() const {
 
 inline double SourceRockNode::GetF2() const {
    return m_f2;
+}
+
+inline void SourceRockNode::setGenex7 ( const bool isGenex7, const bool applyAds ) {
+   m_genex7    = isGenex7;
+   m_genex7Ads = false;//isGenex7 and applyAds;
+}
+
+inline void SourceRockNode::setTestAds ( const bool isTestAds ) {
+   m_testAds = isTestAds;
+}
+
+inline bool SourceRockNode::isGenex7() const {
+   return m_genex7;
+}
+
+inline bool SourceRockNode::isGenex7Ads() const {
+   return m_genex7Ads;
 }
 
 }

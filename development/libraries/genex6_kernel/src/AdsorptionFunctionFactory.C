@@ -34,3 +34,11 @@ Genex6::AdsorptionFunctionFactory& Genex6::AdsorptionFunctionFactory::getInstanc
 
    return *s_adsorptionFunctionFactory;
 }
+
+void Genex6::AdsorptionFunctionFactory::clear () {
+
+   if ( s_adsorptionFunctionFactory != 0 ) {
+      delete s_adsorptionFunctionFactory;
+      s_adsorptionFunctionFactory = 0;
+   }
+}

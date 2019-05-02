@@ -8,9 +8,10 @@
 // Do not distribute without written permission from Shell.
 //
 #include "SourceRockNode.h"
-#include "Input.h"
+#include "OutputUnitTest.h"
 #include "SimulatorState.h"
 #include "Simulator.h"
+#include "SimulatorStateAdsorption.h"
 #include "ChemicalModel.h"  
 #include "Utilities.h"
 #include "UnitTestDataCreator.h"
@@ -39,7 +40,8 @@ namespace Genex6
 SourceRockNode::SourceRockNode(const double in_thickness, const double in_TOC, 
                                const double in_InorganicDensity,
                                const double in_f1, const double in_f2,
-                               const int in_I, const int in_J):
+                               const int in_I, const int in_J,
+                               const double in_OMfMax, const double in_log10ss, const double in_poreD ):
    m_thickness(in_thickness),
    m_TOCi(in_TOC),
    m_InorganicDensity(in_InorganicDensity),
@@ -50,6 +52,27 @@ SourceRockNode::SourceRockNode(const double in_thickness, const double in_TOC,
    m_currentState(0)
 {
    m_mixedSimulatorState = 0;
+
+   // Genex7
+   m_genex7 = false;
+   m_genex7Ads = false;
+
+   // QuartzCementationIndex
+   m_qciTau = 0.1;
+   // Vre
+   m_vreTau = 0.0000017185;
+
+   m_testAds = false;
+
+   // Typical values for Log10SS: Shale = 8, Siltstone = 7 and Sandstone = 6 (Hantschel and Kauerauf, 2009)
+   m_log10ss = in_log10ss;
+
+   m_previousVre = 100.0; //some big number
+
+   m_currentTimeStep = 0;
+
+   m_adsorptionCalculator.setOrganoporosityVars( in_OMfMax, in_poreD );
+   
 }
 SourceRockNode::~SourceRockNode()
 {
@@ -58,6 +81,8 @@ SourceRockNode::~SourceRockNode()
 
    ClearSimulatorStates();
    m_ConcKi.clear();
+
+   clearNodeAdsorptionHistory();
 
    delete m_mixedSimulatorState;
 }
@@ -73,6 +98,7 @@ void SourceRockNode::initialise () {
    
    ClearInputHistory ();
    ClearOutputHistory ();
+   clearNodeAdsorptionHistory();
 }
 
 SimulatorState &SourceRockNode::GetSimulatorState( int id ) const
@@ -125,11 +151,14 @@ void SourceRockNode::AddSimulatorState(SimulatorState* in_theSimulatorState)
    m_theSimulatorStates.push_back(in_theSimulatorState);
 }
 
-const Input *SourceRockNode::getLastInput() const
+const Input *SourceRockNode::getLastInput() 
 {
    Input *ret = 0;
 
-   if(!m_theInput.empty()) 
+   if( m_testAds or m_genex7Ads ) 
+   {
+      ret = getSimulatorStateAdsorption().getOneTimeStepResult( m_currentTimeStep ).second;
+   } else if(!m_theInput.empty()) 
    {
       ret = m_theInput[m_theInput.size() - 1];
    }
@@ -137,12 +166,18 @@ const Input *SourceRockNode::getLastInput() const
    return ret;
 }
 
-bool SourceRockNode::RequestComputation ( int numberOfSourceRock, Simulator & theSimulator )
+bool SourceRockNode::RequestComputation ( int numberOfSourceRock, Simulator & theSimulator, const bool snapshot )
 {
    SimulatorState * theState = ( numberOfSourceRock < ( static_cast<int>( m_theSimulatorStates.size() )) ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
       
    std::vector<Input*>::iterator itInput;
    bool isInitialTimeStep = true;
+
+   if( m_testAds or m_genex7 ) {
+      
+      m_adsorptionCalculator.setChemicalModel( & theSimulator.getChemicalModel () );
+      m_adsorptionCalculator.setSimulatorState( theState );
+   }
 
    for(itInput = m_theInput.begin(); itInput != m_theInput.end(); ++ itInput) {
 
@@ -150,22 +185,50 @@ bool SourceRockNode::RequestComputation ( int numberOfSourceRock, Simulator & th
 
       if(theState) {
          const double thicknessScale = theInput->GetThicknessScaleFactor() *  m_thickness;
-
+         
          theState->SetConckiThickness( m_ConcKi[numberOfSourceRock], thicknessScale);
          theSimulator.SetSimulatorState( theState );
+         //Genex7
+         
+         if( m_genex7Ads ) {
+            theInput->setCarrierBedPermeability( theInput->getPermeability() );
+         }
+         //
+         // testing of carrier bed perm
+         if( m_genex7Ads ) {
+            double perm, cperm;
+            double dT = theInput->GetPreviousTime() - theInput->GetTime();
+            const double qci = computeQuartzCementationIndex( theInput->GetTemperatureCelsius(), dT );
+            perm =  theInput->getPermeability() /  Utilities::Maths::MilliDarcyToM2;
+            theInput->ComputeCarrierBedPorosityPermeability( qci, m_log10ss );
+            cperm = theInput->getCarrierBedPermeability();
+         }
+         //
          theSimulator.advanceSimulatorState( *theInput );
          theSimulator.SetSimulatorState(0);
-
+         
          theState->PostProcessTimeStepComputation ();
-
+         
+         // Genex7
+         if( m_genex7Ads ) {
+            m_adsorptionCalculator.calculateSolidVol( theState, m_previousVre );
+            m_previousVre = theInput->getVre();
+         }
+         if( m_testAds or m_genex7Ads ) {
+            m_adsorptionCalculator.saveTimeStepResultsForAdsorption( theState, theInput, snapshot );
+         }
+       
          isInitialTimeStep = false;
       } else {
          CreateSimulatorState(numberOfSourceRock, (*itInput)->GetTime(), theSimulator);
          theSimulator.initializeSimulatorState( *theInput );
          theSimulator.SetSimulatorState(0);
-      }
+         if( m_testAds or m_genex7Ads ) {
+            m_adsorptionCalculator.saveTimeStepResultsForAdsorption( m_currentState, theInput, snapshot );
+         }
+       }
    }
-
+   
    return isInitialTimeStep;
 }
 
@@ -278,7 +341,14 @@ void SourceRockNode::RequestComputationUnitTest(Simulator & theSimulator)
 {
    // SR rock mixing is not supported
 
+   if( m_genex7 ) {
+      m_adsorptionCalculator.setChemicalModel( & theSimulator.getChemicalModel () );
+   }
+
    std::vector<Input*>::iterator itInput; 
+
+   double prevVre = 0.0;
+   double dT = 0.0;
 
    for(itInput = m_theInput.begin(); itInput != m_theInput.end(); ++ itInput) {
 
@@ -289,10 +359,25 @@ void SourceRockNode::RequestComputationUnitTest(Simulator & theSimulator)
 
          m_currentState->SetConckiThickness(m_ConcKi[0], thicknessScale);
          theSimulator.SetSimulatorState( m_currentState );
+         //Genex7
+         if( m_genex7 ) {
+            dT = fabs(theInput->GetTime() - m_currentState->GetReferenceTime());
+         }
+
          theSimulator.advanceSimulatorState( *theInput );
          theSimulator.SetSimulatorState(0);
 
          m_currentState->PostProcessTimeStepComputation();
+         // Genex7
+         if( m_genex7 ) {
+           
+            const double vre = funmLopVRE( theInput->GetTemperatureCelsius(), dT );
+            theInput->setVre( vre );
+            m_adsorptionCalculator.calculateSolidVol( m_currentState, prevVre );
+            prevVre = vre;
+ 
+            m_adsorptionCalculator.saveTimeStepResultsForAdsorption( theInput->GetTemperatureCelsius(), vre, m_currentState->GetSpeciesResults() );
+         }
       }
       else
       {
@@ -303,6 +388,13 @@ void SourceRockNode::RequestComputationUnitTest(Simulator & theSimulator)
       SimulatorState *theStateOutput = new SimulatorState(*m_currentState);
       AddOuput(theStateOutput);
    }
+   // postprocess adsorption
+   if( m_genex7 ) {
+      // Let's do here "fastgenex6"-like postprocessing
+      m_adsorptionCalculator.clean();
+      bool status = m_adsorptionCalculator.postProcessAdsorption( &theSimulator.getChemicalModel (), m_currentState, m_theInput );
+   }
+   
 }
 
 // To be deprecated in BPA/Cauldron. 1D simulation is taken over by fastgenex5 as well so the only valid 
@@ -366,6 +458,51 @@ int SourceRockNode::RequestComputation1D(int numberOfSourceRock, Simulator *theS
    return SUCCESS;
 }
 
+double SourceRockNode::funmLopVRE( const double temperature, const double timeStepSize ) {
+
+   // Genex7
+   const double CalF    = 5.1;
+   const double CalA    = 0.0821;
+   const double EcalB   = 0.53526;
+   const double TCref   = 105.0;
+   const double LopMult = 0.1; //LopDivisor = 10.0;
+
+   //VRE by Modified Lopatin algorithm (Stainforth, 1986)
+   const double power = NumericFunctions::Minimum( ( temperature - TCref ) * LopMult, 50.0 );
+   m_vreTau += std::pow( CalF, power ) * timeStepSize;
+   
+   const double vre = std::pow( m_vreTau, CalA ) * EcalB;
+
+   return vre;
+}
+
+double SourceRockNode::computeQuartzCementationIndex( const double temperature, const double timeStepSize ) {
+
+   // Genex7
+   // Quartz cementation Index (Stainforth, 200x)
+   const double qcitcRef = 105.0;
+   const double aqci     = 0.046052;
+   const double qciBigA  = 0.290457;
+   const double expQciBigB = 0.339184185;
+   const double expMaxArgument = 83.0;
+    
+   // Quartz cementation index rate per Ma
+   const double argument = NumericFunctions::Minimum ( aqci * ( temperature - qcitcRef ), expMaxArgument );
+   const double dqciTau = std::exp ( argument ) * timeStepSize;
+   m_qciTau += dqciTau;
+   
+   const double qci = expQciBigB * std::pow ( m_qciTau, qciBigA );
+   return qci;
+}
+
+bool SourceRockNode::postProcessAdsorption( const ChemicalModel * chemMod ) {
+   
+   m_adsorptionCalculator.clean();
+   m_adsorptionCalculator.postProcessAdsorption( chemMod, ( m_I == 1 and m_J == 1 ) );
+   
+   return true;
+}
+
 void SourceRockNode::CreateTestingPTHistory(const UnitTestDataCreator &theUnitTestDataCreator)
 {
    int numberOfTimesteps = theUnitTestDataCreator.GetNumberOfTimesteps();
@@ -385,19 +522,35 @@ void SourceRockNode::CreateTestingPTHistory(const UnitTestDataCreator &theUnitTe
       currentTemperatute = theUnitTestDataCreator.ComputeTemperature(currentTime);
       currentPressure = theUnitTestDataCreator.ComputePressure(currentTime);
       Input *theInput = new Input(currentTime, currentTemperatute, currentPressure);
+      // Genex7
+      if( m_genex7 ) {
+         const double qci = computeQuartzCementationIndex( theInput->GetTemperatureCelsius(), dT );
+         theInput->ComputeCarrierBedPorosityPermeability( qci, m_log10ss );
+      }
       AddInput(theInput);
    }
 }
 void SourceRockNode::CreateTestingPTHistory(FILE * fp)
 {
    double currentTime = 0.0;
-   double currentTemperatute = 0.0;
+   double currentTemperatute = 0.0, currentTemperatute1;
    double currentPressure = 0.0;
+   double prevTime = 0.0;;
 
-   while(fscanf(fp, "%lg, %lg, %lg", &currentTime, &currentTemperatute, &currentPressure) != EOF) { //for compatibility with VBA code
-         Input *theInput = new Input(currentTime, currentTemperatute, currentPressure);
-         AddInput(theInput);
+   while(fscanf(fp, "%lf, %20lf, %lf", &currentTime, &currentTemperatute, &currentPressure) != EOF) { //for compatibility with VBA code
+      //   currentTemperatute1 = ceil ((currentTemperatute *1e13) / 1e13);
+      //  currentTemperatute = currentTemperatute1;
+      OutputUnitTest *theInput = new OutputUnitTest(currentTime, currentTemperatute, currentPressure);
+
+      // Genex7
+      if( m_genex7 ) {
+         const double qci = computeQuartzCementationIndex( currentTemperatute, currentTime - prevTime  );
+         theInput->ComputeCarrierBedPorosityPermeability( qci, m_log10ss );
       }
+
+      AddInput(theInput);
+      prevTime = currentTime;
+   }
 }
 
 void SourceRockNode::PrintInputHistory(ofstream &outputfile) const
@@ -536,7 +689,12 @@ void SourceRockNode::PrintBenchmarkModelFluxHeader( const ChemicalModel& chemica
       const std::string SpeciesName = chemicalModel.GetSpeciesNameById(id);
       outputfile << SpeciesName << ",";
    }
-   outputfile << "APIinst" << "," << "GORinst" << "," << endl;
+   outputfile << "APIinst" << "," << "GORinst" << ",";
+   GenexResultManager & theResultManager = GenexResultManager::getInstance();
+   if( theResultManager.IsResultRequired( GenexResultManager::FluxOA1 )) {
+      outputfile << "FluxOA1, FluxOA2";
+   }
+   outputfile << endl;
 } 
 
 void SourceRockNode::PrintBenchmarkModelConcTableHeader(const ChemicalModel& chemicalModel, 
@@ -550,7 +708,8 @@ void SourceRockNode::PrintBenchmarkModelConcTableHeader(const ChemicalModel& che
       const std::string SpeciesName = chemicalModel.GetSpeciesNameById(id);
       outputfile << SpeciesName << ",";
    }
-   outputfile << "HoCTot" << "," << "OoCTot" << "," << endl;
+   outputfile << "HoCTot" << "," << "OoCTot" << ",";
+   outputfile << endl;
 }
 void SourceRockNode::PrintBenchmarkModelConcTable(const ChemicalModel& chemicalModel, 
                                                   ofstream &outputfile) const
@@ -558,7 +717,14 @@ void SourceRockNode::PrintBenchmarkModelConcTable(const ChemicalModel& chemicalM
    PrintBenchmarkModelConcTableHeader(chemicalModel,outputfile);
    for(int i = 1; i < (int)m_theOutput.size(); ++i) {
       outputfile << m_theInput[ i ]->GetTemperatureCelsius() << ",";
+
+      if( m_genex7 ) {
+         outputfile << m_theInput[ i ]->getVre() << ",";
+      } else {
+         outputfile << 0.0 << ",";
+      }
       m_theOutput[i]->PrintBenchmarkModelConcData(outputfile);
+      outputfile << endl;
    }
 }
 void SourceRockNode::PrintBenchmarkModelCumExpHeader(const ChemicalModel& chemicalModel, 
@@ -583,6 +749,36 @@ void SourceRockNode::PrintBenchmarkModelCumExpTable(const ChemicalModel& chemica
       m_theOutput[i]->PrintBenchmarkModelCumExpData(outputfile);
    }
 }
+void SourceRockNode::PrintBenchmarkModelOrganoPorTableHeader(ofstream &outputfile) const
+{
+   outputfile << "[Table:ModelOrganoPorosityC++]" << endl;
+   outputfile << "temp" << "," << "VRE" << "," << "Time" << ",";
+   
+   outputfile  << "Por" << "," << "Perm" << ","
+               << "SolidVoid" << "," << "PoreVol" << ","
+               << "PoreVolp" << "," << "organoPorosity" << ","
+               << "MolesGas" << "," << "MolarVol" << ","
+               << "PRa" << "," << "gasPressurePR" << ","
+               << "gasPressureRealGas" << "," << "gasPressureVDW" << ","
+               << "phalfLangmuir" << "," << "phalfPrangmuir" << "," 
+               << "pressurePramgmuir" << "," << "pressureLangmuir" << ","
+               << "pressurJGS" << "," << "pressureVirial" << endl;
+}
+
+void SourceRockNode::PrintBenchmarkModelOrganoPorTable(const ChemicalModel& chemicalModel, 
+                                                       ofstream &outputfile) const
+{
+   if( m_genex7 ) {
+      PrintBenchmarkModelOrganoPorTableHeader(outputfile);
+      for(int i = 1; i < (int)m_theOutput.size(); ++i) {
+         outputfile << m_theInput[ i ]->GetTemperatureCelsius() << "," << m_theInput[ i ]->getVre() << "," << m_theOutput[ i ]->GetReferenceTime() << ",";
+         
+         m_theInput[ i ]->PrintAdsorptionState(outputfile);
+         outputfile << endl;
+      }
+   }
+}
+
 void SourceRockNode::PrintBenchmarkOutput(const std::string &in_FullPathBenchmarkName, Simulator &theSimulator)
 {
    ofstream outputTestingSetFile;
@@ -604,6 +800,7 @@ void SourceRockNode::PrintBenchmarkOutput(const std::string &in_FullPathBenchmar
    PrintBenchmarkModelConcTable(theSimulator.getChemicalModel (), outputTestingSetFile);
    PrintBenchmarkModelFluxTable(theSimulator.getChemicalModel (), outputTestingSetFile);
    PrintBenchmarkModelCumExpTable(theSimulator.getChemicalModel (), outputTestingSetFile);
+   PrintBenchmarkModelOrganoPorTable(theSimulator.getChemicalModel (), outputTestingSetFile);
 
    outputTestingSetFile.close();
 }
@@ -642,6 +839,17 @@ void SourceRockNode::addNodeAdsorptionHistory ( NodeAdsorptionHistory* adsorptio
    m_adsorptionHistoryList.push_back ( adsorptionHistory );
 }
 
+void SourceRockNode::clearNodeAdsorptionHistory () {
+  
+   NodeAdsorptionHistoryList::iterator nodeIter;
+
+   for ( nodeIter = m_adsorptionHistoryList.begin (); nodeIter != m_adsorptionHistoryList.end (); ++nodeIter ) {
+      delete (*nodeIter);
+   }
+
+   m_adsorptionHistoryList.clear();
+}
+
 void SourceRockNode::collectHistory () {
 
    NodeAdsorptionHistoryList::iterator nodeIter;
@@ -658,13 +866,13 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
                                         double& gor,
                                         double& cgr,
                                         double& oilApi,
-                                        double& condensateApi ) const {
+                                        double& condensateApi )  {
 
    // Standard conditions.
    double StandardTemperatureGenexK = 15.5555556 + CelciusToKelvin; //Kelvin
    double StandardPressure    = 101325.353; //Pa
 
-   const Genex6::Input* lastInput = getLastInput ();
+   const Genex6::Input* lastInput = getLastInput ();;
 
    const Genex6::SimulatorState& state = getPrincipleSimulatorState(); //GetSimulatorState ();
 
@@ -758,7 +966,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
 
 }
 
-void SourceRockNode::computeOverChargeFactor ( double& overChargeFactor ) const {
+void SourceRockNode::computeOverChargeFactor ( double& overChargeFactor ) {
 
    Genex6::SimulatorState& state = getPrincipleSimulatorState(); //GetSimulatorState ();
    const Genex6::SpeciesManager& speciesManager = *state.getSpeciesManager();
@@ -768,12 +976,12 @@ void SourceRockNode::computeOverChargeFactor ( double& overChargeFactor ) const 
    Genex6::PVTPhaseValues     densities;
    Genex6::PVTPhaseValues     viscosities;
 
-   const Genex6::Input& nodeInput = *getLastInput ();
+   const Genex6::Input& nodeInput = * getLastInput ();
 
    double vapourVolume;
    double liquidVolume;
 
-   double thickness    = state.GetThickness ();
+   double thickness    =  state.GetThickness ();
 
    // The computed porosity less the space taken by the immobile species.
    double porosity     = state.getEffectivePorosity ();
@@ -824,6 +1032,31 @@ void SourceRockNode::zeroTimeStepAccumulations () {
       m_mixedSimulatorState->resetIntervalCumulative ();
    }
 
+}
+
+bool SourceRockNode::setOrganoporosityVars (const double inOmPhiMax, const double inPoreD ) {
+
+   return m_adsorptionCalculator.setOrganoporosityVars( inOmPhiMax, inPoreD );
+}
+
+int SourceRockNode::getTimeSteps() const {
+
+   return m_adsorptionCalculator.getTimeSteps();
+}
+
+SimulatorStateAdsorption & SourceRockNode::getSimulatorStateAdsorption () {
+
+   return m_adsorptionCalculator;
+}
+
+double SourceRockNode::getOrganoPorosity() const {
+
+   return m_adsorptionCalculator.getOrganoPorosity();
+}
+
+double SourceRockNode::getOMPhi() const {
+
+   return m_adsorptionCalculator.getOMPhi();
 }
 
 // const SimulatorState& SourceRockNode::getState () const {

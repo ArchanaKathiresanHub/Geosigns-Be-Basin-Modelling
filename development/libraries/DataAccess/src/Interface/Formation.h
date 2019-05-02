@@ -142,9 +142,15 @@ namespace DataAccess
        /// \brief Indicate whether or not the formation should be included in the Darcy sub-domain.
        virtual bool getIncludeInDarcy () const;
 
-       /// Return the Hc 
-       /// Return whether or not the formation has constrained overpressure.
-       virtual bool hasConstrainedOverpressure () const;
+            /// \brief Indicate whether or not the formation should be included in the Biogenic Gas calculation.
+            virtual bool isBiogenicGasLayer () const;
+
+            /// \brief Return the TOC for the Biogenic Gas calculation.
+            virtual float getToc () const;
+
+            /// Return the Hc 
+            /// Return whether or not the formation has constrained overpressure.
+            virtual bool hasConstrainedOverpressure () const;
 
        virtual ConstrainedOverpressureIntervalList* getConstrainedOverpressureIntervalList () const;
 

@@ -64,6 +64,7 @@ public:
 
    void OutputOnScreen() const;
    void OutputOnFile(ofstream &outfile) const;
+   void OutputToSchFile(ofstream &outfile) const;
 
    void Update();
 

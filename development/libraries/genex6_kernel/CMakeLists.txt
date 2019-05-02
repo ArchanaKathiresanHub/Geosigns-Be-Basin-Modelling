@@ -69,3 +69,7 @@ install(TARGETS ${LIB_NAME}
    ARCHIVE DESTINATION lib
 )
 
+add_gtest( NAME genex6_kernel:HItoHC
+           SOURCES test/convertHItoHC.C
+           LIBRARIES genex6_kernel DataAccess DistributedDataAccess
+)

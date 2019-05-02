@@ -1,7 +1,7 @@
 #ifndef _GENEX6__SUB_PROCESS_SIMULATOR__H_
 #define _GENEX6__SUB_PROCESS_SIMULATOR__H_
 
-#if USE_PRIORITY_QUEUE
+#ifdef USE_PRIORITY_QUEUE
 #include <priority_queue>
 #endif
 #include <vector>
@@ -52,7 +52,7 @@ namespace Genex6 {
 
    /// \typdedef SubProcessSimulatorList
    /// \brief Container for sub-process simulators.
-#if USE_PRIORITY_QUEUE
+#ifdef USE_PRIORITY_QUEUE
    typedef std::priority_queue<SubProcessSimulator*, std::vector<SubProcessSimulator*>, SubProcessPriorityComparator> SubProcessSimulatorList;
 #else
    typedef std::vector<SubProcessSimulator*> SubProcessSimulatorList;

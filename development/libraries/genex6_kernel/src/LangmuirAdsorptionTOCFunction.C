@@ -87,6 +87,21 @@ double Genex6::LangmuirAdsorptionTOCFunction::computeVL ( const unsigned int i,
 
    return NumericFunctions::Maximum ( 0.0, vl );
 }
+double Genex6::LangmuirAdsorptionTOCFunction::computePL ( const unsigned int i,
+                                                          const unsigned int j,
+                                                          const double       temperature,
+                                                          const double       toc,
+                                                          const CBMGenerics::ComponentManager::SpeciesNamesId species ) const {
+
+   if ( species != CBMGenerics::ComponentManager::C1 ) {
+      return 0.0;
+   }
+   // Added to prevent a compiler warning about unused parameter.
+   (void) i;
+   (void) j;
+
+   return m_langmuirPressure;
+}
 
 double Genex6::LangmuirAdsorptionTOCFunction::getReferenceTemperature () const {
    return m_referenceTemperature;

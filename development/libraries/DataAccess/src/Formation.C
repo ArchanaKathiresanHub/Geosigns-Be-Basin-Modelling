@@ -136,6 +136,14 @@ bool Formation::getIncludeInDarcy () const {
    return database::getIncludeInDarcy (m_record) == 1;
 }
 
+bool Formation::isBiogenicGasLayer () const {
+   return database::getBiogenicGas (m_record) == 1;
+}
+
+float Formation::getToc () const {
+   return database::getToc(m_record);
+}
+
 bool Formation::getEnableSourceRockMixing(void) const
 {
    return ( database::getEnableSourceRockMixing (m_record) == 1 );
@@ -578,7 +586,6 @@ const FluidType* Formation::getFluidType () const
 int Formation::getDepositionSequence () const {
    return database::getDepoSequence ( m_record );
 }
-
 
 void Formation::printOn (ostream & ostr) const
 {

@@ -22,6 +22,7 @@
 #include "Input.h"
 
 namespace Genex6 {
+   class SimulatorStateAdsorption;
 
    /// \brief Identifier in order to determine which simulator needs to be allocated in the simulator factory.
    const std::string C1AdsorptionSimulatorId = "C1AdsorptionSimulator";
@@ -45,7 +46,6 @@ namespace Genex6 {
       /// Perform the adsorption simulation.
       void compute ( const Input&              sourceRockInput,
                            SimulatorStateBase* baseState );
-
       /// Determine which of the species defined in the component manager are a part of the adsorption simulation.
       bool speciesIsSimulated ( const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;
 

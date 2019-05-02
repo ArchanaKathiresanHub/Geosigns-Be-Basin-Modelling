@@ -25,6 +25,7 @@
 
 #include "C1AdsorptionSimulator.h"
 #include "IrreducibleWaterSaturationFunction.h"
+#include "SimulatorStateAdsorption.h"
 
 namespace Genex6 {
 
@@ -74,6 +75,7 @@ namespace Genex6 {
 
       void setAdsorptionFunction ( Genex6::AdsorptionFunction* newAdsorptionFunction );
 
+      void setSimulatorStateAdsorption( SimulatorStateAdsorption * state );
    private :
 
       static const double AdsorptionPorosityThreshold;

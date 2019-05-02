@@ -42,10 +42,12 @@ public:
    void   setMaxPrecokeTransfRatio(const double inMaxPrecokeTransRatios);
    double getMaxCoke2TransTransfRatio();
    void   setMaxCoke2TransTransfRatio(const double inMaxCoke2TransTransfRatio);
+   double getCarrierBedPermeability() const;
+   void   setCarrierBedPermeability(const double inCarrierBedPermeability);
 
    virtual void ComputeFirstTimeInstance(ChemicalModel *theChmod) = 0;
    virtual void SetSpeciesTimeStepVariablesToZero() = 0;
-   virtual void PostProcessTimeStep(Species &aSpecies, const double in_dT) = 0;
+   virtual void PostProcessTimeStep(Species &aSpecies, const double in_dT, const double temp) = 0;
    virtual double ComputeWaso() = 0;
    virtual double ComputeWbo() = 0;
    virtual void SetLumpedConcentrationsToZero() = 0;
@@ -55,7 +57,7 @@ public:
    virtual double ComputeKerogenTransformatioRatio ( const SpeciesManager& speciesManager,
                                                      int aSimulationType) = 0; 
 
-   virtual double ComputeDiffusionConcDependence(const double in_Waso) = 0;
+   virtual double ComputeDiffusionConcDependence(const double in_Waso, const bool isGx7) = 0;
 
    virtual double getTotalOilForTSR() const;
    virtual void   incTotalOilForTSR( double /* currentConc */ ) {};
@@ -90,6 +92,8 @@ protected:
 private:
    double m_maxprecokeTransformationRatio;
    double m_maxcoke2TransformationRatio;
+
+   double m_carrierBedPermeability;
 
    void clearSpeciesState();
 
@@ -128,6 +132,16 @@ inline double SimulatorStateBase::getMaxCoke2TransTransfRatio()
 inline void SimulatorStateBase::setMaxCoke2TransTransfRatio(const double inMaxCoke2TransTransfRatio)
 {
    m_maxcoke2TransformationRatio = inMaxCoke2TransTransfRatio;
+}
+
+inline void SimulatorStateBase::setCarrierBedPermeability(const double inCarrierBedPermeability)
+{
+   m_carrierBedPermeability = inCarrierBedPermeability;
+}
+
+inline double SimulatorStateBase::getCarrierBedPermeability() const
+{
+   return m_carrierBedPermeability;
 }
 
 inline double SimulatorStateBase::getInitialToc () const {

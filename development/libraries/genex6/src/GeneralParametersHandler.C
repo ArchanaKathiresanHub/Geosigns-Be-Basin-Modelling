@@ -13,6 +13,7 @@ GeneralParametersHandler::GeneralParametersHandler()
    m_ParameterValues[BiotOverL2]      = m_ParameterValues[BiotOverL2Geo]; 
    m_ParameterValues[TCref]           = 105.0; 
    m_ParameterValues[WboMin]          = 0.000000001; 
+   m_ParameterValues[WboMinGx7]       = 0.0; // Genex7
    m_ParameterValues[TuningConst]     = 50.0; 
    m_ParameterValues[Tlab]            = 573.0; 
    m_ParameterValues[Uj]              = 25000.0; 
@@ -37,11 +38,11 @@ GeneralParametersHandler::GeneralParametersHandler()
    m_ParameterValues[Nprecoke]        = 0.66667;
    m_ParameterValues[Nhetero1]        = 6.0;  // was 4.0
    m_ParameterValues[Nhetero2]        = 0.001; 
-   m_ParameterValues[HCAsphOverPreasphalt] = 0.9; // in GX5 = 1.0; in VBA6 = 0.9
-   m_ParameterValues[OCAsphOverPreasphalt] = 0.3; // was 0.6
+   m_ParameterValues[HCAsphOverPreasphalt] = 0.9; // in GX5 = 1.0; in VBA6 = 0.9 Genex7
+   m_ParameterValues[OCAsphOverPreasphalt] = 0.3; // was 0.6 Genex7
    m_ParameterValues[OCasphMin]            = 0.001; 
-   m_ParameterValues[OCprecokeWhenHCpreasphaltZero] = 0.06;
-   m_ParameterValues[OCprecokePerPreasphalt]        = 0.005; 
+   m_ParameterValues[OCprecokeWhenHCpreasphaltZero] =  0.08; //0.06; Genex7
+   m_ParameterValues[OCprecokePerPreasphalt]        = 0.01; // 0.005; // Genex7
    m_ParameterValues[EdropForS]            = 0.0;              
    m_ParameterValues[EdropPerS]            = 300000;              
    m_ParameterValues[EcrackingCC]          = 217000.0;   // 217   
@@ -84,7 +85,7 @@ GeneralParametersHandler::GeneralParametersHandler()
       "PreasphalteneAromMin", "PreasphalteneAromMax", "Order0", "OrderPerHoverC", "ActCrit", 
       "Nhetero1GX5", "HCAsphOverPreasphaltGX5", "OCAsphOverPreasphaltGX5", 
       "OCprecokeWhenHCpreasphaltZeroGX5", "OCprecokePerPreasphaltGX5", "NC15plusAroGX5", "Ediff1GX5", "Ediff2GX5", 
-      "OCprecokeWhenHCpreasphaltZeroOTGC5", "OCprecokePerPreasphaltOTGC5", ""
+      "OCprecokeWhenHCpreasphaltZeroOTGC5", "OCprecokePerPreasphaltOTGC5",  "WboMinGx7", ""
    };
    for(int i = 0; tempParameterNames[i] != ""; ++i)  
    {

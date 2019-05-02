@@ -56,6 +56,8 @@ Genex6::SpeciesManager::SpeciesManager () {
    LN2          = -1;
    LCOx         = -1;
    LCO3         = -1;
+   LH2O         = -1;
+   LOrgacid     = -1;
 
    LSulfur  = -1;
    LCarsul1 = -1;
@@ -165,6 +167,8 @@ void Genex6::SpeciesManager::setSpeciesNum ( const std::string& speciesName, int
       s_mappingFromComponentManagerSpecies [ ComponentId::C6_MINUS_14ARO ] = id;
    } else if( Genex6::toLower ( speciesName ) == "hetero1" ) {
       Lhetero1 = id;
+   } else if( Genex6::toLower ( speciesName ) == "hetero2" ) {
+      Lhetero2 = id;
    } else if( Genex6::toLower ( speciesName ) == "c5" ) {
       LC5 = id;
       s_mappingToPvtComponents [ id - START ] = ComponentId::C5;
@@ -268,6 +272,8 @@ void Genex6::SpeciesManager::setSpeciesNum ( const std::string& speciesName, int
       s_mappingFromComponentManagerSpecies [ ComponentId::H2S ] = id;
    } else if( Genex6::toLower ( speciesName ) == "cokes" ) {
       LcokeS = id;
+   } else if( Genex6::toLower ( speciesName ) == "h2o" ) {
+      LH2O = id;
    } else if( Genex6::toLower ( speciesName ) == "[so4]" ) {
       LSO4 = id;
    } else if( Genex6::toLower ( speciesName ) == "sulfur" ) {
@@ -278,6 +284,8 @@ void Genex6::SpeciesManager::setSpeciesNum ( const std::string& speciesName, int
       LCarsul2 = id;
    } else if( Genex6::toLower ( speciesName ) == "[co3]" ) {
       LCO3 = id;
+   } else if( Genex6::toLower ( speciesName ) == "orgacid" ) {
+      LOrgacid = id;
    }
 
 }

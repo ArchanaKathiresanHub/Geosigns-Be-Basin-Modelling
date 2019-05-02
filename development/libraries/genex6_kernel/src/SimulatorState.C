@@ -73,6 +73,9 @@ SimulatorState::SimulatorState(const SpeciesManager * inSpeciesManager, const in
    m_AtomHR = m_AtomCR = m_AtomOR = 0.0;
    m_HC = m_OC = 0.0;
 
+   m_fluxOA1 = 0.0;
+   m_fluxOA2 = 0.0;
+   
    subSurfaceDensities.zero ();
 
 
@@ -80,6 +83,7 @@ SimulatorState::SimulatorState(const SpeciesManager * inSpeciesManager, const in
    m_h2sFromOtgc = 0.0;
 
    m_speciesManager = inSpeciesManager;
+
 }
 
 SimulatorState::SimulatorState(const SimulatorState& in_State) : SimulatorStateBase()
@@ -94,6 +98,10 @@ SimulatorState::SimulatorState(const SimulatorState& in_State) : SimulatorStateB
    for(int i = 0; i <  m_numberOfSpecies; ++ i) {
       m_SpeciesResults[i] = in_State.m_SpeciesResults[i];
    }
+   
+   memcpy(s_GroupResults, in_State.s_GroupResults,
+          ( LAST_RESULT_ID - FIRST_RESULT_ID) * sizeof(double));
+   
    memcpy(m_ResultsByResultId, in_State.m_ResultsByResultId, 
           CBMGenerics::GenexResultManager::NumberOfResults * sizeof(double));
    
@@ -109,12 +117,37 @@ SimulatorState::SimulatorState(const SimulatorState& in_State) : SimulatorStateB
 
    m_thickness = in_State.m_thickness;
    m_concki = in_State.m_concki;
+   setCurrentToc( in_State.getCurrentToc() );
+
 
    m_h2sFromGenex = in_State.m_h2sFromGenex;
    m_h2sFromOtgc = in_State.m_h2sFromOtgc;
 
    m_speciesManager = in_State.m_speciesManager;
    m_immobileSpecies = in_State.m_immobileSpecies;
+}
+
+void SimulatorState::setSimulatorState(const SimulatorStateResult& in_State, const bool snapshot )
+{
+   SetSpeciesTimeStepVariablesToZero();
+   SetResultsToZero();
+
+   if( m_SpeciesResults == 0 ) {
+      m_SpeciesResults = new SpeciesResult[m_numberOfSpecies];
+   } 
+   for(int i = 0; i <  m_numberOfSpecies; ++ i) {
+      m_SpeciesResults[i] = in_State.getSpeciesResult(i);
+   }
+   m_HC = in_State.getHC();
+   m_OC = in_State.getOC();
+
+   if( snapshot ) {
+      
+      memcpy(m_ResultsByResultId, in_State.getResultsByResults(),
+             CBMGenerics::GenexResultManager::NumberOfResults * sizeof(double));
+   }
+   m_thickness = in_State.getThickness();
+   setCurrentToc( in_State.getCurrentToc() );
 }
 
 SimulatorState::~SimulatorState()
@@ -125,6 +158,7 @@ SimulatorState::~SimulatorState()
    }
    m_numberOfSpecies = 0;
 }
+
 void SimulatorState::SetSpeciesTimeStepVariablesToZero()
 {
    s_ExmTot                      = 0.0;
@@ -145,7 +179,7 @@ void SimulatorState::SetSpeciesTimeStepVariablesToZero()
 
    m_AtomHR = m_AtomCR = m_AtomOR = 0.0;
    m_HC = m_OC = 0.0;
-
+   m_fluxOA1 = m_fluxOA2= 0.0;
 
 }
 double SimulatorState::GetExmTot()
@@ -223,19 +257,23 @@ void SimulatorState::PrintBenchmarkModelFluxData(ofstream &outputfile) const
    double ValueExpulsionApiInst = m_ResultsByResultId[CBMGenerics::GenexResultManager::ExpulsionApiInst];
    double ValueExpulsionGasOilRatioInst = m_ResultsByResultId[GenexResultManager::ExpulsionGasOilRatioInst];
 
-   outputfile << ValueExpulsionApiInst << "," << ValueExpulsionGasOilRatioInst << ",";
+   outputfile << ValueExpulsionApiInst << "," << ValueExpulsionGasOilRatioInst;
+   GenexResultManager & theResultManager = GenexResultManager::getInstance();
+   if( theResultManager.IsResultRequired( GenexResultManager::FluxOA1 )) {
+      outputfile << "," <<  m_ResultsByResultId[CBMGenerics::GenexResultManager::FluxOA1] 
+                 << "," <<  m_ResultsByResultId[CBMGenerics::GenexResultManager::FluxOA2];
+   }
    outputfile << endl;
 }
 
 void SimulatorState::PrintBenchmarkModelConcData(ofstream &outputfile)  const
 {
-   outputfile << 0.0 << "," << m_referenceTime << ",";             
+   outputfile << m_referenceTime << ",";             
 
    for(int id = 0; id < m_numberOfSpecies; ++id) {
       outputfile << scientific << m_SpeciesResults[id].GetConcentration() << ",";
    }
-   outputfile << 0.0 << "," << 0.0 << ",";    
-   outputfile << endl;
+   outputfile << 0.0 << "," << 0.0 << "," ;    
 
 }
 
@@ -600,7 +638,8 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
       }
 
       SetResult(GenexResultManager::ExpulsionApiInst, ExpulsionApiInst);
-   }
+      //  cout << "ExpulsionApiInst-genex" << ExpulsionApiInst << endl;
+  }
 
    //ExpulsionGasOilRatioInst
    //ExpulsionGasOilRatioInst is needed in ExpulsionCondensateGasRatioInst, which might be indepedently selected to be on
@@ -749,15 +788,23 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
       m_OC = fraction1 * inSimulatorState1->m_OC + fraction2 * inSimulatorState2->m_OC; 
       m_HC = fraction1 * inSimulatorState1->m_HC + fraction2 * inSimulatorState2->m_HC; 
       setCurrentToc ( fraction1 * inSimulatorState1->getCurrentToc() + fraction2 * inSimulatorState2->getCurrentToc() ); 
-
+ 
+      if( theResultManager.IsResultRequired(GenexResultManager::FluxOA1) ) {
+         SetResult( GenexResultManager::FluxOA1, fraction1 * inSimulatorState1->m_fluxOA1 + fraction2 * inSimulatorState2->m_fluxOA1 );
+         SetResult( GenexResultManager::FluxOA2, fraction1 * inSimulatorState1->m_fluxOA2 + fraction2 * inSimulatorState2->m_fluxOA2 );
+      }
    } else {
       if( m_AtomCR != 0.0 ) {
          m_OC = m_AtomOR / m_AtomCR;
          m_HC = m_AtomHR / m_AtomCR;
-      }  
-   } 
+      }        
+      if( theResultManager.IsResultRequired(GenexResultManager::FluxOA1) ) {
+         SetResult( GenexResultManager::FluxOA1, m_fluxOA1 );
+         SetResult( GenexResultManager::FluxOA2, m_fluxOA2 );
+      } 
+   }
    
-}
+ }
 // all prepocessing steps for Genex
 void SimulatorState::ComputeFirstTimeInstance(ChemicalModel *theChmod)
 {
@@ -819,7 +866,7 @@ void SimulatorState::ComputeFirstTimeInstance(ChemicalModel *theChmod)
       double AromaticOM = 0.0; 
       double Oil = 0.0;
 
-      if(theChmod->isGX5()){
+      if(theChmod->isGX5() or theChmod->isGenex7()){
          AromaticOM = kerogen->GetAromaticity() * newKerogenMass;
       }
 
@@ -831,10 +878,12 @@ void SimulatorState::ComputeFirstTimeInstance(ChemicalModel *theChmod)
    PostProcessTimeStepComputation ();
 }
 
-void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_dT)
+void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_dT, const double temp)
 {
+   using namespace CBMGenerics;
 
    const SpeciesManager& speciesManager = theSpecies.getChemicalModel ().getSpeciesManager ();
+   GenexResultManager & theResultManager = GenexResultManager::getInstance();
 
    int speciesId = theSpecies.GetId();
    SpeciesProperties * speciesProps = theSpecies.GetSpeciesProperties();
@@ -849,7 +898,13 @@ void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_d
    //Flx(J, L) = Theta(L) * Conc(L) * SRthicki * ConcKi
    
    double generatedRate = theSpecies.GetPositiveGenRate() * m_thickness * m_concki;
-   double flux = theSpecies.GetTheta() * concentration * m_thickness * m_concki;
+   double flux =  theSpecies.GetTheta() * concentration * m_thickness * m_concki;
+
+   if(( speciesId == speciesManager.getCOxId() or speciesId == speciesManager.getOrgacidId()) and 
+      theResultManager.IsResultRequired( GenexResultManager::FluxOA1 ))  {
+      // assume FluxOA2 is also required
+      computeBiogenicGas( speciesId, temp, flux );
+   } 
    double MassExpelledInst = flux * in_dT;
    double VolumeExpelledInst = MassExpelledInst / speciesProps->GetDensity();
    
@@ -871,6 +926,8 @@ void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_d
    if(speciesProps->IsOil()) {
       Oil = concentration;
    } else if(theSpecies.isGX5()){
+
+      //Genex7 - not included
       if(speciesId == speciesManager.getKerogenId ()) {
          AromaticOM = concentration * speciesProps->GetAromaticity();
       } else if(speciesId == speciesManager.getPreasphaltId ()) {
@@ -878,12 +935,15 @@ void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_d
       } else {
          AromaticOM = concentration;
       }
-   } else if(speciesId == speciesManager.getPrecokeId () || 
-             speciesId == speciesManager.getCoke1Id () || 
-             speciesId == speciesManager.getCoke2Id () || 
-             speciesId == speciesManager.getHetero1Id () ||
-             speciesId == speciesManager.getCokeSId ()) {
-     AromaticOM = concentration;
+   } else { 
+      
+      if(speciesId == speciesManager.getPrecokeId () || 
+         speciesId == speciesManager.getCoke1Id () || 
+         speciesId == speciesManager.getCoke2Id () || 
+         speciesId == speciesManager.getHetero1Id () ||
+         speciesId == speciesManager.getCokeSId ()) {
+         AromaticOM = concentration;
+      }
    }
    UpdateLumpedConcentrations(concentration, Oil, AromaticOM);
 
@@ -893,9 +953,11 @@ void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_d
    //Set Species Result
    GetSpeciesResult(speciesId).SetConcentration(concentration);
    GetSpeciesResult(speciesId).SetExpelledMass(expelledMass);
+   GetSpeciesResult(speciesId).SetExpelledMassPrev(currentSpeciesState->getPreviousExpelledMass());
    GetSpeciesResult(speciesId).setGeneratedMass ( generatedMass );
    GetSpeciesResult(speciesId).SetFlux(flux);
    GetSpeciesResult(speciesId).SetGeneratedRate(theSpecies.GetPositiveGenRate());
+   GetSpeciesResult(speciesId).SetExpelledMassTransient(MassExpelledInst);
 
    //Compute the static variables that will be used for the computation of further SourceRockNodeOutput quantities
    //'''''total expelled masses and effective diffusivities
@@ -988,7 +1050,7 @@ void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_d
    }
 }
 
-void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel, const double deltaT ) {
+void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel, const double deltaT, const bool copy ) {
 
    // The methods for computing some of the various values in this function can be 
    // found in the function called PostProcessTimeStepComputation in this class.
@@ -1112,9 +1174,11 @@ void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel,
       double oilApi = Genex6::Constants::APIC1 / oilDensity * Genex6::Constants::APIC2 - Genex6::Constants::APIC3; 
 
       setShaleGasResult ( GenexResultManager::ExpulsionApiInst, oilApi );
+      //      cout << "ExpulsionApiInst-shalegas " << oilApi << endl;
    } else {
       // Should the value be CauldronNoDataValue here rather than 0.001?
       setShaleGasResult ( GenexResultManager::ExpulsionApiInst, 0.001 );
+      //  cout <<  "ExpulsionApiInst-shalegas " << 0.001 << endl;
    }
 
    if ( cumulativeSaturatesVolume > Genex6::Constants::CumulativeVolumeOilZero ) {
@@ -1194,18 +1258,22 @@ void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel,
    // The third step
    // Copy remaining values from list, mainly the generated values and the kerogen-conversion ratio.
    // Having all the optional results here simplifies the copying of the results to the output maps.
-   setShaleGasResult ( GenexResultManager::KerogenConversionRatio, GetResult ( GenexResultManager::KerogenConversionRatio ));
-   setShaleGasResult ( GenexResultManager::OilGeneratedCum, GetResult ( GenexResultManager::OilGeneratedCum ));
-   setShaleGasResult ( GenexResultManager::OilGeneratedRate, GetResult ( GenexResultManager::OilGeneratedRate ));
-   setShaleGasResult ( GenexResultManager::HcGasGeneratedCum, GetResult ( GenexResultManager::HcGasGeneratedCum ));
-   setShaleGasResult ( GenexResultManager::HcGasGeneratedRate, GetResult ( GenexResultManager::HcGasGeneratedRate ));
-   setShaleGasResult ( GenexResultManager::DryGasGeneratedCum, GetResult ( GenexResultManager::DryGasGeneratedCum ));
-   setShaleGasResult ( GenexResultManager::DryGasGeneratedRate, GetResult ( GenexResultManager::DryGasGeneratedRate ));
-   setShaleGasResult ( GenexResultManager::WetGasGeneratedCum,  GetResult ( GenexResultManager::WetGasGeneratedCum ));
-   setShaleGasResult ( GenexResultManager::WetGasGeneratedRate, GetResult ( GenexResultManager::WetGasGeneratedRate ));
-   setShaleGasResult ( GenexResultManager::SbearingHCsGeneratedCum, GetResult ( GenexResultManager::SbearingHCsGeneratedCum ));
-   setShaleGasResult ( GenexResultManager::SbearingHCsGeneratedRate, GetResult ( GenexResultManager::SbearingHCsGeneratedRate ));
-
+   if( true or copy ) {
+      //     cout << "Copy" << endl;
+      setShaleGasResult ( GenexResultManager::KerogenConversionRatio, GetResult ( GenexResultManager::KerogenConversionRatio ));
+      setShaleGasResult ( GenexResultManager::OilGeneratedCum, GetResult ( GenexResultManager::OilGeneratedCum ));
+      setShaleGasResult ( GenexResultManager::OilGeneratedRate, GetResult ( GenexResultManager::OilGeneratedRate ));
+      setShaleGasResult ( GenexResultManager::HcGasGeneratedCum, GetResult ( GenexResultManager::HcGasGeneratedCum ));
+      setShaleGasResult ( GenexResultManager::HcGasGeneratedRate, GetResult ( GenexResultManager::HcGasGeneratedRate ));
+      setShaleGasResult ( GenexResultManager::DryGasGeneratedCum, GetResult ( GenexResultManager::DryGasGeneratedCum ));
+      setShaleGasResult ( GenexResultManager::DryGasGeneratedRate, GetResult ( GenexResultManager::DryGasGeneratedRate ));
+      setShaleGasResult ( GenexResultManager::WetGasGeneratedCum,  GetResult ( GenexResultManager::WetGasGeneratedCum ));
+      setShaleGasResult ( GenexResultManager::WetGasGeneratedRate, GetResult ( GenexResultManager::WetGasGeneratedRate ));
+      setShaleGasResult ( GenexResultManager::SbearingHCsGeneratedCum, GetResult ( GenexResultManager::SbearingHCsGeneratedCum ));
+      setShaleGasResult ( GenexResultManager::SbearingHCsGeneratedRate, GetResult ( GenexResultManager::SbearingHCsGeneratedRate ));
+      setShaleGasResult ( GenexResultManager::FluxOA1, GetResult ( GenexResultManager::FluxOA1 ));
+      setShaleGasResult ( GenexResultManager::FluxOA2, GetResult ( GenexResultManager::FluxOA2 ));
+   }
 }
 
 
@@ -1218,19 +1286,60 @@ double SimulatorState::ComputeKerogenTransformatioRatio ( const SpeciesManager& 
    if(!(aSimulationType & Genex6::Constants::SIMGENEX5)) {
       if(kerogenTransformationRatio < 0.0) kerogenTransformationRatio = 0.0;
    }
+   if( aSimulationType & Genex6::Constants::SIMGENEX55 ) {
+      if(kerogenTransformationRatio < 0.0) kerogenTransformationRatio = 0.0;
+   }
    return kerogenTransformationRatio;
 }
 
-double SimulatorState::ComputeDiffusionConcDependence(const double in_Waso) 
+double SimulatorState::ComputeDiffusionConcDependence(const double in_Waso, const bool isGX7 ) 
 {
    GeneralParametersHandler & theHandler = GeneralParametersHandler::getInstance();
      
-   static double WboMin = theHandler.GetParameterById(GeneralParametersHandler::WboMin);
+   static double WboMin = ( isGX7 ? theHandler.GetParameterById(GeneralParametersHandler::WboMinGx7) :
+                            theHandler.GetParameterById(GeneralParametersHandler::WboMin));
    double DiffusionConcDependence = ComputeWbo() * pow((1.0 - in_Waso), 2.0) + WboMin;
 
    return DiffusionConcDependence;
 }
 
+void SimulatorState::computeBiogenicGas( int speciesId, const double temp, double &flux ) {
+
+   const SpeciesManager* speciesManager = getSpeciesManager ();
+
+   if( speciesId == speciesManager->getCOxId() ) {
+      if( temp > 10.0 and temp <= 80.0 ) {
+         if ( temp > 10.0 and temp <= 35.0 ) {
+            m_fluxOA1 = ( 0.002 * exp( 0.1617 * temp )) * getInitialToc() / 3.0 * m_thickness;
+         } else if ( temp > 35.0 and temp <= 57.0 ) {
+            m_fluxOA1 = ( temp * ( -0.0035 * temp + 0.3238 ) - 6.4712 ) * getInitialToc() / 3.0 * m_thickness;
+         } else if ( temp > 57.0 and temp <= 80.0 ) {
+            m_fluxOA1 = (23137.0 * exp( -0.185 * temp )) * getInitialToc() / 3.0 * m_thickness;
+         } 
+         m_fluxOA2 = 0.4 * flux;
+         if( flux > ( m_fluxOA1 + m_fluxOA2 ) ) {
+            flux = flux - ( m_fluxOA1 + m_fluxOA2 );
+         } else {
+            if(( temp > 70.0 and m_fluxOA1 >= flux ) or temp <= 70.0 ) {
+               flux = 0.0;
+            } 
+         }
+      } else if( temp > 80.0 ) {
+         m_fluxOA2 = 0.0;
+      }
+   } else if (speciesId == speciesManager->getOrgacidId() ) {
+      if( temp > 10.0 and temp < 70.0 ) {
+         m_fluxOA2 = flux + m_fluxOA2;
+         flux = 0.0;
+      } else if( temp >= 70.0 and temp <= 80.0 ) {
+         double oldFlux = flux;
+         flux = ((temp - 70.0) * flux) * 0.1;
+         m_fluxOA2 = oldFlux - flux + m_fluxOA2;
+      } else if( temp > 80.0 ) {
+         m_fluxOA2 = 0.0;
+      }
+   } 
+}
 
 void SimulatorState::setImmobileSpecies ( const ImmobileSpecies& immobiles ) {
    m_immobileSpecies = immobiles;

@@ -25,6 +25,7 @@ public:
 
    /// \brief Get the expelled mass of the species at the previous time-step, units=.
    double getPreviousExpelledMass () const;
+   void   setPreviousExpelledMass ( const double prevMass );
 
    /// \brief Get the approximation of the concentration of the species, units=.
    double GetConcentrationApproximation( const bool isTSR ) const;   
@@ -156,7 +157,7 @@ private:
   
    double m_expelledMass; //cumulative expelled masses until current time
    SpeciesState(const SpeciesState &);
-   SpeciesState & operator=(const SpeciesState &);
+   //  SpeciesState & operator=(const SpeciesState &);
 
    double m_generatedMass;
 
@@ -255,6 +256,11 @@ inline double SpeciesState::GetExpelledMass() const
 inline double SpeciesState::getPreviousExpelledMass() const
 {
    return m_previousExpelledMass;
+}
+
+inline  void  SpeciesState::setPreviousExpelledMass( const double prevMass ) 
+{
+   m_previousExpelledMass = prevMass;
 }
 
 inline double SpeciesState::getMassExpelledFromSourceRock () const {
