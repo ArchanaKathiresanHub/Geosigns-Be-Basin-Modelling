@@ -75,7 +75,11 @@ namespace GeoPhysics {
 
       void restoreAllThicknessMaps ();
 
+      double getMantleElementHeight0(double maxLocalCrustThicknessRatio = 0.0, int k = 0, int kMax = 0) const;
+
+   private:
       double m_mantleElementHeight0;
+      double m_globalMaxCrustThinningRatio;
     };
 }
 

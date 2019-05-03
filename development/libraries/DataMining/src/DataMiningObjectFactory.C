@@ -94,14 +94,13 @@ namespace DataAccess { namespace Mining
 
    DataAccess::Interface::ProjectHandle* ObjectFactory::produceProjectHandle( database::ProjectFileHandlerPtr pfh,
                                                                                       const std::string  & name,
-                                                                                      const std::string  & accessMode )
+                                                                                      const std::string  & accessMode ) const
    {
       ProjectHandle * projectHandle = new ProjectHandle ( pfh, name, accessMode, this );
-      initialiseObjectFactory( projectHandle );
       return projectHandle;
    }
 
-   DomainPropertyCollection * ObjectFactory::produceDomainPropertyCollection ( Interface::ProjectHandle* projectHandle )
+   DomainPropertyCollection * ObjectFactory::produceDomainPropertyCollection ( Interface::ProjectHandle* projectHandle ) const
    {
       return new DomainPropertyCollection( projectHandle );
    }
@@ -265,7 +264,7 @@ namespace DataAccess { namespace Mining
 
 
    DomainPropertyAllocator * ObjectFactory::produceFormationPropertyAllocator( const Interface::ProjectHandle * ,
-                                                                               const Interface::Property      * property )
+                                                                               const Interface::Property      * property ) const
    {
       DomainPropertyAllocator * allocator;
 
@@ -280,31 +279,31 @@ namespace DataAccess { namespace Mining
 
 
    DomainPropertyAllocator * ObjectFactory::produceFormationMapPropertyAllocator( const Interface::ProjectHandle * ,
-                                                                                  const Interface::Property      *  )
+                                                                                  const Interface::Property      *  ) const
    {
       return new DomainFormationMapPropertyAllocator;
    }
 
    DomainPropertyAllocator* ObjectFactory::produceSurfacePropertyAllocator( const Interface::ProjectHandle * ,
-                                                                            const Interface::Property      * )
+                                                                            const Interface::Property      * ) const
    {
       return new DomainSurfacePropertyAllocator;
    }
 
    DomainPropertyAllocator * ObjectFactory::produceFormationConstantPropertyAllocator( const Interface::ProjectHandle * ,
-                                                                                       const Interface::Property      *  )
+                                                                                       const Interface::Property      *  ) const
    {
       return new ConstantDomainFormationPropertyAllocator;
    }
 
    DomainPropertyAllocator* ObjectFactory::produceReservoirPropertyAllocator( const Interface::ProjectHandle * ,
-                                                                              const Interface::Property      * property )
+                                                                              const Interface::Property      * property ) const
    {
       assert ( property->getType () == Interface::RESERVOIRPROPERTY );
       return new DomainReservoirPropertyAllocator;
    }
 
-   CauldronDomain* ObjectFactory::produceCauldronDomain( Interface::ProjectHandle* projectHandle )
+   CauldronDomain* ObjectFactory::produceCauldronDomain( Interface::ProjectHandle* projectHandle ) const
    {
       return new CauldronDomain ( projectHandle );
    }

@@ -71,7 +71,7 @@ FastcauldronSimulator* FastcauldronSimulator::m_fastcauldronSimulator = 0;
 
 //------------------------------------------------------------//
 
-FastcauldronSimulator::FastcauldronSimulator (database::ProjectFileHandlerPtr& pfh, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory)
+FastcauldronSimulator::FastcauldronSimulator (database::ProjectFileHandlerPtr& pfh, const std::string & name, const std::string & accessMode, const Interface::ObjectFactory* objectFactory)
    : GeoPhysics::ProjectHandle (pfh, name, accessMode, objectFactory) {
 
    m_calculationMode = NO_CALCULATION_MODE;
@@ -104,13 +104,13 @@ FastcauldronSimulator::~FastcauldronSimulator () {
 
 //------------------------------------------------------------//
 
-FastcauldronSimulator* FastcauldronSimulator::CreateFrom ( AppCtx* cauldron,
-                                                           DataAccess::Interface::ObjectFactory* objectFactory,
+FastcauldronSimulator* FastcauldronSimulator::CreateFrom (AppCtx* cauldron,
+                                                           const FastcauldronFactory* objectFactory,
                                                            const std::vector<std::string>& outputTableNames )
 {
 
    if ( m_fastcauldronSimulator == 0 ) {
-      m_fastcauldronSimulator = (FastcauldronSimulator*) Interface::OpenCauldronProject ( cauldron->getProjectFileName (), "rw", objectFactory, outputTableNames );
+      m_fastcauldronSimulator = dynamic_cast<FastcauldronSimulator*>(Interface::OpenCauldronProject ( cauldron->getProjectFileName (), "rw", objectFactory, outputTableNames ) );
 
    }
 
@@ -553,10 +553,10 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, con
          started = startActivity ( DecompactionRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
-      case HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE :
-	  case COUPLED_HIGH_RES_DECOMPACTION_MODE:
-         started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
-         break;
+			case HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE :
+		case COUPLED_HIGH_RES_DECOMPACTION_MODE:
+				 started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
+				 break;
 
       case HYDROSTATIC_TEMPERATURE_MODE :
          started = startActivity ( HydrostaticTemperatureRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
@@ -2396,16 +2396,16 @@ bool FastcauldronSimulator::checkMobileLayerThicknesses () const {
    for ( i = 0; i < m_cauldron->layers.size (); ++i ) {
       LayerProps* layer = m_cauldron->layers [ i ];
 
-      if ( layer->isMobile () and layer->getMinimumThickness () < -0.01 ) {
+			if ( layer->isMobile () and layer->getMinimumThickness () < -0.01 ) {
 	 if (getRank () == 0)
 	 {
-	    cerr << "Basin_Error: mobile layer " << layer->layername << " has (too large) negative thicknesses" << endl;
+			cerr << "Basin_Error: mobile layer " << layer->layername << " has (too large) negative thicknesses" << endl;
 	 }
-         ret = false;
-      }
-   }
+				 ret = false;
+			}
+	 }
 
-   return ret;
+	 return ret;
 }
 
 //------------------------------------------------------------//

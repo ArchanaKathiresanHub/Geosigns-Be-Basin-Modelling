@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -20,7 +20,7 @@ namespace DataAccess
    namespace Interface
    {
 
-      /// A specialised formation providing the extra functionality requiered by the crust formation.
+      /// A specialised formation providing the extra functionality required by the crust formation.
       class CrustFormation : virtual public BasementFormation
       {
       public:
@@ -106,11 +106,11 @@ namespace DataAccess
 
       };
 
-      inline void Interface::CrustFormation::setInitialCrustalThickness (const double aInitCrustalThickness ) {
+      inline void CrustFormation::setInitialCrustalThickness (const double aInitCrustalThickness ) {
          m_initialCrustalThickness = aInitCrustalThickness;
       }
 
-      inline double Interface::CrustFormation::getInitialCrustalThickness () const {
+      inline double CrustFormation::getInitialCrustalThickness () const {
          return m_initialCrustalThickness;
       }
    }

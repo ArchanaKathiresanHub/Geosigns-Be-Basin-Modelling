@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -32,13 +32,13 @@ using namespace std;
 #include "BasinTemperatureGradientCalculator.h"
 #include "BasementHeatFlowCalculator.h"
 
-DataAccess::Mining::ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory ) :
+DataAccess::Mining::ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const std::string & name, const std::string & accessMode, const Interface::ObjectFactory* objectFactory ) :
    GeoPhysics::ProjectHandle ( pfh, name, accessMode, objectFactory ) {
 
    addNewProperties();
 
-   m_domainPropertyCollection = ((Mining::ObjectFactory*)(getFactory()))->produceDomainPropertyCollection ( this );
-   m_cauldronDomain = ((Mining::ObjectFactory*)(getFactory()))->produceCauldronDomain ( this );
+   m_domainPropertyCollection = dynamic_cast<const Mining::ObjectFactory*>(getFactory())->produceDomainPropertyCollection ( this );
+   m_cauldronDomain = dynamic_cast<const Mining::ObjectFactory*>(getFactory())->produceCauldronDomain ( this );
 
    Interface::PropertyList* currentProperties = getProperties ( true );
    Interface::PropertyList::iterator propIter;

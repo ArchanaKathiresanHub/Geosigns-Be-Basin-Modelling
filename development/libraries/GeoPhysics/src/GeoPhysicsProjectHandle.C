@@ -66,20 +66,18 @@ using Utilities::Physics::AccelerationDueToGravity;
 using namespace DataAccess;
 using namespace CBMGenerics;
 
-GeoPhysics::ProjectHandle::ProjectHandle ( database::ProjectFileHandlerPtr pfh, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory ) :
+GeoPhysics::ProjectHandle::ProjectHandle (database::ProjectFileHandlerPtr pfh, const std::string & name, const std::string & accessMode, const Interface::ObjectFactory* objectFactory ) :
    DataAccess::Interface::ProjectHandle ( pfh, name, accessMode, objectFactory ) {
 
    m_lithologyManager = new LithologyManager ( this );
 
    m_allochthonousLithologyManager = new AllochthonousLithologyManager ( this );
 
-   m_isALCMode = (ProjectHandle::getBottomBoundaryConditions () == Interface::ADVANCED_LITHOSPHERE_CALCULATOR );
+   m_isALCMode = isALC();
 
-   m_minimumLithosphereThickness = 100000;
-   m_maximumNumberOfMantleElements = 100;
    m_constrainedBasaltTemperature = 1000;
 
-   if( not loadALCConfigurationFile( "InterfaceData.cfg" ) ) {
+   if( !loadALCConfigurationFile( "InterfaceData.cfg" ) ) {
       LogHandler( LogHandler::WARNING_SEVERITY ) << "Can't load ALC configuration file. Default values will be used";
    }
 
@@ -125,7 +123,7 @@ GeoPhysics::ProjectHandle::~ProjectHandle () {
 //------------------------------------------------------------//
 
 void GeoPhysics::ProjectHandle::loadFracturePressureCalculator () {
-   m_fracturePressureCalculator = dynamic_cast<GeoPhysics::ObjectFactory*>( getFactory ())->produceFracturePressureCalculator ( this );
+   m_fracturePressureCalculator = dynamic_cast<const GeoPhysics::ObjectFactory*>( getFactory ())->produceFracturePressureCalculator ( this );
 }
 
 //------------------------------------------------------------//
@@ -444,7 +442,7 @@ bool GeoPhysics::ProjectHandle::createSeaBottomTemperature () const
       for ( Interface::PaleoPropertyList::const_iterator surfaceTemperatureIter = surfaceTemperatureHistory->begin (); surfaceTemperatureIter != surfaceTemperatureHistory->end (); ++surfaceTemperatureIter ) {
 
          const Interface::PaleoProperty* surfaceTemperatureInstance = *surfaceTemperatureIter;
-         const Interface::GridMap* surfaceTemperatureMap = dynamic_cast<const Interface::GridMap*>(surfaceTemperatureInstance->getMap ( Interface::SurfaceTemperatureHistoryInstanceMap ));
+         const Interface::GridMap* surfaceTemperatureMap = surfaceTemperatureInstance->getMap ( Interface::SurfaceTemperatureHistoryInstanceMap );
          const double age = surfaceTemperatureInstance->getSnapshot ()->getTime ();
 
          // This should be with ghost nodes.
@@ -497,7 +495,7 @@ bool GeoPhysics::ProjectHandle::createPaleoBathymetry () {
          const Interface::GridMap* surfaceDepthMap;
 
          if ( age > 0.0 ) {
-            surfaceDepthMap = dynamic_cast<const Interface::GridMap*>(surfaceDepthInstance->getMap ( Interface::SurfaceDepthHistoryInstanceMap ));
+            surfaceDepthMap = surfaceDepthInstance->getMap ( Interface::SurfaceDepthHistoryInstanceMap );
          } else {
             // The present-day depth-map is obtained from the top surface of the sediments.
             surfaceDepthMap = dynamic_cast<const Interface::GridMap*>((*m_surfaces.begin ())->getInputDepthMap ());
@@ -547,7 +545,7 @@ bool GeoPhysics::ProjectHandle::createMantleHeatFlow () const
       for ( Interface::PaleoSurfacePropertyList::const_iterator heatFlowIter = heatFlowHistory->begin (); heatFlowIter != heatFlowHistory->end (); ++heatFlowIter ) {
 
          const Interface::PaleoSurfaceProperty* heatFlowInstance = dynamic_cast<const Interface::PaleoSurfaceProperty*>(*heatFlowIter);
-         const Interface::GridMap* heatFlowMap = dynamic_cast<const Interface::GridMap*>(heatFlowInstance->getMap ( Interface::HeatFlowHistoryInstanceHeatFlowMap ));
+         const Interface::GridMap* heatFlowMap = heatFlowInstance->getMap ( Interface::HeatFlowHistoryInstanceHeatFlowMap );
          const double age = heatFlowInstance->getSnapshot ()->getTime ();
 
          heatFlowMap->retrieveGhostedData ();
@@ -758,7 +756,7 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeS
 
          for ( ; surfaceTemperatureIter != surfaceTemperatureHistory->rend (); ++ surfaceTemperatureIter ) {
             const Interface::PaleoProperty* surfaceTemperatureInstance = *surfaceTemperatureIter;
-            const Interface::GridMap* surfaceTemperatureMap = dynamic_cast<const Interface::GridMap*>(surfaceTemperatureInstance->getMap ( Interface::SurfaceTemperatureHistoryInstanceMap ));
+            const Interface::GridMap* surfaceTemperatureMap = surfaceTemperatureInstance->getMap ( Interface::SurfaceTemperatureHistoryInstanceMap );
 
             const double currentAge = surfaceTemperatureInstance->getSnapshot ()->getTime ();
             surfaceTemperatureMap->retrieveData ();
@@ -802,7 +800,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
 
    Interface::MutableFormationList::iterator formationIter;
 
-   // Intially the check is only for negative thicknesses in mobile layers.
+   // Initially the check is only for negative thicknesses in mobile layers.
    IntegerArray numberOfErrorsPerLayer ( m_formations.size () - 2, 0 );
    unsigned int i;
 
@@ -1165,8 +1163,7 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
       return true;
    } else if ( formation->isCrust ()) {
 
-      if ( getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ||
-           getBottomBoundaryConditions () == Interface::ADVANCED_LITHOSPHERE_CALCULATOR) {
+      if ( getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE || m_isALCMode) {
          Interface::PaleoFormationPropertyList* crustThicknesses = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>(formation)->getPaleoThicknessHistory ();
 
          double segmentThickness;
@@ -1429,7 +1426,7 @@ double GeoPhysics::ProjectHandle::getLithosphereThicknessMod ( const unsigned in
       const double initLithoThickness = getMantleFormation ()->getInitialLithosphericMantleThickness () +
                                   getCrustFormation()->getInitialCrustalThickness();
 
-      const double HLmod = 0.5 * ( ( initLithoThickness + m_minimumLithosphereThickness ) + ( initLithoThickness - m_minimumLithosphereThickness ) * cos ( M_PI * thinningFactor ));
+      const double HLmod = 0.5 * ( ( initLithoThickness + m_equilibriumOceanicLithosphereThickness ) + ( initLithoThickness - m_equilibriumOceanicLithosphereThickness ) * cos ( M_PI * thinningFactor ));
       return HLmod;
    }
    return 0.0;
@@ -1954,8 +1951,6 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
          return false;
       };
 
-      m_minimumLithosphereThickness   = m_basementLithoProps->m_HLmin;
-      m_maximumNumberOfMantleElements = m_basementLithoProps->m_NLMEmax;
       m_constrainedBasaltTemperature  = m_basementLithoProps->m_bT;
 
       configurationFile.close();

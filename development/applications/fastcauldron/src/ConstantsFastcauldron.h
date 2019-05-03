@@ -42,10 +42,6 @@ constexpr double RockViscosityReferenceTemperature = 15.0;
 /// \brief The default value used to scale the ves when initialising the fct's.
 constexpr double DefaultVesScalingForFctInitialisation = 0.5;
 
-/// \var DefaultCrustThinningModel
-/// Default value for the crust-thinning model.
-constexpr int DefaultCrustThinningModel = 1;
-
 /// \var StandardDepth
 /// \brief The depth at which it is determined if a formation is a low permeability.
 constexpr double StandardDepth = 2000.0;

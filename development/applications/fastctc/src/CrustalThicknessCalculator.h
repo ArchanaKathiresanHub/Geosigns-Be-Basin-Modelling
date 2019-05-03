@@ -45,7 +45,7 @@ public :
    CrustalThicknessCalculator( const database::ProjectFileHandlerPtr database,
                                const std::string & name,
                                const std::string & accessMode,
-                               DataAccess::Interface::ObjectFactory* objectFactory );
+                               const DataAccess::Interface::ObjectFactory* objectFactory );
    ~CrustalThicknessCalculator() = default;
 
    /// @brief Return the reference to the project data

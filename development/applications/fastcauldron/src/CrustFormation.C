@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -30,10 +30,10 @@ using Utilities::Numerical::IbsNoDataValue;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::Zero;
 
-CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, database::Record * record ) : 
+CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, database::Record * record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::Formation ( projectHandle, record ),
-   LayerProps ( projectHandle, record ), 
+   LayerProps ( projectHandle, record ),
    DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::CrustFormationName, projectHandle->getCrustLithoName() ),
    DataAccess::Interface::CrustFormation ( projectHandle, record ),
    GeoPhysics::GeoPhysicsCrustFormation ( projectHandle, record ) {
@@ -68,7 +68,7 @@ CrustFormation::~CrustFormation () {
    if ( m_heatProductionMap != nullptr and m_heatProductionMap->retrieved ()) {
       m_heatProductionMap->restoreData ( false, true );
    }
-   
+
    delete m_crustalThicknessMeltOnset;
    delete m_basaltThickness;
 
@@ -109,7 +109,7 @@ void CrustFormation::cleanVectors() {
       setVec ( ThicknessBasaltALC, Zero );
       setVec ( SmTopBasaltDepth, CauldronNoDataValue );
       setVec ( SmBottomBasaltDepth, CauldronNoDataValue );
-      
+
       previousBasaltMap = BasaltMap;
       BasaltMap.fill( false );
 
@@ -213,7 +213,7 @@ const CompoundLithology* CrustFormation::getBasaltLithology(const int iPosition,
 
 //------------------------------------------------------------//
 const CompoundLithology* CrustFormation::getLithology(const int iPosition, const int jPosition, const int kPosition ) const {
-   if( FastcauldronSimulator::getInstance ().getCauldron ()->isALC() ) {
+   if( FastcauldronSimulator::getInstance().isALC() ) {
       if( BasaltMap( iPosition, jPosition, kPosition ) ) {
          return getBasaltLithology( iPosition, jPosition );
       } else {
@@ -222,7 +222,7 @@ const CompoundLithology* CrustFormation::getLithology(const int iPosition, const
    } else {
       return LayerProps::getLithology( iPosition, jPosition );
    }
-   
+
 }
 
 //------------------------------------------------------------//
@@ -230,8 +230,7 @@ const CompoundLithology* CrustFormation::getLithology(const int iPosition, const
 const CompoundLithology* CrustFormation::getLithology( const double aTime, const int iPosition, const int jPosition,  const double aOffset ) {
    // crustThickness shows a ContinentalCrustalThickness. If offset from the top of the Crust (aOffset) goes below it, than we are in Basalt
 
-   const AppCtx* aBasinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
-   if( aBasinModel ->isALC() ) {
+   if( FastcauldronSimulator::getInstance().isALC() ) {
       // aOffset is a relative depth of the middle point of element - so could be inside Crust or Mantle
       const double basThickness = dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::Formation::m_projectHandle)->getBasaltThickness(iPosition, jPosition, aTime);
 
@@ -263,9 +262,9 @@ bool CrustFormation::setLithologiesFromStratTable () {
       return false;
    }
    if(dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::Formation::m_projectHandle)->isALC() ) {
-     
+
      m_basaltLithology.allocate ( GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid ());
-     
+
      CompoundLithologyComposition lc ( DataAccess::Interface::ALCBasalt,           "",  "",
                                        100.0, 0.0, 0.0,
                                        DataAccess::Interface::CrustFormation::getMixModelStr (),

@@ -48,17 +48,17 @@ GridMap * BasementSurface::computeDepthMap (void) const
 {
    AdditionFunctor add;
 
-   bool isALC = (( m_mangledName == "Bottom_of_Crust" ) && m_projectHandle->getBottomBoundaryConditions () == ADVANCED_LITHOSPHERE_CALCULATOR);
-   
+   bool isALC = (( m_mangledName == "Bottom_of_Crust" ) && m_projectHandle->isALC() );
+
    const Formation * upperFormation = (Formation *) Surface::getTopFormation ();
    if (!upperFormation) return nullptr;
 
    GridMap * upperFormationGridMap = ( isALC ? (GridMap *) (dynamic_cast<const CrustFormation *>(upperFormation))->getInitialThicknessMap () :
                                        (GridMap *) upperFormation->getInputThicknessMap ());
-   
+
    const Surface * upperSurface = (Surface *) upperFormation->getTopSurface ();
    if (!upperSurface) return nullptr;
-   
+
    const GridMap * thicknessMap = upperFormationGridMap;
    const GridMap * depthMap = (GridMap *) upperSurface->getInputDepthMap ();
 

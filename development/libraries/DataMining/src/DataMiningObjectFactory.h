@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -43,7 +43,7 @@ namespace DataAccess
          /// Allocates a data-mining project-handle.
          Interface::ProjectHandle* produceProjectHandle( database::ProjectFileHandlerPtr pfh,
                                                          const string & name,
-                                                         const string & accessMode );
+                                                         const string & accessMode ) const;
 
          /// Allocate a new domain-property.
          virtual DomainProperty* allocate ( const DomainPropertyCollection*            collection,
@@ -63,27 +63,27 @@ namespace DataAccess
 
          /// Allocate a DomainFormationPropertyAllocator.
          virtual DomainPropertyAllocator* produceFormationPropertyAllocator( const Interface::ProjectHandle * projectHandle,
-                                                                             const Interface::Property      * property );
+                                                                             const Interface::Property      * property ) const;
          /// Allocate a DomainFormationMapPropertyAllocator.
          virtual DomainPropertyAllocator* produceFormationMapPropertyAllocator( const Interface::ProjectHandle * projectHandle,
-                                                                                const Interface::Property      * property );
+                                                                                const Interface::Property      * property ) const;
 
          /// Allocate a ConstantDomainFormationPropertyAllocator.
          virtual DomainPropertyAllocator* produceFormationConstantPropertyAllocator( const Interface::ProjectHandle * projectHandle,
-                                                                                     const Interface::Property      * property );
+                                                                                     const Interface::Property      * property ) const;
 
          /// Allocate a DomainSurfacePropertyAllocator.
          virtual DomainPropertyAllocator* produceSurfacePropertyAllocator( const Interface::ProjectHandle * projectHandle,
-                                                                           const Interface::Property      * property );
+                                                                           const Interface::Property      * property ) const;
 
          /// Allocate a DomainReservoirPropertyAllocator.
          virtual DomainPropertyAllocator* produceReservoirPropertyAllocator( const Interface::ProjectHandle * projectHandle,
-                                                                             const Interface::Property      * property );
+                                                                             const Interface::Property      * property ) const;
 
          /// Allocate a domain-property-collection.
-         virtual DomainPropertyCollection* produceDomainPropertyCollection( Interface::ProjectHandle* projectHandle );
+         virtual DomainPropertyCollection* produceDomainPropertyCollection( Interface::ProjectHandle* projectHandle ) const;
 
-         virtual CauldronDomain* produceCauldronDomain( Interface::ProjectHandle * projectHandle );
+         virtual CauldronDomain* produceCauldronDomain( Interface::ProjectHandle * projectHandle ) const;
 
          /// Initialises the domain-property allocators.
          ///

@@ -23,11 +23,11 @@ BulkDensityCalculator::BulkDensityCalculator ( LayerProps* formation, const Inte
    m_isCalculated = false;
    m_lithologies = 0;
    m_fluid = 0;
-   m_BasinModel = 0;
+   m_isBasementFormationAndALC = false;
 
 }
 
-bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
+bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& ,
                                                OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -56,7 +56,7 @@ bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputProperty
 
       if ( not m_pressure->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -64,12 +64,11 @@ bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputProperty
 
       if ( not m_temperature->calculate ()) {
          return false;
-      } 
+      }
 
    }
-   const bool isALC =  m_formation->isBasement() && m_BasinModel->isALC() ;
- 
-   if( isALC ) {
+
+   if( m_isBasementFormationAndALC ) {
       if( not isHydrostaticDecompaction and not m_lithopressure->isCalculated ()) {
          if ( not m_lithopressure->calculate ()) {
             return false;
@@ -89,7 +88,7 @@ bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputProperty
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
             porosity = 0.01 * (*m_porosity)( i, j );
 
-            if( isALC ) {
+            if( m_isBasementFormationAndALC ) {
                curLithology = m_formation->getLithology( i, j, m_kIndex );
             } else {
                curLithology = (*m_lithologies)( i, j );
@@ -98,7 +97,7 @@ bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputProperty
             if ( isHydrostaticDecompaction ) {
                curLithology->calcBulkDensity ( m_fluid, porosity, value );
             } else {
-               curLithology->calcBulkDensity ( m_fluid, porosity, (*m_pressure)( i, j ), (*m_temperature)( i, j ), 
+               curLithology->calcBulkDensity ( m_fluid, porosity, (*m_pressure)( i, j ), (*m_temperature)( i, j ),
                                                ( m_lithopressure != 0 ? (*m_lithopressure)( i, j ) : 0 ), value );
             }
 
@@ -118,8 +117,8 @@ bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputProperty
 
 void BulkDensityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "BulkDensityVec2", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "BulkDensityVec2",
+                                                                                                         m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          m_surface )));
 
@@ -127,13 +126,13 @@ void BulkDensityCalculator::allocatePropertyValues ( OutputPropertyMap::Property
 
 bool BulkDensityCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
 
-   m_BasinModel = const_cast<AppCtx*>(FastcauldronSimulator::getInstance().getCauldron());
+   m_isBasementFormationAndALC = m_formation->isBasement() && FastcauldronSimulator::getInstance().isALC();
    m_porosity = PropertyManager::getInstance().findOutputPropertyMap ( "Porosity", m_formation, m_surface, m_snapshot );
 
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () != HYDROSTATIC_DECOMPACTION_MODE ) {
       m_pressure = PropertyManager::getInstance().findOutputPropertyMap ( "Pressure", m_formation, m_surface, m_snapshot );
       m_temperature = PropertyManager::getInstance().findOutputPropertyMap ( "Temperature", m_formation, m_surface, m_snapshot );
-      if(m_BasinModel->isALC() && m_formation->isBasement()) {
+      if( m_isBasementFormationAndALC ) {
          m_lithopressure = PropertyManager::getInstance().findOutputPropertyVolume ( "LithoStaticPressure", m_formation, m_snapshot );
       } else {
          m_lithopressure = 0;
@@ -162,8 +161,8 @@ bool BulkDensityCalculator::initialise ( OutputPropertyMap::PropertyValueList& p
    }
 
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () != HYDROSTATIC_DECOMPACTION_MODE ) {
-      return m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_lithologies != 0 and m_fluid != 0 and 
-         ( m_BasinModel->isALC() && m_formation->isBasement() ? m_lithopressure != 0 : true );
+      return m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_lithologies != 0 and m_fluid != 0 and
+         ( m_isBasementFormationAndALC ? m_lithopressure != 0 : true );
    } else {
       return m_porosity != 0 and m_lithologies != 0 and m_fluid != 0;
    }
@@ -174,19 +173,19 @@ bool BulkDensityCalculator::initialise ( OutputPropertyMap::PropertyValueList& p
 BulkDensityVolumeCalculator::BulkDensityVolumeCalculator ( LayerProps* formation, const Interface::Snapshot* snapshot ) :
    m_formation ( formation ), m_snapshot ( snapshot ) {
 
-   m_BasinModel = 0;
    m_porosity = 0;
    m_pressure = 0;
    m_lithopressure = 0;
    m_temperature = 0;
    m_isCalculated = false;
+   m_isBasementFormationAndALC = false;
    m_lithologies = 0;
    m_fluid = 0;
 
 
 }
 
-bool BulkDensityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
+bool BulkDensityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& ,
                                                      OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -215,7 +214,7 @@ bool BulkDensityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPr
 
       if ( not m_pressure->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -223,11 +222,11 @@ bool BulkDensityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPr
 
       if ( not m_temperature->calculate ()) {
          return false;
-      } 
+      }
 
    }
-   const bool isALC =  m_BasinModel->isALC() && m_formation->isBasement();
-   if( isALC ) {
+
+   if( m_isBasementFormationAndALC ) {
       if( not isHydrostaticDecompaction and not m_lithopressure->isCalculated ()) {
          if ( not m_lithopressure->calculate ()) {
             return false;
@@ -248,7 +247,7 @@ bool BulkDensityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPr
 
             if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
                porosity = 0.01 * m_porosity->getVolumeValue ( i, j, k );
-               if( isALC ) {
+               if( m_isBasementFormationAndALC ) {
                   curLithology = m_formation->getLithology( i, j, k );
                } else {
                   curLithology = (*m_lithologies)( i, j );
@@ -282,8 +281,8 @@ bool BulkDensityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPr
 
 void BulkDensityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BulkDensity", 
-                                                                                                            m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BulkDensity",
+                                                                                                            m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 
@@ -291,13 +290,13 @@ void BulkDensityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::Pr
 
 bool BulkDensityVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList& ) {
 
-   m_BasinModel = const_cast<AppCtx*>(FastcauldronSimulator::getInstance().getCauldron());
+   m_isBasementFormationAndALC = m_formation->isBasement() && FastcauldronSimulator::getInstance().isALC();
    m_porosity = PropertyManager::getInstance().findOutputPropertyVolume ( "Porosity", m_formation, m_snapshot );
 
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () != HYDROSTATIC_DECOMPACTION_MODE ) {
       m_pressure = PropertyManager::getInstance().findOutputPropertyVolume ( "Pressure", m_formation, m_snapshot );
       m_temperature = PropertyManager::getInstance().findOutputPropertyVolume ( "Temperature", m_formation, m_snapshot );
-      if(m_BasinModel->isALC() && m_formation->isBasement()) {
+      if( m_isBasementFormationAndALC ) {
          m_lithopressure = PropertyManager::getInstance().findOutputPropertyVolume ( "LithoStaticPressure", m_formation, m_snapshot );
       } else {
          m_lithopressure = 0;
@@ -311,8 +310,8 @@ bool BulkDensityVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueL
    m_fluid = m_formation->fluid;
 
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () != HYDROSTATIC_DECOMPACTION_MODE ) {
-      return m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_lithologies != 0 and m_fluid != 0 and 
-         ( m_BasinModel->isALC() && m_formation->isBasement() ? m_lithopressure != 0 : true );
+      return m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_lithologies != 0 and m_fluid != 0 and
+         ( m_isBasementFormationAndALC ? m_lithopressure != 0 : true );
    } else {
       return m_porosity != 0 and m_lithologies != 0 and m_fluid != 0;
    }

@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -36,7 +36,7 @@ namespace DataAccess
 
       /// A collection of domain-properties.
       ///
-      /// Each one if allocated by the domain-property factory and saved in a 
+      /// Each one if allocated by the domain-property factory and saved in a
       /// mapping from the DAL::property to the DomainProperty.
       class DomainPropertyCollection
       {
@@ -90,7 +90,7 @@ namespace DataAccess
       private :
 
          Interface::ProjectHandle*      m_projectHandle;   ///< The project-handle.
-         Mining::ObjectFactory*         m_propertyFactory; ///< The factory that allocates all domain-properties.
+         const Mining::ObjectFactory*   m_propertyFactory; ///< The factory that allocates all domain-properties.
          const Interface::Snapshot*     m_snapshot;        ///< The snapshot at which all properties are retrieved.
 
          /// The collection of domain-properties.

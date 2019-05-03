@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -20,14 +20,14 @@ namespace GeoPhysics {
 
 class BasementLithology : public SimpleLithology
 {
- public:  
+ public:
 
 
-   BasementLithology ( DataAccess::Interface::ProjectHandle* projectHandle, 
+   BasementLithology ( DataAccess::Interface::ProjectHandle* projectHandle,
                        database::Record*                     record );
 
 
-   virtual ~BasementLithology(){};
+   virtual ~BasementLithology(){}
 
    double crustThermCondStandard (const double  inTemperature) const;
    double crustHeatCapStandard (const double inTemperature) const;
@@ -50,8 +50,8 @@ class BasementLithology : public SimpleLithology
    double heatCapBasalt (const double inTemperature) const;
    double thermCondBasalt (const double inTemperature) const;
 
-   double thermCondPointXu(const double inTemperature, const double inPressure) const; 
-   double thermCondPointWillis(const double inTemperature) const; 
+   double thermCondPointXu(const double inTemperature, const double inPressure) const;
+   double thermCondPointWillis(const double inTemperature) const;
 
    double thermalconductivity(double t, double p) const;
    double basaltThermalConductivity(double t, double p) const;

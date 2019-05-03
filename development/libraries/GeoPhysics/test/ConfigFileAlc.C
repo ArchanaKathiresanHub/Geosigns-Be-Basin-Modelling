@@ -47,8 +47,6 @@ TEST(ConfigFileAlc, parameters){
    EXPECT_EQ( 0        , parameters.m_mB      );
    EXPECT_EQ( 1000     , parameters.m_bT      );
    EXPECT_EQ( 0.63     , parameters.m_bHeat   );
-   EXPECT_EQ( 92500    , parameters.m_HLmin   );
-   EXPECT_EQ( 100      , parameters.m_NLMEmax );
 
    //Copy and test
    ConfigFileParameterAlc parametersCopy = parameters;
@@ -66,7 +64,4 @@ TEST(ConfigFileAlc, parameters){
    EXPECT_EQ( 0        , parametersCopy.m_mB      );
    EXPECT_EQ( 1000     , parametersCopy.m_bT      );
    EXPECT_EQ( 0.63     , parametersCopy.m_bHeat   );
-   EXPECT_EQ( 92500    , parametersCopy.m_HLmin   );
-   EXPECT_EQ( 100      , parametersCopy.m_NLMEmax );
-
 }

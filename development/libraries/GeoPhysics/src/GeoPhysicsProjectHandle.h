@@ -63,7 +63,7 @@ namespace GeoPhysics {
       ProjectHandle ( database::ProjectFileHandlerPtr pfh,
                       const std::string & name,
                       const std::string & accessMode,
-                      DataAccess::Interface::ObjectFactory* objectFactory );
+                      const DataAccess::Interface::ObjectFactory* objectFactory );
 
       ~ProjectHandle ();
 
@@ -194,10 +194,6 @@ namespace GeoPhysics {
 
       void printValidNeedles ( std::ostream& o = std::cout ) const;
 
-      bool isALC() const;
-
-      double getMinimumLithosphereThickness() const;
-      int    getMaximumNumberOfMantleElements() const;
       double getConstrainedBasaltTemperature() const;
 
       ConfigFileParameterAlc * getBasementLithologyProps() const;
@@ -376,19 +372,17 @@ namespace GeoPhysics {
       double m_basinAge{};
 
       /// ALC bottom boundary conditions mode
-      bool m_isALCMode;   
+      bool m_isALCMode;
       ConfigFileParameterAlc *m_basementLithoProps{};
-      double m_minimumLithosphereThickness; // defined in configuration file
-      int    m_maximumNumberOfMantleElements; // defined in configuration file
       double m_constrainedBasaltTemperature; // defined in configuration file
 
       private:
          /// @brief If the ALc version used is v2017.05, checks that there are as much continental as oceanic
          /// crustal thicknesses inputs and that they are defined at the same age
          /// @throw std::invalid_argument if the check fails
-         void checkAlcCrustHistoryInput() const; 
+         void checkAlcCrustHistoryInput() const;
 
-   }; 
+   };
 
 }
 
@@ -434,18 +428,6 @@ inline bool GeoPhysics::ProjectHandle::getBasinHasActiveFaults () const {
 
 inline double GeoPhysics::ProjectHandle::getAgeOfBasin () const {
    return m_basinAge;
-}
-
-inline bool GeoPhysics::ProjectHandle::isALC() const {
-   return m_isALCMode;
-}
-
-inline double GeoPhysics::ProjectHandle::getMinimumLithosphereThickness() const {
-   return m_minimumLithosphereThickness;
-}
-
-inline int GeoPhysics::ProjectHandle::getMaximumNumberOfMantleElements() const {
-   return m_maximumNumberOfMantleElements;
 }
 
 inline double GeoPhysics::ProjectHandle::getConstrainedBasaltTemperature() const {

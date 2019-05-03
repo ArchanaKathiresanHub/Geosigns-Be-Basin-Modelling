@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "VitriniteReflectanceCalculator.h"
 #include "timefilter.h"
 #include "DerivedOutputPropertyMap.h"
@@ -43,7 +43,7 @@ VitriniteReflectanceCalculator::VitriniteReflectanceCalculator ( LayerProps* for
 
 }
 
-bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                         OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -59,7 +59,7 @@ bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::Outpu
    Interface::GridMap* vitriniteReflectanceMap;
    double undefinedValue;
    double ***propertyVector;
-   bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
+   bool isSediment = m_formation->isSediment();
 
    if ( m_snapshot != 0 ) {
       age = m_snapshot->getTime ();
@@ -100,7 +100,7 @@ bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::Outpu
 
                }
 
-            } 
+            }
             vitriniteReflectanceMap->setValue ( i, j, propertyVector [ usableK ][ j ][ i ] );
          } else {
             vitriniteReflectanceMap->setValue ( i, j, undefinedValue );
@@ -124,8 +124,8 @@ bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::Outpu
 
 void VitriniteReflectanceCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "VrVec2", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "VrVec2",
+                                                                                                         m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          m_surface )));
 
@@ -148,7 +148,7 @@ VitriniteReflectanceVolumeCalculator::VitriniteReflectanceVolumeCalculator ( Lay
 
 }
 
-bool VitriniteReflectanceVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool VitriniteReflectanceVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                               OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -164,7 +164,7 @@ bool VitriniteReflectanceVolumeCalculator::operator ()( const OutputPropertyMap:
    Interface::GridMap* vitriniteReflectanceMap;
    double ***propertyVector;
    double undefinedValue;
-   bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
+   bool isSediment = m_formation->isSediment();
 
    if ( isSediment ) {
       DMDAVecGetArray ( m_formation->layerDA,
@@ -212,8 +212,8 @@ bool VitriniteReflectanceVolumeCalculator::operator ()( const OutputPropertyMap:
 
 void VitriniteReflectanceVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Vr", 
-                                                                                                            m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Vr",
+                                                                                                            m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 

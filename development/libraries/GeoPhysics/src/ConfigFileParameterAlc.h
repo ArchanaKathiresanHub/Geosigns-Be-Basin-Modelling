@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -39,9 +39,6 @@ namespace GeoPhysics {
       double m_mB;
       double m_bT;
       double m_bHeat;
-
-      double m_HLmin;
-      double m_NLMEmax;
 
    private:
       void clean();

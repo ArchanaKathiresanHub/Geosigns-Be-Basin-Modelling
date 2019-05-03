@@ -27,7 +27,8 @@ using namespace DataAccess;
 
 CrustalThicknessCalculator* CrustalThicknessCalculatorFactory::produceProjectHandle ( database::ProjectFileHandlerPtr database,
                                                                                       const string & name,
-                                                                                      const string & accessMode) {
+                                                                                      const string & accessMode) const
+{
    return new CrustalThicknessCalculator ( database, name, accessMode, this );
 }
 
@@ -40,8 +41,7 @@ Ctc::PropertyValue * CrustalThicknessCalculatorFactory::producePropertyValue( In
                                                                               const Interface::Formation * formation,
                                                                               const Interface::Surface *   surface,
                                                                               Interface::PropertyStorage   storage,
-                                                                              const std::string &          fileName) {
-
+                                                                              const std::string &          /*fileName*/) const
+{
    return new Ctc::PropertyValue( projectHandle, record, name, property, snapshot, reservoir, formation, surface, storage );
-
 }

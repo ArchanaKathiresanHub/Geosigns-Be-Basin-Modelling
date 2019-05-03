@@ -29,7 +29,7 @@ ThermalDiffusivityCalculator::ThermalDiffusivityCalculator ( LayerProps* formati
    m_isBasementFormationAndALC = false;
 }
 
-bool ThermalDiffusivityCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool ThermalDiffusivityCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                       OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -59,7 +59,7 @@ bool ThermalDiffusivityCalculator::operator ()( const OutputPropertyMap::OutputP
 
       if ( not m_temperature->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -67,7 +67,7 @@ bool ThermalDiffusivityCalculator::operator ()( const OutputPropertyMap::OutputP
 
       if ( not m_pressure->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -75,7 +75,7 @@ bool ThermalDiffusivityCalculator::operator ()( const OutputPropertyMap::OutputP
 
       if ( not m_lithopressure->calculate ()) {
          return false;
-      } 
+      }
 
    }
    const CompoundLithology * curLithology;
@@ -100,24 +100,24 @@ bool ThermalDiffusivityCalculator::operator ()( const OutputPropertyMap::OutputP
                curLithology = m_formation->getLithology(i, j, m_kIndex);
                curLithology ->calcBulkDensXHeatCapacity ( m_fluid, porosity, (*m_pressure)( i, j ), (*m_temperature)( i, j ),
                                                           (*m_lithopressure)( i, j ), bulkDensityHeatCapacity );
-               curLithology->calcBulkThermCondNPBasement ( m_fluid, porosity, (*m_temperature)( i, j ), (*m_lithopressure)( i, j ), 
+               curLithology->calcBulkThermCondNPBasement ( m_fluid, porosity, (*m_temperature)( i, j ), (*m_lithopressure)( i, j ),
                                                            thermalConductivityNormal, thermalConductivityPlane );
             } else {
                curLithology = (*m_lithologies)( i, j );
                curLithology ->calcBulkDensXHeatCapacity ( m_fluid, porosity, (*m_pressure)( i, j ), (*m_temperature)( i, j ), 0.0,  bulkDensityHeatCapacity );
                curLithology->calcBulkThermCondNP ( m_fluid, porosity, (*m_temperature)( i, j ), (*m_pressure)( i, j ), thermalConductivityNormal, thermalConductivityPlane );
             }
-            
+
             //             (*m_lithologies)( i, j )->calcBulkDensXHeatCapacity ( m_fluid, porosity, (*m_pressure)( i, j ), (*m_temperature)( i, j ), bulkDensityHeatCapacity );
             //             (*m_lithologies)( i, j )->calcBulkThermCondNP ( m_fluid, porosity, (*m_temperature)( i, j ), thermalConductivityNormal, thermalConductivityPlane );
-            
+
             if ( bulkDensityHeatCapacity != undefinedValue and
                  thermalConductivityPlane != undefinedValue and
                  bulkDensityHeatCapacity != 0.0 ) {
                verticalThermalDiffusivityMap->setValue ( i, j, thermalConductivityNormal / bulkDensityHeatCapacity );
             } else {
                verticalThermalDiffusivityMap->setValue ( i, j, undefinedValue );
-            } 
+            }
 
 //             horizontalThermalDiffusivityMap->setValue ( i, j, thermalThermalDiffusivityPlane );
          } else {
@@ -138,8 +138,8 @@ bool ThermalDiffusivityCalculator::operator ()( const OutputPropertyMap::OutputP
 
 void ThermalDiffusivityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "DiffusivityVec2", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "DiffusivityVec2",
+                                                                                                         m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          m_surface )));
 
@@ -148,18 +148,17 @@ void ThermalDiffusivityCalculator::allocatePropertyValues ( OutputPropertyMap::P
 
 bool ThermalDiffusivityCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
 
-   m_BasinModel = const_cast<AppCtx*>(FastcauldronSimulator::getInstance().getCauldron());
    m_porosity = PropertyManager::getInstance().findOutputPropertyMap ( "Porosity", m_formation, m_surface, m_snapshot );
    m_temperature = PropertyManager::getInstance().findOutputPropertyMap ( "Temperature", m_formation, m_surface, m_snapshot );
    m_pressure = PropertyManager::getInstance().findOutputPropertyMap ( "Pressure", m_formation, m_surface, m_snapshot );
-   m_isBasementFormationAndALC = m_formation->kind() == Interface::BASEMENT_FORMATION && m_BasinModel->isALC();
+   m_isBasementFormationAndALC = m_formation->isBasement() && FastcauldronSimulator::getInstance().isALC();
 
    m_lithologies = &m_formation->getCompoundLithologyArray ();
    if( m_isBasementFormationAndALC ) {
       m_lithopressure = PropertyManager::getInstance().findOutputPropertyMap ( "LithoStaticPressure", m_formation, m_surface, m_snapshot );
    } else {
       m_lithopressure = 0;
-   } 
+   }
 //    m_lithologies = &m_formation->Lithology;
    m_fluid = m_formation->fluid;
 
@@ -177,7 +176,7 @@ bool ThermalDiffusivityCalculator::initialise ( OutputPropertyMap::PropertyValue
    if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
       propertyValues [ 0 ]->allowOutput ( false );
    }
-	
+
    return m_porosity != 0 and m_temperature != 0 and m_pressure != 0  and m_lithologies != 0 and m_fluid != 0 and
       ( m_isBasementFormationAndALC ? m_lithopressure != 0 : true );
 ;
@@ -201,7 +200,7 @@ ThermalDiffusivityVolumeCalculator::ThermalDiffusivityVolumeCalculator ( LayerPr
    m_isBasementFormationAndALC = false;
 }
 
-bool ThermalDiffusivityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool ThermalDiffusivityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                             OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -232,7 +231,7 @@ bool ThermalDiffusivityVolumeCalculator::operator ()( const OutputPropertyMap::O
 
       if ( not m_temperature->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -240,7 +239,7 @@ bool ThermalDiffusivityVolumeCalculator::operator ()( const OutputPropertyMap::O
 
       if ( not m_pressure->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -248,7 +247,7 @@ bool ThermalDiffusivityVolumeCalculator::operator ()( const OutputPropertyMap::O
 
       if ( not m_lithopressure->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -294,8 +293,8 @@ bool ThermalDiffusivityVolumeCalculator::operator ()( const OutputPropertyMap::O
                                                                              thermalConductivityNormal,
                                                                              thermalConductivityPlane );
                 }
-                
-                
+
+
 //                (*m_lithologies)( i, j )->calcBulkDensXHeatCapacity ( m_fluid, porosity,
 //                                                                      m_pressure->getVolumeValue ( i, j, k ),
 //                                                                      m_temperature->getVolumeValue ( i, j, k ),
@@ -311,7 +310,7 @@ bool ThermalDiffusivityVolumeCalculator::operator ()( const OutputPropertyMap::O
                   verticalThermalDiffusivityMap->setValue ( i, j, k, thermalConductivityNormal / bulkDensityHeatCapacity );
                } else {
                   verticalThermalDiffusivityMap->setValue ( i, j, k, undefinedValue );
-               } 
+               }
 
             }
 
@@ -338,8 +337,8 @@ bool ThermalDiffusivityVolumeCalculator::operator ()( const OutputPropertyMap::O
 
 void ThermalDiffusivityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Diffusivity", 
-                                                                                                            m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Diffusivity",
+                                                                                                            m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 
@@ -348,11 +347,10 @@ void ThermalDiffusivityVolumeCalculator::allocatePropertyValues ( OutputProperty
 
 bool ThermalDiffusivityVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
 
-   m_BasinModel = const_cast<AppCtx*>(FastcauldronSimulator::getInstance().getCauldron());
    m_porosity = PropertyManager::getInstance().findOutputPropertyVolume ( "Porosity", m_formation, m_snapshot );
    m_temperature = PropertyManager::getInstance().findOutputPropertyVolume ( "Temperature", m_formation, m_snapshot );
    m_pressure = PropertyManager::getInstance().findOutputPropertyVolume ( "Pressure", m_formation, m_snapshot );
-   m_isBasementFormationAndALC = m_formation->kind() == Interface::BASEMENT_FORMATION && m_BasinModel->isALC();
+   m_isBasementFormationAndALC = m_formation->isBasement() && FastcauldronSimulator::getInstance().isALC();
    if( m_isBasementFormationAndALC ) {
       m_lithopressure = PropertyManager::getInstance().findOutputPropertyVolume ( "LithoStaticPressure", m_formation, m_snapshot );
    } else {

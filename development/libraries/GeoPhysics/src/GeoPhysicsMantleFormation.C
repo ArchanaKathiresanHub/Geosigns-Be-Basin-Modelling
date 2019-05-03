@@ -26,6 +26,7 @@
 
 #include "NumericFunctions.h"
 
+#include <cassert>
 
 using namespace DataAccess;
 
@@ -133,27 +134,33 @@ void GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness () {
 
 //------------------------------------------------------------//
 
-unsigned int GeoPhysics::GeoPhysicsMantleFormation::setMaximumNumberOfElements ( const bool readSizeFromVolumeData ) {
+unsigned int GeoPhysics::GeoPhysicsMantleFormation::setMaximumNumberOfElements ( const bool /*readSizeFromVolumeData*/ ) {
 
    const GeoPhysics::GeoPhysicsCrustFormation* crust = dynamic_cast<const GeoPhysics::GeoPhysicsCrustFormation*>( m_projectHandle->getCrustFormation ());
    const GeoPhysics::ProjectHandle* project = dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle);
-   double layerMaximumThickness = getMaximumThickness ();
+   const double layerMaximumThickness = getMaximumThickness ();
 
-  if( project->isALC() ){
-     int curNumberOfUniformElements0 = static_cast<int>( floor (  project->getMaximumNumberOfMantleElements() / crust->getCrustThinningRatio () ));
-     // numberOfUniformElements0 = PetscMin( numberOfUniformElements0, 10.0 );
-     int numberOfUniformElements0 = ( curNumberOfUniformElements0 > 10 ? 10 : ( curNumberOfUniformElements0 < 4 ? 4 : curNumberOfUniformElements0 ));
-     double initLithoThickness = getInitialLithosphericMantleThickness () + crust->getInitialCrustalThickness();
-     m_mantleElementHeight0 = getInitialLithosphericMantleThickness () / numberOfUniformElements0;
-     m_maximumNumberOfElements = static_cast<int>(ceil (( initLithoThickness - crust->getMinimumThickness()  ) /  ( m_mantleElementHeight0 / crust->getCrustThinningRatio () )));
+  if( project->isALC() )
+  {
+    m_maximumNumberOfElements = project->getMaximumNumberOfMantleElements();
+    const double maxLithoThickness = getInitialLithosphericMantleThickness () + crust->getInitialCrustalThickness() - crust->getMinimumThickness() ;
 
-     if( project->getRank() == 0 ) {
-        cout << endl << "heightMantleElement0 = " << m_mantleElementHeight0 << ", numberOfMantleElements0 = " <<  numberOfUniformElements0 << ", numberOfElements = " << m_maximumNumberOfElements << endl;
-     }
-  } else {
-     m_maximumNumberOfElements = (unsigned int)( m_zRefinementFactor * std::ceil ( layerMaximumThickness /
-                                                                                   m_projectHandle->getRunParameters ()->getBrickHeightMantle () *
-                                                                                   crust->getCrustThinningRatio ()));
+    if ( project->getBottomBoundaryConditions() == Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE )
+    {
+      m_mantleElementHeight0 = maxLithoThickness / m_maximumNumberOfElements;
+    }
+    else
+    {
+      m_globalMaxCrustThinningRatio = crust->getCrustThinningRatio();
+      const int curNumberOfUniformElements0 = static_cast<int>( floor ( m_maximumNumberOfElements / m_globalMaxCrustThinningRatio ));
+      const int numberOfUniformElements0 = ( curNumberOfUniformElements0 > 10 ? 10 : ( curNumberOfUniformElements0 < 4 ? 4 : curNumberOfUniformElements0 ));
+      m_mantleElementHeight0 = getInitialLithosphericMantleThickness () / numberOfUniformElements0 / m_globalMaxCrustThinningRatio;
+      m_maximumNumberOfElements = static_cast<int>(ceil( maxLithoThickness / m_mantleElementHeight0));
+    }
+  }
+  else
+  {
+     m_maximumNumberOfElements = (unsigned int)( m_zRefinementFactor * std::ceil ( layerMaximumThickness / getMantleElementHeight0() * crust->getCrustThinningRatio()));
      m_maximumNumberOfElements = NumericFunctions::Maximum<unsigned int> ( 1, m_maximumNumberOfElements );
   }
   return m_maximumNumberOfElements;
@@ -195,6 +202,28 @@ void GeoPhysics::GeoPhysicsMantleFormation::restoreAllThicknessMaps () {
 
       delete mantleThicknesses;
    }
+}
 
+double GeoPhysics::GeoPhysicsMantleFormation::getMantleElementHeight0(double localMaxCrustThicknessRatio, int k, int kMax) const
+{
+  if ( m_projectHandle->getBottomBoundaryConditions() == Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE )
+  {
+    assert( kMax + 1 == m_maximumNumberOfElements );
+    // Elements increasing linear in size as function of depth
+    // Local maximum for crust thickness ratio, instead of global maximum in ALC method
+    const double a = (localMaxCrustThicknessRatio - 1) * 2.0 / kMax;
+    return m_mantleElementHeight0 * ( 1.0 + a * (kMax - k) );
+  }
+  else if ( m_projectHandle->getBottomBoundaryConditions() == Interface::ADVANCED_LITHOSPHERE_CALCULATOR )
+  {
+    // Original ALC method
+    return m_mantleElementHeight0 * m_globalMaxCrustThinningRatio;
+  }
+  else
+  {
+    // Non ALC methods
+    assert( !m_projectHandle->isALC() );
+    return m_projectHandle->getRunParameters()->getBrickHeightMantle();
+  }
 }
 

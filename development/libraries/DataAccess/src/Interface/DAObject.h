@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -56,7 +56,7 @@ namespace DataAccess
             ProjectHandle * getProjectHandle (void) const;
 
             /// return the object factory
-            ObjectFactory * getFactory (void) const;
+            const ObjectFactory* getFactory(void) const;
 
             /// @brief Return the GridMap (mapAttributeNames[attributeId]) associated to one record's attributes
             /// @details If the attribute is a value (so not a string linking to a map)

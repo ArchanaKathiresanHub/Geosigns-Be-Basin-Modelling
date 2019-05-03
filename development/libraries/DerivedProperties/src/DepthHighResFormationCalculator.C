@@ -95,13 +95,13 @@ void DerivedProperties::DepthHighResFormationCalculator::calculate(       Abstra
          const DataModel::AbstractProperty * depthHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
          assert( depthHighResProperty != 0 );
 
-         DerivedFormationPropertyPtr depthHighRes = 
+         DerivedFormationPropertyPtr depthHighRes =
             DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( depthHighResProperty,
                                                                                           snapshot,
                                                                                           formation,
                                                                                           propertyManager.getMapGrid(),
                                                                                           currentFormation->getMaximumNumberOfElements() + 1 ) );
-      
+
          // Initialize top surface nodes according to the formation above (if any)
          initializeTopSurface( propertyManager,
                                depthHighResProperty,
@@ -235,8 +235,8 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForMantle( const
    {
       const double time = snapshot->getTime();
 
-      const bool isALC = (m_projectHandle->getBottomBoundaryConditions() == DataAccess::Interface::ADVANCED_LITHOSPHERE_CALCULATOR);
-       
+      const bool isALC = m_projectHandle->isALC();
+
       double basementThickness = 0.0;
       double mantleThickness   = 0.0;;
       if( isALC )
@@ -252,12 +252,8 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForMantle( const
       const GeoPhysics::GeoPhysicsCrustFormation * crust = dynamic_cast<const GeoPhysics::GeoPhysicsCrustFormation*>( m_projectHandle->getCrustFormation() );
       assert( crust != 0 );
 
-      const GeoPhysics::GeoPhysicsMantleFormation * mantle = 0;
-      if( isALC )
-      {
-         mantle = dynamic_cast<const GeoPhysics::GeoPhysicsMantleFormation*>( m_projectHandle->getMantleFormation() );
-         assert( mantle != 0 );
-      }
+      const GeoPhysics::GeoPhysicsMantleFormation * mantle = dynamic_cast<const GeoPhysics::GeoPhysicsMantleFormation*>( m_projectHandle->getMantleFormation() );
+      assert( mantle != 0 );
 
       const bool includeGhostNodes = true;
       const unsigned int firstI = depthHighRes->firstI( includeGhostNodes );
@@ -276,25 +272,24 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForMantle( const
                const double currentCrustThickness = m_projectHandle->getCrustThickness( i, j, time );
                const double crustThinningRatio    = ( currentCrustThickness > 0.0 ) ? (crust->getCrustMaximumThickness(i,j)/currentCrustThickness) : -1.0;
 
-               double mantleSegmentHeight = 0.0;
                if( isALC )
                {
                   if( currentCrustThickness <= 0.0 )
                   {
                      throw formattingexception::GeneralException() << "Effective Crustal thickness can't be 0";
                   }
-                  mantleSegmentHeight = mantle->m_mantleElementHeight0 / crustThinningRatio;
                }
                else
                {
                   basementThickness = mantleThickness + m_projectHandle->getCrustThickness( i, j, 0.0 );
-                  mantleSegmentHeight = m_projectHandle->getRunParameters()->getBrickHeightMantle() / crustThinningRatio;
                }
 
                const double currentMantleThickness  = basementThickness - currentCrustThickness;
                const double maximumDepth            = depthHighRes->get( i, j, lastK ) + currentMantleThickness;
                for( unsigned int k = lastK; k > firstK; --k )
                {
+                  const double mantleSegmentHeight0 = mantle->getMantleElementHeight0(crust->getCrustMaximumThickness(i,j)/crust->getCrustMinimumThickness(i,j), k, lastK);
+                  const double mantleSegmentHeight = mantleSegmentHeight0/crustThinningRatio;
                   depthHighRes->set( i, j, k - 1, NumericFunctions::Minimum(maximumDepth, depthHighRes->get( i, j, k ) + mantleSegmentHeight) );
                }
             }
@@ -336,7 +331,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForCoupledRunWit
       double realThickness          = 0.0;
       double depthHighResValue      = 0.0;
       double depthHighResAboveValue = 0.0;
-      
+
       for( unsigned int i = firstI; i <= lastI; ++i )
       {
          for( unsigned int j = firstJ; j <= lastJ; ++j )
@@ -344,7 +339,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForCoupledRunWit
             if( m_projectHandle->getNodeIsValid(i, j) )
             {
                depthHighResAboveValue = depthHighRes->get(i, j, lastK);
-               
+
                // Loop index is shifted up by 1.
                for( unsigned int k = lastK; k > firstK; --k )
                {
@@ -402,7 +397,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
       const unsigned int lastJ  = depthHighRes->lastJ( includeGhostNodes );
       const unsigned int firstK = depthHighRes->firstK();
       const unsigned int lastK  = depthHighRes->lastK();
-      
+
       double solidThickness         = 0.0;
       double segmentThickness       = 0.0;
       double densityDifference      = 0.0;
@@ -411,7 +406,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
 
       const GeoPhysics::FluidType * fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType());
       const double constFluidDensity = (fluid == 0) ? 0.0 : fluid->getConstantDensity();
-      
+
       // I can't know at this level whether the VES or max VES will be required
       // because it depends on the following (i,j,k)-related specific conditions
       // - lithology(i,j)->isIncompressible()
@@ -420,7 +415,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
       const DataModel::AbstractProperty * const maxVesHighResProperty = propertyManager.getProperty( "MaxVesHighRes" );
       assert( maxVesHighResProperty != 0 );
       FormationPropertyPtr maxVesHighRes;
-      
+
       // VES, pressure and temperature might be required only for coupled runs and not in the crust
       const DataModel::AbstractProperty * vesHighResProperty = 0;
       FormationPropertyPtr vesHighRes;
@@ -451,7 +446,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
                assert( lithology != 0 );
 
                // the density difference cannot be less than 0
-               if ( lithology->density() > constFluidDensity ) 
+               if ( lithology->density() > constFluidDensity )
                {
                   densityDifference = lithology->density() - constFluidDensity;
                }
@@ -461,7 +456,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
                }
 
                const double oneMinusSurfacePorosity = 1.0 - lithology->surfacePorosity();
-               
+
                // Loop index is shifted up by 1.
                for( unsigned int k = lastK; k > firstK; --k )
                {
@@ -507,7 +502,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
                         depthHighResValue += segmentThickness;
                      }
                   }
-                  
+
                   depthHighRes->set(i, j, k - 1, depthHighResValue);
                   depthHighResAboveValue = depthHighResValue;
                }

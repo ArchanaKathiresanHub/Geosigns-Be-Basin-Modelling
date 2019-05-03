@@ -343,9 +343,10 @@ namespace DataAccess
 
       /// Indicates which bottom boundary condition should be applied.
       enum BottomBoundaryConditions {
-         MANTLE_HEAT_FLOW,               ///< Mantle heat flow boundary condition.
-         FIXED_BASEMENT_TEMPERATURE,     ///< Fixed temperature boundary condition.
-         ADVANCED_LITHOSPHERE_CALCULATOR ///< Initial lithosphere (mantle + crust) thickness
+         MANTLE_HEAT_FLOW,                 ///< Mantle heat flow boundary condition.
+         FIXED_BASEMENT_TEMPERATURE,       ///< Fixed temperature boundary condition.
+         ADVANCED_LITHOSPHERE_CALCULATOR,  ///< Initial lithosphere (mantle + crust) thickness
+         IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE ///< Initial lithosphere (mantle + crust) thickness, linear element mode
       };
 
       /// Used to distinguish between 1D/3D functionality.
@@ -414,14 +415,14 @@ namespace DataAccess
          CONSERVATIVE_2
       };
 
-	  /// Indicates which seismic velocity algorithm should be used.
-	  enum SeismicVelocityModel {
-		  GARDNERS_VELOCITY_ALGORITHM,
-		  KENNANS_VELOCITY_ALGORITHM,
-		  WYLLIES_VELOCITY_ALGORITHM
-	  };
+		/// Indicates which seismic velocity algorithm should be used.
+		enum SeismicVelocityModel {
+			GARDNERS_VELOCITY_ALGORITHM,
+			KENNANS_VELOCITY_ALGORITHM,
+			WYLLIES_VELOCITY_ALGORITHM
+		};
 
-      enum CoordinateAxis { X_COORD, Y_COORD };
+			enum CoordinateAxis { X_COORD, Y_COORD };
 
       /// operator type definition used in the computation of GridMaps from other GridMaps
       typedef double( *BinaryOperator ) ( double, double );

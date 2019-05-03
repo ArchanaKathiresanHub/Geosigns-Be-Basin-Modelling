@@ -5,25 +5,24 @@
 
 
 BasementPropertyCalculator::BasementPropertyCalculator ( const PropertyList propertyName,
-                                                         LayerProps* formation, 
-                                                         const Interface::Surface* surface, 
+                                                         LayerProps* formation,
+                                                         const Interface::Surface* surface,
                                                          const Interface::Snapshot* snapshot ) :
-   OutputPropertyMap ( propertyName, formation, surface, snapshot ),  
+   OutputPropertyMap ( propertyName, formation, surface, snapshot ),
    m_formation ( formation ), m_snapshot ( snapshot ), m_isCalculated ( false ) {
 
-   // if ( m_formation->getDALFormation ()->kind () == Interface::BASEMENT_FORMATION && m_formation->isCrust()) {
-   if ( m_formation->kind () == Interface::BASEMENT_FORMATION && 
-        (( m_formation->isMantle () && ( propertyName == ALC_ORIGINAL_MANTLE || propertyName == ALC_MAX_MANTLE_DEPTH )) || 
+   if ( m_formation->isBasement() &&
+        (( m_formation->isMantle () && ( propertyName == ALC_ORIGINAL_MANTLE || propertyName == ALC_MAX_MANTLE_DEPTH )) ||
          ( m_formation->isCrust() && propertyName != ALC_ORIGINAL_MANTLE && propertyName != ALC_MAX_MANTLE_DEPTH ))) {
       string outputPropertyName = propertyListName ( propertyName );
-      
+
       PropertyValue* localValues = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( outputPropertyName,
                                                                                                                    snapshot, 0, formation, 0 ));
       if ( FastcauldronSimulator::getInstance ().isALC () && ( propertyName == TOP_BASALT_ALC || propertyName == MOHO_ALC )) {
          localValues->allowOutput ( true );
       }
       m_values.push_back ( localValues );
-      
+
       if ( localValues->getProperty () != 0 ) {
          m_properties.push_back ((const Property*)(localValues->getProperty ()));
       }
@@ -40,24 +39,24 @@ BasementPropertyCalculator::BasementPropertyCalculator ( const PropertyList prop
    }
 }
 
-bool BasementPropertyCalculator::calculate () 
+bool BasementPropertyCalculator::calculate ()
 {
 
-   if ( m_formation->kind () == Interface::BASEMENT_FORMATION ) {
-      
+   if ( m_formation->isBasement() ) {
+
       if ( not isCalculated () ) {
          m_isCalculated = calculateProperty();
-         
+
          // if (not allowOutput)
          //    m_values [ 0 ] -> allowOutput(false);
-         
+
          m_propertyMaps.push_back ( m_values [ 0 ]->getGridMap ());
       }
-      
+
       if ( not m_propertyMaps [ 0 ]->retrieved ()) {
          m_propertyMaps [ 0 ]->retrieveGhostedData ();
       }
-      
+
       return m_isCalculated;
    } else {
       return true;
@@ -66,40 +65,39 @@ bool BasementPropertyCalculator::calculate ()
 
 bool BasementPropertyCalculator::calculateProperty () {
 
-   // if ( m_formation->getDALFormation ()->kind () == Interface::BASEMENT_FORMATION && m_formation->isCrust()) {
-   if ( m_formation->kind () == Interface::BASEMENT_FORMATION  && 
-        (( m_formation->isMantle () && ( m_propertyName == ALC_ORIGINAL_MANTLE || m_propertyName == ALC_MAX_MANTLE_DEPTH )) || 
+   if ( m_formation->isBasement()  &&
+        (( m_formation->isMantle () && ( m_propertyName == ALC_ORIGINAL_MANTLE || m_propertyName == ALC_MAX_MANTLE_DEPTH )) ||
          ( m_formation->isCrust() && m_propertyName != ALC_ORIGINAL_MANTLE && m_propertyName != ALC_MAX_MANTLE_DEPTH ))) {
 
       if ( m_isCalculated ) {
          return true;
       }
-      
+
       if( !m_BasinModel->isALC()) {
          // error
          return true;
       }
-      
+
       unsigned int i;
       unsigned int j;
       double value;
       double undefinedValue;
       double **propertyVector;
-      
+
       Interface::GridMap* theMap = m_values [ 0 ]->getGridMap ();
       theMap->retrieveData ();
-      
+
       // Gets the values of Petsc vector from layer class for property 'm_propertyName'.
       DMDAVecGetArray( *m_BasinModel->mapDA,
                        *m_formation->vectorList.VecArray [ m_propertyName ],
                        (void*) &propertyVector );
-      
+
       undefinedValue = theMap->getUndefinedValue ();
-      
+
       for ( i = theMap->firstI (); i <= theMap->lastI (); ++i ) {
-         
+
          for ( j = theMap->firstJ (); j <= theMap->lastJ (); ++j ) {
-            
+
             if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
                value = propertyVector [j][i];
                theMap->setValue ( i, j, value );
@@ -108,13 +106,13 @@ bool BasementPropertyCalculator::calculateProperty () {
             }
          }
       }
-      
+
       theMap->restoreData ();
-      
+
       DMDAVecRestoreArray( *m_BasinModel->mapDA,
                            *m_formation->vectorList.VecArray [ m_propertyName ],
                            (void*) &propertyVector );
-      
+
       m_isCalculated = true;
       return true;
    } else {
@@ -124,24 +122,24 @@ bool BasementPropertyCalculator::calculateProperty () {
 
 bool BasementPropertyCalculator::initialise ( ) {
 
-   if ( m_formation->kind () == Interface::BASEMENT_FORMATION  && 
-        (( m_formation->isMantle () && ( m_propertyName == ALC_ORIGINAL_MANTLE || m_propertyName == ALC_MAX_MANTLE_DEPTH )) || 
+   if ( m_formation->isBasement()  &&
+        (( m_formation->isMantle () && ( m_propertyName == ALC_ORIGINAL_MANTLE || m_propertyName == ALC_MAX_MANTLE_DEPTH )) ||
          ( m_formation->isCrust() && m_propertyName != ALC_ORIGINAL_MANTLE && m_propertyName != ALC_MAX_MANTLE_DEPTH ))) {
       m_BasinModel = const_cast<AppCtx*>(FastcauldronSimulator::getInstance().getCauldron());
       // m_propertyName = m_values[0]->getName();
-      
-      return m_formation->kind () == Interface::BASEMENT_FORMATION;
+
+      return m_formation->isBasement();
    } else {
       return true;
    }
 }
 
 void BasementPropertyCalculator::finalise () {
-   if ( m_formation->kind () == Interface::BASEMENT_FORMATION && 
-        (( m_formation->isMantle () && ( m_propertyName == ALC_ORIGINAL_MANTLE || m_propertyName == ALC_MAX_MANTLE_DEPTH )) || 
+   if ( m_formation->isBasement() &&
+        (( m_formation->isMantle () && ( m_propertyName == ALC_ORIGINAL_MANTLE || m_propertyName == ALC_MAX_MANTLE_DEPTH )) ||
          ( m_formation->isCrust() && m_propertyName != ALC_ORIGINAL_MANTLE && m_propertyName != ALC_MAX_MANTLE_DEPTH ))) {
       unsigned int i;
-      
+
       for ( i = 0; i < m_propertyMaps.size (); ++i ) {
          m_propertyMaps [ i ]->restoreData ( true, true );
       }

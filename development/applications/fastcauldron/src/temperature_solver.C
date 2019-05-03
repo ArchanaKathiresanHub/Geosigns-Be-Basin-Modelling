@@ -13,7 +13,6 @@
 #include "fem_grid.h"
 
 #include "utils.h"
-#include "WallTime.h"
 
 #include "ConstantsFastcauldron.h"
 #include "element_contributions.h"
@@ -384,7 +383,7 @@ void Temperature_Solver::Estimate_Basement_Temperature ( )
   CrustFormation*  Crust_Layer   = Basin_Model -> Crust();
   MantleFormation* Mantle_Layer  = Basin_Model -> Mantle();
 
-  double Top_Asthenospheric_Temperature = FastcauldronSimulator::getInstance ().getBottomMantleTemperature ();
+  const double Top_Asthenospheric_Temperature = FastcauldronSimulator::getInstance ().getTopAsthenosphericTemperature ();
 
   DMDAGetCorners( *Basin_Model -> mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
 
@@ -1017,18 +1016,22 @@ void Temperature_Solver::getBoundaryConditions ( const GeneralElement& element,
 
       // node numbers (n \in {4,5,6,7}) are at the bottom of the element.
       // When we have crustal thinning then the bottom node may not have a getNodeK ( n ) == 0
-      if ( element.getNodeK ( n ) == 0 or ( bottomOfDomain and n >= 4 )) {
+      if ( element.getNodeK ( n ) == 0 or ( bottomOfDomain and n >= 4 ))
+      {
          Interface::BottomBoundaryConditions bottomBcs = fc.getBottomBoundaryConditions ();
 
-         if ( bottomBcs == Interface::MANTLE_HEAT_FLOW ) {
+         if ( bottomBcs == Interface::MANTLE_HEAT_FLOW )
+         {
             bcs.setBoundaryConditions ( n, Bottom_Boundary_Flux,
                                         fc.getMantleHeatFlow ( element.getNodeI ( n ), element.getNodeJ ( n ), currentTime ));
-         } else if ( bottomBcs == Interface::FIXED_BASEMENT_TEMPERATURE or
-                     bottomBcs == Interface::ADVANCED_LITHOSPHERE_CALCULATOR) {
-            bcs.setBoundaryConditions ( n, Surface_Boundary, fc.getBottomMantleTemperature ());
          }
-
-      } else if ( element.getNodeK ( n ) == topIndex ) {
+         else if ( bottomBcs == Interface::FIXED_BASEMENT_TEMPERATURE || fc.isALC())
+         {
+            bcs.setBoundaryConditions ( n, Surface_Boundary, fc.getTopAsthenosphericTemperature ());
+         }
+      }
+      else if ( element.getNodeK ( n ) == topIndex )
+      {
          bcs.setBoundaryConditions ( n, Surface_Boundary,
                                      fc.getSeaBottomTemperature ( element.getNodeI ( n ),
                                                                   element.getNodeJ ( n ),
@@ -1080,7 +1083,7 @@ void Temperature_Solver::getAlcBcsAndLithology ( const GeneralElement&     eleme
 
          if ( geometryMatrixOffset ( 3, n + 1 ) > Hfix ) {
             // Is this just the bottom BC (1333)?
-            bcs.setBoundaryConditions ( n, Surface_Boundary, fc.getBottomMantleTemperature ());
+            bcs.setBoundaryConditions ( n, Surface_Boundary, fc.getTopAsthenosphericTemperature ());
          }
 
       }
@@ -1295,8 +1298,6 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
                                    ( Basin_Model->Do_Iteratively_Coupled or
                                      Basin_Model->IsCalculationCoupled );
 
-  const CauldronGridDescription& grid = FastcauldronSimulator::getInstance ().getCauldronGridDescription ();
-
   PetscLogDouble Element_Start_Time;
   PetscLogDouble Element_End_Time;
 
@@ -1323,8 +1324,8 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
   PETSC_2D_Array bottomBasaltDepth;
 
   if ( Basin_Model -> isALC()) {
-     CrustFormation*   crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());
-     MantleFormation*  mantleLayer = dynamic_cast<MantleFormation*>(Basin_Model -> Mantle ());
+     CrustFormation*   crustLayer = Basin_Model -> Crust ();
+     MantleFormation*  mantleLayer = Basin_Model -> Mantle ();
      crustLayer->cleanVectors();
      mantleLayer->cleanVectors();
 
@@ -1333,8 +1334,6 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
   }
 
   MatZeroEntries ( stiffnessMatrix );
-
-  WallTime::Time startAss = WallTime::clock ();
 
   FiniteElementMethod::BasisFunctionCache basisFunctions ( planeQuadratureDegree, planeQuadratureDegree, depthQuadratureDegree );
 
@@ -1460,8 +1459,6 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
                                    ( Basin_Model->Do_Iteratively_Coupled or
                                      Basin_Model->IsCalculationCoupled );
 
-  const CauldronGridDescription& grid = FastcauldronSimulator::getInstance ().getCauldronGridDescription ();
-
   PetscLogDouble Element_Start_Time;
   PetscLogDouble Element_End_Time;
 
@@ -1488,8 +1485,8 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
   PETSC_2D_Array bottomBasaltDepth;
 
   if( Basin_Model -> isALC() ) {
-     CrustFormation*   crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());
-     MantleFormation*  mantleLayer = dynamic_cast<MantleFormation*>(Basin_Model -> Mantle ());
+     CrustFormation*   crustLayer = Basin_Model -> Crust ();
+     MantleFormation*  mantleLayer = Basin_Model -> Mantle ();
      crustLayer->cleanVectors();
      mantleLayer->cleanVectors();
      topBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> TopBasaltDepth, INSERT_VALUES, IncludeGhosts );
@@ -1497,8 +1494,6 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
   }
 
   MatZeroEntries ( jacobian );
-
-  WallTime::Time startAss = WallTime::clock ();
 
   while ( ! Layers.Iteration_Is_Done () ) {
 
@@ -1617,8 +1612,6 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
                                    ( Basin_Model->Do_Iteratively_Coupled or
                                      Basin_Model->IsCalculationCoupled );
 
-  const CauldronGridDescription& grid = FastcauldronSimulator::getInstance ().getCauldronGridDescription ();
-
   PetscLogDouble Element_Start_Time;
   PetscLogDouble Element_End_Time;
 
@@ -1653,9 +1646,6 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
      topBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> TopBasaltDepth, INSERT_VALUES, IncludeGhosts );
      bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth, INSERT_VALUES, IncludeGhosts );
   }
-
-  WallTime::Time startAss = WallTime::clock ();
-
 
   while ( ! Layers.Iteration_Is_Done () ) {
 

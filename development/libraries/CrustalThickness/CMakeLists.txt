@@ -139,6 +139,10 @@ set ( io_dataAccessMockFiles
 set ( io_derivedPropertiesMockFiles
    ../DerivedProperties/test/MockDerivedSurfaceProperty.h
    ../DerivedProperties/test/MockDerivedSurfaceProperty.C
+   ../DerivedProperties/test/MockGrid.h
+   ../DerivedProperties/test/MockFormation.h
+   ../DerivedProperties/test/MockProperty.h
+   ../DerivedProperties/test/MockSurface.h
 )
 
 set ( io_dataModelMockFiles
@@ -160,7 +164,7 @@ set ( tester_McKenzie
 # 2. Inputs testing
 #
 add_gtest( NAME "${LIB_NAME}::ConfigFileCtc"
-           SOURCES test/ConfigFileCtc.C 
+           SOURCES test/ConfigFileCtc.C
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
            ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
@@ -205,7 +209,7 @@ add_gtest( NAME "${LIB_NAME}::PaleowaterdepthResidual"
          )
 
 add_gtest( NAME "${LIB_NAME}::LinearFunction"
-           SOURCES test/LinearFunction.C 
+           SOURCES test/LinearFunction.C
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )

@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2018-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -43,6 +43,7 @@ void ContinentalCrustHistoryGenerator::createCrustThickness(const BottomBoundary
       createFixedBasementTemperatureCrust();
       break;
    case ADVANCED_LITHOSPHERE_CALCULATOR:
+   case IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE:
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::SECTION) <<
          "Initialyze crust for Advanced Lithospheric Calculator (ALC) bottom boundary conditions";
       createAdvancedLithosphereCalculatorCrust();
@@ -64,9 +65,8 @@ void ContinentalCrustHistoryGenerator::createFixedBasementTemperatureCrust()
 
    for (auto & crustThicknesse : *crustThicknesses)
    {
-      const auto* thicknessInstance = dynamic_cast<const PaleoFormationProperty*>(crustThicknesse);
-      const auto* thicknessMap = dynamic_cast<const GridMap*>(thicknessInstance->getMap(CrustThinningHistoryInstanceThicknessMap));
-      const double age = thicknessInstance->getSnapshot()->getTime();
+      const GridMap* thicknessMap = crustThicknesse->getMap(CrustThinningHistoryInstanceThicknessMap);
+      const double age = crustThicknesse->getSnapshot()->getTime();
 
       thicknessMap->retrieveData(true);
 
@@ -80,7 +80,7 @@ void ContinentalCrustHistoryGenerator::createFixedBasementTemperatureCrust()
             }
          }
       }
-      
+
       thicknessMap->restoreData(false, true);
 
    }
@@ -110,7 +110,7 @@ void ContinentalCrustHistoryGenerator::createAdvancedLithosphereCalculatorCrust(
       const double age = thicknessInstance->getSnapshot()->getTime();
 
       thicknessMap->retrieveData(true);
-      
+
       for (unsigned int i = thicknessMap->getGrid()->firstI(true); i <= static_cast<unsigned int>(thicknessMap->getGrid()->lastI(true)); ++i)
       {
          for (unsigned int j = thicknessMap->getGrid()->firstJ(true); j <= static_cast<unsigned int>(thicknessMap->getGrid()->lastJ(true)); ++j)
@@ -134,7 +134,7 @@ void ContinentalCrustHistoryGenerator::createAdvancedLithosphereCalculatorCrust(
             }
          }
       }
-      
+
       thicknessMap->restoreData(false, true);
    }
 

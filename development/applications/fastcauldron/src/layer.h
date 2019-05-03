@@ -130,7 +130,7 @@ public:
 
    bool Is_Overpressure_Constrained () const;
 
-   virtual bool isBasalt() const { return false; };
+   virtual bool isBasalt() const { return false; }
 
    /// \brief Set the activity of the layer elements.
    ///
@@ -143,21 +143,21 @@ public:
    /// \brief Return a constant reference to the layer element at the position.
    ///
    /// The k index is relative to the locak layer based k counting scheme.
-   const LayerElement& getLayerElement ( const int i, 
+   const LayerElement& getLayerElement ( const int i,
                                          const int j,
                                          const int k ) const;
 
    /// \brief Return a reference to the layer element at the position.
    ///
    /// The k index is relative to the locak layer based k counting scheme.
-   LayerElement& getLayerElement ( const int i, 
+   LayerElement& getLayerElement ( const int i,
                                    const int j,
                                    const int k );
 
 
    /// Return the thickness of the segment at the age that is being deposited.
    ///
-   /// I.e. If the simulation is a pressure or temperature simulation and is non-geometric 
+   /// I.e. If the simulation is a pressure or temperature simulation and is non-geometric
    /// loop the return the solid thickness otherwise return the real-thickness.
    double getDepositingThickness ( const unsigned int i,
                                    const unsigned int j,
@@ -205,7 +205,7 @@ public:
 
    const PVTComponents& getMolarMass () const;
 
-  void Fill_Topmost_Segment_Arrays ( const double          Previous_Time, 
+  void Fill_Topmost_Segment_Arrays ( const double          Previous_Time,
                                      const double          Current_Time,
                                      const bool            Use_Solid_Thickness,
                                      const Boolean2DArray& Valid_Needle );
@@ -237,7 +237,7 @@ public:
                      AppCtx*          basinModel );
 
   void interpolateProperty (       AppCtx*                  basinModel,
-                             const double                   currentTime, 
+                             const double                   currentTime,
                              const bool                     doingHighResDecompaction,
                              const PropertyList             property );
 
@@ -254,7 +254,7 @@ public:
   string           BottSurfaceName;
   int              BottSurface_DepoSeq;
 
-  Vec              depthvec;          
+  Vec              depthvec;
   const Interface::GridMap * depthGridMap;
   const Interface::GridMap * presentDayThickness;
 
@@ -288,8 +288,8 @@ public:
       (void) jPosition;
       (void) kPosition;
       return false;
-   } 
-      
+   }
+
    // Vec getGeneratedMasses ();
 
    const Vec& getComponentVec () const;
@@ -341,7 +341,7 @@ public:
    const ElementVolumeGrid& getSaturationGrid () const;
 
    const ElementVolumeGrid& getElementFluxGrid () const;
-   
+
    const ElementVolumeGrid& getTimeOfElementInvasionGrid () const;
 
 
@@ -411,7 +411,7 @@ public:
 
   Vec m_IlliteFraction;
   Vec m_HopaneIsomerisation, m_SteraneIsomerisation, m_SteraneAromatisation;
-  
+
   //
   //
   // These properties should be removed when the property manager
@@ -437,7 +437,7 @@ public:
    double getCurrentLayerThickness ( const int i,
                                      const int j ) const;
 
-  listVec          vectorList;   
+  listVec          vectorList;
 
 
 
@@ -630,7 +630,7 @@ public:
    /// \brief Mapping from number-of-dofs->nodal-volume-grid.
    mutable NodalVolumeGridArray m_nodalVolumeGrids;
 
-   
+
 };
 
 inline int LayerProps::getNrOfActiveElements () const {
@@ -670,7 +670,7 @@ inline const LayerElementArray& LayerProps::getLayerElements () const {
    return m_elements;
 }
 
-inline const LayerElement& LayerProps::getLayerElement ( const int i, 
+inline const LayerElement& LayerProps::getLayerElement ( const int i,
                                                          const int j,
                                                          const int k ) const {
    // Should check indices.
@@ -678,7 +678,7 @@ inline const LayerElement& LayerProps::getLayerElement ( const int i,
 }
 
 
-inline LayerElement& LayerProps::getLayerElement ( const int i, 
+inline LayerElement& LayerProps::getLayerElement ( const int i,
                                                    const int j,
                                                    const int k ) {
    // Should check indices.

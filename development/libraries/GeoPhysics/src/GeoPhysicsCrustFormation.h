@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -99,6 +99,10 @@ namespace GeoPhysics {
       double getCrustMaximumThickness ( const unsigned int i,
                                         const unsigned int j ) const;
 
+      /// \return The crust minimum thickness at the given (i,j) node
+      double getCrustMinimumThickness ( const unsigned int i,
+                                        const unsigned int j ) const;
+
       /// \brief Retrieves all the paleo crustal thicknesses map
       void retrieveAllThicknessMaps ();
       /// \brief Restores all the paleo crustal thicknesses map
@@ -111,6 +115,7 @@ namespace GeoPhysics {
       double                    m_crustThinningRatio;           ///< The crust thinning ration   []
 
       DataAccess::Interface::GridMap*  m_crustMaximumThickness; ///< The crust maximum thickness [m]
+      DataAccess::Interface::GridMap*  m_crustMinimumThickness; ///< The crust minimum thickness [m]
 
    };
 }

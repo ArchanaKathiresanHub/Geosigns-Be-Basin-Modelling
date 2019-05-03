@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -36,16 +36,18 @@ GeoPhysics::GeoPhysicsCrustFormation::GeoPhysicsCrustFormation ( DataAccess::Int
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::Formation ( projectHandle, record ),
    DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::CrustFormationName, m_projectHandle->getCrustLithoName() ),
-   DataAccess::Interface::CrustFormation ( projectHandle, record ) 
+   DataAccess::Interface::CrustFormation ( projectHandle, record )
 {
    m_crustThinningRatio = Interface::DefaultUndefinedScalarValue;
    m_crustMaximumThickness = 0;
+   m_crustMinimumThickness = 0;
 }
 
 //------------------------------------------------------------//
 
 GeoPhysics::GeoPhysicsCrustFormation::~GeoPhysicsCrustFormation () {
    delete m_crustMaximumThickness;
+   delete m_crustMinimumThickness;
 }
 
 //------------------------------------------------------------//
@@ -140,14 +142,14 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
       unsigned int j;
       double gridMapMaximumLocal =  -1.0e10;;
       double gridMapMinimumLocal =   1.0e10;;
-      
+
       for ( thicknessIter = crustThicknesses->begin (); thicknessIter != crustThicknesses->end (); ++thicknessIter ) {
          const Interface::GridMap* thicknessMap = dynamic_cast<const Interface::GridMap*>((*thicknessIter)->getMap (Interface::CrustThinningHistoryInstanceThicknessMap));
-         
+
          double age = (*thicknessIter)->getSnapshot ()->getTime ();
-         
+
          thicknessMap->retrieveData ();
-         
+
          for ( i = thicknessMap->firstI (); i <= thicknessMap->lastI (); ++i ) {
             for ( j = thicknessMap->firstJ (); j <= thicknessMap->lastJ (); ++j ) {
                if ( project->getNodeIsValid ( i, j )) {
@@ -161,7 +163,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
           m_projectHandle->getMaxValue ( &gridMapMaximumLocal, &gridMapMaximum );
 
          m_crustThickessHistory.AddPoint( age, gridMapMaximum );
-         
+
          m_maximumDepositedThickness = NumericFunctions::Maximum ( m_maximumDepositedThickness, gridMapMaximum );
          m_minimumDepositedThickness = NumericFunctions::Minimum ( m_minimumDepositedThickness, gridMapMinimum );
 
@@ -172,7 +174,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
          setInitialCrustalThickness( m_maximumDepositedThickness );
          if( m_projectHandle->getRank() == 0 ) {
             cout << "Basin_Warning: Set initialCrustalThickness to maximum Crustal thickness = " << m_maximumDepositedThickness << endl;
-         }         
+         }
       }
       delete crustThicknesses;
   }
@@ -199,6 +201,10 @@ bool GeoPhysics::GeoPhysicsCrustFormation::determineCrustThinningRatio () {
                                                                                                                    dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ()),
                                                                                                                    identity ));
       m_crustMaximumThickness->retrieveData ();
+      m_crustMinimumThickness = dynamic_cast<Interface::GridMap*>(m_projectHandle->getFactory ()->produceGridMap ( 0, 0,
+                                                                                                                   dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ()),
+                                                                                                                   identity ));
+      m_crustMinimumThickness->retrieveData ();
    } else {
 
       unsigned int i;
@@ -215,6 +221,12 @@ bool GeoPhysics::GeoPhysicsCrustFormation::determineCrustThinningRatio () {
                                                                                                                    Interface::DefaultUndefinedMapValue ));
 
       m_crustMaximumThickness->retrieveData ();
+
+      m_crustMinimumThickness = dynamic_cast<Interface::GridMap*>(m_projectHandle->getFactory ()->produceGridMap ( 0, 0,
+                                                                                                                   GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid (),
+                                                                                                                   Interface::DefaultUndefinedMapValue ));
+
+      m_crustMinimumThickness->retrieveData ();
 
       m_crustThinningRatio = -1.0e10;
 
@@ -250,6 +262,7 @@ bool GeoPhysics::GeoPhysicsCrustFormation::determineCrustThinningRatio () {
 
                m_crustThinningRatio = NumericFunctions::Maximum ( m_crustThinningRatio, maximumCrustThickness / minimumCrustThickness );
                m_crustMaximumThickness->setValue ( i, j, maximumCrustThickness );
+               m_crustMinimumThickness->setValue ( i, j, minimumCrustThickness );
             }
 
          }
@@ -275,6 +288,12 @@ double GeoPhysics::GeoPhysicsCrustFormation::getCrustMaximumThickness ( const un
    return m_crustMaximumThickness->getValue ( i, j );
 }
 
+
+double GeoPhysics::GeoPhysicsCrustFormation::getCrustMinimumThickness ( const unsigned int i,
+                                                                        const unsigned int j ) const {
+   return m_crustMinimumThickness->getValue ( i, j );
+}
+
 //------------------------------------------------------------//
 
 unsigned int GeoPhysics::GeoPhysicsCrustFormation::setMaximumNumberOfElements ( const bool readSizeFromVolumeData ) {
@@ -294,7 +313,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::retrieveAllThicknessMaps () {
    dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ())->retrieveGhostedData ();
 
    if ( m_projectHandle->getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ||
-        m_projectHandle->getBottomBoundaryConditions () == Interface::ADVANCED_LITHOSPHERE_CALCULATOR ) {
+        m_projectHandle->isALC() ) {
       Interface::PaleoFormationPropertyList* crustThicknesses = getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::iterator crustThicknessIter;
 
@@ -314,7 +333,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::restoreAllThicknessMaps () {
    dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ())->restoreData ( false, true );
 
    if ( m_projectHandle->getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ||
-        m_projectHandle->getBottomBoundaryConditions () == Interface::ADVANCED_LITHOSPHERE_CALCULATOR  ) {
+        m_projectHandle->isALC()  ) {
 
       Interface::PaleoFormationPropertyList* crustThicknesses = getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::iterator crustThicknessIter;

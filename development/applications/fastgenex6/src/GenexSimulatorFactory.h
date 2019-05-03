@@ -30,10 +30,10 @@ public:
    /// Produce the fastgenex6 specific ProjectHandle
    virtual GeoPhysics::ProjectHandle * produceProjectHandle (database::ProjectFileHandlerPtr database,
                                                              const string & name,
-                                                             const string & accessMode);
+                                                             const string & accessMode) const;
 
    /// Produce the fastgenex6 specific SourceRock
-   virtual DataAccess::Interface::SourceRock * produceSourceRock (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record);
+   virtual DataAccess::Interface::SourceRock * produceSourceRock (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const;
 
 };
 

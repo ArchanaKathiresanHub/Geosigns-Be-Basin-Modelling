@@ -39,6 +39,7 @@
 
 // Forward declarations
 class AppCtx;
+class FastcauldronFactory;
 class LayerProps;
 class MultiComponentFlowHandler;
 
@@ -67,7 +68,7 @@ public :
    FastcauldronSimulator (database::ProjectFileHandlerPtr& pfh,
                           const std::string & name,
                           const std::string & accessMode,
-                          DataAccess::Interface::ObjectFactory* factory);
+                          const DataAccess::Interface::ObjectFactory* factory);
 
    ~FastcauldronSimulator ();
 
@@ -81,9 +82,9 @@ public :
    /// Open the project file and return a pointed to the fastcauldron simulator.
    ///
    /// Fix when singlton is complete.
-   static FastcauldronSimulator* CreateFrom ( AppCtx* cauldron,
-                                              DataAccess::Interface::ObjectFactory* objectFactory,
-                                              const std::vector<std::string>& outputTableNames );
+   static FastcauldronSimulator* CreateFrom (AppCtx* cauldron,
+                                             const FastcauldronFactory* objectFactory,
+                                             const std::vector<std::string>& outputTableNames );
 
    /// Finish any activity and deallocate the singleton object.
    ///

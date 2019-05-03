@@ -24,7 +24,7 @@ namespace DataAccess
       class Grid : public DataModel::AbstractGrid
       {
       public:
-         virtual ~Grid (void) {};
+         virtual ~Grid (void) {}
 
          /// Checks whether the given point is a grid point
          virtual bool isGridPoint (unsigned int i, unsigned int j) const = 0;

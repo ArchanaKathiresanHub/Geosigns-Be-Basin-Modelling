@@ -851,7 +851,7 @@ void MultiComponentFlowHandler::getLayers ( LayerList& layers ) {
    for ( formationIter = formations->begin (); formationIter != formations->end (); ++formationIter ) {
       LayerProps* formation = const_cast<LayerProps*>(dynamic_cast<const LayerProps*>( *formationIter ));
 
-      if ( formation != 0 and formation->kind () == DataAccess::Interface::SEDIMENT_FORMATION ) {
+      if ( formation != 0 and formation->isSediment() ) {
          layers.push_back ( formation );
       }
 

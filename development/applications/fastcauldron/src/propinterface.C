@@ -84,7 +84,7 @@ using Utilities::Physics::AccelerationDueToGravity;
 //------------------------------------------------------------//
 
 bool Elt2dIndices::onDomainBoundary ( const int boundaryNumber ) const {
-  return nodeDefined [ boundaryNumber ] and nodeDefined [ ( boundaryNumber + 1 ) % 4 ];
+  return nodeDefined [ boundaryNumber ] && nodeDefined [ ( boundaryNumber + 1 ) % 4 ];
 }
 
 //------------------------------------------------------------//
@@ -104,7 +104,6 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
 
    CheckForStartInDebugger (&argc, &argv);
 
-   m_computeComponentFlow = false;
    m_exitAtAgeSet = false;
    m_exitAtAge = CauldronNoDataValue;
 
@@ -130,12 +129,6 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    m_elementErosionFraction = DefaultElementErosionFraction;
    m_elementHiatusFraction = DefaultElementHiatusFraction;
    m_vesScaling = DefaultVesScalingForFctInitialisation;
-
-   m_crustThinningModel = DefaultCrustThinningModel;
-   m_numberOfSuperiorMantleElements = 0;
-   m_numberOfInferiorMantleElements = 0;
-   m_inferiorMantleElementHeightScaling = 1.0;
-   m_minCrustThicknessIsZero = false;
 
    m_fixedPermafrostTimeStep = 0.0;
    m_permafrostTimeStep = 0.0;
@@ -189,7 +182,7 @@ bool AppCtx::readProjectFile () {
    // Synchronise 'projectFileReadOkay' with all other processes.
    projectFileReadOkay = successfulExecution ( projectFileReadOkay );
 
-   if ( not projectFileReadOkay ) {
+   if ( !projectFileReadOkay ) {
      return false;
    }
 
@@ -214,7 +207,7 @@ bool AppCtx::readProjectFile () {
      // If we are doing decompaction or non-coupled hydrostatic temperature, then there are no minor snapshots
      // The snapshot table SHOULD NOT be updated here, since these may still be required for any possible re-runs of GenEx.
      projectSnapshots.clearMinorSnapshots ();
-   } else if ( not DoHighResDecompaction ) {
+   } else if ( !DoHighResDecompaction ) {
 
      // Now that the set of major snapshot's has been assigned if there are no
      // existing minorsnapshots then they must be computed.
@@ -223,7 +216,7 @@ bool AppCtx::readProjectFile () {
 
    // If we are not doing an iteratively coupled model then there is no
    // need for the advective/convective term, as the overpressure is zero.
-   if ( includeAdvectiveTerm and ( not Do_Iteratively_Coupled and not IsCalculationCoupled )) {
+   if ( includeAdvectiveTerm && ( !Do_Iteratively_Coupled && !IsCalculationCoupled )) {
      includeAdvectiveTerm = false;
    }
 
@@ -247,7 +240,7 @@ bool AppCtx::readProjectFile () {
       timestepdecr = 1.0;
       m_elementFraction = 1.0 / FastcauldronSimulator::getInstance ().getRunParameters ()->getSegmentFractionToBury ();
 
-      if ( debug1 or verbose) {
+      if ( debug1 || verbose) {
          PetscPrintf ( PETSC_COMM_WORLD, " Using burial rate for time-stepping, element fraction: %f.\n", m_elementFraction );
       }
 
@@ -298,7 +291,7 @@ void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
 
         char *MY_DEBUGGERDIR = getenv("MY_DEBUGGERDIR");
 
-        if ( MY_DEBUGGERDIR != 0 and not File_Exists ( MY_DEBUGGERDIR )) {
+        if ( MY_DEBUGGERDIR != 0 && !File_Exists ( MY_DEBUGGERDIR )) {
            PetscPrintf ( PETSC_COMM_WORLD, " Environment variable MY_DEBUGGERDIR (=%s) does not point to anything, using system default.\n", MY_DEBUGGERDIR );
         }
 
@@ -307,7 +300,7 @@ void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
 
         // cout << "Attaching ddd to " << *args[ 0 ] << " (pid: " << Process_Id << ") Please wait..." << endl;
 
-        if ( MY_DEBUGGERDIR == 0 or strlen (MY_DEBUGGERDIR) == 0 or not File_Exists ( MY_DEBUGGERDIR )) {
+        if ( MY_DEBUGGERDIR == 0 || strlen (MY_DEBUGGERDIR) == 0 || !File_Exists ( MY_DEBUGGERDIR )) {
            Debug_Command = "ddd " + string( *args[ 0 ] ) + " " + Process_Id + "&";
         } else {
            Debug_Command = string ( MY_DEBUGGERDIR ) + ' ' + string( *args[ 0 ] ) + " " + Process_Id + "&";
@@ -534,9 +527,6 @@ void AppCtx::printHelp () const {
   helpBuffer << "    -refinenumberedforms <form1,ref1,form2,ref2,...>" << endl
              << "                                Refine a selected set of the formations, formations are indicated by position from top, ref_i > 0." << endl;
   helpBuffer << "    -fcvesscale <val>           VES scaling factor when initialising the solid-thicknesses in the geometric loop pressure calculation, default value is " << DefaultVesScalingForFctInitialisation << endl;
-  helpBuffer << "    -fcctmodel <n>              Set the crust-thinning model, default = 1." << endl;
-  helpBuffer << "    -fcinfmantscal <scal>       Set the scaling factor for inferior-mantle element height, default scal = 1" << endl;
-  helpBuffer << "                                Maximum element height of elements in inferior-mantle is defined to be: scal * maximum-element-height-in-mantle." << endl;
   helpBuffer << "    -minor                      Output Pressure, Depth, Temperature, Chemical Compaction volume properties at minor snapshots times." << endl;
   helpBuffer << "                                Runs high resolution decompaction at major and minor snapshot times." << endl;
 
@@ -719,7 +709,7 @@ bool AppCtx::getCommandLineOptions() {
 
      IsCalculationCoupled = FastcauldronSimulator::getInstance ().getLastPTWasCoupled ();
 
-     if ( not IsCalculationCoupled ) {
+     if ( !IsCalculationCoupled ) {
         currentCalculationMode = HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE;
      } else {
         currentCalculationMode = COUPLED_HIGH_RES_DECOMPACTION_MODE;
@@ -733,7 +723,7 @@ bool AppCtx::getCommandLineOptions() {
 
      IsCalculationCoupled = ( coupledParameter == PETSC_TRUE );
 
-     if ( not IsCalculationCoupled ) {
+     if ( !IsCalculationCoupled ) {
         currentCalculationMode = HYDROSTATIC_TEMPERATURE_MODE;
      } else {
         currentCalculationMode = OVERPRESSURED_TEMPERATURE_MODE;
@@ -766,7 +756,7 @@ bool AppCtx::getCommandLineOptions() {
   ierr = PetscOptionsHasName(PETSC_NULL,"-ngl",&Use_Non_Geometric_Loop); CHKERRQ(ierr);
   Use_Geometric_Loop = ! Use_Non_Geometric_Loop;
 
-  if ( debug1 or verbose) {
+  if ( debug1 || verbose) {
     PetscPrintf( PETSC_COMM_WORLD, " Read FCT scaling factors %i \n", int ( readFCTCorrectionFactor ));
   }
 
@@ -852,12 +842,6 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscBool hasLateralStressFile = PETSC_FALSE;
    char lateralStressFileName [ MaxLineSize ];
 
-   PetscBool crustThinningModelChanged = PETSC_FALSE;
-   int        crustThinningModel;
-
-   PetscBool mantleElementScalingChanged = PETSC_FALSE;
-   double     mantleElementScaling;
-
    PetscBool setNewTolerances = PETSC_FALSE;
 
    PetscOptionsHasName ( PETSC_NULL, "-newtolerances", &setNewTolerances );
@@ -893,8 +877,6 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscOptionsGetReal ( PETSC_NULL, "-brfrac", &elementFraction, &petscBurialRateFraction );
    PetscOptionsGetReal ( PETSC_NULL, "-erfrac", &elementErosionFraction, &petscErosionRateFraction );
    PetscOptionsGetReal ( PETSC_NULL, "-fcvesscale", &vesScale, &vesScaleChanged );
-   PetscOptionsGetInt  ( PETSC_NULL, "-fcctmodel", &crustThinningModel, &crustThinningModelChanged );
-   PetscOptionsGetReal ( PETSC_NULL, "-fcinfmantscal", &mantleElementScaling, &mantleElementScalingChanged );
 
    PetscOptionsHasName ( PETSC_NULL, "-permafrost", &petscPermafrost );
    PetscOptionsGetReal ( PETSC_NULL, "-permafrost", &m_fixedPermafrostTimeStep, &petscPermafrostTimeStep );
@@ -923,53 +905,20 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
 
   }
-  if( isALC() ) {
-     m_crustThinningModel = 4;
-  }
-
-  if ( crustThinningModelChanged ) {
-
-     if ( crustThinningModel == 1 or crustThinningModel == 2 or crustThinningModel == 3 ) {
-        m_crustThinningModel = crustThinningModel;
-
-        if ( debug1 || verbose ) {
-           PetscPrintf ( PETSC_COMM_WORLD, " Using crust thinning model: %i\n", m_crustThinningModel );
-        }
-
-     } else {
-        PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning: Crust thinning model, %i, is not known, setting to defualt, 1. Allowable values are: 1, 2, 3.\n", crustThinningModel );
-        m_crustThinningModel = DefaultCrustThinningModel;
-     }
-
-     if ( mantleElementScalingChanged ) {
-
-        if ( mantleElementScaling > 0.0 ) {
-           m_inferiorMantleElementHeightScaling = mantleElementScaling;
-        } else {
-           PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning: Inferior mantle element height scaling is zero or less, %f, setting value to 1.\n", mantleElementScaling );
-           m_inferiorMantleElementHeightScaling = 1.0;
-        }
-
-     }
-
-     PetscPrintf ( PETSC_COMM_WORLD, " Setting crust thinning model: %i.\n", m_crustThinningModel );
-  } else {
-     PetscPrintf ( PETSC_COMM_WORLD, " Using standard crust thinning model.\n" );
-  }
 
   m_cflTimeStepping = bool ( petscCflTimeStepping );
 
-  if ( m_cflTimeStepping and ( debug1 or verbose ) ) {
+  if ( m_cflTimeStepping && ( debug1 || verbose ) ) {
      PetscPrintf ( PETSC_COMM_WORLD, " Using the CFL condition to help determine the pressure time-step.\n" );
   }
 
-  if ( allowPressureJacobianReuse and ( debug1 or verbose ) ) {
+  if ( allowPressureJacobianReuse && ( debug1 || verbose ) ) {
      PetscPrintf ( PETSC_COMM_WORLD, " Allowing the pressure Jacobian to be re-used during the Newton solve.\n" );
   }
 
   if ( vesScaleChanged ) {
 
-     if ( not NumericFunctions::inRange ( vesScale, 0.0, 1.0 )) {
+     if ( !NumericFunctions::inRange ( vesScale, 0.0, 1.0 )) {
         PetscPrintf ( PETSC_COMM_WORLD, " Basin_Warning: ves scaling factor, %f, is not in interval [ 0.0 .. 1.0 ], some clipping will occur.\n", vesScale );
      }
 
@@ -1046,7 +995,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
   }
 
 
-  if ( m_burialRateTimeStepping and not newtonToleranceChanged ) {
+  if ( m_burialRateTimeStepping && !newtonToleranceChanged ) {
      PressureSolver::setNewtonSolverTolerance ( Optimisation_Level, 0.1 * PressureSolver::getNewtonSolverTolerance ( Optimisation_Level, false, 3 ));
 
 #if 0
@@ -1218,7 +1167,7 @@ void AppCtx::setParametersFromEnvironment () {
       PetscPrintf ( PETSC_COMM_WORLD,
                     " Basin_Warning:  Chemical compaction will not be affected by the environment variable.\n" );
     } else {
-      chemicalCompactionVesValueWellDefined = (( strEnd == 0 ) or ( strlen ( strEnd ) == 0 ));
+      chemicalCompactionVesValueWellDefined = (( strEnd == 0 ) || ( strlen ( strEnd ) == 0 ));
 
       if ( chemicalCompactionVesValueWellDefined ) {
         PetscPrintf ( PETSC_COMM_WORLD,
@@ -1342,7 +1291,7 @@ void AppCtx::setRelatedProject ( const int indexI, const int indexJ ) {
 
    const CauldronGridDescription& grid = FastcauldronSimulator::getInstance ().getCauldronGridDescription ();
 
-   if ( indexI >= 0 and indexJ >= 0 ) {
+   if ( indexI >= 0 && indexJ >= 0 ) {
       Related_Project_Ptr project1D = new Related_Project;
 
 
@@ -1402,7 +1351,7 @@ void AppCtx::addUndefinedAreas ( const Interface::GridMap* theMap ) {
 
    bool dataIsRetrieved = theMap->retrieved ();
 
-   if ( not dataIsRetrieved ) {
+   if ( !dataIsRetrieved ) {
       theMap->retrieveGhostedData ();
    }
 
@@ -1418,7 +1367,7 @@ void AppCtx::addUndefinedAreas ( const Interface::GridMap* theMap ) {
 
    }
 
-   if ( not dataIsRetrieved ) {
+   if ( !dataIsRetrieved ) {
       // If the data was not retrived then restore the map back to its original state.
       theMap->restoreData ( false, true );
    }
@@ -1473,7 +1422,7 @@ void AppCtx::setValidNodeArray () {
 
       assert ( fctValueList->size () == 1 );
 
-      if ( fct != 0 and fct->getGridMap () != 0 ) {
+      if ( fct != 0 && fct->getGridMap () != 0 ) {
          addUndefinedAreas ( fct->getGridMap ());
       }
 
@@ -1606,7 +1555,7 @@ bool AppCtx::Get_FCT_Correction () {
 
    if ( currentCalculationMode != OVERPRESSURED_TEMPERATURE_MODE and
         currentCalculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE and
-        not readFCTCorrectionFactor ) {
+        !readFCTCorrectionFactor ) {
       return true;
    }
 
@@ -1881,7 +1830,7 @@ bool AppCtx::calcNodeVes( const double time ) {
       for ( j = ys; j < ( ys + ym ); j++)
       {
 
-         if ( not nodeIsDefined ( i, j )) continue;
+         if ( !nodeIsDefined ( i, j )) continue;
 
    ix = i - xs; iy = j - ys;
 
@@ -1903,7 +1852,7 @@ bool AppCtx::calcNodeVes( const double time ) {
        for ( j = ys; j < ( ys + ym ); j++ )
        {
 
-          if ( not nodeIsDefined( i, j ) ) continue;
+          if ( !nodeIsDefined( i, j ) ) continue;
 
           ix = i - xs; iy = j - ys;
 
@@ -1939,7 +1888,7 @@ bool AppCtx::calcNodeVes( const double time ) {
     {
       for ( j = ys; j < ( ys + ym ); j++)
       {
-         if ( not nodeIsDefined ( i, j )) continue;
+         if ( !nodeIsDefined ( i, j )) continue;
 
    ix = i - xs; iy = j - ys;
 
@@ -1991,7 +1940,7 @@ bool AppCtx::calcNodeMaxVes( const double time ) {
         for ( j = ys; j < ( ys + ym ); j++)
         {
 
-           if ( not nodeIsDefined ( i, j )) continue;
+           if ( !nodeIsDefined ( i, j )) continue;
 
            Density_Difference = Current_Layer -> calcDiffDensity( i,j );
 
@@ -2007,7 +1956,7 @@ bool AppCtx::calcNodeMaxVes( const double time ) {
               Segment_May_Be_Eroding = Current_Layer->getSolidThickness ( i, j, k - 1 ).descending ( time );
               double thickness = Current_Layer->getSolidThickness ( i, j, k - 1, time );
 
-              if ( ves( k,j,i ) < 50.0 && ( thickness == 0.0 or Segment_May_Be_Eroding ))
+              if ( ves( k,j,i ) < 50.0 && ( thickness == 0.0 || Segment_May_Be_Eroding ))
               {
                  dVes = AccelerationDueToGravity * Density_Difference * thickness;
                  Max_Ves = max_ves( k-1,j,i ) - dVes;
@@ -2069,7 +2018,7 @@ bool AppCtx::calcPorosities( const double time ) {
    for ( k = zs; k < ( zs + zm ); k++)
    {
 
-          if ( not nodeIsDefined ( i, j ))
+          if ( !nodeIsDefined ( i, j ))
      {
        porosity( k,j,i ) = CauldronNoDataValue;
        continue;
@@ -2167,7 +2116,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
       {
    for ( j = ys; j < ( ys + ym ); j++ )
    {
-          if ( not nodeIsDefined ( i, j )) continue;
+          if ( !nodeIsDefined ( i, j )) continue;
 
      ix = i - xs; iy = j - ys;
 
@@ -2196,7 +2145,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
       {
    for ( j = ys; j < ( ys + ym ); j++ )
    {
-          if ( not nodeIsDefined ( i, j )) continue;
+          if ( !nodeIsDefined ( i, j )) continue;
 
      ix = i - xs; iy = j - ys;
 
@@ -2214,7 +2163,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
       for ( j = ys; j < ( ys + ym ); j++)
       {
 
-         if ( not nodeIsDefined ( i, j )) continue;
+         if ( !nodeIsDefined ( i, j )) continue;
 
    ix = i - xs; iy = j - ys;
 
@@ -2422,7 +2371,7 @@ void AppCtx::setInitialTimeStep () {
    int standardElementsEroded;
 
    const int rank = FastcauldronSimulator::getInstance ().getRank ()  ;
-   if ( (debug1 or verbose) and rank == 0) {
+   if ( (debug1 || verbose) && rank == 0) {
       cout << setw ( 20 ) << "Layer name";
       cout << setw ( 15 ) << "Start";
       cout << setw ( 15 ) << "End";
@@ -2442,7 +2391,7 @@ void AppCtx::setInitialTimeStep () {
       // The time it takes for a single element in the layer to be fully deposited
       if ( layers [ i ]->getMaximumNumberOfElements () > 0 ) {
 
-         if ( formation->getMinimumThickness () >= 0.0 and formation->getMaximumThickness () > 0.0 ) {
+         if ( formation->getMinimumThickness () >= 0.0 && formation->getMaximumThickness () > 0.0 ) {
             // Only deposition.
 
             layerElementDepositionPeriod = layerDepositionInterval / double ( layers [ i ]->getMaximumNumberOfElements ());
@@ -2451,7 +2400,7 @@ void AppCtx::setInitialTimeStep () {
             // minimumElementDepositionPeriod = NumericFunctions::Minimum ( minimumElementDepositionPeriod, layerElementDepositionPeriod );
             layerTimeStepSize = m_elementFraction * layerElementDepositionPeriod;
 
-         } else if ( formation->getMinimumThickness () < 0.0 and formation->getMaximumThickness () > 0.0 ) {
+         } else if ( formation->getMinimumThickness () < 0.0 && formation->getMaximumThickness () > 0.0 ) {
             // Deposition and erosion.
 
             standardElementsEroded = NumericFunctions::Maximum ( 1, static_cast<int>(std::ceil ( std::fabs ( formation->getMinimumThickness () ) / maximumElementHeight )));
@@ -2472,7 +2421,7 @@ void AppCtx::setInitialTimeStep () {
 
          }
 
-         if ( (debug1 or verbose) and rank == 0 ) {
+         if ( (debug1 || verbose) && rank == 0 ) {
             cout << std::setw ( 20 ) << layers [ i ]->layername
                  << std::setw ( 15 ) << layers [ i + 1 ]->depoage
                  << std::setw ( 15 ) << layers [ i ]->depoage
@@ -2511,7 +2460,7 @@ const LayerProps* AppCtx::findDepositingLayer ( const double time ) const {
 
    for ( i = 0; i <= layers.size () - 2; ++i ) {
 
-      if ( layers [ i ]->depoage <= time and time <= layers [ i + 1 ]->depoage ) {
+      if ( layers [ i ]->depoage <= time && time <= layers [ i + 1 ]->depoage ) {
          return layers [ i ];
       }
 
@@ -2527,11 +2476,11 @@ double AppCtx::getInitialTimeStep ( const double currentTime ) const {
    LayerPreferredTimeStepSizeMap::const_iterator layerTs = m_layerPreferredTimeStepSize.find ( findDepositingLayer ( currentTime ));
    double deltaT;
 
-   if ( (debug1 or verbose) and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+   if ( (debug1 || verbose) and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
       cout << " At time " << currentTime << " the layer " << layerTs->first->layername << " is being deposited, default time-step size: " << layerTs->second << endl;
    }
 
-   if ( m_burialRateTimeStepping and layerTs != m_layerPreferredTimeStepSize.end ()) {
+   if ( m_burialRateTimeStepping && layerTs != m_layerPreferredTimeStepSize.end ()) {
       deltaT = layerTs->second;
    } else {
       deltaT = timestepsize;
@@ -2644,7 +2593,7 @@ bool AppCtx::setNodeDepths ( const double time ) {
                for ( k = numberOfNodes - 1; k >= 0; --k ) {
                   double thickness = currentLayer->getRealThickness ( i, j, k ).F(time);
 
-                  if ( thickness == IbsNoDataValue or thickness == CauldronNoDataValue ) {
+                  if ( thickness == IbsNoDataValue || thickness == CauldronNoDataValue ) {
                      depth ( k, j, i ) = depth ( k + 1, j, i );
                   } else {
                      depth ( k, j, i ) = depth ( k + 1 ,j, i ) + thickness;
@@ -2710,57 +2659,19 @@ void AppCtx::setMantleDepth ( const double basementThickness, //presentDayMantle
       crustThinningRatio = -1.0;
    }
 
-   if ( m_crustThinningModel == 2 ) {
-      double superiorMantleSegmentHeight;
-      double inferiorMantleSegmentHeight = m_inferiorMantleElementHeightScaling * maximumMantleElementHeight;
-
-      if ( crustThinningRatio == -1.0 ) {
-         superiorMantleSegmentHeight = 0.0;
-      } else {
-         superiorMantleSegmentHeight = maximumMantleElementHeight / crustThinningRatio;
-      }
-
-      // Set depth for superior-mantle.
-      for ( k = numberOfNodes - 1; k >= m_numberOfInferiorMantleElements; --k ) {
-         depth ( k, j, i ) = NumericFunctions::Minimum ( maximumDepth, depth ( k + 1, j, i ) + superiorMantleSegmentHeight );
-      }
-
-      // Continue decrementing k. until the bottom k = 0 for inferior-mantle.
-      for ( ; k >= 0; --k ) {
-         depth ( k, j, i ) = NumericFunctions::Minimum ( maximumDepth, depth ( k + 1, j, i ) + inferiorMantleSegmentHeight );
-      }
-
-   } else if ( m_crustThinningModel == 3 ) {
-      double superiorMantleSegmentHeight;
-      double inferiorMantleSegmentHeight = m_inferiorMantleElementHeightScaling * maximumMantleElementHeight / crustThinningRatio;
-
-      if ( crustThinningRatio == -1.0 ) {
-         superiorMantleSegmentHeight = 0.0;
-      } else {
-         superiorMantleSegmentHeight = maximumMantleElementHeight / crustThinningRatio;
-      }
-
-      // Set depth for superior-mantle.
-      for ( k = numberOfNodes - 1; k >= m_numberOfInferiorMantleElements; --k ) {
-         depth ( k, j, i ) = NumericFunctions::Minimum ( maximumDepth, depth ( k + 1, j, i ) + superiorMantleSegmentHeight );
-      }
-
-      // Continue decrementing k. until the bottom k = 0 for inferior-mantle.
-      for ( ; k >= 0; --k ) {
-         depth ( k, j, i ) = NumericFunctions::Minimum ( maximumDepth, depth ( k + 1, j, i ) + inferiorMantleSegmentHeight );
-      }
-
-   } else if ( m_crustThinningModel == 4 ) { // ALC mode
-
+   if ( isALC() )
+   {
       assert( currentCrustThickness ); // Effective Crustal thickness can't be 0
 
-      double mantleSegmentHeight = Mantle() -> m_mantleElementHeight0 / crustThinningRatio;
-
-      for ( k = numberOfNodes - 1; k >= 0; --k ) {
+      const double maxCrustThinningRatio = Crust()->getCrustMaximumThickness( i, j )/Crust()->getCrustMinimumThickness( i, j );
+      for ( k = numberOfNodes - 1; k >= 0; --k )
+      {
+         const double mantleSegmentHeight = Mantle() -> getMantleElementHeight0( maxCrustThinningRatio, k, numberOfNodes-1 ) / crustThinningRatio;
          depth( k, j, i ) = NumericFunctions::Minimum ( maximumDepth, depth ( k + 1, j, i ) + mantleSegmentHeight );
       }
-   } else {
-
+   }
+   else
+   {
       double mantleSegmentHeight = maximumMantleElementHeight / crustThinningRatio;
 
       for ( k = numberOfNodes - 1; k >= 0; --k ) {
@@ -2969,7 +2880,7 @@ void AppCtx::Retrieve_Lithology_ID ()
     {
       for ( j = ys; j < ( ys + ym ); j++ )
       {
-   if ( not nodeIsDefined ( i, j )) continue;
+   if ( !nodeIsDefined ( i, j )) continue;
 
    for ( k = zs; k < zs+zm; k++ )
    {
@@ -3030,7 +2941,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
   int Max_Number_Of_Lithologies_On_Single_Proc;
 
   // If running Darcy simulator then disable halokinesis salt modelling.
-  bool enableHalokinesis = canRunSaltModelling and not FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
+  bool enableHalokinesis = canRunSaltModelling && !FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
 
   Layer_Iterator Layers;
   Layers.Initialise_Iterator ( layers, Descending, Basement_And_Sediments,
@@ -3038,7 +2949,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
 
   Created_Lithologies = FastcauldronSimulator::getInstance ().setFormationLithologies ( enableHalokinesis, true );
 
-  if ( not successfulExecution ( Created_Lithologies )) {
+  if ( !successfulExecution ( Created_Lithologies )) {
      cout << "Basin_Error: Could not create lithologies " << endl;
      return false;
   }
@@ -3400,8 +3311,8 @@ int AppCtx::Find_Layer_Index(const double Deposition_Age,
 
   for ( Count = 0; Count < layers.size(); Count++ ) {
 
-     if (( Deposition_Age != 0.0 and ( std::fabs ( Deposition_Age - layers [ Count ]->depoage ) / Deposition_Age ) < tolerance ) or
-         ( Deposition_Age == 0.0 and ( std::fabs ( Deposition_Age - layers [ Count ]->depoage )) < tolerance )) {
+     if (( Deposition_Age != 0.0 && ( std::fabs ( Deposition_Age - layers [ Count ]->depoage ) / Deposition_Age ) < tolerance ) or
+         ( Deposition_Age == 0.0 && ( std::fabs ( Deposition_Age - layers [ Count ]->depoage )) < tolerance )) {
         return static_cast<int>( Count );
      }
 
@@ -3561,7 +3472,7 @@ void AppCtx::setUp2dEltMapping()
                int idxX = QuadIndices[Inode][0];
                int idxY = QuadIndices[Inode][1];
 
-               if ( not nodeIsDefined ( i + idxX, j + idxY )) {
+               if ( !nodeIsDefined ( i + idxX, j + idxY )) {
                   EltIndices.nodeDefined[Inode] = false;
                   ElementExists = false;
                } else {
@@ -3598,7 +3509,7 @@ void AppCtx::Examine_Load_Balancing() {
   int i,j;
   for ( i = xs; i < xs+xm; i++ ) {
     for ( j = ys; j < ys+ym; j++ ) {
-      if ( not nodeIsDefined ( i, j )) Number_Of_Valid_Nodes--;
+      if ( !nodeIsDefined ( i, j )) Number_Of_Valid_Nodes--;
     }
   }
 

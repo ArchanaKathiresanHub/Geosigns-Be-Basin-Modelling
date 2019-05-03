@@ -123,7 +123,7 @@ static bool parseAges( DoubleVector & ages, char * agesString );
 
 static bool acquireSnapshots( ProjectHandle * projectHandle, SnapshotList & snapshots, DoubleVector & ages );
 
-static bool acquireProperties ( ProjectHandle * projectHandle, 
+static bool acquireProperties ( ProjectHandle * projectHandle,
                                 const AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                                 PropertyList & properties,
                                 StringVector & propertyNames );
@@ -148,7 +148,7 @@ void listOutputableProperties ( const GeoPhysics::ProjectHandle* projectHandle,
 
 
 OutputPropertyValuePtr allocateOutputProperty ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
-                                                const DataModel::AbstractProperty* property, 
+                                                const DataModel::AbstractProperty* property,
                                                 const DataModel::AbstractSnapshot* snapshot,
                                                 const FormationSurface& formationItem );
 
@@ -437,7 +437,7 @@ int main( int argc, char ** argv )
 
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-   GeoPhysics::ProjectHandle* projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( inputProjectFileName, "r", factory ) );
+   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast<GeoPhysics::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r", factory ) );
    DerivedPropertyManager propertyManager ( projectHandle );
 
    if ( !projectHandle )
@@ -465,13 +465,13 @@ int main( int argc, char ** argv )
          bool addIt = false;
 
          if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
-               property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and 
+               property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and
              propertyManager.surfacePropertyIsComputable ( property )) {
             addIt = true;
-         } else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and 
+         } else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and
                      propertyManager.formationSurfacePropertyIsComputable ( property )) {
             addIt = true;
-         } else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
+         } else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and
                      propertyManager.formationMapPropertyIsComputable ( property )) {
             addIt = true;
          }
@@ -493,7 +493,7 @@ int main( int argc, char ** argv )
          const Interface::Property* property = (*allProperties)[ i ];
 
          if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
-               property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
+               property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and
              propertyManager.formationPropertyIsComputable ( property ))
          {
             propertyNames.push_back( property->getName() );
@@ -586,7 +586,7 @@ int main( int argc, char ** argv )
    } else {
       // If this table is not present the assume that the last
       // fastcauldron mode was not pressure mode.
-      // This table may not be present because we are running c2e on an old 
+      // This table may not be present because we are running c2e on an old
       // project, before this table was added.
       coupledCalculation = false;
    }
@@ -787,7 +787,7 @@ int main( int argc, char ** argv )
 
 
 OutputPropertyValuePtr allocateOutputProperty ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
-                                                const DataModel::AbstractProperty* property, 
+                                                const DataModel::AbstractProperty* property,
                                                 const DataModel::AbstractSnapshot* snapshot,
                                                 const FormationSurface& formationItem ) {
 
@@ -798,7 +798,7 @@ OutputPropertyValuePtr allocateOutputProperty ( AbstractDerivedProperties::Abstr
    const Interface::Surface* bottomSurface = 0;
 
    if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
-         property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
+         property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and
        propertyManager.formationPropertyIsComputable ( property, snapshot, formation ))
    {
       outputProperty = OutputPropertyValuePtr ( new FormationOutputPropertyValue ( propertyManager, property, snapshot, formation ));
@@ -819,7 +819,7 @@ OutputPropertyValuePtr allocateOutputProperty ( AbstractDerivedProperties::Abstr
 
       // First check if the surface property is computable
       if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
-            property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and 
+            property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and
           (( topSurface != 0    and propertyManager.surfacePropertyIsComputable ( property, snapshot, topSurface )) or
            ( bottomSurface != 0 and propertyManager.surfacePropertyIsComputable ( property, snapshot, bottomSurface ))))
       {
@@ -832,7 +832,7 @@ OutputPropertyValuePtr allocateOutputProperty ( AbstractDerivedProperties::Abstr
 
       }
       // Next check if the formation-surface property is computable
-      else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and 
+      else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and
                 (( topSurface != 0    and propertyManager.formationSurfacePropertyIsComputable ( property, snapshot, formation, topSurface )) or
                  ( bottomSurface != 0 and propertyManager.formationSurfacePropertyIsComputable ( property, snapshot, formation, bottomSurface ))))
 
@@ -846,7 +846,7 @@ OutputPropertyValuePtr allocateOutputProperty ( AbstractDerivedProperties::Abstr
 
       }
       // Finally check if the formation-map property is computable
-      else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
+      else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and
                 propertyManager.formationMapPropertyIsComputable ( property, snapshot, formation ))
       {
          outputProperty = OutputPropertyValuePtr ( new FormationMapOutputPropertyValue ( propertyManager, property, snapshot, formation ));
@@ -918,7 +918,7 @@ void outputSnapshotFormationData( ostream & outputStream, DoublePair & coordinat
          double value;
          value = propertyValue->getValue( i, j, kInverse );
 
-         if ( value != propertyValue->getUndefinedValue ()) 
+         if ( value != propertyValue->getUndefinedValue ())
          {
             outputStream << value;
          }
@@ -1116,23 +1116,23 @@ bool acquireProperties( ProjectHandle * projectHandle,
       }
 
       if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
-            property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
+            property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and
           propertyManager.formationPropertyIsComputable ( property ))
       {
          isComputable = true;
       }
       else if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
-                 property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and 
+                 property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and
                propertyManager.surfacePropertyIsComputable ( property ))
       {
          isComputable = true;
       }
-      else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and 
+      else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and
                 propertyManager.formationSurfacePropertyIsComputable ( property ))
       {
          isComputable = true;
       }
-      else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
+      else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and
                 propertyManager.formationMapPropertyIsComputable ( property ))
       {
          isComputable = true;
@@ -1353,9 +1353,9 @@ void listOutputableProperties ( const GeoPhysics::ProjectHandle* projectHandle,
       const Interface::Property* property = (*allProperties)[ i ];
 
       if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
-            property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
+            property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and
           propertyManager.formationPropertyIsComputable ( property )) {
-         cout << property->getName () << "  ";            
+         cout << property->getName () << "  ";
       }
 
    }
@@ -1368,15 +1368,15 @@ void listOutputableProperties ( const GeoPhysics::ProjectHandle* projectHandle,
       const Interface::Property* property = (*allProperties)[ i ];
 
       if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
-            property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and 
+            property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and
           propertyManager.surfacePropertyIsComputable ( property )) {
-         cout << property->getName () << "  ";            
-      } else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and 
+         cout << property->getName () << "  ";
+      } else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and
                   propertyManager.formationSurfacePropertyIsComputable ( property )) {
-         cout << property->getName () << "  ";            
-      } else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
+         cout << property->getName () << "  ";
+      } else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and
                   propertyManager.formationMapPropertyIsComputable ( property )) {
-         cout << property->getName () << "  ";            
+         cout << property->getName () << "  ";
       }
 
    }

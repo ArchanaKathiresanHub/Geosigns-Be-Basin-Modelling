@@ -72,79 +72,79 @@ using namespace std;
 using namespace DataAccess;
 using namespace Interface;
 
-ProjectHandle * ObjectFactory::produceProjectHandle (database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode)
+ProjectHandle * ObjectFactory::produceProjectHandle (database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode) const
 {
    return new ProjectHandle ( pfh, name, accessMode, this);
 }
 
-Snapshot * ObjectFactory::produceSnapshot (ProjectHandle * projectHandle, database::Record * record)
+Snapshot * ObjectFactory::produceSnapshot (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new Snapshot (projectHandle, record);
 }
 
-Snapshot * ObjectFactory::produceSnapshot (ProjectHandle * projectHandle, double time)
+Snapshot * ObjectFactory::produceSnapshot (ProjectHandle * projectHandle, double time) const
 {
    return new Snapshot (projectHandle, time);
 }
 
-Formation * ObjectFactory::produceFormation (ProjectHandle * projectHandle, database::Record * record)
+Formation * ObjectFactory::produceFormation (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new Formation (projectHandle, record);
 }
 
-LithoType * ObjectFactory::produceLithoType (ProjectHandle * projectHandle, database::Record * record)
+LithoType * ObjectFactory::produceLithoType (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new LithoType (projectHandle, record);
 }
 
-SourceRock * ObjectFactory::produceSourceRock (ProjectHandle * projectHandle, database::Record * record)
+SourceRock * ObjectFactory::produceSourceRock (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new SourceRock (projectHandle, record);
 }
 
-TouchstoneMap * ObjectFactory::produceTouchstoneMap (ProjectHandle * projectHandle, database::Record * record)
+TouchstoneMap * ObjectFactory::produceTouchstoneMap (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new TouchstoneMap (projectHandle, record);
 }
 
-Surface * ObjectFactory::produceSurface (ProjectHandle * projectHandle, database::Record * record)
+Surface * ObjectFactory::produceSurface (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new Surface (projectHandle, record);
 }
 
-BasementSurface * ObjectFactory::produceBasementSurface (ProjectHandle * projectHandle, const std::string& name )
+BasementSurface * ObjectFactory::produceBasementSurface (ProjectHandle * projectHandle, const std::string& name ) const
 {
    return new BasementSurface (projectHandle, name);
 }
 
-Reservoir * ObjectFactory::produceReservoir (ProjectHandle * projectHandle, database::Record * record)
+Reservoir * ObjectFactory::produceReservoir (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new Reservoir (projectHandle, record);
 }
 
-std::shared_ptr<ReservoirOptions> ObjectFactory::produceReservoirOptions (ProjectHandle * projectHandle, database::Record * record)
+std::shared_ptr<ReservoirOptions> ObjectFactory::produceReservoirOptions (ProjectHandle * projectHandle, database::Record * record) const
 {
    return std::make_shared<ReservoirOptions> (projectHandle, record);
 }
 
-MobileLayer * ObjectFactory::produceMobileLayer (ProjectHandle * projectHandle, database::Record * record)
+MobileLayer * ObjectFactory::produceMobileLayer (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new MobileLayer (projectHandle, record);
 }
 
-PaleoProperty * ObjectFactory::producePaleoProperty (ProjectHandle * projectHandle, database::Record * record )
+PaleoProperty * ObjectFactory::producePaleoProperty (ProjectHandle * projectHandle, database::Record * record ) const
 {
    return new PaleoProperty (projectHandle, record);
 }
 
 #if 0
-PaleoFormationProperty * ObjectFactory::producePaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const std::string& formationName )
+PaleoFormationProperty * ObjectFactory::producePaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const std::string& formationName ) const
 {
    return new PaleoFormationProperty (projectHandle, record, formationName);
 }
 #endif
 
-PaleoFormationProperty * ObjectFactory::producePaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const Formation* formation )
+PaleoFormationProperty * ObjectFactory::producePaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const Formation* formation ) const
 {
    return new PaleoFormationProperty (projectHandle, record, formation);
 }
@@ -153,124 +153,129 @@ PaleoFormationProperty* ObjectFactory::producePaleoFormationProperty ( ProjectHa
                                                                        const Formation* formation,
                                                                        const PaleoFormationProperty* startProperty,
                                                                        const PaleoFormationProperty* endProperty,
-                                                                       const Snapshot*               interpolationTime ) {
+                                                                       const Snapshot*               interpolationTime ) const
+{
    return new PaleoFormationProperty (projectHandle, formation, startProperty, endProperty, interpolationTime );
 }
 
 
-PaleoSurfaceProperty * ObjectFactory::producePaleoSurfaceProperty (ProjectHandle * projectHandle, database::Record * record, const Surface* surface )
+PaleoSurfaceProperty * ObjectFactory::producePaleoSurfaceProperty (ProjectHandle * projectHandle, database::Record * record, const Surface* surface ) const
 {
    return new PaleoSurfaceProperty (projectHandle, record, surface);
 }
 
-CrustFormation * ObjectFactory::produceCrustFormation (ProjectHandle * projectHandle, database::Record * record) {
+CrustFormation * ObjectFactory::produceCrustFormation (ProjectHandle * projectHandle, database::Record * record) const
+{
    return new CrustFormation ( projectHandle, record );
 }
 
-MantleFormation * ObjectFactory::produceMantleFormation (ProjectHandle * projectHandle, database::Record * record) {
+MantleFormation * ObjectFactory::produceMantleFormation (ProjectHandle * projectHandle, database::Record * record) const
+{
    return new MantleFormation ( projectHandle, record );
 }
 
-RunParameters * ObjectFactory::produceRunParameters (ProjectHandle * projectHandle, database::Record * record)
+RunParameters * ObjectFactory::produceRunParameters (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new RunParameters ( projectHandle, record );
 }
 
-ProjectData * ObjectFactory::produceProjectData (ProjectHandle * projectHandle, database::Record * record)
+ProjectData * ObjectFactory::produceProjectData (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new ProjectData ( projectHandle, record );
 }
 
-SimulationDetails* ObjectFactory::produceSimulationDetails ( ProjectHandle * projectHandle, database::Record * record ) {
+SimulationDetails* ObjectFactory::produceSimulationDetails ( ProjectHandle * projectHandle, database::Record * record ) const
+{
    return new SimulationDetails ( projectHandle, record );
 }
 
 
-AllochthonousLithology * ObjectFactory::produceAllochthonousLithology (ProjectHandle * projectHandle, database::Record * record)
+AllochthonousLithology * ObjectFactory::produceAllochthonousLithology (ProjectHandle * projectHandle, database::Record * record) const
 {
   return new AllochthonousLithology (projectHandle, record);
 }
 
-AllochthonousLithologyDistribution * ObjectFactory::produceAllochthonousLithologyDistribution (ProjectHandle * projectHandle, database::Record * record)
+AllochthonousLithologyDistribution * ObjectFactory::produceAllochthonousLithologyDistribution (ProjectHandle * projectHandle, database::Record * record) const
 {
   return new AllochthonousLithologyDistribution (projectHandle, record);
 }
 
-AllochthonousLithologyInterpolation * ObjectFactory::produceAllochthonousLithologyInterpolation (ProjectHandle * projectHandle, database::Record * record)
+AllochthonousLithologyInterpolation * ObjectFactory::produceAllochthonousLithologyInterpolation (ProjectHandle * projectHandle, database::Record * record) const
 {
   return new AllochthonousLithologyInterpolation (projectHandle, record);
 }
 
-OutputProperty * ObjectFactory::produceOutputProperty (ProjectHandle * projectHandle, database::Record * record)
+OutputProperty * ObjectFactory::produceOutputProperty (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new OutputProperty ( projectHandle, record );
 }
 
-OutputProperty * ObjectFactory::produceOutputProperty (ProjectHandle * projectHandle, const ModellingMode mode, const PropertyOutputOption option, const std::string& name ) {
+OutputProperty * ObjectFactory::produceOutputProperty (ProjectHandle * projectHandle, const ModellingMode mode, const PropertyOutputOption option, const std::string& name ) const
+{
    return new OutputProperty ( projectHandle, mode, option, name );
 }
 
-
-LithologyHeatCapacitySample * ObjectFactory::produceLithologyHeatCapacitySample (ProjectHandle * projectHandle, database::Record * record)
+LithologyHeatCapacitySample * ObjectFactory::produceLithologyHeatCapacitySample (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new LithologyHeatCapacitySample ( projectHandle, record );
 }
 
-LithologyThermalConductivitySample * ObjectFactory::produceLithologyThermalConductivitySample (ProjectHandle * projectHandle, database::Record * record)
+LithologyThermalConductivitySample * ObjectFactory::produceLithologyThermalConductivitySample (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new LithologyThermalConductivitySample ( projectHandle, record );
 }
 
-ConstrainedOverpressureInterval* ObjectFactory::produceConstrainedOverpressureInterval ( ProjectHandle * projectHandle, database::Record * record, const Formation* formation ) {
+ConstrainedOverpressureInterval* ObjectFactory::produceConstrainedOverpressureInterval (ProjectHandle * projectHandle, database::Record * record, const Formation* formation) const
+{
    return new ConstrainedOverpressureInterval ( projectHandle, record, formation );
 }
 
-FluidHeatCapacitySample * ObjectFactory::produceFluidHeatCapacitySample (ProjectHandle * projectHandle, database::Record * record)
+FluidHeatCapacitySample * ObjectFactory::produceFluidHeatCapacitySample (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new FluidHeatCapacitySample ( projectHandle, record );
 }
 
-FluidThermalConductivitySample * ObjectFactory::produceFluidThermalConductivitySample (ProjectHandle * projectHandle, database::Record * record)
+FluidThermalConductivitySample * ObjectFactory::produceFluidThermalConductivitySample (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new FluidThermalConductivitySample ( projectHandle, record );
 }
 
-FluidDensitySample * ObjectFactory::produceFluidDensitySample (ProjectHandle * projectHandle, database::Record * record)
+FluidDensitySample * ObjectFactory::produceFluidDensitySample (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new FluidDensitySample ( projectHandle, record );
 }
 
-RelatedProject * ObjectFactory::produceRelatedProject (ProjectHandle * projectHandle, database::Record * record)
+RelatedProject * ObjectFactory::produceRelatedProject (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new RelatedProject ( projectHandle, record );
 }
 
-Trap * ObjectFactory::produceTrap (ProjectHandle * projectHandle, database::Record * record)
+Trap * ObjectFactory::produceTrap (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new Trap (projectHandle, record);
 }
 
-Trapper * ObjectFactory::produceTrapper (ProjectHandle * projectHandle, database::Record * record)
+Trapper * ObjectFactory::produceTrapper (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new Trapper (projectHandle, record);
 }
 
-Migration * ObjectFactory::produceMigration (ProjectHandle * projectHandle, database::Record * record)
+Migration * ObjectFactory::produceMigration (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new Migration (projectHandle, record);
 }
 
-IgneousIntrusionEvent* ObjectFactory::produceIgneousIntrusionEvent (ProjectHandle * projectHandle, database::Record * record )
+IgneousIntrusionEvent* ObjectFactory::produceIgneousIntrusionEvent (ProjectHandle * projectHandle, database::Record * record ) const
 {
    return new IgneousIntrusionEvent ( projectHandle, record );
 }
 
-PermafrostEvent* ObjectFactory::producePermafrostEvent (ProjectHandle * projectHandle, database::Record * record )
+PermafrostEvent* ObjectFactory::producePermafrostEvent (ProjectHandle * projectHandle, database::Record * record ) const
 {
    return new PermafrostEvent ( projectHandle, record );
 }
 
-InputValue * ObjectFactory::produceInputValue (ProjectHandle * projectHandle, database::Record * record)
+InputValue * ObjectFactory::produceInputValue (ProjectHandle * projectHandle, database::Record * record) const
 {
    return new InputValue (projectHandle, record);
 }
@@ -278,7 +283,7 @@ InputValue * ObjectFactory::produceInputValue (ProjectHandle * projectHandle, da
 Property * ObjectFactory::produceProperty (ProjectHandle * projectHandle, database::Record * record,
                                            const string & userName, const string & cauldronName,
                                            const string & unit, PropertyType type,
-                                           const DataModel::PropertyAttribute attr, const DataModel::PropertyOutputAttribute outputAttr )
+                                           const DataModel::PropertyAttribute attr, const DataModel::PropertyOutputAttribute outputAttr ) const
 {
    return new Property (projectHandle, record,
                         userName, cauldronName,
@@ -287,72 +292,80 @@ Property * ObjectFactory::produceProperty (ProjectHandle * projectHandle, databa
 
 PropertyValue * ObjectFactory::producePropertyValue (ProjectHandle * projectHandle, database::Record * record ,const string & name,
       const Property * property, const Snapshot * snapshot,
-      const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName)
+      const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName) const
 {
-   return new PropertyValue (projectHandle, record, name,
+	 return new PropertyValue (projectHandle, record, name,
 	property, snapshot, reservoir,
 	formation, surface, storage, fileName);
 }
 
 BiodegradationParameters* ObjectFactory::produceBiodegradationParameters (
-   ProjectHandle * projectHandle, database::Record* bioRecord)
+   ProjectHandle * projectHandle, database::Record* bioRecord) const
 {
    return new BiodegradationParameters(projectHandle, bioRecord);
 }
 
 FracturePressureFunctionParameters* ObjectFactory::produceFracturePressureFunctionParameters (
    ProjectHandle * projectHandle, database::Record* runOptionsIoTblRecord,
-   database::Record* pressureIoTblRecord)
+   database::Record* pressureIoTblRecord) const
 {
    return new FracturePressureFunctionParameters(projectHandle, runOptionsIoTblRecord, pressureIoTblRecord);
 }
 
 FluidType* ObjectFactory::produceFluidType ( ProjectHandle * projectHandle, database::Record*
-   fluidtypeIoRecord)
+   fluidtypeIoRecord) const
 {
    return new FluidType (projectHandle, fluidtypeIoRecord);
 }
 
 DiffusionLeakageParameters* ObjectFactory::produceDiffusionLeakageParameters (
-   ProjectHandle * projectHandle, database::Record* bioRecord)
+   ProjectHandle * projectHandle, database::Record* bioRecord) const
 {
    return new DiffusionLeakageParameters(projectHandle, bioRecord);
 }
 
-FaultCollection * ObjectFactory::produceFaultCollection (ProjectHandle * projectHandle, const string & mapName)
+FaultCollection * ObjectFactory::produceFaultCollection (ProjectHandle * projectHandle, const string & mapName) const
 {
    return new FaultCollection (projectHandle, mapName);
 }
 
 
-IrreducibleWaterSaturationSample* ObjectFactory::produceIrreducibleWaterSaturationSample (ProjectHandle * projectHandle, database::Record * record) {
+IrreducibleWaterSaturationSample* ObjectFactory::produceIrreducibleWaterSaturationSample (ProjectHandle * projectHandle, database::Record * record) const
+{
    return new IrreducibleWaterSaturationSample ( projectHandle, record );
 }
 
-LangmuirAdsorptionIsothermSample* ObjectFactory::produceLangmuirAdsorptionIsothermSample (ProjectHandle * projectHandle, database::Record * record) {
+LangmuirAdsorptionIsothermSample* ObjectFactory::produceLangmuirAdsorptionIsothermSample (ProjectHandle * projectHandle, database::Record * record) const
+{
    return new LangmuirAdsorptionIsothermSample ( projectHandle, record );
 }
 
-LangmuirAdsorptionTOCEntry* ObjectFactory::produceLangmuirAdsorptionTOCEntry (ProjectHandle * projectHandle, database::Record * record) {
+LangmuirAdsorptionTOCEntry* ObjectFactory::produceLangmuirAdsorptionTOCEntry (ProjectHandle * projectHandle, database::Record * record) const
+{
    return new LangmuirAdsorptionTOCEntry ( projectHandle, record );
 }
 
-PointAdsorptionHistory* ObjectFactory::producePointAdsorptionHistory (ProjectHandle * projectHandle, database::Record * record) {
+PointAdsorptionHistory* ObjectFactory::producePointAdsorptionHistory (ProjectHandle * projectHandle, database::Record * record) const
+{
    return new PointAdsorptionHistory ( projectHandle, record );
 }
 
-SGDensitySample* ObjectFactory::produceSGDensitySample (ProjectHandle * projectHandle, database::Record * record) {
+SGDensitySample* ObjectFactory::produceSGDensitySample (ProjectHandle * projectHandle, database::Record * record) const
+{
    return new SGDensitySample ( projectHandle, record );
 }
 
-shared_ptr<const CrustalThicknessData> ObjectFactory::produceCrustalThicknessData( ProjectHandle * projectHandle, database::Record * record ) const {
+shared_ptr<const CrustalThicknessData> ObjectFactory::produceCrustalThicknessData(ProjectHandle * projectHandle, database::Record * record) const
+{
    return shared_ptr<const CrustalThicknessData>( new CrustalThicknessData( projectHandle, record ));
 }
 
-shared_ptr<const CrustalThicknessRiftingHistoryData> ObjectFactory::produceCrustalThicknessRiftingHistoryData( ProjectHandle * projectHandle, database::Record * record ) const {
+shared_ptr<const CrustalThicknessRiftingHistoryData> ObjectFactory::produceCrustalThicknessRiftingHistoryData(ProjectHandle * projectHandle, database::Record * record) const
+{
    return shared_ptr<const CrustalThicknessRiftingHistoryData>(new CrustalThicknessRiftingHistoryData( projectHandle, record ));
 }
 
-shared_ptr<const OceanicCrustThicknessHistoryData> ObjectFactory::produceOceanicCrustThicknessHistoryData( ProjectHandle * projectHandle, database::Record * record ) const {
+shared_ptr<const OceanicCrustThicknessHistoryData> ObjectFactory::produceOceanicCrustThicknessHistoryData(ProjectHandle * projectHandle, database::Record * record) const
+{
    return shared_ptr<const OceanicCrustThicknessHistoryData>( new OceanicCrustThicknessHistoryData( projectHandle, record ) );
 }

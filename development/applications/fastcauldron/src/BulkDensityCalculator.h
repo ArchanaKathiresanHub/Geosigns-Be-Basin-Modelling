@@ -22,7 +22,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -40,9 +40,9 @@ private :
 
    bool m_isCalculated;
    unsigned int m_kIndex;
+   bool m_isBasementFormationAndALC;
 
    /// Other dependencies.
-   AppCtx* m_BasinModel;
    const CompoundLithologyArray* m_lithologies;
    const FluidType*              m_fluid;
 
@@ -57,7 +57,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -73,9 +73,9 @@ private :
    OutputPropertyMap* m_temperature;
 
    bool m_isCalculated;
+   bool m_isBasementFormationAndALC;
 
    /// Other dependencies.
-   AppCtx* m_BasinModel;
    const CompoundLithologyArray* m_lithologies;
    const FluidType*              m_fluid;
 

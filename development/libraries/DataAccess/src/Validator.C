@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -272,7 +272,7 @@ void DataAccess::Interface::Validator::addCrustUndefinedAreas( const CrustFormat
          addUndefinedAreas( dynamic_cast<const GridMap*>((*thicknessIter)->getMap( CrustThinningHistoryInstanceThicknessMap )) );
       }
 
-      if (m_projectHandle.getBottomBoundaryConditions() == ADVANCED_LITHOSPHERE_CALCULATOR) {
+      if (m_projectHandle.isALC()) {
          auto oceaData = m_projectHandle.getTableOceanicCrustThicknessHistory().data();
          std::for_each( oceaData.begin(), oceaData.end(), [&]( std::shared_ptr<const OceanicCrustThicknessHistoryData> oceanicCrust )
          {

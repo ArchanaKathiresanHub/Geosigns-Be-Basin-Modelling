@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -44,7 +44,7 @@ ProjectHandle * DAObject::getProjectHandle (void) const
    return m_projectHandle;
 }
 
-ObjectFactory * DAObject::getFactory (void) const
+const ObjectFactory * DAObject::getFactory (void) const
 {
    return getProjectHandle ()->getFactory ();
 }
@@ -79,7 +79,7 @@ AttributeValue & DAObject::getAttributeValue (const string & attributeName, unsi
             break;
          case NoAttributeType:
          default:
-	    (void *) new AttributeValue (this, attrIndex + 1);
+      (void *) new AttributeValue (this, attrIndex + 1);
             break;
       }
    }

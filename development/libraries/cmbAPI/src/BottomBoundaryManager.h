@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2018-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by CGI.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file BottomBoundaryManager.h
 /// @brief This file keeps API declaration for manipulating bottom boundary model in Cauldron model
@@ -23,7 +23,7 @@
 ///
 
 namespace mbapi {
-   /// @class BottomBoundaryManager BottomBoundaryManager.h "BottomBoundaryManager.h" 
+   /// @class BottomBoundaryManager BottomBoundaryManager.h "BottomBoundaryManager.h"
    /// @brief Class BottomBoundaryManager keeps a list of bottom boundary models in Cauldron model and allows to add/delete/edit bottom boundary models and the associated properties
    class BottomBoundaryManager : public ErrorHandler
    {
@@ -40,6 +40,7 @@ namespace mbapi {
       {
          BasicCrustThinning,
          AdvancedCrustThinning,
+         ImprovedCrustThinningLinear,
          BaseSedimentHeatFlow
       };
 
@@ -126,7 +127,7 @@ namespace mbapi {
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode getCrustThicknessGrid(const TimeStepID id, std::string & mapName) = 0;
 
-      /// @brief Set crust thickness map name in CrustIoTbl for 
+      /// @brief Set crust thickness map name in CrustIoTbl for
       /// @param[in] id time step ID
       /// @param[in] map name specified for the time step ID
       /// @return NoError on success or NonexistingID on error
@@ -136,25 +137,25 @@ namespace mbapi {
       /// @return array with IDs of different time steps used in the continental crustal thickness Io table
       virtual std::vector<ContCrustTimeStepID> getContCrustTimeStepsID() const = 0;
 
-      /// @brief Get age from the continental crustal thickness Io table for 
+      /// @brief Get age from the continental crustal thickness Io table for
       /// @param[in] id time step ID
       /// @param[out] age specified for the time step ID
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode getContCrustAge(const ContCrustTimeStepID id, double & Age) = 0;
 
-      /// @brief Set age in the continental crustal thickness table for 
+      /// @brief Set age in the continental crustal thickness table for
       /// @param[in] id time step ID
       /// @param[in] age specified for the time step ID
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode setContCrustAge(const ContCrustTimeStepID id, const double Age) = 0;
 
-      /// @brief Get continental crust thickness value from the continental crustal thickness Io table for 
+      /// @brief Get continental crust thickness value from the continental crustal thickness Io table for
       /// @param[in] id time step ID
       /// @param[out] value specified for the time step ID
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode getContCrustThickness(const ContCrustTimeStepID id, double & Thikness) = 0;
 
-      /// @brief Set continental crust thickness value in the continental crustal thickness Io table for 
+      /// @brief Set continental crust thickness value in the continental crustal thickness Io table for
       /// @param[in] id time step ID
       /// @param[in] value specified for the time step ID
       /// @return NoError on success or NonexistingID on error
@@ -166,7 +167,7 @@ namespace mbapi {
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode getContCrustThicknessGrid(const ContCrustTimeStepID id, std::string & mapName) = 0;
 
-      /// @brief Set continental crust thickness grid in the continental crustal thickness Io table for 
+      /// @brief Set continental crust thickness grid in the continental crustal thickness Io table for
       /// @param[in] id time step ID
       /// @param[in] map name specified for the time step ID
       /// @return NoError on success or NonexistingID on error
@@ -176,13 +177,13 @@ namespace mbapi {
       /// @return array with IDs of different time steps used in the oceanic crustal thickness table
       virtual std::vector<OceaCrustTimeStepID> getOceaCrustTimeStepsID() const = 0;
 
-      /// @brief Get age from oceanic crustal thickness Io table for 
+      /// @brief Get age from oceanic crustal thickness Io table for
       /// @param[in] id time step ID
       /// @param[out] age specified for the time step ID
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode getOceaCrustAge(const OceaCrustTimeStepID id, double & Age) = 0;
 
-      /// @brief Set age in oceanic crustal thickness Io table for 
+      /// @brief Set age in oceanic crustal thickness Io table for
       /// @param[in] id time step ID
       /// @param[in] age specified for the time step ID
       /// @return NoError on success or NonexistingID on error
@@ -194,13 +195,13 @@ namespace mbapi {
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode getOceaCrustThickness(const OceaCrustTimeStepID id, double & Thikness) = 0;
 
-      /// @brief Set oceanic crust thickness value in oceanic crustal thickness Io table for 
+      /// @brief Set oceanic crust thickness value in oceanic crustal thickness Io table for
       /// @param[in] id time step ID
       /// @param[in] value specified for the time step ID
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode setOceaCrustThickness(const OceaCrustTimeStepID id, const double Thikness) = 0;
 
-      /// @brief Get list of time steps used in the GridMapIoTbl 
+      /// @brief Get list of time steps used in the GridMapIoTbl
       /// @return array with IDs of different time steps used in the GridMapIoTbl
       virtual std::vector<GridMapTimeStepID> getGridMapTimeStepsID() const = 0;
 
@@ -210,7 +211,7 @@ namespace mbapi {
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode getReferredBy(const GridMapTimeStepID id, std::string & mapName) = 0;
 
-      /// @brief Set ReferredBy field in GridMapIoTbl for 
+      /// @brief Set ReferredBy field in GridMapIoTbl for
       /// @param[in] id time step ID
       /// @param[in] table name specified for the time step ID
       /// @return NoError on success or NonexistingID on error

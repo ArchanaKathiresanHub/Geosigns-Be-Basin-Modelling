@@ -899,6 +899,18 @@ START-properties
     Type                : string
     Default             : "Litho. Mantle"
 
+    Identification      : EquilibriumOceanicLithosphereThickness
+    Description         : Equilibrium oceanic lithosphere thickness
+    Unit of measurement :
+    Type                : double
+    Default             : 92500
+
+    Identification      : MaxNumberMantleElements
+    Description         : Maximum number of mantle elements
+    Unit of measurement :
+    Type                : integer
+    Default             : 100
+
     Identification      : SurfaceNormal
     Description         : Normal of a point on a surface
     Unit of measurement :
@@ -1943,7 +1955,7 @@ START-properties
     Description         : Active Bottom boundary model,
                           (Fixed Temperature, Fixed HeatFlow)
     Type                : string
-    Default             : "Advanced Lithosphere Calculator"
+    Default             : "Improved Lithosphere Calculator Linear Element Mode"
 
     Identification      : VreAlgorithm
     Description         : Active vitrinite reflectance model
@@ -5103,6 +5115,8 @@ START-property-tables
     Column         : MantlePropertyModel
     Column         : CrustLithoName
     Column         : MantleLithoName
+    Column         : EquilibriumOceanicLithosphereThickness
+    Column         : MaxNumberMantleElements
     Header         : Basement
 
 

@@ -32,7 +32,7 @@ BiomarkersAdapter::BiomarkersAdapter ( LayerProps* formation, const Interface::S
 
 }
 
-bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& , 
+bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& ,
                                                         OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -45,24 +45,24 @@ bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList
    Interface::GridMap* hopaneIsomerisationMap;
    Interface::GridMap* steraneIsomerisationMap;
    Interface::GridMap* steraneAromatisationMap;
-   
+
    double ***hopaneIsomerisationVector;
    double ***steraneIsomerisationVector;
    double ***steraneAromatisationVector;
 
    double undefinedValue;
-   
-   bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
+
+   const bool isSediment = m_formation->isSediment();
 
    if ( isSediment ) {
       DMDAVecGetArray ( m_formation->layerDA,
                         m_formation->m_HopaneIsomerisation,
                         &hopaneIsomerisationVector );
-      
+
       DMDAVecGetArray ( m_formation->layerDA,
                         m_formation->m_SteraneIsomerisation,
                         &steraneIsomerisationVector );
-      
+
       DMDAVecGetArray ( m_formation->layerDA,
                         m_formation->m_SteraneAromatisation,
                         &steraneAromatisationVector );
@@ -82,7 +82,7 @@ bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList
 
       for ( j = hopaneIsomerisationMap->firstJ (); j <= hopaneIsomerisationMap->lastJ (); ++j ) {
 
-         if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j ) and isSediment ) {
+         if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j ) && isSediment ) {
             hopaneIsomerisationMap->setValue( i, j, hopaneIsomerisationVector [ m_kIndex ][ j ][ i ] );
             steraneIsomerisationMap->setValue( i, j, steraneIsomerisationVector [ m_kIndex ][ j ][ i ] );
             steraneAromatisationMap->setValue( i, j, steraneAromatisationVector [ m_kIndex ][ j ][ i ] );
@@ -101,7 +101,7 @@ bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList
    steraneIsomerisationMap->restoreData ();
    steraneAromatisationMap->restoreData ();
 
-   if ( isSediment ) 
+   if ( isSediment )
    {
       DMDAVecRestoreArray ( m_formation->layerDA,
                             m_formation->m_HopaneIsomerisation,
@@ -120,18 +120,18 @@ bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList
 
 void BiomarkersAdapter::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HopaneIsomerisation", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HopaneIsomerisation",
+                                                                                                         m_snapshot, 0,
                                                                                                          0,
                                                                                                          m_surface )));
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SteraneIsomerisation", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SteraneIsomerisation",
+                                                                                                         m_snapshot, 0,
                                                                                                          0,
                                                                                                          m_surface )));
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SteraneAromatisation", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SteraneAromatisation",
+                                                                                                         m_snapshot, 0,
                                                                                                          0,
                                                                                                          m_surface )));
 
@@ -149,7 +149,7 @@ BiomarkersVolumeAdapter::BiomarkersVolumeAdapter ( LayerProps* formation, const 
 
 }
 
-bool BiomarkersVolumeAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& , 
+bool BiomarkersVolumeAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& ,
                                                               OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -163,19 +163,19 @@ bool BiomarkersVolumeAdapter::operator ()( const OutputPropertyMap::OutputProper
    Interface::GridMap* hopaneIsomerisationMap;
    Interface::GridMap* steraneIsomerisationMap;
    Interface::GridMap* steraneAromatisationMap;
-   
+
    double ***hopaneIsomerisationVector;
    double ***steraneIsomerisationVector;
    double ***steraneAromatisationVector;
 
    double undefinedValue;
-   bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
+   const bool isSediment = m_formation->isSediment();
 
    if ( isSediment ) {
       DMDAVecGetArray ( m_formation->layerDA,
                         m_formation->m_HopaneIsomerisation,
                         &hopaneIsomerisationVector );
-      
+
       DMDAVecGetArray ( m_formation->layerDA,
                         m_formation->m_SteraneIsomerisation,
                         &steraneIsomerisationVector );
@@ -199,7 +199,7 @@ bool BiomarkersVolumeAdapter::operator ()( const OutputPropertyMap::OutputProper
 
       for ( j = hopaneIsomerisationMap->firstJ (); j <= hopaneIsomerisationMap->lastJ (); ++j ) {
 
-         if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j ) and isSediment ) {
+         if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j ) && isSediment ) {
 
             for ( k = hopaneIsomerisationMap->firstK (); k <= hopaneIsomerisationMap->lastK (); ++k ) {
                hopaneIsomerisationMap->setValue( i, j, hopaneIsomerisationVector [ k ][ j ][ i ] );
@@ -243,18 +243,18 @@ bool BiomarkersVolumeAdapter::operator ()( const OutputPropertyMap::OutputProper
 
 void BiomarkersVolumeAdapter::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HopaneIsomerisation", 
-                                                                                                            m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HopaneIsomerisation",
+                                                                                                            m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SteraneIsomerisation", 
-                                                                                                            m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SteraneIsomerisation",
+                                                                                                            m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SteraneAromatisation", 
-                                                                                                            m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SteraneAromatisation",
+                                                                                                            m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 

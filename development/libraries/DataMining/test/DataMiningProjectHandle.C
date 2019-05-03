@@ -22,7 +22,8 @@ TEST(DataMiningProjectHandle, OpenCauldronProject)
    std::unique_ptr<DataAccess::Mining::ProjectHandle> ph(nullptr);
    try
    {
-      ph.reset( (DataAccess::Mining::ProjectHandle*)DataAccess::Interface::OpenCauldronProject("DataMiningProjectHandleTest.project3d", "r", factory.get()) );
+      ph.reset(dynamic_cast<DataAccess::Mining::ProjectHandle*>(DataAccess::Interface::OpenCauldronProject("DataMiningProjectHandleTest.project3d", "r", factory.get())));
+      factory->initialiseObjectFactory(ph.get());
    }
    catch(...)
    {

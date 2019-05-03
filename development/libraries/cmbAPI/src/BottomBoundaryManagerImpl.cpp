@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2018-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by CGI.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file BottomBoundaryManager.h
 /// @brief This file keeps API declaration for manipulating bottom boundary model in Cauldron model
@@ -87,6 +87,7 @@ namespace mbapi
          const std::string bottomBoundModelName = rec->getValue<std::string>(s_bottomBoundaryModelFieldName);
          if (bottomBoundModelName == "Fixed Temperature") BBCModel = BasicCrustThinning;
          else if (bottomBoundModelName == "Advanced Lithosphere Calculator") BBCModel = AdvancedCrustThinning;
+         else if (bottomBoundModelName == "Improved Lithosphere Calculator Linear Element Mode") BBCModel = ImprovedCrustThinningLinear;
          else if (bottomBoundModelName == "Fixed HeatFlow") BBCModel = BaseSedimentHeatFlow;
          else { throw Exception(UndefinedValue) << "Unknown bottom boundary model:" << bottomBoundModelName; }
 
@@ -115,6 +116,10 @@ namespace mbapi
 
          case AdvancedCrustThinning:
             rec->setValue<std::string>(s_bottomBoundaryModelFieldName, "Advanced Lithosphere Calculator");
+            break;
+
+         case ImprovedCrustThinningLinear:
+            rec->setValue<std::string>(s_bottomBoundaryModelFieldName, "Improved Lithosphere Calculator Linear Element Mode");
             break;
 
          case BaseSedimentHeatFlow:

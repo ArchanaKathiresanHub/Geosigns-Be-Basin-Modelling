@@ -45,7 +45,7 @@ void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
 
 }
 
-GenexSimulator::GenexSimulator (database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory)
+GenexSimulator::GenexSimulator (database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, const Interface::ObjectFactory* objectFactory)
    : GeoPhysics::ProjectHandle (database, name, accessMode, objectFactory)
 {
   registerProperties();
@@ -64,9 +64,9 @@ GenexSimulator::~GenexSimulator (void)
 
 }
 
-GenexSimulator *GenexSimulator::CreateFrom(const std::string & inputFileName, DataAccess::Interface::ObjectFactory* objectFactory)
+GenexSimulator* GenexSimulator::CreateFrom(const std::string & inputFileName, DataAccess::Interface::ObjectFactory* objectFactory)
 {
-	return (GenexSimulator *) Interface::OpenCauldronProject (inputFileName, "rw", objectFactory);
+  return dynamic_cast<GenexSimulator *>(Interface::OpenCauldronProject (inputFileName, "rw", objectFactory));
 }
 
 bool GenexSimulator::saveTo(const std::string & outputFileName)

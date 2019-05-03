@@ -501,7 +501,7 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
 
          if( cauldron->isALC() ) {
             BasementThickness = cauldron->Mantle()->getInitialLithosphericMantleThickness () + cauldron->Crust()->getInitialCrustalThickness();
-            Mantle_Segment_Height = cauldron->Mantle()->m_mantleElementHeight0 / CrustThinningRatio;
+            Mantle_Segment_Height = cauldron->Mantle()->getMantleElementHeight0() / CrustThinningRatio;
          } else {
             BasementThickness = presentDayMantleThickness + FastcauldronSimulator::getInstance ().getCrustThickness ( I, J, 0.0 );
             Mantle_Segment_Height = mantleMaximumElementThickness / CrustThinningRatio;

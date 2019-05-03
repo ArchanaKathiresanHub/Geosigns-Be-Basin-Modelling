@@ -42,14 +42,14 @@ public :
    /// Returns the project-handle.
    Interface::ProjectHandle * produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
                                                      const string&                   name,
-                                                     const string&                   accessMode );
+                                                     const string&                   accessMode ) const;
 
    /// Allocate a fastcauldron related-project.
    Interface::RelatedProject* produceRelatedProject ( Interface::ProjectHandle* projectHandle,
-                                                      database::Record*         record );
+                                                      database::Record*         record ) const;
 
    Interface::RunParameters * produceRunParameters ( Interface::ProjectHandle * projectHandle,
-                                                     database::Record *         record);
+                                                     database::Record *         record) const;
 
    /// Allocate a fastcauldron property.
    Interface::Property * produceProperty ( Interface::ProjectHandle * projectHandle,
@@ -59,8 +59,8 @@ public :
                                            const string &             unit,
                                            Interface::PropertyType    type,
                                            const DataModel::PropertyAttribute       attr,
-                                           const DataModel::PropertyOutputAttribute attrOut);
-   
+                                           const DataModel::PropertyOutputAttribute attrOut) const;
+
    /// Allocate a fastcauldron property-value.
    Interface::PropertyValue * producePropertyValue ( Interface::ProjectHandle *   projectHandle,
                                                      database::Record *                record,
@@ -71,20 +71,20 @@ public :
                                                      const Interface::Formation * formation,
                                                      const Interface::Surface *   surface,
                                                      Interface::PropertyStorage   storage,
-                                                     const std::string & fileName = "");
+                                                     const std::string & fileName = "") const;
 
 
    Interface::Formation* produceFormation ( Interface::ProjectHandle *   projectHandle,
-                                            database::Record *           record );
+                                            database::Record *           record ) const;
 
    Interface::CrustFormation* produceCrustFormation ( Interface::ProjectHandle * projectHandle,
-                                                      database::Record *         record);
+                                                      database::Record *         record) const;
 
    Interface::MantleFormation* produceMantleFormation ( Interface::ProjectHandle * projectHandle,
-                                                        database::Record *         record);
+                                                        database::Record *         record) const;
 
 
-   GeoPhysics::CompoundLithology* produceCompoundLithology ( GeoPhysics::ProjectHandle * projectHandle );
+   GeoPhysics::CompoundLithology* produceCompoundLithology ( GeoPhysics::ProjectHandle * projectHandle ) const;
 
 };
 

@@ -19,7 +19,7 @@ static bool snapshotSorter (const Interface::Snapshot * snapshot1, const Interfa
 static bool snapshotIsEqual (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
 
 static const char * basementProperties [] = {"BulkDensity", "Diffusivity",
-                                             "HeatFlow", "Reflectivity", 
+                                             "HeatFlow", "Reflectivity",
                                              "SonicSlowness", "ThCond", "Velocity", "Depth",
                                              "Temperature", "LithoStaticPressure",
                                              "Thickness", "Lithology", "ALC",
@@ -27,11 +27,11 @@ static const char * basementProperties [] = {"BulkDensity", "Diffusivity",
 
 //------------------------------------------------------------//
 
-AbstractPropertiesCalculator::AbstractPropertiesCalculator(int aRank) : m_basementPropertiesList (basementProperties, basementProperties + 15) 
+AbstractPropertiesCalculator::AbstractPropertiesCalculator(int aRank) : m_basementPropertiesList (basementProperties, basementProperties + 15)
 {
-   
+
    m_rank = aRank;
-   
+
    m_debug            = false;
    m_basement         = true;
    m_all2Dproperties  = false;
@@ -42,14 +42,14 @@ AbstractPropertiesCalculator::AbstractPropertiesCalculator(int aRank) : m_baseme
    m_primaryPod       = false;
    m_extract2D        = false;
    m_no3Dproperties   = false;
-   
+
    m_snapshotsType = MAJOR;
-   
+
    m_projectFileName = "";
    m_simulationMode  = "";
    m_activityName    = "";
    m_decompactionMode = false;
-   
+
    m_projectHandle   = 0;
    m_propertyManager = 0;
    m_activeGrid      = 0;
@@ -58,7 +58,7 @@ AbstractPropertiesCalculator::AbstractPropertiesCalculator(int aRank) : m_baseme
 //------------------------------------------------------------//
 
 AbstractPropertiesCalculator::~AbstractPropertiesCalculator() {
-   
+
    if (m_propertyManager != 0) delete m_propertyManager;
    m_propertyManager = 0;
 }
@@ -66,169 +66,169 @@ AbstractPropertiesCalculator::~AbstractPropertiesCalculator() {
 //------------------------------------------------------------//
 
 GeoPhysics::ProjectHandle* AbstractPropertiesCalculator::getProjectHandle() const {
-   
+
    return m_projectHandle;
 }
 //------------------------------------------------------------//
 
 DerivedPropertyManager * AbstractPropertiesCalculator::getPropertyManager() const {
-   
+
    return m_propertyManager;
 }
 //------------------------------------------------------------//
 
 bool  AbstractPropertiesCalculator::finalise (bool isComplete) {
-   
+
    PetscLogDouble Start_Time;
    PetscTime(&Start_Time);
-   
+
    // set false as there is no need to save any properties - all are saved
    m_projectHandle->finishActivity (false);
-   
+
    bool status = true;
 
-   if (isComplete) 
+   if (isComplete)
    {
-      if (! copyFiles ()) 
+      if (! copyFiles ())
       {
          PetscPrintf (PETSC_COMM_WORLD, "  Basin_Error: Unable to copy output files\n");
-         
+
          status = false;
       }
    }
-   
-   if (isComplete and status and m_rank == 0) 
+
+   if (isComplete and status and m_rank == 0)
    {
       displayProgress("Project file", Start_Time, "Start saving ");
-      
+
       m_projectHandle->setSimulationDetails ("fastproperties", m_simulationMode, m_commandLine);
-      
+
       char outputFileName[ PETSC_MAX_PATH_LEN ];
       outputFileName[0] = '\0';
-      
+
       PetscBool isDefined = PETSC_FALSE;
       PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, 128, &isDefined);
-      if (isDefined) 
+      if (isDefined)
       {
          m_projectHandle->saveToFile(outputFileName);
-      } 
-      else 
+      }
+      else
       {
          m_projectHandle->saveToFile(m_projectFileName);
       }
       displayProgress("", Start_Time, "Saving is finished for ProjectFile ");
    }
-   
+
    delete m_propertyManager;
    m_propertyManager = 0;
-   
+
    return status;
 }
 
 //------------------------------------------------------------//
 
 bool AbstractPropertiesCalculator::CreateFrom (DataAccess::Interface::ObjectFactory* factory) {
-   
-   if (m_projectHandle == 0) 
+
+   if (m_projectHandle == 0)
    {
-      m_projectHandle = (GeoPhysics::ProjectHandle*)(OpenCauldronProject(m_projectFileName, "r", factory));
-      
-      if (m_projectHandle != 0) 
+      m_projectHandle = dynamic_cast<GeoPhysics::ProjectHandle*>(OpenCauldronProject(m_projectFileName, "r", factory));
+
+      if (m_projectHandle != 0)
       {
-         if (getProperiesActivity()) 
+         if (getProperiesActivity())
          {
             m_propertyManager = new DerivedPropertyManager (m_projectHandle, true, m_debug);
-         } 
-         else 
+         }
+         else
          {
             m_propertyManager = new DerivedPropertyManager (m_projectHandle, false, m_debug);
          }
       }
    }
-   if (m_projectHandle == 0 ||  m_propertyManager == 0) 
+   if (m_projectHandle == 0 ||  m_propertyManager == 0)
    {
       return false;
    }
-   
-   if (m_primaryPod) 
+
+   if (m_primaryPod)
    {
       H5_Parallel_PropertyList::setOneFilePerProcessOption(false);
    }
-   
+
    return true;
 }
 //------------------------------------------------------------//
 
 bool AbstractPropertiesCalculator::startActivity() {
-   
-   if (!setFastcauldronActivityName()) 
+
+   if (!setFastcauldronActivityName())
    {
       return false;
    }
-   
+
    const Interface::Grid * grid = m_projectHandle->getLowResolutionOutputGrid();
 
-   
+
    const bool vizFormatResults = getProperiesActivity();
 
    bool started = m_projectHandle->startActivity (m_activityName, grid, false, not vizFormatResults, (m_activityName != "Fastproperties") or vizFormatResults);
-   
+
    // If this table is not present the assume that the last
    // fastcauldron mode was not pressure mode.
    // This table may not be present because we are running c2e on an old
    // project, before this table was added.
    bool coupledCalculation = false;
-   
+
    coupledCalculation = m_simulationMode == "Overpressure" or
       m_simulationMode == "LooselyCoupledTemperature" or
       m_simulationMode == "CoupledHighResDecompaction" or
       m_simulationMode == "CoupledPressureAndTemperature" or
       m_simulationMode == "CoupledDarcy";
-   
+
    coupledCalculation = coupledCalculation and m_projectHandle->getModellingMode() == Interface::MODE3D;
-   
-   if (started) 
+
+   if (started)
    {
       m_projectHandle->initialise (coupledCalculation);
    }
-   
+
    if (started)
    {
       started = m_projectHandle->setFormationLithologies (true, true);
    }
-   
+
    if (started)
    {
       started = m_projectHandle->initialiseLayerThicknessHistory (coupledCalculation);
-      if (started) 
+      if (started)
       {
          m_projectHandle->applyFctCorrections();
       }
    }
-   
+
    return started;
 }
 
 //------------------------------------------------------------//
 bool AbstractPropertiesCalculator::showLists() {
-   
+
    return m_listProperties || m_listSnapshots || m_listStratigraphy;
-   
+
 }
 
 //------------------------------------------------------------//
 void AbstractPropertiesCalculator::resetProjectActivityGrid(const DataAccess::Interface::Property * property) {
 
    // Reset activity grid to 0 to allow high resolution properties to be loaded in high resolution and not converted to low resolution
-   if (property != 0) 
+   if (property != 0)
    {
-      if (property->getName().find("HighRes") != string::npos or property->getType() == RESERVOIRPROPERTY or property->getName() == "FlowDirectionIJK") 
+      if (property->getName().find("HighRes") != string::npos or property->getType() == RESERVOIRPROPERTY or property->getName() == "FlowDirectionIJK")
       {
          m_activeGrid = m_projectHandle->getActivityOutputGrid();
          m_projectHandle->setActivityOutputGrid(0);
-      } 
+      }
    }
-   else 
+   else
    {
       if (m_activeGrid != 0) {
          m_projectHandle->setActivityOutputGrid(m_activeGrid);
@@ -241,20 +241,20 @@ void AbstractPropertiesCalculator::resetProjectActivityGrid(const DataAccess::In
 bool AbstractPropertiesCalculator::allowBasementOutput (const string & propertyName3D) const {
 
    string propertyName = propertyName3D;
-   
-   if (propertyName.find("HeatFlow") != string::npos) 
+
+   if (propertyName.find("HeatFlow") != string::npos)
    {
       propertyName = "HeatFlow";
-   } 
-   else if (propertyName.find("FluidVelocity") != string::npos) 
+   }
+   else if (propertyName.find("FluidVelocity") != string::npos)
    {
       propertyName = "FluidVelocity";
-   } 
-   else if (propertyName.find("ALC") != string::npos) 
+   }
+   else if (propertyName.find("ALC") != string::npos)
    {
       propertyName = "ALC";
-   } 
-    else 
+   }
+    else
    {
       size_t len = 4;
       size_t pos = propertyName.find("Vec2");
@@ -271,53 +271,53 @@ bool AbstractPropertiesCalculator::allowBasementOutput (const string & propertyN
 
 bool AbstractPropertiesCalculator::acquireSnapshots(SnapshotList & snapshots)
 {
-   if (m_ages.size() == 0) 
+   if (m_ages.size() == 0)
    {
       SnapshotList * allSnapshots = m_projectHandle->getSnapshots(m_snapshotsType);
       snapshots = *allSnapshots;
       delete allSnapshots;
       return true;
-   } 
-   else 
+   }
+   else
    {
       unsigned int index;
       double firstAge = -1;
       double secondAge = -1;
-      for (index = 0; index < m_ages.size(); ++index) 
+      for (index = 0; index < m_ages.size(); ++index)
       {
-         if (m_ages[ index ] >= 0) 
+         if (m_ages[ index ] >= 0)
          {
             if (firstAge < 0)
                firstAge = m_ages[ index ];
             else
                secondAge = m_ages[ index ];
-         } 
-         else 
+         }
+         else
          {
-            if (secondAge < 0) 
+            if (secondAge < 0)
             {
-               if (firstAge >= 0) 
+               if (firstAge >= 0)
                {
                   const Snapshot * snapshot = m_projectHandle->findSnapshot(firstAge, m_snapshotsType);
                   if (snapshot) snapshots.push_back(snapshot);
                   if (m_debug && m_rank == 0 && snapshot) LogHandler(LogHandler::INFO_SEVERITY) << "adding single snapshot " << snapshot->getTime();
                }
-            } 
-            else 
+            }
+            else
             {
-               if (firstAge >= 0) 
+               if (firstAge >= 0)
                {
-                  if (firstAge > secondAge) 
+                  if (firstAge > secondAge)
                   {
                      std::swap(firstAge, secondAge);
                   }
 
                   SnapshotList * allSnapshots = m_projectHandle->getSnapshots(m_snapshotsType);
                   SnapshotList::iterator snapshotIter;
-                  for (snapshotIter = allSnapshots->begin(); snapshotIter != allSnapshots->end(); ++snapshotIter) 
+                  for (snapshotIter = allSnapshots->begin(); snapshotIter != allSnapshots->end(); ++snapshotIter)
                   {
                      const Snapshot * snapshot = *snapshotIter;
-                     if (snapshot->getTime() >= firstAge && snapshot->getTime() <= secondAge) 
+                     if (snapshot->getTime() >= firstAge && snapshot->getTime() <= secondAge)
                      {
                         if (snapshot) snapshots.push_back(snapshot);
                         if (m_debug && snapshot && m_rank == 0) LogHandler(LogHandler::INFO_SEVERITY) << "adding range snapshot " << snapshot->getTime();
@@ -332,11 +332,11 @@ bool AbstractPropertiesCalculator::acquireSnapshots(SnapshotList & snapshots)
    }
    sort(snapshots.begin(), snapshots.end(), snapshotSorter);
 
-   if (m_debug && m_rank == 0)  
+   if (m_debug && m_rank == 0)
    {
       LogHandler(LogHandler::INFO_SEVERITY) << "Snapshots ordered";
       SnapshotList::iterator snapshotIter;
-      for (snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter) 
+      for (snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter)
       {
          LogHandler(LogHandler::INFO_SEVERITY) << (*snapshotIter)->getTime();
       }
@@ -345,11 +345,11 @@ bool AbstractPropertiesCalculator::acquireSnapshots(SnapshotList & snapshots)
    SnapshotList::iterator firstObsolete = unique(snapshots.begin(), snapshots.end(), snapshotIsEqual);
    snapshots.erase(firstObsolete, snapshots.end());
 
-   if (m_debug && m_rank == 0)  
+   if (m_debug && m_rank == 0)
    {
       LogHandler(LogHandler::INFO_SEVERITY) << "Snapshots uniquefied";
       SnapshotList::iterator snapshotIter;
-      for (snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter) 
+      for (snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter)
       {
          LogHandler(LogHandler::INFO_SEVERITY) << (*snapshotIter)->getTime();
       }
@@ -361,7 +361,7 @@ bool AbstractPropertiesCalculator::acquireSnapshots(SnapshotList & snapshots)
 //------------------------------------------------------------//
 void AbstractPropertiesCalculator::acquireProperties(Interface::PropertyList & properties) {
 
-   if (m_propertyNames.size() != 0) 
+   if (m_propertyNames.size() != 0)
    {
       // remove duplicated names
       std::sort(m_propertyNames.begin(), m_propertyNames.end());
@@ -374,28 +374,28 @@ void AbstractPropertiesCalculator::acquireProperties(Interface::PropertyList & p
 void AbstractPropertiesCalculator::acquireFormationsSurfaces(FormationSurfaceVector& formationSurfaceItems) {
 
    bool load3d = false;
-   if (m_formationNames.size() != 0 or m_all3Dproperties) 
+   if (m_formationNames.size() != 0 or m_all3Dproperties)
    {
       DerivedProperties::acquireFormations(m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
       load3d = true;
    }
-   if (m_all2Dproperties) 
+   if (m_all2Dproperties)
    {
-      if (not load3d) 
+      if (not load3d)
       {
          DerivedProperties::acquireFormations(m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
       }
       DerivedProperties::acquireFormationSurfaces(m_projectHandle, formationSurfaceItems, m_formationNames, true, m_basement);
       DerivedProperties::acquireFormationSurfaces(m_projectHandle, formationSurfaceItems, m_formationNames, false, m_basement);
 
-      if (not m_all3Dproperties) 
+      if (not m_all3Dproperties)
       {
          m_no3Dproperties = true;
       }
    }
 
    // if the property is selected but formationSurface list is empty add all formations
-   if (formationSurfaceItems.empty() and m_propertyNames.size() != 0)  
+   if (formationSurfaceItems.empty() and m_propertyNames.size() != 0)
    {
       DerivedProperties::acquireFormations(m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
       DerivedProperties::acquireFormationSurfaces(m_projectHandle, formationSurfaceItems, m_formationNames, true, m_basement);
@@ -409,57 +409,57 @@ void AbstractPropertiesCalculator::acquireAll2Dproperties() {
    if (m_all2Dproperties or (not m_formationNames.empty() and m_propertyNames.empty ()))
    {
       Interface::PropertyList * allProperties = m_projectHandle->getProperties(true);
-      
+
       LogHandler(LogHandler::DEBUG_SEVERITY) << "Acquiring computable 2D properties";
-      for (size_t i = 0; i < allProperties->size (); ++i) 
+      for (size_t i = 0; i < allProperties->size (); ++i)
       {
          const Interface::Property* property = (*allProperties)[ i ];
-         
-         if (property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
-             (m_propertyManager->formationMapPropertyIsComputable (property) or m_propertyManager->reservoirPropertyIsComputable (property))) 
+
+         if (property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and
+             (m_propertyManager->formationMapPropertyIsComputable (property) or m_propertyManager->reservoirPropertyIsComputable (property)))
          {
             m_propertyNames.push_back(property->getName());
             LogHandler(LogHandler::DEBUG_SEVERITY) << "   #" << property->getName() << " (2D formation)";
          }
          if ((property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
                property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY) and
-             m_propertyManager->surfacePropertyIsComputable (property)) 
+             m_propertyManager->surfacePropertyIsComputable (property))
          {
             m_propertyNames.push_back(property->getName());
             LogHandler(LogHandler::DEBUG_SEVERITY) << "   #" << property->getName() << " (2D surface)";
          }
          if (property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and
-              m_propertyManager->formationSurfacePropertyIsComputable (property)) 
+              m_propertyManager->formationSurfacePropertyIsComputable (property))
          {
             m_propertyNames.push_back(property->getName());
             LogHandler(LogHandler::DEBUG_SEVERITY) << "   #" << property->getName() << " (2D formation-surface)";
          }
       }
-      
+
       delete allProperties;
    }
 }
 //------------------------------------------------------------//
 
 void AbstractPropertiesCalculator::acquireAll3Dproperties() {
-   
-   if (m_all3Dproperties or (not m_formationNames.empty() and m_propertyNames.empty ())) 
+
+   if (m_all3Dproperties or (not m_formationNames.empty() and m_propertyNames.empty ()))
    {
-      
+
       Interface::PropertyList * allProperties = m_projectHandle->getProperties(true);
       LogHandler(LogHandler::DEBUG_SEVERITY) << "Acquiring computable 3D property ";
-      for (size_t i = 0; i < allProperties->size (); ++i) 
+      for (size_t i = 0; i < allProperties->size (); ++i)
       {
          const Interface::Property* property = (*allProperties)[ i ];
-         
+
          if ((property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
                property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY) and
-             m_propertyManager->formationPropertyIsComputable (property)) 
+             m_propertyManager->formationPropertyIsComputable (property))
          {
             m_propertyNames.push_back(property->getName());
             LogHandler(LogHandler::DEBUG_SEVERITY) << "   #" << property->getName();
          }
-         
+
       }
       delete allProperties;
    }
@@ -468,7 +468,7 @@ void AbstractPropertiesCalculator::acquireAll3Dproperties() {
 //------------------------------------------------------------//
 void AbstractPropertiesCalculator::printListSnapshots ()  {
 
-   if (m_listSnapshots && m_rank == 0) 
+   if (m_listSnapshots && m_rank == 0)
    {
 
       cout << endl;
@@ -478,7 +478,7 @@ void AbstractPropertiesCalculator::printListSnapshots ()  {
       cout.precision (8);
       cout << "Available snapshots are: ";
 
-      for (snapshotIter = mySnapshots->begin(); snapshotIter != mySnapshots->end(); ++snapshotIter)  
+      for (snapshotIter = mySnapshots->begin(); snapshotIter != mySnapshots->end(); ++snapshotIter)
       {
 
          if (snapshotIter != mySnapshots->begin()) cout << ",";
@@ -506,15 +506,15 @@ void AbstractPropertiesCalculator::printListStratigraphy () {
       cout << endl;
       bool firstFormation = true;
       bool arrivedAtBasement = false;
-      for (formationIter = myFormations->begin(); formationIter != myFormations->end(); ++formationIter) 
+      for (formationIter = myFormations->begin(); formationIter != myFormations->end(); ++formationIter)
       {
          const Interface::Formation * formation = *formationIter;
-         if (formation->kind() == BASEMENT_FORMATION && arrivedAtBasement == false) 
+         if (formation->kind() == BASEMENT_FORMATION && arrivedAtBasement == false)
          {
             arrivedAtBasement = true;
             cout << "Next formations and surfaces belong to the basement and only produce output when used with '-basement'" << endl;
          }
-         if (firstFormation) 
+         if (firstFormation)
          {
             cout << "\t" << formation->getTopSurface()->getName() << " (" << formation->getTopSurface()->getSnapshot()->getTime() << " Ma)" << endl;
             firstFormation = false;
@@ -522,10 +522,10 @@ void AbstractPropertiesCalculator::printListStratigraphy () {
 
          cout << "\t\t" << formation->getName() << endl;
          const Interface::Surface * bottomSurface = formation->getBottomSurface();
-         if (bottomSurface) 
+         if (bottomSurface)
          {
             cout << "\t" << bottomSurface->getName();
-            if (bottomSurface->getSnapshot()) 
+            if (bottomSurface->getSnapshot())
             {
                cout << " (" << bottomSurface->getSnapshot()->getTime() << " Ma)";
             }
@@ -542,13 +542,13 @@ void AbstractPropertiesCalculator::printListStratigraphy () {
 
 void AbstractPropertiesCalculator::printOutputableProperties () {
 
-   if (m_listProperties) 
+   if (m_listProperties)
    {
       Interface::PropertyList * allProperties = m_projectHandle->getProperties (true);
 
       PetscPrintf(PETSC_COMM_WORLD, "Available 3D output properties are: ");
 
-      for (size_t i = 0; i < allProperties->size (); ++i) 
+      for (size_t i = 0; i < allProperties->size (); ++i)
       {
          const Interface::Property* property = (*allProperties)[ i ];
          LogHandler(LogHandler::DEBUG_SEVERITY) << "########################################################";
@@ -556,11 +556,11 @@ void AbstractPropertiesCalculator::printOutputableProperties () {
 
          if ((property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
                property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY) and
-               m_propertyManager->formationPropertyIsComputable (property)) 
+               m_propertyManager->formationPropertyIsComputable (property))
          {
             PetscPrintf(PETSC_COMM_WORLD, "%s ",  property->getName ().c_str());
             LogHandler(LogHandler::DEBUG_SEVERITY) << "YES";
-         } 
+         }
          else
          {
             LogHandler(LogHandler::DEBUG_SEVERITY) << "NO";
@@ -576,7 +576,7 @@ void AbstractPropertiesCalculator::printOutputableProperties () {
          LogHandler(LogHandler::DEBUG_SEVERITY) << "2D-->" << property->getName();
 
          if (property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and
-              m_propertyManager->formationMapPropertyIsComputable (property)) 
+              m_propertyManager->formationMapPropertyIsComputable (property))
          {
             PetscPrintf(PETSC_COMM_WORLD, "%s ", property->getName ().c_str());
             LogHandler(LogHandler::DEBUG_SEVERITY) << "YES";
@@ -584,20 +584,20 @@ void AbstractPropertiesCalculator::printOutputableProperties () {
          }
          else if ((property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
                property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY) and
-              m_propertyManager->surfacePropertyIsComputable (property)) 
+              m_propertyManager->surfacePropertyIsComputable (property))
          {
             PetscPrintf(PETSC_COMM_WORLD, "%s ", property->getName ().c_str());
             LogHandler(LogHandler::DEBUG_SEVERITY) << "YES";
 
-         } 
+         }
          else if (property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and
-              m_propertyManager->formationSurfacePropertyIsComputable (property)) 
+              m_propertyManager->formationSurfacePropertyIsComputable (property))
          {
 
             PetscPrintf(PETSC_COMM_WORLD, "%s ", property->getName ().c_str());
             LogHandler(LogHandler::DEBUG_SEVERITY) << "YES";
-         } 
-         else 
+         }
+         else
          {
             LogHandler(LogHandler::DEBUG_SEVERITY) << "NO";
          }
@@ -613,7 +613,7 @@ void AbstractPropertiesCalculator::printOutputableProperties () {
 bool AbstractPropertiesCalculator::setFastcauldronActivityName() {
 
    if (m_projectHandle->getDetailsOfLastSimulation ("fastcauldron") == 0 ||
-       m_projectHandle->getDetailsOfLastSimulation ("fastcauldron")->getSimulatorMode () == "NoCalculation") 
+       m_projectHandle->getDetailsOfLastSimulation ("fastcauldron")->getSimulatorMode () == "NoCalculation")
    {
       return false;
    }
@@ -622,19 +622,19 @@ bool AbstractPropertiesCalculator::setFastcauldronActivityName() {
 
    if (m_simulationMode == "HydrostaticDecompaction" ||
        m_simulationMode == "HydrostaticTemperature" ||
-       m_simulationMode == "Overpressure") 
+       m_simulationMode == "Overpressure")
    {
       m_activityName = m_simulationMode;
-   } 
-   else if (m_simulationMode == "CoupledPressureAndTemperature") 
+   }
+   else if (m_simulationMode == "CoupledPressureAndTemperature")
    {
       m_activityName = "PressureAndTemperature";
-   } 
-   else if (m_simulationMode == "LooselyCoupledTemperature") 
+   }
+   else if (m_simulationMode == "LooselyCoupledTemperature")
    {
       m_activityName = "OverpressuredTemperature";
-   } 
-   else if (m_simulationMode == "CoupledHighResDecompaction" or m_simulationMode == "HydrostaticHighResDecompaction") 
+   }
+   else if (m_simulationMode == "CoupledHighResDecompaction" or m_simulationMode == "HydrostaticHighResDecompaction")
    {
       m_activityName = "HighResDecompaction";
    }
@@ -661,10 +661,10 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
    PetscOptionsHasName (PETSC_NULL, "-help", &parameterDefined);
    PetscOptionsHasName (PETSC_NULL, "-usage", &uDefined);
 
-   if (parameterDefined or uDefined) 
+   if (parameterDefined or uDefined)
    {
       showUsage (argv[0], " Standard usage.");
-      
+
       return false;
    }
 
@@ -686,7 +686,7 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
       if (not parameterDefined)
       {
          showUsage (argv[0], "Argument for '-properties' is missing");
-         
+
          return false;
       }
       m_propertyNames.clear();
@@ -695,7 +695,7 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
          m_propertyNames.push_back (parametersArray[i]);
       }
    }
-   
+
    double agesArray[MaximumLengh];
    PetscOptionsHasName (PETSC_NULL, "-ages", &parameterDefined);
    if (parameterDefined)
@@ -705,9 +705,9 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
       if (numberOfParameters == 0)
       {
          showUsage (argv[0], "Argument for '-ages' is missing");
-         
+
          return false;
-      } 
+      }
       else
       {
          m_ages.clear();
@@ -719,7 +719,7 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
          m_ages.push_back (-1); //separator
       }
    }
-   
+
    PetscOptionsHasName(PETSC_NULL, "-formations", &parameterDefined);
    if (parameterDefined)
    {
@@ -728,7 +728,7 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
       if (not parameterDefined)
       {
          showUsage (argv[0], "Argument for '-formations' is missing");
-         
+
          return false;
       }
       m_formationNames.clear();
@@ -757,13 +757,13 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
 
    PetscOptionsHasName (PETSC_NULL, "-list-stratigraphy", &parameterDefined);
    if (parameterDefined) m_listStratigraphy = true;
- 
+
    PetscOptionsHasName (PETSC_NULL, "-debug", &parameterDefined);
    if (parameterDefined) m_debug = true;
 
    PetscOptionsHasName (PETSC_NULL, "-primaryPod", &parameterDefined);
    if (parameterDefined) m_primaryPod = true;
-   
+
    PetscOptionsHasName (PETSC_NULL, "-extract2D", &parameterDefined);
    if (parameterDefined) m_extract2D = true;
 
@@ -774,13 +774,13 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
 
       return false;
    }
- 
-   for (int i = 1; i < argc; ++i) 
+
+   for (int i = 1; i < argc; ++i)
    {
       m_commandLine += std::string (argv [ i ]) + (i == argc - 1 ? "" : " ");
    }
 
-   return true;   
+   return true;
 }
 
 //------------------------------------------------------------//
@@ -862,7 +862,7 @@ bool snapshotSorter(const Snapshot * snapshot1, const Snapshot * snapshot2)
    return snapshot1->getTime () > snapshot2->getTime ();
 }
 
-void displayProgress(const string & fileName, double startTime, const string & message) 
+void displayProgress(const string & fileName, double startTime, const string & message)
 {
    if (PetscGlobalRank != 0)
       return;
@@ -892,7 +892,7 @@ void displayProgress(const string & fileName, double startTime, const string & m
    cout << flush;
 }
 
-void displayTime (const double timeToDisplay, const char * msgToDisplay) 
+void displayTime (const double timeToDisplay, const char * msgToDisplay)
 {
    int hours   = (int)(timeToDisplay / 3600.0);
    int minutes = (int)((timeToDisplay - (hours * 3600.0)) / 60.0);

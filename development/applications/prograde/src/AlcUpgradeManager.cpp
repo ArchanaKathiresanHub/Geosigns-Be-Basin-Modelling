@@ -69,7 +69,7 @@ void Prograde::AlcUpgradeManager::upgrade() {
       Prograde::AlcModelConverter modelConverter;
 
       //upgrading the crust property model to standard conductivity crust
-     
+
       BottomBoundaryManager::CrustPropertyModel crstPropModel;
       m_model.bottomBoundaryManager().getCrustPropertyModel(crstPropModel);
       m_model.bottomBoundaryManager().setCrustPropertyModel(modelConverter.upgradeAlcCrustPropModel(crstPropModel));
@@ -78,7 +78,7 @@ void Prograde::AlcUpgradeManager::upgrade() {
       BottomBoundaryManager::MantlePropertyModel mntlPropModel;
       m_model.bottomBoundaryManager().getMantlePropertyModel(mntlPropModel);
       m_model.bottomBoundaryManager().setMantlePropertyModel(modelConverter.upgradeAlcMantlePropModel(mntlPropModel));
-      
+
       LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS ) << "ALC upgrade done";
    }
    else {
@@ -90,7 +90,7 @@ void Prograde::AlcUpgradeManager::upgrade() {
 //------------------------------------------------------------//
 
 bool Prograde::AlcUpgradeManager::isLegacyAlc() const {
-   if (m_ph->getBottomBoundaryConditions() == DataAccess::Interface::ADVANCED_LITHOSPHERE_CALCULATOR) {
+   if (m_ph->isALC()) {
       const DataAccess::Interface::GridMap* presentDayBasaltThickness = m_crust->getBasaltThicknessMap();
       const DataAccess::Interface::GridMap* crustMeltOnsetMap = m_crust->getCrustThicknessMeltOnsetMap();
       return (presentDayBasaltThickness != nullptr or crustMeltOnsetMap != nullptr);
@@ -109,7 +109,7 @@ void Prograde::AlcUpgradeManager::createCrustThickness() {
    m_ph->correctCrustThicknessHistory();
    m_ph->initialiseValidNodes(false);
    DataAccess::Interface::ContinentalCrustHistoryGenerator generator(*m_ph->getActivityOutputGrid(), *m_crust, m_ph->getValidator(), m_ph->getGlobalOperations() );
-   generator.createCrustThickness(DataAccess::Interface::ADVANCED_LITHOSPHERE_CALCULATOR);
+   generator.createCrustThickness(DataAccess::Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE);
    m_initialCrustalThickness = generator.getInitialCrustalThickness();
    m_crustThicknessHistory = generator.getcrustThicknessHistory();
 }

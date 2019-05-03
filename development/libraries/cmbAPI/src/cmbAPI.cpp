@@ -894,11 +894,20 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
                   break;
 
                case datatype::Float:
+                  {
+                     float v1 = r1->getValue<float>( static_cast<int>( k ) );
+                     float v2 = r2->getValue<float>( static_cast<int>( k ) );
+                     if ( std::fabs(v1-v2) > 1e-6 && !NumericFunctions::isEqual( v1, v2, static_cast<float>(relTol) ) )
+                     {
+                        oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n";
+                     }
+                  }
+              break;
                case datatype::Double:
                   {
                      double v1 = r1->getValue<double>( static_cast<int>( k ) );
                      double v2 = r2->getValue<double>( static_cast<int>( k ) );
-                     if ( !NumericFunctions::isEqual( v1, v2, relTol ) )
+                     if ( std::fabs(v1-v2) > 1e-14 && !NumericFunctions::isEqual( v1, v2, relTol ) )
                      {
                         oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n";
                      }

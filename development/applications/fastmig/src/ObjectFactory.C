@@ -19,19 +19,19 @@
 using namespace migration;
 
 DataAccess::Interface::Reservoir *
-ObjectFactory::produceReservoir (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+ObjectFactory::produceReservoir (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
    return produceMigrationReservoir (projectHandle, record);
 }
 
 DataAccess::Interface::Formation *
-ObjectFactory::produceFormation (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+ObjectFactory::produceFormation (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
    return produceMigrationFormation (projectHandle, record);
 }
 
 DataAccess::Interface::Surface *
-ObjectFactory::produceSurface (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+ObjectFactory::produceSurface (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
    return produceMigrationSurface (projectHandle, record);
 }
@@ -40,19 +40,19 @@ ObjectFactory::produceSurface (DataAccess::Interface::ProjectHandle * projectHan
 // Private methods using the Migrator pointer for production
 
 DataAccess::Interface::Reservoir *
-ObjectFactory::produceMigrationReservoir (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+ObjectFactory::produceMigrationReservoir (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
    return new Reservoir (projectHandle, m_migrator, record);
 }
 
 DataAccess::Interface::Formation *
-ObjectFactory::produceMigrationFormation (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+ObjectFactory::produceMigrationFormation (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
    return new Formation (projectHandle, m_migrator, record);
 }
 
 DataAccess::Interface::Surface *
-ObjectFactory::produceMigrationSurface (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+ObjectFactory::produceMigrationSurface (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
    return new Surface (projectHandle, m_migrator, record);
 }

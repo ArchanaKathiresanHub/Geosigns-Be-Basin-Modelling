@@ -34,18 +34,21 @@ using Interface::LithoType;
 DataAccess::Interface::ProjectHandle *
 FastcauldronFactory::produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
                                             const string & name,
-                                            const string & accessMode) {
+                                            const string & accessMode) const
+{
    return new FastcauldronSimulator ( pfh, name, accessMode, this );
 }
 
 
 DataAccess::Interface::RelatedProject* FastcauldronFactory::produceRelatedProject ( Interface::ProjectHandle* projectHandle,
-                                                                                    database::Record*              record ) {
+                                                                                    database::Record* record ) const
+{
    return new RelatedProject ( projectHandle, record );
 }
 
 DataAccess::Interface::RunParameters * FastcauldronFactory::produceRunParameters ( Interface::ProjectHandle * projectHandle,
-                                                                                   database::Record *              record ) {
+                                                                                   database::Record * record ) const
+{
    return new RunParameters ( projectHandle, record );
 }
 
@@ -57,10 +60,9 @@ DataAccess::Interface::Property * FastcauldronFactory::produceProperty ( Interfa
                                                                          const string &                  unit,
                                                                          Interface::PropertyType         type,
                                                                          const DataModel::PropertyAttribute attr,
-                                                                         const DataModel::PropertyOutputAttribute attrOut) {
-
+                                                                         const DataModel::PropertyOutputAttribute attrOut) const
+{
    return new Property (projectHandle, record, userName, cauldronName, unit, type, attr, attrOut);
-
 }
 
 Interface::PropertyValue * FastcauldronFactory::producePropertyValue ( Interface::ProjectHandle *   projectHandle,
@@ -72,29 +74,31 @@ Interface::PropertyValue * FastcauldronFactory::producePropertyValue ( Interface
                                                                        const Interface::Formation * formation,
                                                                        const Interface::Surface *   surface,
                                                                        Interface::PropertyStorage   storage,
-                                                                       const std::string & fileName) {
-
+                                                                       const std::string & /*fileName*/ ) const
+{
    return new PropertyValue ( projectHandle, record, name, property, snapshot, reservoir, formation, surface, storage );
 }
 
 
-Interface::Formation* FastcauldronFactory::produceFormation ( Interface::ProjectHandle *   projectHandle,
-                                                                   database::Record *                record ) {
+Interface::Formation* FastcauldronFactory::produceFormation ( Interface::ProjectHandle * projectHandle,
+                                                              database::Record * record ) const
+{
    return new LayerProps ( projectHandle, record );
 }
 
 Interface::CrustFormation* FastcauldronFactory::produceCrustFormation ( Interface::ProjectHandle * projectHandle,
-                                                                             database::Record *              record) {
-
+                                                                        database::Record * record ) const
+{
    return new CrustFormation ( projectHandle, record );
 }
 
 Interface::MantleFormation* FastcauldronFactory::produceMantleFormation ( Interface::ProjectHandle * projectHandle,
-                                                                               database::Record *              record) {
+                                                                          database::Record * record ) const
+{
    return new MantleFormation ( projectHandle, record );
 }
 
-
-GeoPhysics::CompoundLithology* FastcauldronFactory::produceCompoundLithology ( GeoPhysics::ProjectHandle * projectHandle ) {
+GeoPhysics::CompoundLithology* FastcauldronFactory::produceCompoundLithology ( GeoPhysics::ProjectHandle * projectHandle ) const
+{
    return new Lithology ( projectHandle );
 }

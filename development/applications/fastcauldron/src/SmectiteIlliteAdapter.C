@@ -30,10 +30,10 @@ SmectiteIlliteAdapter::SmectiteIlliteAdapter ( LayerProps* formation, const Inte
 
 }
 
-bool SmectiteIlliteAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool SmectiteIlliteAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                         OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
-   
+
    if ( m_isCalculated ) {
       return true;
    }
@@ -43,7 +43,7 @@ bool SmectiteIlliteAdapter::operator ()( const OutputPropertyMap::OutputProperty
    Interface::GridMap* smectiteIlliteMap;
    double undefinedValue;
    double ***propertyVector;
-   bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
+   bool isSediment = m_formation->isSediment();
 
    if ( isSediment ) {
       DMDAVecGetArray ( m_formation->layerDA,
@@ -83,8 +83,8 @@ bool SmectiteIlliteAdapter::operator ()( const OutputPropertyMap::OutputProperty
 
 void SmectiteIlliteAdapter::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "IlliteFraction", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "IlliteFraction",
+                                                                                                         m_snapshot, 0,
                                                                                                          0,
                                                                                                          m_surface )));
 
@@ -102,7 +102,7 @@ SmectiteIlliteVolumeAdapter::SmectiteIlliteVolumeAdapter ( LayerProps* formation
 
 }
 
-bool SmectiteIlliteVolumeAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool SmectiteIlliteVolumeAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                               OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -115,7 +115,7 @@ bool SmectiteIlliteVolumeAdapter::operator ()( const OutputPropertyMap::OutputPr
    Interface::GridMap* smectiteIlliteMap;
    double ***propertyVector;
    double undefinedValue;
-   bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
+   bool isSediment = m_formation->isSediment();
 
    if ( isSediment ) {
       DMDAVecGetArray ( m_formation->layerDA,
@@ -163,8 +163,8 @@ bool SmectiteIlliteVolumeAdapter::operator ()( const OutputPropertyMap::OutputPr
 
 void SmectiteIlliteVolumeAdapter::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "IlliteFraction", 
-                                                                                                            m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "IlliteFraction",
+                                                                                                            m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 

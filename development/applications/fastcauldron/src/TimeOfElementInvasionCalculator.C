@@ -19,7 +19,7 @@ TimeOfElementInvasionVolumeCalculator::TimeOfElementInvasionVolumeCalculator ( L
 
 }
 
-bool TimeOfElementInvasionVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool TimeOfElementInvasionVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                  OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -42,7 +42,7 @@ bool TimeOfElementInvasionVolumeCalculator::operator ()( const OutputPropertyMap
 
    double undefinedValue;
    double **propertyVector;
-   bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
+   bool isSediment = m_formation->isSediment();
 
    timeOfInvasionMap= propertyValues[0]->getGridMap ();
    timeOfInvasionMap->retrieveData();
@@ -74,31 +74,31 @@ bool TimeOfElementInvasionVolumeCalculator::operator ()( const OutputPropertyMap
                if ( i == grid.getNumberOfXElements () - 1 ) {
                   timeOfInvasionMap->setValue ( i + 1, j, k, value );
                }
-                        
+
                if ( j == grid.getNumberOfYElements () - 1 ) {
                   timeOfInvasionMap->setValue ( i, j + 1, k, value );
                }
-                        
+
                if ( k == grid.getNumberOfZElements () - 1 ) {
                   timeOfInvasionMap->setValue ( i, j, k + 1, value );
                }
-                        
+
                if ( i == grid.getNumberOfXElements () - 1  and j == grid.getNumberOfYElements () - 1 ) {
                   timeOfInvasionMap->setValue ( i + 1, j + 1, k, value );
                }
-                        
+
                if ( i == grid.getNumberOfXElements () - 1  and k == grid.getNumberOfZElements () - 1 ) {
                   timeOfInvasionMap->setValue ( i + 1, j, k + 1, value );
                }
-                        
+
                if ( j == grid.getNumberOfYElements () - 1  and k == grid.getNumberOfZElements () - 1 ) {
                   timeOfInvasionMap->setValue ( i, j + 1, k + 1, value );
                }
-                        
+
                if ( i == grid.getNumberOfXElements () - 1  and j == grid.getNumberOfYElements () - 1  and k == grid.getNumberOfZElements () - 1 ) {
                   timeOfInvasionMap->setValue ( i + 1, j + 1, k + 1, value );
                }
-                        
+
             }
 
          }
@@ -122,8 +122,8 @@ bool TimeOfElementInvasionVolumeCalculator::operator ()( const OutputPropertyMap
 }
 
 void TimeOfElementInvasionVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
-  
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "TimeOfInvasion", 
+
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "TimeOfInvasion",
                                                                                                             m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

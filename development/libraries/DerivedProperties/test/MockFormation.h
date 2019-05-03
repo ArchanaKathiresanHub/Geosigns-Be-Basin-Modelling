@@ -1,12 +1,12 @@
-// 
+//
 // Copyright (C) 2017-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef _DERIVED_PROPERTIES__MOCK_FORMATION_H_
 #define _DERIVED_PROPERTIES__MOCK_FORMATION_H_
@@ -43,10 +43,10 @@ namespace DataModel {
       virtual const std::string& getBottomSurfaceName () const;
 
       virtual void printOn ( std::ostream& os ) const;
-      
+
       /// \brief Get the Compound lithology array.
       virtual const DataModel::MockCompoundLithologyArray& getCompoundLithologyArray () const final;
-       
+
       /// \brief Output information about the formation to the ostream.
       virtual unsigned int getMaximumNumberOfElements () const final;
 
@@ -70,7 +70,8 @@ inline DataModel::MockFormation::MockFormation ( const std::string& name,
    m_name ( name ),
    m_topSurfaceName ( topSurfaceName ),
    m_bottomSurfaceName ( bottomSurfaceName ),
-   m_numberMaxElements ( numberMaxElements )
+   m_numberMaxElements ( numberMaxElements ),
+   m_mockCompoundLithologyArray()
 {
 }
 

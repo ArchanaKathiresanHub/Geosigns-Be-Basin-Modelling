@@ -97,7 +97,7 @@ int main (int argc, char ** argv)
    }
 
    PersistentTrapFactory* factory = new PersistentTrapFactory;
-   ProjectHandle * projectHandle = (ProjectHandle *) Interface::OpenCauldronProject (projectFileName, "rw", factory);
+   ProjectHandle * projectHandle = dynamic_cast<ProjectHandle *>(Interface::OpenCauldronProject (projectFileName, "rw", factory));
 
    if (!projectHandle)
    {

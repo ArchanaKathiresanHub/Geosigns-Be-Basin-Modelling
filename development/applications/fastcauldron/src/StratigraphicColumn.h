@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #ifndef FASTCAULDRON__STRATIGRAPHIC_COLUMN__H
 #define FASTCAULDRON__STRATIGRAPHIC_COLUMN__H
 
@@ -147,7 +147,7 @@ inline LayerProps* StratigraphicColumn::getLayer ( const size_t i ) {
 
 inline bool StratigraphicColumn::includesBasement () const {
    // Need look only at the bottommost layer.
-   return m_layers [ m_layers.size () - 1 ]->kind () == Interface::BASEMENT_FORMATION;
+   return m_layers.back()->isBasement();
 }
 
 #endif // FASTCAULDRON__STRATIGRAPHIC_COLUMN__H

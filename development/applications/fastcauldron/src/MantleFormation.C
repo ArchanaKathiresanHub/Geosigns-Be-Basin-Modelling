@@ -76,11 +76,6 @@ void MantleFormation::initialise () {
 }
 
 //------------------------------------------------------------//
-void MantleFormation::setMaximumThicknessValue ( const double newThickness ) {
-   m_maximumDepositedThickness = newThickness;
-}
-
-//------------------------------------------------------------//
 const CompoundLithology* MantleFormation::getBasaltLithology(const int iPosition, const int jPosition) const {
 
    return m_basaltLithology(iPosition, jPosition);
@@ -88,7 +83,7 @@ const CompoundLithology* MantleFormation::getBasaltLithology(const int iPosition
 
 //------------------------------------------------------------//
 const CompoundLithology*  MantleFormation::getLithology(const int iPosition, const int jPosition, const int kPosition ) const {
-   if( FastcauldronSimulator::getInstance ().getCauldron ()->isALC() ) {
+   if( FastcauldronSimulator::getInstance().isALC() ) {
       if( BasaltMap( iPosition, jPosition, kPosition ) ) {
          return getBasaltLithology( iPosition, jPosition );
       } else {
@@ -132,9 +127,8 @@ bool MantleFormation::setLithologiesFromStratTable () {
 //------------------------------------------------------------//
 const CompoundLithology* MantleFormation::getLithology( const double aTime, const int iPosition, const int jPosition, const double aOffset ) {
    // If offset from the top of the Mantle (aOffset) goes above the bottom of Basalt, then we are in Basalt
-   const AppCtx* aBasinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
 
-   if( aBasinModel->isALC() ) { 
+   if( FastcauldronSimulator::getInstance ().isALC() ) {
       double partOfBasaltInMantle = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getBasaltThickness( iPosition, jPosition, aTime ) +
          ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getContCrustThickness( iPosition, jPosition, aTime) -
          ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getCrustThickness( iPosition, jPosition, aTime );

@@ -64,7 +64,7 @@ DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculato
       addDependentPropertyName( "ALCStepTopBasaltDepth");
       addDependentPropertyName( "ALCStepBasaltThickness");
       addDependentPropertyName( "Depth" );
-   } 
+   }
 }
 
 
@@ -114,7 +114,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
       DerivedFormationPropertyPtr bulkDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( bulkDensityProperty,
                                                                                                                                 snapshot,
-                                                                                                                                formation, 
+                                                                                                                                formation,
                                                                                                                                 propertyManager.getMapGrid (),
                                                                                                                                 formation->getMaximumNumberOfElements() + 1 ));
 
@@ -131,7 +131,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
       double solidDensity;
 
       for ( unsigned int i = bulkDensity->firstI ( true ); i <= bulkDensity->lastI ( true ); ++i ) {
-            
+
          for ( unsigned int j = bulkDensity->firstJ ( true ); j <= bulkDensity->lastJ ( true ); ++j ) {
 
             if ( m_projectHandle->getNodeIsValid ( i, j )) {
@@ -169,7 +169,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
    const DataModel::AbstractProperty* temperatureProperty  = propertyManager.getProperty ( "Temperature" );
    const DataModel::AbstractProperty* porePressureProperty = propertyManager.getProperty ( "Pressure" );
    const DataModel::AbstractProperty* porosityProperty     = propertyManager.getProperty ( "Porosity" );
-   
+
    const FormationPropertyPtr temperature         = propertyManager.getFormationProperty ( temperatureProperty,  snapshot, formation );
    const FormationPropertyPtr porePressure        = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
    const FormationPropertyPtr layerPorosity       = propertyManager.getFormationProperty ( porosityProperty,     snapshot, formation );
@@ -178,7 +178,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
       DerivedFormationPropertyPtr bulkDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( bulkDensityProperty,
                                                                                                                                 snapshot,
-                                                                                                                                formation, 
+                                                                                                                                formation,
                                                                                                                                 propertyManager.getMapGrid (),
                                                                                                                                 formation->getMaximumNumberOfElements() + 1 ));
 
@@ -227,7 +227,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
 
    DerivedFormationPropertyPtr bulkDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( bulkDensityProperty,
                                                                                                                              snapshot,
-                                                                                                                             formation, 
+                                                                                                                             formation,
                                                                                                                              propertyManager.getMapGrid (),
                                                                                                                              formation->getMaximumNumberOfElements() + 1 ));
 
@@ -270,7 +270,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
    const DataModel::AbstractProperty* temperatureProperty  = propertyManager.getProperty ( "Temperature" );
    const DataModel::AbstractProperty* lithostaticProperty  = propertyManager.getProperty ( "LithoStaticPressure" );
    const DataModel::AbstractProperty* depthProperty        = propertyManager.getProperty ( "Depth" );
-   
+
    const FormationPropertyPtr temperature         = propertyManager.getFormationProperty ( temperatureProperty,  snapshot, formation );
    const FormationPropertyPtr lithostaticPressure = propertyManager.getFormationProperty ( lithostaticProperty,  snapshot, formation );
    const FormationPropertyPtr depth               = propertyManager.getFormationProperty ( depthProperty, snapshot, formation );
@@ -280,11 +280,11 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
 
    const DataModel::AbstractProperty* basaltDepthProperty = propertyManager.getProperty ( "ALCStepTopBasaltDepth" );
    const DataModel::AbstractProperty* basaltThicknessProperty = propertyManager.getProperty ( "ALCStepBasaltThickness" );
-   
+
    if( formation->getName() != "Crust" ) {
       const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
       const DataModel::AbstractFormation * crustFormation = ( mantleFormation->getTopSurface()->getTopFormation() );
-      
+
       basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, crustFormation );
       basaltThickness = propertyManager.getFormationMapProperty ( basaltThicknessProperty, snapshot, crustFormation );
    } else {
@@ -296,7 +296,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
 
       DerivedFormationPropertyPtr bulkDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( bulkDensityProperty,
                                                                                                                                 snapshot,
-                                                                                                                                formation, 
+                                                                                                                                formation,
                                                                                                                                 propertyManager.getMapGrid (),
                                                                                                                                 formation->getMaximumNumberOfElements() + 1 ));
       const GeoPhysics::CompoundLithologyArray& lithologies = formation->getCompoundLithologyArray ();
@@ -316,7 +316,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
                   double solidDensity;
 
                   if( basaltThickness->get( i, j ) != 0 and ( topBasaltDepth <= depth->get ( i, j, k ) and botBasaltDepth > depth->get ( i, j, k  ))) {
-                   
+
                      solidDensity = lithology->getSimpleLithology()->getBasaltDensity ( temperature->get ( i, j, k ), lithostaticPressure->get ( i, j, k ));
                   } else {
                      solidDensity = lithology->computeDensity ( temperature->get ( i, j, k ), lithostaticPressure->get ( i, j, k ));
@@ -364,7 +364,7 @@ bool DerivedProperties::BulkDensityFormationCalculator::isComputable ( const Abs
       } else {
 
          const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
-         
+
          if ( property == 0 ) {
             propertyIsComputable = false;
          } else {
@@ -379,7 +379,7 @@ bool DerivedProperties::BulkDensityFormationCalculator::isComputable ( const Abs
 bool DerivedProperties::BulkDensityFormationCalculator::isComputableForBasement ( const AbstractPropertyManager&      propManager,
                                                                                   const DataModel::AbstractSnapshot*  snapshot,
                                                                                   const DataModel::AbstractFormation* formation ) const {
-   
+
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 
    bool propertyIsComputable = true;
@@ -391,18 +391,18 @@ bool DerivedProperties::BulkDensityFormationCalculator::isComputableForBasement 
 
          return true;
       }
-      if( dependentProperties [ i ] == "Porosity" or dependentProperties [ i ] == "Pressure" ) {   
+      if( dependentProperties [ i ] == "Porosity" or dependentProperties [ i ] == "Pressure" ) {
          propertyIsComputable = true;
       } else {
          const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
-         
+
          if ( property == 0 ) {
             propertyIsComputable = false;
          } else {
             if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" ) {
                if( formation->getName() != "Crust" ) {
                   const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
-                  
+
                   const DataModel::AbstractFormation * crustFormation = (mantleFormation->getTopSurface()->getTopFormation() );
                   propertyIsComputable = propertyIsComputable and propManager.formationMapPropertyIsComputable ( property, snapshot, crustFormation );
                } else {
@@ -411,7 +411,7 @@ bool DerivedProperties::BulkDensityFormationCalculator::isComputableForBasement 
             } else {
                propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
             }
-         }                  
+         }
       }
    }
    return propertyIsComputable;

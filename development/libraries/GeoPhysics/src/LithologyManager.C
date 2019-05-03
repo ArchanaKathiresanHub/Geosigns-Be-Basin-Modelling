@@ -48,7 +48,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
   if ( compoundIter == compoundLithologies.end() || ( composition.lithologyName( 3 ) == DataAccess::Interface::ALCBasalt )) {
     bool   mixedSuccessfully;
 
-    compoundLithology = dynamic_cast<GeoPhysics::ObjectFactory*>(m_projectHandle->getFactory ())->produceCompoundLithology ( m_projectHandle );
+    compoundLithology = dynamic_cast<const GeoPhysics::ObjectFactory*>(m_projectHandle->getFactory ())->produceCompoundLithology ( m_projectHandle );
     compoundLithology->setMixModel( composition.mixingModel(), composition.layeringIndex());
 
     for ( I = 1; I <= MaximumNumberOfLithologies; I++ ) {
@@ -219,7 +219,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
   if ( compoundIter == compoundLithologies.end ()) {
     bool mixedSuccessfully;
 
-    faultLithology = dynamic_cast<GeoPhysics::ObjectFactory*>(m_projectHandle->getFactory ())->produceCompoundLithology ( m_projectHandle );
+    faultLithology = dynamic_cast<const GeoPhysics::ObjectFactory*>(m_projectHandle->getFactory ())->produceCompoundLithology ( m_projectHandle );
     faultLithology->setMixModel( faultComposition.mixingModel(), faultComposition.layeringIndex());
 
     for ( I = 1; I <= MaximumNumberOfLithologies; I++ ) {

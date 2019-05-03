@@ -30,7 +30,7 @@
 ///
 ///
 ///    Compute the values of the property/properties.
-///    bool operator ()( const OutputPropertyMap::PropertyList&      properties, 
+///    bool operator ()( const OutputPropertyMap::PropertyList&      properties,
 ///                            OutputPropertyMap::PropertyValueList& propertyValues );
 ///
 ///
@@ -95,7 +95,7 @@ DerivedOutputPropertyMap<PropertyCalculator>::DerivedOutputPropertyMap ( const P
 
    for ( i = 0; i < m_values.size (); ++i ) {
       m_properties.push_back ((const Property*)m_values [ i ]->getProperty ());
-   } 
+   }
 
    m_containsVolumeData = false;
 }
@@ -113,7 +113,7 @@ DerivedOutputPropertyMap<PropertyCalculator>::DerivedOutputPropertyMap ( const P
 
    for ( i = 0; i < m_values.size (); ++i ) {
       m_properties.push_back ((const Property*)m_values [ i ]->getProperty ());
-   } 
+   }
 
    m_containsVolumeData = true;
 }
@@ -122,21 +122,21 @@ template<class PropertyCalculator>
 bool DerivedOutputPropertyMap<PropertyCalculator>::isCalculated () const {
    return m_isCalculated;
 }
-   
+
 namespace property_manager
 {
   OutputPropertyMap* FindOutputPropertyMap ( const std::string&         propertyName,
                                               const LayerProps*          formation,
                                               const Interface::Surface*  surface,
-					     const Interface::Snapshot* snapshot ) ;
+                                             const Interface::Snapshot* snapshot ) ;
 }
 
 template<class PropertyCalculator>
-bool DerivedOutputPropertyMap<PropertyCalculator>::calculate () 
+bool DerivedOutputPropertyMap<PropertyCalculator>::calculate ()
 {
    unsigned int i;
 
-   if ( not isCalculated () ) 
+   if ( not isCalculated () )
    {
      m_isCalculated = m_propertyCalculator ( m_properties, m_values );
 
@@ -144,39 +144,39 @@ bool DerivedOutputPropertyMap<PropertyCalculator>::calculate ()
      bool allowOutput = true;
      if ( ( m_containsVolumeData ) and
           ( FastcauldronSimulator::getInstance().getModellingMode() == Interface::MODE1D ) and
-          m_formation->kind () == Interface::BASEMENT_FORMATION )
+          m_formation->isBasement() )
      {
        OutputPropertyMap* thickness = property_manager::FindOutputPropertyMap ( "Thickness", m_formation, 0, m_snapshot );
-       if ( not thickness->isCalculated () ) 
+       if ( not thickness->isCalculated () )
        {
-	 if ( not thickness->calculate () ) 
-	 {
-	   return false; 
-	 } 
+         if ( not thickness->calculate () )
+         {
+           return false;
+         }
        }
-	
+
        if ( (*thickness)( 0, 0 ) <= 0.0 )
-	 allowOutput = false;
+         allowOutput = false;
      }
 
-     for ( i = 0; i < m_values.size (); ++i ) 
+     for ( i = 0; i < m_values.size (); ++i )
      {
 
        if (not allowOutput)
-	 m_values [ i ] -> allowOutput(false);
-       
+         m_values [ i ] -> allowOutput(false);
+
        m_propertyMaps.push_back ( const_cast<Interface::GridMap*>(m_values [ i ]->getGridMap ()));
 
      }
 
    }
 
-   for ( i = 0; i < m_propertyMaps.size (); ++i ) 
+   for ( i = 0; i < m_propertyMaps.size (); ++i )
    {
 
-      if ( not m_propertyMaps [ i ]->retrieved ()) 
+      if ( not m_propertyMaps [ i ]->retrieved ())
       {
-	m_propertyMaps [ i ]->retrieveGhostedData ();
+        m_propertyMaps [ i ]->retrieveGhostedData ();
       }
 
    }

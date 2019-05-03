@@ -31,18 +31,19 @@ using Interface::LithoType;
 DataAccess::Interface::ProjectHandle *
 AllochMod::AllochthonousModellingFactory::produceProjectHandle ( database::ProjectFileHandlerPtr database,
                                                                  const string & name,
-                                                                 const string & accessMode) {
+                                                                 const string & accessMode) const
+{
   return new AllochthonousLithologySimulator ( database, name, accessMode, this );
 }
 
 DataAccess::Interface::AllochthonousLithology *
-AllochMod::AllochthonousModellingFactory::produceAllochthonousLithology (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+AllochMod::AllochthonousModellingFactory::produceAllochthonousLithology (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
    return new AllochthonousLithology (projectHandle, record);
 }
 
 DataAccess::Interface::AllochthonousLithologyDistribution *
-AllochMod::AllochthonousModellingFactory::produceAllochthonousLithologyDistribution (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+AllochMod::AllochthonousModellingFactory::produceAllochthonousLithologyDistribution (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
    return new AllochthonousLithologyDistribution (projectHandle, record);
 }

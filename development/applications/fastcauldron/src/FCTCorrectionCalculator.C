@@ -15,7 +15,7 @@ FCTCorrectionCalculator::FCTCorrectionCalculator ( LayerProps* formation, const 
 
 }
 
-bool FCTCorrectionCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool FCTCorrectionCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                  OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -27,7 +27,7 @@ bool FCTCorrectionCalculator::operator ()( const OutputPropertyMap::OutputProper
    Interface::GridMap* fctCorrectionMap;
    double undefinedValue;
    double **propertyVector;
-   bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
+   bool isSediment = m_formation->isSediment();
 
    if ( isSediment ) {
       DMDAVecGetArray ( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA,
@@ -67,8 +67,8 @@ bool FCTCorrectionCalculator::operator ()( const OutputPropertyMap::OutputProper
 
 void FCTCorrectionCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FCTCorrection", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FCTCorrection",
+                                                                                                         m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          0 )));
 

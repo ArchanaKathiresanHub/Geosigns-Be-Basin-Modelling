@@ -216,8 +216,8 @@ int main (int argc, char ** argv) {
         interVerticalElementBoundary = false;
       }
       else if ((strncmp (argv[arg], "-help", NumericFunctions::Maximum<size_t> (2, strlen(argv[arg]))) == 0) ||
-		       (strncmp(argv[arg], "-?",     NumericFunctions::Maximum<size_t> (2, strlen(argv[arg]))) == 0) ||
-		       (strncmp(argv[arg], "-usage", NumericFunctions::Maximum<size_t> (2, strlen(argv[arg]))) == 0))
+           (strncmp(argv[arg], "-?",     NumericFunctions::Maximum<size_t> (2, strlen(argv[arg]))) == 0) ||
+           (strncmp(argv[arg], "-usage", NumericFunctions::Maximum<size_t> (2, strlen(argv[arg]))) == 0))
       {
          showUsage ( argv[ 0 ], " Standard usage.");
          return -1;
@@ -254,7 +254,7 @@ int main (int argc, char ** argv) {
    }
 
    if ( outputFileName == "" ) {
-      showUsage ( argv[ 0 ], "No output file specified");      
+      showUsage ( argv[ 0 ], "No output file specified");
       return -1;
    } else if ( outputFileFormat == "" ) {
       size_t dotPosition = outputFileName.rfind ( "." );
@@ -266,7 +266,7 @@ int main (int argc, char ** argv) {
    }
 
    if ( outputFileFormat == "" ) {
-      std::cerr << " Warning: output format has not been defined. Using default " 
+      std::cerr << " Warning: output format has not been defined. Using default "
                 << '\'' << WellWriterFactory::getInstance ().getDefaultWriterIdentifier () << '\'' << std::endl;
       outputFileFormat = WellWriterFactory::getInstance ().getDefaultWriterIdentifier ();
    } else if ( not WellWriterFactory::getInstance ().outputFormatIsDefined ( outputFileFormat )) {
@@ -295,7 +295,8 @@ int main (int argc, char ** argv) {
 
    Mining::ObjectFactory* factory = new DataAccess::Mining::ObjectFactory;
 
-   Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (projectFileName, "r", factory));
+   Mining::ProjectHandle* projectHandle = dynamic_cast<Mining::ProjectHandle*>(OpenCauldronProject (projectFileName, "r", factory));
+
    DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
 
    projectHandle->startActivity ( "deviatedwell", projectHandle->getLowResolutionOutputGrid ());
@@ -318,7 +319,7 @@ int main (int argc, char ** argv) {
    } else {
       // If this table is not present the assume that the last
       // fastcauldron mode was not pressure mode.
-      // This table may not be present because we are running c2e on an old 
+      // This table may not be present because we are running c2e on an old
       // project, before this table was added.
       coupledCalculation = false;
    }
@@ -523,45 +524,45 @@ void showUsage ( const char* command,
    }
 
    std::cerr << "Usage: " << command << std::endl
-             << std::endl 
+             << std::endl
              << "     -project <cauldron-project-file>" << std::endl
              << "           The Cauldron project from which results are to be extracted." << std::endl
              << std::endl
              << "     -help" << std::endl
              << "           Print this message." << std::endl
-             << std::endl 
+             << std::endl
              << "     -output <type>" << std::endl
              << "           Output file format, default: " << WellWriterFactory::getInstance ().getDefaultWriterIdentifier () << "." << std::endl
              << "           Choices for <type> are: csv, matlab, cout." << std::endl
-             << std::endl 
+             << std::endl
              << "     -save <output-file-name>" << std::endl
              << "           Set the output file name." << std::endl
-             << std::endl 
+             << std::endl
              << "     -well <well-def-file>" << std::endl
              << "           Input well definition file." << std::endl
-             << std::endl 
+             << std::endl
              << "     -interform" << std::endl
              << "     -nointerform" << std::endl
              << "           Control whether or not inter-formation elements are to be added." << std::endl
              << "           Default is " << text [ DefaultInterFormationBoundary ] << " inter-formation elements." << std::endl
-             << std::endl 
+             << std::endl
              << "     -interplaneelem" << std::endl
              << "     -nointerplaneelem" << std::endl
              << "           Control whether or not inter-planar elements are to be added." << std::endl
              << "           Default is " << text [ DefaultInterPlanarElementBoundary ] << " inter-planar elements." << std::endl
-             << std::endl 
+             << std::endl
              << "     -interverticalelem" << std::endl
              << "     -nointerverticalelem" << std::endl
              << "           Control whether or not inter-vertical elements are to be added." << std::endl
              << "           Default is " << text [ DefaultInterVerticalElementBoundary ] << " inter-vertical elements." << std::endl
-             << std::endl 
+             << std::endl
              << "     -snapshot <age>" << std::endl
              << "           The snapshot-age to be used for the extraction." << std::endl
              << "           Recommended for vertical wells only."  << std::endl
-             << std::endl 
+             << std::endl
              << "     -properties <comma-separated list of properties>"  << std::endl
              << "           Over-rides the default set of properties, sample position information is still output."
-             << std::endl 
+             << std::endl
              << std::endl;
 
 }

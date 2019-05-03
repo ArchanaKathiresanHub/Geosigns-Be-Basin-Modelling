@@ -138,25 +138,25 @@ const double DefaultUndefinedValue = 99999;
 
 typedef formattingexception::GeneralException ProjectHandleException;
 
-static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", 
+static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth",
 
-                                "ALCStepMohoDepth", 
+                                "ALCStepMohoDepth",
                                 "ALCMaxAsthenoMantleDepth",
-                                "ALCSmBasaltThickness",  
+                                "ALCSmBasaltThickness",
                                 "ALCStepContCrustThickness",
-                                "ALCOrigLithMantleDepth",  
-                                "ALCSmContCrustThickness", 
-                                "ALCSmTopBasaltDepth",  
-                                "ALCSmMohoDepth",  
+                                "ALCOrigLithMantleDepth",
+                                "ALCSmContCrustThickness",
+                                "ALCSmTopBasaltDepth",
+                                "ALCSmMohoDepth",
 
                                 "ChemicalCompaction" , "Depth",
                                 "ErosionFactor", "FCTCorrection", "MaxVes",
                                 "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
-DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name,
-                                                                                   const string & accessMode,
-                                                                                   ObjectFactory* objectFactory,
-                                                                                   const std::vector<std::string>& outputTableNames )
+ProjectHandle* DataAccess::Interface::OpenCauldronProject( const string & name,
+                                                           const string & accessMode,
+                                                           const ObjectFactory* objectFactory,
+                                                           const std::vector<std::string>& outputTableNames )
 {
    if ( !boost::filesystem::exists( name ) )
    {
@@ -215,7 +215,7 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
    return *m_globalOperations;
 }
 
-ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
+ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode, const ObjectFactory* objectFactory ) :
    m_name( name ), m_accessMode( READWRITE ), m_projectFileHandler(pfh),
    m_tableCTC                         ( *this ),
    m_tableCTCRiftingHistory           ( *this ),
@@ -261,6 +261,7 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
 
    splitName();
 
+   loadBottomBoundaryConditions();
    loadSnapshots();
    loadProperties();
    loadTimeOutputProperties();
@@ -269,7 +270,6 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    loadLithologyThermalConductivitySamples();
 
    loadRunParameters();
-   loadBottomBoundaryConditions();
    loadLithoTypes();
 
    loadGrids();
@@ -289,7 +289,6 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    numberInputValues();
    loadPermafrostData();
    loadFluidTypes();
-
    loadFluidThermalConductivitySamples();
    loadFluidHeatCapacitySamples();
 
@@ -381,7 +380,7 @@ Interface::ModellingMode ProjectHandle::getModellingMode( void ) const
 }
 
 
-ObjectFactory * ProjectHandle::getFactory( void ) const
+const ObjectFactory * ProjectHandle::getFactory( void ) const
 {
    return m_factory;
 }
@@ -671,12 +670,8 @@ bool ProjectHandle::loadSnapshots( void )
 
    std::sort( m_snapshots.begin(), m_snapshots.end(), SnapshotLessThan() );
 
-   Table * tbl = getTable( "BasementIoTbl" );
-   assert( tbl );
-   Record *firstRecord = tbl->getRecord( 0 );
-   assert( firstRecord );
-
-   if ( getBottomBoundaryModel( firstRecord ) == "Advanced Lithosphere Calculator" ) {
+   if ( isALC() )
+   {
       createSnapshotsAtRiftEvents();
    }
    return true;
@@ -794,10 +789,9 @@ bool ProjectHandle::createSnapshotsAtGeologicalEvents()
    Record *firstRecord = tbl->getRecord( 0 );
    assert( firstRecord );
 
-   bool isFixedTemperature = ( getBottomBoundaryModel( firstRecord ) == "Fixed Temperature" );
-   bool isALC = ( getBottomBoundaryModel( firstRecord ) == "Advanced Lithosphere Calculator" );
+   bool isFixedTemperature = ( database::getBottomBoundaryModel( firstRecord ) == "Fixed Temperature" );
 
-   const string tableName = ( ( isFixedTemperature || isALC ) ? getCrustIoTableName() : "MntlHeatFlowIoTbl" );
+   const string tableName = ( ( isFixedTemperature || isALC() ) ? getCrustIoTableName() : "MntlHeatFlowIoTbl" );
 
    tableNameList.push_back( tableName );
 
@@ -1751,7 +1745,7 @@ bool ProjectHandle::loadLithoTypes( void )
       }
    }
 
-   if ( m_bottomBoundaryConditions == Interface::ADVANCED_LITHOSPHERE_CALCULATOR ) {
+   if ( isALC() ) {
       database::Record * record = NULL;
       if ( crustLithoType != NULL ) {
          record = new Record( *crustLithoType );
@@ -1877,8 +1871,7 @@ database::Table* ProjectHandle::getCrustIoTable( void )
 
    Record *firstRecord = tbl->getRecord( 0 );
    assert( firstRecord );
-   bool isALC = ( getBottomBoundaryModel( firstRecord ) == "Advanced Lithosphere Calculator" );
-   database::Table* crustCalculatedThinningTbl = ( isALC ? getTable( "ContCrustalThicknessIoTbl" ) : getTable( "CrustIoTbl" ) );
+   database::Table* crustCalculatedThinningTbl = ( isALC() ? getTable( "ContCrustalThicknessIoTbl" ) : getTable( "CrustIoTbl" ) );
 
    return crustCalculatedThinningTbl;
 }
@@ -1913,7 +1906,7 @@ bool CrustIoTblSorter( database::Record * recordL, database::Record * recordR )
 
 bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
 
-   if ( m_bottomBoundaryConditions == Interface::ADVANCED_LITHOSPHERE_CALCULATOR ) {
+   if ( isALC() ) {
       MutablePaleoFormationPropertyList newCrustalThicknesses;
 
       // calculate and insert additional crust thickness maps at all snapshot events
@@ -2150,7 +2143,7 @@ bool ProjectHandle::loadSimulationDetails () {
 }
 
 
-bool ProjectHandle::loadBottomBoundaryConditions( void )
+bool ProjectHandle::loadBottomBoundaryConditions()
 {
    database::Table * projectIoTbl = 0;
 
@@ -2183,13 +2176,32 @@ bool ProjectHandle::loadBottomBoundaryConditions( void )
       m_crustPropertyModel  = database::getCrustPropertyModel ( projectIoRecord );
       m_mantlePropertyModel = database::getMantlePropertyModel( projectIoRecord );
    }
+   else if ( theBottomBCsStr == "Improved Lithosphere Calculator Linear Element Mode" )
+   {
+     m_bottomBoundaryConditions = Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE;
+     m_crustPropertyModel  = database::getCrustPropertyModel ( projectIoRecord );
+     m_mantlePropertyModel = database::getMantlePropertyModel( projectIoRecord );
+   }
+
+   m_equilibriumOceanicLithosphereThickness = database::getEquilibriumOceanicLithosphereThickness ( projectIoRecord );
+   m_maximumNumberOfMantleElements = database::getMaxNumberMantleElements ( projectIoRecord );
+
    m_crustLithoName = database::getCrustLithoName ( projectIoRecord );
    m_mantleLithoName = database::getMantleLithoName ( projectIoRecord );
+
+   m_topAsthenosphericTemperature = database::getTopAsthenoTemp( projectIoRecord );
+
    return true;
 }
 
 Interface::BottomBoundaryConditions ProjectHandle::getBottomBoundaryConditions() const {
    return m_bottomBoundaryConditions;
+}
+
+bool ProjectHandle::isALC() const
+{
+  return m_bottomBoundaryConditions == Interface::ADVANCED_LITHOSPHERE_CALCULATOR ||
+         m_bottomBoundaryConditions == Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE;
 }
 
 const string & ProjectHandle::getCrustPropertyModel() const {
@@ -2208,17 +2220,13 @@ const string & ProjectHandle::getMantleLithoName() const {
    return m_mantleLithoName;
 }
 
-double ProjectHandle::getBottomMantleTemperature() const {
-
-   database::Table* basementIoTbl;
-   database::Record* basementTableRecord;
-
-   basementIoTbl = getTable( "BasementIoTbl" );
-   basementTableRecord = basementIoTbl->getRecord( 0 );
-
-   return database::getTopAsthenoTemp( basementTableRecord );
+double ProjectHandle::getTopAsthenosphericTemperature() const {
+   return m_topAsthenosphericTemperature; // Is the bottom mantle temperature
 }
 
+int ProjectHandle::getMaximumNumberOfMantleElements() const {
+   return m_maximumNumberOfMantleElements;
+}
 
 bool ProjectHandle::loadTouchstoneMaps( void )
 {
@@ -2414,7 +2422,7 @@ bool ProjectHandle::loadMapPropertyValues( void )
 const Property * ProjectHandle::addFasttouchProperty(const string & propertyValueName) {
 
    Interface::Property * newProperty = getFactory()->produceProperty( this, 0, propertyValueName, propertyValueName, "", FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTTOUCH_PROPERTY );
-   
+
    addPropertyToFront( newProperty );
    return newProperty;
 }
@@ -2497,15 +2505,15 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode1D( void )
    database::Table * timeIoTbl = getTable( "TimeIoTbl" );
    if ( !timeIoTbl )
       return false;
-   
+
    MutablePropertyValueList::iterator propertyValueIter;
-   
+
    int increment = 1;
    for ( propertyValueIter = m_recordLessMapPropertyValues.begin();
       propertyValueIter != m_recordLessMapPropertyValues.end(); propertyValueIter += increment )
    {
       PropertyValue *propertyValue = *propertyValueIter;
-   
+
       if ( !propertyValue->toBeSaved() )
       {
          increment = 1;
@@ -2517,7 +2525,7 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode1D( void )
       propertyValueIter = m_recordLessMapPropertyValues.erase( propertyValueIter );
       increment = 0;
    }
-   
+
    return true;
 }
 
@@ -3212,11 +3220,8 @@ Interface::PaleoFormationPropertyList * ProjectHandle::getCrustPaleoThicknessHis
 
 void ProjectHandle::computeMantlePaleoThicknessHistory() const {
 
-   bool isALC = ( m_bottomBoundaryConditions == Interface::ADVANCED_LITHOSPHERE_CALCULATOR );
-   const GridMap* presentDayCrustThickness = ( isALC ? dynamic_cast<const GridMap*>( m_crustFormation->getInitialThicknessMap() ) :
-      dynamic_cast<const GridMap*>( m_crustFormation->getInputThicknessMap() ) );
-   const GridMap* presentDayMantleThickness = ( isALC ? dynamic_cast<const GridMap*>( m_mantleFormation->getInitialThicknessMap() ) :
-      dynamic_cast<const GridMap*>( m_mantleFormation->getInputThicknessMap() ) );
+   const GridMap* presentDayCrustThickness = isALC() ? m_crustFormation->getInitialThicknessMap() : m_crustFormation->getInputThicknessMap();
+   const GridMap* presentDayMantleThickness = isALC() ? m_mantleFormation->getInitialThicknessMap() : m_mantleFormation->getInputThicknessMap();
 
    AdditionFunctor add;
    SubtractionFunctor subtract;
@@ -3225,7 +3230,7 @@ void ProjectHandle::computeMantlePaleoThicknessHistory() const {
    MutablePaleoFormationPropertyList::const_iterator crustThicknessIter;
    MutablePaleoFormationPropertyList::const_iterator mantleThicknessIter;
 
-   if ( isALC ) {
+   if ( isALC() ) {
       // the m_mantlePaleoThicknesses size may not be the same as m_crustPaleoThicknesses
       for ( mantleThicknessIter = m_mantlePaleoThicknesses.begin(); mantleThicknessIter != m_mantlePaleoThicknesses.end(); ++mantleThicknessIter ) {
 
@@ -3242,8 +3247,7 @@ void ProjectHandle::computeMantlePaleoThicknessHistory() const {
          assert( crustThicknessMap != 0 );
 
          mantleThicknessMap->computeMap( Interface::MantleThicknessHistoryInstanceThicknessMap,
-            presentDayBasementThickness,
-            dynamic_cast<const GridMap *>( crustThicknessMap->getMap( Interface::CrustThinningHistoryInstanceThicknessMap ) ),
+            presentDayBasementThickness, crustThicknessMap->getMap( Interface::CrustThinningHistoryInstanceThicknessMap ),
             subtract );
       }
    }
@@ -3258,8 +3262,7 @@ void ProjectHandle::computeMantlePaleoThicknessHistory() const {
          PaleoFormationProperty* mantleThicknessMap = *mantleThicknessIter;
 
          mantleThicknessMap->computeMap( Interface::MantleThicknessHistoryInstanceThicknessMap,
-            presentDayBasementThickness,
-            dynamic_cast<const GridMap *>( crustThicknessMap->getMap( Interface::CrustThinningHistoryInstanceThicknessMap ) ),
+            presentDayBasementThickness, crustThicknessMap->getMap( Interface::CrustThinningHistoryInstanceThicknessMap ),
             subtract );
       }
 
@@ -3843,13 +3846,13 @@ unsigned int ProjectHandle::deletePropertiesValuesMaps( const Snapshot * snapsho
 {
    unsigned int nrDeleted = 0;
    MutablePropertyValueList::const_iterator propertyValueIter;
-   
+
    for ( propertyValueIter = m_propertyValues.begin();
          propertyValueIter != m_propertyValues.end();
          ++propertyValueIter )
    {
       PropertyValue * propertyValue = *propertyValueIter;
-      
+
       if ( propertyValue->getSnapshot() == snapshot ) {
 
          GridMap * localGridMap = propertyValue->hasGridMap();
@@ -4392,12 +4395,12 @@ const MantleFormation* ProjectHandle::getMantleFormation() const
    return m_mantleFormation;
 }
 
-const Interface::RunParameters* ProjectHandle::getRunParameters() const
+const RunParameters* ProjectHandle::getRunParameters() const
 {
    return m_runParameters;
 }
 
-const Interface::ProjectData* ProjectHandle::getProjectData() const
+const ProjectData* ProjectHandle::getProjectData() const
 {
    return m_projectData;
 }

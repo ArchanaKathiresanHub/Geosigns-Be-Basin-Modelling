@@ -81,9 +81,9 @@ namespace DataAccess
    {
       /// Create a project from a project file with the given name and access mode ("r" or "rw") andm_projectFileHandler
       /// return the associated ProjectHandle
-      ProjectHandle * OpenCauldronProject( const string & name,
+      ProjectHandle * OpenCauldronProject(const string & name,
                                            const string & accessMode,
-                                           ObjectFactory* objectFactory,
+                                           const ObjectFactory* objectFactory,
                                            const std::vector<std::string>& outputTableNames = NoTableNames );
 
       /// @brief Create TableIO database object from project file. This function is used by OpenCauldronProject()
@@ -105,7 +105,7 @@ namespace DataAccess
 
       public:
          /// Constructor
-         ProjectHandle( database::ProjectFileHandlerPtr projectFileHandler, const string & name, const string & accessMode, ObjectFactory* objectFactory );
+         ProjectHandle( database::ProjectFileHandlerPtr projectFileHandler, const string & name, const string & accessMode, const ObjectFactory* objectFactory );
 
          /// Destructor
          virtual ~ProjectHandle( void );
@@ -121,7 +121,7 @@ namespace DataAccess
          void setAsOutputTable ( const std::string& tableName );
 
          /// return the ObjectFactory
-         ObjectFactory * getFactory( void ) const;
+         const ObjectFactory* getFactory( void ) const;
 
          /// save the project to the specified file
          bool saveToFile( const string & fileName );
@@ -389,7 +389,7 @@ namespace DataAccess
          /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
          /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
          /// @param property
-         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return 
+         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return
          ///            properties for all snapshots.
          /// @param[in] reservoir properties belonging to this reservoir.
          /// @param[in] formation properties belonging to this formation.
@@ -409,7 +409,7 @@ namespace DataAccess
          /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
          /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
          /// @param property
-         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return 
+         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return
          ///            properties for all snapshots.
          /// @param[in] reservoir properties belonging to this reservoir.
          /// @param[in] formation properties belonging to this formation.
@@ -530,13 +530,16 @@ namespace DataAccess
 
          virtual const ProjectData* getProjectData() const;
 
-         virtual BottomBoundaryConditions getBottomBoundaryConditions() const;
+         BottomBoundaryConditions getBottomBoundaryConditions() const;
 
-         virtual const string & getCrustPropertyModel() const;
-         virtual const string & getMantlePropertyModel() const;
-         virtual const string & getCrustLithoName() const;
-         virtual const string & getMantleLithoName() const;
-         virtual double getBottomMantleTemperature() const;
+         bool isALC() const;
+
+         const string & getCrustPropertyModel() const;
+         const string & getMantlePropertyModel() const;
+         const string & getCrustLithoName() const;
+         const string & getMantleLithoName() const;
+         double getTopAsthenosphericTemperature() const;
+         int getMaximumNumberOfMantleElements() const;
 
          virtual ModellingMode getModellingMode() const;
 
@@ -657,7 +660,7 @@ namespace DataAccess
          const AccessMode m_accessMode;
          database::ProjectFileHandlerPtr m_projectFileHandler;
 
-         ObjectFactory * m_factory;
+         const ObjectFactory * m_factory;
 
          std::shared_ptr<ReservoirOptions> m_reservoirOptions;
 
@@ -722,6 +725,10 @@ namespace DataAccess
          string m_mantlePropertyModel;
          string m_crustLithoName;
          string m_mantleLithoName;
+         double m_topAsthenosphericTemperature;
+         double m_equilibriumOceanicLithosphereThickness;
+         int    m_maximumNumberOfMantleElements;
+
 
          /// The surfaces of the basement formations.
          /// The crust- and mantle-surfaces do not have to be deallocated directly. Since they are added
@@ -844,9 +851,9 @@ namespace DataAccess
          bool finalizeMapPropertyValuesWriter( void );
 
          bool saveCreatedMapPropertyValues( void );
-         
+
          bool saveCreatedMapPropertyValuesMode1D( void );
- 
+
          bool saveCreatedMapPropertyValuesMode3D( void );
 
          virtual bool saveCreatedVolumePropertyValues( void );
@@ -963,7 +970,7 @@ namespace DataAccess
 
          /// List of the primary properties
          std::set<std::string> m_primaryList;
-         
+
          friend class migration::Migrator;
       };
    }

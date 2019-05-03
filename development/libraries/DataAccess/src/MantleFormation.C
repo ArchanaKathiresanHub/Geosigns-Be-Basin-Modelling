@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -56,7 +56,7 @@ const GridMap * MantleFormation::getInputThicknessMap (void) const {
 
       if ( m_projectHandle->getBottomBoundaryConditions () == MANTLE_HEAT_FLOW ) {
          presentDayMantleThickness = database::getLithoMantleThickness (m_record);
-      } else  if ( m_projectHandle->getBottomBoundaryConditions () == ADVANCED_LITHOSPHERE_CALCULATOR ) {
+      } else  if ( m_projectHandle->isALC() ) {
          presentDayMantleThickness = database::getInitialLithosphericMantleThickness ( m_record );
       } else {
          presentDayMantleThickness = database::getInitialLthMntThickns (m_record);
@@ -78,26 +78,26 @@ const GridMap * MantleFormation::getInputThicknessMap (void) const {
 }
 const GridMap * MantleFormation::getInitialThicknessMap (void) const {
    const GridMap * thicknessMap;
-   
+
    if (( thicknessMap = (const GridMap *) getChild (ThicknessMap)) != 0) {
       return thicknessMap;
    } else {
       // Fixed mantle thickness.
-      
+
       double initMantleThickness = database::getInitialLithosphericMantleThickness ( m_record );
-      
+
       AddConstant add ( initMantleThickness );
-      
+
       const Grid * grid = m_projectHandle->getActivityOutputGrid();
-      
+
       if ( grid == 0 ) {
          grid = (Grid *) m_projectHandle->getInputGrid ();
       }
-      
+
       thicknessMap = m_projectHandle->getFactory ()->produceGridMap ( this, ThicknessMap, grid, initMantleThickness );
       assert (thicknessMap == getChild (ThicknessMap));
    }
-   
+
    return thicknessMap;
 }
 
@@ -118,7 +118,8 @@ double MantleFormation::getPresentDayThickness () const {
 double MantleFormation::getInitialLithosphericMantleThickness () const {
 
    double thickness = 0;
-   if ( m_projectHandle->getBottomBoundaryConditions () == ADVANCED_LITHOSPHERE_CALCULATOR ) {
+   if ( m_projectHandle->isALC() )
+   {
       thickness = database::getInitialLithosphericMantleThickness ( m_record );
    }
    return thickness;

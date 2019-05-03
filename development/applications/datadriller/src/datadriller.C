@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "database.h"
 #include "cauldronschema.h"
@@ -148,9 +148,9 @@ static bool parseCmdLineArgs( int      argc
       }
       else if ( strncmp( argv[arg], "-debug",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { debug   = true; }
       else if ( strncmp( argv[arg], "-verbose", max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { verbose = true; }
-      else if ( strncmp( argv[arg], "-help",    max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 || 
-		        strncmp( argv[arg], "-?",       max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 || 
-		        strncmp( argv[arg], "-usage",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 )  { showUsage( argv[ 0 ], "Standard usage."  ); return false; }
+      else if ( strncmp( argv[arg], "-help",    max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ||
+                strncmp( argv[arg], "-?",       max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ||
+                strncmp( argv[arg], "-usage",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 )  { showUsage( argv[ 0 ], "Standard usage."  ); return false; }
       else { showUsage( argv[ 0 ], "Unknown argument" ); return false; }
 
       if ( inputProjectFileName.empty()  ) { showUsage ( argv[ 0 ], "No project file specified"); return false; }
@@ -172,7 +172,6 @@ int main( int argc, char ** argv )
    std::unique_ptr<Mining::ObjectFactory> factory( new DataAccess::Mining::ObjectFactory );
    std::unique_ptr<Mining::ProjectHandle> projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r", factory.get() ) ) );
 
-
    bool coupledCalculation = false;
 
    const Interface::SimulationDetails* simulationDetails = projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
@@ -186,7 +185,7 @@ int main( int argc, char ** argv )
    } else {
       // If this table is not present the assume that the last
       // fastcauldron mode was not pressure mode.
-      // This table may not be present because we are running c2e on an old 
+      // This table may not be present because we are running c2e on an old
       // project, before this table was added.
       coupledCalculation = false;
    }
@@ -262,9 +261,9 @@ int main( int argc, char ** argv )
 
                unsigned int i, j;
                if ( !grid->getGridPoint( x, y, i, j ) ) throw RecordException( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
-                            
+
                ElementPosition element;
-               
+
                if ( z != Interface::DefaultUndefinedScalarValue ) // if z is given - look for the property at X,Y,Z point
                {
                   if ( z <= 0 && propertyName == "TwoWayTime" ) // in case of TwoWayTime property and z <=0 set the value to 0
@@ -292,10 +291,10 @@ int main( int argc, char ** argv )
                   {
                      throw RecordException( "Volume properties unsupported for the FORMATION MAP property request: Z value is undefined and Formation name is specified" );
                   }
-                  
+
                   if ( !domain.findLocation( x, y, formation, element ) ) throw RecordException ( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
                }
- 
+
                // calculate property value for specified position
                DomainProperty * domainProperty = domainProperties->getDomainProperty( property, propertyManager );
                if ( domainProperty )
@@ -331,7 +330,7 @@ double GetTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
                              double y )
 {
    const Interface::Grid * grid = projectHandle->getActivityOutputGrid();
-   
+
    assert( grid );
    assert( grid == projectHandle->getHighResolutionOutputGrid() ); // expecting that this activity always dealing with high resolution grid
 
@@ -617,7 +616,7 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
       const Interface::Property * reservoirProperty = projectHandle->findProperty( "ResRockPorosity" );
       if ( property )
       {
-         AbstractDerivedProperties::ReservoirPropertyPtr reservoirPropertyGridMap = 
+         AbstractDerivedProperties::ReservoirPropertyPtr reservoirPropertyGridMap =
             GetPropertyGridMap( projectHandle, propertyManager, reservoirProperty, snapshot, reservoir );
          // const Interface::GridMap * reservoirPropertyGridMap = GetPropertyGridMap( projectHandle, reservoirProperty, snapshot, reservoir );
 
@@ -663,7 +662,7 @@ static AbstractDerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mini
    }
 
    if ( result == 0 ) {
-      throw RecordException( "Could not find value for property: %", property->getName() ); 
+      throw RecordException( "Could not find value for property: %", property->getName() );
    }
 
    return result;

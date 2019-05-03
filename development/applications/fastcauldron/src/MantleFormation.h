@@ -59,8 +59,6 @@ public :
 
    bool isSourceRock () const;
 
-   void setMaximumThicknessValue ( const double newThickness );
-
    bool isBasalt() const;
 
    void allocateBasementVecs();
@@ -87,7 +85,7 @@ public :
    const CompoundLithology* getBasaltLithology(const int iPosition, const int jPosition) const;
 
    using LayerProps::getLithology;
-   
+
    const CompoundLithology* getLithology( const double aTime, const int iPosition, const int jPosition, const double aOffset );
 
    const CompoundLithology* getLithology(const int iPosition, const int jPosition, const int kPosition ) const;
@@ -95,14 +93,12 @@ public :
    /// \brief Set the activity of the mantle layer elements.
    ///
    /// Both element and face activity is set.
-   /// Since the solid/real-thickness histories are not set for the mantle the depths 
+   /// Since the solid/real-thickness histories are not set for the mantle the depths
    /// will be used, which must therefore be defined before calling this.
    virtual void setLayerElementActivity ( const double age );
 
    void setBasaltLitho (const int iPosition, const int jPosition, const int kPosition );
-   bool getPreviousBasaltLitho(const int iPosition, const int jPosition, const int kPosition ); 
-
-   using GeoPhysics::GeoPhysicsMantleFormation::m_mantleElementHeight0;
+   bool getPreviousBasaltLitho(const int iPosition, const int jPosition, const int kPosition );
 };
 
 inline bool MantleFormation::isSourceRock () const {

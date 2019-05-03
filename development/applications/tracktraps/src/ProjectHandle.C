@@ -33,7 +33,7 @@ static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Inte
 ProjectHandle::ProjectHandle (database::ProjectFileHandlerPtr database,
                               const string & name,
                               const string & accessMode,
-                              DataAccess::Interface::ObjectFactory* factory)
+                              const Interface::ObjectFactory* factory)
    : Interface::ProjectHandle (database, name, accessMode, factory)
 {
 }
@@ -57,9 +57,9 @@ bool ProjectHandle::createPersistentTraps (void)
       bool result = extractRelevantTraps (snapshot);
       if (!result)
       {
-	 cerr << "Error in extracting the traps" << endl;
+   cerr << "Error in extracting the traps" << endl;
     delete snapshots;
-	 return false;
+   return false;
       }
 
       if (result) result = determineTrapExtents (snapshot);
@@ -68,9 +68,9 @@ bool ProjectHandle::createPersistentTraps (void)
 
       if (!result)
       {
-	 cerr << "Could not find one or more maps, output is incomplete" << endl;
+   cerr << "Could not find one or more maps, output is incomplete" << endl;
     delete snapshots;
-	 return false;
+   return false;
       }
 
       // Compute the PersistentTraps

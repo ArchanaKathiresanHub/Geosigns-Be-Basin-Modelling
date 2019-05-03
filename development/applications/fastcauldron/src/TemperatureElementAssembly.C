@@ -528,7 +528,7 @@ void TemperatureElementAssembly::compute ( const LayerElement&                  
       timeStepInv  = 1.0 / ( timeStep * MillionYearToSecond );
    }
 
-   bool isBasementFormation = element.getFormation ()->kind() == Interface::BASEMENT_FORMATION;
+   bool isBasementFormation = element.getFormation()->isBasement();
    bool elementHasFluid = ( element.getFluid () != nullptr );
 
    loadProperties ( element, elementHeatProduction, includeChemicalCompaction, includeAdvectionTerm );

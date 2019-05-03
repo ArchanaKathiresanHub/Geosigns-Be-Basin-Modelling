@@ -28,7 +28,7 @@ ThermalConductivityCalculator::ThermalConductivityCalculator ( LayerProps* forma
    m_isBasementFormationAndALC = false;
 }
 
-bool ThermalConductivityCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool ThermalConductivityCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                        OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -56,7 +56,7 @@ bool ThermalConductivityCalculator::operator ()( const OutputPropertyMap::Output
 
       if ( not m_temperature->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -64,7 +64,7 @@ bool ThermalConductivityCalculator::operator ()( const OutputPropertyMap::Output
 
       if ( not m_porePressure->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -90,7 +90,7 @@ bool ThermalConductivityCalculator::operator ()( const OutputPropertyMap::Output
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
             if ( m_isBasementFormationAndALC ) {
                curLithology = m_formation->getLithology(  i, j, m_kIndex );
-               curLithology->calcBulkThermCondNPBasement ( m_fluid, 0.01 * (*m_porosity)( i, j ), (*m_temperature)( i, j ), 
+               curLithology->calcBulkThermCondNPBasement ( m_fluid, 0.01 * (*m_porosity)( i, j ), (*m_temperature)( i, j ),
                                                            (*m_lithopressure)( i, j ), thermalConductivityNorm, thermalConductivityPlane );
             } else {
                (*m_lithologies)( i, j )->calcBulkThermCondNP ( m_fluid, 0.01 * (*m_porosity)( i, j ), (*m_temperature)( i, j ), (*m_porePressure)( i, j ),
@@ -117,14 +117,14 @@ bool ThermalConductivityCalculator::operator ()( const OutputPropertyMap::Output
 void ThermalConductivityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ThCondVec2", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ThCondVec2",
+                                                                                                         m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          m_surface )));
 
 
-//    properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ThCondHVec2", 
-//                                                                                                          m_snapshot, 0, 
+//    properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ThCondHVec2",
+//                                                                                                          m_snapshot, 0,
 //                                                                                                          m_formation,
 //                                                                                                          m_surface )));
 
@@ -135,7 +135,7 @@ bool ThermalConductivityCalculator::initialise ( OutputPropertyMap::PropertyValu
    m_porosity = PropertyManager::getInstance().findOutputPropertyMap ( "Porosity", m_formation, m_surface, m_snapshot );
    m_temperature = PropertyManager::getInstance().findOutputPropertyMap ( "Temperature", m_formation, m_surface, m_snapshot );
    m_porePressure = PropertyManager::getInstance().findOutputPropertyMap ( "Pressure", m_formation, m_surface, m_snapshot );
-   m_isBasementFormationAndALC = ( m_formation->kind() == Interface::BASEMENT_FORMATION ) && FastcauldronSimulator::getInstance().isALC();
+   m_isBasementFormationAndALC = m_formation->isBasement() && FastcauldronSimulator::getInstance().isALC();
 
    if( m_isBasementFormationAndALC ) {
       m_lithopressure = PropertyManager::getInstance().findOutputPropertyMap ( "LithoStaticPressure", m_formation, m_surface, m_snapshot );
@@ -182,7 +182,7 @@ ThermalConductivityVolumeCalculator::ThermalConductivityVolumeCalculator ( Layer
    m_isBasementFormationAndALC = false;
 }
 
-bool ThermalConductivityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool ThermalConductivityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                              OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -218,7 +218,7 @@ bool ThermalConductivityVolumeCalculator::operator ()( const OutputPropertyMap::
 
       if ( not m_temperature->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -226,7 +226,7 @@ bool ThermalConductivityVolumeCalculator::operator ()( const OutputPropertyMap::
 
       if ( not m_porePressure->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -284,14 +284,14 @@ bool ThermalConductivityVolumeCalculator::operator ()( const OutputPropertyMap::
 
 void ThermalConductivityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "ThCond", 
-                                                                                                            m_snapshot, 0, 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "ThCond",
+                                                                                                            m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 
 
-//    properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ThCondHVec2", 
-//                                                                                                          m_snapshot, 0, 
+//    properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ThCondHVec2",
+//                                                                                                          m_snapshot, 0,
 //                                                                                                          m_formation,
 //                                                                                                          m_surface )));
 
@@ -302,7 +302,7 @@ bool ThermalConductivityVolumeCalculator::initialise ( OutputPropertyMap::Proper
    m_porosity = PropertyManager::getInstance().findOutputPropertyVolume ( "Porosity", m_formation, m_snapshot );
    m_temperature = PropertyManager::getInstance().findOutputPropertyVolume ( "Temperature", m_formation, m_snapshot );
    m_porePressure = PropertyManager::getInstance().findOutputPropertyVolume ( "Pressure", m_formation, m_snapshot );
-   m_isBasementFormationAndALC = ( m_formation->kind() == Interface::BASEMENT_FORMATION ) && FastcauldronSimulator::getInstance().isALC();
+   m_isBasementFormationAndALC = m_formation->isBasement() && FastcauldronSimulator::getInstance().isALC();
 
   if( m_isBasementFormationAndALC ) {
       m_lithopressure = PropertyManager::getInstance().findOutputPropertyVolume ( "LithoStaticPressure", m_formation, m_snapshot );

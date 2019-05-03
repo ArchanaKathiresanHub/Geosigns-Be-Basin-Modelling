@@ -62,7 +62,7 @@ FastcauldronStartup::FastcauldronStartup( int argc, char** argv, bool checkLicen
    }
    else
    {
-	  throw formattingexception::GeneralException() << "FastcauldronStartup already instantiated";
+    throw formattingexception::GeneralException() << "FastcauldronStartup already instantiated";
    }
 };
 
@@ -257,7 +257,6 @@ void FastcauldronStartup::run()
 {
    if ( m_prepareOk && m_startUpOk )
    {
-      bool returnStatus = true;
       // Calculate FCT
       FCTCalc fctCtx( m_cauldron );
 
@@ -316,14 +315,7 @@ void FastcauldronStartup::run()
       /// They will not be used from this point onwards.
       NumericFunctions::Quadrature::finaliseQuadrature();
 
-      if ( ( not m_cauldron->saveOnDarcyError() and m_errorInDarcy ) or not m_solverHasConverged )
-      {
-         m_runOk = false;
-      }
-      else
-      {
-         m_runOk = true;
-      }
+      m_runOk = m_solverHasConverged && !(m_errorInDarcy && !m_cauldron->saveOnDarcyError());
 
       if ( !FastcauldronSimulator::getInstance().mergeOutputFiles() )
       {
@@ -333,19 +325,19 @@ void FastcauldronStartup::run()
 
       std::string statistics = StatisticsHandler::print(FastcauldronSimulator::getInstance().getRank());
 
-	  PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
-	  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+			PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
+			PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
 
-	  PetscSynchronizedPrintf(PETSC_COMM_WORLD, statistics.c_str());
-	  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+			PetscSynchronizedPrintf(PETSC_COMM_WORLD, statistics.c_str());
+			PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
 
-	  PetscPrintf(PETSC_COMM_WORLD, "</statistics>\n");
-	  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
-   }
-   else
-   {
-      m_runOk = false;
-   }
+			PetscPrintf(PETSC_COMM_WORLD, "</statistics>\n");
+			PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+	 }
+	 else
+	 {
+			m_runOk = false;
+	 }
 }
 
 void FastcauldronStartup::finalize( )

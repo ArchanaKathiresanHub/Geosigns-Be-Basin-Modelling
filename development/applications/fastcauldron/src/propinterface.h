@@ -141,9 +141,9 @@ public:
    bool In_Processor_Range ( const int globalIIndex, const int globalJIndex );
 
    bool inProcessorRange ( const int  globalIIndex,
-                           const int  globalJIndex, 
+                           const int  globalJIndex,
                            const bool includeLowerIGhostNodes,
-                           const bool includeUpperIGhostNodes, 
+                           const bool includeUpperIGhostNodes,
                            const bool includeLowerJGhostNodes,
                            const bool includeUpperJGhostNodes ) const;
 
@@ -268,17 +268,17 @@ public:
    void   restartPermafrost();
    /// Calculate time step for permafrost modelling
    bool   switchPermafrostTimeStep ( const double Current_Time );
-   /// Adjust the Current time and Permafrost time step  
+   /// Adjust the Current time and Permafrost time step
    void   adjustTimeStepToPermafrost ( const double Previous_Time, double & Current_Time );
    double getNextPermafrostTimeStep () const;
-   double getNextPermafrostAge () const;   
+   double getNextPermafrostAge () const;
    /// Retrieve the last time at which an igneous intrusion started or a NoDataValue if no intrusion ever occurs
-   double getPreviousIgneousIntrusionTime( const double Current_Time ) const; 
+   double getPreviousIgneousIntrusionTime( const double Current_Time ) const;
 
    /// Initialises other minor layer data fields.
    void setLayerData ();
 
-   double Estimate_Temperature_At_Depth( const double Node_Depth, 
+   double Estimate_Temperature_At_Depth( const double Node_Depth,
                 const double Surface_Temperature,
                 const double Surface_Sea_Bottom_Depth );
 
@@ -313,9 +313,6 @@ public:
    /// This factor is used to scale the ves when initialising the solid-thickness (fct).
    double getVesScaling () const;
 
-   int getCrustThinningModel () const;
-
-
   void deleteTimeIORecord ( const string& propertyName,
                             const double  age );
 
@@ -330,12 +327,12 @@ public:
 
    typedef std::vector<double> DoubleVector;
 
-   
+
    enum ContourType {ISOVRE, ISOTEMPERATURE, NUMBEROFCONTOURTYPES};
-   
+
    IsoLineTable m_theTables[NUMBEROFCONTOURTYPES];
    DoubleVector m_theMilestones[NUMBEROFCONTOURTYPES];
-   
+
    const IsoLineTable & getContourValueTable(enum ContourType theType) const;
    const DoubleVector & getContourMilestones(enum ContourType theType) const;
    void addIsolinePoint(ContourType theType, IsolinePoint *thePoint);
@@ -436,9 +433,10 @@ public:
    DoubleVector m_permafrostAges;
    int          m_permafrostCurrentInd;
 
-   // return true if bottomBoundaryCondition == ADVANCED_LITHOSPHERE_CALCULATOR
-   bool isALC() const;
    PetscBool bottomBasaltTemp;
+
+   // return true if bottomBoundaryCondition is ALC or Improved LC linear element mode
+   bool isALC() const;
 
    // return true if no 2D output is required
    bool no2Doutput() const;
@@ -448,14 +446,14 @@ public:
 
    // set flag to determine the primary properties output
    void setPrimaryOutput( const bool flag );
-  
+
    // return true if the only primary properties are required
    bool primaryOutput() const;
 
    // ModelArea Grid_Window;
    bool useTemisRelPerm () const;
 
-    void Fill_Topmost_Segment_Arrays ( const double Previous_Time, 
+    void Fill_Topmost_Segment_Arrays ( const double Previous_Time,
                                        const double Current_Time );
 
 
@@ -539,17 +537,6 @@ public:
    string m_FastCauldronProjectFileName;
    string m_ProjectFileName;
 
-   double m_presentDayMantleThickness;
-   double m_maximumBasementThickness;
-   double m_maximumCrustThinningRatio;
-   bool   m_minCrustThicknessIsZero;
-
-   int m_crustThinningModel;
-   int m_numberOfSuperiorMantleElements;
-   int m_numberOfInferiorMantleElements;
-   double m_inferiorMantleElementHeightScaling;
-   bool m_computeComponentFlow;
-
    /// The initial time step that is dependant on the maximum burial rate in the model.
    double m_computedInitialPressureTimeStep;
 
@@ -584,7 +571,7 @@ public:
 
    bool   m_exitAtAgeSet;
    double m_exitAtAge;
- 
+
 
 };
 
@@ -608,15 +595,11 @@ inline double AppCtx::getVesScaling () const {
    return m_vesScaling;
 }
 
-inline int AppCtx::getCrustThinningModel () const {
-   return m_crustThinningModel;
-}
-
-inline CrustFormation* AppCtx::Crust () const { 
+inline CrustFormation* AppCtx::Crust () const {
    return Crust_Layer;
 }
 
-inline MantleFormation* AppCtx::Mantle () const { 
+inline MantleFormation* AppCtx::Mantle () const {
    return Mantle_Layer;
 }
 
@@ -637,7 +620,7 @@ inline bool AppCtx::saveOnDarcyError () const {
 }
 
 inline bool AppCtx::isALC () const {
-   return ( FastcauldronSimulator::getInstance ().getBottomBoundaryConditions() == Interface::ADVANCED_LITHOSPHERE_CALCULATOR );
+   return ( FastcauldronSimulator::getInstance ().isALC() );
 }
 
 inline bool AppCtx::no2Doutput () const {
