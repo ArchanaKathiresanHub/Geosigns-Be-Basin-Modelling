@@ -21,15 +21,9 @@
 #include "SpeciesState.h"
 #include "SpeciesManager.h"
 
-#include "SimulatorStateAdsorption.h"
-
 // utilitites library
 #include "NumericFunctions.h"
 #include "ConstantsMathematics.h"
-
-#define TESTADS 1
-
-
 
 // CBMGenerics library
 #include "ComponentManager.h"
@@ -117,7 +111,6 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    const double porePressure = NumericFunctions::Maximum <double>( SurfacePressure, sourceRockInput.getPorePressure ());
 
    double adsorptionCapacity;
-   double vbaLang, vbaJGS, vbaPrang;
    const double& temperatureKelvin = temperature;
    const double  temperatureCelcius = temperature - CelciusToKelvin;
 
@@ -145,9 +138,6 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    molarPhaseDensity [ 1 ] = 0.0;
 
    SpeciesState* c1State = simulatorState->GetSpeciesStateById ( m_speciesManager.getC1Id ());
-#ifdef TESTADS
-   SpeciesResult&  result = simulatorState->GetSpeciesResult(  m_speciesManager.getC1Id ());
-#endif
 
    molarComponentMasses [ ComponentId::C1 ] = 16.043; // In g/mol.
 
@@ -162,15 +152,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
    // Adsorption Capacity in cm^3 of Methane (STP) / gram of rock
    adsorptionCapacity = getAdsorptionCapacity ( i, j, temperatureCelcius, 1.0e-6 * porePressure, simulatorState->getCurrentToc (), ComponentManager::C1 );
-   vbaLang  = getPessureLangmuir();
-   vbaPrang = getPessurePrangmuir();
-   vbaJGS   = getPessureJGS();
 
-   if( vbaLang > 0 or vbaPrang > 0 or vbaJGS > 0 ) {
-      vbaLang  = getPessureLangmuir();
-      vbaPrang = getPessurePrangmuir();
-      vbaJGS   = getPessureJGS();
-   }
    // For testing/? purposes only.
    double vl;
    vl = getVL ( i, j, getVLReferenceTemperature (), simulatorState->getCurrentToc (), ComponentManager::C1 );
@@ -178,18 +160,13 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    vl = getVL ( i, j, temperatureCelcius, simulatorState->getCurrentToc (), ComponentManager::C1 );
    simulatorState->setVLSRTemperature ( vl );
 
-   double pl = getPL(  i, j, temperatureCelcius, simulatorState->getCurrentToc (), ComponentManager::C1 );
    if ( output ) {
       cout << " adsorption: " << adsorptionCapacity << "  " << simulatorState->getCurrentToc () << endl;
    }
 
    if ( output ) {
       cout << " c1 state: " 
-#ifdef TESTADS
-           << result.GetExpelledMassTransient () << "  " 
-#else
            << c1State->getExpelledMassTransient () << "  "
-#endif
            << c1State->getFreeMol () << "  "
            << c1State->getAdsorpedMol () << "  "
            << c1State->getRetained () << "  "
@@ -201,11 +178,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
    // Methane adsorption capacity in vol methane (STP) / vol rock
    gasCapacity = inorganicDensity * 1000.0 * adsorptionCapacity / 1.0e6;
-#ifdef TESTADS
-   expelledGas = result.GetExpelledMassTransient () / thickness; // In kg / m2 / thickness = kg / m3.
-#else
    expelledGas = c1State->getExpelledMassTransient () / thickness; // In kg / m2 / thickness = kg / m3.
-#endif
    freeGasMol = c1State->getFreeMol ();
    adsorpedGasMol = c1State->getAdsorpedMol ();
 
@@ -215,15 +188,6 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    expelledGasMol = expelledGas * 1000.0 / molarComponentMasses [ ComponentId::C1 ]; // In kg * 1000 / m3 / g / mol = mol / m3 
    gasCapacityMol = gasCapacity * 42.306553; // In mol / m3 
 
-   double adsGas, freeGas, maxads, maxfree, molgas, molgasvol;
-   adsGas = getAdsGas();
-   freeGas = getFreeGas();
-   maxfree = getNmaxFree();
-   maxads = getNmaxAds();
-   molgas = getMolesGas();
-   molgasvol = getMolarGasVol();
-
-   double retainedMols = 0.0;
    if ( gasCapacityMol >= adsorpedGasMol ) {
 
       // Compute adsorption at end of time-step.
@@ -236,10 +200,11 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
       // Update new adsorption value.
       adsorpedGasMol = adsorpedGasMolNext;
+
       if ( gasCapacityMol > adsorpedGasMol ) {
          // Now re-adsorp some of the retained gas.
          double retained = c1State->getRetained ();
-         retainedMols = 1000.0 * retained / thickness / molarComponentMasses [ ComponentId::C1 ];
+         double retainedMols = 1000.0 * retained / thickness / molarComponentMasses [ ComponentId::C1 ];
          double readsorpedMols =  NumericFunctions::Minimum<double>( retainedMols, gasCapacityMol - adsorpedGasMol );
 
          retainedMols -= readsorpedMols;
@@ -280,15 +245,6 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
    }
 
-   if( false ) {
-      cout << endl;
-      cout << "Temp, ppress " << temperatureCelcius << " " << porePressure << endl;
-      cout << "gasCapMol, expellGasMol, adsMol, adgas, freegas = " << gasCapacityMol << " " << expelledGasMol << " " << adsorpedGasMol << " " << adsGas << " " << freeGas << endl;
-      cout << "(tr)adstrans mol, ret mol = " << adsorpedTransient << " " << retainedMols << endl;
-       cout << "(tr)vl, pl = " << vl << " " << pl << endl;
-     cout << "(test)maxads, free, molgas, molvol = " << maxads << " " << maxfree << " " << molgas << " " << molgasvol << endl;
-      cout << "(test)Lang, Prag, JGS = " << vbaLang << " " << vbaPrang << " " << vbaJGS << endl;
-   }
 #if 0
 
    // Molar Volume at subsurface conditions
@@ -341,6 +297,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    c1State->setExpelledMol ( c1State->getExpelledMol () + expelledGasMol );
 
 }
+
 
 bool Genex6::C1AdsorptionSimulator::speciesIsSimulated ( const ComponentManager::SpeciesNamesId species ) const {
 

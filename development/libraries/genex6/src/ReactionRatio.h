@@ -17,8 +17,7 @@ public:
    ~ReactionRatio(){};
    Species *GetReactant1();
    Species *GetReactant2();
-   const std::string& GetFunctionCode() const;
- 
+   
    double GetRatio(const double preasphaltheneArom) const;
 
    void OutputOnScreen();
@@ -38,10 +37,6 @@ inline Species *ReactionRatio::GetReactant2()
 {
    return m_reactant2;
 }
-inline const std::string& ReactionRatio::GetFunctionCode() const 
-{
-   return m_functionCode;
-} 
 
 }
 #endif

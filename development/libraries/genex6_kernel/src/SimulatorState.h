@@ -21,9 +21,9 @@ using namespace std;
 #include "SpeciesManager.h"
 #include "ConstantsGenex.h"
 #include "SimulatorStateBase.h"
-#include "SimulatorStateResult.h"
 #include "Species.h"
 #include "GenexResultManager.h"
+
 #include "ImmobileSpecies.h"
 #include "PVTCalculator.h"
 
@@ -128,7 +128,6 @@ public:
    const SpeciesResult&  GetSpeciesResult( const int theId ) const; 
 
    SpeciesResult&  GetSpeciesResult( const int theId ); 
-   SpeciesResult * GetSpeciesResults() const; 
 
    /// \brief Return const reference to species-manager.
    const SpeciesManager * getSpeciesManager () const;
@@ -139,14 +138,14 @@ public:
    void PrintBenchmarkModelCumExpData(ofstream &outputfile) const;
 
    //void PostProcessTimeStepComputation ( const SpeciesManager * speciesManager );
-   void PostProcessTimeStep(Species &theSpecies, const double in_dT, const double temperature);
+   void PostProcessTimeStep(Species &theSpecies, const double in_dT);
    void PostProcessTimeStepComputation ( SimulatorState * subSimulatorState1 = 0, SimulatorState * subSimulatorState2 = 0,
                                          const double fraction1 = 0.0, const double fraction2 = 0.0);
 
    /// \brief Update state after a shale-gas time-step.
    ///
    /// Computes the compound results.
-   void postProcessShaleGasTimeStep ( ChemicalModel *chemicalMode, const double in_dT, const bool copy = false );
+   void postProcessShaleGasTimeStep ( ChemicalModel *chemicalMode, const double in_dT );
 
    void ComputeFirstTimeInstance(ChemicalModel *theChmod);
 
@@ -169,10 +168,10 @@ public:
    double ComputeKerogenTransformatioRatio ( const SpeciesManager& speciesManager,
                                              int aSimulationType); 
 
-   double ComputeDiffusionConcDependence(const double in_Waso, const bool isGX7 );
+   double ComputeDiffusionConcDependence(const double in_Waso);
 
 
-   // Adsorption related. 
+   // Adsorption related.
 
    // Where do these really belong?
    ImmobileSpecies& getImmobileSpecies ();
@@ -265,10 +264,7 @@ public:
 
    double getH2SFromGenex () const;
    double getH2SFromOtgc () const;
- 
-   void AddGroupResult(const int theId, const double theGroupResult);
 
-   void setSimulatorState( const SimulatorStateResult& state, const bool snapshot = false );
 private:
 
    void mixIntervalResults ( SimulatorState * inSimulatorState1,
@@ -318,12 +314,7 @@ private:
    void AddSaturatesExpelledVolumeInst( const double theSaturatesExpelledVolumeInst);
    void AddHcGasExpelledVolumeInst( const double theHcGasExpelledVolumeInst);
    void AddWetGasExpelledVolumeInst( const double theWetGasExpelledVolumeInst);
-   //   void AddGroupResult(const int theId, const double theGroupResult);
-
-   //compute biogenic gas and flux for COx and orgacid species
-   void computeBiogenicGas( int speciesId, const double temp, double & flux );
-   double m_fluxOA1;
-   double m_fluxOA2;
+   void AddGroupResult(const int theId, const double theGroupResult);
 
    double m_AtomHR;
    double m_AtomCR;
@@ -353,8 +344,6 @@ private:
    double m_h2sFromGenex;
    double m_h2sFromOtgc;
 
-   // Genex7 Adsorption related.
-   //  SimulatorStateAdsorption m_adsorptionModel;
 
    /// Mix results of two genex runs as fraction1 * result1 + fraction2 * result2
    void mixResults ( SimulatorState * inSimulatorState1, SimulatorState * inSimulatorState2,
@@ -371,10 +360,6 @@ inline SpeciesResult &SimulatorState::GetSpeciesResult( const int theId )
 
 inline const SpeciesResult& SimulatorState::GetSpeciesResult( const int theId ) const{
    return m_SpeciesResults[theId - 1]; // count from 0
-}
-
-inline SpeciesResult * SimulatorState::GetSpeciesResults( ) const{
-   return m_SpeciesResults;
 }
 
 inline void SimulatorState::SetThickness( const double theThickness )
@@ -451,7 +436,6 @@ inline double SimulatorState::GetGroupResult(const int theId)
 {
    return s_GroupResults[theId - FIRST_RESULT_ID];
 }
-
 inline void SimulatorState::UpdateLumpedConcentrations(const double concentration, 
                                                        const double Oil, 
                                                        const double AromaticOM)

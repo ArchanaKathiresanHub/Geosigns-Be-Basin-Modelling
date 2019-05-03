@@ -35,7 +35,7 @@ public:
    virtual ~SimulatorState(){};
 
    void SetSpeciesTimeStepVariablesToZero(){};
-   void PostProcessTimeStep(Species & /*theSpecies */, const double /* in_dT */, const double /* temp */){};
+   void PostProcessTimeStep(Species & /*theSpecies */, const double /* in_dT */){};
  
    void ComputeFirstTimeInstance(ChemicalModel * /* theChmod */){};
 
@@ -45,7 +45,7 @@ public:
    void SetLumpedConcentrationsToZero(){};
    void SetResultsToZero(){ };
    double ComputeKerogenTransformatioRatio( const SpeciesManager& /* speciesManager */,int /* aSimulationType */ ){ return 0.0; }; 
-   double ComputeDiffusionConcDependence(const double /* in_Waso */, const bool /*isGx7 */ ){ return 0.0; }; 
+   double ComputeDiffusionConcDependence(const double /* in_Waso */ ){ return 0.0; }; 
 
    double getTotalOilForTSR () const;
    void incTotalOilForTSR ( double curentConc );

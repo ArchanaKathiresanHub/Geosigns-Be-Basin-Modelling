@@ -18,10 +18,6 @@ using namespace GenexSimulation;
 #include "Interface/ObjectFactory.h"
 #include "Interface/SourceRock.h"
 #include "Interface/Property.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
-#include "Interface/LithoType.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/SimulationDetails.h"
 using namespace DataAccess;
@@ -80,20 +76,10 @@ bool GenexSimulator::saveTo(const std::string & outputFileName)
 
 bool GenexSimulator::run()
 {
-   PetscBool isGenex7 = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-genex7", &isGenex7 );
-
-   PetscBool isBG = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-bg", &isBG ); //compute biogenic gas
-
-   PetscBool isTestAds = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-testads", &isTestAds );
-
-
    bool started = startActivity ( GenexActivityName, getLowResolutionOutputGrid () );
-   
+
    if (!started) return false;
-   
+
    const Interface::SimulationDetails* simulationDetails = getDetailsOfLastSimulation ( "fastcauldron" );
 
    bool coupledCalculation = simulationDetails != 0 and ( simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
@@ -111,7 +97,7 @@ bool GenexSimulator::run()
    started = initialiseLayerThicknessHistory ( coupledCalculation );
    if (!started) return false;
 
-   setRequestedOutputProperties( isBG );
+   setRequestedOutputProperties();
 
    bool useFormationName = false;
 
@@ -141,9 +127,6 @@ bool GenexSimulator::run()
 #endif
 
    if( !useFormationName ) {
-
-      // double depoAge = ( isBG ? findYoungestSR() : 0.0 );
-
       std::vector<Interface::Formation*>::iterator formationIter;
 
       for (formationIter = m_formations.begin(); formationIter != m_formations.end(); ++ formationIter) {
@@ -151,37 +134,13 @@ bool GenexSimulator::run()
          if(started) {
             Interface::Formation * theFormation = dynamic_cast<Interface::Formation*>( *formationIter );
 
-            bool computeGenex = false;
+            if( theFormation != 0 && theFormation->isSourceRock() ) {
 
-            if( isBG and not theFormation->isSourceRock() ) {
-               computeGenex = createBiogenicGasSR( theFormation );
-            }
-            
-            if( theFormation != 0 && ( theFormation->isSourceRock() or computeGenex )) {
-               
-               Genex6::SourceRock* sr = (Genex6::SourceRock *)( theFormation->getSourceRock1() ); 
+               Genex6::SourceRock* sr = (Genex6::SourceRock *)( theFormation->getSourceRock1() );
 
-               if( not sr->isSulphur() and isGenex7 ) {
-                  sr->setGenex7 ( isGenex7 );
-               }
-               sr->setTestAds ( isTestAds );
                sr->setMinor (bool (minorSnapshots));
-               if( isBG ) {
-                  sr->setBiogenicGasOnly( computeGenex ); 
 
-                  // if(( theFormation->isSourceRock() and depoAge == getDepositionTime( theFormation )) or computeGenex ) {
-                  if(( theFormation->isSourceRock() and theFormation->isBiogenicGasLayer() ) or computeGenex ) {
-                     setRequestedOutputPropertiesBG( true ); 
-                  } else {
-                     setRequestedOutputPropertiesBG( false ); 
-                  }          
-               }
-     
                started = computeSourceRock( sr, theFormation );
-
-               if( computeGenex ) {
-                  removeBiogenicGasSR( theFormation );
-               }
             }
          } else {
             finishActivity ();
@@ -220,75 +179,6 @@ bool GenexSimulator::run()
    }
 
    return started;
-}
-
-double GenexSimulator::findYoungestSR() {
-
-   double depoAge = 99999;
-   std::vector<Interface::Formation*>::iterator formationIter;
-   
-   for (formationIter = m_formations.begin(); formationIter != m_formations.end(); ++ formationIter) {
-      
-      Interface::Formation * theFormation = dynamic_cast<Interface::Formation*>( *formationIter );
-      if( theFormation != 0 and theFormation->isSourceRock() ) {
-         const double formationDepoAge = getDepositionTime( theFormation );
-         if( depoAge > formationDepoAge ) {
-            depoAge = formationDepoAge;
-         }
-      }
-   }
-   return depoAge;
-}
-
-double GenexSimulator::getDepositionTime( Interface::Formation * formation ) {
-
-   if( formation->kind() == Interface::SEDIMENT_FORMATION and formation->getTopSurface() ) {
-      return formation->getTopSurface()->getSnapshot()->getTime();
-   }
-   return -1;
-
-}
-
-void GenexSimulator::removeBiogenicGasSR( Interface::Formation * bgFormation ) {
-
-   database::Table* sourceRockLithoIoTbl = getTable( "SourceRockLithoIoTbl" );
- 
-   Record * sourceRockRecord = sourceRockLithoIoTbl->findRecord( "SourceRockType",  "Type_II_Mesozoic_MarineShale_kin",
-                                                                 "LayerName", bgFormation->getName() );
-   if( sourceRockRecord != 0 ) {
-      sourceRockLithoIoTbl->eraseRecord( sourceRockRecord );
-   }
-   bgFormation->setSourceRock1( 0 );
-}
-
-bool GenexSimulator::createBiogenicGasSR( Interface::Formation * bgFormation ) {
-
-   if( bgFormation->kind() == Interface::SEDIMENT_FORMATION and bgFormation->isBiogenicGasLayer() and 
-       bgFormation->getTopSurface() and bgFormation->getTopSurface()->getSnapshot()->getTime() > 0 ) {
-
-      database::Table* sourceRockLithoIoTbl = getTable( "SourceRockLithoIoTbl" );
-      Interface::SourceRock * bgSourceRock = 0;
-      database::Table::iterator tblIter;
-      
-      Record * sourceRockRecord = sourceRockLithoIoTbl->createRecord( true );
-      
-      database::setLayerName( sourceRockRecord, bgFormation->getName() );
-      database::setSourceRockType( sourceRockRecord, "Type_II_Mesozoic_MarineShale_kin" );
-	  // database::setBaseSourceRockType(sourceRockRecord, bgFormation->getSourceRockType());
-      database::setHcVRe05( sourceRockRecord, 1.25 );
-      database::setPreAsphaltStartAct( sourceRockRecord, 210.0 );
-      database::setResinDiffusionEnergy( sourceRockRecord, 85.0 );
-      database::setC15AroDiffusionEnergy( sourceRockRecord, 80.0 );
-      database::setC15SatDiffusionEnergy( sourceRockRecord, 75.0 );
-      database::setAsphalteneDiffusionEnergy( sourceRockRecord, 88.0 );
-      database::setTocIni( sourceRockRecord, bgFormation->getToc() );
-      bgSourceRock = getFactory()->produceSourceRock( this, sourceRockRecord );
-      
-      bgFormation->setSourceRock1( bgSourceRock );
-      
-      return true;
-   }
-   return false;
 }
 
 bool GenexSimulator::computeSourceRock ( Genex6::SourceRock * aSourceRock, const Interface::Formation * aFormation )
@@ -341,15 +231,7 @@ void GenexSimulator::setRequestedSpeciesOutputProperties()
    sort ( m_expelledToCarrierBedPropertiesS.begin (), m_expelledToCarrierBedPropertiesS.end ());
 }
 
-void GenexSimulator::setRequestedOutputPropertiesBG( const bool isBG )
-{
-   using namespace CBMGenerics;
-   GenexResultManager & theResultManager = GenexResultManager::getInstance();
-   theResultManager.SetResultToggleByResId( GenexResultManager::FluxOA1, isBG );
-   theResultManager.SetResultToggleByResId( GenexResultManager::FluxOA2, isBG );
-}
-
-void GenexSimulator::setRequestedOutputProperties( const bool isBG )
+void GenexSimulator::setRequestedOutputProperties()
 {
    //cumullative expulsion mass for all species is required
    setRequestedSpeciesOutputProperties();
@@ -368,7 +250,6 @@ void GenexSimulator::setRequestedOutputProperties( const bool isBG )
    Table * timeIoTbl = getTable ("FilterTimeIoTbl");
    Table::iterator tblIter;
 
-
    for (tblIter = timeIoTbl->begin (); tblIter != timeIoTbl->end (); ++ tblIter) {
       Record * filterTimeIoRecord = * tblIter;
       const string & outPutOption = database::getOutputOption(filterTimeIoRecord);
@@ -379,11 +260,8 @@ void GenexSimulator::setRequestedOutputProperties( const bool isBG )
 
          if(isPropertyRegistered(propertyName)) {
             if( theResultManager.getResultId ( propertyName ) != -1 ) {
-
-               if( not (( propertyName == "FluxOA1" or propertyName == "FluxOA2" ) and not isBG )) {                  
-                  m_requestedProperties.push_back(propertyName);
-                  theResultManager.SetResultToggleByName(propertyName, true);
-               }
+               m_requestedProperties.push_back(propertyName);
+               theResultManager.SetResultToggleByName(propertyName, true);
             } else if( propertyName == "SourceRockEndMember1" or propertyName == "SourceRockEndMember2" or propertyName == "TOC" ) {
                m_requestedProperties.push_back(propertyName);
             }
@@ -405,22 +283,7 @@ void GenexSimulator::setRequestedOutputProperties( const bool isBG )
          }
       }
    }
-   // Explicitly add biogenic gas output
-   if( isBG ) {
-      string pName = "FluxOA1";
-      std::vector<string>::iterator it = std::find( m_requestedProperties.begin(), m_requestedProperties.end(), pName );
-      if( it == m_requestedProperties.end() ) {
-         m_requestedProperties.push_back(pName);
-         theResultManager.SetResultToggleByName(pName, true);
-      }
-      pName = "FluxOA2";
-      it = std::find( m_requestedProperties.begin(), m_requestedProperties.end(), pName );
-      if( it == m_requestedProperties.end() ) {
-         m_requestedProperties.push_back(pName);
-         theResultManager.SetResultToggleByName(pName, true);
-      }
-   }
-   sort(m_requestedProperties.begin(), m_requestedProperties.end());
+  sort(m_requestedProperties.begin(), m_requestedProperties.end());
 }
 void GenexSimulator::registerProperties()
 {
@@ -471,7 +334,6 @@ void GenexSimulator::registerProperties()
    m_registeredProperties.push_back ( "OverChargeFactor" );
    m_registeredProperties.push_back ( "PorosityLossFromPyroBitumen" );
    m_registeredProperties.push_back ( "H2SRisk" );
-   m_registeredProperties.push_back ( "OrganoPorosity" );
 
    m_registeredProperties.push_back ( "SourceRockEndMember1" );
    m_registeredProperties.push_back ( "SourceRockEndMember2" );

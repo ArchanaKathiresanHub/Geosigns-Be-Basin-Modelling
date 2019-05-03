@@ -25,15 +25,13 @@ public:
       ExpulsionApiInst = 0,          ExpulsionApiCum = 1,          ExpulsionCondensateGasRatioInst = 2, ExpulsionCondensateGasRatioCum = 3,
       ExpulsionGasOilRatioInst = 4,  ExpulsionGasOilRatioCum = 5,  ExpulsionGasWetnessInst = 6,         ExpulsionGasWetnessCum = 7,
       ExpulsionAromaticityInst = 8,  ExpulsionAromaticityCum = 9,  KerogenConversionRatio = 10, 
-      FluxOA1 = 11, FluxOA2 = 12,
-      OilGeneratedCum = 13,          OilGeneratedRate = 14,        OilExpelledCum = 15,         OilExpelledRate = 16,
-      HcGasGeneratedCum = 17,        HcGasGeneratedRate = 18,      HcGasExpelledCum = 19,       HcGasExpelledRate = 20,
-      DryGasGeneratedCum = 21,       DryGasGeneratedRate = 22,     DryGasExpelledCum = 23,      DryGasExpelledRate = 24,
-      WetGasGeneratedCum = 25,       WetGasGeneratedRate = 26,     WetGasExpelledCum = 27,      WetGasExpelledRate = 28, 
-      SbearingHCsGeneratedCum = 29,  SbearingHCsGeneratedRate = 30,SbearingHCsExpelledCum = 31, SbearingHCsExpelledRate = 32, 
-    
+      OilGeneratedCum = 11,          OilGeneratedRate = 12,        OilExpelledCum = 13,         OilExpelledRate = 14,
+      HcGasGeneratedCum = 15,        HcGasGeneratedRate = 16,      HcGasExpelledCum = 17,       HcGasExpelledRate = 18,
+      DryGasGeneratedCum = 19,       DryGasGeneratedRate = 20,     DryGasExpelledCum = 21,      DryGasExpelledRate = 22,
+      WetGasGeneratedCum = 23,       WetGasGeneratedRate = 24,     WetGasExpelledCum = 25,      WetGasExpelledRate = 26, 
+      SbearingHCsGeneratedCum = 27,  SbearingHCsGeneratedRate = 28,SbearingHCsExpelledCum = 29, SbearingHCsExpelledRate = 30, 
 
-      NumberOfResults = 33
+      NumberOfResults = 31
    };
    
    void SetResultToggleByResId(const int &theId, const bool &on_off);

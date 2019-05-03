@@ -85,9 +85,6 @@ namespace Genex6
       /// \brief Get the id of Hetero species.
       int getHetero1Id () const;
 
-      /// \brief Get the id of Hetero species.
-      int getHetero2Id () const;
-
       /// \brief Get the id of C5 species.
       int getC5Id () const;
 
@@ -144,12 +141,6 @@ namespace Genex6
 
       /// \brief Get the id of CO3 species.
       int getCO3Id () const;
-
-      /// \brief Get the id of H2O species.
-      int getH2OId () const;
-
-      /// \brief Get the id of orgacid species.
-      int getOrgacidId () const;
       //@}
 
 
@@ -258,7 +249,6 @@ namespace Genex6
       int LC6to14Sat;
       int LC6to14Aro;
       int Lhetero1;
-      int Lhetero2;
       int LC5;
       int LC4;
       int LC3;
@@ -278,8 +268,6 @@ namespace Genex6
       int LN2;
       int LCOx;
       int LCO3;
-      int LH2O;
-      int LOrgacid;
 
       // TSR
       int LSulfur;
@@ -439,10 +427,6 @@ inline int Genex6::SpeciesManager::getHetero1Id () const {
    return Lhetero1;
 }
 
-inline int Genex6::SpeciesManager::getHetero2Id () const {
-   return Lhetero2;
-}
-
 inline int Genex6::SpeciesManager::getC5Id () const {
    return LC5;
 }
@@ -517,14 +501,6 @@ inline int Genex6::SpeciesManager::getSO4Id () const {
 
 inline int Genex6::SpeciesManager::getCO3Id () const {
    return LCO3;
-}
-
-inline int Genex6::SpeciesManager::getH2OId () const {
-   return LH2O;
-}
-
-inline int Genex6::SpeciesManager::getOrgacidId () const {
-   return LOrgacid;
 }
 
 inline const std::string& Genex6::SpeciesManager::getSpeciesName ( const int id ) const {

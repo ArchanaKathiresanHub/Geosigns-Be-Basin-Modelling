@@ -13,7 +13,6 @@
 
 // utilities library
 #include "ConstantsNumerical.h"
-#include "NumericFunctions.h"
 using Utilities::Numerical::CauldronNoDataValue;
 
 namespace Genex6
@@ -32,10 +31,9 @@ Input::Input(const double in_currentTime, const double in_temperature,
    m_endPorePressure     (CauldronNoDataValue),
    m_porosity            (CauldronNoDataValue),
    m_permeability        (CauldronNoDataValue),
-   m_vre                 (CauldronNoDataValue),
-   m_carrierBedPorosity  (CauldronNoDataValue),
-   m_carrierBedPermeability (CauldronNoDataValue)
+   m_vre                 (CauldronNoDataValue)
 {
+
 }
 
 Input::Input ( const double in_previousTime,
@@ -65,8 +63,6 @@ Input::Input ( const double in_previousTime,
    m_endPorePressure (in_endPorePressure),
    m_porosity (in_porosity),
    m_permeability ( in_permeability ),
-   m_carrierBedPorosity  (CauldronNoDataValue),
-   m_carrierBedPermeability (CauldronNoDataValue),
    m_vre ( in_vre ),
    m_i ( i ),
    m_j ( j )
@@ -74,30 +70,17 @@ Input::Input ( const double in_previousTime,
 }
 
 Input::Input(const Input &theInput):
-   m_previousTime(theInput.m_previousTime),
    m_currentTime(theInput.m_currentTime),
-   m_startTemperature(theInput.m_startTemperature),
    m_endTemperature(theInput.m_endTemperature),
    m_pressure(theInput.m_pressure),
-   m_thicknessScaleFactor(theInput.m_thicknessScaleFactor),
-   m_lithostaticPressure (theInput.m_lithostaticPressure),
-   m_hydrostaticPressure (theInput.m_hydrostaticPressure),
-   m_startPorePressure (theInput.m_startPorePressure),
-   m_endPorePressure (theInput.m_endPorePressure),
-   m_porosity (theInput.m_porosity),
-   m_permeability ( theInput.m_permeability ),
-   m_vre ( theInput.m_vre ),
-   m_i ( theInput.m_i ),
-   m_j ( theInput.m_j ),  
-   m_carrierBedPorosity ( theInput.m_carrierBedPorosity ),
-   m_carrierBedPermeability ( theInput.m_carrierBedPermeability )
-
+   m_thicknessScaleFactor(theInput.m_thicknessScaleFactor) 
 {
+  
 }
-
 Input::Input(const double in_currentTime, const Input &First, const Input &Second):
    m_currentTime(in_currentTime) 
 {
+
    double DTimeTotal        = Second.GetTime() - First.GetTime();
    double gradientPreviousTemp      = (Second.getPreviousTemperatureCelsius() - First.getPreviousTemperatureCelsius()) / DTimeTotal;
    double gradientTemp      = (Second.GetTemperatureCelsius() - First.GetTemperatureCelsius()) / DTimeTotal;
@@ -109,8 +92,6 @@ Input::Input(const double in_currentTime, const Input &First, const Input &Secon
    double gradientEndPorePressure = ( Second.getPorePressure () - First.getPorePressure ()) / DTimeTotal;
    double gradientPorosity = ( Second.getPorosity () - First.getPorosity ()) / DTimeTotal;
    double gradientPermeability = ( Second.getPermeability () - First.getPermeability ()) / DTimeTotal;
-   double gradientCarrierBedPorosity = ( Second.getCarrierBedPorosity () - First.getCarrierBedPorosity ()) / DTimeTotal;
-   double gradientCarrierBedPermeability = ( Second.getCarrierBedPermeability () - First.getCarrierBedPermeability ()) / DTimeTotal;
    double gradientVre = ( Second.getVre () - First.getVre ()) / DTimeTotal;
 
    double gradientthicknessScaleFactor  = (Second.m_thicknessScaleFactor - First.m_thicknessScaleFactor ) / DTimeTotal;
@@ -157,18 +138,6 @@ Input::Input(const double in_currentTime, const Input &First, const Input &Secon
       m_permeability = First.m_permeability + Dt * gradientPermeability;
    }
 
-   if ( First.m_carrierBedPorosity == CauldronNoDataValue or Second.m_carrierBedPorosity == CauldronNoDataValue ) {
-      m_carrierBedPorosity = CauldronNoDataValue;
-   } else {
-      m_carrierBedPorosity = First.m_carrierBedPorosity + Dt * gradientCarrierBedPorosity;
-   }
-
-   if ( First.m_carrierBedPermeability == CauldronNoDataValue or Second.m_carrierBedPermeability == CauldronNoDataValue ) {
-      m_carrierBedPermeability = CauldronNoDataValue;
-   } else {
-      m_carrierBedPermeability = First.m_carrierBedPermeability + Dt * gradientCarrierBedPermeability;
-   }
-
    if ( First.m_vre == CauldronNoDataValue or Second.m_vre == CauldronNoDataValue ) {
       m_vre = CauldronNoDataValue;
    } else {
@@ -184,7 +153,7 @@ Input::Input(const double in_currentTime, const Input &First, const Input &Secon
    double Dt     = in_currentTime - First.GetTime();
    m_endTemperature = First.GetTemperatureCelsius() + Dt * gradientTemp;
    m_pressure    = First.GetPressure() + Dt * gradientPressure;
-   m_thicknessScaleFactor = First.m_thicknessScaleFactor + Dt * gradientthicknessScaleFactor;
+	m_thicknessScaleFactor = First.m_thicknessScaleFactor + Dt * gradientthicknessScaleFactor;
 #endif
 }
 void Input::OutputOnFile(ofstream &outputfile) const 
@@ -196,41 +165,4 @@ void Input::OutputOnFile(FILE * fp) const
    fprintf(fp, "%.15lf, %.15lf, %.15lf,\n", m_currentTime,  m_endTemperature, m_pressure);
 }
  
-
-void Input::ComputeCarrierBedPorosityPermeability( const double qci, const double log10ss ) {
-
-   // reservoir porosity as function of Quartz cementation Index 
-
-   const double suppQciMin = 0.5;
-   const double suppQciMax = 1.65;
-   const double porMin = 0.01;
-   const double vreMin = 0.18;
-   const double pora = 0.1;
-   const double porb = -0.2;
-   const double qciLocal =  NumericFunctions::Maximum ( qci, vreMin );
-
-   double porQci = pora + porb * std::log( qciLocal ) / std::log(10.0);
-   if( porQci < porMin ) {
-      porQci = porMin;
-   }
-   m_carrierBedPorosity = porQci;
- 
-  // Kozney-Carman type for permeability as a function of porosity
-
-   const double specSurf = std::pow( 10.0, log10ss );
-   const double log10sf = -1.5 * log10ss + 10.0;
-   const double scalingFactor = std::pow ( 10.0, log10sf );
-
-   double porDash = porQci - 0.00000000031 * specSurf;
-   double permeability;
-   if( porDash < 0.1 ) {
-      permeability = 2e+17 * scalingFactor * std::pow ( porDash, 5.0 ) / ( std::pow( specSurf, 2.0 ) * std::pow ( 1 - porDash, 2.0 ));
-   } else {
-      permeability = 2e+14 * scalingFactor * std::pow ( porDash, 3.0 ) / ( std::pow( specSurf, 2.0 ) * std::pow ( 1 - porDash, 2.0 ));
-   } 
-
-   m_carrierBedPermeability = permeability;
- 
-}
-    
 }

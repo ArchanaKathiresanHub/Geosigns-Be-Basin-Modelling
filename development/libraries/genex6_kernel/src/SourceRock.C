@@ -88,16 +88,11 @@ class GenexSimulator;
 
 std::map<std::string, std::string> SourceRock::s_CfgFileNameBySRType;
 
-/*const double SourceRock::conversionCoeffs [8] =
-   { 0.0, 0.0,
-     0.0, 0.0,
-     0.0, 0.0,
-     0.0, 0.0 };
+const double SourceRock::conversionCoeffs [8] =
    { -2.60832073307101E-05, 0.236463623513642,
      -0.0319467563289369, 0.00185738251210839,
      2.36948559032296E-05, -6.62225531134738E-06,
-     2.38411451425613E-07, -2.692340754443E-09 };*/
-
+     2.38411451425613E-07, -2.692340754443E-09 };
 
 SourceRock::SourceRock (Interface::ProjectHandle * projectHandle, database::Record * record)
 : Interface::SourceRock (projectHandle, record)
@@ -136,34 +131,30 @@ void SourceRock::getHIBounds( double &HILower, double &HIUpper ) {
    HIUpper = 773.6;
 }
 
-double SourceRock::convertHCtoHI(double aHC) {
+double SourceRock::convertHCtoHI( double aHC ) {
 
-	double HILower;
-	double HIUpper;
-	double HIValue;
-	double HCValue;
+   double HILower;
+   double HIUpper;
+   double HIValue;
+   double HCValue;
 
-	getHIBounds(HILower, HIUpper);
+   getHIBounds( HILower, HIUpper );
 
-	// Simple bisection method to compute HI from H/C
-	while (fabs(HILower - HIUpper) > 0.0001) {
-		HIValue = 0.5 * (HILower + HIUpper);
-		HCValue = convertHItoHC(HIValue);
+   // Simple bisection method to compute HI from H/C
+   while ( fabs( HILower - HIUpper ) > 0.0001 ) {
+      HIValue = 0.5 * (HILower + HIUpper);
+      HCValue = convertHItoHC( HIValue );
 
-		if (HCValue > aHC) {
-			HIUpper = HIValue;
-		}
-		else {
-			HILower = HIValue;
-		}
-	}
-	return HIValue;
+      if ( HCValue > aHC ) {
+         HIUpper = HIValue;
+      }
+      else {
+         HILower = HIValue;
+      }
+   }
+
+   return HIValue;
 }
-//#endif
-
-#if 1
-const double SourceRock::conversionCoeffs [8] = { -2.60832073307101E-05, 0.236463623513642, -0.0319467563289369, 0.00185738251210839, 
-                                                  2.36948559032296E-05, -6.62225531134738E-06, 2.38411451425613E-07, -2.692340754443E-09 };  
 
 double SourceRock::convertHItoHC( double aHI ) {
 
@@ -182,46 +173,6 @@ double SourceRock::convertHItoHC( double aHI ) {
       return  Interface::DefaultUndefinedMapValue;
    }
 }
-
-#endif
-
-
-#if 0
-const double SourceRock::conversionCoeffs[5] = { 2.9128E-01, 3.5586E-03, -6.4603E-06, 6.7621E-09, -2.3264E-12 };
-
-double SourceRock::convertHItoHC(double aHI) {
-
-	if (aHI != Interface::DefaultUndefinedMapValue) {
-		int i;
-		double hc = conversionCoeffs[4];
-
-		for (i = 3; i >= 0; --i) {
-			hc = hc * aHI + conversionCoeffs[i];
-		}
-		/*
-		double x = aHI;
-		const double a = -2.60832073307101E-05;
-		const double b = 0.236463623513642;
-		const double c = -0.0319467563289369;
-		const double d = 0.00185738251210839;
-		const double e = 2.36948559032296E-05;
-		const double f = -6.62225531134738E-06;
-		const double g = 2.38411451425613E-07;
-		const double h = -2.692340754443E-09;
-
-		double hc = a + b * pow(x, 0.5) + c *pow(x, 1) + d * pow(x, 1.5) + e * pow(x, 2) +
-		f *pow(x, 2.5) + g * pow(x, 3) + h * pow(x, 3.5);
-		*/
-		return floor(hc * 1000 + 0.5) / 1000;
-	}
-	else {
-		return  Interface::DefaultUndefinedMapValue;
-	}
-}
-
-#endif
-
-
 
 void SourceRock::initializeCfgFileNameBySRType()
 {
@@ -312,9 +263,6 @@ void SourceRock::clear()
 
    m_retainedGor = 0;
    m_retainedCgr = 0;
-
-   m_organoPorosity = 0;
-   m_omphi = 0;
 
    m_overChargeFactor = 0;
    m_porosityLossDueToPyrobitumen = 0;
@@ -435,16 +383,7 @@ bool SourceRock::compute()
 {
    bool status = true;
 
-   if (m_projectHandle->getRank() == 0) {
-	   if (m_onlyBiogenicGas) {
-		   LogHandler(LogHandler::INFO_SEVERITY) << "Ready to compute BioGenic SourceRock at : " << m_formation->getName();
-	   }
-	   else {
-		   LogHandler(LogHandler::INFO_SEVERITY) << "Ready to compute SourceRock at : " << m_formation->getName();
-	   }
-   }
-
-   
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Ready to compute SourceRock at : "<< m_formation->getName();
 
    if(status) status = initialize();
 
@@ -454,8 +393,6 @@ bool SourceRock::compute()
 
    if(status) status = process();
    
-   clear();
-   
    return status;
 }
 
@@ -464,29 +401,10 @@ ChemicalModel * SourceRock::loadChemicalModel( const Interface::SourceRock * the
 
    double theScIni = theSourceRock->getScVRe05();
    
-   double in_SC = (theScIni > 0.0 ? ( validateGuiValue(theScIni, 0.01, 0.09) == true ? theScIni : 0.03 ) : 0.0 );
+   double in_SC = (theScIni != 0.0 ? ( validateGuiValue(theScIni, 0.01, 0.09) == true ? theScIni : 0.03 ) : 0.0 );
 
-   int runType = ( in_SC > 0.0 ? Genex6::Constants::SIMGENEX : (Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX5) );
+   int runType = ( in_SC != 0.0 ? Genex6::Constants::SIMGENEX : (Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX5) );
 
-   if( m_genex7 ) {
-      if( in_SC > 0.0 ) {
-
-         // return error
-      }
-      // genex7 based on genex6
-      // runType = Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX7;
-      runType = Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX55 | Genex6::Constants::SIMGENEX5;
-
-#if 0      
-      if( doApplyAdsorption () ) {
-         // run genex55 only if shale-gas is enabled
-         runType = Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX55 | Genex6::Constants::SIMGENEX5;
-      } else {
-         runType = Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX5;
-      }
-#endif
-   }
-      
    const string & SourceRockType = theSourceRock->getBaseSourceRockType();
    const string & theType = ( SourceRockType.empty() ? determineConfigurationFileName( theSourceRock->getType() ) :
                               determineConfigurationFileName( SourceRockType ) );
@@ -538,12 +456,8 @@ ChemicalModel * SourceRock::loadChemicalModel( const Interface::SourceRock * the
    
    if(printInitialisationDetails ) {
 
-	  ostringstream sourceRock;
-      cout << "Source Rock Type  : " << SourceRockType;
-      if(( runType & Genex6::Constants::SIMGENEX7 ) or ( runType & Genex6::Constants::SIMGENEX55 )) {
-         cout <<  "  ( Genex7 simulation )" << endl;
-      }
-
+      ostringstream sourceRock;
+      sourceRock <<  "Source Rock Type  : " << SourceRockType;
       if( m_applySRMixing ) {
          sourceRock << " (H/C = " << in_HC << ")";
       }
@@ -620,10 +534,10 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
          } else {
             double hcValueMixing = ( m_formation->getSourceRockMixingHC() != 0 ? m_formation->getSourceRockMixingHC() : 0 ); 
       
-            if( fabs( hcValue1 - hcValueMixing ) < Genex6::Constants::Zero ) {
+            if( hcValue1 == hcValueMixing ) {
                m_theSimulator->setMaximumTimeStepSize( maximumTimeStepSize1 );
                m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
-            } else if ( fabs( hcValue2 - hcValueMixing ) > Genex6::Constants::Zero ) {
+            } else if ( hcValue2 != hcValueMixing ) {
                if( maximumTimeStepSize1 < maximumTimeStepSize2 ) m_theSimulator->setMaximumTimeStepSize( maximumTimeStepSize1 );
                if( numberOfTimeSteps1 > numberOfTimeSteps2 ) m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
                else m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
@@ -908,11 +822,11 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
       const Interface::GridMap* litho1PercentageMap = getLithoType1PercentageMap ();
       const Interface::GridMap* litho2PercentageMap = getLithoType2PercentageMap ();
       const Interface::GridMap* litho3PercentageMap = getLithoType3PercentageMap ();
- 
+
       unsigned int depthlitho1PercentageMap, depthlitho2PercentageMap, depthlitho3PercentageMap;
 
       depthlitho1PercentageMap = depthlitho2PercentageMap = depthlitho3PercentageMap = 0;
-      
+
       if (litho1 && litho1PercentageMap)
       {
          lithoDensity1 = getLithoDensity (litho1);
@@ -1015,8 +929,8 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
                            LogHandler( LogHandler::ERROR_SEVERITY ) << "HC map value  " << hcValue << " is out of range: H/C1 = " << Hc1 << " and H/C2 = " << Hc2 << ".";
                            break;
                         }
-                        if( fabs( hcValue - Hc1 ) < Genex6::Constants::Zero ) { f1 = 1.0; }
-                        else if (  fabs( hcValue - Hc2 ) < Genex6::Constants::Zero ) { f1 = 0.0; }
+                        if( hcValue == Hc1 ) { f1 = 1.0; }
+                        else if (  hcValue == Hc2 ) { f1 = 0.0; }
                         else {
                            f1 = ( hcValue - Hc2 ) * invValue;
                         }
@@ -1025,19 +939,18 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
                   } else {
                      f1 = f2 =  Interface::DefaultUndefinedMapValue;
                   }
-                  
+                     
                } else {
                   f1 = f2 = 0.0;
                }
                
-               double maxOmphi = in_TOC * 0.3;
-               Genex6::SourceRockNode * theNode = new Genex6::SourceRockNode (in_thickness, in_TOC, inorganicDensity, f1, f2, lowResI, lowResJ, maxOmphi, 5.8, 10.0);
-               theNode->setGenex7( m_genex7, doApplyAdsorption () );
-               theNode->setTestAds( m_testAds and doApplyAdsorption () );
-               theNode->setOrganoporosityVars ( maxOmphi, 10.0 );
+               
+               Genex6::SourceRockNode * theNode = new Genex6::SourceRockNode (in_thickness, in_TOC, inorganicDensity, f1, f2, lowResI, lowResJ);
                addNode (theNode);
             }
+
          }
+
       }
 #ifdef OBSOLETE
       if (Interface::MODE1D == theMode) {
@@ -1342,27 +1255,10 @@ bool SourceRock::process()
       AbstractDerivedProperties::SurfacePropertyPtr startPressure = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
       AbstractDerivedProperties::SurfacePropertyPtr endPressure   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
 
-      // Genex7
-	  AbstractDerivedProperties::FormationSurfacePropertyPtr startPermeability, endPermeability;
-      if( false ) { //or m_genex7 ) {
-         property = m_propertyManager->getProperty ( "Permeability" );
-         const Interface::Formation* formationAbove = m_formation->getTopSurface ()->getTopFormation ();
-         if( formationAbove != 0 ) {
-            startPermeability = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart, formationAbove, formationAbove->getBottomSurface () );
-            endPermeability   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd, formationAbove, formationAbove->getBottomSurface () );
-         } 
-         if( m_genex7 and ( startPermeability == 0 or endPermeability == 0 )) {
-            // formaton above is not yet deposited
-            startPermeability = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart, m_formation, m_formation->getTopSurface () );
-            endPermeability   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd,  m_formation, m_formation->getTopSurface () );
-         }
-            
-      }
-
       if( startTemp == 0 or endTemp == 0 or
           startVes == 0 or endVes == 0 or
           startVr == 0 or endVr == 0 or
-          startPressure == 0 or endPressure == 0 ) { 
+          startPressure == 0 or endPressure == 0 ) {
 
          if ( startTemp == 0 ) {
             LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing start temperature map for snapshot " << intervalStart->getTime ();
@@ -1412,24 +1308,10 @@ bool SourceRock::process()
       startPressure->retrieveData();
       endPressure->retrieveData();
 
-      if( false ) { //r m_genex7 ) {
-         startPermeability->retrieveData();
-         endPermeability->retrieveData();
-      }
-
       TempInterpolator ->compute(intervalStart, startTemp,  intervalEnd, endTemp);
       VESInterpolator->compute( intervalStart, startVes, intervalEnd, endVes );
       vreInterpolator->compute (intervalStart, startVr,  intervalEnd, endVr );
       porePressureInterpolator->compute(intervalStart, startPressure, intervalEnd, endPressure ); 
-      if( false ) { // m_genex7 ) {
-         permeabilityInterpolator = new LinearGridInterpolator;
-         permeabilityInterpolator->compute(intervalStart, startPermeability, intervalEnd, endPermeability ); 
-      }
-      
-      if( false ) { // m_genex7 ) {
-         startPermeability->restoreData();
-         endPermeability->restoreData();
-      }
 
       startTemp->restoreData();
       endTemp->restoreData();
@@ -1462,9 +1344,8 @@ bool SourceRock::process()
          
          if( startLP == 0 or endLP == 0 or
              startHP == 0 or endHP == 0 or
-             startPorosity == 0 or endPorosity == 0 or 
+             startPorosity == 0 or endPorosity == 0 or
              startPermeability == 0 or endPermeability == 0 ) {
-            // or ( not m_genex7 and ( startPermeability == 0 or endPermeability == 0 )) ) {
             
             status = false;
 
@@ -1502,30 +1383,17 @@ bool SourceRock::process()
 
             break;
          }
-         if( lithostaticPressureInterpolator == 0 ) {
-            lithostaticPressureInterpolator = new LinearGridInterpolator;
-         }
+         lithostaticPressureInterpolator = new LinearGridInterpolator;
+         hydrostaticPressureInterpolator = new LinearGridInterpolator;
+         porosityInterpolator = new LinearGridInterpolator;
+         permeabilityInterpolator = new LinearGridInterpolator;
 
-         if( hydrostaticPressureInterpolator == 0 ) {
-            hydrostaticPressureInterpolator = new LinearGridInterpolator;
-         }
-
-         if( porosityInterpolator== 0 ) {
-            porosityInterpolator = new LinearGridInterpolator;
-         }
-
-         if( true or not m_genex7 ) {
-            if( permeabilityInterpolator == 0 ) {
-               permeabilityInterpolator = new LinearGridInterpolator;
-            }
-            permeabilityInterpolator->compute(intervalStart, startPermeability, intervalEnd, endPermeability ); 
-         }
-         
          lithostaticPressureInterpolator->compute(intervalStart, startLP, intervalEnd, endLP ); 
          hydrostaticPressureInterpolator->compute(intervalStart, startHP, intervalEnd, endHP ); 
          porosityInterpolator->compute(intervalStart, startPorosity, intervalEnd, endPorosity ); 
+         permeabilityInterpolator->compute(intervalStart, startPermeability, intervalEnd, endPermeability ); 
       }
-      
+
       property = m_propertyManager->getProperty ( "ErosionFactor" );
       
       AbstractDerivedProperties::FormationMapPropertyPtr thicknessScalingAtStart = m_propertyManager->getFormationMapProperty ( property, intervalStart, m_formation );
@@ -1533,9 +1401,7 @@ bool SourceRock::process()
 
       if(thicknessScalingAtStart && thicknessScalingAtEnd) {
 
-         if( ThicknessScalingInterpolator == 0 ) {
-            ThicknessScalingInterpolator = new LinearGridInterpolator;
-         }
+         ThicknessScalingInterpolator = new LinearGridInterpolator;
          ThicknessScalingInterpolator->compute(intervalStart, thicknessScalingAtStart, 
                                                intervalEnd,   thicknessScalingAtEnd);  
 
@@ -1585,12 +1451,6 @@ bool SourceRock::process()
       }
       
    }
-  if( m_genex7Ads or m_testAds ) {
-
-      // postprocessAdsorption();
-      postprocessAdsorptionTest();
-
-   } 
    
    delete VESInterpolator;
    delete TempInterpolator;
@@ -1614,112 +1474,7 @@ bool SourceRock::process()
 
    return status;
 }
-// (not used)
-bool SourceRock::postprocessAdsorption() {
 
-   bool status = true;
-
-   std::vector<Genex6::SourceRockNode*>::iterator itNode;
-   for(itNode = m_theNodes.begin(); itNode != m_theNodes.end(); ++ itNode) { 
-      
-      ( * itNode )->postProcessAdsorption ( &( m_theSimulator->getChemicalModel ()) );
-   }
-   return status;
-}
-// NNN
-bool SourceRock::postprocessAdsorptionTest() {
-
-   bool status = true;
-   if( doApplyAdsorption () ) {
-      if(m_projectHandle->getRank() == 0) {
-         cout << endl << "Start postprocessAdsorptionTest" << endl;
-      }
-      std::vector<Genex6::SourceRockNode*>::iterator itNode = m_theNodes.begin();
-
-      int timeSteps = (* itNode)->getTimeSteps();
-      double deltaT = 0.0;
-
-      Input * sourceRockInput = (* itNode)->getSimulatorStateAdsorption().getOneTimeStepResult( 0 ).second;
-      double startTime, endTime;
-      double time = sourceRockInput->GetPreviousTime (); //startTime;
-      bool firstStep = false;
-
-      for ( int i = 0; i < timeSteps; ++ i ) {
-         const Snapshot * snapshot = (const Snapshot *) m_projectHandle->findNextSnapshot( time, MAJOR );
-         itNode = m_theNodes.begin();
-
-         sourceRockInput = (* itNode)->getSimulatorStateAdsorption().getOneTimeStepResult( i ).second;
-         startTime = sourceRockInput->GetPreviousTime ();
-         endTime   = sourceRockInput->GetTime ();
- 
-         // determine the next snapshot age and create snapshot maps
-         const bool computeSnapshot = fabs ( endTime - snapshot->getTime() ) < 1e-5;
-
-         firstStep = computeSnapshot and ( i == 0 );
-
-         if( computeSnapshot ) {
-            // if(m_projectHandle->getRank() == 0) {           
-            //    cout << "Create snapshot " <<  snapshot->getTime() << endl;
-            // }
-            createSnapShotOutputMaps( snapshot, true );
-         }
-         // if(m_projectHandle->getRank() == 0) {           
-         //    cout << "Compute " << time << " to " << endTime << ", time " <<  time << endl;
-         // }
-
-         for(itNode = m_theNodes.begin(); itNode != m_theNodes.end(); ++ itNode) { 
-            SimulatorStateResult * genexState = (* itNode)->getSimulatorStateAdsorption().getOneTimeStepResult( i ).first;
-            (* itNode)->getPrincipleSimulatorState ().setSimulatorState( * genexState, computeSnapshot );
-            (* itNode)->setCurrentTimeStep ( i );
-            Input * sourceRockInput = (* itNode)->getSimulatorStateAdsorption().getOneTimeStepResult( i ).second;
-
-            if( m_genex7 ) {
-               (* itNode)->getSimulatorStateAdsorption().calculateAdsorptionTimeStep( i );
-               m_adsorptionSimulator->setSimulatorStateAdsorption( &( (* itNode)->getSimulatorStateAdsorption()) );
-            }
-            if( not firstStep ) {
-               
-               m_adsorptionSimulator->compute( * sourceRockInput, &(*itNode)->getPrincipleSimulatorState ());
-               deltaT = sourceRockInput->GetPreviousTime () - sourceRockInput->GetTime ();
-               
-               if( computeSnapshot ) { 
-                  (*itNode)->getPrincipleSimulatorState ().postProcessShaleGasTimeStep ( m_theChemicalModel, deltaT );
-               }
-               (*itNode)->collectHistory ();
-               
-               if( computeSnapshot ) { 
-                  (*itNode)->updateAdsorptionOutput ( *getAdsorptionSimulator() );
-                  updateSnapShotOutputMaps((*itNode), true );
-               } 
-            } else {
-               // update first snapshot
-               (*itNode)->updateAdsorptionOutput ( *getAdsorptionSimulator() );
-               updateSnapShotOutputMaps((*itNode), true );
-             
-               deltaT = startTime - endTime;
-            }
-
-            genexState->clean();
-            //(* itNode)->getSimulatorStateAdsorption().removeOneTimeStepResult (i)
-         }
-         if( computeSnapshot ) {
-            if(m_projectHandle->getRank() == 0) {
-               cout << "Save snapshot " <<  snapshot->getTime() << endl;
-            }
-            saveSnapShotOutputMaps();
-            m_projectHandle->continueActivity();
-         }
-
-         time -= deltaT;
-      }
-      for(itNode = m_theNodes.begin(); itNode != m_theNodes.end(); ++ itNode) { 
-         (*itNode)->getSimulatorStateAdsorption().cleanResults();
-      }
-      
-   }
-
-   return status;
-}
 
 void SourceRock::initializeSnapShotOutputMaps ( const vector<string> & requiredPropertyNames,
                                                 const vector<string> & theRequestedPropertyNames )
@@ -1736,16 +1491,9 @@ void SourceRock::initializeSnapShotOutputMaps ( const vector<string> & requiredP
    for ( it = theRequestedPropertyNames.begin(); it != theRequestedPropertyNames.end(); ++it ) {
       //  we dont output Sulphur related properties if S/C = 0
       if(!( m_isSulphur == false && theResultManager.IsSulphurResult(*it) )) {
-
          //  we dont output SRF output if mixing is not applying
          if(!( m_applySRMixing == false && ((*it) == "SourceRockEndMember1" || (*it) == "SourceRockEndMember2"))) {
-            if( theResultManager.getResultId( *it ) != -1 ) {
-               if( theResultManager.IsResultRequired( theResultManager.getResultId( *it ))) {
-                  m_theSnapShotOutputMaps[(*it)] =  0; 
-               }
-            } else {
-               m_theSnapShotOutputMaps[(*it)] =  0; 
-            }
+            m_theSnapShotOutputMaps[(*it)] =  0; 
          }
       } 
    }
@@ -1769,9 +1517,6 @@ void SourceRock::initializeSnapShotOutputMaps ( const vector<string> & requiredP
 
    m_retainedGor = 0;
    m_retainedCgr = 0;
-
-   m_organoPorosity = 0;
-   m_omphi = 0;
 
    m_overChargeFactor = 0;
    m_porosityLossDueToPyrobitumen = 0;
@@ -1819,116 +1564,14 @@ void SourceRock::initializeSnapShotOutputMaps ( const vector<string> & requiredP
          m_retainedCondensateApiOutputMap = 0;
          m_retainedGor = 0;
          m_retainedCgr = 0;
-         m_organoPorosity = 0;
-         m_omphi = 0;
       }
 
    }
 
 
 }
-void SourceRock::createSnapShotOutputMapsBG(const Snapshot *theSnapshot )
+void SourceRock::createSnapShotOutputMaps(const Snapshot *theSnapshot)
 {
-   GenexResultManager & theResultManager = GenexResultManager::getInstance();
-
-   std::map<std::string, GridMap*>::iterator snapshotMapContainerEnd = m_theSnapShotOutputMaps.end();
-   std::map<std::string, GridMap*>::iterator it = m_theSnapShotOutputMaps.find(theResultManager.GetResultName( CBMGenerics::GenexResultManager::FluxOA1 ));
-         
-   if(it != snapshotMapContainerEnd ) { 
- 
-      GridMap *theMap  = createSnapshotResultPropertyValueMap( it->first, theSnapshot );
-      if(theMap) {   
-         it->second = theMap;
-      }
-      if( it->second ) { 
-         (it->second)->retrieveData();
-      }
-   }
-   it = m_theSnapShotOutputMaps.find(theResultManager.GetResultName( CBMGenerics::GenexResultManager::FluxOA2 ));
-         
-   if(it != snapshotMapContainerEnd ) { 
- 
-      GridMap *theMap  = createSnapshotResultPropertyValueMap( it->first, theSnapshot );
-      if(theMap) {   
-         it->second = theMap;
-      }
-      if( it->second ) { 
-         (it->second)->retrieveData();
-      }
-   }
-
-}
-
-void SourceRock::createSnapShotOutputMaps(const Snapshot *theSnapshot, const bool outputAds )
-{
-
-   if( m_onlyBiogenicGas ) {
-      return createSnapShotOutputMapsBG( theSnapshot );
-   }
-
-   if( ( m_testAds or m_genex7Ads ) and doOutputAdsorptionProperties () and not outputAds ) {
-     return;
-   }
-#if 0
-   using namespace CBMGenerics;
-
-   
-   std::map<std::string, GridMap*>::iterator it;
-   std::map<std::string, GridMap*>::iterator snapshotMapContainerEnd = m_theSnapShotOutputMaps.end();
-
-   using namespace CBMGenerics;
-   ComponentManager & theManager = ComponentManager::getInstance();
-   for ( int speciesIndex = 0; speciesIndex < ComponentManager::NUMBER_OF_SPECIES; ++ speciesIndex) {
-      it = m_theSnapShotOutputMaps.find(theManager.getSpeciesOutputPropertyName(speciesIndex, doOutputAdsorptionProperties ()));
-      
-      if(it != snapshotMapContainerEnd) {               
-         GridMap *theMap = createSnapshotResultPropertyValueMap(it->first, theSnapshot);
-         
-         if(theMap) {   
-            it->second = theMap;
-            (it->second)->retrieveData();
-            //    cout << "successful creation of map :" << it->first << endl;
-         } else {
-            
-            if(m_projectHandle->getRank() == 0) {
-               cout << "Unsuccessful creation of map :" << it->first << endl;
-            }
-         }
-         
-      }
-      
-   }
-
-   GenexResultManager & theResultManager = GenexResultManager::getInstance();
-   
-   // then the optional results 
-   for( int resultIndex = 0; resultIndex < GenexResultManager::NumberOfResults; ++ resultIndex) {
-      
-      if(theResultManager.IsResultRequired(resultIndex)) {
-         it = m_theSnapShotOutputMaps.find(theResultManager.GetResultName(resultIndex));
-         
-         if(it != snapshotMapContainerEnd ) { 
-            //   if( ( m_testAds or m_genex7 ) and resultIndex < GenexResultManager::OilGeneratedCum ) {
-               GridMap *theMap = createSnapshotResultPropertyValueMap(it->first, theSnapshot);
-            
-               if(theMap) {   
-                  it->second = theMap;
-               }
-               //    }
-            if( it->second ) { 
-               (it->second)->retrieveData();
-               //  cout << "successful creation of map :" << it->first << endl;
-            } else {
-               
-               if(m_projectHandle->getRank() == 0) {
-                  cout << "Unsuccessful creation of map :" << it->first << endl;
-               }
-            }
-            
-         }
-      }
-   }
-#endif   
    using namespace CBMGenerics;
 
    std::map<std::string, GridMap*>::iterator it;
@@ -1973,7 +1616,7 @@ void SourceRock::createSnapShotOutputMaps(const Snapshot *theSnapshot, const boo
       }
    }
       
-   if ( doOutputAdsorptionProperties () ) { 
+   if ( doOutputAdsorptionProperties ()) {
       GridMap* theMap;
       int speciesIndex;
 
@@ -2081,20 +1724,6 @@ void SourceRock::createSnapShotOutputMaps(const Snapshot *theSnapshot, const boo
 
       if ( m_retainedCgr != 0 ) {
          m_retainedCgr->retrieveData ();
-      }
-
-      if( m_genex7 ) {
-         m_organoPorosity = createSnapshotResultPropertyValueMap ( "OrganoPorosity",
-                                                                   theSnapshot );
-         m_omphi = createSnapshotResultPropertyValueMap ( "OMPhi", theSnapshot );
-      }
-
-      if ( m_organoPorosity != 0 ) {
-         m_organoPorosity->retrieveData ();
-      }
-
-      if ( m_omphi != 0 ) {
-         m_omphi->retrieveData ();
       }
 
       m_overChargeFactor = createSnapshotResultPropertyValueMap ( "OverChargeFactor",
@@ -2254,16 +1883,6 @@ void SourceRock::saveSnapShotOutputMaps()
       m_retainedCgr = 0;
    }
 
-   if ( m_organoPorosity != 0 ) {
-      m_organoPorosity->restoreData ();
-      m_organoPorosity = 0;
-   }
-
-   if ( m_omphi != 0 ) {
-      m_omphi->restoreData ();
-      m_omphi = 0;
-   }
-
    if ( m_overChargeFactor != 0 ) {
       m_overChargeFactor->restoreData ();
       m_overChargeFactor = 0;
@@ -2323,37 +1942,8 @@ void SourceRock::saveSnapShotOutputMaps()
 
 }
 
-void SourceRock::updateSnapShotOutputMapsBG(Genex6::SourceRockNode *theNode )
+void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
 {
-   GenexResultManager & theResultManager = GenexResultManager::getInstance();
-   SimulatorState& theSimulatorState = theNode->getPrincipleSimulatorState();
-   const unsigned int i = theNode->GetI ();
-   const unsigned int j = theNode->GetJ ();
-   m_theSimulator->setChemicalModel( m_theChemicalModel1 );
-
-   std::map<std::string, GridMap*>::iterator snapshotMapContainerEnd = m_theSnapShotOutputMaps.end();
-
-   std::map<std::string, GridMap*>::iterator it = m_theSnapShotOutputMaps.find(theResultManager.GetResultName( CBMGenerics::GenexResultManager::FluxOA1 ));
-         
-   if(it != snapshotMapContainerEnd ) { 
-      (it->second)->setValue(i, j, theSimulatorState.GetResult( CBMGenerics::GenexResultManager::FluxOA1 ));
-   }
-   it = m_theSnapShotOutputMaps.find(theResultManager.GetResultName( CBMGenerics::GenexResultManager::FluxOA2 ));
-   if(it != snapshotMapContainerEnd ) { 
-      (it->second)->setValue(i, j, theSimulatorState.GetResult( CBMGenerics::GenexResultManager::FluxOA2 ));
-   }
-}
-
-void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode, const bool outputAdsOnly )
-{
-   if( m_onlyBiogenicGas ) {
-      return updateSnapShotOutputMapsBG( theNode );
-   }
-
-   if(( m_testAds or m_genex7Ads ) and doOutputAdsorptionProperties () and not outputAdsOnly ) {
-      return;
-   }
-
    using namespace CBMGenerics;
    ComponentManager & theManager = ComponentManager::getInstance();
    GenexResultManager & theResultManager = GenexResultManager::getInstance();
@@ -2373,54 +1963,43 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode, const
    for (speciesIndex = 0; speciesIndex < ComponentManager::NUMBER_OF_SPECIES; ++ speciesIndex) {
       it = m_theSnapShotOutputMaps.find(theManager.getSpeciesOutputPropertyName(speciesIndex, doOutputAdsorptionProperties ()));
       
-      if(it != snapshotMapContainerEnd) {   
-         string mname = it->first;
+      if(it != snapshotMapContainerEnd) {               
          specId = m_theSimulator->GetSpeciesIdByName(theManager.getSpeciesName(speciesIndex));
-         
+
          if( specId < 0 ) {
             // to support both GX5 and GX6 config files
          } else {
             Genex6::SpeciesResult &theResult = theSimulatorState.GetSpeciesResult(specId);
-            //               cout << it->first << endl;
             (it->second)->setValue(i, j, theResult.GetExpelledMass()); 
          }
-         
+
       }
+
    }
 
    m_theSimulator->setChemicalModel( m_theChemicalModel1 );
 
    // then the optional results 
    for(resultIndex = 0; resultIndex < GenexResultManager::NumberOfResults; ++ resultIndex) {
-      
+
       if(theResultManager.IsResultRequired(resultIndex)) {
          it = m_theSnapShotOutputMaps.find(theResultManager.GetResultName(resultIndex));
-         
+
          if(it != snapshotMapContainerEnd ) { 
-           string mname = it->first;
-            
-           if ( doOutputAdsorptionProperties() ) {
-              //    if( ( m_testAds or m_genex7 ) ) {
-              //     if( resultIndex < GenexResultManager::OilGeneratedCum ) {
-                    // If there is a shale-gas simulation then get the results that were computed after a shale-gas simulation.
-              //        if( it->second != 0 ) {
-              //      (it->second)->setValue(i, j, theSimulatorState.getShaleGasResult ( resultIndex ));
-                       //        }
-                    //      } 
-                       //    } else {
-              //     if( it->second != 0 ) {
-                    (it->second)->setValue(i, j, theSimulatorState.getShaleGasResult ( resultIndex ));
-                    //   }
-                 //    }
+
+            if ( doOutputAdsorptionProperties ()) {
+               // If there is a shale-gas simulation then get the results that were computed after a shale-gas simulation.
+               (it->second)->setValue(i, j, theSimulatorState.getShaleGasResult ( resultIndex ));
             } else {
                // Otherwise the optional results are those computed by GenEx.
                (it->second)->setValue(i, j, theSimulatorState.GetResult( resultIndex ));
             }
-            
+
          }
+
       }
-      
-   }
+
+   } 
 
    if( m_applySRMixing ) { 
       if ( m_sourceRockEndMember1 != 0 ) {
@@ -2434,7 +2013,7 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode, const
       m_tocOutputMap->setValue ( i, j, theSimulatorState.getCurrentToc () );
    }
 
-   if ( doOutputAdsorptionProperties() ) { 
+   if ( doOutputAdsorptionProperties ()) {
 
       using namespace Genex6;
 
@@ -2488,18 +2067,9 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode, const
 
       }
 
-      if ( m_organoPorosity != 0 ) {
-         m_organoPorosity->setValue ( i, j, theNode->getOrganoPorosity() );
-      }
-
-      if ( m_omphi != 0 ) {
-         m_omphi->setValue ( i, j, theNode->getOMPhi() );
-      }
-
       const SpeciesManager& speciesManager = * theSimulatorState.getSpeciesManager(); 
       
       if ( m_overChargeFactor != 0 ) {
-         //FIX
          theNode->computeOverChargeFactor ( overChargeFactor );
          m_overChargeFactor->setValue ( i, j, overChargeFactor );
       }
@@ -2516,9 +2086,7 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode, const
       m_gasGeneratedFromOtgc->setValue ( i, j, theSimulatorState.getTotalGasFromOtgc ());
       m_totalGasGenerated->setValue ( i, j,
                                       theSimulatorState.getTotalGasFromOtgc () +
-                                      //        theSimulatorState.GetGroupResult ( CBMGenerics::GenexResultManager::HcGasGeneratedCum ));
-                                      theSimulatorState.GetResult ( CBMGenerics::GenexResultManager::HcGasGeneratedCum ));
-      //    cout << theSimulatorState.getTotalGasFromOtgc () << " " << theSimulatorState.GetGroupResult ( CBMGenerics::GenexResultManager::HcGasGeneratedCum ) << endl;
+                                      theSimulatorState.GetGroupResult ( CBMGenerics::GenexResultManager::HcGasGeneratedCum ));
 
       if ( m_retainedOilApiOutputMap != 0 ) {
          m_retainedOilApiOutputMap->setValue ( i, j, oilApi );
@@ -2558,9 +2126,7 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode, const
 
                m_adsorptionCapacity->setValue ( i, j, speciesState->getAdsorptionCapacity () * SCFpTonGasVolumeConversionFactor  );
             }
-            ComponentManager & theManager = ComponentManager::getInstance();
 
-            string name = ComponentManager::getInstance().getSpeciesName ( species );
             m_sourceRockExpelledOutputMaps [ species ]->setValue ( i, j, speciesState->getMassExpelledFromSourceRock ());
             m_retainedOutputMaps [ species ]->setValue ( i, j, speciesState->getRetained ());
          }
@@ -2652,11 +2218,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
       calcTemp->retrieveData();
       calcVre->retrieveData();
 
-      if( calcPressure )     calcPressure->retrieveData();
-      if( calcPermeability ) calcPermeability->retrieveData();
-      if( calcLP )           calcLP->retrieveData();
-      if( calcHP )           calcHP->retrieveData();
-      if( calcPorosity )     calcPorosity->retrieveData();
+      if( calcPressure ) calcPressure->retrieveData();
 
       createSnapShotOutputMaps(theSnapshot);
 
@@ -2711,7 +2273,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          (*itNode)->AddInput(theInput);
          m_theSimulator->setChemicalModel( m_theChemicalModel1 );
 
-         bool isInitialTimeStep = (*itNode)->RequestComputation(0, *m_theSimulator, true ); // 0 - first SourceRock
+         bool isInitialTimeStep = (*itNode)->RequestComputation(0, *m_theSimulator ); // 0 - first SourceRock
 
          if( m_applySRMixing ) {
             m_theSimulator->setChemicalModel( m_theChemicalModel2 );
@@ -2719,10 +2281,10 @@ bool SourceRock::computeSnapShot ( const double previousTime,
             m_theSimulator->setChemicalModel( m_theChemicalModel1 );
          }
 
-         if ( not isInitialTimeStep && doApplyAdsorption () and not ( m_testAds or m_genex7Ads )) {
+         if ( not isInitialTimeStep && doApplyAdsorption ()) {
             m_adsorptionSimulator->compute( *theInput, &(*itNode)->GetSimulatorState(0)); 
          }
-         if( m_applySRMixing && not isInitialTimeStep && m_adsorptionSimulator2 != 0  and not ( m_testAds or m_genex7Ads )) {
+         if( m_applySRMixing && not isInitialTimeStep && m_adsorptionSimulator2 != 0 ) {
             m_adsorptionSimulator2->compute( *theInput, &(*itNode)->GetSimulatorState(1));
          }
         
@@ -2730,15 +2292,15 @@ bool SourceRock::computeSnapShot ( const double previousTime,
             (*itNode)->RequestMixing( m_theChemicalModel ); // we always use the chemicalModel with bigger number of Species - m_theChemicalModel - for mixing
          }
 
-         if ( not isInitialTimeStep and doApplyAdsorption () and not ( m_testAds or m_genex7Ads )) {
-            (*itNode)->getPrincipleSimulatorState ().postProcessShaleGasTimeStep ( m_theChemicalModel, previousTime - time, true );//not ( m_testAds or m_genex7 ) );
+         if ( not isInitialTimeStep and doApplyAdsorption () ) {
+            (*itNode)->getPrincipleSimulatorState ().postProcessShaleGasTimeStep ( m_theChemicalModel, previousTime - time );
          }
 
-         if ( not isInitialTimeStep and not (( m_testAds or m_genex7Ads ) and doApplyAdsorption () )) {
+         if ( not isInitialTimeStep ) {
             (*itNode)->collectHistory ();
          }
 
-         if ( doOutputAdsorptionProperties () and not ( m_testAds or m_genex7Ads )) {
+         if ( doOutputAdsorptionProperties ()) {
             (*itNode)->updateAdsorptionOutput ( *getAdsorptionSimulator() );
           }
 
@@ -2746,18 +2308,15 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          (*itNode)->ClearInputHistory();
 
       }
+
       saveSnapShotOutputMaps();
 
       calcVes->restoreData();
       calcTemp->restoreData();
       calcVre->restoreData();
 
-      if( calcPressure )     calcPressure->restoreData();
-      if( calcErosion )      calcErosion->restoreData();
-      if( calcPermeability ) calcPermeability->restoreData();
-      if( calcLP )           calcLP->restoreData();
-      if( calcHP )           calcHP->restoreData();
-      if( calcPorosity )     calcPorosity->restoreData();
+      if( calcPressure ) calcPressure->restoreData();
+      if( calcErosion )  calcErosion->restoreData();
    }
 
    return status;
@@ -2806,10 +2365,6 @@ void SourceRock::computeTimeInstance ( const double &startTime,
    double maximumVes = getVESMax();
    maximumVes *= MegaPaToPa;
 
-   if(m_projectHandle->getRank() == 0 and not m_testAds ) {           
-      //    cout << "Compute " << startTime << " to " << endTime << endl;
-   }
-
    std::vector<Genex6::SourceRockNode*>::iterator itNode;
    
    for(itNode = m_theNodes.begin(); itNode != m_theNodes.end(); ++ itNode) {
@@ -2857,10 +2412,10 @@ void SourceRock::computeTimeInstance ( const double &startTime,
          m_theSimulator->setChemicalModel( m_theChemicalModel1 );
       }
 
-      if ( not isInitialTimeStep && doApplyAdsorption () and not ( m_testAds or m_genex7Ads )) {
+      if ( not isInitialTimeStep && doApplyAdsorption ()) {
          m_adsorptionSimulator->compute( *theInput, &(*itNode)->GetSimulatorState(0)); 
       }
-      if( m_applySRMixing && not isInitialTimeStep && m_adsorptionSimulator2 != 0  and not( m_testAds or m_genex7Ads )) {
+      if( m_applySRMixing && not isInitialTimeStep && m_adsorptionSimulator2 != 0 ) {
          m_adsorptionSimulator2->compute( *theInput, &(*itNode)->GetSimulatorState(1)); 
       }
       
@@ -2868,7 +2423,7 @@ void SourceRock::computeTimeInstance ( const double &startTime,
          (*itNode)->RequestMixing( m_theChemicalModel );
       }
 
-      if ( not isInitialTimeStep and not (( m_testAds or m_genex7Ads ) and doApplyAdsorption () )) {
+      if ( not isInitialTimeStep ) {
          (*itNode)->collectHistory ();
       }
 
@@ -2898,9 +2453,7 @@ double SourceRock::getLithoDensity(const LithoType *theLitho) const
 {
    Interface::LithoTypeAttributeId theId = Interface::Density;
    const AttributeValue theDensity = theLitho->getAttributeValue(theId);
-
    double density = theDensity.getDouble();
-   
    return density;
 }
 const GridMap * SourceRock::getLithoType1PercentageMap() const
@@ -3043,29 +2596,4 @@ void SourceRock::initialiseNodes () {
 
 }
 
-
-void SourceRock::setTestAds( const bool isTestAds ) {
-   if( isTestAds and doApplyAdsorption() ) {
-      m_testAds = isTestAds;
-   }
-}
-
-#if 0
-void SourceRock::clear () {
-
-   if ( m_theSimulator != 0 ) {
-      delete m_theSimulator;
-      m_theSimulator = 0;
-   }
-
-
-   std::vector<Genex6::SourceRockNode*>::iterator itEnd = m_theNodes.end();
-
-   for(std::vector<Genex6::SourceRockNode*>::iterator it = m_theNodes.begin(); it !=itEnd; ++it)
-   {
-      (*it)->initialise ();
-   }
-
-}
-#endif
 }//namespace Genex6

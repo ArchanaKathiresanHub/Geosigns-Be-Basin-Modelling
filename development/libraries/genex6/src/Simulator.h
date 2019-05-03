@@ -58,9 +58,6 @@ public:
              const double in_Emean, 
              bool PreprocessChemicalModel,
              const bool inApproximateFlag);
-
-   //Unit Test, conversion from cfg to sch file format support
-   Simulator(const int in_Simulationtype, const std::string &in_type, const std::string in_fullPathConfigurationFileName);
   
    virtual ~Simulator();
 

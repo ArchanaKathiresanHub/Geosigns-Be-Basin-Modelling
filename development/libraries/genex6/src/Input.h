@@ -53,11 +53,6 @@ public:
 
    virtual ~Input(){}
 
-   void   ComputeCarrierBedPorosityPermeability( const double qci, const double log10ss );
-   void   setCarrierBedPermeability( const double perm );
-   double getCarrierBedPermeability() const;
-   double getCarrierBedPorosity() const;
-
    double GetTime() const;
    double GetPreviousTime() const;
    double GetTemperatureCelsius() const;
@@ -67,9 +62,7 @@ public:
 
    void SetTemperature(const double &in_temp);
 
-   void setVre( const double in_vr );
-
-  /// Temperature from previous time-step.
+   /// Temperature from previous time-step.
    double getPreviousTemperatureCelsius () const;
 
    /// Temperature from previous time-step.
@@ -102,10 +95,9 @@ public:
    /// \brief Return the j-position of the surrnt input.
    unsigned int getJ () const;
 
+
    void OutputOnFile(ofstream &outputfile) const;
    void OutputOnFile(FILE * fp) const;
- 
-   virtual void PrintAdsorptionState( ofstream &outputfile) const {};
 
 private:
 
@@ -117,21 +109,19 @@ private:
    double m_pressure;
    double m_thicknessScaleFactor;
 
+
    double m_lithostaticPressure;
    double m_hydrostaticPressure;
    double m_startPorePressure;
    double m_endPorePressure;
    double m_porosity;
    double m_permeability;
+
    double m_vre;
 
    unsigned int m_i;
    unsigned int m_j;
 
-protected:
-   // Genex7
-   double m_carrierBedPorosity;
-   double m_carrierBedPermeability;
 };
 
 
@@ -195,24 +185,8 @@ inline double Input::getPermeability () const {
    return m_permeability;
 }
 
-inline double Input::getCarrierBedPorosity () const {
-   return m_carrierBedPorosity;
-}
-
-inline double Input::getCarrierBedPermeability () const {
-   return m_carrierBedPermeability;
-}
-
-inline void Input::setCarrierBedPermeability ( const double perm ) {
-   m_carrierBedPermeability = perm;
-}
-
 inline double Input::getVre () const {
    return m_vre;
-}
-
-inline void Input::setVre ( const double vr ) {
-   m_vre = vr;
 }
 
 inline unsigned int Input::getI () const {

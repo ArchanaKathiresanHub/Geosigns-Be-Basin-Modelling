@@ -23,7 +23,7 @@ public:
       PreasphalteneAromMin, PreasphalteneAromMax, Order0, OrderPerHoverC, ActCrit,
       Nhetero1GX5, HCAsphOverPreasphaltGX5, OCAsphOverPreasphaltGX5, 
       OCprecokeWhenHCpreasphaltZeroGX5, OCprecokePerPreasphaltGX5, NC15plusAroGX5, Ediff1GX5, Ediff2GX5,
-      OCprecokeWhenHCpreasphaltZeroOTGC5, OCprecokePerPreasphaltOTGC5, WboMinGx7, NumberOfParameters
+      OCprecokeWhenHCpreasphaltZeroOTGC5, OCprecokePerPreasphaltOTGC5, NumberOfParameters
    };
    
    void SetParameterById(const int &ParameterId , const double &value);

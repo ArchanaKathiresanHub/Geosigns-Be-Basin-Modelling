@@ -39,9 +39,6 @@ namespace Genex6 {
 
       /// Get singleton instance.
       static AdsorptionSimulatorFactory& getInstance ();
- 
-      /// Remove singleton instance.
-      static void clear ();
 
       /// \brief Allocate the adsorption simulator.
       ///

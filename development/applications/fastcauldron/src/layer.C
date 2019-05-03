@@ -296,7 +296,7 @@ void LayerProps::initialise () {
       Hydro_Sand     = Interface::Formation::hasConstrainedOverpressure ();
       IsSourceRock   = Interface::Formation::isSourceRock ();
       IsMobile       = Interface::Formation::isMobileLayer ();
-      IsBiogenicGas  = Interface::Formation::isBiogenicGasLayer();
+
       presentDayThickness = Interface::Formation::getInputThicknessMap ();
       depthGridMap = Interface::Formation::getTopSurface ()->getInputDepthMap ();
 
@@ -409,7 +409,7 @@ void LayerProps::initialise () {
       Hydro_Sand        = false;
       IsSourceRock      = false;
       IsMobile          = false;
-      IsBiogenicGas     = false;
+
       presentDayThickness           = nullptr;
       depthGridMap                  = nullptr;
       depoage                       = -2.0;
@@ -481,6 +481,7 @@ void LayerProps::initialise () {
    if ( isSourceRock ()) {
       initialiseSourceRockProperties ( false );
    }
+
 }
 
 void LayerProps::connectElements ( LayerProps* layerAbove ) {
@@ -1039,7 +1040,6 @@ void LayerProps::nullify (){
    Hydro_Sand        = false;
    IsSourceRock      = false;
    IsMobile          = false;
-   IsBiogenicGas     = false;
 
    presentDayThickness           = nullptr;
    depthGridMap                  = nullptr;

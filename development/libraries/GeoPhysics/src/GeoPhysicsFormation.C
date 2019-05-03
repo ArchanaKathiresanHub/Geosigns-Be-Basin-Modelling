@@ -323,6 +323,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
       cout << "Basin_Error: Could not create lithologies for layer: " << getName () << endl;
    }
 
+
    if ( lithoMap1 != 0 ) {
       lithoMap1->restoreData ( false, true );
    }

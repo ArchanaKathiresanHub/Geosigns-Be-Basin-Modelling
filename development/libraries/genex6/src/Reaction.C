@@ -2,7 +2,6 @@
 #include "Species.h"
 #include "SpeciesManager.h"
 #include "ReactionRatio.h"
-#include "Utilities.h"
 
 #include "Vector.h"
 #include "FortranMatrix.h"
@@ -97,7 +96,6 @@ void Reaction::ComputeProductRatios(const double preasphaltheneArom)
       Numerics::backSolve ( aMat, perm, bVec );
 
       //Assign solution to reaction product ratio factor map: m_productRatioBySpeciesName
-
       iterIndex = mapProductName2SolutionVector.begin();
       while(iterIndex != mapProductName2SolutionVector.end()) {
          m_productRatioBySpeciesName[iterIndex->first] = bVec(iterIndex->second);
@@ -122,10 +120,9 @@ void Reaction::ComputeMassProductRatios()  //changes the state of the mother obj
       m_theMother->UpdateMassFactorBySpeciesName(theProduct->GetId(), productMassFactor);
    }
    m_theMother->validate(); // check for negative coefficients 
-   //  OutputProductsOnScreen();
-   //  OutputMassFractionsOnScreen();
-   //  OutputProductRatiosOnScreen();
-   //  OutputReactionRatiosOnScreen();
+  // OutputProductsOnScreen();
+  // OutputProductRatiosOnScreen();
+  // OutputReactionRatiosOnScreen();
 }
 void Reaction::AddProduct(Species *theProduct) 
 {
@@ -191,58 +188,6 @@ void Reaction::OutputReactionRatiosOnFile(ofstream &outfile)
    }
 }
 
-void Reaction::OutputMassFractionsOnScreen() 
-{
-   m_theMother->OutputMassFactorsOnScreen();
-}
-
-// Output in VBA Sch format
-void Reaction::OutputProductsToFile( ofstream &outfile ) 
-{
-   std::map<int, Species *> products;
-   std::vector<Species*>::size_type sz = m_theProducts.size();
-   for( unsigned int i = 0; i < sz; ++ i ) {
-      products[m_theProducts[i]->GetId()] = m_theProducts[i];
-   }
-
-   int i = 1;
-   std::map<int,Species*>::iterator it =  products.begin();
-   while( it != products.end() ){
-      outfile << it->second->GetId() << "," ;
-      SetProductId( i, it->second );
-      ++ i;
-      ++ it;
-   }
-   outfile << m_theMother->GetId() << "," << 0 ;
-}
-
-void Reaction::OutputReactionRatiosToFile( ofstream &outfile ) 
-{
-   std::vector<ReactionRatio*>::iterator itR = m_theReactionRatios.begin();
-  if( m_theReactionRatios.size() > 0 ) {
- 
-     outfile << ",";
-  }
-  int i = 0;
-  while( itR != m_theReactionRatios.end() ) {
-     std::stringstream s_ratio;
-     if( m_theReactionRatios[i]->GetFunctionCode() != "*" ) {
-        outputToStringWithDot ( s_ratio, atof( m_theReactionRatios[i]->GetFunctionCode().c_str() ) );
-     } else {
-        s_ratio << "*";
-     }
-     outfile << GetProductIdBySpeciesId( m_theReactionRatios[i]->GetReactant1()->GetId() ) << "," <<  
-        GetProductIdBySpeciesId( m_theReactionRatios[i]->GetReactant2()->GetId() ) << "," << s_ratio.str() << ",";
-      ++ itR;
-      ++ i;
-   }  
-   if( m_theReactionRatios.size() > 0 ) {
-      outfile << 0 << endl;
-   } else {
-      outfile << endl;
-   }
-}
-
 Species *Reaction::GetProductById(const int in_id) 
 {
    Species *ret = 0;
@@ -251,19 +196,6 @@ Species *Reaction::GetProductById(const int in_id)
       ret = (it->second);  
    }
    return ret;
-}
-// reference product it in VBA sch format
-int Reaction::GetProductIdBySpeciesId( const int in_id ) 
-{
-   std::map<int,Species*>::iterator it = m_mapId2Product.begin();
-
-   while( it != m_mapId2Product.end() ) {
-      if( it->second->GetId() == in_id ) {
-         return it->first;
-      }
-      ++ it;
-   }
-   return -1;
 }
 
 }

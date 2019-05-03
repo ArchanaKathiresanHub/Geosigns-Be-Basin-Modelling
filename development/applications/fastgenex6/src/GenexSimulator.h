@@ -56,10 +56,7 @@ namespace GenexSimulation
    protected:
 
       /// Sets the requested output properties according to Filter Time IO and fastmig requirements
-      void setRequestedOutputProperties( const bool isBiogenicGas );
- 
-      /// Set or unset the biogenic gas output requested 
-      void setRequestedOutputPropertiesBG( const bool isBiogenicGas );
+      void setRequestedOutputProperties();
 
       /// Sets the requested output properties related to Species output
       void setRequestedSpeciesOutputProperties();
@@ -85,17 +82,6 @@ namespace GenexSimulation
 
       bool computeSourceRock ( Genex6::SourceRock * aSourceRock, const Interface::Formation * aFormation );
 
-      /// Find the youngest SourceRock to compute biogenic gas
-      double findYoungestSR();
-
-      /// Create a SourceRock from a BiogenicGas layer to compute biogenic gas
-      bool createBiogenicGasSR( Interface::Formation * formation );
-      
-      /// Remove a SourceRock created to compute biogenic gas
-      void removeBiogenicGasSR( Interface::Formation * formation );
-
-      /// Get formation deposition age
-      double getDepositionTime( Interface::Formation * formation );
    };
 
 }

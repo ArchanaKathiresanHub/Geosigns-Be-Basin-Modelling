@@ -6,7 +6,6 @@
 #include "Interface/ProjectHandle.h"
 
 #include "SubProcessSimulator.h"
-#include "SimulatorStateAdsorption.h"
 
 #include "AdsorptionFunction.h"
 #include "SimulatorStateBase.h"
@@ -15,7 +14,6 @@
 
 namespace Genex6 {
 
-   class SimulatorStateAdsorption;
 
    /// \brief Adsorption simulator.
    class AdsorptionSimulator : public SubProcessSimulator {
@@ -72,19 +70,8 @@ namespace Genex6 {
       unsigned int getPriority () const;
 
       bool managed () const;
-      bool isGenex7() const;
 
-      virtual void setSimulatorStateAdsorption( SimulatorStateAdsorption * state );
-      double getOrganoPorosity() const;
-      double getPessureLangmuir() const;
-      double getPessurePrangmuir() const;
-      double getPessureJGS() const;
-      double getAdsGas() const;
-      double getFreeGas() const;
-      double getNmaxAds() const;
-      double getNmaxFree() const;
-      double getMolesGas() const;
-      double getMolarGasVol() const;
+
    protected :
 
 
@@ -100,13 +87,7 @@ namespace Genex6 {
                      const double       temperature,
                      const double       toc,
                      const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;
-      double getPL ( const unsigned int i,
-                     const unsigned int j,
-                     const double       temperature,
-                     const double       toc,
-                     const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;
 
-  
       double getVLReferenceTemperature () const;
 
    private :
@@ -115,9 +96,6 @@ namespace Genex6 {
       AdsorptionFunction*                        m_adsorptionFunction;
       unsigned int                               m_priority;
       bool                                       m_isManaged;
-
-      SimulatorStateAdsorption * m_adsorptionCalculator;
-      
 
    };
 
@@ -141,14 +119,6 @@ inline double Genex6::AdsorptionSimulator::getVL ( const unsigned int i,
 
    return m_adsorptionFunction->computeVL ( i, j, temperature, toc, species );
 }
-inline double Genex6::AdsorptionSimulator::getPL ( const unsigned int i,
-                                                   const unsigned int j,
-                                                   const double       temperature,
-                                                   const double       toc,
-                                                   const CBMGenerics::ComponentManager::SpeciesNamesId species ) const {
-
-   return m_adsorptionFunction->computePL ( i, j, temperature, toc, species );
-}
 
 inline double Genex6::AdsorptionSimulator::getVLReferenceTemperature () const {
    return m_adsorptionFunction->getReferenceTemperature ();
@@ -166,11 +136,6 @@ inline bool Genex6::AdsorptionSimulator::managed () const {
    return m_isManaged;
 }
 
-inline bool Genex6::AdsorptionSimulator::isGenex7() const {
-
-   return m_adsorptionCalculator != 0;
-
-}
 
 
 #endif // _GENEX6_KERNEL__ADSORPTION_SIMULATOR_H_

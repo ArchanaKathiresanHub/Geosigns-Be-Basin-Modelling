@@ -639,18 +639,6 @@ START-properties
     Unit of measurement : Ma
     Default             : 0
 
-    Identification      : BiogenicGas
-    Description         : Flag to indicate whether a layer should be included in the Biogenic Gas.
-    Type                : boolean
-    Unit of measurement :
-    Default             : 0
-
-    Identification      : Toc
-    Description         : Initial TOC for the Biogenic Gas 
-    Type                : float
-    Unit of measurement : weight %
-    Default             : 0.1
-
 
 #### Source Rock properties -------------------------------------------------
 
@@ -4862,7 +4850,7 @@ START-property-tables
     Identification : StratIoTbl
     Description    : table with lithostratigraphic data for IO and UI
 #  Surface properties:
-    Version        : 101
+    Version        : 100
     Column         : SurfaceName
     Column         : DepoAge
     Column         : Depth
@@ -4902,9 +4890,7 @@ START-property-tables
     Column         : SourceRockMixingHCGrid->GridMapIoTbl.MapName
     Column         : ElementRefinementZ
     Column         : IncludeInDarcy
-# Biogenic Gas settings
-    Column         : BiogenicGas
-    Column         : Toc
+
 
     Header         : Stratigraphic Data
 

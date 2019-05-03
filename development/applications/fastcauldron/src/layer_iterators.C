@@ -113,7 +113,7 @@ bool Basin_Modelling::Layer_Iterator::Add_Layer ( const LayerProps_Ptr       Cur
 
     case Source_Rocks_Only :
 
-       Include_Layer = Current_Layer -> isSourceRock () or Current_Layer -> isBiogenicGas();
+       Include_Layer = Current_Layer -> isSourceRock ();
      break;
 
     case Shale_Gas_Only :
