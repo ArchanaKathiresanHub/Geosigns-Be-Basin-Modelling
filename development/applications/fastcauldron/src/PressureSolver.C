@@ -448,8 +448,8 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
 
   DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
 
-  LayerProps_Ptr Crust_Layer  = cauldron->Crust ();
-  LayerProps_Ptr Mantle_Layer = cauldron->Mantle ();
+  CrustFormation* Crust_Layer  = cauldron->Crust ();
+  MantleFormation* Mantle_Layer = cauldron->Mantle ();
 
   PETSC_3D_Array Crust_Depth     ( Crust_Layer->layerDA, Crust_Layer->Current_Properties ( Basin_Modelling::Depth ));
   PETSC_3D_Array Mantle_Depth    ( Mantle_Layer->layerDA, Mantle_Layer->Current_Properties ( Basin_Modelling::Depth ));
@@ -490,41 +490,54 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
 
   Basin_Modelling::initialiseTopNodes ( X_Start, X_Count, Y_Start, Y_Count, Z_Top, Valid_Needle, Depth_Above, Mantle_Depth );
 
+
   // Compute MANTLE depths
-  for ( I = X_Start; I < X_Start + X_Count; I++ ) {
+  for ( I = X_Start; I < X_Start + X_Count; I++ )
+  {
+    for ( J = Y_Start; J < Y_Start + Y_Count; J++ )
+    {
+      if ( Valid_Needle ( I, J ))
+      {
+        currentCrustThickness = FastcauldronSimulator::getInstance ().getCrustThickness ( I, J, Current_Time );
+        CrustThinningRatio = Crust_Layer->getCrustMaximumThickness ( I, J ) / currentCrustThickness;
+        if( FastcauldronSimulator::getInstance ().getBottomBoundaryConditions() != Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE )
+        {
+          if( cauldron->isALC() ) {
+             BasementThickness = Mantle_Layer->getInitialLithosphericMantleThickness () + Crust_Layer->getInitialCrustalThickness();
+             Mantle_Segment_Height = Mantle_Layer->getMantleElementHeight0(1.0, 0.0, Z_Top - 1) / CrustThinningRatio;
+          } else {
+             BasementThickness = presentDayMantleThickness + FastcauldronSimulator::getInstance ().getCrustThickness ( I, J, 0.0 );
+             Mantle_Segment_Height = mantleMaximumElementThickness / CrustThinningRatio;
+          }
+          MantleThickness = BasementThickness - currentCrustThickness;
+          Max_Depth = Mantle_Depth ( Z_Top, J, I ) + MantleThickness;
 
-    for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
+          for ( K = Z_Top - 1; K >= 0; K-- ) {
+             Mantle_Depth ( K, J, I ) = PetscMin ( Max_Depth, Mantle_Depth ( K + 1, J, I ) + Mantle_Segment_Height );
+          }
+        }
+        else
+        {
+          BasementThickness = Mantle_Layer->getInitialLithosphericMantleThickness () + Crust_Layer->getInitialCrustalThickness();
+          MantleThickness = BasementThickness - currentCrustThickness;
+          Max_Depth = Mantle_Depth ( Z_Top, J, I ) + MantleThickness;
 
-      if ( Valid_Needle ( I, J )) {
-            currentCrustThickness = FastcauldronSimulator::getInstance ().getCrustThickness ( I, J, Current_Time );
-            CrustThinningRatio = cauldron->Crust ()->getCrustMaximumThickness ( I, J ) / currentCrustThickness;
-
-         if( cauldron->isALC() ) {
-            BasementThickness = cauldron->Mantle()->getInitialLithosphericMantleThickness () + cauldron->Crust()->getInitialCrustalThickness();
-            Mantle_Segment_Height = cauldron->Mantle()->getMantleElementHeight0() / CrustThinningRatio;
-         } else {
-            BasementThickness = presentDayMantleThickness + FastcauldronSimulator::getInstance ().getCrustThickness ( I, J, 0.0 );
-            Mantle_Segment_Height = mantleMaximumElementThickness / CrustThinningRatio;
-         }
-         MantleThickness = BasementThickness - currentCrustThickness;
-         Max_Depth = Mantle_Depth ( Z_Top, J, I ) + MantleThickness;
-
-         for ( K = Z_Top - 1; K >= 0; K-- ) {
+          const double ratio = Crust_Layer->getCrustMaximumThickness( I, J ) / Crust_Layer->getCrustMinimumThickness( I, J );
+          for ( K = Z_Top - 1; K >= 0; K-- )
+          {
+            Mantle_Segment_Height = Mantle_Layer->getMantleElementHeight0(ratio, K, Z_Top - 1) / CrustThinningRatio;
             Mantle_Depth ( K, J, I ) = PetscMin ( Max_Depth, Mantle_Depth ( K + 1, J, I ) + Mantle_Segment_Height );
-         }
-
-      } else {
-
+          }
+        }
+      }
+      else
+      {
         for ( K = Z_Top - 1; K >= 0; K-- ) {
           Mantle_Depth ( K, J, I ) = CauldronNoDataValue;
         }
-
       }
-
     }
-
   }
-
 }
 
 
