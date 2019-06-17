@@ -1007,7 +1007,7 @@ TEST_F(mbapiModelTest, FluidManager)
    
    ASSERT_EQ(actualTableSize, fluids.size());
 
-   std::string fluidName,myDescription, heatCapType, thermCond;
+   std::string fluidName,myDescription, heatCapType, thermCond, fluidsDefinedBy;
    int myUserDefined;
 
    //check whether all entries in FluidTypeIOTbl were read and modified correctly
@@ -1018,6 +1018,7 @@ TEST_F(mbapiModelTest, FluidManager)
       std::vector<std::string> actualDescription = { "KSEPL's Standard Water","KSEPL's Standard Marine Water",
          "KSEPL's Standard Ultra Marine Water","KSEPL's Standard Sea Water","KSEPL's Standard Water" };
       std::vector<int> actualUserDefined = { 0,0,0,0,1 };
+      std::vector<std::string> actualFluidsDefinedBy = {"BPA","BPA", "BPA", "BPA", "BPA", };
 
       mbapi::FluidManager::FluidID id;
      
@@ -1042,6 +1043,10 @@ TEST_F(mbapiModelTest, FluidManager)
          //check whether fluid description can be read correctlty
          flMgr.getDescription(flId, myDescription);
          EXPECT_EQ(actualDescription[flId], myDescription);
+
+         //check whether definedBy field of fluids mentioned in the FluidTypeIoTbl can be read correctlty
+         flMgr.getDefinedBy(flId, fluidsDefinedBy);
+         EXPECT_EQ(actualFluidsDefinedBy[flId], fluidsDefinedBy);
       }
      
       id = 1;
@@ -1063,6 +1068,12 @@ TEST_F(mbapiModelTest, FluidManager)
       flMgr.setThermCondType(id, "Std. Hyper Saline Water");
       flMgr.getThermCondType(id, thermCond);
       EXPECT_EQ("Std. Hyper Saline Water", thermCond);
+      //check whether definedBy field of fluids mentioned in the FluidTypeIoTbl can be read and modified for id=1
+      flMgr.getDefinedBy(id, fluidsDefinedBy);
+      EXPECT_EQ("BPA", fluidsDefinedBy);
+      flMgr.setDefinedBy(id, "System");
+      flMgr.getDefinedBy(id, fluidsDefinedBy);
+      EXPECT_EQ("System", fluidsDefinedBy);
 
       id = 4;
       //check whether the UserDefined flag are being read and modified for id=4
@@ -1780,6 +1791,7 @@ TEST_F(mbapiModelTest, CtcManager)
    }
 
 }
+
 TEST_F(mbapiModelTest, FracturePressureManager)
 {
    mbapi::Model testModel;

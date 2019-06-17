@@ -218,6 +218,18 @@ namespace mbapi {
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode getHeatCap(FluidHeatCapID id, double & HeatCap) = 0;
 
+      /// @brief Get DefinedBy field from FluidTypeIoTbl 
+      /// @param[in] id unique id of each record in FluidTypeIoTbl
+      /// @param[out] DefinedBy brine type specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode getDefinedBy(FluidID id, std::string & DefinedBy) = 0;
+
+      /// @brief Set DefinedBy field for each record in the FluidTypeIoTbl
+      /// @param[in] id fluid ID for each record in FluidTypeIoTbl
+      /// @param[in] DefinedBy brine type specified for the particular id
+      /// @return NoError on success or NonexistingID on error
+      virtual ReturnCode setDefinedBy(FluidID id, const std::string & DefinedBy) = 0;
+
       /// @}
    protected:
       /// @{

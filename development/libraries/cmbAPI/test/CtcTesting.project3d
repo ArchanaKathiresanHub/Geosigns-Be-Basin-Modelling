@@ -603,6 +603,7 @@ SurfaceName T0Ini T0IniGrid TRIni TRIniGrid HCuIni HCuIniGrid HLMuIni HLMuIniGri
 [CTCRiftingHistoryIoTbl]
 ;
  Age TectonicFlag DeltaSL DeltaSLGrid HBu HBuGrid
+ () () () () () ()
  10	"Active Rifting" -500 "DeltaSlGridName1" 120 "BasaltThicknessMap_1"
  20	"Passive Margin" -501 "DeltaSlGridName2" 150 "BasaltThicknessMap_2"
  30	"Flexural Basin" -502 "DeltaSlGridName3" 180 "BasaltThicknessMap_3"

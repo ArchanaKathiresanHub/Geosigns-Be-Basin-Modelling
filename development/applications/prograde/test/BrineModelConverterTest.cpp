@@ -28,4 +28,7 @@ TEST(BrineModelConverter, upgrade)
    EXPECT_EQ(FluidManager::CalculatedModel, modelConverter.upgradeSeismicVelocityModel(FluidManager::CalculatedModel, fluidName) );
    EXPECT_EQ(FluidManager::CalculatedModel, modelConverter.upgradeSeismicVelocityModel(FluidManager::ConstantModel, fluidName) );
    EXPECT_EQ("Std. Sea Water", modelConverter.upgradeThermCondType("Std. Sea Water","KSEPL's Standard Sea Water","Std. Water"));
+   EXPECT_EQ("System", modelConverter.upgradeDefinedBy("Std. Sea Water","BPA"));
+   EXPECT_EQ("BPA user", modelConverter.upgradeDefinedBy("User defined brine","BPA"));
+
 }

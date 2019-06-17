@@ -1136,8 +1136,10 @@ namespace database {
       {
          string fieldValue;
 
-         if ( linePos == string::npos )
+         if (linePos == string::npos)
+         { 
             return false;
+         }
 
          linePos = loadWordFromLine( line, linePos, fieldValue );
 
@@ -1149,8 +1151,10 @@ namespace database {
             continue;
          }
 
-         if ( !assignFromStringToIndex( fieldValue, toIndex ) )
+         if (!assignFromStringToIndex(fieldValue, toIndex))
+         {  
             return false;
+         }
       }
 
       return true;

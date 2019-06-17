@@ -44,52 +44,95 @@ void Prograde::BrineUpgradeManager::upgrade() {
    Prograde::BrineModelConverter modelConverter;
    auto fluids = m_model.fluidManager().getFluidsID();
    std::vector<std::string> FluidTypesUsed = StratIoTblReferredFluids();
+   std::vector<std::string> baseFluidForUserDefinedBrine;//To store the base fluid type for a userDefined brine
+                                                         //std::string baseFluidForUserDefinedBrine;//To store the base fluid type for a userDefined brine
+   for (auto flId : fluids) {
+
+      std::string fluidName;
+      
+      m_model.fluidManager().getFluidName(flId, fluidName);
+
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "FluidType encountered in the FluidTypeIoTbl is: " << fluidName;
+
+      int fluidUserDefined;                      //Fluid user defined flag
+      m_model.fluidManager().getUserDefined(flId, fluidUserDefined);
+      m_model.fluidManager().setUserDefined(flId, modelConverter.upgradeUserDefined(fluidName, fluidUserDefined));
+      std::string fluidDescription;              //Fluid description
+      m_model.fluidManager().getDescription(flId, fluidDescription);
+      m_model.fluidManager().setDescription(flId, modelConverter.upgradeDescription(fluidName, fluidDescription));
+      std::string heatCapType;              //Fluid HeatCaptype
+      m_model.fluidManager().getHeatCapType(flId, heatCapType);
+      m_model.fluidManager().setHeatCapType(flId, modelConverter.upgradeHeatCapType(fluidName, fluidDescription, heatCapType));
+      std::string ThermCondType;              //Fluid HeatCaptype
+      m_model.fluidManager().getThermCondType(flId, ThermCondType);
+      m_model.fluidManager().setThermCondType(flId, modelConverter.upgradeThermCondType(fluidName, fluidDescription, ThermCondType));
+      std::string OriginalDefinedBy;
+      m_model.fluidManager().getDefinedBy(flId, OriginalDefinedBy);
+      m_model.fluidManager().setDefinedBy(flId, modelConverter.upgradeDefinedBy(fluidName, OriginalDefinedBy));//Updating the definedBy field for each fluidName
+
+      FluidManager::FluidDensityModel densModel; // Fluid density calculation model
+      double refDens;
+      m_model.fluidManager().densityModel(flId, densModel, refDens);
+      refDens = -9999;
+      m_model.fluidManager().setDensityModel(flId, modelConverter.upgradeDensityModel(densModel, fluidName), refDens);
+
+      FluidManager::CalculationModel seisVelModel; // Seismic velocity calculation model
+      double refSeisVel;
+      m_model.fluidManager().seismicVelocityModel(flId, seisVelModel, refSeisVel);
+      refSeisVel = -9999;
+      m_model.fluidManager().setSeismicVelocityModel(flId, modelConverter.upgradeSeismicVelocityModel(seisVelModel, fluidName), refSeisVel);
+
+      m_model.fluidManager().getUserDefined(flId, fluidUserDefined);
+      if (fluidUserDefined == 1)
+      {
+         for (size_t size = 0; size < (FluidTypesUsed.size() - 1); size++)
+         {
+            if (FluidTypesUsed[size] == fluidName)
+            {
+
+               m_model.fluidManager().getHeatCapType(flId, heatCapType);
+               baseFluidForUserDefinedBrine.push_back(heatCapType);
+            }
+         }
+
+      }
+   }
    size_t countOfNotMatchingflId = 0;
    bool isMatch = false;
    int originalRowPosition = -1;
    int nextFluidTypeIOTbl_Index = -1;
 
    for (auto flId : fluids) {
-   
+
       std::string fluidName;
       originalRowPosition++; // Original location of row entry to be checked 
       nextFluidTypeIOTbl_Index++;
 
       m_model.fluidManager().getFluidName(nextFluidTypeIOTbl_Index, fluidName);
-
-      int fluidUserDefined;                      //Fluid user defined flag
-      m_model.fluidManager().getUserDefined(nextFluidTypeIOTbl_Index, fluidUserDefined);
-      m_model.fluidManager().setUserDefined(nextFluidTypeIOTbl_Index, modelConverter.upgradeUserDefined(fluidName, fluidUserDefined));
-      std::string fluidDescription;              //Fluid description
-      m_model.fluidManager().getDescription(nextFluidTypeIOTbl_Index, fluidDescription);
-      m_model.fluidManager().setDescription(nextFluidTypeIOTbl_Index, modelConverter.upgradeDescription(fluidName, fluidDescription));
-      std::string heatCapType;              //Fluid HeatCaptype
-      m_model.fluidManager().getHeatCapType(nextFluidTypeIOTbl_Index, heatCapType);
-      m_model.fluidManager().setHeatCapType(nextFluidTypeIOTbl_Index, modelConverter.upgradeHeatCapType(fluidName,fluidDescription, heatCapType));
-      std::string ThermCondType;              //Fluid HeatCaptype
-      m_model.fluidManager().getThermCondType(nextFluidTypeIOTbl_Index, ThermCondType);
-      m_model.fluidManager().setThermCondType(nextFluidTypeIOTbl_Index, modelConverter.upgradeHeatCapType(fluidName, fluidDescription, ThermCondType));
-
-      FluidManager::FluidDensityModel densModel; // Fluid density calculation model
-      double refDens;
-      m_model.fluidManager().densityModel(nextFluidTypeIOTbl_Index, densModel, refDens);
-      refDens = -9999;
-      m_model.fluidManager().setDensityModel(nextFluidTypeIOTbl_Index, modelConverter.upgradeDensityModel(densModel, fluidName), refDens);
-
-      FluidManager::CalculationModel seisVelModel; // Seismic velocity calculation model
-      double refSeisVel;
-      m_model.fluidManager().seismicVelocityModel(nextFluidTypeIOTbl_Index, seisVelModel, refSeisVel);
-      refSeisVel = -9999;
-      m_model.fluidManager().setSeismicVelocityModel(nextFluidTypeIOTbl_Index, modelConverter.upgradeSeismicVelocityModel(seisVelModel, fluidName), refSeisVel);
-
       size_t size = FluidTypesUsed.size() - 1;//size of StratIoTbl neglecting the basement entry
+      size_t size_baseFluidForUserDefinedBrine = baseFluidForUserDefinedBrine.size();
 
       for (size_t iteratorFluidTypeUsed = 0; iteratorFluidTypeUsed < size; iteratorFluidTypeUsed++)
       {
-         if (FluidTypesUsed[iteratorFluidTypeUsed] == fluidName)
+         if (size_baseFluidForUserDefinedBrine > 0)
          {
-            isMatch = true;
-            break;
+            for (size_t iteratorBaseFluidForUserDefinedBrine = 0; iteratorBaseFluidForUserDefinedBrine < size_baseFluidForUserDefinedBrine; iteratorBaseFluidForUserDefinedBrine++)
+            {
+               std::string xyz = FluidTypesUsed[iteratorFluidTypeUsed];
+               if (FluidTypesUsed[iteratorFluidTypeUsed] == fluidName || fluidName == baseFluidForUserDefinedBrine[iteratorBaseFluidForUserDefinedBrine])
+               {
+                  isMatch = true;
+                  break;
+               }
+            }
+         }
+         else if (size_baseFluidForUserDefinedBrine == 0)
+         {
+            if (FluidTypesUsed[iteratorFluidTypeUsed] == fluidName)
+            {
+               isMatch = true;
+               break;
+            }
          }
       }
       if (isMatch)
@@ -105,7 +148,7 @@ void Prograde::BrineUpgradeManager::upgrade() {
          LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << fluidName << " is not referred in StratIoTbl for the scenario";
          LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Deleting the row from FluidTypeIoTbl for " << fluidName;
          nextFluidTypeIOTbl_Index--;
-      }           
+      }
    }
    this->ResetFltThCondIoTbl();
    this->ResetFltHeatCapIoTbl();
@@ -128,7 +171,7 @@ std::vector<std::string> Prograde::BrineUpgradeManager::StratIoTblReferredFluids
       end = std::remove(i + 1, end, *i);
    }
    fluids.erase(end, fluids.end());
-   
+
    return fluids;
 }
 std::vector<std::string> Prograde::BrineUpgradeManager::ThermCondtypeReferred()
@@ -185,17 +228,17 @@ void Prograde::BrineUpgradeManager::ResetFltThCondIoTbl()
       for (size_t id = 0; id < ThCondId.size(); id++)
       {
          count++;
-         
+
          m_model.setTableValue("FltThCondIoTbl", thCondIdCount, "Fluidtype", TherCondTypeUsed[ThCondType]);
          m_model.setTableValue("FltThCondIoTbl", thCondIdCount, "TempIndex", TempIndexValuesAll[count]);
          m_model.setTableValue("FltThCondIoTbl", thCondIdCount, "Pressure", PressureValAll[count]);
          m_model.setTableValue("FltThCondIoTbl", thCondIdCount, "ThCond", ThCondValAll[count]);
-         
+
          thCondIdCount++;
       }
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << " FltThCondIoTbl has been updated to include the property values for " << TherCondTypeUsed[ThCondType];
    }
-   
+
 }
 void Prograde::BrineUpgradeManager::ResetFltHeatCapIoTbl()
 {
@@ -238,5 +281,5 @@ void Prograde::BrineUpgradeManager::ResetFltHeatCapIoTbl()
       }
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << " FltHeatCapIoTbl has been updated to include the property values for " << HeatCapTypeUsed[HeatCapType];
    }
-   
+
 }

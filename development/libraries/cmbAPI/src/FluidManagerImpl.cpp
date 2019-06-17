@@ -24,6 +24,7 @@ namespace mbapi
    const char * FluidManagerImpl::s_userDefinedFieldName = "UserDefined";
    const char * FluidManagerImpl::s_fluidIoTblHeatCapTypeFieldName = "HeatCaptype";
    const char * FluidManagerImpl::s_fluidIoTblThermCondTypeFieldName = "ThermCondtype";
+   const char * FluidManagerImpl::s_definedByFieldName = "DefinedBy";
    // Density model
    const char * FluidManagerImpl::s_densityModelFieldName = "DensModel";
    const char * FluidManagerImpl::s_densityFieldName = "Density";
@@ -519,6 +520,37 @@ ErrorHandler::ReturnCode FluidManagerImpl::getHeatCap(FluidHeatCapID id, double 
       database::Record * rec = m_fltHeatCapIoTbl->getRecord(static_cast<int>(id));
       if (!rec) { throw Exception(NonexistingID) << "No fluid type with such ID: " << id; }
       HeatCap = rec->getValue<double>(s_fltHeatCapFieldName);
+   }
+   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+   return NoError;
+}
+
+// Get brine type (system or userDefined) for a particular fluid id of the FluidTypeIoTbl
+ErrorHandler::ReturnCode FluidManagerImpl::getDefinedBy(FluidID id, std::string & DefinedBy)
+{
+   if (errorCode() != NoError) resetError();
+   try
+   {
+      if (!m_fluidIoTbl) { throw Exception(NonexistingID) << s_fluidTypesTableName << " table could not be found in project"; }
+      database::Record * rec = m_fluidIoTbl->getRecord(static_cast<int>(id));
+      if (!rec) { throw Exception(NonexistingID) << "No fluid type with such ID: " << id; }
+      DefinedBy = rec->getValue<std::string>(s_definedByFieldName);
+   }
+   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+   return NoError;
+}
+
+// Set brine type (system or userDefined) for a particular fluid id of the FluidTypeIoTb
+ErrorHandler::ReturnCode FluidManagerImpl::setDefinedBy(FluidID id, const std::string & DefinedBy)
+{
+   if (errorCode() != NoError) resetError();
+
+   try
+   {
+      if (!m_fluidIoTbl) { throw Exception(NonexistingID) << s_fluidTypesTableName << " table could not be found in project"; }
+      database::Record * rec = m_fluidIoTbl->getRecord(static_cast<int>(id));
+      if (!rec) { throw Exception(NonexistingID) << "No fluid type with such ID: " << id; }
+      rec->setValue<std::string>(s_definedByFieldName, DefinedBy);
    }
    catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
    return NoError;
