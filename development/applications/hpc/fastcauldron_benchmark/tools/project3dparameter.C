@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <limits>
 
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 
 namespace hpc 
 {

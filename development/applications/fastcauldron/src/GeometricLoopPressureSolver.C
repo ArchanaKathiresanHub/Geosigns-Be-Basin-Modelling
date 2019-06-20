@@ -13,7 +13,7 @@
 #include "CompoundLithology.h"
 #include "PetscVectors.h"
 
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 #include "NumericFunctions.h"
 
 #include "FastcauldronSimulator.h"

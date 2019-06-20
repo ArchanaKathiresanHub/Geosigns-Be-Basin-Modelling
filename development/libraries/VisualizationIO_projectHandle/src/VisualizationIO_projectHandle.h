@@ -12,9 +12,9 @@
 #define __VisualizationIO_projectHandle_h__
 
 #include "VisualizationAPI.h"
-#include "Interface/GridMap.h"
-#include "Interface/Formation.h"
-#include "Interface/PropertyValue.h"
+#include "GridMap.h"
+#include "Formation.h"
+#include "PropertyValue.h"
 
 namespace CauldronIO
 {

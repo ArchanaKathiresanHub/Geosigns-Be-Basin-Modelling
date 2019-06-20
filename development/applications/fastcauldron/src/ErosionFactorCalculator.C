@@ -3,7 +3,7 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 OutputPropertyMap* allocateErosionFactorCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<ErosionFactorCalculator>( property, formation, surface, snapshot );
@@ -103,7 +103,7 @@ bool ErosionFactorCalculator::operator ()( const OutputPropertyMap::OutputProper
 
 void ErosionFactorCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ErosionFactor", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ErosionFactor", 
                                                                                                          m_snapshot, 0, 
                                                                                                          m_formation,
                                                                                                          0 )));

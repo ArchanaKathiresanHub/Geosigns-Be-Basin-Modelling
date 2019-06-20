@@ -26,13 +26,13 @@
 
 #include "FastcauldronSimulator.h"
 
-#include "Interface/Formation.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/Interface.h"
-#include "Interface/GridMap.h"
-#include "Interface/Interface.h"
+#include "Formation.h"
+#include "Snapshot.h"
+#include "Property.h"
+#include "PropertyValue.h"
+#include "Interface.h"
+#include "GridMap.h"
+#include "Interface.h"
 
 // utilities library
 #include "ConstantsNumerical.h"

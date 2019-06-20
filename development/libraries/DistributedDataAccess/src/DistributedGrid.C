@@ -7,7 +7,7 @@
 #include <sstream>
 using namespace std;
 
-#include "Interface/DistributedGrid.h"
+#include "DistributedGrid.h"
 
 #define Round(a) ((int) (((double) a) + 0.5))
 

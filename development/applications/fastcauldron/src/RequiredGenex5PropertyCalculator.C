@@ -11,8 +11,8 @@
 #include "RequiredGenex5PropertyCalculator.h"
 
 
-#include "Interface/PropertyValue.h"
-#include "Interface/GridMap.h"
+#include "PropertyValue.h"
+#include "GridMap.h"
 
 #include "SourceRock.h"
 
@@ -66,7 +66,7 @@ void RequiredGenex5PropertyCalculator::allocatePropertyValues ( OutputPropertyMa
 
    bool sourceRockContainsSulphur = false; //dynamic_cast<const Genex6::SourceRock*>(m_formation->getSourceRock1 ())->isSulphur ();
    int id;
-   PropertyValue* species;
+   CauldronPropertyValue* species;
 
    if ( m_formation->isSourceRock ()) {
       m_sourceRock = (GeoPhysics::GeoPhysicsSourceRock*) (m_formation->getSourceRock1 ());
@@ -83,7 +83,7 @@ void RequiredGenex5PropertyCalculator::allocatePropertyValues ( OutputPropertyMa
       // If the source-rock contains sulphur then always add the species
       // If the source-rock does not contain sulphur then add only those species that do not contain sulphur.
       if ( sourceRockContainsSulphur or ( not sourceRockContainsSulphur and not manager.isSulphurComponent ( id ))) {
-         species = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( manager.getSpeciesSourceRockExpelledByName ( id ), 
+         species = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( manager.getSpeciesSourceRockExpelledByName ( id ), 
                                                                                                    m_snapshot, 0, 
                                                                                                    m_formation,
                                                                                                    0 ));

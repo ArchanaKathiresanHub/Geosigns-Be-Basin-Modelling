@@ -28,8 +28,8 @@
 #include "IBSinterpolator.h"
 #include "Polyfunction.h"//from CBM Generics
 #include "layer.h"
-#include "CrustFormation.h"
-#include "MantleFormation.h"
+#include "CauldronCrustFormation.h"
+#include "CauldronMantleFormation.h"
 #include "timefilter.h"
 #include "filterwizard.h"
 #include "utils.h"
@@ -54,8 +54,8 @@
 #include "milestones.h"
 
 // Data access library.
-#include "Interface/GridMap.h"
-#include "Interface/RelatedProject.h"
+#include "GridMap.h"
+#include "RelatedProject.h"
 
 using Interface::MANTLE_HEAT_FLOW;
 using Interface::FIXED_BASEMENT_TEMPERATURE;
@@ -181,13 +181,13 @@ public:
 
    const GeoPhysics::FluidType* findFluid (const string & FluidName);
 
-   void Set_Crust_Layer ( CrustFormation* Pointer );
+   void Set_Crust_Layer ( CauldronCrustFormation* Pointer );
 
-   void Set_Mantle_Layer ( MantleFormation* Pointer );
+   void Set_Mantle_Layer ( CauldronMantleFormation* Pointer );
 
-   CrustFormation*  Crust () const;
+   CauldronCrustFormation*  Crust () const;
 
-   MantleFormation* Mantle () const;
+   CauldronMantleFormation* Mantle () const;
 
    //----------------------------//
 
@@ -529,8 +529,8 @@ public:
    void computeLowPermeabilitySubdomains ( const double lowPermeability );
 
 
-   MantleFormation* Mantle_Layer;
-   CrustFormation* Crust_Layer;
+   CauldronMantleFormation* Mantle_Layer;
+   CauldronCrustFormation* Crust_Layer;
 
    CalculationMode currentCalculationMode;
 
@@ -595,11 +595,11 @@ inline double AppCtx::getVesScaling () const {
    return m_vesScaling;
 }
 
-inline CrustFormation* AppCtx::Crust () const {
+inline CauldronCrustFormation* AppCtx::Crust () const {
    return Crust_Layer;
 }
 
-inline MantleFormation* AppCtx::Mantle () const {
+inline CauldronMantleFormation* AppCtx::Mantle () const {
    return Mantle_Layer;
 }
 

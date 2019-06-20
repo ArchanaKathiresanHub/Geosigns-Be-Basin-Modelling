@@ -27,11 +27,11 @@
 #include "FracturePressureManagerImpl.h"
 
 // DataAccess library
-#include "Interface/ProjectHandle.h"
-#include "Interface/ProjectData.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/Surface.h"
-#include "Interface/GridMap.h"
+#include "ProjectHandle.h"
+#include "ProjectData.h"
+#include "ObjectFactory.h"
+#include "Surface.h"
+#include "GridMap.h"
 
 // TableIO library
 #include "cauldronschemafuncs.h"

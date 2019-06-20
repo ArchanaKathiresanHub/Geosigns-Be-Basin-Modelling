@@ -23,7 +23,7 @@ using namespace std;
 
 #include "PersistentTrapFactory.h"
 
-#include "ProjectHandle.h"
+#include "TrackProjectHandle.h"
 
 using namespace PersistentTraps;
 
@@ -97,7 +97,7 @@ int main (int argc, char ** argv)
    }
 
    PersistentTrapFactory* factory = new PersistentTrapFactory;
-   ProjectHandle * projectHandle = dynamic_cast<ProjectHandle *>(Interface::OpenCauldronProject (projectFileName, "rw", factory));
+   TrackProjectHandle * projectHandle = dynamic_cast<TrackProjectHandle *>(Interface::OpenCauldronProject (projectFileName, "rw", factory));
 
    if (!projectHandle)
    {

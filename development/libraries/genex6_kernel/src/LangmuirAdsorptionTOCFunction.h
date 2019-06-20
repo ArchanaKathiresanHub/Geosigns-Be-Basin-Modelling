@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "Interface/GridMap.h"
-#include "Interface/ProjectHandle.h"
+#include "GridMap.h"
+#include "ProjectHandle.h"
 
 #include "AdsorptionFunction.h"
 #include "ComponentManager.h"

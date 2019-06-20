@@ -124,7 +124,7 @@ bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::Outpu
 
 void VitriniteReflectanceCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "VrVec2",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "VrVec2",
                                                                                                          m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          m_surface )));
@@ -212,7 +212,7 @@ bool VitriniteReflectanceVolumeCalculator::operator ()( const OutputPropertyMap:
 
 void VitriniteReflectanceVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Vr",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Vr",
                                                                                                             m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

@@ -32,7 +32,7 @@ namespace migration
    {
    public:
       /// Constructor
-      FormationNode (unsigned int i, unsigned int j, int k, Formation * formation);
+      FormationNode (unsigned int i, unsigned int j, int k, MigrationFormation * formation);
 
       /// Destructor
       virtual ~FormationNode (void);
@@ -45,7 +45,7 @@ namespace migration
       inline unsigned int getI (void) const;
       inline unsigned int getJ (void) const;
       inline unsigned int getK (void) const;
-      inline Formation *getFormation (void) const;
+      inline MigrationFormation *getFormation (void) const;
 
       //these are functions used to compare depths in the detectReservoirCrests algorithm
       int compareDepths (FormationNode * node, bool useTieBreaker = true);
@@ -85,7 +85,7 @@ namespace migration
       virtual FaultStatus getFaultStatus (void) = 0;
 
       Migrator *getMigrator (void);
-      Formation *getFormation (int index);
+	  MigrationFormation *getFormation (int index);
 
 #ifdef USEPROPERTYVALUES
       virtual double getPropertyValue (int index) = 0;
@@ -93,7 +93,7 @@ namespace migration
 
    protected:
 
-      Formation * m_formation;
+      MigrationFormation * m_formation;
 
       int m_iGlobal;
       int m_jGlobal;
@@ -105,7 +105,7 @@ namespace migration
    {
    public:
       /// Constructor
-      ProxyFormationNode (unsigned int i, unsigned int j, int k, Formation * formation);
+      ProxyFormationNode (unsigned int i, unsigned int j, int k, MigrationFormation * formation);
 
       /// Destructor
       virtual ~ProxyFormationNode (void);
@@ -192,7 +192,7 @@ namespace migration
    {
    public:
       /// Constructor
-      LocalFormationNode (unsigned int i, unsigned int j, int k, Formation * formation);
+      LocalFormationNode (unsigned int i, unsigned int j, int k, MigrationFormation * formation);
 
       /// Destructor
       virtual ~LocalFormationNode (void);
@@ -404,7 +404,7 @@ namespace migration
    class FormationNodeArray
    {
    public:
-      FormationNodeArray (Formation * formation, int numIGlobal, int numJGlobal, int firstILocal, int firstJLocal, int lastILocal, int lastJLocal, int depth);
+      FormationNodeArray (MigrationFormation * formation, int numIGlobal, int numJGlobal, int firstILocal, int firstJLocal, int lastILocal, int lastJLocal, int depth);
 
       virtual ~FormationNodeArray (void);
 
@@ -441,7 +441,7 @@ namespace migration
       ProxyFormationNodeMap *m_proxyFormationNodes;
 
       FormationNode ****m_localFormationNodes;
-      Formation * m_formation;
+	  MigrationFormation * m_formation;
    };
 
    ostream & operator<< (ostream & stream, FormationNode & node);
@@ -462,7 +462,7 @@ namespace migration
       return m_k;
    }
 
-   Formation *FormationNode::getFormation (void) const
+   MigrationFormation *FormationNode::getFormation (void) const
    {
       return m_formation;
    }

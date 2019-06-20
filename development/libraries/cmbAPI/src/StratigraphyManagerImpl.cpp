@@ -19,7 +19,7 @@
 #include "database.h"
 
 // Genex6_kernel lib
-#include "SourceRock.h"
+#include "GenexSourceRock.h"
 
 // STL
 #include <stdexcept>
@@ -585,7 +585,7 @@ double StratigraphyManagerImpl::sourceRockMixHC( LayerID lid )
    double hi = sourceRockMixHI( lid );
    if ( ErrorHandler::NoError == errorCode() )
    {
-      return Genex6::SourceRock::convertHItoHC( hi );
+      return Genex6::GenexSourceRock::convertHItoHC( hi );
    }
    return mixHC;
 }
@@ -712,7 +712,7 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHIMapName( Lay
 // Set HI value for source rock mix for the given layer
 ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHC( LayerID lid, double srmHC )
 {
-   double hi = Genex6::SourceRock::convertHCtoHI( srmHC );
+   double hi = Genex6::GenexSourceRock::convertHCtoHI( srmHC );
    return setSourceRockMixHI( lid, hi );
 }
 

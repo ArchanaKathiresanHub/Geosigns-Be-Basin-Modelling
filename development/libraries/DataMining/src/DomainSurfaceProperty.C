@@ -10,7 +10,7 @@
 
 #include "DomainSurfaceProperty.h"
 
-#include "Interface/PropertyValue.h"
+#include "PropertyValue.h"
 
 using namespace AbstractDerivedProperties;
 

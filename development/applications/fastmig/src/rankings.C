@@ -19,7 +19,7 @@ using namespace std;
 #include "rankings.h"
 #include "array.h"
 
-#include "Interface/Grid.h"
+#include "Grid.h"
 
 #include "migration.h"
 #include "RequestDefs.h"

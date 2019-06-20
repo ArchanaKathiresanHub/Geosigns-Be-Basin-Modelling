@@ -31,19 +31,6 @@ set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET
 ################### SET DEPENDENCIES/LINKS #####################
 ################################################################
 
-bm_include_libraries(
-   cmbAPI
-   CBMGenerics
-   FileSystem
-   TableIO
-   DataModel
-   DataAccess
-   SerialDataAccess
-   Serial_Hdf5
-   utilities
-   ${HDF5_LIBRARIES}
-)
-
 include_directories( SYSTEM
    ${SUMPP_INCLUDE_DIR}
    ${HDF5_INCLUDE_DIRS}
@@ -90,11 +77,13 @@ add_gtest( NAME ${TARGET_NAME}::LegacyBasaltThicknessCalculator
 #
 add_gtest( NAME ${TARGET_NAME}::MudstoneToMultipointPermeability
            SOURCES test/MudstoneToMultipointPermeabilityTest.cpp src/MudstoneToMultipointPermeability.cpp
+           LIBRARIES utilities
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 add_gtest( NAME ${TARGET_NAME}::SandstoneToMultipointPermeability
            SOURCES test/SandstoneToMultipointPermeabilityTest.cpp src/SandstoneToMultipointPermeability.cpp
+           LIBRARIES utilities
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )

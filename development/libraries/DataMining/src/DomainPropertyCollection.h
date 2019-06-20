@@ -12,10 +12,10 @@
 #define _DATAACCESS__DOMAIN_PROPERTY_COLLECTION_H_
 
 // DataAccess
-#include "Interface/Snapshot.h"
-#include "Interface/Property.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Snapshot.h"
+#include "Snapshot.h"
+#include "Property.h"
+#include "ProjectHandle.h"
+#include "Snapshot.h"
 
 #include "DerivedPropertyManager.h"
 

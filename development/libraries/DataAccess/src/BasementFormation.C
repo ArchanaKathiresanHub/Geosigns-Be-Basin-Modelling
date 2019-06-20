@@ -22,18 +22,18 @@
 #include "cauldronschemafuncs.h"
 
 // DataAccess library
-#include "Interface/BasementFormation.h"
-#include "Interface/SourceRock.h"
-#include "Interface/LithoType.h"
-#include "Interface/Surface.h"
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/Snapshot.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/FaultElementCalculator.h"
-#include "Interface/FluidType.h"
-#include "Interface/AllochthonousLithology.h"
+#include "BasementFormation.h"
+#include "SourceRock.h"
+#include "LithoType.h"
+#include "Surface.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "Snapshot.h"
+#include "ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "FaultElementCalculator.h"
+#include "FluidType.h"
+#include "AllochthonousLithology.h"
 
 using namespace std;
 using namespace database;

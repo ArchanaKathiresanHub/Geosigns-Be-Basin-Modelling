@@ -18,7 +18,7 @@
 #include "Lithology.h"
 #include "PetscBlockVector.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 // utilities library
 #include "ConstantsNumerical.h"
@@ -346,22 +346,22 @@ void FluidVelocityCalculator::allocatePropertyValues ( OutputPropertyMap::Proper
 
    const Interface::Formation* formation = m_formation;
 
-   PropertyValue* fluidVelocityX;
-   PropertyValue* fluidVelocityY;
-   PropertyValue* fluidVelocityZ;
+   CauldronPropertyValue* fluidVelocityX;
+   CauldronPropertyValue* fluidVelocityY;
+   CauldronPropertyValue* fluidVelocityZ;
    
 
-   fluidVelocityX = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FluidVelocityX", 
+   fluidVelocityX = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FluidVelocityX", 
                                                                                                     m_snapshot, 0,
                                                                                                     formation,
                                                                                                     m_surface ));
 
-   fluidVelocityY = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FluidVelocityY", 
+   fluidVelocityY = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FluidVelocityY", 
                                                                                                     m_snapshot, 0,
                                                                                                     formation,
                                                                                                     m_surface ));
 
-   fluidVelocityZ = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FluidVelocityZ", 
+   fluidVelocityZ = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FluidVelocityZ", 
                                                                                                     m_snapshot, 0,
                                                                                                     formation,
                                                                                                     m_surface ));
@@ -705,21 +705,21 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
 
 void FluidVelocityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* fluidVelocityX;
-   PropertyValue* fluidVelocityY;
-   PropertyValue* fluidVelocityZ;
+   CauldronPropertyValue* fluidVelocityX;
+   CauldronPropertyValue* fluidVelocityY;
+   CauldronPropertyValue* fluidVelocityZ;
    
-   fluidVelocityX = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "FluidVelocityX", 
+   fluidVelocityX = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "FluidVelocityX", 
                                                                                                        m_snapshot, 0,
                                                                                                        m_formation,
                                                                                                        m_formation->getMaximumNumberOfElements () + 1 ));
 
-   fluidVelocityY = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "FluidVelocityY", 
+   fluidVelocityY = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "FluidVelocityY", 
                                                                                                        m_snapshot, 0,
                                                                                                        m_formation,
                                                                                                        m_formation->getMaximumNumberOfElements () + 1 ));
 
-   fluidVelocityZ = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "FluidVelocityZ",
+   fluidVelocityZ = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "FluidVelocityZ",
                                                                                                        m_snapshot, 0,
                                                                                                        m_formation,
                                                                                                        m_formation->getMaximumNumberOfElements () + 1 ));

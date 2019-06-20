@@ -20,15 +20,6 @@ include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 
-bm_include_libraries(
-   DataModel
-   SerialDataAccess
-   DataAccess
-   TableIO
-   utilities
-   CBMGenerics
-)
-
 target_link_libraries(${TARGET_NAME}
    DataAccess
    SerialDataAccess
@@ -40,8 +31,3 @@ target_link_libraries(${TARGET_NAME}
 install(TARGETS ${TARGET_NAME}
    RUNTIME DESTINATION bin
 )
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

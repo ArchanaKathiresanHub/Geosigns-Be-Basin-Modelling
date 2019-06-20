@@ -11,7 +11,7 @@
 #define GEOPHYSICS__CRUST_FORMATION_H
 
 // DataAccess library
-#include "Interface/CrustFormation.h"
+#include "CrustFormation.h"
 
 // Geophysics library
 #include "GeoPhysicsFormation.h"
@@ -30,7 +30,7 @@ namespace DataAccess
 
 namespace GeoPhysics {
 
-   class GeoPhysicsCrustFormation : virtual public GeoPhysics::Formation,
+   class GeoPhysicsCrustFormation : virtual public GeoPhysics::GeoPhysicsFormation,
       virtual public DataAccess::Interface::CrustFormation {
 
    public:

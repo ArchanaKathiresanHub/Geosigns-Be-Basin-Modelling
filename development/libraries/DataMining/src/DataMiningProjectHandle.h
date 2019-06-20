@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 #include "GeoPhysicsProjectHandle.h"
 #include "ProjectFileHandler.h"

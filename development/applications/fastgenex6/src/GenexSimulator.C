@@ -13,13 +13,13 @@ using namespace GenexSimulation;
 
 #include "h5_parallel_file_types.h"
 
-#include "Interface/Interface.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/SourceRock.h"
-#include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/SimulationDetails.h"
+#include "Interface.h"
+#include "ProjectHandle.h"
+#include "ObjectFactory.h"
+#include "SourceRock.h"
+#include "Property.h"
+#include "PropertyValue.h"
+#include "SimulationDetails.h"
 using namespace DataAccess;
 
 #include "ComponentManager.h"
@@ -136,7 +136,7 @@ bool GenexSimulator::run()
 
             if( theFormation != 0 && theFormation->isSourceRock() ) {
 
-               Genex6::SourceRock* sr = (Genex6::SourceRock *)( theFormation->getSourceRock1() );
+               Genex6::GenexSourceRock* sr = (Genex6::GenexSourceRock *)( theFormation->getSourceRock1() );
 
                sr->setMinor (bool (minorSnapshots));
 
@@ -181,7 +181,7 @@ bool GenexSimulator::run()
    return started;
 }
 
-bool GenexSimulator::computeSourceRock ( Genex6::SourceRock * aSourceRock, const Interface::Formation * aFormation )
+bool GenexSimulator::computeSourceRock ( Genex6::GenexSourceRock * aSourceRock, const Interface::Formation * aFormation )
 {
    if( aSourceRock != 0 ) {
       aSourceRock->clear();

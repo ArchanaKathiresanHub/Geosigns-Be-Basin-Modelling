@@ -10,8 +10,8 @@
 
 #include "DataMiningProjectHandle.h"
 #include "DataMiningObjectFactory.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
+#include "ObjectFactory.h"
+#include "ProjectHandle.h"
 
 #include <memory>
 #include <gtest/gtest.h>

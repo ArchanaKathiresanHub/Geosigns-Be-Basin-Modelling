@@ -14,7 +14,7 @@
 #include <vector>
 
 // Geophysics and DataAccess library.
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 // Access to fastcauldron application code.
 #include "layer.h"

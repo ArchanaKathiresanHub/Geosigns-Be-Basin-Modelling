@@ -12,7 +12,7 @@
 #define CRUSTALTHICKNESS_RIFTINGEVENT_H
 
 // DataAccess library
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 // forward declarations
 namespace DataAccess

@@ -23,9 +23,9 @@
 #include "../src/RiftingEvent.h"
 
 // DataAccess library
-#include "Interface/GridMap.h"
-#include "Interface/CrustalThicknessData.h"
-#include "Interface/CrustalThicknessRiftingHistoryData.h"
+#include "GridMap.h"
+#include "CrustalThicknessData.h"
+#include "CrustalThicknessRiftingHistoryData.h"
 
 using DataAccess::Interface::CrustalThicknessData;
 using DataAccess::Interface::CrustalThicknessRiftingHistoryData;

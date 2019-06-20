@@ -11,7 +11,7 @@
 
 #include <iomanip>
 
-#include "Interface/SGDensitySample.h"
+#include "SGDensitySample.h"
 
 #include "ConstantsGenex.h"
 

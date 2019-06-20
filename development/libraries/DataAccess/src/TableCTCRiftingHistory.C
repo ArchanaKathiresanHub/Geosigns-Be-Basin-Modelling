@@ -8,12 +8,12 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Interface/TableCTCRiftingHistory.h"
+#include "TableCTCRiftingHistory.h"
 
 // DataAccess library
-#include "Interface/TableLoader.h"
-#include "Interface/TableFunctorCompound.h"
-#include "Interface/ObjectFactory.h"
+#include "TableLoader.h"
+#include "TableFunctorCompound.h"
+#include "ObjectFactory.h"
 
 using namespace DataAccess::Interface;
 

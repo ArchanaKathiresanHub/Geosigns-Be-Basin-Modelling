@@ -16,7 +16,7 @@ BasementPropertyCalculator::BasementPropertyCalculator ( const PropertyList prop
          ( m_formation->isCrust() && propertyName != ALC_ORIGINAL_MANTLE && propertyName != ALC_MAX_MANTLE_DEPTH ))) {
       string outputPropertyName = propertyListName ( propertyName );
 
-      PropertyValue* localValues = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( outputPropertyName,
+      CauldronPropertyValue* localValues = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( outputPropertyName,
                                                                                                                    snapshot, 0, formation, 0 ));
       if ( FastcauldronSimulator::getInstance ().isALC () && ( propertyName == TOP_BASALT_ALC || propertyName == MOHO_ALC )) {
          localValues->allowOutput ( true );

@@ -11,7 +11,7 @@
 #include <algorithm>
 
 #include "DerivedSurfaceProperty.h"
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 using namespace AbstractDerivedProperties;
 

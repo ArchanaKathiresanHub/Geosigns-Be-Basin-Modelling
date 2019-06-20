@@ -15,7 +15,7 @@
 #include "Polyfunction.h"
 
 // DataAccess library
-#include "Interface/Local2DArray.h"
+#include "Local2DArray.h"
 
 // forward declarations
 class InterfaceInput;

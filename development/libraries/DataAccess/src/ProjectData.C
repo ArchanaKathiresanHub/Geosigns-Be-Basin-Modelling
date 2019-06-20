@@ -11,9 +11,9 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 
-#include "Interface/ProjectData.h"
+#include "ProjectData.h"
 
 using namespace DataAccess;
 using namespace Interface;

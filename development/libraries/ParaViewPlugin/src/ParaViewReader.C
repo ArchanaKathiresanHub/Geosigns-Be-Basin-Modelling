@@ -25,7 +25,7 @@
 
 #include "ParaViewReader.h"
 
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 
 vtkStandardNewMacro(ParaViewReader);
 

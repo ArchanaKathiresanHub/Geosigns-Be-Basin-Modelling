@@ -1,20 +1,17 @@
 #include "AllochthonousModellingFactory.h"
-#include "AllochthonousLithology.h"
-#include "AllochthonousLithologyDistribution.h"
+#include "GeoMorphAllochthonousLithology.h"
+#include "GeoMorphAllochthonousLithologyDistribution.h"
 #include "AllochthonousLithologySimulator.h"
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
-#include "Interface/Grid.h"
-#include "Interface/AttributeValue.h"
-#include "Interface/LithoType.h"
-#include "Interface/Interface.h"
-#include "Interface/AllochthonousLithology.h"
-//#include "Interface/AllochthonousLithologyDistribution.h"
-
+#include "ProjectHandle.h"
+#include "Formation.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "GridMap.h"
+#include "Grid.h"
+#include "AttributeValue.h"
+#include "LithoType.h"
+#include "Interface.h"
 
 using namespace Numerics;
 using namespace DataAccess;
@@ -39,11 +36,11 @@ AllochMod::AllochthonousModellingFactory::produceProjectHandle ( database::Proje
 DataAccess::Interface::AllochthonousLithology *
 AllochMod::AllochthonousModellingFactory::produceAllochthonousLithology (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
-   return new AllochthonousLithology (projectHandle, record);
+   return new GeoMorphAllochthonousLithology (projectHandle, record);
 }
 
 DataAccess::Interface::AllochthonousLithologyDistribution *
 AllochMod::AllochthonousModellingFactory::produceAllochthonousLithologyDistribution (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
-   return new AllochthonousLithologyDistribution (projectHandle, record);
+   return new GeoMorphAllochthonousLithologyDistribution (projectHandle, record);
 }

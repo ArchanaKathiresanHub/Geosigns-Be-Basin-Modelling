@@ -16,8 +16,8 @@
 #include "InterfaceInput.h"
 
 //DataAccess library
-#include "Interface/CrustalThicknessInterface.h"
-#include "Interface/GridMap.h"
+#include "CrustalThicknessInterface.h"
+#include "GridMap.h"
 
 using namespace  CrustalThickness;
 

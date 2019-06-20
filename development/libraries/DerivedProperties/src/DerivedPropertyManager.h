@@ -16,9 +16,9 @@
 #include "AbstractProperty.h"
 #include "AbstractGrid.h"
 
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/Property.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "Property.h"
 
 #include "AbstractPropertyManager.h"
 

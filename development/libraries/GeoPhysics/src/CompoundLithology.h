@@ -26,7 +26,7 @@ typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 #include "CompoundLithologyComposition.h"
 #include "CompoundProperty.h"
 #include "GeoPhysicsFluidType.h"
-#include "Interface/Interface.h"
+#include "Interface.h"
 #include "SeismicVelocity.h"
 #include "SimpleLithology.h"
 #include "MultiCompoundProperty.h"

@@ -23,25 +23,6 @@ add_executable(deviatedwell
    src/WellWriterFactory.C
 )
 
-bm_include_libraries(
-   DataModel
-   DataMining
-   GeoPhysics
-   DataAccess
-   SerialDataAccess
-   AbstractDerivedProperties
-   DerivedProperties
-   EosPack
-   utilities
-   Serial_Hdf5
-   TableIO
-   LinearAlgebra
-   Interpolation
-   FiniteElements
-   CBMGenerics
-   calibration_kernel
-)
-
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
@@ -68,8 +49,3 @@ target_link_libraries(deviatedwell
 install(TARGETS deviatedwell
    RUNTIME DESTINATION bin
 )
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

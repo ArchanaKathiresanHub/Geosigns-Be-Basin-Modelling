@@ -11,8 +11,8 @@
 #include "AbstractPropertyManager.h"
 #include "DerivedPropertyManager.h"
 
-#include "Interface/RunParameters.h"
-#include "Interface/SimulationDetails.h"
+#include "RunParameters.h"
+#include "SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 
@@ -70,7 +70,7 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
    const FormationPropertyPtr depth        = propertyManager.getFormationProperty ( aDepthProperty, snapshot, formation );
    const FormationPropertyPtr porepressure = propertyManager.getFormationProperty ( aPorePressureProperty, snapshot, formation );
  
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
  
    bool chemicalCompactionRequired = m_chemicalCompactionRequired and geoFormation->hasChemicalCompaction ();
    

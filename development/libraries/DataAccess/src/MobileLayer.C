@@ -7,13 +7,13 @@ using namespace std;
 #include "cauldronschemafuncs.h"
 
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/DAObject.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/GridMap.h"
-#include "Interface/Formation.h"
-#include "Interface/Snapshot.h"
-#include "Interface/MobileLayer.h"
+#include "ProjectHandle.h"
+#include "DAObject.h"
+#include "ObjectFactory.h"
+#include "GridMap.h"
+#include "Formation.h"
+#include "Snapshot.h"
+#include "MobileLayer.h"
 
 using namespace database;
 using namespace DataAccess;

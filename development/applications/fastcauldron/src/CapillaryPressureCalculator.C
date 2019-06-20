@@ -22,8 +22,8 @@
 #include "ElementContributions.h"
 #include "Lithology.h"
 
-#include "Interface/RunParameters.h"
-#include "Interface/Interface.h"
+#include "RunParameters.h"
+#include "Interface.h"
 
 
 #include "timefilter.h"
@@ -51,15 +51,15 @@ CapillaryPressureVolumeCalculator::~CapillaryPressureVolumeCalculator() {
 void CapillaryPressureVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
 
-   PropertyValue* phase;
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidBrineCapillaryPressure", 
+   CauldronPropertyValue* phase;
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidBrineCapillaryPressure", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
 
  
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourBrineCapillaryPressure", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourBrineCapillaryPressure", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 )); 

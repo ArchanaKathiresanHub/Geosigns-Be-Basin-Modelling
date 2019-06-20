@@ -11,8 +11,8 @@
 #ifndef _GENEX6_LIBRARY__LINEAR_GRID_INTERPOLATOR_H_
 #define _GENEX6_LIBRARY__LINEAR_GRID_INTERPOLATOR_H_
 
-#include "Interface/GridMap.h"
-#include "Interface/Snapshot.h"
+#include "GridMap.h"
+#include "Snapshot.h"
 
 #include "LocalGridInterpolator.h"
 

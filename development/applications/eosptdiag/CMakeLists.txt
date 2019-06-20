@@ -24,16 +24,6 @@ add_executable(${TARGET_NAME}
 )
 set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
-bm_include_libraries(
-   DataModel
-   DataAccess
-   SerialDataAccess
-   TableIO
-   CBMGenerics
-   EosPack
-   utilities
-)
-
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )

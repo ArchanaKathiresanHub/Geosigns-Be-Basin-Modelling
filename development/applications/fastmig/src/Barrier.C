@@ -9,13 +9,15 @@
 //
 
 #include "Barrier.h"
-#include "Formation.h"
+#include "MigrationReservoir.h"
+
+#include "MigrationFormation.h"
 #include "migration.h"
 #include "array.h"
 
-#include "Interface/Snapshot.h"
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
+#include "Snapshot.h"
+#include "Grid.h"
+#include "GridMap.h"
 
 #include "FormationProperty.h"
 
@@ -30,7 +32,7 @@ using DataAccess::Interface::GridMap;
 using namespace migration;
 using namespace AbstractDerivedProperties;
 
-Barrier::Barrier (Reservoir * reservoir) : m_reservoir (reservoir)
+Barrier::Barrier (MigrationReservoir * reservoir) : m_reservoir (reservoir)
 {
    m_firstI = m_reservoir->getGrid ()->firstI ();
    m_firstJ = m_reservoir->getGrid ()->firstJ ();
@@ -47,14 +49,14 @@ Barrier::~Barrier (void)
 
 
 /// Use permeability properties of given formation to update the barrier's properties
-void Barrier::updateBlocking (const migration::Formation * formation,
+void Barrier::updateBlocking (const migration::MigrationFormation * formation,
                               const DataAccess::Interface::Snapshot * snapshot)
 {
    updateBlockingPermeability(formation, snapshot);
    updateBlockingPorosity(formation, snapshot);
 }
 
-void Barrier::updateBlockingPermeability (const migration::Formation * formation,
+void Barrier::updateBlockingPermeability (const migration::MigrationFormation * formation,
                                           const DataAccess::Interface::Snapshot * snapshot)
 {
 #if 0
@@ -91,7 +93,7 @@ void Barrier::updateBlockingPermeability (const migration::Formation * formation
 
 }
    
-void Barrier::updateBlockingPorosity (const migration::Formation * formation,
+void Barrier::updateBlockingPorosity (const migration::MigrationFormation * formation,
                                       const DataAccess::Interface::Snapshot * snapshot)
 {
 #if 0

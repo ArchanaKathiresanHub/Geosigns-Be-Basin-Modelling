@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Interface/DistributedApplicationGlobalOperations.h"
+#include "DistributedApplicationGlobalOperations.h"
 
 #include "MpiFunctions.h"
 #include "petsc.h"

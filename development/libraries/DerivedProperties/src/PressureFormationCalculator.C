@@ -14,8 +14,8 @@
 
 #include "AbstractProperty.h"
 
-#include "Interface/Interface.h"
-#include "Interface/SimulationDetails.h"
+#include "Interface.h"
+#include "SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"

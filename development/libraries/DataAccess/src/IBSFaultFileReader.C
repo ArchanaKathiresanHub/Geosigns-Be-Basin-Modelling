@@ -1,5 +1,5 @@
 #include <math.h>
-#include "Interface/IBSFaultFileReader.h"
+#include "IBSFaultFileReader.h"
 #include <sstream>
 using std::stringstream;
 

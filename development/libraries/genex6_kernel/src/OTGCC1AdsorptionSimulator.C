@@ -13,14 +13,14 @@
 #include <iostream>
 #include <iomanip>
 
-#include "Interface/SGDensitySample.h"
+#include "SGDensitySample.h"
 
 #include "ConstantsGenex.h"
 #include "ChemicalModel.h"
 
 #include "SimulatorState.h"
 
-#include "OTGC_kernel6/src/SimulatorState.h"
+#include "../../OTGC_kernel6/src/SimulatorState.h"
 #include "SpeciesState.h"
 
 #include "ImmobileSpecies.h"

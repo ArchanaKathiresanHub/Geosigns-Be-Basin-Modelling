@@ -41,7 +41,7 @@ double DataAccess::Mining::BrineDensityCalculator::compute ( const ElementPositi
    double porePressure;
    double density;
 
-   const GeoPhysics::Formation* formation = dynamic_cast<const GeoPhysics::Formation*>(position.getFormation ());
+   const GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(position.getFormation ());
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType ());
 
    temperature = m_temperature->compute ( position );

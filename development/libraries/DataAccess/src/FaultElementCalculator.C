@@ -1,16 +1,16 @@
 #include <math.h>
 #include <assert.h>
 
-#include "Interface/FaultElementCalculator.h"
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/Snapshot.h"
-#include "Interface/FaultCollection.h"
-#include "Interface/Faulting.h"
+#include "FaultElementCalculator.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "Snapshot.h"
+#include "FaultCollection.h"
+#include "Faulting.h"
 
 #include <algorithm>
 
-#include "Interface/auxiliaryfaulttypes.h"
+#include "auxiliaryfaulttypes.h"
 
 using namespace DataAccess;
 using namespace Interface;

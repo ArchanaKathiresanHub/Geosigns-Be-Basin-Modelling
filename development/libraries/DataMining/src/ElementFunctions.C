@@ -10,7 +10,7 @@
 
 #include "ElementFunctions.h"
 
-#include "Interface/Grid.h"
+#include "Grid.h"
 
 using namespace AbstractDerivedProperties;
 

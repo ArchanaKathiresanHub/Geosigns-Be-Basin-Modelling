@@ -10,10 +10,10 @@
 
 #include "PrimaryReservoirPropertyCalculator.h"
 
-#include "Interface/Snapshot.h"
-#include "Interface/Reservoir.h"
-#include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
+#include "Snapshot.h"
+#include "Reservoir.h"
+#include "Property.h"
+#include "PropertyValue.h"
 
 #include "PrimaryReservoirProperty.h"
 

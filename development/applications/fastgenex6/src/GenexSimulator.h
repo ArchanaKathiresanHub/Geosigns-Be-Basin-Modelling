@@ -11,10 +11,10 @@ namespace database
 {
    class Database;
 }
-#include "Interface/Interface.h"
+#include "Interface.h"
 #include "DerivedPropertyManager.h"
 
-#include "SourceRock.h"
+#include "GenexSourceRock.h"
 
 using namespace DataAccess;
 
@@ -80,7 +80,7 @@ namespace GenexSimulation
       vector<string> m_expelledToCarrierBedPropertiesS;
       vector<string> m_expelledToSourceRockPropertiesS;
 
-      bool computeSourceRock ( Genex6::SourceRock * aSourceRock, const Interface::Formation * aFormation );
+      bool computeSourceRock ( Genex6::GenexSourceRock * aSourceRock, const Interface::Formation * aFormation );
 
    };
 

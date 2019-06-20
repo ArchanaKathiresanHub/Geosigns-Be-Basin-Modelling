@@ -11,13 +11,13 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/GridMap.h"
-#include "Interface/Formation.h"
-#include "Interface/Reservoir.h"
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
+#include "ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "GridMap.h"
+#include "Formation.h"
+#include "Reservoir.h"
+#include "Surface.h"
+#include "Snapshot.h"
 
 
 using namespace DataAccess;

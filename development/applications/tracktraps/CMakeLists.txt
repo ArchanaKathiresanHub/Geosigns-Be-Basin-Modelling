@@ -13,11 +13,11 @@
 set( APP_NAME "tracktraps" )
 
 add_executable(${APP_NAME}
-   src/ProjectHandle.C
+   src/TrackProjectHandle.C
    src/PersistentTrap.C
    src/PersistentTrapFactory.C
-   src/Reservoir.C
-   src/Trap.C
+   src/TrackReservoir.C
+   src/TrackTrap.C
    src/generics.C
    src/main.C
 )
@@ -29,16 +29,6 @@ create_application_run_script( ${APP_NAME} )
 
 application_env_var( TARGET ${APP_NAME} VARS
      "EOSPACKDIR"  "$MISCDIR/eospack"
-)
-
-bm_include_libraries(
-   DataModel
-   EosPack
-   DataAccess
-   SerialDataAccess
-   TableIO
-   utilities
-   CBMGenerics
 )
 
 include_directories( SYSTEM
@@ -59,9 +49,3 @@ target_link_libraries(${APP_NAME}
 install(TARGETS ${APP_NAME}
    RUNTIME DESTINATION bin
 )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

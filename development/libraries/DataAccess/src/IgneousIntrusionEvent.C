@@ -1,8 +1,8 @@
-#include "Interface/IgneousIntrusionEvent.h"
-#include "Interface/Formation.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
-#include "Interface/ProjectHandle.h"
+#include "IgneousIntrusionEvent.h"
+#include "Formation.h"
+#include "Snapshot.h"
+#include "Surface.h"
+#include "ProjectHandle.h"
 
 
 

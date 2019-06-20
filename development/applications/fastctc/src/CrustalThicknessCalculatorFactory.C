@@ -32,7 +32,7 @@ CrustalThicknessCalculator* CrustalThicknessCalculatorFactory::produceProjectHan
    return new CrustalThicknessCalculator ( database, name, accessMode, this );
 }
 
-Ctc::PropertyValue * CrustalThicknessCalculatorFactory::producePropertyValue( Interface::ProjectHandle *   projectHandle,
+Ctc::CTCPropertyValue * CrustalThicknessCalculatorFactory::producePropertyValue( Interface::ProjectHandle *   projectHandle,
                                                                               database::Record *           record,
                                                                               const string &               name,
                                                                               const Interface::Property *  property,
@@ -43,5 +43,5 @@ Ctc::PropertyValue * CrustalThicknessCalculatorFactory::producePropertyValue( In
                                                                               Interface::PropertyStorage   storage,
                                                                               const std::string &          /*fileName*/) const
 {
-   return new Ctc::PropertyValue( projectHandle, record, name, property, snapshot, reservoir, formation, surface, storage );
+   return new Ctc::CTCPropertyValue( projectHandle, record, name, property, snapshot, reservoir, formation, surface, storage );
 }

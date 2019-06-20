@@ -22,7 +22,7 @@ FracturePressureMapCalculator::FracturePressureMapCalculator ( LayerProps* forma
 
 void FracturePressureMapCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FracturePressure", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FracturePressure", 
                                                                                                          m_snapshot, 0, 
                                                                                                          m_formation,
                                                                                                          m_surface )));

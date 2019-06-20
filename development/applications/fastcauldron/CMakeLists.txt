@@ -40,7 +40,7 @@ set( all_headers,
      src/ComputedPropertyValue.h
      src/ConstantsFastcauldron.h
      src/ConstrainedArray.h
-     src/CrustFormation.h
+     src/CauldronCrustFormation.h
      src/DarcyCalculations.h
      src/DerivedOutputPropertyMapFactory.h
      src/DerivedOutputPropertyMap.h
@@ -93,7 +93,7 @@ set( all_headers,
      src/Lithology.h
      src/LithologyIdCalculator.h
      src/LithologyVolumeCalculator.h
-     src/MantleFormation.h
+     src/CauldronMantleFormation.h
      src/MapElement.h
      src/mapinterpolator.h
      src/MatrixInterpolator.h
@@ -127,16 +127,16 @@ set( all_headers,
      src/property_manager.h
      src/PropertyManager.h
      src/PropertyOutputConstraints.h
-     src/PropertyValue.h
+     src/CauldronPropertyValue.h
      src/propinterface.h
      src/PVTCalculator.h
      src/PvtHcProperties.h
      src/readproperties.h
      src/ReflectivityCalculator.h
-     src/RelatedProject.h
+     src/CauldronRelatedProject.h
      src/RelativePermeabilityCalculator.h
      src/RequiredGenex5PropertyCalculator.h
-     src/RunParameters.h
+     src/CauldronRunParameters.h
      src/SaturationCalculator.h
      src/Saturation.h
      src/SedimentElementActivityPredicate.h
@@ -197,7 +197,7 @@ set( all_srcs_except_main
      src/CompositeElementActivityPredicate.C
      src/ComputationalDomain.C
      src/ConstantsFastcauldron.C
-     src/CrustFormation.C
+     src/CauldronCrustFormation.C
      src/DarcyCalculations.C
      src/DerivedOutputPropertyMapFactory.C
      src/DerivedPropertiesCalculator.C
@@ -241,7 +241,7 @@ set( all_srcs_except_main
      src/Lithology.C
      src/LithologyIdCalculator.C
      src/LithologyVolumeCalculator.C
-     src/MantleFormation.C
+     src/CauldronMantleFormation.C
      src/MapElement.C
      src/mapinterpolator.C
      src/MatrixNonZeroCalculator.C
@@ -271,16 +271,16 @@ set( all_srcs_except_main
      src/property_manager.C
      src/PropertyManager.C
      src/PropertyOutputConstraints.C
-     src/PropertyValue.C
+     src/CauldronPropertyValue.C
      src/propinterface.C
      src/PVTCalculator.C
      src/PvtHcProperties.C
      src/readproperties.C
      src/ReflectivityCalculator.C
-     src/RelatedProject.C
+     src/CauldronRelatedProject.C
      src/RelativePermeabilityCalculator.C
      src/RequiredGenex5PropertyCalculator.C
-     src/RunParameters.C
+     src/CauldronRunParameters.C
      src/Saturation.C
      src/SaturationCalculator.C
      src/SmectiteIlliteAdapter.C
@@ -383,30 +383,6 @@ include_directories( SYSTEM
     ${EIGEN_INCLUDE_DIRS}
 )
 
-bm_include_libraries(
-    ${FASTCAULDRONAPP_TARGET_NAME}
-    DataModel
-    DataAccess
-    AbstractDerivedProperties
-    DerivedProperties
-    DistributedDataAccess
-    utilities
-    Utilities_Petsc
-    Serial_Hdf5
-    Parallel_Hdf5
-    EosPack
-    TableIO
-    LinearAlgebra
-    Interpolation
-    FiniteElements
-    CBMGenerics
-    genex6
-    genex6_kernel
-    GeoPhysics
-    FileSystem
-    calibration_kernel
-)
-
 #
 # 1. fastcauldron links to FastcauldronApplication only
 # fastcauldron needs to be linked to DataAccess and DistributedDataAccess
@@ -464,7 +440,6 @@ set_target_properties(${LINEARSOLVER_TARGET_NAME}
 
 if(UNIX)
    # The OneFilePerProcess library is only available on Unix
-   bm_include_libraries( OneFilePerProcess )
    target_link_libraries(${FASTCAULDRONAPP_TARGET_NAME} OneFilePerProcess)
 endif()
 
@@ -499,11 +474,13 @@ configure_file(
    COPYONLY
 )
 
+if(BM_BUILD_ENABLE_TESTING)
 add_memcheck(
    NAME "Fastcauldron_SimpleItcoupled"
    EXECUTABLE ${FASTCAULDRON_TARGET_NAME}
    PARAMETERS "-project" "MemCheck.project3d" "-itcoupled"
 )
+endif(BM_BUILD_ENABLE_TESTING)
 
 ################################################################
 ######################## UNIT TESTS ############################
@@ -702,9 +679,3 @@ endif(BM_PARALLEL)
 ################################################################
 
 generate_dox(src/fastcauldron.cfg)
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

@@ -13,7 +13,7 @@
 
 #include "ElementPosition.h"
 
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 
 #include "FormationProperty.h"
 #include "FormationMapProperty.h"

@@ -13,7 +13,7 @@
 #include <exception>
 
 // DataAccess library
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 
 using namespace CrustalThickness;
 using DataAccess::Interface::TectonicFlag;

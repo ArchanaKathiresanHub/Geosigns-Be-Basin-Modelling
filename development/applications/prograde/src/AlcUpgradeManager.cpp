@@ -14,13 +14,13 @@
 #include "LogHandler.h"
 
 //DataAccess
-#include "Interface/GridMap.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/MantleFormation.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/ContinentalCrustHistoryGenerator.h"
-#include "Interface/PaleoFormationProperty.h"
-#include "Interface/Snapshot.h"
+#include "GridMap.h"
+#include "CrustFormation.h"
+#include "MantleFormation.h"
+#include "ProjectHandle.h"
+#include "ContinentalCrustHistoryGenerator.h"
+#include "PaleoFormationProperty.h"
+#include "Snapshot.h"
 
 //Prograde
 #include "LegacyBasaltThicknessCalculator.h"

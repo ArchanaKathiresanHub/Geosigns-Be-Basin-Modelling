@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 
 const std::string DeviatedWellData::WellName = "well name";
 

@@ -1,4 +1,4 @@
-#include "Interface/ZycorFaultFileReader.h"
+#include "ZycorFaultFileReader.h"
 #include <sstream>
 using std::ostringstream;
 

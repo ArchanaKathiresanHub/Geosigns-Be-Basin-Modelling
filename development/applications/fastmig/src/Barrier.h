@@ -11,7 +11,6 @@
 #ifndef _MIGRATION_BARRIER_H_
 #define _MIGRATION_BARRIER_H_
 
-#include "Reservoir.h"
 #include "migration.h"
 
 namespace DataAccess
@@ -24,6 +23,9 @@ namespace DataAccess
 
 namespace migration
 {
+
+   class MigrationReservoir;
+
    /// Class describing a barrier for vertical migrations into its reservoir
    /// Can be on or off
 
@@ -31,15 +33,15 @@ namespace migration
    {
    public:
       /// Constructor
-      Barrier (Reservoir * reservoir);
+      Barrier (MigrationReservoir * reservoir);
       virtual ~Barrier (void);
 
       /// Use permeability and porosity properties of given formation to update the barrier's properties
-      void updateBlocking (const Formation * formation,
+      void updateBlocking (const MigrationFormation * formation,
                            const DataAccess::Interface::Snapshot * snapshot);
-      void updateBlockingPermeability (const Formation * formation,
+      void updateBlockingPermeability (const MigrationFormation * formation,
                                        const DataAccess::Interface::Snapshot * snapshot);
-      void updateBlockingPorosity (const Formation * formation,
+      void updateBlockingPorosity (const MigrationFormation * formation,
                                    const DataAccess::Interface::Snapshot * snapshot);
 
       /// return whether the barrier is blocking for (i, j)
@@ -47,7 +49,7 @@ namespace migration
 
    private:
       bool ** m_values;
-      Reservoir * m_reservoir;
+      MigrationReservoir * m_reservoir;
       double m_blockingPermeability;
       double m_blockingPorosity;
       unsigned int m_firstI;

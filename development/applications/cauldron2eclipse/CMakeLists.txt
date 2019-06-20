@@ -20,22 +20,6 @@ include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 
-bm_include_libraries(
-   DataModel
-   DataAccess
-   SerialDataAccess
-   Interpolation
-   LinearAlgebra
-   GeoPhysics
-   AbstractDerivedProperties
-   DerivedProperties
-   DataAccess
-   TableIO
-   CBMGenerics
-   EosPack
-   utilities
-)
-
 target_link_libraries(${APP_NAME}
    AbstractDerivedProperties
    DerivedProperties
@@ -54,9 +38,3 @@ target_link_libraries(${APP_NAME}
 install(TARGETS ${APP_NAME}
    RUNTIME DESTINATION bin
 )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

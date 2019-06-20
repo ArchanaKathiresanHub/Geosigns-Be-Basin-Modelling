@@ -26,21 +26,21 @@ RelativePermeabilityCalculator::RelativePermeabilityCalculator ( LayerProps* for
 
 void RelativePermeabilityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* component;
+   CauldronPropertyValue* component;
 
-   component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BrineRelativePermeability",
+   component = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BrineRelativePermeability",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( component );
 
-   component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidRelativePermeability",
+   component = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidRelativePermeability",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( component );
 
-   component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourRelativePermeability",
+   component = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourRelativePermeability",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   m_formation->getMaximumNumberOfElements () + 1 ));

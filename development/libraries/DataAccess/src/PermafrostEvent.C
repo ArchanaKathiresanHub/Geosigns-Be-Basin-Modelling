@@ -1,5 +1,5 @@
-#include "Interface/PermafrostEvent.h"
-#include "Interface/ProjectHandle.h"
+#include "PermafrostEvent.h"
+#include "ProjectHandle.h"
 
 #include "database.h"
 #include "cauldronschemafuncs.h"

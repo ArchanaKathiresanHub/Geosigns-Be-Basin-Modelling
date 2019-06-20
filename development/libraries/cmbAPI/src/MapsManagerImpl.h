@@ -16,7 +16,7 @@
 
 #include "ErrorHandler.h"
 #include "MapsManager.h"
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 // STL
 #include <set>

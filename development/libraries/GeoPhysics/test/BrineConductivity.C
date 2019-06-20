@@ -11,7 +11,7 @@
 #include "../src/BrinePhases.h"
 #include "../src/BrineConductivity.h"
 #include "../src/GeoPhysicsObjectFactory.h"
-#include "Interface/FluidThermalConductivitySample.h"
+#include "FluidThermalConductivitySample.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

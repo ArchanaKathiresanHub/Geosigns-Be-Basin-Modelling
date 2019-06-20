@@ -4,7 +4,7 @@
 #include "petsc.h"
 #include "petscdmda.h"
 
-#include "Interface/Grid.h"
+#include "Grid.h"
 
 
 /// Class describing processor-local regular 2d-element grids.

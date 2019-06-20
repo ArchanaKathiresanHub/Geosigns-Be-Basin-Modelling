@@ -11,11 +11,11 @@
 #include "LegacyBasaltThicknessCalculator.h"
 
 // DataAccess library
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/PaleoFormationProperty.h"
-#include "Interface/Snapshot.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "ObjectFactory.h"
+#include "PaleoFormationProperty.h"
+#include "Snapshot.h"
 using namespace DataAccess::Interface;
 
 // utilities library

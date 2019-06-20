@@ -67,7 +67,7 @@ bool FCTCorrectionCalculator::operator ()( const OutputPropertyMap::OutputProper
 
 void FCTCorrectionCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FCTCorrection",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FCTCorrection",
                                                                                                          m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          0 )));

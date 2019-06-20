@@ -19,7 +19,7 @@
 #include "database.h"
 
 // Genex6_kernel lib
-#include "SourceRock.h"
+#include "GenexSourceRock.h"
 
 // STL
 #include <stdexcept>
@@ -322,7 +322,7 @@ double SourceRockManagerImpl::hiIni( SourceRockID id )
       }
 
       double hcIni = rec->getValue<double>( s_hcIni );
-      return Genex6::SourceRock::convertHCtoHI( hcIni );
+      return Genex6::GenexSourceRock::convertHCtoHI( hcIni );
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
@@ -354,7 +354,7 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setHIIni( SourceRockID id, doubl
          throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
       }
 
-      double hcIni = Genex6::SourceRock::convertHItoHC( newHI );
+      double hcIni = Genex6::GenexSourceRock::convertHItoHC( newHI );
       rec->setValue( s_hcIni, hcIni );
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }

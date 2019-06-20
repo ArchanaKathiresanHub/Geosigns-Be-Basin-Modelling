@@ -18,26 +18,26 @@
 #include <cmath>
 
 // DataAccess library
-#include "Interface/Interface.h"
-#include "Interface/AllochthonousLithology.h"
-#include "Interface/AllochthonousLithologyDistribution.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/ContinentalCrustHistoryGenerator.h"
-#include "Interface/Formation.h"
-#include "Interface/GridMap.h"
-#include "Interface/IgneousIntrusionEvent.h"
-#include "Interface/MantleFormation.h"
-#include "Interface/MobileLayer.h"
-#include "Interface/OceanicCrustThicknessHistoryData.h"
-#include "Interface/PaleoFormationProperty.h"
-#include "Interface/PaleoSurfaceProperty.h"
-#include "Interface/PaleoProperty.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/RunParameters.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
+#include "Interface.h"
+#include "AllochthonousLithology.h"
+#include "AllochthonousLithologyDistribution.h"
+#include "CrustFormation.h"
+#include "ContinentalCrustHistoryGenerator.h"
+#include "Formation.h"
+#include "GridMap.h"
+#include "IgneousIntrusionEvent.h"
+#include "MantleFormation.h"
+#include "MobileLayer.h"
+#include "OceanicCrustThicknessHistoryData.h"
+#include "PaleoFormationProperty.h"
+#include "PaleoSurfaceProperty.h"
+#include "PaleoProperty.h"
+#include "ProjectHandle.h"
+#include "Property.h"
+#include "PropertyValue.h"
+#include "RunParameters.h"
+#include "Snapshot.h"
+#include "Surface.h"
 
 // GeopPhysics library
 #include "AllochthonousLithologyManager.h"
@@ -178,7 +178,7 @@ bool GeoPhysics::ProjectHandle::setFormationLithologies ( const bool canRunGeomo
    for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
 
       if ((*formationIter)->kind () == Interface::SEDIMENT_FORMATION ) {
-         GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+         GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(*formationIter);
 
          createdLithologies = createdLithologies and formation->setLithologiesFromStratTable ();
       }
@@ -218,7 +218,7 @@ bool GeoPhysics::ProjectHandle::setFormationLithologies ( const bool canRunGeomo
 
          // There are no faults in the basement formations.
          if ((*formationIter)->kind () == Interface::SEDIMENT_FORMATION ) {
-            GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+            GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(*formationIter);
 
             formation->setFaultLithologies ( layerHasFaults, errorOccurredInLayer );
             m_basinHasActiveFaults = m_basinHasActiveFaults or layerHasFaults;
@@ -411,7 +411,7 @@ void GeoPhysics::ProjectHandle::switchLithologies ( const double age ) {
    // in some (most?) lithologies.
 
    for ( Interface::MutableFormationList::iterator formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
-      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+      GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(*formationIter);
       formation->switchLithologies ( age );
    }
 
@@ -617,7 +617,7 @@ bool GeoPhysics::ProjectHandle::determineLayerMinMaxThickness () {
    for ( Interface::MutableFormationList::iterator formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
 
       if ((*formationIter)->kind () == Interface::SEDIMENT_FORMATION ) {
-         GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+         GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(*formationIter);
 
          formation->determineMinMaxThickness ();
       }
@@ -680,7 +680,7 @@ bool GeoPhysics::ProjectHandle::determineMaximumNumberOfSegmentsPerLayer ( const
 
    for ( Interface::MutableFormationList::iterator formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
 
-      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+      GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(*formationIter);
 
       const unsigned int numberOfSegments = formation->setMaximumNumberOfElements ( readSizeFromVolumeData );
       totalSegmentCount += numberOfSegments;
@@ -806,7 +806,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
 
    for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
 
-      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+      GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(*formationIter);
 
       formation->m_solidThickness.reallocate ( getActivityOutputGrid (), formation->getMaximumNumberOfElements ());
       formation->m_realThickness.reallocate  ( getActivityOutputGrid (), formation->getMaximumNumberOfElements ());
@@ -815,7 +815,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
    }
 
    for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
-      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+      GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(*formationIter);
       formation->retrieveAllThicknessMaps ();
    }
 
@@ -831,7 +831,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
 
             for ( int formCount = int (m_formations.size ()) - 1; formCount >= 0; --formCount ) {
 
-               auto* formation = dynamic_cast<GeoPhysics::Formation*>( m_formations [ static_cast<unsigned int>(formCount)]);
+               auto* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>( m_formations [ static_cast<unsigned int>(formCount)]);
 
                if ( not computeThicknessHistories ( i, j, formation, numberOfErrorsPerLayer )) {
                   errorFound = true;
@@ -842,7 +842,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
          // Iterate over all sediment-layers.
             for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter )
             {
-               GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>( *formationIter );
+               GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>( *formationIter );
 
                if ( formation->kind () == Interface::SEDIMENT_FORMATION ) {
                   storePresentDayThickness ( i, j, formation );
@@ -861,7 +861,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
             // Do not include crust or mantle !!
             for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter )
             {
-               GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>( *formationIter );
+               GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>( *formationIter );
 
                if ( formation->kind () == Interface::SEDIMENT_FORMATION ) {
                   compFCThicknessHistories ( i, j, overpressureCalculation, formation, nrActUnc, uncMaxVes, uncThickness );
@@ -885,7 +885,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
    }
 
    for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
-      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+      GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(*formationIter);
       formation->restoreAllThicknessMaps ();
    }
 
@@ -911,7 +911,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
 
 void GeoPhysics::ProjectHandle::storePresentDayThickness ( const unsigned int i,
                                                            const unsigned int j,
-                                                           GeoPhysics::Formation* formation )
+                                                           GeoPhysics::GeoPhysicsFormation* formation )
 {
    double presentDayThickness = 0.0;
 
@@ -932,7 +932,7 @@ void GeoPhysics::ProjectHandle::storePresentDayThickness ( const unsigned int i,
 
 bool GeoPhysics::ProjectHandle::computeThicknessHistories ( const unsigned int i,
                                                             const unsigned int j,
-                                                                  GeoPhysics::Formation* formation,
+                                                                  GeoPhysics::GeoPhysicsFormation* formation,
                                                                   IntegerArray& numberOfErrorsPerLayer ) const
 {
 
@@ -966,7 +966,7 @@ bool GeoPhysics::ProjectHandle::computeThicknessHistories ( const unsigned int i
 bool GeoPhysics::ProjectHandle::setDepositionHistory ( const unsigned int i,
                                                        const unsigned int j,
                                                        const double thickness,
-                                                       GeoPhysics::Formation* formation )
+                                                       GeoPhysics::GeoPhysicsFormation* formation )
 {
 
    const double segmentThickness = thickness / double ( formation->getMaximumNumberOfElements ());
@@ -999,7 +999,7 @@ bool GeoPhysics::ProjectHandle::setDepositionHistory ( const unsigned int i,
 bool GeoPhysics::ProjectHandle::setHistoriesForUnconformity ( const unsigned int i,
                                                               const unsigned int j,
                                                               const double       thickness,
-                                                              Formation*         formation ) const
+                                                              GeoPhysicsFormation*         formation ) const
 {
 
    const double endErosionAge   = formation->getTopSurface ()->getSnapshot ()->getTime ();
@@ -1010,11 +1010,11 @@ bool GeoPhysics::ProjectHandle::setHistoriesForUnconformity ( const unsigned int
 
    bool result = true;
 
-   GeoPhysics::Formation* currentFormation = formation;
+   GeoPhysics::GeoPhysicsFormation* currentFormation = formation;
 
    while ( result and uncThickness > ThicknessTolerance ) {
 
-      currentFormation = const_cast<GeoPhysics::Formation*>(dynamic_cast<const GeoPhysics::Formation*>(currentFormation->getBottomSurface ()->getBottomFormation ()));
+      currentFormation = const_cast<GeoPhysics::GeoPhysicsFormation*>(dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(currentFormation->getBottomSurface ()->getBottomFormation ()));
 
       if ( currentFormation->kind () == Interface::BASEMENT_FORMATION ) {
          // if we have reached the crust then exit with success
@@ -1088,7 +1088,7 @@ bool GeoPhysics::ProjectHandle::setHistoriesForUnconformity ( const unsigned int
 
 bool GeoPhysics::ProjectHandle::setErosionHistory ( const unsigned int i,
                                                     const unsigned int j,
-                                                    Formation* formation,
+                                                    GeoPhysicsFormation* formation,
                                                     const double startErosionAge,
                                                     const double endErosionAge,
                                                     const double erodedThickness ) const
@@ -1155,7 +1155,7 @@ bool GeoPhysics::ProjectHandle::setErosionHistory ( const unsigned int i,
 
 bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned int i,
                                                                  const unsigned int j,
-                                                                       GeoPhysics::Formation* formation,
+                                                                       GeoPhysics::GeoPhysicsFormation* formation,
                                                                        IntegerArray& numberOfErrorsPerLayer ) const
 {
 
@@ -1257,7 +1257,7 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
 
 bool GeoPhysics::ProjectHandle::setIgneousIntrusionThicknessHistory ( const unsigned int i,
                                                                       const unsigned int j,
-                                                                      GeoPhysics::Formation* formation,
+                                                                      GeoPhysics::GeoPhysicsFormation* formation,
                                                                       IntegerArray& numberOfErrorsPerLayer )
 {
 
@@ -1290,7 +1290,7 @@ bool GeoPhysics::ProjectHandle::setIgneousIntrusionThicknessHistory ( const unsi
    //  tp present day
    //
    // The difference between ts and te (duration of inflation = ts - te) is defined by IgneousIntrusionEventDuration
-   // this can be found in DataAccess/src/Interface/interface/h
+   // this can be found in DataAccess/src/interface/h
    //
 
    if ( not formation->getIsIgneousIntrusion ()) {
@@ -1446,7 +1446,7 @@ double GeoPhysics::ProjectHandle::getBasaltInMantleThickness ( const unsigned in
 bool GeoPhysics::ProjectHandle::compFCThicknessHistories ( const unsigned int i,
                                                            const unsigned int j,
                                                            const bool overpressureCalculation,
-                                                           GeoPhysics::Formation* formation,
+                                                           GeoPhysics::GeoPhysicsFormation* formation,
                                                            int& nrActUnc,
                                                            FloatStack &uncMaxVes,
                                                            FloatStack &uncThickness )
@@ -1487,7 +1487,7 @@ bool GeoPhysics::ProjectHandle::compFCThicknessHistories ( const unsigned int i,
 
 bool GeoPhysics::ProjectHandle::updateMobileLayerOrIgneousIntrusionMaxVes ( const unsigned int i,
                                                                             const unsigned int j,
-                                                                            GeoPhysics::Formation* formation,
+                                                                            GeoPhysics::GeoPhysicsFormation* formation,
                                                                             double &maxVes )
 {
    const bool result = true;
@@ -1533,7 +1533,7 @@ bool GeoPhysics::ProjectHandle::updateMobileLayerOrIgneousIntrusionMaxVes ( cons
 bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned int i,
                                                                const unsigned int j,
                                                                const bool overpressureCalculation,
-                                                               GeoPhysics::Formation* formation,
+                                                               GeoPhysics::GeoPhysicsFormation* formation,
                                                                FloatStack &uncMaxVes,
                                                                FloatStack &uncThickness,
                                                                const int nrActUnc )
@@ -1790,7 +1790,7 @@ bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned in
 bool GeoPhysics::ProjectHandle::calcFullCompactedThickness ( const unsigned int i,
    const unsigned int j,
    const bool     overpressureCalculation,
-   GeoPhysics::Formation* formation,
+   GeoPhysics::GeoPhysicsFormation* formation,
    const double compThickness,
    double &uncMaxVes,
    double &fullCompThickness,
@@ -1847,7 +1847,7 @@ bool GeoPhysics::ProjectHandle::applyFctCorrections () const
 
       const Interface::PropertyValue* fct = *fctIter;
 
-      GeoPhysics::Formation* formation = const_cast<GeoPhysics::Formation*>(dynamic_cast<const GeoPhysics::Formation*>( fct->getFormation ()));
+      GeoPhysics::GeoPhysicsFormation* formation = const_cast<GeoPhysics::GeoPhysicsFormation*>(dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( fct->getFormation ()));
 
       if ( formation->kind () == Interface::SEDIMENT_FORMATION ) {
          const Interface::GridMap* fctMap = dynamic_cast<const Interface::GridMap*>(fct->getGridMap ());

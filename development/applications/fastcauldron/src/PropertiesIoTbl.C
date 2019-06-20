@@ -31,24 +31,24 @@ using namespace Basin_Modelling;
 #include "HydraulicFracturingManager.h"
 
 // Data access library
-#include "Interface/BasementSurface.h"
-#include "Interface/ConstrainedOverpressureInterval.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/FluidType.h"
-#include "Interface/Formation.h"
-#include "Interface/FracturePressureFunctionParameters.h"
-#include "Interface/GridMap.h"
-#include "Interface/MantleFormation.h"
-#include "Interface/MobileLayer.h"
-#include "Interface/OutputProperty.h"
-#include "Interface/PaleoFormationProperty.h"
-#include "Interface/PaleoProperty.h"
-#include "Interface/PaleoSurfaceProperty.h"
-#include "Interface/RunParameters.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
+#include "BasementSurface.h"
+#include "ConstrainedOverpressureInterval.h"
+#include "CrustFormation.h"
+#include "FluidType.h"
+#include "Formation.h"
+#include "FracturePressureFunctionParameters.h"
+#include "GridMap.h"
+#include "MantleFormation.h"
+#include "MobileLayer.h"
+#include "OutputProperty.h"
+#include "PaleoFormationProperty.h"
+#include "PaleoProperty.h"
+#include "PaleoSurfaceProperty.h"
+#include "RunParameters.h"
+#include "Snapshot.h"
+#include "Surface.h"
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 using namespace DataAccess;
 
@@ -86,7 +86,7 @@ bool StratIoTbl::writeToContext( AppCtx* Basin_Model )
    const Interface::CrustFormation* crustFormation = FastcauldronSimulator::getInstance ().getCrustFormation ();
 
    // Create and Initialise Current Day Thickness Map
-   CrustFormation* crust = const_cast<CrustFormation*>(dynamic_cast<const CrustFormation*>(crustFormation));
+   CauldronCrustFormation* crust = const_cast<CauldronCrustFormation*>(dynamic_cast<const CauldronCrustFormation*>(crustFormation));
    Basin_Model->layers.push_back ( crust );
    Basin_Model->Set_Crust_Layer ( crust );
 
@@ -157,7 +157,7 @@ bool BasementIoTbl::writeToContext( AppCtx* Basin_Model )
    const Interface::MantleFormation* mantleFormation = FastcauldronSimulator::getInstance ().getMantleFormation ();
 
    // Create and Initialise Current Day Thickness Map
-   MantleFormation* pNewLayer = const_cast<MantleFormation*>(dynamic_cast<const MantleFormation*>(mantleFormation));
+   CauldronMantleFormation* pNewLayer = const_cast<CauldronMantleFormation*>(dynamic_cast<const CauldronMantleFormation*>(mantleFormation));
    
    Basin_Model->Set_Mantle_Layer ( pNewLayer );
 

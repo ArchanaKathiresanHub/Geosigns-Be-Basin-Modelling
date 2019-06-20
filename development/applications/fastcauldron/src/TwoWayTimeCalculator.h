@@ -18,9 +18,9 @@
 #include "PropertyValue.h"
 #include "timefilter.h"
 
-#include "Interface/GridMap.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
+#include "GridMap.h"
+#include "Snapshot.h"
+#include "Surface.h"
 
 
 /*! \class TwoWayTimeCalculator

@@ -67,21 +67,6 @@ add_executable( cauldron2voxet
    ${voxetProjectFormatSources}
 )
 
-bm_include_libraries(
-   AbstractDerivedProperties
-   DerivedProperties
-   GeoPhysics
-   DataAccess
-   SerialDataAccess
-   DataModel
-   Interpolation
-   LinearAlgebra
-   EosPack
-   utilities
-   TableIO
-   CBMGenerics
-)
-
 include_directories( ${PROJECT_BINARY_DIR}/applications/cauldron2voxet )
 
 include_directories( SYSTEM	${HDF5_INCLUDE_DIRS} )
@@ -112,9 +97,3 @@ add_custom_command(OUTPUT ${voxetProjectFormatSources}
 install(TARGETS cauldron2voxet
 	RUNTIME DESTINATION bin
 )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

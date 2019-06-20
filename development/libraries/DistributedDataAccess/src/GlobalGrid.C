@@ -5,7 +5,7 @@
 using namespace std;
 
 
-#include "Interface/GlobalGrid.h"
+#include "GlobalGrid.h"
 #include "petscvec.h"
 #include "petscdmda.h"
 

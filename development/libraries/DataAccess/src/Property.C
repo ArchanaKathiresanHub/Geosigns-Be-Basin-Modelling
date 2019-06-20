@@ -4,8 +4,8 @@
 #include <sstream>
 using namespace std;
 
-#include "Interface/Property.h"
-#include "Interface/ProjectHandle.h"
+#include "Property.h"
+#include "ProjectHandle.h"
 
 using namespace DataAccess;
 using namespace Interface;

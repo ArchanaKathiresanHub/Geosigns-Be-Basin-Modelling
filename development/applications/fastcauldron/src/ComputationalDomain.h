@@ -18,7 +18,7 @@
 #include "petsc.h"
 
 // Access DataAccess library.
-#include "Interface/Local3DArray.h"
+#include "Local3DArray.h"
 
 // Access to fastcauldron application code.
 #include "CompositeElementActivityPredicate.h"

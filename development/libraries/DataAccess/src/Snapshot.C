@@ -19,7 +19,7 @@ using namespace std;
 using namespace database;
 
 //DataAccess
-#include "Interface/Snapshot.h"
+#include "Snapshot.h"
 using namespace DataAccess::Interface;
 
 Snapshot::Snapshot (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)

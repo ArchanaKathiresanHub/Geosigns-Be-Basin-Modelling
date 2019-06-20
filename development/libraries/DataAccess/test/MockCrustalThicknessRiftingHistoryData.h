@@ -15,7 +15,7 @@
 #include <map>
 
 // DataAccess library
-#include "Interface/CrustalThicknessRiftingHistoryData.h"
+#include "CrustalThicknessRiftingHistoryData.h"
 
 namespace DataAccess
 {

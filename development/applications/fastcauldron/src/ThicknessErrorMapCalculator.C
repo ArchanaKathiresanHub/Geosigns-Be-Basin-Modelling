@@ -67,7 +67,7 @@ bool ThicknessErrorMapCalculator::operator ()( const OutputPropertyMap::OutputPr
 
 void ThicknessErrorMapCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ThicknessError",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ThicknessError",
                                                                                                          m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          0 )));

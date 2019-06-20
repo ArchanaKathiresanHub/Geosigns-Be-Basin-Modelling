@@ -13,9 +13,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "Interface/Interface.h"
-#include "Interface/LithologyHeatCapacitySample.h"
-#include "Interface/LithologyThermalConductivitySample.h"
+#include "Interface.h"
+#include "LithologyHeatCapacitySample.h"
+#include "LithologyThermalConductivitySample.h"
 
 #include "NumericFunctions.h"
 #include "GeoPhysicalConstants.h"

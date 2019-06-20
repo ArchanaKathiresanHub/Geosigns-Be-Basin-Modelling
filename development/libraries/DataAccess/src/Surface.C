@@ -10,14 +10,14 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/Surface.h"
-#include "Interface/Formation.h"
-#include "Interface/GridMap.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/Parent.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Interface.h"
+#include "Surface.h"
+#include "Formation.h"
+#include "GridMap.h"
+#include "ObjectFactory.h"
+#include "Parent.h"
+#include "ProjectHandle.h"
+#include "Snapshot.h"
+#include "Interface.h"
 
 using namespace DataAccess;
 using namespace Interface;

@@ -1,10 +1,10 @@
 #include <iostream>
 using namespace std;
 
-#include "Interface/ObjectFactory.h"
-#include "Interface/DistributedGrid.h"
-#include "Interface/DistributedGridMap.h"
-#include "Interface/DistributedMapWriter.h"
+#include "ObjectFactory.h"
+#include "DistributedGrid.h"
+#include "DistributedGridMap.h"
+#include "DistributedMapWriter.h"
 
 using namespace DataAccess;
 using namespace Interface;

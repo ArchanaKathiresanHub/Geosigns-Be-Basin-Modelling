@@ -11,7 +11,7 @@
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 
 // std library
 #include <numeric>

@@ -15,21 +15,21 @@
 #include "Immobiles.h"
 #endif
 #include "Column.h"
-#include "Reservoir.h"
+#include "MigrationReservoir.h"
 #include "Composition.h"
 #include "rankings.h"
 #include "migration.h"
 #include "MassBalance.h"
 #include "DiffusionLeak.h"
 #include "Interpolator.h"
-#include "Interface/FracturePressureFunctionParameters.h"
+#include "FracturePressureFunctionParameters.h"
 #include "methaneSolubility.h"
 #include "capillarySealStrength.h"
 #include "fracturePressure.h"
 #include "waterDensity.h"
 #include "Tuple2.h"
 #include "depthToVolume.h"
-#include "Interface/FluidType.h"
+#include "FluidType.h"
 #include "GeoPhysicsFluidType.h"
 #include "translateProps.h"
 #include "LeakWasteAndSpillDistributor.h"
@@ -776,7 +776,7 @@ namespace migration
       return false;
    }
 
-   Reservoir * Trap::getReservoir (void)
+   MigrationReservoir * Trap::getReservoir (void)
    {
       return m_reservoir;
    }
@@ -1525,7 +1525,7 @@ namespace migration
       // than zero:
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
-      vector<const Formation*> formations;
+      vector<const MigrationFormation*> formations;
       if (!overburden_MPI::getRelevantOverburdenFormations (begin, end, snapshot,
                                                             i, j, numeric_limits<double>::max (), 1, true, formations))
          return false;
@@ -1570,7 +1570,7 @@ namespace migration
       // and which are within maxSealThickness and maxFormations:
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
-      vector<const Formation*> formations;
+      vector<const MigrationFormation*> formations;
       if (!overburden_MPI::getRelevantOverburdenFormations (begin, depths.end (), snapshot,
                                                             i, j, maxSealThickness, maxFormations, true, formations))
          return false;
@@ -1584,7 +1584,7 @@ namespace migration
       double baseTemperature = getTemperature ();
       double baseBrineViscosity = getCrestColumn ()->getViscosity ();
 
-      vector<const Formation*>::const_iterator f = formations.begin ();
+      vector<const MigrationFormation*>::const_iterator f = formations.begin ();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator d = depths.begin ();
       SurfaceGridMapContainer::continuous_properties::const_iterator t = temperatures.begin ();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator p = porosities.begin ();
@@ -1953,14 +1953,14 @@ namespace migration
             // With these parameters, create the algorithm which determines the max gas and oil column.
             // However, some critical parameters that are necessary for the calculation of the capillary
             // entry seal strength, such as the density and composition of the oil and gas phases, are
-            // right now not available. So we create here a CapillarySealStrength object and provide this
-            // object the parameters which we already do know. The CapillarySealStrength then calculates
+            // right now not available. So we create here a MigrationCapillarySealStrength object and provide this
+            // object the parameters which we already do know. The MigrationCapillarySealStrength then calculates
             // the capillary seal strength at the moment the missing data becomes available.
 
             // to compute leakage you need to compute the Brooks Corey correction. Retrive the lambda at the crest location and pass it to the distributor
             double lambdaPC = Interface::DefaultUndefinedScalarValue;
 
-            const Formation * formation = dynamic_cast<const Formation *> ( getReservoir( )->getFormation( ) );
+            const MigrationFormation * formation = dynamic_cast<const MigrationFormation *> ( getReservoir( )->getFormation( ) );
             const GeoPhysics::CompoundLithology* compoundLithology = formation->getCompoundLithology( getCrestColumn( )->getI( ), getCrestColumn( )->getJ( ) );
             if ( compoundLithology ) lambdaPC = compoundLithology->LambdaPc( );
 
@@ -1977,7 +1977,7 @@ namespace migration
                int i,j;
                i = getCrestColumn()->getI();
                j = getCrestColumn()->getJ();
-               const Formation * const reservoirFormation = dynamic_cast<const Formation *> (m_reservoir->getFormation());
+               const MigrationFormation * const reservoirFormation = dynamic_cast<const MigrationFormation *> (m_reservoir->getFormation());
 
                reservoirFormation->getTopBottomOverpressures(i, j, overPressures);
                overPressureContrast = Utilities::Maths::MegaPaToPa * (overPressures[0] - overPressures[1]); 
@@ -1986,7 +1986,7 @@ namespace migration
             double crestColumnThickness = getCrestColumn()->getThickness();
 
             m_distributor = new LeakWasteAndSpillDistributor( sealFluidDensity, fracSealStrength, overPressureContrast, crestColumnThickness,
-                                                              CapillarySealStrength( lithProps, lithFracs, mixModel, permeability, sealFluidDensity, lambdaPC ),
+                                                              MigrationCapillarySealStrength( lithProps, lithFracs, mixModel, permeability, sealFluidDensity, lambdaPC ),
                                                               m_levelToVolume );
          }
          else
@@ -2060,7 +2060,7 @@ namespace migration
       // Get the first formation which does exist, i.e. for which the thickness is larger than zero:
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
-      vector < const Formation *>formations;
+      vector < const MigrationFormation *>formations;
 
       // Get the reservoir (formations[0]) and the seal formation (formations[1])
       if ( !overburden_MPI::getRelevantOverburdenFormations( depths.begin( ), depths.end( ), snapshot, i, j,
@@ -2072,7 +2072,7 @@ namespace migration
       if (!sealPresent)
          return true;
 
-      vector < const Formation *>::const_iterator f = formations.begin ();
+      vector < const MigrationFormation *>::const_iterator f = formations.begin ();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator d = depths.begin ();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator p = permeabilities.begin ();
       SurfaceGridMapContainer::constant_properties::const_iterator l0 = lithoType1Percents.begin ();
@@ -2246,7 +2246,7 @@ namespace migration
    }
 
    bool Trap::computeForFunctionOfLithostaticPressure (const SurfaceGridMapContainer& fullOverburden,
-                                                       const Formation* formation, const vector<double>& lithFracs,
+                                                       const MigrationFormation* formation, const vector<double>& lithFracs,
                                                        double& fracPressure) const
    {
       vector<double> lithHydraulicFracturingFracs;

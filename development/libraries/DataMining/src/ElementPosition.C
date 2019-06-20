@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 DataAccess::Mining::ElementPosition::ElementPosition () {
    clearReference ();

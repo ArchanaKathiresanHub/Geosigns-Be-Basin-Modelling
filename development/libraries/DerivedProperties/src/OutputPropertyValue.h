@@ -11,7 +11,7 @@
 #ifndef DERIVED_PROPERTIES__OUTPUT_PROPERTY_VALUE__H
 #define DERIVED_PROPERTIES__OUTPUT_PROPERTY_VALUE__H
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 #include "AbstractProperty.h"
 #include "AbstractSurface.h"
 #include "AbstractReservoir.h"

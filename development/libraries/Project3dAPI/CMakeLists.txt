@@ -184,6 +184,7 @@ set_target_properties( cpp_generated_api_files PROPERTIES FOLDER "${BASE_FOLDER}
 
 set( LIB_NAME "project3d" )
 add_library(${LIB_NAME} ${generator_source_files})
+target_include_directories( ${LIB_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 # under Linux we are building Boost that is why this target exist
@@ -193,15 +194,6 @@ endif (UNIX)
 
 add_dependencies(${LIB_NAME}
    cpp_generated_api_files
-   TableIO
-   FileSystem
-   utilities
-)
-
-bm_include_libraries(${LIB_NAME}
-   TableIO
-   FileSystem
-   utilities
 )
 
 target_link_libraries(${LIB_NAME}
@@ -216,7 +208,7 @@ install(TARGETS ${LIB_NAME}
    ARCHIVE DESTINATION lib
 )
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test/Reference.project3d ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+copy_test_file(Reference.project3d)
 
 add_gtest(NAME TableIO::CauldronSchemaAPITest
           SOURCES test/CauldronSchemaAPITest.cpp test/CauldronSchemaAPITest.h

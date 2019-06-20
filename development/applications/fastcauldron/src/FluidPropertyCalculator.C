@@ -23,8 +23,8 @@
 #include "ElementContributions.h"
 #include "Lithology.h"
 
-#include "Interface/RunParameters.h"
-#include "Interface/Interface.h"
+#include "RunParameters.h"
+#include "Interface.h"
 
 
 #include "timefilter.h"
@@ -58,27 +58,27 @@ void FluidPropertyVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::
    //2 -> OilApi
    //3 -> CondensateApi
 
-   PropertyValue* phase;
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "GOR", 
+   CauldronPropertyValue* phase;
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "GOR", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
    
    
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "CGR", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "CGR", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 )); 
    properties.push_back ( phase );
    
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "OilAPI", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "OilAPI", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 )); 
    properties.push_back ( phase );
    
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "CondensateAPI", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "CondensateAPI", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 )); 

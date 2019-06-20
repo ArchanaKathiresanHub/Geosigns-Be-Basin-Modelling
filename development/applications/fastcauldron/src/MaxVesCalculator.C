@@ -13,7 +13,7 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 // utilities library
 #include "ConstantsNumerical.h"
@@ -118,12 +118,12 @@ void MaxVesCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValue
 
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or
         FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE ) {
-      properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "MaxVesHighRes",
+      properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "MaxVesHighRes",
                                                                                                             m_snapshot, 0, 
                                                                                                             m_formation,
                                                                                                             m_surface )));
    } else {
-      properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "MaxVesVec2",
+      properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "MaxVesVec2",
                                                                                                             m_snapshot, 0, 
                                                                                                             m_formation,
                                                                                                             m_surface )));
@@ -206,7 +206,7 @@ bool MaxVesVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropert
 
 void MaxVesVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "MaxVes", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "MaxVes", 
                                                                                                             m_snapshot, 0, 
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

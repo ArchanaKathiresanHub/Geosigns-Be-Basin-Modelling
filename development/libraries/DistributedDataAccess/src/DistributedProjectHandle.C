@@ -26,13 +26,13 @@
 #include <petsc.h>
 #include <mpi.h>
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/Grid.h"
-#include "Interface/DistributedGrid.h"
-#include "Interface/DistributedGridMap.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/DistributedMessageHandler.h"
-#include "Interface/DistributedApplicationGlobalOperations.h"
+#include "ProjectHandle.h"
+#include "Grid.h"
+#include "DistributedGrid.h"
+#include "DistributedGridMap.h"
+#include "ObjectFactory.h"
+#include "DistributedMessageHandler.h"
+#include "DistributedApplicationGlobalOperations.h"
 
 #include "h5_parallel_file_types.h"
 #include "petscvector_readwrite.h"

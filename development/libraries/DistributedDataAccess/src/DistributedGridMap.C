@@ -18,9 +18,9 @@
 #include "petsc.h"
 
 #include "FormattingException.h"
-#include "Interface/DistributedGridMap.h"
+#include "DistributedGridMap.h"
 
-#include "Interface/DistributedGrid.h"
+#include "DistributedGrid.h"
 
 
 #include "array.h"

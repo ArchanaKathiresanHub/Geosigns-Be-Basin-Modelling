@@ -16,7 +16,7 @@
 #include "PropertyRetriever.h"
 
 // DataAccess library
-#include "Interface/Surface.h"
+#include "Surface.h"
 
 // Utility library
 #include "FormattingException.h"

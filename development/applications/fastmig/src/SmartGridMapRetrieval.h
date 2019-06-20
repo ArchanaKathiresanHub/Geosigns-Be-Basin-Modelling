@@ -11,7 +11,7 @@
 #ifndef _MIGRATION_SMARTGRIDMAPRETRIEVAL_H_
 #define _MIGRATION_SMARTGRIDMAPRETRIEVAL_H_
 
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 
 namespace migration
 {

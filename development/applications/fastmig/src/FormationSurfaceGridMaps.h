@@ -24,12 +24,12 @@ namespace migration
 
       SurfaceGridMap m_top;
       SurfaceGridMap m_base;
-      const Formation* m_formation;
+      const MigrationFormation* m_formation;
 
    public:
 
       FormationSurfaceGridMaps (const SurfaceGridMap& top, const SurfaceGridMap& base,
-         const Formation* formation) :
+         const MigrationFormation* formation) :
          m_top (top), m_base (base), m_formation (formation)
       {
       }
@@ -44,7 +44,7 @@ namespace migration
       const SurfaceGridMap& top () const { return m_top; }
       const SurfaceGridMap& base () const { return m_base; }
 
-      const Formation* formation () const { return m_formation; }
+      const MigrationFormation* formation () const { return m_formation; }
    };
 
 } // namespace migration

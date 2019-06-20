@@ -1,6 +1,6 @@
 #include "CauldronWell.h"
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 const double DataAccess::Mining::CauldronWell::DefaultSamplingResolution = 50;
 

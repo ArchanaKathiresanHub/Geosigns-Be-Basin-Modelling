@@ -9,7 +9,7 @@
 //
 
 #include "Leak.h"
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 // std library
 #include <iostream>

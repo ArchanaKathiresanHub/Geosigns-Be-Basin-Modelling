@@ -1,9 +1,9 @@
 #ifndef _GEOPHYSICS__SOURCE_ROCK_H_
 #define _GEOPHYSICS__SOURCE_ROCK_H_
 
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 
-#include "SourceRock.h"
+#include "GenexSourceRock.h"
 #include "LocalGridInterpolator.h"
 
 #include "ComponentManager.h"
@@ -11,7 +11,7 @@
 
 namespace GeoPhysics {
 
-   class GeoPhysicsSourceRock : public Genex6::SourceRock {
+   class GeoPhysicsSourceRock : public Genex6::GenexSourceRock {
 
    public :
 

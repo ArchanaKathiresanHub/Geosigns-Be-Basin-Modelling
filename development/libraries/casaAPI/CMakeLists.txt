@@ -9,36 +9,9 @@
 # Do not distribute without written permission from Shell.              #
 #                                                                       #
 #########################################################################
-FILE( GLOB all_headers src/*.h )
-source_group(include FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.cpp)
-source_group(source FILES ${all_srcs})
-
-configure_file(src/CauldronEnvConfig.h.in CauldronEnvConfig.h)
 
 set( LIB_NAME "casalib" )
-add_library(casalib
-   ${all_srcs}
-   ${all_headers}
-)
-set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
-
-if (UNIX)
-add_dependencies(${LIB_NAME} Boost)
-endif (UNIX)
-
-
-bm_include_libraries(
-   CBMGenerics
-   TableIO
-   cmbAPI
-   FileSystem
-   utilities
-   DataModel
-   DataAccess
-   EosPack
-)
 
 include_directories(
    src
@@ -52,23 +25,27 @@ include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 
-target_link_libraries(${LIB_NAME}
-   TableIO
-   cmbapi
-   FileSystem
-   utilities
-   DataAccess
-   EosPack
-   SUMlib
-   NNlib
-   ${Boost_LIBRARIES}
-)
+create_bm_library( TARGET ${LIB_NAME}
+                   LIBRARIES cmbapi
+                             DataAccess
+                             EosPack
+                             TableIO
+                             FileSystem
+                             utilities
+                             SUMlib
+                             NNlib
+                             ${Boost_LIBRARIES} )
+
+if (UNIX)
+  add_dependencies(${LIB_NAME} Boost)
+endif (UNIX)
 
 if (LSF_HOME)
    include_directories(SYSTEM ${LSF_INCLUDE_DIR})
    target_link_libraries(${LIB_NAME} ${LSF_LIBS})
 endif(LSF_HOME)
 
+configure_file(src/CauldronEnvConfig.h.in CauldronEnvConfig.h)
 generate_dox( src/API.cfg )
 
 #######################################
@@ -79,19 +56,19 @@ generate_dox( src/API.cfg )
 # Unit tests for DoEGeneratorTest
 
 #Various cauldron projects which are used in unit tests
-configure_file(test/Ottoland.project3d ${CMAKE_CURRENT_BINARY_DIR}/Ottoland.project3d)
+copy_test_file(Ottoland.project3d)
 
 #Cauldron project with results for DataDigger unit testing
-configure_file(test/OttolandWithGenex.project3d ${CMAKE_CURRENT_BINARY_DIR}/OttolandWithGenex.project3d COPYONLY )
-configure_file(test/OttolandCatPrms.project3d   ${CMAKE_CURRENT_BINARY_DIR}/OttolandCatPrms.project3d   COPYONLY )
-configure_file(test/Ottoland_casa_state.txt     ${CMAKE_CURRENT_BINARY_DIR}/Ottoland_casa_state.txt )
-configure_file(test/LithologyTesting.project3d  ${CMAKE_CURRENT_BINARY_DIR}/LithologyTesting.project3d  COPYONLY )
+copy_test_file(OttolandWithGenex.project3d)
+copy_test_file(OttolandCatPrms.project3d)
+copy_test_file(LithologyTesting.project3d)
+configure_file(test/Ottoland_casa_state.txt Ottoland_casa_state.txt)
 
 # Generate best match case test
-configure_file(test/BestMatchCaseGeneration_state.txt ${CMAKE_CURRENT_BINARY_DIR}/BestMatchCaseGeneration_state.txt )
-configure_file(test/NVG_Project.project3d             ${CMAKE_CURRENT_BINARY_DIR}/NVG_Project.project3d COPYONLY)
-configure_file(test/MAP-72981789-4.FLT                ${CMAKE_CURRENT_BINARY_DIR}/MAP-72981789-4.FLT COPYONLY)
-configure_file(test/Inputs.HDF                        ${CMAKE_CURRENT_BINARY_DIR}/Inputs.HDF COPYONLY)
+configure_file(test/BestMatchCaseGeneration_state.txt BestMatchCaseGeneration_state.txt)
+copy_test_file(NVG_Project.project3d)
+copy_test_file(MAP-72981789-4.FLT)
+copy_test_file(Inputs.HDF)
 
 
 add_gtest( NAME BLRSTest

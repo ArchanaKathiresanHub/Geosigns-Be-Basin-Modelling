@@ -22,25 +22,6 @@ add_executable( ${TARGET_NAME}
 )
 set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
-bm_include_libraries(
-   DataModel
-   DataMining
-   DataAccess
-   SerialDataAccess
-   CBMGenerics
-   GeoPhysics
-   AbstractDerivedProperties
-   DerivedProperties
-   CrustalThinkness
-   Serial_Hdf5
-   EosPack
-   utilities
-   TableIO
-   LinearAlgebra
-   Interpolation
-   FiniteElements
-)
-
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )

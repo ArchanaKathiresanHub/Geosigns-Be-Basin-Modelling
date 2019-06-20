@@ -14,7 +14,7 @@
 #include "petsc.h"
 
 // DataAccess libraries
-#include "Interface/DistributedGrid.h"
+#include "DistributedGrid.h"
 
 // Derived Properties src
 #include "GammaRayFormationCalculator.h"

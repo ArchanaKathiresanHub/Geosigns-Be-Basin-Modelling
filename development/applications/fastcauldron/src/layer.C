@@ -27,17 +27,17 @@
 
 #include "FastcauldronSimulator.h"
 
-#include "Interface/auxiliaryfaulttypes.h"
-#include "Interface/Faulting.h"
-#include "Interface/FaultCollection.h"
-#include "Interface/FaultElementCalculator.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Formation.h"
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/Surface.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/RunParameters.h"
+#include "auxiliaryfaulttypes.h"
+#include "Faulting.h"
+#include "FaultCollection.h"
+#include "FaultElementCalculator.h"
+#include "Snapshot.h"
+#include "Formation.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "Surface.h"
+#include "ObjectFactory.h"
+#include "RunParameters.h"
 
 #include "Species.h"
 #include "ChemicalModel.h"
@@ -83,7 +83,7 @@ using Interface::Y_COORD;
 LayerProps::LayerProps ( Interface::ProjectHandle * projectHandle,
                          database::Record *              record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
-   GeoPhysics::Formation ( projectHandle, record ),
+   GeoPhysics::GeoPhysicsFormation ( projectHandle, record ),
    layerDA(nullptr),
    depthvec(nullptr),
    Depth(nullptr),
@@ -1711,7 +1711,7 @@ void LayerProps::setErosionFactorMap ( AppCtx*         basinModel,
 void LayerProps::switchLithologies ( const double age ) {
 
    // First perform any lithology switching.
-   GeoPhysics::Formation::switchLithologies ( age );
+   GeoPhysics::GeoPhysicsFormation::switchLithologies ( age );
 
    // Now ready to set volume-elements with new lithologies
    int i;

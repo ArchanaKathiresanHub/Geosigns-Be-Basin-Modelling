@@ -10,10 +10,10 @@
 
 #include "BrineViscosityCalculator.h"
 
-#include "Interface/RunParameters.h"
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/SimulationDetails.h"
+#include "RunParameters.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicsFluidType.h"
@@ -39,7 +39,7 @@ void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyMa
                                                               const DataModel::AbstractFormation* formation,
                                                                     FormationPropertyList&        derivedProperties ) const {
 
-   const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
 
    derivedProperties.clear();

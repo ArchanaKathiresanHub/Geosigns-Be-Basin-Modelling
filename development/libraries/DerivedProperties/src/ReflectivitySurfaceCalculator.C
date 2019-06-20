@@ -10,9 +10,9 @@
 
 #include "ReflectivitySurfaceCalculator.h"
 
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
+#include "Formation.h"
+#include "Surface.h"
+#include "Snapshot.h"
 
 #include "AbstractPropertyManager.h"
 #include "DerivedSurfaceProperty.h"
@@ -49,7 +49,7 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
    if ( formationBelow == 0 ) {
       return;
    }
-   const GeoPhysics::Formation* geoFormationBelow = dynamic_cast<const GeoPhysics::Formation*>( formationBelow );
+   const GeoPhysics::GeoPhysicsFormation* geoFormationBelow = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formationBelow );
    if( geoFormationBelow->kind() == DataAccess::Interface::BASEMENT_FORMATION ) {
       return;
    }

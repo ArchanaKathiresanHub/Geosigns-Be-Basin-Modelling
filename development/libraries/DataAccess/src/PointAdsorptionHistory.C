@@ -1,4 +1,4 @@
-#include "Interface/PointAdsorptionHistory.h"
+#include "PointAdsorptionHistory.h"
 
 #include <iomanip>
 #include <sstream>

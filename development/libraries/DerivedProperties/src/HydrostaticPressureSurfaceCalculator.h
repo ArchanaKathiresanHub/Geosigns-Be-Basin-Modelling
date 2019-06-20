@@ -11,7 +11,7 @@
 #ifndef DERIVED_PROPERTIES__HYDROSTATIC_PRESSURE_SURFACE_CALCULATOR_H
 #define DERIVED_PROPERTIES__HYDROSTATIC_PRESSURE_SURFACE_CALCULATOR_H
 
-#include "Interface/Surface.h"
+#include "Surface.h"
 
 #include "SurfacePropertyCalculator.h"
 #include "GeoPhysicsProjectHandle.h"

@@ -24,7 +24,7 @@
 #include "GeoPhysicalConstants.h"
 #include "MultiCompoundProperty.h"
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 namespace GeoPhysics {
 

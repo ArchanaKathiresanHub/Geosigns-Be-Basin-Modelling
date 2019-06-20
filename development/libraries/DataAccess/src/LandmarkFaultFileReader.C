@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Interface/LandmarkFaultFileReader.h"
+#include "LandmarkFaultFileReader.h"
 
 using namespace DataAccess;
 using namespace Interface;

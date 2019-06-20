@@ -23,7 +23,7 @@
 #include "Species.h"
 #include "OTGC_kernel6/src/SimulatorState.h"
 
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 using namespace DataAccess;
 
 #include "NumericFunctions.h"

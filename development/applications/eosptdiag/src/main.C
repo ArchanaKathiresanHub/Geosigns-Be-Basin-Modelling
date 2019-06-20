@@ -16,7 +16,7 @@
 #include "EosPack.h"
 #include "TrapperIoTableRec.h"
 #include "PTDiagramCalculator.h"
-#include "Interface/ObjectFactory.h"
+#include "ObjectFactory.h"
 
 // utilities library
 #include "ConstantsMathematics.h"

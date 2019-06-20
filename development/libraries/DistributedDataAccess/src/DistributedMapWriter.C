@@ -1,6 +1,6 @@
-#include "Interface/DistributedMapWriter.h"
-#include "Interface/DistributedGrid.h"
-#include "Interface/DistributedGridMap.h"
+#include "DistributedMapWriter.h"
+#include "DistributedGrid.h"
+#include "DistributedGridMap.h"
 #include "h5_parallel_file_types.h"
 
 #include <sys/types.h>

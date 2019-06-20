@@ -63,9 +63,3 @@ foreach(script ${SCRIPTS})
 		DESTINATION bin
 	)
 endforeach(script)
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

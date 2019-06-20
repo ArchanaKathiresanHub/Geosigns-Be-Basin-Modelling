@@ -10,9 +10,9 @@
 
 #include "mpi.h"
 #include "overburden.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/GridMap.h"
+#include "ProjectHandle.h"
+#include "PropertyValue.h"
+#include "GridMap.h"
 #include "Formation.h"
 
 #include <limits>
@@ -27,17 +27,17 @@ namespace migration
    {
 
       template <typename PRED>
-      vector<const Formation*> getDownwardOverburdenFormationsIf (const
-         Formation* formation, PRED pred)
+      vector<const MigrationFormation*> getDownwardOverburdenFormationsIf (const
+         MigrationFormation* formation, PRED pred)
       {
          const ProjectHandle* projectHandle = formation->getProjectHandle ();
          Interface::FormationList* formations = projectHandle->getFormations ();
 
-         vector<const Formation*> overburdenFormationsFromTop;
+         vector<const MigrationFormation*> overburdenFormationsFromTop;
          for (Interface::FormationList::const_iterator it = formations->begin ();
             it != formations->end (); ++it)
          {
-            const Formation * iteratorFormation = dynamic_cast <const Formation *> (*it);
+            const MigrationFormation * iteratorFormation = dynamic_cast <const MigrationFormation *> (*it);
             if (iteratorFormation == formation) break;
             else
             {
@@ -51,15 +51,15 @@ namespace migration
       }
 
       template <typename PRED>
-      vector<const Formation*> getUpwardOverburdenFormationsIf (const
-         Formation* formation, PRED pred)
+      vector<const MigrationFormation*> getUpwardOverburdenFormationsIf (const
+         MigrationFormation* formation, PRED pred)
       {
-         vector<const Formation*> overburdenFormationsFromTop = getDownwardOverburdenFormationsIf (
+         vector<const MigrationFormation*> overburdenFormationsFromTop = getDownwardOverburdenFormationsIf (
             formation, pred);
 
-         vector<const Formation*> overburdenFormationsFromBase;
+         vector<const MigrationFormation*> overburdenFormationsFromBase;
          overburdenFormationsFromBase.reserve (overburdenFormationsFromTop.size ());
-         for (vector<const Formation*>::reverse_iterator it = overburdenFormationsFromTop.rbegin ();
+         for (vector<const MigrationFormation*>::reverse_iterator it = overburdenFormationsFromTop.rbegin ();
             it != overburdenFormationsFromTop.rend (); ++it)
             overburdenFormationsFromBase.push_back (*it);
 
@@ -68,10 +68,10 @@ namespace migration
 
       struct AlwaysTrue
       {
-         bool operator()(const Formation* formation) { return true; }
+         bool operator()(const MigrationFormation* formation) { return true; }
       };
 
-      OverburdenFormations getOverburdenFormations (const Formation* formation,
+      OverburdenFormations getOverburdenFormations (const MigrationFormation* formation,
          bool upward)
       {
          if (upward)
@@ -81,7 +81,7 @@ namespace migration
       }
 
       template <typename PRED>
-      vector<const Formation*> getOverburdenFormationsIf (const Formation* formation, PRED pred,
+      vector<const MigrationFormation*> getOverburdenFormationsIf (const MigrationFormation* formation, PRED pred,
          bool upward)
       {
          if (upward)
@@ -102,7 +102,7 @@ namespace migration
 // using namespace migration;
 
 // template
-// vector<const Formation*> getOverburdenFormationsIf<SelectIfThicknessIsLargerThanZero>(
-//    const Formation*,SelectIfThicknessIsLargerThanZero, bool);
+// vector<const MigrationFormation*> getOverburdenFormationsIf<SelectIfThicknessIsLargerThanZero>(
+//    const MigrationFormation*,SelectIfThicknessIsLargerThanZero, bool);
 
 // } }

@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include "Interface/Property.h"
+#include "Property.h"
 
 #include "ElementPosition.h"
 

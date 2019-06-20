@@ -17,20 +17,19 @@
 #include "InterfaceInput.h"
 
 // DataAccess library
-#include "Interface/ProjectHandle.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/MapWriter.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
+#include "ProjectHandle.h"
+#include "CrustFormation.h"
+#include "MapWriter.h"
+#include "ProjectHandle.h"
+#include "Snapshot.h"
+#include "Surface.h"
 
 // GeoPhysics library
 #include "GeoPhysicsProjectHandle.h"
 
 // CrustalThickness library
 #include "InterfaceInput.h" 
-#include "PropertyValue.h"
+#include "CTCPropertyValue.h"
 
 // utilitites
 #include "LogHandler.h"
@@ -370,7 +369,7 @@ void InterfaceOutput::disableOutput( ProjectHandle * pHandle, const Interface::S
    Interface::PropertyValueList::const_iterator propValIter;
    propVals = pHandle->getPropertyUnrecordedValues( Interface::SURFACE, property, theSnapshot, 0, 0, theSurface, Interface::MAP );
    if (propVals->size() != 0){
-      Ctc::PropertyValue *thePropertyValue = const_cast<Ctc::PropertyValue*>(dynamic_cast<const Ctc::PropertyValue*>((*propVals)[0]));
+      Ctc::CTCPropertyValue *thePropertyValue = const_cast<Ctc::CTCPropertyValue*>(dynamic_cast<const Ctc::CTCPropertyValue*>((*propVals)[0]));
       if (thePropertyValue != nullptr){
          thePropertyValue->allowOutput( false );
       }

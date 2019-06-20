@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 #include "ArrayDefinitions.h"
 

@@ -13,18 +13,18 @@
 #include <cmath>
 #include <sstream>
 
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Snapshot.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/Surface.h"
-#include "Interface/MobileLayer.h"
-#include "Interface/auxiliaryfaulttypes.h"
-#include "Interface/Faulting.h"
-#include "Interface/FaultCollection.h"
-#include "Interface/FaultElementCalculator.h"
-#include "Interface/RunParameters.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "ProjectHandle.h"
+#include "Snapshot.h"
+#include "PropertyValue.h"
+#include "Surface.h"
+#include "MobileLayer.h"
+#include "auxiliaryfaulttypes.h"
+#include "Faulting.h"
+#include "FaultCollection.h"
+#include "FaultElementCalculator.h"
+#include "RunParameters.h"
 
 #include "GeoPhysicsProjectHandle.h"
 #include "CompoundLithologyComposition.h"
@@ -36,7 +36,7 @@ using namespace DataAccess;
 
 //------------------------------------------------------------//
 
-GeoPhysics::Formation::Formation ( DataAccess::Interface::ProjectHandle* projectHandle,
+GeoPhysics::GeoPhysicsFormation::GeoPhysicsFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
                                    database::Record*                          record ) :
    DataAccess::Interface::Formation ( projectHandle, record )
 {
@@ -55,12 +55,12 @@ GeoPhysics::Formation::Formation ( DataAccess::Interface::ProjectHandle* project
 
 //------------------------------------------------------------//
 
-GeoPhysics::Formation::~Formation () {
+GeoPhysics::GeoPhysicsFormation::~GeoPhysicsFormation () {
 }
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::Formation::setLithologiesFromStratTable () {
+bool GeoPhysics::GeoPhysicsFormation::setLithologiesFromStratTable () {
 
    const double LithologyTolerance = 1.0e-4;
 
@@ -345,7 +345,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
 
 //------------------------------------------------------------//
 
-void GeoPhysics::Formation::setAllochthonousLayer ( AllochthonousLithologyInterpolator* interpolator ) {
+void GeoPhysics::GeoPhysicsFormation::setAllochthonousLayer ( AllochthonousLithologyInterpolator* interpolator ) {
 
   unsigned int i;
   unsigned int j;
@@ -375,7 +375,7 @@ void GeoPhysics::Formation::setAllochthonousLayer ( AllochthonousLithologyInterp
 
 //------------------------------------------------------------//
 
-void GeoPhysics::Formation::setFaultLithologies ( bool& layerHasFaults,
+void GeoPhysics::GeoPhysicsFormation::setFaultLithologies ( bool& layerHasFaults,
                                                   bool& error ) {
 
    using Interface::X_COORD;
@@ -473,12 +473,12 @@ void GeoPhysics::Formation::setFaultLithologies ( bool& layerHasFaults,
 
 //------------------------------------------------------------//
 
-void GeoPhysics::Formation::switchLithologies ( const double age ) {
+void GeoPhysics::GeoPhysicsFormation::switchLithologies ( const double age ) {
 
   bool switchHasOccurred = m_compoundLithologies.setCurrentLithologies ( age );
 
 #if 0
-  cout << " GeoPhysics::Formation::switchLithologies " << getName () << "  "
+  cout << " GeoPhysics::GeoPhysicsFormation::switchLithologies " << getName () << "  "
        << ( switchHasOccurred ? " TRUE " : " FALSE " ) << endl;
 #endif
 
@@ -486,7 +486,7 @@ void GeoPhysics::Formation::switchLithologies ( const double age ) {
 
 //------------------------------------------------------------//
 
-void GeoPhysics::Formation::determineMinMaxThickness () {
+void GeoPhysics::GeoPhysicsFormation::determineMinMaxThickness () {
 
    if ( kind () == Interface::SEDIMENT_FORMATION ) {
       m_minimumDepositedThickness =  1.0e10;
@@ -533,13 +533,13 @@ void GeoPhysics::Formation::determineMinMaxThickness () {
 
 //------------------------------------------------------------//
 
-void GeoPhysics::Formation::setDepthRefinementFactor ( const int zRefinementFactor ) {
+void GeoPhysics::GeoPhysicsFormation::setDepthRefinementFactor ( const int zRefinementFactor ) {
    m_zRefinementFactor = zRefinementFactor;
 }
 
 //------------------------------------------------------------//
 
-unsigned int GeoPhysics::Formation::setMaximumNumberOfElements ( const bool readSizeFromVolumeData ) {
+unsigned int GeoPhysics::GeoPhysicsFormation::setMaximumNumberOfElements ( const bool readSizeFromVolumeData ) {
 
    if ( readSizeFromVolumeData ) {
 
@@ -591,7 +591,7 @@ unsigned int GeoPhysics::Formation::setMaximumNumberOfElements ( const bool read
 
 //------------------------------------------------------------//
 
-void GeoPhysics::Formation::retrieveAllThicknessMaps () {
+void GeoPhysics::GeoPhysicsFormation::retrieveAllThicknessMaps () {
 
    dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ())->retrieveGhostedData ();
 
@@ -610,7 +610,7 @@ void GeoPhysics::Formation::retrieveAllThicknessMaps () {
 
 //------------------------------------------------------------//
 
-void GeoPhysics::Formation::restoreAllThicknessMaps () {
+void GeoPhysics::GeoPhysicsFormation::restoreAllThicknessMaps () {
 
    dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ())->restoreData ( false, true );
 

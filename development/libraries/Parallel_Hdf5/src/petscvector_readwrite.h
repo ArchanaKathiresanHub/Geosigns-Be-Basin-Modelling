@@ -9,6 +9,7 @@
 #include "buffer_readwrite.h"
 #include "petscdimensions.h"
 #include "h5_vector_conversions.h"
+#include "h5_file_types.h"
 
 template <class Type> 
 class PetscVector_ReadWrite : public Buffer_ReadWrite

@@ -3,10 +3,10 @@
 #include <iostream>
 #include <iomanip>
 
-#include "Interface/GridMap.h"
-#include "Interface/Formation.h"
-#include "Interface/LithoType.h"
-#include "Interface/Property.h"
+#include "GridMap.h"
+#include "Formation.h"
+#include "LithoType.h"
+#include "Property.h"
 
 #include "GlobalDefs.h"
 

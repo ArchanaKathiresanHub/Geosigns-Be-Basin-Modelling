@@ -15,7 +15,7 @@
 #include "../src/AbstractInterfaceOutput.h"
 
 // DataAccess
-#include "../../DataAccess/src/Interface/CrustalThicknessInterface.h"
+#include "../../DataAccess/src/CrustalThicknessInterface.h"
 
 #include <boost/multi_array.hpp>
 

@@ -16,7 +16,7 @@
 */
 
 #include "../src/Biodegrade.h"
-#include "Interface/BioConsts.h"
+#include "BioConsts.h"
 
 #include <gtest/gtest.h>
 

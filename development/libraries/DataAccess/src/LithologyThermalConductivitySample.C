@@ -9,10 +9,10 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/Formation.h"
-#include "Interface/LithologyThermalConductivitySample.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
+#include "Formation.h"
+#include "LithologyThermalConductivitySample.h"
+#include "ObjectFactory.h"
+#include "ProjectHandle.h"
 
 using namespace DataAccess;
 using namespace Interface;

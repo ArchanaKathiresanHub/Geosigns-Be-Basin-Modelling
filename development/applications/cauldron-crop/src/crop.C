@@ -1,5 +1,5 @@
-#include "Interface/ProjectHandle.h"
-#include "Interface/ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "ObjectFactory.h"
 #include "database.h"
 #include "cauldronschemafuncs.h"
 #include "FormattingException.h"

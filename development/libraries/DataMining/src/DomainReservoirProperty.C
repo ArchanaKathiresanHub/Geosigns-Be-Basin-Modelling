@@ -10,10 +10,10 @@
 
 #include "DomainReservoirProperty.h"
 
-#include "Interface/Reservoir.h"
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
-#include "Interface/PropertyValue.h"
+#include "Reservoir.h"
+#include "Formation.h"
+#include "Surface.h"
+#include "PropertyValue.h"
 
 using namespace AbstractDerivedProperties;
 

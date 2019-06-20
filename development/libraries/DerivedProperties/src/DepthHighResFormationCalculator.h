@@ -21,7 +21,7 @@
 
 namespace GeoPhysics
 {
-   class Formation;
+   class GeoPhysicsFormation;
 }
 
 namespace DerivedProperties
@@ -62,7 +62,7 @@ namespace DerivedProperties
       void initializeTopSurface(       AbstractDerivedProperties::AbstractPropertyManager &     propertyManager,
                                  const DataModel::AbstractProperty *                            depthHighResProperty,
                                  const DataModel::AbstractSnapshot *                            snapshot,
-                                 const GeoPhysics::Formation *                                  currentFormation,
+                                 const GeoPhysics::GeoPhysicsFormation *                                  currentFormation,
                                        DerivedFormationPropertyPtr &                            depthHighRes ) const;
 
       /// \brief Compute depth high res for mantle
@@ -70,14 +70,14 @@ namespace DerivedProperties
                                    DerivedFormationPropertyPtr & depthHighRes ) const;
 
       /// \brief Compute high resolution depth for coupled runs with non-geometric loops active.
-      void computeForCoupledRunWithNonGeometricLoop( const GeoPhysics::Formation *                            formation,
+      void computeForCoupledRunWithNonGeometricLoop( const GeoPhysics::GeoPhysicsFormation *                            formation,
                                                      const DataModel::AbstractSnapshot *                      snapshot,
                                                            DerivedFormationPropertyPtr &                      depthHighRes,
                                                            AbstractDerivedProperties::FormationPropertyList & derivedProperties ) const;
 
       /// \brief Compute high resolution depth for subsampled runs.
       void computeForSubsampledRun(       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
-                                    const GeoPhysics::Formation *                              formation,
+                                    const GeoPhysics::GeoPhysicsFormation *                              formation,
                                     const DataModel::AbstractSnapshot *                        snapshot,
                                           DerivedFormationPropertyPtr &                        depthHighRes,
                                           AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;

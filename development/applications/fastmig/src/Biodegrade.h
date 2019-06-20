@@ -11,7 +11,7 @@
 #ifndef _MIGRATION_BIODEGRADE_H_
 #define _MIGRATION_BIODEGRADE_H_
 
-#include "Interface/BiodegradationParameters.h"
+#include "BiodegradationParameters.h"
 
 namespace migration {
 

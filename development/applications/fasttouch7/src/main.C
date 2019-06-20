@@ -22,7 +22,7 @@ using namespace std;
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "Interface/ObjectFactory.h"
+#include "ObjectFactory.h"
 
 #include "FastTouch.h"
 

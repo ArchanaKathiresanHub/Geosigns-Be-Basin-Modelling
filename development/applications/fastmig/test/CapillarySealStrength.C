@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "../src/CapillarySealStrength.h"
+#include "../src/MigrationCapillarySealStrength.h"
 #include "ConstantsMathematics.h"
 
 #include <gtest/gtest.h>
@@ -73,7 +73,7 @@ TEST(CapillarySealStrength, PositiveStrength)
       double lambdaPc = 1.0;
 
       // Put all the above parameters together
-      CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
+      MigrationCapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
       // Create the vapour and liquid compositions
       Composition vapourComposition;
@@ -165,7 +165,7 @@ TEST(CapillarySealStrength, ZeroStrength)
       double lambdaPc = 2.0;
 
       // Put all the above parameters together
-      CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
+      MigrationCapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
       // Create the vapour and liquid compositions
       Composition vapourComposition;
@@ -259,7 +259,7 @@ TEST(CapillarySealStrength, VapourStrengthDependsOnOil)
             double lambdaPc = 1.0;
 
             // Put all the above parameters together
-            CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
+            MigrationCapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
             // Create the vapour and liquid compositions
             Composition vapourComposition;
@@ -399,7 +399,7 @@ TEST(CapillarySealStrength, LambdaInfluenceLiquid)
    double lambdaPc = 0.0;
 
    // Put all the above parameters together
-   CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
+   MigrationCapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
    // Create the vapour and liquid compositions
    Composition vapourComposition;
@@ -435,7 +435,7 @@ TEST(CapillarySealStrength, LambdaInfluenceLiquid)
    permeabilities.pop_back();
    permeabilities.push_back(permeability_seal);
 
-   CapillarySealStrength capSealStrength2 (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
+   MigrationCapillarySealStrength capSealStrength2 (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
    capSealStrength2.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid);
 
@@ -497,7 +497,7 @@ TEST(CapillarySealStrength, LambdaInfluenceVapour)
    double lambdaPc = 0.0;
 
    // Put all the above parameters together
-   CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
+   MigrationCapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
    // Create the vapour and liquid compositions
    Composition vapourComposition;
@@ -544,7 +544,7 @@ TEST(CapillarySealStrength, LambdaInfluenceVapour)
    permeabilities.pop_back();
    permeabilities.push_back(permeability_seal);
 
-   CapillarySealStrength capSealStrength2 (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
+   MigrationCapillarySealStrength capSealStrength2 (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
    capSealStrength2.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid);
 
@@ -605,7 +605,7 @@ TEST(CapillarySealStrength, EmptyCompositions)
    double lambdaPc = 0.0;
 
    // Put all the above parameters together
-   CapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
+   MigrationCapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
    // Create the vapour and liquid compositions
    Composition vapourComposition;

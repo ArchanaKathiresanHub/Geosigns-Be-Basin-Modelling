@@ -1,5 +1,5 @@
 #include "DerivedFormationMapProperty.h"
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 DerivedProperties::DerivedFormationMapProperty::DerivedFormationMapProperty ( const DataModel::AbstractProperty*  property,
                                                                               const DataModel::AbstractSnapshot*  snapshot,

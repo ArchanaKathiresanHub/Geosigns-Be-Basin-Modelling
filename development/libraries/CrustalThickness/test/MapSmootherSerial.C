@@ -11,8 +11,8 @@
 #include "../src/MapSmoother.h"
 
 // DataAccess libraries
-#include "../../SerialDataAccess/src/Interface/SerialGrid.h"
-#include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
+#include "../../SerialDataAccess/src/SerialGrid.h"
+#include "../../SerialDataAccess/src/SerialGridMap.h"
 
 #include <gtest/gtest.h>
 

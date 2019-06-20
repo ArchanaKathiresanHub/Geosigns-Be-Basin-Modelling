@@ -78,7 +78,8 @@ add_external_package_info(
 set(TESTFRAMEWORK_FOUND TRUE)
 set(TESTFRAMEWORK_INCLUDE_DIRS "${gtest_SOURCE_DIR}/include;${gmock_SOURCE_DIR}/include")
 
-macro(add_gtest )
+macro(add_gtest)
+   if (BM_BUILD_ENABLE_TESTING)
 
    ### Parse parameters
    set(testName)        # The name of the test
@@ -224,6 +225,11 @@ macro(add_gtest )
    if (environment_vars)
       set_tests_properties(UNIT-TEST-${testName} PROPERTIES  ENVIRONMENT "${environment_vars}")
    endif(environment_vars)   
-   
+   endif(BM_BUILD_ENABLE_TESTING)
 endmacro(add_gtest)
 
+function(copy_test_file TEST_FILENAME)
+  if(BM_BUILD_ENABLE_TESTING)
+    configure_file("test/${TEST_FILENAME}" "${TEST_FILENAME}" COPYONLY)
+  endif(BM_BUILD_ENABLE_TESTING)
+endfunction(copy_test_file)

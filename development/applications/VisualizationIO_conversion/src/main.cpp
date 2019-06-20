@@ -13,8 +13,8 @@
 #include "ImportProjectHandle.h"
 #include "VisualizationIO_native.h"
 #include "VisualizationUtils.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "ObjectFactory.h"
 #include "FilePath.h"
 
 #include <boost/filesystem/path.hpp>

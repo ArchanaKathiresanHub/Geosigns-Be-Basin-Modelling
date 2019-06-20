@@ -14,106 +14,27 @@ if (NOT BM_PARALLEL)
    return()
 endif()
 
-################################################################
-######################### SET TARGETS ##########################
-################################################################
-
-#
-# 1. This list contains all header files
-#
-set( all_headers
-   src/AbstractInterfaceOutput.h
-   src/ConfigFileParameterCtc.h
-   src/DensityCalculator.h
-   src/InterfaceInput.h
-   src/InterfaceOutput.h
-   src/LinearFunction.h
-   src/MapSmoother.h
-   src/McKenzieCrustCalculator.h
-   src/PaleowaterdepthCalculator.h
-   src/PaleowaterdepthResidualCalculator.h
-   src/PropertyValue.h
-   src/RiftingEvent.h
-   src/TotalTectonicSubsidenceCalculator.h
-)
-
-#
-# 2. This list contains all implementation files except main.C
-#
-set( all_srcs
-   src/ConfigFileParameterCtc.C
-   src/DensityCalculator.C
-   src/InterfaceInput.C
-   src/InterfaceOutput.C
-   src/LinearFunction.C
-   src/MapSmoother.C
-   src/McKenzieCrustCalculator.C
-   src/PaleowaterdepthCalculator.C
-   src/PaleowaterdepthResidualCalculator.C
-   src/PropertyValue.C
-   src/RiftingEvent.C
-   src/TotalTectonicSubsidenceCalculator.C
-)
-
-#
-# 3. CrustalThickness library
-#       Used by fastctc application
-#
 set( LIB_NAME "CrustalThickness" )
-add_library(${LIB_NAME}
-   ${all_srcs}
-   ${all_headers}
-)
-set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
-
-################################################################
-################### SET DEPENDENCIES/LINKS #####################
-################################################################
-
-bm_include_libraries(
-   DataModel
-   DataAccess
-   DataMining
-   GeoPhysics
-   AbstractDerivedProperties
-   DerivedProperties
-   EosPack
-   CBMGenerics
-   FileSystem
-   utilities
-   Interpolation
-   LinearAlgebra
-   Utilities_Petsc
-   TableIO
-   Serial_Hdf5
-)
 
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 
-target_link_libraries(${LIB_NAME}
-   DataModel
-   DataAccess
-   DataMining
-   AbstractDerivedProperties
-   DerivedProperties
-   EosPack
-   CBMGenerics
-   FileSystem
-   utilities
-   TableIO
-   Utilities_Petsc
-   Serial_Hdf5
-   ${HDF5_LIBRARIES}
-   ${PETSC_LIBRARIES}
-)
-
-install(TARGETS ${LIB_NAME}
-   RUNTIME DESTINATION bin
-   LIBRARY DESTINATION lib
-   ARCHIVE DESTINATION lib
-)
+create_bm_library( TARGET ${LIB_NAME}
+                   LIBRARIES DataMining
+                             DataAccess
+                             AbstractDerivedProperties
+                             DerivedProperties
+                             TableIO
+                             EosPack
+                             CBMGenerics
+                             FileSystem
+                             utilities
+                             DataModel
+                             Utilities_Petsc
+                             ${HDF5_LIBRARIES}
+                             ${PETSC_LIBRARIES}
+                   INSTALLTARGET )
 
 ################################################################
 ######################## UNIT TESTS ############################
@@ -242,7 +163,7 @@ if (UNIX)
    # In LSF environment (on LSF cluster node, when build is running as a LSF job) mpirun is trying to use job settings
    # to run mpi unit tests. Sometime it fails because build job requested just 1 cpu. To prevent this we can specify
    # machines file with localhost list only
-   configure_file(test/machines machines COPYONLY )
+   copy_test_file(machines)
    set( MACHINE_FILE -machinefile machines)
 endif (UNIX)
 
@@ -268,9 +189,3 @@ add_gtest( NAME "${LIB_NAME}::RiftingEvent"
 ################################################################
 
 generate_dox(CrustalThickness.cfg)
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

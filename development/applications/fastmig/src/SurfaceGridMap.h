@@ -13,7 +13,7 @@
 
 #include "Tuple2.h"
 
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 
 using namespace DataAccess;
 using Interface::GridMap;

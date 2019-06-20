@@ -10,53 +10,29 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/Interface/*.h )
-source_group(include FILES ${all_headers})
-
-FILE( GLOB all_srcs src/*.C)
-source_group(source FILES ${all_srcs})
-
 set( LIB_NAME "SerialDataAccess" )
-add_library(${LIB_NAME} 
-   ${all_srcs}
-   ${all_headers}
-)
-set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
-
-bm_include_libraries(
-   DataModel
-   Serial_Hdf5
-   utilities
-   FileSystem 
-   TableIO
-   CBMGenerics
-   DataAccess
-)
 
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 
-generate_dox( src/SerialDataAccess.cfg )
-
-target_link_libraries(${LIB_NAME}
-   Serial_Hdf5
-   CBMGenerics
-   utilities
-   FileSystem
-   TableIO
+create_bm_library( TARGET ${LIB_NAME}
+LIBRARIES
+   ${HDF5_LIBRARIES}
    DataAccess
+   Serial_Hdf5
+   TableIO
+   CBMGenerics
+   FileSystem
+   utilities
+INSTALLTARGET
 )
+
+generate_dox( src/SerialDataAccess.cfg )
 
 if (UNIX)
    target_link_libraries(${LIB_NAME} rt)
 endif(UNIX)
-
-install(TARGETS ${LIB_NAME}
-   RUNTIME DESTINATION bin
-   LIBRARY DESTINATION lib
-   ARCHIVE DESTINATION lib
-)
 
 add_gtest( NAME SerialGridMap
            SOURCES test/SerialGridMap.C

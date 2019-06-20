@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 
 #include "AdsorptionSimulator.h"
 #include "ComponentManager.h"

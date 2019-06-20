@@ -6,14 +6,14 @@
 
 #include "layer.h"
 #include "Property.h"
-#include "PropertyValue.h"
+#include "CauldronPropertyValue.h"
 #include "timefilter.h"
 
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
-#include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "GridMap.h"
+#include "Property.h"
+#include "PropertyValue.h"
 
 /// 
 /// The expected order of function call is initialise; calculate; operator (); finalise.
@@ -24,7 +24,7 @@ public :
 
    typedef std::vector<const Property*> OutputPropertyList;
 
-   typedef std::vector<PropertyValue*>  PropertyValueList;
+   typedef std::vector<CauldronPropertyValue*>  PropertyValueList;
 
    typedef std::vector<Interface::GridMap*> GridMapList;
 

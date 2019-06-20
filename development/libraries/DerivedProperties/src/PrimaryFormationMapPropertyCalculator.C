@@ -10,11 +10,11 @@
 
 #include "PrimaryFormationMapPropertyCalculator.h"
 
-#include "Interface/Snapshot.h"
-#include "Interface/Formation.h"
-#include "Interface/Property.h"
-#include "Interface/Surface.h"
-#include "Interface/PropertyValue.h"
+#include "Snapshot.h"
+#include "Formation.h"
+#include "Property.h"
+#include "Surface.h"
+#include "PropertyValue.h"
 
 #include "PrimaryFormationMapProperty.h"
 

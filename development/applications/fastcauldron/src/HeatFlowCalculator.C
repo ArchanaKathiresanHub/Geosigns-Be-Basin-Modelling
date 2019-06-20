@@ -16,7 +16,7 @@
 #include "FiniteElementTypes.h"
 #include "PetscVectors.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 // utilities library
 #include "ConstantsNumerical.h"
@@ -404,21 +404,21 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
 void HeatFlowCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* heatFlowX;
-   PropertyValue* heatFlowY;
-   PropertyValue* heatFlowZ;
+   CauldronPropertyValue* heatFlowX;
+   CauldronPropertyValue* heatFlowY;
+   CauldronPropertyValue* heatFlowZ;
 
-   heatFlowX = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowX",
+   heatFlowX = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowX",
                                                                                                m_snapshot, 0,
                                                                                                m_formation,
                                                                                                m_surface ));
 
-   heatFlowY = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowY",
+   heatFlowY = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowY",
                                                                                                m_snapshot, 0,
                                                                                                m_formation,
                                                                                                m_surface ));
 
-   heatFlowZ = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowZ",
+   heatFlowZ = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowZ",
                                                                                                m_snapshot, 0,
                                                                                                m_formation,
                                                                                                m_surface ));
@@ -801,21 +801,21 @@ void HeatFlowVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::Prope
 
    unsigned int numberOfNodes = (unsigned int)(m_formation->getMaximumNumberOfElements () + 1);
 
-   PropertyValue* heatFlowX;
-   PropertyValue* heatFlowY;
-   PropertyValue* heatFlowZ;
+   CauldronPropertyValue* heatFlowX;
+   CauldronPropertyValue* heatFlowY;
+   CauldronPropertyValue* heatFlowZ;
 
-   heatFlowX = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowX",
+   heatFlowX = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowX",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   numberOfNodes ));
 
-   heatFlowY = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowY",
+   heatFlowY = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowY",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   numberOfNodes ));
 
-   heatFlowZ = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowZ",
+   heatFlowZ = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowZ",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   numberOfNodes ));

@@ -1,6 +1,6 @@
 #include "NodalGrid.h"
 
-#include "Interface/DistributedGrid.h"
+#include "DistributedGrid.h"
 
 #include "NumericFunctions.h"
 

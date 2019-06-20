@@ -18,7 +18,7 @@
 #include "ErrorHandler.h"
 
 // DataAccess Lib
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 /// @page LithologyManagerPage Lithology Manager
 /// @link mbapi::LithologyManager Lithology manager @endlink provides set of interfaces to create/delete/edit 

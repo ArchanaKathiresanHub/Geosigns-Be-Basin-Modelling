@@ -3,10 +3,10 @@
 #include <sstream>
 using namespace std;
 
-#include "Interface/FaultCollection.h"
-#include "Interface/Faulting.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Formation.h"
+#include "FaultCollection.h"
+#include "Faulting.h"
+#include "Snapshot.h"
+#include "Formation.h"
 
 using namespace DataAccess;
 using namespace Interface;

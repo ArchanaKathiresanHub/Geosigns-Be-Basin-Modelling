@@ -2,10 +2,10 @@
 using namespace std;
 
 
-#include "Interface/ObjectFactory.h"
-#include "Interface/SerialGrid.h"
-#include "Interface/SerialGridMap.h"
-#include "Interface/SerialMapWriter.h"
+#include "ObjectFactory.h"
+#include "SerialGrid.h"
+#include "SerialGridMap.h"
+#include "SerialMapWriter.h"
 
 using namespace DataAccess;
 using namespace Interface;

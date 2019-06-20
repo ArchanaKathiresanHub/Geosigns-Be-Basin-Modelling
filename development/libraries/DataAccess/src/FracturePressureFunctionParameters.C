@@ -1,5 +1,5 @@
-#include "Interface/FracturePressureFunctionParameters.h"
-#include "Interface/RunParameters.h"
+#include "FracturePressureFunctionParameters.h"
+#include "RunParameters.h"
 
 #include "cauldronschemafuncs.h"
 

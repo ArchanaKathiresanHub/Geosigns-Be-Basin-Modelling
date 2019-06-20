@@ -14,8 +14,8 @@
 
 #include "AbstractProperty.h"
 
-#include "Interface/RunParameters.h"
-#include "Interface/SimulationDetails.h"
+#include "RunParameters.h"
+#include "SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -49,7 +49,7 @@ void DerivedProperties::FracturePressureFormationCalculator::calculate (       A
    const FormationPropertyPtr hydrostaticPressure = propertyManager.getFormationProperty ( hydrostaticPressureProperty, snapshot, formation );
    const FormationPropertyPtr lithostaticPressure = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formation );
 
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
    bool hydrostaticMode = ( lastFastcauldronRun != 0 and

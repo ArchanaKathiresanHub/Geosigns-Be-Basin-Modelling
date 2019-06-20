@@ -12,7 +12,7 @@
 #define NOMINMAX
 #endif
 
-#include "Interface/SerialGridMap.h"
+#include "SerialGridMap.h"
 
 // std
 #include <cassert>
@@ -20,7 +20,7 @@
 #include <limits>
 
 // SerialDataAccess
-#include "Interface/SerialGrid.h"
+#include "SerialGrid.h"
 
 //utilities
 #include "array.h"

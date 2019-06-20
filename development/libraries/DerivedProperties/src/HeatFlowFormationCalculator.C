@@ -11,9 +11,9 @@
 #include "AbstractPropertyManager.h"
 #include "DerivedPropertyManager.h"
 
-#include "Interface/RunParameters.h"
-#include "Interface/SimulationDetails.h"
-#include "Interface/Surface.h"
+#include "RunParameters.h"
+#include "SimulationDetails.h"
+#include "Surface.h"
 
 #include "GeoPhysicsFormation.h"
 
@@ -81,7 +81,7 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
    const FormationPropertyPtr overpressure = propertyManager.getFormationProperty ( aOverpressureProperty, snapshot, formation );
    const FormationPropertyPtr pressure     = propertyManager.getFormationProperty ( aPressureProperty, snapshot, formation );
  
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
  
    // Basement properties
    const bool basementFormation = ( geoFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION );
@@ -100,7 +100,7 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
       const DataModel::AbstractProperty* basaltThicknessProperty = propertyManager.getProperty ( "ALCStepBasaltThickness" );
       
       if( formation->getName() != "Crust" ) {
-         const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+         const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
          const DataModel::AbstractFormation * crustFormation = ( mantleFormation->getTopSurface()->getTopFormation() );
          
          basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, crustFormation );
@@ -550,8 +550,8 @@ bool DerivedProperties::HeatFlowFormationCalculator::isComputable ( const Abstra
                                                                     const DataModel::AbstractSnapshot*  snapshot,
                                                                     const DataModel::AbstractFormation* formation ) const {
    
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and 
-                              dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and 
+                              dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    if( basementFormation ) {
       return isComputableForBasement ( propManager, snapshot, formation );
@@ -605,7 +605,7 @@ bool DerivedProperties::HeatFlowFormationCalculator::isComputableForBasement ( c
          } else {
             if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" ) {
                if( formation->getName() != "Crust" ) {
-                  const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+                  const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
                   
                   const DataModel::AbstractFormation * crustFormation = (mantleFormation->getTopSurface()->getTopFormation() );
                   propertyIsComputable = propertyIsComputable and propManager.formationMapPropertyIsComputable ( property, snapshot, crustFormation );

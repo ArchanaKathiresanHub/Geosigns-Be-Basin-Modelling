@@ -14,16 +14,10 @@ set( TARGET_NAME "EosPackDemo" )
 add_executable(${TARGET_NAME} src/main.C)
 set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
-bm_include_libraries(
-   EosPack
-   CBMGenerics
-        utilities
-)
-
 target_link_libraries( ${TARGET_NAME}
    EosPack
    CBMGenerics
-        utilities
+   utilities
 )
 
 install( TARGETS ${TARGET_NAME}

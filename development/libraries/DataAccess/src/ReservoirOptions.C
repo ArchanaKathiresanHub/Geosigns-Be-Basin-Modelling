@@ -13,11 +13,11 @@
 #include <iostream>
 #include <sstream>
 
-#include "Interface/ReservoirOptions.h"
+#include "ReservoirOptions.h"
 #include "database.h"
 #include "cauldronschemafuncs.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
+#include "ObjectFactory.h"
+#include "ProjectHandle.h"
 
 using namespace std;
 using namespace DataAccess;

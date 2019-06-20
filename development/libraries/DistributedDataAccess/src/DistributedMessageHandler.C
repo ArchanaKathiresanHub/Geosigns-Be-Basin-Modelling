@@ -1,4 +1,4 @@
-#include "Interface/DistributedMessageHandler.h"
+#include "DistributedMessageHandler.h"
 #include "petsc.h"
 
 DataAccess::Interface::DistributedMessageHandler::~DistributedMessageHandler () {

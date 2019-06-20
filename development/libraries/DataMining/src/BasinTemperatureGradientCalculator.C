@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 #include "FiniteElementTypes.h"
 #include "FiniteElement.h"

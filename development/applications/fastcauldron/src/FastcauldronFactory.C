@@ -1,16 +1,16 @@
 #include "mpi.h"
 #include "FastcauldronFactory.h"
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
-#include "Interface/Grid.h"
-#include "Interface/AttributeValue.h"
-#include "Interface/LithoType.h"
-#include "Interface/Interface.h"
-#include "Interface/Property.h"
+#include "ProjectHandle.h"
+#include "Formation.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "GridMap.h"
+#include "Grid.h"
+#include "AttributeValue.h"
+#include "LithoType.h"
+#include "Interface.h"
+#include "Property.h"
 
 using namespace DataAccess;
 using Interface::GridMap;
@@ -23,12 +23,12 @@ using Interface::LithoType;
 
 #include "FastcauldronSimulator.h"
 #include "Property.h"
-#include "PropertyValue.h"
-#include "RelatedProject.h"
-#include "RunParameters.h"
+#include "CauldronPropertyValue.h"
+#include "CauldronRelatedProject.h"
+#include "CauldronRunParameters.h"
 #include "layer.h"
-#include "CrustFormation.h"
-#include "MantleFormation.h"
+#include "CauldronCrustFormation.h"
+#include "CauldronMantleFormation.h"
 #include "Lithology.h"
 
 DataAccess::Interface::ProjectHandle *
@@ -43,13 +43,13 @@ FastcauldronFactory::produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
 DataAccess::Interface::RelatedProject* FastcauldronFactory::produceRelatedProject ( Interface::ProjectHandle* projectHandle,
                                                                                     database::Record* record ) const
 {
-   return new RelatedProject ( projectHandle, record );
+   return new CauldronRelatedProject ( projectHandle, record );
 }
 
 DataAccess::Interface::RunParameters * FastcauldronFactory::produceRunParameters ( Interface::ProjectHandle * projectHandle,
                                                                                    database::Record * record ) const
 {
-   return new RunParameters ( projectHandle, record );
+   return new CauldronRunParameters ( projectHandle, record );
 }
 
 
@@ -76,7 +76,7 @@ Interface::PropertyValue * FastcauldronFactory::producePropertyValue ( Interface
                                                                        Interface::PropertyStorage   storage,
                                                                        const std::string & /*fileName*/ ) const
 {
-   return new PropertyValue ( projectHandle, record, name, property, snapshot, reservoir, formation, surface, storage );
+   return new CauldronPropertyValue ( projectHandle, record, name, property, snapshot, reservoir, formation, surface, storage );
 }
 
 
@@ -89,13 +89,13 @@ Interface::Formation* FastcauldronFactory::produceFormation ( Interface::Project
 Interface::CrustFormation* FastcauldronFactory::produceCrustFormation ( Interface::ProjectHandle * projectHandle,
                                                                         database::Record * record ) const
 {
-   return new CrustFormation ( projectHandle, record );
+   return new CauldronCrustFormation ( projectHandle, record );
 }
 
 Interface::MantleFormation* FastcauldronFactory::produceMantleFormation ( Interface::ProjectHandle * projectHandle,
                                                                           database::Record * record ) const
 {
-   return new MantleFormation ( projectHandle, record );
+   return new CauldronMantleFormation ( projectHandle, record );
 }
 
 GeoPhysics::CompoundLithology* FastcauldronFactory::produceCompoundLithology ( GeoPhysics::ProjectHandle * projectHandle ) const

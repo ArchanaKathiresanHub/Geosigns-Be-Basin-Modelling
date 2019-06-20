@@ -15,7 +15,7 @@
 #include "PropertyRetriever.h"
 
 // DataAccess library
-#include "Interface/Surface.h"
+#include "Surface.h"
 
 // Geophysics library
 #include "GeoPhysicsFormation.h"
@@ -60,13 +60,13 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractP
    const FormationPropertyPtr   velocity    = propertyManager.getFormationProperty ( velocityProperty,    snapshot, formation );
 
    ///II. Find the two-way-travel-time at the top of the current formation if there is a such formation
-   GeoPhysics::Formation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   GeoPhysics::GeoPhysicsFormation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
    GeoPhysics::ProjectHandle const * const projectHandle   = dynamic_cast<const GeoPhysics::ProjectHandle*>( geophysicsFormation->getProjectHandle ());
 
    const DataAccess::Interface::Surface* surfaceTop    = geophysicsFormation->getTopSurface();
    const DataAccess::Interface::Surface* surfaceBottom = geophysicsFormation->getBottomSurface();
-   const GeoPhysics::Formation * formationTop    = dynamic_cast<const GeoPhysics::Formation*>(surfaceTop->getTopFormation());
-   const GeoPhysics::Formation * formationBottom = dynamic_cast<const GeoPhysics::Formation*>(surfaceBottom->getBottomFormation());
+   const GeoPhysics::GeoPhysicsFormation * formationTop    = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(surfaceTop->getTopFormation());
+   const GeoPhysics::GeoPhysicsFormation * formationBottom = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(surfaceBottom->getBottomFormation());
    FormationPropertyPtr twoWayTimeTop = 0;
    if (formationTop){
       DataModel::AbstractProperty const * const twoWayTimeTopProperty = propertyManager.getProperty( "TwoWayTime" );

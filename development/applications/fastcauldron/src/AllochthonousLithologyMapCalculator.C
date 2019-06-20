@@ -66,7 +66,7 @@ bool AllochthonousLithologyMapCalculator::operator ()( const OutputPropertyMap::
 
 void AllochthonousLithologyMapCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AllochthonousLithology", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AllochthonousLithology", 
                                                                                                          m_snapshot, 0, 
                                                                                                          m_formation,
                                                                                                          0 )));

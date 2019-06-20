@@ -117,7 +117,7 @@ bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputProperty
 
 void BulkDensityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "BulkDensityVec2",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "BulkDensityVec2",
                                                                                                          m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          m_surface )));
@@ -281,7 +281,7 @@ bool BulkDensityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPr
 
 void BulkDensityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BulkDensity",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BulkDensity",
                                                                                                             m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

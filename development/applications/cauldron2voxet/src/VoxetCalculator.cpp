@@ -14,13 +14,13 @@
 #include "array.h"
 
 // Data Access
-#include "Interface/Formation.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/GridMap.h"
-#include "Interface/Property.h"
-#include "Interface/Grid.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Snapshot.h"
+#include "Formation.h"
+#include "PropertyValue.h"
+#include "GridMap.h"
+#include "Property.h"
+#include "Grid.h"
+#include "ProjectHandle.h"
+#include "Snapshot.h"
 
 #undef Min
 #define Min(a,b)  ((a) < (b) ? (a) : (b))

@@ -1,4 +1,4 @@
-#include "Interface/IrreducibleWaterSaturationSample.h"
+#include "IrreducibleWaterSaturationSample.h"
 #include "cauldronschemafuncs.h"
 
 #include "database.h"

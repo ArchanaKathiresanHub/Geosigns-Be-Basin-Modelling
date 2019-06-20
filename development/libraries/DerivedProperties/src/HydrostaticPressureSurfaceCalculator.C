@@ -10,8 +10,8 @@
 
 #include "HydrostaticPressureSurfaceCalculator.h"
 
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
+#include "Surface.h"
+#include "Snapshot.h"
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
 #include "GeoPhysicalFunctions.h"

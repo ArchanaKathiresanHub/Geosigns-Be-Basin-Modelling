@@ -9,8 +9,8 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/OutputProperty.h"
-#include "Interface/ProjectHandle.h"
+#include "OutputProperty.h"
+#include "ProjectHandle.h"
 
 using namespace DataAccess;
 using namespace Interface;

@@ -1,6 +1,6 @@
 #include "DeviatedWell.h"
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 #include "NumericFunctions.h"
 

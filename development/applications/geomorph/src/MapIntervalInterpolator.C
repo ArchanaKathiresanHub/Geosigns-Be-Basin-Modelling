@@ -33,8 +33,8 @@ AllochMod::MapIntervalInterpolator::MapIntervalInterpolator () {
 
 //------------------------------------------------------------//
 
-void AllochMod::MapIntervalInterpolator::computeInterpolator ( AllochthonousLithologyDistribution* lower,
-                                                               AllochthonousLithologyDistribution* upper,
+void AllochMod::MapIntervalInterpolator::computeInterpolator ( GeoMorphAllochthonousLithologyDistribution* lower,
+                                                               GeoMorphAllochthonousLithologyDistribution* upper,
                                                                const int                           debugLevel ) {
 
   const unsigned int oldPrecision = std::cout.precision ( 8 );
@@ -164,8 +164,8 @@ void AllochMod::MapIntervalInterpolator::setInterpolationVector ( Numerics::Vect
 
 //------------------------------------------------------------//
 
-void AllochMod::MapIntervalInterpolator::initialisePoints ( AllochthonousLithologyDistribution* lower,
-                                                            AllochthonousLithologyDistribution* upper ) {
+void AllochMod::MapIntervalInterpolator::initialisePoints ( GeoMorphAllochthonousLithologyDistribution* lower,
+                                                            GeoMorphAllochthonousLithologyDistribution* upper ) {
 
   const int xResampleFactor = Numerics::integerMax ( 1, 2 + int ( 0.048 * FloatingPoint ( lower->mapXDimension ())));
   const int yResampleFactor = Numerics::integerMax ( 1, 2 + int ( 0.048 * FloatingPoint ( lower->mapYDimension ())));
@@ -211,8 +211,8 @@ const Numerics::Vector& AllochMod::MapIntervalInterpolator::getInterpolationVect
 
 //------------------------------------------------------------//
 
-void AllochMod::MapIntervalInterpolator::enhancePointSet (       AllochthonousLithologyDistribution& lower,
-                                                                 AllochthonousLithologyDistribution& upper,
+void AllochMod::MapIntervalInterpolator::enhancePointSet (       GeoMorphAllochthonousLithologyDistribution& lower,
+                                                                 GeoMorphAllochthonousLithologyDistribution& upper,
                                                            const FloatingPoint                       exteriorErrorLevel,
                                                            const FloatingPoint                       interiorErrorLevel,
                                                            const int                                 xBound,
@@ -231,7 +231,7 @@ void AllochMod::MapIntervalInterpolator::enhancePointSet (       AllochthonousLi
 
 //------------------------------------------------------------//
 
-void AllochMod::MapIntervalInterpolator::enhancePointSet (        AllochthonousLithologyDistribution& saltBody,
+void AllochMod::MapIntervalInterpolator::enhancePointSet (        GeoMorphAllochthonousLithologyDistribution& saltBody,
                                                             const FloatingPoint                       exteriorErrorLevel,
                                                             const FloatingPoint                       interiorErrorLevel,
                                                             const int                                 xBound,

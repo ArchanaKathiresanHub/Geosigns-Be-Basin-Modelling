@@ -26,8 +26,8 @@ using Utilities::Maths::MilliDarcyToM2;
 using Utilities::Maths::MicroWattsToWatts;
 
 #include "FormattingException.h"
-#include "Interface/Interface.h"
-#include "Interface/RunParameters.h"
+#include "Interface.h"
+#include "RunParameters.h"
 
 #include "capillarySealStrength.h"
 #include "GeoPhysicsProjectHandle.h"

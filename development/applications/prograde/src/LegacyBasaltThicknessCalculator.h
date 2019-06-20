@@ -16,8 +16,8 @@
 #include <memory>
 
 // DataAccess library
-#include "Interface/Interface.h"
-#include "Interface/Local2DArray.h"
+#include "Interface.h"
+#include "Local2DArray.h"
 
 // CBMGenerics library
 #include "Polyfunction.h"

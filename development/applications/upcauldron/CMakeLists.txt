@@ -12,25 +12,12 @@
 
 add_executable(upcauldron src/upcauldron.C src/process.C)
 
-bm_include_libraries(
-	TableIO
-	FileSystem
-   utilities
-)
-
 target_link_libraries(upcauldron
-	TableIO
-	FileSystem
+   TableIO
+   FileSystem
    utilities
 )
 
 install(TARGETS upcauldron
 	RUNTIME DESTINATION bin
 )
-
-# Local Variables:
-
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

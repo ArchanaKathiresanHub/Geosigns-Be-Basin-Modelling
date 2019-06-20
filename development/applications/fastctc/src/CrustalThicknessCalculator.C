@@ -19,11 +19,11 @@
 using namespace database;
 
 // DataAccess library
-#include "Interface/CrustalThicknessData.h"
-#include "Interface/Interface.h"
-#include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/Snapshot.h"
+#include "CrustalThicknessData.h"
+#include "Interface.h"
+#include "Property.h"
+#include "PropertyValue.h"
+#include "Snapshot.h"
 
 using namespace DataAccess::Interface;
 

@@ -11,11 +11,11 @@
 #include <string>
 #include <memory>
 
-#include "../../DataAccess/src/Interface/Grid.h"
-#include "../../DataAccess/src/Interface/Interface.h"
-#include "../../SerialDataAccess/src/Interface/SerialGrid.h"
-#include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
-#include "../../SerialDataAccess/src/Interface/SerialMapWriter.h"
+#include "../../DataAccess/src/Grid.h"
+#include "../../DataAccess/src/Interface.h"
+#include "../../SerialDataAccess/src/SerialGrid.h"
+#include "../../SerialDataAccess/src/SerialGridMap.h"
+#include "../../SerialDataAccess/src/SerialMapWriter.h"
 #include "../../utilities/src/array.h"
 #include "FilePath.h"
 

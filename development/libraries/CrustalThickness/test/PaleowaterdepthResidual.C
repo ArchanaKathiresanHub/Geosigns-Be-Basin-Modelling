@@ -18,10 +18,10 @@ using namespace CrustalThickness;
 #include "../../DataModel/test/MockValidator.h"
 
 // DataAccess libraries
-#include "../../SerialDataAccess/src/Interface/SerialGrid.h"
-#include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
-#include "../../DataAccess/src/Interface/Grid.h"
-#include "../../DataAccess/src/Interface/Local2DArray.h"
+#include "../../SerialDataAccess/src/SerialGrid.h"
+#include "../../SerialDataAccess/src/SerialGridMap.h"
+#include "../../DataAccess/src/Grid.h"
+#include "../../DataAccess/src/Local2DArray.h"
 
 #include <gtest/gtest.h>
 

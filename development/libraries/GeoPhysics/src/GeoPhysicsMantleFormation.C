@@ -12,11 +12,11 @@
 
 #include <cmath>
 
-#include "Interface/Interface.h"
-#include "Interface/GridMap.h"
-#include "Interface/PaleoFormationProperty.h"
-#include "Interface/Snapshot.h"
-#include "Interface/RunParameters.h"
+#include "Interface.h"
+#include "GridMap.h"
+#include "PaleoFormationProperty.h"
+#include "Snapshot.h"
+#include "RunParameters.h"
 
 #include "GeoPhysicsProjectHandle.h"
 #include "CompoundLithology.h"
@@ -33,7 +33,7 @@ using namespace DataAccess;
 GeoPhysics::GeoPhysicsMantleFormation::GeoPhysicsMantleFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
                                                                    database::Record*                          record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
-   GeoPhysics::Formation ( projectHandle, record ),
+   GeoPhysics::GeoPhysicsFormation ( projectHandle, record ),
    DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::MantleFormationName, m_projectHandle->getMantleLithoName() ),
    DataAccess::Interface::MantleFormation ( projectHandle, record )
 {
@@ -65,7 +65,7 @@ bool GeoPhysics::GeoPhysicsMantleFormation::setLithologiesFromStratTable () {
       lc.setThermalModel( m_projectHandle->getMantlePropertyModel());
    }
 
-   pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
+   pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::GeoPhysicsFormation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
    createdLithologies = pMixedLitho != 0;
    m_compoundLithologies.fillWithLithology ( pMixedLitho );
 
@@ -83,7 +83,7 @@ void GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness () {
    const GeoPhysics::GeoPhysicsCrustFormation* crust = dynamic_cast<const GeoPhysics::GeoPhysicsCrustFormation*>( m_projectHandle->getCrustFormation ());
 
 
-   if ( GeoPhysics::Formation::m_projectHandle->getBottomBoundaryConditions () == Interface::MANTLE_HEAT_FLOW ) {
+   if ( GeoPhysics::GeoPhysicsFormation::m_projectHandle->getBottomBoundaryConditions () == Interface::MANTLE_HEAT_FLOW ) {
 
       const Interface::GridMap* thicknessMap = dynamic_cast<const Interface::GridMap*>(Interface::MantleFormation::getInputThicknessMap ());
 

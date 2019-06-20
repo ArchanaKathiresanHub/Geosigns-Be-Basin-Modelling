@@ -17,11 +17,11 @@
 
 // DataAccess
 #include "database.h"
-#include "Interface/GridMap.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/ProjectData.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/MapWriter.h"
+#include "GridMap.h"
+#include "ProjectHandle.h"
+#include "ProjectData.h"
+#include "ObjectFactory.h"
+#include "MapWriter.h"
 
 // FileSystem library
 #include "FilePath.h"

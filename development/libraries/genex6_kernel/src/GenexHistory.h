@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 
 #include "NodeAdsorptionHistory.h"
 #include "SourceRockNode.h"

@@ -3,7 +3,7 @@
 
 #include "ProjectFileHandler.h"
 
-#include "Interface/ObjectFactory.h"
+#include "ObjectFactory.h"
 
 namespace DataAccess
 {

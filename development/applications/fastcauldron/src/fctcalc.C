@@ -17,7 +17,7 @@ using namespace std;
 #include "StatisticsHandler.h"
 #include "Well.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 using namespace Basin_Modelling;
 using namespace Utilities::CheckMemory;

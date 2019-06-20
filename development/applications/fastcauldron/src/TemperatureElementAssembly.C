@@ -9,7 +9,7 @@
 //
 #include "TemperatureElementAssembly.h"
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 #include "GeoPhysicsFluidType.h"
 
 #include "ConstantsMathematics.h"

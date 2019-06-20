@@ -10,11 +10,11 @@
 
 #include "PrimaryFormationProperty.h"
 
-#include "Interface/Property.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Formation.h"
-#include "Interface/GridMap.h"
-#include "Interface/Grid.h"
+#include "Property.h"
+#include "Snapshot.h"
+#include "Formation.h"
+#include "GridMap.h"
+#include "Grid.h"
 
 using namespace AbstractDerivedProperties;
 

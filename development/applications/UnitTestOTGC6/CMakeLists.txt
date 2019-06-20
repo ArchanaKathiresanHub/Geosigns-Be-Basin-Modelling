@@ -19,20 +19,6 @@ include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 
-bm_include_libraries(
-	DataModel
-	SerialDataAccess
-	DataAccess
-	EosPack	
-	CBMGenerics
-	genex6
-	OTGC_kernel6
-	TableIO
-	CBMGenerics
-	FileSystem
-	utilities
-)
-
 target_link_libraries(UnitTestOTGC6
 	DataAccess
 	SerialDataAccess
@@ -49,9 +35,3 @@ target_link_libraries(UnitTestOTGC6
 install(TARGETS UnitTestOTGC6
 	RUNTIME DESTINATION bin
 )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

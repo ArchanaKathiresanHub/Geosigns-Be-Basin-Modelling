@@ -4,12 +4,12 @@
 #include "ProjectFileHandler.h"
 
 // Data access
-#include "Interface/Interface.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/AllochthonousLithology.h"
+#include "Interface.h"
+#include "ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "GeoMorphAllochthonousLithology.h"
 
-#include "AllochthonousLithologyDistribution.h"
+#include "GeoMorphAllochthonousLithologyDistribution.h"
 
 #include "hdf5.h"
 
@@ -38,8 +38,8 @@ namespace AllochMod {
     public :
 
       /// \brief Returns whether the age if m1 is eariler than that of m2 or not.
-      bool operator ()( const AllochthonousLithologyDistribution* m1,
-                        const AllochthonousLithologyDistribution* m2 ) const;
+      bool operator ()( const GeoMorphAllochthonousLithologyDistribution* m1,
+                        const GeoMorphAllochthonousLithologyDistribution* m2 ) const;
 
     };
 

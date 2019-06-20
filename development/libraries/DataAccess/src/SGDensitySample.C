@@ -1,4 +1,4 @@
-#include "Interface/SGDensitySample.h"
+#include "SGDensitySample.h"
 
 #include "cauldronschemafuncs.h"
 #include "database.h"

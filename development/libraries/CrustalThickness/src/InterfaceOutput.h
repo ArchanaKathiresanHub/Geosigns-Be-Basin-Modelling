@@ -17,8 +17,8 @@
 #include <memory>
 
 // DataAccess library
-#include "Interface/GridMap.h"
-#include "Interface/Interface.h"
+#include "GridMap.h"
+#include "Interface.h"
 
 // CrustalThickness library
 #include "AbstractInterfaceOutput.h"

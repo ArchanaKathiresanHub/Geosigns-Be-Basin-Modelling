@@ -14,9 +14,9 @@
 
 #include "AbstractProperty.h"
 
-#include "Interface/Interface.h"
-#include "Interface/Surface.h"
-#include "Interface/SimulationDetails.h"
+#include "Interface.h"
+#include "Surface.h"
+#include "SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -50,7 +50,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate (     
                                                                             const DataModel::AbstractFormation* formation,
                                                                                   FormationPropertyList&        derivedProperties ) const {
 
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
   
    if( geoFormation != 0 and geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) {
       return calculateForBasement ( propertyManager, snapshot, formation, derivedProperties );
@@ -142,7 +142,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculateForBase
    const DataModel::AbstractProperty* temperatureProperty         = propertyManager.getProperty ( "Temperature" );
    const FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty,  snapshot, formation );
 
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    bool basementFormationAndAlcMode = ( geoFormation != 0 and m_projectHandle->isALC ());
 
@@ -162,7 +162,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculateForBase
 
       
       if( formation->getName() != "Crust" ) {
-         const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+         const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
          const DataModel::AbstractFormation * crustFormation = ( mantleFormation->getTopSurface()->getTopFormation() );
          
          basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, crustFormation );
@@ -260,7 +260,7 @@ bool DerivedProperties::ThermalConductivityFormationCalculator::isComputable ( c
                                                                                const DataModel::AbstractSnapshot*  snapshot,
                                                                                const DataModel::AbstractFormation* formation ) const {
    
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
    if( basementFormation ) {
       return isComputableForBasement ( propManager, snapshot, formation );
    }
@@ -313,7 +313,7 @@ bool DerivedProperties::ThermalConductivityFormationCalculator::isComputableForB
          } else {
             if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" ) {
                if( formation->getName() != "Crust" ) {
-                  const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+                  const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
                   
                   const DataModel::AbstractFormation * crustFormation = (mantleFormation->getTopSurface()->getTopFormation() );
                   propertyIsComputable = propertyIsComputable and propManager.formationMapPropertyIsComputable ( property, snapshot, crustFormation );

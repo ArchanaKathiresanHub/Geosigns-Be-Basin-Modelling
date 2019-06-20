@@ -158,7 +158,7 @@ bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyL
 
 void TwoWayTimeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "TwoWayTime", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "TwoWayTime", 
                                                                                                          m_snapshot, 0, 
                                                                                                          0,
                                                                                                          m_surface )));
@@ -287,7 +287,7 @@ bool TwoWayTimeVolumeCalculator::operator ()( const OutputPropertyMap::OutputPro
 
 void TwoWayTimeVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "TwoWayTime",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "TwoWayTime",
                                                                                                             m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
@@ -401,7 +401,7 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
 
 void TwoWayTimeResidualCalculator::allocatePropertyValues( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back( (PropertyValue*)(FastcauldronSimulator::getInstance( ).createMapPropertyValue( "TwoWayTimeResidual",
+   properties.push_back( (CauldronPropertyValue*)(FastcauldronSimulator::getInstance( ).createMapPropertyValue( "TwoWayTimeResidual",
       m_snapshot, 0,
       0,
       m_surface )) );

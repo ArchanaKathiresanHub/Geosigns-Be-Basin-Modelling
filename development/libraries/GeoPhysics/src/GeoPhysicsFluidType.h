@@ -12,8 +12,8 @@
 #define _GEOPHYSICS__FLUID_TYPE_H_
 
 #include "ArrayDefinitions.h"
-#include "Interface/FluidType.h"
-#include "Interface/Interface.h"
+#include "FluidType.h"
+#include "Interface.h"
 
 #include <memory>
 

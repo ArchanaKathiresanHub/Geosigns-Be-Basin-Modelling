@@ -5,9 +5,9 @@
 
 #include "NodeAdsorptionHistory.h"
 
-#include "Interface/Interface.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/PointAdsorptionHistory.h"
+#include "Interface.h"
+#include "ProjectHandle.h"
+#include "PointAdsorptionHistory.h"
 
 namespace Genex6 {
 

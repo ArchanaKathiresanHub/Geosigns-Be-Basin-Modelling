@@ -13,10 +13,10 @@
 #include "AbstractProperty.h"
 
 // DataAccess library.
-#include "Interface/Interface.h"
-#include "Interface/Property.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
+#include "Interface.h"
+#include "Property.h"
+#include "Snapshot.h"
+#include "Surface.h"
 
 #include "PrimarySurfaceProperty.h"
 #include "PrimaryFormationSurfaceProperty.h"

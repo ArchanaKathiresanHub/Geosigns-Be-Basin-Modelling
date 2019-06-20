@@ -10,7 +10,7 @@
 
 #include "FracturePressureCalculator.h"
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 #include "GeoPhysicalConstants.h"
 #include "GeoPhysicalFunctions.h"

@@ -12,8 +12,8 @@
 
 #include "VisualizationIO_projectHandle.h"
 #include "FilePath.h"
-#include "Interface/Property.h"
-#include "Interface/InputValue.h"
+#include "Property.h"
+#include "InputValue.h"
 
 using namespace DataAccess;
 using namespace DataAccess::Interface;

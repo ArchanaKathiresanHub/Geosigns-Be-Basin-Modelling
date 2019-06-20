@@ -14,15 +14,6 @@ add_executable(cauldron-crop
    src/crop.C
 )
 
-bm_include_libraries(
-        DataModel
-        TableIO
-        DataAccess
-        SerialDataAccess
-        utilities
-        FileSystem
-)
-
 include_directories( SYSTEM
         ${HDF5_INCLUDE_DIRS}
 )

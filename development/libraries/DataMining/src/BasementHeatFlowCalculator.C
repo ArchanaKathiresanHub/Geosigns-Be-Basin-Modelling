@@ -13,8 +13,8 @@
 #include <iostream>
 using namespace std;
 
-#include "Interface/RunParameters.h"
-#include "Interface/Surface.h"
+#include "RunParameters.h"
+#include "Surface.h"
 
 #include "FiniteElementTypes.h"
 #include "FiniteElement.h"
@@ -44,7 +44,7 @@ bool DataAccess::Mining::BasementHeatFlowCalculator::initialise () {
    if ( not m_initialised ) {
       FormationPropertyPtr propVals;
 
-      m_crust = dynamic_cast<const GeoPhysics::Formation*>(getProjectHandle ()->findFormation ( "Crust" ));
+      m_crust = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(getProjectHandle ()->findFormation ( "Crust" ));
       m_temperature = getPropertyManager ().getFormationProperty ( getProjectHandle ()->findProperty ( "Temperature" ),
                                                                    getSnapshot (),
                                                                    m_crust );
@@ -65,7 +65,7 @@ bool DataAccess::Mining::BasementHeatFlowCalculator::initialise () {
 
 
       if ( m_crust != 0 ) {
-         m_bottomSediment = dynamic_cast<const GeoPhysics::Formation*>(m_crust->getTopSurface ()->getTopFormation ());
+         m_bottomSediment = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(m_crust->getTopSurface ()->getTopFormation ());
       } else {
          // How to get this formation?
          m_bottomSediment = 0;
@@ -174,7 +174,7 @@ double DataAccess::Mining::BasementHeatFlowCalculator::compute ( const ElementPo
 
    FiniteElementMethod::ElementGeometryMatrix geometryMatrix;
 
-   // const GeoPhysics::Formation* geoForm = dynamic_cast<const GeoPhysics::Formation*>( m_crust );
+   // const GeoPhysics::GeoPhysicsFormation* geoForm = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( m_crust );
    const GeoPhysics::CompoundLithology* lithology = m_crust->getCompoundLithology ( position.getI (), position.getJ ());
 
    if ( m_fromCrust ) {

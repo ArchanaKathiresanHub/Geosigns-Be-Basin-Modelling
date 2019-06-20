@@ -14,11 +14,11 @@
 #include "petsc.h"
 
 #include "../../utilities/src/FormattingException.h"
-#include "../src/Interface/DistributedGrid.h"
-#include "../src/Interface/DistributedGridMap.h"
-#include "../../DataAccess/src/Interface/Grid.h"
-#include "../../DataAccess/src/Interface/Interface.h"
-#include "../../SerialDataAccess/src/Interface/SerialGrid.h"
+#include "../src/DistributedGrid.h"
+#include "../src/DistributedGridMap.h"
+#include "../../DataAccess/src/Grid.h"
+#include "../../DataAccess/src/Interface.h"
+#include "../../SerialDataAccess/src/SerialGrid.h"
 #include "../../utilities/src/array.h"
 
 #include <gtest/gtest.h>

@@ -6,8 +6,8 @@
 #include <assert.h>
 #include <iomanip>
 
-#include "Interface/GridMap.h"
-#include "Interface/Grid.h"
+#include "GridMap.h"
+#include "Grid.h"
 
 #include "array.h"
 

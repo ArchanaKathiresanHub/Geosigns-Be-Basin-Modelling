@@ -12,8 +12,8 @@
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
 
-#include "Interface/RunParameters.h"
-#include "Interface/SimulationDetails.h"
+#include "RunParameters.h"
+#include "SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -62,7 +62,7 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate (       Abstr
    const FormationPropertyPtr ves    = propertyManager.getFormationProperty ( aVesProperty, snapshot, formation );
    const FormationPropertyPtr maxVes = propertyManager.getFormationProperty ( aMaxVesProperty, snapshot, formation );
 
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    PropertyRetriever vesRetriever ( ves );
    PropertyRetriever maxVesRetriever ( maxVes );

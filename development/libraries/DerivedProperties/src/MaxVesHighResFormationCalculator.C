@@ -13,10 +13,10 @@
 #include <assert.h>
 #include "FormattingException.h"
 #include "GeoPhysicsFormation.h"
-#include "Interface/SimulationDetails.h"
+#include "SimulationDetails.h"
 #include "IndirectFormationProperty.h"
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
+#include "Surface.h"
+#include "Snapshot.h"
 #include "NumericFunctions.h"
 
 using namespace AbstractDerivedProperties;
@@ -58,7 +58,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::calculate(       Abstr
 {
    try
    {
-      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation *>( formation );
+      const GeoPhysics::GeoPhysicsFormation * const currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation *>( formation );
       assert( currentFormation != 0 );
 
       if( currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
@@ -123,7 +123,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
 {
    try
    {
-      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation *>( formation );
+      const GeoPhysics::GeoPhysicsFormation * const currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation *>( formation );
 
       const DataModel::AbstractProperty * const maxVesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
       assert( maxVesHighResProperty != 0 );

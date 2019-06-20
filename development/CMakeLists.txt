@@ -214,9 +214,9 @@ add_definitions( "-D_USE_MATH_DEFINES" )
 
 #
 # Include 3rd party packages
+find_package(TestFramework REQUIRED CONFIG)
 if(BM_BUILD_ENABLE_TESTING)
    enable_testing()
-   find_package(TestFramework REQUIRED CONFIG)
    find_package(Valgrind REQUIRED CONFIG)
 endif()
 
@@ -367,10 +367,3 @@ endif(WIN32)
 # Reporting
 #
 feature_summary(WHAT ALL)
-
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

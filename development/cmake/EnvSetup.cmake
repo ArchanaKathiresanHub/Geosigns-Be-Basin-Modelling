@@ -151,7 +151,7 @@ macro(finish_wrapper name executable wrapper)
    # Now write the wrapper
    file(WRITE "${CMAKE_BINARY_DIR}/aux/${name}_wrap.sh" 
 "#!/bin/bash
-# Compiler wrapper for the ${compiler} compiler
+# Environment wrapper for ${name} 
 # This file has been automatically generated -- Do not edit!
 
 # Mark all variables list below to be exported to the environment

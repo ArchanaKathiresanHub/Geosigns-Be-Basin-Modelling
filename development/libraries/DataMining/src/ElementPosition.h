@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
+#include "Formation.h"
+#include "Surface.h"
 
 #include "Point.h"
 

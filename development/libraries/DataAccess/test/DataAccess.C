@@ -8,13 +8,13 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Interface/FluidType.h"
-#include "Interface/Formation.h"
-#include "Interface/LithoType.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
+#include "FluidType.h"
+#include "Formation.h"
+#include "LithoType.h"
+#include "ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "Snapshot.h"
+#include "Surface.h"
 #include "SerialGrid.h"
 
 #include <memory>

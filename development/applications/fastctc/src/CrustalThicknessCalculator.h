@@ -19,7 +19,7 @@
 #include "InterfaceOutput.h"
 
 // DataAccess library
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 // DataMining library
 #include "DataMiningProjectHandle.h"

@@ -2,7 +2,7 @@
 #define _GEOPHYSICS__OBJECT_FACTORY_H_
 
 #include "database.h"
-#include "Interface/ObjectFactory.h"
+#include "ObjectFactory.h"
 
 #include "PiecewiseInterpolator.h"
 

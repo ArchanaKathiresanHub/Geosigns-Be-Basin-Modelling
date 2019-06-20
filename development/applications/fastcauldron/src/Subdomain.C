@@ -11,12 +11,12 @@
 
 #include <sstream>
 
-#include "Interface/Interface.h"
-#include "Interface/Formation.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
+#include "Interface.h"
+#include "Formation.h"
+#include "Snapshot.h"
+#include "Surface.h"
 
-#include "SourceRock.h"
+#include "GenexSourceRock.h"
 
 #include "NumericFunctions.h"
 
@@ -413,7 +413,7 @@ bool Subdomain::determineContainsSulphur () const {
 
    while ( not iter.isDone ()) {
 
-      if ( iter->getFormation ().isSourceRock () and dynamic_cast<const Genex6::SourceRock* >(iter->getFormation ().getSourceRock1 ())->isSulphur ()) {
+      if ( iter->getFormation ().isSourceRock () and dynamic_cast<const Genex6::GenexSourceRock* >(iter->getFormation ().getSourceRock1 ())->isSulphur ()) {
          return true;
       } 
 

@@ -11,11 +11,11 @@
 #ifndef _MINING__BASEMENT_HEAT_FLOW_CALCULATOR__H_
 #define _MINING__BASEMENT_HEAT_FLOW_CALCULATOR__H_
 
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
-#include "Interface/Formation.h"
-#include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
+#include "Snapshot.h"
+#include "GridMap.h"
+#include "Formation.h"
+#include "Property.h"
+#include "PropertyValue.h"
 
 #include "GeoPhysicsFormation.h"
 
@@ -54,8 +54,8 @@ namespace DataAccess {
          AbstractDerivedProperties::FormationPropertyPtr m_ves;
          AbstractDerivedProperties::FormationPropertyPtr m_maxVes;
 
-         const GeoPhysics::Formation*   m_crust;
-         const GeoPhysics::Formation*   m_bottomSediment;
+         const GeoPhysics::GeoPhysicsFormation*   m_crust;
+         const GeoPhysics::GeoPhysicsFormation*   m_bottomSediment;
 
          bool                  m_fromCrust;
          bool                  m_initialised;

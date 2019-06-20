@@ -35,7 +35,7 @@ namespace migration
 {
 
    LeakWasteAndSpillDistributor::LeakWasteAndSpillDistributor (const double& sealFluidDensity, const double& fractureSealStrength,
-                                                               const double& wasteLevel, const CapillarySealStrength& capSealStrength,
+                                                               const double& wasteLevel, const MigrationCapillarySealStrength& capSealStrength,
                                                                const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
       m_leaking (true),
       m_wasting (true),
@@ -50,7 +50,7 @@ namespace migration
    }
 
    LeakWasteAndSpillDistributor::LeakWasteAndSpillDistributor (const double sealFluidDensity, const double fractureSealStrength, const double overPressureContrast,
-                                                               const double crestColumnThickness, const CapillarySealStrength& capSealStrength,
+                                                               const double crestColumnThickness, const MigrationCapillarySealStrength& capSealStrength,
                                                                const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
       m_leaking (true),
       m_wasting (false),

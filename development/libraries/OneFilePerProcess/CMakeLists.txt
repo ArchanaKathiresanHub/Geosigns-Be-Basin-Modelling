@@ -10,6 +10,8 @@
 #                                                                       #
 #########################################################################
 
+# Note: The .c source file are compiled with a c compiler and the .C source files with the c++ compiler. Those are then packed into a single archive
+
 set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c src/h5merge.C src/fileHandler.C src/fileHandlerReuse.C src/fileHandlerAppend.C )
 set( all_headers src/HDF5VirtualFileDriver.h src/RewriteFileName.h src/h5merge.h src/fileHandler.h src/fileHandlerReuse.h src/fileHandlerAppend.h )
 
@@ -22,6 +24,7 @@ add_library(${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+target_include_directories( ${LIB_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 include_directories(
@@ -47,7 +50,7 @@ if (UNIX)
    # In LSF environment (on LSF cluster node, when build is running as a LSF job) mpirun is trying to use job settings
    # to run mpi unit tests. Sometime it fails because build job requested just 1 cpu. To prevent this we can specify
    # machines file with localhost list only
-   configure_file(test/machines machines COPYONLY )
+   copy_test_file(machines)
    set( MACHINE_FILE -machinefile machines)
 endif (UNIX)
                                     

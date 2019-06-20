@@ -38,24 +38,6 @@ add_executable(${TARGET_NAME}
 )
 set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
-bm_include_libraries(
-   DataModel
-   DataMining
-   DataAccess
-   SerialDataAccess
-   Interpolation
-   LinearAlgebra
-   GeoPhysics
-   AbstractDerivedProperties
-   DerivedProperties
-   DataAccess
-   TableIO
-   CBMGenerics
-   Serial_Hdf5
-   EosPack
-   utilities
-)
-
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
@@ -80,8 +62,3 @@ target_link_libraries(${TARGET_NAME}
 install(TARGETS ${TARGET_NAME}
    RUNTIME DESTINATION bin
 )
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

@@ -1,4 +1,4 @@
-#include "Interface/Interface.h"
+#include "Interface.h"
 #include "DerivedFormationProperty.h"
 
 DerivedProperties::DerivedFormationProperty::DerivedFormationProperty ( const DataModel::AbstractProperty*  property,

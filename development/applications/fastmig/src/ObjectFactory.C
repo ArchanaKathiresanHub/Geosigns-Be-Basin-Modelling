@@ -8,9 +8,9 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Reservoir.h"
+#include "MigrationReservoir.h"
 #include "Formation.h"
-#include "Surface.h"
+#include "MigrationSurface.h"
 #include "Migrator.h"
 #include "ObjectFactory.h"
 
@@ -42,18 +42,18 @@ ObjectFactory::produceSurface (DataAccess::Interface::ProjectHandle * projectHan
 DataAccess::Interface::Reservoir *
 ObjectFactory::produceMigrationReservoir (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
-   return new Reservoir (projectHandle, m_migrator, record);
+   return new MigrationReservoir (projectHandle, m_migrator, record);
 }
 
 DataAccess::Interface::Formation *
 ObjectFactory::produceMigrationFormation (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
-   return new Formation (projectHandle, m_migrator, record);
+   return new MigrationFormation (projectHandle, m_migrator, record);
 }
 
 DataAccess::Interface::Surface *
 ObjectFactory::produceMigrationSurface (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
 {
-   return new Surface (projectHandle, m_migrator, record);
+   return new MigrationSurface (projectHandle, m_migrator, record);
 }
 

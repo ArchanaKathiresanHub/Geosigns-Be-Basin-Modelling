@@ -15,7 +15,7 @@
 
 #include "ElementPosition.h"
 
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 
 namespace DataAccess {
 

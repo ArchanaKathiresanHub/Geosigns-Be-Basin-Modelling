@@ -30,17 +30,17 @@
 
 #include "cauldronschemafuncs.h"
 
-#include "Interface/Grid.h"
-#include "Interface/RunParameters.h"
-#include "Interface/Surface.h"
-#include "Interface/OutputProperty.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/Property.h"
-#include "Interface/OutputProperty.h"
-#include "Interface/Interface.h"
-#include "Interface/ConstrainedOverpressureInterval.h"
-#include "Interface/SimulationDetails.h"
-#include "Interface/MapWriter.h"
+#include "Grid.h"
+#include "RunParameters.h"
+#include "Surface.h"
+#include "OutputProperty.h"
+#include "ObjectFactory.h"
+#include "Property.h"
+#include "OutputProperty.h"
+#include "Interface.h"
+#include "ConstrainedOverpressureInterval.h"
+#include "SimulationDetails.h"
+#include "MapWriter.h"
 
 #include "NumericFunctions.h"
 #include "ConstantsFastcauldron.h"
@@ -157,7 +157,7 @@ void FastcauldronSimulator::setFormationElementHeightScalingFactors () {
 
    // Initialise the array containing the formation refinement information.
    for ( i = 0; i < m_formations.size (); ++i ) {
-      GeoPhysics::Formation* formation = const_cast<GeoPhysics::Formation*>(dynamic_cast<const GeoPhysics::Formation*>( m_formations [ i ]));
+      GeoPhysics::GeoPhysicsFormation* formation = const_cast<GeoPhysics::GeoPhysicsFormation*>(dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( m_formations [ i ]));
       formationRefinement [ i ] = formation->getDepthRefinementFactor ();
    }
 
@@ -209,7 +209,7 @@ void FastcauldronSimulator::setFormationElementHeightScalingFactors () {
                              namedFormationScalingArray [ i ],
                              namedFormationScalingArray [ i + 1 ]);
             } else {
-               GeoPhysics::Formation* formation = const_cast<GeoPhysics::Formation*>(dynamic_cast<const GeoPhysics::Formation*>( findFormation ( namedFormationScalingArray [ i ])));
+               GeoPhysics::GeoPhysicsFormation* formation = const_cast<GeoPhysics::GeoPhysicsFormation*>(dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( findFormation ( namedFormationScalingArray [ i ])));
                refinementLevel = int ( std::strtol ( namedFormationScalingArray [ i + 1 ], &strEnd, radix ));
                formationPosition = getCauldron ()->getLayerIndex ( formation->getName ());
 
@@ -242,7 +242,7 @@ void FastcauldronSimulator::setFormationElementHeightScalingFactors () {
    // Now set the depth-refinement factor for each formation.
    // Updating the value defined in the project file is required by the command-line parameters.
    for ( i = 0; i < m_formations.size (); ++i ) {
-      GeoPhysics::Formation* formation = const_cast<GeoPhysics::Formation*>(dynamic_cast<const GeoPhysics::Formation*>( m_formations [ i ]));
+      GeoPhysics::GeoPhysicsFormation* formation = const_cast<GeoPhysics::GeoPhysicsFormation*>(dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( m_formations [ i ]));
       formation->setDepthRefinementFactor ( formationRefinement [ i ]);
    }
 

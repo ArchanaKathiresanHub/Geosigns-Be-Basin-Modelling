@@ -1,7 +1,7 @@
 #include "PorosityCalculator.h"
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/RunParameters.h"
+#include "ProjectHandle.h"
+#include "RunParameters.h"
 
 #include "GeoPhysicsFormation.h"
 #include "CompoundLithology.h"
@@ -58,7 +58,7 @@ double DataAccess::Mining::PorosityCalculator::compute ( const ElementPosition& 
    maxVes = m_maxVes->compute ( position );
 
    const Interface::Formation* formation = position.getFormation ();
-   const GeoPhysics::Formation* geoForm = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoForm = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    bool layerRequiresChemicalCompaction = m_chemicalCompactionRequired and ( geoForm != 0 and geoForm->hasChemicalCompaction ());
 

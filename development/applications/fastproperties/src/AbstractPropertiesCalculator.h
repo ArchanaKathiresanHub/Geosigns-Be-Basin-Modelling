@@ -20,13 +20,13 @@
 #include <petsc.h>
 
 //DataAccess library
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
-#include "Interface/Formation.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/SimulationDetails.h"
+#include "Snapshot.h"
+#include "Surface.h"
+#include "Formation.h"
+#include "ObjectFactory.h"
+#include "Property.h"
+#include "PropertyValue.h"
+#include "SimulationDetails.h"
 
 //GeoPhysics
 #include "GeoPhysicsObjectFactory.h"

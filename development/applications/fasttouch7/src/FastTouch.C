@@ -36,15 +36,15 @@ using namespace database;
 
 using namespace fasttouch;
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/Snapshot.h"
-#include "Interface/TouchstoneMap.h"
+#include "ProjectHandle.h"
+#include "ObjectFactory.h"
+#include "Formation.h"
+#include "Surface.h"
+#include "PropertyValue.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "Snapshot.h"
+#include "TouchstoneMap.h"
 
 #include "FilePath.h"
 

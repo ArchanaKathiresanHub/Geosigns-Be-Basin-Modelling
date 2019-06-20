@@ -14,11 +14,11 @@
 // #include "SelectIfThicknessIsLargerThanZero.h"
 #include "Tuple2.h"
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/GridMap.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
+#include "ProjectHandle.h"
+#include "PropertyValue.h"
+#include "GridMap.h"
+#include "Snapshot.h"
+#include "Surface.h"
 #include "Formation.h"
 
 #include <limits>
@@ -36,7 +36,7 @@ namespace migration
    namespace overburden_MPI
    {
 
-      vector<FormationSurfaceGridMaps> getFormationSurfaceGridMaps (const vector<const Formation*>&
+      vector<FormationSurfaceGridMaps> getFormationSurfaceGridMaps (const vector<const MigrationFormation*>&
          formations, const Property* prop, const Snapshot* snapshot)
       {
          vector<FormationSurfaceGridMaps> results;
@@ -44,7 +44,7 @@ namespace migration
          if (formations.size () == 0)
             return results;
 
-         vector<const Formation*>::const_iterator f = formations.begin ();
+         vector<const MigrationFormation*>::const_iterator f = formations.begin ();
          for (; f != formations.end (); ++f)
          {
             if ((*f)->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime())
@@ -57,7 +57,7 @@ namespace migration
       }
 
       vector<FormationSurfaceGridMaps> getFormationSurfaceGridMaps (const vector<const
-         Formation*>& formations, const string& propName, const Snapshot* snapshot)
+         MigrationFormation*>& formations, const string& propName, const Snapshot* snapshot)
       {
          vector<FormationSurfaceGridMaps> results;
          if (formations.size () == 0)
@@ -70,7 +70,7 @@ namespace migration
       }
 
       vector<SurfaceGridMapFormations> getDownwardAdjacentSurfaceGridMapFormations (
-         const vector<const Formation*>& formations, const Property* prop, const Snapshot* snapshot)
+         const vector<const MigrationFormation*>& formations, const Property* prop, const Snapshot* snapshot)
       {
          vector<SurfaceGridMapFormations> results;
          if (formations.size () == 0)
@@ -78,8 +78,8 @@ namespace migration
 
          results.reserve (formations.size () + 1);
 
-         vector<const Formation*>::const_iterator fit = formations.begin ();
-         const Formation* f_prev = NULL;
+         vector<const MigrationFormation*>::const_iterator fit = formations.begin ();
+         const MigrationFormation* f_prev = NULL;
          while (fit != formations.end ())
          {
             if ( (*fit)->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
@@ -97,7 +97,7 @@ namespace migration
       }
 
       vector<SurfaceGridMapFormations> getUpwardAdjacentSurfaceGridMapFormations (const vector<
-         const Formation*>& formations, const Property* prop,
+         const MigrationFormation*>& formations, const Property* prop,
          const Snapshot* snapshot)
       {
          vector<SurfaceGridMapFormations> results;
@@ -106,8 +106,8 @@ namespace migration
 
          results.reserve (formations.size () + 1);
 
-         vector<const Formation*>::const_iterator fit = formations.begin ();
-         const Formation* f_prev = NULL;
+         vector<const MigrationFormation*>::const_iterator fit = formations.begin ();
+         const MigrationFormation* f_prev = NULL;
          while (fit != formations.end ())
          {
             if ( (*fit)->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
@@ -148,12 +148,12 @@ namespace migration
       }
 
       template <typename PRED>
-      vector<const Formation*> getOverburdenFormationsIf (vector<FormationSurfaceGridMaps>::const_iterator begin,
+      vector<const MigrationFormation*> getOverburdenFormationsIf (vector<FormationSurfaceGridMaps>::const_iterator begin,
          vector<FormationSurfaceGridMaps>::const_iterator end, PRED pred)
       {
          assert (begin != end);
 
-         vector<const Formation*> overburdenFormations;
+         vector<const MigrationFormation*> overburdenFormations;
          for (vector<FormationSurfaceGridMaps>::const_iterator it = begin; it != end; ++it)
          {
             if (pred (*it))
@@ -197,7 +197,7 @@ namespace migration
 
       bool getRelevantOverburdenFormations (vector<FormationSurfaceGridMaps>::const_iterator begin,
          vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot, unsigned int i,
-         unsigned int j, vector<const Formation*>& overburdenFormations)
+         unsigned int j, vector<const MigrationFormation*>& overburdenFormations)
       {
          SelectIfGridPairThicknessIsLargerThanZero pred (snapshot, i, j);
 
@@ -269,7 +269,7 @@ namespace migration
       bool getOverburdenFormationsIf (vector<FormationSurfaceGridMaps>::const_iterator begin,
          vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot, unsigned int i,
          unsigned int j, const double& maxOverburdenDepth, int maxFormations, bool someValid, PRED pred,
-         vector<const Formation*>& overburdenFormations)
+         vector<const MigrationFormation*>& overburdenFormations)
       {
          ContinueIfOverburdenDepthAndNumberOfFormationsLeft<PRED> select (snapshot, i, j, maxOverburdenDepth,
             maxFormations, pred);
@@ -293,7 +293,7 @@ namespace migration
       bool getOverburdenFormations (vector<FormationSurfaceGridMaps>::const_iterator begin,
          vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot, unsigned int i,
          unsigned int j, const double& maxOverburdenDepth, int maxFormations, bool someValid,
-         vector<const Formation*>& overburdenFormations)
+         vector<const MigrationFormation*>& overburdenFormations)
       {
          return getOverburdenFormationsIf (begin, end, snapshot, i, j, maxOverburdenDepth, maxFormations,
             someValid, AlwaysTrue (), overburdenFormations);
@@ -306,7 +306,7 @@ namespace migration
 
       bool getRelevantOverburdenFormations (vector<FormationSurfaceGridMaps>::const_iterator begin,
          vector<FormationSurfaceGridMaps>::const_iterator end, const Snapshot* snapshot, unsigned int i, unsigned int j,
-         const double& maxOverburdenDepth, int maxFormations, bool someValid, vector<const Formation*>& overburdenFormations)
+         const double& maxOverburdenDepth, int maxFormations, bool someValid, vector<const MigrationFormation*>& overburdenFormations)
       {
          return getOverburdenFormationsIf (begin, end, snapshot, i, j, maxOverburdenDepth, maxFormations, someValid,
             TrueIfThicknessBiggerThanZero (), overburdenFormations);

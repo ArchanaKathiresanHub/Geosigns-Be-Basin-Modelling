@@ -2,7 +2,7 @@
 #define NOMINMAX
 #endif
 
-#include "Interface/DiffusionLeakageParameters.h"
+#include "DiffusionLeakageParameters.h"
 #include "cauldronschemafuncs.h"
 
 #include <math.h>

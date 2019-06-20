@@ -14,11 +14,11 @@
 #include "migration.h"
 #include "Composition.h"
 #include "Biodegrade.h"
-#include "Interface/DiffusionLeakageParameters.h"
+#include "DiffusionLeakageParameters.h"
 #include "SurfaceGridMapContainer.h"
 #include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
-#include "Interface/LithoType.h"
-#include "Interface/Formation.h"
+#include "LithoType.h"
+#include "Formation.h"
 #include "capillarySealStrength.h"
 #include "Distributor.h"
 #include "DiffusionOverburdenProperties.h"
@@ -150,7 +150,7 @@ namespace migration
       * \brief Give the reservoir to which belong the trap.
       * \return The reservoir to which belong the trap.
       */
-      Reservoir * getReservoir (void);
+      MigrationReservoir * getReservoir (void);
 
       LocalColumn * getCrestColumn (void) const;
 
@@ -403,7 +403,7 @@ namespace migration
          vector<double>& permeability) const;
 
       bool computeForFunctionOfLithostaticPressure (const SurfaceGridMapContainer& fullOverburden,
-         const Formation* formation, const vector<double>& lithFracs, double& fracPressure) const;
+         const MigrationFormation* formation, const vector<double>& lithFracs, double& fracPressure) const;
 
       bool distributeCharges (void);
 
@@ -499,7 +499,7 @@ namespace migration
       bool saveProperties (void);
 
    protected:
-      Reservoir * m_reservoir;
+      MigrationReservoir * m_reservoir;
 
       ColumnVector m_perimeter;
       ColumnVector m_interior;

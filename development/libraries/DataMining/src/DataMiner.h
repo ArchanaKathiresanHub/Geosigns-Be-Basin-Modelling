@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Interface/Property.h"
+#include "Property.h"
 
 #include "ElementPosition.h"
 #include "DataMiningProjectHandle.h"

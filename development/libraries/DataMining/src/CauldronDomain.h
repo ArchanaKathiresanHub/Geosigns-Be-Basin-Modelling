@@ -11,14 +11,14 @@
 #ifndef _DATAACCESS__DATA_MINING__CAULDRON_DOMAIN_H_
 #define _DATAACCESS__DATA_MINING__CAULDRON_DOMAIN_H_
 
-#include "Interface/Formation.h"
-#include "Interface/GridMap.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Property.h"
-#include "Interface/Grid.h"
-#include "Interface/PropertyValue.h"
+#include "Formation.h"
+#include "GridMap.h"
+#include "Snapshot.h"
+#include "Surface.h"
+#include "ProjectHandle.h"
+#include "Property.h"
+#include "Grid.h"
+#include "PropertyValue.h"
 
 #include "DerivedPropertyManager.h"
 

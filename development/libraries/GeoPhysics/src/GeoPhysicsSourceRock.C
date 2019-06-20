@@ -4,10 +4,10 @@
 #include <vector>
 #include <cmath>
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/Surface.h"
-#include "Interface/Formation.h"
-#include "Interface/Snapshot.h"
+#include "ProjectHandle.h"
+#include "Surface.h"
+#include "Formation.h"
+#include "Snapshot.h"
 
 #include "database.h"
 
@@ -25,7 +25,7 @@ using namespace database;
 using namespace CBMGenerics;
 
 GeoPhysics::GeoPhysicsSourceRock::GeoPhysicsSourceRock (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) :
-   Genex6::SourceRock ( projectHandle, record ) {
+   Genex6::GenexSourceRock ( projectHandle, record ) {
 
    m_canIncludeAdsorption = true;
 
@@ -194,7 +194,7 @@ void GeoPhysics::GeoPhysicsSourceRock::fillOptionalResultMap ( const GenexResult
 }
 
 bool GeoPhysics::GeoPhysicsSourceRock::doApplyAdsorption () const {
-   return m_canIncludeAdsorption and Genex6::SourceRock::doApplyAdsorption ();
+   return m_canIncludeAdsorption and Genex6::GenexSourceRock::doApplyAdsorption ();
 }
 
 void GeoPhysics::GeoPhysicsSourceRock::setCanIncludeAdsorption ( const bool canIncludeAdsorption ) {

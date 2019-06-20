@@ -5,8 +5,8 @@
 #include "FastcauldronSimulator.h"
 #include "MultiComponentFlowHandler.h"
 #include "PetscBlockVector.h"
-#include "Interface/RunParameters.h"
-#include "Interface/Interface.h"
+#include "RunParameters.h"
+#include "Interface.h"
 
 OutputPropertyMap* allocateTimeOfElementInvasionVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<TimeOfElementInvasionVolumeCalculator>( property, formation, snapshot );
@@ -123,7 +123,7 @@ bool TimeOfElementInvasionVolumeCalculator::operator ()( const OutputPropertyMap
 
 void TimeOfElementInvasionVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "TimeOfInvasion",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "TimeOfInvasion",
                                                                                                             m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

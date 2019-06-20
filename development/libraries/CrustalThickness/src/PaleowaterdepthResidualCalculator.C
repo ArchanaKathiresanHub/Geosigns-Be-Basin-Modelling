@@ -17,7 +17,7 @@ using namespace  CrustalThickness;
 #include "InterfaceInput.h"
 
 // DataAccess library
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 //------------------------------------------------------------//
 PaleowaterdepthResidualCalculator::PaleowaterdepthResidualCalculator(

@@ -11,7 +11,7 @@
 #ifndef _MIGRATION_MASSBALANCE_H_
 #define _MIGRATION_MASSBALANCE_H_
 
-#include "Interface/Snapshot.h"
+#include "Snapshot.h"
 
 // #define DEBUG_MASSBALANCE 1
 

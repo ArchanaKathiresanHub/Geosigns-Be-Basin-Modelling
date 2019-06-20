@@ -12,7 +12,7 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 OutputPropertyMap* allocateSonicCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<SonicCalculator>( property, formation, surface, snapshot );
@@ -75,7 +75,7 @@ bool SonicCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& 
 
 void SonicCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SonicVec2", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SonicVec2", 
                                                                                                          m_snapshot, 0, 
                                                                                                          m_formation,
                                                                                                          m_surface )));
@@ -152,7 +152,7 @@ bool SonicVolumeCalculator::operator ()( const OutputPropertyMap::OutputProperty
 
 void SonicVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SonicVec2", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SonicVec2", 
                                                                                                             m_snapshot, 0, 
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

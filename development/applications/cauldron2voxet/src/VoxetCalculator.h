@@ -19,7 +19,7 @@
 #include "AbstractSnapshot.h"
 
 // Data Access and GeoPhysics libraries.
-#include "Interface/Interface.h"
+#include "Interface.h"
 #include "GeoPhysicsProjectHandle.h"
 
 // Derived property library

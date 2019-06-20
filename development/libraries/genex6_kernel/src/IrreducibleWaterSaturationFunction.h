@@ -3,8 +3,8 @@
 
 #include <cmath>
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/IrreducibleWaterSaturationSample.h"
+#include "ProjectHandle.h"
+#include "IrreducibleWaterSaturationSample.h"
 
 #include "NumericFunctions.h"
 

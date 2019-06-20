@@ -1,7 +1,7 @@
 #include "ElementGrid.h"
 #include "NumericFunctions.h"
 
-#include "Interface/DistributedGrid.h"
+#include "DistributedGrid.h"
 
 
 //------------------------------------------------------------//

@@ -21,8 +21,8 @@
 #include "../../DerivedProperties/test/MockDerivedSurfaceProperty.h"
 
 // DataAccess libraries
-#include "../../SerialDataAccess/src/Interface/SerialGrid.h"
-#include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
+#include "../../SerialDataAccess/src/SerialGrid.h"
+#include "../../SerialDataAccess/src/SerialGridMap.h"
 
 // utility library
 #include "../../utilities/src/FormattingException.h"

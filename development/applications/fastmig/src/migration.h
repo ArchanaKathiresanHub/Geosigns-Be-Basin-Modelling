@@ -33,9 +33,9 @@ namespace migration
    extern unsigned int DebugPointJ;
 
    class Trap;
-   class Reservoir;
-   class Formation;
-   class Surface;
+   class MigrationReservoir;
+   class MigrationFormation;
+   class MigrationSurface;
    class FormationNode;
    class LocalFormationNode;
    class ProxyFormationNode;
@@ -55,7 +55,7 @@ namespace migration
    typedef vector<Trap *> TrapVector;
    typedef vector<Trap *>::iterator TrapIterator;
    typedef vector<Trap *>::reverse_iterator TrapReverseIterator;
-   typedef vector<const Reservoir *> MigrationReservoirList;
+   typedef vector<const MigrationReservoir *> MigrationReservoirList;
 
    typedef pair<unsigned int, unsigned int> IndexPair;
 

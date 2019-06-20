@@ -7,9 +7,9 @@
 #include "DerivedOutputPropertyMap.h"
 #include "timefilter.h"
 
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "GridMap.h"
 
 /// A function-pointer type for allocating property maps.
 typedef OutputPropertyMap* (*DerivedOutputPropertyMapAllocator)( const PropertyList         property,

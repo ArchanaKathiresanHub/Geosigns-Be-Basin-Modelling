@@ -12,7 +12,7 @@
 #define _MIGRATION_OVERBURDEN_H_
 
 
-#include "Formation.h"
+#include "MigrationFormation.h"
 
 namespace migration
 {
@@ -27,11 +27,11 @@ namespace migration
       {
       public:
 
-         typedef vector<const Formation*> formations_type;
+         typedef vector<const MigrationFormation*> formations_type;
 
       private:
 
-         vector<const Formation*> m_formations;
+         vector<const MigrationFormation*> m_formations;
          bool m_upward;
 
       public:
@@ -57,13 +57,13 @@ namespace migration
          bool& getUpward () { return m_upward; }
       };
 
-      OverburdenFormations getOverburdenFormations (const Formation* formation,
+      OverburdenFormations getOverburdenFormations (const MigrationFormation* formation,
          bool upward = false);
 
       /// The following functions include a selection functor:
 
       template <typename PRED>
-      vector<const Formation*> getOverburdenFormationsIf (const Formation* formation,
+      vector<const MigrationFormation*> getOverburdenFormationsIf (const MigrationFormation* formation,
          PRED pred, bool upward = false);
 
    }

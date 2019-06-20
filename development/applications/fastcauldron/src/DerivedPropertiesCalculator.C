@@ -6,8 +6,8 @@
 #include "LogHandler.h"
 #include "FastcauldronFactory.h"
 #include "FilePath.h"
-#include "Interface/SimulationDetails.h"
-#include "Interface/MapWriter.h"
+#include "SimulationDetails.h"
+#include "MapWriter.h"
 
 #include "DerivedPropertiesCalculator.h"
 #include "timefilter.h"
@@ -274,12 +274,12 @@ bool DerivedPropertiesCalculator::allowOutput ( const string & propertyName,
    if( m_decompactionMode and ( propertyName == "BulkDensity" ) and surface == 0 ) {
       return false;
    }
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and
-                              dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and
+                              dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    // The top of the crust is a part of the sediment
    if( basementFormation and surface != 0 and ( propertyName == "Depth" or propertyName == "Temperature" ) ) {
-      if( dynamic_cast<const GeoPhysics::Formation*>( formation )->isCrust() ) {
+      if( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->isCrust() ) {
          if( formation->getTopSurface() and ( formation->getTopSurface() == surface )) {
             return true;
          }

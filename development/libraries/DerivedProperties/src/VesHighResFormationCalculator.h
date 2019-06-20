@@ -21,7 +21,7 @@
 
 namespace GeoPhysics
 {
-   class Formation;
+   class GeoPhysicsFormation;
    class FluidType;
 }
 

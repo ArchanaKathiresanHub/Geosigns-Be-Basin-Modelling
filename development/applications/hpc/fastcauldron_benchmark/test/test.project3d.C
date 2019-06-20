@@ -1,6 +1,6 @@
 #include "test.project3d.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "ObjectFactory.h"
 
 #include <iostream>
 #include <string>

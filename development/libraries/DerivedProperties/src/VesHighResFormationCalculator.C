@@ -12,14 +12,14 @@
 
 #include <assert.h>
 #include "FormattingException.h"
-#include "Interface/SimulationDetails.h"
+#include "SimulationDetails.h"
 #include "IndirectFormationProperty.h"
 #include "CompoundLithology.h"
 #include "GeoPhysicsFluidType.h"
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
+#include "Surface.h"
+#include "Snapshot.h"
 
 // utilities library
 #include "ConstantsPhysics.h"
@@ -66,7 +66,7 @@ void DerivedProperties::VesHighResFormationCalculator::calculate(       Abstract
 {
    try
    {
-      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation *>( formation );
+      const GeoPhysics::GeoPhysicsFormation * const currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation *>( formation );
       assert( currentFormation != 0 );
 
       if( currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() ||
@@ -131,7 +131,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
 {
    try
    {
-      const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+      const GeoPhysics::GeoPhysicsFormation* currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
       const DataModel::AbstractProperty * vesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
       assert( vesHighResProperty != 0 );
@@ -144,11 +144,11 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
                                                                                        currentFormation->getMaximumNumberOfElements() + 1 ) );
 
       const double time = snapshot->getTime();
-      const GeoPhysics::Formation * formationAbove = 0;
+      const GeoPhysics::GeoPhysicsFormation * formationAbove = 0;
       if( currentFormation->getTopSurface()->getSnapshot() == 0 ||
           currentFormation->getTopSurface()->getSnapshot()->getTime() > time )
       {
-         formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface()->getTopFormation());
+         formationAbove = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( currentFormation->getTopSurface()->getTopFormation());
       }
 
       // Initialize top surface nodes according to the formation above (if any)

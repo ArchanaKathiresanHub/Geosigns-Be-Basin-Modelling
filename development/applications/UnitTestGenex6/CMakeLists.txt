@@ -18,19 +18,6 @@ include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 
-bm_include_libraries(
-	DataModel
-	SerialDataAccess
-	DataAccess
-	EosPack	
-	CBMGenerics
-	genex6
-	genex6_kernel
-	TableIO
-	CBMGenerics
-	utilities
-)
-
 target_link_libraries(UnitTestGenex6
 	DataAccess
 	SerialDataAccess
@@ -47,9 +34,3 @@ target_link_libraries(UnitTestGenex6
 install(TARGETS UnitTestGenex6
 	RUNTIME DESTINATION bin
 )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

@@ -9,12 +9,12 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/GridMap.h"
-#include "Interface/Formation.h"
-#include "Interface/Snapshot.h"
-#include "Interface/PaleoFormationProperty.h"
+#include "ProjectHandle.h"
+#include "ObjectFactory.h"
+#include "GridMap.h"
+#include "Formation.h"
+#include "Snapshot.h"
+#include "PaleoFormationProperty.h"
 
 using namespace DataAccess;
 using namespace Interface;

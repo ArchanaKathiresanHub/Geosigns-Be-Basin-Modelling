@@ -14,9 +14,9 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/InputValue.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/GridMap.h"
+#include "InputValue.h"
+#include "ProjectHandle.h"
+#include "GridMap.h"
 #include "FilePath.h"
 
 #include "hdf5funcs.h"

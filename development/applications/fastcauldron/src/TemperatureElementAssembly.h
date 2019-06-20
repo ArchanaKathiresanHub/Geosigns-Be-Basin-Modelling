@@ -10,7 +10,7 @@
 #ifndef FASTCAULDRON__TEMPERATURE_ELEMENT_ASSEMBLY__H
 #define FASTCAULDRON__TEMPERATURE_ELEMENT_ASSEMBLY__H
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 #include "FiniteElementTypes.h"
 #include "FiniteElementArrayTypes.h"

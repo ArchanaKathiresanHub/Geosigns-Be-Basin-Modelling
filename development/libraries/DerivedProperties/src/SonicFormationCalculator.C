@@ -42,7 +42,7 @@ void DerivedProperties::SonicFormationCalculator::calculate(       AbstractPrope
    
    const FormationPropertyPtr velocity = propertyManager.getFormationProperty( velocityProperty, snapshot, formation );
 
-   GeoPhysics::Formation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>(formation);
+   GeoPhysics::GeoPhysicsFormation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(formation);
    GeoPhysics::ProjectHandle const * const projectHandle = dynamic_cast<const GeoPhysics::ProjectHandle*>(geophysicsFormation->getProjectHandle());
    
    derivedProperties.clear ();

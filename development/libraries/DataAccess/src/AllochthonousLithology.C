@@ -8,11 +8,11 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/Formation.h"
-#include "Interface/LithoType.h"
-#include "Interface/AllochthonousLithology.h"
+#include "ProjectHandle.h"
+#include "ObjectFactory.h"
+#include "Formation.h"
+#include "LithoType.h"
+#include "AllochthonousLithology.h"
 
 using namespace DataAccess;
 using namespace Interface;

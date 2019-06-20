@@ -5,7 +5,7 @@
 
 #include "AdsorptionFunction.h"
 
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 
 namespace Genex6 {
 

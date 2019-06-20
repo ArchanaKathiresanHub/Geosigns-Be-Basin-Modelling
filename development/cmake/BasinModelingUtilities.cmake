@@ -12,17 +12,31 @@
 
 # Basin Modeling Utilities & Functions
 
-#
-# Add header files of a Basin Modeling library to the include path
-#
-macro( bm_include_libraries )
-  foreach(library ${ARGN})
-    if(${library} STREQUAL "TableIO")
-      include_directories( ${PROJECT_BINARY_DIR}/libraries/${library} )
-    endif()
-    include_directories( ${PROJECT_SOURCE_DIR}/libraries/${library}/src )
-  endforeach(library)
-endmacro( bm_include_libraries )
+macro(create_bm_library)
+  set(prefix BM)
+  set(options INSTALLTARGET)
+  set(oneValueArgs TARGET)
+  set(multiValueArgs LIBRARIES)
+  cmake_parse_arguments(${prefix} ${options} ${oneValueArgs} ${multiValueArgs} ${ARGN})
+
+  file(GLOB ALL_HEADERS src/*.h)
+  file(GLOB ALL_SOURCES src/*.C src/*.cpp)
+
+  source_group(include FILES ${ALL_HEADERS})
+  source_group(source  FILES ${ALL_SOURCES})
+
+  add_library(${BM_TARGET} ${ALL_SOURCES} ${ALL_HEADERS})
+  target_include_directories(${BM_TARGET} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  target_link_libraries(${BM_TARGET} ${BM_LIBRARIES})
+  if (BM_INSTALLTARGET)
+    install(TARGETS ${BM_TARGET}
+            RUNTIME DESTINATION bin
+            LIBRARY DESTINATION lib
+            ARCHIVE DESTINATION lib
+    )
+  endif(BM_INSTALLTARGET)
+endmacro(create_bm_library)
+
 
 # The following function is copied from 
 # http://stackoverflow.com/questions/10113017/setting-the-msvc-runtime-in-cmake

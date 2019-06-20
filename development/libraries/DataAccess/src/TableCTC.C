@@ -8,12 +8,12 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Interface/TableCTC.h"
+#include "TableCTC.h"
 
 // DataAccess library
-#include "Interface/TableLoader.h"
-#include "Interface/TableFunctorSimple.h"
-#include "Interface/ObjectFactory.h"
+#include "TableLoader.h"
+#include "TableFunctorSimple.h"
+#include "ObjectFactory.h"
 
 using namespace DataAccess::Interface;
 

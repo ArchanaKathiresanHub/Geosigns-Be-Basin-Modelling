@@ -15,7 +15,7 @@
 #include "timefilter.h"
 #include "ConstantsFastcauldron.h"
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 using namespace DataAccess;
 
 namespace ApplicableOutputRegion {

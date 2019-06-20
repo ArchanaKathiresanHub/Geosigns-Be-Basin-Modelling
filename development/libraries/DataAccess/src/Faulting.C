@@ -1,11 +1,11 @@
 #include <math.h>
 #include <algorithm>
 
-#include "Interface/Snapshot.h"
-#include "Interface/FaultFileReader.h"
-#include "Interface/Faulting.h"
-#include "Interface/FaultElementCalculator.h"
-#include "Interface/FaultFileReaderFactory.h"
+#include "Snapshot.h"
+#include "FaultFileReader.h"
+#include "Faulting.h"
+#include "FaultElementCalculator.h"
+#include "FaultFileReaderFactory.h"
 #include <sstream>
 using std::ostringstream;
 

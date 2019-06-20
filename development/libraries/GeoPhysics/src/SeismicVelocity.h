@@ -13,7 +13,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include "GeoPhysicsFluidType.h"
-#include "Interface/Interface.h"
+#include "Interface.h"
 #include "Porosity.h"
 
 namespace GeoPhysics

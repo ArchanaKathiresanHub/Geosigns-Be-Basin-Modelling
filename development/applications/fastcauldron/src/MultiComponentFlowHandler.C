@@ -16,7 +16,7 @@
 #include "FastcauldronSimulator.h"
 #include "ConstantsFastcauldron.h"
 #include "layer.h"
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 #ifdef _MSC_VER
 #define strcasecmp _stricmp

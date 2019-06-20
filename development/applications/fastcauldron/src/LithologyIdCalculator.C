@@ -59,7 +59,7 @@ bool LithologyIdVolumeCalculator::operator ()( const OutputPropertyMap::OutputPr
 
 void LithologyIdVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Lithology", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Lithology", 
                                                                                                             m_snapshot, 0, 
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

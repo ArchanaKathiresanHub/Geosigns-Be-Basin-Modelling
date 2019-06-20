@@ -7,8 +7,8 @@
 #include "OutputPropertyMap.h"
 #include "timefilter.h"
 
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
+#include "Snapshot.h"
+#include "GridMap.h"
 
 class BasementPropertyCalculator : public OutputPropertyMap  {
 

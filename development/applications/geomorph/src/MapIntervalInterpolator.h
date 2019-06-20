@@ -3,7 +3,7 @@
 
 #include "Numerics.h"
 #include "IntervalInterpolator.h"
-#include "AllochthonousLithologyDistribution.h"
+#include "GeoMorphAllochthonousLithologyDistribution.h"
 
 namespace AllochMod {
 
@@ -36,8 +36,8 @@ namespace AllochMod {
     MapIntervalInterpolator ();
 
     /// \brief Compute the interpolant on the interval bounded by the input maps.
-    void computeInterpolator ( AllochthonousLithologyDistribution* lower,
-                               AllochthonousLithologyDistribution* upper,
+    void computeInterpolator ( GeoMorphAllochthonousLithologyDistribution* lower,
+                               GeoMorphAllochthonousLithologyDistribution* upper,
                                const int                           debugLevel );
 
     /// \brief Assign the interpolation points and coefficients of the basis function.
@@ -75,13 +75,13 @@ namespace AllochMod {
   private :
 
     /// \brief Initialise the surface, exterior and interior point sets.
-    void initialisePoints ( AllochthonousLithologyDistribution* lower,
-                            AllochthonousLithologyDistribution* upper );
+    void initialisePoints ( GeoMorphAllochthonousLithologyDistribution* lower,
+                            GeoMorphAllochthonousLithologyDistribution* upper );
 
 
     /// \brief Update the exterior and interior point sets in the areas the interpolant was in error for both maps.
-    void enhancePointSet (       AllochthonousLithologyDistribution& lower,
-                                 AllochthonousLithologyDistribution& upper,
+    void enhancePointSet (       GeoMorphAllochthonousLithologyDistribution& lower,
+                                 GeoMorphAllochthonousLithologyDistribution& upper,
                            const FloatingPoint                       exteriorErrorLevel,
                            const FloatingPoint                       interiorErrorLevel,
                            const int                                 xBound,
@@ -90,7 +90,7 @@ namespace AllochMod {
 			   const int                                 debugLevel );
 
     /// \brief Update the exterior and interior point sets in the areas the interpolant was in error for a specific map.
-    void enhancePointSet (       AllochthonousLithologyDistribution& saltBody,
+    void enhancePointSet (       GeoMorphAllochthonousLithologyDistribution& saltBody,
                            const FloatingPoint                       exteriorErrorLevel,
                            const FloatingPoint                       interiorErrorLevel,
                            const int                                 xBound,

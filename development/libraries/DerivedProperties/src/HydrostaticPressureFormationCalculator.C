@@ -10,10 +10,10 @@
 
 #include "HydrostaticPressureFormationCalculator.h"
 
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/RunParameters.h"
-#include "Interface/SimulationDetails.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "RunParameters.h"
+#include "SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -175,7 +175,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
                                                                                                                 const DataModel::AbstractFormation* formation,
                                                                                                                       FormationPropertyList&        derivedProperties ) const {
 
-   const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    const bool basementFormation = ( currentFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION );
  
@@ -195,7 +195,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
    if( depth != 0 ) {
       PropertyRetriever depthRetriever ( depth );
       
-      const GeoPhysics::Formation* formationAbove = 0;
+      const GeoPhysics::GeoPhysicsFormation* formationAbove = 0;
       
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
       
@@ -211,7 +211,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
       
       if ( currentFormation->getTopSurface ()->getSnapshot () == 0 ||
            currentFormation->getTopSurface ()->getSnapshot ()->getTime () > snapshot->getTime ()) {
-         formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface ()->getTopFormation ());
+         formationAbove = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( currentFormation->getTopSurface ()->getTopFormation ());
       }
       
       if ( fluid == 0 ) {
@@ -273,7 +273,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
                                                                                                                const DataModel::AbstractFormation* formation,
                                                                                                                      FormationPropertyList&        derivedProperties ) const {
 
-   const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
  
    const bool basementFormation = ( currentFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION );
  
@@ -318,7 +318,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
                                                                                                            const DataModel::AbstractFormation* formation,
                                                                                                                  FormationPropertyList&        derivedProperties ) const {
 
-   const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
  
    const bool basementFormation = ( currentFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION );
  
@@ -363,7 +363,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
    PropertyRetriever ppRetriever ( porePressure );
    PropertyRetriever depthRetriever ( depth );
 
-   const GeoPhysics::Formation* formationAbove = 0;
+   const GeoPhysics::GeoPhysicsFormation* formationAbove = 0;
 
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
 
@@ -381,7 +381,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
 
    if ( currentFormation->getTopSurface ()->getSnapshot () == 0 ||
         currentFormation->getTopSurface ()->getSnapshot ()->getTime () > snapshot->getTime ()) {
-      formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface ()->getTopFormation ());
+      formationAbove = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( currentFormation->getTopSurface ()->getTopFormation ());
    }
 
    // Initialise the top set of nodes for the hydrostatic pressure.
@@ -447,7 +447,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeForBaseme
                                                                                      const DataModel::AbstractFormation* formation,
                                                                                            FormationPropertyList&        derivedProperties ) const {
    
-   const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
  
    const bool basementFormation = ( currentFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION );
  
@@ -532,7 +532,7 @@ bool DerivedProperties::HydrostaticPressureFormationCalculator::isComputable ( c
                                                                                const DataModel::AbstractSnapshot*  snapshot,
                                                                                const DataModel::AbstractFormation* formation ) const {
    
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 

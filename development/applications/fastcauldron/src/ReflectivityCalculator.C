@@ -3,9 +3,9 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Formation.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "Formation.h"
 
 
 OutputPropertyMap* allocateReflectivityCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
@@ -199,7 +199,7 @@ bool ReflectivityCalculator::operator ()( const OutputPropertyMap::OutputPropert
 
 void ReflectivityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ReflectivityVec2", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ReflectivityVec2", 
                                                                                                          m_snapshot, 0, 
                                                                                                          m_layer,
                                                                                                          m_surface )));
@@ -436,7 +436,7 @@ bool ReflectivityVolumeCalculator::operator ()( const OutputPropertyMap::OutputP
 
 void ReflectivityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Reflectivity", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Reflectivity", 
                                                                                                             m_snapshot, 0, 
                                                                                                             m_layer,
                                                                                                             m_layer->getMaximumNumberOfElements () + 1 )));

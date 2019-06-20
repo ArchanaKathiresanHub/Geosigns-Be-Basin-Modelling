@@ -45,7 +45,7 @@ double DataAccess::Mining::ThermalConductivityCalculator::compute ( const Elemen
    }
 
    const Interface::Formation* formation = position.getFormation ();
-   const GeoPhysics::Formation* geoForm = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoForm = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( geoForm->getFluidType ());
 
    if ( formation == 0 or fluid == 0 ) {

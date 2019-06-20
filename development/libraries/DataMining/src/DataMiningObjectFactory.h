@@ -14,10 +14,10 @@
 #include <map>
 
 #include "ProjectFileHandler.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Property.h"
+#include "ProjectHandle.h"
+#include "ObjectFactory.h"
+#include "Snapshot.h"
+#include "Property.h"
 
 #include "GeoPhysicsObjectFactory.h"
 

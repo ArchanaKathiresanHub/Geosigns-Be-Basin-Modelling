@@ -8,10 +8,10 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Interface/TableLoader.h"
+#include "TableLoader.h"
 
 // DataAccess library
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 
 // TableIO library
 #include "database.h"

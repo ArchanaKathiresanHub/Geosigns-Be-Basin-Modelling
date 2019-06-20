@@ -10,7 +10,7 @@
 #ifndef _GEOPHYSICS__COMPOUND_LITHOLOGY_ARRAY_H_
 #define _GEOPHYSICS__COMPOUND_LITHOLOGY_ARRAY_H_
 
-#include "Interface/Grid.h"
+#include "Grid.h"
 
 #include "AllochthonousLithologyInterpolator.h"
 #include "CompoundLithology.h"

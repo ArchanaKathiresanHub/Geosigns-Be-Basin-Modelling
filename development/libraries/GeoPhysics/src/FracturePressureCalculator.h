@@ -10,8 +10,8 @@
 #ifndef GEOPHYSICS__FRACTURE_PRESSURE_CALCULATOR_H
 #define GEOPHYSICS__FRACTURE_PRESSURE_CALCULATOR_H
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/FracturePressureFunctionParameters.h"
+#include "ProjectHandle.h"
+#include "FracturePressureFunctionParameters.h"
 
 #include "CompoundLithology.h"
 #include "GeoPhysicsFluidType.h"

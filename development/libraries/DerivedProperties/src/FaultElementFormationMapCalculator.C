@@ -12,8 +12,8 @@
 
 #include "DerivedFormationMapProperty.h"
 #include "GeoPhysicsFormation.h"
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
+#include "Surface.h"
+#include "Snapshot.h"
 
 using namespace AbstractDerivedProperties;
 
@@ -27,7 +27,7 @@ void DerivedProperties::FaultElementFormationMapCalculator::calculate ( Abstract
                                                                               FormationMapPropertyList&     derivedProperties ) const {
 
  
-   const GeoPhysics::Formation* geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geophysicsFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    if( not geophysicsFormation->getContainsFaults () ) {
       return;

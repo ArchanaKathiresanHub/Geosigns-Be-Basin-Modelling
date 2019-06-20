@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-#include "Interface/auxiliaryfaulttypes.h"
+#include "auxiliaryfaulttypes.h"
 
 #include "SimpleLithology.h"
 #include "CompoundLithology.h"

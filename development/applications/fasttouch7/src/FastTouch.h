@@ -11,7 +11,7 @@
 #ifndef _FASTTOUCH_FASTTOUCH_H_
 #define _FASTTOUCH_FASTTOUCH_H_
 
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 #include "MasterTouch.h"
 
 #include <string>

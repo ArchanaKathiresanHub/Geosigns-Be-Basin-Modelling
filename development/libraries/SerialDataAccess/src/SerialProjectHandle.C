@@ -11,12 +11,12 @@
 #include <iostream>
 #include <cerrno>
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/SerialMessageHandler.h"
-#include "Interface/SerialApplicationGlobalOperations.h"
+#include "ProjectHandle.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "ObjectFactory.h"
+#include "SerialMessageHandler.h"
+#include "SerialApplicationGlobalOperations.h"
 #include "FilePath.h"
 
 #include "array.h"

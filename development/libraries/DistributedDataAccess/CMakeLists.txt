@@ -11,65 +11,12 @@
 #########################################################################
 
 if (BM_PARALLEL)
-
-   FILE( GLOB all_headers src/Interface/*.h )
-   source_group(include FILES ${all_headers})
-
-   FILE( GLOB all_srcs src/*.C)
-   source_group(source FILES ${all_srcs})
-
    set( LIB_NAME "DistributedDataAccess" )
-   add_library(${LIB_NAME} 
-      ${all_srcs}
-      ${all_headers}
-   )
-   set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
-   if (UNIX)
-      add_dependencies(${LIB_NAME} PETSC)
-   endif (UNIX)
 
    set (OFPP "")
    if (UNIX)
       set (OFPP OneFilePerProcess)
    endif ()
-
-   target_link_libraries( ${LIB_NAME} 
-      DataAccess
-      Utilities_Petsc
-      Serial_Hdf5
-      Parallel_Hdf5
-      TableIO
-      FileSystem
-      utilities
-      CBMGenerics
-      ${HDF5_LIBRARIES}
-      ${MPI_LIBRARIES}
-      ${PETSC_LIBRARIES}
-      ${OFPP}
-   )
-
-   bm_include_libraries(
-      DataModel
-      DataAccessInterface 
-      DataAccess 
-      Utilities_Petsc 
-      Serial_Hdf5 
-      Parallel_Hdf5
-      TableIO
-      FileSystem
-      utilities 
-      CBMGenerics
-      )
-
-   if (UNIX)
-   bm_include_libraries(
-      OneFilePerProcess
-      )
-   endif (UNIX)
-
-   include_directories(
-      src
-   )
 
    include_directories( SYSTEM
       ${PETSC_INCLUDE_DIRS}
@@ -77,22 +24,33 @@ if (BM_PARALLEL)
       ${MPI_INCLUDE_DIRS}
    )
 
+   create_bm_library( TARGET ${LIB_NAME}
+                      LIBRARIES DataAccess
+                                Parallel_Hdf5
+                                Utilities_Petsc
+                                Serial_Hdf5
+                                TableIO
+                                FileSystem
+                                CBMGenerics
+                                utilities
+                                ${HDF5_LIBRARIES}
+                                ${MPI_LIBRARIES}
+                                ${PETSC_LIBRARIES}
+                                ${OFPP}
+                      INSTALLTARGET )
+
+   if (UNIX)
+      add_dependencies(${LIB_NAME} PETSC)
+   endif (UNIX)
+
    set_target_properties(${LIB_NAME}
        PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
    )
-
-
-   install(TARGETS ${LIB_NAME}
-      RUNTIME DESTINATION bin
-      LIBRARY DESTINATION lib
-      ARCHIVE DESTINATION lib
-   )
-   
    if (UNIX)
       # In LSF environment (on LSF cluster node, when build is running as a LSF job) mpirun is trying to use job settings
       # to run mpi unit tests. Sometime it fails because build job requested just 1 cpu. To prevent this we can specify
       # machines file with localhost list only
-      configure_file(test/machines machines COPYONLY )
+      copy_test_file(machines)
       set( MACHINE_FILE -machinefile machines)
    endif (UNIX)
 
@@ -174,8 +132,3 @@ if (BM_PARALLEL)
 endif(BM_PARALLEL)
 
 generate_dox( src/DistributedDataAccess.cfg )
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

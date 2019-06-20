@@ -120,17 +120,17 @@ bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList
 
 void BiomarkersAdapter::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HopaneIsomerisation",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HopaneIsomerisation",
                                                                                                          m_snapshot, 0,
                                                                                                          0,
                                                                                                          m_surface )));
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SteraneIsomerisation",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SteraneIsomerisation",
                                                                                                          m_snapshot, 0,
                                                                                                          0,
                                                                                                          m_surface )));
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SteraneAromatisation",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SteraneAromatisation",
                                                                                                          m_snapshot, 0,
                                                                                                          0,
                                                                                                          m_surface )));
@@ -243,17 +243,17 @@ bool BiomarkersVolumeAdapter::operator ()( const OutputPropertyMap::OutputProper
 
 void BiomarkersVolumeAdapter::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HopaneIsomerisation",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HopaneIsomerisation",
                                                                                                             m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SteraneIsomerisation",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SteraneIsomerisation",
                                                                                                             m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SteraneAromatisation",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SteraneAromatisation",
                                                                                                             m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

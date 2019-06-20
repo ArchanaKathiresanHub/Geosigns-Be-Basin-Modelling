@@ -36,7 +36,7 @@ namespace migration
    {
    public:
       /// Constructor
-      Column (unsigned int i, unsigned int j, Reservoir * reservoir);
+      Column (unsigned int i, unsigned int j, MigrationReservoir * reservoir);
 
       /// Destructor
       virtual ~Column (void);
@@ -46,8 +46,8 @@ namespace migration
 
       inline unsigned int getI (void) const;
       inline unsigned int getJ (void) const;
-      inline Reservoir * getReservoir (void);
-      inline const Reservoir * reservoir (void) const;
+      inline MigrationReservoir * getReservoir (void);
+      inline const MigrationReservoir * reservoir (void) const;
 
       bool isValid (void) const;
 
@@ -143,7 +143,7 @@ namespace migration
       virtual void setBit (unsigned int bitSpec, bool state);
 
    protected:
-      Reservoir * m_reservoir;
+      MigrationReservoir * m_reservoir;
 
       int m_iGlobal;
       int m_jGlobal;
@@ -160,7 +160,7 @@ namespace migration
    {
    public:
       /// Constructor
-      ProxyColumn (unsigned int i, unsigned int j, Reservoir * reservoir);
+      ProxyColumn (unsigned int i, unsigned int j, MigrationReservoir * reservoir);
 
       /// Destructor
       virtual ~ProxyColumn (void);
@@ -259,7 +259,7 @@ namespace migration
    {
    public:
       /// Constructor
-      LocalColumn (unsigned int i, unsigned int j, Reservoir * reservoir);
+      LocalColumn (unsigned int i, unsigned int j, MigrationReservoir * reservoir);
 
       /// Destructor
       virtual ~LocalColumn (void);
@@ -565,7 +565,7 @@ namespace migration
    class ColumnArray
    {
    public:
-      ColumnArray (Reservoir * reservoir, int numIGlobal, int numJGlobal, int firstILocal, int firstJLocal, int lastILocal, int lastJLocal);
+      ColumnArray (MigrationReservoir * reservoir, int numIGlobal, int numJGlobal, int firstILocal, int firstJLocal, int lastILocal, int lastJLocal);
 
       virtual ~ColumnArray (void);
 
@@ -588,7 +588,7 @@ namespace migration
       bool clearPreviousProperties (void);
 
    private:
-      Reservoir * m_reservoir;
+      MigrationReservoir * m_reservoir;
 
       unsigned int m_numIGlobal;
       unsigned int m_numJGlobal;
@@ -640,12 +640,12 @@ bool migration::Column::isShallowerThan (Column * column, bool useTieBreaker)
    return compareDepths (column, useTieBreaker) == -1;
 }
 
-migration::Reservoir * migration::Column::getReservoir (void)
+migration::MigrationReservoir *migration::Column::getReservoir(void)
 {
    return m_reservoir;
 }
 
-const migration::Reservoir * migration::Column::reservoir (void) const
+const migration::MigrationReservoir *migration::Column::reservoir(void) const
 {
    return m_reservoir;
 }

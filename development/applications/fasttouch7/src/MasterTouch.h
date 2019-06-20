@@ -22,8 +22,8 @@
 #include <tr1/array>
 #include <iostream>
 
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
+#include "Formation.h"
+#include "Surface.h"
 #include "petsc.h"
 #include "BurialHistory.h"
 #include "WriteBurial.h"

@@ -10,51 +10,24 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h src/Interface/*.h )
-source_group(include FILES ${all_headers})
-
-FILE( GLOB all_srcs src/*.C src/*.cpp)
-source_group(source FILES ${all_srcs})
-
 set( LIB_NAME "DataAccess" )
-add_library(${LIB_NAME} 
-   ${all_srcs}
-   ${all_headers}
-)
-set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
-
-bm_include_libraries(
-   DataModel
-   Serial_Hdf5
-   CBMGenerics
-   utilities
-   FileSystem 
-   TableIO
-   EosPack
-)
-
-include_directories(
-  ${PROJECT_SOURCE_DIR}/libraries/utilities/src
-)
-
-include_directories( src )
 
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 
-target_link_libraries(${LIB_NAME} 
+create_bm_library( TARGET ${LIB_NAME}
+                   LIBRARIES
    ${Boost_LIBRARIES}
+   ${HDF5_LIBRARIES}
+   DataModel
    Serial_Hdf5
+   TableIO
+   EosPack
    CBMGenerics
    FileSystem
    utilities
-   TableIO
 )
-
-if (UNIX)
-   add_dependencies(${LIB_NAME} HDF5)
-endif (UNIX)
 
 add_gtest( NAME ${LIB_NAME}
            SOURCES test/DataAccess.C
@@ -64,11 +37,7 @@ add_gtest( NAME ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-configure_file(
-   ${CMAKE_CURRENT_SOURCE_DIR}/test/DataAccessTest.project3d
-   DataAccessTest.project3d
-   COPYONLY
-)
+copy_test_file(DataAccessTest.project3d)
 
 generate_dox( src/DataAccess.cfg )
 
@@ -93,9 +62,3 @@ if ( MSVC )
 
    configure_file(test/Project.project3d  ${CMAKE_BINARY_DIR}/Project.project3d COPYONLY)   
 endif (MSVC)
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

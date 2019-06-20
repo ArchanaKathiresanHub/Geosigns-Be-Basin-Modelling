@@ -14,13 +14,13 @@
 #include "RiftingEvent.h"
 
 // DataAccess library
-#include "Interface/Interface.h"
-#include "Interface/CrustalThicknessData.h"
-#include "Interface/CrustalThicknessInterface.h"
-#include "Interface/CrustalThicknessRiftingHistoryData.h"
-#include "Interface/Formation.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/MantleFormation.h"
+#include "Interface.h"
+#include "CrustalThicknessData.h"
+#include "CrustalThicknessInterface.h"
+#include "CrustalThicknessRiftingHistoryData.h"
+#include "Formation.h"
+#include "CrustFormation.h"
+#include "MantleFormation.h"
 
 // GeoPhysics library
 #include "GeoPhysicsProjectHandle.h"

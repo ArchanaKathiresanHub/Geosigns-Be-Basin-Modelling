@@ -21,7 +21,7 @@ namespace DataAccess
       class ObjectFactory;
       class Trap;
       class Reservoir;
-      class Formation;
+      class MigrationFormation;
       class Surface;
    }
 }

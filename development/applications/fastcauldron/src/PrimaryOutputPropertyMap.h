@@ -7,9 +7,9 @@
 #include "OutputPropertyMap.h"
 #include "PropertyValue.h"
 
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "GridMap.h"
 
 
 class PrimaryOutputPropertyMap : public OutputPropertyMap {

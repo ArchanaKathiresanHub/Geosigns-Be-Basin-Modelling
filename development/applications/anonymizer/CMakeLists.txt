@@ -40,12 +40,6 @@ include_directories( SYSTEM
    ${PUGIXML_INCLUDE_DIR}
 )
 
-bm_include_libraries(
-   TableIO
-   FileSystem
-   utilities
-)
-
 target_link_libraries(${TARGET_NAME}
    TableIO
    FileSystem
@@ -113,9 +107,3 @@ add_gtest( NAME "Anonymizer"
 
 # Doxygen
 generate_dox( anonymizer.cfg )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

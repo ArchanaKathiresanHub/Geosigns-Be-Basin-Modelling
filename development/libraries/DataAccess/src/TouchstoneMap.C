@@ -9,12 +9,12 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/TouchstoneMap.h"
-#include "Interface/Surface.h"
-#include "Interface/Formation.h"
-#include "Interface/InputValue.h"
+#include "ProjectHandle.h"
+#include "PropertyValue.h"
+#include "TouchstoneMap.h"
+#include "Surface.h"
+#include "Formation.h"
+#include "InputValue.h"
 
 using namespace DataAccess;
 using namespace Interface;

@@ -1,6 +1,6 @@
-#include "Interface/SerialMapWriter.h"
-#include "Interface/SerialGridMap.h"
-#include "Interface/SerialGrid.h"
+#include "SerialMapWriter.h"
+#include "SerialGridMap.h"
+#include "SerialGrid.h"
 
 #include "hdf5funcs.h"
 

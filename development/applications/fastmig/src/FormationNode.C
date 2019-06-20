@@ -20,7 +20,7 @@ using namespace std;
 #include "FormationNode.h"
 
 #include "Migrator.h"
-#include "Formation.h"
+#include "MigrationFormation.h"
 #include "Composition.h"
 
 #include "RequestHandling.h"
@@ -33,7 +33,7 @@ using namespace std;
 
 #include "FiniteElement.h"
 
-#include "Interface/FluidType.h"
+#include "FluidType.h"
 
 #include "BrooksCorey.h"
 
@@ -61,7 +61,7 @@ namespace migration
 #endif
 
    /// constructor
-   FormationNode::FormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
+   FormationNode::FormationNode (unsigned int i, unsigned int j, int k, MigrationFormation * formation) :
       m_formation (formation), m_iGlobal (i), m_jGlobal (j), m_k (k)
    {
       clearProperties ();
@@ -78,13 +78,13 @@ namespace migration
       return getFormation ()->getMigrator ();
    }
 
-   Formation * FormationNode::getFormation (int index)
+   MigrationFormation * FormationNode::getFormation (int index)
    {
       return getMigrator ()->getFormation (index);
    }
 
    /// constructor
-   ProxyFormationNode::ProxyFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
+   ProxyFormationNode::ProxyFormationNode (unsigned int i, unsigned int j, int k, MigrationFormation * formation) :
       FormationNode (i, j, k, formation), m_compositionToBeMigrated (0), m_analogFlowDirection (0)
    {
       clearProperties ();
@@ -394,7 +394,7 @@ namespace migration
 #endif
 
    /// Constructor
-   LocalFormationNode::LocalFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
+   LocalFormationNode::LocalFormationNode (unsigned int i, unsigned int j, int k, MigrationFormation * formation) :
       FormationNode (i, j, k, formation), m_topFormationNode (0), m_targetFormationNode (0), m_selectedDirectionIndex (-1),
       m_depth (Interface::DefaultUndefinedMapValue), m_horizontalPermeability (-1), m_porosity (-1), m_pressure (-1), m_temperature (-1), m_adjacentNodeIndex (0),
       m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestLiquid (true), m_isCrestVapour (true), m_isEndOfPath (false),
@@ -1044,7 +1044,7 @@ namespace migration
    int FormationNode::compareDepths (FormationNode * node, bool useTieBreaker)
    {
       // top depth of the current node and neighbour node 
-      Formation * formation = getFormation ();
+      MigrationFormation * formation = getFormation ();
       double depth = formation->getPropertyValue (DEPTHPROPERTY, getI (), getJ (), getK () + 1);
       double nodedepth = formation->getPropertyValue (DEPTHPROPERTY, node->getI (), node->getJ (), getK () + 1);
 
@@ -2109,7 +2109,7 @@ namespace migration
    }
 #endif
 
-   FormationNodeArray::FormationNodeArray (Formation * formation,
+   FormationNodeArray::FormationNodeArray (MigrationFormation * formation,
       int numIGlobal, int numJGlobal,
       int firstILocal, int lastILocal,
       int firstJLocal, int lastJLocal,

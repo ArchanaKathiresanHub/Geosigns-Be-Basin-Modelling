@@ -15,9 +15,9 @@
 #include "DerivedOutputPropertyMapFactory.h"
 
 //DataAccess library
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Formation.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "Formation.h"
 
 #include "ComponentManager.h"
 

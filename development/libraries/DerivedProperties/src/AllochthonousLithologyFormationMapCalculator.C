@@ -32,7 +32,7 @@ void DerivedProperties::AllochthonousLithologyFormationMapCalculator::calculate 
                                                                                   const DataModel::AbstractFormation* formation,
                                                                                         FormationMapPropertyList&     derivedProperties ) const {
 
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    if ( not geoFormation->hasAllochthonousLithology ()) {
       return;

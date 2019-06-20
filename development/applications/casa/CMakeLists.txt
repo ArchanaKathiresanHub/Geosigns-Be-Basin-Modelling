@@ -42,17 +42,6 @@ if (UNIX)
 add_dependencies(${APP_NAME} Boost)
 endif (UNIX)
 
-bm_include_libraries(
-   TableIO
-   casaAPI
-   cmbAPI
-   CBMGenerics
-   FileSystem
-   DataAccess
-   utilities
-   DataModel
-)
-
 include_directories( utilities
    ${CMAKE_CURRENT_BINARY_DIR} )
 

@@ -1,8 +1,8 @@
 #include <iostream>
 using namespace std;
 
-#include "Interface/Parent.h"
-#include "Interface/Child.h"
+#include "Parent.h"
+#include "Child.h"
 
 using namespace DataAccess;
 using namespace Interface;

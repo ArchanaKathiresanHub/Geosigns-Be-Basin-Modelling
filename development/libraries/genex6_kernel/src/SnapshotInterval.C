@@ -2,7 +2,7 @@
 #include "SnapshotInterval.h"
 
 #include <vector>
-#include "Interface/Snapshot.h"
+#include "Snapshot.h"
 #include <math.h>
 
 

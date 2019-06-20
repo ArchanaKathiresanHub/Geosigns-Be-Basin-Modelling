@@ -41,27 +41,27 @@ VolumeCalculator::VolumeCalculator ( LayerProps* formation, const Interface::Sna
 
 void VolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* component;
+   CauldronPropertyValue* component;
 
-   component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourVolume",
+   component = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourVolume",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( component );
 
-   component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidVolume",
+   component = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidVolume",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( component );
 
-   component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "ElementVolume",
+   component = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "ElementVolume",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( component );
 
-   component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "ElementPoreVolume",
+   component = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "ElementPoreVolume",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   m_formation->getMaximumNumberOfElements () + 1 ));

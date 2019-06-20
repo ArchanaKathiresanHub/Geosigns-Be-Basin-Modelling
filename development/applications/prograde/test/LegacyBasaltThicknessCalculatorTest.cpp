@@ -11,13 +11,13 @@
 #include <gtest/gtest.h>
 
 // SerialDataAccess
-#include "Interface/SerialGrid.h"
-#include "Interface/SerialGridMap.h"
+#include "SerialGrid.h"
+#include "SerialGridMap.h"
 
 // DataAccess
-#include "Interface/ObjectFactory.h"
-#include "Interface/GridMap.h"
-#include "Interface/Snapshot.h"
+#include "ObjectFactory.h"
+#include "GridMap.h"
+#include "Snapshot.h"
 
 // Datamodel
 #include "AbstractSnapshot.h"

@@ -11,7 +11,7 @@
 #include "FastcauldronSimulator.h"
 #include "timefilter.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 // utilities library
 #include "ConstantsNumerical.h"
@@ -27,7 +27,7 @@ PrimaryOutputPropertyVolume::PrimaryOutputPropertyVolume ( const PropertyList   
                                                            const Interface::Snapshot* snapshot ) :
    OutputPropertyMap ( propertyName, formation, 0, snapshot ), m_isCalculated ( false ) {
 
-   PropertyValue* localValues = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( propertyListName ( m_propertyName ),
+   CauldronPropertyValue* localValues = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( propertyListName ( m_propertyName ),
                                                                                                                    snapshot, 0, m_formation,
                                                                                                                    m_formation->getMaximumNumberOfElements () + 1 ));
 

@@ -40,29 +40,8 @@ include_directories( SYSTEM
     ${PETSC_INCLUDE_DIRS}
 )
 
-bm_include_libraries(
-    DataModel
-    DataAccess
-    AbstractDerivedProperties
-    DerivedProperties
-    GeoPhysics
-    Interpolation
-    LinearAlgebra
-    DistributedDataAccess
-    Utilities_Petsc
-    Serial_Hdf5
-    Parallel_Hdf5
-    genex6
-    genex6_kernel
-    CBMGenerics
-    EosPack
-    OTGC_kernel6
-    FileSystem
-    utilities
-    TableIO
-)
-
 target_link_libraries( ${APP_NAME}
+    genex6_kernel
     DataAccess
     AbstractDerivedProperties
     DerivedProperties
@@ -72,7 +51,6 @@ target_link_libraries( ${APP_NAME}
     Serial_Hdf5
     Parallel_Hdf5
     genex6
-    genex6_kernel
     CBMGenerics
     EosPack
     OTGC_kernel6
@@ -86,7 +64,6 @@ target_link_libraries( ${APP_NAME}
 # OFPP only for Linux
 if (UNIX)
     target_link_libraries(${APP_NAME} OneFilePerProcess)
-    bm_include_libraries( OneFilePerProcess )
 endif (UNIX)
 
 set_target_properties(${APP_NAME}
@@ -104,9 +81,3 @@ install(TARGETS ${APP_NAME}
 )
 
 endif(BM_PARALLEL)
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

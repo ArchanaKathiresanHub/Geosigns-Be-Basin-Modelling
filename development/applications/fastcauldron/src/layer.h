@@ -50,8 +50,8 @@ using CBMGenerics::Polyfunction;
 
 using namespace std;
 
-#include "Interface/GridMap.h"
-#include "Interface/Formation.h"
+#include "GridMap.h"
+#include "Formation.h"
 using namespace DataAccess;
 using namespace GeoPhysics;
 
@@ -85,7 +85,7 @@ typedef PETSc_Local_3D_Array<double> PETSc3DDoubleArray;
 typedef PETSc_Local_3D_Array<PVTComponents> PVTComponents3DArray;
 
 
-class LayerProps : virtual public GeoPhysics::Formation
+class LayerProps : virtual public GeoPhysics::GeoPhysicsFormation
 {
 public:
 

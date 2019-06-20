@@ -20,11 +20,11 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/LithoType.h"
-#include "Interface/LithologyHeatCapacitySample.h"
-#include "Interface/LithologyThermalConductivitySample.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/RunParameters.h"
+#include "LithoType.h"
+#include "LithologyHeatCapacitySample.h"
+#include "LithologyThermalConductivitySample.h"
+#include "ProjectHandle.h"
+#include "RunParameters.h"
 
 using namespace DataAccess;
 using namespace Interface;

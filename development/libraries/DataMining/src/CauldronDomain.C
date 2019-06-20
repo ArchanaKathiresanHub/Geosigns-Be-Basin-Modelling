@@ -10,7 +10,7 @@
 
 #include "CauldronDomain.h"
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 #include "NumericFunctions.h"
 
 #include "PropertyInterpolator2D.h"

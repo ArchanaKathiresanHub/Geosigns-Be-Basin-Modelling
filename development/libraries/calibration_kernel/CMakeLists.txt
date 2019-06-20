@@ -10,28 +10,8 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h )
-source_group(include FILES ${all_headers})
-
-FILE( GLOB all_srcs src/*.C)
-source_group(source FILES ${all_srcs})
-
-set( LIB_NAME "calibration_kernel" )
-add_library(${LIB_NAME} 
-   ${all_srcs}
-   ${all_headers}
-)
-set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
-
-bm_include_libraries( 
-   CBMGenerics
-   utilities
-)
-
-install(TARGETS ${LIB_NAME}
-   RUNTIME DESTINATION bin
-   LIBRARY DESTINATION lib
-   ARCHIVE DESTINATION lib
-)
+create_bm_library( TARGET "calibration_kernel"
+                   LIBRARIES CBMGenerics
+                   INSTALLTARGET )
 
 generate_dox( src/calibration_kernel.cfg )

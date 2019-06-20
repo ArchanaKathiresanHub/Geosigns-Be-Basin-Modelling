@@ -16,16 +16,6 @@ add_executable(${TARGET_NAME}
 )
 set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
-bm_include_libraries(
-   DataModel
-   EosPack
-   CBMGenerics
-   SerialDataAccess
-   DataAccess
-   utilities
-   TableIO
-)
-
 include_directories(
   ${PROJECT_SOURCE_DIR}/libraries/utilities/src
 )
@@ -46,9 +36,3 @@ target_link_libraries(${TARGET_NAME}
 install(TARGETS ${TARGET_NAME}
    RUNTIME DESTINATION bin
 )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

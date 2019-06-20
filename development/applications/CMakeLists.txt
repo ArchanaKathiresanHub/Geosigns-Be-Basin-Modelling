@@ -70,9 +70,3 @@ else ()
     add_subdirectory(VisualizationIO_conversion)
     add_subdirectory(fastdepthcalibration)
 endif ()
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

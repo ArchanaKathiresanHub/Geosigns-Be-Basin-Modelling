@@ -10,29 +10,4 @@
 #                                                                       #
 #########################################################################
 
-set(all_headers
-   src/AbstractCompoundLithology.h
-   src/AbstractCompoundLithologyArray.h
-   src/AbstractFormation.h
-   src/AbstractGrid.h
-   src/AbstractProperty.h
-   src/AbstractReservoir.h
-   src/AbstractSnapshot.h
-   src/AbstractSurface.h
-   src/AbstractValidator.h
-   src/PropertyAttribute.h
-)
-
-set(all_sources
-   src/PropertyAttribute.C
-)
-
-source_group(include FILES ${all_headers})
-source_group(source  FILES ${all_sources})
-
-set( LIB_NAME "DataModel" )
-add_library(${LIB_NAME}
-   ${all_sources}
-   ${all_headers}
-)
-set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
+create_bm_library( TARGET "DataModel" )

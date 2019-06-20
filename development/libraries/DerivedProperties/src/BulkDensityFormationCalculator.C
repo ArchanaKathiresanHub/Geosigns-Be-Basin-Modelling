@@ -12,10 +12,10 @@
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
 
-#include "Interface/Interface.h"
-#include "Interface/RunParameters.h"
-#include "Interface/SimulationDetails.h"
-#include "Interface/Surface.h"
+#include "Interface.h"
+#include "RunParameters.h"
+#include "SimulationDetails.h"
+#include "Surface.h"
 
 #include "GeoPhysicsFormation.h"
 #include "CompoundLithologyArray.h"
@@ -73,7 +73,7 @@ void DerivedProperties::BulkDensityFormationCalculator::calculate ( AbstractProp
                                                                     const DataModel::AbstractFormation* formation,
                                                                     FormationPropertyList&              derivedProperties ) const {
 
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    if ( geoFormation != 0 ) {
 
@@ -102,7 +102,7 @@ void DerivedProperties::BulkDensityFormationCalculator::calculate ( AbstractProp
 
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedimentsHydrostatic ( AbstractPropertyManager&           propertyManager,
                                                                                                  const DataModel::AbstractSnapshot* snapshot,
-                                                                                                 const GeoPhysics::Formation*       formation,
+                                                                                                 const GeoPhysics::GeoPhysicsFormation*       formation,
                                                                                                  FormationPropertyList&             derivedProperties ) const {
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
@@ -162,7 +162,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedimentsCoupled ( AbstractPropertyManager&           propertyManager,
                                                                                              const DataModel::AbstractSnapshot* snapshot,
-                                                                                             const GeoPhysics::Formation*       formation,
+                                                                                             const GeoPhysics::GeoPhysicsFormation*       formation,
                                                                                              FormationPropertyList&             derivedProperties ) const {
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
@@ -219,7 +219,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBasementNonAlc ( AbstractPropertyManager&           propertyManager,
                                                                                            const DataModel::AbstractSnapshot* snapshot,
-                                                                                           const GeoPhysics::Formation*       formation,
+                                                                                           const GeoPhysics::GeoPhysicsFormation*       formation,
                                                                                            FormationPropertyList&             derivedProperties ) const {
 
 
@@ -263,7 +263,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
 
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBasementAlc ( AbstractPropertyManager&           propertyManager,
                                                                                         const DataModel::AbstractSnapshot* snapshot,
-                                                                                        const GeoPhysics::Formation*       formation,
+                                                                                        const GeoPhysics::GeoPhysicsFormation*       formation,
                                                                                         FormationPropertyList&             derivedProperties ) const {
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
@@ -282,7 +282,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
    const DataModel::AbstractProperty* basaltThicknessProperty = propertyManager.getProperty ( "ALCStepBasaltThickness" );
 
    if( formation->getName() != "Crust" ) {
-      const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+      const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
       const DataModel::AbstractFormation * crustFormation = ( mantleFormation->getTopSurface()->getTopFormation() );
 
       basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, crustFormation );
@@ -345,7 +345,7 @@ bool DerivedProperties::BulkDensityFormationCalculator::isComputable ( const Abs
                                                                        const DataModel::AbstractSnapshot*  snapshot,
                                                                        const DataModel::AbstractFormation* formation ) const {
 
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    if( basementFormation ) {
       return isComputableForBasement ( propManager, snapshot, formation ) ;
@@ -401,7 +401,7 @@ bool DerivedProperties::BulkDensityFormationCalculator::isComputableForBasement 
          } else {
             if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" ) {
                if( formation->getName() != "Crust" ) {
-                  const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+                  const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
                   const DataModel::AbstractFormation * crustFormation = (mantleFormation->getTopSurface()->getTopFormation() );
                   propertyIsComputable = propertyIsComputable and propManager.formationMapPropertyIsComputable ( property, snapshot, crustFormation );

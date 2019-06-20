@@ -5,10 +5,10 @@
 #include <sstream>
 using namespace std;
 
-#include "Interface/Formation.h"
-#include "Interface/SourceRock.h"
-#include "Interface/GridMap.h"
-#include "Interface/LangmuirAdsorptionTOCEntry.h"
+#include "Formation.h"
+#include "SourceRock.h"
+#include "GridMap.h"
+#include "LangmuirAdsorptionTOCEntry.h"
 
 #include "NumericFunctions.h"
 

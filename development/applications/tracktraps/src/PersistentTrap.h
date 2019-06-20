@@ -28,8 +28,8 @@ namespace database
 /// A PersistentTrap contains atmost one Trap per Reservoir.
 namespace PersistentTraps
 {
-   class Reservoir;
-   class Trap;
+   class TrackReservoir;
+   class TrackTrap;
 
    class PersistentTrap
    {
@@ -39,24 +39,24 @@ namespace PersistentTraps
 
 	 ~PersistentTrap (void);
 
-	 void findFittingTrap (map < unsigned int, Trap *, less < unsigned int > > traps);
+   void findFittingTrap (map < unsigned int, TrackTrap *, less < unsigned int > > traps);
 
 	 /// Add Trap to this PersistentTrap
-	 void addTrap (Trap * trap);
+   void addTrap (TrackTrap * trap);
 
-	 int computeOverlap (Trap * trap);
+   int computeOverlap (TrackTrap * trap);
 
 	 /// Get the trap that was last added
-	 Trap * getLastTrap (void);
+   TrackTrap * getLastTrap (void);
 
 	 /// Get the snapshot of the trap that was last added
 	 const Interface::Snapshot * getSnapshotOfLastTrap (void);
 
 	 /// Check if PersistentTrap  penetrates the Trap
-	 bool penetrates (Trap * trap);
+   bool penetrates (TrackTrap * trap);
 
 	 /// Check if PersistentTrap is penetrated by the Trap
-	 bool isPenetratedBy (Trap * trap);
+   bool isPenetratedBy (TrackTrap * trap);
 
 	 double getDistance (unsigned int i, unsigned int j);
 
@@ -75,7 +75,7 @@ namespace PersistentTraps
 	 int m_id;
 
 	 /// The Traps of a PersistentTrap
-	 vector < Trap * > m_traps;
+   vector < TrackTrap * > m_traps;
    };
 }
 

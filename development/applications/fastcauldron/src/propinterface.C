@@ -38,21 +38,21 @@ using namespace database;
 using namespace Basin_Modelling;
 
 // Data access library
-#include "Interface/GridMap.h"
-#include "Interface/Grid.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
-#include "Interface/LithoType.h"
-#include "Interface/Formation.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/MantleFormation.h"
-#include "Interface/PaleoProperty.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/Property.h"
-#include "Interface/PaleoSurfaceProperty.h"
-#include "Interface/PaleoFormationProperty.h"
-#include "Interface/RunParameters.h"
-#include "Interface/Interface.h"
+#include "GridMap.h"
+#include "Grid.h"
+#include "Snapshot.h"
+#include "Surface.h"
+#include "LithoType.h"
+#include "Formation.h"
+#include "CrustFormation.h"
+#include "MantleFormation.h"
+#include "PaleoProperty.h"
+#include "PropertyValue.h"
+#include "Property.h"
+#include "PaleoSurfaceProperty.h"
+#include "PaleoFormationProperty.h"
+#include "RunParameters.h"
+#include "Interface.h"
 
 #include "GeoPhysicsCrustFormation.h"
 #include "GeoPhysicsMantleFormation.h"
@@ -446,12 +446,12 @@ double AppCtx::getPreviousIgneousIntrusionTime( const double Current_Time ) cons
 
 //------------------------------------------------------------//
 
-void AppCtx::Set_Crust_Layer ( CrustFormation* Pointer )
+void AppCtx::Set_Crust_Layer ( CauldronCrustFormation* Pointer )
 {
    Crust_Layer = Pointer;
 }
 
-void AppCtx::Set_Mantle_Layer ( MantleFormation* Pointer )
+void AppCtx::Set_Mantle_Layer ( CauldronMantleFormation* Pointer )
 {
    Mantle_Layer = Pointer;
 }
@@ -3919,10 +3919,10 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
 
    DMDAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
 
-   CrustFormation * crust = dynamic_cast<CrustFormation *>(layers [layers.size () - 2]);
+   CauldronCrustFormation * crust = dynamic_cast<CauldronCrustFormation *>(layers [layers.size () - 2]);
    assert( crust != 0 );
 
-   MantleFormation * mantle = dynamic_cast<MantleFormation *>(layers [layers.size () - 1]);
+   CauldronMantleFormation * mantle = dynamic_cast<CauldronMantleFormation *>(layers [layers.size () - 1]);
    assert( mantle != 0 );
 
    PETSC_2D_Array basaltThicknessALC    ( *mapDA, crust->ThicknessBasaltALC );

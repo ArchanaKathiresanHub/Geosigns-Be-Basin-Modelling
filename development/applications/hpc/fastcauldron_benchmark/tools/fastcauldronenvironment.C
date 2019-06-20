@@ -10,8 +10,8 @@
 
 #include "ProjectFileHandler.h"
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "ObjectFactory.h"
 
 namespace hpc
 {

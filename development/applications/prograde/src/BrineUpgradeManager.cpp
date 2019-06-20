@@ -19,8 +19,8 @@
 #include "FluidManager.h"
 
 //DataAccess
-#include "Interface/ProjectHandle.h"
-#include "Interface/RunParameters.h"
+#include "ProjectHandle.h"
+#include "RunParameters.h"
 
 //#include<algorithm>
 

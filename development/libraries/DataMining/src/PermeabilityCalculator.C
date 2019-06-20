@@ -9,8 +9,8 @@
 //
 #include "PermeabilityCalculator.h"
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/RunParameters.h"
+#include "ProjectHandle.h"
+#include "RunParameters.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -74,7 +74,7 @@ double DataAccess::Mining::PermeabilityCalculator::compute ( const ElementPositi
    double permeabilityP;
 
    const Interface::Formation* formation = position.getFormation ();
-   const GeoPhysics::Formation* geoForm = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoForm = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
    bool layerRequiresChemicalCompaction = m_chemicalCompactionRequired and ( geoForm != 0 and geoForm->hasChemicalCompaction ());
 
    ves = m_ves->compute ( position );

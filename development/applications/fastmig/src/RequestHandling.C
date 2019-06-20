@@ -25,7 +25,7 @@ extern ostringstream cerrstrstr;
 #include "rankings.h"
 #include "RequestDefs.h"
 #include "RequestHandling.h"
-#include "Reservoir.h"
+#include "MigrationReservoir.h"
 #include "Migrator.h"
 
 int messageId = 0;

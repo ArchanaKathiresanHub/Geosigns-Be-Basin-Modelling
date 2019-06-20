@@ -1,4 +1,4 @@
-#include "Interface/FluidType.h"
+#include "FluidType.h"
 #include "cauldronschemafuncs.h"
 
 #include <assert.h>

@@ -18,14 +18,14 @@
 #include "TimeToComplete.h"
 #include "TouchstoneFiles.h"
 
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Snapshot.h"
-#include "Interface/RunParameters.h"
+#include "Formation.h"
+#include "Surface.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "PropertyValue.h"
+#include "ProjectHandle.h"
+#include "Snapshot.h"
+#include "RunParameters.h"
 
 #include "Path.h"
 

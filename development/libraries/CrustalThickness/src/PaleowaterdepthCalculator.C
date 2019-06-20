@@ -21,7 +21,7 @@
 #include "AbstractValidator.h"
 
 //DataAccess library
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 
 // utilities library
 #include "ConstantsPhysics.h"

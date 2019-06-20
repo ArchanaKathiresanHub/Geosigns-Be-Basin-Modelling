@@ -20,8 +20,8 @@
 #include "AbstractGrid.h"
 
 
-#include "Interface/GridMap.h"
-#include "Interface/PropertyValue.h"
+#include "GridMap.h"
+#include "PropertyValue.h"
 
 #include "FormationSurfaceProperty.h"
 

@@ -13,7 +13,7 @@
 
 #include "SurfaceGridMap.h"
 
-#include "Interface/Formation.h"
+#include "Formation.h"
 
 using Interface::Formation;
 using Interface::GridMap;
@@ -26,13 +26,13 @@ namespace migration
    private:
 
       SurfaceGridMap m_gridMap;
-      const Formation* m_base;
-      const Formation* m_top;
+      const MigrationFormation* m_base;
+      const MigrationFormation* m_top;
 
    public:
 
-      SurfaceGridMapFormations (const SurfaceGridMap& gridMap, const Formation* top,
-         const Formation* base) :
+      SurfaceGridMapFormations (const SurfaceGridMap& gridMap, const MigrationFormation* top,
+         const MigrationFormation* base) :
          m_gridMap (gridMap), m_base (base), m_top (top)
       {
       }
@@ -41,8 +41,8 @@ namespace migration
       {
       }
 
-      const Formation* top () const { return m_top; }
-      const Formation* base () const { return m_base; }
+      const MigrationFormation* top () const { return m_top; }
+      const MigrationFormation* base () const { return m_base; }
 
       bool valid () const { return m_gridMap.valid (); }
       double operator[](const Tuple2<unsigned int>& ij) const { return m_gridMap[ij]; }

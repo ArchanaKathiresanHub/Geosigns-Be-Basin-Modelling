@@ -44,11 +44,11 @@ ComponentConcentrationVolumeCalculator::ComponentConcentrationVolumeCalculator (
 
 void ComponentConcentrationVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* component;
+   CauldronPropertyValue* component;
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( CBMGenerics::ComponentManager::getInstance ().getSpeciesName ( i ) + "Concentration", 
+      component = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( CBMGenerics::ComponentManager::getInstance ().getSpeciesName ( i ) + "Concentration", 
                                                                                                      m_snapshot, 0,
                                                                                                      m_formation,
                                                                                                      m_formation->getMaximumNumberOfElements () + 1 ));
@@ -57,9 +57,9 @@ void ComponentConcentrationVolumeCalculator::allocatePropertyValues ( OutputProp
    }
 
    if ( FastcauldronSimulator::getInstance ().getMcfHandler ().outputElementMasses ()) {
-      PropertyValue* masses;
+      CauldronPropertyValue* masses;
 
-      masses = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "ElementMass", 
+      masses = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "ElementMass", 
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   m_formation->getMaximumNumberOfElements () + 1 ));
@@ -289,11 +289,11 @@ ComponentConcentrationCalculator::ComponentConcentrationCalculator ( LayerProps*
 
 void ComponentConcentrationCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* component;
+   CauldronPropertyValue* component;
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( CBMGenerics::ComponentManager::getInstance ().getSpeciesName ( i ) + "Concentration", 
+      component = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( CBMGenerics::ComponentManager::getInstance ().getSpeciesName ( i ) + "Concentration", 
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   0 ));

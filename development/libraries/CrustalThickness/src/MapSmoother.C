@@ -14,8 +14,8 @@
 #include "NumericFunctions.h"
 
 // DataAccess library
-#include "Interface/GridMap.h"
-#include "Interface/Interface.h"
+#include "GridMap.h"
+#include "Interface.h"
 
 using namespace DataAccess;
 using namespace Interface;

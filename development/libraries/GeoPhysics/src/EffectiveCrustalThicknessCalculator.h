@@ -15,9 +15,9 @@
 #include "AbstractValidator.h"
 
 // DataAccess library
-#include "Interface/Interface.h"
-#include "Interface/Local2DArray.h"
-#include "Interface/TableOceanicCrustThicknessHistory.h"
+#include "Interface.h"
+#include "Local2DArray.h"
+#include "TableOceanicCrustThicknessHistory.h"
 
 // CBMGenerics library
 #include "Polyfunction.h"

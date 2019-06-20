@@ -23,16 +23,16 @@ using namespace std;
 using namespace database;
 
 // DataAccess library
-#include "Interface/Interface.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/Formation.h"
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/PaleoFormationProperty.h"
+#include "Interface.h"
+#include "CrustFormation.h"
+#include "Formation.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "Snapshot.h"
+#include "Surface.h"
+#include "ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "PaleoFormationProperty.h"
 using namespace DataAccess;
 using namespace Interface;
 

@@ -1,7 +1,7 @@
 #ifndef _GEOPHYSICS__MANTLE_FORMATION_H_
 #define _GEOPHYSICS__MANTLE_FORMATION_H_
 
-#include "Interface/MantleFormation.h"
+#include "MantleFormation.h"
 
 #include "GeoPhysicsFormation.h"
 
@@ -18,7 +18,7 @@ namespace DataAccess
 
 namespace GeoPhysics {
 
-   class GeoPhysicsMantleFormation : virtual public GeoPhysics::Formation,
+   class GeoPhysicsMantleFormation : virtual public GeoPhysics::GeoPhysicsFormation,
                                      virtual public DataAccess::Interface::MantleFormation {
 
    public :

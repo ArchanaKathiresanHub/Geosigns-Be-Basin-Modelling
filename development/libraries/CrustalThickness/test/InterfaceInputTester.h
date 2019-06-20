@@ -15,14 +15,14 @@
 #include "MockInterfaceInput.h"
 
 // DataAccess library
-#include "../../DataAccess/src/Interface/Interface.h"
-#include "../../DataAccess/src/Interface/Snapshot.h"
+#include "../../DataAccess/src/Interface.h"
+#include "../../DataAccess/src/Snapshot.h"
 #include "../../DataAccess/test/MockCrustalThicknessData.h"
 #include "../../DataAccess/test/MockCrustalThicknessRiftingHistoryData.h"
 
 // SerialDataAccess library
-#include "../../SerialDataAccess/src/Interface/SerialGrid.h"
-#include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
+#include "../../SerialDataAccess/src/SerialGrid.h"
+#include "../../SerialDataAccess/src/SerialGridMap.h"
 
 // Google test library
 #include <gtest/gtest.h>

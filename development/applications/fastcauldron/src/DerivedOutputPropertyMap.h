@@ -7,11 +7,11 @@
 #include "PropertyValue.h"
 #include "OutputPropertyMap.h"
 
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
-#include "Interface/Formation.h"
-#include "Interface/Interface.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "GridMap.h"
+#include "Formation.h"
+#include "Interface.h"
 
 //#include "PropertyManager.h"
 #include "FastcauldronSimulator.h"

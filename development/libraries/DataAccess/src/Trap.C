@@ -21,11 +21,11 @@ using namespace std;
 using namespace database;
 
 // DataAccess library
-#include "Interface/Grid.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Reservoir.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Trap.h"
+#include "Grid.h"
+#include "ProjectHandle.h"
+#include "Reservoir.h"
+#include "Snapshot.h"
+#include "Trap.h"
 using namespace DataAccess;
 using namespace Interface;
 

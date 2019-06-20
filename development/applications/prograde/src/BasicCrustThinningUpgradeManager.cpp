@@ -24,8 +24,8 @@
 #include "BottomBoundaryManager.h"
 
 //DataAccess
-#include "Interface/ProjectHandle.h"
-#include "Interface/RunParameters.h"
+#include "ProjectHandle.h"
+#include "RunParameters.h"
 
 using namespace mbapi;
 

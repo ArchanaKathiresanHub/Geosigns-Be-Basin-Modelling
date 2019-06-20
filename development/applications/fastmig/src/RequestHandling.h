@@ -20,7 +20,7 @@ using std::string;
 
 namespace migration
 {
-   class Reservoir;
+   class MigrationReservoir;
    class Migrator;
 
    struct ColumnValueRequest;

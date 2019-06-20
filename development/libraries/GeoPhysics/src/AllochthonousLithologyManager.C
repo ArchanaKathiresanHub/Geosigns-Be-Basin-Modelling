@@ -53,10 +53,10 @@ void GeoPhysics::AllochthonousLithologyManager::setGridDescription ( const Cauld
 void GeoPhysics::AllochthonousLithologyManager::initialiseLayers () {
 
    AllochthonousLithologyInterpolatorMap::iterator iter;
-   GeoPhysics::Formation*                          allochthonousLayer;
+   GeoPhysics::GeoPhysicsFormation*                          allochthonousLayer;
 
    for ( iter = interpolators.begin (); iter != interpolators.end (); ++iter ) {
-      allochthonousLayer = dynamic_cast<GeoPhysics::Formation*>(const_cast<Interface::Formation*>(m_projectHandle->findFormation ( iter->first )));
+      allochthonousLayer = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(const_cast<Interface::Formation*>(m_projectHandle->findFormation ( iter->first )));
 
       if ( allochthonousLayer == 0 ) {
          // Error

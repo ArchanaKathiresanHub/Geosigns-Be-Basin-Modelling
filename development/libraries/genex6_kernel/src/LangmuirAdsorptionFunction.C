@@ -1,7 +1,7 @@
 #include "LangmuirAdsorptionFunction.h"
 
-#include "Interface/Interface.h"
-#include "Interface/LangmuirAdsorptionIsothermSample.h"
+#include "Interface.h"
+#include "LangmuirAdsorptionIsothermSample.h"
 
 #include <algorithm>
 #include <iostream>

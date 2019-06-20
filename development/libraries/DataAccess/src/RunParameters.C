@@ -9,8 +9,8 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/RunParameters.h"
-#include "Interface/ProjectHandle.h"
+#include "RunParameters.h"
+#include "ProjectHandle.h"
 
 #include "errorhandling.h"
 #include "NumericFunctions.h"

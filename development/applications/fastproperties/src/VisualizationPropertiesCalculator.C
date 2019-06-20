@@ -15,9 +15,9 @@
 #include "FolderPath.h"
 
 // DataAccess library
-#include "Interface/ProjectData.h"
-#include "Interface/Reservoir.h"
-#include "Interface/Trapper.h"
+#include "ProjectData.h"
+#include "Reservoir.h"
+#include "Trapper.h"
 
 // VisualizationIO library
 #include "VisualizationAPI.h"

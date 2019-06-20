@@ -8,10 +8,10 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/Formation.h"
-#include "Interface/Snapshot.h"
-#include "Interface/AllochthonousLithologyInterpolation.h"
+#include "ProjectHandle.h"
+#include "Formation.h"
+#include "Snapshot.h"
+#include "AllochthonousLithologyInterpolation.h"
 
 using namespace DataAccess;
 using namespace Interface;

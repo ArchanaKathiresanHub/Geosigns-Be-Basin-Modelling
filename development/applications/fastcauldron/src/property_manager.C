@@ -27,7 +27,7 @@
 #include "GeoPhysicalConstants.h"
 #include "CompoundProperty.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 //------------------------------------------------------------//
 

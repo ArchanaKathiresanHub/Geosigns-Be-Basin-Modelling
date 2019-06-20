@@ -29,9 +29,9 @@ TransportedVolumeCalculator::TransportedVolumeCalculator ( LayerProps* formation
 
 void TransportedVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* component;
+   CauldronPropertyValue* component;
 
-   component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "TransportedMass",
+   component = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "TransportedMass",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   m_formation->getMaximumNumberOfElements () + 1 ));

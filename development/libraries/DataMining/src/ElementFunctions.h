@@ -17,7 +17,7 @@
 
 #include "ElementPosition.h"
 #include "FiniteElementTypes.h"
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 #include "CauldronGridDescription.h"
 
 namespace DataAccess {

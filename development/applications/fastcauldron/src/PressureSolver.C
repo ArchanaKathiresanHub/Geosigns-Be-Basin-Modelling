@@ -9,7 +9,7 @@
 //
 #include "PressureSolver.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 
 #include "FiniteElementTypes.h"
@@ -448,8 +448,8 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
 
   DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
 
-  CrustFormation* Crust_Layer  = cauldron->Crust ();
-  MantleFormation* Mantle_Layer = cauldron->Mantle ();
+  CauldronCrustFormation* Crust_Layer  = cauldron->Crust ();
+  CauldronMantleFormation* Mantle_Layer = cauldron->Mantle ();
 
   PETSC_3D_Array Crust_Depth     ( Crust_Layer->layerDA, Crust_Layer->Current_Properties ( Basin_Modelling::Depth ));
   PETSC_3D_Array Mantle_Depth    ( Mantle_Layer->layerDA, Mantle_Layer->Current_Properties ( Basin_Modelling::Depth ));

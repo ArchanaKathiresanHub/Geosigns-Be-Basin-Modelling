@@ -50,28 +50,6 @@ application_env_var( TARGET ${APP_NAME} VARS
      "CTCDIR"      "$MISCDIR"
 )
 
-bm_include_libraries(
-   DataModel
-   DataAccess
-   DistributedDataAccess
-   Interpolation
-   LinearAlgebra
-   GeoPhysics
-   AbstractDerivedProperties
-   DerivedProperties
-   DataAccess
-   TableIO
-   CBMGenerics
-   Serial_Hdf5
-   Parallel_Hdf5
-   EosPack
-   utilities
-   FileSystem
-   Utilities_Petsc
-   VisualizationIO
-   VisualizationIO_projectHandle
-)
-
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
    ${MPI_INCLUDE_DIRS}
@@ -117,7 +95,7 @@ endif (UNIX)
                                     
 add_gtest( NAME Fastproperties::ConvertProperties_MPInp2
            SOURCES test/ConvertProperties.C src/Utilities.C src/Utilities.h
-           LIBRARIES DerivedProperties VisualizationIO DataAccess DistributedDataAccess  GeoPhysics  Parallel_Hdf5
+           LIBRARIES DerivedProperties VisualizationIO DataAccess DistributedDataAccess  GeoPhysics  Parallel_Hdf5 VisualizationIO_projectHandle
            MPI_SIZE 2
            MPIRUN_PRMS ${MACHINE_FILE}
            FOLDER "${BASE_FOLDER}/${APP_NAME}"
@@ -125,8 +103,3 @@ add_gtest( NAME Fastproperties::ConvertProperties_MPInp2
 
 generate_dox( fastproperties.cfg )
 
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

@@ -115,12 +115,3 @@ endif()
 if(GEOCASE_BUILD_PROJECT2HDF)
 	add_subdirectory(project2hdf)
 endif()
-
-# installation
-
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

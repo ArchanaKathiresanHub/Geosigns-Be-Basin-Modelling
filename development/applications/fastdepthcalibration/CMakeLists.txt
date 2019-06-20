@@ -53,7 +53,6 @@ endif (UNIX)
 include_directories(
    src
    ${PROJECT_SOURCE_DIR}/applications/fastcauldron/src
-   ${PROJECT_SOURCE_DIR}/libraries/cmbAPI/src
 )
 
 include_directories( SYSTEM
@@ -61,31 +60,6 @@ include_directories( SYSTEM
    ${MPI_INCLUDE_DIRS}
    ${PETSC_INCLUDE_DIRS}
    ${EIGEN_INCLUDE_DIRS}
-)
-
-bm_include_libraries(
-    FastcauldronApplication
-    DataModel
-    DataAccess
-    AbstractDerivedProperties
-    DerivedProperties
-    DistributedDataAccess
-    utilities
-    Utilities_Petsc
-    Serial_Hdf5
-    Parallel_Hdf5
-    EosPack
-    TableIO
-    LinearAlgebra
-    Interpolation
-    FiniteElements
-    CBMGenerics
-    genex6
-    genex6_kernel
-    GeoPhysics
-    FileSystem
-    calibration_kernel
-    cmbapi
 )
 
 target_link_libraries(${APP_NAME}
@@ -129,7 +103,6 @@ set_target_properties(${APP_NAME}
 
 if(UNIX)
    # The OneFilePerProcess library is only available on Unix
-   bm_include_libraries( OneFilePerProcess )
    target_link_libraries(${APP_NAME} OneFilePerProcess)
 endif()
 

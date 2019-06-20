@@ -13,7 +13,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "Interface/SGDensitySample.h"
+#include "SGDensitySample.h"
 
 #include "EosPack.h"
 #include "ConstantsGenex.h"

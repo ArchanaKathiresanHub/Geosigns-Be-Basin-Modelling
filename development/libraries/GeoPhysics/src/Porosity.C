@@ -15,7 +15,7 @@
 #include "SoilMechanicsPorosity.h"
 #include "DoubleExponentialPorosity.h"
 #include "GeoPhysicalConstants.h"
-#include "Interface/Interface.h"
+#include "Interface.h"
 #include "NumericFunctions.h"
 
 // utilities library

@@ -10,13 +10,13 @@
 
 #include "BurialHistory.h"
 
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/Property.h"
-#include "Interface/Snapshot.h"
+#include "Formation.h"
+#include "Surface.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "PropertyValue.h"
+#include "Property.h"
+#include "Snapshot.h"
 
 #include "FastTouch.h"
 #include "BurialHistoryTimeStep.h"

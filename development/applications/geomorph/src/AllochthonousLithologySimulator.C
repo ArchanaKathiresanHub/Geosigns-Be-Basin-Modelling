@@ -9,16 +9,16 @@
 #include "cauldronschemafuncs.h"
 using namespace database;
 
-#include "AllochthonousLithology.h"
-#include "AllochthonousLithologyDistribution.h"
+#include "GeoMorphAllochthonousLithology.h"
+#include "GeoMorphAllochthonousLithologyDistribution.h"
 
-#include "Interface/Formation.h"
-#include "Interface/Grid.h"
-#include "Interface/Formation.h"
-#include "Interface/Interface.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/AllochthonousLithology.h"
+#include "Formation.h"
+#include "Grid.h"
+#include "Formation.h"
+#include "Interface.h"
+#include "ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "AllochthonousLithology.h"
 #include "hdf5funcs.h"
 
 #include "WallTime.h"
@@ -32,8 +32,8 @@ const std::string AllochMod::AllochthonousLithologySimulator::ResultsFileName = 
 
 //------------------------------------------------------------//
 
-bool AllochMod::AllochthonousLithologySimulator::DistributionMapEarlierThan::operator ()( const AllochthonousLithologyDistribution* m1,
-                                                                                          const AllochthonousLithologyDistribution* m2 ) const {
+bool AllochMod::AllochthonousLithologySimulator::DistributionMapEarlierThan::operator ()( const GeoMorphAllochthonousLithologyDistribution* m1,
+                                                                                          const GeoMorphAllochthonousLithologyDistribution* m2 ) const {
   return m1->getAge () > m2->getAge ();
 }
 
@@ -152,8 +152,8 @@ bool AllochMod::AllochthonousLithologySimulator::execute ( const int debugLevel 
         getAllochthonousLithologyDistributionList ( *allochthonousLithologyIter,
                                                     allochthonousLithologyDistributionSequence );
 
-        ((AllochthonousLithology*)(*allochthonousLithologyIter))->computeInterpolant ( allochthonousLithologyDistributionSequence, debugLevel );
-        ((AllochthonousLithology*)(*allochthonousLithologyIter))->saveInterpolant ( fileId, ResultsFileName );
+        ((GeoMorphAllochthonousLithology*)(*allochthonousLithologyIter))->computeInterpolant ( allochthonousLithologyDistributionSequence, debugLevel );
+        ((GeoMorphAllochthonousLithology*)(*allochthonousLithologyIter))->saveInterpolant ( fileId, ResultsFileName );
 
         endTime = WallTime::clock ();
         executionTime = endTime - startTime;
@@ -192,7 +192,7 @@ void AllochMod::AllochthonousLithologySimulator::printMaps ( std::ostream& outpu
         getAllochthonousLithologyDistributionList ( *allochthonousLithologyIter,
                                                     allochthonousLithologyDistributionSequence );
 
-        ((AllochthonousLithology*)(*allochthonousLithologyIter))->printDistributionMaps ( allochthonousLithologyDistributionSequence, output );
+        ((GeoMorphAllochthonousLithology*)(*allochthonousLithologyIter))->printDistributionMaps ( allochthonousLithologyDistributionSequence, output );
      }
 
   }
@@ -220,7 +220,7 @@ void AllochMod::AllochthonousLithologySimulator::getAllochthonousLithologyDistri
 
   for ( distributionIter = m_allochthonousLithologyDistributions.begin (); distributionIter != m_allochthonousLithologyDistributions.end (); ++distributionIter ) {
 
-    AllochthonousLithologyDistribution* lithologyDistribution = (AllochthonousLithologyDistribution*)(*distributionIter);
+    GeoMorphAllochthonousLithologyDistribution* lithologyDistribution = (GeoMorphAllochthonousLithologyDistribution*)(*distributionIter);
 
     if ( theAllochthonousLithology->getFormationName () == lithologyDistribution->getFormationName ()) {
       lithologyDistribution->loadGridMap ();

@@ -38,30 +38,6 @@ application_env_var( TARGET ${APP_NAME} VARS
                      "CTCDIR" "$MISCDIR"
 )
 
-bm_include_libraries(
-   DataModel
-   DataMining
-   DataAccess
-   DistributedDataAccess
-   GeoPhysics
-   AbstractDerivedProperties
-   DerivedProperties
-   Interpolation
-   LinearAlgebra
-   TableIO
-   EosPack
-   CBMGenerics
-   Serial_Hdf5
-   OneFilePerProcess
-   Parallel_Hdf5
-   utilities
-   FileSystem
-   Utilities_Petsc
-   LinearAlgebra
-   Interpolation
-   CrustalThickness
-)
-
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
    ${MPI_INCLUDE_DIRS}
@@ -98,7 +74,6 @@ target_link_libraries(${APP_NAME}
 # OFPP only for Linux
 if (UNIX)
    target_link_libraries(${APP_NAME} OneFilePerProcess)
-   bm_include_libraries( OneFilePerProcess )
 endif (UNIX)
 
 # Add FLEXLM if enabled
@@ -119,9 +94,3 @@ install(TARGETS ${APP_NAME}
 generate_dox(fastctc.cfg)
 
 endif(BM_PARALLEL)
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:
-

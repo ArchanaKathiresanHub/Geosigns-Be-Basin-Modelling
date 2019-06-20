@@ -13,7 +13,7 @@
 #include "OilToGasCracker.h"
 #include "Immobiles.h"
 #endif
-#include "Reservoir.h"
+#include "MigrationReservoir.h"
 #include "Trap.h"
 #include "RequestHandling.h"
 
@@ -42,7 +42,7 @@ using namespace AbstractDerivedProperties;
 namespace migration
 {
 
-   Column::Column (unsigned int i, unsigned int j, Reservoir * reservoir)
+   Column::Column (unsigned int i, unsigned int j, MigrationReservoir * reservoir)
    {
       m_iGlobal = i;
       m_jGlobal = j;
@@ -221,7 +221,7 @@ namespace migration
       m_bitField.setValue ((unsigned int)bitSpec, state);
    }
 
-   LocalColumn::LocalColumn (unsigned int i, unsigned int j, Reservoir * reservoir) : Column (i, j, reservoir)
+   LocalColumn::LocalColumn (unsigned int i, unsigned int j, MigrationReservoir * reservoir) : Column (i, j, reservoir)
    {
       m_composition = 0;
       m_compositionToBeMigrated = 0;
@@ -1795,7 +1795,7 @@ namespace migration
       }
    }
 
-   ProxyColumn::ProxyColumn (unsigned int i, unsigned int j, Reservoir * reservoir) : Column (i, j, reservoir)
+   ProxyColumn::ProxyColumn (unsigned int i, unsigned int j, MigrationReservoir * reservoir) : Column (i, j, reservoir)
    {
       clearProperties ();
    }
@@ -2520,7 +2520,7 @@ namespace migration
       RequestHandling::SendRequest (valueRequest, valueResponse);
    }
 
-   ColumnArray::ColumnArray (Reservoir * reservoir,
+   ColumnArray::ColumnArray (MigrationReservoir * reservoir,
       int numIGlobal, int numJGlobal,
       int firstILocal, int lastILocal,
       int firstJLocal, int lastJLocal) :

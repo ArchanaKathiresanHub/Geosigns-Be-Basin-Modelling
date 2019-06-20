@@ -22,16 +22,6 @@ add_executable( ${TARGET_NAME}
 )
 set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
-bm_include_libraries(
-   TableIO
-   cmbAPI
-   CBMGenerics
-   FileSystem
-   DataAccess
-   utilities
-   DataModel
-)
-
 include_directories( SYSTEM
    ${SUMPP_INCLUDE_DIR}
    ${HDF5_INCLUDE_DIRS}

@@ -18,12 +18,12 @@
 #include "FormationSurfaceOutputPropertyValue.h"
 #include "SurfaceOutputPropertyValue.h"
 #include "ReservoirOutputPropertyValue.h"
-#include "Interface/Snapshot.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/Property.h"
-#include "Interface/Surface.h"
-#include "Interface/Formation.h"
-#include "Interface/Reservoir.h"
+#include "Snapshot.h"
+#include "PropertyValue.h"
+#include "Property.h"
+#include "Surface.h"
+#include "Formation.h"
+#include "Reservoir.h"
 
 using namespace std;
 using namespace DataAccess;

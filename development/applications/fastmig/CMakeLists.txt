@@ -46,30 +46,6 @@ include_directories( SYSTEM
     ${MPI_INCLUDE_DIRS}
 )
 
-bm_include_libraries(
-    DataModel
-    DataAccess
-    DistributedDataAccess
-    AbstractDerivedProperties
-    DerivedProperties
-    FiniteElements
-    GeoPhysics
-    Interpolation
-    LinearAlgebra
-    Utilities_Petsc
-    Serial_Hdf5
-    Parallel_Hdf5
-    EosPack    
-    CBMGenerics
-    genex6
-    genex6_kernel
-    FileSystem
-    utilities
-    TableIO
-    functions
-)
-
-
 target_link_libraries(${APP_NAME}
     DataModel
     DataAccess
@@ -103,7 +79,6 @@ set_target_properties(${APP_NAME}
    
 if (UNIX)
    # The OneFilePerProcess library is only available on Unix
-   bm_include_libraries( OneFilePerProcess )
    target_link_libraries(${APP_NAME} OneFilePerProcess)
 endif ()
 
@@ -127,27 +102,27 @@ add_gtest( NAME "Fastmig::Biodegrade"
 )
 
 add_gtest( NAME "Fastmig::CapillarySealStrength"
-   SOURCES test/CapillarySealStrength.C src/CapillarySealStrength.C src/Composition.C src/Biodegrade.C src/DiffusionLeak.C src/DiffusionCoefficient.C
-   LIBRARIES DataAccess DistributedDataAccess CBMGenerics EosPack GeoPhysics functions
+   SOURCES test/CapillarySealStrength.C src/MigrationCapillarySealStrength.C src/Composition.C src/Biodegrade.C src/DiffusionLeak.C src/DiffusionCoefficient.C
+   LIBRARIES DataAccess DistributedDataAccess CBMGenerics EosPack GeoPhysics functions DerivedProperties
    ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest( NAME "Fastmig::Leak"
    SOURCES test/Leak.C src/Leak.C
-   LIBRARIES functions ${Boost_LIBRARIES}
+   LIBRARIES functions DataAccess ${Boost_LIBRARIES} DistributedDataAccess
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest( NAME "Fastmig::LeakGas"
    SOURCES test/LeakGas.C src/Leak.C src/LeakGas.C
-   LIBRARIES functions utilities
+   LIBRARIES functions utilities DataAccess DistributedDataAccess
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest( NAME "Fastmig::LeakOrSpill"
    SOURCES test/LeakOrSpill.C src/Leak.C src/Spill.C src/LeakOrSpill.C
-   LIBRARIES functions ${Boost_LIBRARIES}
+   LIBRARIES functions DataAccess ${Boost_LIBRARIES} DistributedDataAccess
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
@@ -165,28 +140,22 @@ add_gtest( NAME "Fastmig::SpillOilAndGas"
 
 add_gtest( NAME "Fastmig::LeakOrWaste"
            SOURCES test/LeakOrWaste.cpp src/LeakOrWaste.C src/Leak.C src/Waste.C
-           LIBRARIES functions ${Boost_LIBRARIES}
+           LIBRARIES functions DataAccess ${Boost_LIBRARIES} DistributedDataAccess
            FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )
 
 add_gtest( NAME "Fastmig::LeakOrWasteGasAndSpillOil"
            SOURCES test/LeakOrWasteGasAndSpillOil.cpp src/LeakOrWasteGasAndSpillOil.C src/Leak.C src/Waste.C src/Spill.C src/LeakGas.C src/LeakGasAndSpillOil.C src/LeakOrSpill.C src/SpillOilAndGas.C src/WasteGasAndSpillOil.C
-           LIBRARIES functions utilities
+           LIBRARIES functions utilities DataAccess DistributedDataAccess
            FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )
 
 add_gtest( NAME "Fastmig::LeakGasAndSpillOil"
            SOURCES test/LeakGasAndSpillOil.cpp src/Leak.C src/LeakGas.C src/LeakGasAndSpillOil.C src/Spill.C src/SpillOilAndGas.C
-           LIBRARIES functions utilities
+          LIBRARIES functions utilities DataAccess ${LIB_NAME} ${HDF5_LIBRARIES} DistributedDataAccess
            FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )
 
 endif (BM_PARALLEL)
 
 generate_dox( src/fastmig.cfg )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

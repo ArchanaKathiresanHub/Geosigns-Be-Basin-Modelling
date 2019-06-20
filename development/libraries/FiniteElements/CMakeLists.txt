@@ -10,33 +10,11 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h )
-source_group(include FILES ${all_headers})
-
-FILE( GLOB all_srcs src/*.C)
-source_group(source FILES ${all_srcs})
-
 set( LIB_NAME "FiniteElements" )
-add_library(${LIB_NAME}
-   ${all_srcs}
-   ${all_headers}
-)
-set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
-
 include_directories ( SYSTEM ${EIGEN_INCLUDE_DIRS} )
-
-bm_include_libraries(LinearAlgebra DataModel utilities ${LIB_NAME})
-
-target_link_libraries(${LIB_NAME}
-   LinearAlgebra
-   utilities
-)
-
-install(TARGETS ${LIB_NAME}
-   RUNTIME DESTINATION bin
-   LIBRARY DESTINATION lib
-   ARCHIVE DESTINATION lib
-)
+create_bm_library( TARGET ${LIB_NAME} 
+                   LIBRARIES LinearAlgebra 
+                             utilities )
 
 #######################################
 ### Unit Tests

@@ -15,11 +15,11 @@
 #include <exception>
 
 // SerialDataAccess library
-#include "../../SerialDataAccess/src/Interface/SerialGrid.h"
-#include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
+#include "../../SerialDataAccess/src/SerialGrid.h"
+#include "../../SerialDataAccess/src/SerialGridMap.h"
 
 // DataAccess library
-#include "../../DataAccess/src/Interface/Interface.h"
+#include "../../DataAccess/src/Interface.h"
 
 #include <gtest/gtest.h>
 

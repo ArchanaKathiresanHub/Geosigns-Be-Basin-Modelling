@@ -4,7 +4,7 @@
 #include <sstream>
 using namespace std;
 
-#include "Interface/AttributeValue.h"
+#include "AttributeValue.h"
 
 using namespace DataAccess;
 using namespace Interface;

@@ -15,10 +15,10 @@ using namespace GeoPhysics;
 #include <memory>
 
 // DataAccess library
-#include "Interface/Snapshot.h"
-#include "Interface/Grid.h"
-#include "Interface/OceanicCrustThicknessHistoryData.h"
-#include "Interface/PaleoFormationProperty.h"
+#include "Snapshot.h"
+#include "Grid.h"
+#include "OceanicCrustThicknessHistoryData.h"
+#include "PaleoFormationProperty.h"
 using namespace DataAccess::Interface;
 
 // utilities library

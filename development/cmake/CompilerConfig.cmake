@@ -13,6 +13,7 @@
 include(cmake/AddPackage.cmake)
 include(cmake/EnvSetup.cmake)
 
+# Some of the below variables are already set by Go*.cmake files
 set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compiler collection")
 
 set(INTEL_MPI_VERSION "2017.05" CACHE STRING "Intel MPI version")
@@ -84,8 +85,8 @@ if (UNIX)
    if( NOT BM_PARALLEL)
       # Write and set the wrapper if not building parallel applications
       if (BM_USE_INTEL_COMPILER)
-         finish_wrapper( cc "icc ${args}" C_Compiler)
-         finish_wrapper( cxx "icpc ${args}" CXX_Compiler)
+         finish_wrapper( cc "icc ${args}" C_Compiler ADDITIVE)
+         finish_wrapper( cxx "icpc ${args}" CXX_Compiler ADDITIVE)
       endif()
       # Rely on system default if not using Intel compiler
    
@@ -118,11 +119,11 @@ if (UNIX)
 
          if (BM_USE_INTEL_COMPILER)
             # Use the MPI compiler frontends to the Intel compiler -- mpiicc and mpiicpc -- as compilers.
-            finish_wrapper( cc "mpiicc ${linkOpts} ${args}" C_Compiler)
-            finish_wrapper( cxx "mpiicpc ${linkOpts} ${args}" CXX_Compiler)
+            finish_wrapper( cc "mpiicc ${linkOpts} ${args}" C_Compiler ADDITIVE)
+            finish_wrapper( cxx "mpiicpc ${linkOpts} ${args}" CXX_Compiler ADDITIVE)
  
-            finish_wrapper( ccwl "mpiicc ${args}" C_Compiler_Without_Linking)
-            finish_wrapper( cxxwl "mpiicpc ${args}" CXX_Compiler_Without_Linking)
+            finish_wrapper( ccwl "mpiicc ${args}" C_Compiler_Without_Linking ADDITIVE)
+            finish_wrapper( cxxwl "mpiicpc ${args}" CXX_Compiler_Without_Linking ADDITIVE)
         
             # start generating environment for mpiexec and mpirun utilitise
             add_environment_source_script_to_wrapper( mpiexec "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
@@ -131,11 +132,11 @@ if (UNIX)
          else(BM_USE_INTEL_COMPILER)
 
             # Use the MPI compiler frontends to the normal compilers -- mpicc and mpicxx -- as compilers.
-            finish_wrapper( cc "mpicc ${linkOpts} ${args}" C_Compiler)
-            finish_wrapper( cxx "mpicxx ${linkOpts} ${args}" CXX_Compiler)
+            finish_wrapper( cc "mpicc ${linkOpts} ${args}" C_Compiler ADDITIVE)
+            finish_wrapper( cxx "mpicxx ${linkOpts} ${args}" CXX_Compiler ADDITIVE)
 
-            finish_wrapper( ccwl "mpicc ${args}" C_Compiler_Without_Linking)
-            finish_wrapper( cxxwl "mpicxx ${args}" CXX_Compiler_Without_Linking)
+            finish_wrapper( ccwl "mpicc ${args}" C_Compiler_Without_Linking ADDITIVE)
+            finish_wrapper( cxxwl "mpicxx ${args}" CXX_Compiler_Without_Linking ADDITIVE)
          endif()
 
          if (NOT BM_USE_MPI_FRONTEND)
@@ -168,8 +169,8 @@ if (UNIX)
             # there to detect a "-c" command line parameter. When this is
             # given, the linker commands should not be generated
             set( onlyCompile "\\\\([[:space:]]\\\\|^\\\\)\\\\(-c\\\\|-S\\\\|-E\\\\)\\\\([[:space:]]\\\\|$\\\\)")
-            finish_wrapper( cc  "if echo \"$*\" | grep -q '${onlyCompile}' ; then ${evaluatedFrontendNonLinkingC} else ${evaluatedFrontendLinkingC} fi" C_Compiler)
-            finish_wrapper( cxx "if echo \"$*\" | grep -q '${onlyCompile}' ; then ${evaluatedFrontendNonLinkingCXX} else ${evaluatedFrontendLinkingCXX} fi" CXX_Compiler)
+            finish_wrapper( cc  "if echo \"$*\" | grep -q '${onlyCompile}' ; then ${evaluatedFrontendNonLinkingC} else ${evaluatedFrontendLinkingC} fi" C_Compiler ADDITIVE)
+            finish_wrapper( cxx "if echo \"$*\" | grep -q '${onlyCompile}' ; then ${evaluatedFrontendNonLinkingCXX} else ${evaluatedFrontendLinkingCXX} fi" CXX_Compiler ADDITIVE)
          endif()
 
          # Write wrappers for mpiexec and mpirun utilities

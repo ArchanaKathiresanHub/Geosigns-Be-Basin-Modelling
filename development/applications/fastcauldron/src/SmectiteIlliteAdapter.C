@@ -83,7 +83,7 @@ bool SmectiteIlliteAdapter::operator ()( const OutputPropertyMap::OutputProperty
 
 void SmectiteIlliteAdapter::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "IlliteFraction",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "IlliteFraction",
                                                                                                          m_snapshot, 0,
                                                                                                          0,
                                                                                                          m_surface )));
@@ -163,7 +163,7 @@ bool SmectiteIlliteVolumeAdapter::operator ()( const OutputPropertyMap::OutputPr
 
 void SmectiteIlliteVolumeAdapter::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "IlliteFraction",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "IlliteFraction",
                                                                                                             m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

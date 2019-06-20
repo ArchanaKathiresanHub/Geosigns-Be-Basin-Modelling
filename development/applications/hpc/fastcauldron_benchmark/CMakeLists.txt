@@ -60,14 +60,6 @@ if (BM_INSTALL_BENCHMARK_SUITE)
 
 endif()
 
-bm_include_libraries(
-      utilities
-      DataModel
-      DataAccess
-      TableIO
-      SerialDataAccess
-)
-
 add_gtest(
    NAME    hpc::FastCauldronEnvironmentConfigurationTokenizer
    SOURCES test/FastCauldronEnvironmentConfigurationTokenizer.C

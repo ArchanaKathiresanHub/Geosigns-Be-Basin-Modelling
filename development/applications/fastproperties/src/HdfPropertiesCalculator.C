@@ -14,8 +14,8 @@
 #include "h5_parallel_file_types.h"
 
 //DataAccess library
-#include "Interface/OutputProperty.h"
-#include "Interface/RunParameters.h"
+#include "OutputProperty.h"
+#include "RunParameters.h"
 
 //------------------------------------------------------------//
 HdfPropertiesCalculator::HdfPropertiesCalculator(int aRank) : AbstractPropertiesCalculator(aRank)
@@ -250,7 +250,7 @@ bool HdfPropertiesCalculator::allowOutput (const string & propertyName3D,
    // The top of the crust is a part of the sediment
    if (basementFormation and surface != 0 and (propertyName == "Depth" or propertyName == "Temperature")) 
    {
-      if (dynamic_cast<const GeoPhysics::Formation*>(formation)->isCrust()) 
+      if (dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(formation)->isCrust()) 
       {
          if (formation->getTopSurface() and (formation->getTopSurface() == surface)) 
          {

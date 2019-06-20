@@ -57,9 +57,9 @@
 
 //------------------------------------------------------------//
 
-#include "Interface/MantleFormation.h"
-#include "Interface/RunParameters.h"
-#include "Interface/Grid.h"
+#include "MantleFormation.h"
+#include "RunParameters.h"
+#include "Grid.h"
 
 //------------------------------------------------------------//
 //utilities library
@@ -79,9 +79,9 @@
 #include "FormationSubdomainElementGrid.h"
 #include "MultiComponentFlowHandler.h"
 
-#include "Interface/MantleFormation.h"
-#include "Interface/RunParameters.h"
-#include "Interface/Grid.h"
+#include "MantleFormation.h"
+#include "RunParameters.h"
+#include "Grid.h"
 
 #include "PetscLogStages.h"
 #include "PetscSolver.h"

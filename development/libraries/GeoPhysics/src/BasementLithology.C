@@ -11,8 +11,8 @@
 #include "BasementLithology.h"
 
 #include "GeoPhysicalConstants.h"
-#include "Interface/LithologyHeatCapacitySample.h"
-#include "Interface/LithologyThermalConductivitySample.h"
+#include "LithologyHeatCapacitySample.h"
+#include "LithologyThermalConductivitySample.h"
 
 // std library
 #include <math.h>

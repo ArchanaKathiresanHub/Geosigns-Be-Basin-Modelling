@@ -21,8 +21,8 @@
 #include "ElementContributions.h"
 #include "Lithology.h"
 
-#include "Interface/RunParameters.h"
-#include "Interface/Interface.h"
+#include "RunParameters.h"
+#include "Interface.h"
 
 
 #include "timefilter.h"
@@ -51,15 +51,15 @@ BrinePropertiesVolumeCalculator::~BrinePropertiesVolumeCalculator() {
 void BrinePropertiesVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
 
- PropertyValue* phase;
- phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BrineDensity", 
+ CauldronPropertyValue* phase;
+ phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BrineDensity", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
  properties.push_back ( phase );
 
  
- phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BrineViscosity", 
+ phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BrineViscosity", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 )); 

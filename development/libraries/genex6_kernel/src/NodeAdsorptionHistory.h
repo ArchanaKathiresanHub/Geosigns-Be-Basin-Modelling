@@ -4,7 +4,7 @@
 #include <ostream>
 #include <vector>
 
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 
 #include "SpeciesManager.h"
 

@@ -13,7 +13,7 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 // utilities library
 #include "ConstantsMathematics.h"
@@ -128,16 +128,16 @@ bool PermeabilityCalculator::operator ()( const OutputPropertyMap::OutputPropert
 
 void PermeabilityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* verticalPermeability;
-   PropertyValue* horizontalPermeability;
+   CauldronPropertyValue* verticalPermeability;
+   CauldronPropertyValue* horizontalPermeability;
 
-   verticalPermeability = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "PermeabilityVec2", 
+   verticalPermeability = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "PermeabilityVec2", 
                                                                                                           m_snapshot, 0, 
                                                                                                           m_formation,
                                                                                                           m_surface ));
 
 
-   horizontalPermeability = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "PermeabilityHVec2", 
+   horizontalPermeability = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "PermeabilityHVec2", 
                                                                                                             m_snapshot, 0, 
                                                                                                             m_formation,
                                                                                                             m_surface ));
@@ -294,16 +294,16 @@ bool PermeabilityVolumeCalculator::operator ()( const OutputPropertyMap::OutputP
 
 void PermeabilityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* verticalPermeability;
-   PropertyValue* horizontalPermeability;
+   CauldronPropertyValue* verticalPermeability;
+   CauldronPropertyValue* horizontalPermeability;
 
-   verticalPermeability = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Permeability", 
+   verticalPermeability = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Permeability", 
                                                                                                              m_snapshot, 0, 
                                                                                                              m_formation,
                                                                                                              m_formation->getMaximumNumberOfElements () + 1 ));
 
 
-   horizontalPermeability = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HorizontalPermeability", 
+   horizontalPermeability = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HorizontalPermeability", 
                                                                                                                m_snapshot, 0, 
                                                                                                                m_formation,
                                                                                                                m_formation->getMaximumNumberOfElements () + 1 ));

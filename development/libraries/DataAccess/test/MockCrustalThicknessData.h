@@ -15,8 +15,8 @@
 #include <map>
 
 // DataAccess library
-#include "../src/Interface/GridMap.h"
-#include "../src/Interface/CrustalThicknessData.h"
+#include "../src/GridMap.h"
+#include "../src/CrustalThicknessData.h"
 
 using DataAccess::Interface::SnapshotList;
 

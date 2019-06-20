@@ -6,7 +6,7 @@
 #include "petsc.h"
 #include "petscdmda.h"
 
-#include "Interface/Grid.h"
+#include "Grid.h"
 
 #include "NumericFunctions.h"
 

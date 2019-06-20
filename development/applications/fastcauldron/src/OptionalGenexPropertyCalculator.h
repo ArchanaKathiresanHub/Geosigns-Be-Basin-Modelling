@@ -78,10 +78,10 @@ bool OptionalGenexPropertyCalculator<OptionalResult>::operator ()( const OutputP
 template<const CBMGenerics::GenexResultManager::ResultId OptionalResult>
 void OptionalGenexPropertyCalculator<OptionalResult>::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* derivedProp;
+   CauldronPropertyValue* derivedProp;
 
 
-   derivedProp = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( CBMGenerics::GenexResultManager::getInstance ().GetResultName ( OptionalResult ),
+   derivedProp = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( CBMGenerics::GenexResultManager::getInstance ().GetResultName ( OptionalResult ),
                                                                                                  m_snapshot, 0, 
                                                                                                  m_formation,
                                                                                                  0 ));

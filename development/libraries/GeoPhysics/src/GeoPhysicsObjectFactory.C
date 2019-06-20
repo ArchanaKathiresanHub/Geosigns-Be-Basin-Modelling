@@ -17,8 +17,8 @@
 #include "GeoPhysicsMantleFormation.h"
 #include "GeoPhysicsSourceRock.h"
 
-#include "Interface/CrustFormation.h"
-#include "Interface/MantleFormation.h"
+#include "CrustFormation.h"
+#include "MantleFormation.h"
 
 #include "database.h"
 #include "ProjectFileHandler.h"
@@ -44,7 +44,7 @@ Interface::FluidType* GeoPhysics::ObjectFactory::produceFluidType ( Interface::P
 DataAccess::Interface::Formation* GeoPhysics::ObjectFactory::produceFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
                                                                                 database::Record*                     record ) const
 {
-   return new GeoPhysics::Formation ( projectHandle, record );
+   return new GeoPhysics::GeoPhysicsFormation ( projectHandle, record );
 }
 
 DataAccess::Interface::CrustFormation* GeoPhysics::ObjectFactory::produceCrustFormation ( DataAccess::Interface::ProjectHandle* projectHandle,

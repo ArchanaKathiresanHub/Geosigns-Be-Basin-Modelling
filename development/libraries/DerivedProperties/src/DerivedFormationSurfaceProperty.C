@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 #include "DerivedFormationSurfaceProperty.h"
 
 using namespace AbstractDerivedProperties;

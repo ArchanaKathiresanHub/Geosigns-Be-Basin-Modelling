@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 Genex6::LangmuirAdsorptionIsothermInterval::LangmuirAdsorptionIsothermInterval ( const DataAccess::Interface::LangmuirAdsorptionIsothermSample* lowerBound,
                                                                                  const DataAccess::Interface::LangmuirAdsorptionIsothermSample* upperBound ) :

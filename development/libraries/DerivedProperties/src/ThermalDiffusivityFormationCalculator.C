@@ -14,8 +14,8 @@
 
 #include "AbstractProperty.h"
 
-#include "Interface/Interface.h"
-#include "Interface/SimulationDetails.h"
+#include "Interface.h"
+#include "SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -39,7 +39,7 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate (      
                                                                             const DataModel::AbstractSnapshot*  snapshot,
                                                                             const DataModel::AbstractFormation* formation,
                                                                                   FormationPropertyList&        derivedProperties ) const {
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
    
    if( geoFormation != 0 and geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) {
       return calculateForBasement ( propertyManager, snapshot, formation, derivedProperties );
@@ -138,7 +138,7 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculateForBasem
                                                                                       const DataModel::AbstractSnapshot*  snapshot,
                                                                                       const DataModel::AbstractFormation* formation,
                                                                                             FormationPropertyList&        derivedProperties ) const {
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    const DataModel::AbstractProperty* thermalDiffusivityProperty  = propertyManager.getProperty ( "DiffusivityVec2" );
 
@@ -242,7 +242,7 @@ bool DerivedProperties::ThermalDiffusivityFormationCalculator::isComputable ( co
                                                                               const DataModel::AbstractSnapshot*  snapshot,
                                                                               const DataModel::AbstractFormation* formation ) const {
    
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 

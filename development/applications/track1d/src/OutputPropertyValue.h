@@ -1,7 +1,7 @@
 #ifndef TRACK1D__OUTPUT_PROPERTY_VALUE__H
 #define TRACK1D__OUTPUT_PROPERTY_VALUE__H
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 class OutputPropertyValue {
 

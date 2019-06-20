@@ -10,11 +10,11 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/ConstrainedOverpressureInterval.h"
+#include "ConstrainedOverpressureInterval.h"
 
-#include "Interface/Snapshot.h"
-#include "Interface/Formation.h"
-#include "Interface/ProjectHandle.h"
+#include "Snapshot.h"
+#include "Formation.h"
+#include "ProjectHandle.h"
 
 using namespace DataAccess;
 using namespace Interface;

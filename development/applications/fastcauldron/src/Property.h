@@ -3,10 +3,10 @@
 
 #include "PropertyAttribute.h"
 
-#include "Interface/Property.h"
-#include "Interface/OutputProperty.h"
+#include "Property.h"
+#include "OutputProperty.h"
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 
 namespace DataAccess

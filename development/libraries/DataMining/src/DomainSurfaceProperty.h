@@ -15,11 +15,11 @@
 
 #include "AbstractSurface.h"
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
-#include "Interface/Surface.h"
-#include "Interface/Property.h"
+#include "ProjectHandle.h"
+#include "Snapshot.h"
+#include "GridMap.h"
+#include "Surface.h"
+#include "Property.h"
 
 #include "FormationProperty.h"
 #include "DerivedPropertyManager.h"

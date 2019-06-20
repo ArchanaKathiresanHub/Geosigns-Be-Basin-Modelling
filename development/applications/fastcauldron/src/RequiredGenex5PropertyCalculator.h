@@ -18,9 +18,9 @@
 
 #include "OutputPropertyMap.h"
 
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
+#include "Formation.h"
+#include "Surface.h"
+#include "Snapshot.h"
 
 
 class RequiredGenex5PropertyCalculator {

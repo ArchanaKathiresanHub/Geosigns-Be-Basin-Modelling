@@ -11,163 +11,23 @@
 #########################################################################
 
 
-set(all_headers
-  src/AllochthonousLithologyFormationMapCalculator.h
-  src/BrineDensityCalculator.h
-  src/BrineViscosityCalculator.h
-  src/BulkDensityFormationCalculator.h
-  src/DepthHighResFormationCalculator.h
-  src/DerivedFormationMapProperty.h
-  src/DerivedFormationProperty.h
-  src/DerivedFormationSurfaceProperty.h
-  src/DerivedPropertyManager.h
-  src/DerivedSurfaceProperty.h
-  src/FaultElementFormationMapCalculator.h
-  src/FluidVelocityFormationCalculator.h
-  src/FormationMapOutputPropertyValue.h 
-  src/FormationOutputPropertyValue.h
-  src/FormationSurfaceOutputPropertyValue.h
-  src/FracturePressureFormationCalculator.h
-  src/GammaRayFormationCalculator.h
-  src/HeatFlowFormationCalculator.h
-  src/HydrostaticPressureFormationCalculator.h
-  src/HydrostaticPressureSurfaceCalculator.h
-  src/IndirectFormationProperty.h
-  src/LithostaticPressureFormationCalculator.h
-  src/LithostaticPressureSurfaceCalculator.h
-  src/MaxVesHighResFormationCalculator.h
-  src/OverpressureFormationCalculator.h
-  src/OverpressureSurfaceCalculator.h
-  src/OutputUtilities.h
-  src/OutputPropertyValue.h
-  src/PermeabilityFormationCalculator.h
-  src/PermeabilityFormationSurfaceCalculator.h
-  src/PorosityFormationCalculator.h
-  src/PressureFormationCalculator.h
-  src/PrimaryFormationMapProperty.h
-  src/PrimaryFormationMapPropertyCalculator.h
-  src/PrimaryFormationProperty.h
-  src/PrimaryFormationPropertyCalculator.h
-  src/PrimaryFormationSurfaceProperty.h
-  src/PrimaryFormationSurfacePropertyCalculator.h
-  src/PrimaryReservoirProperty.h
-  src/PrimaryReservoirPropertyCalculator.h
-  src/PrimarySurfaceProperty.h
-  src/PrimarySurfacePropertyCalculator.h
-  src/PropertyRetriever.h
-  src/ReflectivitySurfaceCalculator.h
-  src/ReservoirOutputPropertyValue.h
-  src/SonicFormationCalculator.h
-  src/SurfaceOutputPropertyValue.h
-  src/ThermalConductivityFormationCalculator.h
-  src/ThermalDiffusivityFormationCalculator.h
-  src/ThicknessFormationMapCalculator.h
-  src/TwoWayTimeFormationCalculator.h
-  src/TwoWayTimeResidualSurfaceCalculator.h
-  src/VelocityFormationCalculator.h
-  src/VesFormationCalculator.h
-  src/VesHighResFormationCalculator.h
-  src/VesSurfaceCalculator.h
-)
-
-set(all_srcs
-  src/AllochthonousLithologyFormationMapCalculator.C
-  src/BrineDensityCalculator.C
-  src/BrineViscosityCalculator.C
-  src/BulkDensityFormationCalculator.C
-  src/DepthHighResFormationCalculator.C
-  src/DerivedFormationMapProperty.C
-  src/DerivedFormationProperty.C
-  src/DerivedFormationSurfaceProperty.C
-  src/DerivedPropertyManager.C
-  src/DerivedSurfaceProperty.C
-  src/FaultElementFormationMapCalculator.C
-  src/FluidVelocityFormationCalculator.C
-  src/FormationMapOutputPropertyValue.C
-  src/FormationOutputPropertyValue.C
-  src/FormationSurfaceOutputPropertyValue.C	
-  src/FracturePressureFormationCalculator.C
-  src/GammaRayFormationCalculator.C
-  src/HeatFlowFormationCalculator.C
-  src/HydrostaticPressureFormationCalculator.C
-  src/HydrostaticPressureSurfaceCalculator.C
-  src/IndirectFormationProperty.C
-  src/LithostaticPressureFormationCalculator.C
-  src/LithostaticPressureSurfaceCalculator.C
-  src/MaxVesHighResFormationCalculator.C
-  src/OverpressureFormationCalculator.C
-  src/OverpressureSurfaceCalculator.C
-  src/OutputPropertyValue.C
-  src/OutputUtilities.C
-  src/PermeabilityFormationCalculator.C
-  src/PermeabilityFormationSurfaceCalculator.C
-  src/PorosityFormationCalculator.C
-  src/PressureFormationCalculator.C
-  src/PrimaryFormationMapProperty.C
-  src/PrimaryFormationMapPropertyCalculator.C
-  src/PrimaryFormationProperty.C
-  src/PrimaryFormationPropertyCalculator.C
-  src/PrimaryFormationSurfaceProperty.C
-  src/PrimaryFormationSurfacePropertyCalculator.C
-  src/PrimaryReservoirProperty.C
-  src/PrimaryReservoirPropertyCalculator.C
-  src/PrimarySurfaceProperty.C
-  src/PrimarySurfacePropertyCalculator.C
-  src/PropertyRetriever.C
-  src/ReflectivitySurfaceCalculator.C
-  src/ReservoirOutputPropertyValue.C
-  src/SonicFormationCalculator.C
-  src/SurfaceOutputPropertyValue.C
-  src/ThermalConductivityFormationCalculator.C
-  src/ThermalDiffusivityFormationCalculator.C
-  src/ThicknessFormationMapCalculator.C
-  src/TwoWayTimeFormationCalculator.C
-  src/TwoWayTimeResidualSurfaceCalculator.C
-  src/VelocityFormationCalculator.C
-  src/VesFormationCalculator.C
-  src/VesHighResFormationCalculator.C
-  src/VesSurfaceCalculator.C
-)
-
-
 set( LIB_NAME "DerivedProperties" )
-add_library(${LIB_NAME}
-  ${all_srcs}
-  ${all_headers}
-)
-set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
-
-target_link_libraries(${LIB_NAME} 
-  DataModel
-  utilities
-  AbstractDerivedProperties
-  DataAccess
-  GeoPhysics
-  FiniteElements
-  LinearAlgebra
-  ${HDF5_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
-
-
-include_directories(
-  ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
-  ${PROJECT_SOURCE_DIR}/libraries/utilities/src
-  ${PROJECT_SOURCE_DIR}/libraries/AbstractDerivedProperties/src
-  ${PROJECT_SOURCE_DIR}/libraries/TableIO/src
-  ${PROJECT_SOURCE_DIR}/libraries/DataAccess/src
-  ${PROJECT_SOURCE_DIR}/libraries/CBMGenerics/src
-  ${PROJECT_SOURCE_DIR}/libraries/EosPack/src
-  ${PROJECT_SOURCE_DIR}/libraries/GeoPhysics/src
-  ${PROJECT_SOURCE_DIR}/libraries/LinearAlgebra/src
-  ${PROJECT_SOURCE_DIR}/libraries/Interpolation/src
-  ${PROJECT_SOURCE_DIR}/libraries/FiniteElements/src
-)
-
 include_directories( SYSTEM
   ${HDF5_INCLUDE_DIRS}
   ${PETSC_INCLUDE_DIRS} 
 )
+
+
+create_bm_library( TARGET ${LIB_NAME}
+                   LIBRARIES AbstractDerivedProperties
+                             GeoPhysics
+                             FiniteElements
+                             LinearAlgebra
+                             DataAccess
+                             DataModel
+                             utilities
+                             ${HDF5_LIBRARIES}
+                             ${Boost_LIBRARIES} )
 
 generate_dox( DerivedProperties.cfg )
 
@@ -285,7 +145,7 @@ if (UNIX)
    # In LSF environment (on LSF cluster node, when build is running as a LSF job) mpirun is trying to use job settings
    # to run mpi unit tests. Sometime it fails because build job requested just 1 cpu. To prevent this we can specify
    # machines file with localhost list only
-   configure_file(test/machines machines COPYONLY )
+   copy_test_file(machines)
    set( MACHINE_FILE -machinefile machines)
 endif (UNIX)
 

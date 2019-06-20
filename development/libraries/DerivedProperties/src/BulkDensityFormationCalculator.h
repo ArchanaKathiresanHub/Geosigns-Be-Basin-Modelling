@@ -53,25 +53,25 @@ namespace DerivedProperties {
       /// \brief Calculate the bulk density in the basement when ALC mode has not been enabled.
       void computeBulkDensityBasementNonAlc ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                                               const DataModel::AbstractSnapshot*                  snapshot,
-                                              const GeoPhysics::Formation*                        formation,
+                                              const GeoPhysics::GeoPhysicsFormation*                        formation,
                                               AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
       /// \brief Calculate the bulk density in the basement when ALC mode has been enabled.
       void computeBulkDensityBasementAlc ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                                            const DataModel::AbstractSnapshot*                  snapshot,
-                                           const GeoPhysics::Formation*                        formation,
+                                           const GeoPhysics::GeoPhysicsFormation*                        formation,
                                            AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
       /// \brief Calculate the bulk density in the sediments when the fastcauldron simulation mode was coupled.
       void computeBulkDensitySedimentsCoupled ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                                                 const DataModel::AbstractSnapshot*                  snapshot,
-                                                const GeoPhysics::Formation*                        formation,
+                                                const GeoPhysics::GeoPhysicsFormation*                        formation,
                                                 AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
       /// \brief Calculate the bulk density in the sediments when the fastcauldron simulation mode was hydrostatic.
       void computeBulkDensitySedimentsHydrostatic ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                                                     const DataModel::AbstractSnapshot*                  snapshot,
-                                                    const GeoPhysics::Formation*                        formation,
+                                                    const GeoPhysics::GeoPhysicsFormation*                        formation,
                                                     AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
       /// \brief Used to indicate whether ALC mode was enabled or not.

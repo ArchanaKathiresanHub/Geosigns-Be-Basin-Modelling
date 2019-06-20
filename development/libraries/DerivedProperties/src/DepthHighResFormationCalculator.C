@@ -19,11 +19,11 @@
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicsMantleFormation.h"
 #include "IndirectFormationProperty.h"
-#include "Interface/MantleFormation.h"
-#include "Interface/RunParameters.h"
-#include "Interface/SimulationDetails.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
+#include "MantleFormation.h"
+#include "RunParameters.h"
+#include "SimulationDetails.h"
+#include "Snapshot.h"
+#include "Surface.h"
 #include "NumericFunctions.h"
 
 using namespace AbstractDerivedProperties;
@@ -74,7 +74,7 @@ void DerivedProperties::DepthHighResFormationCalculator::calculate(       Abstra
 {
    try
    {
-      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation *>( formation );
+      const GeoPhysics::GeoPhysicsFormation * const currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation *>( formation );
       assert( currentFormation != 0 );
 
       if( currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
@@ -169,16 +169,16 @@ void DerivedProperties::DepthHighResFormationCalculator::computeIndirectly(     
 void DerivedProperties::DepthHighResFormationCalculator::initializeTopSurface(       AbstractPropertyManager &      propertyManager,
                                                                                const DataModel::AbstractProperty *  depthHighResProperty,
                                                                                const DataModel::AbstractSnapshot *  snapshot,
-                                                                               const GeoPhysics::Formation *        currentFormation,
+                                                                               const GeoPhysics::GeoPhysicsFormation *        currentFormation,
                                                                                      DerivedFormationPropertyPtr &  depthHighRes ) const
 {
    try
    {
-      const GeoPhysics::Formation * formationAbove = 0;
+      const GeoPhysics::GeoPhysicsFormation * formationAbove = 0;
       if( currentFormation->getTopSurface()->getSnapshot() == 0 ||
           currentFormation->getTopSurface()->getSnapshot()->getTime() > snapshot->getTime() )
       {
-         formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface()->getTopFormation() );
+         formationAbove = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( currentFormation->getTopSurface()->getTopFormation() );
       }
 
       const bool includeGhostNodes = true;
@@ -311,7 +311,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForMantle( const
 
 
 
-void DerivedProperties::DepthHighResFormationCalculator::computeForCoupledRunWithNonGeometricLoop( const GeoPhysics::Formation *       formation,
+void DerivedProperties::DepthHighResFormationCalculator::computeForCoupledRunWithNonGeometricLoop( const GeoPhysics::GeoPhysicsFormation *       formation,
                                                                                                    const DataModel::AbstractSnapshot * snapshot,
                                                                                                          DerivedFormationPropertyPtr & depthHighRes,
                                                                                                          FormationPropertyList &       derivedProperties ) const
@@ -381,7 +381,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForCoupledRunWit
 
 
 void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun(       AbstractPropertyManager &     propertyManager,
-                                                                                  const GeoPhysics::Formation *       formation,
+                                                                                  const GeoPhysics::GeoPhysicsFormation *       formation,
                                                                                   const DataModel::AbstractSnapshot * snapshot,
                                                                                         DerivedFormationPropertyPtr & depthHighRes,
                                                                                         FormationPropertyList &       derivedProperties ) const

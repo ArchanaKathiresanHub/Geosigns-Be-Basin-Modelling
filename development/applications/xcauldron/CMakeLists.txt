@@ -18,14 +18,9 @@ add_executable(xcauldron
 	src/xcauldron.C
 )
 
-bm_include_libraries(
-	TableIO
-	FileSystem
-	utilities
-)
 
 target_link_libraries(projectdependencies
-   TableIO
+        TableIO
   	FileSystem
 	utilities
 )

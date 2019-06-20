@@ -11,10 +11,10 @@
 #include "../src/MapSmoother.h"
 
 // DataAccess libraries
-#include "Interface/Grid.h"
-#include "Interface/GlobalGrid.h"
-#include "Interface/DistributedGrid.h"
-#include "Interface/DistributedGridMap.h"
+#include "Grid.h"
+#include "GlobalGrid.h"
+#include "DistributedGrid.h"
+#include "DistributedGridMap.h"
 
 // utilities library
 #include "../../utilities/src/array.h"

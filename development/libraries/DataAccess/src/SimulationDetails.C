@@ -1,4 +1,4 @@
-#include "Interface/SimulationDetails.h"
+#include "SimulationDetails.h"
 
 #include "database.h"
 #include "cauldronschemafuncs.h"

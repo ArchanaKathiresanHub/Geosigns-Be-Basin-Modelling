@@ -16,7 +16,7 @@
 
 // TableIO library
 #include "ProjectFileHandler.h"
-#include "PropertyValue.h"
+#include "CTCPropertyValue.h"
 
 #include "CrustalThicknessCalculator.h"
 
@@ -47,7 +47,7 @@ public:
                                                              const string & name,  const string & accessMode) const override;
 
    /// @brief Produce the fasctc PropertyValue
-   virtual Ctc::PropertyValue * producePropertyValue( DataAccess::Interface::ProjectHandle * projectHandle,
+   virtual Ctc::CTCPropertyValue * producePropertyValue( DataAccess::Interface::ProjectHandle * projectHandle,
                                                       database::Record * record,
                                                       const string & name,
                                                       const DataAccess::Interface::Property * property,

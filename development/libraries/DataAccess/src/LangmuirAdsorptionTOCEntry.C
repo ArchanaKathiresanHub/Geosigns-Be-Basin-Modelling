@@ -1,4 +1,4 @@
-#include "Interface/LangmuirAdsorptionTOCEntry.h"
+#include "LangmuirAdsorptionTOCEntry.h"
 #include <sstream>
 
 #include "cauldronschemafuncs.h"

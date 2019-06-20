@@ -21,7 +21,7 @@
 
 #include "FormationProperty.h"
 
-#include "Interface/GridMap.h"
+#include "GridMap.h"
 
 namespace DerivedProperties {
 

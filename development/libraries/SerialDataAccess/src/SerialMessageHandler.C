@@ -1,4 +1,4 @@
-#include "Interface/SerialMessageHandler.h"
+#include "SerialMessageHandler.h"
 
 #include <iostream>
 using namespace std;

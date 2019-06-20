@@ -11,8 +11,8 @@
 #########################################################################
 
 add_executable(geomorph
-	src/AllochthonousLithology.C
-	src/AllochthonousLithologyDistribution.C
+	src/GeoMorphAllochthonousLithology.C
+	src/GeoMorphAllochthonousLithologyDistribution.C
 	src/AllochthonousLithologySimulator.C
 	src/AllochthonousModellingFactory.C
 	src/ErrorPointSet.C
@@ -21,18 +21,6 @@ add_executable(geomorph
 	src/MapProcessingOperations.C
 	src/PrescribedGridPointCondenser.C
 	src/SubsampledGridPointCondenser.C
-)
-
-bm_include_libraries(
-	DataModel
-	SerialDataAccess
-	DataAccess
-	TableIO
-	CBMGenerics
-	Serial_Hdf5
-	utilities
-	LinearAlgebra
-	Interpolation
 )
 
 include_directories( SYSTEM
@@ -61,9 +49,3 @@ generate_dox( src/geomorph.cfg )
 install( TARGETS geomorph
 	RUNTIME DESTINATION bin
 )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

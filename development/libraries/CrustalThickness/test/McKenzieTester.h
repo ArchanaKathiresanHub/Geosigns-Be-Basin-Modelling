@@ -22,8 +22,8 @@
 #include "../../DataModel/test/MockValidator.h"
 
 // DataAccess libraries
-#include "../../SerialDataAccess/src/Interface/SerialGrid.h"
-#include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
+#include "../../SerialDataAccess/src/SerialGrid.h"
+#include "../../SerialDataAccess/src/SerialGridMap.h"
 
 // Derived Properties library test utilities
 #include "../../DerivedProperties/test/MockDerivedSurfaceProperty.h"

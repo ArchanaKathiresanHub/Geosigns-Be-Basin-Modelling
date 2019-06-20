@@ -14,12 +14,12 @@
 #include "DataStore.h"
 #include "FilePath.h"
 #include "FolderPath.h"
-#include "Interface/Formation.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
-#include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/CrustFormation.h"
+#include "Formation.h"
+#include "Snapshot.h"
+#include "Surface.h"
+#include "Property.h"
+#include "PropertyValue.h"
+#include "CrustFormation.h"
 
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>

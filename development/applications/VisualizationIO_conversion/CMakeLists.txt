@@ -32,18 +32,6 @@ include_directories( SYSTEM
    ${LZ_INCLUDE_DIR}
 )
 
-bm_include_libraries(
-   DataModel
-   DataAccess
-   SerialDataAccess
-   DataAccess
-   TableIO
-   FileSystem
-   utilities
-   VisualizationIO
-   VisualizationIO_projectHandle
-)
-
 target_link_libraries(
    ${TARGET_NAME}
    DataModel
@@ -63,9 +51,3 @@ target_link_libraries(
 install(TARGETS ${TARGET_NAME}
    RUNTIME DESTINATION bin
 )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

@@ -13,11 +13,11 @@
 #include "FastcauldronStartup.h"
 
 // DataAccess library
-#include "Interface/Interface.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Formation.h"
-#include "Interface/GridMap.h"
-#include "Interface/Grid.h"
+#include "Interface.h"
+#include "ProjectHandle.h"
+#include "Formation.h"
+#include "GridMap.h"
+#include "Grid.h"
 
 #include "FastDepthCalibration.h"
 

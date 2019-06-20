@@ -15,10 +15,10 @@
 #include "database.h"
 
 //DataAccess
-#include "Interface/Formation.h"
-#include "Interface/Interface.h"
-#include "Interface/Local2DArray.h"
-#include "Interface/Local3DArray.h"
+#include "Formation.h"
+#include "Interface.h"
+#include "Local2DArray.h"
+#include "Local3DArray.h"
 
 //GeoPhysics
 #include "CompoundLithology.h"
@@ -39,15 +39,15 @@ namespace DataAccess
 
 namespace GeoPhysics {
 
-   class Formation : virtual public DataAccess::Interface::Formation {
+   class GeoPhysicsFormation : virtual public DataAccess::Interface::Formation {
 
    public :
 
-      Formation ( DataAccess::Interface::ProjectHandle* projectHandle,
+      GeoPhysicsFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
                   database::Record*                          record );
 
 
-      ~Formation ();
+      ~GeoPhysicsFormation ();
 
       virtual bool setLithologiesFromStratTable ();
 
@@ -174,91 +174,91 @@ namespace GeoPhysics {
 
 }
 
-inline const GeoPhysics::CompoundLithology* GeoPhysics::Formation::getCompoundLithology ( const unsigned int i, const unsigned int j ) const {
+inline const GeoPhysics::CompoundLithology* GeoPhysics::GeoPhysicsFormation::getCompoundLithology ( const unsigned int i, const unsigned int j ) const {
    return m_compoundLithologies ( i, j );
 }
 
-inline GeoPhysics::CompoundLithologyArray& GeoPhysics::Formation::getCompoundLithologyArray () {
+inline GeoPhysics::CompoundLithologyArray& GeoPhysics::GeoPhysicsFormation::getCompoundLithologyArray () {
    return m_compoundLithologies;
 }
 
-inline const GeoPhysics::CompoundLithologyArray& GeoPhysics::Formation::getCompoundLithologyArray () const {
+inline const GeoPhysics::CompoundLithologyArray& GeoPhysics::GeoPhysicsFormation::getCompoundLithologyArray () const {
    return m_compoundLithologies;
 }
 
-inline bool GeoPhysics::Formation::getLithologyHasSwitched ( const unsigned int i, const unsigned int j ) const {
+inline bool GeoPhysics::GeoPhysicsFormation::getLithologyHasSwitched ( const unsigned int i, const unsigned int j ) const {
    return m_compoundLithologies.hasSwitched ( i, j );
 }
 
-inline double GeoPhysics::Formation::getMinimumThickness () const {
+inline double GeoPhysics::GeoPhysicsFormation::getMinimumThickness () const {
    return m_minimumDepositedThickness;
 }
 
-inline double GeoPhysics::Formation::getMaximumThickness () const {
+inline double GeoPhysics::GeoPhysicsFormation::getMaximumThickness () const {
    return m_maximumDepositedThickness;
 }
 
-inline bool GeoPhysics::Formation::isCrust () const noexcept{
+inline bool GeoPhysics::GeoPhysicsFormation::isCrust () const noexcept{
    return false;
 }
 
-inline bool GeoPhysics::Formation::isMantle () const {
+inline bool GeoPhysics::GeoPhysicsFormation::isMantle () const {
    return false;
 }
 
-inline unsigned int GeoPhysics::Formation::getMaximumNumberOfElements () const {
+inline unsigned int GeoPhysics::GeoPhysicsFormation::getMaximumNumberOfElements () const {
    return m_maximumNumberOfElements;
 }
 
-inline bool GeoPhysics::Formation::getContainsFaults () const {
+inline bool GeoPhysics::GeoPhysicsFormation::getContainsFaults () const {
    return m_containsFault;
 }
 
-inline CBMGenerics::Polyfunction& GeoPhysics::Formation::getSolidThickness ( const unsigned int i,
+inline CBMGenerics::Polyfunction& GeoPhysics::GeoPhysicsFormation::getSolidThickness ( const unsigned int i,
                                                                              const unsigned int j,
                                                                              const unsigned int k ) {
    return m_solidThickness ( i, j, k );
 }
 
-inline CBMGenerics::Polyfunction& GeoPhysics::Formation::getRealThickness ( const unsigned int i,
+inline CBMGenerics::Polyfunction& GeoPhysics::GeoPhysicsFormation::getRealThickness ( const unsigned int i,
                                                                             const unsigned int j,
                                                                             const unsigned int k ) {
    return m_realThickness ( i, j, k );
 }
 
-inline const CBMGenerics::Polyfunction& GeoPhysics::Formation::getSolidThickness ( const unsigned int i,
+inline const CBMGenerics::Polyfunction& GeoPhysics::GeoPhysicsFormation::getSolidThickness ( const unsigned int i,
                                                                                    const unsigned int j,
                                                                                    const unsigned int k ) const {
    return m_solidThickness ( i, j, k );
 }
 
-inline const CBMGenerics::Polyfunction& GeoPhysics::Formation::getRealThickness ( const unsigned int i,
+inline const CBMGenerics::Polyfunction& GeoPhysics::GeoPhysicsFormation::getRealThickness ( const unsigned int i,
                                                                                   const unsigned int j,
                                                                                   const unsigned int k ) const {
    return m_realThickness ( i, j, k );
 }
 
 
-inline double GeoPhysics::Formation::getSolidThickness ( const unsigned int i,
+inline double GeoPhysics::GeoPhysicsFormation::getSolidThickness ( const unsigned int i,
                                                          const unsigned int j,
                                                          const unsigned int k,
                                                          const double       age ) const {
    return m_solidThickness ( i, j, k ).F ( age );
 }
 
-inline double GeoPhysics::Formation::getRealThickness ( const unsigned int i,
+inline double GeoPhysics::GeoPhysicsFormation::getRealThickness ( const unsigned int i,
                                                         const unsigned int j,
                                                         const unsigned int k,
                                                         const double       age ) const {
    return m_realThickness ( i, j, k ).F ( age );
 }
 
-inline double GeoPhysics::Formation::getPresentDayErodedThickness ( const unsigned int i,
+inline double GeoPhysics::GeoPhysicsFormation::getPresentDayErodedThickness ( const unsigned int i,
                                                                     const unsigned int j ) const {
    return m_presentDayErodedThickness ( i, j );
 }
 
-inline int GeoPhysics::Formation::getDepthRefinementFactor () const {
+inline int GeoPhysics::GeoPhysicsFormation::getDepthRefinementFactor () const {
    return m_zRefinementFactor;
 }
 

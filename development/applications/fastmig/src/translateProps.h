@@ -13,8 +13,8 @@
 
 #include "capillarySealStrength.h"
 
-#include "Interface/LithoType.h"
-#include "Interface/Formation.h"
+#include "LithoType.h"
+#include "Formation.h"
 
 using namespace DataAccess;
 

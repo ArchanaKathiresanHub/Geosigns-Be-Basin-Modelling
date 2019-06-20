@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "Interface/ProjectHandle.h"
+#include "ProjectHandle.h"
 
 #include "Simulator.h"
 #include "AdsorptionSimulator.h"

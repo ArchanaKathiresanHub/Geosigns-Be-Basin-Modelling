@@ -19,7 +19,7 @@ double DataAccess::Mining::RadiogenicHeatProductionCalculator::compute ( const E
 
    const Interface::Formation* formation = position.getFormation ();
 
-   const GeoPhysics::Formation* geoForm = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoForm = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
 
 

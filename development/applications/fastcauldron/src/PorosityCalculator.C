@@ -3,7 +3,7 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 
 OutputPropertyMap* allocatePorosityCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
@@ -100,7 +100,7 @@ bool PorosityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
 void PorosityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "PorosityVec2", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "PorosityVec2", 
                                                                                                          m_snapshot, 0, 
                                                                                                          m_formation,
                                                                                                          m_surface )));
@@ -227,7 +227,7 @@ bool PorosityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
 
 void PorosityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Porosity", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Porosity", 
                                                                                                             m_snapshot, 0, 
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

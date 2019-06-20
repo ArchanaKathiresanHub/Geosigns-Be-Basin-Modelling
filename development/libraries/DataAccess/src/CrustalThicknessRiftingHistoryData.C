@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Interface/CrustalThicknessRiftingHistoryData.h"
+#include "CrustalThicknessRiftingHistoryData.h"
 
 //std library
 #include <exception>
@@ -20,8 +20,8 @@
 using namespace database;
 
 // DataAccess library
-#include "Interface/GridMap.h"
-#include "Interface/ProjectHandle.h"
+#include "GridMap.h"
+#include "ProjectHandle.h"
 using namespace DataAccess;
 using namespace Interface;
 

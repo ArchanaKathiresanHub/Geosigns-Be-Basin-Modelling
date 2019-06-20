@@ -16,8 +16,8 @@
 
 #include "GeoPhysicsFluidType.h"
 
-#include "Interface/FracturePressureFunctionParameters.h"
-#include "Interface/Interface.h"
+#include "FracturePressureFunctionParameters.h"
+#include "Interface.h"
 
 #include "FracturePressureCalculator.h"
 

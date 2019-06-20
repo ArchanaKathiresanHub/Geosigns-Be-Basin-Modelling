@@ -7,23 +7,23 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
-#include "Interface/Validator.h"
+#include "Validator.h"
 
 //DataAccess
-#include "Interface/ProjectHandle.h"
-#include "Interface/GridMap.h"
-#include "Interface/Formation.h"
-#include "Interface/MantleFormation.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/PaleoFormationProperty.h"
-#include "Interface/PaleoSurfaceProperty.h"
-#include "Interface/SourceRock.h"
-#include "Interface/Reservoir.h"
-#include "Interface/AllochthonousLithology.h"
-#include "Interface/AllochthonousLithologyDistribution.h"
-#include "Interface/MobileLayer.h"
-#include "Interface/OceanicCrustThicknessHistoryData.h"
+#include "ProjectHandle.h"
+#include "GridMap.h"
+#include "Formation.h"
+#include "MantleFormation.h"
+#include "CrustFormation.h"
+#include "PropertyValue.h"
+#include "PaleoFormationProperty.h"
+#include "PaleoSurfaceProperty.h"
+#include "SourceRock.h"
+#include "Reservoir.h"
+#include "AllochthonousLithology.h"
+#include "AllochthonousLithologyDistribution.h"
+#include "MobileLayer.h"
+#include "OceanicCrustThicknessHistoryData.h"
 
 //----------------------------------------------------------------------------
 

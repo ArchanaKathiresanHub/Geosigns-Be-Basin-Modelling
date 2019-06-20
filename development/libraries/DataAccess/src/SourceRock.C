@@ -9,10 +9,10 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/GridMap.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/SourceRock.h"
-#include "Interface/ObjectFactory.h"
+#include "GridMap.h"
+#include "ProjectHandle.h"
+#include "SourceRock.h"
+#include "ObjectFactory.h"
 
 using namespace DataAccess;
 using namespace Interface;

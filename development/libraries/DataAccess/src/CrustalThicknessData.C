@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Interface/CrustalThicknessData.h"
+#include "CrustalThicknessData.h"
 
 // TableIO library
 #include "cauldronschemafuncs.h"
@@ -18,13 +18,13 @@
 #include "LogHandler.h"
 
 // DataAccess library
-#include "Interface/Formation.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
+#include "Formation.h"
+#include "Snapshot.h"
+#include "Surface.h"
 
 // DataAccess library
-#include "Interface/GridMap.h"
-#include "Interface/ProjectHandle.h"
+#include "GridMap.h"
+#include "ProjectHandle.h"
 
 using namespace database;
 using namespace DataAccess;

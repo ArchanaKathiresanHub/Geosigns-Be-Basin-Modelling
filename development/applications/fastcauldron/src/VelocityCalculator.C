@@ -114,7 +114,7 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
 void VelocityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "VelocityVec2", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "VelocityVec2", 
                                                                                                          m_snapshot, 0, 
                                                                                                          m_formation,
                                                                                                          m_surface )));
@@ -239,7 +239,7 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
 
 void VelocityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Velocity",
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "Velocity",
                                                                                                             m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));

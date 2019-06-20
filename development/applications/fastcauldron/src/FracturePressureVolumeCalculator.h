@@ -8,9 +8,9 @@
 #include "OutputPropertyMap.h"
 #include "timefilter.h"
 
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "GridMap.h"
 
 class FracturePressureVolumeCalculator {
 

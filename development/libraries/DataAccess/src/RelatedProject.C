@@ -9,8 +9,8 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/RelatedProject.h"
-#include "Interface/ProjectHandle.h"
+#include "RelatedProject.h"
+#include "ProjectHandle.h"
 #include "FilePath.h"
 
 using namespace DataAccess;

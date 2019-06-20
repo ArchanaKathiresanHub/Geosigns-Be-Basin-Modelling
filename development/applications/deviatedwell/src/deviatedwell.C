@@ -30,17 +30,17 @@
 using namespace std;
 
 // DataAccess API includes
-#include "Interface/GridMap.h"
-#include "Interface/Grid.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
-#include "Interface/Formation.h"
-#include "Interface/Reservoir.h"
-#include "Interface/LithoType.h"
-#include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/SimulationDetails.h"
+#include "GridMap.h"
+#include "Grid.h"
+#include "Snapshot.h"
+#include "Surface.h"
+#include "Formation.h"
+#include "Reservoir.h"
+#include "LithoType.h"
+#include "Property.h"
+#include "PropertyValue.h"
+#include "ProjectHandle.h"
+#include "SimulationDetails.h"
 
 // CBMGenerics library
 #include "ComponentManager.h"

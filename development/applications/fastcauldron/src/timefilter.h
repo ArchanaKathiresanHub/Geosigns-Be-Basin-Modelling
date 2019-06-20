@@ -15,7 +15,7 @@
 #include <vector>
 using namespace std;
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 // Change to Interface::PropertyOutputOption
 enum OutputOption {NOOUTPUT,SOURCEROCKONLY,SEDIMENTSONLY,SEDIMENTSPLUSBASEMENT};

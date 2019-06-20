@@ -13,13 +13,13 @@
 #include <cmath>
 
 // DataAccess library
-#include "Interface/Interface.h"
-#include "Interface/GridMap.h"
-#include "Interface/PaleoFormationProperty.h"
-#include "Interface/RunParameters.h"
-#include "Interface/Snapshot.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/BasementFormation.h"
+#include "Interface.h"
+#include "GridMap.h"
+#include "PaleoFormationProperty.h"
+#include "RunParameters.h"
+#include "Snapshot.h"
+#include "ObjectFactory.h"
+#include "BasementFormation.h"
 using namespace DataAccess;
 
 // Geophysics library
@@ -34,7 +34,7 @@ using namespace DataAccess;
 GeoPhysics::GeoPhysicsCrustFormation::GeoPhysicsCrustFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
                                                                  database::Record*                          record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
-   GeoPhysics::Formation ( projectHandle, record ),
+   GeoPhysics::GeoPhysicsFormation ( projectHandle, record ),
    DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::CrustFormationName, m_projectHandle->getCrustLithoName() ),
    DataAccess::Interface::CrustFormation ( projectHandle, record )
 {
@@ -54,7 +54,7 @@ GeoPhysics::GeoPhysicsCrustFormation::~GeoPhysicsCrustFormation () {
 
 bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () {
 
-   m_compoundLithologies.allocate ( GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid ());
+   m_compoundLithologies.allocate ( GeoPhysics::GeoPhysicsFormation::m_projectHandle->getActivityOutputGrid ());
 
    std::string lithoName1;
 
@@ -74,7 +74,7 @@ bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () {
    if( dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle)->isALC() ) {
       lc.setThermalModel( m_projectHandle->getCrustPropertyModel() );
    }
-   pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
+   pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::GeoPhysicsFormation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
    createdLithologies = pMixedLitho != 0;
    m_compoundLithologies.fillWithLithology ( pMixedLitho );
 
@@ -93,7 +93,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
    double gridMapMaximum = 0.0;
    double gridMapMinimum = 0.0;
 
-   if ( GeoPhysics::Formation::m_projectHandle->getBottomBoundaryConditions () == DataAccess::Interface::MANTLE_HEAT_FLOW ) {
+   if ( GeoPhysics::GeoPhysicsFormation::m_projectHandle->getBottomBoundaryConditions () == DataAccess::Interface::MANTLE_HEAT_FLOW ) {
 
       const Interface::GridMap* thicknessMap = dynamic_cast<const Interface::GridMap*>(Interface::CrustFormation::getInputThicknessMap ());
 
@@ -104,7 +104,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
 
       thicknessMap->restoreData ( false );
 
-   } else if ( GeoPhysics::Formation::m_projectHandle->getBottomBoundaryConditions () == DataAccess::Interface::FIXED_BASEMENT_TEMPERATURE ) {
+   } else if ( GeoPhysics::GeoPhysicsFormation::m_projectHandle->getBottomBoundaryConditions () == DataAccess::Interface::FIXED_BASEMENT_TEMPERATURE ) {
       Interface::PaleoFormationPropertyList* crustThicknesses = Interface::CrustFormation::getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::const_iterator thicknessIter;
 
@@ -193,7 +193,7 @@ bool GeoPhysics::GeoPhysicsCrustFormation::determineCrustThinningRatio () {
 
    bool status = true;
 
-   if ( GeoPhysics::Formation::m_projectHandle->getBottomBoundaryConditions () == DataAccess::Interface::MANTLE_HEAT_FLOW ) {
+   if ( GeoPhysics::GeoPhysicsFormation::m_projectHandle->getBottomBoundaryConditions () == DataAccess::Interface::MANTLE_HEAT_FLOW ) {
       DataAccess::Interface::IdentityFunctor identity;
 
       m_crustThinningRatio = 1.0;
@@ -217,13 +217,13 @@ bool GeoPhysics::GeoPhysicsCrustFormation::determineCrustThinningRatio () {
       Interface::PaleoFormationPropertyList::const_iterator thicknessIter;
 
       m_crustMaximumThickness = dynamic_cast<Interface::GridMap*>(m_projectHandle->getFactory ()->produceGridMap ( 0, 0,
-                                                                                                                   GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid (),
+                                                                                                                   GeoPhysics::GeoPhysicsFormation::m_projectHandle->getActivityOutputGrid (),
                                                                                                                    Interface::DefaultUndefinedMapValue ));
 
       m_crustMaximumThickness->retrieveData ();
 
       m_crustMinimumThickness = dynamic_cast<Interface::GridMap*>(m_projectHandle->getFactory ()->produceGridMap ( 0, 0,
-                                                                                                                   GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid (),
+                                                                                                                   GeoPhysics::GeoPhysicsFormation::m_projectHandle->getActivityOutputGrid (),
                                                                                                                    Interface::DefaultUndefinedMapValue ));
 
       m_crustMinimumThickness->retrieveData ();

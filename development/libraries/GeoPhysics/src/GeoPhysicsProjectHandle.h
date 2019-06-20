@@ -22,8 +22,8 @@
 #include "CauldronGridDescription.h"
 
 //DataAccess
-#include "Interface/Local2DArray.h"
-#include "Interface/ProjectHandle.h"
+#include "Local2DArray.h"
+#include "ProjectHandle.h"
 
 namespace DataAccess {
    namespace Interface {
@@ -38,7 +38,7 @@ namespace DataAccess {
 namespace GeoPhysics {
    class AllochthonousLithologyManager;
    class ConfigFileParameterAlc;
-   class Formation;
+   class GeoPhysicsFormation;
    class FracturePressureCalculator;
    class LithologyManager;
    class ObjectFactory;
@@ -253,7 +253,7 @@ namespace GeoPhysics {
       /// Part of the solid-thickness initialisation.
       bool computeThicknessHistories ( const unsigned int i,
                                        const unsigned int j,
-                                       GeoPhysics::Formation* formation,
+                                       GeoPhysics::GeoPhysicsFormation* formation,
                                        IntegerArray& numberOfErrorsPerLayer ) const;
 
       /// Set the deposition history of the layer.
@@ -262,18 +262,18 @@ namespace GeoPhysics {
       static bool setDepositionHistory ( const unsigned int     i,
                                          const unsigned int     j,
                                          const double           thickness,
-                                         GeoPhysics::Formation* formation );
+                                         GeoPhysics::GeoPhysicsFormation* formation );
 
       /// Part of the solid-thickness initialisation.
       bool setHistoriesForUnconformity ( const unsigned int     i,
                                          const unsigned int     j,
                                          const double           thickness,
-                                         GeoPhysics::Formation* formation ) const;
+                                         GeoPhysics::GeoPhysicsFormation* formation ) const;
 
       /// Part of the solid-thickness initialisation.
       bool setErosionHistory ( const unsigned int i,
                                const unsigned int j,
-                               GeoPhysics::Formation* formation,
+                               GeoPhysics::GeoPhysicsFormation* formation,
                                const double startErosionAge,
                                const double endErosionAge,
                                const double erodedThickness ) const;
@@ -281,31 +281,31 @@ namespace GeoPhysics {
       /// Part of the solid-thickness initialisation.
       bool setMobileLayerThicknessHistory ( const unsigned int i,
                                             const unsigned int j,
-                                            GeoPhysics::Formation* formation,
+                                            GeoPhysics::GeoPhysicsFormation* formation,
                                             IntegerArray&          numberOfErrorsPerLayer ) const;
 
       /// \brief Part of the solid-thickness initialisation when layer is igneous intrusion.
       static bool setIgneousIntrusionThicknessHistory ( const unsigned int i,
                                                         const unsigned int j,
-                                                        GeoPhysics::Formation* formation,
+                                                        GeoPhysics::GeoPhysicsFormation* formation,
                                                         IntegerArray&          numberOfErrorsPerLayer );
 
       /// Part of the solid-thickness initialisation.
       static void storePresentDayThickness ( const unsigned int i,
                                              const unsigned int j,
-                                             GeoPhysics::Formation* formation );
+                                             GeoPhysics::GeoPhysicsFormation* formation );
 
       /// Part of the solid-thickness initialisation.
       static bool updateMobileLayerOrIgneousIntrusionMaxVes ( const unsigned int i,
                                                               const unsigned int j,
-                                                              GeoPhysics::Formation* formation,
+                                                              GeoPhysics::GeoPhysicsFormation* formation,
                                                               double &maxVes );
 
       /// Part of the solid-thickness initialisation.
       static bool compFCThicknessHistories ( const unsigned int i,
                                              const unsigned int j,
                                              const bool overpressureCalculation,
-                                             GeoPhysics::Formation* formation,
+                                             GeoPhysics::GeoPhysicsFormation* formation,
                                              int& nrActUnc,
                                              FloatStack &uncMaxVes,
                                              FloatStack &uncThickness );
@@ -314,7 +314,7 @@ namespace GeoPhysics {
       static bool compactLayerThicknessHistory ( const unsigned int i,
                                                  const unsigned int j,
                                                  const bool overpressureCalculation,
-                                                 GeoPhysics::Formation* formation,
+                                                 GeoPhysics::GeoPhysicsFormation* formation,
                                                  FloatStack &uncMaxVes,
                                                  FloatStack &uncThickness,
                                                  const int nrActUnc );
@@ -323,7 +323,7 @@ namespace GeoPhysics {
       static bool calcFullCompactedThickness ( const unsigned int i,
                                                const unsigned int j,
                                                const bool overpressureCalculation,
-                                               GeoPhysics::Formation* formation,
+                                               GeoPhysics::GeoPhysicsFormation* formation,
                                                const double compThickness,
                                                double &uncMaxVes,
                                                double &fullCompThickness,

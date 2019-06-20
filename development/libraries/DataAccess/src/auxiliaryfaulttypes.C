@@ -1,8 +1,8 @@
 //#include <cmath>
 #include <math.h>
 
-#include "Interface/Grid.h"
-#include "Interface/auxiliaryfaulttypes.h"
+#include "Grid.h"
+#include "auxiliaryfaulttypes.h"
 
 using namespace DataAccess;
 using namespace Interface;

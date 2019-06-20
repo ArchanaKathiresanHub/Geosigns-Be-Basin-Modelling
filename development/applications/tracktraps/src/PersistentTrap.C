@@ -9,12 +9,12 @@ using namespace std;
 #include "database.h"
 using namespace database;
 
-#include "Interface/Grid.h"
+#include "Grid.h"
 using DataAccess::Interface::Grid;
 
 #include "PersistentTrap.h"
 
-#include "Trap.h"
+#include "TrackTrap.h"
 
 using namespace PersistentTraps;
 
@@ -68,15 +68,15 @@ void PersistentTrap::findFittingTrap (map < unsigned int, Trap *, less < unsigne
    if (closestTrap) addTrap (closestTrap);
 }
 #else // overlap based
-void PersistentTrap::findFittingTrap (map < unsigned int, Trap *, less < unsigned int > > traps)
+void PersistentTrap::findFittingTrap (map < unsigned int, TrackTrap *, less < unsigned int > > traps)
 {
-   Trap * mostOverlappingTrap = 0;
+   TrackTrap * mostOverlappingTrap = 0;
    int largestOverlap = 0;
 
-   map < unsigned int, Trap *, less < unsigned int > >::iterator trapIter;
+   map < unsigned int, TrackTrap *, less < unsigned int > >::iterator trapIter;
    for (trapIter = traps.begin (); trapIter != traps.end (); ++trapIter)
    {
-      Trap * trap = (* trapIter).second;
+      TrackTrap * trap = (* trapIter).second;
 
       if (trap->getPersistentTrap () != 0) continue;
 
@@ -92,19 +92,19 @@ void PersistentTrap::findFittingTrap (map < unsigned int, Trap *, less < unsigne
 }
 #endif
 
-void PersistentTrap::addTrap (Trap * trap)
+void PersistentTrap::addTrap (TrackTrap * trap)
 {
    m_traps.push_back (trap);
    trap->setPersistentTrap (this);
 }
 
-int PersistentTrap::computeOverlap (Trap * trap)
+int PersistentTrap::computeOverlap (TrackTrap * trap)
 {
    return getLastTrap ()->computeOverlap (trap);
 }
 
 
-Trap * PersistentTrap::getLastTrap (void)
+TrackTrap * PersistentTrap::getLastTrap (void)
 {
    return m_traps.back ();
 }
@@ -114,7 +114,7 @@ const Interface::Snapshot * PersistentTrap::getSnapshotOfLastTrap (void)
    return getLastTrap ()->getSnapshot ();
 }
 
-bool PersistentTrap::penetrates (Trap * trap)
+bool PersistentTrap::penetrates (TrackTrap * trap)
 {
    unsigned int iPT, jPT;
 
@@ -122,7 +122,7 @@ bool PersistentTrap::penetrates (Trap * trap)
    return trap->contains (iPT, jPT);
 }
 
-bool PersistentTrap::isPenetratedBy (Trap * trap)
+bool PersistentTrap::isPenetratedBy (TrackTrap * trap)
 {
    unsigned int i, j;
 
@@ -145,10 +145,10 @@ void PersistentTrap::getGridPosition (unsigned int & i, unsigned int & j)
 
 void PersistentTrap::save (Table * table)
 {
-   vector<Trap *>::iterator trapIter;
+   vector<TrackTrap *>::iterator trapIter;
    for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
    {
-      Trap * trap = * trapIter;
+      TrackTrap * trap = * trapIter;
       trap->save (table);
    }
 }

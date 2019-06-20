@@ -3,6 +3,7 @@
 //
 
 #include "h5_file_types.h"
+#include "mpi.h"
 
 #include <iostream>
 using namespace std;

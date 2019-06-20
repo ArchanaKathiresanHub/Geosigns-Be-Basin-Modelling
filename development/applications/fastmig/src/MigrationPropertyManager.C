@@ -25,7 +25,7 @@
 #include "FormationPropertyAtSurface.h"
 
 #include "ObjectFactory.h"
-#include "Interface/Snapshot.h"
+#include "Snapshot.h"
 
 using namespace AbstractDerivedProperties;
 

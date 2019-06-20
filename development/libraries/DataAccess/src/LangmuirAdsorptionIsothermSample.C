@@ -1,4 +1,4 @@
-#include "Interface/LangmuirAdsorptionIsothermSample.h"
+#include "LangmuirAdsorptionIsothermSample.h"
 
 #include <sstream>
 

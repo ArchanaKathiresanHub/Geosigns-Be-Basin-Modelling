@@ -15,7 +15,7 @@ using namespace std;
 #include <boost/shared_ptr.hpp>
 #include <string>
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 #include "ArrayDefinitions.h"
 

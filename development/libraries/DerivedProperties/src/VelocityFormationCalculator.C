@@ -12,7 +12,7 @@
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -41,7 +41,7 @@ void DerivedProperties::VelocityFormationCalculator::calculate (       AbstractP
                                                                  const DataModel::AbstractFormation* formation,
                                                                        FormationPropertyList&        derivedProperties ) const {
 
-   GeoPhysics::Formation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   GeoPhysics::GeoPhysicsFormation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    if( geophysicsFormation != 0 and geophysicsFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION ) {
       return calculateForBasement ( propertyManager, snapshot, formation, derivedProperties );
@@ -140,7 +140,7 @@ void DerivedProperties::VelocityFormationCalculator::calculateForBasement (     
                                                                             const DataModel::AbstractFormation* formation,
                                                                                   FormationPropertyList&        derivedProperties ) const {
 
-   GeoPhysics::Formation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   GeoPhysics::GeoPhysicsFormation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    DataModel::AbstractProperty const * const bulkDensityProperty = propertyManager.getProperty( "BulkDensity" );
    DataModel::AbstractProperty const * const temperatureProperty = propertyManager.getProperty( "Temperature" );
@@ -213,7 +213,7 @@ bool DerivedProperties::VelocityFormationCalculator::isComputable ( const Abstra
                                                                     const DataModel::AbstractSnapshot*  snapshot,
                                                                     const DataModel::AbstractFormation* formation ) const {
    
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 

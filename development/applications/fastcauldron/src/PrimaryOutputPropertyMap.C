@@ -12,7 +12,7 @@
 #include "timefilter.h"
 #include "propinterface.h"
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 // utilities library
 #include "ConstantsNumerical.h"
@@ -40,7 +40,7 @@ PrimaryOutputPropertyMap::PrimaryOutputPropertyMap ( const PropertyList         
 
    LayerProps* localFormation = ( m_propertyName == CHEMICAL_COMPACTION ? formation : 0 );
 
-   PropertyValue* localValues = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( outputPropertyName,
+   CauldronPropertyValue* localValues = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( outputPropertyName,
                                                                                                                 snapshot, 0, localFormation,
                                                                                                                 surface ));
    if( m_propertyName == CHEMICAL_COMPACTION && ! m_formation->hasChemicalCompaction () ) {

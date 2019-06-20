@@ -14,7 +14,7 @@
 #include <boost/array.hpp>
 
 #include "Distributor.h"
-#include "CapillarySealStrength.h"
+#include "MigrationCapillarySealStrength.h"
 
 #include "Composition.h"
 #include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
@@ -37,7 +37,7 @@ namespace migration
       double m_overPressureContrast;
       double m_crestColumnThickness;
 
-      CapillarySealStrength m_capSealStrength;
+      MigrationCapillarySealStrength m_capSealStrength;
 
       const MonotonicIncreasingPiecewiseLinearInvertableFunction* m_levelToVolume;
 
@@ -53,11 +53,11 @@ namespace migration
    public:
 
       LeakWasteAndSpillDistributor (const double& sealFluidDensity, const double& fractureSealStrength,
-                                    const double& wasteLevel, const CapillarySealStrength& capSealStrength,
+                                    const double& wasteLevel, const MigrationCapillarySealStrength& capSealStrength,
                                     const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
       LeakWasteAndSpillDistributor (const double sealFluidDensity, const double fractureSealStrength, const double overPressureContrast,
-                                    const double crestColumnThickness, const CapillarySealStrength& capSealStrength,
+                                    const double crestColumnThickness, const MigrationCapillarySealStrength& capSealStrength,
                                     const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
       ~LeakWasteAndSpillDistributor ();
@@ -74,7 +74,7 @@ namespace migration
 
       double sealFluidDensity () const { return m_sealFluidDensity; }
       double fractureSealStrength () const { return m_fractureSealStrength; }
-      const CapillarySealStrength& capillarySealStrength () const { return m_capSealStrength; }
+      const MigrationCapillarySealStrength& capillarySealStrength () const { return m_capSealStrength; }
       double wasteLevel () const { return m_wasteLevel; }
 
       const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume () const { return m_levelToVolume; }

@@ -7,7 +7,7 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
-#include "Interface/BiodegradationParameters.h"
+#include "BiodegradationParameters.h"
 
 #include "cauldronschemafuncs.h"
 

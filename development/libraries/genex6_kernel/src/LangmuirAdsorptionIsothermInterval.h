@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "Interface/LangmuirAdsorptionIsothermSample.h"
+#include "LangmuirAdsorptionIsothermSample.h"
 
 namespace Genex6 {
 

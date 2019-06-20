@@ -15,8 +15,8 @@
 
 #include "database.h"
 
-#include "Interface/LithoType.h"
-#include "Interface/Interface.h"
+#include "LithoType.h"
+#include "Interface.h"
 
 #include "IBSinterpolator.h"
 #include "PiecewiseInterpolator.h"

@@ -31,8 +31,8 @@ using namespace DataAccess;
 
 namespace migration
 {
-   class Formation;
-   class Reservoir;
+   class MigrationFormation;
+   class MigrationReservoir;
    class Barrier;
    class TrapPropertiesRequest;
    class MigrationRequest;
@@ -77,21 +77,21 @@ namespace migration
       virtual DataAccess::Interface::FormationList * getAllFormations (void) const;
 
       /// get a formation from the complete list of formations by index
-      Formation * getFormation (int index);
+      MigrationFormation * getFormation (int index);
 
       /// get the index of a formation in the complete list of formations
-      int getIndex (Formation * formation);
+      int getIndex (MigrationFormation * formation);
 
       /// get a reservoir from the complete list of reservoirs by index
-      Reservoir * getReservoir (int index);
+      MigrationReservoir * getReservoir (int index);
 
       /// get the index of a reservoir in the complete list of reservoirs
-      int getIndex (Reservoir * reservoir);
+      int getIndex (MigrationReservoir * reservoir);
 
-      Formation * getBottomSourceRockFormation ();
-      Formation * getTopSourceRockFormation (const Interface::Snapshot * end);
-      Formation * getTopActiveFormation (const Interface::Snapshot * end);
-      Formation * getTopActiveReservoirFormation (const Interface::Snapshot * start, const Interface::Snapshot * end);
+	  MigrationFormation * getBottomSourceRockFormation ();
+	  MigrationFormation * getTopSourceRockFormation (const Interface::Snapshot * end);
+	  MigrationFormation * getTopActiveFormation (const Interface::Snapshot * end);
+	  MigrationFormation * getTopActiveReservoirFormation (const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       inline double getMinOilColumnHeight (void) const;
       inline double getMinGasColumnHeight (void) const;
@@ -100,14 +100,14 @@ namespace migration
 
       void clearFormationNodeProperties ();
       bool computeFormationNodeProperties (const Interface::Snapshot * end);
-      bool computeTargetFormationNodes (Formation * targetFormation, Formation * sourceFormation);
+      bool computeTargetFormationNodes (MigrationFormation * targetFormation, MigrationFormation * sourceFormation);
 
       bool computeTargetFormationNodes (const Interface::Snapshot *);
 
       /// Check if there are any active reservoirs at given snapshot
       bool activeReservoirs (const Interface::Snapshot * snapshot);
 
-      migration::Formation * getBottomMigrationFormation(const Interface::Snapshot * end);
+      migration::MigrationFormation * getBottomMigrationFormation(const Interface::Snapshot * end);
 	   bool flagTopNodes(const Interface::Snapshot * end, const bool pressureRun);
 
       bool detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool pressureRun);
@@ -118,23 +118,23 @@ namespace migration
 
       /// Charge the specified reservoir with charge already in the traps and
       /// additionally expelled charge between the given snapshots.
-      bool chargeReservoir (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
+      bool chargeReservoir (MigrationReservoir * reservoir, MigrationReservoir * reservoirAbove, MigrationReservoir * reservoirBelow,
                             const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       // Calculate flow at the top level of the basin for a given snapshot time.
       bool calculateSeepage (const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       // Save the calculated amounts of seapage
-      void saveSeepageAmounts (migration::Formation * seepsFormation, const Interface::Snapshot * end);
+      void saveSeepageAmounts (migration::MigrationFormation * seepsFormation, const Interface::Snapshot * end);
 
       /// Collect expelled charges into the given reservoir from the appropriate source rocks.
-      bool collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
+      bool collectAndMigrateExpelledCharges (MigrationReservoir * reservoir, MigrationReservoir * reservoirAbove, MigrationReservoir * reservoirBelow,
                                              const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier);
 
       /// retrieve the reservoirs, for the specified formation if specified.
       virtual DataAccess::Interface::ReservoirList * getReservoirs (const Interface::Formation * formation = 0) const;
 
-      void addTrapRecord (Reservoir * reservoir, TrapPropertiesRequest & tpRequest);
+      void addTrapRecord (MigrationReservoir * reservoir, TrapPropertiesRequest & tpRequest);
 
       /// add a detected reservoir to ResIoTbl and return the record itself
       database::Record * addDetectedReservoirRecord (Interface::Formation * formation, const Interface::Snapshot * start);
@@ -170,7 +170,7 @@ namespace migration
       bool computeSMFlowPaths (const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       /// compute secondary migration flow paths between source reservoir and target reservoir
-      bool computeSMFlowPaths (Formation * targetFormation, Formation * sourceFormation, const Interface::Snapshot * start, const Interface::Snapshot * end);
+      bool computeSMFlowPaths (MigrationFormation * targetFormation, MigrationFormation * sourceFormation, const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       bool loadExpulsionMaps (const Interface::Snapshot * start, const Interface::Snapshot * end);
       bool unloadExpulsionMaps (const Interface::Snapshot * end);

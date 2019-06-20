@@ -10,11 +10,11 @@
 
 #include "PrimaryReservoirProperty.h"
 
-#include "Interface/Property.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Reservoir.h"
-#include "Interface/GridMap.h"
-#include "Interface/Grid.h"
+#include "Property.h"
+#include "Snapshot.h"
+#include "Reservoir.h"
+#include "GridMap.h"
+#include "Grid.h"
 
 using namespace AbstractDerivedProperties;
 

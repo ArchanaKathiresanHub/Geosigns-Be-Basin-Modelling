@@ -2,8 +2,8 @@
 #define _VOXET_PROJECT_HANDLE_H_
 
 #include <vector>
-#include "Interface/ProjectHandle.h"
-#include "Interface/Grid.h"
+#include "ProjectHandle.h"
+#include "Grid.h"
 
 using namespace DataAccess;
 using namespace Interface;

@@ -10,33 +10,10 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h )
-source_group(include FILES ${all_headers})
-
-FILE( GLOB all_srcs src/*.C)
-source_group(source FILES ${all_srcs})
-
 set( LIB_NAME "LinearAlgebra" )
-add_library(${LIB_NAME}
-   ${all_srcs}
-   ${all_headers}
-)
-set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
-
-bm_include_libraries(
-   utilities
-)
-
-target_link_libraries(${LIB_NAME}
-   utilities
-        ${BLAS_LIBRARIES}
-)
-
-install(TARGETS ${LIB_NAME}
-   RUNTIME DESTINATION bin
-   LIBRARY DESTINATION lib
-   ARCHIVE DESTINATION lib
-)
+create_bm_library( TARGET ${LIB_NAME}
+                   LIBRARIES utilities ${BLAS_LIBRARIES}
+                   INSTALLTARGET)
 
 add_gtest ( NAME SimdTraits::TraitsTest
             SOURCES test/TraitsTest.C

@@ -9,11 +9,11 @@ using namespace std;
 
 using namespace database;
 
-#include "Interface/Formation.h"
-#include "Interface/FluidDensitySample.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/FluidType.h"
+#include "Formation.h"
+#include "FluidDensitySample.h"
+#include "ObjectFactory.h"
+#include "ProjectHandle.h"
+#include "FluidType.h"
 
 using namespace DataAccess;
 using namespace Interface;

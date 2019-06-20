@@ -1,6 +1,6 @@
 #include "VerticalWell.h"
 
-#include "Interface/Interface.h"
+#include "Interface.h"
 
 DataAccess::Mining::VerticalWell::VerticalWell ( const std::string& name ) : CauldronWell ( name )
 {

@@ -76,12 +76,12 @@ void ThicknessCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyVa
 
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or
         FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE ) {
-      properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ThicknessHighRes", 
+      properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ThicknessHighRes", 
                                                                                                             m_snapshot, 0, 
                                                                                                             m_formation,
                                                                                                             0 )));
    } else {
-      properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "Thickness", 
+      properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "Thickness", 
                                                                                                             m_snapshot, 0, 
                                                                                                             m_formation,
                                                                                                             0 )));

@@ -18,12 +18,12 @@
 #include "BrineVelocity.h"
 #include "BrineViscosity.h"
 #include "IBSinterpolator2d.h"
-#include "Interface/FluidHeatCapacitySample.h"
-#include "Interface/FluidThermalConductivitySample.h"
-#include "Interface/FluidDensitySample.h"
-#include "Interface/FluidType.h"
-#include "Interface/Interface.h"
-#include "Interface/PermafrostEvent.h"
+#include "FluidHeatCapacitySample.h"
+#include "FluidThermalConductivitySample.h"
+#include "FluidDensitySample.h"
+#include "FluidType.h"
+#include "Interface.h"
+#include "PermafrostEvent.h"
 #include "PiecewiseInterpolator.h"
 
 // utilities library

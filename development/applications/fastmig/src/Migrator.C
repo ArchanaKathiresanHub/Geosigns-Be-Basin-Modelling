@@ -40,9 +40,9 @@ using namespace database;
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 #include "Migrator.h"
-#include "Reservoir.h"
+#include "MigrationReservoir.h"
 #include "Formation.h"
-#include "Surface.h"
+#include "MigrationSurface.h"
 
 #include "LogHandler.h"
 
@@ -58,15 +58,15 @@ typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 using namespace migration;
 
 #include "GeoPhysicsProjectHandle.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Reservoir.h"
-#include "Interface/ReservoirOptions.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/Snapshot.h"
-#include "Interface/SimulationDetails.h"
-#include "Interface/RunParameters.h"
+#include "ProjectHandle.h"
+#include "Reservoir.h"
+#include "ReservoirOptions.h"
+#include "PropertyValue.h"
+#include "Grid.h"
+#include "GridMap.h"
+#include "Snapshot.h"
+#include "SimulationDetails.h"
+#include "RunParameters.h"
 #include "MassBalance.h"
 #include "utils.h"
 
@@ -378,7 +378,7 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
 
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation *formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation *formation = MigrationFormation::CastToFormation (*formationIter);
 
       assert (formation);
       if (!formation->isActive (snapshot)) continue;
@@ -442,7 +442,7 @@ bool Migrator::createFormationNodes (void)
 
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation * formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation * formation = MigrationFormation::CastToFormation (*formationIter);
 
       assert (formation);
 
@@ -454,7 +454,7 @@ bool Migrator::createFormationNodes (void)
 bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
    bool sourceRockActive = false;
-   migration::Formation * bottomSourceRock = getBottomSourceRockFormation ();
+   migration::MigrationFormation * bottomSourceRock = getBottomSourceRockFormation ();
 
    if (bottomSourceRock != nullptr)
 	   sourceRockActive = bottomSourceRock->isActive(end);
@@ -521,7 +521,7 @@ bool Migrator::computeNetToGross (void)
 
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
-      Reservoir * reservoir = (Reservoir *)* reservoirIter;
+      MigrationReservoir * reservoir = (MigrationReservoir *)* reservoirIter;
 
       assert (reservoir);
 
@@ -530,13 +530,13 @@ bool Migrator::computeNetToGross (void)
    return true;
 }
 
-migration::Formation * Migrator::getFormation (int index)
+migration::MigrationFormation * Migrator::getFormation (int index)
 {
    Interface::FormationList * formations = getAllFormations ();
-   return Formation::CastToFormation ((*formations)[index]);
+   return MigrationFormation::CastToFormation ((*formations)[index]);
 }
 
-int Migrator::getIndex (migration::Formation * formation)
+int Migrator::getIndex (migration::MigrationFormation * formation)
 {
    int index;
 
@@ -551,13 +551,13 @@ int Migrator::getIndex (migration::Formation * formation)
    return -1;
 }
 
-migration::Reservoir * Migrator::getReservoir (int index)
+migration::MigrationReservoir * Migrator::getReservoir (int index)
 {
    Interface::ReservoirList * reservoirs = getReservoirs ();
-   return (Reservoir *)(*reservoirs)[index];
+   return (MigrationReservoir *)(*reservoirs)[index];
 }
 
-int Migrator::getIndex (migration::Reservoir * reservoir)
+int Migrator::getIndex (migration::MigrationReservoir * reservoir)
 {
    int index;
 
@@ -580,7 +580,7 @@ bool Migrator::activeReservoirs (const Interface::Snapshot * snapshot)
 
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
-      const Reservoir * reservoir = (const Reservoir *)* reservoirIter;
+      const MigrationReservoir * reservoir = (const MigrationReservoir *)* reservoirIter;
 
       assert (reservoir);
 
@@ -599,7 +599,7 @@ void Migrator::clearFormationNodeProperties ()
 
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation * formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation * formation = MigrationFormation::CastToFormation (*formationIter);
 
       formation->clearNodeProperties ();
    }
@@ -614,7 +614,7 @@ bool Migrator::retrieveFormationPropertyMaps (const Interface::Snapshot * end)
 
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation * formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation * formation = MigrationFormation::CastToFormation (*formationIter);
 
       if (!formation->isActive (end)) continue;
 
@@ -633,7 +633,7 @@ bool Migrator::restoreFormationPropertyMaps (const Interface::Snapshot * end)
 
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation * formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation * formation = MigrationFormation::CastToFormation (*formationIter);
       if (!formation->isActive (end)) continue;
 
       formation->restorePropertyMaps (restoreCapillary);
@@ -650,7 +650,7 @@ bool Migrator::deleteFormationPropertyMaps ()
 
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation * formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation * formation = MigrationFormation::CastToFormation (*formationIter);
       formation->deleteFormationProperties ();
    }
 
@@ -664,7 +664,7 @@ bool Migrator::computeFormationNodeProperties (const Interface::Snapshot * end)
 
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation * formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation * formation = MigrationFormation::CastToFormation (*formationIter);
       if (!formation->isActive (end)) continue;
 
       formation->computeFaults (end);
@@ -674,15 +674,15 @@ bool Migrator::computeFormationNodeProperties (const Interface::Snapshot * end)
    return true;
 }
 
-migration::Formation * Migrator::getBottomSourceRockFormation ()
+migration::MigrationFormation * Migrator::getBottomSourceRockFormation ()
 {
    Interface::FormationList * formations = getAllFormations ();
    Interface::FormationList::iterator formationIter;
 
-   Formation * bottomSourceRockFormation = 0;
+   MigrationFormation * bottomSourceRockFormation = 0;
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation * formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation * formation = MigrationFormation::CastToFormation (*formationIter);
 
       if (formation->isSourceRock ()) bottomSourceRockFormation = formation;
    }
@@ -690,15 +690,15 @@ migration::Formation * Migrator::getBottomSourceRockFormation ()
    return bottomSourceRockFormation;
 }
 
-migration::Formation * Migrator::getTopSourceRockFormation (const Interface::Snapshot * end)
+migration::MigrationFormation * Migrator::getTopSourceRockFormation (const Interface::Snapshot * end)
 {
    Interface::FormationList * formations = getAllFormations ();
    Interface::FormationList::iterator formationIter;
 
-   Formation * topSourceRockFormation = 0;
+   MigrationFormation * topSourceRockFormation = 0;
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation * formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation * formation = MigrationFormation::CastToFormation (*formationIter);
 
       if (formation->isSourceRock () and formation->isActive (end))
       {
@@ -710,14 +710,14 @@ migration::Formation * Migrator::getTopSourceRockFormation (const Interface::Sna
    return topSourceRockFormation;
 }
 
-migration::Formation * Migrator::getTopActiveFormation (const Interface::Snapshot * end)
+migration::MigrationFormation * Migrator::getTopActiveFormation (const Interface::Snapshot * end)
 {
    Interface::FormationList * formations = getAllFormations ();
    Interface::FormationList::iterator formationIter;
 
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation * formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation * formation = MigrationFormation::CastToFormation (*formationIter);
 
       if (formation->isActive (end)) return formation;
    }
@@ -726,18 +726,18 @@ migration::Formation * Migrator::getTopActiveFormation (const Interface::Snapsho
 }
 
 // Returns the top reservoir that has been deposited, is sealed and is active at snapshot "end"
-migration::Formation * Migrator::getTopActiveReservoirFormation (const Interface::Snapshot * start, const Interface::Snapshot * end)
+migration::MigrationFormation * Migrator::getTopActiveReservoirFormation (const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
    Interface::ReservoirList * reservoirs = getReservoirs ();
    Interface::ReservoirList::iterator reservoirIter;
 
-   Reservoir * topActiveReservoir = 0;
-   Formation * topActiveReservoirFormation = 0;
+   MigrationReservoir * topActiveReservoir = 0;
+   MigrationFormation * topActiveReservoirFormation = 0;
 
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
-      Reservoir * reservoir = (Reservoir *)(*reservoirIter);
-      Formation * tempFormation = Formation::CastToFormation (reservoir->getFormation ());
+      MigrationReservoir * reservoir = (MigrationReservoir *)(*reservoirIter);
+      MigrationFormation * tempFormation = MigrationFormation::CastToFormation (reservoir->getFormation ());
 
       bool isDeposited = tempFormation->getTopSurface ()->getSnapshot ()->getTime () > end->getTime ();
 
@@ -749,19 +749,19 @@ migration::Formation * Migrator::getTopActiveReservoirFormation (const Interface
 
    if (topActiveReservoir)
    {
-      topActiveReservoirFormation = Formation::CastToFormation (topActiveReservoir->getFormation ());
+      topActiveReservoirFormation = MigrationFormation::CastToFormation (topActiveReservoir->getFormation ());
    }
 
    return topActiveReservoirFormation;
 }
 
-migration::Formation * Migrator::getBottomMigrationFormation(const Interface::Snapshot * end)
+migration::MigrationFormation * Migrator::getBottomMigrationFormation(const Interface::Snapshot * end)
 {
-	Formation * bottomFormation;
-	Formation *bottomSourceRockFormation = getBottomSourceRockFormation();
+	MigrationFormation * bottomFormation;
+	MigrationFormation *bottomSourceRockFormation = getBottomSourceRockFormation();
 	if (bottomSourceRockFormation == 0) return 0;
-	Formation * belowBelowSourceRockFormation = 0;
-	Formation * belowSourceRockFormation = bottomSourceRockFormation->getBottomFormation();
+	MigrationFormation * belowBelowSourceRockFormation = 0;
+	MigrationFormation * belowSourceRockFormation = bottomSourceRockFormation->getBottomFormation();
 	if (belowSourceRockFormation)
 		belowBelowSourceRockFormation = belowSourceRockFormation->getBottomFormation();
 	if (belowBelowSourceRockFormation != 0)
@@ -776,15 +776,15 @@ migration::Formation * Migrator::getBottomMigrationFormation(const Interface::Sn
 
 bool Migrator::flagTopNodes(const Interface::Snapshot * end, const bool overPressureRun)
 {
-	Formation * bottomFormation = getBottomMigrationFormation(end);
-	Formation * topSealFormation = getTopActiveFormation(end);
+	MigrationFormation * bottomFormation = getBottomMigrationFormation(end);
+	MigrationFormation * topSealFormation = getTopActiveFormation(end);
 	if (topSealFormation == 0 or bottomFormation == 0) return false;
-	Formation *sealFormation;
-	Formation *reservoirFormation;
+	MigrationFormation *sealFormation;
+	MigrationFormation *reservoirFormation;
 	bool topSealFormationReached = false;
-	for (reservoirFormation = bottomFormation, sealFormation = (Formation *)reservoirFormation->getTopFormation();
+	for (reservoirFormation = bottomFormation, sealFormation = (MigrationFormation *)reservoirFormation->getTopFormation();
         sealFormation != 0 and !topSealFormationReached;
-        reservoirFormation = sealFormation, sealFormation = (Formation *)sealFormation->getTopFormation())
+        reservoirFormation = sealFormation, sealFormation = (MigrationFormation *)sealFormation->getTopFormation())
 	{
       //check if top seal formation is reached
 	   topSealFormationReached = (sealFormation == topSealFormation);
@@ -803,20 +803,20 @@ bool Migrator::flagTopNodes(const Interface::Snapshot * end, const bool overPres
 */
 bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
-   Formation * bottomFormation = getBottomMigrationFormation(end);
-   Formation * topSealFormation = getTopActiveFormation(end);
+   MigrationFormation * bottomFormation = getBottomMigrationFormation(end);
+   MigrationFormation * topSealFormation = getTopActiveFormation(end);
    if (topSealFormation == 0 or bottomFormation == 0) return false;
 
-   Formation *reservoirFormation;
-   Formation *sealFormation;
+   MigrationFormation *reservoirFormation;
+   MigrationFormation *sealFormation;
    Interface::ReservoirList *  reservoirsBeforeDetection = getReservoirs ();
    int numDetected = 0;
 
 
    bool topSealFormationReached = false;
-   for (reservoirFormation = bottomFormation, sealFormation = (Formation *)reservoirFormation->getTopFormation ();
+   for (reservoirFormation = bottomFormation, sealFormation = (MigrationFormation *)reservoirFormation->getTopFormation ();
         sealFormation != 0 and !topSealFormationReached;
-        reservoirFormation = sealFormation, sealFormation = (Formation *)sealFormation->getTopFormation ())
+        reservoirFormation = sealFormation, sealFormation = (MigrationFormation *)sealFormation->getTopFormation ())
    {
       //check if top seal formation is reached
       topSealFormationReached = (sealFormation == topSealFormation);
@@ -841,7 +841,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
          {
             if (!reservoirFormation->getDetectedReservoir ())
             {
-               // cerr << "Formation " << reservoirFormation->getName() << " detected" << endl;
+               // cerr << "MigrationFormation " << reservoirFormation->getName() << " detected" << endl;
                // if the formation is detected as reservoir, add it in the reservoir list
                reservoirFormation->addDetectedReservoir (start);
                numDetected += 1;
@@ -867,10 +867,10 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
 {
    if (m_advancedMigration)
    {
-      Formation * sourceFormation = getBottomMigrationFormation (end);
+      MigrationFormation * sourceFormation = getBottomMigrationFormation (end);
       if (!sourceFormation) return false;
 
-      Formation * topActiveFormation = getTopActiveFormation (end);
+      MigrationFormation * topActiveFormation = getTopActiveFormation (end);
       if (!topActiveFormation) return false;
 
       if (!computeSMFlowPaths (topActiveFormation, sourceFormation, start, end)) return false;
@@ -881,7 +881,7 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
    {
       if (m_paleoSeeps or end->getTime () == 0.0)
       {
-         Formation * topActiveFormation = getTopActiveFormation (end);
+         MigrationFormation * topActiveFormation = getTopActiveFormation (end);
          if (!topActiveFormation) return false;
 
          topActiveFormation->setEndOfPath ();
@@ -893,10 +893,10 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
 
 bool Migrator::saveSMFlowPaths (const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
-   Formation * sourceFormation = getBottomMigrationFormation (end);
+   MigrationFormation * sourceFormation = getBottomMigrationFormation (end);
    if (!sourceFormation) return false;
 
-   Formation * topActiveFormation = getTopActiveFormation (end);
+   MigrationFormation * topActiveFormation = getTopActiveFormation (end);
    if (!topActiveFormation) return false;
 
    sourceFormation->saveComputedSMFlowPaths (topActiveFormation, end);
@@ -904,7 +904,7 @@ bool Migrator::saveSMFlowPaths (const Interface::Snapshot * start, const Interfa
    return true;
 }
 
-bool Migrator::computeSMFlowPaths (migration::Formation * targetFormation, migration::Formation * sourceFormation,
+bool Migrator::computeSMFlowPaths (migration::MigrationFormation * targetFormation, migration::MigrationFormation * sourceFormation,
                                    const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
    if (sourceFormation == 0) return false;
@@ -916,7 +916,7 @@ bool Migrator::computeSMFlowPaths (migration::Formation * targetFormation, migra
    return true;
 }
 
-bool Migrator::computeTargetFormationNodes (migration::Formation * targetFormation, migration::Formation * sourceFormation)
+bool Migrator::computeTargetFormationNodes (migration::MigrationFormation * targetFormation, migration::MigrationFormation * sourceFormation)
 {
    if (!sourceFormation->computeTargetFormationNodes (targetFormation)) return false;
 
@@ -930,16 +930,16 @@ bool Migrator::chargeReservoirs (const Interface::Snapshot * start, const Interf
    Interface::ReservoirList::iterator reservoirIter;
    Interface::ReservoirList::iterator reservoirAboveIter;
 
-   Reservoir * reservoir = 0;
-   Reservoir * reservoirBelow = 0;
-   Reservoir * reservoirAbove = 0;
+   MigrationReservoir * reservoir = 0;
+   MigrationReservoir * reservoirBelow = 0;
+   MigrationReservoir * reservoirAbove = 0;
    for (reservoir = 0, reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
-      reservoir = (Reservoir *)* reservoirIter;
+      reservoir = (MigrationReservoir *)* reservoirIter;
 
       reservoirAboveIter = reservoirIter;
       if (++reservoirAboveIter != reservoirs->end ())
-         reservoirAbove = (Reservoir *)* reservoirAboveIter;
+         reservoirAbove = (MigrationReservoir *)* reservoirAboveIter;
       else
          reservoirAbove = 0;
 
@@ -956,7 +956,7 @@ bool Migrator::chargeReservoirs (const Interface::Snapshot * start, const Interf
    return true;
 }
 
-bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Reservoir * reservoirAbove, migration::Reservoir * reservoirBelow,
+bool Migrator::chargeReservoir (migration::MigrationReservoir * reservoir, migration::MigrationReservoir * reservoirAbove, migration::MigrationReservoir * reservoirBelow,
                                 const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
    if (GetRank () == 0)
@@ -980,7 +980,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
 
    // Wasting the columns that have no element with the reservoir flag
    // Only in the advanced mode.
-   migration::Formation * reservoirFormation = Formation::CastToFormation (reservoir->getFormation ());
+   migration::MigrationFormation * reservoirFormation = MigrationFormation::CastToFormation (reservoir->getFormation ());
    if (m_advancedMigration)
       reservoir->wasteNonReservoirColumns (end);
 
@@ -1028,7 +1028,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
       }
       else
       {
-         migration::Formation * leakingReservoir = Formation::CastToFormation (reservoirBelow->getFormation ());
+         migration::MigrationFormation * leakingReservoir = MigrationFormation::CastToFormation (reservoirBelow->getFormation ());
          leakingReservoir->migrateLeakedChargesToReservoir (reservoir);
       }
       reservoir->migrateChargesToBeMigrated (0, reservoirBelow); // Lateral Migration
@@ -1135,12 +1135,12 @@ bool Migrator::calculateSeepage (const Interface::Snapshot * start, const Interf
    if (!m_paleoSeeps and end->getTime () > 0.0)
       return true;
 
-   Formation * seepsFormation = getTopActiveFormation (end);
+   MigrationFormation * seepsFormation = getTopActiveFormation (end);
    if (!seepsFormation)
       return false;
 
-   Formation * topSourceRockFormation = getTopSourceRockFormation (end);
-   Formation * topReservoirFormation = getTopActiveReservoirFormation (start, end);
+   MigrationFormation * topSourceRockFormation = getTopSourceRockFormation (end);
+   MigrationFormation * topReservoirFormation = getTopActiveReservoirFormation (start, end);
 
    // If no source rock and no reservoir there can't be a source for new seepage
    if (!topSourceRockFormation and !topReservoirFormation)
@@ -1155,7 +1155,7 @@ bool Migrator::calculateSeepage (const Interface::Snapshot * start, const Interf
    // First calculate leakage from the top active reservoir
    if (topReservoirFormation)
    {
-      Formation * formationOnTop = topReservoirFormation->getTopFormation ();
+      MigrationFormation * formationOnTop = topReservoirFormation->getTopFormation ();
 
       // Only calculate leakage seeps if the top-reservoir top surface is not the top of the basin.
       // If it is, the column composition will be registered for seeps as it is currently stored.
@@ -1183,7 +1183,7 @@ bool Migrator::calculateSeepage (const Interface::Snapshot * start, const Interf
       // There may be more than one source rock above the top reservoir
       for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
       {
-         Formation * formation = Formation::CastToFormation (*formationIter);
+         MigrationFormation * formation = MigrationFormation::CastToFormation (*formationIter);
          int formationIndex = formation->getDepositionSequence ();
 
          // Continue if above the top source rock (no source for seepage here)
@@ -1209,7 +1209,7 @@ bool Migrator::calculateSeepage (const Interface::Snapshot * start, const Interf
    return true;
 }
 
-void Migrator::saveSeepageAmounts (migration::Formation * seepsFormation, const Interface::Snapshot * end)
+void Migrator::saveSeepageAmounts (migration::MigrationFormation * seepsFormation, const Interface::Snapshot * end)
 {
    // save only major snapshots results
    const bool saveSnapshot = end->getType () == Interface::MAJOR;
@@ -1226,7 +1226,7 @@ void Migrator::saveSeepageAmounts (migration::Formation * seepsFormation, const 
 
    DataAccess::Interface::ProjectHandle * dataAccessProjectHandle = dynamic_cast<DataAccess::Interface::ProjectHandle *> (getProjectHandle ());
    // Not a real reservoir, but the I/O functionality of the reservoir class comes in handy
-   migration::Reservoir seepsReservoir (dataAccessProjectHandle, this, seepsReservoirRecord);
+   migration::MigrationReservoir seepsReservoir (dataAccessProjectHandle, this, seepsReservoirRecord);
    seepsReservoir.setEnd (end);
 
    // Setting formation but in PropertyValue.C getting the formation fails
@@ -1242,7 +1242,7 @@ void Migrator::saveSeepageAmounts (migration::Formation * seepsFormation, const 
 
 // collect expelled charges into reservoirs from the formations that are
 // above reservoirBelow and not above or just above reservoir
-bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
+bool Migrator::collectAndMigrateExpelledCharges (MigrationReservoir * reservoir, MigrationReservoir * reservoirAbove, MigrationReservoir * reservoirBelow,
                                                  const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier)
 {
    Interface::FormationList * formations = getAllFormations ();
@@ -1252,11 +1252,11 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
    Interface::FormationList::iterator formationIter;
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      const Formation* formation = dynamic_cast<const Formation*>(*formationIter);
+      const MigrationFormation* formation = dynamic_cast<const MigrationFormation*>(*formationIter);
 
-      const Formation * formationBelow = formation->getBottomFormation ();
+      const MigrationFormation * formationBelow = formation->getBottomFormation ();
 
-      const Formation * formationBelowBelow = 0;
+      const MigrationFormation * formationBelowBelow = 0;
 
       if (formationBelow)
          formationBelowBelow = formationBelow->getBottomFormation ();
@@ -1379,7 +1379,7 @@ bool Migrator::loadExpulsionMaps (const Interface::Snapshot * start, const Inter
    Interface::FormationList::iterator formationIter;
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation *formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation *formation = MigrationFormation::CastToFormation (*formationIter);
       if (formation->isSourceRock () and formation->isActive (end))
       {
          formation->loadExpulsionMaps (start, end);
@@ -1396,7 +1396,7 @@ bool Migrator::unloadExpulsionMaps (const Interface::Snapshot * end)
    Interface::FormationList::iterator formationIter;
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      Formation *formation = Formation::CastToFormation (*formationIter);
+      MigrationFormation *formation = MigrationFormation::CastToFormation (*formationIter);
       if (formation->isSourceRock () and formation->isActive (end))
       {
          formation->unloadExpulsionMaps ();
@@ -1428,7 +1428,7 @@ void Migrator::sortReservoirs () const
 }
 
 
-void Migrator::addTrapRecord (migration::Reservoir * reservoir, migration::TrapPropertiesRequest & tpRequest)
+void Migrator::addTrapRecord (migration::MigrationReservoir * reservoir, migration::TrapPropertiesRequest & tpRequest)
 {
    if (!m_trapIoTbl) m_trapIoTbl = m_projectHandle->getTable ("TrapIoTbl");
    assert (m_trapIoTbl);

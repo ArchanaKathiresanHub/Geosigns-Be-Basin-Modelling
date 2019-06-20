@@ -42,21 +42,6 @@ if (BM_PARALLEL AND TSLIB_ROOT)
      "XAPPLRESDIR" "$MATLABMCR/X11/app-defaults"
    )
 
-
-   bm_include_libraries(
-      DataModel
-      DistributedDataAccess
-      DataAccess
-      Utilities_Petsc
-      Serial_Hdf5
-      OneFilePerProcess
-      Parallel_Hdf5
-      TableIO
-      FileSystem
-      utilities
-      CBMGenerics
-   )
-
    include_directories( SYSTEM
        ${HDF5_INCLUDE_DIRS}
        ${MPI_INCLUDE_DIRS}
@@ -161,9 +146,3 @@ if (BM_PARALLEL AND TSLIB_ROOT)
    )
 
 endif(BM_PARALLEL AND TSLIB_ROOT)
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

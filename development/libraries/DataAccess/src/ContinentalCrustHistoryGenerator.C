@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Interface/ContinentalCrustHistoryGenerator.h"
+#include "ContinentalCrustHistoryGenerator.h"
 
 //std
 #include <limits>
@@ -19,14 +19,14 @@
 #include "NumericFunctions.h"
 
 //DataAccess
-#include "Interface/GridMap.h"
-#include "Interface/Grid.h"
-#include "Interface/Snapshot.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/Surface.h"
-#include "Interface/PaleoFormationProperty.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/ApplicationGlobalOperations.h"
+#include "GridMap.h"
+#include "Grid.h"
+#include "Snapshot.h"
+#include "CrustFormation.h"
+#include "Surface.h"
+#include "PaleoFormationProperty.h"
+#include "ProjectHandle.h"
+#include "ApplicationGlobalOperations.h"
 
 //DataModel
 #include "AbstractValidator.h"

@@ -13,9 +13,9 @@
 
 using namespace database;
 
-#include "Interface/AttributeValue.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/DAObject.h"
+#include "AttributeValue.h"
+#include "ProjectHandle.h"
+#include "DAObject.h"
 
 using namespace DataAccess;
 using namespace Interface;

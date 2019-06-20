@@ -4,7 +4,7 @@
 #include <sstream>
 using namespace std;
 
-#include "Interface/SerialGrid.h"
+#include "SerialGrid.h"
 
 #define Square(a)  ((a)*(a))
 #define Round(a) ((int) (((double) a) + 0.5))

@@ -66,7 +66,7 @@ bool FaultElementMapCalculator::operator ()( const OutputPropertyMap::OutputProp
 
 void FaultElementMapCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FaultElements", 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FaultElements", 
                                                                                                          m_snapshot, 0, 
                                                                                                          m_formation,
                                                                                                          0 )));

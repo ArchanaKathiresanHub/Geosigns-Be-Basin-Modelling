@@ -48,7 +48,7 @@ namespace migration
          CONSTANT_LITHOTYPE3PERCENT
       };
 
-      typedef vector<pair<const Formation*, SurfaceGridMap> > constant_properties;
+      typedef vector<pair<const MigrationFormation*, SurfaceGridMap> > constant_properties;
       typedef vector<SurfaceGridMapFormations> continuous_properties;
       typedef vector<FormationSurfaceGridMaps> discontinuous_properties;
 

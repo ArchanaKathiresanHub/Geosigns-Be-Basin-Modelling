@@ -12,7 +12,7 @@
 #include <iostream>
 using namespace std;
 
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 #include "FiniteElementTypes.h"
 #include "FiniteElement.h"
@@ -75,7 +75,7 @@ double DataAccess::Mining::HeatFlowCalculator::compute ( const ElementPosition& 
 
    const bool includeAdvection = getProjectHandle ()->getRunParameters ()->getConvectiveTerm ();
 
-   const GeoPhysics::Formation* formation = dynamic_cast<const GeoPhysics::Formation*>(position.getFormation ());
+   const GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(position.getFormation ());
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType ());
 
    double calculationResult = 0.;
@@ -112,7 +112,7 @@ double DataAccess::Mining::HeatFlowCalculator::compute ( const ElementPosition& 
       return Interface::DefaultUndefinedMapValue;
    }
 
-   const GeoPhysics::Formation* geoForm = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   const GeoPhysics::GeoPhysicsFormation* geoForm = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
    const GeoPhysics::CompoundLithology* lithology = geoForm->getCompoundLithology ( position.getI (), position.getJ ());
 
    dynamic_cast<const DomainFormationProperty*>(m_depth)->extractCoefficients ( position, depthCoeffs );

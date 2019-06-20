@@ -38,27 +38,27 @@ SaturationVolumeCalculator::SaturationVolumeCalculator ( LayerProps* formation, 
 
 void SaturationVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* phase;
+   CauldronPropertyValue* phase;
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BrineSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "BrineSaturation", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidSaturation", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourSaturation", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "ImmobileSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "ImmobileSaturation", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
@@ -183,27 +183,27 @@ SaturationCalculator::SaturationCalculator ( LayerProps* formation, const Interf
 
 void SaturationCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* phase;
+   CauldronPropertyValue* phase;
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "BrineSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "BrineSaturation", 
                                                                                            m_snapshot, 0,
                                                                                            m_formation,
                                                                                            0 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HcLiquidSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HcLiquidSaturation", 
                                                                                            m_snapshot, 0,
                                                                                            m_formation,
                                                                                            0 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HcVapourSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HcVapourSaturation", 
                                                                                            m_snapshot, 0,
                                                                                            m_formation,
                                                                                            0 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ImmobileSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ImmobileSaturation", 
                                                                                            m_snapshot, 0,
                                                                                            m_formation,
                                                                                            0 ));
@@ -304,27 +304,27 @@ AverageSaturationVolumeCalculator::AverageSaturationVolumeCalculator ( LayerProp
 
 void AverageSaturationVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* phase;
+   CauldronPropertyValue* phase;
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "AverageBrineSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "AverageBrineSaturation", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "AverageHcLiquidSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "AverageHcLiquidSaturation", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "AverageHcVapourSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "AverageHcVapourSaturation", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "AverageImmobileSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "AverageImmobileSaturation", 
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
@@ -407,27 +407,27 @@ AverageSaturationCalculator::AverageSaturationCalculator ( LayerProps* formation
 
 void AverageSaturationCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   PropertyValue* phase;
+   CauldronPropertyValue* phase;
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AverageBrineSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AverageBrineSaturation", 
                                                                                            m_snapshot, 0,
                                                                                            m_formation,
                                                                                            0 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AverageHcLiquidSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AverageHcLiquidSaturation", 
                                                                                            m_snapshot, 0,
                                                                                            m_formation,
                                                                                            0 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AverageHcVapourSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AverageHcVapourSaturation", 
                                                                                            m_snapshot, 0,
                                                                                            m_formation,
                                                                                            0 ));
    properties.push_back ( phase );
 
-   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AverageImmobileSaturation", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AverageImmobileSaturation", 
                                                                                            m_snapshot, 0,
                                                                                            m_formation,
                                                                                            0 ));

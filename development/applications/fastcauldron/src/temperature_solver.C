@@ -21,11 +21,11 @@
 #include "MantleFormation.h"
 #include "VitriniteReflectance.h"
 #include "FastcauldronSimulator.h"
-#include "Interface/RunParameters.h"
+#include "RunParameters.h"
 
 //Data access library
-#include "Interface/GridMap.h"
-#include "Interface/IgneousIntrusionEvent.h"
+#include "GridMap.h"
+#include "IgneousIntrusionEvent.h"
 #include "PetscLogStages.h"
 
 #include "BoundaryConditions.h"
@@ -110,7 +110,7 @@ void Temperature_Solver::Compute_Crust_Heat_Production ( )
   double         Age_Of_Basin = FastcauldronSimulator::getInstance ().getAgeOfBasin ();
   // double         Age_Of_Basin = Basin_Model -> Age_Of_Basin ();
 
-  CrustFormation* Crust_Layer = Basin_Model -> Crust();
+  CauldronCrustFormation* Crust_Layer = Basin_Model -> Crust();
 
   Maximum_Crust_Thickness = Crust_Layer->getCrustMaximumThicknessHistory ( Age_Of_Basin );
 
@@ -380,8 +380,8 @@ void Temperature_Solver::Estimate_Basement_Temperature ( )
   double Age_Of_Basin = FastcauldronSimulator::getInstance ().getAgeOfBasin ();
   // double Age_Of_Basin = Basin_Model -> Age_Of_Basin ();
 
-  CrustFormation*  Crust_Layer   = Basin_Model -> Crust();
-  MantleFormation* Mantle_Layer  = Basin_Model -> Mantle();
+  CauldronCrustFormation*  Crust_Layer   = Basin_Model -> Crust();
+  CauldronMantleFormation* Mantle_Layer  = Basin_Model -> Mantle();
 
   const double Top_Asthenospheric_Temperature = FastcauldronSimulator::getInstance ().getTopAsthenosphericTemperature ();
 
@@ -1324,8 +1324,8 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
   PETSC_2D_Array bottomBasaltDepth;
 
   if ( Basin_Model -> isALC()) {
-     CrustFormation*   crustLayer = Basin_Model -> Crust ();
-     MantleFormation*  mantleLayer = Basin_Model -> Mantle ();
+     CauldronCrustFormation*   crustLayer = Basin_Model -> Crust ();
+     CauldronMantleFormation*  mantleLayer = Basin_Model -> Mantle ();
      crustLayer->cleanVectors();
      mantleLayer->cleanVectors();
 
@@ -1485,8 +1485,8 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
   PETSC_2D_Array bottomBasaltDepth;
 
   if( Basin_Model -> isALC() ) {
-     CrustFormation*   crustLayer = Basin_Model -> Crust ();
-     MantleFormation*  mantleLayer = Basin_Model -> Mantle ();
+     CauldronCrustFormation*   crustLayer = Basin_Model -> Crust ();
+     CauldronMantleFormation*  mantleLayer = Basin_Model -> Mantle ();
      crustLayer->cleanVectors();
      mantleLayer->cleanVectors();
      topBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> TopBasaltDepth, INSERT_VALUES, IncludeGhosts );
@@ -1638,8 +1638,8 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
   PETSC_2D_Array bottomBasaltDepth;
 
   if( Basin_Model -> isALC() ) {
-     CrustFormation*   crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());
-     MantleFormation*  mantleLayer = dynamic_cast<MantleFormation*>(Basin_Model -> Mantle ());
+     CauldronCrustFormation*   crustLayer = dynamic_cast<CauldronCrustFormation*>(Basin_Model -> Crust ());
+     CauldronMantleFormation*  mantleLayer = dynamic_cast<CauldronMantleFormation*>(Basin_Model -> Mantle ());
      crustLayer->cleanVectors();
      mantleLayer->cleanVectors();
 

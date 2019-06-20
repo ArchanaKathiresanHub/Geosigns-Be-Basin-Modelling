@@ -10,34 +10,19 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h)
-source_group("Header Files" FILES ${all_headers})
-
-FILE( GLOB all_srcs src/*.cpp)
-source_group("Source Files" FILES ${all_srcs})
-
 set( LIB_NAME "VisualizationIO" )
-add_library(${LIB_NAME} ${all_srcs} ${all_headers})
-set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 include_directories( SYSTEM
-   src
    ${PUGIXML_INCLUDE_DIR}
    ${LZ_INCLUDE_DIR}
 )
 
-bm_include_libraries(
-   utilities
-   FileSystem
-)
-
-target_link_libraries(${LIB_NAME}
-   utilities
-   FileSystem
-   PugiXMLlib
-   LZlib
-   ${Boost_LIBRARIES}
-)
+create_bm_library( TARGET ${LIB_NAME}
+                   LIBRARIES FileSystem
+                             utilities
+                             PugiXMLlib
+                             LZlib
+                             ${Boost_LIBRARIES} )
 
 generate_version_by_git_last_checkin(src API_FILE_GIT_DATE_AS_VER)
 if ( MSVC )
@@ -101,9 +86,3 @@ else (MSVC) # UNIX
 endif (MSVC)
 
 generate_dox( VisualizationIO.cfg )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

@@ -1,6 +1,6 @@
 #include "Property.h"
 
-#include "Interface/Property.h"
+#include "Property.h"
 
 #include <iostream>
 #include <sstream>

@@ -9,9 +9,9 @@
 #include "OutputPropertyMap.h"
 #include "timefilter.h"
 
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/GridMap.h"
+#include "Surface.h"
+#include "Snapshot.h"
+#include "GridMap.h"
 
 /*! \class VelocityCalculator
 * \brief Class used to compute the 2D seismic velocity (Velocity) property.

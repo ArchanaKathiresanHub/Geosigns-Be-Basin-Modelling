@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Interface/SerialApplicationGlobalOperations.h"
+#include "SerialApplicationGlobalOperations.h"
 
 double DataAccess::Interface::SerialApplicationGlobalOperations::maximum ( const double val ) const {
    return val;

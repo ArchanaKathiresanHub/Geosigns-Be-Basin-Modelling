@@ -17,7 +17,7 @@
 #include <string>
 
 // DataAccess library
-#include "Interface/Local3DArray.h"
+#include "Local3DArray.h"
 
 // utilities library
 #include "array.h"
