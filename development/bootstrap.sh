@@ -9,7 +9,7 @@
 #  $ make all install -j12
 
 # Prepare environment
-. /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
+. /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh -d HpcSoftwareStack/PRODUCTION
 module purge &> /dev/null
 module load CMake/3.8.2
 module load intel/2017.05;
