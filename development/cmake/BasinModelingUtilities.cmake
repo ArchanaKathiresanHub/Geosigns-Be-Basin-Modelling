@@ -27,7 +27,9 @@ macro(create_bm_library)
 
   add_library(${BM_TARGET} ${ALL_SOURCES} ${ALL_HEADERS})
   target_include_directories(${BM_TARGET} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-  target_link_libraries(${BM_TARGET} ${BM_LIBRARIES})
+  target_link_libraries(${BM_TARGET} ${BM_LIBRARIES})  
+  set_target_properties( ${BM_TARGET} PROPERTIES FOLDER "${BASE_FOLDER}/${BM_TARGET}" )
+  
   if (BM_INSTALLTARGET)
     install(TARGETS ${BM_TARGET}
             RUNTIME DESTINATION bin
