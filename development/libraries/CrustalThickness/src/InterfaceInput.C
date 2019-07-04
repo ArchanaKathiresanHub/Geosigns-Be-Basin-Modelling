@@ -47,6 +47,8 @@
 // Geophysics library
 #include "GeoPhysicsProjectHandle.h"
 
+#include <algorithm>
+
 using DataAccess::Interface::FLEXURAL_BASIN;
 using DataAccess::Interface::ACTIVE_RIFTING;
 using DataAccess::Interface::PASSIVE_MARGIN;
@@ -104,7 +106,7 @@ InterfaceInput::~InterfaceInput() {
    if (m_derivedManager != nullptr){
       delete m_derivedManager;
    }
-} 
+}
 
 //------------------------------------------------------------//
 void InterfaceInput::loadInputData() {

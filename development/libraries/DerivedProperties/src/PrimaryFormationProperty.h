@@ -11,7 +11,6 @@
 #ifndef DERIVED_PROPERTIES__PRIMARY_FORMATION_PROPERTY_H
 #define DERIVED_PROPERTIES__PRIMARY_FORMATION_PROPERTY_H
 
-#include <boost/shared_ptr.hpp>
 #include <boost/multi_array.hpp>
 
 #include "AbstractProperty.h"
@@ -23,6 +22,8 @@
 #include "PropertyValue.h"
 
 #include "FormationProperty.h"
+
+#include <memory>
 
 namespace DerivedProperties {
 
@@ -69,7 +70,7 @@ namespace DerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<PrimaryFormationProperty> PrimaryFormationPropertyPtr;
+   typedef std::shared_ptr<PrimaryFormationProperty> PrimaryFormationPropertyPtr;
 
 }
 

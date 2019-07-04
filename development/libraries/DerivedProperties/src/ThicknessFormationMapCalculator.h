@@ -14,8 +14,6 @@
 #include <vector>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
 #include "AbstractFormation.h"
@@ -35,7 +33,7 @@ namespace DerivedProperties {
       ThicknessFormationMapCalculator ();
 
       /// \brief Calculate the thickness derived property.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the thickness property is requested.
       /// \param [in]  formation   The formation for which the thickness property is requested.

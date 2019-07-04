@@ -2,7 +2,7 @@
 #define HPC_FCBENCH_PARAMETERDEFINITIONS_H
 
 #include <map>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 
 namespace hpc
@@ -16,8 +16,8 @@ class ParameterDefinitions
 public:
    typedef std::string Name;
 
-   typedef std::map< Name, boost::shared_ptr<const Project3DParameter> > ProjectParamMap;
-   typedef std::map< Name, boost::shared_ptr<const CmdLineParameter> >   CmdLineParamMap;
+   typedef std::map< Name, std::shared_ptr<const Project3DParameter> > ProjectParamMap;
+   typedef std::map< Name, std::shared_ptr<const CmdLineParameter> >   CmdLineParamMap;
 
    ParameterDefinitions(const Path & parameterDefinitionsFiles );
 

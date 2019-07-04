@@ -23,6 +23,7 @@
 #include "database.h"
 
 // STL
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <set>

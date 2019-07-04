@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <unistd.h>
 using namespace std;
 
 //utilities library
@@ -135,14 +136,14 @@ int main (int argc, char ** argv)
 
       rc = EPTFlexLmInit(errmessage);
       if ( rc != EPTFLEXLM_OK ) {
-	      fprintf(stderr, "\n@@@@@@@@@@@@@@@\n FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
+        fprintf(stderr, "\n@@@@@@@@@@@@@@@\n FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
       }
       // FlexLM license handling: Checkout
       rc = EPTFlexLmCheckOut(feature, version, errmessage);
       if (rc == EPTFLEXLM_WARN) {
-	      fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license warning: fastcauldron will still start anyway.\n@@@@@@@@@@@@@@@\n");
+        fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license warning: fastcauldron will still start anyway.\n@@@@@@@@@@@@@@@\n");
       } else if (rc != EPTFLEXLM_OK) {
-	      fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
+        fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
       }
    }
 

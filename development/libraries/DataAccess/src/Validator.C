@@ -25,6 +25,8 @@
 #include "MobileLayer.h"
 #include "OceanicCrustThicknessHistoryData.h"
 
+#include <algorithm>
+
 //----------------------------------------------------------------------------
 
 bool DataAccess::Interface::Validator::isValid( const unsigned int i, const unsigned int j ) const{

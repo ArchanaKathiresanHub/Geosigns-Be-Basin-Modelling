@@ -11,17 +11,16 @@
 #ifndef ABSTRACTDERIVED_PROPERTIES__SURFACE_PROPERTY_CALCULATOR_H
 #define ABSTRACTDERIVED_PROPERTIES__SURFACE_PROPERTY_CALCULATOR_H
 
-#include <vector>
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
 #include "AbstractSurface.h"
 
 #include "SurfaceProperty.h"
 #include "PropertyCalculator.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace AbstractDerivedProperties {
 
@@ -49,7 +48,7 @@ namespace AbstractDerivedProperties {
    };
 
 
-   typedef boost::shared_ptr<const SurfacePropertyCalculator> SurfacePropertyCalculatorPtr;
+   typedef std::shared_ptr<const SurfacePropertyCalculator> SurfacePropertyCalculatorPtr;
 
 
 } // namespace AbstractDerivedProperties

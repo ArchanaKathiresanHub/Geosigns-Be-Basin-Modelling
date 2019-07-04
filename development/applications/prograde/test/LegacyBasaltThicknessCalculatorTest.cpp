@@ -34,6 +34,7 @@
 #include "LegacyBasaltThicknessCalculator.h"
 
 //std
+#include <algorithm>
 #include <map>
 #include <utility>
 #include <memory>

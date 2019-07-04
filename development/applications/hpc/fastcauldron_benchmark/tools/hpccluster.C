@@ -65,9 +65,9 @@ DelayedLsfCluster
 
    std::ostringstream scriptName;
    scriptName << "lsf_submit_" << nHosts;
-   boost::shared_ptr<Path> scriptPath = m_jobDir->getDirectoryEntry(scriptName.str());
+   std::shared_ptr<Path> scriptPath = m_jobDir->getDirectoryEntry(scriptName.str());
 
-   boost::shared_ptr<std::ostream> lsfscript = scriptPath->writeFile();
+   std::shared_ptr<std::ostream> lsfscript = scriptPath->writeFile();
 
    *lsfscript
       << "#!/bin/bash\n"
@@ -100,7 +100,7 @@ DelayedLsfCluster
    for (unsigned job = 0; job < jobs.size(); ++job)
    {
       std::string command;
-      boost::shared_ptr<Path> workingDirectory;
+      std::shared_ptr<Path> workingDirectory;
       FastCauldronEnvironment::commandToRunJob(* m_directory, jobs[job].second, workingDirectory, command);
 
       * lsfscript

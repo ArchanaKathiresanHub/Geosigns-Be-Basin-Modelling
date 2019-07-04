@@ -11,10 +11,6 @@
 #ifndef ABSTRACTDERIVED_PROPERTIES__RESERVOIR_PROPERTY_H
 #define ABSTRACTDERIVED_PROPERTIES__RESERVOIR_PROPERTY_H
 
-#include <vector>
-
-#include <boost/shared_ptr.hpp>
-
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
 #include "AbstractFormation.h"
@@ -23,6 +19,9 @@
 
 #include "AbstractPropertyValues.h"
 #include "FormationMapProperty.h"
+
+#include <memory>
+#include <vector>
 
 namespace AbstractDerivedProperties {
 
@@ -47,7 +46,7 @@ namespace AbstractDerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<const ReservoirProperty> ReservoirPropertyPtr;
+   typedef std::shared_ptr<const ReservoirProperty> ReservoirPropertyPtr;
 
    typedef std::vector<ReservoirPropertyPtr> ReservoirPropertyList;
 

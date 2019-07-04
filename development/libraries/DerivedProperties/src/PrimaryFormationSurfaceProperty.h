@@ -11,7 +11,6 @@
 #ifndef DERIVED_PROPERTIES__PRIMARY_FORMATION_SURFACE_PROPERTY_H
 #define DERIVED_PROPERTIES__PRIMARY_FORMATION_SURFACE_PROPERTY_H
 
-#include <boost/shared_ptr.hpp>
 #include <boost/multi_array.hpp>
 
 #include "AbstractProperty.h"
@@ -24,6 +23,8 @@
 #include "PropertyValue.h"
 
 #include "FormationSurfaceProperty.h"
+
+#include <memory>
 
 namespace DerivedProperties {
 
@@ -60,7 +61,7 @@ namespace DerivedProperties {
 
       /// \ brief Get the gridMap
       const DataAccess::Interface::GridMap* getGridMap() const;
-       
+
    private :
 
       const DataAccess::Interface::PropertyValue* m_propertyValue;
@@ -68,7 +69,7 @@ namespace DerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<PrimaryFormationSurfaceProperty> PrimaryFormationSurfacePropertyPtr;
+   typedef std::shared_ptr<PrimaryFormationSurfaceProperty> PrimaryFormationSurfacePropertyPtr;
 
 }
 

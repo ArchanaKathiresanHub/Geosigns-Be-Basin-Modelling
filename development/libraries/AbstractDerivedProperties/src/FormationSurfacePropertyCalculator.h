@@ -11,17 +11,16 @@
 #ifndef ABSTRACTDERIVED_PROPERTIES__FORMATION_SURFACE_PROPERTY_CALCULATOR_H
 #define ABSTRACTDERIVED_PROPERTIES__FORMATION_SURFACE_PROPERTY_CALCULATOR_H
 
-#include <vector>
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
 #include "AbstractSurface.h"
 
 #include "FormationSurfaceProperty.h"
 #include "PropertyCalculator.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace AbstractDerivedProperties {
 
@@ -52,7 +51,7 @@ namespace AbstractDerivedProperties {
    };
 
 
-   typedef boost::shared_ptr<const FormationSurfacePropertyCalculator> FormationSurfacePropertyCalculatorPtr;
+   typedef std::shared_ptr<const FormationSurfacePropertyCalculator> FormationSurfacePropertyCalculatorPtr;
 
 
 } // namespace AbstractDerivedProperties

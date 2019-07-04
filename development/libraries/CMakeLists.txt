@@ -20,6 +20,7 @@ add_subdirectory(CBMGenerics)
 add_subdirectory(Serial_Hdf5)
 add_subdirectory(EosPack)
 add_subdirectory(DataAccess)
+add_subdirectory(DataExtraction)
 add_subdirectory(DataMining)
 add_subdirectory(SerialDataAccess)
 add_subdirectory(GeoPhysics)
@@ -48,7 +49,7 @@ if(UNIX)
    # Libraries that can only be built on Unix at the moment.
    add_subdirectory(ParaViewPlugin)
    add_subdirectory(OneFilePerProcess)
- 
+
    if(CMAKE_COMPILER_IS_GNUCXX)
      # Some libraries are already GCC warnings-free so we should keep them as they are
      set_target_properties( CBMGenerics

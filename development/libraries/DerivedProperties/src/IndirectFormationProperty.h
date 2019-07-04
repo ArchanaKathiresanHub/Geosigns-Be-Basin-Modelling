@@ -46,7 +46,7 @@ namespace DerivedProperties
       AbstractDerivedProperties::FormationPropertyPtr m_property;    //!< Pointer to FormationProperty storing values
    };
 
-   typedef boost::shared_ptr<IndirectFormationProperty> IndirectFormationPropertyPtr;
+   typedef std::shared_ptr<IndirectFormationProperty> IndirectFormationPropertyPtr;
 
 } // namespace DerivedProperties
 
@@ -63,7 +63,7 @@ inline double DerivedProperties::IndirectFormationProperty::get( unsigned int i,
 
 inline bool DerivedProperties::IndirectFormationProperty::isPrimary () const {
 
-   return false; 
+   return false;
 }
 
 #endif // _DERIVED_PROPERTIES__INDIRECT_FORMATION_PROPERTY_H_

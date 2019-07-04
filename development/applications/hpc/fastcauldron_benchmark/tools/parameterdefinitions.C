@@ -18,7 +18,7 @@ ParameterDefinitions
    , m_cauldronCmdLineParams()
 {                              
    // parse parameter definition file
-   boost::shared_ptr<std::istream> paramDefs = parameterDefinitionFile.readFile();
+   std::shared_ptr<std::istream> paramDefs = parameterDefinitionFile.readFile();
    std::string line;
    int lineNr = 0;
    while ( ++lineNr, getline(*paramDefs, line) )

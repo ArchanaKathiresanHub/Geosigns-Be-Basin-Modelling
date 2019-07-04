@@ -15,7 +15,7 @@ std::vector<ParameterSettings>
 ParameterSettings
    :: parse( const Path & parameterSettingsFile )
 {
-  boost::shared_ptr<std::istream> file = parameterSettingsFile.readFile();
+  std::shared_ptr<std::istream> file = parameterSettingsFile.readFile();
 
   std::vector<ParameterSettings> result;
   std::vector< ParameterSettings > currentSettings(1);

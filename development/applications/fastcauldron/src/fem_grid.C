@@ -21,6 +21,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <memory>
 
 //------------------------------------------------------------//
 
@@ -99,9 +100,6 @@
 #include "VtkMeshWriter.h"
 #include "SolutionVectorMapping.h"
 #include "PetscObjectAllocator.h"
-
-
-#include <boost/shared_ptr.hpp>
 
 #include "PetscObjectsIO.h"
 
@@ -1392,7 +1390,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   numberOfGeome
 
   int maximumNumberOfOverpressureIterations;
   int numberOfNewtonIterations = -1;
-  double currentTime, previousTime, timeStep; 
+  double currentTime, previousTime, timeStep;
   int numberOfTimesteps = 0;
 
   double Po_Norm;
@@ -2235,8 +2233,8 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
   PetscScalar Solution_Length = 0.0;
   PetscReal   linearSolverResidualNorm;
 
-  boost::shared_ptr<PetscSolver> pressureLinearSolver ( new PetscCG ( pressureSolver->getLinearSolverTolerance ( basinModel->Optimisation_Level ),
-                                                                      PressureSolver::DefaultMaximumPressureLinearSolverIterations ));
+  std::shared_ptr<PetscSolver> pressureLinearSolver ( new PetscCG ( pressureSolver->getLinearSolverTolerance ( basinModel->Optimisation_Level ),
+                                                                    PressureSolver::DefaultMaximumPressureLinearSolverIterations ));
   pressureLinearSolver->loadCmdLineOptions();
 
 
@@ -2402,13 +2400,13 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
             // On subsequent iterations the restart level and the maximum number of iterations are both increased,
             for ( int linearSolveLoop = 1; linearSolveLoop <= PressureSolver::MaximumLinearSolveAttempts and convergedReason < 0; ++linearSolveLoop, ++linearSolveAttempts ) {
 
-               boost::shared_ptr<PetscGMRES> gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
+               std::shared_ptr<PetscGMRES> gmres = dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
                if ( ! gmres  ) {
                   pressureLinearSolver.reset ( new PetscGMRES ( pressureLinearSolver->getTolerance(),
                                                                 PressureSolver::DefaultGMResRestartValue,
                                                                 pressureLinearSolver->getMaxIterations ()));
 
-                  gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
+                  gmres = dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
                   gmres->loadCmdLineOptions();
                   gmres->setRestart ( std::max( gmres->getRestart(), PressureSolver::DefaultGMResRestartValue ));
                   gmres->setMaxIterations( std::max( pressureLinearSolver->getMaxIterations(), PressureSolver::DefaultMaximumPressureLinearSolverIterations) );
@@ -2713,7 +2711,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
   PetscLogDouble Jacobian_Time;
   PetscLogDouble Total_Jacobian_Time = 0.0;
 
-  boost::shared_ptr< PetscSolver > temperatureLinearSolver;
+  std::shared_ptr< PetscSolver > temperatureLinearSolver;
 
   if (isSteadyStateCalculation || strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)
   {
@@ -2970,7 +2968,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   PetscLogDouble System_Assembly_End_Time;
   PetscLogDouble Total_System_Assembly_Time;
 
-  boost::shared_ptr< PetscSolver > temperatureLinearSolver;
+  std::shared_ptr< PetscSolver > temperatureLinearSolver;
   temperatureHasDiverged = false;
 
   if ( strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)

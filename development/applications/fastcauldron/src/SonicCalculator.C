@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -30,7 +30,7 @@ SonicCalculator::SonicCalculator ( LayerProps* formation, const Interface::Surfa
 
 }
 
-bool SonicCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool SonicCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                          OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -75,8 +75,8 @@ bool SonicCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& 
 
 void SonicCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SonicVec2", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "SonicVec2",
+                                                                                                         m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          m_surface )));
 
@@ -102,7 +102,7 @@ SonicVolumeCalculator::SonicVolumeCalculator ( LayerProps* formation, const Inte
 
 }
 
-bool SonicVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool SonicVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -152,8 +152,8 @@ bool SonicVolumeCalculator::operator ()( const OutputPropertyMap::OutputProperty
 
 void SonicVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SonicVec2", 
-                                                                                                            m_snapshot, 0, 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "SonicVec2",
+                                                                                                            m_snapshot, 0,
                                                                                                             m_formation,
                                                                                                             m_formation->getMaximumNumberOfElements () + 1 )));
 

@@ -1,13 +1,28 @@
+//
+// Copyright (C) 2015-2019 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#pragma once
+
 #include <string>
 #include <sstream>
 #include <stdexcept>
 using namespace std;
 
+namespace DataExtraction
+{
+
 template <class T>
 string addToStream (ostream & aStream, const string & aString, const T & arg)
 {
       size_t lastpos = 0;
-      
+
       lastpos = aString.find_first_of ('%', 0);
       if (lastpos == string::npos) return aString;
       aStream << aString.substr (0, lastpos);
@@ -82,6 +97,6 @@ class RecordException : public exception {
    protected:
    string m_errorString;
 };
- 
 
+} // DataExtraction
 

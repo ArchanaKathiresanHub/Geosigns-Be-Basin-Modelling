@@ -8,6 +8,7 @@
 #include "variabledefinitions.h"
 #include "system.h"
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -22,13 +23,13 @@ namespace hpc
    {
       std::tr1::array<std::string, 4> mandatorySettings = { { "ID", "Project", "Processors", "CauldronVersion" } };
 
-      struct MandatorySetting { static 
+      struct MandatorySetting { static
          std::string getValue(const ParameterSettings::Map & map, const std::string & parameter)
-         {  
+         {
             ParameterSettings::Map::const_iterator s = map.find(parameter);
             if (s == map.end())
             {
-               std::cerr 
+               std::cerr
                   << "Warning: Non-optional parameter '" << parameter << "' is missing in settings."
                   << std::endl;
                return std::string();
@@ -36,10 +37,10 @@ namespace hpc
             return s->second;
          }
       };
- 
+
       // read the Fastcauldron environment configuration
       FastCauldronEnvironment::Configuration fcConfig(environment);
-      
+
       // read parameter definitions
       ParameterDefinitions pd( parameterDefinitionsFile );
 
@@ -47,11 +48,11 @@ namespace hpc
       std::vector<ParameterSettings> settings = ParameterSettings::parse(settingsFile);
 
       // write the results tabulator script
-      writeResultsTabulatorScript( 
+      writeResultsTabulatorScript(
            *workingDir.getDirectoryEntry("tabulate_results.sh")->writeFile(),
-           pd, 
+           pd,
            VariableDefinitions(variableDefinitionsFile),
-           settings, 
+           settings,
            workingDir.getCanonicalPath()
            );
 
@@ -137,7 +138,7 @@ namespace hpc
       // schedule benchmark jobs in the cluster
       int procsPerHost = cluster.processorsPerHost();
       int maxProcs = processorsPerSetting.rbegin()->first;
- 
+
       for (int hosts = 0; hosts < (maxProcs + procsPerHost - 1) / procsPerHost; ++hosts)
       {
          ProcList::const_iterator begin = processorsPerSetting.upper_bound( hosts*procsPerHost);
@@ -149,7 +150,7 @@ namespace hpc
       // wait on results
       cluster.wait();
 
-      
+
 
    }
 } // namespace hpc

@@ -11,16 +11,15 @@
 #ifndef ABSTRACTDERIVED_PROPERTIES__FORMATION_MAP_PROPERTY_H
 #define ABSTRACTDERIVED_PROPERTIES__FORMATION_MAP_PROPERTY_H
 
-#include <vector>
-
-#include <boost/shared_ptr.hpp>
-
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
 #include "AbstractFormation.h"
 #include "AbstractGrid.h"
 
 #include "AbstractPropertyValues.h"
+
+#include <memory>
+#include <vector>
 
 namespace AbstractDerivedProperties {
 
@@ -85,7 +84,7 @@ namespace AbstractDerivedProperties {
    };
 
 
-   typedef boost::shared_ptr<const FormationMapProperty> FormationMapPropertyPtr;
+   typedef std::shared_ptr<const FormationMapProperty> FormationMapPropertyPtr;
 
    typedef std::vector<FormationMapPropertyPtr> FormationMapPropertyList;
 

@@ -157,7 +157,7 @@ FastCauldronEnvironment
    , m_version(version)
 {
   m_factory.reset(new DataAccess::Interface::ObjectFactory());
-  m_project = boost::shared_ptr<DataAccess::Interface::ProjectHandle>
+  m_project = std::shared_ptr<DataAccess::Interface::ProjectHandle>
               ( DataAccess::Interface::OpenCauldronProject(projectFile.getCanonicalPath(), "r", m_factory.get()));
 
   if (!m_project)
@@ -231,8 +231,8 @@ bool
 FastCauldronEnvironment
    :: jobHasRanBefore(const Path & directory, const std::string & id)
 {
-   const boost::shared_ptr<Path> myDir = directory.getDirectoryEntry(id);
-   const boost::shared_ptr<Path> outputFile = myDir->getDirectoryEntry("output");
+   const std::shared_ptr<Path> myDir = directory.getDirectoryEntry(id);
+   const std::shared_ptr<Path> outputFile = myDir->getDirectoryEntry("output");
 
    if (directory.getFileType() == Path::NotExists)
       return false;
@@ -257,7 +257,7 @@ FastCauldronEnvironment
 void
 FastCauldronEnvironment
    :: commandToRunJob( const Path & directory, const std::string & id,
-         boost::shared_ptr<Path> & workingDir, std::string & command )
+         std::shared_ptr<Path> & workingDir, std::string & command )
 {
   workingDir = directory.getDirectoryEntry(id);
   command = "bash runcauldron.sh > output";
@@ -267,7 +267,7 @@ bool
 FastCauldronEnvironment
    :: generateJob( const Path & directory )
 {
-   boost::shared_ptr<Path> myDir = directory.getDirectoryEntry( m_id );
+   std::shared_ptr<Path> myDir = directory.getDirectoryEntry( m_id );
 
    if ( directory.getFileType() == Path::NotExists)
       directory.makeDirectory();

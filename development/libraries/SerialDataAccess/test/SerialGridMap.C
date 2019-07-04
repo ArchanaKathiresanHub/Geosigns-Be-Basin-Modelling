@@ -8,6 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
+#include <cmath>
 #include <memory>
 
 #include "../../DataAccess/src/Grid.h"
@@ -106,7 +107,7 @@ TEST( SerialGridMap, Constructor1 )
          }
       }
    }
-   
+
    Array < float >::delete3d (array);
 }
 
@@ -160,7 +161,7 @@ TEST( SerialGridMap, Constructor4 )
 TEST( SerialGridMap, Constructor5 )
 {
    DataAccess::Interface::AdditionFunctor addFct;
-   
+
    std::unique_ptr<DataAccess::Interface::Grid> grid( new DataAccess::Interface::SerialGrid( s_minI, s_minJ, s_maxI, s_maxJ, s_numI, s_numJ ) );
 
    std::unique_ptr<DataAccess::Interface::SerialGridMap> sGridMap1( new DataAccess::Interface::SerialGridMap(0, 0, grid.get(), s_value, s_depth) );
@@ -178,7 +179,7 @@ TEST( SerialGridMap, Constructor5 )
 TEST( SerialGridMap, Constructor6 )
 {
    DataAccess::Interface::SubtractConstant subFct( s_subValue );
-   
+
    std::unique_ptr<DataAccess::Interface::Grid> grid( new DataAccess::Interface::SerialGrid( s_minI, s_minJ, s_maxI, s_maxJ, s_numI, s_numJ ) );
    std::unique_ptr<DataAccess::Interface::SerialGridMap> sGridMap2( new DataAccess::Interface::SerialGridMap(0, 0, grid.get(), s_value, s_depth) );
    std::unique_ptr<DataAccess::Interface::SerialGridMap> sGridMap ( new DataAccess::Interface::SerialGridMap(0, 0, sGridMap2.get(), subFct) );
@@ -207,7 +208,7 @@ TEST( SerialGridMap, GetAndSet )
    }
    std::unique_ptr<DataAccess::Interface::SerialGridMap> sGridMap(
       new DataAccess::Interface::SerialGridMap(nullptr, 0, grid.get(), DataAccess::Interface::DefaultUndefinedMapValue, s_depth, array) );
-   
+
    EXPECT_TRUE( sGridMap->isConstant() );
 
    EXPECT_DOUBLE_EQ( sGridMap->getValue((unsigned int)0,(unsigned int)0), s_value );
@@ -219,11 +220,11 @@ TEST( SerialGridMap, GetAndSet )
    EXPECT_TRUE( sGridMap->setValue((unsigned int)0,(unsigned int)0,(unsigned int)0, 2*s_value) );
    EXPECT_FALSE( sGridMap->isConstant() );
    EXPECT_DOUBLE_EQ( sGridMap->getValue((unsigned int)0,(unsigned int)0,(unsigned int)0), 2*s_value );
-   
+
    EXPECT_DOUBLE_EQ( sGridMap->getFractionalValue(1.,(unsigned int)2,(unsigned int)2,(unsigned int)2), s_value );
    EXPECT_DOUBLE_EQ( sGridMap->getFractionalValue(.5,(unsigned int)2,(unsigned int)2,(unsigned int)2), .5*s_value );
    EXPECT_DOUBLE_EQ( sGridMap->getFractionalValue(0.,(unsigned int)2,(unsigned int)2,(unsigned int)2), 0. );
-   
+
    Array < float >::delete3d (array);
 }
 
@@ -248,19 +249,19 @@ TEST( SerialGridMap, MinMax )
 
    double min, max;
    sGridMap->getMinMaxValue(min,max);
-   
+
    EXPECT_TRUE( sGridMap->isConstant() );
    EXPECT_DOUBLE_EQ( min, s_value );
    EXPECT_TRUE( min == max );
 
    EXPECT_TRUE( sGridMap->setValue((unsigned int)0,(unsigned int)0,(unsigned int)0, 2*s_value) );
-   
+
    sGridMap->getMinMaxValue(min,max);
    EXPECT_FALSE( sGridMap->isConstant() );
    EXPECT_FALSE( min == max );
    EXPECT_DOUBLE_EQ( min, s_value );
    EXPECT_DOUBLE_EQ( max, 2*s_value );
-      
+
    Array < float >::delete3d (array);
 }
 
@@ -295,12 +296,12 @@ TEST( SerialGridMap, Average )
 
    double min, max;
    sGridMap->getMinMaxValue(min,max);
-   
+
    EXPECT_FALSE( sGridMap->isConstant() );
    EXPECT_DOUBLE_EQ( min, s_value - 1 );
    EXPECT_DOUBLE_EQ( max, s_value + 1 );
    EXPECT_DOUBLE_EQ( sGridMap->getAverageValue(), s_value );
-      
+
    Array < float >::delete3d (array);
 }
 
@@ -327,10 +328,10 @@ TEST( SerialGridMap, Sum )
    }
    std::unique_ptr<DataAccess::Interface::SerialGridMap> sGridMap(
       new DataAccess::Interface::SerialGridMap(nullptr, 0, grid.get(), DataAccess::Interface::DefaultUndefinedMapValue, s_depth, array) );
-   
+
    EXPECT_DOUBLE_EQ( sGridMap->getSumOfValues(), sum );
    EXPECT_DOUBLE_EQ( sGridMap->getSumOfSquaredValues(), sumSquared );
-      
+
    Array < float >::delete3d (array);
 }
 
@@ -354,13 +355,13 @@ TEST( SerialGridMap, HighRes2LowRes )
    }
    std::unique_ptr<DataAccess::Interface::SerialGridMap> sGridMapHighRes(
       new DataAccess::Interface::SerialGridMap(nullptr, 0, gridHighRes.get(), DataAccess::Interface::DefaultUndefinedMapValue, depth, array) );
-   
+
    std::unique_ptr<DataAccess::Interface::Grid> gridLowRes( new DataAccess::Interface::SerialGrid( s_minI, s_minJ, s_maxI, s_maxJ, size/2, size/2 ) );
    std::unique_ptr<DataAccess::Interface::SerialGridMap> sGridMapLowRes(
       new DataAccess::Interface::SerialGridMap(nullptr, 0, gridLowRes.get(), 0.) );
 
    EXPECT_TRUE( sGridMapHighRes->transformHighRes2LowRes( sGridMapLowRes.get() ) );
-   
+
    EXPECT_DOUBLE_EQ( sGridMapLowRes->getValue(sGridMapLowRes->firstI(),sGridMapLowRes->firstJ()),
                      sGridMapHighRes->getValue(sGridMapHighRes->firstI(),sGridMapHighRes->firstJ()) );
    EXPECT_DOUBLE_EQ( sGridMapLowRes->getValue(sGridMapLowRes->firstI(),sGridMapLowRes->firstJ()+sGridMapLowRes->numJ()-1),
@@ -369,7 +370,7 @@ TEST( SerialGridMap, HighRes2LowRes )
                      sGridMapHighRes->getValue(sGridMapHighRes->firstI()+sGridMapLowRes->numI()-1,sGridMapHighRes->firstJ()) );
    EXPECT_DOUBLE_EQ( sGridMapLowRes->getValue(sGridMapLowRes->firstI()+sGridMapLowRes->numI()-1,sGridMapLowRes->firstJ()+sGridMapLowRes->numJ()-1),
                      sGridMapHighRes->getValue(sGridMapHighRes->firstI()+sGridMapLowRes->numI()-1,sGridMapHighRes->firstJ()+sGridMapLowRes->numJ()-1) );
-      
+
    Array < float >::delete3d (array);
 }
 
@@ -393,13 +394,13 @@ TEST( SerialGridMap, LowRes2HighRes )
    }
    std::unique_ptr<DataAccess::Interface::SerialGridMap> sGridMapLowRes(
       new DataAccess::Interface::SerialGridMap(nullptr, 0, gridLowRes.get(), DataAccess::Interface::DefaultUndefinedMapValue, depth, array) );
-   
+
    std::unique_ptr<DataAccess::Interface::Grid> gridHighRes( new DataAccess::Interface::SerialGrid( s_minI, s_minJ, s_maxI, s_maxJ, size/2, size/2 ) );
    std::unique_ptr<DataAccess::Interface::SerialGridMap> sGridMapHighRes(
       new DataAccess::Interface::SerialGridMap(nullptr, 0, gridHighRes.get(), 0.) );
 
    EXPECT_TRUE( sGridMapLowRes->transformLowRes2HighRes( sGridMapHighRes.get() ) );
-   
+
    EXPECT_DOUBLE_EQ( sGridMapLowRes->getValue(sGridMapLowRes->firstI(),sGridMapLowRes->firstJ()),
                      sGridMapHighRes->getValue(sGridMapHighRes->firstI(),sGridMapHighRes->firstJ()) );
    EXPECT_DOUBLE_EQ( sGridMapLowRes->getValue(sGridMapLowRes->firstI(),sGridMapLowRes->firstJ()+sGridMapLowRes->numJ()-1),
@@ -408,7 +409,7 @@ TEST( SerialGridMap, LowRes2HighRes )
                      sGridMapHighRes->getValue(sGridMapHighRes->firstI()+sGridMapLowRes->numI()-1,sGridMapHighRes->firstJ()) );
    EXPECT_DOUBLE_EQ( sGridMapLowRes->getValue(sGridMapLowRes->firstI()+sGridMapLowRes->numI()-1,sGridMapLowRes->firstJ()+sGridMapLowRes->numJ()-1),
                      sGridMapHighRes->getValue(sGridMapHighRes->firstI()+sGridMapLowRes->numI()-1,sGridMapHighRes->firstJ()+sGridMapLowRes->numJ()-1) );
-      
+
    Array < float >::delete3d (array);
 }
 

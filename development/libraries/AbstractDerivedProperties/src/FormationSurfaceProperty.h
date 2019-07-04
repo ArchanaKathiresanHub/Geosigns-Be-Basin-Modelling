@@ -11,10 +11,6 @@
 #ifndef _ABSTRACTDERIVED_PROPERTIES__FORMATION_SURFACE_PROPERTY_H_
 #define _ABSTRACTDERIVED_PROPERTIES__FORMATION_SURFACE_PROPERTY_H_
 
-#include <vector>
-
-#include <boost/shared_ptr.hpp>
-
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
 #include "AbstractSurface.h"
@@ -22,6 +18,9 @@
 #include "AbstractGrid.h"
 
 #include "AbstractPropertyValues.h"
+
+#include <memory>
+#include <vector>
 
 namespace AbstractDerivedProperties {
 
@@ -56,7 +55,7 @@ namespace AbstractDerivedProperties {
       const DataModel::AbstractProperty* getProperty () const;
 
 
-      /// \brief The first index on the grid 
+      /// \brief The first index on the grid
       unsigned int firstI ( const bool includeGhostNodes ) const;
 
       /// \brief The last index on the local grid.
@@ -89,7 +88,7 @@ namespace AbstractDerivedProperties {
    };
 
 
-   typedef boost::shared_ptr<const FormationSurfaceProperty> FormationSurfacePropertyPtr;
+   typedef std::shared_ptr<const FormationSurfaceProperty> FormationSurfacePropertyPtr;
 
    typedef std::vector<FormationSurfacePropertyPtr> FormationSurfacePropertyList;
 

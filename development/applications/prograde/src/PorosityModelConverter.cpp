@@ -15,6 +15,8 @@
 //cmbAPI
 #include "LithologyManager.h"
 
+#include <cmath>
+
 using namespace mbapi;
 
 std::string Prograde::PorosityModelConverter::upgradeDescription
@@ -91,12 +93,12 @@ std::vector<double> Prograde::PorosityModelConverter::computeDblExpCoefficients(
 
    const double myPsiSurf = myPhiSurf / (1.0 - myPhiSurf);                                //surface/depositional void ratio
    const double myPsiMin = myPhiMin / (1.0 - myPhiMin);                                   //minimum void ratio
-   const double mySigmaMax = mySigmaMin * exp((myPsiSurf - myPsiMin) / myCompacCoef);     //max VES ( min VES required to reach minimum porosity ) 
+   const double mySigmaMax = mySigmaMin * exp((myPsiSurf - myPsiMin) / myCompacCoef);     //max VES ( min VES required to reach minimum porosity )
 
    const int numSamples = 101;                                                            //number of sampling points
    const int niter = 1000;                                                                //number of iterations
-   const double myFactor = (mySigmaMax - mySigmaMin)/static_cast<double> (numSamples-1);  
-   
+   const double myFactor = (mySigmaMax - mySigmaMin)/static_cast<double> (numSamples-1);
+
    double phiSoilMech[numSamples];                                                        //value of porosity, using soil mechanics model, at sampling points
    for (size_t i = 0; i < numSamples; i++)
    {
@@ -111,7 +113,7 @@ std::vector<double> Prograde::PorosityModelConverter::computeDblExpCoefficients(
    double rhsB[3];                                                                        //rhs vector
 
 
-   
+
    for (size_t iter = 0; iter < niter; iter++)
    {
 
@@ -172,7 +174,7 @@ double Prograde::PorosityModelConverter::calculatePorositySoilMech(const double 
 
 double Prograde::PorosityModelConverter::calculatePorosityDblExponential(const double myPhiMin, const double myPhiSurf, std::vector<double> myCompacPrms, const double mySigma)
 {
-   double myPhi = myPhiMin + (myCompacPrms[2] * (myPhiSurf - myPhiMin)*exp(-myCompacPrms[0] * mySigma))           
+   double myPhi = myPhiMin + (myCompacPrms[2] * (myPhiSurf - myPhiMin)*exp(-myCompacPrms[0] * mySigma))
       + ((1.0 - myCompacPrms[2]) * (myPhiSurf - myPhiMin)*exp(-myCompacPrms[1] * mySigma));
    return myPhi;
 }

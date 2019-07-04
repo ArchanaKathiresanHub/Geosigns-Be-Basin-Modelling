@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-20166666 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef CASA_CMD_H
 #define CASA_CMD_H
@@ -15,9 +15,6 @@
 #include <string>
 #include <vector>
 #include <memory>
-
-// boost
-#include <boost/shared_ptr.hpp>
 
 namespace casa
 {
@@ -51,6 +48,6 @@ protected:
    CasaCommander            & m_commander; ///< queue of all commands and intercommand data router
 };
 
-typedef boost::shared_ptr<CasaCmd> SharedCmdPtr;
+typedef std::shared_ptr<CasaCmd> SharedCmdPtr;
 
 #endif // CASA_CMD_H

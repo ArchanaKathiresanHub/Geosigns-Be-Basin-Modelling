@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "BurialHistory.h"
 
@@ -23,6 +23,7 @@
 
 #include <cassert>
 #include "array.h"
+#include <algorithm>
 
 using namespace DataAccess;
 using namespace Interface;
@@ -37,9 +38,9 @@ namespace fasttouch
 
 /// The class constructor validates the input parameters and
 /// instructs the relevant I/O operations to be carried out
-/// so that all necessary I/O is done one time. 
+/// so that all necessary I/O is done one time.
 BurialHistory::BurialHistory(const Surface * surface,  ProjectHandle & projectHandle)
-: m_surface          (surface), 
+: m_surface          (surface),
   m_projectHandle(projectHandle)
 {
    m_depthProperty = m_projectHandle.findProperty ("Depth");
@@ -77,12 +78,12 @@ const std::vector<BurialHistoryTimeStep> & BurialHistory::returnAsArray (int i, 
 {
    Properties *p;
    m_burialHistoryTimestep.clear();
-   
+
    BurialHistoryMap::reverse_iterator mapIt;
    for ( mapIt = m_burialHistoryMap.rbegin(); mapIt != m_burialHistoryMap.rend (); ++mapIt )
    {
       p = &(mapIt->second);
-      
+
       // check if all properties present at timestep
       if ( ! p->temp || ! p->depth || ! p->ves )
       {
@@ -99,10 +100,10 @@ const std::vector<BurialHistoryTimeStep> & BurialHistory::returnAsArray (int i, 
       {
          return m_burialHistoryTimestep;
       }
-      // if one property present for timestep, then all should be as should be switched on 
+      // if one property present for timestep, then all should be as should be switched on
       // before run.
       BurialHistoryTimeStep timeStep;
-      
+
       timeStep.time        = mapIt->first;
       timeStep.temperature = p->temp  [iArray][jArray];
       timeStep.depth       = p->depth [iArray][jArray];
@@ -119,7 +120,7 @@ const std::vector<BurialHistoryTimeStep> & BurialHistory::returnAsArray (int i, 
 }
 /// This function collects 3d burial history.
 /// The burial history is saved in an stl::map
-/// which stores the data, sorting it by timestep. When all data is 
+/// which stores the data, sorting it by timestep. When all data is
 /// collected, the array needed to hold the data at as later stage, for
 /// external use is dynamically allocated here.
 bool BurialHistory::loadPaleoData (void)
@@ -129,23 +130,23 @@ bool BurialHistory::loadPaleoData (void)
    PropertyValueList * propertyValues = m_projectHandle.getPropertyValues (FORMATION | SURFACE, 0, 0, 0, formation, m_surface, VOLUME | MAP);
 
    PropertyValueList::iterator iter;
- 
+
     for (iter = propertyValues->begin (); iter != propertyValues->end (); ++iter)
     {
         const PropertyValue * propertyValue = * iter;
         const Snapshot * snapshot = propertyValue->getSnapshot ();
-        
+
         double **propertyArray;
-        
-        if (propertyValue->getProperty () == m_depthProperty) 
+
+        if (propertyValue->getProperty () == m_depthProperty)
         {
             propertyArray = m_burialHistoryMap[snapshot->getTime ()].depth = Array<double>::create2d (m_numI, m_numJ);
         }
-        else if (propertyValue->getProperty () == m_temperatureProperty) 
+        else if (propertyValue->getProperty () == m_temperatureProperty)
         {
             propertyArray = m_burialHistoryMap[snapshot->getTime ()].temp = Array<double>::create2d (m_numI, m_numJ);
         }
-        else if (propertyValue->getProperty () == m_vesProperty) 
+        else if (propertyValue->getProperty () == m_vesProperty)
         {
             propertyArray = m_burialHistoryMap[snapshot->getTime ()].ves = Array<double>::create2d (m_numI, m_numJ);
         }
@@ -153,11 +154,11 @@ bool BurialHistory::loadPaleoData (void)
         {
             continue;
         }
-  
+
         const GridMap * gridMap = propertyValue->getGridMap ();
- 
-        unsigned int maxK = gridMap->getDepth() - 1 ;   
-  
+
+        unsigned int maxK = gridMap->getDepth() - 1 ;
+
         string propValueString;
         propertyValue->asString (propValueString);
         // cerr << "retrieving data for " << propValueString << endl;
@@ -175,7 +176,7 @@ bool BurialHistory::loadPaleoData (void)
         gridMap->restoreData ();
     }
     delete propertyValues;
- 
+
     return true;
 }
 void BurialHistory::clearSnapshotMapMemory (void)

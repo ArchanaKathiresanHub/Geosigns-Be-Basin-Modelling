@@ -11,7 +11,6 @@
 #ifndef DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H
 #define DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H
 
-#include <boost/shared_ptr.hpp>
 #include <boost/multi_array.hpp>
 
 #include "AbstractProperty.h"
@@ -20,6 +19,8 @@
 #include "AbstractGrid.h"
 
 #include "SurfaceProperty.h"
+
+#include <memory>
 
 namespace DerivedProperties {
 
@@ -63,7 +64,7 @@ namespace DerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<DerivedSurfaceProperty> DerivedSurfacePropertyPtr;
+   typedef std::shared_ptr<DerivedSurfaceProperty> DerivedSurfacePropertyPtr;
 
 }
 

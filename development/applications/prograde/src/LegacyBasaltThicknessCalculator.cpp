@@ -27,6 +27,7 @@ using namespace DataAccess::Interface;
 using namespace DataModel;
 
 //std library
+#include <algorithm>
 #include <sstream>
 
 const bool Prograde::LegacyBasaltThicknessCalculator::s_gosthNodes = true;

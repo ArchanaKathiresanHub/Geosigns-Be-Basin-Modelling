@@ -10,6 +10,7 @@
 #include "PermeabilityMixer.h"
 
 // std library
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 using namespace std;

@@ -20,6 +20,7 @@
 using namespace pvtFlash;
 
 // std library
+#include <cmath>
 #include <math.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -82,8 +83,8 @@ namespace migration
          const Biodegrade& biodegrade, Composition& compositionLost, const double fractionVolumeBiodegraded) const;
 
 
-         void computeDiffusionLeakages(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime, const vector<double>& solubilities, 
-         const double& surfaceArea, vector<DiffusionLeak*>& diffusionLeaks, const double& gorm, 
+         void computeDiffusionLeakages(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime, const vector<double>& solubilities,
+         const double& surfaceArea, vector<DiffusionLeak*>& diffusionLeaks, const double& gorm,
          Composition* compositionOut, Composition* compositionLost) const;
 
          void computePVT (double temperature, double pressure, Composition * compositionsOut);

@@ -14,7 +14,6 @@
 #include <cassert>
 #include <cmath>
 #include <limits>
-#include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/path.hpp>
 
@@ -67,7 +66,7 @@ void compareSnapshots(std::shared_ptr<CauldronIO::Project> projectXml, std::uniq
            std::shared_ptr<CauldronIO::SnapShot> snapshotXml = projectXml->getSnapShots()[i];
            snapshotP3d = projectP3d->findSnapshot(snapshotXml->getAge(), snapshotXml->isMinorShapshot() ? DataAccess::Interface::MINOR : DataAccess::Interface::MAJOR);
            EXPECT_EQ(ImportProjectHandle::getSnapShotKind(snapshotP3d), snapshotXml->getKind());
-           
+
            //Comparing Trappers information
            if( projectXml->getTrapperTable().size() == 0 ) {
               DataAccess::Interface::TrapperList *trapListP3d = projectP3d->getTrappers(0, snapshotP3d, 0, 0);
@@ -75,14 +74,14 @@ void compareSnapshots(std::shared_ptr<CauldronIO::Project> projectXml, std::uniq
               size_t sizeP3d1 = trapListP3d->size();
               size_t sizeXml1 = trapListXml.size();
               EXPECT_EQ(sizeP3d1, sizeXml1);
-              
+
               for (size_t j = 0; j < sizeP3d1; j++)
               {
                  DataAccess::Interface::TrapperList *trapperListP3d;
                  std::shared_ptr<CauldronIO::Trapper> trapperXml = trapListXml.at(j);
-                 
+
                  const DataAccess::Interface::Reservoir *reservoirP3d = projectP3d->findReservoir(trapperXml->getReservoirName());
-                 
+
                  trapperListP3d = projectP3d->getTrappers(reservoirP3d, snapshotP3d, trapperXml->getID(), trapperXml->getPersistentID());
                  const DataAccess::Interface::Trapper *trapperP3d = trapperListP3d->at(0);
                  EXPECT_NEAR(trapperP3d->getDepth(), trapperXml->getDepth(), 0.00001);
@@ -95,13 +94,13 @@ void compareSnapshots(std::shared_ptr<CauldronIO::Project> projectXml, std::uniq
                  EXPECT_NEAR(posXXml, posXP3d, 0.00001);
                  EXPECT_NEAR(posYXml, posYP3d, 0.00001);
                  EXPECT_EQ(trapperXml->getReservoirName(), trapperP3d->getReservoir()->getName());
-                 
+
                  EXPECT_NEAR(trapperP3d->getSpillDepth(), trapperXml->getSpillDepth(), 0.00001);
                  trapperXml->getSpillPointPosition(posXXml, posYXml);
                  trapperP3d->getSpillPointPosition(posXP3d, posYP3d);
                  EXPECT_NEAR(posXXml, posXP3d, 0.00001);
                  EXPECT_NEAR(posYXml, posYP3d, 0.00001);
-                 
+
                  EXPECT_NEAR(trapperXml->getGOC(), trapperP3d->getGOC(), 0.001);
                  EXPECT_NEAR(trapperXml->getOWC(), trapperP3d->getOWC(), 0.001);
               }
@@ -159,7 +158,7 @@ void compareProperties(std::shared_ptr<CauldronIO::Project> projectXml, std::uni
    DataAccess::Interface::PropertyList *propListP3d = projectP3d->getProperties();
    size_t sizeP3d = propListP3d->size();
    size_t sizeXml = projectXml->getProperties().size(); // size can be different as some input properties are created
-   
+
    for (size_t i = 0; i < sizeP3d; i++)
    {
       const DataAccess::Interface::Property* propP3d = propListP3d->at(i);
@@ -303,7 +302,7 @@ void compare3dDiscontinuousPropertyValues(std::shared_ptr<CauldronIO::Project> p
 
          string formationNameP3d = propValueP3d->getFormation() ? propValueP3d->getFormation()->getName() : "";
          formationNameP3d = ((formationNameP3d.empty()) && (propValueP3d->getReservoir())) ? propValueP3d->getReservoir()->getFormationName() : formationNameP3d;
-                        
+
          string key = std::to_string(ageP3d) + sep + propNameP3d + sep + userNameP3d + sep + cauldronNameP3d + sep + formationNameP3d;
          ASSERT_TRUE(propValue3DMapDiscontinuousP3d.count(key) == 0) << "Error:: Key not unique: " << key;
          propValue3DMapDiscontinuousP3d.insert(std::make_pair(key, static_cast<int>(i)));
@@ -382,7 +381,7 @@ void compare3dDiscontinuousPropertyValues(std::shared_ptr<CauldronIO::Project> p
 
 void compare3dContinuousPropertyValues(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
 {
-   
+
    DataAccess::Interface::PropertyValueList *propValueListP3d = projectP3d->getPropertyValues();
    size_t sizeP3d = propValueListP3d->size();
    size_t nSnapShotsXml = projectXml->getSnapShots().size();
@@ -524,7 +523,7 @@ vector<int> updatePropertySurfaceData(shared_ptr<CauldronIO::Project> projectXml
                {
                   surfaceDataValue[p] = 1.1f + p;
                }
-               
+
                PropertySurfaceData propSurfaceNew = PropertySurfaceData(prop, valueMap);
                valueMap->setData_IJ(surfaceDataValue);
                projectXml->getSnapShots()[i]->getSurfaceList()[j]->addPropertySurfaceData(propSurfaceNew);
@@ -606,7 +605,7 @@ void addToExistingData(string xmlFileName)
    cout << "Starting import from XML" << endl;
    shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportFromXML::importFromXML(xmlFileName);
    cout << "File read complete" << endl;
-      
+
    //Finding property which can be added with PropertySurfaceData
    shared_ptr<const Property> prop;
    for (int i = 0; i < projectXml->getProperties().size(); i++)
@@ -619,7 +618,7 @@ void addToExistingData(string xmlFileName)
    }
    int sizeSurfaceData = 0;
    vector<int> indexWithUpdatedPropSurfaceData = updatePropertySurfaceData(projectXml,prop,sizeSurfaceData);
-   
+
    float *surfaceDataValue = sizeSurfaceData > 0 ? new float[sizeSurfaceData] : nullptr;
    for (int i = 0; i < sizeSurfaceData; i++)
    {
@@ -643,7 +642,7 @@ void addToExistingData(string xmlFileName)
    {
       volumeDataValue[i] = 1.1f + i;
    }
-   
+
    //Exporting data
    shared_ptr<CauldronIO::Project> projectExisting;
    bool status = CauldronIO::ExportToXML::exportToXML(projectXml, projectExisting, xmlFileName);
@@ -651,10 +650,10 @@ void addToExistingData(string xmlFileName)
 
    //Importing data to check if data has been added correctly
    projectXml = CauldronIO::ImportFromXML::importFromXML(xmlFileName);
-   
+
    if (indexWithUpdatedPropSurfaceData.size() > 0)
    {
-      //Retrieving the surface to which property surface data was added   
+      //Retrieving the surface to which property surface data was added
       int index = indexWithUpdatedPropSurfaceData.at(0);
       shared_ptr<SnapShot> snapShotNew = projectXml->getSnapShots()[index];
       index = indexWithUpdatedPropSurfaceData.at(1);
@@ -691,10 +690,10 @@ void addToExistingData(string xmlFileName)
          }
       }
    }
-   
+
    if (indexAddedPropVolData.size() > 0)
    {
-      //Retrieving volume data to which property volume data was added 
+      //Retrieving volume data to which property volume data was added
       int index = indexAddedPropVolData.at(0);
       shared_ptr<SnapShot> snapShotNew = projectXml->getSnapShots()[index];
       index = indexAddedPropVolData.at(1);
@@ -745,13 +744,13 @@ void addNewData(string xmlFileName)
    //Import from XML
    cout << "Starting import from XML" << endl;
    shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportFromXML::importFromXML(xmlFileName);
-      
+
    //Preparing new snapshot to be added
    size_t nSnapshots = projectXml->getSnapShots().size();
    double age = projectXml->getSnapShots()[nSnapshots - 1]->getAge();
    age = age + 5;
    shared_ptr<SnapShot> snapShot(new SnapShot(age, CauldronIO::SnapShotKind::SYSTEM, true));
-   
+
    //Preparing surface to be added
    const string surfaceName = "waterbottom";
    const string propName = "Depth";
@@ -760,7 +759,7 @@ void addNewData(string xmlFileName)
    shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 1, 1, 0, 0));
    shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
     projectXml->addGeometry(geometry);
-   
+
    //Preparing property surface data
    float *data1 = new float[2 * 2];
    for (int i = 0; i < 4; i++)
@@ -768,20 +767,20 @@ void addNewData(string xmlFileName)
       data1[i] = 1.1f + i;
    }
    valueMap->setData_IJ(data1);
-      
+
    //Adding surface to Snapshot
    shared_ptr<Surface> surface(new Surface(surfaceName, CauldronIO::SubsurfaceKind::Sediment));
    PropertySurfaceData propSurface = PropertySurfaceData(prop, valueMap);
    surface->addPropertySurfaceData(propSurface);
    snapShot->addSurface(surface);
-   
+
    //Preparing formation to be added
    int kStart, kEnd;
    const string formName = projectXml->getFormations()[0]->getName();
    projectXml->getFormations()[0]->getK_Range(kStart, kEnd);
    shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formName));
    shared_ptr<Volume> vol(new Volume(Sediment));
-   
+
    //Preparing property volume data
    shared_ptr<const Property> prop2(new Property(projectXml->getProperties()[0]->getName(), projectXml->getProperties()[0]->getUserName(), projectXml->getProperties()[0]->getCauldronName(), projectXml->getProperties()[0]->getUnit(), projectXml->getProperties()[0]->getType(), projectXml->getProperties()[0]->getAttribute()));
    const shared_ptr<Geometry3D> geo3d(new Geometry3D(1, 2, 3, 4, 1.1, 2.1, 0.5, 2.5));
@@ -789,13 +788,13 @@ void addNewData(string xmlFileName)
     projectXml->addGeometry(geo3d);
    float data[6] = { 1.1f, 2.1f, 1.2f ,1.3f,2.2f,2.3f};
    volData->setData_KIJ(data);
-   
+
    //Adding formation volume
    PropertyVolumeData propVolData(prop2, volData);
    vol->addPropertyVolumeData(propVolData);
    CauldronIO::FormationVolume formVol = FormationVolume(formation, vol);
    snapShot->addFormationVolume(formVol);
-   
+
    //Adding snapshot
    projectXml->addSnapShot(snapShot);
 
@@ -806,7 +805,7 @@ void addNewData(string xmlFileName)
 
    //Importing data to check if data is added correctly
    projectXml = CauldronIO::ImportFromXML::importFromXML(xmlFileName);
-   
+
    //Comparing snapshot
    nSnapshots = projectXml->getSnapShots().size();
    shared_ptr<SnapShot> snapShotNew = projectXml->getSnapShots()[nSnapshots - 1];
@@ -828,21 +827,21 @@ void addNewData(string xmlFileName)
    shared_ptr<const Property> propNew = propSurfaceDataNew.first;
    shared_ptr<SurfaceData> valueMapNew = propSurfaceDataNew.second;
    valueMapNew->retrieve();
-   
+
    EXPECT_EQ(propName, propNew->getName());
    EXPECT_EQ(propName, propNew->getUserName());
    EXPECT_EQ(propName, propNew->getCauldronName());
    EXPECT_EQ(unit, propNew->getUnit());
    EXPECT_EQ(FormationProperty, propNew->getType());
    EXPECT_EQ(Continuous3DProperty, propNew->getAttribute());
-   
+
    EXPECT_EQ(2, valueMapNew->getGeometry()->getNumI());
    EXPECT_EQ(2, valueMapNew->getGeometry()->getNumJ());
    EXPECT_EQ(1, valueMapNew->getGeometry()->getDeltaI());
    EXPECT_EQ(1, valueMapNew->getGeometry()->getDeltaJ());
    EXPECT_EQ(0, valueMapNew->getGeometry()->getMinI());
    EXPECT_EQ(0, valueMapNew->getGeometry()->getMinJ());
-   
+
    int index = 0;
    for (int i = 0; i < 2; i++)
    {
@@ -868,7 +867,7 @@ void addNewData(string xmlFileName)
    EXPECT_EQ(Sediment, volNew->getSubSurfaceKind());
    size_t nPropVolDataNew = volNew->getPropertyVolumeDataList().size();
    EXPECT_EQ(1, nPropVolDataNew);
-   
+
    PropertyVolumeData propVolDataNew = volNew->getPropertyVolumeDataList()[0];
    shared_ptr<const Property> propNew2 = propVolDataNew.first;
    shared_ptr<VolumeData> volDataNew = propVolDataNew.second;
@@ -888,7 +887,7 @@ void addNewData(string xmlFileName)
    EXPECT_EQ(2.1, volDataNew->getGeometry()->getDeltaJ());
    EXPECT_EQ(0.5, volDataNew->getGeometry()->getMinI());
    EXPECT_EQ(2.5, volDataNew->getGeometry()->getMinJ());
-   
+
    int firstKNew = static_cast<int>(volDataNew->getGeometry()->getFirstK());
    int numKNew = static_cast<int>(volDataNew->getGeometry()->getNumK());
    volDataNew->retrieve();
@@ -932,7 +931,7 @@ bool copyDir(boost::filesystem::path const & source, boost::filesystem::path con
          ;
       return false;
    }
-   
+
    // Iterate through the source directory
    for (fs::directory_iterator file(source); file != fs::directory_iterator(); ++file)
    {
@@ -1054,7 +1053,7 @@ void compareTrappers(std::shared_ptr<CauldronIO::Project> projectXml, std::uniqu
       EXPECT_FLOAT_EQ( (float)trapper3d->getMass( PhaseId::GAS, PhaseId::GAS ), trapper->getFreeGasMass() );
       EXPECT_FLOAT_EQ( (float)trapper3d->getMass( PhaseId::OIL, PhaseId::OIL ), trapper->getStockTankOilMass() );
       EXPECT_FLOAT_EQ( (float)trapper3d->getMass( PhaseId::GAS, PhaseId::OIL ), trapper->getCondensateMass() );
-      
+
       for( int compId = 0; compId < CauldronIO::SpeciesNamesId::NUMBER_OF_SPECIES; ++ compId ) {
          EXPECT_EQ( trapper3d->getMass( PhaseId::OIL, PhaseId::GAS, (ComponentId)compId ), trapper->getSolutionGasMass( (CauldronIO::SpeciesNamesId)compId) );
          EXPECT_EQ( trapper3d->getMass( PhaseId::GAS, PhaseId::GAS, (ComponentId)compId ), trapper->getFreeGasMass( (CauldronIO::SpeciesNamesId)compId) );
@@ -1062,13 +1061,13 @@ void compareTrappers(std::shared_ptr<CauldronIO::Project> projectXml, std::uniqu
          EXPECT_EQ( trapper3d->getMass( PhaseId::OIL, PhaseId::OIL, (ComponentId)compId ), trapper->getStockTankOilMass( (CauldronIO::SpeciesNamesId)compId) );
       }
 
-      EXPECT_FLOAT_EQ( trapper->getVolumeOil(), (float)trapper3d->getVolume(PhaseId::OIL) );    
-      EXPECT_FLOAT_EQ( trapper->getVolumeGas(), (float)trapper3d->getVolume(PhaseId::GAS) );   
-      EXPECT_FLOAT_EQ( trapper->getMassVapour(), (float)trapper3d->getMass(PhaseId::GAS) );   
+      EXPECT_FLOAT_EQ( trapper->getVolumeOil(), (float)trapper3d->getVolume(PhaseId::OIL) );
+      EXPECT_FLOAT_EQ( trapper->getVolumeGas(), (float)trapper3d->getVolume(PhaseId::GAS) );
+      EXPECT_FLOAT_EQ( trapper->getMassVapour(), (float)trapper3d->getMass(PhaseId::GAS) );
       EXPECT_FLOAT_EQ( trapper->getMassLiquid(), (float)trapper3d->getMass(PhaseId::OIL) );
-      EXPECT_FLOAT_EQ( trapper->getViscosityVapour(), (float)trapper3d->getViscosity(PhaseId::GAS) );       
+      EXPECT_FLOAT_EQ( trapper->getViscosityVapour(), (float)trapper3d->getViscosity(PhaseId::GAS) );
       EXPECT_FLOAT_EQ( trapper->getViscosityLiquid(), (float)trapper3d->getViscosity(PhaseId::OIL) );
-      EXPECT_FLOAT_EQ( trapper->getDensityVapour(), (float)trapper3d->getDensity(PhaseId::GAS) );       
+      EXPECT_FLOAT_EQ( trapper->getDensityVapour(), (float)trapper3d->getDensity(PhaseId::GAS) );
       EXPECT_FLOAT_EQ( trapper->getDensityLiquid(), (float)trapper3d->getDensity(PhaseId::OIL) );
       EXPECT_FLOAT_EQ( trapper->getCEPGas(), (float)trapper3d->getCEP(PhaseId::GAS) );
       EXPECT_FLOAT_EQ( trapper->getCEPOil(), (float)trapper3d->getCEP(PhaseId::OIL) );
@@ -1076,36 +1075,36 @@ void compareTrappers(std::shared_ptr<CauldronIO::Project> projectXml, std::uniqu
       EXPECT_FLOAT_EQ( trapper->getCriticalTemperatureGas(), (float)trapper3d->getCriticalTemperature(PhaseId::GAS) );
       EXPECT_FLOAT_EQ( trapper->getInterfacialTensionOil(), (float)trapper3d->getInterfacialTension(PhaseId::OIL) );
       EXPECT_FLOAT_EQ( trapper->getInterfacialTensionGas(), (float)trapper3d->getInterfacialTension(PhaseId::GAS) );
-      EXPECT_FLOAT_EQ( trapper->getOilAPI(), (float)trapper3d->getOilAPI() );      
-      EXPECT_FLOAT_EQ( trapper->getCGR(), (float)trapper3d->getCGR() );       
-      EXPECT_FLOAT_EQ( trapper->getGOR(), (float)trapper3d->getGOR() );       
-      EXPECT_FLOAT_EQ( trapper->getFracturePressure(), (float)trapper3d->getFracturePressure() );          
-      EXPECT_FLOAT_EQ( trapper->getBuoyancy(), (float)trapper3d->getBuoyancy() );         
-      EXPECT_FLOAT_EQ( trapper->getWCSurface(), (float)trapper3d->getWCSurface() ); 
+      EXPECT_FLOAT_EQ( trapper->getOilAPI(), (float)trapper3d->getOilAPI() );
+      EXPECT_FLOAT_EQ( trapper->getCGR(), (float)trapper3d->getCGR() );
+      EXPECT_FLOAT_EQ( trapper->getGOR(), (float)trapper3d->getGOR() );
+      EXPECT_FLOAT_EQ( trapper->getFracturePressure(), (float)trapper3d->getFracturePressure() );
+      EXPECT_FLOAT_EQ( trapper->getBuoyancy(), (float)trapper3d->getBuoyancy() );
+      EXPECT_FLOAT_EQ( trapper->getWCSurface(), (float)trapper3d->getWCSurface() );
       EXPECT_STREQ( trapper->getReservoirName ().c_str(), trapper3d->getReservoir ()->getName().c_str());;
- 
+
       double x3d, y3d;
       float  x, y;
       trapper3d->getPosition(x3d, y3d);
       trapper->getPosition(x, y);
       EXPECT_FLOAT_EQ((float)x3d, x);
       EXPECT_FLOAT_EQ((float)y3d, y);
- 
+
       trapper3d->getSpillPointPosition(x3d, y3d);
       trapper->getSpillPointPosition(x, y);
       EXPECT_FLOAT_EQ((float)x3d, x);
       EXPECT_FLOAT_EQ((float)y3d, y);
 
       EXPECT_FLOAT_EQ( trapper->getTrapCapacity(), (float)trapper3d->getCapacity());
-      EXPECT_FLOAT_EQ( trapper->getDepth(), (float)trapper3d->getDepth()); 
-      EXPECT_FLOAT_EQ( trapper->getGOC(),(float)trapper3d->getGOC()); 
-      EXPECT_FLOAT_EQ( trapper->getOWC(), (float)trapper3d->getOWC());      
-      EXPECT_FLOAT_EQ( trapper->getSpillDepth(),(float)trapper3d->getSpillDepth()); 
+      EXPECT_FLOAT_EQ( trapper->getDepth(), (float)trapper3d->getDepth());
+      EXPECT_FLOAT_EQ( trapper->getGOC(),(float)trapper3d->getGOC());
+      EXPECT_FLOAT_EQ( trapper->getOWC(), (float)trapper3d->getOWC());
+      EXPECT_FLOAT_EQ( trapper->getSpillDepth(),(float)trapper3d->getSpillDepth());
       EXPECT_FLOAT_EQ( trapper->getPressure(),(float)trapper3d->getPressure());
       EXPECT_FLOAT_EQ( trapper->getTemperature(),(float)trapper3d->getTemperature());
       EXPECT_FLOAT_EQ( trapper->getPermeability(),(float)trapper3d->getPermeability());
-      EXPECT_FLOAT_EQ( trapper->getSealPermeability(),(float)trapper3d->getSealPermeability()); 
-      EXPECT_FLOAT_EQ( trapper->getPorosity(),(float)trapper3d->getPorosity()); 
+      EXPECT_FLOAT_EQ( trapper->getSealPermeability(),(float)trapper3d->getSealPermeability());
+      EXPECT_FLOAT_EQ( trapper->getPorosity(),(float)trapper3d->getPorosity());
       EXPECT_FLOAT_EQ( trapper->getNetToGross(),(float)trapper3d->getNetToGross());
       EXPECT_FLOAT_EQ( trapper->getAge(),(float)trapper3d->getSnapshot()->getTime());
    }
@@ -1124,7 +1123,7 @@ void compareTraps(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_p
       const DataAccess::Interface::Trap* trap3d = trapList3d->at(index);
       database::Record* record = trap3d->getRecord();
       std::shared_ptr<CauldronIO::Trap> trap = trapList->at(index);
- 
+
       EXPECT_EQ( trap3d->getId(), trap->getID() );
       EXPECT_STREQ( trap->getReservoirName ().c_str(), trap3d->getReservoir ()->getName().c_str());;
       for( int compId = 0; compId < CauldronIO::SpeciesNamesId::NUMBER_OF_SPECIES; ++ compId ) {
@@ -1141,14 +1140,14 @@ void compareTraps(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_p
       EXPECT_FLOAT_EQ( trap->getFracturePressure(), (float)getFracturePressure(record));
       EXPECT_FLOAT_EQ( trap->getFractSealStrength(), (float)getFractSealStrength(record));
       EXPECT_FLOAT_EQ( trap->getWCSurface(), (float)getWCSurface(record));
- 
+
       double x3d, y3d;
       float  x, y;
       trap3d->getPosition(x3d, y3d);
       trap->getPosition(x, y);
       EXPECT_FLOAT_EQ( (float)x3d, x );
       EXPECT_FLOAT_EQ( (float)y3d, y );
- 
+
       trap3d->getSpillPointPosition(x3d, y3d);
       trap->getSpillPointPosition(x, y);
       EXPECT_FLOAT_EQ( (float)x3d, x );
@@ -1172,7 +1171,7 @@ void compareTraps(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_p
 }
 
 void compareDataDriller(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
- 
+
    float value;
 
    value =  projectXml->getPropertyAtLocation( 0, "Temperature", 2000, 2000, 38992.9, "", "", "");
@@ -1180,9 +1179,9 @@ void compareDataDriller(std::shared_ptr<CauldronIO::Project> projectXml, std::un
    EXPECT_FLOAT_EQ(550.65936, value);
 
    value =  projectXml->getPropertyAtLocation( 15, "Vr", 6500, 6500, DefaultUndefinedScalarValue, "", "s2", "");
-   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;   
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
    EXPECT_FLOAT_EQ(0.70490456, value);
- 
+
    value =  projectXml->getPropertyAtLocation( 15, "Temperature", 6500, 6500, DefaultUndefinedScalarValue, "", "s2", "");
    if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
    EXPECT_FLOAT_EQ(123.25272, value);
@@ -1238,8 +1237,8 @@ void compareGenexHistory(std::shared_ptr<CauldronIO::Project> projectXml, std::u
    folderPath << "History_ARD_simple-test_genex_sr_5500_4500.dat";
    const std::string record1 = folderPath.path();
 
-   folderPath.cutLast(); 
-   folderPath << "HistoryGenex.txt"; 
+   folderPath.cutLast();
+   folderPath << "HistoryGenex.txt";
    const std::string record2 = folderPath.path();
 
    bool recordExist = std::find(historyFiles.begin(), historyFiles.end(), record1) != historyFiles.end();
@@ -1254,7 +1253,7 @@ void compareBurialHistory(std::shared_ptr<CauldronIO::Project> projectXml, std::
    const std::vector<std::string> &historyFiles = projectXml->getBurialHistoryList();
    database::Table * bhfTable = projectP3d->getTable ("TouchstoneWellIoTbl");
    EXPECT_EQ(bhfTable->size(), historyFiles.size());
- 
+
    database::Table::iterator tblIter;
    for (tblIter = bhfTable->begin(); tblIter != bhfTable->end(); ++tblIter) {
       ibs::FilePath folderPath(projectP3d->getFullOutputDir());
@@ -1262,7 +1261,7 @@ void compareBurialHistory(std::shared_ptr<CauldronIO::Project> projectXml, std::
       bool recordExist = std::find(historyFiles.begin(), historyFiles.end(),  folderPath.path()) != historyFiles.end();
       EXPECT_EQ(recordExist, true);
    }
-}  
+}
 
 void compareMassBalance(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
 
@@ -1272,7 +1271,7 @@ void compareMassBalance(std::shared_ptr<CauldronIO::Project> projectXml, std::un
    EXPECT_STREQ( massBalance.c_str(), massBalance3D.c_str() );
 }
 
-// Test to compare metadata and property values in binary data stored in project3d and XML formats. The property values include both 2D and 3D. 
+// Test to compare metadata and property values in binary data stored in project3d and XML formats. The property values include both 2D and 3D.
 
 TEST_F(CompareTest, CompareData1)
 {
@@ -1302,7 +1301,7 @@ TEST_F(CompareTest, CompareData1)
    cout << "Comparing data" << endl;
    //Comparing Project information
    EXPECT_EQ(projectP3d->getModellingMode(), projectXml->getModelingMode());
-   
+
    compareSnapshots(projectXml, projectP3d);
    compareFormations(projectXml, projectP3d);
    compareReservoirs(projectXml, projectP3d);
@@ -1317,7 +1316,7 @@ TEST_F(CompareTest, CompareData1)
         compareBurialHistory(projectXml, projectP3d);
 
         compareDataDriller(projectXml, projectP3d);
-   
+
    newFilePathP3d = testDataPath;
 
    cout << "Deleting temporary copy of data" << endl;
@@ -1341,7 +1340,7 @@ TEST_F(CompareTest, CheckAddToExisting1)
    string fileNameXml = newFilePathP3d.stem().string() + ".xml";
    boost::filesystem::path newFilePathXml(newFilePathP3d.parent_path());
    newFilePathXml /= fileNameXml;
-   
+
    cout << "Adding data to existing snapshot" << endl;
    addToExistingData(newFilePathXml.string());
    newFilePathP3d = testDataPath;
@@ -1371,7 +1370,7 @@ TEST_F(CompareTest, CheckAddNew1)
 
    cout << "Adding new data" << endl;
    addNewData(newFilePathXml.string());
-   
+
    newFilePathP3d = testDataPath;
 
    cout << "Deleting temporary copy of data" << endl;

@@ -18,24 +18,24 @@
 #include <stdlib.h>
 #include <libgen.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace hpc
 {
    Path
       :: Path(const std::string & path)
       : m_path(path)
-   {}        
+   {}
 
-   boost::shared_ptr<Path>
+   std::shared_ptr<Path>
    Path
       :: clone() const
    {
-      return boost::shared_ptr<Path>( this->doClone() );
+      return std::shared_ptr<Path>( this->doClone() );
    }
 
 
-   const std::string & 
+   const std::string &
    Path
       :: pathSeparator() const
    {
@@ -47,20 +47,20 @@ namespace hpc
       return pathSeparator;
    }
 
-   
-   void 
+
+   void
    Path
       :: makeDirectory() const
    {
       int r = ::mkdir(m_path.c_str(), 0777);
- 
+
       if (r == -1)
-         throw Exception() << "Could not create directory '" << m_path << "', because: " 
+         throw Exception() << "Could not create directory '" << m_path << "', because: "
             << strerror(errno);
    }
 
-   boost::shared_ptr<Path>
-   Path    
+   std::shared_ptr<Path>
+   Path
       :: getParentDirectory() const
    {
       // dirname  (3) needs a writeable character buffer, so therefore copy it
@@ -68,18 +68,18 @@ namespace hpc
       charArray.push_back('\0');
 
       // and return the result
-      return boost::shared_ptr<Path>(new Path(::dirname( &charArray[0] )));
+      return std::shared_ptr<Path>(new Path(::dirname( &charArray[0] )));
    }
 
-   boost::shared_ptr<Path>
+   std::shared_ptr<Path>
    Path
       :: getDirectoryEntry( const std::string & file) const
    {
-      return boost::shared_ptr<Path>(new Path( m_path + pathSeparator() + file));
+      return std::shared_ptr<Path>(new Path( m_path + pathSeparator() + file));
    }
-   
 
-   void 
+
+   void
    Path
       :: copyTo(const Path & dst) const
    {
@@ -105,8 +105,8 @@ namespace hpc
          throw Exception() << "Error while copying file '" << m_path << "' to '" << dst.m_path << "'";
    }
 
-   Path :: FileType 
-   Path 
+   Path :: FileType
+   Path
       :: getFileType() const
    {
       struct stat fileInfo;
@@ -120,20 +120,20 @@ namespace hpc
             default: throw Exception() << "Cannot stat file '" << m_path << "', because " << strerror(errno);
          }
       }
-    
+
       if (S_ISREG(fileInfo.st_mode))
-         return Regular;     
+         return Regular;
       else if (S_ISDIR(fileInfo.st_mode))
          return Directory;
       else
          return Other;
    }
 
-   std::string 
+   std::string
    Path
       :: getCanonicalPath() const
    {
-      boost::shared_ptr<void> canonPath( canonicalize_file_name( m_path.c_str() ), &::free );
+      std::shared_ptr<void> canonPath( canonicalize_file_name( m_path.c_str() ), &::free );
 
       if (!canonPath)
          throw Exception() << "Cannot canonicalize path '" << m_path << "', because " << strerror(errno);
@@ -149,22 +149,22 @@ namespace hpc
    }
 
 
-   boost::shared_ptr<std::ostream>
+   std::shared_ptr<std::ostream>
    Path
       :: writeFile() const
    {
-      boost::shared_ptr<std::ostream> outputFile( new std::ofstream( m_path.c_str() ));
+      std::shared_ptr<std::ostream> outputFile( new std::ofstream( m_path.c_str() ));
       if (outputFile->fail())
          throw Exception() << "Cannot open file '" << m_path << "' for output";
 
       return outputFile;
    }
 
-   boost::shared_ptr<std::istream>
+   std::shared_ptr<std::istream>
    Path
       :: readFile() const
    {
-      boost::shared_ptr<std::istream> inputFile( new std::ifstream( m_path.c_str() ));
+      std::shared_ptr<std::istream> inputFile( new std::ifstream( m_path.c_str() ));
 
       if (inputFile->fail())
          throw Exception() << "Cannot open file '" << m_path << "' for input";

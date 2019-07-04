@@ -14,8 +14,6 @@
 #include <vector>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
 #include "AbstractFormation.h"

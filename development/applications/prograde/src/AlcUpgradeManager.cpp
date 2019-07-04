@@ -31,6 +31,8 @@
 #include "cmbAPI.h"
 #include "BottomBoundaryManager.h"
 
+#include <algorithm>
+
 using namespace mbapi;
 
 typedef std::pair<const std::shared_ptr<DataModel::AbstractSnapshot const>,

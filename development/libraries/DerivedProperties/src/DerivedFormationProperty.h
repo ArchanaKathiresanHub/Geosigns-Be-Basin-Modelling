@@ -12,7 +12,6 @@
 #define _DERIVED_PROPERTIES__DERIVED_FORMATION_PROPERTY_H_
 
 #include <boost/multi_array.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
@@ -22,6 +21,8 @@
 #include "FormationProperty.h"
 
 #include "GridMap.h"
+
+#include <memory>
 
 namespace DerivedProperties {
 
@@ -66,7 +67,7 @@ namespace DerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<DerivedFormationProperty> DerivedFormationPropertyPtr;
+   typedef std::shared_ptr<DerivedFormationProperty> DerivedFormationPropertyPtr;
 
 } // namespace DerivedProperties
 
@@ -82,7 +83,7 @@ inline double DerivedProperties::DerivedFormationProperty::get ( unsigned int i,
 
 inline bool DerivedProperties::DerivedFormationProperty::isPrimary () const {
 
-   return false; 
+   return false;
 }
 
 #endif // _DERIVED_PROPERTIES__DERIVED_FORMATION_PROPERTY_H_

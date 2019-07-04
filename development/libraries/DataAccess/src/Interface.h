@@ -11,11 +11,10 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include <vector>
+#include <memory>
 #include <string>
+#include <vector>
 using namespace std;
-
-#include <boost/shared_ptr.hpp>
 
 namespace ddd
 {
@@ -173,11 +172,11 @@ namespace DataAccess
 
       /// \typedef SimulationDetailsListPtr
       /// \brief Smart pointer to vector of simulation-details.
-      typedef boost::shared_ptr<SimulationDetailsList> SimulationDetailsListPtr;
+      typedef std::shared_ptr<SimulationDetailsList> SimulationDetailsListPtr;
 
       /// \typedef PropertyListPtr
       /// \brief Smart pointer to vector of properties.
-      typedef boost::shared_ptr<PropertyList> PropertyListPtr;
+      typedef std::shared_ptr<PropertyList> PropertyListPtr;
 
 
       const string ALCBasalt = "ALC Basalt";

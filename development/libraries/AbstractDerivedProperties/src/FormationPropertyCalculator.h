@@ -1,24 +1,24 @@
-// 
+//
 // Copyright (C) 2017-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef ABSTRACTDERIVED_PROPERTIES__FORMATION_PROPERTY_CALCULATOR_H
 #define ABSTRACTDERIVED_PROPERTIES__FORMATION_PROPERTY_CALCULATOR_H
-
-#include <vector>
-#include <boost/shared_ptr.hpp>
 
 #include "AbstractSnapshot.h"
 
 #include "FormationProperty.h"
 
 #include "PropertyCalculator.h"
+
+#include <memory>
+#include <vector>
 
 namespace AbstractDerivedProperties {
 
@@ -28,11 +28,11 @@ namespace AbstractDerivedProperties {
    class Elt2dIndices
    {
    public:
-      
+
       bool exists;
       int i[4];
       int j[4];
-      
+
       bool nodeDefined[4];
    };
 
@@ -61,7 +61,7 @@ namespace AbstractDerivedProperties {
     };
 
 
-   typedef boost::shared_ptr<const FormationPropertyCalculator> FormationPropertyCalculatorPtr;
+   typedef std::shared_ptr<const FormationPropertyCalculator> FormationPropertyCalculatorPtr;
 
 
 } // namespace AbstractDerivedProperties

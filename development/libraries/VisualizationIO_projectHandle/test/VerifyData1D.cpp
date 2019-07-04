@@ -14,7 +14,6 @@
 #include <cassert>
 #include <cmath>
 #include <limits>
-#include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/path.hpp>
 
@@ -139,21 +138,21 @@ void compare2dPropertyValues1d(std::shared_ptr<CauldronIO::Project> projectXml, 
 					{
 						for (int indexJ = 0; indexJ < numJXml; indexJ++)
 						{
-                                                      EXPECT_FLOAT_EQ(gridP3d->getValue((unsigned int)indexI, indexJ), surfaceDataXml->getValue(indexI, indexJ));
-                                                }
+																											EXPECT_FLOAT_EQ(gridP3d->getValue((unsigned int)indexI, indexJ), surfaceDataXml->getValue(indexI, indexJ));
+																								}
 					}
 				}
 			}
 		}
 	}
 	cout << "Project1d: 2d property value comparison done" << endl;
-}  
+}
 
 // Test to compare metadata and property values in binary data stored in project3d and XML formats. The property values include TimeIo table, 1D mode
 
 TEST_F(CompareTest1d, CompareData1d)
 {
-       	boost::filesystem::path filePathP3d = "data/Project-1d.project3d";
+				boost::filesystem::path filePathP3d = "data/Project-1d.project3d";
 	string fileNameP3d = filePathP3d.filename().string();
 
 	cout << "Creating temporary copy of data" << endl;
@@ -176,20 +175,20 @@ TEST_F(CompareTest1d, CompareData1d)
         if(projectP3d->getModellingMode() == CauldronIO::MODE1D) {
            projectP3d->setActivityOutputGrid(projectP3d->getLowResolutionOutputGrid ());
         }
- 
+
 	//Import from XML
 	cout << "Starting import from XML" << endl;
 	std::shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportFromXML::importFromXML(newFilePathXml.string());
 	cout << "Comparing data" << endl;
 	//Comparing Project information
 	EXPECT_EQ(projectP3d->getModellingMode(), projectXml->getModelingMode());
-	
+
 	compareSnapshots(projectXml, projectP3d);
 	compareFormations(projectXml, projectP3d);
 	compareReservoirs(projectXml, projectP3d);
 	compareProperties(projectXml, projectP3d);
 	compare2dPropertyValues1d(projectXml, projectP3d);
-	
+
 	newFilePathP3d = testDataPath;
 
 	cout << "Deleting temporary copy of data" << endl;

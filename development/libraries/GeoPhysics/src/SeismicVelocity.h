@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -11,10 +11,12 @@
 #ifndef _GEOPHYSICS__SEISMICVELOCITY_H_
 #define _GEOPHYSICS__SEISMICVELOCITY_H_
 
-#include <boost/shared_ptr.hpp>
 #include "GeoPhysicsFluidType.h"
 #include "Interface.h"
+
 #include "Porosity.h"
+
+#include <memory>
 
 namespace GeoPhysics
 {
@@ -83,7 +85,7 @@ namespace GeoPhysics
 			* \param currentVes The current vertical effective stress.
 			* \param maxVes The maximum vertical effective stress.
 			*/
-         virtual double calculate( const double seismicVelocityFluid,
+				 virtual double calculate( const double seismicVelocityFluid,
 				const double densityFluid,
 				const double densityBulk,
 				const double porosity,
@@ -97,24 +99,24 @@ namespace GeoPhysics
 		SeismicVelocity(Algorithm * algorithm);
 
 		/// SmartPointer to abstract class for seismic velocity computation.
-		boost::shared_ptr< Algorithm > m_algorithm;
+		std::shared_ptr< Algorithm > m_algorithm;
 	};
 
-	inline double SeismicVelocity
+  inline double SeismicVelocity
       ::calculate( const double seismicVelocityFluid,
-		const double densityFluid,
-		const double densityBulk,
-		const double porosity,
-		const double currentVes,
-		const double maxVes) const
-	{
+    const double densityFluid,
+    const double densityBulk,
+    const double porosity,
+    const double currentVes,
+    const double maxVes) const
+  {
       return m_algorithm->calculate( seismicVelocityFluid,
-				densityFluid,
-				densityBulk,
-				porosity,
-				currentVes,
-				maxVes);
-	}
+        densityFluid,
+        densityBulk,
+        porosity,
+        currentVes,
+        maxVes);
+  }
 }
 
 #endif

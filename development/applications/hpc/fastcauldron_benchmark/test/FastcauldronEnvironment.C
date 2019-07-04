@@ -149,10 +149,10 @@ TEST(FastCauldronEnvironmentJobHasRanBefore, projectDirDoesNotExist)
       struct Case3APath : Path {
          FileType getFileType() const { return NotExists; }
       };
-      boost::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
+      std::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
       {
          EXPECT_EQ( "benchmark_1", name );
-         return boost::shared_ptr< hpc::Path >( dynamic_cast<hpc::Path *>(new Case3APath) );
+         return std::shared_ptr< hpc::Path >( dynamic_cast<hpc::Path *>(new Case3APath) );
       }
    };
    EXPECT_FALSE( FCE::jobHasRanBefore( Case3Path(), "benchmark_1"));
@@ -168,10 +168,10 @@ TEST(FastCauldronEnvironmentJobHasRanBefore, projectDirIsNotADir)
       struct Case4APath : Path {
          FileType getFileType() const { return Regular; }
       };
-      boost::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
+      std::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
       {
          EXPECT_EQ( "benchmark_1", name );
-         return boost::shared_ptr< hpc::Path >( dynamic_cast<hpc::Path *>(new Case4APath) );
+         return std::shared_ptr< hpc::Path >( dynamic_cast<hpc::Path *>(new Case4APath) );
       }
    };
    EXPECT_THROW( FCE::jobHasRanBefore( Case4Path(), "benchmark_1"), FCE::Exception);
@@ -190,16 +190,16 @@ TEST(FastCauldronEnvironmentJobHasRanBefore, projectDirContainsIrregularFileOutp
       struct Case5APath : Path {
          FileType getFileType() const { return Directory; }
 
-         boost::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
+         std::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
          {
             EXPECT_EQ( "output", name );
-            return boost::shared_ptr< hpc::Path >( dynamic_cast<hpc::Path*>(new Case5BPath) );
+            return std::shared_ptr< hpc::Path >( dynamic_cast<hpc::Path*>(new Case5BPath) );
          }
       };
-      boost::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
+      std::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
       {
          EXPECT_EQ( "benchmark_1", name );
-         return boost::shared_ptr< hpc::Path >( dynamic_cast<hpc::Path*>(new Case5APath) );
+         return std::shared_ptr< hpc::Path >( dynamic_cast<hpc::Path*>(new Case5APath) );
       }
    };
    EXPECT_THROW( FCE::jobHasRanBefore( Case5Path(), "benchmark_1"), FCE::Exception);
@@ -218,16 +218,16 @@ TEST(FastCauldronEnvironmentJobHasRanBefore, projectDirContainsRegularFileOutput
       struct Case6APath : Path {
          FileType getFileType() const { return Directory; }
 
-         boost::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
+         std::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
          {
             EXPECT_EQ( "output", name );
-            return boost::shared_ptr< hpc::Path >(dynamic_cast<hpc::Path*>( new Case6BPath ) );
+            return std::shared_ptr< hpc::Path >(dynamic_cast<hpc::Path*>( new Case6BPath ) );
          }
       };
-      boost::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
+      std::shared_ptr< hpc::Path > getDirectoryEntry(const std::string & name) const
       {
          EXPECT_EQ( "benchmark_1", name );
-         return boost::shared_ptr< hpc::Path >( dynamic_cast<hpc::Path*>(new Case6APath) );
+         return std::shared_ptr< hpc::Path >( dynamic_cast<hpc::Path*>(new Case6APath) );
       }
    };
    EXPECT_TRUE( FCE::jobHasRanBefore( Case6Path(), "benchmark_1"));

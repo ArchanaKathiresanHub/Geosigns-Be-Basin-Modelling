@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -11,16 +11,15 @@
 #ifndef ABSTRACTDERIVED_PROPERTIES__SURFACE_PROPERTY_H
 #define ABSTRACTDERIVED_PROPERTIES__SURFACE_PROPERTY_H
 
-#include <vector>
-
-#include <boost/shared_ptr.hpp>
-
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
 #include "AbstractSurface.h"
 #include "AbstractGrid.h"
 
 #include "AbstractPropertyValues.h"
+
+#include <memory>
+#include <vector>
 
 namespace AbstractDerivedProperties {
 
@@ -89,7 +88,7 @@ namespace AbstractDerivedProperties {
    };
 
 
-   typedef boost::shared_ptr<const SurfaceProperty> SurfacePropertyPtr;
+   typedef std::shared_ptr<const SurfaceProperty> SurfacePropertyPtr;
 
    typedef std::vector<SurfacePropertyPtr> SurfacePropertyList;
 

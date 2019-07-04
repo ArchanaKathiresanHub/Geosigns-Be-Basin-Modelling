@@ -11,7 +11,7 @@
 #ifndef ABSTRACTDERIVED_PROPERTIES__ABSTRACT_PROPERTY_VALUES_H
 #define ABSTRACTDERIVED_PROPERTIES__ABSTRACT_PROPERTY_VALUES_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace AbstractDerivedProperties {
 
@@ -37,7 +37,7 @@ namespace AbstractDerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<const AbstractPropertyValues> AbstractPropertyValuesPtr;
+   typedef std::shared_ptr<const AbstractPropertyValues> AbstractPropertyValuesPtr;
 
 
 }

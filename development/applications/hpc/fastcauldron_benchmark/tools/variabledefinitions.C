@@ -3,6 +3,7 @@
 #include "system.h"
 
 #include <fstream>
+#include <memory>
 
 namespace hpc
 {
@@ -11,7 +12,7 @@ namespace hpc
       :: VariableDefinitions(const Path & variableDefinitionsFile)
       : m_definitions()
    {
-      boost::shared_ptr<std::istream> input = variableDefinitionsFile.readFile();
+      std::shared_ptr<std::istream> input = variableDefinitionsFile.readFile();
 
       std::string line;
       while (getline(*input, line))

@@ -8,13 +8,13 @@
 #include "hdf5.h"
 #include "hdf5_hl.h"
 
-#include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <string>
 #include <cstring>
 #include <sstream>
 #include <iomanip>
 #include <math.h>
+#include <memory>
 #include <assert.h>
 
 struct CropException : formattingexception::BaseException<CropException> {};
@@ -37,8 +37,8 @@ herr_t checkForLayerName (hid_t groupId, const char * layerName, LayerInfo * lay
       sscanf (layerName, "Layer=%d", &layerIndex);
       if (layerIndex == layerInfo->index)
       {
-	 layerInfo->name = layerName;
-	 return 1;
+   layerInfo->name = layerName;
+   return 1;
       }
    }
    return 0;
@@ -60,52 +60,52 @@ int main(int argc, char ** argv)
    {
       if (strncmp (argv[arg], "-oversample", Max (4, strlen (argv[arg]))) == 0)
       {
-	 if (subsampled)
-	 {
-	    throw CropException() 
-	       << "Only one of -subsample and -oversample is allowed" ;
-	 }
+   if (subsampled)
+   {
+      throw CropException()
+         << "Only one of -subsample and -oversample is allowed" ;
+   }
 
          if (arg + 2 >= argc)
          {
-	    throw CropException() 
-	       << "one or more arguments for -oversample is missing" ;
+      throw CropException()
+         << "one or more arguments for -oversample is missing" ;
          }
 
-	 oversampled = true;
+   oversampled = true;
          oversampled_x = atoi (argv[++arg]);
          oversampled_y = atoi (argv[++arg]);
       }
 
       else if (strncmp (argv[arg], "-subsample", Max (2, strlen (argv[arg]))) == 0)
       {
-	 throw CropException() 
-	    << "-subsample not yet implemented" ;
+   throw CropException()
+      << "-subsample not yet implemented" ;
 
 	 if (oversampled)
 	 {
-	    throw CropException() 
-	       << "Only one of -subsample and -oversample is allowed" ;
+			throw CropException()
+				 << "Only one of -subsample and -oversample is allowed" ;
 	 }
 
          if (arg + 2 >= argc)
          {
-	    throw CropException() 
-	       << "one or more arguments for -subsample is missing" ;
+      throw CropException()
+         << "one or more arguments for -subsample is missing" ;
          }
 
-	 subsampled = true;
+   subsampled = true;
          subsampled_x = atoi (argv[++arg]);
          subsampled_y = atoi (argv[++arg]);
       }
       else if (inputProjectFile.empty())
       {
-	 inputProjectFile = argv[arg];
+   inputProjectFile = argv[arg];
       }
 
       else if (outputDir.empty())
       {
-	 outputDir = argv[arg];
+   outputDir = argv[arg];
       }
    }
 
@@ -120,8 +120,8 @@ int main(int argc, char ** argv)
       return 1;
    }
 
-   DataAccess::Interface::ObjectFactory* factory = new DataAccess::Interface::ObjectFactory(); 
-   boost::shared_ptr<DataAccess::Interface::ProjectHandle> project( 
+   DataAccess::Interface::ObjectFactory* factory = new DataAccess::Interface::ObjectFactory();
+   std::shared_ptr<DataAccess::Interface::ProjectHandle> project(
       DataAccess::Interface::OpenCauldronProject( inputProjectFile, "r", factory)
    );
 
@@ -143,7 +143,7 @@ int main(int argc, char ** argv)
 
    if (offsetX != 0 || offsetY != 0)
    {
-      throw CropException() 
+      throw CropException()
          << "Non-zero offsets in the project3d file are not supported" ;
    }
 
@@ -156,7 +156,7 @@ int main(int argc, char ** argv)
    {
       if ((x1 -x0) % subsampled_x != 0 || (y1 - y0) % subsampled_y != 0)
       {
-	 throw CropException() << "Unable to subsample with" << subsampled_x << ", " << subsampled_y;
+   throw CropException() << "Unable to subsample with" << subsampled_x << ", " << subsampled_y;
       }
 
       layerNXout = (x1 - x0) / subsampled_x + 1;
@@ -194,7 +194,7 @@ int main(int argc, char ** argv)
       if (status != 0)
          throw CropException() << "Dataset 'delta in I dimension' not found in"
             " gridmap file '" << fileName << "'";
- 
+
       if ( dx != layerDXin )
          throw CropException() << "DeltaX mismatch between project3d file and gridmap"
             << " '" << fileName << "'";
@@ -241,14 +241,14 @@ int main(int argc, char ** argv)
       if (status != 0)
          throw CropException() << "Dataset 'null value' not found in"
             " gridmap file '" << fileName << "'";
-     
+
       // read the grid map
       std::vector<float> data( Nx * Ny);
 
       LayerInfo layerInfo;
       layerInfo.index = mapSeqNr;
       layerInfo.name = "";
-      
+
       int ret = H5Giterate (hdfFile, "/", NULL, (H5G_iterate_t) checkForLayerName, &layerInfo);
       if (ret != 1)
       {
@@ -310,92 +310,92 @@ int main(int argc, char ** argv)
       {
          for (unsigned j = y0; j < y0 + layerNYout; ++j)
          {
-	    int newNy = layerNYout;
-	    int unsampled_Ny = y1 - y0 + 1;
-	    
-	    int unsampled_i = i / oversampled_x;
-	    int unsampled_j = j / oversampled_y;
+      int newNy = layerNYout;
+      int unsampled_Ny = y1 - y0 + 1;
 
-	    double fraction_i = double (i % oversampled_x) / oversampled_x;
-	    double fraction_j = double (j % oversampled_y) / oversampled_y;
+			int unsampled_i = i / oversampled_x;
+			int unsampled_j = j / oversampled_y;
 
-	    double dataloc[2][2];
+			double fraction_i = double (i % oversampled_x) / oversampled_x;
+			double fraction_j = double (j % oversampled_y) / oversampled_y;
 
-	    // Should check data index is not out of bounds.
-	    // Now checking for NaN below.
+			double dataloc[2][2];
 
-	    double indices[2][2];
-	    indices[0][0] = unsampled_j     + (unsampled_i    ) * unsampled_Ny;
-	    indices[1][0] = unsampled_j     + (unsampled_i + 1) * unsampled_Ny;
-	    indices[0][1] = unsampled_j + 1 + (unsampled_i    ) * unsampled_Ny;
-	    indices[1][1] = unsampled_j + 1 + (unsampled_i + 1) * unsampled_Ny;
+			// Should check data index is not out of bounds.
+			// Now checking for NaN below.
 
-	    if (indices[0][0] < Nx * Ny)
-	    {
-	       dataloc[0][0] = data[indices[0][0]];
-	    }
-	    else
-	    {
-	       assert (fraction_i == 1 || fraction_j == 1);
-	       dataloc[0][0] = 0;
-	    }
-	    if (indices[1][0] < Nx * Ny)
-	    {
-	       dataloc[1][0] = data[indices[1][0]];
-	    }
-	    else
-	    {
-	       assert (fraction_i == 0 || fraction_j == 1);
-	       dataloc[1][0] = 0;
-	    }
-	    if (indices[0][1] < Nx * Ny)
-	    {
-	       dataloc[0][1] = data[indices[0][1]];
-	    }
-	    else
-	    {
-	       assert (fraction_i == 1 || fraction_j == 0);
-	       dataloc[0][1] = 0;
-	    }
-	    if (indices[1][1] < Nx * Ny)
-	    {
-	       dataloc[1][1] = data[indices[1][1]];
-	    }
-	    else
-	    {
-	       assert (fraction_i == 0 || fraction_j == 0);
-	       dataloc[1][1] = 0;
-	    }
-	    double croppedloc;
+			double indices[2][2];
+			indices[0][0] = unsampled_j     + (unsampled_i    ) * unsampled_Ny;
+			indices[1][0] = unsampled_j     + (unsampled_i + 1) * unsampled_Ny;
+			indices[0][1] = unsampled_j + 1 + (unsampled_i    ) * unsampled_Ny;
+			indices[1][1] = unsampled_j + 1 + (unsampled_i + 1) * unsampled_Ny;
 
-	    if (  (dataloc[0][0] == 99999 && fraction_i != 1 && fraction_j != 1) || 
-		  (dataloc[1][0] == 99999 && fraction_i != 0 && fraction_j != 1) || 
-		  (dataloc[0][1] == 99999 && fraction_i != 1 && fraction_j != 0) || 
-		  (dataloc[1][1] == 99999 && fraction_i != 0 && fraction_j != 0))
-	    {
-	       croppedloc = 99999;
-	    }
-	    else
-	    {
-	       croppedloc =
-		  (1 - fraction_i) * (1 - fraction_j) * dataloc[0][0] +
-		  (    fraction_i) * (1 - fraction_j) * dataloc[1][0] +
-		  (1 - fraction_i) * (    fraction_j) * dataloc[0][1] +
-		  (    fraction_i) * (    fraction_j) * dataloc[1][1];
-	    }
+			if (indices[0][0] < Nx * Ny)
+			{
+				 dataloc[0][0] = data[indices[0][0]];
+			}
+			else
+			{
+				 assert (fraction_i == 1 || fraction_j == 1);
+				 dataloc[0][0] = 0;
+			}
+			if (indices[1][0] < Nx * Ny)
+			{
+				 dataloc[1][0] = data[indices[1][0]];
+			}
+			else
+			{
+				 assert (fraction_i == 0 || fraction_j == 1);
+				 dataloc[1][0] = 0;
+			}
+			if (indices[0][1] < Nx * Ny)
+			{
+				 dataloc[0][1] = data[indices[0][1]];
+			}
+			else
+			{
+				 assert (fraction_i == 1 || fraction_j == 0);
+				 dataloc[0][1] = 0;
+			}
+			if (indices[1][1] < Nx * Ny)
+			{
+				 dataloc[1][1] = data[indices[1][1]];
+			}
+			else
+			{
+				 assert (fraction_i == 0 || fraction_j == 0);
+				 dataloc[1][1] = 0;
+			}
+			double croppedloc;
 
-	    assert (!std::isnan(croppedloc));
+			if (  (dataloc[0][0] == 99999 && fraction_i != 1 && fraction_j != 1) ||
+			(dataloc[1][0] == 99999 && fraction_i != 0 && fraction_j != 1) ||
+			(dataloc[0][1] == 99999 && fraction_i != 1 && fraction_j != 0) ||
+			(dataloc[1][1] == 99999 && fraction_i != 0 && fraction_j != 0))
+			{
+				 croppedloc = 99999;
+			}
+			else
+			{
+				 croppedloc =
+			(1 - fraction_i) * (1 - fraction_j) * dataloc[0][0] +
+			(    fraction_i) * (1 - fraction_j) * dataloc[1][0] +
+			(1 - fraction_i) * (    fraction_j) * dataloc[0][1] +
+			(    fraction_i) * (    fraction_j) * dataloc[1][1];
+			}
 
-	    cropped[j - y0 + (i -x0)* newNy] = croppedloc;
+			assert (!std::isnan(croppedloc));
+
+			cropped[j - y0 + (i -x0)* newNy] = croppedloc;
 	 }
-      }
+			}
 
       // write the new grid map
       hsize_t croppedDims[2] = { layerNXout, layerNYout };
-      status = H5LTmake_dataset( outputFile, hdfLayerName.c_str(), 2, croppedDims, H5T_NATIVE_FLOAT, &cropped[0]); 
+      status = H5LTmake_dataset( outputFile, hdfLayerName.c_str(), 2, croppedDims, H5T_NATIVE_FLOAT, &cropped[0]);
 
       if (status != 0)
-         throw CropException() << "Could not write dataset '" 
+         throw CropException() << "Could not write dataset '"
              << hdfLayerName << "' to output gridmap '"
              << outputFileName.path() << "'";
    }

@@ -12,8 +12,9 @@
 #include "GeoPhysicalConstants.h"
 
 // std library
-#include <cmath>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
 
 // utilities library
 // utilities library

@@ -33,20 +33,18 @@ using namespace DerivedProperties;
 namespace DerivedProperties {
 
    typedef vector < string > StringVector;
-   
+
    typedef vector < const Interface::Formation * > FormationVector;
-   
+
    typedef map < const Interface::Property *, OutputPropertyValuePtr > OutputPropertyValueMap;
-   typedef map < const Interface::Formation *, OutputPropertyValueMap > FormationOutputPropertyValueMap;
-   typedef map < const Snapshot *, FormationOutputPropertyValueMap> SnapshotFormationOutputPropertyValueMap;
-   
+
    typedef pair < const Interface::Formation *, const Surface * > FormationSurface;
    typedef vector < FormationSurface > FormationSurfaceVector;
    typedef map < const FormationSurface, OutputPropertyValueMap > FormationSurfaceOutputPropertyValueMap;
    typedef map < const Snapshot *, FormationSurfaceOutputPropertyValueMap> SnapshotFormationSurfaceOutputPropertyValueMap;
-   
+
    bool isEqualPropertyName( const string s1, const string s2 );
-   
+
    // bool acquireFormations( GeoPhysics::ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs,
    //                         StringVector & formationNames, const bool includeBasement = true ) ;
 
@@ -57,18 +55,18 @@ namespace DerivedProperties {
    /// \param [in]  useTop                 True for the top surfaces, false for the bottoms
    /// \param [out] formationSurfacePairs  On exit will contain formation-surface pairs
 
-   bool acquireFormationSurfaces( GeoPhysics::ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, 
+   bool acquireFormationSurfaces( GeoPhysics::ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs,
                                   StringVector & formationNames, bool useTop, const bool includeBasement = true );
-   
+
    /// \brief Create a vector of formation-surface pairs for the list of formation names. ( Surface is always empty )
    ///
    /// \param [in]  formationNames         List of formation names
    /// \param [in]  projectHandle          Pointer to the project handle object
    /// \param [out] formationSurfacePairs  On exit will contain formation-surface pairs
 
-   bool acquireFormations( GeoPhysics::ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, 
+   bool acquireFormations( GeoPhysics::ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs,
                            StringVector & formationNames, const bool includeBasement = true );
-   
+
    /// \brief Create a vector of properties for the list of the property names. Determine whether or not a property can be computed.
    ///
    /// \param [in]  propertyNames   List of the property names
@@ -79,7 +77,7 @@ namespace DerivedProperties {
    bool acquireProperties( GeoPhysics::ProjectHandle * projectHandle,
                            const AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                            DataAccess::Interface::PropertyList & properties, StringVector & propertyNames );
-   
+
    /// \brief Allocate OutputProperty for the formation-surface pair, the snapshot and the property if the property is computable.
    ///
    /// \param [in]  formationSurfaceItem   The formation and the surface for which the property to be allocated
@@ -88,11 +86,11 @@ namespace DerivedProperties {
    /// \param [in]  propertyManager        The property manager object
 
    OutputPropertyValuePtr allocateOutputProperty ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
-                                                   const DataModel::AbstractProperty* property, 
+                                                   const DataModel::AbstractProperty* property,
                                                    const DataModel::AbstractSnapshot* snapshot,
                                                    const FormationSurface& formationSurfaceItem,
                                                    const bool basementIncluded = false );
-   
+
    /// \brief Create the property values in the project handle for the list of properties at the snapshot age.
    ///
    /// \param [in]  formationSurfaceItem    The formation and the surface for which the properties value to be created
@@ -100,13 +98,13 @@ namespace DerivedProperties {
    /// \param [in]  snapshot                The snapshot for which the properties to be created
    /// \param [in]  projectHandle           The pointer to the project handle
    /// \param [in]  allOutputPropertyValues The set of allocated output property values (calculators)
-  
+
    void outputSnapshotFormationData( GeoPhysics::ProjectHandle* projectHandle, const Snapshot * snapshot,
                                      const FormationSurface                         & formationSurfaceItem,
                                      DataAccess::Interface::PropertyList            & properties,
                                      SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues );
-   
-   
+
+
    /// \brief Create the property value in the project handle for the formation and the surface at the snapshot age.
    ///
    /// \param [in]  formation       The formation for which the property value to be created
@@ -117,12 +115,12 @@ namespace DerivedProperties {
 
    bool createSnapshotResultPropertyValue ( GeoPhysics::ProjectHandle * projectHandle,
                                             OutputPropertyValuePtr propertyValue,
-                                            const Snapshot * snapshot, 
+                                            const Snapshot * snapshot,
                                             const Interface::Formation * formation,
                                             const Interface::Surface * surface );
-   
-   void printDebugMsg ( const string outputMsg, 
-                        const DataModel::AbstractProperty  * property, 
+
+   void printDebugMsg ( const string outputMsg,
+                        const DataModel::AbstractProperty  * property,
                         const DataModel::AbstractFormation * formation,
                         const DataModel::AbstractSurface   * surface,
                         const DataModel::AbstractSnapshot  * snapshot );

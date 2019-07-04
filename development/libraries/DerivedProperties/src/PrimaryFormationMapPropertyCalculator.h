@@ -11,11 +11,6 @@
 #ifndef DERIVED_PROPERTIES__PRIMARY_FORMATION_MAP_PROPERTY_CALCULATOR_H
 #define DERIVED_PROPERTIES__PRIMARY_FORMATION_MAP_PROPERTY_CALCULATOR_H
 
-#include <vector>
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
 #include "AbstractFormation.h"
@@ -26,6 +21,10 @@
 #include "FormationMapProperty.h"
 #include "FormationMapPropertyCalculator.h"
 
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace AbstractDerivedProperties {
    // Forward declaration of PropertyManager
    class AbstractPropertyManager;
@@ -35,7 +34,7 @@ namespace DerivedProperties {
 
    /// \brief Loads a primary property.
    ///
-   /// A primary property is a property that has been computed by one of 
+   /// A primary property is a property that has been computed by one of
    /// the simulators and saved to a file.
    class PrimaryFormationMapPropertyCalculator : public AbstractDerivedProperties::FormationMapPropertyCalculator {
 
@@ -74,7 +73,7 @@ namespace DerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<PrimaryFormationMapPropertyCalculator> PrimaryFormationMapPropertyCalculatorPtr;
+   typedef std::shared_ptr<PrimaryFormationMapPropertyCalculator> PrimaryFormationMapPropertyCalculatorPtr;
 
 
 } // namespace DerivedProperties

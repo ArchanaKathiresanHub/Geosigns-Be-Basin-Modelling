@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -11,6 +11,7 @@
 // std library
 #include <iostream>
 #include <fstream>
+#include <unistd.h>
 
 // petsc library
 #include <petsc.h>
@@ -94,11 +95,11 @@ int main (int argc, char ** argv)
 
 #ifdef FLEXLM
    int rc = EPTFLEXLM_OK;
-   
+
    char feature[EPTFLEXLM_MAX_FEATURE_LEN];
    char version[EPTFLEXLM_MAX_VER_LEN];
    char errmessage[EPTFLEXLM_MAX_MESS_LEN];
-   
+
 
    // FlexLM license handling only for node with rank = 0
    if( rank == 0 ) {
@@ -121,10 +122,10 @@ int main (int argc, char ** argv)
          fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
       }
    }
-   
+
    MPI_Bcast ( &rc, 1, MPI_INT, 0, PETSC_COMM_WORLD);
-   
-   
+
+
    if( rc != EPTFLEXLM_OK && rc != EPTFLEXLM_WARN) {
       PetscFinalize ();
 #ifdef FLEXLM
@@ -135,12 +136,12 @@ int main (int argc, char ** argv)
          EPTFlexLmTerminate();
       }
 #endif
-      
+
       return -1;
    }
 #else
    char feature[] = "ibs_cauldron_calc";
-#endif 
+#endif
 
 #ifndef _MSC_VER
    PetscBool myddd = PETSC_FALSE;
@@ -150,7 +151,7 @@ int main (int argc, char ** argv)
       char cmd[150];
 
       sprintf (cmd, "myddd  %s %d &", argv[0],  getpid ());
-      
+
       system (cmd);
       sleep (20);
    }
@@ -186,7 +187,7 @@ int main (int argc, char ** argv)
    ////////////////////////////////////////////
    ///2. Check command line parameters
    PetscBool isDefined = PETSC_FALSE;
-   
+
    PetscOptionsHasName (PETSC_NULL, "-help", &isDefined);
    if (isDefined) {
       Fastctc::showUsage ();
@@ -222,7 +223,7 @@ int main (int argc, char ** argv)
       Fastctc::finaliseCrustalThicknessCalculator(feature, "", factory);
       return -1;
    }
-   
+
    ////////////////////////////////////////////
    ///3. Run CTC
    try {
@@ -273,7 +274,7 @@ int main (int argc, char ** argv)
 
    PetscTime( &sim_End_Time );
    LogHandler::displayTime( LogHandler::INFO_SEVERITY, sim_End_Time - sim_Start_Time, "Total time" );
-     
+
    delete factory;
 
    PetscFinalize ();

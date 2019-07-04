@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <iosfwd>
 
 #include "FormattingException.h"
@@ -94,7 +94,7 @@ public:
    // returns which script has to be run where (working directory) to do the job
    static void commandToRunJob(const Path & directory,
          const std::string & id, 
-         boost::shared_ptr<Path> & workingDir, 
+         std::shared_ptr<Path> & workingDir, 
          std::string & command
          );
 
@@ -113,9 +113,9 @@ private:
    int m_processors;
    std::vector< std::string > m_mpiCmdLine;
    std::vector< std::string > m_cauldronCmdLine;
-   boost::shared_ptr<DataAccess::Interface::ProjectHandle>  m_project;
-   boost::shared_ptr<Path> m_projectSourceDir;
-   boost::shared_ptr<DataAccess::Interface::ObjectFactory>  m_factory;   
+   std::shared_ptr<DataAccess::Interface::ProjectHandle>  m_project;
+   std::shared_ptr<Path> m_projectSourceDir;
+   std::shared_ptr<DataAccess::Interface::ObjectFactory>  m_factory;   
    VersionID m_version;
 };  
 

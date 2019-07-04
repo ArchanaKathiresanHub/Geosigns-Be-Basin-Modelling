@@ -10,32 +10,9 @@
 #                                                                       #
 #########################################################################
 
-#FILE( GLOB all_headers src/*.h )
-#FILE( GLOB all_srcs src/*.C)
-set (all_headers,
-   src/errorhandling.h
-   src/FormationMapOutputPropertyValue.h
-   src/FormationOutputPropertyValue.h
-   src/FormationSurfaceOutputPropertyValue.h
-   src/OutputPropertyValue.h
-   src/SurfaceOutputPropertyValue.h)
-
-set(all_srcs
-   src/FormationMapOutputPropertyValue.C
-   src/FormationOutputPropertyValue.C
-   src/FormationSurfaceOutputPropertyValue.C
-   src/SurfaceOutputPropertyValue.C
-   src/track1d.C)
-
-source_group(include FILES ${all_headers})
-
-source_group(source FILES ${all_srcs})
-
 set( TARGET_NAME "track1d" )
-add_executable(${TARGET_NAME} 
-   ${all_srcs}
-   ${all_headers}
-)
+add_executable(${TARGET_NAME} src/main.C)
+
 set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
 include_directories( SYSTEM
@@ -44,6 +21,7 @@ include_directories( SYSTEM
 
 target_link_libraries(${TARGET_NAME}
    AbstractDerivedProperties
+   DataExtraction
    DerivedProperties
    DataMining
    GeoPhysics

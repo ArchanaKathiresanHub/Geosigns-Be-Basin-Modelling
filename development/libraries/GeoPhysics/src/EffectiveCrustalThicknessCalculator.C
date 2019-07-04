@@ -12,6 +12,7 @@
 using namespace GeoPhysics;
 
 // std library
+#include <algorithm>
 #include <memory>
 
 // DataAccess library
@@ -114,7 +115,7 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
                checkThicknessValue( "Continental crustal thickness", i, j, age, continentalCrustThicknessValue );
                const double basaltThicknessValue = oceanicCrustThicknessIt->get()->getMap()->getValue( i, j );
                checkThicknessValue( "Oceanic crustal thickness", i, j, age, basaltThicknessValue );
-               //the previous continental crust thickness value was already checked for in the previous iteration       
+               //the previous continental crust thickness value was already checked for in the previous iteration
                const double previousContinentalCrustThicknessValue = prevContCrustThicknessMap->getValue( i, j );
 
                // Compute effective crustal thickness
@@ -168,7 +169,7 @@ void GeoPhysics::EffectiveCrustalThicknessCalculator::updateEndOfRift( const dou
 
 void GeoPhysics::EffectiveCrustalThicknessCalculator::retrieveData() const
 {
-  
+
    std::for_each( m_continentalCrustThicknessHistory->begin(), m_continentalCrustThicknessHistory->end(), []( const PaleoFormationProperty* obj )
    {
       obj->getMap(CrustThinningHistoryInstanceThicknessMap)->retrieveData( s_gosthNodes );
@@ -182,12 +183,12 @@ void GeoPhysics::EffectiveCrustalThicknessCalculator::retrieveData() const
 
 void GeoPhysics::EffectiveCrustalThicknessCalculator::restoreData() const
 {
-  
+
    std::for_each( m_continentalCrustThicknessHistory->begin(), m_continentalCrustThicknessHistory->end(), []( const PaleoFormationProperty* obj )
    {
       obj->getMap(CrustThinningHistoryInstanceThicknessMap)->restoreData(false, s_gosthNodes );
    } );
-  
+
    auto oceanicCrustData = m_oceanicCrustThicknessHistory.data();
    std::for_each( oceanicCrustData.begin(), oceanicCrustData.end(), []( std::shared_ptr<const OceanicCrustThicknessHistoryData> obj ) { obj->getMap()->restoreData(false, s_gosthNodes ); } );
 

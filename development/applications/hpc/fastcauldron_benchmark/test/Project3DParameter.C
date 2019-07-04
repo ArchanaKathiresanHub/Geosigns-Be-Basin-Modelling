@@ -8,7 +8,7 @@
 
 TEST( Project3DParameterParse, explicitNumber)
 {
-   boost::shared_ptr<hpc::Project3DParameter> param = 
+   std::shared_ptr<hpc::Project3DParameter> param = 
             hpc::Project3DParameter::parse("RunOptionsIoTbl .  CompactionAlgorithm : string . 0");
 
    EXPECT_EQ( hpc::ExplicitProject3DParameter( 
@@ -26,7 +26,7 @@ TEST( Project3DParameterParse, explicitNumber)
 
 TEST( Project3DParameterParse, explicitPattern)
 {
-   boost::shared_ptr<hpc::Project3DParameter> param
+   std::shared_ptr<hpc::Project3DParameter> param
       = hpc::Project3DParameter::parse("StratIoTbl .  ElementRefinementZ : int . *");
 
    EXPECT_EQ( hpc::ExplicitProject3DParameter(
@@ -42,7 +42,7 @@ TEST( Project3DParameterParse, explicitPattern)
 
 TEST( Project3DParameterParse, implicit)
 {
-   boost::shared_ptr<hpc::Project3DParameter> param
+   std::shared_ptr<hpc::Project3DParameter> param
       = hpc::Project3DParameter::parse(
               "LithotypeIoTbl . Lithotype : string .[Density : double = 3200]"
          );
@@ -61,7 +61,7 @@ TEST( Project3DParameterParse, choice)
    using namespace hpc;
    using ::testing::ElementsAre;
 
-   boost::shared_ptr<Project3DParameter> param
+   std::shared_ptr<Project3DParameter> param
       = Project3DParameter::parse(
       "RunOptionsIoTbl . TempDiffBasedStepping : int . 0 { BurialRateTimeStepping = 0, TempDiffTimeStepping = 1 }"
         );
@@ -71,9 +71,9 @@ TEST( Project3DParameterParse, choice)
    names.push_back("TempDiffTimeStepping");
    values.push_back("0");
    values.push_back("1");
-   boost::shared_ptr<Project3DParameter> expectParameter(
+   std::shared_ptr<Project3DParameter> expectParameter(
          new ChoiceProject3DParameter( 
-            boost::shared_ptr<Project3DParameter>(
+            std::shared_ptr<Project3DParameter>(
               new ExplicitProject3DParameter( 
                  "RunOptionsIoTbl",
                  "TempDiffBasedStepping",
@@ -319,7 +319,7 @@ TEST( ChoiceProject3DParameterReadValue, normal )
    using ::testing::Return;
 
    // create mock embedded param
-   boost::shared_ptr<Project3DParameter> embeddedParam( new MockProject3DParameter );
+   std::shared_ptr<Project3DParameter> embeddedParam( new MockProject3DParameter );
 
    EXPECT_CALL( dynamic_cast<MockProject3DParameter &>(*embeddedParam), readValue(0))
       .Times(2)

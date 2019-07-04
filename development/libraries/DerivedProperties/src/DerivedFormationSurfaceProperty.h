@@ -59,7 +59,7 @@ namespace DerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<DerivedFormationSurfaceProperty> DerivedFormationSurfacePropertyPtr;
+   typedef std::shared_ptr<DerivedFormationSurfaceProperty> DerivedFormationSurfacePropertyPtr;
 
 }
 

@@ -10,7 +10,7 @@
 #ifndef _GEOPHYSICS__PERMEABILITY_H_
 #define _GEOPHYSICS__PERMEABILITY_H_
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -164,7 +164,7 @@ namespace GeoPhysics
 
       // The pointer pointing to the object that can do the computations.
       // It can be a shared pointer, because all its methods are constant.
-      boost::shared_ptr< Algorithm > m_algorithm;
+      std::shared_ptr< Algorithm > m_algorithm;
 
       DataAccess::Interface::PermeabilityModel m_permeabilityModel; ///< The permeability model
       double m_depoPermeability;  ///< The depositional permeability

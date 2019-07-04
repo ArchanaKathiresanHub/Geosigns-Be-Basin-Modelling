@@ -12,7 +12,7 @@ ConfigurationFile
    :: ConfigurationFile( const Path & file)
    : m_nameValueMap()
 {
-   boost::shared_ptr<std::istream> input = file.readFile();
+   std::shared_ptr<std::istream> input = file.readFile();
 
    std::string line;
    while (getline( *input, line ) )

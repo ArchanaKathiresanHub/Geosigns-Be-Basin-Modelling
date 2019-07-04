@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "FormattingException.h"
 
@@ -22,7 +22,7 @@ public:
    // input text can have several forms:
    // 1) { Name : Option, Name : Option, ... } => ChoiceCmdLineParameter
    // 2) "-some text {0} more text {1} ..."    => ParameterizedCmdLineParameter
-   static boost::shared_ptr< CmdLineParameter > parse(const std::string & text);
+   static std::shared_ptr< CmdLineParameter > parse(const std::string & text);
 };
 
 

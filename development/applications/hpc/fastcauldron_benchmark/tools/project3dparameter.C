@@ -13,7 +13,7 @@ namespace hpc
 {
 
 
-boost::shared_ptr<Project3DParameter>
+std::shared_ptr<Project3DParameter>
 Project3DParameter
    :: parse( const std::string & text )
 {
@@ -27,7 +27,7 @@ Project3DParameter
    parser.expect(".");
    std::string record = parser.nextToken();
 
-   boost::shared_ptr< Project3DParameter > param;
+   std::shared_ptr< Project3DParameter > param;
    if (record == "[")
    {
       std::string conditionalField = parser.nextToken();
@@ -337,7 +337,7 @@ ImplicitProject3DParameter
 }
 
 ChoiceProject3DParameter
-  :: ChoiceProject3DParameter(boost::shared_ptr< Project3DParameter> parameter
+  :: ChoiceProject3DParameter(std::shared_ptr< Project3DParameter> parameter
            , const std::vector< Name > & names, const std::vector< Value > & values)
   : m_parameter(parameter)
   , m_names(names)

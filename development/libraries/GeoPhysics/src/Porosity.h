@@ -10,10 +10,7 @@
 #ifndef _GEOPHYSICS__POROSITY_H_
 #define _GEOPHYSICS__POROSITY_H_
 
-#include <iostream>
-using namespace std;
 #include <boost/shared_ptr.hpp>
-#include <string>
 
 #include "Interface.h"
 

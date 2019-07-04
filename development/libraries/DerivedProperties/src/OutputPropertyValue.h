@@ -17,6 +17,8 @@
 #include "AbstractReservoir.h"
 #include "AbstractGrid.h"
 
+#include <memory>
+
 namespace  DerivedProperties {
 
    /// \brief Stores the designated property to be calculated and saved to disk
@@ -49,7 +51,7 @@ namespace  DerivedProperties {
       /// \brief Get the reservoir for which the property values are defined.
       virtual const DataModel::AbstractReservoir* getReservoir() const { return nullptr; }
 
-      /// \brief Get the property 
+      /// \brief Get the property
       virtual const DataModel::AbstractProperty* getProperty () const;
 
       /// \brief Retreive the grid map
@@ -66,7 +68,7 @@ namespace  DerivedProperties {
 
       /// \brief Get the map name if it's not equal to the propetry name
       virtual const string & getMapName() const { return getName(); }
- 
+
       static std::string s_nullString;
   private :
 
@@ -74,7 +76,7 @@ namespace  DerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<OutputPropertyValue> OutputPropertyValuePtr;
+   typedef std::shared_ptr<OutputPropertyValue> OutputPropertyValuePtr;
 
    inline OutputPropertyValue::OutputPropertyValue ( const DataModel::AbstractProperty* property ) : m_property ( property ) {}
 

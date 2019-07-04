@@ -20,48 +20,48 @@
 //------------------------------------------------------------//
 HdfPropertiesCalculator::HdfPropertiesCalculator(int aRank) : AbstractPropertiesCalculator(aRank)
 {
-   
+
    m_copy              = false;
    m_projectProperties = false;
 }
 
 //------------------------------------------------------------//
-void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& formationItems, Interface::PropertyList properties, Interface::SnapshotList & snapshots) 
+void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& formationItems, Interface::PropertyList properties, Interface::SnapshotList & snapshots)
 {
-   if (properties.size () == 0) 
+   if (properties.size () == 0)
    {
       return;
    }
 
    Interface::SnapshotList::iterator snapshotIter;
-   
+
    Interface::PropertyList::iterator propertyIter;
    FormationSurfaceVector::iterator formationIter;
-   
+
    SnapshotFormationSurfaceOutputPropertyValueMap allOutputPropertyValues;
-   
-   if (snapshots.empty()) 
+
+   if (snapshots.empty())
    {
       const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot(0);
-      
+
       snapshots.push_back(zeroSnapshot);
    }
 
    struct stat fileStatus;
    int fileError;
-   
+
    for (snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter)
    {
       const Interface::Snapshot * snapshot = *snapshotIter;
-      
+
       displayProgress(snapshot->getFileName (), m_startTime, "Start computing ");
-      
-      if (snapshot->getFileName () != "") 
+
+      if (snapshot->getFileName () != "")
       {
          ibs::FilePath fileName(m_projectHandle->getFullOutputDir ());
          fileName << snapshot->getFileName ();
          fileError = stat (fileName.cpath(), &fileStatus);
-         
+
          ((Snapshot *)snapshot)->setAppendFile (not fileError);
       }
 
@@ -70,48 +70,48 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
          const Interface::Formation * formation = (*formationIter).first;
          const Interface::Surface   * surface   = (*formationIter).second;
          const Interface::Snapshot  * bottomSurfaceSnapshot = (formation->getBottomSurface() != 0 ? formation->getBottomSurface()->getSnapshot() : 0);
-         
-         if (snapshot->getTime() != 0.0 and surface == 0 and bottomSurfaceSnapshot != 0) 
+
+         if (snapshot->getTime() != 0.0 and surface == 0 and bottomSurfaceSnapshot != 0)
          {
             const double depoAge = bottomSurfaceSnapshot->getTime();
-            if (snapshot->getTime() > depoAge or fabs(snapshot->getTime() - depoAge) < snapshot->getTime() * 1e-9) 
+            if (snapshot->getTime() > depoAge or fabs(snapshot->getTime() - depoAge) < snapshot->getTime() * 1e-9)
             {
                continue;
             }
          }
-         
+
          for (propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter)
          {
             const Interface::Property * property = *propertyIter;
-            if (m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY) 
+            if (m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY)
             {
                continue;
             }
-            
-            if (not m_extract2D and surface != 0 and property->getPropertyAttribute() != DataModel::SURFACE_2D_PROPERTY) 
+
+            if (not m_extract2D and surface != 0 and property->getPropertyAttribute() != DataModel::SURFACE_2D_PROPERTY)
             {
                continue;
             }
-            
-            if (not m_projectProperties or (m_projectProperties and allowOutput(property->getCauldronName(), formation, surface))) 
+
+            if (not m_projectProperties or (m_projectProperties and allowOutput(property->getName(), formation, surface)))
             {
                resetProjectActivityGrid (property);
                OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty (* m_propertyManager, property, snapshot, * formationIter, m_basement);
                resetProjectActivityGrid ();
 
-               if (outputProperty != 0) 
+               if (outputProperty != 0)
                {
-                  if (m_debug && m_rank == 0) 
+                  if (m_debug && m_rank == 0)
                   {
                      LogHandler(LogHandler::INFO_SEVERITY) << "Snapshot: " << snapshot->getTime() <<
                         " allocate " << property->getName() << " " << (formation != 0 ? formation->getName() : "") << " " <<
                         (surface != 0 ? surface->getName() : "");
                   }
                   allOutputPropertyValues [ snapshot ][ * formationIter ][ property ] = outputProperty;
-               } 
-               else 
+               }
+               else
                {
-                  if (m_debug && m_rank == 0) 
+                  if (m_debug && m_rank == 0)
                   {
                      LogHandler(LogHandler::INFO_SEVERITY) << "Could not calculate derived property " << property->getName()
                                                              << " @ snapshot " << snapshot->getTime() << "Ma for formation " <<
@@ -120,27 +120,27 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
                }
             }
          }
-         
+
          DerivedProperties::outputSnapshotFormationData(m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues);
       }
-      
+
       removeProperties(snapshot, allOutputPropertyValues);
       m_propertyManager->removeProperties(snapshot);
-      
+
       displayProgress(snapshot->getFileName (), m_startTime, "Start saving ");
-      
+
       m_projectHandle->continueActivity();
-      
+
       displayProgress(snapshot->getFileName (), m_startTime, "Saving is finished for ");
-      
+
       m_projectHandle->deletePropertiesValuesMaps (snapshot);
-      
+
       StatisticsHandler::update ();
    }
-   
+
    PetscLogDouble End_Time;
    PetscTime(&End_Time);
-   
+
    displayTime(End_Time - m_startTime, "Total derived properties saving: ");
 }
 
@@ -148,40 +148,40 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
 
 PropertyOutputOption HdfPropertiesCalculator::checkTimeFilter3D (const string & name) const {
 
-   if (name == "AllochthonousLithology" or  name == "Lithology" or name == "BrineDensity" or name == "BrineViscosity") 
+   if (name == "AllochthonousLithology" or  name == "Lithology" or name == "BrineDensity" or name == "BrineViscosity")
    {
       return Interface::SEDIMENTS_ONLY_OUTPUT;
    }
-   if (name == "FracturePressure") 
+   if (name == "FracturePressure")
    {
-      if (m_projectHandle->getRunParameters ()->getFractureType () == "None") 
+      if (m_projectHandle->getRunParameters ()->getFractureType () == "None")
       {
          return Interface::NO_OUTPUT;
       }
    }
-   if (name == "FaultElements") 
+   if (name == "FaultElements")
    {
-      if (m_projectHandle->getBasinHasActiveFaults ()) 
+      if (m_projectHandle->getBasinHasActiveFaults ())
       {
          return Interface::SEDIMENTS_ONLY_OUTPUT;
-      } 
-      else 
+      }
+      else
       {
          return Interface::NO_OUTPUT;
       }
    }
-   if (name == "HorizontalPermeability") 
+   if (name == "HorizontalPermeability")
    {
       const Interface::OutputProperty* permeability = m_projectHandle->findTimeOutputProperty ("PermeabilityVec");
       const Interface::PropertyOutputOption permeabilityOption = (permeability == 0 ? Interface::NO_OUTPUT : permeability->getOption ());
       const Interface::OutputProperty* hpermeability = m_projectHandle->findTimeOutputProperty ("HorizontalPermeability");
       const Interface::PropertyOutputOption hpermeabilityOption = (hpermeability == 0 ? Interface::NO_OUTPUT : hpermeability->getOption ());
-      
-      if (hpermeabilityOption  == Interface::NO_OUTPUT and permeability != 0) 
+
+      if (hpermeabilityOption  == Interface::NO_OUTPUT and permeability != 0)
       {
          return permeabilityOption;
       }
-      if (permeability == 0) 
+      if (permeability == 0)
       {
          return hpermeabilityOption;
       }
@@ -189,22 +189,22 @@ PropertyOutputOption HdfPropertiesCalculator::checkTimeFilter3D (const string & 
 
    const Interface::OutputProperty * property = m_projectHandle->findTimeOutputProperty(name);
 
-   if (property != 0) 
+   if (property != 0)
    {
       if (m_simulationMode == "HydrostaticDecompaction" and name == "LithoStaticPressure" and
-          property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT) 
+          property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT)
       {
          return Interface::SEDIMENTS_ONLY_OUTPUT;
       }
       if (name == "HydroStaticPressure" and
-          property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT) 
+          property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT)
       {
          return Interface::SEDIMENTS_ONLY_OUTPUT;
       }
-      
+
       return property->getOption ();
    }
-   
+
    return Interface::NO_OUTPUT;
 }
 
@@ -215,16 +215,16 @@ bool HdfPropertiesCalculator::allowOutput (const string & propertyName3D,
 
 
    string propertyName = propertyName3D;
-   
-   if (propertyName.find("HeatFlow") != string::npos) 
+
+   if (propertyName.find("HeatFlow") != string::npos)
    {
       propertyName = "HeatFlow";
-   } 
-   else if (propertyName.find("FluidVelocity") != string::npos) 
+   }
+   else if (propertyName.find("FluidVelocity") != string::npos)
    {
       propertyName = "FluidVelocity";
-   } 
-   else 
+   }
+   else
    {
       size_t len = 4;
       size_t pos = propertyName.find("Vec2");
@@ -236,11 +236,11 @@ bool HdfPropertiesCalculator::allowOutput (const string & propertyName3D,
 
    }
 
-   if ((propertyName == "BrineDensity" or  propertyName == "BrineViscosity") and surface != 0) 
+   if ((propertyName == "BrineDensity" or  propertyName == "BrineViscosity") and surface != 0)
    {
       return false;
    }
-   if (m_decompactionMode and (propertyName == "BulkDensity") and surface == 0) 
+   if (m_decompactionMode and (propertyName == "BulkDensity") and surface == 0)
    {
       return false;
    }
@@ -248,11 +248,11 @@ bool HdfPropertiesCalculator::allowOutput (const string & propertyName3D,
    bool basementFormation = formation->kind () == DataAccess::Interface::BASEMENT_FORMATION;
 
    // The top of the crust is a part of the sediment
-   if (basementFormation and surface != 0 and (propertyName == "Depth" or propertyName == "Temperature")) 
+   if (basementFormation and surface != 0 and (propertyName == "Depth" or propertyName == "Temperature"))
    {
-      if (dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(formation)->isCrust()) 
+      if (dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(formation)->isCrust())
       {
-         if (formation->getTopSurface() and (formation->getTopSurface() == surface)) 
+         if (formation->getTopSurface() and (formation->getTopSurface() == surface))
          {
             return true;
          }
@@ -260,13 +260,13 @@ bool HdfPropertiesCalculator::allowOutput (const string & propertyName3D,
    }
    PropertyOutputOption outputOption = checkTimeFilter3D (propertyName);
 
-   if (outputOption == Interface::NO_OUTPUT) 
+   if (outputOption == Interface::NO_OUTPUT)
    {
       return false;
    }
-   if (basementFormation) 
+   if (basementFormation)
    {
-      if (outputOption < Interface::SEDIMENTS_AND_BASEMENT_OUTPUT) 
+      if (outputOption < Interface::SEDIMENTS_AND_BASEMENT_OUTPUT)
       {
          return false;
       }
@@ -279,7 +279,7 @@ bool HdfPropertiesCalculator::allowOutput (const string & propertyName3D,
 //------------------------------------------------------------//
 bool HdfPropertiesCalculator::copyFiles() {
 
-   if (not H5_Parallel_PropertyList::isPrimaryPodEnabled () or (H5_Parallel_PropertyList::isPrimaryPodEnabled () and not m_copy)) 
+   if (not H5_Parallel_PropertyList::isPrimaryPodEnabled () or (H5_Parallel_PropertyList::isPrimaryPodEnabled () and not m_copy))
    {
       return true;
    }
@@ -303,11 +303,11 @@ bool HdfPropertiesCalculator::copyFiles() {
    SnapshotList * snapshots = m_projectHandle->getSnapshots(MAJOR | MINOR);
    SnapshotList::iterator snapshotIter;
 
-   for (snapshotIter = snapshots->begin(); snapshotIter != snapshots->end(); ++snapshotIter) 
+   for (snapshotIter = snapshots->begin(); snapshotIter != snapshots->end(); ++snapshotIter)
    {
       const Interface::Snapshot * snapshot = *snapshotIter;
 
-      if (snapshot->getFileName () == "") 
+      if (snapshot->getFileName () == "")
       {
          continue;
       }
@@ -319,7 +319,7 @@ bool HdfPropertiesCalculator::copyFiles() {
       status = H5_Parallel_PropertyList::copyMergedFile(filePathName.path(), false);
 
       // delete the file in the shared scratch
-      if (status and not noFileRemove) 
+      if (status and not noFileRemove)
       {
          ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName());
          fileName << filePathName.cpath ();
@@ -340,14 +340,14 @@ bool HdfPropertiesCalculator::copyFiles() {
    status = H5_Parallel_PropertyList::copyMergedFile(filePathName.path(), false);
 
    // remove the file from the shared scratch
-   if (status and  not noFileRemove) 
+   if (status and  not noFileRemove)
    {
 
     ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName());
       fileName << filePathName.cpath ();
       int status = std::remove(fileName.cpath());
 
-      if (status == -1) 
+      if (status == -1)
       {
          cerr << fileName.cpath () << " Basin_Warning:  Unable to remove file, because '"
               << std::strerror(errno) << "'" << endl;
@@ -365,11 +365,11 @@ bool HdfPropertiesCalculator::copyFiles() {
               << std::strerror(errno) << "'" << endl;
    }
 
-   if (status) 
+   if (status)
    {
       displayTime(StartMergingTime, "Total merging time: ");
    }
-   else 
+   else
    {
       PetscPrintf (PETSC_COMM_WORLD, "  Basin_Error: Could not merge the file %s.\n", filePathName.cpath());
    }
@@ -383,7 +383,7 @@ bool HdfPropertiesCalculator::copyFiles() {
 bool HdfPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
 
    bool status = AbstractPropertiesCalculator::parseCommandLine (argc, argv);
-   if (status) 
+   if (status)
    {
       PetscBool parameterDefined = PETSC_FALSE;
 
@@ -402,7 +402,7 @@ bool HdfPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
 //------------------------------------------------------------//
 bool HdfPropertiesCalculator::checkParameters() {
 
-   if (m_projectProperties) 
+   if (m_projectProperties)
    {
       m_all3Dproperties = true;
       m_all2Dproperties = true;

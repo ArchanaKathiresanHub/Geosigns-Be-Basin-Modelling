@@ -1,14 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
 #include "Porosity.h"
 
+#include <cassert>
 #include <cmath>
 
 #include "ExponentialPorosity.h"
@@ -64,7 +65,7 @@ namespace GeoPhysics
       default:
          assert(false);
       }
-     
+
       return Porosity(0);
    }
 
@@ -78,7 +79,7 @@ namespace GeoPhysics
    Porosity::Porosity( const Porosity& porosity )
       :m_algorithm( porosity.m_algorithm )
    {}
-   
+
    Porosity::Algorithm::Algorithm(double depoPorosity, double minimumMechanicalPorosity):
       m_depoPorosity((depoPorosity < MinimumPorosityNonLegacy) ? 0.0 : depoPorosity),
       m_minimumMechanicalPorosity(NumericFunctions::Minimum(
@@ -117,7 +118,7 @@ namespace GeoPhysics
             porosityBottom = calculate( vesBottom, vesBottom, includeChemicalCompaction, 0.0 );
             computedRealThickness = 0.5 * computedSolidThickness * (1.0 / (1.0 - porosityTop) + 1.0 / (1.0 - porosityBottom));
             computedSolidThickness = computedSolidThickness * (thickness / computedRealThickness);
-         } while ( std::abs ( thickness - computedRealThickness ) >= thickness * Porosity::SolidThicknessIterationTolerance && iteration++ <= 10);
+         } while ( std::fabs ( thickness - computedRealThickness ) >= thickness * Porosity::SolidThicknessIterationTolerance && iteration++ <= 10);
 
          solidThickness = computedSolidThickness;
       }

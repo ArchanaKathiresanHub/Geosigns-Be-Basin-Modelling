@@ -6,7 +6,7 @@
 
 #include "configurationfile.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace hpc
 {
@@ -55,10 +55,10 @@ private:
    static std::string randomAllBenchmarkId() ;
 
    std::string m_clusterName;
-   boost::shared_ptr<Path> m_directory;
+   std::shared_ptr<Path> m_directory;
    std::string m_lsfProject;
    std::string m_allBenchmarkId;
-   boost::shared_ptr<Path> m_jobDir;
+   std::shared_ptr<Path> m_jobDir;
    int m_estimatedJobDuration;
 };
 

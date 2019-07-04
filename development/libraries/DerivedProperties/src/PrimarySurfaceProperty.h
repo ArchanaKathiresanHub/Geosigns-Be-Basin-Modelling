@@ -11,7 +11,6 @@
 #ifndef DERIVED_PROPERTIES__PRIMARY_SURFACE_PROPERTY_H
 #define DERIVED_PROPERTIES__PRIMARY_SURFACE_PROPERTY_H
 
-#include <boost/shared_ptr.hpp>
 #include <boost/multi_array.hpp>
 
 #include "AbstractProperty.h"
@@ -24,6 +23,8 @@
 #include "PropertyValue.h"
 
 #include "SurfaceProperty.h"
+
+#include <memory>
 
 namespace DerivedProperties {
 
@@ -57,11 +58,11 @@ namespace DerivedProperties {
 
        /// \brief Get the average value of the map.
       double getAverageValue () const;
-     
+
 
       /// \ brief Get the gridMap
       const DataAccess::Interface::GridMap* getGridMap() const;
- 
+
       /// \brief Return true.
       bool isPrimary () const;
   private :
@@ -71,7 +72,7 @@ namespace DerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<PrimarySurfaceProperty> PrimarySurfacePropertyPtr;
+   typedef std::shared_ptr<PrimarySurfaceProperty> PrimarySurfacePropertyPtr;
 
 }
 

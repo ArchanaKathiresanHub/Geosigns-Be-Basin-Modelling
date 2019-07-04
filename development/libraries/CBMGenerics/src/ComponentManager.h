@@ -26,9 +26,9 @@ namespace CBMGenerics
       enum SpeciesNamesId
       {
          UNKNOWN         = -1,
-         
+
          FIRST_COMPONENT = 0,
-         
+
          ASPHALTENE      = 0,
          RESIN           = 1,
          C15_PLUS_ARO    = 2,
@@ -45,7 +45,7 @@ namespace CBMGenerics
          H2S             = 13,
          LSC             = 14,
 
-         NUMBER_OF_SPECIES_TO_FLASH = 14, 
+         NUMBER_OF_SPECIES_TO_FLASH = 14,
 
          C15_PLUS_AT       = 15,
          C6_MINUS_14BT     = 16,
@@ -55,7 +55,7 @@ namespace CBMGenerics
          C15_PLUS_SAT_S    = 20,
          C6_MINUS_14SAT_S  = 21,
          C6_MINUS_14ARO_S  = 22,
-         
+
          LAST_COMPONENT    = 22,
 
          NUMBER_OF_SPECIES = 23
@@ -70,9 +70,9 @@ namespace CBMGenerics
       };
 
       /// \return The array containing all the species output name
-      const char ** getSpeciesNameList()      const { return s_SpeciesNames;      };
+      const char ** getSpeciesNameList()      const { return s_SpeciesNames;      }
       /// \return The array containing all the species input name
-      const char ** getSpeciesNameInputList() const { return s_SpeciesNamesInput; };
+      const char ** getSpeciesNameInputList() const { return s_SpeciesNamesInput; }
 
       /// \return The output name of the hydrocarbone specie as a string
       const std::string getSpeciesName( int speciesIndex ) const;
@@ -88,7 +88,7 @@ namespace CBMGenerics
       /// It may or may not have an extension SR.
       /// The SR extension indicates that the name represents a species that
       /// has been expelled from the kerogen into the source-rock pore-space.
-      /// Without this extension the name represents a species that has been 
+      /// Without this extension the name represents a species that has been
       /// expelled into the carrier-bed.
       std::string getSpeciesOutputPropertyName( const int speciesIndex, const bool addSRExtension = false ) const;
 
@@ -105,7 +105,7 @@ namespace CBMGenerics
 
       int getSpeciesIdByName( const std::string& name ) const;
       int getPhaseIdByName  ( const std::string& name ) const;
-      
+
       inline bool isSulphurComponent    ( const int id ) const;
       inline bool isSbearingHCsComponent( const int id ) const;
 
@@ -137,17 +137,17 @@ namespace CBMGenerics
       return id == C1 or id == C2 or id == C3 or id == C4 or id == C5;
    }
 
-   inline bool ComponentManager::isOil( const SpeciesNamesId id ) const 
+   inline bool ComponentManager::isOil( const SpeciesNamesId id ) const
    {
       return not isGas ( id ) and id != UNKNOWN and id != NUMBER_OF_SPECIES;
    }
 
-   inline bool ComponentManager::isSulphurComponent( const int id ) const 
+   inline bool ComponentManager::isSulphurComponent( const int id ) const
    {
       return id >= H2S and id < NUMBER_OF_SPECIES;
    }
 
-   inline bool ComponentManager::isSbearingHCsComponent( const int id ) const 
+   inline bool ComponentManager::isSbearingHCsComponent( const int id ) const
    {
       return id != C6_MINUS_14BP and id > H2S and id < NUMBER_OF_SPECIES;
    }

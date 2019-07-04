@@ -1,12 +1,14 @@
 #include "cmdlineparameter.h"
 #include "parser.h"
 
+#include <algorithm>
+#include <cassert>
 
 namespace hpc
 {
 
 
-boost::shared_ptr< CmdLineParameter >
+std::shared_ptr< CmdLineParameter >
 CmdLineParameter
    :: parse( const std::string & text )
 {
@@ -31,11 +33,11 @@ CmdLineParameter
       if (comma != "}")
          throw ParseException() << "Expected a '}' at end of choice command line parameter";
 
-      return boost::shared_ptr<CmdLineParameter>( new ChoiceCmdLineParameter(names, options));
+      return std::shared_ptr<CmdLineParameter>( new ChoiceCmdLineParameter(names, options));
    }
    else
    {  // parse a ParameterizedCmdLineParameter
-      return boost::shared_ptr<CmdLineParameter>( new ParameterizedCmdLineParameter(firstToken));
+      return std::shared_ptr<CmdLineParameter>( new ParameterizedCmdLineParameter(firstToken));
    }
 }
 
@@ -61,16 +63,16 @@ ParameterizedCmdLineParameter
             {
                switch(m_option[i])
                {
-                  case '{': 
-                     state = PLACEHOLDER; 
+                  case '{':
+                     state = PLACEHOLDER;
                      break;
 
-                  case '\\': 
-                     state = QUOTE; 
+                  case '\\':
+                     state = QUOTE;
                      break;
 
-                  default: 
-                     result << m_option[i]; 
+                  default:
+                     result << m_option[i];
                      break;
                }
                break;
@@ -85,7 +87,7 @@ ParameterizedCmdLineParameter
             {
                switch(m_option[i])
                {
-                  case '}': 
+                  case '}':
                      {
                         // parse placeholder number
                         std::istringstream number(placeholder.str());
@@ -102,7 +104,7 @@ ParameterizedCmdLineParameter
                         placeholder.str("");
 
                         // reset state to OTHER
-                        state = OTHER; 
+                        state = OTHER;
                         break;
                      }
 
@@ -125,7 +127,7 @@ ParameterizedCmdLineParameter
       throw ParseException() << "Unexpected end of string inside placholder specification";
 
    return std::vector<Option>(1, result.str());
-}   
+}
 
 ChoiceCmdLineParameter
    :: ChoiceCmdLineParameter( const std::vector< Name > & names, const std::vector< Option > & options)

@@ -22,7 +22,7 @@
 #include "ProjectHandle.h"
 #include "RunParameters.h"
 
-//#include<algorithm>
+#include <algorithm>
 
 using namespace mbapi;
 
@@ -49,7 +49,7 @@ void Prograde::BrineUpgradeManager::upgrade() {
    for (auto flId : fluids) {
 
       std::string fluidName;
-      
+
       m_model.fluidManager().getFluidName(flId, fluidName);
 
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "FluidType encountered in the FluidTypeIoTbl is: " << fluidName;
@@ -105,7 +105,7 @@ void Prograde::BrineUpgradeManager::upgrade() {
    for (auto flId : fluids) {
 
       std::string fluidName;
-      originalRowPosition++; // Original location of row entry to be checked 
+      originalRowPosition++; // Original location of row entry to be checked
       nextFluidTypeIOTbl_Index++;
 
       m_model.fluidManager().getFluidName(nextFluidTypeIOTbl_Index, fluidName);
@@ -154,6 +154,7 @@ void Prograde::BrineUpgradeManager::upgrade() {
    this->ResetFltHeatCapIoTbl();
 
 }
+
 std::vector<std::string> Prograde::BrineUpgradeManager::StratIoTblReferredFluids()
 {
    auto layerId = m_model.fluidManager().getLayerID();
@@ -164,7 +165,7 @@ std::vector<std::string> Prograde::BrineUpgradeManager::StratIoTblReferredFluids
       m_model.fluidManager().getBrineType(tsId, FluidName);
       fluids.push_back(FluidName);
    }
-   //Removing the fluid types from the vector fluids which are repeated  
+   //Removing the fluid types from the vector fluids which are repeated
    auto end = fluids.end();
    for (auto i = fluids.begin(); i != end; i++)
    {
@@ -174,17 +175,18 @@ std::vector<std::string> Prograde::BrineUpgradeManager::StratIoTblReferredFluids
 
    return fluids;
 }
+
 std::vector<std::string> Prograde::BrineUpgradeManager::ThermCondtypeReferred()
 {
    auto fluidsId = m_model.fluidManager().getFluidsID();
    std::string ThCondType;
-   std::vector<std::string> thCondType;//vector to store thermConductivity types specified for each id of FluidtypeIoTbl 
+   std::vector<std::string> thCondType;//vector to store thermConductivity types specified for each id of FluidtypeIoTbl
    for (auto tsId : fluidsId)
    {
       m_model.fluidManager().getThermCondType(tsId, ThCondType);
       thCondType.push_back(ThCondType);
    }
-   //Removing the thermConductivity types from the vector thCondType which are repeated  
+   //Removing the thermConductivity types from the vector thCondType which are repeated
    auto end = thCondType.end();
    for (auto i = thCondType.begin(); i != end; i++)
    {
@@ -240,6 +242,7 @@ void Prograde::BrineUpgradeManager::ResetFltThCondIoTbl()
    }
 
 }
+
 void Prograde::BrineUpgradeManager::ResetFltHeatCapIoTbl()
 {
    auto HeatCapId = m_model.fluidManager().getFluidHeatCapID();

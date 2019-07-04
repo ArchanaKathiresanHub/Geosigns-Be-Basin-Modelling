@@ -14,8 +14,6 @@
 #include <vector>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include "AbstractSnapshot.h"
 #include "AbstractFormation.h"
 #include "AbstractPropertyManager.h"
@@ -34,7 +32,7 @@ namespace DerivedProperties {
       AllochthonousLithologyFormationMapCalculator ();
 
       /// \brief Calculate the allochthonous lithology derived property.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the allochthonous lithology property is requested.
       /// \param [in]  formation   The formation for which the allochthonous lithology property is requested.

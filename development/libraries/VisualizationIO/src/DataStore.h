@@ -11,7 +11,6 @@
 #ifndef __DataStore_h__
 #define __DataStore_h__
 
-#include <boost/shared_ptr.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
@@ -35,7 +34,7 @@ namespace CauldronIO
     struct DataStoreParams
     {
         DataStoreParams() : fileName("") { ; }
-        
+
         boost::filesystem::path fileName;
         size_t offset;       // offset within the file
         size_t size;         // size of data chunk
@@ -49,7 +48,7 @@ namespace CauldronIO
     public:
         /// \brief Prepares the dataload from the given parameters
         DataStoreLoad(DataStoreParams* params);
-        /// \brief Load the data from the datastore: ownership is transferred to caller! 
+        /// \brief Load the data from the datastore: ownership is transferred to caller!
         /// \param [inout] size (input): the expected uncompressed size of the data; output: the actual uncompressed size
         float* getData(size_t& size);
         /// \brief Load the data from disk, but do not decompress yet
@@ -81,11 +80,11 @@ namespace CauldronIO
         /// \brief Creates a new instance of DataToCompress
         /// \param[in] inputData the (void) data to compress
         /// \param[in] numBytes the number of bytes in the input data to compress
-        /// \param[in] compress if true the data will be compressed, otherwise, no compression 
+        /// \param[in] compress if true the data will be compressed, otherwise, no compression
         DataToCompress(const void* inputData, size_t numBytes, bool compress);
         /// \brief Destroys the obect
         ~DataToCompress();
-        /// \brief Sets the offset within the binary output file; to be written to 
+        /// \brief Sets the offset within the binary output file; to be written to
         void setOffset(size_t offset);
         /// \brief Compress this block of data
         void compress();

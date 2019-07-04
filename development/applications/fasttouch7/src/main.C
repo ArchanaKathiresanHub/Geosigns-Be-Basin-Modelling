@@ -10,6 +10,7 @@
 
 #include "hdf5.h"
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "petscvec.h"
 #include "petsc.h"
