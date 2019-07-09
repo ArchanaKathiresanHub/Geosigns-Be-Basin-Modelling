@@ -34,6 +34,8 @@ public:
    static const char * m_reservoirTestProject;
    static const char * m_CtcTestProject;
    static const char * m_FracPressTestProject;
+   static const char * m_TopBoundaryTestProject;
+   
 };
 
 const char * mbapiModelTest::m_sourceRockTestProject = "SourceRockTesting.project3d";
@@ -46,6 +48,7 @@ const char * mbapiModelTest::m_nnTestProject = "NNTesting.project3d";
 const char * mbapiModelTest::m_reservoirTestProject = "ReservoirTesting.project3d";
 const char * mbapiModelTest::m_CtcTestProject = "CtcTesting.project3d";
 const char * mbapiModelTest::m_FracPressTestProject = "FracturePressureTesting.project3d";
+const char * mbapiModelTest::m_TopBoundaryTestProject = "TopBoundaryTesting.project3d";
 
 
 bool mbapiModelTest::compareFiles(const char * projFile1, const char * projFile2)
@@ -1855,4 +1858,84 @@ TEST_F(mbapiModelTest, FracturePressureManager)
    FracPressMan.getFractureConstraintMethod(ConstraintMethod);
    EXPECT_EQ(3, ConstraintMethod);
 
+}
+
+// Test top boundary conditions
+TEST_F(mbapiModelTest, TopBoundaryManager)
+{
+	mbapi::Model testModel;
+
+	// Tests for SurfaceTempIo Table
+	// load project file
+	ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_TopBoundaryTestProject));
+
+	// SurfaceDepth Table tests
+	// check that SurfaceDepthIoTable has only 9 records
+	ASSERT_EQ(testModel.tableSize("SurfaceDepthIoTbl"), 9);
+
+	mbapi::TopBoundaryManager & topBoundaryManager = testModel.topBoundaryManager();
+	// Get age of top surface layer
+	double topBoundaryAgeValue = -1.0;
+	topBoundaryManager.getSurfaceDepthAge(0, topBoundaryAgeValue);
+	ASSERT_EQ(ErrorHandler::NoError, testModel.errorCode());
+	// must be 0
+	ASSERT_NEAR(topBoundaryAgeValue, 0.0, eps);
+
+	double newAgeValue = 4.0;
+	// change it value to 4.0
+	ASSERT_EQ(ErrorHandler::NoError, topBoundaryManager.setSurfaceDepthAge(0, newAgeValue));
+	// and save as a new project
+	ASSERT_EQ(ErrorHandler::NoError, testModel.saveModelToProjectFile("Project_surfDepth_prop.project3d"));
+
+	// reaload project to another model
+	mbapi::Model modifModel;
+	ASSERT_EQ(ErrorHandler::NoError, modifModel.loadModelFromProjectFile("Project_surfDepth_prop.project3d"));
+
+	// get age of top surface layer
+	modifModel.topBoundaryManager().getSurfaceDepthAge(0, topBoundaryAgeValue);
+	ASSERT_EQ(ErrorHandler::NoError, modifModel.errorCode());
+
+	// must be 4.0 (as it was set before)
+	ASSERT_NEAR(topBoundaryAgeValue, 4.0, eps);
+
+	// delete copy of the project
+	remove("Project_surfDepth_prop.project3d");
+
+
+
+	// Tests for SurfaceTempIo Table
+	// load project file
+	ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_TopBoundaryTestProject));
+
+	// SurfaceDepthTempIo Table tests
+	// check that SurfaceDepthTempIoTbl has only 7 records
+	ASSERT_EQ(testModel.tableSize("SurfaceTempIoTbl"), 7);
+
+	mbapi::TopBoundaryManager & topBoundaryManagerTemp = testModel.topBoundaryManager();
+	// Get age of top surface layer
+	topBoundaryManagerTemp.getSurfaceTempAge(0, topBoundaryAgeValue);
+
+	ASSERT_EQ(ErrorHandler::NoError, testModel.errorCode());
+	// must be 0
+	ASSERT_NEAR(topBoundaryAgeValue, 0.0, eps);
+
+	newAgeValue = 4.0;
+		// change it value to 4.0
+	ASSERT_EQ(ErrorHandler::NoError, topBoundaryManagerTemp.setSurfaceTempAge(0, newAgeValue));
+	// and save as a new project
+	ASSERT_EQ(ErrorHandler::NoError, testModel.saveModelToProjectFile("Project_surfTemp_prop.project3d"));
+
+	// reaload project to another model
+	ASSERT_EQ(ErrorHandler::NoError, modifModel.loadModelFromProjectFile("Project_surfTemp_prop.project3d"));
+
+	// get age of top surface layer
+	modifModel.topBoundaryManager().getSurfaceTempAge(0, topBoundaryAgeValue);
+	ASSERT_EQ(ErrorHandler::NoError, modifModel.errorCode());
+
+	
+	// must be 4.0 (as it was set before)
+	ASSERT_NEAR(topBoundaryAgeValue, 4.0, eps);
+
+	// delete copy of the project
+	remove("Project_surfTemp_prop.project3d");
 }

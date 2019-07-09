@@ -25,6 +25,7 @@
 #include "BasicCrustThinningUpgradeManager.h"
 #include "CtcUpgradeManager.h"
 #include "FracturePressureUpgradeManager.h"
+#include "TopBoundaryUpgradeManager.h"
 
 //Prograde
 #include "IUpgradeManager.h"
@@ -53,6 +54,8 @@ void Prograde::UpgradeManagers::runAll() const{
    managers.emplace_back(std::unique_ptr<Prograde::CtcUpgradeManager>(new Prograde::CtcUpgradeManager(m_model)));
    // Fracture pressure 
    managers.emplace_back(std::unique_ptr<Prograde::FracturePressureUpgradeManager>(new Prograde::FracturePressureUpgradeManager(m_model)));
+   // Top Boundary conditions
+   managers.emplace_back(std::unique_ptr<Prograde::TopBoundaryUpgradeManager>(new Prograde::TopBoundaryUpgradeManager(m_model)));
    // Other managers to be added in the same way
 
    ///2. Run all upgrade managers

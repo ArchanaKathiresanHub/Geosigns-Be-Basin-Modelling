@@ -31,7 +31,10 @@
 #include "../../cmbAPI/src/CtcManagerImpl.h"
 #include "../../cmbAPI/src/FracturePressureManager.h"
 #include "../../cmbAPI/src/FracturePressureManagerImpl.h"
+#include "../../cmbAPI/src/TopBoundaryManager.h"
+#include "../../cmbAPI/src/TopBoundaryManagerImpl.h"
 #include "../../cmbAPI/src/cmbAPI.h"
+
 // CASA API
 #include "CauldronApp.h"
 #include "DataDigger.h"
@@ -187,6 +190,8 @@ CSHARP_ARRAYS(char, byte)
 %include "../../cmbAPI/src/CtcManagerImpl.h"
 #include "../../cmbAPI/src/FracturePressureManager.h"
 #include "../../cmbAPI/src/FracturePressureManagerImpl.h"
+%include "../../cmbAPI/src/TopBoundaryManager.h"
+%include "../../cmbAPI/src/TopBoundaryManagerImpl.h"
 %include "../../cmbAPI/src/cmbAPI.h"
 // CASA API
 %include "CauldronApp.h"

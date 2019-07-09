@@ -164,3 +164,14 @@ add_gtest( NAME ${TARGET_NAME}::CtcModelConverter
            LIBRARIES cmbapi
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
+
+#
+# 10. top Boundary model upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::TopBoundaryModelConverter
+           SOURCES test/TopBoundaryConverterTest.cpp src/TopBoundaryUpgradeManager.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
+           LIBRARIES cmbapi DataAccess
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)

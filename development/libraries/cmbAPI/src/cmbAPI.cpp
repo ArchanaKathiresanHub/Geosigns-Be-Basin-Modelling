@@ -23,6 +23,7 @@
 #include "ReservoirManagerImpl.h"
 #include "BiodegradeManagerImpl.h"
 #include "BottomBoundaryManagerImpl.h"
+#include "TopBoundaryManagerImpl.h"
 #include "CtcManagerImpl.h"
 #include "FracturePressureManagerImpl.h"
 
@@ -194,6 +195,7 @@ public:
    ReservoirManager    & reservoirManager()    { return m_reservoirMgr; } // Reservoir manager
    BiodegradeManager   & biodegradeManager()   { return m_BioDegMgr; } // Biodegradation
    BottomBoundaryManager   & bottomBoundaryManager() { return m_BottomBoundaryMgr; } // Bottom Boundary
+   TopBoundaryManager  & topBoundaryManager() { return m_TopBoundaryMgr; } // Top Boundary
    CtcManager          & ctcManager() { return m_CtcMgr; } // CTC
    FracturePressureManager & fracturePressureManager() { return m_FracPressMgr; }
    std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle() { return m_projHandle; } // project file database (set of tables)
@@ -211,6 +213,7 @@ private:
    ReservoirManagerImpl     m_reservoirMgr;
    BiodegradeManagerImpl    m_BioDegMgr;
    BottomBoundaryManagerImpl    m_BottomBoundaryMgr;
+   TopBoundaryManagerImpl	m_TopBoundaryMgr;
    CtcManagerImpl           m_CtcMgr;
    FracturePressureManagerImpl m_FracPressMgr;
 
@@ -463,6 +466,7 @@ MapsManager                                         & Model::mapsManager(       
 ReservoirManager                                    & Model::reservoirManager(   ) { return m_pimpl->reservoirManager(   ); }
 BiodegradeManager                                   & Model::biodegradeManager(  ) { return m_pimpl->biodegradeManager(  ); }
 BottomBoundaryManager                               & Model::bottomBoundaryManager() { return m_pimpl->bottomBoundaryManager(); }
+TopBoundaryManager									& Model::topBoundaryManager()  { return m_pimpl->topBoundaryManager(); }
 CtcManager                                          & Model::ctcManager() { return m_pimpl->ctcManager(); }
 FracturePressureManager                             & Model::fracturePressureManager() { return m_pimpl->fracturePressureManager(); }
 std::shared_ptr<DataAccess::Interface::ProjectHandle> Model::projectHandle(      ) { return m_pimpl->projectHandle(      ); }
@@ -1311,6 +1315,7 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
    m_reservoirMgr.setDatabase( m_projHandle->getProjectFileHandler() );             // set database in reservoir manager
    m_BioDegMgr.setDatabase(m_projHandle->getProjectFileHandler());                  // set database in biodegradation manager
    m_BottomBoundaryMgr.setDatabase(m_projHandle->getProjectFileHandler());          // set database in bottom boundary manager
+   m_TopBoundaryMgr.setDatabase(m_projHandle->getProjectFileHandler());				// set database in top boundary manager
    m_CtcMgr.setDatabase(m_projHandle->getProjectFileHandler());                  // set database in ctc manager
    m_FracPressMgr.setDatabase(m_projHandle->getProjectFileHandler());                  // set database in fracture pressure manager
    m_mapMgr.setProject(    m_projHandle.get(),          m_projFileName ); // set project handle in maps manager

@@ -29,6 +29,7 @@
 #include "BottomBoundaryManager.h"
 #include "CtcManager.h"
 #include "FracturePressureManager.h"
+#include "TopBoundaryManager.h"
 
 // TableIO
 #include "datatype.h"
@@ -291,6 +292,10 @@ namespace mbapi {
 	  /// @brief Get Bottom Boundary manager. It provides access to the BasementIoTbl in project file 
 	  /// @return reference to the Bottom Boundary manager. It created/deleted by the model itself.
 	  BottomBoundaryManager & bottomBoundaryManager();
+
+	  /// @brief Get Top Boundary manager. It provides access to the SurfaceDepthIoTbl and SurfaceTempIoTbl in project file 
+	  /// @return reference to the Top Boundary manager. It created/deleted by the model itself.
+	  TopBoundaryManager & topBoundaryManager();
 
      /// @brief Get CTC manager. It provides access to the CTCIoTbl in project file 
      /// @return reference to the CTC manager. It created/deleted by the model itself.
