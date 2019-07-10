@@ -21,6 +21,7 @@
 #include "ProjectHandle.h"
 #include "RunParameters.h"
 
+#include <algorithm>
 
 using namespace mbapi;
 
@@ -121,9 +122,9 @@ bool Prograde::TopBoundaryUpgradeManager::clipAndBufferSurfaceAges(std::vector<d
 		if (surfaceAgeList[i] > 999.0) maxAgeOverflowCount++;
 	}
 
-	if (bufferedAges.size() <= 0 || maxAgeOverflowCount <= 0) 
+	if (bufferedAges.size() <= 0 || maxAgeOverflowCount <= 0)
 		return false;
-	
+
 	double bufferInterval = (maxAgeLimit - bufferStartAge) / bufferedAges.size();
 
 	// here the pairs are sorted according to the age
