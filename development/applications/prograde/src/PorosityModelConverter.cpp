@@ -16,6 +16,7 @@
 #include "LithologyManager.h"
 
 #include <cmath>
+#include <algorithm>
 
 using namespace mbapi;
 

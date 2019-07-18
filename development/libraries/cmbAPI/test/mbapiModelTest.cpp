@@ -1860,6 +1860,78 @@ TEST_F(mbapiModelTest, FracturePressureManager)
 
 }
 
+
+TEST_F(mbapiModelTest, ProjectDataManager)
+{
+   mbapi::Model testModel;
+
+   double origin_x, origin_y, delta_x, delta_y;
+   int nodes_x, nodes_y;
+   std::string modellingMode, description;
+
+   // load test project
+   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_CtcTestProject));
+
+   mbapi::ProjectDataManager& ProjectMan = testModel.projectDataManager();
+
+   //check whether x-coordinates of origin of ProjectIoTbl can be read and modified correctly
+   ProjectMan.getOriginXCoord(origin_x);
+   EXPECT_EQ(416500, origin_x);
+   ProjectMan.setOriginXCoord(3215.014);
+   ProjectMan.getOriginXCoord(origin_x);
+   EXPECT_EQ(3215.014, origin_x);
+
+   //check whether y-coordinates of origin of ProjectIoTbl can be read and modified correctly
+   ProjectMan.getOriginYCoord(origin_y);
+   EXPECT_EQ(6697000, origin_y);
+   ProjectMan.setOriginYCoord(71547850.654);
+   ProjectMan.getOriginYCoord(origin_y);
+   EXPECT_EQ(71547850.654, origin_y);
+
+   //check whether number of nodes in x-direction of ProjectIoTbl can be read and modified correctly
+   ProjectMan.getNumberOfNodesX(nodes_x);
+   EXPECT_EQ(185, nodes_x);
+   ProjectMan.setNumberOfNodesX(315);
+   ProjectMan.getNumberOfNodesX(nodes_x);
+   EXPECT_EQ(315, nodes_x);
+
+   //check whether number of nodes in y-direction of ProjectIoTbl can be read and modified correctly
+   ProjectMan.getNumberOfNodesY(nodes_y);
+   EXPECT_EQ(125, nodes_y);
+   ProjectMan.setNumberOfNodesY(416);
+   ProjectMan.getNumberOfNodesY(nodes_y);
+   EXPECT_EQ(416, nodes_y);
+
+   //check whether grid specing in x-direction of ProjectIoTbl can be read and modified correctly
+   ProjectMan.getDeltaX(delta_x);
+   EXPECT_EQ(500, delta_x);
+   ProjectMan.setDeltaX(525.0);
+   ProjectMan.getDeltaX(delta_x);
+   EXPECT_EQ(525.0, delta_x);
+
+   //check whether grid specing in y-direction of ProjectIoTbl can be read and modified correctly
+   ProjectMan.getDeltaY(delta_y);
+   EXPECT_EQ(500, delta_y);
+   ProjectMan.setDeltaY(111.0);
+   ProjectMan.getDeltaY(delta_y);
+   EXPECT_EQ(111.0, delta_y);
+
+   //check whether modelling mode of ProjectIoTbl can be read and modified correctly
+   ProjectMan.getModellingMode(modellingMode);
+   EXPECT_EQ("3d", modellingMode);
+   ProjectMan.setModellingMode("both");
+   ProjectMan.getModellingMode(modellingMode);
+   EXPECT_EQ("both", modellingMode);
+
+   //check whether project description of ProjectIoTbl can be read and modified correctly
+   ProjectMan.getProjectDescription(description);
+   EXPECT_EQ("", description);
+   ProjectMan.setProjectDescription("Legacy scenario");
+   ProjectMan.getProjectDescription(description);
+   EXPECT_EQ("Legacy scenario", description);
+
+}
+
 // Test top boundary conditions
 TEST_F(mbapiModelTest, TopBoundaryManager)
 {
@@ -1939,3 +2011,4 @@ TEST_F(mbapiModelTest, TopBoundaryManager)
 	// delete copy of the project
 	remove("Project_surfTemp_prop.project3d");
 }
+

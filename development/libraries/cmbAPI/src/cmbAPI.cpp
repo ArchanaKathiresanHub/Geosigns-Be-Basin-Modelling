@@ -26,6 +26,7 @@
 #include "TopBoundaryManagerImpl.h"
 #include "CtcManagerImpl.h"
 #include "FracturePressureManagerImpl.h"
+#include "ProjectDataManagerImpl.h"
 
 // DataAccess library
 #include "ProjectHandle.h"
@@ -198,6 +199,7 @@ public:
    TopBoundaryManager  & topBoundaryManager() { return m_TopBoundaryMgr; } // Top Boundary
    CtcManager          & ctcManager() { return m_CtcMgr; } // CTC
    FracturePressureManager & fracturePressureManager() { return m_FracPressMgr; }
+   ProjectDataManager& projectDataManager() { return m_projectDataMgr; }
    std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle() { return m_projHandle; } // project file database (set of tables)
 
 private:
@@ -216,6 +218,7 @@ private:
    TopBoundaryManagerImpl	m_TopBoundaryMgr;
    CtcManagerImpl           m_CtcMgr;
    FracturePressureManagerImpl m_FracPressMgr;
+   ProjectDataManagerImpl m_projectDataMgr;
 
    std::shared_ptr<DataAccess::Interface::ProjectHandle> m_projHandle;   // project file database (set of tables)
    std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
@@ -469,6 +472,7 @@ BottomBoundaryManager                               & Model::bottomBoundaryManag
 TopBoundaryManager									& Model::topBoundaryManager()  { return m_pimpl->topBoundaryManager(); }
 CtcManager                                          & Model::ctcManager() { return m_pimpl->ctcManager(); }
 FracturePressureManager                             & Model::fracturePressureManager() { return m_pimpl->fracturePressureManager(); }
+ProjectDataManager                                  & Model::projectDataManager() { return m_pimpl->projectDataManager(); }
 std::shared_ptr<DataAccess::Interface::ProjectHandle> Model::projectHandle(      ) { return m_pimpl->projectHandle(      ); }
 
 
@@ -1317,7 +1321,8 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
    m_BottomBoundaryMgr.setDatabase(m_projHandle->getProjectFileHandler());          // set database in bottom boundary manager
    m_TopBoundaryMgr.setDatabase(m_projHandle->getProjectFileHandler());				// set database in top boundary manager
    m_CtcMgr.setDatabase(m_projHandle->getProjectFileHandler());                  // set database in ctc manager
-   m_FracPressMgr.setDatabase(m_projHandle->getProjectFileHandler());                  // set database in fracture pressure manager
+   m_FracPressMgr.setDatabase(m_projHandle->getProjectFileHandler());               // set database in fracture pressure manager
+   m_projectDataMgr.setDatabase(m_projHandle->getProjectFileHandler());             // set database in project data manager
    m_mapMgr.setProject(    m_projHandle.get(),          m_projFileName ); // set project handle in maps manager
 }
 

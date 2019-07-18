@@ -133,12 +133,12 @@ std::string Prograde::BrineModelConverter::upgradeHeatCapType
    if(fluidDescription == "KSEPL's Standard Ultra Marine Water")
    {
       upgradedHeatCapType = "Std. Hyper Saline Water";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType: Legacy moddel is found for this brine. It is upgraded from "<< originalHeatCapType<< " to " << upgradedHeatCapType;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType: Legacy model is found for this brine. It is upgraded from "<< originalHeatCapType<< " to " << upgradedHeatCapType;
    }
    else if (fluidDescription == "KSEPL's Standard Sea Water")
    {
       upgradedHeatCapType = "Std. Sea Water";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType: Legacy moddel is found for this brine. It is upgraded from " << originalHeatCapType << " to " << upgradedHeatCapType;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType: Legacy model is found for this brine. It is upgraded from " << originalHeatCapType << " to " << upgradedHeatCapType;
    }
    else
    {
@@ -156,12 +156,12 @@ std::string Prograde::BrineModelConverter::upgradeThermCondType
    if (fluidDescription == "KSEPL's Standard Ultra Marine Water")
    {
       upgradedThermCondType = "Std. Hyper Saline Water";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ThermCondType: Legacy moddel is found for this brine. It is upgraded from  "<< originalThermCondType<<" to " << upgradedThermCondType;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ThermCondType: Legacy model is found for this brine. It is upgraded from  "<< originalThermCondType<<" to " << upgradedThermCondType;
    }
    else if (fluidDescription == "KSEPL's Standard Sea Water")
    {
       upgradedThermCondType = "Std. Sea Water";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ThermCondType: Legacy moddel is not found for this brine. It is upgraded from  " << originalThermCondType << " to " << upgradedThermCondType;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ThermCondType: Legacy model is found for this brine. It is upgraded from  " << originalThermCondType << " to " << upgradedThermCondType;
    }
    else
    {

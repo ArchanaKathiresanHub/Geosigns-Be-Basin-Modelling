@@ -29,6 +29,7 @@
 #include "BottomBoundaryManager.h"
 #include "CtcManager.h"
 #include "FracturePressureManager.h"
+#include "ProjectDataManager.h"
 #include "TopBoundaryManager.h"
 
 // TableIO
@@ -304,6 +305,10 @@ namespace mbapi {
      /// @brief Get Fracture Pressure manager. It provides access to the RunOptionsIoTbl/PressureFuncIoTbl in project file 
      /// @return reference to the Fracture Pressure manager. It created/deleted by the model itself.
      FracturePressureManager & fracturePressureManager();
+
+     /// @brief Get Project Data manager. It provides access to the ProjectIoTbl in project file 
+     /// @return reference to the Project Data manager. It created/deleted by the model itself.
+     ProjectDataManager& projectDataManager();
 
 
       // Request some project porperties

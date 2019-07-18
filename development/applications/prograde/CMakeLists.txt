@@ -165,8 +165,16 @@ add_gtest( NAME ${TARGET_NAME}::CtcModelConverter
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
+# 10. ProjectIoTbl upgrade testing
 #
-# 10. top Boundary model upgrade testing
+add_gtest( NAME ${TARGET_NAME}::ProjectIoModelConverter
+           SOURCES test/ProjectInputConverterTest.cpp src/ProjectIoModelConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
+           LIBRARIES cmbapi
+)
+#
+# 11. top Boundary model upgrade testing
 #
 add_gtest( NAME ${TARGET_NAME}::TopBoundaryModelConverter
            SOURCES test/TopBoundaryConverterTest.cpp src/TopBoundaryUpgradeManager.cpp

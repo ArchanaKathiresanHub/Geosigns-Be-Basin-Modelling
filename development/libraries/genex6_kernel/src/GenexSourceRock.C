@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 // DataAccess library
 #include "ProjectHandle.h"

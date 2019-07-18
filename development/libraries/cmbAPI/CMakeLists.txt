@@ -12,8 +12,6 @@
 
 set( LIB_NAME "cmbapi" )
 
-
-
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
    ${NNLIB_INCLUDE_DIR}
