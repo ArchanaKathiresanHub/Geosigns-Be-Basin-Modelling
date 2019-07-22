@@ -3,7 +3,13 @@
 
 #include <iostream>
 #include <string>
+#ifdef WIN32
+#include <io.h>
+#else
 #include <unistd.h>
+#endif // !WIN32
+
+
 using namespace std;
 
 //utilities library

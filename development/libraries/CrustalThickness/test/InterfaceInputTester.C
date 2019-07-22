@@ -17,6 +17,10 @@
 // std library
 #include <algorithm>
 
+#ifdef WIN32
+#include <functional>
+#endif // WIN32
+
 using Utilities::Numerical::IbsNoDataValue;
 using Utilities::Numerical::UnsignedIntNoDataValue;
 using CrustalThickness::UnitTests::InterfaceInputTester;

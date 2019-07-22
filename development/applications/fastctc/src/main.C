@@ -11,8 +11,11 @@
 // std library
 #include <iostream>
 #include <fstream>
+#ifdef WIN32
+#include <io.h>
+#else
 #include <unistd.h>
-
+#endif // WIN32
 // petsc library
 #include <petsc.h>
 

@@ -90,8 +90,8 @@ DoubleVector HDFReadManager::get2dCoordinatePropertyVector( const DoublePairVect
   const hid_t dataspace = H5Dget_space( datasetId );
   hsize_t dims[2];
   H5Sget_simple_extent_dims( dataspace, dims, NULL );
-  float propertyData[dims[0]][dims[1]];
-  H5Dread( datasetId, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, propertyData );
+  float** propertyData = Array<float>::create2d(dims[0], dims[1]);
+  H5Dread( datasetId, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, &propertyData[0][0] );
   H5Sclose( dataspace );
   H5Dclose( datasetId );
 
@@ -111,6 +111,8 @@ DoubleVector HDFReadManager::get2dCoordinatePropertyVector( const DoublePairVect
     const double tr = propertyData[i1+1][j1+1];
     coordinatePropertyVector.push_back( interpolate2d( ll, lr, tl, tr, di, dj ) );
   }
+  Array<float>::delete2d(propertyData);
+
   return coordinatePropertyVector;
 }
 
@@ -129,8 +131,8 @@ DoubleMatrix HDFReadManager::get3dCoordinatePropertyMatrix( const DoublePairVect
   const hid_t dataspace = H5Dget_space( datasetId );
   hsize_t dims[3];
   H5Sget_simple_extent_dims( dataspace , dims, NULL);
-  float propertyData[dims[0]][dims[1]][dims[2]];
-  H5Dread( datasetId, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, propertyData );
+  float*** propertyData = Array<float>::create3d(dims[0], dims[1], dims[2]);
+  H5Dread( datasetId, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, &propertyData[0][0][0] );
   H5Sclose( dataspace );
   H5Dclose( datasetId );
 
@@ -155,6 +157,8 @@ DoubleMatrix HDFReadManager::get3dCoordinatePropertyMatrix( const DoublePairVect
     }
     coordinatePropertyMatrix.push_back(propertyVec);
   }
+  Array<float>::delete3d(propertyData);
+
   return coordinatePropertyMatrix;
 }
 
