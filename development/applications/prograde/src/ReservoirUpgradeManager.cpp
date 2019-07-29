@@ -56,7 +56,9 @@ void Prograde::ReservoirUpgradeManager::upgrade() {
    int oilToGasCrackingInd;
    int blockingInd;
    double blockingPermeability;
-   // loop over all reservoirs and get correspont fields and appply business logic 
+   // loop over all reservoirs and get correspont fields and appply business logic
+   if(reservoirs.size()!=0)
+   {
    for (size_t resId : reservoirs) {
 // getting TrapCapacity
       m_model.reservoirManager().getResCapacity(resId, trapCapacity);
@@ -146,5 +148,10 @@ void Prograde::ReservoirUpgradeManager::upgrade() {
    m_model.reservoirManager().setResOptionsMinGasColumnHeight(resId, globalMinGasColumnHeight);
    
    m_model.reservoirManager().setResOptionsBlockingPorosity(resId, globalBlockingPorosity);
+   }
+   else
+   {
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Number of reservoirs detected is 0. No update is to be done";
+   }
    
 }
