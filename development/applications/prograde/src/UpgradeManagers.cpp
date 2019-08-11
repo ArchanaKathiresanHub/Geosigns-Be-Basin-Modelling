@@ -27,6 +27,7 @@
 #include "FracturePressureUpgradeManager.h"
 #include "ProjectIoTblUpgradeManager.h"
 #include "TopBoundaryUpgradeManager.h"
+#include "RunOptionsUpgradeManager.h"
 
 //Prograde
 #include "IUpgradeManager.h"
@@ -59,6 +60,8 @@ void Prograde::UpgradeManagers::runAll() const{
    managers.emplace_back(std::unique_ptr<Prograde::ProjectIoTblUpgradeManager>(new Prograde::ProjectIoTblUpgradeManager(m_model)));
    // Top Boundary conditions
    managers.emplace_back(std::unique_ptr<Prograde::TopBoundaryUpgradeManager>(new Prograde::TopBoundaryUpgradeManager(m_model)));
+   // Run Options Io Table
+   managers.emplace_back(std::unique_ptr<Prograde::RunOptionsUpgradeManager>(new Prograde::RunOptionsUpgradeManager(m_model)));
    // Other managers to be added in the same way
 
    ///2. Run all upgrade managers

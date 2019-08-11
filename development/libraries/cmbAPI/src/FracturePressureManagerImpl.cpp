@@ -81,6 +81,7 @@ namespace mbapi
       catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
       return NoError;
    }
+
    // Get list of models defined in the PressureFuncIo table
    // return array with IDs of models defined in the PressureFuncIo table
    std::vector<FracturePressureManager::pressFuncTblID> FracturePressureManagerImpl::getpressFuncTblID() const
