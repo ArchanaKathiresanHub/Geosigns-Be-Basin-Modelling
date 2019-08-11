@@ -183,15 +183,3 @@ add_gtest( NAME ${TARGET_NAME}::TopBoundaryModelConverter
            LIBRARIES cmbapi DataAccess
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
-
-
-#
-# 12. RunOptions upgrade testing
-#
-add_gtest( NAME ${TARGET_NAME}::RunOptionsModelConverter
-           SOURCES test/RunOptionsConverterTest.cpp src/RunOptionsModelConverter.cpp
-           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
-                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src             
-		   LIBRARIES cmbapi
-           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
-)

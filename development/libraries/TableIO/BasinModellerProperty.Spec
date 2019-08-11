@@ -2159,12 +2159,6 @@ START-properties
     Type                : boolean
     Default             : 0
 
-    Identification      : PTCouplingMode
-    Description         : PT coupling mode 
-    Type                : string
-    Unit of measurement :
-    Default             : "ItCoupled"
-
 ### Boundary conditions
 ###  Geological Boundary Io Tbl
 
@@ -4801,7 +4795,6 @@ START-property-tables
     Column         : AllochthonousModelling
     Column         : ApplyOtgcToDarcy
     Column         : DarcyMaxTimeStep
-    Column         : PTCouplingMode
     Header         : Run Options
 
     Identification : SnapshotIoTbl

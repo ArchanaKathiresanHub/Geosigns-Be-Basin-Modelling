@@ -27,7 +27,6 @@
 #include "CtcManagerImpl.h"
 #include "FracturePressureManagerImpl.h"
 #include "ProjectDataManagerImpl.h"
-#include "RunOptionsManagerImpl.h"
 
 // DataAccess library
 #include "ProjectHandle.h"
@@ -198,7 +197,6 @@ public:
    BiodegradeManager   & biodegradeManager()   { return m_BioDegMgr; } // Biodegradation
    BottomBoundaryManager   & bottomBoundaryManager() { return m_BottomBoundaryMgr; } // Bottom Boundary
    TopBoundaryManager  & topBoundaryManager() { return m_TopBoundaryMgr; } // Top Boundary
-   RunOptionsManager   & runOptionsManager() { return m_runOptionsMgr; } // Run Options
    CtcManager          & ctcManager() { return m_CtcMgr; } // CTC
    FracturePressureManager & fracturePressureManager() { return m_FracPressMgr; }
    ProjectDataManager& projectDataManager() { return m_projectDataMgr; }
@@ -218,7 +216,6 @@ private:
    BiodegradeManagerImpl    m_BioDegMgr;
    BottomBoundaryManagerImpl    m_BottomBoundaryMgr;
    TopBoundaryManagerImpl	m_TopBoundaryMgr;
-   RunOptionsManagerImpl	m_runOptionsMgr;
    CtcManagerImpl           m_CtcMgr;
    FracturePressureManagerImpl m_FracPressMgr;
    ProjectDataManagerImpl m_projectDataMgr;
@@ -473,7 +470,6 @@ ReservoirManager                                    & Model::reservoirManager(  
 BiodegradeManager                                   & Model::biodegradeManager(  ) { return m_pimpl->biodegradeManager(  ); }
 BottomBoundaryManager                               & Model::bottomBoundaryManager() { return m_pimpl->bottomBoundaryManager(); }
 TopBoundaryManager									& Model::topBoundaryManager()  { return m_pimpl->topBoundaryManager(); }
-RunOptionsManager									& Model::runOptionsManager() { return m_pimpl->runOptionsManager(); }
 CtcManager                                          & Model::ctcManager() { return m_pimpl->ctcManager(); }
 FracturePressureManager                             & Model::fracturePressureManager() { return m_pimpl->fracturePressureManager(); }
 ProjectDataManager                                  & Model::projectDataManager() { return m_pimpl->projectDataManager(); }
@@ -1324,7 +1320,6 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
    m_BioDegMgr.setDatabase(m_projHandle->getProjectFileHandler());                  // set database in biodegradation manager
    m_BottomBoundaryMgr.setDatabase(m_projHandle->getProjectFileHandler());          // set database in bottom boundary manager
    m_TopBoundaryMgr.setDatabase(m_projHandle->getProjectFileHandler());				// set database in top boundary manager
-   m_runOptionsMgr.setDatabase(m_projHandle->getProjectFileHandler());				// set database in run options manager
    m_CtcMgr.setDatabase(m_projHandle->getProjectFileHandler());                  // set database in ctc manager
    m_FracPressMgr.setDatabase(m_projHandle->getProjectFileHandler());               // set database in fracture pressure manager
    m_projectDataMgr.setDatabase(m_projHandle->getProjectFileHandler());             // set database in project data manager

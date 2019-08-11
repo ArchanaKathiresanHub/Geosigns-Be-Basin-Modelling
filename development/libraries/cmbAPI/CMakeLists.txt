@@ -63,7 +63,6 @@ copy_test_file(NNInt)
 copy_test_file(NNInputLithofractions)
 copy_test_file(NNbt)
 copy_test_file(TopBoundaryTesting.project3d)
-copy_test_file(RunOptionsTesting.project3d)
 configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
 
 
