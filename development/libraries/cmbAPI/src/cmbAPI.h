@@ -31,6 +31,7 @@
 #include "FracturePressureManager.h"
 #include "ProjectDataManager.h"
 #include "TopBoundaryManager.h"
+#include "RunOptionsManager.h"
 
 // TableIO
 #include "datatype.h"
@@ -297,6 +298,10 @@ namespace mbapi {
 	  /// @brief Get Top Boundary manager. It provides access to the SurfaceDepthIoTbl and SurfaceTempIoTbl in project file 
 	  /// @return reference to the Top Boundary manager. It created/deleted by the model itself.
 	  TopBoundaryManager & topBoundaryManager();
+
+	  /// @brief Get Run Options manager. It provides access to the RunOptionsIoTbl and SurfaceTempIoTbl in project file 
+	  /// @return reference to the Top Boundary manager. It created/deleted by the model itself.
+	  RunOptionsManager & runOptionsManager();
 
      /// @brief Get CTC manager. It provides access to the CTCIoTbl in project file 
      /// @return reference to the CTC manager. It created/deleted by the model itself.

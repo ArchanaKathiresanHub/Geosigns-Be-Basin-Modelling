@@ -15,7 +15,8 @@
 #include <io.h>
 #else
 #include <unistd.h>
-#endif // WIN32
+#endif // WIN_32
+
 // petsc library
 #include <petsc.h>
 

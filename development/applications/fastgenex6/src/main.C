@@ -7,8 +7,7 @@
 #include <io.h>
 #else
 #include <unistd.h>
-#endif // !WIN32
-
+#endif // WIN_32
 
 using namespace std;
 
