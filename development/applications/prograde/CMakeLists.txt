@@ -172,6 +172,7 @@ add_gtest( NAME ${TARGET_NAME}::ProjectIoModelConverter
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src
            LIBRARIES cmbapi
+		   FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 #
 # 11. top Boundary model upgrade testing

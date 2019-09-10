@@ -38,6 +38,8 @@
 void Prograde::UpgradeManagers::runAll() const{
    ///1. Create list of upgrade managers
    std::vector<std::shared_ptr<Prograde::IUpgradeManager>> managers;
+   // Project details upgradation 
+   managers.emplace_back(std::unique_ptr<Prograde::ProjectIoTblUpgradeManager>(new Prograde::ProjectIoTblUpgradeManager(m_model)));
    // ALCv1 to ALCv2
    managers.emplace_back(std::unique_ptr<Prograde::AlcUpgradeManager>(new Prograde::AlcUpgradeManager(m_model)));
    // Soil mechanics compaction model to Double exponential compaction model
@@ -57,7 +59,7 @@ void Prograde::UpgradeManagers::runAll() const{
    // Fracture pressure 
    managers.emplace_back(std::unique_ptr<Prograde::FracturePressureUpgradeManager>(new Prograde::FracturePressureUpgradeManager(m_model)));
    // Project details upgradation 
-   managers.emplace_back(std::unique_ptr<Prograde::ProjectIoTblUpgradeManager>(new Prograde::ProjectIoTblUpgradeManager(m_model)));
+   //managers.emplace_back(std::unique_ptr<Prograde::ProjectIoTblUpgradeManager>(new Prograde::ProjectIoTblUpgradeManager(m_model)));
    // Top Boundary conditions
    managers.emplace_back(std::unique_ptr<Prograde::TopBoundaryUpgradeManager>(new Prograde::TopBoundaryUpgradeManager(m_model)));
    // Run Options Io Table

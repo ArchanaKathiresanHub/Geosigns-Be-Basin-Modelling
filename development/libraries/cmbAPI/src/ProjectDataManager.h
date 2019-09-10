@@ -28,19 +28,19 @@ namespace mbapi {
 
       /// @{
       /// @brief Get x-coordinate of the origin of AOI specified in the ProjectIoTbl
-      virtual ReturnCode getOriginXCoord(double & XCoord) = 0;
+      //virtual ReturnCode getOriginXCoord(double & XCoord) = 0;
 
       /// @{
       /// @brief Set x-coordinate of the origin of AOI specified in the ProjectIoTbl
-      virtual ReturnCode setOriginXCoord(const double& XCoord) = 0;
+      //virtual ReturnCode setOriginXCoord(const double& XCoord) = 0;
 
       /// @{
       /// @brief Get y-coordinate of the origin of AOI specified in the ProjectIoTbl
-      virtual ReturnCode getOriginYCoord(double& YCoord) = 0;
+      //virtual ReturnCode getOriginYCoord(double& YCoord) = 0;
 
       /// @{
       /// @brief Set y-coordinate of the origin of AOI in the ProjectIoTbl
-      virtual ReturnCode setOriginYCoord(const double& YCoord) = 0;
+      //virtual ReturnCode setOriginYCoord(const double& YCoord) = 0;
 
       /// @{
       /// @brief Get number of the x-nodes specified in the ProjectIoTbl
@@ -49,6 +49,14 @@ namespace mbapi {
       /// @{
       /// @brief Set number of the x-nodes in the ProjectIoTbl
       virtual ReturnCode setNumberOfNodesX(const int& NodesX) = 0;
+
+	  /// @{
+	  /// @brief Get the count of WindowXMax and WindowsYMax specified in the ProjectIoTbl
+	  virtual ReturnCode getSimulationWindowMax(int& WindowXMax, int& WindowYMax) = 0;
+
+	  /// @{
+	  /// @brief Set the count of WindowXMax and WindowsYMax in the ProjectIoTbl
+	  virtual ReturnCode setSimulationWindowMax(const int& WindowXMax, const int& WindowYMax) = 0;
 
       /// @{
       /// @brief Get number of the y-nodes specified in the ProjectIoTbl

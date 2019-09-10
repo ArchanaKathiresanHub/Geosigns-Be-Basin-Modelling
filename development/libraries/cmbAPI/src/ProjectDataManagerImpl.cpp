@@ -19,14 +19,16 @@
 namespace mbapi
 {
    const char* ProjectDataManagerImpl::s_projectOptionsTableName = "ProjectIoTbl";
-   const char* ProjectDataManagerImpl::s_xcoordFieldName = "XCoord";
-   const char* ProjectDataManagerImpl::s_ycoordFieldName = "YCoord";
+   //const char* ProjectDataManagerImpl::s_xcoordFieldName = "XCoord";
+   //const char* ProjectDataManagerImpl::s_ycoordFieldName = "YCoord";
    const char* ProjectDataManagerImpl::s_xNodesFieldName = "NumberX";
    const char* ProjectDataManagerImpl::s_yNodesFieldName = "NumberY";
    const char* ProjectDataManagerImpl::s_xGridSpecingFieldName = "DeltaX";
    const char* ProjectDataManagerImpl::s_yGridSpecingFieldName = "DeltaY";
    const char* ProjectDataManagerImpl::s_modellingModeFieldName = "ModellingMode"; 
-   const char* ProjectDataManagerImpl::s_projectDescriptionFieldName = "Description"; 
+   const char* ProjectDataManagerImpl::s_projectDescriptionFieldName = "Description";
+   const char* ProjectDataManagerImpl::s_windowXMaxFieldName = "WindowXMax";
+   const char* ProjectDataManagerImpl::s_windowYMaxFieldName = "WindowYMax";
 
    // Constructor
    ProjectDataManagerImpl::ProjectDataManagerImpl()
@@ -50,7 +52,7 @@ namespace mbapi
    }
 
    // Get x-coordinate of AOI origin specified in the ProjectIoTbl
-   ErrorHandler::ReturnCode ProjectDataManagerImpl::getOriginXCoord(double& XCoord)
+   /*ErrorHandler::ReturnCode ProjectDataManagerImpl::getOriginXCoord(double& XCoord)
    {
       if (errorCode() != NoError) resetError();
       try
@@ -109,7 +111,7 @@ namespace mbapi
       }
       catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
       return NoError;
-   }
+   }*/
 
    // Get number of the x-nodes specified in the ProjectIoTbl
    ErrorHandler::ReturnCode ProjectDataManagerImpl::getNumberOfNodesX(int& NodesX)
@@ -294,6 +296,39 @@ namespace mbapi
       }
       catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
       return NoError;
+   }
+
+   // Get the count of WindowXMax and WindowsYMax specified in the ProjectIoTbl
+   ErrorHandler::ReturnCode ProjectDataManagerImpl::getSimulationWindowMax(int& WindowXMax, int& WindowYMax)
+   {
+	   if (errorCode() != NoError) resetError();
+	   try
+	   {
+		   if (!m_projectIoTbl) { throw Exception(NonexistingID) << s_projectOptionsTableName << " table could not be found in project"; }
+		   database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
+		   if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
+		   WindowXMax = rec->getValue<int>(s_windowXMaxFieldName);
+		   WindowYMax = rec->getValue<int>(s_windowYMaxFieldName);
+	   }
+
+	   catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
+	   return NoError;
+   }
+
+   // Set the count of WindowXMax and WindowsYMax in the ProjectIoTbl
+   ErrorHandler::ReturnCode ProjectDataManagerImpl::setSimulationWindowMax(const int& WindowXMax,const int& WindowYMax)
+   {
+	   if (errorCode() != NoError) resetError();
+	   try
+	   {
+		   if (!m_projectIoTbl) { throw Exception(NonexistingID) << s_projectOptionsTableName << " table could not be found in project"; }
+		   database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
+		   if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
+		   rec->setValue<int>(s_windowXMaxFieldName, WindowXMax);
+		   rec->setValue<int>(s_windowYMaxFieldName, WindowYMax);
+	   }
+	   catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
+	   return NoError;
    }
 
 }

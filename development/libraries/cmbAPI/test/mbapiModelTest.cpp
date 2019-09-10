@@ -1877,7 +1877,7 @@ TEST_F(mbapiModelTest, ProjectDataManager)
    mbapi::ProjectDataManager& ProjectMan = testModel.projectDataManager();
 
    //check whether x-coordinates of origin of ProjectIoTbl can be read and modified correctly
-   ProjectMan.getOriginXCoord(origin_x);
+   /*ProjectMan.getOriginXCoord(origin_x);
    EXPECT_EQ(416500, origin_x);
    ProjectMan.setOriginXCoord(3215.014);
    ProjectMan.getOriginXCoord(origin_x);
@@ -1888,7 +1888,7 @@ TEST_F(mbapiModelTest, ProjectDataManager)
    EXPECT_EQ(6697000, origin_y);
    ProjectMan.setOriginYCoord(71547850.654);
    ProjectMan.getOriginYCoord(origin_y);
-   EXPECT_EQ(71547850.654, origin_y);
+   EXPECT_EQ(71547850.654, origin_y);*/
 
    //check whether number of nodes in x-direction of ProjectIoTbl can be read and modified correctly
    ProjectMan.getNumberOfNodesX(nodes_x);
@@ -1931,6 +1931,15 @@ TEST_F(mbapiModelTest, ProjectDataManager)
    ProjectMan.setProjectDescription("Legacy scenario");
    ProjectMan.getProjectDescription(description);
    EXPECT_EQ("Legacy scenario", description);
+
+   int windowMax_X, windowMax_Y;
+   ProjectMan.getSimulationWindowMax(windowMax_X, windowMax_Y);
+   EXPECT_EQ(184, windowMax_X);
+   EXPECT_EQ(124, windowMax_Y);
+   ProjectMan.setSimulationWindowMax(284, 224);
+   ProjectMan.getSimulationWindowMax(windowMax_X, windowMax_Y);
+   EXPECT_EQ(284, windowMax_X);
+   EXPECT_EQ(224, windowMax_Y);
 
 }
 

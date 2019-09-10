@@ -17,56 +17,22 @@
 
 using namespace mbapi;
 
-double Prograde::ProjectIoModelConverter::upgradeProjectOriginX(const std::string& modellingMode, const double& originX, const double& deltaX)
+int Prograde::ProjectIoModelConverter::upgradeNodeX(const std::string& modellingMode, const int& nodeX, const int& OriginalwindowXMax, int& NewWindowXMax)
 {
-   double upgradeOriginX;
-   if (modellingMode == "3d")
-   {
-      upgradeOriginX = originX - (deltaX/2.0);
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "A 3d scenario is found and needs upgradation of origin's x-coordinates";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The legacy XCoord of the origin is converted from cellcentroidal to node";
-   }
-   else
-   {
-      upgradeOriginX = originX;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "A 1d scenario is found. No upgradation of origin's x-coordinates is needed";
-      //Need to take care for the 1d/3d scenarios once the mapping is finalized
-   }
-   return upgradeOriginX;  
-}
-
-double Prograde::ProjectIoModelConverter::upgradeProjectOriginY(const std::string& modellingMode, const double& originY, const double& deltaY)
-{
-   double upgradeOriginY;
-   
-   if (modellingMode == "3d")
-   {
-      upgradeOriginY = originY - (deltaY / 2.0);
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "A 3d scenario is found and needs upgradation of origin's y-coordinates";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The legacy YCoord of the origin is converted from cellcentroidal to node";
-   }
-   else
-   {
-      upgradeOriginY = originY;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "A 1d scenario is found. No upgradation of origin's y-coordinates is needed";
-   }
-   //Need to take care for the 1d/3d scenarios once the mapping is finalized
-   return upgradeOriginY;
-}
-
-int Prograde::ProjectIoModelConverter::upgradeNodeX(const std::string& modellingMode, const int& nodeX)
-{
-   int upgradeNodeX;
-   if (modellingMode == "3d")
+   int upgradeNodeX, node_diff;
+   if (modellingMode == "3d" || modellingMode=="both")
    {
 	   if (nodeX < 3)
 	   {
-		   upgradeNodeX = 3;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of x-nodes specified is less than the valid range of BPA2. Resetting its value from " << nodeX << " to " << upgradeNodeX << " as it is a 3d scenario";
+		   upgradeNodeX = 3; 
+		   node_diff = upgradeNodeX - nodeX;
+		   NewWindowXMax = OriginalwindowXMax + node_diff;
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of x-nodes specified is less than 3. Resetting values of nodeX from " << nodeX << " to " << upgradeNodeX << " , simulation window max size from "<< OriginalwindowXMax<< " to "<< NewWindowXMax;
 	   }
 	   else
 	   {
 		   upgradeNodeX = nodeX;
+		   NewWindowXMax = OriginalwindowXMax;
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of x-nodes specified is within the valid range of BPA2 for 3d scenarios. No upgrade is required";
 	   }
    }
@@ -75,34 +41,41 @@ int Prograde::ProjectIoModelConverter::upgradeNodeX(const std::string& modelling
 	   if (nodeX != 2)
 	   {
 		   upgradeNodeX = 2;
+		   node_diff = upgradeNodeX - nodeX;
+		   NewWindowXMax= OriginalwindowXMax + node_diff;
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value for number of x-nodes is not found. Resetting its value from " << nodeX << " to " << upgradeNodeX << " as it is a 1d scenario";
 	   }
 	   else
 	   {
 		   upgradeNodeX = nodeX;
+		   NewWindowXMax = OriginalwindowXMax;
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value for number of x-nodes is found for 1d scenarios. No upgrade is required";
 	   }
    }
    else
    {
 	   upgradeNodeX = nodeX;//Need to be added when the mapping is ready for 1Dand3D scenarios
-	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of x-nodes specified is within the valid range of BPA2 for 3d scenarios. No upgrade is required";
+	   NewWindowXMax = OriginalwindowXMax;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Unknown modelling mode is found. Not a valid scenario";
    }
    return upgradeNodeX;
 }
-int Prograde::ProjectIoModelConverter::upgradeNodeY(const std::string& modellingMode, const int& nodeY)
+int Prograde::ProjectIoModelConverter::upgradeNodeY(const std::string& modellingMode, const int& nodeY, const int& OriginalwindowYMax, int& NewWindowYMax)
 {
-   int upgradeNodeY;
-   if (modellingMode == "3d")
+   int upgradeNodeY, node_diff;
+   if (modellingMode == "3d" || modellingMode == "both")
    {
 	   if (nodeY < 3)
 	   {
-		   upgradeNodeY = 3;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of y-nodes specified is less than the valid range of BPA2. Resetting its value from " << nodeY << " to " << upgradeNodeY << " as it is a 3d scenario";
+		   upgradeNodeY = 3; 
+		   node_diff = 3 - nodeY;	   
+		   NewWindowYMax = OriginalwindowYMax + node_diff;
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of y-nodes specified is less 3. Resetting values of nodeX from " << nodeY << " to " << upgradeNodeY << " , simulation window max size from " << OriginalwindowYMax << " to " << NewWindowYMax;;
 	   }
 	   else
 	   {
 		   upgradeNodeY = nodeY;
+		   NewWindowYMax = OriginalwindowYMax;
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of y-nodes specified is within the valid range of BPA2 for 3d scenarios. No upgrade is required";
 	   }
    }
@@ -111,18 +84,22 @@ int Prograde::ProjectIoModelConverter::upgradeNodeY(const std::string& modelling
 	   if (nodeY != 2)
 	   {
 		   upgradeNodeY = 2;
+		   node_diff = upgradeNodeY - nodeY;
+		   NewWindowYMax = OriginalwindowYMax + node_diff;
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value for number of y-nodes is not found. Resetting its value from " << nodeY << " to " << upgradeNodeY << " as it is a 1d scenario";
 	   }
 	   else
 	   {
 		   upgradeNodeY = nodeY;
+		   NewWindowYMax = OriginalwindowYMax;
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value for number of y-nodes is found for 1d scenarios. No upgrade is required";
 	   }
    }
    else
    {
 	   upgradeNodeY = nodeY;//May needed to be updated when the mapping is ready for 1Dand3D scenarios
-	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of y-nodes specified is within the valid range of BPA2 for 3d scenarios. No upgrade is required";
+	   NewWindowYMax = OriginalwindowYMax;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Unknown modelling mode is found. Not a valid scenario";
    }
    return upgradeNodeY;
 }
@@ -174,39 +151,75 @@ double Prograde::ProjectIoModelConverter::upgradeDeltaY(const std::string& model
 
    return upgradeDeltaY;
 }
-std::string Prograde::ProjectIoModelConverter::upgradeModellingModeFor1D(const std::string& originalModellingMode)
+std::string Prograde::ProjectIoModelConverter::upgradeModellingMode(const std::string& originalModellingMode)
 {
    std::string upgradeModellingMode;
 
-   if (originalModellingMode == "1d")
+   if (originalModellingMode == "1d" || originalModellingMode=="both")
    {
       upgradeModellingMode = "3d";
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Deprecated modelling mode ("<< originalModellingMode<<") is identified";
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The modelling mode is upgraded to "<< upgradeModellingMode;
    }
-   else
+   else if (originalModellingMode == "3d")
    {
       upgradeModellingMode = originalModellingMode;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "ModellingMode is up to date. No upgrade required";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Deprecated modelling mode is not found. No upgrade required";
    }
-   //Need to take care for the 1d/3d scenarios once the mapping is finalized 
+   else//This is unlikely to found any other modelling mode but is added here to track if unknownly this field is got edited 
+   {
+	   upgradeModellingMode = originalModellingMode;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Unknown ModellingMode (" << originalModellingMode << ") is found. No upgradation is done as it is not a valid scenario";
+   }
    return upgradeModellingMode;
 }
-std::string Prograde::ProjectIoModelConverter::upgradeDescription(const std::string& orignalDescription)
+std::string Prograde::ProjectIoModelConverter::upgradeDescription(const std::string& ModellingMode, const std::string& orignalDescription)
 {
    std::string upgradedDescription;
    if (orignalDescription.empty())
    {
-      upgradedDescription = "Migrated from BPA";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description";
+	   if (ModellingMode == "3d" || ModellingMode == "1d")
+	   {
+		   upgradedDescription = "Migrated from BPA";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description";
+	   }
+	   else if (ModellingMode == "both")
+	   {
+		   upgradedDescription = "Migrated from BPA (Please note that the original modelling mode was 1Dand3D)";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description";
+	   }
+	   else
+	   {
+		   upgradedDescription = "Migrated from BPA";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty with unknown modelling mode";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description but not the modelling mode";
+	   }
    }
    else
    {
-      upgradedDescription.append(orignalDescription);
-      upgradedDescription.append(": Migrated from BPA");
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is not empty";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description by appending";
+	   if (ModellingMode == "3d" || ModellingMode == "1d")
+	   {
+		   upgradedDescription.append(orignalDescription);
+		   upgradedDescription.append(": Migrated from BPA");
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is not empty";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description by appending";
+	   }
+	   else if (ModellingMode == "both")
+	   {
+		   upgradedDescription.append(orignalDescription);
+		   upgradedDescription.append(": Migrated from BPA (Please note that the original modelling mode was 1Dand3D)");
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is not empty";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description by appending";
+	   }
+	   else
+	   {
+		   upgradedDescription.append(orignalDescription);
+		   upgradedDescription.append(": Migrated from BPA");
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty with unknown modelling mode";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description but not the modelling mode";
+	   }
    }
 
    return upgradedDescription;

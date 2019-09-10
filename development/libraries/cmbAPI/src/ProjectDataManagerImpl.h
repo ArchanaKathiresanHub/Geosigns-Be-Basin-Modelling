@@ -43,19 +43,19 @@ namespace mbapi {
 
       /// @{
       /// @brief Get x-coordinate of the origin specified in the ProjectIoTbl
-      virtual ReturnCode getOriginXCoord(double& XCoord) ;
+      //virtual ReturnCode getOriginXCoord(double& XCoord) ;
 
       /// @{
       /// @brief Set x-coordinate of the origin specified in the ProjectIoTbl
-      virtual ReturnCode setOriginXCoord(const double& XCoord) ;
+      //virtual ReturnCode setOriginXCoord(const double& XCoord) ;
 
       /// @{
       /// @brief Get y-coordinate of the origin of AOI specified in the ProjectIoTbl
-      virtual ReturnCode getOriginYCoord(double& YCoord);
+      //virtual ReturnCode getOriginYCoord(double& YCoord);
 
       /// @{
       /// @brief Set y-coordinate of the origin of AOI specified in the ProjectIoTbl
-      virtual ReturnCode setOriginYCoord(const double& YCoord);
+      //virtual ReturnCode setOriginYCoord(const double& YCoord);
 
       /// @{
      /// @brief Get number of the x-nodes specified in the ProjectIoTbl
@@ -105,7 +105,13 @@ namespace mbapi {
       /// @brief Set project description in the ProjectIoTbl
       virtual ReturnCode setProjectDescription(const std::string& description) ;
 
-     
+	  /// @{
+	  /// @brief Get the count of WindowXMax and WindowsYMax specified in the ProjectIoTbl
+	  virtual ReturnCode getSimulationWindowMax(int& WindowXMax, int& WindowYMax);
+
+	  /// @{
+	  /// @brief Set the count of WindowXMax and WindowsYMax in the ProjectIoTbl
+	  virtual ReturnCode setSimulationWindowMax(const int& WindowXMax, const int& WindowYMax);
 
    private:
       // Copy constructor is disabled, use the copy operator instead
@@ -116,14 +122,16 @@ namespace mbapi {
       database::ProjectFileHandlerPtr m_db;  // cauldron project database
       database::Table* m_projectIoTbl;       // ProjectIo table
       
-      static const char* s_xcoordFieldName;  // column name for x-coordinate of origin in ProjectIoTbl
-      static const char* s_ycoordFieldName;  // column name for y-coordinate of origin in ProjectIoTbl
+      //static const char* s_xcoordFieldName;  // column name for x-coordinate of origin in ProjectIoTbl
+      //static const char* s_ycoordFieldName;  // column name for y-coordinate of origin in ProjectIoTbl
       static const char* s_xNodesFieldName;  // column name for number of nodes in x direction
       static const char* s_yNodesFieldName;  // column name for number of nodes in y direction
       static const char* s_xGridSpecingFieldName;  // column name for grid specing in x direction
       static const char* s_yGridSpecingFieldName;  // column name for grid specing in y direction
       static const char* s_modellingModeFieldName;  // column name for moedlling mode for cauldron simulation
-      static const char* s_projectDescriptionFieldName;  // column name for project description 
+      static const char* s_projectDescriptionFieldName;  // column name for project description
+	  static const char* s_windowXMaxFieldName;  // column name for project description
+	  static const char* s_windowYMaxFieldName;  // column name for project description
       
    };
 }

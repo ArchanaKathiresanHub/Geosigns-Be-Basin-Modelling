@@ -42,26 +42,21 @@ void Prograde::ProjectIoTblUpgradeManager::upgrade() {
 
    std::string modellingMode, description;
    double xcoord_center, ycoord_center, deltaX, deltaY;
-   int xnodes, ynodes;
+   int xnodes, ynodes, windowXMax,windowYMax, NewWindowXMax, NewWindowYMax;
 
    m_model.projectDataManager().getModellingMode(modellingMode);
-   m_model.projectDataManager().setModellingMode(modelConverter.upgradeModellingModeFor1D(modellingMode));
-
-   //upgradation of AOI origin coordinates for 3d scenarios
-   m_model.projectDataManager().getOriginXCoord(xcoord_center);
-   m_model.projectDataManager().getDeltaX(deltaX);
-   m_model.projectDataManager().setOriginXCoord(modelConverter.upgradeProjectOriginX(modellingMode, xcoord_center, deltaX));
-
-   m_model.projectDataManager().getOriginYCoord(ycoord_center);
-   m_model.projectDataManager().getDeltaY(deltaY);
-   m_model.projectDataManager().setOriginYCoord(modelConverter.upgradeProjectOriginY(modellingMode, ycoord_center, deltaY));
+   m_model.projectDataManager().setModellingMode(modelConverter.upgradeModellingMode(modellingMode));
    
    //upgradation of node count to the default values for out of range values, if any
    m_model.projectDataManager().getNumberOfNodesX(xnodes);
-   m_model.projectDataManager().setNumberOfNodesX(modelConverter.upgradeNodeX(modellingMode, xnodes));
+   m_model.projectDataManager().getSimulationWindowMax(windowXMax, windowYMax);
+   NewWindowXMax = windowXMax;
+   NewWindowYMax = windowYMax; 
+   m_model.projectDataManager().setNumberOfNodesX(modelConverter.upgradeNodeX(modellingMode, xnodes, windowXMax, NewWindowXMax));
 
    m_model.projectDataManager().getNumberOfNodesY(ynodes);
-   m_model.projectDataManager().setNumberOfNodesY(modelConverter.upgradeNodeY(modellingMode, ynodes));
+   m_model.projectDataManager().setNumberOfNodesY(modelConverter.upgradeNodeY(modellingMode, ynodes, windowYMax, NewWindowYMax));
+   m_model.projectDataManager().setSimulationWindowMax(NewWindowXMax, NewWindowYMax);
 
    m_model.projectDataManager().getDeltaX(deltaX);
    m_model.projectDataManager().setDeltaX(modelConverter.upgradeDeltaX(modellingMode, deltaX));
@@ -70,6 +65,6 @@ void Prograde::ProjectIoTblUpgradeManager::upgrade() {
    m_model.projectDataManager().setDeltaY(modelConverter.upgradeDeltaY(modellingMode, deltaY));
 
    m_model.projectDataManager().getProjectDescription(description);
-   m_model.projectDataManager().setProjectDescription(modelConverter.upgradeDescription(description));
+   m_model.projectDataManager().setProjectDescription(modelConverter.upgradeDescription(modellingMode, description));
 }
 
