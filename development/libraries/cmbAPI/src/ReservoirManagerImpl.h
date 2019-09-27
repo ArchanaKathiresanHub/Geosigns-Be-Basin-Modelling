@@ -137,6 +137,11 @@ namespace mbapi {
       /// @param[in] diffusionInd globle diffusionInd value
       /// @return NoError on success or OutOfRangeValue or NonexistingID on error
       virtual ReturnCode setResOptionsDiffusionInd(const ReservoirID id, const int & diffusionInd);
+	  /// @brief get minimum oil column height for the given reservoir ID in ReservoirIoTbl
+	  /// @param[in] id Reservoir ID
+	  /// @param[out] minOilColumnHeight Minimum oil column height specified for the given reservoir ID
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode getResMinOilColumnHeight(const ReservoirID id, double & minOilColumnHeight);
 
       /// @brief set globle reservoir minOilColumnHeight value for the given reservoir ID in ReservoirIoTbl
       /// @param[in] id Reservoir ID
@@ -148,6 +153,12 @@ namespace mbapi {
       /// @param[in] minOilColumnHeight globle minOilColumnHeight value
       /// @return NoError on success or OutOfRangeValue or NonexistingID on error
       virtual ReturnCode setResOptionsMinOilColumnHeight(const ReservoirID id, const double & minOilColumnHeight);
+
+	  /// @brief get minimum gas column height for the given reservoir ID in ReservoirIoTbl
+	  /// @param[in] id Reservoir ID
+	  /// @param[out] minGasColumnHeight Minimum gas column height specified for the given reservoir ID
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode getResMinGasColumnHeight(const ReservoirID id, double & minGasColumnHeight);
 
       /// @brief set globle reservoir minGasColumnHeight value for the given reservoir ID in ReservoirIoTbl
       /// @param[in] id Reservoir ID
@@ -170,6 +181,28 @@ namespace mbapi {
       /// @param[in] blockingPorosity globle blockingPorosity value
       /// @return NoError on success or OutOfRangeValue or NonexistingID on error
       virtual ReturnCode setResOptionsBlockingPorosity(const ReservoirID id, const double & blockingPorosity);
+
+	  /// @brief get activity mode for the given reservoir ID
+	  /// @param[in] id Reservoir ID
+	  /// @param[out] activitymode for the given Reservoir
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode getResActivityMode(const ReservoirID id, std::string & activitymode);
+	  /// @brief set globle reservoir blockingPermeability value for the given reservoir ID in ReservoirIoTbl
+	  /// @param[in] id Reservoir ID
+	  /// @param[in] activitymode for the given Reservoir
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode setResActivityMode(const ReservoirID id, const std::string & activitymode);
+
+	  /// @brief get reservoir activity start age value for the given reservoir ID in ReservoirIoTbl
+	  /// @param[in] id Reservoir ID
+	  /// @param[out] age Age from which the reservoir is active for the given reservoir ID
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode getResActivityStartAge(const ReservoirID id, double & age);
+	  /// @brief set reservoir activity start age value for the given reservoir ID in ReservoirIoTbl
+	  /// @param[in] id Reservoir ID
+	  /// @param[in] age Age from which the reservoir is active for the given reservoir ID
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode setResActivityStartAge(const ReservoirID id, const double & blockingPorosity);
       
 
 
@@ -191,7 +224,10 @@ namespace mbapi {
       static const char * s_blockingIndFieldName;  // column name for blocking index
       static const char * s_blockingPermeabilityFieldName; // column name for blocking permeability field
       static const char * s_blockingPorosityFieldName; // column name for blocking porosity field
-      static const char * s_reservoirTypeFieldName;  // name of the reservoir  
+      static const char * s_reservoirTypeFieldName;  // name of the reservoir
+	  static const char * s_reservoirActivityModeFieldName;  // activity mode of the reservoir
+	  static const char * s_reservoirActivityStartAgeFieldName;  // activity mode of the reservoir
+
    };
 }
 

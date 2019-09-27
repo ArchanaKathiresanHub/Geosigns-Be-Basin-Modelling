@@ -162,6 +162,40 @@ namespace mbapi {
       /// @return NoError on success or OutOfRangeValue or NonexistingID on error
       virtual ReturnCode setResOptionsBlockingPorosity(const ReservoirID id, const double & blockingPorosity) = 0;
 
+	  /// @brief get activity mode for the given reservoir ID
+	  /// @param[in] id Reservoir ID
+	  /// @param[out] activitymode for the given Reservoir
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode getResActivityMode(const ReservoirID id, std::string & activitymode) = 0;
+	  /// @brief set globle reservoir blockingPermeability value for the given reservoir ID in ReservoirIoTbl
+	  /// @param[in] id Reservoir ID
+	  /// @param[in] activitymode activity mode for the given Reservoir
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode setResActivityMode(const ReservoirID id, const std::string & activitymode) = 0;
+
+	  /// @brief get reservoir activity start age value for the given reservoir ID in ReservoirIoTbl
+	  /// @param[in] id Reservoir ID
+	  /// @param[out] age Age from which the reservoir is active for the given reservoir ID
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode getResActivityStartAge(const ReservoirID id, double & age) = 0;
+	  /// @brief set reservoir activity start age value for the given reservoir ID in ReservoirIoTbl
+	  /// @param[in] id Reservoir ID
+	  /// @param[in] age Age from which the reservoir is active for the given reservoir ID
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode setResActivityStartAge(const ReservoirID id, const double & blockingPorosity) = 0;
+
+	  /// @brief get minimum oil column height for the given reservoir ID in ReservoirIoTbl
+	  /// @param[in] id Reservoir ID
+	  /// @param[out] minOilColumnHeight Minimum oil column height specified for the given reservoir ID
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode getResMinOilColumnHeight(const ReservoirID id, double & minOilColumnHeight) = 0;
+
+	  /// @brief get minimum gas column height for the given reservoir ID in ReservoirIoTbl
+	  /// @param[in] id Reservoir ID
+	  /// @param[out] minGasColumnHeight Minimum gas column height specified for the given reservoir ID
+	  /// @return NoError on success or OutOfRangeValue or NonexistingID on error
+	  virtual ReturnCode getResMinGasColumnHeight(const ReservoirID id, double & minGasColumnHeight) = 0;
+
 
    protected:
       /// @{

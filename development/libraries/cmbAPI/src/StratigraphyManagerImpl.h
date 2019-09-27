@@ -228,6 +228,12 @@ namespace mbapi {
       /// the measured twt value on success, UndefinedDoubleValue otherwise
       virtual double twtValue( LayerID id );
 
+	  /// @brief Get depositional age from the StartIoTbl
+	  /// @param[in] id Stratigraphic layer ID
+	  /// @param[out] DepoAge depositional age of the specified stratigraphic layer ID
+	  /// @return NoError on success or NonexistingID on error
+	  virtual ReturnCode getDepoAge(const LayerID id, double & DepoAge);
+
    private:
       static const char * s_stratigraphyTableName;
       static const char * s_layerNameFieldName;

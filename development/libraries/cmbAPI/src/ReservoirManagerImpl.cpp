@@ -30,6 +30,8 @@ namespace mbapi
    const char * ReservoirManagerImpl::s_blockingPermeabilityFieldName = "BlockingPermeability";
    const char * ReservoirManagerImpl::s_blockingPorosityFieldName = "BlockingPorosity";
    const char * ReservoirManagerImpl::s_reservoirTypeFieldName = "ReservoirName";
+   const char * ReservoirManagerImpl::s_reservoirActivityModeFieldName = "ActivityMode";
+   const char * ReservoirManagerImpl::s_reservoirActivityStartAgeFieldName = "ActivityStart";
 
    // Constructor
    ReservoirManagerImpl::ReservoirManagerImpl()
@@ -469,6 +471,108 @@ namespace mbapi
       return NoError;
    }
    //
+
+   ErrorHandler::ReturnCode ReservoirManagerImpl::getResActivityMode(const ReservoirID id, std::string & activitymode)
+   {
+	   if (errorCode() != NoError) resetError();
+	   try
+	   {
+		   // if table does not exist - report error
+		   if (!m_reservoirIoTbl) { throw Exception(NonexistingID) << s_reservoirTableName << " table could not be found in project"; }
+
+		   database::Record * rec = m_reservoirIoTbl->getRecord(static_cast<int>(id));
+		   if (!rec) { throw Exception(NonexistingID) << "No Reservoir with such ID: " << id; }
+
+		   activitymode = rec->getValue<std::string>(s_reservoirActivityModeFieldName);
+	   }
+	   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	   return NoError;
+   }
+
+   ErrorHandler::ReturnCode ReservoirManagerImpl::setResActivityMode(const ReservoirID id, const std::string & activitymode)
+   {
+	   if (errorCode() != NoError) resetError();
+	   try
+	   {
+		   // if table does not exist - report error
+		   if (!m_reservoirIoTbl) { throw Exception(NonexistingID) << s_reservoirTableName << " table could not be found in project"; }
+
+		   database::Record * rec = m_reservoirIoTbl->getRecord(static_cast<int>(id));
+		   if (!rec) { throw Exception(NonexistingID) << "No Reservoir type with such ID: " << id; }
+		   rec->setValue<std::string>(s_reservoirActivityModeFieldName, activitymode);
+	   }
+	   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	   return NoError;
+   }
+
+   ErrorHandler::ReturnCode ReservoirManagerImpl::getResActivityStartAge(const ReservoirID id, double & age)
+   {
+	   if (errorCode() != NoError) resetError();
+	   try
+	   {
+		   // if table does not exist - report error
+		   if (!m_reservoirIoTbl) { throw Exception(NonexistingID) << s_reservoirTableName << " table could not be found in project"; }
+
+		   database::Record * rec = m_reservoirIoTbl->getRecord(static_cast<int>(id));
+		   if (!rec) { throw Exception(NonexistingID) << "No Reservoir with such ID: " << id; }
+
+		   age = rec->getValue<double>(s_reservoirActivityStartAgeFieldName);
+	   }
+	   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	   return NoError;
+   }
+   ErrorHandler::ReturnCode ReservoirManagerImpl::setResActivityStartAge(const ReservoirID id, const double & age)
+   {
+	   if (errorCode() != NoError) resetError();
+	   try
+	   {
+		   // if table does not exist - report error
+		   if (!m_reservoirIoTbl) { throw Exception(NonexistingID) << s_reservoirTableName << " table could not be found in project"; }
+
+		   database::Record * rec = m_reservoirIoTbl->getRecord(static_cast<int>(id));
+		   if (!rec) { throw Exception(NonexistingID) << "No Reservoir type with such ID: " << id; }
+		   rec->setValue<double>(s_reservoirActivityStartAgeFieldName, age);
+	   }
+	   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	   return NoError;
+   }
+   ErrorHandler::ReturnCode ReservoirManagerImpl::getResMinOilColumnHeight(const ReservoirID id, double & minOilColumnHeight)
+   {
+	   if (errorCode() != NoError) resetError();
+	   try
+	   {
+		   // if table does not exist - report error
+		   if (!m_reservoirIoTbl) { throw Exception(NonexistingID) << s_reservoirTableName << " table could not be found in project"; }
+
+		   database::Record * rec = m_reservoirIoTbl->getRecord(static_cast<int>(id));
+		   if (!rec) { throw Exception(NonexistingID) << "No Reservoir with such ID: " << id; }
+
+		   minOilColumnHeight = rec->getValue<double>(s_minOilColumnHeightFieldName);
+	   }
+	   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	   return NoError;
+   }
+
+   ErrorHandler::ReturnCode ReservoirManagerImpl::getResMinGasColumnHeight(const ReservoirID id, double & minGasColumnHeight)
+   {
+	   if (errorCode() != NoError) resetError();
+	   try
+	   {
+		   // if table does not exist - report error
+		   if (!m_reservoirIoTbl) { throw Exception(NonexistingID) << s_reservoirTableName << " table could not be found in project"; }
+
+		   database::Record * rec = m_reservoirIoTbl->getRecord(static_cast<int>(id));
+		   if (!rec) { throw Exception(NonexistingID) << "No Reservoir with such ID: " << id; }
+
+		   minGasColumnHeight = rec->getValue<double>(s_minGasColumnHeightFieldName);
+	   }
+	   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	   return NoError;
+   }
 
 }
 

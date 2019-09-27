@@ -932,4 +932,19 @@ double StratigraphyManagerImpl::twtValue( LayerID id )
    return Utilities::Numerical::IbsNoDataValue;
 }
 
+// Get depositional age of a particular stratigraphic layer from StratIoTbl
+ErrorHandler::ReturnCode StratigraphyManagerImpl::getDepoAge(const LayerID id, double & DepoAge)
+{
+	if (errorCode() != NoError) resetError();
+	try
+	{
+		if (!m_stratIoTbl) { throw Exception(NonexistingID) << s_stratigraphyTableName << " table could not be found in project"; }
+		database::Record * rec = m_stratIoTbl->getRecord(static_cast<int>(id));
+		if (!rec) { throw Exception(NonexistingID) << "No data found with such ID: " << id; }
+		DepoAge = rec->getValue<double>(s_depoAgeFieldName);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	return NoError;
+}
+
 }

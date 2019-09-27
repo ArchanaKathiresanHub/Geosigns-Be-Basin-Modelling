@@ -501,14 +501,14 @@ ReferredBy MapName MapType MapFileName FileId MD5Checksum MapSeqNbr HDF5FileName
 ;
 [StratIoTbl]
 ;
-SurfaceName DepoAge Depth ErrDepth DepthGrid LayerName DepoSequence Thickness CalibThickness OptimThickness ThicknessGrid Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 Percent3 MixModel LayeringIndex Fluidtype TempGradient SourceRock MobileLayer HasAllochthonLitho IsIgneousIntrusion IgneousIntrusionAge HydroSand ChemicalCompaction EnableSourceRockMixing SourceRockType1 SourceRockType2 SourceRockMixingHI SourceRockMixingHIGrid ElementRefinementZ IncludeInDarcy ErrDepoAge ErrThickness
-  () (Ma)  (m)  (m)  (m)   ()   ()  (m)  (m)   ()  (m)   () (volume%) (volume%) () (volume%) (volume%) () (volume%) () () () (C/m) () () () () (Ma) () () () ()   () (kg/tonne) () () () (Ma)  (m)
-"s0"    0    0    0   "" "seal 0" 5 -9999 -9999 0   "" "Std. Shale" 100 "" "Std. Sandstone" 0 "" "" 0 "Homogeneous" 1 "Std. Marine Water" -9999 0 0 0 0 -9999 0 0 0 "" "" 0 ""    1    0    0    0
-"s1"   10 -9999   0   "" "reservoir 0" 4 -9999 -9999 0 "MAP-1345562007-4" "Std. Sandstone" 100 "" "" 0 "" "" 0 "Homogeneous" 1 "Std. Marine Water" -9999 0 0 0 0 -9999 0 0 0 "" "" 0 "" 1 0 0    0
-"s2"   30 1500    0   "" "seal 1" 3 -9999 -9999 0   "" "Std. Shale" 100 "MAP-1357790995-4" "Std. Sandstone" 0 "" "" 0 "Homogeneous" 1 "Std. Marine Water" -9999 0 0 0 0 -9999 0 0 0 "" "" 0 "" 1 0 0 0
-"s3"   50 -9999   0   "" "reservoir 1" 2 -9999 -9999 0 "MAP-1345562007-4" "Std. Sandstone" 100 "" "" 0 "" "" 0 "Homogeneous" 1 "Std. Marine Water" -9999 0 0 0 0 -9999 0 0 0 "" "" 0 "" 1 0 0    0
-"s4"   70 3500    0   "" "sr"    1 -9999 -9999  0   "" "Std. Shale" 100 "" "" 0   ""   ""    0 "Homogeneous" 1 "Std. Marine Water" -9999 1 0 0 0 -9999 0 0 0 "MesozoicMarineShale" "" -9999 "" 1 0 0 0
-"s5"   90 4500    0   ""   "" -9999 -9999 -9999 0   ""   "" -9999  ""   "" -9999  ""   "" -9999  ""    1   "" -9999   0 -9999   0    0 -9999 -9999 -9999 0   ""   ""    0   ""    1    0    0    0
+SurfaceName DepoAge			Depth 	ErrDepth 	DepthGrid 	LayerName 		DepoSequence 	Thickness 	CalibThickness 	OptimThickness 	ThicknessGrid 		Lithotype1 			Percent1 	Percent1Grid 		Lithotype2 			Percent2 	Percent2Grid 	Lithotype3 	Percent3 	MixModel 		LayeringIndex 	Fluidtype 				TempGradient 	SourceRock 	MobileLayer 	HasAllochthonLitho 	IsIgneousIntrusion 	IgneousIntrusionAge HydroSand 	ChemicalCompaction 	EnableSourceRockMixing 	SourceRockType1 		SourceRockType2 SourceRockMixingHI 	SourceRockMixingHIGrid 	ElementRefinementZ 	IncludeInDarcy 	ErrDepoAge ErrThickness
+  () 		  (Ma)  		(m)  	(m)  		(m)   		()   			()  			(m)  		(m)   			()  			(m)   				() 					(volume%) 	(volume%) 			() 					(volume%) 	(volume%) 		() 			(volume%) 	() 				() 				() 						(C/m) 			() 			() 				() 					() 					(Ma) 				() 			() 					() 						()   					() 				(kg/tonne) 			() 						() 					() 				(Ma)  		(m)
+"s0"    		0    		0    	0   		"" 			"seal 0" 		5 				-9999 		-9999 			0   			"" 					"Std. Shale" 		100 		"" 					"Std. Sandstone" 	0 			"" 				"" 			0 			"Homogeneous" 	1 				"Std. Marine Water" 	-9999 			0 			0 				0 					0 					-9999 				0 			0 					0 						"" 						"" 				0 					""    					1    				0    			0    		0
+"s1"   			10 			-9999   0   		"" 			"reservoir 0" 	4 				-9999 		-9999 			0 				"MAP-1345562007-4" 	"Std. Sandstone" 	100 		"" 					"" 					0 			"" 				"" 			0 			"Homogeneous" 	1 				"Std. Marine Water" 	-9999 			0 			0 				0 					0 					-9999 				0 			0 					0 						"" 						"" 				0 					"" 						1 					0 				0    		0
+"s2"   			30 			1500    0   		"" 			"seal 1" 		3 				-9999 		-9999 			0   			"" 					"Std. Shale" 		100 		"MAP-1357790995-4" 	"Std. Sandstone" 	0 			"" 				"" 			0 			"Homogeneous" 	1 				"Std. Marine Water" 	-9999 			0 			0 				0 					0 					-9999 				0 			0 					0 						"" 						"" 				0 					"" 						1 					0 				0 			0
+"s3"   			50 			-9999   0   		"" 			"reservoir 1" 	2 				-9999 		-9999 			0 				"MAP-1345562007-4" 	"Std. Sandstone" 	100 		"" 					"" 					0 			"" 				"" 			0 			"Homogeneous" 	1 				"Std. Marine Water" 	-9999 			0 			0 				0 					0 					-9999 				0 			0 					0 						"" 						"" 				0 					"" 						1 					0 				0    		0
+"s4"   			70 			3500    0   		"" 			"sr"    		1 				-9999 		-9999  			0   			"" 					"Std. Shale" 		100 		"" 					"" 					0   		""   			""    		0 			"Homogeneous" 	1 				"Std. Marine Water" 	-9999 			1 			0 				0 					0 					-9999 				0 			0 					0 						"MesozoicMarineShale" 	"" 				-9999 				"" 						1 					0 				0 			0
+"s5"   			90 			4500    0   		""   		"" 				-9999 			-9999 		-9999 			0   			""   				"" 					-9999  		""   				"" 					-9999  		""   			"" 			-9999  		""    			1   			"" 						-9999   		0 			-9999   		0    				0 					-9999 				-9999 		-9999 				0   					""   					""    			0   				""    					1    				0    			0    		0
 [End]
 ;
 ;
@@ -848,7 +848,7 @@ FtClWeightBinStart FtClWeightBinWidth
 ReservoirName DetectedReservoir FormationName TrapCapacity ActivityMode ActivityStart DepthOffset DepthOffsetGrid Thickness ThicknessGrid NetToGross NetToGrossGrid MicroTraps LeakProperty LeakRate Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 LayerFrequency LayerFrequencyGrid BioDegradInd OilToGasCrackingInd DiffusionInd MinOilColumnHeight MinGasColumnHeight BlockingInd BlockingPermeability BlockingPorosity ErrDepthOffset ErrThickness ErrMicroTraps ErrLayerFrequency
   ()   ()   () (m3)   () (Ma)  (m)  (m)  (m)  (m) (percent) (percent) (m3/m2) () (kg/m2/ma) () (volume%) (volume%) () (volume%) (volume%) () (km) () () () () (m) (m) () (mD) (%) (m) (m) (m3/m2) (km)
 "reservoir 1" 1 "reservoir 1" 500000 "ActiveFrom" 50 -9999 "" -9999 "" -9999 "" -9999 "" -9999 "" 2.48190991844978e-316 "" "" 0 "" "" -9999 "" 1 1 0 0.5 0.5 0 1e-09 0 0 0   0 5.09278989871191e-313
-"reservoir 0" 1 "reservoir 0" 400000 "ActiveFrom" 10 -9999 "" -9999 "" -9999 "" -9999 "" -9999 "" 2.48190991844978e-316 "" "" 0 "" "" -9999 "" 0 1 0 0.5 0.5 0 1e-09 0 0 0   0 5.09278989871191e-313
+"reservoir 0" 1 "reservoir 0" 400000 "AlwaysActive" 0 -9999 "" -9999 "" -9999 "" -9999 "" -9999 "" 2.48190991844978e-316 "" "" 0 "" "" -9999 "" 0 1 0 0.5 0.5 0 1e-09 0 0 0   0 5.09278989871191e-313
 [End]
 ;
 ;

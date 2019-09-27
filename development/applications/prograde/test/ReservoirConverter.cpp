@@ -34,33 +34,27 @@ TEST(ReservoirConverter, trapCapacity)
 TEST(ReservoirConverter, equalBlockingPermeability)
 {
    Prograde::ReservoirConverter resConverter;
-   double globalblockingPermeability = 1e-9;
+   double globalblockingPermeability = 1e-8;
    double blockingPermeability = 1e-8;
-   int resId = 0;
-   resConverter.blockingPermeabilityLogic(resId, blockingPermeability, globalblockingPermeability);
+   resConverter.blockingPermeabilityLogic(blockingPermeability, globalblockingPermeability);
    blockingPermeability = 1e-8;
-   resId = 1;
-   resConverter.blockingPermeabilityLogic(resId, blockingPermeability, globalblockingPermeability);
+   resConverter.blockingPermeabilityLogic( blockingPermeability, globalblockingPermeability);
    blockingPermeability = 1e-8;
-   resId = 2;
-   resConverter.blockingPermeabilityLogic(resId, blockingPermeability, globalblockingPermeability);
+   resConverter.blockingPermeabilityLogic(blockingPermeability, globalblockingPermeability);
 
-   EXPECT_NEAR(globalblockingPermeability, 1e-8, 1e-6);
+   EXPECT_NEAR(globalblockingPermeability, 1e-8, 1e-10);
 }
 //This test checks BlockingPermeability is not same in all layers, therefore, default value must be selected
 TEST(ReservoirConverter, unequalBlockingPermeability)
 {
    Prograde::ReservoirConverter resConverter;
-   double globalBlockingPermeability = 1e-9;
-   double blockingPermeability = 1e-8;
-   int resId = 0;
-   resConverter.blockingPermeabilityLogic(resId, blockingPermeability, globalBlockingPermeability);
-   blockingPermeability = 1e-7;
-   resId = 1;
-   resConverter.blockingPermeabilityLogic(resId, blockingPermeability, globalBlockingPermeability);
-   blockingPermeability = 1e-8;
-   resId = 2;
-   resConverter.blockingPermeabilityLogic(resId, blockingPermeability, globalBlockingPermeability);
+   double globalBlockingPermeability = 1.5e-9;
+   double blockingPermeability = 1.5e-9;
+   resConverter.blockingPermeabilityLogic(blockingPermeability, globalBlockingPermeability);
+   blockingPermeability = 1.6e-9;
+   resConverter.blockingPermeabilityLogic(blockingPermeability, globalBlockingPermeability);
+   blockingPermeability = 1.7e-9;
+   resConverter.blockingPermeabilityLogic(blockingPermeability, globalBlockingPermeability);
 
    EXPECT_NEAR(globalBlockingPermeability, 1e-9, 1e-6);
 }
@@ -150,5 +144,16 @@ TEST(ReservoirConverter, blockingIndOff)
    resConverter.blockingIndLogic(blockingInd, globalBlockingInd);
 
    EXPECT_EQ(globalBlockingInd, 0);
+}
+TEST(ReservoirConverter, reservoirActiveAge)
+{
+	Prograde::ReservoirConverter resConverter;
+	double activityStartAge = 500;
+	std::string activityMode = "ActiveFrom";
+	double layerDepoAge = 600.0;
+	EXPECT_NEAR(600, resConverter.upgradeActivityStartAge(activityMode, layerDepoAge, activityStartAge), 1e-6);
+	activityMode = "AlwaysActive";
+	activityStartAge = 400;
+	EXPECT_NEAR(400, resConverter.upgradeActivityStartAge(activityMode, layerDepoAge, activityStartAge), 1e-6);
 }
 

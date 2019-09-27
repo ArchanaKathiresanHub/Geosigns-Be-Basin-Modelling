@@ -13,6 +13,9 @@
 //cmbAPI
 #include "ReservoirManager.h"
 
+//utilities
+#include "LogHandler.h"
+
 using namespace mbapi;
 
 void Prograde::ReservoirConverter::trapCapacityLogic(const double valueProject3d, double & globalValue) {
@@ -20,14 +23,15 @@ void Prograde::ReservoirConverter::trapCapacityLogic(const double valueProject3d
    if (valueProject3d < globalValue) globalValue = valueProject3d;
    
 }
-void Prograde::ReservoirConverter::blockingPermeabilityLogic(const size_t resId, const double valueProject3d, double & globalValue) {
+void Prograde::ReservoirConverter::blockingPermeabilityLogic(const double valueProject3d, double & globalValue) {
   
-   if (resId > 0 && (valueProject3d != globalValue)) {
+   if ( (valueProject3d != globalValue)) {
       globalValue = 1e-9;
    }
    else {
       globalValue = valueProject3d;
    }
+
 }
 void Prograde::ReservoirConverter::bioDegradIndLogic(const int valueProject3d, int & globalValue) {
    
@@ -40,4 +44,15 @@ void Prograde::ReservoirConverter::oilToGasCrackingIndLogic(const int valueProje
 void Prograde::ReservoirConverter::blockingIndLogic(const int valueProject3d, int & globalValue) {
    
    if (!valueProject3d) globalValue = valueProject3d;
+}
+
+double Prograde::ReservoirConverter::upgradeActivityStartAge(const std::string & resMode, const double & stratDepoAge, double & resActivityStartAge)
+{
+	double originalActivityStartAge = resActivityStartAge;
+	if (resMode.compare("ActiveFrom") == 0 && resActivityStartAge < stratDepoAge)
+	{
+		resActivityStartAge = stratDepoAge;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original activityStartAge ("<< originalActivityStartAge <<") is less than the reservoir depo age ("<< stratDepoAge<<"). Resetting its value to '"<< stratDepoAge <<"' ";
+	}
+	return resActivityStartAge;
 }

@@ -28,10 +28,11 @@ namespace Prograde
 
       /// @brief Upgrades the corresponding ReservoirIoTbl      
       void trapCapacityLogic(const double valueProject3d, double & globalValue);
-      void blockingPermeabilityLogic(const size_t resId, const double valueProject3d, double & globalValue);
+      void blockingPermeabilityLogic(const double valueProject3d, double & globalValue);
       void bioDegradIndLogic(const int valueProject3d, int & globalValue);
       void oilToGasCrackingIndLogic(const int valueProject3d, int & globalValue);
       void blockingIndLogic(const int valueProject3d, int & globalValue);
+	  double upgradeActivityStartAge(const std::string & , const double &, double &);
    };
 }
 

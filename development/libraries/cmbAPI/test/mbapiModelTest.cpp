@@ -1235,32 +1235,80 @@ TEST_F(mbapiModelTest, ReservoirManager)
    ASSERT_EQ(actualTableSize, res.size());
 
    std::vector<std::string> actualReservoirNames = { "reservoir 1","reservoir 0" };
-
-   std::string reservoirName;
+   std::vector<std::string> actualActivityModes = { "ActiveFrom","AlwaysActive" };
+   
+   std::string reservoirName, ActivityMode;
    //   mbapi::ReservoirManager & resMgrImpl = testModel.reservoirManager();
-      //Check whether all names are being read correctlty
 
+   //Check whether all records in ReservoitIoTbl were read correctly
    for (auto resId : res)
    {
       resMgr.getResName(resId, reservoirName);
       ASSERT_EQ(actualReservoirNames[resId], reservoirName);
+
+	  resMgr.getResActivityMode(resId, ActivityMode);
+	  EXPECT_EQ(actualActivityModes[resId], ActivityMode);
    }
    double resCapacity;
    int bioDegradInd;
    int oilToGasCrackingInd;
    int blockingInd;
-   double blockingPermeability;
+   double blockingPermeability, activityStartAge, minOilColHeight;
    size_t resId = 0;
+   //check whether reservoir capacity from the ReservoirIoTbl can be read and modified correctly for id=0
    resMgr.getResCapacity(resId, resCapacity);
    EXPECT_NEAR(resCapacity, 500000, eps);
+   resMgr.setResCapacity(resId, 400000);
+   resMgr.getResCapacity(resId, resCapacity);
+   EXPECT_NEAR(resCapacity, 400000, eps);
+   //check whether biodegradation flag from the ReservoirIoTbl can be read and modified correctly for id=0
    resMgr.getResBioDegradInd(resId, bioDegradInd);
    EXPECT_EQ(bioDegradInd, 1);
+   resMgr.setResBioDegradInd(resId, 0);
+   resMgr.getResBioDegradInd(resId, bioDegradInd);
+   EXPECT_EQ(bioDegradInd, 0);
+   //check whether OTGC flag from the ReservoirIoTbl can be read and modified correctly for id=0
    resMgr.getResOilToGasCrackingInd(resId, oilToGasCrackingInd);
    EXPECT_EQ(oilToGasCrackingInd, 1);
+   resMgr.setResOilToGasCrackingInd(resId, 0);
+   resMgr.getResOilToGasCrackingInd(resId, oilToGasCrackingInd);
+   EXPECT_EQ(oilToGasCrackingInd, 0);
+   //check whether flag for blocking vertical migration from the ReservoirIoTbl can be read and modified correctly for id=0
    resMgr.getResBlockingInd(resId, blockingInd);
    EXPECT_EQ(blockingInd, 0);
+   resMgr.setResBlockingInd(resId, 1);
+   resMgr.getResBlockingInd(resId, blockingInd);
+   EXPECT_EQ(blockingInd, 1);
+   //check whether the threhold value for blocking permeability from the ReservoirIoTbl can be read and modified correctly for id=0
    resMgr.getResBlockingPermeability(resId, blockingPermeability);
    EXPECT_NEAR(blockingPermeability, 1e-09, eps);
+   resMgr.setResBlockingPermeability(resId, 1.23456789e-9);
+   resMgr.getResBlockingPermeability(resId, blockingPermeability);
+   EXPECT_NEAR(blockingPermeability, 1.23456789e-9, eps);
+   //check whether activity mode from the ReservoirIoTbl can be read and modified correctly for id=0
+   resMgr.getResActivityMode(resId, ActivityMode);
+   EXPECT_EQ("ActiveFrom", ActivityMode);
+   resMgr.setResActivityMode(resId, "NeverActive");
+   resMgr.getResActivityMode(resId, ActivityMode);
+   EXPECT_EQ("NeverActive", ActivityMode);
+   //check whether activity start age of the ReservoirIoTbl can be read and modified correctly for id=0
+   resMgr.getResActivityStartAge(resId, activityStartAge);
+   EXPECT_EQ(50, activityStartAge);
+   resMgr.setResActivityStartAge(resId, 25);
+   resMgr.getResActivityStartAge(resId, activityStartAge);
+   EXPECT_EQ(25, activityStartAge);
+   //check whether MinOilColumnHeight of the ReservoirIoTbl can be read and modified correctly for id=0
+   resMgr.getResMinOilColumnHeight(resId, minOilColHeight);
+   EXPECT_NEAR(0.5, minOilColHeight, eps);
+   resMgr.setResMinOilColumnHeight(resId, 1.0);
+   resMgr.getResMinOilColumnHeight(resId, minOilColHeight);
+   EXPECT_NEAR(1.0, minOilColHeight, eps);
+   //check whether MinGasColumnHeight of the ReservoirIoTbl can be read and modified correctly for id=0
+   resMgr.getResMinGasColumnHeight(resId, minOilColHeight);
+   EXPECT_NEAR(0.5, minOilColHeight, eps);
+   resMgr.setResMinGasColumnHeight(resId, 1.0);
+   resMgr.getResMinGasColumnHeight(resId, minOilColHeight);
+   EXPECT_NEAR(1.0, minOilColHeight, eps);
    //
    resId = 1;
    resMgr.getResCapacity(resId, resCapacity);
@@ -1273,28 +1321,19 @@ TEST_F(mbapiModelTest, ReservoirManager)
    EXPECT_EQ(blockingInd, 0);
    resMgr.getResBlockingPermeability(resId, blockingPermeability);
    EXPECT_NEAR(blockingPermeability, 1e-09, eps);
-   //checks entries set in ReservoirIoTble
-   resCapacity = 400000;
-   bioDegradInd = 1;
-   oilToGasCrackingInd = 1;
-   blockingInd = 0;
-   blockingPermeability = 1e-9;
-   resId = 0;
-   resMgr.setResCapacity(resId, resCapacity);
-   resMgr.setResBioDegradInd(resId, bioDegradInd);
-   resMgr.setResOilToGasCrackingInd(resId, oilToGasCrackingInd);
-   resMgr.setResBlockingInd(resId, blockingInd);
-   resMgr.setResBlockingPermeability(resId, blockingPermeability);
-   resMgr.getResCapacity(resId, resCapacity);
-   EXPECT_NEAR(resCapacity, 400000, eps);
-   resMgr.getResBioDegradInd(resId, bioDegradInd);
-   EXPECT_EQ(bioDegradInd, 1);
-   resMgr.getResOilToGasCrackingInd(resId, oilToGasCrackingInd);
-   EXPECT_EQ(oilToGasCrackingInd, 1);
-   resMgr.getResBlockingInd(resId, blockingInd);
-   EXPECT_EQ(blockingInd, 0);
-   resMgr.getResBlockingPermeability(resId, blockingPermeability);
-   EXPECT_NEAR(blockingPermeability, 1e-9, eps);
+   //check whether activity mode from the ReservoirIoTbl can be read and modified correctly for id=1
+   resMgr.getResActivityMode(resId, ActivityMode);
+   EXPECT_EQ("AlwaysActive", ActivityMode);
+   resMgr.setResActivityMode(resId, "ActiveFrom");
+   resMgr.getResActivityMode(resId, ActivityMode);
+   EXPECT_EQ("ActiveFrom", ActivityMode);
+   //check whether activity start age of the ReservoirIoTbl can be read and modified correctly for id=1
+   resMgr.getResActivityStartAge(resId, activityStartAge);
+   EXPECT_EQ(0, activityStartAge);
+   resMgr.setResActivityStartAge(resId, 250);
+   resMgr.getResActivityStartAge(resId, activityStartAge);
+   EXPECT_EQ(250, activityStartAge);  
+   
 }
 
 TEST_F(mbapiModelTest, BiodegradeManager)
@@ -1584,6 +1623,7 @@ TEST_F(mbapiModelTest, CtcManager)
 
    mbapi::CtcManager & ctcMan = testModel.ctcManager();
    mbapi::MapsManager & mapMan = testModel.mapsManager();
+   mbapi::StratigraphyManager & stratMan = testModel.stratigraphyManager();
 
    //check whether filter half width value can be read and modified correctly
    ctcMan.getFilterHalfWidthValue(filtrHalfWidth);
@@ -1621,6 +1661,9 @@ TEST_F(mbapiModelTest, CtcManager)
       {
          ctcMan.getDepoAge(tsId, age);
          EXPECT_NEAR(actualDepositionalAges[tsId], age, eps);
+
+		 stratMan.getDepoAge(tsId, age);
+		 EXPECT_NEAR(actualDepositionalAges[tsId], age, eps);
       }
       mbapi::CtcManager::StratigraphyTblLayerID id;
       id = 1;
