@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmLithoFraction.h
 /// @brief This file keeps API implementation for handling variation of the lithofractions for a given layer
@@ -79,7 +79,7 @@ namespace casa
       {
          std::vector<size_t> ij( 2, static_cast<size_t>( floor( vin[ 0 ] + 0.5 ) ) );
          ij[1] = static_cast<size_t>( floor( vin[1] + 0.5 ) );
-         prm.reset( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds, ij ) );      
+         prm.reset( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds, ij ) );
       }
       else
       {
@@ -89,7 +89,7 @@ namespace casa
       prm->setParent( this );
       return prm;
    }
-   
+
    SharedParameterPtr VarPrmLithoFraction::makeThreeDFromOneD( mbapi::Model                          & mdl
                                                              , const std::vector<double>             & xin
                                                              , const std::vector<double>             & yin
@@ -157,20 +157,20 @@ namespace casa
       mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", mapNameFirstLithoPercentage, lf1CorrInt, mapSeqNbr,"" ); // use the default filename for the file storing the maps
       if ( IsValueUndefined( id ) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameFirstLithoPercentage 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameFirstLithoPercentage
                                                                         << " lithofraction map failed";
       }
       id = mapsMgr.generateMap( "StratIoTbl", mapNameSecondLithoPercentage, lf2CorrInt, mapSeqNbr,"" );
       if ( IsValueUndefined( id ) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameSecondLithoPercentage 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameSecondLithoPercentage
                                                                         << " lithofraction map failed";
       }
 
       strMgr.setLayerLithologiesPercentageMaps( lid, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage);
 
       // both maps are provided, no scalar values is needed
-      return SharedParameterPtr( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, std::vector<double>(), 
+      return SharedParameterPtr( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, std::vector<double>(),
                                                        mapNameFirstLithoPercentage, mapNameSecondLithoPercentage ) );
    }
 
@@ -186,10 +186,10 @@ namespace casa
       return ret;
    }
 
-   bool VarPrmLithoFraction::save( CasaSerializer & sz, unsigned int version ) const
+   bool VarPrmLithoFraction::save( CasaSerializer & sz ) const
    {
       // save base class data
-      bool ok = VarPrmContinuous::save( sz, version );
+      bool ok = VarPrmContinuous::save( sz );
 
       ok = ok ? sz.save( m_layerName, "LayerName" ) : ok;
       ok = ok ? sz.save( m_lithoFractionsInds, "LithoFractionsInds" ) : ok;

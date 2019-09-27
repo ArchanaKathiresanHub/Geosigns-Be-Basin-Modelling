@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsValueDoubleScalar.h
 /// @brief This file keeps definition of the interface class for handling observables value which could be represented
@@ -26,7 +26,7 @@ namespace casa
    class ObsValueDoubleScalar : public ObsValue
    {
    public:
-      /// @brief Create a new ObsValueDoubleScalar object. 
+      /// @brief Create a new ObsValueDoubleScalar object.
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
       static ObsValueDoubleScalar * createNewInstance( const Observable * parent, double val ) { return new ObsValueDoubleScalar( parent, val ); }
@@ -59,7 +59,7 @@ namespace casa
 
       /// @brief Get parent observable which define type of observable
       virtual const Observable * parent() const { return m_parent; }
-      
+
       /// @brief Calculate Mean Squared Error for the observable value if reference value was specified
       /// @return Mean Squared Error
       virtual double MSE() const;
@@ -68,7 +68,7 @@ namespace casa
       /// @return observable value
       double value() const { return m_value; }
 
-      // The following methods are used for testing  
+      // The following methods are used for testing
       virtual bool isDouble() const { return true; }
       virtual std::vector<double> asDoubleArray( bool /* transformed */ = true ) const { return std::vector<double>( 1, value() ); }
 
@@ -83,10 +83,9 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
-      
+      virtual bool save(CasaSerializer & sz) const;
+
       /// @brief Create a new ObsValueDoubleScalar instance and deserialize it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
@@ -98,7 +97,7 @@ namespace casa
 
       const Observable * m_parent;   // pointer to the observable description object
       double             m_value;    // value itself
-   
+
    private:
    };
 }

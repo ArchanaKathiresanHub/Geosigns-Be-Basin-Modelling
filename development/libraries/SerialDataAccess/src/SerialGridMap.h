@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -133,11 +133,10 @@ namespace DataAccess
          /// map interpolation functionality
          bool convertToGridMap(GridMap *mapB) const final;
 
-         /// Transforms a high res local grid map to a low res local grid map 
+         /// Transforms a high res local grid map to a low res local grid map
          bool transformHighRes2LowRes(GridMap *mapB) const final;
-         /// Transforms a low res local grid map to a high res local grid map 
-         bool transformLowRes2HighRes(GridMap *mapB) const final;
-
+         /// Transforms a low res local grid map to a high res local grid map
+         virtual bool transformLowRes2HighRes(GridMap *mapB, bool extrapolateAOI=false) const;
 
          /// return the local horizontal resolution
          unsigned int numI() const final;
@@ -156,7 +155,7 @@ namespace DataAccess
 
          bool retrieved() const final { return true; }
 
-         /// return false 
+         /// return false
          bool isAscendingOrder() const final;
       private:
          /// The (regular) Grid this GridMap is based on.

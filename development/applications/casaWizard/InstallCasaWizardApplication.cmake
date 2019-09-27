@@ -1,0 +1,27 @@
+macro( install_casawizard_application TARGETNAME )
+if(UNIX)
+  install( TARGETS ${TARGETNAME} RUNTIME DESTINATION bin )
+
+  set( SCRIPTNAME "${CMAKE_CURRENT_BINARY_DIR}/${TARGETNAME}" )
+  file( WRITE ${SCRIPTNAME}
+"#!/bin/bash
+
+DIR=$(dirname $0)
+. /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh -d HpcSoftwareStack/PRODUCTION
+module purge &> /dev/null
+module load Qt/5.4.1-intel-${INTEL_CXX_VERSION}
+
+EXEC_NAME=${TARGETNAME}.exe
+export PATH=$DIR:$PATH
+if [ -d \"$DIR/../../misc\" ]; then
+  export CTCDIR=$DIR/../../misc
+else
+  if [ -d \"$DIR/../misc\" ]; then
+    export CTCDIR=$DIR/../misc
+  fi 
+fi
+$(dirname $0)/$EXEC_NAME
+" )
+  install( PROGRAMS ${SCRIPTNAME} DESTINATION bin )
+endif(UNIX)
+endmacro( install_casawizard_application )

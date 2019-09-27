@@ -87,23 +87,7 @@ int main(int argc, char *argv[])
       std::cerr << " Example of conversion .sch file to .cfg format:   T -cfg Apps/Genex6/Final_VBA_feb_2011/CFG -type  reactTCA" << endl; 
       exit(1);
    }
-/*
-   if(argc == 1) {
-      theType = BENCHMARK;
-   } else {
-      if(!strcmp(argv[1], "-gen5")){
-         simulateGX5 = true;
-      } else if(benchmark == argv[1]) {
-         theType = BENCHMARK;
-      } else if(sensitivity == argv[1]) {
-         theType = SENSITIVITY;
-      } else if(transformsch2cfg == argv[1]) {
-         theType = TRANSFORMSCH2CFG;
-      } else {
-         theType = BENCHMARK;
-      }
-   }
-*/
+
 //-----------------------------CreateEnvironment Variables------------------------------------------------------------
 
    const std::string sourceRockConfigurationFilePath = cfgPath;
@@ -116,14 +100,10 @@ int main(int argc, char *argv[])
    if(simulateGX5) {
       cout << "----------------- (Genex5 simulation) ----------------  " << endl;
    } 
-//   if(!approxFlag) {
-//      cout << "----------------- (No approximation) -----------------  " << endl;
-//   }
    cout << endl;
 
    //-----------------------------Create SourceRockProperties--------------------------------------------
    
-   //std::string in_sourceRockType; // = "Genex6TypeI"; //"reactTCA" //Source rock type, directing to the corect Chemical Model;
    double in_HC = 1.39;                 //H/C ratio,chemically related to the H/C of preasphaltene, value from GUI
    double in_SC = 0.05;                 //S/C ratio
    double in_SO4 = 0.0;                 //initial SO4 mass fraction
@@ -176,7 +156,7 @@ int main(int argc, char *argv[])
       //------------------------------Create SourceRockNode ----------------------------------------------
       theNode = new Genex6::SourceRockNode(thickness, in_TOCi, in_InorganicDensity, 1.0, 0.0);
       //--------------------------------Create Node History-----------------------------------------------
-      theNode->CreateTestingPTHistory(fp);
+      theNode->CreateInputPTHistory(fp);
       fclose(fp);
    } else {
       const int in_numberOfTimesteps = 400;
@@ -201,36 +181,26 @@ int main(int argc, char *argv[])
       //------------------------------Create SourceRockNode ----------------------------------------------
       theNode = new Genex6::SourceRockNode(thickness, in_TOCi, in_InorganicDensity, 1.0, 0.0);
       //--------------------------------Create Node History-----------------------------------------------
-      theNode->CreateTestingPTHistory(theUnitTestDataCreator);
+      theNode->CreateInputPTHistory(theUnitTestDataCreator);
    }
  
    cout << "Configuration File: " << sourceRockConfigurationFilePath << Genex6::Constants::FolderDivider << 
       in_sourceRockType << endl;
    
    cout << "HC = " << in_HC << endl;
-   
-   Genex6::Simulator theSimulator (sourceRockConfigurationFilePath, 
-                                   simulation_type, 
+
+   Genex6::Simulator theSimulator (sourceRockConfigurationFilePath,
+                                   simulation_type,
                                    in_sourceRockType, in_HC, in_SC, in_Emean, in_VRE,
-                                   in_asphalteneDiffusionEnergy, in_resinDiffusionEnergy, 
+                                   in_asphalteneDiffusionEnergy, in_resinDiffusionEnergy,
                                    in_C15AroDiffusionEnergy, in_C15SatDiffusionEnergy,
                                    approxFlag);
    
-   bool Status = theSimulator.Validate();
-   //if(Status == false) { 
-   //   cout << "Stoich coeff is negative." << endl;
-   //}
-   //----------------------------Perform Simulation---------------------------------------------------  
-   theNode->RequestComputationUnitTest(theSimulator);
+   theSimulator.Validate();
+
+   theNode->RequestComputation(theSimulator);
    
-   /*
-     ostringstream theFile;
-     theFile << "Test" << testNumber << "_" << in_sourceRockType << "_HC_" << in_HC; 
-     theFile << "_Emean_" << in_Emean << ".csv";
-     std::string benchmarkName = theFile.str();
-     std::string benchmarkFullPathName = benchmarkTestsFilePathOutput + Genex6::Constants::FolderDivider + 
-     benchmarkName;
-   */         
+
    //Benchmark output for POC
    theNode->PrintBenchmarkOutput(benchmarkTestsFilePathOutput, theSimulator);
 

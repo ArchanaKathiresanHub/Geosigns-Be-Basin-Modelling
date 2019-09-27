@@ -839,7 +839,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
 
             }
 
-         // Iterate over all sediment-layers.
+            // Iterate over all sediment-layers.
             for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter )
             {
                GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>( *formationIter );
@@ -849,8 +849,6 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
                }
 
             }
-
-
 
             // Start accounting for unconformities
             int nrActUnc = 0;

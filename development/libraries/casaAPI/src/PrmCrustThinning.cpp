@@ -1,4 +1,4 @@
-//                                                                      
+//
 // Copyright (C) 2012-2015 Shell International Exploration & Production.
 // All rights reserved.
 //
@@ -40,7 +40,8 @@ static const char * s_crustIoTblMapNameCol        = "ThicknessGrid";
 static constexpr double s_eps = 1.e-8;
 
 // Constructor. Get parameter values from the model
-PrmCrustThinning::PrmCrustThinning( mbapi::Model & mdl ) : m_parent( 0 )
+PrmCrustThinning::PrmCrustThinning( mbapi::Model & mdl ) :
+  Parameter()
 {
    size_t crustIoTblSize = mdl.tableSize( s_crustIoTblName );
 
@@ -64,7 +65,7 @@ PrmCrustThinning::PrmCrustThinning( mbapi::Model & mdl ) : m_parent( 0 )
 
       for ( size_t i = 1; i < t.size(); ++i )
       {
-         if ( !m[i].empty() ) // got a map 
+         if ( !m[i].empty() ) // got a map
          {
             if ( m[i-1].empty() || m[i-1] != m[i] ) // change of the map - new event
             {
@@ -75,7 +76,7 @@ PrmCrustThinning::PrmCrustThinning( mbapi::Model & mdl ) : m_parent( 0 )
                ++m_eventsNumber;
             }
          }
-         else 
+         else
          {
             if ( !m[i-1].empty() )
             {
@@ -95,8 +96,8 @@ PrmCrustThinning::PrmCrustThinning( mbapi::Model & mdl ) : m_parent( 0 )
 }
 
 // Constructor. Set given parameter values
-PrmCrustThinning::PrmCrustThinning( const VarPrmCrustThinning * parent, const std::vector<double> & prmValues, const std::vector<std::string> & mapsList ) : 
-     m_parent( parent )
+PrmCrustThinning::PrmCrustThinning( const VarPrmCrustThinning * parent, const std::vector<double> & prmValues, const std::vector<std::string> & mapsList ) :
+     Parameter( parent )
 {
    m_maps.insert( m_maps.begin(), mapsList.begin(), mapsList.end() ); // copy maps
    m_eventsNumber = mapsList.size();
@@ -132,7 +133,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
       std::vector<double>      t;
       std::vector<double>      d;
       std::vector<std::string> m;
-      
+
       // initial point - always constant thickness
       t.push_back( eldestAge );
       d.push_back( m_initialThickness );
@@ -237,7 +238,7 @@ std::string PrmCrustThinning::validate( mbapi::Model & caldModel )
    {
       if      ( m_t0[i] <= 0.0   ) { oss << "Starting time for the crust thinning event " << ibs::to_string( i ) << " must be greater than 0: " << m_t0[i] << "\n"; }
       else if ( m_t0[i] > 1000.0 ) { oss << "Too big value for the starting time of crust thinning event " << ibs::to_string( i ) << ": "       << m_t0[i] << "\n"; }
-   
+
       if (      m_dt[i] < 0      ) { oss << "Duration of the crust thinning event " << ibs::to_string( i ) << " can not be negative: "                   << m_dt[i] << "\n"; }
       else if ( m_dt[i] > m_t0[i]) { oss << "Duration of the crust thinning event " << ibs::to_string( i ) << " can not be greater than starting time: " << m_dt[i] << "\n"; }
 
@@ -246,7 +247,7 @@ std::string PrmCrustThinning::validate( mbapi::Model & caldModel )
 
       if ( i > 0 )
       {
-         if ( m_t0[i-1] - m_dt[i-1] < m_t0[i] ) 
+         if ( m_t0[i-1] - m_dt[i-1] < m_t0[i] )
          {
             oss << "Crust thinning events: " << ibs::to_string( i ) << " and " << ibs::to_string( i ) << " are overlapping\n";
          }
@@ -257,7 +258,7 @@ std::string PrmCrustThinning::validate( mbapi::Model & caldModel )
 
    return oss.str(); // another model, no reason to check further
 }
-  
+
 // Get parameter value as an array of doubles
 std::vector<double> PrmCrustThinning::asDoubleArray() const
 {
@@ -278,7 +279,7 @@ bool PrmCrustThinning::operator == ( const Parameter & prm ) const
 {
    const PrmCrustThinning * pp = dynamic_cast<const PrmCrustThinning *>( &prm );
    if ( !pp ) return false;
-   
+
    const double eps = 1.e-4;
 
    if ( !NumericFunctions::isEqual( m_initialThickness, pp->m_initialThickness, eps ) ) return false;
@@ -298,17 +299,17 @@ bool PrmCrustThinning::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmCrustThinning::save( CasaSerializer & sz, unsigned int /* version */) const
+bool PrmCrustThinning::save( CasaSerializer & sz ) const
 {
-   bool hasParent = m_parent ? true : false;
+   bool hasParent = parent();
    bool ok = sz.save( hasParent, "hasParent" );
-   
+
    if ( hasParent )
    {
-      CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
+      CasaSerializer::ObjRefID parentID = sz.ptr2id( parent() );
       ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
    }
-   ok = ok ? sz.save( m_name,             "name"             ) : ok;
+
    ok = ok ? sz.save( m_initialThickness, "initialThickness" ) : ok;
    ok = ok ? sz.save( m_t0,               "t0"               ) : ok;
    ok = ok ? sz.save( m_dt,               "dt"               ) : ok;
@@ -319,20 +320,25 @@ bool PrmCrustThinning::save( CasaSerializer & sz, unsigned int /* version */) co
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmCrustThinning::PrmCrustThinning( CasaDeserializer & dz, unsigned int /* objVer */)
+PrmCrustThinning::PrmCrustThinning( CasaDeserializer & dz, unsigned int objVer )
 {
    CasaDeserializer::ObjRefID parentID;
 
    bool hasParent;
    bool ok = dz.load( hasParent, "hasParent" );
-   
+
    if ( hasParent )
    {
       bool ok = dz.load( parentID, "VarParameterID" );
-      m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
+      setParent( ok ? dz.id2ptr<VarParameter>( parentID ) : 0 );
    }
 
-   ok = ok ? dz.load( m_name,             "name" )             : ok;
+   if ( objVer < 1)
+   {
+     std::string name;
+     ok = ok && dz.load( name, "name" );
+   }
+
    ok = ok ? dz.load( m_initialThickness, "initialThickness" ) : ok;
    ok = ok ? dz.load( m_t0,               "t0" )               : ok;
    ok = ok ? dz.load( m_dt,               "dt" )               : ok;

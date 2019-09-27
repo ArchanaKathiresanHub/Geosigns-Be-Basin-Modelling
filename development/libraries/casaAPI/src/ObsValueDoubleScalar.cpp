@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsValueDoubleScalar.C
 
@@ -28,17 +28,17 @@ namespace casa
          if ( refVal )
          {
             const std::vector<double> & rv = refVal->asDoubleArray();
-            rmse = (rv[0] - value()) / (m_parent->stdDeviationForRefValue()->asDoubleArray( true )[0] > 0.0 ? 
+            rmse = (rv[0] - value()) / (m_parent->stdDeviationForRefValue()->asDoubleArray( true )[0] > 0.0 ?
                                         m_parent->stdDeviationForRefValue()->asDoubleArray( true )[0]       : (0.1 * rv[0]));
          }
       }
       return rmse * rmse;
    }
 
-   bool ObsValueDoubleScalar::save( CasaSerializer & sz, unsigned int /* version */ ) const
+   bool ObsValueDoubleScalar::save( CasaSerializer & sz ) const
    {
       CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
-      
+
       bool ok = sz.save( parentID, "ObservableID" );
       ok = ok ? sz.save( m_value, "scalarVal" ) : ok;
       return ok;

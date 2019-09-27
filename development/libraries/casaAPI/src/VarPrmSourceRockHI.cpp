@@ -50,9 +50,9 @@ std::vector<std::string> VarPrmSourceRockHI::name() const
 }
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool VarPrmSourceRockHI::save( CasaSerializer & sz, unsigned int version ) const
+bool VarPrmSourceRockHI::save( CasaSerializer & sz ) const
 {
-   bool ok = VarPrmSourceRockProp::serializeCommonPart( sz, version );
+   bool ok = VarPrmSourceRockProp::serializeCommonPart( sz );
    return ok;
 }
 

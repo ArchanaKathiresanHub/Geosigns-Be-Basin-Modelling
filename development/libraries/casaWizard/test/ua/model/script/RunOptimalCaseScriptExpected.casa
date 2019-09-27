@@ -1,0 +1,7 @@
+app 1 fastcauldron "-itcoupled"
+base_project "./CaseSet/Calibrated_calibrated/calibrated.project3d"
+doe "BaseCase"
+location "CaseSet"
+run "LOCAL" ""
+runDataDigger
+exportDataTxt "RunCasesObservables" "runCasesObservables.txt"

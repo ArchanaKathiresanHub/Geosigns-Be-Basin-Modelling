@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsSpaceImpl.C
-/// @brief This file keeps API implementation for observables manager. 
+/// @brief This file keeps API implementation for observables manager.
 
 #include "ObsSpaceImpl.h"
 
@@ -48,10 +48,10 @@ void casa::ObsSpaceImpl::updateObsValueValidateStatus( size_t ob, const std::vec
 }
 
 // Serialize object to the given stream
-bool casa::ObsSpaceImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
+bool casa::ObsSpaceImpl::save( CasaSerializer & sz ) const
 {
    bool ok = true;
-   
+
    // initial implementation of serialization, must exist in all future versions of serialization
    // register ObsSpace object with serializer to allow other objects to keep reference to it after deserializtion
    CasaSerializer::ObjRefID obsID = sz.ptr2id( this );
@@ -76,8 +76,10 @@ bool casa::ObsSpaceImpl::save( CasaSerializer & sz, unsigned int /* fileVersion 
 }
 
 // Create a new instance and deserialize it from the given stream
-casa::ObsSpaceImpl::ObsSpaceImpl(CasaDeserializer & dz, const char * objName)
-{  
+casa::ObsSpaceImpl::ObsSpaceImpl(CasaDeserializer & dz, const char * objName) :
+  m_obsSet{},
+  m_obsIsValidFlags{}
+{
    // read from file object name and version
    unsigned int objVer = version();
 
@@ -96,7 +98,7 @@ casa::ObsSpaceImpl::ObsSpaceImpl(CasaDeserializer & dz, const char * objName)
    ok = ok ? dz.load( setSize, "ObservablesSetSize" ) : ok;
 
    for ( size_t i = 0; i < setSize && ok; ++i )
-   {     
+   {
       Observable * newObs = Observable::load( dz, "Observable" ); // load observable
       assert( newObs );
 
@@ -106,20 +108,20 @@ casa::ObsSpaceImpl::ObsSpaceImpl(CasaDeserializer & dz, const char * objName)
    // Version 1
    if ( objVer > 0 )
    {  // load observable is valid status flags
+
       for ( size_t i = 0; i < setSize && ok; ++i )
       {
-         m_obsIsValidFlags.push_back( std::vector<bool>() );
-         ok = ok ? dz.load( m_obsIsValidFlags.back(), "ObsIsValidFlags" ) : ok;
+         ok = ok ? dz.load( m_obsIsValidFlags[i], "ObsIsValidFlags" ) : ok;
       }
    }
    else
    {  // set all observables as valid, because we can't check them for old version of casa state file
-      for ( size_t i = 0; i < setSize; ++i )
+      for ( std::vector<bool>& obsIsValidFlag : m_obsIsValidFlags )
       {
-         m_obsIsValidFlags.push_back( std::vector<bool>( m_obsSet[i]->dimension(), true ) );
+         std::fill(obsIsValidFlag.begin(), obsIsValidFlag.end(), true);
       }
    }
 
-   if ( !ok ) throw Exception( DeserializationError ) << "ObsSpaceImpl deserialization error";   
+   if ( !ok ) throw Exception( DeserializationError ) << "ObsSpaceImpl deserialization error";
 }
 

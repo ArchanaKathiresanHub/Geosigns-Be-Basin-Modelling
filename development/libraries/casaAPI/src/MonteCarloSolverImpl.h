@@ -122,7 +122,7 @@ namespace casa
       virtual unsigned int version() const { return 0; }
 
       // Serialize object to the given stream
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save(CasaSerializer & sz) const;
 
       // Get type name of the serialaizable object, used in deserialization to create object with correct type
       virtual const char * typeName() const { return "MonteCarloSolverImpl"; }

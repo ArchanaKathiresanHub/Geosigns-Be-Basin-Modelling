@@ -65,7 +65,7 @@ namespace  CrustalThickness
          const Interface::GridMap* previousContinentalCrustThickness,
          const Interface::GridMap* previousOceanicCrustThickness );
 
-      ~McKenzieCrustCalculator() {};
+      ~McKenzieCrustCalculator() {}
 
       /// @brief Define the linear function to invert from TTS (total tectonic subsidence) to TF (thinning factor) for the (i,j) node
       /// @details Computes the function coefficients according to the function input end members

@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsValueTransformable.C
 
@@ -20,8 +20,8 @@ namespace casa
 
    ObsValueTransformable::ObsValueTransformable( const Observable * parent, const std::vector<double> & val )
                                                : m_value( val.begin(), val.end() )
-                                               , m_parent( parent ) 
-   { 
+                                               , m_parent( parent )
+   {
       ObsValueDoubleArray inpVal( parent, val );
       // transform observable value
       ObsValue * trObsVal = parent->transform( &inpVal );
@@ -36,7 +36,7 @@ namespace casa
       if ( m_parent && m_parent->hasReferenceValue() )
       {
          const ObsValue * refVal = m_parent->referenceValue();
-   
+
          if ( refVal )
          {
 
@@ -50,7 +50,7 @@ namespace casa
             assert( stDevVal );
             const std::vector<double> & stdev = stDevVal->asDoubleArray();
             assert( stdev.size() == rv.size() );
- 
+
             if ( value )
             {
                for ( size_t i = 0; i < rv.size(); ++i )
@@ -67,7 +67,7 @@ namespace casa
       return rmse;
    }
 
-   bool ObsValueTransformable::save( CasaSerializer & sz, unsigned int /* version */ ) const
+   bool ObsValueTransformable::save( CasaSerializer & sz ) const
    {
       CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
 
@@ -84,7 +84,7 @@ namespace casa
 
       bool ok = dz.load( parentID, "ObservableID" );
       m_parent = ok ? dz.id2ptr<Observable>( parentID ) : 0;
-      
+
       ok = ok ? dz.load( m_value,      "arrayOfVals"       ) : ok;
       ok = ok ? dz.load( m_transfVals, "arrayOfTransfVals" ) : ok;
 

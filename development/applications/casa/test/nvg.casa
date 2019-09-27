@@ -43,5 +43,3 @@ doe "Tornado"
 location "/scratch/nlskon/inversion/NVG/CaseSet/"
 
 run "LOCAL" "v2014.07nightly"
-
-exportMatlab "data.m"

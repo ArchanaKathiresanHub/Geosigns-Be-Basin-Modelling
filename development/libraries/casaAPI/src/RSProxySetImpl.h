@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file RSProxySetImpl.h
 /// @brief This file keeps API implementation declarations to manage set of proxy objects
@@ -39,7 +39,7 @@ namespace casa
 
       // Access to i-th element
       virtual const RSProxy * operator[] ( size_t i ) const
-      {  
+      {
          if ( m_proxySet.size() <= i ) return 0;
          ProxySet::const_iterator it = m_proxySet.begin();
          for ( size_t j = 0; j <= i; ++j ) ++it;
@@ -58,8 +58,11 @@ namespace casa
       // Check if set is empty
       virtual bool empty() const { return m_proxySet.empty(); }
 
+      // Check weather or not the proxy name exists
+      virtual bool hasProxyName( const std::string & name ) const { return m_proxySet.count(name); }
+
       // Add new proxy to the set
-      void addNewRSProxy( RSProxy * proxy, const std::string & name ) { assert( m_proxySet.count( name ) == 0 ); m_proxySet[name] = proxy; }
+      virtual void addNewRSProxy( RSProxy * proxy, const std::string & name ) { assert( m_proxySet.count( name ) == 0 ); m_proxySet[name] = proxy; }
 
       // Serialization / Deserialization
 
@@ -67,11 +70,11 @@ namespace casa
       virtual unsigned int version() const { return 0; }
 
       // Serialize object to the given stream
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save(CasaSerializer & sz) const;
 
       // Get type name of the serialaizable object, used in deserialization to create object with correct type
       virtual const char * typeName() const { return "RSProxySetImpl"; }
- 
+
       // Create a new instance and deserialize it from the given stream
       RSProxySetImpl( CasaDeserializer & dz, const char * objName );
 

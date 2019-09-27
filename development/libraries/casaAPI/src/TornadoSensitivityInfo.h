@@ -56,7 +56,7 @@ namespace casa
       /// @param prmSubID parameter subindex if parameter dimension more than 1
       void addSensitivity( double minV, double maxV, const VarParameter * prm, size_t prmSubID );
       
-      /// @brief Add found by proxy evalutaion min max observable value in [min:max] influential parameter range interval
+      /// @brief Add found by proxy evaluation min max observable value in [min:max] influential parameter range interval
       ///        Must be called just after TornadoSensitivityInfo::addSensitivity() call.
       /// @param minVal observable minimal value over [min:max] parameter range
       /// @param maxVal observable maximal value over [min:max] parameter range

@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "CasaCommander.h"
 #include "CmdCalibrateProject.h"
@@ -27,23 +27,28 @@ CmdCalibrateProject::CmdCalibrateProject( CasaCommander & parent, const std::vec
    m_transformation = m_prms.size() > 3 ? m_prms[3] : "none";
    m_relativeReduction = m_prms.size( ) > 4 ? atof( m_prms[4].c_str( ) ) : 0.05;
    m_keepHist  = m_prms.size() > 5 ? ( m_prms[5] == "KeepHistory" ? true : false ) : false;
-   
+
 
    if ( m_bmcName.empty()  ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty output project name for project calibration";
    if ( m_optimAlg.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty optimization algorithm name was given";
 
-   if ( m_cldVer.empty() || m_cldVer == "Default" ) 
+   if ( m_cldVer.empty() || m_cldVer == "Default" )
    {
       m_cldVer = ibs::Path::applicationFullPath().path();
    }
 }
 
 void CmdCalibrateProject::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
-{  
+{
    LogHandler( LogHandler::INFO_SEVERITY ) << "Starting calibration loop...";
 
    // set run manager to use local job scheduler and the given cauldron simulator version
    casa::RunManager & rm = sa->runManager();
+   if ( ErrorHandler::NoError != rm.addApplication( new casa::CauldronApp( "datadriller", false) ) )
+   {
+     throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
+   }
+
    if ( ErrorHandler::NoError != rm.setCauldronVersion( m_cldVer.c_str() ) ||
         ErrorHandler::NoError != rm.setClusterName( "LOCAL" ) )
    {
@@ -51,10 +56,10 @@ void CmdCalibrateProject::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa 
    }
 
    if ( ErrorHandler::NoError != sa->calibrateProjectUsingOptimizationAlgorithm( m_bmcName, m_optimAlg, m_transformation, m_relativeReduction, m_keepHist ) )
-   { 
+   {
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
-   
+
    LogHandler( LogHandler::INFO_SEVERITY ) << "Project calibration succeeded.";
 }
 

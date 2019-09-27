@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmSurfacePorosity.h
 /// @brief This file keeps API implementation for handling variation of surface porosity the given list of lithologies
@@ -26,9 +26,9 @@ namespace casa
 {
 
 VarPrmSurfacePorosity::VarPrmSurfacePorosity( const std::vector<std::string> & lithosName
-                                        , double                               baseSurfPor    
-                                        , double                               minSurfPor    
-                                        , double                               maxSurfPor    
+                                        , double                               baseSurfPor
+                                        , double                               minSurfPor
+                                        , double                               maxSurfPor
                                         , VarPrmContinuous::PDF                prmPDF
                                         , const std::string                  & name
                                         )
@@ -52,9 +52,9 @@ PrmLithologyProp * VarPrmSurfacePorosity::createNewPrmFromModel( mbapi::Model & 
    return new PrmSurfacePorosity( this, m_lithosName, mdlPrm.value() );
 }
 
-bool VarPrmSurfacePorosity::save( CasaSerializer & sz, unsigned int version ) const 
-{ 
-   bool ok = VarPrmLithologyProp::serializeCommonPart( sz, version );
+bool VarPrmSurfacePorosity::save( CasaSerializer & sz) const
+{
+   bool ok = VarPrmLithologyProp::serializeCommonPart( sz );
    return ok;
 }
 

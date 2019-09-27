@@ -47,10 +47,11 @@ namespace casa
       virtual std::string name() { return "Levenberg Marquardt"; }
 
       void updateParametersAndRunCase( const Eigen::VectorXd & x );
+      void updateBestMatchCase( std::shared_ptr<RunCase> newBestMatchedCase);
       void calculateFunctionValue( Eigen::VectorXd & fvec );
-	  void removeInvalidObservations(size_t & nValues);
-      std::string transformation() const { return m_parameterTransformation; };
-      double relativeReduction( ) const { return m_relativeReduction; };
+      void removeInvalidObservations(size_t & nValues);
+      std::string transformation() const { return m_parameterTransformation; }
+      double relativeReduction( ) const { return m_relativeReduction; }
 
    protected:
       size_t prepareParameters( std::vector<double> & initGuess, std::vector<double> & minPrm, std::vector<double> & maxPrm );
@@ -61,8 +62,8 @@ namespace casa
       std::vector< std::pair<const VarPrmContinuous *, size_t> > m_optimPrms; // keeps pointer to influential parameter and subparameter number
       std::vector< size_t >                                      m_permPrms;  // permutation array - optimization prms -> all prms
 
-	  std::vector< std::vector<bool>>                            m_optimObsMask;    // the mask for each observation
-	  std::vector< std::pair<size_t,const Observable*>>          m_optimObsLst;     // the valid observables (first the k position in the observable space, than its ptr)
+      std::vector< std::vector<bool> >                           m_optimObsMask;    // the mask for each observation
+      std::vector< std::pair<size_t,const Observable*> >         m_optimObsLst;     // the valid observables (first the k position in the observable space, than its ptr)
       
       std::vector< std::shared_ptr<RunCase> >                    m_casesSet;         // set of run cases for each step of LM
       std::shared_ptr<RunCase>                                   m_baseCase;         // the base case 
@@ -70,8 +71,8 @@ namespace casa
       std::vector<double>                                        m_xi;               // parameters value proposed by LM
       double                                                     m_Qmin;             // minimal value of Qtrgt for LM iterations
       bool                                                       m_keepHistory;      // keep all intermediate steps of LM
-      std::string                                                m_parameterTransformation; //the type of parameter transformation that is applied
-      double                                                     m_relativeReduction;      // the relative reduction to determine when to stop outer loops of the LM optimizations 
+      std::string                                                m_parameterTransformation; // the type of parameter transformation that is applied
+      double                                                     m_relativeReduction;       // the relative reduction to determine when to stop outer loops of the LM optimizations
    };
 
 } // namespace casa

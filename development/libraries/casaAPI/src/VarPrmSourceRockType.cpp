@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmSourceRockType.h
-/// @brief This file keeps API implementation for handling variation of source rock type for stratigraphy layer. 
+/// @brief This file keeps API implementation for handling variation of source rock type for stratigraphy layer.
 
 #include "PrmSourceRockType.h"
 #include "VarPrmSourceRockType.h"
@@ -22,10 +22,10 @@
 namespace casa
 {
 
-VarPrmSourceRockType::VarPrmSourceRockType( const char                     * layerName 
-                                          , const std::string              & baseVal 
+VarPrmSourceRockType::VarPrmSourceRockType( const char                     * layerName
+                                          , const std::string              & baseVal
                                           , int                              mixID
-                                          , const std::vector<std::string> & variation 
+                                          , const std::vector<std::string> & variation
                                           , const std::vector<double>      & weights
                                           , const char                     * name
                                           )
@@ -49,7 +49,7 @@ VarPrmSourceRockType::VarPrmSourceRockType( const char                     * lay
    }
    if ( m_baseVal > variation.size() )
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<
          "Variation of source rock parameter: Base value is not in the list";
    }
 }
@@ -58,7 +58,7 @@ std::vector<std::string> VarPrmSourceRockType::name() const
 {
    std::vector<std::string> ret;
 
-   if ( m_name.empty() ) 
+   if ( m_name.empty() )
    {
       if ( !m_variation.empty() )
       {
@@ -67,13 +67,13 @@ std::vector<std::string> VarPrmSourceRockType::name() const
          {
             std::ostringstream oss;
             oss << prm->layerName() + " Source rock type [" << m_mixID << "](" << m_variation.size() << ")";
-	         ret.push_back( oss.str() );
+           ret.push_back( oss.str() );
          }
       }
    }
    else { ret.push_back( m_name ); }
 
-	return ret;
+  return ret;
 }
 
 int VarPrmSourceRockType::index( const PrmSourceRockType * prm ) const
@@ -95,22 +95,22 @@ SharedParameterPtr VarPrmSourceRockType::newParameterFromModel( mbapi::Model & m
    {
       if ( (*(m_variation[i].get())) == (*(prm.get()) )) { return m_variation[i]; }
    }
-   throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Categorical value of source rock type: " << prm->sourceRockTypeName() 
-                                                                  << "found in the model for the layer "  << m_layerName << ", mixing id: " 
+   throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Categorical value of source rock type: " << prm->sourceRockTypeName()
+                                                                  << "found in the model for the layer "  << m_layerName << ", mixing id: "
                                                                   << m_mixID << ", does not exist in VarParameter variation";
 }
- 
+
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool VarPrmSourceRockType::save( CasaSerializer & sz, unsigned int version ) const
+bool VarPrmSourceRockType::save( CasaSerializer & sz ) const
 {
-   bool ok = VarPrmCategorical::save( sz, version );
+   bool ok = VarPrmCategorical::save( sz );
    ok = ok ? sz.save( m_mixID, "mixingID" ) : ok;
 
    return ok;
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-VarPrmSourceRockType::VarPrmSourceRockType( CasaDeserializer & dz, unsigned int objVer ) 
+VarPrmSourceRockType::VarPrmSourceRockType( CasaDeserializer & dz, unsigned int objVer )
 {
    bool ok = VarPrmCategorical::deserializeCommonPart( dz, objVer );
 

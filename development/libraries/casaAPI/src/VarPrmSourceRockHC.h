@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmSourceRockHC.h
-/// @brief This file keeps API declaration for handling variation of source rock H/C parameter. 
+/// @brief This file keeps API declaration for handling variation of source rock H/C parameter.
 
 #ifndef CASA_API_VAR_PARAMETER_SOURCE_ROCK_HC_H
 #define CASA_API_VAR_PARAMETER_SOURCE_ROCK_HC_H
@@ -35,10 +35,10 @@ namespace casa
 
       /// @brief Destructor
       virtual ~VarPrmSourceRockHC() {;}
-     
-	   /// @brief Get name of influential parameter in short form
-	   /// @return array of names for each sub-parameter
-	   virtual std::vector<std::string> name() const;
+
+		 /// @brief Get name of influential parameter in short form
+		 /// @return array of names for each sub-parameter
+		 virtual std::vector<std::string> name() const;
 
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
@@ -51,9 +51,8 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Create a new var.parameter instance by deserializing it from the given stream
       /// @param dz input stream

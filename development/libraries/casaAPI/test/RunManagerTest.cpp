@@ -4,9 +4,8 @@
 #include "../src/FolderPath.h"
 #include "../src/PrmSourceRockTOC.h"
 #include "../src/PrmTopCrustHeatProduction.h"
-#include "../src/RunManagerImpl.h"
+#include "../src/RunManager.h"
 #include "../src/VarPrmSourceRockTOC.h"
-#include "../src/VarPrmTopCrustHeatProduction.h"
 
 #include <memory>
 #include <cstdlib>
@@ -30,11 +29,11 @@ public:
              , m_projectFileName( "Ottoland.project3d" )
              , m_caseSetPath( "." )
 #ifdef _WIN32
-			 , m_scriptExt(".bat")
+       , m_scriptExt(".bat")
 #else
-			 , m_scriptExt(".sh")
+       , m_scriptExt(".sh")
 #endif
-   { 
+   {
       m_caseSetPath << "CaseSetRunManagerTest";
    }
    ~RunManagerTest( ) { ; }
@@ -45,7 +44,7 @@ public:
 
    const double      m_minTCHP;
    const double      m_maxTCHP;
-   
+
    const char      * m_layerName;
 
    const char      * m_projectFileName;
@@ -55,7 +54,7 @@ public:
 
 
 // RunManager test. There is 1 DoE Tornado experiment with 2 parameters
-// Test creates DoE and generates set of project files. 
+// Test creates DoE and generates set of project files.
 // Then it spawn 1 job to the cluster and check the execution results
 TEST_F( RunManagerTest, Tornado2PrmsMutations )
 {
@@ -63,30 +62,28 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
    casa::ScenarioAnalysis sc;
 
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_projectFileName ) );
-   
+
    // vary 2 parameters
    std::vector<double> dblRng( 2, m_minTOC );
    dblRng[1] = m_maxTOC;
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, m_layerName, 1, 0, dblRng, vector<string>(),  VarPrmContinuous::Block ) );
 
-   dblRng[0] = m_minTCHP;
-   dblRng[1] = m_maxTCHP;
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, vector<string>(), VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VaryParameter<PrmTopCrustHeatProduction>(sc, {}, "", m_minTCHP, m_maxTCHP) );
 
    // set up and generate DoE
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
    casa::DoEGenerator & doe = sc.doeGenerator( );
 
    doe.generateDoE( sc.varSpace(), sc.doeCaseSet() );
-   
+
    ASSERT_EQ( 5U, sc.doeCaseSet().size() );
-   
+
    ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( m_caseSetPath.cpath() ) );
 
    ASSERT_EQ( ErrorHandler::NoError, sc.applyMutations( sc.doeCaseSet() ) );
 
-   RunManagerImpl & rm = dynamic_cast< RunManagerImpl &> ( sc.runManager() );
- 
+   RunManager& rm = sc.runManager();
+
    // set up simulation pipeline, the first is fastcauldron
    CauldronApp * app = RunManager::createApplication( RunManager::fastcauldron );
    app->addOption( "-itcoupled" );
@@ -121,14 +118,14 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
       // check that all files were generated correctly
       for ( size_t j = 0; j < 3; ++j )
       {
-		  ASSERT_TRUE( ( ibs::FilePath(casePath.path() ) << std::string( "Stage_" ) + std::to_string( j ) + m_scriptExt ).exists() );
+        ASSERT_TRUE( ( ibs::FilePath(casePath.path() ) << std::string( "Stage_" ) + std::to_string( j ) + m_scriptExt ).exists() );
       }
    }
- 
+
    // cleaning files/folders
    pathToCaseSet.clean();  // clean folder ./CaseSet/Iteration_1
-   pathToCaseSet.cutLast();       
+   pathToCaseSet.cutLast();
    pathToCaseSet.remove(); // delete folder ./CaseSet
-   
+
    ASSERT_FALSE( pathToCaseSet.exists() );
 }

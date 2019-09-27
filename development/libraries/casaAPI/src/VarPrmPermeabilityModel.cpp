@@ -248,7 +248,7 @@ std::vector<std::string> VarPrmPermeabilityModel::name() const
       if ( ret.size() > 0 ) ret[0] = m_name;
       else ret.push_back( m_name );
    }
-	return ret;
+  return ret;
 }
 
 size_t VarPrmPermeabilityModel::dimension() const
@@ -327,10 +327,10 @@ SharedParameterPtr VarPrmPermeabilityModel::makeThreeDFromOneD( mbapi::Model    
 }
 
 
-bool VarPrmPermeabilityModel::save( CasaSerializer & sz, unsigned int version ) const
+bool VarPrmPermeabilityModel::save( CasaSerializer & sz ) const
 {
    // save base class data
-   bool ok = VarPrmContinuous::save( sz, version );
+   bool ok = VarPrmContinuous::save( sz );
 
    ok = ok ? sz.save( static_cast<int>( m_mdlType ), "PorModelType"   ) : ok;
    ok = ok ? sz.save( m_lithoName,                   "LithologyName"  ) : ok;

@@ -28,7 +28,7 @@ static void PrintObsValues( const casa::RunCase * cs )
 
    for ( size_t i = 0; i < cs->observablesNumber(); ++i )
    {
-      casa::ObsValue * ov = cs->obsValue( i );
+      const casa::ObsValue * ov = cs->obsValue( i );
       if ( ov && ov->parent() && ov->isDouble() )
       {
          const std::vector<double>      & vals  = ov->asDoubleArray();

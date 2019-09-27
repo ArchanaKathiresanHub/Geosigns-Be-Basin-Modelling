@@ -42,7 +42,7 @@ namespace GeoPhysics
          /// \post Guarantees the return of the return value of the appropriate function to be called depending on temperature, higherTemperature and lowerTemperature.
          double get( const GeoPhysics::Brine::PhaseStateScalar & phase ) const;
          void   get( const GeoPhysics::Brine::PhaseStateVec & phase,
-                     ArrayDefs::Real_ptr brineProp ) const {};
+                     ArrayDefs::Real_ptr brineProp ) const {}
 
       private:
          /// Analytic function implementing the Batzle-Wang equation for the value of the seismic velocity

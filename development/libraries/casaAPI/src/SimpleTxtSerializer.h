@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef TXT_SERIALIZER_H
 #define TXT_SERIALIZER_H
@@ -16,6 +16,8 @@
 
 // STL
 #include <fstream>
+
+#include <cassert>
 
 namespace casa
 {
@@ -157,13 +159,8 @@ namespace casa
       /// @return true if on success, false otherwise
       virtual bool save( const std::vector< std::string > & vec, const std::string & vecName );
 
-      /// @brief Get version of serialization file
-      /// @return get file version
-      virtual int version() { return m_version; }
-
    private:
       std::ofstream  m_file;
-      int            m_version;
 
       SimpleTxtSerializer( const SimpleTxtSerializer & );             // copy constructor disabled
       SimpleTxtSerializer & operator = (const SimpleTxtSerializer &); // copy operator disabled

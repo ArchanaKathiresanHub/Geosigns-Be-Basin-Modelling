@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmOneCrustThinningEvent.C
 /// @brief This file keeps API implementation for single event crust thinning parameter handling
@@ -40,7 +40,7 @@ static const char * s_crustIoTblThicknessCol      = "Thickness";
 static const double s_eps = 1.e-8;
 
 // Constructor. Get parameter values from the model
-PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : m_parent( 0 )
+PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : Parameter( )
 {
    size_t crustIoTblSize = mdl.tableSize( s_crustIoTblName );
 
@@ -77,8 +77,8 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( const VarPrmOneCrustThinning
                                                   , double                              dt
                                                   , double                              coeff
                                                   )
-                                                  : m_parent( parent )
-                                                  , m_initialThickness( thickIni ) 
+                                                  : Parameter( parent )
+                                                  , m_initialThickness( thickIni )
                                                   , m_t0( t0 )
                                                   , m_dt( dt )
                                                   , m_coeff( coeff ) {}
@@ -143,16 +143,16 @@ std::string PrmOneCrustThinningEvent::validate( mbapi::Model & caldModel )
 
    if ( m_coeff < 0 ) { oss << "Crust thinning factor can not be negative: "      << m_coeff << "\n"; }
    if ( m_coeff > 1 ) { oss << "Crust thinning factor can not greater than 1.0: " << m_coeff << "\n"; }
- 
+
 
    int crustIoTblSize = caldModel.tableSize( s_crustIoTblName );
-   
+
    if ( ErrorHandler::NoError != caldModel.errorCode() )
    {
       oss << caldModel.errorMessage() << std::endl;
       return oss.str();
    }
-   
+
    if ( crustIoTblSize != 4 ) { oss << "Project has a mismatched profile to single crust thinning event for the crust thinning history\n"; }
 
    double t[4];
@@ -162,13 +162,13 @@ std::string PrmOneCrustThinningEvent::validate( mbapi::Model & caldModel )
       t[i] = caldModel.tableValueAsDouble( s_crustIoTblName, i, s_crustIoTblAgeCol );
       d[i] = caldModel.tableValueAsDouble( s_crustIoTblName, i, s_crustIoTblThicknessCol );
    }
-   
-   if ( std::abs( d[3] - m_initialThickness ) > s_eps ) 
-   { 
+
+   if ( std::abs( d[3] - m_initialThickness ) > s_eps )
+   {
       oss << "Initial crust thickness value in the model (" << d[3] << ") is differ from parameter value (" << m_initialThickness << ")\n";
    }
 
-   if ( std::abs( t[2] - m_t0 ) > s_eps ) 
+   if ( std::abs( t[2] - m_t0 ) > s_eps )
    {
       oss << "Start time for crust thinning value in the model (" << t[2] << ") is differ from parameter value (" << m_t0 << ")\n";
    }
@@ -190,7 +190,7 @@ std::string PrmOneCrustThinningEvent::validate( mbapi::Model & caldModel )
 
    return oss.str(); // another model, no reason to check further
 }
-  
+
 // Get parameter value as an array of doubles
 std::vector<double> PrmOneCrustThinningEvent::asDoubleArray() const
 {
@@ -209,7 +209,7 @@ bool PrmOneCrustThinningEvent::operator == ( const Parameter & prm ) const
 {
    const PrmOneCrustThinningEvent * pp = dynamic_cast<const PrmOneCrustThinningEvent *>( &prm );
    if ( !pp ) return false;
-   
+
    const double eps = 1.e-4;
 
    if ( !NumericFunctions::isEqual( m_initialThickness, pp->m_initialThickness, eps ) ) return false;
@@ -222,17 +222,9 @@ bool PrmOneCrustThinningEvent::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmOneCrustThinningEvent::save( CasaSerializer & sz, unsigned int /* version */ ) const
+bool PrmOneCrustThinningEvent::save( CasaSerializer & sz ) const
 {
-   bool hasParent = m_parent ? true : false;
-   bool ok = sz.save( hasParent, "hasParent" );
-   
-   if ( hasParent )
-   {
-      CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
-      ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
-   }
-   ok = ok ? sz.save( m_name,             "name"             ) : ok;
+   bool ok = saveCommonPart(sz);
    ok = ok ? sz.save( m_initialThickness, "initialThickness" ) : ok;
    ok = ok ? sz.save( m_t0,               "t0"               ) : ok;
    ok = ok ? sz.save( m_dt,               "dt"               ) : ok;
@@ -242,20 +234,15 @@ bool PrmOneCrustThinningEvent::save( CasaSerializer & sz, unsigned int /* versio
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( CasaDeserializer & dz, unsigned int /* objVer */ )
+PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( CasaDeserializer & dz, unsigned int objVer ) :
+  Parameter(dz, objVer)
 {
-   CasaDeserializer::ObjRefID parentID;
-
-   bool hasParent;
-   bool ok = dz.load( hasParent, "hasParent" );
-   
-   if ( hasParent )
+   bool ok = true;
+   if ( objVer<1 )
    {
-      bool ok = dz.load( parentID, "VarParameterID" );
-      m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
+     std::string name;
+     ok = ok && dz.load( name, "name" );
    }
-
-   ok = ok ? dz.load( m_name,             "name" )             : ok;
    ok = ok ? dz.load( m_initialThickness, "initialThickness" ) : ok;
    ok = ok ? dz.load( m_t0,               "t0" )               : ok;
    ok = ok ? dz.load( m_dt,               "dt" )               : ok;

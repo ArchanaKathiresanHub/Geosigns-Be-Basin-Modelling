@@ -34,7 +34,7 @@ namespace DataAccess
 
          public:
 
-            TableLoader() {};
+            TableLoader() {}
 
             /// @brief Apply the given function to all the records (corresponding to the rows) of the specfied IoTbl
             /// @param[in] tableName The name of the IoTbl (i.e. CTCIoTbl)

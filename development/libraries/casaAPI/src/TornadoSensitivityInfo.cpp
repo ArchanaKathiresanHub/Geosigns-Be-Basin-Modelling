@@ -92,7 +92,7 @@ namespace casa
       }
       else if ( prm->variationType() == VarParameter::Categorical )
       {
-         if ( dynamic_cast<const VarPrmCategorical *>( prm )->selected() )
+         if ( dynamic_cast<const VarPrmCategorical *>( prm )->selected()[0] )
          {
             m_vprmPtr.push_back( std::pair<const VarParameter *, int>( prm, static_cast<int>( prmSubID ) ) );
             m_sensitivities.push_back( std::vector<double>( 1, minV ) ); // for categorical only one sensitivity

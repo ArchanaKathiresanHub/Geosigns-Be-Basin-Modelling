@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmLithologyProp.h
 /// @brief This file keeps base class methods definition for any lithology property implemented as influential parameter
@@ -28,7 +28,7 @@ namespace casa
 VarPrmLithologyProp::VarPrmLithologyProp( const std::vector<std::string> & lithosName
                                         , PDF                              prmPDF
                                         , const std::string              & name
-                                        ) 
+                                        )
                                         : m_lithosName( lithosName.begin(), lithosName.end() )
 {
    m_pdf = prmPDF;
@@ -49,7 +49,7 @@ SharedParameterPtr VarPrmLithologyProp::newParameterFromDoubles( std::vector<dou
 
    if ( minProp > prmV || prmV > maxProp )
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of lithology property " << m_propName << 
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of lithology property " << m_propName <<
          " for lithologies: " << m_lithosName.front() << ",... : " << prmV << " falls out of range: [" << minProp << ":" << maxProp << "]";
    }
 
@@ -87,17 +87,17 @@ SharedParameterPtr VarPrmLithologyProp::makeThreeDFromOneD( mbapi::Model        
    // set the average parameter value in the model
    double minProp = m_minValue->asDoubleArray()[0];
    double maxProp = m_maxValue->asDoubleArray()[0];
-   
+
    if ( minProp > av || av > maxProp )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The average of the lithology property " << m_propName
-                                                                     << " for lithologies: " << m_lithosName.front() << ",... : " 
+                                                                     << " for lithologies: " << m_lithosName.front() << ",... : "
                                                                      << av << " falls out of range: [" << minProp << ":" << maxProp << "]";
    }
    return SharedParameterPtr( createNewPrm( av ) );
 }
 
-std::vector<double> VarPrmLithologyProp::asDoubleArray( const SharedParameterPtr prm ) const 
+std::vector<double> VarPrmLithologyProp::asDoubleArray( const SharedParameterPtr prm ) const
 {
    const PrmLithologyProp * litPrm = dynamic_cast<const PrmLithologyProp*>( prm.get() );
    assert( litPrm );
@@ -107,9 +107,9 @@ std::vector<double> VarPrmLithologyProp::asDoubleArray( const SharedParameterPtr
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool VarPrmLithologyProp::serializeCommonPart( CasaSerializer & sz, unsigned int version ) const
+bool VarPrmLithologyProp::serializeCommonPart( CasaSerializer & sz ) const
 {
-   bool ok = VarPrmContinuous::save( sz, version );
+   bool ok = VarPrmContinuous::save( sz );
    ok = ok ? sz.save( m_lithosName, "LithologiesList" ) : ok;
    ok = ok ? sz.save( m_propName,   "propName"        ) : ok;
    return ok;

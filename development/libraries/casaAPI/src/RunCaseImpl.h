@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file CaseImp.h
 /// @brief This file keeps declaration of the implementation part to keep a single run of Cauldron or a single Monte Carlo point
@@ -35,14 +35,14 @@ namespace casa
 
       virtual ~RunCaseImpl();
 
-      // Get number of parameters 
+      // Get number of parameters
       // return parameters number
       virtual size_t parametersNumber() const { return m_prmsSet.size(); }
 
       // Get i-th parameter
       // i position of requested parameter
       // return i-th parameter or null pointer if there is no such parameter
-      virtual SharedParameterPtr parameter( size_t i ) const;
+      virtual SharedParameterPtr parameter(const size_t i ) const;
 
       // Add new parameter to the list
       virtual void addParameter( SharedParameterPtr prm );
@@ -53,10 +53,10 @@ namespace casa
 
       // Get i-th observable value
       // return i-th observable value or null pointer if there is no such observable
-      virtual ObsValue * obsValue( size_t i ) const;
+      virtual const ObsValue* obsValue( size_t i ) const;
 
       // Add new observable value to the list
-      virtual void addObsValue( ObsValue * obs );
+      virtual void addObsValue(const ObsValue* obs );
 
       // Mutate give case to the given project file
       virtual void mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName );
@@ -70,7 +70,7 @@ namespace casa
       virtual CaseStatus runStatus() const { return m_runState; }
 
       // Set run state of the case (used by RunManager)
-      virtual void setRunStatus( CaseStatus st ) { assert( st >= m_runState ); m_runState = st; }
+      virtual void setRunStatus( CaseStatus st ) { m_runState = st; }
 
       // Get a model associated with this Case
       // return pointer to the model
@@ -78,15 +78,18 @@ namespace casa
 
       // Load associated with this case project file into mbapi::Model object
       // return loaded model. If any error happened during loading, Model object will contain error description
-      mbapi::Model & loadProject();
+      virtual mbapi::Model & loadProject();
 
-      // Get full path to the project path (including project file name). If this case has no project associated with 
+      // Get full path to the project path (including project file name). If this case has no project associated with
       // it, it will return null pointer
       // return full path to the project file (including project file name) or null pointer if project wasn't defined during mutation.
       virtual const char * projectPath() const { return m_modelProjectFileName.empty() ? NULL : m_modelProjectFileName.c_str(); }
 
       // Set full path to the project path (including project file name).
       virtual void setProjectPath( const char * pth ) { m_modelProjectFileName = pth; }
+
+      // Create shallow copy with only the parameters
+      virtual std::shared_ptr<RunCase> shallowCopy() const;
 
       // Compare cases. It is neccessary because DoE generator could return the same cases for different DoE
       virtual bool operator == ( const RunCase & cs ) const;
@@ -95,17 +98,17 @@ namespace casa
       // parameters up to some application in pipeline. To avoid unnecessary runs, same case results could be just copied
       virtual bool isEqual( const RunCase &cs, AppPipelineLevel upTo ) const;
 
-      void setCleanDuplicatedLithologies( bool val ) { m_cleanDupLith = val; }
+      virtual void setCleanDuplicatedLithologies( bool val ) { m_cleanDupLith = val; }
       // Serialization / Deserialization
 
       // version of serialized object representation
       virtual unsigned int version() const { return 1; }
 
-      // Get type name of the serialaizable object, used in deserialization to create object with correct type
+      // Get type name of the serializable object, used in deserialization to create object with correct type
       virtual const char * typeName() const { return "RunCaseImpl"; }
 
       // Serialize object to the given stream
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       // Create a new instance and deserialize it from the given stream
       RunCaseImpl( CasaDeserializer & inStream, const char * objName );
@@ -122,7 +125,7 @@ namespace casa
       std::unique_ptr<mbapi::Model>    m_model;                // Mutated model, available after mutateCaseTo call
       std::string                      m_modelProjectFileName; // full path to the project file
       std::vector<SharedParameterPtr>  m_prmsSet;              // list of parameters for this case
-      std::vector<ObsValue*>           m_results;              // list of observables values
+      std::vector<const ObsValue*>     m_results;              // list of observables values
       CaseStatus                       m_runState;             // Stat of the run case (submitted/completed/failed)
 
       size_t                           m_id;                   // unique number in RunCaseSet

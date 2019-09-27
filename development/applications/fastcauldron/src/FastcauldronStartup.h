@@ -62,15 +62,15 @@ public :
 
    /// @brief Get the prepare status
    /// @return the prepare status
-   bool getPrepareStatus()  { return m_prepareOk; };
+   bool getPrepareStatus()  { return m_prepareOk; }
 
    /// @brief Get the startup status
    /// @return the startup status
-   bool getStartUpStatus( ) { return m_startUpOk; };
+   bool getStartUpStatus( ) { return m_startUpOk; }
 
    /// @brief Get the run status
    /// @return the run status
-   bool getRunStatus()      { return m_runOk; };
+   bool getRunStatus()      { return m_runOk; }
 
    /// @brief Delete m_cauldron and m_factory.
    void finalize();

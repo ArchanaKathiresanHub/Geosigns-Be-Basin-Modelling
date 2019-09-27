@@ -14,7 +14,7 @@ class ReactionRatio //class to declare the ratio : m_reactant1/m_reactant2=React
 {
 public:
    ReactionRatio(Species *const in_react1, Species *const in_react2, const std::string &functionCode);
-   ~ReactionRatio(){};
+   ~ReactionRatio(){}
    Species *GetReactant1();
    Species *GetReactant2();
    

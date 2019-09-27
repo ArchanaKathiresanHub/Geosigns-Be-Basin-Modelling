@@ -27,8 +27,6 @@ CmdCreateResponse::CmdCreateResponse( CasaCommander & parent, const std::vector<
          << m_prms.size() << " (expected 4 or 5) in response proxy " << (m_prms.size() > 0 ? (m_prms[0] + " ") : "" ) << "definition";
    }
 
-   m_targetR2 = 0.95;
-
    m_proxyName = m_prms[0]; // proxy name
    // convert list of DoEs like: "Tornado,BoxBenken" into array of DoE names
    m_doeList = CfgFileParser::list2array( m_prms[1], ',' );
@@ -50,13 +48,8 @@ CmdCreateResponse::CmdCreateResponse( CasaCommander & parent, const std::vector<
 
    if ( m_prms.size() == 5 )
    {
-      if ( m_respSurfOrder == -1 ) m_targetR2 = atof( m_prms[4].c_str() );
-      else
-      {
-         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << 
-            "Target R2 parameter could be defined only together with automatic search for polynomial order. " <<
-            "This is defined by setting the polynomial order to -1. But supplied polynomial order is: "       << m_respSurfOrder;
-      }
+     throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) <<
+        "Number of parameters has exceeded the maximum number (4 parameters)";
    }
 }
 
@@ -66,16 +59,14 @@ void CmdCreateResponse::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    
    if ( m_respSurfOrder < 0 )
    {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "The automatic search for the polynomial order is chosen, target R2 value is: " << m_targetR2;
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "The automatic search for the polynomial order is chosen";
    }
 
    // add and calculate response
    if ( ErrorHandler::NoError != sa->addRSAlgorithm( m_proxyName.c_str()
                                                    , m_respSurfOrder
                                                    , static_cast<casa::RSProxy::RSKrigingType>( m_krType ) 
-                                                   , m_doeList
-                                                   , m_targetR2
-                                                   )
+                                                   , m_doeList )
       )
    { 
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();

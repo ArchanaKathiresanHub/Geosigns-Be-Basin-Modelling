@@ -44,7 +44,7 @@ DataDriller::~DataDriller()
   delete m_objectFactory;
 }
 
-Interface::ProjectHandle* DataDriller::getProjectHandle() const
+DataAccess::Interface::ProjectHandle* DataDriller::getProjectHandle() const
 {
   return m_projectHandle;
 }
@@ -74,7 +74,7 @@ void DataDriller::saveToFile( const std::string& outputProjectFileName )
 
 void DataDriller::calculateTrapAndMissingProperties()
 {
-  const Interface::SimulationDetails* simulationDetails = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+  const DataAccess::Interface::SimulationDetails* simulationDetails = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
   // If this table is not present the assume that the last
   // fastcauldron mode was not pressure mode.
   // This table may not be present because we are running c2e on an old
@@ -116,13 +116,13 @@ void DataDriller::calculateTrapAndMissingProperties()
       continue; // Already read from the HDF file directly;
     }
 
-    double value = Interface::DefaultUndefinedScalarValue;
-    const Interface::Property* property = 0;
+    double value = DataAccess::Interface::DefaultUndefinedScalarValue;
+    const DataAccess::Interface::Property* property = 0;
 
     try
     {
       const double snapshotTime = database::getTime (record);
-      const Interface::Snapshot * snapshot = m_projectHandle->findSnapshot( snapshotTime );
+      const DataAccess::Interface::Snapshot * snapshot = m_projectHandle->findSnapshot( snapshotTime );
 
       const double x = database::getXCoord( record );
       const double y = database::getYCoord( record );
@@ -138,30 +138,30 @@ void DataDriller::calculateTrapAndMissingProperties()
       // Get reservoir/trap property
       if ( reservoirName != "" )
       {
-        const Interface::Reservoir * reservoir = m_projectHandle->findReservoir( reservoirName );
+        const DataAccess::Interface::Reservoir * reservoir = m_projectHandle->findReservoir( reservoirName );
         TrapPropertiesManager trapPropertiesManager( m_projectHandle, propertyManager );
         value = trapPropertiesManager.getTrapPropertyValue( property, snapshot, reservoir, x, y );
       }
       // Get property for X,Y,Z point or for Surface or Formation map
-      else if ( z != Interface::DefaultUndefinedScalarValue || !surfaceName.empty() || !formationName.empty() )
+      else if ( z != DataAccess::Interface::DefaultUndefinedScalarValue || !surfaceName.empty() || !formationName.empty() )
       {
         domain.setSnapshot( snapshot, propertyManager );
         domainProperties->setSnapshot( snapshot );
 
         ElementPosition element;
 
-        if ( z != Interface::DefaultUndefinedScalarValue ) // if z is given - look for the property at X,Y,Z point
+        if ( z != DataAccess::Interface::DefaultUndefinedScalarValue ) // if z is given - look for the property at X,Y,Z point
         {
           domain.findLocation( x, y, z, element );
         }
         else if ( surfaceName != "" && formationName == "" ) // if only surface name is given - look for surface property
         {
-          const Interface::Surface * surface = m_projectHandle->findSurface (surfaceName);
+          const DataAccess::Interface::Surface * surface = m_projectHandle->findSurface (surfaceName);
           domain.findLocation( x, y, surface, element );
         }
         else if ( formationName != "" && surfaceName == "" ) // z is not defined and formation is given - here we are having formation map property
         {
-          const Interface::Formation * formation = m_projectHandle->findFormation( formationName );
+          const DataAccess::Interface::Formation * formation = m_projectHandle->findFormation( formationName );
           domain.findLocation( x, y, formation, element );
         }
 
@@ -202,23 +202,23 @@ void DataDriller::readDataFromHDF()
   for ( database::Record* record : *table )
   {
     ++recordIndex;
-    double value = Interface::DefaultUndefinedScalarValue;
-    const Interface::Property* property = 0;
+    double value = DataAccess::Interface::DefaultUndefinedScalarValue;
+    const DataAccess::Interface::Property* property = nullptr;
 
     try
     {
       const double snapshotTime = database::getTime (record);
-      if ( snapshotTime == Interface::DefaultUndefinedScalarValue ) throw RecordException( "Undefined Time value %:", snapshotTime );
+      if ( snapshotTime == DataAccess::Interface::DefaultUndefinedScalarValue ) throw RecordException( "Undefined Time value %:", snapshotTime );
       if ( snapshotTime < 0 )                                       throw RecordException( "Illegal snapshot time: %", snapshotTime );
 
-      const Interface::Snapshot * snapshot = m_projectHandle->findSnapshot( snapshotTime );
+      const DataAccess::Interface::Snapshot * snapshot = m_projectHandle->findSnapshot( snapshotTime );
 
       const double x = database::getXCoord( record );
       const double y = database::getYCoord( record );
       const double z = database::getZCoord( record );
 
-      if ( x == Interface::DefaultUndefinedScalarValue ) throw RecordException ( "Undefined XCoord value: %", x );
-      if ( y == Interface::DefaultUndefinedScalarValue ) throw RecordException ( "Undefined YCoord value: %", y );
+      if ( x == DataAccess::Interface::DefaultUndefinedScalarValue ) throw RecordException ( "Undefined XCoord value: %", x );
+      if ( y == DataAccess::Interface::DefaultUndefinedScalarValue ) throw RecordException ( "Undefined YCoord value: %", y );
 
       const string& propertyName  = database::getPropertyName( record );
       const string& reservoirName = database::getReservoirName(record );
@@ -239,36 +239,36 @@ void DataDriller::readDataFromHDF()
       // Get reservoir/trap property
       if ( reservoirName != "" )
       {
-        const Interface::Reservoir * reservoir = m_projectHandle->findReservoir( reservoirName );
+        const DataAccess::Interface::Reservoir * reservoir = m_projectHandle->findReservoir( reservoirName );
         if ( !reservoir ) throw RecordException( "Unknown ReservoirName value: %", reservoirName );
 
         m_readFromHDF[recordIndex] = false;
         continue; // Not computed here
       }
       // Get property for X,Y,Z point or for Surface or Formation map
-      else if ( z != Interface::DefaultUndefinedScalarValue || !surfaceName.empty() || !formationName.empty() )
+      else if ( z != DataAccess::Interface::DefaultUndefinedScalarValue || !surfaceName.empty() || !formationName.empty() )
       {
         double i, j;
         if ( !m_gridLowResolution->getGridPoint( x, y, i, j ) ) throw RecordException( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
 
-        if ( z != Interface::DefaultUndefinedScalarValue ) // if z is given - look for the property at X,Y,Z point
+        if ( z != DataAccess::Interface::DefaultUndefinedScalarValue ) // if z is given - look for the property at X,Y,Z point
         {
           value = get3dPropertyFromHDF( i, j, z, property, snapshot, recordIndex );
         }
         else if ( surfaceName != "" && formationName == "" ) // if only surface name is given - look for surface property
         {
-          const Interface::Surface * surface = m_projectHandle->findSurface (surfaceName);
+          const DataAccess::Interface::Surface * surface = m_projectHandle->findSurface (surfaceName);
           if ( !surface ) throw RecordException( "Unknown SurfaceName value: %", surfaceName );
 
           value = get2dPropertyFromHDF( i, j, surface, nullptr, property, snapshot, recordIndex );
         }
         else if ( formationName != "" && surfaceName == "" ) // z is not defined and formation is given - here we are having formation map property
         {
-          const Interface::Formation * formation = m_projectHandle->findFormation( formationName );
+          const DataAccess::Interface::Formation * formation = m_projectHandle->findFormation( formationName );
           if ( !formation ) throw RecordException( "Unknown FormationName value: %", formationName );
 
           // check for FORMATION MAP properties which are only allowed here:
-          if ( !property->hasPropertyValues( Interface::FORMATION, snapshot, 0, formation, 0, Interface::MAP ) )
+          if ( !property->hasPropertyValues( DataAccess::Interface::FORMATION, snapshot, 0, formation, 0, DataAccess::Interface::MAP ) )
           {
             throw RecordException( "Volume properties unsupported for the FORMATION MAP property request: Z value is undefined and Formation name is specified" );
           }
@@ -305,12 +305,12 @@ double DataDriller::get2dPropertyFromHDF( const double i, const double j, const 
   }
 
   m_readFromHDF[recordIndex] = false;
-  return Interface::DefaultUndefinedScalarValue;
+  return DataAccess::Interface::DefaultUndefinedScalarValue;
 }
 
 double DataDriller::get3dPropertyFromHDF( const double i, const double j, const double z,
-                                          const Interface::Property* property,
-                                          const Interface::Snapshot* snapshot,
+                                          const DataAccess::Interface::Property* property,
+                                          const DataAccess::Interface::Snapshot* snapshot,
                                           const unsigned int recordIndex )
 {
   if ( z <= 0.0 && property->getName() == "TwoWayTime" ) // in case of TwoWayTime property and z <= 0 set the value to 0
@@ -339,7 +339,7 @@ double DataDriller::get3dPropertyFromHDF( const double i, const double j, const 
   const string propertyDataGroup = "/" + property->getName();
   checkDataGroup( propertyDataGroup );
 
-  double value = Interface::DefaultUndefinedScalarValue;
+  double value = DataAccess::Interface::DefaultUndefinedScalarValue;
   bool found = false;
 
   FormationList* myFormations = m_projectHandle->getFormations( snapshot, true );
@@ -385,7 +385,7 @@ double DataDriller::getKfraction( const double u, const double  l, const double 
 {
   if ( std::fabs( l - u ) < 1e-10)
   {
-    return Interface::DefaultUndefinedScalarValue;
+    return DataAccess::Interface::DefaultUndefinedScalarValue;
   }
   return ( v - u )/(l - u);
 }

@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSourceRockPreAsphaltStartAct.C
-/// @brief This file keeps API implementation for Source Rock Preasphaltene Activation Energy parameter handling 
+/// @brief This file keeps API implementation for Source Rock Preasphaltene Activation Energy parameter handling
 
 // CASA API
 #include "PrmSourceRockPreAsphaltStartAct.h"
@@ -36,7 +36,7 @@ PrmSourceRockPreAsphaltStartAct::PrmSourceRockPreAsphaltStartAct( mbapi::Model &
                                                                 , const char * srType
                                                                 , int          mixingID
                                                                 ) : PrmSourceRockProp( mdl, lrName, srType, mixingID )
-{    
+{
    // PreAsphaltStartAct specific part
    m_propName = "PreAsphaltStartAct";
 
@@ -48,11 +48,6 @@ PrmSourceRockPreAsphaltStartAct::PrmSourceRockPreAsphaltStartAct( mbapi::Model &
    mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]) );
 
    m_val = srMgr.preAsphActEnergy( sid );
-
-   // construct parameter name
-   std::ostringstream oss;
-   oss << "SourceRockPreAsphaltStartAct(" << m_layerName << ")";
-   m_name = oss.str();
 }
 
  // Constructor
@@ -60,15 +55,10 @@ PrmSourceRockPreAsphaltStartAct::PrmSourceRockPreAsphaltStartAct( const VarPrmSo
                                   , double                      val
                                   , const char                * lrName
                                   , const char                * srType
-                                  , int                         mixingID 
+                                  , int                         mixingID
                                   ) : PrmSourceRockProp( parent, val, lrName, srType, mixingID )
 {
    m_propName = "PreAsphaltStartAct";
-
-   // construct parameter name
-   std::ostringstream oss;
-   oss << "SourceRockPreAsphaltStartAct(" << m_layerName << ")";
-   m_name = oss.str();
 }
 
 // Destructor
@@ -160,8 +150,8 @@ std::string PrmSourceRockPreAsphaltStartAct::validate( mbapi::Model & caldModel 
       if ( !m_srTypeName.empty() && srtNames[m_mixID - 1] != m_srTypeName )
       {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
-            "Layer " << m_layerName << " has unmatched source rock type name :" << srtNames[m_mixID-1] << 
-            " for the mixing ID " << m_mixID << " to source rock type defined for the PreAsphaltStartAct parameter: " << m_srTypeName; 
+            "Layer " << m_layerName << " has unmatched source rock type name :" << srtNames[m_mixID-1] <<
+            " for the mixing ID " << m_mixID << " to source rock type defined for the PreAsphaltStartAct parameter: " << m_srTypeName;
       }
 
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]) );
@@ -174,7 +164,7 @@ std::string PrmSourceRockPreAsphaltStartAct::validate( mbapi::Model & caldModel 
       double mdlVal = srMgr.preAsphActEnergy( sid );
       if ( !NumericFunctions::isEqual( mdlVal, m_val, 1.e-4 ) )
       {
-         oss << "Value of Preasphalt act. energy in the model (" << mdlVal << ") is different from the parameter value (" << 
+         oss << "Value of Preasphalt act. energy in the model (" << mdlVal << ") is different from the parameter value (" <<
             m_val << ")" << std::endl;
       }
    }
@@ -189,7 +179,7 @@ bool PrmSourceRockPreAsphaltStartAct::operator == ( const Parameter & prm ) cons
 {
    const PrmSourceRockPreAsphaltStartAct * pp = dynamic_cast<const PrmSourceRockPreAsphaltStartAct *>( &prm );
    if ( !pp ) return false;
-   
+
    const double eps = 1.e-6;
 
    if ( m_layerName  != pp->m_layerName  ) return false;
@@ -203,9 +193,9 @@ bool PrmSourceRockPreAsphaltStartAct::operator == ( const Parameter & prm ) cons
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmSourceRockPreAsphaltStartAct::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmSourceRockPreAsphaltStartAct::save( CasaSerializer & sz ) const
 {
-   bool ok = PrmSourceRockProp::serializeCommonPart( sz, version ); 
+   bool ok = PrmSourceRockProp::serializeCommonPart( sz );
 
    return ok;
 }

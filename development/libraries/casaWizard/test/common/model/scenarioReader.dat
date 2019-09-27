@@ -1,0 +1,5 @@
+testString|string|valueString
+testInt|int|123
+testVector|vector|2
+testVector|0|testName|1
+testVector|0|testName2|12

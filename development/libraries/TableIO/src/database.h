@@ -11,7 +11,6 @@
 
 #ifndef DATABASE_H
 #define DATABASE_H
-#include <cstdlib>
 
 #include <vector>
 #include <map>
@@ -252,7 +251,7 @@ namespace database
 
       /// Remove duplicate records based on the specified equality function after merging them based on the specified merge function
       void unique (EqualityFunc equalityFunc, MergeFunc mergeFunc = 0);
-      
+
       /// return the name of the Table.
       const std::string & name() { return m_tableDefinition.name(); }
 
@@ -429,14 +428,14 @@ namespace database
 
       /// @brief Get list of table which were recognized in file
       const std::map<std::string, bool> & getTablesInFile()  { return m_tablesInFile; }
-      
+
    private:
 
       static int s_maxFieldsPerLine;
       static int s_fieldWidth;
       static int s_precision;
 
-      std::map<std::string,bool> m_tablesInFile; // tables list in file: true for loaded, false for skipped 
+      std::map<std::string,bool> m_tablesInFile; // tables list in file: true for loaded, false for skipped
 
       DataSchema& m_dataSchema;
 

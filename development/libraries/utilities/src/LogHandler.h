@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file LogHandler.h
 /// @brief This file is a loging utility (using Boost log) for all IBS applications and libraries
@@ -21,7 +21,7 @@
 // utilities library
 #include "FormattingException.h"
 
-/// @brief Class LogHandler keeps handling of log files and log console output. It is a base class for 
+/// @brief Class LogHandler keeps handling of log files and log console output. It is a base class for
 ///        any other API class in IBS.
 /// @detail This class should be used to create one log file per MPI rank.
 class LogHandler
@@ -90,7 +90,7 @@ public:
    };
    /// @}
 
-   /// @brief Constructor which inititates the boost log file 
+   /// @brief Constructor which inititates the boost log file
    /// @detail The name of the log file will be "logName_mpiRank.log".
    ///   The console output is only avalaible for mpi rank 0.
    ///   The log created is a global boost object.
@@ -110,7 +110,7 @@ public:
    /// @param[in] severity The severity level of the message
    /// @param[in] style The style of the message
    LogHandler( const SeverityLevel severity, const Style style );
-   
+
    /// @brief Delete default assginment operator
    LogHandler & operator = ( const LogHandler & ) = delete;
 
@@ -137,18 +137,18 @@ public:
    ///    -# LogHandler(DEBUG) << "This is my debug message with value" << 4 << " or " << m_value;
    ///    -# LogHandler(INFO)  << "This is my info message with value"  << 4 << " or " << m_value;
    ///    -# etc.
-   template <typename T> LogHandler & operator << ( T val ) 
+   template <typename T> LogHandler & operator << ( T val )
    {
       m_oss << val;
       return *this;
-   };
+   }
 
    /// @brief Stream operator to write string vectors into the log file
    /// @details Should be used like this:
    ///    -# LogHandler(DEBUG) << "This is my debug message with values" << m_stringVector;
    ///    -# LogHandler(INFO)  << "This is my info message with values"  << m_stringVector;
    ///    -# etc.
-   template <typename T> LogHandler & operator << ( std::vector<T> vectVal ) 
+   template <typename T> LogHandler & operator << ( std::vector<T> vectVal )
    {
       m_oss << "[";
       for ( size_t i = 0; i < vectVal.size(); i++ )
@@ -162,12 +162,12 @@ public:
       m_oss << "]";
 
       return *this;
-   };
+   }
 
    /// @brief Get the name of the log file
    /// @details Used for unit tests only
    /// @return s_logName The name of the log file such as "fastcauldron_0.log"
-   const std::string getName() const { return s_logName; };
+   const std::string getName() const { return s_logName; }
 
 private:
 

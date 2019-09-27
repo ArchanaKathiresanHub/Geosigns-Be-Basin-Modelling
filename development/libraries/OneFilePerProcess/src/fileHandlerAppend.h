@@ -7,7 +7,7 @@ class FileHandlerAppend : public FileHandler {
 public:  
    FileHandlerAppend( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName );
 
-   virtual ~FileHandlerAppend() {};
+   virtual ~FileHandlerAppend() {}
 
    /// \brief Create or open the global file for update
    void openGlobalFile( );

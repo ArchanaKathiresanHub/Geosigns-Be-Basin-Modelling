@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ObsGridPropertyWell.C
+/// @file ObsGridPropertyWell.cpp
 
 // CASA API
 #include "ObsValueDoubleArray.h"
@@ -37,48 +37,46 @@ ObsGridPropertyWell::ObsGridPropertyWell( const std::vector<double> & x
                                         , const std::vector<double> & z
                                         , const char                * propName
                                         , double                      simTime
-                                        , const std::string         & name
+                                        , const std::string         & myName
                                         )
-                                        : m_x( x.begin(), x.end() )
+                                        : Observable( propName, simTime )
+                                        , m_x( x.begin(), x.end() )
                                         , m_y( y.begin(), y.end() )
                                         , m_z( z.begin(), z.end() )
-                                        , m_propName( propName )
-                                        , m_simTime( simTime )
-                                        , m_posDataMiningTbl( x.size(), -1 )
-                                        , m_saWeight( 1.0 )
-                                        , m_uaWeight( 1.0 )
 {
-   // check input values
-   if ( m_propName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No property name specified for well target";
    if ( m_x.size() != m_y.size() || m_x.size() != m_z.size() )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No property name specified for well target";
    }
 
-   // construct observable name for each trajectory point
+   setPosDataMiningTbl( std::vector<int>( x.size(), -1 ) );
+
+   std::vector<std::string> name;
    for ( size_t i = 0; i < m_x.size(); ++i )
    {
       std::ostringstream oss;
 
-      if ( name.empty() )
+      if ( myName.empty() )
       {
-         oss << m_propName << "(" << m_x[i] << "," << m_y[i] << "," << m_z[i] << "," << m_simTime << ")";
+         oss << propertyName() << "(" << m_x[i] << "," << m_y[i] << "," << m_z[i] << "," << simulationTime() << ")";
       }
-      else { oss << name << "_" << i+1; } 
+      else
+      {
+        oss << myName << "_" << i+1;
+      }
 
-      m_name.push_back( oss.str() );
+      name.push_back( oss.str() );
    }
+   setName( name );
 }
 
 // Destructor
-ObsGridPropertyWell::~ObsGridPropertyWell() {;}
+ObsGridPropertyWell::~ObsGridPropertyWell() {}
 
-// Get name of the observable
-std::vector< std::string > ObsGridPropertyWell::name() const
+size_t ObsGridPropertyWell::dimension() const
 {
-   return m_name;
+  return m_x.size();
 }
-
 
 // Get standard deviations for the reference value
 void ObsGridPropertyWell::setReferenceValue( ObsValue * obsVal, ObsValue * devVal )
@@ -87,10 +85,10 @@ void ObsGridPropertyWell::setReferenceValue( ObsValue * obsVal, ObsValue * devVa
    ObsValueDoubleArray * val = dynamic_cast<ObsValueDoubleArray*>( obsVal );
    assert( val != nullptr );
 
-   m_refValue.reset( obsVal );
+   setRefValue( obsVal );
 
    assert( devVal != nullptr );
-   ObsValueDoubleArray * dev = dynamic_cast<ObsValueDoubleArray*>( devVal ); 
+   ObsValueDoubleArray * dev = dynamic_cast<ObsValueDoubleArray*>( devVal );
    assert( dev != nullptr );
 
    // check dev for negative/zero value
@@ -121,7 +119,7 @@ void ObsGridPropertyWell::setReferenceValue( ObsValue * obsVal, ObsValue * devVa
          if ( newDev < eps ) { newDev = 0.1; }
 
          LogHandler( LogHandler::WARNING_SEVERITY ) << "Invalid the standard deviation value: " << devLst[i]
-                                                    << " for the target " << m_name[i] << ", possible error in scenario setup? "
+                                                    << " for the target " << name()[i] << ", possible error in scenario setup? "
                                                     << "Replacing it with the value: " << newDev;
          devLst[i] = newDev;
          isUpdated = true;
@@ -134,32 +132,45 @@ void ObsGridPropertyWell::setReferenceValue( ObsValue * obsVal, ObsValue * devVa
      devVal = ObsValueDoubleArray::createNewInstance( this, devLst );
    }
 
-   m_devValue.reset( devVal );
+   setDevValue( devVal );
 }
- 
+
+std::vector<double> ObsGridPropertyWell::depth() const
+{
+  return m_z;
+}
+
+std::vector<double> ObsGridPropertyWell::xCoords() const
+{
+  return m_x;
+}
+
+std::vector<double> ObsGridPropertyWell::yCoords() const
+{
+  return m_y;
+}
+
 // Update Model to be sure that requested property will be saved at the requested time
 ErrorHandler::ReturnCode ObsGridPropertyWell::requestObservableInModel( mbapi::Model & caldModel )
 {
-   if ( ErrorHandler::NoError != caldModel.snapshotManager().requestMajorSnapshot(       m_simTime  ) ||
-        ErrorHandler::NoError != caldModel.propertyManager().requestPropertyInSnapshots( m_propName )
+   if ( ErrorHandler::NoError != caldModel.snapshotManager().requestMajorSnapshot(       simulationTime() ) ||
+        ErrorHandler::NoError != caldModel.propertyManager().requestPropertyInSnapshots( propertyName() )
       ) return caldModel.errorCode();
 
    size_t tblSize = caldModel.tableSize( s_dataMinerTable );
 
+   std::vector<int> posVec = posDataMiningTbl();
    for ( size_t i = 0; i < m_x.size(); ++i )
    {
       if ( ErrorHandler::NoError != caldModel.addRowToTable( s_dataMinerTable ) ) return caldModel.errorCode();
 
-      m_posDataMiningTbl[i] = static_cast<int>( tblSize + i );
+      posVec[i] = static_cast<int>( tblSize + i );
 
-      if ( ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "Time",         m_simTime      ) || 
-           ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "XCoord",       m_x[i]         ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "YCoord",       m_y[i]         ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "ZCoord",       m_z[i]         ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "PropertyName", m_propName     ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "Value",        IbsNoDataValue )
-         ) return caldModel.errorCode();
+      if ( !setCommonTableValues( caldModel, posVec[i], m_x[i], m_y[i], m_z[i] ) )
+      { return caldModel.errorCode(); }
    }
+   setPosDataMiningTbl( posVec );
+
    return ErrorHandler::NoError;
 }
 
@@ -167,73 +178,113 @@ ErrorHandler::ReturnCode ObsGridPropertyWell::requestObservableInModel( mbapi::M
 // Get this observable value from Cauldron model
 ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
 {
-   std::vector<double> vals( m_posDataMiningTbl.size(), IbsNoDataValue );
+   std::vector<double> vals( posDataMiningTbl().size(), IbsNoDataValue );
 
-   const std::string & msg = checkObservableForProject( caldModel );
-   if ( !msg.empty() ) { return new ObsValueDoubleArray( this, vals ); }
+   if ( !checkObservableForProject( caldModel ) )
+   {
+     return new ObsValueDoubleArray( this, vals );
+   }
 
    const double eps = 1.e-5;
 
-   for ( size_t i = 0; i < m_posDataMiningTbl.size(); ++i )
+   std::vector<int> posVec = posDataMiningTbl();
+   for ( size_t i = 0; i < posVec.size(); ++i )
    {
-      if ( m_posDataMiningTbl[i] < 0 )
+      if ( posVec[i] < 0 )
       {
          size_t tblSize = caldModel.tableSize( Observable::s_dataMinerTable );
          for ( size_t j = 0; j < tblSize; ++j )
          {
-            double obTime = caldModel.tableValueAsDouble( s_dataMinerTable, j, "Time" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( obTime, m_simTime, eps ) ) { continue; }
-
-            double xCrd = caldModel.tableValueAsDouble( s_dataMinerTable, j, "XCoord" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( xCrd, m_x[i], eps ) ) { continue; }
-
-            double yCrd = caldModel.tableValueAsDouble( s_dataMinerTable, j, "YCoord" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( yCrd, m_y[i], eps ) ) { continue; }
-
-            double zCrd = caldModel.tableValueAsDouble( s_dataMinerTable, j, "ZCoord" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( zCrd, m_z[i], eps ) ) { continue; }
-
-            const std::string & propName = caldModel.tableValueAsString( s_dataMinerTable, j, "PropertyName" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || m_propName != propName ) { continue; }
+           if ( !checkObsMatchesModel( caldModel, j, m_x[i], m_y[i], m_z[i], eps ) ) { continue; }
 
             vals[i] = caldModel.tableValueAsDouble( s_dataMinerTable, j, "Value" );
-            m_posDataMiningTbl[i] = static_cast<int>( j ); // fill the rest of the table as well data must be continuous
-            for ( size_t k = i + 1; k < m_posDataMiningTbl.size(); ++k )
+            posVec[i] = static_cast<int>( j ); // fill the rest of the table as well data must be continuous
+            for ( size_t k = i + 1; k < posVec.size(); ++k )
             {
-               m_posDataMiningTbl[k] = m_posDataMiningTbl[k-1]+1;
+               posVec[k] = posVec[k-1]+1;
             }
             break;
          }
       }
-      else { vals[i] = caldModel.tableValueAsDouble( s_dataMinerTable, m_posDataMiningTbl[i], "Value" ); }
+      else { vals[i] = caldModel.tableValueAsDouble( s_dataMinerTable, posVec[i], "Value" ); }
 
       if ( caldModel.errorCode() != ErrorHandler::NoError ) return nullptr;
    }
+   setPosDataMiningTbl( posVec );
 
    return new ObsValueDoubleArray( this, vals );
 }
 
 // Check well against project coordinates
-std::string ObsGridPropertyWell::checkObservableForProject( mbapi::Model & caldModel ) const 
+bool ObsGridPropertyWell::checkObservableForProject( mbapi::Model & caldModel ) const
 {
-   std::ostringstream oss;
-
    double x0, y0;
-   if ( caldModel.origin( x0, y0 ) != ErrorHandler::NoError ) { oss << "Can't extract project origin coordinates"; }
-   
+   if ( caldModel.origin( x0, y0 ) != ErrorHandler::NoError )
+   {
+     return false;
+   }
+
    double dimX, dimY;
-   if ( caldModel.arealSize( dimX, dimY ) != ErrorHandler::NoError ) { oss << "Can't extract project grid dimenstions"; }
+   if ( caldModel.arealSize( dimX, dimY ) != ErrorHandler::NoError )
+   {
+     return false;
+   }
 
    for ( size_t i = 0; i < m_x.size(); ++i )
    {
-      if ( m_x[i] < x0 || m_x[i] > x0 + dimX ||
-           m_y[i] < y0 || m_y[i] > y0 + dimY )
-      {
-         oss << "Well point " << i + 1 << " is outside of the project boundaries" << std::endl; 
-      }
+     if ( m_x[i] < x0 || m_x[i] > x0 + dimX ||
+          m_y[i] < y0 || m_y[i] > y0 + dimY )
+     {
+       return false;
+     }
    }
 
-   return oss.str();
+   return true;
+}
+
+// Check well against project coordinates and coordinates of observable attached to project
+bool ObsGridPropertyWell::checkObservableOriginForProject( mbapi::Model & caldModel ) const
+{
+   double x0, y0;
+   if ( caldModel.origin( x0, y0 ) != ErrorHandler::NoError )
+   {
+     return false;
+   }
+
+   double dimX, dimY;
+   if ( caldModel.arealSize( dimX, dimY ) != ErrorHandler::NoError )
+   {
+     return false;
+   }
+
+   for ( size_t i = 0; i < m_x.size(); ++i )
+   {
+     if ( m_x[i] < x0 || m_x[i] > x0 + dimX ||
+          m_y[i] < y0 || m_y[i] > y0 + dimY )
+     {
+       return false;
+     }
+     else
+     {
+       double xCoordWindowObs, yCoordWindowObs;
+
+       if ( caldModel.windowObservableOrigin( xCoordWindowObs, yCoordWindowObs ) != ErrorHandler::NoError )
+       {
+         return false;
+       }
+
+       // If the observable coordinate distance from the window observable coordinate is larger than 1 [m], the observable does not belong to this well.
+       // Although, it falls within the boundaries of the current window.
+
+       if ( std::fabs( m_x[i] - xCoordWindowObs ) > 1.0 ||
+            std::fabs( m_y[i] - yCoordWindowObs ) > 1.0 )
+       {
+         return false;
+       }
+     }
+   }
+
+   return true;
 }
 
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
@@ -249,7 +300,13 @@ ObsValue * ObsGridPropertyWell::createNewObsValueFromDouble( std::vector<double>
    return new ObsValueDoubleArray( this, obsVal );
 }
 
-bool ObsGridPropertyWell::save( CasaSerializer & sz, unsigned int /* version */ ) const
+void ObsGridPropertyWell::saveCommon( const Observable * observableClass
+                                    , CasaSerializer & sz
+                                    , bool & ok
+                                    , const std::string& variableTypeName
+                                    , const std::string& variableName ) const {}
+
+bool ObsGridPropertyWell::save( CasaSerializer & sz ) const
 {
    // register observable with serializer to allow ObsValue objects keep reference after deserializtion
    CasaSerializer::ObjRefID obID = sz.ptr2id( this );
@@ -258,24 +315,21 @@ bool ObsGridPropertyWell::save( CasaSerializer & sz, unsigned int /* version */ 
    ok = ok ? sz.save( m_x, "X" ) : ok;
    ok = ok ? sz.save( m_y, "Y" ) : ok;
    ok = ok ? sz.save( m_z, "Z" ) : ok;
+   ok = ok ? sz.save( propertyName(), "propName" ) : ok;
+   ok = ok ? sz.save( simulationTime(), "simTime" ) : ok;
+   ok = ok ? sz.save( name(), "name" ) : ok;
+   ok = ok ? sz.save( posDataMiningTbl(), "posDataMiningTbl" ) : ok;
 
-   ok = ok ? sz.save( m_propName, "propName" ) : ok;
-   ok = ok ? sz.save( m_simTime, "simTime" ) : ok;
-
-   ok = ok ? sz.save( m_name, "name" ) : ok;
-
-   ok = ok ? sz.save( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
-
-   bool hasRefVal = m_refValue.get() ? true : false;
+   bool hasRefVal = referenceValue();
    ok = ok ? sz.save( hasRefVal, "HasRefValue" ) : ok;
-   if ( hasRefVal ) { ok = ok ? sz.save( *(m_refValue.get()), "refValue" ) : ok; }
+   if ( hasRefVal ) { ok = ok ? sz.save( *( referenceValue() ), "refValue" ) : ok; }
 
-   bool hasDevVal = m_devValue.get( ) ? true : false;
+   bool hasDevVal = devValue();
    ok = ok ? sz.save( hasDevVal, "HasDevVal" ) : ok;
-   if ( hasDevVal ) { ok = ok ? sz.save( *( m_devValue.get( ) ), "devValue" ) : ok; }
+   if ( hasDevVal ) { ok = ok ? sz.save( *( devValue() ), "devValue" ) : ok; }
 
-   ok = ok ? sz.save( m_saWeight, "saWeight" ) : ok;
-   ok = ok ? sz.save( m_uaWeight, "uaWeight" ) : ok;
+   ok = ok ? sz.save( saWeight(), "saWeight" ) : ok;
+   ok = ok ? sz.save( uaWeight(), "uaWeight" ) : ok;
 
    return ok;
 }
@@ -300,34 +354,43 @@ ObsGridPropertyWell::ObsGridPropertyWell( CasaDeserializer & dz, unsigned int ob
    ok = ok ? dz.load( m_y, "Y" ) : ok;
    ok = ok ? dz.load( m_z, "Z" ) : ok;
 
-   ok = ok ? dz.load( m_propName, "propName" ) : ok;
-   ok = ok ? dz.load( m_simTime,  "simTime"  ) : ok;
+   std::string propName;
+   double simTime;
+   std::vector<std::string> myName;
+   ok = ok ? dz.load( propName, "propName" ) : ok;
+   ok = ok ? dz.load( simTime,  "simTime"  ) : ok;
+   ok = ok ? dz.load( myName,   "name"     ) : ok;
+   setPropertyName( propName );
+   setSimTime( simTime );
+   setName( myName );
 
-
-   // load the rest of the object data
-   ok = ok ? dz.load( m_name,             "name"             ) : ok;
-   ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
+   std::vector<int> posVec;
+   ok = ok ? dz.load( posVec, "posDataMiningTbl" ) : ok;
+   setPosDataMiningTbl( posVec );
 
    bool hasRefVal;
    ok = ok ? dz.load( hasRefVal, "HasRefValue" ) : ok;
-
-   if ( hasRefVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
+   if ( hasRefVal ) { setRefValue( ObsValue::load( dz, "refValue" ) ); }
 
    if ( objVer == 0 )
-   { 
+   {
       double val;
       ok = ok ? dz.load( val, "devValue" ) : ok;
-      if ( ok ) { m_devValue.reset( new  ObsValueDoubleScalar( this, val ) ); }
+      if ( ok ) { setDevValue( new  ObsValueDoubleScalar( this, val ) ); }
    }
    else
    {
       bool hasDevVal;
       ok = ok ? dz.load( hasDevVal, "HasDevVal" ) : ok;
-      if ( hasDevVal ) { m_devValue.reset( ObsValue::load( dz, "devValue" ) ); }
+      if ( hasDevVal ) { setDevValue( ObsValue::load( dz, "devValue" ) ); }
    }
 
-   ok = ok ? dz.load( m_saWeight, "saWeight" ) : ok;
-   ok = ok ? dz.load( m_uaWeight, "uaWeight" ) : ok;
+   double mySAWeight;
+   double myUAWeight;
+   ok = ok ? dz.load( mySAWeight, "saWeight" ) : ok;
+   ok = ok ? dz.load( myUAWeight, "uaWeight" ) : ok;
+   setSAWeight( mySAWeight );
+   setUAWeight( myUAWeight );
 
    if ( !ok )
    {
@@ -336,4 +399,4 @@ ObsGridPropertyWell::ObsGridPropertyWell( CasaDeserializer & dz, unsigned int ob
    }
 }
 
-}
+} // namespace casa

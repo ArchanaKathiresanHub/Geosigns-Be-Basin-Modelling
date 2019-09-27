@@ -19,11 +19,11 @@
 
 #include "cmbAPI.h"
 #include "RunCaseImpl.h"
-#include "RunCaseSetImpl.h"
+#include "RunCaseSet.h"
 #include "SUMlibUtils.h"
 #include "VarPrmContinuous.h"
 #include "VarPrmCategorical.h"
-#include "VarSpaceImpl.h"
+#include "VarSpace.h"
 
 // SUMLib includes
 #include <BoxBehnken.h>
@@ -49,6 +49,7 @@ namespace casa
       case PlackettBurmanMirror: return "PlackettBurmanMirror";
       case FullFactorial:        return "FullFactorial";
       case LatinHypercube:       return "LatinHypercube";
+      case BaseCase:             return "BaseCase";
       case SpaceFilling:         return "SpaceFilling";
       default:                   return "Unkown";
       }
@@ -123,6 +124,10 @@ namespace casa
             const bool replicate = false;
             doe.getCaseSet( pBounds, baseCase, replicate, sumCases );
          }
+         else if ( BaseCase == m_typeOfDoE ) // special case
+         {
+            sumCases.push_back(baseCase);
+         }
          else // ordinary case - all new cases from scratch
          {
             // clean case set to prepare for the new DoE generation
@@ -153,8 +158,7 @@ namespace casa
             addCase( varPrmsSet, expSet, sumCases[c] );
          }
 
-         RunCaseSetImpl & doeCases = dynamic_cast<RunCaseSetImpl &>(doeCaseSet);
-         doeCases.addNewCases( expSet, doeName.empty() ? DoEGenerator::DoEName( m_typeOfDoE ) : doeName );
+         doeCaseSet.addNewCases( expSet, doeName.empty() ? DoEGenerator::DoEName( m_typeOfDoE ) : doeName );
       }
       catch ( const SUMlib::Exception & e )
       {
@@ -184,7 +188,7 @@ namespace casa
    }
 
    // Serialize object to the given stream
-   bool DoEGeneratorImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
+   bool DoEGeneratorImpl::save( CasaSerializer & sz ) const
    {
       // initial implementation of serialization, must exist in all future versions of serialization
       bool ok = sz.save( static_cast<int>(m_typeOfDoE), "TypOfDoE" );

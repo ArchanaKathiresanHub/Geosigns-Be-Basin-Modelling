@@ -30,7 +30,6 @@ protected:
    std::vector<std::string>     m_doeList;
    long                         m_respSurfOrder;
    unsigned int                 m_krType;
-   double                       m_targetR2;
 };
 
 #endif // CASA_CMD_CREATE_RESPONSE_H

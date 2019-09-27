@@ -1,0 +1,54 @@
+//
+// Copyright (C) 2019 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#include "CmdRunPipeline.h"
+
+#include "LogHandler.h"
+#include "RunCaseImpl.h"
+#include "ScenarioAnalysis.h"
+
+#include <iostream>
+
+CmdRunPipeline::CmdRunPipeline(CasaCommander& parent, const std::vector<std::string>& cmdPrms) :
+  CasaCmd(parent, cmdPrms)
+{
+  m_cluster = m_prms.size() > 0 ? m_prms[0] : "";
+}
+
+void CmdRunPipeline::execute(std::unique_ptr<casa::ScenarioAnalysis>& sa)
+{
+   casa::RunManager & rm = sa->runManager();
+   if ( ErrorHandler::NoError != rm.setClusterName( m_cluster.c_str() ) )
+   {
+     throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
+   }
+
+   casa::RunCaseImpl runCase;
+   runCase.mutateCaseTo(sa->baseCase(), sa->baseCase().projectFileName().c_str());
+
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Adding base case project to the queue and generating scripts...";
+
+   if ( ErrorHandler::NoError != rm.scheduleCase( runCase, sa->scenarioID()) )
+   {
+      throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
+   }
+
+   if ( ErrorHandler::NoError != rm.runScheduledCases() )
+   {
+      throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
+   }
+}
+
+void CmdRunPipeline::printHelpPage(const char* cmdName)
+{
+   std::cout << "  " << cmdName << R"( <HPC cluster name>)
+
+    - runs the pipeline of applications in the present folder
+     Here:
+     <HPC cluster name> - cluster name, LOCAL | AMSGDC | HOUGDC.\n)";
+}

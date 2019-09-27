@@ -37,6 +37,8 @@ add_subdirectory(Utilities_Petsc)
 add_subdirectory(Parallel_Hdf5)
 add_subdirectory(genex6)
 add_subdirectory(genex6_kernel)
+add_subdirectory(genex0d)
+add_subdirectory(modelPseudo1d)
 add_subdirectory(calibration_kernel)
 add_subdirectory(OTGC_kernel6)
 add_subdirectory(CrustalThickness)
@@ -49,6 +51,7 @@ if(UNIX)
    # Libraries that can only be built on Unix at the moment.
    add_subdirectory(ParaViewPlugin)
    add_subdirectory(OneFilePerProcess)
+   add_subdirectory(casaWizard)
 
    if(CMAKE_COMPILER_IS_GNUCXX)
      # Some libraries are already GCC warnings-free so we should keep them as they are

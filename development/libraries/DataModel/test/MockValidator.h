@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -27,7 +27,7 @@ class MockValidator : public DataModel::AbstractValidator {
       bool isValid( const unsigned int i, const unsigned int j ) const final;
 
       /// @brief Set the global validity of all node to isValid
-      void setIsValid( const bool isValid ) { m_isValid = isValid; };
+      void setIsValid( const bool isValid ) { m_isValid = isValid; }
 
    private:
       bool m_isValid; ///< Global nodes validity

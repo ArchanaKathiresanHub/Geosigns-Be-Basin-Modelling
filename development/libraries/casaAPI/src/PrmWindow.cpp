@@ -1,4 +1,4 @@
-//                                                                      
+//
 // Copyright (C) 2012-2015 Shell International Exploration & Production.
 // All rights reserved.
 //
@@ -45,17 +45,17 @@ PrmWindow::PrmWindow( mbapi::Model & mdl )
    m_xMax = mdl.tableValueAsInteger( s_projectIoTblName, 0, s_WindowXMaxCol );
    m_yMin = mdl.tableValueAsInteger( s_projectIoTblName, 0, s_WindowYMinCol );
    m_yMax = mdl.tableValueAsInteger( s_projectIoTblName, 0, s_WindowYMaxCol );
-   m_name = "ProjectWindow";
 }
 
 // Constructor. Set given parameter values
-PrmWindow::PrmWindow( int xMin, int xMax, int yMin, int yMax ) 
+PrmWindow::PrmWindow(const int xMin, const int xMax, const int yMin, const int yMax, const double xCoordObservable, const double yCoordObservable)
                     : m_xMin( xMin )
                     , m_xMax( xMax )
                     , m_yMin( yMin )
                     , m_yMax( yMax )
-                    , m_name( "ProjectWindow" )
-                    { ; }
+                    , m_xCoordObservable( xCoordObservable )
+                    , m_yCoordObservable( yCoordObservable )
+                    {}
 
 // Set this parameter value in Cauldron model
 ErrorHandler::ReturnCode PrmWindow::setInModel( mbapi::Model & caldModel, size_t /*caseID*/ )
@@ -64,13 +64,13 @@ ErrorHandler::ReturnCode PrmWindow::setInModel( mbapi::Model & caldModel, size_t
    {
       int scX = caldModel.tableValueAsInteger( s_projectIoTblName, 0, s_ScaleX );
       int scY = caldModel.tableValueAsInteger( s_projectIoTblName, 0, s_ScaleY );
-   
+
       bool ok = true;
       ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_WindowXMinCol, (long) m_xMin) : ok;
       ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_WindowXMaxCol, (long) m_xMax) : ok;
       ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_WindowYMinCol, (long) m_yMin) : ok;
       ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_WindowYMaxCol, (long) m_yMax) : ok;
-      
+
       if ( (m_xMax - m_xMin) / scX  < 1 || (m_xMax - m_xMin) % scX != 0 )
       {
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_ScaleX, 1L ) : ok;
@@ -113,7 +113,7 @@ std::string PrmWindow::validate( mbapi::Model & caldModel )
    }
    return oss.str();
 }
-  
+
 // Get parameter value as an array of doubles
 std::vector<double> PrmWindow::asDoubleArray() const
 {
@@ -125,6 +125,11 @@ std::vector<double> PrmWindow::asDoubleArray() const
    vals[3] = m_yMax;
 
    return vals;
+}
+
+std::vector<double> PrmWindow::observableOrigin() const
+{
+  return { m_xCoordObservable, m_yCoordObservable };
 }
 
 // Are two parameters equal?
@@ -143,25 +148,39 @@ bool PrmWindow::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmWindow::save( CasaSerializer & sz, unsigned int /* version */) const
+bool PrmWindow::save( CasaSerializer & sz ) const
 {
-   bool ok = sz.save( m_name, "name" );
-   ok = ok ? sz.save( m_xMin, "xMin" ) : ok;
-   ok = ok ? sz.save( m_xMax, "xMax" ) : ok;
-   ok = ok ? sz.save( m_yMin, "yMin" ) : ok;
-   ok = ok ? sz.save( m_yMax, "yMax" ) : ok;
+   bool ok = true;
+
+   ok = ok && sz.save( m_xMin, "xMin" );
+   ok = ok && sz.save( m_xMax, "xMax" );
+   ok = ok && sz.save( m_yMin, "yMin" );
+   ok = ok && sz.save( m_yMax, "yMax" );
+   ok = ok && sz.save( m_xCoordObservable, "xCoordObservable" );
+   ok = ok && sz.save( m_yCoordObservable, "yCoordObservable" );
 
    return ok;
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmWindow::PrmWindow( CasaDeserializer & dz, unsigned int /* objVer */ )
+PrmWindow::PrmWindow( CasaDeserializer & dz, unsigned int objVer )
 {
-   bool ok = dz.load( m_name, "name" );
+   bool ok = true;
+   if ( objVer < 2 )
+   {
+     std::string name;
+     dz.load( name, "name" );
+   }
    ok = ok ? dz.load( m_xMin, "xMin" ) : ok;
    ok = ok ? dz.load( m_xMax, "xMax" ) : ok;
    ok = ok ? dz.load( m_yMin, "yMin" ) : ok;
    ok = ok ? dz.load( m_yMax, "yMax" ) : ok;
+
+   if (objVer > 0)
+   {
+     ok = ok ? dz.load( m_xCoordObservable, "xCoordObservable" ) : ok;
+     ok = ok ? dz.load( m_yCoordObservable, "yCoordObservable" ) : ok;
+   }
 
    if ( !ok )
    {

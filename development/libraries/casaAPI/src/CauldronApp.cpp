@@ -28,17 +28,17 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
-      
+
 namespace casa
 {
-   const char * CauldronApp::s_resFilesList[][6]  = { { "PressureAndTemperature_Results.HDF"             // PTSolve 
+   const char * CauldronApp::s_resFilesList[][6]  = { { "PressureAndTemperature_Results.HDF"             // PTSolve
                                                       , "HydrostaticTemperature_Results.HDF"
                                                       , "HydrostaticDecompaction_Results.HDF"
                                                       , "AllochthonousModelling_Results.HDF"
                                                       , "InterpolationResults.HDF"
                                                       , ""
                                                       }
-                                                    , { "CrustalThicknessCalculator_Results.HDF", "", "", "", "", "" }     
+                                                    , { "CrustalThicknessCalculator_Results.HDF", "", "", "", "", "" }
                                                     , { "Genex5_Results.HDF"                    , "", "", "", "", "" }  // Genex
                                                     , { "HighResDecompaction_Results.HDF"       , "", "", "", "", "" }  // HiResDecompaction
                                                     , { "HighResMigration_Results.HDF"          , "", "", "", "", "" }  // Migration
@@ -51,26 +51,33 @@ namespace casa
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    // Constructor
-   CauldronApp::CauldronApp( ShellType sh, const std::string & appName, bool isParallel )
+   CauldronApp::CauldronApp( const std::string & appName, bool isParallel )
       : m_appName( appName )
       , m_parallel( isParallel )
       , m_cpus( 1 )
-      , m_sh( sh )
+      , m_sh()
       , m_inputOpt( "-project" )
       , m_outputOpt( "-save" )
       , m_clearSnapshots( false )
       , m_appDepLevel( PTSolver )
    {
-      std::string miscPath;
+
+#ifdef _WIN32
+			m_sh = CauldronApp::cmd;
+#else
+			m_sh = CauldronApp::bash;
+#endif
+
+      std::string miscPathEnvName;
 
       switch ( m_sh )
       {
       case cmd:
-         miscPath= "%CAULDRON_MISC_PATH%";
+         miscPathEnvName= "%CAULDRON_MISC_PATH%";
          break;
 
       case bash:
-         miscPath = "${CAULDRON_MISC_PATH}";
+         miscPathEnvName = "${CAULDRON_MISC_PATH}";
          break;
       }
 
@@ -79,61 +86,61 @@ namespace casa
       m_version   = env( "CAULDRON_VERSION" )    ? env( "CAULDRON_VERSION" )    : DEFAULT_VERSION;  // default is the ver. of the build itself
       m_rootPath  = env( "IBS_ROOT" )            ? env( "IBS_ROOT" )            : IBS_INSTALL_PATH; // path to IBS folder
       m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                 //
-         
+
       // do some tunning depends on application name
       if ( m_appName == "fastcauldron" )
       {
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
-         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPath ) << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPath ) << "genex50").path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPath ) << "genex60").path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPathEnvName ) << "eospack").path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPathEnvName ) << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPathEnvName ) << "genex50").path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPathEnvName ) << "genex60").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPathEnvName ) << "OTGC"   ).path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPathEnvName )             ).path() );
       }
       else if ( m_appName == "fastgenex6" )
       {
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
-         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPath ) << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPath ) << "genex50").path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPath ) << "genex60").path() );
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPathEnvName ) << "eospack").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPathEnvName ) << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPathEnvName ) << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPathEnvName ) << "genex50").path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPathEnvName ) << "genex60").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPathEnvName )             ).path() );
          m_appDepLevel = Genex;
       }
       else if ( m_appName == "fastmig" )
       {
          // set up environment vars
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
-         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPath ) << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPath ) << "genex50").path() );
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPathEnvName ) << "eospack").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPathEnvName ) << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPathEnvName ) << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPathEnvName ) << "genex50").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPathEnvName )             ).path() );
          m_appDepLevel = Migration;
       }
       else if ( m_appName == "fastctc" )
       {
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPathEnvName )             ).path() );
       }
       else if ( m_appName == "datadriller" )
       {
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPath ) << "genex60").path() );
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPathEnvName ) << "eospack").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPathEnvName ) << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPathEnvName ) << "genex60").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPathEnvName )             ).path() );
          m_inputOpt = "-input";
          m_outputOpt = "-output";
          m_appDepLevel = Postprocessing;
       }
       else if ( m_appName == "tracktraps" )
       {
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPathEnvName ) << "eospack").path() );
          m_outputOpt = "-output";
          m_appDepLevel = Postprocessing;
       }
       else if ( m_appName == "track1d" )
       {
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPathEnvName )             ).path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPathEnvName ) << "eospack").path() );
          m_outputOpt = "-save track1d_results.csv";
          m_appDepLevel = Postprocessing;
       }
@@ -189,7 +196,7 @@ namespace casa
          {
          case bash: oss << "\nrm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension( ) << mbapi::Model::s_ResultsFolderSuffix << "/Time*.h5\n\n"; break;
          case cmd:  oss << "\ndel " << ibs::FilePath( inProjectFile ).fileNameNoExtension( ) << mbapi::Model::s_ResultsFolderSuffix << "\\*Time*.h5\n\n"; break;
-         }         
+         }
       }
 
       // if application is parallel, add mpirun dirrective with options
@@ -224,7 +231,7 @@ namespace casa
          oss << " " << m_inputOpt << " " << inProjectFile;
       }
 
-      if ( m_appName.substr( 0, 7 ) == "track1d" ) 
+      if ( m_appName.substr( 0, 7 ) == "track1d" )
       {
          bool hasSaveOpt = false;
          for ( size_t i = 0; i < m_optionsList.size() && !hasSaveOpt; ++i )
@@ -235,6 +242,11 @@ namespace casa
       }
       else if ( m_appName.substr( 0, 4 ) == "casa"    ) { ; }
       else if ( !outProjectFile.empty()               ) { oss << " " << m_outputOpt << " " << outProjectFile; }
+
+      if ( m_appName == "datadriller" || m_appName == "track1d" )
+      {
+        oss << " -lean";
+      }
 
       // redirect stdout & stderr
       switch ( m_sh )
@@ -277,7 +289,7 @@ namespace casa
 
       switch ( m_sh )
       {
-      case bash: 
+      case bash:
          oss << "#!/bin/bash\n\n"; oss << "export CASA_SCENARIO_ID='"  << scenarioID << "'\n\n";
          oss << "CAULDRON_VERSION=" << m_version << "\nIBS_ROOT=" << m_rootPath << "\n\n";
 
@@ -292,7 +304,7 @@ namespace casa
          break;
 
       case cmd:
-         oss << "@echo off\n\nset    CASA_SCENARIO_ID=\"" << scenarioID << "\"\n\n";     
+         oss << "@echo off\n\nset    CASA_SCENARIO_ID=\"" << scenarioID << "\"\n\n";
          oss << "set CAULDRON_VERSION=" << m_version << "\nset IBS_ROOT=" << m_rootPath << "\n\n";
 
          if ( !appPath.exists() ) { oss << "set APP=" << ( ibs::Path::applicationFullPath() << "projdiff").path(); }
@@ -308,7 +320,7 @@ namespace casa
       const std::string & fromProjectName = fromPath.fileNameNoExtension();
       fromPath.cutLast(); // cut project file name
       fromPath << fromProjectName + mbapi::Model::s_ResultsFolderSuffix;
-      
+
       const std::string & newProjectName  = toPath.fileNameNoExtension();
       toPath.cutLast(); // cut project file name
       toPath << newProjectName + mbapi::Model::s_ResultsFolderSuffix;
@@ -316,18 +328,18 @@ namespace casa
       // create new folder for results files if it doesn't exist
       if ( !toPath.exists() ) ibs::FolderPath( toPath.path() ).create();
 
-      switch( m_appDepLevel ) 
+      switch( m_appDepLevel )
       {
          case PTSolver:
             switch( m_sh )
             {
-               case bash: 
-                  oss << "# Linking time stamp 3d prop files:\n"; 
+               case bash:
+                  oss << "# Linking time stamp 3d prop files:\n";
                   oss << "ln -s " << fromPath.path() << "/Time_*.h5 " << toPath.path() << "\nif [ $? -ne 0 ]; then allOk=1; fi\n\n";
-                  oss << "${APP} -merge -table SnapshotIoTbl,3DTimeIoTbl,SimulationDetailsIoTbl " << fromProj << " " << toProj << "\n"; 
+                  oss << "${APP} -merge -table SnapshotIoTbl,3DTimeIoTbl,SimulationDetailsIoTbl " << fromProj << " " << toProj << "\n";
                   break;
                case cmd:
-                  oss << "REM Linking time stamp 3d prop files:\n"; 
+                  oss << "REM Linking time stamp 3d prop files:\n";
                   oss << "FOR %%c in (" << fromPath.path() << "\\Time_*.h5) DO (mklink /h .\\%%~nxc \\%%c)\nif errorlevel 1 (\n set allOk=1  \n)\n";
                   oss << "%APP% -merge -table SnapshotIoTbl,3DTimeIoTbl,SimulationDetailsIoTbl " << fromProj << " " << toProj;
                   break;
@@ -349,7 +361,7 @@ namespace casa
          tfp << s_resFilesList[m_appDepLevel][i];
          switch( m_sh )
          {
-            case bash: 
+            case bash:
                oss << "if [ -e " << rfp.path() << " ]\nthen\n   ln -s " << rfp.path() << " " << tfp.path() << "\n";
                oss << "   ${APP} -merge -table TimeIoTbl -filter TimeIoTbl:MapFileName:" << s_resFilesList[m_appDepLevel][i] << " ";
                oss << fromProj << " " << toProj << "\nfi\nif [ $? -ne 0 ]; then allOk=1; fi\n\n";
@@ -357,7 +369,7 @@ namespace casa
 
             case cmd:
                oss << "if exist " << rfp.path() << " mklink /h " << tfp.path() << " " << rfp.path() << "\n";
-               oss << "if exist " << tfp.path() << " %APP% -merge -table TimeIoTbl -filter TimeIoTbl:MapFileName:" << 
+               oss << "if exist " << tfp.path() << " %APP% -merge -table TimeIoTbl -filter TimeIoTbl:MapFileName:" <<
                        s_resFilesList[m_appDepLevel][i] << " " << fromProj << " " << toProj << "\n";
                oss << "if errorlevel 1 (\n set allOk=1  \n)\n";
                break;
@@ -404,7 +416,7 @@ namespace casa
       std::string osAppName = m_appName + ".exe";
 #else
       std::string osAppName = m_appName;
-#endif 
+#endif
       appPath << osAppName;
       switch ( m_sh )
       {
@@ -417,14 +429,9 @@ namespace casa
             oss << "CAULDRON_MISC_PATH=" << m_rootPath << '/' << m_version << "/misc\n";
 
             // compute path to the application
-            oss << "os1=`/apps/sss/share/getos2` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
-                << "os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n"
-                << "APP=\"" << m_rootPath << '/' << m_version << "/${os1}/bin/" << osAppName << "\"" << '\n'
-                << "APP_BIN_PATH=\"" << m_rootPath << '/' << m_version << "/${os1}/bin/\"" << '\n'
-                << "if [ ! -e $APP ]; then" << '\n'
-                << "   APP=\"" << m_rootPath << '/' << m_version << "/${os2}/bin/" << osAppName << "\"" << '\n'
-                << "   APP_BIN_PATH=\"" << m_rootPath << '/' << m_version << "/${os2}/bin/\"" << '\n'
-                << "fi\n";
+            oss << "os=`/apps/sss/share/getos2 --os` || echo 'Warning: Could not determine OS version. Are we in Shell Linux?'\n"
+                << "APP=\"" << m_rootPath << '/' << m_version << "/${os}/bin/" << osAppName << "\"" << '\n'
+                << "APP_BIN_PATH=\"" << m_rootPath << '/' << m_version << "/${os}/bin/\"" << '\n';
          }
          else
          {
@@ -441,10 +448,10 @@ namespace casa
          }
 
          oss << "if [ ! -e $APP ]; then\n"
-            << "   echo Could not find application executable\n"
+            << "   echo Could not find application ${APP}\n"
             << "   exit 1\n"
             << "fi\n\n";
-           
+
          break;
 
       case cmd:
@@ -483,7 +490,7 @@ namespace casa
    }
 
    // Serialize object to the given stream
-   bool CauldronApp::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
+   bool CauldronApp::save( CasaSerializer & sz ) const
    {
       bool ok = true;
 
@@ -550,11 +557,11 @@ namespace casa
          m_appDepLevel = static_cast<AppPipelineLevel>( sht );
       }
       else { m_appDepLevel = PTSolver; }
- 
+
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "DataDiggerImpl deserialization error";
+            << "CauldronApp deserialization error";
       }
    }
 }

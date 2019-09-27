@@ -29,7 +29,7 @@ namespace CrustalThicknessInterface {
       /// @param smoothingRadius The smoothing radius
       /// @details Sets the error range epsilon to 1.0e-3
       MapSmoother( const unsigned int smoothingRadius );
-      ~MapSmoother() {};
+      ~MapSmoother() {}
 
       /// @brief Smooth (by simle average) the given map according to the smoothing radius which has been defined in the constructor
       bool averageSmoothing( DataAccess::Interface::GridMap * mapToSmooth );

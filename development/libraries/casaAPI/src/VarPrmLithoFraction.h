@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmLithoFraction.h
 /// @brief This file keeps API implementation for handling variation of the lithofractions for a given layer
@@ -24,8 +24,8 @@ namespace casa
    {
    public:
 
-      /// @brief Construct influential parameter for variation of the lithofraction parameter 
-      VarPrmLithoFraction( const std::string                 & layerName          ///< stratigraphic layer name 
+      /// @brief Construct influential parameter for variation of the lithofraction parameter
+      VarPrmLithoFraction( const std::string                 & layerName          ///< stratigraphic layer name
          , const std::vector<int>                                                 & lithoFractionsInds ///< indexes of the lithofractions
          , const std::vector<double>                                              & baseLithoFrac      ///< base lithofractions values
          , const std::vector<double>                                              & minLithoFrac       ///< min range value for the lithofractions
@@ -37,7 +37,7 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmLithoFraction() { ; }
 
-      /// @brief Get name of influential parameter in short form     
+      /// @brief Get name of influential parameter in short form
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const;
 
@@ -60,8 +60,8 @@ namespace casa
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
       /// @return new parameter for given set of values
       virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model                & mdl     /// the model to set the new averaged parameter
-                                                   , const std::vector<double>   & xin     /// the vector to store 1D projects x coordinates  
-                                                   , const std::vector<double>   & yin     /// the vector to store 1D projects y coordinates 
+                                                   , const std::vector<double>   & xin     /// the vector to store 1D projects x coordinates
+                                                   , const std::vector<double>   & yin     /// the vector to store 1D projects y coordinates
                                                    , const std::vector<SharedParameterPtr> & prmVec  /// the vector to stores the optimal parameter value of each 1D project
                                                    ) const;
 
@@ -76,9 +76,8 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Create a new var.parameter instance by deserializing it from the given stream
       /// @param dz input stream
@@ -87,7 +86,7 @@ namespace casa
       /// @}
 
    protected:
-      std::string                                        m_layerName;           ///< stratigraphic layer name 
+      std::string                                        m_layerName;           ///< stratigraphic layer name
       std::vector<int>                                   m_lithoFractionsInds;  ///< indexes of the lithofractions
    };
 }

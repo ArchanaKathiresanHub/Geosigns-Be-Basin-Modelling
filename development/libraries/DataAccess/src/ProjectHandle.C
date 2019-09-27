@@ -3673,7 +3673,7 @@ Interface::PropertyList * ProjectHandle::getProperties( bool all, int selectionF
    {
       Property * property = *propertyIter;
       if ( all || property->hasPropertyValues( selectionFlags, (Snapshot *)snapshot, (Reservoir *)reservoir,
-         dynamic_cast<const Formation *>( formation ), dynamic_cast<const Surface *>( surface ), propertyTypes ) )
+           formation, surface, propertyTypes ) )
       {
          propertyList->push_back( property );
       }

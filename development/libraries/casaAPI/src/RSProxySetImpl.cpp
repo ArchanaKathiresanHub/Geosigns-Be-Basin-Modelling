@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file RSProxySetImpl.C
 /// @brief This file keeps definitions for PRoxySet API implementation
@@ -22,8 +22,8 @@ casa::RSProxySetImpl::~RSProxySetImpl()
 }
 
 std::vector< std::string > casa::RSProxySetImpl::names() const
-{ 
-   std::vector< std::string> ret; 
+{
+   std::vector< std::string> ret;
    for ( ProxySet::const_iterator it = m_proxySet.begin(); it != m_proxySet.end(); ++it )
    {
       ret.push_back( it->first );
@@ -31,9 +31,8 @@ std::vector< std::string > casa::RSProxySetImpl::names() const
    return ret;
 }
 
-
 // Serialize object to the given stream
-bool casa::RSProxySetImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
+bool casa::RSProxySetImpl::save( CasaSerializer & sz ) const
 {
    bool ok = sz.save( m_proxySet.size(), "ProxiesSetSize" );
    for ( ProxySet::const_iterator it = m_proxySet.begin(); it != m_proxySet.end() && ok; ++it )
@@ -56,7 +55,7 @@ casa::RSProxySetImpl::RSProxySetImpl( CasaDeserializer & dz, const char * objNam
    {
       std::string proxyName;
       ok = dz.load( proxyName, "ProxyName" );
-      
+
       RSProxyImpl * pr = ok ? new RSProxyImpl( dz, "ProxyObj" ) : 0;
       ok = pr ? true : false;
       if ( ok ) m_proxySet[proxyName] = pr;

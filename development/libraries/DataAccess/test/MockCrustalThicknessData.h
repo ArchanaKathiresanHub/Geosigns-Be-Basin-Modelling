@@ -31,8 +31,8 @@ namespace DataAccess
       {
          public:
             /// @brief Uses nullptr as project handle and record to construct parent objects
-            MockCrustalThicknessData() :CrustalThicknessData( nullptr, nullptr ) {};
-            virtual ~MockCrustalThicknessData() {};
+            MockCrustalThicknessData() :CrustalThicknessData( nullptr, nullptr ) {}
+            virtual ~MockCrustalThicknessData() {}
 
             /// @defgroup Accessors
             /// @brief Use it to get CTCIoTbl data in your unit tests

@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmSourceRockProp.h
 /// @brief This file keeps API declaration for base class for all source rock lithology influential parameters
@@ -26,7 +26,7 @@ namespace casa
    public:
       /// @brief Destructor
       virtual ~VarPrmSourceRockProp() {;}
-     
+
       /// @brief Get number of subparameters if it is more than one
       /// @return dimension of influential parameter
       virtual size_t dimension() const { return 1; }
@@ -47,8 +47,8 @@ namespace casa
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
       /// @return new parameter for given set of values
       virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model & mdl    ///< [in,out] the model to be updated with the new averaged parameter
-                                                   , const std::vector<double>             & xin    ///< x coordinates of each 1D project 
-                                                   , const std::vector<double>             & yin    ///< y coordinates of each 1D project 
+                                                   , const std::vector<double>             & xin    ///< x coordinates of each 1D project
+                                                   , const std::vector<double>             & yin    ///< y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec ///< the optimal parameter values of each 1D project
                                                    ) const;
 
@@ -77,9 +77,8 @@ namespace casa
 
       /// @brief Save common data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool serializeCommonPart( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool serializeCommonPart( CasaSerializer & sz ) const;
 
       /// @brief Load commond data from the given stream
       /// @param dz input stream
@@ -94,7 +93,7 @@ namespace casa
       VarPrmSourceRockProp();
 
       /// @brief Could be called only from the child class
-      VarPrmSourceRockProp( const char * layerName /**< name of the layer for Prop variation. If layer has mix of 
+      VarPrmSourceRockProp( const char * layerName /**< name of the layer for Prop variation. If layer has mix of
                                                       source rocks litho-types, Prop will be changed for all of them */
                           , PDF          pdfType    ///< type of PDF shape for the influential parameter
                           , const char * name       ///< user specified parameter name
@@ -111,7 +110,7 @@ namespace casa
       std::string m_layerName;  ///< active source rock lithology name
       int         m_mixID;      ///< mixing ID
       std::string m_srTypeName; ///< active source rock type name
-     
+
       std::map<std::string, std::vector<SharedParameterPtr> > m_name2range; ///< Keeps range and base property values for each category
    };
 }

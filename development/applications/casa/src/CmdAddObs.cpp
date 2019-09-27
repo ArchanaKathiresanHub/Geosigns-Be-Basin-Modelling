@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 // casa app
 #include "CasaCommander.h"
@@ -19,6 +19,7 @@
 #include "ObsSourceRockMapProp.h"
 #include "ObsGridPropertyWell.h"
 #include "ObsGridPropertyXYZ.h"
+#include "ObsGridXYLayerTopSurfaceProp.h"
 #include "ObsTrapProp.h"
 #include "ObsTrapDerivedProp.h"
 #include "ObsValueDoubleScalar.h"
@@ -43,11 +44,11 @@ class ObsType
 {
 public:
    /// @brief Destructor
-   virtual ~ObsType() {;}
+   virtual ~ObsType() {}
 
    /// @brief create observable in scenario
-   virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const = 0;
-   
+   virtual casa::Observable * createObservableObject( const std::string & name, std::vector<std::string> & prms ) const = 0;
+
    /// @brief Get expected parameters number for the observable type
    virtual size_t expectedParametersNumber() const = 0;
    /// @brief Get optional parameters number for the observable type
@@ -63,7 +64,7 @@ public:
    virtual std::string usingExample( const char * cmdName ) const = 0;
 
 protected:
-   ObsType() {;}
+   ObsType() {}
 };
 
 ////////////////////////////////////////////////////////////////
@@ -71,25 +72,25 @@ protected:
 ////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////
-// XYZPoint observable 
+// XYZPoint observable
 ////////////////////////////////////////////////////////////////
 //
 class XYZPoint : public ObsType
 {
 public:
-   XYZPoint()  {;}
-   virtual ~XYZPoint() {;}
+   XYZPoint()  {}
+   virtual ~XYZPoint() {}
 
-   virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const
+   virtual casa::Observable * createObservableObject( const std::string & name, std::vector<std::string> & prms ) const
    {
       size_t pos = 2;
-      double x   = atof( prms[pos++].c_str() );
-      double y   = atof( prms[pos++].c_str() );
-      double z   = atof( prms[pos++].c_str() );
-      double age = atof( prms[pos++].c_str() ); // age for the observable
+      const double x   = atof( prms[pos++].c_str() );
+      const double y   = atof( prms[pos++].c_str() );
+      const double z   = atof( prms[pos++].c_str() );
+      const double age = atof( prms[pos++].c_str() ); // age for the observable
 
       casa::Observable * obsVal = casa::ObsGridPropertyXYZ::createNewInstance( x, y, z, prms[1].c_str(), age, name );
-     
+
       if ( prms.size() == 10 )
       {
          double refVal = atof( prms[pos++].c_str() ); // observable reference value
@@ -109,7 +110,7 @@ public:
 
       return obsVal;
    }
-      
+
    size_t expectedParametersNumber() const { return 5;  } // x, y, z, age
    size_t optionalParametersNumber() const { return 4; } // +refVal, stdDev, saW, uaW
 
@@ -142,16 +143,16 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////
-// WellTraj observable 
+// WellTraj observable
 ////////////////////////////////////////////////////////////////
 //
 class WellTraj : public ObsType
 {
 public:
-   WellTraj()  {;}
-   virtual ~WellTraj() {;}
+   WellTraj()  {}
+   virtual ~WellTraj() {}
 
-   virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const
+   virtual casa::Observable * createObservableObject( const std::string & name, std::vector<std::string> & prms ) const
    {
       const std::string & trajFileName = prms[1];                                         // well trajectory file with reference values
       const std::string & propName     = prms[2];                                         // property name
@@ -166,7 +167,7 @@ public:
       {
          prms[1] = trj.fullPath( ).path( );
       }
-      
+
 #ifdef _WIN32
       std::replace( prms[1].begin( ), prms[1].end( ), '\\', '/' );
 #endif
@@ -175,7 +176,7 @@ public:
       CfgFileParser::readTrajectoryFile( trajFileName, x, y, z, r, sdev );
 
       // check that arrays are matched
-      if ( x.empty()            || 
+      if ( x.empty()            ||
            x.size() != y.size() ||
            x.size() != z.size() ||
            ( !r.empty()    && r.size()    != x.size() ) ||
@@ -187,10 +188,10 @@ public:
 
       // If no sdev was specified in the trajFileName, fill sdev vector with stdDev (unique value for all measurements)
       if ( !r.empty() && sdev.empty() ) { sdev.insert( sdev.begin(), x.size(), stdDev ); }
-      
+
       // create observable
       casa::Observable * obsVal = casa::ObsGridPropertyWell::createNewInstance( x, y, z, propName.c_str(), age, name );
-      
+
       if ( !r.empty() )
       {
          obsVal->setReferenceValue( new casa::ObsValueDoubleArray( obsVal, r ), new casa::ObsValueDoubleArray( obsVal, sdev ) );
@@ -201,8 +202,8 @@ public:
 
       return obsVal;
    }
-      
-   size_t expectedParametersNumber() const { return 3; } 
+
+   size_t expectedParametersNumber() const { return 3; }
    size_t optionalParametersNumber() const { return 3; }
 
    virtual std::string name() const { return "WellTraj"; }
@@ -239,40 +240,40 @@ public:
 class XYPointSorceRockMap : public ObsType
 {
 public:
-   XYPointSorceRockMap() {;}
-   virtual ~XYPointSorceRockMap() {;}
+   XYPointSorceRockMap() {}
+   virtual ~XYPointSorceRockMap() {}
 
-   virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const
+   virtual casa::Observable * createObservableObject( const std::string & name, std::vector<std::string> & prms ) const
    {
       size_t pos = 1;
-      const  std::string & srPropName  =       prms[pos++];           // property of source rock calculated in Genex
-      double x                         = atof( prms[pos++].c_str() ); // X coordinate for the point on the map
-      double y                         = atof( prms[pos++].c_str() ); // Y coordinate for the point on the map
-      const  std::string & srLayerName =       prms[pos++];           // source rock layer name
-      double age                       = atof( prms[pos++].c_str() ); // age for the observable
+      const  std::string & srPropName =       prms[pos++];           // property of source rock calculated in Genex
+      const double x                  = atof( prms[pos++].c_str() ); // X coordinate for the point on the map
+      const double y                  = atof( prms[pos++].c_str() ); // Y coordinate for the point on the map
+      const std::string & srLayerName =       prms[pos++];           // source rock layer name
+      const double age                = atof( prms[pos++].c_str() ); // age for the observable
 
       casa::Observable * obsVal = casa::ObsSourceRockMapProp::createNewInstance( x, y, srLayerName.c_str(), srPropName.c_str(), age, name );
 
       // optional parameters
       if ( prms.size() == 10 )
       {
-         double refVal                 = atof( prms[pos++].c_str() ); // observable reference value
-         double stdDev                 = atof( prms[pos++].c_str() ); // std deviation value
-         
+         double refVal = atof( prms[pos++].c_str() ); // observable reference value
+         double stdDev = atof( prms[pos++].c_str() ); // std deviation value
+
          obsVal->setReferenceValue( new casa::ObsValueDoubleScalar( obsVal, refVal ), new casa::ObsValueDoubleScalar( obsVal, stdDev ) );
       }
-      if ( prms.size() > 6 )
+      if ( prms.size() > 7 )
       {
-         double wgtSA                  = atof( prms[pos++].c_str() ); // observable weight for Sensitivity Analysis
-         double wgtUA                  = atof( prms[pos++].c_str() ); // observable weight for Uncertainty Analysis
+         double wgtSA = atof( prms[pos++].c_str() ); // observable weight for Sensitivity Analysis
+         double wgtUA = atof( prms[pos++].c_str() ); // observable weight for Uncertainty Analysis
 
          obsVal->setSAWeight( wgtSA );
          obsVal->setUAWeight( wgtUA );
       }
       return obsVal;
    }
-      
-   size_t expectedParametersNumber() const { return 5; } 
+
+   size_t expectedParametersNumber() const { return 5; }
    size_t optionalParametersNumber() const { return 4; }
 
    virtual std::string name() const { return "XYPointSorceRockMap"; }
@@ -298,8 +299,82 @@ public:
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    #       type      prop name       X        Y           Z    Age   Ref   Dev  SWght UWght\n";
-      oss << "    "<< cmdName << " XYPointSorceRockMap \"OilExpelledCumulative\" 460001.0 6750001.0 \"Lower Jurassic\"  1.0  1.0\n";
+      oss << "    #                         type               prop name            X        Y        Layer name        Age   Ref    Dev  SWght UWght\n";
+      oss << "    "<< cmdName << " XYPointSorceRockMap \"OilExpelledCumulative\" 460001.0 6750001.0 \"Lower Jurassic\"  65.0  65.7   2.0   1.0  1.0\n";
+      return oss.str();
+   }
+};
+
+
+////////////////////////////////////////////////////////////
+// XYPointLayerTopSurface
+////////////////////////////////////////////////////////////
+//
+class XYPointLayerTopSurface : public ObsType
+{
+public:
+   XYPointLayerTopSurface() {}
+   virtual ~XYPointLayerTopSurface() {}
+
+   virtual casa::Observable * createObservableObject( const std::string & name, std::vector<std::string> & prms ) const
+   {
+      size_t pos = 1;
+      const std::string & sthPropName  =       prms[pos++];           // Property name, for which the history of its values is extracted on top of formation surface
+      const double x                   = atof( prms[pos++].c_str() ); // X coordinate
+      const double y                   = atof( prms[pos++].c_str() ); // Y coordinate
+      const std::string & sthLayerName =       prms[pos++];           // source rock layer name
+      const double age                 = atof( prms[pos++].c_str() ); // age for the observable
+
+      casa::Observable * obsVal = casa::ObsGridXYLayerTopSurfaceProp::createNewInstance( x, y, sthLayerName.c_str(), sthPropName.c_str(), age, name );
+
+      // optional parameters
+      if ( prms.size() == 10 )
+      {
+        double refVal                 = atof( prms[pos++].c_str() ); // observable reference value
+        double stdDev                 = atof( prms[pos++].c_str() ); // std deviation value
+
+        obsVal->setReferenceValue( new casa::ObsValueDoubleScalar( obsVal, refVal ), new casa::ObsValueDoubleScalar( obsVal, stdDev ) );
+      }
+      if ( prms.size() > 7 )
+      {
+        double wgtSA                  = atof( prms[pos++].c_str() ); // observable weight for Sensitivity Analysis
+        double wgtUA                  = atof( prms[pos++].c_str() ); // observable weight for Uncertainty Analysis
+
+        obsVal->setSAWeight( wgtSA );
+        obsVal->setUAWeight( wgtUA );
+      }
+
+      return obsVal;
+   }
+
+   size_t expectedParametersNumber() const { return 5; }
+   size_t optionalParametersNumber() const { return 4; }
+
+   virtual std::string name() const { return "XYPointLayerTopSurface"; }
+
+   virtual std::string description() const { return "Property value for the top surface of a layer at a given location (X, Y)"; }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    property value <PropName> <X> <Y> <LayerName> <Age> [<ReferenceValue> <StandardDeviationValue>] <SA weight> <UA weight>\n";
+      oss << "    Where:\n";
+      oss << "       PropName               - property name as it was defined in Cauldron project file\n";
+      oss << "       X,Y                    - are the aerial target point coordinates\n";
+      oss << "       LayerName              - layer (or formation) name\n";
+      oss << "       Age                    - simulation age in [Ma]\n";
+      oss << "       ReferenceValue         - (optional) reference value (measurements) for this target\n";
+      oss << "       StandardDeviationValue - (optional) standard deviation for reference value\n";
+      oss << "       SA weight              - weight [0:1] for this target for Sensitivity Analysis (it will used for Pareto diagram)\n";
+      oss << "       UA weight              - weight [0:1] for this target for Uncertainty Analysis (it will be used in RMSE calculation)\n";
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    #                         type             prop name       X        Y         Layer name       Age    Ref   Dev  SWght UWght\n";
+      oss << "    "<< cmdName << " XYPointLayerTopSurface \"Temperature\" 460001.0 6750001.0 \"Lower Jurassic\"  65.0   65.7  2.0   1.0  1.0\n";
       return oss.str();
    }
 };
@@ -307,10 +382,10 @@ public:
 class TrapProp : public ObsType
 {
 public:
-   TrapProp() {;}
-   virtual ~TrapProp() {;}
+   TrapProp() {}
+   virtual ~TrapProp() {}
 
-   virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const
+   virtual casa::Observable * createObservableObject( const std::string & name, std::vector<std::string> & prms ) const
    {
       bool logTransf  = false; // create RS for HCs volumes using logarithm of value
       bool byCompos   = true;  // calculate trap property by flashing the predicted composition
@@ -332,12 +407,12 @@ public:
       const std::string & resName  =       prms[pos++];           // reservoir name
       double age                   = atof( prms[pos++].c_str() ); // age for the observable
 
-      if ( logTransf && propName.find( "Mass"      ) == std::string::npos && 
-                        propName.find( "Volume"    ) == std::string::npos && 
-                        propName.find( "API"       ) == std::string::npos && 
-                        propName.find( "Density"   ) == std::string::npos && 
-                        propName.find( "Viscosity" ) == std::string::npos && 
-                        propName !=    "GOR"         && 
+      if ( logTransf && propName.find( "Mass"      ) == std::string::npos &&
+                        propName.find( "Volume"    ) == std::string::npos &&
+                        propName.find( "API"       ) == std::string::npos &&
+                        propName.find( "Density"   ) == std::string::npos &&
+                        propName.find( "Viscosity" ) == std::string::npos &&
+                        propName !=    "GOR"         &&
                         propName !=    "CGR"
          )
       {
@@ -365,7 +440,7 @@ public:
       {
          double refVal                 = atof( prms[pos++].c_str() ); // observable reference value
          double stdDev                 = atof( prms[pos++].c_str() ); // std deviation value
-         
+
          obsVal->setReferenceValue( new casa::ObsValueDoubleScalar( obsVal, refVal ), new casa::ObsValueDoubleScalar( obsVal, stdDev ) );
       }
       if ( prms.size() > 6 )
@@ -378,8 +453,8 @@ public:
       }
       return obsVal;
    }
-      
-   size_t expectedParametersNumber() const { return 5; } 
+
+   size_t expectedParametersNumber() const { return 5; }
    size_t optionalParametersNumber() const { return 4; }
 
    virtual std::string name() const { return "TrapProp"; }
@@ -404,9 +479,9 @@ public:
                         Age        - simulation age in [Ma]
                         SA weight  - weight [0:1] for this target for Sensitivity Analysis (it will used for Pareto diagram)
                         UA weight  - weight [0:1] for this target for Uncertainty Analysis (it will be used in RMSE calculation)
-                      
-                    Note: If property name for Mass or Volume is prefixed by Log - response surface will approximate the logarithm of 
-                    property values. For GOR/CGR and all APIs properties, Log prefix means that logarthim of composition masses will 
+
+                    Note: If property name for Mass or Volume is prefixed by Log - response surface will approximate the logarithm of
+                    property values. For GOR/CGR and all APIs properties, Log prefix means that logarthim of composition masses will
                     be approximated by response surface
 
                     Supported trap property list:
@@ -481,16 +556,17 @@ class ObsTypesFactory
 public:
    ObsTypesFactory()
    {
-      m_obsType["XYZPoint"]            = new XYZPoint();
-      m_obsType["WellTraj"]            = new WellTraj();
-      m_obsType["XYPointSorceRockMap"] = new XYPointSorceRockMap();
-      m_obsType["TrapProp"]            = new TrapProp();
+      m_obsType["XYZPoint"]               = new XYZPoint();
+      m_obsType["WellTraj"]               = new WellTraj();
+      m_obsType["XYPointSorceRockMap"]    = new XYPointSorceRockMap();
+      m_obsType["XYPointLayerTopSurface"] = new XYPointLayerTopSurface();
+      m_obsType["TrapProp"]               = new TrapProp();
    }
 
    ~ObsTypesFactory() { for ( std::map<std::string, ObsType*>::iterator it = m_obsType.begin(); it != m_obsType.end(); ++it ) { delete it->second; } };
 
    const ObsType * factory( const std::string & name ) const { return m_obsType.count( name ) ? m_obsType.find(name)->second : 0; }
-   
+
    std::vector<std::string> typesNameList() const
    {
       std::vector<std::string> ret;
@@ -510,7 +586,6 @@ private:
 //////////////////////////////////////////
 static const ObsTypesFactory g_obsFactory;
 
-
 //////////////////////////////////////////
 // Command processing
 //////////////////////////////////////////
@@ -523,7 +598,7 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
 
    // the first parameter could be observable name
    const ObsType * ot = g_obsFactory.factory( m_prms[0] );
-   
+
    if ( !ot && m_prms.size() > 1 )
    {
       ot = g_obsFactory.factory( m_prms[1] );
@@ -533,7 +608,7 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
          m_prms.erase( m_prms.begin() );
       }
    }
-   
+
    if ( !ot ) {  throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown observable name: " << m_prms[0]; }
 
    size_t expPrmsNum = ot->expectedParametersNumber() + 1;
@@ -552,7 +627,7 @@ void CmdAddObs::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
       (m_obsName.empty() ? (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") : m_obsName);
 
 
-   casa::Observable * obs = g_obsFactory.factory( m_prms[0] )->createOservableObject( m_obsName, m_prms );
+   casa::Observable * obs = g_obsFactory.factory( m_prms[0] )->createObservableObject( m_obsName, m_prms );
 
    if ( ErrorHandler::NoError != sa->obsSpace().addObservable( obs ) )
    {
@@ -562,21 +637,21 @@ void CmdAddObs::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 
 void CmdAddObs::printHelpPage( const char * cmdName )
 {
-   std::cout << "   " << cmdName << 
+   std::cout << "   " << cmdName <<
 R"(<target type name> [target parameters]
      Observable (or Target) - could be any data value from the simulation results.
      For example temperature or VRe at some position and depth for current time.
-     
+
      Observable reference value - usually it is a measurement of corresponded observable
-     value from the real well. Observables with reference value could be used for 
+     value from the real well. Observables with reference value could be used for
      calibration workflow.
-     
+
      Standard deviation value of observable reference value - contains the standard deviations
-     of the measurement noise. Standard deviation (SD) measures the amount of variation or 
-     dispersion from the average. A low standard deviation indicates that the data points tend 
-     to be very close to the mean (also called expected value); a high standard deviation 
+     of the measurement noise. Standard deviation (SD) measures the amount of variation or
+     dispersion from the average. A low standard deviation indicates that the data points tend
+     to be very close to the mean (also called expected value); a high standard deviation
      indicates that the data points are spread out over a large range of values.
-     
+
      The following list of target types is implemented for this command:\n)";
 
    const std::vector<std::string> & obsTypesName = g_obsFactory.typesNameList();
@@ -588,7 +663,7 @@ R"(<target type name> [target parameters]
    }
    std::cout << "\n";
 
-   // print examples of observables definition 
+   // print examples of observables definition
    for ( size_t i = 0; i < obsTypesName.size(); ++ i )
    {
       const ObsType * ob = g_obsFactory.factory( obsTypesName[i] );

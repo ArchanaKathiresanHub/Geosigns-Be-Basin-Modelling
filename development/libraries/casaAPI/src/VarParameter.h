@@ -65,11 +65,15 @@ namespace casa
       };
 
       /// @brief Destructor
-      virtual ~VarParameter() {;}
+      virtual ~VarParameter() = default;
 
       /// @brief Get name of influential parameter in short form
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const = 0;
+
+      /// @brief Calculate standard deviation values for parameter
+      /// @return vector with standard deviation value for each sub-parameter
+      virtual std::vector<double> stdDevs() const { return {}; }
 
       /// @brief Get number of subparameters if it is more than one
       /// @return dimension of influential parameter
@@ -96,6 +100,16 @@ namespace casa
       /// @param[in] vin an input vector with parameter cpecific values if they needed to extract parameter value from the model
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const = 0;
+
+      /// @brief Returns mask array where for selected parameters true value set
+      ///        Selected parameters means parameters where min/max values are different
+      /// @return mask array with true value for selected parameters
+      virtual std::vector<bool> selected() const = 0;
+
+      virtual std::vector<double> asDoubleArray( const SharedParameterPtr prm ) const
+      {
+        return {};
+      }
 
    protected:
       // version of serialized object representation

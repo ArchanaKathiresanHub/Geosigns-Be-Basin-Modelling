@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSurfacePorosity.C
 /// @brief This file keeps API implementation for handling Porosity model parameter Surface porosity
@@ -34,13 +34,8 @@ namespace casa
 // Constructor
 PrmSurfacePorosity::PrmSurfacePorosity( mbapi::Model & mdl, const std::string & lithoName )
                                       : PrmLithologyProp( 0, std::vector<std::string>( 1, lithoName ), Utilities::Numerical::IbsNoDataValue )
-{ 
+{
    m_propName = "SurfacePorosity";
-
-   // construct parameter name
-   std::ostringstream oss;
-   oss << m_propName << "(" << lithoName << ")";
-   m_name = oss.str();
 
    mbapi::LithologyManager & mgr = mdl.lithologyManager();
 
@@ -75,13 +70,6 @@ PrmSurfacePorosity::PrmSurfacePorosity( const VarPrmSurfacePorosity * parent, co
                                       : PrmLithologyProp( parent, lithosName, surfPor )
 {
    m_propName = "SurfacePorosity";
-
-   // construct parameter name
-   std::ostringstream oss;
-   oss << m_propName << "(";
-   for ( size_t i  = 0; i < m_lithosName.size(); ++i ) oss << (i == 0 ? "" : ", ") << m_lithosName[i];
-   oss << ")";
-   m_name = oss.str();
 }
 
 // Update given model with the parameter value
@@ -138,7 +126,7 @@ std::string PrmSurfacePorosity::validate( mbapi::Model & caldModel )
    {
       if ( m_val < 0   ) oss << "Surface porosity for lithology " << m_lithosName[i] << " can not be negative: "       << m_val  << std::endl;
       if ( m_val > 100 ) oss << "Surface porosity for lithology " << m_lithosName[i] << " can not be more than 100%: " << m_val  << std::endl;
- 
+
       mbapi::LithologyManager::LithologyID lid = mgr.findID( m_lithosName[i] );
 
       if ( IsValueUndefined( lid ) )
@@ -161,8 +149,8 @@ std::string PrmSurfacePorosity::validate( mbapi::Model & caldModel )
          case mbapi::LithologyManager::PorSoilMechanics:
             if ( ! NumericFunctions::isEqual( SMsp2cc( m_val ), porModelPrms[1], 1e-3 ) )
             {
-               oss << "Compaction coefficient for Soil Mechanics model for the lithology " << m_lithosName[i] << " in project: " << porModelPrms[1] << 
-                      " is different from the parameter value: "  << SMsp2cc( m_val ) << ", they are related through a clay fraction and can't be defined" 
+               oss << "Compaction coefficient for Soil Mechanics model for the lithology " << m_lithosName[i] << " in project: " << porModelPrms[1] <<
+                      " is different from the parameter value: "  << SMsp2cc( m_val ) << ", they are related through a clay fraction and can't be defined"
                       << " independently." << std::endl;
             }
             break;
@@ -171,7 +159,7 @@ std::string PrmSurfacePorosity::validate( mbapi::Model & caldModel )
          case mbapi::LithologyManager::PorDoubleExponential:
             if ( ! NumericFunctions::isEqual( m_val, porModelPrms[0], 1.e-4 ) )
             {
-               oss << "Surface porosity for lithology " << m_lithosName[i] << " in project: " << porModelPrms[0] << 
+               oss << "Surface porosity for lithology " << m_lithosName[i] << " in project: " << porModelPrms[0] <<
                       " is different from the parameter value: "  << m_val << std::endl;
             }
             break;
@@ -183,16 +171,16 @@ std::string PrmSurfacePorosity::validate( mbapi::Model & caldModel )
 }
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmSurfacePorosity::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmSurfacePorosity::save( CasaSerializer & sz ) const
 {
-   return PrmLithologyProp::serializeCommonPart( sz, version );
+   return PrmLithologyProp::serializeCommonPart( sz );
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
 PrmSurfacePorosity::PrmSurfacePorosity( CasaDeserializer & dz, unsigned int objVer )
 {
    bool ok = PrmLithologyProp::deserializeCommonPart( dz, objVer );
-   
+
    if ( m_propName.empty() ) { m_propName = "SurfacePororsity"; }
 
    if ( !ok )

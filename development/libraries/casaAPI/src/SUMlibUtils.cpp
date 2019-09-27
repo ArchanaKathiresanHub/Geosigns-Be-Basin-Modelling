@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file SUMlibUtils.C
 /// @brief This file keeps implementation of the set of utility functions to convert data SUMlib <-> CASA
@@ -14,12 +14,15 @@
 #include "SUMlibUtils.h"
 
 #include "Observable.h"
-#include "ObsSpaceImpl.h"
+#include "ObsSpace.h"
 #include "ObsValue.h"
 #include "Parameter.h"
 #include "RunCaseImpl.h"
-#include "SensitivityCalculatorImpl.h"
-#include "VarSpaceImpl.h"
+#include "VarSpace.h"
+
+#include "VarPrmCategorical.h"
+#include "VarPrmContinuous.h"
+#include "VarPrmDiscrete.h"
 
 // SUMlib includes
 #include <Case.h>
@@ -30,17 +33,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // CASA -> SUMlib case conversion
-void sumext::convertCase( const casa::RunCase & crc, const casa::VarSpace & /* vp */, SUMlib::Case  & sc )
+void sumext::convertCase( const casa::RunCase & rc, const casa::VarSpace & /* vp */, SUMlib::Case  & sc )
 {
-   const casa::RunCaseImpl & rci = dynamic_cast<const casa::RunCaseImpl &>( crc );
-
    std::vector<double>       sumCntArray; // continuous parameters value
    std::vector<unsigned int> sumCatArray; // categorical parameters value
 
    // go over all parameters
-   for ( size_t i = 0; i < rci.parametersNumber(); ++i )
+   for ( size_t i = 0; i < rc.parametersNumber(); ++i )
    {
-      const SharedParameterPtr prm = rci.parameter( i );
+      const SharedParameterPtr prm = rc.parameter( i );
       assert( prm );
       assert( prm->parent() );
 
@@ -48,9 +49,7 @@ void sumext::convertCase( const casa::RunCase & crc, const casa::VarSpace & /* v
       {
          case casa::VarParameter::Continuous:
             {
-               const casa::VarPrmContinuous * cntPrm = dynamic_cast<const casa::VarPrmContinuous *>( prm->parent() );
-
-               const std::vector<double> & prmVals = cntPrm->asDoubleArray( prm );
+               const std::vector<double> & prmVals = prm->parent()->asDoubleArray( prm );
                sumCntArray.insert( sumCntArray.end(), prmVals.begin(), prmVals.end() );
             }
             break;
@@ -62,7 +61,7 @@ void sumext::convertCase( const casa::RunCase & crc, const casa::VarSpace & /* v
             }
             break;
 
-         default: assert( 0 ); break;
+         default: assert( false ); break;
       }
    }
 
@@ -73,12 +72,9 @@ void sumext::convertCase( const casa::RunCase & crc, const casa::VarSpace & /* v
 
 ///////////////////////////////////////////////////////////////////////////////
 // SUMlib -> CASA case conversion
-void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, casa::RunCase & crc )
+void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & varSpace, casa::RunCase & rc )
 {
-   casa::RunCaseImpl & newCase = dynamic_cast<casa::RunCaseImpl &>( crc );
-   assert( newCase.parametersNumber() == 0 ); // must be empty case!
-
-   const casa::VarSpaceImpl & varSpace = dynamic_cast<const casa::VarSpaceImpl &>( vp );
+   assert( rc.parametersNumber() == 0 ); // must be empty case!
 
    const std::vector<double>       & sumCntArray = sc.continuousPart();
    const std::vector<unsigned int> & sumCatArray = sc.categoricalPart();
@@ -98,7 +94,7 @@ void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, c
                assert( cntIt != sumCntArray.end() );
 
                SharedParameterPtr newPrm = cntPrm->newParameterFromDoubles( cntIt );
-               newCase.addParameter( newPrm );
+               rc.addParameter( newPrm );
             }
             break;
 
@@ -106,14 +102,14 @@ void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, c
             {
                const casa::VarPrmCategorical * catPrm = dynamic_cast<const casa::VarPrmCategorical *>( prm );
                assert( catIt != sumCatArray.end() );
-               newCase.addParameter( catPrm->createNewParameterFromUnsignedInt( *catIt ) );
+               rc.addParameter( catPrm->createNewParameterFromUnsignedInt( *catIt ) );
                ++catIt;
             }
             break;
 
          case casa::VarParameter::Discrete:
          default:
-            throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented influential parameter type: " << prm->variationType(); 
+            throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented influential parameter type: " << prm->variationType();
             break;
       }
    }
@@ -123,7 +119,7 @@ void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, c
 ///////////////////////////////////////////////////////////////////////////////
 // CASA -> SUMlib observables conversion
 void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & caseSet
-                                    , SUMlib::TargetCollection                & targetsSet 
+                                    , SUMlib::TargetCollection                & targetsSet
                                     , std::vector< std::vector<bool> >        & matrValidObs )
 {
    assert( targetsSet.empty() );
@@ -134,10 +130,10 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
    size_t obsNum = 0;
 
    // count number of observables value for the first case
-   const casa::RunCaseImpl * rc0 = dynamic_cast<const casa::RunCaseImpl *>( caseSet[0] );
+   const casa::RunCase * rc0 = caseSet[0];
    for ( size_t j = 0; j < rc0->observablesNumber(); ++j )
    {
-      // get observable value and check is it double? 
+      // get observable value and check is it double?
       const casa::ObsValue * obv = rc0->obsValue( j );
       assert( obv );
       if ( obv->isDouble() )
@@ -145,7 +141,7 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
          obsNum += obv->asDoubleArray( false ).size();
       }
    }
-   
+
    assert( obsNum > 0 );
 
    // allocate arrays and initialize them with default values
@@ -164,21 +160,21 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
    // had array of cases, each case keeps list of observables value
    // SUMlib need array of observables with arrays of cases value
    // again go over all cases
-   
+
    for ( size_t i = 0; i < caseSet.size(); ++i )
    {
-      const casa::RunCaseImpl * rc = dynamic_cast<const casa::RunCaseImpl *>( caseSet[i] );
+      const casa::RunCase * rc = caseSet[i];
       assert( rc != 0 );
-      
+
       obsNum = 0;
       // for each case go over all observable
       for ( size_t j = 0; j < rc->observablesNumber(); ++j )
       {
-         // get observable value and check is it double? 
+         // get observable value and check is it double?
          const casa::ObsValue * obv = rc->obsValue( j );
          assert( obv );
          assert( obv->parent() );
-   
+
          if ( obv->isDouble() )
          {
             // push values of observable to array of targets
@@ -200,13 +196,10 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
 
 ///////////////////////////////////////////////////////////////////////////////
 // SUMlib -> CASA observables conversion
-void sumext::convertObservablesValue( const SUMlib::ProxyValueList &  valList, const casa::ObsSpace & obsDef, casa::RunCase & cs )
+void sumext::convertObservablesValue( const SUMlib::ProxyValueList &  valList, const casa::ObsSpace & obs, casa::RunCase & rc )
 {
-   casa::RunCaseImpl        & rc  = dynamic_cast<casa::RunCaseImpl &>( cs );
-   const casa::ObsSpaceImpl & obs = dynamic_cast<const casa::ObsSpaceImpl &> ( obsDef );
-
    SUMlib::ProxyValueList::const_iterator vit = valList.begin();
-   
+
    // must be empty RunCase without any observable value
    assert( rc.observablesNumber() == 0 );
 
@@ -215,7 +208,7 @@ void sumext::convertObservablesValue( const SUMlib::ProxyValueList &  valList, c
    {
       assert( vit != valList.end() ); // simple check if array has yet unused values
 
-      casa::ObsValue * obsVal = obs[i]->createNewObsValueFromDouble( vit ); // create new observable value (can throw!)
+      const casa::ObsValue * obsVal = obs.observable(i)->createNewObsValueFromDouble( vit ); // create new observable value (can throw!)
       if ( obsVal ) rc.addObsValue( obsVal ); // add new observable value to the RunCase
    }
 }
@@ -223,56 +216,40 @@ void sumext::convertObservablesValue( const SUMlib::ProxyValueList &  valList, c
 
 ///////////////////////////////////////////////////////////////////////////////
 // Create SUMlib bounds.
-void sumext::createSUMlibBounds( const casa::VarSpace           & varSp
+void sumext::createSUMlibBounds( const casa::VarSpace           & varSpace
                                , SUMlib::Case                   & lowCs
                                , SUMlib::Case                   & highCs
                                , std::vector<bool>              & selectedPrms
                                , std::vector<SUMlib::IndexList> & catIndices
                                )
 {
-   const casa::VarSpaceImpl & varSpace = dynamic_cast<const casa::VarSpaceImpl &>( varSp );
-
    casa::RunCaseImpl lowRCs;
    casa::RunCaseImpl uprRCs;
 
-   selectedPrms.clear(); // clean mask array   
+   selectedPrms.clear(); // clean mask array
    catIndices.clear();   // clean container for categorical values
 
    for (size_t i = 0; i < varSpace.size(); ++i)
    {
+     const casa::VarParameter* parameter = varSpace.parameter(i);
+     lowRCs.addParameter( parameter->minValue() );
+     uprRCs.addParameter( parameter->maxValue() );
 
-      lowRCs.addParameter( varSpace.parameter( i )->minValue() );
-      uprRCs.addParameter( varSpace.parameter( i )->maxValue() );
-      switch ( varSpace.parameter(i)->variationType() )
-      {
-         case casa::VarParameter::Continuous:
-         {
-            const casa::VarPrmContinuous * prm = dynamic_cast<const casa::VarPrmContinuous*>( varSpace.parameter( i ) );
-            const std::vector<bool> & selPrms = prm->selected();
-            selectedPrms.insert(selectedPrms.end(), selPrms.begin(), selPrms.end());
-         }
-         break;
+     const std::vector<bool> selPrms = parameter->selected();
+     selectedPrms.insert(selectedPrms.end(), selPrms.begin(), selPrms.end());
 
-      case casa::VarParameter::Categorical:
-         {
-            const casa::VarPrmCategorical * prm = dynamic_cast<const casa::VarPrmCategorical*>(varSpace.parameter(i));
-            selectedPrms.push_back( prm->selected() );
+     if(parameter->variationType() == casa::VarParameter::Categorical)
+     {
+       const casa::VarPrmCategorical * prm = dynamic_cast<const casa::VarPrmCategorical*>(varSpace.parameter(i));
+       const std::vector<unsigned int> & valsSet = prm->valuesAsUnsignedIntSortedSet();
+       assert(!valsSet.empty());
 
-            const std::vector<unsigned int> & valsSet = prm->valuesAsUnsignedIntSortedSet();
-            assert(!valsSet.empty());
-
-            catIndices.push_back(SUMlib::IndexList(valsSet.begin(), valsSet.end()));
-         }
-         break;
-
-      default:
-         assert(0);  // other cases not implemented yet
-         break;
-      }
+       catIndices.push_back(SUMlib::IndexList(valsSet.begin(), valsSet.end()));
+     }
    }
 
-   sumext::convertCase( lowRCs, varSp, lowCs );
-   sumext::convertCase( uprRCs, varSp, highCs );
+   sumext::convertCase( lowRCs, varSpace, lowCs );
+   sumext::convertCase( uprRCs, varSpace, highCs );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -285,25 +262,26 @@ void sumext::createSUMlibPrior( const casa::VarSpace & varSpace
                               )
 {
    // Create a CASA case for the base, and create an array containing all standard deviations. The standard
-   // deviations and the variance matrix are used for continuous influential parameters only. For discrete and categorical 
+   // deviations and the variance matrix are used for continuous influential parameters only. For discrete and categorical
    // varibal parameters it return the weights.
-  
+
    SUMlib::RealVector stdDevs;
    casa::RunCaseImpl  baseRCs;
 
    for ( size_t i = 0; i < varSpace.size(); ++i )
    {
       // set base value
-      baseRCs.addParameter( varSpace.parameter( i )->baseValue() );
+     const casa::VarParameter* parameter = varSpace.parameter(i);
+      baseRCs.addParameter( parameter->baseValue() );
 
-      switch (varSpace.parameter(i)->variationType())
+      switch (parameter->variationType())
       {
          case casa::VarParameter::Continuous:
             {
-               const casa::VarPrmContinuous * prm = dynamic_cast<const casa::VarPrmContinuous*>( varSpace.parameter( i ) );
+               //const casa::VarPrmContinuous * prm = dynamic_cast<const casa::VarPrmContinuous*>( varSpace.parameter( i ) );
 
                // calculate standard deviation value:
-               const std::vector<double> & prmStdDev = prm->stdDevs();
+               const std::vector<double> & prmStdDev = parameter->stdDevs();
                stdDevs.insert( stdDevs.end(), prmStdDev.begin(), prmStdDev.end() );
             }
             break;
@@ -337,12 +315,12 @@ void sumext::createSUMlibPrior( const casa::VarSpace & varSpace
                }
                catWeights.push_back(weights);
             }
-            break;   
+            break;
       }
    }
    // Convert the base case.
    sumext::convertCase( baseRCs, varSpace, pBase );
-   
+
    // Convert the standard deviations to a variance matrix.
    for (std::size_t i = 0; i < stdDevs.size(); ++i)
    {
@@ -390,15 +368,15 @@ void sumext::createBoxConstraints( const casa::VarSpace & proxyVs, const casa::V
 
    std::vector< double > sumDisScaledLow;  // discrete values, for the low case, scaled between [ -1, +1 ]
    std::vector< double > sumDisScaledHigh; // discrete values, for the high case, scaled between [ -1, +1 ]
-   
+
    std::vector< unsigned int > sumCatLow;  // categorical values, for the low case
    std::vector< unsigned int > sumCatHigh; // categorical values, for the high case
-   
+
    std::vector< SUMlib::IndexList > sumCatIndices; // shared categorical values between proxyVs and mcmcVs
 
    assert( proxyVs.size() == mcmcVs.size() );
 
-   // process continuous parameters 
+   // process continuous parameters
    assert( proxyVs.numberOfContPrms() == mcmcVs.numberOfContPrms() );
 
    for ( size_t i = 0; i < proxyVs.numberOfContPrms(); ++i )
@@ -409,7 +387,7 @@ void sumext::createBoxConstraints( const casa::VarSpace & proxyVs, const casa::V
       const std::vector<double> & proxyMaxVals = proxyPrm->maxValue()->asDoubleArray();
 
       const casa::VarPrmContinuous * mcmcPrm = mcmcVs.continuousParameter( i );
- 
+
       const std::vector<double> & mcmcMinVals = mcmcPrm->minValue()->asDoubleArray();
       const std::vector<double> & mcmcMaxVals = mcmcPrm->maxValue()->asDoubleArray();
 
@@ -423,7 +401,7 @@ void sumext::createBoxConstraints( const casa::VarSpace & proxyVs, const casa::V
          double min_mcmc  = mcmcMinVals[j];
          double max_mcmc  = mcmcMaxVals[j];
          double range_proxy = max_proxy - min_proxy;
-         
+
          assert( range_proxy > 0.0 );
 
          double scaledLow  = -1.0 + 2 * ( min_mcmc - min_proxy ) / range_proxy;
@@ -434,7 +412,7 @@ void sumext::createBoxConstraints( const casa::VarSpace & proxyVs, const casa::V
       }
    }
 
-   // process discrete parameters 
+   // process discrete parameters
    assert( proxyVs.numberOfDiscrPrms() == mcmcVs.numberOfDiscrPrms() );
 
    for ( size_t i = 0; i < proxyVs.numberOfDiscrPrms(); ++i )
@@ -445,7 +423,7 @@ void sumext::createBoxConstraints( const casa::VarSpace & proxyVs, const casa::V
       const std::vector<double> & proxyMaxVals = proxyPrm->maxValue()->asDoubleArray();
 
       const casa::VarPrmDiscrete * mcmcPrm = mcmcVs.discreteParameter( i );
- 
+
       const std::vector<double> & mcmcMinVals = mcmcPrm->minValue()->asDoubleArray();
       const std::vector<double> & mcmcMaxVals = mcmcPrm->maxValue()->asDoubleArray();
 
@@ -459,7 +437,7 @@ void sumext::createBoxConstraints( const casa::VarSpace & proxyVs, const casa::V
          double min_mcmc  = mcmcMinVals[j];
          double max_mcmc  = mcmcMaxVals[j];
          double range_proxy = max_proxy - min_proxy;
-         
+
          assert( range_proxy > 0.0 );
 
          double scaledLow  = -1.0 + 2 * ( min_mcmc - min_proxy ) / range_proxy;
@@ -490,7 +468,7 @@ void sumext::createBoxConstraints( const casa::VarSpace & proxyVs, const casa::V
    // Create the final SUMlib box constraints.
    sumConScaledLow.insert(  sumConScaledLow.end(),  sumDisScaledLow.begin(),  sumDisScaledLow.end() );
    sumConScaledHigh.insert( sumConScaledHigh.end(), sumDisScaledHigh.begin(), sumDisScaledHigh.end() );
-   
+
    const SUMlib::Case sumCaseLow ( sumConScaledLow,  std::vector< int >(), sumCatLow  );
    const SUMlib::Case sumCaseHigh( sumConScaledHigh, std::vector< int >(), sumCatHigh );
 

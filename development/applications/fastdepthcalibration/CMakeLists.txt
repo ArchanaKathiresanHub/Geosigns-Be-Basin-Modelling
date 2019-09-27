@@ -19,19 +19,25 @@ if (BM_PARALLEL)
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.cpp)
-source_group(source FILES ${all_srcs})
+FILE( GLOB all_srcs_except_main src/*.cpp)
+get_filename_component( full_path_main_cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ABSOLUTE )
+list ( REMOVE_ITEM all_srcs_except_main "${full_path_main_cpp}" )
+source_group(source FILES all_srcs_except_main src/main.cpp)
 
-set( APP_NAME "fastdepthcalibration" )
+set( FDC_LIB_NAME "fastdepthcalibrationLib" )
+add_library( ${FDC_LIB_NAME}
+             ${all_srcs_except_main}
+             ${all_headers} )
+set_target_properties( ${FDC_LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${FDC_LIB_NAME}" )
 
-add_executable( ${APP_NAME} ${all_srcs} ${all_headers} )
+set( FDC_TARGET_NAME "fastdepthcalibration" )
+add_executable( ${FDC_TARGET_NAME} src/main.cpp ${all_headers} )
+set_target_properties( ${FDC_TARGET_NAME} PROPERTIES SUFFIX ".exe" )
+set_target_properties( ${FDC_TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${FDC_TARGET_NAME}" )
 
-set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
-set_target_properties( ${APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${APP_NAME}" )
+create_application_run_script( ${FDC_TARGET_NAME} )
 
-create_application_run_script( ${APP_NAME} )
-
-application_env_var( TARGET ${APP_NAME} VARS
+application_env_var( TARGET ${FDC_TARGET_NAME} VARS
      "GENEXDIR"    "$MISCDIR/genex40"
      "GENEX5DIR"   "$MISCDIR/genex50"
      "GENEX6DIR"   "$MISCDIR/genex60"
@@ -45,30 +51,33 @@ application_env_var( TARGET ${APP_NAME} VARS
 ################################################################
 
 if (UNIX)
-add_dependencies(${APP_NAME} FastcauldronApplication TableIO Boost cmbapi PETSC )
+add_dependencies(${FDC_LIB_NAME} FastcauldronApplication TableIO Boost cmbapi PETSC )
 else (WIN32)
-add_dependencies(${APP_NAME} FastcauldronApplication TableIO )
+add_dependencies(${FDC_LIB_NAME} FastcauldronApplication TableIO )
 endif (UNIX)
 
 include_directories(
    src
    ${PROJECT_SOURCE_DIR}/applications/fastcauldron/src
+   ${PROJECT_SOURCE_DIR}/libraries
 )
 
 include_directories( SYSTEM
+   ${CMAKE_CURRENT_BINARY_DIR}
    ${HDF5_INCLUDE_DIRS}
    ${MPI_INCLUDE_DIRS}
    ${PETSC_INCLUDE_DIRS}
    ${EIGEN_INCLUDE_DIRS}
 )
 
-target_link_libraries(${APP_NAME}
+target_link_libraries(${FDC_TARGET_NAME}
+    ${FDC_LIB_NAME}
     FastcauldronApplication
     DataAccess
     DistributedDataAccess
     )
 
-target_link_libraries( ${APP_NAME}
+target_link_libraries( ${FDC_LIB_NAME}
     DataAccess
     AbstractDerivedProperties
     DerivedProperties
@@ -97,13 +106,13 @@ target_link_libraries( ${APP_NAME}
     ${BM_CLOCK_GETTIME_LIB}
 )
 
-set_target_properties(${APP_NAME}
+set_target_properties(${FDC_TARGET_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
 if(UNIX)
    # The OneFilePerProcess library is only available on Unix
-   target_link_libraries(${APP_NAME} OneFilePerProcess)
+   target_link_libraries(${FDC_LIB_NAME} OneFilePerProcess)
 endif()
 
 if (WIN32)
@@ -114,12 +123,44 @@ endif()
 
 if (BM_USE_FLEXLM)
    include_directories( ${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(${APP_NAME} ${FLEXLM_LIBRARIES})
+   target_link_libraries(${FDC_LIB_NAME} ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-install(TARGETS ${APP_NAME}
+install(TARGETS ${FDC_TARGET_NAME}
     RUNTIME DESTINATION bin
 )
-    
+
+# Unit tests
+
+configure_file(test/Project.project3d ${CMAKE_CURRENT_BINARY_DIR}/Project.project3d COPYONLY)
+configure_file(test/Input.HDF ${CMAKE_CURRENT_BINARY_DIR}/Input.HDF COPYONLY)
+configure_file(test/Inputs.HDF ${CMAKE_CURRENT_BINARY_DIR}/Inputs.HDF COPYONLY)
+configure_file(test/increasedDepthsSurf3.txt ${CMAKE_CURRENT_BINARY_DIR}/increasedDepthsSurf3.txt COPYONLY)
+
+add_gtest( NAME "FDCProjectManager"
+    SOURCES src/FDCProjectManager.cpp test/TestsFDCProjectManager.cpp
+    LIBRARIES ${FDC_LIB_NAME} ${PETSC_LIBRARIES} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
+    LINK_FLAGS "${PETSC_LINK_FLAGS}"
+    FOLDER "${BASE_FOLDER}/${FDC_TARGET_NAME}"
+)
+
+add_gtest( NAME "FDCMapFieldProperties"
+    SOURCES src/FDCMapFieldProperties.cpp test/TestsFDCMapFieldProperties.cpp
+    LIBRARIES ${FDC_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
+    FOLDER "${BASE_FOLDER}/${FDC_TARGET_NAME}"
+)
+
+add_gtest( NAME "FDCVectorFieldProperties"
+    SOURCES src/FDCVectorFieldProperties.cpp test/TestsFDCVectorFieldProperties.cpp
+    LIBRARIES ${FDC_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
+    FOLDER "${BASE_FOLDER}/${FDC_TARGET_NAME}"
+)
+
+add_gtest( NAME "FDCLithoProperties"
+    SOURCES src/FDCLithoProperties.cpp test/TestsFDCLithoProperties.cpp
+    LIBRARIES ${FDC_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
+    FOLDER "${BASE_FOLDER}/${FDC_TARGET_NAME}"
+)
+
 endif(BM_PARALLEL)
 

@@ -390,7 +390,7 @@ bool GenexSourceRock::compute()
 
    if(status) status = preprocess();
 
-   if ( status ) status = addHistoryToNodes ();
+   if(status) status = addHistoryToNodes ();
 
    if(status) status = process();
    
@@ -910,13 +910,13 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
                                Interface::DefaultUndefinedMapValue))
             {
 
-	       if (!isNodeActive (VreAtPresentDay, in_thickness, in_TOC, inorganicDensity, validValue))
-	       {
-		  // not sure if this still constitutes an optimization.....
-		  in_thickness = 0;
-		  in_TOC = 0;
-		  inorganicDensity = 0;
-	       }
+              if (!isNodeActive (VreAtPresentDay, in_thickness, in_TOC, inorganicDensity, validValue))
+              {
+                // not sure if this still constitutes an optimization.....
+                in_thickness = 0;
+                in_TOC = 0;
+                inorganicDensity = 0;
+              }
                
                if( HCmap != 0 ) {
 
@@ -1286,11 +1286,11 @@ bool GenexSourceRock::process()
          }
 
          if ( startPressure == 0 ) {
-            LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing pressure map for snapshot " << intervalStart->getTime ();
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing pressure map for snapshot " << intervalStart->getTime ();
          }
 
          if ( endPressure == 0 ) {
-            LogHandler( LogHandler::ERROR_SEVERITY ) << " Missing pressure map for snapshot " << intervalEnd->getTime ();
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Missing pressure map for snapshot " << intervalEnd->getTime ();
          }
          
          status = false;

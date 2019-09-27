@@ -49,9 +49,9 @@ std::vector<std::string> VarPrmSourceRockPreAsphaltStartAct::name() const
 }
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool VarPrmSourceRockPreAsphaltStartAct::save( CasaSerializer & sz, unsigned int version ) const
+bool VarPrmSourceRockPreAsphaltStartAct::save( CasaSerializer & sz ) const
 {
-   bool ok = VarPrmSourceRockProp::serializeCommonPart( sz, version );
+   bool ok = VarPrmSourceRockProp::serializeCommonPart( sz );
    return ok;
 }
 

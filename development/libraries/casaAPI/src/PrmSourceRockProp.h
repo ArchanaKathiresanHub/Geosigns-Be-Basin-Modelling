@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSourceRockProp.h
-/// @brief This file keeps API declaration for base class for all source rock lithology parameters handling. 
+/// @brief This file keeps API declaration for base class for all source rock lithology parameters handling.
 
 #ifndef CASA_API_PARAMETER_SOURCE_ROCK_PROP_H
 #define CASA_API_PARAMETER_SOURCE_ROCK_PROP_H
@@ -31,38 +31,26 @@ namespace casa
 {
    class VarPrmSourceRockProp;
 
-   /// @brief Base class for all source rock lithology parameters 
+   /// @brief Base class for all source rock lithology parameters
    class PrmSourceRockProp : public Parameter
    {
    public:
       /// @brief Destructor
-      virtual ~PrmSourceRockProp() {;}
-     
-      /// @brief Get name of the parameter
-      /// @return parameter name
-      virtual const char * name() const { return m_name.c_str(); }
-
-      /// @brief Get influential parameter object which was used to create this parameter
-      /// @return Pointer to the influential parameter
-      virtual const VarParameter * parent() const { return m_parent; }
-
-      /// @brief Set influential parameter which was used to create this parameter
-      /// @param varPrm pointer to the influential parameter
-      virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
+      virtual ~PrmSourceRockProp() = default;
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
       virtual AppPipelineLevel appSolverDependencyLevel() const  { return Genex; }
-                  
+
       // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
-      
+
       /// @brief Get parameter value as an array of doubles
       /// @return parameter value represented as set of doubles
       virtual std::vector<double> asDoubleArray() const { return std::vector<double>( 1, value() ); }
 
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
-      virtual int asInteger() const { assert( 0 ); return Utilities::Numerical::NoDataIntValue; }
+      virtual int asInteger() const { assert( false ); return Utilities::Numerical::NoDataIntValue; }
 
       /// @{ SourceRockProp specific methods
       /// @brief Get mixing ID
@@ -85,14 +73,16 @@ namespace casa
       /// @param val new parameter value
       /// @param srTypeName - new source rock type name
       void update( double val, const std::string & srTypeName ) { m_val = val; m_srTypeName = srTypeName; }
-      /// @}
+
+      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
+      /// @return Actual version of serialized object representation
+      virtual unsigned int version() const { return 2; }
 
       /// @{
       /// @brief Save common object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool serializeCommonPart( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool serializeCommonPart( CasaSerializer & sz ) const;
 
       /// @brief Load common object data from the given stream
       /// @param dz input stream
@@ -120,11 +110,7 @@ namespace casa
       /// @param mixID     source rock mixing ID for stratigraphy layer
       PrmSourceRockProp( const VarPrmSourceRockProp * parent, double val, const char * layerName, const char * srType, int mixID );
 
-      const VarParameter * m_parent;     ///< influential parameter which was used to create this one
-
       std::string          m_propName;   ///< Defines which source rock lithology property this parameter defines
-      std::string          m_name;       ///< name of the parameter
-      
       std::string          m_layerName;  ///< layer name with source rock
       std::string          m_srTypeName; ///< name for source rock type
       int                  m_mixID;      ///< mixing ID for stratigraphy layer source rock mix

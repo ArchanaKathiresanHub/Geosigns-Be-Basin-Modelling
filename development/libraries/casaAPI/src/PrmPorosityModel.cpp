@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmPorosityModel.C
-/// @brief This file keeps API implementation for Porosity model parameter handling 
+/// @brief This file keeps API implementation for Porosity model parameter handling
 
 // CASA API
 #include "PrmPorosityModel.h"
@@ -32,7 +32,7 @@ namespace casa
 
 // Constructor
 PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
-   : m_parent( 0 )
+   : Parameter( 0 )
    , m_modelType(   UndefinedModel )
    , m_lithoName(   lithoName )
    , m_surfPor(     Utilities::Numerical::IbsNoDataValue )
@@ -40,12 +40,7 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
    , m_minPorosity( Utilities::Numerical::IbsNoDataValue )
    , m_compCoef1(   Utilities::Numerical::IbsNoDataValue )
 
-{ 
-   // construct parameter name
-   std::ostringstream oss;
-   oss << "PorosityModel(" << m_lithoName << ")";
-   m_name = oss.str();
-
+{
    mbapi::LithologyManager & mgr = mdl.lithologyManager();
 
    bool isFound = false;
@@ -55,13 +50,13 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
    for ( size_t i = 0; i < lIDs.size() && !isFound; ++i )
    {
       std::string lName = mgr.lithologyName( lIDs[i] );
-      
+
       if ( lName != m_lithoName ) { continue; }
 
       mbapi::LithologyManager::PorosityModel mdlType;
       std::vector<double> modelPrms;
       if ( ErrorHandler::NoError != mgr.porosityModel( lIDs[i], mdlType, modelPrms ) ) { mdl.moveError( mgr ); return; }
-      
+
       switch ( mdlType )
       {
          case mbapi::LithologyManager::PorExponential:
@@ -89,7 +84,7 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
       }
       isFound = true;
    }
-   
+
    if ( !isFound )
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) <<  "Can't find lithology type with name " <<
@@ -99,7 +94,7 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
 
  // Constructor
 PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const char * lithoName, PorosityModelType mdlType, const std::vector<double> & mdlPrms )
-   : m_parent(      parent )
+   : Parameter(     parent )
    , m_modelType(   mdlType )
    , m_lithoName(   lithoName )
    , m_surfPor(     Utilities::Numerical::IbsNoDataValue )
@@ -107,11 +102,6 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
    , m_minPorosity( Utilities::Numerical::IbsNoDataValue )
    , m_compCoef1(   Utilities::Numerical::IbsNoDataValue )
 {
-  // construct parameter name
-   std::ostringstream oss;
-   oss << "PorosityModel(" << m_lithoName << ")";
-   m_name = oss.str();
-
    // check parameters for the model
    ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
 
@@ -124,7 +114,7 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
       case SoilMechanics:
          if ( mdlPrms.size() < 1 || mdlPrms.size() > 2 ) { throw ex  << "Wrong parameters number for SoilMechanics porosity model: " << mdlPrms.size(); }
          break;
-      
+
       case DoubleExponential:
          if ( mdlPrms.size() != 4 ) { throw ex << "Wrong parameters number for Double Expi. porosity model, expected 4, but given: " << mdlPrms.size(); }
          break;
@@ -141,7 +131,7 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
          break;
 
       case SoilMechanics:
-         if (      mdlPrms.size() == 1 ) m_clayFraction = mdlPrms[0];          // created from clayFraction 
+         if (      mdlPrms.size() == 1 ) m_clayFraction = mdlPrms[0];          // created from clayFraction
          else if ( mdlPrms.size() == 2 ) initSoilMechanicsPorModel( mdlPrms ); // created from surfPor && compCoeff
          break;
 
@@ -153,7 +143,7 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
          break;
 
       default:
-         assert( 0 );
+         assert( false );
          break;
    }
 }
@@ -269,27 +259,27 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
          switch( porModel )
          {
             case mbapi::LithologyManager::PorExponential:
-               samePorModel = m_modelType == Exponential ? true : false;
+               samePorModel = m_modelType == Exponential;
                if ( samePorModel )
                {
                   minPoroIdx = 2;
-                  sameSurfPor = NumericFunctions::isEqual( m_surfPor,  mdlPrms[0], 1.e-4 ); 
+                  sameSurfPor = NumericFunctions::isEqual( m_surfPor,  mdlPrms[0], 1.e-4 );
                   sameCC      = NumericFunctions::isEqual( m_compCoef, mdlPrms[1], 1.e-4 );
                   sameMinPor  = NumericFunctions::isEqual( m_minPorosity, mdlPrms[minPoroIdx], 1.e-4 );
                }
                break;
- 
+
             case mbapi::LithologyManager::PorSoilMechanics:
-               samePorModel = m_modelType == SoilMechanics ? true : false;
+               samePorModel = m_modelType == SoilMechanics;
                if ( samePorModel )
                {
-                  sameSurfPor = NumericFunctions::isEqual( SMcf2sp( m_clayFraction ), mdlPrms[0], 1.e-4 ); 
-                  sameCC      = NumericFunctions::isEqual( SMcf2cc( m_clayFraction ), mdlPrms[1], 1.e-4 ); 
+                  sameSurfPor = NumericFunctions::isEqual( SMcf2sp( m_clayFraction ), mdlPrms[0], 1.e-4 );
+                  sameCC      = NumericFunctions::isEqual( SMcf2cc( m_clayFraction ), mdlPrms[1], 1.e-4 );
                }
                break;
 
            case mbapi::LithologyManager::PorDoubleExponential:
-               samePorModel = m_modelType == DoubleExponential ? true : false;
+               samePorModel = m_modelType == DoubleExponential;
                if ( samePorModel )
                {
                   minPoroIdx = 1;
@@ -305,9 +295,9 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
                break;
          }
          if ( !samePorModel ) oss << "Porosity model type for lithology "     << m_lithoName << " defined in project, is different from the parameter value" << std::endl;
-         if ( !sameSurfPor  ) oss << "Surface porosity for lithology "        << m_lithoName << " in project: "        << mdlPrms[0] << 
+         if ( !sameSurfPor  ) oss << "Surface porosity for lithology "        << m_lithoName << " in project: "        << mdlPrms[0] <<
                                      " is differ from the parameter value: "  << m_surfPor << std::endl;
-         if ( !sameCC       ) oss << "Compaction coeff. for lithology "       << m_lithoName << " in project: "        << mdlPrms[1] << 
+         if ( !sameCC       ) oss << "Compaction coeff. for lithology "       << m_lithoName << " in project: "        << mdlPrms[1] <<
                                      " is differ from the parameter value: "  << m_compCoef << std::endl;
          if ( !sameMinPor   ) oss << "Minimal porosity for lithology "        << m_lithoName << " defined in project " << mdlPrms[minPoroIdx] <<
                                      " is differ from the parameter value "   << m_minPorosity << std::endl;
@@ -357,7 +347,7 @@ bool PrmPorosityModel::operator == ( const Parameter & prm ) const
 {
    const PrmPorosityModel * pp = dynamic_cast<const PrmPorosityModel *>( &prm );
    if ( !pp ) return false;
-   
+
    const double eps = 1.e-6;
 
    if ( m_lithoName != pp->m_lithoName || m_modelType != pp->m_modelType ) return false;
@@ -390,17 +380,9 @@ bool PrmPorosityModel::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmPorosityModel::save( CasaSerializer & sz, unsigned int /* version */ ) const
+bool PrmPorosityModel::save( CasaSerializer & sz ) const
 {
-   bool hasParent = m_parent ? true : false;
-   bool ok = sz.save( hasParent, "hasParent" );
-
-   if ( hasParent )
-   {
-      CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
-      ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
-   }
-   ok = ok ? sz.save( m_name,                        "name"             ) : ok;
+   bool ok = saveCommonPart(sz);
    ok = ok ? sz.save( m_lithoName,                   "LithologyName"    ) : ok;
    ok = ok ? sz.save( static_cast<int>(m_modelType), "ModelType"        ) : ok;
    ok = ok ? sz.save( m_surfPor,                     "SurfacePororsity" ) : ok;
@@ -413,26 +395,16 @@ bool PrmPorosityModel::save( CasaSerializer & sz, unsigned int /* version */ ) c
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmPorosityModel::PrmPorosityModel( CasaDeserializer & dz, unsigned int /* objVer */ )
+PrmPorosityModel::PrmPorosityModel( CasaDeserializer & dz, unsigned int objVer ) :
+  Parameter(dz, objVer)
 {
-   CasaDeserializer::ObjRefID parentID;
-
-   bool hasParent;
-   bool ok = dz.load( hasParent, "hasParent" );
-
-   if ( hasParent )
-   {
-      bool ok = dz.load( parentID, "VarParameterID" );
-      m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
-   }
-
-   ok = ok ? dz.load( m_name,        "name"             ) : ok;
+   bool ok = true;
    ok = ok ? dz.load( m_lithoName,   "LithologyName"    ) : ok;
-   
+
    int mdlTypeSaved;
    ok = ok ? dz.load( mdlTypeSaved,  "ModelType" ) : ok;
    if ( ok ) m_modelType = static_cast<PrmPorosityModel::PorosityModelType>( mdlTypeSaved );
-   
+
    ok = ok ? dz.load( m_surfPor,      "SurfacePororsity" ) : ok;
    ok = ok ? dz.load( m_compCoef,     "CompactionCoeff"  ) : ok;
    ok = ok ? dz.load( m_minPorosity,  "MinimalPorosity"  ) : ok;
@@ -459,7 +431,7 @@ void PrmPorosityModel::initSoilMechanicsPorModel( const std::vector<double> & md
       m_clayFraction = SMsp2cf( surfPor ); // calculate clay fraction from surface porosity
       if ( m_clayFraction < 0.0 || m_clayFraction > 1.0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<
             "Soil mechanics porosity model: given surface porosity: " << surfPor << " out of range value: [" <<
             SMcf2sp( 0.0 ) << ":" << SMcf2sp(1.0) << "]";
       }
@@ -469,7 +441,7 @@ void PrmPorosityModel::initSoilMechanicsPorModel( const std::vector<double> & md
       m_clayFraction = SMcc2cf( cc ); // calculate clay fraction from compaction coefficient
       if ( m_clayFraction < 0.0 || m_clayFraction > 1.0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<
             "Soil mechanics porosity model: given compaction coeff.: " << cc << " out of range value: [" <<
             SMcf2cc( 0.0 ) << ":" << SMcf2cc(1.0) << "]";
       }
@@ -479,7 +451,7 @@ void PrmPorosityModel::initSoilMechanicsPorModel( const std::vector<double> & md
       m_clayFraction = SMsp2cf( surfPor );
       if ( !NumericFunctions::isEqual( m_clayFraction, SMcc2cf( cc ), 1.e-3 ) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<
             "Lithology: " << m_lithoName <<
             ". Soil Mechanics porosity model - inconsistent surface porosity and compaction coefficient. " <<
             "Expected compaction coefficient: " << SMcf2cc( m_clayFraction ) << ", but given: " << cc;
@@ -487,18 +459,18 @@ void PrmPorosityModel::initSoilMechanicsPorModel( const std::vector<double> & md
 
       if ( m_clayFraction < 0.0 || m_clayFraction > 1.0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<
             "Soil mechanics porosity model: given surface porosity: " << surfPor << " out of range value: [" <<
             SMcf2sp( 0.0 ) << ":" << SMcf2sp(1.0) << "]";
       }
    }
    else
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology: " << m_lithoName << 
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology: " << m_lithoName <<
          ". Wrong parameters for Soil Mechanics porosity model.";
    }
 }
- 
+
 double SMcc2sp( double cc )
 {
    double clayFraction = SMcc2cf( cc );

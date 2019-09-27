@@ -31,7 +31,7 @@ const std::string database::ProjectFileHandler::OutputTablesFileIoTableName = "O
 const std::string database::ProjectFileHandler::OutputTablesIoTableName = "OutputTablesIoTbl";
 const std::string database::ProjectFileHandler::OutputTablesFileName = "Output.iotables3d";
 
-database::ProjectFileHandler::ProjectFileHandler () 
+database::ProjectFileHandler::ProjectFileHandler ()
 {
    std::unique_ptr<database::DataSchema> cauldronSchema( database::createCauldronSchema() );
 
@@ -45,7 +45,7 @@ database::ProjectFileHandler::ProjectFileHandler ()
    }
 }
 
-database::ProjectFileHandler::ProjectFileHandler ( const std::string& fileName ) 
+database::ProjectFileHandler::ProjectFileHandler ( const std::string& fileName )
 {
    if ( ! ibs::FilePath( fileName ).exists() ) {
       throw formattingexception::GeneralException() << "Project file " << fileName << " does not exist";
@@ -56,8 +56,8 @@ database::ProjectFileHandler::ProjectFileHandler ( const std::string& fileName )
 }
 
 database::ProjectFileHandler::ProjectFileHandler ( const std::string&              fileName
-                                                 , const std::vector<std::string>& outputTableNames 
-                                                 ) 
+                                                 , const std::vector<std::string>& outputTableNames
+                                                 )
                                                  : ProjectFileHandler ( fileName )
 {
    for ( size_t i = 0; i < outputTableNames.size (); ++i ) {
@@ -77,7 +77,7 @@ bool database::ProjectFileHandler::saveToFile ( const std::string& fileName ) {
    bool status = true;
 
    if ( m_inputDataBase ) {
-      status = m_inputDataBase->saveToFile( fileName );
+        status = m_inputDataBase->saveToFile( fileName );
    }
 
    if ( m_outputDataBase ) {
@@ -111,7 +111,7 @@ void database::ProjectFileHandler::loadFromFile ( const std::string& fileName ) 
 
    m_inputDataBase.reset( database::Database::CreateFromFile( fileName, *cauldronSchema ) );
    database::upgradeAllTablesInCauldronSchema( m_inputDataBase.get() );
-   
+
    // Now that we have the cauldron schema, use it to set the list of all possible table names.
    m_allTableNames.reserve ( cauldronSchema->size ());
 

@@ -22,7 +22,7 @@ namespace DataAccess
             /// Set a layer name.
             void setLayerName ( const std::string& name );
 	    /// Return the type of this SourceRock
-	    virtual const string & getType (void) const;
+		virtual const string & getType (void) const;
             /// Return the H/C of this SourceRock
             virtual const double & getHcVRe05(void) const;
             /// Return the S/C of this SourceRock

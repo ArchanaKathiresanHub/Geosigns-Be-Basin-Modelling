@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmCategorical.C
 /// @brief This file keeps loaders for all possible types of VarPrmCategorical
@@ -18,12 +18,18 @@
 
 namespace casa
 {
-   
-   std::vector< unsigned int> VarPrmCategorical::valuesAsUnsignedIntSortedSet() const
-   {
-      std::vector<unsigned int> ret(m_variation.size(), 0 );
 
-      for ( unsigned int i = 0; i < m_variation.size(); ++i ) ret[i] = i;
+std::vector<bool> VarPrmCategorical::selected() const
+{
+  const bool b = ( *minValue() != *maxValue() );
+  return {b};
+}
+
+std::vector< unsigned int> VarPrmCategorical::valuesAsUnsignedIntSortedSet() const
+{
+  std::vector<unsigned int> ret(m_variation.size(), 0 );
+
+  for ( unsigned int i = 0; i < m_variation.size(); ++i ) ret[i] = i;
 
       return ret;
    }
@@ -35,22 +41,22 @@ namespace casa
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "No such category: " << val <<
             " for categorical parameter: " << m_name;
       }
-      
+
       // inform dependent by sending signal
       m_catDependentVarPrms( m_variation[val].get() );
 
       return m_variation[val];
    }
 
-   bool VarPrmCategorical::save( CasaSerializer & sz, unsigned int /* version */ ) const
+   bool VarPrmCategorical::save( CasaSerializer & sz ) const
    {
       // register var. parameter with serializer to allow all Parameters objects keep reference after deserializtion
       CasaSerializer::ObjRefID obID = sz.ptr2id( this );
       bool ok = sz.save( obID, "ID" );
- 
+
       // inform dependent by sending signal
       m_serDependentVarPrms( obID );
-     
+
       ok = ok ? sz.save( m_baseVal, "baseValue" ) : ok;
       ok = ok ? sz.save( m_weights, "weights"   ) : ok;
 
@@ -60,7 +66,7 @@ namespace casa
       {
          ok = sz.save( *(m_variation[i].get()), "enumValue" );
       }
-     
+
       ok = ok ? sz.save( m_name, "userGivenName" ) : ok;
       return ok;
    }
@@ -88,7 +94,7 @@ namespace casa
       }
       return 0;
    }
-   
+
    // Implements common part of deserialization for continuous influential parameters
    bool VarPrmCategorical::deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer )
    {
@@ -124,12 +130,12 @@ namespace casa
    }
 
    void VarPrmCategorical::addDependent( VarPrmContinuous * depPrm )
-   {  
+   {
       if ( !depPrm ) return;
-      
+
       if ( !dynamic_cast<VarPrmContinuous*>( depPrm ) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::SerializationError ) << "Influential parameter: " << depPrm->name()[0] << 
+         throw ErrorHandler::Exception( ErrorHandler::SerializationError ) << "Influential parameter: " << depPrm->name()[0] <<
             " can not depends on categorical parameter";
       }
 

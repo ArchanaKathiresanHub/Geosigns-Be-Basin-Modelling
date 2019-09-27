@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarSpaceImpl.h
 /// @brief This file keeps declaration of the implementation part of influential parameters set manager
@@ -29,9 +29,9 @@ namespace casa
 // Influential parameters set manager. It keeps a unique set of influential parameters
 class VarSpaceImpl : public VarSpace
 {
-public:  
+public:
    // VarSpace interface implementation
-   
+
    // Add a new influential parameter
    virtual ErrorHandler::ReturnCode addParameter( VarParameter * prm );
 
@@ -42,16 +42,16 @@ public:
    virtual size_t dimension() const { size_t dim = 0; for ( const auto prm : m_prms ) { dim += prm->dimension(); } return dim; }
 
    // Get number of continuous parameters defined in VarSpace
-   virtual size_t numberOfContPrms() const { return m_cntPrms.size(); } 
+   virtual size_t numberOfContPrms() const { return m_cntPrms.size(); }
 
    // Get number of categorical parameters defined in VarSpace
-   virtual size_t numberOfCategPrms() const { return m_catPrms.size(); } 
- 
+   virtual size_t numberOfCategPrms() const { return m_catPrms.size(); }
+
    // Get number of discrete parameters defined in VarSpace
    virtual size_t numberOfDiscrPrms() const { return m_disPrms.size(); }
- 
+
    // Implementation part
-   
+
    // Constructor/Destructor
    VarSpaceImpl() { ; }
 
@@ -68,7 +68,7 @@ public:
 
    // Get i-th discrete parameter from the list
    virtual const VarPrmDiscrete * discreteParameter( size_t i ) const { return i < m_disPrms.size() ? m_disPrms[ i ] : NULL; }
- 
+
    // Access to i-th element
    // i position element in the collection
    // return pointer to VarParameter object which should not be deleted by the user on success
@@ -83,7 +83,7 @@ public:
    virtual const char * typeName() const { return "VarSpaceImpl"; }
 
    // Serialize object to the given stream
-   virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+   virtual bool save(CasaSerializer & sz) const;
 
    // Create a new instance and deserialize it from the given stream
    VarSpaceImpl( CasaDeserializer & inStream, const char * objName );

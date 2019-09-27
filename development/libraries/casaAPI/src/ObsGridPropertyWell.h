@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ObsGridPropertyWell.h
-/// @brief This file keeps declaration of the class of grid property value as observable
+/// @file  ObsGridPropertyWell.h
+/// @brief This file keeps declaration of the class of grid property well value as observable
 
 #ifndef CASA_API_OBS_GRID_PROPERTY_WELL_H
 #define CASA_API_OBS_GRID_PROPERTY_WELL_H
@@ -24,11 +24,6 @@
 /// This observable could retrieve values for any grid property along the given well trajectory.
 /// The trajectory must be defined as a set of XYZ points in basin model coordinate space.
 
-namespace mbapi
-{
-   class Model;
-}
-
 namespace casa
 {
    /// @brief Base class for keeping some value from Cauldron simulation results
@@ -41,8 +36,11 @@ namespace casa
                                                     , const std::vector<double> & z             ///< well trajectory Z-th coordinates [m]
                                                     , const char                * propName      ///< name of the property
                                                     , double                      simTime = 0.0 ///< simulation time [Ma]
-                                                    , const std::string         & name = ""     ///< user specified name for observable
-                                                    ) { return new ObsGridPropertyWell( x, y, z, propName, simTime, name ); };
+                                                    , const std::string         & myName = ""   ///< user specified name for observable
+                                                    )
+      {
+        return new ObsGridPropertyWell( x, y, z, propName, simTime, myName );
+      }
 
       /// @brief Create observable for the given grid property for specified grid position
       ObsGridPropertyWell( const std::vector<double> & x         ///< well trajectory X-th coordinates [m]
@@ -50,69 +48,32 @@ namespace casa
                          , const std::vector<double> & z         ///< well trajectory Z-th coordinates [m]
                          , const char                * propName  ///< name of the property
                          , double                      simTime   ///< simulation time [Ma]
-                         , const std::string         & name = "" ///< custom name for observable
+                         , const std::string         & myName = "" ///< custom name for observable
                          );
 
       /// @brief Destructor
-      virtual ~ObsGridPropertyWell( );
-
-      /// @brief Get name of the observable. If dimension of observable is more than 1
-      ///        it return name for each dimension
-      /// @return observable name for each dimension
-      virtual std::vector<std::string> name() const;
+      virtual ~ObsGridPropertyWell();
 
       /// @brief Get observable dimension
       /// @return dimension of observable
-      virtual size_t dimension() const { return m_x.size(); }
-
-      /// @brief Does observable has a reference value (measurement)
-      /// @return true if reference value was set, false otherwise
-      virtual bool hasReferenceValue() const { return m_refValue.get() == NULL ? false : true; }
-
-      /// @brief Get reference value
-      /// @return reference value
-      virtual const ObsValue * referenceValue() const { return m_refValue.get(); }
-
-      /// @brief Get standard deviations for the reference value
-      /// @return standard deviation for reference value
-      virtual const ObsValue * stdDeviationForRefValue( ) const { return m_devValue.get(); }
+      virtual size_t dimension() const;
 
       /// @brief Set reference value
       /// @param refVal reference value itself
       /// @param stdDevVal standard deviation value for the reference value
       virtual void setReferenceValue( ObsValue * refVal, ObsValue * stdDevVal );
 
-      /// @brief Get weighting coefficient for sensitivity analysis
-      /// return weighting coefficient. This coefficient should be used in Pareto diagram calculation
-      virtual double saWeight() const { return m_saWeight; }
-
-      /// @brief Set weight coefficient for Sensitivity analysis
-      /// @param w weight coefficient value
-      virtual void setSAWeight( double w ) { m_saWeight = w;  }
-
-      /// @brief Get Cauldron property name
-      /// @return name of the property as a string
-      std::string propertyName() const { return m_propName; }
-
       /// @brief Get Z coordinates list
       /// @return array with Z coordinate of each observable point along well
-      std::vector<double> depth() const { return m_z; }
+      virtual std::vector<double> depth() const;
 
       /// @brief Get X coordinates list
       /// @return array with X coordinate of each observable point along well
-      std::vector<double> xCoords() const { return m_x; }
+      virtual std::vector<double> xCoords() const;
 
       /// @brief Get Y coordinates list
       /// @return array with Y coordinate of each observable point along well
-      std::vector<double> yCoords() const { return m_y; }
-
-      /// @brief Set weight coefficient for Uncertainty analysis
-      /// @param w weight coefficient value
-      virtual void setUAWeight( double w ) { m_uaWeight = w; }
-
-      /// @brief Get weighting coefficient for uncertainty analysis
-      /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
-      virtual double uaWeight( ) const { return m_uaWeight; }
+      virtual std::vector<double> yCoords() const;
 
       /// @brief Update Model to be sure that requested property will be saved at requested time
       /// @param caldModel Cauldron model
@@ -126,8 +87,14 @@ namespace casa
 
       /// @brief Do observable validation for the given model
       /// @param caldModel reference to Cauldron model
-      /// @return empty string if there is no any problems with this observable, or error message if well is outside of the project 
-      virtual std::string checkObservableForProject( mbapi::Model & caldModel ) const;
+      /// @return              true if check didn't find any problems with this observable, otherwise return false
+      virtual bool checkObservableForProject( mbapi::Model & caldModel ) const;
+
+      /// @brief Check the observable position for the given model based on the model boundaries as well as observable origin.
+      ///        If observable falls within the model boundaries, check whether or not the observable origin matches the observable origin attached to window.
+      /// @param[in] caldModel reference to Cauldron model
+      /// @return              true if check didn't find any problems with this observable, otherwise return false
+      virtual bool checkObservableOriginForProject( mbapi::Model & caldModel ) const;
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array
@@ -145,9 +112,8 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save(CasaSerializer & sz) const;
 
       /// @brief Create a new observable instance and deserialize it from the given stream
       /// @param dz input stream
@@ -157,26 +123,19 @@ namespace casa
       /// @}
 
    protected:
-      std::vector<double>       m_x;                ///< X-th coordinates
-      std::vector<double>       m_y;                ///< Y-th coordinates
-      std::vector<double>       m_z;                ///< Z-th coordinates
-
-      std::string               m_propName;         ///< Property name
-      double                    m_simTime;          ///< simulator time
-
-      std::vector< std::string> m_name;             ///< name of the observable
-
-      std::vector<int>          m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
-
-      std::unique_ptr<ObsValue>   m_refValue;         ///< reference value
-      std::unique_ptr<ObsValue>   m_devValue;         ///< standard deviation for reference value
-
-      double                    m_saWeight;         ///< Observable weight for sensitivity analysis
-      double                    m_uaWeight;         ///< Observable weight for uncertainty analysis
+      virtual void saveCommon( const Observable * observableClass
+                             , CasaSerializer & sz
+                             , bool & ok
+                             , const std::string& variableTypeName = ""
+                             , const std::string& variableName = "" ) const;
 
    private:
       ObsGridPropertyWell( const ObsGridPropertyWell & );
       ObsGridPropertyWell & operator = ( const ObsGridPropertyWell & );
+
+      std::vector<double>  m_x;                ///< X-th coordinates
+      std::vector<double>  m_y;                ///< Y-th coordinates
+      std::vector<double>  m_z;                ///< Z-th coordinates
    };
 }
 

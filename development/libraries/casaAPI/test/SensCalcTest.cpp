@@ -14,10 +14,10 @@ class SensCalcTest : public ::testing::Test
 {
 public:
    SensCalcTest()
-   {       
+   {
       eps = 1.0e-3;
       m_validationMode = false;
-      
+
       const char * envVal = getenv( "VALIDATE_UNIT_TEST" );
       if ( envVal )
       {
@@ -56,23 +56,23 @@ double tornadoSensVals[9][4] = {
 
 const char * observablesName[] = { "Temperature(460001,6.75e+06,1293,0)"
                                  , "Temperature(460001,6.75e+06,2129,0)"
-                                 , "Temperature(460001,6.75e+06,2362,0)" 
+                                 , "Temperature(460001,6.75e+06,2362,0)"
                                  , "Temperature(460001,6.75e+06,2751,0)"
-                                 , "Temperature(460001,6.75e+06,3200,0)" 
-                                 , "Vr(460001,6.75e+06,1590,0)" 
-                                 , "Vr(460001,6.75e+06,2722,0)" 
-                                 , "OilExpelledCumulative(460001,6.75e+06,Lower Jurassic,0)" 
-                                 , "HcGasExpelledCumulative(460001,6.75e+06,Lower Jurassic,0)" 
+                                 , "Temperature(460001,6.75e+06,3200,0)"
+                                 , "Vr(460001,6.75e+06,1590,0)"
+                                 , "Vr(460001,6.75e+06,2722,0)"
+                                 , "OilExpelledCumulative(460001,6.75e+06,Lower Jurassic,0)"
+                                 , "HcGasExpelledCumulative(460001,6.75e+06,Lower Jurassic,0)"
                                  };
-const char * mostInfluentialPrmName[] = { "TopCrustHeatProdRate [\\mu W/m^3]"
-                                        , "TopCrustHeatProdRate [\\mu W/m^3]"
-                                        , "TopCrustHeatProdRate [\\mu W/m^3]"
-                                        , "TopCrustHeatProdRate [\\mu W/m^3]"
-                                        , "TopCrustHeatProdRate [\\mu W/m^3]"
-                                        , "TopCrustHeatProdRate [\\mu W/m^3]"
-                                        , "TopCrustHeatProdRate [\\mu W/m^3]"
-                                        , "TopCrustHeatProdRate [\\mu W/m^3]"
-                                        , "TopCrustHeatProdRate [\\mu W/m^3]"
+const char * mostInfluentialPrmName[] = { "VarPrmTopCrustHeatProduction"
+                                        , "VarPrmTopCrustHeatProduction"
+                                        , "VarPrmTopCrustHeatProduction"
+                                        , "VarPrmTopCrustHeatProduction"
+                                        , "VarPrmTopCrustHeatProduction"
+                                        , "VarPrmTopCrustHeatProduction"
+                                        , "VarPrmTopCrustHeatProduction"
+                                        , "VarPrmTopCrustHeatProduction"
+                                        , "VarPrmTopCrustHeatProduction"
                                         };
 
 TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
@@ -140,8 +140,8 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
                sensValsOut << "\ndouble tornadoSensVals[" << tornadoData.size() << "][4] = { \n";
                prmNamesOut << "\nconst char * mostInfluentialPrmName[] = {\n";
             }
-            sensValsOut << "   { " << std::scientific << 
-                                   minPrmAbsSens << ", " << maxPrmAbsSens << ", " << minPrmRelSens << ", " << maxPrmRelSens << 
+            sensValsOut << "   { " << std::scientific <<
+                                   minPrmAbsSens << ", " << maxPrmAbsSens << ", " << minPrmRelSens << ", " << maxPrmRelSens <<
                              " }" << ( i < tornadoData.size() - 1 ? "," : "" ) << "\n";
             prmNamesOut << "\"" << name << "\"" << ( i < tornadoData.size() - 1 ? "," : "" ) << "\n";
 
@@ -161,7 +161,7 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
 double paretoSensValues[] = { 26.6732, 20.1689, 18.6447, 15.3444, 12.6147, 6.55409 };
 
 const char * paretoIPNames[] = {
-      "TopCrustHeatProdRate [\\mu W/m^3]",
+      "VarPrmTopCrustHeatProduction",
       "EventStartTime [Ma]",
       "Lower Jurassic TOC [%]",
       "CrustThinningFactor [m/m]",
@@ -178,7 +178,7 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
    ASSERT_EQ( ErrorHandler::NoError, m_sc->errorCode() );
 
    casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecondOrder" );
-   
+
    ASSERT_TRUE( secOrdProx != NULL );
 
    casa::SensitivityCalculator & sensCalc = m_sc->sensitivityCalculator();
@@ -198,7 +198,7 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
       int prmSubId = paretoData.m_vprmSubID[i];
       std::string prmName = (prm->name())[prmSubId];
       double prmSens = paretoData.getSensitivity( prm, prmSubId );
-      
+
       if ( !m_validationMode )
       {
          ASSERT_NEAR( prmSens, paretoSensValues[i], eps );
@@ -206,11 +206,11 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
       }
       else
       {
-         prmVals  << prmSens << (i == (paretoData.m_vprmPtr.size()-1) ? "" : ", "); 
+         prmVals  << prmSens << (i == (paretoData.m_vprmPtr.size()-1) ? "" : ", ");
          prmNames << "   \"" << prmName << "\"" << (i == (paretoData.m_vprmPtr.size()-1) ? "" : ", ") << "\n";
       }
    }
-   if ( m_validationMode ) 
+   if ( m_validationMode )
    {
       prmVals  << " };\n";
       prmNames << " };\n";
@@ -226,11 +226,11 @@ double paretoCyclicSensValues[5][6] = {
 };
 
 const char * paretoCyclicIPName[5][6] = {
-      { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
-      { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
-      { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
-      { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
-      { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" }
+      { "VarPrmTopCrustHeatProduction", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
+      { "VarPrmTopCrustHeatProduction", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
+      { "VarPrmTopCrustHeatProduction", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
+      { "VarPrmTopCrustHeatProduction", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
+      { "VarPrmTopCrustHeatProduction", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" }
 
 };
 
@@ -325,7 +325,7 @@ TEST_F( SensCalcTest, SensitivityCalculatorCyclicParetoTest )
       }
    }
    if ( m_validationMode )
-   {  
+   {
       cyclSensVal << "};\n";
       cyclSensNam << "};\n";
 

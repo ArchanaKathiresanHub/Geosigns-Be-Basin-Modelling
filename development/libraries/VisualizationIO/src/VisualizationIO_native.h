@@ -89,12 +89,12 @@ namespace CauldronIO
 	public:
 		explicit ReferenceVolume(const std::shared_ptr<Geometry3D>& geometry, float minValue = DefaultUndefinedValue,
 			float maxValue = DefaultUndefinedValue);
-		~ReferenceVolume() {};
+		~ReferenceVolume() {}
 
 		/// \brief Prefetch any data: load from disk, do not decompress yet
-		virtual void prefetch() {};
+		virtual void prefetch() {}
 		/// \brief Override the retrieve method to load data from datastore
-		virtual void retrieve() {};
+		virtual void retrieve() {}
 		/// \brief Retrieve the data directly into the provided buffer
 		virtual void retrieve(const ArrayView<float> & /*buffer*/) const override {}
 		/// \returns a list of HDFinfo holding the data; can be null
@@ -121,12 +121,12 @@ namespace CauldronIO
 	public:
 		/// \brief Constructor defining if this map is cell centered, and its undefined value
 		explicit ReferenceMap(const std::shared_ptr<const Geometry2D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
-		~ReferenceMap() {};
+		~ReferenceMap() {}
 
 		/// \brief Prefetch any data: load from disk, do not decompress yet
-		virtual void prefetch() {};
+		virtual void prefetch() {}
 		/// \brief Override the retrieve method to load data from datastore
-		virtual void retrieve() {};
+		virtual void retrieve() {}
 		/// \brief Retrieve the data directly into the provided buffer
 		virtual void retrieve(const ArrayView<float> &/*buffer*/) const override {}
 		/// \returns a list of HDFinfo holding the data; can be null

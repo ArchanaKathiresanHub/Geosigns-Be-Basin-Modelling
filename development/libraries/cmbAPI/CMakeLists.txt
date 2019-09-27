@@ -37,7 +37,7 @@ if (UNIX)
 endif (UNIX)
 
 generate_dox( src/API.cfg )
-   
+
 #######################################
 ### Unit Tests
 #######################################
@@ -62,8 +62,12 @@ copy_test_file(NNTesting.project3d)
 copy_test_file(NNInt)
 copy_test_file(NNInputLithofractions)
 copy_test_file(NNbt)
+copy_test_file(HeatMap.HDF)
+copy_test_file(MapMorph.project3d)
+copy_test_file(windowObservable.txt)
 copy_test_file(TopBoundaryTesting.project3d)
 copy_test_file(RunOptionsTesting.project3d)
+
 configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
 
 

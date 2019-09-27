@@ -1,0 +1,9 @@
+app 1 fastcauldron "-itcoupled"
+base_project ""
+varprm "BasementIoTbl:TopCrustHeatProd" 0 0 "Block"
+doe "Tornado"
+doe "SpaceFilling" 50
+addDesignPoint 1.2
+location "CaseSet"
+run "LOCAL" ""
+savestate "stateFileTestCasaScriptDoE.txt" "txt"

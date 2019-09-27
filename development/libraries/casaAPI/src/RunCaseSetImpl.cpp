@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file RunCaseSetImpl.C
 /// @brief This file keeps definitions for RunCaseSet API implementation
@@ -16,13 +16,18 @@
 
 #include <utility>
 
+#include <set>
+
 namespace casa
 {
+   const std::string RunCaseSetImpl::userDefinedName = "UserDefined";
 
-   // Destructor
+   RunCaseSetImpl::RunCaseSetImpl()
+   {
+   }
+
    RunCaseSetImpl::~RunCaseSetImpl()
    {
-      m_caseSet.clear( );
    }
 
    // Get number of cases
@@ -55,27 +60,55 @@ namespace casa
 
       // check first do we have such experiment?
       ListOfDoEIndexesSet::iterator ret = m_expSet.find( expName );
-      if ( ret != m_expSet.end() )
+      if ( ret == m_expSet.end() )
       {
-         m_expIndSet.assign( ret->second.begin(), ret->second.end() );
+        m_filter = "";
+        return;
       }
+      m_expIndSet = ret->second;
+   }
+
+   void RunCaseSetImpl::filterByDoeList(const std::vector<std::string>& doeList)
+   {
+     if ( doeList.empty() )
+     {
+       return;
+     }
+     m_filter = "DoeList"; // trigger correct getters
+     m_expIndSet.clear();
+
+     std::set<size_t> uniqueRunCaseIndex;
+     for ( const std::string& doeName : doeList )
+     {
+       ListOfDoEIndexesSet::iterator ret = m_expSet.find(doeName);
+       if ( ret ==  m_expSet.end() )
+       {
+         continue;
+       }
+       uniqueRunCaseIndex.insert(ret->second.begin(), ret->second.end());
+     }
+
+     m_expIndSet.insert(m_expIndSet.end(), uniqueRunCaseIndex.begin(), uniqueRunCaseIndex.end());
    }
 
    // Get all experiment names for this case set as an array
    std::vector< std::string > RunCaseSetImpl::experimentNames() const
    {
-      std::vector<std::string> expSet;
-
-      // loop over all experiments and collect names
-      for ( ListOfDoEIndexesSet::const_iterator it = m_expSet.begin(); it != m_expSet.end(); ++it )
-      {
-         expSet.push_back( it->first );
-      }
-
-      return expSet;
+     return m_experimentNames;
    }
 
-   // Move a new Cases to the collection and clear array 
+   std::vector<size_t> RunCaseSetImpl::experimentIndexSet( const std::string & expName ) const
+   {
+     ListOfDoEIndexesSet::const_iterator ret = m_expSet.find(expName);
+     if ( ret == m_expSet.end() )
+     {
+       return {};
+     }
+
+     return ret->second;
+   }
+
+   // Move new cases to the collection and clear array
    void RunCaseSetImpl::addNewCases( std::vector<std::shared_ptr<RunCase>> & newCases, const std::string & expLabel )
    {
       // assign new ids to
@@ -101,11 +134,11 @@ namespace casa
          {
             // add cases with unique parameters set only
             for ( size_t i = 0; i < newCases.size(); ++i ) // go over all new cases
-            {  
+            {
                bool found = false;
                 for ( size_t j = 0; j < pos && !found; ++j ) // check only cases which were in set before
                 {
-                 if ( *(m_caseSet[j].get()) == *(newCases[i].get()) ) // duplicated case
+                 if ( *(m_caseSet[j]) == *(newCases[i]) ) // duplicated case
                    {
                       newIndSet[i] = j;   // copy only index of the case
                       found = true;
@@ -125,11 +158,30 @@ namespace casa
          }
 
          m_expSet[expLabel] = newIndSet; // put list of experiment case indexes to the map
+         m_experimentNames.push_back(expLabel);
 
          newCases.clear(); // clean container
       }
    }
-      
+
+   void RunCaseSetImpl::addUserDefinedCase(std::shared_ptr<RunCase> newCase)
+   {
+     m_caseSet.push_back(newCase);
+
+     ListOfDoEIndexesSet::iterator ret = m_expSet.find( userDefinedName );
+     bool firstUserDefinedCase = ret == m_expSet.end();
+
+     if (firstUserDefinedCase)
+     {
+       m_experimentNames.push_back( userDefinedName );
+       m_expSet[userDefinedName] = {m_caseSet.size() - 1};
+     }
+     else
+     {
+       m_expSet[userDefinedName].push_back( m_caseSet.size() - 1 );
+     }
+   }
+
    // collect completed cases for given DoEs name list
    std::vector<const RunCase*> RunCaseSetImpl::collectCompletedCases( const std::vector<std::string> & doeList )
    {
@@ -141,9 +193,9 @@ namespace casa
       {
          // look for DoE name
          ListOfDoEIndexesSet::iterator ret = m_expSet.find( doeList[i] );
-         
+
          if ( ret == m_expSet.end() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not find DoE with name: " << doeList[i];
-         
+
          const std::vector<size_t> & doeIndSet = ret->second;
 
          // collect RunCases pointer and index for the DoE
@@ -156,7 +208,7 @@ namespace casa
             }
          }
       }
-      
+
       // the second step - check cases for completion and collect them in to array
       rcs.clear(); // clear mask array and use it as container of the RunCases now
       for ( size_t i = 0; i < rcsIndSet.size(); ++i )
@@ -165,12 +217,12 @@ namespace casa
          {
             rcs.push_back( m_caseSet[rcsIndSet[i]].get());
          }
-      } 
+      }
       return rcs;
    }
 
    // Serialize object to the given stream
-   bool RunCaseSetImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
+   bool RunCaseSetImpl::save( CasaSerializer & sz ) const
    {
       bool ok = true;
 
@@ -185,10 +237,10 @@ namespace casa
 
       setSize = m_expSet.size();
       ok = ok ? sz.save( setSize, "MapOfDoEIndSetSize" ) : ok;
-      for ( ListOfDoEIndexesSet::const_iterator it = m_expSet.begin(); it != m_expSet.end() && ok; ++it )
+      for ( std::vector<std::string>::const_iterator it = m_experimentNames.begin(); it != m_experimentNames.end() && ok; ++it )
       {
-         ok = ok ? sz.save( it->first,  "DoEName" )   : ok;
-         ok = ok ? sz.save( it->second, "DoEIndSet" ) : ok;
+         ok = ok ? sz.save( *it,  "DoEName" )   : ok;
+         ok = ok ? sz.save( m_expSet.find(*it)->second, "DoEIndSet" ) : ok;
       }
       ok = ok ? sz.save( m_filter,    "CurrentExpFilter" ) : ok;
       ok = ok ? sz.save( m_expIndSet, "CurDoEIndSet" )     : ok;
@@ -222,6 +274,7 @@ namespace casa
          ok = ok ? dz.load( dn, "DoEName" ) : ok;
          ok = ok ? dz.load( is, "DoEIndSet" ) : ok;
          m_expSet[dn] = is;
+         m_experimentNames.push_back(dn);
       }
       ok = ok ? dz.load( m_filter,    "CurrentExpFilter" ) : ok;
       ok = ok ? dz.load( m_expIndSet, "CurDoEIndSet"     ) : ok;

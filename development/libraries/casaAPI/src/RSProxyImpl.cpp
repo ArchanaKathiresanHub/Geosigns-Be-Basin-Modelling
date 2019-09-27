@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file RSProxyImpl.C
 /// @brief This file keeps API implementation of Response Surface Proxy
@@ -40,14 +40,13 @@ RSProxyImpl::RSProxyImpl( const std::string & rspName
                         , RSKrigingType       rsKrig
                         , bool                autoSearch
                         , double              targedR2
-                        , double              confLevel 
+                        , double              confLevel
                         )
                         : m_name(       rspName    )
                         , m_varSpace(  &varSp      )
                         , m_obsSpace(  &obsSp      )
                         , m_kriging(    rsKrig     )
                         , m_autosearch( autoSearch )
-                        , m_targedR2(   targedR2   )
                         , m_confLevel(  confLevel  )
 {
    m_rsOrder = rsOrder;
@@ -83,7 +82,7 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
 
    ///////////////////////////
    // create parameters bounds
-   const RunCaseImpl * rc = dynamic_cast<const RunCaseImpl *>( filteredCaseSet[0] );
+   const RunCase * rc = filteredCaseSet[0];
    assert( rc != 0 );
 
    RunCaseImpl minCase;
@@ -102,7 +101,7 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
       minCase.addParameter( prm->parent()->minValue() );
       maxCase.addParameter( prm->parent()->maxValue() );
 
-      // collect categorical parameters enumeration set  
+      // collect categorical parameters enumeration set
       if ( prm->parent()->variationType() == VarParameter::Categorical )
       {
          const std::vector<unsigned int> & valsSet = dynamic_cast<const VarPrmCategorical*>(prm->parent())->valuesAsUnsignedIntSortedSet();
@@ -124,7 +123,7 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
    SUMlib::TargetCollection       targetCollection;
    std::vector<std::vector<bool>> validCase2Obs; // matrix which defines for which case which observable is valid
 
-   sumext::convertObservablesValue( filteredCaseSet, targetCollection, validCase2Obs );   
+   sumext::convertObservablesValue( filteredCaseSet, targetCollection, validCase2Obs );
    assert( !targetCollection.empty() );
 
    // we do not use parameters transformation yet
@@ -135,10 +134,10 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
    try
    {
       m_collection->calculate( targetCollection
-                             , validCase2Obs 
+                             , validCase2Obs
                              , static_cast<unsigned int>( m_rsOrder )
                              , m_autosearch
-                             , m_targedR2
+                             , 0.95 // Note: R2 is calculated in CASA itself
                              , m_confLevel
                              , partition
                              , parameterTransformsDef );
@@ -164,7 +163,7 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
 // Calculate values of observables for given set of parameters
 ErrorHandler::ReturnCode RSProxyImpl::evaluateRSProxy( RunCase & cs )
 {
-   if ( !m_collection.get() ) return reportError( ErrorHandler::RSProxyError, "Proxy must be calculated before it evalutation" );
+   if ( !m_collection ) return reportError( ErrorHandler::RSProxyError, "Proxy must be calculated before its evaluation" );
 
    SUMlib::Case  sumCase;
 
@@ -181,7 +180,7 @@ ErrorHandler::ReturnCode RSProxyImpl::evaluateRSProxy( RunCase & cs )
 int RSProxyImpl::polynomialOrder() const
 {
    // search for maximal order of polynomial, order is defined by
-   // the size of coefficient array per parameter value 
+   // the size of coefficient array per parameter value
    size_t ord = 0;
    for ( size_t j = 0; j < m_coefficients.size(); ++j )
    {
@@ -189,7 +188,7 @@ int RSProxyImpl::polynomialOrder() const
 
       std::vector<int> numCoefPerOrd;
 
-      // get polynomial order 
+      // get polynomial order
       for ( RSProxy::CoefficientsMap::const_iterator it = cmap.begin(); it != cmap.end(); ++it )
       {
          const std::vector< unsigned int > & prmsLst = it->first;
@@ -206,7 +205,7 @@ const RSProxy::CoefficientsMapList & RSProxyImpl::getCoefficientsMapList() const
 }
 
 // Serialize object to the given stream
-bool RSProxyImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
+bool RSProxyImpl::save( CasaSerializer & sz ) const
 {
    bool ok = sz.save( m_name, "ProxyName" );
 
@@ -216,10 +215,9 @@ bool RSProxyImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) co
    ok = ok ? sz.save( obsID, "ObsSpaceID" ) : ok;
    ok = ok ? sz.save( vspID, "VarSpaceID" ) : ok;
 
-   ok = ok ? sz.save( m_rsOrder,                   "Order"               ) : ok; 
+   ok = ok ? sz.save( m_rsOrder,                   "Order"               ) : ok;
    ok = ok ? sz.save( static_cast<int>(m_kriging), "Kriging"             ) : ok;
    ok = ok ? sz.save( m_autosearch,                "AutoSearch"          ) : ok;
-   ok = ok ? sz.save( m_targedR2,                  "TargedR2"            ) : ok;
    ok = ok ? sz.save( m_confLevel,                 "ConfLevel"           ) : ok;
    ok = ok ? sz.save( *m_collection.get(),         "CompProxyCollection" ) : ok;
 
@@ -254,20 +252,25 @@ RSProxyImpl::RSProxyImpl( CasaDeserializer & dz, const char * objName )
 
    ok = ok ? dz.load( obsID, "ObsSpaceID" ) : ok;
    ok = ok ? dz.load( vspID, "VarSpaceID" ) : ok;
-   
+
    m_obsSpace = dz.id2ptr<ObsSpace>( obsID );
    m_varSpace = dz.id2ptr<VarSpace>( vspID );
-   
+
    ok = ok ? dz.load( m_rsOrder, "Order" ) : ok;
-   
+
    int krType;
    ok = ok ? dz.load( krType, "Kriging" ) : ok;
    m_kriging = static_cast<RSProxy::RSKrigingType>( krType );
 
    ok = ok ? dz.load( m_autosearch, "AutoSearch" ) : ok;
-   ok = ok ? dz.load( m_targedR2, "TargedR2" ) : ok;
+
+   if( objVer < 1 )
+   {
+     double dummy;
+     ok = ok ? dz.load( dummy, "TargedR2" ) : ok;
+   }
    ok = ok ? dz.load( m_confLevel, "ConfLevel" ) : ok;
-   
+
    m_collection.reset( new SUMlib::CompoundProxyCollection() );
    ok = ok ? dz.load( *m_collection.get(), "CompProxyCollection" ) : ok;
 

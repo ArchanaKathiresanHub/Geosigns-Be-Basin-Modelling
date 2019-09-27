@@ -80,7 +80,7 @@
 ///    around earlier generated cases in the design.That way, a global search in the parameter space can be performed.
 /// -# The design provides the means to gradually improve the accuracy of proxies over the whole parameter space as
 ///    the proxies will adapt to the new space filling cases.
-/// -# The quasi-random cases serve as adequate blind test during Proxy QC after which the proxies can be forced to 
+/// -# The quasi-random cases serve as adequate blind test during Proxy QC after which the proxies can be forced to
 ///    adapt to these new cases.
 ///
 /// Figure
@@ -121,6 +121,7 @@ namespace casa
          PlackettBurmanMirror,         ///< Placket-Buurman with mirror design
          FullFactorial,                ///< Full factorial design
          LatinHypercube,               ///< Optimized latin hypercube design
+         BaseCase,                     ///< One point design
          SpaceFilling,                 ///< Space filling design
          TheLastDoEAlgo = SpaceFilling ///< The last DoE algorithm (used in loops and for validation)
       };

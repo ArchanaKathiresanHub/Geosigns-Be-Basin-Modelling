@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file RSProxySet.h
 /// @brief This file keeps interface class declaration to manage the set of response proxy objects.
@@ -59,6 +59,15 @@ namespace casa
       /// @brief Is set empty
       /// @return true if set is empty, false otherwise
       virtual bool empty() const = 0;
+
+      /// @brief Does proxy set contain name
+      /// @return true if proxy set contains name, false otherwise
+      virtual bool hasProxyName( const std::string & name ) const = 0;
+
+      /// @brief Add new proxy to the set
+      /// @param proxy pointer to proxy
+      /// @param name proxy name
+      virtual void addNewRSProxy( RSProxy * proxy, const std::string & name ) = 0;
 
    protected:
       RSProxySet() { ; }

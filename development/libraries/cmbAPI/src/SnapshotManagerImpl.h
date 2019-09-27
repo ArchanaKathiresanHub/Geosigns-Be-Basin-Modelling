@@ -36,7 +36,7 @@ namespace mbapi
       SnapshotManagerImpl();
 
       /// @brief Destructor
-      virtual ~SnapshotManagerImpl() { ; }
+      virtual ~SnapshotManagerImpl() {}
 
       // Set project database. Reset all
       void setDatabase( database::ProjectFileHandlerPtr pfh, const std::string & projName );
@@ -44,17 +44,17 @@ namespace mbapi
 
       /// @brief Get number of snapshots in project
       /// @return number of snapshots
-      virtual size_t snapshotsNumber();
+      virtual size_t snapshotsNumber() const;
 
       /// @brief Get time for the i-th snapshot
       /// @param i snapshot number
       /// @return time for the i-th snapshot
-      virtual double time( size_t i );
+      virtual double time( size_t i ) const;
 
       /// @brief Ask, is i-th snapshot minor?
       /// @param i snapshot number
       /// @return true if it is minor snapshot, false otherwise for
-      virtual bool isMinor( size_t i );
+      virtual bool isMinor( size_t i ) const;
 
       /// @brief Get snapshot type
       /// @param i snapshot number
@@ -70,6 +70,10 @@ namespace mbapi
       /// @param simTime time for snapshot
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode requestMajorSnapshot( double simTime );
+
+      /// @brief Get all major snapshots
+      /// @return All major snapshots
+      virtual std::vector<double> agesFromMajorSnapshots() const;
 
    protected:
 

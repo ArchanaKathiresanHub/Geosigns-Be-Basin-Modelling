@@ -73,13 +73,13 @@ public:
    */
   
    bool RequestComputation(int numOfSourceRock, Simulator & theSimulator );
-   void RequestComputationUnitTest(Simulator & theSimulator);
+   void RequestComputation(Simulator & theSimulator);
    int  RequestComputation1D(int numOfSourceRock, Simulator *theSimulator, double snapshots[], const int numberOfSnapshots, 
                             const double depositionAge);
    bool RequestMixing( ChemicalModel * aModel );
 
    //General I/O
-   void PrintBenchmarkOutput(const std::string &in_FullPathBenchmarkName, Simulator &theSimulator);
+   void PrintBenchmarkOutput(const std::string & in_FullPathBenchmarkName, const Simulator & theSimulator) const;
    void PrintInputHistoryHeader(ofstream &outputfile) const;
    void PrintInputHistory(ofstream &outputfile) const;
    void PrintInputHistory(std::string &outputFullPathFileName) const;
@@ -102,8 +102,9 @@ public:
    void PrintBenchmarkModelCumExpTable(const ChemicalModel& chemicalModel, 
                                        ofstream &outputfile) const;
 
-   void CreateTestingPTHistory(const UnitTestDataCreator &theUnitTestDataCreator);
-   void CreateTestingPTHistory(FILE * fp);
+   void CreateInputPTHistory(const UnitTestDataCreator &theUnitTestDataCreator);
+   void CreateInputPTHistory(FILE * fp);
+   void CreateInputPTHistory(const std::vector<double>& time, const std::vector<double>& temperature, const std::vector<double>& pressure);
    void LoadTestingPTHistory(std::string in_FullPathFileName);
    void NormalizePTHistory(const double dt, bool linearTemperature = false);
    bool FindTimeInstance(const double timeCounter, std::vector<Input*>::iterator &Current);

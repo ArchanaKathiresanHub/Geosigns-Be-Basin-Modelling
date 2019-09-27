@@ -40,31 +40,13 @@ run "LOCAL" "v2014.07nightly"
 response             "SecOrdBB"            "BoxBehnken"                    2         No
 response             "ZeroOrdKrig"         "SpaceFilling"                  0         Global
 
-# Export CASA calculated data to Matlab
-exportMatlab         "casa_Ottoland_ua.m"
 savestate            "casa_state_ua.txt"  "txt"
-
-# creat proxy QC plots
-#                     Proxy name       DoE names for           DoE names for          Plot script name
-#                                      proxy building          proxy testing
-plotRSProxyQC        "SecOrdBB"        "BoxBehnken"            "SpaceFilling"          "SecOrdBB.m"
-plotRSProxyQC        "ZeroOrdKrig"     "SpaceFilling"          "BoxBehnken"            "ZeroOrdKrig.m"
 
 #
 # Run Monte Carlo sampling     ProxyName        MCAlgo   NumSamples  MaxIterNum    ProxyEvalType  DistrType      StdDevFact
 montecarlo                    "SecOrdBB"        MCMC     5000        100           Polynomial       NoPrior       1.6
-exportMatlab                  "casa_Ottoland_mc2ndOrder.m"
-
-# create plot
-plotMC                        "mcplotSecOrdBB.m"
-plotP10P90                    "mcmcp10p90plot2ndOrd.m"
 
 #
 # Run Monte Carlo sampling     ProxyName        MCAlgo   NumSamples  MaxIterNum    ProxyEvalType  DistrType      StdDevFact
 montecarlo                    "ZeroOrdKrig"     MCMC     5000        100           GlobalKriging   NoPrior       1.6
-exportMatlab                  "casa_Ottoland_mcmc0OrderKrig.m"
-
-# create plot
-plotMC                        "mcplotZeroOrdKrig.m"
-plotP10P90                    "mcmcp10p90plotZOrd.m"
 

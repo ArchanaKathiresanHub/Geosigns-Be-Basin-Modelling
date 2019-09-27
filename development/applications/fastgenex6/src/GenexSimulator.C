@@ -108,24 +108,6 @@ bool GenexSimulator::run()
    PetscLogDouble run_Start_Time;
    PetscTime(&run_Start_Time);
 
-#if 0
-   std::vector<Interface::SourceRock*>::iterator sourceRockIter;
-   Interface::Formation * theFormation;
-
-   for (sourceRockIter = m_sourceRocks.begin(); sourceRockIter != m_sourceRocks.end(); ++ sourceRockIter) {
-      SourceRock * sr = dynamic_cast<Genex6::SourceRock *>( *sourceRockIter );
-
-      if( !sr->getLayerName().empty() ) {
-         useFormationName = true;
-         const Interface::Formation * theFormation = findFormation( sr->getLayerName() );
-
-         if( theFormation != 0 && theFormation->isSourceRock() ) {
-            if( !computeSourceRock ( sr, theFormation )) return false;
-         }
-      }
-   }
-#endif
-
    if( !useFormationName ) {
       std::vector<Interface::Formation*>::iterator formationIter;
 
@@ -245,7 +227,7 @@ void GenexSimulator::setRequestedOutputProperties()
    if( Interface::MODE1D == theMode ) {
       theModellingMode = "1d";
    }
-   bool doOutputGenexHistory = ( m_adsorptionPointHistoryList.size() != 0 ? true : false );
+   bool doOutputGenexHistory = ( m_adsorptionPointHistoryList.size() != 0 );
 
    Table * timeIoTbl = getTable ("FilterTimeIoTbl");
    Table::iterator tblIter;

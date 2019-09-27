@@ -1,12 +1,12 @@
-//                     7                                                 
+//                     7
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef CASA_COMMANDER_H
 #define CASA_COMMANDER_H
@@ -22,7 +22,7 @@ namespace casa
    class ScenarioAnalysis;
 }
 
-/// @brief Implements a factory and keeps a queur for CasaCmd. 
+/// @brief Implements a factory and keeps a queur for CasaCmd.
 ///        Also keeps some global data variable to interchange data between commands
 class CasaCommander
 {
@@ -67,25 +67,24 @@ public:
    static void printHelpPage( const std::string & cmdName );
 
    // commands name
-   static const char * s_CNAddCldApp;
-   static const char * s_CNBaseProject;
-   static const char * s_CNAddObservable;
-   static const char * s_CNScenarioID;
-   static const char * s_CNAddVarPrm;
-   static const char * s_CNExpDataTxt;
-   static const char * s_CNGenerateBMCase;
-   static const char * s_CNCalibrateProject;
-   static const char * s_CNRun;
-   static const char * s_CNRunBaseCase;
-   static const char * s_CNRunReload;
-   static const char * s_CNPlotMC;
-   static const char * s_CNPlotP10P90;
-   static const char * s_CNPlotPareto;
-   static const char * s_CNPlotTornado;
-   static const char * s_CNGenerateMultiOneD;
-   static const char * s_CNImportOneDResults;
-   static const char * s_CNSetFilterOneDResults;
-   static const char * s_CNGenerateThreeDFromOneD;
+   static const char * nameAddCldApp;
+   static const char * nameAddDesignPoint;
+   static const char * nameAddObservable;
+   static const char * nameAddVarPrm;
+   static const char * nameBaseProject;
+   static const char * nameCalibrateProject;
+   static const char * nameExpDataTxt;
+   static const char * nameGenerateBestMatchedCase;
+   static const char * nameGenerateMultiOneD;
+   static const char * nameImportOneDResults;
+   static const char * nameLocation;
+   static const char * nameRun;
+   static const char * nameRunBaseCase;
+   static const char * nameRunDataDigger;
+   static const char * nameRunPipeline;
+   static const char * nameScenarioID;
+   static const char * nameSetFilterOneDResults;
+   static const char * nameSetOneThreeDFromOneD;
 
 private:
    std::vector< SharedCmdPtr>  m_cmds;          ///< Queue of commands

@@ -11,15 +11,15 @@ public:
    FileHandlerReuse( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName ) :
       FileHandler( comm, fileName, tempDirName) {} ;  
 
-   virtual ~FileHandlerReuse() {};
+   virtual ~FileHandlerReuse() {}
 
    void  openGlobalFile( );
    void  openLocalFile( hid_t fileAccessPList );
    void  createGroup( const char* name );
    hid_t closeGlobalFile();
    void  closeSpaces();
-   void  closeGlobalDset() {};
-   void  writeAttributes() {};
+   void  closeGlobalDset() {}
+   void  writeAttributes() {}
    void  createDataset( const char* name , hid_t dtype );
 };
 

@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSourceRockProp.C
-/// @brief This file keeps API implementation for common part of all source rock  lithology parameter handling 
+/// @brief This file keeps API implementation for common part of all source rock  lithology parameter handling
 
 // CASA API
 #include "PrmSourceRockProp.h"
@@ -32,10 +32,10 @@ namespace casa
 {
 
 // Constructor
-PrmSourceRockProp::PrmSourceRockProp()
+PrmSourceRockProp::PrmSourceRockProp() :
+  Parameter()
 {
    m_val = 0.0;
-   m_parent = 0;
    m_mixID = 1;
 }
 
@@ -45,11 +45,11 @@ PrmSourceRockProp::PrmSourceRockProp( mbapi::Model & mdl
                                   , const char * srType
                                   , int          mixingID
                                   )
-                                  : m_parent(0)
+                                  : Parameter()
                                   , m_layerName( layerName )
                                   , m_srTypeName( srType ? srType : "" )
                                   , m_mixID( mixingID )
-{    
+{
    mbapi::SourceRockManager   & srMgr = mdl.sourceRockManager();
    mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager();
 
@@ -60,7 +60,7 @@ PrmSourceRockProp::PrmSourceRockProp( mbapi::Model & mdl
    // check if layer set as active source rock
    if ( !stMgr.isSourceRockActive( lid ) )
    {
-      throw ErrorHandler::Exception(ErrorHandler::ValidationError) << m_propName << 
+      throw ErrorHandler::Exception(ErrorHandler::ValidationError) << m_propName <<
          " setting error: source rock is not active for the layer:" << m_layerName;
    }
 
@@ -70,7 +70,7 @@ PrmSourceRockProp::PrmSourceRockProp( mbapi::Model & mdl
       throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Layer " << m_layerName <<
          " set as source rock layer but has no source rock lithology defined for the mixing ID: " << m_mixID;
    }
-   
+
    mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (m_srTypeName.empty() ? srtNames[m_mixID-1] : m_srTypeName) );
    if ( IsValueUndefined( sid ) )
    {
@@ -84,9 +84,9 @@ PrmSourceRockProp::PrmSourceRockProp( const VarPrmSourceRockProp * parent
                                     , double                       val
                                     , const char                 * lrName
                                     , const char                 * srType
-                                    , int                          mixingID 
+                                    , int                          mixingID
                                  )
-                                  : m_parent( parent )
+                                  : Parameter( parent )
                                   , m_layerName( lrName )
                                   , m_srTypeName( srType ? srType : "" )
                                   , m_mixID( mixingID )
@@ -94,17 +94,9 @@ PrmSourceRockProp::PrmSourceRockProp( const VarPrmSourceRockProp * parent
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned int /* version  */) const
+bool PrmSourceRockProp::serializeCommonPart( CasaSerializer & sz ) const
 {
-   bool hasParent = m_parent ? true : false;
-   bool ok = sz.save( hasParent, "hasParent" );
-
-   if ( hasParent )
-   {
-      CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
-      ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
-   }
-   ok = ok ? sz.save( m_name,       "name"       ) : ok;
+   bool ok = saveCommonPart(sz);
    ok = ok ? sz.save( m_layerName,  "layerName"  ) : ok;
    ok = ok ? sz.save( m_val,        "val"        ) : ok;
    ok = ok ? sz.save( m_mixID,      "mixID"      ) : ok;
@@ -115,7 +107,7 @@ bool PrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned int /
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-bool PrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigned int /* objVer */ )
+bool PrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer )
 {
    CasaDeserializer::ObjRefID parentID;
 
@@ -125,10 +117,15 @@ bool PrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigned i
    if ( hasParent )
    {
       bool ok = dz.load( parentID, "VarParameterID" );
-      m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
+      setParent(ok ? dz.id2ptr<VarParameter>( parentID ) : 0);
    }
 
-   ok = ok ? dz.load( m_name,       "name"       ) : ok;
+   if ( objVer<2 )
+   {
+     std::string name;
+     ok = ok && dz.load( name, "name" );
+   }
+
    ok = ok ? dz.load( m_layerName,  "layerName"  ) : ok;
    ok = ok ? dz.load( m_val,        "val"        ) : ok;
    ok = ok ? dz.load( m_mixID,      "mixID"      ) : ok;

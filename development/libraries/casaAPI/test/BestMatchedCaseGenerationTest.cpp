@@ -18,7 +18,6 @@ public:
    ~BestMatchedCaseGenerationTest() { ; }
 
    double relativeError( double v1, double v2 ) { return fabs( (v1 - v2) / (v1 + v2) ); }
-
 };
 
 TEST_F( BestMatchedCaseGenerationTest, LoadScenarioAndGenerateCalibratedCase )

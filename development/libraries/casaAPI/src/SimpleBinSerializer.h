@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef BIN_SERIALIZER_H
 #define BIN_SERIALIZER_H
@@ -29,11 +29,11 @@ namespace casa
 
       /// @brief Constructor. Throw on null file handle and negative version number
       /// @param fileName CASA state file name
-      /// @param  ver file version 
+      /// @param  ver file version
       SimpleBinSerializer( const std::string & fileName, int ver );
 
       /// @brief  Destructor
-      virtual ~SimpleBinSerializer() { ; }
+      virtual ~SimpleBinSerializer() {}
 
       /// @brief Save CasaSerializable object
       /// @param so CasaSerializable object reference
@@ -159,15 +159,11 @@ namespace casa
       /// @return true if on success, false otherwise
       virtual bool save( const std::vector< std::string > & vec, const std::string & vecName );
 
-      /// @brief Get version of serialization file
-      /// @return get file version
-      virtual int version() { return m_version; }
+
 
    private:
-      boost::iostreams::filtering_ostream m_file;   ///< compressed stream 
+      boost::iostreams::filtering_ostream m_file;   ///< compressed stream
       std::ofstream                       m_cfile;  ///< output file
-
-      int                                 m_version; ///< scenario file version
 
       SimpleBinSerializer(              const SimpleBinSerializer &); // copy constructor disabled
       SimpleBinSerializer & operator = (const SimpleBinSerializer &); // copy operator disabled

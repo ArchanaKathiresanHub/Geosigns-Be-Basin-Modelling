@@ -1,0 +1,11 @@
+PredictionTargetManagerVersion|int|1
+depthTarget|vector|2
+depthTarget|0|Temperature|1.000000|2.000000|3.000000|11.000000
+depthTarget|0|VRe|4.000000|5.000000|6.000000|12.000000
+depthTargetHasTimeSeries|vector|2
+depthTargetHasTimeSeries|0
+depthTargetHasTimeSeries|0
+surfaceTarget|vector|1
+surfaceTarget|0|Temperature|7.000000|8.000000|Layer|10.000000
+surfaceTargetHasTimeSeries|vector|1
+surfaceTargetHasTimeSeries|0

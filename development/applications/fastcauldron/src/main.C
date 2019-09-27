@@ -1,15 +1,13 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
 
-#include <assert.h>
-#include <stdlib.h>
 #include "StatisticsHandler.h"
 
 #include "MemoryChecker.h"
@@ -37,7 +35,7 @@ int main(int argc, char** argv)
    int rank;
    MPI_Comm_rank( PETSC_COMM_WORLD, &rank );
    Utilities::CheckMemory::MemoryChecker mc(rank);
-   
+
    // Intitialise fastcauldron loger
    try
    {
@@ -70,7 +68,7 @@ int main(int argc, char** argv)
       return 1;
    }
 
-   
+
    try
    {
       FastcauldronStartup fastcauldronStartup( argc, argv );
@@ -90,7 +88,7 @@ int main(int argc, char** argv)
    }
 
    PetscFinalize();
-   
+
    return returnStatus ? 0 : 1;
 }
 

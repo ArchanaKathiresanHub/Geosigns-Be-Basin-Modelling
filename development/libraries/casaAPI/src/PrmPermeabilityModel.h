@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmPermeabilityModel.h
-/// @brief This file keeps API declaration for lithology permeability model parameters handling. 
+/// @brief This file keeps API declaration for lithology permeability model parameters handling.
 
 #ifndef CASA_API_PARAMETER_PERMEABITY_MODEL_H
 #define CASA_API_PARAMETER_PERMEABITY_MODEL_H
@@ -28,7 +28,7 @@ namespace mbapi
 }
 
 /// @page CASA_PermeabilityModelPage Lithology permeability model
-/// 
+///
 /// This parameter defines the type of permeability model and it parameters for a lithology
 /// Here is the list of supported permeability model types:
 /// -# None
@@ -37,7 +37,7 @@ namespace mbapi
 /// -# Mudstone
 /// -# Multipoint
 ///
-/// To define lithology permeability model user should specify 
+/// To define lithology permeability model user should specify
 /// - Lithology name
 /// - Permeability model type
 /// - Permeability model dependent parameters
@@ -46,7 +46,7 @@ namespace mbapi
 /// @image html PermeabilityModels.jpg "Figure 1: Temis and Cauldron porosity permeability trends for default clastic lithologies"
 ///
 /// @anchor stand_lith_perm
-/// Table 1. Cauldron Default Lithologies. 
+/// Table 1. Cauldron Default Lithologies.
 /// |   Lithology      | Perm.      Model | Depo Perm [mD] | Perm Coef. | Porosity [%]       | log10(Perm) [mD]              | Perm Anis [@f$ k_h/k_v @f$] | Perm Recovery Ccoef. |
 /// |:----------------:|:----------------:|:--------------:|:----------:|:------------------:|:-----------------------------:|:---------------------------:|:--------------------:|
 /// | Std. Shale       | Mudstone         | 0.01           | 1.5        |                    |                               | 1.0                         | 0.01                 |
@@ -62,10 +62,10 @@ namespace mbapi
 /// Permeability value is set to @f$ 1.0^{-9} @f$ mD
 ///
 /// @section PermeabilityModelPrmSandstoneSec Permeability model for sandstone
-/// This model is used for sandstones, however in general sandstone permeabilities have little importance in basin modeling as water 
-/// flow and hydrocarbon capillary sealing are dominated by mud-rock permeabilities which are many orders of magnitude lower than 
-/// sandstone permeabilities. The sandstone permeability @f$ (k_{sand}) @f$ is defined as a function of porosity @f$ (\phi) @f$, 
-/// depositional porosity @f$ (\phi) @f$, depositional permeability @f$ (k_0) @f$ and a coefficient @f$ (C)@f$. In the sandstone 
+/// This model is used for sandstones, however in general sandstone permeabilities have little importance in basin modeling as water
+/// flow and hydrocarbon capillary sealing are dominated by mud-rock permeabilities which are many orders of magnitude lower than
+/// sandstone permeabilities. The sandstone permeability @f$ (k_{sand}) @f$ is defined as a function of porosity @f$ (\phi) @f$,
+/// depositional porosity @f$ (\phi) @f$, depositional permeability @f$ (k_0) @f$ and a coefficient @f$ (C)@f$. In the sandstone
 /// model this permeability coefficient is the clay % of the sand.
 ///
 /// @f[ k_{sand}=k_{0}\cdot10^{(\phi-\phi_{0})\cdot(0.12+0.02\cdot C)} @f]
@@ -79,16 +79,16 @@ namespace mbapi
 ///  -# @f$ C @f$ clay percentage of the sand [%]
 ///
 /// @section PermeabilityModelPrmMudstoneSec Permeability model for mudstone
-/// The @b Mudstone permeability model in Cauldron is rather an oddity as it relates permeability to stress rather than porosity. 
+/// The @b Mudstone permeability model in Cauldron is rather an oddity as it relates permeability to stress rather than porosity.
 /// @f[ k_{shale}=k_{0}\cdot\left(\frac{VES+\sigma_{ref}}{\sigma_{ref}}\right)^{-C_{sensitivity}} @f]
-/// The default shale permeability for the Std.Shale is shown in Figure \ref perm_vs_por. As can be seen from the equation above 
-/// the permeability is actually a function of VES. However, it is plotted in Figure perm_vs_por against porosity so that it can 
-/// be compared with permeability trends from other lithologies. This permeability model can be extended to allow increasing 
-/// permeability during episodes of reducing stress: 
+/// The default shale permeability for the Std.Shale is shown in Figure \ref perm_vs_por. As can be seen from the equation above
+/// the permeability is actually a function of VES. However, it is plotted in Figure perm_vs_por against porosity so that it can
+/// be compared with permeability trends from other lithologies. This permeability model can be extended to allow increasing
+/// permeability during episodes of reducing stress:
 /// @f[ k_{shale}=k_{0}\cdot\left(\left[\frac{VES+\sigma_{ref}}{\sigma_{ref}}\right]^{-C_{sensitivity}}\cdot
 ///       \left[\frac{VES+\sigma_{ref}}{MaxVES+\sigma_{ref}}\right]^{-C_{recovery}}\right)
 /// @f]
-/// Here, the permeability change on unloading, set by the permeability recovery coefficient, is much lower than the permeability 
+/// Here, the permeability change on unloading, set by the permeability recovery coefficient, is much lower than the permeability
 /// change during loading which is set by the permeability sensitivity coefficient (Table 1).
 ///
 /// The model has 4 parameters
@@ -98,7 +98,7 @@ namespace mbapi
 ///  -# @f$ C_{recovery} @f$ permeability recovery coefficient []
 ///
 /// @section MultiPointPermModelSec Permeability model is described by a Permeability vs Porosity profile
-/// in <b>Multipoint</b> permeability model is a simple table of porosity and @f$ (log10) @f$ permeability values. This allows the user to 
+/// in <b>Multipoint</b> permeability model is a simple table of porosity and @f$ (log10) @f$ permeability values. This allows the user to
 /// input any porosity-permeability relationship. Cauldron contains default permeability trends for the 40, 50 and 60 [%] clay fraction shales.
 /// These are shown in Figure @ref perm_vs_por
 ///
@@ -106,8 +106,8 @@ namespace mbapi
 ///
 /// The model has 3 parameters
 ///  -# permeability anisotropy [kh/kv] which is used to scale lateral permeability
-///  -# number of Porosity [%] / Permeability [log10(mD)] points in table 
-///  -# set of Porosity [%] /Permeability [log10(mD)] values as an array of pairs 
+///  -# number of Porosity [%] / Permeability [log10(mD)] points in table
+///  -# set of Porosity [%] /Permeability [log10(mD)] values as an array of pairs
 
 namespace casa
 {
@@ -127,7 +127,7 @@ namespace casa
          Multipoint  = mbapi::LithologyManager::PermMultipoint,  ///< permeability depends on porosity as 1D function
          Unknown     = mbapi::LithologyManager::PermUnknown      ///< Not any model was defined
       } PermeabilityModelType;
-      
+
       /// @brief Defines order of parameters in parameters array for all permeability models
       typedef enum
       {
@@ -141,15 +141,15 @@ namespace casa
 
          RecoverCoeff       = 3   ///< Mudstone model parameter
       } PermeabilityModelParametersOrder;
- 
+
 
       /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param mdl Cauldron model interface object to get Permeability model and it parameters value 
-      ///            for the given lithology. 
+      /// @param mdl Cauldron model interface object to get Permeability model and it parameters value
+      ///            for the given lithology.
       /// @param lithoName lithology name
       PrmPermeabilityModel( mbapi::Model & mdl, const char * lithoName );
 
-      /// @brief Constructor. Create parameter from values set     
+      /// @brief Constructor. Create parameter from values set
       PrmPermeabilityModel( const VarPrmPermeabilityModel * parent    ///< pointer to a influential parameter which created this one
                           , const char                    * lithoName ///< lithoName lithology name
                           , PermeabilityModelType           mdlType   ///< type of permeability model
@@ -158,27 +158,15 @@ namespace casa
 
       /// @brief Destructor
       virtual ~PrmPermeabilityModel() { ; }
-     
-      /// @brief Get name of the parameter
-      /// @return parameter name
-      virtual const char * name() const { return m_name.c_str(); }
-
-      /// @brief Get influential parameter which was used to create this parameter
-      /// @return Pointer to the influential parameter
-      virtual const VarParameter * parent() const { return m_parent; }
-
-      /// @brief Set influential parameter which was used to create this parameter
-      /// @param varPrm pointer to the influential parameter
-      virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
-      virtual AppPipelineLevel appSolverDependencyLevel() const  { return PTSolver; }                
+      virtual AppPipelineLevel appSolverDependencyLevel() const  { return PTSolver; }
 
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
-      /// @return ErrorHandler::NoError in success, or error code otherwise     
+      /// @return ErrorHandler::NoError in success, or error code otherwise
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID );
 
       /// @brief Validate Permeability model parameter values
@@ -187,7 +175,7 @@ namespace casa
       virtual std::string validate( mbapi::Model & caldModel );
 
       // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
-      
+
       /// @brief Get parameter value as an array of doubles
       /// @return parameter value represented as set of doubles
       virtual std::vector<double> asDoubleArray() const;
@@ -221,9 +209,8 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -236,13 +223,9 @@ namespace casa
       /// @}
 
    protected:
-      const VarParameter  * m_parent;        ///< influential parameter which was used to create this one
-
-      std::string           m_name;          ///< name of the parameter
-      
       PermeabilityModelType m_modelType;     ///< type of the permeability model
       std::string           m_lithoName;     ///< lithology name
-      
+
       // All model parameters
       double                m_anisotCoeff;   ///< anisotropy coefficient
 
@@ -251,7 +234,7 @@ namespace casa
 
       // Sandstone model parameters
       double                m_clayPercentage;///< clay fraction which unique defines surface permeability and compaction coefficient
-   
+
       // Mustone model parameters
       double                m_sensitCoeff;   ///< sensitivity coefficient
       double                m_recoveryCoeff; ///< recovery coefficient

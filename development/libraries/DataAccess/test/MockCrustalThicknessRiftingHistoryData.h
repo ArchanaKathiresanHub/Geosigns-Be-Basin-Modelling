@@ -28,8 +28,8 @@ namespace DataAccess
          public:
 
             MockCrustalThicknessRiftingHistoryData() : CrustalThicknessRiftingHistoryData( nullptr, nullptr ),
-               m_flagName( "placeholderUnitTest" ){};
-            virtual ~MockCrustalThicknessRiftingHistoryData() {};
+               m_flagName( "placeholderUnitTest" ){}
+            virtual ~MockCrustalThicknessRiftingHistoryData() {}
 
             /// @defgroup Accessors
             /// @brief Use it to get CTCIoTbl data in your unit tests

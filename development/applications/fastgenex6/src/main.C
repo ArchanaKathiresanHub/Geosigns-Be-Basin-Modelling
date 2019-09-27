@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+
 #ifdef WIN32
 #include <io.h>
 #else
@@ -204,17 +205,9 @@ int main (int argc, char ** argv)
       return 1;
    }
 
-   bool status = false;
-
-   GenexSimulator        *theGenexSimulator = 0;
-   GenexSimulatorFactory *theFactory        = 0;
-
-   //create the factory
-   theFactory = new GenexSimulatorFactory;
-
-   //create the ProjectHandle
-   theGenexSimulator = GenexSimulator::CreateFrom (inputFileName, theFactory);
-   status = (theGenexSimulator != 0);
+   GenexSimulatorFactory *theFactory        = new GenexSimulatorFactory;
+   GenexSimulator        *theGenexSimulator = GenexSimulator::CreateFrom (inputFileName, theFactory);
+   bool status = (theGenexSimulator != 0);
 
    H5_Parallel_PropertyList::setOneFilePerProcessOption(false);
 

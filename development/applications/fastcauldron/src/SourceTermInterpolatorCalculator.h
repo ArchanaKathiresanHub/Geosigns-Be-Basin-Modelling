@@ -17,11 +17,11 @@
 
 /// \brief Computes the interpolator for the source term.
 ///
-/// 
+///
 class SourceTermInterpolatorCalculator {
 
 public :
-   SourceTermInterpolatorCalculator () {};
+   SourceTermInterpolatorCalculator () {}
    /// \brief The number of components an element has.
    static const unsigned int NumberOfEquations = NumberOfPVTComponents;
 

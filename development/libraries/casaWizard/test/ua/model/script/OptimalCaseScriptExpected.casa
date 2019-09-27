@@ -1,0 +1,3 @@
+base_project "./"
+loadstate "stateFileTestCasaScriptMCMC.txt" "txt"
+generateCalibratedCase "calibrated.project3d" 1

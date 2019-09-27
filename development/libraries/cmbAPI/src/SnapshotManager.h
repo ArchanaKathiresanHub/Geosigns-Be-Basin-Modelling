@@ -23,21 +23,21 @@ namespace mbapi
    {
    public:
       /// @brief Destructor
-      virtual ~SnapshotManager() { ; }
+      virtual ~SnapshotManager() {}
 
       /// @brief Get number of snapshots in project
       /// @return number of snapshots 
-      virtual size_t snapshotsNumber() = 0;
+      virtual size_t snapshotsNumber() const = 0;
 
       /// @brief Get time for the i-th snapshot
       /// @param i snapshot number
       /// @return time for the i-th snapshot
-      virtual double time( size_t i ) = 0;
+      virtual double time( size_t i ) const = 0;
 
       /// @brief Ask, is i-th snapshot minor?
       /// @param i snapshot number
       /// @return true if it is minor snapshot, false otherwise for 
-      virtual bool isMinor( size_t i ) = 0;  
+      virtual bool isMinor( size_t i ) const = 0;
 
       /// @brief Get snapshot type
       /// @param i snapshot number
@@ -54,9 +54,12 @@ namespace mbapi
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode requestMajorSnapshot( double simTime ) = 0;
 
+      /// @brief Get all major snapshots
+      /// @return All major snapshots
+      virtual std::vector<double> agesFromMajorSnapshots() const = 0;
 
    protected:
-      SnapshotManager() { ; }
+      SnapshotManager() {}
 
    private:
       SnapshotManager(const SnapshotManager&);

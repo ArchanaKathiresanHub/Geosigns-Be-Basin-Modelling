@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsTrapProp.h
 /// @brief This file keeps declaration of the class for trap property
@@ -14,7 +14,7 @@
 #ifndef CASA_API_OBS_TRAP_PROPERTY_XY_H
 #define CASA_API_OBS_TRAP_PROPERTY_XY_H
 
-#include "Observable.h"
+#include "ObservableSinglePoint.h"
 #include "ObsValue.h"
 
 // STL
@@ -23,15 +23,10 @@
 /// @page CASA_ObservableTrapPropPage Any trap property which could be extracted by datadriller after migration calculation.
 /// Example of properties: GOR,.... Trap is defined by specifying XY point coordinate and reservoir name
 
-namespace mbapi
-{
-   class Model;
-}
-
 namespace casa
 {
    /// @brief Base class for keeping some value from Cauldron simulation results
-   class ObsTrapProp : public Observable
+   class ObsTrapProp : public ObservableSinglePoint
    {
    public:
 
@@ -42,8 +37,8 @@ namespace casa
                                             , const char        * propName      ///< name of the trap property
                                             , double              simTime       ///< simulation time [Ma]
                                             , bool                logTrans      ///< should we transform observable to log scale?
-                                            , const std::string & name = ""     ///< user specified name for observable
-                                            ) { return new ObsTrapProp( x, y, resName, propName, simTime, logTrans, name ); }
+                                            , const std::string & myName = ""     ///< user specified name for observable
+                                            ) { return new ObsTrapProp( x, y, resName, propName, simTime, logTrans, myName ); }
 
       /// @brief Create observable for the given grid property for specified grid position
       ObsTrapProp( double              x         ///< X-th grid coordinate [m]
@@ -52,61 +47,19 @@ namespace casa
                  , const char        * propName  ///< name of the property
                  , double              simTime   ///< simulation time [Ma]
                  , bool                logTrans  ///< should we transform observable to log scale?
-                 , const std::string & name = "" ///< user specified name for observable
+                 , const std::string & myName = "" ///< user specified name for observable
                  );
 
       /// @brief Destructor
       virtual ~ObsTrapProp( );
 
-      /// @brief Get name of the observable. If dimension of observable is more than 1
-      ///        it return name for each dimension
-      /// @return observable name for each dimension
-      virtual std::vector<std::string> name() const;
-
-      /// @brief Get observable dimension
-      /// @return dimension of observable
-      virtual size_t dimension() const { return 1; }
-
-      /// @brief Does observable has a reference value (measurement)
-      /// @return true if reference value was set, false otherwise
-      virtual bool hasReferenceValue() const { return m_refValue.get() == NULL ? false : true; }
-
-      /// @brief Get reference value
-      /// @return reference value
-      virtual const ObsValue * referenceValue() const { return m_refValue.get(); }
-
-      /// @brief Make observable transformation to present trap property value to the user. This observable should be treated differently 
+      /// @brief Make observable transformation to present trap property value to the user. This observable should be treated differently
       ///        when it is aproximated by a response surface and when it is presented to the user.
       /// @param val Original observable value comes from a run case or from MonteCarlo
       /// @return The new Observable value object which will keep the transformed observable value. This object must be destroyed
       ///         by calling function.
       virtual ObsValue * transform( const ObsValue * val ) const;
 
-      /// @brief Get standard deviations for the reference value
-      /// @return a standard deviation for reference value
-      virtual const ObsValue * stdDeviationForRefValue() const { return m_devValue.get(); }
-
-      /// @brief Set reference value
-      /// @param refVal reference value itself
-      /// @param stdDevVal standard deviation value for the reference value
-      virtual void setReferenceValue( ObsValue * refVal, ObsValue * stdDevVal );
-
-      /// @brief Get weighting coefficient for sensitivity analysis
-      /// return weighting coefficient. This coefficient should be used in Pareto diagram calculation
-      virtual double saWeight() const { return m_saWeight; }
-
-      /// @brief Set weight coefficient for Sensitivity analysis
-      /// @param w weight coefficient value
-      virtual void setSAWeight( double w ) { m_saWeight = w;  }
-
-      /// @brief Set weight coefficient for Uncertainty analysis
-      /// @param w weight coefficient value
-      virtual void setUAWeight( double w ) { m_uaWeight = w; }
-
-      /// @brief Get weighting coefficient for uncertainty analysis
-      /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
-      virtual double uaWeight() const { return m_uaWeight; }
-   
       /// @brief Update Model to be sure that requested property will be saved at requested time
       /// @param caldModel Cauldron model
       /// @return NoError in case of success, or error code otherwise, error message will be set in caldModel.
@@ -116,11 +69,6 @@ namespace casa
       /// @param caldModel reference to Cauldron model
       /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
       virtual ObsValue * getFromModel( mbapi::Model & caldModel );
-
-      /// @brief Do observable validation for the given model
-      /// @param caldModel reference to Cauldron model
-      /// @return empty string if there is no any problems with this observable, or error message if trap is outside of the project 
-      virtual std::string checkObservableForProject( mbapi::Model & caldModel ) const;
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array
@@ -134,9 +82,8 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  fileVer stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int fileVer ) const;
+      virtual bool save(CasaSerializer & sz) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -149,30 +96,12 @@ namespace casa
       ObsTrapProp( CasaDeserializer & dz, unsigned int objVer );
       /// @}
 
-   protected:
-      double                   m_x;                ///< X-th coordinate
-      double                   m_y;                ///< Y-th coordinate
-
-      std::string              m_resName;          ///< reservoir name
-      std::string              m_propName;         ///< Property name
-      double                   m_simTime;          ///< simulator time
-
-      std::vector<std::string> m_name;             ///< name of the observable
-
-      int                      m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
-
-      std::unique_ptr<ObsValue> m_refValue;        ///< reference value
-      std::unique_ptr<ObsValue> m_devValue;        ///< standard deviation for reference value
-
-      double                   m_saWeight;         ///< Observable weight for sensitivity analysis
-      double                   m_uaWeight;         ///< Observable weight for uncertainty analysis
-
-      bool                     m_logTransf;        ///< do logarithmic transformation (needed for for Volumes/Mass)
-
    private:
-
       ObsTrapProp( const ObsTrapProp & );
       ObsTrapProp & operator = ( const ObsTrapProp & );
+
+      std::string m_resName;   ///< reservoir name
+      bool        m_logTransf; ///< do logarithmic transformation (needed for for Volumes/Mass)
    };
 }
 

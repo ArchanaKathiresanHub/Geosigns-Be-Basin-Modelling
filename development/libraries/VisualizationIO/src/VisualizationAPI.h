@@ -331,7 +331,7 @@ namespace CauldronIO
     {
     public:
         /// \brief Constructor
-        StratigraphyTableEntry() {};
+        StratigraphyTableEntry() {}
         /// \returns The surface, can be null
         const std::shared_ptr<Surface>& getSurface() const;
         /// \returns The formation, can be null

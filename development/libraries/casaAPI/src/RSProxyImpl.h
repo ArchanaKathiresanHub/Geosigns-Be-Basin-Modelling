@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file RSProxyImpl.h
 /// @brief This file keeps API implementation declarations for response surface proxy
@@ -21,11 +21,8 @@
 #include <memory>
 #include <string>
 
-// SUMlib includes
-#include <CompoundProxyCollection.h>
-
 namespace casa
-{   
+{
    class VarSpace;
    class ObsSpace;
 
@@ -59,7 +56,7 @@ namespace casa
 
       // Get type of kriging interpolation for this proxy
       // return which kriging interpolation is used for the proxy
-      virtual RSKrigingType kriging() const { return m_kriging; } 
+      virtual RSKrigingType kriging() const { return m_kriging; }
 
       // Get order of polynomial approximation for the proxy
       // return polynomial order
@@ -96,30 +93,29 @@ namespace casa
 
       /// @brief Get SUMlib proxy object
       /// @return SUMlib proxy object
-      SUMlib::CompoundProxyCollection * getProxyCollection() const { return m_collection.get(); }
- 
+      virtual SUMlib::CompoundProxyCollection * getProxyCollection() const { return m_collection.get(); }
+
       // Serialization / Deserialization
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save(CasaSerializer & sz) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
       virtual const char * typeName() const { return "RSProxyImpl"; }
- 
+
       /// @brief Create a new RSProxyImpl instance and deserialize it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
       /// @return new observable instance on susccess, or throw and exception in case of any error
       RSProxyImpl( CasaDeserializer & inStream, const char * objName );
-      /// @} 
+      /// @}
 
    protected:
       std::string      m_name;     // proxy name
@@ -130,7 +126,6 @@ namespace casa
       size_t        m_rsOrder;    // order of the response surface polynomial approximation
       RSKrigingType m_kriging;    // type of kriging interpolation
       bool          m_autosearch; // shall we ignore given order and try to search for order ourself?
-      double        m_targedR2;   // @TODO document
       double        m_confLevel;  // @TODO document
 
       CoefficientsMapList m_coefficients; // set of polynomial appoximation coefficients
@@ -143,7 +138,7 @@ namespace casa
    private:
       // disable copy constructor and copy operator
       RSProxyImpl( const RSProxyImpl & );
-      RSProxyImpl & operator = ( const RSProxyImpl & ); 
+      RSProxyImpl & operator = ( const RSProxyImpl & );
    };
 }
 

@@ -66,7 +66,7 @@ namespace GeoPhysics
          {
             const unsigned int i;
             const unsigned int j;
-            Node(const unsigned int i, const unsigned int j) : i(i), j(j) {};
+            Node(const unsigned int i, const unsigned int j) : i(i), j(j) {}
          };
 
          /// @brief Calculates the effective crustal thickness

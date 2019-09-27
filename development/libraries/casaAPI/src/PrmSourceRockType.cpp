@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSourceRockType.C
 /// @brief This file keeps API implementation for Source Rock Type categorical parameter
@@ -27,10 +27,10 @@ namespace casa
 
 // Constructor
 PrmSourceRockType::PrmSourceRockType( mbapi::Model & mdl, const std::string & layerName, int mixID )
-   : m_parent( 0 )
+   : Parameter( )
    , m_layerName( layerName )
    , m_mixID( mixID )
-{ 
+{
    try
    {
       mbapi::SourceRockManager   & srMgr = mdl.sourceRockManager();
@@ -67,12 +67,10 @@ PrmSourceRockType::PrmSourceRockType( mbapi::Model & mdl, const std::string & la
       }
       m_srtName = srtNames[mixID-1];
    }
-   catch ( const ErrorHandler::Exception & e) { mdl.reportError( e.errorCode(), e.what() ); }
-
-   // construct parameter name
-   std::ostringstream oss;
-   oss << "SourceRockType(" << m_layerName << "," << m_srtName << ")";
-   m_name = oss.str();
+   catch ( const ErrorHandler::Exception & e)
+   {
+      mdl.reportError( e.errorCode(), e.what() );
+   }
 }
 
  // Constructor
@@ -81,15 +79,11 @@ PrmSourceRockType::PrmSourceRockType( const VarParameter * parent
                                     , const std::string  & sourceRockTypeName
                                     , int                  mixID
                                     )
-                                    : m_parent( parent )
+                                    : Parameter( parent )
                                     , m_layerName( layerName )
                                     , m_srtName( sourceRockTypeName )
                                     , m_mixID( mixID )
 {
-   // construct parameter name
-   std::ostringstream oss;
-   oss << "SourceRockType(" << m_layerName << "," << m_mixID << "," << m_srtName << ")";
-   m_name = oss.str();
 }
 
 // Update given model with the parameter value
@@ -105,7 +99,7 @@ ErrorHandler::ReturnCode PrmSourceRockType::setInModel( mbapi::Model & caldModel
 
       // check if this layer has source rock active
       if ( !stMgr.isSourceRockActive( lid ) )
-      { 
+      {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
             "HI setting error: source rock is not active for the layer:" << m_layerName;
       }
@@ -124,7 +118,7 @@ ErrorHandler::ReturnCode PrmSourceRockType::setInModel( mbapi::Model & caldModel
             srtNames[ m_mixID == 1 ? 1 : 0 ] = "";          // remove other source rock
             stMgr.setSourceRockMixHI( lid, 0.0 );           // set HI of the mix to 0.0
             stMgr.setSourceRockMixHIMapName( lid, "" );     // delete HI map
-            
+
             srtNames[m_mixID-1] = m_srtName;                // change source rock type
          }
       }
@@ -140,7 +134,7 @@ ErrorHandler::ReturnCode PrmSourceRockType::setInModel( mbapi::Model & caldModel
    return ErrorHandler::NoError;
 }
 
-// Validate parameter value if it exist in source rock lithology table and if stratigraphy layer has this source rock type 
+// Validate parameter value if it exist in source rock lithology table and if stratigraphy layer has this source rock type
 std::string PrmSourceRockType::validate( mbapi::Model & caldModel )
 {
    std::ostringstream oss;
@@ -187,9 +181,9 @@ std::string PrmSourceRockType::validate( mbapi::Model & caldModel )
 // Get parameter value as integer
 int PrmSourceRockType::asInteger() const
 {
-   if ( !m_parent ) return -1; // no parent - no enumeration
+   if ( !parent() ) return -1; // no parent - no enumeration
 
-   const VarPrmSourceRockType * prnt = dynamic_cast<const VarPrmSourceRockType*>( m_parent );
+   const VarPrmSourceRockType * prnt = dynamic_cast<const VarPrmSourceRockType*>( parent() );
    if ( !prnt ) return -1;
 
    return prnt->index( this );
@@ -201,7 +195,7 @@ bool PrmSourceRockType::operator == ( const Parameter & prm ) const
 {
    const PrmSourceRockType * pp = dynamic_cast<const PrmSourceRockType *>( &prm );
    if ( !pp ) return false;
-   
+
    if ( m_layerName != pp->m_layerName ) return false;
    if ( m_srtName   != pp->m_srtName   ) return false;
    if ( m_mixID     != pp->m_mixID     ) return false;
@@ -211,17 +205,9 @@ bool PrmSourceRockType::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmSourceRockType::save( CasaSerializer & sz, unsigned int /* version */ ) const
+bool PrmSourceRockType::save( CasaSerializer & sz ) const
 {
-   bool hasParent = m_parent ? true : false;
-   bool ok = sz.save( hasParent, "hasParent" );
-
-   if ( hasParent )
-   {
-      CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
-      ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
-   }
-   ok = ok ? sz.save( m_name,      "name"      ) : ok;
+   bool ok = saveCommonPart(sz);
    ok = ok ? sz.save( m_layerName, "layerName" ) : ok;
    ok = ok ? sz.save( m_srtName,   "srtName"   ) : ok;
    ok = ok ? sz.save( m_mixID,     "mixingID"  ) : ok;
@@ -230,20 +216,15 @@ bool PrmSourceRockType::save( CasaSerializer & sz, unsigned int /* version */ ) 
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmSourceRockType::PrmSourceRockType( CasaDeserializer & dz, unsigned int /* objVer */ )
+PrmSourceRockType::PrmSourceRockType( CasaDeserializer & dz, unsigned int objVer ) :
+  Parameter(dz, objVer)
 {
-   CasaDeserializer::ObjRefID parentID;
-
-   bool hasParent;
-   bool ok = dz.load( hasParent, "hasParent" );
-
-   if ( hasParent )
+   bool ok = true;
+   if ( objVer < 1 )
    {
-      bool ok = dz.load( parentID, "VarParameterID" );
-      m_parent = static_cast<const VarPrmSourceRockType*>( ok ? dz.id2ptr<VarParameter>( parentID ) : 0 );
+     std::string name;
+     ok = ok && dz.load( name, "name" );
    }
-
-   ok = ok ? dz.load( m_name,      "name"      ) : ok;
    ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
    ok = ok ? dz.load( m_srtName,   "srtName"   ) : ok;
    ok = ok ? dz.load( m_mixID,     "mixingID"  ) : ok;

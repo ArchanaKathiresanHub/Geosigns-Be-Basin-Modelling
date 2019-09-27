@@ -12,7 +12,7 @@ public:
   
    SpeciesState(const Species* species,const double &in_concentration = 0, const double &in_expelledMass = 0);
 
-   virtual ~SpeciesState(){};
+   virtual ~SpeciesState(){}
 
    /// \brief Get species for which this is the state.
    const Species* getSpecies () const;

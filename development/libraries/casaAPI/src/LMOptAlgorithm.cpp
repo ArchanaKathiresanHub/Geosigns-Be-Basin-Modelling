@@ -11,7 +11,7 @@
 #include "LMOptAlgorithm.h"
 #include "Parameter.h"
 #include "RunCaseImpl.h"
-#include "RunCaseSetImpl.h"
+#include "RunCaseSet.h"
 #include "ScenarioAnalysis.h"
 #include "SUMlibUtils.h"
 #include "VarSpace.h"
@@ -22,6 +22,7 @@
 #include <UndefinedValues.h>
 
 // Utilities lib
+#include "ConstantsNames.h"
 #include "NumericFunctions.h"
 #include "LogHandler.h"
 
@@ -40,7 +41,7 @@
 #include <string>
 #include <vector>
 
-// 1. Using fvec for each observation will produce a jacobian more similar to the one produced by PEST 
+// 1. Using fvec for each observation will produce a jacobian more similar to the one produced by PEST
 //#define ACCUMULATE_MIN_FUNCTION 1
 using namespace Eigen;
 
@@ -61,7 +62,7 @@ namespace casa
       typedef          PermutationMatrix<Dynamic, Dynamic> PermutationType;
 
       // constructor
-      LevenbergMarquardtConstrained( FunctorType & functor, VectorXd& xMin, VectorXd& xMax ) 
+      LevenbergMarquardtConstrained( FunctorType & functor, VectorXd& xMin, VectorXd& xMax )
          : m_xMin( xMin )
          , m_xMax( xMax )
          , m_functor( functor )
@@ -98,12 +99,12 @@ namespace casa
 
          LevenbergMarquardtSpace::Status status = minimizeInit( x );
          m_isInitialized = true;
-         
+
          if ( LevenbergMarquardtSpace::ImproperInputParameters == status ) { return status; }
 
          bool relativeReductionOk = true;
          //In PEST we do not go over 10 outerIter
-         for ( int outerIter = 0; outerIter < 10 && relativeReductionOk; ++outerIter )  
+         for ( int outerIter = 0; outerIter < 10 && relativeReductionOk; ++outerIter )
          {
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "New jacobian calculated, iteration " << outerIter;
 
@@ -119,7 +120,7 @@ namespace casa
                }
             }
             m_oldFnorm = m_fnorm;
-            
+
             if ( LevenbergMarquardtSpace::Running != status || m_fnorm == 0.0 ) break;
          }
          return status;
@@ -145,7 +146,7 @@ namespace casa
       {
          n = x.size();           //number of parameters
          m_wa1.resize(  n );
-         m_wa2.resize(  n ); 
+         m_wa2.resize(  n );
          m_wa3.resize(  n );
 
          //     m_fjac.reserve(VectorXi::Constant(n,5)); // FIXME Find a better alternative
@@ -160,17 +161,17 @@ namespace casa
 
          // evaluate the function at the starting point and calculate its norm. Use all observations in m_fvec
          m_nfev = 1;
-		 size_t nvalues;
-		 size_t originalFunctorValues = m_functor.values();
-		 m_fvec.resize(originalFunctorValues);
+     size_t nvalues;
+     size_t originalFunctorValues = m_functor.values();
+     m_fvec.resize(originalFunctorValues);
          if ( m_functor.initialRun( x, m_fvec, nvalues) < 0 ) { return LevenbergMarquardtSpace::UserAsked; }
 
 		 //resize the matrices used in subsequent runs, accordingly to the filtering performed in initialRun
 		 m = nvalues + n; //the size of obf components is m + n
 		 m_wa4.resize(m);
-		 m_fvec.conservativeResize(m); // we do not want to loose the calculated values of the objective function . 
+		 m_fvec.conservativeResize(m); // we do not want to loose the calculated values of the objective function .
 		 m_fjac.resize(m, n); //FIXME Sparse Case : Allocate space for the jacobian
-         m_fnorm = m_fvec.stableNorm();
+				 m_fnorm = m_fvec.stableNorm();
 
 		 // Check the input parameters for errors.
 		 if (n <= 0 || m < n || m_ftol < 0.0 || m_xtol < 0.0 || m_gtol < 0.0 || m_maxfev <= 0 || m_factor <= 0.0)
@@ -222,7 +223,7 @@ namespace casa
          RealScalar temp, temp1, temp2;
          RealScalar ratio;
          RealScalar pnorm, xnorm, fnorm1, actred, dirder, prered;
-         
+
          eigen_assert( x.size() == n ); // check the caller is not cheating us
 
          Index df_ret;
@@ -234,7 +235,7 @@ namespace casa
          df_ret = m_functor.df( x, m_fjac );
 
          if ( df_ret < 0 ) { return LevenbergMarquardtSpace::UserAsked; }
-         if ( df_ret > 0 ) { m_nfev += df_ret; } // numerical diff, we evaluated the function df_ret times           
+         if ( df_ret > 0 ) { m_nfev += df_ret; } // numerical diff, we evaluated the function df_ret times
          else              { m_njev++; }
 
          //  compute the qr factorization of the jacobian
@@ -248,7 +249,7 @@ namespace casa
          m_rfactor     = qrfac.matrixR();
          m_permutation = ( qrfac.colsPermutation() );
 
-         //  on the first iteration and if external scaling is not used, scale according 
+         //  on the first iteration and if external scaling is not used, scale according
          //  to the norms of the columns of the initial jacobian.
          if ( m_iter == 1 )
          {
@@ -263,7 +264,7 @@ namespace casa
 
          // form (q transpose)*m_fvec and store the first n components in  m_qtf
          m_wa4 = m_fvec;                             //m_fvec is the initial vector of values
-         m_wa4 = qrfac.matrixQ().adjoint() * m_fvec; //qr is the qr decomposition of the jacobian matrix 
+         m_wa4 = qrfac.matrixQ().adjoint() * m_fvec; //qr is the qr decomposition of the jacobian matrix
          m_qtf = m_wa4.head( n );
 
          //  compute the norm of the scaled gradient.
@@ -274,7 +275,7 @@ namespace casa
             {
                if ( m_wa2[m_permutation.indices()[j]] != 0. )
                {
-                  m_gnorm = std::max( m_gnorm, 
+                  m_gnorm = std::max( m_gnorm,
                             std::abs( m_rfactor.col( j ).head( j + 1 ).dot( m_qtf.head( j + 1 ) / m_fnorm ) / m_wa2[m_permutation.indices()[j]] ) );
                }
             }
@@ -310,7 +311,7 @@ namespace casa
             if ( Scalar( .1 ) * fnorm1 < m_fnorm ) { actred = 1. - numext::abs2( fnorm1 / m_fnorm ); }
 
             // compute the scaled predicted reduction and the scaled directional derivative.
-            
+
             m_wa3 = m_rfactor.template triangularView<Upper>() * ( m_permutation.inverse() *m_wa1 );
 
             temp1 = numext::abs2( m_wa3.stableNorm() / m_fnorm );
@@ -391,7 +392,7 @@ namespace casa
       Eigen::VectorXd & m_xMax;
       RealScalar        m_oldFnorm;
 
-      // other private members of LevenbergMarquardt 
+      // other private members of LevenbergMarquardt
       JacobianType      m_fjac;
       JacobianType      m_rfactor; // The triangular matrix R from the QR of the jacobian matrix m_fjac
       FunctorType     & m_functor;
@@ -405,11 +406,11 @@ namespace casa
       Index             m_njev;
 
       RealScalar        m_fnorm;  // Norm of the current vector function
-      RealScalar        m_gnorm;  // Norm of the gradient of the error 
+      RealScalar        m_gnorm;  // Norm of the gradient of the error
       RealScalar        m_factor; //
       Index             m_maxfev; // Maximum number of function evaluation
       RealScalar        m_ftol;   // Tolerance in the norm of the vector function
-      RealScalar        m_xtol;   // 
+      RealScalar        m_xtol;   //
       RealScalar        m_gtol;   // Tolerance of the norm of the error gradient
       RealScalar        m_epsfcn; //
       Index             m_iter;   // Number of iterations performed
@@ -442,16 +443,16 @@ namespace casa
          return 0;
       }
 
-	  int initialRun(const Eigen::VectorXd & x, Eigen::VectorXd & fvec, size_t & nvalues) const 
-	  {
-		  LMOptAlgorithm & lm = const_cast<LMOptAlgorithm&>(m_lm);
-		  lm.updateParametersAndRunCase(x);
-		  lm.removeInvalidObservations(nvalues);
-		  lm.calculateFunctionValue(fvec);
-		  return 0;
-	  }
-	  
-      // In case of log10 transformation we increment the base value and transform the increment back, as done in PEST 
+		int initialRun(const Eigen::VectorXd & x, Eigen::VectorXd & fvec, size_t & nvalues) const
+		{
+			LMOptAlgorithm & lm = const_cast<LMOptAlgorithm&>(m_lm);
+			lm.updateParametersAndRunCase(x);
+			lm.removeInvalidObservations(nvalues);
+			lm.calculateFunctionValue(fvec);
+			return 0;
+		}
+
+      // In case of log10 transformation we increment the base value and transform the increment back, as done in PEST
       int df( const InputType & _x, JacobianType & jac )
       {
          //  Local variables
@@ -465,7 +466,7 @@ namespace casa
          const Scalar           eps = 0.1;
          InputType              x   = _x; // copy input as it constant
 
-		 // resize accordigly to the size of the re-scaled jacobian
+     // resize accordigly to the size of the re-scaled jacobian
          val1.resize(jac.col(0).size());
          val2.resize(jac.col(0).size());
 
@@ -563,10 +564,8 @@ size_t LMOptAlgorithm::prepareObservables()
 
    for ( int i = 0; i < obSp.size(); ++i )
    {
-      const std::string & msg = obSp.observable(i)->checkObservableForProject(m_sa->baseCase());
-
-      //the observable is included in the domain window 
-      if ( msg.empty() && obSp.observable(i)->hasReferenceValue() )
+      //the observable is included in the domain window
+      if ( obSp.observable(i)->checkObservableOriginForProject(m_sa->baseCase()) && obSp.observable(i)->hasReferenceValue() )
       {
          const std::vector<double> & obv = obSp.observable(i)->referenceValue()->asDoubleArray();
          const std::vector<double> & sigma = obSp.observable(i)->stdDeviationForRefValue()->asDoubleArray();
@@ -595,7 +594,7 @@ size_t LMOptAlgorithm::prepareObservables()
             obsSpDim += 1;
          }
 
-         // push back the observable index and pointer and the mask array 
+         // push back the observable index and pointer and the mask array
          m_optimObsLst.push_back(std::make_pair(i, obSp.observable(i)));
          m_optimObsMask.push_back(validObservations);
       }
@@ -611,7 +610,7 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
    std::vector<double>       minPrms;
    std::vector<double>       maxPrms;
    std::vector<unsigned int> catPrms;
-   
+
    m_xi.clear();
 
    for ( size_t i = 0; i < m_sa->varSpace().size(); ++i )
@@ -630,18 +629,18 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
 
                const std::vector<double> pmaxva = vprm->maxValue()->asDoubleArray();
                maxPrms.insert( maxPrms.end(), pmaxva.begin(), pmaxva.end() );
-      }
+            }
          break;
 
-      case VarParameter::Categorical:
-         catPrms.push_back( dynamic_cast<const VarPrmCategorical*>( m_sa->varSpace().parameter( i ) )->baseValue()->asInteger() );
-         break;
+         case VarParameter::Categorical:
+            catPrms.push_back( dynamic_cast<const VarPrmCategorical*>( m_sa->varSpace().parameter( i ) )->baseValue()->asInteger() );
+            break;
 
-      default: assert( 0 ); break;
+         default: assert( false ); break;
       }
    }
 
-   bool logTransform = m_parameterTransformation == "log10" ? true : false;
+   bool logTransform = m_parameterTransformation == "log10";
 
    // modify base case values
    for ( size_t i = 0; i < m_permPrms.size(); ++i )
@@ -649,7 +648,7 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
       double prmVal = x( i );
 
       if ( logTransform ) { prmVal = pow( 10.0, prmVal); }
-      
+
       if ( minPrms[m_permPrms[i]] > prmVal  )
       {
          cntPrms[m_permPrms[i]] = minPrms[m_permPrms[i]];
@@ -672,12 +671,12 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
 
    // create new case with the new parameters values
    SUMlib::Case slCase( cntPrms, std::vector<int>(), catPrms );
-   std::shared_ptr<RunCase> rc( new RunCaseImpl() );
+   std::shared_ptr<RunCase> runCase( new RunCaseImpl() );
 
-   // convert array of parameters values to case parametrers
-   sumext::convertCase( slCase, m_sa->varSpace(), *(rc.get()) );
+   // convert array of parameters values to case parameters
+   sumext::convertCase( slCase, m_sa->varSpace(), *runCase );
 
-   if ( !m_casesSet.empty() && ( *(rc.get()) == *(m_casesSet.back()) ) )
+   if ( !m_casesSet.empty() && ( *runCase == *(m_casesSet.back()) ) )
    {
       ++m_stepNum;
       return;
@@ -700,9 +699,17 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
    casePath.create();
    casePath << (std::string( m_sa->baseCaseProjectFileName() ).empty() ? m_sa->baseCaseProjectFileName() : "Project.project3d");
 
+   // Copy the windowObservable file from Case folder to LMStep folder
+   ibs::FilePath windowObsFile( ibs::FolderPath( "." ) );
+   windowObsFile << "windowObservable.txt";
+   ibs::FilePath destPath( casePath );
+   destPath.cutLast();
+   destPath << "windowObservable.txt";
+   windowObsFile.copyFile( destPath );
+
    // do mutation
-   rc->mutateCaseTo( m_sa->baseCase(), casePath.fullPath().cpath() );
-   std::string msg = rc->validateCase();
+   runCase->mutateCaseTo( m_sa->baseCase(), casePath.fullPath().cpath() );
+   std::string msg = runCase->validateCase();
 
    if ( !msg.empty() )
    {
@@ -713,37 +720,53 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
    // submit new job
    casa::RunManager & rm = m_sa->runManager();
 
-   if ( !m_keepHistory ) { m_sa->resetRunManager( false ); } // if we do not keep history we need to clean runManager jobs queue, 
+   if ( !m_keepHistory ) { m_sa->resetRunManager( false ); } // if we do not keep history we need to clean runManager jobs queue,
    // otherwise it could try to use completed case pipeline in the new run
 
-   if ( ErrorHandler::NoError != rm.scheduleCase(*(rc.get()), m_sa->scenarioID()) )
+   // request observables value
+   if ( ErrorHandler::NoError != m_sa->dataDigger().requestObservablesInWindow( m_sa->obsSpace(), runCase.get() ) )
+   {
+      throw ErrorHandler::Exception( m_sa->dataDigger().errorCode() ) << m_sa->dataDigger().errorMessage();
+   }
+
+   if ( ErrorHandler::NoError != rm.scheduleCase(*runCase, m_sa->scenarioID()) )
    {
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
    // run with queue update interval 1 sec
-   if ( ErrorHandler::NoError != rm.runScheduledCases( 1 ) ) { throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage(); }
-
+   if ( ErrorHandler::NoError != rm.runScheduledCases( 1 ) )
+   {
+      throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
+   }
    // collect observables value
-   if ( ErrorHandler::NoError != m_sa->dataDigger().collectRunResults( m_sa->obsSpace(), rc.get() ) )
+   if ( ErrorHandler::NoError != m_sa->dataDigger().collectRunResults( m_sa->obsSpace(), runCase.get() ) )
    {
       throw ErrorHandler::Exception( m_sa->dataDigger().errorCode() ) << m_sa->dataDigger().errorMessage();
    }
 
    if ( m_casesSet.empty() )
    {
-      m_bestMatchedCase = rc;
-      m_baseCase = rc;
+      updateBestMatchCase(runCase);
+      m_baseCase = runCase;
    }
-      
+
    if ( m_keepHistory || m_casesSet.empty() )
    {
-      m_casesSet.push_back( rc );
+      m_casesSet.push_back( runCase );
    }
    else
    {
-      m_casesSet[0] = rc;
+      m_casesSet[0] = runCase;
    }
    ++m_stepNum;
+}
+
+void LMOptAlgorithm::updateBestMatchCase(std::shared_ptr<RunCase> newBestMatchedCase)
+{
+  m_bestMatchedCase = newBestMatchedCase;
+  ibs::FolderPath bestCaseResultPath("bestMatchedCase" + Utilities::Names::CauldronOutputDir);
+  bestCaseResultPath.remove();
+  m_bestMatchedCase->caseModel()->saveModelToProjectFile("bestMatchedCase.project3d", true);
 }
 
 void LMOptAlgorithm::removeInvalidObservations(size_t & nValues)
@@ -787,7 +810,7 @@ void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
 
 	size_t mi = 0;
 
-   // at first calculate minimization function terms for observables value 
+   // at first calculate minimization function terms for observables value
    for ( size_t i = 0; i < m_optimObsLst.size(); ++i )
    {
       const Observable          * obs      = m_optimObsLst[i].second;
@@ -825,7 +848,7 @@ void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
       }
    }
 
-	// 2. There is need to average trgtQ by mi (it is like multiplying by a constant)
+  // 2. There is need to average trgtQ by mi (it is like multiplying by a constant)
 #ifdef ACCUMULATE_MIN_FUNCTION
 	fvec[0] = std::sqrt(trgtQ);
 	mi = 0;
@@ -834,14 +857,14 @@ void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
 	// the calculate minimization function terms for parameters value, to prevent going outside ranges
 	for (size_t i = 0; i < m_permPrms.size(); ++i)
 	{
-      const VarPrmContinuous * vprm  = m_optimPrms[i].first;
-      size_t                   prmID = m_optimPrms[i].second;
-      double                   minV  = vprm->minValue()->asDoubleArray()[prmID];
-      double                   maxV  = vprm->maxValue()->asDoubleArray()[prmID];
-      double                   basV  = vprm->baseValue()->asDoubleArray()[prmID];
-      VarPrmContinuous::PDF    ppdf  = vprm->pdfType();
-      double                   pval  = m_xi[i]; // use parameter value proposed by LM. It could be outside of parameter
-                                                // range. But parameter value will be cutted on the interval boundary
+			const VarPrmContinuous * vprm  = m_optimPrms[i].first;
+			size_t                   prmID = m_optimPrms[i].second;
+			double                   minV  = vprm->minValue()->asDoubleArray()[prmID];
+			double                   maxV  = vprm->maxValue()->asDoubleArray()[prmID];
+			double                   basV  = vprm->baseValue()->asDoubleArray()[prmID];
+			VarPrmContinuous::PDF    ppdf  = vprm->pdfType();
+			double                   pval  = m_xi[i]; // use parameter value proposed by LM. It could be outside of parameter
+																								// range. But parameter value will be cutted on the interval boundary
 
       if ( m_parameterTransformation == "log10" )
       {
@@ -849,14 +872,14 @@ void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
          maxV = log10( maxV );
          basV = log10( basV );
       }
-      
+
       double fval = 0.0;
       double fpen = 0.0;
       switch( ppdf )
       {
          case VarPrmContinuous::Block: fval = 1e-10; break;
 
-         case VarPrmContinuous::Triangle: 
+         case VarPrmContinuous::Triangle:
             {  double d = 2.0 / ( (basV - minV) * (maxV - basV) ); // area of triangle is equal 1
 
                if ( pval < basV ) { fval = 0.5 * d * ( 1.0 + ( pval - minV ) / ( basV - minV ) ) * ( basV - pval ); }
@@ -873,21 +896,21 @@ void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
       }
       // add penalty on goin out of the range
       if ( pval < minV )
-      { 
+      {
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "pval less than minV : "<< pval <<" "<< minV;
-         fpen = 50 * (minV - pval); 
+         fpen = 50 * (minV - pval);
       }  // penalty if v < [min:max]
       else if ( pval > maxV )
-      { 
+      {
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "pval larger than maxV : " << pval << " " << minV;
-         fpen  = 50 * (pval - maxV); 
+         fpen  = 50 * (pval - maxV);
       }  // penalty if v > [min:max]
 
       if ( m_parameterTransformation == "log10" )
       {
          fpen = 1 - exp( fpen );
       }
-      
+
       // add penality if outside the bound
       fval += fpen;
 
@@ -914,7 +937,7 @@ void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
 
       rc->caseModel()->saveModelToProjectFile( clbPath.fullPath().cpath(), true );
 
-      m_bestMatchedCase = rc ;
+      updateBestMatchCase(rc);
    }
 
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Qmin targets : " << trgtQ << ", "
@@ -942,7 +965,7 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
    size_t xi = 0; for ( auto pv : guess  ) { initialGuess[xi++] = pv; }
    xi        = 0; for ( auto pv : minPrm ) { minPrmEig[xi++]    = pv; }
    xi        = 0; for ( auto pv : maxPrm ) { maxPrmEig[xi++]    = pv; }
-   
+
    // extract observables with reference values and calculate dimension
    size_t obsSpDim = prepareObservables();
 
@@ -958,16 +981,16 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
 
    // 20 evaluations for each parameter should be sufficent
    lm.setMaxfev( 20 * guess.size() );
-  
+
    // do minimization if we have any reference values for observables, otherwis do just one base case run
    int ret = LevenbergMarquardtSpace::NotStarted;
 
    if ( obsSpDim > 0 ) { ret = lm.minimize( initialGuess ); }
    else
-   { 
+   {
       Eigen::VectorXd fvec;
-	  size_t nvalues;
-	  functor.initialRun( initialGuess, fvec, nvalues);
+    size_t nvalues;
+    functor.initialRun( initialGuess, fvec, nvalues);
    }
 
    // if we should not keep history - delete the last step
@@ -975,13 +998,16 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
    {
       ibs::FolderPath casePath = ibs::FolderPath( "." ) << "LMStep";
 
-      if ( casePath.exists() ) { casePath.remove(); }
+      if ( casePath.exists() )
+      {
+        casePath.remove();
+      }
 
       m_sa->resetRunManager( false );
    }
-  
+
    // store step in doeCaseSet under separate label with LM step number
-   RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( m_sa->doeCaseSet() );
+   RunCaseSet& rcs = m_sa->doeCaseSet();
 
    // save the base case (parameters and targets)
    std::vector<std::shared_ptr<RunCase>> baseCase;
@@ -1003,7 +1029,7 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
    }
 
    // inform user about optimization results
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "LM optimization algorithm finished with iterations number: " << (int)( lm.iterations() ) << 
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "LM optimization algorithm finished with iterations number: " << (int)( lm.iterations() ) <<
                                                " and " << (int)( lm.nfev() ) << " model evaluations";
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "LM return code: " << ret;
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "x that minimizes the function: \n" << initialGuess;

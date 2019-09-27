@@ -1,0 +1,5 @@
+set( CASAWIZARD_STUB_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/stub" )
+add_subdirectory( functions )
+add_subdirectory( common )
+add_subdirectory( ua )
+add_subdirectory( sac )

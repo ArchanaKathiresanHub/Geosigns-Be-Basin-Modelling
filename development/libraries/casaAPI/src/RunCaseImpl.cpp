@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file RunCaseImpl.C
 /// @brief This file keeps API implementation to keep a single run of Cauldron or a single Monte Carlo point
@@ -28,7 +28,7 @@ namespace casa
 
    // Constructor
    RunCaseImpl::RunCaseImpl()
-      : m_runState( NotSubmitted )
+      : m_runState( NotCreated )
       , m_id( 0 )
       , m_cleanDupLith( false )
    { ; }
@@ -42,7 +42,7 @@ namespace casa
    }
 
    // Get i-th parameter
-   SharedParameterPtr RunCaseImpl::parameter( size_t i ) const
+   SharedParameterPtr RunCaseImpl::parameter( const size_t i ) const
    {
       SharedParameterPtr nulPtr( static_cast<Parameter*>(0) );
 
@@ -64,13 +64,13 @@ namespace casa
    }
 
    // Get i-th observable
-   ObsValue * RunCaseImpl::obsValue( size_t i ) const
+   const ObsValue * RunCaseImpl::obsValue( size_t i ) const
    {
       return i < m_results.size() ? m_results[i] : NULL;
    }
 
    // Add new observable to the list
-   void RunCaseImpl::addObsValue( ObsValue * obs )
+   void RunCaseImpl::addObsValue( const ObsValue * obs )
    {
       // doe check if we already have such type ObsValue
       for ( size_t i = 0; i < m_results.size(); ++i )
@@ -111,7 +111,7 @@ namespace casa
       // apply mutations
       for ( size_t i = 0; i < m_prmsSet.size(); ++i )
       {
-         if ( ErrorHandler::NoError != m_prmsSet[i]->setInModel( *(m_model.get()), id() ) ) 
+         if ( ErrorHandler::NoError != m_prmsSet[i]->setInModel( *m_model, id() ) )
          {
             throw ErrorHandler::Exception( m_model->errorCode() ) << m_model->errorMessage();
          }
@@ -128,12 +128,13 @@ namespace casa
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can't write mutated project: " << newProjectName;
       }
+      setRunStatus( NotSubmitted );
    }
 
    // Do checking, are all influential parameters case value in their ranges
    std::string RunCaseImpl::validateCase()
    {
-      if ( !m_model.get() ) 
+      if ( !m_model.get() )
       {
          if ( m_modelProjectFileName.empty() ) return "Case can not be validated because cauldron model was not defined for this case";
 
@@ -149,7 +150,7 @@ namespace casa
       for ( size_t i = 0; i < m_prmsSet.size(); ++i )
       {
          // simple validation for the range
-         oss << m_prmsSet[i]->validate( *(m_model.get()) );
+         oss << m_prmsSet[i]->validate( *m_model );
       }
 
       return oss.str();
@@ -161,51 +162,53 @@ namespace casa
       m_model.reset( new mbapi::Model() ); // if already having some model, drop it
       m_model->loadModelFromProjectFile( m_modelProjectFileName.c_str() );
 
-      return *(m_model.get());
+      return *m_model;
+   }
+
+   std::shared_ptr<RunCase> RunCaseImpl::shallowCopy() const
+   {
+     std::shared_ptr<RunCase> shallowCopy(new RunCaseImpl());
+     for ( size_t k = 0; k < parametersNumber(); ++k )
+     {
+       shallowCopy->addParameter( parameter( k ) );
+     }
+     return shallowCopy;
    }
 
    // compare parameters set for 2 cases
    bool RunCaseImpl::operator == ( const RunCase & cs ) const
    {
-      const RunCaseImpl & rci = dynamic_cast<const RunCaseImpl &>( cs );
-
-      if ( m_prmsSet.size() != rci.m_prmsSet.size() ) return false;
+      if ( m_prmsSet.size() != cs.parametersNumber() ) return false;
 
       for ( size_t i = 0; i < m_prmsSet.size(); ++i )
       {
-         if ( *(m_prmsSet[i].get()) != *(rci.m_prmsSet[i].get()) ) return false;
+         if ( *m_prmsSet[i] != *cs.parameter(i) ) return false;
       }
       return true;
    }
 
    bool RunCaseImpl::isEqual( const RunCase &cs, AppPipelineLevel upTo ) const
    {
-      const RunCaseImpl & rci = dynamic_cast<const RunCaseImpl &>( cs );
-
-      if ( m_prmsSet.size() != rci.m_prmsSet.size() ) return false;
+      if ( m_prmsSet.size() != cs.parametersNumber() ) return false;
 
       for ( size_t i = 0; i < m_prmsSet.size(); ++i )
       {
          if ( m_prmsSet[i]->appSolverDependencyLevel() > upTo ) continue; // skip parameters which not influence the given dependency level
 
-         if ( *(m_prmsSet[i].get()) != *(rci.m_prmsSet[i].get()) ) return false;
+         if ( *m_prmsSet[i] != *cs.parameter(i) ) return false;
       }
       return true;
    }
 
    // Serialize object to the given stream
-   bool RunCaseImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+   bool RunCaseImpl::save( CasaSerializer & sz ) const
    {
       bool ok = true;
 
-      // initial implementation of serialization, must exist in all future versions of serialization
+      // register run case with serializer to allow RunManager object keep reference after deserialization
+      CasaSerializer::ObjRefID rcID = sz.ptr2id( this );
+      ok = sz.save( rcID, "ID" );
 
-      if ( fileVersion >= 3 )
-      {
-         // register run case with serializer to allow RunManager object keep reference after deserialization
-         CasaSerializer::ObjRefID rcID = sz.ptr2id( this );
-         ok = sz.save( rcID, "ID" );
-      }
 
       // std::unique_ptr<mbapi::Model> m_model;
       ok = ok ? sz.save( m_modelProjectFileName, "PathToModel" ) : ok;
@@ -248,6 +251,7 @@ namespace casa
 
       // std::unique_ptr<mbapi::Model> m_model;
       ok = ok ? dz.load( m_modelProjectFileName, "PathToModel" ) : ok;
+      loadProject();
 
       // load parameters value for this case
       size_t setSize;
@@ -271,9 +275,9 @@ namespace casa
       int st;
       ok = ok ? dz.load( st, "RunCaseState" ) : ok;
       m_runState = ok ? static_cast<CaseStatus>(st) : NotSubmitted;
-      
+
       ok = ok ? dz.load( m_id, "RunCaseID" ) : ok;
-      
+
       if ( objVer >= 1 )
       {
          ok = ok ? dz.load( m_cleanDupLith, "cleanDupLith" ) : ok;

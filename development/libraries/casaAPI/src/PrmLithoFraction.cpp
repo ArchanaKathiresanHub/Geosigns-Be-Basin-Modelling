@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmLithoFraction.C
 /// @brief This file keeps API implementation for lithofraction parameter handling.
@@ -44,14 +44,14 @@ namespace casa
       //the first lithofraction is always a total percentage ranging from 0.0 to 100.0
       if ( lithoFractions[0] < 0.0 || lithoFractions[0] > 100.0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << lithoFractionInds[0] << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << lithoFractionInds[0] <<
                                                                            " is out of range [0:100]: "       << lithoFractions[0];
       }
 
       //the second lithofraction is always a ratio ranging from 0 to 1
       if ( lithoFractions[1] < 0.0 || lithoFractions[1] > 1.0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The ratio of the lithology " << lithoFractionInds[1] << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The ratio of the lithology " << lithoFractionInds[1] <<
                                                                            " is out of range [0:1]: "    << lithoFractions[1];
       }
 
@@ -60,7 +60,7 @@ namespace casa
 
       lithoPercentages[lithoFractionInds[0]] = lithoFractions[0];
 
-      //the second lithofraction defines the fraction of what is left. it is varing from 0 to 1. 
+      //the second lithofraction defines the fraction of what is left. it is varing from 0 to 1.
       double percentage = lithoFractions[1] * ( 100.0 - lithoFractions[0] );
       lithoPercentages[lithoFractionInds[1]] = percentage;
 
@@ -69,9 +69,9 @@ namespace casa
       {
          if ( i != lithoFractionInds[0] && i != lithoFractionInds[1] )
          {
-            if ( percentage < 0.0 || percentage > 100.0 ) 
+            if ( percentage < 0.0 || percentage > 100.0 )
             {
-               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << i << 
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << i <<
                                                                                  " is not valid : " << percentage;
             }
             lithoPercentages[i] = percentage;
@@ -91,7 +91,7 @@ namespace casa
       std::vector< double> lithoFractions;
       if ( lithoPercentages[lithoFractionInds[0]] < 0.0 || lithoPercentages[lithoFractionInds[0]] > 100.0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << lithoFractionInds[0] << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << lithoFractionInds[0] <<
                                                                            " is out of range [0:100]: " << lithoPercentages[lithoFractionInds[0]];
       }
 
@@ -111,7 +111,7 @@ namespace casa
 
    // Constructor: read from the model
    PrmLithoFraction::PrmLithoFraction( mbapi::Model & mdl, const std::string & layerName, const std::vector<int> & lithoFractionsInds )
-                                     : m_parent( 0 )
+                                     : Parameter( )
                                      , m_layerName( layerName )
                                      , m_lithoFractionsInds( lithoFractionsInds )
    {
@@ -173,8 +173,6 @@ namespace casa
                " for layer " << m_layerName << " is out of range [0:1]: " << m_lithoFractions[1] << "\n";
          }
       }
-
-      m_name = "LithoFraction(" + m_layerName + ")";
    }
 
 
@@ -184,7 +182,7 @@ namespace casa
                                      , const std::vector<int>    & lithoFractionsInds
                                      , const std::vector<size_t> & coordinates
                                      )
-                                     : m_parent( 0 )
+                                     : Parameter()
                                      , m_layerName( layerName )
                                      , m_lithoFractionsInds( lithoFractionsInds )
    {
@@ -192,7 +190,7 @@ namespace casa
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "The size of the coordinate vector cannot be different than 2";
       }
-      
+
       mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager();
 
       // get the layer ID
@@ -210,7 +208,7 @@ namespace casa
       }
 
       mbapi::MapsManager & mpMgr = mdl.mapsManager();
-      
+
       // Here we assume to have always 2 maps!
       if ( !percMaps[0].empty() && !percMaps[1].empty() )
       {
@@ -272,19 +270,16 @@ namespace casa
                                      , const std::string         & name
                                      , const std::string         & layerName
                                      , const std::vector<int>    & lithoFractionsInds
-                                     , const std::vector<double> & lithoFractions 
+                                     , const std::vector<double> & lithoFractions
                                      , const std::string         & mapNameFirstLithoPercentage
                                      , const std::string         & mapNameSecondLithoPercentage )
-                                     : m_parent( parent )
-                                     , m_name( name )
+                                     : Parameter( parent )
                                      , m_layerName( layerName )
                                      , m_lithoFractionsInds( lithoFractionsInds )
                                      , m_lithoFractions( lithoFractions )
                                      , m_mapNameFirstLithoPercentage( mapNameFirstLithoPercentage )
                                      , m_mapNameSecondLithoPercentage( mapNameSecondLithoPercentage )
    {
-      if ( m_name.empty() ) m_name = "LithoFraction(" + m_layerName + ")";
-
       // scalar case
       if ( m_mapNameFirstLithoPercentage.empty() && m_mapNameSecondLithoPercentage.empty() ) // check the ranges only if a single value is set
       {
@@ -388,9 +383,9 @@ namespace casa
       {
          throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
       }
-      
+
       // scalar case
-      if ( m_mapNameFirstLithoPercentage.empty() && m_mapNameSecondLithoPercentage.empty() ) 
+      if ( m_mapNameFirstLithoPercentage.empty() && m_mapNameSecondLithoPercentage.empty() )
       {
          const std::vector<double> & prms = asDoubleArray();
          const double eps = 1.e-6;
@@ -414,7 +409,7 @@ namespace casa
          {
             if ( mdlLithoNames[i].empty() && lithoPercentages[i] > 0.0 )
             {
-               oss << "The percent " << i << " for the layer " << m_layerName << " is not zero:" << 
+               oss << "The percent " << i << " for the layer " << m_layerName << " is not zero:" <<
                       lithoPercentages[i] << " for the empty lithology name\n";
             }
          }
@@ -499,18 +494,17 @@ namespace casa
    }
 
    // Save all object data to the given stream, that object could be later reconstructed from saved data
-   bool PrmLithoFraction::save( CasaSerializer & sz, unsigned int /* version */ ) const
+   bool PrmLithoFraction::save( CasaSerializer & sz ) const
    {
-      bool hasParent = m_parent ? true : false;
+      bool hasParent = parent() ? true : false;
       bool ok = sz.save( hasParent, "hasParent" );
 
       if ( hasParent )
       {
-         CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
+         CasaSerializer::ObjRefID parentID = sz.ptr2id( parent() );
          ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
       }
 
-      ok = ok ? sz.save( m_name,                         "name"                         ) : ok;
       ok = ok ? sz.save( m_layerName,                    "layerName"                    ) : ok;
       ok = ok ? sz.save( m_lithoFractionsInds,           "lithoFractionsInds"           ) : ok;
       ok = ok ? sz.save( m_lithoFractions,               "lithoFractions"               ) : ok;
@@ -521,7 +515,7 @@ namespace casa
    }
 
    // Create a new var.parameter instance by deserializing it from the given stream
-   PrmLithoFraction::PrmLithoFraction( CasaDeserializer & dz, unsigned int /* version */ )
+   PrmLithoFraction::PrmLithoFraction( CasaDeserializer & dz, unsigned int version )
    {
 
       CasaDeserializer::ObjRefID parentID;
@@ -532,15 +526,19 @@ namespace casa
       if ( hasParent )
       {
          bool ok = dz.load( parentID, "VarParameterID" );
-         m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
+         setParent( ok ? dz.id2ptr<VarParameter>( parentID ) : 0 );
       }
 
-      ok = ok ? dz.load( m_name,               "name"               ) : ok;
-      ok = ok ? dz.load( m_layerName,          "layerName"          ) : ok;
-      ok = ok ? dz.load( m_lithoFractionsInds, "lithoFractionsInds" ) : ok;
-      ok = ok ? dz.load( m_lithoFractions,     "lithoFractions"     ) : ok;
-      
-      if ( version() > 0 ) 
+      if ( version < 2)
+      {
+        std::string name;
+        ok = ok && dz.load( name, "name" );
+      }
+      ok = ok && dz.load( m_layerName,          "layerName"          );
+      ok = ok && dz.load( m_lithoFractionsInds, "lithoFractionsInds" );
+      ok = ok && dz.load( m_lithoFractions,     "lithoFractions"     );
+
+      if ( version > 0 )
       {
          ok = ok ? dz.load( m_mapNameFirstLithoPercentage,  "mapNameFirstLithoPercentages" ) : ok;
          ok = ok ? dz.load( m_mapNameSecondLithoPercentage, "mapNameSecondLithoPercentage" ) : ok;

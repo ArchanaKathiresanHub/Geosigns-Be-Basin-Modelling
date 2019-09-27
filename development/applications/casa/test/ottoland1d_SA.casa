@@ -43,23 +43,5 @@ response             "FirstOrdPareto"      "PlackettBurmanMirror,Tornado"  1    
 # response surface for Pareto
 response             "FirstOrdTornadoKrig" "Tornado"                 1             Global
 
-# Export CASA calculated data to Matlab
-exportMatlab         "casa_Ottoland_3prm.m"
 savestate            "casa_state_sa.txt"  "txt"
 
-# creat proxy QC plots
-#                     Proxy name       DoE names for           DoE names for          Plot script name
-#                                      proxy building          proxy testing
-plotRSProxyQC        "FirstOrdPB"      "PlackettBurmanMirror"  "Tornado"              "FirstOrdPB.m"
-plotRSProxyQC        "FirstOrdTornado" "Tornado"               "PlackettBurmanMirror" "FirstOrdTr.m"
-
-# create plots for Tornado diagram
-#                                    Doe names                   Matlab/Octave script name
-plotTornado                          "Tornado"                   "TornadoPlotTornadoDoE.m"
-
-# create plot for Pareto diagrma
-#                                    RSP name                    Matlab/Octave script name
-plotPareto                           "FirstOrdTornado"           "ParetoPlotTornado1stOrdRS.m"
-plotPareto                           "FirstOrdTornadoKrig"       "ParetoPlotTornado1stOrdRSKrig.m"
-plotPareto                           "FirstOrdPB"                "ParetoPlotPB1stOrdRS.m"
-plotPareto                           "FirstOrdPareto"            "ParetoPlotTornadoPB1stOrdRS.m"

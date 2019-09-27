@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 // CASA API
 #include "SimpleTxtSerializer.h"
@@ -15,6 +15,7 @@
 #include "ErrorHandler.h"
 
 // C lib
+#include <iomanip>
 #include <stdint.h>
 #include <string.h>
 
@@ -25,8 +26,8 @@ namespace casa
    // functions to save values to txt file
    template <typename T> inline bool saveValue( ofstream & fp, T val ) { fp << val; return fp.good(); }
 
-   inline bool saveValue( ofstream & fp, double         val ) { fp << scientific <<        val;           return fp.good(); }
-   inline bool saveValue( ofstream & fp, float          val ) { fp << scientific <<        val;           return fp.good(); }
+   inline bool saveValue( ofstream & fp, double         val ) { fp << scientific << std::setprecision(12) << val; return fp.good(); }
+   inline bool saveValue( ofstream & fp, float          val ) { fp << scientific << std::setprecision(12) << val; return fp.good(); }
    inline bool saveValue( ofstream & fp, bool           val ) { fp << (val ? "true" : "false");           return fp.good(); }
    inline bool saveValue( ofstream & fp, const string & val ) { fp << "\"" <<              val   << "\""; return fp.good(); }
    inline bool saveValue( ofstream & fp, const char   * val ) { fp << "\"" <<      string( val ) << "\""; return fp.good(); }
@@ -35,10 +36,10 @@ namespace casa
    template <typename T> inline bool saveValTo( ofstream & fp, const char * typeName, const string & name, T val )
    {
       fp << typeName << " " << name << " ";
-      
+
       bool ok = fp.good();
       ok = ok ? saveValue( fp, val ) : ok;
-      
+
       if ( ok ) { fp << "\n"; }
       ok = ok ? fp.good() : ok;
 
@@ -57,14 +58,14 @@ namespace casa
          ok = ok ? saveValue( fp, vec[i] ) : ok;
       }
       if ( ok )
-      { 
+      {
          fp << "\n";
          ok = fp.good();
       }
       return ok;
    }
 
-   SimpleTxtSerializer::SimpleTxtSerializer( const string & fileName, int ver ) : m_version( ver )
+   SimpleTxtSerializer::SimpleTxtSerializer( const string & fileName, int ver )
    {
       m_file.open( fileName.c_str(), ios::out | ios::trunc );
       if ( !m_file.good() ) throw ErrorHandler::Exception( ErrorHandler::SerializationError ) << "Can not open file: " << fileName << " for writing";
@@ -104,7 +105,7 @@ namespace casa
    {
       saveObjectDescription( so.typeName(), objName, so.version() );
       bool ok = m_file.good();
-      return ok ? so.save( *this, m_version ) : ok;
+      return ok ? so.save( *this ) : ok;
    }
 
    bool SimpleTxtSerializer::saveObjectDescription( const string & objType, const string & objName, unsigned int ver )
@@ -120,10 +121,10 @@ namespace casa
       unsigned int version = soVersion ? soVersion->getSerializationVersion() : 0;
 
       bool ok = saveObjectDescription( "ISerializable", objName, version );
-      
+
       SUMlibSerializer<SimpleTxtSerializer> sumlibSer( *this );
       ok = ok ? so.save( &sumlibSer, version ) : ok;
-      
+
       return ok;
    }
 }

@@ -37,10 +37,6 @@ application_env_var( TARGET ${APP_NAME} VARS
      "CTCDIR"      "$MISCDIR"
      "EOSPACKDIR"  "$MISCDIR/eospack"
 )
-    
-if (UNIX)
-add_dependencies(${APP_NAME} Boost)
-endif (UNIX)
 
 include_directories( utilities
    ${CMAKE_CURRENT_BINARY_DIR} )

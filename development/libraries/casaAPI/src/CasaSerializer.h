@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef CASA_SERIALIZER_H
 #define CASA_SERIALIZER_H
@@ -32,15 +32,15 @@ namespace casa
    public:
       typedef size_t ObjRefID;
 
-      /// @brief Factory for serializer. It creates serializer depending on the requested output format. 
+      /// @brief Factory for serializer. It creates serializer depending on the requested output format.
       /// @param fileName CASA state file name
       /// @param fileFormat file format. Currently implemented: "txt" or "bin"
-      /// @param  ver file version 
+      /// @param  ver file version
       /// @return new CasaSerializer object. Caling function must delete this object after serialization
       static CasaSerializer * createSerializer( const std::string & fileName, const std::string & fileFormat, int ver );
 
       /// @brief  Destructor
-      virtual ~CasaSerializer() { ; }
+      virtual ~CasaSerializer() {}
 
       /// @brief Save CasaSerializable object
       /// @param so CasaSerializable object reference
@@ -166,10 +166,6 @@ namespace casa
       /// @return true if on success, false otherwise
       virtual bool save( const std::vector< std::string > & vec, const std::string & vecName ) = 0;
 
-      /// @brief Get version of serialization file
-      /// @return get file version
-      virtual int version() = 0;
-
       /// @brief Register or convert observable pointer to observable ID
       template <class T> ObjRefID ptr2id( const T * obj );
 
@@ -195,7 +191,7 @@ namespace casa
       virtual ~CasaSerializable() { ; }
 
       virtual unsigned int version() const { return 0; } // version of the object representation in file
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const = 0;
+      virtual bool save( CasaSerializer & sz ) const = 0;
       virtual const char * typeName() const = 0;
    };
 

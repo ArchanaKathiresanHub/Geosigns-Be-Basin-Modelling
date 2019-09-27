@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmSourceRockTOC.h
-/// @brief This file keeps API implementation for handling variation of initial source rock TOC parameter. 
+/// @brief This file keeps API implementation for handling variation of initial source rock TOC parameter.
 
 #include "PrmSourceRockTOC.h"
 #include "VarPrmSourceRockTOC.h"
@@ -30,7 +30,7 @@ VarPrmSourceRockTOC::VarPrmSourceRockTOC( const char                     * lrNam
                                         ) : VarPrmSourceRockProp( lrName, pdfType, name, srTypeName, mixID )
 {
    m_propName = "TOC";
-   
+
    if ( dblRng.size() == 3 )
    {
       m_minValue.reset(  new PrmSourceRockTOC( this, dblRng[0], lrName, std::string(), srTypeName, m_mixID ) );
@@ -54,17 +54,17 @@ VarPrmSourceRockTOC::VarPrmSourceRockTOC( const char                     * lrNam
 
 std::vector<std::string> VarPrmSourceRockTOC::name() const
 {
-	std::vector<std::string> ret;
-   
+  std::vector<std::string> ret;
+
    if ( m_name.empty() ) { ret.push_back( m_layerName + " TOC [%]" ); }
    else                  { ret.push_back( m_name ); }
 
- 	return ret;
+  return ret;
 }
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool VarPrmSourceRockTOC::save( CasaSerializer & sz, unsigned int version ) const
+bool VarPrmSourceRockTOC::save( CasaSerializer & sz ) const
 {
-   bool ok = VarPrmSourceRockProp::serializeCommonPart( sz, version );
+   bool ok = VarPrmSourceRockProp::serializeCommonPart( sz );
    return ok;
 }
 
@@ -72,7 +72,7 @@ bool VarPrmSourceRockTOC::save( CasaSerializer & sz, unsigned int version ) cons
 VarPrmSourceRockTOC::VarPrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer )
 {
    bool ok = VarPrmSourceRockProp::deserializeCommonPart( dz, objVer );
- 
+
    if ( m_propName.empty() ) { m_propName = "TOC"; }
 
    if ( !ok )
@@ -83,7 +83,7 @@ VarPrmSourceRockTOC::VarPrmSourceRockTOC( CasaDeserializer & dz, unsigned int ob
 
 SharedParameterPtr VarPrmSourceRockTOC::createNewPrm( double val, const std::string & srType ) const
 {
-   // special case when we deserializing the old state file and we needing to create simple case parameter 
+   // special case when we deserializing the old state file and we needing to create simple case parameter
    if ( m_srTypeName != srType )
    {
       SharedParameterPtr prm( new PrmSourceRockTOC( this, val, m_layerName.c_str(), std::string(), srType.empty() ? 0 : srType.c_str(), m_mixID ) );
@@ -100,10 +100,10 @@ SharedParameterPtr VarPrmSourceRockTOC::createNewPrm( double val, const std::str
 
    if ( minV > val || val > maxV )
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of initial TOC parameter " << val << 
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of initial TOC parameter " << val <<
                                                                         " falls out of range: [" << minV << ":" << maxV << "]";
    }
-   
+
    if ( minPrm->mapName().empty() ) // no maps defined, simple range - just use given value
    {
       SharedParameterPtr prm( new PrmSourceRockTOC( this, val, m_layerName.c_str(), std::string(),

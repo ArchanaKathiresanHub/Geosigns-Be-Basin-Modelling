@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "CasaCommander.h"
 #include "CmdAddCldApp.h"
@@ -22,7 +22,7 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
 {
    if ( m_prms.size() < 1 )
    {
-      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Wrong parameters number: " 
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Wrong parameters number: "
          << m_prms.size() << " in Cauldron application definition";
    }
 
@@ -31,12 +31,12 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
    m_maxRunLimMin = 0;
 
    size_t it = 0;
-   
+
    // read cpus number if was given
    if ( m_prms.size() > 1 && CfgFileParser::isNumericPrm( m_prms[it] ) )
    {
       m_cpus = atol( m_prms[it].c_str() );
-      if ( m_cpus < 1 || m_cpus > 100000 ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+      if ( m_cpus < 1 || m_cpus > 100000 ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<
          "Wrong number of cpus: " << m_cpus << ", for application: " << m_prms[it+1];
 
       ++it;
@@ -65,30 +65,24 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
 
 void CmdAddCldApp::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-#ifdef _WIN32
-   casa::CauldronApp::ShellType sh = casa::CauldronApp::cmd;
-#else
-   casa::CauldronApp::ShellType sh = casa::CauldronApp::bash;
-#endif // _WIN32
-
    // was cpus number and time limit given?
    size_t p = m_cpus < 0 ? 1 : (m_maxRunLimMin == 0 ? 2 : 3);
    if ( m_cpus < 0 ) { m_cpus = 1; } // if not - set it to 1
 
    LogHandler( LogHandler::INFO_SEVERITY ) << "Add cauldron application to calculation pipeline " << m_prms[p - 1] << "(" <<
                                  CfgFileParser::implode( m_prms, ",", p ) << ")";
-   
+
    casa::CauldronApp * app = 0;
 
    if ( casa::RunManager::generic == m_app )
    {
       const std::string & appName = m_prms[p++];
 
-      app = casa::RunManager::createApplication( casa::RunManager::generic, m_cpus, m_maxRunLimMin, sh, appName );
+      app = casa::RunManager::createApplication( casa::RunManager::generic, m_cpus, m_maxRunLimMin, appName );
    }
    else
-   { 
-      app = casa::RunManager::createApplication( static_cast<casa::RunManager::ApplicationType>( m_app ), m_cpus, m_maxRunLimMin, sh );
+   {
+      app = casa::RunManager::createApplication( static_cast<casa::RunManager::ApplicationType>( m_app ), m_cpus, m_maxRunLimMin );
    }
 
    assert( 0 != app );
@@ -105,7 +99,7 @@ void CmdAddCldApp::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 
 void CmdAddCldApp::printHelpPage( const char * cmdName )
 {
-   std::cout << "  " << cmdName << 
+   std::cout << "  " << cmdName <<
    R"( [<cpus>] [<timeLim>] "<appName>" ["appPrm1" ["appPrm2"]... ]
       - add a new Cauldron application to the end of the simulation pipeline. The full Cauldron simulation
         could consists of several stages, like P/T simulation then genex and then migration.

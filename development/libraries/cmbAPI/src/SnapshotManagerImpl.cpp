@@ -41,20 +41,20 @@ void SnapshotManagerImpl::setDatabase( database::ProjectFileHandlerPtr pfh, cons
 
 
 // Get number of snapshots in project
-size_t SnapshotManagerImpl::snapshotsNumber()
+size_t SnapshotManagerImpl::snapshotsNumber() const
 {
    if ( !m_snpTable ) return 0;
    return m_snpTable->end() - m_snpTable->begin();
 }
 
 // Get time for the i-th snapshot
-double SnapshotManagerImpl::time( size_t i )
+double SnapshotManagerImpl::time( size_t i ) const
 {
    return database::getTime( (*m_snpTable)[static_cast<int>(i)] );
 }
 
 // Ask, is i-th snapshot minor?
-bool SnapshotManagerImpl::isMinor( size_t i )
+bool SnapshotManagerImpl::isMinor( size_t i ) const
 {
    return database::getIsMinorSnapshot( (*m_snpTable)[static_cast<int>(i)] ) ? true : false;
 }
@@ -121,4 +121,19 @@ ErrorHandler::ReturnCode SnapshotManagerImpl::requestMajorSnapshot( double simTi
    return NoError;
 }
 
+std::vector<double> SnapshotManagerImpl::agesFromMajorSnapshots() const
+{
+  std::vector<double> ages;
+
+  for (std::size_t i = 0; i < snapshotsNumber(); ++i)
+  {
+    if (!isMinor(i))
+    {
+      ages.push_back(time(i));
+    }
+  }
+
+  return ages;
 }
+
+} // namespace mbapi

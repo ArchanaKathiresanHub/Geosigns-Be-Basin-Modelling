@@ -57,6 +57,7 @@ set(THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty")
 #
 # Options whether to build certain parts
 #
+#option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_PARALLEL "Build the parallel cauldron applications" ON )
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BM_BUILD_DOCS "Build documentation" ON )
@@ -245,6 +246,7 @@ find_package(LZlib REQUIRED CONFIG)
 if (UNIX)
    find_package(FlexLM REQUIRED CONFIG)
    find_package(ZLIB REQUIRED)
+   find_package(Qt5 COMPONENTS Core Gui Widgets CONFIG)
 
    if (BM_BUILD_PARAVIEW_PLUGIN)
       find_package(ParaView REQUIRED CONFIG)

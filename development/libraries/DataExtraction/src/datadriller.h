@@ -35,7 +35,6 @@ public:
   virtual ~DataDriller();
 
   void run( const bool doCalculateTrapAndMissingProperties );
-
   void saveToFile( const std::string& outputProjectFileName );
 
 protected:

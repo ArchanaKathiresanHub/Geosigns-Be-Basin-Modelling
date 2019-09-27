@@ -112,7 +112,7 @@ public:
    virtual ~SystemProcess( )
    {
 #ifndef _WIN32
-      if ( m_isOk ) 
+      if ( m_isOk )
       {
          kill( -m_pid, SIGTERM );
          Wait( 1 );
@@ -236,7 +236,7 @@ SystemProcess::SystemProcess( const std::string & cwd
 
    if ( p != std::string::npos )
    {
-      // when a batch file is specified then prefix the cmd 
+      // when a batch file is specified then prefix the cmd
       // The ShellExecuteEx doesn't work with *.bat files.
       systemCommand = "cmd.exe /C " + systemCommand;
    }
@@ -360,7 +360,7 @@ public:
          case JobScheduler::JobRunning:
             m_proc->updateProcessStatus();
 
-            if ( m_proc->isProcessRunning() ) 
+            if ( m_proc->isProcessRunning() )
             {
                if ( m_runTimeLim && m_proc->getRunTime() > m_runTimeLim ) { stop(); }
                else                                                       { m_jobState = JobScheduler::JobRunning; }
@@ -385,7 +385,7 @@ public:
    virtual const char * typeName() const { return "JobSchedulerLocal::Job"; }
 
    // Serialize object to the given stream
-   virtual bool save( CasaSerializer & sz, unsigned int version ) const
+   virtual bool save( CasaSerializer & sz ) const
    {
       bool ok = sz.save( static_cast<int>(m_jobState), "JobState" );
 
@@ -395,10 +395,8 @@ public:
       ok = ok ? sz.save( m_cwd,     "CWD"           ) : ok;
       ok = ok ? sz.save( m_jobName, "JobName"       ) : ok;
       ok = ok ? sz.save( m_cpus,    "CPUsNum"       ) : ok;
-      if ( version > 0 )
-      {
-         ok = ok ? sz.save( m_runTimeLim, "runTimeLimMinutes" ) : ok;
-      }
+      ok = ok ? sz.save( m_runTimeLim, "runTimeLimMinutes" ) : ok;
+
       return ok;
    }
 
@@ -425,7 +423,7 @@ public:
          ok = ok ? dz.load( m_runTimeLim, "runTimeLimMinutes" ) : ok;
       }
       else { m_runTimeLim = 0; }
- 
+
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -502,7 +500,7 @@ JobScheduler::JobState JobSchedulerLocal::runJob( JobID job )
 // stop submitted job
 JobScheduler::JobState JobSchedulerLocal::stopJob( JobID job )
 {
-   if ( job >= m_jobs.size() ) 
+   if ( job >= m_jobs.size() )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no job with ID: "  << job << " in the queue";
    }
@@ -580,7 +578,7 @@ size_t JobSchedulerLocal::runningJobsNumber()
 }
 
 // Serialize object to the given stream
-bool JobSchedulerLocal::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
+bool JobSchedulerLocal::save( CasaSerializer & sz ) const
 {
    bool ok = sz.save( m_clusterName, "ClusterName" );
    ok = ok ? sz.save( m_avCPUs,      "CoresNumber" ) : ok;

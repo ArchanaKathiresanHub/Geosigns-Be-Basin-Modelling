@@ -4,7 +4,6 @@
 #include "../src/PrmTopCrustHeatProduction.h"
 #include "../src/RunCase.h"
 #include "../src/VarPrmSourceRockTOC.h"
-#include "../src/VarPrmTopCrustHeatProduction.h"
 
 #include "FilePath.h"
 #include "FolderPath.h"
@@ -29,7 +28,7 @@ public:
              , m_layerName( "Lower Jurassic" )
              , m_projectFileName( "Ottoland.project3d" )
              , m_caseSetPath( "." )
-   { 
+   {
       m_caseSetPath << "CaseSetMutatorTest";
    }
    ~MutatorTest( ) { ; }
@@ -40,14 +39,14 @@ public:
 
    const double m_minTCHP;
    const double m_maxTCHP;
-   
+
    const char * m_layerName;
 
    const char * m_projectFileName;
-   
+
    ibs::FolderPath m_caseSetPath;
 };
-  
+
 // Mutator test. There is 1 DoE Tornado experiment with 2 parameters
 // Test creates DoE and generates set of project files. Then it loads
 // project files back and compares variable parameters value with
@@ -58,22 +57,20 @@ TEST_F( MutatorTest, Tornado2PrmsMutations )
    casa::ScenarioAnalysis sc;
 
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_projectFileName ) );
-   
+
    // vary 2 parameters
    std::vector<double> dblRng( 2, m_minTOC );
    dblRng[1] = m_maxTOC;
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, m_layerName, 1, 0, dblRng, vector<string>(),  VarPrmContinuous::Block ) );
 
-   dblRng[0] = m_minTCHP;
-   dblRng[1] = m_maxTCHP;
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, vector<string>(), VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VaryParameter<PrmTopCrustHeatProduction>(sc, {}, "", m_minTCHP, m_maxTCHP) );
 
    // set up and generate DoE
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
    casa::DoEGenerator & doe = sc.doeGenerator( );
 
    doe.generateDoE( sc.varSpace(), sc.doeCaseSet() );
-   
+
    ASSERT_EQ( 5U, sc.doeCaseSet().size() );
 
    ibs::FolderPath pathToCaseSet = m_caseSetPath;
@@ -108,14 +105,14 @@ TEST_F( MutatorTest, Tornado2PrmsMutations )
       ASSERT_TRUE( prm2 != NULL );
 
       ASSERT_NEAR( prm1->value(), prm_toc.value(), eps );
-      ASSERT_NEAR( prm2->value(), prm_tchp.value(), eps );
+      ASSERT_NEAR( prm2->asDoubleArray()[0], prm_tchp.asDoubleArray()[0], eps );
    }
-   
+
    // cleaning files/folders
    pathToCaseSet.clean();  // clean folder ./CaseSet/Iteration_1
-   pathToCaseSet.cutLast();       
+   pathToCaseSet.cutLast();
    pathToCaseSet.remove(); // delete folder ./CaseSet
-   
+
    ASSERT_FALSE( pathToCaseSet.exists() );
 }
 
@@ -133,9 +130,7 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
    dblRng[1] = m_maxTOC;
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, m_layerName, 1, "", dblRng, vector<string>(),  VarPrmContinuous::Block ) );
 
-   dblRng[0] = m_minTCHP;
-   dblRng[1] = m_maxTCHP;
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, vector<string>(), VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VaryParameter<PrmTopCrustHeatProduction>(sc, {}, "", m_minTCHP, m_maxTCHP) );
 
    // set root folder for the experiments
    ibs::FolderPath pathToCaseSet = m_caseSetPath;
@@ -192,7 +187,7 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
          ASSERT_TRUE( prm2 != NULL );
 
          ASSERT_NEAR( prm1->value(), prm_toc.value(), eps );
-         ASSERT_NEAR( prm2->value(), prm_tchp.value(), eps );
+         ASSERT_NEAR( prm2->asDoubleArray()[0], prm_tchp.asDoubleArray()[0], eps );
       }
 
    }

@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSurfacePorosity.h
-/// @brief This file keeps API declaration for lithology porosity model surface porosity parameter handling. 
+/// @brief This file keeps API declaration for lithology porosity model surface porosity parameter handling.
 
 #ifndef CASA_API_PARAMETER_SURFACE_POROSITY_H
 #define CASA_API_PARAMETER_SURFACE_POROSITY_H
@@ -25,12 +25,12 @@ namespace mbapi
 }
 
 /// @page CASA_SurfacePorosityPage Surface porosity for lithology porosity model
-///   
+///
 /// This parameter defines the surface porosity for any porosity model for a lithology, a set of layers and a set of faults.
 /// It defines an alternative way to vary porosity model parameter than casa::PrmPororsityModel class. They must not be defined
 /// together for the same layer or lithology
 ///
-/// To define surface porosity user should specify 
+/// To define surface porosity user should specify
 /// - Lithology name
 /// - surface porosity value
 namespace casa
@@ -42,8 +42,8 @@ namespace casa
    {
    public:
       /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param mdl Cauldron model interface object to get Porosity model and it parameters value 
-      ///            for the given lithology. 
+      /// @param mdl Cauldron model interface object to get Porosity model and it parameters value
+      ///            for the given lithology.
       /// @param lithoName lithology name
       PrmSurfacePorosity( mbapi::Model & mdl, const std::string & lithoName );
 
@@ -55,11 +55,11 @@ namespace casa
 
       /// @brief Destructor
       virtual ~PrmSurfacePorosity() { ; }
-     
+
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
-      /// @return ErrorHandler::NoError in success, or error code otherwise     
+      /// @return ErrorHandler::NoError in success, or error code otherwise
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID );
 
       /// @brief Validate Porosity model parameter values
@@ -67,16 +67,10 @@ namespace casa
       /// @return empty string on success or error message with current parameter value
       virtual std::string validate( mbapi::Model & caldModel );
 
-      /// @{
-      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
-      /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
-
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name

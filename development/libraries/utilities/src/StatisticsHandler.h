@@ -1,15 +1,14 @@
 #ifndef _STATISTICS_HANDLER__H_
 #define _STATISTICS_HANDLER__H_
 
-#include <iostream>
 #include <string>
 
 /// \brief Handles all statistics that are to be output at the need of a run.
-namespace Utilities 
+namespace Utilities
 {
-	namespace CheckMemory 
+	namespace CheckMemory
 	{
-		class StatisticsHandler 
+		class StatisticsHandler
 		{
 
 		public:

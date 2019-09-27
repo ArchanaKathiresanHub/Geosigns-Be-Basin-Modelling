@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmCompactionCoefficient.h
 /// @brief This file keeps API declaration for handling variation of casa::PrmCompactionCoefficient parameter
@@ -23,12 +23,12 @@ namespace casa
    class VarPrmCompactionCoefficient : public VarPrmLithologyProp
    {
    public:
-      /// @brief Construct influential parameter for variation of surface porosity lithology parameter 
+      /// @brief Construct influential parameter for variation of surface porosity lithology parameter
       VarPrmCompactionCoefficient( const std::vector<std::string> & lithosName   ///< list of lithologies type name
-                                 , double                           baseCompCoef ///< base value for compaction coefficient 
-                                 , double                           minCompCoef  ///< minimal value for compaction coefficient 
-                                 , double                           maxCompCoef  ///< maximal value for compaction coefficient 
-                                 , VarPrmContinuous::PDF            prmPDF       ///< probability density function 
+                                 , double                           baseCompCoef ///< base value for compaction coefficient
+                                 , double                           minCompCoef  ///< minimal value for compaction coefficient
+                                 , double                           maxCompCoef  ///< maximal value for compaction coefficient
+                                 , VarPrmContinuous::PDF            prmPDF       ///< probability density function
                                  , const std::string                & name = 0   ///< user specified parameter name
                                  );
 
@@ -45,16 +45,15 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Create a new var.parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
       VarPrmCompactionCoefficient( CasaDeserializer & dz, unsigned int objVer );
       /// @}
-   
+
    protected:
 
       virtual PrmLithologyProp * createNewPrm( double val ) const;

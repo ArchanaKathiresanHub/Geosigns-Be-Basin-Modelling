@@ -93,9 +93,28 @@ MapsManager::MapID MapsManagerImpl::findID( const std::string & mName )
    return Utilities::Numerical::NoDataIDValue;
 }
 
+// Get list of map names
+std::vector<std::string> MapsManagerImpl::mapNames() const
+{
+  return m_mapName;
+}
+
+// Get hash table of map names to map IDs
+std::unordered_map<std::string, MapsManager::MapID> MapsManagerImpl::mapNameIDs() const
+{
+  std::unordered_map<std::string, MapsManager::MapID> myMapNameIDs;
+  const std::vector<MapsManager::MapID> myMapsIDs = mapsIDs();
+
+  for (const MapsManager::MapID & id : myMapsIDs)
+  {
+    myMapNameIDs[m_mapName[id]] = id;
+  }
+
+  return myMapNameIDs;
+}
 
 // Make a copy of the given map. Map must be saved in the separate call of MapManager::saveMapToHDF
-MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMapName )
+MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string& newMapName, const std::string& newMapFile )
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -103,38 +122,27 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
 
    try
    {
-      loadGridMap( id );
+      std::vector<double> vdata;
+      mapGetValues( id, vdata );
 
-      // create a copy
-      const MapID newId = m_mapName.size();
-
-      m_mapObj.push_back( m_mapObj[id] );
-      m_mapObj[id] = nullptr;
-
-      m_mapName.push_back( newMapName );
-      m_mapRefTable.push_back( m_mapRefTable[id] );
-
-      const std::string newMapFile = newMapName + ".HDF";
+      size_t sequenceNr;
+      const std::string newMapFileName = (newMapFile != "") ? newMapFile : newMapName + ".HDF";
+      const std::string referredTable = m_mapRefTable[id];
+      const MapID newId = generateMap(referredTable, newMapName, vdata, sequenceNr, newMapFileName, false );
 
       // get pointer to the GridMapIo table
       database::Table * table = m_proj->getTable( s_mapsTableName );
       if ( !table ) { throw Exception( NonexistingID ) <<  s_mapsTableName << " table could not be found in project " << m_projectFileName; }
 
       // get record for copy
-      database::Record * origRec = table->getRecord( static_cast<int>( id ) );
-      if ( !origRec ) { throw Exception( NonexistingID ) << "No input map with such ID: " << id; }
-
-      // create map copy
-      auto * copyRec = new database::Record( *origRec );
+      database::Record* copyRec = table->getRecord( static_cast<int>( newId ) );
+      if ( !copyRec ) { throw Exception( NonexistingID ) << "No input map with such ID: " << id; }
 
       // change the name
       copyRec->setValue(              s_MapNameColName,     newMapName );
       copyRec->setValue<std::string>( s_MapTypeColName,     "HDF5" );
-      copyRec->setValue(              s_MapFileNameColName, newMapFile ); // not saved yet
-      copyRec->setValue<int>(         s_MapSeqNbrColName,   0 );
-
-      // add copy record with new name to the table end
-      table->addRecord( copyRec );
+      copyRec->setValue(              s_MapFileNameColName, newMapFileName );
+      copyRec->setValue<int>(         s_MapSeqNbrColName,   sequenceNr );
 
       ret = newId;
    }
@@ -143,7 +151,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
    return ret;
 }
 
-   void MapsManagerImpl::createMap(const std::string& refferedTable, const std::string& mapName, size_t& mapSequenceNbr, const std::string& filePathName,
+void MapsManagerImpl::createMap(const std::string& referredTable, const std::string& mapName, size_t& mapSequenceNbr, const std::string& filePathName,
       MapID& id, DataAccess::Interface::GridMap * gridMap)
    {
 
@@ -160,7 +168,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
          id = m_mapName.size();
          m_mapObj.push_back( gridMap );
          m_mapName.push_back( mapName );
-         m_mapRefTable.push_back( refferedTable );
+         m_mapRefTable.push_back( referredTable );
 
          // get pointer to the GridMapIo table
          database::Table * table = m_proj->getTable( s_mapsTableName );
@@ -184,7 +192,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
          }
 
          // change names
-         newRec->setValue<std::string>( s_ReferredByColName,  refferedTable.c_str() );
+         newRec->setValue<std::string>( s_ReferredByColName,  referredTable.c_str() );
          newRec->setValue(              s_MapNameColName,     mapName );
          newRec->setValue<std::string>( s_MapTypeColName,     "HDF5" );
          newRec->setValue<std::string>( s_MapFileNameColName, mapFullPath.fileName() );
@@ -193,7 +201,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
       else
       {
          m_mapObj[pos] = gridMap;
-         m_mapRefTable[pos] = refferedTable;
+         m_mapRefTable[pos] = referredTable;
          id = pos;
 
          // map already exists
@@ -203,12 +211,12 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
       }
    }
 
-MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & refferedTable
+MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & referredTable
                                                , const std::string         & mapName
                                                , const std::vector<double> & values
                                                , size_t                    & mapSequenceNbr
                                                , const std::string         & filePathName
-                                               )
+                                               , const bool                  saveToHDF)
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -218,13 +226,13 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & ref
    {
       DataAccess::Interface::GridMap * gridMap = m_proj->getFactory()->produceGridMap( nullptr, 0, m_proj->getInputGrid(),
          Utilities::Numerical::CauldronNoDataValue, 1 );
-      createMap(refferedTable, mapName, mapSequenceNbr, filePathName, ret, gridMap);
+      createMap(referredTable, mapName, mapSequenceNbr, filePathName, ret, gridMap);
 
       // set the values in the map
       mapSetValues( ret, values );
 
       // save the map to HDF
-      if ( ErrorHandler::ReturnCode::NoError != saveMapToHDF( ret, filePathName, mapSequenceNbr ) )
+      if ( saveToHDF && ErrorHandler::ReturnCode::NoError != saveMapToHDF( ret, filePathName, mapSequenceNbr ) )
       {
          throw Exception( UnknownError ) << "Can not save HDF5 map";
       }
@@ -234,7 +242,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & ref
    return ret;
 }
 
-MapsManager::MapID MapsManagerImpl::generateMap( const std::string              & refferedTable
+MapsManager::MapID MapsManagerImpl::generateMap( const std::string              & referredTable
                                                , const std::string              & mapName
                                                , DataAccess::Interface::GridMap * gridMap
                                                , size_t                         & mapSequenceNbr
@@ -247,7 +255,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string              
 
    try
    {
-      createMap( refferedTable, mapName, mapSequenceNbr, filePathName, ret, gridMap );
+      createMap( referredTable, mapName, mapSequenceNbr, filePathName, ret, gridMap );
 
       // save the map to HDF
       if ( ErrorHandler::ReturnCode::NoError != saveMapToHDF( ret, filePathName, mapSequenceNbr ) )
@@ -260,7 +268,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string              
    return ret;
 }
 
-ErrorHandler::ReturnCode MapsManagerImpl::inizializeMapWriter( const std::string & filePathName, const bool append )
+ErrorHandler::ReturnCode MapsManagerImpl::initializeMapWriter( const std::string & filePathName, const bool append )
 {
    if ( errorCode() != NoError ) resetError();
    try
@@ -405,7 +413,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
 
       // write map to HDF using the MapWriter. if the HDF file already exist append
       const bool append = mapFullPath.exists();
-      if ( NoError != inizializeMapWriter( mapFullPath.path(), append ) )
+      if ( NoError != initializeMapWriter( mapFullPath.path(), append ) )
       {
          throw Exception( OutOfRangeValue ) << "Could not inizialize the map writer ";
       }
@@ -483,21 +491,92 @@ ErrorHandler::ReturnCode MapsManagerImpl::scaleMap( MapID id, double coeff )
 
       if ( NoError != mapValuesRange( id, oldMin, oldMax ) ) throw ErrorHandler::Exception( errorCode() ) << errorMessage();
 
-      const double nulVal = m_mapObj[id]->getUndefinedValue();
+      DataAccess::Interface::GridMap* gridmap = m_mapObj[id];
+      const double nulVal = gridmap->getUndefinedValue();
 
-      for (    unsigned int i = m_mapObj[id]->firstI(); i <= m_mapObj[id]->lastI(); ++i )
+      for ( unsigned int i = gridmap->firstI(); i <= gridmap->lastI(); ++i )
       {
-         for ( unsigned int j = m_mapObj[id]->firstJ(); j <= m_mapObj[id]->lastJ(); ++j )
+         for ( unsigned int j = gridmap->firstJ(); j <= gridmap->lastJ(); ++j )
          {
-            double v = m_mapObj[id]->getValue( i, j );
-
-            m_mapObj[id]->setValue( i, j, NumericFunctions::isEqual( v, nulVal, 1e-5 ) ? nulVal : v * coeff );
+            const double v = gridmap->getValue( i, j );
+            gridmap->setValue( i, j, NumericFunctions::isEqual( v, nulVal, 1e-5 ) ? nulVal : v * coeff );
          }
       }
    }
    catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
 
    return NoError;
+}
+
+// Shift the input map by a constant value
+ErrorHandler::ReturnCode MapsManagerImpl::scaleAndShiftMapCorrectedForWells( MapID id, double scale, double shift, double radiusOfInfluence,
+                                                                             const std::vector<double>& xWells, const std::vector<double>& yWells)
+{
+  if ( errorCode() != NoError ) resetError();
+  try
+  {
+    if ( xWells.size() != yWells.size() )
+    {
+      throw Exception( IoError ) << "Number of x and y locations should be equal";
+    }
+
+    double oldMin;
+    double oldMax;
+    if ( NoError != mapValuesRange( id, oldMin, oldMax ) )
+    {
+      throw ErrorHandler::Exception( errorCode() ) << errorMessage();
+    }
+
+    DataAccess::Interface::GridMap* gridmap = m_mapObj[id];
+    const double nulVal = gridmap->getUndefinedValue();
+
+    const double minI = gridmap->minI();
+    const double minJ = gridmap->minJ();
+    const double deltaI = gridmap->deltaI();
+    const double deltaJ = gridmap->deltaJ();
+    const double maxI = minI + deltaI * gridmap->numI();
+    const double maxJ = minJ + deltaJ * gridmap->numJ();
+
+    for ( unsigned int w = 0; w<xWells.size(); ++w)
+    {
+      const double x = xWells[w];
+      const double y = yWells[w];
+
+      if ( x < minI || x > maxI || y < minJ || y > maxJ )
+      {
+        throw Exception( IoError ) << "Well location " << x << ", " << y << " out of map range";
+      }
+    }
+
+    const double radiusOfInfluenceSquared = radiusOfInfluence*radiusOfInfluence;
+    const double maxDistanceSquared = (maxI-minI)*(maxI-minI) + (maxJ-minJ)*(maxJ-minJ);
+    for ( unsigned int i = gridmap->firstI(); i <= gridmap->lastI(); ++i )
+    {
+      for ( unsigned int j = gridmap->firstJ(); j <= gridmap->lastJ(); ++j )
+      {
+        double wellCorrection = 1.0;
+        if (xWells.size() > 0 && radiusOfInfluence > 0.0)
+        {
+          double distanceSquaredClosestWell = maxDistanceSquared;
+          for ( unsigned int w = 0; w<xWells.size(); ++w)
+          {
+            const double dx = xWells[w] - (minI + deltaI * i);
+            const double dy = yWells[w] - (minJ + deltaJ * j);
+            const double distanceSquared = dx*dx + dy*dy;
+            distanceSquaredClosestWell = (distanceSquared<distanceSquaredClosestWell) ? distanceSquared : distanceSquaredClosestWell;
+          }
+
+          wellCorrection -= std::exp(-5.0*distanceSquaredClosestWell/radiusOfInfluenceSquared);
+        }
+        const double v = gridmap->getValue( i, j );
+        gridmap->setValue( i, j, NumericFunctions::isEqual( v, nulVal, 1e-5 ) ?
+                           nulVal : (1.0-wellCorrection) * v  +  wellCorrection*(v*scale + shift) );
+      }
+    }
+  }
+  catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+
+  return NoError;
 }
 
 ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( MapID id, MapID minId, MapID maxId, double coeff )

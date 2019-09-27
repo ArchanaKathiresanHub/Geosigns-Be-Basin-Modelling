@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmContinuous.h
-/// @brief This file keeps API declaration for handling continuous parameters. 
+/// @brief This file keeps API declaration for handling continuous parameters.
 
 #ifndef CASA_API_VAR_PRM_CONTINOUS_H
 #define CASA_API_VAR_PRM_CONTINOUS_H
@@ -29,14 +29,14 @@
 /// (for instance, a fault-sealing factor that varies in the [0, 1] range)
 ///
 /// The following list of influential parameters is implemented in CASA API
-/// - @subpage CASA_SourceRockTOCPage 
-/// - @subpage CASA_SourceRockHIPage 
-/// - @subpage CASA_SourceRockHCPage 
+/// - @subpage CASA_SourceRockTOCPage
+/// - @subpage CASA_SourceRockHIPage
+/// - @subpage CASA_SourceRockHCPage
 /// - @subpage CASA_SourceRockPreAsphaltStartActPage
-/// - @subpage CASA_TopCrustHeatProductionPage 
-/// - @subpage CASA_OneCrustThinningEventPage 
+/// - @subpage CASA_TopCrustHeatProductionPage
+/// - @subpage CASA_OneCrustThinningEventPage
 /// - @subpage CASA_CrustThinningPage
-/// - @subpage CASA_PorosityModelPage 
+/// - @subpage CASA_PorosityModelPage
 /// - @subpage CASA_PermeabilityModelPage
 /// - @subpage CASA_LithoSTPThermalCondPage
 /// - @subpage CASA_LithoFractionPage
@@ -60,21 +60,21 @@ namespace casa
       };
 
       /// @brief Destructor
-      virtual ~VarPrmContinuous() {;}
+      virtual ~VarPrmContinuous() {}
 
       /// @brief Define this influential parameter as a continuous
       /// @return VarParameter::Continuous
       virtual Type variationType() const { return Continuous; }
 
-      /// @brief A parameter which corresponds the minimal range value of the influential parameter 
+      /// @brief A parameter which corresponds the minimal range value of the influential parameter
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr minValue() const { return m_minValue; }
 
-      /// @brief A parameter which corresponds the maximal range value of the influential parameter 
+      /// @brief A parameter which corresponds the maximal range value of the influential parameter
       /// @return the parameter object should be deleted by a caller
       virtual const SharedParameterPtr maxValue() const { return m_maxValue; }
 
-      /// @brief A parameter which corresponds the base value of the influential parameter 
+      /// @brief A parameter which corresponds the base value of the influential parameter
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr baseValue() const { return m_baseValue; }
 
@@ -84,7 +84,7 @@ namespace casa
 
       /// @brief Calculate standard deviation values for parameter
       /// @return vector with standard deviation value for each sub-parameter
-      std::vector<double> stdDevs() const;
+      virtual std::vector<double> stdDevs() const override;
 
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first parameter value.
@@ -107,16 +107,16 @@ namespace casa
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
       /// @return new parameter for given set of values
       virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model              & mdl ///< [in,out] the model where to set the new averaged parameter
-                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project 
-                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project 
+                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project
+                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
-                                                   ) const = 0;
+                                                   )  const;
 
       /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters
       /// @param prm cauldron parameter with to this influential parameter corresponded type
       /// @return parameter values suitable for SUMlib
-      virtual std::vector<double> asDoubleArray( const SharedParameterPtr prm ) const { return prm->asDoubleArray(); }
-      
+      virtual std::vector<double> asDoubleArray( const SharedParameterPtr prm ) const override { return prm->asDoubleArray(); }
+
       /// @brief Returns mask array where for selected parameters true value set
       ///        Selected parameters means parameters where min/max values are different
       /// @return mask array with true value for selected parameters
@@ -124,9 +124,8 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Create a new VarPrmContinuous instance and deserialize it from the given stream
       /// @param dz input stream
@@ -134,18 +133,17 @@ namespace casa
       /// @return new observable instance on susccess, or throw and exception in case of any error
       static VarPrmContinuous * load( CasaDeserializer & dz, const char * objName );
 
-      
+      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
+      /// @return Actual version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
       // Available slots
       // called from categorical parameter on which this parameter depends on
       virtual void onCategoryChosen( const Parameter * ) { ; }
       virtual void onSerialization( CasaSerializer::ObjRefID objSerID ) { m_dependsOn.insert( objSerID ); }
 
    protected:
-      VarPrmContinuous() : m_pdf(Block) {;}
-
-      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
-      /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      VarPrmContinuous() : m_pdf(Block) {}
 
       /// @brief  Implements common part of deserialization for continuous influential parameters
       /// @param dz input stream
@@ -158,7 +156,7 @@ namespace casa
       PDF                m_pdf;         ///< Probability density function for parameter. Block is default value
 
       std::set< CasaSerializer::ObjRefID > m_dependsOn; // list of category parametrs ID on which this parameter is dependent
-   private:
+
    };
 
 }

@@ -58,8 +58,14 @@ namespace mbapi
       // Search for map record which has given name
       MapID findID( const std::string & mName ) final;
 
+      // Get list of map names
+      std::vector<std::string> mapNames() const final;
+
+      // Get hash table of map names to map IDs
+      std::unordered_map<std::string, MapID> mapNameIDs() const final;
+
       // Make a copy of the given map. Map must be saved in the separate call of MapManager::saveMapToHDF
-      MapID copyMap( MapID id, const std::string & newMapName ) final;
+      MapID copyMap(MapID id, const std::string& newMapName, const std::string& newMapFile = "") final;
 
       // Save input map to the new HDF file. File with the given name should not exist before.
       ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string & fileName, size_t mapSequenceNbr ) final;
@@ -69,6 +75,10 @@ namespace mbapi
 
       // Linearly rescale input map to the new value range
       ErrorHandler::ReturnCode scaleMap( MapID id, double coeff ) final;
+
+      // Scale and shift the input map and correct for well locations
+      ErrorHandler::ReturnCode scaleAndShiftMapCorrectedForWells( MapID id, double scale, double shift, double radiusOfInfluence,
+                                                                  const std::vector<double>& xWells, const std::vector<double>& yWells ) final;
 
       // Set values in the map
       ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double> & vin ) final;
@@ -98,12 +108,12 @@ namespace mbapi
                                              ) final;
 
       // Generate a new map in the GridMapIoTbl
-      MapID generateMap( const std::string         & refferedTable
+      MapID generateMap(const std::string         & refferedTable
                        , const std::string         & mapName
                        , const std::vector<double> & values
                        , size_t                    & mapSequenceNbr
                        , const std::string         & filePathName
-                       ) final;
+                       , const bool saveToHDF = true) final;
 
       // Generate a new map in the GridMapIoTbl
       MapID generateMap( const std::string              & refferedTable
@@ -113,8 +123,9 @@ namespace mbapi
                        , const std::string              & filePathName
                        ) final;
 
-      // Inizialize the map writer
-      ErrorHandler::ReturnCode inizializeMapWriter( const std::string & filePathName, const bool append ) final;
+
+      // Initialize the map writer
+      ErrorHandler::ReturnCode initializeMapWriter( const std::string & filePathName, const bool append ) final;
 
       // Finalize the map writer
       ErrorHandler::ReturnCode finalizeMapWriter() final;

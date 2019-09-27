@@ -1154,7 +1154,7 @@ bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
    return ret;
 }
 
-bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB) const
+bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB, bool extrapolateAOI) const
 {
    const GridMap *mapA = this;
    const DistributedGrid *GridA = (DistributedGrid *) mapA->getGrid ();
@@ -1182,12 +1182,14 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB) const
          if (!globalGridB.convertToGrid (globalGridA, highResI, highResJ, doubleLowResI, doubleLowResJ))
          {
             // one of the four surrounding lowres grid points is outside the highres grid
-
-            for (k = 0; k < depthB; k++)
-            {
-               mapB->setValue(highResI, highResJ, k, DefaultUndefinedMapValue);
+            // when extrapolating, still want to calulcate something (see below)
+            if(!extrapolateAOI){
+               for (k = 0; k < depthB; k++)
+               {
+                  mapB->setValue(highResI, highResJ, k, DefaultUndefinedMapValue);
+               }
+               continue;
             }
-            continue;
          }
 
          unsigned int intLowResI = (int) doubleLowResI;
@@ -1219,10 +1221,97 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB) const
                (lowResMapValues[1][0] == mapA->getUndefinedValue () && fractionI != 0 && fractionJ != 1) ||
                (lowResMapValues[1][1] == mapA->getUndefinedValue () && fractionI != 0 && fractionJ != 0))
             {
+               //inside point with at least one corner point missing!
                highResMapValue = mapB->getUndefinedValue();
+               // calculate when extrapolating!
+               if(extrapolateAOI ){
+                  int cornerPoints= (int) (lowResMapValues[0][0] != mapA->getUndefinedValue ()) +
+                                    (int) (lowResMapValues[0][1] != mapA->getUndefinedValue ()) +
+                                    (int) (lowResMapValues[1][0] != mapA->getUndefinedValue ()) +
+                                    (int) (lowResMapValues[1][1] != mapA->getUndefinedValue ());
+                  if( cornerPoints==3){
+                      // top-right missing 
+                      if(lowResMapValues[1][1] == mapA->getUndefinedValue()){
+                         //set the top-right
+                         lowResMapValues[1][1]=(lowResMapValues[1][0]+lowResMapValues[0][1])*0.5;
+                      }
+                      // top-left missing 
+                      if(lowResMapValues[0][1] == mapA->getUndefinedValue()){
+                         //set the topleft
+                         lowResMapValues[0][1]=(lowResMapValues[0][0]+lowResMapValues[1][1])*0.5;
+                      }
+                      // bottom-right missing 
+                      if(lowResMapValues[1][0] == mapA->getUndefinedValue()){
+                         //set the bottom-right
+                         lowResMapValues[1][0]=(lowResMapValues[0][0]+lowResMapValues[1][1])*0.5;
+                      }
+                      // bottom-left missing 
+                      if(lowResMapValues[0][0] == mapA->getUndefinedValue()){
+                         //set the bottom-left
+                         lowResMapValues[0][0]=(lowResMapValues[1][0]+lowResMapValues[0][1])*0.5;
+                      }
+                      highResMapValue = 0.0;
+                      highResMapValue += lowResMapValues[0][0] * (1 - fractionI) * (1 - fractionJ);
+                      highResMapValue += lowResMapValues[0][1] * (1 - fractionI) * (fractionJ);
+                      highResMapValue += lowResMapValues[1][0] * (fractionI) * (1 - fractionJ);
+                      highResMapValue += lowResMapValues[1][1] * (fractionI) * (fractionJ);
+                  }
+                  if (cornerPoints==2){
+                     // 6 cases of two corner points! bottom, top, left, right, and two diagonal
+                     //
+                     // bottom
+                     if(lowResMapValues[0][0] != mapA->getUndefinedValue () && lowResMapValues[1][0] != mapA->getUndefinedValue () ){
+                         highResMapValue=(lowResMapValues[0][0]*(1-fractionI)) + (lowResMapValues[1][0] * fractionI); 
+                     }
+                     // top
+                     if(lowResMapValues[0][1] != mapA->getUndefinedValue () && lowResMapValues[1][1] != mapA->getUndefinedValue () ){
+                         highResMapValue=(lowResMapValues[0][1]*(1-fractionI)) + (lowResMapValues[1][1] * fractionI); 
+                     }
+                     // left
+                     if(lowResMapValues[0][0] != mapA->getUndefinedValue () && lowResMapValues[0][1] != mapA->getUndefinedValue () ){
+                         highResMapValue=(lowResMapValues[0][0]*(1-fractionJ)) + (lowResMapValues[0][1] * fractionJ); 
+                     }
+                     // right
+                     if(lowResMapValues[1][0] != mapA->getUndefinedValue () && lowResMapValues[1][1] != mapA->getUndefinedValue () ){
+                         highResMapValue=(lowResMapValues[1][0]*(1-fractionJ)) + (lowResMapValues[1][1] * fractionJ); 
+                     }
+                     // main diagonal (this is a wired geometry AOI, nothing better than set the value to the nearest existing value)
+                     if(lowResMapValues[0][0] != mapA->getUndefinedValue () && lowResMapValues[1][1] != mapA->getUndefinedValue () ){
+                         //choose closest point!
+                         if( fractionI + fractionJ < 1 ){
+                            highResMapValue=lowResMapValues[0][0];
+                         }else{
+                            highResMapValue=lowResMapValues[1][1];
+                         }
+                     }
+                     // 2nd diagonal (this is a wired geometry AOI, nothing better than set the value to the nearest existing value)
+                     if(lowResMapValues[1][0] != mapA->getUndefinedValue () && lowResMapValues[0][1] != mapA->getUndefinedValue () ){
+                         //choose closest point!
+                         if( fractionI < fractionJ ){
+                            highResMapValue=lowResMapValues[1][0];
+                         }else{
+                            highResMapValue=lowResMapValues[0][1];
+                         }
+                     }
+                  }
+                  // if there is only one corner point. Just set the value of that corner point
+                  if (cornerPoints==1){
+                     if (lowResMapValues[0][0] != mapA->getUndefinedValue () ){
+                       highResMapValue=lowResMapValues[0][0];
+                     }else if (lowResMapValues[0][1] != mapA->getUndefinedValue () ){
+                       highResMapValue=lowResMapValues[0][1];
+                     }else if (lowResMapValues[1][0] != mapA->getUndefinedValue () ){
+                       highResMapValue=lowResMapValues[1][0];
+                     }else if (lowResMapValues[1][1] != mapA->getUndefinedValue () ){
+                       highResMapValue=lowResMapValues[1][1];
+                     }
+                  }
+                  // if there are no corner points, undifiend!
+               }
 
             }
             else
+            //bi-linear interpolation, 4 corner points present
             {
                highResMapValue += lowResMapValues[0][0] * (1 - fractionI) * (1 - fractionJ);
                highResMapValue += lowResMapValues[0][1] * (1 - fractionI) * (fractionJ);
@@ -1235,7 +1324,6 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB) const
          }
       }
    }
-
    mapA->restoreData(true, true);
    mapB->restoreData();
 

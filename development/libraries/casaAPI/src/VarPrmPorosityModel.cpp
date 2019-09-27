@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmPorosityModel.h
 /// @brief This file keeps API implementation for handling variation of porosity model parameters for the given lithology
@@ -26,19 +26,19 @@ namespace casa
 {
 
 VarPrmPorosityModel::VarPrmPorosityModel( const char * lithoName
-                                        , PrmPorosityModel::PorosityModelType mdlType 
-                                        , double                              baseSurfPor    
-                                        , double                              minSurfPor    
-                                        , double                              maxSurfPor    
-                                        , double                              baseMinPor     
-                                        , double                              minMinPor     
-                                        , double                              maxMinPor     
-                                        , double                              baseCompCoeff  
-                                        , double                              minCompCoeff  
-                                        , double                              maxCompCoeff  
-                                        , double                              baseCompCoeffB 
-                                        , double                              minCompCoeffB 
-                                        , double                              maxCompCoeffB 
+                                        , PrmPorosityModel::PorosityModelType mdlType
+                                        , double                              baseSurfPor
+                                        , double                              minSurfPor
+                                        , double                              maxSurfPor
+                                        , double                              baseMinPor
+                                        , double                              minMinPor
+                                        , double                              maxMinPor
+                                        , double                              baseCompCoeff
+                                        , double                              minCompCoeff
+                                        , double                              maxCompCoeff
+                                        , double                              baseCompCoeffB
+                                        , double                              minCompCoeffB
+                                        , double                              maxCompCoeffB
                                         , PDF                                 prmPDF
                                         , const char                        * name
                                         )
@@ -48,7 +48,7 @@ VarPrmPorosityModel::VarPrmPorosityModel( const char * lithoName
    m_lithoName = lithoName;
    m_name      = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
 
-   std::vector<double> minPorModelPrms; // minimal range parameters 
+   std::vector<double> minPorModelPrms; // minimal range parameters
    std::vector<double> maxPorModelPrms; // maximal range parameters
    std::vector<double> basPorModelPrms; // base parameters
 
@@ -71,7 +71,7 @@ VarPrmPorosityModel::VarPrmPorosityModel( const char * lithoName
       case PrmPorosityModel::SoilMechanics:
          minPorModelPrms.push_back( minSurfPor );
          minPorModelPrms.push_back( minCompCoeff );
-         
+
          maxPorModelPrms.push_back( maxSurfPor );
          maxPorModelPrms.push_back( maxCompCoeff );
 
@@ -97,13 +97,13 @@ VarPrmPorosityModel::VarPrmPorosityModel( const char * lithoName
          break;
 
       default:
-         assert( 0 );
+         assert( false );
          break;
    }
 
    m_minValue.reset( new PrmPorosityModel( this, lithoName, mdlType, minPorModelPrms ) );
    m_maxValue.reset( new PrmPorosityModel( this, lithoName, mdlType, maxPorModelPrms ) );
-   
+
    m_baseValue.reset( new PrmPorosityModel( this, lithoName, mdlType, basPorModelPrms ) );
 }
 
@@ -113,7 +113,7 @@ VarPrmPorosityModel::~VarPrmPorosityModel()
 
 std::vector<std::string> VarPrmPorosityModel::name() const
 {
-	std::vector<std::string> ret;
+  std::vector<std::string> ret;
 
    if ( m_name.empty() )
    {
@@ -135,9 +135,9 @@ std::vector<std::string> VarPrmPorosityModel::name() const
             ret.push_back( m_lithoName + ". Compaction Coefficient A [10e-8 Pa-1]" );
             ret.push_back( m_lithoName + ". Compaction Coefficient B [10e-8 Pa-1]" );
             break;
-         
+
          default:
-            assert( 0 );
+            assert( false );
             break;
       }
    }
@@ -160,14 +160,14 @@ std::vector<std::string> VarPrmPorosityModel::name() const
             break;
 
          default:
-            assert( 0 );
+            assert( false );
             break;
       }
    }
-	return ret;
+  return ret;
 }
 
-size_t VarPrmPorosityModel::dimension() const 
+size_t VarPrmPorosityModel::dimension() const
 {
    switch ( m_mdlType )
    {
@@ -192,11 +192,11 @@ SharedParameterPtr VarPrmPorosityModel::newParameterFromDoubles( std::vector<dou
 
       if ( (minV[i] - std::fabs(minV[i]) * 1e-10) > valsP.back() || valsP.back() > (maxV[i] + std::fabs(maxV[i]) * 1.e-10) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of PorosityModel parameter " << valsP.back() << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of PorosityModel parameter " << valsP.back() <<
                " is out of range: [" << minV[i] << ":" << maxV[i] << "]";
       }
    }
-  
+
    SharedParameterPtr prm( new PrmPorosityModel( this, m_lithoName.c_str(), m_mdlType, valsP ) );
 
    return prm;
@@ -212,7 +212,7 @@ SharedParameterPtr VarPrmPorosityModel::newParameterFromModel( mbapi::Model & md
 
 SharedParameterPtr VarPrmPorosityModel::makeThreeDFromOneD( mbapi::Model                          & /* mdl */
                                                           , const std::vector<double>             & /* xin */
-                                                          , const std::vector<double>             & /* yin */ 
+                                                          , const std::vector<double>             & /* yin */
                                                           , const std::vector<SharedParameterPtr> & /* prmVec */
                                                           ) const
 {
@@ -222,10 +222,10 @@ SharedParameterPtr VarPrmPorosityModel::makeThreeDFromOneD( mbapi::Model        
 }
 
 
-bool VarPrmPorosityModel::save( CasaSerializer & sz, unsigned int version ) const 
-{ 
+bool VarPrmPorosityModel::save( CasaSerializer & sz ) const
+{
    // save base class data
-   bool ok = VarPrmContinuous::save( sz, version );
+   bool ok = VarPrmContinuous::save( sz );
 
    ok = ok ? sz.save( static_cast<int>( m_mdlType ), "PorModelType"   ) : ok;
    ok = ok ? sz.save( m_lithoName,                   "LithologyName"  ) : ok;
@@ -240,7 +240,7 @@ VarPrmPorosityModel::VarPrmPorosityModel( CasaDeserializer & dz, unsigned int ob
 
    int mdlTypeSaved;
    ok = ok ? dz.load( mdlTypeSaved, "PorModelType" ) : ok;
-   
+
    if ( ok ) m_mdlType = static_cast<PrmPorosityModel::PorosityModelType>( mdlTypeSaved );
 
    ok = ok ? dz.load( m_lithoName, "LithologyName"  ) : ok;

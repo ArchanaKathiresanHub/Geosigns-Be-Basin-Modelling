@@ -6,11 +6,11 @@
 #include "../src/RSProxyImpl.h"
 #include "../src/ObsGridPropertyXYZ.h"
 #include "../src/ObsValueDoubleScalar.h"
+#include "../src/PrmTopCrustHeatProduction.h"
+#include "../src/VarPrmContinuousTemplate.h"
 #include "../src/VarPrmSourceRockTOC.h"
-#include "../src/VarPrmTopCrustHeatProduction.h"
 
 #include <memory>
-//#include <cmath>
 
 #include <gtest/gtest.h>
 
@@ -18,15 +18,7 @@ using namespace casa;
 
 static const double eps = 1.e-6;
 
-class RSProxyTest : public ::testing::Test
-{
-public:
-   RSProxyTest() { ; }
-   ~RSProxyTest() { ; }
-
-};
-  
-TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
+TEST( RSProxyTest, Prm2Obs1Proxy1Test )
 {
    double obsVals[5][2] = { { 65.1536, 0.479763 },
                             { 49.8126, 0.386869 },
@@ -37,19 +29,18 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
 
 
    ScenarioAnalysis sc;
+   sc.defineBaseCase( "Ottoland.project3d" );
 
-   VarSpace      & vrs = sc.varSpace();
-   ObsSpaceImpl  & obs = dynamic_cast<ObsSpaceImpl&>( sc.obsSpace() );
+   VarSpace& vrs = sc.varSpace();
+   ObsSpace& obs = sc.obsSpace();
 
    std::vector<double> dblRng( 3, 5.0 );
    dblRng[1] = 15.0;
    dblRng[2] = 10.0;
    ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, std::vector<std::string>() ) ) );
-   
-   dblRng[0] = 0.1;
-   dblRng[1] = 4.9;
-   dblRng[2] = 2.5;
-   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, std::vector<std::string>() ) ) );
+
+   const PrmTopCrustHeatProduction baseCase(sc.baseCase());
+   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmContinuousTemplate<PrmTopCrustHeatProduction>( baseCase, "", 0.1, 4.9) ) );
 
    ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) ) );
    ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) ) );
@@ -61,16 +52,16 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
 
    std::vector<const RunCase*> proxyRC;
 
-   RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
-   for ( size_t i = 0; i < rcs.size(); ++i ) 
+   RunCaseSet& rcs = sc.doeCaseSet();
+   for ( size_t i = 0; i < rcs.size(); ++i )
    {
-      RunCaseImpl * rc = dynamic_cast<RunCaseImpl*>( rcs[ i ].get() );
+      RunCase* rc = rcs[ i ].get();
 
       proxyRC.push_back( rc ); // collect run cases for proxy calculation
 
       for ( size_t j = 0; j < 2; ++j )
       {
-         rc->addObsValue( new ObsValueDoubleScalar( obs[j], obsVals[i][j] ) );
+         rc->addObsValue( new ObsValueDoubleScalar( obs.observable(j), obsVals[i][j] ) );
       }
       rc->setRunStatus( RunCase::Completed );
    }
@@ -80,16 +71,16 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
 
    ASSERT_EQ( ErrorHandler::NoError, proxy->calculateRSProxy( proxyRC ) );
    const RSProxy::CoefficientsMapList & cml = proxy->getCoefficientsMapList();
-   
+
    ASSERT_EQ( cml.size(), 2U ); // must be 2 observables
 
    // Check proxy coefficients for
-   // first observable obs(1) = 65.1536 + 15.3411 * prm_1 +0 * prm_2 
+   // first observable obs(1) = 65.1536 + 15.3411 * prm_1 +0 * prm_2
    size_t cpow = 0;
    for ( RSProxy::CoefficientsMap::const_iterator it = cml[0].begin(); it != cml[0].end(); ++it )
    {
       const std::vector<unsigned int> & prm  = it->first;
-      double                            coef = it->second.first; 
+      double                            coef = it->second.first;
       switch ( cpow  )
       {
          case 0:
@@ -116,7 +107,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    for ( RSProxy::CoefficientsMap::const_iterator it = cml[1].begin(); it != cml[1].end(); ++it )
    {
       const std::vector<unsigned int> & prm  = it->first;
-      double                            coef = it->second.first; 
+      double                            coef = it->second.first;
       switch ( cpow  )
       {
          case 0:
@@ -145,7 +136,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    std::vector<double> prmVals(2);
 
    // set case parameters, just some arbitrary values inside corresponded ranges
-   prmVals[0] = 10.16; 
+   prmVals[0] = 10.16;
    prmVals[1] = 1.970;
 
    std::vector<double>::const_iterator vit = prmVals.begin();
@@ -154,10 +145,9 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
       SharedParameterPtr prm = vrs.continuousParameter( i )->newParameterFromDoubles( vit ); // TOC
       nrc->addParameter( prm );
    }
-   
+
    ASSERT_EQ( ErrorHandler::NoError, proxy->evaluateRSProxy( *(nrc.get() ) ) );
 
    EXPECT_NEAR( nrc->obsValue( 0 )->asDoubleArray()[0], 65.6445336, eps ); // T [0C]
    EXPECT_NEAR( nrc->obsValue( 1 )->asDoubleArray()[0], 0.4827356,  eps );  // VRE
 }
-

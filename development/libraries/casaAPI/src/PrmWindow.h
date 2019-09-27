@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmWindow.h
 /// @brief This file keeps API declaration for the window handling.
@@ -26,8 +26,8 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_WindowedProject Project areal window 
-/// 
+/// @page CASA_WindowedProject Project areal window
+///
 /// Window in the Project3d file specified by WindowXMin, WindowXMax, WindowYMin, WindowYMax  columns in ProjectIoTbl table
 namespace casa
 {
@@ -46,67 +46,59 @@ namespace casa
       /// @param xMax maximum node in x direction
       /// @param yMin minimum node in y direction
       /// @param yMax maximum node in y direction
-      PrmWindow( int xMin, int xMax, int yMin, int yMax );
+      PrmWindow( const int xMin, const int xMax, const int yMin, const int yMax, const double xCoordObservable = 0.0, const double yCoordObservable = 0.0 );
 
       ///@brief Destructor
       virtual ~PrmWindow() {;}
-
-      /// @brief Get name of the parameter
-      /// @return parameter name
-      virtual const char * name() const { return m_name.c_str(); }
 
       /// @brief Get influential parameter which was used to create this parameter
       /// @return Pointer to the influential parameter
       virtual const VarParameter * parent() const { return 0; }
 
-      /// @brief Set influential parameter which was used to create this parameter
-      // @param varPrm pointer to the influential parameter (Not used here)
-      virtual void setParent( const VarParameter * /*varPrm*/ ) { ; }
-
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
       virtual AppPipelineLevel appSolverDependencyLevel() const  { return PTSolver; }
-                  
+
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
-      /// @return ErrorHandler::NoError in success, or error code otherwise     
+      /// @return ErrorHandler::NoError in success, or error code otherwise
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID );
 
-      /// @brief Validate windowing parameter values 
+      /// @brief Validate windowing parameter values
       /// @param caldModel reference to Cauldron model
       /// @return empty string on success or error message with current parameter value
       virtual std::string validate( mbapi::Model & caldModel );
 
       // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
-      
+
       /// @brief Get parameter value as an array of doubles
       /// @return parameter value represented as set of doubles
       virtual std::vector<double> asDoubleArray() const;
 
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
-      virtual int asInteger() const { assert( 0 ); return Utilities::Numerical::NoDataIntValue; }
+      virtual int asInteger() const { assert( false ); return Utilities::Numerical::NoDataIntValue; }
 
       /// @brief Are two parameters equal?
       /// @param prm Parameter object to compare with
       /// @return true if parameters are the same, false otherwise
       virtual bool operator == ( const Parameter & prm ) const;
 
-      /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 2; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
       virtual const char * typeName() const { return "PrmWindow"; }
+
+      std::vector<double> observableOrigin() const;
 
       /// @brief Create a new parameter instance by deserializing it from the given stream
       /// @param dz input stream
@@ -115,11 +107,14 @@ namespace casa
       /// @}
 
    private:
-      int                  m_xMin;
-	   int                  m_xMax;
-	   int                  m_yMin;
-	   int                  m_yMax;
-      std::string          m_name;            ///< name of the parameter
+      int         m_xMin;
+      int         m_xMax;
+      int         m_yMin;
+      int         m_yMax;
+      double      m_xCoordObservable;
+      double      m_yCoordObservable;
    };
-}
+
+} // namespace casa
+
 #endif // CASA_API_PARAMETER_WINDOW_H

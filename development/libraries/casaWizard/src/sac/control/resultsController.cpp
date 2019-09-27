@@ -1,0 +1,314 @@
+#include "resultsController.h"
+
+#include "control/casaScriptWriter.h"
+#include "control/scriptRunController.h"
+#include "model/case3DTrajectoryConvertor.h"
+#include "model/functions/copyCaseFolder.h"
+#include "model/input/case3DTrajectoryReader.h"
+#include "model/logger.h"
+#include "model/sacScenario.h"
+#include "model/scenarioBackup.h"
+#include "model/script/cauldronScript.h"
+#include "model/script/saveOptimizedScript.h"
+#include "model/script/track1dAllWellScript.h"
+#include "view/plot/wellBirdsView.h"
+#include "view/plot/wellScatterPlot.h"
+#include "view/plotOptions.h"
+#include "view/resultsTab.h"
+
+#include <QFileDialog>
+#include <QInputDialog>
+#include <QListWidget>
+#include <QPushButton>
+
+namespace casaWizard
+{
+
+namespace sac
+{
+
+ResultsController::ResultsController(ResultsTab* resultsTab,
+                                     SACScenario& scenario,
+                                     ScriptRunController& scriptRunController,
+                                     QObject* parent) :
+  QObject(parent),
+  resultsTab_{resultsTab},
+  scenario_{scenario},
+  scriptRunController_{scriptRunController},
+  activeWell_{0},
+  activeProperty_{""}
+{
+  connect(resultsTab_->wellsList(), SIGNAL(currentRowChanged(int)), this, SLOT(updateWell(int)));
+  connect(resultsTab_->wellsList(), SIGNAL(itemSelectionChanged()), this, SLOT(refreshPlot()));
+
+  connect(resultsTab_->buttonSaveOptimized(), SIGNAL(clicked()), this, SLOT(saveOptimized()));
+  connect(resultsTab_->buttonRunOptimized(),  SIGNAL(clicked()), this, SLOT(runOptimized()));
+  connect(resultsTab_->buttonBaseCase(),      SIGNAL(clicked()), this, SLOT(baseCase()));
+
+  connect(resultsTab_->plotOptions(), SIGNAL(activeChanged()), this, SLOT(refreshPlot()));
+  connect(resultsTab_->plotOptions(), SIGNAL(plotTypeChange(int)), this, SLOT(togglePlotType(int)));
+  connect(resultsTab_->plotOptions(), SIGNAL(propertyChanged(QString)), this, SLOT(updateProperty(QString)));
+
+  connect(resultsTab_->wellBirdsView(), SIGNAL(pointSelectEvent(int,int)), this, SLOT(updateWellFromBirdView(int, int)));
+  connect(resultsTab_->wellScatterPlot(), SIGNAL(selectedWell(int)), this, SLOT(selectedWellFromScatter(int)));
+}
+
+void ResultsController::slotRefresh()
+{
+  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
+  resultsTab_->updateWellList(ctManager.wells());
+  resultsTab_->updateBirdsView(ctManager.activeWells());
+  resultsTab_->plotOptions()->setActivePlots(scenario_.activePlots());
+}
+
+void ResultsController::updateWell(int wellId)
+{
+  activeWell_ = wellId;
+  Logger::log() << "Selected well " << wellId << Logger::endl();
+  updateOptimizedTable();
+}
+
+void ResultsController::refreshPlot()
+{
+  QVector<bool> activePlots = resultsTab_->plotOptions()->activePlots();
+  scenario_.setActivePlots(activePlots);
+  updateWellPlot();
+  updateScatterPlot();
+  updateBirdView();
+}
+
+void ResultsController::saveOptimized()
+{
+  Logger::log() << "Start saving optimized case" << Logger::endl();
+
+  scenarioBackup::backup(scenario_);
+  SaveOptimizedScript saveOptimized{scenario_};
+  if (!casaScriptWriter::writeCasaScript(saveOptimized))
+  {
+    return;
+  }
+  scriptRunController_.runScript(saveOptimized);
+
+  QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
+  if (!sourceDir.exists())
+  {
+    Logger::log() << "Optimized case is not available" << Logger::endl();
+    return;
+  }
+  QDir targetDir(QFileDialog::getExistingDirectory(0, "Save optimized case to directory", scenario_.workingDirectory(),
+                                                   QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+  if (!targetDir.exists())
+  {
+    Logger::log() << "Target directory is not set" << Logger::endl();
+    return;
+  }
+
+  const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
+
+  Logger::log() << (filesCopied ? "Finished saving optimized case" :
+                                  "Failed saving optimized case, no files were copied") << Logger::endl();
+}
+
+void ResultsController::runOptimized()
+{
+  scenarioBackup::backup(scenario_);
+
+  const QString baseDirectory{scenario_.calibrationDirectory() + "/ThreeDFromOneD"};
+  run3dCase(baseDirectory);
+
+  const bool isOptimized{true};
+  import3dWellData(baseDirectory, isOptimized);
+}
+
+void ResultsController::baseCase()
+{
+  const QString runDirectory{scenario_.calibrationDirectory() + "/ThreeDBase"};
+
+  const QDir sourceDir(scenario_.workingDirectory());
+  const QDir targetDir(runDirectory);
+  if (!sourceDir.exists())
+  {
+    Logger::log() << "Source directory " + sourceDir.absolutePath() + " not found" << Logger::endl();
+    return;
+  }
+
+  const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
+  if (!filesCopied)
+  {
+    Logger::log() << "Failed to create the 3D base case"
+                  << "\nThe base case is not run" << Logger::endl();
+    return;
+  }
+
+  run3dCase(runDirectory);
+
+  const bool isOptimized{false};
+  import3dWellData(runDirectory, isOptimized);
+}
+
+void ResultsController::togglePlotType(const int currentIndex)
+{
+  resultsTab_->setPlotType(currentIndex);
+  refreshPlot();
+}
+
+void ResultsController::updateProperty(const QString property)
+{
+  activeProperty_ = property;
+  updateScatterPlot();
+}
+
+void ResultsController::updateWellFromBirdView(const int lineIndex, const int pointIndex)
+{
+  // Disable when multiple wells are selected
+  if (selectedWells().size() > 1)
+  {
+    return;
+  }
+  QSignalBlocker blocker(resultsTab_->wellsList());
+  if (lineIndex != 1)
+  {
+    return;
+  }
+
+  if (pointIndex<activeWell_)
+  {
+    activeWell_ = pointIndex;
+  }
+  else
+  {
+    activeWell_ = pointIndex + 1;
+  }
+  resultsTab_->wellsList()->setCurrentRow(activeWell_);
+  refreshPlot();
+}
+
+void ResultsController::selectedWellFromScatter(const int wellIndex)
+{
+  const CalibrationTargetManager& mgr = scenario_.calibrationTargetManager();
+  const QVector<const Well*> wells = mgr.activeWells();
+  if (wellIndex>=wells.size())
+  {
+    return;
+  }
+
+  Logger::log() << "Selected point is in well " << wells[wellIndex]->name() << Logger::endl();
+
+}
+
+void ResultsController::updateOptimizedTable()
+{
+  const LithofractionManager& manager{scenario_.lithofractionManager()};
+  resultsTab_->updateOptimizedLithoTable(manager.optimizedInWell(activeWell_), manager.lithofractions(), scenario_.projectReader());
+}
+
+void ResultsController::updateWellPlot()
+{
+  QStringList properties;
+  const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
+  QVector<QVector<CalibrationTarget>> targetsInWell = calibrationManager.extractWellTargets(properties, activeWell_);
+
+  const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
+  const QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell({activeWell_}, properties);
+  QVector<bool> activePlots{scenario_.activePlots()};
+
+
+
+  resultsTab_->updateWellPlot(targetsInWell,
+                              properties,
+                              allTrajectories,
+                              activePlots);
+}
+
+void ResultsController::updateScatterPlot()
+{
+  QSignalBlocker blocker(resultsTab_->plotOptions());
+  QStringList properties;
+  QVector<int> wellIndices = selectedWells();
+  const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
+  QVector<QVector<CalibrationTarget>> targetsInWell = calibrationManager.extractWellTargets(properties, wellIndices);
+
+  const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
+  QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(wellIndices, properties);
+  QVector<bool> activePlots{scenario_.activePlots()};
+
+  resultsTab_->updateScatterPlot(targetsInWell,
+                                 properties,
+                                 allTrajectories,
+                                 activePlots,
+                                 activeProperty_);
+}
+
+void ResultsController::updateBirdView()
+{
+  resultsTab_->updateActiveWells(selectedWells());
+}
+
+void ResultsController::run3dCase(const QString baseDirectory)
+{
+  const int cores = QInputDialog::getInt(0, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 48, 1);
+  scenario_.setNumberCPUs(cores);
+  scenarioBackup::backup(scenario_);
+  CauldronScript cauldron{scenario_, baseDirectory};
+  if (!casaScriptWriter::writeCasaScript(cauldron))
+  {
+    return;
+  }
+  scriptRunController_.runScript(cauldron);
+}
+
+void ResultsController::import3dWellData(const QString baseDirectory, const bool isOptimized)
+{
+  Logger::log() << "Extracting data from the 3D case using track1d" << Logger::endl();
+
+  QVector<double> xCoordinates;
+  QVector<double> yCoordinates;
+  const CalibrationTargetManager& calibrationTargetManager = scenario_.calibrationTargetManager();
+  const QVector<const Well*> wells = calibrationTargetManager.activeWells();
+
+  for (const Well* well : wells)
+  {
+    xCoordinates.push_back(well->x());
+    yCoordinates.push_back(well->y());
+  }
+  QStringList properties = scenario_.calibrationTargetManager().activeProperties();
+
+  Track1DAllWellScript import{baseDirectory,
+                              xCoordinates,
+                              yCoordinates,
+                              properties,
+                              scenario_.project3dFilename()};
+  scriptRunController_.runScript(import);
+
+  Case3DTrajectoryReader reader{baseDirectory + "/welldata.csv"};
+  try
+  {
+    reader.read();
+  }
+  catch(const std::exception& e)
+  {
+    Logger::log() << "Failed to read file" << e.what() << Logger::endl();
+    return;
+  }
+
+  case3DTrajectoryConvertor::convertToScenario(reader, scenario_, isOptimized);
+
+  Logger::log() << "Finished extracting data from the 3D case" << Logger::endl();
+}
+
+QVector<int> ResultsController::selectedWells()
+{
+  QModelIndexList indices = resultsTab_->wellsList()->selectionModel()->selectedIndexes();
+
+  QVector<int> wellIndices;
+  for(const QModelIndex& index : indices)
+  {
+    wellIndices.push_back(index.row());
+  }
+  std::sort(wellIndices.begin(), wellIndices.end());
+  return wellIndices;
+}
+
+} // namespace sac
+
+} // namespace casaWizard

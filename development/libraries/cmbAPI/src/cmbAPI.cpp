@@ -122,8 +122,8 @@ public:
    double      tableValueAsDouble(   const std::string & tableName, size_t rowNumber, const std::string & propName );
    std::string tableValueAsString(   const std::string & tableName, size_t rowNumber, const std::string & propName );
 
-   void        setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue );
-   void        setTableDoubleValue(  const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
+   void        setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const long propValue );
+   void        setTableDoubleValue(  const std::string & tableName, size_t rowNumber, const std::string & propName, const double propValue );
    void        setTableStringValue(  const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
 
    void        tableSort( const std::string & tblName, const std::vector<std::string> & colsName );
@@ -145,6 +145,9 @@ public:
 
    // model window in IJ space
    void window( long & minWinI, long & maxWinI, long & minWinJ, long & maxWinJ );
+
+   // model window observable origin in IJ space
+   void windowObservableOrigin( double & x, double & y );
 
    // set model window in IJ space
    void setWindow( long minWinI, long maxWinI, long minWinJ, long maxWinJ );
@@ -317,7 +320,7 @@ std::string Model::tableValueAsString( const std::string & tableName, size_t row
 }
 
 // Set value in the table
-ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue )
+ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const long propValue )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -329,7 +332,7 @@ ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, si
 }
 
 // Set value in the table
-ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue )
+ErrorHandler::ReturnCode Model::setTableValue(const std::string & tableName, size_t rowNumber, const std::string & propName, const double& propValue )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -496,6 +499,17 @@ Model::ReturnCode Model::window( long & minWinI, long & maxWinI, long & minWinJ,
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->window( minWinI, maxWinI, minWinJ, maxWinJ ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+Model::ReturnCode Model::windowObservableOrigin( double & x, double & y )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->windowObservableOrigin( x, y ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
@@ -1198,7 +1212,7 @@ std::string Model::ModelImpl::tableValueAsString( const std::string & tableName,
    return Utilities::Numerical::NoDataStringValue;
 }
 
-void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue )
+void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const long propValue )
 {
    // get pointer to the table
    database::Table * table = m_projHandle->getTable( tableName );
@@ -1227,7 +1241,7 @@ void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size
 }
 
 
-void Model::ModelImpl::setTableDoubleValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue )
+void Model::ModelImpl::setTableDoubleValue(const std::string & tableName, size_t rowNumber, const std::string & propName, const double propValue )
 {
    // get pointer to the table
    database::Table * table = m_projHandle->getTable( tableName );
@@ -1304,8 +1318,8 @@ Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & /*oth
 
 void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 {
-	m_factory.reset(new DataAccess::Interface::ObjectFactory);
-	m_projHandle.reset( DataAccess::Interface::OpenCauldronProject( projectFileName, "rw", m_factory.get() ) );
+  m_factory.reset(new DataAccess::Interface::ObjectFactory);
+  m_projHandle.reset( DataAccess::Interface::OpenCauldronProject( projectFileName, "rw", m_factory.get() ) );
 
    if ( !m_projHandle.get() )
    {
@@ -1380,6 +1394,21 @@ void Model::ModelImpl::window( long & minWinI, long & maxWinI, long & minWinJ, l
    maxWinI = pd->getWindowXMax();
    minWinJ = pd->getWindowYMin();
    maxWinJ = pd->getWindowYMax();
+}
+
+void Model::ModelImpl::windowObservableOrigin( double & x, double & y )
+{
+  ibs::FilePath windowObsFilePath( m_projFileName );
+  windowObsFilePath.cutLast();  // cut filename
+  windowObsFilePath << "windowObservable.txt";
+
+  std::ifstream ifs( windowObsFilePath.path().c_str(), std::ifstream::in );
+  if( ifs.fail() )
+  {
+    throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Could not open file:" << windowObsFilePath.path();
+  }
+
+  ifs >> x >> y;
 }
 
 void Model::ModelImpl::setWindow( long minWinI, long maxWinI, long minWinJ, long maxWinJ )

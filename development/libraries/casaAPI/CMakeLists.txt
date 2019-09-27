@@ -51,16 +51,13 @@ generate_dox( src/API.cfg )
 #######################################
 ### Unit Tests
 #######################################
-
-#######################################
-# Unit tests for DoEGeneratorTest
-
 #Various cauldron projects which are used in unit tests
 copy_test_file(Ottoland.project3d)
 
 #Cauldron project with results for DataDigger unit testing
 copy_test_file(OttolandWithGenex.project3d)
 copy_test_file(OttolandCatPrms.project3d)
+copy_test_file(OttolandWithGenexObservables.project3d)
 copy_test_file(LithologyTesting.project3d)
 configure_file(test/Ottoland_casa_state.txt Ottoland_casa_state.txt)
 
@@ -70,33 +67,29 @@ copy_test_file(NVG_Project.project3d)
 copy_test_file(MAP-72981789-4.FLT)
 copy_test_file(Inputs.HDF)
 
+# Files for Ameland case
+configure_file(test/Ameland/Ameland.project3d ${CMAKE_CURRENT_BINARY_DIR}/Ameland/Ameland.project3d COPYONLY)
 
-add_gtest( NAME BLRSTest
-   SOURCES test/BLRSTest.cpp
-   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+macro(add_casa_gtest)
+  cmake_parse_arguments( "CASA" "" "NAME" "SOURCES" ${ARGN} )
+  add_gtest( NAME "casaAPI::${CASA_NAME}"
+             SOURCES ${CASA_SOURCES}
+             LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+             FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+           )
+endmacro(add_casa_gtest)
+
+add_casa_gtest( NAME BLRSTest SOURCES test/BLRSTest.cpp )
+
+add_casa_gtest( NAME DoETest SOURCES test/DoETest.cpp
 )
 
-add_gtest( NAME DoETest
-   SOURCES test/DoETest.cpp
-   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-)
+add_casa_gtest( NAME MutatorTest SOURCES test/MutatorTest.cpp )
 
-add_gtest( NAME MutatorTest
-   SOURCES test/MutatorTest.cpp
-   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-)
-
-add_gtest( NAME ValidatorTest
-   SOURCES test/ValidatorTest.cpp
-   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-)
+add_casa_gtest( NAME ValidatorTest SOURCES test/ValidatorTest.cpp )
 
 if (LSF_HOME)
-   add_gtest( NAME RunManagerTest
+   add_gtest( NAME casaAPI::RunManagerTest
       SOURCES test/RunManagerTest.cpp
       INCLUDE_DIRS ${LSF_INCLUDE_DIR}
       LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
@@ -104,41 +97,30 @@ if (LSF_HOME)
    )
 endif()
 
-add_gtest( NAME DataDiggerTest
-   SOURCES test/DataDiggerTest.cpp
-   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-)
+add_casa_gtest( NAME DataDiggerTest SOURCES test/DataDiggerTest.cpp )
 
-add_gtest( NAME RSProxyTest
-   SOURCES test/RSProxyTest.cpp
-   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-)
+add_casa_gtest( NAME RSProxyTest SOURCES test/RSProxyTest.cpp )
 
-add_gtest( NAME MCTest
-   SOURCES test/MCTest.cpp
-   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-)
+add_casa_gtest( NAME MCTest SOURCES test/MCTest.cpp )
 
-add_gtest( NAME SerializationTest
-   SOURCES test/SerializationTest.cpp
-   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-)
+add_casa_gtest( NAME SerializationTest SOURCES test/SerializationTest.cpp )
 
-add_gtest( NAME BestMatchedCaseGenerationTest
-   SOURCES test/BestMatchedCaseGenerationTest.cpp
-   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-)
+add_casa_gtest( NAME BestMatchedCaseGenerationTest SOURCES test/BestMatchedCaseGenerationTest.cpp )
 
-add_gtest( NAME SensCalcTest
-   SOURCES test/SensCalcTest.cpp
-   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
-)
+add_casa_gtest( NAME SensCalcTest SOURCES test/SensCalcTest.cpp )
+
+add_casa_gtest( NAME RSProxyQualityCalcTest SOURCES test/RSProxyQualityCalcTest.cpp )
+
+add_casa_gtest( NAME RunCaseSetTest SOURCES test/RunCaseSetTest.cpp)
+
+add_casa_gtest( NAME ObservableTest SOURCES test/ObservableTest.cpp )
+
+add_casa_gtest( NAME PrmEquilibriumOceanicLithosphereThickness   SOURCES test/PrmEquilibriumOceanicLithosphereThickness.cpp )
+add_casa_gtest( NAME PrmSurfaceTemperatureTest            SOURCES test/PrmSurfaceTemperatureTest.cpp )
+add_casa_gtest( NAME PrmTopCrustHeatProduction            SOURCES test/PrmTopCrustHeatProductionTest.cpp )
+add_casa_gtest( NAME PrmTopCrustHeatProductionGrid        SOURCES test/PrmTopCrustHeatProductionGridTest.cpp )
+add_casa_gtest( NAME PrmTopCrustHeatProductionGridScaling SOURCES test/PrmTopCrustHeatProductionGridScalingTest.cpp )
+
 # temporary disabled, under development
 #add_gtest( NAME LMOptimTest
 #   SOURCES test/LMOptimTest.cpp
@@ -149,7 +131,7 @@ add_gtest( NAME SensCalcTest
 if (MSVC)
    generate_version_by_git_last_checkin(src API_FILE_GIT_DATE_AS_VER)
    MESSAGE(STATUS "Version extracted for CasaAPI as: ${API_FILE_GIT_DATE_AS_VER}")
-   ##### Generate the C# API  
+   ##### Generate the C# API
    generate_csharp_api(
       CSPROJ_NAME                   CasaAPI
       CSPROJ_NAMESPACE              Bpa2.Basin.Casa
@@ -163,6 +145,6 @@ if (MSVC)
       CSPROJ_LIBRARIES              ${LIB_NAME} cmbapi Serial_Hdf5 TableIO DataModel SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES}
       CSHARP_UNIT_TESTS_SRC         test/cmbAPITest.cs test/casaAPITest.cs test/casaAPI_SensitivityCalculatorTest.cs
    )
-   
-   configure_file(test/Project.project3d ${CMAKE_CURRENT_BINARY_DIR}/Project.project3d COPYONLY ) 
+
+   configure_file(test/Project.project3d ${CMAKE_CURRENT_BINARY_DIR}/Project.project3d COPYONLY )
 endif (MSVC)

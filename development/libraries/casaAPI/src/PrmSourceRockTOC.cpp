@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSourceRockTOC.C
-/// @brief This file keeps API implementation for Source Rock TOC parameter handling 
+/// @brief This file keeps API implementation for Source Rock TOC parameter handling
 
 // CASA API
 #include "PrmSourceRockTOC.h"
@@ -39,7 +39,7 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
                                   , const char * srType
                                   , int          mixingID
                                   ) : PrmSourceRockProp( mdl, layerName, srType, mixingID )
-{    
+{
    // TOC specific part
    m_propName = "TOC";
 
@@ -48,7 +48,7 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
 
    // get this layer has a mix of source rocks (all checking were done in parent constructor
    const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( stMgr.layerID( m_layerName ) );
-   
+
    if ( m_srTypeName.empty() ) { m_srTypeName = srtNames[m_mixID-1]; }
    mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, m_srTypeName );
 
@@ -66,7 +66,7 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
       if ( IsValueUndefined( mID ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer" << m_layerName
-            << " has TOC defined as unknown map :" << mapName; 
+            << " has TOC defined as unknown map :" << mapName;
       }
       double minVal, maxVal;
       if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mID, minVal, maxVal ) )
@@ -80,11 +80,6 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
    {
       m_val = srMgr.tocIni( sid );
    }
-
-   // construct parameter name
-   std::ostringstream oss;
-   oss << "SourceRockTOC(" << m_layerName << "," << m_mixID << ")";
-   m_name = oss.str();
 }
 
  // Constructor
@@ -93,15 +88,11 @@ PrmSourceRockTOC::PrmSourceRockTOC( const VarPrmSourceRockTOC * parent
                                   , const char                * lrName
                                   , const std::string         & mapName
                                   , const char                * srType
-                                  , int                         mixingID 
+                                  , int                         mixingID
                                  ) : PrmSourceRockProp( parent, val, lrName, srType, mixingID )
 {
    m_mapName = mapName;
    m_propName = "TOC";
-   // construct parameter name
-   std::ostringstream oss;
-   oss << "SourceRockTOC(" << m_layerName << "," << mixingID << ")";
-   m_name = oss.str();
 }
 
 // Destructor
@@ -153,7 +144,7 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
             if ( IsValueUndefined( mID ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer"   << m_layerName
-                                                                            << " has TOC defined as unknown map :" << mapName; 
+                                                                            << " has TOC defined as unknown map :" << mapName;
             }
 
             // extract min/max values from the map
@@ -186,8 +177,8 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
                {
                   throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
                }
-           
-               // update project with new map name 
+
+               // update project with new map name
                if ( ErrorHandler::NoError != srMgr.setTOCInitMapName( sid, newMapName ) )
                {
                   throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
@@ -217,10 +208,10 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
             if ( IsValueUndefined( maxID ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
 
             std::string newMapName;
-            
+
             // value interval for maps range case is [-1:0:1] but min/max maps are set for [-1:0] or [0:1] interval
             double halfRangeVal = m_val < 0.0 ? m_val + 1.0 : m_val;
-            
+
             if (      halfRangeVal == 0.0 ) { newMapName = m_minMapName; }
             else if ( halfRangeVal == 1.0 ) { newMapName = m_maxMapName; }
 
@@ -239,8 +230,8 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
                {
                   throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
                }
-               
-               // Save new map to file 
+
+               // Save new map to file
                if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, newMapName + s_mapFileSuffix, 0 ) )
                {
                   throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
@@ -309,8 +300,8 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
       if ( !m_srTypeName.empty() && srtNames[m_mixID - 1] != m_srTypeName )
       {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
-            "Layer " << m_layerName << " has unmatched source rock type name :" << srtNames[m_mixID-1] << 
-            " for the mixing ID " << m_mixID << " to source rock type defined for the TOC parameter: " << m_srTypeName; 
+            "Layer " << m_layerName << " has unmatched source rock type name :" << srtNames[m_mixID-1] <<
+            " for the mixing ID " << m_mixID << " to source rock type defined for the TOC parameter: " << m_srTypeName;
       }
 
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]) );
@@ -325,7 +316,7 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
 
       if ( m_mapName.empty() && m_minMapName.empty() && m_maxMapName.empty() )
       {
-         tocInModel = srMgr.tocIni( sid ); 
+         tocInModel = srMgr.tocIni( sid );
 
          if ( mapName.empty() )
          {
@@ -342,8 +333,8 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
             mbapi::MapsManager::MapID mID = mpMgr.findID( mapName ); // get map
             if ( IsValueUndefined( mID ) )
             {
-               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << mapName 
-                                                                            << " defined for initial TOC in maps catalog"; 
+               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << mapName
+                                                                            << " defined for initial TOC in maps catalog";
             }
 
             double minVal, maxVal;
@@ -358,7 +349,7 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
             }
          }
       }
-      else 
+      else
       {
          if ( m_minMapName.empty() && m_maxMapName.empty() ) // no interpolation needed, just check map name
          {
@@ -391,7 +382,7 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
             {
                throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
             }
- 
+
             if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mID, minVal, maxVal ) )
             {
                throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
@@ -414,7 +405,7 @@ bool PrmSourceRockTOC::operator == ( const Parameter & prm ) const
 {
 const PrmSourceRockTOC * pp = dynamic_cast<const PrmSourceRockTOC *>( &prm );
 if ( !pp ) return false;
-   
+
    const double eps = 1.e-6;
 
    if ( m_layerName  != pp->m_layerName  ) return false;
@@ -429,9 +420,9 @@ if ( !pp ) return false;
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmSourceRockTOC::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmSourceRockTOC::save( CasaSerializer & sz ) const
 {
-   bool ok = PrmSourceRockProp::serializeCommonPart( sz, version ); 
+   bool ok = PrmSourceRockProp::serializeCommonPart( sz );
 
    ok = ok ? sz.save( m_mapName,    "mapName"    ) : ok;
    ok = ok ? sz.save( m_minMapName, "minMapName" ) : ok;

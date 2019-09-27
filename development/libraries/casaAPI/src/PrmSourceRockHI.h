@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSourceRockHI.h
-/// @brief This file keeps API declaration for Source Rock HI parameter handling. 
+/// @brief This file keeps API declaration for Source Rock HI parameter handling.
 
 #ifndef CASA_API_PARAMETER_SOURCE_ROCK_HI_H
 #define CASA_API_PARAMETER_SOURCE_ROCK_HI_H
@@ -24,7 +24,7 @@ namespace mbapi
 }
 
 /// @page CASA_SourceRockHIPage Source rock Hydrogen Index (HI) initial ratio parameter
-/// 
+///
 /// This parameter defines the hydrogen index initial ratio in source rock.
 /// The value is defined in units: @f$ [ kg/tonne ] @f$
 /// It is continuous parameter and his range is @f$ [0:1000] @f$
@@ -34,7 +34,7 @@ namespace casa
    class VarPrmSourceRockHI;
 
    /// @brief Source rock hydrogen index initial ratio parameter
-   class PrmSourceRockHI : public PrmSourceRockProp 
+   class PrmSourceRockHI : public PrmSourceRockProp
    {
    public:
       /// @brief Constructor. Create parameter by reading parameter value from the given model
@@ -55,16 +55,12 @@ namespace casa
       PrmSourceRockHI( const VarPrmSourceRockHI * parent, double val, const char * layerName, const char * srType = 0, int mixID = 1 );
 
       /// @brief Destructor
-      virtual ~PrmSourceRockHI() { ; }
-     
-      /// @brief Get name of the parameter
-      /// @return parameter name
-      virtual const char * name() const { return m_name.c_str(); }
+      virtual ~PrmSourceRockHI() = default;
 
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
-      /// @return ErrorHandler::NoError in success, or error code otherwise     
+      /// @return ErrorHandler::NoError in success, or error code otherwise
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID );
 
       /// @brief Validate HI value if it is in [0:100] range, also it check are any source rock
@@ -79,16 +75,10 @@ namespace casa
       /// @return true if parameters are the same, false otherwise
       virtual bool operator == ( const Parameter & prm ) const;
 
-      /// @{
-      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
-      /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
-
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name

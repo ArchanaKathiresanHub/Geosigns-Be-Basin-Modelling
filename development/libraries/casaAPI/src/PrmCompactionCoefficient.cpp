@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmCompactionCoefficient.cpp
 /// @brief This file keeps API implementation for handling Porosity model parameter Compaction coefficient
@@ -34,13 +34,8 @@ namespace casa
 // Constructor
 PrmCompactionCoefficient::PrmCompactionCoefficient( mbapi::Model & mdl, const std::string & lithoName )
                                                   : PrmLithologyProp( 0, std::vector<std::string>( 1, lithoName ), Utilities::Numerical::IbsNoDataValue )
-{ 
+{
    m_propName = "CompactionCoefficient";
-
-   // construct parameter name
-   std::ostringstream oss;
-   oss << m_propName << "(" << lithoName << ")";
-   m_name = oss.str();
 
    mbapi::LithologyManager & mgr = mdl.lithologyManager();
 
@@ -77,13 +72,6 @@ PrmCompactionCoefficient::PrmCompactionCoefficient( const VarPrmCompactionCoeffi
                                                   : PrmLithologyProp( parent, lithosName, compCoef )
 {
    m_propName = "CompactionCoefficient";
- 
-   // construct parameter name
-   std::ostringstream oss;
-   oss << m_propName << "(";
-   for ( size_t i  = 0; i < m_lithosName.size(); ++i ) oss << (i == 0 ? "" : ", ") << m_lithosName[i];
-   oss << ")";
-   m_name = oss.str();
 }
 
 // Update given model with the parameter value
@@ -112,7 +100,7 @@ ErrorHandler::ReturnCode PrmCompactionCoefficient::setInModel( mbapi::Model & ca
 
          case mbapi::LithologyManager::PorSoilMechanics:
             porModelPrms[0] = SMcc2sp(m_val); // fill dependent parameter also
-            porModelPrms[1] = m_val; 
+            porModelPrms[1] = m_val;
             break;
 
          default: return caldModel.reportError( ErrorHandler::OutOfRangeValue, "Unsupported porosity model" );
@@ -132,7 +120,7 @@ std::string PrmCompactionCoefficient::validate( mbapi::Model & caldModel )
    for ( size_t i = 0; i < m_lithosName.size(); ++i )
    {
       if ( m_val < 0 ) oss << "Compaction coefficient for lithology " << m_lithosName[i] << " can not be negative: " << m_val << std::endl;
- 
+
       mbapi::LithologyManager::LithologyID lid = mgr.findID( m_lithosName[i] );
 
       if ( IsValueUndefined( lid ) )
@@ -155,7 +143,7 @@ std::string PrmCompactionCoefficient::validate( mbapi::Model & caldModel )
          case mbapi::LithologyManager::PorSoilMechanics:
             if ( !NumericFunctions::isEqual( SMcc2sp( m_val ), porModelPrms[0], 1e-3 ) )
             {
-               oss << "Surface porosity for soil mechanics model for the lithology " << m_lithosName[i] << " in project: " << porModelPrms[1] << 
+               oss << "Surface porosity for soil mechanics model for the lithology " << m_lithosName[i] << " in project: " << porModelPrms[1] <<
                   " is different from the parameter value: " << SMcc2sp( m_val ) << ", they are related through a clay fraction and can't be defined"
                       << " independently." << std::endl;
             }
@@ -183,16 +171,16 @@ std::string PrmCompactionCoefficient::validate( mbapi::Model & caldModel )
 }
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmCompactionCoefficient::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmCompactionCoefficient::save( CasaSerializer & sz ) const
 {
-   return PrmLithologyProp::serializeCommonPart( sz, version );
+   return PrmLithologyProp::serializeCommonPart( sz );
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
 PrmCompactionCoefficient::PrmCompactionCoefficient( CasaDeserializer & dz, unsigned int objVer )
 {
    bool ok = PrmLithologyProp::deserializeCommonPart( dz, objVer );
-   
+
    if ( m_propName.empty() ) { m_propName = "CompactionCoefficient"; }
 
    if ( !ok )

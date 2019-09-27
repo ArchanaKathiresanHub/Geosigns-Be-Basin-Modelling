@@ -269,7 +269,7 @@ namespace DataAccess
       ///Transforms a high res local grid map to a low res local grid map 
       bool transformHighRes2LowRes (GridMap *mapB) const;
       ///Transforms a low res local grid map to a high res local grid map 
-      bool transformLowRes2HighRes (GridMap *mapB) const;
+      bool transformLowRes2HighRes (GridMap *mapB, bool extrapolateAOI = false) const;
       bool findLowResElementCoordinates( const unsigned int HighResI,
                                          const unsigned int HighResJ,
                                          const unsigned int depth,

@@ -5,7 +5,6 @@
 #include "../src/PrmSourceRockTOC.h"
 #include "../src/PrmTopCrustHeatProduction.h"
 #include "../src/VarPrmSourceRockTOC.h"
-#include "../src/VarPrmTopCrustHeatProduction.h"
 
 #include <memory>
 //#include <cmath>
@@ -28,7 +27,7 @@ public:
              , m_layerName( "Lower Jurassic" )
              , m_projectFileName( "Ottoland.project3d" )
              , m_caseSetPath( "." )
-   { 
+   {
       m_caseSetPath << "CaseSetValidatorTest";
    }
    ~ValidatorTest( ) { ; }
@@ -39,14 +38,14 @@ public:
 
    const double m_minTCHP;
    const double m_maxTCHP;
-   
+
    const char * m_layerName;
 
    const char * m_projectFileName;
 
    ibs::FolderPath m_caseSetPath;
 };
-  
+
 // Mutator test. There is 1 DoE Tornado experiment with 2 parameters
 // Test creates DoE and generates set of project files. Then do the validation of
 // parameters in generated cases
@@ -56,22 +55,20 @@ TEST_F( ValidatorTest, TwoPrmsValidationTornadoDoE )
    casa::ScenarioAnalysis sc;
 
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_projectFileName ) );
-   
+
    // vary 2 parameters
    std::vector<double> dblRng( 2, m_minTOC );
    dblRng[1] = m_maxTOC;
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, m_layerName, 1, 0, dblRng, vector<string>(),  VarPrmContinuous::Block ) );
 
-   dblRng[0] = m_minTCHP;
-   dblRng[1] = m_maxTCHP;
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, vector<string>(), VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VaryParameter<PrmTopCrustHeatProduction>( sc, {}, "", m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) );
 
    // set up and generate DoE
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
    casa::DoEGenerator & doe = sc.doeGenerator( );
 
    doe.generateDoE( sc.varSpace(), sc.doeCaseSet() );
-   
+
    ASSERT_EQ( 5U, sc.doeCaseSet().size() );
 
    ibs::FolderPath pathToCaseSet = m_caseSetPath;
@@ -80,10 +77,10 @@ TEST_F( ValidatorTest, TwoPrmsValidationTornadoDoE )
    ASSERT_EQ( ErrorHandler::NoError, sc.applyMutations( sc.doeCaseSet() ) );
 
    ASSERT_EQ( ErrorHandler::NoError, sc.validateCaseSet( sc.doeCaseSet( ) ) );
-  
+
    // cleaning files/folders
    pathToCaseSet.remove();  // clean folder
-   
+
    ASSERT_FALSE( pathToCaseSet.exists() );
 }
 
@@ -95,7 +92,7 @@ TEST_F( ValidatorTest, TOCPrmValidation )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_projectFileName ) );
 
    PrmSourceRockTOC prm( NULL, 0.5 * ( m_minTOC + m_maxTOC ), m_layerName );
-     
+
    // check if all comes OK
    const std::string & validationMessage = prm.validate( sc.baseCase() );
    ASSERT_TRUE( validationMessage.empty() );
@@ -127,18 +124,19 @@ TEST_F( ValidatorTest, TCHPPrmValidation )
 
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_projectFileName ) );
 
-   PrmTopCrustHeatProduction prm( NULL, 0.5 * ( m_minTCHP + m_maxTCHP ) );
+   PrmTopCrustHeatProduction baseParam( sc.baseCase(), {});
+   PrmTopCrustHeatProduction prm( 0, baseParam, 0.5 * ( m_minTCHP + m_maxTCHP ) );
 
    // check if all comes OK
    const std::string & validationMessage = prm.validate( sc.baseCase() );
    ASSERT_TRUE( validationMessage.empty() );
 
    // check for error for negative TCHP rate
-   PrmTopCrustHeatProduction prm1( NULL, -1 );
+   PrmTopCrustHeatProduction prm1( 0, baseParam, -1 );
    const std::string & validationMessage1 = prm1.validate( sc.baseCase() );
    ASSERT_FALSE( validationMessage1.empty() ); // negative value message
 
-   PrmTopCrustHeatProduction prm2( NULL, 77 );
+   PrmTopCrustHeatProduction prm2( 0, baseParam, 77 );
    const std::string & validationMessage2 = prm2.validate( sc.baseCase() );
    ASSERT_FALSE( validationMessage2.empty() ); // value in the model is differ than given
 }

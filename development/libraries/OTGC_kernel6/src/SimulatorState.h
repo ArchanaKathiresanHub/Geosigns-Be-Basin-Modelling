@@ -32,17 +32,17 @@ public:
    SimulatorState(const double inReferenceTime, const Species ** SpeciesInChemicalModel,
                   const double * initSpeciesConcs);
 
-   virtual ~SimulatorState(){};
+   virtual ~SimulatorState(){}
 
-   void SetSpeciesTimeStepVariablesToZero(){};
-   void PostProcessTimeStep(Species & /*theSpecies */, const double /* in_dT */){};
+   void SetSpeciesTimeStepVariablesToZero(){}
+   void PostProcessTimeStep(Species & /*theSpecies */, const double /* in_dT */){}
  
-   void ComputeFirstTimeInstance(ChemicalModel * /* theChmod */){};
+   void ComputeFirstTimeInstance(ChemicalModel * /* theChmod */){}
 
    double ComputeWaso() {return 0.0;}
    double ComputeWbo()  {return 0.0;}
 
-   void SetLumpedConcentrationsToZero(){};
+   void SetLumpedConcentrationsToZero(){}
    void SetResultsToZero(){ };
    double ComputeKerogenTransformatioRatio( const SpeciesManager& /* speciesManager */,int /* aSimulationType */ ){ return 0.0; }; 
    double ComputeDiffusionConcDependence(const double /* in_Waso */ ){ return 0.0; }; 

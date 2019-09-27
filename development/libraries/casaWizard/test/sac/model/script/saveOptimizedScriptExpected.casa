@@ -1,0 +1,4 @@
+loadstate "casaStateSAC.txt" "txt"
+importOneDResults
+setFilterOneDResults smartLithoFractionGridding
+generateThreeDFromOneD

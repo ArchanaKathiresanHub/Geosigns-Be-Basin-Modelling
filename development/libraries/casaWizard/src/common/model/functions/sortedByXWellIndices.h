@@ -1,0 +1,19 @@
+// Function to sort the wells by x-coordinate, and return the list of sorted indices
+// This function is useful, because this sorting is used for case generation
+#pragma once
+
+template<class T> class QVector;
+
+namespace casaWizard
+{
+
+class Well;
+
+namespace functions
+{
+
+QVector<int> sortedByXWellIndices(const QVector<Well>& wells);
+
+} // namespace functions
+
+} // namespace casaWizard

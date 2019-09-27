@@ -43,11 +43,11 @@ static int setenv( const char * name, const char * value, int overwrite )
 #endif
 
 #else
-// In case we have no lsf.h for the platform, 
+// In case we have no lsf.h for the platform,
 // use some mockup to allow deserialization
 #define LSF_RLIM_NLIMITS  12
 #define DEFAULT_RLIMIT   -1
-#define LSF_RLIMIT_RUN    9 
+#define LSF_RLIMIT_RUN    9
 
 #ifndef _WIN32
 #include <sys/types.h>
@@ -65,7 +65,7 @@ struct submit {
    char   * cwd;
    char   * resReq;
    int      rLimits[LSF_RLIM_NLIMITS];
-   int      options; 
+   int      options;
    int      options2;
    int      options3;
    int      numProcessors;
@@ -77,7 +77,7 @@ struct submitReply
    int dummy;
 };
 
-struct jobInfoEnt 
+struct jobInfoEnt
 {
    int dummy;
 };
@@ -138,14 +138,14 @@ public:
       // resource limits are initialized to default
       for ( int i = 0; i < LSF_RLIM_NLIMITS; ++i ) { m_submit.rLimits[i] = DEFAULT_RLIMIT; }
       if ( m_runTimeLim > 0 ) { m_submit.rLimits[LSF_RLIMIT_RUN] = static_cast<int>( m_runTimeLim ) * 60; } // convert to sec.
- 
+
       /// Prepare job to submit through LSF
       m_submit.options          = SUB_PROJECT_NAME | SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
       m_submit.options3         = SUB3_CWD;
 
-      const char * envVar       = getenv( "LSF_CAULDRON_PROJECT_NAME" ); 
+      const char * envVar       = getenv( "LSF_CAULDRON_PROJECT_NAME" );
       m_submit.projectName      = strdup( envVar ? envVar : LSF_CAULDRON_PROJECT_NAME ); // add project name (must be the same for all cauldron app)
-      
+
 #ifdef LSF_XDR_VERSION9_1_3
       envVar                    = getenv( "LSF_CAULDRON_PROJECT_QUEUE" );
       if ( envVar )
@@ -153,7 +153,7 @@ public:
          m_submit.queue         = strdup( envVar ); // add project queue
          m_submit.options      |= SUB_QUEUE;
       }
-      
+
       m_submit.jobGroup = strdup( (std::string( "/Cauldron/casa/scenario/")  + (scenarioID.empty() ? "unknown" : scenarioID.c_str() ) ).c_str() );
       m_submit.options2        |= SUB2_JOB_GROUP;
 
@@ -162,7 +162,7 @@ public:
       m_submit.jobName          = strdup( jobName.c_str() );
       m_submit.outFile          = strdup( (jobName + ".out" ).c_str() ); // redirect stdout to file
       m_submit.errFile          = strdup( (jobName + ".err" ).c_str() ); // redirect stderr to file
-         
+
       m_submit.cwd              = strdup( cwd.c_str() );                 // define current working directory
       m_submit.options3         = SUB3_CWD;
       m_submit.numProcessors    = cpus; // initial number of processors needed by a (parallel) job
@@ -172,7 +172,7 @@ public:
          m_submit.resReq = strdup( resReq.c_str() );
          m_submit.options = m_submit.options | SUB_RES_REQ;
       }
-      
+
    }
 
    ~Job()
@@ -202,7 +202,7 @@ public:
       return true;
 #endif
    }
-   
+
    bool isFinished() const { return m_isFinished; } // check is job finished?
    bool isFailed()   const { return m_isFailed;   } // check is job failed?
 
@@ -221,7 +221,7 @@ public:
       {
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "Copying SLA: " << m_parent->m_sla << " to the job parameters";
          m_submit.sla           = strdup( m_parent->m_sla.c_str() );
-         m_submit.options2     |= SUB2_SLA; 
+         m_submit.options2     |= SUB2_SLA;
       }
 #endif
       m_lsfJobID = lsb_submit( &m_submit, &m_submitRepl );
@@ -273,7 +273,7 @@ public:
       }
 
       memcpy( &m_jobInfo, jobInfo, sizeof( m_jobInfo ) );  // save the status of the job for diagnostic
-      
+
 #ifdef LSF_XDR_VERSION9_1_3
       // save sla and projname
       if ( m_parent->m_sla.empty()    && jobInfo->submit.sla       ) { m_parent->m_sla    = jobInfo->submit.sla;       }
@@ -287,7 +287,7 @@ public:
          m_isFailed   = false;
          return JobFinished;   // job is completed successfully
       }
-      
+
       if ( jobInfo->status & JOB_STAT_RUN ) return JobRunning;     // job is running
 
       if ( jobInfo->status & JOB_STAT_WAIT  || // chunk job waiting its execution turn
@@ -318,7 +318,7 @@ public:
    virtual const char * typeName() const { return "JobSchedulerLSF::Job"; }
 
    // Serialize object to the given stream
-   virtual bool save( CasaSerializer & sz, unsigned int /* version */ ) const
+   virtual bool save( CasaSerializer & sz ) const
    {
       bool ok = sz.save(              m_isFinished,                "IsFinished"      );
       ok = ok ? sz.save(              m_isFailed,                  "IsFailed"        ) : ok;
@@ -338,7 +338,7 @@ public:
 
       // TODO save necessary fields for submitRepl
       //struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
-      return ok;        
+      return ok;
    }
 
    // Create a new instance and deserialize it from the given stream
@@ -462,7 +462,7 @@ JobScheduler::JobState JobSchedulerLSF::runJob( JobID job )
 {
    if ( job >= m_jobs.size() )
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no job with ID: "  << job << " in the queue"; 
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no job with ID: "  << job << " in the queue";
    }
 
    if ( !m_jobs[job]->isSubmitted() )
@@ -485,14 +485,14 @@ JobScheduler::JobState JobSchedulerLSF::runJob( JobID job )
    // log job ID
    std::ofstream ofs( RunManager::s_jobsIDListFileName, std::ios_base::out | std::ios_base::app );
    if ( ofs.is_open() ) { ofs << schedulerJobID( job ) << "\n"; ofs.close(); }
- 
+
    return jobState( job );
 }
 
 // stop submitted job
 JobScheduler::JobState JobSchedulerLSF::stopJob( JobID job )
 {
-   if ( job >= m_jobs.size() ) 
+   if ( job >= m_jobs.size() )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no job with ID: "  << job << " in the queue";
    }
@@ -542,10 +542,10 @@ void JobSchedulerLSF::sleep( int secs )
 }
 
 // Serialize object to the given stream
-bool JobSchedulerLSF::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
+bool JobSchedulerLSF::save( CasaSerializer & sz ) const
 {
    bool ok = sz.save( m_clusterName, "ClusterName" );
-   
+
    ok = ok ? sz.save( m_resReqStr,   "LSFResRequest" ) : ok;
    ok = ok ? sz.save( m_jobs.size(), "JobsQueueSize" ) : ok;
    for ( size_t i = 0; i < m_jobs.size() && ok; ++i )
@@ -564,7 +564,7 @@ JobSchedulerLSF::JobSchedulerLSF( CasaDeserializer & dz, unsigned int objVer )
    }
 
    bool ok = dz.load( m_clusterName, "ClusterName" );
-  
+
    if ( objVer > 0 ) { ok = ok ? dz.load( m_resReqStr,   "LSFResRequest" ) : ok; }
 
    size_t setSize;
@@ -586,7 +586,7 @@ void JobSchedulerLSF::Job::printJobInfo()
 
    // Some fields of job info structure are not printed now but may be it will be useful to print them in future
 #ifdef WITH_LSF_SCHEDULER
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "LSF job status: " 
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "LSF job status: "
    << m_jobInfo.jobId      << " - The job ID that the LSF system assigned to the job.\n"
    << ( m_jobInfo.user ? m_jobInfo.user : "NotSet" ) << " - The name of the user who submitted the job.\n"
    << m_jobInfo.status     << " - The current status of the job.Possible values are shown in job_states.\n"
@@ -624,10 +624,10 @@ int     nIdx;          /**< The number of load indices in the loadSched and
 float   *loadSched;    /**< The values in the loadSched array specify
                         * the thresholds for the corresponding load indices.
                         * Only if the current values of all specified load
-                        * indices of a host are within (below or above, 
+                        * indices of a host are within (below or above,
                         * depending on the meaning of the load index) their
                         * corresponding thresholds may the suspended job be
-                        * resumed on this host. 
+                        * resumed on this host.
                         *
                         * For an explanation of the entries in the loadSched,
                         * see \ref lsb_hostinfo.
@@ -635,7 +635,7 @@ float   *loadSched;    /**< The values in the loadSched array specify
 float   *loadStop;     /**< The values in the loadStop array specify the
                         * thresholds for job suspension; if any of the current
                         * load index values of the host crosses its threshold,
-                        * the job will be suspended. 
+                        * the job will be suspended.
                         *
                         * For an explanation of the entries in the loadStop,
                         * see \ref lsb_hostinfo.
@@ -645,7 +645,7 @@ float   *loadStop;     /**< The values in the loadStop array specify the
    << ( m_jobInfo.submit.sla      ? m_jobInfo.submit.sla      : "NotSet" ) << " - SLA under which the job runs.\n"
    << ( m_jobInfo.submit.jobGroup ? m_jobInfo.submit.jobGroup : "NotSet" ) << " - Job group under which the job runs.\n"
    << m_jobInfo.exitStatus << " - Job exit status.\n"
- 
+
 #if 0
 int     execUid;        /**< Mapped UNIX user ID on the execution host.*/
 char    *execHome;      /**< Home directory for the job on the execution host.*/
@@ -671,7 +671,7 @@ struct jobExternalMsgReply **externalMsg; /**< This structure contains the
 int     clusterId;      /**< MultiCluster cluster ID. If clusterId is greater
                          * than or equal to 0, the job is a pending remote job,
                          * and \ref lsb_readjobinfo checks for host_name\@cluster_name.
-                         * If host name is needed, it should be found in 
+                         * If host name is needed, it should be found in
                          * jInfoH->remoteHosts. If the remote host name is not
                          * available, the constant string remoteHost is used.*/
 char   *detailReason;   /**<  Detail reason field */
@@ -702,8 +702,8 @@ struct reserveItem *items; /**< Detail reservation information for each
 float  adminFactorVal;  /**< Absolute priority scheduling (APS) string set by
                          * administrators to denote ADMIN
                          * factor APS value. */
-int    resizeMin;       /**< Pending resize min. 0, if no resize pending. */	
-int    resizeMax;       /**< Pending resize max. 0, if no resize pending */	
+int    resizeMin;       /**< Pending resize min. 0, if no resize pending. */
+int    resizeMax;       /**< Pending resize max. 0, if no resize pending */
 time_t resizeReqTime;   /**< Time when pending request was issued */
 int    jStartNumExHosts; /**< Number of hosts when job starts */
 char   **jStartExHosts;  /**< Host list when job starts */
@@ -734,7 +734,7 @@ int    totalProvisionTime;   /**< Dynamic Cluster VM job total provision time */
 char*  subcwd;               /**< The submission directory */
 int    num_network;     /**< number of PE network allocation */
 struct networkAlloc *networkAlloc; /**< PE network allocation */
-int    numhostAffinity;      /**< number of hostAffinity */ 
+int    numhostAffinity;      /**< number of hostAffinity */
 affinityHostInfo_t *hostAffinity; /**< affinity allocation on each host */
 double serial_job_energy;        /**< Serial job energy data */
 char*  localClusterName;     /**< RFC#4069*/
@@ -746,7 +746,7 @@ char*  energyPolicyTag;         /**< Energy policy tag name */
 char*  allocHostfilePath;       /**< user specified allocation hostfile path */
 allocHostInfo_t *allocHostsList; /**< user specified allocation hosts */
 double cpi;                     /**< Cycles Per Instruction */
-double gips;                    /**< Giga Instructions Per Second */ 
+double gips;                    /**< Giga Instructions Per Second */
 double gbs;                     /**< Gigabytes per Second */
 double gflops;                  /**< Giga FLoating-point Operations Per Second */
 int       numToHosts4Slots;   /**< number of allocated slots */

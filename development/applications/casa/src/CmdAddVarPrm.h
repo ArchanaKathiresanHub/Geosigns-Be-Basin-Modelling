@@ -20,7 +20,7 @@ public:
    /// @param cmdPrms list of command parameters as set of strings
    CmdAddVarPrm( CasaCommander & parent, const std::vector< std::string > & cmdPrms );
 
-   virtual ~CmdAddVarPrm() { ; }
+   virtual ~CmdAddVarPrm() = default;
 
    /// @brief Run command
    virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );

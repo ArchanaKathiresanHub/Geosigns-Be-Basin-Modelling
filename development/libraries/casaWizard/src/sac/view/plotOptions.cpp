@@ -1,0 +1,99 @@
+#include "plotOptions.h"
+#include "model/trajectoryType.h"
+
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QRadioButton>
+
+namespace casaWizard
+{
+
+namespace sac
+{
+
+PlotOptions::PlotOptions(QWidget* parent) :
+  QWidget(parent),
+  base1d_{new QCheckBox("Base 1d", this)},
+  optimized1d_{new QCheckBox("Optimized 1d", this)},
+  base3d_{new QCheckBox("Base 3d", this)},
+  optimized3d_{new QCheckBox("Optimized 3d", this)},
+  properties_{new QComboBox(this)},
+  plotType_{new QButtonGroup(this)},
+  linePlot_{new QRadioButton("Line plot", this)},
+  scatterPlot_{new QRadioButton("Scatter plot", this)}
+{
+  linePlot_->setChecked(true);
+  plotType_->addButton(linePlot_, 0);
+  plotType_->addButton(scatterPlot_, 1);
+
+  QGridLayout* layout = new QGridLayout();
+  layout->addWidget(new QLabel("Plot options", this), 0, 0);
+  layout->addWidget(base1d_, 1, 0);
+  layout->addWidget(optimized1d_, 1, 1);
+  layout->addWidget(base3d_, 2, 0);
+  layout->addWidget(optimized3d_, 2, 1);
+  layout->addWidget(linePlot_, 3, 0);
+  layout->addWidget(scatterPlot_, 4, 0);
+
+  properties_->setVisible(false);
+  layout->addWidget(properties_, 3, 1, 2, 1);
+  setLayout(layout);
+
+  connect(base1d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
+  connect(base3d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
+  connect(optimized1d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
+  connect(optimized3d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
+
+  connect(plotType_, SIGNAL(buttonToggled(int,bool)), this, SLOT(plotTypeButtonToggle(int,bool)));
+  connect(properties_, SIGNAL(currentIndexChanged(QString)), this, SIGNAL(propertyChanged(QString)));
+}
+
+void PlotOptions::plotTypeButtonToggle(int index, bool checked)
+{
+  if (checked)
+  {
+    emit plotTypeChange(index);
+    switch (index)
+    {
+      case 1:
+        properties_->setVisible(true);
+        break;
+      default:
+        properties_->setVisible(false);
+    }
+  }
+}
+
+QVector<bool> PlotOptions::activePlots() const
+{
+  QVector<bool> active(4, false);
+
+  active[TrajectoryType::Base1D] = base1d_->isChecked();
+  active[TrajectoryType::Optimized1D] = optimized1d_->isChecked();
+  active[TrajectoryType::Base3D] = base3d_->isChecked();
+  active[TrajectoryType::Optimized3D] = optimized3d_->isChecked();
+
+  return active;
+}
+
+void PlotOptions::setActivePlots(const QVector<bool> activePlots)
+{
+  base1d_->setChecked(activePlots[TrajectoryType::Base1D]);
+  optimized1d_->setChecked(activePlots[TrajectoryType::Optimized1D]);
+  base3d_->setChecked(activePlots[TrajectoryType::Base3D]);
+  optimized3d_->setChecked(activePlots[TrajectoryType::Optimized3D]);
+}
+
+void PlotOptions::setProperties(const QStringList& properties, const int activeIndex)
+{
+  properties_->clear();
+  properties_->insertItems(0, properties);
+  properties_->setCurrentIndex(activeIndex);
+}
+
+}  // namespace sac
+
+}  // namespace casaWizard

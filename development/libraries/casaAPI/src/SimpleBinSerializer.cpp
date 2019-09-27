@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 // CASA API
 #include "SimpleBinSerializer.h"
@@ -80,7 +80,7 @@ namespace casa
       return ok;
    }
 
-   SimpleBinSerializer::SimpleBinSerializer( const string & fileName, int ver ) : m_version( ver )
+   SimpleBinSerializer::SimpleBinSerializer( const string & fileName, int ver )
    {
       m_file.push( boost::iostreams::gzip_compressor() );
       m_file.push( boost::iostreams::file_sink( fileName, ios::out | ios::trunc | ios::binary ), 65536 );
@@ -119,7 +119,7 @@ namespace casa
    bool SimpleBinSerializer::save( const CasaSerializable & so, const string & objName )
    {
       saveObjectDescription( so.typeName(), objName, so.version() );
-      return m_file.good() ? so.save( *this, m_version ) : false;
+      return m_file.good() ? so.save( *this ) : false;
    }
 
    bool SimpleBinSerializer::saveObjectDescription( const string & objType, const string & objName, unsigned int ver )
@@ -138,10 +138,10 @@ namespace casa
       unsigned int version = soVersion ? soVersion->getSerializationVersion() : 0;
 
       bool ok = saveObjectDescription( "ISerializable", objName, version );
-      
+
       SUMlibSerializer<SimpleBinSerializer> sumlibSer( *this );
       ok = ok ? so.save( &sumlibSer, version ) : ok;
-      
+
       return ok;
    }
 }

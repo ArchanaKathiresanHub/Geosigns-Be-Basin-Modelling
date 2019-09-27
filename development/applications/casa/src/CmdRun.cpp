@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "CasaCommander.h"
 #include "CmdRun.h"
@@ -20,37 +20,6 @@
 
 #include <cstdlib>
 #include <iostream>
-
-static void PrintObsValues( casa::ScenarioAnalysis & sc )
-{
-   casa::RunCaseSet & rcSet = sc.doeCaseSet();
-
-   for ( size_t rc = 0; rc < rcSet.size(); ++rc )
-   {
-      // go through all run cases
-      const casa::RunCase * cs = rcSet[rc].get();
-
-      if ( !cs ) continue;
-
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "    " << cs->projectPath();
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "      Observable values:";
-
-      for ( size_t i = 0; i < cs->observablesNumber(); ++i )
-      {
-         casa::ObsValue * ov = cs->obsValue( i );
-         if ( ov && ov->parent() && ov->isDouble() )
-         {
-            const std::vector<double>      & vals  = ov->asDoubleArray();
-            const std::vector<std::string> & names = ov->parent()->name();
-
-            for ( size_t i = 0; i < vals.size(); ++i )
-            {
-               LogHandler( LogHandler::DEBUG_SEVERITY ) << "      " << names[i] << " = " << vals[i];
-            }
-         }
-      }
-   }
-}
 
 CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
@@ -67,7 +36,7 @@ CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPr
 
    if ( m_cluster.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty HPC cluster name";
 
-   if ( m_cldVer.empty() || m_cldVer == "Default" ) 
+   if ( m_cldVer.empty() || m_cldVer == "Default" )
    {
       m_cldVer = ibs::Path::applicationFullPath().path();
    }
@@ -87,7 +56,7 @@ void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    if ( m_maxPendingJobs > 0 ) rm.setMaxNumberOfPendingJobs( m_maxPendingJobs );
    if ( !m_resStr.empty()    ) rm.setResourceRequirements( m_resStr );
 
-  
+
    // submit jobs
    for ( size_t i = 0; i < sa->doeCaseSet().size(); ++i )
    {
@@ -107,15 +76,7 @@ void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
 
-   // collect observables value
-   if ( ErrorHandler::NoError != sa->dataDigger().collectRunResults( sa->obsSpace(), sa->doeCaseSet() ) )
-   {
-      throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
-   }
-   
    LogHandler( LogHandler::INFO_SEVERITY ) << "Scenarion execution succeeded";
-
-   PrintObsValues( *sa.get() );
 }
 
 void CmdRun::printHelpPage( const char * cmdName )
@@ -135,21 +96,21 @@ void CmdRun::printHelpPage( const char * cmdName )
                             In this case the same simulator version as casa application will be used.
        <max number of pending jobs> - (Optional) if this parameter is specified, casa will not submit jobs till the number of
                                       pending jobs on cluster is bigger the the given value
-       <hostSpec>         - LSF resorces selection string. It is in the same format as bsub parameter -R
+       <hostSpec>         - LSF resources selection string. It is in the same format as bsub parameter -R
 
        User could customize LSF options throug envinronment variables:\n)";
 
-   const char * envVar = getenv( "LSF_CAULDRON_PROJECT_NAME" ); 
+   const char * envVar = getenv( "LSF_CAULDRON_PROJECT_NAME" );
    std::cout << "    LSF_CAULDRON_PROJECT_NAME - project name (bsub -P ...)\n";
    std::cout << "        the default value: " << LSF_CAULDRON_PROJECT_NAME << "\n";
    std::cout << "        the current value: " << ( envVar ? envVar : LSF_CAULDRON_PROJECT_NAME ) << "\n";
-      
-   envVar = getenv( "LSF_CAULDRON_PROJECT_QUEUE" ); 
+
+   envVar = getenv( "LSF_CAULDRON_PROJECT_QUEUE" );
    std::cout << "    LSF_CAULDRON_PROJECT_QUEUE - project queue (bsub -q .. )\n";
    std::cout << "        the default value: NotDefined" << "\n";
    std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";
 
-   envVar = getenv( "LSF_CAULDRON_PROJECT_GROUP" ); 
+   envVar = getenv( "LSF_CAULDRON_PROJECT_GROUP" );
    std::cout << "    LSF_CAULDRON_PROJECT_GROUP - project group (bsub -G ...)\n";
    std::cout << "        the default value: NotDefined" << "\n";
    std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";

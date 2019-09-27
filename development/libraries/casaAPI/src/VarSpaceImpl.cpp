@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarSpaceImpl.C
-/// @brief This file keeps API implementation for influential parameters set manager. 
+/// @brief This file keeps API implementation for influential parameters set manager.
 
 #include "VarSpaceImpl.h"
 
@@ -30,7 +30,7 @@ namespace casa
    ErrorHandler::ReturnCode VarSpaceImpl::addParameter( VarParameter * prm )
    {
       if ( prm )
-      { 
+      {
          switch( prm->variationType() ) // also add parameter to the list depending on parameter type
          {
             case VarParameter::Continuous:  m_cntPrms.push_back( dynamic_cast<VarPrmContinuous* >( prm ) ); break;
@@ -44,14 +44,14 @@ namespace casa
          m_prms.push_back( prm ); // add parameter to the list of all var parameters
       }
       else
-      { 
+      {
          return reportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" );
       }
       return NoError;
    }
 
    // Serialize object to the given stream
-   bool VarSpaceImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
+   bool VarSpaceImpl::save( CasaSerializer & sz ) const
    {
       bool ok = true;
 
@@ -79,7 +79,7 @@ namespace casa
       // read from file object name and version
       unsigned int objVer = version();
       bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
- 
+
       CasaDeserializer::ObjRefID vspID;
 
       // load data necessary to create an object
@@ -105,7 +105,7 @@ namespace casa
                case VarParameter::Continuous:  newVar = VarPrmContinuous::load(  dz, "VarParameter" ); break;
                case VarParameter::Categorical: newVar = VarPrmCategorical::load( dz, "VarParameter" ); break;
                case VarParameter::Discrete:    newVar = VarPrmDiscrete::load(    dz, "VarParameter" ); break;
-               default: assert( 0 );
+               default: assert( false );
             }
             ok = newVar ? ok : false;
             ok = ok ? (NoError == addParameter( newVar )) : ok;

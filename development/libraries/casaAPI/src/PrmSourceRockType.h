@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSourceRockType.h
 /// @brief This file keeps API declaration for Source Rock Type parameter handling.
@@ -28,9 +28,9 @@ namespace mbapi
 }
 
 /// @page CASA_SourceRockTypePage Source rock type parameter
-/// 
-/// This parameter defines a source rock type for the stratigraphy layer as a source rock type name 
-/// from the source rock lithology table. This table must has a record for the combination of 
+///
+/// This parameter defines a source rock type for the stratigraphy layer as a source rock type name
+/// from the source rock lithology table. This table must has a record for the combination of
 /// the given stratigraphy layer and the given source rock type name
 ///
 /// <b>Source rock mixing note</b> : If base case project has source rock mixing for the layer for which
@@ -47,7 +47,7 @@ namespace casa
    {
    public:
       /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param mdl Cauldron model interface object to get from it the value of source rock type name for the 
+      /// @param mdl Cauldron model interface object to get from it the value of source rock type name for the
       ///            given layer.
       /// @param layerName layer name
       /// @param mixID     source rock mixing ID, must be 1 or 2
@@ -61,32 +61,20 @@ namespace casa
                       );
 
       /// @brief Destructor
-      virtual ~PrmSourceRockType() { ; }
-     
-      /// @brief Get name of the parameter
-      /// @return parameter name
-      virtual const char * name() const { return m_name.c_str(); }
-
-      /// @brief Get influential parameter which was used to create this parameter
-      /// @return Pointer to the influential parameter
-      virtual const VarParameter * parent() const { return m_parent; }
-
-      /// @brief Set influential parameter which was used to create this parameter
-      /// @param varPrm pointer to the influential parameter
-      virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
+      virtual ~PrmSourceRockType() = default;
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
       virtual AppPipelineLevel appSolverDependencyLevel() const  { return Genex; }
-                  
+
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
-      /// @return ErrorHandler::NoError in success, or error code otherwise     
+      /// @return ErrorHandler::NoError in success, or error code otherwise
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID );
 
-      /// @brief Validate parameter value if it exist in source rock lithology table and if 
-      ///         stratigraphy layer has this source rock type 
+      /// @brief Validate parameter value if it exist in source rock lithology table and if
+      ///         stratigraphy layer has this source rock type
       /// @param caldModel reference to Cauldron model
       /// @return empty string on success or error message with current parameter value
       virtual std::string validate( mbapi::Model & caldModel );
@@ -100,10 +88,10 @@ namespace casa
       std::string layerName() const { return m_layerName; }
 
       // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
-      
+
       /// @brief Get parameter value as an array of doubles
       /// @return parameter value represented as set of doubles
-      virtual std::vector<double> asDoubleArray() const { assert( 0 ); return std::vector<double>(); }
+      virtual std::vector<double> asDoubleArray() const { assert( false ); return std::vector<double>(); }
 
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
@@ -117,13 +105,12 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -136,9 +123,6 @@ namespace casa
       /// @}
 
    protected:
-      const VarParameter * m_parent;    ///< influential parameter which was used to create this one
-      std::string          m_name;      ///< name of the parameter
-      
       std::string          m_layerName; ///< layer name with source rock
       std::string          m_srtName;   ///< source rock type name
       int                  m_mixID;     ///< which source rock in the mix should be affected

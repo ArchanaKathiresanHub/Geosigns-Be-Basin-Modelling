@@ -8,8 +8,6 @@
 
 #include "FilePath.h"
 
-//#include <cmath>
-
 #include <gtest/gtest.h>
 
 static const double eps = 1.e-5;
@@ -18,11 +16,10 @@ static const double eps1 = 1.e-4;
 class mbapiModelTest : public ::testing::Test
 {
 public:
-   mbapiModelTest() { ; }
-   ~mbapiModelTest() { ; }
+   mbapiModelTest() {}
+   ~mbapiModelTest() {}
 
    bool compareFiles(const char * projFile1, const char * projFile2);
-   bool compareModels(mbapi::Model & model1, mbapi::Model & model2);
 
    static const char * m_sourceRockTestProject;
    static const char * m_testProject;
@@ -33,6 +30,7 @@ public:
    static const char * m_nnTestProject;
    static const char * m_reservoirTestProject;
    static const char * m_CtcTestProject;
+   static const char * m_mapMorphTestProject;
    static const char * m_FracPressTestProject;
    static const char * m_TopBoundaryTestProject;
    static const char * m_RunOptionsTestProject;
@@ -47,6 +45,7 @@ const char * mbapiModelTest::m_dupLithologyTestProject = "DupLithologyTesting.pr
 const char * mbapiModelTest::m_nnTestProject = "NNTesting.project3d";
 const char * mbapiModelTest::m_reservoirTestProject = "ReservoirTesting.project3d";
 const char * mbapiModelTest::m_CtcTestProject = "CtcTesting.project3d";
+const char * mbapiModelTest::m_mapMorphTestProject = "MapMorph.project3d";
 const char * mbapiModelTest::m_FracPressTestProject = "FracturePressureTesting.project3d";
 const char * mbapiModelTest::m_TopBoundaryTestProject = "TopBoundaryTesting.project3d";
 const char * mbapiModelTest::m_RunOptionsTestProject = "RunOptionsTesting.project3d";
@@ -88,23 +87,6 @@ bool mbapiModelTest::compareFiles(const char * projFile1, const char * projFile2
    return ret;
 }
 
-bool mbapiModelTest::compareModels(mbapi::Model & model1, mbapi::Model & model2)
-{
-   const char * projFile1 = "project_model_1.proj3d";
-   const char * projFile2 = "project_model_2.proj3d";
-
-   model1.saveModelToProjectFile(projFile1);
-   model2.saveModelToProjectFile(projFile2);
-
-   bool isTheSame = compareFiles(projFile1, projFile2);
-
-   // clean files copy
-   remove(projFile1);
-   remove(projFile2);
-
-   return isTheSame;
-}
-
 // load model, save it to another file. Then load this file and save again.
 // compare second and third project file to be the same
 TEST_F(mbapiModelTest, ModelLoadSaveProjectRoundTrip)
@@ -115,7 +97,7 @@ TEST_F(mbapiModelTest, ModelLoadSaveProjectRoundTrip)
    // load original project file
    ASSERT_EQ(ErrorHandler::NoError, modelBase->loadModelFromProjectFile(m_testProject));
 
-   // Save a first copy 
+   // Save a first copy
    ASSERT_EQ(ErrorHandler::NoError, modelBase->saveModelToProjectFile("Project_case1.project3d"));
 
    std::unique_ptr<mbapi::Model> modelCase2;
@@ -770,7 +752,6 @@ TEST_F(mbapiModelTest, GetSetLithologyDescriptionTest)
    lthMgr.setDescription(lid, lthMgr.getDescription(lid) + " (upgraded to double exponential model)");
    ASSERT_EQ("Standard Sandstone (upgraded to double exponential model)", lthMgr.getDescription(lid));
 }
-
 
 TEST_F(mbapiModelTest, MapsManagerCopyMapTest)
 {
@@ -1455,7 +1436,7 @@ TEST_F(mbapiModelTest, BottomBoundaryManager)
 
       id = 1;
 
-      //check whether all ages of CrustIo table are being read and modified 
+      //check whether all ages of CrustIo table are being read and modified
       botBoundMan.getAge(id, age);
       botBoundMan.setAge(id, 150.0);
       botBoundMan.getAge(id, age);
@@ -1464,7 +1445,7 @@ TEST_F(mbapiModelTest, BottomBoundaryManager)
       botBoundMan.getAge(id, age);
       EXPECT_NEAR(0.0, age, eps);
 
-      //check whether all thicknesses of CrustIo table are being read and modified 
+      //check whether all thicknesses of CrustIo table are being read and modified
       botBoundMan.getThickness(id, thickness);
       botBoundMan.setThickness(id, 30001.0);
       botBoundMan.getThickness(id, thickness);
@@ -1512,7 +1493,7 @@ TEST_F(mbapiModelTest, BottomBoundaryManager)
 
       id1 = 0;
 
-      //check whether all ages of ContCrustalThicknessIo table are being read and modified 
+      //check whether all ages of ContCrustalThicknessIo table are being read and modified
       botBoundMan.getContCrustAge(id1, contAge);
       botBoundMan.setContCrustAge(id1, 150.0);
       botBoundMan.getContCrustAge(id1, contAge);
@@ -1537,7 +1518,7 @@ TEST_F(mbapiModelTest, BottomBoundaryManager)
 
       id1 = 1;
 
-      //check whether all ages of ContCrustalThicknessIo table are being read and modified 
+      //check whether all ages of ContCrustalThicknessIo table are being read and modified
       botBoundMan.getContCrustAge(id1, contAge);
       botBoundMan.setContCrustAge(id1, 150.0);
       botBoundMan.getContCrustAge(id1, contAge);
@@ -1588,7 +1569,7 @@ TEST_F(mbapiModelTest, BottomBoundaryManager)
 
       id2 = 0;
 
-      //check whether all ages of OceaCrustalThicknessIoTbl are being read and modified 
+      //check whether all ages of OceaCrustalThicknessIoTbl are being read and modified
       botBoundMan.getOceaCrustAge(id2, oceaAge);
       botBoundMan.setOceaCrustAge(id2, 75.0);
       botBoundMan.getOceaCrustAge(id2, oceaAge);
@@ -1655,7 +1636,7 @@ TEST_F(mbapiModelTest, CtcManager)
    //check whether Age can be read and modified from StratIo table
    {
       std::vector<double> actualDepositionalAges = { 0.0,5.0,13.0,54.0,65.0,90.0,142.0,146.0,150.0,155.0,300.0 };
-      
+
       //Check whether all entries are being read correctlty
       for (auto tsId : timeStep)
       {
@@ -1667,11 +1648,11 @@ TEST_F(mbapiModelTest, CtcManager)
       }
       mbapi::CtcManager::StratigraphyTblLayerID id;
       id = 1;
-      //check whether the age of StratIo table are being read for id=2 
+      //check whether the age of StratIo table are being read for id=2
       ctcMan.getDepoAge(id, age);
       EXPECT_NEAR(5.0, age, eps);
       id = 6;
-      //check whether the age of StratIo table are being read for id=6 
+      //check whether the age of StratIo table are being read for id=6
       ctcMan.getDepoAge(id, age);
       EXPECT_NEAR(142.0, age, eps);
    }
@@ -1688,7 +1669,7 @@ TEST_F(mbapiModelTest, CtcManager)
       std::vector<std::string> actualDepthMap = { "DeltaSlGridName1", "DeltaSlGridName2", "DeltaSlGridName3" };
       std::vector<double> actualBasaltMeltDepth = { 120.0,150.0,180.0 };
       std::vector<std::string> actualBasaltMeltMap = { "BasaltThicknessMap_1", "BasaltThicknessMap_2", "BasaltThicknessMap_3" };
-      
+
       //Check whether all entries are being read correctlty
       for (auto tsId : timeStep)
       {
@@ -1709,20 +1690,20 @@ TEST_F(mbapiModelTest, CtcManager)
 
          ctcMan.getRiftingTblBasaltMeltThicknessMap(tsId,thicknessGrid);
          EXPECT_EQ(actualBasaltMeltMap[tsId], thicknessGrid);
-         
+
       }
       mbapi::CtcManager::TimeStepID id1;
       id1 = 1;
-      //check whether the age of CTCRiftingHistoryIoTbl are being read/modified for id=1 
+      //check whether the age of CTCRiftingHistoryIoTbl are being read/modified for id=1
       ctcMan.getCTCRiftingHistoryTblAge(id1, age);
       EXPECT_NEAR(20.0, age, eps);
-      //check whether the tectonicFlag of CTCRiftingHistoryIoTbl are being read/modified for id=1 
+      //check whether the tectonicFlag of CTCRiftingHistoryIoTbl are being read/modified for id=1
       ctcMan.getTectonicFlag(id1, TectonicContext);
       EXPECT_EQ("Passive Margin", TectonicContext);
       ctcMan.setTectonicFlag(id1, "Flexural Basin");
       ctcMan.getTectonicFlag(id1, TectonicContext);
       EXPECT_EQ("Flexural Basin", TectonicContext);
-      //check whether the relative sealevel adjustment value/map of CTCRiftingHistoryIoTbl are being read/modified for id=1 
+      //check whether the relative sealevel adjustment value/map of CTCRiftingHistoryIoTbl are being read/modified for id=1
       ctcMan.getRiftingTblResidualDepthAnomalyScalar(id1, depth);
       EXPECT_EQ(-501.0,depth);
       ctcMan.setRiftingTblResidualDepthAnomalyScalar(id1, 450.0);
@@ -1734,7 +1715,7 @@ TEST_F(mbapiModelTest, CtcManager)
       ctcMan.setRiftingTblResidualDepthAnomalyMap(id1, depthGrid);
       ctcMan.getRiftingTblResidualDepthAnomalyMap(id1, depthGrid);
       EXPECT_EQ("DeltaSlGridName5", depthGrid);
-      //check whether the maximum thickness of basalt melt value/map of CTCRiftingHistoryIoTbl are being read/modified for id=1 
+      //check whether the maximum thickness of basalt melt value/map of CTCRiftingHistoryIoTbl are being read/modified for id=1
       ctcMan.getRiftingTblBasaltMeltThicknessScalar(id1, thickness);
       EXPECT_EQ(150.0, thickness);
       ctcMan.setRiftingTblBasaltMeltThicknessScalar(id1,175.0);
@@ -1747,7 +1728,7 @@ TEST_F(mbapiModelTest, CtcManager)
       EXPECT_EQ("BasaltThicknessMap_2_new", thicknessGrid);
 
       id1 = 2;
-      //check whether the age of CTCRiftingHistoryIoTbl are being read/modified for id=2 
+      //check whether the age of CTCRiftingHistoryIoTbl are being read/modified for id=2
       ctcMan.getCTCRiftingHistoryTblAge(id1, age);
       EXPECT_NEAR(30.0, age, eps);
       ctcMan.getTectonicFlag(id1, TectonicContext);
@@ -1766,15 +1747,15 @@ TEST_F(mbapiModelTest, CtcManager)
 
    std::string mapName = "MAP-1514100163-4";
    mbapi::MapsManager::MapID id = mapMan.findID(mapName);
-  
+
    double minV, maxV;
    mapMan.mapValuesRange(id, minV, maxV);
-   
+
    EXPECT_NEAR(22.586912, minV, eps1);
    EXPECT_NEAR(2500.5203001, maxV, eps1);
 
    double value;
-   
+
    //check whether Relative sealevel adjustment value/map of CTCIoTbl are being read/modified
    ctcMan.getResidualDepthAnomalyScalar(value);
    EXPECT_EQ(-350.0, value);
@@ -1835,9 +1816,55 @@ TEST_F(mbapiModelTest, CtcManager)
       ctcMan.setGridMapIoTblMapName(id2, "Expedite_Map_Name");
       ctcMan.getGridMapIoTblMapName(id2, thicknessGrid);
       EXPECT_EQ("Expedite_Map_Name", thicknessGrid);
-      
+
    }
 
+}
+
+TEST_F(mbapiModelTest, MapsManagerMapMorphTest)
+{
+  const char* basementTblName      = "BasementIoTbl";
+  const char* topCrustHeatProdGrid = "TopCrustHeatProdGrid";
+
+  const std::vector<double> xWells{186943.0, 189100.0, 179050.0, 200056.0, 189400.0};
+  const std::vector<double> yWells{612333.0, 615467.1, 609000.0, 609000.0, 615800.0};
+  const double radius = 1200;
+  const double shift = 1.2;
+  const double scale = 1.4;
+
+  mbapi::Model testModel;
+  ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_mapMorphTestProject));
+
+  const std::string& mapName = testModel.tableValueAsString( basementTblName, 0, topCrustHeatProdGrid );
+  mbapi::MapsManager& mpMgr = testModel.mapsManager();
+  const mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
+
+  double minVal, maxVal;
+  ASSERT_EQ( ErrorHandler::NoError, mpMgr.mapValuesRange( mID, minVal, maxVal ) );
+  ASSERT_NEAR( minVal, 1.65342, 1e-5 );
+  ASSERT_NEAR( maxVal, 4.48822, 1e-5 );
+
+  ASSERT_EQ( ErrorHandler::NoError, mpMgr.scaleAndShiftMapCorrectedForWells( mID, scale, shift, radius, xWells, yWells ));
+
+  ASSERT_EQ( ErrorHandler::NoError, mpMgr.mapValuesRange( mID, minVal, maxVal ) );
+  ASSERT_NEAR( minVal, 3.08499, 1e-5 );
+  ASSERT_NEAR( maxVal, 7.48351, 1e-5 );
+}
+
+TEST_F(mbapiModelTest, ReadWindowObsOriginFromFile)
+{
+  mbapi::Model testModel;
+
+  double xExpected = 186980.8;
+  double yExpected = 610967.1;
+
+  double xActual = 0.0;
+  double yActual = 0.0;
+
+  testModel.windowObservableOrigin( xActual, yActual );
+
+  EXPECT_NEAR( xActual, xExpected, eps );
+  EXPECT_NEAR( yActual, yExpected, eps );
 }
 
 TEST_F(mbapiModelTest, FracturePressureManager)
@@ -1902,7 +1929,6 @@ TEST_F(mbapiModelTest, FracturePressureManager)
    FracPressMan.setFractureConstraintMethod(3);
    FracPressMan.getFractureConstraintMethod(ConstraintMethod);
    EXPECT_EQ(3, ConstraintMethod);
-
 }
 
 

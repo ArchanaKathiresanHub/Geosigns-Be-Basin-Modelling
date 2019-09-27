@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file RSProxy.h
 /// @brief This file keeps API declarations for response surface proxy
@@ -14,11 +14,11 @@
 #ifndef CASA_API_RESPONSE_SURFACE_PROXY_H
 #define CASA_API_RESPONSE_SURFACE_PROXY_H
 
-/// @page CASA_RSProxyPage Response surface proxy 
-/// A @link casa::RSProxy Response Surface proxy @endlink model of a system property (also called a target or observable) is an 
-/// approximate representation of this property such that it can be evaluated in a fast and efficient manner. A response surface 
+/// @page CASA_RSProxyPage Response surface proxy
+/// A @link casa::RSProxy Response Surface proxy @endlink model of a system property (also called a target or observable) is an
+/// approximate representation of this property such that it can be evaluated in a fast and efficient manner. A response surface
 /// proxy model for a target is calculated from a number of simulated @link CASA_DoEGeneratorPage DoE @endlink
-/// cases and then allows to interpolate the target value 
+/// cases and then allows to interpolate the target value
 /// for other of the parameters value.
 ///
 /// The Response surface proxy model is usually constructed from a polynomial approximation. For 2 parameters it can be written like this:
@@ -38,22 +38,22 @@
 ///
 /// @f$ \beta_i @f$ - is the polynomial coefficient
 ///
-/// Response surface proxy could use also @ref CASA_KrigingPage 
+/// Response surface proxy could use also @ref CASA_KrigingPage
 ///
 /// Additional information could be found on <a href="https://en.wikipedia.org/wiki/Response_surface_methodology"> Wikipedia </a>
 
 
 /// @page CASA_KrigingPage Kriging interpolation
 ///
-/// All interpolation algorithms (inverse distance squared, splines, radial basis functions, triangulation, etc.) estimate the 
-/// value at a given location as a weighted sum of data values at surrounding locations. Almost all assign weights according 
-/// to functions that give a decreasing weight with increasing separation distance. 
-/// Kriging assigns weights according to a (moderately) data-driven weighting function, rather than an arbitrary function, but 
+/// All interpolation algorithms (inverse distance squared, splines, radial basis functions, triangulation, etc.) estimate the
+/// value at a given location as a weighted sum of data values at surrounding locations. Almost all assign weights according
+/// to functions that give a decreasing weight with increasing separation distance.
+/// Kriging assigns weights according to a (moderately) data-driven weighting function, rather than an arbitrary function, but
 /// it is still just an interpolation algorithm and will give very similar results to others in many cases
 ///
-/// Some advantages of kriging: 
+/// Some advantages of kriging:
 ///
-/// - Helps to compensate for the effects of data clustering, assigning individual points within a cluster less weight 
+/// - Helps to compensate for the effects of data clustering, assigning individual points within a cluster less weight
 ///   than isolated data points (or, treating clusters more like single points)
 /// - Gives estimate of estimation error (kriging variance), along with estimate of the influential value itself
 ///
@@ -76,12 +76,15 @@
 // CASA
 #include "CasaSerializer.h"
 
+// SUMlib includes
+#include <CompoundProxyCollection.h>
+
 //STL
 #include <map>
 #include <vector>
 
 namespace casa
-{   
+{
    class RunCase;
 
    /// @brief Class to handle response surface proxy
@@ -100,7 +103,7 @@ namespace casa
       };
 
       /// @brief Destructor
-      virtual ~RSProxy() {;}
+      virtual ~RSProxy() {}
 
       /// @brief Calculate polynomial coefficients for the given cases set
       /// @param caseSet list of cases which keeps simulation results with influential parameters value and observables value
@@ -110,6 +113,9 @@ namespace casa
       /// @post Properly initialized RSProxy object with calculated polynomial coefficients for the response surface approximation.
       virtual ErrorHandler::ReturnCode calculateRSProxy( const std::vector<const RunCase*> & caseSet ) = 0;
 
+      /// @brief Get SUMlib proxy object
+      /// @return SUMlib proxy object
+      virtual SUMlib::CompoundProxyCollection * getProxyCollection() const = 0;
 
       /// @brief Calculate values of observables for given set of parameters.
       /// @param cs case which keeps list of parameters and list of observables to be calculated
@@ -122,7 +128,7 @@ namespace casa
 
       /// @brief Get type of kriging interpolation for this proxy
       /// @return which kriging interpolation is used for the proxy
-      virtual RSKrigingType kriging() const = 0; 
+      virtual RSKrigingType kriging() const = 0;
 
       /// @brief Get order of polynomial approximation for the proxy
       /// @return polynomial order
@@ -158,7 +164,7 @@ namespace casa
       virtual const CoefficientsMapList & getCoefficientsMapList() const = 0;
 
    protected:
-      RSProxy() {;}
+      RSProxy() {}
 
    private:
    };

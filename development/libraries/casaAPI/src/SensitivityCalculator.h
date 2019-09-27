@@ -76,9 +76,9 @@
 
     @f$ S_p @f$ is sensitivity for parameter @f$ p @f$, 
 
-    @f$ V_{p,min}^{o} @f$ minimal observable value for the @f$ p-th @f$ parameter interval, calculated from proxy evalutaion.
+    @f$ V_{p,min}^{o} @f$ minimal observable value for the @f$ p-th @f$ parameter interval, calculated from proxy evaluation.
 
-    @f$ V_{p,max}^{o} @f$ maximal observable value for the @f$ p-th @f$ parameter interval, calculated from proxy evalutaion.
+    @f$ V_{p,max}^{o} @f$ maximal observable value for the @f$ p-th @f$ parameter interval, calculated from proxy evaluation.
 
     @f$ V_{min}^{o} @f$ minimal observable value for most sensitive for this observable parameter.
 

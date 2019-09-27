@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmPorosityModel.h
 /// @brief This file keeps API declaration for handling variation of casa::PrmPorosityModel parameter
@@ -23,7 +23,7 @@ namespace casa
    class VarPrmPorosityModel: public VarPrmContinuous
    {
    public:
-      /// @brief Construct influential parameter for variation of porosity model parameters in lithology 
+      /// @brief Construct influential parameter for variation of porosity model parameters in lithology
       ///
       /// Porosity model must be defined for each lithology type in project. Each model has own model parameters
       /// not all of them can be independent. CASA API supports now 3 type of porosity model:
@@ -51,7 +51,7 @@ namespace casa
 
       virtual ~VarPrmPorosityModel();
 
-      /// @brief Get name of influential parameter in short form     
+      /// @brief Get name of influential parameter in short form
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const;
 
@@ -74,8 +74,8 @@ namespace casa
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
       /// @return new parameter for given set of values
       virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model              & mdl ///< [in,out] the model where to set the new averaged parameter
-                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project 
-                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project 
+                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project
+                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
                                                    ) const;
       /// @{
@@ -89,16 +89,15 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Create a new var.parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
       VarPrmPorosityModel( CasaDeserializer & dz, unsigned int objVer );
       /// @}
-   
+
    protected:
       PrmPorosityModel::PorosityModelType   m_mdlType;   ///< porosity model type
       std::string                           m_lithoName; ///< lithology name

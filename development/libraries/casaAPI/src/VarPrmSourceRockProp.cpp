@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmSourceRockProp.h
-/// @brief This file keeps API implementation for handling variation of initial source rock Prop parameter. 
+/// @brief This file keeps API implementation for handling variation of initial source rock Prop parameter.
 
 #include "PrmSourceRockType.h"
 #include "PrmSourceRockProp.h"
@@ -51,8 +51,8 @@ SharedParameterPtr VarPrmSourceRockProp::newParameterFromDoubles( std::vector<do
    double prmV = *vals++; // in [-1:0:1] range
 
    // scale to range [-1:0:1] if influential parameter has more than 1 range
-   if ( m_name2range.size() > 1 ) 
-   {  
+   if ( m_name2range.size() > 1 )
+   {
       // scale prmV from [-1:1] to the current Prop range - [minProp:maxProp]
       // 0.0 is the base value for [-1:1] range
       prmV = prmV < 0.0 ? minProp  + (prmV + 1.0) * (baseProp - minProp) : // [minV, baseV] range
@@ -88,7 +88,7 @@ SharedParameterPtr VarPrmSourceRockProp::makeThreeDFromOneD( mbapi::Model       
 }
 
 
-std::vector<double> VarPrmSourceRockProp::asDoubleArray( const SharedParameterPtr prm ) const 
+std::vector<double> VarPrmSourceRockProp::asDoubleArray( const SharedParameterPtr prm ) const
 {
    const PrmSourceRockProp * tocPrm = dynamic_cast<const PrmSourceRockProp*>( prm.get() );
    assert( tocPrm );
@@ -100,7 +100,7 @@ std::vector<double> VarPrmSourceRockProp::asDoubleArray( const SharedParameterPt
    double basV = dynamic_cast<PrmSourceRockProp*>( m_baseValue.get() )->value();
 
    if ( !m_name.empty() && !tocPrm->sourceRockTypeName().empty() && m_name2range.count( tocPrm->sourceRockTypeName() ) > 0 )
-   {  
+   {
       const std::vector<SharedParameterPtr> & rng = m_name2range.find( tocPrm->sourceRockTypeName() )->second;
       minV = dynamic_cast<PrmSourceRockProp*>( rng[0].get() )->value();
       maxV = dynamic_cast<PrmSourceRockProp*>( rng[1].get() )->value();
@@ -119,12 +119,12 @@ std::vector<double> VarPrmSourceRockProp::asDoubleArray( const SharedParameterPt
 }
 
 void VarPrmSourceRockProp::addSourceRockTypeRange( const char         * srTypeName
-                                                 , SharedParameterPtr   baseVal   
-                                                 , SharedParameterPtr   minVal    
-                                                 , SharedParameterPtr   maxVal    
-                                                 , PDF                  pdfType   
+                                                 , SharedParameterPtr   baseVal
+                                                 , SharedParameterPtr   minVal
+                                                 , SharedParameterPtr   maxVal
+                                                 , PDF                  pdfType
                                                  )
-{  
+{
    ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
 
    if ( !srTypeName ) { throw ex << "Empty source rock type name for new " << m_propName << " range for: " << name(); }
@@ -144,14 +144,14 @@ void VarPrmSourceRockProp::addSourceRockTypeRange( const char         * srTypeNa
    vec.push_back( minVal );
    vec.push_back( maxVal );
    vec.push_back( baseVal );
-   
+
    m_name2range[std::string( srTypeName )] = vec;
 }
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool VarPrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned int version ) const
+bool VarPrmSourceRockProp::serializeCommonPart( CasaSerializer & sz ) const
 {
-   bool ok = VarPrmContinuous::save( sz, version );
+   bool ok = VarPrmContinuous::save( sz );
    ok = ok ? sz.save( m_layerName, "layerName" ) : ok;
 
    ok = ok ? sz.save( m_mixID,      "mixingID"   ) : ok;
@@ -171,8 +171,8 @@ bool VarPrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned in
          ok = ok ? sz.save( *(vec[1].get()), "maxValPropRange" ) : ok;
          ok = ok ? sz.save( *(vec[2].get()), "basValPropRange" ) : ok;
       }
-   } 
-   
+   }
+
    ok = ok ? sz.save( m_propName, "propName"     ) : ok;
    return ok;
 }
@@ -194,7 +194,7 @@ bool VarPrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigne
       std::string         key;
 
       ok = ok ? dz.load( key, "srTypeNameKey" ) : ok;
-      
+
       std::vector<SharedParameterPtr > vec;   // load min, max & base range values
 
       if ( objVer > 0 ) // load ranges as min/max/base parameters objects
@@ -203,7 +203,7 @@ bool VarPrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigne
          {
             for ( size_t j = 0; j < 3 && ok; ++j )
             {
-               switch( j ) 
+               switch( j )
                {
                   case 0: vec.push_back( SharedParameterPtr( Parameter::load( dz, "minValPropRange" ) ) ); break;
                   case 1: vec.push_back( SharedParameterPtr( Parameter::load( dz, "maxValPropRange" ) ) ); break;
@@ -242,7 +242,7 @@ bool VarPrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigne
    }
 
    ok = ok ? dz.load( m_propName, "propName"    ) : ok;
-   
+
    return ok;
 }
 
@@ -253,19 +253,19 @@ void VarPrmSourceRockProp::onCategoryChosen( const Parameter * prm )
 
    const std::string & srName = srtPrm->sourceRockTypeName();
    const std::string & lrName = srtPrm->layerName();
-   
+
    if ( srName == m_srTypeName ) return;
 
    if ( lrName != m_layerName )
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<
          "Mismatch layer name for the source rock type parameter (" << lrName << ") and " <<
          m_propName << " (" << m_layerName << ") parameter";
    }
 
    if ( !m_name2range.count( srName ) )
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown source rock type in dependent " << m_propName << 
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown source rock type in dependent " << m_propName <<
          " parameter: " <<  srName << " for the layer: " << lrName;
    }
    const std::vector<SharedParameterPtr> & vec = m_name2range[srName];

@@ -15,7 +15,7 @@
 #include "CasaDeserializer.h"
 #include "MonteCarloSolverImpl.h"
 #include "ObsSpace.h"
-#include "RSProxyImpl.h"
+#include "RSProxy.h"
 #include "RunCaseImpl.h"
 #include "SUMlibUtils.h"
 #include "VarSpace.h"
@@ -107,7 +107,7 @@ SUMlib::McmcBase * MonteCarloSolverImpl::createMcmc( const SUMlib::CompoundProxy
                }
                else
                {
-                  LogHandler( LogHandler::WARNING_SEVERITY ) << "MC/MCMC: " << obv->name()[k] << 
+                  LogHandler( LogHandler::WARNING_SEVERITY ) << "MC/MCMC: " << obv->name()[k] <<
                      " has the undefined value for all run cases and will be excluded from RMSE calculation";
 
                   m_input.push_back( new SUMlib::ReferenceProxy( *proxies[numObsVals] ) );
@@ -228,7 +228,7 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::configureSolver( const RSProxy & 
                         case VarPrmContinuous::Block:    sumPdfTypes.push_back( SUMlib::MarginalProbDistr::Uniform    ); break;
                         case VarPrmContinuous::Triangle: sumPdfTypes.push_back( SUMlib::MarginalProbDistr::Triangular ); break;
                         case VarPrmContinuous::Normal:   sumPdfTypes.push_back( SUMlib::MarginalProbDistr::Normal     ); break;
-                        default: assert( 0 ); break;
+                        default: assert( false ); break;
                      }
                   }
                }
@@ -270,7 +270,7 @@ void MonteCarloSolverImpl::calculateP10toP90()
    {
       ObsCaseSorterHelper( size_t obsNum, size_t subObsNum ) : m_obsNum( obsNum ), m_subObsNum( subObsNum ) {;}
 
-      bool operator() ( const RunCase * c1, const RunCase * c2 ) 
+      bool operator() ( const RunCase * c1, const RunCase * c2 )
       {
          const std::vector<double> & c1vals = c1->obsValue( m_obsNum )->asDoubleArray();
          const std::vector<double> & c2vals = c2->obsValue( m_obsNum )->asDoubleArray();
@@ -281,14 +281,14 @@ void MonteCarloSolverImpl::calculateP10toP90()
       size_t m_subObsNum;
    };
 
-   if ( m_results.empty() ) return; // do nothing if there are no samplings 
+   if ( m_results.empty() ) return; // do nothing if there are no samplings
 
    std::vector<const RunCase*> samples( m_results.size(), 0 );
    // copy sampled cases to the working array
    for ( size_t i = 0; i < m_results.size(); ++i ) { samples[i] = m_results[i].second; }
 
    const RunCase * anyOne = samples.front();
-   
+
    m_cdf.clear();
 
    for ( size_t o = 0; o < anyOne->observablesNumber(); ++o )
@@ -359,12 +359,11 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::prepareSimulation( RSProxy       
                                                                 , double           stdDevFactor
                                                                 )
 {
-   RSProxyImpl & rsp = dynamic_cast<RSProxyImpl &>( proxy );
    m_stdDevFactor = stdDevFactor;
 
-   if ( !rsp.getProxyCollection() ) return reportError( ErrorHandler::NonexistingID, "Unprepared proxy given for MC/MCMC" );
+   if ( !proxy.getProxyCollection() ) return reportError( ErrorHandler::NonexistingID, "Unprepared proxy given for MC/MCMC" );
 
-   m_mcmc.reset( createMcmc( *(rsp.getProxyCollection()), obs, proxyVsp, mcmcVsp, numOfSamples ) );
+   m_mcmc.reset( createMcmc( *(proxy.getProxyCollection()), obs, proxyVsp, mcmcVsp, numOfSamples ) );
 
    if ( NoError != configureSolver( proxy, proxyVsp, maxNumSteps ) ) return errorCode();
 
@@ -433,7 +432,7 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
 }
 
 // Serialize object to the given stream
-bool MonteCarloSolverImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
+bool MonteCarloSolverImpl::save( CasaSerializer & sz ) const
 {
    bool ok = true;
 

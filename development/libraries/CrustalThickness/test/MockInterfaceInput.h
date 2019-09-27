@@ -49,15 +49,15 @@ class MockInterfaceInput : public InterfaceInput {
          (
             ctcData( new CrustalThicknessData( nullptr, nullptr ) ),
             ctcRiftingHistoryData( 1, std::shared_ptr<const CrustalThicknessRiftingHistoryData>( new CrustalThicknessRiftingHistoryData( nullptr, nullptr ) ) )
-         ) {};
+         ) {}
 
       /// @brief Use this constructor to test the calculators by setting inputs in the interface via the data objects
       MockInterfaceInput( const std::shared_ptr< const CrustalThicknessData>           crustalThicknessData,
          const std::vector<std::shared_ptr<const CrustalThicknessRiftingHistoryData>>& crustalThicknessRiftingHistoryData )
-         :InterfaceInput( crustalThicknessData, crustalThicknessRiftingHistoryData ) {};
+         :InterfaceInput( crustalThicknessData, crustalThicknessRiftingHistoryData ) {}
 
 
-      virtual ~MockInterfaceInput() {};
+      virtual ~MockInterfaceInput() {}
 
       /// @defgroup Mutators
       /// @brief Use it to quickly set input data in your unit tests

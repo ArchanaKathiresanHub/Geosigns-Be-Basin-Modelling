@@ -7,7 +7,7 @@
 #include "../src/ObsValueDoubleScalar.h"
 #include "../src/ObsGridPropertyXYZ.h"
 #include "../src/VarPrmSourceRockTOC.h"
-#include "../src/VarPrmTopCrustHeatProduction.h"
+#include "../src/PrmTopCrustHeatProduction.h"
 
 #include <memory>
 #include <cmath>
@@ -25,7 +25,7 @@ class MCTest : public ::testing::Test
 {
 public:
    MCTest()
-   { 
+   {
       m_validate = false;
       const char * envVal = getenv( "VALIDATE_UNIT_TEST" );
       if ( envVal )
@@ -41,6 +41,7 @@ public:
 
    void prepareScenarioUpToMC( casa::ScenarioAnalysis & sc, RSProxy::RSKrigingType krig, RSProxy ** proxy )
    {
+      sc.defineBaseCase("Ottoland.project3d");
       double obsVals[5][2] = { { 65.1536, 0.479763 },
                                { 49.8126, 0.386869 },
                                { 80.4947, 0.572657 },
@@ -49,20 +50,18 @@ public:
                              };
 
       VarSpace      & vrs = sc.varSpace();
-      ObsSpaceImpl  & obs = dynamic_cast<ObsSpaceImpl&>( sc.obsSpace() );
+      ObsSpace  & obs = sc.obsSpace();
 
       vector<double> dblRng( 3, 5.0 );
       dblRng[1] = 15.0;
       dblRng[2] = 10.0;
       ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
-   
-      dblRng[0] = 0.1;
-      dblRng[1] = 4.9;
-      dblRng[2] = 2.5;
-      ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>() ) ) );
+
+      const PrmTopCrustHeatProduction prm( sc.baseCase() );
+      ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmContinuousTemplate<PrmTopCrustHeatProduction>( prm, "", 0.1, 4.9 ) ) );
 
       Observable * ob = ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.0 );
-      ob->setReferenceValue( new ObsValueDoubleScalar( ob, 108.6 ), new ObsValueDoubleScalar( ob, 2.0 ) ); 
+      ob->setReferenceValue( new ObsValueDoubleScalar( ob, 108.6 ), new ObsValueDoubleScalar( ob, 2.0 ) );
       ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ob ) );
 
       ob = ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.0 );
@@ -77,19 +76,19 @@ public:
       vector<const RunCase*> proxyRC;
 
       // add observables values without running cases
-      RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
-      for ( size_t i = 0; i < rcs.size(); ++i ) 
+      RunCaseSet& rcs = sc.doeCaseSet();
+      for ( size_t i = 0; i < rcs.size(); ++i )
       {
-         RunCaseImpl * rc = dynamic_cast<RunCaseImpl*>( rcs[ i ].get() );
+         RunCase* rc = rcs[ i ].get();
 
          proxyRC.push_back( rc ); // collect run cases for proxy calculation
 
          for ( size_t j = 0; j < 2; ++j )
          {
-            ObsValue * obv = ObsValueDoubleScalar::createNewInstance( obs[j], obsVals[i][j] );
+            const ObsValue * obv = ObsValueDoubleScalar::createNewInstance( obs.observable(j), obsVals[i][j] );
             rc->addObsValue( obv );
             // mark observables values as valid
-            obs.updateObsValueValidateStatus( j, obs[j]->isValid( obv ) );
+            obs.updateObsValueValidateStatus( j, obs.observable(j)->isValid( obv ) );
          }
          rc->setRunStatus( RunCase::Completed );
       }
@@ -103,7 +102,7 @@ public:
    }
 
    void printMCResults( const char * tableName, const casa::MonteCarloSolver::MCResults & mcSamples )
-   {  
+   {
       cerr << "\nstatic double " << tableName << "[" << mcSamples.size() << "][" << mcSamples[0].second->parametersNumber() + 2 +
                                                                                     mcSamples[0].second->observablesNumber() << "] =\n{\n";
       for ( size_t i = 0; i < mcSamples.size(); ++i )
@@ -123,7 +122,7 @@ public:
 
          for ( size_t j = 0; j < mcSamples[i].second->observablesNumber(); ++j )
          {
-            casa::ObsValue * obv = mcSamples[i].second->obsValue( j );
+            const casa::ObsValue * obv = mcSamples[i].second->obsValue( j );
             cerr << obv->asDoubleArray()[0] << (j == mcSamples[i].second->observablesNumber() - 1 ? " " : ", " );
          }
          cerr << "}" << ( i == mcSamples.size() - 1 ? "" : "," ) << endl;
@@ -139,7 +138,7 @@ public:
          size_t off = 1;
          // Check RMSE
          EXPECT_LT( relativeError( table[i][off++], mcSamples[i].first ), reps );
-   
+
          // check generated parameters
          for ( size_t j = 0; j < mcSamples[i].second->parametersNumber(); ++j )
          {
@@ -153,7 +152,7 @@ public:
 
          for ( size_t j = 0; j < mcSamples[i].second->observablesNumber(); ++j )
          {
-            casa::ObsValue * obv = mcSamples[i].second->obsValue( j );
+            const casa::ObsValue * obv = mcSamples[i].second->obsValue( j );
             EXPECT_LT( relativeError( table[i][off++], obv->asDoubleArray()[0] ), reps );
          }
       }
@@ -279,7 +278,7 @@ TEST_F (MCTest, SolverOptionsSetGetTest )
    ASSERT_EQ( sc.mcSolver().kriging(),            casa::MonteCarloSolver::NoKriging  );
    ASSERT_EQ( sc.mcSolver().measurementDistrib(), casa::MonteCarloSolver::Normal     );
    ASSERT_EQ( sc.mcSolver().priorDistribution(),  casa::MonteCarloSolver::NoPrior    );
- 
+
    ASSERT_EQ( ErrorHandler::NoError, sc.setMCAlgorithm( casa::MonteCarloSolver::MCMC, casa::MonteCarloSolver::SmartKriging,
                                                         casa::MonteCarloSolver::MarginalPrior,    casa::MonteCarloSolver::Robust ) );
 
@@ -287,7 +286,7 @@ TEST_F (MCTest, SolverOptionsSetGetTest )
    ASSERT_EQ( sc.mcSolver().kriging(),            casa::MonteCarloSolver::SmartKriging  );
    ASSERT_EQ( sc.mcSolver().measurementDistrib(), casa::MonteCarloSolver::Robust        );
    ASSERT_EQ( sc.mcSolver().priorDistribution(),  casa::MonteCarloSolver::MarginalPrior );
- 
+
    ASSERT_EQ( ErrorHandler::NoError, sc.setMCAlgorithm( casa::MonteCarloSolver::MCLocSolver, casa::MonteCarloSolver::GlobalKriging,
                                                          casa::MonteCarloSolver::MultivariatePrior, casa::MonteCarloSolver::Mixed ) );
 
@@ -310,9 +309,9 @@ TEST_F( MCTest, MonteCarloTest )
                                                         casa::MonteCarloSolver::NoPrior,    casa::MonteCarloSolver::Normal ) );
 
    ASSERT_EQ( ErrorHandler::NoError, sc.mcSolver().runSimulation( *proxy, sc.varSpace(), sc.varSpace(), sc.obsSpace(), 50, 10, 1.0 ) );
-  
+
    EXPECT_NEAR( sc.mcSolver().stdDevFactor(), 1.0,  eps );  // VRE
-   
+
    // export MC samples
    const casa::MonteCarloSolver::MCResults & mcSamples = sc.mcSolver().getSimulationResults();
 
@@ -362,7 +361,7 @@ TEST_F( MCTest, MCMCTestNoKrigingGOF )
       cerr << "double GOR = " << sc.mcSolver().GOF() << ";\n" << endl;
    }
    else
-   { 
+   {
       checkMCResults( sc.mcSolver().getSimulationResults(), MCMC50SamplesResults );
    }
 }

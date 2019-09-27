@@ -237,38 +237,7 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
    ifs.close();
 }
 
-// read parameters value from plain data file
-void CfgFileParser::readParametersValueFile( const std::string & fileName, std::vector< std::vector<double> > & dataVals )
-{
-   std::ifstream file( fileName.c_str() );
 
-   dataVals.clear();
-
-   std::string line;
-   
-   // process one line 
-   while( std::getline( file, line ) )
-   {
-      if ( line[0] == '#' ) continue;
-
-      std::istringstream iss( line );
-
-      std::string result;
-      
-      std::string opt;
-
-      std::vector<double> oneLineVals;
-
-      while( std::getline( iss, result, ' ') ) 
-      {
-         if ( result.empty() || (result.size() == 1 && result[0] == ' ') ) continue;
-
-         double v = atof( result.c_str() );
-         oneLineVals.push_back( v );
-      }
-      if ( !oneLineVals.empty() ) dataVals.push_back( oneLineVals );
-   }
-}
 
 bool CfgFileParser::isNumericPrm( const std::string & prm )
 {

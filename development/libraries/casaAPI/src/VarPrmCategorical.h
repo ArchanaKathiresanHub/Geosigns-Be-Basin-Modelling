@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmCategorical.h
-/// @brief This file keeps API declaration for handling categorical parameters. 
+/// @brief This file keeps API declaration for handling categorical parameters.
 
 #ifndef CASA_API_VAR_PRM_CATEGORICAL_H
 #define CASA_API_VAR_PRM_CATEGORICAL_H
@@ -33,7 +33,7 @@
 /// There is no ordering in this labeling (you cannot say that one scenario is ‘larger’ than the other)
 ///
 /// The following list of influential parameters is implemented in CASA API
-/// - @subpage CASA_SourceRockTypePage 
+/// - @subpage CASA_SourceRockTypePage
 
 
 namespace casa
@@ -51,21 +51,19 @@ namespace casa
       /// @return VarParameter::Categorical
       virtual Type variationType() const { return Categorical; }
 
-     /// @brief A parameter which corresponds the base value of the influential parameter 
+     /// @brief A parameter which corresponds the base value of the influential parameter
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr baseValue() const { return m_variation[m_baseVal]; }
 
-      /// @brief A parameter which corresponds the minimal range value of the influential parameter 
+      /// @brief A parameter which corresponds the minimal range value of the influential parameter
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr minValue() const { assert( !m_variation.empty() ); return m_variation.front(); }
 
-      /// @brief A parameter which corresponds the maximal range value of the influential parameter 
+      /// @brief A parameter which corresponds the maximal range value of the influential parameter
       /// @return the parameter object should be deleted by a caller
       virtual const SharedParameterPtr maxValue() const { assert( !m_variation.empty() ); return m_variation.back(); }
 
-      /// @brief Check does this parameter was selected for DoE
-      /// @return true if min/max values are different, false otherwise
-      virtual bool selected() const { return !(*(minValue().get()) == *(maxValue().get())); }
+      virtual std::vector<bool> selected() const override;
 
       /// @brief Get user specified weights for each parameter value. If user didn't specify weights,
       ///        empty array will be returned
@@ -79,14 +77,13 @@ namespace casa
       /// @brief Create a copy of the parameter and assign to the given value. If value is not in var. parameter values set,
       ///        the method will return a zero pointer
       /// @param val new value for parameter
-      /// @return parameter object for the given category number 
+      /// @return parameter object for the given category number
       virtual SharedParameterPtr createNewParameterFromUnsignedInt( unsigned int val ) const;
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save(CasaSerializer & sz) const;
 
       /// @brief Create a new VarPrmCategorical instance and deserialize it from the given stream
       /// @param dz input stream

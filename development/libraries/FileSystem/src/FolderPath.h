@@ -25,13 +25,13 @@ namespace ibs
    {
    public:
       /// @brief Constructor
-      FolderPath( const std::string & folderPath ) : Path( folderPath ) { ; }
+      FolderPath( const std::string & folderPath ) : Path( folderPath ) {}
 
       /// @brief Copy constructor
-      FolderPath( const Path & aPath ) : Path( aPath ) { ; }
+      FolderPath( const Path & aPath ) : Path( aPath ) {}
 
       /// @brief Destructor
-      virtual ~FolderPath( ) { ; }
+      virtual ~FolderPath( ) {}
 
       /// @brief Create folder 
       void create();

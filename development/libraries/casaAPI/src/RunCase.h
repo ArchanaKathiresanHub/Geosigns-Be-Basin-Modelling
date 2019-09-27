@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file RunCase.h
 /// @brief This file keeps API declaration to keep a single run of Cauldron or a single Monte Carlo point
@@ -35,28 +35,29 @@ namespace casa
          NotSubmitted, ///< Case wasn't submitted for execution
          Scheduled,    ///< Case submitted for execution
          Completed,
-         Failed
+         Failed,
+         NotCreated
       } CaseStatus;
 
       /// @brief Destructor
       virtual ~RunCase() { ; }
 
       /// @brief Add new parameter to this case. Throw if case already has such type parameter
-      /// @param prm shared object pointer to a new parameter 
+      /// @param prm shared object pointer to a new parameter
       virtual void addParameter( SharedParameterPtr prm ) = 0;
 
-      /// @brief Get number of parameters 
+      /// @brief Get number of parameters
       /// @return parameters number
       virtual size_t parametersNumber() const = 0;
 
       /// @brief Get i-th parameter
       /// @param i position of requested parameter
       /// @return i-th parameter or null pointer if there is no such parameter
-      virtual SharedParameterPtr parameter( size_t i ) const = 0;
+      virtual SharedParameterPtr parameter( const size_t i ) const = 0;
 
       /// @brief a Add new observable value to this case. Throw if such type observable already in the list
       /// @param obs observable value pointer
-      virtual void addObsValue( ObsValue * obs ) = 0;
+      virtual void addObsValue( const ObsValue * obs ) = 0;
 
       /// @brief Get number of observables defined for this case
       /// @return observables number
@@ -65,7 +66,7 @@ namespace casa
       /// @brief Get i-th observable value
       /// @param i position of requested observable value
       /// @return i-th observable value or null pointer if there is no such observable
-      virtual ObsValue * obsValue( size_t i ) const = 0;
+      virtual const ObsValue * obsValue( size_t i ) const = 0;
 
       /// @brief Mutate case to given project file
       /// @param baseCase base case of the scenario which will be mutated to a new case
@@ -95,6 +96,11 @@ namespace casa
       /// @return full path to the project file (including project file name) or null pointer if project wasn't defined during mutation.
       virtual const char * projectPath() const = 0;
 
+      /// @brief Get full path to the project path (including project file name). If this case has no project associated with
+      ///        it, it will return null pointer
+      /// @return full path to the project file (including project file name) or null pointer if project wasn't defined during mutation.
+      virtual mbapi::Model & loadProject() = 0;
+
       /// @brief Compare cases. It is neccessary because DoE generator could return the same cases for different DoE
       /// @param cs RunCase for compare with
       /// @return true if RunCases have the same parameters set, false otherwise
@@ -111,8 +117,19 @@ namespace casa
       /// @return run case ID
       virtual size_t id() const = 0;
 
+      /// @brief Clean duplicated lithologies
+      /// @param val true if duplicated lithologies need to be cleaned
+      virtual void setCleanDuplicatedLithologies( bool val ) = 0;
+
+      /// @brief Set full path to the project path (including project file name).
+      /// @param pth the project path
+      virtual void setProjectPath( const char * pth ) = 0;
+
+      /// @brief Creates a shallow copy which only contains the parameters
+      virtual std::shared_ptr<RunCase> shallowCopy() const = 0;
+
    protected:
-      RunCase() { ; }
+      RunCase() { }
    };
 
 }

@@ -56,10 +56,9 @@ namespace casa
       } ShellType;
 
       /// @brief Constructor
-      /// @param sh shell which will be used for scripts
       /// @param appName name of an application like fastcauldron/fasttouch7/fastgenex6/...
       /// @param isParallel is this application will be run as a parallel app (requires mpirun in command line)
-      CauldronApp( ShellType sh, const std::string & appName, bool isParallel = true );
+      CauldronApp(const std::string & appName, bool isParallel = true );
 
       /// @brief Destructor
       virtual ~CauldronApp() {;}
@@ -127,15 +126,14 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save(CasaSerializer & sz) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
       virtual const char * typeName() const { return "CauldronApp"; }
 
-      /// @brief Create a new DataDiggerImpl instance and deserialize it from the given stream
+      /// @brief Create a new CauldronApp instance and deserialize it from the given stream
       /// @param inStream input stream
       /// @param objName name of the application
       /// @return new observable instance on success, or throw and exception in case of any error
@@ -162,7 +160,7 @@ namespace casa
 
       std::vector< std::string >             m_optionsList;       ///< List of options for the application
       bool                                   m_clearSnapshots;    ///< Add or not to script file cleaning results call
-      
+
       AppPipelineLevel                       m_appDepLevel;       ///< Define where this application is located in apps pipeline
 
       static const char *                    s_resFilesList[][6]; ///< List of HDF files names with simulation results

@@ -20,7 +20,7 @@ class CasaCommander;
 class CfgFileParser
 {
 public:
-   CfgFileParser() {;}
+   CfgFileParser() {}
 
    // load command file 
    void parseFile( const std::string & cmdFile, CasaCommander & cmdQueue );
@@ -38,9 +38,6 @@ public:
                                    std::vector<double> & z,
                                    std::vector<double> & ref,
                                    std::vector<double> & sdev );
-
-   // read parameters value from plain data file
-   static void readParametersValueFile( const std::string & fileName, std::vector< std::vector<double> > & dataVals );
 
    static bool isNumericPrm( const std::string & prm );
 

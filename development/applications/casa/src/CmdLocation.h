@@ -12,7 +12,7 @@
 
 #include "CasaCmd.h"
 
-/// @brief Define base projet for scenario
+/// @brief Define base project for scenario
 class CmdLocation : public CasaCmd
 {
 public:
@@ -25,11 +25,16 @@ public:
    /// @brief Run command
    virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
 
+   /// @brief Print help page about command purpose and it parameters
+   /// @param cmdName - command name - how it is defined in CasaCommander
+   static void printHelpPage( const char * cmdName );
+
    /// @brief Get name of the project file which will be the base for the scenario analysis
    std::string casesLocation() const { return m_locPath;  }
 
 protected:
    std::string m_locPath;
+   bool m_appendCases;
 };
 
 #endif // CASA_CMD_LOCATION_H

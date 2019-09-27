@@ -196,7 +196,7 @@ namespace mbapi {
       /// @param propName name of the column
       /// @param propValue value to be set in the table
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue );
+      ErrorHandler::ReturnCode setTableValue(const std::string & tableName, size_t rowNumber, const std::string & propName, const long propValue );
 
       /// @brief Set value in the table
       /// @param tableName name of the table in project file
@@ -204,7 +204,7 @@ namespace mbapi {
       /// @param propName name of the column
       /// @param propValue value to be set in the table
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
+      ErrorHandler::ReturnCode setTableValue(const std::string & tableName, size_t rowNumber, const std::string & propName, const double & propValue );
 
       /// @brief Set value in the table
       /// @return ErrorHandler::NoError on success, error code otherwise
@@ -350,6 +350,12 @@ namespace mbapi {
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode window( long & minWinI, long & maxWinI, long & minWinJ, long & maxWinJ );
  
+      /// @brief Get observable origin of model window
+      /// @param[in,out] x coordinate in I direction
+      /// @param[in,out] y coordinate in J direction
+      /// @return          ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode windowObservableOrigin( double & x, double & y );
+
       /// @brief Define model window position
       /// @param minWinI window start postion in I direction
       /// @param maxWinI window end   postion in I direction

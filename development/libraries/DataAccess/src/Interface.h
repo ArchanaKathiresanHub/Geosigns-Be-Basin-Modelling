@@ -457,7 +457,7 @@ namespace DataAccess
 
       public:
          InterpolateFunctor( const double value1, const double value2, const double value3 ) :
-            m_value1( value1 ), m_value2( value2 ), m_value3( value3 ) {};
+            m_value1( value1 ), m_value2( value2 ), m_value3( value3 ) {}
 
          double operator ()( const double left, const double right ) const;
 
@@ -500,7 +500,7 @@ namespace DataAccess
       class SubtractConstant : public UnaryFunctor {
       public:
 
-         SubtractConstant( const double value ) : m_value( value ) {};
+         SubtractConstant( const double value ) : m_value( value ) {}
 
          double operator ()( const double operand ) const;
 
@@ -513,7 +513,7 @@ namespace DataAccess
       class SubtractFromConstant : public UnaryFunctor {
       public:
 
-         SubtractFromConstant( const double value ) : m_value( value ) {};
+         SubtractFromConstant( const double value ) : m_value( value ) {}
 
          double operator ()( const double operand ) const;
 
@@ -526,7 +526,7 @@ namespace DataAccess
       class AddConstant : public UnaryFunctor {
       public:
 
-         AddConstant( const double value ) : m_value( value ) {};
+         AddConstant( const double value ) : m_value( value ) {}
 
          double operator ()( const double operand ) const;
 

@@ -17,7 +17,7 @@ namespace DataAccess
       {
       public:
          /// Destructor
-         virtual ~MapWriter() {};
+         virtual ~MapWriter() {}
          
          /// open a file
          virtual bool open( const string & fileName, bool append = false ) = 0;
@@ -61,7 +61,7 @@ namespace DataAccess
          virtual bool saveDescription (const Grid * grid) = 0;
          
       protected:
-         MapWriter() {};
+         MapWriter() {}
          
       private:
       };

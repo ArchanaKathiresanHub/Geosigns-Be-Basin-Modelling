@@ -1,0 +1,14 @@
+MonteCarloDataManagerVersion|int|0
+mcmcRMSE|vector|2
+mcmcRMSE|1.000000
+mcmcRMSE|2.000000
+mcmcInfluentialParameters|vector|2
+mcmcInfluentialParameters|33.000000><34.000000
+mcmcInfluentialParameters|43.000000><44.000000
+mcmcCalibrationTargets|vector|2
+mcmcCalibrationTargets|11.000000><12.000000
+mcmcCalibrationTargets|21.000000><22.000000
+mcmcPredictionTargets|vector|2
+mcmcPredictionTargets|55.000000><56.000000
+mcmcPredictionTargets|65.000000><66.000000
+mcmcRMSEOPtimalRunCase|double|123.000000

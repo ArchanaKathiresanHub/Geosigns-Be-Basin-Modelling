@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSourceRockHC.C
-/// @brief This file keeps API implementation for Source Rock H/C parameter handling 
+/// @brief This file keeps API implementation for Source Rock H/C parameter handling
 
 // CASA API
 #include "PrmSourceRockHC.h"
@@ -36,7 +36,7 @@ PrmSourceRockHC::PrmSourceRockHC( mbapi::Model & mdl
                                 , const char * srType
                                 , int          mixingID
                                 ) : PrmSourceRockProp( mdl, lrName, srType, mixingID )
-{ 
+{
    m_propName = "H/C";
 
    mbapi::SourceRockManager   & srMgr = mdl.sourceRockManager();
@@ -46,11 +46,6 @@ PrmSourceRockHC::PrmSourceRockHC( mbapi::Model & mdl
    const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
    mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (srType ? std::string( srType ) : srtNames[m_mixID-1]) );
    m_val = srMgr.hcIni( sid );
-
-   // construct parameter name
-   std::ostringstream oss;
-   oss << "SourceRockHC(" << m_layerName << "," << m_mixID << ")";
-   m_name = oss.str();
 }
 
  // Constructor
@@ -58,15 +53,10 @@ PrmSourceRockHC::PrmSourceRockHC( const VarPrmSourceRockHC * parent
                                 , double                     val
                                 , const char               * lrName
                                 , const char               * srType
-                                , int                        mixingID 
+                                , int                        mixingID
                                 ) : PrmSourceRockProp( parent, val, lrName, srType, mixingID )
 {
    m_propName = "H/C";
-
-   // construct parameter name
-   std::ostringstream oss;
-   oss << "SourceRockHC(" << m_layerName << "," << m_mixID << ")";
-   m_name = oss.str();
 }
 
 // Update given model with the parameter value
@@ -82,18 +72,18 @@ ErrorHandler::ReturnCode PrmSourceRockHC::setInModel( mbapi::Model & caldModel, 
 
       // check how many source rock types for this level is defined
       if ( !stMgr.isSourceRockActive( lid ) )
-      { 
+      {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
             "H/C setting error: source rock is not active for the layer:" << m_layerName;
       }
 
       const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
       if ( srtNames.empty() || m_mixID < 1 || static_cast<size_t>( m_mixID ) > srtNames.size() )
-      { 
+      {
          throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
             " set as source rock layer but has no source rock lithology defined for the mixing ID: " << m_mixID;
       }
-      
+
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]) );
       if ( IsValueUndefined( sid ) )
       {
@@ -152,8 +142,8 @@ std::string PrmSourceRockHC::validate( mbapi::Model & caldModel )
       if ( !m_srTypeName.empty() && srtNames[m_mixID - 1] != m_srTypeName )
       {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
-            "Layer " << m_layerName << " has unmatched source rock type name :" << srtNames[m_mixID-1] << 
-            " for the mixing ID " << m_mixID << " to source rock type defined for the H/C parameter: " << m_srTypeName; 
+            "Layer " << m_layerName << " has unmatched source rock type name :" << srtNames[m_mixID-1] <<
+            " for the mixing ID " << m_mixID << " to source rock type defined for the H/C parameter: " << m_srTypeName;
       }
 
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]) );
@@ -180,7 +170,7 @@ bool PrmSourceRockHC::operator == ( const Parameter & prm ) const
 {
    const PrmSourceRockHC * pp = dynamic_cast<const PrmSourceRockHC *>( &prm );
    if ( !pp ) return false;
-   
+
    const double eps = 1.e-6;
 
    if ( m_layerName  != pp->m_layerName  ) return false;
@@ -195,9 +185,9 @@ bool PrmSourceRockHC::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmSourceRockHC::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmSourceRockHC::save( CasaSerializer & sz ) const
 {
-   bool ok = PrmSourceRockProp::serializeCommonPart( sz, version ); 
+   bool ok = PrmSourceRockProp::serializeCommonPart( sz );
    return ok;
 }
 

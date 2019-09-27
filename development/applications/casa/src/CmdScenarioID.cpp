@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "CasaCommander.h"
 #include "CmdScenarioID.h"
@@ -15,7 +15,6 @@
 
 #include "LogHandler.h"
 
-#include <cstdlib>
 #include <iostream>
 
 CmdScenarioID::CmdScenarioID( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
@@ -27,7 +26,7 @@ CmdScenarioID::CmdScenarioID( CasaCommander & parent, const std::vector< std::st
 void CmdScenarioID::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    LogHandler( LogHandler::INFO_SEVERITY ) << "Setting scenario ID: " << m_id << "...";
-   
+
    if ( ErrorHandler::NoError != sa->defineScenarioID( m_id.c_str() ) )
    {
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();

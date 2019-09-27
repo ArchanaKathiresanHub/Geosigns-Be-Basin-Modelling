@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmOneCrustThinningEvent.h
 /// @brief This file keeps API declaration for handling variation of casa::PrmOneCrustThinningEvent parameter
@@ -22,9 +22,9 @@ namespace casa
    class VarPrmOneCrustThinningEvent: public VarPrmContinuous
    {
    public:
-      /// @brief Construct influential parameter for one crust thinning event in crust thickness history. 
+      /// @brief Construct influential parameter for one crust thinning event in crust thickness history.
       ///
-      /// Crust thickness in Cauldron should be defined by a piecewise linear function @f$ thickness( time ) @f$ 
+      /// Crust thickness in Cauldron should be defined by a piecewise linear function @f$ thickness( time ) @f$
       /// User must provide a sorted by time a sequence of points @f$ [(time, thickness), ... ] @f$ .
       /// This influential parameter allows to define a crust thickness function with one crust thinning event.
       /// To define this event user should provide these sub-parameters:
@@ -50,7 +50,7 @@ namespace casa
 
       virtual ~VarPrmOneCrustThinningEvent();
 
-      /// @brief Get name of influential parameter in short form     
+      /// @brief Get name of influential parameter in short form
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const;
 
@@ -73,8 +73,8 @@ namespace casa
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
       /// @return new parameter for given set of values
       virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model              & mdl ///< [in,out] the model where to set the new averaged parameter
-                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project 
-                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project 
+                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project
+                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
                                                    ) const;
       /// @{
@@ -88,16 +88,15 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Create a new var.parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
       VarPrmOneCrustThinningEvent( CasaDeserializer & dz, unsigned int objVer );
       /// @}
- 
+
    protected:
    };
 }

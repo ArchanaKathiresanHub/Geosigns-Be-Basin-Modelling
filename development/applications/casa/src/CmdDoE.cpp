@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "CasaCommander.h"
 #include "CmdDoE.h"
@@ -29,9 +29,10 @@ CmdDoE::CmdDoE( CasaCommander & parent, const std::vector< std::string > & cmdPr
 
    if (      m_prms[0].find( "Tornado"             , 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::Tornado; }
    else if ( m_prms[0].find( "BoxBehnken"          , 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::BoxBehnken; }
-   else if ( m_prms[0].find( "PlackettBurman"      , 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::PlackettBurman; }
    else if ( m_prms[0].find( "PlackettBurmanMirror", 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::PlackettBurmanMirror; }
+   else if ( m_prms[0].find( "PlackettBurman"      , 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::PlackettBurman; }
    else if ( m_prms[0].find( "FullFactorial"       , 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::FullFactorial; }
+   else if ( m_prms[0].find( "BaseCase"            , 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::BaseCase; }
    else if ( m_prms[0].find( "LatinHypercube"      , 0 ) != std::string::npos )
    {
       m_doeAlg = casa::DoEGenerator::LatinHypercube;
@@ -48,7 +49,7 @@ CmdDoE::CmdDoE( CasaCommander & parent, const std::vector< std::string > & cmdPr
    }
 }
 
-void CmdDoE::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa ) 
+void CmdDoE::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    LogHandler( LogHandler::INFO_SEVERITY ) << "Generating parameters sets for " << m_prms[0] << " DoE ... ";
 

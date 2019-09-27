@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file RunCaseSet.h
 /// @brief This file keeps class declaration to manage the set of run cases.
@@ -54,6 +54,9 @@ namespace casa
       /// @param expName experiment name
       virtual void filterByExperimentName( const std::string & expName ) = 0;
 
+      /// @brief Filtering by doe list
+      virtual void filterByDoeList( const std::vector<std::string>& doeList) = 0;
+
       /// @brief Returns experiment name which was set as a filter
       /// @return filter as a string, or empty string if it wasn't set
       virtual std::string filter() const = 0;
@@ -61,6 +64,9 @@ namespace casa
       /// @brief Get all experiment names for this case set as an array
       /// @return list of experiment names as an array
       virtual std::vector< std::string > experimentNames() const = 0;
+
+      // For a given doe experiment, get the corresponding indices from the set of indices of the entire doe experiments.
+      virtual std::vector<size_t> experimentIndexSet( const std::string & expName ) const = 0;
 
       /// @brief Is set empty
       /// @return true if set is empty, false otherwise
@@ -71,9 +77,17 @@ namespace casa
       /// @return array of completed cases for given DoEs
       virtual std::vector<const RunCase*> collectCompletedCases( const std::vector<std::string> & doeList ) = 0;
 
+      /// @brief Move a new Case to the collection and clear array
+      /// @param newCases list of run cases
+      /// @param expLabel name of the experiment
+      virtual void addNewCases( std::vector<std::shared_ptr<RunCase>> & newCases, const std::string & expLabel ) = 0;
+
+      /// @brief Move a user define runcase to the collection
+      /// @param newCase run case to be added
+      virtual void addUserDefinedCase(std::shared_ptr<RunCase> newCase) = 0;
 
    protected:
-      RunCaseSet() { ; }
+      RunCaseSet() { }
    };
 
 }

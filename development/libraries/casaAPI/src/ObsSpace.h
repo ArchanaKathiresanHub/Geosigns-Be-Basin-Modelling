@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsSpace.h
 /// @brief This file keeps API declaration for observables set manager
@@ -22,7 +22,7 @@
 #include <vector>
 
 /// @page CASA_ObsSpacePage Container for observables description
-/// @link casa::ObsSpace A collection of observables @endlink defined for scenario analysis 
+/// @link casa::ObsSpace A collection of observables @endlink defined for scenario analysis
 /// @link casa::ObsSpace @endlink also provides a set of API functions to create various types of @link casa::Observable Observable @endlink objects.
 namespace casa
 {
@@ -47,6 +47,11 @@ namespace casa
       /// @brief Get i-th observable
       /// @param i observable number (starting from 0)
       /// @return i-th observable pointer on success, 0 pointer otherwise
+      virtual Observable * operator[] ( size_t i ) const = 0;
+
+      /// @brief Get i-th observable
+      /// @param i observable number (starting from 0)
+      /// @return i-th observable pointer on success, 0 pointer otherwise
       virtual const Observable * observable( size_t i ) const = 0;
 
       /// @brief Is the given observable valid at least for one case?
@@ -54,17 +59,17 @@ namespace casa
       /// @param obSubId observable sub id for observables with dimension more than 1
       /// @return true if requested observable value is valid at least for one run case
       virtual bool isValid( size_t obId, size_t obSubId ) const = 0;
- 
-      /// @brief Add observable validity status. This function also is called for each run 
-      ///        case on the stage of extracting observables in data digger. 
-      /// @param ob observable number in observables space 
+
+      /// @brief Add observable validity status. This function also is called for each run
+      ///        case on the stage of extracting observables in data digger.
+      /// @param ob observable number in observables space
       /// @param valFlags list the same size as transformed observable dimension with valid/invalid flags
       virtual void updateObsValueValidateStatus( size_t ob, const std::vector<bool> & valFlags ) = 0;
 
+      virtual ~ObsSpace() { ; }
    protected:
       ObsSpace() { ; }
-      virtual ~ObsSpace() { ; }
-   
+
    private:
    };
 }

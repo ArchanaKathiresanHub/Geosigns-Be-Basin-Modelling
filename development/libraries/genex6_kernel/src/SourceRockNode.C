@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -11,7 +11,7 @@
 #include "Input.h"
 #include "SimulatorState.h"
 #include "Simulator.h"
-#include "ChemicalModel.h"  
+#include "ChemicalModel.h"
 #include "Utilities.h"
 #include "UnitTestDataCreator.h"
 #include "SpeciesResult.h"
@@ -36,7 +36,7 @@ typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 namespace Genex6
 {
 
-SourceRockNode::SourceRockNode(const double in_thickness, const double in_TOC, 
+SourceRockNode::SourceRockNode(const double in_thickness, const double in_TOC,
                                const double in_InorganicDensity,
                                const double in_f1, const double in_f2,
                                const int in_I, const int in_J):
@@ -70,7 +70,7 @@ void SourceRockNode::initialise () {
    }
 
    m_ConcKi.clear ();
-   
+
    ClearInputHistory ();
    ClearOutputHistory ();
 }
@@ -129,7 +129,7 @@ const Input *SourceRockNode::getLastInput() const
 {
    Input *ret = 0;
 
-   if(!m_theInput.empty()) 
+   if(!m_theInput.empty())
    {
       ret = m_theInput[m_theInput.size() - 1];
    }
@@ -140,7 +140,7 @@ const Input *SourceRockNode::getLastInput() const
 bool SourceRockNode::RequestComputation ( int numberOfSourceRock, Simulator & theSimulator )
 {
    SimulatorState * theState = ( numberOfSourceRock < ( static_cast<int>( m_theSimulatorStates.size() )) ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
-      
+
    std::vector<Input*>::iterator itInput;
    bool isInitialTimeStep = true;
 
@@ -187,7 +187,7 @@ void SourceRockNode::updateAdsorptionOutput ( const AdsorptionSimulator& adsorpt
 
             const Genex6::SpeciesState* speciesState = m_currentState->GetSpeciesStateById ( speciesIndex );
             Genex6::SpeciesResult& result = m_currentState->GetSpeciesResult ( speciesIndex );
-            
+
             result.setAdsorpedMol ( speciesState->getAdsorpedMol ());
             result.setFreeMol ( speciesState->getFreeMol ());
             result.setExpelledMol ( speciesState->getExpelledMol ());
@@ -197,7 +197,7 @@ void SourceRockNode::updateAdsorptionOutput ( const AdsorptionSimulator& adsorpt
 
    }
    */
-   
+
    SimulatorState &theSimulatorState = getPrincipleSimulatorState ();
    const SpeciesManager * speciesManager = theSimulatorState.getSpeciesManager ();
    using namespace CBMGenerics;
@@ -213,7 +213,7 @@ void SourceRockNode::updateAdsorptionOutput ( const AdsorptionSimulator& adsorpt
 
             const Genex6::SpeciesState* speciesState = theSimulatorState.GetSpeciesStateById ( speciesIndex );
             Genex6::SpeciesResult& result = theSimulatorState.GetSpeciesResult ( speciesIndex );
-            
+
             result.setAdsorpedMol ( speciesState->getAdsorpedMol ());
             result.setFreeMol ( speciesState->getFreeMol ());
             result.setExpelledMol ( speciesState->getExpelledMol ());
@@ -222,7 +222,7 @@ void SourceRockNode::updateAdsorptionOutput ( const AdsorptionSimulator& adsorpt
       }
 
    }
-  
+
 }
 
 int SourceRockNode::CreateSimulatorState(int numberOfSourceRock, const double currentTime, Simulator & theSimulator)
@@ -231,14 +231,14 @@ int SourceRockNode::CreateSimulatorState(int numberOfSourceRock, const double cu
    theState->setImmobileSpecies( theSimulator.getChemicalModel ().getImmobileSpecies() );
 
    assert( theState != 0 );
-   
+
    if(( static_cast<int>( m_theSimulatorStates.size() )) != numberOfSourceRock ) {
       cout<<"Basin_Fatal: Number of Source Rock is wrong in CreateSimulatorState...Aborting...";
       return FAIL;
    }
    AddSimulatorState( theState );
-   
-   double concki1 = theSimulator.ComputeNodeInitialOrganicMatterDensity(m_TOCi, m_InorganicDensity); 
+
+   double concki1 = theSimulator.ComputeNodeInitialOrganicMatterDensity(m_TOCi, m_InorganicDensity);
    m_ConcKi.push_back( concki1 );
 
    theState->SetConckiThickness(concki1, m_thickness);
@@ -256,14 +256,14 @@ bool SourceRockNode::RequestMixing( ChemicalModel * aModel ) {
 
    if(m_mixedSimulatorState == 0) {
       if( m_theInput.empty() || m_theInput.size() != 1 ) return false;
-      // Because numberOfSpecies could be different, we need to allocate mixing SimulatorState for the biggest numberOfSpecies 
+      // Because numberOfSpecies could be different, we need to allocate mixing SimulatorState for the biggest numberOfSpecies
       m_mixedSimulatorState = new SimulatorState( &aModel->getSpeciesManager(), aModel->GetNumberOfSpecies(), m_theInput[0]->GetTime() );
       //cout << "Number of Species in MixingManager " << aModel->GetNumberOfSpecies() << endl;
       assert ( m_mixedSimulatorState != 0 );
       m_mixedSimulatorState->setInitialToc (m_TOCi);
       m_mixedSimulatorState->setImmobileDensitiesMixed( m_currentState, m_theSimulatorStates[1], m_f1, m_f2 );
    }
-   
+
    m_mixedSimulatorState->SetLumpedConcentrationsToZero();
    m_mixedSimulatorState->SetResultsToZero();
    double thicknessScale = m_theInput[0]->GetThicknessScaleFactor() *  m_thickness;
@@ -274,11 +274,11 @@ bool SourceRockNode::RequestMixing( ChemicalModel * aModel ) {
    return true;
 }
 
-void SourceRockNode::RequestComputationUnitTest(Simulator & theSimulator)
+void SourceRockNode::RequestComputation(Simulator & theSimulator)
 {
    // SR rock mixing is not supported
 
-   std::vector<Input*>::iterator itInput; 
+   std::vector<Input*>::iterator itInput;
 
    for(itInput = m_theInput.begin(); itInput != m_theInput.end(); ++ itInput) {
 
@@ -305,15 +305,15 @@ void SourceRockNode::RequestComputationUnitTest(Simulator & theSimulator)
    }
 }
 
-// To be deprecated in BPA/Cauldron. 1D simulation is taken over by fastgenex5 as well so the only valid 
-// Genex6::SourceRockNode computation interface 
+// To be deprecated in BPA/Cauldron. 1D simulation is taken over by fastgenex5 as well so the only valid
+// Genex6::SourceRockNode computation interface
 // will be RequestComputation::(Simulator &)
-int SourceRockNode::RequestComputation1D(int numberOfSourceRock, Simulator *theSimulator, double snapshots[], 
+int SourceRockNode::RequestComputation1D(int numberOfSourceRock, Simulator *theSimulator, double snapshots[],
                                          const int numberOfSnapshots, const double depositionAge)
 {
 
    SimulatorState * theState = ( numberOfSourceRock < static_cast<int>( m_theSimulatorStates.size() ) ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
-  
+
    cout<<"1D MODE-GENEX5KERNEL"<<endl;
    if(m_theInput.size() > static_cast<unsigned int>(numberOfSnapshots)) {
       cout<<"Basin_Fatal: Input sizes are incompatible...Aborting...";
@@ -327,7 +327,7 @@ int SourceRockNode::RequestComputation1D(int numberOfSourceRock, Simulator *theS
    int numberOfIterations = static_cast<int>(m_theInput.size());
 
    std::vector<Input*>::iterator intervalStartInput = m_theInput.begin();
-   
+
    CreateSimulatorState(numberOfSourceRock, (*intervalStartInput)->GetTime(), *theSimulator);
    // Is this correct to initialise simulator with the first input node?
    theSimulator->initializeSimulatorState( *m_theInput [ 0 ]);
@@ -366,7 +366,7 @@ int SourceRockNode::RequestComputation1D(int numberOfSourceRock, Simulator *theS
    return SUCCESS;
 }
 
-void SourceRockNode::CreateTestingPTHistory(const UnitTestDataCreator &theUnitTestDataCreator)
+void SourceRockNode::CreateInputPTHistory(const UnitTestDataCreator &theUnitTestDataCreator)
 {
    int numberOfTimesteps = theUnitTestDataCreator.GetNumberOfTimesteps();
    double dT = theUnitTestDataCreator.GetTimeStepSize();
@@ -381,23 +381,35 @@ void SourceRockNode::CreateTestingPTHistory(const UnitTestDataCreator &theUnitTe
       } else {
          currentTime += dT;
       }
-         
+
       currentTemperatute = theUnitTestDataCreator.ComputeTemperature(currentTime);
       currentPressure = theUnitTestDataCreator.ComputePressure(currentTime);
       Input *theInput = new Input(currentTime, currentTemperatute, currentPressure);
       AddInput(theInput);
    }
 }
-void SourceRockNode::CreateTestingPTHistory(FILE * fp)
+void SourceRockNode::CreateInputPTHistory(FILE * fp)
 {
    double currentTime = 0.0;
    double currentTemperatute = 0.0;
    double currentPressure = 0.0;
 
-   while(fscanf(fp, "%lg, %lg, %lg", &currentTime, &currentTemperatute, &currentPressure) != EOF) { //for compatibility with VBA code
+   while(fscanf(fp, "%lg, %lg, %lg", &currentTime, &currentTemperatute, &currentPressure) == 3) { //for compatibility with VBA code
          Input *theInput = new Input(currentTime, currentTemperatute, currentPressure);
          AddInput(theInput);
-      }
+   }
+}
+
+void SourceRockNode::CreateInputPTHistory(const std::vector<double>& time, const std::vector<double>& temperature, const std::vector<double>& pressure)
+{
+  const int n = time.size();
+  assert(temperature.size() == n);
+  assert(pressure.size() == n);
+  for (int i = 0; i < n; ++i)
+  {
+    Input *theInput = new Input(time[i],temperature[i], pressure[i]);
+    AddInput(theInput);
+  }
 }
 
 void SourceRockNode::PrintInputHistory(ofstream &outputfile) const
@@ -516,16 +528,16 @@ void SourceRockNode::PrintInputHistoryHeader(ofstream &outputfile) const
    outputfile << "Time" << "," << "Temperature" << "," << "Pressure" << endl;
 }
 
-void SourceRockNode::PrintBenchmarkModelFluxTable(const ChemicalModel& chemicalModel, 
+void SourceRockNode::PrintBenchmarkModelFluxTable(const ChemicalModel& chemicalModel,
                                                   ofstream &outputfile) const
 {
    PrintBenchmarkModelFluxHeader(chemicalModel, outputfile);
    for(int i = 1; i < (int)m_theInput.size(); ++i) {
       outputfile << m_theInput[i]->GetTemperatureCelsius() << ",";
       m_theOutput[i]->PrintBenchmarkModelFluxData(outputfile);
-   } 
+   }
 }
-void SourceRockNode::PrintBenchmarkModelFluxHeader( const ChemicalModel& chemicalModel, 
+void SourceRockNode::PrintBenchmarkModelFluxHeader( const ChemicalModel& chemicalModel,
                                                     ofstream &outputfile) const
 {
    outputfile << "[Table:ModelFluxC++]" << endl;
@@ -537,14 +549,14 @@ void SourceRockNode::PrintBenchmarkModelFluxHeader( const ChemicalModel& chemica
       outputfile << SpeciesName << ",";
    }
    outputfile << "APIinst" << "," << "GORinst" << "," << endl;
-} 
+}
 
-void SourceRockNode::PrintBenchmarkModelConcTableHeader(const ChemicalModel& chemicalModel, 
+void SourceRockNode::PrintBenchmarkModelConcTableHeader(const ChemicalModel& chemicalModel,
                                                         ofstream &outputfile) const
 {
    outputfile << "[Table:ModelConcentrationC++]" << endl;
    outputfile << "temp" << "," << "VRE" << "," << "Time" << ",";
-   
+
    int numberOfSpecies = chemicalModel.GetNumberOfSpecies();
    for(int id = 1; id <= numberOfSpecies; ++id) {
       const std::string SpeciesName = chemicalModel.GetSpeciesNameById(id);
@@ -552,7 +564,7 @@ void SourceRockNode::PrintBenchmarkModelConcTableHeader(const ChemicalModel& che
    }
    outputfile << "HoCTot" << "," << "OoCTot" << "," << endl;
 }
-void SourceRockNode::PrintBenchmarkModelConcTable(const ChemicalModel& chemicalModel, 
+void SourceRockNode::PrintBenchmarkModelConcTable(const ChemicalModel& chemicalModel,
                                                   ofstream &outputfile) const
 {
    PrintBenchmarkModelConcTableHeader(chemicalModel,outputfile);
@@ -561,7 +573,7 @@ void SourceRockNode::PrintBenchmarkModelConcTable(const ChemicalModel& chemicalM
       m_theOutput[i]->PrintBenchmarkModelConcData(outputfile);
    }
 }
-void SourceRockNode::PrintBenchmarkModelCumExpHeader(const ChemicalModel& chemicalModel, 
+void SourceRockNode::PrintBenchmarkModelCumExpHeader(const ChemicalModel& chemicalModel,
                                                      ofstream &outputfile) const
 {
    outputfile << "[Table:ModelCummExpC++]" << endl;
@@ -574,7 +586,7 @@ void SourceRockNode::PrintBenchmarkModelCumExpHeader(const ChemicalModel& chemic
    }
    outputfile << "ConvToOil" << "," << "APIcum" << "," << "GORcum" << "," << endl;
 }
-void SourceRockNode::PrintBenchmarkModelCumExpTable(const ChemicalModel& chemicalModel, 
+void SourceRockNode::PrintBenchmarkModelCumExpTable(const ChemicalModel& chemicalModel,
                                                     ofstream &outputfile) const
 {
    PrintBenchmarkModelCumExpHeader(chemicalModel, outputfile);
@@ -583,11 +595,11 @@ void SourceRockNode::PrintBenchmarkModelCumExpTable(const ChemicalModel& chemica
       m_theOutput[i]->PrintBenchmarkModelCumExpData(outputfile);
    }
 }
-void SourceRockNode::PrintBenchmarkOutput(const std::string &in_FullPathBenchmarkName, Simulator &theSimulator)
+void SourceRockNode::PrintBenchmarkOutput(const std::string & in_FullPathBenchmarkName, const Simulator & theSimulator) const
 {
    ofstream outputTestingSetFile;
    outputTestingSetFile.open(in_FullPathBenchmarkName.c_str());
-   
+
    if(!outputTestingSetFile.is_open()) {
       cerr << "Can not open " << in_FullPathBenchmarkName << ". Aborting...." << endl;
       return;
@@ -597,7 +609,7 @@ void SourceRockNode::PrintBenchmarkOutput(const std::string &in_FullPathBenchmar
 
    //   outputTestingSetFile.setf(std::ios_base::scientific | std::ios_base::floatfield);
    outputTestingSetFile.precision(16);
-   
+
    theSimulator.PrintBenchmarkOutput(outputTestingSetFile);
    PrintInputHistory(outputTestingSetFile);
 
@@ -626,7 +638,7 @@ void SourceRockNode::LoadTestingPTHistory(std::string in_FullPathFileName)
        }
        StringHandler::parseLine(line, delim, theTokens);
 
-       Input *theInput = new Input(atof(theTokens[4].c_str()), atof(theTokens[6].c_str()), 
+       Input *theInput = new Input(atof(theTokens[4].c_str()), atof(theTokens[6].c_str()),
                                    1000.0 * atof(theTokens[5].c_str()));
        AddInput(theInput);
 
@@ -762,7 +774,7 @@ void SourceRockNode::computeOverChargeFactor ( double& overChargeFactor ) const 
 
    Genex6::SimulatorState& state = getPrincipleSimulatorState(); //GetSimulatorState ();
    const Genex6::SpeciesManager& speciesManager = *state.getSpeciesManager();
- 
+
    Genex6::PVTComponentMasses phaseMasses;
    Genex6::PVTComponents      masses;
    Genex6::PVTPhaseValues     densities;
@@ -794,7 +806,7 @@ void SourceRockNode::computeOverChargeFactor ( double& overChargeFactor ) const 
          const SpeciesState* speciesState = state.GetSpeciesStateById ( i );
 
          masses ( pvtId ) = speciesState->getMassExpelledFromSourceRock () + speciesState->getRetained ();
-      }      
+      }
 
    }
 

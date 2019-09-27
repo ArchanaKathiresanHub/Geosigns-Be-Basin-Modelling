@@ -62,9 +62,9 @@ FastcauldronStartup::FastcauldronStartup( int argc, char** argv, bool checkLicen
    }
    else
    {
-    throw formattingexception::GeneralException() << "FastcauldronStartup already instantiated";
+      throw formattingexception::GeneralException() << "FastcauldronStartup already instantiated";
    }
-};
+}
 
 FastcauldronStartup::~FastcauldronStartup( )
 {

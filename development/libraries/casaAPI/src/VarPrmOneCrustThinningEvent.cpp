@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmOneCrustThinningEvent.h
-/// @brief This file keeps API implementation for handling variation of Single thinning crust event parameter. 
+/// @brief This file keeps API implementation for handling variation of Single thinning crust event parameter.
 
 
 #include "PrmOneCrustThinningEvent.h"
@@ -42,7 +42,7 @@ VarPrmOneCrustThinningEvent::VarPrmOneCrustThinningEvent( double baseThickIni,  
 
    m_minValue.reset( new PrmOneCrustThinningEvent( this, minThickIni, minT0, minDeltaT, minThinningFct ) );
    m_maxValue.reset( new PrmOneCrustThinningEvent( this, maxThickIni, maxT0, maxDeltaT, maxThinningFct ) );
-   
+
    m_baseValue.reset( new PrmOneCrustThinningEvent( this, baseThickIni, baseT0, baseDeltaT, baseThinningFct ) );
 }
 
@@ -82,7 +82,7 @@ SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromDoubles( std::ve
 
       if ( valsP[i] < minV[i] || valsP[i] > maxV[i] )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of OneCrustThinningEvent parameter " << valsP[i] << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of OneCrustThinningEvent parameter " << valsP[i] <<
                " falls out of range: [" << minV[i] << ":" << maxV[i] << "]";
       }
    }
@@ -112,15 +112,15 @@ SharedParameterPtr VarPrmOneCrustThinningEvent::makeThreeDFromOneD( mbapi::Model
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool VarPrmOneCrustThinningEvent::save( CasaSerializer & sz, unsigned int version ) const
+bool VarPrmOneCrustThinningEvent::save( CasaSerializer & sz ) const
 {
-   bool ok = VarPrmContinuous::save( sz, version );
+   bool ok = VarPrmContinuous::save( sz );
 
    return ok;
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-VarPrmOneCrustThinningEvent::VarPrmOneCrustThinningEvent( CasaDeserializer & dz, unsigned int objVer ) 
+VarPrmOneCrustThinningEvent::VarPrmOneCrustThinningEvent( CasaDeserializer & dz, unsigned int objVer )
 {
    bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
 

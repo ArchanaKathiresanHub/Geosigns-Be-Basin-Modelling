@@ -36,7 +36,7 @@ namespace DataAccess {
          public:
 
             explicit Validator( ProjectHandle& projectHandle):
-               m_projectHandle( projectHandle ){};
+               m_projectHandle( projectHandle ){}
             ~Validator() final = default;
 
             /// Initialise the valid-node array.

@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmCrustThinning.h
-/// @brief This file keeps API implementation for handling variation of Single thinning crust event parameter. 
+/// @brief This file keeps API implementation for handling variation of Single thinning crust event parameter.
 
 
 #include "PrmCrustThinning.h"
@@ -29,7 +29,7 @@ VarPrmCrustThinning::VarPrmCrustThinning( const std::vector<double>      & baseV
                                         , const std::vector<std::string> & mapsName
                                         , PDF                              prmPDF
                                         , const char                     * name
-                                        ) 
+                                        )
 {
    m_pdf = prmPDF;
    m_mapsName.insert( m_mapsName.begin(), mapsName.begin(), mapsName.end() );
@@ -44,7 +44,7 @@ VarPrmCrustThinning::VarPrmCrustThinning( const std::vector<double>      & baseV
         mapsName.size() != m_eventsNumber        // maps name number must be the same as number of events
       )
    {
-      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << 
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) <<
             "Wrong parameters number for CrustTinnning influential parameter";
    }
 
@@ -62,13 +62,13 @@ VarPrmCrustThinning::VarPrmCrustThinning( const std::vector<double>      & baseV
             else if ( j == 1 ) { ex << "event duration"; }
             else               { ex << "thinning factor"; }
 
-            throw ex << " base case value: " << baseValues[pos] <<  " outside of the given [" << 
+            throw ex << " base case value: " << baseValues[pos] <<  " outside of the given [" <<
                         minValues[pos] << "," << maxValues[pos] << "] range";
          }
          if ( i == 0 ) { ++pos; break; }
       }
    }
-   
+
    // create base/min/max parameters
    m_minValue.reset(  new PrmCrustThinning( this, minValues,  mapsName ) );
    m_maxValue.reset(  new PrmCrustThinning( this, maxValues,  mapsName ) );
@@ -87,7 +87,7 @@ std::vector<std::string> VarPrmCrustThinning::name() const
       ret.push_back( "InitialCrustThickness [m]" );
 
       for ( size_t i = 0; i < m_eventsNumber; ++i )
-      {  
+      {
          const std::string & evNum = ibs::to_string( m_eventsNumber );
 
          ret.push_back( std::string( "Event_" ) + evNum + "_StartTime [Ma]" );
@@ -100,7 +100,7 @@ std::vector<std::string> VarPrmCrustThinning::name() const
       ret.push_back( m_name );
 
       for ( size_t i = 0; i < m_eventsNumber; ++i )
-      {  
+      {
          const std::string & evNum = ibs::to_string( m_eventsNumber );
 
          ret.push_back( m_name + std::string( "_" ) + evNum + "_t0" );
@@ -132,7 +132,7 @@ SharedParameterPtr VarPrmCrustThinning::newParameterFromDoubles( std::vector<dou
          else if ( (i - 1)%3 == 0 ) ex << "event start time";
          else if ( (i - 1)%3 == 1 ) ex << "event duration";
          else                       ex << "thinning factor";
-         
+
          throw ex << " parameter " << prmV[i] << " falls out of range: [" << minV[i] << ":" << maxV[i] << "]";
       }
    }
@@ -156,14 +156,14 @@ SharedParameterPtr VarPrmCrustThinning::makeThreeDFromOneD( mbapi::Model        
 {
    // Not yet implemented
    throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmCrustThinning";
-   
+
    return nullptr;
 }
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool VarPrmCrustThinning::save( CasaSerializer & sz, unsigned int version ) const
+bool VarPrmCrustThinning::save( CasaSerializer & sz ) const
 {
-   bool ok = VarPrmContinuous::save( sz, version );
+   bool ok = VarPrmContinuous::save( sz );
 
    ok = ok ? sz.save( m_eventsNumber, "eventsNum" ) : ok;
    ok = ok ? sz.save( m_mapsName,     "mapsList"  ) : ok;

@@ -63,7 +63,7 @@ namespace casa
       virtual const char * typeName() const { return "DoEGeneratorImpl"; }
 
       // Serialize object to the given stream
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save(CasaSerializer & sz) const;
 
       // Create a new instance and deserialize it from the given stream
       DoEGeneratorImpl( CasaDeserializer & inStream, const char * objName );

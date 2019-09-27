@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -35,7 +35,7 @@ namespace CrustalThickness{
       RiftingEvent( const TectonicFlag tectonicFlag,
          GridMap const * const seaLevelAdjustment,
          GridMap const * const maximumOceanicCrustThickness );
-      ~RiftingEvent() {};
+      ~RiftingEvent() {}
 
       /// @defgroup Accessors
       /// @{

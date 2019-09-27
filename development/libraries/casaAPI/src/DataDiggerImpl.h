@@ -41,6 +41,13 @@ namespace casa
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode requestObservables( ObsSpace & obs, RunCase * rc );
 
+      /// @brief Insert into project file requests for observables value in window (e.g. around a well) using datadriller cauldron app and data mining interface.
+      /// Observables must be requested after case mutation. Note: Here it is also checked that the observable matches the observable origin of window.
+      /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will request data using datadriller table
+      /// @param rc casa::RunCase object
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode requestObservablesInWindow( ObsSpace & obSpace, RunCase * rc );
+
       // Collect observables value from simulation results for given case
       // obs - set of observables
       // rcs - RunCaseSet object which keeps a set of cases
@@ -48,7 +55,7 @@ namespace casa
       virtual ErrorHandler::ReturnCode collectRunResults( ObsSpace & obs, RunCaseSet & rcs );
 
       // Collect observables value from simulation results for the given case
-      // obs - casaObsSpace object which keeps list of observables. For each observable, data digger will create ObsValue object 
+      // obs - casaObsSpace object which keeps list of observables. For each observable, data digger will create ObsValue object
       // rcs - casa::RunCase object which keeps list of observables and reference to Cauldron model
       // return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode collectRunResults( ObsSpace & obs, RunCase * rcs );
@@ -62,9 +69,8 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name

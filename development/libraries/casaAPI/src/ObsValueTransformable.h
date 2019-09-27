@@ -1,15 +1,15 @@
-//                                                                     
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsValueTransformable.h
-/// @brief This file keeps definition of the interface class for handling array of float point observable values which 
+/// @brief This file keeps definition of the interface class for handling array of float point observable values which
 ///        calculated from another array of float point observable values using transformation algorithm from parent Observable object
 
 #ifndef CASA_API_OBS_VALUE_TRANSFORMABLE_H
@@ -20,15 +20,15 @@
 
 /// @page CASA_ObsValueTransformable Observable values transformed in some way for better prediction by a response surface
 ///
-/// For some observables values could not be easily interpolated over response surface. For example the 
-/// Gas/Oil ratio value for trap hydrocarbons composition could be undefined, when trap is empty. Also, 
-/// hydrocarbons volumes in trap much better to interpolate over response surface using the logarithmic scale. 
-/// This prevents from prediction of negative amount of hydrocarbons in trap. For such transformation observable 
-/// value object uses the transformation algorithm from the parent observable definition to calculate the derived 
+/// For some observables values could not be easily interpolated over response surface. For example the
+/// Gas/Oil ratio value for trap hydrocarbons composition could be undefined, when trap is empty. Also,
+/// hydrocarbons volumes in trap much better to interpolate over response surface using the logarithmic scale.
+/// This prevents from prediction of negative amount of hydrocarbons in trap. For such transformation observable
+/// value object uses the transformation algorithm from the parent observable definition to calculate the derived
 /// observable values from the set of original observables values.
 ///
-/// For example for fluid trap properties such as GOR, API and so on, the transformation algorithm does flash of 
-/// composition. In this case the original observable values extracted from the project file are pressure and 
+/// For example for fluid trap properties such as GOR, API and so on, the transformation algorithm does flash of
+/// composition. In this case the original observable values extracted from the project file are pressure and
 /// temperature at trap crest point, trap composition of hydrocarbons spices. The transformed observable value is
 /// the requested fluid property as GOR, API and so on.
 ///
@@ -40,11 +40,11 @@ namespace casa
    class ObsValueTransformable : public ObsValue
    {
    public:
-      /// @brief Create a new ObsValueTransformable object. 
+      /// @brief Create a new ObsValueTransformable object.
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
       static ObsValueTransformable * createNewInstance( const Observable          * parent
-                                                      , const std::vector<double> & val 
+                                                      , const std::vector<double> & val
                                                       )
       { return new ObsValueTransformable( parent, val ); }
 
@@ -75,12 +75,12 @@ namespace casa
 
       /// @brief Get parent observable which define type of observable
       virtual const Observable * parent() const { return m_parent; }
- 
+
       /// @brief Calculate Mean Squared Error for the observable value if reference value was specified
       /// @return Mean Squared Error
       virtual double MSE() const;
-     
-      // The following methods are used for testing  
+
+      // The following methods are used for testing
       virtual bool isDouble() const { return true; }
 
       /// @brief Get observable value as double array
@@ -99,9 +99,8 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save(CasaSerializer & sz) const;
 
       /// @brief Create a new ObsValueDoubleScalar instance and deserialize it from the given stream
       /// @param dz input stream

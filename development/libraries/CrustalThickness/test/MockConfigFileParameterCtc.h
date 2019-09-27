@@ -21,7 +21,7 @@ namespace CrustalThickness {
    {
 
    public:
-      MockConfigFileParameterCtc() :ConfigFileParameterCtc() {};
+      MockConfigFileParameterCtc() :ConfigFileParameterCtc() {}
 
       /// @defgroup Accessors
       /// @{

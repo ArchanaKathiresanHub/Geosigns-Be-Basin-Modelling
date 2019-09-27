@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsValueDoubleArray.C
 
@@ -24,7 +24,7 @@ namespace casa
       if ( m_value.size() && m_parent && m_parent->hasReferenceValue() )
       {
          const ObsValueDoubleArray * refVal = dynamic_cast<const ObsValueDoubleArray*>( m_parent->referenceValue() );
-   
+
          if ( refVal )
          {
             const std::vector<double> & rv = refVal->asDoubleArray( true );
@@ -43,7 +43,7 @@ namespace casa
       return rmse;
    }
 
-   bool ObsValueDoubleArray::save( CasaSerializer & sz, unsigned int /* version */ ) const
+   bool ObsValueDoubleArray::save( CasaSerializer & sz ) const
    {
       CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
 
@@ -59,7 +59,7 @@ namespace casa
 
       bool ok = dz.load( parentID, "ObservableID" );
       m_parent = ok ? dz.id2ptr<Observable>( parentID ) : 0;
-      
+
       ok = ok ? dz.load( m_value, "arrayOfVals" ) : ok;
 
       if ( !ok || !m_parent )

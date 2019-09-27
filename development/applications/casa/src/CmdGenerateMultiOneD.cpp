@@ -1,23 +1,24 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "CasaCommander.h"
 #include "CmdGenerateMultiOneD.h"
 #include "CmdAddCldApp.h"
 
 #include "casaAPI.h"
-#include "RunCase.h"
 #include "Observable.h"
-#include "RunManager.h"
-#include "ObsSpace.h"
 #include "ObsGridPropertyWell.h"
+#include "ObsSpace.h"
+#include "PrmWindow.h"
+#include "RunCase.h"
+#include "RunManager.h"
 
 #include "LogHandler.h"
 
@@ -25,6 +26,7 @@
 #include "FilePath.h"
 
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 
@@ -67,57 +69,6 @@ void CmdGenerateMultiOneD::printHelpPage( const char * cmdName )
    std::cout << "\n";
 }
 
-#if 0 // excluded from the compilation as unneeded now, but it will be used in furture 
-static std::string generateTrack1DCommand( std::unique_ptr<casa::ScenarioAnalysis> & sa, const casa::RunCase * cs )
-{
-   mbapi::Model   * mdl = cs->caseModel();
-   const casa::ObsSpace & obs = sa->obsSpace();
-
-   std::vector<double> x;
-   std::vector<double> y;
-   std::vector<std::string> propNames;
-
-   for ( size_t i = 0; i < obs.size(); ++i )
-   {
-      const casa::Observable * ob = obs.observable( i );
-      const casa::ObsGridPropertyWell * obw = dynamic_cast<const casa::ObsGridPropertyWell*>( ob );
-      if ( obw )
-      {
-         if ( obw->checkObservableForProject( *mdl ).empty() )
-         {
-            x.push_back( obw->xCoords()[0] );
-            y.push_back( obw->yCoords()[0] );
-            propNames.push_back( obw->propertyName() );
-         }
-      }
-   }
-
-   std::ostringstream oss;
-   std::vector<bool> mask( x.size(), false );
-   for ( size_t i = 0, k = 0; i < mask.size(); ++i )
-   {
-      if ( mask[i] ) continue;
-      
-      oss << "app track1d \"-coordinates " << x[i] << "," << y[i] << "\"";
-      oss << " \"-properties " << propNames[i];
-      for ( size_t j = i+1; j < mask.size(); ++j )
-      {
-         if ( mask[j] ) continue;
-
-         if ( std::abs( x[i] - x[j] ) < 1 && std::abs( y[i] - y[j] ) < 1 )
-         {
-            oss << "," << propNames[j];
-            mask[j] = true;
-         }
-      }
-      oss << "\" \"-age 0\" \"-save track1Dresults_" << k << ".csv\"\n";
-      mask[i] = true;
-      k++;
-   }
-   return oss.str();
-}
-#endif
-
 void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::ScenarioAnalysis> & sa  ) const
 {
    // Prepare .casa scenario to run one 1D windowed project as a string
@@ -144,44 +95,63 @@ void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::Scenar
    sa->doeCaseSet().filterByExperimentName( "OneDProjects" );
    for ( size_t i = 0; i < sa->doeCaseSet().size(); ++i )
    {
-      const casa::RunCase * cs = sa->doeCaseSet()[i].get();
+      const casa::RunCase * cs = sa->doeCaseSet().runCase(i);
       ibs::FilePath scFile( cs->projectPath() );
       scFile.cutLast(); // remove project file name from the path
       scFile << "scenario1d.casa";
 
       std::ofstream ofs( scFile.path().c_str(), std::ios_base::out | std::ios_base::trunc );
-      if ( !ofs.is_open() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can't save script file: " << scFile.path(); }
-     
-      const std::string & scrptFile = oss.str();
-/*      const std::string & track1Dcmd = generateTrack1DCommand( sa, cs );
-      size_t pos = scrptFile.rfind( std::string( CasaCommander::s_CNBaseProject ) ); 
-
-      if ( pos != std::string::npos )
+      if ( ofs.fail() )
       {
-         ofs << scrptFile.substr( 0, pos );
-         ofs << track1Dcmd;
-         ofs << scrptFile.substr( pos );
+        throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can't save script file: " << scFile.path();
       }
-      else
-*/
-      { ofs << scrptFile; }
+
+      const std::string & scrptFile = oss.str();
+
+      ofs << scrptFile;
+
+      ofs.close();
+
+      // Write observables of multi1D window to the file in each Case directory
+
+      scFile.cutLast();
+      scFile << "windowObservable.txt";
+
+      std::ofstream ofsWindowObs( scFile.path().c_str(), std::ios_base::out | std::ios_base::trunc );
+      if ( ofsWindowObs.fail() )
+      {
+        throw ErrorHandler::Exception(ErrorHandler::IoError) << "Cannot open file for writing: " << scFile.path();
+      }
+
+      std::vector<double> prmWindowObsOrigin;
+      for ( unsigned int i = 0; i<cs->parametersNumber() ; ++i)
+      {
+        const casa::PrmWindow* ptr = dynamic_cast<const casa::PrmWindow*>((cs->parameter(i)).get());
+        if ( ptr )
+        {
+          prmWindowObsOrigin = ptr->observableOrigin();
+          break;
+        }
+      }
+
+      std::ostringstream ossWindowObsStream;
+      ossWindowObsStream << std::fixed;
+      ossWindowObsStream << prmWindowObsOrigin[0] << " " << prmWindowObsOrigin[1];
+      std::string ossWindowObs = ossWindowObsStream.str();
+
+      ofsWindowObs << ossWindowObs;
+      ofsWindowObs.close();
    }
    sa->doeCaseSet().filterByExperimentName( "" );
 
-   // update scenario application queue and replace the sequnce of cauldron applications to casa call
-   // clean all applications list by resetting run mananger
+   // update scenario application queue and replace the sequence of cauldron applications to casa call
+   // clean all applications list by resetting run manager
    LogHandler( LogHandler::INFO_SEVERITY ) << "Replacing application list with itself casa call ... ";
-   
+
    sa->resetRunManager();
 
    casa::RunManager & rm = sa->runManager();
-   casa::CauldronApp * app = casa::RunManager::createApplication( casa::RunManager::casa, 1, 0, 
-#ifdef _WIN32
-                                                                  casa::CauldronApp::cmd
-#else
-                                                                  casa::CauldronApp::bash
-#endif // _WIN32
-                                                                );
+   casa::CauldronApp * app = casa::RunManager::createApplication( casa::RunManager::casa, 1, 0);
    if ( ! app ) { throw ErrorHandler::Exception( ErrorHandler::MemAllocError ) << "Can't add casa application to RunManager"; }
    app->addOption( "-detailed" );
    app->addOption( "scenario1d.casa" );

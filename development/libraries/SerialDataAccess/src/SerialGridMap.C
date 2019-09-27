@@ -434,7 +434,6 @@ double SerialGridMap::getAverageValue () const
          for (unsigned int k = 0; k < m_depth; k++)
          {
             const double value = getValue (i, j, k);
-        
             if (value != getUndefinedValue ())
             {
                numValues++;
@@ -465,7 +464,6 @@ void SerialGridMap::getMinMaxValue (double & min, double & max) const
          for (unsigned int k = 0; k < m_depth; k++)
          {
             double value = getValue (i, j, k);
-       
             if (value != getUndefinedValue ())
             {
                max = std::max (value, max);
@@ -491,7 +489,6 @@ double SerialGridMap::getSumOfValues () const
          for (unsigned int k = 0; k < m_depth; k++)
          {
             const double value = getValue (i, j, k);
-         
             if (value != getUndefinedValue ())
             {
                total += value;
@@ -537,7 +534,6 @@ int SerialGridMap::getNumberOfDefinedValues () const
          for (unsigned int k = 0; k < m_depth; k++)
          {
             const double value = getValue (i, j, k);
-        
             if (value != getUndefinedValue ())
             {
                numValues++;
@@ -666,7 +662,6 @@ bool SerialGridMap::convertToGridMap(GridMap *mapB) const
 
    const Grid *gridA = this->getGrid();
    const Grid *gridB = mapB->getGrid();
-   
    if( gridA->numI() >= gridB->numI()  && gridA->numJ() >= gridB->numJ() )
    {
       ret = transformHighRes2LowRes(mapB);
@@ -693,7 +688,6 @@ bool SerialGridMap::transformHighRes2LowRes(GridMap *mapB) const
    const unsigned int depthA = this->getDepth ();
 
    const Grid *highResGridA = const_cast<Grid *>(this->getGrid());
-   
    for (indexImapB = 0; indexImapB < static_cast<unsigned int>(gridB->numI ()); ++indexImapB)
    {
       for (indexJmapB = 0; indexJmapB < static_cast<unsigned int>(gridB->numJ ()); ++indexJmapB)
@@ -719,30 +713,33 @@ bool SerialGridMap::transformHighRes2LowRes(GridMap *mapB) const
    return ret;
 }
 
-bool SerialGridMap::transformLowRes2HighRes(GridMap *mapB) const
+bool SerialGridMap::transformLowRes2HighRes(GridMap *mapB,bool extrapolateAOI) const
 {
    const GridMap *mapA = this;
-   const Grid *gridA = mapA->getGrid();
-   const Grid *gridB = mapB->getGrid();
+   const Grid *gridA = (Grid *)mapA->getGrid();
+   const Grid *gridB = (Grid *)mapB->getGrid();
 
-   const bool ret = true;
+   bool ret = true;
 
-   unsigned int k;
-   const unsigned int depthB = mapB->getDepth();
+   unsigned int highResI, highResJ, k;
+   unsigned int depthB = mapB->getDepth();
 
-   for (unsigned int highResI = 0; highResI < static_cast<unsigned int>(gridB->numI()); ++highResI)
+   for (highResI = 0; highResI < static_cast<unsigned int>(gridB->numI()); ++highResI)
    {
-      for (unsigned int highResJ = 0; highResJ < static_cast<unsigned int>(gridB->numJ()); ++highResJ)
+      for (highResJ = 0; highResJ < static_cast<unsigned int>(gridB->numJ()); ++highResJ)
       {
          double doubleLowResI, doubleLowResJ;
          if (!gridB->convertToGrid(*gridA, highResI, highResJ, doubleLowResI, doubleLowResJ))
          {
             // one of the four surrounding lowres grid points is outside the highres grid
-            for (k = 0; k < depthB; k++)
-            {
-               mapB->setValue(highResI, highResJ, k, DefaultUndefinedMapValue);
+            // when extrapolating, still want to calulcate something (see below)
+            if(!extrapolateAOI){
+               for (k = 0; k < depthB; k++)
+               {
+                  mapB->setValue(highResI, highResJ, k, DefaultUndefinedMapValue);
+               }
+               continue;
             }
-            continue;
          }
          const auto intLowResI = static_cast<unsigned int>(doubleLowResI);
          const auto intLowResJ = static_cast<unsigned int>(doubleLowResJ);
@@ -773,10 +770,100 @@ bool SerialGridMap::transformLowRes2HighRes(GridMap *mapB) const
                     (lowResMapValues[1][0] == mapA->getUndefinedValue() && fractionI != 0 && fractionJ != 1) ||
                          (lowResMapValues[1][1] == mapA->getUndefinedValue() && fractionI != 0 && fractionJ != 0))
             {
+               //inside point with at least one corner point missing!
                highResMapValue = mapB->getUndefinedValue();
+               // calculate when extrapolating!
+               if(extrapolateAOI ){
+                  int cornerPoints= (int) (lowResMapValues[0][0] != mapA->getUndefinedValue ()) +
+                                    (int) (lowResMapValues[0][1] != mapA->getUndefinedValue ()) +
+                                    (int) (lowResMapValues[1][0] != mapA->getUndefinedValue ()) +
+                                    (int) (lowResMapValues[1][1] != mapA->getUndefinedValue ());
+                  if( cornerPoints==3){
+                      // top-right missing
+                      if(lowResMapValues[1][1] == mapA->getUndefinedValue()){
+                         //set the top-right
+                         lowResMapValues[1][1]=(lowResMapValues[1][0]+lowResMapValues[0][1])*0.5;
+                      }
+                      // top-left missing
+                      if(lowResMapValues[0][1] == mapA->getUndefinedValue()){
+                         //set the topleft
+                         lowResMapValues[0][1]=(lowResMapValues[0][0]+lowResMapValues[1][1])*0.5;
+                      }
+                      // bottom-right missing
+                      if(lowResMapValues[1][0] == mapA->getUndefinedValue()){
+                         //set the bottom-right
+                         lowResMapValues[1][0]=(lowResMapValues[0][0]+lowResMapValues[1][1])*0.5;
+                      }
+                      // bottom-left missing
+                      if(lowResMapValues[0][0] == mapA->getUndefinedValue()){
+                         //set the bottom-left
+                         lowResMapValues[0][0]=(lowResMapValues[1][0]+lowResMapValues[0][1])*0.5;
+                      }
+                      highResMapValue = 0.0;
+                      highResMapValue += lowResMapValues[0][0] * (1 - fractionI) * (1 - fractionJ);
+                      highResMapValue += lowResMapValues[0][1] * (1 - fractionI) * (fractionJ);
+                      highResMapValue += lowResMapValues[1][0] * (fractionI) * (1 - fractionJ);
+                      highResMapValue += lowResMapValues[1][1] * (fractionI) * (fractionJ);
+                  }
+                  if (cornerPoints==2){
+                     // 6 cases of two corner points! bottom, top, left, right, and two diagonal
+                     //
+                     // bottom
+                     if(lowResMapValues[0][0] != mapA->getUndefinedValue () && lowResMapValues[1][0] != mapA->getUndefinedValue ()      ){
+                         highResMapValue=(lowResMapValues[0][0]*(1-fractionI)) + (lowResMapValues[1][0] * fractionI);
+                     }
+                     // top
+                     if(lowResMapValues[0][1] != mapA->getUndefinedValue () && lowResMapValues[1][1] != mapA->getUndefinedValue ()      ){
+                         highResMapValue=(lowResMapValues[0][1]*(1-fractionI)) + (lowResMapValues[1][1] * fractionI);
+                     }
+                     // left
+                     if(lowResMapValues[0][0] != mapA->getUndefinedValue () && lowResMapValues[0][1] != mapA->getUndefinedValue ()      ){
+                         highResMapValue=(lowResMapValues[0][0]*(1-fractionJ)) + (lowResMapValues[0][1] * fractionJ);
+                     }
+                     // right
+                     if(lowResMapValues[1][0] != mapA->getUndefinedValue () && lowResMapValues[1][1] != mapA->getUndefinedValue ()      ){
+                         highResMapValue=(lowResMapValues[1][0]*(1-fractionJ)) + (lowResMapValues[1][1] * fractionJ);
+                     }
+                     // main diagonal (this is a wired geometry AOI, nothing better than set the value to the nearest existing val     ue)
+                     if(lowResMapValues[0][0] != mapA->getUndefinedValue () && lowResMapValues[1][1] != mapA->getUndefinedValue ()      ){
+                         //choose closest point!
+                         if( fractionI + fractionJ < 1 ){
+                            highResMapValue=lowResMapValues[0][0];
+                         }else{
+                            highResMapValue=lowResMapValues[1][1];
+                         }
+                     }
+                     // 2nd diagonal (this is a wired geometry AOI, nothing better than set the value to the nearest existing valu     e)
+                     if(lowResMapValues[1][0] != mapA->getUndefinedValue () && lowResMapValues[0][1] != mapA->getUndefinedValue ()      ){
+                         //choose closest point!
+                         if( fractionI < fractionJ ){
+                            highResMapValue=lowResMapValues[1][0];
+                         }else{
+                            highResMapValue=lowResMapValues[0][1];
+                         }
+                     }
+                  }
+                  // if there is only one corner point. Just set the value of that corner point
+                  if (cornerPoints==1){
+                     if (lowResMapValues[0][0] != mapA->getUndefinedValue () ){
+                       highResMapValue=lowResMapValues[0][0];
+                     }else if (lowResMapValues[0][1] != mapA->getUndefinedValue () ){
+                       highResMapValue=lowResMapValues[0][1];
+                     }else if (lowResMapValues[1][0] != mapA->getUndefinedValue () ){
+                       highResMapValue=lowResMapValues[1][0];
+                     }else if (lowResMapValues[1][1] != mapA->getUndefinedValue () ){
+                       highResMapValue=lowResMapValues[1][1];
+                     }
+                  }
+                  // if there are no corner points, undifiend!
+               }
+
+
 
             }
             else
+            //bi-linear interpolation, 4 corner points present
+
             {
                highResMapValue += lowResMapValues[0][0] * (1 - fractionI) * (1 - fractionJ);
                highResMapValue += lowResMapValues[0][1] * (1 - fractionI) * (fractionJ);
@@ -798,32 +885,32 @@ bool SerialGridMap::transformLowRes2HighRes(GridMap *mapB) const
    return ret;
 }
 
-unsigned int SerialGridMap::numI () const
+unsigned int SerialGridMap::numI (void) const
 {
    return m_grid->numI();
 }
 
-unsigned int SerialGridMap::numJ () const
+unsigned int SerialGridMap::numJ (void) const
 {
    return m_grid->numJ();
 }
 
-double SerialGridMap::minI () const
+double SerialGridMap::minI (void) const
 {
    return m_grid->minIGlobal () + firstI () * deltaI ();
 }
 
-double SerialGridMap::minJ () const
+double SerialGridMap::minJ (void) const
 {
    return m_grid->minJGlobal () + firstJ () * deltaJ ();
 }
 
-double SerialGridMap::deltaI () const
+double SerialGridMap::deltaI (void) const
 {
-   return m_grid->deltaI ();
+       return m_grid->deltaI ();
 }
 
-double SerialGridMap::deltaJ () const
+double SerialGridMap::deltaJ (void) const
 {
-   return m_grid->deltaJ ();
+       return m_grid->deltaJ ();
 }

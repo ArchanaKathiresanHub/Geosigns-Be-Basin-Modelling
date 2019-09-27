@@ -3,8 +3,6 @@
 # Copyright (C) 2012-2013 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
-# Developed under license for Shell by PDS BV.                          #
-#                                                                       #
 # Confidential and proprietary source code of Shell.                    #
 # Do not distribute without written permission from Shell.              #
 #                                                                       #
@@ -16,16 +14,17 @@ macro(create_bm_library)
   set(prefix BM)
   set(options INSTALLTARGET)
   set(oneValueArgs TARGET)
-  set(multiValueArgs LIBRARIES)
-  cmake_parse_arguments(${prefix} ${options} ${oneValueArgs} ${multiValueArgs} ${ARGN})
+  set(multiValueArgs LIBRARIES ADD_SOURCES ADD_HEADERS)
+  cmake_parse_arguments("${prefix}" "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   file(GLOB ALL_HEADERS src/*.h)
   file(GLOB ALL_SOURCES src/*.C src/*.cpp)
 
-  source_group(include FILES ${ALL_HEADERS})
-  source_group(source  FILES ${ALL_SOURCES})
+  source_group(include FILES ${ALL_HEADERS} ${BM_ADD_HEADERS})
+  source_group(source  FILES ${ALL_SOURCES} ${BM_ADD_SOURCES})
 
-  add_library(${BM_TARGET} ${ALL_SOURCES} ${ALL_HEADERS})
+  add_library(${BM_TARGET} ${ALL_SOURCES} ${BM_ADD_SOURCES}
+                           ${ALL_HEADERS} ${BM_ADD_HEADERS} )
   target_include_directories(${BM_TARGET} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
   target_link_libraries(${BM_TARGET} ${BM_LIBRARIES})  
   set_target_properties( ${BM_TARGET} PROPERTIES FOLDER "${BASE_FOLDER}/${BM_TARGET}" )

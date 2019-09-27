@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmPorosityModel.h
-/// @brief This file keeps API declaration for lithology porosity model parameters handling. 
+/// @brief This file keeps API declaration for lithology porosity model parameters handling.
 
 #ifndef CASA_API_PARAMETER_POROSITY_MODEL_H
 #define CASA_API_PARAMETER_POROSITY_MODEL_H
@@ -27,14 +27,14 @@ namespace mbapi
 }
 
 /// @page CASA_PorosityModelPage Lithology porosity model
-/// 
+///
 /// This parameter defines the type of porosity model and it parameters for a lithology
 /// Here is the list of supported porosity model types:
 /// -# Exponential
 /// -# Soil Mechanics
 /// -# Double Exponential
 ///
-/// To define lithology porosity model user should specify 
+/// To define lithology porosity model user should specify
 /// - Lithology name
 /// - Porosity model type
 /// - Porosity model dependent parameters
@@ -90,8 +90,8 @@ namespace casa
       } PorosityModelType;
 
       /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param mdl Cauldron model interface object to get Porosity model and it parameters value 
-      ///            for the given lithology. 
+      /// @param mdl Cauldron model interface object to get Porosity model and it parameters value
+      ///            for the given lithology.
       /// @param lithoName lithology name
       PrmPorosityModel( mbapi::Model & mdl, const char * lithoName );
 
@@ -104,27 +104,15 @@ namespace casa
 
       /// @brief Destructor
       virtual ~PrmPorosityModel() { ; }
-     
-      /// @brief Get name of the parameter
-      /// @return parameter name
-      virtual const char * name() const { return m_name.c_str(); }
-
-      /// @brief Get influential parameter which was used to create this parameter
-      /// @return Pointer to the influential parameter
-      virtual const VarParameter * parent() const { return m_parent; }
-
-      /// @brief Set influential parameter which was used to create this parameter
-      /// @param varPrm pointer to the influential parameter
-      virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
-      virtual AppPipelineLevel appSolverDependencyLevel() const  { return PTSolver; }                  
+      virtual AppPipelineLevel appSolverDependencyLevel() const  { return PTSolver; }
 
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
-      /// @return ErrorHandler::NoError in success, or error code otherwise     
+      /// @return ErrorHandler::NoError in success, or error code otherwise
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID );
 
       /// @brief Validate Porosity model parameter values
@@ -135,7 +123,7 @@ namespace casa
 
 
       // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
-      
+
       /// @brief Get parameter value as an array of doubles
       /// @return parameter value represented as set of doubles
       virtual std::vector<double> asDoubleArray() const;
@@ -156,9 +144,8 @@ namespace casa
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -171,13 +158,9 @@ namespace casa
       /// @}
 
    protected:
-      const VarParameter * m_parent;    ///< influential parameter which was used to create this one
-
-      std::string          m_name;      ///< name of the parameter
-      
       PorosityModelType    m_modelType;   ///< type of the porosity model
       std::string          m_lithoName;   ///< lithology name
-      
+
       // Soil Mechanics model parameters
       double               m_clayFraction;///< clay fraction which unique defines surface porosity and compaction coefficient
 
@@ -207,17 +190,17 @@ namespace casa
    /// @return clay fraction value
    double SMsp2cf( double surfPor );
 
-   /// @brief For soil mechanics model calculate clay fraction from compaction coefficient 
+   /// @brief For soil mechanics model calculate clay fraction from compaction coefficient
    /// @param cc compaction coefficient value
    /// @return clay fraction value
    double SMcc2cf( double cc );
 
-   /// @brief For soil mechanics model calculate surface pororsity from clay fraction 
+   /// @brief For soil mechanics model calculate surface pororsity from clay fraction
    /// @param clayFrac clay fraction value
    /// @return surface porosity value
    double SMcf2sp( double clayFrac );
 
-   /// @brief For soil mechanics model calculate compaction coefficient from clay fraction 
+   /// @brief For soil mechanics model calculate compaction coefficient from clay fraction
    /// @param clayFrac clay fraction value
    /// @return surface porosity value
    double SMcf2cc( double clayFrac );

@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmCompactionCoefficient.cpp
 /// @brief This file keeps API implementation for handling variation of compaction coefficient for the given list of lithologies
@@ -24,11 +24,11 @@
 
 namespace casa
 {
-   VarPrmCompactionCoefficient::VarPrmCompactionCoefficient( 
+   VarPrmCompactionCoefficient::VarPrmCompactionCoefficient(
                                           const std::vector<std::string> & lithosName
-                                        , double                           baseCompCoef ///< base value for compaction coefficient 
-                                        , double                           minCompCoef  ///< minimal value for compaction coefficient 
-                                        , double                           maxCompCoef ///< maximal value for compaction coefficient 
+                                        , double                           baseCompCoef ///< base value for compaction coefficient
+                                        , double                           minCompCoef  ///< minimal value for compaction coefficient
+                                        , double                           maxCompCoef ///< maximal value for compaction coefficient
                                         , VarPrmContinuous::PDF            prmPDF
                                         , const std::string              & name
                                         )
@@ -52,9 +52,9 @@ PrmLithologyProp * VarPrmCompactionCoefficient::createNewPrmFromModel( mbapi::Mo
    return new PrmCompactionCoefficient( this, m_lithosName, mdlPrm.value( ) );
 }
 
-bool VarPrmCompactionCoefficient::save( CasaSerializer & sz, unsigned int version ) const
-{ 
-   bool ok = VarPrmLithologyProp::serializeCommonPart( sz, version );
+bool VarPrmCompactionCoefficient::save( CasaSerializer & sz ) const
+{
+   bool ok = VarPrmLithologyProp::serializeCommonPart( sz );
    return ok;
 }
 

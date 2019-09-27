@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef UTILITIES_GENERALEXCEPTION_H
 #define UTILITIES_GENERALEXCEPTION_H
@@ -20,8 +20,8 @@ namespace formattingexception{
 class GeneralException : public std::exception
 {
 public:
-   GeneralException() {};
-   
+   GeneralException() {}
+
    GeneralException( const GeneralException & other ) : std::exception( other )
                                                       , m_message(other.m_message.str())
                                                       , m_formatted()
@@ -35,9 +35,9 @@ public:
    }
 
    // Overriding std::exception functions
-   virtual ~GeneralException() throw () {};
+   virtual ~GeneralException() throw () {}
 
-   virtual const char * what() const throw () 
+   virtual const char * what() const throw ()
    {
       m_formatted = m_message.str();
       return m_formatted.empty() ? "Unknown exception" : m_formatted.c_str();
@@ -65,10 +65,10 @@ template <typename T>
 class BaseException : public GeneralException
 {
 public:
-   
+
    using GeneralException::what;
 
-   template <typename U> T & operator<< (const U & x) 
+   template <typename U> T & operator<< (const U & x)
    {
       return static_cast<T &>( GeneralException::operator<<( x ) );
    }

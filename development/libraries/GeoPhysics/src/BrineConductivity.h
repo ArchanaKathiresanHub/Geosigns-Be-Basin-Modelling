@@ -44,14 +44,14 @@ namespace GeoPhysics
 
          /// Extracts data from the project-file FltThCondIoTbl and puts it in array members
          void setTable (const ibs::Interpolator2d& thermalConductivityTbl);
-    
+
          /// Depending on the ordering of temperature, higherTemperature and lowerTemperature calls the appropriate function to calculate
          /// the value of the brine parameter of interest. It then returns the value returned by that function without further checks.
          /// \pre Requires the triplet of T,P,S to be within the allowed ranges and lowerTemperature < higherTemperature.
          /// \post Guarantees the return of the return value of the appropriate function to be called depending on temperature, higherTemperature and lowerTemperature.
          double get( const GeoPhysics::Brine::PhaseStateScalar & phase ) const;
          void   get( const GeoPhysics::Brine::PhaseStateVec & phase,
-                     ArrayDefs::Real_ptr brineProp ) const {};
+                     ArrayDefs::Real_ptr brineProp ) const {}
 
          /// Size of the brine thermal-conductivity table
          static const int s_thCondArraySize = 667;
@@ -87,7 +87,7 @@ namespace GeoPhysics
 
          /// Pointer to the table containing the Fluid-Thermal-Conductivity data
          ibs::Interpolator2d * thCondTable;
-         
+
          /// Value of termperature at high end of transition region for max pressure
          const double m_highEndTransitionTempMax;
 

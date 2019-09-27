@@ -53,8 +53,8 @@ namespace GenexSimulation
 
       /// megre separate opuput files into a one
       bool mergeOutputFiles ();
-   protected:
 
+   private:
       /// Sets the requested output properties according to Filter Time IO and fastmig requirements
       void setRequestedOutputProperties();
 
@@ -68,7 +68,6 @@ namespace GenexSimulation
       /// Check if  propertyName is among the fastgenex5 registered properties
       bool isPropertyRegistered(const string & propertyName);
 
-   private:
 
       DerivedProperties::DerivedPropertyManager * m_propertyManager;
 

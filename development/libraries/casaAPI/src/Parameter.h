@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file Parameter.h
 /// @brief This file keeps declaration of top level class for handling Cauldron model parameters
@@ -43,19 +43,15 @@ namespace casa
    {
    public:
       /// @brief Parameter destructor
-      virtual ~Parameter() {;}
-      
-      /// @brief Get name of the parameter
-      /// @return parameter name
-      virtual const char * name() const = 0;
-      
+      virtual ~Parameter() = default;
+
       /// @brief Get influential parameter which was used to create this parameter
       /// @return Pointer to the influential parameter
-      virtual const VarParameter * parent() const = 0;
+      virtual const VarParameter * parent() const;
 
       /// @brief Set influential parameter which was used to create this parameter
       /// @param varPrm Pointer to the influential parameter
-      virtual void  setParent( const VarParameter * varPrm ) = 0;
+      void  setParent( const VarParameter * varPrm );
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
@@ -66,7 +62,7 @@ namespace casa
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
       /// @return ErrorHandler::NoError in success, or error code otherwise
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID ) = 0;
-      
+
       /// @brief Validate parameter value if it is in range of allowed values
       /// @param caldModel reference to Cauldron model
       /// @return empty string on success, or error message if validation fail
@@ -90,6 +86,10 @@ namespace casa
       ///       parameter is categorical, or -1 otherwise
       virtual int asInteger() const = 0;
 
+      /// @brief Get the parameters/arguments for this parameter
+      /// @return list of parameters/arguments
+      virtual std::vector<std::string> parameters() const;
+
       /// @brief Are two parameters equal?
       /// @param prm Parameter object to compare with
       /// @return true if parameters are the same, false otherwise
@@ -106,12 +106,17 @@ namespace casa
       /// @return new observable instance on susccess, or throw and exception in case of any error
       static Parameter * load( CasaDeserializer & dz, const char * objName );
 
+
    protected:
-      Parameter() {;}
+      explicit Parameter(const VarParameter * parent = 0);
+      Parameter(CasaDeserializer& dz, unsigned int version);
+
+      bool saveCommonPart(CasaSerializer& sz) const;
 
    private:
-      Parameter( const Parameter & );
       Parameter & operator = ( const Parameter & );
+
+      const VarParameter * m_parent; ///< influential parameter which was used to create this parameter
    };
 }
 

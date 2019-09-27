@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmSourceRockPreAsphaltStartAct.h
-/// @brief This file keeps API declaration for Source Rock Preasphaltene Activation Energy parameter handling. 
+/// @brief This file keeps API declaration for Source Rock Preasphaltene Activation Energy parameter handling.
 
 #ifndef CASA_API_PARAMETER_SOURCE_ROCK_PRE_ASPH_ACT_ENERGY_H
 #define CASA_API_PARAMETER_SOURCE_ROCK_PRE_ASPH_ACT_ENERGY_H
@@ -27,7 +27,7 @@ namespace mbapi
 }
 
 /// @page CASA_SourceRockPreAsphaltStartActPage Source rock pre-asphaltene activation energy parameter
-/// 
+///
 /// This parameter defines the activation energy limit for which the pre-asphalt cracking starts
 /// The value is defined in units: @f$ [ kJ/mol ] @f$
 /// It is a continuous parameter and it valid range usually is defined by the source rock type, but it
@@ -38,7 +38,7 @@ namespace casa
    class VarPrmSourceRockPreAsphaltStartAct;
 
    /// @brief Source rock initial organic content parameter
-   class PrmSourceRockPreAsphaltStartAct : public PrmSourceRockProp 
+   class PrmSourceRockPreAsphaltStartAct : public PrmSourceRockProp
    {
    public:
       /// @brief Constructor, creates parameter object by reading the parameter value from the given model
@@ -63,11 +63,11 @@ namespace casa
 
       /// @brief Destructor
       virtual ~PrmSourceRockPreAsphaltStartAct();
-     
+
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
-      /// @return ErrorHandler::NoError in success, or error code otherwise     
+      /// @return ErrorHandler::NoError in success, or error code otherwise
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID );
 
       /// @brief Validate parameter value if it is inside of valid range
@@ -80,16 +80,10 @@ namespace casa
       /// @return true if parameters are the same, false otherwise
       virtual bool operator == ( const Parameter & prm ) const;
 
-      /// @{
-      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
-      /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
-
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
-      /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      virtual bool save( CasaSerializer & sz ) const;
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -99,9 +93,6 @@ namespace casa
       /// @param dz input stream
       /// @param objVer version of object representation in stream
       PrmSourceRockPreAsphaltStartAct( CasaDeserializer & dz, unsigned int objVer );
-      /// @}
-
-   protected:
    };
 
 }
