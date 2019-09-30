@@ -43,10 +43,10 @@ add_gtest( NAME "ModelPseudo1dInputManager"
     LIBRARIES ${M1D_LIB_NAME} utilities
     FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )
 
-add_gtest( NAME "ModelPseudo1dProjectManager"
-    SOURCES src/ModelPseudo1dProjectManager.cpp test/TestModelPseudo1dProjectManager.cpp
-    LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataAccess DataMining TableIO
-    FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )
+#add_gtest( NAME "ModelPseudo1dProjectManager"
+#    SOURCES src/ModelPseudo1dProjectManager.cpp test/TestModelPseudo1dProjectManager.cpp
+#    LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataAccess DataMining TableIO
+#    FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )
 
 
 
