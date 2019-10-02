@@ -13,6 +13,7 @@
 module purge &> /dev/null
 module load CMake/3.8.2
 module load intel/2017.05;
+module load Qt/5.4.1-intel-2017.05
 export CXX=icpc;
 export CC=icc
 
