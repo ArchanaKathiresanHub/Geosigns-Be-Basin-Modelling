@@ -10,7 +10,14 @@
 
 set( M1D_APP_NAME "modelpseudo1d" )
 add_executable( ${M1D_APP_NAME} src/main.cpp )
-set_target_properties( ${M1D_APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${M1D_APP_NAME}" )
+set_target_properties( ${M1D_APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${M1D_APP_NAME}"
+                                                  SUFFIX ".exe" )
+
+create_application_run_script( ${M1D_APP_NAME} )
+
+application_env_var( TARGET ${M1D_APP_NAME} VARS
+     "CTCDIR"      "$MISCDIR"
+)
 
 include_directories(
     ${M1D_LIB_INCLUDE_DIRS}
@@ -40,4 +47,3 @@ endif()
 install( TARGETS ${M1D_APP_NAME}
     RUNTIME DESTINATION bin 
   )
-

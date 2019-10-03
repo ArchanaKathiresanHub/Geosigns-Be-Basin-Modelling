@@ -15,6 +15,7 @@ include_directories(
 )
 
 include_directories( SYSTEM
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${HDF5_INCLUDE_DIRS}
 )
 
@@ -34,6 +35,8 @@ if (WIN32)
   add_definitions(-DNOMINMAX)
 endif()
 
+set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
+
 copy_test_file(Project.project3d)
 copy_test_file(Input.HDF)
 copy_test_file(Inputs.HDF)
@@ -43,11 +46,8 @@ add_gtest( NAME "ModelPseudo1dInputManager"
     LIBRARIES ${M1D_LIB_NAME} utilities
     FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )
 
-#add_gtest( NAME "ModelPseudo1dProjectManager"
-#    SOURCES src/ModelPseudo1dProjectManager.cpp test/TestModelPseudo1dProjectManager.cpp
-#    LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataAccess DataMining TableIO
-#    FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )
-
-
-
-
+add_gtest( NAME "ModelPseudo1dProjectManager"
+    SOURCES src/ModelPseudo1dProjectManager.cpp test/TestModelPseudo1dProjectManager.cpp
+    LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataAccess DataMining TableIO
+    ENV_VARS CTCDIR=${CFGFLS}
+    FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )
