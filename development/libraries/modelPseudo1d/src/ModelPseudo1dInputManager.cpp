@@ -33,7 +33,7 @@ void ModelPseudo1dInputManager::setDefaultInputValues()
 
 ModelPseudo1dInputManager::ExitStatus ModelPseudo1dInputManager::initialCheck(std::string & ioErrorMessage) const
 {
-  if (m_argc == 2 && std::strcmp(m_argv[1], "-help") == 0)
+  if (m_argc <= 2 || std::strcmp(m_argv[1], "-help") == 0)
   {
     printHelp();
     return NO_ERROR_EXIT;

@@ -28,7 +28,7 @@ Genex0dInputManager::Genex0dInputManager(int argc, char** argv) :
 
 Genex0dInputManager::ExitStatus Genex0dInputManager::initialCheck(std::string & ioErrorMessage) const
 {
-  if(m_argc == 2 && std::strcmp(m_argv[1], "-help") == 0)
+  if (m_argc <= 2 || std::strcmp(m_argv[1], "-help") == 0)
   {
     printHelp();
     return NO_ERROR_EXIT;
