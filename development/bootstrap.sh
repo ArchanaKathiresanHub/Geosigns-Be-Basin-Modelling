@@ -17,7 +17,7 @@ module load Qt/5.4.1-intel-2017.05
 export CXX=icpc;
 export CC=icc
 
-source_directory=$(dirname $0)
+source_directory=$(dirname ${BASH_SOURCE[0]})
 build_directory=$PWD
 
 # Build type obtained from the directory
