@@ -25,7 +25,6 @@
 
 // cmbAPI and utilities
 #include "cmbAPI.h"
-#include "ErrorHandler.h"
 
 // STL
 #include <map>
@@ -35,7 +34,7 @@
 namespace fastDepthCalibration
 {
 
-class FastDepthCalibration : public ErrorHandler
+class FastDepthCalibration
 {
 public:
 

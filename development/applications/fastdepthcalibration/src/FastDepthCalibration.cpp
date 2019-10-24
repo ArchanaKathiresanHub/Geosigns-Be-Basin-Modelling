@@ -18,7 +18,6 @@
 #include "Grid.h"
 #include "GridMap.h"
 #include "Interface.h"
-#include "ProjectHandle.h"
 #include "Surface.h"
 
 //utilities library

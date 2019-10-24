@@ -45,7 +45,7 @@ std::vector<double> FDCVectorFieldProperties::setMeasuredTwtAtSpecifiedSurface(c
   mbapi::MapsManager & mapsMgrLocal = m_mdl->mapsManager();
 
   mbapi::MapsManager::MapID twtMapID = mapsMgrLocal.findID(twtMapNames);
-  if (ErrorHandler::ReturnCode::NoError != mapsMgrLocal.mapGetValues(twtMapID, tarTwts))
+  if (ErrorHandler::NoError != mapsMgrLocal.mapGetValues(twtMapID, tarTwts))
   {
     throw ErrorHandler::Exception(mapsMgrLocal.errorCode()) << " Cannot get the measured twt map for the surface " << surface
                                                             << ", message: " << mapsMgrLocal.errorMessage();

@@ -59,26 +59,26 @@ void FDCProjectManager::setSubSamplingWindow()
   {
     LogHandler(LogHandler::WARNING_SEVERITY) << "The project is windowed. For the depth calibration the entire domain is required."
                                              << " Changing WindowX and WindowY in to run the simulation over the entire domain";
-    if (NoError != m_mdl->setWindow(1, dimI - 1, 1, dimJ - 1)) { throw T2Zexception() << "Cannot set window"; }
+    if (ErrorHandler::NoError != m_mdl->setWindow(1, dimI - 1, 1, dimJ - 1)) { throw T2Zexception() << "Cannot set window"; }
   }
 }
 
 void FDCProjectManager::clearTables()
 {
-  if (NoError != m_mdl->clearTable("TimeIoTbl")) { throw T2Zexception() << "Cannot clear the table TimeIoTbl "; }
-  if (NoError != m_mdl->clearTable("3DTimeIoTbl")) { throw T2Zexception() << "Cannot clear the table 3DTimeIoTbl "; }
-  if (NoError != m_mdl->clearTable("1DTimeIoTbl")) { throw T2Zexception() << "Cannot clear the table 1DTimeIoTbl "; }
-  if (NoError != m_mdl->clearTable("ReservoirIoTbl")) { throw T2Zexception() << "Cannot clear the table ReservoirIoTbl "; }
-  if (NoError != m_mdl->clearTable("MobLayThicknIoTbl")) { throw T2Zexception() << "Cannot clear the table MobLayThicknIoTbl "; }
-  if (NoError != m_mdl->clearTable("FilterTimeIoTbl")) { throw T2Zexception() << "Cannot clear the table FilterTimeIoTbl "; }
-  if (NoError != m_mdl->clearTable("SnapshotIoTbl")) { throw T2Zexception() << "Cannot clear the table SnapshotIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->clearTable("TimeIoTbl")) { throw T2Zexception() << "Cannot clear the table TimeIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->clearTable("3DTimeIoTbl")) { throw T2Zexception() << "Cannot clear the table 3DTimeIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->clearTable("1DTimeIoTbl")) { throw T2Zexception() << "Cannot clear the table 1DTimeIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->clearTable("ReservoirIoTbl")) { throw T2Zexception() << "Cannot clear the table ReservoirIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->clearTable("MobLayThicknIoTbl")) { throw T2Zexception() << "Cannot clear the table MobLayThicknIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->clearTable("FilterTimeIoTbl")) { throw T2Zexception() << "Cannot clear the table FilterTimeIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->clearTable("SnapshotIoTbl")) { throw T2Zexception() << "Cannot clear the table SnapshotIoTbl "; }
 }
 
 void FDCProjectManager::setDepthAndTwtPropertiesInFilterTimeIoTbl()
 {
-  if (NoError != m_mdl->propertyManager().requestPropertyInSnapshots("Depth", "SedimentsOnly")) { throw T2Zexception() << "Cannot set the table property Depth in the FilterTimeIoTbl "; }
-  if (NoError != m_mdl->propertyManager().requestPropertyInSnapshots("TwoWayTime", "SedimentsOnly")) { throw T2Zexception() << "Cannot set the table property TwoWayTime in the FilterTimeIoTbl "; }
-  if (NoError != m_mdl->propertyManager().requestPropertyInSnapshots("TwoWayTimeResidual", "SedimentsOnly")) { throw T2Zexception() << "Cannot set the table property TwoWayTimeResidual in the FilterTimeIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->propertyManager().requestPropertyInSnapshots("Depth", "SedimentsOnly")) { throw T2Zexception() << "Cannot set the table property Depth in the FilterTimeIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->propertyManager().requestPropertyInSnapshots("TwoWayTime", "SedimentsOnly")) { throw T2Zexception() << "Cannot set the table property TwoWayTime in the FilterTimeIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->propertyManager().requestPropertyInSnapshots("TwoWayTimeResidual", "SedimentsOnly")) { throw T2Zexception() << "Cannot set the table property TwoWayTimeResidual in the FilterTimeIoTbl "; }
 }
 
 void FDCProjectManager::prepareProject()
@@ -93,21 +93,21 @@ void FDCProjectManager::reverseDepoSequenceInStratIoTblFromTopSurfaceToBeforeCur
   for (mbapi::StratigraphyManager::SurfaceID s = 0; s < surface; ++s)
   {
     long deposequence = surface - s;
-    if (NoError != m_mdl->setTableValue("StratIoTbl", s, "MobileLayer", (long)0)) { throw T2Zexception() << "Cannot set MobileLayer "; }
-    if (NoError != m_mdl->setTableValue("StratIoTbl", s, "DepoSequence", deposequence)) { throw T2Zexception() << "Cannot set DepoSequence"; }
+    if (ErrorHandler::NoError != m_mdl->setTableValue("StratIoTbl", s, "MobileLayer", (long)0)) { throw T2Zexception() << "Cannot set MobileLayer "; }
+    if (ErrorHandler::NoError != m_mdl->setTableValue("StratIoTbl", s, "DepoSequence", deposequence)) { throw T2Zexception() << "Cannot set DepoSequence"; }
   }
 }
 
 void FDCProjectManager::setDepoSequenceOfCurrentSurfaceToUndefined(const mbapi::StratigraphyManager::SurfaceID surface)
 {
-  if (NoError != m_mdl->setTableValue("StratIoTbl", surface, "MobileLayer", (long)0)) { throw T2Zexception() << "Cannot set MobileLayer "; }
-  if (NoError != m_mdl->setTableValue("StratIoTbl", surface, "DepoSequence", (long)DataAccess::Interface::DefaultUndefinedScalarIntValue)) { throw T2Zexception() << "Cannot set DepoSequence "; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("StratIoTbl", surface, "MobileLayer", (long)0)) { throw T2Zexception() << "Cannot set MobileLayer "; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("StratIoTbl", surface, "DepoSequence", (long)DataAccess::Interface::DefaultUndefinedScalarIntValue)) { throw T2Zexception() << "Cannot set DepoSequence "; }
 }
 
 void FDCProjectManager::removeFromStratIoTblSurfaceRecordsBelowCurrentSurface(const mbapi::StratigraphyManager::SurfaceID surface, const std::vector<mbapi::StratigraphyManager::SurfaceID> & surfacesIDs)
 {
   for (mbapi::StratigraphyManager::SurfaceID s = surface + 1; s < surfacesIDs.size(); ++s)
-  { if (NoError != m_mdl->removeRecordFromTable("StratIoTbl", surface + 1)) { throw T2Zexception() << "Cannot remove records from the StratIoTbl "; } }
+  { if (ErrorHandler::NoError != m_mdl->removeRecordFromTable("StratIoTbl", surface + 1)) { throw T2Zexception() << "Cannot remove records from the StratIoTbl "; } }
 }
 
 void FDCProjectManager::appendCorrectedMapNamesInStratIoTbl(const std::map<const mbapi::StratigraphyManager::SurfaceID, std::string> & correctedMapsNames)
@@ -116,7 +116,7 @@ void FDCProjectManager::appendCorrectedMapNamesInStratIoTbl(const std::map<const
   {
     const string correctedMapName = it->second;
     if (correctedMapName.empty()) { continue; }
-    if (NoError != m_mdl->setTableValue("StratIoTbl", it->first, "DepthGrid", it->second)) { throw T2Zexception() << "Cannot set DepthGrid "; }
+    if (ErrorHandler::NoError != m_mdl->setTableValue("StratIoTbl", it->first, "DepthGrid", it->second)) { throw T2Zexception() << "Cannot set DepthGrid "; }
   }
 }
 
@@ -124,11 +124,11 @@ void FDCProjectManager::setCurrentMapDataInGridMapIoTbl(const std::string & corr
 {
   size_t row = m_mdl->tableSize("GridMapIoTbl") - 1;
 
-  if (NoError != m_mdl->setTableValue("GridMapIoTbl", row, "ReferredBy", "StratIoTbl")) { throw T2Zexception() << "Cannot set ReferredBy in GridMapIoTbl "; }
-  if (NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapName", correctedMapsName)) { throw T2Zexception() << "Cannot set MapName in GridMapIoTbl "; }
-  if (NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapType", "HDF5")) { throw T2Zexception() << "Cannot set MapType in GridMapIoTbl "; }
-  if (NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapFileName", resultsMapFileName)) { throw T2Zexception() << "Cannot set MapFileName in GridMapIoTbl "; }
-  if (NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapSeqNbr", correctedMapSequenceNbr)) { throw T2Zexception() << "Cannot set MapSeqNbr in GridMapIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "ReferredBy", "StratIoTbl")) { throw T2Zexception() << "Cannot set ReferredBy in GridMapIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapName", correctedMapsName)) { throw T2Zexception() << "Cannot set MapName in GridMapIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapType", "HDF5")) { throw T2Zexception() << "Cannot set MapType in GridMapIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapFileName", resultsMapFileName)) { throw T2Zexception() << "Cannot set MapFileName in GridMapIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapSeqNbr", correctedMapSequenceNbr)) { throw T2Zexception() << "Cannot set MapSeqNbr in GridMapIoTbl "; }
 }
 
 void FDCProjectManager::appendCorrectedMapNamesInGridMapIoTbl(const std::map<const mbapi::StratigraphyManager::SurfaceID, std::string> & correctedMapsNames,
@@ -139,7 +139,7 @@ void FDCProjectManager::appendCorrectedMapNamesInGridMapIoTbl(const std::map<con
   {
     const string correctedMapName = it->second;
     if (correctedMapName.empty()) { continue; }
-    if (NoError != m_mdl->addRowToTable("GridMapIoTbl")) { throw T2Zexception() << "Cannot add a new row in GridMapIoTbl"; }
+    if (ErrorHandler::NoError != m_mdl->addRowToTable("GridMapIoTbl")) { throw T2Zexception() << "Cannot add a new row in GridMapIoTbl"; }
     setCurrentMapDataInGridMapIoTbl(correctedMapName, resultsMapFileName, (long)correctedMapsSequenceNbr.at(it->first));
   }
 }
@@ -157,7 +157,7 @@ void FDCProjectManager::appendAddedTwtMapNamesInGridMapIoTbl(const std::vector<i
   int index = 0;
   for (auto it : addedTwtmapsequenceNbr)
   {
-    if (NoError != m_mdl->addRowToTable("GridMapIoTbl")) { throw T2Zexception() << "Cannot add a new row in GridMapIoTbl"; }
+    if (ErrorHandler::NoError != m_mdl->addRowToTable("GridMapIoTbl")) { throw T2Zexception() << "Cannot add a new row in GridMapIoTbl"; }
     setCurrentMapDataInGridMapIoTbl(m_addedTwtMapNames[index], resultsMapFileName, (long)it);
     ++index;
   }
@@ -167,11 +167,11 @@ void FDCProjectManager::appendAddedTwtMapNamesInTwoWayTimeIoTbl(const int twtMap
 {
   for (int index = 0; index < twtMapsSize; ++index)
   {
-    if (NoError != m_mdl->addRowToTable("TwoWayTimeIoTbl")) { throw T2Zexception() << "Cannot add a new row in TwoWayTimeIoTbl"; }
+    if (ErrorHandler::NoError != m_mdl->addRowToTable("TwoWayTimeIoTbl")) { throw T2Zexception() << "Cannot add a new row in TwoWayTimeIoTbl"; }
     size_t row = m_mdl->tableSize("TwoWayTimeIoTbl")-1;
-    if (NoError != m_mdl->setTableValue("TwoWayTimeIoTbl", row, "SurfaceName", m_addedTwtSurfaceNames[index])) { throw T2Zexception() << "Cannot set SurfaceName in TwoWayTimeIoTbl ";}
-    if (NoError != m_mdl->setTableValue("TwoWayTimeIoTbl", row, "TwoWayTimeGrid", m_addedTwtMapNames[index])) { throw T2Zexception() << "Cannot set TwoWayTimeGrid in TwoWayTimeIoTbl ";}
-    if (NoError != m_mdl->setTableValue("TwoWayTimeIoTbl", row, "TwoWayTime", Utilities::Numerical::IbsNoDataValue)) { throw T2Zexception() << "Cannot set TwoWayTime in TwoWayTimeIoTbl ";}
+    if (ErrorHandler::NoError != m_mdl->setTableValue("TwoWayTimeIoTbl", row, "SurfaceName", m_addedTwtSurfaceNames[index])) { throw T2Zexception() << "Cannot set SurfaceName in TwoWayTimeIoTbl ";}
+    if (ErrorHandler::NoError != m_mdl->setTableValue("TwoWayTimeIoTbl", row, "TwoWayTimeGrid", m_addedTwtMapNames[index])) { throw T2Zexception() << "Cannot set TwoWayTimeGrid in TwoWayTimeIoTbl ";}
+    if (ErrorHandler::NoError != m_mdl->setTableValue("TwoWayTimeIoTbl", row, "TwoWayTime", Utilities::Numerical::IbsNoDataValue)) { throw T2Zexception() << "Cannot set TwoWayTime in TwoWayTimeIoTbl ";}
   }
 }
 
@@ -190,7 +190,7 @@ void FDCProjectManager::replaceValueInStratIoTblIfIsHiatusAndPreviousErosion(con
   {
     if (!(hiatus.count(s-1) > 0 && hiatus.at(s-1) > -1)) { continue; }
     std::string previousMapName = m_mdl->tableValueAsString("StratIoTbl", hiatus.at(s-1) , "DepthGrid");
-    if (ErrorHandler::ReturnCode::NoError != m_mdl->setTableValue("StratIoTbl", s, "DepthGrid", previousMapName) ){ throw T2Zexception() << "Cannot set hiatus map name for surface id"<<s; }
+    if (ErrorHandler::NoError != m_mdl->setTableValue("StratIoTbl", s, "DepthGrid", previousMapName) ){ throw T2Zexception() << "Cannot set hiatus map name for surface id"<<s; }
   }
 }
 
@@ -213,7 +213,7 @@ void FDCProjectManager::modifyTables(const mbapi::StratigraphyManager::SurfaceID
 
 void FDCProjectManager::setMapNameInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID surfaceID, const std::string & newMapName)
 {
-  if (ErrorHandler::ReturnCode::NoError != m_mdl->setTableValue("StratIoTbl", surfaceID, "DepthGrid", newMapName))
+  if (ErrorHandler::NoError != m_mdl->setTableValue("StratIoTbl", surfaceID, "DepthGrid", newMapName))
   { throw T2Zexception() << "Cannot set the map " << newMapName << " as the new depth map of surface " << surfaceID << " in the StratIoTbl"; }
 }
 
@@ -239,15 +239,15 @@ std::string FDCProjectManager::bpaNameMapping(const size_t row) const
 void FDCProjectManager::setAlternativeTableNames(const std::string & currentDate)
 {
   const std::string BPAName = bpaNameMapping(0);
-  if (ErrorHandler::ReturnCode::NoError != m_mdl->setTableValue("BPANameMapping", 0, "BPAColumnValue", t2zNameInBPANameMapping(bpaNameMapping(0), currentDate))) { throw T2Zexception() << "Cannot set CAULDRON_ALTERNATIVE NAME in BPANameMapping"; }
-  if (ErrorHandler::ReturnCode::NoError != m_mdl->setTableValue("BPANameMapping", 1, "BPAColumnValue", t2zConversionNameInBPANameMapping(bpaNameMapping(1), currentDate, BPAName))) { throw T2Zexception() << "Cannot set CAULDRON_ALTERNATIVE DESCRIPTION in BPANameMapping"; }
-  if (ErrorHandler::ReturnCode::NoError != m_mdl->setTableValue("BPANameMapping", 2, "BPAColumnValue", t2zNameInBPANameMapping(bpaNameMapping(2), currentDate))) { throw T2Zexception() << "Cannot set CAULDRON NAME in BPANameMapping"; }
-  if (ErrorHandler::ReturnCode::NoError != m_mdl->setTableValue("BPANameMapping", 3, "BPAColumnValue", t2zConversionNameInBPANameMapping(bpaNameMapping(3), currentDate))) { throw T2Zexception() << "Cannot set CAULDRON  DESCRIPTION in BPANameMapping"; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("BPANameMapping", 0, "BPAColumnValue", t2zNameInBPANameMapping(bpaNameMapping(0), currentDate))) { throw T2Zexception() << "Cannot set CAULDRON_ALTERNATIVE NAME in BPANameMapping"; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("BPANameMapping", 1, "BPAColumnValue", t2zConversionNameInBPANameMapping(bpaNameMapping(1), currentDate, BPAName))) { throw T2Zexception() << "Cannot set CAULDRON_ALTERNATIVE DESCRIPTION in BPANameMapping"; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("BPANameMapping", 2, "BPAColumnValue", t2zNameInBPANameMapping(bpaNameMapping(2), currentDate))) { throw T2Zexception() << "Cannot set CAULDRON NAME in BPANameMapping"; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("BPANameMapping", 3, "BPAColumnValue", t2zConversionNameInBPANameMapping(bpaNameMapping(3), currentDate))) { throw T2Zexception() << "Cannot set CAULDRON  DESCRIPTION in BPANameMapping"; }
 }
 
 void FDCProjectManager::setCurrentSurfaceMapNameInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID s, const std::string & mapName)
 {
-  if (ErrorHandler::ReturnCode::NoError != m_mdl->setTableValue("StratIoTbl", s, "DepthGrid", mapName))
+  if (ErrorHandler::NoError != m_mdl->setTableValue("StratIoTbl", s, "DepthGrid", mapName))
   {
     throw T2Zexception() << "Cannot set the map " << mapName << " as new depth iso surface in the StratIoTbl";
   }

@@ -9,6 +9,8 @@
 #include "FDCMapFieldProperties.h"
 #include "CommonDefinitions.h"
 
+#include "ErrorHandler.h"
+
 #include "LogHandler.h"
 
 namespace fastDepthCalibration
@@ -217,7 +219,7 @@ std::vector<double> FDCMapFieldProperties::getReferenceTwt(const mbapi::Stratigr
   mbapi::MapsManager& mapsMgrLocal = m_mdl->mapsManager();
   std::vector<double> refTwt;
   mbapi::MapsManager::MapID refTwtID = mapsMgrLocal.findID(twtMaps(s));
-  if (ErrorHandler::ReturnCode::NoError != mapsMgrLocal.mapGetValues(refTwtID, refTwt))
+  if (ErrorHandler::NoError != mapsMgrLocal.mapGetValues(refTwtID, refTwt))
   { throwMapsManagerError(" Cannot get the measured twt map for the current surface ", s, mapsMgrLocal); }
   return refTwt;
 }
@@ -240,7 +242,7 @@ std::vector<double> FDCMapFieldProperties::getNextTwt(const mbapi::StratigraphyM
   mbapi::MapsManager& mapsMgrLocal = m_mdl->mapsManager();
   std::vector<double> nextTwt;
   mbapi::MapsManager::MapID nextTwtID = mapsMgrLocal.findID(twtMaps(s));
-  if (ErrorHandler::ReturnCode::NoError != mapsMgrLocal.mapGetValues(nextTwtID, nextTwt))
+  if (ErrorHandler::NoError != mapsMgrLocal.mapGetValues(nextTwtID, nextTwt))
   { throwMapsManagerError(" Cannot get the measured twt map for the current surface ", s, mapsMgrLocal); }
   return nextTwt;
 }

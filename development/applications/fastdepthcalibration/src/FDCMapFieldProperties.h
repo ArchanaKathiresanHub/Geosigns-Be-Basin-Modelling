@@ -11,14 +11,13 @@
 #pragma once
 
 #include "cmbAPI.h"
-#include "ErrorHandler.h"
 
 #include <string>
 
 namespace fastDepthCalibration
 {
 
-class FDCMapFieldProperties : public ErrorHandler
+class FDCMapFieldProperties
 {
 public:
   explicit FDCMapFieldProperties(std::shared_ptr<mbapi::Model> & mdl, const mbapi::StratigraphyManager::SurfaceID referenceSurface, const mbapi::StratigraphyManager::SurfaceID endSurface);

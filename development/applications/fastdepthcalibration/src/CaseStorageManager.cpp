@@ -57,7 +57,7 @@ std::string CaseStorageManager::resultsMapFileName() const
 
 void CaseStorageManager::removeMasterResultsFile()
 {
-  if ( m_masterResultsFilePath.exists() && m_rank == 0 )
+  if ( m_rank == 0 && m_masterResultsFilePath.exists() )
   {
     LogHandler( LogHandler::WARNING_SEVERITY ) << "Removing existing " << m_masterResultsFilePath.fileName();
     m_masterResultsFilePath.remove();
