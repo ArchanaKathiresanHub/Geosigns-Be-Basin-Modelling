@@ -20,9 +20,16 @@ FDCVectorFieldProperties::FDCVectorFieldProperties(std::shared_ptr<mbapi::Model>
   m_preservedErosion{},
   m_twtconvFactor{1.e-3}
 {
-  m_refDepths = getSurfaceDepthFromGridMapValues(referenceSurface);
-  m_refTwts.resize(m_refDepths.size(), 0.0);
-  m_tarTwts = m_refTwts;
+  try
+  {
+    m_refDepths = getSurfaceDepthFromGridMapValues(referenceSurface);
+    m_refTwts.resize(m_refDepths.size(), 0.0);
+    m_tarTwts = m_refTwts;
+  }
+  catch ( const ErrorHandler::Exception & ex )
+  {
+    throw;
+  }
 }
 
 void FDCVectorFieldProperties::setTopSurfaceProperties(const mbapi::StratigraphyManager::SurfaceID surfaceID,

@@ -40,8 +40,19 @@ FDCProjectManager::FDCProjectManager(const std::string & projectFileName ) :
   m_addedTwtSurfaceNames(),
   m_addedTwtMapNames()
 {
-  reloadModel(projectFileName);
-  m_mdl->subsampling(m_XScalingFactor, m_YScalingFactor);
+  try
+  {
+    reloadModel(projectFileName);
+    m_mdl->subsampling(m_XScalingFactor, m_YScalingFactor);
+  }
+  catch ( const ErrorHandler::Exception & ex )
+  {
+    throw;
+  }
+  catch ( const fastDepthCalibration::T2Zexception & ex )
+  {
+    throw;
+  }
 }
 
 void FDCProjectManager::setSubSamplingWindow()

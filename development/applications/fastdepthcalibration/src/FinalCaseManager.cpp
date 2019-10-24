@@ -22,8 +22,8 @@ namespace fastDepthCalibration
 {
 
 FinalCaseManager::FinalCaseManager(FDCProjectManager  & fdcProjectManager,
-                                         FDCMapFieldProperties & fdcMapFieldProperties,
-                                         CaseStorageManager & caseStorageManager) :
+                                   FDCMapFieldProperties & fdcMapFieldProperties,
+                                   CaseStorageManager & caseStorageManager) :
   m_fdcProjectManager{fdcProjectManager},
   m_fdcMapFieldProperties{fdcMapFieldProperties},
   m_caseStorageManager{caseStorageManager},

@@ -40,9 +40,20 @@ CaseStorageManager::CaseStorageManager(std::shared_ptr<mbapi::Model> & mdl, cons
   m_casePathResultsHDFFile(""),
   m_caseProjectFilePath("")
 {
-  setOriginalCaseProjectFilePath();
-  m_date = boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time());
-  removeMasterResultsFile();
+  try
+  {
+    setOriginalCaseProjectFilePath();
+    m_date = boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time());
+    removeMasterResultsFile();
+  }
+  catch ( const ErrorHandler::Exception & ex )
+  {
+    throw;
+  }
+  catch ( const fastDepthCalibration::T2Zexception & ex )
+  {
+    throw;
+  }
 }
 
 void CaseStorageManager::setOriginalCaseProjectFilePath()
@@ -57,7 +68,7 @@ std::string CaseStorageManager::resultsMapFileName() const
 
 void CaseStorageManager::removeMasterResultsFile()
 {
-  if ( m_masterResultsFilePath.exists() && m_rank == 0 )
+  if ( m_rank == 0 && m_masterResultsFilePath.exists() )
   {
     LogHandler( LogHandler::WARNING_SEVERITY ) << "Removing existing " << m_masterResultsFilePath.fileName();
     m_masterResultsFilePath.remove();
