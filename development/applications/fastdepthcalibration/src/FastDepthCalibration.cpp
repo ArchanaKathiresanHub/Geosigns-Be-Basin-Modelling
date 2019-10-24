@@ -61,22 +61,10 @@ FastDepthCalibration::FastDepthCalibration(char* projectFileName, int referenceS
   m_fdcVectorFieldProperties(m_mdl, referenceSurface),
   m_fdcLithoProperties(m_mdl->stratigraphyManager(), m_mdl->lithologyManager())
 {
-  try
-  {
-    checkReferenceAndEndSurfaceBoundsAreValid();
-    LogHandler(LogHandler::INFO_SEVERITY) << "options: referenceSurface : " << m_referenceSurface << ", endSurface: " << m_endSurface
-                                          << ", NoCalculatedTWToutput: " << m_noCalculatedTWToutput << ", preserveErosion: " << m_preserveErosionFlag
-                                          << ", NoExtrapolation: " << m_noExtrapolationFlag;
-  }
-  catch ( const ErrorHandler::Exception & ex )
-  {
-    throw;
-  }
-  catch ( const fastDepthCalibration::T2Zexception & ex )
-  {
-    throw;
-  }
-
+  checkReferenceAndEndSurfaceBoundsAreValid();
+  LogHandler(LogHandler::INFO_SEVERITY) << "options: referenceSurface : " << m_referenceSurface << ", endSurface: " << m_endSurface
+                                        << ", NoCalculatedTWToutput: " << m_noCalculatedTWToutput << ", preserveErosion: " << m_preserveErosionFlag
+                                        << ", NoExtrapolation: " << m_noExtrapolationFlag;
 }
 
 FastDepthCalibration::~FastDepthCalibration() {}

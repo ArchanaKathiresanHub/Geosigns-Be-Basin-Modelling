@@ -40,20 +40,9 @@ CaseStorageManager::CaseStorageManager(std::shared_ptr<mbapi::Model> & mdl, cons
   m_casePathResultsHDFFile(""),
   m_caseProjectFilePath("")
 {
-  try
-  {
-    setOriginalCaseProjectFilePath();
-    m_date = boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time());
-    removeMasterResultsFile();
-  }
-  catch ( const ErrorHandler::Exception & ex )
-  {
-    throw;
-  }
-  catch ( const fastDepthCalibration::T2Zexception & ex )
-  {
-    throw;
-  }
+  setOriginalCaseProjectFilePath();
+  m_date = boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time());
+  removeMasterResultsFile();
 }
 
 void CaseStorageManager::setOriginalCaseProjectFilePath()

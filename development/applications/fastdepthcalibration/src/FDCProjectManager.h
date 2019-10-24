@@ -19,7 +19,7 @@
 namespace fastDepthCalibration
 {
 
-class FDCProjectManager : public ErrorHandler
+class FDCProjectManager
 {
 public:
   explicit FDCProjectManager(const std::string & projectFileName);

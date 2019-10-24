@@ -20,16 +20,9 @@ FDCVectorFieldProperties::FDCVectorFieldProperties(std::shared_ptr<mbapi::Model>
   m_preservedErosion{},
   m_twtconvFactor{1.e-3}
 {
-  try
-  {
-    m_refDepths = getSurfaceDepthFromGridMapValues(referenceSurface);
-    m_refTwts.resize(m_refDepths.size(), 0.0);
-    m_tarTwts = m_refTwts;
-  }
-  catch ( const ErrorHandler::Exception & ex )
-  {
-    throw;
-  }
+  m_refDepths = getSurfaceDepthFromGridMapValues(referenceSurface);
+  m_refTwts.resize(m_refDepths.size(), 0.0);
+  m_tarTwts = m_refTwts;
 }
 
 void FDCVectorFieldProperties::setTopSurfaceProperties(const mbapi::StratigraphyManager::SurfaceID surfaceID,
@@ -52,7 +45,7 @@ std::vector<double> FDCVectorFieldProperties::setMeasuredTwtAtSpecifiedSurface(c
   mbapi::MapsManager & mapsMgrLocal = m_mdl->mapsManager();
 
   mbapi::MapsManager::MapID twtMapID = mapsMgrLocal.findID(twtMapNames);
-  if (ErrorHandler::ReturnCode::NoError != mapsMgrLocal.mapGetValues(twtMapID, tarTwts))
+  if (ErrorHandler::NoError != mapsMgrLocal.mapGetValues(twtMapID, tarTwts))
   {
     throw ErrorHandler::Exception(mapsMgrLocal.errorCode()) << " Cannot get the measured twt map for the surface " << surface
                                                             << ", message: " << mapsMgrLocal.errorMessage();
