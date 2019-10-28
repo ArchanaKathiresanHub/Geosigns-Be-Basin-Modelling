@@ -31,7 +31,7 @@ static const std::string s_masterResultsFile = "MasterInputs.HDF";
 CaseStorageManager::CaseStorageManager(std::shared_ptr<mbapi::Model> & mdl, const int rank) :
   m_resultsMapFileName("CalibratedInputs.HDF"),
   m_rank(rank),
-  m_date(),
+  m_date(""),
   m_mdl(mdl),
   m_projectFileName(m_mdl->projectFileName()),
   m_fullMasterDirPath(FolderPath( "." ).fullPath()),
@@ -41,7 +41,6 @@ CaseStorageManager::CaseStorageManager(std::shared_ptr<mbapi::Model> & mdl, cons
   m_caseProjectFilePath("")
 {
   setOriginalCaseProjectFilePath();
-  m_date = boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time());
   removeMasterResultsFile();
 }
 
@@ -112,8 +111,37 @@ void CaseStorageManager::createTemporaryCase(const mbapi::StratigraphyManager::S
   createCase(m_casePathResultsHDFFile);
 }
 
+void CaseStorageManager::setDate()
+{
+  m_date.clear();
+  std::vector<char> buffer(200);
+  if ( m_rank == 0)
+  {
+    std::string bufferDate = boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time());
+    if (bufferDate.size() > buffer.size())
+    {
+      LogHandler(LogHandler::WARNING_SEVERITY) << "Final case folder name charaters exceeded the limit!";
+    }
+
+    for (int i = 0; i < bufferDate.size(); ++i)
+    {
+      buffer[i] = bufferDate[i];
+    }
+  }
+  MPI_Bcast(&buffer[0], buffer.size(), MPI_CHAR, 0, PETSC_COMM_WORLD);
+  MPI_Barrier(PETSC_COMM_WORLD);
+
+  int i = 0;
+  while (buffer[i])
+  {
+    m_date += buffer[i];
+    ++i;
+  }
+}
+
 void CaseStorageManager::createFinalCase()
 {
+  setDate();
   std::string correct_myDate = m_date;
   std::replace_if(correct_myDate.begin(), correct_myDate.end(), ::ispunct, '_');
   std::replace_if(correct_myDate.begin(), correct_myDate.end(), ::isspace, '_');
