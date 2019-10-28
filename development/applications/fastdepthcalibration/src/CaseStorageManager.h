@@ -52,6 +52,7 @@ private:
   void createCase(ibs::FilePath & casePathResults);
 
   int createAndSetupCase(ibs::FilePath & casePathResults);
+  void setDate();
 
   const std::string m_resultsMapFileName;
   int             m_rank;
