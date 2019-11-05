@@ -109,14 +109,13 @@ void FinalCaseManager::checkForCauldronAlternativeNameSetting()
 
 void FinalCaseManager::saveProjectAndFinalize()
 {
-  MPI_Barrier(PETSC_COMM_WORLD);
   std::shared_ptr<mbapi::Model> mdl = m_fdcProjectManager.getModel();
   if (m_rank == 0)
-  { mdl->saveModelToProjectFile(m_caseStorageManager.finalProjectFilePath().c_str(), true); }
-  MPI_Barrier(PETSC_COMM_WORLD);
-
-  m_caseStorageManager.removeFinalProjectCauldronOutputDir();
-  m_caseStorageManager.removeMasterResultsFile();
+  {
+    mdl->saveModelToProjectFile(m_caseStorageManager.finalProjectFilePath().c_str(), true);
+    m_caseStorageManager.removeFinalProjectCauldronOutputDir();
+    m_caseStorageManager.removeMasterResultsFile();
+  }
 }
 
 void FinalCaseManager::writeFinalProject(const mbapi::StratigraphyManager::SurfaceID endSurface, const std::vector<double> & depthsEndSurface, const std::vector<mbapi::StratigraphyManager::SurfaceID> & surfacesIDs, const bool noCalculatedTWToutput)

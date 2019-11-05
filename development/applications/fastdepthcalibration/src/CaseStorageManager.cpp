@@ -61,13 +61,11 @@ void CaseStorageManager::removeMasterResultsFile()
     LogHandler( LogHandler::WARNING_SEVERITY ) << "Removing existing " << m_masterResultsFilePath.fileName();
     m_masterResultsFilePath.remove();
   }
-  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 // create a case folder with the input files
 void CaseStorageManager::createCase(ibs::FilePath & casePathResults)
 {
-  MPI_Barrier(PETSC_COMM_WORLD);
   int exception_rank0 = createAndSetupCase(casePathResults);
 
   MPI_Bcast(&exception_rank0, 1, MPI_INT, 0, PETSC_COMM_WORLD);
@@ -79,7 +77,11 @@ void CaseStorageManager::createCase(ibs::FilePath & casePathResults)
 
 int CaseStorageManager::createAndSetupCase(ibs::FilePath & casePathResults)
 {
-  if (m_rank != 0) { return 0; }
+  if (m_rank != 0)
+  {
+    return 0;
+  }
+
   if (m_casePath.exists())
   {
     LogHandler(LogHandler::WARNING_SEVERITY) << "Folder " << m_casePath.fullPath().path() << " will be deleted";
@@ -129,7 +131,6 @@ void CaseStorageManager::setDate()
     }
   }
   MPI_Bcast(&buffer[0], buffer.size(), MPI_CHAR, 0, PETSC_COMM_WORLD);
-  MPI_Barrier(PETSC_COMM_WORLD);
 
   int i = 0;
   while (buffer[i])
@@ -142,6 +143,8 @@ void CaseStorageManager::setDate()
 void CaseStorageManager::createFinalCase()
 {
   setDate();
+  MPI_Barrier(PETSC_COMM_WORLD);
+
   std::string correct_myDate = m_date;
   std::replace_if(correct_myDate.begin(), correct_myDate.end(), ::ispunct, '_');
   std::replace_if(correct_myDate.begin(), correct_myDate.end(), ::isspace, '_');
@@ -153,9 +156,11 @@ void CaseStorageManager::createFinalCase()
 
 void CaseStorageManager::removeFinalProjectCauldronOutputDir()
 {
-  if (m_rank != 0) { return; }
-  ibs::FolderPath finalProjectCauldronOutputDir = ibs::FolderPath(m_casePath.path() + "/" + m_caseProjectFilePath.fileNameNoExtension() + mbapi::Model::s_ResultsFolderSuffix);
-  finalProjectCauldronOutputDir.remove();
+  if (m_rank == 0)
+  {
+    ibs::FolderPath finalProjectCauldronOutputDir = ibs::FolderPath(m_casePath.path() + "/" + m_caseProjectFilePath.fileNameNoExtension() + mbapi::Model::s_ResultsFolderSuffix);
+    finalProjectCauldronOutputDir.remove();
+  }
 }
 
 void CaseStorageManager::changeToTemporaryCaseDirectoryPath()
@@ -164,19 +169,21 @@ void CaseStorageManager::changeToTemporaryCaseDirectoryPath()
   {
     throw T2Zexception() << "Cannot change to the case directory " << m_casePath.fullPath().path();
   }
+  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 void CaseStorageManager::CopyTemporaryToMasterHDFMaps()
 {
-  MPI_Barrier(PETSC_COMM_WORLD);
-
   int exception_rank0 = 0;
   if (m_rank == 0)
   {
     m_masterResultsFilePath.remove();
     if (!m_casePathResultsHDFFile.copyFile(m_masterResultsFilePath)) { exception_rank0 == 1; }
     m_casePath.remove();
-    changeToMasterDirectoryPath();
+    if (!m_fullMasterDirPath.setPath())
+    {
+      throw T2Zexception() << " Cannot change to the master directory " << m_fullMasterDirPath.path();
+    }
     setOriginalCaseProjectFilePath();
   }
 
@@ -191,7 +198,6 @@ void CaseStorageManager::CopyTemporaryToMasterHDFMaps()
 
 void CaseStorageManager::saveModelToCaseProjectFile()
 {
-  MPI_Barrier(PETSC_COMM_WORLD);
   if (m_rank == 0)
   {
     m_mdl->saveModelToProjectFile(caseProjectFilePath().c_str(), true);
@@ -205,6 +211,7 @@ void CaseStorageManager::changeToMasterDirectoryPath()
   {
     throw T2Zexception() << " Cannot change to the master directory " << m_fullMasterDirPath.path();
   }
+  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 std::string CaseStorageManager::masterResultsFilePath() const
