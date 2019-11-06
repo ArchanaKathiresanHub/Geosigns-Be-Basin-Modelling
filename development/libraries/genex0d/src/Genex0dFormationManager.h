@@ -37,6 +37,8 @@ public:
   std::string getTopSurfaceName() const;
   bool isFormationSourceRock() const;
 
+  DataAccess::Interface::ProjectHandle* projectHandle();
+
 private:
   void cleanup();
   void setProperties(const double x, const double y);
@@ -47,7 +49,7 @@ private:
   void setThickness();
 
   DataAccess::Interface::ObjectFactory * m_factory;
-  const DataAccess::Interface::ProjectHandle * m_projectHandle;
+  DataAccess::Interface::ProjectHandle * m_projectHandle;
   const DataAccess::Interface::Formation * m_formation;
   double m_thickness;
   unsigned int m_indI;

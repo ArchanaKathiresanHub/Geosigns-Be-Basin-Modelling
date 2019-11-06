@@ -34,6 +34,8 @@ private:
   void initialize();
   void setSourceRockInput(const double inorganicDensity);
 
+  void setAdsorptionHistory();
+
   const Genex0dInputData & m_inData;
   std::unique_ptr<Genex0dFormationManager> m_formationMgr;
   std::unique_ptr<Genex0dProjectManager> m_projectMgr;

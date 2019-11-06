@@ -94,6 +94,11 @@ void Genex0dSourceRock::computeData(const double thickness, const double inorgan
   m_sourceRockNode->RequestComputation(*m_simulator);
 }
 
+Genex6::SourceRockNode & Genex0dSourceRock::getSourceRockNode()
+{
+  return *m_sourceRockNode;
+}
+
 const Genex6::SourceRockNode & Genex0dSourceRock::getSourceRockNode() const
 {
   return *m_sourceRockNode;

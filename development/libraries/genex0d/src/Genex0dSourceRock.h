@@ -53,6 +53,7 @@ public:
   void setHCVRe05(const double HCVRe05);
   void setActivationEnergy(const double activationEnergyScaled);
 
+  Genex6::SourceRockNode & getSourceRockNode();
   const Genex6::SourceRockNode & getSourceRockNode() const;
   const Genex6::Simulator & simulator() const;
 
