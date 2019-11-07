@@ -19,6 +19,8 @@
 #include "ProjectHandle.h"
 #include "Property.h"
 #include "PropertyValue.h"
+#include "Snapshot.h"
+#include "Surface.h"
 
 #include "LogHandler.h"
 
@@ -27,52 +29,36 @@
 namespace genex0d
 {
 
-Genex0dFormationManager::Genex0dFormationManager(const std::string & projectFilename, const std::string & formationName, const double x, const double y) :
-  m_factory{nullptr},
-  m_projectHandle{nullptr},
+Genex0dFormationManager::Genex0dFormationManager(DataAccess::Interface::ProjectHandle * projectHandle, const std::string & formationName, const double x, const double y) :
+  m_projectHandle{projectHandle},
   m_formation{nullptr},
   m_thickness{0.0},
   m_indI{0},
   m_indJ{0}
 {
-  try
+  if (m_projectHandle == nullptr)
   {
-    m_factory = new DataAccess::Interface::ObjectFactory();
-
-    if (projectFilename.empty())
-    {
-      throw Genex0dException() << "Fatal error, empty project name!";
-    }
-    m_projectHandle = DataAccess::Interface::OpenCauldronProject(projectFilename, "r", m_factory);
-
-    if (formationName.empty())
-    {
-      throw Genex0dException() << "Fatal error, empty formation name!";
-    }
-    m_formation = m_projectHandle->findFormation(formationName);
-
-    if (!m_formation)
-    {
-      throw genex0d::Genex0dException() << "Formation " << formationName << " not found";
-    }
-    setProperties(x, y);
+    throw Genex0dException() << "Fatal error, projectHandle could not be initiated!";
   }
-  catch (const Genex0dException & ex)
+
+  if (formationName.empty())
   {
-    cleanup();
-    throw;
+    throw Genex0dException() << "Fatal error, empty formation name!";
   }
+  m_formation = m_projectHandle->findFormation(formationName);
+
+  if (!m_formation)
+  {
+    throw genex0d::Genex0dException() << "Formation " << formationName << " not found";
+  }
+  setProperties(x, y);
 }
 
-void Genex0dFormationManager::cleanup()
+double Genex0dFormationManager::depositionTimeTopSurface() const
 {
-  delete m_projectHandle;
-  delete m_factory;
-}
-
-Genex0dFormationManager::~Genex0dFormationManager()
-{
-  cleanup();
+  const DataAccess::Interface::Surface * topSurface = m_formation->getTopSurface();
+  const DataAccess::Interface::Snapshot * depoSnapshot = topSurface->getSnapshot();
+  return depoSnapshot->getTime ();
 }
 
 void Genex0dFormationManager::setThickness()
@@ -80,11 +66,6 @@ void Genex0dFormationManager::setThickness()
   const DataAccess::Interface::GridMap* inputThicknessGrid = m_formation->getInputThicknessMap();
   inputThicknessGrid->retrieveData();
   m_thickness = inputThicknessGrid->getValue(m_indI, m_indJ, inputThicknessGrid->getDepth()-1);
-}
-
-DataAccess::Interface::ProjectHandle* Genex0dFormationManager::projectHandle()
-{
-  return m_projectHandle;
 }
 
 void Genex0dFormationManager::setProperties(const double x, const double y)
@@ -149,7 +130,7 @@ double Genex0dFormationManager::getInorganicDensity()
   return inorganicDensity;
 }
 
-std::string Genex0dFormationManager::getTopSurfaceName() const
+std::string Genex0dFormationManager::topSurfaceName() const
 {
   return m_formation->getTopSurfaceName();
 }

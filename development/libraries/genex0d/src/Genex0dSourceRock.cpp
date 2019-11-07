@@ -9,23 +9,37 @@
 #include "Genex0dSourceRock.h"
 
 #include "CommonDefinitions.h"
+#include "Genex0dFormationManager.h"
+#include "Genex0dProjectManager.h"
 #include "Genex0dSourceRockDefaultProperties.h"
 
+// Genex6
 #include "ConstantsGenex.h"
 #include "Simulator.h"
+
+// Genex6_kernel
+#include "AdsorptionSimulatorFactory.h"
 #include "SourceRockNode.h"
 
 #include "Interface.h"
+#include "Snapshot.h"
+
+#include "LogHandler.h"
 
 namespace genex0d
 {
 
-Genex0dSourceRock::Genex0dSourceRock (const std::string & sourceRockType) :
+Genex0dSourceRock::Genex0dSourceRock(const std::string & sourceRockType,
+                                     Genex0dProjectManager & projectMgr,
+                                     Genex0dFormationManager & formationMgr) :
+  m_projectMgr{projectMgr},
+  m_formationMgr{formationMgr},
   m_sourceRockNode{nullptr},
   m_simulator{nullptr},
   m_sourceRockType{sourceRockType},
   m_srProperties{Genex0dSourceRockDefaultProperties::getInstance().getProperties(sourceRockType)},
-  m_thickness{0.0}
+  m_thickness{0.0},
+  m_genexHistory{nullptr}
 {
 }
 
@@ -73,13 +87,8 @@ char * Genex0dSourceRock::getGenexEnvironment() const
   return nullptr;
 }
 
-void Genex0dSourceRock::computeData(const double thickness, const double inorganicDensity, const std::vector<double> & time,
-                                    const std::vector<double> & temperature, const std::vector<double> & pressure)
+void Genex0dSourceRock::initialize()
 {
-  // Note: the last two arguments are not relevant (set to default values) and are not used.
-  m_sourceRockNode.reset(new Genex6::SourceRockNode(thickness, m_srProperties.TocIni(), inorganicDensity, 1.0, 0.0));
-  m_sourceRockNode->CreateInputPTHistory(time, temperature, pressure);
-
   m_simulator.reset(new Genex6::Simulator(getGenexEnvironment(), getRunType(),
                                           m_srProperties.typeNameID(), m_srProperties.HCVRe05(), m_srProperties.SCVRe05(),
                                           m_srProperties.activationEnergy(), m_srProperties.Vr(),
@@ -90,7 +99,34 @@ void Genex0dSourceRock::computeData(const double thickness, const double inorgan
   {
     throw Genex0dException() << "Validation of Genex simulator failed!";
   }
+}
 
+void Genex0dSourceRock::addHistoryToSourceRockNode()
+{
+  const Genex6::ChemicalModel & chemModel = m_simulator->getChemicalModel();
+  DataAccess::Interface::ProjectHandle * projectHandle = m_projectMgr.projectHandle();
+
+  m_genexHistory.reset(Genex6::AdsorptionSimulatorFactory::getInstance().allocateNodeAdsorptionHistory(
+                         chemModel.getSpeciesManager(),
+                         projectHandle,
+                         "GenexSimulator"));
+
+  if ( m_genexHistory ==  nullptr)
+  {
+    throw Genex0dException() << "Fatal error, node adsorption history could not be initiated!";
+  }
+}
+
+void Genex0dSourceRock::computeData(const double thickness, const double inorganicDensity, const std::vector<double> & time,
+                                    const std::vector<double> & temperature, const std::vector<double> & pressure)
+{
+  initialize();
+//  addHistoryToSourceRockNode();
+
+
+  // Note: the last two arguments are not relevant (set to default values) and are not used.
+  m_sourceRockNode.reset(new Genex6::SourceRockNode(thickness, m_srProperties.TocIni(), inorganicDensity, 1.0, 0.0));
+  m_sourceRockNode->CreateInputPTHistory(time, temperature, pressure);
   m_sourceRockNode->RequestComputation(*m_simulator);
 }
 

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Genex0dSourceRockProperty.h"
+#include "NodeAdsorptionHistory.h"
 
 #include <memory>
 #include <string>
@@ -19,6 +20,7 @@
 namespace Genex6
 {
 class Simulator;
+class SnapshotInterval;
 class SourceRockNode;
 } // namespace Genex6
 
@@ -39,10 +41,15 @@ class ProjectHandle;
 namespace genex0d
 {
 
+class Genex0dFormationManager;
+class Genex0dProjectManager;
+
 class Genex0dSourceRock
 {
 public:
-  explicit Genex0dSourceRock(const std::string & sourceRockType);
+  explicit Genex0dSourceRock(const std::string & sourceRockType,
+                             Genex0dProjectManager & projectMgr,
+                             Genex0dFormationManager & formationMgr);
   ~Genex0dSourceRock();
 
   void computeData(const double thickness, const double inorganicDensity, const std::vector<double> & time,
@@ -60,12 +67,19 @@ public:
 private:
   char * getGenexEnvironment() const;
   int getRunType() const;
+  void initialize();
+  void addHistoryToSourceRockNode();
+
+  Genex0dProjectManager & m_projectMgr;
+  Genex0dFormationManager & m_formationMgr;
 
   std::unique_ptr<Genex6::SourceRockNode> m_sourceRockNode;
   std::unique_ptr<Genex6::Simulator> m_simulator;
   std::string m_sourceRockType;
   Genex0dSourceRockProperty m_srProperties;
   double m_thickness;
+
+  std::unique_ptr<Genex6::NodeAdsorptionHistory> m_genexHistory;
 };
 
 } // namespace genex0d

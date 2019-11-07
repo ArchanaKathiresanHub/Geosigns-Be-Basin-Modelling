@@ -15,6 +15,14 @@
 #include "cmbAPI.h"
 #include "ErrorHandler.h"
 
+// DataAccess
+#include "Snapshot.h"
+
+//Genex6
+#include "ConstantsGenex.h"
+
+#include <cmath>
+
 namespace genex0d
 {
 
@@ -25,23 +33,53 @@ const std::string s_dataMiningTblName = "DataMiningIoTbl";
 
 } // namespace
 
-Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord,
-                                             const string & topSurfaceName):
+Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord):
   m_projectFileName{projectFileName},
+  m_ObjectFactory{nullptr},
+  m_projectHandle{nullptr},
   m_xCoord{xCoord},
   m_yCoord{yCoord},
-  m_topSurfaceName{topSurfaceName},
   m_mdl{nullptr},
   m_posData{0},
   m_posDataPrevious{0},
-  m_propertyName{""}
+  m_propertyName{""},
+  m_agesAll{},
+  m_topSurfaceName{""}
 {
-  reloadModel();
-  clearTable();
+  try
+  {
+    if (m_projectFileName.empty())
+    {
+      throw Genex0dException() << "Fatal error, empty project name!";
+    }
+
+    m_ObjectFactory = new DataAccess::Interface::ObjectFactory();
+    m_projectHandle = DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", m_ObjectFactory);
+
+    reloadModel();
+    clearTable();
+  }
+  catch (const Genex0dException & ex)
+  {
+    cleanup();
+    throw;
+  }
+}
+
+void Genex0dProjectManager::cleanup()
+{
+  delete m_projectHandle;
+  delete m_ObjectFactory;
 }
 
 Genex0dProjectManager::~Genex0dProjectManager()
 {
+  cleanup();
+}
+
+DataAccess::Interface::ProjectHandle* Genex0dProjectManager::projectHandle()
+{
+  return m_projectHandle;
 }
 
 void Genex0dProjectManager::reloadModel()
@@ -61,10 +99,24 @@ void Genex0dProjectManager::clearTable()
   }
 }
 
-std::vector<double> Genex0dProjectManager::agesFromMajorSnapShots()
+void Genex0dProjectManager::computeAgesFromAllSnapShots(const double depositionTimeTopSurface)
 {
-  const mbapi::SnapshotManager & snMgr = m_mdl->snapshotManager();
-  return snMgr.agesFromMajorSnapshots();
+  DataAccess::Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR);
+  DataAccess::Interface::SnapshotList::reverse_iterator snapshotIter;
+
+  if (snapshots->size() < 1)
+  {
+    return;
+  }
+
+  for (snapshotIter = snapshots->rbegin(); snapshotIter != snapshots->rend() - 1; ++ snapshotIter)
+  {
+    if (depositionTimeTopSurface < (*snapshotIter)->getTime())
+    {
+      continue;
+    }
+    m_agesAll.push_back((*snapshotIter)->getTime());
+  }
 }
 
 void Genex0dProjectManager::getValues(std::vector<double> & values) const
@@ -94,7 +146,7 @@ void Genex0dProjectManager::saveModel()
 void Genex0dProjectManager::setInTable()
 {
   m_posDataPrevious = m_posData;
-  for (auto simTime : agesFromMajorSnapShots())
+  for (auto simTime : m_agesAll)
   {
     if (ErrorHandler::NoError != m_mdl->addRowToTable(s_dataMiningTblName) ||
         ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "Time", simTime) ||
@@ -112,6 +164,16 @@ void Genex0dProjectManager::setInTable()
     }
     ++m_posData;
   }
+}
+
+std::vector<double> Genex0dProjectManager::agesAll() const
+{
+  return m_agesAll;
+}
+
+void Genex0dProjectManager::setTopSurface(const std::string & topSurfaceName)
+{
+  m_topSurfaceName = topSurfaceName;
 }
 
 std::vector<double> Genex0dProjectManager::requestPropertyHistory(const std::string & propertyName)
