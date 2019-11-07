@@ -12,7 +12,7 @@
 ##Testing QT library
 
 [[ -r /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh ]] && . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
-module avail Qt
+
 module load Qt/5.4.1-intel-2017.05 
 
 
