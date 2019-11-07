@@ -8,6 +8,14 @@
 #  $ <source dir>/bootstrap.sh
 #  $ make all install -j12
 
+
+##Testing QT library
+
+[[ -r /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh ]] && . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
+module avail Qt
+module load Qt/5.4.1-intel-2017.05 
+
+
 # Prepare environment
 . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh -d HpcSoftwareStack/PRODUCTION
 module purge &> /dev/null
