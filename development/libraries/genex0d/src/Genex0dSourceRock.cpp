@@ -110,6 +110,11 @@ void Genex0dSourceRock::initialize()
   }
 }
 
+Genex0dSourceRockProperty Genex0dSourceRock::srProperties() const
+{
+  return m_srProperties;
+}
+
 void Genex0dSourceRock::computeData(const double thickness, const double inorganicDensity, const std::vector<double> & time,
                                     const std::vector<double> & temperature, const std::vector<double> & pressure)
 {

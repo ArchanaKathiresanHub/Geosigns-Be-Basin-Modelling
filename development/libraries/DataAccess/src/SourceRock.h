@@ -70,11 +70,11 @@ namespace DataAccess
 
 	    /// Print the attributes of this SourceRock
             // May not work if user application is compiled under IRIX with CC -lang:std
-	    virtual void printOn (ostream &) const;
+        void printOn (ostream &) const;
 
 	    /// Print the attributes of this SourceRock
             // May not work if user application is compiled under IRIX with CC -lang:std
-	    virtual void asString (string &) const;
+        void asString (string &) const;
 
 	 private:
 	    static const string s_MapAttributeNames[];

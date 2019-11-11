@@ -71,6 +71,8 @@ public:
   const Genex6::SourceRockNode & getSourceRockNode() const;
   const Genex6::Simulator & simulator() const;
 
+  Genex0dSourceRockProperty srProperties() const;
+
 private:
   char * getGenexEnvironment() const;
   int getRunType() const;

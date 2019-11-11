@@ -22,7 +22,8 @@ class Genex0dGenexSourceRock : public Genex6::GenexSourceRock
 public:
   explicit Genex0dGenexSourceRock(const Genex0dSourceRockProperty & srProperties,
                                   const std::string & formationName,
-                                  const std::string & sourceRockType);
+                                  const std::string & sourceRockType,
+                                  DataAccess::Interface::ProjectHandle * projectHandle);
   virtual ~Genex0dGenexSourceRock();
 
   const std::string & getLayerName (void) const final;
@@ -36,9 +37,15 @@ public:
   const double & getC15SatDiffusionEnergy(void) const final;
   bool isVREoptimEnabled(void) const final;
   const double & getVREthreshold(void) const final;
-  const std::string & getBaseSourceRockType (void) const final;
+  const std::string & getBaseSourceRockType(void) const final;
   bool isVESMaxEnabled(void) const final;
   const double & getVESMax(void) const final;
+  bool doApplyAdsorption(void) const final;
+  bool adsorptionIsTOCDependent(void) const final;
+  bool doComputeOTGC(void) const final;
+  const string & getAdsorptionCapacityFunctionName(void) const final;
+  const string & getAdsorptionSimulatorName(void) const final;
+  const DataAccess::Interface::GridMap * getMap(DataAccess::Interface::SourceRockMapAttributeId attributeId) const final;
 
 private:
   const Genex0dSourceRockProperty & m_srProperties;
@@ -46,6 +53,8 @@ private:
   const std::string & m_sourceRockType;
   const double m_vreThreshold;
   const double m_vesMax;
+  const std::string & m_adsorptionCapacityFunctionName;
+  const std::string & m_adsorptionSimulatorName;
 };
 
 } // namespace genex0d
