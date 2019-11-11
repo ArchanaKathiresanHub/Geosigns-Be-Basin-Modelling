@@ -13,6 +13,8 @@
 #include "Genex0dSourceRockProperty.h"
 #include "NodeAdsorptionHistory.h"
 
+#include "GenexSourceRock.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -49,7 +51,7 @@ namespace genex0d
 class Genex0dFormationManager;
 class Genex0dProjectManager;
 
-class Genex0dSourceRock
+class Genex0dSourceRock : public Genex6::GenexSourceRock
 {
 public:
   explicit Genex0dSourceRock(const std::string & sourceRockType,
