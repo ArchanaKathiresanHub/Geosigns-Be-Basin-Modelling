@@ -18,8 +18,11 @@
 // DataAccess
 #include "Snapshot.h"
 
-//Genex6
+// Genex6
 #include "ConstantsGenex.h"
+
+// Genex6_kernel
+#include "SnapshotInterval.h"
 
 #include <cmath>
 
@@ -33,7 +36,7 @@ const std::string s_dataMiningTblName = "DataMiningIoTbl";
 
 } // namespace
 
-Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord):
+Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const std::string & outProjectFileName, const double xCoord, const double yCoord):
   m_projectFileName{projectFileName},
   m_ObjectFactory{nullptr},
   m_projectHandle{nullptr},
@@ -44,7 +47,9 @@ Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName
   m_posDataPrevious{0},
   m_propertyName{""},
   m_agesAll{},
-  m_topSurfaceName{""}
+  m_topSurfaceName{""},
+  m_outProjectFileName{outProjectFileName},
+  m_theIntervals{}
 {
   try
   {
@@ -77,6 +82,29 @@ Genex0dProjectManager::~Genex0dProjectManager()
   cleanup();
 }
 
+void Genex0dProjectManager::resetWindowingAndSampling(const unsigned int indI, const unsigned int indJ)
+{
+  if (ErrorHandler::NoError != m_mdl->setWindow(indI, indI, indJ, indJ))
+  {
+    throw ErrorHandler::Exception(m_mdl->errorCode())
+        << "Windowing around the specified location failed, " << m_mdl->errorMessage();
+  }
+
+  if (ErrorHandler::NoError != m_mdl->setSubsampling(1, 1))
+  {
+    throw ErrorHandler::Exception(m_mdl->errorCode())
+        << "Resetting of the subsampling values failed, " << m_mdl->errorMessage();
+  }
+
+  m_mdl->saveModelToProjectFile(m_outProjectFileName.c_str());
+}
+
+void Genex0dProjectManager::updateProjecthandle()
+{
+  delete m_projectHandle;
+  m_projectHandle = DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", m_ObjectFactory);
+}
+
 DataAccess::Interface::ProjectHandle* Genex0dProjectManager::projectHandle()
 {
   return m_projectHandle;
@@ -99,7 +127,7 @@ void Genex0dProjectManager::clearTable()
   }
 }
 
-void Genex0dProjectManager::computeAgesFromAllSnapShots(const double depositionTimeTopSurface)
+void Genex0dProjectManager::computeSnapShotIntervals(const double depositionTimeTopSurface)
 {
   DataAccess::Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR);
   DataAccess::Interface::SnapshotList::reverse_iterator snapshotIter;
@@ -109,13 +137,21 @@ void Genex0dProjectManager::computeAgesFromAllSnapShots(const double depositionT
     return;
   }
 
+  const DataAccess::Interface::Snapshot * start;
+  const DataAccess::Interface::Snapshot * end;
+
   for (snapshotIter = snapshots->rbegin(); snapshotIter != snapshots->rend() - 1; ++ snapshotIter)
   {
-    if (depositionTimeTopSurface < (*snapshotIter)->getTime())
+    start = (*snapshotIter);
+    end = nullptr;
+    if (depositionTimeTopSurface < start->getTime())
     {
       continue;
     }
-    m_agesAll.push_back((*snapshotIter)->getTime());
+    end = *(snapshotIter + 1);
+    Genex6::SnapshotInterval *theInterval = new SnapshotInterval (start, end);
+
+    m_theIntervals.push_back (theInterval);
   }
 }
 
@@ -164,6 +200,11 @@ void Genex0dProjectManager::setInTable()
     }
     ++m_posData;
   }
+}
+
+std::vector<Genex6::SnapshotInterval> Genex0dProjectManager::theIntervals() const
+{
+  return m_theIntervals;
 }
 
 std::vector<double> Genex0dProjectManager::agesAll() const

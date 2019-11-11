@@ -24,6 +24,7 @@ create_bm_library( TARGET ${GENEX0D_LIB_NAME}
                    FileSystem
                    utilities
                    Serial_Hdf5
+                   AbstractDerivedProperties
                    ${HDF5_LIBRARIES}
 )
 

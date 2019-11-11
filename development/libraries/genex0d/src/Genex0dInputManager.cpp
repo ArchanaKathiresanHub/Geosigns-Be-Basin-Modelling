@@ -50,6 +50,7 @@ void Genex0dInputManager::printHelp() const
       << "Usage:\n"
       << " -help                       display this help message\n"
       << " -project   <project3d file> project3d file\n"
+      << " -out       <project3d file> output project3d file, default: out.project3d\n"
       << " -formation <formation>      name of a formation\n"
       << " -SRType    <SR type>        type of a source rock\n"
       << " -X         <X coordinate>   X coordinate\n"
@@ -95,6 +96,7 @@ const Genex0dInputData & Genex0dInputManager::inputData() const
 void Genex0dInputManager::setArgumentFieldNames()
 {
   m_argumntFields["-project"] = 0;
+  m_argumntFields["-out"] = 0;
   m_argumntFields["-formation"] = 0;
   m_argumntFields["-SRType"] = 0;
   m_argumntFields["-X"] = 0;
@@ -138,6 +140,10 @@ Genex0dInputManager::ExitStatus Genex0dInputManager::storeInput(std::string & io
     if (argvn == "-project")
     {
       m_inputData.projectFilename = argvnp1;
+    }
+    else if (argvn == "-out")
+    {
+      m_inputData.outProjectFilename = argvnp1;
     }
     else if (argvn == "-formation")
     {

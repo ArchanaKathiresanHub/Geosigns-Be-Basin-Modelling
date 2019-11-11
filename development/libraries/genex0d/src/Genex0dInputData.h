@@ -23,6 +23,7 @@ struct Genex0dInputData
   double HCVRe05;
   double SCVRe05;
   std::string projectFilename;
+  std::string outProjectFilename;
   std::string formationName;
   std::string sourceRockType;
 
@@ -32,6 +33,7 @@ struct Genex0dInputData
                    const double HCVRe05 = 0.0,
                    const double SCVRe05 = 0.0,
                    const std::string & projectFilename = "",
+                   const std::string & outProjectFilename = "out.project3d",
                    const std::string & formationName = "",
                    const std::string & sourceRockType = "") :
     xCoord{xCoord},
@@ -40,6 +42,7 @@ struct Genex0dInputData
     HCVRe05{HCVRe05},
     SCVRe05{SCVRe05},
     projectFilename{projectFilename},
+    outProjectFilename{outProjectFilename},
     formationName{formationName},
     sourceRockType{sourceRockType}
   {

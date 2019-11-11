@@ -37,6 +37,11 @@ public:
 
   double depositionTimeTopSurface() const;
 
+  const DataAccess::Interface::Formation* formation() const;
+
+  unsigned int indI() const;
+  unsigned int indJ() const;
+
 private:
   void setProperties(const double x, const double y);
   double getLithoDensity(const DataAccess::Interface::LithoType * theLitho);

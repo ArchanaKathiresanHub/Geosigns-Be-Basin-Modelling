@@ -28,21 +28,31 @@ namespace mbapi
 class Model;
 } // namespace mbapi
 
+namespace Genex6
+{
+class SnapshotInterval;
+}
+
 namespace genex0d
 {
 
 class Genex0dProjectManager
 { 
 public:
-  explicit Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord);
+  explicit Genex0dProjectManager(const std::string & projectFileName, const std::string & outProjectFileName, const double xCoord, const double yCoord);
   ~Genex0dProjectManager();
 
   std::vector<double> requestPropertyHistory(const std::string & propertyName);
 
   DataAccess::Interface::ProjectHandle * projectHandle();
-  void computeAgesFromAllSnapShots(const double depositionTimeTopSurface);
+  void computeSnapShotIntervals(const double depositionTimeTopSurface);
   void setTopSurface(const std::string & topSurfaceName);
+
+
   std::vector<double> agesAll() const;
+  std::vector<Genex6::SnapshotInterval> theIntervals() const;
+  void resetWindowingAndSampling(const unsigned int indI, const unsigned int indJ);
+  void updateProjecthandle();
 
 private:
   void cleanup();
@@ -65,6 +75,9 @@ private:
   std::string m_propertyName;
   std::vector<double> m_agesAll;
   std::string m_topSurfaceName;
+  std::string m_outProjectFileName;
+
+  std::vector<Genex6::SnapshotInterval> m_theIntervals;
 };
 
 } // namespace genex0d

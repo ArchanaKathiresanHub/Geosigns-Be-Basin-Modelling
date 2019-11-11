@@ -56,10 +56,13 @@ void Genex0d::initialize()
   LogHandler(LogHandler::INFO_SEVERITY) <<  "The selected formation " << m_inData.formationName << " is "
                                          << (m_formationMgr->isFormationSourceRock() ? "" : "not ") << "source rock";
 
+  m_projectMgr->resetWindowingAndSampling(m_formationMgr->indI(), m_formationMgr->indJ());
+  m_projectMgr->updateProjecthandle();
+
   m_projectMgr->computeAgesFromAllSnapShots(m_formationMgr->depositionTimeTopSurface());
   m_projectMgr->setTopSurface(m_formationMgr->topSurfaceName());
 
-  m_sourceRock.reset(new Genex0dSourceRock(m_inData.sourceRockType, *m_projectMgr, *m_formationMgr));
+  m_sourceRock.reset(new Genex0dSourceRock(m_inData.sourceRockType, *m_projectMgr, m_formationMgr->formation()));
 }
 
 

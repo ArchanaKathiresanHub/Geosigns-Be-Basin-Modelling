@@ -17,19 +17,6 @@
 #include <string>
 #include <vector>
 
-namespace Genex6
-{
-class Simulator;
-class SnapshotInterval;
-class SourceRockNode;
-} // namespace Genex6
-
-namespace database
-{
-class Record;
-class Table;
-} // namespace database
-
 namespace DataAccess
 {
 namespace Interface
@@ -37,6 +24,24 @@ namespace Interface
 class ProjectHandle;
 } // namespace Interface
 } // namespace DataAccess
+
+namespace database
+{
+class Record;
+class Table;
+} // namespace database
+
+namespace DerivedProperties
+{
+class DerivedPropertyManager;
+} // namespace DerivedProperties
+
+namespace Genex6
+{
+class Simulator;
+class SnapshotInterval;
+class SourceRockNode;
+} // namespace Genex6
 
 namespace genex0d
 {
@@ -49,7 +54,7 @@ class Genex0dSourceRock
 public:
   explicit Genex0dSourceRock(const std::string & sourceRockType,
                              Genex0dProjectManager & projectMgr,
-                             Genex0dFormationManager & formationMgr);
+                             const DataAccess::Interface::Formation * formation);
   ~Genex0dSourceRock();
 
   void computeData(const double thickness, const double inorganicDensity, const std::vector<double> & time,
@@ -70,8 +75,18 @@ private:
   void initialize();
   void addHistoryToSourceRockNode();
 
+
+
+
+  bool process();
+  void computeSnapShot(const double previousTime,
+                       const DataAccess::Interface::Snapshot *theSnapshot);
+
+
+
+
   Genex0dProjectManager & m_projectMgr;
-  Genex0dFormationManager & m_formationMgr;
+  const DataAccess::Interface::Formation * m_formation;
 
   std::unique_ptr<Genex6::SourceRockNode> m_sourceRockNode;
   std::unique_ptr<Genex6::Simulator> m_simulator;
@@ -80,6 +95,7 @@ private:
   double m_thickness;
 
   std::unique_ptr<Genex6::NodeAdsorptionHistory> m_genexHistory;
+  DerivedProperties::DerivedPropertyManager * m_propertyManager;
 };
 
 } // namespace genex0d
