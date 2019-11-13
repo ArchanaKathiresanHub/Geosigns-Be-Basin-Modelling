@@ -99,7 +99,6 @@ private:
   double m_thickness;
 
   std::unique_ptr<Genex6::NodeAdsorptionHistory> m_genexHistory;
-  DerivedProperties::DerivedPropertyManager * m_propertyManager;
 };
 
 } // namespace genex0d

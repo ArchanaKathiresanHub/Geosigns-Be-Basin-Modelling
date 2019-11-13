@@ -19,6 +19,9 @@
 // DataModel
 #include "AbstractProperty.h"
 
+// DerivedProperties
+#include "DerivedPropertyManager.h"
+
 // Genex6
 #include "ConstantsGenex.h"
 #include "Simulator.h"
@@ -46,10 +49,8 @@ Genex0dSourceRock::Genex0dSourceRock(const std::string & sourceRockType,
   m_sourceRockType{sourceRockType},
   m_srProperties{Genex0dSourceRockDefaultProperties::getInstance().getProperties(sourceRockType)},
   m_thickness{0.0},
-  m_genexHistory{nullptr},
-  m_propertyManager{nullptr}
+  m_genexHistory{nullptr}
 {
-  m_propertyManager = new DerivedProperties::DerivedPropertyManager(m_projectMgr.projectHandle());
 }
 
 Genex0dSourceRock::~Genex0dSourceRock()
