@@ -17,7 +17,8 @@ module load Qt/5.4.1-intel-2017.05
 
 
 # Prepare environment
-. /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh -d HpcSoftwareStack/PRODUCTION
+. /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
+module load HpcSoftwareStack/PRODUCTION
 module purge &> /dev/null
 module load CMake/3.8.2
 module load intel/2017.05;
