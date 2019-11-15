@@ -128,22 +128,6 @@ endforeach()
 # Setting runtime libraries directory
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DIR
 
-
-if [ -e /glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/GCCcore/4.9.3/lib64/libstdc++.so ]; then
-   export LD_PRELOAD=/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/GCCcore/4.9.3/lib64/libstdc++.so
-fi
-if [ -e /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]; then
-   . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
-fi
-
-# In Shell network FLEXLM licens is requred and located in this file
-if [ -z \"$SIEPRTS_LICENSE_FILE\" ] && [ -e /apps/sss/etc/local/flexlmlicenses ]; then
-  export SIEPRTS_LICENSE_FILE=`cat /apps/sss/etc/local/flexlmlicenses | grep SIEPRTS_LICENSE_FILE | cut -d ' ' -f 2`
-fi
-
-module purge
-module load intel/${INTEL_CXX_VERSION}
-
 " )
 
 endif(UNIX)
