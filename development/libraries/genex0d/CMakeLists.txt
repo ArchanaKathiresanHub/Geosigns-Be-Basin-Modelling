@@ -24,6 +24,7 @@ create_bm_library( TARGET ${GENEX0D_LIB_NAME}
                    FileSystem
                    utilities
                    Serial_Hdf5
+                   GeoPhysics
                    AbstractDerivedProperties
                    ${HDF5_LIBRARIES}
 )
@@ -65,10 +66,10 @@ add_gtest( NAME "Genex0dProjectManager"
     FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 )
 
-add_gtest( NAME "Genex0dSourceRock"
-    SOURCES src/Genex0dSourceRock.cpp test/TestGenex0dSourceRock.cpp
-    LIBRARIES ${GENEX0D_LIB_NAME} utilities DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES}
-    ENV_VARS GENEX5DIR=${CFGFLS}/genex50 GENEX6DIR=${CFGFLS}/genex60 OTGCDIR=${CFGFLS}/OTGC
-             CTCDIR=${CFGFLS} EOSPACKDIR=${CFGFLS}/eospack
-    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
-)
+#add_gtest( NAME "Genex0dSourceRock"
+#    SOURCES src/Genex0dSourceRock.cpp test/TestGenex0dSourceRock.cpp
+#    LIBRARIES ${GENEX0D_LIB_NAME} utilities DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES}
+#    ENV_VARS GENEX5DIR=${CFGFLS}/genex50 GENEX6DIR=${CFGFLS}/genex60 OTGCDIR=${CFGFLS}/OTGC
+#             CTCDIR=${CFGFLS} EOSPACKDIR=${CFGFLS}/eospack
+#    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
+#)

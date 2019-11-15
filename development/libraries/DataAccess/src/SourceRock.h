@@ -63,10 +63,10 @@ namespace DataAccess
 	    virtual const string & getAdsorptionSimulatorName (void) const;
 
 	    /// Return the (GridMap) value of one of this SourceRock's attributes
-	    virtual const GridMap * getMap (SourceRockMapAttributeId attributeId) const;
+		virtual const GridMap * getMap (SourceRockMapAttributeId attributeId) const;
 
 	    /// load a map
-	    GridMap * loadMap (SourceRockMapAttributeId attributeId) const;
+		GridMap * loadMap (SourceRockMapAttributeId attributeId) const;
 
 	    /// Print the attributes of this SourceRock
             // May not work if user application is compiled under IRIX with CC -lang:std

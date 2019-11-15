@@ -50,8 +50,8 @@ int main (int argc, char** argv)
     }
 
     genex0d::Genex0d gnx0d(std::move(inputDataMgr.inputData()));
+    gnx0d.initialize();
     gnx0d.run();
-    gnx0d.printResults("OutputGenex0d.csv");
   }
   catch (const ErrorHandler::Exception & ex)
   {

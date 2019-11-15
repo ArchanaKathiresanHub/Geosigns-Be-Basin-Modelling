@@ -11,19 +11,25 @@
 #pragma once
 
 #include "GenexSourceRock.h"
+#include "Genex0dSourceRockProperty.h"
+
+namespace DataAccess
+{
+namespace Interface
+{
+class GridMap;
+} // namespace Interface
+} // namespace DataAccess
 
 namespace genex0d
 {
 
-class Genex0dSourceRockProperty;
+class Genex0dInputData;
 
 class Genex0dGenexSourceRock : public Genex6::GenexSourceRock
 {
 public:
-  explicit Genex0dGenexSourceRock(const Genex0dSourceRockProperty & srProperties,
-                                  const std::string & formationName,
-                                  const std::string & sourceRockType,
-                                  DataAccess::Interface::ProjectHandle * projectHandle);
+  explicit Genex0dGenexSourceRock(DataAccess::Interface::ProjectHandle * projectHandle, const Genex0dInputData & inData);
   virtual ~Genex0dGenexSourceRock();
 
   const std::string & getLayerName (void) const final;
@@ -48,7 +54,11 @@ public:
   const DataAccess::Interface::GridMap * getMap(DataAccess::Interface::SourceRockMapAttributeId attributeId) const final;
 
 private:
-  const Genex0dSourceRockProperty & m_srProperties;
+  void setPropertiesFromInput();
+  const GridMap * loadMap (DataAccess::Interface::SourceRockMapAttributeId attributeId, const double mapScalarValue) const;
+
+  const Genex0dInputData & m_inData;
+  Genex0dSourceRockProperty m_srProperties;
   const std::string & m_formationName;
   const std::string & m_sourceRockType;
   const double m_vreThreshold;

@@ -10,27 +10,14 @@
 
 #include "CommonDefinitions.h"
 #include "Genex0dFormationManager.h"
-#include "Genex0dGenexSourceRock.h"
 #include "Genex0dInputData.h"
-#include "Genex0dProjectManager.h"
-#include "Genex0dSourceRock.h"
+#include "Genex0dSimulator.h"
+#include "Genex0dSimulatorFactory.h"
 
-// CBMGenerics
-#include "GenexResultManager.h"
-
-//FileSystem
-#include "FilePath.h"
-
-// genex6
-#include "Simulator.h"
-
-// genex6_kernel
-#include "AdsorptionSimulatorFactory.h"
-#include "SourceRockNode.h"
+// cmbAPI
+#include "ErrorHandler.h"
 
 #include "LogHandler.h"
-
-#include <fstream>
 
 namespace genex0d
 {
@@ -39,108 +26,77 @@ Genex0d::Genex0d(const Genex0dInputData & inputData) :
   m_inData{inputData},
   m_formationMgr{nullptr},
   m_projectMgr{nullptr},
-  m_sourceRock{nullptr},
-  m_genexSourceRock{nullptr}
+  m_gnx0dSimulatorFactory{nullptr},
+  m_gnx0dSimulator{nullptr}
 {
-  if (m_inData.projectFilename.empty())
-  {
-    throw Genex0dException() << "Fatal error, empty project file name!";
-  }
-
   LogHandler(LogHandler::INFO_SEVERITY) << "Running genex0d on " << m_inData.projectFilename;
 }
 
 Genex0d::~Genex0d()
 {
+//  clearSimulator();
+}
+
+void Genex0d::clearSimulator()
+{
+  if (m_gnx0dSimulator != nullptr)
+  {
+    delete m_gnx0dSimulator;
+  }
+  if (m_gnx0dSimulatorFactory != nullptr)
+  {
+    delete m_gnx0dSimulatorFactory;
+  }
+}
+
+void Genex0d::reloadSimulator(const std::string & projectFileName)
+{
+  clearSimulator();
+  m_gnx0dSimulatorFactory = new Genex0dSimulatorFactory;
+  m_gnx0dSimulator = Genex0dSimulator::CreateFrom(projectFileName, m_gnx0dSimulatorFactory);
+  if (m_gnx0dSimulator == nullptr)
+  {
+    throw Genex0dException() << "Genex0d simulator could not be loaded!";
+  }
+}
+
+void Genex0d::reloadFormation()
+{
+  m_formationMgr.reset(new Genex0dFormationManager(m_gnx0dSimulator, m_inData.formationName));
+  LogHandler(LogHandler::INFO_SEVERITY) <<  "The selected formation " << m_inData.formationName << " is "
+                                         << (m_formationMgr->isFormationSourceRock() ? "" : "not ") << "source rock";
 }
 
 void Genex0d::initialize()
 {
-  m_projectMgr.reset(new Genex0dProjectManager(m_inData.projectFilename, m_inData.xCoord, m_inData.yCoord));
-  m_formationMgr.reset(new Genex0dFormationManager(m_projectMgr->projectHandle(), m_inData.formationName, m_inData.xCoord, m_inData.yCoord));
-  LogHandler(LogHandler::INFO_SEVERITY) <<  "The selected formation " << m_inData.formationName << " is "
-                                         << (m_formationMgr->isFormationSourceRock() ? "" : "not ") << "source rock";
+  reloadSimulator(m_inData.projectFilename);
+  reloadFormation();
+  m_formationMgr->setProperties(m_inData.xCoord, m_inData.yCoord);
 
+  m_projectMgr.reset(new Genex0dProjectManager(m_inData.projectFilename, m_inData.outProjectFilename, m_inData.xCoord, m_inData.yCoord));
   m_projectMgr->resetWindowingAndSampling(m_formationMgr->indI(), m_formationMgr->indJ());
-  m_projectMgr->updateProjecthandle();
 
-  m_projectMgr->computeAgesFromAllSnapShots(m_formationMgr->depositionTimeTopSurface());
-  m_projectMgr->setTopSurface(m_formationMgr->topSurfaceName());
+//  reloadSimulator(m_inData.outProjectFilename);
+//  reloadFormation();
 
-  m_sourceRock.reset(new Genex0dSourceRock(m_inData.sourceRockType, *m_projectMgr, m_formationMgr->formation()));
+  m_gnx0dSimulator->deletePropertyValues(DataAccess::Interface::RESERVOIR , 0, 0, 0, 0, 0,
+                                         DataAccess::Interface::MAP);
 
-  setRequestedOutputProperties();
-  m_genexSourceRock = new Genex0dGenexSourceRock(m_sourceRock->srProperties(), m_inData.formationName, m_inData.sourceRockType, m_projectMgr->projectHandle());
-}
-
-void Genex0d::setSourceRockInput(const double inorganicDensity)
-{
-  m_sourceRock->setToCIni(m_inData.ToCIni);
-  m_sourceRock->setHCVRe05(m_inData.HCVRe05);
-  m_sourceRock->setSCVRe05(m_inData.SCVRe05);
-  m_sourceRock->computeData(m_formationMgr->getThickness(), inorganicDensity,
-                            m_projectMgr->agesAll(),
-                            m_projectMgr->requestPropertyHistory("Temperature"),
-                            m_projectMgr->requestPropertyHistory("Pressure"));
+  LogHandler(LogHandler::INFO_SEVERITY) << "Successfully initialized the genex0d simulator!";
 }
 
 void Genex0d::run()
 {
-  initialize();
-  double inorganicDensity = m_formationMgr->getInorganicDensity();
-  LogHandler(LogHandler::INFO_SEVERITY) << " # Inorganic density #" << inorganicDensity;
-  setSourceRockInput(inorganicDensity);
-}
+  LogHandler(LogHandler::INFO_SEVERITY) << "Runing genex0d ...";
 
-void Genex0d::printResults(const std::string & outputFileName) const
-{
-  const Genex6::SourceRockNode & srNode = m_sourceRock->getSourceRockNode();
-  srNode.PrintBenchmarkOutput(outputFileName, m_sourceRock->simulator());
-}
-
-
-void Genex0d::setRequestedOutputProperties()
-{
-  setRequestedSpeciesOutputProperties();
-  CBMGenerics::GenexResultManager & theResultManager = CBMGenerics::GenexResultManager::getInstance();
-
-  DataAccess::Interface::ProjectHandle * projectHandle = m_projectMgr->projectHandle();
-  DataAccess::Interface::ModellingMode theMode = projectHandle->getModellingMode();
-  if (theMode != DataAccess::Interface::MODE3D)
+  if (!m_gnx0dSimulator->run(m_formationMgr->formation(), m_inData))
   {
-    throw Genex0dException() << "Can only run 3d mode!";
+    throw Genex0dException() << "Genex0d simulator could not be initiated!";
   }
 
-  database::Table * timeIoTbl = projectHandle->getTable("FilterTimeIoTbl");
-  database::Table::iterator tblIter;
+  LogHandler(LogHandler::INFO_SEVERITY) << "Finished running genex0d!";
 
-  for (tblIter = timeIoTbl->begin(); tblIter != timeIoTbl->end(); ++tblIter)
-  {
-    database::Record * filterTimeIoRecord = * tblIter;
-
-  }
-
-
-}
-
-void Genex0d::setRequestedSpeciesOutputProperties()
-{
-   CBMGenerics::ComponentManager & theManager = CBMGenerics::ComponentManager::getInstance();
-
-   for (int i = 0; i < CBMGenerics::ComponentManager::NUMBER_OF_SPECIES; ++i)
-   {
-      if(!theManager.isSulphurComponent(i)) {
-         m_expelledToCarrierBedProperties.push_back ( theManager.getSpeciesOutputPropertyName ( i, false ));
-         m_expelledToSourceRockProperties.push_back ( theManager.getSpeciesOutputPropertyName ( i, true ));
-      }
-      m_expelledToCarrierBedPropertiesS.push_back ( theManager.getSpeciesOutputPropertyName ( i, false ));
-      m_expelledToSourceRockPropertiesS.push_back ( theManager.getSpeciesOutputPropertyName ( i, true ));
-   }
-
-   std::sort ( m_expelledToSourceRockProperties.begin (), m_expelledToSourceRockProperties.end ());
-   std::sort ( m_expelledToCarrierBedProperties.begin (), m_expelledToCarrierBedProperties.end ());
-   std::sort ( m_expelledToSourceRockPropertiesS.begin (), m_expelledToSourceRockPropertiesS.end ());
-   std::sort ( m_expelledToCarrierBedPropertiesS.begin (), m_expelledToCarrierBedPropertiesS.end ());
+  clearSimulator();
 }
 
 } // namespace genex0d

@@ -24,30 +24,30 @@ public:
   double TocIni() const;
   void setTocIni(const double TocIni);
 
-  double SCVRe05() const;
+  const double & SCVRe05() const;
   void setSCVRe05(const double SCVRe05);
 
-  double activationEnergy() const;
+  const double & activationEnergy() const;
   void setActivationEnergy(const double activationEnergy);
 
-  double HCVRe05() const;
+  const double & HCVRe05() const;
   void setHCVRe05(const double HCVRe05);
 
-  double Vr() const;
+  const double & Vr() const;
 
-  double AsphalteneDiffusionEnergy() const;
+  const double & AsphalteneDiffusionEnergy() const;
   void setAsphalteneDiffusionEnergy(const double AsphalteneDiffusionEnergy);
 
-  double ResinDiffusionEnergy() const;
+  const double & ResinDiffusionEnergy() const;
   void setResinDiffusionEnergy(const double ResinDiffusionEnergy);
 
-  double C15AroDiffusionEnergy() const;
+  const double & C15AroDiffusionEnergy() const;
   void setC15AroDiffusionEnergy(const double C15AroDiffusionEnergy);
 
-  double C15SatDiffusionEnergy() const;
+  const double & C15SatDiffusionEnergy() const;
   void setC15SatDiffusionEnergy(const double C15SatDiffusionEnergy);
 
-  std::string typeNameID() const;
+  const std::string & typeNameID() const;
   void setTypeNameID(const std::string & typeNameID);
 
 private:

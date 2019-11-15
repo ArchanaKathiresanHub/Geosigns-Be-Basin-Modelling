@@ -9,77 +9,32 @@
 #include "Genex0dProjectManager.h"
 
 #include "CommonDefinitions.h"
-#include "Genex0dDataExtractor.h"
 
 // cmbAPI
-#include "cmbAPI.h"
 #include "ErrorHandler.h"
-
-// DataAccess
-#include "Snapshot.h"
-
-// Genex6
-#include "ConstantsGenex.h"
-
-// Genex6_kernel
-#include "SnapshotInterval.h"
-
-#include <cmath>
 
 namespace genex0d
 {
 
-namespace
-{
-
-const std::string s_dataMiningTblName = "DataMiningIoTbl";
-
-} // namespace
-
 Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const std::string & outProjectFileName, const double xCoord, const double yCoord):
   m_projectFileName{projectFileName},
-  m_ObjectFactory{nullptr},
-  m_projectHandle{nullptr},
   m_xCoord{xCoord},
   m_yCoord{yCoord},
   m_mdl{nullptr},
   m_posData{0},
   m_posDataPrevious{0},
-  m_propertyName{""},
-  m_agesAll{},
-  m_topSurfaceName{""},
-  m_outProjectFileName{outProjectFileName},
-  m_theIntervals{}
+  m_outProjectFileName{outProjectFileName}
 {
-  try
-  {
-    if (m_projectFileName.empty())
-    {
-      throw Genex0dException() << "Fatal error, empty project name!";
-    }
-
-    m_ObjectFactory = new DataAccess::Interface::ObjectFactory();
-    m_projectHandle = DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", m_ObjectFactory);
-
-    reloadModel();
-    clearTable();
-  }
-  catch (const Genex0dException & ex)
-  {
-    cleanup();
-    throw;
-  }
+  reloadModel(m_projectFileName);
 }
 
-void Genex0dProjectManager::cleanup()
+void Genex0dProjectManager::saveModel(const std::string & name)
 {
-  delete m_projectHandle;
-  delete m_ObjectFactory;
-}
-
-Genex0dProjectManager::~Genex0dProjectManager()
-{
-  cleanup();
+  if (ErrorHandler::NoError != m_mdl->saveModelToProjectFile(name.c_str()))
+  {
+    throw ErrorHandler::Exception(m_mdl->errorCode())
+        << "The model could not be saved to output file " << name << ", " << m_mdl->errorMessage();
+  }
 }
 
 void Genex0dProjectManager::resetWindowingAndSampling(const unsigned int indI, const unsigned int indJ)
@@ -96,140 +51,16 @@ void Genex0dProjectManager::resetWindowingAndSampling(const unsigned int indI, c
         << "Resetting of the subsampling values failed, " << m_mdl->errorMessage();
   }
 
-  m_mdl->saveModelToProjectFile(m_outProjectFileName.c_str());
+  saveModel(m_outProjectFileName);
 }
 
-void Genex0dProjectManager::updateProjecthandle()
-{
-  delete m_projectHandle;
-  m_projectHandle = DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", m_ObjectFactory);
-}
-
-DataAccess::Interface::ProjectHandle* Genex0dProjectManager::projectHandle()
-{
-  return m_projectHandle;
-}
-
-void Genex0dProjectManager::reloadModel()
+void Genex0dProjectManager::reloadModel(const std::string & projectFileName)
 {
   m_mdl.reset(new mbapi::Model());
-  if (ErrorHandler::NoError != m_mdl->loadModelFromProjectFile(m_projectFileName.c_str()))
+  if (ErrorHandler::NoError != m_mdl->loadModelFromProjectFile(projectFileName.c_str()))
   {
     throw ErrorHandler::Exception(m_mdl->errorCode()) << "Could not initialize data mining table, " << m_mdl->errorMessage();
   }
-}
-
-void Genex0dProjectManager::clearTable()
-{
-  if (ErrorHandler::NoError != m_mdl->clearTable(s_dataMiningTblName))
-  {
-    throw ErrorHandler::Exception(m_mdl->errorCode()) << "Could not clear data mining table, " << m_mdl->errorMessage();
-  }
-}
-
-void Genex0dProjectManager::computeSnapShotIntervals(const double depositionTimeTopSurface)
-{
-  DataAccess::Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR);
-  DataAccess::Interface::SnapshotList::reverse_iterator snapshotIter;
-
-  if (snapshots->size() < 1)
-  {
-    return;
-  }
-
-  const DataAccess::Interface::Snapshot * start;
-  const DataAccess::Interface::Snapshot * end;
-
-  for (snapshotIter = snapshots->rbegin(); snapshotIter != snapshots->rend() - 1; ++ snapshotIter)
-  {
-    start = (*snapshotIter);
-    end = nullptr;
-    if (depositionTimeTopSurface < start->getTime())
-    {
-      continue;
-    }
-    end = *(snapshotIter + 1);
-    Genex6::SnapshotInterval *theInterval = new SnapshotInterval (start, end);
-
-    m_theIntervals.push_back (theInterval);
-  }
-}
-
-void Genex0dProjectManager::getValues(std::vector<double> & values) const
-{
-  for (int i = m_posDataPrevious; i < m_posData; ++i)
-  {
-    values[i-m_posDataPrevious] = m_mdl->tableValueAsDouble(s_dataMiningTblName, i, "Value");
-  }
-}
-
-void Genex0dProjectManager::requestPropertyInSnapshots()
-{
-  mbapi::PropertyManager & propMgr = m_mdl->propertyManager();
-
-  if (ErrorHandler::NoError != propMgr.requestPropertyInSnapshots(m_propertyName))
-  {
-    throw ErrorHandler::Exception(propMgr.errorCode()) << "Could not initiate extracting property form mdl! "
-                                                       << ", " << propMgr.errorMessage();
-  }
-}
-
-void Genex0dProjectManager::saveModel()
-{
-  m_mdl->saveModelToProjectFile(m_projectFileName.c_str());
-}
-
-void Genex0dProjectManager::setInTable()
-{
-  m_posDataPrevious = m_posData;
-  for (auto simTime : m_agesAll)
-  {
-    if (ErrorHandler::NoError != m_mdl->addRowToTable(s_dataMiningTblName) ||
-        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "Time", simTime) ||
-        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "XCoord", m_xCoord) ||
-        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "YCoord", m_yCoord) ||
-        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "ZCoord",
-                                                      Utilities::Numerical::IbsNoDataValue) ||
-        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "PropertyName", m_propertyName) ||
-        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "Value",
-                                                      Utilities::Numerical::IbsNoDataValue) ||
-        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "SurfaceName", m_topSurfaceName))
-    {
-      throw ErrorHandler::Exception(m_mdl->errorCode()) << "Could not initialize data mining table! "
-                                                        << "Error code: " << m_mdl->errorMessage();
-    }
-    ++m_posData;
-  }
-}
-
-std::vector<Genex6::SnapshotInterval> Genex0dProjectManager::theIntervals() const
-{
-  return m_theIntervals;
-}
-
-std::vector<double> Genex0dProjectManager::agesAll() const
-{
-  return m_agesAll;
-}
-
-void Genex0dProjectManager::setTopSurface(const std::string & topSurfaceName)
-{
-  m_topSurfaceName = topSurfaceName;
-}
-
-std::vector<double> Genex0dProjectManager::requestPropertyHistory(const std::string & propertyName)
-{
-  m_propertyName = propertyName;
-  requestPropertyInSnapshots();
-  setInTable();
-  saveModel();
-
-  genex0d::Genex0dDataExtractor::run(m_projectFileName);
-  reloadModel();
-
-  std::vector<double> values((m_posData - m_posDataPrevious), 0.0);
-  getValues(values);
-  return values;
 }
 
 } // namespace genex0d
