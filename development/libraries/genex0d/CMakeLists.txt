@@ -71,3 +71,9 @@ add_gtest( NAME "Genex0dSourceRock"
              CTCDIR=${CFGFLS} EOSPACKDIR=${CFGFLS}/eospack
     FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 )
+
+# Configure file
+configure_file( src/History_Project_genex_Pot_MFSSR_Langhian_HI_1.dat
+${PROJECT_BINARY_DIR}/misc/History_Project_genex_Pot_MFSSR_Langhian_HI_1.dat COPYONLY )
+
+

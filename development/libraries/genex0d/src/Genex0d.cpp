@@ -14,6 +14,8 @@
 #include "Genex0dProjectManager.h"
 #include "Genex0dSourceRock.h"
 
+#include "FilePath.h"
+
 #include "SourceRockNode.h"
 
 #include "LogHandler.h"
@@ -62,9 +64,17 @@ void Genex0d::setSourceRockInput(const double inorganicDensity)
 void Genex0d::run()
 {
   initialize();
-  double inorganicDensity = m_formationMgr->getInorganicDensity();
-  LogHandler(LogHandler::INFO_SEVERITY) << " # Inorganic density #" << inorganicDensity;
-  setSourceRockInput(inorganicDensity);
+
+// History_Project_genex_Pot_MFSSR_Langhian_HI_1.dat
+  ibs::FilePath fp(".");
+  fp << "History_Project_genex_Pot_MFSSR_Langhian_HI_1.dat";
+
+  int a = 1;
+
+
+//  double inorganicDensity = m_formationMgr->getInorganicDensity();
+//  LogHandler(LogHandler::INFO_SEVERITY) << " # Inorganic density #" << inorganicDensity;
+//  setSourceRockInput(inorganicDensity);
 }
 
 void Genex0d::printResults(const std::string & outputFileName) const
