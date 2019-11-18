@@ -84,10 +84,11 @@ void MainController::slotOpen()
   ScenarioReader reader{file};
   scenario().readFromFile(reader);
 
-  QDir folderLocation = QFileInfo(fileName).absoluteDir();
+  QDir folderLocation = QFileInfo(fileName).dir();
   folderLocation.cdUp();
-  scenario().setWorkingDirectory(folderLocation.absolutePath());
+  scenario().setWorkingDirectory( folderLocation.path() );
 
+  emit signalProjectOpened();
   emit signalResestToStartingStage();
   emitAllRefreshSignals();
   emitAllEnableDisableSignals(false);

@@ -1,5 +1,5 @@
 base_project ""
-loadstate "stateFileTestCasaScriptQC.txt" "txt"
+loadstate "CaseSet/Iteration_1/stateFileTestCasaScriptQC.txt" "txt"
 montecarlo "proxySecondOrderGlobalKriging" MCMC 500 100 Polynomial NoPrior 1.6
 exportDataTxt "DoEParameters" "doeResults.txt" "Tornado"
 exportDataTxt "MCResults" "mcResults.txt" "Tornado"

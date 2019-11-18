@@ -26,7 +26,7 @@ void AddCasesScript::writeScriptContents(QFile& file) const
   QTextStream out(&file);
 
   out << writeBaseProject(uaScenario().project3dFilename());
-  out << writeLoadState(uaScenario().stateFileNameDoE());
+  out << writeLoadState(uaScenario().runLocation() + "/" + uaScenario().iterationDirName() + "/" + uaScenario().stateFileNameDoE());
 
   const ManualDesignPointManager& designPointManager = uaScenario().manualDesignPointManager();
   const QVector<bool> completed = designPointManager.completed();

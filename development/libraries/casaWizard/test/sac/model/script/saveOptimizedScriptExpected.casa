@@ -1,4 +1,4 @@
-loadstate "casaStateSAC.txt" "txt"
+loadstate "CaseSet/Iteration_1/casaStateSAC.txt" "txt"
 importOneDResults
 setFilterOneDResults smartLithoFractionGridding
 generateThreeDFromOneD

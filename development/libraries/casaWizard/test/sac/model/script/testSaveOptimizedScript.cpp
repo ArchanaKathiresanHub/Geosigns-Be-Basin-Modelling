@@ -14,7 +14,6 @@ TEST(SaveOptimzedScriptTest, testWriteScript)
   casaWizard::sac::SACScenario scenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
   scenario.setWorkingDirectory(".");
 
-
   const std::string expectedFile{"saveOptimizedScriptExpected.casa"};
   const std::string actualFile{"saveOptimizedScript.casa"};
 

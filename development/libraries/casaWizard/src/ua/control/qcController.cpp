@@ -138,6 +138,15 @@ void QCController::slotPushButtonQCrunCasaClicked()
     }
   }
 
+  if (QFile::copy(casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameQC() ,
+                  casaScenario_.workingDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameQC()))
+  {
+    if (!QFile::remove(casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameQC()))
+    {
+      Logger::log() << "There was a problem while moving " << casaScenario_.stateFileNameQC() << " file to " << casaScenario_.iterationDirName() << " Folder." << Logger::endl();
+    }
+  }
+
   StageCompletionUA& stageCompletion{casaScenario_.isStageComplete()};
   stageCompletion.setStageIsComplete(StageTypesUA::qc);
   stageCompletion.setStageIsComplete(StageTypesUA::mcmc, false);

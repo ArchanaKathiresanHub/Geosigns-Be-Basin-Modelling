@@ -17,11 +17,13 @@ TEST_F(AddCasesScriptTest, testWriteScript)
   manager.completeAll();
   manager.addDesignPoint({1.4});
 
+
   const std::string expectedFile{"AddCasesScriptExpected.casa"};
   const std::string actualFile{"uaScript.casa"};
 
   casaWizard::ua::AddCasesScript script(scenario);
-  script.writeScript();
+
+  EXPECT_TRUE(script.writeScript());
 
   expectFileEq(expectedFile, actualFile);
 }

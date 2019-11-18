@@ -5,6 +5,7 @@
 #include "model/proxy.h"
 #include "model/uaScenario.h"
 
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
@@ -40,6 +41,7 @@ QString UAScript::workingDirectory() const
 {
   return QString(scenario_.workingDirectory());
 }
+
 const CasaScenario& UAScript::scenario() const
 {
   return scenario_;
@@ -52,11 +54,32 @@ const UAScenario& UAScript::uaScenario() const
 
 bool UAScript::validateScenario() const
 {
-  QString stateFilename{scenario_.stateFileNameDoE()};
-  QFileInfo checkFile(baseDirectory() + "/" + stateFilename);
+  const QString runFolderStr = scenario_.workingDirectory() + "/" + scenario_.runLocation();
+  const QDir runFolderDir = QDir{runFolderStr};
+
+  if (!runFolderDir.exists() ||
+      !runFolderDir.isReadable())
+  {
+    return false;
+  }
+
+  QString dirName{""};
+
+  for (const QFileInfo& finfo : runFolderDir.entryInfoList())
+  {
+    const std::string name = finfo.fileName().toStdString();
+    if (name.find("Iteration_") == 0)
+    {
+      dirName = QString::fromStdString(name);
+    }
+  }
+
+  const QString absolutePathStateFile = runFolderStr + "/" + dirName + "/" + scenario_.stateFileNameDoE();
+  const QFileInfo checkFile(absolutePathStateFile);
+
   if (!checkFile.exists())
   {
-    Logger::log() << "State file \"" << stateFilename << "\" not found. Please run the DoE first. " << Logger::endl();
+    Logger::log() << "State file \"" << absolutePathStateFile << "\" not found. Please run the DoE first. " << Logger::endl();
     return false;
   }
 
@@ -138,12 +161,12 @@ void UAScript::writeTargets(QTextStream& out, bool prediction) const
 QString UAScript::writePredictionTarget(const PredictionTarget& predictionTarget) const
 {
   return QString("target " + predictionTarget.typeName() + " \""
-                   + mapWizardToCasaName(predictionTarget.property()) + "\" "
-                   + doubleToQString(predictionTarget.x()) + " "
-                   + doubleToQString(predictionTarget.y()) + " "
-                   + predictionTarget.variable() + " "
-                   + doubleOneDigitToQString(predictionTarget.age())
-                   + " 1.0 1.0\n");
+                 + mapWizardToCasaName(predictionTarget.property()) + "\" "
+                 + doubleToQString(predictionTarget.x()) + " "
+                 + doubleToQString(predictionTarget.y()) + " "
+                 + predictionTarget.variable() + " "
+                 + doubleOneDigitToQString(predictionTarget.age())
+                 + " 1.0 1.0\n");
 }
 
 

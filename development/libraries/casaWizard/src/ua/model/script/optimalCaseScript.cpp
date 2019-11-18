@@ -3,6 +3,7 @@
 #include "model/logger.h"
 #include "model/uaScenario.h"
 
+#include <QDir>
 #include <QTextStream>
 #include <QFile>
 #include <QFileInfo>
@@ -48,8 +49,33 @@ bool OptimalCaseScript::generateCommands()
 
 bool OptimalCaseScript::validateScenario() const
 {
-  QString stateFilename{scenario_.stateFileNameMCMC()};
-  QFileInfo checkFile(scenario_.workingDirectory() + "/" + stateFilename);
+  const QString runFolderStr = scenario_.workingDirectory() + "/" + scenario_.runLocation();
+  const QDir runFolderDir{runFolderStr};
+
+  if (!runFolderDir.exists() ||
+      !runFolderDir.isReadable())
+  {
+    return false;
+  }
+
+  const QFileInfoList entries = runFolderDir.entryInfoList();
+
+  unsigned int folderCounter = 0;
+
+  for (const QFileInfo& finfo : entries)
+  {
+    if (finfo.fileName().toStdString().find("Iteration_") != 0)
+    {
+      continue;
+    }
+
+    folderCounter++;
+  }
+
+  const QString absolutePathMCMC = runFolderStr + "/Iteration_" + QString::number(folderCounter) + "/" + scenario_.stateFileNameMCMC();
+  const QString stateFilename{absolutePathMCMC};
+  const QFileInfo checkFile(stateFilename);
+
   if (!checkFile.exists())
   {
     Logger::log() << "State file \"" << stateFilename << "\" for MCMC run not found. Please run the calibration first" << Logger::endl();
@@ -69,7 +95,7 @@ void OptimalCaseScript::writeScriptContents(QFile& file) const
   QString filename{"calibrated.project3d"};
   QTextStream out(&file);
   out << writeBaseProject(scenario_.project3dPath());
-  out << writeLoadState(scenario_.stateFileNameMCMC());
+  out << writeLoadState(scenario_.runLocation() + "/" + scenario_.iterationDirName() + "/" + scenario_.stateFileNameMCMC());
   out << "generateCalibratedCase \"" + filename + "\" 1\n";
 
   Logger::log() << "- \""  << filename << "\" will be in \"" << scenario_.runLocation() << "\"" << Logger::endl();
