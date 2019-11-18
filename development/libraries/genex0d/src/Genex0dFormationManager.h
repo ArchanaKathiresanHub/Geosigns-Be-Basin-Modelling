@@ -16,7 +16,8 @@ namespace DataAccess
 namespace Interface
 {
 class Formation;
-class Grid;
+class LithoType;
+class GridMap;
 class ProjectHandle;
 } // namespace Interface
 } // namespace DataAccess
@@ -27,18 +28,29 @@ namespace genex0d
 class Genex0dFormationManager
 {
 public:
-  explicit Genex0dFormationManager(DataAccess::Interface::ProjectHandle * projectHandle, const std::string & formationName);
+  explicit Genex0dFormationManager(DataAccess::Interface::ProjectHandle * projectHandle, const std::string & formationName, const double x, const double y);
 
-  void setProperties(const double x, const double y);
+  double getInorganicDensity();
+  double getThickness() const;
+  std::string topSurfaceName() const;
   bool isFormationSourceRock() const;
-  const DataAccess::Interface::Formation * formation() const;
+
+  double depositionTimeTopSurface() const;
+
   unsigned int indI() const;
   unsigned int indJ() const;
 
 private:
+  void setProperties(const double x, const double y);
+  double getLithoDensity(const DataAccess::Interface::LithoType * theLitho);
+  void calculateInorganicDensityOfLithoType(const DataAccess::Interface::LithoType * litho1,
+                                            const DataAccess::Interface::GridMap * litho1PercentageMap,
+                                            double & inorganicDensity);
+  void setThickness();
+
   DataAccess::Interface::ProjectHandle * m_projectHandle;
   const DataAccess::Interface::Formation * m_formation;
-  const DataAccess::Interface::Grid * m_gridLowResolution;
+  double m_thickness;
   unsigned int m_indI;
   unsigned int m_indJ;
 };

@@ -111,7 +111,7 @@ public:
    void clearOutputHistory ();
 
    /// Constructs the m_theSimulator, validates the chemical model
-   bool initialize ( const bool printInitialisationDetails = true );
+   virtual bool initialize ( const bool printInitialisationDetails = true );
 
    /// Initialises all source-rock nodes.
    void initialiseNodes ();
@@ -120,7 +120,7 @@ public:
    const SpeciesManager& getSpeciesManager () const;
 
    /// \brief Add history objects to the nodes.
-   bool addHistoryToNodes ();
+   virtual bool addHistoryToNodes ();
 
    /// \brief Save data for all items on the history list.
    void saveSourceRockNodeAdsorptionHistory ();
@@ -140,7 +140,7 @@ public:
 protected:
 
    /// Construct the valid source rock node set, the valid snapshot intervals 
-   bool preprocess ();
+   virtual bool preprocess ();
 
    /// Main processing functionality
    bool process();
