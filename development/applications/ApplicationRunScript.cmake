@@ -128,6 +128,11 @@ endforeach()
 # Setting runtime libraries directory
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DIR
 
+# In Shell network FLEXLM licens is requred and located in this file
+if [ -z \"$SIEPRTS_LICENSE_FILE\" ] && [ -e /apps/sss/etc/local/flexlmlicenses ]; then
+  export SIEPRTS_LICENSE_FILE=`cat /apps/sss/etc/local/flexlmlicenses | grep SIEPRTS_LICENSE_FILE | cut -d ' ' -f 2`
+fi
+
 " )
 
 endif(UNIX)
