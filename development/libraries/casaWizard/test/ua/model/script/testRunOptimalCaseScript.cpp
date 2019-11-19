@@ -23,7 +23,8 @@ TEST_F(RunOptimalCaseScriptTest, testWriteScript)
   const std::string actualFile{"runOptimalCaseScript.casa"};
 
   casaWizard::ua::RunOptimalCaseScript script(scenario);
-  script.writeScript();
+
+  EXPECT_TRUE(script.writeScript());
 
   expectFileEq(expectedFile, actualFile);
 }

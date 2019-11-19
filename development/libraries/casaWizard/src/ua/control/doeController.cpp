@@ -102,6 +102,13 @@ void DoEcontroller::slotResetTab()
   doeTab_->setEnabled(true);
 }
 
+void DoEcontroller::slotUpdateIterationDir()
+{
+  RunCaseSetFileManager& runCaseSetFileManager = casaScenario_.runCaseSetFileManager();
+  runCaseSetFileManager.setIterationPath(casaScenario_.project3dPath());
+  runCaseSetFileManager.updateIterationDirFileDateTime();
+}
+
 void DoEcontroller::slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage)
 {
   if (tabID != static_cast<int>(TabID::DoE))
@@ -195,6 +202,15 @@ void DoEcontroller::slotPushButtonDoErunCasaClicked()
 
   RunCaseSetFileManager& runCaseSetFileManager = casaScenario_.runCaseSetFileManager();
   runCaseSetFileManager.setIterationPath(casaScenario_.project3dPath());
+
+  if (QFile::copy(casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameDoE(),
+                  casaScenario_.workingDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameDoE()))
+  {
+    if (!QFile::remove(casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameDoE()))
+    {
+      Logger::log() << "There was a problem while moving " << casaScenario_.stateFileNameDoE() << " file to " << casaScenario_.iterationDirName() << " Folder." << Logger::endl();
+    }
+  }
 
   emit signalRefresh();
   emit signalEnableDependentWorkflowTabs();

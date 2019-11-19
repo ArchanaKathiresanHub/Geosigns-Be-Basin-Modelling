@@ -1,5 +1,5 @@
 base_project ""
-loadstate "stateFileTestCasaScriptDoE.txt" "txt"
+loadstate "CaseSet/Iteration_1/stateFileTestCasaScriptDoE.txt" "txt"
 addDesignPoint 1.4
 location "CaseSet" "append"
 run "LOCAL" ""

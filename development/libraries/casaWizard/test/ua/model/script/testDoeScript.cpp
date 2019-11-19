@@ -17,7 +17,8 @@ TEST_F(DoeScriptTest, testWriteScript)
   const std::string actualFile{"uaScript.casa"};
 
   casaWizard::ua::DoEScript script(scenario);
-  script.writeScript();
+
+  EXPECT_TRUE(script.writeScript());
 
   expectFileEq(expectedFile, actualFile);
 }

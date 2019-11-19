@@ -7,6 +7,7 @@
 #include "control/objectiveFunctionController.h"
 #include "control/scriptRunController.h"
 #include "model/input/calibrationTargetCreator.h"
+#include "model/logger.h"
 #include "model/output/wellTrajectoryWriter.h"
 #include "model/output/workspaceGenerator.h"
 #include "model/sacScenario.h"
@@ -27,6 +28,8 @@
 #include <QString>
 #include <QTableWidgetItem>
 #include <QVector>
+
+
 
 namespace casaWizard
 {
@@ -120,6 +123,17 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
   if (scriptRunController_.runScript(sac))
   {
     dataExtractionController_->readResults();
+
+    if (QFile::copy(casaScenario_.calibrationDirectory() + "/" + casaScenario_.stateFileNameSAC() ,
+                    casaScenario_.calibrationDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameSAC()))
+    {
+      QFile file (casaScenario_.calibrationDirectory() + "/" + casaScenario_.stateFileNameSAC());
+      file.remove();
+    }
+    else
+    {
+      Logger::log() << "- An error occurred while moving the statFile to the last iteration Folder. " << Logger::endl();
+    }
   }
 }
 

@@ -56,6 +56,7 @@ public:
   virtual void writeToFile(ScenarioWriter& writer) const override;
   virtual void readFromFile(const ScenarioReader& reader) override;
   virtual void clear() override;
+  virtual QString iterationDirName() const { return ""; }
 
 private:
   void loadProject3dFile() const;

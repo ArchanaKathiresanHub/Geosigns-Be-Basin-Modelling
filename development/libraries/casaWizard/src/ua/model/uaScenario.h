@@ -93,6 +93,7 @@ public:
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;
   void clear() override;
+  QString iterationDirName() const override;
 
   StageCompletionUA& isStageComplete();
   const StageCompletionUA& isStageComplete() const;

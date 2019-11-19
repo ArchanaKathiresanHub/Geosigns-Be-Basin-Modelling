@@ -31,11 +31,11 @@ WorkspaceDialog::WorkspaceDialog(const QString originalPath, const QString sugge
 
   total->addLayout(formLayout_);
 
-  radio1_ = new QRadioButton("Option 1 (Current working directory): \n\n " + originalPath + "\n");
-  radio1_->setProperty("id", originalPath);
-  radio2_ = new QRadioButton("Option 2: (Suggested working directory) \n\n " + suggestedPath + "\n");
-  radio2_->setProperty("id",suggestedPath);
-  radio3_ = new QRadioButton(tr("Option 3: Select new directory"));
+  radio1_ = new QRadioButton("Option 1.- Suggested working directory: \n\n " + suggestedPath + "\n");
+  radio1_->setProperty("id",suggestedPath);
+  radio2_ = new QRadioButton("Option 2.- Current working directory: \n\n " + originalPath + "\n");
+  radio2_->setProperty("id", originalPath);
+  radio3_ = new QRadioButton("Option 3.- Select new directory");
   radio3_->setProperty("id", "");
 
   radio1_->setChecked(true);

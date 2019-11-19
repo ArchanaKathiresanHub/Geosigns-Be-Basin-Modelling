@@ -43,6 +43,8 @@ Controller::Controller() :
   connect(this, SIGNAL(signalRefresh(int)), uaController_,          SLOT(slotRefresh(int)));
   connect(this, SIGNAL(signalRefresh(int)), correlationController_, SLOT(slotRefresh(int)));
 
+  connect(this, SIGNAL(signalProjectOpened()), doeController_, SLOT(slotUpdateIterationDir()));
+
   connect(this, SIGNAL(signalEnableDisableWorkflowTabs(int, bool)), doeController_,         SLOT(slotEnableDisableDependentWorkflowTabs(int, bool)));
   connect(this, SIGNAL(signalEnableDisableWorkflowTabs(int, bool)), targetController_,      SLOT(slotEnableDisableDependentWorkflowTabs(int, bool)));
   connect(this, SIGNAL(signalEnableDisableWorkflowTabs(int, bool)), qcController_,          SLOT(slotEnableDisableDependentWorkflowTabs(int, bool)));

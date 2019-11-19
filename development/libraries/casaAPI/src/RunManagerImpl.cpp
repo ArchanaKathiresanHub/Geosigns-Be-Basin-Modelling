@@ -245,6 +245,9 @@ void RunManagerImpl::saveToScriptFile( const std::string   & stageIndexStr
                                      , JobScheduler::JobID & id
                                      )
 {
+  const ibs::FilePath pathRelative = ibs::FilePath(scriptFile.path().c_str());
+  scriptFile = pathRelative.fullPath();
+
   scriptFile << ( std::string( "Stage_" ) + stageIndexStr + m_appList[iAppList]->scriptSuffix() );
   std::ofstream ofs( scriptFile.path().c_str(), std::ios_base::out | std::ios_base::trunc );
 

@@ -1,5 +1,5 @@
 base_project ""
-loadstate "stateFileTestCasaScriptDoE.txt" "txt"
+loadstate "CaseSet/Iteration_1/stateFileTestCasaScriptDoE.txt" "txt"
 target XYZPoint "T" 1000 1500 100 0.0 1.0 1.0
 target XYZPoint "T" 1000 1500 100 23.0 1.0 1.0
 target XYZPoint "T" 1000 1500 100 66.0 1.0 1.0

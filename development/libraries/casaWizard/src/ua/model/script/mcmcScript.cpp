@@ -22,7 +22,7 @@ void McmcScript::writeScriptContents(QFile& file) const
   QTextStream out(&file);
 
   out << writeBaseProject(uaScenario().project3dFilename());
-  out << writeLoadState(uaScenario().stateFileNameQC());
+  out << writeLoadState(uaScenario().runLocation() + "/" + uaScenario().iterationDirName() + "/" + uaScenario().stateFileNameQC());
 
   const QString doeList = writeDoeTextList(uaScenario().qcDoeOptionSelectedNames());
 

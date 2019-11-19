@@ -60,25 +60,21 @@ bool copyDir(const QString &src, const QString &dest)
 
   QFileInfoList entries = dir.entryInfoList();
 
-  for (QFileInfo&  finfo : entries)
+  for (QFileInfo& finfo : entries)
   {
-    if (finfo.fileName()=="."  ||
-        finfo.fileName()==".." ||
-        finfo.isSymLink()      ||
-        finfo.isDir()          ||
-        finfo.fileName().contains(".casa") ||
-        finfo.fileName().contains(".log"))
-    {
-      continue;
-    }
-
     if (!finfo.isReadable())
     {
       return false;
     }
 
-    QFile file(finfo.filePath());
-    file.copy(dirdest.absoluteFilePath(finfo.fileName()));
+    if (finfo.fileName().contains(".project3d") ||
+        finfo.fileName().contains(".xlsx") ||
+        finfo.fileName().contains(".HDF") ||
+        finfo.fileName().contains(".FLT"))
+    {
+      QFile file(finfo.filePath());
+      file.copy(dirdest.absoluteFilePath(finfo.fileName()));
+    }
   }
   return true;
 }

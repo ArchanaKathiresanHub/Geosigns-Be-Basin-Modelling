@@ -4,7 +4,9 @@
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
 
-#include <QStringList>
+#include <QDateTime>
+#include <QDir>
+#include <QFileInfo>
 
 namespace casaWizard
 {
@@ -18,6 +20,7 @@ const int defaultLastSurface{6};
 SACScenario::SACScenario(std::unique_ptr<ProjectReader> projectReader) :
   CasaScenario{std::move(projectReader)},
   stateFileNameSAC_{"casaStateSAC.txt"},
+  calibrationFolder_{"calibration_step1"},
   lithofractionManager_{},
   wellTrajectoryManager_{},
   referenceSurface_{defaultReferenceSurface},
@@ -110,6 +113,30 @@ void SACScenario::clear()
   wellTrajectoryManager_.clear();
 }
 
+QString SACScenario::iterationDirName() const
+{
+  const QString iterationPath = calibrationDirectory() + "/" + runLocation();
+
+  const QDir dir(iterationPath);
+  QDateTime dateTime = QFileInfo(dir.path()).lastModified();
+
+  QString dirName{""};
+  for (const QString entry : dir.entryList())
+  {
+    if (entry.toStdString().find("Iteration_") == 0)
+    {
+      const QFileInfo info{dir.path() + "/" + entry};
+      if (info.lastModified() >= dateTime)
+      {
+        dateTime = info.lastModified();
+        dirName = entry;
+      }
+    }
+  }
+
+  return dirName;
+}
+
 QVector<bool> SACScenario::activePlots() const
 {
   return activePlots_;
@@ -125,7 +152,7 @@ void SACScenario::setActivePlots(const QVector<bool>& activePlots)
 
 QString SACScenario::calibrationDirectory() const
 {
-    return workingDirectory() + "/calibration_step1";
+    return workingDirectory() + "/" + calibrationFolder_;
 }
 
 } // namespace sac
