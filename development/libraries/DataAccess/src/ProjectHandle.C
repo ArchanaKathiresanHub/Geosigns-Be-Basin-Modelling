@@ -4222,16 +4222,17 @@ const Interface::LithoType * ProjectHandle::findLithoType( const string & name )
    MutableLithoTypeList::const_iterator lithoTypeIter;
 
    if ( name == "" ) return 0;
-
+   
    for ( lithoTypeIter = m_lithoTypes.begin(); lithoTypeIter != m_lithoTypes.end(); ++lithoTypeIter )
    {
-      const LithoType * lithoType = *lithoTypeIter;
-      if ( lithoType->getName() == name )
-      {
-         // Note that we return an Interface::LithoType
-         return lithoType;
-      }
+	   const LithoType * lithoType = *lithoTypeIter;
+	   if (lithoType->getName() == name)
+	   {
+		   // Note that we return an Interface::LithoType
+		   return lithoType;
+	   }
    }
+   
    return 0;
 }
 

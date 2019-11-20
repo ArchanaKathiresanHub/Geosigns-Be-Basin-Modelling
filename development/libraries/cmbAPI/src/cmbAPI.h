@@ -32,6 +32,7 @@
 #include "ProjectDataManager.h"
 #include "TopBoundaryManager.h"
 #include "RunOptionsManager.h"
+#include "FaultCutManager.h"
 
 // TableIO
 #include "datatype.h"
@@ -314,6 +315,10 @@ namespace mbapi {
      /// @brief Get Project Data manager. It provides access to the ProjectIoTbl in project file 
      /// @return reference to the Project Data manager. It created/deleted by the model itself.
      ProjectDataManager& projectDataManager();
+
+	 /// @brief Get fault cut manager. It provides access to the PressureFaultcutIoTbl in project file 
+	 /// @return reference to the fault cut manager. It created/deleted by the model itself.
+	 FaultCutManager& faultcutManager();
 
 
       // Request some project porperties

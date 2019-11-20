@@ -19,8 +19,6 @@
 namespace mbapi
 {
    const char* ProjectDataManagerImpl::s_projectOptionsTableName = "ProjectIoTbl";
-   //const char* ProjectDataManagerImpl::s_xcoordFieldName = "XCoord";
-   //const char* ProjectDataManagerImpl::s_ycoordFieldName = "YCoord";
    const char* ProjectDataManagerImpl::s_xNodesFieldName = "NumberX";
    const char* ProjectDataManagerImpl::s_yNodesFieldName = "NumberY";
    const char* ProjectDataManagerImpl::s_xGridSpecingFieldName = "DeltaX";
@@ -50,68 +48,6 @@ namespace mbapi
       m_db = pfh;
       m_projectIoTbl = m_db->getTable(s_projectOptionsTableName);
    }
-
-   // Get x-coordinate of AOI origin specified in the ProjectIoTbl
-   /*ErrorHandler::ReturnCode ProjectDataManagerImpl::getOriginXCoord(double& XCoord)
-   {
-      if (errorCode() != NoError) resetError();
-      try
-      {
-         if (!m_projectIoTbl) { throw Exception(NonexistingID) << s_projectOptionsTableName << " table could not be found in project"; }
-         database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
-         if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
-         XCoord = rec->getValue<double>(s_xcoordFieldName);
-      }
-
-      catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
-      return NoError;
-   }
-
-   // Set x-coordinate of AOI origin in the ProjectIoTbl
-   ErrorHandler::ReturnCode ProjectDataManagerImpl::setOriginXCoord(const double& XCoord)
-   {
-      if (errorCode() != NoError) resetError();
-      try
-      {
-         if (!m_projectIoTbl) { throw Exception(NonexistingID) << s_projectOptionsTableName << " table could not be found in project"; }
-         database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
-         if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
-         rec->setValue<double>(s_xcoordFieldName, XCoord);
-      }
-      catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
-      return NoError;
-   }
-
-   // Get y-coordinate of AOI origin specified in the ProjectIoTbl
-   ErrorHandler::ReturnCode ProjectDataManagerImpl::getOriginYCoord(double& YCoord)
-   {
-      if (errorCode() != NoError) resetError();
-      try
-      {
-         if (!m_projectIoTbl) { throw Exception(NonexistingID) << s_projectOptionsTableName << " table could not be found in project"; }
-         database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
-         if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
-         YCoord = rec->getValue<double>(s_ycoordFieldName);
-      }
-
-      catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
-      return NoError;
-   }
-
-   // Set x-coordinate of AOI origin in the ProjectIoTbl
-   ErrorHandler::ReturnCode ProjectDataManagerImpl::setOriginYCoord(const double& YCoord)
-   {
-      if (errorCode() != NoError) resetError();
-      try
-      {
-         if (!m_projectIoTbl) { throw Exception(NonexistingID) << s_projectOptionsTableName << " table could not be found in project"; }
-         database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
-         if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
-         rec->setValue<double>(s_ycoordFieldName, YCoord);
-      }
-      catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
-      return NoError;
-   }*/
 
    // Get number of the x-nodes specified in the ProjectIoTbl
    ErrorHandler::ReturnCode ProjectDataManagerImpl::getNumberOfNodesX(int& NodesX)
