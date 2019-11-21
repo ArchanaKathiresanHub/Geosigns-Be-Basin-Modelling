@@ -62,7 +62,7 @@ void Genex0d::reloadSimulator(const std::string & projectFileName)
 
 void Genex0d::reloadFormation()
 {
-  m_formationMgr.reset(new Genex0dFormationManager(m_gnx0dSimulator, m_inData.formationName));
+  m_formationMgr.reset(new Genex0dFormationManager(m_gnx0dSimulator, m_inData.formationName, m_inData.xCoord, m_inData.yCoord));
   LogHandler(LogHandler::INFO_SEVERITY) <<  "The selected formation " << m_inData.formationName << " is "
                                          << (m_formationMgr->isFormationSourceRock() ? "" : "not ") << "source rock";
 }
@@ -71,13 +71,9 @@ void Genex0d::initialize()
 {
   reloadSimulator(m_inData.projectFilename);
   reloadFormation();
-  m_formationMgr->setProperties(m_inData.xCoord, m_inData.yCoord);
 
-  m_projectMgr.reset(new Genex0dProjectManager(m_inData.projectFilename, m_inData.outProjectFilename, m_inData.xCoord, m_inData.yCoord));
-  m_projectMgr->resetWindowingAndSampling(m_formationMgr->indI(), m_formationMgr->indJ());
-
-//  reloadSimulator(m_inData.outProjectFilename);
-//  reloadFormation();
+  m_projectMgr.reset(new Genex0dProjectManager(m_inData.projectFilename, m_inData.xCoord, m_inData.yCoord, m_formationMgr->topSurfaceName()));
+  m_projectMgr->computeAgesFromAllSnapShots(m_formationMgr->depositionTimeTopSurface());
 
   m_gnx0dSimulator->deletePropertyValues(DataAccess::Interface::RESERVOIR , 0, 0, 0, 0, 0,
                                          DataAccess::Interface::MAP);
@@ -89,7 +85,11 @@ void Genex0d::run()
 {
   LogHandler(LogHandler::INFO_SEVERITY) << "Runing genex0d ...";
 
-  if (!m_gnx0dSimulator->run(m_formationMgr->formation(), m_inData))
+  if (!m_gnx0dSimulator->run(m_formationMgr->formation(), m_inData, m_formationMgr->indI(), m_formationMgr->indJ(),
+                             m_formationMgr->getThickness(), m_formationMgr->getInorganicDensity(),
+                             m_projectMgr->agesAll(),
+                             m_projectMgr->requestPropertyHistory("Temperature"),
+                             m_projectMgr->requestPropertyHistory("Pressure")))
   {
     throw Genex0dException() << "Genex0d simulator could not be initiated!";
   }

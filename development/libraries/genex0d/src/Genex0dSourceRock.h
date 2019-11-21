@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "GenexSourceRock.h"
+#include "Genex0dInputData.h"
 #include "Genex0dSourceRockProperty.h"
+#include "GenexSourceRock.h"
 
 namespace DataAccess
 {
@@ -23,8 +24,6 @@ class GridMap;
 
 namespace genex0d
 {
-
-class Genex0dInputData;
 
 class Genex0dSourceRock : public Genex6::GenexSourceRock
 {
@@ -56,11 +55,10 @@ public:
 protected:
   Genex0dSourceRockProperty m_srProperties;
   const std::string & m_formationName;
-  const std::string & m_sourceRockType;
-  const Genex0dInputData & m_inData;
+  const std::string m_sourceRockType;
 
 private:
-  void setPropertiesFromInput();
+  void setPropertiesFromInput(const double ToCIni, const double SCVRe05, const double HCVRe05);
   const GridMap * loadMap (DataAccess::Interface::SourceRockMapAttributeId attributeId, const double mapScalarValue) const;
 
   const double m_vreThreshold;

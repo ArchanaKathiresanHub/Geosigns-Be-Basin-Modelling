@@ -40,6 +40,8 @@ class ProjectHandle;
 namespace genex0d
 {
 
+class Genex0dPointAdsorptionHistory;
+
 class Genex0dGenexSourceRock : public Genex0dSourceRock
 {
 public:
@@ -50,18 +52,21 @@ public:
   ~Genex0dGenexSourceRock();
 
   void initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
-                   const std::vector<double> & temperature, const std::vector<double> & pressure);
+                              const std::vector<double> & temperature, const std::vector<double> & pressure);
 
   const Genex6::SourceRockNode & getSourceRockNode() const;
   const Genex6::Simulator & simulator() const;
 
   // --------------------
 
-  bool initialize ( const bool printInitialisationDetails = true ) final;
+  bool initialize(const bool printInitialisationDetails = true) final;
   bool addHistoryToNodes() final;
 
 protected:
-  bool preprocess () final;
+  bool preprocess() final;
+  bool process() final;
+  bool computeSnapShot(const double previousTime,
+                       const DataAccess::Interface::Snapshot *theSnapshot) final;
 
 private:
   char * getGenexEnvironment() const;
@@ -71,6 +76,11 @@ private:
   double m_thickness;
   const unsigned int m_indI;
   const unsigned int m_indJ;
+
+  std::vector<double> m_inTimes;
+  std::vector<double> m_inTemperatures;
+  std::vector<double> m_inPressures;
+  Genex0dPointAdsorptionHistory * m_pointAdsorptionHistory;
 };
 
 } // namespace genex0d

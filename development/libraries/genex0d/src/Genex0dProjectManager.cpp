@@ -33,7 +33,7 @@ const std::string s_dataMiningTblName = "DataMiningIoTbl";
 
 } // namespace
 
-Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord):
+Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord, const std::string & topSurfaceName):
   m_projectFileName{projectFileName},
   m_ObjectFactory{nullptr},
   m_projectHandle{nullptr},
@@ -44,7 +44,7 @@ Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName
   m_posDataPrevious{0},
   m_propertyName{""},
   m_agesAll{},
-  m_topSurfaceName{""}
+  m_topSurfaceName{topSurfaceName}
 {
   try
   {

@@ -40,6 +40,8 @@ public:
   unsigned int indI() const;
   unsigned int indJ() const;
 
+  const DataAccess::Interface::Formation * formation() const;
+
 private:
   void setProperties(const double x, const double y);
   double getLithoDensity(const DataAccess::Interface::LithoType * theLitho);

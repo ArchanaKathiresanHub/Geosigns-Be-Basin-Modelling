@@ -26,6 +26,7 @@ struct Genex0dInputData
   std::string outProjectFilename;
   std::string formationName;
   std::string sourceRockType;
+  std::string nodeHistoryFileName;
 
   Genex0dInputData(const double xCoord = 0,
                    const double yCoord = 0.0,
@@ -35,7 +36,8 @@ struct Genex0dInputData
                    const std::string & projectFilename = "",
                    const std::string & outProjectFilename = "out.project3d",
                    const std::string & formationName = "",
-                   const std::string & sourceRockType = "") :
+                   const std::string & sourceRockType = "",
+                   const std::string & nodeHistoryFileName = "nodeHistory.dat" ) :
     xCoord{xCoord},
     yCoord{yCoord},
     ToCIni{ToCIni},
@@ -44,7 +46,8 @@ struct Genex0dInputData
     projectFilename{projectFilename},
     outProjectFilename{outProjectFilename},
     formationName{formationName},
-    sourceRockType{sourceRockType}
+    sourceRockType{sourceRockType},
+    nodeHistoryFileName{nodeHistoryFileName}
   {
   }
 };

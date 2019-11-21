@@ -9,7 +9,6 @@
 #include "Genex0dSourceRock.h"
 
 #include "CommonDefinitions.h"
-#include "Genex0dInputData.h"
 #include "Genex0dSourceRockDefaultProperties.h"
 
 #include "ConstantsGenex.h"
@@ -22,29 +21,30 @@ namespace genex0d
 {
 
 Genex0dSourceRock::Genex0dSourceRock(Interface::ProjectHandle* projectHandle,
-                                               const Genex0dInputData & inData) :
+                                     const Genex0dInputData & inData) :
   Genex6::GenexSourceRock{projectHandle, nullptr},
-  m_inData{inData},
-  m_srProperties{Genex0dSourceRockDefaultProperties::getInstance().getProperties(m_inData.sourceRockType)},
-  m_formationName{m_inData.formationName},
-  m_sourceRockType{m_inData.sourceRockType},
+  m_sourceRockType{inData.sourceRockType},
+  m_srProperties{},
+  m_formationName{inData.formationName},
   m_vreThreshold{0.5}, // TODO: check if this value can be obtained from input
   m_vesMax{50}, // TODO: check if this value can be obtained from input
   m_adsorptionCapacityFunctionName{""}, // TODO: check if this value can be obtained from input
   m_adsorptionSimulatorName{""} // TODO: check if this value can be obtained from input
+
 {
-  setPropertiesFromInput();
+  m_srProperties = Genex0dSourceRockDefaultProperties::getInstance().getProperties(m_sourceRockType);
+  setPropertiesFromInput(inData.ToCIni, inData.SCVRe05, inData.HCVRe05);
 }
 
 Genex0dSourceRock::~Genex0dSourceRock()
 {
 }
 
-void Genex0dSourceRock::setPropertiesFromInput()
+void Genex0dSourceRock::setPropertiesFromInput(const double ToCIni, const double SCVRe05, const double HCVRe05)
 {
-  m_srProperties.setTocIni(m_inData.ToCIni);
-  m_srProperties.setSCVRe05(m_inData.SCVRe05);
-  m_srProperties.setHCVRe05(m_inData.HCVRe05);
+  m_srProperties.setTocIni(ToCIni);
+  m_srProperties.setSCVRe05(SCVRe05);
+  m_srProperties.setHCVRe05(HCVRe05);
 }
 
 const std::string & Genex0dSourceRock::getLayerName (void) const
@@ -161,12 +161,12 @@ const DataAccess::Interface::GridMap * Genex0dSourceRock::getMap(DataAccess::Int
 
 const DataAccess::Interface::GridMap * Genex0dSourceRock::loadMap(DataAccess::Interface::SourceRockMapAttributeId attributeId, const double mapScalarValue) const
 {
-   const  DataAccess::Interface::Grid * grid = m_projectHandle->getActivityOutputGrid();
-   if (!grid)
-   {
-     grid = m_projectHandle->getInputGrid();
-   }
-   return m_projectHandle->getFactory()->produceGridMap (this, attributeId, grid, mapScalarValue);
+  const  DataAccess::Interface::Grid * grid = m_projectHandle->getActivityOutputGrid();
+  if (!grid)
+  {
+    grid = m_projectHandle->getInputGrid();
+  }
+  return m_projectHandle->getFactory()->produceGridMap (this, attributeId, grid, mapScalarValue);
 }
 
 } // namespace genex0d

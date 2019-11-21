@@ -67,34 +67,23 @@ Genex0dSimulator* Genex0dSimulator::CreateFrom(const std::string & fileName, Dat
   return dynamic_cast<Genex0dSimulator *>(DataAccess::Interface::OpenCauldronProject (fileName, "rw", objectFactory));
 }
 
-bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData)
+bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, const unsigned int indI, const unsigned int indJ,
+                           const double thickness, const double inorganicDensity, const std::vector<double> & time,
+                           const std::vector<double> & temperature, const std::vector<double> & pressure)
 {
-  bool started = startActivity ( "Genex5", getLowResolutionOutputGrid () );
-
-  if (!started) return false;
-
-  const DataAccess::Interface::SimulationDetails* simulationDetails = getDetailsOfLastSimulation ( "fastcauldron" );
-
-  bool coupledCalculation = simulationDetails != 0 && ( simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
-                                                         simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
-                                                         simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
-                                                         simulationDetails->getSimulatorMode () == "CoupledDarcy" );
-  coupledCalculation = coupledCalculation and getModellingMode() == Interface::MODE3D;
-
-  started =  GeoPhysics::ProjectHandle::initialise ( coupledCalculation );
-
-
   registerProperties();
 
   m_propertyManager = new DerivedProperties::DerivedPropertyManager(this);
   setRequestedOutputProperties();
-  m_gnx0dSourceRock.reset(new Genex0dGenexSourceRock(this, inData));
+  m_gnx0dSourceRock.reset(new Genex0dGenexSourceRock(this, inData, indI, indJ));
   if (m_gnx0dSourceRock == nullptr)
   {
     return false;
   }
 
   m_gnx0dSourceRock->setMinor(true);
+
+  m_gnx0dSourceRock->initializeComputations(thickness, inorganicDensity, time, temperature, pressure);
 
   if (computeSourceRock(formation))
   {
@@ -111,7 +100,7 @@ bool Genex0dSimulator::saveTo(const std::string & outputFileName)
 
 bool Genex0dSimulator::computeSourceRock(const DataAccess::Interface::Formation * aFormation)
 {
-  m_gnx0dSourceRock->clear();
+//  m_gnx0dSourceRock->clear();
   m_gnx0dSourceRock->setPropertyManager(m_propertyManager);
   m_gnx0dSourceRock->setFormationData(aFormation);
 

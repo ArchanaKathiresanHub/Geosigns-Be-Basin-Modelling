@@ -40,7 +40,7 @@ namespace DataAccess {
          /// \brief Return a string representation of the object.
          virtual std::string image () const;
 
-      private :
+      protected :
 
          /// \brief The x-position.
          double m_x;

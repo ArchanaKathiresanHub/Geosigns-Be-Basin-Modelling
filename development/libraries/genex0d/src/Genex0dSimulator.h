@@ -44,7 +44,7 @@ public:
   ~Genex0dSimulator();
   
   static Genex0dSimulator * CreateFrom(const std::string & fileName, DataAccess::Interface::ObjectFactory * objectFactory);
-  bool run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData);
+  bool run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, const unsigned int indI, const unsigned int indJ, const double thickness, const double inorganicDensity, const std::vector<double>& time, const std::vector<double>& temperature, const std::vector<double>& pressure);
   bool saveTo(const std::string & outputFileName);
   
 private:

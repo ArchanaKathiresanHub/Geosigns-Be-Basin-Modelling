@@ -9,6 +9,7 @@
 #include "Genex0dGenexSourceRock.h"
 
 #include "CommonDefinitions.h"
+#include "Genex0dPointAdsorptionHistory.h"
 #include "Genex0dSourceRockDefaultProperties.h"
 
 // Genex6
@@ -18,16 +19,31 @@
 
 // Genex6_kernel
 #include "AdsorptionSimulatorFactory.h"
+#include "GenexHistory.h"
+#include "SnapshotInterval.h"
 #include "SourceRockAdsorptionHistory.h"
 
 // DataAccess
 #include "Interface.h"
+#include "Snapshot.h"
 
 // Utilities
 #include "LogHandler.h"
 
 namespace genex0d
 {
+
+namespace
+{
+
+double interpolateSnapshotProperty(const double inPropertyStart, const double inPropertyEnd,
+                                   const double t, const double tPrevious, const double deltaT)
+{
+  const double gradient = (inPropertyEnd - inPropertyStart)/deltaT;
+  return gradient * (t - tPrevious);
+}
+
+} // namespace
 
 Genex0dGenexSourceRock::Genex0dGenexSourceRock (DataAccess::Interface::ProjectHandle * projectHandle,
                                                 const Genex0dInputData & inData,
@@ -37,7 +53,11 @@ Genex0dGenexSourceRock::Genex0dGenexSourceRock (DataAccess::Interface::ProjectHa
   m_sourceRockNode{nullptr},
   m_thickness{0.0},
   m_indI{indI},
-  m_indJ{indJ}
+  m_indJ{indJ},
+  m_inTimes{},
+  m_inTemperatures{},
+  m_inPressures{},
+  m_pointAdsorptionHistory{new Genex0dPointAdsorptionHistory(projectHandle, inData)}
 {
 }
 
@@ -67,16 +87,24 @@ char * Genex0dGenexSourceRock::getGenexEnvironment() const
 void Genex0dGenexSourceRock::initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
                                                     const std::vector<double> & temperature, const std::vector<double> & pressure)
 {
-  m_theSimulator.reset(new Genex6::Simulator(getGenexEnvironment(), getRunType(),
-                                             m_srProperties.typeNameID(), m_srProperties.HCVRe05(), m_srProperties.SCVRe05(),
-                                             m_srProperties.activationEnergy(), m_srProperties.Vr(),
-                                             m_srProperties.AsphalteneDiffusionEnergy(), m_srProperties.ResinDiffusionEnergy(),
-                                             m_srProperties.C15AroDiffusionEnergy(), m_srProperties.C15SatDiffusionEnergy()));
+  m_inTimes = time;
+  m_inTemperatures = temperature;
+  m_inPressures = pressure;
 
-  if (!m_theSimulator->Validate())
-  {
-    throw Genex0dException() << "Validation of Genex simulator failed!";
-  }
+  m_theSimulator = new Genex6::Simulator();
+
+//  m_theChemicalModel = m_theChemicalModel1 = m_theChemicalModel2 =
+//      m_theSimulator->loadChemicalModel(getGenexEnvironment(), getRunType(),
+//                                        m_srProperties.typeNameID(), m_srProperties.HCVRe05(), m_srProperties.SCVRe05(),
+//                                        m_srProperties.activationEnergy(), m_srProperties.Vr(),
+//                                        m_srProperties.AsphalteneDiffusionEnergy(), m_srProperties.ResinDiffusionEnergy(),
+//                                        m_srProperties.C15AroDiffusionEnergy(), m_srProperties.C15SatDiffusionEnergy());
+
+
+//  if (!m_theSimulator->Validate())
+//  {
+//    throw Genex0dException() << "Validation of Genex simulator failed!";
+//  }
 
   // Note: the last two arguments are not relevant (set to default values) and are not used.
   m_sourceRockNode.reset(new Genex6::SourceRockNode(thickness, m_srProperties.TocIni(), inorganicDensity, 1.0, 0.0));
@@ -106,17 +134,19 @@ bool Genex0dGenexSourceRock::initialize(const bool printInitialisationDetails)
 {
   bool status = true;
 
-  if(printInitialisationDetails )
-  {
-    LogHandler(LogHandler::INFO_SEVERITY) << "Start Of Initialization...";
-  }
+  m_theChemicalModel = m_theChemicalModel1 = m_theChemicalModel2 = loadChemicalModel(this, printInitialisationDetails);
 
   if (m_theSimulator == nullptr)
   {
     throw Genex0dException() << "Initialization of genex0d failed!";
   }
 
-  m_theChemicalModel = m_theSimulator->getChemicalModel();
+  m_theSimulator->setChemicalModel(m_theChemicalModel);
+
+  if(printInitialisationDetails )
+  {
+    LogHandler(LogHandler::INFO_SEVERITY) << "Start Of Initialization...";
+  }
 
   if (doApplyAdsorption())
   {
@@ -165,18 +195,87 @@ bool Genex0dGenexSourceRock::preprocess()
 
 bool Genex0dGenexSourceRock::addHistoryToNodes()
 {
-  Genex6::NodeAdsorptionHistory * adsorptionHistory =
-      dynamic_cast<Genex6::NodeAdsorptionHistory *>(Genex6::GenexHistory(m_theChemicalModel->getSpeciesManager(), m_projectHandle));
+  Genex6::GenexHistory * adsorptionHistory = new Genex6::GenexHistory(m_theChemicalModel->getSpeciesManager(), m_projectHandle);
 
-  if ( adsorptionHistory != 0 ) {
-    // Add the node-adsorption-history object to the sr-history-object.
-    history->setNodeGenexHistory ( adsorptionHistory );
-    m_sourceRockNode->addNodeAdsorptionHistory ( adsorptionHistory );
-    m_sourceRockNodeAdsorptionHistory.push_back ( history );
-  } else {
-    delete history;
+  if (adsorptionHistory == nullptr)
+  {
+    LogHandler(LogHandler::ERROR_SEVERITY) << "Failed while running Genex0d!";
+    return false;
+  }
+  m_sourceRockNode->addNodeAdsorptionHistory(adsorptionHistory);
+  delete adsorptionHistory;
+  return true;
+}
+
+bool Genex0dGenexSourceRock::process()
+{
+  bool status = true;
+  double dt = m_theSimulator->GetMaximumTimeStepSize(m_depositionTime);
+
+  LogHandler(LogHandler::INFO_SEVERITY) << "Chosen maximum timestep size:" << dt;
+  LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
+
+  LogHandler(LogHandler::INFO_SEVERITY) << "Start Of processing...";
+  LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
+
+  m_runtime = 0.0;
+  m_time = 0.0;
+
+  if (!status)
+  {
+    return status;
   }
 
+  std::vector<Genex6::SnapshotInterval*>::iterator itSnapInterv;
+
+  int i = 0;
+  for (itSnapInterv = m_theIntervals.begin(); itSnapInterv != m_theIntervals.end(); ++ itSnapInterv)
+  {
+    const DataAccess::Interface::Snapshot * intervalStart = (*itSnapInterv)->getStart();;
+    const DataAccess::Interface::Snapshot * intervalEnd = (*itSnapInterv)->getStart();;
+
+    double numberOfTimeSteps = std::ceil((intervalStart->getTime() - intervalEnd->getTime())/dt);
+    double deltaT = (intervalStart->getTime() - intervalEnd->getTime()) / numberOfTimeSteps;
+
+    if (m_inTimes[i] != intervalStart->getTime() || m_inTimes[i+1] != intervalEnd->getTime())
+    {
+      Genex0dException() << "Incorrect PT history provided!";
+    }
+
+    // Note: the pressure and temperature at interval start and end are already defined!
+    Genex6::Input * theInput = new Genex6::Input(intervalStart->getTime(), m_inPressures[i], m_inTemperatures[i]);
+    m_sourceRockNode->AddInput(theInput);
+
+    double t = intervalStart->getTime() + deltaT;
+    double tPrevious = t;
+    while (t < intervalEnd->getTime())
+    {
+      const double PressureInterp = interpolateSnapshotProperty(m_inPressures[i], m_inPressures[i+1], t, tPrevious, deltaT);
+      const double TemperatureInterp = interpolateSnapshotProperty(m_inTemperatures[i], m_inTemperatures[i+1], t, tPrevious, deltaT);
+
+      tPrevious = t;
+      t = tPrevious + deltaT;
+    }
+
+
+
+    ++i;
+  }
+
+  m_sourceRockNode->RequestComputation(*m_theSimulator);
+
+  return true;
+}
+
+bool Genex0dGenexSourceRock::computeSnapShot(const double previousTime,
+                                             const DataAccess::Interface::Snapshot *theSnapshot)
+{
+  bool status = true;
+  double time = theSnapshot->getTime();
+  LogHandler( LogHandler::INFO_SEVERITY ) << "Computing SnapShot t:" << time;
+
+
+  return true;
 }
 
 

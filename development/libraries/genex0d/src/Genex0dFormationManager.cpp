@@ -68,6 +68,11 @@ void Genex0dFormationManager::setThickness()
   m_thickness = inputThicknessGrid->getValue(m_indI, m_indJ, inputThicknessGrid->getDepth()-1);
 }
 
+const DataAccess::Interface::Formation * Genex0dFormationManager::formation() const
+{
+  return m_formation;
+}
+
 unsigned int Genex0dFormationManager::indJ() const
 {
   return m_indJ;

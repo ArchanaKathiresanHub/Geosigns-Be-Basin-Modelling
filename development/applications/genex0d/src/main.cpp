@@ -49,7 +49,7 @@ int main (int argc, char** argv)
       throw genex0d::Genex0dException() << ioErrorMessage;
     }
 
-    genex0d::Genex0d gnx0d(std::move(inputDataMgr.inputData()));
+    genex0d::Genex0d gnx0d(inputDataMgr.inputData());
     gnx0d.initialize();
     gnx0d.run();
   }
