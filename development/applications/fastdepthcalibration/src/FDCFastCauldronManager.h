@@ -33,7 +33,7 @@ public:
 
   void prepareAndRunFastCauldron();
   Interface::GridMap * getPropertyGridMap(const std::string & propertyName, const std::string & layerName);
-  void finalizeFastCauldronSturtup();
+  void finalizeFastCauldronStartup();
 
 private:
   const DataAccess::Interface::PropertyValueList * getPropertyValues(const std::string & propertyName, const string & layerName) const;
