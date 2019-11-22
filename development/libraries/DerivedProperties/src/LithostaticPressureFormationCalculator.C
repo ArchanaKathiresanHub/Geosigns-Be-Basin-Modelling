@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -31,22 +31,22 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "LithoStaticPressure" );
 
    addDependentPropertyName ( "Ves" );
    addDependentPropertyName ( "Pressure" );
 
    addDependentPropertyName( "Depth" );
- 
-   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
+
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle.getDetailsOfLastFastcauldron();
 
    m_hydrostaticDecompactionMode = ( lastFastcauldronRun != 0 and lastFastcauldronRun->getSimulatorMode () == "HydrostaticDecompaction" );
 
    if( not m_hydrostaticDecompactionMode ) {
       addDependentPropertyName( "Temperature");
    }
-   if( m_projectHandle->isALC() ) {
+   if( m_projectHandle.isALC() ) {
       addDependentPropertyName( "ALCStepTopBasaltDepth");
       addDependentPropertyName( "ALCStepBasaltThickness");
    }
@@ -58,7 +58,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate (     
                                                                                   FormationPropertyList&        derivedProperties ) const {
 
    const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
- 
+
    if( geoFormation != 0 and geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) {
       return calculateForBasement ( propertyManager, snapshot, formation, derivedProperties );
    }
@@ -67,31 +67,31 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate (     
    const DataModel::AbstractProperty* aPorePressureProperty = propertyManager.getProperty ( "Pressure" );
 
    const DataModel::AbstractProperty* aLithostaticPressureProperty = propertyManager.getProperty ( "LithoStaticPressure" );
-   
+
    const FormationPropertyPtr ves          = propertyManager.getFormationProperty ( aVesProperty, snapshot, formation );
    const FormationPropertyPtr porePressure = propertyManager.getFormationProperty ( aPorePressureProperty, snapshot, formation );
 
    PropertyRetriever vesRetriever ( ves );
    PropertyRetriever ppRetriever ( porePressure );
-   
+
    derivedProperties.clear ();
-   
+
    if( ves != 0 and porePressure != 0 ) {
-              
-      DerivedFormationPropertyPtr lithostaticPressure = 
-         DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aLithostaticPressureProperty, snapshot, formation, 
+
+      DerivedFormationPropertyPtr lithostaticPressure =
+         DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aLithostaticPressureProperty, snapshot, formation,
                                                                                          propertyManager.getMapGrid (),
                                                                                          ves->lengthK () ));
       double undefinedValue = ves->getUndefinedValue ();
-      
+
       for ( unsigned int i = ves->firstI ( true ); i <= ves->lastI ( true ); ++i ) {
-         
+
          for ( unsigned int j = ves->firstJ ( true ); j <= ves->lastJ ( true ); ++j ) {
-            
-            if ( m_projectHandle->getNodeIsValid ( i, j )) { 
-                
+
+            if ( m_projectHandle.getNodeIsValid ( i, j )) {
+
                for ( unsigned int k = ves->firstK (); k <= ves->lastK (); ++k ) {
-                 
+
                   lithostaticPressure->set ( i, j, k, ( ves->get ( i, j, k ) * Utilities::Maths::PaToMegaPa + porePressure->get ( i, j, k )));
                }
             } else {
@@ -112,7 +112,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
                                                                                        const DataModel::AbstractFormation* formation,
                                                                                              FormationPropertyList&        derivedProperties ) const {
 
-   const bool alcMode = m_projectHandle->isALC();
+   const bool alcMode = m_projectHandle.isALC();
 
    const DataModel::AbstractProperty* aLithostaticPressureProperty = propertyManager.getProperty ( "LithoStaticPressure" );
    const DataModel::AbstractProperty* aDepthProperty = propertyManager.getProperty ( "Depth" );
@@ -134,7 +134,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
       if( formation->getName() != "Crust" ) {
          const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
          const DataModel::AbstractFormation * crustFormation = (mantleFormation->getTopSurface()->getTopFormation() );
-       
+
          basaltDepth = propertyManager.getFormationMapProperty ( aBasaltDepthProperty, snapshot, crustFormation );
          basaltThickness = propertyManager.getFormationMapProperty ( aBasaltThicknessProperty, snapshot, crustFormation );
       } else {
@@ -144,10 +144,10 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
    }
 
    const GeoPhysics::GeoPhysicsFormation* currentFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
-   
+
    derivedProperties.clear ();
-   
-   if( currentFormation!= 0 and depth != 0 and ( m_hydrostaticDecompactionMode or temperature != 0 ) and 
+
+   if( currentFormation!= 0 and depth != 0 and ( m_hydrostaticDecompactionMode or temperature != 0 ) and
        ( not alcMode or ( basaltDepth != 0 and basaltThickness != 0 ))) {
 
       PropertyRetriever depthRetriever ( depth );
@@ -163,8 +163,8 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
          basaltThicknessRetriever.reset( basaltThickness );
       }
 
-      DerivedFormationPropertyPtr lithostaticPressure = 
-         DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aLithostaticPressureProperty, snapshot, formation, 
+      DerivedFormationPropertyPtr lithostaticPressure =
+         DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aLithostaticPressureProperty, snapshot, formation,
                                                                                          propertyManager.getMapGrid (),
                                                                                          depth->lengthK () ));
 
@@ -174,27 +174,27 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
            currentFormation->getTopSurface ()->getSnapshot ()->getTime () > snapshot->getTime ()) {
          formationAbove = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( currentFormation->getTopSurface ()->getTopFormation ());
       }
-            
+
       // Initialise the top set of nodes for the lithostatic pressure
       if ( formationAbove == 0 ) {
          computeLithostaticPressureAtSeaBottom ( propertyManager, snapshot->getTime (), lithostaticPressure );
       } else {
          copyLithostaticPressureFromLayerAbove ( propertyManager, aLithostaticPressureProperty, snapshot, formationAbove, lithostaticPressure );
       }
-      
+
       const GeoPhysics::CompoundLithologyArray& lithologies = currentFormation->getCompoundLithologyArray ();
 
       double undefinedValue = depth->getUndefinedValue ();
       double segmentThickness, density, pressure, segmentPressure;
       bool constantDensity = m_hydrostaticDecompactionMode or not alcMode;
 
- 
+
       for ( unsigned int i = depth->firstI ( true ); i <= depth->lastI ( true ); ++i ) {
-         
+
          for ( unsigned int j = depth->firstJ ( true ); j <= depth->lastJ ( true ); ++j ) {
-            
-            if ( m_projectHandle->getNodeIsValid ( i, j )) { 
-                
+
+            if ( m_projectHandle.getNodeIsValid ( i, j )) {
+
                for ( unsigned int k = depth->lastK (); k > depth->firstK (); --k ) {
                   const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j, snapshot->getTime () );
 
@@ -203,13 +203,13 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
                      const double botBasaltDepth = topBasaltDepth + 1 + basaltThickness->get( i, j );
 
                      if(  basaltThickness->get( i, j ) != 0 and ( topBasaltDepth <= depth->get ( i, j, k -1 ) and botBasaltDepth >= depth->get ( i, j, k - 1 ))) {
-                   
-                        density = lithology->getSimpleLithology()->getBasaltDensity ( temperature->get ( i, j, k - 1 ), 
+
+                        density = lithology->getSimpleLithology()->getBasaltDensity ( temperature->get ( i, j, k - 1 ),
                                                                                       lithostaticPressure->get ( i, j, k ));
                      } else {
                         density = lithology->getSimpleLithology()->getDensity ( temperature->get ( i, j, k - 1 ), lithostaticPressure->get ( i, j, k ));
                      }
-                  } else {   
+                  } else {
                      density = ( constantDensity ? lithology->getSimpleLithology()->getDensity() :
                                  lithology->getSimpleLithology()->getDensity ( temperature->get ( i, j, k - 1 ), lithostaticPressure->get ( i, j, k )));
                   }
@@ -237,7 +237,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::copyLithostaticP
                                                                                                         const DataModel::AbstractSnapshot*  snapshot,
                                                                                                         const DataModel::AbstractFormation* formationAbove,
                                                                                                               DerivedFormationPropertyPtr&  lithostaticPressure ) const {
-   
+
    const FormationPropertyPtr lithostaticPressureAbove = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formationAbove );
    double undefinedValue = lithostaticPressureAbove->getUndefinedValue ();
    unsigned int topNodeIndex = lithostaticPressure->lastK ();
@@ -246,7 +246,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::copyLithostaticP
 
       for ( unsigned int j = lithostaticPressureAbove->firstJ ( true ); j <= lithostaticPressureAbove->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
+         if ( m_projectHandle.getNodeIsValid ( i, j )) {
             lithostaticPressure->set ( i, j, topNodeIndex, lithostaticPressureAbove->get ( i, j, 0 ));
          } else {
             lithostaticPressure->set ( i, j, topNodeIndex, undefinedValue );
@@ -270,10 +270,10 @@ void DerivedProperties::LithostaticPressureFormationCalculator::computeLithostat
 
       for ( unsigned int j = lithostaticPressure->firstJ ( true ); j <= lithostaticPressure->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
+         if ( m_projectHandle.getNodeIsValid ( i, j )) {
             GeoPhysics::computeHydrostaticPressure ( 0,
-                                                     m_projectHandle->getSeaBottomTemperature ( i, j, snapshotAge ),
-                                                     m_projectHandle->getSeaBottomDepth ( i, j, snapshotAge ),
+                                                     m_projectHandle.getSeaBottomTemperature ( i, j, snapshotAge ),
+                                                     m_projectHandle.getSeaBottomDepth ( i, j, snapshotAge ),
                                                      pressure );
             lithostaticPressure->set ( i, j, topNodeIndex, pressure );
          } else {
@@ -290,7 +290,7 @@ bool DerivedProperties::LithostaticPressureFormationCalculator::isComputable ( c
                                                                                const DataModel::AbstractSnapshot*  snapshot,
                                                                                const DataModel::AbstractFormation* formation ) const {
 
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and 
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and
                               dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    if( basementFormation ) {
@@ -304,14 +304,14 @@ bool DerivedProperties::LithostaticPressureFormationCalculator::isComputable ( c
    // Determine if the required properties are computable.
    for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
 
-      if( dependentProperties [ i ] == "Temperature" or dependentProperties [ i ] == "ALCStepTopBasaltDepth" or 
+      if( dependentProperties [ i ] == "Temperature" or dependentProperties [ i ] == "ALCStepTopBasaltDepth" or
           dependentProperties [ i ] == "ALCStepBasaltThickness" ) {
             propertyIsComputable = true;
 
       } else {
-         
+
          const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
-         
+
          if ( property == 0 ) {
             propertyIsComputable = false;
          } else {
@@ -319,14 +319,14 @@ bool DerivedProperties::LithostaticPressureFormationCalculator::isComputable ( c
          }
       }
    }
-   
+
    return propertyIsComputable;
 }
 
 bool DerivedProperties::LithostaticPressureFormationCalculator::isComputableForBasement ( const AbstractPropertyManager&      propManager,
                                                                                           const DataModel::AbstractSnapshot*  snapshot,
                                                                                           const DataModel::AbstractFormation* formation ) const {
-   
+
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 
    bool propertyIsComputable = true;
@@ -338,14 +338,14 @@ bool DerivedProperties::LithostaticPressureFormationCalculator::isComputableForB
          propertyIsComputable = true;
       } else {
          const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
-            
+
          if ( property == 0 ) {
             propertyIsComputable = false;
          } else {
             if(  dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" ) {
                if( formation->getName() != "Crust" ) {
                   const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
-                  
+
                   const DataModel::AbstractFormation * crustFormation = (mantleFormation->getTopSurface()->getTopFormation() );
                   propertyIsComputable = propertyIsComputable and propManager.formationMapPropertyIsComputable ( property, snapshot, crustFormation );
                } else {

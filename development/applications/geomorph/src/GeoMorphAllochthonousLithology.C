@@ -42,9 +42,9 @@ namespace AllochMod
 {
 //------------------------------------------------------------//
 
-GeoMorphAllochthonousLithology::GeoMorphAllochthonousLithology (Interface::ProjectHandle * projectHandle, database::Record * record) :
+GeoMorphAllochthonousLithology::GeoMorphAllochthonousLithology (Interface::ProjectHandle& projectHandle, database::Record * record) :
   Interface::AllochthonousLithology ( projectHandle, record ){
-  
+
 }
 
 //------------------------------------------------------------//
@@ -101,14 +101,14 @@ void GeoMorphAllochthonousLithology::computeInterpolant ( AllochthonousLithology
 
     executionTime.separate ( hours, minutes, seconds );
 
-    std::cout << "    Interval [ " 
+    std::cout << "    Interval [ "
               << std::setw ( 7 ) << inputMaps [ i - 1 ]->getAge ()
               << ", "
               << std::setw ( 7 ) << inputMaps [ i ]->getAge ()
-              << " ] took " 
-              << std::setw ( 3 ) << hours << " hours " 
-              << std::setw ( 2 ) << minutes << " minutes " 
-              << std::setw ( 6 ) << std::setiosflags(std::ios::right) << seconds << " seconds " 
+              << " ] took "
+              << std::setw ( 3 ) << hours << " hours "
+              << std::setw ( 2 ) << minutes << " minutes "
+              << std::setw ( 6 ) << std::setiosflags(std::ios::right) << seconds << " seconds "
               << std::endl;
 
   }
@@ -175,7 +175,7 @@ void GeoMorphAllochthonousLithology::saveInterpolant ( hid_t& fileId,
 
   database::Record* allochthonousLithologyInterpolationRecord;
 
-  database::Table* allochTbl = m_projectHandle->getTable ( "AllochthonLithoInterpIoTbl" );
+  database::Table* allochTbl = getProjectHandle().getTable ( "AllochthonLithoInterpIoTbl" );
 
   std::string formationGroupName;
   std::stringstream interpolationGroupName;
@@ -213,7 +213,7 @@ void GeoMorphAllochthonousLithology::saveInterpolant ( hid_t& fileId,
     database::setInterpGroupName ( allochthonousLithologyInterpolationRecord, interpolationGroupName.str ());
     database::setStartAge ( allochthonousLithologyInterpolationRecord, interpolators [ i ]->getStartAge ());
     database::setEndAge ( allochthonousLithologyInterpolationRecord, interpolators [ i ]->getEndAge ());
-    
+
     // Allocate a buffer for the interpolation points.
     double* pointBuffer = new double [ interpolationPoints.size () * Numerics::Point::DIMENSION ];
 
@@ -253,14 +253,14 @@ void GeoMorphAllochthonousLithology::saveInterpolant ( hid_t& fileId,
                         interpolator.getCoefficients ().dimension (),
                         1,
                         Interface::AllochthonousLithologyInterpolation::CoefficientsDataSetName.c_str (),
-                        H5T_NATIVE_DOUBLE, 
+                        H5T_NATIVE_DOUBLE,
                         interpolator.getCoefficients ().data (), newDataSet );
 
     HDF5::writeData2D ( interpolationGroupId,
                         interpolators [ i ]->getInterpolationVector ().dimension (),
                         1,
                         Interface::AllochthonousLithologyInterpolation::RHSDataSetName.c_str (),
-                        H5T_NATIVE_DOUBLE, 
+                        H5T_NATIVE_DOUBLE,
                         interpolators [ i ]->getInterpolationVector ().data (), newDataSet );
 
     H5Gclose( interpolationGroupId );

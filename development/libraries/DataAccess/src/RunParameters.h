@@ -22,7 +22,7 @@ namespace DataAccess
       public :
 
          /// constructor.
-         RunParameters (ProjectHandle * projectHandle, database::Record * record);
+         RunParameters (ProjectHandle& projectHandle, database::Record * record);
 
          /// destructor.
          virtual ~RunParameters ();
@@ -99,7 +99,7 @@ namespace DataAccess
 
          /// \name Fastmig parameters.
          /// @{
-         
+
          /// Indicates whether to perform flow path algorithm which considers capillary  and hydrodinamic forces.
          virtual bool getHydrodynamicCapillaryPressure () const;
 
@@ -114,7 +114,7 @@ namespace DataAccess
 
          /// Indicates whether to automatically detect reservoir nodes.
          virtual bool getReservoirDetection () const;
-         
+
          /// Indicates whether to use the simulator in BPA compatible mode
          virtual bool getLegacy () const;
 
@@ -130,7 +130,7 @@ namespace DataAccess
          /// Porosity at which secondary migration blocks
          virtual double getBlockingPorosity () const;
          /// @}
-         
+
          virtual const std::string& getFracturePressureFunction () const;
 
          virtual const std::string& getFractureType () const;
@@ -167,16 +167,16 @@ namespace DataAccess
 
          void asString ( std::string & str ) const;
 
-	      /// Maximum time step for Darcy simulator
-	      virtual double getDarcyMaxTimeStep() const;
+				/// Maximum time step for Darcy simulator
+				virtual double getDarcyMaxTimeStep() const;
 
-      protected :
+			protected :
 
-         int m_optimisationLevel;
+				 int m_optimisationLevel;
 
-      };
+			};
 
 
-   }
+	 }
 }
 #endif // _INTERFACE_RUNPARAMETERS_H_

@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #ifndef PERSISTENTTRAPS_TRAP_H
 #define PERSISTENTTRAPS_TRAP_H
 
@@ -53,7 +53,7 @@ namespace PersistentTraps
    {
       public:
          /// Create a new Trap in an Reservoir
-         TrackTrap (Interface::ProjectHandle * projectHandle, database::Record * record);
+         TrackTrap (Interface::ProjectHandle& projectHandle, database::Record * record);
 
          ~TrackTrap (void);
 

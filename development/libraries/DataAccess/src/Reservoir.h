@@ -29,7 +29,7 @@ namespace DataAccess
       class Reservoir : public DataModel::AbstractReservoir, public DAObject
       {
       public:
-         Reservoir (ProjectHandle * projectHandle, database::Record * record);
+         Reservoir (ProjectHandle& projectHandle, database::Record * record);
          ~Reservoir (void);
 
          /// Return the name of this Reservoir

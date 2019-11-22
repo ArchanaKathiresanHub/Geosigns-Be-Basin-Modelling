@@ -36,7 +36,7 @@ public :
 
    void print ( std::ostream& o = std::cout ) const;
 
-   void constrain ( const PropertyList                     property,
+   void constrain ( const PropertyIdentifier                     property,
                           Interface::PropertyOutputOption& option  ) const;
 
 private :

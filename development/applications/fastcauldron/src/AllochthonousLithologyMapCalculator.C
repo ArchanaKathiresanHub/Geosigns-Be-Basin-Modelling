@@ -3,7 +3,7 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-OutputPropertyMap* allocateAllochthonousLithologyMapCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateAllochthonousLithologyMapCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<AllochthonousLithologyMapCalculator>( property, formation, surface, snapshot );
 }
 
@@ -14,7 +14,7 @@ AllochthonousLithologyMapCalculator::AllochthonousLithologyMapCalculator ( Layer
 
 }
 
-bool AllochthonousLithologyMapCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
+bool AllochthonousLithologyMapCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& ,
                                                              OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -27,8 +27,7 @@ bool AllochthonousLithologyMapCalculator::operator ()( const OutputPropertyMap::
    double undefinedValue;
    Interface::GridMap* allochthonousLithologyMap;
 
-   if ( not m_formation->hasAllochthonousLithology () || 
-        FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput() ) {
+   if ( not m_formation->hasAllochthonousLithology () ) {
       propertyValues [ 0 ]->allowOutput ( false );
       m_isCalculated = true;
       return true;
@@ -66,8 +65,8 @@ bool AllochthonousLithologyMapCalculator::operator ()( const OutputPropertyMap::
 
 void AllochthonousLithologyMapCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AllochthonousLithology", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "AllochthonousLithology",
+                                                                                                         m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          0 )));
 

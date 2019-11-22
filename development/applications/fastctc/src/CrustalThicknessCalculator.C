@@ -46,15 +46,14 @@ using namespace DataAccess::Interface;
 
 //------------------------------------------------------------//
 
-CrustalThicknessCalculator* CrustalThicknessCalculator::m_crustalThicknessCalculator = nullptr;
 string CrustalThicknessCalculator::m_projectFileName;
 string CrustalThicknessCalculator::m_outputFileName;
 const string CrustalThicknessCalculatorActivityName = "CrustalThicknessCalculator";
 
 //------------------------------------------------------------//
 
-CrustalThicknessCalculator::CrustalThicknessCalculator(const database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, const ObjectFactory* objectFactory )
-   : DataAccess::Mining::ProjectHandle( database, name, accessMode, objectFactory ),
+CrustalThicknessCalculator::CrustalThicknessCalculator(const database::ProjectFileHandlerPtr database, const std::string & name, const ObjectFactory* objectFactory )
+   : DataAccess::Mining::ProjectHandle( database, name, objectFactory ),
      m_outputOptions                      (0      ),
      m_debug                              (false  ),
      m_applySmoothing                     (true   ),
@@ -69,13 +68,9 @@ CrustalThicknessCalculator::CrustalThicknessCalculator(const database::ProjectFi
 
 CrustalThicknessCalculator* CrustalThicknessCalculator::createFrom( const string& inputFileName, ObjectFactory* factory ) {
 
-
-   if ( m_crustalThicknessCalculator == nullptr ) {
-      m_crustalThicknessCalculator = dynamic_cast<CrustalThicknessCalculator*>(Interface::OpenCauldronProject(inputFileName, "rw", factory));
-   }
    m_projectFileName = inputFileName;
 
-   return m_crustalThicknessCalculator;
+   return dynamic_cast<CrustalThicknessCalculator*>(Interface::OpenCauldronProject(inputFileName, factory) );
 }
 
 //------------------------------------------------------------//
@@ -85,8 +80,8 @@ void CrustalThicknessCalculator::initialiseCTC() {
    ///1. Initialise CTC instance
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Starting CTC activity";
 
-   bool started = getInstance().startActivity( CrustalThicknessCalculatorActivityName,
-      getInstance().getHighResolutionOutputGrid(),
+   bool started = startActivity( CrustalThicknessCalculatorActivityName,
+      getHighResolutionOutputGrid(),
       true );
    if (!started) {
       throw CtcException() << "Can not start CrustalThicknessCalculator activity.";
@@ -125,24 +120,22 @@ void CrustalThicknessCalculator::initialiseCTC() {
 
 void CrustalThicknessCalculator::finalise ( const bool saveResults ) {
 
-   m_crustalThicknessCalculator->setSimulationDetails ( "fastctc", "Default", "" );
-   m_crustalThicknessCalculator->finishActivity ();
+   setSimulationDetails ( "fastctc", "Default", "" );
+   finishActivity ();
 
    if( saveResults ) {
-      if( ! getInstance ().mergeOutputFiles ()) {
+      if( ! mergeOutputFiles ()) {
          LogHandler(LogHandler::ERROR_SEVERITY) << "Unable to merge output files";
       }
-      if (m_crustalThicknessCalculator->getRank() == 0) {
+      if (getRank() == 0) {
          if ( m_outputFileName.empty() ) {
-            m_crustalThicknessCalculator->saveToFile( m_projectFileName );
+            saveToFile( m_projectFileName );
          }
          else {
-            m_crustalThicknessCalculator->saveToFile( m_outputFileName );
+            saveToFile( m_outputFileName );
          }
       }
    }
-   delete m_crustalThicknessCalculator;
-   m_crustalThicknessCalculator = nullptr;
 }
 
 //------------------------------------------------------------//
@@ -242,14 +235,14 @@ void CrustalThicknessCalculator::run() {
          const Snapshot * theSnapshot = findSnapshot( age );
 
          /// 1. Load P/T data fot this snapshot
-         m_inputData->loadTopAndBottomOfSediments( m_crustalThicknessCalculator, age, m_inputData->getBaseRiftSurfaceName() );
+         m_inputData->loadTopAndBottomOfSediments( this, age, m_inputData->getBaseRiftSurfaceName() );
          const DataModel::AbstractProperty* depthProperty = m_inputData->loadDepthProperty();
-         m_inputData->loadDepthData( m_crustalThicknessCalculator, depthProperty, age );
+         m_inputData->loadDepthData( this, depthProperty, age );
          const DataModel::AbstractProperty* pressureProperty = m_inputData->loadPressureProperty();
-         m_inputData->loadPressureData( m_crustalThicknessCalculator, pressureProperty, age );
+         m_inputData->loadPressureData( this, pressureProperty, age );
 
          /// 2. Create the maps for this snapshot
-         m_outputData.createSnapShotOutputMaps( m_crustalThicknessCalculator, m_inputData, theSnapshot, m_inputData->getTopOfSedimentSurface(), m_debug );
+         m_outputData.createSnapShotOutputMaps( this, m_inputData, theSnapshot, m_inputData->getTopOfSedimentSurface(), m_debug );
 
          retrieveData();
 
@@ -257,7 +250,7 @@ void CrustalThicknessCalculator::run() {
          LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing Backstrip";
          CrustalThickness::DensityCalculator densityCalculator( *m_inputData, m_outputData, getValidator() );
          densityCalculator.compute();
-         if (not m_debug) m_outputData.disableDebugOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
+         if (not m_debug) m_outputData.disableDebugOutput( this, m_inputData->getBotOfSedimentSurface(), theSnapshot );
 
          /// 4. Compute the Total Tectonic Subsidence (only if we have a SDH at this snapshot)
          if (hasSurfaceDepthHistory( age )){
@@ -268,7 +261,7 @@ void CrustalThicknessCalculator::run() {
             // This is just for the first step when we compute the TTS at 0Ma, then we go in the reverse order
             if (k == 0){
                assert( age == 0.0 );
-               presentDayTTS          = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, m_outputData.getMap( WLSMap ), identity ) );
+               presentDayTTS          = std::shared_ptr<GridMap>( getFactory()->produceGridMap( nullptr, 0, m_outputData.getMap( WLSMap ), identity ) );
                // delete the record so it will not be save in TimeIoTbl
                m_recordLessMapPropertyValues.clear();
                restoreData();
@@ -307,10 +300,10 @@ void CrustalThicknessCalculator::run() {
          smoothOutputs();
 
          restoreData();
-         m_outputData.saveOutput( m_crustalThicknessCalculator, m_debug, m_outputOptions, theSnapshot );
+         m_outputData.saveOutput( this, m_debug, m_outputOptions, theSnapshot );
 
          // Save properties to disk.
-         m_crustalThicknessCalculator->continueActivity();
+         continueActivity();
       }
    }
 

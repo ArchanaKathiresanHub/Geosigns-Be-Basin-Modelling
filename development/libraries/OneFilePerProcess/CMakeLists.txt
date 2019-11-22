@@ -15,7 +15,7 @@
 set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c src/h5merge.C src/fileHandler.C src/fileHandlerReuse.C src/fileHandlerAppend.C )
 set( all_headers src/HDF5VirtualFileDriver.h src/RewriteFileName.h src/h5merge.h src/fileHandler.h src/fileHandlerReuse.h src/fileHandlerAppend.h )
 
-set_source_files_properties( src/HDF5VirtualFileDriver.c 
+set_source_files_properties( src/HDF5VirtualFileDriver.c
       PROPERTIES COMPILE_FLAGS "-std=c99"
 )
 
@@ -26,10 +26,6 @@ add_library(${LIB_NAME}
 )
 target_include_directories( ${LIB_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
-
-include_directories(
-   src
-)
 
 include_directories( SYSTEM
   ${MPI_INCLUDE_DIRS}
@@ -53,8 +49,8 @@ if (UNIX)
    copy_test_file(machines)
    set( MACHINE_FILE -machinefile machines)
 endif (UNIX)
-                                    
-            
+
+
 add_gtest( NAME ${LIB_NAME}::rewriteFileName
            SOURCES test/RewriteFileName.C
            LIBRARIES ${LIB_NAME}
@@ -75,7 +71,7 @@ add_gtest( NAME ${LIB_NAME}::HDF5VirtualFileDriver-MPIPROCS=2
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 add_gtest( NAME ${LIB_NAME}::h5mergeTest-MPIPROCS=2
-           SOURCES test/readDataset.C
+           SOURCES test/readDataset.C src/h5merge.C
            LIBRARIES ${LIB_NAME}
            MPI_SIZE 2
            MPIRUN_PRMS ${MACHINE_FILE}

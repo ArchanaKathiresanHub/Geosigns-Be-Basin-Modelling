@@ -20,12 +20,18 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-DAObject::DAObject (ProjectHandle * projectHandle, Record * record) :
+DAObject::DAObject (ProjectHandle& projectHandle, Record * record) :
       m_projectHandle (projectHandle), m_record (record)
 {
 }
 
 DAObject::~DAObject (void)
+{
+}
+
+DAObject::DAObject(const DAObject& object) :
+  m_projectHandle(object.m_projectHandle),
+  m_record(object.m_record)
 {
 }
 
@@ -39,14 +45,14 @@ void DAObject::setRecord (Record * record)
    m_record = record;
 }
 
-ProjectHandle * DAObject::getProjectHandle (void) const
+ProjectHandle& DAObject::getProjectHandle(void) const
 {
    return m_projectHandle;
 }
 
 const ObjectFactory * DAObject::getFactory (void) const
 {
-   return getProjectHandle ()->getFactory ();
+   return m_projectHandle.getFactory();
 }
 
 AttributeValue & DAObject::getAttributeValue (const string & attributeName, unsigned int indexOffset) const

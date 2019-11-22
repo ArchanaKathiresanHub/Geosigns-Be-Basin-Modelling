@@ -14,7 +14,7 @@ namespace DataAccess {
       public :
 
          /// \brief Constructor.
-         IrreducibleWaterSaturationSample ( ProjectHandle*    projectHandle,
+         IrreducibleWaterSaturationSample ( ProjectHandle& projectHandle,
                                             database::Record* record );
 
          /// \brief Destructor.

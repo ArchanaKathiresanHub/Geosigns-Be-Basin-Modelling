@@ -15,7 +15,7 @@ namespace DataAccess {
 
       public :
 
-         LangmuirAdsorptionTOCEntry ( ProjectHandle*    projectHandle,
+         LangmuirAdsorptionTOCEntry ( ProjectHandle& projectHandle,
                                       database::Record* record );
 
          /// \brief Destructor.

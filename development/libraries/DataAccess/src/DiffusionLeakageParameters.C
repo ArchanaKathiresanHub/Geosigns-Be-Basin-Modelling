@@ -16,11 +16,11 @@ using std::numeric_limits;
 
 namespace DataAccess { namespace Interface {
 
-DiffusionLeakageParameters::DiffusionLeakageParameters(ProjectHandle* projecthandle, database::Record* record):
+DiffusionLeakageParameters::DiffusionLeakageParameters(ProjectHandle& projecthandle, database::Record* record):
    DAObject(projecthandle, record)
 {}
 
-DiffusionLeakageParameters::~DiffusionLeakageParameters() 
+DiffusionLeakageParameters::~DiffusionLeakageParameters()
 {}
 
 double DiffusionLeakageParameters::salinity() const

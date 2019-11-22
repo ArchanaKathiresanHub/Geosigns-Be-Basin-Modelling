@@ -983,7 +983,7 @@ int convertToXML(string filePathP3d, DataAccess::Interface::ObjectFactory *facto
 
    // Try to open the projectHandle
    cout << "Opening project handle " << endl;
-   shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(filePathP3d, "r", factoryP3d));
+   unique_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(filePathP3d, factoryP3d));
    if (!projectHandle)
    {
       cerr << "Could not open the project handle" << endl;
@@ -993,7 +993,7 @@ int convertToXML(string filePathP3d, DataAccess::Interface::ObjectFactory *facto
 
    // Import from ProjectHandle
    cout << "Importing from project handle (requires reading depth formations)" << endl;
-   shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false);
+   shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(*projectHandle, false);
    cout << "Finished import " << endl;
 
    // Export to native format: it will retrieve data when needed
@@ -1292,7 +1292,7 @@ TEST_F(CompareTest, CompareData1)
 
    //Open from project3d
    cout << "Opening project handle " << endl;
-   std::unique_ptr<DataAccess::Interface::ProjectHandle> projectP3d(DataAccess::Interface::OpenCauldronProject(newFilePathP3d.string(), "r", m_factoryP3d));
+   std::unique_ptr<DataAccess::Interface::ProjectHandle> projectP3d(DataAccess::Interface::OpenCauldronProject(newFilePathP3d.string(), m_factoryP3d));
    ASSERT_EQ(true, (bool)projectP3d);
 
    //Import from XML

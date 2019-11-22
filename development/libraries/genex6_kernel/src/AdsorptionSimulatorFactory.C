@@ -17,7 +17,7 @@ Genex6::AdsorptionSimulatorFactory::AdsorptionSimulatorFactory () {
 }
 
 
-Genex6::AdsorptionSimulator* Genex6::AdsorptionSimulatorFactory::getAdsorptionSimulator ( DataAccess::Interface::ProjectHandle* projectHandle,
+Genex6::AdsorptionSimulator* Genex6::AdsorptionSimulatorFactory::getAdsorptionSimulator ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                                           const SpeciesManager& speciesManager,
                                                                                           const std::string& adsorptionSimulatorName,
                                                                                           const bool applyOtgc,
@@ -34,7 +34,7 @@ Genex6::AdsorptionSimulator* Genex6::AdsorptionSimulatorFactory::getAdsorptionSi
 }
 
 Genex6::NodeAdsorptionHistory* Genex6::AdsorptionSimulatorFactory::allocateNodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
-                                                                                                   DataAccess::Interface::ProjectHandle* projectHandle,
+                                                                                                   DataAccess::Interface::ProjectHandle& projectHandle,
                                                                                                    const string & adsorptionSimulatorName ) const {
 
    NodeAdsorptionHistoryAllocatorMap::const_iterator simulatorIter = m_adsorptionHistoryAllocatorMapping.find ( adsorptionSimulatorName );

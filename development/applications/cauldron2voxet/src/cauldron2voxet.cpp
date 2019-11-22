@@ -85,7 +85,7 @@ double deltaX = MAXDOUBLE, deltaY = MAXDOUBLE, deltaZ = MAXDOUBLE;
 double countX = MAXDOUBLE, countY = MAXDOUBLE, countZ = MAXDOUBLE;
 
 /// Print to stdout a default voxet file based on the cauldron project file that has been input.
-void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
+void createVoxetProjectFile ( ProjectHandle& cauldronProject,
                               DerivedProperties::DerivedPropertyManager& propertyManager,
                               ostream & outputStream, const Snapshot * snapshot );
 
@@ -195,24 +195,24 @@ int main (int argc, char ** argv)
             return -1;
          }
          char * c_origins = argv[++arg];
-	 char * c_originX;
-	 char * c_originY;
-	 char * c_originZ;
+   char * c_originX;
+   char * c_originY;
+   char * c_originZ;
 
-	 splitString (c_origins, ',', c_originX, c_originY, c_originZ);
+   splitString (c_origins, ',', c_originX, c_originY, c_originZ);
 
 	 if (c_originX) originX = atof (c_originX);
 	 if (c_originY) originY = atof (c_originY);
 	 if (c_originZ) originZ = atof (c_originZ);
-      }
-      else if (strncmp (argv[arg], "-delta", Max (4, strlen (argv[arg]))) == 0)
-      {
-         if (arg + 1 >= argc)
-         {
-            showUsage ("Argument for '-delta' is missing");
-            return -1;
-         }
-         char * c_deltas = argv[++arg];
+			}
+			else if (strncmp (argv[arg], "-delta", Max (4, strlen (argv[arg]))) == 0)
+			{
+				 if (arg + 1 >= argc)
+				 {
+						showUsage ("Argument for '-delta' is missing");
+						return -1;
+				 }
+				 char * c_deltas = argv[++arg];
 	 char * c_deltaX;
 	 char * c_deltaY;
 	 char * c_deltaZ;
@@ -222,15 +222,15 @@ int main (int argc, char ** argv)
 	 if (c_deltaX) deltaX = atof (c_deltaX);
 	 if (c_deltaY) deltaY = atof (c_deltaY);
 	 if (c_deltaZ) deltaZ = atof (c_deltaZ);
-      }
-      else if (strncmp (argv[arg], "-count", Max (2, strlen (argv[arg]))) == 0)
-      {
-         if (arg + 1 >= argc)
-         {
-            showUsage ("Argument for '-count' is missing");
-            return -1;
-         }
-         char * c_counts = argv[++arg];
+			}
+			else if (strncmp (argv[arg], "-count", Max (2, strlen (argv[arg]))) == 0)
+			{
+				 if (arg + 1 >= argc)
+				 {
+						showUsage ("Argument for '-count' is missing");
+						return -1;
+				 }
+				 char * c_counts = argv[++arg];
 	 char * c_countX;
 	 char * c_countY;
 	 char * c_countZ;
@@ -240,26 +240,26 @@ int main (int argc, char ** argv)
 	 if (c_countX) countX = atof (c_countX);
 	 if (c_countY) countY = atof (c_countY);
 	 if (c_countZ) countZ = atof (c_countZ);
-      }
-      else if (strncmp (argv[arg], "-nullvaluereplace", Max (5, strlen (argv[arg]))) == 0){
-         if (arg + 1 >= argc)
-         {
-            showUsage ("Argument for '-nullvaluereplace' is missing");
-            return -1;
-         }
-         while (arg+1<argc && strncmp( argv[arg+1],"-",1)!=0 ){
-            char * c_nullValueReplaceOption = argv[++arg];
-            char * nullValueReplaceName;
-            char * nullValueReplaceValue;
-            char * tmp;
-            splitString (c_nullValueReplaceOption,',',nullValueReplaceName,nullValueReplaceValue,tmp);
-            if(!nullValueReplaceName || !nullValueReplaceValue){
-               showUsage ("Argument for '-nullvalueeplace' wrong format");
-               return -1;
-            }
-            propertyNullValueReplaceLookup.insert(std::pair<std::string,double>(std::string(nullValueReplaceName),
-                                                                                atof (nullValueReplaceValue)));
-         }
+			}
+			else if (strncmp (argv[arg], "-nullvaluereplace", Max (5, strlen (argv[arg]))) == 0){
+				 if (arg + 1 >= argc)
+				 {
+						showUsage ("Argument for '-nullvaluereplace' is missing");
+						return -1;
+				 }
+				 while (arg+1<argc && strncmp( argv[arg+1],"-",1)!=0 ){
+						char * c_nullValueReplaceOption = argv[++arg];
+						char * nullValueReplaceName;
+						char * nullValueReplaceValue;
+						char * tmp;
+						splitString (c_nullValueReplaceOption,',',nullValueReplaceName,nullValueReplaceValue,tmp);
+						if(!nullValueReplaceName || !nullValueReplaceValue){
+							 showUsage ("Argument for '-nullvalueeplace' wrong format");
+							 return -1;
+						}
+						propertyNullValueReplaceLookup.insert(std::pair<std::string,double>(std::string(nullValueReplaceName),
+																																								atof (nullValueReplaceValue)));
+				 }
 
 
       }
@@ -268,8 +268,8 @@ int main (int argc, char ** argv)
          debug = true;
       }
       else if ((strncmp (argv[arg], "-help",  Max (2, strlen (argv[arg]))) == 0) ||
-	           (strncmp (argv[arg], "-?",     Max (2, strlen (argv[arg]))) == 0) ||
-			   (strncmp (argv[arg], "-usage", Max (2, strlen (argv[arg]))) == 0))
+             (strncmp (argv[arg], "-?",     Max (2, strlen (argv[arg]))) == 0) ||
+         (strncmp (argv[arg], "-usage", Max (2, strlen (argv[arg]))) == 0))
       {
          showUsage (" Standard usage.");
          return -1;
@@ -319,9 +319,9 @@ int main (int argc, char ** argv)
       outputFileName = projectFileName.substr (0, dotPos);
    }
 
-   GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, "r", factory ) );
-   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
+   GeoPhysics::ObjectFactory factory;
+   std::unique_ptr<GeoPhysics::ProjectHandle> projectHandle( dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, &factory ) ) );
+   DerivedProperties::DerivedPropertyManager propertyManager ( *projectHandle );
 
    bool coupledCalculationMode = false;
    bool started = projectHandle->startActivity ( "cauldron2voxet", projectHandle->getLowResolutionOutputGrid (), false, false, false );
@@ -380,7 +380,7 @@ int main (int argc, char ** argv)
          return -1;
       }
 
-      createVoxetProjectFile (projectHandle, propertyManager, voxetProjectFileStream, snapshot);
+      createVoxetProjectFile (*projectHandle, propertyManager, voxetProjectFileStream, snapshot);
       return 0;
    }
 
@@ -401,15 +401,15 @@ int main (int argc, char ** argv)
          return -1;
       }
 
-      createVoxetProjectFile (projectHandle, propertyManager, voxetProjectFileStream, snapshot);
+      createVoxetProjectFile (*projectHandle, propertyManager, voxetProjectFileStream, snapshot);
       voxetProjectFileStream.close ();
 
-      voxetProject = new VoxetProjectHandle (tmpVoxetFileName, projectHandle);
+      voxetProject = new VoxetProjectHandle (tmpVoxetFileName, *projectHandle);
       unlink (tmpVoxetFileName);
    }
    else
    {
-      voxetProject = new VoxetProjectHandle (voxetFileName, projectHandle);
+      voxetProject = new VoxetProjectHandle (voxetFileName, *projectHandle);
    }
 
    snapshot = projectHandle->findSnapshot (voxetProject->getSnapshotTime ());
@@ -472,7 +472,7 @@ int main (int argc, char ** argv)
 
    const GridDescription & gridDescription = voxetProject->getGridDescription ();
 
-   VoxetCalculator vc (projectHandle, propertyManager, voxetProject->getGridDescription (),propertyNullValueReplaceLookup);
+   VoxetCalculator vc (*projectHandle, propertyManager, voxetProject->getGridDescription (),propertyNullValueReplaceLookup);
 
    if (useBasement && verbose) cout << "Using basement" << endl;
    vc.useBasement() = useBasement;
@@ -534,7 +534,7 @@ int main (int argc, char ** argv)
             return -1;
          }
 
-	 string propertyFileName = binaryFileName + "_" + (*cauldronPropIter)->getCauldronName () + "@@";
+   string propertyFileName = binaryFileName + "_" + (*cauldronPropIter)->getCauldronName () + "@@";
 
          writeVOproperty(asciiOutputFile, propertyCount, *cauldronPropIter, propertyFileName, vc.getNullValue(property) );
 
@@ -583,8 +583,6 @@ int main (int argc, char ** argv)
    }
    writeVOtail(asciiOutputFile);
    asciiOutputFile.close ();
-   CloseCauldronProject (projectHandle);
-   delete factory;
 
    if (debug)
       cerr << "Project closed" << endl;
@@ -604,9 +602,9 @@ void showUsage (const char * message)
          << argv0 << "    -project <cauldron-project-file>" << endl
          << "                  [-spec <spec-file>]" << endl
          << "                  [-snapshot <age>]" << endl
-	 << "                  [-origin <originX>,<originY>,<originZ>]" << endl
-	 << "                  [-delta <deltaX>,<deltaY>,<deltaZ>]" << endl
-	 << "                  [-count <countX>,<countY>,<countZ>]" << endl
+   << "                  [-origin <originX>,<originY>,<originZ>]" << endl
+   << "                  [-delta <deltaX>,<deltaY>,<deltaZ>]" << endl
+   << "                  [-count <countX>,<countY>,<countZ>]" << endl
          << "                  [-output <output-file-name>]" << endl
          << "                  [-create-spec <spec-file>]" << endl
          << "                  [-nullvaluereplace <PropertyName,Value> [<PropertyName,Value>] [...]]" << endl
@@ -620,9 +618,9 @@ void showUsage (const char * message)
          << "    -project              The cauldron project file." << endl
          << "    -spec                 Use the specified spec file. Use a standard spec file if missing." << endl
          << "    -snapshot             Use the specified snapshot age. Not valid in conjunction with '-spec'," << endl
-	 << "    -origin               Use the specified coordinates as the origin of the sample cube" << endl
-	 << "    -delta                Use the specified values as the sampling distance in the x, y and z direction" << endl
-	 << "    -count                Use the specified values as the number of samples in the x, y and z direction" << endl
+   << "    -origin               Use the specified coordinates as the origin of the sample cube" << endl
+   << "    -delta                Use the specified values as the sampling distance in the x, y and z direction" << endl
+   << "    -count                Use the specified values as the number of samples in the x, y and z direction" << endl
          << "    -output               Output voxet file-name, MUST NOT contain the .vo extension, this will be added." << endl
          << "    -create-spec          Write a standard spec file into the specified file name," << endl
          << "                          the cauldron project file must also be specified." << endl
@@ -747,7 +745,7 @@ double selectDefined (double undefinedValue, double preferred, double alternativ
 }
 
 
-void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
+void createVoxetProjectFile ( Interface::ProjectHandle& cauldronProject,
                               DerivedProperties::DerivedPropertyManager& propertyManager,
                               ostream &outputStream, const Snapshot * snapshot )
 {
@@ -810,15 +808,15 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
    int p;
    for (p = 0; strlen (propertyNames[p]) != 0; ++p)
    {
-      const Property * property = cauldronProject->findProperty (propertyNames[p]);
+      const Property * property = cauldronProject.findProperty (propertyNames[p]);
       if (property)
       {
-	 record = table->createRecord ();
-	 database::setCauldronPropertyName ( record, propertyNames[p] );
-	 database::setVoxetPropertyName ( record, outputPropertyNames[p] );
-	 database::setOutputPropertyUnits ( record, units[p]);
-	 database::setConversionFactor ( record, conversions[p] );
-	 database::setVoxetOutput ( record, 1 );
+   record = table->createRecord ();
+   database::setCauldronPropertyName ( record, propertyNames[p] );
+   database::setVoxetPropertyName ( record, outputPropertyNames[p] );
+   database::setOutputPropertyUnits ( record, units[p]);
+   database::setConversionFactor ( record, conversions[p] );
+   database::setVoxetOutput ( record, 1 );
       }
    }
 
@@ -831,7 +829,7 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
 
    //------------------------------------------------------------//
 
-   const Property *depthProperty = cauldronProject->findProperty ("Depth");
+   const Property *depthProperty = cauldronProject.findProperty ("Depth");
 
    if (!depthProperty)
    {
@@ -839,7 +837,7 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
       return;
    }
 
-   Interface::SurfaceList* surfaces = cauldronProject->getSurfaces ();
+   Interface::SurfaceList* surfaces = cauldronProject.getSurfaces ();
    const Interface::Surface * bottomSurface = surfaces->back ();
 
    AbstractDerivedProperties::SurfacePropertyPtr abstractBottomDepthPropertyValue = propertyManager.getSurfaceProperty ( depthProperty, snapshot, bottomSurface );
@@ -896,7 +894,7 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
 
    //------------------------------------------------------------//
 
-   grid = cauldronProject->getLowResolutionOutputGrid ();
+   grid = cauldronProject.getLowResolutionOutputGrid ();
    table = database->getTable ( "VoxetGridIoTbl" );
 
    const double deltaK = 100;

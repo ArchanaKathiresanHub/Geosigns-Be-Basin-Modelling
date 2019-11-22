@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -24,7 +24,7 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::ReflectivitySurfaceCalculator::ReflectivitySurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+DerivedProperties::ReflectivitySurfaceCalculator::ReflectivitySurfaceCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "Reflectivity" );
 
    addDependentPropertyName ( "Thickness" );
@@ -59,7 +59,7 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
    const DataModel::AbstractProperty* bulkDensityProperty  = propManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* velocityProperty     = propManager.getProperty ( "Velocity" );
 
-   bool formationAboveFound = formationAbove != 0 and 
+   bool formationAboveFound = formationAbove != 0 and
       ( formationAbove->getBottomSurface ()->getSnapshot () != 0 ?
         formationAbove->getBottomSurface ()->getSnapshot ()->getTime () > snapshot->getTime () : true );
 
@@ -81,7 +81,7 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
 
    // Get thickness, bulk-density and velocity from all surfaces above.
    while ( formationAboveFound ) {
-      
+
       surfaceAbove = formationAbove->getTopSurface ();
 
       FormationMapPropertyPtr     thickness   = propManager.getFormationMapProperty     ( thicknessProperty,   snapshot, formationAbove );
@@ -112,7 +112,7 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
 
       for ( unsigned int j = reflectivity->firstJ ( true ); j <= reflectivity->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j ) and layerThickness->get ( i, j ) > 0.0 ) {
+         if ( m_projectHandle.getNodeIsValid ( i, j ) and layerThickness->get ( i, j ) > 0.0 ) {
             unsigned int surfaceIndex = 0;
 
             // Find first layer that is not 0 thickness at the i, j position.
@@ -161,16 +161,16 @@ bool DerivedProperties::ReflectivitySurfaceCalculator::isComputable ( const Abst
    const DataModel::AbstractProperty* velocity    = propManager.getProperty ( "Velocity" );
 
    if ( surface == 0 ) {
-      return propManager.formationMapPropertyIsComputable ( thickness, snapshot, 0 ) and 
-             propManager.formationPropertyIsComputable ( bulkDensity, snapshot, 0 ) and 
+      return propManager.formationMapPropertyIsComputable ( thickness, snapshot, 0 ) and
+             propManager.formationPropertyIsComputable ( bulkDensity, snapshot, 0 ) and
              propManager.formationPropertyIsComputable ( velocity, snapshot, 0 );
    } else {
 
       const DataModel::AbstractFormation* formationBelow = surface->getBottomFormation ();
 
       if ( formationBelow != 0 ) {
-         return propManager.formationMapPropertyIsComputable ( thickness, snapshot, formationBelow ) and 
-                propManager.formationSurfacePropertyIsComputable ( bulkDensity, snapshot, formationBelow, surface ) and 
+         return propManager.formationMapPropertyIsComputable ( thickness, snapshot, formationBelow ) and
+                propManager.formationSurfacePropertyIsComputable ( bulkDensity, snapshot, formationBelow, surface ) and
                 propManager.formationSurfacePropertyIsComputable ( velocity, snapshot, formationBelow, surface );
       } else {
          return false;

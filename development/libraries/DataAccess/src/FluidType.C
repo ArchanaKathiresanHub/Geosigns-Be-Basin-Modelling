@@ -8,7 +8,7 @@ using namespace DataAccess;
 using namespace Interface;
 
 
-FluidType::FluidType(ProjectHandle* projecthandle, database::Record* record):
+FluidType::FluidType(ProjectHandle& projecthandle, database::Record* record):
    DAObject(projecthandle, record)
 {
 
@@ -29,7 +29,7 @@ FluidType::FluidType(ProjectHandle* projecthandle, database::Record* record):
   m_viscosityModel = BATTZLE_WANG_VISCOSITY;
 }
 
-FluidType::~FluidType() 
+FluidType::~FluidType()
 {
 }
 
@@ -76,7 +76,7 @@ const std::string& FluidType::getHeatCapacityFluidName () const {
 }
 
 const FluidType* FluidType::getHeatCapacityFluidType () const {
-   return m_projectHandle->findFluid ( getHeatCapacityFluidName ());
+   return getProjectHandle().findFluid ( getHeatCapacityFluidName ());
 }
 
 const std::string& FluidType::getThermalConductivityFluidName () const {
@@ -84,13 +84,13 @@ const std::string& FluidType::getThermalConductivityFluidName () const {
 }
 
 const FluidType* FluidType::getThermalConductivityFluidType () const {
-   return m_projectHandle->findFluid ( getThermalConductivityFluidName ());
+   return getProjectHandle().findFluid ( getThermalConductivityFluidName ());
 }
 
 FluidHeatCapacitySampleList* FluidType::getFluidHeatCapacitySamples () const {
-   return m_projectHandle->getFluidHeatCapacitySampleList ( this );
+   return getProjectHandle().getFluidHeatCapacitySampleList ( this );
 }
 
 FluidThermalConductivitySampleList* FluidType::getFluidThermalConductivitySamples () const {
-   return m_projectHandle->getFluidThermalConductivitySampleList ( this );
+   return getProjectHandle().getFluidThermalConductivitySampleList ( this );
 }

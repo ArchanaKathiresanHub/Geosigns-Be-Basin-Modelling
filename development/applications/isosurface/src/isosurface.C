@@ -201,7 +201,7 @@ static void showUsage (const char * message = 0);
 
 // Upper-Value here means the value at the upper-node, this may not necessarily mean the largest value.
 // Lower-value is defined simimarly for the lower-node.
-double computeIsoparametricFraction ( const double value, 
+double computeIsoparametricFraction ( const double value,
                                       const double upperValue,
                                       const double lowerValue );
 
@@ -343,8 +343,8 @@ int main (int argc, char ** argv)
       return 1;
    }
 
-   ObjectFactory* factory = new ObjectFactory(); 
-   ProjectHandle *projectHandle = OpenCauldronProject (projectFileName, "r", factory);
+   ObjectFactory factory;
+   std::unique_ptr<ProjectHandle> projectHandle( OpenCauldronProject (projectFileName, &factory) );
 
    if (projectFileName.length () == 0)
    {
@@ -472,7 +472,7 @@ int main (int argc, char ** argv)
       cerr << "Could not find the iso-surface property, " << isoSurfacePropertyName << ", results in the project file " << endl
             << "Are you sure the project file contains output data?" << endl;
       return 1;
-   
+
    }
 
    if ( not MapWriterFactory::getInstance ().isValidMapType ( outputMapType )) {
@@ -559,11 +559,11 @@ int main (int argc, char ** argv)
                                                                        depthGrid->getValue ( i, j, k ));
 
                      if ( debug ) {
-                        cout << " iso-surface location: " << setw ( 5 ) << i << "  " << setw ( 5 ) << j << "  " << setw ( 5 ) << k << "  " 
-                             << setw ( 15 ) << fraction << "  " 
-                             << setw ( 15 ) << topIsoProp << "  " << setw ( 15 ) << botIsoProp << "  " 
-                             << setw ( 15 ) << depthGrid->getValue ( i, j, k - 1 ) << "  " 
-                             << setw ( 15 ) << depthGrid->getValue ( i, j, k )  << "  " 
+                        cout << " iso-surface location: " << setw ( 5 ) << i << "  " << setw ( 5 ) << j << "  " << setw ( 5 ) << k << "  "
+                             << setw ( 15 ) << fraction << "  "
+                             << setw ( 15 ) << topIsoProp << "  " << setw ( 15 ) << botIsoProp << "  "
+                             << setw ( 15 ) << depthGrid->getValue ( i, j, k - 1 ) << "  "
+                             << setw ( 15 ) << depthGrid->getValue ( i, j, k )  << "  "
                              << setw ( 15 ) << depthMap [ i ][ j ] << endl;
                      }
 
@@ -589,10 +589,8 @@ int main (int argc, char ** argv)
    delete depthPropertyValueList;
    delete isoSurfacePropertyValueList;
    delete formations;
-   delete factory;
    Array<double>::delete2d ( depthMap );
 
-   CloseCauldronProject (projectHandle);
    if (debug) cout << "Project closed" << endl;
 
    return 0;
@@ -642,7 +640,7 @@ bool PropertyValueFormationComparator::operator ()( const PropertyValue* prop ) 
 }
 
 
-double computeIsoparametricFraction ( const double value, 
+double computeIsoparametricFraction ( const double value,
                                       const double upperValue,
                                       const double lowerValue ) {
 
@@ -708,11 +706,11 @@ void ZycorMapWriter::writeHeader ( ofstream& mapFile,
 
    // I have no idea what these other numbers are for: 6 and 1.
    mapFile << "  " << NumberWidth << ", "  << UndefinedValue << ", , 6, 1" << endl;
-   mapFile << "   " << grid->numJ () << ", " << grid->numI () << ", " 
-           << grid->minI () << ", " 
-           << grid->maxI () << ", " 
-           << grid->minJ () << ", " 
-           << grid->maxJ () << ", " 
+   mapFile << "   " << grid->numJ () << ", " << grid->numI () << ", "
+           << grid->minI () << ", "
+           << grid->maxI () << ", "
+           << grid->minJ () << ", "
+           << grid->maxJ () << ", "
            << endl;
    mapFile << "      0,      0,     0 " << endl << "@" << endl << endl;
 
@@ -830,7 +828,7 @@ GridDescription::GridDescription ( const unsigned int numberX,
 
    m_originX = originX;
    m_originY = originY;
-   
+
 }
 
 GridDescription::GridDescription ( const Grid* grid ) {

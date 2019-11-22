@@ -2,7 +2,6 @@
 #define _FASTCAULDRON_TIME_OF_ELEMENT_INVASION_CALCULATOR_H_
 
 #include "layer.h"
-#include "CompoundLithologyArray.h"
 #include "Property.h"
 #include "PropertyValue.h"
 #include "OutputPropertyMap.h"
@@ -21,7 +20,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -29,7 +28,7 @@ public :
 private :
 
    LayerProps* m_formation;
-  
+
    const Interface::Snapshot* m_snapshot;
 
    bool m_isCalculated;
@@ -37,6 +36,6 @@ private :
 };
 
 
-OutputPropertyMap* allocateTimeOfElementInvasionVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateTimeOfElementInvasionVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot );
 
-#endif 
+#endif

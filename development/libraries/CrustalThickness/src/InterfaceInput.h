@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -70,7 +70,7 @@ public:
    InterfaceInput( const std::shared_ptr< const CrustalThicknessData >                             crustalThicknessData,
                    const std::vector< std::shared_ptr<const CrustalThicknessRiftingHistoryData> >& crustalThicknessRiftingHistoryData );
    ~InterfaceInput ();
-   
+
    /// @brief Load data from project file and configuration file
    /// @param[in] inFile The CTC configuration file name
    /// @throw std::invalid_argument exceptions if the inputs are not valid
@@ -85,7 +85,7 @@ public:
    void loadSnapshots();
 
    /// @defgroup LoadDataFromStratigraphy
-   ///    Load data from the stratigraphy via GeoPhysics or DataMining projectHandle 
+   ///    Load data from the stratigraphy via GeoPhysics or DataMining projectHandle
    /// @{
    /// @brief Load the water bottom and the basement surfaces at the defined snapshot by initializing class members (m_bottomOfSedimentSurface and m_topOfSedimentSurface)
    /// @param baseSurfaceName The name of the basement surface (bottom of sediments), if "" then find it in the stratigraphy, else find the surface according to the name
@@ -278,7 +278,7 @@ protected:
 
    /// @defgroup DerivedProperties
    /// @{
-   DerivedProperties::DerivedPropertyManager* m_derivedManager;                ///< The derived property manager (we have to use a pointer for forward declaration due to crossdependent libraries)
+   std::unique_ptr<DerivedProperties::DerivedPropertyManager> m_derivedManager;                ///< The derived property manager (we have to use a pointer for forward declaration due to crossdependent libraries)
    AbstractDerivedProperties::SurfacePropertyPtr m_pressureBasement;           ///< The pressure of the basement at the current snapshot
    AbstractDerivedProperties::SurfacePropertyPtr m_pressureBasementPresentDay; ///< The pressure of the basement at the present day
    AbstractDerivedProperties::SurfacePropertyPtr m_pressureWaterBottom;        ///< The pressure of the water bottom at the current snapshot

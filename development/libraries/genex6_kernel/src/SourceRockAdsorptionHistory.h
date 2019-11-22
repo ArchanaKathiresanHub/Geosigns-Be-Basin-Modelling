@@ -15,7 +15,7 @@ namespace Genex6 {
 
    public :
 
-      SourceRockAdsorptionHistory ( DataAccess::Interface::ProjectHandle*                projectHandle, 
+      SourceRockAdsorptionHistory ( DataAccess::Interface::ProjectHandle&                projectHandle,
                                     const DataAccess::Interface::PointAdsorptionHistory* record );
 
 
@@ -23,10 +23,10 @@ namespace Genex6 {
       void setNodeAdsorptionHistory ( Genex6::NodeAdsorptionHistory* adsorptionhistory );
       void setNodeGenexHistory ( Genex6::NodeAdsorptionHistory* genexhistory );
 
-      /// \brief 
+      /// \brief
       Genex6::NodeAdsorptionHistory* getNodeAdsorptionHistory ();
       Genex6::NodeAdsorptionHistory* getNodeGenexHistory ();
-   
+
 
       // Save all (if any) collected results.
       void save ();
@@ -34,7 +34,7 @@ namespace Genex6 {
 
    private :
 
-      DataAccess::Interface::ProjectHandle*                m_projectHandle;
+      DataAccess::Interface::ProjectHandle&                m_projectHandle;
       const DataAccess::Interface::PointAdsorptionHistory* m_historyRecord;
       Genex6::NodeAdsorptionHistory*                            m_adsorptionHistory;
 

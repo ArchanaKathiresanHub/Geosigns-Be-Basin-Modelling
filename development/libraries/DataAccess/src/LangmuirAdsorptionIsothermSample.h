@@ -16,7 +16,7 @@ namespace DataAccess {
       public :
 
          /// \brief Constructor.
-         LangmuirAdsorptionIsothermSample ( ProjectHandle*    projectHandle,
+         LangmuirAdsorptionIsothermSample ( ProjectHandle& projectHandle,
                                             database::Record* record );
 
          /// \brief Destructor.
@@ -53,7 +53,7 @@ namespace DataAccess {
 
       public :
 
-         bool operator ()( const LangmuirAdsorptionIsothermSample* s1, 
+         bool operator ()( const LangmuirAdsorptionIsothermSample* s1,
                            const LangmuirAdsorptionIsothermSample* s2 ) const;
 
       };

@@ -17,7 +17,7 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-SourceRock::SourceRock (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+SourceRock::SourceRock (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
    m_layerName = "";
 }
@@ -97,7 +97,7 @@ bool SourceRock::isVREoptimEnabled(void) const
        ret = false;
    }
    return ret;
-}        
+}
 ///Return the value of the VRE threshold
 const double & SourceRock::getVREthreshold(void) const
 {
@@ -113,7 +113,7 @@ bool SourceRock::isVESMaxEnabled(void) const
        ret = false;
    }
    return ret;
-}        
+}
 const double & SourceRock::getVESMax(void) const
 {
    return database::getVESLimit(m_record);
@@ -163,7 +163,7 @@ const GridMap * SourceRock::getMap (SourceRockMapAttributeId attributeId) const
    }
    return gridMap;
 }
- 
+
 GridMap * SourceRock::loadMap (SourceRockMapAttributeId attributeId) const
 {
    unsigned int attributeIndex = (unsigned int) attributeId;
@@ -174,17 +174,17 @@ GridMap * SourceRock::loadMap (SourceRockMapAttributeId attributeId) const
    GridMap * gridMap = 0;
    if (valueGridMapId.length () != 0)
    {
-      gridMap = m_projectHandle->loadInputMap ("SourceRockLithoIoTbl", valueGridMapId);
+      gridMap = getProjectHandle().loadInputMap ("SourceRockLithoIoTbl", valueGridMapId);
    }
    else
    {
       double value = m_record->getValue<double>(s_MapAttributeNames[attributeIndex]);
       if ( value != RecordValueUndefined)
       {
-         //const Grid *grid = m_projectHandle->getInputGrid ();
-	 const Grid * grid = m_projectHandle->getActivityOutputGrid();
-	 if (!grid) grid = (const Grid *) m_projectHandle->getInputGrid ();
-         gridMap = m_projectHandle->getFactory ()->produceGridMap (this, attributeIndex, grid, value);
+         //const Grid *grid = getProjectHandle().getInputGrid ();
+   const Grid * grid = getProjectHandle().getActivityOutputGrid();
+   if (!grid) grid = (const Grid *) getProjectHandle().getInputGrid ();
+         gridMap = getProjectHandle().getFactory ()->produceGridMap (this, attributeIndex, grid, value);
 
          assert (gridMap == getChild (attributeIndex));
       }
@@ -207,7 +207,7 @@ void SourceRock::asString (string & str) const
    buf << " Type = " << getType ();
    buf << " , BaseType = " << getBaseSourceRockType ();
    buf << endl;
-   
+
    str = buf.str ();
 
 }

@@ -29,10 +29,10 @@ namespace DerivedProperties {
 
    public :
 
-      FluidVelocityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
- 
+      FluidVelocityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
+
       /// \brief Calculate the permeability for the formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the permeability is requested.
       /// \param [in]  formation   The formation for which the permeability is requested.
@@ -46,7 +46,7 @@ namespace DerivedProperties {
 
    private :
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
 
       bool m_chemicalCompactionRequired;
 
@@ -61,9 +61,9 @@ namespace DerivedProperties {
                                   const ElementVector&          currentElementChemicalCompaction,
                                   const ElementVector&          currentElementPp,
                                   ThreeVector&                  fluidVelocity ) const;
-      
+
       void fillBorders( unsigned int i, unsigned int j, unsigned int k,
-                        unsigned int globalXNodes, 
+                        unsigned int globalXNodes,
                         unsigned int globalYNodes,
                         DerivedFormationPropertyPtr fluidVelocityX,
                         DerivedFormationPropertyPtr fluidVelocityY,
@@ -73,4 +73,4 @@ namespace DerivedProperties {
    };
 }
 
-#endif 
+#endif

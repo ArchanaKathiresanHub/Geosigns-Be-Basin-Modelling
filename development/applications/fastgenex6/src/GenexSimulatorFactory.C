@@ -12,14 +12,13 @@ using namespace std;
 using namespace GenexSimulation;
 
 GeoPhysics::ProjectHandle *
-GenexSimulatorFactory::produceProjectHandle (database::ProjectFileHandlerPtr database, const string & name,
-                                             const string & accessMode) const
+GenexSimulatorFactory::produceProjectHandle (database::ProjectFileHandlerPtr database, const string & name) const
 {
-   return new GenexSimulator (database, name, accessMode, this);
+   return new GenexSimulator (database, name, this);
 }
 
 DataAccess::Interface::SourceRock *
-GenexSimulatorFactory::produceSourceRock (DataAccess::Interface::ProjectHandle * projectHandle,
+GenexSimulatorFactory::produceSourceRock (DataAccess::Interface::ProjectHandle& projectHandle,
                                           database::Record * record) const
 {
    return new Genex6::GenexSourceRock(projectHandle, record);

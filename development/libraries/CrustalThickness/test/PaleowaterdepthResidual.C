@@ -81,7 +81,9 @@ TEST_F( PWDRCalculatorTest, paleowaterdepth_residual )
          surfaceDepthHistory( i, j ).AddPoint( 0, 200 );
       }
    }
-   MockInterfaceInput inputData = MockInterfaceInput();
+
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    inputData.setHCuMap( m_gridMap );
 
    //age is 0Ma
@@ -110,7 +112,8 @@ TEST_F( PWDRCalculatorTest, compute )
       }
    }
 
-   MockInterfaceInput inputData = MockInterfaceInput();
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    inputData.setHCuMap( m_gridMap );
 
    //Regular values (age is 0Ma)

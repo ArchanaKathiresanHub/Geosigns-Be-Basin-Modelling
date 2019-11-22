@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "OTGCNodeAdsorptionHistory.h"
 
 #include <iomanip>
@@ -44,8 +44,8 @@ using Utilities::Physics::StandardTemperatureGenexK;
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 
-Genex6::OTGCNodeAdsorptionHistory::OTGCNodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
-                                                               DataAccess::Interface::ProjectHandle* projectHandle ) :
+Genex6::OTGCNodeAdsorptionHistory::OTGCNodeAdsorptionHistory ( const SpeciesManager& speciesManager,
+                                                               DataAccess::Interface::ProjectHandle& projectHandle ) :
    NodeAdsorptionHistory ( speciesManager, projectHandle ) {
 }
 
@@ -110,7 +110,7 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
    if ( nodeInput != 0 and simulatorState != 0 ) {
       using namespace Constants;
 
-      const double meanBulkDensity = getProjectHandle ()->getSGDensitySample ()->getDensity ();
+      const double meanBulkDensity = getProjectHandle().getSGDensitySample ()->getDensity ();
 
       const double SCFGasVolumeConversionFactor = CubicMetresToCubicFeet / ( KilogrammeToUSTon * meanBulkDensity );
 
@@ -128,8 +128,8 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
       // given mass/area: kg/m2-> (kg/m2)/density_oil (m3/m2)-> bbl/m3*(kg/m2)/density_oil (bbl/m2) 1e6 *(kg/m2)/density_oil/(1e3^2) (mbbl/km^2)
       //  1e6 *(kg/m2)/density_oil/(1e3^2)/km2-acre -> mbbl/acre
       // This include other implicit scaling values (that have cancelled and so do not appear).
-      
-      // (kg/m^2)-> (kg/m^2)/density -> (kg/m^2).(m^3/kg) -> (m^3/m^2) (conversion m^3->barrel) -> barrel/m^2. 
+
+      // (kg/m^2)-> (kg/m^2)/density -> (kg/m^2).(m^3/kg) -> (m^3/m^2) (conversion m^3->barrel) -> barrel/m^2.
       // barrel/m^2 (conversion to million barrels * 1.0e-6) MMbarrel/m^2 ( conversion to million-barrel/km^2 = / 1.0e-6)
       // This include other implicit scaling values (that have cancelled and so do not appear).
       const double MBarrelsOilVolumeConversionFactor = CubicMetresToBarrel / KilometreSquaredToAcres; // * 1.0e-6 / 1.0e-6;
@@ -192,7 +192,7 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
 
       hist->m_gasRetainedSTBCF = gasRetainedBcf * BCFGasVolumeConversionFactor;
       hist->m_oilRetainedSTMBarrels = oilRetainedMbbl * MBarrelsOilVolumeConversionFactor;
- 
+
       hist->m_subSurfaceLiquidDensity = simulatorState->getSubSurfaceDensities ()( PhaseId::LIQUID );
       hist->m_subSurfaceVapourDensity = simulatorState->getSubSurfaceDensities ()( PhaseId::VAPOUR );
 
@@ -249,7 +249,7 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
 
       }
 
-      node->computeHcVolumes ( gasVolume, oilVolume, gasExpansionRation, 
+      node->computeHcVolumes ( gasVolume, oilVolume, gasExpansionRation,
                                hist->m_retainedGorSr, hist->m_retainedCgrSr,
                                hist->m_retainedOilApiSr, hist->m_retainedCondensateApiSr );
 
@@ -285,7 +285,7 @@ void Genex6::OTGCNodeAdsorptionHistory::write ( std::ostream& str ) {
        << setw ( 21 ) << "C1Adsorped-SCF/ton"
        << setw ( 21 ) << "C1Desorped-SCF/ton"
        << setw ( 21 ) << "AdsorpCap-scf/ton"
-       << setw ( 21 ) << "Pyrobitumen-frac"  
+       << setw ( 21 ) << "Pyrobitumen-frac"
        << setw ( 21 ) << "OilVolume-BBL/ton"
        << setw ( 21 ) << "GasVolume-SCF/ton"
        << setw ( 21 ) << "OilVolume-MMBBL/acre"
@@ -395,6 +395,6 @@ void Genex6::OTGCNodeAdsorptionHistory::write ( std::ostream& str ) {
 }
 
 Genex6::NodeAdsorptionHistory* Genex6::allocateOTGCNodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
-                                                                           DataAccess::Interface::ProjectHandle* projectHandle ) {
+                                                                           DataAccess::Interface::ProjectHandle& projectHandle ) {
    return new OTGCNodeAdsorptionHistory ( speciesManager, projectHandle );
 }

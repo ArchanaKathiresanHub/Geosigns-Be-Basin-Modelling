@@ -23,7 +23,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -38,21 +38,21 @@ public :
    OutputPropertyMap* m_temperature;
    OutputPropertyMap* m_pressure;
 
-  
+
    bool m_isCalculated;
 
    /// Other dependencies.
    const CompoundLithologyArray* m_lithologies;
    const FluidType*              m_fluid;
-   
-  
+
+
 };
 
 
-OutputPropertyMap* allocateCapillaryPressureVolumeCalculator ( const ::PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateCapillaryPressureVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot );
 
 
-//disabled the map calculation 
+//disabled the map calculation
 /* class CapillaryPressureCalculator { */
 
 /* public : */

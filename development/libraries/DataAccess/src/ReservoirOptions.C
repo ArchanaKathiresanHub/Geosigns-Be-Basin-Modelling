@@ -23,7 +23,7 @@ using namespace std;
 using namespace DataAccess;
 using namespace Interface;
 
-ReservoirOptions::ReservoirOptions (ProjectHandle * projectHandle, database::Record * record) : DAObject (projectHandle, record)
+ReservoirOptions::ReservoirOptions (ProjectHandle& projectHandle, database::Record * record) : DAObject (projectHandle, record)
 {
 }
 

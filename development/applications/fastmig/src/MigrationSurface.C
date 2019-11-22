@@ -31,7 +31,7 @@ using namespace DataAccess;
 namespace migration
 {
 
-   MigrationSurface::MigrationSurface (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record)
+   MigrationSurface::MigrationSurface (Interface::ProjectHandle& projectHandle, Migrator * const migrator, database::Record * record)
       : Interface::Surface (projectHandle, record),
       m_migrator (migrator)
    {

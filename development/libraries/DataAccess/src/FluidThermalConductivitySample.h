@@ -14,12 +14,12 @@ namespace DataAccess
       /// A sample point for the fluid thermal-conductivity.
       ///
       /// A fluid will return a list of these items, describing a mapping from temperature to thermal-conductivity.
-      /// temperature -> thermal-conductivity. 
+      /// temperature -> thermal-conductivity.
       class FluidThermalConductivitySample : public DAObject
       {
       public :
 
-         FluidThermalConductivitySample (ProjectHandle * projectHandle, database::Record * record);
+         FluidThermalConductivitySample (ProjectHandle& projectHandle, database::Record * record);
 
          virtual ~FluidThermalConductivitySample ();
 

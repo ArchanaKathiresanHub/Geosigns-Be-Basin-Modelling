@@ -29,11 +29,11 @@ namespace CauldronIO
     {
     public:
 
-       static bool exportToHDF(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle* projectHandle, AbstractPropertiesCalculator* propCalculator);
-       
+       static bool exportToHDF(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle& projectHandle, AbstractPropertiesCalculator* propCalculator);
+
     private:
-       ExportToHDF(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle* projectHandle, AbstractPropertiesCalculator* propCalculator);
- 
+       ExportToHDF(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, const bool includeBasement, GeoPhysics::ProjectHandle& projectHandle, AbstractPropertiesCalculator* propCalculator);
+
        void addProject(std::shared_ptr<Project>& project);
        void addSurface( const std::shared_ptr<SnapShot>& snapShot, const std::shared_ptr<Surface>& surfaceIO);
        void writeMapsToHDF(const std::shared_ptr<SnapShot>& snapShot, const std::shared_ptr<Surface>& surfaceIO, const PropertySurfaceData &propertySurfaceData );
@@ -47,7 +47,7 @@ namespace CauldronIO
        std::shared_ptr<Project> m_project;
        size_t m_numThreads;
        bool m_basement;
-       GeoPhysics::ProjectHandle* m_projectHandle;
+       GeoPhysics::ProjectHandle& m_projectHandle;
        AbstractPropertiesCalculator* m_propCalculator;
     };
 }

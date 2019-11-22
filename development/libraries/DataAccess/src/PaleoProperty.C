@@ -30,16 +30,16 @@ const string PaleoProperty::s_MapAttributeNames[] =
    "Depth"        // Top surface depth.
 };
 
-PaleoProperty::PaleoProperty (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+PaleoProperty::PaleoProperty (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
-   m_snapshot = (const Snapshot *) m_projectHandle->findSnapshot (getAge (m_record), MAJOR );
+   m_snapshot = (const Snapshot *) projectHandle.findSnapshot (getAge (m_record), MAJOR );
 
    m_startProperty = 0;
    m_endProperty = 0;
 
 }
 
-PaleoProperty::PaleoProperty ( ProjectHandle *      projectHandle,
+PaleoProperty::PaleoProperty ( ProjectHandle&      projectHandle,
                                const Formation*     ,
                                const PaleoProperty* startProperty,
                                const PaleoProperty* endProperty,
@@ -84,19 +84,19 @@ GridMap * PaleoProperty::loadMap (PaleoPropertyMapAttributeId attributeId) const
       const string & valueGridMapId = m_record->getValue<std::string> (attributeGridName);
 
       if (valueGridMapId.length () != 0) {
-         gridMap = m_projectHandle->loadInputMap ( m_record->getTable ()->name (), valueGridMapId);
+         gridMap = getProjectHandle().loadInputMap ( m_record->getTable ()->name (), valueGridMapId);
       } else {
          double value= m_record->getValue<double>(s_MapAttributeNames[attributeIndex]);
 
          if (value != RecordValueUndefined)
          {
-            const Grid * grid = m_projectHandle->getActivityOutputGrid();
+            const Grid * grid = getProjectHandle().getActivityOutputGrid();
 
             if (!grid) {
-               grid = (Grid *) m_projectHandle->getInputGrid ();
+               grid = (Grid *) getProjectHandle().getInputGrid ();
             }
 
-            gridMap = m_projectHandle->getFactory ()->produceGridMap (this, attributeIndex, grid, value);
+            gridMap = getProjectHandle().getFactory ()->produceGridMap (this, attributeIndex, grid, value);
 
             assert (gridMap == getChild (attributeIndex));
          }
@@ -105,8 +105,8 @@ GridMap * PaleoProperty::loadMap (PaleoPropertyMapAttributeId attributeId) const
 
    } else {
 
-      InterpolateFunctor interpolator ( m_startProperty->getSnapshot ()->getTime (), 
-                                        m_endProperty->getSnapshot ()->getTime (), 
+      InterpolateFunctor interpolator ( m_startProperty->getSnapshot ()->getTime (),
+                                        m_endProperty->getSnapshot ()->getTime (),
                                         m_snapshot->getTime ());
 
       gridMap = computeMap ( attributeId, m_startProperty->getMap ( attributeId ), m_endProperty->getMap ( attributeId ), interpolator );
@@ -116,13 +116,13 @@ GridMap * PaleoProperty::loadMap (PaleoPropertyMapAttributeId attributeId) const
 }
 
 
-GridMap * PaleoProperty::computeMap ( const PaleoPropertyMapAttributeId attributeId, 
+GridMap * PaleoProperty::computeMap ( const PaleoPropertyMapAttributeId attributeId,
                                       const GridMap * operand1,
                                       const GridMap * operand2,
                                       BinaryFunctor&  binaryFunctor) const {
 
    const unsigned int attributeInt = (unsigned int) ( attributeId );
-   return m_projectHandle->getFactory ()->produceGridMap ( this, attributeInt, operand1, operand2, binaryFunctor );
+   return getProjectHandle().getFactory ()->produceGridMap ( this, attributeInt, operand1, operand2, binaryFunctor );
 }
 
 bool DataAccess::Interface::PaleoPropertyTimeLessThan::operator ()( const PaleoProperty* s1, const PaleoProperty* s2 ) const {

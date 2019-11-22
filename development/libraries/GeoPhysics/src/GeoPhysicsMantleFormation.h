@@ -23,7 +23,7 @@ namespace GeoPhysics {
 
    public :
 
-      GeoPhysicsMantleFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+      GeoPhysicsMantleFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
                                   database::Record*                          record );
 
       // redefine set of methods which are differently were defined in base classes

@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -40,7 +40,7 @@ using Utilities::Numerical::IbsNoDataValue;
 
 using namespace PersistentTraps;
 
-TrackTrap::TrackTrap (Interface::ProjectHandle * projectHandle, database::Record * record)
+TrackTrap::TrackTrap (Interface::ProjectHandle& projectHandle, database::Record * record)
    : Interface::Trap (projectHandle, record)
 {
    m_persistentTrap = 0;
@@ -114,7 +114,7 @@ PersistentTrap * TrackTrap::findClosestPersistentTrap (vector < PersistentTrap *
     cerr << "trap " << getId () << " illegally penetrates AND is penetrated by " << persistentTrap->getId () << endl;
     return persistentTrap;
       }
-      
+
       unsigned int i, j;
       getGridPosition (i, j);
       double distance = persistentTrap->getDistance (i, j);
@@ -284,7 +284,7 @@ void TrackTrap::saveReservoirChargeProperties (database::Record * record,
    database::setOWC (record, getOWC ());
 
    database::setFracturePressure (record, database::getFracturePressure (getRecord ()));
-   
+
    double massTotal[ComponentManager::NUMBER_OF_PHASES];
 
    int phaseRC;
@@ -390,13 +390,13 @@ void TrackTrap::saveStockTankChargeProperties (database::Record * record, int ph
 
    int phase;
 
-   num = 0; 
+   num = 0;
    for (comp = ComponentManager::C5; comp <=  ComponentManager::C2; ++comp)
    {
       num += masses[comp] / MolarWeights[comp];
    }
 
-   denom = 0; 
+   denom = 0;
    gasMass = 0;
    for (comp =  ComponentManager::C5; comp <= ComponentManager::C1; ++comp)
    {
@@ -415,13 +415,13 @@ void TrackTrap::saveStockTankChargeProperties (database::Record * record, int ph
 
    for (phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase)
    {
-      double num = 0; 
+      double num = 0;
       for (comp = ComponentManager::C5; comp <= ComponentManager::C1; ++comp)
       {
     num += phaseMassesST[phase][comp];
       }
 
-      double denom = 0; 
+      double denom = 0;
       for (comp = ComponentManager::C15PlusAro; comp <= ComponentManager::C6Minus14Sat; ++comp)
       {
     denom += phaseMassesST[phase][comp];

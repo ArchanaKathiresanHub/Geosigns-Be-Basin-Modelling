@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 
 namespace DataAccess
@@ -35,7 +36,7 @@ public:
   virtual ~DataExtractor() = default;
 
 protected:
-  virtual DataAccess::Interface::ProjectHandle* getProjectHandle() const = 0;
+  virtual DataAccess::Interface::ProjectHandle& getProjectHandle() const = 0;
 
   std::string getMapsFileName( const std::string& propertyName ) const;
 

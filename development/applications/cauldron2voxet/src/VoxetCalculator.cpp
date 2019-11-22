@@ -34,7 +34,7 @@ const float VoxetCalculator::DefaultNullValue = 99999.0;
 
 //------------------------------------------------------------//
 
-VoxetCalculator::VoxetCalculator ( const GeoPhysics::ProjectHandle*           projectHandle,
+VoxetCalculator::VoxetCalculator ( const GeoPhysics::ProjectHandle& projectHandle,
                                    DerivedProperties::DerivedPropertyManager& propertyManager,
                                    const GridDescription&                     gridDescription,
                                    const std::map<std::string, double >&      propertyNullValueReplaceLookup ) :
@@ -88,7 +88,7 @@ void VoxetCalculator::setDefinedNodes ( const AbstractDerivedProperties::Formati
 
       if (dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION){
          if(verbose){
-	    cout << "  Using basement: " << depthPropertyValue->getFormation ()->getName () << endl;
+      cout << "  Using basement: " << depthPropertyValue->getFormation ()->getName () << endl;
          }
       }
 
@@ -136,7 +136,7 @@ int VoxetCalculator::computeInterpolators ( const Snapshot * snapshot,
 
    m_interpolatorIsDefined = Array<bool>::create2d ( m_gridDescription.getVoxetNodeCount ( 0 ), m_gridDescription.getVoxetNodeCount ( 1 ), true );
 
-   PropertyValueList* depthPropertyValueList = m_projectHandle->getPropertyValues (FORMATION, m_depthProperty, snapshot, 0, 0, 0);
+   PropertyValueList* depthPropertyValueList = m_projectHandle.getPropertyValues (FORMATION, m_depthProperty, snapshot, 0, 0, 0);
    AbstractDerivedProperties::FormationPropertyList depthDerivedPropertyValueList = m_propertyManager.getFormationProperties ( m_depthProperty, snapshot, useBasement ());
 
    if ( depthDerivedPropertyValueList.size () == 0 ) {
@@ -262,7 +262,7 @@ void VoxetCalculator::initialiseInterpolators ( const AbstractDerivedProperties:
                else
                {
                   if (!m_gridDescription.getCauldronGrid ()->getGridPoint (xValue, yValue, cauldronI, cauldronJ) ||
-			!validCauldronElement (cauldronI, cauldronJ))
+      !validCauldronElement (cauldronI, cauldronJ))
                   {
                      // The (x,y) value lies outside of the valid cauldron calculation domain so the interpolator (i,j) is not valid.
                      interpolator (i, j).setNullInterpolator (true);
@@ -413,23 +413,23 @@ void VoxetCalculator::calculatorInterpolatorValues ( const AbstractDerivedProper
                     depthPropertyIter != depthPropertyValueList.end (); ++depthPropertyIter, ++formationCount)
                {
 
-		  if (verbose && i == 0 && j == 0)
-		  {
-		     cout << "formation count: " << formationCount << endl << flush;
-		  }
+			if (verbose && i == 0 && j == 0)
+			{
+				 cout << "formation count: " << formationCount << endl << flush;
+			}
 
-                  depthPropertyValue = *depthPropertyIter;
+									depthPropertyValue = *depthPropertyIter;
 
-		  if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION )) {
-		     continue;
-		  }
+			if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION )) {
+				 continue;
+			}
 
-		  if (verbose && i == 0 && j == 0)
-		  {
-		     cout << " computing formation: " << depthPropertyValue->getFormation ()->getName () << endl << flush;
-		  }
+			if (verbose && i == 0 && j == 0)
+			{
+				 cout << " computing formation: " << depthPropertyValue->getFormation ()->getName () << endl << flush;
+			}
 
-                  const AbstractDerivedProperties::FormationPropertyPtr propertyValue = propertyIter->second->getDerivedProperty (formationCount);
+									const AbstractDerivedProperties::FormationPropertyPtr propertyValue = propertyIter->second->getDerivedProperty (formationCount);
 
                   if (!propertyValue)
                   {
@@ -440,13 +440,13 @@ void VoxetCalculator::calculatorInterpolatorValues ( const AbstractDerivedProper
                      continue;
                   }
 
-		  if (verbose && i == 0 && j == 0)
-		  {
-		     cout << " found property value for property " << propertyValue->getProperty()->getName() <<
+			if (verbose && i == 0 && j == 0)
+			{
+				 cout << " found property value for property " << propertyValue->getProperty()->getName() <<
 			" for formation: " << propertyValue->getFormation ()->getName () << endl << flush;
-		  }
+			}
 
-                  formationName = depthPropertyValue->getFormation ()->getName ();
+									formationName = depthPropertyValue->getFormation ()->getName ();
 
                   // For each property-layer-interpolator set the layer top and bottom depths.
                   if (!interpolator (i, j).isNullInterpolator ())
@@ -715,7 +715,7 @@ VoxetCalculator::PropertyInterpolator::~PropertyInterpolator () {
 
 //------------------------------------------------------------//
 
-void VoxetCalculator::PropertyInterpolator::setSnapshot ( const GeoPhysics::ProjectHandle*           projectHandle,
+void VoxetCalculator::PropertyInterpolator::setSnapshot ( const GeoPhysics::ProjectHandle& projectHandle,
                                                           DerivedProperties::DerivedPropertyManager& propertyManager,
                                                           const Snapshot*                            snapshot,
                                                           const bool                                 useBasement ) {

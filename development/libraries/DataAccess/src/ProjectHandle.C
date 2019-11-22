@@ -149,12 +149,11 @@ static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth
                                 "ALCSmTopBasaltDepth",
                                 "ALCSmMohoDepth",
 
-                                "ChemicalCompaction" , "Depth",
-                                "ErosionFactor", "FCTCorrection", "MaxVes",
+                                "AllochthonousLithology", "ChemicalCompaction", "Depth",
+                                "ErosionFactor", "FaultElements", "FCTCorrection", "MaxVes",
                                 "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
 ProjectHandle* DataAccess::Interface::OpenCauldronProject( const string & name,
-                                                           const string & accessMode,
                                                            const ObjectFactory* objectFactory,
                                                            const std::vector<std::string>& outputTableNames )
 {
@@ -167,7 +166,7 @@ ProjectHandle* DataAccess::Interface::OpenCauldronProject( const string & name,
 
    if ( pfh != nullptr )
    {
-      return objectFactory->produceProjectHandle ( pfh, name, accessMode );
+      return objectFactory->produceProjectHandle ( pfh, name );
    }
    else
    {
@@ -186,17 +185,12 @@ database::ProjectFileHandlerPtr DataAccess::Interface::CreateDatabaseFromCauldro
    return database::ProjectFileHandlerPtr ( new database::ProjectFileHandler ( name, outputTableNames ));
 }
 
-void DataAccess::Interface::CloseCauldronProject( DataAccess::Interface::ProjectHandle * projectHandle )
-{
-   if ( projectHandle ) delete projectHandle;
-}
-
 int Interface::ProjectHandle::GetNumberOfSpecies( void )
 {
    return ComponentId::NUMBER_OF_SPECIES;
 }
 
-database::ProjectFileHandlerPtr Interface::ProjectHandle::getProjectFileHandler () {
+database::ProjectFileHandlerPtr Interface::ProjectHandle::getProjectFileHandler () const {
    return m_projectFileHandler;
 }
 
@@ -215,16 +209,14 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
    return *m_globalOperations;
 }
 
-ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode, const ObjectFactory* objectFactory ) :
-   m_name( name ), m_accessMode( READWRITE ), m_projectFileHandler(pfh),
+ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string & name, const ObjectFactory* objectFactory ) :
+   m_name( name ), m_projectFileHandler(pfh),
    m_tableCTC                         ( *this ),
    m_tableCTCRiftingHistory           ( *this ),
    m_tableOceanicCrustThicknessHistory( *this ),
    m_validator( *this ),
-   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 )
+   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 22 )
 {
-   (void) accessMode; // ignore warning about unused parameter
-
    m_messageHandler = 0;
    m_globalOperations = 0;
 
@@ -255,6 +247,8 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    m_irreducibleWaterSample = 0;
 
    m_primaryDouble = false;
+
+   if (!pfh) return;
 
    //1DComponent
    loadModellingMode();
@@ -476,7 +470,7 @@ void ProjectHandle::splitName( void )
 bool ProjectHandle::saveToFile( const string & fileName )
 {
 
-   if ( getRank() == 0 )
+   if ( getRank() == 0 && m_projectFileHandler )
    {
       m_projectFileHandler->saveToFile( fileName );
    }
@@ -645,11 +639,19 @@ const Grid * ProjectHandle::getActivityOutputGrid( void ) const
 
 database::Table * ProjectHandle::getTable( const string & tableName ) const
 {
-   return m_projectFileHandler->getTable ( tableName );
+  if ( m_projectFileHandler )
+  {
+    return m_projectFileHandler->getTable ( tableName );
+  }
+  return nullptr;
 }
 
-void ProjectHandle::setAsOutputTable ( const std::string& tableName ) {
-   m_projectFileHandler->setTableAsOutput ( tableName );
+void ProjectHandle::setAsOutputTable ( const std::string& tableName )
+{
+  if ( m_projectFileHandler )
+  {
+    m_projectFileHandler->setTableAsOutput ( tableName );
+  }
 }
 
 
@@ -665,7 +667,7 @@ bool ProjectHandle::loadSnapshots( void )
    for ( tblIter = snapshotTbl->begin(); tblIter != snapshotTbl->end(); ++tblIter )
    {
       Record * snapshotRecord = *tblIter;
-      m_snapshots.push_back( getFactory()->produceSnapshot( this, snapshotRecord ) );
+      m_snapshots.push_back( getFactory()->produceSnapshot( *this, snapshotRecord ) );
    }
 
    std::sort( m_snapshots.begin(), m_snapshots.end(), SnapshotLessThan() );
@@ -741,7 +743,7 @@ bool ProjectHandle::createSnapshotsAtRiftEvents()
          setTypeOfSnapshot( record, "System Generated" );
          setSnapshotFileName( record, "" );
 
-         m_snapshots.push_back (getFactory ()->produceSnapshot (this, record));
+         m_snapshots.push_back (getFactory ()->produceSnapshot (*this, record));
       }
    }
    std::sort ( m_snapshots.begin (), m_snapshots.end (), SnapshotLessThan ());
@@ -922,7 +924,7 @@ bool ProjectHandle::loadSurfaces( void )
    for ( tblIter = stratTbl->begin(); tblIter != stratTbl->end(); ++tblIter )
    {
       Record * stratRecord = *tblIter;
-      m_surfaces.push_back( getFactory()->produceSurface( this, stratRecord ) );
+      m_surfaces.push_back( getFactory()->produceSurface( *this, stratRecord ) );
    }
 
    // Sort the list of surfaces into age order, youngest first, oldest last on the list.
@@ -939,130 +941,127 @@ bool ProjectHandle::loadProperties( void )
    using Interface::TRAPPROPERTY;
 
    // fastcauldron properties
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCOrigLithMantleDepth",         "ALCOrigLithMantleDepth",         "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCMaxAsthenoMantleDepth",       "ALCMaxAsthenoMantleDepth",       "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepContCrustThickness",      "ALCStepContCrustThickness",      "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepBasaltThickness",         "ALCStepBasaltThickness",         "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepTopBasaltDepth",          "ALCStepTopBasaltDepth",          "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmContCrustThickness",        "ALCSmContCrustThickness",        "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmBasaltThickness",           "ALCSmBasaltThickness",           "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmTopBasaltDepth",            "ALCSmTopBasaltDepth",            "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmMohoDepth",                 "ALCSmMohoDepth",                 "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepMohoDepth",               "ALCStepMohoDepth",               "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ALCOrigLithMantleDepth",         "ALCOrigLithMantleDepth",         "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ALCMaxAsthenoMantleDepth",       "ALCMaxAsthenoMantleDepth",       "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ALCStepContCrustThickness",      "ALCStepContCrustThickness",      "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ALCStepBasaltThickness",         "ALCStepBasaltThickness",         "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ALCStepTopBasaltDepth",          "ALCStepTopBasaltDepth",          "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ALCSmContCrustThickness",        "ALCSmContCrustThickness",        "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ALCSmBasaltThickness",           "ALCSmBasaltThickness",           "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ALCSmTopBasaltDepth",            "ALCSmTopBasaltDepth",            "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ALCSmMohoDepth",                 "ALCSmMohoDepth",                 "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ALCStepMohoDepth",               "ALCStepMohoDepth",               "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "AllochthonousLithology",         "AllochthonousLithology",         "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "CapillaryEntryPressureVapour",   "CapillaryEntryPressureVapour",   "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "CapillaryEntryPressureLiquid",   "CapillaryEntryPressureLiquid",   "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ChemicalCompaction",             "ChemicalCompaction",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "BulkDensity",                    "BulkDensityVec2",                "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Depth",                          "Depth",                          "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "DepthHighRes",                   "DepthHighRes",                   "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Diffusivity",                    "DiffusivityVec2",                "m2/s",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ErosionFactor",                  "ErosionFactor",                  "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FaultElements",                  "FaultElements",                  "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FCTCorrection",                  "FCTCorrection",                  "%",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionIJK",               "FlowDirectionIJK",               "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionI",                 "FlowDirectionI",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionJ",                 "FlowDirectionJ",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionK",                 "FlowDirectionK",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionX",                 "FlowDirectionX",                 "m",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionY",                 "FlowDirectionY",                 "m",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionZ",                 "FlowDirectionZ",                 "m",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocity",                  "FluidVelocity",                  "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityX",                 "FluidVelocityX",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityY",                 "FluidVelocityY",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityZ",                 "FluidVelocityZ",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "GammaRay",                       "GammaRay",                       "API",   FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ) );
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlow",                       "HeatFlow",                       "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowX",                      "HeatFlowX",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowY",                      "HeatFlowY",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowZ",                      "HeatFlowZ",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "AllochthonousLithology",         "AllochthonousLithology",         "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "CapillaryEntryPressureVapour",   "CapillaryEntryPressureVapour",   "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "CapillaryEntryPressureLiquid",   "CapillaryEntryPressureLiquid",   "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ChemicalCompaction",             "ChemicalCompaction",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "BulkDensity",                    "BulkDensityVec2",                "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Depth",                          "Depth",                          "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "DepthHighRes",                   "DepthHighRes",                   "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Diffusivity",                    "DiffusivityVec2",                "m2/s",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ErosionFactor",                  "ErosionFactor",                  "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FaultElements",                  "FaultElements",                  "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FCTCorrection",                  "FCTCorrection",                  "%",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FlowDirectionIJK",               "FlowDirectionIJK",               "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FlowDirectionI",                 "FlowDirectionI",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FlowDirectionJ",                 "FlowDirectionJ",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FlowDirectionK",                 "FlowDirectionK",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FlowDirectionX",                 "FlowDirectionX",                 "m",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FlowDirectionY",                 "FlowDirectionY",                 "m",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FlowDirectionZ",                 "FlowDirectionZ",                 "m",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FluidVelocity",                  "FluidVelocity",                  "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FluidVelocityX",                 "FluidVelocityX",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FluidVelocityY",                 "FluidVelocityY",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FluidVelocityZ",                 "FluidVelocityZ",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "GammaRay",                       "GammaRay",                       "API",   FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ) );
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HeatFlow",                       "HeatFlow",                       "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HeatFlowX",                      "HeatFlowX",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HeatFlowY",                      "HeatFlowY",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HeatFlowZ",                      "HeatFlowZ",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
-
-   // not sure which attribute this property shoudl have, so give it the most general one
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HopaneIsomerisation",            "HopaneIsomerisation",            "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HorizontalPermeability",         "HorizontalPermeability",         "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HydroStaticPressure",            "HydroStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
    // not sure which attribute this property shoudl have, so give it the most general one
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "IlliteFraction",                 "IlliteFraction",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Lithology",                      "Lithology",                      "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "LithoStaticPressure",            "LithoStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "MaxVesHighRes",                  "MaxVesHighRes",                  "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "MaxVes",                         "MaxVesVec2",                     "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back(getFactory ()->produceProperty( this, 0, "Overburden",                     "Overburden",                     "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "OverPressure",                   "OverPressure",                   "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "PermeabilityH",                  "PermeabilityHVec2",              "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Permeability",                   "PermeabilityVec2",               "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Porosity",                       "PorosityVec2",                   "vol%",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Pressure",                       "Pressure",                       "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-
-   // Reflectivity should be DataModel::SURFACE_2D_PROPERTY.
-   // Currently fastcauldron outputs both surface and a volume dataset for this property.
-   // The Volume data is largely filled with the null-value (99999) except at the surface.
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Reflectivity",                   "ReflectivityVec2",               "",      FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SonicSlowness",                  "SonicVec2",                      "us/m",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HopaneIsomerisation",            "HopaneIsomerisation",            "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HydroStaticPressure",            "HydroStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
    // not sure which attribute this property shoudl have, so give it the most general one
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SteraneAromatisation",           "SteraneAromatisation",           "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "IlliteFraction",                 "IlliteFraction",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Lithology",                      "Lithology",                      "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "LithoStaticPressure",            "LithoStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "MaxVesHighRes",                  "MaxVesHighRes",                  "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "MaxVes",                         "MaxVesVec2",                     "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back(getFactory ()->produceProperty( *this, 0, "Overburden",                     "Overburden",                     "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "OverPressure",                   "OverPressure",                   "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HorizontalPermeability",         "PermeabilityHVec2",              "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Permeability",                   "PermeabilityVec2",               "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Porosity",                       "PorosityVec2",                   "vol%",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Pressure",                       "Pressure",                       "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+
+
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Reflectivity",                   "ReflectivityVec2",               "",      FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SonicSlowness",                  "SonicVec2",                      "us/m",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
    // not sure which attribute this property shoudl have, so give it the most general one
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SteraneIsomerisation",           "SteraneIsomerisation",           "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Temperature",                    "Temperature",                    "C",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ThCond",                         "ThCondVec2",                     "W/mK",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ThicknessError",                 "ThicknessError",                 "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ThicknessHighRes",               "ThicknessHighRes",               "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Thickness",                      "Thickness",                      "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "TwoWayTime",                     "TwoWayTime",                     "ms",    FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ) );
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "TwoWayTimeResidual",             "TwoWayTimeResidual",             "ms",    FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ) );
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Velocity",                       "VelocityVec2",                   "m/s",   FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "VesHighRes",                     "VesHighRes",                     "Pa",    FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Ves",                            "Ves",                            "Pa",    FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Vre",                            "Vre",                            "%",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Vr",                             "VrVec2",                         "%",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SteraneAromatisation",           "SteraneAromatisation",           "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SourceRockEndMember1",           "SourceRockEndMember1",           "%",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SourceRockEndMember2",           "SourceRockEndMember2",           "%",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "TOC",                            "TOC",                            "%",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "PorosityLossFromPyroBitumen",    "PorosityLossFromPyroBitumen",    "%",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "H2SRisk",                        "H2SRisk",                        "kg/m2", FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourDensity",                "HcVapourDensity",                "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidDensity",                "HcLiquidDensity",                "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "BrineDensity",                   "BrineDensity",                   "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourViscosity",              "HcVapourViscosity",              "Pa.s",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidViscosity",              "HcLiquidViscosity",              "Pa.s",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "BrineViscosity",                 "BrineViscosity",                 "Pa.s",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "BrineSaturation",                "BrineSaturation",                "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidSaturation",             "HcLiquidSaturation",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourSaturation",             "HcVapourSaturation",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidBrineCapillaryPressure", "HcLiquidBrineCapillaryPressure", "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourBrineCapillaryPressure", "HcVapourBrineCapillaryPressure", "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "GOR",                            "GOR",                            "m3/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "CGR",                            "CGR",                            "m3/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "OilAPI",                         "OilAPI",                         "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "CondensateAPI",                  "CondensateAPI",                  "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "TimeOfInvasion",                 "TimeOfInvasion",                 "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ImmobileSaturation",             "ImmobileSaturation",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   // m_properties.push_back( getFactory()->produceProperty( this, 0, "AverageBrineSaturation",         "AverageBrineSaturation",         "frac", FORMATIONPROPERTY ));
-   // m_properties.push_back( getFactory()->produceProperty( this, 0, "AverageHcLiquidSaturation",      "AverageHcLiquidSaturation",      "frac", FORMATIONPROPERTY ));
-   // m_properties.push_back( getFactory()->produceProperty( this, 0, "AverageHcVapourSaturation",      "AverageHcVapourSaturation",      "frac", FORMATIONPROPERTY ));
-   // m_properties.push_back( getFactory()->produceProperty( this, 0, "AverageImmobileSaturation",      "AverageImmobileSaturation",      "frac", FORMATIONPROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourVolume",                 "HcVapourVolume",                 "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidVolume",                 "HcLiquidVolume",                 "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ElementVolume",                  "ElementVolume",                  "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ElementPoreVolume",              "ElementPoreVolume",              "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "BrineRelativePermeability",      "BrineRelativePermeability",      "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidRelativePermeability",   "HcLiquidRelativePermeability",   "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourRelativePermeability",   "HcVapourRelativePermeability",   "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   // not sure which attribute this property shoudl have, so give it the most general one
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SteraneIsomerisation",           "SteraneIsomerisation",           "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Temperature",                    "Temperature",                    "C",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ThCond",                         "ThCondVec2",                     "W/mK",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ThicknessError",                 "ThicknessError",                 "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ThicknessHighRes",               "ThicknessHighRes",               "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Thickness",                      "Thickness",                      "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "TwoWayTime",                     "TwoWayTime",                     "ms",    FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ) );
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "TwoWayTimeResidual",             "TwoWayTimeResidual",             "ms",    FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ) );
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Velocity",                       "VelocityVec2",                   "m/s",   FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "VesHighRes",                     "VesHighRes",                     "Pa",    FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Ves",                            "Ves",                            "Pa",    FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Vre",                            "Vre",                            "%",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Vr",                             "VrVec2",                         "%",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourVelocityX",              "HcVapourVelocityX",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourVelocityY",              "HcVapourVelocityY",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourVelocityZ",              "HcVapourVelocityZ",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourVelocityMagnitude",      "HcVapourVelocityMagnitude",      "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidVelocityX",              "HcLiquidVelocityX",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidVelocityY",              "HcLiquidVelocityY",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidVelocityZ",              "HcLiquidVelocityZ",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidVelocityMagnitude",      "HcLiquidVelocityMagnitude",      "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SourceRockEndMember1",           "SourceRockEndMember1",           "%",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SourceRockEndMember2",           "SourceRockEndMember2",           "%",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "TOC",                            "TOC",                            "%",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "PorosityLossFromPyroBitumen",    "PorosityLossFromPyroBitumen",    "%",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "H2SRisk",                        "H2SRisk",                        "kg/m2", FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourDensity",                "HcVapourDensity",                "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidDensity",                "HcLiquidDensity",                "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "BrineDensity",                   "BrineDensity",                   "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourViscosity",              "HcVapourViscosity",              "Pa.s",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidViscosity",              "HcLiquidViscosity",              "Pa.s",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "BrineViscosity",                 "BrineViscosity",                 "Pa.s",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "BrineSaturation",                "BrineSaturation",                "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidSaturation",             "HcLiquidSaturation",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourSaturation",             "HcVapourSaturation",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidBrineCapillaryPressure", "HcLiquidBrineCapillaryPressure", "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourBrineCapillaryPressure", "HcVapourBrineCapillaryPressure", "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "GOR",                            "GOR",                            "m3/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "CGR",                            "CGR",                            "m3/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "OilAPI",                         "OilAPI",                         "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "CondensateAPI",                  "CondensateAPI",                  "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "TimeOfInvasion",                 "TimeOfInvasion",                 "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ImmobileSaturation",             "ImmobileSaturation",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   // m_properties.push_back( getFactory()->produceProperty( *this, 0, "AverageBrineSaturation",         "AverageBrineSaturation",         "frac", FORMATIONPROPERTY ));
+   // m_properties.push_back( getFactory()->produceProperty( *this, 0, "AverageHcLiquidSaturation",      "AverageHcLiquidSaturation",      "frac", FORMATIONPROPERTY ));
+   // m_properties.push_back( getFactory()->produceProperty( *this, 0, "AverageHcVapourSaturation",      "AverageHcVapourSaturation",      "frac", FORMATIONPROPERTY ));
+   // m_properties.push_back( getFactory()->produceProperty( *this, 0, "AverageImmobileSaturation",      "AverageImmobileSaturation",      "frac", FORMATIONPROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourVolume",                 "HcVapourVolume",                 "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidVolume",                 "HcLiquidVolume",                 "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ElementVolume",                  "ElementVolume",                  "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ElementPoreVolume",              "ElementPoreVolume",              "m3",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "BrineRelativePermeability",      "BrineRelativePermeability",      "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidRelativePermeability",   "HcLiquidRelativePermeability",   "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourRelativePermeability",   "HcVapourRelativePermeability",   "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourVelocityX",              "HcVapourVelocityX",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourVelocityY",              "HcVapourVelocityY",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourVelocityZ",              "HcVapourVelocityZ",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourVelocityMagnitude",      "HcVapourVelocityMagnitude",      "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidVelocityX",              "HcLiquidVelocityX",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidVelocityY",              "HcLiquidVelocityY",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidVelocityZ",              "HcLiquidVelocityZ",              "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidVelocityMagnitude",      "HcLiquidVelocityMagnitude",      "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
 
    //Genex5 Properties
@@ -1073,13 +1072,13 @@ bool ProjectHandle::loadProperties( void )
    int i;
    for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
-      m_properties.push_back( getFactory()->produceProperty( this, 0,
+      m_properties.push_back( getFactory()->produceProperty( *this, 0,
          theComponentManager.getSpeciesOutputPropertyName( i, false ),
          theComponentManager.getSpeciesOutputPropertyName( i, false ),
          theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
          DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
 
-      m_properties.push_back( getFactory()->produceProperty( this, 0,
+      m_properties.push_back( getFactory()->produceProperty( *this, 0,
          theComponentManager.getSpeciesOutputPropertyName( i, true ),
          theComponentManager.getSpeciesOutputPropertyName( i, true ),
          theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
@@ -1090,7 +1089,7 @@ bool ProjectHandle::loadProperties( void )
 
    for ( i = 0; i < GenexResultManager::NumberOfResults; ++i )
    {
-      m_properties.push_back( getFactory()->produceProperty( this, 0,
+      m_properties.push_back( getFactory()->produceProperty( *this, 0,
          theResultManager.GetResultName( i ),
          theResultManager.GetResultName( i ),
          theResultManager.GetResultUnit( i ), FORMATIONPROPERTY,
@@ -1099,44 +1098,44 @@ bool ProjectHandle::loadProperties( void )
 
    for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
-      m_properties.push_back( getFactory()->produceProperty( this, 0,
+      m_properties.push_back( getFactory()->produceProperty( *this, 0,
          theComponentManager.getSpeciesName( i ) + "Concentration",
          theComponentManager.getSpeciesName( i ) + "Concentration",
          "kg/m3", FORMATIONPROPERTY,
          DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
    }
 
-   m_properties.push_back( getFactory()->produceProperty( this, 0,
+   m_properties.push_back( getFactory()->produceProperty( *this, 0,
       "ElementMass", "ElementMass",
        "kg/m3", FORMATIONPROPERTY,
         DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
-   m_properties.push_back( getFactory()->produceProperty( this, 0,
+   m_properties.push_back( getFactory()->produceProperty( *this, 0,
       "TransportedMass", "TransportedMass",
       "kg", FORMATIONPROPERTY,
       DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
    for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
-      m_properties.push_back( getFactory()->produceProperty( this, 0,
+      m_properties.push_back( getFactory()->produceProperty( *this, 0,
          theComponentManager.getSpeciesName( i ) + "Retained",
          theComponentManager.getSpeciesName( i ) + "Retained",
           theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
           DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
 
-      m_properties.push_back( getFactory()->produceProperty( this, 0,
+      m_properties.push_back( getFactory()->produceProperty( *this, 0,
          theComponentManager.getSpeciesName( i ) + "Adsorped",
          theComponentManager.getSpeciesName( i ) + "Adsorped",
          "scf/ton", FORMATIONPROPERTY,
          DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
 
-      m_properties.push_back( getFactory()->produceProperty( this, 0,
+      m_properties.push_back( getFactory()->produceProperty( *this, 0,
          theComponentManager.getSpeciesName( i ) + "AdsorpedExpelled",
          theComponentManager.getSpeciesName( i ) + "AdsorpedExpelled",
          "scf/ton", FORMATIONPROPERTY,
          DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
 
-      m_properties.push_back( getFactory()->produceProperty( this, 0,
+      m_properties.push_back( getFactory()->produceProperty( *this, 0,
          theComponentManager.getSpeciesName( i ) + "AdsorpedFree",
          theComponentManager.getSpeciesName( i ) + "AdsorpedFree",
          "scf/ton", FORMATIONPROPERTY,
@@ -1145,110 +1144,110 @@ bool ProjectHandle::loadProperties( void )
    }
 
 
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "AdsorptionCapacity",            "AdsorptionCapacity",            "scf/ton",   FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FractionOfAdsorptionCap",       "FractionOfAdsorptionCap",       "%",         FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "GasExpansionRatio_Bg",          "GasExpansionRatio_Bg",          "m3/m3",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcLiquidSat",                   "HcLiquidSat",                   "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcSaturation",                  "HcSaturation",                  "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HcVapourSat",                   "HcVapourSat",                   "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ImmobileWaterSat",              "ImmobileWaterSat",              "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Oil2GasGeneratedCumulative",    "Oil2GasGeneratedCumulative",    "kg/m2",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "OverChargeFactor",              "OverChargeFactor",              "frac",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "RetainedCondensateApiSR",       "RetainedCondensateApiSR",       "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "RetainedCgrSR",                 "RetainedCgrSR",                 "bbl/mcf",   FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "RetainedGasVolumeST",           "RetainedGasVolumeST",           "bcf/km2",   FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "RetainedGorSR",                 "RetainedGorSR",                 "scf/bbl",   FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "RetainedOilApiSR",              "RetainedOilApiSR",              "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "RetainedOilVolumeST",           "RetainedOilVolumeST",           "mmbbl/km2", FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "TotalGasGeneratedCumulative",   "TotalGasGeneratedCumulative",   "kg/m2",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "AdsorptionCapacity",            "AdsorptionCapacity",            "scf/ton",   FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FractionOfAdsorptionCap",       "FractionOfAdsorptionCap",       "%",         FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "GasExpansionRatio_Bg",          "GasExpansionRatio_Bg",          "m3/m3",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcLiquidSat",                   "HcLiquidSat",                   "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcSaturation",                  "HcSaturation",                  "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "HcVapourSat",                   "HcVapourSat",                   "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ImmobileWaterSat",              "ImmobileWaterSat",              "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Oil2GasGeneratedCumulative",    "Oil2GasGeneratedCumulative",    "kg/m2",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "OverChargeFactor",              "OverChargeFactor",              "frac",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "RetainedCondensateApiSR",       "RetainedCondensateApiSR",       "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "RetainedCgrSR",                 "RetainedCgrSR",                 "bbl/mcf",   FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "RetainedGasVolumeST",           "RetainedGasVolumeST",           "bcf/km2",   FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "RetainedGorSR",                 "RetainedGorSR",                 "scf/bbl",   FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "RetainedOilApiSR",              "RetainedOilApiSR",              "",          FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "RetainedOilVolumeST",           "RetainedOilVolumeST",           "mmbbl/km2", FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "TotalGasGeneratedCumulative",   "TotalGasGeneratedCumulative",   "kg/m2",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTGENEX_PROPERTY ));
 
    // reservoir properties
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockTrapArea",               "ResRockTrapArea",               "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockTrapId",                 "ResRockTrapId",                 "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockLeakage",                "ResRockLeakage",                "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SeepageBasinTop_Gas",           "SeepageBasinTop_Gas",           "kg",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SeepageBasinTop_Oil",           "SeepageBasinTop_Oil",           "kg",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockLeakageUpward",          "ResRockLeakageUpward",          "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockLeakageOutward",         "ResRockLeakageOutward",         "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockTop",                    "ResRockTop",                    "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockOverburden",             "ResRockOverburden",             "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockBottom",                 "ResRockBottom",                 "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockThickness",              "ResRockThickness",              "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockPorosity",               "ResRockPorosity",               "%",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockSealPermeability",       "ResRockSealPermeability",       "mD",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasIJ",     "ResRockFlowDirectionGasIJ",     "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasI",      "ResRockFlowDirectionGasI",      "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasJ",      "ResRockFlowDirectionGasJ",      "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidIJ",   "ResRockFlowDirectionFluidIJ",   "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidI",    "ResRockFlowDirectionFluidI",    "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidJ",    "ResRockFlowDirectionFluidJ",    "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlow",                   "ResRockFlow",                   "log(kg)", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirection",          "ResRockFlowDirection",          "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlux",                   "ResRockFlux",                   "kg/m2",   RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockImmobilesVolume",        "ResRockImmobilesVolume",        "m3",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockImmobilesDensity",       "ResRockImmobilesDensity",       "kg/m2",   RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFillGasPhaseQuantity",   "ResRockFillGasPhaseQuantity",   "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFillFluidPhaseQuantity", "ResRockFillFluidPhaseQuantity", "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFillGasPhaseDensity",    "ResRockFillGasPhaseDensity",    "kg/m2",   RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFillFluidPhaseDensity",  "ResRockFillFluidPhaseDensity",  "kg/m2",   RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockDrainageAreaGasPhase",   "ResRockDrainageAreaGasPhase",   "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockDrainageAreaFluidPhase", "ResRockDrainageAreaFluidPhase", "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockDrainageIdGasPhase",     "ResRockDrainageIdGasPhase",     "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockDrainageIdFluidPhase",   "ResRockDrainageIdFluidPhase",   "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockBarriers",               "ResRockBarriers",               "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFaultCutEdges",          "ResRockFaultCutEdges",          "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockPressure",               "ResRockPressure",               "MPa",     RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockTemperature",            "ResRockTemperature",            "C",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockCapacity",               "ResRockCapacity",               "m3",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockTrapArea",               "ResRockTrapArea",               "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockTrapId",                 "ResRockTrapId",                 "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockLeakage",                "ResRockLeakage",                "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SeepageBasinTop_Gas",           "SeepageBasinTop_Gas",           "kg",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SeepageBasinTop_Oil",           "SeepageBasinTop_Oil",           "kg",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockLeakageUpward",          "ResRockLeakageUpward",          "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockLeakageOutward",         "ResRockLeakageOutward",         "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockTop",                    "ResRockTop",                    "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockOverburden",             "ResRockOverburden",             "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockBottom",                 "ResRockBottom",                 "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockThickness",              "ResRockThickness",              "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockPorosity",               "ResRockPorosity",               "%",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockSealPermeability",       "ResRockSealPermeability",       "mD",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFlowDirectionGasIJ",     "ResRockFlowDirectionGasIJ",     "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFlowDirectionGasI",      "ResRockFlowDirectionGasI",      "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFlowDirectionGasJ",      "ResRockFlowDirectionGasJ",      "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFlowDirectionFluidIJ",   "ResRockFlowDirectionFluidIJ",   "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFlowDirectionFluidI",    "ResRockFlowDirectionFluidI",    "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFlowDirectionFluidJ",    "ResRockFlowDirectionFluidJ",    "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFlow",                   "ResRockFlow",                   "log(kg)", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFlowDirection",          "ResRockFlowDirection",          "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFlux",                   "ResRockFlux",                   "kg/m2",   RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockImmobilesVolume",        "ResRockImmobilesVolume",        "m3",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockImmobilesDensity",       "ResRockImmobilesDensity",       "kg/m2",   RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFillGasPhaseQuantity",   "ResRockFillGasPhaseQuantity",   "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFillFluidPhaseQuantity", "ResRockFillFluidPhaseQuantity", "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFillGasPhaseDensity",    "ResRockFillGasPhaseDensity",    "kg/m2",   RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFillFluidPhaseDensity",  "ResRockFillFluidPhaseDensity",  "kg/m2",   RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockDrainageAreaGasPhase",   "ResRockDrainageAreaGasPhase",   "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockDrainageAreaFluidPhase", "ResRockDrainageAreaFluidPhase", "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockDrainageIdGasPhase",     "ResRockDrainageIdGasPhase",     "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockDrainageIdFluidPhase",   "ResRockDrainageIdFluidPhase",   "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockBarriers",               "ResRockBarriers",               "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockFaultCutEdges",          "ResRockFaultCutEdges",          "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockPressure",               "ResRockPressure",               "MPa",     RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockTemperature",            "ResRockTemperature",            "C",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockCapacity",               "ResRockCapacity",               "m3",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
 
    // Touchstone properties.
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Resq: *", "Resq: *", "", FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTTOUCH_PROPERTY ) );
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Resq: *", "Resq: *", "", FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTTOUCH_PROPERTY ) );
 
    // trap properties
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "VolumeFGIIP",        "VolumeFGIIP",        "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of free gas initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "VolumeCIIP",         "VolumeCIIP",         "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of condensate initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "VolumeSGIIP",        "VolumeSGIIP",        "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of solution gas initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "VolumeSTOIIP",       "VolumeSTOIIP",       "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of stock tank oil initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "VolumeLiquid",       "VolumeLiquid",       "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of reservoir liquid phase
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "VolumeVapour",       "VolumeLiquid",       "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of reservoir vapour phase
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "DensityFGIIP",       "DensityFGIIP",       "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of free gas initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "DensityCIIP",        "DensityCIIP",        "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of condensate initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "DensitySGIIP",       "DensitySGIIP",       "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of solution gas initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "DensitySTOIIP",      "DensitySTOIIP",      "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of stock tank oil initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "DensityLiquid",      "DensityLiquid",      "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of reservoir liquid phase
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "DensityVapour",      "DensityLiquid",      "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of reservoir vapour phase
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ViscosityFGIIP",     "ViscosityFGIIP",     "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of free gas initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ViscosityCIIP",      "ViscosityCIIP",      "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of condensate initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ViscositySGIIP",     "ViscositySGIIP",     "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of solution gas initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ViscositySTOIIP",    "ViscositySTOIIP",    "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of stock tank oil initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ViscosityLiquid",    "ViscosityLiquid",    "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of reservoir liquid phase
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ViscosityVapour",    "ViscosityLiquid",    "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of reservoir vapour phase
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "MassFGIIP",          "MassFGIIP",          "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of free gas initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "MassCIIP",           "MassCIIP",           "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of condensate initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "MassSGIIP",          "MassSGIIP",          "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of solution gas initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "MassSTOIIP",         "MassSTOIIP",         "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of stock tank oil initially in place
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "MassLiquid",         "MassLiquid",         "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of reservoir liquid phase
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "MassVapour",         "MassLiquid",         "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of reservoir vapour phase
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "CGR",                "CGR",                "m3/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Condensate Gas Ratio: VolumeCIIP / VolumeFGIIP
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "GOR",                "GOR",                "m3/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Gas Oil Ratio: VolumeSGIIP / VolumeSTOIIP
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "OilAPI",             "OilAPI",             "",          TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // API of STOIIP
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "CondensateAPI",      "CondensateAPI",      "",          TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // API of CIIP
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "GasWetnessFGIIP",    "GasWetnessFGIIP",    "mole/mole", TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // C1 / Sum (C2 - C5) of FGIIP
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "GasWetnessSGIIP",    "GasWetnessSGIIP",    "mole/mole", TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // C1 / Sum (C2 - C5) of SGIIP
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "CEPLiquid",          "CEPLiquid",          "MPa",       TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); //
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "CEPVapour",          "CEPVapour",          "MPa",       TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); //
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "FracturePressure",   "FracturePressure",   "MPa",       TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Fracture pressure of the trap
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ColumnHeightLiquid", "ColumnHeightLiquid", "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Height of the liquid column
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ColumnHeightVapour", "ColumnHeightVapour", "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Height of the vapour column
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "GOC",                "GOC",                "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Depth of Vapour-Liquid contact
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "OWC",                "OWC",                "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Depth of Liquid-Water contact
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SpillDepth",         "SpillDepth",         "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Spill depth
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SealPermeability",   "SealPermeability",   "mD",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); //
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "VolumeFGIIP",        "VolumeFGIIP",        "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of free gas initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "VolumeCIIP",         "VolumeCIIP",         "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of condensate initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "VolumeSGIIP",        "VolumeSGIIP",        "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of solution gas initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "VolumeSTOIIP",       "VolumeSTOIIP",       "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of stock tank oil initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "VolumeLiquid",       "VolumeLiquid",       "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of reservoir liquid phase
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "VolumeVapour",       "VolumeLiquid",       "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of reservoir vapour phase
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "DensityFGIIP",       "DensityFGIIP",       "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of free gas initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "DensityCIIP",        "DensityCIIP",        "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of condensate initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "DensitySGIIP",       "DensitySGIIP",       "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of solution gas initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "DensitySTOIIP",      "DensitySTOIIP",      "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of stock tank oil initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "DensityLiquid",      "DensityLiquid",      "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of reservoir liquid phase
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "DensityVapour",      "DensityLiquid",      "kg/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Density of reservoir vapour phase
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ViscosityFGIIP",     "ViscosityFGIIP",     "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of free gas initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ViscosityCIIP",      "ViscosityCIIP",      "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of condensate initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ViscositySGIIP",     "ViscositySGIIP",     "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of solution gas initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ViscositySTOIIP",    "ViscositySTOIIP",    "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of stock tank oil initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ViscosityLiquid",    "ViscosityLiquid",    "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of reservoir liquid phase
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ViscosityVapour",    "ViscosityLiquid",    "Pa*s",      TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Viscosity of reservoir vapour phase
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "MassFGIIP",          "MassFGIIP",          "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of free gas initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "MassCIIP",           "MassCIIP",           "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of condensate initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "MassSGIIP",          "MassSGIIP",          "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of solution gas initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "MassSTOIIP",         "MassSTOIIP",         "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of stock tank oil initially in place
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "MassLiquid",         "MassLiquid",         "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of reservoir liquid phase
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "MassVapour",         "MassLiquid",         "kg",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Mass of reservoir vapour phase
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "CGR",                "CGR",                "m3/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Condensate Gas Ratio: VolumeCIIP / VolumeFGIIP
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "GOR",                "GOR",                "m3/m3",     TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Gas Oil Ratio: VolumeSGIIP / VolumeSTOIIP
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "OilAPI",             "OilAPI",             "",          TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // API of STOIIP
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "CondensateAPI",      "CondensateAPI",      "",          TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // API of CIIP
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "GasWetnessFGIIP",    "GasWetnessFGIIP",    "mole/mole", TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // C1 / Sum (C2 - C5) of FGIIP
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "GasWetnessSGIIP",    "GasWetnessSGIIP",    "mole/mole", TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // C1 / Sum (C2 - C5) of SGIIP
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "CEPLiquid",          "CEPLiquid",          "MPa",       TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); //
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "CEPVapour",          "CEPVapour",          "MPa",       TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); //
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "FracturePressure",   "FracturePressure",   "MPa",       TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Fracture pressure of the trap
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ColumnHeightLiquid", "ColumnHeightLiquid", "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Height of the liquid column
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "ColumnHeightVapour", "ColumnHeightVapour", "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Height of the vapour column
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "GOC",                "GOC",                "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Depth of Vapour-Liquid contact
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "OWC",                "OWC",                "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Depth of Liquid-Water contact
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SpillDepth",         "SpillDepth",         "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Spill depth
+   m_properties.push_back( getFactory()->produceProperty( *this, 0, "SealPermeability",   "SealPermeability",   "mD",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); //
 
    // amount of trapped HC per spice
    for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
-      m_properties.push_back( getFactory()->produceProperty( this, 0
+      m_properties.push_back( getFactory()->produceProperty( *this, 0
                                                            , theComponentManager.getSpeciesName( i ) + "TrappedAmount"
                                                            , theComponentManager.getSpeciesName( i ) + "TrappedAmount"
                                                            , "kg", TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY ));
@@ -1258,7 +1257,7 @@ bool ProjectHandle::loadProperties( void )
    // Crustal Thickness Calculator output properties
    for ( i = 0; i < CrustalThicknessInterface::numberOfOutputMaps; ++i )
    {
-      m_properties.push_back( getFactory()->produceProperty( this, 0,
+      m_properties.push_back( getFactory()->produceProperty( *this, 0,
                               CrustalThicknessInterface::outputMapsNames[ i ],
                               CrustalThicknessInterface::outputMapsNames[ i ],
                               CrustalThicknessInterface::outputMapsUnits[ i ],
@@ -1291,7 +1290,7 @@ bool ProjectHandle::loadTimeOutputProperties() {
 
       if ( recordMode == getModellingMode() )
       {
-         m_timeOutputProperties.push_back( getFactory()->produceOutputProperty( this, *tblIter ) );
+         m_timeOutputProperties.push_back( getFactory()->produceOutputProperty( *this, *tblIter ) );
       }
 
    }
@@ -1308,7 +1307,7 @@ bool ProjectHandle::loadLithologyThermalConductivitySamples() {
 
    for ( tblIter = thermalConductivityTbl->begin(); tblIter != thermalConductivityTbl->end(); ++tblIter )
    {
-      m_lithologyThermalConductivitySamples.push_back( getFactory()->produceLithologyThermalConductivitySample( this, *tblIter ) );
+      m_lithologyThermalConductivitySamples.push_back( getFactory()->produceLithologyThermalConductivitySample( *this, *tblIter ) );
    }
 
    return true;
@@ -1323,7 +1322,7 @@ bool ProjectHandle::loadLithologyHeatCapacitySamples() {
 
    for ( tblIter = heatCapacityTbl->begin(); tblIter != heatCapacityTbl->end(); ++tblIter )
    {
-      m_lithologyHeatCapacitySamples.push_back( getFactory()->produceLithologyHeatCapacitySample( this, *tblIter ) );
+      m_lithologyHeatCapacitySamples.push_back( getFactory()->produceLithologyHeatCapacitySample( *this, *tblIter ) );
 
    }
 
@@ -1339,7 +1338,7 @@ bool ProjectHandle::loadFluidHeatCapacitySamples() {
 
    for ( tblIter = heatCapacityTbl->begin(); tblIter != heatCapacityTbl->end(); ++tblIter )
    {
-      FluidHeatCapacitySample* sample = getFactory()->produceFluidHeatCapacitySample( this, *tblIter );
+      FluidHeatCapacitySample* sample = getFactory()->produceFluidHeatCapacitySample( *this, *tblIter );
       m_fluidHeatCapacitySamples.push_back( sample );
 
    }
@@ -1356,7 +1355,7 @@ bool ProjectHandle::loadFluidThermalConductivitySamples() {
 
    for ( tblIter = thermalConductivityTbl->begin(); tblIter != thermalConductivityTbl->end(); ++tblIter )
    {
-      m_fluidThermalConductivitySamples.push_back( getFactory()->produceFluidThermalConductivitySample( this, *tblIter ) );
+      m_fluidThermalConductivitySamples.push_back( getFactory()->produceFluidThermalConductivitySample( *this, *tblIter ) );
    }
 
    return true;
@@ -1372,7 +1371,7 @@ bool ProjectHandle::loadRelatedProjects() {
 
    for ( tblIter = relatedProjectsTbl->begin(); tblIter != relatedProjectsTbl->end(); ++tblIter )
    {
-      m_relatedProjects.push_back( getFactory()->produceRelatedProject( this, *tblIter ) );
+      m_relatedProjects.push_back( getFactory()->produceRelatedProject( *this, *tblIter ) );
    }
 
    return true;
@@ -1398,7 +1397,7 @@ bool ProjectHandle::loadFormations( void )
       // If the depo-sequence number is the null value then this is the bottom most surface definition.
       // There is no formation contained in this strat-table record.
       if ( depoSequenceNumber != DefaultUndefinedScalarValue ) {
-         formation = getFactory()->produceFormation( this, stratRecord );
+         formation = getFactory()->produceFormation( *this, stratRecord );
          m_formations.push_back( formation );
 
          if ( database::getSourceRock( stratRecord ) ) {
@@ -1406,7 +1405,7 @@ bool ProjectHandle::loadFormations( void )
                "LayerName", database::getLayerName( stratRecord ) );
             assert( sourceRockRecord != 0 );
 
-            sourceRock = getFactory()->produceSourceRock( this, sourceRockRecord );
+            sourceRock = getFactory()->produceSourceRock( *this, sourceRockRecord );
             m_sourceRocks.push_back( sourceRock );
             formation->setSourceRock1( sourceRock );
 
@@ -1422,7 +1421,7 @@ bool ProjectHandle::loadFormations( void )
                   "LayerName", database::getLayerName( stratRecord ), sourceRockRecord );
                assert( sourceRockRecord2 != 0 );
 
-               sourceRock = getFactory()->produceSourceRock( this, sourceRockRecord2 );
+               sourceRock = getFactory()->produceSourceRock( *this, sourceRockRecord2 );
                m_sourceRocks.push_back( sourceRock );
                sourceRock->setLayerName( database::getLayerName( stratRecord ) );
                formation->setSourceRock2( sourceRock );
@@ -1449,7 +1448,7 @@ bool ProjectHandle::loadIgneousIntrusions() {
       Formation * formation = *formationIter;
 
       if ( formation->getIsIgneousIntrusion() ) {
-         IgneousIntrusionEvent* igneousIntrusion = getFactory()->produceIgneousIntrusionEvent( this, formation->getRecord() );
+         IgneousIntrusionEvent* igneousIntrusion = getFactory()->produceIgneousIntrusionEvent( *this, formation->getRecord() );
          m_igneousIntrusionEvents.push_back( igneousIntrusion );
          formation->setIgneousIntrusionEvent( igneousIntrusion );
       }
@@ -1473,7 +1472,7 @@ bool ProjectHandle::loadFluidTypes() {
 
       if ( fluidRecord )
       {
-         m_fluidTypes.push_back( getFactory()->produceFluidType( this, fluidRecord ) );
+         m_fluidTypes.push_back( getFactory()->produceFluidType( *this, fluidRecord ) );
       }
    }
    return true;
@@ -1519,7 +1518,7 @@ bool ProjectHandle::loadConstrainedOverpressureIntervals() {
             for ( j = FirstIndexInPropertyBoundaryValuesIoTbl; j < FirstIndexInPropertyBoundaryValuesIoTbl + NumberOfTimeIntervals; ++j ) {
                database::Record* copRecord = boundaryValuesIoTbl->getRecord( static_cast<int>(j) );
 
-               ConstrainedOverpressureInterval* copInterval = getFactory()->produceConstrainedOverpressureInterval( this, copRecord, formation );
+               ConstrainedOverpressureInterval* copInterval = getFactory()->produceConstrainedOverpressureInterval( *this, copRecord, formation );
 
                m_constrainedOverpressureIntervals.push_back( copInterval );
 
@@ -1559,7 +1558,7 @@ bool ProjectHandle::loadFaultCollections( void )
       if ( !reader )
          continue;
 
-      FaultCollection *faultCollection = getFactory()->produceFaultCollection( this, inputValue->getMapName() );
+      FaultCollection *faultCollection = getFactory()->produceFaultCollection( *this, inputValue->getMapName() );
 
       m_faultCollections.push_back( faultCollection );
 
@@ -1738,7 +1737,7 @@ bool ProjectHandle::loadLithoTypes( void )
    for ( tblIter = lithoTypeTbl->begin(); tblIter != lithoTypeTbl->end(); ++tblIter )
    {
       Record * lithoTypeRecord = *tblIter;
-         m_lithoTypes.push_back( getFactory()->produceLithoType( this, lithoTypeRecord ) );
+         m_lithoTypes.push_back( getFactory()->produceLithoType( *this, lithoTypeRecord ) );
 
       if ( getLithotype( lithoTypeRecord ) == m_crustLithoName) {
          crustLithoType = lithoTypeRecord;
@@ -1755,7 +1754,7 @@ bool ProjectHandle::loadLithoTypes( void )
          setPermMixModel( record, "None" );
       }
       setLithotype( record, DataAccess::Interface::ALCBasalt );
-      m_lithoTypes.push_back( getFactory()->produceLithoType( this, record ) );
+      m_lithoTypes.push_back( getFactory()->produceLithoType( *this, record ) );
    }
    return true;
 }
@@ -1767,7 +1766,7 @@ bool ProjectHandle::loadReservoirs( void )
    for ( tblIter = reservoirTbl->begin(); tblIter != reservoirTbl->end(); ++tblIter )
    {
       Record * reservoirRecord = *tblIter;
-      m_reservoirs.push_back( getFactory()->produceReservoir( this, reservoirRecord ) );
+      m_reservoirs.push_back( getFactory()->produceReservoir( *this, reservoirRecord ) );
    }
    return true;
 }
@@ -1781,7 +1780,7 @@ bool ProjectHandle::loadGlobalReservoirOptions (void)
       reservoirOptionsIoTbl->createRecord();
 
    reservoirOptionsRecord = reservoirOptionsIoTbl->getRecord(0);
-   m_reservoirOptions = getFactory()->produceReservoirOptions( this, reservoirOptionsRecord );
+   m_reservoirOptions = getFactory()->produceReservoirOptions( *this, reservoirOptionsRecord );
 
    return true;
 }
@@ -1793,7 +1792,7 @@ bool ProjectHandle::loadMobileLayers( void )
    for ( tblIter = mobileLayerTbl->begin(); tblIter != mobileLayerTbl->end(); ++tblIter )
    {
       Record * mobileLayerRecord = *tblIter;
-      m_mobileLayers.push_back( getFactory()->produceMobileLayer( this, mobileLayerRecord ) );
+      m_mobileLayers.push_back( getFactory()->produceMobileLayer( *this, mobileLayerRecord ) );
    }
 
    std::sort( m_mobileLayers.begin(), m_mobileLayers.end(), PaleoPropertyTimeLessThan() );
@@ -1811,7 +1810,7 @@ bool ProjectHandle::loadHeatFlowHistory( void )
    for ( tblIter = heatFlowTbl->begin(); tblIter != heatFlowTbl->end(); ++tblIter )
    {
       Record * heatFlowRecord = *tblIter;
-      m_heatFlowHistory.push_back( getFactory()->producePaleoSurfaceProperty( this, heatFlowRecord, m_mantleBottomSurface ) );
+      m_heatFlowHistory.push_back( getFactory()->producePaleoSurfaceProperty( *this, heatFlowRecord, m_mantleBottomSurface ) );
    }
 
    // Sort into correct order. Youngest first on the list.
@@ -1825,7 +1824,7 @@ bool ProjectHandle::loadCrustFormation() {
    database::Table* basementIoTbl = getTable( "BasementIoTbl" );
    Record *projectIoRecord = basementIoTbl->getRecord( 0 );
 
-   m_crustFormation = getFactory()->produceCrustFormation( this, projectIoRecord );
+   m_crustFormation = getFactory()->produceCrustFormation( *this, projectIoRecord );
    m_formations.push_back( m_crustFormation );
 
    return m_crustFormation != 0;
@@ -1836,7 +1835,7 @@ bool ProjectHandle::loadMantleFormation() {
    database::Table* basementIoTbl = getTable( "BasementIoTbl" );
    Record *projectIoRecord = basementIoTbl->getRecord( 0 );
 
-   m_mantleFormation = getFactory()->produceMantleFormation( this, projectIoRecord );
+   m_mantleFormation = getFactory()->produceMantleFormation( *this, projectIoRecord );
 
    m_formations.push_back( m_mantleFormation );
 
@@ -1845,7 +1844,7 @@ bool ProjectHandle::loadMantleFormation() {
 
 bool ProjectHandle::loadBasementSurfaces() {
 
-   m_crustBottomSurface = getFactory()->produceBasementSurface( this, CrustBottomSurfaceName );
+   m_crustBottomSurface = getFactory()->produceBasementSurface( *this, CrustBottomSurfaceName );
 
    if ( m_crustBottomSurface == 0 ) {
       return false;
@@ -1853,7 +1852,7 @@ bool ProjectHandle::loadBasementSurfaces() {
 
    m_surfaces.push_back( m_crustBottomSurface );
 
-   m_mantleBottomSurface = getFactory()->produceBasementSurface( this, MantleBottomSurfaceName );
+   m_mantleBottomSurface = getFactory()->produceBasementSurface( *this, MantleBottomSurfaceName );
 
    if ( m_mantleBottomSurface == 0 ) {
       return false;
@@ -1889,7 +1888,7 @@ bool ProjectHandle::loadCrustThinningHistory( void )
    for ( database::Table::iterator tblIter = crustThinningTbl->begin(); tblIter != crustThinningTbl->end(); ++tblIter )
    {
       Record * crustThinningRecord = *tblIter;
-      m_crustPaleoThicknesses.push_back( getFactory()->producePaleoFormationProperty( this, crustThinningRecord, m_crustFormation ) );
+      m_crustPaleoThicknesses.push_back( getFactory()->producePaleoFormationProperty( *this, crustThinningRecord, m_crustFormation ) );
    }
 
    // Sort the items in the table into the correct order.
@@ -1937,7 +1936,7 @@ bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
             if ( age1 < age3 && age2 != age3 && age3 <= oldestSnapshot->getTime() ) {
                database::Record * record = new Record( *( *thicknessIter )->getRecord() );
                setAge( record, age3 );
-               PaleoFormationProperty* crustThicknessMap = getFactory()->producePaleoFormationProperty( this, record, m_crustFormation );
+               PaleoFormationProperty* crustThicknessMap = getFactory()->producePaleoFormationProperty( *this, record, m_crustFormation );
                Interface::InterpolateFunctor functor( age1, age2, age3 );
                crustThicknessMap->computeMap( Interface::CrustThinningHistoryInstanceThicknessMap, map1, map2, functor );
 
@@ -2016,9 +2015,9 @@ bool ProjectHandle::correctCrustThicknessHistory() {
 
    if (beforeSimulation != nullptr and afterSimulation != nullptr) {
 
-      m_crustPaleoThicknesses.push_back( getFactory()->producePaleoFormationProperty( this, m_crustFormation, beforeSimulation, afterSimulation, firstSimulationSnapshot ) );
+      m_crustPaleoThicknesses.push_back( getFactory()->producePaleoFormationProperty( *this, m_crustFormation, beforeSimulation, afterSimulation, firstSimulationSnapshot ) );
 
-      m_mantlePaleoThicknesses.push_back( getFactory()->producePaleoFormationProperty( this, m_crustFormation, beforeSimulation, afterSimulation, firstSimulationSnapshot ) );
+      m_mantlePaleoThicknesses.push_back( getFactory()->producePaleoFormationProperty( *this, m_crustFormation, beforeSimulation, afterSimulation, firstSimulationSnapshot ) );
 
       std::sort( m_crustPaleoThicknesses.begin(), m_crustPaleoThicknesses.end(), Interface::PaleoPropertyTimeLessThan() );
       std::sort( m_mantlePaleoThicknesses.begin(), m_mantlePaleoThicknesses.end(), Interface::PaleoPropertyTimeLessThan() );
@@ -2041,7 +2040,7 @@ bool ProjectHandle::loadMantleThicknessHistory( void ) {
       // Here the crust-thinning table-record is used only to get the snapshot-time.
       Record * crustThinningRecord = *tblIter;
 
-      mantleThicknessMap = getFactory()->producePaleoFormationProperty( this, crustThinningRecord, m_mantleFormation );
+      mantleThicknessMap = getFactory()->producePaleoFormationProperty( *this, crustThinningRecord, m_mantleFormation );
       m_mantlePaleoThicknesses.push_back( mantleThicknessMap );
    }
 
@@ -2056,7 +2055,7 @@ bool ProjectHandle::loadSurfaceTemperatureHistory( void )
    for ( tblIter = surfaceTemperatureTbl->begin(); tblIter != surfaceTemperatureTbl->end(); ++tblIter )
    {
       Record * surfaceTemperatureRecord = *tblIter;
-      m_surfaceTemperatureHistory.push_back( getFactory()->producePaleoProperty( this, surfaceTemperatureRecord ) );
+      m_surfaceTemperatureHistory.push_back( getFactory()->producePaleoProperty( *this, surfaceTemperatureRecord ) );
    }
 
    // Sort into correct order. Youngest first on the list.
@@ -2074,7 +2073,7 @@ bool ProjectHandle::loadSurfaceDepthHistory( void )
    for ( tblIter = surfaceDepthTbl->begin(); tblIter != surfaceDepthTbl->end(); ++tblIter )
    {
       Record * surfaceDepthRecord = *tblIter;
-      m_surfaceDepthHistory.push_back( getFactory()->producePaleoProperty( this, surfaceDepthRecord ) );
+      m_surfaceDepthHistory.push_back( getFactory()->producePaleoProperty( *this, surfaceDepthRecord ) );
    }
 
    // Sort into correct order. Youngest first on the list.
@@ -2097,7 +2096,7 @@ bool ProjectHandle::loadRunParameters( void )
       return false;
    }
    else {
-      m_runParameters = getFactory()->produceRunParameters( this, runParametersRecord );
+      m_runParameters = getFactory()->produceRunParameters( *this, runParametersRecord );
       return true;
    }
 
@@ -2117,7 +2116,7 @@ bool ProjectHandle::loadProjectData( void )
       return false;
    }
    else {
-      m_projectData = getFactory()->produceProjectData( this, projectDataRecord );
+      m_projectData = getFactory()->produceProjectData( *this, projectDataRecord );
       return true;
    }
 
@@ -2134,7 +2133,7 @@ bool ProjectHandle::loadSimulationDetails () {
 
    for ( tblIter = simulationDetailsIoTbl->begin (); tblIter != simulationDetailsIoTbl->end (); ++tblIter ) {
       Record* simulationDetailsRecord = *tblIter;
-      m_simulationDetails.push_back ( getFactory ()->produceSimulationDetails ( this, simulationDetailsRecord ));
+      m_simulationDetails.push_back ( getFactory ()->produceSimulationDetails ( *this, simulationDetailsRecord ));
    }
 
    std::sort ( m_simulationDetails.begin (), m_simulationDetails.end (), SimulationDetailsComparison ());
@@ -2235,7 +2234,7 @@ bool ProjectHandle::loadTouchstoneMaps( void )
    for ( tblIter = touchstoneMapTbl->begin(); tblIter != touchstoneMapTbl->end(); ++tblIter )
    {
       Record * touchstoneMapRecord = *tblIter;
-      m_touchstoneMaps.push_back( getFactory()->produceTouchstoneMap( this, touchstoneMapRecord ) );
+      m_touchstoneMaps.push_back( getFactory()->produceTouchstoneMap( *this, touchstoneMapRecord ) );
    }
 
    return true;
@@ -2251,7 +2250,7 @@ bool ProjectHandle::loadAllochthonousLithologies( void )
 
       Record * allochthonousLithoRecord = *tblIter;
 
-      m_allochthonousLithologies.push_back( getFactory()->produceAllochthonousLithology( this, allochthonousLithoRecord ) );
+      m_allochthonousLithologies.push_back( getFactory()->produceAllochthonousLithology( *this, allochthonousLithoRecord ) );
 
    }
    return true;
@@ -2266,7 +2265,7 @@ bool ProjectHandle::loadAllochthonousLithologyDistributions( void )
    {
       Record * allochthonousLithoDistRecord = *tblIter;
 
-      m_allochthonousLithologyDistributions.push_back( getFactory()->produceAllochthonousLithologyDistribution( this, allochthonousLithoDistRecord ) );
+      m_allochthonousLithologyDistributions.push_back( getFactory()->produceAllochthonousLithologyDistribution( *this, allochthonousLithoDistRecord ) );
    }
 
    sort( m_allochthonousLithologyDistributions.begin(), m_allochthonousLithologyDistributions.end(), AllochthonousLithologyDistributionTimeLessThan() );
@@ -2282,7 +2281,7 @@ bool ProjectHandle::loadAllochthonousLithologyInterpolations( void )
    for ( tblIter = allochthonousLithoInterpTbl->begin(); tblIter != allochthonousLithoInterpTbl->end(); ++tblIter )
    {
       Record * allochthonousLithoInterpRecord = *tblIter;
-      m_allochthonousLithologyInterpolations.push_back( getFactory()->produceAllochthonousLithologyInterpolation( this, allochthonousLithoInterpRecord ) );
+      m_allochthonousLithologyInterpolations.push_back( getFactory()->produceAllochthonousLithologyInterpolation( *this, allochthonousLithoInterpRecord ) );
    }
    return true;
 }
@@ -2295,7 +2294,7 @@ bool ProjectHandle::loadTraps( void )
    for ( tblIter = trapTbl->begin(); tblIter != trapTbl->end(); ++tblIter )
    {
       Record * trapRecord = *tblIter;
-      m_traps.push_back( getFactory()->produceTrap( this, trapRecord ) );
+      m_traps.push_back( getFactory()->produceTrap( *this, trapRecord ) );
    }
    return true;
 }
@@ -2315,7 +2314,7 @@ bool ProjectHandle::loadTrappers( void )
    for ( tblIter = trapperTbl->begin(); tblIter != trapperTbl->end(); ++tblIter )
    {
       Record * trapperRecord = *tblIter;
-      m_trappers.push_back( getFactory()->produceTrapper( this, trapperRecord ) );
+      m_trappers.push_back( getFactory()->produceTrapper( *this, trapperRecord ) );
    }
 
    // Sort trappers on id, so we can retrieve them more efficiently
@@ -2332,7 +2331,7 @@ bool ProjectHandle::loadMigrations( void )
    for ( tblIter = migrationTbl->begin(); tblIter != migrationTbl->end(); ++tblIter )
    {
       Record * migrationRecord = *tblIter;
-      m_migrations.push_back( getFactory()->produceMigration( this, migrationRecord ) );
+      m_migrations.push_back( getFactory()->produceMigration( *this, migrationRecord ) );
    }
    return true;
 }
@@ -2344,7 +2343,7 @@ bool ProjectHandle::loadInputValues( void )
    for ( tblIter = gridMapTbl->begin(); tblIter != gridMapTbl->end(); ++tblIter )
    {
       Record * gridMapRecord = *tblIter;
-      m_inputValues.push_back( getFactory()->produceInputValue( this, gridMapRecord ) );
+      m_inputValues.push_back( getFactory()->produceInputValue( *this, gridMapRecord ) );
    }
    return true;
 }
@@ -2372,7 +2371,7 @@ bool ProjectHandle::loadMapPropertyValues( void )
             propertyType = Interface::RESERVOIRPROPERTY;
 
          cerr << "Basin_Warning: ProjectHandle::loadMapPropertyValues: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
-         addProperty( getFactory()->produceProperty( this, 0, propertyValueName, propertyValueName, "", propertyType, DataModel::UNKNOWN_PROPERTY_ATTRIBUTE, DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE ) );
+         addProperty( getFactory()->produceProperty( *this, 0, propertyValueName, propertyValueName, "", propertyType, DataModel::UNKNOWN_PROPERTY_ATTRIBUTE, DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE ) );
          property = (const Property *)findProperty( propertyValueName );
 
       }
@@ -2421,7 +2420,7 @@ bool ProjectHandle::loadMapPropertyValues( void )
 
 const Property * ProjectHandle::addFasttouchProperty(const string & propertyValueName) {
 
-   Interface::Property * newProperty = getFactory()->produceProperty( this, 0, propertyValueName, propertyValueName, "", FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTTOUCH_PROPERTY );
+   Interface::Property * newProperty = getFactory()->produceProperty( *this, 0, propertyValueName, propertyValueName, "", FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTTOUCH_PROPERTY );
 
    addPropertyToFront( newProperty );
    return newProperty;
@@ -2565,6 +2564,7 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
             saveAsPrimary = true;
          }
       }
+
       propertyValue->saveMapToFile( *m_mapPropertyValuesWriter, saveAsPrimary); // depends on success of createRecord ()
    }
 
@@ -2729,7 +2729,7 @@ void ProjectHandle::addPropertyToFront( Property * property )
 PropertyValue * ProjectHandle::addPropertyValue( database::Record * record, const string & name, const Property * property, const Snapshot * snapshot,
    const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName )
 {
-   PropertyValue * propertyValue = getFactory()->producePropertyValue( this, record, name, property, snapshot,
+   PropertyValue * propertyValue = getFactory()->producePropertyValue( *this, record, name, property, snapshot,
       reservoir, formation, surface, storage, fileName );
 
    if ( record )
@@ -2797,7 +2797,7 @@ PropertyValue * ProjectHandle::createVolumePropertyValue( const string & propert
 
 /// Function used to iterate over all the Property volumes in a HDF5 file
 /// Does not actually download the values of a Property, this is done on demand only.
-static herr_t AddVolumePropertyValue( hid_t groupId, const char * formationName, ProjectHandle * projectHandle )
+static herr_t AddVolumePropertyValue( hid_t groupId, const char * formationName, ProjectHandle* projectHandle )
 {
    (void) groupId; // ignore compulsary parameter groupId
 
@@ -2827,7 +2827,7 @@ static herr_t AddVolumePropertyValue( hid_t groupId, const char * formationName,
 }
 
 /// Function used to iterate over all the Properties in a HDF5 file
-static herr_t ListVolumePropertyValues( hid_t groupId, const char * propertyValueName, ProjectHandle * projectHandle )
+static herr_t ListVolumePropertyValues( hid_t groupId, const char * propertyValueName, ProjectHandle* projectHandle )
 {
 #if 0
    cerr << "Found property " << propertyValueName << " in group " << groupId << endl;
@@ -2843,7 +2843,7 @@ static herr_t ListVolumePropertyValues( hid_t groupId, const char * propertyValu
          propertyType = Interface::RESERVOIRPROPERTY;
 
       cerr << "Basin_Warning: ListVolumePropertyValues: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
-      projectHandle->addProperty( projectHandle->getFactory()->produceProperty( projectHandle, 0, propertyValueName, propertyValueName, "", propertyType, DataModel::UNKNOWN_PROPERTY_ATTRIBUTE, DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE ) );
+      projectHandle->addProperty( projectHandle->getFactory()->produceProperty( *projectHandle, 0, propertyValueName, propertyValueName, "", propertyType, DataModel::UNKNOWN_PROPERTY_ATTRIBUTE, DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE ) );
       property = (const Property *)projectHandle->findProperty( propertyValueName );
    }
 
@@ -2852,7 +2852,7 @@ static herr_t ListVolumePropertyValues( hid_t groupId, const char * propertyValu
       projectHandle->setCurrentProperty( property );
       projectHandle->setCurrentPropertyValueName( propertyValueName );
 
-      H5Giterate( groupId, propertyValueName, NULL, (H5G_iterate_t)AddVolumePropertyValue, (void *)projectHandle );
+      H5Giterate( groupId, propertyValueName, NULL, (H5G_iterate_t)AddVolumePropertyValue, (void *) projectHandle );
    }
    return 0;
 }
@@ -2889,7 +2889,7 @@ bool ProjectHandle::loadVolumePropertyValuesVia3DTimeIoTbl( void )
          PropertyType propertyType = Interface::FORMATIONPROPERTY;
 
          cerr << "Basin_Warning: loadVolumePropertyValuesVia3DTimeIoTbl: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
-         addProperty( getFactory()->produceProperty( this, 0, propertyValueName, propertyValueName, "", propertyType, DataModel::UNKNOWN_PROPERTY_ATTRIBUTE, DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE ));
+         addProperty( getFactory()->produceProperty( *this, 0, propertyValueName, propertyValueName, "", propertyType, DataModel::UNKNOWN_PROPERTY_ATTRIBUTE, DataModel::UNKNOWN_PROPERTY_OUTPUT_ATTRIBUTE ));
          property = findProperty( propertyValueName );
       }
 
@@ -3161,7 +3161,7 @@ std::shared_ptr<const ReservoirOptions> ProjectHandle::getReservoirOptions () co
 
 Reservoir* ProjectHandle::addDetectedReservoirs (database::Record * record, const Formation * formation)
 {
-   DataAccess::Interface::Reservoir * detectedReservoir = getFactory ()->produceReservoir (this, record);
+   DataAccess::Interface::Reservoir * detectedReservoir = getFactory ()->produceReservoir (*this, record);
    // connect the detected Reservoir
    detectedReservoir->setFormation(formation);
    // add the detected reservoir to the list of reservoirs
@@ -3672,8 +3672,7 @@ Interface::PropertyList * ProjectHandle::getProperties( bool all, int selectionF
    for ( propertyIter = m_properties.begin(); propertyIter != m_properties.end(); ++propertyIter )
    {
       Property * property = *propertyIter;
-      if ( all || property->hasPropertyValues( selectionFlags, (Snapshot *)snapshot, (Reservoir *)reservoir,
-           formation, surface, propertyTypes ) )
+      if ( all || hasPropertyValues( selectionFlags, property, snapshot, reservoir, formation, surface, propertyTypes ) )
       {
          propertyList->push_back( property );
       }
@@ -3715,15 +3714,9 @@ Interface::PropertyListPtr ProjectHandle::getProperties ( const DataModel::Prope
 bool ProjectHandle::hasPropertyValues( int selectionFlags, const Property * property, const Snapshot * snapshot,
    const Reservoir * reservoir, const Formation * formation, const Surface * surface, int propertyType ) const
 {
-   MutablePropertyValueList::const_iterator propertyValueIter;
-
-   for ( propertyValueIter = m_propertyValues.begin();
-      propertyValueIter != m_propertyValues.end(); ++propertyValueIter )
+   for ( PropertyValue* propertyValue : m_propertyValues )
    {
-      PropertyValue *propertyValue = *propertyValueIter;
-
-      if ( propertyValue->matchesConditions( selectionFlags, property, snapshot,
-         reservoir, formation, surface, propertyType ) )
+      if ( propertyValue->matchesConditions( selectionFlags, property, snapshot, reservoir, formation, surface, propertyType ) )
       {
          return true;
       }
@@ -3740,6 +3733,34 @@ Interface::PropertyValueList * ProjectHandle::getPropertyValues( int selectionFl
                                      property, snapshot,
                                      reservoir, formation, surface,
                                      propertyType );
+}
+
+Interface::PropertyPropertyValueListMap ProjectHandle::getPropertyPropertyValuesMap( int selectionFlags, int propertyType )
+{
+  Interface::PropertyPropertyValueListMap propertyPropertyValuesMap;
+  for ( PropertyValue * propertyValue : m_propertyValues )
+  {
+    if ( propertyValue->matchesConditions( selectionFlags, 0, 0, 0, 0, 0, propertyType ) )
+    {
+      propertyPropertyValuesMap[propertyValue->getProperty()].push_back(propertyValue);
+    }
+  }
+  for ( PropertyValue * propertyValue : m_recordLessMapPropertyValues )
+  {
+    if ( propertyValue->matchesConditions( selectionFlags, 0, 0, 0, 0, 0, propertyType ) )
+    {
+      propertyPropertyValuesMap[propertyValue->getProperty()].push_back(propertyValue);
+    }
+  }
+  for ( PropertyValue * propertyValue : m_recordLessVolumePropertyValues )
+  {
+    if ( propertyValue->matchesConditions( selectionFlags, 0, 0, 0, 0, 0, propertyType ) )
+    {
+      propertyPropertyValuesMap[propertyValue->getProperty()].push_back(propertyValue);
+    }
+  }
+
+  return propertyPropertyValuesMap;
 }
 
 Interface::PropertyValueList * ProjectHandle::getPropertyUnrecordedValues( int selectionFlags,
@@ -4288,7 +4309,7 @@ const Interface::Property * ProjectHandle::findProperty( const string & name ) c
       }
    }
    /// @todo To be fixed by requirement 61411
-   //LogHandler( LogHandler::WARNING_SEVERITY ) << "Property '" << name << "' could not be found by the ProjectHandle.";
+   //LogHandler( LogHandler::WARNING_SEVERITY ) << "Property '" << name << "' could not be found by the projectHandle->";
    return 0;
 }
 
@@ -4374,7 +4395,7 @@ bool ProjectHandle::loadBiodegradationParameters()
    if ( biodegradationRecord )
    {
       m_biodegradationParameters = getFactory()->produceBiodegradationParameters(
-         this, biodegradationRecord );
+         *this, biodegradationRecord );
       return true;
    }
    else
@@ -4434,7 +4455,7 @@ bool ProjectHandle::loadFracturePressureFunctionParameters()
    if ( runOptionsIoTblRecord && pressureFuncIoTblRecord )
    {
       m_fracturePressureFunctionParameters = getFactory()->produceFracturePressureFunctionParameters(
-         this, runOptionsIoTblRecord, pressureFuncIoTblRecord );
+         *this, runOptionsIoTblRecord, pressureFuncIoTblRecord );
       return true;
    }
 
@@ -4458,7 +4479,7 @@ bool ProjectHandle::loadDiffusionLeakageParameters()
    if ( diffusionLeakageRecord )
    {
       m_diffusionLeakageParameters = getFactory()->produceDiffusionLeakageParameters(
-         this, diffusionLeakageRecord );
+         *this, diffusionLeakageRecord );
       return true;
    }
    else
@@ -4473,7 +4494,7 @@ void ProjectHandle::loadLangmuirIsotherms() {
 
    for ( tblIter = langmuirIsothermTable->begin(); tblIter != langmuirIsothermTable->end(); ++tblIter ) {
 
-      LangmuirAdsorptionIsothermSample* sample = getFactory()->produceLangmuirAdsorptionIsothermSample( this, *tblIter );
+      LangmuirAdsorptionIsothermSample* sample = getFactory()->produceLangmuirAdsorptionIsothermSample( *this, *tblIter );
 
       m_langmuirIsotherms.push_back( sample );
    }
@@ -4488,7 +4509,7 @@ void ProjectHandle::loadLangmuirTOCEntries() {
 
    for ( tblIter = langmuirIsothermTable->begin(); tblIter != langmuirIsothermTable->end(); ++tblIter ) {
 
-      LangmuirAdsorptionTOCEntry* sample = getFactory()->produceLangmuirAdsorptionTOCEntry( this, *tblIter );
+      LangmuirAdsorptionTOCEntry* sample = getFactory()->produceLangmuirAdsorptionTOCEntry( *this, *tblIter );
 
       m_langmuirTocAdsorptionEntries.push_back( sample );
    }
@@ -4511,7 +4532,7 @@ void ProjectHandle::loadPointHistories() {
    database::Table::iterator tableIter;
 
    for ( tableIter = pointHistoryTable->begin(); tableIter != pointHistoryTable->end(); ++tableIter ) {
-      PointAdsorptionHistory* newHistory = getFactory()->producePointAdsorptionHistory( this, *tableIter );
+      PointAdsorptionHistory* newHistory = getFactory()->producePointAdsorptionHistory( *this, *tableIter );
       m_adsorptionPointHistoryList.push_back( newHistory );
    }
 
@@ -4522,7 +4543,7 @@ void ProjectHandle::loadIrreducibleWaterSaturationSample() {
    database::Table* irreducibleWaterSaturationTable = getTable( "IrreducibleWaterSaturationIoTbl" );
 
    if ( irreducibleWaterSaturationTable != 0 and irreducibleWaterSaturationTable->size() >= 1 ) {
-      m_irreducibleWaterSample = getFactory()->produceIrreducibleWaterSaturationSample( this, irreducibleWaterSaturationTable->getRecord( 0 ) );
+      m_irreducibleWaterSample = getFactory()->produceIrreducibleWaterSaturationSample( *this, irreducibleWaterSaturationTable->getRecord( 0 ) );
    }
    else {
       m_irreducibleWaterSample = 0;
@@ -4536,7 +4557,7 @@ void ProjectHandle::loadSGDensitySample() {
    database::Table* densityTable = getTable( "SGDensityIoTbl" );
 
    if ( densityTable != 0 and densityTable->size() > 0 ) {
-      m_sgDensitySample = getFactory()->produceSGDensitySample( this, densityTable->getRecord( 0 ) );
+      m_sgDensitySample = getFactory()->produceSGDensitySample( *this, densityTable->getRecord( 0 ) );
    }
    else {
       m_sgDensitySample = 0;
@@ -5655,7 +5676,7 @@ void ProjectHandle::loadPermafrostData() {
    if ( permafrostIoTbl != 0 ) {
       Record *projectIoRecord = permafrostIoTbl->getRecord( 0 );
       if ( projectIoRecord != 0 ) {
-         PermafrostEvent * permafrostRecord = getFactory()->producePermafrostEvent( this, projectIoRecord );
+         PermafrostEvent * permafrostRecord = getFactory()->producePermafrostEvent( *this, projectIoRecord );
          m_permafrostEvents.push_back( permafrostRecord );
 
          m_permafrost = ( database::getPermafrostInd( projectIoRecord ) == 1 );
@@ -5716,7 +5737,7 @@ void ProjectHandle::setPrimaryDouble( const bool PrimaryFlag ) {
 }
 
 bool ProjectHandle::isPrimaryProperty( const string propertyName ) const {
-   return m_primaryList.count( propertyName ) == 0 ? false : true;
+   return m_primaryList.count( propertyName ) != 0;
 }
 
 bool ProjectHandle::initialiseValidNodes( const bool readSizeFromVolumeData ) {

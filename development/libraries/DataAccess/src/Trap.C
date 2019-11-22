@@ -33,11 +33,11 @@ static const char ** ComponentNames = CBMGenerics::ComponentManager::getInstance
 
 
 const string PhaseNames[] =
-{ 
+{
    "Gas", "Oil"
 };
 
-Trap::Trap (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+Trap::Trap (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
    m_reservoir = 0;
    m_snapshot = 0;
@@ -94,7 +94,7 @@ void Trap::getGridPosition (unsigned int & i, unsigned int & j) const
    double y;
    getPosition (x, y);
 
-   const Grid * grid = (const Grid *) m_projectHandle->getHighResolutionOutputGrid ();
+   const Grid * grid = (const Grid *) getProjectHandle().getHighResolutionOutputGrid ();
 
    grid->getGridPoint (x, y, i, j);
 }
@@ -150,7 +150,7 @@ void Trap::getSpillPointGridPosition (unsigned int & i, unsigned int & j) const
    double y;
    getSpillPointPosition (x, y);
 
-   const Grid * grid = (const Grid *) m_projectHandle->getHighResolutionOutputGrid ();
+   const Grid * grid = (const Grid *) getProjectHandle().getHighResolutionOutputGrid ();
 
    grid->getGridPoint (x, y, i, j);
 }

@@ -18,13 +18,12 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::PrimaryFormationProperty::PrimaryFormationProperty ( const DataAccess::Interface::PropertyValue* propertyValue ) : 
-   FormationProperty ( propertyValue->getProperty (), 
+DerivedProperties::PrimaryFormationProperty::PrimaryFormationProperty ( const DataAccess::Interface::PropertyValue* propertyValue ) :
+   FormationProperty ( propertyValue->getProperty (),
                        propertyValue->getSnapshot (),
                        propertyValue->getFormation (),
                        propertyValue->getGridMap ()->getGrid(),
                        propertyValue->getGridMap ()->lastK () + 1 ),
-   m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap () )
 {
    m_depth = 0;

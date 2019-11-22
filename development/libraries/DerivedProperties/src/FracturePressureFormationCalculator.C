@@ -27,7 +27,7 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::FracturePressureFormationCalculator::FracturePressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+DerivedProperties::FracturePressureFormationCalculator::FracturePressureFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "FracturePressure" );
 
    addDependentPropertyName ( "Depth" );
@@ -51,14 +51,14 @@ void DerivedProperties::FracturePressureFormationCalculator::calculate (       A
 
    const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
-   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle.getDetailsOfLastFastcauldron();
    bool hydrostaticMode = ( lastFastcauldronRun != 0 and
                             ( lastFastcauldronRun->getSimulatorMode () == "HydrostaticDecompaction" or
                               lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" ));
-   
+
    if ( depth != 0 and hydrostaticPressure != 0 and lithostaticPressure != 0 and geoFormation != 0 ) {
       const double age = snapshot->getTime ();
-      const GeoPhysics::FracturePressureCalculator& fracturePressureCalculator = m_projectHandle->getFracturePressureCalculator();
+      const GeoPhysics::FracturePressureCalculator& fracturePressureCalculator = m_projectHandle.getFracturePressureCalculator();
 
       DerivedFormationPropertyPtr fracturePressure = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( fracturePressureProperty, snapshot, formation,
                                                                                                                                      propertyManager.getMapGrid (),
@@ -80,14 +80,14 @@ void DerivedProperties::FracturePressureFormationCalculator::calculate (       A
       double pressureValue;
 
       for ( unsigned int i = fracturePressure->firstI ( true ); i <= fracturePressure->lastI ( true ); ++i ) {
-            
+
          for ( unsigned int j = fracturePressure->firstJ ( true ); j <= fracturePressure->lastJ ( true ); ++j ) {
-               
-            if ( m_projectHandle->getNodeIsValid ( i, j )) {
+
+            if ( m_projectHandle.getNodeIsValid ( i, j )) {
                const GeoPhysics::CompoundLithology* lithology = (*lithologies)( i, j, age );
 
-               double seaTemperature = m_projectHandle->getSeaBottomTemperature ( i, j, age );
-               double surfaceDepth = m_projectHandle->getSeaBottomDepth ( i, j, age );
+               double seaTemperature = m_projectHandle.getSeaBottomTemperature ( i, j, age );
+               double surfaceDepth = m_projectHandle.getSeaBottomDepth ( i, j, age );
 
                for ( unsigned int k = fracturePressure->firstK (); k <= fracturePressure->lastK (); ++k ) {
                   pressureValue = fracturePressureCalculator.fracturePressure ( lithology,

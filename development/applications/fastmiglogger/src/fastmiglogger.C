@@ -247,7 +247,7 @@ int main(int argc, char ** argv)
 #endif
 
    ObjectFactory* factory = new ObjectFactory();
-   ProjectHandle *projectHandle = OpenCauldronProject(projectFileName, "r", factory);
+   ProjectHandle *projectHandle = OpenCauldronProject(projectFileName, factory);
 
    if( projectHandle == 0 )
    {

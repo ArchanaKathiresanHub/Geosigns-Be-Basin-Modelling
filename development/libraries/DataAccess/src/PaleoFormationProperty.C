@@ -19,14 +19,14 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-PaleoFormationProperty::PaleoFormationProperty (ProjectHandle * projectHandle, Record * record, const Formation* formation ) : 
+PaleoFormationProperty::PaleoFormationProperty (ProjectHandle& projectHandle, Record * record, const Formation* formation ) :
    PaleoProperty (projectHandle, record),
    formationName ( formation->getName ())
 {
    m_formation = formation;
 }
 
-PaleoFormationProperty::PaleoFormationProperty ( ProjectHandle * projectHandle,
+PaleoFormationProperty::PaleoFormationProperty ( ProjectHandle& projectHandle,
                                                  const Formation* formation,
                                                  const PaleoFormationProperty* startProperty,
                                                  const PaleoFormationProperty* endProperty,

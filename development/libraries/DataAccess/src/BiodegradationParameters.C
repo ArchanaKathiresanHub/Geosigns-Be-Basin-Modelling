@@ -16,11 +16,11 @@
 
 using namespace database;
 
-namespace DataAccess 
-{ 
+namespace DataAccess
+{
    namespace Interface
    {
-      BiodegradationParameters::BiodegradationParameters(ProjectHandle* projecthandle, database::Record* record):
+      BiodegradationParameters::BiodegradationParameters(ProjectHandle& projecthandle, database::Record* record):
       DAObject(projecthandle, record){}
 
       BiodegradationParameters::~BiodegradationParameters(){}
@@ -47,7 +47,7 @@ BioConsts BiodegradationParameters::bioConsts() const
   bioConsts.push_back( database::getCOx_BioFactor         (m_record) );
   bioConsts.push_back( database::getN2_BioFactor          (m_record) );
 
-  return BioConsts( database::getTempConstant(m_record), bioConsts ); 
+  return BioConsts( database::getTempConstant(m_record), bioConsts );
 }
 
 double BiodegradationParameters::timeFactor() const
@@ -62,9 +62,9 @@ double BiodegradationParameters::bioRate() const
    // The biodegradation rate cannot be less than 0.0 m/Ma)
    if (bioRate < 0.0)
    {
-      getProjectHandle()->getMessageHandler().print("Basin_Warning: The biodegradation rate coefficient must be positive: ");
-      getProjectHandle()->getMessageHandler().print(bioRate);
-      getProjectHandle()->getMessageHandler().printLine(" < 0.0 (in m/Ma)");
+      getProjectHandle().getMessageHandler().print("Basin_Warning: The biodegradation rate coefficient must be positive: ");
+      getProjectHandle().getMessageHandler().print(bioRate);
+      getProjectHandle().getMessageHandler().printLine(" < 0.0 (in m/Ma)");
 
       bioRate = 0.0;
    }

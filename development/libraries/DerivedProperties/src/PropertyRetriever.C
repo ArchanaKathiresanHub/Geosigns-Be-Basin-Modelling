@@ -14,7 +14,7 @@ using namespace AbstractDerivedProperties;
 
 DerivedProperties::PropertyRetriever::PropertyRetriever () : m_restoreOnExit ( false ) {}
 
-DerivedProperties::PropertyRetriever::PropertyRetriever ( const AbstractPropertyValuesPtr& propertyValues ) : 
+DerivedProperties::PropertyRetriever::PropertyRetriever ( const AbstractPropertyValuesPtr& propertyValues ) :
    m_propertyValues ( propertyValues ),
    m_restoreOnExit ( propertyValues != 0 and not propertyValues->isRetrieved ())
 {
@@ -36,9 +36,13 @@ DerivedProperties::PropertyRetriever::~PropertyRetriever () {
 void DerivedProperties::PropertyRetriever::reset ( const AbstractPropertyValuesPtr& propertyValues ) {
 
    if ( m_propertyValues != 0 and m_restoreOnExit ) {
-      m_propertyValues->restoreData ();      
+      m_propertyValues->restoreData ();
    }
 
    m_propertyValues = propertyValues;
    m_restoreOnExit =  ( propertyValues != 0 and not propertyValues->isRetrieved ());
+
+   if ( m_restoreOnExit ) {
+      m_propertyValues->retrieveData ();
+   }
 }

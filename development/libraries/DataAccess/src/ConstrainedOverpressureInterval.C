@@ -20,14 +20,14 @@ using namespace DataAccess;
 using namespace Interface;
 
 
-ConstrainedOverpressureInterval::ConstrainedOverpressureInterval ( ProjectHandle * projectHandle,
+ConstrainedOverpressureInterval::ConstrainedOverpressureInterval ( ProjectHandle& projectHandle,
                                                                    Record * record,
-                                                                   const Formation*  formation) : 
+                                                                   const Formation*  formation) :
    DAObject (projectHandle, record) {
 
    m_formation = formation;
-   m_startAge = m_projectHandle->findSnapshot ( database::getBeginTimeValues ( m_record ));
-   m_endAge = m_projectHandle->findSnapshot ( database::getEndTimeValues ( m_record ));
+   m_startAge = projectHandle.findSnapshot ( database::getBeginTimeValues ( m_record ));
+   m_endAge = projectHandle.findSnapshot ( database::getEndTimeValues ( m_record ));
 
 }
 

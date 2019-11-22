@@ -19,7 +19,7 @@ namespace DataAccess
       {
       public:
 
-         PermafrostEvent ( ProjectHandle* projectHandle, database::Record * record );
+         PermafrostEvent ( ProjectHandle& projectHandle, database::Record * record );
 
          virtual ~PermafrostEvent ();
 

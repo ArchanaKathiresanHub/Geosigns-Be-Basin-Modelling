@@ -19,25 +19,12 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::PrimaryFormationPropertyCalculator::PrimaryFormationPropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
-                                                                                            const DataModel::AbstractProperty* property ) :
-   m_property ( property )
+DerivedProperties::PrimaryFormationPropertyCalculator::PrimaryFormationPropertyCalculator ( const DataModel::AbstractProperty* property,
+                                                                                            const DataAccess::Interface::PropertyValueList& propertyValues ) :
+   m_property ( property ),
+   m_formationPropertyValues ( propertyValues )
 {
-
-   DataAccess::Interface::PropertyValueList* formationProperties = projectHandle->getPropertyValues ( DataAccess::Interface::FORMATION, 0, 0, 0, 0, 0, DataAccess::Interface::VOLUME );
    addPropertyName ( property->getName ());
-
-   for ( size_t i = 0; i < formationProperties->size (); ++i ) {
-      const DataAccess::Interface::PropertyValue* propVal = (*formationProperties)[ i ];
-
-      if ( propVal->getProperty () == m_property and propVal->getFormation () != 0 ) {
-         m_snapshots.insert ( propVal->getSnapshot ());
-         m_formationPropertyValues.push_back ( propVal );
-      }
-
-   }
-
-   delete formationProperties;
 }
 
 DerivedProperties::PrimaryFormationPropertyCalculator::~PrimaryFormationPropertyCalculator () {
@@ -84,7 +71,3 @@ bool DerivedProperties::PrimaryFormationPropertyCalculator::isComputable ( const
    return false;
 }
 
-
-const DataModel::AbstractSnapshotSet& DerivedProperties::PrimaryFormationPropertyCalculator::getSnapshots () const {
-   return m_snapshots;
-} 

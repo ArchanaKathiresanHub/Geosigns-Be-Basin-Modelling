@@ -25,10 +25,10 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "BulkDensity" );
 
-   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron ();
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle.getDetailsOfLastFastcauldron ();
 
    if ( lastFastcauldronRun != 0 ) {
       m_coupledModeEnabled = lastFastcauldronRun->getSimulatorMode () == "LooselyCoupledTemperature" or
@@ -39,7 +39,7 @@ DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculato
       m_coupledModeEnabled = false;
    }
 
-   m_alcModeEnabled = m_projectHandle->isALC ();
+   m_alcModeEnabled = m_projectHandle.isALC ();
 
    addDependentPropertyName ( "Porosity" );
 
@@ -112,7 +112,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
    if ( layerPorosity != 0 ) {
 
-      DerivedFormationPropertyPtr bulkDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( bulkDensityProperty,
+     DerivedFormationPropertyPtr bulkDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( bulkDensityProperty,
                                                                                                                                 snapshot,
                                                                                                                                 formation,
                                                                                                                                 propertyManager.getMapGrid (),
@@ -121,7 +121,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType ());
 
       const GeoPhysics::CompoundLithologyArray& lithologies = formation->getCompoundLithologyArray ();
-      const double temperatureGradient = 0.001 * m_projectHandle->getRunParameters ()->getTemperatureGradient ();
+      const double temperatureGradient = 0.001 * m_projectHandle.getRunParameters ()->getTemperatureGradient ();
       const double fluidDensity = fluid->getCorrectedSimpleDensity ( GeoPhysics::FluidType::DefaultStandardDepth,
                                                                      GeoPhysics::FluidType::DefaultHydrostaticPressureGradient,
                                                                      GeoPhysics::FluidType::StandardSurfaceTemperature,
@@ -134,7 +134,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
          for ( unsigned int j = bulkDensity->firstJ ( true ); j <= bulkDensity->lastJ ( true ); ++j ) {
 
-            if ( m_projectHandle->getNodeIsValid ( i, j )) {
+            if ( m_projectHandle.getNodeIsValid ( i, j )) {
                solidDensity = lithologies ( i, j, currentTime )->density ();
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
@@ -176,6 +176,9 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
    if ( temperature != 0 and porePressure != 0 and layerPorosity != 0 ) {
 
+      PropertyRetriever temperatureRetriever ( temperature );
+      PropertyRetriever porePressureRetriever ( porePressure );
+
       DerivedFormationPropertyPtr bulkDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( bulkDensityProperty,
                                                                                                                                 snapshot,
                                                                                                                                 formation,
@@ -191,7 +194,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
          for ( unsigned int j = bulkDensity->firstJ ( true ); j <= bulkDensity->lastJ ( true ); ++j ) {
 
-            if ( m_projectHandle->getNodeIsValid ( i, j )) {
+            if ( m_projectHandle.getNodeIsValid ( i, j )) {
                double solidDensity = lithologies ( i, j, currentTime )->density ();
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
@@ -240,7 +243,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
 
       for ( unsigned int j = bulkDensity->firstJ ( true ); j <= bulkDensity->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
+         if ( m_projectHandle.getNodeIsValid ( i, j )) {
 
             for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
                bulkDensity->set ( i, j, k, solidDensity );
@@ -294,6 +297,12 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
 
   if ( temperature != 0 and lithostaticPressure != 0 and depth != 0 and basaltDepth != 0 and basaltThickness != 0 ) {
 
+    PropertyRetriever basaltDepthRetriever(basaltDepth);
+    PropertyRetriever basaltThicknessRetriever(basaltThickness);
+    PropertyRetriever temperatureRetriever(temperature);
+    PropertyRetriever lithostaticPressureRetriever(lithostaticPressure);
+    PropertyRetriever depthRetriever(depth);
+
       DerivedFormationPropertyPtr bulkDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( bulkDensityProperty,
                                                                                                                                 snapshot,
                                                                                                                                 formation,
@@ -306,7 +315,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
 
          for ( unsigned int j = bulkDensity->firstJ ( true ); j <= bulkDensity->lastJ ( true ); ++j ) {
 
-            if ( m_projectHandle->getNodeIsValid ( i, j )) {
+            if ( m_projectHandle.getNodeIsValid ( i, j )) {
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
                   const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j, snapshot->getTime () );

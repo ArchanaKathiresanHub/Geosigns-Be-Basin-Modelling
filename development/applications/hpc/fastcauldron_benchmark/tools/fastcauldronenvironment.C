@@ -157,11 +157,14 @@ FastCauldronEnvironment
    , m_version(version)
 {
   m_factory.reset(new DataAccess::Interface::ObjectFactory());
-  m_project = std::shared_ptr<DataAccess::Interface::ProjectHandle>
-              ( DataAccess::Interface::OpenCauldronProject(projectFile.getCanonicalPath(), "r", m_factory.get()));
+  m_project.reset(DataAccess::Interface::OpenCauldronProject(projectFile.getCanonicalPath(), m_factory.get()));
 
   if (!m_project)
      throw Exception() << "Could not open project file '" << projectFile << "'";
+}
+
+FastCauldronEnvironment::~FastCauldronEnvironment()
+{
 }
 
 void

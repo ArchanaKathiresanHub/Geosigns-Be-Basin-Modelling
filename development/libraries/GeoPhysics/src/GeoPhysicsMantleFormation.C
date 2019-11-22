@@ -30,11 +30,11 @@
 
 using namespace DataAccess;
 
-GeoPhysics::GeoPhysicsMantleFormation::GeoPhysicsMantleFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+GeoPhysics::GeoPhysicsMantleFormation::GeoPhysicsMantleFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                    database::Record*                          record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::GeoPhysicsFormation ( projectHandle, record ),
-   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::MantleFormationName, m_projectHandle->getMantleLithoName() ),
+   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::MantleFormationName, getProjectHandle().getMantleLithoName() ),
    DataAccess::Interface::MantleFormation ( projectHandle, record )
 {
    // Nothing to do here!
@@ -44,7 +44,7 @@ GeoPhysics::GeoPhysicsMantleFormation::GeoPhysicsMantleFormation ( DataAccess::I
 
 bool GeoPhysics::GeoPhysicsMantleFormation::setLithologiesFromStratTable () {
 
-   m_compoundLithologies.allocate ( DataAccess::Interface::MantleFormation::m_projectHandle->getActivityOutputGrid ());
+   m_compoundLithologies.allocate ( getProjectHandle().getActivityOutputGrid ());
 
    string lithoName1;
 
@@ -61,15 +61,16 @@ bool GeoPhysics::GeoPhysicsMantleFormation::setLithologiesFromStratTable () {
                                      DataAccess::Interface::MantleFormation::getMixModelStr (),
                                      DataAccess::Interface::MantleFormation::getLayeringIndex());
 
-   if( dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle)->isALC() ) {
-      lc.setThermalModel( m_projectHandle->getMantlePropertyModel());
+   GeoPhysics::ProjectHandle& projectHandle = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle());
+   if( projectHandle.isALC() ) {
+      lc.setThermalModel( projectHandle.getMantlePropertyModel());
    }
 
-   pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::GeoPhysicsFormation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
+   pMixedLitho = projectHandle.getLithologyManager ().getCompoundLithology ( lc );
    createdLithologies = pMixedLitho != 0;
    m_compoundLithologies.fillWithLithology ( pMixedLitho );
 
-   if( dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle)->isALC() && m_projectHandle->getRank() == 0 ) {
+   if( projectHandle.isALC() && getProjectHandle().getRank() == 0 ) {
       cout << "Mantle property model = " << pMixedLitho->getThermalModel() << endl;
    }
    return createdLithologies;
@@ -80,10 +81,10 @@ void GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness () {
    double gridMapMaximum;
    double gridMapMinimum;
 
-   const GeoPhysics::GeoPhysicsCrustFormation* crust = dynamic_cast<const GeoPhysics::GeoPhysicsCrustFormation*>( m_projectHandle->getCrustFormation ());
+   const GeoPhysics::GeoPhysicsCrustFormation* crust = dynamic_cast<const GeoPhysics::GeoPhysicsCrustFormation*>( getProjectHandle().getCrustFormation ());
 
 
-   if ( GeoPhysics::GeoPhysicsFormation::m_projectHandle->getBottomBoundaryConditions () == Interface::MANTLE_HEAT_FLOW ) {
+   if ( GeoPhysics::GeoPhysicsFormation::getProjectHandle().getBottomBoundaryConditions () == Interface::MANTLE_HEAT_FLOW ) {
 
       const Interface::GridMap* thicknessMap = dynamic_cast<const Interface::GridMap*>(Interface::MantleFormation::getInputThicknessMap ());
 
@@ -114,8 +115,8 @@ void GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness () {
       delete mantleThicknesses;
    }
 
-   const GeoPhysics::ProjectHandle* project = dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle);
-   double maximumPresentDayBasementThickness = ( project->isALC() ?
+   const GeoPhysics::ProjectHandle& project = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle());
+   double maximumPresentDayBasementThickness = ( project.isALC() ?
                                                  getInitialLithosphericMantleThickness() + crust->getInitialCrustalThickness() :
                                                  getPresentDayThickness () + crust->getCrustMaximumThicknessHistory ( 0.0 ));
 
@@ -136,16 +137,16 @@ void GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness () {
 
 unsigned int GeoPhysics::GeoPhysicsMantleFormation::setMaximumNumberOfElements ( const bool /*readSizeFromVolumeData*/ ) {
 
-   const GeoPhysics::GeoPhysicsCrustFormation* crust = dynamic_cast<const GeoPhysics::GeoPhysicsCrustFormation*>( m_projectHandle->getCrustFormation ());
-   const GeoPhysics::ProjectHandle* project = dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle);
+   const GeoPhysics::GeoPhysicsCrustFormation* crust = dynamic_cast<const GeoPhysics::GeoPhysicsCrustFormation*>( getProjectHandle().getCrustFormation ());
+   const GeoPhysics::ProjectHandle& project = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle());
    const double layerMaximumThickness = getMaximumThickness ();
 
-  if( project->isALC() )
+  if( project.isALC() )
   {
-    m_maximumNumberOfElements = project->getMaximumNumberOfMantleElements();
+    m_maximumNumberOfElements = project.getMaximumNumberOfMantleElements();
     const double maxLithoThickness = getInitialLithosphericMantleThickness () + crust->getInitialCrustalThickness() - crust->getMinimumThickness() ;
 
-    if ( project->getBottomBoundaryConditions() == Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE )
+    if ( project.getBottomBoundaryConditions() == Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE )
     {
       m_mantleElementHeight0 = maxLithoThickness / m_maximumNumberOfElements;
     }
@@ -172,7 +173,7 @@ void GeoPhysics::GeoPhysicsMantleFormation::retrieveAllThicknessMaps () {
 
    dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ())->retrieveGhostedData ();
 
-   if ( m_projectHandle->getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ) {
+   if ( getProjectHandle().getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ) {
       Interface::PaleoFormationPropertyList* mantleThicknesses = getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::iterator mantleThicknessIter;
 
@@ -191,7 +192,7 @@ void GeoPhysics::GeoPhysicsMantleFormation::restoreAllThicknessMaps () {
 
    dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ())->restoreData ( false, true );
 
-   if ( m_projectHandle->getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ) {
+   if ( getProjectHandle().getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ) {
 
       Interface::PaleoFormationPropertyList* mantleThicknesses = getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::iterator mantleThicknessIter;
@@ -206,7 +207,7 @@ void GeoPhysics::GeoPhysicsMantleFormation::restoreAllThicknessMaps () {
 
 double GeoPhysics::GeoPhysicsMantleFormation::getMantleElementHeight0(double localMaxCrustThicknessRatio, int k, int kMax) const
 {
-  if ( m_projectHandle->getBottomBoundaryConditions() == Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE )
+  if ( getProjectHandle().getBottomBoundaryConditions() == Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE )
   {
     assert( kMax + 1 == m_maximumNumberOfElements );
     // Elements increasing linear in size as function of depth
@@ -214,7 +215,7 @@ double GeoPhysics::GeoPhysicsMantleFormation::getMantleElementHeight0(double loc
     const double a = (localMaxCrustThicknessRatio - 1) * 2.0 / kMax;
     return m_mantleElementHeight0 * ( 1.0 + a * (kMax - k) );
   }
-  else if ( m_projectHandle->getBottomBoundaryConditions() == Interface::ADVANCED_LITHOSPHERE_CALCULATOR )
+  else if ( getProjectHandle().getBottomBoundaryConditions() == Interface::ADVANCED_LITHOSPHERE_CALCULATOR )
   {
     // Original ALC method
     return m_mantleElementHeight0 * m_globalMaxCrustThinningRatio;
@@ -222,8 +223,8 @@ double GeoPhysics::GeoPhysicsMantleFormation::getMantleElementHeight0(double loc
   else
   {
     // Non ALC methods
-    assert( !m_projectHandle->isALC() );
-    return m_projectHandle->getRunParameters()->getBrickHeightMantle();
+    assert( !getProjectHandle().isALC() );
+    return getProjectHandle().getRunParameters()->getBrickHeightMantle();
   }
 }
 

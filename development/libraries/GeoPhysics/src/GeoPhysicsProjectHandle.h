@@ -62,7 +62,6 @@ namespace GeoPhysics {
 
       ProjectHandle ( database::ProjectFileHandlerPtr pfh,
                       const std::string & name,
-                      const std::string & accessMode,
                       const DataAccess::Interface::ObjectFactory* objectFactory );
 
       ~ProjectHandle ();

@@ -51,10 +51,10 @@ using Utilities::Maths::KelvinToCelcius;
 //  -diagonly parameter which removes from plot info about composition
 //  -relcoef <value> parameter which could redefine relaxation coeff for Newton iterations in nonlinear solver in EosPack
 //
-// Version 3.3 
+// Version 3.3
 // Added:
 // -prop dens,visc parameter which allows to calculate and save to .m file phase densities and viscosities values
-// for each point on P/T grid. TotDensity, LiqDensity, VapDensity, LiqViscosity, VapViscosity matrices 
+// for each point on P/T grid. TotDensity, LiqDensity, VapDensity, LiqViscosity, VapViscosity matrices
 // will be wirtten to .m file. For undefined values 0.0 value is used.
 
 
@@ -78,7 +78,7 @@ std::vector<double>  g_valTSlice;
 std::string g_mFilePrefix;
 
 // Drop spices from composition for octave outpu if their mass fraction less then given threshold
-double g_MassThreshold = 0.0; 
+double g_MassThreshold = 0.0;
 
 /// EosPack parameters
 double g_ABTerm   = 2;
@@ -113,7 +113,7 @@ static void showUsage( const std::string & msg )
       << "\t[-dynamo]                  Create INC file to run with Dynamo\n\n"
       << "\t[-colormap]                Add liquid fraction values grid and colored countour lines to the plot\n"
       << "\t[-logcolormap]             The same as colormap but use logarithmic scale for colormap\n"
-      << "\t[-abterm <val>]            Set parmateres A/B term for EosPack. This paramters has influence how PVT library labeling phases in 1 phase region\n" 
+      << "\t[-abterm <val>]            Set parmateres A/B term for EosPack. This paramters has influence how PVT library labeling phases in 1 phase region\n"
       << "\t[-prop <dens | visc>]      Save as matrix for each point P/T grid given property value for each phase\n"
       << "\t[-mfile <mFilePrefix>]     Use given name as file name for Matlab .m file.\n"
       << "                             Any negative value will set algorithm to the default behaviour (A/B doesn't be used)\n"
@@ -155,14 +155,14 @@ int main( int argc, char ** argv )
 
    // save set of command line parameters for reference
    for ( int i = 1; i < argc; ++i )
-   {  
+   {
       cmdString += i > 1 ? " " : "";
       cmdString += argv[i];
    }
 
    // Parsing parameters
    for ( int i = 1; i < argc; ++i )
-   {  
+   {
       std::string prm( argv[i] );
       std::string val(  i < argc - 1 ? argv[i+1] : "" );
       std::string val2( i < argc - 2 ? argv[i+2] : "" );
@@ -198,7 +198,7 @@ int main( int argc, char ** argv )
       else if ( prm == "-mfile"       ) { g_mFilePrefix      = val; ++i; }
       else if ( prm == "-tuneab"      )
       {
-         g_tuneAB = true; 
+         g_tuneAB = true;
          if ( val.size() && val[0] != '-' )
          {
             g_abFileName = val;
@@ -223,7 +223,7 @@ int main( int argc, char ** argv )
       else if ( prm == "-log"         ) { g_LogCountourLines = true; }
       else if ( prm == "-prop"        )
       {
-         g_DumpProperty = true; 
+         g_DumpProperty = true;
          if ( val == "dens" ) { g_PropList[0] = true; ++i; }
          if ( val == "visc" ) { g_PropList[1] = true; ++i; }
       }
@@ -257,13 +257,13 @@ int main( int argc, char ** argv )
       }
 
       TrapperIoTableRec  curRec;
-      
+
       // Fill dummy composition:
       curRec.setAge( 0 );
       curRec.setTrapID( 0 );
       curRec.setReservoirName( "Unknown" );
-      curRec.setPressure( 101325.0 * 1e-6 * 125 ); 
-      curRec.setTemperature( 15 + 300 ); // stock tank temperature in Celsius 
+      curRec.setPressure( 101325.0 * 1e-6 * 125 );
+      curRec.setTemperature( 15 + 300 ); // stock tank temperature in Celsius
 
       curRec.setCompositionComp( 3, ComponentId::C1,               7780993477.8834   ); // kg
       curRec.setCompositionComp( 3, ComponentId::C2,               7470802663.62787  ); // kg
@@ -293,8 +293,8 @@ int main( int argc, char ** argv )
    }
    else if ( !projectFileName.empty() )
    {
-	  DataAccess::Interface::ObjectFactory* factory = new DataAccess::Interface::ObjectFactory;
-	  DataAccess::Interface::ProjectHandle * ph = DataAccess::Interface::OpenCauldronProject( projectFileName, "r", factory );
+    DataAccess::Interface::ObjectFactory* factory = new DataAccess::Interface::ObjectFactory;
+    std::unique_ptr<DataAccess::Interface::ProjectHandle> ph( DataAccess::Interface::OpenCauldronProject( projectFileName, factory ) );
       if ( !ph )
       {
          std::cerr << "Failing to load project: " << projectFileName << "\n";
@@ -324,19 +324,18 @@ int main( int argc, char ** argv )
          }
       }
 
-      DataAccess::Interface::CloseCauldronProject( ph );
-	  delete factory;
-   }
-   else if ( !compFileName.empty() )
-   {
-      CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
-      const int NUM_COMP     = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
-      const int NUM_COMP_TOT = ComponentId::NUMBER_OF_SPECIES;
+		delete factory;
+	 }
+	 else if ( !compFileName.empty() )
+	 {
+			CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
+			const int NUM_COMP     = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
+			const int NUM_COMP_TOT = ComponentId::NUMBER_OF_SPECIES;
 
-      double pressure;             //[Pa]               
+      double pressure;             //[Pa]
       double temperature;          //[K]=[Celsius+273.15]
       double compMasses[NUM_COMP_TOT];
-      
+
       std::ifstream ifs( compFileName.c_str(), ios_base::in );
 
       ifs >> pressure;    if ( !ifs.good() ) { std::cerr << "Can't read pressure from "    << compFileName << "\n"; return -1; }
@@ -346,21 +345,21 @@ int main( int argc, char ** argv )
       {
          ifs >> compMasses[i];
          if ( !ifs.good() )
-         { 
-            std::cerr << "Can't read component fraction from " << compFileName << " for " << theComponentManager.getSpeciesName( i ) << "\n"; 
+         {
+            std::cerr << "Can't read component fraction from " << compFileName << " for " << theComponentManager.getSpeciesName( i ) << "\n";
             return -1;
          }
       }
       ifs.close();
 
       TrapperIoTableRec  curRec;
-      
+
       // Fill composition:
       curRec.setAge( 0 );
       curRec.setTrapID( 0 );
       curRec.setReservoirName( compFileName.c_str() );
-      curRec.setPressure( pressure * PaToMegaPa ); 
-      curRec.setTemperature( temperature + KelvinToCelcius ); // stock tank temperature in Celsius 
+      curRec.setPressure( pressure * PaToMegaPa );
+      curRec.setTemperature( temperature + KelvinToCelcius ); // stock tank temperature in Celsius
 
       for ( int i = 0; i < NUM_COMP_TOT; ++i )
       {
@@ -376,7 +375,7 @@ int main( int argc, char ** argv )
          dumpCompositionToCSVforPVTsim( data[it] );
       }
       // can't build diagram for empty composition
-      if ( data[it].totMass() < 1.e-5 ) 
+      if ( data[it].totMass() < 1.e-5 )
       {
          std::cout << "Empty composition ignorred, total mass: " << data[it].totMass() << "\n";
       }
@@ -426,7 +425,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    const int iNc = ComponentId::NUMBER_OF_SPECIES;
 
    std::vector<double> masses( iNc, 0.0 );
-   
+
    for ( int comp = 0; comp < iNc; ++comp )
    {
       double cMass = data.compMass( comp );
@@ -437,16 +436,16 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    clock_t cStart = clock();
 
    std::unique_ptr<PTDiagramCalculator> diagBuilder( new PTDiagramCalculator( g_DiagType, masses ) );
-   
+
    if ( g_ABTerm > 0 ) // negative value means ignore AoverB term
    {
       diagBuilder->setAoverBTerm( g_ABTerm );
    }
    diagBuilder->setNonLinSolverConvPrms( g_StopTol, g_MaxIters, g_NewtonRelCoef );
    diagBuilder->setTolValue( g_Tol );
-   
+
    if ( !g_tuneAB ) diagBuilder->findBubbleDewLines( data.temperature() + CelciusToKelvin, data.pressure() * MegaPaToPa, std::vector<double>() );
-   
+
    clock_t cEnd = clock();
    double bubleDewSearchTime = (cEnd - cStart)/static_cast<double>(CLOCKS_PER_SEC);
 
@@ -459,7 +458,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
       cStart = clock();
       tunnedAB = diagBuilder->searchAoverBTerm();
       cEnd = clock();
-            
+
       tuneABTime = (cEnd - cStart)/static_cast<double>(CLOCKS_PER_SEC);
       if ( g_abFileName.size() )
       {
@@ -510,8 +509,8 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    // Create list of values to calculate isolines into PTDiagramCalculator
    std::vector<double> vals;
    std::vector<size_t>    colors;
-   
-   // generate set of values for calculating isolines in PTDiagramCalculator and colors 
+
+   // generate set of values for calculating isolines in PTDiagramCalculator and colors
    if ( !g_tuneAB ) createListValuesForIsolinesCalculation( ofs, vals, colors );
 
    // draw Liquid/Vapor single phases separation line
@@ -538,13 +537,13 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
          ofs << isoline[j].second * PaToMegaPa << " ";
       }
       ofs << "\n" << "];\n\n";
-      
+
       if ( !g_DataOnly )
       {
          ofs << (i == 0 ? "hold on" : "" )<< "\n";
-   
+
          ofs << "ph(" << i+1 << ") = plot( data_" << i << "(1,:), data_" << i << "(2,:), ";
-      
+
          if ( vals.size() <= 11 )
          {
             ofs << "'" << colors[i] << "', ";
@@ -596,11 +595,11 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
 
       ofs << "%Print composition info in text form\n";
       ofs << "subplot( 3, 4, [8 12] );\n";
-   
+
       plotCompositionAsTable( ofs );
    }
 
-   ofs << "print -djpg '-S2400,1800' " << plotName << ".jpg;\n"; 
+   ofs << "print -djpg '-S2400,1800' " << plotName << ".jpg;\n";
    if ( !g_IsBatch ) { ofs << "pause;\n"; }
 
    return diagBuilder.release();
@@ -633,11 +632,11 @@ void dumpBblDewLineToDynamoInc( TrapperIoTableRec & data, PTDiagramCalculator & 
    double masses[ComponentId::NUMBER_OF_SPECIES];
    double fractions[ComponentId::NUMBER_OF_SPECIES];
 
-   for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) 
+   for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i )
    {
       masses[i] = data.compMass( i );
    }
-   
+
    pvtFlash::EosPack::getInstance().lumpComponents( masses, lumpedMasses, fractions );
    ofs << "\n" << "   FlashIn H2O [1] = 0.0\n";
 
@@ -664,7 +663,7 @@ void dumpBblDewLineToDynamoInc( TrapperIoTableRec & data, PTDiagramCalculator & 
    {
       ofs << "   PTFLASH ( pvtmodel, " << isoline[j].second << "*PA, " << isoline[j].first << "*K, FlashIn, FlashOut );\n";
    }
-   
+
    ofs << "\n";
    for ( size_t j = 0; j < isoline.size(); ++j )
    {
@@ -675,7 +674,7 @@ void dumpBblDewLineToDynamoInc( TrapperIoTableRec & data, PTDiagramCalculator & 
       ofs << "   PRINT( \"" << isoline[j].first << " \", PRESSURE, SatPres, \"\\n\" )\n";
    }
    ofs << "\n";
-   
+
    const PTDiagramCalculator::TPLine & isoline2 = diagBuilder.calcContourLine( 0.0 );
    for ( size_t j = 0; j < isoline2.size(); ++j )
    {
@@ -771,11 +770,11 @@ static void dumpCompositionInfo( std::ofstream & ofs, std::unique_ptr<PTDiagramC
    {
       ofs << "  " << masses[i] << "\n";
       // also calulate mole fraction
-      masses[i] /= massTotal * pvtFlash::EosPack::getInstance().getMolWeightLumped( i, gorm ); 
+      masses[i] /= massTotal * pvtFlash::EosPack::getInstance().getMolWeightLumped( i, gorm );
    }
    ofs << "];\n\n";
 
-   massTotal = std::accumulate( masses.begin(), masses.end(), 0.0 ); 
+   massTotal = std::accumulate( masses.begin(), masses.end(), 0.0 );
    for ( size_t i = 0; i < iNc; ++i )
    {
       masses[i] /= massTotal;
@@ -866,7 +865,7 @@ static void dumpPropertiesListArrays( std::ofstream & ofs, std::unique_ptr<PTDia
    if ( g_ABTerm > 0 ) { pvtFlash::EosPack::getInstance().setCritAoverBterm( g_ABTerm ); }
 
    // increase precision for nonlinear solver
-   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters( g_MaxIters, g_StopTol, g_NewtonRelCoef ); 
+   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters( g_MaxIters, g_StopTol, g_NewtonRelCoef );
 
    // Do flashing once more for each point of the grid to collect density/viscosity values
    for ( size_t i = 0; i < gridP.size(); ++i )
@@ -877,7 +876,7 @@ static void dumpPropertiesListArrays( std::ofstream & ofs, std::unique_ptr<PTDia
          const int iNp     = PhaseId::NUMBER_OF_PHASES;
          const int iLiquid = PhaseId::LIQUID;
          const int iVapour = PhaseId::VAPOUR;
-   
+
          // arrays for passing to flasher
          double masses[iNc];
          double phaseMasses[iNp][iNc];
@@ -968,7 +967,7 @@ static void dumpPropertiesListArrays( std::ofstream & ofs, std::unique_ptr<PTDia
          }
          ofs << "\n";
       }
-   
+
       ofs << "];\n\nLiqViscosity = [\n";
       for ( size_t i = 0; i < gridP.size(); ++i )
       {
@@ -1007,11 +1006,11 @@ static void dumpPropertySlice( std::unique_ptr<PTDiagramCalculator> & diagBuilde
    if ( g_ABTerm > 0 ) { pvtFlash::EosPack::getInstance().setCritAoverBterm( g_ABTerm ); }
 
    // increase precision for nonlinear solver
-   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters( g_MaxIters, g_StopTol, g_NewtonRelCoef ); 
+   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters( g_MaxIters, g_StopTol, g_NewtonRelCoef );
 
    std::ofstream ofs;
    std::ostringstream oss;
-   if ( !g_mFilePrefix.empty() ) oss << g_mFilePrefix << "_"; 
+   if ( !g_mFilePrefix.empty() ) oss << g_mFilePrefix << "_";
    oss << "PTSlicesSet.m";
 
    // run over given values for P slices and generate 1D plots
@@ -1037,7 +1036,7 @@ static void dumpPropertySlice( std::unique_ptr<PTDiagramCalculator> & diagBuilde
          }
          // Call flasher to get compositions for phases
          pvtFlash::EosPack::getInstance().computeWithLumping( gridT[j], (*pit) * 1e6, masses, phaseMasses, phaseDens, phaseVisc );
-         
+
          double massLiquid = std::accumulate( phaseMasses[iLiquid], phaseMasses[iLiquid] + iNc, 1.0e-15 );
          double massVapour = std::accumulate( phaseMasses[iVapour], phaseMasses[iVapour] + iNc, 1.0e-15 );
 
@@ -1083,7 +1082,7 @@ static void dumpPropertySlice( std::unique_ptr<PTDiagramCalculator> & diagBuilde
       ofs << "sliceP_liqFrac_" << pit - g_valPSlice.begin() << " = [ ";
       for ( size_t j = 0; j < gridT.size(); ++j ) ofs << liqFrac[j] << " "; ofs << "];\n\n";
    }
-   
+
    // Do flashing once more for each point of the T grid to collect density/viscosity values
    for ( std::vector<double>::const_iterator pit = g_valTSlice.begin(); pit != g_valTSlice.end(); ++pit )
    {
@@ -1166,7 +1165,7 @@ static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::ve
    {
       if ( !(g_CountourLinesNum % 2) )
       {
-         g_CountourLinesNum++; 
+         g_CountourLinesNum++;
       }
 
       vals.push_back( 0.0 );
@@ -1195,7 +1194,7 @@ static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::ve
    }
 
    // if number of lines rather small use legend and predefined plot colors
-   if ( vals.size() <= 11 ) 
+   if ( vals.size() <= 11 )
    {
       for ( int i = 0; i < vals.size() / 2 + vals.size() % 2; ++i )
       {
@@ -1241,7 +1240,7 @@ static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::unique_
          ofs << spsline[j].second * PaToMegaPa << " ";
       }
       ofs << "\n" << "];\n\n";
-      
+
       if ( !g_DataOnly )
       {
          ofs << "hold on\n";
@@ -1252,12 +1251,12 @@ static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::unique_
 }
 
 
-// Dump data for special points on diagram like Trap Condition, Bubble point for trap temperature, 
+// Dump data for special points on diagram like Trap Condition, Bubble point for trap temperature,
 //  Surface conditions, Critical point, Criconden therm/bar points
 static void dumpSpecialPoints( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data )
 {
    // Point with trap condition could call axiss ajustmenst that is why we should draw it first
-   ofs << "%Point for trap conditions\n"; 
+   ofs << "%Point for trap conditions\n";
    ofs << "TrapCond = [" << (data.temperature() + CelciusToKelvin) << ", " << data.pressure() << "];\n";
    ofs << "\n";
 
@@ -1266,7 +1265,7 @@ static void dumpSpecialPoints( std::ofstream & ofs, std::unique_ptr<PTDiagramCal
    ofs << "\n";
 
    ofs << "%Critical point\n";
-   ofs << "CritPoint = [" << diagBuilder->getCriticalPoint().first << ", " << 
+   ofs << "CritPoint = [" << diagBuilder->getCriticalPoint().first << ", " <<
                              diagBuilder->getCriticalPoint().second * PaToMegaPa << "];\n";
    ofs << "\n";
 
@@ -1277,7 +1276,7 @@ static void dumpSpecialPoints( std::ofstream & ofs, std::unique_ptr<PTDiagramCal
    {
       ofs << "BubblePoint = [" << T << ", " << P * PaToMegaPa << "];\n";
    }
-   else 
+   else
    {
       ofs << "BubblePoint = [" << T << ", " << 0.0 << "];\n";
    }
@@ -1308,7 +1307,7 @@ static void generatePlotDescription( std::ofstream & ofs, const std::vector<doub
       if ( g_ColormapType )
       {
          ofs << "colormap( cool( 64 ) );\n";
-      
+
          if ( g_ColormapType == 1 )
          {
             ofs << "contourf( gridT, gridP, LiqFraction, [0:0.1:1] );\n";
@@ -1339,7 +1338,7 @@ static void generatePlotDescription( std::ofstream & ofs, const std::vector<doub
    else
    {
       if ( g_ColormapType )
-      {  // we should join 2 coloromaps in one colorbar         
+      {  // we should join 2 coloromaps in one colorbar
          ofs << "colormap( [cool(64); [1 1 1; 1 1 1; 1 1 1]; colors ] );\n";
          ofs << "isolNum = size(colors,1);\n";
          ofs << "if isolNum/64 > 1\n";
@@ -1398,10 +1397,10 @@ static void generatePlotDescription( std::ofstream & ofs, const std::vector<doub
 static void plotSpecialPoints( std::ofstream & ofs )
 {
    // Point with trap condition could call axiss ajustmenst that is why we should draw it first
-   ofs << "%Plot trap conditions\n"; 
+   ofs << "%Plot trap conditions\n";
    ofs << "plot( [ TrapCond(1) ], [ TrapCond(2) ], 'ko', 'linewidth', 2 );\n";
 
-   ofs << "%Check and shift axiss if trap condition point outside of the axis range\n";   
+   ofs << "%Check and shift axiss if trap condition point outside of the axis range\n";
    ofs << "ax = axis;\n";
    ofs << "if ( ax(4) < TrapCond(2) )\n";
    ofs << "   axis( [ ax(1) ax(2) ax(3) TrapCond(2) ] );\n";
@@ -1479,13 +1478,13 @@ static void plotPieChartForComposition( std::ofstream & ofs )
 static void plotCompositionAsTable( std::ofstream & ofs )
 {
    ofs << "box off;\n";
-   
+
    ofs << "ax = axis;\n";
    ofs << "dy = (ax(4) - ax(3)) / " << ComponentId::NUMBER_OF_SPECIES << " * 0.8;\n";
    ofs << "axis off;\n\n";
 
    ofs << "for i = 1:length( Composition )\n";
-   ofs << "   str = sprintf( '%s - %1.3e', CompNames(i,:), " << 
+   ofs << "   str = sprintf( '%s - %1.3e', CompNames(i,:), " <<
       ( PTDiagramCalculator::MoleMassFractionDiagram == g_DiagType ? "CompMoleFrac( i )" : "CompositionNorm( i )" ) << " );\n";
    ofs << "   text( 0.1, ax(4) - dy * (i+1), str );\n";
    ofs << "end\n";

@@ -15,7 +15,7 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-OutputProperty::OutputProperty (ProjectHandle * projectHandle, database::Record * record) :
+OutputProperty::OutputProperty (ProjectHandle& projectHandle, database::Record * record) :
    DAObject (projectHandle, record), m_name ( database::getPropertyName (m_record))
 {
 
@@ -45,7 +45,7 @@ OutputProperty::OutputProperty (ProjectHandle * projectHandle, database::Record 
 
 }
 
-OutputProperty::OutputProperty (ProjectHandle * projectHandle, const ModellingMode mode, const PropertyOutputOption option, const std::string& name ) : 
+OutputProperty::OutputProperty (ProjectHandle& projectHandle, const ModellingMode mode, const PropertyOutputOption option, const std::string& name ) :
    DAObject ( projectHandle, 0 ), m_name ( name ), m_mode ( mode ), m_option ( option ) {
 }
 

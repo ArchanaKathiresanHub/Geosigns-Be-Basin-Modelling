@@ -19,15 +19,14 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::PrimaryFormationMapProperty::PrimaryFormationMapProperty ( const DataAccess::Interface::PropertyValue* propertyValue ) : 
-   FormationMapProperty ( propertyValue->getProperty (), 
+DerivedProperties::PrimaryFormationMapProperty::PrimaryFormationMapProperty ( const DataAccess::Interface::PropertyValue* propertyValue ) :
+   FormationMapProperty ( propertyValue->getProperty (),
                           propertyValue->getSnapshot (),
                           propertyValue->getFormation (),
                           propertyValue->getGridMap ()->getGrid () ),
-   m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap ())
 {
-   m_gridMap->retrieveData (true);
+   m_gridMap->retrieveData ( true );
 }
 
 DerivedProperties::PrimaryFormationMapProperty::~PrimaryFormationMapProperty() {

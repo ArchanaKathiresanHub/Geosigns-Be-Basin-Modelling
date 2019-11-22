@@ -29,25 +29,24 @@
 using namespace DataAccess;
 
 Interface::ProjectHandle * GeoPhysics::ObjectFactory::produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
-                                                                             const string & name,
-                                                                             const string & accessMode ) const
+                                                                             const string & name ) const
 {
-   return new GeoPhysics::ProjectHandle ( pfh, name, accessMode, this );
+   return new GeoPhysics::ProjectHandle ( pfh, name, this );
 }
 
-Interface::FluidType* GeoPhysics::ObjectFactory::produceFluidType ( Interface::ProjectHandle* projectHandle,
+Interface::FluidType* GeoPhysics::ObjectFactory::produceFluidType ( Interface::ProjectHandle& projectHandle,
                                                                     database::Record*         record ) const
 {
    return new GeoPhysics::FluidType ( projectHandle, record );
 }
 
-DataAccess::Interface::Formation* GeoPhysics::ObjectFactory::produceFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+DataAccess::Interface::Formation* GeoPhysics::ObjectFactory::produceFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                                 database::Record*                     record ) const
 {
    return new GeoPhysics::GeoPhysicsFormation ( projectHandle, record );
 }
 
-DataAccess::Interface::CrustFormation* GeoPhysics::ObjectFactory::produceCrustFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+DataAccess::Interface::CrustFormation* GeoPhysics::ObjectFactory::produceCrustFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                                           database::Record*                     record ) const
 {
 
@@ -57,7 +56,7 @@ DataAccess::Interface::CrustFormation* GeoPhysics::ObjectFactory::produceCrustFo
    return result;
 }
 
-DataAccess::Interface::MantleFormation* GeoPhysics::ObjectFactory::produceMantleFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+DataAccess::Interface::MantleFormation* GeoPhysics::ObjectFactory::produceMantleFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                                             database::Record*                     record ) const
 {
    GeoPhysics::GeoPhysicsMantleFormation * result = new GeoPhysics::GeoPhysicsMantleFormation ( projectHandle, record );
@@ -65,7 +64,7 @@ DataAccess::Interface::MantleFormation* GeoPhysics::ObjectFactory::produceMantle
    return result;
 }
 
-DataAccess::Interface::SourceRock* GeoPhysics::ObjectFactory::produceSourceRock ( DataAccess::Interface::ProjectHandle* projectHandle,
+DataAccess::Interface::SourceRock* GeoPhysics::ObjectFactory::produceSourceRock ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                                   database::Record*                     record ) const
 {
    GeoPhysics::GeoPhysicsSourceRock * result = new GeoPhysics::GeoPhysicsSourceRock ( projectHandle, record );
@@ -73,12 +72,12 @@ DataAccess::Interface::SourceRock* GeoPhysics::ObjectFactory::produceSourceRock 
    return result;
 }
 
-Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType( DataAccess::Interface::ProjectHandle * projectHandle,
+Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                     database::Record *         record ) const
 {
    const string lithoname = database::getLithotype (record);
-   if ((projectHandle->isALC()) &&
-      (lithoname == projectHandle->getCrustLithoName() || lithoname == projectHandle->getMantleLithoName() || lithoname == DataAccess::Interface::ALCBasalt))
+   if ((projectHandle.isALC()) &&
+      (lithoname == projectHandle.getCrustLithoName() || lithoname == projectHandle.getMantleLithoName() || lithoname == DataAccess::Interface::ALCBasalt))
    {
       return new BasementLithology( projectHandle, record );
    }
@@ -107,12 +106,12 @@ Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType ( const Simple
    return copy;
 }
 
-GeoPhysics::CompoundLithology* GeoPhysics::ObjectFactory::produceCompoundLithology ( GeoPhysics::ProjectHandle* projectHandle ) const
+GeoPhysics::CompoundLithology* GeoPhysics::ObjectFactory::produceCompoundLithology ( GeoPhysics::ProjectHandle& projectHandle ) const
 {
    return new CompoundLithology ( projectHandle );
 }
 
-GeoPhysics::FracturePressureCalculator* GeoPhysics::ObjectFactory::produceFracturePressureCalculator ( GeoPhysics::ProjectHandle* projectHandle ) const
+GeoPhysics::FracturePressureCalculator* GeoPhysics::ObjectFactory::produceFracturePressureCalculator ( ProjectHandle& projectHandle ) const
 {
    return new FracturePressureCalculator ( projectHandle );
 }

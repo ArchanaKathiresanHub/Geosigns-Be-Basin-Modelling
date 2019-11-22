@@ -1322,8 +1322,8 @@ Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & /*oth
 
 void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 {
-  m_factory.reset(new DataAccess::Interface::ObjectFactory);
-  m_projHandle.reset( DataAccess::Interface::OpenCauldronProject( projectFileName, "rw", m_factory.get() ) );
+	m_factory.reset(new DataAccess::Interface::ObjectFactory);
+	m_projHandle.reset( DataAccess::Interface::OpenCauldronProject( projectFileName, m_factory.get() ) );
 
    if ( !m_projHandle.get() )
    {

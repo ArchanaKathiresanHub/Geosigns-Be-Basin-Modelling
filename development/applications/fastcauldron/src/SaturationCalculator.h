@@ -3,7 +3,6 @@
 
 
 #include "layer.h"
-#include "CompoundLithologyArray.h"
 #include "Property.h"
 #include "PropertyValue.h"
 #include "OutputPropertyMap.h"
@@ -22,7 +21,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -34,7 +33,7 @@ private :
    const Interface::Snapshot* m_snapshot;
    bool m_isCalculated;
 
-}; 
+};
 
 
 class SaturationVolumeCalculator {
@@ -45,7 +44,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -56,11 +55,11 @@ private :
    const Interface::Snapshot* m_snapshot;
    bool m_isCalculated;
 
-}; 
+};
 
-OutputPropertyMap* allocateSaturationCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateSaturationCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateSaturationVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateSaturationVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot );
 
 
 //averaged saturation for map
@@ -73,7 +72,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -85,7 +84,7 @@ private :
    const Interface::Snapshot* m_snapshot;
    bool m_isCalculated;
 
-}; 
+};
 
 //average calculation for 3d
 class AverageSaturationVolumeCalculator {
@@ -96,7 +95,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -107,11 +106,11 @@ private :
    const Interface::Snapshot* m_snapshot;
    bool m_isCalculated;
 
-}; 
+};
 
-OutputPropertyMap* allocateAverageSaturationCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateAverageSaturationCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateAverageSaturationVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateAverageSaturationVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot );
 
 
 

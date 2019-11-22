@@ -3,7 +3,7 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-OutputPropertyMap* allocateFaultElementMapCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateFaultElementMapCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<FaultElementMapCalculator>( property, formation, surface, snapshot );
 }
 
@@ -14,15 +14,14 @@ FaultElementMapCalculator::FaultElementMapCalculator ( LayerProps* formation, co
 
 }
 
-bool FaultElementMapCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool FaultElementMapCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                    OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
       return true;
    }
 
-   if ( not m_formation->getContainsFaults () || 
-        FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+   if ( not m_formation->getContainsFaults () ) {
       propertyValues [ 0 ]->allowOutput ( false );
       m_isCalculated = true;
       return true;
@@ -66,8 +65,8 @@ bool FaultElementMapCalculator::operator ()( const OutputPropertyMap::OutputProp
 
 void FaultElementMapCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FaultElements", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "FaultElements",
+                                                                                                         m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          0 )));
 

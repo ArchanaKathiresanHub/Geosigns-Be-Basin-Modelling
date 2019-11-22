@@ -2,7 +2,6 @@
 #define _FASTCAULDRON__HC_FLUID_VELOCITY_CALCULATOR__H_
 
 #include "layer.h"
-#include "CompoundLithologyArray.h"
 #include "Property.h"
 #include "PropertyValue.h"
 #include "OutputPropertyMap.h"
@@ -20,7 +19,7 @@
 
 //    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-//    bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+//    bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
 //                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
 //    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -55,7 +54,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -71,8 +70,8 @@ private :
 
 };
 
-// OutputPropertyMap* allocateHcFluidVelocityCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+// OutputPropertyMap* allocateHcFluidVelocityCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateHcFluidVelocityVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateHcFluidVelocityVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot );
 
 #endif // _FASTCAULDRON__HC_FLUID_VELOCITY_CALCULATOR__H_

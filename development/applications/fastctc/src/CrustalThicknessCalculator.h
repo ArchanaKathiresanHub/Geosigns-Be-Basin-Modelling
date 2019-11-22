@@ -30,12 +30,6 @@
 using namespace DataAccess;
 using namespace std;
 
-/// @brief Displays the time and the message on the console.
-/// @details This functions uses MPI communication via the PetscPrintf command
-/// @param timeToDisplay The time to display in seconds
-/// @param msgToDisplay The message to display
-void displayTime( const double timeToDisplay, const char * msgToDisplay );
-
 /// @class CrustalThicknessCalculator The main class used to runn the CTC (CrustalThicknessCalculator)
 class CrustalThicknessCalculator : public DataAccess::Mining::ProjectHandle {
 
@@ -44,12 +38,8 @@ class CrustalThicknessCalculator : public DataAccess::Mining::ProjectHandle {
 public :
    CrustalThicknessCalculator( const database::ProjectFileHandlerPtr database,
                                const std::string & name,
-                               const std::string & accessMode,
                                const DataAccess::Interface::ObjectFactory* objectFactory );
    ~CrustalThicknessCalculator() = default;
-
-   /// @brief Return the reference to the project data
-   static CrustalThicknessCalculator& getInstance ();
 
    /// @brief Open the project file
    /// @param inputFileName The file name of the project file such as project.project3d
@@ -61,7 +51,7 @@ public :
 
    /// @brief Finish any activity and deallocate the singleton object
    /// @param saveResults Specify if the results must be saved in HDF file or not
-   static void finalise ( const bool saveResults );
+   void finalise ( const bool saveResults );
 
    /// @brief Parse fasctc command line
    /// @details Three command line parameters are available:
@@ -82,8 +72,6 @@ public :
    /// @details Must be called at end of calculation.
    bool mergeOutputFiles();
 private :
-
-   static CrustalThicknessCalculator* m_crustalThicknessCalculator; ///< The CrustalThicknessCalculator instance
 
    static string m_projectFileName;   ///< The input project file name, and output project file name by default
    static string m_outputFileName;    ///< The output project file name, specified via command line under -save
@@ -127,7 +115,4 @@ private :
 
 //------------------------------------------------------------//
 
-inline CrustalThicknessCalculator& CrustalThicknessCalculator::getInstance () {
-   return *m_crustalThicknessCalculator;
-}
 #endif

@@ -2,9 +2,9 @@
 
 #include "DataMiningProjectHandle.h"
 
-DataAccess::Mining::DataMiner::DataMiner ( Mining::ProjectHandle*                     projectHandle,
+DataAccess::Mining::DataMiner::DataMiner ( ProjectHandle& projectHandle,
                                            DerivedProperties::DerivedPropertyManager& propertyManager ) : m_propertyManager ( propertyManager ) {
-   m_collection = projectHandle->getDomainPropertyCollection ();
+   m_collection = projectHandle.getDomainPropertyCollection ();
 }
 
 DataAccess::Mining::DataMiner::~DataMiner () {

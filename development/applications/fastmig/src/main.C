@@ -300,11 +300,10 @@ int main (int argc, char ** argv)
       ReportProgress ("Did not save project file: ", outputFileName);
       ReportProgress ("Finished Simulation prematurely");
    }
-   
+
    // Save the memory consumption before deleting migrator
    Utilities::CheckMemory::StatisticsHandler::update();
    delete migrator;
-   //delete objectFactory;
 
 #ifdef FLEXLM
    //FlexLM license check in only for node with rank = 0
@@ -316,7 +315,7 @@ int main (int argc, char ** argv)
    }
 #endif
 
-   // Print the memory consumption to standard out 
+   // Print the memory consumption to standard out
    std::string statistics = Utilities::CheckMemory::StatisticsHandler::print( rank );
 
    PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");

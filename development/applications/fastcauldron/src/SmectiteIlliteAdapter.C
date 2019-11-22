@@ -4,11 +4,11 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-OutputPropertyMap* allocateSmectiteIlliteAdapter ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateSmectiteIlliteAdapter ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<SmectiteIlliteAdapter>( property, formation, surface, snapshot );
 }
 
-OutputPropertyMap* allocateSmectiteIlliteVolumeAdapter ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateSmectiteIlliteVolumeAdapter ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<SmectiteIlliteVolumeAdapter>( property, formation, snapshot );
 }
 

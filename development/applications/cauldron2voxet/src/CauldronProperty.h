@@ -2,6 +2,7 @@
 #define _VOXET_CAULDRON_PROPERTY_H_
 
 #include <string>
+#include <memory>
 
 // Data-access
 namespace DataAccess { namespace Interface {
@@ -29,7 +30,7 @@ class CauldronProperty {
 
 public :
 
-   CauldronProperty ( Interface::ProjectHandle* cauldronProjectHandle,
+   CauldronProperty ( const Interface::ProjectHandle& cauldronProjectHandle,
                       VoxetProjectHandle*            voxetHandle,
                       database::Record*              record );
 
@@ -53,11 +54,11 @@ public :
 
 private :
 
-   Interface::ProjectHandle* m_cauldronProjectHandle;
+   const Interface::ProjectHandle& m_cauldronProjectHandle;
    VoxetProjectHandle*            m_voxetHandle;
    database::Record*              m_record;
 
 
-}; 
+};
 
 #endif // _VOXET_CAULDRON_PROPERTY_H_

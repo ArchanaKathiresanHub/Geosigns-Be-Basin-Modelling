@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -21,6 +21,10 @@ using database::Table;
 using database::Record;
 
 void TableLoader::load( const ProjectHandle& projectHandle, const std::string& tableName, const std::function<void( Record* )> functor ){
+   if (!projectHandle.getProjectFileHandler())
+   {
+     return;
+   }
    Table const * const table = projectHandle.getTable( tableName );
    if (table == nullptr) {
       throw std::runtime_error( "Basin_Error: Could not find the table [" + tableName + "]" );
@@ -40,7 +44,7 @@ void TableLoader::load( const ProjectHandle& projectHandle, const std::string& t
          else{
             throw std::runtime_error( "Basin_Error: Undefined functor for table [" + tableName + "]" );
          }
-         
+
          index++;
       }
    }

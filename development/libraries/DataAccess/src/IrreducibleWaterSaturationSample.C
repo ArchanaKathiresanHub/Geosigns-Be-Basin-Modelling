@@ -3,7 +3,7 @@
 
 #include "database.h"
 
-DataAccess::Interface::IrreducibleWaterSaturationSample::IrreducibleWaterSaturationSample ( ProjectHandle*    projectHandle,
+DataAccess::Interface::IrreducibleWaterSaturationSample::IrreducibleWaterSaturationSample ( ProjectHandle&    projectHandle,
                                                                                                  database::Record* record ) : DAObject ( projectHandle, record ) {
 
    m_coeffA = database::getCoefficientA ( record );

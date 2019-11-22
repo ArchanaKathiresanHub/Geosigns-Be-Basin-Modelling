@@ -214,48 +214,33 @@ namespace AbstractDerivedProperties {
       /// \brief Add a calculator for a property or set of properties defined on a surface.
       ///
       /// \param [in] calculator  A calculator of surface properties.
-      /// \param [in] snapshot    The snapshot for which the calculator is valid.
       ///
-      /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
-      void addSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr& calculator,
-                                          const DataModel::AbstractSnapshot*  snapshot = 0 );
+      void addSurfacePropertyCalculator (const SurfacePropertyCalculatorPtr& calculator);
 
       /// \brief Add a calculator for a property or set of map properties defined on a formation.
       ///
       /// \param [in] calculator  A calculator of formation map properties.
-      /// \param [in] snapshot    The snapshot for which the calculator is valid.
       ///
-      /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
-      void addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& calculator,
-                                               const DataModel::AbstractSnapshot*       snapshot = 0 );
+      void addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& calculator );
 
       /// \brief Add a calculator for a property or set of properties defined on a formation.
       ///
-      /// \param [in] calculator  A calculator of formation properties.
-      /// \param [in] snapshot    The snapshot for which the calculator is valid.
+      /// \param [in] calculator  A calculator of formation properties.      
       ///
-      /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
       void addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& calculator,
-                                            const DataModel::AbstractSnapshot*    snapshot = 0,
                                             const bool                            debug = false );
  
       /// \brief Add a calculator for a property or set of properties defined on a surface and formation.
       ///
       /// \param [in] calculator  A calculator of formation-surface properties.
-      /// \param [in] snapshot    The snapshot for which the calculator is valid.
       ///
-      /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
-      void addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr& calculator,
-                                                   const DataModel::AbstractSnapshot*           snapshot = 0 );
+      void addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr& calculator );
 
       /// \brief Add a calculator for a property or set of properties defined for a reservoir.
       ///
       /// \param [in] calculator  A calculator of reservoir properties.
-      /// \param [in] snapshot    The snapshot for which the calculator is valid.
       ///
-      /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
-      void addReservoirPropertyCalculator ( const ReservoirPropertyCalculatorPtr& calculator,
-                                            const DataModel::AbstractSnapshot*    snapshot = 0 );
+      void addReservoirPropertyCalculator ( const ReservoirPropertyCalculatorPtr& calculator );
 
       /// \brief Add a set of property values to the availble property values.
       ///
@@ -285,47 +270,37 @@ namespace AbstractDerivedProperties {
       /// \brief Get the calculator for the property and snapshot.
       ///
       /// \param [in] property The property whose calulator is requested.
-      /// \param [in] snapshot The associated snapshot for the calcualtor.
       ///
       /// If no calculator has been added then a null will be returned.
-      SurfacePropertyCalculatorPtr getSurfaceCalculator ( const DataModel::AbstractProperty* property,
-                                                          const DataModel::AbstractSnapshot* snapshot ) const;
+      SurfacePropertyCalculatorPtr getSurfaceCalculator ( const DataModel::AbstractProperty* property ) const;
 
       /// \brief Get the calculator for the property and snapshot.
       ///
       /// \param [in] property The property whose calulator is requested.
-      /// \param [in] snapshot The associated snapshot for the calcualtor.
       ///
       /// If no calculator has been added then a null will be returned.
-      FormationSurfacePropertyCalculatorPtr getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property,
-                                                                            const DataModel::AbstractSnapshot* snapshot ) const;
+      FormationSurfacePropertyCalculatorPtr getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property ) const;
 
       /// \brief Get the calculator for the property and snapshot.
       ///
       /// \param [in] property The property whose calulator is requested.
-      /// \param [in] snapshot The associated snapshot for the calcualtor.
       ///
       /// If no calculator has been added then a null will be returned.
-      FormationMapPropertyCalculatorPtr getFormationMapCalculator ( const DataModel::AbstractProperty* property,
-                                                                    const DataModel::AbstractSnapshot* snapshot ) const;
+      FormationMapPropertyCalculatorPtr getFormationMapCalculator ( const DataModel::AbstractProperty* property ) const;
 
       /// \brief Get the calculator for the property and snapshot.
       ///
       /// \param [in] property The property whose calulator is requested.
-      /// \param [in] snapshot The associated snapshot for the calcualtor.
       ///
       /// If no calculator has been added then a null will be returned.
-      FormationPropertyCalculatorPtr getFormationCalculator ( const DataModel::AbstractProperty* property,
-                                                              const DataModel::AbstractSnapshot* snapshot ) const;
+      FormationPropertyCalculatorPtr getFormationCalculator ( const DataModel::AbstractProperty* property ) const;
 
       /// \brief Get the calculator for the property and snapshot.
       ///
       /// \param [in] property The property whose calulator is requested.
-      /// \param [in] snapshot The associated snapshot for the calcualtor.
       ///
       /// If no calculator has been added then a null will be returned.
-      ReservoirPropertyCalculatorPtr getReservoirCalculator ( const DataModel::AbstractProperty* property,
-                                                              const DataModel::AbstractSnapshot* snapshot ) const;
+      ReservoirPropertyCalculatorPtr getReservoirCalculator ( const DataModel::AbstractProperty* property) const;
 
       /// \brief Search the list of available surface property values for a specific set of values.
       ///

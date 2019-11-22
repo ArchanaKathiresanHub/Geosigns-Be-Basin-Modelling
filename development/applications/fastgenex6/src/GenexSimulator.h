@@ -34,9 +34,8 @@ namespace GenexSimulation
       /*!
          \param database a pointer to a database::Database object
          \param name the name of the file
-         \param accessMode read or write
       */
-      GenexSimulator (database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, const DataAccess::Interface::ObjectFactory* objectFactory);
+      GenexSimulator (database::ProjectFileHandlerPtr database, const std::string & name, const DataAccess::Interface::ObjectFactory* objectFactory);
 
       static GenexSimulator *CreateFrom (const std::string & inputFileName, DataAccess::Interface::ObjectFactory* objectFactory);
 
@@ -69,7 +68,7 @@ namespace GenexSimulation
       bool isPropertyRegistered(const string & propertyName);
 
 
-      DerivedProperties::DerivedPropertyManager * m_propertyManager;
+      DerivedProperties::DerivedPropertyManager* m_propertyManager;
 
       vector<string> m_registeredProperties;
       vector<string> m_shaleProperties;
@@ -79,7 +78,7 @@ namespace GenexSimulation
       vector<string> m_expelledToCarrierBedPropertiesS;
       vector<string> m_expelledToSourceRockPropertiesS;
 
-      bool computeSourceRock ( Genex6::GenexSourceRock * aSourceRock, const Interface::Formation * aFormation );
+      bool computeSourceRock (Genex6::GenexSourceRock * aSourceRock, const Interface::Formation * aFormation );
 
    };
 

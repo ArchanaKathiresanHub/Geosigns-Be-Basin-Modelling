@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -30,7 +30,7 @@ namespace DataAccess
 {
    namespace Interface
    {
-     
+
       // Forward declare
       class ProjectHandle;
       class GridMap;
@@ -40,7 +40,7 @@ namespace DataAccess
       class CrustalThicknessData : public DAObject
       {
          public:
-            CrustalThicknessData (ProjectHandle * projectHandle, database::Record * record);
+            CrustalThicknessData (ProjectHandle& projectHandle, database::Record * record);
             virtual ~CrustalThicknessData ();
 
             /// @defgroup GeneralInputs
@@ -62,7 +62,7 @@ namespace DataAccess
             virtual double getUpperLowerContinentalCrustRatio() const;
             /// @brief Return the ratio used to define the lower and upper part of the oceanic crust (r=upper/low)
             virtual double getUpperLowerOceanicCrustRatio() const;
-            /// @brief Return the name of a base of syn-rift 
+            /// @brief Return the name of a base of syn-rift
             virtual const std::string& getSurfaceName() const;
             /// @}
 

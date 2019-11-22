@@ -2,7 +2,6 @@
 #define _FASTCAULDRON__MAX_VES_CALCULATOR__H_
 
 #include "layer.h"
-#include "CompoundLithologyArray.h"
 #include "Property.h"
 #include "PropertyValue.h"
 #include "OutputPropertyMap.h"
@@ -20,7 +19,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -46,7 +45,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -61,8 +60,8 @@ private :
 };
 
 
-OutputPropertyMap* allocateMaxVesCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateMaxVesCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateMaxVesVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateMaxVesVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot );
 
 #endif // _FASTCAULDRON__MAX_VES_CALCULATOR__H_

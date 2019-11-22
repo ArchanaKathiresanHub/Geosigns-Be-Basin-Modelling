@@ -63,7 +63,6 @@ namespace DerivedProperties {
 
    private :
 
-      const DataAccess::Interface::PropertyValue* m_propertyValue;
       const DataAccess::Interface::GridMap* m_gridMap;
       unsigned int m_depth;
       bool m_storedInAscending;

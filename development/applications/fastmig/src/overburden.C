@@ -30,8 +30,8 @@ namespace migration
       vector<const MigrationFormation*> getDownwardOverburdenFormationsIf (const
          MigrationFormation* formation, PRED pred)
       {
-         const ProjectHandle* projectHandle = formation->getProjectHandle ();
-         Interface::FormationList* formations = projectHandle->getFormations ();
+         const ProjectHandle& projectHandle = formation->getProjectHandle ();
+         Interface::FormationList* formations = projectHandle.getFormations ();
 
          vector<const MigrationFormation*> overburdenFormationsFromTop;
          for (Interface::FormationList::const_iterator it = formations->begin ();

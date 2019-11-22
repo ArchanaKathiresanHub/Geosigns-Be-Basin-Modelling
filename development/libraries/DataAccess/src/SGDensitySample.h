@@ -17,7 +17,7 @@ namespace DataAccess {
       public :
 
          /// \brief Constructor.
-         SGDensitySample ( ProjectHandle*    projectHandle,
+         SGDensitySample ( ProjectHandle& projectHandle,
                            database::Record* record );
 
          virtual ~SGDensitySample ();

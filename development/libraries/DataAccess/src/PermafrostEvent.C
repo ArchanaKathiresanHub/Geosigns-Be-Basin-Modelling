@@ -10,7 +10,7 @@ using namespace database;
 #include <iostream>
 using namespace std;
 
-DataAccess::Interface::PermafrostEvent::PermafrostEvent ( ProjectHandle* projectHandle, database::Record * record ) : DAObject ( projectHandle, record ) {
+DataAccess::Interface::PermafrostEvent::PermafrostEvent ( ProjectHandle& projectHandle, database::Record * record ) : DAObject ( projectHandle, record ) {
 
    m_permafrost   = ( database::getPermafrostInd ( record ) == 1 );
    m_pressureTerm = ( database::getPressureTerm  ( record ) == 1 );
@@ -32,7 +32,7 @@ bool DataAccess::Interface::PermafrostEvent::getSalinityTerm () const {
    return m_salinityTerm;
 }
 
-void DataAccess::Interface::PermafrostEvent::setPermafrost( const bool aPermafrost ) 
+void DataAccess::Interface::PermafrostEvent::setPermafrost( const bool aPermafrost )
 {
    m_permafrost = aPermafrost;
 }

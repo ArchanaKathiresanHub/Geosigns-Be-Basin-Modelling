@@ -12,7 +12,7 @@ Genex6::AdsorptionFunctionFactory::AdsorptionFunctionFactory () {
    m_adsorptionFunctionAllocatorMapping [ true  ] = allocateLangmuirAdsorptionTOCFunction;
 }
 
-Genex6::AdsorptionFunction* Genex6::AdsorptionFunctionFactory::getAdsorptionFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
+Genex6::AdsorptionFunction* Genex6::AdsorptionFunctionFactory::getAdsorptionFunction ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                                        const bool                                 isTOCDependent,
                                                                                        const std::string&                         adsorptionCapacityFunctionName ) const {
 

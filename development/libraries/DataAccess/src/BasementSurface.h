@@ -13,7 +13,7 @@ namespace DataAccess
       class BasementSurface : public Surface
       {
       public:
-         BasementSurface (ProjectHandle * projectHandle, const std::string& surfaceName);
+         BasementSurface (ProjectHandle& projectHandle, const std::string& surfaceName);
          ~BasementSurface (void);
 
          /// Return the name of this Surface

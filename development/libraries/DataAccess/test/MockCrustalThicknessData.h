@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -31,7 +31,8 @@ namespace DataAccess
       {
          public:
             /// @brief Uses nullptr as project handle and record to construct parent objects
-            MockCrustalThicknessData() :CrustalThicknessData( nullptr, nullptr ) {}
+            MockCrustalThicknessData(DataAccess::Interface::ProjectHandle& projectHandle) :CrustalThicknessData( projectHandle, nullptr ) {}
+
             virtual ~MockCrustalThicknessData() {}
 
             /// @defgroup Accessors
@@ -70,7 +71,7 @@ namespace DataAccess
                {
                   return m_upperLowerOceanicCrustRatio;
                }
-               /// @brief Return the name of a base of syn-rift 
+               /// @brief Return the name of a base of syn-rift
                virtual const std::string& getSurfaceName() const final
                {
                   return m_surfaceName;
@@ -111,7 +112,7 @@ namespace DataAccess
                {
                   m_upperLowerOceanicCrustRatio = value;
                }
-               /// @brief Sets the name of a base of syn-rift 
+               /// @brief Sets the name of a base of syn-rift
                void setSurfaceName( const std::string& name )
                {
                   m_surfaceName = name;

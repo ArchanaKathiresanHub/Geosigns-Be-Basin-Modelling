@@ -30,11 +30,11 @@ using Utilities::Numerical::IbsNoDataValue;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::Zero;
 
-CauldronCrustFormation::CauldronCrustFormation ( Interface::ProjectHandle * projectHandle, database::Record * record ) :
+CauldronCrustFormation::CauldronCrustFormation ( Interface::ProjectHandle& projectHandle, database::Record * record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::GeoPhysicsFormation ( projectHandle, record ),
    LayerProps ( projectHandle, record ),
-   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::CrustFormationName, projectHandle->getCrustLithoName() ),
+   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::CrustFormationName, projectHandle.getCrustLithoName() ),
    DataAccess::Interface::CrustFormation ( projectHandle, record ),
    GeoPhysics::GeoPhysicsCrustFormation ( projectHandle, record ) {
 
@@ -103,7 +103,7 @@ void CauldronCrustFormation::initialise () {
 //------------------------------------------------------------//
 void CauldronCrustFormation::cleanVectors() {
 
-   if(dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::GeoPhysicsFormation::m_projectHandle)->isALC() ) {
+   if(dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).isALC() ) {
       setVec ( TopBasaltDepth, CauldronNoDataValue );
       setVec ( BottomBasaltDepth, CauldronNoDataValue );
       setVec ( ThicknessBasaltALC, Zero );
@@ -232,10 +232,10 @@ const CompoundLithology* CauldronCrustFormation::getLithology( const double aTim
 
    if( FastcauldronSimulator::getInstance().isALC() ) {
       // aOffset is a relative depth of the middle point of element - so could be inside Crust or Mantle
-      const double basThickness = dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::GeoPhysicsFormation::m_projectHandle)->getBasaltThickness(iPosition, jPosition, aTime);
+      const double basThickness = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getBasaltThickness(iPosition, jPosition, aTime);
 
       if(basThickness != IbsNoDataValue && basThickness != 0.0) {
-         if( aOffset >= dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::GeoPhysicsFormation::m_projectHandle)->getContCrustThickness( iPosition, jPosition, aTime )) {
+         if( aOffset >= dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getContCrustThickness( iPosition, jPosition, aTime )) {
             isBasaltLayer = true;
             return m_basaltLithology(iPosition, jPosition);
          } else {
@@ -261,17 +261,17 @@ bool CauldronCrustFormation::setLithologiesFromStratTable () {
    if( not GeoPhysicsCrustFormation::setLithologiesFromStratTable () ) {
       return false;
    }
-   if(dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::GeoPhysicsFormation::m_projectHandle)->isALC() ) {
+   if(dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).isALC() ) {
 
-     m_basaltLithology.allocate ( GeoPhysics::GeoPhysicsFormation::m_projectHandle->getActivityOutputGrid ());
+     m_basaltLithology.allocate ( getProjectHandle().getActivityOutputGrid ());
 
      CompoundLithologyComposition lc ( DataAccess::Interface::ALCBasalt,           "",  "",
                                        100.0, 0.0, 0.0,
                                        DataAccess::Interface::CrustFormation::getMixModelStr (),
                                        DataAccess::Interface::CrustFormation::getLayeringIndex());
 
-     lc.setThermalModel( m_projectHandle->getCrustPropertyModel() );
-     CompoundLithology* pMixedLitho = dynamic_cast<GeoPhysics::ProjectHandle*>(GeoPhysics::GeoPhysicsFormation::m_projectHandle)->getLithologyManager ().getCompoundLithology ( lc );
+     lc.setThermalModel( getProjectHandle().getCrustPropertyModel() );
+     CompoundLithology* pMixedLitho = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ().getCompoundLithology ( lc );
      createdLithologies = pMixedLitho != nullptr;
      m_basaltLithology.fillWithLithology ( pMixedLitho );
 }

@@ -23,14 +23,14 @@ using namespace DataAccess;
 using namespace Interface;
 
 
-Surface::Surface (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record), m_top (nullptr), m_bottom (nullptr), m_snapshot (nullptr)
+Surface::Surface (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record), m_top (nullptr), m_bottom (nullptr), m_snapshot (nullptr)
 {
 
    // It is up to the the derived classes to initialise correctly the member components of this class.
    const bool recordFromStratIOTbl = ( m_record != nullptr and m_record->getTable ()->name () == "StratIoTbl" );
 
    if ( recordFromStratIOTbl ) {
-      m_snapshot = (const Snapshot *) m_projectHandle->findSnapshot (getDepoAge (m_record));
+      m_snapshot = (const Snapshot *) projectHandle.findSnapshot (getDepoAge (m_record));
       assert (m_snapshot);
       m_mangledName = utilities::mangle (getName ());
       m_kind = SEDIMENT_SURFACE;
@@ -42,7 +42,7 @@ Surface::Surface (ProjectHandle * projectHandle, Record * record) : DAObject (pr
    }
 }
 
-Surface::Surface (ProjectHandle * projectHandle) : DAObject (projectHandle, nullptr), m_mangledName ( "" ), m_top (nullptr), m_bottom (nullptr), m_snapshot (nullptr)
+Surface::Surface (ProjectHandle& projectHandle) : DAObject (projectHandle, nullptr), m_mangledName ( "" ), m_top (nullptr), m_bottom (nullptr), m_snapshot (nullptr)
 {
    m_kind = BASEMENT_SURFACE;
 }
@@ -84,7 +84,7 @@ const string & Surface::getBottomFormationName (void) const
       return m_bottom->getName ();
    } else {
       return NullString;
-   } 
+   }
 
 }
 
@@ -130,7 +130,7 @@ const GridMap * Surface::getInputTwoWayTimeMap( void ) const
 
    // else load it if possible
    else {
-      database::Table* twoWayTimeTbl = m_projectHandle->getTable( "TwoWayTimeIoTbl" );
+      database::Table* twoWayTimeTbl = getProjectHandle().getTable( "TwoWayTimeIoTbl" );
       database::Table::iterator tblIter;
 
       for (tblIter = twoWayTimeTbl->begin(); tblIter != twoWayTimeTbl->end(); ++tblIter)
@@ -142,7 +142,7 @@ const GridMap * Surface::getInputTwoWayTimeMap( void ) const
             const string &TwoWayTimeGridMapId = getTwoWayTimeGrid( twoWayTimeRecord );
             if (TwoWayTimeGridMapId.length() != 0)
             {
-               gridMap = m_projectHandle->loadInputMap( "TwoWayTimeIoTbl", TwoWayTimeGridMapId );
+               gridMap = getProjectHandle().loadInputMap( "TwoWayTimeIoTbl", TwoWayTimeGridMapId );
                return gridMap;
             }
          }
@@ -154,7 +154,7 @@ const GridMap * Surface::getInputTwoWayTimeMap( void ) const
 float Surface::getInputTwoWayTimeScalar( void ) const
 {
 
-   database::Table* twoWayTimeTbl = m_projectHandle->getTable( "TwoWayTimeIoTbl" );
+   database::Table* twoWayTimeTbl = getProjectHandle().getTable( "TwoWayTimeIoTbl" );
    database::Table::iterator tblIter;
 
    for (tblIter = twoWayTimeTbl->begin(); tblIter != twoWayTimeTbl->end(); ++tblIter)
@@ -181,9 +181,9 @@ GridMap * Surface::loadDepthMap (void) const
 
    if ((depth = getDepth (m_record)) != RecordValueUndefined)
    {
-      const Grid * grid = m_projectHandle->getActivityOutputGrid();
-      if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-      gridMap = m_projectHandle->getFactory ()->produceGridMap (this, DEPTH, grid, depth);
+      const Grid * grid = getProjectHandle().getActivityOutputGrid();
+      if (!grid) grid = (Grid *) getProjectHandle().getInputGrid ();
+      gridMap = getProjectHandle().getFactory ()->produceGridMap (this, DEPTH, grid, depth);
       assert (gridMap == (GridMap *) getChild (DEPTH));
    }
    else
@@ -191,7 +191,7 @@ GridMap * Surface::loadDepthMap (void) const
       const string &depthGridMapId = getDepthGrid (m_record);
       if (depthGridMapId.length () != 0)
       {
-	      gridMap = m_projectHandle->loadInputMap ("StratIoTbl", depthGridMapId);
+        gridMap = getProjectHandle().loadInputMap ("StratIoTbl", depthGridMapId);
          // If a surface depth map referenced in the project file cannot be found throw runtime ERROR
          if (gridMap == nullptr)
             throw std::runtime_error( "Basin_Error: Could not open input depth map for Surface " + getName() + "\n" );
@@ -218,7 +218,7 @@ GridMap * Surface::computeDepthMap (void) const
    if (!thicknessMap) return nullptr;
    if (!depthMap) return nullptr;
 
-   GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DEPTH, depthMap, thicknessMap, ::minus);
+   GridMap * myDepthMap = getProjectHandle().getFactory ()->produceGridMap (this, DEPTH, depthMap, thicknessMap, ::minus);
 
    return myDepthMap;
 }
@@ -251,7 +251,7 @@ bool SurfaceLessThan::operator ()( const Surface* s1,
 
 
    // Snapshots can be the same if the formation is an intrusion.
-   // So the top surface of the intrusion formation will have the same time 
+   // So the top surface of the intrusion formation will have the same time
    // as the formation below.
    if ( s1->getSnapshot () == s2->getSnapshot ()) {
 

@@ -33,11 +33,11 @@ namespace DerivedProperties
    {
 
    public :
-      
+
       /// \brief Input constructor.
       /// \param [in]  projectHandle   Manager for all derived properties.
       /// \pre SimulationDetails is not null, ie there is at least one last run.
-      VesHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle );
+      VesHighResFormationCalculator( const GeoPhysics::ProjectHandle& projectHandle );
 
       /// \brief Calculate the high resolution VES for the formation at the snapshot age.
       /// \param [in]  propertyManager   Manager for all derived properties.
@@ -64,7 +64,7 @@ namespace DerivedProperties
                                          const DataModel::AbstractSnapshot *                        snapshot,
                                          const DataModel::AbstractFormation *                       formation,
                                                AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
-      
+
       /// \brief Initialize the formation top surface depending on the formation above (if any)
       void initializeTopSurface(       AbstractDerivedProperties::AbstractPropertyManager & propertyManager,
                                  const DataModel::AbstractProperty *                        vesHighResProperty,
@@ -72,7 +72,7 @@ namespace DerivedProperties
                                  const DataModel::AbstractFormation *                       formationAbove,
                                        DerivedFormationPropertyPtr &                        vesHighRes ) const;
 
-      const GeoPhysics::ProjectHandle * const m_projectHandle; //!< Project handle
+      const GeoPhysics::ProjectHandle& m_projectHandle; //!< Project handle
 
       bool m_isCoupledMode;                                    //!< Boolean flag for coupled mode
 

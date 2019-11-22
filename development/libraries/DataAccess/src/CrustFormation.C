@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -38,8 +38,8 @@ using namespace Interface;
 
 //------------------------------------------------------------//
 
-CrustFormation::CrustFormation (ProjectHandle * projectHandle, database::Record* record ) :
-   Formation ( projectHandle, record ), BasementFormation ( projectHandle, record, CrustFormationName, projectHandle->getCrustLithoName() ) {
+CrustFormation::CrustFormation (ProjectHandle& projectHandle, database::Record* record ) :
+   Formation ( projectHandle, record ), BasementFormation ( projectHandle, record, CrustFormationName, projectHandle.getCrustLithoName() ) {
 
    // This pointer does NOT need to be deallocated, since the map it will point to will be deallocated
    // elsewhere.
@@ -65,17 +65,17 @@ const GridMap * CrustFormation::getInputThicknessMap (void) const {
    if ( m_inputThicknessMap != nullptr ) {
       // Map has already been retrieved.
       return m_inputThicknessMap;
-   } else if ( m_projectHandle->getBottomBoundaryConditions () == MANTLE_HEAT_FLOW ) {
+   } else if ( getProjectHandle().getBottomBoundaryConditions () == MANTLE_HEAT_FLOW ) {
       // Fixed crust thickness.
 
-      const Grid * grid = m_projectHandle->getActivityOutputGrid();
+      const Grid * grid = getProjectHandle().getActivityOutputGrid();
 
       if (!grid) {
-         grid = m_projectHandle->getInputGrid();
+         grid = getProjectHandle().getInputGrid();
       }
 
-      m_inputThicknessMap  = m_projectHandle->getFactory ()->produceGridMap (this, ThicknessMap, grid, database::getFixedCrustThickness (m_record));
-      
+      m_inputThicknessMap  = getProjectHandle().getFactory ()->produceGridMap (this, ThicknessMap, grid, database::getFixedCrustThickness (m_record));
+
    } else {
       // Crust thinning.
       // So must return map for present-day, or nearest.
@@ -103,7 +103,7 @@ const GridMap * CrustFormation::getInputThicknessMap (void) const {
 
 //------------------------------------------------------------//
 
-// in ALC mode the initial CrustalThickness is a scalar value 
+// in ALC mode the initial CrustalThickness is a scalar value
 const GridMap * CrustFormation::getInitialThicknessMap () const {
    if ( m_initialThicknessMap != nullptr ) {
       // Map has already been retrieved
@@ -141,18 +141,18 @@ GridMap * CrustFormation::loadCrustHeatProductionMap () const {
 
    if (heatProductionMapName.length () != 0)
    {
-      gridMap = m_projectHandle->loadInputMap ("BasementIoTbl", heatProductionMapName);
+      gridMap = getProjectHandle().loadInputMap ("BasementIoTbl", heatProductionMapName);
    }
    else if (( crustHeatProduction = getTopCrustHeatProd (m_record)) != RecordValueUndefined )
    {
 
-      const Grid * grid = m_projectHandle->getActivityOutputGrid();
+      const Grid * grid = getProjectHandle().getActivityOutputGrid();
 
       if ( grid == nullptr ) {
-         grid = const_cast<Grid *>(m_projectHandle->getInputGrid());
+         grid = const_cast<Grid *>(getProjectHandle().getInputGrid());
       }
 
-      gridMap = m_projectHandle->getFactory ()->produceGridMap (this, CrustHeatProductionMap, grid, crustHeatProduction );
+      gridMap = getProjectHandle().getFactory ()->produceGridMap (this, CrustHeatProductionMap, grid, crustHeatProduction );
 
       assert (gridMap == getChild (CrustHeatProductionMap));
    }
@@ -168,19 +168,19 @@ const GridMap * CrustFormation::getCrustHeatProductionMap () const {
 
    if ((gridMap = dynamic_cast<const GridMap *>(getChild(CrustHeatProductionMap))) != nullptr) {
       return gridMap;
-   } else 
+   } else
    if ((gridMap = loadCrustHeatProductionMap ()) != nullptr) {
       return gridMap;
    } else {
       return nullptr;
    }
-  
+
 }
 
 //------------------------------------------------------------//
 
 PaleoFormationPropertyList * CrustFormation::getPaleoThicknessHistory () const {
-   return m_projectHandle->getCrustPaleoThicknessHistory ();
+   return getProjectHandle().getCrustPaleoThicknessHistory ();
 }
 
 //------------------------------------------------------------//
@@ -202,7 +202,7 @@ GridMap * CrustFormation::loadCrustThicknessMeltOnsetMap() const {
     double crustMeltOnset;
     GridMap * gridMap = nullptr;
 
-    database::Table* basaltThicknessIoTbl = m_projectHandle->getTable( "BasaltThicknessIoTbl" );
+    database::Table* basaltThicknessIoTbl = getProjectHandle().getTable( "BasaltThicknessIoTbl" );
     if (basaltThicknessIoTbl == nullptr) {
         return nullptr;
     }
@@ -213,14 +213,14 @@ GridMap * CrustFormation::loadCrustThicknessMeltOnsetMap() const {
 
     const std::string & crustMeltOnsetMapName = getCrustThicknessMeltOnsetGrid( firstRecord );
     if (crustMeltOnsetMapName.length() != 0) {
-        gridMap = m_projectHandle->loadInputMap( "BasaltThicknessIoTbl", crustMeltOnsetMapName );
+        gridMap = getProjectHandle().loadInputMap( "BasaltThicknessIoTbl", crustMeltOnsetMapName );
     }
     else if ((crustMeltOnset = getCrustThicknessMeltOnset( firstRecord )) != RecordValueUndefined) {
-        const Grid * grid = m_projectHandle->getActivityOutputGrid();
+        const Grid * grid = getProjectHandle().getActivityOutputGrid();
         if (grid == nullptr) {
-            grid = const_cast<Grid *>(m_projectHandle->getInputGrid());
+            grid = const_cast<Grid *>(getProjectHandle().getInputGrid());
         }
-        gridMap = m_projectHandle->getFactory()->produceGridMap( this, CrustThicknessMeltOnsetMap, grid, crustMeltOnset );
+        gridMap = getProjectHandle().getFactory()->produceGridMap( this, CrustThicknessMeltOnsetMap, grid, crustMeltOnset );
         assert( gridMap == getChild( CrustThicknessMeltOnsetMap ) );
     }
     return gridMap;
@@ -247,7 +247,7 @@ const GridMap * CrustFormation::getCrustThicknessMeltOnsetMap() const {
 GridMap * CrustFormation::loadBasaltThicknessMap() const {
     double basaltThicknessValue;
     GridMap * gridMap = nullptr;
-    database::Table* basaltThicknessIoTbl = m_projectHandle->getTable( "BasaltThicknessIoTbl" );
+    database::Table* basaltThicknessIoTbl = getProjectHandle().getTable( "BasaltThicknessIoTbl" );
     if (basaltThicknessIoTbl == nullptr) {
         return nullptr;
     }
@@ -257,14 +257,14 @@ GridMap * CrustFormation::loadBasaltThicknessMap() const {
     }
     const std::string & basaltThicknessMapName = getBasaltThicknessGrid( firstRecord );
     if (basaltThicknessMapName.length() != 0) {
-        gridMap = m_projectHandle->loadInputMap( "BasaltThicknessIoTbl", basaltThicknessMapName );
+        gridMap = getProjectHandle().loadInputMap( "BasaltThicknessIoTbl", basaltThicknessMapName );
     }
     else if ((basaltThicknessValue = getBasaltThickness( firstRecord )) != RecordValueUndefined) {
-        const Grid * grid = m_projectHandle->getActivityOutputGrid();
+        const Grid * grid = getProjectHandle().getActivityOutputGrid();
         if (grid == nullptr) {
-            grid = const_cast<Grid *>(m_projectHandle->getInputGrid());
+            grid = const_cast<Grid *>(getProjectHandle().getInputGrid());
         }
-        gridMap = m_projectHandle->getFactory()->produceGridMap( this, BasaltThicknessMap, grid, basaltThicknessValue );
+        gridMap = getProjectHandle().getFactory()->produceGridMap( this, BasaltThicknessMap, grid, basaltThicknessValue );
         assert( gridMap == getChild( BasaltThicknessMap ) );
     }
     return gridMap;

@@ -24,10 +24,10 @@ namespace DerivedProperties {
 
    public :
 
-      FracturePressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
- 
+      FracturePressureFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
+
       /// \brief Calculate the fracture pressure for the formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the fracture pressure is requested.
       /// \param [in]  formation   The formation for which the fracture pressure is requested.
@@ -41,7 +41,7 @@ namespace DerivedProperties {
 
    private :
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
 
    };
 

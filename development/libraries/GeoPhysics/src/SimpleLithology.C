@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -28,7 +28,7 @@ using namespace DataAccess;
 using namespace ibs;
 
 
-GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectHandle,
+GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle& projectHandle,
    database::Record *              record)
    : Interface::LithoType(projectHandle, record)
    , m_permeability(Permeability::create(
@@ -104,7 +104,7 @@ GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectH
 }
 
 GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) :
-   Interface::LithoType ( litho.getProjectHandle(), litho.getRecord ()),
+   Interface::LithoType ( litho ),
    m_thermCondTbl ( litho.m_thermCondTbl ),
    m_density ( litho.m_density ),
 

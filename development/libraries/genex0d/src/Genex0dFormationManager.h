@@ -47,7 +47,7 @@ private:
   void setThickness();
 
   DataAccess::Interface::ObjectFactory * m_factory;
-  const DataAccess::Interface::ProjectHandle * m_projectHandle;
+  std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
   const DataAccess::Interface::Formation * m_formation;
   double m_thickness;
   unsigned int m_indI;

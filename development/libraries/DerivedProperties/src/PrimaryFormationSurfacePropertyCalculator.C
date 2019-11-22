@@ -20,25 +20,12 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::PrimaryFormationSurfacePropertyCalculator::PrimaryFormationSurfacePropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
-                                                                                                          const DataModel::AbstractProperty* property ) :
-   m_property ( property )
+DerivedProperties::PrimaryFormationSurfacePropertyCalculator::PrimaryFormationSurfacePropertyCalculator ( const DataModel::AbstractProperty* property,
+                                                                                                          const DataAccess::Interface::PropertyValueList& propertyValues ) :
+   m_property ( property ),
+   m_formationSurfacePropertyValues ( propertyValues )
 {
-
-   DataAccess::Interface::PropertyValueList* formationProperties = projectHandle->getPropertyValues ( DataAccess::Interface::FORMATIONSURFACE, 0, 0, 0, 0, 0, DataAccess::Interface::MAP );
    addPropertyName ( property->getName ());
-
-   for ( size_t i = 0; i < formationProperties->size (); ++i ) {
-      const DataAccess::Interface::PropertyValue* propVal = (*formationProperties)[ i ];
-
-      if ( propVal->getProperty () == m_property and propVal->getFormation () != 0 and propVal->getSurface () != 0 ) {
-         m_snapshots.insert ( propVal->getSnapshot ());
-         m_formationSurfacePropertyValues.push_back ( propVal );
-      }
-
-   }
-
-   delete formationProperties;
 }
 
 DerivedProperties::PrimaryFormationSurfacePropertyCalculator::~PrimaryFormationSurfacePropertyCalculator () {
@@ -57,7 +44,7 @@ void DerivedProperties::PrimaryFormationSurfacePropertyCalculator::calculate ( A
    for ( size_t i = 0; i < m_formationSurfacePropertyValues.size (); ++i ) {
       const DataAccess::Interface::PropertyValue* propVal = m_formationSurfacePropertyValues [ i ];
 
-      if ( propVal->getProperty () == m_property and propVal->getFormation () == formation and propVal->getSurface () == surface and propVal->getSnapshot () == snapshot 
+      if ( propVal->getProperty () == m_property and propVal->getFormation () == formation and propVal->getSurface () == surface and propVal->getSnapshot () == snapshot
            and propVal->getGridMap() != nullptr ) {
          // Add the property and exit the loop, since there is only a single
          // property associated with the primary formation property calculator.
@@ -94,4 +81,4 @@ bool DerivedProperties::PrimaryFormationSurfacePropertyCalculator::isComputable 
 
 const DataModel::AbstractSnapshotSet& DerivedProperties::PrimaryFormationSurfacePropertyCalculator::getSnapshots () const {
    return m_snapshots;
-} 
+}

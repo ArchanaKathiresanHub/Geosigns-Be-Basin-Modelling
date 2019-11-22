@@ -18,12 +18,12 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::HydrostaticPressureSurfaceCalculator::HydrostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) :
+DerivedProperties::HydrostaticPressureSurfaceCalculator::HydrostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) :
    m_projectHandle ( projectHandle )
 {
    addPropertyName ( "HydroStaticPressure" );
 }
- 
+
 void DerivedProperties::HydrostaticPressureSurfaceCalculator::calculate ( AbstractPropertyManager&           propertyManager,
                                                                           const DataModel::AbstractSnapshot* snapshot,
                                                                           const DataModel::AbstractSurface*  surface,
@@ -36,11 +36,11 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::calculate ( Abstra
 
    DerivedSurfacePropertyPtr hydrostaticPressure = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( hydrostaticPressureProperty,
                                                                                                                                snapshot,
-                                                                                                                               surface, 
+                                                                                                                               surface,
                                                                                                                                propertyManager.getMapGrid ()));
 
    if ( currentSurface->getTopFormation () == 0 or
-        snapshot->getTime () == currentSurface->getSnapshot ()->getTime () or 
+        snapshot->getTime () == currentSurface->getSnapshot ()->getTime () or
         ( snapshot->getTime () >= currentSurface->getSnapshot ()->getTime () and
           snapshot->getTime () < formationBelow->getBottomSurface ()->getSnapshot ()->getTime ())) {
 
@@ -66,10 +66,10 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::computeHydrostatic
 
       for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
+         if ( m_projectHandle.getNodeIsValid ( i, j )) {
             GeoPhysics::computeHydrostaticPressure ( fluid,
-                                                     m_projectHandle->getSeaBottomTemperature ( i, j, snapshotAge ),
-                                                     m_projectHandle->getSeaBottomDepth ( i, j, snapshotAge ),
+                                                     m_projectHandle.getSeaBottomTemperature ( i, j, snapshotAge ),
+                                                     m_projectHandle.getSeaBottomDepth ( i, j, snapshotAge ),
                                                      pressure );
             hydrostaticPressure->set ( i, j, pressure );
          }
@@ -95,7 +95,7 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::copyHydrostaticPre
 
       for ( unsigned int j = hydrostaticPressureAbove->firstJ ( true ); j <= hydrostaticPressureAbove->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
+         if ( m_projectHandle.getNodeIsValid ( i, j )) {
             hydrostaticPressure->set ( i, j, hydrostaticPressureAbove->get ( i, j, 0 ));
          } else {
             hydrostaticPressure->set ( i, j, undefinedValue );

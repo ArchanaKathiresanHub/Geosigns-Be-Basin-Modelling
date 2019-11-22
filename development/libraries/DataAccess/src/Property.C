@@ -10,28 +10,19 @@ using namespace std;
 using namespace DataAccess;
 using namespace Interface;
 
-Property::Property (ProjectHandle * projectHandle, database::Record * record,
+Property::Property (ProjectHandle& projectHandle, database::Record * record,
                     const string & userName, const string & cauldronName, const string & unit,
                     PropertyType type,
                     const DataModel::PropertyAttribute attr, const DataModel::PropertyOutputAttribute outputAttr) :
    DAObject (projectHandle, record),
    m_userName (userName), m_cauldronName (cauldronName), m_unit (unit), m_type (type),
-   m_propertyAttribute ( attr ), m_propertyOutputAttribute ( outputAttr ) 
+   m_propertyAttribute ( attr ), m_propertyOutputAttribute ( outputAttr )
 {
-   m_isPrimaryProperty = projectHandle->isPrimaryProperty( userName );
+   m_isPrimaryProperty = projectHandle.isPrimaryProperty( userName );
 }
 
 Property::~Property (void)
 {
-}
-
-bool Property::hasPropertyValues (int selectionFlags,
-      const Snapshot * snapshot,
-      const Reservoir * reservoir, const Formation * formation,
-      const Surface * surface, int propertyType) const
-{
-   return m_projectHandle->hasPropertyValues (selectionFlags, this, snapshot,
-      reservoir, formation, surface, propertyType); 
 }
 
 const string & Property::getName (void) const
@@ -72,7 +63,7 @@ PropertyValueList * Property::getPropertyValues (int selectionFlags,
       const Reservoir * reservoir, const Formation * formation,
       const Surface * surface) const
 {
-   return m_projectHandle->getPropertyValues (selectionFlags,
+   return getProjectHandle().getPropertyValues (selectionFlags,
       this, snapshot, reservoir, formation, surface, SURFACE | VOLUME);
 }
 

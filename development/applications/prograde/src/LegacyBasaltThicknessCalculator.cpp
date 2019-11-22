@@ -106,12 +106,13 @@ void Prograde::LegacyBasaltThicknessCalculator::compute( SmartAbstractSnapshotVs
       const GridMap* const contCrustThicknessMap = item.second;
       if (prevContCrustThicknessMap == nullptr) prevContCrustThicknessMap = contCrustThicknessMap;
       if (agePrev == 0) agePrev = age;
+      ProjectHandle projectHandle(nullptr, "", nullptr);
       const std::shared_ptr<GridMap> gridMap(const_cast<DataAccess::Interface::ObjectFactory*>(m_factory)->produceGridMap(
          nullptr, 0, m_referenceGrid, Utilities::Numerical::CauldronNoDataValue));
       const std::shared_ptr<const AbstractSnapshot> snapshot(const_cast<DataAccess::Interface::ObjectFactory*>(m_factory)->produceSnapshot(
-         nullptr, age));
+         projectHandle, age));
       const std::shared_ptr<const AbstractSnapshot> snapshotPrev(const_cast<DataAccess::Interface::ObjectFactory*>(m_factory)->produceSnapshot(
-         nullptr, agePrev));
+         projectHandle, agePrev));
 
       gridMap->retrieveData(s_gosthNodes);
 

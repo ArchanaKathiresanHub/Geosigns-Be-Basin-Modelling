@@ -19,8 +19,8 @@ namespace Genex6 {
 
    public :
 
-      NodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
-                              DataAccess::Interface::ProjectHandle* projectHandle );
+      NodeAdsorptionHistory ( const SpeciesManager& speciesManager,
+                              DataAccess::Interface::ProjectHandle& projectHandle );
 
       /// \brief Destructor.
       virtual ~NodeAdsorptionHistory () {}
@@ -32,7 +32,7 @@ namespace Genex6 {
       virtual void write ( std::ostream& str ) = 0;
 
       /// \brief Get the project handle.
-      DataAccess::Interface::ProjectHandle* getProjectHandle ();
+      DataAccess::Interface::ProjectHandle& getProjectHandle ();
 
       /// \brief Get the species-manager.
       const SpeciesManager& getSpeciesManager () const;
@@ -40,9 +40,9 @@ namespace Genex6 {
    private :
 
       const SpeciesManager& m_speciesManager;
-      DataAccess::Interface::ProjectHandle* m_projectHandle;
+      DataAccess::Interface::ProjectHandle& m_projectHandle;
 
-   }; 
+   };
 
    /// \typdef NodeAdsorptionHistoryList
    /// \brief A list of node-adsorption history objects.
@@ -50,14 +50,14 @@ namespace Genex6 {
 
 }
 
-inline Genex6::NodeAdsorptionHistory::NodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
-                                                              DataAccess::Interface::ProjectHandle* projectHandle ) :
+inline Genex6::NodeAdsorptionHistory::NodeAdsorptionHistory ( const SpeciesManager& speciesManager,
+                                                              DataAccess::Interface::ProjectHandle& projectHandle ) :
    m_speciesManager ( speciesManager ),
    m_projectHandle ( projectHandle  )
 {
 }
 
-inline DataAccess::Interface::ProjectHandle* Genex6::NodeAdsorptionHistory::getProjectHandle () {
+inline DataAccess::Interface::ProjectHandle& Genex6::NodeAdsorptionHistory::getProjectHandle () {
    return m_projectHandle;
 }
 

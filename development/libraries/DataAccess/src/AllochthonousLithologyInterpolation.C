@@ -25,10 +25,10 @@ const std::string AllochthonousLithologyInterpolation::CoefficientsDataSetName =
 const std::string AllochthonousLithologyInterpolation::RHSDataSetName = "RHS";
 
 
-AllochthonousLithologyInterpolation::AllochthonousLithologyInterpolation (ProjectHandle * projectHandle, database::Record * record) : DAObject (projectHandle, record) {
-  m_formation = ( const Formation* ) m_projectHandle->findFormation ( getFormationName ());
-  m_startSnapshot = ( const Snapshot* ) m_projectHandle->findSnapshot ( database::getStartAge (m_record));
-  m_endSnapshot = ( const Snapshot* ) m_projectHandle->findSnapshot ( database::getEndAge (m_record));;
+AllochthonousLithologyInterpolation::AllochthonousLithologyInterpolation (ProjectHandle& projectHandle, database::Record * record) : DAObject (projectHandle, record) {
+  m_formation = ( const Formation* ) projectHandle.findFormation ( getFormationName ());
+  m_startSnapshot = ( const Snapshot* ) projectHandle.findSnapshot ( database::getStartAge (m_record));
+  m_endSnapshot = ( const Snapshot* ) projectHandle.findSnapshot ( database::getEndAge (m_record));;
 }
 
 
@@ -72,7 +72,7 @@ const std::string& AllochthonousLithologyInterpolation::getInterpGroupName () co
 }
 
 void AllochthonousLithologyInterpolation::printOn (ostream & ostr) const {
-  
+
   ostr << " AllochthonousLithologyInterpolation: ";
   ostr << "     Formation name  : " << getFormationName () << endl;
   ostr << "     HDF5 file group : " << getInterpGroupName () << endl;

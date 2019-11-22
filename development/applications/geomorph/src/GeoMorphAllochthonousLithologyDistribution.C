@@ -27,7 +27,7 @@ using Interface::Grid;
 
 //------------------------------------------------------------//
 
-AllochMod::GeoMorphAllochthonousLithologyDistribution::GeoMorphAllochthonousLithologyDistribution (Interface::ProjectHandle * projectHandle, database::Record * record) : 
+AllochMod::GeoMorphAllochthonousLithologyDistribution::GeoMorphAllochthonousLithologyDistribution (Interface::ProjectHandle& projectHandle, database::Record * record) :
   Interface::AllochthonousLithologyDistribution ( projectHandle, record ){
 
 }
@@ -213,7 +213,7 @@ void AllochMod::GeoMorphAllochthonousLithologyDistribution::inputMap ( const std
                                                                const Numerics::FloatingPoint timeScaling ) {
 
   static const char MapChar [ 2 ] = { '.', 'o' };
- 
+
 
   const bool SaltExists = true;
 
@@ -296,7 +296,7 @@ void AllochMod::GeoMorphAllochthonousLithologyDistribution::loadGridMap () {
   int loopI;
   int loopJ;
 
-  database::Table* projectIoTbl = getProjectHandle ()->getTable ("ProjectIoTbl");
+  database::Table* projectIoTbl = getProjectHandle().getTable ("ProjectIoTbl");
 
   assert (projectIoTbl);
 
@@ -368,7 +368,7 @@ void AllochMod::GeoMorphAllochthonousLithologyDistribution::loadGridMap () {
 
     for ( loopJ = 0, highResJ = startJ, lowResJ = 1; loopJ < numberJ; ++loopJ, highResJ += subScalingFactorJ, ++lowResJ ) {
       // Here, we are only concerned with those points that are defined to be within the salt body.
-      // if the point is a missing data points (i.e. = null value) then it is assumed to be outside 
+      // if the point is a missing data points (i.e. = null value) then it is assumed to be outside
       // of the salt body.
 
        if ( distributionGridMap->valueIsDefined ( highResI, highResJ ) and distributionGridMap->getValue ( highResI, highResJ ) >= 0.5 ) {
@@ -398,7 +398,7 @@ void AllochMod::GeoMorphAllochthonousLithologyDistribution::initialise () {
 
   AllochMod::erodeMap   ( distributionMap, erodedDistributionMap );
   AllochMod::dilateMap  ( distributionMap, dilatedDistributionMap );
-  AllochMod::detectEdge ( distributionMap, boundaryMap ); 
+  AllochMod::detectEdge ( distributionMap, boundaryMap );
 
 
 }

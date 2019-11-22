@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -21,13 +21,13 @@ namespace DataAccess
    {
 
       /// Contains a property for a formation in paleo-time.
-      class PaleoFormationProperty : public PaleoProperty 
+      class PaleoFormationProperty : public PaleoProperty
       {
       public:
 
-         PaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const Formation* formation );
+         PaleoFormationProperty (ProjectHandle& projectHandle, database::Record * record, const Formation* formation );
 
-         PaleoFormationProperty ( ProjectHandle *               projectHandle,
+         PaleoFormationProperty ( ProjectHandle&                projectHandle,
                                   const Formation*              formation,
                                   const PaleoFormationProperty* startProperty,
                                   const PaleoFormationProperty* endProperty,

@@ -17,10 +17,10 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-LithologyHeatCapacitySample::LithologyHeatCapacitySample (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+LithologyHeatCapacitySample::LithologyHeatCapacitySample (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
 #if 0
-   m_lithotype = projectHandle->findLithoType ( database::getLithotype ( record ));
+   m_lithotype = projectHandle.findLithoType ( database::getLithotype ( record ));
 #endif
 }
 
@@ -55,8 +55,8 @@ std::string LithologyHeatCapacitySample::image () const {
 
    std::ostringstream buffer;
 
-   buffer << "LithologyHeatCapacitySample: " 
-          << getLithologyName () << "  " 
+   buffer << "LithologyHeatCapacitySample: "
+          << getLithologyName () << "  "
           << getTemperature () << "  "
           << getHeatCapacity ();
 

@@ -43,7 +43,7 @@ namespace GeoPhysics {
 
    public :
 
-      GeoPhysicsFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+      GeoPhysicsFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
                   database::Record*                          record );
 
 

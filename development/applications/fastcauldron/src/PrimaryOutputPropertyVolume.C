@@ -17,12 +17,12 @@
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::CauldronNoDataValue;
 
-OutputPropertyMap* allocatePrimaryPropertyVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocatePrimaryPropertyVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new PrimaryOutputPropertyVolume ( property, formation, snapshot );
 }
 
 
-PrimaryOutputPropertyVolume::PrimaryOutputPropertyVolume ( const PropertyList         propertyName,
+PrimaryOutputPropertyVolume::PrimaryOutputPropertyVolume ( const PropertyIdentifier         propertyName,
                                                                  LayerProps*          formation,
                                                            const Interface::Snapshot* snapshot ) :
    OutputPropertyMap ( propertyName, formation, 0, snapshot ), m_isCalculated ( false ) {

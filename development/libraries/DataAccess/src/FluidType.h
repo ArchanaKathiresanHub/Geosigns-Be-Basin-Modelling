@@ -13,7 +13,7 @@ namespace DataAccess {
       {
       public:
 
-         FluidType(ProjectHandle* projectHandle, database::Record* record);
+         FluidType(ProjectHandle& projectHandle, database::Record* record);
          ~FluidType();
 
          /// \name General accessor functions.
@@ -31,7 +31,7 @@ namespace DataAccess {
          virtual CalculationModel getSeismicVelocityCalculationModel () const;
 
          virtual double getConstantSeismicVelocity () const;
-   
+
          /// @}
 
          /// \name Heat-capacity attributes.

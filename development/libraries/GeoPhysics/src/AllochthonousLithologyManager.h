@@ -63,7 +63,7 @@ namespace GeoPhysics {
       /// @}
 
 
-      AllochthonousLithologyManager ( ProjectHandle* projectHandle );
+      AllochthonousLithologyManager ( ProjectHandle& projectHandle );
 
       virtual ~AllochthonousLithologyManager ();
 
@@ -106,7 +106,7 @@ namespace GeoPhysics {
       /// Set of all formation interpolators.
       AllochthonousLithologyInterpolatorMap interpolators;
 
-      ProjectHandle* m_projectHandle;
+      ProjectHandle& m_projectHandle;
 
    };
 

@@ -3,7 +3,7 @@
 #include "database.h"
 #include "cauldronschemafuncs.h"
 
-DataAccess::Interface::SimulationDetails::SimulationDetails (ProjectHandle * projectHandle, database::Record * record) : DAObject (projectHandle, record) {
+DataAccess::Interface::SimulationDetails::SimulationDetails (ProjectHandle& projectHandle, database::Record * record) : DAObject (projectHandle, record) {
 
    m_simulatorName = database::getSimulatorName ( m_record );
    m_simulatorMode = database::getSimulatorMode ( m_record );

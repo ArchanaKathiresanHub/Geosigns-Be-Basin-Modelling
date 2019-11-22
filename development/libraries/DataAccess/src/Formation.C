@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -43,7 +43,7 @@ static double minus (double a, double b)
    return a - b;
 }
 
-Formation::Formation (ProjectHandle * projectHandle, Record * record) : 
+Formation::Formation (ProjectHandle& projectHandle, Record * record) :
    DAObject (projectHandle, record), m_top (nullptr), m_bottom (nullptr),
    m_fluidType(nullptr)
 {
@@ -225,13 +225,13 @@ GridMap * Formation::loadMixingHIMap (void) const
    const string &mixingHIGridMapId = getSourceRockMixingHIGrid (m_record);
    if (mixingHIGridMapId.length () != 0)
    {
-      gridMap = m_projectHandle->loadInputMap ("StratIoTbl", mixingHIGridMapId);
+      gridMap = getProjectHandle().loadInputMap ("StratIoTbl", mixingHIGridMapId);
    }
    else if ((value = getSourceRockMixingHI()) != RecordValueUndefined)
    {
-      const Grid * grid = m_projectHandle->getActivityOutputGrid();
-      if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-      gridMap = m_projectHandle->getFactory ()->produceGridMap (this, MixingHIMap, grid, value);
+      const Grid * grid = getProjectHandle().getActivityOutputGrid();
+      if (!grid) grid = (Grid *) getProjectHandle().getInputGrid ();
+      gridMap = getProjectHandle().getFactory ()->produceGridMap (this, MixingHIMap, grid, value);
       assert (gridMap == getChild (MixingHIMap));
    }
    return gridMap;
@@ -254,13 +254,13 @@ GridMap * Formation::loadMixingHCMap (void) const
    const string &mixingHCGridMapId = getSourceRockMixingHCGrid (m_record);
    if (mixingHCGridMapId.length () != 0)
    {
-      gridMap = m_projectHandle->loadInputMap ("StratIoTbl", mixingHCGridMapId);
+      gridMap = getProjectHandle().loadInputMap ("StratIoTbl", mixingHCGridMapId);
    }
    else if ((value = getSourceRockMixingHC()) != RecordValueUndefined)
    {
-      const Grid * grid = m_projectHandle->getActivityOutputGrid();
-      if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-      gridMap = m_projectHandle->getFactory ()->produceGridMap (this, MixingHCMap, grid, value);
+      const Grid * grid = getProjectHandle().getActivityOutputGrid();
+      if (!grid) grid = (Grid *) getProjectHandle().getInputGrid ();
+      gridMap = getProjectHandle().getFactory ()->produceGridMap (this, MixingHCMap, grid, value);
       assert (gridMap == getChild (MixingHCMap));
    }
    return gridMap;
@@ -273,9 +273,9 @@ GridMap * Formation::loadThicknessMap (void) const
 
    if ((thickness = getThickness (m_record)) != RecordValueUndefined)
    {
-      const Grid * grid = m_projectHandle->getActivityOutputGrid();
-      if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-      gridMap = m_projectHandle->getFactory ()->produceGridMap (this, ThicknessMap, grid, thickness);
+      const Grid * grid = getProjectHandle().getActivityOutputGrid();
+      if (!grid) grid = (Grid *) getProjectHandle().getInputGrid ();
+      gridMap = getProjectHandle().getFactory ()->produceGridMap (this, ThicknessMap, grid, thickness);
       assert (gridMap == getChild (ThicknessMap));
    }
    else
@@ -283,7 +283,7 @@ GridMap * Formation::loadThicknessMap (void) const
       const string &thicknessGridMapId = getThicknessGrid (m_record);
       if (thicknessGridMapId.length() != 0)
       {
-          gridMap = m_projectHandle->loadInputMap("StratIoTbl", thicknessGridMapId);
+          gridMap = getProjectHandle().loadInputMap("StratIoTbl", thicknessGridMapId);
           // If a thickness depth map referenced in the project file cannot be found throw runtime ERROR
           if (gridMap == nullptr)
              throw std::runtime_error( "Basin_Error: Could not open input thickness map for Layer " + getName() + "\n" );
@@ -303,7 +303,7 @@ GridMap * Formation::computeThicknessMap (void) const
    if (!topDepthMap) return nullptr;
    if (!bottomDepthMap) return nullptr;
 
-   GridMap * thicknessMap = m_projectHandle->getFactory ()->produceGridMap (this, ThicknessMap, bottomDepthMap, topDepthMap, ::minus);
+   GridMap * thicknessMap = getProjectHandle().getFactory ()->produceGridMap (this, ThicknessMap, bottomDepthMap, topDepthMap, ::minus);
 
    return thicknessMap;
 }
@@ -313,7 +313,7 @@ GridMap * Formation::computeThicknessMap (void) const
 const LithoType * Formation::getLithoType1 (void) const
 {
    if (!m_lithoType1)
-      m_lithoType1 = (LithoType const *) m_projectHandle->findLithoType (getLithotype1 (m_record));
+      m_lithoType1 = (LithoType const *) getProjectHandle().findLithoType (getLithotype1 (m_record));
    return m_lithoType1;
 }
 
@@ -328,29 +328,29 @@ const GridMap * Formation::getLithoType1PercentageMap (void) const
    GridMap * gridMap = (GridMap *)getChild(LithoType1Map);
    if (gridMap == nullptr)
    {
-	   const string & lithoTypeGridMapId = getPercent1Grid(m_record);
+     const string & lithoTypeGridMapId = getPercent1Grid(m_record);
 
-	   if (lithoTypeGridMapId.length() != 0)
-	   {
-		   gridMap = m_projectHandle->loadInputMap("StratIoTbl", lithoTypeGridMapId);
-	   }
-	   else if ((percentage = getPercent1(m_record)) != RecordValueUndefined)
-	   {
-		   const Grid * grid = m_projectHandle->getActivityOutputGrid();
-		   if (!grid) grid = (Grid *)m_projectHandle->getInputGrid();
-		   gridMap = m_projectHandle->getFactory()->produceGridMap(this, LithoType1Map, grid, percentage);
+		 if (lithoTypeGridMapId.length() != 0)
+		 {
+			 gridMap = getProjectHandle().loadInputMap("StratIoTbl", lithoTypeGridMapId);
+		 }
+		 else if ((percentage = getPercent1(m_record)) != RecordValueUndefined)
+		 {
+			 const Grid * grid = getProjectHandle().getActivityOutputGrid();
+			 if (!grid) grid = (Grid *)getProjectHandle().getInputGrid();
+			 gridMap = getProjectHandle().getFactory()->produceGridMap(this, LithoType1Map, grid, percentage);
 
-		   assert(gridMap == getChild(LithoType1Map));
-	   }
-   }
-   return gridMap;
+			 assert(gridMap == getChild(LithoType1Map));
+		 }
+	 }
+	 return gridMap;
 }
 
 /// Return the second lithotype of this Formation
 const LithoType * Formation::getLithoType2 (void) const
 {
    if (!m_lithoType2)
-      m_lithoType2 = (LithoType const *) m_projectHandle->findLithoType (getLithotype2 (m_record));
+      m_lithoType2 = (LithoType const *) getProjectHandle().findLithoType (getLithotype2 (m_record));
    return m_lithoType2;
 }
 
@@ -372,24 +372,24 @@ const GridMap * Formation::getLithoType2PercentageMap (void) const
 
            if (lithoTypeGridMapId.length() != 0)
            {
-               gridMap = m_projectHandle->loadInputMap("StratIoTbl", lithoTypeGridMapId);
+               gridMap = getProjectHandle().loadInputMap("StratIoTbl", lithoTypeGridMapId);
            }
            else if ((percentage = getPercent2(m_record)) != RecordValueUndefined)
            {
-               const Grid * grid = m_projectHandle->getActivityOutputGrid();
-               if (!grid) grid = (Grid *)m_projectHandle->getInputGrid();
-               gridMap = m_projectHandle->getFactory()->produceGridMap(this, LithoType2Map, grid, percentage);
+               const Grid * grid = getProjectHandle().getActivityOutputGrid();
+               if (!grid) grid = (Grid *)getProjectHandle().getInputGrid();
+               gridMap = getProjectHandle().getFactory()->produceGridMap(this, LithoType2Map, grid, percentage);
 
                assert(gridMap == getChild(LithoType2Map));
            }
        }
        else
        {
-           const Grid * grid = m_projectHandle->getActivityOutputGrid();
-           if (!grid) grid = (Grid *)m_projectHandle->getInputGrid();
-           GridMap *onehundred = m_projectHandle->getFactory()->produceGridMap(nullptr, 0, grid, 100);
+           const Grid * grid = getProjectHandle().getActivityOutputGrid();
+           if (!grid) grid = (Grid *)getProjectHandle().getInputGrid();
+           GridMap *onehundred = getProjectHandle().getFactory()->produceGridMap(nullptr, 0, grid, 100);
            gridMap =
-               (GridMap *)m_projectHandle->getFactory()->produceGridMap(this, LithoType2Map, onehundred, (GridMap *)getLithoType1PercentageMap(), ::minus);
+               (GridMap *)getProjectHandle().getFactory()->produceGridMap(this, LithoType2Map, onehundred, (GridMap *)getLithoType1PercentageMap(), ::minus);
            delete onehundred;
        }
    }
@@ -400,7 +400,7 @@ const GridMap * Formation::getLithoType2PercentageMap (void) const
 const LithoType * Formation::getLithoType3 (void) const
 {
    if (!m_lithoType3)
-      m_lithoType3 = (LithoType const *) m_projectHandle->findLithoType (getLithotype3 (m_record));
+      m_lithoType3 = (LithoType const *) getProjectHandle().findLithoType (getLithotype3 (m_record));
    return m_lithoType3;
 }
 
@@ -411,31 +411,31 @@ const GridMap * Formation::getLithoType3PercentageMap (void) const
       return nullptr;
 
    GridMap * gridMap = (GridMap *)getChild(LithoType3Map);
-   
+
    if (gridMap == nullptr)
    {
-       const Grid * grid = m_projectHandle->getActivityOutputGrid();
-       if (!grid) grid = (Grid *)m_projectHandle->getInputGrid();
-       GridMap *onehundred = (GridMap *)m_projectHandle->getFactory()->produceGridMap(0, 0, grid, 100);
-       GridMap * result = (GridMap *)m_projectHandle->getFactory()->produceGridMap(0, 0, onehundred, (GridMap *)getLithoType1PercentageMap(), ::minus);
+       const Grid * grid = getProjectHandle().getActivityOutputGrid();
+       if (!grid) grid = (Grid *)getProjectHandle().getInputGrid();
+       GridMap *onehundred = (GridMap *)getProjectHandle().getFactory()->produceGridMap(0, 0, grid, 100);
+       GridMap * result = (GridMap *)getProjectHandle().getFactory()->produceGridMap(0, 0, onehundred, (GridMap *)getLithoType1PercentageMap(), ::minus);
        delete onehundred;
-       gridMap = m_projectHandle->getFactory()->produceGridMap(this, LithoType3Map, result, (GridMap *)getLithoType2PercentageMap(), ::minus);
+       gridMap = getProjectHandle().getFactory()->produceGridMap(this, LithoType3Map, result, (GridMap *)getLithoType2PercentageMap(), ::minus);
        delete result;
    }
-   
+
    return gridMap;
 }
 
 /// return the list of reservoirs in this formation.
 ReservoirList * Formation::getReservoirs (void) const
 {
-   return m_projectHandle->getReservoirs (this);
+   return getProjectHandle().getReservoirs (this);
 }
 
 /// return the list of MobileLayers in this formation.
 MobileLayerList * Formation::getMobileLayers (void) const
 {
-   return m_projectHandle->getMobileLayers (this);
+   return getProjectHandle().getMobileLayers (this);
 }
 
 // Return the allochthonous lithology pointer.
@@ -446,9 +446,9 @@ const AllochthonousLithology * Formation::getAllochthonousLithology (void) const
 
       const bool recordFromStratIOTbl = ( m_record != 0 and m_record->getTable ()->name () == "StratIoTbl" );
 
-      if ( recordFromStratIOTbl ) 
+      if ( recordFromStratIOTbl )
       {
-         m_allochthonousLithology = (const AllochthonousLithology *) m_projectHandle->findAllochthonousLithology ( getName ());
+         m_allochthonousLithology = (const AllochthonousLithology *) getProjectHandle().findAllochthonousLithology ( getName ());
       }
    }
 
@@ -458,7 +458,7 @@ const AllochthonousLithology * Formation::getAllochthonousLithology (void) const
 /// return the list of reservoirs in this formation.
 FaultCollectionList * Formation::getFaultCollections (void) const
 {
-   return m_projectHandle->getFaultCollections (this);
+   return getProjectHandle().getFaultCollections (this);
 }
 
 /// tell whether this Formation is a mobile layer
@@ -488,7 +488,7 @@ const SourceRock * Formation::getSourceRock1 (void) const
 /// Return the SourceRock2 of this Formation
 const SourceRock * Formation::getSourceRock2 (void) const
 {
-   return m_sourceRock2;
+	 return m_sourceRock2;
 }
 
 bool Formation::getIsIgneousIntrusion () const {
@@ -499,15 +499,15 @@ bool Formation::getIsIgneousIntrusion () const {
 }
 
 double Formation::getIgneousIntrusionAge () const {
-   return database::getIgneousIntrusionAge ( m_record );
+	 return database::getIgneousIntrusionAge ( m_record );
 }
 
 void Formation::setIgneousIntrusionEvent ( IgneousIntrusionEvent* igneousIntrusion ) {
-   m_igneousIntrusion = igneousIntrusion;
+	 m_igneousIntrusion = igneousIntrusion;
 }
 
 const IgneousIntrusionEvent* Formation::getIgneousIntrusionEvent () const {
-   return m_igneousIntrusion;
+	 return m_igneousIntrusion;
 }
 
 
@@ -517,7 +517,7 @@ bool Formation::hasConstrainedOverpressure (void) const
 }
 
 ConstrainedOverpressureIntervalList* Formation::getConstrainedOverpressureIntervalList () const {
-   return m_projectHandle->getConstrainedOverpressureIntervalList ( this );
+   return getProjectHandle().getConstrainedOverpressureIntervalList ( this );
 }
 
 bool Formation::hasChemicalCompaction (void) const
@@ -535,7 +535,7 @@ GridMap * Formation::computeFaultGridMap (const Grid * localGrid, const Snapshot
       << " at snapshot " << snapshot->getTime ()
       << " and grid " << gridString << endl;
 #endif
-   GridMap * faultMap = m_projectHandle->getFactory ()->produceGridMap (0, 0, localGrid, NoFault, 1);
+   GridMap * faultMap = getProjectHandle().getFactory ()->produceGridMap (0, 0, localGrid, NoFault, 1);
    faultMap->retrieveData ();
 
    FaultCollectionList * fcList = getFaultCollections ();
@@ -568,7 +568,7 @@ float Formation::getLayeringIndex(void) const {
 const FluidType* Formation::getFluidType () const
 {
    if ( m_fluidType == 0 ) {
-      m_fluidType = getProjectHandle ()->findFluid ( database::getFluidtype ( m_record ));
+      m_fluidType = getProjectHandle().findFluid ( database::getFluidtype ( m_record ));
    }
 
    assert(m_fluidType);
@@ -622,7 +622,7 @@ void Formation::asString (string & str) const
 bool FormationLessThan::operator ()( const Formation* f1,
                                      const Formation* f2 ) const {
    // Use the depo-sequence number here, since the surfaces may not be assigned at the point
-   // at which we would like to do the sort. We should sort into ascending age, which means 
+   // at which we would like to do the sort. We should sort into ascending age, which means
    // descending depo-sequence number.
    return f1->getDepositionSequence () > f2->getDepositionSequence ();
 }

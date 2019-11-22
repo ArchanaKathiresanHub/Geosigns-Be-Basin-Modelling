@@ -76,8 +76,8 @@ namespace Genex6 {
 
    public :
 
-      OTGCNodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
-                                  DataAccess::Interface::ProjectHandle* projectHandle );
+      OTGCNodeAdsorptionHistory ( const SpeciesManager& speciesManager,
+                                  DataAccess::Interface::ProjectHandle& projectHandle );
 
       ~OTGCNodeAdsorptionHistory ();
 
@@ -96,7 +96,7 @@ namespace Genex6 {
 
    /// \brief Allocator of a history object for the shale-gas simulator.
    Genex6::NodeAdsorptionHistory* allocateOTGCNodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
-                                                                      DataAccess::Interface::ProjectHandle* projectHandle );
+                                                                      DataAccess::Interface::ProjectHandle& projectHandle );
 
 }
 

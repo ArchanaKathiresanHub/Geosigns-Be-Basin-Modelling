@@ -44,7 +44,7 @@ namespace DataAccess
       class DAObject : public Parent
       {
          public:
-            DAObject (ProjectHandle * projectHandle, database::Record * record);
+            DAObject (ProjectHandle& projectHandle, database::Record * record);
             virtual ~DAObject (void);
 
             /// return the record
@@ -53,7 +53,7 @@ namespace DataAccess
             void setRecord (database::Record * record);
 
             /// return the project handle
-            ProjectHandle * getProjectHandle (void) const;
+            ProjectHandle& getProjectHandle (void) const;
 
             /// return the object factory
             const ObjectFactory* getFactory(void) const;
@@ -69,7 +69,8 @@ namespace DataAccess
 
          protected:
 
-            ProjectHandle * m_projectHandle;
+            DAObject(const DAObject& object);
+
             mutable database::Record * m_record;
 
             AttributeValue & getAttributeValue (const string & attributeName, unsigned int indexOffset) const;
@@ -77,6 +78,8 @@ namespace DataAccess
             int getAttributeIndex (const string & attributeName) const;
 
          private:
+            ProjectHandle& m_projectHandle;
+
             /// @brief Load a the map (mapAttributeNames[attributeId]) from the record
             /// @details If the attribute is a value (so not a string linking to a not a map)
             ///          then returns a GridMap filled with that value
@@ -118,7 +121,7 @@ GridMap * DataAccess::Interface::DAObject::loadMap( const T attributeId, const s
    // if there is a map specified then create it
    if (valueGridMapId.length() != 0)
    {
-      gridMap = m_projectHandle->loadInputMap( m_record->tableName(), valueGridMapId );
+      gridMap = m_projectHandle.loadInputMap( m_record->tableName(), valueGridMapId );
    }
    // else if there is a scalar specified then create a map filled with this scalar
    else
@@ -126,9 +129,9 @@ GridMap * DataAccess::Interface::DAObject::loadMap( const T attributeId, const s
       const double value = m_record->getValue<double>( mapAttributeNames[attributeIndex] );
       if (value != RecordValueUndefined)
       {
-         const Grid * grid = m_projectHandle->getActivityOutputGrid();
-         if (grid == nullptr) grid = (const Grid *)m_projectHandle->getInputGrid();
-         gridMap = m_projectHandle->getFactory()->produceGridMap( this, attributeIndex, grid, value );
+         const Grid * grid = m_projectHandle.getActivityOutputGrid();
+         if (grid == nullptr) grid = (const Grid *)m_projectHandle.getInputGrid();
+         gridMap = m_projectHandle.getFactory()->produceGridMap( this, attributeIndex, grid, value );
 
          assert( gridMap == getChild( attributeIndex ) );
       }

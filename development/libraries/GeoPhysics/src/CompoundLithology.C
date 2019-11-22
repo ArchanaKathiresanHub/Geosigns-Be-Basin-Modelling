@@ -43,7 +43,7 @@ using namespace capillarySealStrength;
 typedef formattingexception::GeneralException fastCauldronException;
 
 
-GeoPhysics::CompoundLithology::CompoundLithology(GeoPhysics::ProjectHandle* projectHandle) : m_projectHandle(projectHandle)
+GeoPhysics::CompoundLithology::CompoundLithology(ProjectHandle& projectHandle) : m_projectHandle(projectHandle)
 , m_porosity()
 {
 
@@ -487,7 +487,7 @@ double GeoPhysics::CompoundLithology::hydrostatFullCompThickness(const double ma
    const double vesScaleFactor = 0.5;
 
 #if 0
-   const double vesScaleFactor = m_projectHandle->getCommandLineParameters()->getVesScaling();
+   const double vesScaleFactor = m_projectHandle.getCommandLineParameters()->getVesScaling();
 #endif
    double MaxVesValue;
 
@@ -592,7 +592,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       return false;
    }
 
-   setIsLegacy(m_projectHandle->getRunParameters()->getLegacy());
+   setIsLegacy(m_projectHandle.getRunParameters()->getLegacy());
 
    m_density                       = 0.0;
    m_seismicVelocitySolid          = 0.0;
@@ -683,7 +683,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       compactiondecrB,
       compactionRatio,
       soilMechanicsCompactionCoefficient,
-      m_projectHandle->getRunParameters()->getLegacy());
+      m_projectHandle.getRunParameters()->getLegacy());
 
    mixCapillaryEntryPressureCofficients();
    mixBrooksCoreyParameters();
@@ -701,7 +701,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    }
 
    //7. Seismic velocity
-   DataAccess::Interface::SeismicVelocityModel seismicVelocityModel = m_projectHandle->getRunParameters()->getSeismicVelocityAlgorithm();
+   DataAccess::Interface::SeismicVelocityModel seismicVelocityModel = m_projectHandle.getRunParameters()->getSeismicVelocityAlgorithm();
    double mixedModulusSolid = this->mixModulusSolid();
    m_seismicVelocity = SeismicVelocity::create(seismicVelocityModel,
       m_seismicVelocitySolid,
@@ -713,7 +713,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    const string lithoname = m_lithoComponents[0]->getName();
    m_isBasementLithology = false;
 
-   if ((m_lithoComponents.size() == 1) && (lithoname == m_projectHandle->getCrustLithoName() || lithoname == m_projectHandle->getMantleLithoName() || lithoname == DataAccess::Interface::ALCBasalt)) {
+   if ((m_lithoComponents.size() == 1) && (lithoname == m_projectHandle.getCrustLithoName() || lithoname == m_projectHandle.getMantleLithoName() || lithoname == DataAccess::Interface::ALCBasalt)) {
       m_isBasementLithology = true;
    }
 

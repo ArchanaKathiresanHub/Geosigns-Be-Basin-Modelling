@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -21,9 +21,9 @@ namespace DerivedProperties {
    public :
 
       VelocityFormationCalculator ();
- 
+
       /// \brief Calculate the seismic velocity for the formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the seismic velocity is requested.
       /// \param [in]  formation   The formation for which the seismic velocity is requested.
@@ -35,10 +35,10 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation*                       formation,
                                      AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
-      virtual void calculateForBasement ( AbstractDerivedProperties::AbstractPropertyManager& propManager,
-                                          const DataModel::AbstractSnapshot*                  snapshot,
-                                          const DataModel::AbstractFormation*                 formation,
-                                          AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
+      void calculateForBasement ( AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                                  const DataModel::AbstractSnapshot*                  snapshot,
+                                  const DataModel::AbstractFormation*                 formation,
+                                  AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
       virtual bool isComputable ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
                                   const DataModel::AbstractSnapshot*                        snapshot,

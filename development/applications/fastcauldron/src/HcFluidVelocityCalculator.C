@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "HcFluidVelocityCalculator.h"
 #include "DerivedOutputPropertyMap.h"
@@ -31,7 +31,7 @@ using Utilities::Maths::YearToSecond;
 
 using namespace FiniteElementMethod;
 
-OutputPropertyMap* allocateHcFluidVelocityVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateHcFluidVelocityVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<HcFluidVelocityVolumeCalculator>( property, formation, snapshot );
 }
 
@@ -44,7 +44,7 @@ HcFluidVelocityVolumeCalculator::HcFluidVelocityVolumeCalculator ( LayerProps* f
    m_isCalculated = false;
 }
 
-bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                    OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    using namespace Basin_Modelling;
@@ -179,7 +179,7 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
 
                if ( element.isActive () and ( saturations ( k, j, i )( Saturation::VAPOUR ) > 0.0 or saturations ( k, j, i )( Saturation::LIQUID ) > 0.0 )) {
                   getCoefficients ( element, Basin_Modelling::Pore_Pressure, porePressureCoeffs );
-                  
+
 #if 0
                   getCoefficients ( element, Basin_Modelling::Temperature, temperatureCoeffs );
 #endif
@@ -385,7 +385,7 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                   hcLiquidMaps [ 2 ]->setValue ( i, j, k, CauldronNoDataValue );
                   hcLiquidMaps [ 3 ]->setValue ( i, j, k, CauldronNoDataValue );
                }
-               
+
             }
 
          } else {
@@ -402,7 +402,7 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                hcLiquidMaps [ 3 ]->setValue ( i, j, k, CauldronNoDataValue );
             }
          }
-          
+
       }
 
    }
@@ -445,50 +445,50 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
 void HcFluidVelocityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
    CauldronPropertyValue* property;
-   
-   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourVelocityX", 
+
+   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourVelocityX",
                                                                                                  m_snapshot, 0,
                                                                                                  m_formation,
                                                                                                  m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( property );
-   
-   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourVelocityY", 
+
+   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourVelocityY",
                                                                                                  m_snapshot, 0,
                                                                                                  m_formation,
                                                                                                  m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( property );
-   
-   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourVelocityZ", 
+
+   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourVelocityZ",
                                                                                                  m_snapshot, 0,
                                                                                                  m_formation,
                                                                                                  m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( property );
-   
-   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourVelocityMagnitude", 
+
+   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourVelocityMagnitude",
                                                                                                  m_snapshot, 0,
                                                                                                  m_formation,
                                                                                                  m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( property );
-   
-   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidVelocityX", 
+
+   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidVelocityX",
                                                                                                  m_snapshot, 0,
                                                                                                  m_formation,
                                                                                                  m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( property );
-   
-   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidVelocityY", 
+
+   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidVelocityY",
                                                                                                  m_snapshot, 0,
                                                                                                  m_formation,
                                                                                                  m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( property );
-   
-   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidVelocityZ", 
+
+   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidVelocityZ",
                                                                                                  m_snapshot, 0,
                                                                                                  m_formation,
                                                                                                  m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( property );
-   
-   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidVelocityMagnitude", 
+
+   property = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidVelocityMagnitude",
                                                                                                  m_snapshot, 0,
                                                                                                  m_formation,
                                                                                                  m_formation->getMaximumNumberOfElements () + 1 ));

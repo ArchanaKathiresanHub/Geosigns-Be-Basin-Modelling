@@ -169,7 +169,7 @@ TEST_F(CompareTest1d, CompareData1d)
 
 	//Open from project3d
 	cout << "Opening project handle " << endl;
-	std::unique_ptr<DataAccess::Interface::ProjectHandle> projectP3d(DataAccess::Interface::OpenCauldronProject(newFilePathP3d.string(), "r", m_factoryP3d));
+	std::unique_ptr<DataAccess::Interface::ProjectHandle> projectP3d(DataAccess::Interface::OpenCauldronProject(newFilePathP3d.string(), m_factoryP3d));
 	ASSERT_EQ(true, (bool)projectP3d);
 
         if(projectP3d->getModellingMode() == CauldronIO::MODE1D) {

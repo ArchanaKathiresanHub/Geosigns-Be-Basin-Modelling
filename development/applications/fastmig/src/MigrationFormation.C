@@ -69,7 +69,7 @@ using Interface::FormationList;
 
 namespace migration
 {
-   MigrationFormation::MigrationFormation (ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record) :
+   MigrationFormation::MigrationFormation (ProjectHandle& projectHandle, Migrator * const migrator, database::Record * record) :
       Interface::Formation (projectHandle, record),
       GeoPhysics::GeoPhysicsFormation (projectHandle, record),
       m_migrator (migrator), m_index (-1)
@@ -114,7 +114,7 @@ namespace migration
       assert (depth > 0);
 
       // High-resolution grid
-      const Grid * grid = m_migrator->getProjectHandle ()->getActivityOutputGrid ();
+      const Grid * grid = m_migrator->getProjectHandle().getActivityOutputGrid ();
 
       m_formationNodeArray = new FormationNodeArray (this,
          grid->numIGlobal () - 1, grid->numJGlobal () - 1,
@@ -127,7 +127,7 @@ namespace migration
       bool lowResEqualsHighRes, const bool isOverPressureRun, bool nonGeometricLoop, bool chemicalCompaction)
    {
       assert (topDepthGridMap);
-      const Grid *grid = m_projectHandle->getActivityOutputGrid ();
+      const Grid *grid = getProjectHandle().getActivityOutputGrid ();
 
       assert (topDepthGridMap->getGrid () == grid);
 
@@ -194,7 +194,7 @@ namespace migration
    bool MigrationFormation::computeCapillaryPressureMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot)
    {
       assert (topDepthGridMap);
-      const Grid *grid = m_projectHandle->getActivityOutputGrid ();
+      const Grid *grid = getProjectHandle().getActivityOutputGrid ();
 
       assert (topDepthGridMap->getGrid () == grid);
 
@@ -387,7 +387,7 @@ namespace migration
 
    bool MigrationFormation::computeHCDensityMaps (const Interface::Snapshot * snapshot)
    {
-      const Grid *grid = m_projectHandle->getActivityOutputGrid ();
+      const Grid *grid = getProjectHandle().getActivityOutputGrid ();
 
       int depth = getMaximumNumberOfElements ();
       assert (depth > 0);
@@ -723,11 +723,11 @@ namespace migration
    {
       LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
 
-	  if (!IsValid (formationNode))
-		  return true;
-      else
-      return formationNode->computeTargetFormationNode ();
-   }
+		if (!IsValid (formationNode))
+			return true;
+			else
+			return formationNode->computeTargetFormationNode ();
+	 }
 
    void MigrationFormation::setEndOfPath (void)
    {
@@ -744,14 +744,14 @@ namespace migration
 
    bool MigrationFormation::hasVolumePropertyGridMap (const string & propertyName, double snapshotAge) const
    {
-      const Property* prop = m_projectHandle->findProperty (propertyName);
+      const Property* prop = getProjectHandle().findProperty (propertyName);
       if (!prop)
       {
          cerr << "Basin_Error: Could not find the property " << propertyName << endl;
          return 0;
       }
 
-      const Snapshot * snapshot = m_projectHandle->findSnapshot (snapshotAge);
+      const Snapshot * snapshot = getProjectHandle().findSnapshot (snapshotAge);
       if (!snapshot)
       {
          cerr << "Basin_Error: Could not find snapshot with age " << snapshotAge << endl;
@@ -763,7 +763,7 @@ namespace migration
 
    bool MigrationFormation::hasVolumePropertyGridMap (const Property* prop, double snapshotAge) const
    {
-      const Snapshot * snapshot = m_projectHandle->findSnapshot (snapshotAge);
+      const Snapshot * snapshot = getProjectHandle().findSnapshot (snapshotAge);
       if (!snapshot)
       {
          cerr << "Basin_Error: Could not find snapshot with age " << snapshotAge << endl;
@@ -775,7 +775,7 @@ namespace migration
 
    bool MigrationFormation::hasVolumePropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
    {
-      const Property* prop = m_projectHandle->findProperty (propertyName);
+      const Property* prop = getProjectHandle().findProperty (propertyName);
       if (!prop)
       {
          cerr << "Basin_Error: Could not find the property " << propertyName << endl;
@@ -789,7 +789,7 @@ namespace migration
    bool MigrationFormation::hasVolumePropertyGridMap (const Property* prop, const Snapshot * snapshot) const
    {
       PropertyValueList * propertyValues =
-         m_projectHandle->getPropertyValues (Interface::FORMATION,
+         getProjectHandle().getPropertyValues (Interface::FORMATION,
          prop, snapshot, 0, this, 0,
          Interface::VOLUME);
 
@@ -806,14 +806,14 @@ namespace migration
 
    const GridMap * MigrationFormation::getVolumePropertyGridMap (const string & propertyName, double snapshotAge) const
    {
-      const Property* prop = m_projectHandle->findProperty (propertyName);
+      const Property* prop = getProjectHandle().findProperty (propertyName);
       if (!prop)
       {
          cerr << "Basin_Error: Could not find the property " << propertyName << endl;
          return 0;
       }
 
-      const Snapshot * snapshot = m_projectHandle->findSnapshot (snapshotAge);
+      const Snapshot * snapshot = getProjectHandle().findSnapshot (snapshotAge);
       if (!snapshot)
       {
          cerr << "Basin_Error: Could not find snapshot with age " << snapshotAge << endl;
@@ -825,7 +825,7 @@ namespace migration
 
    const GridMap * MigrationFormation::getVolumePropertyGridMap (const Property* prop, double snapshotAge) const
    {
-      const Snapshot * snapshot = m_projectHandle->findSnapshot (snapshotAge);
+      const Snapshot * snapshot = getProjectHandle().findSnapshot (snapshotAge);
       if (!snapshot)
       {
          cerr << "Basin_Error: Could not find snapshot with age " << snapshotAge << endl;
@@ -837,7 +837,7 @@ namespace migration
 
    const GridMap * MigrationFormation::getVolumePropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
    {
-      const Property* prop = m_projectHandle->findProperty (propertyName);
+      const Property* prop = getProjectHandle().findProperty (propertyName);
       if (!prop)
       {
          cerr << "Basin_Error: Could not find the property " << propertyName << endl;
@@ -850,7 +850,7 @@ namespace migration
 
    const GridMap * MigrationFormation::getVolumePropertyGridMap (const Property* prop, const Snapshot * snapshot) const
    {
-      unique_ptr<PropertyValueList> propertyValues (m_projectHandle->getPropertyValues (Interface::FORMATION,
+      unique_ptr<PropertyValueList> propertyValues (getProjectHandle().getPropertyValues (Interface::FORMATION,
          prop, snapshot, 0, this, 0,
          Interface::VOLUME));
 
@@ -976,7 +976,7 @@ namespace migration
    FormationPropertyPtr MigrationFormation::getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const
    {
 
-      const DataAccess::Interface::Property* property = m_migrator->getProjectHandle ()->findProperty (propertyName);
+      const DataAccess::Interface::Property* property = m_migrator->getProjectHandle().findProperty (propertyName);
 
       FormationPropertyPtr theProperty =
          m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, this);
@@ -1112,7 +1112,7 @@ namespace migration
       buf << flowPathsFileNamePrefix << "_" << end->getTime () << ".h5";
 
       Interface::PropertyValue * propertyValue =
-         m_migrator->getProjectHandle ()->createVolumePropertyValue ("FlowDirectionIJK", end, 0, this, nodeDepth + 1, buf.str ());
+         m_migrator->getProjectHandle().createVolumePropertyValue ("FlowDirectionIJK", end, 0, this, nodeDepth + 1, buf.str ());
       assert (propertyValue);
 
       GridMap *gridMap = propertyValue->getGridMap ();
@@ -1418,7 +1418,7 @@ namespace migration
       {
          //add a record to the reservoir list
          database::Record * record = m_migrator->addDetectedReservoirRecord (this, start);
-         MigrationReservoir* reservoir = (MigrationReservoir*)m_projectHandle->addDetectedReservoirs (record, this);
+         MigrationReservoir* reservoir = dynamic_cast<MigrationReservoir*>(getProjectHandle().addDetectedReservoirs (record, this));
          // Net to gross
          reservoir->computeNetToGross ();
          m_detectedReservoir = true;
@@ -1470,7 +1470,7 @@ namespace migration
             const Interface::Formation * formation = dynamic_cast<const Interface::Formation *> (this);
             assert (formation);
 
-            Interface::ReservoirList * reservoirs = m_projectHandle->getReservoirs (formation);
+            Interface::ReservoirList * reservoirs = getProjectHandle().getReservoirs (formation);
 
             const MigrationReservoir * reservoir = dynamic_cast<const migration::MigrationReservoir *> (*reservoirs->begin ());
             assert (reservoir);
@@ -1538,17 +1538,17 @@ namespace migration
          if (gridMapEnd and gridMapStart)
          {
             Interface::SubtractionFunctor subtract;
-            m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle ()->getFactory ()->produceGridMap (0, 0, gridMapEnd, gridMapStart, subtract);
+            m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle().getFactory ()->produceGridMap (0, 0, gridMapEnd, gridMapStart, subtract);
          }
          else if (gridMapEnd)
          {
             Interface::IdentityFunctor idFunctor;
-            m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle ()->getFactory ()->produceGridMap (0, 0, gridMapEnd, idFunctor);
+            m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle().getFactory ()->produceGridMap (0, 0, gridMapEnd, idFunctor);
          }
          else if (gridMapStart)
          {
             Interface::IdentityMinusFunctor idMinusFunctor;
-            m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle ()->getFactory ()->produceGridMap (0, 0, gridMapStart, idMinusFunctor);
+            m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle().getFactory ()->produceGridMap (0, 0, gridMapStart, idMinusFunctor);
          }
 
          if (m_expulsionGridMaps[componentId])
@@ -2216,12 +2216,12 @@ namespace migration
 
          if (m_genexData == 0)
          {
-            m_genexData = m_projectHandle->getFactory ()->produceGridMap (0, 0, m_projectHandle->getActivityOutputGrid (), 99999.0, ComponentId::NUMBER_OF_SPECIES);
+            m_genexData = getProjectHandle().getFactory ()->produceGridMap (0, 0, getProjectHandle().getActivityOutputGrid (), 99999.0, ComponentId::NUMBER_OF_SPECIES);
          }
          const GeoPhysics::GeoPhysicsSourceRock * sourceRock = dynamic_cast<const GeoPhysics::GeoPhysicsSourceRock *>(getSourceRock1 ());
          GeoPhysics::GeoPhysicsSourceRock * sourceRock1 = const_cast<GeoPhysics::GeoPhysicsSourceRock *>(sourceRock);
 
-         Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots (Interface::MINOR | Interface::MAJOR);
+         Interface::SnapshotList * snapshots = getProjectHandle().getSnapshots (Interface::MINOR | Interface::MAJOR);
 
          // present day map
          FormationPropertyPtr vrProperty = m_migrator->getPropertyManager ().getFormationProperty (m_migrator->getPropertyManager ().getProperty ("Vr"), *(snapshots->begin ()), this);
@@ -2493,7 +2493,7 @@ namespace migration
 
    const Grid * MigrationFormation::getGrid (void) const
    {
-      return m_projectHandle->getHighResolutionOutputGrid (); // not to be changed to getActivityOutputGrid ()!!
+      return getProjectHandle().getHighResolutionOutputGrid (); // not to be changed to getActivityOutputGrid ()!!
    }
 
    void MigrationFormation::manipulateFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest)

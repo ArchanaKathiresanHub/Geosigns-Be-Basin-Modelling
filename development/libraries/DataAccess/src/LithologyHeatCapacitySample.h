@@ -19,7 +19,7 @@ namespace DataAccess
       {
       public :
 
-         LithologyHeatCapacitySample (ProjectHandle * projectHandle, database::Record * record);
+         LithologyHeatCapacitySample (ProjectHandle& projectHandle, database::Record * record);
 
          virtual ~LithologyHeatCapacitySample ();
 

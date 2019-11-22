@@ -26,16 +26,16 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::VesHighResFormationCalculator::VesHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle ) :
+DerivedProperties::VesHighResFormationCalculator::VesHighResFormationCalculator( const GeoPhysics::ProjectHandle& projectHandle ) :
    m_projectHandle( projectHandle ),
    m_isCoupledMode( false ),
-   m_isSubsampled( ! ((*(m_projectHandle->getLowResolutionOutputGrid())) == (*(m_projectHandle->getHighResolutionOutputGrid()))) )
+   m_isSubsampled( (*(m_projectHandle.getLowResolutionOutputGrid())) != (*(m_projectHandle.getHighResolutionOutputGrid())) )
 {
    try
    {
       addPropertyName( "VesHighRes" );
 
-      const DataAccess::Interface::SimulationDetails * simulationDetails = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+      const DataAccess::Interface::SimulationDetails * simulationDetails = m_projectHandle.getDetailsOfLastSimulation ( "fastcauldron" );
 
       if( simulationDetails == 0 )
       {
@@ -107,12 +107,12 @@ void DerivedProperties::VesHighResFormationCalculator::computeIndirectly(       
    {
       const DataModel::AbstractProperty * vesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
       assert( vesHighResProperty != 0 );
-      
+
       const DataModel::AbstractProperty* vesProperty = propertyManager.getProperty( "Ves" );
       assert( vesProperty != 0 );
       FormationPropertyPtr ves = propertyManager.getFormationProperty( vesProperty, snapshot, formation );
       assert( ves != 0 );
-      
+
       IndirectFormationPropertyPtr vesHighRes = IndirectFormationPropertyPtr( new DerivedProperties::IndirectFormationProperty( vesHighResProperty, ves) );
       derivedProperties.clear();
       derivedProperties.push_back( vesHighRes );
@@ -136,7 +136,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
       const DataModel::AbstractProperty * vesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
       assert( vesHighResProperty != 0 );
 
-      DerivedFormationPropertyPtr vesHighRes = 
+      DerivedFormationPropertyPtr vesHighRes =
          DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( vesHighResProperty,
                                                                                        snapshot,
                                                                                        formation,
@@ -158,7 +158,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
                             formationAbove,
                             vesHighRes );
 
-      // Now that the top nodes of the property has been initialised 
+      // Now that the top nodes of the property has been initialised
       // the vesHighRes for the remaining nodes below them can be computed.
       const bool includeGhostNodes = true;
       const unsigned int firstI = vesHighRes->firstI( includeGhostNodes );
@@ -167,7 +167,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
       const unsigned int lastJ = vesHighRes->lastJ( includeGhostNodes );
       const unsigned int firstK = vesHighRes->firstK();
       const unsigned int lastK = vesHighRes->lastK();
-      
+
       double vesHighResValue = 0.0;
       double vesHighResAboveValue = 0.0;
       double densityDifference = 0.0;
@@ -180,18 +180,18 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
       {
          for( unsigned int j = firstJ; j <= lastJ; ++j )
          {
-            if( m_projectHandle->getNodeIsValid(i, j) )
+            if( m_projectHandle.getNodeIsValid(i, j) )
             {
                const GeoPhysics::CompoundLithology * lithology = currentFormation->getCompoundLithology(i, j);
                double surfacePorosity = lithology->surfacePorosity();
                assert( lithology != 0 );
 
                // the density difference cannot be smaller than 0
-               if ( lithology->density() > constFluidDensity ) 
+               if ( lithology->density() > constFluidDensity )
                {
                   densityDifference = lithology->density() - constFluidDensity;
                }
-               else 
+               else
                {
                   densityDifference = 0.0;
                }
@@ -203,7 +203,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
                   // index k     is top node of segment
                   // index k - 1 is bottom node of segment
                   solidThickness = currentFormation->getSolidThickness( i, j, k - 1, time);
-                  
+
                   // Fluid is denser than rock and the permafrost switch is on
                   if ( densityDifference <= 0 && solidThickness > 0.0 && switchPermafrost )
                   {
@@ -266,7 +266,7 @@ void DerivedProperties::VesHighResFormationCalculator::initializeTopSurface(    
          {
             for( unsigned int j = firstJ; j <= lastJ; ++j )
             {
-               propertyNodeValue = m_projectHandle->getNodeIsValid(i, j) ? 0.0 : DataAccess::Interface::DefaultUndefinedMapValue;
+               propertyNodeValue = m_projectHandle.getNodeIsValid(i, j) ? 0.0 : DataAccess::Interface::DefaultUndefinedMapValue;
                vesHighRes->set( i, j, topNodeIndex, propertyNodeValue );
             }
          }

@@ -18,7 +18,7 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-ProjectData::ProjectData ( ProjectHandle * projectHandle, database::Record* record ) :  DAObject (projectHandle, record) {
+ProjectData::ProjectData ( ProjectHandle& projectHandle, database::Record* record ) :  DAObject (projectHandle, record) {
 }
 
 ProjectData::~ProjectData (void)

@@ -24,7 +24,8 @@ McKenzieTester::McKenzieTester() :
    m_age( 10.0 ), m_startAge( 100 ), m_endAge( 60 ),
    m_contRatio(0.5), m_oceaRatio( 0.7 ),
    m_constants(),
-   m_inputData(),
+   m_projectHandle(nullptr, "", nullptr),
+   m_inputData(m_projectHandle),
    m_outputData( this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ ),
    m_validator()
 {

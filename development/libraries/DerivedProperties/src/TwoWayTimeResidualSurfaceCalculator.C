@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -28,7 +28,7 @@ typedef formattingexception::GeneralException TwoWayTimeResidualException;
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::TwoWayTimeResidualSurfaceCalculator::TwoWayTimeResidualSurfaceCalculator( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle( projectHandle ) {
+DerivedProperties::TwoWayTimeResidualSurfaceCalculator::TwoWayTimeResidualSurfaceCalculator( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle( projectHandle ) {
    addPropertyName  ( "TwoWayTimeResidual" );
    addDependentPropertyName ( "TwoWayTime" );
 }
@@ -47,7 +47,7 @@ void DerivedProperties::TwoWayTimeResidualSurfaceCalculator::calculate( Abstract
       twoWayTimeInitialScalar = dataAccessSurface->getInputTwoWayTimeScalar();
    }
    else{
-      twoWayTimeInitialMap->retrieveData();
+      twoWayTimeInitialMap->retrieveGhostedData();
    }
 
 
@@ -75,7 +75,7 @@ void DerivedProperties::TwoWayTimeResidualSurfaceCalculator::calculate( Abstract
 
          for (unsigned int j = twoWayTimeResidual->firstJ( true ); j <= twoWayTimeResidual->lastJ( true ); ++j) {
 
-            if (m_projectHandle->getNodeIsValid( i, j )){
+            if (m_projectHandle.getNodeIsValid( i, j )){
 
                // if we don't have cauldron two way time value at this node
                // info: m_twoWayTimeCauldron and TwoWayTimeResidualMap have the same undefined value 99999
@@ -137,7 +137,7 @@ bool DerivedProperties::TwoWayTimeResidualSurfaceCalculator::isComputable( const
       ///1. Check that snapshot age is 0
       assert( snapshot );
       if (snapshot->getTime() != 0.0) {
-         LogHandler( LogHandler::WARNING_SEVERITY )
+         LogHandler( LogHandler::DEBUG_SEVERITY )
             << "Cannot compute Two-Way-(Travel)-Time Residual property at specified snpashot"
             << snapshot->getTime() << "Ma for the surface ' " << surface->getName()
             << "'. This property can only be computed at present day 0.0Ma.";
@@ -153,7 +153,7 @@ bool DerivedProperties::TwoWayTimeResidualSurfaceCalculator::isComputable( const
          twoWayTimeInitialScalar = dataAccessSurface->getInputTwoWayTimeScalar();
          if (twoWayTimeInitialScalar == -9999) {
             // then there is also no scalar input
-            LogHandler( LogHandler::WARNING_SEVERITY )
+            LogHandler( LogHandler::DEBUG_SEVERITY )
                << "Cannot compute Two-Way-(Travel)-Time Residual property because no initial Two-Way-(Travel)-Time is specified for the surface '"
                << surface->getName() << "' in the stratigraphy table.";
             return false;

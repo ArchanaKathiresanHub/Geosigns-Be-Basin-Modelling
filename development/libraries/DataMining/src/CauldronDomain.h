@@ -109,17 +109,17 @@ namespace DataAccess
          void clear();
 
          /// \brief Set the actual (x,y)-coordinates, the (xi,eta)-reference coordinates and the (i,j)-global position of the element.
-         /// 
+         ///
          /// If the (x,y) is invalid then element will be cleared on exit.
          void setPlaneElement( ElementPosition& element, double x, double y ) const;
 
          /// \brief Add elements that lie in the open interval ( startS, endS ).
          ///
-         /// The additions are subject to the conditions: 
+         /// The additions are subject to the conditions:
          ///      -# Add inter-formation boundary elements.
-         ///      -# Add inter-planar boundary elements, i.e. If the well path passes through the side faces of an 
+         ///      -# Add inter-planar boundary elements, i.e. If the well path passes through the side faces of an
          ///         element then the elements either side of the face will be added.
-         ///      -# Add inter-vertical boundary elements, i.e. If the well path passes through 
+         ///      -# Add inter-vertical boundary elements, i.e. If the well path passes through
          ///         the upper or lower face of an element then the elements either side of this face will be added.
          void addIntermediateElements( const CauldronWell      & well,
                                        double                    startS,
@@ -134,7 +134,7 @@ namespace DataAccess
 
          /// \brief Determine if to elements are equal subject to the conditions.
          ///
-         /// The conditions: 
+         /// The conditions:
          ///      -# Do elements share the same formation.
          ///      -# Do the elements share the same lateral position (i.e. i and j position).
          ///      -# Do the elements share the same vertical position (i.e. k position).

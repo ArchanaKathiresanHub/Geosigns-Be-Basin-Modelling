@@ -8,8 +8,8 @@
 #include "cauldronschemafuncs.h"
 #include "database.h"
 
-DataAccess::Interface::PointAdsorptionHistory::PointAdsorptionHistory (  ProjectHandle*    projectHandle,
-                                                                              database::Record* record ) : DAObject ( projectHandle, record )
+DataAccess::Interface::PointAdsorptionHistory::PointAdsorptionHistory (  ProjectHandle& projectHandle,
+                                                                         database::Record* record ) : DAObject ( projectHandle, record )
 {
 
    m_x = database::getXPlanePosition ( record );
@@ -34,7 +34,7 @@ double DataAccess::Interface::PointAdsorptionHistory::getY () const {
 
 const std::string& DataAccess::Interface::PointAdsorptionHistory::getFileName () const {
    return m_fileName;
-} 
+}
 
 const std::string& DataAccess::Interface::PointAdsorptionHistory::getFormationName () const {
    return m_formationName;
@@ -49,8 +49,8 @@ std::string DataAccess::Interface::PointAdsorptionHistory::image () const {
 
    std::stringstream buffer;
 
-   buffer << " history-point: " << getFormationName () 
-          << std::setw ( 15 ) << getX  () 
+   buffer << " history-point: " << getFormationName ()
+          << std::setw ( 15 ) << getX  ()
           << std::setw ( 15 ) << getY  ()
           << std::endl;
 

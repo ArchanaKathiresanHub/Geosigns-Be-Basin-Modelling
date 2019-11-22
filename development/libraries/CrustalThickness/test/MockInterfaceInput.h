@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -44,11 +44,11 @@ class MockInterfaceInput : public InterfaceInput {
       /// @brief Use this constructor to test the calculators more easily by setting inputs directly in the interface
       /// @details The constructors specifies null pointers as the project handle and record, so only the functions which are not
       ///    depending on them can be tested with this class
-      MockInterfaceInput()
+      MockInterfaceInput(DataAccess::Interface::ProjectHandle& projectHandle)
          :InterfaceInput
          (
-            ctcData( new CrustalThicknessData( nullptr, nullptr ) ),
-            ctcRiftingHistoryData( 1, std::shared_ptr<const CrustalThicknessRiftingHistoryData>( new CrustalThicknessRiftingHistoryData( nullptr, nullptr ) ) )
+            ctcData( new CrustalThicknessData( projectHandle, nullptr ) ),
+            ctcRiftingHistoryData( 1, std::shared_ptr<const CrustalThicknessRiftingHistoryData>( new CrustalThicknessRiftingHistoryData( projectHandle, nullptr ) ) )
          ) {}
 
       /// @brief Use this constructor to test the calculators by setting inputs in the interface via the data objects
@@ -86,7 +86,7 @@ class MockInterfaceInput : public InterfaceInput {
       void setTopOfSedimentSurface(const DataAccess::Interface::Surface* surface) { m_topOfSedimentSurface    = surface; }
       void setBotOfSedimentSurface(const DataAccess::Interface::Surface* surface) { m_bottomOfSedimentSurface = surface; }
 
-      void setSurfaceDepthHistoryMask( std::map< const double, bool>& mask ) { m_hasSurfaceDepthHistory = mask; };
+      void setSurfaceDepthHistoryMask( std::map< const double, bool>& mask ) { m_hasSurfaceDepthHistory = mask; }
 
       /// @}
 

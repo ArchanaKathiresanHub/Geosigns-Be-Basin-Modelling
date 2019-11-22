@@ -23,11 +23,11 @@
 #include "ElementContributions.h"
 
 
-OutputPropertyMap* allocateComponentConcentrationCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateComponentConcentrationCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<ComponentConcentrationCalculator>( property, formation, surface, snapshot );
 }
 
-OutputPropertyMap* allocateComponentConcentrationVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateComponentConcentrationVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<ComponentConcentrationVolumeCalculator>( property, formation, snapshot );
 }
 

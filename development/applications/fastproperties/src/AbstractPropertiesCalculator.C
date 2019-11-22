@@ -65,15 +65,15 @@ AbstractPropertiesCalculator::~AbstractPropertiesCalculator() {
 
 //------------------------------------------------------------//
 
-GeoPhysics::ProjectHandle* AbstractPropertiesCalculator::getProjectHandle() const {
-
-   return m_projectHandle;
+GeoPhysics::ProjectHandle& AbstractPropertiesCalculator::getProjectHandle() const
+{
+   return *m_projectHandle;
 }
 //------------------------------------------------------------//
 
-DerivedPropertyManager * AbstractPropertiesCalculator::getPropertyManager() const {
+DerivedPropertyManager& AbstractPropertiesCalculator::getPropertyManager() const {
 
-   return m_propertyManager;
+   return *m_propertyManager;
 }
 //------------------------------------------------------------//
 
@@ -131,18 +131,11 @@ bool AbstractPropertiesCalculator::CreateFrom (DataAccess::Interface::ObjectFact
 
    if (m_projectHandle == 0)
    {
-      m_projectHandle = dynamic_cast<GeoPhysics::ProjectHandle*>(OpenCauldronProject(m_projectFileName, "r", factory));
+      m_projectHandle.reset( dynamic_cast<GeoPhysics::ProjectHandle*>(OpenCauldronProject(m_projectFileName, factory)) );
 
       if (m_projectHandle != 0)
       {
-         if (getProperiesActivity())
-         {
-            m_propertyManager = new DerivedPropertyManager (m_projectHandle, true, m_debug);
-         }
-         else
-         {
-            m_propertyManager = new DerivedPropertyManager (m_projectHandle, false, m_debug);
-         }
+         m_propertyManager = new DerivedPropertyManager (*m_projectHandle, getProperiesActivity(), m_debug);
       }
    }
    if (m_projectHandle == 0 ||  m_propertyManager == 0)
@@ -367,7 +360,7 @@ void AbstractPropertiesCalculator::acquireProperties(Interface::PropertyList & p
       std::sort(m_propertyNames.begin(), m_propertyNames.end());
       m_propertyNames.erase(std::unique(m_propertyNames.begin(), m_propertyNames.end(), DerivedProperties::isEqualPropertyName), m_propertyNames.end());
 
-      DerivedProperties::acquireProperties(m_projectHandle, * m_propertyManager, properties, m_propertyNames);
+      DerivedProperties::acquireProperties(*m_projectHandle, * m_propertyManager, properties, m_propertyNames);
    }
 }
 //------------------------------------------------------------//
@@ -376,17 +369,17 @@ void AbstractPropertiesCalculator::acquireFormationsSurfaces(FormationSurfaceVec
    bool load3d = false;
    if (m_formationNames.size() != 0 or m_all3Dproperties)
    {
-      DerivedProperties::acquireFormations(m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
+      DerivedProperties::acquireFormations(*m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
       load3d = true;
    }
    if (m_all2Dproperties)
    {
       if (not load3d)
       {
-         DerivedProperties::acquireFormations(m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
+         DerivedProperties::acquireFormations(*m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
       }
-      DerivedProperties::acquireFormationSurfaces(m_projectHandle, formationSurfaceItems, m_formationNames, true, m_basement);
-      DerivedProperties::acquireFormationSurfaces(m_projectHandle, formationSurfaceItems, m_formationNames, false, m_basement);
+      DerivedProperties::acquireFormationSurfaces(*m_projectHandle, formationSurfaceItems, m_formationNames, true, m_basement);
+      DerivedProperties::acquireFormationSurfaces(*m_projectHandle, formationSurfaceItems, m_formationNames, false, m_basement);
 
       if (not m_all3Dproperties)
       {
@@ -397,9 +390,9 @@ void AbstractPropertiesCalculator::acquireFormationsSurfaces(FormationSurfaceVec
    // if the property is selected but formationSurface list is empty add all formations
    if (formationSurfaceItems.empty() and m_propertyNames.size() != 0)
    {
-      DerivedProperties::acquireFormations(m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
-      DerivedProperties::acquireFormationSurfaces(m_projectHandle, formationSurfaceItems, m_formationNames, true, m_basement);
-      DerivedProperties::acquireFormationSurfaces(m_projectHandle, formationSurfaceItems, m_formationNames, false, m_basement);
+      DerivedProperties::acquireFormations(*m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
+      DerivedProperties::acquireFormationSurfaces(*m_projectHandle, formationSurfaceItems, m_formationNames, true, m_basement);
+      DerivedProperties::acquireFormationSurfaces(*m_projectHandle, formationSurfaceItems, m_formationNames, false, m_basement);
    }
 
 }

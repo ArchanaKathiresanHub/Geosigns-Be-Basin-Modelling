@@ -22,7 +22,7 @@ namespace DataAccess {
       public :
 
          /// constructor.
-         SimulationDetails (ProjectHandle * projectHandle, database::Record * record);
+         SimulationDetails (ProjectHandle& projectHandle, database::Record * record);
 
          /// destructor.
          virtual ~SimulationDetails ();

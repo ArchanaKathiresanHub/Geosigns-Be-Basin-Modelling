@@ -17,7 +17,7 @@ namespace DataAccess
       {
       public :
 
-         ProjectData ( ProjectHandle * projectHandle, database::Record* record );
+         ProjectData ( ProjectHandle& projectHandle, database::Record* record );
 
          virtual ~ProjectData ();
 
@@ -30,7 +30,7 @@ namespace DataAccess
          /// Return the cauldron version that created the project.
          virtual const std::string& getProgramVersion () const;
 
- 
+
          /// Return x-origin of the map.
          virtual double getXOrigin () const;
 

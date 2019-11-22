@@ -79,10 +79,9 @@ namespace DataAccess
 
    namespace Interface
    {
-      /// Create a project from a project file with the given name and access mode ("r" or "rw") andm_projectFileHandler
+      /// Create a project from a project file with the given name
       /// return the associated ProjectHandle
-      ProjectHandle * OpenCauldronProject(const string & name,
-                                           const string & accessMode,
+      ProjectHandle * OpenCauldronProject( const string & name,
                                            const ObjectFactory* objectFactory,
                                            const std::vector<std::string>& outputTableNames = NoTableNames );
 
@@ -92,12 +91,8 @@ namespace DataAccess
       database::ProjectFileHandlerPtr CreateDatabaseFromCauldronProject( const string& name,
                                                                          const std::vector<std::string>& outputTableNames = NoTableNames );
 
-      /// Close the project associated with the given ProjectHandlem_projectFileHandler
-      void CloseCauldronProject( ProjectHandle * projectHandle );
-
       /// A ProjectHandle contains references to the entities in a Project.
-      /// Objects of this class are created and destroyed via the
-      /// functions OpenCauldronProject() and CloseCauldronProject(), respectively.
+      /// Objects of this class are created by OpenCauldronProject()
       class ProjectHandle
       {
 
@@ -105,7 +100,7 @@ namespace DataAccess
 
       public:
          /// Constructor
-         ProjectHandle( database::ProjectFileHandlerPtr projectFileHandler, const string & name, const string & accessMode, const ObjectFactory* objectFactory );
+         ProjectHandle( database::ProjectFileHandlerPtr projectFileHandler, const string & name, const ObjectFactory* objectFactory );
 
          /// Destructor
          virtual ~ProjectHandle( void );
@@ -376,10 +371,21 @@ namespace DataAccess
          /// @param[in] surface properties belonging to this surface.
          /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
          /// @return    a list of the selected recorded properties
-         virtual PropertyValueList * getPropertyValues( int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
+         PropertyValueList * getPropertyValues( int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
             const Property * property = nullptr, const Snapshot * snapshot = nullptr,
             const Reservoir * reservoir = nullptr, const Formation * formation = nullptr,
             const Surface * surface = nullptr, int propertyTypes = MAP | VOLUME ) const;
+
+         /// @brief Return a map of properties to property values, based on the given arguments.
+         ///
+         /// @param[in] selectionFlags is logical OR for the following flags:
+         ///                            SURFACE = surface property which per definition is 2D.
+         /// 	                         FORMATION = formation property which can be 2D and 3D
+         /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
+         /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
+         /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
+         /// @return    a map of properties to property values, based on the given arguments
+         PropertyPropertyValueListMap getPropertyPropertyValuesMap( int selectionFlags, int propertyType );
 
          /// @brief Return a list of unrecorded property values based on the given arguments.
          ///
@@ -416,7 +422,7 @@ namespace DataAccess
          /// @param[in] surface properties belonging to this surface.
          /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
          /// @return    a list of the selected properties inside the property value list
-         virtual PropertyValueList * getPropertyValuesForList( MutablePropertyValueList list,
+         PropertyValueList * getPropertyValuesForList( MutablePropertyValueList list,
             int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
             const Property * property = nullptr, const Snapshot * snapshot = nullptr,
             const Reservoir * reservoir = nullptr, const Formation * formation = nullptr,
@@ -439,7 +445,7 @@ namespace DataAccess
 
          /// return a list of PropertyValues based on the given arguments.
          /// if an argument equals 0, it is used as a wildcard
-         virtual bool hasPropertyValues( int selectionFlags,
+         bool hasPropertyValues( int selectionFlags,
             const Property * property, const Snapshot * snapshot,
             const Reservoir * reservoir, const Formation * formation,
             const Surface * surface, int propertyType ) const;
@@ -612,7 +618,7 @@ namespace DataAccess
 
          void mapFileCacheDestructor( void );
 
-         database::ProjectFileHandlerPtr getProjectFileHandler ();
+         database::ProjectFileHandlerPtr getProjectFileHandler () const;
 
          /// check of the m_trappers is not empty
          bool trappersAreAvailable();
@@ -636,7 +642,6 @@ namespace DataAccess
 
       protected:
 
-         typedef enum { READONLY, READWRITE } AccessMode;
          //1DComponent
          bool loadModellingMode( void );
          ModellingMode m_modellingMode;
@@ -657,7 +662,6 @@ namespace DataAccess
          /// The name of the current activity producing output values
          string m_activityName;
 
-         const AccessMode m_accessMode;
          database::ProjectFileHandlerPtr m_projectFileHandler;
 
          const ObjectFactory * m_factory;
@@ -856,7 +860,7 @@ namespace DataAccess
 
          bool saveCreatedMapPropertyValuesMode3D( void );
 
-         virtual bool saveCreatedVolumePropertyValues( void );
+         bool saveCreatedVolumePropertyValues( void );
 
          bool saveCreatedVolumePropertyValuesMode1D( void );
 

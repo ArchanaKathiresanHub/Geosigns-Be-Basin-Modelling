@@ -27,7 +27,7 @@ TEST(DataAccess, OpenCauldronProjectFail)
    DataAccess::Interface::ProjectHandle* ph = nullptr;
    try
    {
-      ph = DataAccess::Interface::OpenCauldronProject("THIS_FILE_DOES_NOT_EXIST", "r", factoryptr);
+      ph = DataAccess::Interface::OpenCauldronProject("THIS_FILE_DOES_NOT_EXIST", factoryptr);
       FAIL() << "Expected exception";
    }
    catch(...)
@@ -41,10 +41,10 @@ TEST(DataAccess, OpenCauldronProject)
 {
    DataAccess::Interface::ObjectFactory factory;
    DataAccess::Interface::ObjectFactory* factoryptr = &factory;
-   DataAccess::Interface::ProjectHandle* ph = nullptr;
+   std::unique_ptr<DataAccess::Interface::ProjectHandle> ph;
    try
    {
-      ph = DataAccess::Interface::OpenCauldronProject("DataAccessTest.project3d", "r", factoryptr);
+      ph.reset( DataAccess::Interface::OpenCauldronProject("DataAccessTest.project3d", factoryptr) );
    }
    catch(...)
    {
@@ -129,30 +129,28 @@ TEST(DataAccess, OpenCauldronProject)
    EXPECT_DOUBLE_EQ( fluid->getConstantSeismicVelocity(), 1500. );
    EXPECT_EQ( fluid->getSeismicVelocityCalculationModel(), DataAccess::Interface::CALCULATED_MODEL );
    EXPECT_DOUBLE_EQ( fluid->salinity(), 0.13 );
-   
+
    // Check AllochthonousLithology
    EXPECT_TRUE( ph->getAllochthonousLithologyDistributions() == nullptr );
    EXPECT_TRUE( ph->getAllochthonousLithologyInterpolations() == nullptr );
-   
+
    // Check LitThCondIoTbl
    std::unique_ptr<DataAccess::Interface::LithologyThermalConductivitySampleList> ltcList(ph->getLithologyThermalConductivitySampleList());
    if( ltcList == nullptr ) FAIL();
    EXPECT_EQ( ltcList->size(), 116 );
-   
+
    // Check LitHeatCapIoTbl
    std::unique_ptr<DataAccess::Interface::LithologyHeatCapacitySampleList> lhcList(ph->getLithologyHeatCapacitySampleList());
    if( lhcList == nullptr ) FAIL();
    EXPECT_EQ( lhcList->size(), 105 );
-   
+
    // Check FltThCondIoTbl
    std::unique_ptr<DataAccess::Interface::FluidThermalConductivitySampleList> ftcList(ph->getFluidThermalConductivitySampleList( ph->findFluid("Std. Water") ));
    if( ftcList == nullptr ) FAIL();
    EXPECT_EQ( ftcList->size(), 667 );
-   
+
    // Check FltHeatCapIoTbl
    std::unique_ptr<DataAccess::Interface::FluidHeatCapacitySampleList> fhcList(ph->getFluidHeatCapacitySampleList( ph->findFluid("Std. Water") ));
    if( fhcList == nullptr ) FAIL();
    EXPECT_EQ( fhcList->size(), 156 );
-   
-   delete ph;
 }

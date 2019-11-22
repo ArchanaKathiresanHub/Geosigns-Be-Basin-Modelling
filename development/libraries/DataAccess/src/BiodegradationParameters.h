@@ -5,34 +5,34 @@
 #include "DAObject.h"
 #include "BioConsts.h"
 
-namespace DataAccess 
-{ 
-   namespace Interface 
+namespace DataAccess
+{
+   namespace Interface
    {
-	  class BiodegradationParameters: public DAObject
-	  {
+    class BiodegradationParameters: public DAObject
+    {
      public:
-      BiodegradationParameters(ProjectHandle* projectHandle, database::Record* record);
+      BiodegradationParameters(ProjectHandle& projectHandle, database::Record* record);
      ~BiodegradationParameters();
-	 
+
       /*!
       * \brief Get back the upper temperature limit at which biodegradation can occur.
-      * \return the upper temperature limit at which biodegradation can occur (in °C). Set by default to 80°C.
+      * \return the upper temperature limit at which biodegradation can occur (in ï¿½C). Set by default to 80ï¿½C.
       */
-		double maxBioTemp() const;
+    double maxBioTemp() const;
 
       /*!
        * \brief Retrieve all the bioconstants for biodegradation.
        * \return BioConst for each component in the folowing order:
        * Asphaltene, Resins, C15+ Aro, C15+ Sat, C6-14 Aro, C6-14 Sat, C5, C4, C3, C2, C1, COx, N2
        */
-	 	BioConsts bioConsts() const;
+    BioConsts bioConsts() const;
 
       /*!
       * \brief Get back the timeFactor for biodegradation.
       * \return timeFactor, a user-tuneable rate scalar for all component class (in 1/Myr). Set by default to 0.5.
       */
-	 	double timeFactor() const;
+    double timeFactor() const;
 
       /*!
       * \brief Get the biodegradation rate.
@@ -47,8 +47,8 @@ namespace DataAccess
       * \return The pasteurization status (1 = On, 0 = Off)
       */
       bool pasteurizationInd() const;
-	  };
-   } 
+    };
+   }
 } // namespace DataAccess::Interface
 
 #endif

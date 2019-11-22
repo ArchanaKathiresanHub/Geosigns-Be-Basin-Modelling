@@ -9,19 +9,18 @@
 
 #include "LangmuirAdsorptionIsothermInterval.h"
 
-Genex6::AdsorptionFunction* Genex6::allocateLangmuirAdsorptionFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
+Genex6::AdsorptionFunction* Genex6::allocateLangmuirAdsorptionFunction ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                          const std::string&                         langmuirName ) {
    return new LangmuirAdsorptionFunction ( projectHandle, langmuirName );
 }
 
 
 
-Genex6::LangmuirAdsorptionFunction::LangmuirAdsorptionFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
+Genex6::LangmuirAdsorptionFunction::LangmuirAdsorptionFunction ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                  const std::string&                         langmuirName ) :
-   m_projectHandle ( projectHandle ),
    m_langmuirName ( langmuirName )
 {
-   DataAccess::Interface::LangmuirAdsorptionIsothermSampleList* samples = m_projectHandle->getLangmuirAdsorptionIsothermSampleList ( langmuirName );
+   DataAccess::Interface::LangmuirAdsorptionIsothermSampleList* samples = projectHandle.getLangmuirAdsorptionIsothermSampleList ( langmuirName );
 
    if ( samples->size () < 2 ) {
       std::cout << "Basin_Warning: Formation: " << langmuirName << " does not have enough langmuir isotherm samples" << std::endl;
@@ -119,7 +118,7 @@ bool Genex6::LangmuirAdsorptionFunction::isValid () const {
    bool valid = true;
    size_t i;
 
-   valid = m_temperatureLowerBound != DataAccess::Interface::DefaultUndefinedScalarValue and 
+   valid = m_temperatureLowerBound != DataAccess::Interface::DefaultUndefinedScalarValue and
            m_temperatureUpperBound != DataAccess::Interface::DefaultUndefinedScalarValue;
 
    for ( i = 0; i < m_isothermIntervals.size (); ++i ) {
@@ -153,7 +152,7 @@ bool Genex6::LangmuirAdsorptionFunction::LangmuirAdsorptionIsothermInRange::oper
 
 double Genex6::LangmuirAdsorptionFunction::getReferenceTemperature () const {
    return m_temperatureLowerBound;
-} 
+}
 
 
 std::string Genex6::LangmuirAdsorptionFunction::getErrorMessage () const {

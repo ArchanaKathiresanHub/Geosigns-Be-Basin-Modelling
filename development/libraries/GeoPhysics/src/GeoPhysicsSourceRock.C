@@ -24,7 +24,7 @@ using namespace std;
 using namespace database;
 using namespace CBMGenerics;
 
-GeoPhysics::GeoPhysicsSourceRock::GeoPhysicsSourceRock (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) :
+GeoPhysics::GeoPhysicsSourceRock::GeoPhysicsSourceRock (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record) :
    Genex6::GenexSourceRock ( projectHandle, record ) {
 
    m_canIncludeAdsorption = true;
@@ -47,7 +47,7 @@ void GeoPhysics::GeoPhysicsSourceRock::computeTimeInterval ( const double       
                                                              const Genex6::LocalGridInterpolator* vre,
                                                              Interface::GridMap* genexData ) {
 
-   double depositionTime = m_projectHandle->findFormation ( getLayerName ())->getTopSurface ()->getSnapshot ()->getTime ();
+   double depositionTime = getProjectHandle().findFormation ( getLayerName ())->getTopSurface ()->getSnapshot ()->getTime ();
    unsigned int i;
    unsigned int j;
    unsigned int k;

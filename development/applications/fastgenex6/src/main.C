@@ -205,24 +205,31 @@ int main (int argc, char ** argv)
       return 1;
    }
 
-   GenexSimulatorFactory *theFactory        = new GenexSimulatorFactory;
-   GenexSimulator        *theGenexSimulator = GenexSimulator::CreateFrom (inputFileName, theFactory);
-   bool status = (theGenexSimulator != 0);
-
-   H5_Parallel_PropertyList::setOneFilePerProcessOption(false);
-
-   //delete existent properties
-   if (status) {
-      theGenexSimulator->deleteSourceRockPropertyValues();
-      theGenexSimulator->deletePropertyValues (DataAccess::Interface::RESERVOIR , 0, 0, 0, 0, 0,
-                                               DataAccess::Interface::MAP);
-   }
+   bool status = false;
 
    try {
-      //run the simulation
-      if (theGenexSimulator) {
-         status = theGenexSimulator->run();
-      }
+     //create the factory
+     GenexSimulatorFactory theFactory;
+
+     //create the ProjectHandle
+     std::unique_ptr<GenexSimulator> theGenexSimulator( GenexSimulator::CreateFrom (inputFileName, &theFactory) );
+
+     status = (theGenexSimulator != 0);
+
+     H5_Parallel_PropertyList::setOneFilePerProcessOption(false);
+
+     //delete existent properties
+     if (status) {
+        theGenexSimulator->deleteSourceRockPropertyValues();
+        theGenexSimulator->deletePropertyValues (DataAccess::Interface::RESERVOIR , 0, 0, 0, 0, 0,
+                                                 DataAccess::Interface::MAP);
+     }
+
+     //run the simulation
+     if (status) status = theGenexSimulator->run();
+
+     //save results
+     if (status) status = theGenexSimulator->saveTo(outputFileName);
    }
    catch ( std::string& s ) {
       LogHandler( LogHandler::ERROR_SEVERITY ) << s;
@@ -237,13 +244,6 @@ int main (int argc, char ** argv)
       LogHandler( LogHandler::FATAL_SEVERITY ) << "Unknown exception occured.\n";
       exit (1);
    }
-
-   //save results
-   if (status) status = theGenexSimulator->saveTo(outputFileName);
-
-   //clean up
-   delete theGenexSimulator;
-   delete theFactory;
 
 #ifdef FLEXLM
    //FlexLM license check in only for node with rank = 0

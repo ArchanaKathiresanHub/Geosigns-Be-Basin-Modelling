@@ -21,7 +21,7 @@ namespace DataAccess
       {
       public:
 
-         IgneousIntrusionEvent ( ProjectHandle* projectHandle, database::Record * record );
+         IgneousIntrusionEvent (ProjectHandle& projectHandle, database::Record * record );
 
          virtual ~IgneousIntrusionEvent ();
 
@@ -29,7 +29,7 @@ namespace DataAccess
          virtual const Formation* getFormation () const;
 
          /// \brief Get the age at which the intrusion starts to inflate.
-         // Replace return type with a snapshot if we decide to have a snapshot 
+         // Replace return type with a snapshot if we decide to have a snapshot
          // at an age immediatly before the inflation.
          virtual double getStartOfIntrusion () const;
 

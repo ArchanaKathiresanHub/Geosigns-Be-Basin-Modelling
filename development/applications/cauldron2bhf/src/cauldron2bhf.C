@@ -97,7 +97,7 @@ PropertyHandle propertyHandles[] =
 
 const int NumPropertyHandles = 5;
 
-static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::DerivedPropertyManager& propertyManager, Record * record);
+static bool generateBHF ( const ProjectHandle& projectHandle, DerivedProperties::DerivedPropertyManager& propertyManager, Record * record);
 
 int main (int argc, char ** argv)
 {
@@ -144,7 +144,7 @@ int main (int argc, char ** argv)
       }
       else if (strncmp (argv[arg], "-v2", 3) == 0)
       {
-	 // catch the "-v" argument
+   // catch the "-v" argument
       }
       else if (argv[arg][0] != '-')
       {
@@ -169,18 +169,13 @@ int main (int argc, char ** argv)
    }
 
 
-   GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory();
-   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( inputProjectFileName, "rw", factory ) );
-   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
+   GeoPhysics::ObjectFactory factory;
+   std::unique_ptr<GeoPhysics::ProjectHandle> projectHandle(dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( inputProjectFileName, &factory ) ));
+   DerivedProperties::DerivedPropertyManager propertyManager ( *projectHandle );
 
    if (projectHandle == 0)
    {
       cerr << "Could not open project file " << inputProjectFileName << endl;
-
-      if ( factory != 0 ) {
-         delete factory;
-      }
-
       return -1;
    }
 
@@ -195,25 +190,21 @@ int main (int argc, char ** argv)
 
       if (!propertyHandles[p].property)
       {
-	 cerr << "Could not find the " << propertyHandles[p].name << " property in the project file " << endl
-	    << "Rerun pressure/temperature with the " << propertyHandles[p].name << " property turned on" << endl;
-         delete projectHandle;
-         delete factory;
-	 return -1;
+   cerr << "Could not find the " << propertyHandles[p].name << " property in the project file " << endl
+      << "Rerun pressure/temperature with the " << propertyHandles[p].name << " property turned on" << endl;
+   return -1;
 
       }
 
-      if ( not propertyManager.surfacePropertyIsComputable ( propertyHandles[p].property )) {
+			if ( not propertyManager.surfacePropertyIsComputable ( propertyHandles[p].property )) {
 	 cerr << "Could not find the " << propertyHandles[p].name << " property in the project file " << endl
-	    << "Rerun pressure/temperature with the " << propertyHandles[p].name << " property turned on" << endl;
-         delete projectHandle;
-         delete factory;
+			<< "Rerun pressure/temperature with the " << propertyHandles[p].name << " property turned on" << endl;
 	 return -1;
-      }
+			}
 
-   }
+	 }
 
-   // iterate over the touchstone wells
+	 // iterate over the touchstone wells
 
    if (projectHandle->getModellingMode () == Interface::MODE3D)
    {
@@ -221,32 +212,30 @@ int main (int argc, char ** argv)
       int i;
       for (i = 0; i < table->size (); ++i)
       {
-	 Record * record = table->getRecord (i);
+   Record * record = table->getRecord (i);
 
-	 generateBHF (projectHandle, propertyManager, record);
+   generateBHF (*projectHandle, propertyManager, record);
       }
 
-      ((Interface::ProjectHandle *) projectHandle)->setSimulationDetails ( "cauldron2bhf", "Default", "" );
-      ((Interface::ProjectHandle *) projectHandle)->finishActivity ();
+      projectHandle->setSimulationDetails ( "cauldron2bhf", "Default", "" );
+      projectHandle->finishActivity ();
       projectHandle->saveToFile (outputProjectFileName);
    }
    else
    {
-      generateBHF (projectHandle, propertyManager, 0);
+      generateBHF (*projectHandle, propertyManager, 0);
    }
 
-   delete projectHandle;
-   delete factory;
    return 0;
 }
 
-static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::DerivedPropertyManager& propertyManager, Record * record)
+static bool generateBHF ( const ProjectHandle& projectHandle, DerivedProperties::DerivedPropertyManager& propertyManager, Record * record)
 {
    bool is3D = (record != 0);
 
    double coordI = 0, coordJ = 0;
-   string BHFName = projectHandle->getProjectName ();
-   string wellName = projectHandle->getProjectName ();
+   string BHFName = projectHandle.getProjectName ();
+   string wellName = projectHandle.getProjectName ();
    double easting = 0;
    double northing = 0;
 
@@ -256,32 +245,32 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
       easting = database::getXCoord (record);
       northing = database::getYCoord (record);
 
-      if (verbose)
+			if (verbose)
 	 cout << "Handling well: " << wellName << endl;
 
       // convert easting, northing to rational i, j
-      const Grid *outputGrid = projectHandle->getLowResolutionOutputGrid ();
+      const Grid *outputGrid = projectHandle.getLowResolutionOutputGrid ();
 
       if (outputGrid->getGridPoint (easting, northing, coordI, coordJ) == false)
       {
-	 return false;
+   return false;
       }
 
       BHFName = wellName;
    }
 
    BHFName += ".BHF";
-   
+
    if (is3D)
    {
       database::setBHFName (record, BHFName);
    }
 
-   string outputFileName = projectHandle->getProjectPath ();
+   string outputFileName = projectHandle.getProjectPath ();
 
    if (is3D)
    {
-      outputFileName =  projectHandle->getFullOutputDir ();
+      outputFileName =  projectHandle.getFullOutputDir ();
    }
 
    outputFileName += "/";
@@ -295,13 +284,13 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
    outputFile << setiosflags (ios::left);
 
    outputFile << setw (5) << "Well" << " = " << wellName
-      << " (from Cauldron 3D project: " << projectHandle->getProjectName () << ")" << endl;
+      << " (from Cauldron 3D project: " << projectHandle.getProjectName () << ")" << endl;
    outputFile << setw (15) << "* Easting" << " = " << easting << endl;
    outputFile << setw (15) << "* Northing" << " = " << northing << endl;
 
-   SnapshotList *snapshots = projectHandle->getSnapshots ();
+   SnapshotList *snapshots = projectHandle.getSnapshots ();
 
-   FormationList *formations = projectHandle->getFormations ();
+   FormationList *formations = projectHandle.getFormations ();
 
    const Formation * topMostFormation = formations->front ();
    const Surface *topMostSurface = topMostFormation->getTopSurface ();
@@ -328,7 +317,7 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
       const Surface *topSurface = formation->getTopSurface ();
       const Surface *bottomSurface = formation->getBottomSurface ();
 
-      if (verbose)
+			if (verbose)
 	 cout << "Handling formation: " << formation->getName () << endl;
 
 
@@ -356,7 +345,7 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
           (lithotypePercentageMap = formation->getLithoType2PercentageMap ()) != 0)
       {
          outputFile << ", " << lithotype->getName ()
-	            << "(" << lithotypePercentageMap->getValue (coordI, coordJ, 0) << "%)";
+              << "(" << lithotypePercentageMap->getValue (coordI, coordJ, 0) << "%)";
       }
 
       if ((lithotype = formation->getLithoType3 ()) != 0 &&
@@ -380,8 +369,8 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
 
       for (p = 0; p < NumPropertyHandles; ++p)
       {
-	 stringstream topHeader;
-	 stringstream bottomHeader;
+   stringstream topHeader;
+   stringstream bottomHeader;
          topHeader <<  propertyHandles[p].header << "_t (" << propertyHandles[p].unit << ")";
          bottomHeader <<  propertyHandles[p].header << "_b (" << propertyHandles[p].unit << ")";
          outputFile << setw (colW) << topHeader.str ();
@@ -395,64 +384,64 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
          const Snapshot *snapshot = *snapshotIter;
 
 	 if (verbose)
-	    cout << "Handling snapshot: " << snapshot->getTime () << endl;
+			cout << "Handling snapshot: " << snapshot->getTime () << endl;
 
          // depth property values
          double topValues[NumPropertyHandles];
          double bottomValues[NumPropertyHandles];
 
-	 bool failed = false;
+   bool failed = false;
          for (p = 0; p < NumPropertyHandles; ++p)
          {
 
             AbstractDerivedProperties::SurfacePropertyPtr topPropertyValues = propertyManager.getSurfaceProperty ( propertyHandles[p].property, snapshot, topSurface );
 
-            if ( topPropertyValues == 0 )
-	    {
-	       failed = true;
-	       continue;
-	    }
+						if ( topPropertyValues == 0 )
+			{
+				 failed = true;
+				 continue;
+			}
 
-            AbstractDerivedProperties::SurfacePropertyPtr bottomPropertyValues = propertyManager.getSurfaceProperty ( propertyHandles[p].property, snapshot, bottomSurface );
+						AbstractDerivedProperties::SurfacePropertyPtr bottomPropertyValues = propertyManager.getSurfaceProperty ( propertyHandles[p].property, snapshot, bottomSurface );
 
-            if ( bottomPropertyValues == 0)
-	    {
-	       failed = true;
-	       continue;
-	    }
+						if ( bottomPropertyValues == 0)
+			{
+				 failed = true;
+				 continue;
+			}
 
-            topValues[p] = topPropertyValues->interpolate ( coordI, coordJ );
+						topValues[p] = topPropertyValues->interpolate ( coordI, coordJ );
 
-            if ( topValues[p] == topPropertyValues->getUndefinedValue ())
-	    {
-	       failed = true;
-	       continue;
-	    }
+						if ( topValues[p] == topPropertyValues->getUndefinedValue ())
+			{
+				 failed = true;
+				 continue;
+			}
 
-	    if (propertyHandles[p].operation & SaveTopDepth)
-	    {
-	       if (!foundSurfaceDepths[snapshot])
-	       {
-		  surfaceDepths[snapshot] = topValues[p];
-		  foundSurfaceDepths[snapshot] = true;
-	       }
-	    }
+			if (propertyHandles[p].operation & SaveTopDepth)
+			{
+				 if (!foundSurfaceDepths[snapshot])
+				 {
+			surfaceDepths[snapshot] = topValues[p];
+			foundSurfaceDepths[snapshot] = true;
+				 }
+			}
 
             bottomValues[p] = bottomPropertyValues->interpolate ( coordI, coordJ );
             if ( bottomValues[p] == bottomPropertyValues->getUndefinedValue ())
-	    {
-	       failed = true;
-	       continue;
-	    }
+      {
+         failed = true;
+         continue;
+      }
 
-	    if (propertyHandles[p].operation & CalcBelowMudLine)
-	    {
-	       assert (foundSurfaceDepths[snapshot]);
-	       topValues[p] -= surfaceDepths[snapshot];
-	       bottomValues[p] -= surfaceDepths[snapshot];
-	    }
+			if (propertyHandles[p].operation & CalcBelowMudLine)
+			{
+				 assert (foundSurfaceDepths[snapshot]);
+				 topValues[p] -= surfaceDepths[snapshot];
+				 bottomValues[p] -= surfaceDepths[snapshot];
+			}
 
-         }
+				 }
 
 	 if (failed) continue;
 
@@ -460,11 +449,11 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
          for (p = 0; p < NumPropertyHandles; ++p)
          {
             outputFile << setw (colW - 1) << topValues[p] * propertyHandles[p].conversionFactor;
-	    outputFile << " ";
+      outputFile << " ";
             outputFile << setw (colW - 1) << bottomValues[p] * propertyHandles[p].conversionFactor;
-	    if (p != NumPropertyHandles - 1) outputFile << " ";
+      if (p != NumPropertyHandles - 1) outputFile << " ";
          }
-	 outputFile << endl;
+   outputFile << endl;
       }
    }
 

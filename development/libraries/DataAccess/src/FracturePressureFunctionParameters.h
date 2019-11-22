@@ -14,10 +14,10 @@ namespace DataAccess { namespace Interface {
    {
 
    public:
-      FracturePressureFunctionParameters(ProjectHandle* projecthandle, database::Record* runOptionsIoTblRecord, 
+      FracturePressureFunctionParameters(ProjectHandle& projecthandle, database::Record* runOptionsIoTblRecord,
                                          database::Record* pressureIoTblRecord);
 
-      FracturePressureFunctionParameters(ProjectHandle* projecthandle, database::Record* anyRecord);
+      FracturePressureFunctionParameters(ProjectHandle& projecthandle, database::Record* anyRecord);
 
       FracturePressureFunctionType type() const;
 

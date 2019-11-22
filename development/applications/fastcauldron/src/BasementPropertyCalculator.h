@@ -14,7 +14,7 @@ class BasementPropertyCalculator : public OutputPropertyMap  {
 
 public :
 
-   BasementPropertyCalculator (  const PropertyList         propertyName, 
+   BasementPropertyCalculator (  const PropertyIdentifier         propertyName, 
                                  LayerProps               * formation, 
                                  const Interface::Surface * surface, 
                                  const Interface::Snapshot* snapshot );
@@ -42,6 +42,6 @@ private :
 };
 
 
-OutputPropertyMap* allocateBasementPropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateBasementPropertyCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
 #endif // _FASTCAULDRON_BASEMENT_PROPERTY_CALCULATOR_H_

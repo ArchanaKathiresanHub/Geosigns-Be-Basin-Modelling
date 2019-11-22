@@ -12,16 +12,7 @@
 
 #include "DepthHighResFormationCalculator.h"
 #include "MaxVesHighResFormationCalculator.h"
-#include "PorosityFormationCalculator.h"
-#include "PermeabilityFormationCalculator.h"
-#include "PermeabilityFormationSurfaceCalculator.h"
-#include "VesFormationCalculator.h"
 #include "VesHighResFormationCalculator.h"
-#include "VesSurfaceCalculator.h"
-#include "HydrostaticPressureSurfaceCalculator.h"
-#include "HydrostaticPressureFormationCalculator.h"
-#include "LithostaticPressureSurfaceCalculator.h"
-#include "LithostaticPressureFormationCalculator.h"
 #include "FormationPropertyAtSurface.h"
 
 #include "ObjectFactory.h"
@@ -32,7 +23,7 @@ using namespace AbstractDerivedProperties;
 namespace migration
 {
 
-   MigrationPropertyManager::MigrationPropertyManager (GeoPhysics::ProjectHandle* projectHandle) :
+   MigrationPropertyManager::MigrationPropertyManager (GeoPhysics::ProjectHandle& projectHandle) :
       DerivedProperties::DerivedPropertyManager (projectHandle)
    {
       loadDerivedFormationPropertyCalculator(FormationPropertyCalculatorPtr(new DerivedProperties::VesHighResFormationCalculator(projectHandle)), false);
@@ -53,7 +44,7 @@ namespace migration
    DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap (FormationPropertyPtr aProperty)
    {
 
-      DataAccess::Interface::GridMap * theMap = getProjectHandle ()->getFactory ()->produceGridMap (0, 0, getProjectHandle ()->getActivityOutputGrid (),
+      DataAccess::Interface::GridMap * theMap = getProjectHandle ().getFactory ()->produceGridMap (0, 0, getProjectHandle ().getActivityOutputGrid (),
          aProperty->lengthK ());
       theMap->retrieveData ();
 
@@ -78,7 +69,7 @@ namespace migration
    DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap (FormationSurfacePropertyPtr aProperty)
    {
 
-      DataAccess::Interface::GridMap * theMap = getProjectHandle ()->getFactory ()->produceGridMap (0, 0, getProjectHandle ()->getActivityOutputGrid (),
+      DataAccess::Interface::GridMap * theMap = getProjectHandle ().getFactory ()->produceGridMap (0, 0, getProjectHandle ().getActivityOutputGrid (),
          aProperty->getUndefinedValue (), 1);
       theMap->retrieveData ();
 
@@ -101,7 +92,7 @@ namespace migration
    DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap (SurfacePropertyPtr aProperty)
    {
 
-      DataAccess::Interface::GridMap * theMap = getProjectHandle ()->getFactory ()->produceGridMap (0, 0, getProjectHandle ()->getActivityOutputGrid (),
+      DataAccess::Interface::GridMap * theMap = getProjectHandle ().getFactory ()->produceGridMap (0, 0, getProjectHandle ().getActivityOutputGrid (),
          aProperty->getUndefinedValue (), 1);
       theMap->retrieveData ();
 

@@ -4,7 +4,7 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-OutputPropertyMap* allocateThicknessErrorMapCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateThicknessErrorMapCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<ThicknessErrorMapCalculator>( property, formation, surface, snapshot );
 }
 

@@ -42,7 +42,7 @@ namespace migration
    {
    public:
       /// This constructor is called by the object factory
-      MigrationSurface (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record);
+      MigrationSurface (Interface::ProjectHandle& projectHandle, Migrator * const migrator, database::Record * record);
 
       /// Destructor
       virtual ~MigrationSurface (void);

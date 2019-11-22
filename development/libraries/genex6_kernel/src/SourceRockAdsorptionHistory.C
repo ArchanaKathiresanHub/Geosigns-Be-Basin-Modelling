@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-Genex6::SourceRockAdsorptionHistory::SourceRockAdsorptionHistory ( DataAccess::Interface::ProjectHandle*                projectHandle, 
+Genex6::SourceRockAdsorptionHistory::SourceRockAdsorptionHistory (DataAccess::Interface::ProjectHandle& projectHandle,
                                                                    const DataAccess::Interface::PointAdsorptionHistory* record ) :
    m_projectHandle ( projectHandle ),
    m_historyRecord ( record ),
@@ -41,14 +41,14 @@ void Genex6::SourceRockAdsorptionHistory::save ()
       if (m_historyRecord->getFileName () == "")
       {
          std::stringstream buffer;
-         
+
          buffer << "History_"
-                << m_projectHandle->getProjectName ()
+                << m_projectHandle.getProjectName ()
                 << "_"
                 << (m_adsorptionHistory != 0 ? "shalegas" : "genex")
                 << "_" << m_historyRecord->getMangledFormationName ();
-         
-         if (m_projectHandle->getModellingMode () == DataAccess::Interface::MODE3D)
+
+         if (m_projectHandle.getModellingMode () == DataAccess::Interface::MODE3D)
          {
             buffer << "_"
                    << m_historyRecord->getX ()
@@ -56,8 +56,8 @@ void Genex6::SourceRockAdsorptionHistory::save ()
                    << m_historyRecord->getY ();
          }
          buffer << ".dat";
-         
-         fileName = buffer.str ();         
+
+         fileName = buffer.str ();
       }
       else
       {
@@ -65,18 +65,18 @@ void Genex6::SourceRockAdsorptionHistory::save ()
       }
 
 
-      if (!m_projectHandle->makeOutputDir ())
+      if (!m_projectHandle.makeOutputDir ())
          return;
-      
-      ibs::FilePath filePath( m_projectHandle->getOutputDir () );
+
+      ibs::FilePath filePath( m_projectHandle.getOutputDir () );
       filePath << fileName;
 
       std::ofstream historyFile (filePath.cpath (), std::ios::out);
-      
+
       if( m_adsorptionHistory != 0 ) {
          historyFile << m_historyRecord->getFormationName ();
 
-         if (m_projectHandle->getModellingMode () == DataAccess::Interface::MODE3D )
+         if (m_projectHandle.getModellingMode () == DataAccess::Interface::MODE3D )
          {
             historyFile << "  "
                         << m_historyRecord->getX ()

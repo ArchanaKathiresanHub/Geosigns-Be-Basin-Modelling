@@ -26,7 +26,7 @@ void DerivedProperties::FaultElementFormationMapCalculator::calculate ( Abstract
                                                                         const DataModel::AbstractFormation* formation,
                                                                               FormationMapPropertyList&     derivedProperties ) const {
 
- 
+
    const GeoPhysics::GeoPhysicsFormation* geophysicsFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
 
    if( not geophysicsFormation->getContainsFaults () ) {
@@ -44,7 +44,6 @@ void DerivedProperties::FaultElementFormationMapCalculator::calculate ( Abstract
                                                                                                                                         snapshot,
                                                                                                                                         formation,
                                                                                                                                         propertyManager.getMapGrid ()));
-   faultElements->retrieveData();
 
    double undefinedValue = faultElements->getUndefinedValue ();
 
@@ -67,7 +66,6 @@ void DerivedProperties::FaultElementFormationMapCalculator::calculate ( Abstract
       }
 
    }
-   faultElements->restoreData();
 
    derivedProperties.push_back ( faultElements );
 }

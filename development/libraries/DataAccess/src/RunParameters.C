@@ -19,20 +19,20 @@ using namespace DataAccess;
 using namespace Interface;
 
 
-RunParameters::RunParameters (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+RunParameters::RunParameters (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
 
    const string& optimisationLevelStr = getOptimisationLevelStr ();
 
    // The string will always have the format "Level N ...". Where N is the optimisation level
-   // Optimisation Level is a string, eg "Level 2", the character at the 6th 
+   // Optimisation Level is a string, eg "Level 2", the character at the 6th
    // position is the optimisation-level.
    if ( NumericFunctions::inRange<char>( optimisationLevelStr [ 6 ], '1', '5' )) {
       m_optimisationLevel = int ( optimisationLevelStr [ 6 ] ) - int ( '0' );
    } else {
       m_optimisationLevel = 4;
    }
-   
+
 }
 
 RunParameters::~RunParameters ()

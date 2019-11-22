@@ -3,7 +3,7 @@
 
 #include "ProjectHandle.h"
 
-CauldronProperty::CauldronProperty ( Interface::ProjectHandle* cauldronProjectHandle,
+CauldronProperty::CauldronProperty ( const ProjectHandle& cauldronProjectHandle,
                                      VoxetProjectHandle*       voxetHandle,
                                      database::Record*         record ) :
    m_cauldronProjectHandle ( cauldronProjectHandle ),
@@ -20,7 +20,7 @@ const std::string& CauldronProperty::getVoxetName () const {
 }
 
 const Property* CauldronProperty::getProperty () const {
-   return m_cauldronProjectHandle->findProperty ( getCauldronName ());
+   return m_cauldronProjectHandle.findProperty ( getCauldronName ());
 }
 
 bool CauldronProperty::getVoxetOutput () const {

@@ -14,7 +14,7 @@
 
 #include <string>
 #include <vector>
-
+#include <memory>
 
 namespace DataAccess
 {
@@ -38,7 +38,7 @@ public:
   void saveToFile( const std::string& outputProjectFileName );
 
 protected:
-  DataAccess::Interface::ProjectHandle* getProjectHandle() const;
+  DataAccess::Interface::ProjectHandle& getProjectHandle() const;
 
 private:
   void readDataFromHDF();
@@ -55,7 +55,7 @@ private:
   double getKfraction(const double u, const double l, const double v);
 
   DataAccess::Mining::ObjectFactory* m_objectFactory;
-  DataAccess::Mining::ProjectHandle* m_projectHandle;
+  std::unique_ptr<DataAccess::Mining::ProjectHandle> m_projectHandle;
   const DataAccess::Interface::Grid* m_gridHighResolution;
   const DataAccess::Interface::Grid* m_gridLowResolution;
   std::vector<bool> m_readFromHDF;

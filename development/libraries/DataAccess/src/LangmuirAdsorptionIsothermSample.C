@@ -6,7 +6,7 @@
 
 #include "database.h"
 
-DataAccess::Interface::LangmuirAdsorptionIsothermSample::LangmuirAdsorptionIsothermSample ( ProjectHandle*    projectHandle,
+DataAccess::Interface::LangmuirAdsorptionIsothermSample::LangmuirAdsorptionIsothermSample ( ProjectHandle&    projectHandle,
                                                                                                  database::Record*  record ) : DAObject ( projectHandle, record ) {
 
    m_langmuirTemperature = database::getLangmuirTemperature ( record );
@@ -39,9 +39,9 @@ std::string DataAccess::Interface::LangmuirAdsorptionIsothermSample::image () co
 
    std::stringstream buffer;
 
-   buffer << " LangmuirAdsorptionIsothermSample ( " 
+   buffer << " LangmuirAdsorptionIsothermSample ( "
           << getLangmuirName () << ", "
-          << getLangmuirTemperature () << ", " 
+          << getLangmuirTemperature () << ", "
           << getLangmuirPressure () << ", "
           << getLangmuirVolume () << " )";
 

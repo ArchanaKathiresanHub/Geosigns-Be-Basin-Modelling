@@ -85,7 +85,7 @@ public:
   void writeOutputStream( std::ostream& outputStream, const bool history );
 
 protected:
-  Interface::ProjectHandle* getProjectHandle() const;
+  ProjectHandle& getProjectHandle() const;
 
 private:
   void readDataFromHDFfiles();
@@ -105,7 +105,7 @@ private:
   static bool snapshotIsEqual( const Snapshot* snapshot1, const Snapshot* snapshot2 );
 
   GeoPhysics::ObjectFactory* m_objectFactory;
-  GeoPhysics::ProjectHandle* m_projectHandle;
+  std::unique_ptr<GeoPhysics::ProjectHandle> m_projectHandle;
   FormationMaxKMap m_formationMaxKMap;
   const Grid* m_grid;
 

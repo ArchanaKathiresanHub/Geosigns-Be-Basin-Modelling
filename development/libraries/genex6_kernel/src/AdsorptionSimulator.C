@@ -1,6 +1,6 @@
 #include "AdsorptionSimulator.h"
 
-Genex6::AdsorptionSimulator::AdsorptionSimulator ( DataAccess::Interface::ProjectHandle* projectHandle,
+Genex6::AdsorptionSimulator::AdsorptionSimulator (DataAccess::Interface::ProjectHandle& projectHandle,
                                                    const bool isManaged ) :
    m_projectHandle ( projectHandle ) {
 

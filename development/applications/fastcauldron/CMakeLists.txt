@@ -28,8 +28,6 @@ set( all_headers,
      src/BiomarkersCalculator.h
      src/BoundaryConditions.h
      src/BoundaryId.h
-     src/BrineProperties.h
-     src/BulkDensityCalculator.h
      src/CapillaryPressureCalculator.h
      src/ChemicalCompactionGrid.h
      src/ChemicalCompactionSchneiderGrid.h
@@ -71,18 +69,14 @@ set( all_headers,
      src/filterwizard.h
      src/FissionTrackCalculator.h
      src/FluidPropertyCalculator.h
-     src/FluidVelocityCalculator.h
      src/FormationElementGrid.h
      src/FormationMapping.h
      src/FormationSubdomainElementGrid.h
-     src/FracturePressureMapCalculator.h
-     src/FracturePressureVolumeCalculator.h
      src/GeneralElement.h
      src/GenericFortranMatrix.h
      src/GeometricLoopPressureSolver.h
      src/ghost_array.h
      src/HcFluidVelocityCalculator.h
-     src/HeatFlowCalculator.h
      src/history.h
      src/HydraulicFracturingManager.h
      src/ImmobileSpeciesValues.h
@@ -110,14 +104,12 @@ set( all_headers,
      src/OptionalGenexPropertyCalculator.h
      src/Output.h
      src/OutputPropertyMap.h
-     src/PermeabilityCalculator.h
      src/PetscBlockVector.h
      src/PetscLogStages.h
      src/PetscObjectAllocator.h
      src/PetscObjectsIO.h
      src/PetscSolver.h
      src/PoreVolumeInterpolatorCalculator.h
-     src/PorosityCalculator.h
      src/PressureElementMatrixAssembly.h
      src/PressureSolver.h
      src/PrimaryOutputPropertyMap.h
@@ -132,7 +124,6 @@ set( all_headers,
      src/PVTCalculator.h
      src/PvtHcProperties.h
      src/readproperties.h
-     src/ReflectivityCalculator.h
      src/CauldronRelatedProject.h
      src/RelativePermeabilityCalculator.h
      src/RequiredGenex5PropertyCalculator.h
@@ -146,7 +137,6 @@ set( all_headers,
      src/snapshotdata.h
      src/snapshotinterpolator.h
      src/SolutionVectorMapping.h
-     src/SonicCalculator.h
      src/SourceRocksTemporalInterpolator.h
      src/SourceTermInterpolatorCalculator.h
      src/SourceTermTemporalInterpolator.h
@@ -158,17 +148,12 @@ set( all_headers,
      src/TemperatureForVreInputGrid.h
      src/temperature_solver.h
      src/TemporalPropertyInterpolator.h
-     src/ThermalConductivityCalculator.h
-     src/ThermalDiffusivityCalculator.h
-     src/ThicknessCalculator.h
      src/ThicknessErrorMapCalculator.h
      src/timefilter.h
      src/TimeOfElementInvasionCalculator.h
      src/TransportedVolumeCalculator.h
-     src/TwoWayTimeCalculator.h
      src/utils.h
      src/VectorInterpolator.h
-     src/VelocityCalculator.h
      src/VitriniteReflectanceCalculator.h
      src/VolumeCalculator.h
      src/VreGrid.h
@@ -187,8 +172,6 @@ set( all_srcs_except_main
      src/BiomarkersCalculator.C
      src/BoundaryConditions.C
      src/BoundaryId.C
-     src/BrineProperties.C
-     src/BulkDensityCalculator.C
      src/CapillaryPressureCalculator.C
      src/ChemicalCompactionGrid.C
      src/ChemicalCompactionSchneiderGrid.C
@@ -223,14 +206,10 @@ set( all_srcs_except_main
      src/filterwizard.C
      src/FissionTrackCalculator.C
      src/FluidPropertyCalculator.C
-     src/FluidVelocityCalculator.C
      src/FormationSubdomainElementGrid.C
-     src/FracturePressureMapCalculator.C
-     src/FracturePressureVolumeCalculator.C
      src/GeometricLoopPressureSolver.C
      src/ghost_array.C
      src/HcFluidVelocityCalculator.C
-     src/HeatFlowCalculator.C
      src/history.C
      src/HydraulicFracturingManager.C
      src/ImmobileSpeciesValues.C
@@ -255,13 +234,11 @@ set( all_srcs_except_main
      src/OptionalGenexPropertyCalculator.C
      src/Output.C
      src/OutputPropertyMap.C
-     src/PermeabilityCalculator.C
      src/PetscLogStages.C
      src/PetscObjectAllocator.C
      src/PetscObjectsIO.C
      src/PetscSolver.C
      src/PoreVolumeInterpolatorCalculator.C
-     src/PorosityCalculator.C
      src/PressureElementMatrixAssembly.C
      src/PressureSolver.C
      src/PrimaryOutputPropertyMap.C
@@ -276,7 +253,6 @@ set( all_srcs_except_main
      src/PVTCalculator.C
      src/PvtHcProperties.C
      src/readproperties.C
-     src/ReflectivityCalculator.C
      src/CauldronRelatedProject.C
      src/RelativePermeabilityCalculator.C
      src/RequiredGenex5PropertyCalculator.C
@@ -288,7 +264,6 @@ set( all_srcs_except_main
      src/snapshotdata.C
      src/snapshotinterpolator.C
      src/SolutionVectorMapping.C
-     src/SonicCalculator.C
      src/SourceRocksTemporalInterpolator.C
      src/SourceTermInterpolatorCalculator.C
      src/SourceTermTemporalInterpolator.C
@@ -299,16 +274,11 @@ set( all_srcs_except_main
      src/TemperatureForVreInputGrid.C
      src/temperature_solver.C
      src/TemporalPropertyInterpolator.C
-     src/ThermalConductivityCalculator.C
-     src/ThermalDiffusivityCalculator.C
-     src/ThicknessCalculator.C
      src/ThicknessErrorMapCalculator.C
      src/timefilter.C
      src/TimeOfElementInvasionCalculator.C
      src/TransportedVolumeCalculator.C
-     src/TwoWayTimeCalculator.C
      src/utils.C
-     src/VelocityCalculator.C
      src/VitriniteReflectanceCalculator.C
      src/VolumeCalculator.C
      src/VreGrid.C
@@ -350,7 +320,7 @@ application_env_var( TARGET ${FASTCAULDRON_TARGET_NAME} VARS
      "CTCDIR"      "$MISCDIR"
      "EOSPACKDIR"  "$MISCDIR/eospack"
 )
-                              
+
 #
 # 5. linearSolver application
 #

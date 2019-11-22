@@ -1,15 +1,16 @@
-// 
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
 
 #include "AbstractPropertyManager.h"
 #include "DerivedPropertyManager.h"
+#include "DerivedFormationProperty.h"
 
 #include "RunParameters.h"
 #include "SimulationDetails.h"
@@ -26,17 +27,20 @@
 using namespace FiniteElementMethod;
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::HeatFlowFormationCalculator::HeatFlowFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+DerivedProperties::HeatFlowFormationCalculator::HeatFlowFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
 
 
-   addPropertyName( "HeatFlowX" );
-   addPropertyName( "HeatFlowY" );
+   if ( m_projectHandle.getModellingMode() == DataAccess::Interface::MODE3D )
+   {
+     addPropertyName( "HeatFlowX" );
+     addPropertyName( "HeatFlowY" );
+   }
    addPropertyName( "HeatFlowZ" );
 
-   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun =  m_projectHandle->getDetailsOfLastFastcauldron();
-   
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun =  m_projectHandle.getDetailsOfLastFastcauldron();
+
    m_chemicalCompactionRequired = lastFastcauldronRun != 0 and lastFastcauldronRun->getSimulatorMode () != "HydrostaticDecompaction" and
-      m_projectHandle->getRunParameters()->getChemicalCompaction ();
+      m_projectHandle.getRunParameters()->getChemicalCompaction ();
 
    if ( m_chemicalCompactionRequired ) {
       addDependentPropertyName ( "ChemicalCompaction" );
@@ -50,7 +54,7 @@ DerivedProperties::HeatFlowFormationCalculator::HeatFlowFormationCalculator ( co
    addDependentPropertyName ( "MaxVes" );
    addDependentPropertyName ( "LithoStaticPressure" );
 
-   if( m_projectHandle->isALC() ) {
+   if( m_projectHandle.isALC() ) {
       addDependentPropertyName ( "ALCStepTopBasaltDepth" );
       addDependentPropertyName ( "ALCStepBasaltThickness" );
     }
@@ -80,48 +84,48 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
    const FormationPropertyPtr depth        = propertyManager.getFormationProperty ( aDepthProperty, snapshot, formation );
    const FormationPropertyPtr overpressure = propertyManager.getFormationProperty ( aOverpressureProperty, snapshot, formation );
    const FormationPropertyPtr pressure     = propertyManager.getFormationProperty ( aPressureProperty, snapshot, formation );
- 
+
    const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
- 
+
    // Basement properties
    const bool basementFormation = ( geoFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION );
- 
+
    FormationPropertyPtr lithoStaticPressure;
    if( basementFormation ) {
       lithoStaticPressure = propertyManager.getFormationProperty ( aLithoStaticPressure, snapshot, formation );
    }
 
-   bool basementFormationAndAlcMode = ( basementFormation and m_projectHandle->isALC ());
+   bool basementFormationAndAlcMode = ( basementFormation and m_projectHandle.isALC ());
    FormationMapPropertyPtr basaltDepth;
    FormationMapPropertyPtr basaltThickness;
-    
+
    if ( basementFormationAndAlcMode ) {
       const DataModel::AbstractProperty* basaltDepthProperty     = propertyManager.getProperty ( "ALCStepTopBasaltDepth" );
       const DataModel::AbstractProperty* basaltThicknessProperty = propertyManager.getProperty ( "ALCStepBasaltThickness" );
-      
+
       if( formation->getName() != "Crust" ) {
          const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
          const DataModel::AbstractFormation * crustFormation = ( mantleFormation->getTopSurface()->getTopFormation() );
-         
+
          basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, crustFormation );
          basaltThickness = propertyManager.getFormationMapProperty ( basaltThicknessProperty, snapshot, crustFormation );
       } else {
          basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, formation );
          basaltThickness = propertyManager.getFormationMapProperty ( basaltThicknessProperty, snapshot, formation );
-      }   
+      }
    }
-   
+
    bool chemicalCompactionRequired = m_chemicalCompactionRequired and geoFormation->hasChemicalCompaction ();
-   
-   FormationPropertyPtr chemicalCompaction;   
+
+   FormationPropertyPtr chemicalCompaction;
    if ( chemicalCompactionRequired ) {
       chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
       // Just in case the property is not found.
       chemicalCompactionRequired = chemicalCompaction != 0;
    }
-   
+
    derivedProperties.clear ();
-  
+
    bool allProperties = temperature != 0 and depth != 0 and geoFormation != 0;
 
    if( not basementFormation ) {
@@ -135,20 +139,20 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
    if ( chemicalCompactionRequired ) {
       allProperties = allProperties and chemicalCompaction != 0;
    }
-        
+
    if( allProperties ) {
- 
+
       PropertyRetriever temperatureRetriever ( temperature );
       PropertyRetriever porePressureRetriever ( pressure );
       PropertyRetriever overPressureRetriever ( overpressure );
       PropertyRetriever vesRetriever ( ves );
       PropertyRetriever maxVesRetriever ( maxVes );
       PropertyRetriever depthRetriever ( depth );
-     
-      PropertyRetriever lithoStaticPressureRetriever; 
-      PropertyRetriever basaltDepthRetriever; 
-      PropertyRetriever basaltThicknessRetriever; 
-      
+
+      PropertyRetriever lithoStaticPressureRetriever;
+      PropertyRetriever basaltDepthRetriever;
+      PropertyRetriever basaltThicknessRetriever;
+
       if( basementFormation ) {
          lithoStaticPressureRetriever.reset( lithoStaticPressure );
 
@@ -158,32 +162,31 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
          }
       }
 
-      PropertyRetriever chemicalCompactionRetriever; 
+      PropertyRetriever chemicalCompactionRetriever;
       if ( chemicalCompactionRequired ) {
          chemicalCompactionRetriever.reset( chemicalCompaction );
-      } 
-      
+      }
+
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(geoFormation->getFluidType ());
 
       double currentTime = snapshot->getTime();
-      const bool includeAdvectiveTerm = m_projectHandle->getRunParameters ()->getConvectiveTerm ();
-    
+      const bool includeAdvectiveTerm = m_projectHandle.getRunParameters ()->getConvectiveTerm ();
+
       if(  lithologies != 0 ) {
 
          DerivedFormationPropertyPtr heatFlowX =
-            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( heatFlowXProperty, snapshot, formation, 
-                                                                                            propertyManager.getMapGrid (), 
+            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( heatFlowXProperty, snapshot, formation,
+                                                                                            propertyManager.getMapGrid (),
                                                                                             geoFormation->getMaximumNumberOfElements() + 1 ));
          DerivedFormationPropertyPtr heatFlowY =
-            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( heatFlowYProperty, snapshot, formation, 
-                                                                                            propertyManager.getMapGrid (), 
+            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( heatFlowYProperty, snapshot, formation,
+                                                                                            propertyManager.getMapGrid (),
                                                                                             geoFormation->getMaximumNumberOfElements() + 1 ));
          DerivedFormationPropertyPtr heatFlowZ =
-            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( heatFlowZProperty, snapshot, formation, 
-                                                                                            propertyManager.getMapGrid (), 
+            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( heatFlowZProperty, snapshot, formation,
+                                                                                            propertyManager.getMapGrid (),
                                                                                             geoFormation->getMaximumNumberOfElements() + 1 ));
-         double undefinedValue = depth->getUndefinedValue ();
 
          ElementList elements;
          setUp2dEltMapping( propertyManager, depth, elements );
@@ -191,7 +194,7 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
          unsigned int elementCount;
          unsigned int i, j;
          const GeoPhysics::CompoundLithology* lithology;
- 
+
          ElementGeometryMatrix geometryMatrix;
          ElementVector porePressureVector;
          ElementVector overpressureVector;
@@ -202,13 +205,13 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
          ElementVector chemCompactionVector;
          ThreeVector   heatFlow;
          ThreeVector   heatFlowValid;
-        
+
          const double deltaX  = depth->getGrid()->deltaI ();
          const double deltaY  = depth->getGrid()->deltaJ ();
          const double originX = depth->getGrid()->minI ();
          const double originY = depth->getGrid()->minJ ();
 
-         // position at the end of global x, y arrays (the next node is on the border) 
+         // position at the end of global x, y arrays (the next node is on the border)
          const unsigned int globalXNodes = depth->getGrid()->numIGlobal() - 2;
          const unsigned int globalYNodes = depth->getGrid()->numJGlobal() - 2;
 
@@ -216,29 +219,29 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
          const bool validElementsOnSurface = true;
 
          for ( elementCount = 0; elementCount < elements.size(); elementCount++ ) {
-            
+
             if ( elements[elementCount].exists) {
                i = elements [ elementCount ].i [ 0 ];
                j = elements [ elementCount ].j [ 0 ];
                lithology = (*lithologies)( i, j, currentTime );
 
                if ( lithology != 0 ) {
-                  
+
                   unsigned int degenerateElements = 0;
                   bool validElementFound = false;
 
                   for (unsigned int k = heatFlowX->firstK(); k < heatFlowX->lastK (); ++k ) {
-                     
+
                      // Retrieve element data.
                      for ( unsigned int node = 1; node <= 8; ++node ) {
                         int LidxZ = k + (( node - 1 ) < 4 ? 1 : 0);
                         int GidxY = elements [ elementCount ].j [( node - 1 ) % 4 ];
                         int GidxX = elements [ elementCount ].i [( node - 1 ) % 4 ];
-                        
+
                         geometryMatrix ( 1, node ) = originX + (deltaX * GidxX);
                         geometryMatrix ( 2, node ) = originY + (deltaY * GidxY);
                         geometryMatrix ( 3, node ) = depth->get ( GidxX, GidxY, LidxZ );
-                        
+
                         if( not basementFormation ) {
                            vesVector          ( node ) = ves->get ( GidxX, GidxY, LidxZ );
                            maxVesVector       ( node ) = maxVes->get ( GidxX, GidxY, LidxZ );
@@ -250,24 +253,24 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
                         temperatureVector    ( node ) = temperature->get ( GidxX, GidxY, LidxZ );
                         chemCompactionVector ( node ) = ( chemicalCompactionRequired ? chemicalCompaction->get ( GidxX, GidxY, LidxZ ) : 0.0 );
                      }
-                     
+
                      bool isBasalt = false;
-                     
+
                      if ( basementFormationAndAlcMode ) {
                         int GidxY = elements [ elementCount ].j [0];
                         int GidxX = elements [ elementCount ].i [0];
                         int LidxZ = k;
-                        
+
                         if( geoFormation->getName() == "Crust" ) {
                            LidxZ = k + 1;
                         }
-                        
+
                         const double topBasaltDepth = basaltDepth->get(  GidxX, GidxY );
                         const double botBasaltDepth = topBasaltDepth + basaltThickness->get( GidxX, GidxY ) + 1;
-                        
-                        if( basaltThickness->get( GidxX, GidxY ) != 0 and 
+
+                        if( basaltThickness->get( GidxX, GidxY ) != 0 and
                             ( topBasaltDepth <= depth->get ( GidxX, GidxY, LidxZ ) and botBasaltDepth >= depth->get (  GidxX, GidxY, LidxZ ))) {
-                           
+
                            isBasalt = true;
                         }
                      }
@@ -277,19 +280,19 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
                      if( degenerateElement ) {
                         if( validElementsOnSurface and validElementFound ) {
                            // if the element is not valid then copy the values from the last valid element below
-                           
+
                            heatFlow ( 1 ) = heatFlowValid ( 1 );
                            heatFlow ( 2 ) = heatFlowValid ( 2 );
                            heatFlow ( 3 ) = heatFlowValid ( 3 );
                         } else {
                            degenerateElements += 1;
-                           
+
                            heatFlow ( 1 ) = DataAccess::Interface::DefaultUndefinedMapValue;
                            heatFlow ( 2 ) = DataAccess::Interface::DefaultUndefinedMapValue;
                            heatFlow ( 3 ) = DataAccess::Interface::DefaultUndefinedMapValue;
                         }
                      } else {
-                        
+
                         computeHeatFlow ( basementFormation,
                                           isBasalt,
                                           1.0,
@@ -306,33 +309,33 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
                                           temperatureVector,
                                           chemCompactionVector,
                                           heatFlow );
-                        
+
                         // save this element at a last valid element
                         if( validElementsOnSurface ) {
                            validElementFound = true;
-                           
+
                            heatFlowValid ( 1 ) = heatFlow ( 1 );
                            heatFlowValid ( 2 ) = heatFlow ( 2 );
                            heatFlowValid ( 3 ) = heatFlow ( 3 );
                         }
                      }
-                     
+
                      heatFlowX->set ( i, j, k, heatFlow ( 1 ));
                      heatFlowY->set ( i, j, k, heatFlow ( 2 ));
                      heatFlowZ->set ( i, j, k, heatFlow ( 3 ));
-                     
+
                      fillBorders( i, j, k, globalXNodes, globalYNodes, heatFlowX, heatFlowY, heatFlowZ, heatFlow );
 
                      if( validElementsOnSurface and degenerateElements > 0 and not degenerateElement ) {
                         // if degenerateElements > 0 then the current element is the first valid element (count from the bottom) - all
                         // elements below are derenerated.
-                        // Fill-in the elements below 
+                        // Fill-in the elements below
 
                         for ( unsigned int l = 1; l <= degenerateElements ; ++ l ) {
                            heatFlowX->set ( i, j, k - l, heatFlow ( 1 ));
                            heatFlowY->set ( i, j, k - l, heatFlow ( 2 ));
                            heatFlowZ->set ( i, j, k - l, heatFlow ( 3 ));
-                           
+
                            fillBorders( i, j, k - l, globalXNodes, globalYNodes, heatFlowX, heatFlowY, heatFlowZ, heatFlow );
                         }
                         degenerateElements = 0;
@@ -362,48 +365,51 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate (       AbstractP
                         heatFlowX->set ( i, j, k + 1, heatFlow ( 1 ));
                         heatFlowY->set ( i, j, k + 1, heatFlow ( 2 ));
                         heatFlowZ->set ( i, j, k + 1, heatFlow ( 3 ));
-                        
+
                         fillBorders( i, j, k + 1, globalXNodes, globalYNodes, heatFlowX, heatFlowY, heatFlowZ, heatFlow );
-                     } 
-                  } // over k loop                  
-               } 
-            } 
+                     }
+                  } // over k loop
+               }
+            }
          } // elements loop
-         
-         derivedProperties.push_back ( heatFlowX );
-         derivedProperties.push_back ( heatFlowY );
+
+         if ( m_projectHandle.getModellingMode() == DataAccess::Interface::MODE3D )
+         {
+           derivedProperties.push_back ( heatFlowX );
+           derivedProperties.push_back ( heatFlowY );
+         }
          derivedProperties.push_back ( heatFlowZ );
       }
    }
 }
 void DerivedProperties::HeatFlowFormationCalculator::fillBorders( unsigned int i, unsigned int j, unsigned int k,
-                                                                  unsigned int globalXNodes, 
+                                                                  unsigned int globalXNodes,
                                                                   unsigned int globalYNodes,
                                                                   DerivedFormationPropertyPtr heatFlowX,
                                                                   DerivedFormationPropertyPtr heatFlowY,
                                                                   DerivedFormationPropertyPtr heatFlowZ,
                                                                   ThreeVector heatFlow ) const {
-   
+
    // Fill other heat flow nodes if current (i,j) position is at end of array
    if ( i == globalXNodes ) {
       heatFlowX->set ( i + 1, j, k, heatFlow ( 1 ));
       heatFlowY->set ( i + 1, j, k, heatFlow ( 2 ));
       heatFlowZ->set ( i + 1, j, k, heatFlow ( 3 ));
    }
-   
+
    if ( j == globalYNodes ) {
       heatFlowX->set ( i, j + 1, k, heatFlow ( 1 ));
       heatFlowY->set ( i, j + 1, k, heatFlow ( 2 ));
       heatFlowZ->set ( i, j + 1, k, heatFlow ( 3 ));
    }
-   
+
    if ( i == globalXNodes and j == globalYNodes ) {
       heatFlowX->set ( i + 1, j + 1, k, heatFlow ( 1 ));
       heatFlowY->set ( i + 1, j + 1, k, heatFlow ( 2 ));
       heatFlowZ->set ( i + 1, j + 1, k, heatFlow ( 3 ));
    }
 }
-     
+
 void DerivedProperties::HeatFlowFormationCalculator::computeHeatFlow ( const bool                    isBasementFormation,
                                                                        const bool                    isBasalt,
                                                                        const double                  z,
@@ -429,9 +435,9 @@ void DerivedProperties::HeatFlowFormationCalculator::computeHeatFlow ( const boo
    double porosity;
    double chemicalCompactionTerm;
    double porePressure;
-   
+
    GradElementVector gradBasis2;
-   
+
    Matrix3x3 conductivityTensor;
    Matrix3x3 permeabilityTensor;
 
@@ -440,7 +446,7 @@ void DerivedProperties::HeatFlowFormationCalculator::computeHeatFlow ( const boo
    element.setQuadraturePoint ( 0, 0, z, true, true );
 
    GeoPhysics::CompoundProperty currentCompoundPorosity;
-   
+
    temperature = FiniteElementMethod::innerProduct ( currentElementTemperature, element.getBasis() );
    chemicalCompactionTerm = FiniteElementMethod::innerProduct ( currentElementChemicalCompaction, element.getBasis() );
 
@@ -452,96 +458,96 @@ void DerivedProperties::HeatFlowFormationCalculator::computeHeatFlow ( const boo
       } else {
          lithology -> calcBulkThermCondNPBasement ( fluid, porosity, temperature, lithostaticPressure, conductivityNormal, conductivityTangential );
       }
-   } else {    
+   } else {
       VES          = FiniteElementMethod::innerProduct ( currentElementVES, element.getBasis() );
       maxVES       = FiniteElementMethod::innerProduct ( currentElementMaxVES, element.getBasis() );
       porePressure = FiniteElementMethod::innerProduct ( currentElementPp, element.getBasis() );
 
       lithology->getPorosity ( VES, maxVES, includeChemicalCompaction, chemicalCompactionTerm, currentCompoundPorosity );
       porosity = currentCompoundPorosity.mixedProperty ();
-      
+
       lithology -> calcBulkThermCondNP ( fluid, porosity, temperature, porePressure, conductivityNormal, conductivityTangential );
-   }     
- 
+   }
+
    element.setTensor ( conductivityNormal, conductivityTangential, conductivityTensor );
    matrixMatrixProduct ( element.getGradBasis(), conductivityTensor, gradBasis2 );
    matrixTransposeVectorProduct ( gradBasis2, currentElementTemperature, heatFlow );
-   
+
    //
    // Fouriers law states:  q = -k \grad T
    //
    scale ( heatFlow, -1.0 );
-   
+
    // only for sediment
    if ( includeAdvectionTerm and fluid != 0 ) {
-      
+
       double fluidDensity;
       double fluidViscosity;
       double heatCapacity;
       double advectionScaling;
-      
+
       ThreeVector referenceGradOverpressure;
       ThreeVector gradOverpressure;
       ThreeVector fluidFlux;
-      
+
       matrixTransposeVectorProduct ( element.getGradBasis(), currentElementPo, referenceGradOverpressure );
       matrixTransposeVectorProduct ( element.getJacobianInverse(), referenceGradOverpressure, gradOverpressure );
 
       fluidDensity   = fluid->density ( temperature, porePressure );
       heatCapacity   = fluid->heatCapacity ( temperature, porePressure );
       fluidViscosity = fluid->viscosity ( temperature, porePressure );
-      
+
       // compute fluid Flux
 
       const double MaximumFlux     = 1.0e-9;
       const double MaximumPermeability = 10.0 * Utilities::Maths::MilliDarcyToM2;
       double permeabilityNormal;
       double permeabilityPlane;
-  
+
       lithology->calcBulkPermeabilityNP ( VES, maxVES, currentCompoundPorosity, permeabilityNormal, permeabilityPlane );
 
       // Limit the permeability to some maximum value.
       if ( permeabilityNormal > MaximumPermeability ) {
          permeabilityNormal = MaximumPermeability;
       }
-      
+
       // Limit the permeability to some maximum value.
       if ( permeabilityPlane > MaximumPermeability ) {
          permeabilityPlane = MaximumPermeability;
       }
       permeabilityNormal = permeabilityNormal / fluidViscosity;
       permeabilityPlane  = permeabilityPlane  / fluidViscosity;
-      
+
       element.setTensor ( permeabilityNormal, permeabilityPlane, permeabilityTensor );
       matrixVectorProduct ( permeabilityTensor, gradOverpressure, fluidFlux );
-   
+
       // Since pressure properties are stored in MPa units, we must convert to Pa to use in calculation.
       fluidFlux ( 1 ) = -fluidFlux ( 1 ) * Utilities::Maths::MegaPaToPa;
       fluidFlux ( 2 ) = -fluidFlux ( 2 ) * Utilities::Maths::MegaPaToPa;
       fluidFlux ( 3 ) = -fluidFlux ( 3 ) * Utilities::Maths::MegaPaToPa;
-      
+
       // Limit the fluid flux to some maximum value, if requested.
       for ( unsigned int i = 1; i <= 3; ++ i ) {
-         
+
          if ( fluidFlux ( i ) > MaximumFlux ) {
             fluidFlux ( i ) = MaximumFlux;
          } else if ( fluidFlux ( i ) < -MaximumFlux ) {
             fluidFlux ( i ) = -MaximumFlux;
          }
-         
+
       }
 
       advectionScaling = fluidDensity * heatCapacity * temperature;
-      
+
       heatFlow ( 1 ) = heatFlow ( 1 ) + advectionScaling * fluidFlux ( 1 );
       heatFlow ( 2 ) = heatFlow ( 2 ) + advectionScaling * fluidFlux ( 2 );
       heatFlow ( 3 ) = heatFlow ( 3 ) + advectionScaling * fluidFlux ( 3 );
    }
-   
+
    heatFlow ( 3 ) = -heatFlow ( 3 );
-   
+
    ///
-   /// Convert from Watts to milli Watts. 
+   /// Convert from Watts to milli Watts.
    ///
    scale ( heatFlow, 1000.0 );
 }
@@ -549,8 +555,8 @@ void DerivedProperties::HeatFlowFormationCalculator::computeHeatFlow ( const boo
 bool DerivedProperties::HeatFlowFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,
                                                                     const DataModel::AbstractSnapshot*  snapshot,
                                                                     const DataModel::AbstractFormation* formation ) const {
-   
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and 
+
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and
                               dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    if( basementFormation ) {
@@ -560,11 +566,11 @@ bool DerivedProperties::HeatFlowFormationCalculator::isComputable ( const Abstra
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 
    bool propertyIsComputable = true;
-   
+
    // Determine if the required properties are computable.
    for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
 
-      if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" 
+      if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness"
           or dependentProperties [ i ] == "LithoStaticPressure" ) {
          propertyIsComputable = true;
       } else {
@@ -575,7 +581,7 @@ bool DerivedProperties::HeatFlowFormationCalculator::isComputable ( const Abstra
          } else {
             propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
          }
-         
+
       }
    }
 
@@ -585,28 +591,28 @@ bool DerivedProperties::HeatFlowFormationCalculator::isComputable ( const Abstra
 bool DerivedProperties::HeatFlowFormationCalculator::isComputableForBasement ( const AbstractPropertyManager&      propManager,
                                                                                const DataModel::AbstractSnapshot*  snapshot,
                                                                                const DataModel::AbstractFormation* formation ) const {
-   
+
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
-   
+
    bool propertyIsComputable = true;
-   
+
    // Determine if the required properties are computable.
    for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
 
-      if( dependentProperties [ i ] == "Pressure" or dependentProperties [ i ] == "OverPressure" or 
+      if( dependentProperties [ i ] == "Pressure" or dependentProperties [ i ] == "OverPressure" or
           dependentProperties [ i ] == "Ves" or dependentProperties [ i ] == "MaxVes" or dependentProperties [ i ] == "ChemicalCompaction" ) {
 
          propertyIsComputable = true;
       } else {
          const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
-         
+
          if ( property == 0 ) {
             propertyIsComputable = false;
          } else {
             if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" ) {
                if( formation->getName() != "Crust" ) {
                   const GeoPhysics::GeoPhysicsFormation *mantleFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
-                  
+
                   const DataModel::AbstractFormation * crustFormation = (mantleFormation->getTopSurface()->getTopFormation() );
                   propertyIsComputable = propertyIsComputable and propManager.formationMapPropertyIsComputable ( property, snapshot, crustFormation );
                } else {
@@ -615,7 +621,7 @@ bool DerivedProperties::HeatFlowFormationCalculator::isComputableForBasement ( c
             } else {
                propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
             }
-         }                  
+         }
       }
    }
    return propertyIsComputable;

@@ -27,7 +27,7 @@
 using Utilities::Numerical::CauldronNoDataValue;
 
 
-OutputPropertyMap* allocateVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<VolumeCalculator>( property, formation, snapshot );
 }
 

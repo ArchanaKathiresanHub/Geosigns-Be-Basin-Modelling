@@ -12,7 +12,7 @@
 #include "FastcauldronSimulator.h"
 #include "MultiComponentFlowHandler.h"
 
-OutputPropertyMap* allocateRelativePermeabilityCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateRelativePermeabilityCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<RelativePermeabilityCalculator>( property, formation, snapshot );
 }
 

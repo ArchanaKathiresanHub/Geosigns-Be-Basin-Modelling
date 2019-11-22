@@ -20,13 +20,13 @@
 
 namespace DerivedProperties {
 
- 
+
    /// \brief Calculates the hydrostatic pressure for a formation.
    class HydrostaticPressureFormationCalculator : public AbstractDerivedProperties::FormationPropertyCalculator {
 
    public :
 
-      HydrostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
+      HydrostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
 
       /// \brief Calculate the hydrostatic pressure for the formation at the snapshot age.
       ///
@@ -93,7 +93,7 @@ namespace DerivedProperties {
                                          const AbstractDerivedProperties::FormationPropertyPtr& depth,
                                                DerivedFormationPropertyPtr&                     temperature ) const;
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
 
       bool m_hydrostaticDecompactionMode;
       bool m_hydrostaticMode;

@@ -40,9 +40,9 @@ namespace DerivedProperties {
 
    public :
 
-      /// \brief Construct with the project-handle and the property whose values this calculator will load.
-      PrimaryFormationSurfacePropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
-                                                  const DataModel::AbstractProperty* property );
+      /// \brief Construct with the property whose values this calculator will load.
+      PrimaryFormationSurfacePropertyCalculator ( const DataModel::AbstractProperty* property,
+                                                  const DataAccess::Interface::PropertyValueList& propertyValues );
 
       ~PrimaryFormationSurfacePropertyCalculator ();
 

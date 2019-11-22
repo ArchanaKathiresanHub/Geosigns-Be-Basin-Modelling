@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "OTGCC1AdsorptionSimulator.h"
 
 // std library
@@ -70,10 +70,10 @@ const bool Genex6::OTGCC1AdsorptionSimulator::s_speciesIsSimulated  [ ComponentM
      false, // C15PlusAroS
      false, // C15PlusSatS
      false, // C6Minus14SatS
-     false  // C6Minus14AroS 
+     false  // C6Minus14AroS
   };
 
-Genex6::OTGCC1AdsorptionSimulator::OTGCC1AdsorptionSimulator ( DataAccess::Interface::ProjectHandle* projectHandle, 
+Genex6::OTGCC1AdsorptionSimulator::OTGCC1AdsorptionSimulator ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                const SpeciesManager& speciesManager,
                                                                const bool applyOTGC,
                                                                const bool isManaged ) :
@@ -87,13 +87,13 @@ Genex6::OTGCC1AdsorptionSimulator::OTGCC1AdsorptionSimulator ( DataAccess::Inter
 
 #if 0
    if ( containsSulphur ) {
-      OTGCDIR = getenv("OTGC6DIR"); 
+      OTGCDIR = getenv("OTGC6DIR");
    } else {
-      OTGCDIR = getenv("OTGCDIR"); 
+      OTGCDIR = getenv("OTGCDIR");
    }
 #endif
 
-   OTGCDIR = getenv("OTGCDIR"); 
+   OTGCDIR = getenv("OTGCDIR");
 
    int runType = ( containsSulphur ? Genex6::Constants::SIMOTGC : (Genex6::Constants::SIMOTGC | Genex6::Constants::SIMOTGC5) );
 
@@ -169,11 +169,11 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
    const double VapourVolumeTolerance = 1.0e-10;
 
    const double thickness = simulatorState->GetThickness ();
-   const double meanBulkDensity = getProjectHandle ()->getSGDensitySample ()->getDensity ();
+   const double meanBulkDensity = getProjectHandle().getSGDensitySample ()->getDensity ();
 
    // Pa.
    const double SurfacePressure = 1.01325e5;
-   
+
    if ( thickness < 1.0e-2 ) {
       return;
    }
@@ -262,7 +262,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
       speciesState = simulatorState->GetSpeciesStateById ( m_speciesManager.getC1Id ());
       cout << " immobiles START: " << i << "  " << j << "  "<< immobiles.image () << endl;
-      cout << "C1 before: " << speciesState->GetExpelledMass () << "  " 
+      cout << "C1 before: " << speciesState->GetExpelledMass () << "  "
            << speciesState->getAdsorpedMol () << "  "
            << speciesState->getExpelledMol () << "  "
            << speciesState->getRetained () << "  "
@@ -328,7 +328,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
       } else {
 
          Genex6::ImmobileSpecies::SpeciesId id;
-         
+
          id = immobiles.getId ( speciesName );
 
          if ( id != Genex6::ImmobileSpecies::UNKNOWN ) {
@@ -354,7 +354,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
    for ( speciesConcentrationIter = retainedSpeciesConcentrations.begin (); speciesConcentrationIter != retainedSpeciesConcentrations.end (); ++speciesConcentrationIter ) {
       totalRetainedMass += speciesConcentrationIter->second;
    }
-   
+
    if ( totalRetainedMass > 0.0 ) {
 
       for ( speciesConcentrationIter = retainedSpeciesConcentrations.begin (); speciesConcentrationIter != retainedSpeciesConcentrations.end (); ++speciesConcentrationIter ) {
@@ -441,7 +441,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
       } else {
 
          Genex6::ImmobileSpecies::SpeciesId id;
-         
+
          id = immobiles.getId ( speciesName );
 
          if ( id != Genex6::ImmobileSpecies::UNKNOWN ) {
@@ -504,17 +504,17 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
    }
 
    if ( output ) {
-      cout << " intermediate volumes:" 
-           << excessHcVolume << "  " 
+      cout << " intermediate volumes:"
+           << excessHcVolume << "  "
            << liquidVolume << "  "
            << retainedLiquidVolume << "  "
            << vapourVolume << "  "
            << retainedVapourVolume << "  "
-           << hcSaturation << "  " 
+           << hcSaturation << "  "
            << irreducibleWaterSaturation << "  "
            << effectivePorosity << "  "
            << endl;
-   } 
+   }
 
    Genex6::PVTComponents vapourComponents;
    Genex6::PVTComponents liquidComponents;
@@ -528,7 +528,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
    }
 
    if ( output ) {
-      cout << endl << " liquid scaling factors: " << retainedLiquidVolume << "  " << liquidVolume << "  " 
+      cout << endl << " liquid scaling factors: " << retainedLiquidVolume << "  " << liquidVolume << "  "
            << phaseComponentMasses.sum ( PhaseId::LIQUID ) << endl;
       cout << " all liquid compounds: " << endl << phaseComponentMasses.image () << endl;
       cout << " retained liquids:     " << liquidComponents.image () << endl;
@@ -559,7 +559,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
          }
 
          if ( output ) {
-            cout << " species: " << name << "  " << componentId << "  " << ", before:  " << speciesState->getMassExpelledFromSourceRock () << "  " 
+            cout << " species: " << name << "  " << componentId << "  " << ", before:  " << speciesState->getMassExpelledFromSourceRock () << "  "
                  << retainedLiquidVolume << "  " << liquidVolume << "  " << retainedVapourVolume << "  " << vapourVolume << "  ";
          }
 
@@ -641,17 +641,17 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
    if ( output ) {
 
-      cout << " Values: " << hcSaturation << "  " 
+      cout << " Values: " << hcSaturation << "  "
            << irreducibleWaterSaturation << "  "
            << vapourVolume << "  "
            << liquidVolume << "  "
            << excessHcVolume << "  "
            << endl;
 
-      cout << endl << " volumes: " << porosity << "  " 
+      cout << endl << " volumes: " << porosity << "  "
            << vapourVolume << "  " << liquidVolume << "  " << bitumenVolume << "  "
-           << vapourVolume + liquidVolume + bitumenVolume  << "  " 
-           << porosity - ( vapourVolume + liquidVolume + bitumenVolume )  << "  " 
+           << vapourVolume + liquidVolume + bitumenVolume  << "  "
+           << porosity - ( vapourVolume + liquidVolume + bitumenVolume )  << "  "
            << endl;
 
    }
@@ -660,7 +660,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
       SpeciesState* speciesState;
       speciesState = simulatorState->GetSpeciesStateById ( m_speciesManager.getC1Id ());
       cout << " immobiles END: " << i << "  " << j << "  "<< immobiles.image () << endl;
-      cout << "C1 after: " << speciesState->GetExpelledMass () << "  " 
+      cout << "C1 after: " << speciesState->GetExpelledMass () << "  "
            << speciesState->getAdsorpedMol () << "  "
            << speciesState->getExpelledMol () << "  "
            << endl;
@@ -715,7 +715,7 @@ const std::string& Genex6::OTGCC1AdsorptionSimulator::getFreeSpeciesName ( const
 
 }
 
-Genex6::AdsorptionSimulator* Genex6::allocateOTGCC1AdsorptionSimulator ( DataAccess::Interface::ProjectHandle* projectHandle,
+Genex6::AdsorptionSimulator* Genex6::allocateOTGCC1AdsorptionSimulator ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                          const SpeciesManager &speciesManager,
                                                                          const bool applyAdsorption,
                                                                          const bool isManaged ) {

@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cmath>
 #include <cassert>
-#include <boost/foreach.hpp>
 #include <cstdlib>
 
 #include <gtest/gtest.h>
@@ -24,8 +23,8 @@ struct MPIHelper
       static MPIHelper object;
       return object;
    }
-   static int rank() 
-   { 
+   static int rank()
+   {
       instance();
 
       int rank;
@@ -54,7 +53,7 @@ public:
    int minJLocal;
    int minK;
    int numK;
-      
+
    int dataSize;
 
    MPI_Op mop;
@@ -69,7 +68,7 @@ public:
 };
 
 TestUnit::TestUnit() {
-   
+
    int rank = MPIHelper::rank();
 
    numIGlobal = 10;
@@ -85,7 +84,7 @@ TestUnit::TestUnit() {
 
    minK = 0;
    numK = 10;
- 
+
    dataSize = numIGlobal * numJGlobal * numK;
 
    inData.resize(dataSize);
@@ -106,11 +105,11 @@ TestUnit::TestUnit() {
    MPI_Op_create((MPI_User_function *)minmax_op, true, & mop);
  }
 
-TestUnit::~TestUnit() {      
+TestUnit::~TestUnit() {
 
-   MPI_Op_free (&mop);  
+   MPI_Op_free (&mop);
 }
-   
+
 void TestUnit::AddDerivedContVolume() {
 
    int rank = MPIHelper::rank();
@@ -121,10 +120,10 @@ void TestUnit::AddDerivedContVolume() {
    std::shared_ptr<CauldronIO::Volume> snapshotVolume = snapshot->getVolume();
 
    shared_ptr<CauldronIO::VolumeData> volDataNew(new CauldronIO::VolumeDataNative(geometry, CauldronIO::DefaultUndefinedValue));
- 
+
    float *data = &inData[0];
    memset(data, 0, sizeof(float) * dataSize);
-      
+
    volDataNew->setData_IJK(data);
    float * internalData = const_cast<float *>(volDataNew->getVolumeValues_IJK());
 
@@ -133,7 +132,7 @@ void TestUnit::AddDerivedContVolume() {
    float sedimentMinValue = (rank == 0 ? 0 : CauldronIO::DefaultUndefinedValue);
    float sedimentMaxValue = rank + 41.0;
 
-   BOOST_FOREACH(const std::shared_ptr<CauldronIO::Formation>& formation, formations)
+   for(const std::shared_ptr<CauldronIO::Formation>& formation: formations)
    {
       int firstK, lastK;
       formation->getK_Range(firstK, lastK);
@@ -169,7 +168,7 @@ void TestUnit::AddDerivedContVolume() {
    localValues[1] = volDataNew->getSedimentMaxValue();
 
    MPI_Reduce(localValues, globalValues, 2, MPI_FLOAT, mop, 0, MPI_COMM_WORLD);
-   
+
    if( rank == 0 ) {
       volDataNew->setSedimentMinMax(globalValues[0], globalValues[1]);
    }
@@ -179,7 +178,7 @@ void TestUnit::AddDerivedContVolume() {
 TEST(ConvertProperties, AddVolume)
 {
    TestUnit oneProject;
-     
+
    EXPECT_EQ(5, oneProject.numILocal);
    EXPECT_EQ(10, oneProject.numJLocal);
 
@@ -199,28 +198,28 @@ TEST(ConvertProperties, AddVolume)
 
 
    if(rank == 0) {
-      BOOST_FOREACH(PropertyVolumeData& propVolume, propVolList) {
+      for(PropertyVolumeData& propVolume: propVolList) {
          std::string propName = propVolume.first->getName();
          std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
          std::shared_ptr<const Geometry3D> geometry = valueMap->getGeometry();
-         
+
          float sedimentMinValue = valueMap->getSedimentMinValue();
          float sedimentMaxValue = valueMap->getSedimentMaxValue();
-         
+
          EXPECT_FLOAT_EQ(0.0, sedimentMinValue);
          EXPECT_FLOAT_EQ(42.0, sedimentMaxValue);
 
          int lastK  = static_cast<int>(geometry->getNumK() - 1);
          int firstK = static_cast<int>(geometry->getFirstK());
-         
+
          float value;
          float value1 = 1;
          float value2 = 2;
-         
+
          for (int i = 0; i < geometry->getNumI(); ++ i) {
             if(i < 5) { value = value1; }
             else { value = value2; }
-            
+
             for (int j = 0; j < geometry->getNumJ(); ++ j) {
                for (int k = lastK; k >= firstK; -- k) {
                   EXPECT_EQ(value, valueMap->getValue(i, j, k));

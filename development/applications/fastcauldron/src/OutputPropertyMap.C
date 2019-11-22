@@ -1,7 +1,7 @@
 #include <sstream>
 #include "OutputPropertyMap.h"
 
-OutputPropertyMap::OutputPropertyMap ( const PropertyList         propertyName,
+OutputPropertyMap::OutputPropertyMap ( const PropertyIdentifier         propertyName,
                                              LayerProps*          formation,
                                        const Interface::Surface*  surface,
                                        const Interface::Snapshot* snapshot ) :
@@ -16,16 +16,14 @@ bool OutputPropertyMap::isRequired ( const unsigned int position ) const {
    return m_values [ position ]->outputIsRequested ();
 }
 
-bool OutputPropertyMap::anyIsRequired () const {
-
-   unsigned int i;
-
-   for ( i = 0; i < m_values.size (); ++i ) {
-
-      if ( m_values [ i ]->outputIsRequested ()) {
+bool OutputPropertyMap::anyIsRequired () const
+{
+   for ( CauldronPropertyValue* value : m_values )
+   {
+      if ( value->outputIsRequested ())
+      {
          return true;
       }
-
    }
 
    return false;
@@ -62,43 +60,3 @@ double OutputPropertyMap::getVolumeValue ( const unsigned int i, const unsigned 
    return m_propertyMaps [ position ]->getValue ( i, j, k );
 }
 
-unsigned int OutputPropertyMap::numberOfProperties () const {
-   return m_properties.size ();
-}
-
-PropertyList OutputPropertyMap::getPropertyName () const {
-   return m_propertyName;
-}
-
-std::string OutputPropertyMap::image () const {
-
-   std::ostringstream buffer;
-   unsigned int i;
-
-   if ( m_formation == 0 ) {
-      buffer << " NO FORMATION, " ;
-   } else {
-      buffer << m_formation->layername << ", ";
-   }
-
-   if ( m_surface == 0 ) {
-      buffer << " NO SURFACE, " ;
-   } else {
-      buffer << m_surface->getName () << ", ";
-   }
-
-   buffer << m_snapshot->getTime () << ", properties [ ";
-
-   for ( i = 0; i < m_properties.size (); ++i ) {
-      buffer << m_properties [ i ]->getName ();
-
-      if ( i < m_properties.size () - 1 ) {
-         buffer << ", ";
-      }
-
-   }
-
-   buffer << " ]";
-
-   return buffer.str ();
-}

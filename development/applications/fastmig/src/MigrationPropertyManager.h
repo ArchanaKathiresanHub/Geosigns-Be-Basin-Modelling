@@ -29,7 +29,7 @@ namespace migration
    public:
 
       /// \brief Constructor.
-      MigrationPropertyManager (GeoPhysics::ProjectHandle* projectHandle);
+      MigrationPropertyManager (GeoPhysics::ProjectHandle& projectHandle);
 
       /// \brief Destructor.
       ~MigrationPropertyManager ();

@@ -24,10 +24,10 @@ namespace DerivedProperties {
 
    public :
 
-      ThermalDiffusivityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
- 
+      ThermalDiffusivityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
+
       /// \brief Calculate the thermal diffusivity for the formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the thermal diffusivity is requested.
       /// \param [in]  formation   The formation for which the thermal diffusivity is requested.
@@ -42,24 +42,24 @@ namespace DerivedProperties {
       virtual bool isComputable ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
                                   const DataModel::AbstractSnapshot*                        snapshot,
                                   const DataModel::AbstractFormation*                       formation ) const;
-      
+
       /// \brief Calculate the thermal conductivity for the basement formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the thermal conductivity is requested.
       /// \param [in]  formation   The formation for which the thermal conductivity is requested.
       /// \param [out] derivedProperties On exit will contain the thermal conductivity property for the formation.
       /// \pre snapshot points to a valid snapshot age.
       /// \pre formation points to a valid formation.
-      virtual void calculateForBasement ( AbstractDerivedProperties::AbstractPropertyManager& propManager,
-                                          const DataModel::AbstractSnapshot*                  snapshot,
-                                          const DataModel::AbstractFormation*                 formation,
-                                          AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
- 
+      void calculateForBasement ( AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                                  const DataModel::AbstractSnapshot*                  snapshot,
+                                  const DataModel::AbstractFormation*                 formation,
+                                  AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
+
    private :
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
- 
+      const GeoPhysics::ProjectHandle& m_projectHandle;
+
    };
 
 

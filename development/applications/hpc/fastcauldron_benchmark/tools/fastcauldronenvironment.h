@@ -21,19 +21,19 @@ class Project3DParameter;
 class CmdLineParameter;
 class Path;
 
-/// A 'FastCauldronEnvironment' object knows how to apply parameters to a project file and the command line 
+/// A 'FastCauldronEnvironment' object knows how to apply parameters to a project file and the command line
 /// and how to start fastcauldron.
-class FastCauldronEnvironment 
+class FastCauldronEnvironment
 {
 public:
    typedef std::string VersionID;
 
    struct Exception : formattingexception :: BaseException< Exception > {};
 
-   /// To create a FastcauldronEnvironment object, a configuration file 
-   /// has to be read first by constructing a Configuration object. 
+   /// To create a FastcauldronEnvironment object, a configuration file
+   /// has to be read first by constructing a Configuration object.
    /// The configuration file has a specific layout, e.g.:
-   /// 
+   ///
    /// [2012.1008]
    /// mpiexec -np {PROCS} {MPI_PARAMS} fastcauldron -v2012.1008 -project {INPUT} -save {OUTPUT} {FC_PARAMS}
    ///
@@ -56,7 +56,7 @@ public:
    /// {FC_PARAMS}  - Extra parameters to fastcauldron
    ///
    class Configuration
-   { 
+   {
    public:
       explicit Configuration(const Path & configFile);
       explicit Configuration( std::istream & configFile );
@@ -66,7 +66,7 @@ public:
 
       /// Returns the template script for a specific version and replaces the placeholders/markers
       /// with their values.
-      std::string getRunScript( const VersionID & version, 
+      std::string getRunScript( const VersionID & version,
             int numberOfProcessors, const std::vector<std::string> & mpiCmdLineParams,
             const std::string & inputProject, const std::string & outputProject,
             const std::vector<std::string> & fcCmdLineParams
@@ -81,6 +81,7 @@ public:
 
 
    FastCauldronEnvironment(const Configuration & configuration, const std::string & id, const Path & projectFile, int processors, const VersionID & version);
+   ~FastCauldronEnvironment();
 
    void applyProjectParameter( const Project3DParameter & param, const std::string & value);
    void applyMpiCmdLineParameter( const CmdLineParameter & param, const std::vector<std::string> & values);
@@ -93,8 +94,8 @@ public:
 
    // returns which script has to be run where (working directory) to do the job
    static void commandToRunJob(const Path & directory,
-         const std::string & id, 
-         std::shared_ptr<Path> & workingDir, 
+         const std::string & id,
+         std::shared_ptr<Path> & workingDir,
          std::string & command
          );
 
@@ -113,11 +114,11 @@ private:
    int m_processors;
    std::vector< std::string > m_mpiCmdLine;
    std::vector< std::string > m_cauldronCmdLine;
-   std::shared_ptr<DataAccess::Interface::ProjectHandle>  m_project;
+   std::unique_ptr<DataAccess::Interface::ProjectHandle>  m_project;
    std::shared_ptr<Path> m_projectSourceDir;
-   std::shared_ptr<DataAccess::Interface::ObjectFactory>  m_factory;   
+   std::shared_ptr<DataAccess::Interface::ObjectFactory>  m_factory;
    VersionID m_version;
-};  
+};
 
 }
 

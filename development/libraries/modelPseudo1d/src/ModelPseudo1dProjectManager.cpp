@@ -52,7 +52,7 @@ ModelPseudo1dProjectManager::ModelPseudo1dProjectManager(const ModelPseudo1dInpu
       throw modelPseudo1d::ModelPseudo1dException() << "Empty project name!";
     }
     m_projectHandle = dynamic_cast<DataAccess::Mining::ProjectHandle*>
-        (DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", m_objectFactory));
+        (DataAccess::Interface::OpenCauldronProject(m_projectFileName, m_objectFactory));
     setModel();
   }
   catch (const ErrorHandler::Exception & ex)

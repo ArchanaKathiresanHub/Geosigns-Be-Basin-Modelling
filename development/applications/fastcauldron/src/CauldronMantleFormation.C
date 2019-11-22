@@ -25,12 +25,12 @@
 
 #include "PetscBlockVector.h"
 
-CauldronMantleFormation::CauldronMantleFormation ( Interface::ProjectHandle * projectHandle,
+CauldronMantleFormation::CauldronMantleFormation (Interface::ProjectHandle& projectHandle,
                                    database::Record *              record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::GeoPhysicsFormation ( projectHandle, record ),
    LayerProps ( projectHandle, record ),
-   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::MantleFormationName, projectHandle->getMantleLithoName() ),
+   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::MantleFormationName, projectHandle.getMantleLithoName() ),
    DataAccess::Interface::MantleFormation ( projectHandle, record ),
    GeoPhysics::GeoPhysicsMantleFormation ( projectHandle, record ) {
 
@@ -58,7 +58,7 @@ CauldronMantleFormation::~CauldronMantleFormation () {
 //------------------------------------------------------------//
 void CauldronMantleFormation::cleanVectors() {
 
-   if(((GeoPhysics::ProjectHandle*)(GeoPhysics::GeoPhysicsFormation::m_projectHandle))->isALC() ) {
+   if ( dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).isALC() ) {
       previousBasaltMap = BasaltMap;
       BasaltMap.fill( false );
    }
@@ -102,23 +102,20 @@ bool CauldronMantleFormation::setLithologiesFromStratTable () {
    if( GeoPhysics::GeoPhysicsMantleFormation::setLithologiesFromStratTable () == false ) {
       return false;
    }
-   if(((GeoPhysics::ProjectHandle*)(GeoPhysics::GeoPhysicsFormation::m_projectHandle))->isALC() ) {
+   if(dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).isALC() ) {
 
-      m_basaltLithology.allocate ( GeoPhysics::GeoPhysicsFormation::m_projectHandle->getActivityOutputGrid ());
+      m_basaltLithology.allocate ( getProjectHandle().getActivityOutputGrid ());
 
       CompoundLithologyComposition lc ( DataAccess::Interface::ALCBasalt, "",  "",
                                         100.0, 0.0, 0.0,
                                         DataAccess::Interface::MantleFormation::getMixModelStr (),
                                         DataAccess::Interface::MantleFormation::getLayeringIndex());
 
-      lc.setThermalModel( m_projectHandle->getMantlePropertyModel() );
+      lc.setThermalModel( getProjectHandle().getMantlePropertyModel() );
 
-      CompoundLithology* pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::GeoPhysicsFormation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
+      CompoundLithology* pMixedLitho = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ().getCompoundLithology ( lc );
       createdLithologies = pMixedLitho != 0;
       m_basaltLithology.fillWithLithology ( pMixedLitho );
-      // if( dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle)->isALC() && m_projectHandle->getRank() == 0 ) {
-      //    cout << "Mantle basalt property model = " << pMixedLitho->getThermalModel() << endl;
-      // }
    }
    return createdLithologies;
 
@@ -129,9 +126,9 @@ const CompoundLithology* CauldronMantleFormation::getLithology( const double aTi
    // If offset from the top of the Mantle (aOffset) goes above the bottom of Basalt, then we are in Basalt
 
    if( FastcauldronSimulator::getInstance ().isALC() ) {
-      double partOfBasaltInMantle = ((GeoPhysics::ProjectHandle*)(GeoPhysics::GeoPhysicsFormation::m_projectHandle))->getBasaltThickness( iPosition, jPosition, aTime ) +
-         ((GeoPhysics::ProjectHandle*)(GeoPhysics::GeoPhysicsFormation::m_projectHandle))->getContCrustThickness( iPosition, jPosition, aTime) -
-         ((GeoPhysics::ProjectHandle*)(GeoPhysics::GeoPhysicsFormation::m_projectHandle))->getCrustThickness( iPosition, jPosition, aTime );
+      double partOfBasaltInMantle = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getBasaltThickness( iPosition, jPosition, aTime ) +
+         dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getContCrustThickness( iPosition, jPosition, aTime) -
+         dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getCrustThickness( iPosition, jPosition, aTime );
       if(partOfBasaltInMantle != 0.0) {
          if( aOffset <= partOfBasaltInMantle ) {
             isBasaltLayer = true;

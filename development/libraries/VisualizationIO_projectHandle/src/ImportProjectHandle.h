@@ -31,7 +31,7 @@ class ImportProjectHandle
 {
 public:
     /// \brief Create a new CauldronIO::Project from given path to a projectHandle
-    /// 
+    ///
     /// This import will create a CauldronIO::Project but will not import (read) the data yet
     /// For this, use the Retrieve method of the Project class (to import all data), or a lower level Retrieve
     /// on one of the contained classes. Note that all depth volumes need to be read, to understand the formation geometry ordering for 3D volumes.
@@ -39,14 +39,14 @@ public:
     /// \param [in] projectHandle The projecthandle to import
     /// \param [in] verbose If true, output will be generated to cout to reflect the import process
     /// \returns A boost sharedpointer to a newly created CauldronIO::Project
-    static std::shared_ptr<CauldronIO::Project> createFromProjectHandle(std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle, bool verbose);
-	static CauldronIO::SnapShotKind getSnapShotKind(const DataAccess::Interface::Snapshot* snapShot);
-	static CauldronIO::PropertyType getPropertyType(const DataAccess::Interface::Property* prop) ;
-	static CauldronIO::PropertyAttribute getPropertyAttribute(const DataAccess::Interface::Property* prop);
+    static std::shared_ptr<CauldronIO::Project> createFromProjectHandle(DataAccess::Interface::ProjectHandle& projectHandle, bool verbose);
+  static CauldronIO::SnapShotKind getSnapShotKind(const DataAccess::Interface::Snapshot* snapShot);
+  static CauldronIO::PropertyType getPropertyType(const DataAccess::Interface::Property* prop) ;
+  static CauldronIO::PropertyAttribute getPropertyAttribute(const DataAccess::Interface::Property* prop);
 
 
     /// Constructor
-    ImportProjectHandle(bool verbose, std::shared_ptr<CauldronIO::Project>& project, std::shared_ptr<DataAccess::Interface::ProjectHandle>& projectHandle);
+    ImportProjectHandle(bool verbose, std::shared_ptr<CauldronIO::Project>& project, DataAccess::Interface::ProjectHandle& projectHandle);
 
     void checkInputValues();
     void addSnapShots();
@@ -66,7 +66,7 @@ public:
     std::shared_ptr<CauldronIO::Project> m_project;
     std::shared_ptr<DataAccess::Interface::PropertyValueList> m_propValues;
     std::shared_ptr<DataAccess::Interface::PropertyList> m_props;
-    std::shared_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
+    DataAccess::Interface::ProjectHandle& m_projectHandle;
 
     /// Private helper methods
     std::shared_ptr<CauldronIO::SnapShot> createSnapShotIO(const DataAccess::Interface::Snapshot* snapShot);
@@ -93,18 +93,18 @@ public:
     std::shared_ptr<CauldronIO::Surface> findSurface(std::vector< std::shared_ptr<CauldronIO::Surface> > surfaces, const std::string& surfaceName) const;
     std::shared_ptr<CauldronIO::Surface> findSurface(std::vector< std::shared_ptr<CauldronIO::Surface> > surfaces, std::shared_ptr<CauldronIO::Formation>& formation) const;
     std::shared_ptr<const CauldronIO::Property> findOrCreateProperty(const DataAccess::Interface::Property* prop);
-	std::shared_ptr<const CauldronIO::Property> findOrCreateProperty(const std::string& propString);
-	std::shared_ptr<CauldronIO::Formation> findOrCreateFormation(const DataAccess::Interface::Formation* form, std::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
-	std::shared_ptr<CauldronIO::Formation> findOrCreateFormation(const DataAccess::Interface::Formation* form);
-	void setFormationProperties(std::shared_ptr<CauldronIO::Formation> formationIO, const DataAccess::Interface::Formation* form) const;
-	std::shared_ptr<const CauldronIO::Reservoir> findOrCreateReservoir(const DataAccess::Interface::Reservoir* reservoir, std::shared_ptr<const CauldronIO::Formation> formationIO);
+  std::shared_ptr<const CauldronIO::Property> findOrCreateProperty(const std::string& propString);
+  std::shared_ptr<CauldronIO::Formation> findOrCreateFormation(const DataAccess::Interface::Formation* form, std::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
+  std::shared_ptr<CauldronIO::Formation> findOrCreateFormation(const DataAccess::Interface::Formation* form);
+  void setFormationProperties(std::shared_ptr<CauldronIO::Formation> formationIO, const DataAccess::Interface::Formation* form) const;
+  std::shared_ptr<const CauldronIO::Reservoir> findOrCreateReservoir(const DataAccess::Interface::Reservoir* reservoir, std::shared_ptr<const CauldronIO::Formation> formationIO);
     std::shared_ptr<CauldronIO::FormationInfo> findDepthFormationInfo(const DataAccess::Interface::Formation* formation, std::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
     std::shared_ptr<DataAccess::Interface::PropertyValueList> getPropertyValues(const DataAccess::Interface::Snapshot* snapshot) const;
     std::shared_ptr<DataAccess::Interface::PropertyList> getProperties(const std::shared_ptr<DataAccess::Interface::PropertyValueList>& propValues) const;
     std::shared_ptr<DataAccess::Interface::PropertyValueList> getMapPropertyValues(const std::shared_ptr<DataAccess::Interface::PropertyValueList>& snapShotPropVals) const;
     std::shared_ptr<DataAccess::Interface::PropertyValueList> getFormationVolumePropertyValues(const DataAccess::Interface::Property* prop, std::shared_ptr<DataAccess::Interface::PropertyValueList> snapShotPropVals,
         const DataAccess::Interface::Formation* formation) const;
-	
+
 	void addStratTableSurface(const DataAccess::Interface::Surface* surface);
 	std::shared_ptr<CauldronIO::SurfaceData> getInputMap(float value, const std::string &valueGridMapId, std::shared_ptr<const CauldronIO::Geometry2D> geometry) const;
 	void addStratTableFormation(const DataAccess::Interface::Formation* formation);

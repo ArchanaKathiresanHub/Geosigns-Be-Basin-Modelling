@@ -11,6 +11,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -150,6 +151,8 @@ namespace DataAccess
       typedef vector<const Property *> PropertyList;
       /// list type for the property values
       typedef vector<const PropertyValue *> PropertyValueList;
+      /// map type for the properties and property values
+      typedef map<const Property*, PropertyValueList> PropertyPropertyValueListMap;
       /// list type for the output properties.
       typedef vector<const OutputProperty *> OutputPropertyList;
       /// list type for the lithology heat-capacity samples.

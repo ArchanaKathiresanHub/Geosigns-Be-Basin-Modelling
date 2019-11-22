@@ -1,12 +1,12 @@
 //
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "AbstractPropertyManager.h"
 #include "DerivedPropertyManager.h"
@@ -26,16 +26,16 @@
 using namespace FiniteElementMethod;
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::FluidVelocityFormationCalculator::FluidVelocityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+DerivedProperties::FluidVelocityFormationCalculator::FluidVelocityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
 
    addPropertyName( "FluidVelocityX" );
    addPropertyName( "FluidVelocityY" );
    addPropertyName( "FluidVelocityZ" );
-   
-    const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
+
+    const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle.getDetailsOfLastFastcauldron();
 
     m_chemicalCompactionRequired = lastFastcauldronRun != 0 and lastFastcauldronRun->getSimulatorMode () != "HydrostaticDecompaction" and
-       m_projectHandle->getRunParameters()->getChemicalCompaction ();
+       m_projectHandle.getRunParameters()->getChemicalCompaction ();
 
    if ( m_chemicalCompactionRequired ) {
       addDependentPropertyName ( "ChemicalCompaction" );
@@ -69,39 +69,39 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
    const FormationPropertyPtr temperature  = propertyManager.getFormationProperty ( aTemperatureProperty, snapshot, formation );
    const FormationPropertyPtr depth        = propertyManager.getFormationProperty ( aDepthProperty, snapshot, formation );
    const FormationPropertyPtr porepressure = propertyManager.getFormationProperty ( aPorePressureProperty, snapshot, formation );
- 
+
    const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
- 
+
    bool chemicalCompactionRequired = m_chemicalCompactionRequired and geoFormation->hasChemicalCompaction ();
-   
-   FormationPropertyPtr chemicalCompaction;   
+
+   FormationPropertyPtr chemicalCompaction;
    if ( chemicalCompactionRequired ) {
       chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
       // Just in case the property is not found.
       chemicalCompactionRequired = chemicalCompaction != 0;
    }
-   
+
    derivedProperties.clear ();
-  
+
    bool allProperties = temperature != 0 and depth != 0  and ves != 0 and maxVes != 0  and porepressure != 0 and geoFormation != 0;
 
    if ( chemicalCompactionRequired ) {
       allProperties = allProperties and chemicalCompaction != 0;
    }
-        
+
    if( allProperties ) {
- 
+
       PropertyRetriever temperatureRetriever ( temperature );
       PropertyRetriever vesRetriever ( ves );
       PropertyRetriever maxVesRetriever ( maxVes );
       PropertyRetriever depthRetriever ( depth );
       PropertyRetriever porePressureRetriever ( porepressure );
-    
-      PropertyRetriever chemicalCompactionRetriever; 
+
+      PropertyRetriever chemicalCompactionRetriever;
       if ( chemicalCompactionRequired ) {
          chemicalCompactionRetriever.reset( chemicalCompaction );
-      } 
-      
+      }
+
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(geoFormation->getFluidType ());
 
@@ -110,16 +110,16 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
       if(  lithologies != 0 ) {
 
          DerivedFormationPropertyPtr fluidVelocityX =
-            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( fluidVelocityXProperty, snapshot, formation, 
-                                                                                            propertyManager.getMapGrid (), 
+            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( fluidVelocityXProperty, snapshot, formation,
+                                                                                            propertyManager.getMapGrid (),
                                                                                             geoFormation->getMaximumNumberOfElements() + 1 ));
          DerivedFormationPropertyPtr fluidVelocityY =
-            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( fluidVelocityYProperty, snapshot, formation, 
-                                                                                            propertyManager.getMapGrid (), 
+            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( fluidVelocityYProperty, snapshot, formation,
+                                                                                            propertyManager.getMapGrid (),
                                                                                             geoFormation->getMaximumNumberOfElements() + 1 ));
          DerivedFormationPropertyPtr fluidVelocityZ =
-            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( fluidVelocityZProperty, snapshot, formation, 
-                                                                                            propertyManager.getMapGrid (), 
+            DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( fluidVelocityZProperty, snapshot, formation,
+                                                                                            propertyManager.getMapGrid (),
                                                                                             geoFormation->getMaximumNumberOfElements() + 1 ));
 
          ElementList elements;
@@ -128,7 +128,7 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
          unsigned int elementCount;
          unsigned int i, j;
          const GeoPhysics::CompoundLithology* lithology;
- 
+
          ElementGeometryMatrix geometryMatrix;
          ElementVector porepressureVector;
          ElementVector vesVector;
@@ -137,7 +137,7 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
          ElementVector chemCompactionVector;
          ThreeVector   fluidVelocity;
          ThreeVector   fluidVelocityValid;
-        
+
          const double deltaX  = depth->getGrid()->deltaI ();
          const double deltaY  = depth->getGrid()->deltaJ ();
          const double originX = depth->getGrid()->minI ();
@@ -149,36 +149,36 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
          const bool validElementsOnSurface = true;
 
          for ( elementCount = 0; elementCount < elements.size(); elementCount++ ) {
-            
+
             if ( elements[elementCount].exists) {
                i = elements [ elementCount ].i [ 0 ];
                j = elements [ elementCount ].j [ 0 ];
                lithology = (*lithologies)( i, j, currentTime );
-               
+
                if ( lithology != 0 ) {
                   int degenerateElements = 0;
                   bool validElementFound = false;
-                  
+
                   for (unsigned int k = fluidVelocityX->firstK(); k < fluidVelocityX->lastK (); ++k ) {
                      // Retrieve element data.
                      for ( unsigned int node = 1; node <= 8; ++node ) {
                         int LidxZ = k + (( node - 1 ) < 4 ? 1 : 0);
                         int GidxY = elements [ elementCount ].j [( node - 1 ) % 4 ];
                         int GidxX = elements [ elementCount ].i [( node - 1 ) % 4 ];
-                        
+
                         geometryMatrix ( 1, node ) = originX + (deltaX * GidxX);
                         geometryMatrix ( 2, node ) = originY + (deltaY * GidxY);
                         geometryMatrix ( 3, node ) = depth->get ( GidxX, GidxY, LidxZ );
-                        
+
                         vesVector            ( node ) = ves->get ( GidxX, GidxY, LidxZ );
                         maxVesVector         ( node ) = maxVes->get ( GidxX, GidxY, LidxZ );
                         porepressureVector   ( node ) = porepressure->get ( GidxX, GidxY, LidxZ );
                         temperatureVector    ( node ) = temperature->get ( GidxX, GidxY, LidxZ );
                         chemCompactionVector ( node ) = ( chemicalCompactionRequired ? chemicalCompaction->get ( GidxX, GidxY, LidxZ ) : 0.0 );
                      }
-                     
+
                      const bool degenerateElement = isDegenerate( geometryMatrix );
-                     
+
                      // compute one  element
                      if( degenerateElement ) {
                         if( validElementsOnSurface and validElementFound ) {
@@ -188,7 +188,7 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
                            fluidVelocity ( 3 ) = fluidVelocityValid ( 3 );
                         } else {
                            degenerateElements += 1;
-                           
+
                            fluidVelocity ( 1 ) = DataAccess::Interface::DefaultUndefinedMapValue;
                            fluidVelocity ( 2 ) = DataAccess::Interface::DefaultUndefinedMapValue;
                            fluidVelocity ( 3 ) = DataAccess::Interface::DefaultUndefinedMapValue;
@@ -205,33 +205,33 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
                                                chemCompactionVector,
                                                porepressureVector,
                                                fluidVelocity );
-                             
+
                         // save this element at a last valid element
                         if( validElementsOnSurface ) {
                            validElementFound = true;
-                           
+
                            fluidVelocityValid ( 1 ) = fluidVelocity ( 1 );
                            fluidVelocityValid ( 2 ) = fluidVelocity ( 2 );
                            fluidVelocityValid ( 3 ) = fluidVelocity ( 3 );
-                        }   
-                     }    
-            
+                        }
+                     }
+
                      fluidVelocityX->set ( i, j, k, fluidVelocity ( 1 ));
                      fluidVelocityY->set ( i, j, k, fluidVelocity ( 2 ));
                      fluidVelocityZ->set ( i, j, k, fluidVelocity ( 3 ));
-                     
+
                      fillBorders( i, j, k, globalXNodes, globalYNodes, fluidVelocityX, fluidVelocityY, fluidVelocityZ, fluidVelocity );
- 
+
                      if( validElementsOnSurface and degenerateElements > 0 and not degenerateElement ) {
                         // if degenerateElements > 0 then the current element is the first valid element (count from the bottom) - all
                         // elements below are derenerated.
-                        // Fill-in the elements below 
-                        
+                        // Fill-in the elements below
+
                         for ( int l = 1; l <= degenerateElements ; ++ l ) {
                            fluidVelocityX->set ( i, j, k - l, fluidVelocity ( 1 ));
                            fluidVelocityY->set ( i, j, k - l, fluidVelocity ( 2 ));
                            fluidVelocityZ->set ( i, j, k - l, fluidVelocity ( 3 ));
-                           
+
                            fillBorders( i, j, k - l, globalXNodes, globalYNodes, fluidVelocityX, fluidVelocityY, fluidVelocityZ, fluidVelocity );
                         }
                         degenerateElements = 0;
@@ -256,7 +256,7 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( AbstractPr
                         fluidVelocityX->set ( i, j, k + 1, fluidVelocity ( 1 ));
                         fluidVelocityY->set ( i, j, k + 1, fluidVelocity ( 2 ));
                         fluidVelocityZ->set ( i, j, k + 1, fluidVelocity ( 3 ));
-                        
+
                         fillBorders( i, j, k + 1, globalXNodes, globalYNodes, fluidVelocityX, fluidVelocityY, fluidVelocityZ, fluidVelocity );
                      }
                   }
@@ -290,11 +290,11 @@ void DerivedProperties::FluidVelocityFormationCalculator::computeFluidVelocity (
    double chemicalCompactionTerm;
    double porePressure;
    double relativePermeability;
- 
+
    ThreeVector fluidFlux;
    ThreeVector gradPorePressure;
    ThreeVector referenceGradPorePressure;
-   
+
    if ( fluid == 0 or lithology->surfacePorosity () == 0.0 ) {
       fluidVelocity ( 1 ) = 0.0;
       fluidVelocity ( 2 ) = 0.0;
@@ -306,16 +306,16 @@ void DerivedProperties::FluidVelocityFormationCalculator::computeFluidVelocity (
    element.setQuadraturePoint ( 0, 0, z, true, false );
 
    GeoPhysics::CompoundProperty currentCompoundPorosity;
-   
+
    temperature  = FiniteElementMethod::innerProduct ( currentElementTemperature, element.getBasis() );
    VES          = FiniteElementMethod::innerProduct ( currentElementVES, element.getBasis() );
    maxVES       = FiniteElementMethod::innerProduct ( currentElementMaxVES, element.getBasis() );
    porePressure = FiniteElementMethod::innerProduct ( currentElementPp, element.getBasis() );
    chemicalCompactionTerm = FiniteElementMethod::innerProduct ( currentElementChemicalCompaction, element.getBasis() );
-  
+
    lithology->getPorosity ( VES, maxVES, includeChemicalCompaction, chemicalCompactionTerm, currentCompoundPorosity );
    porosity = currentCompoundPorosity.mixedProperty ();
- 
+
    fluidViscosity = fluid->viscosity ( temperature, porePressure );
    relativePermeability = fluid->relativePermeability();
 
@@ -325,15 +325,15 @@ void DerivedProperties::FluidVelocityFormationCalculator::computeFluidVelocity (
    // compute fluid Flux
    double permeabilityNormal;
    double permeabilityPlane;
-   
+
    /// Not quite the permeability tensor, since it is also divided by the fluid viscosity.
    Matrix3x3 permeabilityTensor;
-   
+
    lithology->calcBulkPermeabilityNP ( VES, maxVES, currentCompoundPorosity, permeabilityNormal, permeabilityPlane );
 
    permeabilityNormal = relativePermeability * permeabilityNormal / fluidViscosity;
    permeabilityPlane  = relativePermeability * permeabilityPlane  / fluidViscosity;
-   
+
    element.setTensor ( permeabilityNormal, permeabilityPlane, permeabilityTensor );
 
    const double fluidDensity = fluid->density( temperature, porePressure );
@@ -341,7 +341,7 @@ void DerivedProperties::FluidVelocityFormationCalculator::computeFluidVelocity (
    gradPorePressure ( 3 ) -= fluidDensity * Utilities::Physics::AccelerationDueToGravity * Utilities::Maths::PaToMegaPa;
 
    matrixVectorProduct ( permeabilityTensor, gradPorePressure, fluidFlux );
-   
+
    // Since pressure properties are stored in MPa units, we must convert to Pa to use in calculation.
    fluidFlux ( 1 ) = -fluidFlux ( 1 ) * Utilities::Maths::MegaPaToPa;
    fluidFlux ( 2 ) = -fluidFlux ( 2 ) * Utilities::Maths::MegaPaToPa;
@@ -355,33 +355,33 @@ void DerivedProperties::FluidVelocityFormationCalculator::computeFluidVelocity (
 }
 
 void DerivedProperties::FluidVelocityFormationCalculator::fillBorders( unsigned int i, unsigned int j, unsigned int k,
-                                                                       unsigned int globalXNodes, 
+                                                                       unsigned int globalXNodes,
                                                                        unsigned int globalYNodes,
                                                                        DerivedFormationPropertyPtr fluidVelocityX,
                                                                        DerivedFormationPropertyPtr fluidVelocityY,
                                                                        DerivedFormationPropertyPtr fluidVelocityZ,
                                                                        ThreeVector fluidVelocity ) const {
-   
+
    // Fill other heat flow nodes if current (i,j) position is at end of array
    if ( i == globalXNodes ) {
       fluidVelocityX->set ( i + 1, j, k, fluidVelocity ( 1 ));
       fluidVelocityY->set ( i + 1, j, k, fluidVelocity ( 2 ));
       fluidVelocityZ->set ( i + 1, j, k, fluidVelocity ( 3 ));
    }
-   
+
    if ( j == globalYNodes ) {
       fluidVelocityX->set ( i, j + 1, k, fluidVelocity ( 1 ));
       fluidVelocityY->set ( i, j + 1, k, fluidVelocity ( 2 ));
       fluidVelocityZ->set ( i, j + 1, k, fluidVelocity ( 3 ));
    }
-   
+
    if ( i == globalXNodes and j == globalYNodes ) {
       fluidVelocityX->set ( i + 1, j + 1, k, fluidVelocity ( 1 ));
       fluidVelocityY->set ( i + 1, j + 1, k, fluidVelocity ( 2 ));
       fluidVelocityZ->set ( i + 1, j + 1, k, fluidVelocity ( 3 ));
    }
 }
-   
+
 bool DerivedProperties::FluidVelocityFormationCalculator::isDegenerate ( const ElementGeometryMatrix&  geometryMatrix ) const {
 
    bool is_Degenerate = true;

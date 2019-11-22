@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "mpi.h"
 #include "Lithology.h"
@@ -31,7 +31,7 @@ using Utilities::Maths::M2ToMilliDarcy;
 
 typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
-Lithology::Lithology ( GeoPhysics::ProjectHandle* projectHandle ) : GeoPhysics::CompoundLithology ( projectHandle ) {
+Lithology::Lithology ( GeoPhysics::ProjectHandle& projectHandle ) : GeoPhysics::CompoundLithology ( projectHandle ) {
    m_lithologyId = -9999;
 
    m_contactAngle.zero ();
@@ -77,11 +77,11 @@ double Lithology::relativePermeability ( const Saturation::Phase phase,
    //1)Brine or Water relative permeability
    //2)HCLiquid relative permeability
    //3)HCVapour relative permeability
-   
+
    double relPerm = 1.0;
-      
+
    //Brine is wetting phase
-   
+
    if ( phase == Saturation::WATER ) {
 
       if ( LambdaKr () == IbsNoDataValue ) {

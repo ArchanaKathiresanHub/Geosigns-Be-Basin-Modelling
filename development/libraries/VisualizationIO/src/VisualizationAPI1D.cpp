@@ -13,7 +13,6 @@
 #include <new>
 #include <algorithm>
 #include <cstring>
-#include <boost/foreach.hpp>
 
 #ifdef _MSC_VER
 #pragma warning (push)
@@ -28,7 +27,7 @@ using namespace std;
 CauldronIO::DisplayContour::DisplayContour()
 {
    std::memset((void*)this, 0, sizeof(DisplayContour));
-  
+
 }
 
 void CauldronIO::DisplayContour::setContourColour(const std::string& colour)
@@ -510,7 +509,7 @@ void CauldronIO::FtPredLengthCountsHist::setFtPredLengthHistId(int val)
 {
   m_FtPredLengthHistId = val;
 }
-   
+
 const std::string CauldronIO::FtPredLengthCountsHist::getFtSampleId() const
 {
    return std::string(m_FtSampleId);
@@ -520,7 +519,7 @@ void CauldronIO::FtPredLengthCountsHist::setFtSampleId(const std::string & val)
 {
    std::strcpy(m_FtSampleId, val.c_str());
 }
-   
+
 float CauldronIO::FtPredLengthCountsHist::getFtClWeightPerc() const
 {
    return m_FtClWeightPerc;
@@ -530,7 +529,7 @@ void CauldronIO::FtPredLengthCountsHist::setFtClWeightPerc(float val)
 {
    m_FtClWeightPerc = val;
 }
-   
+
 float CauldronIO::FtPredLengthCountsHist::getFtPredLengthBinStart() const
 {
    return m_FtPredLengthBinStart;
@@ -540,7 +539,7 @@ void CauldronIO::FtPredLengthCountsHist::setFtPredLengthBinStart(float val)
 {
    m_FtPredLengthBinStart = val;
 }
-   
+
 float CauldronIO::FtPredLengthCountsHist::getFtPredLengthBinWidth() const
 {
    return m_FtPredLengthBinWidth;
@@ -560,7 +559,7 @@ void CauldronIO::FtPredLengthCountsHist::setFtPredLengthBinNum(int val)
 {
    m_FtPredLengthBinNum = val;
 }
-   
+
 /// FtPredLengthCountsHistData
 CauldronIO::FtPredLengthCountsHistData::FtPredLengthCountsHistData()
 {
@@ -595,7 +594,7 @@ float CauldronIO::FtPredLengthCountsHistData::getFtPredLengthBinCount() const
    return m_FtPredLengthBinCount;
 }
 
-void CauldronIO::FtPredLengthCountsHistData::setFtPredLengthBinCount(float val) 
+void CauldronIO::FtPredLengthCountsHistData::setFtPredLengthBinCount(float val)
 {
    m_FtPredLengthBinCount = val;
 }
@@ -645,7 +644,7 @@ void CauldronIO::SmectiteIllite::setDepthIndex(float val)
 
 float CauldronIO::SmectiteIllite::getIlliteFraction() const
 {
-   return m_IlliteFraction; 
+   return m_IlliteFraction;
 }
 
 void CauldronIO::SmectiteIllite::setIlliteFraction(float val)
@@ -667,7 +666,7 @@ bool CauldronIO::SmectiteIllite::getOptimization() const
 {
    return m_Optimization;
 }
-   
+
 void CauldronIO::SmectiteIllite::setOptimization(bool val)
 {
    m_Optimization = val;
@@ -855,7 +854,7 @@ void CauldronIO::DepthIo::setKurtosis(float val)
 CauldronIO::TimeIo1D::TimeIo1D()
 {
    std::memset((void*)this, 0, sizeof(TimeIo1D));
-   
+
 }
 
 float CauldronIO::TimeIo1D::getTime() const

@@ -32,7 +32,7 @@ using namespace Interface;
 
 static const char ** ComponentNames = CBMGenerics::ComponentManager::getInstance().getSpeciesNameInputList();
 
-Migration::Migration (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+Migration::Migration (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
    m_sourceSnapshot = 0;
    m_destinationSnapshot = 0;

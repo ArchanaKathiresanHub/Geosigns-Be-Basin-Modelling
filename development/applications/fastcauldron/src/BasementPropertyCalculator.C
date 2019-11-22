@@ -4,7 +4,7 @@
 #include "FastcauldronSimulator.h"
 
 
-BasementPropertyCalculator::BasementPropertyCalculator ( const PropertyList propertyName,
+BasementPropertyCalculator::BasementPropertyCalculator ( const PropertyIdentifier propertyName,
                                                          LayerProps* formation,
                                                          const Interface::Surface* surface,
                                                          const Interface::Snapshot* snapshot ) :
@@ -151,6 +151,6 @@ bool BasementPropertyCalculator::isCalculated () const {
 }
 
 
-OutputPropertyMap* allocateBasementPropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateBasementPropertyCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new BasementPropertyCalculator ( property, formation, surface, snapshot );
 }

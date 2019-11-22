@@ -43,7 +43,7 @@ namespace DataExtraction
 Track1d::Track1d( const std::string& inputProjectFileName ) :
   DataExtractor(),
   m_objectFactory( new GeoPhysics::ObjectFactory() ),
-  m_projectHandle( dynamic_cast<GeoPhysics::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r", m_objectFactory ) ) ),
+  m_projectHandle( dynamic_cast<GeoPhysics::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, m_objectFactory ) ) ),
   m_snapshots(),
   m_formationSurfacePairs(),
   m_properties(),
@@ -60,7 +60,6 @@ Track1d::~Track1d()
   if ( m_projectHandle )
   {
     m_projectHandle->finishActivity( false );
-    delete m_projectHandle;
   }
   delete m_objectFactory;
 }
@@ -76,7 +75,7 @@ void Track1d::createFormationMaxKMap()
   const std::string outputPath = m_projectHandle->getFullOutputDir();
   const std::string zeroSnapShotRootGroup = outputPath + "/" + zeroSnapshot->getFileName();
 
-  HDFReadManager hdfReadManager( m_projectHandle );
+  HDFReadManager hdfReadManager( *m_projectHandle );
   if ( !hdfReadManager.openSnapshotFile( zeroSnapShotRootGroup ) )
   {
     return;
@@ -227,7 +226,7 @@ void Track1d::acquireProperties( const StringVector& propertyNamesUser, const bo
     propertyNames = getPropertyNames( all2Dproperties, all3Dproperties );
   }
 
-  DerivedProperties::DerivedPropertyManager propertyManager( m_projectHandle );
+  DerivedProperties::DerivedPropertyManager propertyManager( *m_projectHandle );
 
   const Property* depthProperty = m_projectHandle->findProperty( "Depth" );
   assert( depthProperty );
@@ -382,7 +381,7 @@ bool Track1d::snapshotSorter( const Snapshot* snapshot1, const Snapshot* snapsho
 
 StringVector Track1d::getPropertyNames( bool all2Dproperties, bool all3Dproperties ) const
 {
-  DerivedProperties::DerivedPropertyManager propertyManager( m_projectHandle );
+  DerivedProperties::DerivedPropertyManager propertyManager( *m_projectHandle );
   StringVector propertyNames;
   const PropertyList* allProperties = m_projectHandle->getProperties( true );
   for ( const Interface::Property* property : *allProperties )
@@ -507,7 +506,7 @@ DerivedProperties::OutputPropertyValuePtr Track1d::allocateOutputProperty( Deriv
 
 void Track1d::readDataFromHDFfiles()
 {
-  HDFReadManager hdfReadManager( m_projectHandle );
+  HDFReadManager hdfReadManager( *m_projectHandle );
 
   for ( const Snapshot* snapshot : m_snapshots )
   {
@@ -597,7 +596,7 @@ bool Track1d::calculateDerivedProperties()
     return false;
   }
 
-  DerivedProperties::DerivedPropertyManager propertyManager( m_projectHandle );
+  DerivedProperties::DerivedPropertyManager propertyManager( *m_projectHandle );
 
   for ( const Snapshot* snapshot : m_snapshots )
   {
@@ -633,9 +632,9 @@ bool Track1d::calculateDerivedProperties()
   return true;
 }
 
-Interface::ProjectHandle* Track1d::getProjectHandle() const
+ProjectHandle& Track1d::getProjectHandle() const
 {
-  return m_projectHandle;
+  return *m_projectHandle;
 }
 
 void Track1d::writeOutputStream( std::ostream& outputStream,
@@ -788,9 +787,7 @@ void Track1d::doListSnapshots()
   std::cout << "Available snapshots are: ";
   for ( const Snapshot* snapshot : *mySnapshots )
   {
-	  if (first) first = false;
-	  else std::cout << ",";
-    //first ? first = false : std::cout << ",";
+    first ? first = false : std::cout << ",";
     std::streamsize oldPrecision = std::cout.precision();
     std::cout << std::setprecision( 9 ) << snapshot->getTime() << std::setprecision( oldPrecision );
   }

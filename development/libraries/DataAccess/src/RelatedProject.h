@@ -17,7 +17,7 @@ namespace DataAccess
       {
       public:
 
-         RelatedProject (ProjectHandle * projectHandle, database::Record * record);
+         RelatedProject (ProjectHandle& projectHandle, database::Record * record);
 
          virtual ~RelatedProject ();
 
@@ -56,8 +56,8 @@ namespace DataAccess
 	 double m_topOfSediment;
 	 double m_bottomOfSediment;
 
-      };
+			};
 
-   }
+	 }
 }
 #endif // _INTERFACE_RELATEDPROJECT_H_

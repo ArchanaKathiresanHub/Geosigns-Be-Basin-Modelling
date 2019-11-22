@@ -15,7 +15,7 @@ namespace Genex6 {
 
    public :
 
-      IrreducibleWaterSaturationFunction ( DataAccess::Interface::ProjectHandle* projectHandle );
+      IrreducibleWaterSaturationFunction ( DataAccess::Interface::ProjectHandle& projectHandle );
 
       /// \brief Computes the irreducible-water-saturation.
       ///

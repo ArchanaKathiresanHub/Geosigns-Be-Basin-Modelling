@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "CapillaryPressureCalculator.h"
 #include "CompoundLithology.h"
 #include "DerivedOutputPropertyMap.h"
@@ -34,11 +34,11 @@
 using namespace FiniteElementMethod;
 using namespace pvtFlash;
 
-OutputPropertyMap* allocateCapillaryPressureVolumeCalculator ( const ::PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateCapillaryPressureVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<CapillaryPressureVolumeCalculator>( property, formation, snapshot );
 }
 
-//volume calculator 
+//volume calculator
 //constructor
 CapillaryPressureVolumeCalculator::CapillaryPressureVolumeCalculator ( LayerProps* formation, const Interface::Snapshot* snapshot ) :
    m_formation ( formation ), m_snapshot ( snapshot ) {
@@ -52,17 +52,17 @@ void CapillaryPressureVolumeCalculator::allocatePropertyValues ( OutputPropertyM
 
 
    CauldronPropertyValue* phase;
-   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidBrineCapillaryPressure", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcLiquidBrineCapillaryPressure",
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
 
- 
-   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourBrineCapillaryPressure", 
+
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HcVapourBrineCapillaryPressure",
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
-                                                                                              m_formation->getMaximumNumberOfElements () + 1 )); 
+                                                                                              m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
 }
 
@@ -86,10 +86,10 @@ bool CapillaryPressureVolumeCalculator::initialise ( OutputPropertyMap::Property
    return true;
 }
 
-bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
+bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& ,
                                                      OutputPropertyMap::PropertyValueList&  propertyValues )
 {
-  
+
    using namespace CBMGenerics;
 
    if (m_isCalculated)
@@ -106,7 +106,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
 
    const ElementVolumeGrid& grid = m_formation->getVolumeGrid ( Saturation::NumberOfPhases );
 
-   double undefinedValue; 
+   double undefinedValue;
    double lwcp;
    double vwcp;
 
@@ -116,17 +116,17 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
    double entryPressure;
    double permeabilityNormal;
    double permeabilityPlane;
- 
+
    //get liquid phase pc
    liquidWaterCapPressureMap = propertyValues[0]->getGridMap ();
    liquidWaterCapPressureMap->retrieveData ();
    //get vapour phase pc
    vapourWaterCapPressureMap = propertyValues[1]->getGridMap ();
    vapourWaterCapPressureMap->retrieveData ();
-   
+
    undefinedValue = liquidWaterCapPressureMap->getUndefinedValue ();
 
-   
+
    PetscBlockVector<Saturation> saturations;
    Saturation saturation;
    saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
@@ -137,7 +137,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
 
    molarMasses = PVTCalc::getInstance ().getMolarMass ();
    molarMasses *= 1.0e-3;
-   
+
    bool vesIsActive = m_formation->Current_Properties.propertyIsActivated ( Basin_Modelling::VES_FP );
    bool maxVesIsActive = m_formation->Current_Properties.propertyIsActivated ( Basin_Modelling::Max_VES );
 
@@ -149,7 +149,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
    if ( not maxVesIsActive ) {
       m_formation->Current_Properties.Activate_Property ( Basin_Modelling::Max_VES, INSERT_VALUES, true );
    }
-   
+
    for ( i = grid.firstI (); i <= grid.lastI (); ++i ) {
 
       for ( j = grid.firstJ (); j <= grid.lastJ (); ++j ) {
@@ -176,7 +176,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                   } else {
                      entryPressure = BrooksCorey::Pe;
                   }
-                  
+
                   lwcp = element.getLithology()->capillaryPressure ( Saturation::LIQUID,
                                                                      saturation,
                                                                      entryPressure );

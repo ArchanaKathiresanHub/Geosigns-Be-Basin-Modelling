@@ -43,7 +43,7 @@ Genex0dFormationManager::Genex0dFormationManager(const std::string & projectFile
     {
       throw Genex0dException() << "Fatal error, empty project name!";
     }
-    m_projectHandle = DataAccess::Interface::OpenCauldronProject(projectFilename, "r", m_factory);
+    m_projectHandle.reset(DataAccess::Interface::OpenCauldronProject(projectFilename, m_factory));
 
     if (formationName.empty())
     {
@@ -66,7 +66,6 @@ Genex0dFormationManager::Genex0dFormationManager(const std::string & projectFile
 
 void Genex0dFormationManager::cleanup()
 {
-  delete m_projectHandle;
   delete m_factory;
 }
 

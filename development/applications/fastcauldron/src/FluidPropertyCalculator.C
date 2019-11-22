@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "FluidPropertyCalculator.h"
 
 #include "CompoundLithology.h"
@@ -31,11 +31,11 @@
 
 #define DEBUG
 
-// OutputPropertyMap* allocateFluidPropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+// OutputPropertyMap* allocateFluidPropertyCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
 //    return new DerivedOutputPropertyMap<FluidPropertyCalculator>( property, formation, surface, snapshot );
 // }
 
-OutputPropertyMap* allocateFluidPropertyVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateFluidPropertyVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<FluidPropertyVolumeCalculator>( property, formation, snapshot );
 }
 
@@ -43,7 +43,7 @@ OutputPropertyMap* allocateFluidPropertyVolumeCalculator ( const PropertyList pr
 
 FluidPropertyVolumeCalculator::FluidPropertyVolumeCalculator ( LayerProps* formation, const Interface::Snapshot* snapshot ) :
    m_formation ( formation ), m_snapshot ( snapshot ) {
-   
+
    m_pressure = 0;
    m_temperature = 0;
    m_isCalculated = false;
@@ -59,32 +59,32 @@ void FluidPropertyVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::
    //3 -> CondensateApi
 
    CauldronPropertyValue* phase;
-   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "GOR", 
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "GOR",
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
-   
-   
-   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "CGR", 
+
+
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "CGR",
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
-                                                                                              m_formation->getMaximumNumberOfElements () + 1 )); 
+                                                                                              m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
-   
-   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "OilAPI", 
+
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "OilAPI",
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
-                                                                                              m_formation->getMaximumNumberOfElements () + 1 )); 
+                                                                                              m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
-   
-   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "CondensateAPI", 
+
+   phase = (CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "CondensateAPI",
                                                                                               m_snapshot, 0,
                                                                                               m_formation,
-                                                                                              m_formation->getMaximumNumberOfElements () + 1 )); 
+                                                                                              m_formation->getMaximumNumberOfElements () + 1 ));
    properties.push_back ( phase );
-   
-   
+
+
 }
 
 bool FluidPropertyVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
@@ -102,7 +102,7 @@ bool FluidPropertyVolumeCalculator::initialise ( OutputPropertyMap::PropertyValu
    return true;
 }
 
-bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                                 OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -121,7 +121,7 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
    }
 
 
-   
+
    unsigned int i;
    unsigned int j;
    unsigned int k;
@@ -135,13 +135,13 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
    PetscBlockVector<PVTComponents> layerMolarConcentrations;
  // At this point previous and current have same values
    layerMolarConcentrations.setVector ( grid, m_formation->getPreviousComponentVec (), INSERT_VALUES );
-   
+
    double value;
    double undefinedValue;
    double temperature;
-   double pressure; 
+   double pressure;
 
-   
+
    gorMap = propertyValues[0]->getGridMap ();
    gorMap->retrieveData ();
    cgrMap = propertyValues[1]->getGridMap ();
@@ -150,7 +150,7 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
    oilApiMap->retrieveData ();
    condensateApiMap = propertyValues[3]->getGridMap ();
    condensateApiMap->retrieveData ();
-   
+
    undefinedValue = gorMap->getUndefinedValue ();
 
 
@@ -175,11 +175,11 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
    molarMasses = PVTCalc::getInstance ().getMolarMass ();
    molarMasses *= 1.0e-3;
 
-                     
+
    // Standard conditions.
    double standardTemperature = 15.5555556 + 273.15; //Kelvin
    double standardPressure    = 101325.353; //Pa
-                        
+
    for ( i = grid.firstI (); i <= grid.lastI (); ++i )
       {
 
@@ -192,28 +192,28 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
             for ( k = grid.firstK (); k <= grid.lastK (); ++k )
                {
                   const LayerElement& element = m_formation->getLayerElement ( i, j, k );
-                  
+
                   if ( element.isActive ())
                      {
                         //=============Subsurface conditions ==============//
                         // Convert temperature to Kelvin.
                         temperature = computeProperty ( element, Basin_Modelling::Temperature ) + 273.15;
-                        
+
                         // Convert pressure to Pa.
                         pressure = 1.0e6 * computeProperty ( element, Basin_Modelling::Pore_Pressure );
-                        
+
                         // Get components that are to be flashed.
                         for ( unsigned int c = 0; c < NumberOfPVTComponents; ++c )
                            {
                               ComponentId pvtComponent = ComponentId ( c );
                               massConcentration ( pvtComponent ) = layerMolarConcentrations ( k, j, i )( pvtComponent );
                            }
-                        
+
                         // Convert molar concentrations to mass concentrations mol/m^3 -> kg/m^3.
                         // Should use the molar-mass computed in PVT based on the concentrations.
                         massConcentration *= molarMasses;
-                        
-                        // Flash concentrations 
+
+                        // Flash concentrations
                         pvtFlash::EosPack::getInstance ().computeWithLumping ( temperature, pressure,
                                                                                massConcentration.m_components,
                                                                                phaseComposition.m_masses,
@@ -221,7 +221,7 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                                                                                phaseViscosities.m_values );
 
                         //=============Standard P/T  conditions ==============//
-                        
+
 
                         vapourComponents = phaseComposition.getPhaseComponents(PhaseId::VAPOUR );
                         liquidComponents = phaseComposition.getPhaseComponents(PhaseId::LIQUID );
@@ -246,12 +246,12 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                         } else {
                            condensateVolume = phaseComposition.sum ( PhaseId::LIQUID ) / phaseDensities ( PhaseId::LIQUID );
                         }
-                        
+
                         //CondensateAPI
                         if ( phaseDensities ( PhaseId::LIQUID ) != 1000.0 )
                         {
                            condensateApi = 141.5 / phaseDensities ( PhaseId::LIQUID ) * 1000.0 - 131.5;
-                              
+
                            if ( condensateApi < 1.99 )
                            {
                               condensateApi = undefinedValue;
@@ -262,7 +262,7 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                         {
                            condensateApi = undefinedValue;
                         }
-                        
+
                         condensateApiMap->setValue(i,j,k,condensateApi);
 
                         //CGR
@@ -274,7 +274,7 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                         {
                            cgr = undefinedValue;
                         }
-                        
+
                         cgrMap->setValue(i,j,k,cgr);
 
 
@@ -298,17 +298,17 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                         } else {
                            liquidOilVolume = phaseComposition.sum ( PhaseId::LIQUID ) / phaseDensities ( PhaseId::LIQUID );
                         }
-                        
-                        //OilAPI 
+
+                        //OilAPI
                         if ( phaseDensities ( PhaseId::LIQUID ) != 1000.0 )
                         {
                            oilApi = 141.5 / phaseDensities ( PhaseId::LIQUID ) * 1000.0 - 131.5;
-                           
+
                            if ( oilApi < 1.99 )
                            {
                               oilApi = undefinedValue;
                            }
-                           
+
                         }
                         else
                         {
@@ -328,7 +328,7 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                         }
 
                         gorMap->setValue(i,j,k,gor);
-                        
+
                      }
                   else
                      {
@@ -342,55 +342,55 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                   // If last element in row or column or ... then copy value to fill array.
                   // Since arrays are the same size as the number of nodes.
                   if ( i == grid.getNumberOfXElements () - 1 ) {
-                     
+
                      condensateApiMap->setValue ( i + 1, j, k, condensateApiMap->getValue ( i, j, k ));
                      cgrMap->setValue ( i + 1, j, k, cgrMap->getValue ( i, j, k ));
                      oilApiMap->setValue ( i + 1, j, k, oilApiMap->getValue ( i, j, k ));
                      gorMap->setValue ( i + 1, j, k, gorMap->getValue ( i, j, k ));
                   }
-                  
+
                   if ( j == grid.getNumberOfYElements () - 1 ) {
-                     
+
                      condensateApiMap->setValue ( i, j + 1, k, condensateApiMap->getValue ( i, j, k ));
                      cgrMap->setValue ( i, j + 1, k, cgrMap->getValue ( i, j, k ));
                      oilApiMap->setValue ( i, j + 1, k, oilApiMap->getValue ( i, j, k ));
                      gorMap->setValue ( i, j + 1, k, gorMap->getValue ( i, j, k ));
                   }
-                  
+
                   if ( k == grid.getNumberOfZElements () - 1 ) {
-                     
+
                      condensateApiMap->setValue ( i, j, k + 1, condensateApiMap->getValue ( i, j, k ));
                      cgrMap->setValue ( i, j, k + 1, cgrMap->getValue ( i, j, k ));
                      oilApiMap->setValue ( i, j, k + 1, oilApiMap->getValue ( i, j, k ));
                      gorMap->setValue ( i, j, k + 1, gorMap->getValue ( i, j, k ));
                   }
-                  
+
                   if ( i == grid.getNumberOfXElements () - 1 and j == grid.getNumberOfYElements () - 1 ) {
-                     
+
                      condensateApiMap->setValue ( i + 1, j + 1, k, condensateApiMap->getValue ( i, j, k ));
                      cgrMap->setValue ( i + 1, j + 1, k, cgrMap->getValue ( i, j, k ));
                      oilApiMap->setValue ( i + 1, j + 1, k, oilApiMap->getValue ( i, j, k ));
                      gorMap->setValue ( i + 1, j + 1, k, gorMap->getValue ( i, j, k ));
                   }
-                  
+
                   if ( i == grid.getNumberOfXElements () - 1 and k == grid.getNumberOfZElements () - 1 ) {
-                     
+
                      condensateApiMap->setValue ( i + 1, j, k + 1, condensateApiMap->getValue ( i, j, k ));
                      cgrMap->setValue ( i + 1, j, k + 1, cgrMap->getValue ( i, j, k ));
                      oilApiMap->setValue ( i + 1, j, k + 1, oilApiMap->getValue ( i, j, k ));
                      gorMap->setValue ( i + 1, j, k + 1, gorMap->getValue ( i, j, k ));
                   }
-                  
+
                   if ( j == grid.getNumberOfYElements () - 1 and k == grid.getNumberOfZElements () - 1 ) {
-                     
+
                      condensateApiMap->setValue ( i, j + 1, k + 1, condensateApiMap->getValue ( i, j, k ));
                      cgrMap->setValue ( i, j + 1, k + 1, cgrMap->getValue ( i, j, k ));
                      oilApiMap->setValue ( i, j + 1, k + 1, oilApiMap->getValue ( i, j, k ));
                      gorMap->setValue ( i, j + 1, k + 1, gorMap->getValue ( i, j, k ));
                   }
-                  
+
                   if ( i == grid.getNumberOfXElements () - 1 and j == grid.getNumberOfYElements () - 1 and k == grid.getNumberOfZElements () - 1 ) {
-                     
+
                      condensateApiMap->setValue ( i + 1, j + 1, k + 1, condensateApiMap->getValue ( i, j, k ));
                      cgrMap->setValue ( i + 1, j + 1, k + 1, cgrMap->getValue ( i, j, k ));
                      oilApiMap->setValue ( i + 1, j + 1, k + 1, oilApiMap->getValue ( i, j, k ));
@@ -401,9 +401,9 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
             }
          }
       }
-   
-   
-   
+
+
+
    gorMap->restoreData();
    cgrMap->restoreData();
    oilApiMap->restoreData();
@@ -427,31 +427,31 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
 // void FluidPropertyCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
 //    PropertyValue* phase;
-//  phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "GOR", 
+//  phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "GOR",
 //                                                                                               m_snapshot, 0,
 //                                                                                               m_formation,
 //                                                                                               0 ));
 //  properties.push_back ( phase );
 
- 
-//  phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "COR", 
+
+//  phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "COR",
 //                                                                                               m_snapshot, 0,
 //                                                                                               m_formation,
-//                                                                                               0 )); 
+//                                                                                               0 ));
 //  properties.push_back ( phase );
 
-//   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "OilAPI", 
+//   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "OilAPI",
 //                                                                                               m_snapshot, 0,
 //                                                                                               m_formation,
-//                                                                                               0)); 
+//                                                                                               0));
 //  properties.push_back ( phase );
 
-//   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "CondensateAPI", 
+//   phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "CondensateAPI",
 //                                                                                               m_snapshot, 0,
 //                                                                                               m_formation,
-//                                                                                               0 )); 
+//                                                                                               0 ));
 //  properties.push_back ( phase );
- 
+
 
 // }
 
@@ -459,7 +459,7 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
 //    return true;
 // }
 
-// bool FluidPropertyCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+// bool FluidPropertyCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
 //                                                           OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
 //    if ( m_isCalculated ) {

@@ -14,8 +14,8 @@ hpc :: TestProject3DFile
 {
   write( fileName );
   m_factory.reset( new DataAccess::Interface::ObjectFactory());
-  m_project.reset( DataAccess::Interface::OpenCauldronProject( fileName, "r", m_factory.get() ));
-}   
+  m_project.reset( DataAccess::Interface::OpenCauldronProject( fileName, m_factory.get() ));
+}
 
 hpc :: TestProject3DFile
    :: ~TestProject3DFile()
@@ -31,7 +31,7 @@ hpc :: TestProject3DFile
    return m_project.get();
 }
 
-void 
+void
 hpc :: TestProject3DFile
    :: write( const std::string & fileName)
 {
@@ -50,7 +50,7 @@ hpc :: TestProject3DFile
 
 
 
-const char * 
+const char *
 hpc :: TestProject3DFile
    :: s_contents =
 ";\n"

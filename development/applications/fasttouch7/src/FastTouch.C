@@ -54,7 +54,7 @@ double MinimumAll (double myValue);
 
 
 FastTouch::FastTouch (const std::string & inputFileName, ObjectFactory* factory )
-   : m_projectHandle( OpenCauldronProject (inputFileName, "rw", factory))
+   : m_projectHandle( OpenCauldronProject (inputFileName, factory))
    , m_masterTouch(*m_projectHandle)
 {
 }
@@ -76,10 +76,10 @@ bool FastTouch::removeResqPropertyValues (void)
       return false;
    }
 
-   for (size_t i = 0; i < list->size (); ++i) 
+   for (size_t i = 0; i < list->size (); ++i)
    {
       const Interface::Property* resqProperty = (*list)[ i ];
-   
+
       m_projectHandle->deletePropertyValues (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE,
                                              resqProperty, 0, 0, 0, 0, Interface::MAP);
    }

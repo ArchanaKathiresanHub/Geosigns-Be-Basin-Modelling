@@ -45,7 +45,7 @@ namespace DerivedProperties {
 
    bool isEqualPropertyName( const string s1, const string s2 );
 
-   // bool acquireFormations( GeoPhysics::ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs,
+   // bool acquireFormations( GeoPhysics::ProjectHandle& projectHandle, FormationSurfaceVector & formationSurfacePairs,
    //                         StringVector & formationNames, const bool includeBasement = true ) ;
 
    /// \brief Create a vector of formation-surface pairs for the list of formation names
@@ -55,7 +55,7 @@ namespace DerivedProperties {
    /// \param [in]  useTop                 True for the top surfaces, false for the bottoms
    /// \param [out] formationSurfacePairs  On exit will contain formation-surface pairs
 
-   bool acquireFormationSurfaces( GeoPhysics::ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs,
+   bool acquireFormationSurfaces( GeoPhysics::ProjectHandle& projectHandle, FormationSurfaceVector & formationSurfacePairs,
                                   StringVector & formationNames, bool useTop, const bool includeBasement = true );
 
    /// \brief Create a vector of formation-surface pairs for the list of formation names. ( Surface is always empty )
@@ -64,7 +64,7 @@ namespace DerivedProperties {
    /// \param [in]  projectHandle          Pointer to the project handle object
    /// \param [out] formationSurfacePairs  On exit will contain formation-surface pairs
 
-   bool acquireFormations( GeoPhysics::ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs,
+   bool acquireFormations( GeoPhysics::ProjectHandle& projectHandle, FormationSurfaceVector & formationSurfacePairs,
                            StringVector & formationNames, const bool includeBasement = true );
 
    /// \brief Create a vector of properties for the list of the property names. Determine whether or not a property can be computed.
@@ -74,7 +74,7 @@ namespace DerivedProperties {
    /// \param [in]  propertyManager The property manager object
    /// \param [out] properties      On exit will contain a list of the properties
 
-   bool acquireProperties( GeoPhysics::ProjectHandle * projectHandle,
+   bool acquireProperties( GeoPhysics::ProjectHandle& projectHandle,
                            const AbstractDerivedProperties::AbstractPropertyManager& propertyManager,
                            DataAccess::Interface::PropertyList & properties, StringVector & propertyNames );
 
@@ -99,7 +99,7 @@ namespace DerivedProperties {
    /// \param [in]  projectHandle           The pointer to the project handle
    /// \param [in]  allOutputPropertyValues The set of allocated output property values (calculators)
 
-   void outputSnapshotFormationData( GeoPhysics::ProjectHandle* projectHandle, const Snapshot * snapshot,
+   void outputSnapshotFormationData( GeoPhysics::ProjectHandle& projectHandle, const Snapshot * snapshot,
                                      const FormationSurface                         & formationSurfaceItem,
                                      DataAccess::Interface::PropertyList            & properties,
                                      SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues );
@@ -113,7 +113,7 @@ namespace DerivedProperties {
    /// \param [in]  snapshot        The snapshot for which the property value to be created
    /// \param [in]  projectHandle   The pointer to the project handle object
 
-   bool createSnapshotResultPropertyValue ( GeoPhysics::ProjectHandle * projectHandle,
+   bool createSnapshotResultPropertyValue ( GeoPhysics::ProjectHandle& projectHandle,
                                             OutputPropertyValuePtr propertyValue,
                                             const Snapshot * snapshot,
                                             const Interface::Formation * formation,

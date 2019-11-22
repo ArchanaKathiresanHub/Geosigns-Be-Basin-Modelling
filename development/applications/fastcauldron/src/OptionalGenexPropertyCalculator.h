@@ -123,59 +123,59 @@ bool OptionalGenexPropertyCalculator<OptionalResult>::initialise ( OutputPropert
 
 
 
-OutputPropertyMap* allocateInstantaneousExpulsionApiCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateInstantaneousExpulsionApiCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateCumulativeExpulsionApiCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateCumulativeExpulsionApiCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateInstantaneousExpulsionCondensateGasRatioCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateInstantaneousExpulsionCondensateGasRatioCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateCumulativeExpulsionCondensateGasRatioCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateCumulativeExpulsionCondensateGasRatioCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateInstantaneousExpulsionGasOilRatioCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateInstantaneousExpulsionGasOilRatioCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateCumulativeExpulsionGasOilRatioCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateCumulativeExpulsionGasOilRatioCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateInstantaneousExpulsionGasWetnessCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateInstantaneousExpulsionGasWetnessCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateCumulativeExpulsionGasWetnessCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateCumulativeExpulsionGasWetnessCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateInstantaneousExpulsionAromaticityCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateInstantaneousExpulsionAromaticityCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateCumulativeExpulsionAromaticityCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateCumulativeExpulsionAromaticityCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateKerogenConversionRatioCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateKerogenConversionRatioCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateOilGeneratedCumulativeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateOilGeneratedCumulativeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateOilGeneratedRateCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateOilGeneratedRateCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateOilExpelledCumulativeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateOilExpelledCumulativeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateOilExpelledRateCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateOilExpelledRateCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateHcGasGeneratedCumulativeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateHcGasGeneratedCumulativeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateHcGasGeneratedRateCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateHcGasGeneratedRateCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateHcGasExpelledCumulativeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateHcGasExpelledCumulativeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateHcGasExpelledRateCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateHcGasExpelledRateCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateDryGasGeneratedCumulativeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateDryGasGeneratedCumulativeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateDryGasGeneratedRateCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateDryGasGeneratedRateCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateDryGasExpelledCumulativeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateDryGasExpelledCumulativeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateDryGasExpelledRateCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateDryGasExpelledRateCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateWetGasGeneratedCumulativeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateWetGasGeneratedCumulativeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateWetGasGeneratedRateCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateWetGasGeneratedRateCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateWetGasExpelledCumulativeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateWetGasExpelledCumulativeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateWetGasExpelledRateCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateWetGasExpelledRateCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
 
 

@@ -19,25 +19,12 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::PrimarySurfacePropertyCalculator::PrimarySurfacePropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
-                                                                                        const DataModel::AbstractProperty* property ) :
-   m_property ( property )
-{
-
-   DataAccess::Interface::PropertyValueList* surfaceProperties = projectHandle->getPropertyValues ( DataAccess::Interface::SURFACE, 0, 0, 0, 0, 0, DataAccess::Interface::MAP );
+DerivedProperties::PrimarySurfacePropertyCalculator::PrimarySurfacePropertyCalculator ( const DataModel::AbstractProperty* property,
+                                                                                        const DataAccess::Interface::PropertyValueList& propertyValues ) :
+   m_property ( property ),
+   m_surfacePropertyValues ( propertyValues )
+{   
    addPropertyName ( property->getName ());
-
-   for ( size_t i = 0; i < surfaceProperties->size (); ++i ) {
-      const DataAccess::Interface::PropertyValue* propVal = (*surfaceProperties)[ i ];
-
-      if ( propVal->getProperty () == m_property and propVal->getSurface () != 0 and propVal->getFormation () == 0 ) {
-         m_snapshots.insert ( propVal->getSnapshot ());
-         m_surfacePropertyValues.push_back ( propVal );
-      }
-
-   }
-
-   delete surfaceProperties;
 }
 
 DerivedProperties::PrimarySurfacePropertyCalculator::~PrimarySurfacePropertyCalculator () {
@@ -84,6 +71,3 @@ bool DerivedProperties::PrimarySurfacePropertyCalculator::isComputable ( const A
    return false;
 }
 
-const DataModel::AbstractSnapshotSet& DerivedProperties::PrimarySurfacePropertyCalculator::getSnapshots () const {
-   return m_snapshots;
-} 

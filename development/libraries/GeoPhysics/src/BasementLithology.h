@@ -23,7 +23,7 @@ class BasementLithology : public SimpleLithology
  public:
 
 
-   BasementLithology ( DataAccess::Interface::ProjectHandle* projectHandle,
+   BasementLithology ( DataAccess::Interface::ProjectHandle& projectHandle,
                        database::Record*                     record );
 
 

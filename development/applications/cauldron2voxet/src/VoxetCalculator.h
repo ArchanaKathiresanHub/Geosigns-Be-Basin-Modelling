@@ -60,7 +60,7 @@ class VoxetCalculator {
 
       ~PropertyInterpolator ();
 
-      void setSnapshot ( const GeoPhysics::ProjectHandle*           projectHandle,
+      void setSnapshot ( const GeoPhysics::ProjectHandle&           projectHandle,
                          DerivedProperties::DerivedPropertyManager& propertyManager,
                          const Snapshot*                            snapshot,
                          const bool                                 useBasement );
@@ -89,7 +89,7 @@ class VoxetCalculator {
 
 public :
 
-   VoxetCalculator ( const GeoPhysics::ProjectHandle*           projectHandle,
+   VoxetCalculator ( const GeoPhysics::ProjectHandle&           projectHandle,
                      DerivedProperties::DerivedPropertyManager& propertyManager,
                      const GridDescription&                     gridDescription,
                      const std::map<std::string, double >&      propertyNullValueReplaceLookup = std::map<std::string, double >() );
@@ -158,7 +158,7 @@ private :
    ///     0 <= j < number-J-Nodes - 1.
    bool validCauldronElement ( const int i, const int j ) const;
 
-   const GeoPhysics::ProjectHandle*           m_projectHandle;
+   const GeoPhysics::ProjectHandle& m_projectHandle;
    DerivedProperties::DerivedPropertyManager& m_propertyManager;
    const GridDescription                      m_gridDescription;
 

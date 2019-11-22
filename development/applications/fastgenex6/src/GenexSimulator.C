@@ -45,11 +45,11 @@ void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
 
 }
 
-GenexSimulator::GenexSimulator (database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, const Interface::ObjectFactory* objectFactory)
-   : GeoPhysics::ProjectHandle (database, name, accessMode, objectFactory)
+GenexSimulator::GenexSimulator (database::ProjectFileHandlerPtr database, const std::string & name, const Interface::ObjectFactory* objectFactory)
+   : GeoPhysics::ProjectHandle (database, name,objectFactory)
 {
   registerProperties();
-  m_propertyManager = new DerivedProperties::DerivedPropertyManager ( this );
+  m_propertyManager = new DerivedProperties::DerivedPropertyManager( *this );
 }
 
 GenexSimulator::~GenexSimulator (void)
@@ -61,12 +61,11 @@ GenexSimulator::~GenexSimulator (void)
    m_expelledToCarrierBedPropertiesS.clear ();
    m_expelledToSourceRockPropertiesS.clear ();
    delete m_propertyManager;
-
 }
 
 GenexSimulator* GenexSimulator::CreateFrom(const std::string & inputFileName, DataAccess::Interface::ObjectFactory* objectFactory)
 {
-  return dynamic_cast<GenexSimulator *>(Interface::OpenCauldronProject (inputFileName, "rw", objectFactory));
+  return dynamic_cast<GenexSimulator *>(Interface::OpenCauldronProject (inputFileName, objectFactory));
 }
 
 bool GenexSimulator::saveTo(const std::string & outputFileName)

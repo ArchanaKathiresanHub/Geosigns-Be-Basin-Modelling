@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -27,7 +27,8 @@ namespace DataAccess
       {
          public:
 
-            MockCrustalThicknessRiftingHistoryData() : CrustalThicknessRiftingHistoryData( nullptr, nullptr ),
+            MockCrustalThicknessRiftingHistoryData(DataAccess::Interface::ProjectHandle& projectHandle) : CrustalThicknessRiftingHistoryData( projectHandle, nullptr ),
+
                m_flagName( "placeholderUnitTest" ){}
             virtual ~MockCrustalThicknessRiftingHistoryData() {}
 
@@ -41,7 +42,7 @@ namespace DataAccess
             /// @ Return an "placeholder" string so the test do not fail because of the CTC loging
             virtual const std::string& getTectonicFlagName() const final {
                return m_flagName;
-            };
+            }
             /// @brief Create a map for the corresponding attribute if it doesn't exist yet
             virtual Interface::GridMap const * getMap( const Interface::CTCRiftingHistoryMapAttributeId attributeId ) const final
             {

@@ -45,24 +45,24 @@ namespace migration
       {
       }
 
-      virtual DataAccess::Interface::Reservoir * produceReservoir (DataAccess::Interface::ProjectHandle * projectHandle,
+      virtual DataAccess::Interface::Reservoir * produceReservoir (DataAccess::Interface::ProjectHandle& projectHandle,
          database::Record * record) const;
 
-      virtual DataAccess::Interface::Formation * produceFormation (DataAccess::Interface::ProjectHandle * projectHandle,
+      virtual DataAccess::Interface::Formation * produceFormation (DataAccess::Interface::ProjectHandle& projectHandle,
          database::Record * record) const;
 
-      virtual DataAccess::Interface::Surface * produceSurface (DataAccess::Interface::ProjectHandle * projectHandle,
+      virtual DataAccess::Interface::Surface * produceSurface (DataAccess::Interface::ProjectHandle& projectHandle,
          database::Record * record) const;
 
    private:
 
-      DataAccess::Interface::Reservoir * produceMigrationReservoir (DataAccess::Interface::ProjectHandle * projectHandle,
+      DataAccess::Interface::Reservoir * produceMigrationReservoir (DataAccess::Interface::ProjectHandle& projectHandle,
          database::Record * record) const;
 
-      DataAccess::Interface::Formation * produceMigrationFormation (DataAccess::Interface::ProjectHandle * projectHandle,
+      DataAccess::Interface::Formation * produceMigrationFormation (DataAccess::Interface::ProjectHandle& projectHandle,
          database::Record * record) const;
 
-      DataAccess::Interface::Surface * produceMigrationSurface (DataAccess::Interface::ProjectHandle * projectHandle,
+      DataAccess::Interface::Surface * produceMigrationSurface (DataAccess::Interface::ProjectHandle& projectHandle,
          database::Record * record) const;
 
       Migrator * const m_migrator;

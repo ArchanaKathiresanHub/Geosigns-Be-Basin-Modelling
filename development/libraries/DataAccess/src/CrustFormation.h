@@ -25,7 +25,7 @@ namespace DataAccess
       {
       public:
 
-         CrustFormation (ProjectHandle * projectHandle, database::Record* record);
+         CrustFormation (ProjectHandle& projectHandle, database::Record* record);
 
          ~CrustFormation () = default;
 

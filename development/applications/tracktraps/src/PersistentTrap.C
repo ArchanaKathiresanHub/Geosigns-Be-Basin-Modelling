@@ -145,10 +145,8 @@ void PersistentTrap::getGridPosition (unsigned int & i, unsigned int & j)
 
 void PersistentTrap::save (Table * table)
 {
-   vector<TrackTrap *>::iterator trapIter;
-   for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+   for ( TrackTrap * trap : m_traps )
    {
-      TrackTrap * trap = * trapIter;
       trap->save (table);
    }
 }

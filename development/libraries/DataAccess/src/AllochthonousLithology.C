@@ -17,7 +17,7 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-AllochthonousLithology::AllochthonousLithology (ProjectHandle * projectHandle, database::Record * record) : DAObject (projectHandle, record) {
+AllochthonousLithology::AllochthonousLithology (ProjectHandle& projectHandle, database::Record * record) : DAObject (projectHandle, record) {
   m_formation = 0;
   m_lithoType = 0;
 }
@@ -40,7 +40,7 @@ const Formation * AllochthonousLithology::getFormation (void) const
 {
 
    if ( m_formation == 0 ) {
-      m_formation = ( const Interface::Formation* ) m_projectHandle->findFormation ( getFormationName ());
+      m_formation = ( const Interface::Formation* ) getProjectHandle().findFormation ( getFormationName ());
    }
 
    return m_formation;
@@ -50,7 +50,7 @@ const LithoType * AllochthonousLithology::getLithoType (void) const
 {
 
    if ( m_lithoType == 0 ) {
-      m_lithoType = ( const Interface::LithoType* ) m_projectHandle->findLithoType ( getLithologyName ());
+      m_lithoType = ( const Interface::LithoType* ) getProjectHandle().findLithoType ( getLithologyName ());
    }
 
   return m_lithoType;
@@ -58,13 +58,13 @@ const LithoType * AllochthonousLithology::getLithoType (void) const
 
 AllochthonousLithologyDistributionList * AllochthonousLithology::getAllochthonousLithologyDistributions (void) const
 {
-   return m_projectHandle->getAllochthonousLithologyDistributions (this);
+   return getProjectHandle().getAllochthonousLithologyDistributions (this);
 }
 
 
 AllochthonousLithologyInterpolationList * AllochthonousLithology::getAllochthonousLithologyInterpolations (void) const
 {
-   return m_projectHandle->getAllochthonousLithologyInterpolations (this);
+   return getProjectHandle().getAllochthonousLithologyInterpolations (this);
 }
 
 void AllochthonousLithology::printOn (ostream & ostr) const

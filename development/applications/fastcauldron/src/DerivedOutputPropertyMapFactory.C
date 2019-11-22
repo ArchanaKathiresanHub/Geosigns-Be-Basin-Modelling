@@ -4,25 +4,9 @@
 #include "PrimaryOutputPropertyMap.h"
 #include "PrimaryOutputPropertyVolume.h"
 
-#include "AllochthonousLithologyMapCalculator.h"
 #include "BiomarkersAdapter.h"
-#include "BulkDensityCalculator.h"
-#include "ErosionFactorCalculator.h"
-#include "FaultElementMapCalculator.h"
-#include "FluidVelocityCalculator.h"
-#include "HeatFlowCalculator.h"
 #include "LithologyIdCalculator.h"
-#include "MaxVesCalculator.h"
-#include "PorosityCalculator.h"
-#include "PermeabilityCalculator.h"
-#include "ReflectivityCalculator.h"
-#include "SonicCalculator.h"
 #include "SmectiteIlliteAdapter.h"
-#include "ThermalConductivityCalculator.h"
-#include "ThermalDiffusivityCalculator.h"
-#include "ThicknessCalculator.h"
-#include "TwoWayTimeCalculator.h"
-#include "VelocityCalculator.h"
 #include "VitriniteReflectanceCalculator.h"
 
 #include "ComponentConcentrationCalculator.h"
@@ -33,7 +17,11 @@
 
 #include "BasementPropertyCalculator.h"
 
+#include "AllochthonousLithologyMapCalculator.h"
+#include "ErosionFactorCalculator.h"
+#include "FaultElementMapCalculator.h"
 #include "FCTCorrectionCalculator.h"
+#include "MaxVesCalculator.h"
 #include "ThicknessErrorMapCalculator.h"
 
 #include "PvtHcProperties.h"
@@ -42,12 +30,25 @@
 #include "TransportedVolumeCalculator.h"
 #include "VolumeCalculator.h"
 
-#include "BrineProperties.h"
 #include "CapillaryPressureCalculator.h"
 #include "FluidPropertyCalculator.h"
 #include "TimeOfElementInvasionCalculator.h"
-#include "FracturePressureMapCalculator.h"
-#include "FracturePressureVolumeCalculator.h"
+
+
+OutputPropertyMap* allocateEmptyMap ( const PropertyIdentifier& /*property*/,
+                                      LayerProps* /*formation*/,
+                                      const Interface::Surface* /*surface*/,
+                                      const Interface::Snapshot* /*snapshot*/ )
+{
+  return nullptr;
+}
+
+OutputPropertyMap* allocateEmptyVolume ( const PropertyIdentifier& /*property*/,
+                                      LayerProps* /*formation*/,
+                                      const Interface::Snapshot* /*snapshot*/ )
+{
+  return nullptr;
+}
 
 DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 
@@ -89,11 +90,6 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ PRESSURE ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateFracturePressureMapCalculator;
-   mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ FRACTURE_PRESSURE ] = mapTraits;
-
    mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = true;
@@ -114,15 +110,35 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ TEMPERATURE ] = mapTraits;
 
+   mapTraits.m_propertyAllocator = allocateThicknessErrorMapCalculator;
+   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = true;
+   m_mapPropertyTraitsMap [ THICKNESSERROR ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateFCTCorrectionCalculator;
+   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = true;
+   m_mapPropertyTraitsMap [ FCTCORRECTION ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateAllochthonousLithologyMapCalculator;
+   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = true;
+   m_mapPropertyTraitsMap [ ALLOCHTHONOUS_LITHOLOGY ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateErosionFactorCalculator;
+   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = true;
+   m_mapPropertyTraitsMap [ EROSIONFACTOR ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateFaultElementMapCalculator;
+   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = true;
+   m_mapPropertyTraitsMap [ FAULTELEMENTS ] = mapTraits;
+
 
    // Derived properties.
 
    // Surface properties.
-   mapTraits.m_propertyAllocator = allocateHeatFlowCalculator;
-   mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ HEAT_FLOW ] = mapTraits;
-
    mapTraits.m_propertyAllocator = allocateSmectiteIlliteAdapter;
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
@@ -133,89 +149,79 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ BIOMARKERS ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateTwoWayTimeCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
+   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = false;
+   m_mapPropertyTraitsMap [ REFLECTIVITYVEC ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap[ TWOWAYTIME ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateTwoWayTimeResidualCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap[ TWOWAYTIME_RESIDUAL ] = mapTraits;
 
    // Formation properties.
-   mapTraits.m_propertyAllocator = allocateThicknessCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ THICKNESS ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateThicknessErrorMapCalculator;
-   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ THICKNESSERROR ] = mapTraits;
-
-   mapTraits.m_propertyAllocator = allocateFCTCorrectionCalculator;
-   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ FCTCORRECTION ] = mapTraits;
-
-   mapTraits.m_propertyAllocator = allocateAllochthonousLithologyMapCalculator;
-   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ ALLOCHTHONOUS_LITHOLOGY ] = mapTraits;
-
-   mapTraits.m_propertyAllocator = allocateErosionFactorCalculator;
-   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ EROSIONFACTOR ] = mapTraits;
-
-   mapTraits.m_propertyAllocator = allocateFaultElementMapCalculator;
-   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ FAULTELEMENTS ] = mapTraits;
-
    // Surface-Formation properties, i.e. vector properties.
-   mapTraits.m_propertyAllocator = allocatePorosityCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
+   mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = false;
+   m_mapPropertyTraitsMap [ HEAT_FLOW ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ POROSITYVEC ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocatePermeabilityCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
+   mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = false;
+   m_mapPropertyTraitsMap [ PERMEABILITYHVEC ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ PERMEABILITYVEC ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateBulkDensityCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
+   mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = false;
+   m_mapPropertyTraitsMap [ FRACTURE_PRESSURE ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ BULKDENSITYVEC ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateReflectivityCalculator;
-   mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ REFLECTIVITYVEC ] = mapTraits;
-
-   mapTraits.m_propertyAllocator = allocateVelocityCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ VELOCITYVEC ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateSonicCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ SONICVEC ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateThermalConductivityCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ THCONDVEC ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateThermalDiffusivityCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ DIFFUSIVITYVEC ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateFluidVelocityCalculator;
+   mapTraits.m_propertyAllocator = allocateEmptyMap;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ FLUID_VELOCITY ] = mapTraits;
@@ -450,7 +456,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = true;
    m_volumePropertyTraitsMap [ PRESSURE ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocateFracturePressureVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = true;
    m_volumePropertyTraitsMap [ FRACTURE_PRESSURE ] = volumeTraits;
 
@@ -470,47 +476,47 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = true;
    m_volumePropertyTraitsMap [ TEMPERATURE ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocatePorosityVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ POROSITYVEC ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocatePermeabilityVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
+   volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap [ PERMEABILITYHVEC ] = volumeTraits;
+
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ PERMEABILITYVEC ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocateHeatFlowVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ HEAT_FLOW ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocateBulkDensityVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ BULKDENSITYVEC ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocateReflectivityVolumeCalculator;
-   volumeTraits.m_isPrimaryProperty = false;
-   m_volumePropertyTraitsMap [ REFLECTIVITYVEC ] = volumeTraits;
-
-   volumeTraits.m_propertyAllocator = allocateThermalDiffusivityVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ DIFFUSIVITYVEC ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocateThermalConductivityVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ THCONDVEC ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocateFluidVelocityVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ FLUID_VELOCITY ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocateSonicVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ SONICVEC ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocateVelocityVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ VELOCITYVEC ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocateTwoWayTimeVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap[ TWOWAYTIME ] = volumeTraits;
 
@@ -622,9 +628,13 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 
    //Brine properties viscosity and density
 
-   volumeTraits.m_propertyAllocator = allocateBrinePropertiesVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
-   m_volumePropertyTraitsMap [ BRINE_PROPERTIES ] = volumeTraits;
+   m_volumePropertyTraitsMap [ BRINEDENSITY ] = volumeTraits;
+
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
+   volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap [ BRINEVISCOSITY ] = volumeTraits;
 
    //Time of Element Invasion
    volumeTraits.m_propertyAllocator = allocateTimeOfElementInvasionVolumeCalculator;
@@ -642,7 +652,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 
 }
 
-OutputPropertyMap* DerivedOutputPropertyMapFactory::allocateMap ( const PropertyList         derivedProperty,
+OutputPropertyMap* DerivedOutputPropertyMapFactory::allocateMap ( const PropertyIdentifier&         derivedProperty,
                                                                         LayerProps*          formation,
                                                                   const Interface::Surface*  surface,
                                                                   const Interface::Snapshot* snapshot ) const {
@@ -657,7 +667,7 @@ OutputPropertyMap* DerivedOutputPropertyMapFactory::allocateMap ( const Property
 
 }
 
-OutputPropertyMap* DerivedOutputPropertyMapFactory::allocateVolume ( const PropertyList         derivedProperty,
+OutputPropertyMap* DerivedOutputPropertyMapFactory::allocateVolume ( const PropertyIdentifier&         derivedProperty,
                                                                            LayerProps*          formation,
                                                                      const Interface::Snapshot* snapshot ) const {
 
@@ -671,20 +681,7 @@ OutputPropertyMap* DerivedOutputPropertyMapFactory::allocateVolume ( const Prope
 
 }
 
-
-bool DerivedOutputPropertyMapFactory::isVectorQuantity ( const PropertyList derivedProperty ) const {
-
-   MapPropertyTraitsMap::const_iterator traitsIter = m_mapPropertyTraitsMap.find ( derivedProperty );
-
-   if ( traitsIter != m_mapPropertyTraitsMap.end ()) {
-      return traitsIter->second.m_outputAssociation == SURFACE_FORMATION_ASSOCIATION;
-   } else {
-      return false;
-   }
-
-}
-
-OutputPropertyMapAssociation DerivedOutputPropertyMapFactory::getMapAssociation ( const PropertyList derivedProperty ) const {
+OutputPropertyMapAssociation DerivedOutputPropertyMapFactory::getMapAssociation ( const PropertyIdentifier& derivedProperty ) const {
 
    MapPropertyTraitsMap::const_iterator traitsIter = m_mapPropertyTraitsMap.find ( derivedProperty );
 
@@ -696,22 +693,10 @@ OutputPropertyMapAssociation DerivedOutputPropertyMapFactory::getMapAssociation 
 
 }
 
-bool DerivedOutputPropertyMapFactory::isPrimary ( const PropertyList derivedProperty ) const {
-
-   MapPropertyTraitsMap::const_iterator traitsIter = m_mapPropertyTraitsMap.find ( derivedProperty );
-
-   if ( traitsIter != m_mapPropertyTraitsMap.end ()) {
-      return traitsIter->second.m_isPrimaryProperty;
-   } else {
-      return false;
-   }
-
-}
-
-bool DerivedOutputPropertyMapFactory::isMapDefined ( const PropertyList derivedProperty ) const {
+bool DerivedOutputPropertyMapFactory::isMapDefined ( const PropertyIdentifier& derivedProperty ) const {
    return m_mapPropertyTraitsMap.find ( derivedProperty ) != m_mapPropertyTraitsMap.end ();
 }
 
-bool DerivedOutputPropertyMapFactory::isVolumeDefined ( const PropertyList derivedProperty ) const {
+bool DerivedOutputPropertyMapFactory::isVolumeDefined ( const PropertyIdentifier& derivedProperty ) const {
    return m_volumePropertyTraitsMap.find ( derivedProperty ) != m_volumePropertyTraitsMap.end ();
 }

@@ -19,7 +19,7 @@ enum TransientModel {
 class DiffusionLeakageParameters: public DAObject
 {
 public:
-   DiffusionLeakageParameters(ProjectHandle* projecthandle, database::Record* record);
+   DiffusionLeakageParameters(ProjectHandle& projecthandle, database::Record* record);
    ~DiffusionLeakageParameters();
 
    double salinity() const;

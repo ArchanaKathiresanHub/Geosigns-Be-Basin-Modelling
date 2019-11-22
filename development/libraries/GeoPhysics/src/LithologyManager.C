@@ -17,7 +17,7 @@ using namespace DataAccess;
 
 //------------------------------------------------------------//
 
-GeoPhysics::LithologyManager::LithologyManager ( ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+GeoPhysics::LithologyManager::LithologyManager (ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
 }
 
 //------------------------------------------------------------//
@@ -48,7 +48,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
   if ( compoundIter == compoundLithologies.end() || ( composition.lithologyName( 3 ) == DataAccess::Interface::ALCBasalt )) {
     bool   mixedSuccessfully;
 
-    compoundLithology = dynamic_cast<const GeoPhysics::ObjectFactory*>(m_projectHandle->getFactory ())->produceCompoundLithology ( m_projectHandle );
+    compoundLithology = dynamic_cast<const GeoPhysics::ObjectFactory*>(m_projectHandle.getFactory ())->produceCompoundLithology ( m_projectHandle );
     compoundLithology->setMixModel( composition.mixingModel(), composition.layeringIndex());
 
     for ( I = 1; I <= MaximumNumberOfLithologies; I++ ) {
@@ -63,9 +63,9 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
 
         } else {
 
-           m_projectHandle->getMessageHandler ().print ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundLithology  could not find simple lithology " );
-           m_projectHandle->getMessageHandler ().print ( composition.lithologyName ( I ));
-           m_projectHandle->getMessageHandler ().newLine ();
+           m_projectHandle.getMessageHandler ().print ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundLithology  could not find simple lithology " );
+           m_projectHandle.getMessageHandler ().print ( composition.lithologyName ( I ));
+           m_projectHandle.getMessageHandler ().newLine ();
 
            delete compoundLithology;
            return 0;
@@ -81,7 +81,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
     if ( mixedSuccessfully ) {
       compoundLithologies [ composition ] = compoundLithology;
     } else {
-       m_projectHandle->getMessageHandler ().printLine ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundLithology  the mixing of the compound lithology was not successful" );
+       m_projectHandle.getMessageHandler ().printLine ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundLithology  the mixing of the compound lithology was not successful" );
        delete compoundLithology;
        compoundLithology = 0;
     }
@@ -183,7 +183,7 @@ GeoPhysics::SimpleLithology* GeoPhysics::LithologyManager::getSimpleFaultLitholo
       assert ( simpleLithology != 0 );
 
       // Create the new fault lithology (simple lithology).
-      simpleFaultLithology = (SimpleLithology*)(((GeoPhysics::ObjectFactory*)(m_projectHandle->getFactory ()))->produceLithoType ( simpleLithology, simpleFaultLithologyName, anisotropy, defaultPorosities, defaultPermeabilities));
+      simpleFaultLithology = (SimpleLithology*)(((GeoPhysics::ObjectFactory*)(m_projectHandle.getFactory ()))->produceLithoType ( simpleLithology, simpleFaultLithologyName, anisotropy, defaultPorosities, defaultPermeabilities));
 
       // Now add it to the list of currently defined simple lithologies.
       simpleLithologies.push_back ( simpleFaultLithology );
@@ -219,7 +219,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
   if ( compoundIter == compoundLithologies.end ()) {
     bool mixedSuccessfully;
 
-    faultLithology = dynamic_cast<const GeoPhysics::ObjectFactory*>(m_projectHandle->getFactory ())->produceCompoundLithology ( m_projectHandle );
+    faultLithology = dynamic_cast<const GeoPhysics::ObjectFactory*>(m_projectHandle.getFactory ())->produceCompoundLithology ( m_projectHandle );
     faultLithology->setMixModel( faultComposition.mixingModel(), faultComposition.layeringIndex());
 
     for ( I = 1; I <= MaximumNumberOfLithologies; I++ ) {
@@ -233,9 +233,9 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
           faultLithology->addLithology ( simpleFaultLithology, faultComposition.lithologyFraction ( I ));
         } else {
 
-           m_projectHandle->getMessageHandler ().print ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundFaultLithology  could not find simple lithology " );
-           m_projectHandle->getMessageHandler ().print ( composition.lithologyName ( I ));
-           m_projectHandle->getMessageHandler ().newLine ();
+           m_projectHandle.getMessageHandler ().print ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundFaultLithology  could not find simple lithology " );
+           m_projectHandle.getMessageHandler ().print ( composition.lithologyName ( I ));
+           m_projectHandle.getMessageHandler ().newLine ();
 
           delete faultLithology;
           return 0;
@@ -255,7 +255,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
 
       // If the compound lithology was not mixed correctly then
       // return a null pointer, since this lithology cannot be used.
-      m_projectHandle->getMessageHandler ().printLine ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundFaultLithology  the mixing of the compound lithology was not successful. " );
+      m_projectHandle.getMessageHandler ().printLine ( "Basin_Error: GeoPhysics::LithologyManager::getCompoundFaultLithology  the mixing of the compound lithology was not successful. " );
 
       // ERROR: Could not create the compounnd lithology with the fault composition.
       delete faultLithology;
@@ -289,7 +289,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
 
       if ( simpleLithology != 0 ) {
 
-         simpleFaultLithology = (SimpleLithology*)(((GeoPhysics::ObjectFactory*)(m_projectHandle->getFactory ()))->produceLithoType ( simpleLithology, faultLithologyName ));
+         simpleFaultLithology = (SimpleLithology*)(((GeoPhysics::ObjectFactory*)(m_projectHandle.getFactory ()))->produceLithoType ( simpleLithology, faultLithologyName ));
          simpleLithologies.push_back ( simpleFaultLithology );
 
          faultComposition.setComposition ( faultLithologyName, "", "", 100.0, 0.0, 0.0, "Homogeneous", -9999 );

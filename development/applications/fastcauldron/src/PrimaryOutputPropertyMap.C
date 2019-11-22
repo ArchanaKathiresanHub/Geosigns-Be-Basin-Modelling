@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "PrimaryOutputPropertyMap.h"
 #include "FastcauldronSimulator.h"
 #include "timefilter.h"
@@ -20,7 +20,7 @@ using Utilities::Numerical::CauldronNoDataValue;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::MilliDarcyToM2;
 
-PrimaryOutputPropertyMap::PrimaryOutputPropertyMap ( const PropertyList         propertyName,
+PrimaryOutputPropertyMap::PrimaryOutputPropertyMap ( const PropertyIdentifier         propertyName,
                                                            LayerProps*          formation,
                                                      const Interface::Surface*  surface,
                                                      const Interface::Snapshot* snapshot ) :
@@ -44,10 +44,6 @@ PrimaryOutputPropertyMap::PrimaryOutputPropertyMap ( const PropertyList         
                                                                                                                 snapshot, 0, localFormation,
                                                                                                                 surface ));
    if( m_propertyName == CHEMICAL_COMPACTION && ! m_formation->hasChemicalCompaction () ) {
-      localValues->allowOutput( false );
-   }
-
-   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
       localValues->allowOutput( false );
    }
 
@@ -78,7 +74,7 @@ bool PrimaryOutputPropertyMap::calculate () {
 
    if ( isCalculated ()) {
       return m_propertyMaps [ 0 ]->retrieved ();
-   } 
+   }
 
    assert ( m_propertyMaps.size () == 1 );
    assert ( m_propertyMaps [ 0 ] != 0 );
@@ -107,8 +103,8 @@ bool PrimaryOutputPropertyMap::initialise () {
                     &propertyVector );
 
    // Chemical compaction is an exception, in that it will not be output directly.
-   bool propertyIsDefined = ( m_propertyName == CHEMICAL_COMPACTION ? m_formation->hasChemicalCompaction () and 
-                                                                      FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompaction () : 
+   bool propertyIsDefined = ( m_propertyName == CHEMICAL_COMPACTION ? m_formation->hasChemicalCompaction () and
+                                                                      FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompaction () :
                                                                       true );
 
    for ( i = FastcauldronSimulator::getInstance ().firstI (); i <= FastcauldronSimulator::getInstance ().lastI (); ++i ) {
@@ -146,6 +142,6 @@ void PrimaryOutputPropertyMap::finalise () {
 
 }
 
-OutputPropertyMap* allocatePrimaryPropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocatePrimaryPropertyCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new PrimaryOutputPropertyMap ( property, formation, surface, snapshot );
 }

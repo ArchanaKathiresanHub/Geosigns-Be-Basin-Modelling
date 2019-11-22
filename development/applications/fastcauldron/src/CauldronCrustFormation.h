@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -24,7 +24,7 @@
 class CauldronCrustFormation : virtual public LayerProps, virtual public GeoPhysics::GeoPhysicsCrustFormation {
 
 public :
-   CauldronCrustFormation ( Interface::ProjectHandle * projectHandle, database::Record * record );
+   CauldronCrustFormation ( Interface::ProjectHandle& projectHandle, database::Record * record );
 
    ~CauldronCrustFormation ();
 
@@ -101,7 +101,7 @@ public :
    /// \details This is mentioned as lithoswitching in Cauldron documentation
    void setBasaltLitho (const int iPosition, const int jPosition, const int kPosition );
    /// \return True if the previous crust (in time) was basalt at the given (i,j,k) node, false otherwise
-   bool getPreviousBasaltLitho(const int iPosition, const int jPosition, const int kPosition ); 
+   bool getPreviousBasaltLitho(const int iPosition, const int jPosition, const int kPosition );
 
    void cleanVectors();
 

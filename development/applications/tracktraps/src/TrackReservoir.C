@@ -32,7 +32,7 @@ using Interface::Grid;
 #include "PersistentTrap.h"
 using namespace PersistentTraps;
 
-TrackReservoir::TrackReservoir (Interface::ProjectHandle * projectHandle, database::Record * record)
+TrackReservoir::TrackReservoir (Interface::ProjectHandle& projectHandle, database::Record * record)
    : m_persistentTrapId (0), m_averageDepth (0), Interface::Reservoir (projectHandle, record)
 {
 }
@@ -46,7 +46,7 @@ bool TrackReservoir::extractRelevantTraps (const Interface::Snapshot * snapshot)
    m_traps.clear ();
 
    Interface::TrapList * traps =
-      m_projectHandle->getTraps (this, snapshot, 0);
+      getProjectHandle().getTraps (this, snapshot, 0);
 
    Interface::TrapList::const_iterator trapIter;
    for (trapIter = traps->begin (); trapIter != traps->end (); ++trapIter)
@@ -74,7 +74,7 @@ bool TrackReservoir::isActive (const Interface::Snapshot * snapshot) const
 
    else if (getActivityMode () == "ActiveFrom")
    {
-      const Interface::Snapshot * activeFromSnapshot = m_projectHandle->findSnapshot (getActivityStart ());
+      const Interface::Snapshot * activeFromSnapshot = getProjectHandle().findSnapshot (getActivityStart ());
       return (activeFromSnapshot->getTime () > snapshot->getTime ());
    }
 
@@ -84,19 +84,19 @@ bool TrackReservoir::isActive (const Interface::Snapshot * snapshot) const
 const GridMap * TrackReservoir::getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot)
 {
    Interface::PropertyValueList * propertyValues =
-      m_projectHandle->getPropertyValues (Interface::RESERVOIR,
-	    m_projectHandle->findProperty (propertyName),
-	    snapshot, this, 0, 0,
-	    Interface::SURFACE);
+      getProjectHandle().getPropertyValues (Interface::RESERVOIR,
+      getProjectHandle().findProperty (propertyName),
+      snapshot, this, 0, 0,
+      Interface::SURFACE);
 
    if (propertyValues->size () != 1)
    {
       cerr << "Error: Wrong number ("
-	 << propertyValues->size ()
-	 << " != 1) of "
-	 << propertyName
-	 << " propertyValues returned!"
-	 << endl;
+   << propertyValues->size ()
+   << " != 1) of "
+   << propertyName
+   << " propertyValues returned!"
+   << endl;
       return 0;
    }
 
@@ -162,15 +162,15 @@ bool TrackReservoir::determineTrapExtents (const Interface::Snapshot * snapshot)
    {
       for (unsigned int j = 0; j < numJ; j++)
       {
-	 double value = gridMap->getValue (i, j);
-	 if (value != gridMap->getUndefinedValue () && value > 0)
-	 {
+   double value = gridMap->getValue (i, j);
+   if (value != gridMap->getUndefinedValue () && value > 0)
+   {
       TrackTrap * trap = getTrap ((int) value);
-	    if (trap)
-	    {
-	       trap->addExtent (i, j);
-	    }
-	 }
+      if (trap)
+      {
+         trap->addExtent (i, j);
+      }
+   }
       }
    }
    return true;
@@ -215,7 +215,7 @@ void TrackReservoir::createPersistentTraps ()
       assert (trap);
       if (trap->getPersistentTrap () != 0) continue;
 
-      PersistentTrap * persistentTrap = new PersistentTrap (m_projectHandle->getHighResolutionOutputGrid (), ++m_persistentTrapId);
+      PersistentTrap * persistentTrap = new PersistentTrap (getProjectHandle().getHighResolutionOutputGrid (), ++m_persistentTrapId);
       m_persistentTraps.push_back (persistentTrap);
       persistentTrap->addTrap (trap);
    }
@@ -225,12 +225,8 @@ void TrackReservoir::createPersistentTraps ()
 /// Extend persistent traps with fitting traps
 void TrackReservoir::extendPersistentTraps (const Interface::Snapshot * previousSnapshot)
 {
-   vector < PersistentTrap * >::iterator persistentTrapIter;
-
-   for (persistentTrapIter = m_persistentTraps.begin (); persistentTrapIter != m_persistentTraps.end (); ++persistentTrapIter)
+   for ( PersistentTrap *persistentTrap : m_persistentTraps )
    {
-      PersistentTrap *persistentTrap = *persistentTrapIter;
-
       // check if persistent trap is still alive
       if (persistentTrap->getSnapshotOfLastTrap () != previousSnapshot) continue;
       persistentTrap->findFittingTrap (m_traps);
@@ -239,23 +235,16 @@ void TrackReservoir::extendPersistentTraps (const Interface::Snapshot * previous
 
 void TrackReservoir::savePersistentTraps (Table * trapperIoTbl)
 {
-   vector < PersistentTrap * >::iterator persistentTrapIter;
-
-   for (persistentTrapIter = m_persistentTraps.begin (); persistentTrapIter != m_persistentTraps.end (); ++persistentTrapIter)
+   for ( PersistentTrap *persistentTrap : m_persistentTraps )
    {
-      PersistentTrap *persistentTrap = *persistentTrapIter;
-
       persistentTrap->save (trapperIoTbl);
    }
 }
 
 void TrackReservoir::deletePersistentTraps (void)
 {
-   vector < PersistentTrap * >::iterator persistentTrapIter;
-
-   for (persistentTrapIter = m_persistentTraps.begin (); persistentTrapIter != m_persistentTraps.end (); ++persistentTrapIter)
+   for ( PersistentTrap *persistentTrap : m_persistentTraps )
    {
-      PersistentTrap *persistentTrap = *persistentTrapIter;
       delete persistentTrap;
    }
    m_persistentTraps.clear ();

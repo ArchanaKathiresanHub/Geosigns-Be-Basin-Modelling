@@ -67,7 +67,6 @@ public :
    /// Only to be created by using the "CreateFrom" function.
    FastcauldronSimulator (database::ProjectFileHandlerPtr& pfh,
                           const std::string & name,
-                          const std::string & accessMode,
                           const DataAccess::Interface::ObjectFactory* factory);
 
    ~FastcauldronSimulator ();
@@ -137,7 +136,7 @@ public :
    /// on this, e.g. FaultElements.
    void correctAllPropertyLists ();
 
-   void setOutputPropertyOption ( const PropertyList                    property,
+   void setOutputPropertyOption ( const PropertyIdentifier                    property,
                                   const Interface::PropertyOutputOption option );
 
    Interface::PropertyOutputOption getOutputPropertyOption ( const std::string& propertyName );
@@ -162,10 +161,6 @@ public :
    void deleteSnapshotProperties ();
 
    void deleteSnapshotPropertyValueMaps ();
-
-   bool saveCreatedVolumePropertyValues ();
-
-
 
 
    ///
@@ -296,7 +291,7 @@ public :
    bool useCalculatedCapillaryPressure () const;
 
    /// \brief Return the flag indicating the calculation of derived properties
-   bool noDerivedPropertiesCalc () const;
+   bool doDerivedPropertiesCalc () const;
 
    /// \brief Clean the recordless properies list
    void removeRecordlessDerivedPropertyValues();
@@ -388,7 +383,7 @@ private :
    bool                       m_printCommandLine;
    std::string                m_commandLine;
    bool                       m_computeCapillaryPressure;
-   bool                       m_noDerivedPropertiesCalc;
+   bool                       m_derivedPropertiesCalc;
 
 };
 
@@ -473,8 +468,8 @@ inline double FastcauldronSimulator::getFctCorrectionScalingWeight () const {
 //------------------------------------------------------------//
 
 
-inline bool FastcauldronSimulator::noDerivedPropertiesCalc () const {
-   return m_noDerivedPropertiesCalc;
+inline bool FastcauldronSimulator::doDerivedPropertiesCalc () const {
+   return m_derivedPropertiesCalc;
 }
 //------------------------------------------------------------//
 

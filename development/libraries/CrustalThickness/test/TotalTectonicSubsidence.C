@@ -97,7 +97,8 @@ TEST_F( TTSCalculatorTest, total_tectonic_subsidence )
       }
    }
    MockInterfaceOutput outputData = MockInterfaceOutput( m_firstI, m_firstJ, m_lastI, m_lastJ );
-   MockInterfaceInput inputData = MockInterfaceInput();
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    inputData.setHCuMap( m_gridMap );
    m_riftingEvents[10] = std::shared_ptr<RiftingEvent>( new RiftingEvent( DataAccess::Interface::PASSIVE_MARGIN, m_seaLevelAdjustment, m_gridMap ) );
    inputData.setRiftingEvent( m_riftingEvents );
@@ -147,7 +148,8 @@ TEST_F( TTSCalculatorTest, compute )
          surfaceDepthHistory( i, j ).AddPoint( 20, Interface::DefaultUndefinedMapValue );
       }
    }
-   MockInterfaceInput inputData = MockInterfaceInput();
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    m_riftingEvents[10] = std::shared_ptr<RiftingEvent>( new RiftingEvent( DataAccess::Interface::PASSIVE_MARGIN, m_seaLevelAdjustment, m_gridMap ) );
    inputData.setRiftingEvent( m_riftingEvents );
    inputData.setHCuMap( m_gridMap );

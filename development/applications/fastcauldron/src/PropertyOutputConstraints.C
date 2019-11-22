@@ -145,7 +145,8 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* HC fluid velocity                         */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressure                         */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Fluid Properties such as GOR, COR, OilAPI */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Brine properties viscosity density        */
+     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Brine density                             */
+     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Brine viscosity                           */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Time of invasion                          */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmBasaltThickness     */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCMaxAsthenoMantleDepth */
@@ -157,7 +158,6 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmTopBasaltDepth      */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmMohoDepth           */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCOrigMantle            */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT       /* HorizontalPermeability   */
 };
 
 const Interface::PropertyOutputOption PropertyOutputConstraints::s_calculationModeMaxima[NumberOfCalculationModes] = {
@@ -303,7 +303,8 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false, false, false, false, false, false,  true,  true, false },  /* HC fliud velocity                         */
    { false, false, false, false, false, false, false,  true,  true, false },  /* CapillaryPressure                         */
    { false, false, false, false, false, false, false,  true,  true, false },  /* Fluid Properties such as GOR, COR, OilAPI */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Brine Properties density and viscosity    */
+   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Brine density                             */
+   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Brine viscosity                           */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Time of invasion                          */
    {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCSmBasaltThickness     */
    {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCMaxAsthenoMantleDepth */
@@ -315,7 +316,6 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCSmTopBasaltDepth      */
    {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCSmMohoDepth           */
    {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCOrigMantle            */
-   { false, false,  true,  true, false, false,  true,  true,  true, false }   /* HorizontalPermeability   */
 };
 
 /*
@@ -446,7 +446,8 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    { false, false, false, false, false, false, false, false, false, false },  /* HC fluid velocity                         */
    { false, false, false, false, false, false, false, false, false, false },  /* CapillaryPressure                         */
    { false, false, false, false, false, false, false, false, false, false },  /* Fluid Properties such as GOR, COR, OilAPI */
-   { false, false, false, false, false, false, false, false, false, false },  /* Brine properties density viscosity        */
+   { false, false, false, false, false, false, false, false, false, false },  /* Brine density                             */
+   { false, false, false, false, false, false, false, false, false, false },  /* Brine viscosity                           */
    { false, false, false, false, false, false, false, false, false, false },  /* Time of Invasion                          */
    {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCSmBasaltThickness     */
    {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCMaxAsthenoMantleDepth */
@@ -458,7 +459,6 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCSmTopBasaltDepth      */
    {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCSmMohoDepth           */
    {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCOrigMantle            */
-   { false, false,  true,  true, false, false,  true,  true,  true, false }   /* HorizontalPermeability   */
 
 
 };
@@ -593,7 +593,7 @@ void PropertyOutputConstraints::print ( std::ostream& o ) const {
 
    for ( property = 0; property < PropertyListSize; ++property ) {
       o << "Property: "
-        << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  "
+        << std::setw ( 30 ) << propertyListName ( PropertyIdentifier ( property )) << "  "
         << std::setw ( 20 ) << PropertyOutputOptionImage ( m_maximumOutputOption [ property ])
         << std::endl;
    }
@@ -603,7 +603,7 @@ void PropertyOutputConstraints::print ( std::ostream& o ) const {
 
    for ( property = 0; property < PropertyListSize; ++property ) {
       o << "Property: "
-        << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  "
+        << std::setw ( 30 ) << propertyListName ( PropertyIdentifier ( property )) << "  "
         << std::setw ( 20 ) << PropertyOutputOptionImage ( m_minimumOutputOption [ property ])
         << std::endl;
    }
@@ -616,7 +616,7 @@ void PropertyOutputConstraints::print ( std::ostream& o ) const {
 
       if ( m_maximumOutputOption [ property ] > Interface::NO_OUTPUT or m_minimumOutputOption [ property ] > Interface::NO_OUTPUT ) {
          o << "Property: "
-           << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  "
+           << std::setw ( 30 ) << propertyListName ( PropertyIdentifier ( property )) << "  "
            << std::setw ( 20 ) << PropertyOutputOptionImage ( m_minimumOutputOption [ property ]) << "  "
            << std::setw ( 20 ) << PropertyOutputOptionImage ( m_maximumOutputOption [ property ]) << std::endl;
       }
@@ -629,7 +629,7 @@ void PropertyOutputConstraints::print ( std::ostream& o ) const {
 
       if ( m_maximumOutputOption [ property ] == Interface::NO_OUTPUT and m_minimumOutputOption [ property ] == Interface::NO_OUTPUT ) {
          o << "Property: "
-           << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  "
+           << std::setw ( 30 ) << propertyListName ( PropertyIdentifier ( property )) << "  "
            << std::setw ( 20 ) << PropertyOutputOptionImage ( m_minimumOutputOption [ property ]) << "  "
            << std::setw ( 20 ) << PropertyOutputOptionImage ( m_maximumOutputOption [ property ]) << std::endl;
       }
@@ -638,7 +638,7 @@ void PropertyOutputConstraints::print ( std::ostream& o ) const {
 
 }
 
-void PropertyOutputConstraints::constrain ( const PropertyList                     property,
+void PropertyOutputConstraints::constrain ( const PropertyIdentifier                     property,
                                                   Interface::PropertyOutputOption& option  ) const {
 
    // if ( property < DIFFUSIVITYVEC or property > LITHOLOGY ) {
