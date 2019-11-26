@@ -65,12 +65,11 @@ public:
 protected:
   bool preprocess() final;
   bool process() final;
-  bool computeSnapShot(const double previousTime,
-                       const DataAccess::Interface::Snapshot *theSnapshot) final;
 
 private:
   char * getGenexEnvironment() const;
   int getRunType() const;
+  bool computePTSnapShot(const double time, const double inPressure, const double inTemperature);
 
   std::unique_ptr<Genex6::SourceRockNode> m_sourceRockNode;
   double m_thickness;

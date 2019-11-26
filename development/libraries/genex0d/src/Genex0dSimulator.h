@@ -18,11 +18,6 @@
 #include <unordered_set>
 #include <vector>
 
-namespace DerivedProperties
-{
-class DerivedPropertyManager;
-}
-
 namespace Genex6
 {
 class GenexSourceRock;
@@ -62,7 +57,6 @@ private:
   std::vector<std::string> m_expelledToSourceRockProperties;
   std::vector<std::string> m_expelledToCarrierBedPropertiesS;
   std::vector<std::string> m_expelledToSourceRockPropertiesS;
-  DerivedProperties::DerivedPropertyManager * m_propertyManager;
 };
 
 } // namespace genex0d

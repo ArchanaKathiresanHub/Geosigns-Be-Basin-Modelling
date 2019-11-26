@@ -57,6 +57,8 @@ namespace DataAccess {
          /// \brief The mangled formation name.
          std::string m_mangledFormationName;
 
+      private:
+         void setFromRecord ( database::Record* record );
       };
 
    }

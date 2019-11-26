@@ -254,6 +254,9 @@ protected:
    ///The deposition time of the source rock
    double m_depositionTime;
 
+   /// \brief List of all adsorption-history objects.
+   Genex6::SourceRockAdsorptionHistoryList m_sourceRockNodeAdsorptionHistory;
+
    double m_runtime;
    double m_time;
 
@@ -277,9 +280,6 @@ private:
    /// \brief The simulator for adsorption processes.
    Genex6::AdsorptionSimulator* m_adsorptionSimulator;
    Genex6::AdsorptionSimulator* m_adsorptionSimulator2;
-
-   /// \brief List of all adsorption-history objects.
-   Genex6::SourceRockAdsorptionHistoryList m_sourceRockNodeAdsorptionHistory;
 
    AbstractDerivedProperties::AbstractPropertyManager * m_propertyManager;
 

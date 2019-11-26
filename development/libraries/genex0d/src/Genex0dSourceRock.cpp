@@ -29,8 +29,7 @@ Genex0dSourceRock::Genex0dSourceRock(Interface::ProjectHandle* projectHandle,
   m_vreThreshold{0.5}, // TODO: check if this value can be obtained from input
   m_vesMax{50}, // TODO: check if this value can be obtained from input
   m_adsorptionCapacityFunctionName{""}, // TODO: check if this value can be obtained from input
-  m_adsorptionSimulatorName{""} // TODO: check if this value can be obtained from input
-
+  m_adsorptionSimulatorName{inData.whichAdsorptionSimulator} // TODO: check if this value can be obtained from input
 {
   m_srProperties = Genex0dSourceRockDefaultProperties::getInstance().getProperties(m_sourceRockType);
   setPropertiesFromInput(inData.ToCIni, inData.SCVRe05, inData.HCVRe05);

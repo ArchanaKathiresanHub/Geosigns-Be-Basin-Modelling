@@ -22,9 +22,6 @@
 //
 #include "SimulationDetails.h"
 
-// DerivedProperties
-#include "DerivedPropertyManager.h"
-
 // CBMGenerics
 #include "ComponentManager.h"
 #include "GenexResultManager.h"
@@ -48,8 +45,7 @@ try :
   m_expelledToCarrierBedProperties{},
   m_expelledToSourceRockProperties{},
   m_expelledToCarrierBedPropertiesS{},
-  m_expelledToSourceRockPropertiesS{},
-  m_propertyManager{nullptr}
+  m_expelledToSourceRockPropertiesS{}
 {
 }
 catch (const ErrorHandler::Exception & ex)
@@ -59,7 +55,6 @@ catch (const ErrorHandler::Exception & ex)
 
 Genex0dSimulator::~Genex0dSimulator()
 {
-  delete m_propertyManager;
 }
 
 Genex0dSimulator* Genex0dSimulator::CreateFrom(const std::string & fileName, DataAccess::Interface::ObjectFactory* objectFactory)
@@ -73,7 +68,6 @@ bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, c
 {
   registerProperties();
 
-  m_propertyManager = new DerivedProperties::DerivedPropertyManager(this);
   setRequestedOutputProperties();
   m_gnx0dSourceRock.reset(new Genex0dGenexSourceRock(this, inData, indI, indJ));
   if (m_gnx0dSourceRock == nullptr)
@@ -101,7 +95,6 @@ bool Genex0dSimulator::saveTo(const std::string & outputFileName)
 bool Genex0dSimulator::computeSourceRock(const DataAccess::Interface::Formation * aFormation)
 {
 //  m_gnx0dSourceRock->clear();
-  m_gnx0dSourceRock->setPropertyManager(m_propertyManager);
   m_gnx0dSourceRock->setFormationData(aFormation);
 
   bool isSulphur = m_gnx0dSourceRock->isSulphur();
