@@ -37,10 +37,9 @@ namespace
 {
 
 double interpolateSnapshotProperty(const double inPropertyStart, const double inPropertyEnd,
-                                   const double t, const double tPrevious, const double deltaT)
+                                   const double tPrevious, const double t, const double deltaTInterval)
 {
-  const double gradient = (inPropertyEnd - inPropertyStart)/deltaT;
-  return gradient * (t - tPrevious);
+  return inPropertyStart + (inPropertyEnd - inPropertyStart)/(-deltaTInterval) * (t - tPrevious);
 }
 
 } // namespace
@@ -93,18 +92,18 @@ void Genex0dGenexSourceRock::initializeComputations(const double thickness, cons
 
   m_theSimulator = new Genex6::Simulator();
 
-  //  m_theChemicalModel = m_theChemicalModel1 = m_theChemicalModel2 =
-  //      m_theSimulator->loadChemicalModel(getGenexEnvironment(), getRunType(),
-  //                                        m_srProperties.typeNameID(), m_srProperties.HCVRe05(), m_srProperties.SCVRe05(),
-  //                                        m_srProperties.activationEnergy(), m_srProperties.Vr(),
-  //                                        m_srProperties.AsphalteneDiffusionEnergy(), m_srProperties.ResinDiffusionEnergy(),
-  //                                        m_srProperties.C15AroDiffusionEnergy(), m_srProperties.C15SatDiffusionEnergy());
+  m_theChemicalModel = m_theChemicalModel1 = m_theChemicalModel2 =
+      m_theSimulator->loadChemicalModel(getGenexEnvironment(), getRunType(),
+                                        m_srProperties.typeNameID(), m_srProperties.HCVRe05(), m_srProperties.SCVRe05(),
+                                        m_srProperties.activationEnergy(), m_srProperties.Vr(),
+                                        m_srProperties.AsphalteneDiffusionEnergy(), m_srProperties.ResinDiffusionEnergy(),
+                                        m_srProperties.C15AroDiffusionEnergy(), m_srProperties.C15SatDiffusionEnergy());
 
 
-  //  if (!m_theSimulator->Validate())
-  //  {
-  //    throw Genex0dException() << "Validation of Genex simulator failed!";
-  //  }
+  if (!m_theSimulator->Validate())
+  {
+    throw Genex0dException() << "Validation of Genex simulator failed!";
+  }
 
   // Note: the last two arguments are not relevant (set to default values) and are not used.
   m_sourceRockNode.reset(new Genex6::SourceRockNode(thickness, m_srProperties.TocIni(), inorganicDensity, 1.0, 0.0));
@@ -133,15 +132,6 @@ const Genex6::Simulator & Genex0dGenexSourceRock::simulator() const
 bool Genex0dGenexSourceRock::initialize(const bool printInitialisationDetails)
 {
   bool status = true;
-
-  m_theChemicalModel = m_theChemicalModel1 = m_theChemicalModel2 = loadChemicalModel(this, printInitialisationDetails);
-
-  if (m_theSimulator == nullptr)
-  {
-    throw Genex0dException() << "Initialization of genex0d failed!";
-  }
-
-  m_theSimulator->setChemicalModel(m_theChemicalModel);
 
   if(printInitialisationDetails )
   {
@@ -189,7 +179,7 @@ bool Genex0dGenexSourceRock::preprocess()
     return false;
   }
 
-  computeSnapshotIntervals();
+  computeSnapshotIntervals(Interface::MAJOR); // TODO: MINOR also to be added after datadriller is fixed
   return true;
 }
 
@@ -230,7 +220,7 @@ bool Genex0dGenexSourceRock::process()
 
   std::vector<Genex6::SnapshotInterval*>::iterator itSnapInterv = m_theIntervals.begin();
   const DataAccess::Interface::Snapshot * intervalStart = (*itSnapInterv)->getStart();;
-  const DataAccess::Interface::Snapshot * intervalEnd = (*itSnapInterv)->getStart();
+  const DataAccess::Interface::Snapshot * intervalEnd = (*itSnapInterv)->getEnd();
   int i = 0;
 
   // Processing pressure and temperature at interval start of the first interval
@@ -239,10 +229,17 @@ bool Genex0dGenexSourceRock::process()
   while (itSnapInterv != m_theIntervals.end())
   {
     intervalStart = (*itSnapInterv)->getStart();
-    intervalEnd = (*itSnapInterv)->getStart();
+    intervalEnd = (*itSnapInterv)->getEnd();
     const double snapShotIntervalEndTime = intervalEnd->getTime();
     const double numberOfTimeSteps = std::ceil((intervalStart->getTime() - intervalEnd->getTime())/dt);
-    const double deltaT = (intervalStart->getTime() - intervalEnd->getTime()) / numberOfTimeSteps;
+
+    if (numberOfTimeSteps <= 0)
+    {
+      Genex0dException() << "Genex0d failed while computing properties!";
+    }
+
+    const double deltaTInterval = intervalStart->getTime() - intervalEnd->getTime();
+    const double deltaT = deltaTInterval / numberOfTimeSteps;
 
     if (m_inTimes[i] != intervalStart->getTime() || m_inTimes[i+1] != intervalEnd->getTime())
     {
@@ -250,17 +247,16 @@ bool Genex0dGenexSourceRock::process()
     }
 
     double tPrevious = intervalStart->getTime();
-    double t = tPrevious + deltaT;
+    double t = tPrevious - deltaT;
 
     // Interpolate interval time instances
     while (t > snapShotIntervalEndTime)
     {
-      const double pressureInterp = interpolateSnapshotProperty(m_inPressures[i], m_inPressures[i+1], t, tPrevious, deltaT);
-      const double temperatureInterp = interpolateSnapshotProperty(m_inTemperatures[i], m_inTemperatures[i+1], t, tPrevious, deltaT);
+      const double pressureInterp = interpolateSnapshotProperty(m_inPressures[i], m_inPressures[i+1], tPrevious, t, deltaTInterval);
+      const double temperatureInterp = interpolateSnapshotProperty(m_inTemperatures[i], m_inTemperatures[i+1], tPrevious, t, deltaTInterval);
 
       computePTSnapShot(t, pressureInterp, temperatureInterp);
 
-      tPrevious = t;
       t -= deltaT;
     }
 

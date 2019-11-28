@@ -668,7 +668,7 @@ bool GenexSourceRock::preprocess()
 
    LogHandler( LogHandler::INFO_SEVERITY ) << "Start of preprocessing...";
 
-   computeSnapshotIntervals ();
+   computeSnapshotIntervals (Interface::MINOR | Interface::MAJOR);
 
    const SnapshotInterval *last = m_theIntervals.back ();
    const Snapshot *presentDay = last->getEnd ();
@@ -2535,11 +2535,11 @@ const GridMap * GenexSourceRock::getPropertyGridMap (const string & propertyName
    delete propertyValues;
    return gridMap;
 }
-void GenexSourceRock::computeSnapshotIntervals ()
+void GenexSourceRock::computeSnapshotIntervals (const int snapshotType)
 {
    m_depositionTime = getDepositionTime ();
 
-   Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots (Interface::MINOR | Interface::MAJOR);
+   Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots (snapshotType);
 
    Interface::SnapshotList::reverse_iterator snapshotIter;
 

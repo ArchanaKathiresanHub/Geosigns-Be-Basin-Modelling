@@ -101,7 +101,7 @@ void Genex0dProjectManager::clearTable()
 
 void Genex0dProjectManager::computeAgesFromAllSnapShots(const double depositionTimeTopSurface)
 {
-  DataAccess::Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR);
+  DataAccess::Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots(DataAccess::Interface::MAJOR);
   DataAccess::Interface::SnapshotList::reverse_iterator snapshotIter;
 
   if (snapshots->size() < 1)

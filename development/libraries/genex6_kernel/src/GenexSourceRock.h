@@ -145,7 +145,7 @@ protected:
    /// Main processing functionality
    virtual bool process();
 
-   void computeSnapshotIntervals();
+   void computeSnapshotIntervals( const int snapshotType );
 
    void clearSnapshotIntervals();
    void clearSourceRockNodes();

@@ -79,12 +79,13 @@ bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, c
 
   m_gnx0dSourceRock->initializeComputations(thickness, inorganicDensity, time, temperature, pressure);
 
-  if (computeSourceRock(formation))
+  if (!computeSourceRock(formation))
   {
-    LogHandler(LogHandler::INFO_SEVERITY) << "Saving Genex0d results to disk ... \n";
+    return false;
   }
 
-  return finishActivity();
+  LogHandler(LogHandler::INFO_SEVERITY) << "Saving Genex0d results to disk ... \n";
+  return true;
 }
 
 bool Genex0dSimulator::saveTo(const std::string & outputFileName)
