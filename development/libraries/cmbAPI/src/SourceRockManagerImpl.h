@@ -88,6 +88,18 @@ namespace mbapi {
 
       // Set pre-asphaltene activation energy (must be in range 200-220 kJ/mol)
       virtual ReturnCode setPreAsphActEnergy( SourceRockID id, double newVal );
+	  
+	  // Get adsorption related fields
+	  virtual ReturnCode getAdsoptionList(SourceRockID id, int & applyAdsorption, int & adsorptionTOCDependent, int & computeOTGC, std::string & adsorptionCapacityFunctionName);
+
+	  // Set adsorption TOC Dependent fields
+	  virtual ReturnCode setAdsorptionTOCDependent(SourceRockID id, int adsorptionTOCDependent);
+
+	  // Set adsorption capacity function name fields
+	  virtual ReturnCode setAdsorptionCapacityFunctionName(SourceRockID id, const std::string & adsorptionCapacityFunctionName);
+
+	  // Set adsorption simulator name fields
+	  virtual ReturnCode setWhichAdsorptionSimulator(SourceRockID id, const std::string & whichAdsorptionSimulator);
 
 
    private:
@@ -98,6 +110,11 @@ namespace mbapi {
       static const char * s_tocIniMap;               // initial TOC map name
       static const char * s_hcIni;                   // initial H/C ratio
       static const char * s_PreAsphaltStartAct;      // pre-asphaltene activation energy
+	  static const char * s_applyAdsorption;		 // apply adsorption flag
+	  static const char * s_adsorptionTOCDependent;   // apply TOC dependent flag 
+	  static const char * s_computeOTGC;			  // compute OTGC flag
+	  static const char * s_adsorptionCapacityFunctionName; // adsorption capacity function name
+	  static const char * s_whichAdsorptionSimulator;	// adsorption simulator name
 
       // Copy constructor is disabled, use the copy operator instead
       SourceRockManagerImpl( const SourceRockManager & );

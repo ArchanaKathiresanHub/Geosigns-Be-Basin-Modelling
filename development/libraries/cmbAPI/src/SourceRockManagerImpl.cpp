@@ -34,6 +34,11 @@ const char * SourceRockManagerImpl::s_tocIni                  = "TocIni";
 const char * SourceRockManagerImpl::s_tocIniMap               = "TocIniGrid";
 const char * SourceRockManagerImpl::s_hcIni                   = "HcVRe05";
 const char * SourceRockManagerImpl::s_PreAsphaltStartAct      = "PreAsphaltStartAct";
+const char * SourceRockManagerImpl::s_applyAdsorption         = "ApplyAdsorption";
+const char * SourceRockManagerImpl::s_adsorptionTOCDependent  = "AdsorptionTOCDependent";
+const char * SourceRockManagerImpl::s_computeOTGC             = "ComputeOTGC";
+const char * SourceRockManagerImpl::s_adsorptionCapacityFunctionName = "AdsorptionCapacityFunctionName";
+const char * SourceRockManagerImpl::s_whichAdsorptionSimulator= "WhichAdsorptionSimulator";
 
 // Constructor
 SourceRockManagerImpl::SourceRockManagerImpl()
@@ -487,5 +492,119 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setPreAsphActEnergy( SourceRockI
    return NoError;
 }
 
+// Get adsorption related fields
+ErrorHandler::ReturnCode SourceRockManagerImpl::getAdsoptionList(SourceRockID id, int & applyAdsorption, int & adsorptionTOCDependent, int & computeOTGC, std::string & adsorptionCapacityFunctionName)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		applyAdsorption = rec->getValue<int>(s_applyAdsorption);
+		adsorptionTOCDependent = rec->getValue<int>(s_adsorptionTOCDependent);
+		computeOTGC = rec->getValue<int>(s_computeOTGC);
+		adsorptionCapacityFunctionName = rec->getValue<std::string>(s_adsorptionCapacityFunctionName);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
+// Set adsorption TOC Dependent fields
+ErrorHandler::ReturnCode SourceRockManagerImpl::setAdsorptionTOCDependent(SourceRockID id, int newAdsorptionTOCDependent)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_adsorptionTOCDependent, newAdsorptionTOCDependent);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+
+}
+// Set adsorption capacity function name fields
+ErrorHandler::ReturnCode SourceRockManagerImpl::setAdsorptionCapacityFunctionName(SourceRockID id, const std::string & newAdsorptionCapacityFunctionName)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_adsorptionCapacityFunctionName, newAdsorptionCapacityFunctionName);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+
+}
+// Set adsorption simulator name fields
+ErrorHandler::ReturnCode SourceRockManagerImpl::setWhichAdsorptionSimulator(SourceRockID id, const std::string & newWhichAdsorptionSimulator)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_whichAdsorptionSimulator, newWhichAdsorptionSimulator);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+
+}
 
 }

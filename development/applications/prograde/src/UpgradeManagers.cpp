@@ -29,6 +29,7 @@
 #include "TopBoundaryUpgradeManager.h"
 #include "RunOptionsUpgradeManager.h"
 #include "LithologyUpgradeManager.h"
+#include "SgsUpgradeManager.h"
 
 //Prograde
 #include "IUpgradeManager.h"
@@ -80,7 +81,10 @@ void Prograde::UpgradeManagers::runAll() const{
 
    // Run Options Io Table
    managers.emplace_back(std::unique_ptr<Prograde::RunOptionsUpgradeManager>(new Prograde::RunOptionsUpgradeManager(m_model)));
-   // Other managers to be added in the same way
+
+   // Shale Gas Io Table upgradation
+   managers.emplace_back(std::unique_ptr<Prograde::SgsUpgradeManager>(new Prograde::SgsUpgradeManager(m_model)));
+   // Other managers to be added in the same way   
 
    ///2. Run all upgrade managers
    std::for_each(managers.begin(), managers.end(), [] ( std::shared_ptr<Prograde::IUpgradeManager> manager)

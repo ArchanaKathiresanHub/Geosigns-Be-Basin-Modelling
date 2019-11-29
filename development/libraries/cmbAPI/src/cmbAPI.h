@@ -33,6 +33,7 @@
 #include "TopBoundaryManager.h"
 #include "RunOptionsManager.h"
 #include "FaultCutManager.h"
+#include "SgsManager.h"
 
 // TableIO
 #include "datatype.h"
@@ -319,6 +320,10 @@ namespace mbapi {
 	 /// @brief Get fault cut manager. It provides access to the PressureFaultcutIoTbl in project file 
 	 /// @return reference to the fault cut manager. It created/deleted by the model itself.
 	 FaultCutManager& faultcutManager();
+
+	 /// @brief Get SGS manager. It keeps a list of SGS in the model and allows to manipulate them
+	 /// @return reference to the SGS manager. It created/deleted by the model itself.
+	 SgsManager& sgsManager();
 
 
       // Request some project porperties

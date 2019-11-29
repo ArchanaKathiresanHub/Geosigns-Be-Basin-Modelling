@@ -29,6 +29,7 @@
 #include "ProjectDataManagerImpl.h"
 #include "RunOptionsManagerImpl.h"
 #include "FaultCutManagerImpl.h"
+#include "SgsManagerImpl.h"
 
 // DataAccess library
 #include "ProjectHandle.h"
@@ -207,6 +208,7 @@ public:
    FracturePressureManager & fracturePressureManager() { return m_FracPressMgr; }
    ProjectDataManager& projectDataManager() { return m_projectDataMgr; }
    FaultCutManager& faultcutManager() { return m_faultcutMgr; }
+   SgsManager          & sgsManager() { return m_sgsMgr; } //SGS
    std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle() { return m_projHandle; } // project file database (set of tables)
 
 private:
@@ -228,6 +230,7 @@ private:
    FracturePressureManagerImpl m_FracPressMgr;
    ProjectDataManagerImpl m_projectDataMgr;
    FaultCutManagerImpl m_faultcutMgr;
+   SgsManagerImpl          m_sgsMgr;
 
    std::shared_ptr<DataAccess::Interface::ProjectHandle> m_projHandle;   // project file database (set of tables)
    std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
@@ -484,6 +487,7 @@ CtcManager                                          & Model::ctcManager() { retu
 FracturePressureManager                             & Model::fracturePressureManager() { return m_pimpl->fracturePressureManager(); }
 ProjectDataManager                                  & Model::projectDataManager() { return m_pimpl->projectDataManager(); }
 FaultCutManager										& Model::faultcutManager() { return m_pimpl->faultcutManager(); }
+SgsManager                                          & Model::sgsManager() { return m_pimpl->sgsManager(); }
 std::shared_ptr<DataAccess::Interface::ProjectHandle> Model::projectHandle(      ) { return m_pimpl->projectHandle(      ); }
 
 
@@ -1347,6 +1351,7 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
    m_FracPressMgr.setDatabase(m_projHandle->getProjectFileHandler());               // set database in fracture pressure manager
    m_projectDataMgr.setDatabase(m_projHandle->getProjectFileHandler());             // set database in project data manager
    m_faultcutMgr.setDatabase(m_projHandle->getProjectFileHandler());             // set database in project data manager
+   m_sgsMgr.setDatabase(m_projHandle->getProjectFileHandler());					//// set database in SGS manager
    m_mapMgr.setProject(    m_projHandle.get(),          m_projFileName ); // set project handle in maps manager
 }
 
