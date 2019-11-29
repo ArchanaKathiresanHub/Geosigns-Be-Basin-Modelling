@@ -90,7 +90,7 @@ public:
    bool isSulphur() const;
 
    ///  set second SR type, mixing parameter, check Sulphur
-   bool setFormationData ( const Interface::Formation * aFormation );
+   virtual bool setFormationData ( const Interface::Formation * aFormation );
    void setPropertyManager ( AbstractDerivedProperties::AbstractPropertyManager * aPropertyManager );
 
    /// Whether to perform adsorption 
@@ -232,6 +232,8 @@ protected:
    Genex6::ChemicalModel * loadChemicalModel( const Interface::SourceRock * sr,
                                               const bool printInitialisationDetails = true );
 
+   void setLayerName( const string & layerName );
+
    /// The valid nodes of the source rock
    std::vector<Genex6::SourceRockNode*> m_theNodes;
 
@@ -259,17 +261,13 @@ protected:
 
    double m_runtime;
    double m_time;
-
-private: 
-   void setLayerName( const string & layerName );
-
-   Genex6::AdsorptionSimulator * getAdsorptionSimulator() const;
-   
-   const Interface::Formation * m_formation;
    std::string m_layerName;
-
+   const Interface::Formation * m_formation;
    /// if Sulphur is included
    bool m_isSulphur;
+
+private: 
+   Genex6::AdsorptionSimulator * getAdsorptionSimulator() const;
 
    /// Apply SR mixing flag
    bool m_applySRMixing;

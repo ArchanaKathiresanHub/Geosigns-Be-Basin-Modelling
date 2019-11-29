@@ -39,7 +39,7 @@ struct Genex0dInputData
                    const std::string & formationName = "",
                    const std::string & sourceRockType = "",
                    const std::string & nodeHistoryFileName = "nodeHistory.dat",
-                   const std::string & whichAdsorptionSimulator = "GenexSimulator") :
+                   const std::string & whichAdsorptionSimulator = "") :
     xCoord{xCoord},
     yCoord{yCoord},
     ToCIni{ToCIni},

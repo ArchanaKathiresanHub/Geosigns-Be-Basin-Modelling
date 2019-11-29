@@ -24,8 +24,10 @@
 #include "SourceRockAdsorptionHistory.h"
 
 // DataAccess
+#include "Formation.h"
 #include "Interface.h"
 #include "Snapshot.h"
+#include "Surface.h"
 
 // Utilities
 #include "LogHandler.h"
@@ -129,6 +131,32 @@ const Genex6::Simulator & Genex0dGenexSourceRock::simulator() const
 
 // --------------------------------------------------------------------------------
 
+bool Genex0dGenexSourceRock::setFormationData( const Interface::Formation * aFormation )
+{
+   setLayerName( aFormation->getName() );
+
+   if( m_layerName == "" )
+   {
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock " << getType() << ": the formation name is not set.";
+      return false;
+   }
+
+   m_formation = aFormation;
+
+   const DataAccess::Interface::Surface * topSurface = m_formation->getTopSurface();
+   const DataAccess::Interface::Snapshot * topSurfaceSnapShot = topSurface->getSnapshot();
+
+   if( topSurfaceSnapShot->getTime() == 0 )
+   {
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock with deposition age 0 at : " << m_formation->getName();
+      return false;
+   }
+
+   m_isSulphur = ( getScVRe05() > 0.0 ? true : false );
+
+   return true;
+}
+
 bool Genex0dGenexSourceRock::initialize(const bool printInitialisationDetails)
 {
   bool status = true;
@@ -174,11 +202,6 @@ bool Genex0dGenexSourceRock::preprocess()
 {
   LogHandler(LogHandler::INFO_SEVERITY) << "Start of preprocessing...";
 
-  if (m_sourceRockNode == nullptr)
-  {
-    return false;
-  }
-
   computeSnapshotIntervals(Interface::MAJOR); // TODO: MINOR also to be added after datadriller is fixed
   return true;
 }
@@ -188,9 +211,10 @@ bool Genex0dGenexSourceRock::addHistoryToNodes()
   Genex6::SourceRockAdsorptionHistory * history = new Genex6::SourceRockAdsorptionHistory(m_projectHandle, m_pointAdsorptionHistory);
   Genex6::NodeAdsorptionHistory * adsorptionHistory;
 
+  // GenexHistory (no adsorption implemented yet)
   adsorptionHistory = Genex6::AdsorptionSimulatorFactory::getInstance().allocateNodeAdsorptionHistory(m_theChemicalModel->getSpeciesManager(),
                                                                                                       m_projectHandle,
-                                                                                                      getAdsorptionSimulatorName());
+                                                                                                     Genex6::GenexSimulatorId);
 
   if (adsorptionHistory == nullptr)
   {
@@ -199,7 +223,7 @@ bool Genex0dGenexSourceRock::addHistoryToNodes()
     return false;
   }
   m_sourceRockNode->addNodeAdsorptionHistory(adsorptionHistory);
-  history->setNodeAdsorptionHistory(adsorptionHistory);
+  history->setNodeGenexHistory(adsorptionHistory);
   m_sourceRockNodeAdsorptionHistory.push_back(history);
   return true;
 }
@@ -214,9 +238,6 @@ bool Genex0dGenexSourceRock::process()
 
   LogHandler(LogHandler::INFO_SEVERITY) << "Start Of processing...";
   LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
-
-  m_runtime = 0.0;
-  m_time = 0.0;
 
   std::vector<Genex6::SnapshotInterval*>::iterator itSnapInterv = m_theIntervals.begin();
   const DataAccess::Interface::Snapshot * intervalStart = (*itSnapInterv)->getStart();;
@@ -275,6 +296,9 @@ bool Genex0dGenexSourceRock::process()
     ++i;
   }
 
+//  m_sourceRockNode->RequestComputation(*m_theSimulator);
+//  m_sourceRockNode->PrintBenchmarkOutput("./tmp.csv", *m_theSimulator);
+
   clearSimulator();
 
   if (status)
@@ -293,8 +317,9 @@ bool Genex0dGenexSourceRock::computePTSnapShot(const double time, const double i
 {
   LogHandler( LogHandler::INFO_SEVERITY ) << "Computing time instance t:" << time;
 
-  Genex6::Input * theInput = new Genex6::Input(time, inPressure, inTemperature);
+  Genex6::Input * theInput = new Genex6::Input(time, inTemperature, inPressure);
   m_sourceRockNode->AddInput(theInput);
+  m_theSimulator->setChemicalModel(m_theChemicalModel);
 
   bool isInitialTimeStep =  m_sourceRockNode->RequestComputation(0, *m_theSimulator);
   if (!isInitialTimeStep)

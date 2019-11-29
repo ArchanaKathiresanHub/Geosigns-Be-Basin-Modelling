@@ -61,6 +61,7 @@ public:
 
   bool initialize(const bool printInitialisationDetails = true) final;
   bool addHistoryToNodes() final;
+  bool setFormationData (const Interface::Formation * aFormation) final;
 
 protected:
   bool preprocess() final;
