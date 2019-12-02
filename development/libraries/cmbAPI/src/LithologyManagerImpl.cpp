@@ -519,7 +519,6 @@ std::string LithologyManagerImpl::lithologyName( LithologyID id )
    return lName;
 }
 
-
 // Get Description for lithology type
 std::string LithologyManagerImpl::getDescription(const LithologyID id )
 {
@@ -902,6 +901,48 @@ ErrorHandler::ReturnCode LithologyManagerImpl::permeabilityModel( LithologyID   
    return NoError;
 }
 
+// Get lithology permeability model parameters
+ErrorHandler::ReturnCode LithologyManagerImpl::getPermeabilityModel(LithologyID id, PermeabilityModel & prmModel, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts)
+{
+   if (errorCode() != NoError) resetError();
+   try
+   {
+
+      // if table does not exist - report error
+      if (!m_lithIoTbl) { throw Exception(NonexistingID) << s_lithoTypesTableName << " table could not be found in project"; }
+
+      database::Record * rec = m_lithIoTbl->getRecord(static_cast<int>(id));
+      if (!rec) { throw Exception(NonexistingID) << "No lithology type with such ID: " << id; }
+
+      const std::string & permModelName = rec->getValue<std::string>(s_permeabilityModelFieldName);
+      if (permModelName == "None") prmModel = PermNone;
+      else if (permModelName == "Sands") prmModel = PermSandstone;
+      else if (permModelName == "Shales") prmModel = PermMudstone;
+      else if (permModelName == "Multipoint") prmModel = PermMultipoint;
+      else if (permModelName == "Impermeable") prmModel = PermImpermeable;
+      else { throw Exception(UndefinedValue) << "Unknown permeability model:" << permModelName; }
+
+      // now set/extract parameters of the permeability model
+      if (prmModel == PermMultipoint) // for lithology defined as Multipoint permeability Model
+      {
+         numPts = rec->getValue<int>(s_mpNumberOfDataPointsFieldName);
+         ParseCoefficientsFromString(rec->getValue<std::string>(s_mpPorosityFieldName), mpPor);
+         ParseCoefficientsFromString(rec->getValue<std::string>(s_mpPermpeabilityFieldName), mpPerm);
+         mpPor.resize(numPts);
+         mpPerm.resize(numPts);
+      }
+      else // for other models
+      {
+         numPts = 2;
+         mpPor.resize(numPts);
+         mpPerm.resize(numPts);
+      }
+   }
+   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+   return NoError;
+}
+
 // Set lithology permeability model with parameters
 ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID                 id
                                                                    , PermeabilityModel           prmModel
@@ -963,6 +1004,76 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
       }
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+// Set lithology permeability model with parameters
+ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel(LithologyID id, PermeabilityModel prmModel, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts, int & lithologyFlag)
+{
+   if (errorCode() != NoError) resetError();
+   try
+   {
+      // if table does not exist - report error
+      if (!m_lithIoTbl) { throw Exception(NonexistingID) << s_lithoTypesTableName << " table could not be found in project"; }
+
+      database::Record * rec = m_lithIoTbl->getRecord(static_cast<int>(id));
+      if (!rec) { throw Exception(NonexistingID) << "No lithology type with such ID: " << id; }
+      rec->setValue(s_DepositionalPermFieldName, Utilities::Numerical::IbsNoDataValue);
+      rec->setValue(s_mudPermeabilityRecoveryCoeff, Utilities::Numerical::IbsNoDataValue);
+      rec->setValue(s_mudPermeabilitySensitivityCoeff, Utilities::Numerical::IbsNoDataValue);
+
+      if (lithologyFlag)
+      {
+         switch (prmModel)
+         {
+         case PermNone:
+            rec->setValue<std::string>(s_permeabilityModelFieldName, "Multipoint");
+            rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
+            rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+            rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+            break;
+
+         case PermImpermeable:
+            rec->setValue<std::string>(s_permeabilityModelFieldName, "Multipoint");
+            rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
+            rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+            rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+            break;
+
+         case PermSandstone:
+            rec->setValue<std::string>(s_permeabilityModelFieldName, "Multipoint");
+            rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
+            rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+            rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+            break;
+
+         case PermMudstone:
+            rec->setValue<std::string>(s_permeabilityModelFieldName, "Multipoint");
+            rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
+            rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+            rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+            break;
+
+         case PermMultipoint:
+            rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(mpPor.size()));
+            rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+            rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+            break;
+
+         default: throw Exception(UndefinedValue) << "Unknown permeability model:" << prmModel;
+         }
+      }
+      else
+      {
+         rec->setValue<std::string>(s_permeabilityModelFieldName, "Multipoint");
+         rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
+         rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+         rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+      }
+
+   }
+   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
 
    return NoError;
 }

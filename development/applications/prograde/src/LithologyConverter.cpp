@@ -75,6 +75,139 @@ std::string Prograde::LithologyConverter::upgradeLithologyName(const std::string
 
 	return newLithoTypeNameAssigned;
 }
+
+void Prograde::LithologyConverter::upgradePermModelForUsrDefLitho(const std::string & permModelName, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts)
+{
+   if ((permModelName == "None") || (permModelName == "Impermeable"))
+   {
+      mpPor[0] = 5;
+      mpPor[1] = 60;
+      mpPerm[0] = -6;
+      mpPerm[1] = -6;
+   }
+   else if (permModelName == "Sands") 
+   {
+      mpPor[0] = 5;
+      mpPor[1] = 60;
+      mpPerm[0] = 0.2;
+      mpPerm[1] = 4.9;
+   }
+   else if (permModelName == "Shales") 
+   {
+      mpPor[0] = 5;
+      mpPor[1] = 60;
+      mpPerm[0] = -6.4;
+      mpPerm[1] = -2.16;
+   }
+}
+
+void Prograde::LithologyConverter::upgradePermModelForSysDefLitho(const std::string & bpa2LithoName, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts)
+{
+   numPts = 2;
+   mpPor.resize(numPts);
+   mpPerm.resize(numPts);
+   if ((bpa2LithoName.compare("Mantle") == 0) || (bpa2LithoName.compare("Crust") == 0) || 
+      (bpa2LithoName.compare("Diorite/Granodiorite (SI)") == 0) || (bpa2LithoName.compare("Dry Gabbro/Basalt (SI)") == 0) ||
+      (bpa2LithoName.compare("Wet Gabbro/Basalt (SI)") == 0) || (bpa2LithoName.compare("Granite/Rhyolite (SI)") == 0) ||
+      (bpa2LithoName.compare("Basalt, typical") == 0))
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = -4;
+         mpPerm[1] = -4;
+      }
+   else if (bpa2LithoName.compare("Chalk, white") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = -5.45;
+         mpPerm[1] = 1.8;
+      }
+   else if (bpa2LithoName.compare("Grainstone, dolomitic, typical") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = 1.6;
+         mpPerm[1] = 6.4;
+      }
+   else if (bpa2LithoName.compare("Grainstone, calcitic, typical") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = 1.6;
+         mpPerm[1] = 6.4;
+      }
+   else if (bpa2LithoName.compare("Sandstone, typical") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = 0.2;
+         mpPerm[1] = 4.9;
+      }
+   else if (bpa2LithoName.compare("Mudstone, 60% clay") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = -6.4;
+         mpPerm[1] = -2.16;
+      }
+   else if (bpa2LithoName.compare("Mudstone, 50% clay") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = -6.19;
+         mpPerm[1] = -1.28;
+      }
+   else if (bpa2LithoName.compare("Mudstone, 40% clay") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = -5.98;
+         mpPerm[1] = -0.39;
+      }
+   else if ((bpa2LithoName.compare("Ice") == 0) || (bpa2LithoName.compare("Anhydrite") == 0) ||
+      (bpa2LithoName.compare("Coal") == 0) || (bpa2LithoName.compare("Halite") == 0) ||
+      (bpa2LithoName.compare("Potash-Sylvite") == 0))
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = -6;
+         mpPerm[1] = -6;
+      }
+   else if (bpa2LithoName.compare("Marl") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = -5.98;
+         mpPerm[1] = -0.39;
+      }
+   else if (bpa2LithoName.compare("Siltstone, 20% clay") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = -5.55;
+         mpPerm[1] = 1.37;
+      }
+   else if (bpa2LithoName.compare("Lime-Mudstone, dolomitic") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = -6.19;
+         mpPerm[1] = -1.28;
+      }
+   else if (bpa2LithoName.compare("Lime-Mudstone") == 0)
+      {
+         mpPor[0] = 5;
+         mpPor[1] = 60;
+         mpPerm[0] = -6.19;
+         mpPerm[1] = -1.28;
+      }
+   else
+   {
+      //
+   }
+}
+
 //This part needs further modifications as the requirement got changed which will be taken in the next sprint......hence commented for the time being 	
 #if 0
 std::vector<double> Prograde::LithologyConverter::computeSingleExpModelParameters(const std::string definedBy, const int lithologyFlag, mbapi::LithologyManager::PorosityModel &porModel, std::vector<double> & originalPorModelParam, std::vector<double> & newPorModelParam)

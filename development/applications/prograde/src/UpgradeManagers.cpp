@@ -56,7 +56,7 @@ void Prograde::UpgradeManagers::runAll() const{
    //managers.emplace_back(std::unique_ptr<Prograde::PorosityUpgradeManager>(new Prograde::PorosityUpgradeManager(m_model)));
 
    // Mudstone and Sandstone permeability models to Multipoint permeability model
-   managers.emplace_back(std::unique_ptr<Prograde::PermeabilityUpgradeManager>(new Prograde::PermeabilityUpgradeManager(m_model)));
+   //managers.emplace_back(std::unique_ptr<Prograde::PermeabilityUpgradeManager>(new Prograde::PermeabilityUpgradeManager(m_model)));
 
    // Constant model to modified B&W model for density and seismic velocity calculations of Brines
    managers.emplace_back(std::unique_ptr<Prograde::BrineUpgradeManager>(new Prograde::BrineUpgradeManager(m_model)));

@@ -8,6 +8,7 @@
 static const double eps = 0.00001;
 
 using namespace mbapi;
+using namespace std;
 
 //Tests to validate whether lithology names are updated correctly or not
 TEST(LithologyConverter, upgradeLithologyName)
@@ -18,6 +19,81 @@ TEST(LithologyConverter, upgradeLithologyName)
    EXPECT_EQ("Grainstone, dolomitic, typical", modelConverter.upgradeLithologyName("HEAT Dolostone"));
 
 }
+
+//Tests to validate permeability model parameters for system defined lithology
+TEST(LithologyConverter, upgradePermModelForSysDefLitho)
+{
+   Prograde::LithologyConverter modelConverter;
+
+   std::string lithoTypeName = "Crust";
+   std::vector<double> mpPor; 
+   std::vector<double> mpPerm;
+   int numPts = 2;
+   mpPor.resize(numPts);
+   mpPerm.resize(numPts);
+
+   // for standard lithotype name crust 
+   modelConverter.upgradePermModelForSysDefLitho(lithoTypeName, mpPor, mpPerm, numPts);
+   EXPECT_NEAR(5, mpPor[0], eps);
+   EXPECT_NEAR(60, mpPor[1], eps);
+   EXPECT_NEAR(-4, mpPerm[0], eps);
+   EXPECT_NEAR(-4, mpPerm[1], eps);
+
+   // for standard lithotype name Grainstone, calcitic, typical 
+   lithoTypeName = "Grainstone, calcitic, typical";
+   modelConverter.upgradePermModelForSysDefLitho(lithoTypeName, mpPor, mpPerm, numPts);
+   EXPECT_NEAR(5, mpPor[0], eps);
+   EXPECT_NEAR(60, mpPor[1], eps);
+   EXPECT_NEAR(1.6, mpPerm[0], eps);
+   EXPECT_NEAR(6.4, mpPerm[1], eps);
+
+   // for standard lithotype name Lime-Mudstone 
+   lithoTypeName = "Lime-Mudstone";
+   modelConverter.upgradePermModelForSysDefLitho(lithoTypeName, mpPor, mpPerm, numPts);
+   EXPECT_NEAR(5, mpPor[0], eps);
+   EXPECT_NEAR(60, mpPor[1], eps);
+   EXPECT_NEAR(-6.19, mpPerm[0], eps);
+   EXPECT_NEAR(-1.28, mpPerm[1], eps);
+
+}
+
+//Tests to validate permeability model parameters for user defined lithology
+TEST(LithologyConverter, upgradePermModelForUsrDefLitho)
+{
+   Prograde::LithologyConverter modelConverter;
+
+   std::string permModelName = "Sands";
+   std::vector<double> mpPor;
+   std::vector<double> mpPerm;
+   int numPts = 2;
+   mpPor.resize(numPts);
+   mpPerm.resize(numPts);
+
+   // for permeability model name Sands 
+   modelConverter.upgradePermModelForUsrDefLitho(permModelName, mpPor, mpPerm, numPts);
+   EXPECT_NEAR(5, mpPor[0], eps);
+   EXPECT_NEAR(60, mpPor[1], eps);
+   EXPECT_NEAR(0.2, mpPerm[0], eps);
+   EXPECT_NEAR(4.9, mpPerm[1], eps);
+
+   // for permeability model name Shales 
+   permModelName = "Shales";
+   modelConverter.upgradePermModelForUsrDefLitho(permModelName, mpPor, mpPerm, numPts);
+   EXPECT_NEAR(5, mpPor[0], eps);
+   EXPECT_NEAR(60, mpPor[1], eps);
+   EXPECT_NEAR(-6.4, mpPerm[0], eps);
+   EXPECT_NEAR(-2.16, mpPerm[1], eps);
+
+   // for permeability model name None 
+   permModelName = "None";
+   modelConverter.upgradePermModelForUsrDefLitho(permModelName, mpPor, mpPerm, numPts);
+   EXPECT_NEAR(5, mpPor[0], eps);
+   EXPECT_NEAR(60, mpPor[1], eps);
+   EXPECT_NEAR(-6, mpPerm[0], eps);
+   EXPECT_NEAR(-6, mpPerm[1], eps);
+
+}
+
 //These test cases needs further modifications as the strategy for POROSITY model upgradation has changed which will be taken in the next sprint......hence commented for the time being
 #if 0
 //test to check whether the porosity model parameters are upgraded correctly from Soil Mechanics to Exponential model, if the parent lithology contains the string “sand” 

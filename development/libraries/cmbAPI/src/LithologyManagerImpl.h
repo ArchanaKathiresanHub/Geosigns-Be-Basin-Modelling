@@ -192,6 +192,15 @@ namespace mbapi {
                                           , std::vector<double> & mpPerm
                                           );
 
+      // Get lithology permeability model parameters
+      // [in] id          lithology ID
+      // [out] prmModel   permeability calculation model
+      // [out] mpPor      for multi-point perm. model the porosity values vector. Empty for other models
+      // [out] mpPerm     for multi-point perm. model the log. of perm values vector. Empty for other models.
+      // [out] numPts      for multi-point perm. Number_Of_Data_Points
+      // return NoError on success or error code otherwise
+      virtual ReturnCode getPermeabilityModel(LithologyID id, PermeabilityModel & prmModel, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts);
+
       // Set lithology permeability model with parameters
       // id        lithology ID
       // prmModel  permeability calculation model
@@ -207,6 +216,16 @@ namespace mbapi {
                                              );
       /// @}
 
+      // Set lithology permeability model with parameters
+      // [in] id              lithology ID
+      // [in/out] prmModel    permeability calculation model
+      ///return NoError on success or error code otherwise
+      // [out] mpPor     for multi-point perm. model the porosity values vector
+      // [out] mpPerm    for multi-point perm. model the log. of perm values vector
+      // [in] numPts     for multi-point perm. Number_Of_Data_Points
+      // [in] flag      user defined flag value for the particular lithology id
+      virtual ReturnCode setPermeabilityModel(LithologyID id, PermeabilityModel prmModel, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts, int & flag);
+      /// @}
 
       /////////////////////////////////////////////////////////////////////////
       // Seismic velocity

@@ -45,6 +45,7 @@ Prograde::PermeabilityUpgradeManager::PermeabilityUpgradeManager( mbapi::Model& 
 //------------------------------------------------------------//
 
 void Prograde::PermeabilityUpgradeManager::upgrade() {
+
    auto lithologies = m_model.lithologyManager().lithologiesIDs();
    for(auto lithoId : lithologies){
       mbapi::LithologyManager::PermeabilityModel prmModel; // permeability calculation model
@@ -98,3 +99,4 @@ void Prograde::PermeabilityUpgradeManager::upgrade() {
       }
    }
 }
+

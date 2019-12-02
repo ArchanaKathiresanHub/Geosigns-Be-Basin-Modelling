@@ -79,9 +79,13 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	}
 
 	int lithologyFlag;
-	std::string parentLithology;
+	std::string parentLithology, permModelName;
 	mbapi::LithologyManager::PorosityModel porModel; // porosity calculation model
 	std::vector<double> porModelPrms, updatedPorModelPrms; // poro. model parameters, depends on the given model
+   mbapi::LithologyManager::PermeabilityModel prmModel; // permeability calculation model
+   std::vector<double> mpPor;     // for multi-point perm. model the porosity values vector
+   std::vector<double> mpPerm;    // for multi-point perm. model the log. of perm values vector
+   int numPts;
 	for (size_t lithoId = 0; lithoId < litho_table->size(); ++lithoId)
 	{
 		m_model.lithologyManager().getUserDefinedFlagForLithology(lithoId, lithologyFlag);
@@ -106,6 +110,72 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		modelConverter.computeSingleExpModelParameters(parentLithology, lithologyFlag, porModel, porModelPrms, updatedPorModelPrms);
 		m_model.lithologyManager().setPorosityModel(lithoId, porModel, updatedPorModelPrms);
 #endif
+
+      //Upgrading the permeability parameters for system and user defined lithotypes of BPA1
+      m_model.lithologyManager().getPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts);
+      if (lithologyFlag) // user defined lithology
+      {
+         switch (prmModel) {
+         case mbapi::LithologyManager::PermSandstone:
+         {
+            modelConverter.upgradePermModelForUsrDefLitho("Sands", mpPor, mpPerm, numPts);
+            m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Legacy Sandstone permeability model is detected, upgrading the permeability model to Multipoint.";
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading Number_Of_Data_Points to " << numPts;
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
+            break;
+         }
+         case mbapi::LithologyManager::PermMudstone:
+         {
+            modelConverter.upgradePermModelForUsrDefLitho("Shales", mpPor, mpPerm, numPts);
+            m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Legacy Mudstone permeability model is detected, upgrading the permeability model to Multipoint.";
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading Number_Of_Data_Points to " << numPts;
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
+            break;
+         }
+         case mbapi::LithologyManager::PermNone:
+         {
+            modelConverter.upgradePermModelForUsrDefLitho("None", mpPor, mpPerm, numPts);
+            m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Legacy None permeability model is detected, upgrading the permeability model to Multipoint.";
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading Number_Of_Data_Points to " << numPts;
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
+            break;
+         }
+         case mbapi::LithologyManager::PermImpermeable:
+         {
+            modelConverter.upgradePermModelForUsrDefLitho("Impermeable", mpPor, mpPerm, numPts);
+            m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Legacy Impermeable permeability model is detected, upgrading the permeability model to Multipoint.";
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading Number_Of_Data_Points to " << numPts;
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
+            break;
+         }
+         case mbapi::LithologyManager::PermMultipoint:
+         {
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Multipoint permeability model detected for '"<<m_model.lithologyManager().lithologyName(lithoId)<< "' lithology. No upgrade is needed.";
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+            break;
+         }
+         case mbapi::LithologyManager::PermUnknown:
+         default:
+            break;
+         }
+      }
+      else // Sytem defined Lithology
+      {
+         modelConverter.upgradePermModelForSysDefLitho(bpa2LithoName, mpPor, mpPerm, numPts);
+         m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);
+         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "For " << legacyLithoTypeName << ", upgrading the permeability model to Multipoint.";
+         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading Number_Of_Data_Points to " << numPts;
+         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
+      }
 	}
 	//updating the lithology names for the Lithotype1, Lithotype2 and Lithotype3 of stratIoTbl 
 	database::Table * strat_table = m_ph->getTable("StratIoTbl");

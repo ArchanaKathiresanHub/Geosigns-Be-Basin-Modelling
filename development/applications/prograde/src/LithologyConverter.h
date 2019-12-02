@@ -35,6 +35,11 @@ namespace Prograde
 		///@details The function computes the necessary model parameters (which are CompactionCoefficient, MinimumMecahnicalPorosity and the SurfacePorosity) used to define the single exponential model porosity model 
 		//std::vector<double> computeSingleExpModelParameters(const std::string, const int, mbapi::LithologyManager::PorosityModel &, std::vector<double> &, std::vector<double> &);
 
+      /// @brief Upgrades the permeability model parameters for standard LITHOLOGYs
+      void upgradePermModelForSysDefLitho(const std::string &, std::vector<double> &, std::vector<double> &, int &);
+
+      /// @brief Upgrades the permeability model parameters for user defined LITHOLOGYs
+      void upgradePermModelForUsrDefLitho(const std::string &, std::vector<double> &, std::vector<double> &, int &);
 	};
 }
 

@@ -535,7 +535,92 @@ TEST_F(mbapiModelTest, GetPermeabilityModelParametersTest)
    ASSERT_NEAR(mpPerm[1], 8.6, eps);
 }
 
+TEST_F(mbapiModelTest, GetPermeabilityModelTest)
+{
+   mbapi::Model testModel;
 
+   // load test project
+   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_lithologyTestProject));
+
+   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
+
+   // Check Sands permeability
+   mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Std. Sandstone");
+   ASSERT_FALSE(IsValueUndefined(lid));
+
+   mbapi::LithologyManager::PermeabilityModel permModel;
+   std::vector<double> mpPor;
+   std::vector<double> mpPerm;
+   int numPts;
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
+   ASSERT_EQ(permModel, mbapi::LithologyManager::PermSandstone);
+   ASSERT_EQ(mpPor.size(), 2U);
+   ASSERT_EQ(mpPerm.size(), 2U);
+   ASSERT_NEAR(numPts, 2, eps);
+
+   // Check Shales permeability
+   lid = lthMgr.findID("Std. Shale");
+   ASSERT_FALSE(IsValueUndefined(lid));
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
+   ASSERT_EQ(permModel, mbapi::LithologyManager::PermMudstone);
+   ASSERT_EQ(mpPor.size(), 2U);
+   ASSERT_EQ(mpPerm.size(), 2U);
+   ASSERT_NEAR(numPts, 2, eps);
+
+   // Check Nones permeability
+   lid = lthMgr.findID("Crust");
+   ASSERT_FALSE(IsValueUndefined(lid));
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
+   ASSERT_EQ(permModel, mbapi::LithologyManager::PermNone);
+   ASSERT_EQ(mpPor.size(), 2U);
+   ASSERT_EQ(mpPerm.size(), 2U);
+   ASSERT_NEAR(numPts, 2, eps);
+
+   // Check Multipoint permeability
+   lid = lthMgr.findID("SM. Sandstone");
+   ASSERT_FALSE(IsValueUndefined(lid));
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
+   ASSERT_EQ(permModel, mbapi::LithologyManager::PermMultipoint);
+   ASSERT_EQ(mpPor.size(), 2U);
+   ASSERT_EQ(mpPerm.size(), 2U);
+   ASSERT_NEAR(numPts, 2, eps);
+
+   mpPor.clear();
+   mpPerm.clear();
+}
+
+TEST_F(mbapiModelTest, SetPermeabilityModelTest)
+{
+   mbapi::Model testModel;
+   std::vector<double> mpPor;
+   std::vector<double> mpPerm;
+   int numPts = 2, lithologyFlag = 0;
+
+   // load test project
+   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_lithologyTestProject));
+
+   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
+
+   // Check Sands permeability
+   mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Std. Sandstone");
+   ASSERT_FALSE(IsValueUndefined(lid));
+   mbapi::LithologyManager::PermeabilityModel permModel = mbapi::LithologyManager::PermSandstone;
+   mpPor.resize(numPts);
+   mpPerm.resize(numPts);
+   mpPor.push_back(10.0);
+   mpPor.push_back(20.0);
+   mpPerm.push_back(2.0);
+   mpPerm.push_back(3.0);
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts, lithologyFlag));
+
+   mpPor.clear();
+   mpPerm.clear();
+}
 
 TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
 {

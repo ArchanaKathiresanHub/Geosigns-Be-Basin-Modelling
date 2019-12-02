@@ -275,6 +275,15 @@ namespace mbapi {
                                           , std::vector<double> & mpPerm     ///< for multi-point perm. model the log. of perm values vector. Empty for other models.
                                           ) = 0;
 
+      // @brief Get lithology permeability model parameters
+      // @param [in] id          lithology ID
+      // @param[out] prmModel   permeability calculation model
+      // @param[out] mpPor      for multi-point perm. model the porosity values vector. Empty for other models
+      // @param[out] mpPerm     for multi-point perm. model the log. of perm values vector. Empty for other models.
+      // @param[out] numPts      for multi-point perm. Number_Of_Data_Points
+      // @return NoError on success or error code otherwise
+      virtual ReturnCode getPermeabilityModel(LithologyID id, PermeabilityModel & prmModel, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts) = 0;
+
       /// @brief Set lithology permeability model with parameters
       /// @return NoError on success or error code otherwise
       virtual ReturnCode setPermeabilityModel( LithologyID                 id       ///< lithology ID
@@ -283,6 +292,17 @@ namespace mbapi {
                                              , const std::vector<double> & mpPor    ///< for multi-point perm. model the porosity values vector. Empty for other models
                                              , const std::vector<double> & mpPerm   ///< for multi-point perm. model the log. of perm values vector. Empty for other models.
                                              ) = 0;
+      /// @}
+
+      /// @brief Set lithology permeability model with parameters
+      // @param [in]    id          lithology ID
+      // @param[in/out] prmModel    permeability calculation model
+      // @param[out] mpPor     for multi-point perm. model the porosity values vector
+      // @param[out] mpPerm    for multi-point perm. model the log. of perm values vector
+      // @param[in] numPts     for multi-point perm. Number_Of_Data_Points
+      /// @param[in]          flag user defined flag value for the particular lithology id
+      /// @return NoError on success or error code otherwise
+      virtual ReturnCode setPermeabilityModel(LithologyID id, PermeabilityModel prmModel, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts, int & flag) = 0;
       /// @}
 
       // Seismic velocity
