@@ -787,7 +787,10 @@ void Track1d::doListSnapshots()
   std::cout << "Available snapshots are: ";
   for ( const Snapshot* snapshot : *mySnapshots )
   {
-    first ? first = false : std::cout << ",";
+    if (first)
+		  first = false;
+	  else
+		  std::cout << ",";
     std::streamsize oldPrecision = std::cout.precision();
     std::cout << std::setprecision( 9 ) << snapshot->getTime() << std::setprecision( oldPrecision );
   }
