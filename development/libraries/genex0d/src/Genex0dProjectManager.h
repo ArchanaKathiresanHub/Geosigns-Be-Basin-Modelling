@@ -34,7 +34,8 @@ namespace genex0d
 class Genex0dProjectManager
 { 
 public:
-  explicit Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord, const std::string & topSurfaceName);
+  explicit Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord,
+                                 const std::string & topSurfaceName, const std::string & formationName);
   ~Genex0dProjectManager();
 
   std::vector<double> requestPropertyHistory(const std::string & propertyName);
@@ -65,6 +66,7 @@ private:
   std::string m_propertyName;
   std::vector<double> m_agesAll;
   std::string m_topSurfaceName;
+  std::string m_formationName;
 };
 
 } // namespace genex0d

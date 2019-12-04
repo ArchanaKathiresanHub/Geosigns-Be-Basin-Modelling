@@ -202,7 +202,30 @@ bool Genex0dGenexSourceRock::preprocess()
 {
   LogHandler(LogHandler::INFO_SEVERITY) << "Start of preprocessing...";
 
-  computeSnapshotIntervals(Interface::MAJOR); // TODO: MINOR also to be added after datadriller is fixed
+  computeSnapshotIntervals(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR); // TODO: MINOR also to be added after datadriller is fixed
+
+  if (m_theIntervals.empty())
+  {
+    throw Genex0dException() << "Failed while preprocessing genex0d simulation!";
+  }
+
+  // Extrapolate properties for ending of last snapshot interval
+  std::vector<Genex6::SnapshotInterval*>::iterator itSnapInterv = m_theIntervals.end() - 1;
+  const DataAccess::Interface::Snapshot * intervalEnd = (*itSnapInterv)->getEnd();
+  const DataAccess::Interface::Snapshot * intervalStart = (*itSnapInterv)->getStart();
+
+  itSnapInterv--;
+  const DataAccess::Interface::Snapshot * prevIntervalStart = (*itSnapInterv)->getStart();
+  const double dt = prevIntervalStart->getTime() - intervalStart->getTime();
+
+  const int iLast = m_inPressures.size() - 1;
+  double ghostP = interpolateSnapshotProperty(m_inPressures[iLast - 1], m_inPressures[iLast], prevIntervalStart->getTime(), intervalEnd->getTime(), dt);
+  double ghostT = interpolateSnapshotProperty(m_inTemperatures[iLast - 1], m_inTemperatures[iLast], prevIntervalStart->getTime(), intervalEnd->getTime(), dt);
+
+  m_inPressures.push_back(ghostP);
+  m_inTemperatures.push_back(ghostT);
+  m_inTimes.push_back(intervalEnd->getTime());
+
   return true;
 }
 
@@ -237,16 +260,13 @@ bool Genex0dGenexSourceRock::process()
   LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
 
   LogHandler(LogHandler::INFO_SEVERITY) << "Start Of processing...";
-  LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
+  LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";  
 
   std::vector<Genex6::SnapshotInterval*>::iterator itSnapInterv = m_theIntervals.begin();
   const DataAccess::Interface::Snapshot * intervalStart = (*itSnapInterv)->getStart();;
   const DataAccess::Interface::Snapshot * intervalEnd = (*itSnapInterv)->getEnd();
+
   int i = 0;
-
-  // Processing pressure and temperature at interval start of the first interval
-  computePTSnapShot(intervalStart->getTime(), m_inPressures[i], m_inTemperatures[i]);
-
   while (itSnapInterv != m_theIntervals.end())
   {
     intervalStart = (*itSnapInterv)->getStart();
@@ -267,8 +287,16 @@ bool Genex0dGenexSourceRock::process()
       Genex0dException() << "Genex0d failed while processing, incorrect PT history!";
     }
 
+    // Processing pressure and temperature at interval start of the first interval
+    computePTSnapShot(intervalStart->getTime(), m_inPressures[i], m_inTemperatures[i]);
+
     double tPrevious = intervalStart->getTime();
     double t = tPrevious - deltaT;
+
+    if (tPrevious - 23.0 < 1e-12)
+    {
+      cout << "here";
+    }
 
     // Interpolate interval time instances
     while (t > snapShotIntervalEndTime)
@@ -279,25 +307,19 @@ bool Genex0dGenexSourceRock::process()
       computePTSnapShot(t, pressureInterp, temperatureInterp);
 
       t -= deltaT;
-    }
 
-    // Set the interval end for the current interval (doesn't need interpolation)
-    computePTSnapShot(snapShotIntervalEndTime, m_inPressures[i], m_inTemperatures[i]);
-
-    // If t is very close to the snapshot time then set t to be the snapshot interval end-time.
-    // This is to eliminate the very small time-steps that can occur (O(1.0e-13))
-    // as the time-stepping approaches a snapshot time.
-    if (t - Genex6::Constants::TimeStepFraction * deltaT < snapShotIntervalEndTime)
-    {
-       t = snapShotIntervalEndTime;
+      if (t - Genex6::Constants::TimeStepFraction * deltaT < snapShotIntervalEndTime)
+      {
+         t = snapShotIntervalEndTime;
+      }
     }
 
     ++itSnapInterv;
     ++i;
   }
 
-//  m_sourceRockNode->RequestComputation(*m_theSimulator);
-//  m_sourceRockNode->PrintBenchmarkOutput("./tmp.csv", *m_theSimulator);
+  // Set the interval end for the current interval (doesn't need interpolation)
+  computePTSnapShot(intervalEnd->getTime(), m_inPressures[i], m_inTemperatures[i]);
 
   clearSimulator();
 

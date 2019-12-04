@@ -19,6 +19,8 @@
 #include "Snapshot.h"
 #include "Surface.h"
 
+#include <iomanip>
+
 namespace DataExtraction
 {
 
@@ -51,7 +53,8 @@ std::string DataExtractor::getPropertyFormationDataGroupName( const DataAccess::
                                                               const DataAccess::Interface::Property* property,
                                                               const DataAccess::Interface::Snapshot* snapshot ) const
 {
-  std::string propertyFormationDataGroup = "/Layer=" + property->getCauldronName() + "_" + std::to_string( static_cast<int>( snapshot->getTime() ) ) + "_";
+  std::string propertyFormationDataGroup = "/Layer=" + property->getCauldronName() + "_" + snapshot->asString() + "_";
+
   if ( surface && property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY )
   {
     propertyFormationDataGroup += surface->getMangledName();

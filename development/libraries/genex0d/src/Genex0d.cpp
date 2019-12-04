@@ -72,7 +72,7 @@ void Genex0d::initialize()
   reloadSimulator(m_inData.projectFilename);
   reloadFormation();
 
-  m_projectMgr.reset(new Genex0dProjectManager(m_inData.projectFilename, m_inData.xCoord, m_inData.yCoord, m_formationMgr->topSurfaceName()));
+  m_projectMgr.reset(new Genex0dProjectManager(m_inData.projectFilename, m_inData.xCoord, m_inData.yCoord, m_formationMgr->topSurfaceName(), m_inData.formationName));
   m_projectMgr->computeAgesFromAllSnapShots(m_formationMgr->depositionTimeTopSurface());
 
   m_gnx0dSimulator->deletePropertyValues(DataAccess::Interface::RESERVOIR , 0, 0, 0, 0, 0,
@@ -89,7 +89,7 @@ void Genex0d::run()
                              m_formationMgr->getThickness(), m_formationMgr->getInorganicDensity(),
                              m_projectMgr->agesAll(),
                              m_projectMgr->requestPropertyHistory("Temperature"),
-                             m_projectMgr->requestPropertyHistory("Pressure")))
+                             m_projectMgr->requestPropertyHistory("Ves")))
   {
     throw Genex0dException() << "Genex0d simulator could not be initiated!";
   }

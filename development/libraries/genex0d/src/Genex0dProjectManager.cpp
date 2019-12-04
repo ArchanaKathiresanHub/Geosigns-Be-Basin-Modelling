@@ -33,7 +33,8 @@ const std::string s_dataMiningTblName = "DataMiningIoTbl";
 
 } // namespace
 
-Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord, const std::string & topSurfaceName):
+Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord,
+                                             const std::string & topSurfaceName, const std::string & formationName):
   m_projectFileName{projectFileName},
   m_ObjectFactory{nullptr},
   m_projectHandle{nullptr},
@@ -44,7 +45,8 @@ Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName
   m_posDataPrevious{0},
   m_propertyName{""},
   m_agesAll{},
-  m_topSurfaceName{topSurfaceName}
+  m_topSurfaceName{topSurfaceName},
+  m_formationName{formationName}
 {
   try
   {
@@ -101,7 +103,7 @@ void Genex0dProjectManager::clearTable()
 
 void Genex0dProjectManager::computeAgesFromAllSnapShots(const double depositionTimeTopSurface)
 {
-  DataAccess::Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots(DataAccess::Interface::MAJOR);
+  DataAccess::Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR);
   DataAccess::Interface::SnapshotList::reverse_iterator snapshotIter;
 
   if (snapshots->size() < 1)
@@ -157,7 +159,9 @@ void Genex0dProjectManager::setInTable()
         ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "PropertyName", m_propertyName) ||
         ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "Value",
                                                       Utilities::Numerical::IbsNoDataValue) ||
-        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "SurfaceName", m_topSurfaceName))
+        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "SurfaceName", m_topSurfaceName) ||
+        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "FormationName", m_formationName)
+        )
     {
       throw ErrorHandler::Exception(m_mdl->errorCode()) << "Could not initialize data mining table! "
                                                         << "Error code: " << m_mdl->errorMessage();
