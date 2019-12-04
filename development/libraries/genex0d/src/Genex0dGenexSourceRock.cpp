@@ -94,7 +94,7 @@ void Genex0dGenexSourceRock::initializeComputations(const double thickness, cons
 
   m_theSimulator = new Genex6::Simulator();
 
-  m_theChemicalModel = m_theChemicalModel1 = m_theChemicalModel2 =
+  m_theChemicalModel = m_theChemicalModel1 =
       m_theSimulator->loadChemicalModel(getGenexEnvironment(), getRunType(),
                                         m_srProperties.typeNameID(), m_srProperties.HCVRe05(), m_srProperties.SCVRe05(),
                                         m_srProperties.activationEnergy(), m_srProperties.Vr(),
