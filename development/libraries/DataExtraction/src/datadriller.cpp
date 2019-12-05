@@ -278,7 +278,7 @@ void DataDriller::readDataFromHDF()
           const DataAccess::Interface::Formation * formation = m_projectHandle->findFormation( formationName );
           if ( !formation ) throw RecordException( "Unknown FormationName value: %", formationName );
 
-          // check for FORMATION MAP properties which are only allowed here:
+          // An initial check for FORMATION MAP properties
           if ( property->hasPropertyValues( DataAccess::Interface::FORMATION, snapshot, 0, formation, 0, DataAccess::Interface::MAP ) )
           {
             value = get2dPropertyFromHDF( i, j, nullptr, formation, property, snapshot, recordIndex );
@@ -286,9 +286,7 @@ void DataDriller::readDataFromHDF()
             {
               continue;
             }
-            throw RecordException( "Volume properties unsupported for the FORMATION MAP property request: Z value is undefined and Formation name is specified" );
           }
-
           value = get3dPropertyFromHDF( i, j, formation, property, snapshot, recordIndex );
         }
       }
