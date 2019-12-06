@@ -314,8 +314,8 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
    str << setw ( 21 ) << "Ma"
        << setw ( 21 ) << "C"
        << setw ( 21 ) << "-"
-       << setw ( 21 ) << "MPa"
-       << setw ( 21 ) << "MPa";
+       << setw ( 21 ) << "Pa"
+       << setw ( 21 ) << "Pa";
 
    //------- Generated Rate -------//
    for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES + NumberOfGroups; ++id ) {

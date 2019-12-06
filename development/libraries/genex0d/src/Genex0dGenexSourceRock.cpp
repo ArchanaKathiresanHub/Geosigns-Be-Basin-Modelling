@@ -57,7 +57,7 @@ Genex0dGenexSourceRock::Genex0dGenexSourceRock (DataAccess::Interface::ProjectHa
   m_indJ{indJ},
   m_inTimes{},
   m_inTemperatures{},
-  m_inPressures{},
+  m_inVesAll{},
   m_pointAdsorptionHistory{new Genex0dPointAdsorptionHistory(projectHandle, inData)}
 {
 }
@@ -86,11 +86,11 @@ char * Genex0dGenexSourceRock::getGenexEnvironment() const
 }
 
 void Genex0dGenexSourceRock::initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
-                                                    const std::vector<double> & temperature, const std::vector<double> & pressure)
+                                                    const std::vector<double> & temperature, const std::vector<double> & Ves)
 {
   m_inTimes = time;
   m_inTemperatures = temperature;
-  m_inPressures = pressure;
+  m_inVesAll = Ves;
 
   m_theSimulator = new Genex6::Simulator();
 
@@ -218,11 +218,11 @@ bool Genex0dGenexSourceRock::preprocess()
   const DataAccess::Interface::Snapshot * prevIntervalStart = (*itSnapInterv)->getStart();
   const double dt = prevIntervalStart->getTime() - intervalStart->getTime();
 
-  const int iLast = m_inPressures.size() - 1;
-  double ghostP = interpolateSnapshotProperty(m_inPressures[iLast - 1], m_inPressures[iLast], prevIntervalStart->getTime(), intervalEnd->getTime(), dt);
+  const int iLast = m_inVesAll.size() - 1;
+  double ghostP = interpolateSnapshotProperty(m_inVesAll[iLast - 1], m_inVesAll[iLast], prevIntervalStart->getTime(), intervalEnd->getTime(), dt);
   double ghostT = interpolateSnapshotProperty(m_inTemperatures[iLast - 1], m_inTemperatures[iLast], prevIntervalStart->getTime(), intervalEnd->getTime(), dt);
 
-  m_inPressures.push_back(ghostP);
+  m_inVesAll.push_back(ghostP);
   m_inTemperatures.push_back(ghostT);
   m_inTimes.push_back(intervalEnd->getTime());
 
@@ -288,7 +288,7 @@ bool Genex0dGenexSourceRock::process()
     }
 
     // Processing pressure and temperature at interval start of the first interval
-    computePTSnapShot(intervalStart->getTime(), m_inPressures[i], m_inTemperatures[i]);
+    computePTSnapShot(intervalStart->getTime(), m_inVesAll[i], m_inTemperatures[i]);
 
     double tPrevious = intervalStart->getTime();
     double t = tPrevious - deltaT;
@@ -301,10 +301,10 @@ bool Genex0dGenexSourceRock::process()
     // Interpolate interval time instances
     while (t > snapShotIntervalEndTime)
     {
-      const double pressureInterp = interpolateSnapshotProperty(m_inPressures[i], m_inPressures[i+1], tPrevious, t, deltaTInterval);
+      const double VesInterp = interpolateSnapshotProperty(m_inVesAll[i], m_inVesAll[i+1], tPrevious, t, deltaTInterval);
       const double temperatureInterp = interpolateSnapshotProperty(m_inTemperatures[i], m_inTemperatures[i+1], tPrevious, t, deltaTInterval);
 
-      computePTSnapShot(t, pressureInterp, temperatureInterp);
+      computePTSnapShot(t, VesInterp, temperatureInterp);
 
       t -= deltaT;
 
@@ -319,7 +319,7 @@ bool Genex0dGenexSourceRock::process()
   }
 
   // Set the interval end for the current interval (doesn't need interpolation)
-  computePTSnapShot(intervalEnd->getTime(), m_inPressures[i], m_inTemperatures[i]);
+  computePTSnapShot(intervalEnd->getTime(), m_inVesAll[i], m_inTemperatures[i]);
 
   clearSimulator();
 

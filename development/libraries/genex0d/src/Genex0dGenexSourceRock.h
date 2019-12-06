@@ -52,7 +52,7 @@ public:
   ~Genex0dGenexSourceRock();
 
   void initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
-                              const std::vector<double> & temperature, const std::vector<double> & pressure);
+                              const std::vector<double> & temperature, const std::vector<double> & Ves);
 
   const Genex6::SourceRockNode & getSourceRockNode() const;
   const Genex6::Simulator & simulator() const;
@@ -79,7 +79,7 @@ private:
 
   std::vector<double> m_inTimes;
   std::vector<double> m_inTemperatures;
-  std::vector<double> m_inPressures;
+  std::vector<double> m_inVesAll;
   Genex0dPointAdsorptionHistory * m_pointAdsorptionHistory;
 };
 
