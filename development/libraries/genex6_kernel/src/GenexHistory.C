@@ -283,7 +283,7 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
 
    // --------------------------
 
-   str << setw ( 30 ) << "Kerogen Conversion Ratio";
+   str << setw ( 30 ) << "KerogenConversionRatio";
 
    str << setw ( 21 ) << "InstExpApi";
    str << setw ( 21 ) << "CumExpApi";
