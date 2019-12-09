@@ -126,7 +126,7 @@ int main( const int argc, char** argv )
 
       // Scale and save map
       if ( ErrorHandler::NoError != mpMgr.scaleAndShiftMapCorrectedForWells( cmID, scales[i], shifts[i], radiusOfInfluence, xWells, yWells ) ||
-           ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, mapName + s_mapFileSuffix, i ) )
+           ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, mapName + s_mapFileSuffix ) )
       {
         throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
       }

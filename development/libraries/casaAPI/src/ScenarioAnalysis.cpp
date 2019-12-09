@@ -128,7 +128,7 @@ public:
    bool parameterFilter( Parameter * prm, RunCase * rc );
 
    // Generate 3D result project file from  1D cases
-   void generateThreeDFromOneD( const std::string & expLabel );
+   void generateThreeDFromOneD( const std::string & expLabel, const int smoothingMethod, const double smoothingRadius, const int nrOfThreads );
 
    // Validate Cauldron model for consistency and valid parameters range. This function should be
    // called after ScenarioAnalysis::applyMutation()
@@ -370,9 +370,10 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setFilterOneDResults( const std::stri
 }
 
 
-ErrorHandler::ReturnCode ScenarioAnalysis::generateThreeDFromOneD( const std::string & expLabel )
+ErrorHandler::ReturnCode ScenarioAnalysis::generateThreeDFromOneD( const std::string & expLabel, const int smoothingMethod,
+                                                                   const double smoothingRadius, const int nrOfThreads )
 {
-   try { m_pimpl->generateThreeDFromOneD( expLabel ); }
+   try { m_pimpl->generateThreeDFromOneD( expLabel, smoothingMethod, smoothingRadius, nrOfThreads ); }
    catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
    catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
    catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
@@ -883,7 +884,8 @@ bool ScenarioAnalysis::ScenarioAnalysisImpl::parameterFilter( Parameter * prm, R
    return includeParameter;
 }
 
-void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::string & expLabel )
+void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::string & expLabel, const int smoothingMethod,
+                                                                     const double smoothingRadius, const int nrOfThreads )
 {
    RunCaseSet& rcs = doeCaseSet( );
    VarSpace& var = varSpace( );
@@ -945,7 +947,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::
                {
                   // make the averages
                   SharedParameterPtr prm;
-                  prm = vprmc->makeThreeDFromOneD( bc, xcoordOneD, ycoordOneD, prmVec );
+                  VarPrmContinuous::SmoothingParams smoothingParams{ smoothingMethod, smoothingRadius, nrOfThreads };
+                  prm = vprmc->makeThreeDFromOneD( bc, xcoordOneD, ycoordOneD, prmVec, smoothingParams );
                   brc->addParameter( prm );
                }
             }

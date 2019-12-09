@@ -249,18 +249,6 @@ GridMap * PropertyValue::getGridMap (void) const
    return (GridMap *) getChild (ValueMap);
 }
 
-string PropertyValue::saveToDirectory (const string & directory)
-{
-   GridMap *gridMap = (GridMap *) getGridMap ();
-   string fileName = getPropertyGrid (getRecord ()) + ".HDF";
-   string fullFileName = directory + '/' + fileName;
-
-   // cerr << "saving PropertyValue to: " << fullFileName << endl;
-   gridMap->saveHDF5 (fullFileName);
-
-   return fileName;
-}
-
 //1DComponennt
 //assumtpion lower left corner
 double PropertyValue::getMode1DResult() const	//used in createTimeIoRecord for the MODE1D case

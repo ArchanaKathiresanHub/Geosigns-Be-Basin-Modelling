@@ -69,8 +69,6 @@ namespace DataAccess
 
 				 unsigned int applyIndex (unsigned int index);
 
-				 string saveToDirectory (const string & directory);
-
       private:
           static const unsigned int ValueMap = 0;
 

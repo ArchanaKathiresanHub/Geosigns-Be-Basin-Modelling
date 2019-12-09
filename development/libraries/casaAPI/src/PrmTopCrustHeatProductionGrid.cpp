@@ -161,7 +161,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProductionGrid::setInModel( mbapi::Model
       }
 
       // Save new map to file
-      if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + s_mapFileSuffix, 0 ) )
+      if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + s_mapFileSuffix ) )
       {
         throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
       }

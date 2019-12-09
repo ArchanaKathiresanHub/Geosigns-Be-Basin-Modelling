@@ -46,6 +46,7 @@ add_subdirectory(functions)
 add_subdirectory(LookupTables)
 add_subdirectory(VisualizationIO)
 add_subdirectory(VisualizationIO_projectHandle)
+add_subdirectory(MapSmoothing)
 
 if(UNIX)
    # Libraries that can only be built on Unix at the moment.

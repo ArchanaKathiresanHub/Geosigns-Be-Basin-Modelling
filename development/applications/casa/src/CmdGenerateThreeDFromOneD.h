@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #ifndef CASA_CMD_GENERATE_THREED_ONED_H
 #define CASA_CMD_GENERATE_THREED_ONED_H
 
@@ -28,6 +28,11 @@ public:
    /// @brief Print help page about command purpose and it parameters
    /// @param cmdName - command name - how it is defined in CasaCommander
    static void printHelpPage( const char * cmdName );
+
+private:
+   double m_smoothingRadius;
+   int m_smoothingMethod;
+   int m_nrOfThreads;
 };
 
 #endif // CASA_CMD_GENERATE_THREED_ONED_H

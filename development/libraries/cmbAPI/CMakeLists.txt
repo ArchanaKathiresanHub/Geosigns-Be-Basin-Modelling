@@ -30,6 +30,7 @@ create_bm_library( TARGET ${LIB_NAME}
                              FileSystem
                              utilities
                              NNlib
+                             MapSmoothing
                              ${Boost_LIBRARIES} )
 
 if (UNIX)

@@ -181,7 +181,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
             {
                throw ErrorHandler::Exception( mMgr.errorCode() ) << mMgr.errorMessage();
             }
-            if ( ErrorHandler::NoError != mMgr.saveMapToHDF( id, newMapName + ".HDF", 0 ) )
+            if ( ErrorHandler::NoError != mMgr.saveMapToHDF( id, newMapName + ".HDF" ) )
             {
                throw ErrorHandler::Exception( mMgr.errorCode() ) << mMgr.errorMessage();
             }

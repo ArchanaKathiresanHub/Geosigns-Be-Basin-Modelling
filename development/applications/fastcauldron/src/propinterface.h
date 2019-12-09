@@ -79,15 +79,6 @@ public:
   int j[4];
 
   bool nodeDefined[4];
-
-  /// Indicate whether the edge is on the boundary of the domain.
-  ///
-  /// boundaryNumber must be in the range 0 .. 3.
-   /// DOES NOT WORK YET! DO NOT USE!
-  bool onDomainBoundary ( const int boundaryNumber ) const;
-
-//   /// Indicate whether the edge is on the boundary of the domain
-//   bool onDomainBoundary [ 4 ];
 };
 
 typedef std::vector < Elt2dIndices > ElementList;

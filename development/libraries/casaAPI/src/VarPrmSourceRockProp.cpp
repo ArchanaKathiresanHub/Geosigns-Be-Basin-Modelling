@@ -80,7 +80,9 @@ SharedParameterPtr VarPrmSourceRockProp::newParameterFromModel( mbapi::Model & m
 SharedParameterPtr VarPrmSourceRockProp::makeThreeDFromOneD( mbapi::Model                          & /* mdl    */
                                                            , const std::vector<double>             & /* xin    */
                                                            , const std::vector<double>             & /* yin    */
-                                                           , const std::vector<SharedParameterPtr> & /* prmVec */ ) const
+                                                           , const std::vector<SharedParameterPtr> & /* prmVec */
+                                                           , const SmoothingParams                 & /* smoothingParams */
+                                                           ) const
 {
    // Not yet implemented
    throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmSourceRockProp";

@@ -60,6 +60,7 @@ if (UNIX)
         add_subdirectory(VisualizationIO_conversion)
         add_subdirectory(casaWizard)
         add_subdirectory(mapMorph)
+        add_subdirectory(mapSmoother)
     endif (BM_BUILD_SERIAL_APPS)
 # Windows
 else ()

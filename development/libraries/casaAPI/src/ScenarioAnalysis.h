@@ -125,8 +125,12 @@ namespace casa
 
       /// @brief Generate a 3D project from 1D results using appropriate parameter averages
       /// @param expLabel name of the cases where the averages should take place
+      /// @param smoothingMethod Smoothing method
+      /// @param smoothingRadius Smoothing radius [m]
+      /// @param nrOfThreads Number of threads
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
-      ErrorHandler::ReturnCode generateThreeDFromOneD( const std::string & expLabel );
+      ErrorHandler::ReturnCode generateThreeDFromOneD( const std::string & expLabel, const int smoothingMethod,
+                                                       const double smoothingRadius, const int nrOfThreads );
 
       /// @brief Create copy of the base case model and set all influential parameters value defined for each case. Each call of
       ///        this function increase scenario iteration number.

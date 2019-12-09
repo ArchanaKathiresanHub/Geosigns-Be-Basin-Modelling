@@ -3623,30 +3623,6 @@ void ProjectHandle::numberInputValues( void )
    }
 }
 
-
-void ProjectHandle::loadPropertyGridMaps( Interface::PropertyValueList * propertyValues ) const
-{
-   if ( !propertyValues ) return;
-   Interface::PropertyValueList::iterator propertyValueIter;
-
-   for ( propertyValueIter = propertyValues->begin(); propertyValueIter != propertyValues->end(); ++propertyValueIter )
-   {
-      PropertyValue * propertyValue = (PropertyValue *)( *propertyValueIter );
-      propertyValue->getGridMap();
-   }
-}
-
-void ProjectHandle::loadInputGridMaps( void ) const
-{
-   MutableInputValueList::const_iterator inputValueIter;
-
-   for ( inputValueIter = m_inputValues.begin(); inputValueIter != m_inputValues.end(); ++inputValueIter )
-   {
-      InputValue * inputValue = *inputValueIter;
-      inputValue->getGridMap();
-   }
-}
-
 Interface::InputValueList * ProjectHandle::getInputValues( void ) const
 {
    Interface::InputValueList * inputValueList = new Interface::InputValueList;

@@ -83,9 +83,6 @@ using Utilities::Physics::AccelerationDueToGravity;
 #endif /** _MSC_VER */
 //------------------------------------------------------------//
 
-bool Elt2dIndices::onDomainBoundary ( const int boundaryNumber ) const {
-  return nodeDefined [ boundaryNumber ] && nodeDefined [ ( boundaryNumber + 1 ) % 4 ];
-}
 
 //------------------------------------------------------------//
 
@@ -136,7 +133,6 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    m_permafrostCurrentInd = 0;
 
 }
-
 
 bool AppCtx::readProjectName () {
 

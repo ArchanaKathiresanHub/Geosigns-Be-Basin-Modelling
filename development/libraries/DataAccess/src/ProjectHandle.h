@@ -885,9 +885,6 @@ namespace DataAccess
 
          void numberInputValues( void );
 
-         void loadInputGridMaps( void ) const;
-         void loadPropertyGridMaps( PropertyValueList * propertyValues ) const;
-
          void loadLangmuirIsotherms();
          void loadLangmuirTOCEntries();
          void loadPointHistories();

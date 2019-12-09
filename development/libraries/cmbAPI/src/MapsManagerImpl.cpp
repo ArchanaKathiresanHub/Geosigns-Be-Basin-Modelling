@@ -15,6 +15,10 @@
 #include "MapsManagerImpl.h"
 #include "UndefinedValues.h"
 
+// MapSmoothing
+#include "mapSmootherGridMap.h"
+#include "mapSmootherVectorized.h"
+
 // DataAccess
 #include "database.h"
 #include "GridMap.h"
@@ -183,13 +187,21 @@ void MapsManagerImpl::createMap(const std::string& referredTable, const std::str
          {
             // the first map of the file
             mapSequenceNbr = 0;
-            m_fileMaps.insert( std::pair<std::string, std::vector<std::string>>( mapFullPath.path(), std::vector<std::string>( 1, m_mapName[id] ) ) );
+            m_fileMaps.insert( std::pair<std::string, std::vector<std::string>>( mapFile, std::vector<std::string>( 1, m_mapName[id] ) ) );
          }
          else
          {
-            mapSequenceNbr = m_fileMaps[mapFile].size();
-            m_fileMaps[mapFullPath.path()].push_back( m_mapName[id] ); //add the new name to m_fileMaps
+            mapSequenceNbr = 0;
+            for ( const std::string& name : m_fileMaps[mapFile] )
+            {
+               mapSequenceNbr = std::max( mapSequenceNbr, m_seqNrMap[name] );
+            }
+            ++mapSequenceNbr;
+
+            m_fileMaps[mapFile].push_back( mapName ); //add the new name to m_fileMaps
          }
+
+         m_seqNrMap[mapName] = mapSequenceNbr;
 
          // change names
          newRec->setValue<std::string>( s_ReferredByColName,  referredTable.c_str() );
@@ -232,7 +244,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & ref
       mapSetValues( ret, values );
 
       // save the map to HDF
-      if ( saveToHDF && ErrorHandler::ReturnCode::NoError != saveMapToHDF( ret, filePathName, mapSequenceNbr ) )
+      if ( saveToHDF && ErrorHandler::ReturnCode::NoError != saveMapToHDF( ret, filePathName ) )
       {
          throw Exception( UnknownError ) << "Can not save HDF5 map";
       }
@@ -258,7 +270,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string              
       createMap( referredTable, mapName, mapSequenceNbr, filePathName, ret, gridMap );
 
       // save the map to HDF
-      if ( ErrorHandler::ReturnCode::NoError != saveMapToHDF( ret, filePathName, mapSequenceNbr ) )
+      if ( ErrorHandler::ReturnCode::NoError != saveMapToHDF( ret, filePathName ) )
       {
          throw Exception( UnknownError ) << "Can not save HDF5 map";
       }
@@ -370,7 +382,7 @@ double MapsManagerImpl::mapGetValue( MapID id, size_t i, size_t j )
 }
 
 // Save input map to the new HDF file. File with the given name should not exist before.
-ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::string & fileName, size_t mapSequenceNbr )
+ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::string & fileName )
 {
    if ( errorCode() != NoError ) resetError();
    try
@@ -418,7 +430,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
          throw Exception( OutOfRangeValue ) << "Could not inizialize the map writer ";
       }
 
-      const bool writingSucceed = m_mapPropertyValuesWriter->writeInputMap( m_mapObj[id], static_cast<int>( mapSequenceNbr ) );
+      const bool writingSucceed = m_mapPropertyValuesWriter->writeInputMap( m_mapObj[id], static_cast<int>( rec->getValue<int>( s_MapSeqNbrColName ) ) );
       if ( !writingSucceed )
       {
          throw Exception( IoError ) << "Can not write the map " << m_mapName[id] << " to HDF ";
@@ -506,6 +518,44 @@ ErrorHandler::ReturnCode MapsManagerImpl::scaleMap( MapID id, double coeff )
    catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
 
    return NoError;
+}
+
+ErrorHandler::ReturnCode MapsManagerImpl::smoothenGridMap( MapsManager::MapID id, const int method,
+                                                           const double smoothingRadius, const unsigned int nrOfThreads )
+{
+  if ( errorCode() != NoError ) resetError();
+  try
+  {
+    double oldMin;
+    double oldMax;
+    if ( NoError != mapValuesRange( id, oldMin, oldMax ) )
+    {
+      throw ErrorHandler::Exception( errorCode() ) << errorMessage();
+    }
+
+    std::unique_ptr<MapSmoothing::MapSmoother> mapSmoother( new MapSmoothing::MapSmootherGridMap( m_mapObj[id], smoothingRadius, nrOfThreads) );
+    if ( method == 0 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::Gaussian );
+    if ( method == 1 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::MovingAverage );
+  }
+  catch( const Exception & ex )
+  {
+    return reportError( ex.errorCode(), ex.what() );
+  }
+
+  return NoError;
+}
+
+ErrorHandler::ReturnCode MapsManagerImpl::smoothenVectorizedMap( std::vector<double>& vec, const int method,
+                                                                 const unsigned int numI, const unsigned int numJ,
+                                                                 const double dx, const double dy,
+                                                                 const double smoothingRadius, const double undefinedValue,
+                                                                 const unsigned int nrOfThreads) const
+{
+  std::unique_ptr<MapSmoothing::MapSmoother> mapSmoother(
+        new MapSmoothing::MapSmootherVectorized( vec, undefinedValue, smoothingRadius,dx , dy, numI, numJ, nrOfThreads ) );
+  if ( method == 0 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::Gaussian );
+  if ( method == 1 ) mapSmoother->doSmoothing( MapSmoothing::FilterType::MovingAverage );
+  return ErrorHandler::NoError;
 }
 
 // Shift the input map by a constant value
@@ -676,6 +726,9 @@ void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, con
    m_mapRefTable.clear();
    m_mapObj.clear();
 
+   m_fileMaps.clear();
+   m_seqNrMap.clear();
+
    // clear list of input maps files
    m_mapsFileList.clear();
 
@@ -719,6 +772,7 @@ void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, con
          {
             m_mapName.push_back( mapName );
             m_mapRefTable.push_back( refTbl );
+            m_seqNrMap[mapName] = rec->getValue<int>( s_MapSeqNbrColName );
             if ( !fname.empty() )
             {
                // construct the full file path to the original map file

@@ -116,7 +116,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProductionGridScaling::setInModel(mbapi:
   }
 
   // save map to separate HDF file
-  if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + mapFileSuffix, 0 ) )
+  if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + mapFileSuffix ) )
   {
     throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
   }
