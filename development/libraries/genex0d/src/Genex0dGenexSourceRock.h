@@ -45,7 +45,7 @@ class Genex0dPointAdsorptionHistory;
 class Genex0dGenexSourceRock : public Genex0dSourceRock
 {
 public:
-  explicit Genex0dGenexSourceRock(DataAccess::Interface::ProjectHandle * projectHandle,
+  explicit Genex0dGenexSourceRock(Interface::ProjectHandle & projectHandle,
                                   const Genex0dInputData & inData,
                                   const unsigned int indI,
                                   const unsigned int indJ);

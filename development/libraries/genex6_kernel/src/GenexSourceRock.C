@@ -2537,7 +2537,7 @@ void GenexSourceRock::computeSnapshotIntervals (const int snapshotType)
 {
    m_depositionTime = getDepositionTime ();
 
-   Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots (snapshotType);
+   Interface::SnapshotList * snapshots = m_projectHandle.getSnapshots (snapshotType);
 
    Interface::SnapshotList::reverse_iterator snapshotIter;
 

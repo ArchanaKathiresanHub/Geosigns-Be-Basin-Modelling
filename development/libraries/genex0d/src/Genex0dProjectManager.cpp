@@ -16,12 +16,15 @@
 #include "ErrorHandler.h"
 
 // DataAccess
+#include "ProjectHandle.h"
 #include "Snapshot.h"
 
 //Genex6
 #include "ConstantsGenex.h"
 
 #include <cmath>
+
+#include <iomanip>
 
 namespace genex0d
 {
@@ -33,11 +36,10 @@ const std::string s_dataMiningTblName = "DataMiningIoTbl";
 
 } // namespace
 
-Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord,
-                                             const std::string & topSurfaceName, const std::string & formationName):
+Genex0dProjectManager::Genex0dProjectManager(const DataAccess::Interface::ProjectHandle & projectHandle, const std::string & projectFileName, const double xCoord,
+                                             const double yCoord, const std::string & topSurfaceName, const std::string & formationName):
   m_projectFileName{projectFileName},
-  m_ObjectFactory{nullptr},
-  m_projectHandle{nullptr},
+  m_projectHandle{projectHandle},
   m_xCoord{xCoord},
   m_yCoord{yCoord},
   m_mdl{nullptr},
@@ -48,40 +50,12 @@ Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName
   m_topSurfaceName{topSurfaceName},
   m_formationName{formationName}
 {
-  try
-  {
-    if (m_projectFileName.empty())
-    {
-      throw Genex0dException() << "Fatal error, empty project name!";
-    }
-
-    m_ObjectFactory = new DataAccess::Interface::ObjectFactory();
-    m_projectHandle = DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", m_ObjectFactory);
-
-    reloadModel();
-    clearTable();
-  }
-  catch (const Genex0dException & ex)
-  {
-    cleanup();
-    throw;
-  }
-}
-
-void Genex0dProjectManager::cleanup()
-{
-  delete m_projectHandle;
-  delete m_ObjectFactory;
+  reloadModel();
+  clearTable();
 }
 
 Genex0dProjectManager::~Genex0dProjectManager()
 {
-  cleanup();
-}
-
-DataAccess::Interface::ProjectHandle* Genex0dProjectManager::projectHandle()
-{
-  return m_projectHandle;
 }
 
 void Genex0dProjectManager::reloadModel()
@@ -103,7 +77,7 @@ void Genex0dProjectManager::clearTable()
 
 void Genex0dProjectManager::computeAgesFromAllSnapShots(const double depositionTimeTopSurface)
 {
-  DataAccess::Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR);
+  DataAccess::Interface::SnapshotList * snapshots = m_projectHandle.getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR);
   DataAccess::Interface::SnapshotList::reverse_iterator snapshotIter;
 
   if (snapshots->size() < 1)

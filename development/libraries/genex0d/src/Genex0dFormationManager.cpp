@@ -29,23 +29,18 @@
 namespace genex0d
 {
 
-Genex0dFormationManager::Genex0dFormationManager(DataAccess::Interface::ProjectHandle * projectHandle, const std::string & formationName, const double x, const double y) :
+Genex0dFormationManager::Genex0dFormationManager(DataAccess::Interface::ProjectHandle & projectHandle, const std::string & formationName, const double x, const double y) :
   m_projectHandle{projectHandle},
   m_formation{nullptr},
   m_thickness{0.0},
   m_indI{0},
   m_indJ{0}
 {
-  if (m_projectHandle == nullptr)
-  {
-    throw Genex0dException() << "Fatal error, projectHandle could not be initiated!";
-  }
-
   if (formationName.empty())
   {
     throw Genex0dException() << "Fatal error, empty formation name!";
   }
-  m_formation = m_projectHandle->findFormation(formationName);
+  m_formation = m_projectHandle.findFormation(formationName);
 
   if (!m_formation)
   {
@@ -85,7 +80,7 @@ unsigned int Genex0dFormationManager::indI() const
 
 void Genex0dFormationManager::setProperties(const double x, const double y)
 {
-  const DataAccess::Interface::Grid * gridLowResolution(m_projectHandle->getLowResolutionOutputGrid());
+  const DataAccess::Interface::Grid * gridLowResolution(m_projectHandle.getLowResolutionOutputGrid());
 
   if (gridLowResolution->getGridPoint(x, y, m_indI, m_indJ))
   {

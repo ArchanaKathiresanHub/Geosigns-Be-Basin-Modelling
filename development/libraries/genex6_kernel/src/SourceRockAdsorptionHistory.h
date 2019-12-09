@@ -15,7 +15,7 @@ namespace Genex6 {
 
    public :
 
-      SourceRockAdsorptionHistory ( DataAccess::Interface::ProjectHandle&                projectHandle,
+      SourceRockAdsorptionHistory ( DataAccess::Interface::ProjectHandle & projectHandle,
                                     const DataAccess::Interface::PointAdsorptionHistory* record );
 
 

@@ -20,7 +20,7 @@ class Genex0dPointAdsorptionHistory : public DataAccess::Interface::PointAdsorpt
 {
 
 public :
-  Genex0dPointAdsorptionHistory(DataAccess::Interface::ProjectHandle* projectHandle,
+  Genex0dPointAdsorptionHistory(DataAccess::Interface::ProjectHandle & projectHandle,
                                 const Genex0dInputData & inData);
   virtual ~Genex0dPointAdsorptionHistory();
 };

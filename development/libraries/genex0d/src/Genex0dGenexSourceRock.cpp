@@ -46,7 +46,7 @@ double interpolateSnapshotProperty(const double inPropertyStart, const double in
 
 } // namespace
 
-Genex0dGenexSourceRock::Genex0dGenexSourceRock (DataAccess::Interface::ProjectHandle * projectHandle,
+Genex0dGenexSourceRock::Genex0dGenexSourceRock (DataAccess::Interface::ProjectHandle & projectHandle,
                                                 const Genex0dInputData & inData,
                                                 const unsigned int indI,
                                                 const unsigned int indJ) :

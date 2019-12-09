@@ -34,19 +34,17 @@ namespace genex0d
 class Genex0dProjectManager
 { 
 public:
-  explicit Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord,
-                                 const std::string & topSurfaceName, const std::string & formationName);
+  explicit Genex0dProjectManager(const DataAccess::Interface::ProjectHandle & projectHandle, const std::string & projectFileName, const double xCoord,
+                                 const double yCoord, const std::string & topSurfaceName, const std::string & formationName);
   ~Genex0dProjectManager();
 
   std::vector<double> requestPropertyHistory(const std::string & propertyName);
 
-  DataAccess::Interface::ProjectHandle * projectHandle();
   void computeAgesFromAllSnapShots(const double depositionTimeTopSurface);
   void setTopSurface(const std::string & topSurfaceName);
   std::vector<double> agesAll() const;
 
 private:
-  void cleanup();
   void reloadModel();
   void clearTable();
   void saveModel();
@@ -55,9 +53,7 @@ private:
   void setInTable();
 
   const std::string m_projectFileName;
-  DataAccess::Interface::ObjectFactory * m_ObjectFactory;
-  DataAccess::Interface::ProjectHandle * m_projectHandle;
-
+  const DataAccess::Interface::ProjectHandle & m_projectHandle;
   const double m_xCoord;
   const double m_yCoord;
   std::unique_ptr<mbapi::Model> m_mdl;

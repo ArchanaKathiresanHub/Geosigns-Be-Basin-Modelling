@@ -50,7 +50,6 @@ void Genex0dInputManager::printHelp() const
       << "Usage:\n"
       << " -help                       display this help message\n"
       << " -project   <project3d file> project3d file\n"
-      << " -out       <project3d file> output project3d file, default: out.project3d\n"
       << " -formation <formation>      name of a formation\n"
       << " -SRType    <SR type>        type of a source rock\n"
       << " -X         <X coordinate>   X coordinate\n"

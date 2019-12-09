@@ -35,15 +35,15 @@ public:
   void printResults(const std::string & outputFileName) const;
 
 private:
-  void reloadSimulator(const std::string & projectFileName);
-  void clearSimulator();
-  void reloadFormation();
+  void loadSimulator();
+  void loadFormation();
+  void loadProjectMgr();
 
   const Genex0dInputData & m_inData;
   std::unique_ptr<Genex0dFormationManager> m_formationMgr;
   std::unique_ptr<Genex0dProjectManager> m_projectMgr;
-  Genex0dSimulatorFactory * m_gnx0dSimulatorFactory;
-  Genex0dSimulator * m_gnx0dSimulator;
+  std::unique_ptr<Genex0dSimulatorFactory> m_gnx0dSimulatorFactory;
+  std::unique_ptr<Genex0dSimulator> m_gnx0dSimulator;
 };
 
 } // namespace genex0d

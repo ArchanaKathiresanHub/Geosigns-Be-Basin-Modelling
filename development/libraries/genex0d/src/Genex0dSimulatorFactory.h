@@ -34,8 +34,7 @@ class Genex0dSimulatorFactory : public GeoPhysics::ObjectFactory
 {
 public:
   GeoPhysics::ProjectHandle * produceProjectHandle (database::ProjectFileHandlerPtr database,
-                                                    const std::string & name,
-                                                    const std::string & accessMode) const final;
+                                                    const std::string & name) const final;
 };
 
 } // namespace genex0d

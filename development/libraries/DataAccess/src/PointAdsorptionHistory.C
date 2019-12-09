@@ -8,7 +8,7 @@
 #include "cauldronschemafuncs.h"
 #include "database.h"
 
-DataAccess::Interface::PointAdsorptionHistory::PointAdsorptionHistory (  ProjectHandle*    projectHandle,
+DataAccess::Interface::PointAdsorptionHistory::PointAdsorptionHistory (  ProjectHandle&    projectHandle,
                                                                          database::Record* record ) :
   DAObject ( projectHandle, record ),
   m_x{0.0},

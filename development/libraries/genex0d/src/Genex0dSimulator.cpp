@@ -34,10 +34,9 @@ namespace genex0d
 
 Genex0dSimulator::Genex0dSimulator(database::ProjectFileHandlerPtr database,
                                    const std::string & name,
-                                   const std::string & accessMode,
                                    const DataAccess::Interface::ObjectFactory* objectFactory)
 try :
-  GeoPhysics::ProjectHandle{database, name, accessMode, objectFactory},
+  GeoPhysics::ProjectHandle{database, name, objectFactory},
   m_gnx0dSourceRock{nullptr},
   m_registeredProperties{},
   m_shaleProperties{},
@@ -59,7 +58,7 @@ Genex0dSimulator::~Genex0dSimulator()
 
 Genex0dSimulator* Genex0dSimulator::CreateFrom(const std::string & fileName, DataAccess::Interface::ObjectFactory* objectFactory)
 {
-  return dynamic_cast<Genex0dSimulator *>(DataAccess::Interface::OpenCauldronProject (fileName, "rw", objectFactory));
+  return dynamic_cast<Genex0dSimulator *>(DataAccess::Interface::OpenCauldronProject (fileName, objectFactory));
 }
 
 bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, const unsigned int indI, const unsigned int indJ,
@@ -69,7 +68,7 @@ bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, c
   registerProperties();
 
   setRequestedOutputProperties();
-  m_gnx0dSourceRock.reset(new Genex0dGenexSourceRock(this, inData, indI, indJ));
+  m_gnx0dSourceRock.reset(new Genex0dGenexSourceRock(*this, inData, indI, indJ));
   if (m_gnx0dSourceRock == nullptr)
   {
     return false;

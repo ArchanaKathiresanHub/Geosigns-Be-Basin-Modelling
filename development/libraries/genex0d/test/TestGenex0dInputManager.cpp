@@ -13,7 +13,7 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsHelp)
 
 TEST(TestGenex0dInputManager, TestInitialCheckArgsLessThanMinCompulsory)
 {
-  int argc = 3;
+  int argc = 6;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.Project3d", "-formation", "Formation6", "-SRType"};
   genex0d::Genex0dInputManager inputMgr(argc, argv);
   std::string ioErrorMssgActual = "";
@@ -54,8 +54,8 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsRepeatedArgument)
 
 TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
 {
-  int argc = 17;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+  int argc = 19;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01"};
   genex0d::Genex0dInputManager inputMgr(argc, argv);
   std::string ioErrorMssgActual = "";
@@ -67,6 +67,10 @@ TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
   const std::string projectNameExpected = "AcquiferScale1.project3d";
   const std::string & projectNameActual = inputData.projectFilename;
   EXPECT_EQ(projectNameExpected, projectNameActual);
+
+  const std::string outProjectNameExpected = "outProj.project3d";
+  const std::string & outProjectNameActual = inputData.outProjectFilename;
+  EXPECT_EQ(outProjectNameExpected, outProjectNameActual);
 
   const std::string formationNameExpected = "Formation6";
   const std::string & formationNameActual = inputData.formationName;

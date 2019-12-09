@@ -7,7 +7,7 @@
 namespace genex0d
 {
 
-Genex0dPointAdsorptionHistory::Genex0dPointAdsorptionHistory(DataAccess::Interface::ProjectHandle* projectHandle,
+Genex0dPointAdsorptionHistory::Genex0dPointAdsorptionHistory(DataAccess::Interface::ProjectHandle & projectHandle,
                                                              const Genex0dInputData & inData) :
   DataAccess::Interface::PointAdsorptionHistory(projectHandle, nullptr)
 {

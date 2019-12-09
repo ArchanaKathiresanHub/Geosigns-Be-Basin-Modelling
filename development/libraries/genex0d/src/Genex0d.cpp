@@ -34,46 +34,36 @@ Genex0d::Genex0d(const Genex0dInputData & inputData) :
 
 Genex0d::~Genex0d()
 {
-//  clearSimulator();
 }
 
-void Genex0d::clearSimulator()
+void Genex0d::loadSimulator()
 {
-  if (m_gnx0dSimulator != nullptr)
-  {
-    delete m_gnx0dSimulator;
-  }
-  if (m_gnx0dSimulatorFactory != nullptr)
-  {
-    delete m_gnx0dSimulatorFactory;
-  }
-}
-
-void Genex0d::reloadSimulator(const std::string & projectFileName)
-{
-  clearSimulator();
-  m_gnx0dSimulatorFactory = new Genex0dSimulatorFactory;
-  m_gnx0dSimulator = Genex0dSimulator::CreateFrom(projectFileName, m_gnx0dSimulatorFactory);
+  m_gnx0dSimulatorFactory.reset(new Genex0dSimulatorFactory);
+  m_gnx0dSimulator.reset(Genex0dSimulator::CreateFrom(m_inData.projectFilename, m_gnx0dSimulatorFactory.get()));
   if (m_gnx0dSimulator == nullptr)
   {
     throw Genex0dException() << "Genex0d simulator could not be loaded!";
   }
 }
 
-void Genex0d::reloadFormation()
+void Genex0d::loadFormation()
 {
-  m_formationMgr.reset(new Genex0dFormationManager(m_gnx0dSimulator, m_inData.formationName, m_inData.xCoord, m_inData.yCoord));
+  m_formationMgr.reset(new Genex0dFormationManager(*m_gnx0dSimulator, m_inData.formationName, m_inData.xCoord, m_inData.yCoord));
   LogHandler(LogHandler::INFO_SEVERITY) <<  "The selected formation " << m_inData.formationName << " is "
                                          << (m_formationMgr->isFormationSourceRock() ? "" : "not ") << "source rock";
 }
 
+void Genex0d::loadProjectMgr()
+{
+  m_projectMgr.reset(new Genex0dProjectManager(*m_gnx0dSimulator, m_inData.projectFilename, m_inData.xCoord, m_inData.yCoord, m_formationMgr->topSurfaceName(), m_inData.formationName));
+  m_projectMgr->computeAgesFromAllSnapShots(m_formationMgr->depositionTimeTopSurface());
+}
+
 void Genex0d::initialize()
 {
-  reloadSimulator(m_inData.projectFilename);
-  reloadFormation();
-
-  m_projectMgr.reset(new Genex0dProjectManager(m_inData.projectFilename, m_inData.xCoord, m_inData.yCoord, m_formationMgr->topSurfaceName(), m_inData.formationName));
-  m_projectMgr->computeAgesFromAllSnapShots(m_formationMgr->depositionTimeTopSurface());
+  loadSimulator();
+  loadFormation();
+  loadProjectMgr();
 
   m_gnx0dSimulator->deletePropertyValues(DataAccess::Interface::RESERVOIR , 0, 0, 0, 0, 0,
                                          DataAccess::Interface::MAP);
@@ -95,8 +85,6 @@ void Genex0d::run()
   }
 
   LogHandler(LogHandler::INFO_SEVERITY) << "Finished running genex0d!";
-
-  clearSimulator();
 }
 
 } // namespace genex0d

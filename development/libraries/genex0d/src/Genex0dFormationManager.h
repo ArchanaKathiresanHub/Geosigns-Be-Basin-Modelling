@@ -28,7 +28,7 @@ namespace genex0d
 class Genex0dFormationManager
 {
 public:
-  explicit Genex0dFormationManager(DataAccess::Interface::ProjectHandle * projectHandle, const std::string & formationName, const double x, const double y);
+  explicit Genex0dFormationManager(DataAccess::Interface::ProjectHandle & projectHandle, const std::string & formationName, const double x, const double y);
 
   double getInorganicDensity();
   double getThickness() const;
@@ -50,7 +50,7 @@ private:
                                             double & inorganicDensity);
   void setThickness();
 
-  DataAccess::Interface::ProjectHandle * m_projectHandle;
+  DataAccess::Interface::ProjectHandle & m_projectHandle;
   const DataAccess::Interface::Formation * m_formation;
   double m_thickness;
   unsigned int m_indI;

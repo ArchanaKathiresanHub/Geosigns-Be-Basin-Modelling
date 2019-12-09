@@ -28,7 +28,7 @@ namespace genex0d
 class Genex0dSourceRock : public Genex6::GenexSourceRock
 {
 public:
-  explicit Genex0dSourceRock(DataAccess::Interface::ProjectHandle * projectHandle, const Genex0dInputData & inData);
+  explicit Genex0dSourceRock(Interface::ProjectHandle & projectHandle, const Genex0dInputData & inData);
   virtual ~Genex0dSourceRock();
 
   const std::string & getLayerName (void) const final;

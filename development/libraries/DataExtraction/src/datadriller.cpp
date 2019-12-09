@@ -266,27 +266,22 @@ void DataDriller::readDataFromHDF()
           if ( !surface ) throw RecordException( "Unknown SurfaceName value: %", surfaceName );
 
           value = get2dPropertyFromHDF( i, j, surface, nullptr, property, snapshot, recordIndex );
-          if (value != DataAccess::Interface::DefaultUndefinedScalarValue)
-          {
-            continue;
-          }
         }
 
-        if ( formationName != "" )
+        if ( value == DataAccess::Interface::DefaultUndefinedScalarValue && formationName != "" )
         {
           const DataAccess::Interface::Formation * formation = m_projectHandle->findFormation( formationName );
           if ( !formation ) throw RecordException( "Unknown FormationName value: %", formationName );
 
           // An initial check for FORMATION MAP properties
-          if ( property->hasPropertyValues( DataAccess::Interface::FORMATION, snapshot, 0, formation, 0, DataAccess::Interface::MAP ) )
+          if ( m_projectHandle->hasPropertyValues( DataAccess::Interface::FORMATION, property, snapshot, nullptr, formation, nullptr, DataAccess::Interface::MAP ) )
           {
             value = get2dPropertyFromHDF( i, j, nullptr, formation, property, snapshot, recordIndex );
-            if (value != DataAccess::Interface::DefaultUndefinedScalarValue)
-            {
-              continue;
-            }
           }
-          value = get3dPropertyFromHDF( i, j, formation, property, snapshot, recordIndex );
+          if (value == DataAccess::Interface::DefaultUndefinedScalarValue)
+          {
+            value = get3dPropertyFromHDF( i, j, formation, property, snapshot, recordIndex );
+          }
         }
       }
       else if ( formationName != "" && surfaceName != "" )
@@ -347,7 +342,7 @@ double DataDriller::get3dPropertyFromHDF( const double i, const double j, const 
     return 0.0;
   }
 
-  HDFReadManager hdfReadManager( m_projectHandle );
+  HDFReadManager hdfReadManager( *m_projectHandle );
   const std::string snapshotFileName = m_projectHandle->getFullOutputDir() + "/" + snapshot->getFileName();
   hdfReadManager.openSnapshotFile( snapshotFileName );
 
@@ -405,7 +400,7 @@ double DataDriller::get3dPropertyFromHDF( const double i, const double j,
     throw RecordException("Failed while extracting volume map property!");
   }
 
-  HDFReadManager hdfReadManager( m_projectHandle );
+  HDFReadManager hdfReadManager( *m_projectHandle );
   const std::string snapshotFileName = m_projectHandle->getFullOutputDir() + "/" + snapshot->getFileName();
   hdfReadManager.openSnapshotFile( snapshotFileName );
 

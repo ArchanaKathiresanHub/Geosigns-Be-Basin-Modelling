@@ -16,10 +16,9 @@ namespace genex0d
 {
 
 GeoPhysics::ProjectHandle * Genex0dSimulatorFactory::produceProjectHandle (database::ProjectFileHandlerPtr database,
-                                                                           const std::string & name,
-                                                                           const std::string & accessMode) const
+                                                                           const std::string & name) const
 {
-  return new Genex0dSimulator(database, name, accessMode, this);
+  return new Genex0dSimulator(database, name, this);
 }
 
 } // namespace genex0d

@@ -34,7 +34,6 @@ class Genex0dSimulator : public GeoPhysics::ProjectHandle
 public:
   Genex0dSimulator(database::ProjectFileHandlerPtr database,
                    const std::string & name,
-                   const std::string & accessMode,
                    const DataAccess::Interface::ObjectFactory* objectFactory);
   ~Genex0dSimulator();
   
