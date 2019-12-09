@@ -28,7 +28,7 @@ namespace DataAccess
       class Trapper : public DAObject
       {
          public:
-            Trapper (ProjectHandle * projectHandle, database::Record * record);
+            Trapper (ProjectHandle& projectHandle, database::Record * record);
             ~Trapper (void);
 
             /// See if this Trapper matches the given conditions
@@ -150,10 +150,10 @@ namespace DataAccess
             virtual double getPorosity (void) const;
             /// return the Trapper's net to gross
             virtual double getNetToGross (void) const;
-                 
+
             void addUpstreamTrapper (Trapper * trapper);
             void setDownstreamTrapper (Trapper * trapper);
-            
+
             virtual void printOn (ostream &) const;
             virtual void asString (string &) const;
 

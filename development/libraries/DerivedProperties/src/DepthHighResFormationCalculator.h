@@ -36,7 +36,7 @@ namespace DerivedProperties
       /// \brief Input constructor.
       /// \param [in]  projectHandle   Manager for all derived properties.
       /// \pre SimulationDetails is not null, ie there is at least one last run.
-      DepthHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle );
+      DepthHighResFormationCalculator( const GeoPhysics::ProjectHandle& projectHandle );
 
       /// \brief Calculate the high resolution depth for the formation at the snapshot age.
       /// \param [in]  propertyManager   Manager for all derived properties.
@@ -82,11 +82,11 @@ namespace DerivedProperties
                                           DerivedFormationPropertyPtr &                        depthHighRes,
                                           AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
 
-      const GeoPhysics::ProjectHandle * const m_projectHandle; //!< Project handle
+      const GeoPhysics::ProjectHandle& m_projectHandle; //!< Project handle
 
       bool m_isCoupledMode;                                    //!< Boolean flag for coupled mode
 
-      const bool m_isSubsampled;                               //!< Boolean flag for subsampled 
+      const bool m_isSubsampled;                               //!< Boolean flag for subsampled
 
       const bool m_isNonGeometricLoopActive;                   //!< Boolean flag for non geometric loops
 

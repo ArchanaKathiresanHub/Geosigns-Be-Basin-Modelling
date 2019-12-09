@@ -22,7 +22,7 @@ using namespace database;
 #include "Snapshot.h"
 using namespace DataAccess::Interface;
 
-Snapshot::Snapshot (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+Snapshot::Snapshot (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
    m_time = database::getTime (m_record);
    if (database::getIsMinorSnapshot (m_record) == 1)
@@ -33,7 +33,7 @@ Snapshot::Snapshot (ProjectHandle * projectHandle, Record * record) : DAObject (
    m_appendFile = false;
 }
 
-Snapshot::Snapshot (ProjectHandle * projectHandle, const double time) : DAObject (projectHandle, nullptr)
+Snapshot::Snapshot (ProjectHandle& projectHandle, const double time) : DAObject (projectHandle, nullptr)
 {
    m_time = time;
    m_type = MINOR;
@@ -82,7 +82,7 @@ int Snapshot::getType () const
    return m_type;
 }
 
-bool Snapshot::getUseInResQ () const {	
+bool Snapshot::getUseInResQ () const {
    return database::getUseInResQ ( m_record ) == 1;
 }
 

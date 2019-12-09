@@ -3,7 +3,6 @@
 
 
 #include "layer.h"
-#include "CompoundLithologyArray.h"
 #include "Property.h"
 #include "PropertyValue.h"
 #include "OutputPropertyMap.h"
@@ -22,7 +21,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -35,7 +34,7 @@ private :
    bool m_isCalculated;
    /// Default molar masses, kg/mol.
    PVTComponents m_defaultMolarMasses;
-}; 
+};
 
 
 class ComponentConcentrationVolumeCalculator {
@@ -46,7 +45,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -59,10 +58,10 @@ private :
    /// Default molar masses, kg/mol.
    PVTComponents m_defaultMolarMasses;
 
-}; 
+};
 
-OutputPropertyMap* allocateComponentConcentrationCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateComponentConcentrationCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-OutputPropertyMap* allocateComponentConcentrationVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateComponentConcentrationVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot );
 
 #endif // _FASTCAULDRON__COMPONENT_CONCENTRATION_CALCULATOR__H_

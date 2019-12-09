@@ -17,11 +17,11 @@
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::IbsNoDataValue;
 
-OutputPropertyMap* allocateVitriniteReflectanceCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateVitriniteReflectanceCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<VitriniteReflectanceCalculator>( property, formation, surface, snapshot );
 }
 
-OutputPropertyMap* allocateVitriniteReflectanceVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateVitriniteReflectanceVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<VitriniteReflectanceVolumeCalculator>( property, formation, snapshot );
 }
 
@@ -131,11 +131,7 @@ void VitriniteReflectanceCalculator::allocatePropertyValues ( OutputPropertyMap:
 
 }
 
-bool VitriniteReflectanceCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
-
-   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
-      propertyValues [ 0 ]->allowOutput ( false );
-   }
+bool VitriniteReflectanceCalculator::initialise ( OutputPropertyMap::PropertyValueList& /*propertyValues*/ ) {
 
    return true;
 }

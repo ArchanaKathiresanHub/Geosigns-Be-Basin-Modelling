@@ -68,13 +68,13 @@ class PropertyManager;
 class GenexSourceRock : public Interface::SourceRock
 {
 public:
-   GenexSourceRock (Interface::ProjectHandle * projectHandle, database::Record * record);
+   GenexSourceRock (Interface::ProjectHandle& projectHandle, database::Record * record);
    virtual ~GenexSourceRock ();
 
-   /// \brief Convert H/C value to HI 
+   /// \brief Convert H/C value to HI
    static double convertHCtoHI( double aHI );
 
-   /// \brief Convert HI value to H/C 
+   /// \brief Convert HI value to H/C
    static double convertHItoHC( double aHI );
 
    /// \brief Get min/max range value for HI
@@ -93,10 +93,10 @@ public:
    virtual bool setFormationData ( const Interface::Formation * aFormation );
    void setPropertyManager ( AbstractDerivedProperties::AbstractPropertyManager * aPropertyManager );
 
-   /// Whether to perform adsorption 
+   /// Whether to perform adsorption
    bool doOutputAdsorptionProperties (void) const;
 
-   /// Construct the valid source rock node set, the valid snapshot intervals 
+   /// Construct the valid source rock node set, the valid snapshot intervals
    bool preprocess ( const Interface::GridMap* validityMap,
                      const Interface::GridMap* vreMap = 0,
                      const bool printInitialisationDetails = true );
@@ -168,8 +168,8 @@ protected:
    /// Compute the new state and the results at a snapshot for all the valid source rock nodes 
    virtual bool computeSnapShot ( const double previousTime,
                           const Interface::Snapshot *theSnapshot );
-   
-   Interface::GridMap *createSnapshotResultPropertyValueMap(const std::string &propertyName, 
+
+   Interface::GridMap *createSnapshotResultPropertyValueMap(const std::string &propertyName,
                                                                  const Interface::Snapshot *theSnapshot);
 
    bool isNodeActive ( const double VreAtPresentDay,
@@ -178,15 +178,15 @@ protected:
                        const double inorganicDensity,
                        const double temperatureAtPresentDay ) const;
 
-   bool isNodeValid( const double temperatureAtPresentDay, 
-                     const double VreAtPresentDay, 
-                     const double thickness, 
-                     const double TOC, 
-                     const double inorganicDensity, 
+   bool isNodeValid( const double temperatureAtPresentDay,
+                     const double VreAtPresentDay,
+                     const double thickness,
+                     const double TOC,
+                     const double inorganicDensity,
                      const double mapUndefinedValue) const;
 
    void addNode(Genex6::SourceRockNode *in_Node);
-   
+
    double getLithoDensity(const Interface::LithoType *theLitho) const;
 
    const Interface::GridMap *getLithoType1PercentageMap()  const;
@@ -195,19 +195,19 @@ protected:
    const Interface::GridMap *getInputThicknessGridMap()    const;
 
    const Interface::LithoType *getLithoType1() const;
-   const Interface::LithoType *getLithoType2() const; 
-   const Interface::LithoType *getLithoType3() const; 
+   const Interface::LithoType *getLithoType2() const;
+   const Interface::LithoType *getLithoType3() const;
 
-   const Interface::GridMap *getTopSurfacePropertyGridMap (const string &propertyName, 
+   const Interface::GridMap *getTopSurfacePropertyGridMap (const string &propertyName,
                                                                 const Interface::Snapshot *snapshot) const;
 
-   const Interface::GridMap *getPropertyGridMap (const string &propertyName, 
+   const Interface::GridMap *getPropertyGridMap (const string &propertyName,
                                                       const Interface::Snapshot *snapshot) const;
 
    const Interface::GridMap *getPropertyGridMap (const string &propertyName,
                                                       const Interface::Snapshot *snapshot,
-                                                      const Interface::Reservoir *reservoir, 
-                                                      const Interface::Formation *formation, 
+                                                      const Interface::Reservoir *reservoir,
+                                                      const Interface::Formation *formation,
                                                       const Interface::Surface *surface) const;
 
    const Interface::GridMap * getSurfaceFormationPropertyGridMap (const string & propertyName,
@@ -323,7 +323,7 @@ private:
    std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* > m_freeOutputMaps;
    std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* > m_retainedOutputMaps;
 
-   static const double conversionCoeffs [ 8 ]; 
+   static const double conversionCoeffs [ 8 ];
 };
 
 inline void GenexSourceRock::setLayerName( const string & aLayerName ) {
@@ -348,5 +348,5 @@ inline bool GenexSourceRock::getMinor(void) const {
 
 }
 
-#endif 
+#endif
 

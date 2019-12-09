@@ -12,7 +12,7 @@ namespace Genex6 {
    /// Factory singleton object for allocating adsorption-functions.
    class AdsorptionFunctionFactory {
 
-      typedef Genex6::AdsorptionFunction* (*AllocateAdsorptionFunction)( DataAccess::Interface::ProjectHandle* projectHandle,
+      typedef Genex6::AdsorptionFunction* (*AllocateAdsorptionFunction)( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                          const std::string&                         functionName );
 
       typedef std::map <bool, AllocateAdsorptionFunction> AdsorptionFunctionAllocatorMap;
@@ -25,7 +25,7 @@ namespace Genex6 {
       /// Allocate the adsorption function.
       ///
       /// The function allocated will depend on the adsorption-simulator parameters which-function.
-      AdsorptionFunction* getAdsorptionFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
+      AdsorptionFunction* getAdsorptionFunction ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                   const bool                                 isTOCDependent,
                                                   const std::string&                         adsorptionCapacityFunctionName ) const;
 

@@ -49,7 +49,7 @@ namespace PersistentTraps
    {
    public:
       /// Constructor
-      TrackProjectHandle (database::ProjectFileHandlerPtr database, const string & name, const string & accessMode, const DataAccess::Interface::ObjectFactory* factory);
+      TrackProjectHandle (database::ProjectFileHandlerPtr database, const string & name, const DataAccess::Interface::ObjectFactory* factory);
 
       /// Destructor
       ~TrackProjectHandle (void);

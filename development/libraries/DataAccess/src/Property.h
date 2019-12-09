@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -35,20 +35,13 @@ namespace DataAccess
       class Property : public DataModel::AbstractProperty, public DAObject
       {
       public:
-         Property (ProjectHandle * projectHandle, database::Record * record,
+         Property (ProjectHandle& projectHandle, database::Record * record,
                    const string & userName, const string & cauldronName,
                    const string & unit, PropertyType type,
                    const DataModel::PropertyAttribute attr, DataModel::PropertyOutputAttribute outputAttr );
-         
+
          virtual ~Property (void);
-         
-         /// returns whether a Property has PropertyValues matching the conditions specified
-         /// if an argument equals 0, it is used as a wildcard
-         virtual bool hasPropertyValues (int selectionFlags,
-                                         const Snapshot * snapshot,
-                                         const Reservoir * reservoir, const Formation * formation,
-                                         const Surface * surface, int propertyType = MAP | VOLUME) const;
-         
+
          /// Return the name of this Property
          virtual const string & getName (void) const;
          virtual const string & getUserName (void) const;
@@ -56,13 +49,13 @@ namespace DataAccess
          /// Return the unit of this Property
          virtual const string & getUnit (void) const;
          virtual PropertyType getType (void) const;
-         
+
          /// \brief Get the PropertyAttribute of the property.
          virtual DataModel::PropertyAttribute getPropertyAttribute () const;
-         
+
          /// \brief Get the PropertyOutputAttribute of the property.
          virtual DataModel::PropertyOutputAttribute getPropertyOutputAttribute () const;
-         
+
          /// return a list of PropertyValues for this property based on the given arguments.
          /// if an argument (not selectionFlags) equals 0, it is used as a wildcard
          /// The arguments \b property and \b snapshot are used in the search for all kinds of propertyValues.
@@ -81,23 +74,23 @@ namespace DataAccess
                                                         const Snapshot * snapshot,
                                                         const Reservoir * reservoir, const Formation * formation,
                                                         const Surface * surface) const;
-         
+
          virtual void printOn (ostream &) const;
          virtual void asString (string &) const;
-         
+
          bool isPrimary() const;
-         
+
       private:
          string m_userName;
          string m_cauldronName;
          string m_unit;
-         
+
          bool m_isPrimaryProperty;
-         
+
          PropertyType m_type;
          DataModel::PropertyAttribute m_propertyAttribute;
          DataModel::PropertyOutputAttribute m_propertyOutputAttribute;
-         
+
       };
    }
 }

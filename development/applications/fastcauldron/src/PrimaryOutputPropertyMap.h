@@ -16,7 +16,7 @@ class PrimaryOutputPropertyMap : public OutputPropertyMap {
 
 public :
 
-   PrimaryOutputPropertyMap ( const PropertyList         propertyName,
+   PrimaryOutputPropertyMap ( const PropertyIdentifier         propertyName,
                                     LayerProps*          formation,
                               const Interface::Surface*  surface,
                               const Interface::Snapshot* snapshot );
@@ -36,7 +36,7 @@ private :
 
 };
 
-OutputPropertyMap* allocatePrimaryPropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocatePrimaryPropertyCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
 
 #endif // _FASTCAULDRON_PRIMARY_OUTPUT_PROPERTY_MAP_H_

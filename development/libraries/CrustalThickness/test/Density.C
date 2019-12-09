@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -45,7 +45,7 @@ public:
       m_firstI( 0 ), m_firstJ( 0 ), m_lastI( 1 ), m_lastJ(1),
       m_minI(0.0), m_minJ(0.0), m_maxI(4.0), m_maxJ(4.0),
       m_numI(2), m_numJ(2)
-   { 
+   {
       m_grid    = new DataAccess::Interface::SerialGrid( this->m_minI, this->m_minJ, this->m_maxI, this->m_maxJ, this->m_numI, this->m_numJ );
       m_gridMap = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 0, 1 );
       m_pressureBasement    = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "pressureBasement", "Pressure", 10, 1000 );
@@ -55,7 +55,7 @@ public:
    }
 
    ~DensityCalculatorTest()
-   { 
+   {
       delete m_gridMap;
       delete m_grid;
       delete m_pressureBasement;
@@ -93,7 +93,8 @@ public:
 TEST_F( DensityCalculatorTest, exceptions )
 {
    MockInterfaceOutput outputData( m_firstI, m_firstJ, m_lastI, m_lastJ );
-   MockInterfaceInput inputData;
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    MockConfigFileParameterCtc constants;
    constants.setWaterDensity( 2000 );
    constants.setBackstrippingMantleDensity( 2000 );
@@ -198,7 +199,8 @@ TEST_F( DensityCalculatorTest, exceptions )
 TEST_F( DensityCalculatorTest, density_terms )
 {
    MockInterfaceOutput outputData( m_firstI, m_firstJ, m_lastI, m_lastJ );
-   MockInterfaceInput inputData;
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    MockConfigFileParameterCtc constants;
    constants.setWaterDensity( 1030 );
    constants.setBackstrippingMantleDensity( 3300 );
@@ -228,7 +230,8 @@ TEST_F( DensityCalculatorTest, density_terms )
 TEST_F( DensityCalculatorTest, backstriping )
 {
    MockInterfaceOutput outputData = MockInterfaceOutput( m_firstI, m_firstJ, m_lastI, m_lastJ );
-   MockInterfaceInput inputData;
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    MockConfigFileParameterCtc constants;
    constants.setWaterDensity( 1030 );
    constants.setBackstrippingMantleDensity( 3300 );
@@ -279,7 +282,8 @@ TEST_F( DensityCalculatorTest, backstriping )
 TEST_F( DensityCalculatorTest, compute )
 {
    MockInterfaceOutput outputData( m_firstI, m_firstJ, m_lastI, m_lastJ );
-   MockInterfaceInput inputData;
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    MockConfigFileParameterCtc constants;
    constants.setWaterDensity( 1030 );
    constants.setBackstrippingMantleDensity( 3300 );

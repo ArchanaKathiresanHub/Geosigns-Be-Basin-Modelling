@@ -6,7 +6,7 @@
 #include "CauldronProperty.h"
 
 VoxetProjectHandle::VoxetProjectHandle ( const std::string& voxetProjectFileName,
-                                         Interface::ProjectHandle*     projectHandle ) :
+                                         const ProjectHandle& projectHandle ) :
    m_voxetProjectFileName ( voxetProjectFileName ),
    m_cauldronProjectHandle ( projectHandle ) {
 
@@ -14,7 +14,7 @@ VoxetProjectHandle::VoxetProjectHandle ( const std::string& voxetProjectFileName
    m_database = database::Database::CreateFromFile ( voxetProjectFileName, *m_voxetSchema );
 
    loadSnapshotTime ();
-   loadVoxetGrid ( m_cauldronProjectHandle->getLowResolutionOutputGrid ());
+   loadVoxetGrid ( m_cauldronProjectHandle.getLowResolutionOutputGrid ());
    loadCauldronProperties ();
 }
 
@@ -26,7 +26,7 @@ void VoxetProjectHandle::loadCauldronProperties () {
 
    if ( propTable == 0 ) {
       cout << " Cannot load CauldronPropertyIoTbl." << endl;
-   } 
+   }
 
    assert ( propTable != 0 );
 
@@ -44,17 +44,17 @@ void VoxetProjectHandle::loadCauldronProperties () {
 void VoxetProjectHandle::loadVoxetGrid ( const Interface::Grid* cauldronGrid ) {
 
    database::Table* voxetGridTable = m_database->getTable ( "VoxetGridIoTbl" );
-   database::Table* cauldronGridTable = m_cauldronProjectHandle->getTable ( "ProjectIoTbl" );
+   database::Table* cauldronGridTable = m_cauldronProjectHandle.getTable ( "ProjectIoTbl" );
 
    if ( voxetGridTable == 0 ) {
       cout << " Cannot load VoxetGridIoTbl." << endl;
-   } 
+   }
 
    assert ( voxetGridTable != 0 );
 
    if ( cauldronGridTable == 0 ) {
       cout << " Cannot load ProjectIoTbl." << endl;
-   } 
+   }
 
    assert ( cauldronGridTable != 0 );
 
@@ -63,11 +63,11 @@ void VoxetProjectHandle::loadVoxetGrid ( const Interface::Grid* cauldronGrid ) {
 
    if ( voxetRecord == 0 ) {
       cout << " No data found in VoxetGridIoTbl." << endl;
-   } 
+   }
 
    if ( cauldronRecord == 0 ) {
       cout << " No data found in ProjectIoTbl." << endl;
-   } 
+   }
 
    assert ( cauldronRecord != 0 );
    assert ( voxetRecord != 0 );
@@ -81,7 +81,7 @@ void VoxetProjectHandle::loadSnapshotTime () {
 
    if ( snapshotTimeTable == 0 ) {
       cout << " Cannot load SnapshotTimeIoTbl." << endl;
-   } 
+   }
 
    assert ( snapshotTimeTable != 0 );
 
@@ -90,8 +90,8 @@ void VoxetProjectHandle::loadSnapshotTime () {
    if ( snapshotTimeRecord == 0 )
    {
       m_snapshotTime = 0;
-   } 
-   else 
+   }
+   else
    {
       m_snapshotTime = database::getSnapshotTime (snapshotTimeRecord);
    }

@@ -26,7 +26,7 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::ThermalDiffusivityFormationCalculator::ThermalDiffusivityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+DerivedProperties::ThermalDiffusivityFormationCalculator::ThermalDiffusivityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "DiffusivityVec2" );
 
    addDependentPropertyName ( "Temperature" );
@@ -40,7 +40,7 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate (      
                                                                             const DataModel::AbstractFormation* formation,
                                                                                   FormationPropertyList&        derivedProperties ) const {
    const GeoPhysics::GeoPhysicsFormation* geoFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
-   
+
    if( geoFormation != 0 and geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) {
       return calculateForBasement ( propertyManager, snapshot, formation, derivedProperties );
    }
@@ -55,7 +55,7 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate (      
    const FormationPropertyPtr porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
    const FormationPropertyPtr porosity     = propertyManager.getFormationProperty ( porosityProperty,     snapshot, formation );
 
-   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle.getDetailsOfLastFastcauldron();
    bool hydrostaticMode = ( lastFastcauldronRun != 0 and
                             ( lastFastcauldronRun->getSimulatorMode () == "HydrostaticDecompaction" or
                               lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" ));
@@ -87,14 +87,14 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate (      
       }
 
       for ( unsigned int i = thermalDiffusivity->firstI ( true ); i <= thermalDiffusivity->lastI ( true ); ++i ) {
-            
+
          for ( unsigned int j = thermalDiffusivity->firstJ ( true ); j <= thermalDiffusivity->lastJ ( true ); ++j ) {
-               
-            if ( m_projectHandle->getNodeIsValid ( i, j )) {
+
+            if ( m_projectHandle.getNodeIsValid ( i, j )) {
                const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j, currentTime );
 
                for ( unsigned int k = thermalDiffusivity->firstK (); k <= thermalDiffusivity->lastK (); ++k ) {
-                  
+
                      lithology->calcBulkDensXHeatCapacity ( fluid,
                                                             0.01 * porosity->get ( i, j, k ),
                                                             porePressure->get ( i, j, k ),
@@ -149,25 +149,24 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculateForBasem
 
    FormationPropertyPtr lithostaticPressure;
 
-   bool basementFormationAndAlcMode = ( geoFormation != 0 and m_projectHandle->isALC ());
+   bool basementFormationAndAlcMode = ( geoFormation != 0 and m_projectHandle.isALC ());
 
-   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastFastcauldron();
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle.getDetailsOfLastFastcauldron();
 
    bool hydrostaticMode = ( lastFastcauldronRun != 0 and
                             ( lastFastcauldronRun->getSimulatorMode () == "HydrostaticDecompaction" or
                               lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" ));
-   
+
    if ( basementFormationAndAlcMode ) {
       lithostaticPressure = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formation );
    }
-   
+
    if ( temperature != 0 and geoFormation != 0 and ( not basementFormationAndAlcMode or ( basementFormationAndAlcMode and lithostaticPressure != 0 ))) {
       DerivedFormationPropertyPtr thermalDiffusivity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( thermalDiffusivityProperty,
                                                                                                                                        snapshot,
                                                                                                                                        formation,
                                                                                                                                        propertyManager.getMapGrid (),
                                                                                                                                        geoFormation->getMaximumNumberOfElements() + 1 ));
-
       PropertyRetriever temperatureRetriever ( temperature );
 
       const GeoPhysics::CompoundLithologyArray& lithologies = geoFormation->getCompoundLithologyArray ();
@@ -181,14 +180,14 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculateForBasem
       double currentTime = snapshot->getTime();
 
       for ( unsigned int i = thermalDiffusivity->firstI ( true ); i <= thermalDiffusivity->lastI ( true ); ++i ) {
-            
+
          for ( unsigned int j = thermalDiffusivity->firstJ ( true ); j <= thermalDiffusivity->lastJ ( true ); ++j ) {
-               
-            if ( m_projectHandle->getNodeIsValid ( i, j )) {
+
+            if ( m_projectHandle.getNodeIsValid ( i, j )) {
                const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j, currentTime );
 
                for ( unsigned int k = thermalDiffusivity->firstK (); k <= thermalDiffusivity->lastK (); ++k ) {
-                  
+
                   if ( basementFormationAndAlcMode ) {
                      lithology->calcBulkDensXHeatCapacity ( 0, 0.0, 0.0,
                                                             temperature->get ( i, j, k ),
@@ -241,13 +240,13 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculateForBasem
 bool DerivedProperties::ThermalDiffusivityFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,
                                                                               const DataModel::AbstractSnapshot*  snapshot,
                                                                               const DataModel::AbstractFormation* formation ) const {
-   
+
    bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 
    bool propertyIsComputable = true;
-   
+
    // Determine if the required properties are computable.
    for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
 
@@ -258,7 +257,7 @@ bool DerivedProperties::ThermalDiffusivityFormationCalculator::isComputable ( co
             propertyIsComputable = true;
          } else {
             const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
-            
+
             if ( property == 0 ) {
                propertyIsComputable = false;
             } else {

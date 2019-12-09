@@ -12,19 +12,19 @@
 #include "MultiComponentFlowHandler.h"
 
 
-OutputPropertyMap* allocateAverageSaturationCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateAverageSaturationCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<AverageSaturationCalculator>( property, formation, surface, snapshot );
 }
 
-OutputPropertyMap* allocateAverageSaturationVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateAverageSaturationVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<AverageSaturationVolumeCalculator>( property, formation, snapshot );
 }
 
-OutputPropertyMap* allocateSaturationCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateSaturationCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<SaturationCalculator>( property, formation, surface, snapshot );
 }
 
-OutputPropertyMap* allocateSaturationVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateSaturationVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<SaturationVolumeCalculator>( property, formation, snapshot );
 }
 

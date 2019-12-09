@@ -88,7 +88,7 @@ using Interface::DiffusionLeakageParameters;
 namespace migration
 {
 
-   MigrationReservoir::MigrationReservoir (ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record)
+   MigrationReservoir::MigrationReservoir (ProjectHandle& projectHandle, Migrator * const migrator, database::Record * record)
       : Interface::Reservoir (projectHandle, record),
         m_start (0),
         m_end (0),
@@ -103,7 +103,7 @@ namespace migration
       setSourceFormation (0);
 
       m_lowResEqualsHighRes =
-         (*m_projectHandle->getLowResolutionOutputGrid () == *m_projectHandle->getHighResolutionOutputGrid ());
+         (*getProjectHandle().getLowResolutionOutputGrid () == *getProjectHandle().getHighResolutionOutputGrid ());
 
       for (int n = 0; n < 8; ++n)
       {
@@ -418,7 +418,7 @@ namespace migration
       // no suitable adjacent column is found HCs will stay there
       Column * adjacentColumn = column;
 
-      // Use top depth for steepest-ascent algorithm, unless it's 
+      // Use top depth for steepest-ascent algorithm, unless it's
       // a sealing column, in which case we use the bottom depth.
       double depth = column->isSealing (phase) ? column->getBottomDepth () : column->getTopDepth ();
 
@@ -499,8 +499,8 @@ namespace migration
    }
 
    // Try to find a non-sealing column among the neighbours.
-   // For each kappa (measure of how many steps away a neighbour column is) loop over 
-   // all neighbours at that kappa and call findNonSealingColumn () 
+   // For each kappa (measure of how many steps away a neighbour column is) loop over
+   // all neighbours at that kappa and call findNonSealingColumn ()
    Column * MigrationReservoir::avoidSealingColumn (const PhaseId phase, const Column * column, const Trap * trap)
    {
       int kappa = 2; // Iterating from 1 to MaximumNeighbourOffset
@@ -544,7 +544,7 @@ namespace migration
    }
 
    // Decomposing the neighbour space to cases depending on value of n (orthogonal vs diagonal neighbours)
-   // 
+   //
    Column * MigrationReservoir::findNonSealingColumn (int kappa, const int n, const PhaseId phase, const Column * column, const Trap * trap)
    {
       Column * nonSealingAdjacentColumn = nullptr;
@@ -586,7 +586,7 @@ namespace migration
       switch (n)
       {
          // These are the diagonal cases (see NeighbourOffsets2D [][] in migration.h). For these cases: abs(DeltaI)=abs(DeltaJ)
-         // Actually, since both diagonal and orthogonal cases were covered above, here we take the diagonal cases and 
+         // Actually, since both diagonal and orthogonal cases were covered above, here we take the diagonal cases and
          // explore the nodes that are off the diagonal but not orthogonal. Only relevant when kappa >= 2.
       case 0:
       case 2:
@@ -670,7 +670,7 @@ namespace migration
             return true;
          }
       }
-      
+
       return false;
    }
 
@@ -868,37 +868,37 @@ namespace migration
       // And if the type of fracturePressureFunctionParameters is given by Interface::
       // FunctionOfLithostaticPressure, also the hydrostatic and lithostatic pressures are needed.
       const FracturePressureFunctionParameters*
-         fracturePressureFunctionParameters = getProjectHandle ()->getFracturePressureFunctionParameters ();
-	  if (fracturePressureFunctionParameters) {
+         fracturePressureFunctionParameters = getProjectHandle ().getFracturePressureFunctionParameters ();
+    if (fracturePressureFunctionParameters) {
 
 #if DEBUG
-		  if (GetRank() == 0) {
-			  cout << "fracturePressureFunctionParameters ON" << endl;
-		  }
+			if (GetRank() == 0) {
+				cout << "fracturePressureFunctionParameters ON" << endl;
+			}
 #endif
 
-		  if (fracturePressureFunctionParameters->type() == Interface::FunctionOfLithostaticPressure)
-		  {
-			  if (!computeHydrostaticPressures())
-				  return false;
+			if (fracturePressureFunctionParameters->type() == Interface::FunctionOfLithostaticPressure)
+			{
+				if (!computeHydrostaticPressures())
+					return false;
 #if DEBUG
-			  if (GetRank() == 0) {
-				  cout << "computeHydrostaticPressures done" << endl;
-			  }
+				if (GetRank() == 0) {
+					cout << "computeHydrostaticPressures done" << endl;
+				}
 #endif
 
-			  if (!computeLithostaticPressures())
-				  return false;
+				if (!computeLithostaticPressures())
+					return false;
 #if DEBUG
-			  if (GetRank() == 0) {
-				  cout << "computeLithostaticPressures done" << endl;
-			  }
+				if (GetRank() == 0) {
+					cout << "computeLithostaticPressures done" << endl;
+				}
 #endif
 
-		  }
-	  }
-      return true;
-   }
+			}
+		}
+			return true;
+	 }
 
    /// compute the top and bottom depths of the reservoir.
    bool MigrationReservoir::computeDepths (void)
@@ -1176,10 +1176,10 @@ namespace migration
       // We need the depth for both diffusion leakage and seal pressure leakage.  (Note, we put depths
       // in vector<FormationSurfaceGridMaps> even though the depth is a continuous property.  This is done
       // just for convenience.   The algorithms work out easier.)
-      const ProjectHandle* projectHandle = getFormation ()->getProjectHandle ();
+      const ProjectHandle& projectHandle = getFormation ()->getProjectHandle ();
       const Property* depthProp = lowResEqualsHighRes () ?
-         projectHandle->findProperty ("Depth") :
-         projectHandle->findProperty ("DepthHighRes");
+         projectHandle.findProperty ("Depth") :
+         projectHandle.findProperty ("DepthHighRes");
 
       vector<FormationSurfaceGridMaps> depthGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
          overburden.formations (), depthProp, getEnd ());
@@ -1381,7 +1381,7 @@ namespace migration
    {
       RequestHandling::StartRequestHandling (m_migrator, "saveComputedProperty");
 
-      PropertyValue * propertyValue = getProjectHandle ()->createMapPropertyValue (name, getEnd (), this, 0, 0);
+      PropertyValue * propertyValue = getProjectHandle().createMapPropertyValue (name, getEnd (), this, 0, 0);
       assert (propertyValue);
 
       GridMap * gridMap = propertyValue->getGridMap ();
@@ -1419,9 +1419,9 @@ namespace migration
       computePressures ();
 
       Interface::Formation * topActiveFormation = m_migrator->getTopActiveFormation(end);
-      
-      PropertyValue * propertyValue_Gas = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Gas", end, 0, topActiveFormation, 0);
-      PropertyValue * propertyValue_Oil = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Oil", end, 0, topActiveFormation, 0);
+
+      PropertyValue * propertyValue_Gas = getProjectHandle().createMapPropertyValue ("SeepageBasinTop_Gas", end, 0, topActiveFormation, 0);
+      PropertyValue * propertyValue_Oil = getProjectHandle().createMapPropertyValue ("SeepageBasinTop_Oil", end, 0, topActiveFormation, 0);
       assert (propertyValue_Gas);
       assert (propertyValue_Oil);
 
@@ -1471,7 +1471,7 @@ namespace migration
       int nodeDepth = (dynamic_cast<const migration::MigrationFormation *>(getFormation ()))->getNodeDepth ();
 
       Interface::PropertyValue * propertyValue =
-         m_migrator->getProjectHandle ()->createVolumePropertyValue ("ResRockFlowDirectionGasIJ", end, 0, getFormation (), nodeDepth + 1);
+         m_migrator->getProjectHandle().createVolumePropertyValue ("ResRockFlowDirectionGasIJ", end, 0, getFormation (), nodeDepth + 1);
       assert (propertyValue);
 
       GridMap *gridMap = propertyValue->getGridMap ();
@@ -1908,7 +1908,7 @@ namespace migration
    const Interface::Formation* MigrationReservoir::getSeaBottomFormation (const Interface::Snapshot * snapshot) const
    {
 
-      FormationList * formations = m_projectHandle->getFormations (snapshot);
+      FormationList * formations = getProjectHandle().getFormations (snapshot);
 
       assert (formations);
       assert (formations->size () > 0);
@@ -1932,7 +1932,7 @@ namespace migration
    SurfacePropertyPtr MigrationReservoir::getSeaBottomProperty (const string & propertyName, const Interface::Snapshot * snapshot) const
    {
 
-      const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
+      const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
 
       const Interface::Formation* seaFormation = getSeaBottomFormation (snapshot);
 
@@ -1956,7 +1956,7 @@ namespace migration
    FormationPropertyPtr MigrationReservoir::getSeaBottomFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const
    {
 
-      const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
+      const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
 
       const Interface::Formation* seaFormation = getSeaBottomFormation (snapshot);
 
@@ -1969,7 +1969,7 @@ namespace migration
                                                                                const Interface::Snapshot * snapshot) const
    {
 
-      const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
+      const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
 
       FormationPropertyPtr theProperty = m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, getFormation ());
 
@@ -1998,7 +1998,7 @@ namespace migration
 
    FormationPropertyPtr MigrationReservoir::getTopFormationProperty (const string & propertyName, const Snapshot * snapshot) const
    {
-      const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
+      const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
 
       const Interface::Formation* topFormation = getTopFormation (snapshot);
 
@@ -2009,7 +2009,7 @@ namespace migration
 
    SurfacePropertyPtr MigrationReservoir::getTopSurfaceProperty (const string & propertyName, const Snapshot * snapshot) const
    {
-      const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
+      const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
 
       const Interface::Formation* topFormation = getTopFormation (snapshot);
 
@@ -2021,7 +2021,7 @@ namespace migration
 
    SurfacePropertyPtr MigrationReservoir::getBottomSurfaceProperty (const string & propertyName, const Snapshot * snapshot) const
    {
-      const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
+      const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
 
       const MigrationFormation * formation = dynamic_cast<const MigrationFormation *>(getFormation ());
 
@@ -2046,7 +2046,7 @@ namespace migration
                                                                          const Interface::Snapshot * snapshot) const
    {
 
-      const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
+      const DataAccess::Interface::Property* property = getProjectHandle().findProperty (propertyName);
 
       FormationPropertyPtr result;
 
@@ -2072,8 +2072,8 @@ namespace migration
       if (formation and surface) selectionFlags |= Interface::FORMATIONSURFACE;
 
       PropertyValueList * propertyValues =
-         m_projectHandle->getPropertyValues (selectionFlags,
-                                             m_projectHandle->findProperty (propertyName),
+         getProjectHandle().getPropertyValues (selectionFlags,
+                                             getProjectHandle().findProperty (propertyName),
                                              snapshot, reservoir, formation, surface,
                                              Interface::MAP);
 
@@ -2091,7 +2091,7 @@ namespace migration
 
    const Grid * MigrationReservoir::getGrid (void) const
    {
-      return getProjectHandle ()->getHighResolutionOutputGrid (); // not to be changed to getActivityOutputGrid ()!!
+      return getProjectHandle().getHighResolutionOutputGrid (); // not to be changed to getActivityOutputGrid ()!!
    }
 
    double MigrationReservoir::getNeighbourDistance (int n)
@@ -2204,7 +2204,7 @@ namespace migration
             double netToGross = 100.0;
             if (netToGrossMap != nullptr)
             {
-               netToGross = netToGrossMap->getValue (i, j);     
+               netToGross = netToGrossMap->getValue (i, j);
                if (netToGross == netToGrossMap->getUndefinedValue ())
                {
                   netToGross = 100.0;
@@ -2233,7 +2233,7 @@ namespace migration
 
       if (getActivityMode () == "ActiveFrom")
       {
-         const Snapshot * activeFromSnapshot = m_projectHandle->findSnapshot (getActivityStart ());
+         const Snapshot * activeFromSnapshot = getProjectHandle().findSnapshot (getActivityStart ());
          return (activeFromSnapshot->getTime () >= snapshot->getTime ());
       }
 
@@ -2343,7 +2343,7 @@ namespace migration
          }
          else  if (genexFraction)
          {
-            const Snapshot * startSnapshot = m_projectHandle->findPreviousSnapshot (getStart ()->getTime ());
+            const Snapshot * startSnapshot = getProjectHandle().findPreviousSnapshot (getStart ()->getTime ());
             startTime = startSnapshot->getTime ();
             gridMapStart = getPropertyGridMap (propertyName, startSnapshot, 0, formation, 0);
          }
@@ -2353,7 +2353,7 @@ namespace migration
          }
          else if (genexFraction)
          {
-            const Snapshot * endSnapshot = m_projectHandle->findNextSnapshot (getEnd ()->getTime ());
+            const Snapshot * endSnapshot = getProjectHandle().findNextSnapshot (getEnd ()->getTime ());
             endTime = endSnapshot->getTime ();
             gridMapEnd = getPropertyGridMap (propertyName, endSnapshot, 0, formation, 0);
          }
@@ -2433,9 +2433,9 @@ namespace migration
       float time = (float)aSnapshot->getTime ();
 
       const string extensionString = ".HDF";
-      Interface::MapWriter * mapWriter = m_projectHandle->getFactory ()->produceMapWriter ();
+      Interface::MapWriter * mapWriter = getProjectHandle().getFactory ()->produceMapWriter ();
 
-      const string dirToOutput = m_projectHandle->getProjectName () + Utilities::Names::CauldronOutputDir + "/";
+      const string dirToOutput = getProjectHandle().getProjectName () + Utilities::Names::CauldronOutputDir + "/";
 
       // string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
       string outputFileName = dirToOutput + formation->getName () + "_" + speciesName + "_" + aSnapshot->asString () + extensionString;
@@ -2448,7 +2448,7 @@ namespace migration
       dataSetName += topSurfaceName;
 
       mapWriter->open (outputFileName, false);
-      mapWriter->saveDescription (m_projectHandle->getActivityOutputGrid ());
+      mapWriter->saveDescription (getProjectHandle().getActivityOutputGrid ());
 
       mapWriter->writeMapToHDF (aMap, time, time, dataSetName, topSurfaceName);
       mapWriter->close ();
@@ -2691,7 +2691,7 @@ namespace migration
 
          mergeSpillingTraps ();
          processMigrationRequests ();
-         
+
          ++iterationNumber;
       }
       while (!allProcessorsFinished (distributionHasFinished ()) and (iterationNumber < maxFillAndSpillIterations));
@@ -2708,7 +2708,7 @@ namespace migration
              !pasteurizationStatus() or
              !setPasteurizationStatus())
             return false;
-            
+
          m_biodegraded = biodegradeCharges ();
       }
 
@@ -2717,7 +2717,7 @@ namespace migration
          broadcastTrapFillDepthProperties ();
          if (!diffusionLeakCharges ())
             return false;
-      }         
+      }
 
       // If charge was either biodegraded or diffused, need to correct fill depths
       if (isBiodegradationEnabled() or
@@ -2802,7 +2802,7 @@ namespace migration
       RequestHandle requestHandle (m_migrator, "computeDistributionParameters");
 
       const FracturePressureFunctionParameters *fracturePressureFunctionParameters =
-         getProjectHandle ()->getFracturePressureFunctionParameters ();
+         getProjectHandle().getFracturePressureFunctionParameters ();
 
       {
          RetrieveAndRestoreSurfaceGridMapContainer retrieve (m_sealPressureLeakageGridMaps);
@@ -2837,7 +2837,7 @@ namespace migration
       RequestHandling::FinishRequestHandling ();
 
       return succeded;
-   };
+   }
 
    bool MigrationReservoir::computeHydrocarbonWaterTemperature ()
    {
@@ -2857,79 +2857,79 @@ namespace migration
       RequestHandling::FinishRequestHandling ();
 
       return succeded;
-   };
+   }
 
    bool MigrationReservoir::needToComputePasteurizationStatusFromScratch()
    {
-	   RequestHandling::StartRequestHandling(m_migrator, "needToComputePasteurizationStatusFromScratch");
+     RequestHandling::StartRequestHandling(m_migrator, "needToComputePasteurizationStatusFromScratch");
 
-	   const BiodegradationParameters* biodegradationParameters =
-		   getProjectHandle()->getBiodegradationParameters();
+		 const BiodegradationParameters* biodegradationParameters =
+			 getProjectHandle().getBiodegradationParameters();
 
-	   Biodegrade biodegrade(biodegradationParameters);
+		 Biodegrade biodegrade(biodegradationParameters);
 
-	   // If the user has toggle on the pasteurization effect
-	   if (biodegrade.pasteurizationInd())
-	   {
-		   for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
-		   {
-			   (*trapIter)->needToComputePasteurizationStatusFromScratch();
-		   }
-	   }
-	   RequestHandling::FinishRequestHandling();
+		 // If the user has toggle on the pasteurization effect
+		 if (biodegrade.pasteurizationInd())
+		 {
+			 for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
+			 {
+				 (*trapIter)->needToComputePasteurizationStatusFromScratch();
+			 }
+		 }
+		 RequestHandling::FinishRequestHandling();
 
-	   return true;
-   };
+     return true;
+   }
 
 
    bool MigrationReservoir::pasteurizationStatus()
    {
-	   RequestHandling::StartRequestHandling(m_migrator, "pasteurizationStatus");
+     RequestHandling::StartRequestHandling(m_migrator, "pasteurizationStatus");
 
-	   const BiodegradationParameters* biodegradationParameters =
-		   getProjectHandle()->getBiodegradationParameters();
+		 const BiodegradationParameters* biodegradationParameters =
+			 getProjectHandle().getBiodegradationParameters();
 
-	   Biodegrade biodegrade(biodegradationParameters);
+		 Biodegrade biodegrade(biodegradationParameters);
 
-	   // If the user has toggle on the pasteurization effect
-	   if (biodegrade.pasteurizationInd())
-	   {
-		   for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
-		   {
-            (*trapIter)->pasteurizationStatus(biodegrade.maxBioTemp());
-		   }
-	   }
+		 // If the user has toggle on the pasteurization effect
+		 if (biodegrade.pasteurizationInd())
+		 {
+			 for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
+			 {
+						(*trapIter)->pasteurizationStatus(biodegrade.maxBioTemp());
+			 }
+		 }
 
-	   RequestHandling::FinishRequestHandling();
+		 RequestHandling::FinishRequestHandling();
 
-	   return true;
-   };
+     return true;
+   }
 
 
    bool MigrationReservoir::setPasteurizationStatus()
    {
-	   RequestHandling::StartRequestHandling(m_migrator, "setPasteurizationStatus");
+     RequestHandling::StartRequestHandling(m_migrator, "setPasteurizationStatus");
 
-	   const BiodegradationParameters* biodegradationParameters =
-		   getProjectHandle()->getBiodegradationParameters();
+		 const BiodegradationParameters* biodegradationParameters =
+			 getProjectHandle().getBiodegradationParameters();
 
-	   Biodegrade biodegrade(biodegradationParameters);
+		 Biodegrade biodegrade(biodegradationParameters);
 
-	   bool succeded = true;
+		 bool succeded = true;
 
-	   // If the user has toggle on the pasteurization effect
-	   if (biodegrade.pasteurizationInd())
-	   {
-		   for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
-		   {
-			   succeded = (*trapIter)->setPasteurizationStatus(biodegrade.maxBioTemp());
-			   if (!succeded) break;
-		   }
-	   }
-	   RequestHandling::FinishRequestHandling();
+		 // If the user has toggle on the pasteurization effect
+		 if (biodegrade.pasteurizationInd())
+		 {
+			 for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
+			 {
+				 succeded = (*trapIter)->setPasteurizationStatus(biodegrade.maxBioTemp());
+				 if (!succeded) break;
+			 }
+		 }
+		 RequestHandling::FinishRequestHandling();
 
-	   return succeded;
-   };
+     return succeded;
+   }
 
    double MigrationReservoir::biodegradeCharges ()
    {
@@ -2938,16 +2938,16 @@ namespace migration
       double biodegraded = 0;
 
       const BiodegradationParameters* biodegradationParameters =
-         getProjectHandle ()->getBiodegradationParameters ();
+         getProjectHandle().getBiodegradationParameters ();
       double timeInterval = m_start->getTime () - m_end->getTime ();
 
       if (timeInterval >= 30)
       {
-         getProjectHandle ()->getMessageHandler ().print ("Basin_Warning: The time interval between the two snapshots ");
-         getProjectHandle ()->getMessageHandler ().print (m_start->getTime ());
-         getProjectHandle ()->getMessageHandler ().print (" Ma and ");
-         getProjectHandle ()->getMessageHandler ().print (m_end->getTime ());
-         getProjectHandle ()->getMessageHandler ().printLine (" Ma involving biodegradation is bigger than 30 Ma, the biodegradation results can be questionable due to the large time interval");
+         getProjectHandle().getMessageHandler ().print ("Basin_Warning: The time interval between the two snapshots ");
+         getProjectHandle().getMessageHandler ().print (m_start->getTime ());
+         getProjectHandle().getMessageHandler ().print (" Ma and ");
+         getProjectHandle().getMessageHandler ().print (m_end->getTime ());
+         getProjectHandle().getMessageHandler ().printLine (" Ma involving biodegradation is bigger than 30 Ma, the biodegradation results can be questionable due to the large time interval");
       }
       Biodegrade biodegrade (biodegradationParameters);
 
@@ -2978,7 +2978,7 @@ namespace migration
       if (envStr and strlen (envStr) != 0)
          maxTimeStep = atof (envStr);
 
-      const DiffusionLeakageParameters *parameters = getProjectHandle ()->getDiffusionLeakageParameters ();
+      const DiffusionLeakageParameters *parameters = getProjectHandle().getDiffusionLeakageParameters ();
 
       RetrieveAndRestoreSurfaceGridMapContainer retrieve (m_diffusionOverburdenGridMaps);
 
@@ -2993,7 +2993,7 @@ namespace migration
 
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-         (*trapIter)->diffusionLeakCharges (m_start->getTime (), m_end->getTime (), getProjectHandle ()->
+         (*trapIter)->diffusionLeakCharges (m_start->getTime (), m_end->getTime (), getProjectHandle().
                                             getDiffusionLeakageParameters (), maxTimeStep, maxFluxError);
       }
 
@@ -3168,7 +3168,7 @@ namespace migration
          {
             // Before deleting the trap, move initial leakage to crest column.
             trap->putInitialLeakageBack();
-            
+
             trap->beAbsorbed ();
 
             delete trap;
@@ -3215,7 +3215,7 @@ namespace migration
       // Optimization for May 2016 Release
       if (!isDiffusionEnabled ()) return;
 
-      const DiffusionLeakageParameters *parameters = getProjectHandle ()->getDiffusionLeakageParameters ();
+      const DiffusionLeakageParameters *parameters = getProjectHandle().getDiffusionLeakageParameters ();
 
       if (parameters->transientModel () != Interface::Transient) return;
 
@@ -4259,7 +4259,7 @@ namespace migration
 
    void MigrationReservoir::manipulateColumnCompositionPosition(ColumnCompositionPositionRequest & compositionPositionRequest)
    {
-	   getLocalColumn(compositionPositionRequest.i, compositionPositionRequest.j)->manipulateCompositionPosition(compositionPositionRequest.valueSpec,
+     getLocalColumn(compositionPositionRequest.i, compositionPositionRequest.j)->manipulateCompositionPosition(compositionPositionRequest.valueSpec,
                                                                                                                 compositionPositionRequest.phase, compositionPositionRequest.position, compositionPositionRequest.composition);
    }
 
@@ -4275,22 +4275,22 @@ namespace migration
    /// Use global reservoir options (ReservoirOptionsIoTbl)
    bool MigrationReservoir::isBiodegradationEnabled (void) const
    {
-      return m_migrator->getProjectHandle()->getReservoirOptions()->isBiodegradationOn();
+      return m_migrator->getProjectHandle().getReservoirOptions()->isBiodegradationOn();
    }
 
    bool MigrationReservoir::isOilToGasCrackingEnabled (void) const
    {
-      return m_migrator->getProjectHandle()->getReservoirOptions()->isOilToGasCrackingOn();
+      return m_migrator->getProjectHandle().getReservoirOptions()->isOilToGasCrackingOn();
    }
 
    bool MigrationReservoir::isDiffusionEnabled (void) const
    {
-      return m_migrator->getProjectHandle()->getReservoirOptions()->isDiffusionOn();
+      return m_migrator->getProjectHandle().getReservoirOptions()->isDiffusionOn();
    }
 
    double MigrationReservoir::getMinTrapCapacity (void) const
    {
-      return m_migrator->getProjectHandle()->getReservoirOptions()->getTrapCapacity();
+      return m_migrator->getProjectHandle().getReservoirOptions()->getTrapCapacity();
    }
 
    bool MigrationReservoir::isBlockingEnabled (void) const
@@ -4298,17 +4298,17 @@ namespace migration
       if (m_migrator->performAdvancedMigration())
          return false;
 
-      return m_migrator->getProjectHandle()->getReservoirOptions()->isBlockingOn();
+      return m_migrator->getProjectHandle().getReservoirOptions()->isBlockingOn();
    }
 
    double MigrationReservoir::getBlockingPerm (void) const
    {
-      return m_migrator->getProjectHandle()->getReservoirOptions()->getBlockingPermeability();
+      return m_migrator->getProjectHandle().getReservoirOptions()->getBlockingPermeability();
    }
 
    double MigrationReservoir::getBlockingPoro (void) const
    {
-      return m_migrator->getProjectHandle()->getReservoirOptions()->getBlockingPorosity();
+      return m_migrator->getProjectHandle().getReservoirOptions()->getBlockingPorosity();
    }
 
 }

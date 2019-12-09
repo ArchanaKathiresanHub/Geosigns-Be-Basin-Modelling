@@ -18,7 +18,7 @@
 using namespace AbstractDerivedProperties;
 
 //------------------------------------------------------------//
-DataAccess::Mining::CauldronDomain::CauldronDomain( Interface::ProjectHandle * handle ) 
+DataAccess::Mining::CauldronDomain::CauldronDomain( Interface::ProjectHandle * handle )
    : m_projectHandle( handle )
 {
    m_snapshot = 0;
@@ -113,7 +113,7 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, doubl
 
          FormationPropertyPtr grid = *depthIter;
 
-         if ( count == 0 ) { 
+         if ( count == 0 ) {
             topDepth = interpolate2D ( element, grid, grid->lastK () );
          }
 
@@ -145,7 +145,7 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, doubl
                   break;
                }
                topDepth = bottomDepth;
-            } 
+            }
             break;
          }
          else
@@ -225,9 +225,9 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
       }
 
    }
-   
+
    if ( not elementFound ) { element.clear (); }
-   
+
    return elementFound;
 }
 
@@ -254,7 +254,7 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
 
             // The formation must be in the domain of the map, since the this grid was added at the same time!
             if ( grid->getFormation () == formation )
-            { 
+            {
                // Interpolate the depth at the (x,y) point on the surface.
                surfaceDepth = interpolate2D( element, grid, grid->lastK() );
 
@@ -278,9 +278,9 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
          }
       }
    }
-   
+
    if ( not elementFound ) { element.clear (); }
-   
+
    return elementFound;
 }
 
@@ -299,7 +299,7 @@ void DataAccess::Mining::CauldronDomain::getTopSurface( double x, double y, Elem
 
    bool foundSurface = false;
 
-   if ( element.isValidPlaneElement() and m_domainDerivedDepths.size() != 0 ) 
+   if ( element.isValidPlaneElement() and m_domainDerivedDepths.size() != 0 )
    {
 
       FormationPropertyPtr grid = m_domainDerivedDepths [ 0 ];
@@ -329,7 +329,7 @@ void DataAccess::Mining::CauldronDomain::getTopSurface( double x, double y, Elem
 
       }
 
-   }   
+   }
 
    if ( not foundSurface ) {
       element.clear();
@@ -389,7 +389,7 @@ void DataAccess::Mining::CauldronDomain::getBottomSurface( double x, double y, E
          element.setSurface( topSurface );
          element.getActualPoint()( 2 ) = surfaceDepth;
       }
-   }   
+   }
    if ( not foundSurface ) { element.clear(); }
 }
 
@@ -436,7 +436,7 @@ bool DataAccess::Mining::CauldronDomain::isEqual( const ElementPosition & startE
              startElement.getI () == endElement.getI () and
              startElement.getJ () == endElement.getJ ();
    }
-   
+
    if ( not captureInterFormationBoundary and
         not captureInterPlanarElementBoundary and
             captureInterVerticalElementBoundary )
@@ -451,7 +451,7 @@ bool DataAccess::Mining::CauldronDomain::isEqual( const ElementPosition & startE
    {
       // Check for the same element in the plane.
       // Is the formation check necessary here?
-      return startElement.getFormation () == endElement.getFormation () and 
+      return startElement.getFormation () == endElement.getFormation () and
              startElement.getLocalK () == endElement.getLocalK ();
    }
 
@@ -466,14 +466,14 @@ bool DataAccess::Mining::CauldronDomain::isEqual( const ElementPosition & startE
              startElement.getLocalK () == endElement.getLocalK () and
              startElement.getGlobalK () == endElement.getGlobalK ();
    }
-   
+
    if ( captureInterFormationBoundary and
         captureInterPlanarElementBoundary and
         captureInterVerticalElementBoundary )
    {
       // Check for the same element in the plane.
       // Is the formation check necessary here?
-      return startElement.getFormation () == endElement.getFormation () and 
+      return startElement.getFormation () == endElement.getFormation () and
              startElement.getI () == endElement.getI () and
              startElement.getJ () == endElement.getJ () and
              startElement.getLocalK () == endElement.getLocalK ();

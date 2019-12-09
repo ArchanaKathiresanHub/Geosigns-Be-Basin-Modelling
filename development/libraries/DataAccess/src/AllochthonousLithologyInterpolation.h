@@ -38,7 +38,7 @@ namespace DataAccess
       ///
      class AllochthonousLithologyInterpolation : public DAObject
      {
-	 public:
+   public:
 
 
             /// \name Interpolation results data set names
@@ -67,38 +67,38 @@ namespace DataAccess
             /// @}
 
 
-            AllochthonousLithologyInterpolation (ProjectHandle * projectHandle, database::Record * record);
+            AllochthonousLithologyInterpolation (ProjectHandle& projectHandle, database::Record * record);
             ~AllochthonousLithologyInterpolation  (void);
 
-	    /// Return the name of the formation of this AllochthonousLithologyInterpolation.
-	    const string& getFormationName (void) const;
+			/// Return the name of the formation of this AllochthonousLithologyInterpolation.
+			const string& getFormationName (void) const;
 
-	    /// Return the the Snapshot of this AllochthonousLithologyInterpolation
-	    const Snapshot * getStartSnapshot (void) const;
+			/// Return the the Snapshot of this AllochthonousLithologyInterpolation
+			const Snapshot * getStartSnapshot (void) const;
 
-	    /// Return the the Snapshot of this AllochthonousLithologyInterpolation
-	    const Snapshot * getEndSnapshot (void) const;
+			/// Return the the Snapshot of this AllochthonousLithologyInterpolation
+			const Snapshot * getEndSnapshot (void) const;
 
-	    /// Return the Formation of this AllochthonousLithologyInterpolation
-	    const Formation * getFormation (void) const;
+			/// Return the Formation of this AllochthonousLithologyInterpolation
+			const Formation * getFormation (void) const;
 
-	    /// Return the number of points used in the interpolation.
-	    int getNumberOfPoints () const;
+			/// Return the number of points used in the interpolation.
+			int getNumberOfPoints () const;
 
-	    /// Return the degree of the polynomial used.
-	    int getPolynomialDegree () const;
+			/// Return the degree of the polynomial used.
+			int getPolynomialDegree () const;
 
-	    /// Return the file in which the results can be found.
-	    const std::string& getInterpFileName () const;
+			/// Return the file in which the results can be found.
+			const std::string& getInterpFileName () const;
 
-	    /// Return the name of the group in which the points, rhs and coefficients can be found.
-	    const std::string& getInterpGroupName () const;
+			/// Return the name of the group in which the points, rhs and coefficients can be found.
+			const std::string& getInterpGroupName () const;
 
-	    /// Print the attributes of this AllochthonousLithologyInterpolation
+      /// Print the attributes of this AllochthonousLithologyInterpolation
             // May not work if user application is compiled under IRIX with CC -lang:std
-	    void printOn (ostream & ostr) const;
+      void printOn (ostream & ostr) const;
 
-	 protected:
+   protected:
 
             const Formation* m_formation;
             const Snapshot*  m_startSnapshot;

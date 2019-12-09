@@ -28,7 +28,7 @@ namespace DataAccess
       class Trap : public DAObject
       {
          public:
-            Trap (ProjectHandle * projectHandle, database::Record * record);
+            Trap (ProjectHandle& projectHandle, database::Record * record);
             virtual ~Trap (void);
 
             /// See if this Trap matches the given conditions
@@ -79,8 +79,8 @@ namespace DataAccess
             virtual double getOWC (void) const;
             /// return the Trap's surface at the oil-water contact depth
             virtual double getWCSurface (void) const;
-                 
-            
+
+
             virtual void printOn (ostream &) const;
             virtual void asString (string &) const;
 

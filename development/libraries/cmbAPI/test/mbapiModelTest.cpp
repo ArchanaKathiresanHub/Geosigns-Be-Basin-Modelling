@@ -535,7 +535,92 @@ TEST_F(mbapiModelTest, GetPermeabilityModelParametersTest)
    ASSERT_NEAR(mpPerm[1], 8.6, eps);
 }
 
+TEST_F(mbapiModelTest, GetPermeabilityModelTest)
+{
+   mbapi::Model testModel;
 
+   // load test project
+   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_lithologyTestProject));
+
+   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
+
+   // Check Sands permeability
+   mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Std. Sandstone");
+   ASSERT_FALSE(IsValueUndefined(lid));
+
+   mbapi::LithologyManager::PermeabilityModel permModel;
+   std::vector<double> mpPor;
+   std::vector<double> mpPerm;
+   int numPts;
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
+   ASSERT_EQ(permModel, mbapi::LithologyManager::PermSandstone);
+   ASSERT_EQ(mpPor.size(), 2U);
+   ASSERT_EQ(mpPerm.size(), 2U);
+   ASSERT_NEAR(numPts, 2, eps);
+
+   // Check Shales permeability
+   lid = lthMgr.findID("Std. Shale");
+   ASSERT_FALSE(IsValueUndefined(lid));
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
+   ASSERT_EQ(permModel, mbapi::LithologyManager::PermMudstone);
+   ASSERT_EQ(mpPor.size(), 2U);
+   ASSERT_EQ(mpPerm.size(), 2U);
+   ASSERT_NEAR(numPts, 2, eps);
+
+   // Check Nones permeability
+   lid = lthMgr.findID("Crust");
+   ASSERT_FALSE(IsValueUndefined(lid));
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
+   ASSERT_EQ(permModel, mbapi::LithologyManager::PermNone);
+   ASSERT_EQ(mpPor.size(), 2U);
+   ASSERT_EQ(mpPerm.size(), 2U);
+   ASSERT_NEAR(numPts, 2, eps);
+
+   // Check Multipoint permeability
+   lid = lthMgr.findID("SM. Sandstone");
+   ASSERT_FALSE(IsValueUndefined(lid));
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.getPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts));
+   ASSERT_EQ(permModel, mbapi::LithologyManager::PermMultipoint);
+   ASSERT_EQ(mpPor.size(), 2U);
+   ASSERT_EQ(mpPerm.size(), 2U);
+   ASSERT_NEAR(numPts, 2, eps);
+
+   mpPor.clear();
+   mpPerm.clear();
+}
+
+TEST_F(mbapiModelTest, SetPermeabilityModelTest)
+{
+   mbapi::Model testModel;
+   std::vector<double> mpPor;
+   std::vector<double> mpPerm;
+   int numPts = 2, lithologyFlag = 0;
+
+   // load test project
+   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_lithologyTestProject));
+
+   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
+
+   // Check Sands permeability
+   mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Std. Sandstone");
+   ASSERT_FALSE(IsValueUndefined(lid));
+   mbapi::LithologyManager::PermeabilityModel permModel = mbapi::LithologyManager::PermSandstone;
+   mpPor.resize(numPts);
+   mpPerm.resize(numPts);
+   mpPor.push_back(10.0);
+   mpPor.push_back(20.0);
+   mpPerm.push_back(2.0);
+   mpPerm.push_back(3.0);
+
+   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setPermeabilityModel(lid, permModel, mpPor, mpPerm, numPts, lithologyFlag));
+
+   mpPor.clear();
+   mpPerm.clear();
+}
 
 TEST_F(mbapiModelTest, SetPermeabilityModelParametersTest)
 {
@@ -1936,7 +2021,7 @@ TEST_F(mbapiModelTest, ProjectDataManager)
 {
    mbapi::Model testModel;
 
-   double origin_x, origin_y, delta_x, delta_y;
+   double delta_x, delta_y;
    int nodes_x, nodes_y;
    std::string modellingMode, description;
 
@@ -1944,20 +2029,6 @@ TEST_F(mbapiModelTest, ProjectDataManager)
    ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_CtcTestProject));
 
    mbapi::ProjectDataManager& ProjectMan = testModel.projectDataManager();
-
-   //check whether x-coordinates of origin of ProjectIoTbl can be read and modified correctly
-   /*ProjectMan.getOriginXCoord(origin_x);
-   EXPECT_EQ(416500, origin_x);
-   ProjectMan.setOriginXCoord(3215.014);
-   ProjectMan.getOriginXCoord(origin_x);
-   EXPECT_EQ(3215.014, origin_x);
-
-   //check whether y-coordinates of origin of ProjectIoTbl can be read and modified correctly
-   ProjectMan.getOriginYCoord(origin_y);
-   EXPECT_EQ(6697000, origin_y);
-   ProjectMan.setOriginYCoord(71547850.654);
-   ProjectMan.getOriginYCoord(origin_y);
-   EXPECT_EQ(71547850.654, origin_y);*/
 
    //check whether number of nodes in x-direction of ProjectIoTbl can be read and modified correctly
    ProjectMan.getNumberOfNodesX(nodes_x);
@@ -2363,5 +2434,80 @@ TEST_F(mbapiModelTest, RunOptionsManager)
 	// delete copy of the project
 	remove("Project_run_options_prop.project3d");
 
+}
+
+// Test for lithology Manager
+TEST_F(mbapiModelTest, lithologyManager)
+{
+	mbapi::Model testModel;
+
+	// load project file
+	ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_dupLithologyTestProject));
+
+	mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
+
+	auto lithIds = lthMgr.lithologiesIDs();
+	size_t actualTableSize = 14;
+
+	ASSERT_EQ(actualTableSize, lithIds.size());
+	//Tests to ensure whether lithotypes names are read and modified correctly in the LithotypeIoTbl 
+	mbapi::LithologyManager::LithologyID id;
+	std::string lithoName, refLithoName;
+	int userDefFlag;
+
+	id = 5;
+	lithoName= lthMgr.lithologyName(id);
+	EXPECT_EQ("CF80-HP", lithoName);
+	lthMgr.setLithologyName(id, "NewName");
+	lithoName = lthMgr.lithologyName(id);
+	EXPECT_EQ("NewName", lithoName);
+
+	//Tests to ensure whether userdefined flag values are read and modified correctly in the LithotypeIoTbl 
+	lthMgr.getUserDefinedFlagForLithology(id, userDefFlag);
+	EXPECT_EQ(1, userDefFlag);
+
+	//Tests to ensure whether reference lithology names are read and modified correctly in the LithotypeIoTbl 
+	lthMgr.getReferenceLithology(id, refLithoName);
+	EXPECT_EQ("BPA REF INFO||USER", refLithoName);
+
+	//Tests to ensure whether fields of LitThCondIoTbl are read and modified correctly 
+	
+	auto ThId = lthMgr.thermCondLithologiesIDs();
+	EXPECT_EQ(140, ThId.size());
+
+	mbapi::LithologyManager::LitThCondTblID th_id;
+	th_id = 30;
+	lthMgr.getThermCondTableLithoName(th_id, lithoName);
+	EXPECT_EQ("Astheno. Mantle", lithoName);
+	lthMgr.setThermCondTableLithoName(th_id, "Mantle");
+	lthMgr.getThermCondTableLithoName(th_id, lithoName);
+	EXPECT_EQ("Mantle", lithoName);
+
+	//Tests to ensure whether fields of LitHeatCapIoTbl are read and modified correctly 
+
+	auto HCId = lthMgr.heatCapLithologiesIDs();
+	EXPECT_EQ(126, HCId.size());
+
+	mbapi::LithologyManager::LitThCondTblID hc_id;
+	hc_id = 30;
+	lthMgr.getHeatCapTableLithoName(hc_id, lithoName);
+	EXPECT_EQ("Astheno. Mantle", lithoName);
+	lthMgr.setHeatCapTableLithoName(hc_id, "Mantle");
+	lthMgr.getHeatCapTableLithoName(hc_id, lithoName);
+	EXPECT_EQ("Mantle", lithoName);
+
+	mbapi::FaultCutManager & fltMgr = testModel.faultcutManager();
+	auto faultList = fltMgr.faultCutLithIDs();
+	actualTableSize = 10;
+
+	ASSERT_EQ(actualTableSize, faultList.size());
+	mbapi::FaultCutManager::faultCutLithologyID fltId;
+	fltId = 1;
+	fltMgr.getFaultLithoName(fltId, lithoName);
+	EXPECT_EQ("Tight_SHALE", lithoName);
+	fltMgr.setFaultLithoName(fltId, "Sandstone, typical");
+	fltMgr.getFaultLithoName(fltId, lithoName);
+	EXPECT_EQ("Sandstone, typical", lithoName);
+	
 }
 

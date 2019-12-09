@@ -56,7 +56,7 @@ namespace migration
    {
    public:
       /// This constructor is called by the object factory
-      MigrationReservoir (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record);
+      MigrationReservoir (Interface::ProjectHandle& projectHandle, Migrator * const migrator, database::Record * record);
 
       /// Destructor
       virtual ~MigrationReservoir (void);
@@ -104,7 +104,7 @@ namespace migration
       /// @return The minimum capacity for the traps of this Reservoir
       double getMinTrapCapacity (void) const;
       /// @}
-      
+
 
 
       /// @defgroup ReservoirCharge
@@ -166,7 +166,7 @@ namespace migration
       /// \brief Returns a non-sealing away from the immediate perimeter
       ///
       /// Looks at progressively further perimeters of neighbours starting
-      /// at distances of 2 columns (immediate neighbours have already 
+      /// at distances of 2 columns (immediate neighbours have already
       /// been checked by getAdjacentColumn()
       /// \param HC phase, starting column, trap (if it exists)
       /// \return the suitable column (if it exists)
@@ -258,7 +258,7 @@ namespace migration
       double getUndefinedValue (void);
       bool saveGenexMaps (const string & speciesName, DataAccess::Interface::GridMap * aMap, const MigrationFormation * formation, const Snapshot * aSnapshot);
       const Migrator * getMigrator (void) const;
-      
+
 
    private:
 
@@ -314,14 +314,14 @@ namespace migration
       void reportLeakages (void);
       bool computeDistributionParameters (void);
       double biodegradeCharges (void);
-      
+
       // Pasteurization functions. They must be exectuted in the following order:
       bool computeHydrocarbonWaterContactDepth (void);
       bool computeHydrocarbonWaterTemperature (void);
       bool needToComputePasteurizationStatusFromScratch(void);
       bool pasteurizationStatus(void);
       bool setPasteurizationStatus(void);
-	  
+
       bool diffusionLeakCharges (void);
       bool addChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
       bool addChargesToBeMigrated (const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
@@ -349,7 +349,7 @@ namespace migration
       int getNumberOfProxyColumns (void);
 
 
-      /// Trap Handling    
+      /// Trap Handling
 
       /// initialize the traps
       bool initializeTraps (void);

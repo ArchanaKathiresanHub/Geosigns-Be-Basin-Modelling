@@ -88,15 +88,15 @@ namespace migration
       /// get the index of a reservoir in the complete list of reservoirs
       int getIndex (MigrationReservoir * reservoir);
 
-	  MigrationFormation * getBottomSourceRockFormation ();
-	  MigrationFormation * getTopSourceRockFormation (const Interface::Snapshot * end);
-	  MigrationFormation * getTopActiveFormation (const Interface::Snapshot * end);
-	  MigrationFormation * getTopActiveReservoirFormation (const Interface::Snapshot * start, const Interface::Snapshot * end);
+		MigrationFormation * getBottomSourceRockFormation ();
+		MigrationFormation * getTopSourceRockFormation (const Interface::Snapshot * end);
+		MigrationFormation * getTopActiveFormation (const Interface::Snapshot * end);
+		MigrationFormation * getTopActiveReservoirFormation (const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       inline double getMinOilColumnHeight (void) const;
       inline double getMinGasColumnHeight (void) const;
 
-      GeoPhysics::ProjectHandle * getProjectHandle (void);
+      GeoPhysics::ProjectHandle& getProjectHandle();
 
       void clearFormationNodeProperties ();
       bool computeFormationNodeProperties (const Interface::Snapshot * end);
@@ -107,10 +107,10 @@ namespace migration
       /// Check if there are any active reservoirs at given snapshot
       bool activeReservoirs (const Interface::Snapshot * snapshot);
 
-      migration::MigrationFormation * getBottomMigrationFormation(const Interface::Snapshot * end);
-	   bool flagTopNodes(const Interface::Snapshot * end, const bool pressureRun);
+			migration::MigrationFormation * getBottomMigrationFormation(const Interface::Snapshot * end);
+		 bool flagTopNodes(const Interface::Snapshot * end, const bool pressureRun);
 
-      bool detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool pressureRun);
+			bool detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool pressureRun);
 
       /// Charge the active reservoirs with charge already in the traps and
       /// additionally expelled charge between the given snapshots.
@@ -208,7 +208,7 @@ namespace migration
                                                      const Interface::Surface * surface) const;
 
    private:
-      GeoPhysics::ProjectHandle* openProject (const std::string & fileName);
+
       void sortReservoirs () const;
 
       /// \brief Get a list of the tables that are to be output tables.
@@ -220,6 +220,7 @@ namespace migration
 
       ofstream m_massBalanceFile;
 
+      ObjectFactory m_objectFactory;
       std::unique_ptr<GeoPhysics::ProjectHandle> m_projectHandle;
 
       MassBalance<ofstream>* m_massBalance;
@@ -248,7 +249,7 @@ namespace migration
       bool m_overpressuredLeakage;
       /// Whether genex will be run on the fly
       bool m_genexOnTheFly;
-   
+
       double m_blockingPermeability;
       double m_blockingPorosity;
       double m_minOilColumnHeight;

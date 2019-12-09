@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -21,7 +21,7 @@ class Lithology : public GeoPhysics::CompoundLithology {
 
 public :
 
-   Lithology ( GeoPhysics::ProjectHandle* projectHandle );
+   Lithology (GeoPhysics::ProjectHandle& projectHandle );
 
 
    /// \brief Compute the relative-permeability.
@@ -39,7 +39,7 @@ public :
    /// \brief Compute the capillary-pressure for the phase.
    ///
    /// Temperature in C.
-   /// 
+   ///
    double capillaryPressure ( const pvtFlash::PVTPhase phase,
                               const double             temperature,
                               const double             criticalTemperature,
@@ -55,7 +55,7 @@ public :
    int  getLithologyID () const;
 
    std::string getName () const;
-   
+
 protected :
 
    double calculateTemisRelPerm ( const Saturation::Phase phase,

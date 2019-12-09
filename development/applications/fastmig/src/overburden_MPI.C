@@ -63,8 +63,8 @@ namespace migration
          if (formations.size () == 0)
             return results;
 
-         const ProjectHandle* projectHandle = formations[0]->getProjectHandle ();
-         const Property* prop = projectHandle->findProperty (propName);
+         const ProjectHandle& projectHandle = formations[0]->getProjectHandle ();
+         const Property* prop = projectHandle.findProperty (propName);
 
          return getFormationSurfaceGridMaps (formations, prop, snapshot);
       }
@@ -141,8 +141,8 @@ namespace migration
          if (overburden.formations ().size () == 0)
             return results;
 
-         const ProjectHandle* projectHandle = overburden.formations ()[0]->getProjectHandle ();
-         const Property* prop = projectHandle->findProperty (propName);
+         const ProjectHandle& projectHandle = overburden.formations ()[0]->getProjectHandle ();
+         const Property* prop = projectHandle.findProperty (propName);
 
          return getAdjacentSurfaceGridMapFormations (overburden, prop, snapshot);
       }

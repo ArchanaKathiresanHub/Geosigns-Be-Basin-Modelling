@@ -28,7 +28,7 @@ namespace DerivedProperties {
    public :
 
       /// \brief Constructor.
-      ReflectivitySurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
+      ReflectivitySurfaceCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
 
       /// \brief Calculate the reflectivity for the surface.
       ///
@@ -57,7 +57,7 @@ namespace DerivedProperties {
    private :
 
       /// \brief The project handle.
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
 
     };
 

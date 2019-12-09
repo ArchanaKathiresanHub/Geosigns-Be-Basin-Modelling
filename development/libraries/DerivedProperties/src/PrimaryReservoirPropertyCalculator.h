@@ -41,8 +41,8 @@ namespace DerivedProperties {
    public :
 
       /// \brief Construct with the project-handle and the property whose values this calculator will load.
-      PrimaryReservoirPropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
-                                           const DataModel::AbstractProperty* property );
+      PrimaryReservoirPropertyCalculator ( const DataModel::AbstractProperty* property,
+                                           const DataAccess::Interface::PropertyValueList& propertyValues );
 
       ~PrimaryReservoirPropertyCalculator ();
 

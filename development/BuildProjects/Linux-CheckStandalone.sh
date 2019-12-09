@@ -124,7 +124,8 @@ tar xzf $tar || { echo "tar : error : Could not uncompress tarfile"; exit 1 ; }
 #################################################################################
 # preloading modules before bootstrap call
 
-[[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
+[[ -r /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh ]] && . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
+module load HpcSoftwareStack/PRODUCTION
 module purge
 module load intel/2017.05
 module load impi/2017.4.239-iccifort-2017.5.239-GCC-4.9.3-2.25

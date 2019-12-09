@@ -1770,8 +1770,8 @@ void AppCtx::deleteMinorSnapshotsFromTimeIOTable ( const snapshottimeContainer& 
 #undef __FUNCT__
 #define __FUNCT__ "AppCtx::interpolateProperty"
 
-void AppCtx::interpolateProperty ( const double       currentTime,
-                                   const PropertyList property ) {
+void AppCtx::interpolateProperty (const double       currentTime,
+                                   const PropertyIdentifier& property ) {
 
    Layer_Iterator basinLayers;
    basinLayers.Initialise_Iterator ( layers, Ascending, Sediments_Only, Active_Layers_Only );

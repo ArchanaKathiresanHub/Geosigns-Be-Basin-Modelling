@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -51,7 +51,7 @@ public:
       m_gridMap                         = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 0, 1 );
       m_gridMapPresentDayTTS            = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 1000 );
       m_gridMapPresentDayTTSNDV         = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, Interface::DefaultUndefinedMapValue );
-      
+
       m_currentPressureBasement       = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 10, 100  );
       m_presentDayPressureBasement    = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 0,  200.01  );
       m_presentDayPressureBasementNDV = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 0, Interface::DefaultUndefinedMapValue );
@@ -103,7 +103,8 @@ public:
 TEST_F( PWDCalculatorTest, exceptions ){
 
    MockInterfaceOutput outputData = MockInterfaceOutput( m_firstI, m_firstJ, m_lastI, m_lastJ );
-   MockInterfaceInput inputData = MockInterfaceInput();
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    MockConfigFileParameterCtc constants = MockConfigFileParameterCtc();
    constants.setWaterDensity( 3000 );
    constants.setBackstrippingMantleDensity( 3000 );
@@ -135,9 +136,9 @@ TEST_F( PWDCalculatorTest, exceptions ){
 ///1. Test the paleowaterdepth calculation
 TEST_F( PWDCalculatorTest, paleowaterdepth )
 {
-
    MockInterfaceOutput outputData = MockInterfaceOutput( m_firstI, m_firstJ, m_lastI, m_lastJ );
-   MockInterfaceInput inputData = MockInterfaceInput();
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    MockConfigFileParameterCtc constants = MockConfigFileParameterCtc();
    constants.setWaterDensity( 1000 );
    constants.setBackstrippingMantleDensity( 3000 );
@@ -182,7 +183,8 @@ TEST_F( PWDCalculatorTest, compute )
 {
 
    MockInterfaceOutput outputData = MockInterfaceOutput( m_firstI, m_firstJ, m_lastI, m_lastJ );
-   MockInterfaceInput inputData = MockInterfaceInput();
+   DataAccess::Interface::ProjectHandle projectHandle(nullptr, "", nullptr);
+   MockInterfaceInput inputData(projectHandle);
    MockConfigFileParameterCtc constants = MockConfigFileParameterCtc();
    constants.setWaterDensity( 1000 );
    constants.setBackstrippingMantleDensity( 3000 );

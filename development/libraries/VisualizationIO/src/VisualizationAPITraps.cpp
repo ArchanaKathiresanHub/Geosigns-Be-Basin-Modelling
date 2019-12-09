@@ -13,7 +13,6 @@
 #include <new>
 #include <algorithm>
 #include <cstring>
-#include <boost/foreach.hpp>
 
 #ifdef _MSC_VER
 #pragma warning (push)
@@ -27,19 +26,19 @@ using namespace std;
 /// Trapper implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Trapper::Trapper() 
+CauldronIO::Trapper::Trapper()
 {
    std::memset((void*)this, 0, sizeof(Trapper));
-   
+
    m_ID = -1;
    m_persistentID = -1;
    m_downstreamTrapperID = -1;
 }
 
-CauldronIO::Trapper::Trapper(int ID, int persistentID) 
+CauldronIO::Trapper::Trapper(int ID, int persistentID)
 {
    std::memset((void*)this, 0, sizeof(Trapper));
-   
+
    m_ID = ID;
    m_persistentID = persistentID;
    m_downstreamTrapperID = -1;
@@ -79,17 +78,17 @@ float CauldronIO::Trapper::getValue(const std::string valueName) const
    return DefaultUndefinedValue;
 }
 
-void CauldronIO::Trapper::setSolutionGasVolume(float solutionGasVolume) 
+void CauldronIO::Trapper::setSolutionGasVolume(float solutionGasVolume)
 {
    m_solutionGasVolume = solutionGasVolume;
 }
 
-float CauldronIO::Trapper::getSolutionGasVolume() const 
+float CauldronIO::Trapper::getSolutionGasVolume() const
 {
    return m_solutionGasVolume;
 }
 
-void CauldronIO::Trapper::setSolutionGasDensity(float solutionGasDensity) 
+void CauldronIO::Trapper::setSolutionGasDensity(float solutionGasDensity)
 {
    m_solutionGasDensity = solutionGasDensity;
 }
@@ -99,12 +98,12 @@ float CauldronIO::Trapper::getSolutionGasDensity() const
    return m_solutionGasDensity;
 }
 
-void CauldronIO::Trapper::setSolutionGasViscosity(float solutionGasViscosity) 
+void CauldronIO::Trapper::setSolutionGasViscosity(float solutionGasViscosity)
 {
    m_solutionGasViscosity = solutionGasViscosity;
 }
 
-float CauldronIO::Trapper::getSolutionGasViscosity() const 
+float CauldronIO::Trapper::getSolutionGasViscosity() const
 {
    return m_solutionGasViscosity;
 }
@@ -129,17 +128,17 @@ float CauldronIO::Trapper::getSolutionGasMass() const
    return m_solutionGasMass;
 }
 
-void CauldronIO::Trapper::setFreeGasVolume(float freeGasVolume) 
+void CauldronIO::Trapper::setFreeGasVolume(float freeGasVolume)
 {
    m_freeGasVolume = freeGasVolume;
 }
 
-float CauldronIO::Trapper::getFreeGasVolume() const 
+float CauldronIO::Trapper::getFreeGasVolume() const
 {
    return m_freeGasVolume;
 }
 
-void CauldronIO::Trapper::setFreeGasDensity(float freeGasDensity) 
+void CauldronIO::Trapper::setFreeGasDensity(float freeGasDensity)
 {
    m_freeGasDensity = freeGasDensity;
 }
@@ -149,12 +148,12 @@ float CauldronIO::Trapper::getFreeGasDensity() const
    return m_freeGasDensity;
 }
 
-void CauldronIO::Trapper::setFreeGasViscosity(float freeGasViscosity) 
+void CauldronIO::Trapper::setFreeGasViscosity(float freeGasViscosity)
 {
    m_freeGasViscosity = freeGasViscosity;
 }
 
-float CauldronIO::Trapper::getFreeGasViscosity() const 
+float CauldronIO::Trapper::getFreeGasViscosity() const
 {
    return m_freeGasViscosity;
 }
@@ -179,17 +178,17 @@ float CauldronIO::Trapper::getFreeGasMass() const
    return m_freeGasMass;
 }
 
-void CauldronIO::Trapper::setCondensateVolume(float condensateVolume) 
+void CauldronIO::Trapper::setCondensateVolume(float condensateVolume)
 {
    m_condensateVolume = condensateVolume;
 }
 
-float CauldronIO::Trapper::getCondensateVolume() const 
+float CauldronIO::Trapper::getCondensateVolume() const
 {
    return m_condensateVolume;
 }
 
-void CauldronIO::Trapper::setCondensateDensity(float condensateDensity) 
+void CauldronIO::Trapper::setCondensateDensity(float condensateDensity)
 {
    m_condensateDensity = condensateDensity;
 }
@@ -199,12 +198,12 @@ float CauldronIO::Trapper::getCondensateDensity() const
    return m_condensateDensity;
 }
 
-void CauldronIO::Trapper::setCondensateViscosity(float condensateViscosity) 
+void CauldronIO::Trapper::setCondensateViscosity(float condensateViscosity)
 {
    m_condensateViscosity = condensateViscosity;
 }
 
-float CauldronIO::Trapper::getCondensateViscosity() const 
+float CauldronIO::Trapper::getCondensateViscosity() const
 {
    return m_condensateViscosity;
 }
@@ -229,17 +228,17 @@ float CauldronIO::Trapper::getCondensateMass() const
    return m_condensateMass;
 }
 
-void CauldronIO::Trapper::setStockTankOilVolume(float stockTankOilVolume) 
+void CauldronIO::Trapper::setStockTankOilVolume(float stockTankOilVolume)
 {
    m_stockTankOilVolume = stockTankOilVolume;
 }
 
-float CauldronIO::Trapper::getStockTankOilVolume() const 
+float CauldronIO::Trapper::getStockTankOilVolume() const
 {
    return m_stockTankOilVolume;
 }
 
-void CauldronIO::Trapper::setStockTankOilDensity(float stockTankOilDensity) 
+void CauldronIO::Trapper::setStockTankOilDensity(float stockTankOilDensity)
 {
    m_stockTankOilDensity = stockTankOilDensity;
 }
@@ -249,12 +248,12 @@ float CauldronIO::Trapper::getStockTankOilDensity() const
    return m_stockTankOilDensity;
 }
 
-void CauldronIO::Trapper::setStockTankOilViscosity(float stockTankOilViscosity) 
+void CauldronIO::Trapper::setStockTankOilViscosity(float stockTankOilViscosity)
 {
    m_stockTankOilViscosity = stockTankOilViscosity;
 }
 
-float CauldronIO::Trapper::getStockTankOilViscosity() const 
+float CauldronIO::Trapper::getStockTankOilViscosity() const
 {
    return m_stockTankOilViscosity;
 }
@@ -324,7 +323,7 @@ void CauldronIO::Trapper::setPorosity(float porosity) {
 }
 
 float CauldronIO::Trapper::getMassLiquid() const {
-   return m_massLiquid; 
+   return m_massLiquid;
 }
 
 float CauldronIO::Trapper::getMassVapour() const {
@@ -340,15 +339,15 @@ float CauldronIO::Trapper:: getViscosityVapour() const {
 }
 
 float CauldronIO::Trapper::getDensityLiquid() const {
-   return m_densityLiquid; 
+   return m_densityLiquid;
 }
 
 float CauldronIO::Trapper::getDensityVapour() const {
-   return m_densityVapour; 
+   return m_densityVapour;
 }
 
 float CauldronIO::Trapper::getOilAPI() const {
-   return m_oilAPI; 
+   return m_oilAPI;
 }
 
 float CauldronIO::Trapper::getCGR() const {
@@ -361,12 +360,12 @@ float CauldronIO::Trapper::getGOR() const {
 
 
 float CauldronIO::Trapper::getBuoyancy() const {
-   return m_buoyancy; 
+   return m_buoyancy;
 }
 
 
 float CauldronIO::Trapper::getPorosity() const {
-   return m_porosity; 
+   return m_porosity;
 }
 
 void CauldronIO::Trapper::setID(int id)
@@ -595,14 +594,14 @@ float CauldronIO::Trapper::getAge() const {
 CauldronIO::Trap::Trap()
 {
    std::memset((void*)this, 0, sizeof(Trap));
-   
+
    m_ID = -1;
 }
 
-CauldronIO::Trap::Trap(int ID) 
+CauldronIO::Trap::Trap(int ID)
 {
    std::memset((void*)this, 0, sizeof(Trap));
-   
+
    m_ID = ID;
 }
 
@@ -773,15 +772,15 @@ void CauldronIO::Trap::setWCSurface(float wcSurface) {
 }
 
 void CauldronIO::Trap::setTrapCapacity(float trapCapacity) {
-	m_trapCapacity = trapCapacity;
+  m_trapCapacity = trapCapacity;
 }
 
 float CauldronIO::Trap::getVolumeOil() const {
-   return m_volumeLiquid; 
+   return m_volumeLiquid;
 }
 
 float CauldronIO::Trap::getVolumeGas() const {
-   return m_volumeVapour; 
+   return m_volumeVapour;
 }
 
 float CauldronIO::Trap::getCEPOil() const {
@@ -801,11 +800,11 @@ float CauldronIO::Trap::getCriticalTemperatureGas() const {
 }
 
 float CauldronIO::Trap::getInterfacialTensionOil() const {
-   return m_interfacialTensionLiquid; 
+   return m_interfacialTensionLiquid;
 }
 
 float CauldronIO::Trap::getInterfacialTensionGas() const {
-   return m_interfacialTensionVapour; 
+   return m_interfacialTensionVapour;
 }
 
 float CauldronIO::Trap::getFracturePressure() const {

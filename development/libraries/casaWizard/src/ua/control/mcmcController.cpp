@@ -8,6 +8,7 @@
 #include "model/input/mcDataCreator.h"
 #include "model/input/projectReader.h"
 #include "model/logger.h"
+#include "model/output/runCaseSetFileManager.h"
 #include "model/scenarioBackup.h"
 #include "model/script/optimalCaseScript.h"
 #include "model/script/runOptimalCaseScript.h"
@@ -112,6 +113,9 @@ void MCMCController::slotPushButtonUArunCasaClicked()
       const PredictionTargetManager& manager = casaScenario_.predictionTargetManager();
       mcmcTab_->fillPredictionTargetTable(manager.predictionTargets());
       mcmcTab_->setL2normRS(casaScenario_.responseSurfacesL2NormBestMC());
+      RunCaseSetFileManager& rcsFileManager = casaScenario_.runCaseSetFileManager();
+      rcsFileManager.updateIterationDirFileDateTime();
+      scenarioBackup::backup(casaScenario_);
     }
     catch (const std::exception& e)
     {
@@ -120,6 +124,15 @@ void MCMCController::slotPushButtonUArunCasaClicked()
     catch (...)
     {
       Logger::log() << "Failed to import MCMC data file with unknown cause." << Logger::endl();
+    }
+  }
+
+  if (QFile::copy(casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameMCMC() ,
+                  casaScenario_.workingDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameMCMC()))
+  {
+    if (!QFile::remove( casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameMCMC()))
+    {
+      Logger::log() << "There was a problem while moving " << casaScenario_.stateFileNameMCMC() << " file to " << casaScenario_.iterationDirName() << " Folder." << Logger::endl();
     }
   }
 
@@ -150,6 +163,7 @@ void MCMCController::slotPushButtonExportOptimalCasesClicked()
   if (casaScriptWriter::writeCasaScriptFilterOutDataDir(optimal, rcsFileManager.caseSetDirPath()))
   {
     scriptRunController_.runScript(optimal);
+    scenarioBackup::backup(casaScenario_);
   }
 }
 
@@ -167,6 +181,7 @@ void MCMCController::slotPushButtonRunOptimalCasesClicked()
     MonteCarloDataManager& manager = casaScenario_.monteCarloDataManager();
     manager.setRmseOptimalRunCase(L2norm);
     mcmcTab_->setL2norm(manager.rmseOptimalRunCase());
+    scenarioBackup::backup(casaScenario_);
   }
 }
 
@@ -187,6 +202,7 @@ void MCMCController::slotPushButtonAddOptimalDesignPointClicked()
 
   casaScenario_.setNumberOfManualDesignPoints();
   casaScenario_.changeUserDefinedPointStatus(true);
+  scenarioBackup::backup(casaScenario_);
 }
 
 void MCMCController::slotTablePredictionTargetClicked(int row, int /*column*/)
@@ -222,6 +238,7 @@ void MCMCController::slotTablePredictionTargetClicked(int row, int /*column*/)
       mcmcTab_->updateHistogram(targetTimeSeries, monteCarloData.predictionTargetMatrix()[predictionTargetManager.indexCumulativePredictionTarget(row)]);
       mcmcTab_->updateSliderHistograms(predictionTargetManager.sizeOfPredictionTargetWithTimeSeries(row));
     }
+    scenarioBackup::backup(casaScenario_);
   }
 }
 

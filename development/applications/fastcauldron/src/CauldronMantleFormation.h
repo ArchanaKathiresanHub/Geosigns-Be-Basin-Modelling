@@ -11,7 +11,7 @@ class CauldronMantleFormation : virtual public LayerProps, virtual public GeoPhy
 
 public :
 
-   CauldronMantleFormation ( Interface::ProjectHandle * projectHandle,
+   CauldronMantleFormation ( Interface::ProjectHandle& projectHandle,
                      database::Record *              record );
 
    ~CauldronMantleFormation ();

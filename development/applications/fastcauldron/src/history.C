@@ -179,7 +179,7 @@ void History::Record_Properties ( Surface_Info* surface ) {
 }
 
 void History::Save_Property ( const string &   property_name,
-                              const PropertyList propertyId,
+                              const PropertyIdentifier propertyId,
 			      LayerProps *     layer,
 			      const int        K,
 			      Node_Container & nodes ) {
@@ -697,7 +697,7 @@ double History::Calculate_Interpolated_Value( Node_Info * node, PETSC_3D_Array& 
 }
 
 void History::Save_Depositional_Property ( const string&      property_name,
-                                           const PropertyList propertyId,
+                                           const PropertyIdentifier propertyId,
                                            LayerProps *       layer,
                                            Node_Container&    nodes ) {
 

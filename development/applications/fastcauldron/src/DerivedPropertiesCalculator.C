@@ -19,9 +19,6 @@ DerivedPropertiesCalculator::DerivedPropertiesCalculator( AppCtx * aAppctx, cons
 
     m_appctx = aAppctx;
     m_simulator = & FastcauldronSimulator::getInstance();
-    m_decompactionMode  = false;
-    m_opTemperatureMode = false;
-    m_hydrostaticTemperatureMode = false;
 
     m_rank = m_simulator->getRank();
     m_debug = false;
@@ -72,15 +69,12 @@ bool DerivedPropertiesCalculator::compute() {
    database::Record * tempRecord = m_simulator->addCurrentSimulationDetails();
 
    // add FracturePressure explicitly as it has the same name as trap property
-   Interface::Property * fracturePressure = projectHandle->getFactory()->produceProperty( projectHandle, 0, "FracturePressure",   "FracturePressure",   "MPa",
+   Interface::Property * fracturePressure = projectHandle->getFactory()->produceProperty( *projectHandle, 0, "FracturePressure",   "FracturePressure",   "MPa",
                                                                                           FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY );
    projectHandle->addPropertyToFront( fracturePressure );
    m_simulator->connectOutputProperty( fracturePressure );
 
-   m_propertyManager = new DerivedPropertyManager ( m_simulator, m_debug );
-
-   m_opTemperatureMode = ( m_simulator->getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE );
-   m_hydrostaticTemperatureMode = ( m_simulator->getCalculationMode() ==  HYDROSTATIC_TEMPERATURE_MODE );
+   m_propertyManager = new DerivedPropertyManager ( *m_simulator, false, m_debug );
 
    m_simulator->removeRecordlessDerivedPropertyValues();
 
@@ -89,11 +83,8 @@ bool DerivedPropertiesCalculator::compute() {
    if( m_debug and m_rank == 0 ) {
       projectHandle->printSnapshotTable();
    }
-   m_decompactionMode = ( m_simulator->getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE or
-                          m_simulator->getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or
-                          m_simulator->getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE );
 
-   if ( m_opTemperatureMode ) {
+   if ( m_simulator->getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE ) {
 
        m_simulator->setOutputPropertyOption( HYDROSTATICPRESSURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
        m_simulator->setOutputPropertyOption( LITHOSTATICPRESSURE, Interface::SEDIMENTS_ONLY_OUTPUT );
@@ -101,29 +92,23 @@ bool DerivedPropertiesCalculator::compute() {
        m_simulator->setOutputPropertyOption( POROSITYVEC, Interface::SEDIMENTS_ONLY_OUTPUT );
        m_simulator->setOutputPropertyOption( BULKDENSITYVEC, Interface::SEDIMENTS_ONLY_OUTPUT );
        m_simulator->setOutputPropertyOption( PERMEABILITYVEC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-       m_simulator->setOutputPropertyOption( HORIZONTALPERMEABILITY, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+       m_simulator->setOutputPropertyOption( PERMEABILITYHVEC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
        m_simulator->setOutputPropertyOption( THCONDVEC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
        m_simulator->setOutputPropertyOption( DIFFUSIVITYVEC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-
-       m_simulator->setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-       m_simulator->setOutputPropertyOption( VES, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-       m_simulator->setOutputPropertyOption( MAXVES, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-       m_simulator->setOutputPropertyOption( PRESSURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-       m_simulator->setOutputPropertyOption( OVERPRESSURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-       m_simulator->setOutputPropertyOption( FAULTELEMENTS, Interface::SEDIMENTS_ONLY_OUTPUT );
    }
 
-   SnapshotList snapshots = *( m_simulator->getSnapshots( Interface::MAJOR ));
+   std::unique_ptr<Interface::SnapshotList> snapShotListPtr(m_simulator->getSnapshots( Interface::MAJOR ));
+   SnapshotList snapshots = *snapShotListPtr;
    sort( snapshots.begin(), snapshots.end(), snapshotSorter );
 
    Interface::PropertyList propertiesItems;
-   acquireProperties( m_simulator, *m_propertyManager, propertiesItems, m_propertyNames );
+   acquireProperties( *m_simulator, *m_propertyManager, propertiesItems, m_propertyNames );
 
    FormationSurfaceVector formationsSurfaceItems;
    StringVector formationNames;
-   acquireFormations( m_simulator, formationsSurfaceItems, formationNames );
-   acquireFormationSurfaces( m_simulator, formationsSurfaceItems, formationNames, true );
-   acquireFormationSurfaces( m_simulator, formationsSurfaceItems, formationNames, false );
+   acquireFormations( *m_simulator, formationsSurfaceItems, formationNames );
+   acquireFormationSurfaces( *m_simulator, formationsSurfaceItems, formationNames, true );
+   acquireFormationSurfaces( *m_simulator, formationsSurfaceItems, formationNames, false );
 
    SnapshotFormationSurfaceOutputPropertyValueMap allOutputPropertyValues;
    allocateAllProperties( formationsSurfaceItems, propertiesItems, snapshots, allOutputPropertyValues );
@@ -147,7 +132,6 @@ bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& 
    struct stat fileStatus;
    int fileError;
 
-   SnapshotList::iterator snapshotIter;
    FormationSurfaceVector::iterator formationIter;
 
    PetscLogDouble Accumulated_Saving_Time = 0;
@@ -157,10 +141,9 @@ bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& 
 
    PetscTime( & Start_Saving_Time );
 
-   for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter ) {
+   for ( const Snapshot * snapshot : snapshots ) {
 
       PetscTime( &Start_Time );
-      const Snapshot * snapshot = *snapshotIter;
 
       if( snapshot->getTime() > m_appctx->Age_Of_Basin () ) {
          continue;
@@ -197,7 +180,7 @@ bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& 
                continue;
             }
          }
-         DerivedProperties::outputSnapshotFormationData( m_simulator, snapshot, * formationIter, properties, allOutputPropertyValues );
+         DerivedProperties::outputSnapshotFormationData( *m_simulator, snapshot, * formationIter, properties, allOutputPropertyValues );
       }
       PetscTime( &Start_Time );
 
@@ -223,12 +206,10 @@ void DerivedPropertiesCalculator::allocateAllProperties( const FormationSurfaceV
                                                          const SnapshotList & snapshots,
                                                          SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues) {
 
-   SnapshotList::const_iterator snapshotIter;
    Interface::PropertyList::const_iterator propertyIter;
    FormationSurfaceVector::const_iterator formationSurfaceIter;
 
-   for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter ) {
-      const Interface::Snapshot * snapshot = *snapshotIter;
+   for ( const Interface::Snapshot * snapshot : snapshots ) {
 
       if( snapshot->getTime() > m_appctx->Age_Of_Basin () ) {
          continue;
@@ -250,7 +231,7 @@ void DerivedPropertiesCalculator::allocateAllProperties( const FormationSurfaceV
 
             const Interface::Property * property = *propertyIter;
 
-           if( allowOutput( property->getName(), formation, surface )) {
+           if( PropertyManager::getInstance().allowOutput( property->getName(), formation, surface )) {
               OutputPropertyValuePtr outputProperty =  DerivedProperties::allocateOutputProperty ( * m_propertyManager, property, snapshot, *formationSurfaceIter );
 
               if ( outputProperty != 0 ) {
@@ -263,45 +244,7 @@ void DerivedPropertiesCalculator::allocateAllProperties( const FormationSurfaceV
    }
 
 }
-//------------------------------------------------------------//
 
-bool DerivedPropertiesCalculator::allowOutput ( const string & propertyName,
-                                                const Interface::Formation * formation, const Interface::Surface * surface ) const {
-
-   if(( propertyName == "BrineDensity" or  propertyName == "BrineViscosity" ) and surface != 0 ) {
-      return false;
-   }
-   if( m_decompactionMode and ( propertyName == "BulkDensity" ) and surface == 0 ) {
-      return false;
-   }
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and
-                              dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
-
-   // The top of the crust is a part of the sediment
-   if( basementFormation and surface != 0 and ( propertyName == "Depth" or propertyName == "Temperature" ) ) {
-      if( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->isCrust() ) {
-         if( formation->getTopSurface() and ( formation->getTopSurface() == surface )) {
-            return true;
-         }
-      }
-   }
-
-   const string outputPropertyName = PropertyManager::getInstance ().findOutputPropertyName( propertyName );
-   OutputOption option = m_appctx->timefilter.getPropertyOutputOption( outputPropertyName );
-   Interface::PropertyOutputOption fastcauldronOption = m_simulator->getOutputPropertyOption ( outputPropertyName );
-
-   if( fastcauldronOption == Interface::NO_OUTPUT and option == NOOUTPUT ) {
-      return false;
-   }
-   if( basementFormation ) {
-      if( fastcauldronOption < Interface::SEDIMENTS_AND_BASEMENT_OUTPUT or option < SEDIMENTSPLUSBASEMENT ) {
-         return false;
-      }
-   }
-
-   return true;
-
-}
 //------------------------------------------------------------//
 
 void DerivedPropertiesCalculator::acquirePropertyNames( const PropListVec& propertyNames ) {
@@ -312,10 +255,14 @@ void DerivedPropertiesCalculator::acquirePropertyNames( const PropListVec& prope
 
    for ( propIter = propertyNames.begin(); propIter != propertyNames.end(); ++ propIter ) {
       pname = PropertyManager::getInstance ().findPropertyName( propertyListName ( * propIter ));
-      m_propertyNames.push_back( PropertyManager::getInstance ().findPropertyName( propertyListName ( * propIter )) );
+      m_propertyNames.push_back( pname );
    }
 
-   if( not m_decompactionMode ) {
+   const bool decompactionMode = ( m_simulator->getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE or
+                                   m_simulator->getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or
+                                   m_simulator->getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE );
+
+   if( !decompactionMode ) {
       m_propertyNames.push_back( "HorizontalPermeability" );
       m_propertyNames.push_back( "BrineDensity" );
       m_propertyNames.push_back( "BrineViscosity" );

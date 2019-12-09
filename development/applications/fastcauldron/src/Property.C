@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 
-Property::Property ( Interface::ProjectHandle * projectHandle, database::Record * record,
+Property::Property ( Interface::ProjectHandle& projectHandle, database::Record * record,
                      const string & userName, const string & cauldronName,
                      const string & unit, const Interface::PropertyType type,
                      const DataModel::PropertyAttribute attr, const DataModel::PropertyOutputAttribute attrOut ) :

@@ -28,7 +28,7 @@ namespace Genex6 {
    public :
 
       C1NodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
-                                DataAccess::Interface::ProjectHandle* projectHandle );
+                                DataAccess::Interface::ProjectHandle& projectHandle );
 
       ~C1NodeAdsorptionHistory ();
 
@@ -47,7 +47,7 @@ namespace Genex6 {
 
    /// \brief Allocator of a history object for the adsorption simulator.
    Genex6::NodeAdsorptionHistory* allocateC1NodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
-                                                                    DataAccess::Interface::ProjectHandle* projectHandle );
+                                                                    DataAccess::Interface::ProjectHandle& projectHandle );
 
 }
 

@@ -39,8 +39,8 @@ bool AllochMod::AllochthonousLithologySimulator::DistributionMapEarlierThan::ope
 
 //------------------------------------------------------------//
 
-AllochMod::AllochthonousLithologySimulator::AllochthonousLithologySimulator (database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, const ObjectFactory* factory)
-      : Interface::ProjectHandle (database, name, accessMode, factory)
+AllochMod::AllochthonousLithologySimulator::AllochthonousLithologySimulator (database::ProjectFileHandlerPtr database, const std::string & name, const ObjectFactory* factory)
+      : Interface::ProjectHandle (database, name, factory)
 {
   if ( allochthonousModellingRequired ()) {
      startActivity ( GeomorphRunStatus, getHighResolutionOutputGrid ());
@@ -78,7 +78,7 @@ void AllochMod::AllochthonousLithologySimulator::printOn (std::ostream & ostr) c
 
 AllochMod::AllochthonousLithologySimulator* AllochMod::AllochthonousLithologySimulator::CreateFrom ( const std::string & projectFileName, DataAccess::Interface::ObjectFactory* factory ) {
 
-   return dynamic_cast<AllochthonousLithologySimulator*>(Interface::OpenCauldronProject ( projectFileName, "rw", factory ));
+   return dynamic_cast<AllochthonousLithologySimulator*>(Interface::OpenCauldronProject ( projectFileName, factory ));
 }
 
 //------------------------------------------------------------//

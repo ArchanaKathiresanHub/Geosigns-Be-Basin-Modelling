@@ -26,13 +26,12 @@ using namespace DataAccess;
 
 
 CrustalThicknessCalculator* CrustalThicknessCalculatorFactory::produceProjectHandle ( database::ProjectFileHandlerPtr database,
-                                                                                      const string & name,
-                                                                                      const string & accessMode) const
+                                                                                      const string & name ) const
 {
-   return new CrustalThicknessCalculator ( database, name, accessMode, this );
+   return new CrustalThicknessCalculator ( database, name, this );
 }
 
-Ctc::CTCPropertyValue * CrustalThicknessCalculatorFactory::producePropertyValue( Interface::ProjectHandle *   projectHandle,
+Ctc::CTCPropertyValue * CrustalThicknessCalculatorFactory::producePropertyValue( Interface::ProjectHandle& projectHandle,
                                                                               database::Record *           record,
                                                                               const string &               name,
                                                                               const Interface::Property *  property,

@@ -25,7 +25,7 @@ namespace DataAccess
       class ReservoirOptions : public DAObject
       {
       public:
-         ReservoirOptions (ProjectHandle * projectHandle, database::Record * record);
+         ReservoirOptions (ProjectHandle& projectHandle, database::Record * record);
          ~ReservoirOptions (void);
 
          /// @return Boolean whether diffusion takes place inside traps
@@ -45,7 +45,7 @@ namespace DataAccess
          /// @return The minimum height for gas columns
          double getMinGasColumnHeight (void) const;
          /// @return The minimum capacity for the traps of this Reservoir
-         double getTrapCapacity (void) const;         
+         double getTrapCapacity (void) const;
       };
    }
 }

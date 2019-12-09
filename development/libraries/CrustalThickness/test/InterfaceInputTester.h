@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -111,6 +111,7 @@ namespace CrustalThickness
          /// @defgroup MockDataAccess
          ///    Mocks the DataAccess library and stores the UniTestData
          /// @{
+         std::unique_ptr< DataAccess::Interface::ProjectHandle > m_projectHandle;
          std::shared_ptr< MockCrustalThicknessData > m_ctcGlobalData;                                   ///< The mock CTCIoTbl data
          std::vector< std::shared_ptr< const CrustalThicknessRiftingHistoryData> > m_ctcRiftingDataVec; ///< The list of mock CTCRiftingHistoryIoTbl data
          /// @}

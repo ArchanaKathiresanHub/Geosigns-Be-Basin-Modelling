@@ -30,7 +30,7 @@ TEST(MixingPermeability, multiTest)
 
    GeoPhysics::ObjectFactory factory;
    ObjectFactory* factoryptr = &factory;
-   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >(DataAccess::Interface::OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
+   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >(DataAccess::Interface::OpenCauldronProject("MixingPermeabilityProject.project3d", factoryptr));
    int NumberOflithologies;
    int NumberOfIterations;
    CompoundLithologyComposition composition;

@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -23,7 +23,7 @@ namespace GeoPhysics {
 
    public :
 
-      FracturePressureCalculator ( DataAccess::Interface::ProjectHandle* projectHandle );
+      FracturePressureCalculator ( DataAccess::Interface::ProjectHandle& projectHandle );
 
       virtual ~FracturePressureCalculator ();
 
@@ -53,7 +53,7 @@ namespace GeoPhysics {
                           const double             lithostaticPressure,
                           const double             pressureAtSeaBottom,
                           const double             porePressure ) const;
-      
+
       /// Compute the fracture pressure.
       bool hasFractured ( const CompoundLithology* lithology,
                           const FluidType*         fluid,
@@ -64,7 +64,7 @@ namespace GeoPhysics {
                           const double             lithostaticPressure,
                           const double             porePressure ) const;
 
-	  // its a bad practice to send a reference of derefrenced pointer. Reviewer please remove the comment after review.
+    // its a bad practice to send a reference of derefrenced pointer. Reviewer please remove the comment after review.
       const DataAccess::Interface::FracturePressureFunctionParameters* getFracturePressureFunctionParameters () const;
 
    private :

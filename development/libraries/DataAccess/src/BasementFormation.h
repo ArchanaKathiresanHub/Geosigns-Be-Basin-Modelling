@@ -35,7 +35,7 @@ namespace DataAccess
             MANTLE_DEPOSITION = -2
          };
 
-         BasementFormation (ProjectHandle * projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName );
+         BasementFormation (ProjectHandle& projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName );
          ~BasementFormation (void);
 
          /// Return the Surface at the top of this BasementFormation
@@ -149,7 +149,7 @@ namespace DataAccess
          /// Internal function.
          GridMap * computeThicknessMap(void) const;
 
-      protected : 
+      protected :
 
          /// \brief The element refinement for basement layers.
          static const int DefaultBasementElementRefinement = 1;

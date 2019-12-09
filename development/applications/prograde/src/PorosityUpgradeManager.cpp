@@ -56,6 +56,6 @@ void Prograde::PorosityUpgradeManager::upgrade() {
       lithoDescription = m_model.lithologyManager().getDescription(lithoId);
       m_model.lithologyManager().setDescription(lithoId, modelConverter.upgradeDescription(lithoName, lithoDescription, porModel));
       m_model.lithologyManager().setPorosityModel(lithoId, modelConverter.upgradePorosityModel(lithoName, porModel),
-         modelConverter.upgradeModelParameters(lithoName, porModel, porModelPrms));
+         modelConverter.upgradeModelParameters(lithoName, porModel, porModelPrms));	  
    }
 }

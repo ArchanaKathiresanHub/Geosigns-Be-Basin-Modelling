@@ -22,7 +22,7 @@ TEST_F(QCScriptTest, testWriteScript)
   const std::string actualFile{"uaScript.casa"};
 
   casaWizard::ua::QCScript script(scenario);
-  script.writeScript();
+  EXPECT_TRUE(script.writeScript());
 
   expectFileEq(expectedFile, actualFile);
 }

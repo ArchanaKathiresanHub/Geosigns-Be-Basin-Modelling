@@ -23,7 +23,7 @@ namespace Genex6 {
       static const unsigned int DefaultPriority = 100;
 
       /// \brief Constructor.
-      AdsorptionSimulator ( DataAccess::Interface::ProjectHandle* projectHandle,
+      AdsorptionSimulator ( DataAccess::Interface::ProjectHandle& projectHandle,
                             const bool isManaged );
 
       /// \brief Destructor.
@@ -61,7 +61,7 @@ namespace Genex6 {
       virtual void setAdsorptionFunction ( AdsorptionFunction* newAdsorptionFunction );
 
       /// \brief return the objects project handle.
-      virtual DataAccess::Interface::ProjectHandle* getProjectHandle () const;
+      virtual DataAccess::Interface::ProjectHandle& getProjectHandle () const;
 
       /// \brief Set process priority.
       void setPriority ( const unsigned int newPriority );
@@ -92,7 +92,7 @@ namespace Genex6 {
 
    private :
 
-      DataAccess::Interface::ProjectHandle* m_projectHandle;
+      DataAccess::Interface::ProjectHandle& m_projectHandle;
       AdsorptionFunction*                        m_adsorptionFunction;
       unsigned int                               m_priority;
       bool                                       m_isManaged;
@@ -124,7 +124,7 @@ inline double Genex6::AdsorptionSimulator::getVLReferenceTemperature () const {
    return m_adsorptionFunction->getReferenceTemperature ();
 }
 
-inline DataAccess::Interface::ProjectHandle* Genex6::AdsorptionSimulator::getProjectHandle () const {
+inline DataAccess::Interface::ProjectHandle& Genex6::AdsorptionSimulator::getProjectHandle () const {
    return m_projectHandle;
 }
 

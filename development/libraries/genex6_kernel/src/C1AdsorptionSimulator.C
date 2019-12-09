@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "C1AdsorptionSimulator.h"
 
 // std library
@@ -66,11 +66,11 @@ const bool Genex6::C1AdsorptionSimulator::s_speciesIsSimulated  [ ComponentManag
      false, // C15PlusAroS
      false, // C15PlusSatS
      false, // C6Minus14SatS
-     false  // C6Minus14AroS 
+     false  // C6Minus14AroS
    };
 
-Genex6::C1AdsorptionSimulator::C1AdsorptionSimulator ( const SpeciesManager&                      speciesManager,
-                                                       DataAccess::Interface::ProjectHandle* projectHandle,
+Genex6::C1AdsorptionSimulator::C1AdsorptionSimulator (const SpeciesManager& speciesManager,
+                                                       DataAccess::Interface::ProjectHandle& projectHandle,
                                                        const bool isManaged ) :
    Genex6::AdsorptionSimulator ( projectHandle, isManaged ),
    m_speciesManager ( speciesManager ) {
@@ -88,15 +88,15 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
    // Pa.
    const double SurfacePressure = 1.01325e5;
-   
+
 
    const double thickness = simulatorState->GetThickness ();
-   const double inorganicDensity = getProjectHandle ()->getSGDensitySample ()->getDensity ();
+   const double inorganicDensity = getProjectHandle().getSGDensitySample ()->getDensity ();
 
    if ( thickness < 1.0e-3 ) {
       return;
    }
-                                      
+
    unsigned int k;
 
    double molarPhaseViscosity  [PhaseId::NUMBER_OF_PHASES];
@@ -165,7 +165,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    }
 
    if ( output ) {
-      cout << " c1 state: " 
+      cout << " c1 state: "
            << c1State->getExpelledMassTransient () << "  "
            << c1State->getFreeMol () << "  "
            << c1State->getAdsorpedMol () << "  "
@@ -185,8 +185,8 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    c1State->setAdsorptionCapacity ( gasCapacity );
 
    // Convert to moles/m3
-   expelledGasMol = expelledGas * 1000.0 / molarComponentMasses [ ComponentId::C1 ]; // In kg * 1000 / m3 / g / mol = mol / m3 
-   gasCapacityMol = gasCapacity * 42.306553; // In mol / m3 
+   expelledGasMol = expelledGas * 1000.0 / molarComponentMasses [ ComponentId::C1 ]; // In kg * 1000 / m3 / g / mol = mol / m3
+   gasCapacityMol = gasCapacity * 42.306553; // In mol / m3
 
    if ( gasCapacityMol >= adsorpedGasMol ) {
 
@@ -212,7 +212,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
          adsorpedGasMol += readsorpedMols;
 
          if ( output ) {
-            cout << "re-adsorped: " 
+            cout << "re-adsorped: "
                  <<  c1State->getRetained () << "  "
                  << retained << "  "
                  << retainedMols << "  "
@@ -224,7 +224,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
          }
 
          c1State->setRetained ( retained );
-      } 
+      }
 
    } else {
 
@@ -276,7 +276,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
       } else {
          freeGasMol += adsorpedGasMol - gasCapacityMol + expelledGasMol;
       }
-      
+
    }
 
    if ( porosity > 0.0 and freeGasMol > 0.0 ) {
@@ -339,7 +339,7 @@ const std::string& Genex6::C1AdsorptionSimulator::getFreeSpeciesName ( const CBM
 
 }
 
-Genex6::AdsorptionSimulator* Genex6::allocateC1AdsorptionSimulator ( DataAccess::Interface::ProjectHandle* projectHandle, 
+Genex6::AdsorptionSimulator* Genex6::allocateC1AdsorptionSimulator ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                      const SpeciesManager& speciesManager,
                                                                      const bool applyAdsorption,
                                                                      const bool isManaged ) {

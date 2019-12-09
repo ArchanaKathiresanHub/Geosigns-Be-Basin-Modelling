@@ -21,10 +21,10 @@ namespace DerivedProperties {
 
    public :
 
-      LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
+      LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
 
       /// \brief Calculate the lithostatic-pressure for the formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the lithostatic-pressure is requested.
       /// \param [in]  formation   The formation for which the lithostatic-pressure is requested.
@@ -37,17 +37,17 @@ namespace DerivedProperties {
                                      AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
       /// \brief Calculate the lithostatic-pressure for the basement formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the lithostatic-pressure is requested.
       /// \param [in]  formation   The formation for which the lithostatic-pressure is requested.
       /// \param [out] derivedProperties On exit will contain a single formation property, the lithostatic-pressure of the layer.
       /// \pre snapshot points to a valid snapshot age.
       /// \pre formation points to a valid formation.
-      virtual void calculateForBasement (       AbstractDerivedProperties::AbstractPropertyManager& propManager,
-                                          const DataModel::AbstractSnapshot*                        snapshot,
-                                          const DataModel::AbstractFormation*                       formation,
-                                                AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
+      void calculateForBasement (       AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                                  const DataModel::AbstractSnapshot*                        snapshot,
+                                  const DataModel::AbstractFormation*                       formation,
+                                        AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
       /// \brief Determine if the property is computable for the specific combination of formation and snapshot.
       virtual bool isComputable ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
@@ -72,7 +72,7 @@ namespace DerivedProperties {
                                                    const DataModel::AbstractFormation*                       formationAbove,
                                                          DerivedFormationPropertyPtr&                        lithostaticPressure ) const;
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
 
       bool m_hydrostaticDecompactionMode;
    };
@@ -80,4 +80,4 @@ namespace DerivedProperties {
 
 }
 
-#endif 
+#endif

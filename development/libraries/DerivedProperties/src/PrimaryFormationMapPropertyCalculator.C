@@ -20,25 +20,12 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::PrimaryFormationMapPropertyCalculator::PrimaryFormationMapPropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
-                                                                                                  const DataModel::AbstractProperty* property ) :
-   m_property ( property )
+DerivedProperties::PrimaryFormationMapPropertyCalculator::PrimaryFormationMapPropertyCalculator ( const DataModel::AbstractProperty* property,
+                                                                                                  const DataAccess::Interface::PropertyValueList& propertyValues ) :
+   m_property ( property ),
+   m_formationPropertyValues( propertyValues )
 {
-
-   DataAccess::Interface::PropertyValueList* formationProperties = projectHandle->getPropertyValues ( DataAccess::Interface::FORMATION, 0, 0, 0, 0, 0, DataAccess::Interface::MAP );
    addPropertyName ( property->getName ());
-
-   for ( size_t i = 0; i < formationProperties->size (); ++i ) {
-      const DataAccess::Interface::PropertyValue* propVal = (*formationProperties)[ i ];
-
-      if ( propVal->getProperty () == m_property and propVal->getSurface () == 0 and propVal->getFormation () != 0 ) {
-         m_snapshots.insert ( propVal->getSnapshot ());
-         m_formationPropertyValues.push_back ( propVal );
-      }
-
-   }
-
-   delete formationProperties;
 }
 
 DerivedProperties::PrimaryFormationMapPropertyCalculator::~PrimaryFormationMapPropertyCalculator () {
@@ -84,7 +71,3 @@ bool DerivedProperties::PrimaryFormationMapPropertyCalculator::isComputable ( co
 
    return false;
 }
-
-const DataModel::AbstractSnapshotSet& DerivedProperties::PrimaryFormationMapPropertyCalculator::getSnapshots () const {
-   return m_snapshots;
-} 

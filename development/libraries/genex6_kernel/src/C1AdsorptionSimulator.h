@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #ifndef _GENEX6_KERNEL__C1_ADSORPTION_SIMULATOR_H_
 #define _GENEX6_KERNEL__C1_ADSORPTION_SIMULATOR_H_
 
@@ -27,7 +27,7 @@ namespace Genex6 {
    const std::string C1AdsorptionSimulatorId = "C1AdsorptionSimulator";
 
    /// \brief Allocates an adsorption simulator.
-   AdsorptionSimulator* allocateC1AdsorptionSimulator ( DataAccess::Interface::ProjectHandle* projectHandle,
+   AdsorptionSimulator* allocateC1AdsorptionSimulator ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                         const SpeciesManager& speciesManager,
                                                         const bool applyAdsorption,
                                                         const bool isManaged );
@@ -38,8 +38,8 @@ namespace Genex6 {
 
    public :
 
-      C1AdsorptionSimulator ( const SpeciesManager&                      speciesManager,
-                              DataAccess::Interface::ProjectHandle* projectHandle,
+      C1AdsorptionSimulator ( const SpeciesManager& speciesManager,
+                              DataAccess::Interface::ProjectHandle& projectHandle,
                               const bool isManaged );
 
       /// Perform the adsorption simulation.

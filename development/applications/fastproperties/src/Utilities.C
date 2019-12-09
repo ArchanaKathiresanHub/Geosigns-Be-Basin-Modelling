@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -14,18 +14,18 @@
 
 //------------------------------------------------------------//
 
-std::shared_ptr<CauldronIO::FormationInfoList> DerivedProperties::getDepthFormations( GeoPhysics::ProjectHandle* projectHandle, const Snapshot* snapShot) {
+std::shared_ptr<CauldronIO::FormationInfoList> DerivedProperties::getDepthFormations( GeoPhysics::ProjectHandle& projectHandle, const Snapshot* snapShot) {
 
     std::shared_ptr<CauldronIO::FormationInfoList> depthFormations(new CauldronIO::FormationInfoList());
 
     // Find the depth property
-    const Interface::Property* depthProp = projectHandle->findProperty("Depth");
+    const Interface::Property* depthProp = projectHandle.findProperty("Depth");
     if (!depthProp) return depthFormations;
 
     // Find the depth property formations for this snapshot
-    std::shared_ptr<PropertyValueList> propValues( projectHandle->getModellingMode() == Interface::MODE1D ?
-                                                   projectHandle->getPropertyValues(SURFACE, depthProp, snapShot, 0, 0, 0, /*MAP|*/ VOLUME) :
-                                                   projectHandle->getPropertyValues(FORMATION, depthProp, snapShot, 0, 0, 0, VOLUME));
+    std::shared_ptr<PropertyValueList> propValues( projectHandle.getModellingMode() == Interface::MODE1D ?
+                                                   projectHandle.getPropertyValues(SURFACE, depthProp, snapShot, 0, 0, 0, /*MAP|*/ VOLUME) :
+                                                   projectHandle.getPropertyValues(FORMATION, depthProp, snapShot, 0, 0, 0, VOLUME));
 
     if (propValues->size() == 0) return depthFormations;
 
@@ -53,7 +53,7 @@ std::shared_ptr<CauldronIO::FormationInfoList> DerivedProperties::getDepthFormat
         /// in a DistributedGridmap, depth is inverse to k index
         //   SerialGridMap* sGridmap = static_cast<SerialGridMap*>(map);
         info->reverseDepth = true; //sGridmap == nullptr;
-        
+
         depthFormations->push_back(info);
 
         map->restoreData();
@@ -75,20 +75,20 @@ std::shared_ptr<CauldronIO::FormationInfoList> DerivedProperties::getDepthFormat
 void DerivedProperties::updateVolumeDataConstantValue( shared_ptr<CauldronIO::VolumeData>& volDataNew )
 {
    // to do: we  can set min and max value here
-   volDataNew->retrieve();    
-   
+   volDataNew->retrieve();
+
    const std::shared_ptr<Geometry3D>& geometry = volDataNew->getGeometry();
-   
+
    size_t allElements = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
    float minValue = CauldronIO::DefaultUndefinedValue;
    float maxValue = CauldronIO::DefaultUndefinedValue;
    bool foundUndefined = false;
-   
+
    const float* internaldata = volDataNew->getVolumeValues_IJK();
    if( internaldata == NULL ) {
       internaldata = volDataNew->getVolumeValues_KIJ();
    }
-   
+
    for (size_t i = 0; i < allElements; i++)
    {
       float val = internaldata[i];
@@ -102,10 +102,10 @@ void DerivedProperties::updateVolumeDataConstantValue( shared_ptr<CauldronIO::Vo
          foundUndefined = true;
       }
    }
-   
+
    if ((minValue == maxValue and not foundUndefined) or (minValue == DefaultUndefinedValue and maxValue == DefaultUndefinedValue)) {
       volDataNew->setConstantValue( minValue );
-   } 
+   }
 }
 
 //------------------------------------------------------------//
@@ -126,12 +126,12 @@ CauldronIO::SnapShotKind DerivedProperties::getSnapShotKind(const Interface::Sna
 
 //------------------------------------------------------------//
 
-std::shared_ptr<SnapShot> DerivedProperties::getSnapShot( std::shared_ptr< CauldronIO::Project>& project, const double age ) 
+std::shared_ptr<SnapShot> DerivedProperties::getSnapShot( std::shared_ptr< CauldronIO::Project>& project, const double age )
 {
 
    for(auto& snapShot : project->getSnapShots())
       if (snapShot->getAge() == age) return snapShot;
-   
+
    return std::shared_ptr<SnapShot>();
 }
 
@@ -169,7 +169,7 @@ void DerivedProperties::listProperties(const std::shared_ptr<SnapShot>& snapShot
          std::cout << "Strat Surface: " << surfaceIO->getName() << std::endl;
          if(  surfaceIO->getPropertySurfaceDataList().size() > 0 ) {
             const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
-            
+
             if (valueMaps.size() > 0)
             {
                for(auto& propertySurfaceData : valueMaps)
@@ -184,7 +184,7 @@ void DerivedProperties::listProperties(const std::shared_ptr<SnapShot>& snapShot
          std::cout << "Strat Formation: " << formationIO->getName() << std::endl;
          if(  formationIO->getPropertySurfaceDataList().size() > 0 ) {
             const PropertySurfaceDataList valueMaps = formationIO->getPropertySurfaceDataList();
-            
+
             if (valueMaps.size() > 0)
             {
                for(auto& propertySurfaceData : valueMaps)
@@ -194,7 +194,7 @@ void DerivedProperties::listProperties(const std::shared_ptr<SnapShot>& snapShot
             }
          }
       }
- 
+
    }
 
    const CauldronIO::SurfaceList surfaces = snapShot->getSurfaceList();
@@ -204,12 +204,12 @@ void DerivedProperties::listProperties(const std::shared_ptr<SnapShot>& snapShot
       {
          std::cout << "Surface: " << surfaceIO->getName() << std::endl;
          const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
-         
+
          if (valueMaps.size() > 0)
          {
             for(auto& propertySurfaceData : valueMaps)
             {
-               std::cout << "     " << propertySurfaceData.first->getName() << " " << ( propertySurfaceData.second->getFormation() != 0 ? 
+               std::cout << "     " << propertySurfaceData.first->getName() << " " << ( propertySurfaceData.second->getFormation() != 0 ?
                                                                                         propertySurfaceData.second->getFormation()->getName() : "" ) << endl;
             }
          }
@@ -224,7 +224,7 @@ void DerivedProperties::listProperties(const std::shared_ptr<SnapShot>& snapShot
         {
            std::cout << "Property volume: " << propVolume.first->getName() << std::endl;
         }
-        
+
       }
    }
    FormationVolumeList formVolumes = snapShot->getFormationVolumeList();
@@ -234,11 +234,11 @@ void DerivedProperties::listProperties(const std::shared_ptr<SnapShot>& snapShot
       {
          if (formVolume.second->getPropertyVolumeDataList().size() > 0)
          {
-            
+
             const std::shared_ptr<Volume> subVolume = formVolume.second;
             const std::shared_ptr<const CauldronIO::Formation> subFormation = formVolume.first;
             std::cout << "Formation volume: " << formVolume.first->getName() << endl;
-           
+
             if (subVolume->getPropertyVolumeDataList().size() > 0)
             {
                for(auto& propVolume : subVolume->getPropertyVolumeDataList())
@@ -275,7 +275,7 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
        {
           // Data storage
           const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
-          
+
           if (valueMaps.size() > 0)
           {
              for(auto& propertySurfaceData : valueMaps)
@@ -305,7 +305,7 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
         }
       }
    }
-   
+
    FormationVolumeList formVolumes = snapShot->getFormationVolumeList();
    if (formVolumes.size() > 0)
    {
@@ -316,10 +316,10 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
          {
             // General properties
             pugi::xml_node node;
-            
+
             const std::shared_ptr<Volume> subVolume = formVolume.second;
             const std::shared_ptr<const CauldronIO::Formation> subFormation = formVolume.first;
-            
+
             if (volume->getPropertyVolumeDataList().size() > 0)
             {
                pugi::xml_node node;
@@ -341,12 +341,12 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
     surfaceDataStore.flush();
     volumeStore.flush();
     snapShot->release();
- 
+
  }
 
 //------------------------------------------------------------//
-void DerivedProperties::minmax_op( float *invec, float *inoutvec, int *len, MPI_Datatype *datatype ) {  
-   
+void DerivedProperties::minmax_op( float *invec, float *inoutvec, int *len, MPI_Datatype *datatype ) {
+
    // Find the minimum (0 index) and maximum (1 index)
    if( invec[0] != DefaultUndefinedValue and inoutvec[0] != DefaultUndefinedValue ) {
       inoutvec[0] = min(invec[0], inoutvec[0]);
@@ -361,8 +361,8 @@ void DerivedProperties::minmax_op( float *invec, float *inoutvec, int *len, MPI_
 }
 
 //------------------------------------------------------------//
-void DerivedProperties::minmaxint_op( int *invec, int *inoutvec, int *len, MPI_Datatype *datatype ) {  
-   
+void DerivedProperties::minmaxint_op( int *invec, int *inoutvec, int *len, MPI_Datatype *datatype ) {
+
    // Find the minimum (0 index) and maximum (1 index)
    inoutvec[0] = min(invec[0], inoutvec[0]);
    inoutvec[1] = max(invec[1], inoutvec[1]);

@@ -42,7 +42,7 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
 
    if (snapshots.empty())
    {
-      const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot(0);
+      const Snapshot * zeroSnapshot = getProjectHandle().findSnapshot(0);
 
       snapshots.push_back(zeroSnapshot);
    }
@@ -58,7 +58,7 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
 
       if (snapshot->getFileName () != "")
       {
-         ibs::FilePath fileName(m_projectHandle->getFullOutputDir ());
+         ibs::FilePath fileName(getProjectHandle().getFullOutputDir ());
          fileName << snapshot->getFileName ();
          fileError = stat (fileName.cpath(), &fileStatus);
 
@@ -96,7 +96,7 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
             if (not m_projectProperties or (m_projectProperties and allowOutput(property->getName(), formation, surface)))
             {
                resetProjectActivityGrid (property);
-               OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty (* m_propertyManager, property, snapshot, * formationIter, m_basement);
+               OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty (getPropertyManager(), property, snapshot, * formationIter, m_basement);
                resetProjectActivityGrid ();
 
                if (outputProperty != 0)
@@ -121,19 +121,19 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
             }
          }
 
-         DerivedProperties::outputSnapshotFormationData(m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues);
+         DerivedProperties::outputSnapshotFormationData(getProjectHandle(), snapshot, * formationIter, properties, allOutputPropertyValues);
       }
 
       removeProperties(snapshot, allOutputPropertyValues);
-      m_propertyManager->removeProperties(snapshot);
+      getPropertyManager().removeProperties(snapshot);
 
       displayProgress(snapshot->getFileName (), m_startTime, "Start saving ");
 
-      m_projectHandle->continueActivity();
+      getProjectHandle().continueActivity();
 
       displayProgress(snapshot->getFileName (), m_startTime, "Saving is finished for ");
 
-      m_projectHandle->deletePropertiesValuesMaps (snapshot);
+      getProjectHandle().deletePropertiesValuesMaps (snapshot);
 
       StatisticsHandler::update ();
    }
@@ -154,14 +154,14 @@ PropertyOutputOption HdfPropertiesCalculator::checkTimeFilter3D (const string & 
    }
    if (name == "FracturePressure")
    {
-      if (m_projectHandle->getRunParameters ()->getFractureType () == "None")
+      if (getProjectHandle().getRunParameters ()->getFractureType () == "None")
       {
          return Interface::NO_OUTPUT;
       }
    }
    if (name == "FaultElements")
    {
-      if (m_projectHandle->getBasinHasActiveFaults ())
+      if (getProjectHandle().getBasinHasActiveFaults ())
       {
          return Interface::SEDIMENTS_ONLY_OUTPUT;
       }
@@ -172,9 +172,9 @@ PropertyOutputOption HdfPropertiesCalculator::checkTimeFilter3D (const string & 
    }
    if (name == "HorizontalPermeability")
    {
-      const Interface::OutputProperty* permeability = m_projectHandle->findTimeOutputProperty ("PermeabilityVec");
+      const Interface::OutputProperty* permeability = getProjectHandle().findTimeOutputProperty ("PermeabilityVec");
       const Interface::PropertyOutputOption permeabilityOption = (permeability == 0 ? Interface::NO_OUTPUT : permeability->getOption ());
-      const Interface::OutputProperty* hpermeability = m_projectHandle->findTimeOutputProperty ("HorizontalPermeability");
+      const Interface::OutputProperty* hpermeability = getProjectHandle().findTimeOutputProperty ("HorizontalPermeability");
       const Interface::PropertyOutputOption hpermeabilityOption = (hpermeability == 0 ? Interface::NO_OUTPUT : hpermeability->getOption ());
 
       if (hpermeabilityOption  == Interface::NO_OUTPUT and permeability != 0)
@@ -187,7 +187,7 @@ PropertyOutputOption HdfPropertiesCalculator::checkTimeFilter3D (const string & 
       }
    }
 
-   const Interface::OutputProperty * property = m_projectHandle->findTimeOutputProperty(name);
+   const Interface::OutputProperty * property = getProjectHandle().findTimeOutputProperty(name);
 
    if (property != 0)
    {
@@ -296,11 +296,11 @@ bool HdfPropertiesCalculator::copyFiles() {
    PetscTime(&StartMergingTime);
    bool status = true;
 
-   const std::string& directoryName = m_projectHandle->getOutputDir ();
+   const std::string& directoryName = getProjectHandle().getOutputDir ();
 
    PetscPrintf (PETSC_COMM_WORLD, "Copy output files ...\n");
 
-   SnapshotList * snapshots = m_projectHandle->getSnapshots(MAJOR | MINOR);
+   SnapshotList * snapshots = getProjectHandle().getSnapshots(MAJOR | MINOR);
    SnapshotList::iterator snapshotIter;
 
    for (snapshotIter = snapshots->begin(); snapshotIter != snapshots->end(); ++snapshotIter)
@@ -311,7 +311,7 @@ bool HdfPropertiesCalculator::copyFiles() {
       {
          continue;
       }
-      ibs::FilePath filePathName(m_projectHandle->getProjectPath ());
+      ibs::FilePath filePathName(getProjectHandle().getProjectPath ());
       filePathName << directoryName << snapshot->getFileName ();
 
       displayProgress(snapshot->getFileName (), StartMergingTime, "Copy ");
@@ -332,7 +332,7 @@ bool HdfPropertiesCalculator::copyFiles() {
    }
 
    string fileName = m_activityName + "_Results.HDF" ;
-   ibs::FilePath filePathName(m_projectHandle->getProjectPath ());
+   ibs::FilePath filePathName(getProjectHandle().getProjectPath ());
    filePathName <<  directoryName << fileName;
 
    displayProgress(fileName, StartMergingTime, "Copy ");

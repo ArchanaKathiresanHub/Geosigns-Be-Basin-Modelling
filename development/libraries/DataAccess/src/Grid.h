@@ -131,6 +131,7 @@ namespace DataAccess
       };
 
       inline bool operator==(const Grid & Grid1, const Grid & Grid2) { return Grid1.hasSameGridding( Grid2 ); }
+      inline bool operator!=(const Grid & Grid1, const Grid & Grid2) { return !(Grid1==Grid2); }
    }
 }
 

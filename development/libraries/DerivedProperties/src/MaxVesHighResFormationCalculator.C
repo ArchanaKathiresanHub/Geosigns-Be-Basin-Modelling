@@ -15,21 +15,22 @@
 #include "GeoPhysicsFormation.h"
 #include "SimulationDetails.h"
 #include "IndirectFormationProperty.h"
+#include "PropertyRetriever.h"
 #include "Surface.h"
 #include "Snapshot.h"
 #include "NumericFunctions.h"
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::MaxVesHighResFormationCalculator::MaxVesHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle ) :
+DerivedProperties::MaxVesHighResFormationCalculator::MaxVesHighResFormationCalculator( const GeoPhysics::ProjectHandle& projectHandle ) :
    m_projectHandle( projectHandle ),
-   m_isSubsampled( ! ((*(m_projectHandle->getLowResolutionOutputGrid())) == (*(m_projectHandle->getHighResolutionOutputGrid()))) )
+   m_isSubsampled( (*(m_projectHandle.getLowResolutionOutputGrid())) != (*(m_projectHandle.getHighResolutionOutputGrid())) )
 {
    try
    {
       addPropertyName( "MaxVesHighRes" );
 
-      const DataAccess::Interface::SimulationDetails * simulationDetails = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+      const DataAccess::Interface::SimulationDetails * simulationDetails = m_projectHandle.getDetailsOfLastSimulation ( "fastcauldron" );
 
       if( simulationDetails == 0 )
       {
@@ -128,7 +129,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
       const DataModel::AbstractProperty * const maxVesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
       assert( maxVesHighResProperty != 0 );
 
-      DerivedFormationPropertyPtr maxVesHighRes = 
+      DerivedFormationPropertyPtr maxVesHighRes =
          DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( maxVesHighResProperty,
                                                                                        snapshot,
                                                                                        formation,
@@ -143,19 +144,23 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
       const unsigned int firstK = maxVesHighRes->firstK();
       const unsigned int lastK  = maxVesHighRes->lastK();
 
-      const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle->findPreviousSnapshot( snapshot->getTime() );
+      const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle.findPreviousSnapshot( snapshot->getTime() );
       // Check snapshot. It's not possible to ask for this property at a snapshot age earlier than the formation deposition age
-      if( prevSnapshot != 0 and 
+      if( prevSnapshot != 0 and
           prevSnapshot->getTime() > currentFormation->getBottomSurface()->getSnapshot()->getTime() )
       {
          throw formattingexception::GeneralException() << "Invalid snapshot provided";
       }
       FormationPropertyPtr previousMaxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, prevSnapshot, formation );
 
+      PropertyRetriever previousMaxVesHighResRetriever( previousMaxVesHighRes );
+
       const DataModel::AbstractProperty * const vesHighResProperty = propertyManager.getProperty( "VesHighRes" );
       assert( vesHighResProperty != 0 );
       FormationPropertyPtr currentVesHighRes = propertyManager.getFormationProperty( vesHighResProperty, snapshot, formation );
       assert( currentVesHighRes != 0 );
+
+      PropertyRetriever currentVesHighResRetriever( currentVesHighRes );
 
       // If the previous snapshot is the deposition snapshot of the current formation
       // the max VES is the VES itself
@@ -167,7 +172,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
          {
             for( unsigned int j = firstJ; j <= lastJ; ++j )
             {
-               if( m_projectHandle->getNodeIsValid(i, j) )
+               if( m_projectHandle.getNodeIsValid(i, j) )
                {
                   for( unsigned int k = firstK; k <= lastK; ++k )
                   {
@@ -190,7 +195,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
          {
             for( unsigned int j = firstJ; j <= lastJ; ++j )
             {
-               if( m_projectHandle->getNodeIsValid(i, j) )
+               if( m_projectHandle.getNodeIsValid(i, j) )
                {
                   for( unsigned int k = firstK; k <= lastK; ++k )
                   {

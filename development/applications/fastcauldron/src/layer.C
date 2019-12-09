@@ -80,7 +80,7 @@ using Interface::Y_COORD;
 
 //------------------------------------------------------------//
 
-LayerProps::LayerProps ( Interface::ProjectHandle * projectHandle,
+LayerProps::LayerProps ( Interface::ProjectHandle& projectHandle,
                          database::Record *              record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::GeoPhysicsFormation ( projectHandle, record ),
@@ -875,7 +875,7 @@ bool LayerProps::setVec(Vec& propertyVector, const double propertyValue){
 }
 
 int  LayerProps::Get_TimeIo_DepoSeq ( const SurfacePosition Position,
-				      const bool            Property_Is_A_Vector ) {
+              const bool            Property_Is_A_Vector ) {
 
   int Surface_Depo_Seq;
 
@@ -954,7 +954,7 @@ bool LayerProps::propagateVec(DM from_da, DM to_da, Vec from_vec, Vec to_vec)
     for (int j = from_ys; j < from_ys+from_ym; j++)
       //Changed `k = from_zm' to `k = from_zs' OFM
       for (int k = from_zs; k < from_zs+kmax; k++)
-	to_array[k][j][i] = from_array[k][j][i];
+  to_array[k][j][i] = from_array[k][j][i];
 
   ierr = DMDAVecRestoreArray(from_da, from_vec,  &from_array);
   CHKERRQ(ierr);
@@ -1110,11 +1110,11 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
       double SomeLargeValue = 1.0e10;
 
       // The map could be filled with any value since it is over-written anyway with the correct "Boolean" value.
-      Interface::GridMap* nodeIsValid = m_projectHandle->getFactory ()->produceGridMap ( 0, 0,
-                                                                                         m_projectHandle->getActivityOutputGrid (),
+      Interface::GridMap* nodeIsValid = getProjectHandle().getFactory ()->produceGridMap ( 0, 0,
+                                                                                         getProjectHandle().getActivityOutputGrid (),
                                                                                          10.0 );
-      Interface::GridMap* vre = m_projectHandle->getFactory ()->produceGridMap ( 0, 0,
-                                                                                 m_projectHandle->getActivityOutputGrid (),
+      Interface::GridMap* vre = getProjectHandle().getFactory ()->produceGridMap ( 0, 0,
+                                                                                 getProjectHandle().getActivityOutputGrid (),
                                                                                  SomeLargeValue );
 
 
@@ -1759,7 +1759,7 @@ void LayerProps::setAllochthonousLithologyMap ( AppCtx*         basinModel,
 
   PETSC_3D_Array allochthonousLithologies;
 
-  DMDAGetCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   DMCreateGlobalVector ( layerDA, &allochthonousLithologyMap );
   VecSet ( allochthonousLithologyMap, CauldronNoDataValue );
@@ -1900,7 +1900,7 @@ void LayerProps::interpolateProperty ( AppCtx*               basinModel,
 void LayerProps::interpolateProperty (       AppCtx*                  basinModel,
                                        const double                   currentTime,
                                        const bool                     doingHighResDecompaction,
-                                       const PropertyList             property ) {
+                                       const PropertyIdentifier&             property ) {
 
 
   if ( ! isSediment () || vesInterpolator == nullptr ) {

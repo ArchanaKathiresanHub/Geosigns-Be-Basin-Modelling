@@ -25,8 +25,8 @@
 #include <cstring>
 
 /// \brief method to retrieve data on a separate thread
-void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, 
-    boost::atomic<bool>* done, std::shared_ptr<CauldronIO::Project>& project)
+void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue,
+		boost::atomic<bool>* done, std::shared_ptr<CauldronIO::Project>& project)
 {
 	int value;
 	while (!*done) {
@@ -36,13 +36,13 @@ void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData
 			assert(!data->isRetrieved());
 			try
 			{
-                data->retrieve();
-            }
+								data->retrieve();
+						}
 			catch (CauldronIO::CauldronIOException&)
 			{
-                // Find out what data did not load
-                std::cout << "Basin_Error: Data " << value << " failed to load: ";
-                CauldronIO::VisualizationUtils::findAndOutputData(data, project);
+								// Find out what data did not load
+								std::cout << "Basin_Error: Data " << value << " failed to load: ";
+								CauldronIO::VisualizationUtils::findAndOutputData(data, project);
 			}
 		}
 	}
@@ -51,7 +51,7 @@ void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData
 	{
 		CauldronIO::VisualizationIOData* data = allData->at(value);
 		assert(!data->isRetrieved());
-    
+
         try
         {
             data->retrieve();
@@ -170,12 +170,12 @@ int main(int argc, char ** argv)
             std::cout << "Starting import from XML" << endl;
             shared_ptr<CauldronIO::Project> project = CauldronIO::ImportFromXML::importFromXML(xmlName);
 
-            timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+						timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
 			std::cout << "Finished import in " << timeInSeconds << " seconds " << endl;
 
-            // Retrieve data
+						// Retrieve data
 			std::cout << "Retrieving data" << endl;
-            start = clock();
+						start = clock();
 
 			std::cout << "Retrieving input data" << endl;
 			project->retrieveStratigraphyTable();
@@ -214,7 +214,7 @@ int main(int argc, char ** argv)
                 snapShot->release();
             }
 
-            timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+						timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
 			std::cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
 
             return 0;
@@ -231,45 +231,45 @@ int main(int argc, char ** argv)
             clock_t start = clock();
             float timeInSeconds;
 
-            // Open the projectHandle
+						// Open the projectHandle
 			std::cout << "Opening project3D file " << endl;
-            shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
-            shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(projectFileName, "r", factory.get()));
-            if (!projectHandle)
-            {
-                cerr << "Could not open the project3D file" << endl;
-                return 0;
-            }
-            timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+						shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
+						unique_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(projectFileName, factory.get()));
+						if (!projectHandle)
+						{
+								cerr << "Could not open the project3D file" << endl;
+								return 0;
+						}
+						timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
 			std::cout << "Finished opening project3D file in " << timeInSeconds << " seconds " << endl;
 			start = clock();
 
-            // Import from ProjectHandle
+						// Import from ProjectHandle
 			std::cout << "Importing from project handle (requires reading depth formations)" << endl;
-			shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, verbose);
-            timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+			shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(*projectHandle, verbose);
+						timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
 			std::cout << "Finished import in " << timeInSeconds << " seconds " << endl;
 
             if (mode == "-import-projectHandle")
             {
                 // Retrieve data
-				std::cout << "Retrieving data" << endl;
+        std::cout << "Retrieving data" << endl;
                 start = clock();
 
                 project->retrieveStratigraphyTable();
 
                 for (const std::shared_ptr<CauldronIO::SnapShot>& snapShot : project->getSnapShots())
                 {
-					std::vector < CauldronIO::VisualizationIOData* > data = snapShot->getAllRetrievableData();
-					CauldronIO::VisualizationUtils::retrieveAllData(data, numThreads);
-					snapShot->release();
+          std::vector < CauldronIO::VisualizationIOData* > data = snapShot->getAllRetrievableData();
+          CauldronIO::VisualizationUtils::retrieveAllData(data, numThreads);
+          snapShot->release();
                 }
 
-                timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+								timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
 				std::cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
-            }
-            else // mode is convert
-            {
+						}
+						else // mode is convert
+						{
 				// Load existing XML project if needed
 				shared_ptr<CauldronIO::Project> projectExisting;
 				if (!extendXMLfile.empty())
@@ -288,21 +288,21 @@ int main(int argc, char ** argv)
 						exit(1);
 					}
 				}
-				
+
 				// Export to native format: it will retrieve data when needed
 				std::cout << "Writing to new format" << endl;
-                start = clock();
+								start = clock();
 
                 // Check for explicit output path
                 ibs::FilePath absPath(projectFileName);
-				if (!outputDirStr.empty())
+        if (!outputDirStr.empty())
                 {
-					absPath = ibs::FilePath(outputDirStr) << absPath.fileName();
+          absPath = ibs::FilePath(outputDirStr) << absPath.fileName();
                 }
 
                 CauldronIO::ExportToXML::exportToXML(project, projectExisting, absPath.path(), numThreads, center);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-				std::cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
+        std::cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
             }
 
             return 0;

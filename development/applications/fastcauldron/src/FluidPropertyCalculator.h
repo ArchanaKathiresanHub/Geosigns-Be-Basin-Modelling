@@ -2,7 +2,6 @@
 #define _FASTCAULDRON__FLUID__PROPERTY__CALCULATOR__H_
 
 #include "layer.h"
-#include "CompoundLithologyArray.h"
 #include "Property.h"
 #include "PropertyValue.h"
 #include "OutputPropertyMap.h"
@@ -28,7 +27,7 @@ public :
 
    void allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties );
 
-   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+   bool operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                            OutputPropertyMap::PropertyValueList&  propertyValues );
 
    bool initialise ( OutputPropertyMap::PropertyValueList& propertyValues );
@@ -43,10 +42,10 @@ private :
     OutputPropertyMap* m_pressure;
    OutputPropertyMap* m_temperature;
 
-}; 
+};
 
 
-OutputPropertyMap* allocateFluidPropertyVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateFluidPropertyVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot );
 
 
 
@@ -73,12 +72,12 @@ OutputPropertyMap* allocateFluidPropertyVolumeCalculator ( const PropertyList pr
 /*    /// Default molar masses, kg/mol. */
 /*    PVTComponents m_defaultMolarMasses; */
 
-   
+
 /*    OutputPropertyMap* m_pressure; */
 /*    OutputPropertyMap* m_temperature; */
 /* };  */
 
 
-/* OutputPropertyMap* allocateFluidPropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot); */
+/* OutputPropertyMap* allocateFluidPropertyCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot); */
 
 #endif

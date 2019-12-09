@@ -25,7 +25,7 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::BrineViscosityCalculator::BrineViscosityCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) :
+DerivedProperties::BrineViscosityCalculator::BrineViscosityCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) :
    m_projectHandle ( projectHandle )
 {
    addPropertyName ( "BrineViscosity" );
@@ -49,27 +49,27 @@ void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyMa
    }
 
    const DataModel::AbstractProperty* brineViscosityProperty = propertyManager.getProperty ( getPropertyNames ()[ 0 ]);
-   DerivedFormationPropertyPtr brineViscosity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( brineViscosityProperty, snapshot, formation, 
+   DerivedFormationPropertyPtr brineViscosity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( brineViscosityProperty, snapshot, formation,
                                                                                                                               propertyManager.getMapGrid (),
                                                                                                                               currentFormation->getMaximumNumberOfElements() + 1 ));
 
    const DataModel::AbstractProperty* temperatureProperty = propertyManager.getProperty ( "Temperature" );
    FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty, snapshot, formation );
-   
+
    PropertyRetriever temperatureRetriever ( temperature );
-   
+
    const DataModel::AbstractProperty* pressureProperty = propertyManager.getProperty ( "Pressure" );
    FormationPropertyPtr pressure = propertyManager.getFormationProperty ( pressureProperty, snapshot, formation );
 
    PropertyRetriever pressureRetriever ( pressure );
-  
+
    const double undefinedValue = brineViscosity->getUndefinedValue ();
- 
+
    for ( unsigned int i = brineViscosity->firstI ( true ); i <= brineViscosity->lastI ( true ); ++i ) {
 
       for ( unsigned int j = brineViscosity->firstJ ( true ); j <= brineViscosity->lastJ ( true ); ++j ) {
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
- 
+         if ( m_projectHandle.getNodeIsValid ( i, j )) {
+
             for ( unsigned int k = brineViscosity->firstK (); k <= brineViscosity->lastK (); ++k ) {
                brineViscosity->set ( i, j, k, fluid->viscosity ( temperature->get ( i, j, k ), pressure->get ( i, j, k )));
             }
@@ -77,7 +77,7 @@ void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyMa
             for ( unsigned int k = brineViscosity->firstK (); k <= brineViscosity->lastK (); ++k ) {
                brineViscosity->set ( i, j, k, undefinedValue );
             }
- 
+
          }
 
       }

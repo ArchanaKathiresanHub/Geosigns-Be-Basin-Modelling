@@ -103,9 +103,6 @@ InterfaceInput::InterfaceInput( const std::shared_ptr< const CrustalThicknessDat
 
 //------------------------------------------------------------//
 InterfaceInput::~InterfaceInput() {
-   if (m_derivedManager != nullptr){
-      delete m_derivedManager;
-   }
 }
 
 //------------------------------------------------------------//
@@ -516,11 +513,11 @@ void InterfaceInput::loadSnapshots() {
 //------------------------------------------------------------//
 void InterfaceInput::loadDerivedPropertyManager(){
    if (m_derivedManager == nullptr){
-      GeoPhysics::ProjectHandle* projectHandle = dynamic_cast<GeoPhysics::ProjectHandle*>(m_crustalThicknessData->getProjectHandle());
-      if (projectHandle == nullptr){
+      GeoPhysics::ProjectHandle& projectHandle = dynamic_cast<GeoPhysics::ProjectHandle&>(m_crustalThicknessData->getProjectHandle());
+      if (&projectHandle == nullptr){
          throw InputException() << "Cannot access the derived property manager";
       }
-      m_derivedManager = new DerivedProperties::DerivedPropertyManager( projectHandle );
+      m_derivedManager.reset( new DerivedProperties::DerivedPropertyManager( projectHandle ) );
       if (m_derivedManager == nullptr){
          throw InputException() << "Derived property manager cannot be retreived by the interface input";
       }

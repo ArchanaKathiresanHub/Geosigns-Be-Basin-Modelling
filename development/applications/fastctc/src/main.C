@@ -63,15 +63,13 @@ namespace Fastctc
    }
 
    //------------------------------------------------------------//
-   void finaliseCrustalThicknessCalculator( char* feature, const char* errorMessage = "", CrustalThicknessCalculatorFactory* factory = 0 ) {
+   void finaliseCrustalThicknessCalculator( char* feature, const char* errorMessage,
+                                            CrustalThicknessCalculator& calculator
+                                          ) {
 
       LogHandler( LogHandler::ERROR_SEVERITY ) << errorMessage;
 
-      CrustalThicknessCalculator::finalise( false );
-
-      if (factory != nullptr) {
-         delete factory;
-      }
+      calculator.finalise( false );
 
 #ifdef FLEXLM
       if (ddd::GetRank() == 0) {
@@ -90,8 +88,6 @@ int main (int argc, char ** argv)
 {
    int rank = 99999;
    typedef formattingexception::GeneralException CtcException;
-
-   CrustalThicknessCalculatorFactory* factory = new CrustalThicknessCalculatorFactory;
 
    PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
 
@@ -209,52 +205,55 @@ int main (int argc, char ** argv)
       LogHandler( LogHandler::ERROR_SEVERITY ) << "ERROR Error when reading the project file";
       Fastctc::showUsage ();
       PetscFinalize ();
-      return -1;
+      return 1;
    }
 
    PetscLogDouble sim_Start_Time;
    PetscTime( &sim_Start_Time );
 
-   if (!CrustalThicknessCalculator::createFrom( inputFileName, factory )) {
+   CrustalThicknessCalculatorFactory factory;
+   std::unique_ptr<CrustalThicknessCalculator> crustalThicknessCalculator( CrustalThicknessCalculator::createFrom( inputFileName, &factory ));
+
+   if ( !crustalThicknessCalculator ) {
       LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not open the project file";
       Fastctc::showUsage ();
       PetscFinalize ();
-      return -1;
+      return 1;
    }
 
-   if( !CrustalThicknessCalculator::getInstance().parseCommandLine()) {
+   if( !crustalThicknessCalculator->parseCommandLine()) {
       LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not parse command line";
-      Fastctc::finaliseCrustalThicknessCalculator(feature, "", factory);
-      return -1;
+      Fastctc::finaliseCrustalThicknessCalculator(feature, "", *crustalThicknessCalculator );
+      return 1;
    }
 
    ////////////////////////////////////////////
    ///3. Run CTC
    try {
-      CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
+      crustalThicknessCalculator->deleteCTCPropertyValues();
       LogHandler( LogHandler::INFO_SEVERITY, LogHandler::TITLE ) << "INITIALIZE CTC";
-      CrustalThicknessCalculator::getInstance().initialiseCTC();
+      crustalThicknessCalculator->initialiseCTC();
       LogHandler( LogHandler::INFO_SEVERITY, LogHandler::TITLE ) << "RUN CTC";
-      CrustalThicknessCalculator::getInstance().run();
+      crustalThicknessCalculator->run();
    }
    catch (std::invalid_argument& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC INPUT ERROR";
-      Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
+      Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), *crustalThicknessCalculator );
       return 1;
    }
    catch (CtcException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC COMPUTATION ERROR";
-      Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
+      Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), *crustalThicknessCalculator );
       return 1;
    }
    catch (std::runtime_error& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC COMPUTATION ERROR";
-      Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
+      Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), *crustalThicknessCalculator );
       return 1;
    }
    catch (...) {
       LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC FATAL ERROR";
-      Fastctc::finaliseCrustalThicknessCalculator(feature, "CTC fatal error", factory);
+      Fastctc::finaliseCrustalThicknessCalculator( feature, "CTC fatal error", *crustalThicknessCalculator );
       return 1;
    }
 
@@ -274,15 +273,14 @@ int main (int argc, char ** argv)
    ////////////////////////////////////////////
    ///4. Save results
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::TITLE ) << "SAVE CTC OUTPUTS";
-   CrustalThicknessCalculator::finalise(true);
+   crustalThicknessCalculator->finalise(true);
 
    PetscTime( &sim_End_Time );
    LogHandler::displayTime( LogHandler::INFO_SEVERITY, sim_End_Time - sim_Start_Time, "Total time" );
 
-   delete factory;
+   crustalThicknessCalculator.reset();
 
    PetscFinalize ();
-
    return 0;
 }
 

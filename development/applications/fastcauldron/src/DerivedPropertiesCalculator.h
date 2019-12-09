@@ -65,8 +65,6 @@ private:
   
    /// \brief Identificators of the current fastcauldron simulation mode
    bool m_decompactionMode;
-   bool m_opTemperatureMode;
-   bool m_hydrostaticTemperatureMode;
 
    /// \brief Print the list of the propety names
    void printNames();
@@ -83,14 +81,6 @@ private:
                                DataAccess::Interface::PropertyList properties, 
                                const SnapshotList & snapshots, 
                                DerivedProperties::SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues);
-
-   /// \brief Determine whether or not the property should be output for a given formation and surface
-   ///
-   /// \param [in]  formation The formation for which the property is to be calculated.
-   /// \param [in]  surface   The surface for which the property is to be calculated.
-   /// \pre surface   is not null and is a valid surface.
-   /// \pre formation is not null and is a valid formation. 
-   bool allowOutput ( const string & propertyName, const Interface::Formation * formation, const Interface::Surface * surface ) const;
 };
 
 #endif // FASTCAULDRON_DERIVED_PROPERTIES_CALCULATOR_HH

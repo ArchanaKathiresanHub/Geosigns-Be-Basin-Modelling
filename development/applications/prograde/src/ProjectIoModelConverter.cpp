@@ -20,7 +20,7 @@ using namespace mbapi;
 int Prograde::ProjectIoModelConverter::upgradeNodeX(const std::string& modellingMode, const int& nodeX, const int& OriginalwindowXMax, int& NewWindowXMax)
 {
    int upgradeNodeX, node_diff;
-   if (modellingMode == "3d" || modellingMode=="both")
+   if (modellingMode == "3d" || modellingMode=="Both")
    {
 	   if (nodeX < 3)
 	   {
@@ -63,7 +63,7 @@ int Prograde::ProjectIoModelConverter::upgradeNodeX(const std::string& modelling
 int Prograde::ProjectIoModelConverter::upgradeNodeY(const std::string& modellingMode, const int& nodeY, const int& OriginalwindowYMax, int& NewWindowYMax)
 {
    int upgradeNodeY, node_diff;
-   if (modellingMode == "3d" || modellingMode == "both")
+   if (modellingMode == "3d" || modellingMode == "Both")
    {
 	   if (nodeY < 3)
 	   {
@@ -155,7 +155,7 @@ std::string Prograde::ProjectIoModelConverter::upgradeModellingMode(const std::s
 {
    std::string upgradeModellingMode;
 
-   if (originalModellingMode == "1d" || originalModellingMode=="both")
+   if (originalModellingMode == "1d" || originalModellingMode=="Both")
    {
       upgradeModellingMode = "3d";
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Deprecated modelling mode ("<< originalModellingMode<<") is identified";
@@ -184,7 +184,7 @@ std::string Prograde::ProjectIoModelConverter::upgradeDescription(const std::str
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty";
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description";
 	   }
-	   else if (ModellingMode == "both")
+	   else if (ModellingMode == "Both")
 	   {
 		   upgradedDescription = "Migrated from BPA (Please note that the original modelling mode was 1Dand3D)";
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty";
@@ -206,7 +206,7 @@ std::string Prograde::ProjectIoModelConverter::upgradeDescription(const std::str
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is not empty";
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description by appending";
 	   }
-	   else if (ModellingMode == "both")
+	   else if (ModellingMode == "Both")
 	   {
 		   upgradedDescription.append(orignalDescription);
 		   upgradedDescription.append(": Migrated from BPA (Please note that the original modelling mode was 1Dand3D)");

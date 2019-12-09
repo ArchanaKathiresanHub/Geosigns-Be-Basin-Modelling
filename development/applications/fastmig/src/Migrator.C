@@ -83,13 +83,12 @@ static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Inte
 
 extern string NumProcessorsArg;
 
-Migrator::Migrator (const string & name)
+Migrator::Migrator (const string & name) :
+  m_objectFactory(this)
 {
-   ObjectFactory * objectFactory = new ObjectFactory (this);
-
    std::vector<std::string> outputTableNames;
    getOutputTableNames ( outputTableNames );
-   m_projectHandle.reset (dynamic_cast<GeoPhysics::ProjectHandle *> (Interface::OpenCauldronProject (name, "rw", objectFactory, outputTableNames )));
+   m_projectHandle.reset (dynamic_cast<GeoPhysics::ProjectHandle *> (Interface::OpenCauldronProject (name, &m_objectFactory, outputTableNames )));
 
    if (!m_projectHandle.get ())
    {
@@ -98,7 +97,7 @@ Migrator::Migrator (const string & name)
    }
 
    m_massBalance = nullptr;
-   m_propertyManager.reset (new MigrationPropertyManager (m_projectHandle.get ()));
+   m_propertyManager.reset (new MigrationPropertyManager (*m_projectHandle));
 
    m_reservoirs = nullptr;
    m_formations = nullptr;
@@ -161,9 +160,9 @@ bool Migrator::saveTo (const string & outputFileName)
    return m_projectHandle->saveToFile (outputFileName);
 }
 
-GeoPhysics::ProjectHandle * Migrator::getProjectHandle (void)
+GeoPhysics::ProjectHandle& Migrator::getProjectHandle()
 {
-   return m_projectHandle.get ();
+   return *m_projectHandle;
 }
 
 bool Migrator::compute (const bool overpressuredLeakage)
@@ -223,7 +222,7 @@ bool Migrator::compute (const bool overpressuredLeakage)
 
    createFormationNodes();
    if (!computeFormationPropertyMaps(m_projectHandle->getSnapshots()->front(), overPressureRun)) return false;
-   
+
    if (m_reservoirDetection)
    {
       if (m_ReservoirIoTbl == nullptr) m_ReservoirIoTbl = m_projectHandle->getTable("ReservoirIoTbl");
@@ -243,7 +242,7 @@ bool Migrator::compute (const bool overpressuredLeakage)
    PetscBool minorSnapshots, genexOnTheFly;
 
    PetscOptionsHasName (PETSC_NULL, "-genex", &genexOnTheFly);
-   m_genexOnTheFly = (genexOnTheFly == PETSC_TRUE? true : false );
+   m_genexOnTheFly = (genexOnTheFly == PETSC_TRUE);
 
    PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
 
@@ -456,8 +455,8 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    bool sourceRockActive = false;
    migration::MigrationFormation * bottomSourceRock = getBottomSourceRockFormation ();
 
-   if (bottomSourceRock != nullptr)
-	   sourceRockActive = bottomSourceRock->isActive(end);
+	 if (bottomSourceRock != nullptr)
+		 sourceRockActive = bottomSourceRock->isActive(end);
 
    if ((activeReservoirs (start) or m_reservoirDetection or m_paleoSeeps or end->getTime () == 0.0) and sourceRockActive)
    {
@@ -783,13 +782,13 @@ bool Migrator::flagTopNodes(const Interface::Snapshot * end, const bool overPres
 	MigrationFormation *reservoirFormation;
 	bool topSealFormationReached = false;
 	for (reservoirFormation = bottomFormation, sealFormation = (MigrationFormation *)reservoirFormation->getTopFormation();
-        sealFormation != 0 and !topSealFormationReached;
-        reservoirFormation = sealFormation, sealFormation = (MigrationFormation *)sealFormation->getTopFormation())
+				sealFormation != 0 and !topSealFormationReached;
+				reservoirFormation = sealFormation, sealFormation = (MigrationFormation *)sealFormation->getTopFormation())
 	{
-      //check if top seal formation is reached
-	   topSealFormationReached = (sealFormation == topSealFormation);
-      //Flag all top nodes of each formation
-      reservoirFormation->detectReservoir(sealFormation, m_minOilColumnHeight, m_minGasColumnHeight, overPressureRun, topSealFormation);
+			//check if top seal formation is reached
+		 topSealFormationReached = (sealFormation == topSealFormation);
+			//Flag all top nodes of each formation
+			reservoirFormation->detectReservoir(sealFormation, m_minOilColumnHeight, m_minGasColumnHeight, overPressureRun, topSealFormation);
 	}
 	return true;
 }
@@ -1224,9 +1223,8 @@ void Migrator::saveSeepageAmounts (migration::MigrationFormation * seepsFormatio
    // set the name of the new record object
    database::setReservoirName (seepsReservoirRecord, seepsFormation->getName ());
 
-   DataAccess::Interface::ProjectHandle * dataAccessProjectHandle = dynamic_cast<DataAccess::Interface::ProjectHandle *> (getProjectHandle ());
    // Not a real reservoir, but the I/O functionality of the reservoir class comes in handy
-   migration::MigrationReservoir seepsReservoir (dataAccessProjectHandle, this, seepsReservoirRecord);
+   migration::MigrationReservoir seepsReservoir (getProjectHandle (), this, seepsReservoirRecord);
    seepsReservoir.setEnd (end);
 
    // Setting formation but in PropertyValue.C getting the formation fails
@@ -2000,52 +1998,52 @@ bool Migrator::mergeOutputFiles ()
 #ifndef _MSC_VER
 
    bool status = true;
- 
+
    // clean mpaCache which can hold read-only opened files
    m_projectHandle->mapFileCacheDestructor();
 
    const std::string& directoryName = m_projectHandle->getOutputDir ();
 
-   // Merge 3D output 
+   // Merge 3D output
    database::Table::iterator timeTableIter;
    database::Table* snapshotTable =  m_projectHandle->getTable ( "SnapshotIoTbl" );
-   
+
    assert ( snapshotTable != 0 );
    const string timepart = "_";
    const string flowpart = flowPathsFileNamePrefix;
- 
+
    PetscBool minorSnapshots;
    PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
 
    for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
       bool isMinor = database::getIsMinorSnapshot( *timeTableIter ) == 1;
-      
+
       // check if we need to merge minor snapshots
-      if( minorSnapshots or ( not minorSnapshots and not isMinor )) { 
+      if( minorSnapshots or ( not minorSnapshots and not isMinor )) {
 
          // constract the file name to megre
-         string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );        
+         string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
          if ( !snapshotFileName.empty() ) {
             // find a time part in the snapshot file name
             std::size_t found = snapshotFileName.find(timepart);
-         
-            if (found != std::string::npos ) {  
+
+            if (found != std::string::npos ) {
                // create the file name
                string flowFile = flowpart + snapshotFileName.substr(found);
-               
+
                // check if the temporary file exists
                std::stringstream tempname;
                tempname << H5_Parallel_PropertyList::getTempDirName() <<  "/" << directoryName << "/" << flowFile << "_" << GetRank();
 
                ibs::FilePath tempPathName(tempname.str().c_str());
-                  
+
                if( tempPathName.exists()) {
-                     
+
                   ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
                   filePathName << directoryName << flowFile;
-                  
+
                   PetscPrintf ( PETSC_COMM_WORLD,  "Merging of %s\n",  flowFile.c_str() );
-                  
+
                   if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
                      status = false;
                      PetscPrintf ( PETSC_COMM_WORLD, "  Basin_Error: Could not merge the file %s.\n", filePathName.cpath() );
@@ -2057,9 +2055,9 @@ bool Migrator::mergeOutputFiles ()
    }
    // Merge 2D output
    ibs::FilePath localPath  ( m_projectHandle->getProjectPath () );
-   localPath <<  directoryName; 
+   localPath <<  directoryName;
    status = H5_Parallel_PropertyList ::mergeOutputFiles ( MigrationActivityName, localPath.path() );
-   
+
    return status;
 #else
    return true;

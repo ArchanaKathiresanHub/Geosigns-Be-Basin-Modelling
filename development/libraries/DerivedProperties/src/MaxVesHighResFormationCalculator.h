@@ -27,11 +27,11 @@ namespace DerivedProperties
    {
 
    public :
-      
+
       /// \brief Input constructor.
       /// \param [in]  projectHandle   Manager for all derived properties.
       /// \pre SimulationDetails is not null, ie there is at least one last run.
-      MaxVesHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle );
+      MaxVesHighResFormationCalculator( const GeoPhysics::ProjectHandle& projectHandle );
 
       /// \brief Calculate the high resolution max VES for the formation at the snapshot age.
       /// \param [in]  propertyManager   Manager for all derived properties.
@@ -59,7 +59,7 @@ namespace DerivedProperties
                                     const DataModel::AbstractFormation *                       formation,
                                           AbstractDerivedProperties::FormationPropertyList &   derivedProperties ) const;
 
-      const GeoPhysics::ProjectHandle * const m_projectHandle; //!< Project handle
+      const GeoPhysics::ProjectHandle& m_projectHandle; //!< Project handle
 
       const bool m_isSubsampled;                               //!< Boolean flag for subsampled grids
 

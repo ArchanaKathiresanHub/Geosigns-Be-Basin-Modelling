@@ -99,6 +99,7 @@ namespace CrustalThickness
 
          MockConfigFileParameterCtc m_constants; ///< Configuration file constants
 
+         DataAccess::Interface::ProjectHandle m_projectHandle;
          MockInterfaceInput  m_inputData;  ///< Input interface
          MockInterfaceOutput m_outputData; ///< Outuput interface (data are stored in a 3d boost array)
 

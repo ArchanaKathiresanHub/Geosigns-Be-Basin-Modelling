@@ -32,8 +32,8 @@ using namespace std;
 #include "BasinTemperatureGradientCalculator.h"
 #include "BasementHeatFlowCalculator.h"
 
-DataAccess::Mining::ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const std::string & name, const std::string & accessMode, const Interface::ObjectFactory* objectFactory ) :
-   GeoPhysics::ProjectHandle ( pfh, name, accessMode, objectFactory ) {
+DataAccess::Mining::ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const std::string & name, const Interface::ObjectFactory* objectFactory ) :
+   GeoPhysics::ProjectHandle ( pfh, name, objectFactory ) {
 
    addNewProperties();
 
@@ -56,12 +56,12 @@ void DataAccess::Mining::ProjectHandle::addNewProperties () {
    const Interface::Property* property;
    Interface::Property* newProperty;
 
-   newProperty = getFactory ()->produceProperty (this, 0, "HeatFlowMagnitude", "HeatFlowMagnitude", "mW/m^2", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
+   newProperty = getFactory ()->produceProperty (*this, 0, "HeatFlowMagnitude", "HeatFlowMagnitude", "mW/m^2", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
    m_properties.push_back ( newProperty );
    m_derivedProperties.push_back ( newProperty );
    ((Mining::ObjectFactory*)(getFactory()))->addAllocator ( newProperty, new HeatFlowCalculatorAllocator ( HeatFlowCalculator::MAGNITUDE ));
 
-   newProperty = getFactory ()->produceProperty (this, 0, "FluidVelocityMagnitude", "FluidVelocityMagnitude", "mm/y", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
+   newProperty = getFactory ()->produceProperty (*this, 0, "FluidVelocityMagnitude", "FluidVelocityMagnitude", "mm/y", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
    m_properties.push_back ( newProperty );
    m_derivedProperties.push_back ( newProperty );
    ((Mining::ObjectFactory*)(getFactory()))->addAllocator ( newProperty, new FluidVelocityCalculatorAllocator ( FluidVelocityCalculator::MAGNITUDE ));
@@ -74,7 +74,7 @@ void DataAccess::Mining::ProjectHandle::addNewProperties () {
    m_derivedProperties.push_back ( const_cast<Interface::Property*>(property));
    ((Mining::ObjectFactory*)(getFactory()))->addAllocator ( property, new BrineDensityCalculatorAllocator );
 
-   newProperty = getFactory ()->produceProperty (this, 0, "RadiogenicHeatProduction", "RadiogenicHeatProduction", "uW/m^3", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
+   newProperty = getFactory ()->produceProperty (*this, 0, "RadiogenicHeatProduction", "RadiogenicHeatProduction", "uW/m^3", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
    m_properties.push_back ( newProperty );
    m_derivedProperties.push_back ( newProperty );
    ((Mining::ObjectFactory*)(getFactory()))->addAllocator ( newProperty, new RadiogenicHeatProductionCalculatorAllocator );
@@ -83,28 +83,28 @@ void DataAccess::Mining::ProjectHandle::addNewProperties () {
    m_derivedProperties.push_back ( const_cast<Interface::Property*>(property));
    ((Mining::ObjectFactory*)(getFactory()))->addAllocator ( property, new FracturePressureCalculatorAllocator );
 
-   newProperty = getFactory ()->produceProperty (this, 0, "ThermalConductivity", "ThermalConductivity", "w/(K.m)", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
+   newProperty = getFactory ()->produceProperty (*this, 0, "ThermalConductivity", "ThermalConductivity", "w/(K.m)", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
    m_properties.push_back ( newProperty );
    m_derivedProperties.push_back ( newProperty );
    ((Mining::ObjectFactory*)(getFactory()))->addAllocator ( newProperty, new ThermalConductivityCalculatorAllocator ( true ));
 
-   newProperty = getFactory ()->produceProperty (this, 0, "ThermalConductivityH", "ThermalConductivityH", "w/(K.m)", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
+   newProperty = getFactory ()->produceProperty (*this, 0, "ThermalConductivityH", "ThermalConductivityH", "w/(K.m)", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
    m_properties.push_back ( newProperty );
    m_derivedProperties.push_back ( newProperty );
    ((Mining::ObjectFactory*)(getFactory()))->addAllocator ( newProperty, new ThermalConductivityCalculatorAllocator ( false ));
 
 
-   newProperty = getFactory ()->produceProperty (this, 0, "TemperatureGradient", "TemperatureGradient", "C/km", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
+   newProperty = getFactory ()->produceProperty (*this, 0, "TemperatureGradient", "TemperatureGradient", "C/km", Interface::FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
    m_properties.push_back ( newProperty );
    m_derivedProperties.push_back ( newProperty );
    ((Mining::ObjectFactory*)(getFactory()))->addAllocator ( newProperty, new TemperatureGradientCalculatorAllocator );
 
-   newProperty = getFactory ()->produceProperty (this, 0, "BasinTemperatureGradient", "BasinTemperatureGradient", "C/km", Interface::FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
+   newProperty = getFactory ()->produceProperty (*this, 0, "BasinTemperatureGradient", "BasinTemperatureGradient", "C/km", Interface::FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
    m_properties.push_back ( newProperty );
    m_derivedProperties.push_back ( newProperty );
    ((Mining::ObjectFactory*)(getFactory()))->addAllocator ( newProperty, new BasinTemperatureGradientCalculatorAllocator );
 
-   newProperty = getFactory ()->produceProperty (this, 0, "BasementHeatFlow", "BasementHeatFlow", "mW/m^2", Interface::FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
+   newProperty = getFactory ()->produceProperty (*this, 0, "BasementHeatFlow", "BasementHeatFlow", "mW/m^2", Interface::FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY);
    m_properties.push_back ( newProperty );
    m_derivedProperties.push_back ( newProperty );
    ((Mining::ObjectFactory*)(getFactory()))->addAllocator ( newProperty, new BasementHeatFlowCalculatorAllocator );

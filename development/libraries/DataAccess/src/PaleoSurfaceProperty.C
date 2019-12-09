@@ -1,5 +1,5 @@
 #include <assert.h>
- 
+
 #include <iostream>
 #include <sstream>
 using namespace std;
@@ -22,15 +22,15 @@ using namespace Interface;
 
 
 #if 0
-PaleoSurfaceProperty::PaleoSurfaceProperty (ProjectHandle * projectHandle, Record * record, const string& initialName ) : 
-   PaleoProperty (projectHandle, record), 
+PaleoSurfaceProperty::PaleoSurfaceProperty (ProjectHandle * projectHandle, Record * record, const string& initialName ) :
+   PaleoProperty (projectHandle, record),
    surfaceName ( initialName )
 {
-   m_surface = (const Surface *) m_projectHandle->findSurface ( getSurfaceName ());
+   m_surface = (const Surface *) m_projectHandle.findSurface ( getSurfaceName ());
 }
 #endif
 
-PaleoSurfaceProperty::PaleoSurfaceProperty (ProjectHandle * projectHandle, Record * record, const Surface* surface ) : 
+PaleoSurfaceProperty::PaleoSurfaceProperty (ProjectHandle& projectHandle, Record * record, const Surface* surface ) :
    PaleoProperty (projectHandle, record),
    surfaceName ( surface->getName ())
 {

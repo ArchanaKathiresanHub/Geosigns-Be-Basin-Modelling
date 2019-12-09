@@ -35,7 +35,7 @@ namespace GeoPhysics {
 
    public:
 
-      GeoPhysicsCrustFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+      GeoPhysicsCrustFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
                                  database::Record*                     record );
 
 

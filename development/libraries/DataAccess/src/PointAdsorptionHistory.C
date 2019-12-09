@@ -48,6 +48,7 @@ const std::string& DataAccess::Interface::PointAdsorptionHistory::getFileName ()
   return m_fileName;
 } 
 
+
 const std::string& DataAccess::Interface::PointAdsorptionHistory::getFormationName () const {
   return m_formationName;
 }

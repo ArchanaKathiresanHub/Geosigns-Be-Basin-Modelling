@@ -157,7 +157,7 @@ public:
    bool calcBasementProperties(const double time);
 
    void interpolateProperty ( const double       currentTime,
-                              const PropertyList property );
+                              const PropertyIdentifier& property );
 
    void Examine_Load_Balancing ();
    void Output_Number_Of_Geological_Events();

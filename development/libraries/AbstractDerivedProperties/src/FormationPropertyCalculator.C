@@ -1,12 +1,12 @@
-// 
+//
 // Copyright (C) 2017-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "FormationPropertyCalculator.h"
 #include "AbstractPropertyManager.h"
@@ -16,24 +16,21 @@
 
 bool AbstractDerivedProperties::FormationPropertyCalculator::isComputable ( const AbstractPropertyManager&      propManager,
                                                                     const DataModel::AbstractSnapshot*  snapshot,
-                                                                    const DataModel::AbstractFormation* formation ) const {
-
-   const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
-   bool propertyIsComputable = true;
-
+                                                                    const DataModel::AbstractFormation* formation ) const
+{
    // Determine if the required properties are computable.
-   for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
-      const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
+   for ( const std::string& dependentProperty : getDependentPropertyNames() )
+   {
+      const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperty );
 
-      if ( property == 0 ) {
-         propertyIsComputable = false;
-      } else {
-         propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
+      if ( property == 0 ||
+           !propManager.formationPropertyIsComputable ( property, snapshot, formation ))
+      {
+         return false;
       }
-
    }
 
-   return propertyIsComputable;
+   return true;
 }
 
 void AbstractDerivedProperties::FormationPropertyCalculator::setUp2dEltMapping( AbstractPropertyManager& aPropManager,

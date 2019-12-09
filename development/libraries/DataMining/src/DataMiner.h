@@ -16,7 +16,7 @@ namespace DataAccess {
 
       /// \brief Class extracting results from a Cauldron project.
       ///
-      /// These results will mostly be interpolated, some properties however will be 
+      /// These results will mostly be interpolated, some properties however will be
       /// calculated, perhaps using some interpolated results.
       class DataMiner {
 
@@ -28,7 +28,7 @@ namespace DataAccess {
 
 
 
-         DataMiner ( Mining::ProjectHandle*                     projectHandle,
+         DataMiner ( Mining::ProjectHandle& projectHandle,
                      DerivedProperties::DerivedPropertyManager& propertyManager );
 
          ~DataMiner ();

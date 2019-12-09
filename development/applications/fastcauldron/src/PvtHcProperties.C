@@ -28,7 +28,7 @@
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::CauldronNoDataValue;
 
-OutputPropertyMap* allocatePvtHcPropertiesVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocatePvtHcPropertiesVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<PvtHcPropertiesVolumeCalculator>( property, formation, snapshot );
 }
 

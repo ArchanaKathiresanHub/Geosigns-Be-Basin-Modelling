@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -39,21 +39,20 @@ void DerivedProperties::SonicFormationCalculator::calculate(       AbstractPrope
    DataModel::AbstractProperty const * const velocityProperty = propertyManager.getProperty( "Velocity" );
 
    DataModel::AbstractProperty const * const sonicProperty = propertyManager.getProperty ( "SonicSlowness" );
-   
+
    const FormationPropertyPtr velocity = propertyManager.getFormationProperty( velocityProperty, snapshot, formation );
 
    GeoPhysics::GeoPhysicsFormation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(formation);
-   GeoPhysics::ProjectHandle const * const projectHandle = dynamic_cast<const GeoPhysics::ProjectHandle*>(geophysicsFormation->getProjectHandle());
-   
+
    derivedProperties.clear ();
 
    if (velocity != 0) {
 
-      PropertyRetriever porosityRetriever( velocity );
+      PropertyRetriever velocityRetriever( velocity );
 
       DerivedFormationPropertyPtr sonic = DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( sonicProperty,
                                                                                                                         snapshot,
-                                                                                                                        formation, 
+                                                                                                                        formation,
                                                                                                                         propertyManager.getMapGrid (),
                                                                                                                         geophysicsFormation->getMaximumNumberOfElements() + 1 ));
 
@@ -64,7 +63,7 @@ void DerivedProperties::SonicFormationCalculator::calculate(       AbstractPrope
 
          for (unsigned int j = sonic->firstJ( true ); j <= sonic->lastJ( true ); ++j) {
 
-            if ( projectHandle->getNodeIsValid ( i, j )) {
+            if ( geophysicsFormation->getProjectHandle().getNodeIsValid ( i, j )) {
 
                for (unsigned int k = sonic->firstK(); k <= sonic->lastK(); ++k) {
 

@@ -42,7 +42,7 @@ namespace DataExtraction
 class TrapPropertiesManager
 {
 public:
-  explicit TrapPropertiesManager( Mining::ProjectHandle* projectHandle,
+  explicit TrapPropertiesManager( Mining::ProjectHandle& projectHandle,
                                   DerivedProperties::DerivedPropertyManager& propertyManager );
   virtual ~TrapPropertiesManager() = default;
 
@@ -77,7 +77,7 @@ private:
   double accumulate( double values[], int numberOfValues );
   double computeVolume( double * masses, double density, int numberOfSpecies );
 
-  Mining::ProjectHandle* m_projectHandle;
+  Mining::ProjectHandle& m_projectHandle;
   DerivedProperties::DerivedPropertyManager& m_propertyManager;
 };
 

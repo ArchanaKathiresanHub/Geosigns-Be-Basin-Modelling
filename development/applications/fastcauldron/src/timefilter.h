@@ -27,7 +27,7 @@ const string OutputOptionName[] = {
   "SedimentsPlusBasement"
 };
 
-enum PropertyList {
+enum PropertyIdentifier {
    //Please use alphabetic order inside subcategories, and update PropertyOutputConstraints.C according to the order
 
    //Vector Properties
@@ -135,8 +135,12 @@ enum PropertyList {
 
    //fluid properties such as GOR, COR, API,
    FLUID_PROPERTIES,
-   //brine density and viscosity
-   BRINE_PROPERTIES,
+
+   //brine density
+   BRINEDENSITY,
+
+   //brine viscosity
+   BRINEVISCOSITY,
 
    //time of element invasion
    TIME_OF_ELEMENT_INVASION,
@@ -148,23 +152,20 @@ enum PropertyList {
    ALC_SM_THICKNESS_CONTINENTAL_CRUST, ALC_SM_TOP_BASALT, ALC_SM_MOHO, ALC_ORIGINAL_MANTLE,
    ALC_SM_THICKNESS_OCEANIC_CRUST, ALC_MAX_MANTLE_DEPTH,
 
-   // Horizontal permeability
-   HORIZONTALPERMEABILITY,
-
    // End of enum. Do not put anything after this.
    ENDPROPERTYLIST
 };
 
-typedef vector<PropertyList> PropListVec;
+typedef vector<PropertyIdentifier> PropListVec;
 
-PropertyList& operator++(PropertyList& pl);
-PropertyList  operator++(PropertyList& pl, int);
+PropertyIdentifier& operator++(PropertyIdentifier& pl);
+PropertyIdentifier  operator++(PropertyIdentifier& pl, int);
 
-PropertyList getPropertyList ( const std::string& name );
+PropertyIdentifier getPropertyList ( const std::string& name );
 
 const int PropertyListSize = int(ENDPROPERTYLIST);
 
-const std::string& propertyListName ( const PropertyList property );
+const std::string& propertyListName ( const PropertyIdentifier property );
 
 const string PropertyName[] = {
   "BulkDensityVec",
@@ -302,10 +303,11 @@ const string PropertyName[] = {
   "TransportedMass",
   "Saturations",
   "AverageSaturations",
+  "HcFluidVelocity",
   "CapillaryPressures",
   "FluidProperties",
-  "BrineProperties",
-  "HcFluidVelocity",
+  "BrineDensity",
+  "BrineViscosity",
   "TimeOfInvasion",
   "ALCStepTopBasaltDepth",
   "ALCStepMohoDepth",
@@ -317,7 +319,6 @@ const string PropertyName[] = {
   "ALCOrigLithMantleDepth",
   "ALCSmBasaltThickness",
   "ALCMaxAsthenoMantleDepth",
-  "HorizontalPermeability",
   "UNKNOWN"
 };
 
@@ -327,7 +328,7 @@ class TimeFilter
   TimeFilter();
   ~TimeFilter();
 
-  bool propertyIsSelected ( const PropertyList propertyId ) const;
+  bool propertyIsSelected ( const PropertyIdentifier propertyId ) const;
 
   OutputOption PropertyOutputOption[PropertyListSize];
   OutputOption getOutputRange(const string & outputOption);
@@ -336,15 +337,15 @@ class TimeFilter
 
   void setFilter(const string& propertyName, const DataAccess::Interface::PropertyOutputOption outputOption);
 
-   const std::string& getPropertyName(PropertyList propertyId) const {return PropertyName[propertyId];}
+   const std::string& getPropertyName(PropertyIdentifier propertyId) const {return PropertyName[propertyId];}
 
-   PropertyList getPropertylist ( const std::string& propertyName ) const;
+   PropertyIdentifier getPropertylist ( const std::string& propertyName ) const;
 
    OutputOption getPropertyOutputOption ( const std::string& propertyName ) const;
 
  private:
 
-   std::map <std::string, PropertyList> m_string2PropertyName;
+   std::map <std::string, PropertyIdentifier> m_string2PropertyName;
 
 };
 

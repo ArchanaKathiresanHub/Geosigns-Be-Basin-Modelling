@@ -21,10 +21,10 @@ namespace DerivedProperties {
 
    public :
 
-      BulkDensityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
- 
+      BulkDensityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
+
       /// \brief Calculate the bulk density for the formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the bulk density is requested.
       /// \param [in]  formation   The formation for which the bulk density is requested.
@@ -48,7 +48,7 @@ namespace DerivedProperties {
 
    private :
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
 
       /// \brief Calculate the bulk density in the basement when ALC mode has not been enabled.
       void computeBulkDensityBasementNonAlc ( AbstractDerivedProperties::AbstractPropertyManager& propertyManager,

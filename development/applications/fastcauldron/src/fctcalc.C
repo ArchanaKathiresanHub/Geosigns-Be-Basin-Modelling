@@ -47,15 +47,16 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
    m_volumeOutputProperties.push_back ( VES );
    m_volumeOutputProperties.push_back ( MAXVES );
 
-   if(( !allProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
-
+   if( !allProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )
+   {
       FastcauldronSimulator::getInstance ().setOutputPropertyOption ( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
    }
-
-   if( not ( !allProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
+   else
+   {
       m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
       m_volumeOutputProperties.push_back ( POROSITYVEC );
    }
+
    // Required for porosity calculation.
    m_volumeOutputProperties.push_back ( CHEMICAL_COMPACTION );
 
@@ -81,7 +82,6 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
       m_mapOutputProperties.push_back ( BULKDENSITYVEC );
       m_mapOutputProperties.push_back ( LITHOSTATICPRESSURE );
    }
-
 }
 
 void FCTCalc::printTestVals()
@@ -202,14 +202,6 @@ void FCTCalc::writeCauldronSnapShotTime ( const double time ) {
   const Interface::Snapshot* snapshot = FastcauldronSimulator::getInstance ().findOrCreateSnapshot ( time );
   assert ( snapshot != 0 );
 
-  FastcauldronSimulator::getInstance ().saveMapProperties ( m_mapOutputProperties,
-                                                            snapshot,
-                                                            Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-
-  if ( cauldron->filterwizard.thicknessCalculationNeeded ()) {
-    deleteThicknessVectors ( cauldron );
-  }
-
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE ) {
 
 #if LITHOLOGYID
@@ -221,6 +213,14 @@ void FCTCalc::writeCauldronSnapShotTime ( const double time ) {
 #if LITHOLOGYID
      cauldron->deleteLithologyIDs ();
 #endif
+  }
+
+  FastcauldronSimulator::getInstance ().saveMapProperties ( cauldron->no2Doutput() ? PropListVec() : m_mapOutputProperties,
+                                                            snapshot,
+                                                            Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+
+  if ( cauldron->filterwizard.thicknessCalculationNeeded ()) {
+    deleteThicknessVectors ( cauldron );
   }
 
 }
@@ -235,7 +235,7 @@ bool FCTCalc::getGrid ( const double                    currentTime,
 
   Layer_Iterator Layers;
   Layers.Initialise_Iterator ( cauldron->layers, Descending, Basement_And_Sediments,
-			       Active_And_Inactive_Layers );
+             Active_And_Inactive_Layers );
 
 
   while ( ! Layers.Iteration_Is_Done () ) {

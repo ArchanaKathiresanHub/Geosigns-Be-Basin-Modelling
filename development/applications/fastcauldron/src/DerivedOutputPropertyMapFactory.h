@@ -12,13 +12,13 @@
 #include "GridMap.h"
 
 /// A function-pointer type for allocating property maps.
-typedef OutputPropertyMap* (*DerivedOutputPropertyMapAllocator)( const PropertyList         property,
+typedef OutputPropertyMap* (*DerivedOutputPropertyMapAllocator)( const PropertyIdentifier&        property,
                                                                  LayerProps*                formation,
                                                                  const Interface::Surface*  surface,
                                                                  const Interface::Snapshot* snapshot );
 
 /// A function-pointer type for allocating property volumes.
-typedef OutputPropertyMap* (*DerivedOutputPropertyVolumeAllocator)( const PropertyList         property,
+typedef OutputPropertyMap* (*DerivedOutputPropertyVolumeAllocator)( const PropertyIdentifier&        property,
                                                                     LayerProps*                formation,
                                                                     const Interface::Snapshot* snapshot );
 
@@ -26,7 +26,7 @@ typedef OutputPropertyMap* (*DerivedOutputPropertyVolumeAllocator)( const Proper
 enum OutputPropertyMapAssociation {
    SURFACE_ASSOCIATION,            //!< Property is associated with a surface only, this is true for continuous properties such as temperature and pressure.
    FORMATION_ASSOCIATION,          //!< Property is associated with a formation only, this is true for properties such as thickness.
-   SURFACE_FORMATION_ASSOCIATION,  //!< Property is associated with both a surface and formation, this is true for properties that have a dependancy on the formation-lithology, such as porosity. 
+   SURFACE_FORMATION_ASSOCIATION,  //!< Property is associated with both a surface and formation, this is true for properties that have a dependancy on the formation-lithology, such as porosity.
    UNKNOWN_ASSOCIATION };          //!< Association is not known.
 
 /// \var NumberOfAssociations
@@ -49,11 +49,11 @@ class DerivedOutputPropertyMapFactory {
 
    /// \typedef MapPropertyTraitsMap
    /// Mapping from a property-list (enum) to the map-property-traits struct.
-   typedef std::map<PropertyList, MapPropertyTraits> MapPropertyTraitsMap;
+   typedef std::map<PropertyIdentifier, MapPropertyTraits> MapPropertyTraitsMap;
 
    /// \typedef VolumePropertyTraitsMap
    /// Mapping from a property-list (enum) to the volume-property-traits struct.
-   typedef std::map<PropertyList, VolumePropertyTraits> VolumePropertyTraitsMap;
+   typedef std::map<PropertyIdentifier, VolumePropertyTraits> VolumePropertyTraitsMap;
 
 public :
 
@@ -62,7 +62,7 @@ public :
    /// Allocates a derived property.
    ///
    /// If property is not found then a null pointer will be returned.
-   OutputPropertyMap* allocateMap ( const PropertyList         derivedProperty,
+   OutputPropertyMap* allocateMap ( const PropertyIdentifier&        derivedProperty,
                                           LayerProps*          formation,
                                     const Interface::Surface*  surface,
                                     const Interface::Snapshot* snapshot ) const;
@@ -70,31 +70,21 @@ public :
    /// Allocates a derived property volume.
    ///
    /// If property is not found then a null pointer will be returned.
-   OutputPropertyMap* allocateVolume ( const PropertyList         derivedProperty,
+   OutputPropertyMap* allocateVolume ( const PropertyIdentifier&        derivedProperty,
                                              LayerProps*          formation,
                                        const Interface::Snapshot* snapshot ) const;
 
-   /// Return whether or not the property is a vector quantity.
-   ///
-   /// If property is not found in the mapping then false will be returned.
-   /// Only valid for map (2d) output.
-   bool isVectorQuantity ( const PropertyList derivedProperty ) const;
-
    /// Return whether or not the property is on the list of map properties.
-   bool isMapDefined ( const PropertyList derivedProperty ) const;
+   bool isMapDefined ( const PropertyIdentifier& derivedProperty ) const;
 
    /// Return whether or not the property is on the list of volume properties.
-   bool isVolumeDefined ( const PropertyList derivedProperty ) const;
+   bool isVolumeDefined ( const PropertyIdentifier& derivedProperty ) const;
 
-   /// Return whether or not the property is a primary quantity.
-   ///
-   /// If property is not found in the mapping then false will be returned.
-   bool isPrimary ( const PropertyList derivedProperty ) const;
 
    /// Get the output-range for the property.
    ///
    /// If the property is not defined then unknown-output will be returned.
-   OutputPropertyMapAssociation getMapAssociation ( const PropertyList derivedProperty ) const;
+   OutputPropertyMapAssociation getMapAssociation ( const PropertyIdentifier& derivedProperty ) const;
 
 private :
 

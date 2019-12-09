@@ -101,9 +101,9 @@ static void showUsage ( const char* command,
 CauldronWell* getCauldronWell ( const DeviatedWellData& data,
                                 const CauldronDomain& domain );
 
-void addAlternativePropertyNames ( Mining::ProjectHandle* projectHandle );
+void addAlternativePropertyNames ( Mining::ProjectHandle& projectHandle );
 
-void addDefaultProperties ( const Mining::ProjectHandle* projectHandle,
+void addDefaultProperties ( const Mining::ProjectHandle& projectHandle,
                             DataMiner::PropertySet& properties );
 
 
@@ -293,11 +293,9 @@ int main (int argc, char ** argv) {
       std::cerr << "Read input well description file." << std::endl;
    }
 
-   Mining::ObjectFactory* factory = new DataAccess::Mining::ObjectFactory;
-
-   Mining::ProjectHandle* projectHandle = dynamic_cast<Mining::ProjectHandle*>(OpenCauldronProject (projectFileName, "r", factory));
-
-   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
+   Mining::ObjectFactory factory;
+   std::unique_ptr<Mining::ProjectHandle> projectHandle( dynamic_cast<Mining::ProjectHandle*>(OpenCauldronProject (projectFileName, &factory)) );
+   DerivedProperties::DerivedPropertyManager propertyManager ( *projectHandle );
 
    projectHandle->startActivity ( "deviatedwell", projectHandle->getLowResolutionOutputGrid ());
    projectHandle->initialise ( true, false );
@@ -346,7 +344,7 @@ int main (int argc, char ** argv) {
    domain.setSnapshot ( snapshot, propertyManager );
    domainProperties->setSnapshot ( snapshot );
 
-   DataMiner miner ( projectHandle, propertyManager );
+   DataMiner miner ( *projectHandle, propertyManager );
 
    ElementPositionSequence positions;
    DataMiner::ResultValues results;
@@ -355,7 +353,7 @@ int main (int argc, char ** argv) {
    PieceWiseInterpolator1D interp;
    ElementPosition element;
 
-   addAlternativePropertyNames ( projectHandle );
+   addAlternativePropertyNames ( *projectHandle );
 
    if ( userDefinedProperties ) {
       // userDefinedPropertyNames;
@@ -383,7 +381,7 @@ int main (int argc, char ** argv) {
       } while ( commaPosition != std::string::npos );
 
    } else {
-      addDefaultProperties ( projectHandle, properties );
+      addDefaultProperties ( *projectHandle, properties );
    }
 
    if ( verbose or debug ) {
@@ -435,7 +433,6 @@ int main (int argc, char ** argv) {
    }
 
    WellWriterFactory::finalise ();
-   delete factory;
    return 0;
 }
 
@@ -567,104 +564,104 @@ void showUsage ( const char* command,
 
 }
 
-void addAlternativePropertyNames ( Mining::ProjectHandle* projectHandle ) {
+void addAlternativePropertyNames ( Mining::ProjectHandle& projectHandle ) {
 
-   projectHandle->addAlternativeName ( "Temperature", "temperature" );
-   projectHandle->addAlternativeName ( "Temperature", "temp" );
-   projectHandle->addAlternativeName ( "Temperature", "Temp" );
+   projectHandle.addAlternativeName ( "Temperature", "temperature" );
+   projectHandle.addAlternativeName ( "Temperature", "temp" );
+   projectHandle.addAlternativeName ( "Temperature", "Temp" );
 
-   projectHandle->addAlternativeName ( "OverPressure", "Overpressure" );
-   projectHandle->addAlternativeName ( "OverPressure", "overpressure" );
+   projectHandle.addAlternativeName ( "OverPressure", "Overpressure" );
+   projectHandle.addAlternativeName ( "OverPressure", "overpressure" );
 
-   projectHandle->addAlternativeName ( "Pressure", "pressure" );
-   projectHandle->addAlternativeName ( "Pressure", "porepressure" );
-   projectHandle->addAlternativeName ( "Pressure", "PorePressure" );
+   projectHandle.addAlternativeName ( "Pressure", "pressure" );
+   projectHandle.addAlternativeName ( "Pressure", "porepressure" );
+   projectHandle.addAlternativeName ( "Pressure", "PorePressure" );
 
-   projectHandle->addAlternativeName ( "HydroStaticPressure", "HydrostaticPressure" );
-   projectHandle->addAlternativeName ( "HydroStaticPressure", "HydroStaticpressure" );
-   projectHandle->addAlternativeName ( "HydroStaticPressure", "Hydrostaticpressure" );
-   projectHandle->addAlternativeName ( "HydroStaticPressure", "hydrostaticpressure" );
+   projectHandle.addAlternativeName ( "HydroStaticPressure", "HydrostaticPressure" );
+   projectHandle.addAlternativeName ( "HydroStaticPressure", "HydroStaticpressure" );
+   projectHandle.addAlternativeName ( "HydroStaticPressure", "Hydrostaticpressure" );
+   projectHandle.addAlternativeName ( "HydroStaticPressure", "hydrostaticpressure" );
 
-   projectHandle->addAlternativeName ( "LithoStaticPressure", "LithostaticPressure" );
-   projectHandle->addAlternativeName ( "LithoStaticPressure", "LithoStaticpressure" );
-   projectHandle->addAlternativeName ( "LithoStaticPressure", "Lithostaticpressure" );
-   projectHandle->addAlternativeName ( "LithoStaticPressure", "lithostaticpressure" );
+   projectHandle.addAlternativeName ( "LithoStaticPressure", "LithostaticPressure" );
+   projectHandle.addAlternativeName ( "LithoStaticPressure", "LithoStaticpressure" );
+   projectHandle.addAlternativeName ( "LithoStaticPressure", "Lithostaticpressure" );
+   projectHandle.addAlternativeName ( "LithoStaticPressure", "lithostaticpressure" );
 
-   projectHandle->addAlternativeName ( "Ves", "ves" );
+   projectHandle.addAlternativeName ( "Ves", "ves" );
 
-   projectHandle->addAlternativeName ( "MaxVes", "Maxves" );
-   projectHandle->addAlternativeName ( "MaxVes", "maxves" );
+   projectHandle.addAlternativeName ( "MaxVes", "Maxves" );
+   projectHandle.addAlternativeName ( "MaxVes", "maxves" );
 
-   projectHandle->addAlternativeName ( "Porosity", "porosity" );
+   projectHandle.addAlternativeName ( "Porosity", "porosity" );
 
-   projectHandle->addAlternativeName ( "Permeability", "permeability" );
-   projectHandle->addAlternativeName ( "Permeability", "PermeabilityN" );
-   projectHandle->addAlternativeName ( "Permeability", "permeabilityN" );
-   projectHandle->addAlternativeName ( "Permeability", "permN" );
+   projectHandle.addAlternativeName ( "Permeability", "permeability" );
+   projectHandle.addAlternativeName ( "Permeability", "PermeabilityN" );
+   projectHandle.addAlternativeName ( "Permeability", "permeabilityN" );
+   projectHandle.addAlternativeName ( "Permeability", "permN" );
 
-   projectHandle->addAlternativeName ( "HorizontalPermeability", "horizontalpermeability" );
-   projectHandle->addAlternativeName ( "HorizontalPermeability", "permeabilityH" );
-   projectHandle->addAlternativeName ( "HorizontalPermeability", "PermeabilityH" );
-   projectHandle->addAlternativeName ( "HorizontalPermeability", "permH" );
+   projectHandle.addAlternativeName ( "HorizontalPermeability", "horizontalpermeability" );
+   projectHandle.addAlternativeName ( "HorizontalPermeability", "permeabilityH" );
+   projectHandle.addAlternativeName ( "HorizontalPermeability", "PermeabilityH" );
+   projectHandle.addAlternativeName ( "HorizontalPermeability", "permH" );
 
-   projectHandle->addAlternativeName ( "BulkDensity", "Bulkdensity" );
-   projectHandle->addAlternativeName ( "BulkDensity", "bulkdensity" );
+   projectHandle.addAlternativeName ( "BulkDensity", "Bulkdensity" );
+   projectHandle.addAlternativeName ( "BulkDensity", "bulkdensity" );
 }
 
 
-void addDefaultProperties ( const Mining::ProjectHandle* projectHandle,
+void addDefaultProperties ( const Mining::ProjectHandle& projectHandle,
                             DataMiner::PropertySet& properties ) {
 
    unsigned int i;
 
    // Fixed set of properties for output.
-   properties.push_back ( projectHandle->findProperty ( "Temperature" ));
-   properties.push_back ( projectHandle->findProperty ( "Vr" ));
-   properties.push_back ( projectHandle->findProperty ( "HydroStaticPressure" ));
-   properties.push_back ( projectHandle->findProperty ( "Pressure" ));
-   properties.push_back ( projectHandle->findProperty ( "OverPressure" ));
-   properties.push_back ( projectHandle->findProperty ( "LithoStaticPressure" ));
-   properties.push_back ( projectHandle->findProperty ( "FracturePressure" ));
+   properties.push_back ( projectHandle.findProperty ( "Temperature" ));
+   properties.push_back ( projectHandle.findProperty ( "Vr" ));
+   properties.push_back ( projectHandle.findProperty ( "HydroStaticPressure" ));
+   properties.push_back ( projectHandle.findProperty ( "Pressure" ));
+   properties.push_back ( projectHandle.findProperty ( "OverPressure" ));
+   properties.push_back ( projectHandle.findProperty ( "LithoStaticPressure" ));
+   properties.push_back ( projectHandle.findProperty ( "FracturePressure" ));
 
-   properties.push_back ( projectHandle->findProperty ( "Ves" ));
-   properties.push_back ( projectHandle->findProperty ( "MaxVes" ));
-   properties.push_back ( projectHandle->findProperty ( "Porosity" ));
-   properties.push_back ( projectHandle->findProperty ( "Permeability" ));
-   properties.push_back ( projectHandle->findProperty ( "HorizontalPermeability" ));
-   properties.push_back ( projectHandle->findProperty ( "ThermalConductivity" ));
-   properties.push_back ( projectHandle->findProperty ( "ThermalConductivityH" ));
+   properties.push_back ( projectHandle.findProperty ( "Ves" ));
+   properties.push_back ( projectHandle.findProperty ( "MaxVes" ));
+   properties.push_back ( projectHandle.findProperty ( "Porosity" ));
+   properties.push_back ( projectHandle.findProperty ( "Permeability" ));
+   properties.push_back ( projectHandle.findProperty ( "HorizontalPermeability" ));
+   properties.push_back ( projectHandle.findProperty ( "ThermalConductivity" ));
+   properties.push_back ( projectHandle.findProperty ( "ThermalConductivityH" ));
 
-   properties.push_back ( projectHandle->findProperty ( "BulkDensity" ));
+   properties.push_back ( projectHandle.findProperty ( "BulkDensity" ));
 
-   properties.push_back ( projectHandle->findProperty ( "BrineViscosity" ));
-   properties.push_back ( projectHandle->findProperty ( "BrineDensity" ));
+   properties.push_back ( projectHandle.findProperty ( "BrineViscosity" ));
+   properties.push_back ( projectHandle.findProperty ( "BrineDensity" ));
 
-   // properties.push_back ( projectHandle->findProperty ( "HeatFlowX" ));
-   // properties.push_back ( projectHandle->findProperty ( "HeatFlowY" ));
-   properties.push_back ( projectHandle->findProperty ( "HeatFlowZ" ));
-   properties.push_back ( projectHandle->findProperty ( "HeatFlowMagnitude" ));
-   properties.push_back ( projectHandle->findProperty ( "RadiogenicHeatProduction" ));
+   // properties.push_back ( projectHandle.findProperty ( "HeatFlowX" ));
+   // properties.push_back ( projectHandle.findProperty ( "HeatFlowY" ));
+   properties.push_back ( projectHandle.findProperty ( "HeatFlowZ" ));
+   properties.push_back ( projectHandle.findProperty ( "HeatFlowMagnitude" ));
+   properties.push_back ( projectHandle.findProperty ( "RadiogenicHeatProduction" ));
 
-   properties.push_back ( projectHandle->findProperty ( "Velocity" ));
-   properties.push_back ( projectHandle->findProperty ( "FluidVelocityX" ));
-   properties.push_back ( projectHandle->findProperty ( "FluidVelocityY" ));
-   properties.push_back ( projectHandle->findProperty ( "FluidVelocityZ" ));
-   properties.push_back ( projectHandle->findProperty ( "FluidVelocityMagnitude" ));
+   properties.push_back ( projectHandle.findProperty ( "Velocity" ));
+   properties.push_back ( projectHandle.findProperty ( "FluidVelocityX" ));
+   properties.push_back ( projectHandle.findProperty ( "FluidVelocityY" ));
+   properties.push_back ( projectHandle.findProperty ( "FluidVelocityZ" ));
+   properties.push_back ( projectHandle.findProperty ( "FluidVelocityMagnitude" ));
 
-   // properties.push_back ( projectHandle->findProperty ( "ThCond" ));
-   // properties.push_back ( projectHandle->findProperty ( "ThermalConductivityH" ));
+   // properties.push_back ( projectHandle.findProperty ( "ThCond" ));
+   // properties.push_back ( projectHandle.findProperty ( "ThermalConductivityH" ));
 
-   properties.push_back ( projectHandle->findProperty ( "TemperatureGradient" ));
-   properties.push_back ( projectHandle->findProperty ( "BasinTemperatureGradient" ));
-   properties.push_back ( projectHandle->findProperty ( "BasementHeatFlow" ));
+   properties.push_back ( projectHandle.findProperty ( "TemperatureGradient" ));
+   properties.push_back ( projectHandle.findProperty ( "BasinTemperatureGradient" ));
+   properties.push_back ( projectHandle.findProperty ( "BasementHeatFlow" ));
 
    for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
-      properties.push_back ( projectHandle->findProperty ( CBMGenerics::ComponentManager::getInstance().getSpeciesName( i ) + "Concentration" ) );
+      properties.push_back ( projectHandle.findProperty ( CBMGenerics::ComponentManager::getInstance().getSpeciesName( i ) + "Concentration" ) );
    }
 
-   properties.push_back ( projectHandle->findProperty ( "WaterSaturation" ));
-   properties.push_back ( projectHandle->findProperty ( "OilSaturation" ));
-   properties.push_back ( projectHandle->findProperty ( "GasSaturation" ));
+   properties.push_back ( projectHandle.findProperty ( "WaterSaturation" ));
+   properties.push_back ( projectHandle.findProperty ( "OilSaturation" ));
+   properties.push_back ( projectHandle.findProperty ( "GasSaturation" ));
 
 
 }

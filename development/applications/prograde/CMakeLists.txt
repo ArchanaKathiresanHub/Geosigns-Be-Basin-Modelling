@@ -196,3 +196,25 @@ add_gtest( NAME ${TARGET_NAME}::RunOptionsModelConverter
 		   LIBRARIES cmbapi
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
+
+#
+# 13. Lithology upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::LithologyConverter
+           SOURCES test/LithologyConverterTest.cpp src/LithologyConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src             
+		   LIBRARIES cmbapi
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
+
+#
+# 14. Sgs upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::SgsConverter
+           SOURCES test/SgsConverter.cpp src/SgsConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src             
+		   LIBRARIES cmbapi
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)

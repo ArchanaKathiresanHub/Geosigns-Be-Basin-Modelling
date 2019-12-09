@@ -30,7 +30,7 @@ DataExtractor::DataExtractor( )
 
 std::string DataExtractor::getMapsFileName( const std::string& propertyName ) const
 {
-  database::Table* timeIoTbl = getProjectHandle()->getTable ( "TimeIoTbl" );
+  database::Table* timeIoTbl = getProjectHandle().getTable ( "TimeIoTbl" );
   database::Record* record = 0;
   for ( auto it : *timeIoTbl )
   {

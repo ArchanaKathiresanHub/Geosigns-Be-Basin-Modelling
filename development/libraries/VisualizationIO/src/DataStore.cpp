@@ -31,7 +31,6 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/file.hpp>
-#include <boost/foreach.hpp>
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif
@@ -59,7 +58,7 @@ using namespace CauldronIO;
 CauldronIO::DataStoreLoad::DataStoreLoad(DataStoreParams* params)
 {
     m_params = static_cast<DataStoreParams*>(params);
-    
+
     if (!exists(m_params->fileName))
     {
       std::string msg = "Could not open file ";
@@ -131,7 +130,7 @@ char* CauldronIO::DataStoreLoad::decompress(const char* inputData, size_t& eleme
     std::stringstream data, result;
     data.write(inputData, elements);
 
-    // Use boost streams to decompress gzip 
+    // Use boost streams to decompress gzip
     boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
     out.push(boost::iostreams::gzip_decompressor());
     out.push(data);
@@ -175,7 +174,7 @@ void CauldronIO::DataStoreLoad::getVolume(pugi::xml_node ptree, std::shared_ptr<
 
         volumeNative->setDataStore(paramsNative, dataIJK);
     }
-    
+
     if (!foundSome)
         throw CauldronIOException("Could not find datastore in xml node");
 }
@@ -214,8 +213,8 @@ void CauldronIO::DataStoreLoad::getSurface(pugi::xml_node ptree, std::shared_ptr
         throw CauldronIOException("Could not find datastore in xml node");
 
     MapNative* mapNative = dynamic_cast<MapNative*>(surfaceData.get());
-    assert(mapNative); 
-            
+    assert(mapNative);
+
     DataStoreParams* paramsNative = getDatastoreParams(datastoreNode, path);
     mapNative->setDataStore(paramsNative);
 }
@@ -241,7 +240,7 @@ CauldronIO::DataStoreSave::~DataStoreSave()
 {
     if (!m_flushed)
         flush();
-    
+
     m_file_out.flush();
     m_file_out.close();
 
@@ -273,7 +272,7 @@ char* CauldronIO::DataStoreSave::compress_lz4(const char* inputData, size_t& ele
 {
     size_t inputSize = elements;
     size_t maxOutputSize = inputSize;
-    
+
     char* dest = new char[maxOutputSize];
     elements = (size_t)LZ4_compress_default(inputData, dest, (int)elements, (int)maxOutputSize);
 
@@ -323,7 +322,7 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
 
     size_t numBytes = surfaceData->getGeometry()->getSize() * sizeof(float);
     bool compress = m_compress && numBytes > MINIMALBYTESTOCOMPRESS;
- 
+
     if (surfaceData->isConstant()) throw CauldronIO::CauldronIOException("Cannot write constant value");
 
     subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
@@ -331,7 +330,7 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
        subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
     else
        subNode.append_attribute("compression") = "none";
-    
+
     // We write the actual data if 1) this map has been loaded from projecthandle (so mapNative == null)
     // or 2) this map has been created in native format, but was not loaded from disk (so no datastoreparams were set)
     if (mapNative == nullptr || (mapNative != nullptr && mapNative->getDataStoreParams() == nullptr))
@@ -344,7 +343,7 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
        // This surface already has been written: skip it
        const DataStoreParams* const params = mapNative->getDataStoreParams();
        assert(m_fileName == params->fileName.string());
- 
+
        subNode.append_attribute("offset") = (unsigned long long)m_offset;
        subNode.append_attribute("size") = (unsigned long long)params->size;
        m_offset += params->size;
@@ -383,13 +382,13 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
     else
        subNode.append_attribute("compression") = "none";
     subNode.append_attribute("dataIJK") = IJK;
- 
+
     // We write the actual data if 1) this volume has been loaded from projecthandle (so nativeVolume == nullptr)
     // or 2) this volume has been created in native format, but was not loaded from disk (so no datastoreparams were set)
     bool writeData;
     if (IJK)
         writeData = nativeVolume == nullptr || nativeVolume->getDataStoreParamsIJK() == nullptr;
-    else 
+    else
         writeData = nativeVolume == nullptr || nativeVolume->getDataStoreParamsKIJ() == nullptr;
 
     if (writeData)
@@ -403,7 +402,7 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
         // This volume already has been written: skip it
         const DataStoreParams* const params = nativeVolume->getDataStoreParamsIJK();
         assert(m_fileName == params->fileName.string());
-        
+
         subNode.append_attribute("offset") = (unsigned long long)m_offset;
         subNode.append_attribute("size") = (unsigned long long)params->size;
         m_offset += params->size;

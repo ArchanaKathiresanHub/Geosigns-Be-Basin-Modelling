@@ -29,7 +29,7 @@ namespace DataExtraction
 static const double StockTankPressure = 1.01325e-1;
 static const double StockTankTemperature = 15.0;
 
-TrapPropertiesManager::TrapPropertiesManager( Mining::ProjectHandle* projectHandle,
+TrapPropertiesManager::TrapPropertiesManager( Mining::ProjectHandle& projectHandle,
                                               DerivedProperties::DerivedPropertyManager& propertyManager ) :
   m_projectHandle( projectHandle ),
   m_propertyManager( propertyManager )
@@ -42,12 +42,12 @@ double TrapPropertiesManager::getTrapPropertyValue( const Interface::Property  *
                                                     double x,
                                                     double y )
 {
-  const Interface::Grid * grid = m_projectHandle->getActivityOutputGrid();
+  const Interface::Grid * grid = m_projectHandle.getActivityOutputGrid();
 
   assert( grid );
-  assert( grid == m_projectHandle->getHighResolutionOutputGrid() ); // expecting that this activity always dealing with high resolution grid
+  assert( grid == m_projectHandle.getHighResolutionOutputGrid() ); // expecting that this activity always dealing with high resolution grid
 
-  const Interface::Property * trapIdProperty = m_projectHandle->findProperty( "ResRockTrapId" );
+  const Interface::Property * trapIdProperty = m_projectHandle.findProperty( "ResRockTrapId" );
   AbstractDerivedProperties::ReservoirPropertyPtr trapIdGridMap = getReservoirPropertyGridMap( trapIdProperty, snapshot, reservoir );
   assert (( "Unable to find ResRockTrapId map", trapIdGridMap ));
 
@@ -59,7 +59,7 @@ double TrapPropertiesManager::getTrapPropertyValue( const Interface::Property  *
 
   if ( trapId <= 0 ) throw RecordException( "No trap at (XCoord, YCoord) pair: (%, %)", x, y );
 
-  const Interface::Trap * trap = m_projectHandle->findTrap( reservoir, snapshot, (unsigned int)trapId );
+  const Interface::Trap * trap = m_projectHandle.findTrap( reservoir, snapshot, (unsigned int)trapId );
   if ( !trap ) throw RecordException( "Could not find trap" );
 
   trap->getGridPosition( i, j );
@@ -303,8 +303,8 @@ double TrapPropertiesManager::computeTrapPropertyValue( const Interface::Trap   
 
   else if ( propertyName == "LithoStaticPressure" || propertyName == "HydroStaticPressure" || propertyName == "OverPressure" )
   {
-    CauldronDomain           & domain           = m_projectHandle->getCauldronDomain();
-    DomainPropertyCollection * domainProperties = m_projectHandle->getDomainPropertyCollection();
+    CauldronDomain           & domain           = m_projectHandle.getCauldronDomain();
+    DomainPropertyCollection * domainProperties = m_projectHandle.getDomainPropertyCollection();
 
     domain.setSnapshot( snapshot, m_propertyManager );
     domainProperties->setSnapshot( snapshot );
@@ -322,7 +322,7 @@ double TrapPropertiesManager::computeTrapPropertyValue( const Interface::Trap   
   }
   else if ( propertyName == "Porosity" )
   {
-    const Interface::Property * reservoirProperty = m_projectHandle->findProperty( "ResRockPorosity" );
+    const Interface::Property * reservoirProperty = m_projectHandle.findProperty( "ResRockPorosity" );
     if ( property )
     {
       AbstractDerivedProperties::ReservoirPropertyPtr reservoirPropertyGridMap =
@@ -381,7 +381,7 @@ const Interface::GridMap* TrapPropertiesManager::getPropertyGridMap( const Inter
                                                                      const Interface::Snapshot* snapshot,
                                                                      const Interface::Reservoir* reservoir )
 {
-  Interface::PropertyValueList * propertyValues = m_projectHandle->getPropertyValues( Interface::RESERVOIR, property, snapshot, reservoir, 0, 0, Interface::SURFACE );
+  Interface::PropertyValueList * propertyValues = m_projectHandle.getPropertyValues( Interface::RESERVOIR, property, snapshot, reservoir, 0, 0, Interface::SURFACE );
 
   if ( propertyValues->size() == 0 ) { throw RecordException( "Could not find value for property: %", property->getName() ); }
   if ( propertyValues->size()  > 1 ) { throw RecordException( "Multiple values for property: %",      property->getName() ); }

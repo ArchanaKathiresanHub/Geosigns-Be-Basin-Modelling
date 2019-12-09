@@ -4,10 +4,10 @@
 
 #include "../src/RewriteFileName.h"
 
-#include "h5merge.h"
-#include "fileHandler.h"
-#include "fileHandlerReuse.h"
-#include "fileHandlerAppend.h"
+#include "../src/h5merge.h"
+#include "../src/fileHandler.h"
+#include "../src/fileHandlerReuse.h"
+#include "../src/fileHandlerAppend.h"
 
 #include <gtest/gtest.h>
 

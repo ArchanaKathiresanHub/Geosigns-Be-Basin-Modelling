@@ -39,6 +39,6 @@ private :
 };
 
 
-OutputPropertyMap* allocateLithologyIdVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateLithologyIdVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot );
 
 #endif // _FASTCAULDRON_LITHOLOGY_ID_CALCULATOR_H_

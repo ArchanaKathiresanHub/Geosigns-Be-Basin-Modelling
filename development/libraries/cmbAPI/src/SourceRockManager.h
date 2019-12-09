@@ -120,7 +120,7 @@ namespace mbapi {
       /// @}
 
       /// @{
-      /// Source rock pre-asphaltene activation energy API
+      /// @Source rock pre-asphaltene activation energy API
       /// @brief Get pre-asphaltene activation energy [kJ/mol]
       /// @param id source rock ID
       /// @return pre-asphaltene activation energy value for given source rock lithology ID or UndefinedDoubleValue in case of error
@@ -133,7 +133,38 @@ namespace mbapi {
       virtual ReturnCode setPreAsphActEnergy( SourceRockID id, double newVal ) = 0;
       /// @}
 
+	  /// @{
+	  /// @Source rock adsorption related field API
+      /// @brief Get adsorption related fields
+      /// @param[in] id source rock ID
+	  /// @param[out] applyAdsorption source rock adsorption is active or not 
+	  /// @param[out] adsorptionTOCDependent source rock adsorption TOC dependent or not
+	  /// @param[out] computeOTGC source rock compute OTGC is active or not
+	  /// @param[out] adsorptionCapacityFunctionName source rock adsorption capacity function name 
+      /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode getAdsoptionList(SourceRockID id, int & applyAdsorption, int & adsorptionTOCDependent, int & computeOTGC, std::string & adsorptionCapacityFunctionName) = 0;
+	  /// @}
 
+	  /// @brief Set adsorption TOC dependent
+	  /// @param[in] id source rock ID
+	  /// @param[in] newAdsorptionTOCDependent new adsorption toc dependent value
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setAdsorptionTOCDependent(SourceRockID id, int newAdsorptionTOCDependent) = 0;
+	  /// @}
+
+	  /// @brief Set adsorption capacity function name 
+	  /// @param[in] id source rock ID
+	  /// @param[in] newAdsorptionCapacityFunctionName new adsorption capacity function name
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setAdsorptionCapacityFunctionName(SourceRockID id, const std::string & newAdsorptionCapacityFunctionName) = 0;
+	  /// @}
+
+	  /// @brief Set adsorption simulator name
+	  /// @param[in] id source rock ID
+	  /// @param[in] newWhichAdsorptionSimulator new adsorption simulator name
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setWhichAdsorptionSimulator(SourceRockID id, const std::string & newWhichAdsorptionSimulator) = 0;
+	  /// @}
 
    protected:
       /// @name Constructors/destructor

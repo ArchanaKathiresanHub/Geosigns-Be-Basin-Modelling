@@ -245,7 +245,7 @@ typedef GenericSnapshotInterpolator < PiecewiseLinearInterpolantCalculator > Lin
 typedef GenericSnapshotInterpolator < ConstantInterpolantCalculator >        ConstantSnapshotInterpolator;
 
 
-typedef std::map < PropertyList, SnapshotInterpolator* > SnapshotIntervalPropertyInterpolatorMap;
+typedef std::map < PropertyIdentifier, SnapshotInterpolator* > SnapshotIntervalPropertyInterpolatorMap;
 
 
 //------------------------------------------------------------//

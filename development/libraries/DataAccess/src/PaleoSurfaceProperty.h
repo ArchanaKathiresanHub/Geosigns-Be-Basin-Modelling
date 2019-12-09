@@ -12,11 +12,11 @@ namespace DataAccess
    {
 
       /// Contains a property for a surface in paleo-time.
-      class PaleoSurfaceProperty : public PaleoProperty 
+      class PaleoSurfaceProperty : public PaleoProperty
       {
       public:
 
-         PaleoSurfaceProperty (ProjectHandle * projectHandle, database::Record * record, const Surface* surface );
+         PaleoSurfaceProperty (ProjectHandle& projectHandle, database::Record * record, const Surface* surface );
 
          virtual ~PaleoSurfaceProperty (void);
 

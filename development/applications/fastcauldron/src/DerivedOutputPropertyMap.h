@@ -43,13 +43,13 @@ class DerivedOutputPropertyMap : public OutputPropertyMap {
 public :
 
    // Constructor for map data.
-   DerivedOutputPropertyMap ( const PropertyList         propertyName,
+   DerivedOutputPropertyMap ( const PropertyIdentifier         propertyName,
                                     LayerProps*          formation,
                               const Interface::Surface*  surface,
                               const Interface::Snapshot* snapshot );
 
    // Constructor for volume data.
-   DerivedOutputPropertyMap ( const PropertyList         propertyName,
+   DerivedOutputPropertyMap ( const PropertyIdentifier         propertyName,
                                     LayerProps*          formation,
                               const Interface::Snapshot* snapshot );
 
@@ -82,7 +82,7 @@ private :
 
 
 template<class PropertyCalculator>
-DerivedOutputPropertyMap<PropertyCalculator>::DerivedOutputPropertyMap ( const PropertyList         propertyName,
+DerivedOutputPropertyMap<PropertyCalculator>::DerivedOutputPropertyMap ( const PropertyIdentifier         propertyName,
                                                                                LayerProps*          formation,
                                                                          const Interface::Surface*  surface,
                                                                          const Interface::Snapshot* snapshot) :
@@ -101,7 +101,7 @@ DerivedOutputPropertyMap<PropertyCalculator>::DerivedOutputPropertyMap ( const P
 }
 
 template<class PropertyCalculator>
-DerivedOutputPropertyMap<PropertyCalculator>::DerivedOutputPropertyMap ( const PropertyList         propertyName,
+DerivedOutputPropertyMap<PropertyCalculator>::DerivedOutputPropertyMap ( const PropertyIdentifier         propertyName,
                                                                                LayerProps*          formation,
                                                                          const Interface::Snapshot* snapshot) :
    OutputPropertyMap ( propertyName, formation, 0, snapshot ),

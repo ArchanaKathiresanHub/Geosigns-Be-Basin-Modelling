@@ -1,9 +1,9 @@
-// 
+//
 // Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -26,11 +26,11 @@ namespace DataAccess
       {
       public:
 
-         PaleoProperty (ProjectHandle * projectHandle, database::Record * record);
+         PaleoProperty (ProjectHandle& projectHandle, database::Record * record);
 
 
 
-         PaleoProperty ( ProjectHandle *      projectHandle,
+         PaleoProperty ( ProjectHandle& projectHandle,
                          const Formation*     formation,
                          const PaleoProperty* startProperty,
                          const PaleoProperty* endProperty,
@@ -73,14 +73,14 @@ namespace DataAccess
 
       /// \brief Functor class for ordering Paleo properties
       class PaleoPropertyTimeLessThan {
-         
+
       public :
-         
-         bool operator ()( const PaleoProperty* s1, 
+
+         bool operator ()( const PaleoProperty* s1,
                            const PaleoProperty* s2 ) const;
-         
+
       };
-    
+
    }
 }
 

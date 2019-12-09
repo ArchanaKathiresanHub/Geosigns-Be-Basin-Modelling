@@ -10,7 +10,7 @@ class CauldronRunParameters : public Interface::RunParameters {
 
 public :
 
-   CauldronRunParameters ( Interface::ProjectHandle * projectHandle, database::Record * record);
+   CauldronRunParameters ( Interface::ProjectHandle& projectHandle, database::Record * record);
 
    /// Global switch on chemical compaction.
    ///

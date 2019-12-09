@@ -13,7 +13,7 @@ using namespace Interface;
 
 //------------------------------------------------------------//
 
-FaultCollection::FaultCollection (ProjectHandle * projectHandle, const string & mapName):DAObject (projectHandle, 0),
+FaultCollection::FaultCollection (ProjectHandle& projectHandle, const string & mapName):DAObject (projectHandle, 0),
 m_name (mapName)
 {
 }

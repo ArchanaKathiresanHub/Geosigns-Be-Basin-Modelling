@@ -42,6 +42,7 @@ signals:
   void signalEnableDisableWorkflowTabs(int tabIndex, bool hasLogMessage = true);
   void signalResestToStartingStage();
   void signalRefreshAfterOpen();
+  void signalProjectOpened();
 
 private:
   void emitAllRefreshSignals();

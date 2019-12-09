@@ -23,7 +23,7 @@ class CauldronRelatedProject : public DataAccess::Interface::RelatedProject {
 public :
 
 
-   CauldronRelatedProject ( DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record );
+   CauldronRelatedProject ( DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record );
 
    ~CauldronRelatedProject ();
 

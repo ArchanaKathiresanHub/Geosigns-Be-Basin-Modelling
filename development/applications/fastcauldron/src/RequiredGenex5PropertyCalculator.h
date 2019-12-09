@@ -52,6 +52,6 @@ private :
 };
 
 
-OutputPropertyMap* allocateRequiredGenex5PropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocateRequiredGenex5PropertyCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
 #endif // FASTCAULDRON__REQUIRED_GENEX5_PROPERTY_CALCULATOR_H

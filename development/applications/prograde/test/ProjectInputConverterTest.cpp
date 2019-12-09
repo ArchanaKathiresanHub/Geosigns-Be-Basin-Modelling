@@ -63,10 +63,10 @@ TEST(ProjectIoModelConverter, upgrade)
    //tests to verify whether the description field is correctly manipulated
    EXPECT_EQ("Migrated from BPA", modelConverter.upgradeDescription("3d","")); 
    EXPECT_EQ("Migrated from BPA", modelConverter.upgradeDescription("1d", ""));
-   EXPECT_EQ("Migrated from BPA (Please note that the original modelling mode was 1Dand3D)", modelConverter.upgradeDescription("both", ""));
+   EXPECT_EQ("Migrated from BPA (Please note that the original modelling mode was 1Dand3D)", modelConverter.upgradeDescription("Both", ""));
    EXPECT_EQ("Migrated from BPA", modelConverter.upgradeDescription("UnknownModellingMode", ""));
    EXPECT_EQ("TestProject NVG: Migrated from BPA", modelConverter.upgradeDescription("3d","TestProject NVG"));
    EXPECT_EQ("TestProject NVG: Migrated from BPA", modelConverter.upgradeDescription("1d", "TestProject NVG"));
-   EXPECT_EQ("TestProject NVG: Migrated from BPA (Please note that the original modelling mode was 1Dand3D)", modelConverter.upgradeDescription("both", "TestProject NVG"));
+   EXPECT_EQ("TestProject NVG: Migrated from BPA (Please note that the original modelling mode was 1Dand3D)", modelConverter.upgradeDescription("Both", "TestProject NVG"));
    EXPECT_EQ("TestProject NVG: Migrated from BPA", modelConverter.upgradeDescription("UnknownModellingMode", "TestProject NVG"));
 }

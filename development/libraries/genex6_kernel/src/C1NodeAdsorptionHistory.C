@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "C1NodeAdsorptionHistory.h"
 
 #include <iomanip>
@@ -22,7 +22,7 @@
 using Utilities::Maths::CelciusToKelvin;
 
 Genex6::C1NodeAdsorptionHistory::C1NodeAdsorptionHistory ( const SpeciesManager&                 speciesManager,
-                                                           DataAccess::Interface::ProjectHandle* projectHandle ) :
+                                                           DataAccess::Interface::ProjectHandle& projectHandle ) :
    NodeAdsorptionHistory ( speciesManager, projectHandle ) {
 }
 
@@ -77,6 +77,6 @@ void Genex6::C1NodeAdsorptionHistory::write ( std::ostream& str ) {
 }
 
 Genex6::NodeAdsorptionHistory* Genex6::allocateC1NodeAdsorptionHistory ( const SpeciesManager&                 speciesManager,
-                                                                         DataAccess::Interface::ProjectHandle* projectHandle ) {
+                                                                         DataAccess::Interface::ProjectHandle& projectHandle ) {
    return new C1NodeAdsorptionHistory ( speciesManager, projectHandle );
 }

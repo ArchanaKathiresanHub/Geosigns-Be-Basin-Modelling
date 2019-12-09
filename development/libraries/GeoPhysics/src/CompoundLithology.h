@@ -48,7 +48,7 @@ namespace GeoPhysics {
       /// \brief Create typedef for the workspace of vectors used in intermediate permeability calculation.
       typedef PermeabilityMixer::PermeabilityWorkSpaceArrays PermeabilityWorkSpaceArrays;
 
-      CompoundLithology(GeoPhysics::ProjectHandle* projectHandle);
+      CompoundLithology(GeoPhysics::ProjectHandle& projectHandle);
 
       virtual ~CompoundLithology();
 
@@ -433,10 +433,10 @@ namespace GeoPhysics {
 
    protected:
 
-	   void setChemicalCompactionTerms(const double rockViscosity,
-		   const double activationEnergy);
+		 void setChemicalCompactionTerms(const double rockViscosity,
+			 const double activationEnergy);
 
-	   double exponentialDecompactionFunction(const double ves) const;
+		 double exponentialDecompactionFunction(const double ves) const;
 
       /// Decide whether or not you can mix the lithologies depending on the porosity models
       /// Return true if mixing is ok return false otherwise
@@ -449,12 +449,12 @@ namespace GeoPhysics {
       void mixPorosityModel(DataAccess::Interface::PorosityModel & porosityModel);
 
       void mixCompactionCoefficients(double & compactionincr, double & compactionincrA,
-    		  double & compactionincrB,
-    		  double & compactiondecr,
-    		  double & compactiondecrA,
-    		  double & compactiondecrB,
+          double & compactionincrB,
+          double & compactiondecr,
+          double & compactiondecrA,
+          double & compactiondecrB,
            double & compactionRatio,
-    		  double & soilMechanicsCompactionCoefficient);
+          double & soilMechanicsCompactionCoefficient);
 
       void setMinimumExponentialPorosity();
 
@@ -519,7 +519,7 @@ namespace GeoPhysics {
       /// compound lithology has the minimum porosity.
       CompoundProperty minimumCompoundPorosity;
 
-      GeoPhysics::ProjectHandle* m_projectHandle;
+      GeoPhysics::ProjectHandle& m_projectHandle;
 
       Porosity m_porosity;
 
@@ -594,11 +594,11 @@ inline double GeoPhysics::CompoundLithology::heatproduction() const {
 }
 
 inline double GeoPhysics::CompoundLithology::seismicVelocitySolid() const {
-	return m_seismicVelocitySolid;
+  return m_seismicVelocitySolid;
 }
 
 inline const GeoPhysics::SeismicVelocity& GeoPhysics::CompoundLithology::seismicVelocity() const {
-	return m_seismicVelocity;
+  return m_seismicVelocity;
 }
 
 inline double GeoPhysics::CompoundLithology::thermalcondaniso() const {

@@ -26,7 +26,7 @@ namespace DataExtraction
 DataDriller::DataDriller( const std::string& inputProjectFileName ) :
   DataExtractor(),
   m_objectFactory( new DataAccess::Mining::ObjectFactory ),
-  m_projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r", m_objectFactory ) ) ),
+  m_projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, m_objectFactory ) ) ),
   m_readFromHDF()
 {
   m_gridHighResolution = m_projectHandle->getHighResolutionOutputGrid();
@@ -39,14 +39,13 @@ DataDriller::~DataDriller()
   if ( m_projectHandle )
   {
     m_projectHandle->finishActivity( false );
-    delete m_projectHandle;
   }
   delete m_objectFactory;
 }
 
-DataAccess::Interface::ProjectHandle* DataDriller::getProjectHandle() const
+DataAccess::Interface::ProjectHandle& DataDriller::getProjectHandle() const
 {
-  return m_projectHandle;
+  return *m_projectHandle;
 }
 
 bool DataDriller::allDataReadFromHDF()
@@ -104,7 +103,7 @@ void DataDriller::calculateTrapAndMissingProperties()
     return;
   }
 
-  DerivedProperties::DerivedPropertyManager propertyManager( m_projectHandle );
+  DerivedProperties::DerivedPropertyManager propertyManager( *m_projectHandle );
 
   int recordIndex = -1;
 
@@ -138,8 +137,8 @@ void DataDriller::calculateTrapAndMissingProperties()
       // Get reservoir/trap property
       if ( reservoirName != "" )
       {
-        const DataAccess::Interface::Reservoir * reservoir = m_projectHandle->findReservoir( reservoirName );
-        TrapPropertiesManager trapPropertiesManager( m_projectHandle, propertyManager );
+        const Interface::Reservoir * reservoir = m_projectHandle->findReservoir( reservoirName );
+        TrapPropertiesManager trapPropertiesManager( *m_projectHandle, propertyManager );
         value = trapPropertiesManager.getTrapPropertyValue( property, snapshot, reservoir, x, y );
       }
       // Get property for X,Y,Z point or for Surface or Formation map
@@ -315,7 +314,7 @@ void DataDriller::readDataFromHDF()
 double DataDriller::get2dPropertyFromHDF( const double i, const double j, const Surface* surface, const Formation* formation,
                                           const Property* property, const Snapshot* snapshot, const unsigned int recordIndex )
 {
-  HDFReadManager hdfReadManager( m_projectHandle );
+  HDFReadManager hdfReadManager( *m_projectHandle );
   hdfReadManager.openMapsFile( getMapsFileName( property->getCauldronName() ) );
   const std::string propertyFormationDataGroup = getPropertyFormationDataGroupName( formation, surface, property, snapshot );
   const DoubleVector values = hdfReadManager.get2dCoordinatePropertyVector( {{i, j}}, propertyFormationDataGroup );

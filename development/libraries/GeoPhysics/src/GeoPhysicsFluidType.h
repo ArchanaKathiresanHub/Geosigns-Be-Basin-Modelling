@@ -76,7 +76,7 @@ namespace GeoPhysics {
       static const double DefaultThermalConductivityCorrectionTemperature;
 
       /// Constructor.
-      FluidType ( DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record );
+      FluidType ( DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record );
 
       /// Destructor.
       ~FluidType ();

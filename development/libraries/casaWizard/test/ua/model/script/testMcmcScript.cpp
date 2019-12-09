@@ -13,6 +13,7 @@ public:
   McmcScriptTest()
   {
     scenario.setStateFileNameQC("stateFileTestCasaScriptQC.txt");
+    scenario.setWorkingDirectory(".");
   }
 };
 

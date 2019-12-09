@@ -20,19 +20,19 @@ using namespace PersistentTraps;
 
 DataAccess::Interface::ProjectHandle *
 PersistentTrapFactory::produceProjectHandle (database::ProjectFileHandlerPtr database,
-                                             const string & name, const string & accessMode) const
+                                             const string & name) const
 {
-   return new TrackProjectHandle (database, name, accessMode, this);
+   return new TrackProjectHandle (database, name, this);
 }
 
 DataAccess::Interface::Trap *
-PersistentTrapFactory::produceTrap (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
+PersistentTrapFactory::produceTrap (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record) const
 {
    return new PersistentTraps::TrackTrap (projectHandle, record);
 }
 
 DataAccess::Interface::Reservoir *
-PersistentTrapFactory::produceReservoir (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) const
+PersistentTrapFactory::produceReservoir (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record) const
 {
    return new TrackReservoir (projectHandle, record);
 }

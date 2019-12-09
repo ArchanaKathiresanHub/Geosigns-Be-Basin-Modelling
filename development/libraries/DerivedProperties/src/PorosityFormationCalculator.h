@@ -21,10 +21,10 @@ namespace DerivedProperties {
 
    public :
 
-      PorosityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
- 
+      PorosityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
+
       /// \brief Calculate the porosity for the formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the porosity is requested.
       /// \param [in]  formation   The formation for which the porosity is requested.
@@ -38,11 +38,11 @@ namespace DerivedProperties {
 
    private :
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
       bool m_chemicalCompactionRequired;
    };
 
 
 }
 
-#endif 
+#endif

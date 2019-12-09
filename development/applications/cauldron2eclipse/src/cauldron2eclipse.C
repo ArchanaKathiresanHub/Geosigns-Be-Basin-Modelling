@@ -138,7 +138,7 @@ static double PercentageToFraction (double in)
 static double Negate (double in)
 {
    return -in;
-} 
+}
 
 int findLithologId (double density, double heatprod, double porosurf );
 void writeEGRIDHeader( const bool& swapMode, const int& numI, const int& numJ,
@@ -344,9 +344,9 @@ int main (int argc, char ** argv)
       return -1;
    }
 
-   GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, "r", factory ) );
-   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
+   GeoPhysics::ObjectFactory factory;
+   std::unique_ptr<GeoPhysics::ProjectHandle> projectHandle(dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, &factory ) ));
+   DerivedProperties::DerivedPropertyManager propertyManager ( *projectHandle );
 
    if (projectFileName.length () == 0)
    {
@@ -381,7 +381,7 @@ int main (int argc, char ** argv)
    } else {
       // If this table is not present the assume that the last
       // fastcauldron mode was not pressure mode.
-      // This table may not be present because we are running c2e on an old 
+      // This table may not be present because we are running c2e on an old
       // project, before this table was added.
       coupledCalculationMode = false;
    }
@@ -444,7 +444,7 @@ int main (int argc, char ** argv)
       cerr << "Could not find the Depth property results in the project file " << endl << "Are you sure the project file contains output data?" << endl;
       return -1;
    }
-   
+
    // number of horizons
    unsigned int numberOfHorizons = 0;
 
@@ -546,10 +546,10 @@ int main (int argc, char ** argv)
 
       for (i = 0; i <= numI; ++i)
       {
-	 // eclipse node coordinates are cauldron cell coordinates, except at the edges
-	 if (i == 0) ii = i;
-	 else if (i == numI) ii = i - 1;
-	 else ii = i - 0.5;
+   // eclipse node coordinates are cauldron cell coordinates, except at the edges
+   if (i == 0) ii = i;
+   else if (i == numI) ii = i - 1;
+   else ii = i - 0.5;
 
          double posI, posJ;
          double topDepth;
@@ -565,7 +565,7 @@ int main (int argc, char ** argv)
          minPosY = Min (minPosY, posJ);
          maxPosY = Max (maxPosY, posJ);
 
-	 // get values even if one of or more of the cauldron node values are undefined
+   // get values even if one of or more of the cauldron node values are undefined
          topDepth = GetValue (topFormationValue, ii, jj, topIndex );
          bottomDepth = GetValue (bottomFormationValue, ii, jj, bottomIndex );
 
@@ -593,7 +593,7 @@ int main (int argc, char ** argv)
                checkDataBlocks ();
             }
          }
-         //------------- 
+         //-------------
       }
    }
    if (doAscii)
@@ -646,56 +646,56 @@ int main (int argc, char ** argv)
 
       for (k = numK - 1; k >= 0; -- k)
       {
-	 double kIndices[2];
+   double kIndices[2];
          GetCornerIndices (kIndices, k, numK, true);
 
-         for (int kx = 0; kx < 2; ++kx)
+				 for (int kx = 0; kx < 2; ++kx)
 	 {
-	    for (j = 0; j < numJ; ++j)
-	    {
-	       double jIndices[2];
-	       GetCornerIndices (jIndices, j, numJ, false);
+			for (j = 0; j < numJ; ++j)
+			{
+				 double jIndices[2];
+				 GetCornerIndices (jIndices, j, numJ, false);
 
-	       for (int jx = 0; jx < 2; ++jx)
-	       {
-		  for (i = 0; i < numI; ++i)
-		  {
-		     double iIndices[2];
-		     GetCornerIndices (iIndices, i, numI, false);
+				 for (int jx = 0; jx < 2; ++jx)
+				 {
+			for (i = 0; i < numI; ++i)
+			{
+				 double iIndices[2];
+				 GetCornerIndices (iIndices, i, numI, false);
 
-		     for (int ix = 0; ix < 2; ++ix)
-		     {
-                        double kkk = kIndices[kx];
-                        double jjj = jIndices[jx];
-                        double iii = iIndices[ix];
+				 for (int ix = 0; ix < 2; ++ix)
+				 {
+												double kkk = kIndices[kx];
+												double jjj = jIndices[jx];
+												double iii = iIndices[ix];
 
 			double depth = GetValue (formationPropertyValue, iii, jjj, kkk);
-			
+
 			if (doAscii)
 			{
-            outputFile << (std::isnan( depth ) ? EclipseUndefined : depth) << "  ";
-			   if (++numDepth % 4 == 0)
-			      outputFile << endl;
+						outputFile << (std::isnan( depth ) ? EclipseUndefined : depth) << "  ";
+				 if (++numDepth % 4 == 0)
+						outputFile << endl;
 			}
 
 			//------------- Binary data
 			if (doBinary)
 			{
-			   fNum = (float) depth;
-			   writeValue (fNum, swapMode);
+				 fNum = (float) depth;
+				 writeValue (fNum, swapMode);
 
-			   checkDataBlocks ();
+				 checkDataBlocks ();
 			}
 			++itemCount;
-		     }
-		  }
-	       }
-            }
-         }
-      }
-   }
-   if (verbose)
-      cout << endl;
+				 }
+			}
+				 }
+						}
+				 }
+			}
+	 }
+	 if (verbose)
+			cout << endl;
 
    if (debug)
    {
@@ -756,17 +756,17 @@ int main (int argc, char ** argv)
                dNum = 0;
                char charOut = '0';
 
-	       if (formationPropertyValue->get (i, j, k) != formationPropertyValue->getUndefinedValue ())
+         if (formationPropertyValue->get (i, j, k) != formationPropertyValue->getUndefinedValue ())
                {
                   charOut = '1';
 
                   dNum = 1;
                }
 
-	       if (debug && k == 0)
-	       {
-		  cerr << charOut;
-	       }
+				 if (debug && k == 0)
+				 {
+			cerr << charOut;
+				 }
 
                if (doAscii)
                {
@@ -785,11 +785,11 @@ int main (int argc, char ** argv)
                }
                //-------------
             }
-	    if (debug && k == 0)
-	       cerr << endl;
+      if (debug && k == 0)
+         cerr << endl;
          }
-	 if (debug && k == 0)
-	    cerr << endl << endl;;
+   if (debug && k == 0)
+      cerr << endl << endl;;
       }
    }
    if (verbose)
@@ -1152,7 +1152,7 @@ int main (int argc, char ** argv)
 
                      checkDataBlocks ();
                   }
-                  //------------- 
+                  //-------------
                }
             }
          }
@@ -1171,7 +1171,7 @@ int main (int argc, char ** argv)
    {
       writeDelimiter ();
    }
-   //------------- 
+   //-------------
 
 
    // process all the properties
@@ -1198,13 +1198,13 @@ int main (int argc, char ** argv)
       PropertyValueList *propertyValueListAvailable = projectHandle->getPropertyValues (FORMATION, property, snapshot, 0, 0, 0, VOLUME);
       unsigned int propertiesSize = propertyValueListAvailable->size ();
       delete propertyValueListAvailable;
- 
+
       if( propertiesSize == 0 ) {
            if (debug)
             cerr << "Property " << conversion.cauldronName << " has no values" << endl;
          continue;
-      }       
- 
+      }
+
       AbstractDerivedProperties::FormationPropertyList propertyValueList ( propertyManager.getFormationProperties ( property, snapshot, basement ));
 
       if (propertyValueList.size () == 0)
@@ -1217,11 +1217,11 @@ int main (int argc, char ** argv)
       if (propertyValueList.size () < stratIndex)
       {
          if (debug)
-	    if (basement)
-	       cerr << "Property " << conversion.cauldronName << " does not have basement values?" << endl;
-	    else
-	       cerr << "Property " << conversion.cauldronName << " does not have enough values" << endl;
-	 continue;
+      if (basement)
+         cerr << "Property " << conversion.cauldronName << " does not have basement values?" << endl;
+      else
+         cerr << "Property " << conversion.cauldronName << " does not have enough values" << endl;
+   continue;
       }
 
       if (debug)
@@ -1342,9 +1342,6 @@ int main (int argc, char ** argv)
       fclose (fpw);
    }
 
-   CloseCauldronProject (projectHandle);
-   delete factory;
-
    if (debug)
       cerr << "Project closed" << endl;
 
@@ -1444,12 +1441,12 @@ double GetValue (const AbstractDerivedProperties::FormationPropertyPtr& gridMap,
    }
 
    double value;
-   
+
    if (totalWeight == 0)
       value = NAN;
    else
       value = (1 / totalWeight) * totalValue;
-      
+
    return value;
 }
 
@@ -1560,9 +1557,9 @@ void checkDataBlocks (void)
       numItemsToWrite = Min (1000, numItemsLeft);
       if (numItemsToWrite != 0)
       {
-	 dNum = numItemsToWrite * dataSize;
-	 writeValue (dNum, swapMode);
-	 // cerr << " starting sub-block of " << numItemsToWrite << " of size " << dataSize << endl;
+   dNum = numItemsToWrite * dataSize;
+   writeValue (dNum, swapMode);
+   // cerr << " starting sub-block of " << numItemsToWrite << " of size " << dataSize << endl;
       }
       itemCount = 0;
    }
@@ -1736,18 +1733,18 @@ void writeINITHeader( const bool& swapMode, const int& numI, const int& numJ,
    for (i = 1; i < noItems + 1; ++i )
    {
       switch( i ){
-	 case 3:   dNum = 1; break;
-	 case 9:   dNum = numI - 1; break; 
-	 case 10:  dNum = numJ - 1; break; 
-	 case 11:  dNum = numberOfHorizons - 1; break;
-	 case 12:  dNum = (numI - 1) * (numJ - 1) * (numberOfHorizons - 1); break;
-	 case -15: dNum = 7;  break;
-	 case 65:  
-	 case 66:  dNum = 1; break;
-	 case 67:  dNum = 2008; break;
-	 case 95:  dNum = 100; break;  
-	 default: 
-		   dNum = 0;
+   case 3:   dNum = 1; break;
+   case 9:   dNum = numI - 1; break;
+   case 10:  dNum = numJ - 1; break;
+   case 11:  dNum = numberOfHorizons - 1; break;
+   case 12:  dNum = (numI - 1) * (numJ - 1) * (numberOfHorizons - 1); break;
+   case -15: dNum = 7;  break;
+   case 65:
+   case 66:  dNum = 1; break;
+   case 67:  dNum = 2008; break;
+   case 95:  dNum = 100; break;
+   default:
+       dNum = 0;
       }
       writeValue (dNum, swapMode);
    }

@@ -33,7 +33,7 @@ namespace DerivedProperties {
 
    public :
 
-      DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle,
+      DerivedPropertyManager ( GeoPhysics::ProjectHandle& projectHandle,
                                const bool                 loadAllProperties = true,
                                const bool                 debug = false );
 
@@ -41,10 +41,10 @@ namespace DerivedProperties {
       ///
       /// If the name is not found then a null pointer will be returned.
       /// \param [in] name The name of the required property.
-      virtual const DataAccess::Interface::Property* getProperty ( const std::string& name ) const;
+      virtual const DataModel::AbstractProperty* getProperty ( const std::string& name ) const;
 
       /// \brief Get the grid for the map.
-      virtual const DataAccess::Interface::Grid* getMapGrid () const;
+      virtual const DataModel::AbstractGrid* getMapGrid () const;
 
       /// \brief Determine whether or not the node is valid.
       virtual bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
@@ -99,7 +99,7 @@ namespace DerivedProperties {
    protected :
 
       /// \brief Get the geophysics project handle
-      const GeoPhysics::ProjectHandle* getProjectHandle () const;
+      const GeoPhysics::ProjectHandle& getProjectHandle() const;
 
       /// \brief Load one formation property calculator.
       ///
@@ -111,17 +111,17 @@ namespace DerivedProperties {
       /// \brief Load primary property calculators that are associated with surface only.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadPrimarySurfacePropertyCalculators ( const bool debug );
+      void loadPrimarySurfacePropertyCalculators ( const bool loadAllProperties, const bool debug );
 
       /// \brief Load primary property calculators that are associated with formation and surface.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadPrimaryFormationSurfacePropertyCalculators ( const bool debug );
+      void loadPrimaryFormationSurfacePropertyCalculators ( const bool loadAllProperties, const bool debug );
 
       /// \brief Load primary property calculators that are associated with formation only.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadPrimaryFormationMapPropertyCalculators ( const bool debug );
+      void loadPrimaryFormationMapPropertyCalculators ( const bool loadAllProperties, const bool debug );
 
       /// \brief Load primary property calculators that are associated with reservoirs.
       ///
@@ -131,7 +131,7 @@ namespace DerivedProperties {
       /// \brief Load primary property calculators that are associated with formation only.
       ///
       /// These are volume properties loaded from the property-values in the project-handle.
-      void loadPrimaryFormationPropertyCalculators ( const bool debug );
+      void loadPrimaryFormationPropertyCalculators (const bool loadAllProperties, const bool debug );
 
       /// \brief Load derived formation property calculators.
       ///
@@ -158,6 +158,11 @@ namespace DerivedProperties {
       /// Here one calculator for derived properties for surfaces is added to the set of calculators.
       void loadDerivedSurfacePropertyCalculator(AbstractDerivedProperties::SurfacePropertyCalculatorPtr formationSurfacePropertyCalculator);
 
+      /// \brief Load one derived surface property calculator.
+      ///
+      /// Here one calculator for derived properties for formation surfaces is added to the set of calculators.
+      void loadDerivedFormationSurfacePropertyCalculator(AbstractDerivedProperties::FormationSurfacePropertyCalculatorPtr formationSurfacePropertyCalculator);
+
       /// \brief Determine if the derived property calculator should be added to the property-manager.
       ///
       /// This does not look at the properties required for the property to be calculated, only
@@ -176,13 +181,16 @@ namespace DerivedProperties {
       /// if a calculator for the property is already in the list.
       bool canAddDerivedSurfacePropertyCalculator ( const AbstractDerivedProperties::SurfacePropertyCalculatorPtr& surfacePropertyCalculator ) const;
 
+      /// \brief Determine if the derived property calculator should be added to the property-manager.
+      ///
+      /// This does not look at the properties required for the property to be calculated, only
+      /// if a calculator for the property is already in the list.
+      bool canAddDerivedFormationSurfacePropertyCalculator ( const AbstractDerivedProperties::FormationSurfacePropertyCalculatorPtr& formationSurfacePropertyCalculator ) const;
+
       /// \brief The geophysics project handle
-      GeoPhysics::ProjectHandle* m_projectHandle;
+      GeoPhysics::ProjectHandle& m_projectHandle;
 
-      /// \brief Flag to determine which properties to load
-      bool m_loadAllProperties;
-
-   }; 
+   };
 
 } // namespace DerivedProperties
 
@@ -191,7 +199,7 @@ namespace DerivedProperties {
 //
 
 inline bool DerivedProperties::DerivedPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned int j ) const {
-   return m_projectHandle->getNodeIsValid ( i, j );
+   return m_projectHandle.getNodeIsValid ( i, j );
 }
 
 

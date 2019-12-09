@@ -36,7 +36,7 @@ using namespace DataAccess;
 
 //------------------------------------------------------------//
 
-GeoPhysics::GeoPhysicsFormation::GeoPhysicsFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+GeoPhysics::GeoPhysicsFormation::GeoPhysicsFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
                                    database::Record*                          record ) :
    DataAccess::Interface::Formation ( projectHandle, record )
 {
@@ -64,7 +64,7 @@ bool GeoPhysics::GeoPhysicsFormation::setLithologiesFromStratTable () {
 
    const double LithologyTolerance = 1.0e-4;
 
-   m_compoundLithologies.allocate ( m_projectHandle->getActivityOutputGrid ());
+   m_compoundLithologies.allocate ( getProjectHandle().getActivityOutputGrid ());
 
    const Interface::GridMap* lithoMap1 = dynamic_cast<const Interface::GridMap*>(getLithoType1PercentageMap ());
    const Interface::GridMap* lithoMap2 = dynamic_cast<const Interface::GridMap*>(getLithoType2PercentageMap ());
@@ -213,7 +213,7 @@ bool GeoPhysics::GeoPhysicsFormation::setLithologiesFromStratTable () {
                                                     lithologyPercentage1, lithologyPercentage2, lithologyPercentage3,
                                                     getMixModelStr (), getLayeringIndex());
 
-                  pMixedLitho = ((GeoPhysics::ProjectHandle*)(m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
+                  pMixedLitho = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ().getCompoundLithology ( lc );
 
                   if ( pMixedLitho != 0 ) {
                      m_compoundLithologies.addStratigraphyTableLithology ( i, j, pMixedLitho );
@@ -278,14 +278,16 @@ bool GeoPhysics::GeoPhysicsFormation::setLithologiesFromStratTable () {
          lithologyPercentage3 = 0.0;
       }
 
-      if ( m_projectHandle->getModellingMode () == Interface::MODE1D and
+      GeoPhysics::LithologyManager& lithologyManager = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ();
+
+      if ( getProjectHandle().getModellingMode () == Interface::MODE1D and
            NumericFunctions::isEqual ( lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3, 0.0, LithologyTolerance )) {
 
          CompoundLithologyComposition lc ( OneDHiatusLithologyName, "", "",
                                            100.0, 0.0, 0.0,
                                            getMixModelStr (), getLayeringIndex());
 
-         pMixedLitho = ((GeoPhysics::ProjectHandle*)(m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
+         pMixedLitho = lithologyManager.getCompoundLithology ( lc );
          createdLithologies = pMixedLitho != 0;
       } else if ( NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) < -LithologyTolerance or
                   NumericFunctions::Maximum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) > 100.0 + LithologyTolerance or
@@ -309,7 +311,7 @@ bool GeoPhysics::GeoPhysicsFormation::setLithologiesFromStratTable () {
                                            lithologyPercentage1, lithologyPercentage2, lithologyPercentage3,
                                            getMixModelStr (), getLayeringIndex() );
 
-         pMixedLitho = ((GeoPhysics::ProjectHandle*)(m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
+         pMixedLitho = lithologyManager.getCompoundLithology ( lc );
          createdLithologies = pMixedLitho != 0;
       }
 
@@ -381,12 +383,12 @@ void GeoPhysics::GeoPhysicsFormation::setFaultLithologies ( bool& layerHasFaults
    using Interface::X_COORD;
    using Interface::Y_COORD;
 
-   GeoPhysics::ProjectHandle* project = dynamic_cast<GeoPhysics::ProjectHandle*>( m_projectHandle );
+   GeoPhysics::ProjectHandle& project = dynamic_cast<GeoPhysics::ProjectHandle&>( getProjectHandle() );
 
    Interface::FaultCollectionList* faultCollections = Interface::Formation::getFaultCollections ();
    Interface::FaultCollectionList::const_iterator faultCollectionIter;
 
-   const Interface::Grid* activityGrid = dynamic_cast<const Interface::Grid*>(m_projectHandle->getActivityOutputGrid ());
+   const Interface::Grid* activityGrid = dynamic_cast<const Interface::Grid*>(project.getActivityOutputGrid ());
 
    Interface::FaultElementCalculator FEC;
    DataAccess::Interface::ElementSet faultElements;
@@ -433,8 +435,8 @@ void GeoPhysics::GeoPhysicsFormation::setFaultLithologies ( bool& layerHasFaults
 
                   // Check to see if the element is a valid element on this subdomain.
                   if ( m_compoundLithologies.validIndex ( element ( X_COORD ), element ( Y_COORD ))) {
-                     faultLithology = project->getLithologyManager ().getCompoundFaultLithology ( lithologyName,
-                                                                                                  getCompoundLithology ( element ( X_COORD ), element ( Y_COORD ))->getComposition ());
+                     faultLithology = project.getLithologyManager ().getCompoundFaultLithology ( lithologyName,
+                                                                                                 getCompoundLithology ( element ( X_COORD ), element ( Y_COORD ))->getComposition ());
 
                      if ( faultLithology != 0 ) {
                         //
@@ -446,11 +448,11 @@ void GeoPhysics::GeoPhysicsFormation::setFaultLithologies ( bool& layerHasFaults
                         // ERROR:
                         //
 
-                        m_projectHandle->getMessageHandler ().printLine ( "Basin_Error: Fault::setBasinFault Unable to find or create the fault lithology ");
-                        m_projectHandle->getMessageHandler ().print ( "Basin_Error: Fault::setBasinFault so for age " );
-                        m_projectHandle->getMessageHandler ().print ( startAge );
-                        m_projectHandle->getMessageHandler ().print ( " not fault lithology will be set" );
-                        m_projectHandle->getMessageHandler ().newLine ();
+                        getProjectHandle().getMessageHandler ().printLine ( "Basin_Error: Fault::setBasinFault Unable to find or create the fault lithology ");
+                        getProjectHandle().getMessageHandler ().print ( "Basin_Error: Fault::setBasinFault so for age " );
+                        getProjectHandle().getMessageHandler ().print ( startAge );
+                        getProjectHandle().getMessageHandler ().print ( " not fault lithology will be set" );
+                        getProjectHandle().getMessageHandler ().newLine ();
 
                         error = true;
                      }
@@ -498,7 +500,7 @@ void GeoPhysics::GeoPhysicsFormation::determineMinMaxThickness () {
       double gridMapMinimum;
       double gridMapMaximum;
 
-      const Interface::Snapshot* presentDay = m_projectHandle->findSnapshot ( 0.0 );
+      const Interface::Snapshot* presentDay = getProjectHandle().findSnapshot ( 0.0 );
       const Interface::GridMap* gridMap = dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ());
 
       gridMap->retrieveData ();
@@ -544,11 +546,11 @@ unsigned int GeoPhysics::GeoPhysicsFormation::setMaximumNumberOfElements ( const
    if ( readSizeFromVolumeData ) {
 
       // Any volume property could be used here that is always output, Ves is always output.
-      const Interface::Property* vesProperty = m_projectHandle->findProperty ( "Ves" );
+      const Interface::Property* vesProperty = getProjectHandle().findProperty ( "Ves" );
 
-      Interface::PropertyValueList* vesValueList = m_projectHandle->getPropertyValues ( Interface::FORMATION,
+      Interface::PropertyValueList* vesValueList = getProjectHandle().getPropertyValues ( Interface::FORMATION,
                                                                                         vesProperty,
-                                                                                        m_projectHandle->findSnapshot ( 0.0, Interface::MAJOR ),
+                                                                                        getProjectHandle().findSnapshot ( 0.0, Interface::MAJOR ),
                                                                                         0,
                                                                                         this,
                                                                                         0,
@@ -568,7 +570,7 @@ unsigned int GeoPhysics::GeoPhysicsFormation::setMaximumNumberOfElements ( const
 
    } else {
 
-      const double sedimentElementHeight = m_projectHandle->getRunParameters ()->getBrickHeightSediment ();
+      const double sedimentElementHeight = getProjectHandle().getRunParameters ()->getBrickHeightSediment ();
 
       double layerMaximumThickness = getMaximumThickness ();
 

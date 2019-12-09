@@ -20,7 +20,7 @@ namespace DataAccess
       {
       public :
 
-         FluidHeatCapacitySample (ProjectHandle * projectHandle, database::Record * record);
+         FluidHeatCapacitySample (ProjectHandle& projectHandle, database::Record * record);
 
          virtual ~FluidHeatCapacitySample ();
 

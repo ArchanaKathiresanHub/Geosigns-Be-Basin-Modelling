@@ -50,6 +50,7 @@ private slots:
   void slotDisableTab();
 
   void slotResetTab();
+  void slotUpdateIterationDir();
 
 signals:
   void signalRefresh();

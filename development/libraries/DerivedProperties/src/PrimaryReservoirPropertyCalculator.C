@@ -19,25 +19,12 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::PrimaryReservoirPropertyCalculator::PrimaryReservoirPropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
-                                                                                            const DataModel::AbstractProperty* property ) :
-   m_property ( property )
+DerivedProperties::PrimaryReservoirPropertyCalculator::PrimaryReservoirPropertyCalculator ( const DataModel::AbstractProperty* property,
+                                                                                            const DataAccess::Interface::PropertyValueList& propertyValues ) :
+   m_property ( property ),
+   m_reservoirPropertyValues( propertyValues )
 {
-
-   DataAccess::Interface::PropertyValueList* reservoirProperties = projectHandle->getPropertyValues ( DataAccess::Interface::RESERVOIR, 0, 0, 0, 0, 0, DataAccess::Interface::MAP );
    addPropertyName ( property->getName ());
-
-   for ( size_t i = 0; i < reservoirProperties->size (); ++i ) {
-      const DataAccess::Interface::PropertyValue* propVal = (*reservoirProperties)[ i ];
-
-      if ( propVal->getProperty () == m_property and propVal->getReservoir () != 0 and propVal->getFormation () == 0 ) {
-         m_snapshots.insert ( propVal->getSnapshot ());
-         m_reservoirPropertyValues.push_back ( propVal );
-      }
-
-   }
-
-   delete reservoirProperties;
 }
 
 DerivedProperties::PrimaryReservoirPropertyCalculator::~PrimaryReservoirPropertyCalculator () {
@@ -86,4 +73,4 @@ bool DerivedProperties::PrimaryReservoirPropertyCalculator::isComputable ( const
 
 const DataModel::AbstractSnapshotSet& DerivedProperties::PrimaryReservoirPropertyCalculator::getSnapshots () const {
    return m_snapshots;
-} 
+}

@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -47,8 +47,9 @@ InterfaceInputTester::InterfaceInputTester() :
    m_grid( 0, 0, 1, 1, 2, 2 ),
    m_HBu    ( m_tectonicFalgs.size(), DataAccess::Interface::SerialGridMap( nullptr, 0, &m_grid, 8000, 1 ) ),
    m_DeltaSL( m_tectonicFalgs.size(), DataAccess::Interface::SerialGridMap( nullptr, 0, &m_grid, 500 , 1 ) ),
-   m_ctcGlobalData( std::shared_ptr< MockCrustalThicknessData >( new MockCrustalThicknessData() ) ),
-   m_ctcRiftingDataVec( m_tectonicFalgs.size(), std::shared_ptr< const MockCrustalThicknessRiftingHistoryData >( new MockCrustalThicknessRiftingHistoryData() ) )
+   m_projectHandle(new DataAccess::Interface::ProjectHandle(nullptr, "", nullptr)),
+   m_ctcGlobalData( std::shared_ptr< MockCrustalThicknessData >( new MockCrustalThicknessData( *m_projectHandle ) ) ),
+   m_ctcRiftingDataVec( m_tectonicFalgs.size(), std::shared_ptr< const MockCrustalThicknessRiftingHistoryData >( new MockCrustalThicknessRiftingHistoryData( *m_projectHandle ) ) )
 {
    // set default initial continental crust and lithospheric mantle thickness data
    m_HLMuIni = new DataAccess::Interface::SerialGridMap( nullptr, 0, &m_grid, 110000, 1 );
@@ -120,7 +121,7 @@ void InterfaceInputTester::updateData(){
    unsigned int i = 0;
    std::for_each( m_tectonicFalgs.begin(), m_tectonicFalgs.end(), [&]( DataAccess::Interface::TectonicFlag flag )
    {
-      std::shared_ptr< MockCrustalThicknessRiftingHistoryData > historyData( new MockCrustalThicknessRiftingHistoryData() );
+      std::shared_ptr< MockCrustalThicknessRiftingHistoryData > historyData( new MockCrustalThicknessRiftingHistoryData(*m_projectHandle) );
       historyData->setTectonicFlag( flag );
       historyData->setMap( DataAccess::Interface::HBu    , &m_HBu    [i] );
       historyData->setMap( DataAccess::Interface::DeltaSL, &m_DeltaSL[i] );

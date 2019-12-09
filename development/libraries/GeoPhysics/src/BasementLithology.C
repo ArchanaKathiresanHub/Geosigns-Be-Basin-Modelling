@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -26,7 +26,7 @@ using Utilities::Maths::MegaPaToPa;
 
 using namespace GeoPhysics;
 
-BasementLithology::BasementLithology (  DataAccess::Interface::ProjectHandle* projectHandle,
+BasementLithology::BasementLithology (  DataAccess::Interface::ProjectHandle& projectHandle,
                                         database::Record*                     record ) :
   SimpleLithology( projectHandle, record ){
 
@@ -99,9 +99,9 @@ void BasementLithology::setBasementLithoProperties( ConfigFileParameterAlc & aBP
 
 void  BasementLithology::setLithoType() {
 
-   if ( m_lithoname == m_projectHandle->getCrustLithoName()) {
+   if ( m_lithoname == getProjectHandle().getCrustLithoName()) {
       m_lithotype = CRUST;
-   } else if( m_lithoname == m_projectHandle->getMantleLithoName()) {
+   } else if( m_lithoname == getProjectHandle().getMantleLithoName()) {
       m_lithotype = MANTLE;
    } else if( m_lithoname == DataAccess::Interface::ALCBasalt ) {
       m_lithotype = BASALT;

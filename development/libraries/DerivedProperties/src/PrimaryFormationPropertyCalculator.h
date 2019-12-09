@@ -40,9 +40,9 @@ namespace DerivedProperties {
 
    public :
 
-      /// \brief Construct with the project-handle and the property whose values this calculator will load.
-      PrimaryFormationPropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
-                                           const DataModel::AbstractProperty* property );
+      /// \brief Construct with the property whose values this calculator will load.
+      PrimaryFormationPropertyCalculator ( const DataModel::AbstractProperty* property,
+                                           const DataAccess::Interface::PropertyValueList& propertyValues );
 
       ~PrimaryFormationPropertyCalculator ();
 
@@ -57,10 +57,6 @@ namespace DerivedProperties {
                                   const DataModel::AbstractSnapshot*                        snapshot,
                                   const DataModel::AbstractFormation*                       formation ) const;
 
-
-      /// \brief Get the snapshots for which the property is available.
-      const DataModel::AbstractSnapshotSet& getSnapshots () const;
-
    private :
 
       /// \brief The property.
@@ -68,9 +64,6 @@ namespace DerivedProperties {
 
       /// \brief The list of all the property-values for the property.
       DataAccess::Interface::PropertyValueList m_formationPropertyValues;
-
-      /// \brief Contains a set of snapshots for which there are property-values available for this property.
-      DataModel::AbstractSnapshotSet           m_snapshots;
 
    };
 

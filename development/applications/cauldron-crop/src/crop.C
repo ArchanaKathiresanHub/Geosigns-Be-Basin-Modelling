@@ -121,8 +121,8 @@ int main(int argc, char ** argv)
    }
 
    DataAccess::Interface::ObjectFactory* factory = new DataAccess::Interface::ObjectFactory();
-   std::shared_ptr<DataAccess::Interface::ProjectHandle> project(
-      DataAccess::Interface::OpenCauldronProject( inputProjectFile, "r", factory)
+   std::unique_ptr<DataAccess::Interface::ProjectHandle> project(
+      DataAccess::Interface::OpenCauldronProject( inputProjectFile, factory)
    );
 
    database::Record * projectTbl = project->getTable("ProjectIoTbl")->getRecord(0);

@@ -25,7 +25,7 @@ using namespace DataAccess;
 using namespace Interface;
 
 
-BasementSurface::BasementSurface (ProjectHandle * projectHandle, const std::string& surfaceName) :
+BasementSurface::BasementSurface (ProjectHandle& projectHandle, const std::string& surfaceName) :
    Interface::Surface ( projectHandle )
 {
    m_surfaceName = surfaceName;
@@ -48,7 +48,7 @@ GridMap * BasementSurface::computeDepthMap (void) const
 {
    AdditionFunctor add;
 
-   bool isALC = (( m_mangledName == "Bottom_of_Crust" ) && m_projectHandle->isALC() );
+   bool isALC = (( m_mangledName == "Bottom_of_Crust" ) && getProjectHandle().isALC() );
 
    const Formation * upperFormation = (Formation *) Surface::getTopFormation ();
    if (!upperFormation) return nullptr;
@@ -65,14 +65,14 @@ GridMap * BasementSurface::computeDepthMap (void) const
    if (!thicknessMap) return nullptr;
    if (!depthMap) return nullptr;
 
-   GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DEPTH, depthMap, thicknessMap, add );
+   GridMap * myDepthMap = getProjectHandle().getFactory ()->produceGridMap (this, DEPTH, depthMap, thicknessMap, add );
 
    return myDepthMap;
 }
 
 
 GridMap * BasementSurface::computeDepthMap ( const GridMap* operand1, UnaryFunctor& op ) const {
-   GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DEPTH, operand1, op);
+   GridMap * myDepthMap = getProjectHandle().getFactory ()->produceGridMap (this, DEPTH, operand1, op);
    return myDepthMap;
 }
 

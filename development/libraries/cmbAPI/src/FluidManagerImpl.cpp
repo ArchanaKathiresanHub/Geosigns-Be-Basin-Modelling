@@ -81,7 +81,7 @@ void FluidManagerImpl::setDatabase(database::ProjectFileHandlerPtr pfh)
 // return array with IDs of different fluids defined in the model
 std::vector<FluidManager::FluidID> FluidManagerImpl::getFluidsID() const
 {
-   std::vector<FluidID> flIDs; // if m_lithIoTbl does not exist - return empty array
+   std::vector<FluidID> flIDs;
    if (m_fluidIoTbl)
    {
       // fill IDs array with increasing indexes

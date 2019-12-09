@@ -18,12 +18,11 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::PrimarySurfaceProperty::PrimarySurfaceProperty ( const DataAccess::Interface::PropertyValue* propertyValue ) : 
-   SurfaceProperty ( propertyValue->getProperty (), 
+DerivedProperties::PrimarySurfaceProperty::PrimarySurfaceProperty ( const DataAccess::Interface::PropertyValue* propertyValue ) :
+   SurfaceProperty ( propertyValue->getProperty (),
                      propertyValue->getSnapshot (),
                      propertyValue->getSurface (),
                      propertyValue->getGridMap ()->getGrid ()),
-   m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap () )
 {
    m_gridMap->retrieveData ( true );

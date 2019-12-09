@@ -28,7 +28,7 @@ namespace DataAccess
       class Migration : public DAObject
       {
     public:
-       Migration (ProjectHandle * projectHandle, database::Record * record);
+       Migration ( ProjectHandle& projectHandle, database::Record * record);
        virtual ~Migration (void);
 
        bool matchesConditions (const string & process, const Formation * sourceFormation,

@@ -17,13 +17,13 @@ namespace Genex6 {
    const std::string LangmuirAdsorptionFunctionId = "LangmuirAdsorptionFunction";
 
    /// \brief Allocates an adsorption function.
-   AdsorptionFunction* allocateLangmuirAdsorptionFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
+   AdsorptionFunction* allocateLangmuirAdsorptionFunction ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                             const std::string&                         langmuirName );
 
    /// A simple Langmuir adsorption function for C1.
    class LangmuirAdsorptionFunction : public Genex6::AdsorptionFunction {
 
-      /// Functor class for 
+      /// Functor class for
       class LangmuirAdsorptionIsothermLowerBoundOrder {
 
       public :
@@ -33,7 +33,7 @@ namespace Genex6 {
 
       };
 
-      /// Functor class for indicating if a set temperature is in the range of the interval. 
+      /// Functor class for indicating if a set temperature is in the range of the interval.
       class LangmuirAdsorptionIsothermInRange {
 
       public :
@@ -56,7 +56,7 @@ namespace Genex6 {
 
    public :
 
-      LangmuirAdsorptionFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
+      LangmuirAdsorptionFunction ( DataAccess::Interface::ProjectHandle& projectHandle,
                                    const std::string&                         formationName );
 
       ~LangmuirAdsorptionFunction () {}
@@ -89,8 +89,6 @@ namespace Genex6 {
       std::string getErrorMessage () const;
 
    private :
-
-      DataAccess::Interface::ProjectHandle* m_projectHandle;
 
       LangmuirAdsorptionIsothermIntervalVector m_isothermIntervals;
 

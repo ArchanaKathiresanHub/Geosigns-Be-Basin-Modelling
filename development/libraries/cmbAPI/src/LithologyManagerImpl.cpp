@@ -37,6 +37,8 @@ const char * LithologyManagerImpl::s_lithoTypesTableName                = "Litho
 
 const char * LithologyManagerImpl::s_lithoTypeNameFieldName             = "Lithotype";
 const char * LithologyManagerImpl::s_descriptionFieldName               = "Description";
+const char * LithologyManagerImpl::s_userDefinedFlagFieldName			= "UserDefined";
+const char * LithologyManagerImpl::s_definedByFieldName					= "DefinedBy";
 // Porosity model
 const char * LithologyManagerImpl::s_porosityModelFieldName             = "Porosity_Model";
 const char * LithologyManagerImpl::s_surfPorosityFieldName              = "SurfacePorosity";
@@ -116,6 +118,8 @@ LithologyManagerImpl::LithologyManagerImpl()
 {
    m_db = NULL;
    m_stMgr = NULL;
+   m_lithoThCondIoTbl = NULL;
+   m_lithoHeatCapIoTbl = NULL;
 }
 
 // Copy operator
@@ -132,6 +136,8 @@ void LithologyManagerImpl::setDatabase( database::ProjectFileHandlerPtr pfh, mba
 
    m_lithIoTbl   = m_db->getTable( s_lithoTypesTableName );
    m_alLithIoTbl = m_db->getTable( s_allochtLithTableName );
+   m_lithoThCondIoTbl = m_db->getTable(s_lithoThCondTableName);
+   m_lithoHeatCapIoTbl = m_db->getTable(s_lithoHeatCapTableName);
 
    m_stMgr = stratMgr;
 }
@@ -262,7 +268,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
    {
       // if table does not exist - report error
       if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) <<  s_lithoTypesTableName << " table could not be found in project"; }
-
+	 
       // get record for copy
       database::Record * lrec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
       if ( !lrec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id; }
@@ -318,6 +324,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
 
       // and finaly remove the record in lithology table itself
       m_lithIoTbl->deleteRecord( lrec );
+	  //id--;// If we delete the current record then we need to shift the record id back
+	  
    }
    catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
 
@@ -510,7 +518,6 @@ std::string LithologyManagerImpl::lithologyName( LithologyID id )
 
    return lName;
 }
-
 
 // Get Description for lithology type
 std::string LithologyManagerImpl::getDescription(const LithologyID id )
@@ -894,6 +901,48 @@ ErrorHandler::ReturnCode LithologyManagerImpl::permeabilityModel( LithologyID   
    return NoError;
 }
 
+// Get lithology permeability model parameters
+ErrorHandler::ReturnCode LithologyManagerImpl::getPermeabilityModel(LithologyID id, PermeabilityModel & prmModel, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts)
+{
+   if (errorCode() != NoError) resetError();
+   try
+   {
+
+      // if table does not exist - report error
+      if (!m_lithIoTbl) { throw Exception(NonexistingID) << s_lithoTypesTableName << " table could not be found in project"; }
+
+      database::Record * rec = m_lithIoTbl->getRecord(static_cast<int>(id));
+      if (!rec) { throw Exception(NonexistingID) << "No lithology type with such ID: " << id; }
+
+      const std::string & permModelName = rec->getValue<std::string>(s_permeabilityModelFieldName);
+      if (permModelName == "None") prmModel = PermNone;
+      else if (permModelName == "Sands") prmModel = PermSandstone;
+      else if (permModelName == "Shales") prmModel = PermMudstone;
+      else if (permModelName == "Multipoint") prmModel = PermMultipoint;
+      else if (permModelName == "Impermeable") prmModel = PermImpermeable;
+      else { throw Exception(UndefinedValue) << "Unknown permeability model:" << permModelName; }
+
+      // now set/extract parameters of the permeability model
+      if (prmModel == PermMultipoint) // for lithology defined as Multipoint permeability Model
+      {
+         numPts = rec->getValue<int>(s_mpNumberOfDataPointsFieldName);
+         ParseCoefficientsFromString(rec->getValue<std::string>(s_mpPorosityFieldName), mpPor);
+         ParseCoefficientsFromString(rec->getValue<std::string>(s_mpPermpeabilityFieldName), mpPerm);
+         mpPor.resize(numPts);
+         mpPerm.resize(numPts);
+      }
+      else // for other models
+      {
+         numPts = 2;
+         mpPor.resize(numPts);
+         mpPerm.resize(numPts);
+      }
+   }
+   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+   return NoError;
+}
+
 // Set lithology permeability model with parameters
 ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID                 id
                                                                    , PermeabilityModel           prmModel
@@ -955,6 +1004,76 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
       }
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+// Set lithology permeability model with parameters
+ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel(LithologyID id, PermeabilityModel prmModel, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts, int & lithologyFlag)
+{
+   if (errorCode() != NoError) resetError();
+   try
+   {
+      // if table does not exist - report error
+      if (!m_lithIoTbl) { throw Exception(NonexistingID) << s_lithoTypesTableName << " table could not be found in project"; }
+
+      database::Record * rec = m_lithIoTbl->getRecord(static_cast<int>(id));
+      if (!rec) { throw Exception(NonexistingID) << "No lithology type with such ID: " << id; }
+      rec->setValue(s_DepositionalPermFieldName, Utilities::Numerical::IbsNoDataValue);
+      rec->setValue(s_mudPermeabilityRecoveryCoeff, Utilities::Numerical::IbsNoDataValue);
+      rec->setValue(s_mudPermeabilitySensitivityCoeff, Utilities::Numerical::IbsNoDataValue);
+
+      if (lithologyFlag)
+      {
+         switch (prmModel)
+         {
+         case PermNone:
+            rec->setValue<std::string>(s_permeabilityModelFieldName, "Multipoint");
+            rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
+            rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+            rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+            break;
+
+         case PermImpermeable:
+            rec->setValue<std::string>(s_permeabilityModelFieldName, "Multipoint");
+            rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
+            rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+            rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+            break;
+
+         case PermSandstone:
+            rec->setValue<std::string>(s_permeabilityModelFieldName, "Multipoint");
+            rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
+            rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+            rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+            break;
+
+         case PermMudstone:
+            rec->setValue<std::string>(s_permeabilityModelFieldName, "Multipoint");
+            rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
+            rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+            rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+            break;
+
+         case PermMultipoint:
+            rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(mpPor.size()));
+            rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+            rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+            break;
+
+         default: throw Exception(UndefinedValue) << "Unknown permeability model:" << prmModel;
+         }
+      }
+      else
+      {
+         rec->setValue<std::string>(s_permeabilityModelFieldName, "Multipoint");
+         rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
+         rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
+         rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+      }
+
+   }
+   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
 
    return NoError;
 }
@@ -1032,6 +1151,152 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setSTPThermalConductivityCoeff( L
       return reportError( e.errorCode(), e.what() );
    }
    return NoError;
+}
+
+// Set Description for lithology type
+ErrorHandler::ReturnCode LithologyManagerImpl::setLithologyName(const LithologyID id, const std::string & myNewName)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		if (!m_lithIoTbl) { throw Exception(NonexistingID) << s_lithoTypesTableName << " table could not be found in project"; }
+		database::Record * rec = m_lithIoTbl->getRecord(static_cast<int>(id));
+		if (!rec) { throw Exception(NonexistingID) << "No lithology type with such ID: " << id; }
+		rec->setValue<std::string>(s_lithoTypeNameFieldName, myNewName);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	return NoError;
+}
+
+// Get user defined flag value for the given ID
+ErrorHandler::ReturnCode LithologyManagerImpl::getUserDefinedFlagForLithology(LithologyID id, int & flag)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		if (!m_lithIoTbl) { throw Exception(NonexistingID) << s_lithoTypesTableName << " table could not be found in project"; }
+		database::Record * rec = m_lithIoTbl->getRecord(static_cast<int>(id));
+		if (!rec) { throw Exception(NonexistingID) << "No litho type with such ID: " << id; }
+		flag = rec->getValue<int>(s_userDefinedFlagFieldName);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	return NoError;
+}
+
+// Get reference lithology name for a given lithology ID
+ErrorHandler::ReturnCode LithologyManagerImpl::getReferenceLithology(LithologyID id, std::string & refLithoDetails)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		if (!m_lithIoTbl) { throw Exception(NonexistingID) << s_lithoTypesTableName << " table could not be found in project"; }
+		database::Record * rec = m_lithIoTbl->getRecord(static_cast<int>(id));
+		if (!rec) { throw Exception(NonexistingID) << "No litho type with such ID: " << id; }
+		refLithoDetails = rec->getValue<std::string>(s_definedByFieldName);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	return NoError;
+}
+
+// Get list of thermal conductiviries for all the lithotypes used in the model
+// return array with IDs of allochton lygthologies defined in the model
+std::vector<LithologyManager::LitThCondTblID> LithologyManagerImpl::thermCondLithologiesIDs() const
+{
+	std::vector<LithologyManager::LitThCondTblID>  ThCondIDs;
+
+	// if m_lithoThCondIoTbl does not exist - return empty array
+	if (m_lithoThCondIoTbl)
+	{
+		// fill IDs array with increasing indexes
+		ThCondIDs.resize(m_lithoThCondIoTbl->size(), 0);
+		for (size_t i = 0; i < ThCondIDs.size(); ++i) ThCondIDs[i] = static_cast<LitThCondTblID>(i);
+	}
+	return ThCondIDs;
+}
+
+// Get lithotype name in the LitThCondIoTbl
+ErrorHandler::ReturnCode LithologyManagerImpl::getThermCondTableLithoName(LitThCondTblID id, std::string & lithoName)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		if (!m_lithoThCondIoTbl) { throw Exception(NonexistingID) << s_lithoThCondTableName << " table could not be found in project"; }
+		database::Record * rec = m_lithoThCondIoTbl->getRecord(static_cast<int>(id));
+		if (!rec) { throw Exception(NonexistingID) << "No litho type with such ID: " << id; }
+		lithoName = rec->getValue<std::string>(s_LithotypeFieldName);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	return NoError;
+}
+
+// Set lithotype name in the LitThCondIoTbl
+ErrorHandler::ReturnCode LithologyManagerImpl::setThermCondTableLithoName(const LitThCondTblID id, const std::string & LithoName)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		if (!m_lithoThCondIoTbl) { throw Exception(NonexistingID) << s_lithoThCondTableName << " table could not be found in project"; }
+		database::Record * rec = m_lithoThCondIoTbl->getRecord(static_cast<int>(id));
+		if (!rec) { throw Exception(NonexistingID) << "No data found with such ID: " << id; }
+		rec->setValue<std::string>(s_LithotypeFieldName, LithoName);
+		
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	return NoError;
+}
+
+// Get list of heat capacity records for all the lithotypes used in the model
+// return array with IDs of allochton lygthologies defined in the model
+std::vector<LithologyManager::LitHeatCapTblID> LithologyManagerImpl::heatCapLithologiesIDs() const
+{
+	std::vector<LithologyManager::LitHeatCapTblID>  HeatCapIDs;
+
+	// if m_lithoHeatCapIoTbl does not exist - return empty array
+	if (m_lithoHeatCapIoTbl)
+	{
+		// fill IDs array with increasing indexes
+		HeatCapIDs.resize(m_lithoHeatCapIoTbl->size(), 0);
+		for (size_t i = 0; i < HeatCapIDs.size(); ++i) HeatCapIDs[i] = static_cast<LitHeatCapTblID>(i);
+	}
+	return HeatCapIDs;
+}
+
+// Get lithotype name in the LitThCondIoTbl
+ErrorHandler::ReturnCode LithologyManagerImpl::getHeatCapTableLithoName(LitThCondTblID id, std::string & lithoName)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		if (!m_lithoHeatCapIoTbl) { throw Exception(NonexistingID) << s_lithoHeatCapTableName << " table could not be found in project"; }
+		database::Record * rec = m_lithoHeatCapIoTbl->getRecord(static_cast<int>(id));
+		if (!rec) { throw Exception(NonexistingID) << "No litho type with such ID: " << id; }
+		lithoName = rec->getValue<std::string>(s_LithotypeFieldName);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	return NoError;
+}
+
+// Set lithotype name in the LitThCondIoTbl
+ErrorHandler::ReturnCode LithologyManagerImpl::setHeatCapTableLithoName(const LitThCondTblID id, const std::string & LithoName)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		if (!m_lithoHeatCapIoTbl) { throw Exception(NonexistingID) << s_lithoHeatCapTableName << " table could not be found in project"; }
+		database::Record * rec = m_lithoHeatCapIoTbl->getRecord(static_cast<int>(id));
+		if (!rec) { throw Exception(NonexistingID) << "No data found with such ID: " << id; }
+		rec->setValue<std::string>(s_LithotypeFieldName, LithoName);
+
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	return NoError;
 }
 
 

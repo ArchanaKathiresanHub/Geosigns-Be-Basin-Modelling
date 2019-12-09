@@ -71,7 +71,6 @@ static const char * s_FormationPropList[] =
    , "MaxVesHighRes"
    , "Overburden"
    , "OverPressure"
-   , "PermeabilityH"
    , "Permeability"
    , "Porosity"
    , "Pressure"
@@ -93,10 +92,9 @@ namespace DataAccess { namespace Mining
 {
 
    DataAccess::Interface::ProjectHandle* ObjectFactory::produceProjectHandle( database::ProjectFileHandlerPtr pfh,
-                                                                                      const std::string  & name,
-                                                                                      const std::string  & accessMode ) const
+                                                                                      const std::string  & name ) const
    {
-      ProjectHandle * projectHandle = new ProjectHandle ( pfh, name, accessMode, this );
+      ProjectHandle * projectHandle = new ProjectHandle ( pfh, name, this );
       return projectHandle;
    }
 
@@ -223,7 +221,7 @@ namespace DataAccess { namespace Mining
    {
       PropertyToDomainPropertyAllocator::const_iterator allocIter = m_allocators.find( property );
       // should we check that the project-handle is the same,
-      // i.e. collection->getProjectHandle () == m_projectHandle.
+      // i.e. collection->getProjectHandle () == m_projectHandle->
 
       if ( allocIter != m_allocators.end() )
       {

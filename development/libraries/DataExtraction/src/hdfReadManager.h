@@ -16,6 +16,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 
 namespace DataAccess
@@ -32,7 +33,7 @@ namespace DataExtraction
 class HDFReadManager
 {
 public:
-  explicit HDFReadManager( const DataAccess::Interface::ProjectHandle* projectHandle );
+  explicit HDFReadManager( const DataAccess::Interface::ProjectHandle& projectHandle );
   virtual ~HDFReadManager();
 
   void openMapsFile( const std::string& mapFileName );
@@ -48,7 +49,7 @@ private:
   double interpolate2d( const double ll, const double lr, const double tl,
                         const double tr, const double di, const double dj );
 
-  const DataAccess::Interface::ProjectHandle* m_projectHandle;
+  const DataAccess::Interface::ProjectHandle& m_projectHandle;
   hid_t m_mapsFileId;
   hid_t m_snapshotFileId;
 };

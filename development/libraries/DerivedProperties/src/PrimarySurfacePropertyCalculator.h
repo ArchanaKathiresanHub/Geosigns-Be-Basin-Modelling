@@ -41,8 +41,8 @@ namespace DerivedProperties {
    public :
 
       /// \brief Construct with the project-handle and the property whose values this calculator will load.
-      PrimarySurfacePropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
-                                         const DataModel::AbstractProperty* property );
+      PrimarySurfacePropertyCalculator ( const DataModel::AbstractProperty* property,
+                                         const DataAccess::Interface::PropertyValueList& propertyValues );
 
       ~PrimarySurfacePropertyCalculator ();
 
@@ -57,9 +57,6 @@ namespace DerivedProperties {
                                   const DataModel::AbstractSnapshot*                        snapshot,
                                   const DataModel::AbstractSurface*                         surface ) const;
 
-      /// \brief Get the snapshots for which the property is available.
-      const DataModel::AbstractSnapshotSet& getSnapshots () const;
-
    private :
 
       /// \brief The property.
@@ -67,9 +64,6 @@ namespace DerivedProperties {
 
       /// \brief The list of all the property-values for the property.
       DataAccess::Interface::PropertyValueList m_surfacePropertyValues;
-
-      /// \brief Contains a set of snapshots for which there are property-values available for this property.
-      DataModel::AbstractSnapshotSet           m_snapshots;
 
    };
 

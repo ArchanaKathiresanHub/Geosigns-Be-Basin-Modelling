@@ -33,8 +33,7 @@ RunCaseSetFileManager::RunCaseSetFileManager():
 
 QFileInfoList RunCaseSetFileManager::getIterationPathList(const QString& project3dPath) const
 {
-  QFileInfo project3dPathFileInfo{project3dPath};
-  QDir caseSetPath{project3dPathFileInfo.absolutePath() + QString("/CaseSet")};
+  QDir caseSetPath{QString("./CaseSet")};
   return caseSetPath.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::Time | QDir::Reversed);
 }
 
@@ -143,7 +142,7 @@ bool RunCaseSetFileManager::isIterationDirDeleted(const QString& project3dPath) 
 
   QFileInfo myIterationDir = iterationPathList.last();
   while (!(myIterationDir.absoluteFilePath() == iterationDirPath()
-           && myIterationDir.created() == iterationDirDateTime_)
+         && myIterationDir.lastModified() == iterationDirDateTime_)
          && !iterationPathList.isEmpty())
   {
     iterationPathList.pop_back();
@@ -180,7 +179,7 @@ void RunCaseSetFileManager::updateIterationDirFileDateTime()
 void RunCaseSetFileManager::writeToFile(ScenarioWriter& writer) const
 {
   writer.writeValue("RunCaseSetFileManagerVersion", 0);
-  writer.writeValue("iterationDirFileInfo", iterationDirPath());
+  writer.writeValue("iterationDirFileInfo",  + "./CaseSet/" + iterationDirName());
   writer.writeValue("iterationDirDateTime", iterationDirDateTime_.toString());
 }
 

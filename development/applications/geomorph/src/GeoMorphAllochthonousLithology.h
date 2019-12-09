@@ -61,7 +61,7 @@ namespace AllochMod {
     /// first map, then some period of no, or very little, salt distribution. Followed
     /// by a gradual phasing-in of the second distribution map. If it is too small then
     /// there will be a rather abrupt change between the distribution maps at some point
-    /// around the mid point of the two ages of the maps. 
+    /// around the mid point of the two ages of the maps.
     static constexpr FloatingPoint TimeDimensionScaling = 0.033;
 
     /// \var SpaceDimensionScaling
@@ -71,7 +71,7 @@ namespace AllochMod {
     static constexpr FloatingPoint SpaceDimensionScaling = 1.0;
 
 
-    GeoMorphAllochthonousLithology (Interface::ProjectHandle * projectHandle, database::Record * record);
+    GeoMorphAllochthonousLithology (Interface::ProjectHandle& projectHandle, database::Record * record);
 
     ~GeoMorphAllochthonousLithology ();
 

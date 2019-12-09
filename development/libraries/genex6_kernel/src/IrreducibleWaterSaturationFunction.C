@@ -1,8 +1,8 @@
 #include "IrreducibleWaterSaturationFunction.h"
 
-Genex6::IrreducibleWaterSaturationFunction::IrreducibleWaterSaturationFunction ( DataAccess::Interface::ProjectHandle* projectHandle ) {
+Genex6::IrreducibleWaterSaturationFunction::IrreducibleWaterSaturationFunction (DataAccess::Interface::ProjectHandle& projectHandle ) {
 
-   const DataAccess::Interface::IrreducibleWaterSaturationSample* iws = projectHandle->getIrreducibleWaterSaturationSample ();
+   const DataAccess::Interface::IrreducibleWaterSaturationSample* iws = projectHandle.getIrreducibleWaterSaturationSample ();
 
    if ( iws != 0 ) {
       m_coeffA = iws->getCoefficientA ();

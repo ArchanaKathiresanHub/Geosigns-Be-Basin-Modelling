@@ -4,7 +4,7 @@
 #include "FastcauldronSimulator.h"
 #include "Lithology.h"
 
-OutputPropertyMap* allocateLithologyIdVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateLithologyIdVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<LithologyIdVolumeCalculator>( property, formation, snapshot );
 }
 

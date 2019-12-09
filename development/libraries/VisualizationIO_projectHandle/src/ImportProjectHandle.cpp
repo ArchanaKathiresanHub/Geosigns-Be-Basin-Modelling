@@ -45,7 +45,6 @@
 #include <iostream>
 #include <iomanip>
 #include <limits>
-#include <boost/foreach.hpp>
 
 using namespace DataAccess;
 using namespace DataAccess::Interface;
@@ -53,17 +52,17 @@ using namespace DataModel;
 
 #define ALLSELECTION SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR
 
-std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandle(std::shared_ptr<ProjectHandle> projectHandle, bool verbose)
+std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandle(ProjectHandle& projectHandle, bool verbose)
 {
     // Get modeling mode
-    ModellingMode modeIn = projectHandle->getModellingMode();
+    ModellingMode modeIn = projectHandle.getModellingMode();
     CauldronIO::ModellingMode mode = modeIn == MODE1D ? CauldronIO::MODE1D : CauldronIO::MODE3D;
     // setActivityGrid
     if( modeIn == MODE1D ) {
-       projectHandle->setActivityOutputGrid(projectHandle->getLowResolutionOutputGrid ());
+       projectHandle.setActivityOutputGrid(projectHandle.getLowResolutionOutputGrid ());
     }
     // Read general project data
-    const Interface::ProjectData* projectData = projectHandle->getProjectData();
+    const Interface::ProjectData* projectData = projectHandle.getProjectData();
 
     // Create the project
     std::shared_ptr<CauldronIO::Project> project(new CauldronIO::Project(
@@ -88,10 +87,10 @@ std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandl
 
     // Add trap_io data
     import.addTrapIO();
- 
+
     // Find genex/shale-gas history files
     import.addGenexHistory();
-   
+
    // Find burial history files
     import.addBurialHistory();
 
@@ -104,33 +103,33 @@ std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandl
     return project;
 }
 
-ImportProjectHandle::ImportProjectHandle(bool verbose, std::shared_ptr<CauldronIO::Project>& project, std::shared_ptr<ProjectHandle>& projectHandle)
+ImportProjectHandle::ImportProjectHandle(bool verbose, std::shared_ptr<CauldronIO::Project>& project, ProjectHandle& projectHandle) :
+  m_verbose(verbose),
+  m_project(project),
+  m_projectHandle(projectHandle)
 {
-   m_verbose = verbose;
-   m_project = project;
-   m_projectHandle = projectHandle;
 }
 
-void ImportProjectHandle::addSnapShots() 
+void ImportProjectHandle::addSnapShots()
 {
     // Get all property values once
-    m_propValues.reset(m_projectHandle->getPropertyValues(ALLSELECTION, 0, 0, 0, 0, 0, MAP | VOLUME));
+    m_propValues.reset(m_projectHandle.getPropertyValues(ALLSELECTION, 0, 0, 0, 0, 0, MAP | VOLUME));
     sort(m_propValues->begin(), m_propValues->end(), PropertyValue::SortByAgeAndDepoAge);
 
-    m_props.reset(m_projectHandle->getProperties(true, ALLSELECTION, 0, 0, 0, 0, MAP | VOLUME));
+    m_props.reset(m_projectHandle.getProperties(true, ALLSELECTION, 0, 0, 0, 0, MAP | VOLUME));
 
     if (m_verbose)
         cout << "Loaded " << m_propValues->size() << " propertyvalues and " << m_props->size() << " properties" << endl;
 
     std::shared_ptr<SnapshotList> snapShots;
-    snapShots.reset(m_projectHandle->getSnapshots(MAJOR | MINOR));
+    snapShots.reset(m_projectHandle.getSnapshots(MAJOR | MINOR));
 
     for (size_t i = 0; i < snapShots->size(); i++)
     {
         const Snapshot* snapShot = snapShots->at(i);
 
          // Create a new snapshot
-        std::shared_ptr<CauldronIO::SnapShot> snapShotIO = createSnapShotIO(snapShot);  
+        std::shared_ptr<CauldronIO::SnapShot> snapShotIO = createSnapShotIO(snapShot);
 
         // Add to project
         m_project->addSnapShot(snapShotIO);
@@ -139,7 +138,7 @@ void ImportProjectHandle::addSnapShots()
 
 std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(const DataAccess::Interface::Snapshot* snapShot)
 {
-    std::shared_ptr<CauldronIO::SnapShot> snapShotIO(new CauldronIO::SnapShot(snapShot->getTime(), 
+    std::shared_ptr<CauldronIO::SnapShot> snapShotIO(new CauldronIO::SnapShot(snapShot->getTime(),
         getSnapShotKind(snapShot), snapShot->getType() == MINOR));
 
     std::ostringstream ss;
@@ -165,7 +164,7 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
    // Add all the surfaces
    ///////////////////////////////////////////////////////////
    vector<std::shared_ptr<CauldronIO::Surface> > surfaces = createSurfaces(depthFormations, snapShot, snapShotPropVals);
-   BOOST_FOREACH(std::shared_ptr<CauldronIO::Surface>& surface, surfaces)
+   for(std::shared_ptr<CauldronIO::Surface>& surface: surfaces)
       snapShotIO->addSurface(surface);
 
     // Add the volume
@@ -198,7 +197,7 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
 
     // Add all formationVolumes
     //////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<FormationList> formations(m_projectHandle->getFormations(snapShot, true));
+    std::shared_ptr<FormationList> formations(m_projectHandle.getFormations(snapShot, true));
     for (size_t i = 0; i < formations->size(); ++i)
     {
         const Formation* formation = formations->at(i);
@@ -235,7 +234,7 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
         }
 
         if (m_verbose)
-            cout << " - Adding discontinuous volume data formation " << formationIO->getName() << " with " 
+            cout << " - Adding discontinuous volume data formation " << formationIO->getName() << " with "
                  << volume->getPropertyVolumeDataList().size() << " properties" << endl;
 
         // Only add if there is actual data
@@ -250,13 +249,13 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
       }
 
     }
-        
+
     // Find trappers
-    std::shared_ptr<TrapperList> trapperList(m_projectHandle->getTrappers(0, snapShot, 0, 0));
+    std::shared_ptr<TrapperList> trapperList(m_projectHandle.getTrappers(0, snapShot, 0, 0));
     for (size_t i = 0; i < trapperList->size(); ++i)
     {
         const Trapper* trapper = trapperList->at(i);
-        
+
         // Get some info
         int downstreamTrapperID = -1;
         if (trapper->getDownstreamTrapper())
@@ -297,7 +296,7 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
     const DataAccess::Interface::Snapshot* snapShot, const std::shared_ptr<PropertyValueList>& snapShotPropVals)
 {
     vector < std::shared_ptr<CauldronIO::Surface> > surfaces;
-    
+
     // Add all the surfaces
     //
     // 1. Collect all surfaces with the same name
@@ -306,7 +305,7 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
     // 4. For each formation -> add to project (if not existing)
     // 5. Add SurfaceData to Surface
     ////////////////////////////////////////////////////////
-    
+
     std::shared_ptr<PropertyValueList> propValues = getMapPropertyValues(snapShotPropVals);
 
     for (size_t i = 0; i < propValues->size(); ++i)
@@ -338,12 +337,12 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
 
         // Find or create a formation
         std::shared_ptr<CauldronIO::Formation> formationIO;
-        if (formation) 
+        if (formation)
             formationIO = findOrCreateFormation(formation, depthFormations);
 
         // Find or create a reservoir
         std::shared_ptr<const CauldronIO::Reservoir> reservoirIO;
-        if (reservoir) 
+        if (reservoir)
             reservoirIO = findOrCreateReservoir(reservoir, formationIO);
 
         // Does the surface exist?
@@ -359,13 +358,13 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         const DataAccess::Interface::GridMap* gridmap = propValue->getGridMap();
         // Ignore this property value object if it has no gridmap
         if (!gridmap) continue;
-        
+
         double constValue1d = 0.0;
 
         gridmap->retrieveData();
         // Set the geometry
-        std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(gridmap->getGrid()->numIGlobal(), gridmap->getGrid()->numJGlobal(), 
-                                                                                          gridmap->getGrid()->deltaIGlobal(), gridmap->getGrid()->deltaJGlobal(), 
+        std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(gridmap->getGrid()->numIGlobal(), gridmap->getGrid()->numJGlobal(),
+                                                                                          gridmap->getGrid()->deltaIGlobal(), gridmap->getGrid()->deltaJGlobal(),
                                                                                           gridmap->getGrid()->minIGlobal(), gridmap->getGrid()->minJGlobal()));
        if(m_project->getModelingMode() == CauldronIO::MODE1D ) {
            constValue1d = gridmap->getAverageValue();
@@ -411,11 +410,11 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         // Set reservoir
         if (reservoir)
             propertyMap->setReservoir(reservoirIO);
-   
+
         if(m_project->getModelingMode() == CauldronIO::MODE1D) {
             propertyMap->setConstantValue((float)constValue1d);
          }
- 
+
         // Add the property/surfaceData object
         CauldronIO::PropertySurfaceData propSurfaceData(propertyIO, propertyMap);
         if (m_verbose)
@@ -428,16 +427,16 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
 
 std::shared_ptr<CauldronIO::Surface> ImportProjectHandle::findSurface(vector< std::shared_ptr<CauldronIO::Surface> > surfaces, const string& surfaceName) const
 {
-    BOOST_FOREACH(std::shared_ptr<CauldronIO::Surface>& surface, surfaces)
+    for(std::shared_ptr<CauldronIO::Surface>& surface: surfaces)
         if (surface->getName() == surfaceName) return surface;
-    
+
     return std::shared_ptr< CauldronIO::Surface >();
 }
 
-std::shared_ptr<CauldronIO::Surface> ImportProjectHandle::findSurface(vector< std::shared_ptr<CauldronIO::Surface> > surfaces, 
+std::shared_ptr<CauldronIO::Surface> ImportProjectHandle::findSurface(vector< std::shared_ptr<CauldronIO::Surface> > surfaces,
     std::shared_ptr<CauldronIO::Formation>& formation) const
 {
-    BOOST_FOREACH(std::shared_ptr<CauldronIO::Surface>& surface, surfaces)
+    for(std::shared_ptr<CauldronIO::Surface>& surface: surfaces)
     {
        if (surface->getBottomFormation() == formation.get() && surface->getTopFormation() == formation.get()) return surface;
     }
@@ -447,7 +446,7 @@ std::shared_ptr<CauldronIO::Surface> ImportProjectHandle::findSurface(vector< st
 
 std::shared_ptr<const CauldronIO::Property> ImportProjectHandle::findOrCreateProperty(const Property* prop)
 {
-    BOOST_FOREACH(const std::shared_ptr<const CauldronIO::Property>& property, m_project->getProperties())
+    for(const std::shared_ptr<const CauldronIO::Property>& property: m_project->getProperties())
         if (property->getName() == prop->getName()) return property;
 
     std::shared_ptr<const CauldronIO::Property> propertyIO(new CauldronIO::Property(
@@ -466,7 +465,7 @@ std::shared_ptr<const CauldronIO::Property> ImportProjectHandle::findOrCreatePro
    }
 
    // Create a new one...
-   const Property* prop = m_projectHandle->findProperty(propString);
+   const Property* prop = m_projectHandle.findProperty(propString);
    if (prop == nullptr) throw CauldronIO::CauldronIOException("Cannot find property");
 
    std::shared_ptr<const CauldronIO::Property> propertyIO(new CauldronIO::Property(
@@ -481,8 +480,8 @@ std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::findOrCreateFormatio
 {
     std::shared_ptr<CauldronIO::Formation> formationIO;
     if (!form) return formationIO;
-    
-    BOOST_FOREACH(const std::shared_ptr<CauldronIO::Formation>& formation, m_project->getFormations())
+
+    for(const std::shared_ptr<CauldronIO::Formation>& formation: m_project->getFormations())
     {
        if (formation->getName() == form->getName())
        {
@@ -500,7 +499,7 @@ std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::findOrCreateFormatio
                 }
              }
           }
-          
+
           return formation;
        }
     }
@@ -510,11 +509,11 @@ std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::findOrCreateFormatio
     // It can be that this formation is not created from a depthformation: don't add it to the list
     if( !formationIO ) {
 
-       if(m_projectHandle->getModellingMode() == Interface::MODE1D and form->getName() == "Mantle") {
-          const DataAccess::Interface::Formation * mantleForm = dynamic_cast<const DataAccess::Interface::Formation *>(m_projectHandle->getMantleFormation());
+       if(m_projectHandle.getModellingMode() == Interface::MODE1D and form->getName() == "Mantle") {
+          const DataAccess::Interface::Formation * mantleForm = dynamic_cast<const DataAccess::Interface::Formation *>(m_projectHandle.getMantleFormation());
           formationIO = findOrCreateFormation(mantleForm);
           return formationIO;
-       } 
+       }
     }
     if (!formationIO)
        return formationIO;
@@ -529,7 +528,7 @@ std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::findOrCreateFormatio
    std::shared_ptr<CauldronIO::Formation> formationIO;
    if (!form) return formationIO;
 
-   BOOST_FOREACH(const std::shared_ptr<CauldronIO::Formation>& formation, m_project->getFormations())
+   for(const std::shared_ptr<CauldronIO::Formation>& formation: m_project->getFormations())
       if (formation->getName() == form->getName()) return formation;
 
    formationIO.reset(new CauldronIO::Formation(-1, -1, form->getName()));
@@ -602,7 +601,7 @@ std::shared_ptr<const CauldronIO::Reservoir> ImportProjectHandle::findOrCreateRe
 {
     assert(formationIO);
 
-    BOOST_FOREACH(const std::shared_ptr<const CauldronIO::Reservoir>& reservoir, m_project->getReservoirs())
+    for(const std::shared_ptr<const CauldronIO::Reservoir>& reservoir: m_project->getReservoirs())
     {
         if (reservoir->getName() == reserv->getName() && reservoir->getFormation() == formationIO)
             return reservoir;
@@ -643,7 +642,7 @@ std::shared_ptr<CauldronIO::Geometry3D> ImportProjectHandle::createGeometry3D(st
         maxK = max(maxK, depthInfo->kEnd);
         minK = min(minK, depthInfo->kStart);
     }
-    
+
     size_t depthK = 1 + maxK - minK;
     std::shared_ptr<CauldronIO::FormationInfo>& info = depthFormations->at(0);
     std::shared_ptr<CauldronIO::Geometry3D> geometry(new CauldronIO::Geometry3D(info->numI, info->numJ, depthK, minK, info->deltaI, info->deltaJ, info->minI, info->minJ));
@@ -666,7 +665,7 @@ CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(std
 
     CauldronIO::VolumeProjectHandle* volumeDataProjHandle = new CauldronIO::VolumeProjectHandle(geometry3D);
     std::shared_ptr<CauldronIO::VolumeData> volumeData(volumeDataProjHandle);
-    
+
     volumeDataProjHandle->setDataStore(propValues, depthFormations);
 
     std::shared_ptr<const CauldronIO::Property> prop = findOrCreateProperty(propValues->at(0)->getProperty());
@@ -676,7 +675,7 @@ CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(std
 }
 
 
-CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(const DataAccess::Interface::PropertyValue* propVal, 
+CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(const DataAccess::Interface::PropertyValue* propVal,
     std::shared_ptr<CauldronIO::Geometry3D>& geometry3D, std::shared_ptr<CauldronIO::FormationInfo> formationInfo)
 {
     m_project->addGeometry(geometry3D);
@@ -705,7 +704,7 @@ std::shared_ptr<CauldronIO::SurfaceData> ImportProjectHandle::createMapIO(const 
     return map;
 }
 
-CauldronIO::SnapShotKind ImportProjectHandle::getSnapShotKind(const Snapshot* snapShot) 
+CauldronIO::SnapShotKind ImportProjectHandle::getSnapShotKind(const Snapshot* snapShot)
 {
     // Get snapshot kind
     const string snapShotKind = snapShot->getKind();
@@ -718,7 +717,7 @@ CauldronIO::SnapShotKind ImportProjectHandle::getSnapShotKind(const Snapshot* sn
     return kind;
 }
 
-CauldronIO::PropertyType ImportProjectHandle::getPropertyType(const Property* prop) 
+CauldronIO::PropertyType ImportProjectHandle::getPropertyType(const Property* prop)
 {
     PropertyType type = prop->getType();
     CauldronIO::PropertyType typeIO;
@@ -774,7 +773,7 @@ CauldronIO::SubsurfaceKind ImportProjectHandle::getSubSurfaceKind(const DataAcce
     return kind;
 }
 
-CauldronIO::PropertyAttribute ImportProjectHandle::getPropertyAttribute(const Property* prop) 
+CauldronIO::PropertyAttribute ImportProjectHandle::getPropertyAttribute(const Property* prop)
 {
     PropertyAttribute attrib = prop->getPropertyAttribute();
     CauldronIO::PropertyAttribute attribIO;
@@ -805,13 +804,13 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
     std::shared_ptr<CauldronIO::FormationInfoList> depthFormations(new CauldronIO::FormationInfoList());
 
     // Find the depth property
-    const Property* depthProp = m_projectHandle->findProperty("Depth");
+    const Property* depthProp = m_projectHandle.findProperty("Depth");
     if (!depthProp) return depthFormations;
 
     // Find the depth property formations for this snapshot
-    std::shared_ptr<PropertyValueList> propValues( m_projectHandle->getModellingMode() == Interface::MODE1D ?
-                                                   m_projectHandle->getPropertyValues(SURFACE, depthProp, snapShot, 0, 0, 0, MAP| VOLUME) :
-                                                   m_projectHandle->getPropertyValues(FORMATION, depthProp, snapShot, 0, 0, 0, VOLUME));
+    std::shared_ptr<PropertyValueList> propValues( m_projectHandle.getModellingMode() == Interface::MODE1D ?
+                                                   m_projectHandle.getPropertyValues(SURFACE, depthProp, snapShot, 0, 0, 0, MAP| VOLUME) :
+                                                   m_projectHandle.getPropertyValues(FORMATION, depthProp, snapShot, 0, 0, 0, VOLUME));
 
     if (propValues->size() == 0) return depthFormations;
 
@@ -839,9 +838,9 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
         /// in a DistributedGridmap, depth is inverse to k index
         SerialGridMap* sGridmap = static_cast<SerialGridMap*>(map);
         info->reverseDepth = sGridmap == nullptr;
-        
+
         depthFormations->push_back(info);
-        
+
         map->restoreData();
         map->release();
     }
@@ -858,14 +857,14 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
     return depthFormations;
 }
 
-std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::createFormation(const DataAccess::Interface::Formation* formation, 
+std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::createFormation(const DataAccess::Interface::Formation* formation,
     std::shared_ptr<CauldronIO::FormationInfoList> depthFormations) const
 {
     std::shared_ptr<CauldronIO::Formation> formationPtr;
-    
+
     if (!formation) return formationPtr;
     std::shared_ptr<CauldronIO::FormationInfo> info;
-    
+
     // Find the depth formation
     for (size_t i = 0; i < depthFormations->size(); ++i)
     {
@@ -906,7 +905,7 @@ std::shared_ptr<PropertyList> ImportProjectHandle::getProperties(const std::shar
     for (int i = 0; i < m_props->size(); i++)
     {
         const Property* prop = m_props->at(i);
-        
+
         for (int j = 0; j < propValues->size(); j++)
         {
             const PropertyValue* propValue = propValues->at(j);
@@ -959,7 +958,7 @@ std::shared_ptr<PropertyValueList> ImportProjectHandle::getFormationVolumeProper
 
 void ImportProjectHandle::checkInputValues()
 {
-   SurfaceList* surfaces = m_projectHandle->getSurfaces(nullptr, false);
+   SurfaceList* surfaces = m_projectHandle.getSurfaces(nullptr, false);
    if (surfaces->size() > 0)
    {
       if (m_verbose) cout << "== StratIOTable ==" << endl;
@@ -998,8 +997,8 @@ void ImportProjectHandle::checkInputValues()
 void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surface* surface)
 {
    // Set the geometry
-   const Grid* grid = (Grid *)m_projectHandle->getInputGrid();
-       
+   const Grid* grid = (Grid *)m_projectHandle.getInputGrid();
+
    std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(),
       grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
 
@@ -1030,8 +1029,8 @@ void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surf
 
    // Look for two-way time map for this surface
    ///////////////////////////////////////////////////////////////
-   
-   database::Table* twtIoTable = m_projectHandle->getTable("TwoWayTimeIoTbl");
+
+   database::Table* twtIoTable = m_projectHandle.getTable("TwoWayTimeIoTbl");
    if (twtIoTable != nullptr && twtIoTable->size() > 0)
    {
       database::Table::iterator tblIter;
@@ -1052,7 +1051,7 @@ void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surf
             }
             else if (twtGridMapId.length() > 0)
             {
-               const Interface::InputValue* inputMap = m_projectHandle->findInputValue("TwoWayTimeIoTbl", twtGridMapId);
+               const Interface::InputValue* inputMap = m_projectHandle.findInputValue("TwoWayTimeIoTbl", twtGridMapId);
                assert(inputMap != nullptr);
 
                CauldronIO::MapProjectHandle* mapProjectHandle = new CauldronIO::MapProjectHandle(geometry);
@@ -1088,7 +1087,7 @@ std::shared_ptr<CauldronIO::SurfaceData> ImportProjectHandle::getInputMap(float 
    if (valueGridMapId.length() > 0)
    {
       // Get some info about this input Map
-      const Interface::InputValue* inputMap = m_projectHandle->findInputValue("StratIoTbl", valueGridMapId);
+      const Interface::InputValue* inputMap = m_projectHandle.findInputValue("StratIoTbl", valueGridMapId);
       assert(inputMap != nullptr);
 
       // Construct a SurfaceData object caching this inputMap, to derive HDFinfo later from it
@@ -1111,7 +1110,7 @@ void ImportProjectHandle::addStratTableFormation(const Interface::Formation* for
    if (m_verbose) cout << "Adding formation: " << formation->getName() << endl;
 
    // Create a geometry
-   const Grid* grid = (Grid *)m_projectHandle->getInputGrid();
+   const Grid* grid = (Grid *)m_projectHandle.getInputGrid();
    std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(),
       grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
 
@@ -1233,7 +1232,7 @@ std::shared_ptr<const CauldronIO::Property> ImportProjectHandle::getDefaultPrope
 
 void ImportProjectHandle::addMigrationIO()
 {
-    database::Table* table = m_projectHandle->getTable("MigrationIoTbl");
+    database::Table* table = m_projectHandle.getTable("MigrationIoTbl");
     if (!table || table->size() == 0) return;
 
     for (size_t index = 0; index < table->size(); index++)
@@ -1285,13 +1284,13 @@ void ImportProjectHandle::addMigrationIO()
 
 void ImportProjectHandle::addTrapperIO()
 {
-     std::shared_ptr<TrapperList> trapperList(m_projectHandle->getTrappers(0, 0, 0, 0));
-   
+     std::shared_ptr<TrapperList> trapperList(m_projectHandle.getTrappers(0, 0, 0, 0));
+
      if (trapperList->size() == 0) return;
      for (size_t index = 0; index < trapperList->size(); ++ index)
      {
         const Trapper* trapper = trapperList->at(index);
-        
+
         std::shared_ptr<CauldronIO::Trapper> event(new CauldronIO::Trapper());
 
         event->setID(trapper->getId());
@@ -1303,17 +1302,17 @@ void ImportProjectHandle::addTrapperIO()
         event->setSolutionGasDensity((float)trapper->getDensity( PhaseId::OIL, PhaseId::GAS ));
         event->setSolutionGasViscosity((float)trapper->getViscosity( PhaseId::OIL, PhaseId::GAS ));
         event->setSolutionGasMass((float)trapper->getMass( PhaseId::OIL, PhaseId::GAS ));
-        
+
         event->setFreeGasVolume((float)trapper->getVolume( PhaseId::GAS, PhaseId::GAS ));
         event->setFreeGasDensity((float)trapper->getDensity( PhaseId::GAS, PhaseId::GAS ));
         event->setFreeGasViscosity((float)trapper->getViscosity( PhaseId::GAS, PhaseId::GAS ));
         event->setFreeGasMass((float)trapper->getMass( PhaseId::GAS, PhaseId::GAS ));
-        
+
         event->setCondensateVolume((float)trapper->getVolume( PhaseId::GAS, PhaseId::OIL ));
         event->setCondensateDensity((float)trapper->getDensity( PhaseId::GAS, PhaseId::OIL ));
         event->setCondensateViscosity((float)trapper->getViscosity( PhaseId::GAS, PhaseId::OIL ));
         event->setCondensateMass((float)trapper->getMass( PhaseId::GAS, PhaseId::OIL ));
-        
+
         event->setStockTankOilVolume((float)trapper->getVolume( PhaseId::OIL, PhaseId::OIL ));
         event->setStockTankOilDensity((float)trapper->getDensity( PhaseId::OIL, PhaseId::OIL ));
         event->setStockTankOilViscosity((float)trapper->getViscosity( PhaseId::OIL, PhaseId::OIL ));
@@ -1325,14 +1324,14 @@ void ImportProjectHandle::addTrapperIO()
            event->setStockTankOilMass( trapper->getMass( PhaseId::OIL, PhaseId::OIL, (ComponentId)compId ), (CauldronIO::SpeciesNamesId)compId );
            event->setFreeGasMass     ( trapper->getMass( PhaseId::GAS, PhaseId::GAS, (ComponentId)compId ), (CauldronIO::SpeciesNamesId)compId );
         }
-        
-        event->setVolumeOil((float)trapper->getVolume(PhaseId::OIL));    
-        event->setVolumeGas((float)trapper->getVolume(PhaseId::GAS));   
-        event->setMassVapour((float)trapper->getMass(PhaseId::GAS));   
+
+        event->setVolumeOil((float)trapper->getVolume(PhaseId::OIL));
+        event->setVolumeGas((float)trapper->getVolume(PhaseId::GAS));
+        event->setMassVapour((float)trapper->getMass(PhaseId::GAS));
         event->setMassLiquid((float)trapper->getMass(PhaseId::OIL));
-        event->setViscosityVapour((float)trapper->getViscosity(PhaseId::GAS));       
+        event->setViscosityVapour((float)trapper->getViscosity(PhaseId::GAS));
         event->setViscosityLiquid((float)trapper->getViscosity(PhaseId::OIL));
-        event->setDensityVapour((float)trapper->getDensity(PhaseId::GAS));       
+        event->setDensityVapour((float)trapper->getDensity(PhaseId::GAS));
         event->setDensityLiquid((float)trapper->getDensity(PhaseId::OIL));
         event->setCEPGas((float)trapper->getCEP(PhaseId::GAS));
         event->setCEPOil((float)trapper->getCEP(PhaseId::OIL));
@@ -1340,12 +1339,12 @@ void ImportProjectHandle::addTrapperIO()
         event->setCriticalTemperatureGas((float)trapper->getCriticalTemperature(PhaseId::GAS));
         event->setInterfacialTensionOil((float)trapper->getInterfacialTension(PhaseId::OIL));
         event->setInterfacialTensionGas((float)trapper->getInterfacialTension(PhaseId::GAS));
-        event->setOilAPI((float)trapper->getOilAPI());      
-        event->setCGR((float)trapper->getCGR());       
-        event->setGOR((float)trapper->getGOR());       
-        event->setFracturePressure((float)trapper->getFracturePressure());          
-        event->setBuoyancy((float)trapper->getBuoyancy());         
-        event->setWCSurface((float)trapper->getWCSurface()); 
+        event->setOilAPI((float)trapper->getOilAPI());
+        event->setCGR((float)trapper->getCGR());
+        event->setGOR((float)trapper->getGOR());
+        event->setFracturePressure((float)trapper->getFracturePressure());
+        event->setBuoyancy((float)trapper->getBuoyancy());
+        event->setWCSurface((float)trapper->getWCSurface());
         event->setReservoirName(trapper->getReservoir ()->getName());
 
         double x, y;
@@ -1354,17 +1353,17 @@ void ImportProjectHandle::addTrapperIO()
 
         trapper->getSpillPointPosition(x, y);
         event->setSpillPointPosition((float)x, (float)y);
-       
-        event->setTrapCapacity((float)trapper->getCapacity()); 
-        event->setDepth((float)trapper->getDepth()); 
-        event->setGOC((float)trapper->getGOC()); 
-        event->setOWC((float)trapper->getOWC());      
-        event->setSpillDepth((float)trapper->getSpillDepth()); 
+
+        event->setTrapCapacity((float)trapper->getCapacity());
+        event->setDepth((float)trapper->getDepth());
+        event->setGOC((float)trapper->getGOC());
+        event->setOWC((float)trapper->getOWC());
+        event->setSpillDepth((float)trapper->getSpillDepth());
         event->setPressure((float)trapper->getPressure());
         event->setTemperature((float)trapper->getTemperature());
         event->setPermeability((float)trapper->getPermeability());
-        event->setSealPermeability((float)trapper->getSealPermeability()); 
-        event->setPorosity((float)trapper->getPorosity()); 
+        event->setSealPermeability((float)trapper->getSealPermeability());
+        event->setPorosity((float)trapper->getPorosity());
         event->setNetToGross((float)trapper->getNetToGross());
         event->setAge((float)trapper->getSnapshot()->getTime());
 
@@ -1374,14 +1373,14 @@ void ImportProjectHandle::addTrapperIO()
 
 void ImportProjectHandle::addTrapIO()
 {
-   std::shared_ptr<TrapList> trapList(m_projectHandle->getTraps(0, 0, 0 ));
-   
+   std::shared_ptr<TrapList> trapList(m_projectHandle.getTraps(0, 0, 0 ));
+
      if (trapList->size() == 0) return;
      for (size_t index = 0; index < trapList->size(); ++ index)
      {
         const Trap* trap = trapList->at(index);
         database::Record* record = trap->getRecord();
-       
+
         std::shared_ptr<CauldronIO::Trap> event(new CauldronIO::Trap());
 
         event->setID(trap->getId());
@@ -1389,9 +1388,9 @@ void ImportProjectHandle::addTrapIO()
         for( int compId = 0; compId < CauldronIO::SpeciesNamesId::NUMBER_OF_SPECIES; ++ compId ) {
            event->setMass ( trap->getMass( (ComponentId)compId ), (CauldronIO::SpeciesNamesId)compId );
         }
-        
-        event->setVolumeOil((float)trap->getVolume(PhaseId::OIL));    
-        event->setVolumeGas((float)trap->getVolume(PhaseId::GAS));   
+
+        event->setVolumeOil((float)trap->getVolume(PhaseId::OIL));
+        event->setVolumeGas((float)trap->getVolume(PhaseId::GAS));
         event->setCEPGas((float)getCEPGas(record));
         event->setCEPOil((float)getCEPOil(record));
         event->setCriticalTemperatureOil((float)getCriticalTemperatureOil(record));
@@ -1401,19 +1400,19 @@ void ImportProjectHandle::addTrapIO()
         event->setFracturePressure((float)getFracturePressure(record));
         event->setFractSealStrength((float)getFractSealStrength(record));
         event->setWCSurface((float)getWCSurface(record));
- 
+
         double x, y;
         trap->getPosition(x, y);
         event->setPosition((float)x, (float)y);
 
         trap->getSpillPointPosition(x, y);
         event->setSpillPointPosition((float)x, (float)y);
-       
+
         event->setTrapCapacity((float)getTrapCapacity(record));
-        event->setDepth((float)trap->getDepth()); 
-        event->setGOC((float)trap->getGOC()); 
-        event->setOWC((float)trap->getOWC());      
-        event->setSpillDepth((float)trap->getSpillDepth()); 
+        event->setDepth((float)trap->getDepth());
+        event->setGOC((float)trap->getGOC());
+        event->setOWC((float)trap->getOWC());
+        event->setSpillDepth((float)trap->getSpillDepth());
         event->setPressure((float)trap->getPressure());
         event->setTemperature((float)trap->getTemperature());
         event->setPermeability((float)getPermeability(record));
@@ -1427,9 +1426,9 @@ void ImportProjectHandle::addTrapIO()
 
 void ImportProjectHandle::addMassBalance()  {
 
-   const std::string massBalanceFileName = m_projectHandle->getProjectName() + "_MassBalance";
+   const std::string massBalanceFileName = m_projectHandle.getProjectName() + "_MassBalance";
 
-   ibs::FilePath folderPath( m_projectHandle->getProjectPath() );
+   ibs::FilePath folderPath( m_projectHandle.getProjectPath() );
 
    folderPath << massBalanceFileName;
    if( folderPath.exists() ) {
@@ -1441,9 +1440,9 @@ void ImportProjectHandle::addMassBalance()  {
 
 void ImportProjectHandle::addGenexHistory()  {
 
-   DataAccess::Interface::PointAdsorptionHistoryList* historyList = m_projectHandle->getPointAdsorptionHistoryList ( "" );
+   DataAccess::Interface::PointAdsorptionHistoryList* historyList = m_projectHandle.getPointAdsorptionHistoryList ( "" );
    DataAccess::Interface::PointAdsorptionHistoryList::const_iterator historyIter;
-   
+
    std::vector<std::string> historyRecordsDefined;
    for ( historyIter = historyList->begin (); historyIter != historyList->end (); ++historyIter ) {
       if( (* historyIter)->getFileName () != "" ) {
@@ -1452,13 +1451,13 @@ void ImportProjectHandle::addGenexHistory()  {
    }
    delete historyList;
 
-   ibs::FilePath folderPath ( m_projectHandle->getFullOutputDir () );
-   
+   ibs::FilePath folderPath ( m_projectHandle.getFullOutputDir () );
+
 
    if( folderPath.exists() ) {
       boost::filesystem::directory_iterator it (folderPath.path());
       boost::filesystem::directory_iterator endit;
-      
+
       while( it != endit ) {
          if( std::find( historyRecordsDefined.begin(), historyRecordsDefined.end(), it->path().filename() ) != historyRecordsDefined.end() or
              it->path().extension() == ".dat" ) {
@@ -1474,7 +1473,7 @@ void ImportProjectHandle::addGenexHistory()  {
 
 void ImportProjectHandle::addBurialHistory() {
 
-   database::Table * bhfTable = m_projectHandle->getTable("TouchstoneWellIoTbl");
+   database::Table * bhfTable = m_projectHandle.getTable("TouchstoneWellIoTbl");
    std::vector<std::string> historyFilesDefined;
 
    database::Table::iterator tblIter;
@@ -1485,7 +1484,7 @@ void ImportProjectHandle::addBurialHistory() {
          historyFilesDefined.push_back(getBHFName(tableRecord));
       }
    }
-   ibs::FilePath folderPath(m_projectHandle->getFullOutputDir());
+   ibs::FilePath folderPath(m_projectHandle.getFullOutputDir());
 
 
    if (folderPath.exists()) {
@@ -1506,7 +1505,7 @@ void ImportProjectHandle::addBurialHistory() {
 
 void ImportProjectHandle::add1Ddata()  {
    // DisplayContour
-   database::Table* aTable = m_projectHandle->getTable("DisplayContourIoTbl");
+   database::Table* aTable = m_projectHandle.getTable("DisplayContourIoTbl");
    if (aTable != nullptr and aTable->size() > 0)
    {
       database::Table::iterator tblIter;
@@ -1522,14 +1521,14 @@ void ImportProjectHandle::add1Ddata()  {
       }
    }
    // TemperatureIsoIoTbl
-   aTable = m_projectHandle->getTable("TemperatureIsoIoTbl");
+   aTable = m_projectHandle.getTable("TemperatureIsoIoTbl");
    if (aTable != nullptr and aTable->size() > 0)
    {
       database::Table::iterator tblIter;
       for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
       {
          database::Record * aRecord = *tblIter;
-         
+
          std::shared_ptr<CauldronIO::IsoEntry> entry(new CauldronIO::IsoEntry());
          entry->setContourValue(static_cast<float>(getContourValue(aRecord)));
          entry->setAge(static_cast<float>(getAge(aRecord)));
@@ -1540,14 +1539,14 @@ void ImportProjectHandle::add1Ddata()  {
       }
    }
    // VrIsoIoTbl
-   aTable = m_projectHandle->getTable("VrIsoIoTbl");
+   aTable = m_projectHandle.getTable("VrIsoIoTbl");
    if (aTable != nullptr and aTable->size() > 0)
    {
       database::Table::iterator tblIter;
       for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
       {
          database::Record * aRecord = *tblIter;
-         
+
          std::shared_ptr<CauldronIO::IsoEntry> entry(new CauldronIO::IsoEntry());
          entry->setContourValue(static_cast<float>(getContourValue(aRecord)));
          entry->setAge(static_cast<float>(getAge(aRecord)));
@@ -1558,14 +1557,14 @@ void ImportProjectHandle::add1Ddata()  {
       }
    }
    // FtSampleIoTbl
-   aTable = m_projectHandle->getTable("FtSampleIoTbl");
+   aTable = m_projectHandle.getTable("FtSampleIoTbl");
    if (aTable != nullptr and aTable->size() > 0)
    {
       database::Table::iterator tblIter;
       for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
       {
          database::Record * aRecord = *tblIter;
-         
+
          std::shared_ptr<CauldronIO::FtSample> entry(new CauldronIO::FtSample());
 
          entry->setFtSampleId(getFtSampleId(aRecord));
@@ -1595,14 +1594,14 @@ void ImportProjectHandle::add1Ddata()  {
       }
    }
    // FtGrainIoTbl
-   aTable = m_projectHandle->getTable("FtGrainIoTbl");
+   aTable = m_projectHandle.getTable("FtGrainIoTbl");
    if (aTable != nullptr and aTable->size() > 0)
    {
       database::Table::iterator tblIter;
       for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
       {
          database::Record * aRecord = *tblIter;
-         
+
          std::shared_ptr<CauldronIO::FtGrain> entry(new CauldronIO::FtGrain());
 
          entry->setFtSampleId(getFtSampleId(aRecord));
@@ -1616,14 +1615,14 @@ void ImportProjectHandle::add1Ddata()  {
       }
    }
    // FtPredLengthCountsHistIoTbl
-   aTable = m_projectHandle->getTable("FtPredLengthCountsHistIoTbl");
+   aTable = m_projectHandle.getTable("FtPredLengthCountsHistIoTbl");
    if (aTable != nullptr and aTable->size() > 0)
    {
       database::Table::iterator tblIter;
       for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
       {
          database::Record * aRecord = *tblIter;
-         
+
          std::shared_ptr<CauldronIO::FtPredLengthCountsHist> entry(new CauldronIO::FtPredLengthCountsHist());
 
          entry->setFtPredLengthHistId(getFtPredLengthHistId(aRecord));
@@ -1637,14 +1636,14 @@ void ImportProjectHandle::add1Ddata()  {
       }
    }
    // FtPredLengthCountsHistDataIoTbl
-   aTable = m_projectHandle->getTable("FtPredLengthCountsHistDataIoTbl");
+   aTable = m_projectHandle.getTable("FtPredLengthCountsHistDataIoTbl");
    if (aTable != nullptr and aTable->size() > 0)
    {
       database::Table::iterator tblIter;
       for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
       {
          database::Record * aRecord = *tblIter;
-         
+
          std::shared_ptr<CauldronIO::FtPredLengthCountsHistData> entry(new CauldronIO::FtPredLengthCountsHistData());
 
          entry->setFtPredLengthHistId(getFtPredLengthHistId(aRecord));
@@ -1655,14 +1654,14 @@ void ImportProjectHandle::add1Ddata()  {
       }
    }
    // 1DTimeIoTbl
-   aTable = m_projectHandle->getTable("1DTimeIoTbl");
+   aTable = m_projectHandle.getTable("1DTimeIoTbl");
    if (aTable != nullptr and aTable->size() > 0)
    {
       database::Table::iterator tblIter;
       for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
       {
          database::Record * aRecord = *tblIter;
-         
+
          std::shared_ptr<CauldronIO::TimeIo1D> entry(new CauldronIO::TimeIo1D());;
 
          entry->setTime(static_cast<float>(getTime(aRecord)));
@@ -1676,14 +1675,14 @@ void ImportProjectHandle::add1Ddata()  {
       }
    }
    // FtClWeightPercBinsTbl
-   aTable = m_projectHandle->getTable("FtClWeightPercBinsIoTbl");
+   aTable = m_projectHandle.getTable("FtClWeightPercBinsIoTbl");
    if (aTable != nullptr and aTable->size() > 0)
    {
       database::Table::iterator tblIter;
       for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
       {
          database::Record * aRecord = *tblIter;
-         
+
          std::shared_ptr<CauldronIO::FtClWeightPercBins> entry(new CauldronIO::FtClWeightPercBins());
 
          entry->setFtClWeightBinStart(getFtClWeightBinStart(aRecord));

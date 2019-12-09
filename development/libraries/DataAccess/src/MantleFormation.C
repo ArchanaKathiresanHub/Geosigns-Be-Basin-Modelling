@@ -34,7 +34,7 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-MantleFormation::MantleFormation (ProjectHandle * projectHandle, database::Record* record) : Formation ( projectHandle, record ), Interface::BasementFormation ( projectHandle, record, MantleFormationName, projectHandle->getMantleLithoName() ) {
+MantleFormation::MantleFormation (ProjectHandle& projectHandle, database::Record* record) : Formation ( projectHandle, record ), Interface::BasementFormation ( projectHandle, record, MantleFormationName, projectHandle.getMantleLithoName() ) {
 }
 
 
@@ -54,9 +54,9 @@ const GridMap * MantleFormation::getInputThicknessMap (void) const {
 
       double presentDayMantleThickness;
 
-      if ( m_projectHandle->getBottomBoundaryConditions () == MANTLE_HEAT_FLOW ) {
+      if ( getProjectHandle().getBottomBoundaryConditions () == MANTLE_HEAT_FLOW ) {
          presentDayMantleThickness = database::getLithoMantleThickness (m_record);
-      } else  if ( m_projectHandle->isALC() ) {
+      } else  if ( getProjectHandle().isALC() ) {
          presentDayMantleThickness = database::getInitialLithosphericMantleThickness ( m_record );
       } else {
          presentDayMantleThickness = database::getInitialLthMntThickns (m_record);
@@ -64,13 +64,13 @@ const GridMap * MantleFormation::getInputThicknessMap (void) const {
 
       AddConstant add ( presentDayMantleThickness );
 
-      const Grid * grid = m_projectHandle->getActivityOutputGrid();
+      const Grid * grid = getProjectHandle().getActivityOutputGrid();
 
       if ( grid == 0 ) {
-         grid = (Grid *) m_projectHandle->getInputGrid ();
+         grid = (Grid *) getProjectHandle().getInputGrid ();
       }
 
-      thicknessMap = m_projectHandle->getFactory ()->produceGridMap ( this, ThicknessMap, grid, presentDayMantleThickness );
+      thicknessMap = getProjectHandle().getFactory ()->produceGridMap ( this, ThicknessMap, grid, presentDayMantleThickness );
       assert (thicknessMap == getChild (ThicknessMap));
    }
 
@@ -88,13 +88,13 @@ const GridMap * MantleFormation::getInitialThicknessMap (void) const {
 
       AddConstant add ( initMantleThickness );
 
-      const Grid * grid = m_projectHandle->getActivityOutputGrid();
+      const Grid * grid = getProjectHandle().getActivityOutputGrid();
 
       if ( grid == 0 ) {
-         grid = (Grid *) m_projectHandle->getInputGrid ();
+         grid = (Grid *) getProjectHandle().getInputGrid ();
       }
 
-      thicknessMap = m_projectHandle->getFactory ()->produceGridMap ( this, ThicknessMap, grid, initMantleThickness );
+      thicknessMap = getProjectHandle().getFactory ()->produceGridMap ( this, ThicknessMap, grid, initMantleThickness );
       assert (thicknessMap == getChild (ThicknessMap));
    }
 
@@ -105,10 +105,10 @@ double MantleFormation::getPresentDayThickness () const {
 
    double thickness;
 
-   if ( m_projectHandle->getBottomBoundaryConditions () == MANTLE_HEAT_FLOW ) {
+   if ( getProjectHandle().getBottomBoundaryConditions () == MANTLE_HEAT_FLOW ) {
       thickness = database::getLithoMantleThickness ( m_record );
    } else {
-      // m_projectHandle->getBottomBoundaryConditions () == FIXED_BASEMENT_TEMPERATURE
+      // getProjectHandle().getBottomBoundaryConditions () == FIXED_BASEMENT_TEMPERATURE
       thickness = database::getInitialLthMntThickns ( m_record );
    }
 
@@ -118,7 +118,7 @@ double MantleFormation::getPresentDayThickness () const {
 double MantleFormation::getInitialLithosphericMantleThickness () const {
 
    double thickness = 0;
-   if ( m_projectHandle->isALC() )
+   if ( getProjectHandle().isALC() )
    {
       thickness = database::getInitialLithosphericMantleThickness ( m_record );
    }
@@ -126,7 +126,7 @@ double MantleFormation::getInitialLithosphericMantleThickness () const {
 }
 
 PaleoFormationPropertyList * MantleFormation::getPaleoThicknessHistory () const {
-   return m_projectHandle->getMantlePaleoThicknessHistory ();
+   return getProjectHandle().getMantlePaleoThicknessHistory ();
 }
 
 int MantleFormation::getDepositionSequence () const {

@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -28,7 +28,7 @@ namespace DataAccess
 {
    namespace Interface
    {
-     
+
       // Forward declare
       class ProjectHandle;
       class GridMap;
@@ -38,7 +38,7 @@ namespace DataAccess
       {
          public:
 
-            CrustalThicknessRiftingHistoryData( ProjectHandle * projectHandle, database::Record * record );
+            CrustalThicknessRiftingHistoryData( ProjectHandle& projectHandle, database::Record * record );
             virtual ~CrustalThicknessRiftingHistoryData();
 
             /// @return the tectonic flag as an enumeration

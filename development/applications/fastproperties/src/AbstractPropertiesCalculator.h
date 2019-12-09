@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -72,9 +72,6 @@ protected:
 
    PetscLogDouble m_startTime;
 
-   GeoPhysics::ProjectHandle* m_projectHandle;
-   DerivedPropertyManager * m_propertyManager;
-
    string m_projectFileName;
 
    bool m_primaryPod;        /// load results form the shared directory on the cluster
@@ -120,7 +117,7 @@ protected:
 
    /// \brief Check if the property should be calculated for basement
    bool isBasementProperty (const string& propertyName) const;
- 
+
    /// \brief Indicates whether or not open HDF file (2D data) for writing
    virtual bool getProperiesActivity() const = 0;
 
@@ -129,8 +126,8 @@ protected:
 
 public:
 
-   GeoPhysics::ProjectHandle* getProjectHandle() const;
-   DerivedPropertyManager * getPropertyManager() const;
+   GeoPhysics::ProjectHandle& getProjectHandle() const;
+   DerivedPropertyManager& getPropertyManager() const;
 
    bool showLists();
 
@@ -155,7 +152,7 @@ public:
    bool allowBasementOutput (const string& propertyName3D) const;
    /// @brief Acquire outputable simulator properties from project handle
    /// @pre -genex or -mig must be specified as a command line parameter
-   virtual void acquireSimulatorProperties() { return; };
+   virtual void acquireSimulatorProperties() { return; }
 
    /// @brief Print all outputable 2D and 3D properties from project handle
    /// @pre -list-properties must be specified as a command line parameter
@@ -175,7 +172,12 @@ public:
    virtual void listXmlProperties() = 0;
    virtual bool hdfonly() const = 0;
    virtual bool listXml() const = 0;
-   
+
+private:
+
+   std::unique_ptr<GeoPhysics::ProjectHandle> m_projectHandle;
+   DerivedPropertyManager * m_propertyManager;
+
 };
 
 #endif // FASTPROPERTIES__ABSTRACT_PROPERTIES_CALCULATOR__H

@@ -24,10 +24,10 @@ namespace DerivedProperties {
 
    public :
 
-      ThermalConductivityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
- 
+      ThermalConductivityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
+
       /// \brief Calculate the thermal conductivity for the formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the thermal conductivity is requested.
       /// \param [in]  formation   The formation for which the thermal conductivity is requested.
@@ -40,18 +40,18 @@ namespace DerivedProperties {
                                      AbstractDerivedProperties::FormationPropertyList&        derivedProperties ) const;
 
       /// \brief Calculate the thermal conductivity for the basement formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the thermal conductivity is requested.
       /// \param [in]  formation   The formation for which the thermal conductivity is requested.
       /// \param [out] derivedProperties On exit will contain the thermal conductivity property for the formation.
       /// \pre snapshot points to a valid snapshot age.
       /// \pre formation points to a valid formation.
-      virtual void calculateForBasement (       AbstractDerivedProperties::AbstractPropertyManager& propManager,
-                                          const DataModel::AbstractSnapshot*                        snapshot,
-                                          const DataModel::AbstractFormation*                       formation,
-                                                AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
-      
+      void calculateForBasement (       AbstractDerivedProperties::AbstractPropertyManager& propManager,
+                                  const DataModel::AbstractSnapshot*                        snapshot,
+                                  const DataModel::AbstractFormation*                       formation,
+                                        AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
+
        /// \brief Determine if the property is computable for the specific combination of formation and snapshot.
       virtual bool isComputable ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
                                   const DataModel::AbstractSnapshot*                        snapshot,
@@ -63,7 +63,7 @@ namespace DerivedProperties {
                                              const DataModel::AbstractFormation*                       formation ) const;
    private :
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
 
    };
 

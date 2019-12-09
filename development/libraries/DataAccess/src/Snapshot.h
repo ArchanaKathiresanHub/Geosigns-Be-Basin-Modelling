@@ -24,8 +24,8 @@ namespace DataAccess
       class Snapshot : public DataModel::AbstractSnapshot, public DAObject
       {
          public:
-            Snapshot (ProjectHandle * projectHandle, database::Record * record);
-            Snapshot (ProjectHandle * projectHandle, const double time);
+            Snapshot (ProjectHandle& projectHandle, database::Record * record);
+            Snapshot (ProjectHandle& projectHandle, const double time);
             ~Snapshot () final = default;
 
             /// \return the time of this Snapshot

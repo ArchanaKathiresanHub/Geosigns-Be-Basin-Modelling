@@ -16,7 +16,7 @@
 namespace DataExtraction
 {
 
-HDFReadManager::HDFReadManager( const DataAccess::Interface::ProjectHandle* projectHandle ) :
+HDFReadManager::HDFReadManager( const DataAccess::Interface::ProjectHandle& projectHandle ) :
   m_projectHandle( projectHandle ),
   m_mapsFileId( 0 ),
   m_snapshotFileId( 0 )
@@ -57,7 +57,7 @@ void HDFReadManager::openMapsFile( const std::string& mapFileName )
     return;
   }
 
-  const std::string outputPath = m_projectHandle->getFullOutputDir();
+  const std::string outputPath = m_projectHandle.getFullOutputDir();
   const std::string mapsFilePath = outputPath + "/" + mapFileName;
   m_mapsFileId = H5Fopen( mapsFilePath.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
   if ( m_mapsFileId <= 0 )

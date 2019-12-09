@@ -1,12 +1,13 @@
-//                                                                      
+//
 // Copyright (C) 2016-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
+#include "TwoWayTimeFormationCalculator.h"
 
 // Derived property library
 #include "AbstractPropertyManager.h"
@@ -26,7 +27,6 @@
 #include "FormattingException.h"
 #include "LogHandler.h"
 
-#include "TwoWayTimeFormationCalculator.h"
 
 using namespace AbstractDerivedProperties;
 
@@ -53,7 +53,7 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractP
    DataModel::AbstractProperty const * const velocityProperty      = propertyManager.getProperty ( "Velocity" );
 
    DataModel::AbstractProperty const * const twoWayTimeProperty = propertyManager.getProperty ( "TwoWayTime" );
- 
+
    const FormationPropertyPtr   depth       = propertyManager.getFormationProperty ( depthProperty,       snapshot, formation );
    const FormationPropertyPtr   pressure    = propertyManager.getFormationProperty ( pressureProperty,    snapshot, formation );
    const FormationPropertyPtr   temperature = propertyManager.getFormationProperty ( temperatureProperty, snapshot, formation );
@@ -61,12 +61,10 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractP
 
    ///II. Find the two-way-travel-time at the top of the current formation if there is a such formation
    GeoPhysics::GeoPhysicsFormation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
-   GeoPhysics::ProjectHandle const * const projectHandle   = dynamic_cast<const GeoPhysics::ProjectHandle*>( geophysicsFormation->getProjectHandle ());
 
-   const DataAccess::Interface::Surface* surfaceTop    = geophysicsFormation->getTopSurface();
-   const DataAccess::Interface::Surface* surfaceBottom = geophysicsFormation->getBottomSurface();
-   const GeoPhysics::GeoPhysicsFormation * formationTop    = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(surfaceTop->getTopFormation());
-   const GeoPhysics::GeoPhysicsFormation * formationBottom = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(surfaceBottom->getBottomFormation());
+   const DataAccess::Interface::Surface* surfaceTop = geophysicsFormation->getTopSurface();
+   const GeoPhysics::GeoPhysicsFormation* formationTop = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(surfaceTop->getTopFormation());
+   const GeoPhysics::GeoPhysicsFormation* formationBottom = dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(surfaceTop->getBottomFormation());
    FormationPropertyPtr twoWayTimeTop = 0;
    if (formationTop){
       DataModel::AbstractProperty const * const twoWayTimeTopProperty = propertyManager.getProperty( "TwoWayTime" );
@@ -76,29 +74,23 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractP
       }
    }
 
-   
+
    derivedProperties.clear ();
 
    ///III. Compute two-way-(travel)-time
    if (depth != 0 and pressure != 0 and temperature != 0 and velocity != 0 and geophysicsFormation != 0) {
 
-      const GeoPhysics::CompoundLithologyArray& lithologies = geophysicsFormation->getCompoundLithologyArray ();
-
       PropertyRetriever depthRetriever         ( depth );
       PropertyRetriever pressureRetriever      ( pressure );
       PropertyRetriever temperatureRetriever   ( temperature );
       PropertyRetriever velocityRetriever      ( velocity );
-      if (twoWayTimeTop){
-         PropertyRetriever twoWayTimeTopRetriever( twoWayTimeTop );
-      }
 
       DerivedFormationPropertyPtr twoWayTime = DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( twoWayTimeProperty,
                                                                                                                              snapshot,
-                                                                                                                             formation, 
+                                                                                                                             formation,
                                                                                                                              propertyManager.getMapGrid (),
                                                                                                                              geophysicsFormation->getMaximumNumberOfElements() + 1 ));
 
-      double currentTime = snapshot->getTime ();
       double undefinedValue = twoWayTime->getUndefinedValue();
       double twoWayTimeValue;
       double distance;
@@ -112,7 +104,7 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractP
 
          for (unsigned int j = twoWayTime->firstJ( true ); j <= twoWayTime->lastJ( true ); ++j) {
 
-            if (projectHandle->getNodeIsValid( i, j )) {
+            if (geophysicsFormation->getProjectHandle().getNodeIsValid( i, j )) {
 
                ///1.a If we are not at the top, add the twoWayTime from the node above (first bottom node of the formation above)
                if (twoWayTimeTop){
@@ -196,36 +188,12 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractP
 
 bool DerivedProperties::TwoWayTimeFormationCalculator::isComputable( const AbstractPropertyManager&      propManager,
                                                                      const DataModel::AbstractSnapshot*  snapshot,
-                                                                     const DataModel::AbstractFormation* formation ) const {
-
-   DataModel::AbstractProperty const * const depthProperty       = propManager.getProperty( "Depth" );
-   DataModel::AbstractProperty const * const pressureProperty    = propManager.getProperty( "Pressure" );
-   DataModel::AbstractProperty const * const temperatureProperty = propManager.getProperty( "Temperature" );
-   DataModel::AbstractProperty const * const velocityProperty    = propManager.getProperty( "Velocity" );
-   if (!formation){
-      ///0. Initial check used when adding calculators
-      bool computable = propManager.formationPropertyIsComputable( depthProperty, snapshot, formation )
-         and propManager.formationPropertyIsComputable( pressureProperty,    snapshot, formation )
-         and propManager.formationPropertyIsComputable( temperatureProperty, snapshot, formation )
-         and propManager.formationPropertyIsComputable( velocityProperty,    snapshot, formation );
-      return computable;
-   }
-   else{
-      ///1. Check that snapshot age is 0
-      assert( snapshot );
-      if (snapshot->getTime() != 0.0) {
-         LogHandler( LogHandler::WARNING_SEVERITY )
-            << "Cannot compute Two-Way-(Travel)-Time property at specified snpashot"
-            << snapshot->getTime() << "Ma for the formation ' " << formation->getName()
-            << "'. This property can only be computed at present day 0.0Ma.";
-         return false;
-      }
-      ///2. Check that we can compute the TwoWayTime
-      bool computable = propManager.formationPropertyIsComputable( depthProperty, snapshot, formation )
-         and propManager.formationPropertyIsComputable( pressureProperty,    snapshot, formation )
-         and propManager.formationPropertyIsComputable( temperatureProperty, snapshot, formation )
-         and propManager.formationPropertyIsComputable( velocityProperty,    snapshot, formation );
-      return computable;
+                                                                     const DataModel::AbstractFormation* formation ) const
+{
+   if (formation && snapshot->getTime() != 0.0)
+   {
+     return false;
    }
 
+   return AbstractDerivedProperties::FormationPropertyCalculator::isComputable( propManager, snapshot, formation );
 }

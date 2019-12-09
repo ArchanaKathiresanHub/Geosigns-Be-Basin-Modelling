@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -24,7 +24,7 @@ namespace DataAccess
       {
       public:
 
-         MantleFormation (ProjectHandle * projectHandle, database::Record* record);
+         MantleFormation (ProjectHandle& projectHandle, database::Record* record);
 
          ~MantleFormation (void);
 
@@ -40,7 +40,7 @@ namespace DataAccess
 
          /// Return a sequence of paleo-thickness maps.
          ///
-         /// The thickness of the mantle is controlled by both the present 
+         /// The thickness of the mantle is controlled by both the present
          /// day mantle thickness and the crust thinning history.
          PaleoFormationPropertyList * getPaleoThicknessHistory () const;
 

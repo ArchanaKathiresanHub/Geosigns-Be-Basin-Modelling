@@ -42,7 +42,7 @@ using namespace Interface;
 
 const std::string BasementFormation::HomogeneousMixtureString = "Homogeneous";
 
-BasementFormation::BasementFormation (ProjectHandle * projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName ) :
+BasementFormation::BasementFormation (ProjectHandle& projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName ) :
    Formation (projectHandle, record), m_formationName ( formationName ), m_lithologyName ( lithologyName )
 {
    m_mangledName = utilities::mangle ( m_formationName );
@@ -80,9 +80,9 @@ GridMap * BasementFormation::computeThicknessMap(void) const
 const LithoType * BasementFormation::getLithoType1 (void) const {
 
    if (!m_lithoType1)
-      m_lithoType1 = (LithoType const *) m_projectHandle->findLithoType ( m_lithologyName );
+      m_lithoType1 = (LithoType const *) getProjectHandle().findLithoType ( m_lithologyName );
    return m_lithoType1;
-  
+
 }
 
 const GridMap * BasementFormation::getLithoType1PercentageMap(void) const
@@ -93,9 +93,9 @@ const GridMap * BasementFormation::getLithoType1PercentageMap(void) const
    {
       const double percentage = 100.0;
 
-      const Grid * grid = m_projectHandle->getActivityOutputGrid();
-      if (!grid) grid = (Grid *)m_projectHandle->getInputGrid();
-      gridMap = m_projectHandle->getFactory()->produceGridMap(this, LithoType1Map, grid, percentage);
+      const Grid * grid = getProjectHandle().getActivityOutputGrid();
+      if (!grid) grid = (Grid *)getProjectHandle().getInputGrid();
+      gridMap = getProjectHandle().getFactory()->produceGridMap(this, LithoType1Map, grid, percentage);
 
       assert(gridMap == getChild(LithoType1Map));
    }

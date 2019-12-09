@@ -85,7 +85,8 @@ fi
 
 # Load module for intel 2017.05 compiler
 set +x
-. /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
+. /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
+module load HpcSoftwareStack/PRODUCTION
 module purge
 module load intel/2017.05
 set -x

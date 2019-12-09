@@ -15,23 +15,23 @@ using namespace database;
 #include <iostream>
 using namespace std;
 
-DataAccess::Interface::IgneousIntrusionEvent::IgneousIntrusionEvent ( ProjectHandle* projectHandle, database::Record * record ) : DAObject ( projectHandle, record ) {
+DataAccess::Interface::IgneousIntrusionEvent::IgneousIntrusionEvent ( ProjectHandle& projectHandle, database::Record * record ) : DAObject ( projectHandle, record ) {
 
    double intrusionAge;
 
-   m_formation = m_projectHandle->findFormation ( database::getLayerName (m_record));
+   m_formation = projectHandle.findFormation ( database::getLayerName (m_record));
    assert ( m_formation != nullptr );
-   
+
    intrusionAge = database::getIgneousIntrusionAge ( m_record );
    assert ( intrusionAge != DefaultUndefinedScalarValue );
    assert ( intrusionAge <= m_formation->getTopSurface()->getSnapshot()->getTime() );
-       
-   m_snapshot = m_projectHandle->findSnapshot ( intrusionAge );
+
+   m_snapshot = projectHandle.findSnapshot ( intrusionAge );
    assert ( m_snapshot != nullptr );
-   
+
    // Intrusion event and snapshot must have the same age.
    assert ( intrusionAge == m_snapshot->getTime() );
-   
+
 }
 
 DataAccess::Interface::IgneousIntrusionEvent::~IgneousIntrusionEvent () {

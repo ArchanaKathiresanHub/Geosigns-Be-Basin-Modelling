@@ -14,8 +14,6 @@
 #include "FilePath.h"
 #include "FolderPath.h"
 
-#include <boost/foreach.hpp>
-#include <boost/thread.hpp>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -31,17 +29,17 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::importFromXML(const std::str
 {
     if (!ibs::FilePath(filename).exists())
         throw CauldronIOException("Cannot open file");
-    
+
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load_file(filename.c_str());
 
     if (!result)
         throw CauldronIOException("Error during parsing xml file");
 
-        
+
     ImportFromXML importExport(ibs::FilePath(filename).filePath());
     std::shared_ptr<Project> project;
-    
+
     try
     {
        project = importExport.getProject(doc);
@@ -55,7 +53,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::importFromXML(const std::str
     {
         throw CauldronIOException("unspecified error during xml parse");
     }
-    
+
     return project;
 }
 
@@ -67,14 +65,14 @@ CauldronIO::ImportFromXML::ImportFromXML(const ibs::FilePath& absPath)
 std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_document& ptDoc)
 {
     pugi::xml_node pt = ptDoc.child("project");
-    if (!pt) 
+    if (!pt)
         throw CauldronIOException("Invalid xml file or format");
 
     std::string projectName = pt.child_value("name");
     std::string projectDescript = pt.child_value("description");
     std::string projectVersion = pt.child_value("programversion");
     std::string outputPath = pt.child_value("outputpath");
-    
+
     ModellingMode mode = (ModellingMode)pt.child("modelingmode").text().as_int();
 
     // Check XML versions
@@ -119,7 +117,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
         std::shared_ptr<const Property> property = getProperty(propertyNode);
         m_project->addProperty(property);
     }
-    
+
     // Read all geometries
     pugi::xml_node geometriesNode = pt.child("geometries");
     if (!geometriesNode)
@@ -207,30 +205,30 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
 
        if (record_size != sizeof(MigrationEvent))
           throw CauldronIOException("Invalid record size for MigrationEvent");
-       
+
        // Uncompress the data
        pugi::xml_node datastoreNode = migrationEventsNode.child("datastore");
        DataStoreParams *params = DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath);
        DataStoreLoad datastore(params);
        char* data = (char*)datastore.getData(totalSize);
-       
+
        // Reconstruct migrationEvents
        size_t dataIndex = 0;
        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
        {
           std::shared_ptr<MigrationEvent> event(new MigrationEvent());
-          
+
           void* source = (void*)(&data[dataIndex]);
           void* dest = (void*)(event.get());
           memcpy(dest, source, record_size);
-          
+
           m_project->addMigrationEvent(event);
        }
-       
+
        delete params;
        delete[] data;
     }
-    
+
     // Parse trapper table
     pugi::xml_node trapperNode = pt.child("trapper");
     if (trapperNode)
@@ -241,26 +239,26 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
 
        if (record_size != sizeof(Trapper))
           throw CauldronIOException("Invalid record size for Trapper");
-       
+
        // Uncompress the data
        pugi::xml_node datastoreNode = trapperNode.child("datastore");
        DataStoreParams *params = DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath);
        DataStoreLoad datastore(params);
        char* data = (char*)datastore.getData(totalSize);
-       
+
        // Reconstruct trapper
        size_t dataIndex = 0;
        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
        {
           std::shared_ptr<Trapper> event(new Trapper());
-          
+
           void* source = (void*)(&data[dataIndex]);
           void* dest = (void*)(event.get());
           memcpy(dest, source, record_size);
-          
+
           m_project->addTrapper(event);
        }
-       
+
        delete params;
        delete[] data;
     }
@@ -275,26 +273,26 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
 
        if (record_size != sizeof(Trap))
           throw CauldronIOException("Invalid record size for Trap");
-       
+
        // Uncompress the data
        pugi::xml_node datastoreNode = trapNode.child("datastore");
        DataStoreParams *params = DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath);
        DataStoreLoad datastore(params);
        char* data = (char*)datastore.getData(totalSize);
-       
+
        // Reconstruct trap
        size_t dataIndex = 0;
        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
        {
           std::shared_ptr<Trap> event(new Trap());
-          
+
           void* source = (void*)(&data[dataIndex]);
           void* dest = (void*)(event.get());
           memcpy(dest, source, record_size);
-          
+
           m_project->addTrap(event);
        }
-       
+
        delete params;
        delete[] data;
     }
@@ -312,7 +310,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           }
        }
     }
-    
+
     // Parse burial history files references
     pugi::xml_node burialHistoryNode = pt.child("burialHistoryFiles");
     if (burialHistoryNode)
@@ -326,14 +324,14 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           }
        }
     }
-    
+
     // Parse mass balance file reference
     pugi::xml_node massBalanceNode = pt.child("massBalance");
     if (massBalanceNode)
     {
        m_project->setMassBalance ( massBalanceNode.attribute("file").as_string() );
     }
-    
+
     // Parse display contour table
     pugi::xml_node displayContourNode = pt.child("displayContour");
     if (displayContourNode)
@@ -344,11 +342,11 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           std::string name = oneRecord.attribute("propertyName").value();
           std::string colour = oneRecord.attribute("colour").value();
           float value = oneRecord.attribute("value").as_float();
-          
+
           entry->setPropertyName(name);
           entry->setContourColour(colour);
           entry->setContourValue(value);
-          
+
           m_project->addDisplayContour(entry);
        }
     }
@@ -357,21 +355,21 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node temperatureIsoNode = pt.child("temperatureIso");
     if (temperatureIsoNode)
     {
-       
+
        for (pugi::xml_node oneRecord = temperatureIsoNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
        {
           std::shared_ptr<IsoEntry> entry(new IsoEntry);
-          
+
           float age = oneRecord.attribute("age").as_float();
           float value = oneRecord.attribute("value").as_float();
           double sum = oneRecord.attribute("sum").as_double();
           int numberOfPoints = oneRecord.attribute("NP").as_int();
-          
+
           entry->setAge(age);
           entry->setNP(numberOfPoints);
           entry->setContourValue(value);
           entry->setSum(sum);
-          
+
           m_project->addTemperatureIsoEntry(entry);
        }
     }
@@ -383,31 +381,31 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
        for (pugi::xml_node oneRecord = vrIsoNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
        {
           std::shared_ptr<IsoEntry> entry(new IsoEntry);
-          
+
           float age = oneRecord.attribute("age").as_float();
           float value = oneRecord.attribute("value").as_float();
           double sum = oneRecord.attribute("sum").as_double();
           int numberOfPoints = oneRecord.attribute("NP").as_int();
-          
+
           entry->setAge(age);
           entry->setNP(numberOfPoints);
           entry->setContourValue(value);
           entry->setSum(sum);
-          
+
           m_project->addVrIsoEntry(entry);
-          
+
        }
     }
-    
+
     // Parse FtSample table
     pugi::xml_node ftNode = pt.child("ftSample");
     if (ftNode)
     {
-       
+
        for (pugi::xml_node oneRecord = ftNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
        {
           std::shared_ptr<FtSample> entry(new FtSample);
-          
+
           std::string id = oneRecord.attribute("id").value();
           entry->setFtSampleId(id);
           float depthInd = oneRecord.attribute("depthInd").as_float();
@@ -454,20 +452,20 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           entry->setFtLengthChi2(lengthChi2);
           std::string apatiteYield  = oneRecord.attribute("apatiteYield").value();
           entry->setFtApatiteYield(apatiteYield);
-          
+
           m_project->addFtSample(entry);
-          
+
        }
     }
     // Parse FtGrain table
     pugi::xml_node ftgNode = pt.child("ftGrain");
     if (ftgNode)
     {
-       
+
        for (pugi::xml_node oneRecord = ftgNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
        {
           std::shared_ptr<FtGrain> entry(new FtGrain);
-          
+
           std::string id = oneRecord.attribute("sampleId").value();
           entry->setFtSampleId(id);
           int grainId = oneRecord.attribute("grainId").as_int();
@@ -480,20 +478,20 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           entry->setFtClWeightPerc(clWeightPerc);
           float grainAge = oneRecord.attribute("grainAge").as_float();
           entry->setFtGrainAge(grainAge);
-          
+
           m_project->addFtGrain(entry);
-          
+
        }
     }
     // Parse FtPredLengthCountsHist table
     pugi::xml_node ftpNode = pt.child("ftPredLengthCountsHist");
     if(ftpNode)
     {
-       
+
        for (pugi::xml_node oneRecord = ftpNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
        {
           std::shared_ptr<FtPredLengthCountsHist> entry(new FtPredLengthCountsHist);
-          
+
           std::string id = oneRecord.attribute("sampleId").value();
           entry->setFtSampleId(id);
           int histId = oneRecord.attribute("id").as_int();
@@ -506,45 +504,45 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           entry->setFtPredLengthBinStart(binWidth);
           int binNum = oneRecord.attribute("binNum").as_int();
           entry->setFtPredLengthBinNum(binNum);
-          
+
           m_project->addFtPredLengthCountsHist(entry);
-          
+
        }
     }
     // Parse FtPredLengthCountsHistData table
     pugi::xml_node ftpdNode = pt.child("ftPredLengthCountsHistData");
     if(ftpdNode)
     {
-       
+
        for (pugi::xml_node oneRecord = ftpdNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
        {
           std::shared_ptr<FtPredLengthCountsHistData> entry(new FtPredLengthCountsHistData);
-          
+
           int histId = oneRecord.attribute("id").as_int();
           entry->setFtPredLengthHistId(histId);
           int binIndex = oneRecord.attribute("binIndex").as_int();
           entry->setFtPredLengthBinIndex(binIndex);
           float binCount = oneRecord.attribute("binCount").as_float();
           entry->setFtPredLengthBinCount(binCount);
-          
+
           m_project->addFtPredLengthCountsHistData(entry);
-          
+
        }
     }
     // Parse FtClWeightPercBins table
     pugi::xml_node ftbNode = pt.child("ftClWeightPercBins");
     if(ftbNode)
     {
-       
+
        for (pugi::xml_node oneRecord = ftbNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
        {
           std::shared_ptr<FtClWeightPercBins> entry(new FtClWeightPercBins);
-          
+
           double start = oneRecord.attribute("start").as_double();
           entry->setFtClWeightBinStart(start);
           double width = oneRecord.attribute("width").as_double();
           entry->setFtClWeightBinWidth(width);
-          
+
           m_project->addFtClWeightPercBins(entry);
        }
     }
@@ -558,13 +556,13 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
 
        if (record_size != sizeof(TimeIo1D))
           throw CauldronIOException("Invalid record size for TimeIo1D");
-       
+
        // Uncompress the data
        pugi::xml_node datastoreNode = timeIo1DNode.child("datastore");
        DataStoreParams *params = DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath);
        DataStoreLoad datastore(params);
        char* data = (char*)datastore.getData(totalSize);
-       
+
        // Reconstruct the record
        size_t dataIndex = 0;
        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
@@ -573,10 +571,10 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           void* source = (void*)(&data[dataIndex]);
           void* dest = (void*)(event.get());
           memcpy(dest, source, record_size);
-          
+
           m_project->add1DTimeIo(event);
        }
-       
+
        delete params;
        delete[] data;
     }
@@ -600,12 +598,12 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
             for (pugi::xml_node surfaceNode = hasSurfaces.child("surface"); surfaceNode; surfaceNode = surfaceNode.next_sibling("surface"))
             {
                 std::shared_ptr<Surface> surface = getSurface(surfaceNode, fullOutputPath);
-                
+
                 // Add to snapshot
                 snapShot->addSurface(surface);
             }
         }
-        
+
         // Find all (continuous) volumes
         /////////////////////////////////////////
         pugi::xml_node hasVolumes = snapShotNode.child("volume");
@@ -647,12 +645,12 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
             for (pugi::xml_node trapperNode = hasTrappers.child("trapper"); trapperNode; trapperNode = trapperNode.next_sibling("trapper"))
             {
                 int ID = trapperNode.attribute("id").as_int();
-                int persistentID = trapperNode.attribute("persistentID").as_int(); 
-                int downstreamTrapperID = trapperNode.attribute("downstreamtrapper").as_int(); 
+                int persistentID = trapperNode.attribute("persistentID").as_int();
+                int downstreamTrapperID = trapperNode.attribute("downstreamtrapper").as_int();
                 float depth = trapperNode.attribute("depth").as_float();
-                float spillDepth = trapperNode.attribute("spillDepth").as_float(); 
+                float spillDepth = trapperNode.attribute("spillDepth").as_float();
                 std::string reservoirname = trapperNode.attribute("reservoirname").value();
-                        
+
                 float x      = trapperNode.attribute("posX").as_float();
                 float y      = trapperNode.attribute("posY").as_float();
                 float spillX = trapperNode.attribute("spillPosX").as_float();
@@ -676,7 +674,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
 
         m_project->addSnapShot(snapShot);
     }
-    
+
     return m_project;
 }
 
@@ -685,7 +683,7 @@ std::shared_ptr<const Reservoir> CauldronIO::ImportFromXML::getReservoir(pugi::x
     std::shared_ptr<Reservoir> reservoir;
 
     std::string name = reservoirNode.attribute("name").value();
-    std::string formation = reservoirNode.attribute("formation").value(); 
+    std::string formation = reservoirNode.attribute("formation").value();
 
     std::shared_ptr<const Formation> formationIO = m_project->findFormation(formation);
     assert(formationIO);
@@ -769,9 +767,9 @@ std::shared_ptr<Volume> CauldronIO::ImportFromXML::getVolume(pugi::xml_node volu
 	pugi::xml_attribute sedimentMaxValueAttr = propertyVolNode.attribute("sedimentMax");
 	if(sedimentMinValueAttr && sedimentMaxValueAttr)
 	{
-	  volData->setSedimentMinMax(
-	    sedimentMinValueAttr.as_float(),
-	    sedimentMaxValueAttr.as_float());
+		volData->setSedimentMinMax(
+			sedimentMinValueAttr.as_float(),
+			sedimentMaxValueAttr.as_float());
 	}
 
         // Get the datastore xml node or constantvalue
@@ -784,7 +782,7 @@ std::shared_ptr<Volume> CauldronIO::ImportFromXML::getVolume(pugi::xml_node volu
         PropertyVolumeData propVolData(property, volData);
         volume->addPropertyVolumeData(propVolData);
     }
-    
+
     return volume;
 }
 
@@ -883,9 +881,9 @@ std::shared_ptr<Property> CauldronIO::ImportFromXML::getProperty(pugi::xml_node 
     std::shared_ptr<Property> property;
 
     std::string name = propertyNode.attribute("name").value();
-    std::string cauldronname = propertyNode.attribute("cauldronname").value(); 
-    std::string username = propertyNode.attribute("username").value(); 
-    std::string unit = propertyNode.attribute("unit").value();  
+    std::string cauldronname = propertyNode.attribute("cauldronname").value();
+    std::string username = propertyNode.attribute("username").value();
+    std::string unit = propertyNode.attribute("unit").value();
     PropertyType type = (PropertyType)propertyNode.attribute("type").as_int();
     PropertyAttribute attrib = (PropertyAttribute)propertyNode.attribute("attribute").as_int();
 

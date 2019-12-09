@@ -60,7 +60,7 @@ namespace migration
    {
    public:
       /// This constructor is called by the object factory
-      MigrationFormation (Interface::ProjectHandle * projectHandle, Migrator * migrator, database::Record * record);
+      MigrationFormation (Interface::ProjectHandle& projectHandle, Migrator * migrator, database::Record * record);
 
       /// Destructor
       virtual ~MigrationFormation (void);

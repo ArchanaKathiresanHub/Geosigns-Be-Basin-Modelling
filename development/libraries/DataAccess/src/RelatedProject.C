@@ -17,7 +17,7 @@ using namespace DataAccess;
 using namespace Interface;
 
 
-RelatedProject::RelatedProject (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+RelatedProject::RelatedProject (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
    const std::string& fileName = database::getFilename ( m_record );
 
@@ -28,13 +28,13 @@ RelatedProject::RelatedProject (ProjectHandle * projectHandle, Record * record) 
       // load 1d project.
 
       database::DataSchema * projSchema = database::createCauldronSchema ();
-    
+
       database::Database * relatedProjectDatabase;
 
-      ibs::FilePath filePathName( projectHandle->getProjectPath () );
+      ibs::FilePath filePathName( projectHandle.getProjectPath () );
       filePathName << fileName;
       relatedProjectDatabase = Database::CreateFromFile ( filePathName.path(), *projSchema );
-    
+
       if ( relatedProjectDatabase != nullptr )
       {
          database::Table * tbl = relatedProjectDatabase->getTable ( "WellLocIoTbl" );
@@ -42,12 +42,12 @@ RelatedProject::RelatedProject (ProjectHandle * projectHandle, Record * record) 
          assert ( tbl != nullptr );
 
          database::Record *relatedProjectRecord = tbl->getRecord ( 0 );
-   
+
          assert (relatedProjectRecord != nullptr);
-   
+
          m_eastPosition  = database::getXCoord ( relatedProjectRecord );
          m_northPosition = database::getYCoord ( relatedProjectRecord );
-         
+
 
          tbl = relatedProjectDatabase->getTable ( "StratIoTbl" );
          assert ( tbl != nullptr );

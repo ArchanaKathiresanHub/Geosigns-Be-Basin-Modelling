@@ -18,7 +18,7 @@ namespace DataAccess
      {
      public:
 
-         AllochthonousLithologyDistribution (ProjectHandle * projectHandle, database::Record * record);
+         AllochthonousLithologyDistribution (ProjectHandle& projectHandle, database::Record * record);
 
          virtual ~AllochthonousLithologyDistribution (void);
 
@@ -38,7 +38,7 @@ namespace DataAccess
          /// If 0 is returned, no value was specified.
          const GridMap * getMap (const AllochthonousLithologyDistributionMapAttributeId attributeId) const;
 
-         /// load a map
+				 /// load a map
 	 GridMap * loadMap ( const AllochthonousLithologyDistributionMapAttributeId attributeId) const;
 
          /// Print the attributes of this AllochthonousLithologyDistribution
@@ -57,12 +57,12 @@ namespace DataAccess
 
       /// \brief Functor class for ordering allochthonous lithology distribution objects.
       class AllochthonousLithologyDistributionTimeLessThan {
-         
+
       public :
-         
-         bool operator ()( const AllochthonousLithologyDistribution* ald1, 
+
+         bool operator ()( const AllochthonousLithologyDistribution* ald1,
                            const AllochthonousLithologyDistribution* ald2 ) const;
-         
+
       };
 
    }

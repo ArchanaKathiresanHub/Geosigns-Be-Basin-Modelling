@@ -23,8 +23,7 @@ class VoxetProjectHandle {
 
 public :
 
-   VoxetProjectHandle ( const std::string& voxetProjectFileName,
-                        Interface::ProjectHandle*     projectHandle );
+   VoxetProjectHandle ( const std::string& voxetProjectFileName, const ProjectHandle& projectHandle );
 
 
    CauldronPropertyList::iterator cauldronPropertyBegin ();
@@ -32,8 +31,6 @@ public :
    CauldronPropertyList::iterator cauldronPropertyEnd ();
 
    double getSnapshotTime () const;
-
-   inline Interface::ProjectHandle* getCauldronProjectHandle ();
 
    const GridDescription& getGridDescription () const;
 
@@ -47,7 +44,7 @@ private :
 
    const std::string m_voxetProjectFileName;
 
-   Interface::ProjectHandle* m_cauldronProjectHandle;
+   const Interface::ProjectHandle& m_cauldronProjectHandle;
 
    double m_snapshotTime;
 
@@ -56,10 +53,5 @@ private :
    GridDescription* m_gridDescription;
    CauldronPropertyList        m_cauldronProperties;
 };
-
-Interface::ProjectHandle* VoxetProjectHandle::getCauldronProjectHandle ()
-{
-   return m_cauldronProjectHandle;
-}
 
 #endif // _VOXET_PROJECT_HANDLE_H_

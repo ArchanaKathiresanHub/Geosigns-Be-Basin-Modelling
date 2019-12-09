@@ -63,7 +63,6 @@ namespace DerivedProperties {
       bool isPrimary () const;
    private :
 
-      const DataAccess::Interface::PropertyValue* m_propertyValue;
       const DataAccess::Interface::GridMap* m_gridMap;
 
    };

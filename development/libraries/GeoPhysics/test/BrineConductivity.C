@@ -24,7 +24,7 @@ namespace BrineConductivity_UnitTests
    {
       ObjectFactory factory;
       ObjectFactory* factoryptr = &factory;
-      ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("ConductivityProject.project3d", "r", factoryptr));
+      std::unique_ptr<ProjectHandle> projectHandle( dynamic_cast<ProjectHandle*>(OpenCauldronProject("ConductivityProject.project3d", factoryptr)) );
 
       database::Table* fluidTbl = projectHandle->getTable("FluidtypeIoTbl");
       database::Table::iterator tblIter;
@@ -37,7 +37,7 @@ namespace BrineConductivity_UnitTests
             break;
       }
 
-      std::unique_ptr<FluidType> geoPhysicsFluidType (new FluidType(projectHandle, fluidRecord));
+      std::unique_ptr<FluidType> geoPhysicsFluidType (new FluidType(*projectHandle, fluidRecord));
 
       DataAccess::Interface::FluidThermalConductivitySampleList* thermalConductivitySamples;
       thermalConductivitySamples = projectHandle->getFluidThermalConductivitySampleList(projectHandle->findFluid(geoPhysicsFluidType->getThermalConductivityFluidName()));

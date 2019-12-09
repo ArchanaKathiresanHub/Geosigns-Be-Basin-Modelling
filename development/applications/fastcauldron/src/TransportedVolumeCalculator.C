@@ -15,7 +15,7 @@
 
 
 
-OutputPropertyMap* allocateTransportedVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateTransportedVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<TransportedVolumeCalculator>( property, formation, snapshot );
 }
 

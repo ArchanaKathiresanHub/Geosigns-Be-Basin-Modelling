@@ -23,7 +23,7 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-Reservoir::Reservoir (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+Reservoir::Reservoir (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
    m_formation = 0;
    m_mangledName = utilities::mangle (getName ());
@@ -79,7 +79,7 @@ bool Reservoir::isActive (const Interface::Snapshot * snapshot) const
 
    if (getActivityMode () == "ActiveFrom")
    {
-      const Interface::Snapshot * activeFromSnapshot = m_projectHandle->findSnapshot (getActivityStart ());
+      const Interface::Snapshot * activeFromSnapshot = getProjectHandle().findSnapshot (getActivityStart ());
       return (activeFromSnapshot->getTime () >= snapshot->getTime ());
    }
 
@@ -159,7 +159,7 @@ const GridMap * Reservoir::getMap (ReservoirMapAttributeId attributeId) const
    }
    return gridMap;
 }
- 
+
 GridMap * Reservoir::loadMap (ReservoirMapAttributeId attributeId) const
 {
    unsigned int attributeIndex = (unsigned int) attributeId;
@@ -170,18 +170,18 @@ GridMap * Reservoir::loadMap (ReservoirMapAttributeId attributeId) const
    GridMap * gridMap = 0;
    if (valueGridMapId.length () != 0)
    {
-      gridMap = m_projectHandle->loadInputMap ("ReservoirIoTbl", valueGridMapId);
+      gridMap = getProjectHandle().loadInputMap ("ReservoirIoTbl", valueGridMapId);
    }
    else
    {
       double value;
       if ((value = m_record->getValue<double>(s_MapAttributeNames[attributeIndex])) != RecordValueUndefined)
       {
-         //const Grid *grid = m_projectHandle->getInputGrid ();
-         const Grid * grid = m_projectHandle->getActivityOutputGrid();
-         if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
+         //const Grid *grid = getProjectHandle().getInputGrid ();
+         const Grid * grid = getProjectHandle().getActivityOutputGrid();
+         if (!grid) grid = (Grid *) getProjectHandle().getInputGrid ();
 
-         gridMap = m_projectHandle->getFactory ()->produceGridMap (this, attributeIndex, grid, value);
+         gridMap = getProjectHandle().getFactory ()->produceGridMap (this, attributeIndex, grid, value);
 
          assert (gridMap == getChild (attributeIndex));
       }

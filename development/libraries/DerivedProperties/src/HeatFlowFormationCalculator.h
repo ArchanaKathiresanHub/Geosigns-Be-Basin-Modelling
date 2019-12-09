@@ -29,10 +29,10 @@ namespace DerivedProperties {
 
    public :
 
-      HeatFlowFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
- 
+      HeatFlowFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
+
       /// \brief Calculate the permeability for the formation.
-      /// 
+      ///
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the permeability is requested.
       /// \param [in]  formation   The formation for which the permeability is requested.
@@ -55,7 +55,7 @@ namespace DerivedProperties {
 
    private :
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
       bool   m_chemicalCompactionRequired;
       double m_globalXNode;
       double m_globalYNode;
@@ -78,8 +78,8 @@ namespace DerivedProperties {
                              ThreeVector&                  heatFlow ) const;
 
       void fillBorders( unsigned int i, unsigned int j, unsigned int k,
-                        unsigned int globalXNodes, 
-                        unsigned int globalYNodes, 
+                        unsigned int globalXNodes,
+                        unsigned int globalYNodes,
                         DerivedFormationPropertyPtr heatFlowX,
                         DerivedFormationPropertyPtr heatFlowY,
                         DerivedFormationPropertyPtr heatFlowZ,
@@ -91,4 +91,4 @@ namespace DerivedProperties {
 
 }
 
-#endif 
+#endif

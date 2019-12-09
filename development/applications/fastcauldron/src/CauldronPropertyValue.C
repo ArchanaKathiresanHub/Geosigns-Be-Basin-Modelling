@@ -11,7 +11,7 @@
 #include "Snapshot.h"
 
 
-CauldronPropertyValue::CauldronPropertyValue ( Interface::ProjectHandle * projectHandle,
+CauldronPropertyValue::CauldronPropertyValue ( Interface::ProjectHandle& projectHandle,
                                database::Record * record,
                                const string & name,
                                const Interface::Property * property,
@@ -34,47 +34,57 @@ void CauldronPropertyValue::allowOutput ( const bool output ) {
 }
 
 
-bool CauldronPropertyValue::outputIsRequested () const {
-
+bool CauldronPropertyValue::outputIsRequested () const
+{
    bool requested = false;
 
-   if ( m_formation == 0 and m_surface == 0 or not m_allowOutput ) {
-      requested = false;
-   } else {
-      const Property* property = (Property*)(getProperty ());
-
-      if ( property == 0 or property->getOption () == Interface::NO_OUTPUT ) {
-         requested = false;
-      } else if ( property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
-         requested = true;
-      } else {
-         Interface::PropertyOutputOption option = property->getOption ();
-         const Interface::Formation* theFormation;
-
-         if ( m_formation != 0 ) {
-            theFormation = m_formation;
-         } else {
-
-            if (  m_surface->getBottomFormation () != 0 and m_surface->getBottomFormation ()->kind () == Interface::SEDIMENT_FORMATION ) {
-               theFormation = m_surface->getBottomFormation ();
-            } else {
-               theFormation = m_surface->getTopFormation ();
-            }
-
-         }
-
-         switch ( option ) {
-           case Interface::SOURCE_ROCK_ONLY_OUTPUT : requested = theFormation->isSourceRock (); break;
-           case Interface::SEDIMENTS_ONLY_OUTPUT   : requested = theFormation->kind () == Interface::SEDIMENT_FORMATION; break;
-           case Interface::SEDIMENTS_AND_BASEMENT_OUTPUT : requested = true; break;
-           default : requested = false;
-         }
-
-      }
-
+   if ( m_formation == 0 and m_surface == 0 or not m_allowOutput )
+   {
+     return false;
    }
 
-   return requested;
+   const Property* property = (Property*)(getProperty ());
+
+   if ( property == 0 )
+   {
+     return false;
+   }
+
+   Interface::PropertyOutputOption option = property->getOption();
+   if ( option == Interface::NO_OUTPUT )
+   {
+     return false;
+   }
+
+   if ( option == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT )
+   {
+     return true;
+   }
+
+   const Interface::Formation* theFormation;
+   if ( m_formation != 0 )
+   {
+      theFormation = m_formation;
+   }
+   else
+   {
+      if ( m_surface->getBottomFormation () != 0 && m_surface->getBottomFormation ()->kind () == Interface::SEDIMENT_FORMATION )
+      {
+         theFormation = m_surface->getBottomFormation ();
+      }
+      else
+      {
+         theFormation = m_surface->getTopFormation ();
+      }
+   }
+
+   switch ( option )
+   {
+     case Interface::SOURCE_ROCK_ONLY_OUTPUT : return theFormation->isSourceRock ();
+     case Interface::SEDIMENTS_ONLY_OUTPUT   : return theFormation->kind () == Interface::SEDIMENT_FORMATION;
+     case Interface::SEDIMENTS_AND_BASEMENT_OUTPUT : return true;
+     default : return false;
+   }
 }
 
 bool CauldronPropertyValue::saveMapToFile ( Interface::MapWriter & mapWriter, const bool saveAsPrimary ) {

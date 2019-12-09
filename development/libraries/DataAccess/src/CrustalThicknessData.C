@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -35,7 +35,7 @@ const std::vector<std::string> CrustalThicknessData::s_MapAttributeNames =
    "HCuIni", "HLMuIni"
 };
 
-CrustalThicknessData::CrustalThicknessData (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+CrustalThicknessData::CrustalThicknessData (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
 }
 
@@ -71,7 +71,7 @@ GridMap const * CrustalThicknessData::getMap( const DataAccess::Interface::CTCMa
 std::vector<double> CrustalThicknessData::getSnapshots() const {
    std::vector<double> snapshots;
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading snpashots from stratigraphy:";
-   FormationList* formations = getProjectHandle()->getFormations();
+   FormationList* formations = getProjectHandle().getFormations();
    FormationList::const_iterator formationIter;
 
    snapshots.push_back( 0.0 ); // add present day

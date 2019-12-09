@@ -19,7 +19,7 @@ namespace DataAccess
       {
       public :
 
-         FluidDensitySample (ProjectHandle * projectHandle, database::Record * record);
+         FluidDensitySample (ProjectHandle& projectHandle, database::Record * record);
 
          virtual ~FluidDensitySample ();
 

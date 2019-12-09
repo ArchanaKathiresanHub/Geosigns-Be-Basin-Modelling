@@ -15,13 +15,13 @@ namespace GeoPhysics {
 
    public :
 
-      GeoPhysicsSourceRock (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record);
+      GeoPhysicsSourceRock (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record);
 
       ~GeoPhysicsSourceRock ();
 
       /// integrate GenEx over the time-interval and rturn the components expelled over this interval.
       void computeTimeInterval ( const double previousTime,
-                                 const double currentTime, 
+                                 const double currentTime,
                                  const Genex6::LocalGridInterpolator* ves,
                                  const Genex6::LocalGridInterpolator* temperature,
                                  const Genex6::LocalGridInterpolator* thickness,

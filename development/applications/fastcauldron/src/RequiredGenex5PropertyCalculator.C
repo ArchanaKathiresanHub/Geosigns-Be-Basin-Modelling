@@ -132,6 +132,6 @@ bool RequiredGenex5PropertyCalculator::initialise ( OutputPropertyMap::PropertyV
 
 
 
-OutputPropertyMap* allocateRequiredGenex5PropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateRequiredGenex5PropertyCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<RequiredGenex5PropertyCalculator>( property, formation, surface, snapshot );
 }

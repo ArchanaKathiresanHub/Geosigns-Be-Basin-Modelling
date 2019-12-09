@@ -16,7 +16,7 @@ const std::string GeoPhysics::AllochthonousLithologyManager::RHSDataSetName = "R
 
 //------------------------------------------------------------//
 
-GeoPhysics::AllochthonousLithologyManager::AllochthonousLithologyManager ( ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+GeoPhysics::AllochthonousLithologyManager::AllochthonousLithologyManager ( ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
 }
 
 //------------------------------------------------------------//
@@ -56,7 +56,7 @@ void GeoPhysics::AllochthonousLithologyManager::initialiseLayers () {
    GeoPhysics::GeoPhysicsFormation*                          allochthonousLayer;
 
    for ( iter = interpolators.begin (); iter != interpolators.end (); ++iter ) {
-      allochthonousLayer = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(const_cast<Interface::Formation*>(m_projectHandle->findFormation ( iter->first )));
+      allochthonousLayer = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(const_cast<Interface::Formation*>(m_projectHandle.findFormation ( iter->first )));
 
       if ( allochthonousLayer == 0 ) {
          // Error
@@ -71,7 +71,7 @@ void GeoPhysics::AllochthonousLithologyManager::initialiseLayers () {
 
 bool GeoPhysics::AllochthonousLithologyManager::allochthonousModellingRequired () const {
 
-  database::Table* runOptionsTable = m_projectHandle->getTable ( "RunOptionsIoTbl" );
+  database::Table* runOptionsTable = m_projectHandle.getTable ( "RunOptionsIoTbl" );
 
   return database::getAllochthonousModelling ( runOptionsTable, 0 ) == 1;
 }
@@ -80,7 +80,7 @@ bool GeoPhysics::AllochthonousLithologyManager::allochthonousModellingRequired (
 
 bool GeoPhysics::AllochthonousLithologyManager::allochthonousModellingRequired ( const std::string& formationName ) const {
 
-  database::Table* stratTable = m_projectHandle->getTable ( "StratIoTbl" );
+  database::Table* stratTable = m_projectHandle.getTable ( "StratIoTbl" );
 
   for ( int i = 0; i < stratTable->size (); i++ ) {
 
@@ -102,8 +102,8 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolators ( const 
     return true;
   }
 
-  database::Table* allochLithoTable = m_projectHandle->getTable ( "AllochthonLithoIoTbl" );
-  database::Table* allochInterpTable = m_projectHandle->getTable ( "AllochthonLithoInterpIoTbl" );
+  database::Table* allochLithoTable = m_projectHandle.getTable ( "AllochthonLithoIoTbl" );
+  database::Table* allochInterpTable = m_projectHandle.getTable ( "AllochthonLithoInterpIoTbl" );
   database::Table::iterator iter;
   AllochthonousLithologyInterpolator* lithoInterp;
   CompoundLithology* allochthonousLithology;
@@ -112,7 +112,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolators ( const 
   std::string fullFileName;
 
   for ( iter = allochLithoTable->begin (); iter != allochLithoTable->end (); ++iter ) {
-    allochthonousLithology = m_projectHandle->getLithologyManager ().getCompoundLithology ( database::getLithotype ( *iter ));
+    allochthonousLithology = m_projectHandle.getLithologyManager ().getCompoundLithology ( database::getLithotype ( *iter ));
 
     if ( allochthonousLithology == 0 ) {
       cout << "Basin_Error: Could not find the lithology "

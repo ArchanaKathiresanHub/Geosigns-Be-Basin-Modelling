@@ -18,12 +18,11 @@
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::PrimaryReservoirProperty::PrimaryReservoirProperty ( const DataAccess::Interface::PropertyValue* propertyValue ) : 
-   ReservoirProperty ( propertyValue->getProperty (), 
+DerivedProperties::PrimaryReservoirProperty::PrimaryReservoirProperty ( const DataAccess::Interface::PropertyValue* propertyValue ) :
+   ReservoirProperty ( propertyValue->getProperty (),
                        propertyValue->getSnapshot (),
                        propertyValue->getReservoir (),
                        propertyValue->getGridMap ()->getGrid ()),
-   m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap ())
 {
    m_gridMap->retrieveData ( true );

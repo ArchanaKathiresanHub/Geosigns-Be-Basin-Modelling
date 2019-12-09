@@ -22,7 +22,7 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-PropertyValue::PropertyValue (ProjectHandle * projectHandle, Record * record, const string & name, const Property * property, const Snapshot * snapshot,
+PropertyValue::PropertyValue (ProjectHandle& projectHandle, Record * record, const string & name, const Property * property, const Snapshot * snapshot,
                               const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName) :
    DAObject (projectHandle, record),
    m_name (name),
@@ -123,6 +123,11 @@ const Surface * PropertyValue::getSurface (void) const
    return m_surface;
 }
 
+PropertyStorage PropertyValue::getStorage (void) const
+{
+  return m_storage;
+}
+
 bool PropertyValue::toBeSaved () const {
    return true;
 }
@@ -131,7 +136,7 @@ bool PropertyValue::hasRecord() const {
 
 
    if (! getRecord() ) return false;
-  
+
    return true;
 
 }
@@ -144,7 +149,7 @@ GridMap * PropertyValue::createGridMap (const Grid * grid, unsigned int depth)
    if (getChild (ValueMap) != 0) return 0;
 
    (void) getFactory ()->produceGridMap (this, ValueMap, grid, DefaultUndefinedMapValue, depth);
-   
+
    return (GridMap *) getChild (ValueMap);
 }
 
@@ -159,8 +164,8 @@ void PropertyValue::getHDFinfo(string& fileName, string& dataSetName, string& ou
    Record * record = getRecord();
    if (!record) return;
 
-   outputDir = m_projectHandle->getFullOutputDir();
-    
+   outputDir = getProjectHandle().getFullOutputDir();
+
    if (getStorage() == TIMEIOTBL)
    {
       // The record to refer to is a TimeIoTbl record
@@ -205,26 +210,26 @@ GridMap * PropertyValue::getGridMap (void) const
    Record * record = getRecord();
    if (!record) return 0;
 
-   if (MODE3D == m_projectHandle->getModellingMode ())
+   if (MODE3D == getProjectHandle().getModellingMode ())
    {
       // The GridMap is to be retrieved from file
       string fileName, dataSetName, outputDir;
       getHDFinfo(fileName, dataSetName, outputDir);
 
-      const bool oldPrimaryDoubleFlag = m_projectHandle->isPrimaryDouble();
+      const bool oldPrimaryDoubleFlag = getProjectHandle().isPrimaryDouble();
 
       if( not isPrimary() ) {
-         m_projectHandle->setPrimaryDouble( false );
+         getProjectHandle().setPrimaryDouble( false );
       }
-      (void) m_projectHandle->loadOutputMap (this, ValueMap, fileName, dataSetName);
+      (void) getProjectHandle().loadOutputMap (this, ValueMap, fileName, dataSetName);
 
       if( not isPrimary() ) {
-         m_projectHandle->setPrimaryDouble( oldPrimaryDoubleFlag );
+         getProjectHandle().setPrimaryDouble( oldPrimaryDoubleFlag );
       }
 
       return (GridMap *) getChild (ValueMap);
    }
-   else if (MODE1D == m_projectHandle->getModellingMode ())
+   else if (MODE1D == getProjectHandle().getModellingMode ())
    {
       if (getStorage () == TIMEIOTBL)
       {
@@ -233,10 +238,10 @@ GridMap * PropertyValue::getGridMap (void) const
 
          if (scalarValue != DefaultUndefinedScalarValue) //1D Mode...
          {
-            const Grid *grid = m_projectHandle->getActivityOutputGrid ();
+            const Grid *grid = getProjectHandle().getActivityOutputGrid ();
 
             assert (grid);
-            (void) m_projectHandle->getFactory ()->produceGridMap (this, ValueMap, grid, scalarValue);
+            (void) getProjectHandle().getFactory ()->produceGridMap (this, ValueMap, grid, scalarValue);
          }
       }
    }
@@ -254,11 +259,6 @@ string PropertyValue::saveToDirectory (const string & directory)
    gridMap->saveHDF5 (fullFileName);
 
    return fileName;
-}
-
-int PropertyValue::getDepoSequence (void) const 
-{
-   return database::getDepoSequence (m_record);
 }
 
 //1DComponennt
@@ -279,12 +279,12 @@ double PropertyValue::getMode1DResult() const	//used in createTimeIoRecord for t
 }
 
 //1DComponennt
-//ModellingMode enum declared in Interface.h 
+//ModellingMode enum declared in Interface.h
 database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode)
 {
    assert (timeIoTbl);
    database::Record * timeIoRecord = timeIoTbl->createRecord ();
-	
+
    database::setPropertyName (timeIoRecord, getName ());
    database::setTime (timeIoRecord, m_snapshot->getTime ());
 
@@ -296,9 +296,9 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
       database::setMaximum (timeIoRecord, DefaultUndefinedScalarValue);
       database::setSum (timeIoRecord, DefaultUndefinedScalarValue);
       string propertyGrid;
-      
+
       propertyGrid += getName ();
-      
+
       propertyGrid += "_";
       propertyGrid += m_snapshot->asString ();
 
@@ -319,7 +319,7 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
       else if (m_surface || m_formation)
       {
          propertyGrid += "_";
-         if (m_surface) 
+         if (m_surface)
          {
             propertyGrid += m_surface->getMangledName ();
             database::setSurfaceName (timeIoRecord, m_surface ->getName ());
@@ -337,7 +337,7 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
          timeIoTbl->deleteRecord (timeIoRecord);
          return 0;
       }
-      
+
       database::setPropertyGrid (timeIoRecord, propertyGrid);
    }
    //1DComponent
@@ -349,7 +349,7 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
       database::setSum (timeIoRecord, getMode1DResult ());
       if (m_surface || m_formation)
       {
-         if (m_surface) 
+         if (m_surface)
          {
             database::setSurfaceName (timeIoRecord, m_surface ->getName ());
          }
@@ -398,7 +398,7 @@ database::Record* PropertyValue::create1DTimeIoRecord (database::Table * timeIoT
    assert (MODE1D == theMode);
 
    database::Record * timeIoRecord = timeIoTbl->createRecord ();
-	
+
    database::setPropertyName (timeIoRecord, getName ());
    database::setTime (timeIoRecord, m_snapshot->getTime ());
    database::setFormationName (timeIoRecord, m_formation->getName ());
@@ -418,12 +418,12 @@ database::Record* PropertyValue::create3DTimeIoRecord (database::Table * timeIoT
    assert (MODE3D == theMode);
 
    database::Record * timeIoRecord = timeIoTbl->createRecord ();
-	
+
    database::setPropertyName (timeIoRecord, getName ());
    database::setTime (timeIoRecord, m_snapshot->getTime ());
 
    database::setFormationName (timeIoRecord, m_formation->getName ());
-   
+
    database::setMapFileName (timeIoRecord, "");
 
    database::setNumberX (timeIoRecord, DefaultUndefinedScalarIntValue );
@@ -459,11 +459,11 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter, const bool saveAsPrima
    GridMap * gridMapCalculated = (GridMap *) getGridMap ();
    GridMap * gridMapToOutput = gridMapCalculated;
 
-   if (m_projectHandle->saveAsInputGrid ())
+   if (getProjectHandle().saveAsInputGrid ())
    {
-      gridMapToOutput = getFactory ()->produceGridMap (0, 0, m_projectHandle->getInputGrid(), DefaultUndefinedMapValue, 1);
+      gridMapToOutput = getFactory ()->produceGridMap (0, 0, getProjectHandle().getInputGrid(), DefaultUndefinedMapValue, 1);
       gridMapCalculated->convertToGridMap (gridMapToOutput);
-      
+
    }
    database::setMapFileName (m_record, mapWriter.getFileName ());
 
@@ -484,7 +484,7 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter, const bool saveAsPrima
    mapWriter.writeMapToHDF (gridMapToOutput, time, time, database::getPropertyGrid (m_record),
                             (m_surface == 0 ? "" : m_surface->getName ()), saveAsPrimary);
 
-   if (m_projectHandle->saveAsInputGrid ()) delete gridMapToOutput;
+   if (getProjectHandle().saveAsInputGrid ()) delete gridMapToOutput;
 
    return true;
 }

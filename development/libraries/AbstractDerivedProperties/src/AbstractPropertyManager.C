@@ -23,8 +23,7 @@ using namespace std;
 // utility library
 #include "LogHandler.h"
 
-void AbstractDerivedProperties::AbstractPropertyManager::addSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr& calculator,
-                                                                                const DataModel::AbstractSnapshot*  snapshot ) {
+void AbstractDerivedProperties::AbstractPropertyManager::addSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr& calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -35,7 +34,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addSurfacePropertyCalcu
       const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
 
       if ( computedProperty != 0 ) {
-         m_surfacePropertyCalculators.insert ( computedProperty, snapshot, calculator );
+         m_surfacePropertyCalculators.insert ( computedProperty, 0, calculator );
       } else {
          throw AbstractPropertyException() << "Could not find the surface property '" << propertyNames[i] << "' to add to the surface property calculator.";
       }
@@ -44,8 +43,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addSurfacePropertyCalcu
 
 }
 
-void AbstractDerivedProperties::AbstractPropertyManager::addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& calculator,
-                                                                                     const DataModel::AbstractSnapshot*       snapshot ) {
+void AbstractDerivedProperties::AbstractPropertyManager::addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -56,7 +54,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addFormationMapProperty
       const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
 
       if ( computedProperty != 0 ) {
-         m_formationMapPropertyCalculators.insert ( computedProperty, snapshot, calculator );
+         m_formationMapPropertyCalculators.insert ( computedProperty, 0, calculator );
       } else {
          throw AbstractPropertyException() << "Could not find the formation map property '" << propertyNames[i] << "' to add to the formation map property calculator.";
       }
@@ -66,8 +64,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addFormationMapProperty
 }
 
 void AbstractDerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& calculator,
-                                                                                  const DataModel::AbstractSnapshot*    snapshot,
-                                                                                  const bool                            debug ) {
+                                                                                          const bool                            debug ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -82,7 +79,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addFormationPropertyCal
 
       if ( computedProperty != 0 ) {
          // Add calculator to the property->calculator mapping.
-         m_formationPropertyCalculators.insert ( computedProperty, snapshot, calculator );
+         m_formationPropertyCalculators.insert ( computedProperty, 0, calculator );
          std::string pptyLogString;
          if ( debug ) {
 
@@ -104,7 +101,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addFormationPropertyCal
                   pptyLogString+= " (+surface)";
                }
 
-               addSurfacePropertyCalculator ( surfaceCalculator, snapshot );
+               addSurfacePropertyCalculator ( surfaceCalculator );
             }
 
          } else if ( computedProperty->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
@@ -118,7 +115,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addFormationPropertyCal
                   pptyLogString += " (+formation-surface)";
                }
 
-               addFormationSurfacePropertyCalculator ( surfaceCalculator, snapshot );
+               addFormationSurfacePropertyCalculator ( surfaceCalculator );
             }
          }
          if (debug) {
@@ -132,8 +129,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addFormationPropertyCal
 
 }
 
-void AbstractDerivedProperties::AbstractPropertyManager::addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr& calculator,
-                                                                                         const DataModel::AbstractSnapshot*           snapshot ) {
+void AbstractDerivedProperties::AbstractPropertyManager::addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr& calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -143,7 +139,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addFormationSurfaceProp
       const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
 
       if ( computedProperty != 0 ) {
-         m_formationSurfacePropertyCalculators.insert ( computedProperty, snapshot, calculator );
+         m_formationSurfacePropertyCalculators.insert ( computedProperty, 0, calculator );
       } else {
          throw AbstractPropertyException() << "Could not find the formation surface property '" << propertyNames[i] << "' to add to the formation surface property calculator.";
       }
@@ -152,8 +148,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addFormationSurfaceProp
 
 }
 
-void AbstractDerivedProperties::AbstractPropertyManager::addReservoirPropertyCalculator ( const ReservoirPropertyCalculatorPtr& calculator,
-                                                                                  const DataModel::AbstractSnapshot*    snapshot ) {
+void AbstractDerivedProperties::AbstractPropertyManager::addReservoirPropertyCalculator ( const ReservoirPropertyCalculatorPtr& calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -163,7 +158,7 @@ void AbstractDerivedProperties::AbstractPropertyManager::addReservoirPropertyCal
       const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
 
       if ( computedProperty != 0 ) {
-         m_reservoirPropertyCalculators.insert ( computedProperty, snapshot, calculator );
+         m_reservoirPropertyCalculators.insert ( computedProperty, 0, calculator );
       } else {
          throw AbstractPropertyException() << "Could not find the reservoir property '" << propertyNames[i] << "' to add to the reservoir property calculator.";
       }
@@ -172,30 +167,26 @@ void AbstractDerivedProperties::AbstractPropertyManager::addReservoirPropertyCal
 
 }
 
-AbstractDerivedProperties::SurfacePropertyCalculatorPtr AbstractDerivedProperties::AbstractPropertyManager::getSurfaceCalculator ( const DataModel::AbstractProperty* property,
-                                                                                                                   const DataModel::AbstractSnapshot* snapshot ) const {
-   return m_surfacePropertyCalculators.get ( property, snapshot );
+AbstractDerivedProperties::SurfacePropertyCalculatorPtr AbstractDerivedProperties::AbstractPropertyManager::getSurfaceCalculator ( const DataModel::AbstractProperty* property ) const {
+   return m_surfacePropertyCalculators.get ( property, 0 );
 }
 
-AbstractDerivedProperties::FormationSurfacePropertyCalculatorPtr AbstractDerivedProperties::AbstractPropertyManager::getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property,
-                                                                                                                                     const DataModel::AbstractSnapshot* snapshot ) const {
-   return m_formationSurfacePropertyCalculators.get ( property, snapshot );
+AbstractDerivedProperties::FormationSurfacePropertyCalculatorPtr AbstractDerivedProperties::AbstractPropertyManager::getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property ) const {
+   return m_formationSurfacePropertyCalculators.get ( property, 0 );
 }
 
-AbstractDerivedProperties::FormationMapPropertyCalculatorPtr AbstractDerivedProperties::AbstractPropertyManager::getFormationMapCalculator ( const DataModel::AbstractProperty* property,
-                                                                                                                             const DataModel::AbstractSnapshot* snapshot ) const {
-   return m_formationMapPropertyCalculators.get ( property, snapshot );
+AbstractDerivedProperties::FormationMapPropertyCalculatorPtr AbstractDerivedProperties::AbstractPropertyManager::getFormationMapCalculator ( const DataModel::AbstractProperty* property ) const {
+
+  return m_formationMapPropertyCalculators.get ( property, 0 );
 }
 
-AbstractDerivedProperties::FormationPropertyCalculatorPtr AbstractDerivedProperties::AbstractPropertyManager::getFormationCalculator ( const DataModel::AbstractProperty* property,
-                                                                                                                       const DataModel::AbstractSnapshot* snapshot ) const {
-   return m_formationPropertyCalculators.get ( property, snapshot );
+AbstractDerivedProperties::FormationPropertyCalculatorPtr AbstractDerivedProperties::AbstractPropertyManager::getFormationCalculator ( const DataModel::AbstractProperty* property ) const {
+   return m_formationPropertyCalculators.get ( property, 0 );
 }
 
 
-AbstractDerivedProperties::ReservoirPropertyCalculatorPtr AbstractDerivedProperties::AbstractPropertyManager::getReservoirCalculator ( const DataModel::AbstractProperty* property,
-                                                                                                                       const DataModel::AbstractSnapshot* snapshot ) const {
-   return m_reservoirPropertyCalculators.get ( property, snapshot );
+AbstractDerivedProperties::ReservoirPropertyCalculatorPtr AbstractDerivedProperties::AbstractPropertyManager::getReservoirCalculator ( const DataModel::AbstractProperty* property ) const {
+   return m_reservoirPropertyCalculators.get ( property, 0 );
 }
 
 
@@ -322,7 +313,7 @@ AbstractDerivedProperties::SurfacePropertyPtr AbstractDerivedProperties::Abstrac
       result = findSurfacePropertyValues ( property, snapshot, surface );
 
       if ( result == 0 ) {
-         const SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property, snapshot );
+         const SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property );
          SurfacePropertyList  calculatedProperties;
 
          if ( calculator != 0 ) {
@@ -364,7 +355,7 @@ AbstractDerivedProperties::FormationMapPropertyPtr AbstractDerivedProperties::Ab
       result = findFormationMapPropertyValues ( property, snapshot, formation );
 
       if ( result == 0 ) {
-         const FormationMapPropertyCalculatorPtr calculator = getFormationMapCalculator ( property, snapshot );
+         const FormationMapPropertyCalculatorPtr calculator = getFormationMapCalculator ( property );
          FormationMapPropertyList  calculatedProperties;
 
          if ( calculator != 0 ) {
@@ -408,7 +399,7 @@ AbstractDerivedProperties::FormationPropertyPtr AbstractDerivedProperties::Abstr
       result = findFormationPropertyValues ( property, snapshot, formation );
 
       if ( result == 0 ) {
-         const FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property, snapshot );
+         const FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property );
          FormationPropertyList  calculatedProperties;
 
          if ( calculator )
@@ -455,7 +446,7 @@ AbstractDerivedProperties::FormationSurfacePropertyPtr AbstractDerivedProperties
       result = findFormationSurfacePropertyValues ( property, snapshot, formation, surface );
 
       if ( result == 0 ) {
-         const FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property, snapshot );
+         const FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property );
          FormationSurfacePropertyList  calculatedProperties;
 
          if ( calculator != 0 ) {
@@ -498,7 +489,7 @@ AbstractDerivedProperties::ReservoirPropertyPtr AbstractDerivedProperties::Abstr
       result = findReservoirPropertyValues ( property, snapshot, reservoir );
 
       if ( result == 0 ) {
-         const ReservoirPropertyCalculatorPtr calculator = getReservoirCalculator ( property, snapshot );
+         const ReservoirPropertyCalculatorPtr calculator = getReservoirCalculator ( property );
          ReservoirPropertyList  calculatedProperties;
 
          if ( calculator != 0 ) {
@@ -563,7 +554,7 @@ bool AbstractDerivedProperties::AbstractPropertyManager::formationPropertyIsComp
                                                                                  const DataModel::AbstractSnapshot*  snapshot,
                                                                                  const DataModel::AbstractFormation* formation ) const {
 
-   FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property, 0 );
+   FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property );
    bool isComputable;
 
    if ( calculator ) {
@@ -583,7 +574,7 @@ bool AbstractDerivedProperties::AbstractPropertyManager::formationSurfacePropert
                                                                                         const DataModel::AbstractFormation* formation,
                                                                                         const DataModel::AbstractSurface*   surface ) const {
 
-   FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property, 0 );
+   FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property );
    bool isComputable;
 
    if ( calculator ) {
@@ -601,7 +592,7 @@ bool AbstractDerivedProperties::AbstractPropertyManager::formationSurfacePropert
 bool AbstractDerivedProperties::AbstractPropertyManager::surfacePropertyIsComputable ( const DataModel::AbstractProperty* property,
                                                                                const DataModel::AbstractSnapshot* snapshot,
                                                                                const DataModel::AbstractSurface*  surface ) const {
-   SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property, 0 );
+   SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property );
    bool isComputable;
 
    if ( calculator ) {
@@ -620,7 +611,7 @@ bool AbstractDerivedProperties::AbstractPropertyManager::formationMapPropertyIsC
                                                                                     const DataModel::AbstractSnapshot*  snapshot,
                                                                                     const DataModel::AbstractFormation* formation ) const {
 
-   FormationMapPropertyCalculatorPtr calculator = getFormationMapCalculator ( property, 0 );
+   FormationMapPropertyCalculatorPtr calculator = getFormationMapCalculator ( property );
    bool isComputable;
 
    if ( calculator ) {
@@ -639,7 +630,7 @@ bool AbstractDerivedProperties::AbstractPropertyManager::reservoirPropertyIsComp
                                                                                  const DataModel::AbstractSnapshot*  snapshot,
                                                                                  const DataModel::AbstractReservoir* reservoir ) const {
 
-   ReservoirPropertyCalculatorPtr calculator = getReservoirCalculator ( property, 0 );
+   ReservoirPropertyCalculatorPtr calculator = getReservoirCalculator ( property );
    bool isComputable;
 
    if ( calculator ) {

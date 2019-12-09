@@ -16,7 +16,7 @@ class PrimaryOutputPropertyVolume : public OutputPropertyMap {
 
 public :
 
-   PrimaryOutputPropertyVolume ( const PropertyList         propertyName,
+   PrimaryOutputPropertyVolume ( const PropertyIdentifier         propertyName,
                                        LayerProps*          formation,
                                  const Interface::Snapshot* snapshot );
 
@@ -35,7 +35,7 @@ private :
 
 };
 
-OutputPropertyMap* allocatePrimaryPropertyVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot );
+OutputPropertyMap* allocatePrimaryPropertyVolumeCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot );
 
 
 #endif // _FASTCAULDRON_PRIMARY_OUTPUT_PROPERTY_VOLUME_H_

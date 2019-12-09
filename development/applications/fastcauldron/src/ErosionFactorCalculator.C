@@ -5,7 +5,7 @@
 
 #include "RunParameters.h"
 
-OutputPropertyMap* allocateErosionFactorCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateErosionFactorCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<ErosionFactorCalculator>( property, formation, surface, snapshot );
 }
 
@@ -16,7 +16,7 @@ ErosionFactorCalculator::ErosionFactorCalculator ( LayerProps* formation, const 
 
 }
 
-bool ErosionFactorCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
+bool ErosionFactorCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& ,
                                                  OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -27,9 +27,9 @@ bool ErosionFactorCalculator::operator ()( const OutputPropertyMap::OutputProper
    double depoAge = m_formation->depoage;
 
    bool isNonGeometricLoop = ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURE_MODE or
-                               FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or 
-                               FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or 
-                               FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE ) and                               
+                               FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or
+                               FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or
+                               FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE ) and
                               FastcauldronSimulator::getInstance ().getRunParameters ()->getNonGeometricLoop ();
    unsigned int i;
    unsigned int j;
@@ -78,13 +78,13 @@ bool ErosionFactorCalculator::operator ()( const OutputPropertyMap::OutputProper
                   value = 1.0;
                } else {
                   value = currentThickness / depositionThickness;
-               } 
+               }
 
             } else {
                depositionThickness = 1.0;
                currentThickness = 1.0;
                value = 1.0;
-            } 
+            }
 
 
             erosionFactorMap->setValue ( i, j, value );
@@ -103,8 +103,8 @@ bool ErosionFactorCalculator::operator ()( const OutputPropertyMap::OutputProper
 
 void ErosionFactorCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ErosionFactor", 
-                                                                                                         m_snapshot, 0, 
+   properties.push_back ((CauldronPropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "ErosionFactor",
+                                                                                                         m_snapshot, 0,
                                                                                                          m_formation,
                                                                                                          0 )));
 

@@ -17,10 +17,10 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-LithologyThermalConductivitySample::LithologyThermalConductivitySample (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+LithologyThermalConductivitySample::LithologyThermalConductivitySample (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
 #if 0
-   m_lithotype = projectHandle->findLithoType ( database::getLithotype ( record ));
+   m_lithotype = projectHandle.findLithoType ( database::getLithotype ( record ));
 #endif
 }
 
@@ -54,8 +54,8 @@ std::string LithologyThermalConductivitySample::image () const {
 
    std::ostringstream buffer;
 
-   buffer << "LithologyThermalConductivitySample: " 
-          << getLithologyName () << "  " 
+   buffer << "LithologyThermalConductivitySample: "
+          << getLithologyName () << "  "
           << getTemperature () << "  "
           << getThermalConductivity ();
 

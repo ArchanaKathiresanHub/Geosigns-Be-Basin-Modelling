@@ -16,7 +16,7 @@ namespace DataAccess {
       public :
 
          /// \brief Constructor.
-         PointAdsorptionHistory ( ProjectHandle*    projectHandle,
+         PointAdsorptionHistory ( ProjectHandle& projectHandle,
                                   database::Record* record );
 
          /// \brief Destructor.

@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -55,7 +55,7 @@ void DerivedProperties::VelocityFormationCalculator::calculate (       AbstractP
    DataModel::AbstractProperty const * const maxVesProperty      = propertyManager.getProperty( "MaxVes" );
 
    DataModel::AbstractProperty const * const velocityProperty = propertyManager.getProperty ( "Velocity" );
-   
+
    const FormationPropertyPtr porosity    = propertyManager.getFormationProperty ( porosityProperty, snapshot, formation );
    const FormationPropertyPtr bulkDensity = propertyManager.getFormationProperty ( bulkDensityProperty, snapshot, formation );
    const FormationPropertyPtr pressure    = propertyManager.getFormationProperty ( pressureProperty, snapshot, formation );
@@ -63,8 +63,6 @@ void DerivedProperties::VelocityFormationCalculator::calculate (       AbstractP
    const FormationPropertyPtr ves         = propertyManager.getFormationProperty ( vesProperty, snapshot, formation );
    const FormationPropertyPtr maxVes      = propertyManager.getFormationProperty ( maxVesProperty, snapshot, formation );
 
-   GeoPhysics::ProjectHandle const * const projectHandle   = dynamic_cast<const GeoPhysics::ProjectHandle*>( geophysicsFormation->getProjectHandle ());
-   
    derivedProperties.clear ();
 
    if ( porosity != 0 and bulkDensity != 0 and pressure != 0 and temperature != 0 and ves!=0 and maxVes!=0 and geophysicsFormation != 0 ) {
@@ -81,7 +79,7 @@ void DerivedProperties::VelocityFormationCalculator::calculate (       AbstractP
 
       DerivedFormationPropertyPtr velocity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( velocityProperty,
                                                                                                                              snapshot,
-                                                                                                                             formation, 
+                                                                                                                             formation,
                                                                                                                              propertyManager.getMapGrid (),
                                                                                                                              geophysicsFormation->getMaximumNumberOfElements() + 1 ));
 
@@ -95,7 +93,7 @@ void DerivedProperties::VelocityFormationCalculator::calculate (       AbstractP
 
          for ( unsigned int j = velocity->firstJ ( true ); j <= velocity->lastJ ( true ); ++j ) {
 
-            if ( projectHandle->getNodeIsValid ( i, j )) {
+            if ( geophysicsFormation->getProjectHandle().getNodeIsValid ( i, j )) {
 
                for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
 
@@ -146,12 +144,10 @@ void DerivedProperties::VelocityFormationCalculator::calculateForBasement (     
    DataModel::AbstractProperty const * const temperatureProperty = propertyManager.getProperty( "Temperature" );
 
    DataModel::AbstractProperty const * const velocityProperty = propertyManager.getProperty ( "Velocity" );
-   
+
    const FormationPropertyPtr bulkDensity = propertyManager.getFormationProperty ( bulkDensityProperty, snapshot, formation );
    const FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty, snapshot, formation );
 
-   GeoPhysics::ProjectHandle const * const projectHandle   = dynamic_cast<const GeoPhysics::ProjectHandle*>( geophysicsFormation->getProjectHandle ());
-   
    derivedProperties.clear ();
 
    if ( bulkDensity != 0 and temperature != 0 and geophysicsFormation != 0 ) {
@@ -163,7 +159,7 @@ void DerivedProperties::VelocityFormationCalculator::calculateForBasement (     
 
       DerivedFormationPropertyPtr velocity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( velocityProperty,
                                                                                                                              snapshot,
-                                                                                                                             formation, 
+                                                                                                                             formation,
                                                                                                                              propertyManager.getMapGrid (),
                                                                                                                              geophysicsFormation->getMaximumNumberOfElements() + 1 ));
 
@@ -177,7 +173,7 @@ void DerivedProperties::VelocityFormationCalculator::calculateForBasement (     
 
          for ( unsigned int j = velocity->firstJ ( true ); j <= velocity->lastJ ( true ); ++j ) {
 
-            if ( projectHandle->getNodeIsValid ( i, j )) {
+            if ( geophysicsFormation->getProjectHandle().getNodeIsValid ( i, j )) {
 
                for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
 
@@ -188,7 +184,7 @@ void DerivedProperties::VelocityFormationCalculator::calculateForBasement (     
                                                                                                    densityFluid,
                                                                                                    bulkDensity->get(i, j, k),
                                                                                                    0.0, 0.0, 0.0 );
-                  
+
                   velocity->set ( i, j, k, velocityValue );
                }
 
@@ -212,13 +208,13 @@ void DerivedProperties::VelocityFormationCalculator::calculateForBasement (     
 bool DerivedProperties::VelocityFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,
                                                                     const DataModel::AbstractSnapshot*  snapshot,
                                                                     const DataModel::AbstractFormation* formation ) const {
-   
+
    bool basementFormation = ( dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 
    bool propertyIsComputable = true;
-   
+
    // Determine if the required properties are computable.
    for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
 
@@ -232,7 +228,7 @@ bool DerivedProperties::VelocityFormationCalculator::isComputable ( const Abstra
          } else {
             propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
          }
-         
+
       }
    }
 

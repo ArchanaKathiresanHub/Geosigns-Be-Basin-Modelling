@@ -36,7 +36,7 @@ const double GeoPhysics::FluidType::StandardSurfaceTemperature                  
 const double GeoPhysics::FluidType::DefaultStandardDepth                            = 2000.0;
 const double GeoPhysics::FluidType::DefaultThermalConductivityCorrectionTemperature = 20.0;
 
-GeoPhysics::FluidType::FluidType (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) :
+GeoPhysics::FluidType::FluidType (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record) :
    DataAccess::Interface::FluidType (projectHandle, record),
    m_heatCapacitytbl( new ibs::Interpolator2d ),
    m_seismicVelocityCalculationModel( getSeismicVelocityCalculationModel() ),
@@ -44,9 +44,9 @@ GeoPhysics::FluidType::FluidType (DataAccess::Interface::ProjectHandle * project
    m_densityVal( Interface::FluidType::density() ),
    m_salinity( salinity() ),
    m_seismicVelocityVal( getConstantSeismicVelocity() ),
-   m_hasPermafrost( projectHandle->getPermafrost() && (projectHandle->getPermafrostData() != nullptr) ),
-   m_pressureTerm( (m_hasPermafrost && projectHandle->getPermafrostData()->getPressureTerm()) ? 0.073 : 0.0 ),
-   m_salinityTerm( (m_hasPermafrost && projectHandle->getPermafrostData()->getSalinityTerm()) ? 0.064 : 0.0 ),
+   m_hasPermafrost( projectHandle.getPermafrost() && (projectHandle.getPermafrostData() != nullptr) ),
+   m_pressureTerm( (m_hasPermafrost && projectHandle.getPermafrostData()->getPressureTerm()) ? 0.073 : 0.0 ),
+   m_salinityTerm( (m_hasPermafrost && projectHandle.getPermafrostData()->getSalinityTerm()) ? 0.064 : 0.0 ),
    m_conductivity( new GeoPhysics::Brine::Conductivity() ),
    m_density( new GeoPhysics::Brine::Density() ),
    m_velocity( new GeoPhysics::Brine::Velocity() ),
@@ -77,9 +77,9 @@ void GeoPhysics::FluidType::loadPropertyTables ()
    Interface::FluidHeatCapacitySampleList* heatCapacitySamples;
    Interface::FluidThermalConductivitySampleList* thermalConductivitySamples;
 
-   heatCapacitySamples = m_projectHandle->getFluidHeatCapacitySampleList (m_projectHandle->findFluid (getHeatCapacityFluidName ()));
+   heatCapacitySamples = getProjectHandle().getFluidHeatCapacitySampleList (getProjectHandle().findFluid (getHeatCapacityFluidName ()));
 
-   thermalConductivitySamples = m_projectHandle->getFluidThermalConductivitySampleList (m_projectHandle->findFluid (getThermalConductivityFluidName ()));
+   thermalConductivitySamples = getProjectHandle().getFluidThermalConductivitySampleList (getProjectHandle().findFluid (getThermalConductivityFluidName ()));
    if ((*thermalConductivitySamples).size () != GeoPhysics::Brine::Conductivity::s_thCondArraySize)
    {
       throw formattingexception::GeneralException() << "\nBasin_Error:  Size of FltThCondIoTbl in project file is not correct\n\n";

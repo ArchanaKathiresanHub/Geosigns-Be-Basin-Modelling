@@ -14,14 +14,14 @@ namespace DataAccess
       {
       public:
 
-         MobileLayer (ProjectHandle * projectHandle, database::Record * record);
+         MobileLayer (ProjectHandle& projectHandle, database::Record * record);
          ~MobileLayer (void);
 
          /// Return the Formation of this PaleoFormationProperty.
          //  Should this function be here? Should it be implemented in the PaleoFormationProperty?
          const Formation * getFormation (void) const;
 
-	 virtual const GridMap * getMap (PaleoPropertyMapAttributeId attributeId) const;
+   virtual const GridMap * getMap (PaleoPropertyMapAttributeId attributeId) const;
 
 
          const std::string& getFormationName () const;

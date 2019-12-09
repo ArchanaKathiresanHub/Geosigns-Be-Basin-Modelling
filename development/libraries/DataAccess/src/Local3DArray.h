@@ -41,8 +41,7 @@ namespace DataAccess
 
          /// Constructor
          Local3DArray( const DataAccess::Interface::Grid* grid,
-                       const unsigned int                 depth,
-                       const bool                         includeGhostNodes = true );
+                       const unsigned int                 depth );
 
          /// Destructor
          ~Local3DArray();
@@ -55,8 +54,7 @@ namespace DataAccess
 
          /// Allocate the array with the grid map.
          void reallocate( const DataAccess::Interface::Grid* grid,
-                          const unsigned int                 depth,
-                          const bool                         includeGhostNodes = true );
+                          const unsigned int                 depth );
 
          /// The first index of the array in the dimension.
          unsigned int first( const unsigned int dim ) const;
@@ -122,10 +120,9 @@ DataAccess::Interface::Local3DArray<T>::Local3DArray () {
 
 template <typename T>
 DataAccess::Interface::Local3DArray<T>::Local3DArray ( const DataAccess::Interface::Grid* grid,
-                                                       const unsigned int                 depth,
-                                                       const bool                         includeGhostNodes ) {
+                                                       const unsigned int                 depth ) {
    m_values = 0;
-   reallocate ( grid, depth, includeGhostNodes );
+   reallocate ( grid, depth );
 }
 
 //------------------------------------------------------------//
@@ -143,8 +140,10 @@ DataAccess::Interface::Local3DArray<T>::~Local3DArray () {
 
 template <typename T>
 void DataAccess::Interface::Local3DArray<T>::reallocate ( const DataAccess::Interface::Grid* grid,
-                                                          const unsigned int                 depth,
-                                                          const bool                         includeGhostNodes ) {
+                                                          const unsigned int                 depth
+                                                         ) {
+
+   const bool includeGhostNodes = true;
 
    if ( m_values != nullptr ) {
       ibs::Array<T>::delete3d ( m_values );

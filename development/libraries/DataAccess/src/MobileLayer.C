@@ -19,12 +19,12 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-MobileLayer::MobileLayer (ProjectHandle * projectHandle, Record * record) : 
-   Interface::PaleoFormationProperty (projectHandle, record, 
-                                           projectHandle->findFormation ( database::getLayerName (record)))
+MobileLayer::MobileLayer (ProjectHandle& projectHandle, Record * record) :
+   Interface::PaleoFormationProperty ( projectHandle, record,
+                                       projectHandle.findFormation ( database::getLayerName (record)))
 {
-//    m_snapshot = (const Snapshot *) m_projectHandle->findSnapshot (getAge (m_record));
-//    m_formation = (const Formation *) m_projectHandle->findFormation (getFormationName ());
+//    m_snapshot = (const Snapshot *) m_projectHandle.findSnapshot (getAge (m_record));
+//    m_formation = (const Formation *) m_projectHandle.findFormation (getFormationName ());
 }
 
 MobileLayer::~MobileLayer (void)
@@ -97,7 +97,7 @@ const INTERFACE::GridMap * MobileLayer::getMap (INTERFACE::PaleoPropertyMapAttri
    return gridMap;
 }
 #endif
- 
+
 // GridMap * MobileLayer::loadMap (MobileLayerMapAttributeId attributeId) const
 // {
 //    unsigned int attributeIndex = (unsigned int) attributeId;
@@ -108,16 +108,16 @@ const INTERFACE::GridMap * MobileLayer::getMap (INTERFACE::PaleoPropertyMapAttri
 //    GridMap * gridMap = 0;
 //    if (valueGridMapId.length () != 0)
 //    {
-//       gridMap = m_projectHandle->loadInputMap ("MobLayThicknIoTbl", valueGridMapId);
+//       gridMap = m_projectHandle.loadInputMap ("MobLayThicknIoTbl", valueGridMapId);
 //    }
 //    else
 //    {
 //       double value;
 //       if ((value = m_record->getValue (s_MapAttributeNames[attributeIndex], (double *) 0)) != RecordValueUndefined)
 //       {
-// 	 const Grid * grid = m_projectHandle->getActivityOutputGrid();
-// 	 if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-//          gridMap = m_projectHandle->getFactory ()->produceGridMap (this, attributeIndex, grid, value);
+// 	 const Grid * grid = m_projectHandle.getActivityOutputGrid();
+// 	 if (!grid) grid = (Grid *) m_projectHandle.getInputGrid ();
+//          gridMap = m_projectHandle.getFactory ()->produceGridMap (this, attributeIndex, grid, value);
 
 //          assert (gridMap == getChild (attributeIndex));
 //       }

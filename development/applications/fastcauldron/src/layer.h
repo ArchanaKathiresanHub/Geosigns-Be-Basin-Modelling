@@ -90,7 +90,7 @@ class LayerProps : virtual public GeoPhysics::GeoPhysicsFormation
 public:
 
 
-   LayerProps ( Interface::ProjectHandle * projectHandle,
+   LayerProps ( Interface::ProjectHandle& projectHandle,
                 database::Record *              record);
 
    virtual ~LayerProps();
@@ -236,17 +236,17 @@ public:
   void setSnapshotInterval ( const SnapshotInterval& interval,
                      AppCtx*          basinModel );
 
-  void interpolateProperty (       AppCtx*                  basinModel,
+  void interpolateProperty ( AppCtx*                  basinModel,
                              const double                   currentTime,
                              const bool                     doingHighResDecompaction,
-                             const PropertyList             property );
+                             const PropertyIdentifier& property );
 
 
   // Set the ves value that is to be used in chemical compaction instead of the computed ves value.
   void setChemicalCompactionVesValue ( const double newVesValue );
 
-  virtual void allocateBasementVecs() {};
-  virtual void reInitialiseBasementVecs() {};
+  virtual void allocateBasementVecs() {}
+  virtual void reInitialiseBasementVecs() {}
 
   string           layername;
   string           TopSurfaceName;

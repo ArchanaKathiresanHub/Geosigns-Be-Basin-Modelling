@@ -41,7 +41,7 @@ void Prograde::ProjectIoTblUpgradeManager::upgrade() {
    Prograde::ProjectIoModelConverter modelConverter;
 
    std::string modellingMode, description;
-   double xcoord_center, ycoord_center, deltaX, deltaY;
+   double deltaX, deltaY;
    int xnodes, ynodes, windowXMax,windowYMax, NewWindowXMax, NewWindowYMax;
 
    m_model.projectDataManager().getModellingMode(modellingMode);

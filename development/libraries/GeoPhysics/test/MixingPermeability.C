@@ -114,9 +114,8 @@ TEST(MixingPermeability, undefinedModel)
 #if 1
    //Undefined model
    ObjectFactory factory;
-   ObjectFactory* factoryptr = &factory;
-   ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
-   CompoundLithology myLitho(projectHandle);
+   std::unique_ptr<ProjectHandle> projectHandle( dynamic_cast<ProjectHandle*>(OpenCauldronProject("MixingPermeabilityProject.project3d", &factory)) );
+   CompoundLithology myLitho(*projectHandle);
    PermeabilityMixer mixer;
 
    std::vector<double> anisoVec ( { 1.0, 1.0, 1.0 });

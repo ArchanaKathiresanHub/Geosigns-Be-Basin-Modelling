@@ -19,7 +19,7 @@ namespace Genex6 {
    const std::string LangmuirAdsorptionTOCFunctionId = "LangmuirAdsorptionTOCFunction";
 
    /// \brief Allocates an adsorption function.
-   AdsorptionFunction* allocateLangmuirAdsorptionTOCFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
+   AdsorptionFunction* allocateLangmuirAdsorptionTOCFunction (DataAccess::Interface::ProjectHandle& projectHandle,
                                                                const std::string&                         functionName );
 
    /// A Langmuir adsorption function for C1 that depends on TOC.
@@ -27,7 +27,7 @@ namespace Genex6 {
 
    public :
 
-      LangmuirAdsorptionTOCFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
+      LangmuirAdsorptionTOCFunction (DataAccess::Interface::ProjectHandle& projectHandle,
                                       const std::string&                         functionName );
 
       ~LangmuirAdsorptionTOCFunction ();
@@ -61,8 +61,6 @@ namespace Genex6 {
 
 
    private :
-
-      DataAccess::Interface::ProjectHandle* m_projectHandle;
 
       const std::string m_functionName;
 

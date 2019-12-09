@@ -32,16 +32,16 @@ using namespace Interface;
 static const char** ComponentNames = CBMGenerics::ComponentManager::getInstance().getSpeciesNameInputList();
 
 const string PhaseNames[] =
-{ 
+{
    "Vapour", "Liquid"
 };
 
 const string StockTankPhaseNames[] =
-{ 
+{
    "FreeGas", "Condensate", "SolutionGas", "StockTankOil"
 };
 
-Trapper::Trapper (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+Trapper::Trapper (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
    m_reservoir = 0;
    m_snapshot = 0;
@@ -142,7 +142,7 @@ void Trapper::getGridPosition (unsigned int & i, unsigned int & j) const
    double y;
    getPosition (x, y);
 
-   const Grid * grid = (const Grid *) m_projectHandle->getHighResolutionOutputGrid ();
+   const Grid * grid = (const Grid *) getProjectHandle().getHighResolutionOutputGrid ();
 
    grid->getGridPoint (x, y, i, j);
 }

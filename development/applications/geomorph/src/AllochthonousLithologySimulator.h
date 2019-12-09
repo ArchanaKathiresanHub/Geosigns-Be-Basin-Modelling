@@ -57,7 +57,7 @@ namespace AllochMod {
 
 
     /// Constructor
-    AllochthonousLithologySimulator (database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, const ObjectFactory* factory);
+    AllochthonousLithologySimulator (database::ProjectFileHandlerPtr database, const std::string & name, const ObjectFactory* factory);
 
     ~AllochthonousLithologySimulator (void);
 

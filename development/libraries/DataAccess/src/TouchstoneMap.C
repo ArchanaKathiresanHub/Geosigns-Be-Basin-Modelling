@@ -19,7 +19,7 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-TouchstoneMap::TouchstoneMap (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+TouchstoneMap::TouchstoneMap (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
 }
 
@@ -30,12 +30,12 @@ TouchstoneMap::~TouchstoneMap (void)
 
 const Formation * TouchstoneMap::getFormation (void) const
 {
-   return m_projectHandle->findFormation (database::getFormationName (m_record));
+   return getProjectHandle().findFormation (database::getFormationName (m_record));
 }
 
 const Surface * TouchstoneMap::getSurface (void) const
 {
-   return m_projectHandle->findSurface (database::getSurfaceName (m_record));
+   return getProjectHandle().findSurface (database::getSurfaceName (m_record));
 }
 
 /// Find the PropertyValue that was produced for this TouchstoneMap
@@ -49,13 +49,13 @@ const PropertyValue * TouchstoneMap::findPropertyValue (void) const
    propertyName += " ";
    propertyName += getFormat ();
 
-   const Property * property = m_projectHandle->findProperty (propertyName);
+   const Property * property = getProjectHandle().findProperty (propertyName);
    if (!property)
    {
       return 0;
    }
 
-   PropertyValueList * propertyValues = m_projectHandle->getPropertyValues (FORMATIONSURFACE, property, 0, 0, getFormation (), getSurface (), MAP);
+   PropertyValueList * propertyValues = getProjectHandle().getPropertyValues (FORMATIONSURFACE, property, 0, 0, getFormation (), getSurface (), MAP);
 
    PropertyValueList::iterator propertyValueIter;
 
@@ -68,7 +68,7 @@ const PropertyValue * TouchstoneMap::findPropertyValue (void) const
       propertyValue = *propertyValueIter;
       if (propertyValue->getName () == propertyName)
       {
-	 found = true;
+   found = true;
       }
    }
 
@@ -110,15 +110,15 @@ const string & TouchstoneMap::getFaciesNameMap (void) const
 
 const GridMap * TouchstoneMap::getFaciesGridMap (void) const
 {
-	const Interface::InputValue * inputValue = m_projectHandle->findInputValue( "TouchstoneMapIoTbl", getFaciesNameMap( ) );
-	
-	//if FaciesMap is found return GridMap, otherwise return null 	
+	const Interface::InputValue * inputValue = getProjectHandle().findInputValue( "TouchstoneMapIoTbl", getFaciesNameMap( ) );
+
+	//if FaciesMap is found return GridMap, otherwise return null
 	return inputValue ? inputValue->getGridMap( ) : 0;
 }
 
 const string & TouchstoneMap::getRunName(void) const
 {
-   return database::getRunName(m_record);
+	 return database::getRunName(m_record);
 }
 
 void TouchstoneMap::printOn (ostream & ostr) const
@@ -139,6 +139,6 @@ void TouchstoneMap::asString (string & str) const
    buf << ", " << getSurface ()->getName ();
    buf << ", " << getFormation ()->getName ();
    buf << endl;
-   
+
    str = buf.str ();
 }

@@ -15,8 +15,6 @@
 #include "FilePath.h"
 #include "FolderPath.h"
 
-#include <boost/foreach.hpp>
-#include <boost/thread.hpp>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -34,7 +32,7 @@ bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shar
    std::string filenameNoExtension = outputPath.fileNameNoExtension();
    filenameNoExtension += "_vizIO_output";
    folderPath << filenameNoExtension;
-      
+
    // Create output directory if not existing
     if (!folderPath.exists())
     {
@@ -43,7 +41,7 @@ bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shar
 
     pugi::xml_document doc;
     pugi::xml_node pt = doc.append_child("project");
-   
+
    ExportToXML newExport(outputPath.filePath(), filenameNoExtension, numThreads, center);
 
     // Create xml property tree and write datastores
@@ -62,7 +60,7 @@ CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::Fi
     if( absPath.path() == "." ) {
        m_fullPath = relPath.path();
     } else {
-       m_fullPath << relPath.path(); 
+       m_fullPath << relPath.path();
     }
 }
 
@@ -75,23 +73,23 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 void ExportToXML::addProjectDescription(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting)
 {
    m_project = project;
-   
+
    // If there is an existing project, it is checked if data to be stored isn't already stored in the existing project
    // if true, when such data is encountered, we add references to the existing project and not duplicating the data
    m_projectExisting = projectExisting;
-   
+
    // Add general project description
    pt.append_child("name").text() = project->getName().c_str();
    pt.append_child("description").text() = project->getDescription().c_str();
    pt.append_child("modelingmode").text() = (int)project->getModelingMode();
    pt.append_child("programversion").text() = project->getProgramVersion().c_str();
    pt.append_child("outputpath").text() = m_relPath.cpath();
-   
+
    pugi::xml_node ptxml = pt.append_child("xml-version");
    ptxml.append_attribute("major") = xml_version_major;
    ptxml.append_attribute("minor") = xml_version_minor;
 
-   // Append is true if we're exporting new (native) data to an existing vizIO project - 
+   // Append is true if we're exporting new (native) data to an existing vizIO project -
    // this is detected by inspecting the offered project and checking if the implementation is native, and not coming from project3D
    // Note - this mode is unused afaik, and probably untested. The preferred way would be to have an existing project instead
    m_append = detectAppend(project);
@@ -101,35 +99,35 @@ void ExportToXML::addProjectData(pugi::xml_node pt, std::shared_ptr<Project>& pr
 {
    // Write all properties
    pugi::xml_node propertyNode = pt.append_child("properties");
-   BOOST_FOREACH(const std::shared_ptr<const Property>& property, project->getProperties())
+   for(const std::shared_ptr<const Property>& property: project->getProperties())
    {
       addProperty(propertyNode, property);
    }
-   
+
    // Write all reservoirs
    if (project->getReservoirs().size() > 0)
    {
       pugi::xml_node reservoirNodes = pt.append_child("reservoirs");
-      BOOST_FOREACH(const std::shared_ptr<const Reservoir>& reservoir, project->getReservoirs())
+      for(const std::shared_ptr<const Reservoir>& reservoir: project->getReservoirs())
       {
          pugi::xml_node reservoirNode = reservoirNodes.append_child("reservoir");
          reservoirNode.append_attribute("name") = reservoir->getName().c_str();
          reservoirNode.append_attribute("formation") = reservoir->getFormation()->getName().c_str();
       }
    }
-   
-   // If there is an existing project, find references to replace data 
+
+   // If there is an existing project, find references to replace data
    if (m_projectExisting)
    {
       VisualizationUtils::replaceStratigraphyTable(m_project, m_projectExisting);
       VisualizationUtils::replaceFormations(m_project, m_projectExisting);
    }
-    
+
    if(addSnapshots) {
       // Write all snapshots
       const SnapShotList snapShotList = project->getSnapShots();
       pugi::xml_node snapShotNodes = pt.append_child("snapshots");
-      
+
       for (auto& snapShot : snapShotList)
       {
          pugi::xml_node node = snapShotNodes.append_child("snapshot");
@@ -145,7 +143,7 @@ void ExportToXML::addProjectData(pugi::xml_node pt, std::shared_ptr<Project>& pr
          addGeometryInfo2D(geometryNode, geometry);
       }
    }
-   
+
    // Write stratigraphy table & formations
    ///////////////////////////////////////////////
    {
@@ -153,7 +151,7 @@ void ExportToXML::addProjectData(pugi::xml_node pt, std::shared_ptr<Project>& pr
       ibs::FilePath inputSurfaceStorePath(m_fullPath);
       inputSurfaceStorePath << "Input_surfaces.cldrn";
       DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append);
-      
+
       // Collect all data
       std::vector<VisualizationIOData*> allSurfaceData;
       for (const StratigraphyTableEntry& entry : project->getStratigraphyTable())
@@ -177,63 +175,63 @@ void ExportToXML::addProjectData(pugi::xml_node pt, std::shared_ptr<Project>& pr
                allSurfaceData.push_back(surfaceData);
          }
       }
-      
+
       // Retrieve it
       CauldronIO::VisualizationUtils::retrieveAllData(allSurfaceData, m_numThreads);
-      
+
       // Add the entries
       pugi::xml_node stratTableNode = pt.append_child("stratigraphytable");
       for (const StratigraphyTableEntry& entry : project->getStratigraphyTable())
       {
          addStratTableNode(stratTableNode, entry, inputSurfaceDataStore);
       }
-      
+
       // Add formations
       pugi::xml_node formationNode = pt.append_child("formations");
       for (auto& formation :project->getFormations())
       {
          addFormation(inputSurfaceDataStore, formationNode, formation);
       }
-      
+
       // Compress the data
       std::vector<std::shared_ptr<DataToCompress> > allData;
       for (int i = 0; i < inputSurfaceDataStore.getDataToCompressList().size(); i++)
          allData.push_back(inputSurfaceDataStore.getDataToCompressList().at(i));
-      
+
       boost::lockfree::queue<int> queue(allData.size());
       boost::thread_group threads;
-      
+
       // Add to queue
       for (int i = 0; i < allData.size(); i++)
          queue.push(i);
-      
+
       // Compress it in separate threads
       for (int i = 0; i < m_numThreads; ++i)
          threads.add_thread(new boost::thread(CauldronIO::ExportToXML::compressDataQueue, allData, &queue));
       threads.join_all();
-      
+
       // Write to disk
       inputSurfaceDataStore.flush();
    }
-   
+
    // Write migrationIO table
    addMigrationEventList(pt);
-   
+
    // Write TrapperIO table
    addTrapperList(pt);
-   
+
    // Write TrapIO table
    addTrapList(pt);
-   
+
    // Add Genex history files references
    addGenexHistory(pt);
-   
+
    // Add Burial history files references
    addBurialHistory(pt);
-   
+
    // Add MassBalance file reference
    addMassBalance(pt);
-   
+
    // Add 1D data
    add1Ddata(pt);
 }
@@ -255,10 +253,10 @@ void CauldronIO::ExportToXML::addFormation(DataStoreSave& dataStore, pugi::xml_n
     subNode.append_attribute("name") = formation->getName().c_str();
     int start, end;
     formation->getK_Range(start, end);
-    
+
     subNode.append_attribute("kstart") = start;
     subNode.append_attribute("kend") = end;
-    
+
    if (formation->isSourceRock())
    {
       subNode.append_attribute("isSR") = true;
@@ -352,7 +350,7 @@ void CauldronIO::ExportToXML::addSurface(DataStoreSave& dataStore, pugi::xml_nod
 {
    // General properties
    pugi::xml_node ptree = surfacesNode.append_child("surface");
-   
+
    // Retrieve data if necessary: if the getDataStoreParams is unequal to zero this means data is saved and does not need to be saved again
     if (!surfaceIO->isRetrieved() && !m_append)
         surfaceIO->retrieve();
@@ -373,7 +371,7 @@ void CauldronIO::ExportToXML::addSurface(DataStoreSave& dataStore, pugi::xml_nod
     if (valueMaps.size() > 0)
     {
         pugi::xml_node valueMapsNode = ptree.append_child("propertymaps");
-        BOOST_FOREACH(const PropertySurfaceData& propertySurfaceData, valueMaps)
+        for(const PropertySurfaceData& propertySurfaceData: valueMaps)
         {
          pugi::xml_node node = valueMapsNode.append_child("propertymap");
          addPropertySurfaceData(node, dataStore, propertySurfaceData);
@@ -428,9 +426,9 @@ void CauldronIO::ExportToXML::addVolume(DataStoreSave& dataStore, const std::sha
 
     if (volume->getPropertyVolumeDataList().size() > 0)
     {
-       
+
         pugi::xml_node propVolNodes = volNode.append_child("propertyvols");
-        BOOST_FOREACH(const PropertyVolumeData& propVolume, volume->getPropertyVolumeDataList())
+        for(const PropertyVolumeData& propVolume: volume->getPropertyVolumeDataList())
         {
             const std::shared_ptr<const Property>& prop = propVolume.first;
             const std::shared_ptr<VolumeData>& data = propVolume.second;
@@ -502,7 +500,7 @@ void CauldronIO::ExportToXML::addReferenceData(pugi::xml_node &node, const DataS
       subNode.append_attribute("compression") = "none";
 
    //  subNode.append_attribute("partialpath") = false;
-   
+
    if (dataIJK || dataKIJ)
    {
       subNode.append_attribute("dataIJK") = dataIJK;
@@ -547,7 +545,7 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     node.append_attribute("kind") = snapShot->getKind();
     node.append_attribute("isminor") = snapShot->isMinorShapshot();
 
-   // If there is an existing project, find references to replace data 
+   // If there is an existing project, find references to replace data
    if (m_projectExisting)
    {
       VisualizationUtils::replaceExistingProperties(snapShot, m_projectExisting);
@@ -556,13 +554,13 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     // Read all data into memory: if there is an existing project, this is too late...
    std::vector < VisualizationIOData* > data = snapShot->getAllRetrievableData();
     CauldronIO::VisualizationUtils::retrieveAllData(data, m_numThreads);
-    
+
     // Cell center data if necessary
     if (m_center)
     {
         CauldronIO::VisualizationUtils::cellCenterAllMaps(snapShot, m_project);
         CauldronIO::VisualizationUtils::cellCenterVolume(snapShot->getVolume(), m_project);
-        
+
       // This should be the slowest operation: parallellize
       CauldronIO::VisualizationUtils::cellCenterFormationVolumes(snapShot, m_project, m_numThreads);
     }
@@ -573,7 +571,7 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     if (surfaces.size() > 0)
     {
         pugi::xml_node surfacesNode = node.append_child("surfaces");
-        BOOST_FOREACH(const std::shared_ptr<Surface>& surfaceIO, surfaces)
+        for(const std::shared_ptr<Surface>& surfaceIO: surfaces)
         {
             // Data storage
             addSurface(surfaceDataStore, surfacesNode, surfaceIO);
@@ -595,7 +593,7 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     if (formVolumes.size() > 0)
     {
         pugi::xml_node formVolumesNode = node.append_child("formvols");
-        BOOST_FOREACH(FormationVolume& formVolume, formVolumes)
+        for(FormationVolume& formVolume: formVolumes)
         {
             // Only add a volume if it contains something
             if (formVolume.second->getPropertyVolumeDataList().size() > 0)
@@ -609,7 +607,7 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
                 // Add formation name
                 volNode.append_attribute("formation") = subFormation->getName().c_str();
 
-                // Add volume 
+                // Add volume
                 pugi::xml_node subvolNode = volNode.append_child("volume");
                 addVolume(volumeStore, subVolume, subvolNode);
             }
@@ -661,7 +659,7 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
         pugi::xml_node trappersNode = node.append_child("trappers");
 
         int maxPersistentTrapperID = -1;
-        BOOST_FOREACH(const std::shared_ptr<const Trapper>& trapper, trappers)
+        for(const std::shared_ptr<const Trapper>& trapper: trappers)
         {
             // General properties
             pugi::xml_node trapperNode = trappersNode.append_child("trapper");
@@ -728,10 +726,10 @@ void CauldronIO::ExportToXML::compressDataQueue(std::vector< std::shared_ptr < D
 bool CauldronIO::ExportToXML::detectAppend(std::shared_ptr<Project>& project)
 {
     const SnapShotList snapShotList = project->getSnapShots();
-    BOOST_FOREACH(std::shared_ptr<const SnapShot> snapShot, snapShotList)
+    for(std::shared_ptr<const SnapShot> snapShot: snapShotList)
     {
         const SurfaceList surfaces = snapShot->getSurfaceList();
-        BOOST_FOREACH(const std::shared_ptr<Surface>& surfaceIO, surfaces)
+        for(const std::shared_ptr<Surface>& surfaceIO: surfaces)
         {
             if (dynamic_cast<MapNative*>(surfaceIO->getPropertySurfaceDataList().at(0).second.get()) != nullptr) return true;
             return false;
@@ -740,7 +738,7 @@ bool CauldronIO::ExportToXML::detectAppend(std::shared_ptr<Project>& project)
         const std::shared_ptr<Volume>& volume = snapShot->getVolume();
       if (volume)
       {
-         BOOST_FOREACH(const PropertyVolumeData& volumeData, volume->getPropertyVolumeDataList())
+         for(const PropertyVolumeData& volumeData: volume->getPropertyVolumeDataList())
          {
             if (dynamic_cast<VolumeDataNative*>(volumeData.second.get()) != nullptr) return true;
             return false;
@@ -868,11 +866,11 @@ void CauldronIO::ExportToXML::addGenexHistory(pugi::xml_node pt)
 {
    size_t nr_events = m_project->getGenexHistoryList().size();
    if (nr_events == 0) return;
-   
+
    const std::vector<std::string> historyFiles = m_project->getGenexHistoryList();
-   
+
    pugi::xml_node node = pt.append_child("genexHistoryFiles");
-   
+
    std::vector<std::string>::const_iterator fit;
    for( fit = historyFiles.begin(); fit < historyFiles.end(); ++ fit ) {
       pugi::xml_node propNode = node.append_child("filepath");
@@ -893,11 +891,11 @@ void CauldronIO::ExportToXML::addBurialHistory(pugi::xml_node pt)
 {
    size_t nr_events = m_project->getBurialHistoryList().size();
    if (nr_events == 0) return;
-   
+
    const std::vector<std::string> historyFiles = m_project->getBurialHistoryList();
-   
+
    pugi::xml_node node = pt.append_child("burialHistoryFiles");
-   
+
    std::vector<std::string>::const_iterator fit;
    for( fit = historyFiles.begin(); fit < historyFiles.end(); ++ fit ) {
       pugi::xml_node propNode = node.append_child("filepath");
@@ -912,15 +910,15 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
    size_t nr_events = displayRecords.size();
 
    pugi::xml_node node;
-   
+
    if (nr_events != 0) {
 
       node = pt.append_child("displayContour");
       node.append_attribute("number") = (unsigned int)nr_events;
-      BOOST_FOREACH(const std::shared_ptr<const DisplayContour>& entry, displayRecords)
+      for(const std::shared_ptr<const DisplayContour>& entry: displayRecords)
       {
          pugi::xml_node recordNode = node.append_child("record");
-         
+
          recordNode.append_attribute("propertyName") = entry->getPropertyName().c_str();
          recordNode.append_attribute("colour") = entry->getContourColour().c_str();
          recordNode.append_attribute("value") = entry->getContourValue();
@@ -934,10 +932,10 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
 
       node = pt.append_child("temperatureIso");
       node.append_attribute("number") = (unsigned int)nr_events;
-      BOOST_FOREACH(const std::shared_ptr<const IsoEntry>& entry, tempIsoRecords)
+      for(const std::shared_ptr<const IsoEntry>& entry: tempIsoRecords)
       {
          pugi::xml_node recordNode = node.append_child("record");
-         
+
          recordNode.append_attribute("age") = entry->getAge();
          recordNode.append_attribute("value") = entry->getContourValue();
          recordNode.append_attribute("sum") = entry->getSum();
@@ -950,31 +948,31 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
 
    if (nr_events != 0) {
 
-      node = pt.append_child("vrIso"); 
+      node = pt.append_child("vrIso");
       node.append_attribute("number") = (unsigned int)nr_events;
-      BOOST_FOREACH(const std::shared_ptr<const IsoEntry>& entry, vrIsoRecords)
+      for(const std::shared_ptr<const IsoEntry>& entry: vrIsoRecords)
       {
          pugi::xml_node recordNode = node.append_child("record");
-         
+
          recordNode.append_attribute("age") = entry->getAge();
          recordNode.append_attribute("value") = entry->getContourValue();
          recordNode.append_attribute("sum") = entry->getSum();
          recordNode.append_attribute("NP") = entry->getNP();
       }
-      
+
    }
    // FtSampleIoTbl
    FtSampleList fsampRecords = m_project->getFtSampleTable();
    nr_events = fsampRecords.size();
-      
+
    if (nr_events != 0) {
 
-      node = pt.append_child("ftSample"); 
+      node = pt.append_child("ftSample");
       node.append_attribute("number") = (unsigned int)nr_events;
-      BOOST_FOREACH(const std::shared_ptr<const FtSample>& entry, fsampRecords)
+      for(const std::shared_ptr<const FtSample>& entry: fsampRecords)
       {
          pugi::xml_node recordNode = node.append_child("record");
-         
+
          recordNode.append_attribute("id") = entry->getFtSampleId().c_str();
          recordNode.append_attribute("depthInd") = entry->getDepthIndex();
          recordNode.append_attribute("zeta") = entry->getFtZeta();
@@ -998,21 +996,21 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
          recordNode.append_attribute("meanAgeErr") = entry->getFtMeanAgeErr();
          recordNode.append_attribute("lengthChi2") = entry->getFtLengthChi2();
          recordNode.append_attribute("apatiteYield") = entry->getFtApatiteYield().c_str();
-         
+
       }
    }
     // FtGrainIoTbl
     FtGrainList fgRecords = m_project->getFtGrainTable();
     nr_events = fgRecords.size();
-    
+
     if (nr_events != 0) {
-    
-       node = pt.append_child("ftGrain"); 
+
+       node = pt.append_child("ftGrain");
        node.append_attribute("number") = (unsigned int)nr_events;
-       BOOST_FOREACH(const std::shared_ptr<const FtGrain>& entry, fgRecords)
+       for(const std::shared_ptr<const FtGrain>& entry: fgRecords)
        {
           pugi::xml_node recordNode = node.append_child("record");
-          
+
           recordNode.append_attribute("sampleId") = entry->getFtSampleId().c_str();
           recordNode.append_attribute("grainId") = entry->getFtGrainId();
           recordNode.append_attribute("spontTrackNo") = entry->getFtSpontTrackNo();
@@ -1024,15 +1022,15 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
     // FtPredLengthCountsHistIoTbl
     FtPredLengthCountsHistList fhRecords = m_project->getFtPredLengthCountsHistTable();
     nr_events = fhRecords.size();
-    
+
     if (nr_events != 0) {
-    
-       node = pt.append_child("ftPredLengthCountsHist"); 
+
+       node = pt.append_child("ftPredLengthCountsHist");
        node.append_attribute("number") = (unsigned int)nr_events;
-       BOOST_FOREACH(const std::shared_ptr<const FtPredLengthCountsHist>& entry, fhRecords)
+       for(const std::shared_ptr<const FtPredLengthCountsHist>& entry: fhRecords)
        {
           pugi::xml_node recordNode = node.append_child("record");
-          
+
           recordNode.append_attribute("id") = entry->getFtPredLengthHistId();
           recordNode.append_attribute("sampleId") = entry->getFtSampleId().c_str();
           recordNode.append_attribute("clWeightPerc") = entry->getFtClWeightPerc();
@@ -1044,15 +1042,15 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
     // FtPredLengthCountsHistDataIoTbl
     FtPredLengthCountsHistDataList fdRecords = m_project->getFtPredLengthCountsHistDataTable();
     nr_events = fdRecords.size();
-    
+
     if (nr_events != 0) {
-    
-       node = pt.append_child("ftPredLengthCountsHistData"); 
+
+       node = pt.append_child("ftPredLengthCountsHistData");
        node.append_attribute("number") = (unsigned int)nr_events;
-       BOOST_FOREACH(const std::shared_ptr<const FtPredLengthCountsHistData>& entry, fdRecords)
+       for(const std::shared_ptr<const FtPredLengthCountsHistData>& entry: fdRecords)
        {
           pugi::xml_node recordNode = node.append_child("record");
-          
+
           recordNode.append_attribute("id") = entry->getFtPredLengthHistId();
           recordNode.append_attribute("binIndex") = entry->getFtPredLengthBinIndex();
           recordNode.append_attribute("binCount") = entry->getFtPredLengthBinCount();
@@ -1061,15 +1059,15 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
     // FtClWeightPercBinsTbl
     FtClWeightPercBinsList ftClRecords = m_project->getFtClWeightPercBinsTable();
     nr_events = ftClRecords.size();
-    
+
     if (nr_events != 0) {
-    
-       node = pt.append_child("ftClWeightPercBins"); 
+
+       node = pt.append_child("ftClWeightPercBins");
        node.append_attribute("number") = (unsigned int)nr_events;
-       BOOST_FOREACH(const std::shared_ptr<const FtClWeightPercBins>&entry, ftClRecords)
+       for(const std::shared_ptr<const FtClWeightPercBins>&entry: ftClRecords)
        {
           pugi::xml_node recordNode = node.append_child("record");
-          
+
           recordNode.append_attribute("start") = entry->getFtClWeightBinStart();
           recordNode.append_attribute("width") = entry->getFtClWeightBinWidth();
        }
@@ -1082,34 +1080,34 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
     if (nr_events != 0) {
 
        TimeIo1DList timeio1d_events = m_project->get1DTimeIoTable();
-       
+
        node = pt.append_child("timeIo1D");
        node.append_attribute("number") = (unsigned int)nr_events;
-       
+
        record_size = sizeof(*timeio1d_events[0]);
        node.append_attribute("record_size") = (unsigned int)record_size;
-       
+
        ibs::FilePath time1DDataPath(m_fullPath);
        time1DDataPath << "timeIo1D_table.cldrn";
        DataStoreSave time1DDataStore(time1DDataPath.path(), m_append);
-       
+
        data = new char[record_size * nr_events];
        assert(sizeof(char) == 1);
-       
+
        dataIndex = 0;
-       
+
        for (size_t index = 0; index < nr_events; ++index, dataIndex += record_size)
        {
           void* source = (void*)(timeio1d_events[index].get());
           void* dest = (void*)(&data[dataIndex]);
           memcpy(dest, source, record_size);
        }
-       
+
        // Add all data
        time1DDataStore.addData((void*)data, node, record_size * nr_events);
        // Compress it and write to disk
        time1DDataStore.flush();
-       
+
        delete[] data;
     }
 }

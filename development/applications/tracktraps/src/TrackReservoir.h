@@ -51,18 +51,18 @@ namespace PersistentTraps
    class TrackReservoir : public Interface::Reservoir
    {
       public:
-	 /// Constructor
-   TrackReservoir (Interface::ProjectHandle * projectHandle, database::Record * record);
+   /// Constructor
+   TrackReservoir (Interface::ProjectHandle& projectHandle, database::Record * record);
 
-	 /// Destructor
+   /// Destructor
    ~TrackReservoir (void);
 
-	 bool extractRelevantTraps (const Interface::Snapshot * snapshot);
+   bool extractRelevantTraps (const Interface::Snapshot * snapshot);
 
 	 /// Check whether the Reservoir is active at the specified snapshot
 	 bool isActive (const Interface::Snapshot * snapshot) const;
 
-   TrackTrap * getTrap (int id);
+	 TrackTrap * getTrap (int id);
 
 	 const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot);
 
@@ -89,10 +89,10 @@ namespace PersistentTraps
 	 inline void setAverageDepth (double depth);
 	 inline double getAverageDepth (void);
 
-      private:
+			private:
 	 vector < PersistentTrap * > m_persistentTraps;
 
-	 /// The Traps we work on
+   /// The Traps we work on
    map < unsigned int, TrackTrap *, less < unsigned int > > m_traps;
 
 	 /// the persistent trap id's for this reservoir.
@@ -101,22 +101,22 @@ namespace PersistentTraps
 
 	 /// Average Depth of the Reservoir, used for sorting purposes.
 	 double m_averageDepth;
-   };
+	 };
 }
 
 bool PersistentTraps::TrackReservoir::hasName (const string & name)
 {
-   return getName () == name;
+	 return getName () == name;
 }
 
 void PersistentTraps::TrackReservoir::setAverageDepth (double depth)
 {
-   m_averageDepth = depth;
+	 m_averageDepth = depth;
 }
 
 double PersistentTraps::TrackReservoir::getAverageDepth (void)
 {
-   return m_averageDepth;
+	 return m_averageDepth;
 }
 
 #endif // _PERSISTENTTRAPS_RESERVOIR_H_

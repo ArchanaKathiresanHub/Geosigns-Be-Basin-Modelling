@@ -10,7 +10,7 @@ using namespace database;
 namespace DataAccess { namespace Interface {
 
 FracturePressureFunctionParameters::FracturePressureFunctionParameters(
-   ProjectHandle* projectHandle, database::Record* runOptionsIoTblRecord, 
+   ProjectHandle& projectHandle, database::Record* runOptionsIoTblRecord,
    database::Record* pressureIoTblRecord):
    DAObject(projectHandle, pressureIoTblRecord),
    m_type(None)
@@ -29,11 +29,11 @@ FracturePressureFunctionParameters::FracturePressureFunctionParameters(
    m_typeName = function;
    m_name = database::getPresFuncName ( pressureIoTblRecord );
 
-   if ( m_projectHandle->getRunParameters ()->getFractureModel () <= 0 or
-        m_projectHandle->getRunParameters ()->getFractureModel () > int ( CONSERVATIVE_2 )) {
+   if ( projectHandle.getRunParameters ()->getFractureModel () <= 0 or
+        projectHandle.getRunParameters ()->getFractureModel () > int ( CONSERVATIVE_2 )) {
       m_fractureModel = NON_CONSERVATIVE_TOTAL;
    } else {
-      m_fractureModel = FracturePressureModel ( m_projectHandle->getRunParameters ()->getFractureModel ());
+      m_fractureModel = FracturePressureModel ( projectHandle.getRunParameters ()->getFractureModel ());
    }
 
    if ( database::getSelected(m_record) == 1 and m_type != FunctionOfLithostaticPressure and m_type != None ) {
@@ -46,7 +46,7 @@ FracturePressureFunctionParameters::FracturePressureFunctionParameters(
 }
 
 FracturePressureFunctionParameters::FracturePressureFunctionParameters(
-   ProjectHandle* projectHandle, database::Record* anyRecord):
+   ProjectHandle& projectHandle, database::Record* anyRecord):
    DAObject(projectHandle, anyRecord),
    m_type(None)
 {}

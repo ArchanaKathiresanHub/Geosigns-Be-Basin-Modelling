@@ -105,6 +105,8 @@ namespace mbapi {
       /// Set of interfaces for interacting with a Cauldron model
       typedef size_t LithologyID;         ///< unique ID for lithology
       typedef size_t AllochtLithologyID;  ///< unique ID for allochton lithology
+	  typedef size_t LitThCondTblID;	///< unique ID for thermalConductivity values of lithotypes
+	  typedef size_t LitHeatCapTblID;	///< unique ID for thermalConductivity values of lithotypes
 
       typedef enum
       {
@@ -161,6 +163,24 @@ namespace mbapi {
       /// @param[in] id lithology ID
       /// @return lithology type name for given lithology ID or empty string in case of error
       virtual std::string lithologyName( LithologyID id ) = 0;
+
+	  // Set lithology name for the given ID
+	  // [in] id lithology ID
+	  // [in] newName contains the lithology name as per BPA2 standard
+	  // return NoError on success or NonexistingID on error
+	  virtual ReturnCode setLithologyName(const LithologyID id, const std::string & newName) = 0;
+
+	  /// @brief get user defined flag value for the given lithology ID
+	  /// @param[in] id lithology ID
+	  /// @param[out] flag user defined flag value for the particular lithology id
+	  /// @return NoError on success or NonexistingID on error
+	  virtual ReturnCode getUserDefinedFlagForLithology(const LithologyID id, int & flag) = 0;
+
+	  /// @brief get reference lithology for the given lithology ID
+	  /// @param[in] id lithology ID
+	  /// @param[out] referenceLithology reference lithology for the particular lithology id
+	  /// @return NoError on success or NonexistingID on error
+	  virtual ReturnCode getReferenceLithology(const LithologyID id, std::string & referenceLithology) = 0;
 
       /// @brief Get lithology description for the given ID
       /// @param[in] id lithology ID
@@ -255,6 +275,15 @@ namespace mbapi {
                                           , std::vector<double> & mpPerm     ///< for multi-point perm. model the log. of perm values vector. Empty for other models.
                                           ) = 0;
 
+      // @brief Get lithology permeability model parameters
+      // @param [in] id          lithology ID
+      // @param[out] prmModel   permeability calculation model
+      // @param[out] mpPor      for multi-point perm. model the porosity values vector. Empty for other models
+      // @param[out] mpPerm     for multi-point perm. model the log. of perm values vector. Empty for other models.
+      // @param[out] numPts      for multi-point perm. Number_Of_Data_Points
+      // @return NoError on success or error code otherwise
+      virtual ReturnCode getPermeabilityModel(LithologyID id, PermeabilityModel & prmModel, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts) = 0;
+
       /// @brief Set lithology permeability model with parameters
       /// @return NoError on success or error code otherwise
       virtual ReturnCode setPermeabilityModel( LithologyID                 id       ///< lithology ID
@@ -263,6 +292,17 @@ namespace mbapi {
                                              , const std::vector<double> & mpPor    ///< for multi-point perm. model the porosity values vector. Empty for other models
                                              , const std::vector<double> & mpPerm   ///< for multi-point perm. model the log. of perm values vector. Empty for other models.
                                              ) = 0;
+      /// @}
+
+      /// @brief Set lithology permeability model with parameters
+      // @param [in]    id          lithology ID
+      // @param[in/out] prmModel    permeability calculation model
+      // @param[out] mpPor     for multi-point perm. model the porosity values vector
+      // @param[out] mpPerm    for multi-point perm. model the log. of perm values vector
+      // @param[in] numPts     for multi-point perm. Number_Of_Data_Points
+      /// @param[in]          flag user defined flag value for the particular lithology id
+      /// @return NoError on success or error code otherwise
+      virtual ReturnCode setPermeabilityModel(LithologyID id, PermeabilityModel prmModel, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts, int & flag) = 0;
       /// @}
 
       // Seismic velocity
@@ -288,6 +328,38 @@ namespace mbapi {
       /// @param[in] stpThermCond the new value for STP thermal conductivity
       /// @return NoError on success, NonexistingID on unknown lithology ID or OutOfRangeValue if the value not in an allowed range
       virtual ReturnCode setSTPThermalConductivityCoeff( LithologyID id, double stpThermCond ) = 0;
+
+	  /// @brief Get list of thermal conductiviries for all the lithotypes used in the model from LitThCondIoTbl
+	  /// @return array with IDs of different lithologies defined in the model
+	  virtual std::vector<LitThCondTblID> thermCondLithologiesIDs() const = 0;
+
+	  /// @brief Get lithology name from LitThCondIoTbl
+	  /// @param[in] id lithology ID
+	  /// @param[out] LithoName on success has a lithology name
+	  /// @return NoError on success or NonexistingID on error
+	  virtual ReturnCode getThermCondTableLithoName(const LitThCondTblID id, std::string & LithoName) = 0;
+
+	  /// @brief Set lithotype name in the LitThCondIoTbl
+	  /// @param[in] id lithology ID
+	  /// @param[in] LithoName new name of the lithology to set for the lithology ID
+	  /// @return NoError on success or NonexistingID on error
+	  virtual ReturnCode setThermCondTableLithoName(const LitThCondTblID id, const std::string & LithoName) = 0;
+
+	  /// @brief Get list of heat capacities for all the lithotypes used in the model from LitHeatCapIoTbl
+	  /// @return array with IDs of different lithologies defined in the model
+	  virtual std::vector<LitHeatCapTblID> heatCapLithologiesIDs() const = 0;
+
+	  /// @brief Get lithology name from LitHeatCapIoTbl
+	  /// @param[in] id lithology ID
+	  /// @param[out] LithoName on success has a lithology name
+	  /// @return NoError on success or NonexistingID on error
+	  virtual ReturnCode getHeatCapTableLithoName(const LitThCondTblID id, std::string & LithoName) = 0;
+
+	  /// @brief Set lithotype name in the LitHeatCapIoTbl
+	  /// @param[in] id lithology ID
+	  /// @param[in] LithoName new name of the lithology to set for the lithology ID
+	  /// @return NoError on success or NonexistingID on error
+	  virtual ReturnCode setHeatCapTableLithoName(const LitThCondTblID id, const std::string & LithoName) = 0;
 
       /// @}
       /// @}

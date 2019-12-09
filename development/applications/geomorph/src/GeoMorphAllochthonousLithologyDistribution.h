@@ -72,19 +72,19 @@ namespace AllochMod {
     /// \var BoundaryExtensionFactor
     /// \brief How much to extend the boundary of the domain, the factor is used to scale the delta-x and -y.
     ///
-    /// The domain is extended beyond that of the input map, so that edge effects of the 
+    /// The domain is extended beyond that of the input map, so that edge effects of the
     /// allochthonous lithology distribution can be minimised.
     static constexpr Numerics::FloatingPoint BoundaryExtensionFactor = 5.0;
 
 
-    GeoMorphAllochthonousLithologyDistribution (Interface::ProjectHandle * projectHandle, database::Record * record);
+    GeoMorphAllochthonousLithologyDistribution (Interface::ProjectHandle& projectHandle, database::Record * record);
 
     ~GeoMorphAllochthonousLithologyDistribution ();
 
     /// \name Post construction set-up functions.
     /// @{
 
-    // only temporary 
+    // only temporary
     void inputMap ( const std::string&            fileName,
                     const Numerics::FloatingPoint spaceScaling,
                     const Numerics::FloatingPoint timeScaling );
@@ -263,7 +263,7 @@ namespace AllochMod {
 
     Numerics::FloatingPointArray primalXCoordinates;
     Numerics::FloatingPointArray primalYCoordinates;
-  
+
     Numerics::FloatingPointArray dualXCoordinates;
     Numerics::FloatingPointArray dualYCoordinates;
 
@@ -300,7 +300,7 @@ namespace AllochMod {
 
 template <typename PointSelector>
 void AllochMod::GeoMorphAllochthonousLithologyDistribution::pickOutBoundaryPoints ( PointSelector&        select,
-									    Numerics::PointArray& boundaryPoints ) {
+                      Numerics::PointArray& boundaryPoints ) {
 
 
   int i;
@@ -332,7 +332,7 @@ void AllochMod::GeoMorphAllochthonousLithologyDistribution::pickOutBoundaryPoint
 
 template <typename PointSelector>
 void AllochMod::GeoMorphAllochthonousLithologyDistribution::pickOutInteriorPoints ( PointSelector&        select,
-									    Numerics::PointArray& interiorPoints ) {
+                      Numerics::PointArray& interiorPoints ) {
 
   int i;
   int j;
@@ -363,7 +363,7 @@ void AllochMod::GeoMorphAllochthonousLithologyDistribution::pickOutInteriorPoint
 
 template <typename PointSelector>
 void AllochMod::GeoMorphAllochthonousLithologyDistribution::pickOutExteriorPoints ( PointSelector&        select,
-									    Numerics::PointArray& exteriorPoints ) {
+                      Numerics::PointArray& exteriorPoints ) {
 
   const int BoundaryCount = 4;
   int i;
@@ -384,9 +384,9 @@ void AllochMod::GeoMorphAllochthonousLithologyDistribution::pickOutExteriorPoint
       if ( i > dilatedDistributionMap.first ( 1 ) && i < dilatedDistributionMap.last ( 1 ) &&
            j > dilatedDistributionMap.first ( 2 ) && j < dilatedDistributionMap.last ( 2 )) {
 
-        allEqual = distributionMap ( i, j ) == distributionMap ( i - 1, j - 1 ) && 
-                   distributionMap ( i, j ) == distributionMap ( i - 1, j + 1 ) && 
-                   distributionMap ( i, j ) == distributionMap ( i + 1, j + 1 ) && 
+        allEqual = distributionMap ( i, j ) == distributionMap ( i - 1, j - 1 ) &&
+                   distributionMap ( i, j ) == distributionMap ( i - 1, j + 1 ) &&
+                   distributionMap ( i, j ) == distributionMap ( i + 1, j + 1 ) &&
                    distributionMap ( i, j ) == distributionMap ( i + 1, j - 1 );
 
         onSaltBodyBoundary = ! distributionMap ( i, j ) && !allEqual;
@@ -399,7 +399,7 @@ void AllochMod::GeoMorphAllochthonousLithologyDistribution::pickOutExteriorPoint
 
       onPrimalDomainBoundary = false;
 
-      if (( onPrimalDomainBoundary || onSaltBodyBoundary || 
+      if (( onPrimalDomainBoundary || onSaltBodyBoundary ||
             (( dilatedDistributionMap ( i, j ) == false ) && select ( i, j ))) && ! primalMapPointHasBeenChosen ( i, j )) {
 
         p ( 0 ) = primalXCoordinates [ i ];

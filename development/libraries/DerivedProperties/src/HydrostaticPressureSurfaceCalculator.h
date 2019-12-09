@@ -31,7 +31,7 @@ namespace DerivedProperties {
       /// \brief Constructor.
       ///
       /// \param [in] projectHandle The geophysics project handle.
-      HydrostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
+      HydrostaticPressureSurfaceCalculator (const GeoPhysics::ProjectHandle& projectHandle );
 
       /// \brief Calculate the hydrostatic pressure for the surface.
       ///
@@ -61,7 +61,7 @@ namespace DerivedProperties {
                                                    const DataAccess::Interface::Surface*               surface,
                                                          DerivedSurfacePropertyPtr&                    hydrostaticPressure ) const;
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
 
    };
 

@@ -18,7 +18,7 @@ namespace DataAccess
 
       public :
 
-         ConstrainedOverpressureInterval ( ProjectHandle*    projectHandle,
+         ConstrainedOverpressureInterval ( ProjectHandle& projectHandle,
                                            database::Record* record,
                                            const Formation*  formation );
 
@@ -42,7 +42,7 @@ namespace DataAccess
          const Formation* m_formation;
          const Snapshot* m_startAge;
          const Snapshot* m_endAge;
-         
+
 
       };
    }

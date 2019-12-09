@@ -32,9 +32,8 @@ static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Inte
 
 TrackProjectHandle::TrackProjectHandle (database::ProjectFileHandlerPtr database,
                               const string & name,
-                              const string & accessMode,
                               const Interface::ObjectFactory* factory)
-   : Interface::ProjectHandle (database, name, accessMode, factory)
+   : Interface::ProjectHandle (database, name, factory)
 {
 }
 
@@ -44,21 +43,17 @@ TrackProjectHandle::~TrackProjectHandle (void)
 
 bool TrackProjectHandle::createPersistentTraps (void)
 {
-   Interface::SnapshotList * snapshots = getSnapshots (MAJOR);
-
-   Interface::SnapshotList::const_iterator snapshotIter;
+   std::unique_ptr<Interface::SnapshotList> snapshots( getSnapshots (MAJOR) );
 
    const Interface::Snapshot * previousSnapshot = 0;
 
-   for (snapshotIter = snapshots->begin (); snapshotIter != snapshots->end (); ++snapshotIter)
+   for ( const Interface::Snapshot * snapshot : *snapshots )
    {
-      const Interface::Snapshot * snapshot = * snapshotIter;
       cerr << "Snapshot: " << snapshot->getTime () << endl;
       bool result = extractRelevantTraps (snapshot);
       if (!result)
       {
    cerr << "Error in extracting the traps" << endl;
-    delete snapshots;
    return false;
       }
 
@@ -69,7 +64,6 @@ bool TrackProjectHandle::createPersistentTraps (void)
       if (!result)
       {
    cerr << "Could not find one or more maps, output is incomplete" << endl;
-    delete snapshots;
    return false;
       }
 
@@ -80,7 +74,6 @@ bool TrackProjectHandle::createPersistentTraps (void)
 
    savePersistentTraps ();
    deletePersistentTraps ();
-   delete snapshots;
    return true;
 }
 

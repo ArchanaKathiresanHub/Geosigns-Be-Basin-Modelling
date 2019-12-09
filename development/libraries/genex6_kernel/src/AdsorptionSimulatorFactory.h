@@ -19,7 +19,7 @@ namespace Genex6 {
    class AdsorptionSimulatorFactory {
 
       /// \brief Function pointer for allocating adsorption-simulators.
-      typedef Genex6::AdsorptionSimulator* (*AllocateAdsorptionSimulator)( DataAccess::Interface::ProjectHandle* projectHandle,
+      typedef Genex6::AdsorptionSimulator* (*AllocateAdsorptionSimulator)( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                            const SpeciesManager&                 speciesManager,
                                                                            const bool applyOtgc,
                                                                            const bool isManaged );
@@ -30,7 +30,7 @@ namespace Genex6 {
 
       /// \brief Function pointer for allocating adsorption-history objects.
       typedef NodeAdsorptionHistory* (*NodeAdsorptionHistoryAllocator)( const SpeciesManager&                 speciesManager,
-                                                                        DataAccess::Interface::ProjectHandle* projectHandle );
+                                                                        DataAccess::Interface::ProjectHandle& projectHandle );
 
       /// \brief Maps string to adsorption-history allocator.
       typedef std::map <std::string, NodeAdsorptionHistoryAllocator> NodeAdsorptionHistoryAllocatorMap;
@@ -43,7 +43,7 @@ namespace Genex6 {
       /// \brief Allocate the adsorption simulator.
       ///
       /// The simulator allocated will depend on the adsorption-simulator parameters which-simulator.
-      Genex6::AdsorptionSimulator* getAdsorptionSimulator ( DataAccess::Interface::ProjectHandle* projectHandle,
+      Genex6::AdsorptionSimulator* getAdsorptionSimulator ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                             const SpeciesManager&                 speciesManager,
                                                             const std::string& adsorptionSimulatorName,
                                                             const bool         applyOtgc,
@@ -51,7 +51,7 @@ namespace Genex6 {
 
       /// \brief Allocate a adsorption-node history object.
       Genex6::NodeAdsorptionHistory* allocateNodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
-                                                                     DataAccess::Interface::ProjectHandle* projectHandle,
+                                                                     DataAccess::Interface::ProjectHandle& projectHandle,
                                                                      const string & adsorptionSimulatorName ) const;
 
    private :

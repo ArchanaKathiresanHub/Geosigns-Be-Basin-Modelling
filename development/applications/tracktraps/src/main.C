@@ -96,8 +96,8 @@ int main (int argc, char ** argv)
       outputFileName = projectFileName;
    }
 
-   PersistentTrapFactory* factory = new PersistentTrapFactory;
-   TrackProjectHandle * projectHandle = dynamic_cast<TrackProjectHandle *>(Interface::OpenCauldronProject (projectFileName, "rw", factory));
+   PersistentTrapFactory factory;
+   std::unique_ptr<TrackProjectHandle> projectHandle( dynamic_cast<TrackProjectHandle *>(Interface::OpenCauldronProject (projectFileName, &factory) ) );
 
    if (!projectHandle)
    {
@@ -114,9 +114,6 @@ int main (int argc, char ** argv)
    {
       projectHandle->saveProject (outputFileName);
    }
-
-   delete projectHandle;
-   delete factory;
 
    return 0;
 }

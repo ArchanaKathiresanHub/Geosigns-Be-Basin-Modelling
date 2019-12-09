@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "GenexHistory.h"
 
 #include <iomanip>
@@ -23,8 +23,8 @@
 #include "ConstantsMathematics.h"
 using Utilities::Maths::CelciusToKelvin;
 
-Genex6::GenexHistory::GenexHistory ( const SpeciesManager&                      speciesManager,
-                                     DataAccess::Interface::ProjectHandle* projectHandle ) :
+Genex6::GenexHistory::GenexHistory ( const SpeciesManager& speciesManager,
+                                     DataAccess::Interface::ProjectHandle& projectHandle ) :
    NodeAdsorptionHistory ( speciesManager, projectHandle ) {
 
    mapComponentManagerSpeciesIdToOutputOrder();
@@ -53,25 +53,25 @@ Genex6::GenexHistory::HistoryItem::HistoryItem () {
    m_toc = 0;
 
    m_kerogenConversionRatio = 0;
-   
+
    m_InstExpApi = 0;
    m_CumExpApi = 0;
-   
+
    m_InstExpGOR = 0;
    m_CumExpGOR = 0;
-   
+
    m_InstExpCGR = 0;
    m_CumExpCGR = 0;
-   
+
    m_InstExpGasWetness = 0;
    m_CumExpGasWetness = 0;
-   
+
    m_InstExpArom = 0;
    m_CumExpArom = 0;
 
    m_HC = 0;
    m_OC = 0;
-   
+
    for(i = 0; i <  ComponentId::NUMBER_OF_SPECIES; ++ i ) {
       m_speciesGeneratedRate[i] = 0;
       m_speciesGeneratedCum[i] = 0;
@@ -99,7 +99,7 @@ void Genex6::GenexHistory::collect ( Genex6::SourceRockNode* node ) {
 
    const Genex6::Input* nodeInput = node->getLastInput ();
    Genex6::SimulatorState * simulatorState = & node->getPrincipleSimulatorState ();
-   
+
    HistoryItem* hist = new HistoryItem;
    Genex6::SpeciesResult* speciesResult;
 
@@ -112,7 +112,7 @@ void Genex6::GenexHistory::collect ( Genex6::SourceRockNode* node ) {
       hist->m_pressure = nodeInput->getPorePressure ();
       hist->m_ves = nodeInput->GetPressure ();
       hist->m_toc = simulatorState->getCurrentToc ();
- 
+
       for ( int id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
 
          CBMGenerics::ComponentManager::SpeciesNamesId componentManagerId = CBMGenerics::ComponentManager::SpeciesNamesId ( id );
@@ -128,20 +128,20 @@ void Genex6::GenexHistory::collect ( Genex6::SourceRockNode* node ) {
           // speciesResult = &simulatorState->GetSpeciesResult( getSpeciesManager ().mapComponentManagerSpeciesToId ( componentManagerId ));
 
             // double value = speciesResult->GetConcentration() *  simulatorState->GetThickness() * simulatorState->GetConcki() + speciesResult->GetExpelledMass();
-            
+
             hist->m_speciesGeneratedRate[ SpeciesOutputOrder[componentManagerId] ] = speciesResult->GetGeneratedRate();
             hist->m_speciesGeneratedCum[ SpeciesOutputOrder[componentManagerId] ] = speciesResult->GetGeneratedCum(); //value;
             hist->m_speciesExpelledRate[ SpeciesOutputOrder[componentManagerId] ] = speciesResult->GetFlux();
             hist->m_speciesExpelledCum[ SpeciesOutputOrder[componentManagerId] ]  = speciesResult->GetExpelledMass();
          }
-      }         
-      
+      }
+
       hist->m_fractionGeneratedRate[Oil] = simulatorState->GetGroupResult(GenexResultManager::OilGeneratedRate);
       hist->m_fractionGeneratedRate[HcGas] = simulatorState->GetGroupResult(GenexResultManager::HcGasGeneratedRate);
       hist->m_fractionGeneratedRate[DryGas] = simulatorState->GetGroupResult(GenexResultManager::DryGasGeneratedRate);
       hist->m_fractionGeneratedRate[WetGas] = simulatorState->GetGroupResult(GenexResultManager::WetGasGeneratedRate);
       hist->m_fractionGeneratedRate[SbearingHCs] = simulatorState->GetGroupResult(GenexResultManager::SbearingHCsGeneratedRate);
-      
+
       hist->m_fractionGeneratedCum[Oil] = simulatorState->GetGroupResult(GenexResultManager::OilGeneratedCum);
       hist->m_fractionGeneratedCum[HcGas] = simulatorState->GetGroupResult(GenexResultManager::HcGasGeneratedCum);
       hist->m_fractionGeneratedCum[DryGas] = simulatorState->GetGroupResult(GenexResultManager::DryGasGeneratedCum);
@@ -190,13 +190,13 @@ void Genex6::GenexHistory::writeComponentsNames ( std::ostream& str ) {
    CBMGenerics::ComponentManager::SpeciesNamesId componentManagerId;
 
    for ( int id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
-      componentManagerId = CBMGenerics::ComponentManager::SpeciesNamesId ( id );  
+      componentManagerId = CBMGenerics::ComponentManager::SpeciesNamesId ( id );
       str << setw ( 30 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesNameHistory( Genex6::SpeciesOutputId[componentManagerId] );
    }
 }
 
 void Genex6::GenexHistory::writeGroupsNames ( std::ostream& str ) {
-   
+
    str << setw ( 30 ) << Genex6::SpeciesGroupsNames[Oil];
    str << setw ( 30 ) << Genex6::SpeciesGroupsNames[HcGas];
    str << setw ( 30 ) << Genex6::SpeciesGroupsNames[DryGas];
@@ -254,7 +254,6 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
        << setw ( 21 ) << ""
        << setw ( 21 ) << "";
 
-
    str << std::endl;
 
    //******** Start output of second header row ********//
@@ -306,7 +305,6 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
 
    // --------------------------
 
-
    str << std::endl;
 
    //******** Start output of units header row ********//
@@ -351,7 +349,7 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
 
    str << setw ( 21 ) << "m3/m3";
    str << setw ( 21 ) << "m3/m3";
- 
+
    str << setw ( 21 ) << "m3/m3";
    str << setw ( 21 ) << "m3/m3";
 
@@ -371,7 +369,7 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
           << std::setw ( 21 ) << hist->m_vre
           << std::setw ( 21 ) << hist->m_pressure
           << std::setw ( 21 ) << hist->m_ves;
- 
+
       for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
          str << setw ( 30 ) << hist->m_speciesGeneratedRate [ id ];
       }
@@ -413,21 +411,21 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
 
       str << setw ( 21 ) << hist->m_InstExpGasWetness;
       str << setw ( 21 ) << hist->m_CumExpGasWetness;
- 
+
       str << setw ( 21 ) << hist->m_InstExpArom;
       str << setw ( 21 ) << hist->m_CumExpArom;
 
       str << setw ( 21 ) << hist->m_toc;
       str << setw ( 21 ) << hist->m_OC;
       str << setw ( 21 ) << hist->m_HC;
-        
+
 
       str << std::endl;
    }
 
 }
 
-Genex6::NodeAdsorptionHistory* Genex6::allocateGenexHistory ( const SpeciesManager&                      speciesManager,
-                                                                           DataAccess::Interface::ProjectHandle* projectHandle ) {
+Genex6::NodeAdsorptionHistory* Genex6::allocateGenexHistory ( const SpeciesManager& speciesManager,
+                                                              DataAccess::Interface::ProjectHandle& projectHandle ) {
    return new GenexHistory ( speciesManager, projectHandle );
 }

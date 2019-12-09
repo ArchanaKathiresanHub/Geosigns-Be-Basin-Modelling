@@ -12,20 +12,19 @@ using namespace std;
 
 #include "NumericFunctions.h"
 
-Genex6::AdsorptionFunction* Genex6::allocateLangmuirAdsorptionTOCFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
+Genex6::AdsorptionFunction* Genex6::allocateLangmuirAdsorptionTOCFunction ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                             const std::string&                         functionName ) {
    return new LangmuirAdsorptionTOCFunction ( projectHandle, functionName );
 }
 
 
 
-Genex6::LangmuirAdsorptionTOCFunction::LangmuirAdsorptionTOCFunction ( DataAccess::Interface::ProjectHandle* projectHandle,
+Genex6::LangmuirAdsorptionTOCFunction::LangmuirAdsorptionTOCFunction ( DataAccess::Interface::ProjectHandle& projectHandle,
                                                                        const std::string&                         functionName ) :
-   m_projectHandle ( projectHandle ),
    m_functionName ( functionName )
 {
 
-   const DataAccess::Interface::LangmuirAdsorptionTOCEntry* adsorptionEntry = projectHandle->getLangmuirAdsorptionTOCEntry ( functionName );
+   const DataAccess::Interface::LangmuirAdsorptionTOCEntry* adsorptionEntry = projectHandle.getLangmuirAdsorptionTOCEntry ( functionName );
 
    if ( adsorptionEntry != 0 ) {
       m_referenceTemperature = adsorptionEntry->getReferenceTemperature ();
@@ -45,7 +44,7 @@ Genex6::LangmuirAdsorptionTOCFunction::~LangmuirAdsorptionTOCFunction () {
 
 //    if ( m_tocMap != 0 ) {
 //       m_tocMap->restoreData ();
-//    } 
+//    }
 
 }
 
@@ -90,7 +89,7 @@ double Genex6::LangmuirAdsorptionTOCFunction::computeVL ( const unsigned int i,
 
 double Genex6::LangmuirAdsorptionTOCFunction::getReferenceTemperature () const {
    return m_referenceTemperature;
-} 
+}
 
 bool Genex6::LangmuirAdsorptionTOCFunction::isValid () const {
    return m_referenceTemperature != DataAccess::Interface::DefaultUndefinedScalarValue and

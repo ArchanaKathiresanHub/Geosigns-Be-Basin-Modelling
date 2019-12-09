@@ -13,6 +13,8 @@
 
 #include "database.h"
 
+#include "petsc.h"
+
 // DataAccess library
 #include "Formation.h"
 #include "Grid.h"
@@ -177,7 +179,7 @@ void FastDepthCalibration::runFastCauldronAndCalculateNewDpeths()
     { throw T2Zexception() << "property grid maps could not be set after fastcauldron run"; }
     calculateNewDepths(twtGridMap, depthGridMap);
 
-    fdcFastCauldronManager.finalizeFastCauldronSturtup();
+    fdcFastCauldronManager.finalizeFastCauldronStartup();
   }
   catch (const T2Zexception & ex)
   {
@@ -190,6 +192,7 @@ void FastDepthCalibration::writeNewDepthAndCorrectedMapstoCaseFileInMasterDirect
   m_caseStorageManager.changeToMasterDirectoryPath();
   size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
   m_fdcProjectManager.generateMapInGridMapIoTbl(mapName, m_fdcVectorFieldProperties.newDepths(), mapsSequenceNbr, m_caseStorageManager.resultsMapFileName(), m_fdcLithoProperties.nextSurface());
+  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 void FastDepthCalibration::calibrateDepths()
@@ -320,6 +323,11 @@ void FastDepthCalibration::calculateNewDepths(const DataAccess::Interface::GridM
     if (!searching && newDepths[i] == DataAccess::Interface::DefaultUndefinedScalarValue) { searching = true; }
   }
 
+  int globalReady = 0;
+  int localReady = searching ? 1 : 0;
+  MPI_Allreduce( &localReady, &globalReady, 1, MPI_INT, MPI_SUM, PETSC_COMM_WORLD);
+  searching = globalReady > 0;
+
   twtSimUpper = twtSim;
   depthSimUpper = depthSim;
   for (int k = maxK - 1; k >= 0; --k)
@@ -352,6 +360,11 @@ void FastDepthCalibration::calculateNewDepths(const DataAccess::Interface::GridM
 
       if (!searching && newDepths[i] == DataAccess::Interface::DefaultUndefinedScalarValue) { searching = true; }
     }
+
+    globalReady = 0;
+    localReady = searching ? 1 : 0;
+    MPI_Allreduce( &localReady, &globalReady, 1, MPI_INT, MPI_SUM, PETSC_COMM_WORLD);
+    searching = globalReady > 0;
 
     twtSimUpper = twtSim;
     depthSimUpper = depthSim;
@@ -396,6 +409,7 @@ void FastDepthCalibration::calculateNewDepths(const DataAccess::Interface::GridM
   }
 
   m_fdcVectorFieldProperties.setNewDepths(newDepths);
+  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 void FastDepthCalibration::fillArray( const DataAccess::Interface::GridMap * grid, std::vector<double> & v, int k, const double convFact )
@@ -460,6 +474,7 @@ std::vector<double> FastDepthCalibration::calculateErosion(const mbapi::Stratigr
     }
   }
 
+  MPI_Barrier(PETSC_COMM_WORLD);
   return erosion;
 }
 

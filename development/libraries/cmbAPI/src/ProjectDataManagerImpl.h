@@ -42,23 +42,7 @@ namespace mbapi {
       void setDatabase(database::ProjectFileHandlerPtr pfh);
 
       /// @{
-      /// @brief Get x-coordinate of the origin specified in the ProjectIoTbl
-      //virtual ReturnCode getOriginXCoord(double& XCoord) ;
-
-      /// @{
-      /// @brief Set x-coordinate of the origin specified in the ProjectIoTbl
-      //virtual ReturnCode setOriginXCoord(const double& XCoord) ;
-
-      /// @{
-      /// @brief Get y-coordinate of the origin of AOI specified in the ProjectIoTbl
-      //virtual ReturnCode getOriginYCoord(double& YCoord);
-
-      /// @{
-      /// @brief Set y-coordinate of the origin of AOI specified in the ProjectIoTbl
-      //virtual ReturnCode setOriginYCoord(const double& YCoord);
-
-      /// @{
-     /// @brief Get number of the x-nodes specified in the ProjectIoTbl
+      /// @brief Get number of the x-nodes specified in the ProjectIoTbl
       virtual ReturnCode getNumberOfNodesX(int& NodesX) ;
 
       /// @{

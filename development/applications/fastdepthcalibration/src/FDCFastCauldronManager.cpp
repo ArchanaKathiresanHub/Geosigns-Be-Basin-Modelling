@@ -78,8 +78,9 @@ DataAccess::Interface::GridMap * FDCFastCauldronManager::getPropertyGridMap(cons
   return propertyGridMap;
 }
 
-void FDCFastCauldronManager::finalizeFastCauldronSturtup()
+void FDCFastCauldronManager::finalizeFastCauldronStartup()
 {
+  MPI_Barrier(PETSC_COMM_WORLD);
   m_fastcauldronStartup.finalize();
 }
 

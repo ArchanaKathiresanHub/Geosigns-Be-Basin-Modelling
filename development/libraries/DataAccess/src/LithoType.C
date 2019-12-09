@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -29,7 +29,7 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+LithoType::LithoType (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
 
    //for Pc - Kr models
@@ -87,6 +87,14 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
 
 LithoType::~LithoType (void)
 {
+}
+
+LithoType::LithoType(const LithoType& litho) :
+  DAObject( litho )
+{
+  m_porosityModel = litho.m_porosityModel;
+  m_permeabilityModel = litho.m_permeabilityModel;
+  m_pcKrModel = litho.m_pcKrModel;
 }
 
 // the names herein must have the same order as LithoType::AttributeId.
@@ -236,7 +244,7 @@ double LithoType::getSeismicVelocity () const {
 }
 
 double LithoType::getSeismicVelocityExponent() const {
-	return database::getSeisVelocityExponent( m_record );
+  return database::getSeisVelocityExponent( m_record );
 }
 
 double LithoType::getCapillaryEntryPressureC1 () const {
@@ -262,15 +270,15 @@ double  LithoType::getExponentLambdaPc () const
 
 double  LithoType::getExponentLambdaKr () const
 {
-   return database::getLambdaKr ( m_record ); 
+   return database::getLambdaKr ( m_record );
 }
 
 LithologyHeatCapacitySampleList * LithoType::getHeatCapacitySamples () const {
-   return m_projectHandle->getLithologyHeatCapacitySampleList ( this );
+   return getProjectHandle().getLithologyHeatCapacitySampleList ( this );
 }
 
 LithologyThermalConductivitySampleList * LithoType::getThermalConductivitySamples () const {
-   return m_projectHandle->getLithologyThermalConductivitySampleList ( this );
+   return getProjectHandle().getLithologyThermalConductivitySampleList ( this );
 }
 
 const std::string& LithoType::getForegroundColour () const {
@@ -286,7 +294,7 @@ const std::string& LithoType::getPixmap () const {
 }
 
 bool LithoType::getLegacy() const {
-   return m_projectHandle->getRunParameters()->getLegacy( );
+   return getProjectHandle().getRunParameters()->getLegacy( );
 }
 
 void LithoType::printOn (ostream & ostr) const

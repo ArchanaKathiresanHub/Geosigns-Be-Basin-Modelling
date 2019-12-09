@@ -4,7 +4,7 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-OutputPropertyMap* allocateFCTCorrectionCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateFCTCorrectionCalculator ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<FCTCorrectionCalculator>( property, formation, surface, snapshot );
 }
 

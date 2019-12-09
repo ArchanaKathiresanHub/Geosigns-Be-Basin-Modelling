@@ -4,12 +4,12 @@
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
-OutputPropertyMap* allocateBiomarkersAdapter ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateBiomarkersAdapter ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
 
    return new DerivedOutputPropertyMap<BiomarkersAdapter>( property, formation, surface, snapshot );
 }
 
-OutputPropertyMap* allocateBiomarkersVolumeAdapter ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+OutputPropertyMap* allocateBiomarkersVolumeAdapter ( const PropertyIdentifier& property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
 
    return new DerivedOutputPropertyMap<BiomarkersVolumeAdapter>( property, formation, snapshot );
 }

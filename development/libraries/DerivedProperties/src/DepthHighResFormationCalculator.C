@@ -25,20 +25,21 @@
 #include "Snapshot.h"
 #include "Surface.h"
 #include "NumericFunctions.h"
+#include "PropertyRetriever.h"
 
 using namespace AbstractDerivedProperties;
 
-DerivedProperties::DepthHighResFormationCalculator::DepthHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle ) :
+DerivedProperties::DepthHighResFormationCalculator::DepthHighResFormationCalculator( const GeoPhysics::ProjectHandle& projectHandle ) :
    m_projectHandle( projectHandle ),
    m_isCoupledMode( false ),
-   m_isSubsampled( ! ((*(m_projectHandle->getLowResolutionOutputGrid())) == (*(m_projectHandle->getHighResolutionOutputGrid()))) ),
-   m_isNonGeometricLoopActive( m_projectHandle->getRunParameters()->getNonGeometricLoop() )
+   m_isSubsampled( (*(m_projectHandle.getLowResolutionOutputGrid())) != (*(m_projectHandle.getHighResolutionOutputGrid())) ),
+   m_isNonGeometricLoopActive( m_projectHandle.getRunParameters()->getNonGeometricLoop() )
 {
    try
    {
       addPropertyName( "DepthHighRes" );
 
-      const DataAccess::Interface::SimulationDetails * simulationDetails = m_projectHandle->getDetailsOfLastFastcauldron ();
+      const DataAccess::Interface::SimulationDetails * simulationDetails = m_projectHandle.getDetailsOfLastFastcauldron ();
 
       if( simulationDetails == 0 )
       {
@@ -198,7 +199,7 @@ void DerivedProperties::DepthHighResFormationCalculator::initializeTopSurface(  
          {
             for( unsigned int j = firstJ; j <= lastJ; ++j )
             {
-               propertyNodeValue = m_projectHandle->getNodeIsValid(i, j) ? m_projectHandle->getSeaBottomDepth(i, j, time) : DataAccess::Interface::DefaultUndefinedMapValue;
+               propertyNodeValue = m_projectHandle.getNodeIsValid(i, j) ? m_projectHandle.getSeaBottomDepth(i, j, time) : DataAccess::Interface::DefaultUndefinedMapValue;
                depthHighRes->set( i, j, topNodeIndex, propertyNodeValue );
             }
          }
@@ -210,6 +211,8 @@ void DerivedProperties::DepthHighResFormationCalculator::initializeTopSurface(  
          const FormationPropertyPtr depthHighResAbove = propertyManager.getFormationProperty( depthHighResProperty,
                                                                                               snapshot,
                                                                                               formationAbove );
+
+         PropertyRetriever depthHighResAboveRetriever ( depthHighResAbove );
          assert( depthHighResAbove != 0 );
 
          for( unsigned int i = firstI; i <= lastI; ++i )
@@ -235,24 +238,24 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForMantle( const
    {
       const double time = snapshot->getTime();
 
-      const bool isALC = m_projectHandle->isALC();
+      const bool isALC = m_projectHandle.isALC();
 
       double basementThickness = 0.0;
       double mantleThickness   = 0.0;;
       if( isALC )
       {
-         basementThickness = m_projectHandle->getMantleFormation()->getInitialLithosphericMantleThickness()
-                           + m_projectHandle->getCrustFormation()->getInitialCrustalThickness();
+         basementThickness = m_projectHandle.getMantleFormation()->getInitialLithosphericMantleThickness()
+                           + m_projectHandle.getCrustFormation()->getInitialCrustalThickness();
       }
       else
       {
-         mantleThickness   = m_projectHandle->getMantleFormation()->getPresentDayThickness();
+         mantleThickness   = m_projectHandle.getMantleFormation()->getPresentDayThickness();
       }
 
-      const GeoPhysics::GeoPhysicsCrustFormation * crust = dynamic_cast<const GeoPhysics::GeoPhysicsCrustFormation*>( m_projectHandle->getCrustFormation() );
+      const GeoPhysics::GeoPhysicsCrustFormation * crust = dynamic_cast<const GeoPhysics::GeoPhysicsCrustFormation*>( m_projectHandle.getCrustFormation() );
       assert( crust != 0 );
 
-      const GeoPhysics::GeoPhysicsMantleFormation * mantle = dynamic_cast<const GeoPhysics::GeoPhysicsMantleFormation*>( m_projectHandle->getMantleFormation() );
+      const GeoPhysics::GeoPhysicsMantleFormation * mantle = dynamic_cast<const GeoPhysics::GeoPhysicsMantleFormation*>( m_projectHandle.getMantleFormation() );
       assert( mantle != 0 );
 
       const bool includeGhostNodes = true;
@@ -267,9 +270,9 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForMantle( const
       {
          for( unsigned int j = firstJ; j <= lastJ; ++j )
          {
-            if( m_projectHandle->getNodeIsValid(i, j) )
+            if( m_projectHandle.getNodeIsValid(i, j) )
             {
-               const double currentCrustThickness = m_projectHandle->getCrustThickness( i, j, time );
+               const double currentCrustThickness = m_projectHandle.getCrustThickness( i, j, time );
                const double crustThinningRatio    = ( currentCrustThickness > 0.0 ) ? (crust->getCrustMaximumThickness(i,j)/currentCrustThickness) : -1.0;
 
                if( isALC )
@@ -281,7 +284,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForMantle( const
                }
                else
                {
-                  basementThickness = mantleThickness + m_projectHandle->getCrustThickness( i, j, 0.0 );
+                  basementThickness = mantleThickness + m_projectHandle.getCrustThickness( i, j, 0.0 );
                }
 
                const double currentMantleThickness  = basementThickness - currentCrustThickness;
@@ -336,7 +339,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForCoupledRunWit
       {
          for( unsigned int j = firstJ; j <= lastJ; ++j )
          {
-            if( m_projectHandle->getNodeIsValid(i, j) )
+            if( m_projectHandle.getNodeIsValid(i, j) )
             {
                depthHighResAboveValue = depthHighRes->get(i, j, lastK);
 
@@ -435,11 +438,14 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
          }
       }
 
+      PropertyRetriever maxVesHighResRetriever( maxVesHighRes );
+      PropertyRetriever vesHighResRetriever( vesHighRes );
+
       for( unsigned int i = firstI; i <= lastI; ++i )
       {
          for( unsigned int j = firstJ; j <= lastJ; ++j )
          {
-            if( m_projectHandle->getNodeIsValid(i, j) )
+            if( m_projectHandle.getNodeIsValid(i, j) )
             {
                depthHighResAboveValue = depthHighRes->get(i, j, lastK);
                const GeoPhysics::CompoundLithology * lithology = formation->getCompoundLithology(i, j);

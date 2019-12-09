@@ -34,14 +34,14 @@ namespace GeoPhysics {
       typedef CompoundLithologyMapping::const_iterator CompoundLithologyIterator;
 
 
-      LithologyManager ( ProjectHandle* projectHandle );
+      LithologyManager ( ProjectHandle& projectHandle );
       virtual ~LithologyManager ();
 
       /// Find a compound lithology based on the composition.
       /// If the composition does not exist then this will return null.
       CompoundLithology*  getCompoundLithology ( const CompoundLithologyComposition& composition );
 
-      /// Find, or create, a compound lithology made up of just the single simple 
+      /// Find, or create, a compound lithology made up of just the single simple
       /// lithology given by the simpleLithologyName.
       CompoundLithology*  getCompoundLithology ( const std::string& simpleLithologyName );
 
@@ -104,7 +104,7 @@ namespace GeoPhysics {
       SimpleLithoList          simpleLithologies;
       CompoundLithologyMapping compoundLithologies;
 
-      GeoPhysics::ProjectHandle* m_projectHandle;
+      GeoPhysics::ProjectHandle& m_projectHandle;
 
    };
 

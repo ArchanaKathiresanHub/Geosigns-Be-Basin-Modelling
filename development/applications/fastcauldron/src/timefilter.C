@@ -27,7 +27,7 @@ TimeFilter::TimeFilter(){
 
    for ( PLCount=0; PLCount<ENDPROPERTYLIST; ++PLCount) {
       PropertyOutputOption[PLCount] = NOOUTPUT;
-      m_string2PropertyName[PropertyName[PLCount]] = static_cast<PropertyList>(PLCount);
+      m_string2PropertyName[PropertyName[PLCount]] = static_cast<PropertyIdentifier>(PLCount);
    }
 
    if ( sizeof ( PropertyName ) / sizeof ( std::string ) != ENDPROPERTYLIST + 1 ) {
@@ -38,27 +38,27 @@ TimeFilter::TimeFilter(){
 }
 
 TimeFilter::~TimeFilter(){
-};
+}
 
-PropertyList& operator++(PropertyList& pl){
-  pl = PropertyList(int(pl) + 1);
+PropertyIdentifier& operator++(PropertyIdentifier& pl){
+  pl = PropertyIdentifier(int(pl) + 1);
   return pl;
-};
+}
 
-PropertyList operator++(PropertyList& pl, int i){
-  PropertyList Old = pl;
-  pl = PropertyList(int(pl) + 1);
+PropertyIdentifier operator++(PropertyIdentifier& pl, int i){
+  PropertyIdentifier Old = pl;
+  pl = PropertyIdentifier(int(pl) + 1);
   return Old;
 }
 
-PropertyList getPropertyList ( const std::string& name ) {
+PropertyIdentifier getPropertyList ( const std::string& name ) {
 
    int property;
 
    for ( property = 0; property != ENDPROPERTYLIST; ++property ) {
 
       if ( PropertyName [ property ] == name ) {
-         return static_cast<PropertyList>(property);
+         return static_cast<PropertyIdentifier>(property);
       }
 
    }
@@ -92,8 +92,8 @@ void TimeFilter::setFilter(const string & propertyName, const string & outputOpt
   No output or export for source rocks only is not sufficient
   */
   if ( (PLCount == DEPTH || PLCount == POROSITYVEC || PLCount == PERMEABILITYVEC ||
-	   PLCount == VES || PLCount == MAXVES || PLCount == TEMPERATURE ||
-	   PLCount == VR || PLCount == OVERPRESSURE || PLCount == PRESSURE ||
+     PLCount == VES || PLCount == MAXVES || PLCount == TEMPERATURE ||
+     PLCount == VR || PLCount == OVERPRESSURE || PLCount == PRESSURE ||
         PLCount == HYDROSTATICPRESSURE || PLCount == LITHOSTATICPRESSURE) && PropertyOutputOption[PLCount] < SEDIMENTSONLY )
   {
 
@@ -104,7 +104,6 @@ void TimeFilter::setFilter(const string & propertyName, const string & outputOpt
   }
 
   PropertyOutputOption [ PERMEABILITYHVEC ] = PropertyOutputOption [ PERMEABILITYVEC ];
-  PropertyOutputOption [ HORIZONTALPERMEABILITY ] = PropertyOutputOption [ PERMEABILITYHVEC ];
 
   PropertyOutputOption[HEAT_FLOWY] = PropertyOutputOption[HEAT_FLOW];
   PropertyOutputOption[HEAT_FLOWZ] = PropertyOutputOption[HEAT_FLOW];
@@ -117,7 +116,7 @@ void TimeFilter::setFilter(const string & propertyName, const string & outputOpt
   PropertyOutputOption[HOPANEISOMERISATION] = PropertyOutputOption[BIOMARKERS];
 
   PropertyOutputOption [ CHEMICAL_COMPACTION ] = NOOUTPUT;
-};
+}
 
 void TimeFilter::setFilter(const string& propertyName, const DataAccess::Interface::PropertyOutputOption outputOption) {
 
@@ -157,11 +156,11 @@ OutputOption TimeFilter::getOutputRange(const string & outputOption){
 }
 
 
-bool TimeFilter::propertyIsSelected ( const PropertyList propertyId ) const {
+bool TimeFilter::propertyIsSelected ( const PropertyIdentifier propertyId ) const {
   return PropertyOutputOption [ propertyId ] != NOOUTPUT;
 }
 
-const std::string& propertyListName ( const PropertyList property ) {
+const std::string& propertyListName ( const PropertyIdentifier property ) {
 
    if ( property >= 0 and property < ENDPROPERTYLIST ) {
       return PropertyName [ property ];
@@ -171,24 +170,14 @@ const std::string& propertyListName ( const PropertyList property ) {
 
 }
 
-OutputOption TimeFilter::getPropertyOutputOption ( const std::string& propertyName ) const {
-
-   if( getPropertylist( propertyName ) == ENDPROPERTYLIST ) {
-
-      if( propertyName == "BrineDensity" ) {
-         return PropertyOutputOption[ getPropertylist( "BrineProperties" ) ];
-      }
-
-      if( propertyName == "BrineViscosity" ) {
-         return PropertyOutputOption[ getPropertylist( "BrineProperties" ) ];
-      }
-   }
+OutputOption TimeFilter::getPropertyOutputOption ( const std::string& propertyName ) const
+{
    return PropertyOutputOption[ getPropertylist( propertyName ) ];
 }
 
-PropertyList TimeFilter::getPropertylist ( const std::string& propertyName ) const {
+PropertyIdentifier TimeFilter::getPropertylist ( const std::string& propertyName ) const {
 
-   std::map <std::string, PropertyList>::const_iterator propertyIter = m_string2PropertyName.find ( propertyName );
+   std::map <std::string, PropertyIdentifier>::const_iterator propertyIter = m_string2PropertyName.find ( propertyName );
 
    if ( propertyIter != m_string2PropertyName.end ()) {
       return propertyIter->second;

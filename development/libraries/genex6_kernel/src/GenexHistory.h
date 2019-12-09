@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #ifndef _GENEX6_KERNEL__GENEX_HISTORY_H_
 #define _GENEX6_KERNEL__GENEX_HISTORY_H_
 
@@ -29,16 +29,16 @@ namespace Genex6 {
    const std::string GenexSimulatorId = "GenexSimulator";
 
    enum SpeciesGroupId { Oil, HcGas, DryGas, WetGas, SbearingHCs, NumberOfGroups  };
-   
+
    const string SpeciesGroupsNames[NumberOfGroups] = { "Oil", "HcGas", "DryGas", "WetGas", "SbearingHCs" };
-   
+
    // Species to be outputed to the history file in this order:
    // asphaltene, resin, C15+Aro, C15+Sat, C6-14Aro, C6-14Sat, C5, C4, C3, C2, C1, COx, N2, LSC, C15+AroS, C15+SatS, C15+AT, C6-14AroS, C6-14SatS, C6-14BT, C6-14DBT, C6-14BP, H2S
    // To change ouput order - change the order here
-   const ComponentId SpeciesOutputId[ComponentId::NUMBER_OF_SPECIES] = 
+   const ComponentId SpeciesOutputId[ComponentId::NUMBER_OF_SPECIES] =
       { ComponentId::ASPHALTENE   , ComponentId::RESIN           , ComponentId::C15_PLUS_ARO     ,
         ComponentId::C15_PLUS_SAT , ComponentId::C6_MINUS_14ARO  , ComponentId::C6_MINUS_14SAT   ,
-        ComponentId::C5           , ComponentId::C4              , ComponentId::C3               , ComponentId::C2, 
+        ComponentId::C5           , ComponentId::C4              , ComponentId::C3               , ComponentId::C2,
         ComponentId::C1           , ComponentId::COX             , ComponentId::N2               ,
         ComponentId::LSC          , ComponentId::C15_PLUS_ARO_S  , ComponentId::C15_PLUS_SAT_S   ,
         ComponentId::C15_PLUS_AT  , ComponentId::C6_MINUS_14ARO_S, ComponentId::C6_MINUS_14SAT_S ,
@@ -48,7 +48,7 @@ namespace Genex6 {
 
     /// \brief Contains the components that are required to be saved at a time-step for a particular node.
    class GenexHistory : public Genex6::NodeAdsorptionHistory {
-      
+
       struct HistoryItem {
 
          HistoryItem ();
@@ -96,8 +96,8 @@ namespace Genex6 {
 
    public :
 
-      GenexHistory ( const SpeciesManager&                      speciesManager,
-                     DataAccess::Interface::ProjectHandle* projectHandle );
+      GenexHistory ( const SpeciesManager& speciesManager,
+                     DataAccess::Interface::ProjectHandle& projectHandle );
 
       ~GenexHistory ();
 
@@ -110,7 +110,7 @@ namespace Genex6 {
    private :
       int SpeciesOutputOrder[ComponentId::NUMBER_OF_SPECIES];
       HistoryItemList m_history;
-      
+
 
       void mapComponentManagerSpeciesIdToOutputOrder();
       void writeComponentsNames ( std::ostream& str );
@@ -119,8 +119,8 @@ namespace Genex6 {
     };
 
    /// \brief Allocator of a history object for the shale-gas simulator.
-   Genex6::NodeAdsorptionHistory* allocateGenexHistory ( const SpeciesManager&                      speciesManager,
-                                                         DataAccess::Interface::ProjectHandle* projectHandle );
+   Genex6::NodeAdsorptionHistory* allocateGenexHistory (const SpeciesManager& speciesManager,
+                                                        DataAccess::Interface::ProjectHandle& projectHandle );
 
 }
 

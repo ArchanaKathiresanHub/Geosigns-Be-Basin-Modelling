@@ -20,13 +20,13 @@
 
 namespace DerivedProperties {
 
- 
+
    /// \brief Calculates the pore pressure for a formation.
    class PressureFormationCalculator : public AbstractDerivedProperties::FormationPropertyCalculator {
 
    public :
 
-      PressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
+      PressureFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle );
 
       /// \brief Calculate the pore pressure for the formation at the snapshot age.
       ///
@@ -43,7 +43,7 @@ namespace DerivedProperties {
 
    private :
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      const GeoPhysics::ProjectHandle& m_projectHandle;
 
    };
 

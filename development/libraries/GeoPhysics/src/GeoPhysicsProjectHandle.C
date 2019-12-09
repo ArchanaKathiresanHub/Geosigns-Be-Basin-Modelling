@@ -66,12 +66,12 @@ using Utilities::Physics::AccelerationDueToGravity;
 using namespace DataAccess;
 using namespace CBMGenerics;
 
-GeoPhysics::ProjectHandle::ProjectHandle (database::ProjectFileHandlerPtr pfh, const std::string & name, const std::string & accessMode, const Interface::ObjectFactory* objectFactory ) :
-   DataAccess::Interface::ProjectHandle ( pfh, name, accessMode, objectFactory ) {
+GeoPhysics::ProjectHandle::ProjectHandle (database::ProjectFileHandlerPtr pfh, const std::string & name, const Interface::ObjectFactory* objectFactory ) :
+   DataAccess::Interface::ProjectHandle ( pfh, name, objectFactory ) {
 
-   m_lithologyManager = new LithologyManager ( this );
+   m_lithologyManager = new LithologyManager ( *this );
 
-   m_allochthonousLithologyManager = new AllochthonousLithologyManager ( this );
+   m_allochthonousLithologyManager = new AllochthonousLithologyManager ( *this );
 
    m_isALCMode = isALC();
 
@@ -123,7 +123,7 @@ GeoPhysics::ProjectHandle::~ProjectHandle () {
 //------------------------------------------------------------//
 
 void GeoPhysics::ProjectHandle::loadFracturePressureCalculator () {
-   m_fracturePressureCalculator = dynamic_cast<const GeoPhysics::ObjectFactory*>( getFactory ())->produceFracturePressureCalculator ( this );
+   m_fracturePressureCalculator = dynamic_cast<const GeoPhysics::ObjectFactory*>( getFactory ())->produceFracturePressureCalculator ( *this );
 }
 
 //------------------------------------------------------------//

@@ -2,7 +2,7 @@
 
 #include "FastcauldronSimulator.h"
 
-CauldronRunParameters::CauldronRunParameters ( Interface::ProjectHandle * projectHandle, database::Record * record) : Interface::RunParameters ( projectHandle, record ) {
+CauldronRunParameters::CauldronRunParameters (Interface::ProjectHandle& projectHandle, database::Record * record) : Interface::RunParameters ( projectHandle, record ) {
 }
 
 bool CauldronRunParameters::getChemicalCompaction () const {

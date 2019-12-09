@@ -40,9 +40,6 @@ namespace DerivedProperties {
 
       ~PrimaryFormationMapProperty();
 
-      /// \ brief Get the gridMap
-      const DataAccess::Interface::GridMap* getGridMap() const;
-
       /// \brief Get the value at the position.
       virtual double get ( unsigned int i,
                            unsigned int j ) const;
@@ -63,7 +60,6 @@ namespace DerivedProperties {
       bool isPrimary () const;
   private :
 
-      const DataAccess::Interface::PropertyValue* m_propertyValue;
       const DataAccess::Interface::GridMap* m_gridMap;
 
    };
@@ -76,11 +72,6 @@ inline bool DerivedProperties::PrimaryFormationMapProperty::isPrimary () const {
 
    return true;
 
-}
-
-inline const DataAccess::Interface::GridMap* DerivedProperties::PrimaryFormationMapProperty::getGridMap() const {
-
-   return m_gridMap;
 }
 
 #endif // DERIVED_PROPERTIES__PRIMARY_FORMATION_MAP_PROPERTY_H

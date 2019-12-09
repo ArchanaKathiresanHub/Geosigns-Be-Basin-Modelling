@@ -35,12 +35,15 @@ public:
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;
   void clear() override;
+  QString iterationDirName() const override;
+
 
   QVector<bool> activePlots() const;
   void setActivePlots(const QVector<bool>& activePlots);
 
 private:
   QString stateFileNameSAC_;
+  QString calibrationFolder_;
   LithofractionManager lithofractionManager_;
   WellTrajectoryManager wellTrajectoryManager_;
 

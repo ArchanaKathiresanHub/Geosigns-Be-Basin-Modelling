@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -32,7 +32,7 @@ namespace DataAccess
       {
     public:
        /// constructor
-       Formation (ProjectHandle * projectHandle, database::Record * record);
+       Formation (ProjectHandle& projectHandle, database::Record * record);
        /// destructor
        virtual ~Formation (void);
 
@@ -142,7 +142,7 @@ namespace DataAccess
        /// \brief Indicate whether or not the formation should be included in the Darcy sub-domain.
        virtual bool getIncludeInDarcy () const;
 
-       /// Return the Hc 
+       /// Return the Hc
        /// Return whether or not the formation has constrained overpressure.
        virtual bool hasConstrainedOverpressure () const;
 
@@ -188,7 +188,7 @@ namespace DataAccess
 
        virtual GridMap * loadMixingHIMap (void) const;
        virtual const GridMap * getMixingHIMap (void) const;
- 
+
        virtual GridMap * loadMixingHCMap (void) const;
        virtual const GridMap * getMixingHCMap (void) const;
 
@@ -196,10 +196,10 @@ namespace DataAccess
 
        /// return a string description of this class
        virtual void asString (string &) const;
-       
+
        /// return the Compound lithology array.
        virtual const DataModel::AbstractCompoundLithologyArray& getCompoundLithologyArray () const override;
-       
+
        /// return the maximum number of elements
        virtual unsigned int getMaximumNumberOfElements () const override;
 

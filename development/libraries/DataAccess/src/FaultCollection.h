@@ -24,12 +24,12 @@ namespace DataAccess
          typedef std::map < std::string, Fault * >NameFaultMapping;
 
          /// constructor
-         FaultCollection (ProjectHandle * projectHandle, const string & mapName);
+         FaultCollection (ProjectHandle& projectHandle, const string & mapName);
 
          /// destructor
          virtual ~FaultCollection (void);
 
-	 virtual const string & getName (void) const;
+   virtual const string & getName (void) const;
 
          void addFormation (const Formation * formation);
 
@@ -44,9 +44,9 @@ namespace DataAccess
                                     const string & faultLithology,
                                     const bool usedInOverpressure );
 
-	 Fault * findFault (const std::string & faultName) const;
+   Fault * findFault (const std::string & faultName) const;
 
-	 FaultList * getFaults (void) const;
+   FaultList * getFaults (void) const;
 
          virtual size_t size (void) const;
 

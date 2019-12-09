@@ -32,7 +32,7 @@ namespace GeoPhysics {
    public:
 
 
-      SimpleLithology(DataAccess::Interface::ProjectHandle* projectHandle,
+      SimpleLithology(DataAccess::Interface::ProjectHandle& projectHandle,
          database::Record*                     record);
 
       SimpleLithology ( const SimpleLithology& litho );
@@ -322,7 +322,7 @@ inline double GeoPhysics::SimpleLithology::getSeismicVelocity() const {
 }
 
 inline double GeoPhysics::SimpleLithology::getSeismicVelocityExponent() const {
-	return m_nExponentVelocity;
+  return m_nExponentVelocity;
 }
 
 inline bool GeoPhysics::SimpleLithology::isIncompressible() const {

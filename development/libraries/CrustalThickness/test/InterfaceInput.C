@@ -424,7 +424,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
       + ") differ from the number of rifting events (" + std::to_string( m_ctcRiftingDataVec.size() ) + ")" );
    EXPECT_EXCEPTION_EQ( interfaceInput1->loadInputData(), expectedException1 );
    m_snapshots = saveSnapshots;
- 
+
    //2.  Test that the interface throws an exception when there is no rifting event for the requested age
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when there is no rifting event for the requested age";
    const double age = 2500;
@@ -459,7 +459,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    std::invalid_argument exception5( "Basin_Error: An active rifting event is defined after a flexural event" );
    std::shared_ptr<InterfaceInput> interfaceInput5 = createInterfaceInput();
    EXPECT_EXCEPTION_EQ( interfaceInput5->loadInputData(), exception5 );
-   
+
    //6.  Test that the interface throws an exception when there are passive events after the flexural age (RULE_ID #14)
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when there are passive events after the flexural age";
    m_tectonicFalgs = { FLEXURAL_BASIN, PASSIVE_MARGIN, PASSIVE_MARGIN, FLEXURAL_BASIN, PASSIVE_MARGIN,

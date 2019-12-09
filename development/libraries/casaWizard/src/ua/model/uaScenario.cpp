@@ -9,6 +9,10 @@
 #include "model/logger.h"
 #include "model/output/runCaseSetFileManager.h"
 
+#include <QDateTime>
+#include <QDir>
+#include <QFileInfo>
+
 namespace casaWizard
 {
 
@@ -487,6 +491,30 @@ void UAScenario::clear()
   updateDoeConstantNumberOfDesignPoints(influentialParameterManager_.totalNumberOfInfluentialParameters());
 
   isStageComplete_.clear();
+}
+
+QString UAScenario::iterationDirName() const
+{
+  const QString iterationPath = workingDirectory() + "/" + runLocation();
+
+  const QDir dir(iterationPath);
+  QDateTime dateTime = QFileInfo(dir.path()).lastModified();
+
+  QString dirName{""};
+  for (const QString entry : dir.entryList())
+  {
+    if (entry.toStdString().find("Iteration_") == 0)
+    {
+      const QFileInfo info{dir.path() + "/" + entry};
+      if (info.lastModified() >= dateTime)
+      {
+        dateTime = info.lastModified();
+        dirName = entry;
+      }
+    }
+  }
+
+  return dirName;
 }
 
 const StageCompletionUA& UAScenario::isStageComplete() const

@@ -28,7 +28,7 @@ static bool copyFile (const string & inputFileName, const string & outputFileNam
 using namespace DataAccess;
 using namespace Interface;
 
-InputValue::InputValue (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record), m_index (0)
+InputValue::InputValue (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record), m_index (0)
 {
    m_eventAge = -1;
    m_propertyName = "";
@@ -132,270 +132,270 @@ bool InputValue::fillEventAttributes (void) const
 
    const string & tblName = getReferredBy (m_record);
 
-   Table * tbl = m_projectHandle->getTable (tblName);
+   Table * tbl = getProjectHandle().getTable (tblName);
    if (tbl)
    {
       if (tblName == "StratIoTbl")
       {
-	      Table::iterator tblIter;
-	      Record * record = 0;
+        Table::iterator tblIter;
+        Record * record = 0;
 
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getDepthGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "Depth";
-	            m_surfaceName = database::getSurfaceName (record);
-	            m_eventAge = getDepoAge (record);
-	            return true;
-	         }
-	         else if (getThicknessGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "Thickness";
-	            m_formationName = database::getLayerName (record);
-	            m_eventAge = getDepoAge (record);
-	            return true;
-	         }
-	         else if (getPercent1Grid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "litho1 %";
-	            m_formationName = database::getLayerName (record);
-	            m_eventAge = getDepoAge (record);
-	            return true;
-	         }
-	         else if (getPercent2Grid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "litho2 %";
-	            m_formationName = database::getLayerName (record);
-	            m_eventAge = getDepoAge (record);
-	            return true;
-	         }
-	      }
-      }
-      else if (tblName == "MobLayThicknIoTbl")
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getDepthGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "Depth";
+							m_surfaceName = database::getSurfaceName (record);
+							m_eventAge = getDepoAge (record);
+							return true;
+					 }
+					 else if (getThicknessGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "Thickness";
+							m_formationName = database::getLayerName (record);
+							m_eventAge = getDepoAge (record);
+							return true;
+					 }
+					 else if (getPercent1Grid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "litho1 %";
+							m_formationName = database::getLayerName (record);
+							m_eventAge = getDepoAge (record);
+							return true;
+					 }
+					 else if (getPercent2Grid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "litho2 %";
+							m_formationName = database::getLayerName (record);
+							m_eventAge = getDepoAge (record);
+							return true;
+					 }
+				}
+			}
+			else if (tblName == "MobLayThicknIoTbl")
+			{
+				Table::iterator tblIter;
+				Record * record = 0;
+
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getThicknessGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "ML Thickness";
+							m_formationName = database::getLayerName (record);
+							m_eventAge = getAge (record);
+							return true;
+					 }
+				}
+			}
+			else if (tblName == "CrustIoTbl")
+			{
+				Table::iterator tblIter;
+				Record * record = 0;
+
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getThicknessGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "Thickness";
+							m_formationName = "Crust";
+							m_eventAge = getAge (record);
+							return true;
+					 }
+				}
+			}
+			else if (tblName == "BoundaryValuesIoTbl")
+			{
+				Table::iterator tblIter;
+				Record * record = 0;
+
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getPropertyValueGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "BoundaryValue";
+							m_eventAge = getBeginTimeValues (record);
+							return true;
+					 }
+				}
+			}
+			else if (tblName == "SurfaceTempIoTbl")
+			{
+				Table::iterator tblIter;
+				Record * record = 0;
+
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getTemperatureGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "Temperature";
+							m_surfaceName = "Surface";
+							m_eventAge = getAge (record);
+							return true;
+					 }
+				}
+			}
+			else if (tblName == "SurfaceDepthIoTbl")
+			{
+				Table::iterator tblIter;
+				Record * record = 0;
+
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getDepthGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "Depth";
+							m_surfaceName = "Surface";
+							m_eventAge = getAge (record);
+							return true;
+					 }
+				}
+			}
+			else if (tblName == "MntlHeatFlowIoTbl")
+			{
+				Table::iterator tblIter;
+				Record * record = 0;
+
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getHeatFlowGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "HeatFlow";
+							m_formationName = "Mantle";
+							m_eventAge = getAge (record);
+							return true;
+					 }
+				}
+			}
+			else if (tblName == "BasementIoTbl")
+			{
+				Table::iterator tblIter;
+				Record * record = 0;
+
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getTopCrustHeatProdGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "Heat Flux";
+							m_surfaceName = "Top of Crust";
+							m_eventAge = 0;
+							return true;
+					 }
+				}
+			}
+			else if (tblName == "ReservoirIoTbl")
+			{
+				Table::iterator tblIter;
+				Record * record = nullptr;
+
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getNetToGrossGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "NetToGross";
+							m_reservoirName = database::getReservoirName (record);
+							m_eventAge = 0.0;
+							return true;
+					 }
+				}
+			}
+			else if (tblName == "PalinspasticIoTbl")
+			{
+				Table::iterator tblIter;
+				Record * record = 0;
+
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getDepthGrid (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "High Res. Depth";
+							m_surfaceName = database::getSurfaceName (record);
+							m_eventAge = 0;
+							return true;
+					 }
+					 else if (getFaultcutsMap (record) == database::getMapName (m_record))
+					 {
+							m_propertyName = "Fault Cuts";
+							m_surfaceName = database::getSurfaceName (record);
+							m_eventAge = 0;
+							return true;
+					 }
+				}
+			}
+			else if (tblName == "SourceRockLithoIoTbl")
+			{
+				Table::iterator tblIter;
+				Record * record = 0;
+
+				const string gridNames[] = {
+					 "TocIni", "S1Ini", "S2Ini", "S3Ini", "HcIni", "OcIni", "NcIni", "CharLength",
+					 "UpperBiot", "LowerBiot", "PreAsphaltStartAct", "PreAsphaltEndAct",
+					 "NettThickIni", "NGenexTimeSteps", "NGenexSlices", ""
+				};
+
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 int i;
+					 for (i = 0; gridNames[i] != ""; ++i)
+					 {
+							string fullGridName = gridNames[i] + "Grid";
+							if (record->getValue<std::string>(fullGridName) == database::getMapName (m_record))
+							{
+						m_propertyName = gridNames[i];
+						m_formationName = database::getLayerName (record);
+						m_eventAge = 0;
+						return true;
+							}
+					 }
+				}
+			}
+
+    else if (tblName == "TouchstoneMapIoTbl")
       {
-	      Table::iterator tblIter;
-	      Record * record = 0;
+        Table::iterator tblIter;
+        Record * record = 0;
 
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getThicknessGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "ML Thickness";
-	            m_formationName = database::getLayerName (record);
-	            m_eventAge = getAge (record);
-	            return true;
-	         }
-	      }
-      }
-      else if (tblName == "CrustIoTbl")
-      {
-	      Table::iterator tblIter;
-	      Record * record = 0;
-
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getThicknessGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "Thickness";
-	            m_formationName = "Crust";
-	            m_eventAge = getAge (record);
-	            return true;
-	         }
-	      }
-      }
-      else if (tblName == "BoundaryValuesIoTbl")
-      {
-	      Table::iterator tblIter;
-	      Record * record = 0;
-
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getPropertyValueGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "BoundaryValue";
-	            m_eventAge = getBeginTimeValues (record);
-	            return true;
-	         }
-	      }
-      }
-      else if (tblName == "SurfaceTempIoTbl")
-      {
-	      Table::iterator tblIter;
-	      Record * record = 0;
-
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getTemperatureGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "Temperature";
-	            m_surfaceName = "Surface";
-	            m_eventAge = getAge (record);
-	            return true;
-	         }
-	      }
-      }
-      else if (tblName == "SurfaceDepthIoTbl")
-      {
-	      Table::iterator tblIter;
-	      Record * record = 0;
-
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getDepthGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "Depth";
-	            m_surfaceName = "Surface";
-	            m_eventAge = getAge (record);
-	            return true;
-	         }
-	      }
-      }
-      else if (tblName == "MntlHeatFlowIoTbl")
-      {
-	      Table::iterator tblIter;
-	      Record * record = 0;
-
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getHeatFlowGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "HeatFlow";
-	            m_formationName = "Mantle";
-	            m_eventAge = getAge (record);
-	            return true;
-	         }
-	      }
-      }
-      else if (tblName == "BasementIoTbl")
-      {
-	      Table::iterator tblIter;
-	      Record * record = 0;
-
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getTopCrustHeatProdGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "Heat Flux";
-	            m_surfaceName = "Top of Crust";
-	            m_eventAge = 0;
-	            return true;
-	         }
-	      }
-      }
-      else if (tblName == "ReservoirIoTbl")
-      {
-	      Table::iterator tblIter;
-	      Record * record = nullptr;
-
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getNetToGrossGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "NetToGross";
-	            m_reservoirName = database::getReservoirName (record);
-	            m_eventAge = 0.0;
-	            return true;
-	         }
-	      }
-      }
-      else if (tblName == "PalinspasticIoTbl")
-      {
-	      Table::iterator tblIter;
-	      Record * record = 0;
-
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getDepthGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "High Res. Depth";
-	            m_surfaceName = database::getSurfaceName (record);
-	            m_eventAge = 0;
-	            return true;
-	         }
-	         else if (getFaultcutsMap (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "Fault Cuts";
-	            m_surfaceName = database::getSurfaceName (record);
-	            m_eventAge = 0;
-	            return true;
-	         }
-	      }
-      }
-      else if (tblName == "SourceRockLithoIoTbl")
-      {
-	      Table::iterator tblIter;
-	      Record * record = 0;
-
-	      const string gridNames[] = {
-	         "TocIni", "S1Ini", "S2Ini", "S3Ini", "HcIni", "OcIni", "NcIni", "CharLength", 
-	         "UpperBiot", "LowerBiot", "PreAsphaltStartAct", "PreAsphaltEndAct", 
-	         "NettThickIni", "NGenexTimeSteps", "NGenexSlices", ""
-	      };
-
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         int i;
-	         for (i = 0; gridNames[i] != ""; ++i)
-	         {
-	            string fullGridName = gridNames[i] + "Grid";
-	            if (record->getValue<std::string>(fullGridName) == database::getMapName (m_record))
-	            {
-	      	  m_propertyName = gridNames[i];
-	      	  m_formationName = database::getLayerName (record);
-	      	  m_eventAge = 0;
-	      	  return true;
-	            }
-	         }
-	      }
-      }
-      
-		else if (tblName == "TouchstoneMapIoTbl")
-      {
-	      Table::iterator tblIter;
-	      Record * record = 0;
-
-	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
-	      {
-	         record = * tblIter;
-	         if (getFaciesMap ( record ) == database::getMapName (m_record))
-	      	{
-	            m_propertyName = "FaciesIndex";
-	            m_formationName = database::getFormationName (record);   
-	            m_surfaceName = database::getSurfaceName (record);   
-	            return true;
-	      	}    
-	      }
-      }
-      else if (tblName == "TwoWayTimeIoTbl")
-      {
-         Table::iterator tblIter;
-         Record * record = 0;
-         for (tblIter = tbl->begin(); tblIter != tbl->end(); ++tblIter)
-         {
-            record = *tblIter;
-            if (getTwoWayTimeGrid( record ) == database::getMapName( m_record ))
-            {
-               m_propertyName = "Two way time";
-               m_formationName = database::getLayerName( record );
-               m_eventAge = getDepoAge( record );
-               return true;
-            }
-         }
-      }
-   }
-   return false;
+				for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+				{
+					 record = * tblIter;
+					 if (getFaciesMap ( record ) == database::getMapName (m_record))
+					{
+							m_propertyName = "FaciesIndex";
+							m_formationName = database::getFormationName (record);
+							m_surfaceName = database::getSurfaceName (record);
+							return true;
+					}
+				}
+			}
+			else if (tblName == "TwoWayTimeIoTbl")
+			{
+				 Table::iterator tblIter;
+				 Record * record = 0;
+				 for (tblIter = tbl->begin(); tblIter != tbl->end(); ++tblIter)
+				 {
+						record = *tblIter;
+						if (getTwoWayTimeGrid( record ) == database::getMapName( m_record ))
+						{
+							 m_propertyName = "Two way time";
+							 m_formationName = database::getLayerName( record );
+							 m_eventAge = getDepoAge( record );
+							 return true;
+						}
+				 }
+			}
+	 }
+	 return false;
 }
 
 unsigned int InputValue::applyIndex (unsigned int newIndex)
@@ -422,7 +422,7 @@ string InputValue::saveToDirectory (const string & directory)
    else
    {
       string command;
-      ibs::FilePath inputFileName( m_projectHandle->getProjectPath() );
+      ibs::FilePath inputFileName( getProjectHandle().getProjectPath() );
       inputFileName << getFileName();
       ibs::FilePath outputFileName( directory );
       outputFileName << getFileName();
@@ -445,10 +445,10 @@ int InputValue::getMapSequenceNumber () const {
 
 void InputValue::getHDFinfo(string& fileName, string& dataSetName) const
 {
-   assert(m_record);
+	 assert(m_record);
 	if (getMapType() == "HDF5")
 	{
-		ibs::FilePath mapFileName(m_projectHandle->getProjectPath());
+		ibs::FilePath mapFileName(getProjectHandle().getProjectPath());
 		mapFileName << getMapFileName(m_record);
 		fileName = mapFileName.path();
 		dataSetName = HDF5::findLayerName(mapFileName.path(), getMapSeqNbr(m_record));
@@ -465,7 +465,7 @@ GridMap * InputValue::loadGridMap (void) const
 	getHDFinfo(fileName, dataSetName);
 	if (fileName.empty()) return nullptr;
 
-	return m_projectHandle->loadGridMap(this, ValueMap, fileName, dataSetName);
+	return getProjectHandle().loadGridMap(this, ValueMap, fileName, dataSetName);
 }
 
 void InputValue::printOn (ostream & ostr) const

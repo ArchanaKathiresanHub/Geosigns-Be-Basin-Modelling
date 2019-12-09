@@ -3,7 +3,7 @@
 #include "utils.h"
 
 
-CauldronRelatedProject::CauldronRelatedProject ( DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record ) : DataAccess::Interface::RelatedProject ( projectHandle, record ) {
+CauldronRelatedProject::CauldronRelatedProject (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record ) : DataAccess::Interface::RelatedProject ( projectHandle, record ) {
 
    if ( getName ().find ( "*Point" ) != std::string::npos ) {
 

@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -25,7 +25,7 @@ namespace DataAccess
       class LithoType : public DAObject
       {
       public:
-         LithoType (ProjectHandle * projectHandle, database::Record * record);
+         LithoType (ProjectHandle& projectHandle, database::Record * record);
          virtual ~LithoType (void);
 
 
@@ -40,7 +40,7 @@ namespace DataAccess
 
 
          /// Return the hydraulic fracturing percentage.
-         /// 
+         ///
          /// Value is a percentage, so must be scaled by 0.01 when used.
          virtual double getHydraulicFracturingPercent () const;
 
@@ -140,12 +140,12 @@ namespace DataAccess
          /// Return the capillary entry pressure c2.
          virtual double getCapillaryEntryPressureC2 () const;
 
-	 //==Brooks-Corey capillary function parameters
-	 
+   //==Brooks-Corey capillary function parameters
+
          /// Return residual saturation.
          virtual double getExponentLambdaKr () const;
 
-	 /// Return the exponent lambda.
+   /// Return the exponent lambda.
          virtual double getExponentLambdaPc () const;
 
          /// Return the capillary entry pressure.
@@ -169,7 +169,7 @@ namespace DataAccess
          /// Return the pixmap.
          virtual const std::string& getPixmap () const;
 
-         
+
          /// Is the behaviour legacy (1) or new rock property feature (0)?
          virtual bool getLegacy() const;
 
@@ -181,6 +181,10 @@ namespace DataAccess
          virtual void printOn (ostream &) const;
 
          virtual void asString (string &) const;
+
+      protected:
+
+         LithoType ( const LithoType& litho );
 
       private:
 

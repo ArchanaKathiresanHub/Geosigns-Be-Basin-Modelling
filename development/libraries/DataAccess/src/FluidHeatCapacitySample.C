@@ -18,9 +18,9 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-FluidHeatCapacitySample::FluidHeatCapacitySample (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
+FluidHeatCapacitySample::FluidHeatCapacitySample (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
 {
-   m_fluid = projectHandle->findFluid ( database::getFluidtype ( m_record ));
+   m_fluid = projectHandle.findFluid ( database::getFluidtype ( m_record ));
 }
 
 
