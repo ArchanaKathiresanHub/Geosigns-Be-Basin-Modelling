@@ -76,10 +76,9 @@ namespace DataAccess
             AttributeValue & getAttributeValue (const string & attributeName, unsigned int indexOffset) const;
             AttributeType getAttributeType (const string & attributeName) const;
             int getAttributeIndex (const string & attributeName) const;
-
-         private:
             ProjectHandle& m_projectHandle;
 
+         private:
             /// @brief Load a the map (mapAttributeNames[attributeId]) from the record
             /// @details If the attribute is a value (so not a string linking to a not a map)
             ///          then returns a GridMap filled with that value

@@ -35,7 +35,7 @@ void Genex0dSourceRockProperty::setTocIni(const double TocIni)
   m_TocIni = TocIni;
 }
 
-double Genex0dSourceRockProperty::SCVRe05() const
+const double & Genex0dSourceRockProperty::SCVRe05() const
 {
   return m_SCVRe05;
 }
@@ -45,7 +45,7 @@ void Genex0dSourceRockProperty::setSCVRe05(const double SCVRe05)
   m_SCVRe05 = SCVRe05;
 }
 
-double Genex0dSourceRockProperty::activationEnergy() const
+const double & Genex0dSourceRockProperty::activationEnergy() const
 {
   return m_activationEnergy;
 }
@@ -55,7 +55,7 @@ void Genex0dSourceRockProperty::setActivationEnergy(const double activationEnerg
   m_activationEnergy = activationEnergy;
 }
 
-double Genex0dSourceRockProperty::HCVRe05() const
+const double & Genex0dSourceRockProperty::HCVRe05() const
 {
   return m_HCVRe05;
 }
@@ -65,12 +65,12 @@ void Genex0dSourceRockProperty::setHCVRe05(const double HCVRe05)
   m_HCVRe05 = HCVRe05;
 }
 
-double Genex0dSourceRockProperty::Vr() const
+const double & Genex0dSourceRockProperty::Vr() const
 {
   return m_Vr;
 }
 
-double Genex0dSourceRockProperty::AsphalteneDiffusionEnergy() const
+const double & Genex0dSourceRockProperty::AsphalteneDiffusionEnergy() const
 {
   return m_AsphalteneDiffusionEnergy;
 }
@@ -80,7 +80,7 @@ void Genex0dSourceRockProperty::setAsphalteneDiffusionEnergy(const double Asphal
   m_AsphalteneDiffusionEnergy = AsphalteneDiffusionEnergy;
 }
 
-double Genex0dSourceRockProperty::ResinDiffusionEnergy() const
+const double & Genex0dSourceRockProperty::ResinDiffusionEnergy() const
 {
   return m_ResinDiffusionEnergy;
 }
@@ -90,7 +90,7 @@ void Genex0dSourceRockProperty::setResinDiffusionEnergy(const double ResinDiffus
   m_ResinDiffusionEnergy = ResinDiffusionEnergy;
 }
 
-double Genex0dSourceRockProperty::C15AroDiffusionEnergy() const
+const double & Genex0dSourceRockProperty::C15AroDiffusionEnergy() const
 {
   return m_C15AroDiffusionEnergy;
 }
@@ -100,7 +100,7 @@ void Genex0dSourceRockProperty::setC15AroDiffusionEnergy(const double C15AroDiff
   m_C15AroDiffusionEnergy = C15AroDiffusionEnergy;
 }
 
-double Genex0dSourceRockProperty::C15SatDiffusionEnergy() const
+const double & Genex0dSourceRockProperty::C15SatDiffusionEnergy() const
 {
   return m_C15SatDiffusionEnergy;
 }
@@ -110,7 +110,7 @@ void Genex0dSourceRockProperty::setC15SatDiffusionEnergy(const double C15SatDiff
   m_C15SatDiffusionEnergy = C15SatDiffusionEnergy;
 }
 
-std::string Genex0dSourceRockProperty::typeNameID() const
+const std::string & Genex0dSourceRockProperty::typeNameID() const
 {
   return m_typeNameID;
 }

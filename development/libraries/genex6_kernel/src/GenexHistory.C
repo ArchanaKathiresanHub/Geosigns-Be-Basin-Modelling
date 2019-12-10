@@ -239,26 +239,20 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
    writeHeaderName( str, ComponentId::NUMBER_OF_SPECIES, "Species Expelled Cumulative" );
    writeHeaderName( str, NumberOfGroups, "Fraction Expelled Cumulative" );
 
-   str << setw ( 30 ) << "Kerogen Conversion Ratio";
-
-   str << setw ( 21 ) << "InstExpApi";
-   str << setw ( 21 ) << "CumExpApi";
-
-   str << setw ( 21 ) << "InstExpGOR";
-   str << setw ( 21 ) << "CumExpGOR";
-
-   str << setw ( 21 ) << "InstExpCGR";
-   str << setw ( 21 ) << "CumExpCGR";
-
-   str << setw ( 21 ) << "InstExpGasWetness";
-   str << setw ( 21 ) << "CumExpGasWetness";
-
-   str << setw ( 21 ) << "InstExpArom";
-   str << setw ( 21 ) << "CumExpArom";
-
-   str << setw ( 21 ) << "TOC";
-   str << setw ( 21 ) << "OoCtot";
-   str << setw ( 21 ) << "HoCtot";
+   str << setw ( 30 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << ""
+       << setw ( 21 ) << "";
 
    str << std::endl;
 
@@ -286,27 +280,30 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
    writeComponentsNames( str );
    writeGroupsNames( str );
 
-   //---------------------------------//
-   str << setw ( 30 ) << " ";
+   // --------------------------
 
-   str << setw ( 21 ) << " ";
-   str << setw ( 21 ) << " ";
+   str << setw ( 30 ) << "KerogenConversionRatio";
 
-   str << setw ( 21 ) << " ";
-   str << setw ( 21 ) << " ";
+   str << setw ( 21 ) << "InstExpApi";
+   str << setw ( 21 ) << "CumExpApi";
 
-   str << setw ( 21 ) << " ";
-   str << setw ( 21 ) << " ";
+   str << setw ( 21 ) << "InstExpGOR";
+   str << setw ( 21 ) << "CumExpGOR";
 
-   str << setw ( 21 ) << " ";
-   str << setw ( 21 ) << " ";
+   str << setw ( 21 ) << "InstExpCGR";
+   str << setw ( 21 ) << "CumExpCGR";
 
-   str << setw ( 21 ) << " ";
-   str << setw ( 21 ) << " ";
+   str << setw ( 21 ) << "InstExpGasWetness";
+   str << setw ( 21 ) << "CumExpGasWetness";
 
-   str << setw ( 21 ) << " ";
-   str << setw ( 21 ) << " ";
-   str << setw ( 21 ) << " ";
+   str << setw ( 21 ) << "InstExpArom";
+   str << setw ( 21 ) << "CumExpArom";
+
+   str << setw ( 21 ) << "TOC";
+   str << setw ( 21 ) << "OoCtot";
+   str << setw ( 21 ) << "HoCtot";
+
+   // --------------------------
 
    str << std::endl;
 
@@ -315,8 +312,8 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
    str << setw ( 21 ) << "Ma"
        << setw ( 21 ) << "C"
        << setw ( 21 ) << "-"
-       << setw ( 21 ) << "MPa"
-       << setw ( 21 ) << "MPa";
+       << setw ( 21 ) << "Pa"
+       << setw ( 21 ) << "Pa";
 
    //------- Generated Rate -------//
    for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES + NumberOfGroups; ++id ) {

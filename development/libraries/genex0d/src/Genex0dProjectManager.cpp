@@ -15,6 +15,17 @@
 #include "cmbAPI.h"
 #include "ErrorHandler.h"
 
+// DataAccess
+#include "ProjectHandle.h"
+#include "Snapshot.h"
+
+//Genex6
+#include "ConstantsGenex.h"
+
+#include <cmath>
+
+#include <iomanip>
+
 namespace genex0d
 {
 
@@ -25,16 +36,19 @@ const std::string s_dataMiningTblName = "DataMiningIoTbl";
 
 } // namespace
 
-Genex0dProjectManager::Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord,
-                                             const string & topSurfaceName):
+Genex0dProjectManager::Genex0dProjectManager(const DataAccess::Interface::ProjectHandle & projectHandle, const std::string & projectFileName, const double xCoord,
+                                             const double yCoord, const std::string & topSurfaceName, const std::string & formationName):
   m_projectFileName{projectFileName},
+  m_projectHandle{projectHandle},
   m_xCoord{xCoord},
   m_yCoord{yCoord},
-  m_topSurfaceName{topSurfaceName},
   m_mdl{nullptr},
   m_posData{0},
   m_posDataPrevious{0},
-  m_propertyName{""}
+  m_propertyName{""},
+  m_agesAll{},
+  m_topSurfaceName{topSurfaceName},
+  m_formationName{formationName}
 {
   reloadModel();
   clearTable();
@@ -61,10 +75,24 @@ void Genex0dProjectManager::clearTable()
   }
 }
 
-std::vector<double> Genex0dProjectManager::agesFromMajorSnapShots()
+void Genex0dProjectManager::computeAgesFromAllSnapShots(const double depositionTimeTopSurface)
 {
-  const mbapi::SnapshotManager & snMgr = m_mdl->snapshotManager();
-  return snMgr.agesFromMajorSnapshots();
+  DataAccess::Interface::SnapshotList * snapshots = m_projectHandle.getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR);
+  DataAccess::Interface::SnapshotList::reverse_iterator snapshotIter;
+
+  if (snapshots->size() < 1)
+  {
+    return;
+  }
+
+  for (snapshotIter = snapshots->rbegin(); snapshotIter != snapshots->rend() - 1; ++ snapshotIter)
+  {
+    if (depositionTimeTopSurface < (*snapshotIter)->getTime())
+    {
+      continue;
+    }
+    m_agesAll.push_back((*snapshotIter)->getTime());
+  }
 }
 
 void Genex0dProjectManager::getValues(std::vector<double> & values) const
@@ -94,7 +122,7 @@ void Genex0dProjectManager::saveModel()
 void Genex0dProjectManager::setInTable()
 {
   m_posDataPrevious = m_posData;
-  for (auto simTime : agesFromMajorSnapShots())
+  for (auto simTime : m_agesAll)
   {
     if (ErrorHandler::NoError != m_mdl->addRowToTable(s_dataMiningTblName) ||
         ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "Time", simTime) ||
@@ -105,13 +133,25 @@ void Genex0dProjectManager::setInTable()
         ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "PropertyName", m_propertyName) ||
         ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "Value",
                                                       Utilities::Numerical::IbsNoDataValue) ||
-        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "SurfaceName", m_topSurfaceName))
+        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "SurfaceName", m_topSurfaceName) ||
+        ErrorHandler::NoError != m_mdl->setTableValue(s_dataMiningTblName, m_posData, "FormationName", m_formationName)
+        )
     {
       throw ErrorHandler::Exception(m_mdl->errorCode()) << "Could not initialize data mining table! "
                                                         << "Error code: " << m_mdl->errorMessage();
     }
     ++m_posData;
   }
+}
+
+std::vector<double> Genex0dProjectManager::agesAll() const
+{
+  return m_agesAll;
+}
+
+void Genex0dProjectManager::setTopSurface(const std::string & topSurfaceName)
+{
+  m_topSurfaceName = topSurfaceName;
 }
 
 std::vector<double> Genex0dProjectManager::requestPropertyHistory(const std::string & propertyName)

@@ -14,6 +14,15 @@
 #include <string>
 #include <vector>
 
+namespace DataAccess
+{
+namespace Interface
+{
+class ProjectHandle;
+class ObjectFactory;
+} // namespace Interface
+} // namespace DataAccess
+
 namespace mbapi
 {
 class Model;
@@ -25,12 +34,15 @@ namespace genex0d
 class Genex0dProjectManager
 { 
 public:
-  explicit Genex0dProjectManager(const std::string & projectFileName, const double xCoord, const double yCoord,
-                                 const std::string & topSurfaceName);
+  explicit Genex0dProjectManager(const DataAccess::Interface::ProjectHandle & projectHandle, const std::string & projectFileName, const double xCoord,
+                                 const double yCoord, const std::string & topSurfaceName, const std::string & formationName);
   ~Genex0dProjectManager();
 
-  std::vector<double> agesFromMajorSnapShots();
   std::vector<double> requestPropertyHistory(const std::string & propertyName);
+
+  void computeAgesFromAllSnapShots(const double depositionTimeTopSurface);
+  void setTopSurface(const std::string & topSurfaceName);
+  std::vector<double> agesAll() const;
 
 private:
   void reloadModel();
@@ -41,13 +53,16 @@ private:
   void setInTable();
 
   const std::string m_projectFileName;
+  const DataAccess::Interface::ProjectHandle & m_projectHandle;
   const double m_xCoord;
   const double m_yCoord;
-  const std::string m_topSurfaceName;
   std::unique_ptr<mbapi::Model> m_mdl;
   int m_posData;
   double m_posDataPrevious;
   std::string m_propertyName;
+  std::vector<double> m_agesAll;
+  std::string m_topSurfaceName;
+  std::string m_formationName;
 };
 
 } // namespace genex0d

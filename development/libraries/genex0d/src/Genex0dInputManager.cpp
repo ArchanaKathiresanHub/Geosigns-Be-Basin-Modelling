@@ -95,6 +95,7 @@ const Genex0dInputData & Genex0dInputManager::inputData() const
 void Genex0dInputManager::setArgumentFieldNames()
 {
   m_argumntFields["-project"] = 0;
+  m_argumntFields["-out"] = 0;
   m_argumntFields["-formation"] = 0;
   m_argumntFields["-SRType"] = 0;
   m_argumntFields["-X"] = 0;
@@ -138,6 +139,10 @@ Genex0dInputManager::ExitStatus Genex0dInputManager::storeInput(std::string & io
     if (argvn == "-project")
     {
       m_inputData.projectFilename = argvnp1;
+    }
+    else if (argvn == "-out")
+    {
+      m_inputData.outProjectFilename = argvnp1;
     }
     else if (argvn == "-formation")
     {

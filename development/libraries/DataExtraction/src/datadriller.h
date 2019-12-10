@@ -28,6 +28,8 @@ class ObjectFactory;
 namespace DataExtraction
 {
 
+class HDFReadManager;
+
 class DataDriller : public DataExtractor
 {
 public:
@@ -48,8 +50,12 @@ private:
   double get2dPropertyFromHDF( const double i, const double j, const DataAccess::Interface::Surface* surface, const DataAccess::Interface::Formation* formation,
                                const DataAccess::Interface::Property* property, const DataAccess::Interface::Snapshot* snapshot, const unsigned int recordIndex );
 
-  double get3dPropertyFromHDF( const double i,  const double j, const double z,
-                               const DataAccess::Interface::Property* property, const DataAccess::Interface::Snapshot* snapshot, const unsigned int recordIndex );
+  void checkDataGroupInHDFFile(HDFReadManager& hdfReadManager, const std::string dataGroup, const unsigned int recordIndex, const std::string& snapshotFileName);
+  double get3dPropertyFromHDF(const double i,  const double j, const double z, const DataAccess::Interface::Property* property,
+                              const DataAccess::Interface::Snapshot* snapshot, const unsigned int recordIndex );
+
+  double get3dPropertyFromHDF(const double i,  const double j, const DataAccess::Interface::Formation* inFormation,
+                              const DataAccess::Interface::Property* property, const DataAccess::Interface::Snapshot* snapshot, const unsigned int recordIndex );
 
   double interpolate1d(const double u, const double l, const double k);
   double getKfraction(const double u, const double l, const double v);

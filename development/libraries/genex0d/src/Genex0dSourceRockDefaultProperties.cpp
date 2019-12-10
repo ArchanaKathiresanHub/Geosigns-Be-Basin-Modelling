@@ -74,31 +74,31 @@ void Genex0dSourceRockDefaultProperties::setPropertyMap(const std::string & sour
 void Genex0dSourceRockDefaultProperties::setPropertyMaps()
 {
   setPropertyMap("TypeI", {"Type_I_CenoMesozoic_Lacustrine_kin", "LacustrineAlgal", "Type I - Lacustrine"}, "Type_I_CenoMesozoic_Lacustrine_kin_s",
-                 10.0, 1.45, 0.0, 214000.0, 90.0, 83.0, 81.0, 72.0,
+                 10.0, 1.45, 0.0, 214000.0, 90000.0, 83000.0, 81000.0, 72000.0,
                  1.56, 0.02);
   
   setPropertyMap("TypeII", {"Type_II_Mesozoic_MarineShale_kin", "Type II - Mesozoic Marine", "MesozoicMarineShale"}, "Type_II_Mesozoic_MarineShale_kin_s",
-                 10.0, 1.25, 0.0, 210000.0, 88.0, 85.0, 80.0, 75.0,
+                 10.0, 1.25, 0.0, 210000.0, 88000.0, 85000.0, 80000.0, 75000.0,
                  1.24, 0.035);
 
   setPropertyMap("TypeI_II", {"Type_I_II_Mesozoic_MarineShale_lit", "Type I/II - Marine Shale"}, "Type_I_II_Mesozoic_MarineShale_lit_s",
-                 4.0, 1.35, 0.0, 211000.0, 90.0, 87.0, 80.0, 74.0,
+                 4.0, 1.35, 0.0, 211000.0, 90000.0, 87000.0, 80000.0, 74000.0,
                  1.35, 0.02);
   
   setPropertyMap("TypeIIS", {"Type_II_Mesozoic_Marl_kin", "Type II - Marine Marl", "MesozoicCalcareousShale"}, "Type_II_Mesozoic_Marl_kin_s",
-                 10.0, 1.25, 0.0, 211000.0, 88.0, 85.0, 74.0, 69.0,
+                 10.0, 1.25, 0.0, 211000.0, 88000.0, 85000.0, 74000.0, 69000.0,
                  1.24, 0.05);
   
   setPropertyMap("TypeIIHS", {"Type_II_Paleozoic_MarineShale_kin", "Type II - Paleozoic Marine", "PaleozoicMarineShale"}, "Type_II_Paleozoic_MarineShale_kin_s",
-                 10.0, 1.2, 0.0, 212000.0, 87.0, 80.0, 77.0, 71.0,
+                 10.0, 1.2, 0.0, 212000.0, 87000.0, 80000.0, 77000.0, 71000.0,
                  1.13, 0.045);
   
   setPropertyMap("TypeII_III", {"Type_III_II_Mesozoic_HumicCoal_lit", "Type II/III - Humic Coal"}, "Type_III_II_Mesozoic_HumicCoal_lit_s",
-                 20.0, 1.03, 0.0, 208000.0, 90.0, 87.0, 81.0, 76.0,
+                 20.0, 1.03, 0.0, 208000.0, 90000.0, 87000.0, 81000.0, 76000.0,
                  1.03, 0.02);
   
   setPropertyMap("TypeIII", {"Type_III_MesoPaleozoic_VitriniticCoal_kin", "Type III - Terrestrial Coal", "VitriniticCoals"}, "",
-                 10.0, 0.801, 0.0, 206000.0, 90.0, 87.0, 84.0, 81.0,
+                 10.0, 0.801, 0.0, 206000.0, 90000.0, 87000.0, 84000.0, 81000.0,
                  0.0, 0.0);
 }
 

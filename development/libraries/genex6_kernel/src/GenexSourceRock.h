@@ -90,7 +90,7 @@ public:
    bool isSulphur() const;
 
    ///  set second SR type, mixing parameter, check Sulphur
-   bool setFormationData ( const Interface::Formation * aFormation );
+   virtual bool setFormationData ( const Interface::Formation * aFormation );
    void setPropertyManager ( AbstractDerivedProperties::AbstractPropertyManager * aPropertyManager );
 
    /// Whether to perform adsorption
@@ -111,7 +111,7 @@ public:
    void clearOutputHistory ();
 
    /// Constructs the m_theSimulator, validates the chemical model
-   bool initialize ( const bool printInitialisationDetails = true );
+   virtual bool initialize ( const bool printInitialisationDetails = true );
 
    /// Initialises all source-rock nodes.
    void initialiseNodes ();
@@ -120,7 +120,7 @@ public:
    const SpeciesManager& getSpeciesManager () const;
 
    /// \brief Add history objects to the nodes.
-   bool addHistoryToNodes ();
+   virtual bool addHistoryToNodes ();
 
    /// \brief Save data for all items on the history list.
    void saveSourceRockNodeAdsorptionHistory ();
@@ -139,13 +139,13 @@ public:
 
 protected:
 
-   /// Construct the valid source rock node set, the valid snapshot intervals
-   bool preprocess ();
+   /// Construct the valid source rock node set, the valid snapshot intervals 
+   virtual bool preprocess ();
 
    /// Main processing functionality
-   bool process();
+   virtual bool process();
 
-   void computeSnapshotIntervals();
+   void computeSnapshotIntervals( const int snapshotType );
 
    void clearSnapshotIntervals();
    void clearSourceRockNodes();
@@ -165,8 +165,8 @@ protected:
                               const LocalGridInterpolator* permeability,
                               const LocalGridInterpolator* vre );
 
-   /// Compute the new state and the results at a snapshot for all the valid source rock nodes
-   bool computeSnapShot ( const double previousTime,
+   /// Compute the new state and the results at a snapshot for all the valid source rock nodes 
+   virtual bool computeSnapShot ( const double previousTime,
                           const Interface::Snapshot *theSnapshot );
 
    Interface::GridMap *createSnapshotResultPropertyValueMap(const std::string &propertyName,
@@ -229,37 +229,13 @@ protected:
 
    const Simulator& getSimulator () const;
 
-   /// The valid nodes of the source rock
-   std::vector<Genex6::SourceRockNode*> m_theNodes;
-
-private:
    Genex6::ChemicalModel * loadChemicalModel( const Interface::SourceRock * sr,
                                               const bool printInitialisationDetails = true );
 
    void setLayerName( const string & layerName );
 
-   Genex6::AdsorptionSimulator * getAdsorptionSimulator() const;
-
-   const Interface::Formation * m_formation;
-   std::string m_layerName;
-
-   ///The deposition time of the source rock
-   double m_depositionTime;
-
-   double m_runtime;
-   double m_time;
-
-   /// if Sulphur is included
-   bool m_isSulphur;
-
-   /// Apply SR mixing flag
-   bool m_applySRMixing;
-
-   /// Output results also at minor snapshots
-   bool m_minorOutput;
-
-   /// The snapshot intervals related to the source rock
-   std::vector <SnapshotInterval*> m_theIntervals;
+   /// The valid nodes of the source rock
+   std::vector<Genex6::SourceRockNode*> m_theNodes;
 
    /// The simulator associated with the source rock
    Genex6::Simulator *m_theSimulator;
@@ -274,12 +250,34 @@ private:
    /// The chemical model associated with the source rock2
    Genex6::ChemicalModel *m_theChemicalModel2;
 
-   /// \brief The simulator for adsorption processes.
-   Genex6::AdsorptionSimulator* m_adsorptionSimulator;
-   Genex6::AdsorptionSimulator* m_adsorptionSimulator2;
+   /// The snapshot intervals related to the source rock
+   std::vector <SnapshotInterval*> m_theIntervals;
+
+   ///The deposition time of the source rock
+   double m_depositionTime;
 
    /// \brief List of all adsorption-history objects.
    Genex6::SourceRockAdsorptionHistoryList m_sourceRockNodeAdsorptionHistory;
+
+   double m_runtime;
+   double m_time;
+   std::string m_layerName;
+   const Interface::Formation * m_formation;
+   /// if Sulphur is included
+   bool m_isSulphur;
+
+private: 
+   Genex6::AdsorptionSimulator * getAdsorptionSimulator() const;
+
+   /// Apply SR mixing flag
+   bool m_applySRMixing;
+
+   /// Output results also at minor snapshots
+   bool m_minorOutput;
+
+   /// \brief The simulator for adsorption processes.
+   Genex6::AdsorptionSimulator* m_adsorptionSimulator;
+   Genex6::AdsorptionSimulator* m_adsorptionSimulator2;
 
    AbstractDerivedProperties::AbstractPropertyManager * m_propertyManager;
 

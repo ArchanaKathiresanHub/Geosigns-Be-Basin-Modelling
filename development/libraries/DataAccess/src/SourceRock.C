@@ -150,7 +150,6 @@ const string & SourceRock::getAdsorptionSimulatorName (void) const
    return database::getWhichAdsorptionSimulator (m_record);
 }
 
-
 /// Return the (GridMap) value of one of this SourceRock's attributes
 const GridMap * SourceRock::getMap (SourceRockMapAttributeId attributeId) const
 {

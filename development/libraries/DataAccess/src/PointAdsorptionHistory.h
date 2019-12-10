@@ -40,7 +40,7 @@ namespace DataAccess {
          /// \brief Return a string representation of the object.
          virtual std::string image () const;
 
-      private :
+      protected :
 
          /// \brief The x-position.
          double m_x;
@@ -57,6 +57,8 @@ namespace DataAccess {
          /// \brief The mangled formation name.
          std::string m_mangledFormationName;
 
+      private:
+         void setFromRecord ( database::Record* record );
       };
 
    }

@@ -11,12 +11,11 @@
 #include "CommonDefinitions.h"
 #include "Genex0dFormationManager.h"
 #include "Genex0dInputData.h"
-#include "Genex0dProjectManager.h"
-#include "Genex0dSourceRock.h"
+#include "Genex0dSimulator.h"
+#include "Genex0dSimulatorFactory.h"
 
-#include "FilePath.h"
-
-#include "SourceRockNode.h"
+// cmbAPI
+#include "ErrorHandler.h"
 
 #include "LogHandler.h"
 
@@ -27,13 +26,9 @@ Genex0d::Genex0d(const Genex0dInputData & inputData) :
   m_inData{inputData},
   m_formationMgr{nullptr},
   m_projectMgr{nullptr},
-  m_sourceRock{nullptr}
+  m_gnx0dSimulatorFactory{nullptr},
+  m_gnx0dSimulator{nullptr}
 {
-  if (m_inData.projectFilename.empty())
-  {
-    throw Genex0dException() << "Fatal error, empty project file name!";
-  }
-
   LogHandler(LogHandler::INFO_SEVERITY) << "Running genex0d on " << m_inData.projectFilename;
 }
 
@@ -41,54 +36,55 @@ Genex0d::~Genex0d()
 {
 }
 
-void Genex0d::initialize()
+void Genex0d::loadSimulator()
 {
-  m_formationMgr.reset(new Genex0dFormationManager(m_inData.projectFilename, m_inData.formationName, m_inData.xCoord, m_inData.yCoord));
-  LogHandler(LogHandler::INFO_SEVERITY) <<  "The selected formation " << m_inData.formationName << " is "
-                                        << (m_formationMgr->isFormationSourceRock() ? "" : "not ") << "source rock";
-  m_projectMgr.reset(new Genex0dProjectManager(m_inData.projectFilename, m_inData.xCoord, m_inData.yCoord, m_formationMgr->getTopSurfaceName()));
-  m_sourceRock.reset(new Genex0dSourceRock(m_inData.sourceRockType));
+  m_gnx0dSimulatorFactory.reset(new Genex0dSimulatorFactory);
+  m_gnx0dSimulator.reset(Genex0dSimulator::CreateFrom(m_inData.projectFilename, m_gnx0dSimulatorFactory.get()));
+  if (m_gnx0dSimulator == nullptr)
+  {
+    throw Genex0dException() << "Genex0d simulator could not be loaded!";
+  }
 }
 
-void Genex0d::setSourceRockInput(const double inorganicDensity)
+void Genex0d::loadFormation()
 {
-  m_sourceRock->setToCIni(m_inData.ToCIni);
-  m_sourceRock->setHCVRe05(m_inData.HCVRe05);
-  m_sourceRock->setSCVRe05(m_inData.SCVRe05);
-  m_sourceRock->computeData(m_formationMgr->getThickness(), inorganicDensity,
-                            m_projectMgr->agesFromMajorSnapShots(),
-                            m_projectMgr->requestPropertyHistory("Temperature"),
-                            m_projectMgr->requestPropertyHistory("Pressure"));
+  m_formationMgr.reset(new Genex0dFormationManager(*m_gnx0dSimulator, m_inData.formationName, m_inData.xCoord, m_inData.yCoord));
+  LogHandler(LogHandler::INFO_SEVERITY) <<  "The selected formation " << m_inData.formationName << " is "
+                                         << (m_formationMgr->isFormationSourceRock() ? "" : "not ") << "source rock";
+}
+
+void Genex0d::loadProjectMgr()
+{
+  m_projectMgr.reset(new Genex0dProjectManager(*m_gnx0dSimulator, m_inData.projectFilename, m_inData.xCoord, m_inData.yCoord, m_formationMgr->topSurfaceName(), m_inData.formationName));
+  m_projectMgr->computeAgesFromAllSnapShots(m_formationMgr->depositionTimeTopSurface());
+}
+
+void Genex0d::initialize()
+{
+  loadSimulator();
+  loadFormation();
+  loadProjectMgr();
+
+  m_gnx0dSimulator->deletePropertyValues(DataAccess::Interface::RESERVOIR , 0, 0, 0, 0, 0,
+                                         DataAccess::Interface::MAP);
+
+  LogHandler(LogHandler::INFO_SEVERITY) << "Successfully initialized the genex0d simulator!";
 }
 
 void Genex0d::run()
 {
-  initialize();
+  LogHandler(LogHandler::INFO_SEVERITY) << "Runing genex0d ...";
 
-  char * env = getenv("CTCDIR");
-  ibs::FilePath ofp(env);
-  ofp << "History_Project_genex_Pot_MFSSR_Langhian_HI_1.dat";
-
-  std::string projFileName = m_inData.projectFilename;
-  std::string regex = ".project3d";
-  size_t pos = projFileName.find(regex);
-
-  std::string projName = "";
-  if (pos != std::string::npos)
+  if (!m_gnx0dSimulator->run(m_formationMgr->formation(), m_inData, m_formationMgr->indI(), m_formationMgr->indJ(),
+                             m_formationMgr->getThickness(), m_formationMgr->getInorganicDensity(),
+                             m_projectMgr->agesAll(),
+                             m_projectMgr->requestPropertyHistory("Temperature"),
+                             m_projectMgr->requestPropertyHistory("Ves")))
   {
-    projName = projFileName.erase(pos, regex.length());
+    throw Genex0dException() << "Genex0d simulator could not be initiated!";
   }
 
-  ibs::FilePath fp(".");
-  fp << projName + "_CauldronOutputDir";
-  fp << "History_Project_genex_Pot_MFSSR_Langhian_HI_1.dat";
-  ofp.copyFile(fp);
-}
-
-void Genex0d::printResults(const std::string & outputFileName) const
-{
-  const Genex6::SourceRockNode & srNode = m_sourceRock->getSourceRockNode();
-  srNode.PrintBenchmarkOutput(outputFileName, m_sourceRock->simulator());
+  LogHandler(LogHandler::INFO_SEVERITY) << "Finished running genex0d!";
 }
 
 } // namespace genex0d

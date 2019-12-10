@@ -23,8 +23,11 @@ struct Genex0dInputData
   double HCVRe05;
   double SCVRe05;
   std::string projectFilename;
+  std::string outProjectFilename;
   std::string formationName;
   std::string sourceRockType;
+  std::string nodeHistoryFileName;
+  std::string whichAdsorptionSimulator;
 
   Genex0dInputData(const double xCoord = 0,
                    const double yCoord = 0.0,
@@ -32,16 +35,22 @@ struct Genex0dInputData
                    const double HCVRe05 = 0.0,
                    const double SCVRe05 = 0.0,
                    const std::string & projectFilename = "",
+                   const std::string & outProjectFilename = "out.project3d",
                    const std::string & formationName = "",
-                   const std::string & sourceRockType = "") :
+                   const std::string & sourceRockType = "",
+                   const std::string & nodeHistoryFileName = "nodeHistory.dat",
+                   const std::string & whichAdsorptionSimulator = "") :
     xCoord{xCoord},
     yCoord{yCoord},
     ToCIni{ToCIni},
     HCVRe05{HCVRe05},
     SCVRe05{SCVRe05},
     projectFilename{projectFilename},
+    outProjectFilename{outProjectFilename},
     formationName{formationName},
-    sourceRockType{sourceRockType}
+    sourceRockType{sourceRockType},
+    nodeHistoryFileName{nodeHistoryFileName},
+    whichAdsorptionSimulator{whichAdsorptionSimulator}
   {
   }
 };

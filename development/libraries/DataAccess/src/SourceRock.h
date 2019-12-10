@@ -49,34 +49,34 @@ namespace DataAccess
 
       ///Return true if the maximum VES value is enabled
             virtual bool isVESMaxEnabled(void) const;
-      ///Return the value of the maximum admissible VES value
-      virtual const double & getVESMax(void) const;
+	    ///Return the value of the maximum admissible VES value
+	    virtual const double & getVESMax(void) const;
+         
+	    // shale gas related functions
+	    /// Whether to perform adsorption
+	    virtual bool doApplyAdsorption (void) const;
+	    /// Whether to use a TOC-dependent adsorption capacity function
+	    virtual bool adsorptionIsTOCDependent (void) const;
+	    /// Whether to (also) perform OTGC during adsorption
+	    virtual bool doComputeOTGC (void) const;
+	    /// get the name of the adsorption function
+	    virtual const string & getAdsorptionCapacityFunctionName (void) const;
+	    /// get the adsorption simulator
+	    virtual const string & getAdsorptionSimulatorName (void) const;
 
-			// shale gas related functions
-			/// Whether to perform adsorption
-			virtual bool doApplyAdsorption (void) const;
-			/// Whether to use a TOC-dependent adsorption capacity function
-			virtual bool adsorptionIsTOCDependent (void) const;
-			/// Whether to (also) perform OTGC during adsorption
-			virtual bool doComputeOTGC (void) const;
-			/// get the name of the adsorption function
-			virtual const string & getAdsorptionCapacityFunctionName (void) const;
-			/// get the adsorption simulator
-			virtual const string & getAdsorptionSimulatorName (void) const;
+	    /// Return the (GridMap) value of one of this SourceRock's attributes
+		virtual const GridMap * getMap (SourceRockMapAttributeId attributeId) const;
 
-			/// Return the (GridMap) value of one of this SourceRock's attributes
-			virtual const GridMap * getMap (SourceRockMapAttributeId attributeId) const;
+	    /// load a map
+		GridMap * loadMap (SourceRockMapAttributeId attributeId) const;
 
-			/// load a map
-			GridMap * loadMap (SourceRockMapAttributeId attributeId) const;
+	    /// Print the attributes of this SourceRock
+            // May not work if user application is compiled under IRIX with CC -lang:std
+        void printOn (ostream &) const;
 
       /// Print the attributes of this SourceRock
             // May not work if user application is compiled under IRIX with CC -lang:std
-      virtual void printOn (ostream &) const;
-
-      /// Print the attributes of this SourceRock
-            // May not work if user application is compiled under IRIX with CC -lang:std
-      virtual void asString (string &) const;
+        void asString (string &) const;
 
 	 private:
 			static const string s_MapAttributeNames[];

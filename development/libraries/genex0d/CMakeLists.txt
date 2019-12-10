@@ -24,6 +24,8 @@ create_bm_library( TARGET ${GENEX0D_LIB_NAME}
                    FileSystem
                    utilities
                    Serial_Hdf5
+                   GeoPhysics
+                   AbstractDerivedProperties
                    ${HDF5_LIBRARIES}
 )
 
@@ -42,27 +44,27 @@ endif(BM_USE_FLEXLM)
 
 set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 
-#copy_test_file(AcquiferScale1.project3d)
-#copy_test_file(Acquifer.HDF)
-#copy_test_file(AcquiferScale1_CauldronOutputDir/HydrostaticTemperature_Results.HDF)
+copy_test_file(AcquiferScale1.project3d)
+copy_test_file(Acquifer.HDF)
+copy_test_file(AcquiferScale1_CauldronOutputDir/HydrostaticTemperature_Results.HDF)
 
-#add_gtest( NAME "Genex0dInputManager"
-#    SOURCES src/Genex0dInputManager.cpp test/TestGenex0dInputManager.cpp
-#    LIBRARIES ${GENEX0D_LIB_NAME}
-#    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
-#)
+add_gtest( NAME "Genex0dInputManager"
+    SOURCES src/Genex0dInputManager.cpp test/TestGenex0dInputManager.cpp
+    LIBRARIES ${GENEX0D_LIB_NAME}
+    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
+)
 
-#add_gtest( NAME "Genex0dFormationManager"
-#    SOURCES src/Genex0dFormationManager.cpp test/TestGenex0dFormationManager.cpp
-#    LIBRARIES ${GENEX0D_LIB_NAME} DataAccess SerialDataAccess
-#    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
-#)
+add_gtest( NAME "Genex0dFormationManager"
+    SOURCES src/Genex0dFormationManager.cpp test/TestGenex0dFormationManager.cpp
+    LIBRARIES ${GENEX0D_LIB_NAME} DataAccess SerialDataAccess
+    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
+)
 
-#add_gtest( NAME "Genex0dProjectManager"
-#    SOURCES src/Genex0dProjectManager.cpp test/TestGenex0dProjectManager.cpp
-#    LIBRARIES ${GENEX0D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
-#    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
-#)
+add_gtest( NAME "Genex0dProjectManager"
+    SOURCES src/Genex0dProjectManager.cpp test/TestGenex0dProjectManager.cpp
+    LIBRARIES ${GENEX0D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
+    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
+)
 
 #add_gtest( NAME "Genex0dSourceRock"
 #    SOURCES src/Genex0dSourceRock.cpp test/TestGenex0dSourceRock.cpp
@@ -71,9 +73,3 @@ set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 #             CTCDIR=${CFGFLS} EOSPACKDIR=${CFGFLS}/eospack
 #    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 #)
-
-# Configure file
-configure_file( src/History_Project_genex_Pot_MFSSR_Langhian_HI_1.dat
-${PROJECT_BINARY_DIR}/misc/History_Project_genex_Pot_MFSSR_Langhian_HI_1.dat COPYONLY )
-
-
