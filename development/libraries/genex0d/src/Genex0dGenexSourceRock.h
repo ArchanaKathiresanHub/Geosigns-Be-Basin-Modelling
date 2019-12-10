@@ -45,7 +45,7 @@ class Genex0dPointAdsorptionHistory;
 class Genex0dGenexSourceRock : public Genex0dSourceRock
 {
 public:
-  explicit Genex0dGenexSourceRock(Interface::ProjectHandle & projectHandle,
+  explicit Genex0dGenexSourceRock(DataAccess::Interface::ProjectHandle & projectHandle,
                                   const Genex0dInputData & inData,
                                   const unsigned int indI,
                                   const unsigned int indJ);
@@ -57,11 +57,9 @@ public:
   const Genex6::SourceRockNode & getSourceRockNode() const;
   const Genex6::Simulator & simulator() const;
 
-  // --------------------
-
   bool initialize(const bool printInitialisationDetails = true) final;
   bool addHistoryToNodes() final;
-  bool setFormationData (const Interface::Formation * aFormation) final;
+  bool setFormationData (const DataAccess::Interface::Formation * aFormation) final;
 
 protected:
   bool preprocess() final;

@@ -101,7 +101,6 @@ void Genex0dGenexSourceRock::initializeComputations(const double thickness, cons
                                         m_srProperties.AsphalteneDiffusionEnergy(), m_srProperties.ResinDiffusionEnergy(),
                                         m_srProperties.C15AroDiffusionEnergy(), m_srProperties.C15SatDiffusionEnergy());
 
-
   if (!m_theSimulator->Validate())
   {
     throw Genex0dException() << "Validation of Genex simulator failed!";
@@ -114,9 +113,6 @@ void Genex0dGenexSourceRock::initializeComputations(const double thickness, cons
   {
     throw Genex0dException() << "Initialization of genex0d failed!";
   }
-
-  //  m_sourceRockNode->CreateInputPTHistory(time, temperature, pressure);
-  //  m_sourceRockNode->RequestComputation(*m_theSimulator);
 }
 
 const Genex6::SourceRockNode & Genex0dGenexSourceRock::getSourceRockNode() const
@@ -131,7 +127,7 @@ const Genex6::Simulator & Genex0dGenexSourceRock::simulator() const
 
 // --------------------------------------------------------------------------------
 
-bool Genex0dGenexSourceRock::setFormationData( const Interface::Formation * aFormation )
+bool Genex0dGenexSourceRock::setFormationData( const DataAccess::Interface::Formation * aFormation )
 {
    setLayerName( aFormation->getName() );
 

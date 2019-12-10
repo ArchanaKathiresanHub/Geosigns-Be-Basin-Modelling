@@ -26,10 +26,10 @@ Genex0dSourceRock::Genex0dSourceRock(Interface::ProjectHandle & projectHandle,
   m_sourceRockType{inData.sourceRockType},
   m_srProperties{},
   m_formationName{inData.formationName},
-  m_vreThreshold{0.5}, // TODO: check if this value can be obtained from input
-  m_vesMax{50}, // TODO: check if this value can be obtained from input
-  m_adsorptionCapacityFunctionName{""}, // TODO: check if this value can be obtained from input
-  m_adsorptionSimulatorName{inData.whichAdsorptionSimulator} // TODO: check if this value can be obtained from input
+  m_vreThreshold{0.5},
+  m_vesMax{50},
+  m_adsorptionCapacityFunctionName{""},
+  m_adsorptionSimulatorName{inData.whichAdsorptionSimulator}
 {
   m_srProperties = Genex0dSourceRockDefaultProperties::getInstance().getProperties(m_sourceRockType);
   setPropertiesFromInput(inData.ToCIni, inData.SCVRe05, inData.HCVRe05);
@@ -103,7 +103,7 @@ const double & Genex0dSourceRock::getVREthreshold(void) const
 
 const std::string & Genex0dSourceRock::getBaseSourceRockType (void) const
 {
-  return m_sourceRockType; // TODO: Check if it is different from SR type. If so can it be obtained from input?
+  return m_sourceRockType;
 }
 
 bool Genex0dSourceRock::isVESMaxEnabled(void) const
@@ -113,7 +113,7 @@ bool Genex0dSourceRock::isVESMaxEnabled(void) const
 
 const double & Genex0dSourceRock::getVESMax(void) const
 {
-  return m_vesMax; // TODO: See if it's necessary to be parsed from input
+  return m_vesMax;
 }
 
 bool Genex0dSourceRock::doApplyAdsorption(void) const
@@ -133,12 +133,12 @@ bool Genex0dSourceRock::doComputeOTGC(void) const
 
 const string & Genex0dSourceRock::getAdsorptionCapacityFunctionName(void) const
 {
-  return m_adsorptionCapacityFunctionName; // TODO: See if it's necessary to be parsed from input
+  return m_adsorptionCapacityFunctionName;
 }
 
 const string & Genex0dSourceRock::getAdsorptionSimulatorName(void) const
 {
-  return m_adsorptionSimulatorName; // TODO: See if it's necessary to be parsed from input
+  return m_adsorptionSimulatorName;
 }
 
 const DataAccess::Interface::GridMap * Genex0dSourceRock::getMap(DataAccess::Interface::SourceRockMapAttributeId attributeId) const
