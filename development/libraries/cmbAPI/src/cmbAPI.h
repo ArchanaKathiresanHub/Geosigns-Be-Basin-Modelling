@@ -55,11 +55,11 @@
 /// -# @subpage ErrorHandlerPage
 
 /// @page ErrorHandlerPage Error handling in CMB and CASA APIs
-/// Because of using Cauldron APIs in multi programming language environment, the error handling in the API is 
-/// implemented in the following way. 
+/// Because of using Cauldron APIs in multi programming language environment, the error handling in the API is
+/// implemented in the following way.
 ///
 /// Each object which supposed to be used by API user inherited
-/// from @link ErrorHandler ErrorHandler @endlink base class which allows to keep error message and error code. If during 
+/// from @link ErrorHandler ErrorHandler @endlink base class which allows to keep error message and error code. If during
 /// any API call error is happened, API object set up an error message inside itself and return an
 /// error code. User can analyze an error code and ask object for more detailed explanation by
 /// asking for error message. This C-like error handling allows to implement thread safe error
@@ -68,7 +68,7 @@
 
 /// @page CMB_API_Descr Cauldron Model Building API
 /// Cauldron Model Building (CMB) API provides a set of classes for creating and modifying of the Cauldron model
-/// in memory. It is built as a layer over DataAccess library. It allows to change and verify the cauldron data model 
+/// in memory. It is built as a layer over DataAccess library. It allows to change and verify the cauldron data model
 /// parameters.
 ///
 /// This manual is divided in the following sections:
@@ -98,7 +98,7 @@ namespace mbapi {
       /// @{
       /// Types definitions
       /// @}
- 
+
       /// @{
       /// Global constants definition
       static const char * s_ResultsFolderSuffix; ///< defines Cauldron results folder name suffix
@@ -135,7 +135,7 @@ namespace mbapi {
                                 , double relTol                                 ///< relative tolerance value to compare float point values
                                 );
 
-      /// @brief Copy matched given filter records from the given project to the current, all similar records in 
+      /// @brief Copy matched given filter records from the given project to the current, all similar records in
       ///        the currenct projects will be deleted and replaced
       /// @return empty string on success or error message
       std::string mergeProject( Model & mdl1                                               ///< the model to merge from
@@ -175,14 +175,14 @@ namespace mbapi {
       /// @param tableName name of the table in project file
       /// @param rowNumber row number in the table
       /// @param propName name of the column
-      /// @return requested value from the table or  UndefinedIntegerValue if any error happened 
+      /// @return requested value from the table or  UndefinedIntegerValue if any error happened
       long tableValueAsInteger( const std::string & tableName, size_t rowNumber, const std::string & propName );
 
       /// @brief Get value from the table
       /// @param tableName name of the table in project file
       /// @param rowNumber row number in the table
       /// @param propName name of the column
-      /// @return requested value from the table or  UndefinedDoubleValue if any error happened 
+      /// @return requested value from the table or  UndefinedDoubleValue if any error happened
       double tableValueAsDouble( const std::string & tableName, size_t rowNumber, const std::string & propName );
 
       /// @brief Get value from the table
@@ -273,11 +273,11 @@ namespace mbapi {
       /// @brief Get source rock manager. It keeps a list of source rocks in the model and allows to manipulate them
       /// @return reference to the source rock manager. It created/deleted by the model itself.
       SourceRockManager & sourceRockManager();
-     
+
       /// @brief Get snapshot manager. It provides access to the snapshot table in project file
       /// @return reference to snapshot manager
       SnapshotManager & snapshotManager();
- 
+
       /// @brief Get property manager. It provides access to the FilterTimeIoTable in project file
       /// @return reference to property manager
       PropertyManager & propertyManager();
@@ -289,35 +289,35 @@ namespace mbapi {
       /// @brief Get input maps manager. It provides access to the GridMapIoTbl in project file
       /// @return reference to maps manager
       ReservoirManager & reservoirManager();
-      /// @brief Get Biodegradation manager. It provides access to the BioDegradIoTbl in project file 
+      /// @brief Get Biodegradation manager. It provides access to the BioDegradIoTbl in project file
       /// @return reference to the Biodegradation manager. It created/deleted by the model itself.
       BiodegradeManager & biodegradeManager();
 
-	  /// @brief Get Bottom Boundary manager. It provides access to the BasementIoTbl in project file 
-	  /// @return reference to the Bottom Boundary manager. It created/deleted by the model itself.
-	  BottomBoundaryManager & bottomBoundaryManager();
+		/// @brief Get Bottom Boundary manager. It provides access to the BasementIoTbl in project file
+		/// @return reference to the Bottom Boundary manager. It created/deleted by the model itself.
+		BottomBoundaryManager & bottomBoundaryManager();
 
-	  /// @brief Get Top Boundary manager. It provides access to the SurfaceDepthIoTbl and SurfaceTempIoTbl in project file 
-	  /// @return reference to the Top Boundary manager. It created/deleted by the model itself.
-	  TopBoundaryManager & topBoundaryManager();
+		/// @brief Get Top Boundary manager. It provides access to the SurfaceDepthIoTbl and SurfaceTempIoTbl in project file
+		/// @return reference to the Top Boundary manager. It created/deleted by the model itself.
+		TopBoundaryManager & topBoundaryManager();
 
-	  /// @brief Get Run Options manager. It provides access to the RunOptionsIoTbl and SurfaceTempIoTbl in project file 
-	  /// @return reference to the Top Boundary manager. It created/deleted by the model itself.
-	  RunOptionsManager & runOptionsManager();
+		/// @brief Get Run Options manager. It provides access to the RunOptionsIoTbl and SurfaceTempIoTbl in project file
+		/// @return reference to the Top Boundary manager. It created/deleted by the model itself.
+		RunOptionsManager & runOptionsManager();
 
-     /// @brief Get CTC manager. It provides access to the CTCIoTbl in project file 
+     /// @brief Get CTC manager. It provides access to the CTCIoTbl in project file
      /// @return reference to the CTC manager. It created/deleted by the model itself.
      CtcManager & ctcManager();
 
-     /// @brief Get Fracture Pressure manager. It provides access to the RunOptionsIoTbl/PressureFuncIoTbl in project file 
+     /// @brief Get Fracture Pressure manager. It provides access to the RunOptionsIoTbl/PressureFuncIoTbl in project file
      /// @return reference to the Fracture Pressure manager. It created/deleted by the model itself.
      FracturePressureManager & fracturePressureManager();
 
-     /// @brief Get Project Data manager. It provides access to the ProjectIoTbl in project file 
+     /// @brief Get Project Data manager. It provides access to the ProjectIoTbl in project file
      /// @return reference to the Project Data manager. It created/deleted by the model itself.
      ProjectDataManager& projectDataManager();
 
-	 /// @brief Get fault cut manager. It provides access to the PressureFaultcutIoTbl in project file 
+	 /// @brief Get fault cut manager. It provides access to the PressureFaultcutIoTbl in project file
 	 /// @return reference to the fault cut manager. It created/deleted by the model itself.
 	 FaultCutManager& faultcutManager();
 
@@ -359,7 +359,7 @@ namespace mbapi {
       /// @param[out] maxWinJ window end   postion in J direction
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode window( long & minWinI, long & maxWinI, long & minWinJ, long & maxWinJ );
- 
+
       /// @brief Get observable origin of model window
       /// @param[in,out] x coordinate in I direction
       /// @param[in,out] y coordinate in J direction
@@ -373,7 +373,7 @@ namespace mbapi {
       /// @param maxWinJ window end   postion in J direction
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode setWindow( long minWinI, long maxWinI, long minWinJ, long maxWinJ );
-      
+
       /// @brief Get basin model areal dimenstions
       /// @param[out] dimX length [m] of the model along X axis
       /// @param[out] dimY length [m] of the model along Y axis
@@ -396,7 +396,7 @@ namespace mbapi {
 
       /// @brief Transform lithofractions, set up interpolation points at the edge of the domain and interpolate
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      ReturnCode interpolateLithoFractions( const std::vector<double> & xin    ///< [in]  x coordinates of the wells 
+      ReturnCode interpolateLithoFractions( const std::vector<double> & xin    ///< [in]  x coordinates of the wells
                                           , const std::vector<double> & yin    ///< [in]  y coordinates of the wells
                                           , const std::vector<double> & lf1    ///< [in]  first litofraction
                                           , const std::vector<double> & lf2    ///< [in]  second litofraction
@@ -407,10 +407,18 @@ namespace mbapi {
                                           , std::vector<double>       & r13Int ///< [out] interpolated values
                                           );
 
+      /// @ brief Smoothen a vector representing the values on a 2d grid
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode smoothenVector( std::vector<double>& vec      ///< [in/out] vector to be smoothened
+                               , const int method              ///< [in] smoothing method
+                               , const double smoothingRadius  ///< [in] smoothing radius [m]
+                               , const int nrOfThreads         ///< [in] number of threads
+                               );
+
       /// @brief Correct and back-transform rp and r13 to real lithofraction values
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode backTransformLithoFractions( const std::vector<double> & rpInt      ///< [in]  interpolated values
-                                            , const std::vector<double> & r13Int     ///< [in]  interpolated values 
+                                            , const std::vector<double> & r13Int     ///< [in]  interpolated values
                                             , std::vector<double>       & lf1CorrInt ///< [out] corrected interpolated first lithofraction
                                             , std::vector<double>       & lf2CorrInt ///< [out] corrected interpolated second lithofraction
                                             , std::vector<double>       & lf3CorrInt ///< [out] corrected interpolated third lithofraction
@@ -443,7 +451,7 @@ namespace mbapi {
       /// Implementation part
       /// @brief Class which hides all interface implementation
       class ModelImpl;
-      
+
       std::unique_ptr<ModelImpl> m_pimpl; ///< The actual object which will do all the job
 
       /// @brief Copy constructor is disabled, use the copy operator instead

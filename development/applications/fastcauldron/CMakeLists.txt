@@ -86,6 +86,7 @@ set( all_headers,
      src/LinearPropertyInterpolator.h
      src/Lithology.h
      src/LithologyIdCalculator.h
+     src/LithologyManager.h
      src/LithologyVolumeCalculator.h
      src/CauldronMantleFormation.h
      src/MapElement.h

@@ -56,6 +56,7 @@ namespace casa
                                                    , const std::vector<double>             & xin
                                                    , const std::vector<double>             & yin
                                                    , const std::vector<SharedParameterPtr> & prmVec
+                                                   , const SmoothingParams                 & smoothingParams
                                                    ) const;
 
       /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters

@@ -68,13 +68,21 @@ namespace mbapi
       MapID copyMap(MapID id, const std::string& newMapName, const std::string& newMapFile = "") final;
 
       // Save input map to the new HDF file. File with the given name should not exist before.
-      ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string & fileName, size_t mapSequenceNbr ) final;
+      ErrorHandler::ReturnCode saveMapToHDF(MapID id, const std::string & fileName) final;
 
       // Get min/max map values range
       ErrorHandler::ReturnCode mapValuesRange( MapID id, double & minV, double & maxV ) final;
 
       // Linearly rescale input map to the new value range
       ErrorHandler::ReturnCode scaleMap( MapID id, double coeff ) final;
+
+      // Smoothen grid map
+      ErrorHandler::ReturnCode smoothenGridMap( MapID id, const int method, const double smoothingRadius, const unsigned int nrOfThreads ) final;
+
+      // Smoothen vectorized map
+      ErrorHandler::ReturnCode smoothenVectorizedMap( std::vector<double>& vec, const int method, const unsigned int numI, const unsigned int numJ,
+                                                      const double dx, const double dy, const double smoothingRadius,
+                                                      const double undefinedValue, const unsigned int nrOfThreads ) const;
 
       // Scale and shift the input map and correct for well locations
       ErrorHandler::ReturnCode scaleAndShiftMapCorrectedForWells( MapID id, double scale, double shift, double radiusOfInfluence,
@@ -156,6 +164,7 @@ namespace mbapi
 
       std::vector<DataAccess::Interface::GridMap *>     m_mapObj;
       std::map<std::string, std::vector<std::string>>   m_fileMaps;     // for each HDF file, the vector of maps names
+      std::map<std::string, size_t>                     m_seqNrMap;     // for each map, the map sequence number
 
       std::set<std::string>                             m_mapsFileList; // unique list of files with project maps
 

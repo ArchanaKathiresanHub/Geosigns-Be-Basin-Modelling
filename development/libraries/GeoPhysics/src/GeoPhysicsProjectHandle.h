@@ -25,16 +25,6 @@
 #include "Local2DArray.h"
 #include "ProjectHandle.h"
 
-namespace DataAccess {
-   namespace Interface {
-      class CrustFormation;
-      class Formation;
-      class GridMap;
-      class MantleFormation;
-      class ProjectHandle;
-   }
-}
-
 namespace GeoPhysics {
    class AllochthonousLithologyManager;
    class ConfigFileParameterAlc;

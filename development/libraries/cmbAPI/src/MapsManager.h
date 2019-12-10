@@ -67,9 +67,8 @@ namespace mbapi
       /// @brief Save input map to the new HDF file. File with the given name should not exist before.
       /// @param id map ID
       /// @param filePathName unique file name
-      /// @param mapSequenceNbr the map sequence number in the project3d
       /// @return ErrorHandler::NoError on succes, or error code otherwise
-      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName, size_t mapSequenceNbr ) = 0;
+      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName ) = 0;
 
       /// @brief Get min/max map values range
       /// @param[in] id map ID
@@ -83,6 +82,14 @@ namespace mbapi
       /// @param[in] coeff map scaler
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff ) = 0;
+
+      /// @brief Smoothen input map
+      /// @param[in] id map ID
+      /// @param[in] method Filtering method
+      /// @param[in] smoothingRadius half the mask size
+      /// @param[in] nrOfThreads Number of threads used for smoothing
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode smoothenGridMap( MapID id, const int method, const double smoothingRadius, const unsigned int nrOfThreads ) = 0;
 
       /// @brief // Scale and shift the input map and correct for well locations
       /// @param[in] id map ID

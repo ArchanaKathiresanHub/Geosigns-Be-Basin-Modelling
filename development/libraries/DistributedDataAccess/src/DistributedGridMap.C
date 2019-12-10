@@ -22,7 +22,6 @@
 
 #include "DistributedGrid.h"
 
-
 #include "array.h"
 
 using namespace DataAccess;
@@ -112,8 +111,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
 /// Create a GridMap from the two given GridMap objects after elementwise processing by the specified operator function.
 DistributedGridMap::DistributedGridMap( const Parent * owner,
                                         const unsigned int childIndex,
-                                        const GridMap * operand1, 
-                                        const GridMap * operand2, 
+                                        const GridMap * operand1,
+                                        const GridMap * operand2,
                                         BinaryOperator binaryOperator ):
       GridMap (owner, childIndex),
       m_grid ((DistributedGrid *) operand1->getGrid ()),
@@ -196,10 +195,10 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
                                         const unsigned int childIndex,
                                         const GridMap * operand1,
                                         const GridMap * operand2,
-                                        BinaryFunctor& binaryFunctor ) : 
+                                        BinaryFunctor& binaryFunctor ) :
    GridMap (owner, childIndex),
    m_grid ((DistributedGrid *) operand1->getGrid ()),
-   m_undefinedValue (operand1->getUndefinedValue ()), 
+   m_undefinedValue (operand1->getUndefinedValue ()),
    m_averageValue (m_undefinedValue),
    m_depth (operand1->getDepth ()),
    m_retrieved (false),
@@ -459,7 +458,7 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
 {
    if (!m_retrieved)
       return false;
-   
+
    if( save && m_withGhosts && withGhosts )
    {
       // If all the followings hold
@@ -489,7 +488,7 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
       DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values[0]);
       Array < double **>::delete1d (m_values);
    }
-   
+
    if (save && m_modified)
    {
       if (m_withGhosts)
@@ -760,7 +759,7 @@ double DistributedGridMap::getValue (double i, double j, double k) const
    if (fractionI > 0 && fractionJ > 0 && fractionK > 0 &&
          !valueIsDefined (baseI + 1, baseJ + 1, baseK + 1)) return m_undefinedValue;
 
-   double value = 
+   double value =
       getFractionalValue (fractionI         * fractionJ         * fractionK,         baseI + 1, baseJ + 1, baseK + 1) +
       getFractionalValue (fractionI         * fractionJ         * (1.0 - fractionK), baseI + 1, baseJ + 1, baseK    ) +
       getFractionalValue (fractionI         * (1.0 - fractionJ) * fractionK,         baseI + 1, baseJ,     baseK + 1) +
@@ -826,8 +825,8 @@ double DistributedGridMap::getAverageValue () const
 /// return the minimum & maximum value calculated over all GridPoints with a defined value
 void DistributedGridMap::getMinMaxValue (double & min, double & max) const
 {
-   double minLocal = std::numeric_limits< double >::max(); 
-   double maxLocal = -std::numeric_limits< double >::max(); 
+   double minLocal = std::numeric_limits< double >::max();
+   double maxLocal = -std::numeric_limits< double >::max();
 
    double minGlobal;
    double maxGlobal;
@@ -1042,7 +1041,7 @@ void DistributedGridMap::printOn (MPI_Comm comm) const
    unsigned int i, j, k;
 
    const Grid *grid = (Grid *) getGrid ();
-   
+
    const unsigned int iFirst = firstI();
    const unsigned int jFirst = firstJ();
    const unsigned int iLast  = lastI();
@@ -1092,7 +1091,7 @@ bool DistributedGridMap::convertToGridMap(GridMap *mapB) const
 
    const Grid *GridA = (Grid *) this->getGrid();
    const Grid *GridB = (Grid *) mapB->getGrid();
-   
+
    if( GridA->numI() >= GridB->numI()  && GridA->numJ() >= GridB->numJ() )
    {
       ret = transformHighRes2LowRes(mapB);
@@ -1105,13 +1104,11 @@ bool DistributedGridMap::convertToGridMap(GridMap *mapB) const
    return ret;
 }
 
-bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const 
+bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
 {
    const GridMap *mapA = this;
-   const Grid *GridB = (Grid *) mapB->getGrid ();
 
-   bool useGhostNodes = true;
-   bool ret = true;
+   const Grid *GridB = (Grid *) mapB->getGrid ();
 
    unsigned int indexImapA, indexJmapA;
    unsigned int indexImapB, indexJmapB;
@@ -1120,13 +1117,13 @@ bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
 
    indexImapA = indexJmapA = indexImapB = indexJmapB = 0;
 
-   mapA->retrieveData (useGhostNodes);
+   mapA->retrieveGhostedData();
    mapB->retrieveData ();
 
    unsigned int depthA = mapA->getDepth ();
 
    const Grid *highResGridA = (Grid *) mapA->getGrid();
-   
+
    for (indexImapB = mapB->firstI (); indexImapB <= mapB->lastI (); ++indexImapB)
    {
       for (indexJmapB = mapB->firstJ (); indexJmapB <= mapB->lastJ (); ++indexJmapB)
@@ -1148,10 +1145,10 @@ bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
       }
    }
 
-   mapA->restoreData (true, true);
+   mapA->restoreData (false, true);
    mapB->restoreData ();
 
-   return ret;
+   return true;
 }
 
 bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB, bool extrapolateAOI) const
@@ -1230,22 +1227,22 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB, bool extrapolate
                                     (int) (lowResMapValues[1][0] != mapA->getUndefinedValue ()) +
                                     (int) (lowResMapValues[1][1] != mapA->getUndefinedValue ());
                   if( cornerPoints==3){
-                      // top-right missing 
+                      // top-right missing
                       if(lowResMapValues[1][1] == mapA->getUndefinedValue()){
                          //set the top-right
                          lowResMapValues[1][1]=(lowResMapValues[1][0]+lowResMapValues[0][1])*0.5;
                       }
-                      // top-left missing 
+                      // top-left missing
                       if(lowResMapValues[0][1] == mapA->getUndefinedValue()){
                          //set the topleft
                          lowResMapValues[0][1]=(lowResMapValues[0][0]+lowResMapValues[1][1])*0.5;
                       }
-                      // bottom-right missing 
+                      // bottom-right missing
                       if(lowResMapValues[1][0] == mapA->getUndefinedValue()){
                          //set the bottom-right
                          lowResMapValues[1][0]=(lowResMapValues[0][0]+lowResMapValues[1][1])*0.5;
                       }
-                      // bottom-left missing 
+                      // bottom-left missing
                       if(lowResMapValues[0][0] == mapA->getUndefinedValue()){
                          //set the bottom-left
                          lowResMapValues[0][0]=(lowResMapValues[1][0]+lowResMapValues[0][1])*0.5;
@@ -1261,19 +1258,19 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB, bool extrapolate
                      //
                      // bottom
                      if(lowResMapValues[0][0] != mapA->getUndefinedValue () && lowResMapValues[1][0] != mapA->getUndefinedValue () ){
-                         highResMapValue=(lowResMapValues[0][0]*(1-fractionI)) + (lowResMapValues[1][0] * fractionI); 
+                         highResMapValue=(lowResMapValues[0][0]*(1-fractionI)) + (lowResMapValues[1][0] * fractionI);
                      }
                      // top
                      if(lowResMapValues[0][1] != mapA->getUndefinedValue () && lowResMapValues[1][1] != mapA->getUndefinedValue () ){
-                         highResMapValue=(lowResMapValues[0][1]*(1-fractionI)) + (lowResMapValues[1][1] * fractionI); 
+                         highResMapValue=(lowResMapValues[0][1]*(1-fractionI)) + (lowResMapValues[1][1] * fractionI);
                      }
                      // left
                      if(lowResMapValues[0][0] != mapA->getUndefinedValue () && lowResMapValues[0][1] != mapA->getUndefinedValue () ){
-                         highResMapValue=(lowResMapValues[0][0]*(1-fractionJ)) + (lowResMapValues[0][1] * fractionJ); 
+                         highResMapValue=(lowResMapValues[0][0]*(1-fractionJ)) + (lowResMapValues[0][1] * fractionJ);
                      }
                      // right
                      if(lowResMapValues[1][0] != mapA->getUndefinedValue () && lowResMapValues[1][1] != mapA->getUndefinedValue () ){
-                         highResMapValue=(lowResMapValues[1][0]*(1-fractionJ)) + (lowResMapValues[1][1] * fractionJ); 
+                         highResMapValue=(lowResMapValues[1][0]*(1-fractionJ)) + (lowResMapValues[1][1] * fractionJ);
                      }
                      // main diagonal (this is a wired geometry AOI, nothing better than set the value to the nearest existing value)
                      if(lowResMapValues[0][0] != mapA->getUndefinedValue () && lowResMapValues[1][1] != mapA->getUndefinedValue () ){
@@ -1331,13 +1328,13 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB, bool extrapolate
 }
 
 bool DistributedGridMap::findLowResElementCoordinates( const unsigned int HighResI,
-                                                       const unsigned int HighResJ, 
-                                                       const unsigned int depth, 
-                                                       const DistributedGridMap *lowResMap, 
-                                                       const DistributedGrid *lowResGrid,  
-                                                       const DistributedGrid *HighResGrid, 
+                                                       const unsigned int HighResJ,
+                                                       const unsigned int depth,
+                                                       const DistributedGridMap *lowResMap,
+                                                       const DistributedGrid *lowResGrid,
+                                                       const DistributedGrid *HighResGrid,
                                                        unsigned int lowResElementCoordinatesInHighRes[],
-                                                       double nodalValuesInLowResElement[], 
+                                                       double nodalValuesInLowResElement[],
                                                        bool useGhostNodesInLowRes )
 {
    bool ret = false;
@@ -1347,10 +1344,10 @@ bool DistributedGridMap::findLowResElementCoordinates( const unsigned int HighRe
    {
       return true;
    }
-   
+
    //initialize lowResElementCoordinates
    unsigned int lowResElementCoordinates[4] = { 0 };
-   
+
    lowResElementCoordinates[1] = lowResMap->firstJ(useGhostNodesInLowRes);
    lowResElementCoordinates[3] = lowResMap->firstJ(useGhostNodesInLowRes) + 1;
 
@@ -1359,13 +1356,13 @@ bool DistributedGridMap::findLowResElementCoordinates( const unsigned int HighRe
    {
       lowResElementCoordinates[0] = lowResMap->firstI(useGhostNodesInLowRes);
       lowResElementCoordinates[2] = lowResMap->firstI(useGhostNodesInLowRes) + 1;
-     
+
       for( ; lowResElementCoordinates[2] <= lowResMap->lastI(useGhostNodesInLowRes); ++lowResElementCoordinates[0], ++lowResElementCoordinates[2] )
       {
-          
-          lowResGrid->convertToGrid( (*HighResGrid), lowResElementCoordinates[0], lowResElementCoordinates[1], 
+
+          lowResGrid->convertToGrid( (*HighResGrid), lowResElementCoordinates[0], lowResElementCoordinates[1],
                                                      lowResElementCoordinatesInHighRes[0], lowResElementCoordinatesInHighRes[1]);
-          lowResGrid->convertToGrid( (*HighResGrid), lowResElementCoordinates[2], lowResElementCoordinates[3], 
+          lowResGrid->convertToGrid( (*HighResGrid), lowResElementCoordinates[2], lowResElementCoordinates[3],
                                                      lowResElementCoordinatesInHighRes[2], lowResElementCoordinatesInHighRes[3]);
 
           if(isHighResNodeInLowResElement(HighResI, HighResJ, lowResElementCoordinatesInHighRes))

@@ -404,41 +404,6 @@ unsigned int InputValue::applyIndex (unsigned int newIndex)
    return newIndex;
 }
 
-string InputValue::saveToDirectory (const string & directory)
-{
-   if (getType () == PropertyMap)
-   {
-      char indexStr[10];
-      sprintf (indexStr, "%d", getIndex ());
-
-      GridMap * gridMap = (GridMap *) getGridMap ();
-      string fileName = string ("InputMap") + indexStr + ".HDF";
-      ibs::FilePath fullFileName( directory );
-      fullFileName << fileName;
-      gridMap->saveHDF5 ( fullFileName.path() );
-
-      return fileName;
-   }
-   else
-   {
-      string command;
-      ibs::FilePath inputFileName( getProjectHandle().getProjectPath() );
-      inputFileName << getFileName();
-      ibs::FilePath outputFileName( directory );
-      outputFileName << getFileName();
-
-      if ( !copyFile( inputFileName.path(), outputFileName.path() ) )
-      {
-         cerr << "Copying " << inputFileName.path() << " to " << outputFileName.path() << " Failed" << endl;
-         return string( "" );
-      }
-      else
-      {
-         return getFileName();
-      }
-   }
-}
-
 int InputValue::getMapSequenceNumber () const {
    return getMapSeqNbr (m_record);
 }

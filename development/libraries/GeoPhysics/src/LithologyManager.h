@@ -11,10 +11,12 @@
 #include "CompoundLithology.h"
 #include "CompoundLithologyComposition.h"
 
-#include "GeoPhysicsProjectHandle.h"
-
 
 namespace GeoPhysics {
+
+   class ProjectHandle;
+
+
 
    /// Holds all the simple and compound lithologies.
    /// Stores and creates, if necessary, the fault lithologies.

@@ -94,7 +94,6 @@ namespace DataAccess
          /// save a 3D PropertyValue to file
          virtual bool saveVolumeToFile (MapWriter & mapWriter, const bool saveAsPrimary = false );
 
-         string saveToDirectory (const string & directory);
 
          /// First sorts on the age of the PropertyValue objects,
          /// then on the deposition age of

@@ -33,6 +33,7 @@ if (BM_PARALLEL)
                                 FileSystem
                                 CBMGenerics
                                 utilities
+                                MapSmoothing
                                 ${HDF5_LIBRARIES}
                                 ${MPI_LIBRARIES}
                                 ${PETSC_LIBRARIES}

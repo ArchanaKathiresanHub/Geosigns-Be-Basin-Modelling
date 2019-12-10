@@ -179,6 +179,12 @@ public:
                                  , std::vector<double>       & r13Int
                                  );
 
+   void smoothenVector( std::vector<double>& vec
+                      , const int method
+                      , const double smoothingRadius
+                      , const int nrOfThreads
+                      ) const;
+
    void backTransformLithoFractions( const std::vector<double> & rpInt
                                    , const std::vector<double> & r13Int
                                    , std::vector<double>       & lf1CorrInt
@@ -606,6 +612,20 @@ Model::ReturnCode Model::interpolateLithoFractions( const std::vector<double> & 
    if ( errorCode() != NoError ) resetError();
 
    try { m_pimpl->interpolateLithoFractions( xin, yin, lf1, lf2, lf3, xInt, yInt, rpInt, r13Int ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+Model::ReturnCode Model::smoothenVector( std::vector<double>& vec,
+                                         const int method,
+                                         const double smoothingRadius,
+                                         const int nrOfThreads )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try { m_pimpl->smoothenVector( vec, method, smoothingRadius, nrOfThreads ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -1626,6 +1646,30 @@ void Model::ModelImpl::interpolateLithoFractions( const std::vector<double> & xi
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "NNlib interpolation failed for r13 ";
    }
+
+}
+
+// Do smoothing of a maps
+void Model::ModelImpl::smoothenVector( std::vector<double>& vec
+                                     , const int method
+                                     , const double smoothingRadius
+                                     , const int nrOfThreads
+                                     ) const
+{
+  if ( !m_projHandle ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::interpolateLithoFractions(): no project was loaded"; }
+  const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+  const double deltaX = pd->getDeltaX();
+  const double deltaY = pd->getDeltaY();
+
+  const int numI      = pd->getNumberOfXNodes();
+  const int numJ      = pd->getNumberOfYNodes();
+
+  if ( ErrorHandler::NoError != m_mapMgr.smoothenVectorizedMap( vec, method, numI, numJ, deltaX, deltaY, smoothingRadius,
+                                                                DataAccess::Interface::DefaultUndefinedMapValue, nrOfThreads ) )
+  {
+    throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "Unknown error while smoothing Rp map";
+  }
 }
 
 // correct and back transform the interpolated values

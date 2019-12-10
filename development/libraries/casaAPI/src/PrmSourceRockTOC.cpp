@@ -173,7 +173,7 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
                }
 
                // save map to separate HDF file
-               if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, newMapName + s_mapFileSuffix, 0 ) )
+               if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, newMapName + s_mapFileSuffix ) )
                {
                   throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
                }
@@ -232,7 +232,7 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
                }
 
                // Save new map to file
-               if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, newMapName + s_mapFileSuffix, 0 ) )
+               if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, newMapName + s_mapFileSuffix ) )
                {
                   throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
                }

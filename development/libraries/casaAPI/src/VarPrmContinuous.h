@@ -51,6 +51,14 @@ namespace casa
    class VarPrmContinuous : public VarParameter
    {
    public:
+
+      struct SmoothingParams
+      {
+        int method;
+        double radius;
+        int nrOfThreads;
+      };
+
       /// @brief Probability Density Function (PDF) shape for the parameter. It is used in casa::MonteCarloSolver
       enum PDF
       {
@@ -110,6 +118,7 @@ namespace casa
                                                    , const std::vector<double> & xin ///< the x coordinates of each 1D project
                                                    , const std::vector<double> & yin ///< the y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
+                                                   , const SmoothingParams& smoothingParams
                                                    )  const;
 
       /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters

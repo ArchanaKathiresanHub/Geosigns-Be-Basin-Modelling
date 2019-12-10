@@ -94,6 +94,7 @@ namespace casa
                                                              , const std::vector<double>             & xin
                                                              , const std::vector<double>             & yin
                                                              , const std::vector<SharedParameterPtr> & prmVec
+                                                             , const SmoothingParams                 & smoothingParams
                                                              ) const
    {
       // get the lithofractions calculate the lithopercentages
@@ -123,6 +124,16 @@ namespace casa
       if ( ErrorHandler::NoError != mdl.interpolateLithoFractions( xin, yin, lf1, lf2, lf3, xout, yout, rpInt, r13Int ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The interpolation of the lithopercentages failed for the layer : " << m_layerName;
+      }
+
+      if ( ErrorHandler::NoError != mdl.smoothenVector( rpInt, smoothingParams.method, smoothingParams.radius, smoothingParams.nrOfThreads ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The smoothing of the rp intermediate state failed for the layer : " << m_layerName;
+      }
+
+      if ( ErrorHandler::NoError != mdl.smoothenVector( r13Int, smoothingParams.method, smoothingParams.radius, smoothingParams.nrOfThreads ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The smoothing of the r13 intermediate state failed for the layer : " << m_layerName;
       }
 
       // back transform the rpInt and r13Int
