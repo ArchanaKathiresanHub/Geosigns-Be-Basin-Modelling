@@ -125,8 +125,6 @@ const Genex6::Simulator & Genex0dGenexSourceRock::simulator() const
   return *m_theSimulator;
 }
 
-// --------------------------------------------------------------------------------
-
 bool Genex0dGenexSourceRock::setFormationData( const DataAccess::Interface::Formation * aFormation )
 {
    setLayerName( aFormation->getName() );

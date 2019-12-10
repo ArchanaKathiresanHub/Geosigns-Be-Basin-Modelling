@@ -20,9 +20,9 @@
 namespace genex0d
 {
 
-Genex0dSourceRock::Genex0dSourceRock(Interface::ProjectHandle & projectHandle,
+Genex0dSourceRock::Genex0dSourceRock(DataAccess::Interface::ProjectHandle & projectHandle,
                                      const Genex0dInputData & inData) :
-  Genex6::GenexSourceRock{projectHandle, nullptr},
+  Genex6::GenexBaseSourceRock{projectHandle, nullptr},
   m_sourceRockType{inData.sourceRockType},
   m_srProperties{},
   m_formationName{inData.formationName},

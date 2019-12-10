@@ -12,23 +12,23 @@
 
 #include "Genex0dInputData.h"
 #include "Genex0dSourceRockProperty.h"
-#include "GenexSourceRock.h"
+#include "GenexBaseSourceRock.h"
 
 namespace DataAccess
 {
 namespace Interface
 {
 class GridMap;
-} // namespace Interface
-} // namespace DataAccess
+}
+}
 
 namespace genex0d
 {
 
-class Genex0dSourceRock : public Genex6::GenexSourceRock
+class Genex0dSourceRock : public Genex6::GenexBaseSourceRock
 {
 public:
-  explicit Genex0dSourceRock(Interface::ProjectHandle & projectHandle, const Genex0dInputData & inData);
+  explicit Genex0dSourceRock(DataAccess::Interface::ProjectHandle & projectHandle, const Genex0dInputData & inData);
   virtual ~Genex0dSourceRock();
 
   const std::string & getLayerName (void) const final;

@@ -21,21 +21,21 @@ namespace Genex6
 {
 class Simulator;
 class SourceRockNode;
-} // namespace Genex6
+}
 
 namespace database
 {
 class Record;
 class Table;
-} // namespace database
+}
 
 namespace DataAccess
 {
 namespace Interface
 {
 class ProjectHandle;
-} // namespace Interface
-} // namespace DataAccess
+}
+}
 
 namespace genex0d
 {
