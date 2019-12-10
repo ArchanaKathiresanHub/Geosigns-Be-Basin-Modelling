@@ -51,6 +51,7 @@ Genex0dGenexSourceRock::Genex0dGenexSourceRock (DataAccess::Interface::ProjectHa
                                                 const unsigned int indI,
                                                 const unsigned int indJ) :
   Genex0dSourceRock{projectHandle, inData},
+  Genex6::GenexBaseSourceRock{},
   m_sourceRockNode{nullptr},
   m_thickness{0.0},
   m_indI{indI},
@@ -129,7 +130,7 @@ bool Genex0dGenexSourceRock::setFormationData( const DataAccess::Interface::Form
 {
    setLayerName( aFormation->getName() );
 
-   if( m_layerName == "" )
+   if( getLayerName() == "" )
    {
       LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock " << getType() << ": the formation name is not set.";
       return false;
@@ -196,7 +197,7 @@ bool Genex0dGenexSourceRock::preprocess()
 {
   LogHandler(LogHandler::INFO_SEVERITY) << "Start of preprocessing...";
 
-  computeSnapshotIntervals(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR); // TODO: MINOR also to be added after datadriller is fixed
+  computeSnapshotIntervals(*(m_projectHandle.getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR)));
 
   if (m_theIntervals.empty())
   {

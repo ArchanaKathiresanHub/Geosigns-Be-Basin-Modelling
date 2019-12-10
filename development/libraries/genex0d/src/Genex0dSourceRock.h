@@ -12,7 +12,7 @@
 
 #include "Genex0dInputData.h"
 #include "Genex0dSourceRockProperty.h"
-#include "GenexBaseSourceRock.h"
+#include "GenexSourceRock.h"
 
 namespace DataAccess
 {
@@ -25,7 +25,7 @@ class GridMap;
 namespace genex0d
 {
 
-class Genex0dSourceRock : public Genex6::GenexBaseSourceRock
+class Genex0dSourceRock : public DataAccess::Interface::SourceRock
 {
 public:
   explicit Genex0dSourceRock(DataAccess::Interface::ProjectHandle & projectHandle, const Genex0dInputData & inData);

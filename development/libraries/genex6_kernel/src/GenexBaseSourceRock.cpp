@@ -11,7 +11,6 @@
 #include "ChemicalModel.h"
 
 // DataAccess library
-#include "ProjectHandle.h"
 #include "Surface.h"
 #include "Snapshot.h"
 
@@ -45,8 +44,7 @@ const double GenexBaseSourceRock::conversionCoeffs [8] =
      2.36948559032296E-05, -6.62225531134738E-06,
      2.38411451425613E-07, -2.692340754443E-09 };
 
-GenexBaseSourceRock::GenexBaseSourceRock (Interface::ProjectHandle& projectHandle, database::Record * record)
-: Interface::SourceRock (projectHandle, record)
+GenexBaseSourceRock::GenexBaseSourceRock ()
 {
    m_theSimulator = nullptr;
    m_formation = nullptr;
@@ -122,7 +120,6 @@ void GenexBaseSourceRock::clear()
       m_theChemicalModel2 = nullptr;
    }
    m_theChemicalModel = nullptr;
-   m_layerName = "";
 }
 
 void GenexBaseSourceRock::clearSimulator()
@@ -153,58 +150,6 @@ double GenexBaseSourceRock::getDepositionTime() const
    const Surface * topSurface = m_formation->getTopSurface ();
    const Snapshot * depoSnapshot = topSurface->getSnapshot ();
    return depoSnapshot->getTime ();
-}
-
-bool GenexBaseSourceRock::doOutputAdsorptionProperties( void ) const
-{
-   if( m_applySRMixing ) {
-      const Interface::SourceRock * sourceRock2 =  m_formation->getSourceRock2();
-      return ( doApplyAdsorption() || sourceRock2->doApplyAdsorption());
-   }
-   return doApplyAdsorption();
-
-}
-
-bool GenexBaseSourceRock::setFormationData( const Interface::Formation * aFormation )
-{
-   setLayerName( aFormation->getName() );
-
-   if( m_layerName == "" ) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock " << getType() << ": the formation name is not set.";
-      return false;
-   }
-
-   m_formation = aFormation; //getProjectHandle().findFormation (m_layerName);
-
-   if(!m_formation->isSourceRock()) { // if SourceRock is currently inactive
-      return true;
-   }
-
-   if( m_formation->getTopSurface()->getSnapshot()->getTime() == 0 ) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock with deposition age 0 at : " << m_formation->getName();
-      return false;
-   }
-
-   // m_isSulphur is used only to identify Sulphur in output properties
-   // For SR mixing we should check both SoureRock types and then set m_isSulphur
-
-   m_isSulphur = ( getScVRe05() > 0.0 ? true : false );
-
-   m_applySRMixing = m_formation->getEnableSourceRockMixing();
-
-   if( m_applySRMixing ) {
-      const Interface::SourceRock * sourceRock2 =  m_formation->getSourceRock2();
-      if( sourceRock2 == 0 ) {
-         LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot find SourceRockType2 "<< m_formation->getSourceRockType2Name() << " for mixing at : " << m_layerName;
-         return false;
-      } else {
-         if( ! m_isSulphur ) {
-            m_isSulphur = ( sourceRock2->getScVRe05() > 0.0 ? true : false );
-         }
-      }
-   }
-
-   return true;
 }
 
 bool GenexBaseSourceRock::compute()
@@ -252,20 +197,18 @@ double GenexBaseSourceRock::getMaximumTimeStepSize ( const double depositionTime
 }
 
 
-void GenexBaseSourceRock::computeSnapshotIntervals (const int snapshotType)
+void GenexBaseSourceRock::computeSnapshotIntervals (const DataAccess::Interface::SnapshotList & snapshots)
 {
    m_depositionTime = getDepositionTime ();
 
-   Interface::SnapshotList * snapshots = m_projectHandle.getSnapshots (snapshotType);
+   DataAccess::Interface::SnapshotList::const_reverse_iterator snapshotIter;
 
-   Interface::SnapshotList::reverse_iterator snapshotIter;
+   const DataAccess::Interface::Snapshot * start;
+   const DataAccess::Interface::Snapshot * end;
 
-   const Interface::Snapshot * start;
-   const Interface::Snapshot * end;
-
-   if (snapshots->size () >= 1) {
+   if (snapshots.size () >= 1) {
       end = 0;
-      for(snapshotIter = snapshots->rbegin (); snapshotIter != snapshots->rend () - 1; ++ snapshotIter) {
+      for(snapshotIter = snapshots.rbegin (); snapshotIter != snapshots.rend () - 1; ++ snapshotIter) {
 
          start = (*snapshotIter);
          end = 0;
@@ -282,8 +225,6 @@ void GenexBaseSourceRock::computeSnapshotIntervals (const int snapshotType)
    } else {
       //throw
    }
-   delete snapshots;
-
 }
 
 // The following functions are not the the trunk version.

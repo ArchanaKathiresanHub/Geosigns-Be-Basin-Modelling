@@ -13,6 +13,8 @@
 #include "Genex0dGenexSourceRock.h"
 #include "Genex0dSourceRock.h"
 
+#include "GenexBaseSourceRock.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -42,7 +44,7 @@ namespace genex0d
 
 class Genex0dPointAdsorptionHistory;
 
-class Genex0dGenexSourceRock : public Genex0dSourceRock
+class Genex0dGenexSourceRock : public Genex0dSourceRock, public Genex6::GenexBaseSourceRock
 {
 public:
   explicit Genex0dGenexSourceRock(DataAccess::Interface::ProjectHandle & projectHandle,

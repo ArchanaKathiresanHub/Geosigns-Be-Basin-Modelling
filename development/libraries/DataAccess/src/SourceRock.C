@@ -49,10 +49,6 @@ const string & SourceRock::getLayerName (void) const
 
 }
 
-void SourceRock::setLayerName ( const std::string& name ) {
-   m_layerName = name;
-}
-
 //mademlis
 const double & SourceRock::getHcVRe05(void) const
 {

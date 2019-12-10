@@ -44,10 +44,10 @@ namespace Genex6
 
 class SnapshotInterval;
 
-class GenexBaseSourceRock : public DataAccess::Interface::SourceRock
+class GenexBaseSourceRock
 {
 public:
-  GenexBaseSourceRock (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record);
+  GenexBaseSourceRock ();
   virtual ~GenexBaseSourceRock ();
 
   /// \brief Convert H/C value to HI
@@ -66,10 +66,7 @@ public:
   bool isSulphur() const;
 
   ///  set second SR type, mixing parameter, check Sulphur
-  virtual bool setFormationData ( const DataAccess::Interface::Formation * aFormation );
-
-  /// Whether to perform adsorption
-  bool doOutputAdsorptionProperties (void) const;
+  virtual bool setFormationData ( const DataAccess::Interface::Formation * aFormation ) = 0;
 
   /// \brief Clears the source-rock of any nodes, ...
   void clear ();
@@ -103,7 +100,7 @@ protected:
   /// Main processing functionality
   virtual bool process() = 0;
 
-  void computeSnapshotIntervals( const int snapshotType );
+  void computeSnapshotIntervals(const DataAccess::Interface::SnapshotList & snapshots);
 
   void clearSnapshotIntervals();
 
@@ -112,8 +109,6 @@ protected:
   double getMaximumTimeStepSize ( const double depositionTime ) const;
 
   const Simulator& getSimulator () const;
-
-  void setLayerName( const std::string & layerName );
 
   /// The simulator associated with the source rock
   Genex6::Simulator *m_theSimulator;
@@ -137,7 +132,6 @@ protected:
   /// \brief List of all adsorption-history objects.
   Genex6::SourceRockAdsorptionHistoryList m_sourceRockNodeAdsorptionHistory;
 
-  std::string m_layerName;
   const DataAccess::Interface::Formation * m_formation;
   /// if Sulphur is included
   bool m_isSulphur;
@@ -151,10 +145,6 @@ private:
 
   static const double conversionCoeffs [ 8 ];
 };
-
-inline void GenexBaseSourceRock::setLayerName( const std::string & aLayerName ) {
-  m_layerName = aLayerName;
-}
 
 inline bool GenexBaseSourceRock::isSulphur() const {
   return m_isSulphur;
