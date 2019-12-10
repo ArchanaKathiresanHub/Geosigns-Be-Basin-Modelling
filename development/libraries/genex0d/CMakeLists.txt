@@ -25,7 +25,6 @@ create_bm_library( TARGET ${GENEX0D_LIB_NAME}
                    utilities
                    Serial_Hdf5
                    GeoPhysics
-                   AbstractDerivedProperties
                    ${HDF5_LIBRARIES}
 )
 

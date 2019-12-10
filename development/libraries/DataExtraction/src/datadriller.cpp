@@ -246,7 +246,6 @@ void DataDriller::readDataFromHDF()
       }
       // Get property for X,Y,Z point or for Surface or Formation map
 
-
       if ( z != DataAccess::Interface::DefaultUndefinedScalarValue || !surfaceName.empty() || !formationName.empty() )
       {
         double i, j;
@@ -259,7 +258,7 @@ void DataDriller::readDataFromHDF()
         }
 
 
-        // Forst check for surface name, if value found continue, otherwise look for formation name
+        // First check for surface name, if value found continue, otherwise look for formation name
         if ( surfaceName != "" )
         {
           const DataAccess::Interface::Surface * surface = m_projectHandle->findSurface (surfaceName);
@@ -280,13 +279,9 @@ void DataDriller::readDataFromHDF()
           }
           if (value == DataAccess::Interface::DefaultUndefinedScalarValue)
           {
-            value = get3dPropertyFromHDF( i, j, formation, property, snapshot, recordIndex );
+            value = get3dPropertyFromHDF( i, j, formation->getMangledName(), true, property, snapshot, recordIndex );
           }
         }
-      }
-      else if ( formationName != "" && surfaceName != "" )
-      {
-        throw RecordException( "Use of FormationName together with SurfaceName is not yet implemented:" );
       }
       else
       {
@@ -390,37 +385,28 @@ double DataDriller::get3dPropertyFromHDF( const double i, const double j, const 
 }
 
 double DataDriller::get3dPropertyFromHDF( const double i, const double j,
-                                          const DataAccess::Interface::Formation* inFormation,
-                                          const DataAccess::Interface::Property* property,
-                                          const DataAccess::Interface::Snapshot* snapshot,
+                                          const std::string & mangledName,
+                                          const bool isSurfaceTop,
+                                          const DataAccess::Interface::Property * property,
+                                          const DataAccess::Interface::Snapshot * snapshot,
                                           const unsigned int recordIndex )
 {
-  if (inFormation == nullptr)
-  {
-    throw RecordException("Failed while extracting volume map property!");
-  }
-
   HDFReadManager hdfReadManager( *m_projectHandle );
   const std::string snapshotFileName = m_projectHandle->getFullOutputDir() + "/" + snapshot->getFileName();
   hdfReadManager.openSnapshotFile( snapshotFileName );
 
-  const string depthDataGroup = "/Depth";
-  checkDataGroupInHDFFile( hdfReadManager, depthDataGroup, recordIndex, snapshotFileName );
   const string propertyDataGroup = "/" + property->getName();
   checkDataGroupInHDFFile( hdfReadManager, propertyDataGroup, recordIndex, snapshotFileName );
 
-  double value = DataAccess::Interface::DefaultUndefinedScalarValue;
-  const string depthPropertyFormationName = depthDataGroup + "/" + inFormation->getMangledName();
-  checkDataGroupInHDFFile( hdfReadManager, depthPropertyFormationName, recordIndex, snapshotFileName );
-
-  DoubleVector depthVec = hdfReadManager.get3dCoordinatePropertyMatrix( {{ i, j}}, depthPropertyFormationName )[0];
-  // Take the top surface
-  const int zi = static_cast<int>(std::distance(depthVec.begin(), std::min_element(depthVec.begin(), depthVec.end())));
-
-  const string propertyFormationDataGroup = propertyDataGroup + "/" + inFormation->getMangledName();
+  const string propertyFormationDataGroup = propertyDataGroup + "/" + mangledName;
   checkDataGroupInHDFFile( hdfReadManager, propertyFormationDataGroup, recordIndex, snapshotFileName);
   DoubleVector propertyVec = hdfReadManager.get3dCoordinatePropertyMatrix( {{ i, j}}, propertyFormationDataGroup )[0];
-  value = propertyVec[zi];
+
+  double value = DataAccess::Interface::DefaultUndefinedScalarValue;
+  if (!propertyVec.empty())
+  {
+    value = (isSurfaceTop ? propertyVec.back() : propertyVec[0]);
+  }
 
   hdfReadManager.closeSnapshotFile();
 

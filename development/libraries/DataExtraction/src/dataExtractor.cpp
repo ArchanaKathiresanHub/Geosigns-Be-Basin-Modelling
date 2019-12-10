@@ -19,8 +19,6 @@
 #include "Snapshot.h"
 #include "Surface.h"
 
-#include <iomanip>
-
 namespace DataExtraction
 {
 
