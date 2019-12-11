@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// Copyright (C) 2015-2019 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -128,7 +128,7 @@ GenexSourceRock::~GenexSourceRock(void)
 
 void GenexSourceRock::getHIBounds( double &HILower, double &HIUpper ) {
    HILower = 28.47;
-   HIUpper = 773.6;
+   HIUpper = 890.1;
 }
 
 double GenexSourceRock::convertHCtoHI( double aHC ) {
@@ -518,7 +518,7 @@ bool GenexSourceRock::initialize ( const bool printInitialisationDetails )
 
       // How to choose the timeStepSize and numberOfTimeSteps?
       // If hcValueMixing == HC value of one of the mixed SourceRock, then fraction of the second SourceRock type is 0,
-      // therfore we can choose timeStepSize and numberOfTimeSteps of the first Source Rock.
+      // therefore we can choose timeStepSize and numberOfTimeSteps of the first Source Rock.
       // If hcValueMixing != HC, then choose the minimun timeStep and maximum number of time steps.
 
       double maximumTimeStepSize2 = m_theSimulator->getMaximumTimeStepSize();
@@ -526,7 +526,7 @@ bool GenexSourceRock::initialize ( const bool printInitialisationDetails )
 
       double hcValue1 = getHcVRe05();
       double hcValue2 = sourceRock2->getHcVRe05();
-
+#ifdef OBSOLETE
       if(  m_formation->getSourceRockMixingHCGridName().length() == 0 ) {
          if( m_formation->getSourceRockMixingHC() == Interface::DefaultUndefinedScalarValue ) {
             status = false;
@@ -546,7 +546,31 @@ bool GenexSourceRock::initialize ( const bool printInitialisationDetails )
                LogHandler( LogHandler::INFO_SEVERITY ) << "Applying Source Rock mixing H/C = " << hcValueMixing;
             }
          }
-      } else {
+      } 
+#endif
+	  if (m_formation->getSourceRockMixingHIGridName().length() == 0) {
+		  if (m_formation->getSourceRockMixingHI() == Interface::DefaultUndefinedScalarValue) {
+			  status = false;
+			  LogHandler(LogHandler::ERROR_SEVERITY) << "The mixing HC value is undefined. Aborting...";
+		  }
+		  else {
+			  double hcValueMixing = (m_formation->getSourceRockMixingHI() != 0 ? convertHItoHC(m_formation->getSourceRockMixingHI()) : 0);
+
+			  if (hcValue1 == hcValueMixing) {
+				  m_theSimulator->setMaximumTimeStepSize(maximumTimeStepSize1);
+				  m_theSimulator->setNumberOfTimesteps(numberOfTimeSteps1);
+			  }
+			  else if (hcValue2 != hcValueMixing) {
+				  if (maximumTimeStepSize1 < maximumTimeStepSize2) m_theSimulator->setMaximumTimeStepSize(maximumTimeStepSize1);
+				  if (numberOfTimeSteps1 > numberOfTimeSteps2) m_theSimulator->setNumberOfTimesteps(numberOfTimeSteps1);
+				  else m_theSimulator->setNumberOfTimesteps(numberOfTimeSteps1);
+			  }
+			  if (printInitialisationDetails) {
+				  LogHandler(LogHandler::INFO_SEVERITY) << "Applying Source Rock mixing H/C = " << hcValueMixing;
+			  }
+		  }
+	  }
+	  else {
          if( maximumTimeStepSize1 < maximumTimeStepSize2 ) m_theSimulator->setMaximumTimeStepSize( maximumTimeStepSize1 );
          if( numberOfTimeSteps1 > numberOfTimeSteps2 ) m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
          else m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
@@ -758,13 +782,16 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
 
    //
    double f1, f2;
+#ifdef OBSOLETE
    const GridMap *HCmap = 0;
+#endif
+   const GridMap *HImap = 0;
    double Hc1 = 0.0, Hc2 = 0.0, invValue = 1.0, minHc = 0.0, maxHc = 0.0;
 
    bool testPercentage = false;
 
    if( m_applySRMixing ) {
-      HCmap = m_formation->getMixingHCMap ();
+	  HImap = m_formation->getMixingHIMap ();
       Hc1 = getHcVRe05();
       Hc2 = m_theChemicalModel2->getHC();
 
@@ -798,7 +825,7 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
       InputThickness->retrieveData ();
       TOCmap->retrieveData ();
 
-      if( HCmap != 0 ) HCmap->retrieveData();
+      if( HImap != 0 ) HImap->retrieveData();
 
       if (isVreOn) {
          if(vre) {
@@ -854,7 +881,7 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
       unsigned int depthVre = ( vre != 0 ? vre->getDepth () : 0 );
       unsigned int depthThickness = InputThickness->getDepth ();
       unsigned int depthTOC = TOCmap->getDepth ();
-      unsigned int depthHc = ( HCmap ? HCmap->getDepth () : 0 );
+      unsigned int depthHc = ( HImap ? HImap->getDepth () : 0 );
 
       Interface::ModellingMode theMode = getProjectHandle().getModellingMode ();
 
@@ -917,8 +944,11 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
                 inorganicDensity = 0;
               }
 
-               if( HCmap != 0 ) {
-                  double hcValue = HCmap->getValue (lowResI, lowResJ, depthHc - 1);
+               if( HImap != 0 ) {
+#ifdef OBSOLETE
+                  double hcValue = HImap->getValue (lowResI, lowResJ, depthHc - 1);
+#endif
+				  double hcValue = convertHItoHC(HImap->getValue(lowResI, lowResJ, depthHc - 1));
                   if( hcValue != Interface::DefaultUndefinedMapValue ) {
                      if( testPercentage ) {
                         f1 = hcValue;
@@ -966,7 +996,7 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
       InputThickness->restoreData ();
       TOCmap->restoreData ();
 
-      if( HCmap ) HCmap->restoreData();
+      if(HImap) HImap->restoreData();
 
       if (vre && isVreOn) {
          vre->restoreData ();

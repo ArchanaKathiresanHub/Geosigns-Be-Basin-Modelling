@@ -74,6 +74,7 @@ double Genex6::LangmuirAdsorptionFunction::compute ( const unsigned int i,
    m_temperatureInRange.setTemperature ( temperature );
    LangmuirAdsorptionIsothermIntervalVector::const_iterator interval = std::find_if ( m_isothermIntervals.begin (), m_isothermIntervals.end (), m_temperatureInRange );
 
+   // interval might be the .end(), an invalid refrence, if it does not find the inrange value (returns the iterator beyond the last valid entry.... thus the check
    if ( interval != m_isothermIntervals.end ()) {
       return (*interval)->compute ( temperature, porePressure );
    } else {

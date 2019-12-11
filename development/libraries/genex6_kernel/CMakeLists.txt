@@ -28,3 +28,16 @@ LIBRARIES   AbstractDerivedProperties
    DataAccess
 INSTALLTARGET
 )
+
+#######################################
+### Unit Tests
+#######################################
+
+#######################################
+# Unit tests for convertHItoHC
+
+add_gtest ( NAME GENEX6_KERNEL::convertHItoHC
+   SOURCES test/HiToHcTest.cpp
+   LIBRARIES genex6 genex6_kernel DataAccess DistributedDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+ )

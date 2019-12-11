@@ -186,7 +186,7 @@ std::vector<double> RSProxyQualityCalculator::calculateQ2(const string& proxyNam
 
 const std::vector<std::vector<double>> RSProxyQualityCalculator::calculateR2AndR2adjFromObservables(const std::vector<std::vector<double>>& runCaseObservables, const std::vector<std::vector<double>>& proxyObservables) const
 {
-  const int nTargets{runCaseObservables[0].size()};
+  const int nTargets{ static_cast<int>(runCaseObservables[0].size())};
 
   std::vector<std::vector<double>> R2AndR2adj(2, std::vector<double>(nTargets, 0.0));
   std::vector<double> yAvg = averagesOfMatrixColumns(runCaseObservables);

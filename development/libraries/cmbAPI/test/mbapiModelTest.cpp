@@ -269,16 +269,16 @@ TEST_F(mbapiModelTest, SourceRockHI_HCSettings)
 
          double hiSR2 = srMgr.hiIni(sid2);
          double hcSR2 = srMgr.hcIni(sid2);
-
-         ASSERT_NEAR(hiSR, 94.364368, eps);
-         ASSERT_NEAR(hiSR2, 472.068687, eps);
+						   
+         ASSERT_NEAR(hiSR, 94.364356335, eps);
+         ASSERT_NEAR(hiSR2, 472.0687704, eps);
 
          ASSERT_NEAR(hcSR, 0.801, eps);
          ASSERT_NEAR(hcSR2, 1.25, eps);
 
          srMgr.setHCIni(sid2, 1.0);
          ASSERT_EQ(ErrorHandler::NoError, srMgr.errorCode());
-         ASSERT_NEAR(srMgr.hiIni(sid2), 193.17523, eps);
+         ASSERT_NEAR(srMgr.hiIni(sid2), 193.1752049428, eps);
       }
       break;
 
@@ -287,7 +287,7 @@ TEST_F(mbapiModelTest, SourceRockHI_HCSettings)
          ASSERT_EQ(layerSourceRocks.size(), 1U);
          ASSERT_NEAR(stMgr.sourceRockMixHI(lid), 0, eps);
 
-         ASSERT_NEAR(hiSR, 472.068687, eps);
+         ASSERT_NEAR(hiSR, 472.0687704, eps);
          ASSERT_NEAR(hcSR, 1.25, eps);
 
          srMgr.setHIIni(sid, 500.0);
