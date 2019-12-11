@@ -49,16 +49,13 @@ GenexBaseSourceRock::GenexBaseSourceRock ()
    m_theSimulator = nullptr;
    m_formation = nullptr;
    m_theChemicalModel  = nullptr;
-   m_theChemicalModel1 = nullptr;
-   m_theChemicalModel2 = nullptr;
 
-   m_applySRMixing = false;
    m_isSulphur = false;
 }
 
 GenexBaseSourceRock::~GenexBaseSourceRock(void)
 {
-   clear();
+   clearBase();
 }
 
 void GenexBaseSourceRock::getHIBounds( double &HILower, double &HIUpper ) {
@@ -109,31 +106,24 @@ double GenexBaseSourceRock::convertHItoHC( double aHI ) {
    }
 }
 
-void GenexBaseSourceRock::clear()
+void GenexBaseSourceRock::clearBase()
 {
    clearSnapshotIntervals();
-   clearSimulator();
+   clearSimulatorBase();
    clearSourceRockNodeAdsorptionHistory ();
 
-   if ( m_theChemicalModel2 != nullptr ) {
-      delete m_theChemicalModel2;
-      m_theChemicalModel2 = nullptr;
+   if (m_theChemicalModel)
+   {
+     m_theChemicalModel = nullptr;
    }
-   m_theChemicalModel = nullptr;
 }
 
-void GenexBaseSourceRock::clearSimulator()
+void GenexBaseSourceRock::clearSimulatorBase()
 {
-   if (m_theSimulator) {
-      // set ChemicalModel1 to be deleted inside Simulator destructor
-      m_theSimulator->setChemicalModel( m_theChemicalModel1 );
-
-      delete m_theSimulator;
-      m_theSimulator = nullptr;
-
-      m_theChemicalModel1 = nullptr;
-      m_theChemicalModel  = 0;
-   }
+  if (m_theSimulator)
+  {
+    delete m_theSimulator;
+  }
 }
 
 void GenexBaseSourceRock::clearSnapshotIntervals()

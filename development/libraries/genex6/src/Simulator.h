@@ -161,7 +161,7 @@ private:
    std::string m_type;
    
    ChemicalModel   *m_theChemicalModel;
-   SimulatorStateBase  *m_currentState;          
+   SimulatorStateBase  *m_currentState;
 
    //Simulator Boundary Conditions from configuration file
    bool m_preProcessSpeciesKinetics;

@@ -8,46 +8,16 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _GENEXSIMULATION_SOURCEROCK_H_
-#define _GENEXSIMULATION_SOURCEROCK_H_
+#pragma once
 
-namespace database
-{
-   class Record;
-   class Table;
-}
+#include "GenexBaseSourceRock.h"
 
 #include "SourceRock.h"
 #include "Formation.h"
 #include "GridMap.h"
 
-namespace DataAccess
-{
-   namespace Interface
-   {
-      class ProjectHandle;
-      class Formation;
-      class Snapshot;
-      class GridMap;
-      class Grid;
-      class LithoType;
-   }
-}
-using namespace DataAccess;
-
 #include "AdsorptionSimulator.h"
 #include "SpeciesManager.h"
-
-namespace AbstractDerivedProperties
-{
-   class AbstractPropertyManager;
-}
-namespace Genex6
-{
-   class Simulator;
-   class SourceRockNode;
-   class PropertyManager;
-}
 
 #include "SourceRockAdsorptionHistory.h"
 
@@ -55,298 +25,259 @@ namespace Genex6
 #include <vector>
 #include <map>
 
-using namespace std;
+namespace AbstractDerivedProperties
+{
+class AbstractPropertyManager;
+}
+
+namespace database
+{
+class Record;
+class Table;
+}
+
+namespace DataAccess
+{
+namespace Interface
+{
+class Formation;
+class GridMap;
+class Grid;
+class LithoType;
+class ProjectHandle;
+class Snapshot;
+}
+}
 
 namespace Genex6
 {
 
-class LocalGridInterpolator;
 class LinearGridInterpolator;
-class SnapshotInterval;
+class LocalGridInterpolator;
 class PropertyManager;
+class Simulator;
+class SnapshotInterval;
+class SourceRockNode;
 
-class GenexSourceRock : public Interface::SourceRock
+class GenexSourceRock : public DataAccess::Interface::SourceRock, public GenexBaseSourceRock
 {
 public:
-   GenexSourceRock (Interface::ProjectHandle& projectHandle, database::Record * record);
-   virtual ~GenexSourceRock ();
+  GenexSourceRock (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record);
+  virtual ~GenexSourceRock ();
 
-   /// \brief Convert H/C value to HI
-   static double convertHCtoHI( double aHI );
+  void initializeSnapShotOutputMaps ( const std::vector<std::string> & requiredPropertyNames,
+                                      const std::vector<std::string> & theRequestedPropertyNames );
 
-   /// \brief Convert HI value to H/C
-   static double convertHItoHC( double aHI );
+  ///  set second SR type, mixing parameter, check Sulphur
+  bool setFormationData ( const DataAccess::Interface::Formation * aFormation ) final;
+  void setPropertyManager ( AbstractDerivedProperties::AbstractPropertyManager * aPropertyManager );
 
-   /// \brief Get min/max range value for HI
-   static void getHIBounds( double &HILower, double &HIUpper );
+  /// Whether to perform adsorption
+  bool doOutputAdsorptionProperties (void) const;
 
-   /// Computes generation and expulsion of the source rock
-   bool compute();
+  /// Construct the valid source rock node set, the valid snapshot intervals
+  bool preprocess ( const DataAccess::Interface::GridMap* validityMap,
+                    const DataAccess::Interface::GridMap* vreMap = 0,
+                    const bool printInitialisationDetails = true );
 
-   void initializeSnapShotOutputMaps ( const vector<string> & requiredPropertyNames,
-                                       const vector<string> & theRequestedPropertyNames );
+  /// \brief Clears the source-rock of any nodes, ...
+  void clear ();
 
-   ///if SourceRock contains Sulphur
-   bool isSulphur() const;
+  /// \brief Clears the simulators and checmical models frmo the source rock.
+  void clearSimulator();
 
-   ///  set second SR type, mixing parameter, check Sulphur
-   virtual bool setFormationData ( const Interface::Formation * aFormation );
-   void setPropertyManager ( AbstractDerivedProperties::AbstractPropertyManager * aPropertyManager );
+  // After each computeTimeInstance call this must be called to clear the output data buffers.
+  void clearOutputHistory ();
 
-   /// Whether to perform adsorption
-   bool doOutputAdsorptionProperties (void) const;
+  /// Constructs the m_theSimulator, validates the chemical model
+  bool initialize ( const bool printInitialisationDetails = true ) final;
 
-   /// Construct the valid source rock node set, the valid snapshot intervals
-   bool preprocess ( const Interface::GridMap* validityMap,
-                     const Interface::GridMap* vreMap = 0,
-                     const bool printInitialisationDetails = true );
+  /// Initialises all source-rock nodes.
+  void initialiseNodes ();
 
-   /// \brief Clears the source-rock of any nodes, ...
-   void clear ();
+  /// \brief Get the species-manager from chemical-model.
+  const SpeciesManager& getSpeciesManager () const;
 
-   /// \brief Clears the simulators and checmical models frmo the source rock.
-   void clearSimulator();
+  /// \brief Add history objects to the nodes.
+  bool addHistoryToNodes () final;
 
-   // After each computeTimeInstance call this must be called to clear the output data buffers.
-   void clearOutputHistory ();
+  /// \brief Collect the history data from any nodes selected.
+  void collectSourceRockNodeHistory ();
 
-   /// Constructs the m_theSimulator, validates the chemical model
-   virtual bool initialize ( const bool printInitialisationDetails = true );
+  /// \brief Sets variable that indicates whether output is desired also at minor snapshots
+  void setMinor (const bool minor);
 
-   /// Initialises all source-rock nodes.
-   void initialiseNodes ();
-
-   /// \brief Get the species-manager from chemical-model.
-   const SpeciesManager& getSpeciesManager () const;
-
-   /// \brief Add history objects to the nodes.
-   virtual bool addHistoryToNodes ();
-
-   /// \brief Save data for all items on the history list.
-   void saveSourceRockNodeAdsorptionHistory ();
-
-   /// \brief Clear the history list.
-   void clearSourceRockNodeAdsorptionHistory ();
-
-   /// \brief Collect the history data from any nodes selected.
-   void collectSourceRockNodeHistory ();
-
-   /// \brief Sets variable that indicates whether output is desired also at minor snapshots
-   void setMinor (const bool minor);
-
-   /// \brief Gets variable that indicates whether output is desired also at minor snapshots
-   bool getMinor (void) const;
+  /// \brief Gets variable that indicates whether output is desired also at minor snapshots
+  bool getMinor (void) const;
 
 protected:
 
-   /// Construct the valid source rock node set, the valid snapshot intervals 
-   virtual bool preprocess ();
+  /// Construct the valid source rock node set, the valid snapshot intervals
+  bool preprocess () final;
 
-   /// Main processing functionality
-   virtual bool process();
+  /// Main processing functionality
+  bool process() final;
 
-   void computeSnapshotIntervals( const int snapshotType );
+  void clearSourceRockNodes();
 
-   void clearSnapshotIntervals();
-   void clearSourceRockNodes();
+  /// Compute the new state at a time instance for all the valid source rock nodes
+  void computeTimeInstance ( const double &startTime,
+                             const double &endTime,
+                             const LocalGridInterpolator* ves,
+                             const LocalGridInterpolator* temperature,
+                             const LocalGridInterpolator* thicknessScaling,
+                             const LocalGridInterpolator* lithostaticPressure,
+                             const LocalGridInterpolator* hydrostaticPressure,
+                             const LocalGridInterpolator* porePressure,
+                             const LocalGridInterpolator* porosity,
+                             const LocalGridInterpolator* permeability,
+                             const LocalGridInterpolator* vre );
 
-   double getDepositionTime() const;
+  /// Compute the new state and the results at a snapshot for all the valid source rock nodes
+  bool computeSnapShot ( const double previousTime,
+                         const DataAccess::Interface::Snapshot *theSnapshot );
 
-   /// Compute the new state at a time instance for all the valid source rock nodes
-   void computeTimeInstance ( const double &startTime,
-                              const double &endTime,
-                              const LocalGridInterpolator* ves,
-                              const LocalGridInterpolator* temperature,
-                              const LocalGridInterpolator* thicknessScaling,
-                              const LocalGridInterpolator* lithostaticPressure,
-                              const LocalGridInterpolator* hydrostaticPressure,
-                              const LocalGridInterpolator* porePressure,
-                              const LocalGridInterpolator* porosity,
-                              const LocalGridInterpolator* permeability,
-                              const LocalGridInterpolator* vre );
+  DataAccess::Interface::GridMap *createSnapshotResultPropertyValueMap(const std::string &propertyName,
+                                                                       const DataAccess::Interface::Snapshot *theSnapshot);
 
-   /// Compute the new state and the results at a snapshot for all the valid source rock nodes 
-   virtual bool computeSnapShot ( const double previousTime,
-                          const Interface::Snapshot *theSnapshot );
+  bool isNodeActive ( const double VreAtPresentDay,
+                      const double in_thickness,
+                      const double in_TOC,
+                      const double inorganicDensity,
+                      const double temperatureAtPresentDay ) const;
 
-   Interface::GridMap *createSnapshotResultPropertyValueMap(const std::string &propertyName,
-                                                                 const Interface::Snapshot *theSnapshot);
+  bool isNodeValid( const double temperatureAtPresentDay,
+                    const double VreAtPresentDay,
+                    const double thickness,
+                    const double TOC,
+                    const double inorganicDensity,
+                    const double mapUndefinedValue) const;
 
-   bool isNodeActive ( const double VreAtPresentDay,
-                       const double in_thickness,
-                       const double in_TOC,
-                       const double inorganicDensity,
-                       const double temperatureAtPresentDay ) const;
+  void addNode(Genex6::SourceRockNode *in_Node);
 
-   bool isNodeValid( const double temperatureAtPresentDay,
-                     const double VreAtPresentDay,
-                     const double thickness,
-                     const double TOC,
-                     const double inorganicDensity,
-                     const double mapUndefinedValue) const;
+  double getLithoDensity(const DataAccess::Interface::LithoType *theLitho) const;
 
-   void addNode(Genex6::SourceRockNode *in_Node);
+  const DataAccess::Interface::GridMap *getLithoType1PercentageMap()  const;
+  const DataAccess::Interface::GridMap *getLithoType2PercentageMap()  const;
+  const DataAccess::Interface::GridMap *getLithoType3PercentageMap()  const;
+  const DataAccess::Interface::GridMap *getInputThicknessGridMap()    const;
 
-   double getLithoDensity(const Interface::LithoType *theLitho) const;
+  const DataAccess::Interface::LithoType *getLithoType1() const;
+  const DataAccess::Interface::LithoType *getLithoType2() const;
+  const DataAccess::Interface::LithoType *getLithoType3() const;
 
-   const Interface::GridMap *getLithoType1PercentageMap()  const;
-   const Interface::GridMap *getLithoType2PercentageMap()  const;
-   const Interface::GridMap *getLithoType3PercentageMap()  const;
-   const Interface::GridMap *getInputThicknessGridMap()    const;
+  const DataAccess::Interface::GridMap *getTopSurfacePropertyGridMap (const std::string &propertyName,
+                                                                      const DataAccess::Interface::Snapshot *snapshot) const;
 
-   const Interface::LithoType *getLithoType1() const;
-   const Interface::LithoType *getLithoType2() const;
-   const Interface::LithoType *getLithoType3() const;
+  const DataAccess::Interface::GridMap *getPropertyGridMap (const std::string &propertyName,
+                                                            const DataAccess::Interface::Snapshot *snapshot) const;
 
-   const Interface::GridMap *getTopSurfacePropertyGridMap (const string &propertyName,
-                                                                const Interface::Snapshot *snapshot) const;
+  const DataAccess::Interface::GridMap *getPropertyGridMap (const std::string &propertyName,
+                                                            const DataAccess::Interface::Snapshot *snapshot,
+                                                            const DataAccess::Interface::Reservoir *reservoir,
+                                                            const DataAccess::Interface::Formation *formation,
+                                                            const DataAccess::Interface::Surface *surface) const;
 
-   const Interface::GridMap *getPropertyGridMap (const string &propertyName,
-                                                      const Interface::Snapshot *snapshot) const;
+  const DataAccess::Interface::GridMap * getSurfaceFormationPropertyGridMap (const std::string & propertyName,
+                                                                             const DataAccess::Interface::Snapshot * snapshot) const;
 
-   const Interface::GridMap *getPropertyGridMap (const string &propertyName,
-                                                      const Interface::Snapshot *snapshot,
-                                                      const Interface::Reservoir *reservoir,
-                                                      const Interface::Formation *formation,
-                                                      const Interface::Surface *surface) const;
+  void createSnapShotOutputMaps(const DataAccess::Interface::Snapshot *theSnapshot);
 
-   const Interface::GridMap * getSurfaceFormationPropertyGridMap (const string & propertyName,
-                                                                       const Interface::Snapshot * snapshot) const;
+  void updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode);
 
-   void createSnapShotOutputMaps(const Interface::Snapshot *theSnapshot);
+  void saveSnapShotOutputMaps();
 
-   void updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode);
+  bool validateGuiValue(const double GuiValue, const double LowerBound, const double UpperBound);
 
-   void saveSnapShotOutputMaps();
+  const std::string & determineConfigurationFileName(const std::string & SourceRockType);
 
-   bool validateGuiValue(const double GuiValue, const double LowerBound, const double UpperBound);
+  void zeroTimeStepAccumulations ();
 
-   const string & determineConfigurationFileName(const string & SourceRockType);
+  const Simulator& getSimulator () const;
 
-   double getMaximumTimeStepSize ( const double depositionTime ) const;
+  Genex6::ChemicalModel * loadChemicalModel( const DataAccess::Interface::SourceRock * sr,
+                                             const bool printInitialisationDetails = true );
 
-   void zeroTimeStepAccumulations ();
+  /// The valid nodes of the source rock
+  std::vector<Genex6::SourceRockNode*> m_theNodes;
 
-   const Simulator& getSimulator () const;
-
-   Genex6::ChemicalModel * loadChemicalModel( const Interface::SourceRock * sr,
-                                              const bool printInitialisationDetails = true );
-
-   void setLayerName( const string & layerName );
-
-   /// The valid nodes of the source rock
-   std::vector<Genex6::SourceRockNode*> m_theNodes;
-
-   /// The simulator associated with the source rock
-   Genex6::Simulator *m_theSimulator;
-
-   /// The chemical model associated with the source rock with bigger number of species.
-   /// (to access SpeciesManager)
-   Genex6::ChemicalModel *m_theChemicalModel;
-
-   /// The chemical model associated with the source rock1
-   Genex6::ChemicalModel *m_theChemicalModel1;
-
-   /// The chemical model associated with the source rock2
-   Genex6::ChemicalModel *m_theChemicalModel2;
-
-   /// The snapshot intervals related to the source rock
-   std::vector <SnapshotInterval*> m_theIntervals;
-
-   ///The deposition time of the source rock
-   double m_depositionTime;
-
-   /// \brief List of all adsorption-history objects.
-   Genex6::SourceRockAdsorptionHistoryList m_sourceRockNodeAdsorptionHistory;
-
-   double m_runtime;
-   double m_time;
-   std::string m_layerName;
-   const Interface::Formation * m_formation;
-   /// if Sulphur is included
-   bool m_isSulphur;
+  double m_runtime;
+  double m_time;
 
 private: 
-   Genex6::AdsorptionSimulator * getAdsorptionSimulator() const;
+  Genex6::AdsorptionSimulator * getAdsorptionSimulator() const;
 
-   /// Apply SR mixing flag
-   bool m_applySRMixing;
+  /// Apply SR mixing flag
+  bool m_applySRMixing;
 
-   /// Output results also at minor snapshots
-   bool m_minorOutput;
+  /// Output results also at minor snapshots
+  bool m_minorOutput;
 
-   /// \brief The simulator for adsorption processes.
-   Genex6::AdsorptionSimulator* m_adsorptionSimulator;
-   Genex6::AdsorptionSimulator* m_adsorptionSimulator2;
+  /// The chemical model associated with the source rock1
+  Genex6::ChemicalModel *m_theChemicalModel1;
 
-   AbstractDerivedProperties::AbstractPropertyManager * m_propertyManager;
+  /// The chemical model associated with the source rock2
+  Genex6::ChemicalModel *m_theChemicalModel2;
 
-   std::map<std::string, Interface::GridMap*> m_theSnapShotOutputMaps;
-   /// \brief Mapping between source rock name and source rock type as written in genex configuration file
-   static std::map<std::string, std::string> s_CfgFileNameBySRType;
-   static void initializeCfgFileNameBySRType();
+  /// \brief The simulator for adsorption processes.
+  Genex6::AdsorptionSimulator* m_adsorptionSimulator;
+  Genex6::AdsorptionSimulator* m_adsorptionSimulator2;
+
+  AbstractDerivedProperties::AbstractPropertyManager * m_propertyManager;
+
+  std::map<std::string, DataAccess::Interface::GridMap*> m_theSnapShotOutputMaps;
+  /// \brief Mapping between source rock name and source rock type as written in genex configuration file
+  static std::map<std::string, std::string> s_CfgFileNameBySRType;
+  static void initializeCfgFileNameBySRType();
 
 
-   Interface::GridMap* m_hcSaturationOutputMap;
-   Interface::GridMap* m_irreducibleWaterSaturationOutputMap;
+  DataAccess::Interface::GridMap* m_hcSaturationOutputMap;
+  DataAccess::Interface::GridMap* m_irreducibleWaterSaturationOutputMap;
 
-   Interface::GridMap* m_gasVolumeOutputMap;
-   Interface::GridMap* m_oilVolumeOutputMap;
-   Interface::GridMap* m_gasExpansionRatio;
-   Interface::GridMap* m_gasGeneratedFromOtgc;
-   Interface::GridMap* m_totalGasGenerated;
+  DataAccess::Interface::GridMap* m_gasVolumeOutputMap;
+  DataAccess::Interface::GridMap* m_oilVolumeOutputMap;
+  DataAccess::Interface::GridMap* m_gasExpansionRatio;
+  DataAccess::Interface::GridMap* m_gasGeneratedFromOtgc;
+  DataAccess::Interface::GridMap* m_totalGasGenerated;
 
-   Interface::GridMap* m_fracOfAdsorptionCap;
+  DataAccess::Interface::GridMap* m_fracOfAdsorptionCap;
 
-   Interface::GridMap* m_hcVapourSaturation;
-   Interface::GridMap* m_hcLiquidSaturation;
+  DataAccess::Interface::GridMap* m_hcVapourSaturation;
+  DataAccess::Interface::GridMap* m_hcLiquidSaturation;
 
-   Interface::GridMap* m_adsorptionCapacity;
+  DataAccess::Interface::GridMap* m_adsorptionCapacity;
 
-   Interface::GridMap* m_retainedOilApiOutputMap;
-   Interface::GridMap* m_retainedCondensateApiOutputMap;
+  DataAccess::Interface::GridMap* m_retainedOilApiOutputMap;
+  DataAccess::Interface::GridMap* m_retainedCondensateApiOutputMap;
 
-   Interface::GridMap* m_retainedGor;
-   Interface::GridMap* m_retainedCgr;
+  DataAccess::Interface::GridMap* m_retainedGor;
+  DataAccess::Interface::GridMap* m_retainedCgr;
 
-   Interface::GridMap* m_overChargeFactor;
-   Interface::GridMap* m_porosityLossDueToPyrobitumen;
-   Interface::GridMap* m_h2sRisk;
-   Interface::GridMap* m_tocOutputMap;
+  DataAccess::Interface::GridMap* m_overChargeFactor;
+  DataAccess::Interface::GridMap* m_porosityLossDueToPyrobitumen;
+  DataAccess::Interface::GridMap* m_h2sRisk;
+  DataAccess::Interface::GridMap* m_tocOutputMap;
 
-   Interface::GridMap* m_sourceRockEndMember1;
-   Interface::GridMap* m_sourceRockEndMember2;
+  DataAccess::Interface::GridMap* m_sourceRockEndMember1;
+  DataAccess::Interface::GridMap* m_sourceRockEndMember2;
 
-   std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* > m_adsorpedOutputMaps;
-   std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* > m_expelledOutputMaps;
-   std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* > m_sourceRockExpelledOutputMaps;
-   std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* > m_freeOutputMaps;
-   std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* > m_retainedOutputMaps;
-
-   static const double conversionCoeffs [ 8 ];
+  std::map < CBMGenerics::ComponentManager::SpeciesNamesId, DataAccess::Interface::GridMap* > m_adsorpedOutputMaps;
+  std::map < CBMGenerics::ComponentManager::SpeciesNamesId, DataAccess::Interface::GridMap* > m_expelledOutputMaps;
+  std::map < CBMGenerics::ComponentManager::SpeciesNamesId, DataAccess::Interface::GridMap* > m_sourceRockExpelledOutputMaps;
+  std::map < CBMGenerics::ComponentManager::SpeciesNamesId, DataAccess::Interface::GridMap* > m_freeOutputMaps;
+  std::map < CBMGenerics::ComponentManager::SpeciesNamesId, DataAccess::Interface::GridMap* > m_retainedOutputMaps;
 };
 
-inline void GenexSourceRock::setLayerName( const string & aLayerName ) {
-   m_layerName = aLayerName;
-}
-
-inline bool GenexSourceRock::isSulphur() const {
-   return m_isSulphur;
-}
-
 inline const SpeciesManager& GenexSourceRock::getSpeciesManager () const {
-   return m_theChemicalModel->getSpeciesManager ();
+  return m_theChemicalModel->getSpeciesManager ();
 }
 
 inline void GenexSourceRock::setMinor( const bool minor) {
-   m_minorOutput = minor;
+  m_minorOutput = minor;
 }
 
 inline bool GenexSourceRock::getMinor(void) const {
-   return m_minorOutput;
+  return m_minorOutput;
 }
 
-}
-
-#endif
-
+} // namespace Genex6

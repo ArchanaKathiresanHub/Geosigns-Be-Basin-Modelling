@@ -68,11 +68,11 @@ public:
   ///  set second SR type, mixing parameter, check Sulphur
   virtual bool setFormationData ( const DataAccess::Interface::Formation * aFormation ) = 0;
 
-  /// \brief Clears the source-rock of any nodes, ...
-  void clear ();
+  /// \brief Clears the base variables ...
+  void clearBase ();
 
   /// \brief Clears the simulators and checmical models frmo the source rock.
-  void clearSimulator();
+  void clearSimulatorBase();
 
   /// Constructs the m_theSimulator, validates the chemical model
   virtual bool initialize ( const bool printInitialisationDetails = true ) = 0;
@@ -85,12 +85,6 @@ public:
 
   /// \brief Clear the history list.
   void clearSourceRockNodeAdsorptionHistory ();
-
-  /// \brief Sets variable that indicates whether output is desired also at minor snapshots
-  void setMinor (const bool minor);
-
-  /// \brief Gets variable that indicates whether output is desired also at minor snapshots
-  bool getMinor (void) const;
 
 protected:
 
@@ -117,12 +111,6 @@ protected:
   /// (to access SpeciesManager)
   Genex6::ChemicalModel *m_theChemicalModel;
 
-  /// The chemical model associated with the source rock1
-  Genex6::ChemicalModel *m_theChemicalModel1;
-
-  /// The chemical model associated with the source rock2
-  Genex6::ChemicalModel *m_theChemicalModel2;
-
   /// The snapshot intervals related to the source rock
   std::vector <SnapshotInterval*> m_theIntervals;
 
@@ -136,26 +124,12 @@ protected:
   /// if Sulphur is included
   bool m_isSulphur;
 
-private: 
-  /// Apply SR mixing flag
-  bool m_applySRMixing;
-
-  /// Output results also at minor snapshots
-  bool m_minorOutput;
-
+private:
   static const double conversionCoeffs [ 8 ];
 };
 
 inline bool GenexBaseSourceRock::isSulphur() const {
   return m_isSulphur;
-}
-
-inline void GenexBaseSourceRock::setMinor( const bool minor) {
-  m_minorOutput = minor;
-}
-
-inline bool GenexBaseSourceRock::getMinor(void) const {
-  return m_minorOutput;
 }
 
 } // namespace Genex6

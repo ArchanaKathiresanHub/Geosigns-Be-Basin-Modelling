@@ -80,8 +80,7 @@ namespace DataAccess
 
 	 private:
 			static const string s_MapAttributeNames[];
-
-						std::string m_layerName;
+			std::string m_layerName;
 
       };
 

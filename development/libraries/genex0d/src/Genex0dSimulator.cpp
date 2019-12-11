@@ -74,8 +74,6 @@ bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, c
     return false;
   }
 
-  m_gnx0dSourceRock->setMinor(true);
-
   m_gnx0dSourceRock->initializeComputations(thickness, inorganicDensity, time, temperature, pressure);
 
   if (!computeSourceRock(formation))
