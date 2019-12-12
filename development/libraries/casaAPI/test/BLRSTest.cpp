@@ -241,7 +241,7 @@ TEST_F( BLRSTest, VarySourceRockHISimpleTest )
 
    ASSERT_NEAR( minV[0],  371.0,      eps );  // does it range have given min value?
    ASSERT_NEAR( maxV[0],  571.0,      eps );  // does it range have given max value?
-   ASSERT_NEAR( baseV[0], 472.068687, eps );  // does it range have base value from the project?
+   ASSERT_NEAR( baseV[0], 472.068770, eps );  // does it range have base value from the project?
 }
 
 TEST_F( BLRSTest, VarySourceRockHIDepOnSrourceRockTypeTest )
@@ -257,9 +257,9 @@ TEST_F( BLRSTest, VarySourceRockHIDepOnSrourceRockTypeTest )
    VarPrmContinuous::PDF pdft = VarPrmContinuous::Block;
    const char * layerName = "Lower Jurassic";
 
-   double valRgs[3][3] = { { 737.10, 747.385814, 757.10 },
-                           { 460.82, 472.068686, 480.82 },
-                           { 200.50, 210.496382, 220.50 }
+   double valRgs[3][3] = { { 737.10, 747.385721, 757.10 },
+                           { 460.82, 472.068770, 480.82 },
+                           { 200.50, 210.496430, 220.50 }
                          };
 
    // create new scenario analysis
