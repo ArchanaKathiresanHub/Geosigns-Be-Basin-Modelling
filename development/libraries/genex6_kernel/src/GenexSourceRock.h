@@ -193,8 +193,6 @@ protected:
 
   void zeroTimeStepAccumulations ();
 
-  const Simulator& getSimulator () const;
-
   Genex6::ChemicalModel * loadChemicalModel( const DataAccess::Interface::SourceRock * sr,
                                              const bool printInitialisationDetails = true );
 

@@ -102,8 +102,6 @@ protected:
 
   double getMaximumTimeStepSize ( const double depositionTime ) const;
 
-  const Simulator& getSimulator () const;
-
   /// The simulator associated with the source rock
   Genex6::Simulator *m_theSimulator;
 

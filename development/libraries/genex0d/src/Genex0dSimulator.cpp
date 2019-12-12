@@ -92,7 +92,6 @@ bool Genex0dSimulator::saveTo(const std::string & outputFileName)
 
 bool Genex0dSimulator::computeSourceRock(const DataAccess::Interface::Formation * aFormation)
 {
-//  m_gnx0dSourceRock->clear();
   m_gnx0dSourceRock->setFormationData(aFormation);
   return m_gnx0dSourceRock->compute();
 }

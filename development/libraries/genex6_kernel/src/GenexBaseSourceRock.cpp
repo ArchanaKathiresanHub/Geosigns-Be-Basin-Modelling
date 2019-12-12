@@ -123,6 +123,8 @@ void GenexBaseSourceRock::clearSimulatorBase()
   if (m_theSimulator)
   {
     delete m_theSimulator;
+    m_theSimulator = nullptr;
+    m_theChemicalModel = nullptr;
   }
 }
 
@@ -215,12 +217,6 @@ void GenexBaseSourceRock::computeSnapshotIntervals (const DataAccess::Interface:
    } else {
       //throw
    }
-}
-
-// The following functions are not the the trunk version.
-// Can they be removed?
-const Simulator& GenexBaseSourceRock::getSimulator () const {
-   return *m_theSimulator;
 }
 
 }//namespace Genex6
