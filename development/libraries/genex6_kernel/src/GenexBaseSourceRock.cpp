@@ -60,7 +60,7 @@ GenexBaseSourceRock::~GenexBaseSourceRock(void)
 
 void GenexBaseSourceRock::getHIBounds( double &HILower, double &HIUpper ) {
    HILower = 28.47;
-   HIUpper = 773.6;
+   HIUpper = 890.1;
 }
 
 double GenexBaseSourceRock::convertHCtoHI( double aHC ) {

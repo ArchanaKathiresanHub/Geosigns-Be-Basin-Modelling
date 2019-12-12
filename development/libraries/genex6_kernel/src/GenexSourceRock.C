@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// Copyright (C) 2015-2019 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -373,167 +373,191 @@ bool GenexSourceRock::initialize ( const bool printInitialisationDetails )
   bool status = true;
 
   if(printInitialisationDetails ) {
-    LogHandler( LogHandler::INFO_SEVERITY ) << "Start Of Initialization...";
+     LogHandler( LogHandler::INFO_SEVERITY ) << "Start Of Initialization...";
   }
 
-  if( m_theSimulator == nullptr ) {
-    m_theSimulator = new Genex6::Simulator() ;
-    m_theChemicalModel1 = loadChemicalModel( this, printInitialisationDetails );
+  if( m_theSimulator == 0 ) {
+     m_theSimulator = new Genex6::Simulator() ;
+     m_theChemicalModel1 = loadChemicalModel( this, printInitialisationDetails );
   }
 
-  assert ( m_theSimulator != nullptr );
+  assert ( m_theSimulator != 0 );
   m_theSimulator->setChemicalModel( m_theChemicalModel1 );
   m_theChemicalModel =  m_theChemicalModel1;
   double maximumTimeStepSize1 = m_theSimulator->getMaximumTimeStepSize();
   int numberOfTimeSteps1   =  m_theSimulator->getNumberOfTimesteps();
 
-  if ( m_theSimulator != nullptr and  m_applySRMixing ) {
+  if ( m_theSimulator != 0 and  m_applySRMixing ) {
 
-    const DataAccess::Interface::SourceRock * sourceRock2 = m_formation->getSourceRock2();
-    m_theChemicalModel2 = loadChemicalModel( sourceRock2, printInitialisationDetails );
+     const DataAccess::Interface::SourceRock * sourceRock2 = m_formation->getSourceRock2();
+     m_theChemicalModel2 = loadChemicalModel( sourceRock2, printInitialisationDetails );
 
-    assert ( m_theChemicalModel2 != nullptr );
+     assert ( m_theChemicalModel2 != 0 );
 
-    // How to choose the timeStepSize and numberOfTimeSteps?
-    // If hcValueMixing == HC value of one of the mixed SourceRock, then fraction of the second SourceRock type is 0,
-    // therfore we can choose timeStepSize and numberOfTimeSteps of the first Source Rock.
-    // If hcValueMixing != HC, then choose the minimun timeStep and maximum number of time steps.
+     // How to choose the timeStepSize and numberOfTimeSteps?
+     // If hcValueMixing == HC value of one of the mixed SourceRock, then fraction of the second SourceRock type is 0,
+     // therefore we can choose timeStepSize and numberOfTimeSteps of the first Source Rock.
+     // If hcValueMixing != HC, then choose the minimun timeStep and maximum number of time steps.
 
-    double maximumTimeStepSize2 = m_theSimulator->getMaximumTimeStepSize();
-    int numberOfTimeSteps2   =  m_theSimulator->getNumberOfTimesteps();
+     double maximumTimeStepSize2 = m_theSimulator->getMaximumTimeStepSize();
+     int numberOfTimeSteps2   =  m_theSimulator->getNumberOfTimesteps();
 
-    double hcValue1 = getHcVRe05();
-    double hcValue2 = sourceRock2->getHcVRe05();
-
-    if(  m_formation->getSourceRockMixingHCGridName().length() == 0 ) {
-      if( m_formation->getSourceRockMixingHC() == DataAccess::Interface::DefaultUndefinedScalarValue ) {
-        status = false;
-        LogHandler( LogHandler::ERROR_SEVERITY ) << "The mixing HC value is undefined. Aborting...";
-      } else {
-        double hcValueMixing = ( m_formation->getSourceRockMixingHC() != 0.0 ? m_formation->getSourceRockMixingHC() : 0 );
-
-        if( hcValue1 == hcValueMixing ) {
-          m_theSimulator->setMaximumTimeStepSize( maximumTimeStepSize1 );
-          m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
-        } else if ( hcValue2 != hcValueMixing ) {
-          if( maximumTimeStepSize1 < maximumTimeStepSize2 ) m_theSimulator->setMaximumTimeStepSize( maximumTimeStepSize1 );
-          if( numberOfTimeSteps1 > numberOfTimeSteps2 ) m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
-          else m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
-        }
-        if ( printInitialisationDetails ) {
-          LogHandler( LogHandler::INFO_SEVERITY ) << "Applying Source Rock mixing H/C = " << hcValueMixing;
-        }
-      }
-    } else {
-      if( maximumTimeStepSize1 < maximumTimeStepSize2 ) m_theSimulator->setMaximumTimeStepSize( maximumTimeStepSize1 );
-      if( numberOfTimeSteps1 > numberOfTimeSteps2 ) m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
-      else m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
-
-      if ( printInitialisationDetails ) {
-        LogHandler( LogHandler::INFO_SEVERITY ) << "Applying Source Rock mixing with HC mixing map";
-      }
-    }
-    if( status ) {
-
-      status = m_theChemicalModel2->Validate();
-
-      if(  m_theChemicalModel1->GetNumberOfSpecies() < m_theChemicalModel2->GetNumberOfSpecies() ) {
-        m_theChemicalModel = m_theChemicalModel2;
-      }
-
-      if(printInitialisationDetails ) {
-        if(status) {
-          LogHandler( LogHandler::INFO_SEVERITY ) << "End Of Initialization.";
-          LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
+     double hcValue1 = getHcVRe05();
+     double hcValue2 = sourceRock2->getHcVRe05();
+#ifdef OBSOLETE
+     if(  m_formation->getSourceRockMixingHCGridName().length() == 0 ) {
+        if( m_formation->getSourceRockMixingHC() == Interface::DefaultUndefinedScalarValue ) {
+           status = false;
+           LogHandler( LogHandler::ERROR_SEVERITY ) << "The mixing HC value is undefined. Aborting...";
         } else {
-          LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid Chemical Model. Please check your source rock " << m_formation->getSourceRockType2Name() << " input parameters. Aborting...";
-          LogHandler( LogHandler::INFO_SEVERITY ) << "----------------------------------------------------------------------------------";
+           double hcValueMixing = ( m_formation->getSourceRockMixingHC() != 0 ? m_formation->getSourceRockMixingHC() : 0 );
+
+           if( hcValue1 == hcValueMixing ) {
+              m_theSimulator->setMaximumTimeStepSize( maximumTimeStepSize1 );
+              m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
+           } else if ( hcValue2 != hcValueMixing ) {
+              if( maximumTimeStepSize1 < maximumTimeStepSize2 ) m_theSimulator->setMaximumTimeStepSize( maximumTimeStepSize1 );
+              if( numberOfTimeSteps1 > numberOfTimeSteps2 ) m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
+              else m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
+           }
+           if ( printInitialisationDetails ) {
+              LogHandler( LogHandler::INFO_SEVERITY ) << "Applying Source Rock mixing H/C = " << hcValueMixing;
+           }
         }
-      }
-    }
+     }
+#endif
+	 if (m_formation->getSourceRockMixingHIGridName().length() == 0) {
+		 if (m_formation->getSourceRockMixingHI() == DataAccess::Interface::DefaultUndefinedScalarValue) {
+			 status = false;
+			 LogHandler(LogHandler::ERROR_SEVERITY) << "The mixing HC value is undefined. Aborting...";
+		 }
+		 else {
+			 double hcValueMixing = (m_formation->getSourceRockMixingHI() != 0 ? convertHItoHC(m_formation->getSourceRockMixingHI()) : 0);
+
+			 if (hcValue1 == hcValueMixing) {
+				 m_theSimulator->setMaximumTimeStepSize(maximumTimeStepSize1);
+				 m_theSimulator->setNumberOfTimesteps(numberOfTimeSteps1);
+			 }
+			 else if (hcValue2 != hcValueMixing) {
+				 if (maximumTimeStepSize1 < maximumTimeStepSize2) m_theSimulator->setMaximumTimeStepSize(maximumTimeStepSize1);
+				 if (numberOfTimeSteps1 > numberOfTimeSteps2) m_theSimulator->setNumberOfTimesteps(numberOfTimeSteps1);
+				 else m_theSimulator->setNumberOfTimesteps(numberOfTimeSteps1);
+			 }
+			 if (printInitialisationDetails) {
+				 LogHandler(LogHandler::INFO_SEVERITY) << "Applying Source Rock mixing H/C = " << hcValueMixing;
+			 }
+		 }
+	 }
+	 else {
+		if( maximumTimeStepSize1 < maximumTimeStepSize2 ) m_theSimulator->setMaximumTimeStepSize( maximumTimeStepSize1 );
+		if( numberOfTimeSteps1 > numberOfTimeSteps2 ) m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
+		else m_theSimulator->setNumberOfTimesteps( numberOfTimeSteps1 );
+
+        if ( printInitialisationDetails ) {
+           LogHandler( LogHandler::INFO_SEVERITY ) << "Applying Source Rock mixing with HC mixing map";
+        }
+     }
+     if( status ) {
+
+        status = m_theChemicalModel2->Validate();
+
+        if(  m_theChemicalModel1->GetNumberOfSpecies() < m_theChemicalModel2->GetNumberOfSpecies() ) {
+           m_theChemicalModel = m_theChemicalModel2;
+        }
+
+        if(printInitialisationDetails ) {
+           if(status) {
+              LogHandler( LogHandler::INFO_SEVERITY ) << "End Of Initialization.";
+              LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
+           } else {
+              LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid Chemical Model. Please check your source rock " << m_formation->getSourceRockType2Name() << " input parameters. Aborting...";
+              LogHandler( LogHandler::INFO_SEVERITY ) << "----------------------------------------------------------------------------------";
+           }
+        }
+     }
   }
-  if ( status && m_theSimulator != nullptr and doApplyAdsorption ()) {
+  if ( status && m_theSimulator != 0 and doApplyAdsorption ()) {
 
-    if ( printInitialisationDetails ) {
-      LogHandler( LogHandler::INFO_SEVERITY ) << "Applying adsorption, TOCDependent is " << (adsorptionIsTOCDependent () ? "true" : "false" )
-                                              << ", function is " << getAdsorptionCapacityFunctionName ()
-                                              << ", OTGC is " << ( doComputeOTGC () ? "on" : "off" );
-    }
+     if ( printInitialisationDetails ) {
+        LogHandler( LogHandler::INFO_SEVERITY ) << "Applying adsorption, TOCDependent is " << (adsorptionIsTOCDependent () ? "true" : "false" )
+           << ", function is " << getAdsorptionCapacityFunctionName ()
+           << ", OTGC is " << ( doComputeOTGC () ? "on" : "off" );
+     }
 
-    AdsorptionFunction*  adsorptionFunction = AdsorptionFunctionFactory::getInstance ().getAdsorptionFunction ( getProjectHandle(),
-                                                                                                                adsorptionIsTOCDependent (),
-                                                                                                                getAdsorptionCapacityFunctionName ());
+     AdsorptionFunction*  adsorptionFunction = AdsorptionFunctionFactory::getInstance ().getAdsorptionFunction ( getProjectHandle(),
+                                                                                                                 adsorptionIsTOCDependent (),
+                                                                                                                 getAdsorptionCapacityFunctionName ());
 
-    m_adsorptionSimulator = AdsorptionSimulatorFactory::getInstance ().getAdsorptionSimulator ( getProjectHandle(),
-                                                                                                m_theChemicalModel1->getSpeciesManager(),
-                                                                                                getAdsorptionSimulatorName (),
-                                                                                                doComputeOTGC (),
-                                                                                                false );
+     m_adsorptionSimulator = AdsorptionSimulatorFactory::getInstance ().getAdsorptionSimulator ( getProjectHandle(),
+                                                                                                 m_theChemicalModel1->getSpeciesManager(),
+                                                                                                 getAdsorptionSimulatorName (),
+                                                                                                 doComputeOTGC (),
+                                                                                                 false );
 
-    status = status and adsorptionFunction->isValid ();
+     status = status and adsorptionFunction->isValid ();
 
-    if ( not adsorptionFunction->isValid () and printInitialisationDetails ) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid adsorption function. Please check adsorption function parameters. Aborting ...";
-      LogHandler( LogHandler::ERROR_SEVERITY ) << adsorptionFunction->getErrorMessage ();
-    }
+     if ( not adsorptionFunction->isValid () and printInitialisationDetails ) {
+        LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid adsorption function. Please check adsorption function parameters. Aborting ...";
+        LogHandler( LogHandler::ERROR_SEVERITY ) << adsorptionFunction->getErrorMessage ();
+     }
 
 
-    assert ( m_adsorptionSimulator != nullptr );
-    assert ( adsorptionFunction != nullptr );
+     assert ( m_adsorptionSimulator != 0 );
+     assert ( adsorptionFunction != 0 );
 
-    m_adsorptionSimulator->setAdsorptionFunction ( adsorptionFunction );
+     m_adsorptionSimulator->setAdsorptionFunction ( adsorptionFunction );
 
-    // Since it was allocated with managed = true, the adsorption-simulator
-    // must be deleted when the source-rock destructor is called.
-    // It will not be deleted in the simulators destructor.
-    //  m_theSimulator->addSubProcess ( m_adsorptionSimulator );
+     // Since it was allocated with managed = true, the adsorption-simulator
+     // must be deleted when the source-rock destructor is called.
+     // It will not be deleted in the simulators destructor.
+     //  m_theSimulator->addSubProcess ( m_adsorptionSimulator );
   }
   if( m_applySRMixing && status ) {
 
-    const DataAccess::Interface::SourceRock * sourceRock2 =  m_formation->getSourceRock2();
+     const DataAccess::Interface::SourceRock * sourceRock2 =  m_formation->getSourceRock2();
 
-    if( sourceRock2->doApplyAdsorption () ) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Applying adsorption for SourceRock type 2, TOCDependent is "
-                                               << (sourceRock2->adsorptionIsTOCDependent () ? "true" : "false" ) << ", function is "
-                                               << sourceRock2->getAdsorptionCapacityFunctionName () << ", OTGC is " << (sourceRock2->doComputeOTGC () ? "on" : "off" );
+     if( sourceRock2->doApplyAdsorption () ) {
+        LogHandler( LogHandler::ERROR_SEVERITY ) << "Applying adsorption for SourceRock type 2, TOCDependent is "
+           << (sourceRock2->adsorptionIsTOCDependent () ? "true" : "false" ) << ", function is "
+           << sourceRock2->getAdsorptionCapacityFunctionName () << ", OTGC is " << (sourceRock2->doComputeOTGC () ? "on" : "off" );
 
-      AdsorptionFunction*  adsorptionFunction = AdsorptionFunctionFactory::getInstance ().getAdsorptionFunction ( getProjectHandle(),
-                                                                                                                  sourceRock2->adsorptionIsTOCDependent (),
-                                                                                                                  sourceRock2->getAdsorptionCapacityFunctionName ());
+        AdsorptionFunction*  adsorptionFunction = AdsorptionFunctionFactory::getInstance ().getAdsorptionFunction ( getProjectHandle(),
+                                                                                                                    sourceRock2->adsorptionIsTOCDependent (),
+                                                                                                                    sourceRock2->getAdsorptionCapacityFunctionName ());
 
-      m_adsorptionSimulator2 = AdsorptionSimulatorFactory::getInstance ().getAdsorptionSimulator ( getProjectHandle(),
-                                                                                                   m_theChemicalModel2->getSpeciesManager(),
-                                                                                                   sourceRock2->getAdsorptionSimulatorName (),
-                                                                                                   sourceRock2->doComputeOTGC (),
-                                                                                                   false );
+        m_adsorptionSimulator2 = AdsorptionSimulatorFactory::getInstance ().getAdsorptionSimulator ( getProjectHandle(),
+                                                                                                     m_theChemicalModel2->getSpeciesManager(),
+                                                                                                     sourceRock2->getAdsorptionSimulatorName (),
+                                                                                                     sourceRock2->doComputeOTGC (),
+                                                                                                     false );
 
-      assert ( m_adsorptionSimulator2 != nullptr );
-      assert ( adsorptionFunction != nullptr );
+        assert ( m_adsorptionSimulator2 != 0 );
+        assert ( adsorptionFunction != 0 );
 
-      status = status and adsorptionFunction->isValid ();
+        status = status and adsorptionFunction->isValid ();
 
-      if ( not adsorptionFunction->isValid () and printInitialisationDetails ) {
-        LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid adsorption function. Please check adsorption function parameters. Aborting ...";
-        LogHandler( LogHandler::ERROR_SEVERITY ) << adsorptionFunction->getErrorMessage ();
-      }
+        if ( not adsorptionFunction->isValid () and printInitialisationDetails ) {
+           LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid adsorption function. Please check adsorption function parameters. Aborting ...";
+           LogHandler( LogHandler::ERROR_SEVERITY ) << adsorptionFunction->getErrorMessage ();
+        }
 
-      m_adsorptionSimulator2->setAdsorptionFunction ( adsorptionFunction );
-    }
+        m_adsorptionSimulator2->setAdsorptionFunction ( adsorptionFunction );
+     }
   }
 
   if( status ) {
-    status =  m_theChemicalModel1->Validate();
+     status =  m_theChemicalModel1->Validate();
 
-    if(printInitialisationDetails ) {
+     if(printInitialisationDetails ) {
 
-      if(status) {
-        LogHandler( LogHandler::INFO_SEVERITY ) << "End Of Initialization.";
-        LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------" ;
-      } else {
-        LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid Chemical Model. Please check your source rock input parameters. Aborting...";
-        LogHandler( LogHandler::INFO_SEVERITY )  << "----------------------------------------------------------------------------------";
-      }
-    }
+        if(status) {
+           LogHandler( LogHandler::INFO_SEVERITY ) << "End Of Initialization.";
+           LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------" ;
+        } else {
+           LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid Chemical Model. Please check your source rock input parameters. Aborting...";
+           LogHandler( LogHandler::INFO_SEVERITY )  << "----------------------------------------------------------------------------------";
+        }
+     }
 
   }
 
@@ -621,13 +645,10 @@ bool GenexSourceRock::preprocess()
 bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
                                    const DataAccess::Interface::GridMap* vre,
                                    const bool printInitialisationDetails ) {
-
   bool status = true;
 
-
-
   //load thickness in ActivityOutputGrid
-  const DataAccess::Interface::GridMap *InputThickness = getInputThicknessGridMap ();
+  const GridMap *InputThickness = getInputThicknessGridMap ();
 
   //TOC in ActivityOutputGrid
   DataAccess::Interface::SourceRockMapAttributeId dataIndex = DataAccess::Interface::TocIni;
@@ -637,255 +658,261 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
 
   //
   double f1, f2;
-  const DataAccess::Interface::GridMap *HCmap = nullptr;
+#ifdef OBSOLETE
+  const GridMap *HCmap = 0;
+#endif
+  const GridMap *HImap = 0;
   double Hc1 = 0.0, Hc2 = 0.0, invValue = 1.0, minHc = 0.0, maxHc = 0.0;
 
   bool testPercentage = false;
 
   if( m_applySRMixing ) {
-    HCmap = m_formation->getMixingHCMap ();
-    Hc1 = getHcVRe05();
-    Hc2 = m_theChemicalModel2->getHC();
+     HImap = m_formation->getMixingHIMap ();
+     Hc1 = getHcVRe05();
+     Hc2 = m_theChemicalModel2->getHC();
 
-    // here do all checking for h_c1 and h_c2 (zero, equal, positive and all everything...) ? Or not?
-    // assume, that all to be done in BPA
+     // here do all checking for h_c1 and h_c2 (zero, equal, positive and all everything...) ? Or not?
+     // assume, that all to be done in BPA
 
-    if( fabs( Hc1 - Hc2 ) <= Constants::Zero ) {
-      if( !testPercentage ) {
-        status = false;
-        if (printInitialisationDetails ) {
-          LogHandler( LogHandler::ERROR_SEVERITY ) << "SourceRock Type1 H/C is equal SourceRock Type2 H/C. Terminating preprocessing...";
+     if( fabs( Hc1 - Hc2 ) <= Constants::Zero ) {
+        if( !testPercentage ) {
+           status = false;
+           if (printInitialisationDetails ) {
+              LogHandler( LogHandler::ERROR_SEVERITY ) << "SourceRock Type1 H/C is equal SourceRock Type2 H/C. Terminating preprocessing...";
+           }
+           return status;
+        } else {
+           if ( printInitialisationDetails ) {
+              LogHandler( LogHandler::INFO_SEVERITY ) << "SourceRock Type1 H/C is equal SourceRock Type2 H/C. Run the percentage...";
+           }
+
         }
-        return status;
-      } else {
-        if ( printInitialisationDetails ) {
-          LogHandler( LogHandler::INFO_SEVERITY ) << "SourceRock Type1 H/C is equal SourceRock Type2 H/C. Run the percentage...";
-        }
-
-      }
-    } else {
-      invValue = 1.0 / ( Hc1 - Hc2 );
-      minHc = min( Hc1, Hc2 );
-      maxHc = max( Hc1, Hc2 );
-    }
+     } else {
+        invValue = 1.0 / ( Hc1 - Hc2 );
+        minHc = min( Hc1, Hc2 );
+        maxHc = max( Hc1, Hc2 );
+     }
   }
 
 
-  if ( validityMap != nullptr && InputThickness != nullptr && TOCmap != nullptr )
+  if ( validityMap != 0 && InputThickness != 0 && TOCmap != 0 )
   {
-    validityMap->retrieveData ();
-    InputThickness->retrieveData ();
-    TOCmap->retrieveData ();
+     validityMap->retrieveData ();
+     InputThickness->retrieveData ();
+     TOCmap->retrieveData ();
 
-    if( HCmap != nullptr ) HCmap->retrieveData();
+     if( HImap != 0 ) HImap->retrieveData();
 
-    if (isVreOn) {
-      if(vre) {
-        vre->retrieveData ();
-      } else {
-        status = false;
-        LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of Vr property for layer : " << getLayerName() <<
-                                                    " Terminating preprocessing...";
-        return status;
-      }
-    }
+     if (isVreOn) {
+        if(vre) {
+           vre->retrieveData ();
+        } else {
+           status = false;
+           LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of Vr property for layer : " << getLayerName() <<
+              " Terminating preprocessing...";
+           return status;
+        }
+     }
 
-    double lithoDensity1, lithoDensity2, lithoDensity3;
+     double lithoDensity1, lithoDensity2, lithoDensity3;
 
-    lithoDensity1 = lithoDensity2 = lithoDensity3 = 0.0;
+     lithoDensity1 = lithoDensity2 = lithoDensity3 = 0.0;
 
-    const DataAccess::Interface::LithoType* litho1 = getLithoType1 ();
-    const DataAccess::Interface::LithoType* litho2 = getLithoType2 ();
-    const DataAccess::Interface::LithoType* litho3 = getLithoType3 ();
+     const DataAccess::Interface::LithoType* litho1 = getLithoType1 ();
+     const DataAccess::Interface::LithoType* litho2 = getLithoType2 ();
+     const DataAccess::Interface::LithoType* litho3 = getLithoType3 ();
 
-    const DataAccess::Interface::GridMap* litho1PercentageMap = getLithoType1PercentageMap ();
-    const DataAccess::Interface::GridMap* litho2PercentageMap = getLithoType2PercentageMap ();
-    const DataAccess::Interface::GridMap* litho3PercentageMap = getLithoType3PercentageMap ();
+     const DataAccess::Interface::GridMap* litho1PercentageMap = getLithoType1PercentageMap ();
+     const DataAccess::Interface::GridMap* litho2PercentageMap = getLithoType2PercentageMap ();
+     const DataAccess::Interface::GridMap* litho3PercentageMap = getLithoType3PercentageMap ();
 
-    unsigned int depthlitho1PercentageMap, depthlitho2PercentageMap, depthlitho3PercentageMap;
+     unsigned int depthlitho1PercentageMap, depthlitho2PercentageMap, depthlitho3PercentageMap;
 
-    depthlitho1PercentageMap = depthlitho2PercentageMap = depthlitho3PercentageMap = 0;
+     depthlitho1PercentageMap = depthlitho2PercentageMap = depthlitho3PercentageMap = 0;
 
-    if (litho1 && litho1PercentageMap)
-    {
-      lithoDensity1 = getLithoDensity (litho1);
-      litho1PercentageMap->retrieveData ();
-      depthlitho1PercentageMap = litho1PercentageMap->getDepth ();
-    }
+     if (litho1 && litho1PercentageMap)
+     {
+        lithoDensity1 = getLithoDensity (litho1);
+        litho1PercentageMap->retrieveData ();
+        depthlitho1PercentageMap = litho1PercentageMap->getDepth ();
+     }
 
-    if (litho2 && litho2PercentageMap)
-    {
-      lithoDensity2 = getLithoDensity (litho2);
-      litho2PercentageMap->retrieveData ();
-      depthlitho2PercentageMap = litho2PercentageMap->getDepth ();
-    }
+     if (litho2 && litho2PercentageMap)
+     {
+        lithoDensity2 = getLithoDensity (litho2);
+        litho2PercentageMap->retrieveData ();
+        depthlitho2PercentageMap = litho2PercentageMap->getDepth ();
+     }
 
-    if (litho3 && litho3PercentageMap)
-    {
-      lithoDensity3 = getLithoDensity (litho3);
-      litho3PercentageMap->retrieveData ();
-      depthlitho3PercentageMap = litho3PercentageMap->getDepth ();
-    }
+     if (litho3 && litho3PercentageMap)
+     {
+        lithoDensity3 = getLithoDensity (litho3);
+        litho3PercentageMap->retrieveData ();
+        depthlitho3PercentageMap = litho3PercentageMap->getDepth ();
+     }
 
-    unsigned int lowResI, lowResJ;
+     unsigned int lowResI, lowResJ;
 
-    unsigned int depthValidity = validityMap->getDepth ();
-    unsigned int depthVre = ( vre != nullptr ? vre->getDepth () : 0 );
-    unsigned int depthThickness = InputThickness->getDepth ();
-    unsigned int depthTOC = TOCmap->getDepth ();
-    unsigned int depthHc = ( HCmap ? HCmap->getDepth () : 0 );
+     unsigned int depthValidity = validityMap->getDepth ();
+     unsigned int depthVre = ( vre != 0 ? vre->getDepth () : 0 );
+     unsigned int depthThickness = InputThickness->getDepth ();
+     unsigned int depthTOC = TOCmap->getDepth ();
+     unsigned int depthHc = ( HImap ? HImap->getDepth () : 0 );
 
-    DataAccess::Interface::ModellingMode theMode = getProjectHandle().getModellingMode ();
+     DataAccess::Interface::ModellingMode theMode = getProjectHandle().getModellingMode ();
 
-    unsigned int endMapI = 0;
-    unsigned int endMapJ = 0;
+     unsigned int endMapI = 0;
+     unsigned int endMapJ = 0;
 
-    if (DataAccess::Interface::MODE3D == theMode)
-    {
-      endMapI = validityMap->lastI ();
-      endMapJ = validityMap->lastJ ();
-    }
-    else if (DataAccess::Interface::MODE1D == theMode)
-    {
-      endMapI = validityMap->firstI ();
-      endMapJ = validityMap->firstJ ();
-    }
+     if (DataAccess::Interface::MODE3D == theMode)
+     {
+        endMapI = validityMap->lastI ();
+        endMapJ = validityMap->lastJ ();
+     }
+     else if (DataAccess::Interface::MODE1D == theMode)
+     {
+        endMapI = validityMap->firstI ();
+        endMapJ = validityMap->firstJ ();
+     }
 
-    for (lowResI = validityMap->firstI (); lowResI <= endMapI; ++lowResI)
-    {
-      for (lowResJ = validityMap->firstJ (); lowResJ <= endMapJ; ++lowResJ)
-      {
-        double validValue = validityMap->getValue (lowResI, lowResJ, depthValidity - 1);
-        double VreAtPresentDay = 0.0;
-
-        if ( vre != nullptr && isVreOn)
+     for (lowResI = validityMap->firstI (); lowResI <= endMapI; ++lowResI)
+     {
+        for (lowResJ = validityMap->firstJ (); lowResJ <= endMapJ; ++lowResJ)
         {
-          VreAtPresentDay = vre->getValue (lowResI, lowResJ, depthVre - 1);
-        }
-        double in_thickness = InputThickness->getValue (lowResI, lowResJ, depthThickness - 1);
-        double in_TOC = TOCmap->getValue (lowResI, lowResJ, depthTOC - 1);
-        double inorganicDensity = 0.0;
+           double validValue = validityMap->getValue (lowResI, lowResJ, depthValidity - 1);
+           double VreAtPresentDay = 0.0;
 
-        if (litho1 && litho1PercentageMap) {
-          inorganicDensity +=
-              lithoDensity1 * 0.01 * litho1PercentageMap->getValue (lowResI, lowResJ,
-                                                                    depthlitho1PercentageMap - 1);
-        }
+           if ( vre != 0 && isVreOn)
+           {
+              VreAtPresentDay = vre->getValue (lowResI, lowResJ, depthVre - 1);
+           }
+           double in_thickness = InputThickness->getValue (lowResI, lowResJ, depthThickness - 1);
+           double in_TOC = TOCmap->getValue (lowResI, lowResJ, depthTOC - 1);
+           double inorganicDensity = 0.0;
 
-        if (litho2 && litho2PercentageMap)
-        {
-          inorganicDensity +=
-              lithoDensity2 * 0.01 * litho2PercentageMap->getValue (lowResI, lowResJ,
-                                                                    depthlitho2PercentageMap - 1);
-        }
-        if (litho3 && litho3PercentageMap) {
-          inorganicDensity +=
-              lithoDensity3 * 0.01 * litho3PercentageMap->getValue (lowResI, lowResJ,
-                                                                    depthlitho3PercentageMap - 1);
-        }
+           if (litho1 && litho1PercentageMap) {
+              inorganicDensity +=
+                    lithoDensity1 * 0.01 * litho1PercentageMap->getValue (lowResI, lowResJ,
+                                                                          depthlitho1PercentageMap - 1);
+           }
 
-        if ( isNodeValid ( validValue, VreAtPresentDay, in_thickness, in_TOC, inorganicDensity,
-                           DataAccess::Interface::DefaultUndefinedMapValue))
-        {
+           if (litho2 && litho2PercentageMap)
+           {
+              inorganicDensity +=
+                    lithoDensity2 * 0.01 * litho2PercentageMap->getValue (lowResI, lowResJ,
+                                                                          depthlitho2PercentageMap - 1);
+           }
+           if (litho3 && litho3PercentageMap) {
+              inorganicDensity +=
+                    lithoDensity3 * 0.01 * litho3PercentageMap->getValue (lowResI, lowResJ,
+                                                                          depthlitho3PercentageMap - 1);
+           }
 
-          if (!isNodeActive (VreAtPresentDay, in_thickness, in_TOC, inorganicDensity, validValue))
-          {
-            // not sure if this still constitutes an optimization.....
-            in_thickness = 0.0;
-            in_TOC = 0.0;
-            inorganicDensity = 0.0;
-          }
+           if ( isNodeValid ( validValue, VreAtPresentDay, in_thickness, in_TOC, inorganicDensity,
+                              DataAccess::Interface::DefaultUndefinedMapValue))
+           {
 
-          if( HCmap != nullptr ) {
-            double hcValue = HCmap->getValue (lowResI, lowResJ, depthHc - 1);
-            if( hcValue != DataAccess::Interface::DefaultUndefinedMapValue ) {
-              if( testPercentage ) {
-                f1 = hcValue;
-              } else {
-                if(( minHc > hcValue ) || ( maxHc < hcValue ) ) { // may be it's not necessary if already has been done in BPA..
-                  status = false;
-                  LogHandler( LogHandler::ERROR_SEVERITY ) << "HC map value  " << hcValue << " is out of range: H/C1 = " << Hc1 << " and H/C2 = " << Hc2 << ".";
-                  break;
-                }
-                if( hcValue == Hc1 ) { f1 = 1.0; }
-                else if (  hcValue == Hc2 ) { f1 = 0.0; }
-                else {
-                  f1 = ( hcValue - Hc2 ) * invValue;
-                }
-              }
-              f2 = 1.0 - f1;
-            } else {
-              f1 = f2 =  DataAccess::Interface::DefaultUndefinedMapValue;
-            }
+             if (!isNodeActive (VreAtPresentDay, in_thickness, in_TOC, inorganicDensity, validValue))
+             {
+               // not sure if this still constitutes an optimization.....
+               in_thickness = 0;
+               in_TOC = 0;
+               inorganicDensity = 0;
+             }
 
-          } else {
-            f1 = f2 = 0.0;
-          }
-
-
-          Genex6::SourceRockNode * theNode = new Genex6::SourceRockNode (in_thickness, in_TOC, inorganicDensity, f1, f2, lowResI, lowResJ);
-          addNode (theNode);
-        }
-
-      }
-
-    }
+              if( HImap != 0 ) {
 #ifdef OBSOLETE
-    if (DataAccess::Interface::MODE1D == theMode) {
-      if (m_theNodes.empty ()) {
-        // This is a perfectly legitimate situation!!!
-        status = false;
-        LogHandler( LogHandler::WARNING_SEVERITY ) << "No valid Source Rock Nodes. Terminating preprocessing...";
-      }
-    }
+                 double hcValue = HImap->getValue (lowResI, lowResJ, depthHc - 1);
+#endif
+                 double hcValue = convertHItoHC(HImap->getValue(lowResI, lowResJ, depthHc - 1));
+                 if( hcValue != DataAccess::Interface::DefaultUndefinedMapValue ) {
+                    if( testPercentage ) {
+                       f1 = hcValue;
+                    } else {
+                       if(( minHc > hcValue ) || ( maxHc < hcValue ) ) { // may be it's not necessary if already has been done in BPA..
+                          status = false;
+                          LogHandler( LogHandler::ERROR_SEVERITY ) << "HC map value  " << hcValue << " is out of range: H/C1 = " << Hc1 << " and H/C2 = " << Hc2 << ".";
+                          break;
+                       }
+                       if( hcValue == Hc1 ) { f1 = 1.0; }
+                       else if (  hcValue == Hc2 ) { f1 = 0.0; }
+                       else {
+                          f1 = ( hcValue - Hc2 ) * invValue;
+                       }
+                    }
+                    f2 = 1.0 - f1;
+                 } else {
+                    f1 = f2 =  DataAccess::Interface::DefaultUndefinedMapValue;
+                 }
+
+              } else {
+                 f1 = f2 = 0.0;
+              }
+
+
+              Genex6::SourceRockNode * theNode = new Genex6::SourceRockNode (in_thickness, in_TOC, inorganicDensity, f1, f2, lowResI, lowResJ);
+              addNode (theNode);
+           }
+
+        }
+
+     }
+#ifdef OBSOLETE
+     if (DataAccess::Interface::MODE1D == theMode) {
+        if (m_theNodes.empty ()) {
+           // This is a perfectly legitimate situation!!!
+           status = false;
+           LogHandler( LogHandler::WARNING_SEVERITY ) << "No valid Source Rock Nodes. Terminating preprocessing...";
+        }
+     }
 #endif
 
-    //restore local map data
-    validityMap->restoreData ();
-    InputThickness->restoreData ();
-    TOCmap->restoreData ();
+     //restore local map data
+     validityMap->restoreData ();
+     InputThickness->restoreData ();
+     TOCmap->restoreData ();
 
-    if( HCmap ) HCmap->restoreData();
+     if(HImap) HImap->restoreData();
 
-    if (vre && isVreOn) {
-      vre->restoreData ();
-    }
-    if (litho1PercentageMap) {
-      litho1PercentageMap->restoreData ();
-    }
-    if (litho2PercentageMap) {
-      litho2PercentageMap->restoreData ();
-    }
-    if (litho3PercentageMap) {
-      litho3PercentageMap->restoreData ();
-    }
+     if (vre && isVreOn) {
+        vre->restoreData ();
+     }
+     if (litho1PercentageMap) {
+        litho1PercentageMap->restoreData ();
+     }
+     if (litho2PercentageMap) {
+        litho2PercentageMap->restoreData ();
+     }
+     if (litho3PercentageMap) {
+        litho3PercentageMap->restoreData ();
+     }
 
-    if (printInitialisationDetails ) {
+     if (printInitialisationDetails ) {
 
-      if( status ) {
-        LogHandler( LogHandler::INFO_SEVERITY ) << "End of preprocessing.";
-        LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
-      } else {
-        LogHandler( LogHandler::ERROR_SEVERITY ) << "Terminating preprocessing...";
-      }
+        if( status ) {
+           LogHandler( LogHandler::INFO_SEVERITY ) << "End of preprocessing.";
+           LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
+        } else {
+           LogHandler( LogHandler::ERROR_SEVERITY ) << "Terminating preprocessing...";
+        }
 
-    }
+     }
 
   }
   else
   {
-    status = false;
+     status = false;
 
-    if ( validityMap == nullptr) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of temperature property for layer : " << getLayerName() <<
-                                                  " Terminating preprocessing...";
-    } else if ( InputThickness == nullptr) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of thickness for layer : " << getLayerName() << " Terminating preprocessing...";
-    } else if ( TOCmap == nullptr) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of TOC for layer : " << getLayerName() << " Terminating preprocessing...";
-    } else {
-      LogHandler( LogHandler::INFO_SEVERITY ) << "Terminating preprocessing...";
-    }
+     if ( validityMap == 0) {
+        LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of temperature property for layer : " << getLayerName() <<
+           " Terminating preprocessing...";
+     } else if ( InputThickness == 0) {
+        LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of thickness for layer : " << getLayerName() << " Terminating preprocessing...";
+     } else if ( TOCmap == 0) {
+        LogHandler( LogHandler::ERROR_SEVERITY ) << "Unsuccessful upload of TOC for layer : " << getLayerName() << " Terminating preprocessing...";
+     } else {
+        LogHandler( LogHandler::INFO_SEVERITY ) << "Terminating preprocessing...";
+     }
 
   }
 
