@@ -102,6 +102,10 @@ protected:
 
   double getMaximumTimeStepSize ( const double depositionTime ) const;
 
+  int getRunType(const double in_SC) const;
+
+  char * getGenexEnvironment(const double in_SC) const;
+
   /// The simulator associated with the source rock
   Genex6::Simulator *m_theSimulator;
 

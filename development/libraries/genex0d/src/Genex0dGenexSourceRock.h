@@ -68,8 +68,6 @@ protected:
   bool process() final;
 
 private:
-  char * getGenexEnvironment() const;
-  int getRunType() const;
   bool computePTSnapShot(const double time, const double inPressure, const double inTemperature);
 
   std::unique_ptr<Genex6::SourceRockNode> m_sourceRockNode;

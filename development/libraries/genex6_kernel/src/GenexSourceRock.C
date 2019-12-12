@@ -287,28 +287,19 @@ ChemicalModel * GenexSourceRock::loadChemicalModel( const DataAccess::Interface:
 
   double in_SC = (theScIni != 0.0 ? ( validateGuiValue(theScIni, 0.01, 0.09) == true ? theScIni : 0.03 ) : 0.0 );
 
-  int runType = ( in_SC != 0.0 ? Genex6::Constants::SIMGENEX : (Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX5) );
-
   const std::string & SourceRockType = theSourceRock->getBaseSourceRockType();
   const std::string & theType = ( SourceRockType.empty() ? determineConfigurationFileName( theSourceRock->getType() ) :
                                                       determineConfigurationFileName( SourceRockType ) );
 
   std::string fullPath;
-  char *GENEXDIR = nullptr;
   char *MY_GENEX5DIR = getenv("MY_GENEX5DIR");
-
-  if( runType & Genex6::Constants::SIMGENEX5 ) {
-    GENEXDIR = getenv("GENEX5DIR");
-  } else {
-    GENEXDIR = getenv("GENEX6DIR");
-  }
 
   if(MY_GENEX5DIR != nullptr) {
     fullPath = MY_GENEX5DIR;
-  } else if(GENEXDIR != nullptr) {
-    fullPath = GENEXDIR;
+  } else if(getGenexEnvironment(in_SC) != nullptr) {
+    fullPath = getGenexEnvironment(in_SC);
   } else {
-    LogHandler( LogHandler::ERROR_SEVERITY ) << "Environment Variable " << (runType & Genex6::Constants::SIMGENEX5 ? "GENEX5DIR" : "GENEX6DIR") << " not set. Aborting...";
+    LogHandler( LogHandler::ERROR_SEVERITY ) << "Environment Variable " << (getRunType(in_SC) & Genex6::Constants::SIMGENEX5 ? "GENEX5DIR" : "GENEX6DIR") << " not set. Aborting...";
     exit(1); //TODO_SK: gracefully exit. Note: this statement used to be: return false; which crashes the application as a pointer should be returned.
   }
 
@@ -333,7 +324,7 @@ ChemicalModel * GenexSourceRock::loadChemicalModel( const DataAccess::Interface:
   flag = validateGuiValue(theC15SatDiffusionEnergy, 50000.0, 100000.0);
   double in_C15SatDiffusionEnergy = (flag == true ? theC15SatDiffusionEnergy : 75000.0);
 
-  ChemicalModel * theChemicalModel = m_theSimulator->loadChemicalModel(fullPath, runType, theType,
+  ChemicalModel * theChemicalModel = m_theSimulator->loadChemicalModel(fullPath, getRunType(in_SC), theType,
                                                                        in_HC, in_SC,in_Emean, in_VRE,
                                                                        in_asphalteneDiffusionEnergy, in_resinDiffusionEnergy,
                                                                        in_C15AroDiffusionEnergy, in_C15SatDiffusionEnergy);
@@ -347,7 +338,7 @@ ChemicalModel * GenexSourceRock::loadChemicalModel( const DataAccess::Interface:
     }
 
     LogHandler( LogHandler::INFO_SEVERITY ) << sourceRock.str();
-    LogHandler( LogHandler::INFO_SEVERITY ) << "Configuration File: " << theType <<  (!(runType & Genex6::Constants::SIMGENEX5) ? " (with sulphur)" : "");
+    LogHandler( LogHandler::INFO_SEVERITY ) << "Configuration File: " << theType <<  (!(getRunType(in_SC) & Genex6::Constants::SIMGENEX5) ? " (with sulphur)" : "");
   }
 
   return theChemicalModel;

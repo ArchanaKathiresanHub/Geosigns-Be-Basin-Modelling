@@ -68,25 +68,6 @@ Genex0dGenexSourceRock::~Genex0dGenexSourceRock()
   clearBase();
 }
 
-int Genex0dGenexSourceRock::getRunType() const
-{
-  return (m_srProperties.SCVRe05() != 0.0 ? Genex6::Constants::SIMGENEX : (Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX5));
-}
-
-char * Genex0dGenexSourceRock::getGenexEnvironment() const
-{
-  if (getRunType() & Genex6::Constants::SIMGENEX5)
-  {
-    return getenv("GENEX5DIR");
-  }
-  else
-  {
-    return getenv("GENEX6DIR");
-  }
-
-  return nullptr;
-}
-
 void Genex0dGenexSourceRock::initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
                                                     const std::vector<double> & temperature, const std::vector<double> & Ves)
 {
@@ -96,7 +77,7 @@ void Genex0dGenexSourceRock::initializeComputations(const double thickness, cons
 
   m_theSimulator = new Genex6::Simulator();
 
-  m_theChemicalModel = m_theSimulator->loadChemicalModel(getGenexEnvironment(), getRunType(),
+  m_theChemicalModel = m_theSimulator->loadChemicalModel(getGenexEnvironment(m_srProperties.SCVRe05()), getRunType(m_srProperties.SCVRe05()),
                                                          m_srProperties.typeNameID(), m_srProperties.HCVRe05(), m_srProperties.SCVRe05(),
                                                          m_srProperties.activationEnergy(), m_srProperties.Vr(),
                                                          m_srProperties.AsphalteneDiffusionEnergy(), m_srProperties.ResinDiffusionEnergy(),

@@ -219,4 +219,23 @@ void GenexBaseSourceRock::computeSnapshotIntervals (const DataAccess::Interface:
    }
 }
 
+int GenexBaseSourceRock::getRunType(const double in_SC) const
+{
+  return (in_SC != 0.0 ? Genex6::Constants::SIMGENEX : (Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX5));
+}
+
+char * GenexBaseSourceRock::getGenexEnvironment(const double in_SC) const
+{
+  if (getRunType(in_SC) & Genex6::Constants::SIMGENEX5)
+  {
+    return getenv("GENEX5DIR");
+  }
+  else
+  {
+    return getenv("GENEX6DIR");
+  }
+
+  return nullptr;
+}
+
 }//namespace Genex6
