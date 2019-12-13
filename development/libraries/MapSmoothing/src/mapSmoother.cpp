@@ -14,9 +14,9 @@
 
 #include "GridMap.h"
 
-#include <thread>
-
+#include <algorithm>
 #include <cmath>
+#include <thread>
 #include <vector>
 
 namespace MapSmoothing
