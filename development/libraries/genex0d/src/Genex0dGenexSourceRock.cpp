@@ -65,7 +65,6 @@ Genex0dGenexSourceRock::Genex0dGenexSourceRock (DataAccess::Interface::ProjectHa
 
 Genex0dGenexSourceRock::~Genex0dGenexSourceRock()
 {
-  clearBase();
 }
 
 void Genex0dGenexSourceRock::initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
@@ -178,7 +177,9 @@ bool Genex0dGenexSourceRock::preprocess()
 {
   LogHandler(LogHandler::INFO_SEVERITY) << "Start of preprocessing...";
 
-  computeSnapshotIntervals(*(m_projectHandle.getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR)));
+  std::unique_ptr<DataAccess::Interface::SnapshotList> snapshots(m_projectHandle.getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR));
+
+  computeSnapshotIntervals(*snapshots);
 
   if (m_theIntervals.empty())
   {

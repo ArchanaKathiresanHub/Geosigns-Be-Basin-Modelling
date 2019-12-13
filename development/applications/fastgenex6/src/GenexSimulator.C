@@ -172,15 +172,15 @@ bool GenexSimulator::computeSourceRock ( Genex6::GenexSourceRock * aSourceRock, 
       bool isSulphur = aSourceRock->isSulphur();
       if ( aSourceRock->doOutputAdsorptionProperties ()) {
          if( isSulphur ) {
-            aSourceRock->initializeSnapShotOutputMaps ( m_expelledToSourceRockPropertiesS, m_requestedProperties );
+            aSourceRock->initializeSnapshotOutputMaps ( m_expelledToSourceRockPropertiesS, m_requestedProperties );
          } else {
-            aSourceRock->initializeSnapShotOutputMaps ( m_expelledToSourceRockProperties, m_requestedProperties );
+            aSourceRock->initializeSnapshotOutputMaps ( m_expelledToSourceRockProperties, m_requestedProperties );
          }
       } else {
          if( isSulphur ) {
-            aSourceRock->initializeSnapShotOutputMaps ( m_expelledToCarrierBedPropertiesS, m_requestedProperties );
+            aSourceRock->initializeSnapshotOutputMaps ( m_expelledToCarrierBedPropertiesS, m_requestedProperties );
          } else {
-            aSourceRock->initializeSnapShotOutputMaps ( m_expelledToCarrierBedProperties, m_requestedProperties );
+            aSourceRock->initializeSnapshotOutputMaps ( m_expelledToCarrierBedProperties, m_requestedProperties );
          }
       }
 

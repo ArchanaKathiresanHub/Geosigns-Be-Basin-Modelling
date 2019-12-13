@@ -55,7 +55,7 @@ GenexBaseSourceRock::GenexBaseSourceRock ()
 
 GenexBaseSourceRock::~GenexBaseSourceRock(void)
 {
-   clearBase();
+   clearBaseAll();
 }
 
 void GenexBaseSourceRock::getHIBounds( double &HILower, double &HIUpper ) {
@@ -106,10 +106,15 @@ double GenexBaseSourceRock::convertHItoHC( double aHI ) {
    }
 }
 
+void GenexBaseSourceRock::clearBaseAll()
+{
+  clearBase();
+  clearSimulatorBase();
+}
+
 void GenexBaseSourceRock::clearBase()
 {
    clearSnapshotIntervals();
-   clearSimulatorBase();
    clearSourceRockNodeAdsorptionHistory ();
 
    if (m_theChemicalModel)

@@ -405,7 +405,7 @@ double DataDriller::get3dPropertyFromHDF( const double i, const double j,
   double value = DataAccess::Interface::DefaultUndefinedScalarValue;
   if (!propertyVec.empty())
   {
-    value = (isSurfaceTop ? propertyVec.back() : propertyVec[0]);
+    value = (isSurfaceTop ? propertyVec.back() : propertyVec.front());
   }
 
   hdfReadManager.closeSnapshotFile();

@@ -131,10 +131,9 @@ void GenexSourceRock::setPropertyManager ( AbstractDerivedProperties::AbstractPr
 
 void GenexSourceRock::clear()
 {
-  clearSnapshotIntervals();
+  clearBase();
   clearSimulator();
   clearSourceRockNodes();
-  clearSourceRockNodeAdsorptionHistory ();
 
   m_theSnapShotOutputMaps.clear();
   m_adsorpedOutputMaps.clear ();
@@ -189,16 +188,12 @@ void GenexSourceRock::clear()
 
 void GenexSourceRock::clearSimulator()
 {
-  if(m_theSimulator) {
-     // set ChemicalModel1 to be deleted inside Simulator destructor
-     m_theSimulator->setChemicalModel( m_theChemicalModel1 );
-
-     delete m_theSimulator;
-     m_theSimulator = nullptr;
-
-     m_theChemicalModel1 = nullptr;
-     m_theChemicalModel  = nullptr;
+  clearSimulatorBase();
+  if (m_theChemicalModel1)
+  {
+    m_theChemicalModel1 = nullptr;
   }
+
   if ( m_adsorptionSimulator != nullptr ) {
      delete m_adsorptionSimulator;
      m_adsorptionSimulator = nullptr;
@@ -1083,7 +1078,7 @@ bool GenexSourceRock::process()
   // d + dt is outside of the time-domain for the source-rock.
   // Should there be any computation at this point?
   // Should there be any output at this point: i) is anything generated? ii) most/all? maps will be filled with null/default /values.
-  status = computeSnapShot(t + dt, simulationStart);
+  status = computeSnapshot(t + dt, simulationStart);
 
   if(status == false) {
     return status;
@@ -1329,7 +1324,7 @@ bool GenexSourceRock::process()
 
     // Output at desired snapshots
     if( intervalEnd->getType() == DataAccess::Interface::MAJOR or m_minorOutput) {
-      computeSnapShot(previousTime, intervalEnd);
+      computeSnapshot(previousTime, intervalEnd);
       previousTime = intervalEnd->getTime();
     }
 
@@ -1358,7 +1353,7 @@ bool GenexSourceRock::process()
   return status;
 }
 
-void GenexSourceRock::initializeSnapShotOutputMaps ( const std::vector<std::string> & requiredPropertyNames,
+void GenexSourceRock::initializeSnapshotOutputMaps ( const std::vector<std::string> & requiredPropertyNames,
                                                      const std::vector<std::string> & theRequestedPropertyNames )
 {
   using namespace CBMGenerics;
@@ -2019,7 +2014,7 @@ void GenexSourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
 
 }
 
-bool GenexSourceRock::computeSnapShot ( const double previousTime,
+bool GenexSourceRock::computeSnapshot ( const double previousTime,
                                         const DataAccess::Interface::Snapshot *theSnapshot )
 {
   bool status = true;

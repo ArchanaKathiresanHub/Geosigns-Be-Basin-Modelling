@@ -65,7 +65,7 @@ public:
   GenexSourceRock (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record);
   virtual ~GenexSourceRock ();
 
-  void initializeSnapShotOutputMaps ( const std::vector<std::string> & requiredPropertyNames,
+  void initializeSnapshotOutputMaps ( const std::vector<std::string> & requiredPropertyNames,
                                       const std::vector<std::string> & theRequestedPropertyNames );
 
   ///  set second SR type, mixing parameter, check Sulphur
@@ -134,7 +134,7 @@ protected:
                              const LocalGridInterpolator* vre );
 
   /// Compute the new state and the results at a snapshot for all the valid source rock nodes
-  bool computeSnapShot ( const double previousTime,
+  bool computeSnapshot ( const double previousTime,
                          const DataAccess::Interface::Snapshot *theSnapshot );
 
   DataAccess::Interface::GridMap *createSnapshotResultPropertyValueMap(const std::string &propertyName,

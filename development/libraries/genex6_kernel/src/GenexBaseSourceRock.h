@@ -68,12 +68,6 @@ public:
   ///  set second SR type, mixing parameter, check Sulphur
   virtual bool setFormationData ( const DataAccess::Interface::Formation * aFormation ) = 0;
 
-  /// \brief Clears the base variables ...
-  void clearBase ();
-
-  /// \brief Clears the simulators and checmical models frmo the source rock.
-  void clearSimulatorBase();
-
   /// Constructs the m_theSimulator, validates the chemical model
   virtual bool initialize ( const bool printInitialisationDetails = true ) = 0;
 
@@ -87,6 +81,11 @@ public:
   void clearSourceRockNodeAdsorptionHistory ();
 
 protected:
+  /// \brief Clears the base variables ...
+  void clearBase ();
+
+  /// \brief Clears the simulators and checmical models frmo the source rock.
+  void clearSimulatorBase();
 
   /// Construct the valid source rock node set, the valid snapshot intervals
   virtual bool preprocess () = 0;
@@ -127,6 +126,8 @@ protected:
   bool m_isSulphur;
 
 private:
+  void clearBaseAll();
+
   static const double conversionCoeffs [ 8 ];
 };
 
