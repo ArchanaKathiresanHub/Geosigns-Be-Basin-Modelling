@@ -74,8 +74,6 @@ bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, c
     return false;
   }
 
-  m_gnx0dSourceRock->setMinor(true);
-
   m_gnx0dSourceRock->initializeComputations(thickness, inorganicDensity, time, temperature, pressure);
 
   if (!computeSourceRock(formation))
@@ -94,33 +92,7 @@ bool Genex0dSimulator::saveTo(const std::string & outputFileName)
 
 bool Genex0dSimulator::computeSourceRock(const DataAccess::Interface::Formation * aFormation)
 {
-//  m_gnx0dSourceRock->clear();
   m_gnx0dSourceRock->setFormationData(aFormation);
-
-  bool isSulphur = m_gnx0dSourceRock->isSulphur();
-  if (m_gnx0dSourceRock->doOutputAdsorptionProperties())
-  {
-    if (isSulphur)
-    {
-      m_gnx0dSourceRock->initializeSnapShotOutputMaps(m_expelledToSourceRockPropertiesS, m_requestedProperties);
-    }
-    else
-    {
-      m_gnx0dSourceRock->initializeSnapShotOutputMaps(m_expelledToSourceRockProperties, m_requestedProperties);
-    }
-  }
-  else
-  {
-    if (isSulphur)
-    {
-      m_gnx0dSourceRock->initializeSnapShotOutputMaps(m_expelledToCarrierBedPropertiesS, m_requestedProperties);
-    }
-    else
-    {
-      m_gnx0dSourceRock->initializeSnapShotOutputMaps(m_expelledToCarrierBedProperties, m_requestedProperties);
-    }
-  }
-
   return m_gnx0dSourceRock->compute();
 }
 

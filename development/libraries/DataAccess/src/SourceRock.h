@@ -21,7 +21,7 @@ namespace DataAccess
 			/// Return the layer name of this SourceRock
 			virtual const string & getLayerName (void) const;
 						/// Set a layer name.
-						void setLayerName ( const std::string& name );
+						void setLayerName ( const std::string& aLayerName );
 			/// Return the type of this SourceRock
 			virtual const string & getType (void) const;
 						/// Return the H/C of this SourceRock
@@ -80,10 +80,13 @@ namespace DataAccess
 
 	 private:
 			static const string s_MapAttributeNames[];
-
-						std::string m_layerName;
+			std::string m_layerName;
 
       };
+
+      inline void SourceRock::setLayerName( const std::string & aLayerName ) {
+        m_layerName = aLayerName;
+      }
    }
 }
 

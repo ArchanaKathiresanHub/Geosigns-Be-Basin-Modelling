@@ -51,6 +51,7 @@ Genex0dGenexSourceRock::Genex0dGenexSourceRock (DataAccess::Interface::ProjectHa
                                                 const unsigned int indI,
                                                 const unsigned int indJ) :
   Genex0dSourceRock{projectHandle, inData},
+  Genex6::GenexBaseSourceRock{},
   m_sourceRockNode{nullptr},
   m_thickness{0.0},
   m_indI{indI},
@@ -66,25 +67,6 @@ Genex0dGenexSourceRock::~Genex0dGenexSourceRock()
 {
 }
 
-int Genex0dGenexSourceRock::getRunType() const
-{
-  return (m_srProperties.SCVRe05() != 0.0 ? Genex6::Constants::SIMGENEX : (Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX5));
-}
-
-char * Genex0dGenexSourceRock::getGenexEnvironment() const
-{
-  if (getRunType() & Genex6::Constants::SIMGENEX5)
-  {
-    return getenv("GENEX5DIR");
-  }
-  else
-  {
-    return getenv("GENEX6DIR");
-  }
-
-  return nullptr;
-}
-
 void Genex0dGenexSourceRock::initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
                                                     const std::vector<double> & temperature, const std::vector<double> & Ves)
 {
@@ -94,12 +76,11 @@ void Genex0dGenexSourceRock::initializeComputations(const double thickness, cons
 
   m_theSimulator = new Genex6::Simulator();
 
-  m_theChemicalModel = m_theChemicalModel1 =
-      m_theSimulator->loadChemicalModel(getGenexEnvironment(), getRunType(),
-                                        m_srProperties.typeNameID(), m_srProperties.HCVRe05(), m_srProperties.SCVRe05(),
-                                        m_srProperties.activationEnergy(), m_srProperties.Vr(),
-                                        m_srProperties.AsphalteneDiffusionEnergy(), m_srProperties.ResinDiffusionEnergy(),
-                                        m_srProperties.C15AroDiffusionEnergy(), m_srProperties.C15SatDiffusionEnergy());
+  m_theChemicalModel = m_theSimulator->loadChemicalModel(getGenexEnvironment(m_srProperties.SCVRe05()), getRunType(m_srProperties.SCVRe05()),
+                                                         m_srProperties.typeNameID(), m_srProperties.HCVRe05(), m_srProperties.SCVRe05(),
+                                                         m_srProperties.activationEnergy(), m_srProperties.Vr(),
+                                                         m_srProperties.AsphalteneDiffusionEnergy(), m_srProperties.ResinDiffusionEnergy(),
+                                                         m_srProperties.C15AroDiffusionEnergy(), m_srProperties.C15SatDiffusionEnergy());
 
   if (!m_theSimulator->Validate())
   {
@@ -125,32 +106,30 @@ const Genex6::Simulator & Genex0dGenexSourceRock::simulator() const
   return *m_theSimulator;
 }
 
-// --------------------------------------------------------------------------------
-
 bool Genex0dGenexSourceRock::setFormationData( const DataAccess::Interface::Formation * aFormation )
 {
-   setLayerName( aFormation->getName() );
+  setLayerName( aFormation->getName() );
 
-   if( m_layerName == "" )
-   {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock " << getType() << ": the formation name is not set.";
-      return false;
-   }
+  if( getLayerName() == "" )
+  {
+    LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock " << getType() << ": the formation name is not set.";
+    return false;
+  }
 
-   m_formation = aFormation;
+  m_formation = aFormation;
 
-   const DataAccess::Interface::Surface * topSurface = m_formation->getTopSurface();
-   const DataAccess::Interface::Snapshot * topSurfaceSnapShot = topSurface->getSnapshot();
+  const DataAccess::Interface::Surface * topSurface = m_formation->getTopSurface();
+  const DataAccess::Interface::Snapshot * topSurfaceSnapShot = topSurface->getSnapshot();
 
-   if( topSurfaceSnapShot->getTime() == 0 )
-   {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock with deposition age 0 at : " << m_formation->getName();
-      return false;
-   }
+  if( topSurfaceSnapShot->getTime() == 0 )
+  {
+    LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot compute SourceRock with deposition age 0 at : " << m_formation->getName();
+    return false;
+  }
 
-   m_isSulphur = ( getScVRe05() > 0.0 ? true : false );
+  m_isSulphur = ( getScVRe05() > 0.0 ? true : false );
 
-   return true;
+  return true;
 }
 
 bool Genex0dGenexSourceRock::initialize(const bool printInitialisationDetails)
@@ -198,7 +177,9 @@ bool Genex0dGenexSourceRock::preprocess()
 {
   LogHandler(LogHandler::INFO_SEVERITY) << "Start of preprocessing...";
 
-  computeSnapshotIntervals(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR); // TODO: MINOR also to be added after datadriller is fixed
+  std::unique_ptr<DataAccess::Interface::SnapshotList> snapshots(m_projectHandle.getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR));
+
+  computeSnapshotIntervals(*snapshots);
 
   if (m_theIntervals.empty())
   {
@@ -233,7 +214,7 @@ bool Genex0dGenexSourceRock::addHistoryToNodes()
   // GenexHistory (no adsorption implemented yet)
   adsorptionHistory = Genex6::AdsorptionSimulatorFactory::getInstance().allocateNodeAdsorptionHistory(m_theChemicalModel->getSpeciesManager(),
                                                                                                       m_projectHandle,
-                                                                                                     Genex6::GenexSimulatorId);
+                                                                                                      Genex6::GenexSimulatorId);
 
   if (adsorptionHistory == nullptr)
   {
@@ -256,7 +237,7 @@ bool Genex0dGenexSourceRock::process()
   LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
 
   LogHandler(LogHandler::INFO_SEVERITY) << "Start Of processing...";
-  LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";  
+  LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
 
   std::vector<Genex6::SnapshotInterval*>::iterator itSnapInterv = m_theIntervals.begin();
   const DataAccess::Interface::Snapshot * intervalStart = (*itSnapInterv)->getStart();;
@@ -306,7 +287,7 @@ bool Genex0dGenexSourceRock::process()
 
       if (t - Genex6::Constants::TimeStepFraction * deltaT < snapShotIntervalEndTime)
       {
-         t = snapShotIntervalEndTime;
+        t = snapShotIntervalEndTime;
       }
     }
 
@@ -317,13 +298,13 @@ bool Genex0dGenexSourceRock::process()
   // Set the interval end for the current interval (doesn't need interpolation)
   computePTSnapShot(intervalEnd->getTime(), m_inVesAll[i], m_inTemperatures[i]);
 
-  clearSimulator();
+  clearSimulatorBase();
 
   if (status)
   {
-     LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
-     LogHandler(LogHandler::INFO_SEVERITY) << "End of processing.";
-     LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
+    LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
+    LogHandler(LogHandler::INFO_SEVERITY) << "End of processing.";
+    LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
   }
 
   saveSourceRockNodeAdsorptionHistory();

@@ -268,7 +268,11 @@ void Simulator::Preprocess(const double in_SC,
 }
 
 Simulator::~Simulator() {
+
+  if (m_theChemicalModel)
+  {
    delete m_theChemicalModel;
+  }
 
    /*
    SubProcessSimulatorList::iterator processIterator;

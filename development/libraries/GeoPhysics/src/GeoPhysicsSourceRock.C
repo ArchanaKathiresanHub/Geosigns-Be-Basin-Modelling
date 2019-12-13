@@ -45,7 +45,7 @@ void GeoPhysics::GeoPhysicsSourceRock::computeTimeInterval ( const double       
                                                              const Genex6::LocalGridInterpolator* porosity,
                                                              const Genex6::LocalGridInterpolator* permeability,
                                                              const Genex6::LocalGridInterpolator* vre,
-                                                             Interface::GridMap* genexData ) {
+                                                             DataAccess::Interface::GridMap*      genexData ) {
 
    double depositionTime = getProjectHandle().findFormation ( getLayerName ())->getTopSurface ()->getSnapshot ()->getTime ();
    unsigned int i;
@@ -99,7 +99,7 @@ void GeoPhysics::GeoPhysicsSourceRock::computeTimeInterval ( const double       
 
 }
 
-void GeoPhysics::GeoPhysicsSourceRock::collectIntervalResults ( Interface::GridMap* genexData ) {
+void GeoPhysics::GeoPhysicsSourceRock::collectIntervalResults ( DataAccess::Interface::GridMap* genexData ) {
 
    std::vector<Genex6::SourceRockNode*>::const_iterator itNode;
 
@@ -138,7 +138,7 @@ void GeoPhysics::GeoPhysicsSourceRock::collectIntervalResults ( Interface::GridM
 
 
 void GeoPhysics::GeoPhysicsSourceRock::fillResultMap ( const ComponentManager::SpeciesNamesId name,
-                                                       Interface::GridMap*               map ) const {
+                                                       DataAccess::Interface::GridMap*        map ) const {
 
 
    const std::string& speciesName = ComponentManager::getInstance ().getSpeciesName ( name );
@@ -177,7 +177,7 @@ void GeoPhysics::GeoPhysicsSourceRock::fillResultMap ( const ComponentManager::S
 
 
 void GeoPhysics::GeoPhysicsSourceRock::fillOptionalResultMap ( const GenexResultManager::ResultId name,
-                                                               Interface::GridMap*           map ) const {
+                                                               DataAccess::Interface::GridMap*    map ) const {
 
 
    std::vector<Genex6::SourceRockNode*>::const_iterator itNode;

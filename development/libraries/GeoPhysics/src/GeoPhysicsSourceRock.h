@@ -31,13 +31,13 @@ namespace GeoPhysics {
                                  const Genex6::LocalGridInterpolator* porosity,
                                  const Genex6::LocalGridInterpolator* permeability,
                                  const Genex6::LocalGridInterpolator* vre,
-                                 Interface::GridMap*            genexData );
+                                 DataAccess::Interface::GridMap*      genexData );
 
       void fillResultMap ( const CBMGenerics::ComponentManager::SpeciesNamesId name,
-                           Interface::GridMap*                                 map ) const;
+                           DataAccess::Interface::GridMap*                     map ) const;
 
       void fillOptionalResultMap ( const CBMGenerics::GenexResultManager::ResultId name,
-                                   Interface::GridMap*                             map ) const;
+                                   DataAccess::Interface::GridMap*                 map ) const;
 
       /// \brief Determine if adsorption needs to be applied.
       bool doApplyAdsorption () const;
@@ -47,7 +47,7 @@ namespace GeoPhysics {
 
    protected :
 
-      void collectIntervalResults ( Interface::GridMap* genexData );
+      void collectIntervalResults ( DataAccess::Interface::GridMap* genexData );
 
    private :
 

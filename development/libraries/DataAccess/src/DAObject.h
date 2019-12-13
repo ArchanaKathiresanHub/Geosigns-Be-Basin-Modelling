@@ -68,7 +68,6 @@ namespace DataAccess
             const GridMap * getMap( const T attributeId, const std::vector<std::string>& mapAttributeNames ) const;
 
          protected:
-
             DAObject(const DAObject& object);
 
             mutable database::Record * m_record;

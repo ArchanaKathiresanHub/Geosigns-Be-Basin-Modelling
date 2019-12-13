@@ -13,6 +13,8 @@
 #include "Genex0dGenexSourceRock.h"
 #include "Genex0dSourceRock.h"
 
+#include "GenexBaseSourceRock.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -21,35 +23,35 @@ namespace Genex6
 {
 class Simulator;
 class SourceRockNode;
-} // namespace Genex6
+}
 
 namespace database
 {
 class Record;
 class Table;
-} // namespace database
+}
 
 namespace DataAccess
 {
 namespace Interface
 {
 class ProjectHandle;
-} // namespace Interface
-} // namespace DataAccess
+}
+}
 
 namespace genex0d
 {
 
 class Genex0dPointAdsorptionHistory;
 
-class Genex0dGenexSourceRock : public Genex0dSourceRock
+class Genex0dGenexSourceRock : public Genex0dSourceRock, public Genex6::GenexBaseSourceRock
 {
 public:
   explicit Genex0dGenexSourceRock(DataAccess::Interface::ProjectHandle & projectHandle,
                                   const Genex0dInputData & inData,
                                   const unsigned int indI,
                                   const unsigned int indJ);
-  ~Genex0dGenexSourceRock();
+  virtual ~Genex0dGenexSourceRock();
 
   void initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
                               const std::vector<double> & temperature, const std::vector<double> & Ves);
@@ -66,8 +68,6 @@ protected:
   bool process() final;
 
 private:
-  char * getGenexEnvironment() const;
-  int getRunType() const;
   bool computePTSnapShot(const double time, const double inPressure, const double inTemperature);
 
   std::unique_ptr<Genex6::SourceRockNode> m_sourceRockNode;
