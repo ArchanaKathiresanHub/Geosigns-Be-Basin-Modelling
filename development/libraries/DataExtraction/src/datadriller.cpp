@@ -254,12 +254,9 @@ void DataDriller::readDataFromHDF()
         if ( z != DataAccess::Interface::DefaultUndefinedScalarValue ) // if z is given - look for the property at X,Y,Z point
         {
           value = get3dPropertyFromHDF( i, j, z, property, snapshot, recordIndex );
-          continue;
         }
 
-
-        // First check for surface name, if value found continue, otherwise look for formation name
-        if ( surfaceName != "" )
+        if ( value == DataAccess::Interface::DefaultUndefinedScalarValue && surfaceName != "" )
         {
           const DataAccess::Interface::Surface * surface = m_projectHandle->findSurface (surfaceName);
           if ( !surface ) throw RecordException( "Unknown SurfaceName value: %", surfaceName );
@@ -272,15 +269,22 @@ void DataDriller::readDataFromHDF()
           const DataAccess::Interface::Formation * formation = m_projectHandle->findFormation( formationName );
           if ( !formation ) throw RecordException( "Unknown FormationName value: %", formationName );
 
-          // An initial check for FORMATION MAP properties
-          if ( m_projectHandle->hasPropertyValues( DataAccess::Interface::FORMATION, property, snapshot, nullptr, formation, nullptr, DataAccess::Interface::MAP ) )
+          value = get2dPropertyFromHDF( i, j, nullptr, formation, property, snapshot, recordIndex );
+        }
+
+        if ( value == DataAccess::Interface::DefaultUndefinedScalarValue )
+        {
+          std::string formationMangledName = "";
+          if ( formationName != "" )
           {
-            value = get2dPropertyFromHDF( i, j, nullptr, formation, property, snapshot, recordIndex );
+            formationMangledName = m_projectHandle->findFormation( formationName )->getMangledName();
           }
-          if (value == DataAccess::Interface::DefaultUndefinedScalarValue)
+          else if ( surfaceName != "" )
           {
-            value = get3dPropertyFromHDF( i, j, formation->getMangledName(), true, property, snapshot, recordIndex );
+            formationMangledName = m_projectHandle->findSurface( surfaceName )->getBottomFormation()->getMangledName();
           }
+
+          value = get3dPropertyFromHDF( i, j, formationMangledName, true, property, snapshot, recordIndex );
         }
       }
       else
@@ -410,6 +414,7 @@ double DataDriller::get3dPropertyFromHDF( const double i, const double j,
 
   hdfReadManager.closeSnapshotFile();
 
+  m_readFromHDF[recordIndex] = true;
   return value;
 }
 
