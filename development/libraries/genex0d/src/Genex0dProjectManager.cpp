@@ -46,6 +46,7 @@ Genex0dProjectManager::Genex0dProjectManager(const DataAccess::Interface::Projec
   m_posData{0},
   m_posDataPrevious{0},
   m_propertyName{""},
+  m_propertyPosMap{},
   m_agesAll{},
   m_topSurfaceName{topSurfaceName},
   m_formationName{formationName}
@@ -95,11 +96,11 @@ void Genex0dProjectManager::computeAgesFromAllSnapShots(const double depositionT
   }
 }
 
-void Genex0dProjectManager::getValues(std::vector<double> & values) const
+void Genex0dProjectManager::getValues(std::vector<double> & values, const std::pair<int, int>& posPair) const
 {
-  for (int i = m_posDataPrevious; i < m_posData; ++i)
+  for (int i = posPair.first; i < posPair.second; ++i)
   {
-    values[i-m_posDataPrevious] = m_mdl->tableValueAsDouble(s_dataMiningTblName, i, "Value");
+    values[i - posPair.first] = m_mdl->tableValueAsDouble(s_dataMiningTblName, i, "Value");
   }
 }
 
@@ -142,6 +143,8 @@ void Genex0dProjectManager::setInTable()
     }
     ++m_posData;
   }
+
+  m_propertyPosMap[m_propertyName] = make_pair(m_posDataPrevious, m_posData);
 }
 
 std::vector<double> Genex0dProjectManager::agesAll() const
@@ -154,18 +157,30 @@ void Genex0dProjectManager::setTopSurface(const std::string & topSurfaceName)
   m_topSurfaceName = topSurfaceName;
 }
 
-std::vector<double> Genex0dProjectManager::requestPropertyHistory(const std::string & propertyName)
+void Genex0dProjectManager::requestPropertyHistory(const std::string & propertyName)
 {
   m_propertyName = propertyName;
   requestPropertyInSnapshots();
   setInTable();
   saveModel();
+}
 
+void Genex0dProjectManager::extract()
+{
   genex0d::Genex0dDataExtractor::run(m_projectFileName);
   reloadModel();
+}
 
-  std::vector<double> values((m_posData - m_posDataPrevious), 0.0);
-  getValues(values);
+std::vector<double> Genex0dProjectManager::getValues(const std::string & propertyName)
+{
+  if (m_propertyPosMap.count(propertyName) == 0)
+  {
+    throw Genex0dException() << "genex0d failed while extracting data (property not found)!";
+  }
+
+  const std::pair<int, int>& posPair = m_propertyPosMap.at(propertyName);
+  std::vector<double> values((posPair.second - posPair.first), 0.0);
+  getValues(values, posPair);
   return values;
 }
 

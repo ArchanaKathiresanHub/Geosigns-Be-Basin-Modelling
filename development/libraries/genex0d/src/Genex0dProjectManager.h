@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace DataAccess
 {
@@ -38,7 +39,9 @@ public:
                                  const double yCoord, const std::string & topSurfaceName, const std::string & formationName);
   ~Genex0dProjectManager();
 
-  std::vector<double> requestPropertyHistory(const std::string & propertyName);
+  void requestPropertyHistory(const std::string & propertyName);
+  void extract();
+  std::vector<double> getValues(const std::string & propertyName);
 
   void computeAgesFromAllSnapShots(const double depositionTimeTopSurface);
   void setTopSurface(const std::string & topSurfaceName);
@@ -48,7 +51,7 @@ private:
   void reloadModel();
   void clearTable();
   void saveModel();
-  void getValues(std::vector<double> & values) const;
+  void getValues(std::vector<double> & values, const std::pair<int, int>& posPair) const;
   void requestPropertyInSnapshots();
   void setInTable();
 
@@ -59,6 +62,9 @@ private:
   std::unique_ptr<mbapi::Model> m_mdl;
   int m_posData;
   double m_posDataPrevious;
+
+  std::unordered_map<std::string, std::pair<int, int>> m_propertyPosMap;
+
   std::string m_propertyName;
   std::vector<double> m_agesAll;
   std::string m_topSurfaceName;
