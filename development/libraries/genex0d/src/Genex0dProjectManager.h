@@ -51,7 +51,6 @@ private:
   void reloadModel();
   void clearTable();
   void saveModel();
-  void getValues(std::vector<double> & values, const std::pair<int, int>& posPair) const;
   void requestPropertyInSnapshots();
   void setInTable();
 

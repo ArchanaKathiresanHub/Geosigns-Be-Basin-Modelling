@@ -96,14 +96,6 @@ void Genex0dProjectManager::computeAgesFromAllSnapShots(const double depositionT
   }
 }
 
-void Genex0dProjectManager::getValues(std::vector<double> & values, const std::pair<int, int>& posPair) const
-{
-  for (int i = posPair.first; i < posPair.second; ++i)
-  {
-    values[i - posPair.first] = m_mdl->tableValueAsDouble(s_dataMiningTblName, i, "Value");
-  }
-}
-
 void Genex0dProjectManager::requestPropertyInSnapshots()
 {
   mbapi::PropertyManager & propMgr = m_mdl->propertyManager();
@@ -180,7 +172,12 @@ std::vector<double> Genex0dProjectManager::getValues(const std::string & propert
 
   const std::pair<int, int>& posPair = m_propertyPosMap.at(propertyName);
   std::vector<double> values((posPair.second - posPair.first), 0.0);
-  getValues(values, posPair);
+
+  for (int i = posPair.first; i < posPair.second; ++i)
+  {
+    values[i - posPair.first] = m_mdl->tableValueAsDouble(s_dataMiningTblName, i, "Value");
+  }
+
   return values;
 }
 
