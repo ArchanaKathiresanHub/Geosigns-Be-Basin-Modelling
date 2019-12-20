@@ -75,11 +75,15 @@ void Genex0d::run()
 {
   LogHandler(LogHandler::INFO_SEVERITY) << "Runing genex0d ...";
 
+  m_projectMgr->requestPropertyHistory("Temperature");
+  m_projectMgr->requestPropertyHistory("Ves");
+  m_projectMgr->extract();
+
   if (!m_gnx0dSimulator->run(m_formationMgr->formation(), m_inData, m_formationMgr->indI(), m_formationMgr->indJ(),
                              m_formationMgr->getThickness(), m_formationMgr->getInorganicDensity(),
                              m_projectMgr->agesAll(),
-                             m_projectMgr->requestPropertyHistory("Temperature"),
-                             m_projectMgr->requestPropertyHistory("Ves")))
+                             m_projectMgr->getValues("Temperature"),
+                             m_projectMgr->getValues("Ves")))
   {
     throw Genex0dException() << "Genex0d simulator could not be initiated!";
   }
