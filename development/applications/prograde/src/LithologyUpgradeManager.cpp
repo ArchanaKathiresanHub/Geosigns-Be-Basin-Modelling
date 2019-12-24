@@ -82,10 +82,10 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	std::string parentLithology, permModelName;
 	mbapi::LithologyManager::PorosityModel porModel; // porosity calculation model
 	std::vector<double> porModelPrms, updatedPorModelPrms; // poro. model parameters, depends on the given model
-   mbapi::LithologyManager::PermeabilityModel prmModel; // permeability calculation model
-   std::vector<double> mpPor;     // for multi-point perm. model the porosity values vector
-   std::vector<double> mpPerm;    // for multi-point perm. model the log. of perm values vector
-   int numPts;
+	mbapi::LithologyManager::PermeabilityModel prmModel; // permeability calculation model
+	std::vector<double> mpPor;     // for multi-point perm. model the porosity values vector
+	std::vector<double> mpPerm;    // for multi-point perm. model the log. of perm values vector
+	int numPts;
 	for (size_t lithoId = 0; lithoId < litho_table->size(); ++lithoId)
 	{
 		m_model.lithologyManager().getUserDefinedFlagForLithology(lithoId, lithologyFlag);
@@ -98,9 +98,19 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		m_model.lithologyManager().setLithologyName(lithoId, bpa2LithoName);
 
 		if (lithologyFlag == 0)
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << legacyLithoTypeName << " is a standard lithology. Lithology name is updated from '" << legacyLithoTypeName << "' to '" << bpa2LithoName << "'.";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << legacyLithoTypeName << " is a standard lithology. Lithology name is updated from '" << legacyLithoTypeName << "' to '" << bpa2LithoName << "'.";		
 		else
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << legacyLithoTypeName << " is a user defined lithology. No upgrade is done for the lithology name.";
+
+		if (bpa2LithoName.compare("Mantle") == 0)
+		{
+			std::string LithoName_Mantle= m_model.tableValueAsString("BasementIoTbl", 0, "MantleLithoName");
+			if (LithoName_Mantle.compare("Mantle") != 0)
+			{
+				m_model.setTableValue("BasementIoTbl", 0, "MantleLithoName", "Mantle");
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Updated the 'MantleLithoName' field of BasementIoTbl from '" << legacyLithoTypeName << "' to 'Mantle'.";
+			}
+		}
 		
 		//The porosity model upgradation needs further modifications as the requirement got changed during its implementation which will be taken in the next sprint......hence commented for the time being
 #if 0 

@@ -68,7 +68,7 @@ std::string Prograde::LithologyConverter::upgradeLithologyName(const std::string
 			newLithoTypeNameAssigned = "Lime-Mudstone";
 		else if (legacyLithotypeName.compare("Sylvite") == 0)
 			newLithoTypeNameAssigned = "Potash-Sylvite";
-		else if ((legacyLithotypeName.compare("Astheno. Mantle") == 0))//(legacyLithotypeName.compare("Litho. Mantle") == 0) ||
+		else if ((legacyLithotypeName.compare("Astheno. Mantle") == 0) || (legacyLithotypeName.compare("Litho. Mantle") == 0))
 			newLithoTypeNameAssigned = "Mantle";
 	else
 			newLithoTypeNameAssigned = legacyLithotypeName;
