@@ -46,7 +46,7 @@ namespace Prograde
 
 		~LithologyUpgradeManager() final = default;
 
-		/// @brief Upgrades the model to use new lothology names of BPA2 for all the BPA1 standard lithologies
+		/// @brief Upgrades the model to use new BPA2 lothology names, descriptions, parent lithology, Porosity/Permeability models of BPA2 for all the BPA1 lithologies
 		/// @details If the model is user defined lithology, then do nothing
 		void upgrade() final;
 

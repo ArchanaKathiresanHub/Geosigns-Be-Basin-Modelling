@@ -75,6 +75,49 @@ std::string Prograde::LithologyConverter::upgradeLithologyName(const std::string
 
 	return newLithoTypeNameAssigned;
 }
+std::string Prograde::LithologyConverter::upgradeLithologyDescription(const std::string & legacyDescription, const int & lithologyFlag, const std::string & legacyParentLithology)
+{
+	std::string updatedDescription;
+	if (lithologyFlag == 0)
+		return legacyDescription;
+	else
+	{
+		updatedDescription = legacyDescription + ". Based on legacy BPA "+ legacyParentLithology;
+		return updatedDescription;
+	}
+}
+
+void Prograde::LithologyConverter::upgradeLithologyAuditInfo(std::string & DefinitionDate, std::string & LastChangedBy, std::string & LastChangedDate, const int & lithologyFlag)
+{
+	std::string OriginalDefinitionDate = DefinitionDate;
+	std::string OriginalLastChangedBy = LastChangedBy;
+	std::string OriginalLastChangedDate = LastChangedDate;
+
+	if (lithologyFlag == 0)
+	{
+		DefinitionDate = "November 21 2019 12:00";
+		LastChangedBy = "Lorcan Kenan";
+		LastChangedDate = "November 21 2019 12:00";
+
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Audit Info: Updating DefinitionDate from '"<<OriginalDefinitionDate<< "' to '"<<DefinitionDate<<"', LastChangedBy from '"<<OriginalLastChangedBy<<"' to '"<< LastChangedBy<<"' and LastChangedDate from '"<<OriginalLastChangedDate<<"' to '"<< LastChangedDate<<"'.";
+	}
+	else
+	{
+		LastChangedBy = "Lorcan Kenan";
+		LastChangedDate = "November 21 2019 12:00";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Audit Info: Not changing the DefinitionDate but updating LastChangedBy from '" << OriginalLastChangedBy << "' to '" << LastChangedBy << "' and LastChangedDate from '" << OriginalLastChangedDate << "' to '" << LastChangedDate << "'.";
+	}
+}
+
+std::string Prograde::LithologyConverter::findParentLithology(std::string legacydefinedBy)
+{
+	string parentLithology;
+	size_t pos_FirstPipe = legacydefinedBy.find("|");
+	size_t pos_SecondPipe = legacydefinedBy.find_last_of("|");
+	parentLithology = legacydefinedBy.substr((pos_FirstPipe + 1), (pos_SecondPipe - 1) - pos_FirstPipe);// It gives the base litho after the First pipe
+
+	return parentLithology;
+}
 
 void Prograde::LithologyConverter::upgradePermModelForUsrDefLitho(const std::string & permModelName, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts)
 {

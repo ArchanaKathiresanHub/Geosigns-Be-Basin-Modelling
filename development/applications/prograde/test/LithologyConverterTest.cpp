@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "LithologyConverter.h"
+#include "LithologyUpgradeManager.h"
 
 
 //cmbAPI
@@ -92,6 +93,64 @@ TEST(LithologyConverter, upgradePermModelForUsrDefLitho)
    EXPECT_NEAR(-6, mpPerm[0], eps);
    EXPECT_NEAR(-6, mpPerm[1], eps);
 
+}
+
+//Tests to validate the upgradation enforced by Prograde for the lithology descriptions 
+TEST(LithologyConverter, upgradeLithologyDescription)
+{
+	Prograde::LithologyConverter modelConverter;
+
+	std::string legacyDescription = "User defined lithology based on Std. Sandstone";
+	std::string parentLithology = "Std. Sandstone";
+
+	// upgrading descriptions for userDefined lithotype
+	int userDefinedFlag = 1;
+	std::string upgradedDescription = modelConverter.upgradeLithologyDescription(legacyDescription, userDefinedFlag, parentLithology);
+	EXPECT_EQ("User defined lithology based on Std. Sandstone. Based on legacy BPA Std. Sandstone", upgradedDescription);
+
+	// upgrading descriptions for standardlLithotype
+	userDefinedFlag = 0;
+	upgradedDescription = modelConverter.upgradeLithologyDescription(legacyDescription, userDefinedFlag, parentLithology);
+	EXPECT_EQ("User defined lithology based on Std. Sandstone", upgradedDescription);
+
+}
+//Tests to validate the upgradation of audit informations for a particular lithology 
+TEST(LithologyConverter, upgradeLithologyAuditInfo)
+{
+	Prograde::LithologyConverter modelConverter;
+
+	std::string legacyDefDate = "December 30 2019 15:22";
+	std::string legacyUserInfo = "";
+	std::string legacyLastModifiedDate = "December 30 2019 16:22";
+
+	// checking for userDefined lithotype
+	int userDefinedFlag = 1;
+	modelConverter.upgradeLithologyAuditInfo(legacyDefDate, legacyUserInfo, legacyLastModifiedDate, userDefinedFlag);
+	EXPECT_EQ("December 30 2019 15:22", legacyDefDate);
+	EXPECT_EQ("Lorcan Kenan", legacyUserInfo);
+	EXPECT_EQ("November 21 2019 12:00", legacyLastModifiedDate);
+
+	// checking for standardlLithotype
+	userDefinedFlag = 0;
+	modelConverter.upgradeLithologyAuditInfo(legacyDefDate, legacyUserInfo, legacyLastModifiedDate, userDefinedFlag);
+	EXPECT_EQ("November 21 2019 12:00", legacyDefDate);
+	EXPECT_EQ("Lorcan Kenan", legacyUserInfo);
+	EXPECT_EQ("November 21 2019 12:00", legacyLastModifiedDate);
+
+}
+
+//Tests to validate the upgradation of audit informations for a particular lithology 
+TEST(LithologyConverter, findParentLithology)
+{
+	Prograde::LithologyConverter modelConverter;
+
+	std::string legacyParentLithoDetails = "BPA REF INFO|Gabbro/Dry basalt|Std. Basalt";
+	std::string parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails);
+	EXPECT_EQ("Gabbro/Dry basalt", parentLithologyName);
+
+	legacyParentLithoDetails = "BPA REF INFO||CLAY";
+	parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails);
+	EXPECT_EQ("", parentLithologyName);
 }
 
 //These test cases needs further modifications as the strategy for POROSITY model upgradation has changed which will be taken in the next sprint......hence commented for the time being

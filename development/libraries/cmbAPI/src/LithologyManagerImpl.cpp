@@ -1032,6 +1032,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel(LithologyID 
             rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
             rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
             rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+			rec->setValue<double>(s_permeabilityAnisotropyFieldName, 1);
             break;
 
          case PermImpermeable:
@@ -1039,6 +1040,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel(LithologyID 
             rec->setValue(s_mpNumberOfDataPointsFieldName, static_cast<int>(numPts));
             rec->setValue<std::string>(s_mpPorosityFieldName, PrintCoefficientsToString(mpPor));
             rec->setValue<std::string>(s_mpPermpeabilityFieldName, PrintCoefficientsToString(mpPerm));
+			rec->setValue<double>(s_permeabilityAnisotropyFieldName, 1);
             break;
 
          case PermSandstone:
