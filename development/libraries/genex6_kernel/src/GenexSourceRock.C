@@ -142,10 +142,7 @@ void GenexSourceRock::clear()
   m_freeOutputMaps.clear ();
   m_retainedOutputMaps.clear ();
 
-  if ( m_theChemicalModel2 != nullptr ) {
-     delete m_theChemicalModel2;
-     m_theChemicalModel2 = nullptr;
-  }
+  m_theChemicalModel2 = nullptr;
   m_theChemicalModel = nullptr;
 
   if ( m_adsorptionSimulator != nullptr ) {
@@ -387,7 +384,7 @@ bool GenexSourceRock::initialize ( const bool printInitialisationDetails )
      const DataAccess::Interface::SourceRock * sourceRock2 = m_formation->getSourceRock2();
      m_theChemicalModel2 = loadChemicalModel( sourceRock2, printInitialisationDetails );
 
-     assert ( m_theChemicalModel2 != 0 );
+     assert ( m_theChemicalModel2 != nullptr );
 
      // How to choose the timeStepSize and numberOfTimeSteps?
      // If hcValueMixing == HC value of one of the mixed SourceRock, then fraction of the second SourceRock type is 0,
