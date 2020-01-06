@@ -30,15 +30,26 @@ namespace mbapi
 const char * SourceRockManagerImpl::s_sourceRockTableName     = "SourceRockLithoIoTbl";
 const char * SourceRockManagerImpl::s_layerNameFieldName      = "LayerName";
 const char * SourceRockManagerImpl::s_sourceRockTypeFieldName = "SourceRockType";
+const char * SourceRockManagerImpl::s_baseSourceRockTypeFieldName = "BaseSourceRockType";
 const char * SourceRockManagerImpl::s_tocIni                  = "TocIni";
 const char * SourceRockManagerImpl::s_tocIniMap               = "TocIniGrid";
 const char * SourceRockManagerImpl::s_hcIni                   = "HcVRe05";
+const char * SourceRockManagerImpl::s_scIni                   = "ScVRe05";
 const char * SourceRockManagerImpl::s_PreAsphaltStartAct      = "PreAsphaltStartAct";
 const char * SourceRockManagerImpl::s_applyAdsorption         = "ApplyAdsorption";
 const char * SourceRockManagerImpl::s_adsorptionTOCDependent  = "AdsorptionTOCDependent";
 const char * SourceRockManagerImpl::s_computeOTGC             = "ComputeOTGC";
 const char * SourceRockManagerImpl::s_adsorptionCapacityFunctionName = "AdsorptionCapacityFunctionName";
 const char * SourceRockManagerImpl::s_whichAdsorptionSimulator= "WhichAdsorptionSimulator";
+const char * SourceRockManagerImpl::s_asphalteneDiffusionEnergy = "AsphalteneDiffusionEnergy";
+const char * SourceRockManagerImpl::s_resinDiffusionEnergy  = "ResinDiffusionEnergy";
+const char * SourceRockManagerImpl::s_C15AroDiffusionEnergy = "C15AroDiffusionEnergy";
+const char * SourceRockManagerImpl::s_C15SatDiffusionEnergy = "C15SatDiffusionEnergy";
+const char * SourceRockManagerImpl::s_vreOptimization		= "VREoptimization";
+const char * SourceRockManagerImpl::s_vreThreshold			= "VREthreshold";
+const char * SourceRockManagerImpl::s_vesLimitIndicator     = "VESLimitIndicator";
+const char * SourceRockManagerImpl::s_vesLimit              = "VESLimit";
+
 
 // Constructor
 SourceRockManagerImpl::SourceRockManagerImpl()
@@ -187,6 +198,90 @@ std::string SourceRockManagerImpl::sourceRockType( SourceRockID id )
    return tpName;
 }
 
+// Set both source rock type and base source rock type for source rock lithology
+ErrorHandler::ReturnCode SourceRockManagerImpl::setSourceRockType(const SourceRockID id, const std::string & newSourceRock)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_sourceRockTypeFieldName, newSourceRock);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
+
+// Get base source rock type name for source rock lithology
+std::string SourceRockManagerImpl::baseSourceRockType(SourceRockID id)
+{
+	if (errorCode() != NoError) resetError();
+	std::string tpName;
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		tpName = rec->getValue<std::string>(s_baseSourceRockTypeFieldName);
+	}
+	catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+	return tpName;
+}
+
+// Set both source rock type and base source rock type for source rock lithology
+ErrorHandler::ReturnCode SourceRockManagerImpl::setBaseSourceRockType(const SourceRockID id, const std::string & newBaseSourceRock)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_baseSourceRockTypeFieldName, newBaseSourceRock);		
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
 
 double SourceRockManagerImpl::tocIni( SourceRockID id )
 {
@@ -428,6 +523,67 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setHCIni( SourceRockID id, doubl
    return NoError;
 }
 
+double SourceRockManagerImpl::scIni(SourceRockID id)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		// if record does not exist report error
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+
+		return rec->getValue<double>(s_scIni);
+	}
+	catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+	return Utilities::Numerical::IbsNoDataValue;
+}
+
+ErrorHandler::ReturnCode SourceRockManagerImpl::setSCIni(SourceRockID id, double newSC)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		if (newSC < 0.0 || newSC > 2.0)
+		{
+			throw Exception(OutOfRangeValue) << "H/C value must be in range [0:2] but given is: " << newSC;
+		}
+
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_scIni, newSC);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
+
 // Get pre-asphaltene activation energy [kJ/mol]
 double SourceRockManagerImpl::preAsphActEnergy( SourceRockID id )
 {
@@ -491,6 +647,423 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setPreAsphActEnergy( SourceRockI
 
    return NoError;
 }
+
+// Get asphaltene diffusion energy [kJ/mol]
+double SourceRockManagerImpl::getAsphalteneDiffusionEnergy(SourceRockID id)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		// if record does not exist report error
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+
+		return rec->getValue<double>(s_asphalteneDiffusionEnergy);
+	}
+	catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+	return Utilities::Numerical::IbsNoDataValue;
+}
+
+// Set asphaltene diffusion energy (must be in range 200-220 kJ/mol)
+ErrorHandler::ReturnCode SourceRockManagerImpl::setAsphalteneDiffusionEnergy(SourceRockID id, double newVal)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_asphalteneDiffusionEnergy, newVal);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
+
+// Get resin diffusion energy [kJ/mol]
+double SourceRockManagerImpl::getResinDiffusionEnergy(SourceRockID id)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		// if record does not exist report error
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+
+		return rec->getValue<double>(s_resinDiffusionEnergy);
+	}
+	catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+	return Utilities::Numerical::IbsNoDataValue;
+}
+
+// Set resin diffusion energy (must be in range 200-220 kJ/mol)
+ErrorHandler::ReturnCode SourceRockManagerImpl::setResinDiffusionEnergy(SourceRockID id, double newVal)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_resinDiffusionEnergy, newVal);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
+
+// Get C15Aro diffusion energy [kJ/mol]
+double SourceRockManagerImpl::getC15AroDiffusionEnergy(SourceRockID id)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		// if record does not exist report error
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+
+		return rec->getValue<double>(s_C15AroDiffusionEnergy);
+	}
+	catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+	return Utilities::Numerical::IbsNoDataValue;
+}
+
+// Set C15Aro diffusion energy (must be in range 200-220 kJ/mol)
+ErrorHandler::ReturnCode SourceRockManagerImpl::setC15AroDiffusionEnergy(SourceRockID id, double newVal)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_C15AroDiffusionEnergy, newVal);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
+
+// Get C15Sat diffusion energy [kJ/mol]
+double SourceRockManagerImpl::getC15SatDiffusionEnergy(SourceRockID id)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		// if record does not exist report error
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+
+		return rec->getValue<double>(s_C15SatDiffusionEnergy);
+	}
+	catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+	return Utilities::Numerical::IbsNoDataValue;
+}
+
+// Set C15Sat diffusion energy (must be in range 200-220 kJ/mol)
+ErrorHandler::ReturnCode SourceRockManagerImpl::setC15SatDiffusionEnergy(SourceRockID id, double newVal)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_C15SatDiffusionEnergy, newVal);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
+
+// Get VRE optimization for source rock lithology
+std::string SourceRockManagerImpl::getVREoptimization(SourceRockID id)
+{
+	if (errorCode() != NoError) resetError();
+	std::string vreName;
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		vreName = rec->getValue<std::string>(s_vreOptimization);
+	}
+	catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+	return vreName;
+}
+
+
+// Get VRE threshold value 
+double SourceRockManagerImpl::getVREthreshold(SourceRockID id)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		// if record does not exist report error
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+
+		return rec->getValue<double>(s_vreThreshold);
+	}
+	catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+	return Utilities::Numerical::IbsNoDataValue;
+}
+
+// Set VRE threshold value
+ErrorHandler::ReturnCode SourceRockManagerImpl::setVREthreshold(SourceRockID id, double newVRE)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_vreThreshold, newVRE);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
+
+
+// Get VES limit indicator for source rock lithology
+std::string SourceRockManagerImpl::getVESlimitIndicator(SourceRockID id)
+{
+	if (errorCode() != NoError) resetError();
+	std::string vesName;
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		vesName = rec->getValue<std::string>(s_vesLimitIndicator);
+	}
+	catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+	return vesName;
+}
+
+
+// Get VES limit value (MPa)
+double SourceRockManagerImpl::getVESlimit(SourceRockID id)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		// if record does not exist report error
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+
+		return rec->getValue<double>(s_vesLimit);
+	}
+	catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+	return Utilities::Numerical::IbsNoDataValue;
+}
+
+// Set VES limit value (must be in range 0-70 MPa)
+ErrorHandler::ReturnCode SourceRockManagerImpl::setVESlimit(SourceRockID id, double newVES)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		if (newVES < 0.0 || newVES > 70.0)
+		{
+			throw Exception(OutOfRangeValue) << "VES limit value must be in range [0:70] but given is: " << newVES;
+		}
+
+		// get pointer to the table
+		database::Table * table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record * rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		rec->setValue(s_vesLimit, newVES);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
+
+
 
 // Get adsorption related fields
 ErrorHandler::ReturnCode SourceRockManagerImpl::getAdsoptionList(SourceRockID id, int & applyAdsorption, int & adsorptionTOCDependent, int & computeOTGC, std::string & adsorptionCapacityFunctionName)

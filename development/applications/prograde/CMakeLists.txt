@@ -218,3 +218,15 @@ add_gtest( NAME ${TARGET_NAME}::SgsConverter
 		   LIBRARIES cmbapi
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
+
+#
+# 14. Source Rock upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::SourceRockConverter
+           SOURCES test/SourceRockConverter.cpp src/SourceRockConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src             
+		   LIBRARIES cmbapi
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
+

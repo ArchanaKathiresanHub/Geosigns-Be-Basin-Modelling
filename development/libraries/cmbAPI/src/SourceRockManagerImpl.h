@@ -57,6 +57,14 @@ namespace mbapi {
       // Get source rock type name for the given ID
       virtual std::string sourceRockType( SourceRockID id );
 
+	  // Get source rock type name for the given ID
+	  virtual ReturnCode setSourceRockType(SourceRockID id, const std::string & newSourceRockType);
+
+	  // Get base source rock type name for the given ID
+	  virtual std::string baseSourceRockType(SourceRockID id);
+
+	  // Get source rock type name for the given ID
+	  virtual ReturnCode setBaseSourceRockType(SourceRockID id, const std::string & newBaseSourceRockType);
 
       // Get total organic contents value ( must be in range 0-100 percent) for the given source rock lithology
       virtual double tocIni( SourceRockID id );
@@ -77,17 +85,65 @@ namespace mbapi {
       //  Set hydrogen index initial ratio value ( must be in range 0-1000 kg/tonne) for all source rock lithologies associated with the given layer
       virtual ReturnCode setHIIni( SourceRockID id, double newHI );
 
-      // Get H/C initial ratio ( kg/tonne C)
+      // Get H/C initial ratio 
       virtual double hcIni( SourceRockID id );
 
-      // Set H/C initial ratio value ( must be in range 0-1000 kg/tonne C)
+      // Set H/C initial ratio value 
       virtual ReturnCode setHCIni( SourceRockID id, double newHC );
+
+	  // Get pre-asphaltene activation energy [kJ/mol]
+	  virtual double scIni(SourceRockID id);
+
+	  // Set pre-asphaltene activation energy 
+	  virtual ReturnCode setSCIni(SourceRockID id, double newVal);
 
       // Get pre-asphaltene activation energy [kJ/mol]
       virtual double preAsphActEnergy( SourceRockID id );
 
       // Set pre-asphaltene activation energy (must be in range 200-220 kJ/mol)
-      virtual ReturnCode setPreAsphActEnergy( SourceRockID id, double newVal );
+      virtual ReturnCode setPreAsphActEnergy( SourceRockID id, double newVal );	 
+
+	  // Get asphaltene diffusion energy [kJ/mol]
+	  virtual double getAsphalteneDiffusionEnergy(SourceRockID id);
+
+	  // Set asphaltene diffusion energy 
+	  virtual ReturnCode setAsphalteneDiffusionEnergy(SourceRockID id, double newVal);
+
+	  // Get resin diffusion energy [kJ/mol]
+	  virtual double getResinDiffusionEnergy(SourceRockID id);
+
+	  // Set resin diffusion energy 
+	  virtual ReturnCode setResinDiffusionEnergy(SourceRockID id, double newVal);
+
+	  // Get C15Aro diffusion energy [kJ/mol]
+	  virtual double getC15AroDiffusionEnergy(SourceRockID id);
+
+	  // Set C15Aro diffusion energy 
+	  virtual ReturnCode setC15AroDiffusionEnergy(SourceRockID id, double newVal);
+
+	  // Get C15Sat diffusion energy [kJ/mol]
+	  virtual double getC15SatDiffusionEnergy(SourceRockID id);
+
+	  // Set C15Sat diffusion energy 
+	  virtual ReturnCode setC15SatDiffusionEnergy(SourceRockID id, double newVal);	
+
+	  // Get VRE optimization string
+	  virtual std::string getVREoptimization(SourceRockID id);
+
+	  // Get VRE threshold value
+	  virtual double getVREthreshold(SourceRockID id);
+
+	  // Set VRE threshold value
+	  virtual ReturnCode setVREthreshold(SourceRockID id, double newVES);
+
+	  // Get VES limit indicator string
+	  virtual std::string getVESlimitIndicator(SourceRockID id);
+
+	  // Get VES limit value (MPa)
+	  virtual double getVESlimit(SourceRockID id);
+
+	  // Set VES limit value (must be in range 0-70 MPa)
+	  virtual ReturnCode setVESlimit(SourceRockID id, double newVES);
 	  
 	  // Get adsorption related fields
 	  virtual ReturnCode getAdsoptionList(SourceRockID id, int & applyAdsorption, int & adsorptionTOCDependent, int & computeOTGC, std::string & adsorptionCapacityFunctionName);
@@ -106,15 +162,25 @@ namespace mbapi {
       static const char * s_sourceRockTableName;     // table name for source rock lithologies in project file
       static const char * s_layerNameFieldName;      // name of the field which keeps layer name
       static const char * s_sourceRockTypeFieldName; // name of the field which keeps source rock type name
+	  static const char * s_baseSourceRockTypeFieldName; // name of the field which keeps base source rock type name
       static const char * s_tocIni;                  // initial TOC
       static const char * s_tocIniMap;               // initial TOC map name
       static const char * s_hcIni;                   // initial H/C ratio
+	  static const char * s_scIni;                   // initial H/C ratio
       static const char * s_PreAsphaltStartAct;      // pre-asphaltene activation energy
 	  static const char * s_applyAdsorption;		 // apply adsorption flag
 	  static const char * s_adsorptionTOCDependent;   // apply TOC dependent flag 
 	  static const char * s_computeOTGC;			  // compute OTGC flag
 	  static const char * s_adsorptionCapacityFunctionName; // adsorption capacity function name
 	  static const char * s_whichAdsorptionSimulator;	// adsorption simulator name
+	  static const char * s_asphalteneDiffusionEnergy;	// asphaltene diffusion energy
+	  static const char * s_resinDiffusionEnergy;	// resin diffusion energy
+	  static const char * s_C15AroDiffusionEnergy;	// C15Aro diffusion energy
+	  static const char * s_C15SatDiffusionEnergy;	// C15Sat diffusion energy
+	  static const char * s_vreOptimization;   // VRE optimization
+	  static const char * s_vreThreshold;    // VRE threshold
+	  static const char * s_vesLimitIndicator;   // VES limit indicator
+	  static const char * s_vesLimit;    // VES limit 
 
       // Copy constructor is disabled, use the copy operator instead
       SourceRockManagerImpl( const SourceRockManager & );

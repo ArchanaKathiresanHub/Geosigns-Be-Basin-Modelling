@@ -18,6 +18,7 @@
 #include <cmath>
 #include <thread>
 #include <vector>
+#include <algorithm>
 
 namespace MapSmoothing
 {

@@ -58,6 +58,23 @@ namespace mbapi {
       /// @return source rock type name for the given source rock lithology ID or empty string in case of error
       virtual std::string sourceRockType( SourceRockID id ) = 0;
 
+	  /// @brief Set source rock type name for the given ID
+	  /// @param id source rock ID
+	  /// @param newSourceRockType new source rock type
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setSourceRockType(SourceRockID id, const std::string & newSourceRockType) = 0;
+
+	  /// @brief Get base source rock type name for the given ID
+	  /// @param id source rock ID
+	  /// @return base source rock type name for the given source rock lithology ID or empty string in case of error
+	  virtual std::string baseSourceRockType(SourceRockID id) = 0;
+
+	  /// @brief Set source rock type name for the given ID
+	  /// @param id source rock ID
+	  /// @param newBaseSourceRockType new base source rock type
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setBaseSourceRockType(SourceRockID id, const std::string & newBaseSourceRockType) = 0;
+
       /// @}
 
       /// @{
@@ -102,7 +119,7 @@ namespace mbapi {
       /// @param newHI new HI value ( must be in range 0-1000 kg/tonne)
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setHIIni( SourceRockID id, double newHI ) = 0;
-      /// @}
+      /// @}	 
 
       /// @{
       /// Source rock H/C initial ratio API 
@@ -119,6 +136,21 @@ namespace mbapi {
       virtual ReturnCode setHCIni( SourceRockID id, double newHC ) = 0;
       /// @}
 
+	  /// @{
+	  /// Source rock S/C initial ratio API 
+
+	  /// @brief Get S/C initial ratio
+	  /// @param id source rock ID
+	  /// @return S/C value for given source rock lithology ID or UndefinedDoubleValue in case of error
+	  virtual double scIni(SourceRockID id) = 0;
+
+	  /// @brief Set S/C initial ratio value  (must be in range 0-2)
+	  /// @param id source rock ID
+	  /// @param newHC new S/C ratio value
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setSCIni(SourceRockID id, double newVal) = 0;
+	  /// @}
+
       /// @{
       /// @Source rock pre-asphaltene activation energy API
       /// @brief Get pre-asphaltene activation energy [kJ/mol]
@@ -132,6 +164,100 @@ namespace mbapi {
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setPreAsphActEnergy( SourceRockID id, double newVal ) = 0;
       /// @}
+
+	  /// @{
+	  /// @Source rock Asphaltene diffusion energy API
+	  /// @brief Get asphaltene diffusion energy [kJ/mol]
+	  /// @param id source rock ID
+	  /// @return asphaltene diffusion energy value for given source rock lithology ID or UndefinedDoubleValue in case of error
+	  virtual double getAsphalteneDiffusionEnergy(SourceRockID id) = 0;
+
+	  /// @brief Set asphaltene diffusion energy [kJ/mol]
+	  /// @param id source rock ID
+	  /// @param newVal new asphaltene diffusion energy value
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setAsphalteneDiffusionEnergy(SourceRockID id, double newVal) = 0;
+
+	  /// @Source rock Resin diffusion energy API
+	  /// @brief Get resin diffusion energy [kJ/mol]
+	  /// @param id source rock ID
+	  /// @return resin diffusion energy value for given source rock lithology ID or UndefinedDoubleValue in case of error
+	  virtual double getResinDiffusionEnergy(SourceRockID id) = 0;
+
+	  /// @brief Set resin diffusion energy [kJ/mol]
+	  /// @param id source rock ID
+	  /// @param newVal new resin diffusion energy value
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setResinDiffusionEnergy(SourceRockID id, double newVal) = 0;
+
+	  /// @Source rock C15Aron diffusion energy API
+	  /// @brief Get C15Aro diffusion energy [kJ/mol]
+	  /// @param id source rock ID
+	  /// @return C15Aro diffusion energy value for given source rock lithology ID or UndefinedDoubleValue in case of error
+	  virtual double getC15AroDiffusionEnergy(SourceRockID id) = 0;
+
+	  /// @brief Set C15Aro diffusion energy [kJ/mol]
+	  /// @param id source rock ID
+	  /// @param newVal new C15Aro diffusion energy value
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setC15AroDiffusionEnergy(SourceRockID id, double newVal) = 0;
+
+	  /// @Source rock C15Sat diffusion energy API
+	  /// @brief Get C15Sat diffusion energy [kJ/mol]
+	  /// @param id source rock ID
+	  /// @return C15Sat diffusion energy value for given source rock lithology ID or UndefinedDoubleValue in case of error
+	  virtual double getC15SatDiffusionEnergy(SourceRockID id) = 0;
+
+	  /// @brief Set C15Sat diffusion energy [kJ/mol]
+	  /// @param id source rock ID
+	  /// @param newVal new C15Sat diffusion energy value
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setC15SatDiffusionEnergy(SourceRockID id, double newVal) = 0;
+	  /// @}
+
+	  /// @{
+	  /// @brief Get VRE optimization 
+	  /// @param[in] id source rock ID
+	  /// @return on success VRE optimization string (if it was defined or empty string otherwise)
+	  virtual std::string getVREoptimization(SourceRockID id) = 0;
+	  /// @}
+
+	  /// @{
+	  /// @brief Get VRE threshold
+	  /// @param[in] id source rock ID
+	  /// @return VRE threshold value for given source rock lithology ID or UndefinedDoubleValue in case of error
+	  virtual double getVREthreshold(SourceRockID id) = 0;
+	  /// @}
+
+	  /// @{
+	  /// @brief Set VRE threshold value
+	  /// @param[in] id source rock ID
+	  /// @param[in] newVRE new VRE threshold value
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setVREthreshold(SourceRockID id, double newVRE) = 0;
+	  /// @}
+
+	  /// @{
+	  /// @brief Get VES limit indicator 
+	  /// @param[in] id source rock ID
+	  /// @return on success VES limit indicator string (if it was defined or empty string otherwise)
+	  virtual std::string getVESlimitIndicator(SourceRockID id) = 0;
+	  /// @}
+
+	  /// @{
+	  /// @brief Get VES limit 
+	  /// @param[in] id source rock ID
+	  /// @return VES limit value for given source rock lithology ID or UndefinedDoubleValue in case of error
+	  virtual double getVESlimit(SourceRockID id) = 0;
+	  /// @}
+
+	  /// @{
+	  /// @brief Set VES limit value  (must be in range 0-70 MPa)
+	  /// @param[in] id source rock ID
+	  /// @param[in] newVES new VES limit value
+	  /// @return ErrorHandler::NoError on success, error code otherwise
+	  virtual ReturnCode setVESlimit(SourceRockID id, double newVES) = 0;
+	  /// @}
 
 	  /// @{
 	  /// @Source rock adsorption related field API
