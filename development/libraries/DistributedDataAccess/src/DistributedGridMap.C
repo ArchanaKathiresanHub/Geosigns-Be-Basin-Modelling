@@ -1145,7 +1145,7 @@ bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
       }
    }
 
-   mapA->restoreData (false, true);
+   mapA->restoreData (true, true);
    mapB->restoreData ();
 
    return true;
