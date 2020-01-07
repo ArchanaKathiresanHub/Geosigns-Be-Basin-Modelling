@@ -286,12 +286,3 @@ bool FCTCalc::getGrid ( const double                    currentTime,
   return status;
 
 }
-const PropListVec & FCTCalc::getVolumeOutputProperties() const {
-
-   return  m_volumeOutputProperties;
-}
-
-const PropListVec & FCTCalc::getMapOutputProperties() const {
-
-   return  m_mapOutputProperties;
-}

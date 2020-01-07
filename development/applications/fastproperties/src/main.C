@@ -15,15 +15,13 @@ using namespace std;
 // Utility library
 #include "FormattingException.h"
 #include "LogHandler.h"
-#include "StatisticsHandler.h" 
+#include "StatisticsHandler.h"
 
 #include "AbstractPropertiesCalculator.h"
 #include "VisualizationPropertiesCalculator.h"
 #include "HdfPropertiesCalculator.h"
 
 using namespace Utilities::CheckMemory;
-
-void displayTime ( const double timeToDisplay, const char * msgToDisplay );
 
 int main( int argc, char ** argv )
 {
@@ -47,7 +45,7 @@ int main( int argc, char ** argv )
    }
 #endif
    //////////////////////////////////////////////////
-   ///1. Intitialise fastproperties loger
+   ///1. Initialise fastproperties logger
    try{
       PetscBool log = PETSC_FALSE;
       PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
@@ -82,13 +80,13 @@ int main( int argc, char ** argv )
    StatisticsHandler::initialise();
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-      
+
    PetscBool vizOption = PETSC_FALSE;
    PetscOptionsHasName( PETSC_NULL, "-viz", &vizOption );
 
    AbstractPropertiesCalculator * propCalculator;
 
-   if (vizOption) 
+   if (vizOption)
    {
       propCalculator = new VisualizationPropertiesCalculator( rank );
    }
@@ -104,7 +102,7 @@ int main( int argc, char ** argv )
       return 1;
    }
 
-   if( ! propCalculator->CreateFrom(factory) ) {
+   if( ! propCalculator->createFrom(factory) ) {
 
       propCalculator->showUsage( argv[ 0 ], "Could not open specified project file" );
       delete propCalculator;
@@ -115,22 +113,22 @@ int main( int argc, char ** argv )
    }
 
    if( propCalculator->hdfonly() ) {
-      
+
       propCalculator->writeToHDF();
       propCalculator->finalise ( false );
       delete propCalculator;
- 
+
       PetscFinalize ();
 
       return 0;
    };
 
    if( propCalculator->listXml() ) {
-      
+
       propCalculator->listXmlProperties();
       propCalculator->finalise ( false );
       delete propCalculator;
- 
+
       PetscFinalize ();
 
       return 0;
@@ -144,7 +142,7 @@ int main( int argc, char ** argv )
    propCalculator->acquireAll3Dproperties();
 
    propCalculator->printListSnapshots();
-   propCalculator->printListStratigraphy(); 
+   propCalculator->printListStratigraphy();
 
    if ( propCalculator->showLists() ) {
       propCalculator->finalise ( false );
@@ -166,12 +164,12 @@ int main( int argc, char ** argv )
 
    SnapshotList snapshots;
    Interface::PropertyList properties;
-   
+
    propCalculator->acquireSnapshots( snapshots );
    propCalculator->acquireProperties( properties );
 
    FormationSurfaceVector formationSurfaceItems;
-   
+
    propCalculator->acquireFormationsSurfaces( formationSurfaceItems );
    //////////////////////////////////////////////////
    ///4. Compute derived properties
@@ -196,16 +194,16 @@ int main( int argc, char ** argv )
    ///5. Save results
 
    std::string statistics = StatisticsHandler::print(rank);
-   
+
    PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
    PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
-   
+
    PetscSynchronizedPrintf(PETSC_COMM_WORLD, statistics.c_str());
    PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
-   
+
    PetscPrintf(PETSC_COMM_WORLD, "</statistics>\n");
    PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
-   
+
    bool status = propCalculator->finalise ( true );
 
    delete factory;
@@ -213,9 +211,9 @@ int main( int argc, char ** argv )
    delete propCalculator;
 
    PetscLogDouble sim_End_Time;
-   PetscTime( &sim_End_Time );   
+   PetscTime( &sim_End_Time );
 
-   displayTime( sim_End_Time - sim_Start_Time, "End of calculation" );
+   AbstractPropertiesCalculator::displayTime( sim_End_Time - sim_Start_Time, "End of calculation" );
 
    PetscFinalize ();
    return ( status ? 0 : 1 );

@@ -290,9 +290,6 @@ public :
    /// By default the constant 1.0e6 Pa is the capillary entry pressure.
    bool useCalculatedCapillaryPressure () const;
 
-   /// \brief Return the flag indicating the calculation of derived properties
-   bool doDerivedPropertiesCalc () const;
-
    /// \brief Clean the recordless properies list
    void removeRecordlessDerivedPropertyValues();
 
@@ -383,7 +380,6 @@ private :
    bool                       m_printCommandLine;
    std::string                m_commandLine;
    bool                       m_computeCapillaryPressure;
-   bool                       m_derivedPropertiesCalc;
 
 };
 
@@ -465,12 +461,6 @@ inline double FastcauldronSimulator::getFctCorrectionScalingWeight () const {
    return m_fctCorrectionScalingWeight;
 }
 
-//------------------------------------------------------------//
-
-
-inline bool FastcauldronSimulator::doDerivedPropertiesCalc () const {
-   return m_derivedPropertiesCalc;
-}
 //------------------------------------------------------------//
 
 

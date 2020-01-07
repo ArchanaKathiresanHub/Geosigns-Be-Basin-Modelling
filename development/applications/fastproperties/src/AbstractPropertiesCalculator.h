@@ -56,9 +56,6 @@ typedef vector < double > DoubleVector;
 
 using namespace Utilities::CheckMemory;
 
-void displayTime (const double timeToDisplay, const char * msgToDisplay);
-void displayProgress (const string & fileName, double startTime, const string & message);
-
 class AbstractPropertiesCalculator {
 
 public :
@@ -133,7 +130,7 @@ public:
 
    bool startActivity();
    bool finalise ( bool isComplete );
-   bool CreateFrom( DataAccess::Interface::ObjectFactory* factory);
+   bool createFrom( DataAccess::Interface::ObjectFactory* factory);
 
    bool setFastcauldronActivityName();
 
@@ -172,6 +169,10 @@ public:
    virtual void listXmlProperties() = 0;
    virtual bool hdfonly() const = 0;
    virtual bool listXml() const = 0;
+
+   static void displayTime (const double timeToDisplay, const char * msgToDisplay);
+protected:
+   void displayProgress (const string & fileName, double startTime, const string & message);
 
 private:
 

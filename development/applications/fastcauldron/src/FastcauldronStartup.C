@@ -24,7 +24,6 @@
 #include "Grid.h"
 
 #include "fctcalc.h"
-#include "DerivedPropertiesCalculator.h"
 #include "fem_grid.h"
 #include "Quadrature.h"
 #include "utils.h"
@@ -265,12 +264,6 @@ void FastcauldronStartup::run()
     FCTCalc fctCtx( m_cauldron );
 
     fctCtx.decompact();
-
-    if ( FastcauldronSimulator::getInstance().doDerivedPropertiesCalc() )
-    {
-      DerivedPropertiesCalculator propertyCalculator( m_cauldron, fctCtx.getVolumeOutputProperties(), fctCtx.getMapOutputProperties() );
-      propertyCalculator.compute();
-    }
   }
 
   if ( m_cauldron->DoOverPressure && !m_cauldron->Do_Iteratively_Coupled )
@@ -287,12 +280,6 @@ void FastcauldronStartup::run()
 
     // Do Tempearature Calculation
     basin.solveTemperature( m_solverHasConverged, m_errorInDarcy );
-
-    if ( FastcauldronSimulator::getInstance().doDerivedPropertiesCalc() )
-    {
-      DerivedPropertiesCalculator propertyCalculator( m_cauldron, basin.getVolumeOutputProperties(), basin.getMapOutputProperties() );
-      propertyCalculator.compute();
-    }
   }
 
   if ( m_cauldron->Do_Iteratively_Coupled )
@@ -300,12 +287,6 @@ void FastcauldronStartup::run()
     Basin_Modelling::FEM_Grid basin( m_cauldron );
     // Do Coupled Calculation
     basin.solveCoupled( m_solverHasConverged, m_errorInDarcy, m_geometryHasConverged );
-
-    if ( FastcauldronSimulator::getInstance().doDerivedPropertiesCalc() ) {
-      DerivedPropertiesCalculator propertyCalculator( m_cauldron, basin.getVolumeOutputProperties(), basin.getMapOutputProperties() );
-
-      propertyCalculator.compute();
-    }
   }
 
   if ( m_cauldron->integrateGenexEquations() )

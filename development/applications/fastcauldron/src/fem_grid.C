@@ -322,35 +322,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
       mapOutputProperties.push_back ( VELOCITYVEC );
     }
   }
-  else if( FastcauldronSimulator::getInstance ().doDerivedPropertiesCalc() )
-  {
-     m_mapDerivedOutputProperties.push_back ( CHEMICAL_COMPACTION );
-     m_mapDerivedOutputProperties.push_back ( DEPTH );
-     m_mapDerivedOutputProperties.push_back ( MAXVES );
-     m_mapDerivedOutputProperties.push_back ( PRESSURE );
-     m_mapDerivedOutputProperties.push_back ( TEMPERATURE );
-     m_mapDerivedOutputProperties.push_back ( VES );
-     m_mapDerivedOutputProperties.push_back ( VR );
 
-     m_mapDerivedOutputProperties.push_back ( BULKDENSITYVEC );
-     m_mapDerivedOutputProperties.push_back ( DIFFUSIVITYVEC );
-     m_mapDerivedOutputProperties.push_back ( FLUID_VELOCITY );
-     m_mapDerivedOutputProperties.push_back ( FRACTURE_PRESSURE );
-     m_mapDerivedOutputProperties.push_back ( HEAT_FLOW );
-     m_mapDerivedOutputProperties.push_back ( HYDROSTATICPRESSURE );
-     m_mapDerivedOutputProperties.push_back ( LITHOSTATICPRESSURE );
-     m_mapDerivedOutputProperties.push_back ( OVERPRESSURE );
-     m_mapDerivedOutputProperties.push_back ( PERMEABILITYHVEC );
-     m_mapDerivedOutputProperties.push_back ( PERMEABILITYVEC );
-     m_mapDerivedOutputProperties.push_back ( POROSITYVEC );
-     m_mapDerivedOutputProperties.push_back ( REFLECTIVITYVEC );
-     m_mapDerivedOutputProperties.push_back ( THCONDVEC );
-     m_mapDerivedOutputProperties.push_back ( THICKNESS );
-     m_mapDerivedOutputProperties.push_back ( TWOWAYTIME );
-     m_mapDerivedOutputProperties.push_back ( TWOWAYTIME_RESIDUAL );
-     m_mapDerivedOutputProperties.push_back ( SONICVEC );
-     m_mapDerivedOutputProperties.push_back ( VELOCITYVEC );
-  }
   // Set map properties for 1D simulation mode only
   if (basinModel->isModellingMode1D())
   {
@@ -594,31 +566,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      m_volumeOutputProperties.push_back ( TWOWAYTIME );
      m_volumeOutputProperties.push_back ( VELOCITYVEC );
   }
-  else if( FastcauldronSimulator::getInstance ().doDerivedPropertiesCalc() )
-  {
-     m_volumeDerivedOutputProperties.push_back ( BULKDENSITYVEC );
-     m_volumeDerivedOutputProperties.push_back ( DIFFUSIVITYVEC );
-     m_volumeDerivedOutputProperties.push_back ( FLUID_VELOCITY );
-     m_volumeDerivedOutputProperties.push_back ( FRACTURE_PRESSURE );
-     m_volumeDerivedOutputProperties.push_back ( HEAT_FLOW );
-     m_volumeDerivedOutputProperties.push_back ( HYDROSTATICPRESSURE );
-     m_volumeDerivedOutputProperties.push_back ( LITHOSTATICPRESSURE );
-     m_volumeDerivedOutputProperties.push_back ( OVERPRESSURE );
-     m_volumeDerivedOutputProperties.push_back ( PERMEABILITYHVEC );
-     m_volumeDerivedOutputProperties.push_back ( PERMEABILITYVEC );
-     m_volumeDerivedOutputProperties.push_back ( POROSITYVEC );
-     m_volumeDerivedOutputProperties.push_back ( SONICVEC );
-     m_volumeDerivedOutputProperties.push_back ( THCONDVEC );
-     m_volumeDerivedOutputProperties.push_back ( THICKNESS);
-     m_volumeDerivedOutputProperties.push_back ( TWOWAYTIME );
-     m_volumeDerivedOutputProperties.push_back ( VELOCITYVEC );
-
-     if( FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE )
-     {
-        m_volumeDerivedOutputProperties.push_back ( FAULTELEMENTS );
-     }
-  }
-
 
   //2.3 Concluding volume properties------
   //--------------------------------------
@@ -4059,16 +4006,6 @@ void Basin_Modelling::FEM_Grid::printElementNeedle ( const int i, const int j ) 
 
 }
 
-//------------------------------------------------------------//
-const PropListVec & Basin_Modelling::FEM_Grid::getMapOutputProperties() const {
-
-   return m_mapDerivedOutputProperties;
-}
-//------------------------------------------------------------//
-const PropListVec & Basin_Modelling::FEM_Grid::getVolumeOutputProperties() const {
-
-   return m_volumeDerivedOutputProperties;
-}
 //------------------------------------------------------------//
 void Basin_Modelling::FEM_Grid::Determine_Permafrost_Time_Step ( const double  currentTime, double & timeStep ) {
 

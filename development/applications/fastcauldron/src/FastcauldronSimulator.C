@@ -86,7 +86,6 @@ FastcauldronSimulator::FastcauldronSimulator (database::ProjectFileHandlerPtr& p
    m_hcLiquidCurveExponent = DefaultHcCurveExponent;
    m_printCommandLine = false;
    m_computeCapillaryPressure = false;
-   m_derivedPropertiesCalc = false;
    m_fctCorrectionScalingWeight = 1.0;
 }
 
@@ -902,9 +901,6 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
    }
 
 #ifndef _MSC_VER
-   if( !m_derivedPropertiesCalc ) {
-      getMapPropertyValuesWriter( )->close();
-   }
    // clean mpaCache which can hold read-only opened files
    mapFileCacheDestructor();
 
@@ -1183,10 +1179,6 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
       if ( getModellingMode () == Interface::MODE1D and property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
          basementOutputRequested = true;
-      }
-      if ( doDerivedPropertiesCalc() and getModellingMode () == Interface::MODE3D and
-           property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
-         basement3DOutputRequested = true;
       }
 
       if ( name == "Biomarkers" ) {
@@ -2116,21 +2108,16 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    {
      PetscBool onlyPrimaryDouble = PETSC_FALSE;
      PetscBool allProperties     = PETSC_FALSE;
-     PetscBool doDerivedPropertiesCalc = PETSC_FALSE;
      // output the primary properties in double precision
      PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimaryDouble );
      // output all properties
      PetscOptionsHasName( PETSC_NULL, "-allproperties", &allProperties );
-     // turn on derived properties calculation. Can be used in combination with -primary<> options
-     PetscOptionsHasName( PETSC_NULL, "-dp", &doDerivedPropertiesCalc );
-
-     m_derivedPropertiesCalc = doDerivedPropertiesCalc;
 
      const bool onlyPrimaryFloat = !( onlyPrimaryDouble || allProperties );
 
      setPrimaryDouble( onlyPrimaryDouble );
 
-     const bool doPrimary = m_derivedPropertiesCalc || onlyPrimaryFloat || onlyPrimaryDouble;
+     const bool doPrimary = onlyPrimaryFloat || onlyPrimaryDouble;
      m_cauldron->setPrimaryOutput( doPrimary );
      m_cauldron->setNo2Doutput( doPrimary );
 
@@ -2422,14 +2409,6 @@ void FastcauldronSimulator::updateSourceRocksForDarcy () {
       sourceRock->setCanIncludeAdsorption ( false );
    }
 
-}
-//------------------------------------------------------------//
-
-void FastcauldronSimulator::removeRecordlessDerivedPropertyValues( ) {
-
-   // We should delete all existing derived properties from the project file
-   m_recordLessVolumePropertyValues.clear();
-   m_recordLessMapPropertyValues.clear();
 }
 
 //------------------------------------------------------------//

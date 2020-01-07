@@ -603,9 +603,6 @@ namespace DataAccess
          /// connect Reservoirs to Formations
          bool connectReservoirs (void);
 
-         /// get primary properties map writer
-         MapWriter * getMapPropertyValuesWriter();
-
          /// get primary properties flag
          bool isPrimaryDouble() const;
 

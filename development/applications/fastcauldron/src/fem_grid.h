@@ -77,9 +77,6 @@ namespace Basin_Modelling {
                          bool& errorInDarcy,
                          bool& geometryHasConverged );
 
-     const PropListVec & getMapOutputProperties () const;
-     const PropListVec & getVolumeOutputProperties () const;
-
      AppCtx* getAppCtx( ) const;
      //----------------------------//
 
@@ -185,7 +182,7 @@ namespace Basin_Modelling {
      void Solve_Pressure_For_Time_Step    ( const double  previousTime,
                                             const double  currentTime,
                                             const int     Maximum_Number_Of_Nonlinear_Iterations,
-					          bool&   overpressureHasDiverged,
+                                                  bool&   overpressureHasDiverged,
                                                   int&    Number_Of_Nonlinear_Iterations,
                                                   double& Po_Norm,
                                                   bool&   fracturingOccurred );
@@ -197,7 +194,7 @@ namespace Basin_Modelling {
                                             const double  currentTime,
                                             const int     Maximum_Number_Of_Nonlinear_Iterations,
                                                   bool&   temperatureHasDiverged,
-					          int&    Number_Of_Nonlinear_Iterations,
+                                                  int&    Number_Of_Nonlinear_Iterations,
                                                   double& T_Norm );
 
      /// \brief Solve the temperature for the current time step using a Newton solver.
@@ -224,7 +221,7 @@ namespace Basin_Modelling {
                                             const int     Maximum_Number_Of_Nonlinear_Pressure_Iterations,
                                             const int     Maximum_Number_Of_Nonlinear_Temperature_Iterations,
                                                   bool&   hasDiverged,
-					          int&    Number_Of_Nonlinear_Iterations,
+                                                  int&    Number_Of_Nonlinear_Iterations,
                                                   double& Po_Norm,
                                                   double& T_Norm,
                                                   bool&   fracturingOccurred );
@@ -392,9 +389,6 @@ namespace Basin_Modelling {
      /// List of volume properties which are only output at present day, t=0Ma
      PropListVec m_concludingVolumeOutputProperties;
      PropListVec m_combinedVolumeOutputProperties;
-     /// List of properties which are calculated and output at the end of the simulation
-     PropListVec m_volumeDerivedOutputProperties;
-     PropListVec m_mapDerivedOutputProperties;
 
      ///
      /// Records a fixed set of properties at a node on a surface.

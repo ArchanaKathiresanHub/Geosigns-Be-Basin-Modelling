@@ -33,11 +33,6 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
       return;
    }
 
-   Interface::SnapshotList::iterator snapshotIter;
-
-   Interface::PropertyList::iterator propertyIter;
-   FormationSurfaceVector::iterator formationIter;
-
    SnapshotFormationSurfaceOutputPropertyValueMap allOutputPropertyValues;
 
    if (snapshots.empty())
@@ -50,10 +45,8 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
    struct stat fileStatus;
    int fileError;
 
-   for (snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter)
+   for ( const Interface::Snapshot* snapshot : snapshots )
    {
-      const Interface::Snapshot * snapshot = *snapshotIter;
-
       displayProgress(snapshot->getFileName (), m_startTime, "Start computing ");
 
       if (snapshot->getFileName () != "")
@@ -65,10 +58,11 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
          ((Snapshot *)snapshot)->setAppendFile (not fileError);
       }
 
-      for (formationIter = formationItems.begin(); formationIter != formationItems.end(); ++formationIter)
+
+      for ( const FormationSurface& formationIter : formationItems )
       {
-         const Interface::Formation * formation = (*formationIter).first;
-         const Interface::Surface   * surface   = (*formationIter).second;
+         const Interface::Formation * formation = formationIter.first;
+         const Interface::Surface   * surface   = formationIter.second;
          const Interface::Snapshot  * bottomSurfaceSnapshot = (formation->getBottomSurface() != 0 ? formation->getBottomSurface()->getSnapshot() : 0);
 
          if (snapshot->getTime() != 0.0 and surface == 0 and bottomSurfaceSnapshot != 0)
@@ -80,9 +74,8 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
             }
          }
 
-         for (propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter)
+         for ( const Interface::Property* property : properties )
          {
-            const Interface::Property * property = *propertyIter;
             if (m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY)
             {
                continue;
@@ -96,7 +89,7 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
             if (not m_projectProperties or (m_projectProperties and allowOutput(property->getName(), formation, surface)))
             {
                resetProjectActivityGrid (property);
-               OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty (getPropertyManager(), property, snapshot, * formationIter, m_basement);
+               OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty (getPropertyManager(), property, snapshot, formationIter, m_basement);
                resetProjectActivityGrid ();
 
                if (outputProperty != 0)
@@ -107,7 +100,7 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
                         " allocate " << property->getName() << " " << (formation != 0 ? formation->getName() : "") << " " <<
                         (surface != 0 ? surface->getName() : "");
                   }
-                  allOutputPropertyValues [ snapshot ][ * formationIter ][ property ] = outputProperty;
+                  allOutputPropertyValues [ snapshot ][ formationIter ][ property ] = outputProperty;
                }
                else
                {
@@ -121,7 +114,8 @@ void HdfPropertiesCalculator::calculateProperties(FormationSurfaceVector& format
             }
          }
 
-         DerivedProperties::outputSnapshotFormationData(getProjectHandle(), snapshot, * formationIter, properties, allOutputPropertyValues);
+
+         DerivedProperties::outputSnapshotFormationData(getProjectHandle(), snapshot, formationIter, properties, allOutputPropertyValues);
       }
 
       removeProperties(snapshot, allOutputPropertyValues);

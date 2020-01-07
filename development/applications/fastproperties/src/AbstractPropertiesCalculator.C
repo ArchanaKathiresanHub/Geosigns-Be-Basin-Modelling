@@ -127,7 +127,7 @@ bool  AbstractPropertiesCalculator::finalise (bool isComplete) {
 
 //------------------------------------------------------------//
 
-bool AbstractPropertiesCalculator::CreateFrom (DataAccess::Interface::ObjectFactory* factory) {
+bool AbstractPropertiesCalculator::createFrom (DataAccess::Interface::ObjectFactory* factory) {
 
    if (m_projectHandle == 0)
    {
@@ -855,9 +855,9 @@ bool snapshotSorter(const Snapshot * snapshot1, const Snapshot * snapshot2)
    return snapshot1->getTime () > snapshot2->getTime ();
 }
 
-void displayProgress(const string & fileName, double startTime, const string & message)
+void AbstractPropertiesCalculator::displayProgress(const string & fileName, double startTime, const string & message)
 {
-   if (PetscGlobalRank != 0)
+   if (m_rank != 0)
       return;
    double EndTime;
 
@@ -885,7 +885,7 @@ void displayProgress(const string & fileName, double startTime, const string & m
    cout << flush;
 }
 
-void displayTime (const double timeToDisplay, const char * msgToDisplay)
+void AbstractPropertiesCalculator::displayTime (const double timeToDisplay, const char * msgToDisplay)
 {
    int hours   = (int)(timeToDisplay / 3600.0);
    int minutes = (int)((timeToDisplay - (hours * 3600.0)) / 60.0);

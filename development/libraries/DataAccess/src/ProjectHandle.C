@@ -149,8 +149,8 @@ static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth
                                 "ALCSmTopBasaltDepth",
                                 "ALCSmMohoDepth",
 
-                                "AllochthonousLithology", "ChemicalCompaction", "Depth",
-                                "ErosionFactor", "FaultElements", "FCTCorrection", "MaxVes",
+                                "ChemicalCompaction", "Depth",
+                                "ErosionFactor", "FCTCorrection", "MaxVes",
                                 "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
 ProjectHandle* DataAccess::Interface::OpenCauldronProject( const string & name,
@@ -215,7 +215,7 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    m_tableCTCRiftingHistory           ( *this ),
    m_tableOceanicCrustThicknessHistory( *this ),
    m_validator( *this ),
-   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 22 )
+   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 )
 {
    m_messageHandler = 0;
    m_globalOperations = 0;
@@ -4219,17 +4219,17 @@ const Interface::LithoType * ProjectHandle::findLithoType( const string & name )
    MutableLithoTypeList::const_iterator lithoTypeIter;
 
    if ( name == "" ) return 0;
-   
+
    for ( lithoTypeIter = m_lithoTypes.begin(); lithoTypeIter != m_lithoTypes.end(); ++lithoTypeIter )
    {
-	   const LithoType * lithoType = *lithoTypeIter;
-	   if (lithoType->getName() == name)
-	   {
-		   // Note that we return an Interface::LithoType
-		   return lithoType;
-	   }
+     const LithoType * lithoType = *lithoTypeIter;
+     if (lithoType->getName() == name)
+     {
+       // Note that we return an Interface::LithoType
+       return lithoType;
+     }
    }
-   
+
    return 0;
 }
 
@@ -5695,11 +5695,6 @@ double ProjectHandle::getPreviousIgneousIntrusionTime( const double Current_Time
       }
    }
    return m_previousIgneousIntrusionTime;
-}
-
-MapWriter * ProjectHandle::getMapPropertyValuesWriter() {
-
-   return m_mapPropertyValuesWriter;
 }
 
 bool ProjectHandle::isPrimaryDouble() const {
