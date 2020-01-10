@@ -30,6 +30,8 @@ public:
   static const Genex0dSourceRockDefaultProperties & getInstance();
   Genex0dSourceRockProperty getProperties(const std::string & typeName) const;
 
+  std::unordered_map<std::string, std::string> CfgFileNameBySRType() const;
+
 private:
   Genex0dSourceRockDefaultProperties();
   ~Genex0dSourceRockDefaultProperties();
@@ -51,6 +53,7 @@ private:
 
   static Genex0dSourceRockDefaultProperties m_instance;
   std::unordered_map<std::string, Genex0dSourceRockProperty> m_properties;
+  std::unordered_map<std::string, std::string> m_CfgFileNameBySRType;
 };
 
 } // namespace genex0d
