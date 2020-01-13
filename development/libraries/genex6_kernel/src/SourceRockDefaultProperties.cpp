@@ -80,7 +80,8 @@ void SourceRockDefaultProperties::setPropertyMaps()
   // TypeI
   typeNamesSR = {"Type_I_CenoMesozoic_Lacustrine_kin",
                  "LacustrineAlgal",
-                 "Type I - Lacustrine"};
+                 "Type I - Lacustrine",
+                 "Type I - Ceno-Mesozoic Shale"};
   nameWithSulphurSR = "Type_I_CenoMesozoic_Lacustrine_kin_s";
   for (auto name : typeNamesSR)
   {
@@ -92,7 +93,8 @@ void SourceRockDefaultProperties::setPropertyMaps()
   // TypeII
   typeNamesSR = {"Type_II_Mesozoic_MarineShale_kin",
                  "Type II - Mesozoic Marine",
-                 "MesozoicMarineShale"};
+                 "MesozoicMarineShale",
+                 "Type II - Mesozoic Shale"};
   nameWithSulphurSR = "Type_II_Mesozoic_MarineShale_kin_s";
   for (auto name : typeNamesSR)
   {
@@ -103,7 +105,8 @@ void SourceRockDefaultProperties::setPropertyMaps()
 
   // TypeI_II
   typeNamesSR = {"Type_I_II_Mesozoic_MarineShale_lit",
-                 "Type I/II - Marine Shale"};
+                 "Type I/II - Marine Shale",
+                 "Type I/II - Mesozoic Shale"};
   nameWithSulphurSR = "Type_I_II_Mesozoic_MarineShale_lit_s";
   for (auto name : typeNamesSR)
   {
@@ -115,7 +118,8 @@ void SourceRockDefaultProperties::setPropertyMaps()
   // TypeIIS
   typeNamesSR = {"Type_II_Mesozoic_Marl_kin",
                  "Type II - Marine Marl",
-                 "MesozoicCalcareousShale"};
+                 "MesozoicCalcareousShale",
+                 "Type II - Mesozoic Marl"};
   nameWithSulphurSR = "Type_II_Mesozoic_Marl_kin_s";
   for (auto name : typeNamesSR)
   {
@@ -127,7 +131,8 @@ void SourceRockDefaultProperties::setPropertyMaps()
   // TypeIIHS
   typeNamesSR = {"Type_II_Paleozoic_MarineShale_kin",
                  "Type II - Paleozoic Marine",
-                 "PaleozoicMarineShale"};
+                 "PaleozoicMarineShale",
+                 "Type II - Paleozoic Shale"};
   nameWithSulphurSR = "Type_II_Paleozoic_MarineShale_kin_s";
   for (auto name : typeNamesSR)
   {
@@ -138,7 +143,8 @@ void SourceRockDefaultProperties::setPropertyMaps()
 
   // TypeII_III
   typeNamesSR = {"Type_III_II_Mesozoic_HumicCoal_lit",
-                 "Type II/III - Humic Coal"};
+                 "Type II/III - Humic Coal",
+                 "Type II/III - Mesozoic Coal"};
   nameWithSulphurSR = "Type_III_II_Mesozoic_HumicCoal_lit_s";
   for (auto name : typeNamesSR)
   {
@@ -150,7 +156,8 @@ void SourceRockDefaultProperties::setPropertyMaps()
   // TypeIII
   typeNamesSR = {"Type_III_MesoPaleozoic_VitriniticCoal_kin",
                  "Type III - Terrestrial Coal",
-                 "VitriniticCoals"};
+                 "VitriniticCoals",
+                 "Type III - Paleozoic Coal"};
   nameWithSulphurSR = "";
   for (auto name : typeNamesSR)
   {
