@@ -52,7 +52,8 @@ TEST ( GammaRayFormationCalculatorDistributedTest, distributedComputation )
    const DataModel::AbstractProperty*  porosityProp = propertyManager.getProperty ( "Porosity" );
    const FormationPropertyPtr porosity = propertyManager.getFormationProperty ( porosityProp, snapshot.get(), formation.get() );
    const double undefinedValue = gammaRay->getUndefinedValue();
-   const GeoPhysics::CompoundLithologyArray& lithologies = formation->getCompoundLithologyArray ();
+   const auto lithologies = formation->getCompoundLithologyArray ();
+
 #endif
     
    //prozessor rank and size for the distributed test   
@@ -447,12 +448,14 @@ TEST ( GammaRayFormationCalculatorDistributedTest, distributedComputation )
 	   
 #ifdef VALIDATION 
             //Generate validation output 
+			 porosity.get()->
             if( (i+j) % 2 == 0){
                myfile<<"expected_results [ "<<rank<<" ][ "<<i - gammaRay->firstI ( true )<<" ][ "<<j - gammaRay->firstJ ( true )<<" ][ "<<k - gammaRay->firstK ()<<" ] = "<<std::setprecision(20)<<((((1 - (0.01 * porosity->getA ( i, j, k )) ) * solidRadiogenicHeatProduction) / gammaRayScaleFactor) + gammaRayOffset)<<";"<<std::endl;;
             }else{
                myfile<<"expected_results [ "<<rank<<" ][ "<<i - gammaRay->firstI ( true )<<" ][ "<<j - gammaRay->firstJ ( true )<<" ][ "<<k - gammaRay->firstK ()<<" ] = "<<std::setprecision(20)<<undefinedValue<<";"<<std::endl;;
             }
 #else
+			 std::cout << i << ' ' << j << ' ' << k << ' ' << i - gammaRay->firstI(true) << ' ' << j - gammaRay->firstJ(true) << ' ' << k - gammaRay->firstK() << std::endl;
             EXPECT_DOUBLE_EQ ( gammaRay->get ( i, j, k ), expected_results [rank] [i-gammaRay->firstI ( true )][j - gammaRay->firstJ ( true )][k - gammaRay->firstK ()] ); 
 #endif
 
