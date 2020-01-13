@@ -60,8 +60,6 @@
 namespace Genex6
 {
 
-//std::map<std::string, std::string> GenexSourceRock::s_CfgFileNameBySRType;
-
 GenexSourceRock::GenexSourceRock (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record)
   : DataAccess::Interface::SourceRock {projectHandle, record},
     GenexBaseSourceRock{},
