@@ -6,46 +6,46 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "Genex0dSourceRockDefaultProperties.h"
+#include "SourceRockDefaultProperties.h"
 
 #include <memory>
 
-namespace genex0d
+namespace Genex6
 {
 
-Genex0dSourceRockDefaultProperties Genex0dSourceRockDefaultProperties::m_instance = Genex0dSourceRockDefaultProperties();
+SourceRockDefaultProperties SourceRockDefaultProperties::m_instance = SourceRockDefaultProperties();
 
-Genex0dSourceRockDefaultProperties::Genex0dSourceRockDefaultProperties() :
+SourceRockDefaultProperties::SourceRockDefaultProperties() :
   m_properties{},
   m_CfgFileNameBySRType{}
 {
   setPropertyMaps();
 }
 
-Genex0dSourceRockDefaultProperties::~Genex0dSourceRockDefaultProperties()
+SourceRockDefaultProperties::~SourceRockDefaultProperties()
 {
 }
 
-const Genex0dSourceRockDefaultProperties & Genex0dSourceRockDefaultProperties::getInstance()
+const SourceRockDefaultProperties & SourceRockDefaultProperties::getInstance()
 {
   return m_instance;
 }
 
-void Genex0dSourceRockDefaultProperties::setPropertyMap(const std::string & sourceRockType,
-                                                        const std::vector<std::string> & nameListNoSulphur,
-                                                        const std::string & nameWithSulphur,
-                                                        const double TocIni,
-                                                        const double HCVRe05,
-                                                        const double SCVRe05,
-                                                        const double ActivationEnergy,
-                                                        const double AsphalteneDiffusionEnergy,
-                                                        const double ResinDiffusionEnergy,
-                                                        const double C15AroDiffusionEnergy,
-                                                        const double C15SatDiffusionEnergy,
-                                                        const double HCVRe05WithSulphur,
-                                                        const double SCVRe05WithSulphur)
+void SourceRockDefaultProperties::setPropertyMap(const std::string & sourceRockType,
+                                                 const std::vector<std::string> & nameListNoSulphur,
+                                                 const std::string & nameWithSulphur,
+                                                 const double TocIni,
+                                                 const double HCVRe05,
+                                                 const double SCVRe05,
+                                                 const double ActivationEnergy,
+                                                 const double AsphalteneDiffusionEnergy,
+                                                 const double ResinDiffusionEnergy,
+                                                 const double C15AroDiffusionEnergy,
+                                                 const double C15SatDiffusionEnergy,
+                                                 const double HCVRe05WithSulphur,
+                                                 const double SCVRe05WithSulphur)
 {
-  std::unique_ptr<Genex0dSourceRockProperty> property(new Genex0dSourceRockProperty());
+  std::unique_ptr<SourceRockProperty> property(new SourceRockProperty());
 
   // without Sulphur
   property->setTocIni(TocIni);
@@ -72,7 +72,7 @@ void Genex0dSourceRockDefaultProperties::setPropertyMap(const std::string & sour
   m_properties[nameWithSulphur] = *property;
 }
 
-void Genex0dSourceRockDefaultProperties::setPropertyMaps()
+void SourceRockDefaultProperties::setPropertyMaps()
 {
   std::vector<std::string> typeNamesSR;
   std::string nameWithSulphurSR;
@@ -160,19 +160,19 @@ void Genex0dSourceRockDefaultProperties::setPropertyMaps()
   setPropertyMap("TypeIII", typeNamesSR, nameWithSulphurSR, 10.0, 0.801, 0.0, 206000.0, 90000.0, 87000.0, 84000.0, 81000.0, 0.0, 0.0);
 }
 
-std::unordered_map<std::string, std::string> Genex0dSourceRockDefaultProperties::CfgFileNameBySRType() const
+const std::unordered_map<std::string, std::string>& SourceRockDefaultProperties::CfgFileNameBySRType() const
 {
   return m_CfgFileNameBySRType;
 }
 
-Genex0dSourceRockProperty Genex0dSourceRockDefaultProperties::getProperties(const std::string & typeName) const
+SourceRockProperty SourceRockDefaultProperties::getProperties(const std::string & typeName) const
 {
   if (m_properties.count(typeName) == 0)
   {
-    return Genex0dSourceRockProperty();
+    return SourceRockProperty();
   }
   
   return m_properties.at(typeName);
 }
 
-} // namespace genex0d
+} // namespace Genex6

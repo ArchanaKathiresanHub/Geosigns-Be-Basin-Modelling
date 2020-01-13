@@ -9,7 +9,7 @@
 #include "Genex0dSourceRock.h"
 
 #include "CommonDefinitions.h"
-#include "Genex0dSourceRockDefaultProperties.h"
+#include "SourceRockDefaultProperties.h"
 
 #include "ConstantsGenex.h"
 #include "Simulator.h"
@@ -31,7 +31,7 @@ Genex0dSourceRock::Genex0dSourceRock(DataAccess::Interface::ProjectHandle & proj
   m_adsorptionCapacityFunctionName{""},
   m_adsorptionSimulatorName{inData.whichAdsorptionSimulator}
 {
-  m_srProperties = Genex0dSourceRockDefaultProperties::getInstance().getProperties(m_sourceRockType);
+  m_srProperties = Genex6::SourceRockDefaultProperties::getInstance().getProperties(m_sourceRockType);
   setPropertiesFromInput(inData.ToCIni, inData.SCVRe05, inData.HCVRe05);
 }
 

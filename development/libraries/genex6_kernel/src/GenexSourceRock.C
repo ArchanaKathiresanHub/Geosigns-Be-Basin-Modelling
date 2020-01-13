@@ -17,6 +17,7 @@
 #include "LocalGridInterpolator.h"
 #include "SimulatorState.h"
 #include "SnapshotInterval.h"
+#include "SourceRockDefaultProperties.h"
 #include "SpeciesResult.h"
 
 // Genex6
@@ -59,15 +60,13 @@
 namespace Genex6
 {
 
-std::map<std::string, std::string> GenexSourceRock::s_CfgFileNameBySRType;
+//std::map<std::string, std::string> GenexSourceRock::s_CfgFileNameBySRType;
 
 GenexSourceRock::GenexSourceRock (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record)
-  : DataAccess::Interface::SourceRock {projectHandle, record}, GenexBaseSourceRock{}
+  : DataAccess::Interface::SourceRock {projectHandle, record},
+    GenexBaseSourceRock{},
+    s_CfgFileNameBySRType{SourceRockDefaultProperties::getInstance().CfgFileNameBySRType()}
 {
-  if(s_CfgFileNameBySRType.empty()) {
-    initializeCfgFileNameBySRType();
-  }
-
   m_theChemicalModel1 = nullptr;
   m_theChemicalModel2 = nullptr;
 
@@ -83,45 +82,6 @@ GenexSourceRock::GenexSourceRock (DataAccess::Interface::ProjectHandle& projectH
 GenexSourceRock::~GenexSourceRock(void)
 {
   clear();
-  if(!s_CfgFileNameBySRType.empty()) {
-    s_CfgFileNameBySRType.clear();
-  }
-}
-
-void GenexSourceRock::initializeCfgFileNameBySRType()
-{
-  //BPA1 mappings
-  s_CfgFileNameBySRType["LacustrineAlgal"]         = "TypeI";
-  s_CfgFileNameBySRType["MesozoicMarineShale"]     = "TypeII";
-  s_CfgFileNameBySRType["MesozoicCalcareousShale"] = "TypeIIS";
-  s_CfgFileNameBySRType["PaleozoicMarineShale"]    = "TypeIIHS";
-  s_CfgFileNameBySRType["VitriniticCoals"]         = "TypeIII";
-
-  s_CfgFileNameBySRType["Type_I_CenoMesozoic_Lacustrine_kin"] = "TypeI";
-  s_CfgFileNameBySRType["Type_I_II_Mesozoic_MarineShale_lit"] = "TypeI_II";
-  s_CfgFileNameBySRType["Type_I_II_Cenozoic_Marl_kin"]        = "TypeIIN";
-  s_CfgFileNameBySRType["Type_II_Mesozoic_MarineShale_kin"]   = "TypeII";
-  s_CfgFileNameBySRType["Type_II_Paleozoic_MarineShale_kin"]  = "TypeIIHS";
-  s_CfgFileNameBySRType["Type_II_Mesozoic_Marl_kin"]          = "TypeIIS";
-  s_CfgFileNameBySRType["Type_III_II_Mesozoic_HumicCoal_lit"] = "TypeII_III";
-  s_CfgFileNameBySRType["Type_III_MesoPaleozoic_VitriniticCoal_kin"] = "TypeIII";
-
-  s_CfgFileNameBySRType["Type_I_CenoMesozoic_Lacustrine_kin_s"] = "TypeI";
-  s_CfgFileNameBySRType["Type_I_II_Mesozoic_MarineShale_lit_s"] = "TypeI_II";
-  s_CfgFileNameBySRType["Type_I_II_Cenozoic_Marl_kin_s"]        = "TypeIIN";
-  s_CfgFileNameBySRType["Type_II_Mesozoic_MarineShale_kin_s"]   = "TypeII";
-  s_CfgFileNameBySRType["Type_II_Paleozoic_MarineShale_kin_s"]  = "TypeIIHS";
-  s_CfgFileNameBySRType["Type_II_Mesozoic_Marl_kin_s"]          = "TypeIIS";
-  s_CfgFileNameBySRType["Type_III_II_Mesozoic_HumicCoal_lit_s"] = "TypeII_III";
-
-  //BPA2 mappings
-  s_CfgFileNameBySRType["Type I - Lacustrine"]         = "TypeI";
-  s_CfgFileNameBySRType["Type I/II - Marine Shale"]    = "TypeI_II";
-  s_CfgFileNameBySRType["Type II - Mesozoic Marine"]   = "TypeII";
-  s_CfgFileNameBySRType["Type II - Marine Marl"]       = "TypeIIS";
-  s_CfgFileNameBySRType["Type II - Paleozoic Marine"]  = "TypeIIHS";
-  s_CfgFileNameBySRType["Type II/III - Humic Coal"]    = "TypeII_III";
-  s_CfgFileNameBySRType["Type III - Terrestrial Coal"] = "TypeIII";
 }
 
 void GenexSourceRock::setPropertyManager ( AbstractDerivedProperties::AbstractPropertyManager * aPropertyManager ) {
@@ -350,7 +310,7 @@ const std::string & GenexSourceRock::determineConfigurationFileName(const std::s
 {
   static std::string ret("TypeI");
 
-  std::map<std::string, std::string>::iterator it = s_CfgFileNameBySRType.find(SourceRockType);
+  std::unordered_map<std::string, std::string>::const_iterator it = s_CfgFileNameBySRType.find(SourceRockType);
 
   if(it != s_CfgFileNameBySRType.end()) {
     return it->second;

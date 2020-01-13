@@ -6,35 +6,34 @@
 // Do not distribute without written permission from Shell.
 //
 
-// Genex0dSourceRockDefaultProperties class: contains maps to default values of Source Rock type properties.
+// SourceRockDefaultProperties class: contains maps to default values of Source Rock type properties.
 // Note: The default values are obtained from BPA. Later on it must be checked whether or not the values are consistent with BPA and BPA2 values!
 #pragma once
 
-#include "Genex0dSourceRockProperty.h"
+#include "SourceRockProperty.h"
 
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-namespace genex0d
+namespace Genex6
 {
 
-class Genex0dSourceRockDefaultProperties
+class SourceRockDefaultProperties
 {
 public:
-  Genex0dSourceRockDefaultProperties(const Genex0dSourceRockDefaultProperties &) = delete;
-  Genex0dSourceRockDefaultProperties & operator = (const Genex0dSourceRockDefaultProperties &) = delete;
-  Genex0dSourceRockDefaultProperties(const Genex0dSourceRockDefaultProperties &&) = delete;
-  Genex0dSourceRockDefaultProperties & operator = (const Genex0dSourceRockDefaultProperties &&) = delete;
+  SourceRockDefaultProperties(const SourceRockDefaultProperties &) = delete;
+  SourceRockDefaultProperties & operator = (const SourceRockDefaultProperties &) = delete;
+  SourceRockDefaultProperties(const SourceRockDefaultProperties &&) = delete;
+  SourceRockDefaultProperties & operator = (const SourceRockDefaultProperties &&) = delete;
 
-  static const Genex0dSourceRockDefaultProperties & getInstance();
-  Genex0dSourceRockProperty getProperties(const std::string & typeName) const;
+  static const SourceRockDefaultProperties & getInstance();
+  SourceRockProperty getProperties(const std::string & typeName) const;
 
-  std::unordered_map<std::string, std::string> CfgFileNameBySRType() const;
-
+  const std::unordered_map<std::string, std::string> & CfgFileNameBySRType() const;
 private:
-  Genex0dSourceRockDefaultProperties();
-  ~Genex0dSourceRockDefaultProperties();
+  SourceRockDefaultProperties();
+  ~SourceRockDefaultProperties();
 
   void setPropertyMap(const std::string& sourceRockType,
                       const std::vector<std::string> & nameListNoSulphur,
@@ -51,9 +50,9 @@ private:
                       const double SCVRe05WithSulphur);
   void setPropertyMaps();
 
-  static Genex0dSourceRockDefaultProperties m_instance;
-  std::unordered_map<std::string, Genex0dSourceRockProperty> m_properties;
+  static SourceRockDefaultProperties m_instance;
+  std::unordered_map<std::string, SourceRockProperty> m_properties;
   std::unordered_map<std::string, std::string> m_CfgFileNameBySRType;
 };
 
-} // namespace genex0d
+} // namespace Genex6

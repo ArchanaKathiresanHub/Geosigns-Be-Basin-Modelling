@@ -6,20 +6,20 @@
 // Do not distribute without written permission from Shell.
 //
 
-// Genex0dSourceRockProperty class, which contains source rock property variables.
+// SourceRockProperty class, which contains source rock property variables.
 // Note: all the variables contain values that should be obtained for Vr = 0.5!
 
 #pragma once
 
 #include <string>
 
-namespace genex0d
+namespace Genex6
 {
 
-class Genex0dSourceRockProperty
+class SourceRockProperty
 {
 public:
-  Genex0dSourceRockProperty();
+  SourceRockProperty();
 
   double TocIni() const;
   void setTocIni(const double TocIni);
@@ -64,4 +64,4 @@ private:
   std::string m_typeNameID;
 };
 
-} // namespace genex0d
+} // namespace Genex6
