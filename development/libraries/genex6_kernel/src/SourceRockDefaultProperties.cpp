@@ -13,8 +13,6 @@
 namespace Genex6
 {
 
-SourceRockDefaultProperties SourceRockDefaultProperties::m_instance = SourceRockDefaultProperties();
-
 SourceRockDefaultProperties::SourceRockDefaultProperties() :
   m_properties{},
   m_CfgFileNameBySRType{}
@@ -28,7 +26,8 @@ SourceRockDefaultProperties::~SourceRockDefaultProperties()
 
 const SourceRockDefaultProperties & SourceRockDefaultProperties::getInstance()
 {
-  return m_instance;
+  static SourceRockDefaultProperties instance;
+  return instance;
 }
 
 void SourceRockDefaultProperties::setPropertyMap(const std::string & sourceRockType,

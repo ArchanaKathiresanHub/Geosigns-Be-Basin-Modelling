@@ -50,7 +50,6 @@ private:
                       const double SCVRe05WithSulphur);
   void setPropertyMaps();
 
-  static SourceRockDefaultProperties m_instance;
   std::unordered_map<std::string, DataAccess::Interface::SourceRockProperty> m_properties;
   std::unordered_map<std::string, std::string> m_CfgFileNameBySRType;
 };
