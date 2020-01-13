@@ -13,7 +13,9 @@
 
 #include <string>
 
-namespace Genex6
+namespace DataAccess
+{
+namespace Interface
 {
 
 class SourceRockProperty
@@ -64,4 +66,5 @@ private:
   std::string m_typeNameID;
 };
 
-} // namespace Genex6
+} // namespace DataAccess
+} // namespace Interface

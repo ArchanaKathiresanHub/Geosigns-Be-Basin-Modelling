@@ -3,7 +3,6 @@
 #include <sstream>
 using namespace std;
 
-
 #include "database.h"
 #include "cauldronschemafuncs.h"
 
@@ -17,13 +16,30 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-SourceRock::SourceRock (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)
+SourceRock::SourceRock (ProjectHandle& projectHandle, Record * record) :
+  DAObject (projectHandle, record),
+  m_srProperties{}
 {
    m_layerName = "";
+   if (record != nullptr)
+   {
+     setProperties();
+   }
 }
 
 SourceRock::~SourceRock (void)
 {
+}
+
+void SourceRock::setProperties()
+{
+  m_srProperties.setHCVRe05( database::getHcVRe05 (m_record) );
+  m_srProperties.setSCVRe05( database::getScVRe05 (m_record) );
+  m_srProperties.setActivationEnergy( database::getPreAsphaltStartAct (m_record) );
+  m_srProperties.setAsphalteneDiffusionEnergy( database::getAsphalteneDiffusionEnergy (m_record) );
+  m_srProperties.setResinDiffusionEnergy( database::getResinDiffusionEnergy (m_record) );
+  m_srProperties.setC15AroDiffusionEnergy( database::getC15AroDiffusionEnergy (m_record) );
+  m_srProperties.setC15SatDiffusionEnergy( database::getC15SatDiffusionEnergy (m_record) );
 }
 
 const string SourceRock::s_MapAttributeNames[] =
@@ -52,31 +68,31 @@ const string & SourceRock::getLayerName (void) const
 //mademlis
 const double & SourceRock::getHcVRe05(void) const
 {
-   return database::getHcVRe05 (m_record);
+   return m_srProperties.HCVRe05();
 }
 const double & SourceRock::getScVRe05(void) const
 {
-   return database::getScVRe05 (m_record);
+   return m_srProperties.SCVRe05();
 }
 const double & SourceRock::getPreAsphaltStartAct(void) const
 {
-   return database::getPreAsphaltStartAct (m_record);
+   return m_srProperties.activationEnergy();
 }
 const double & SourceRock::getAsphalteneDiffusionEnergy(void) const
 {
-   return database::getAsphalteneDiffusionEnergy (m_record);
+   return m_srProperties.AsphalteneDiffusionEnergy();
 }
 const double & SourceRock::getResinDiffusionEnergy(void) const
 {
-   return database::getResinDiffusionEnergy (m_record);
+   return m_srProperties.ResinDiffusionEnergy();
 }
 const double & SourceRock::getC15AroDiffusionEnergy(void) const
 {
-   return database::getC15AroDiffusionEnergy (m_record);
+   return m_srProperties.C15AroDiffusionEnergy();
 }
 const double & SourceRock::getC15SatDiffusionEnergy(void) const
 {
-   return database::getC15SatDiffusionEnergy (m_record);
+   return m_srProperties.C15SatDiffusionEnergy();
 }
 const string & SourceRock::getBaseSourceRockType (void) const
 {

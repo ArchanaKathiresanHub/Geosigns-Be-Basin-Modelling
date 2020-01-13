@@ -5,6 +5,7 @@ using namespace std;
 
 #include "DAObject.h"
 #include "Interface.h"
+#include "SourceRockProperty.h"
 
 namespace DataAccess
 {
@@ -78,11 +79,15 @@ namespace DataAccess
             // May not work if user application is compiled under IRIX with CC -lang:std
         void asString (string &) const;
 
-	 private:
-			static const string s_MapAttributeNames[];
-			std::string m_layerName;
+	 protected:
+		SourceRockProperty m_srProperties;
 
-      };
+	 private:
+		void setProperties();
+
+		static const string s_MapAttributeNames[];
+		std::string m_layerName;
+	  };
 
       inline void SourceRock::setLayerName( const std::string & aLayerName ) {
         m_layerName = aLayerName;

@@ -28,7 +28,7 @@ public:
   SourceRockDefaultProperties & operator = (const SourceRockDefaultProperties &&) = delete;
 
   static const SourceRockDefaultProperties & getInstance();
-  SourceRockProperty getProperties(const std::string & typeName) const;
+  DataAccess::Interface::SourceRockProperty getProperties(const std::string & typeName) const;
 
   const std::unordered_map<std::string, std::string> & CfgFileNameBySRType() const;
 private:
@@ -51,7 +51,7 @@ private:
   void setPropertyMaps();
 
   static SourceRockDefaultProperties m_instance;
-  std::unordered_map<std::string, SourceRockProperty> m_properties;
+  std::unordered_map<std::string, DataAccess::Interface::SourceRockProperty> m_properties;
   std::unordered_map<std::string, std::string> m_CfgFileNameBySRType;
 };
 

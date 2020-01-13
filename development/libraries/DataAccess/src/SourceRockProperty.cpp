@@ -8,7 +8,9 @@
 
 #include "SourceRockProperty.h"
 
-namespace Genex6
+namespace DataAccess
+{
+namespace Interface
 {
 
 SourceRockProperty::SourceRockProperty() :
@@ -120,4 +122,5 @@ void SourceRockProperty::setTypeNameID(const std::string & typeNameID)
   m_typeNameID = typeNameID;
 }
 
-} // namespace Genex6
+} // namespace DataAccess
+} // namespace Interface

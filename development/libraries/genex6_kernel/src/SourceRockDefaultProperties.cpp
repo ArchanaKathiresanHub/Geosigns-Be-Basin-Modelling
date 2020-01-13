@@ -45,7 +45,7 @@ void SourceRockDefaultProperties::setPropertyMap(const std::string & sourceRockT
                                                  const double HCVRe05WithSulphur,
                                                  const double SCVRe05WithSulphur)
 {
-  std::unique_ptr<SourceRockProperty> property(new SourceRockProperty());
+  std::unique_ptr<DataAccess::Interface::SourceRockProperty> property(new DataAccess::Interface::SourceRockProperty());
 
   // without Sulphur
   property->setTocIni(TocIni);
@@ -165,11 +165,11 @@ const std::unordered_map<std::string, std::string>& SourceRockDefaultProperties:
   return m_CfgFileNameBySRType;
 }
 
-SourceRockProperty SourceRockDefaultProperties::getProperties(const std::string & typeName) const
+DataAccess::Interface::SourceRockProperty SourceRockDefaultProperties::getProperties(const std::string & typeName) const
 {
   if (m_properties.count(typeName) == 0)
   {
-    return SourceRockProperty();
+    return DataAccess::Interface::SourceRockProperty();
   }
   
   return m_properties.at(typeName);
