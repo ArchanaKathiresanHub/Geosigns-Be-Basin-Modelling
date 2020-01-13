@@ -11,8 +11,6 @@
 namespace modelPseudo1d
 {
 
-ModelPseudo1dInputMapProperties ModelPseudo1dInputMapProperties::m_instance = ModelPseudo1dInputMapProperties();
-
 ModelPseudo1dInputMapProperties::ModelPseudo1dInputMapProperties() :
   m_tableMapProperty{}
 {
@@ -23,9 +21,11 @@ ModelPseudo1dInputMapProperties::~ModelPseudo1dInputMapProperties()
 {
 }
 
+///Changing the Singleton implementation to thread safe type.
 const ModelPseudo1dInputMapProperties & ModelPseudo1dInputMapProperties::getInstance()
 {
-  return m_instance;
+	static ModelPseudo1dInputMapProperties	m_instance;
+	return m_instance;
 }
 
 void ModelPseudo1dInputMapProperties::setStratIoTbl()

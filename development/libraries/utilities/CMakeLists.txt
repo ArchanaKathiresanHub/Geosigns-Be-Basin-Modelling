@@ -55,7 +55,7 @@ add_gtest( NAME "${LIB_NAME}::PiecewiseInterpolator"
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
-add_gtest( NAME "${LIB_NAME}::PiecewiseInterpolatorDerivative"
+add_gtest( NAME "${LIB_NAME}::PIDerivative"
    SOURCES test/PiecewiseInterpolatorDerivativeTest.C
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")

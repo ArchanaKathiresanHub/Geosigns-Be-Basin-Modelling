@@ -108,7 +108,7 @@ add_gtest( NAME "${LIB_NAME}::Density"
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
 
-add_gtest( NAME "${LIB_NAME}::TotalTectonicSubsidence"
+add_gtest( NAME "${LIB_NAME}::TotTectSubsidence"
            SOURCES test/TotalTectonicSubsidence.C ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
@@ -122,7 +122,7 @@ add_gtest( NAME "${LIB_NAME}::Paleowaterdepth"
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
 
-add_gtest( NAME "${LIB_NAME}::PaleowaterdepthResidual"
+add_gtest( NAME "${LIB_NAME}::PWDResidual"
            SOURCES test/PaleowaterdepthResidual.C ${io_ctcMockFiles} ${io_dataModelMockFiles} ${io_dataModelMockFiles}
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
@@ -167,7 +167,7 @@ if (UNIX)
    set( MACHINE_FILE -machinefile machines)
 endif (UNIX)
 
-add_gtest( NAME "${LIB_NAME}::MapSmootherDistributed"
+add_gtest( NAME "${LIB_NAME}::MSDistributed"
            SOURCES test/MapSmootherDistributed.C
            LIBRARIES ${LIB_NAME} ${PETSC_LIBRARIES} Utilities_Petsc DataMining DataAccess DistributedDataAccess
            INCLUDE_DIRS ${PETSC_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src

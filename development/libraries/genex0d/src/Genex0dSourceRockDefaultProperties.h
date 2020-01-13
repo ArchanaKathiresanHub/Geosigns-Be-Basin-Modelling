@@ -49,7 +49,6 @@ private:
                       const double SCVRe05WithSulphur);
   void setPropertyMaps();
 
-  static Genex0dSourceRockDefaultProperties m_instance;
   std::unordered_map<std::string, Genex0dSourceRockProperty> m_properties;
 };
 

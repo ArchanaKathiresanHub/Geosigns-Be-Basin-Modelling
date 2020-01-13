@@ -19,7 +19,7 @@ namespace genex0d
 {
 
 class Genex0dFormationManager;
-class Genex0dInputData;
+struct Genex0dInputData;
 class Genex0dProjectManager;
 class Genex0dSimulator;
 class Genex0dSimulatorFactory;

@@ -49,7 +49,7 @@ try :
 }
 catch (const ErrorHandler::Exception & ex)
 {
-  throw;
+  throw ex;
 }
 
 Genex0dSimulator::~Genex0dSimulator()
@@ -61,8 +61,8 @@ Genex0dSimulator* Genex0dSimulator::CreateFrom(const std::string & fileName, Dat
   return dynamic_cast<Genex0dSimulator *>(DataAccess::Interface::OpenCauldronProject (fileName, objectFactory));
 }
 
-bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, const unsigned int indI, const unsigned int indJ,
-                           const double thickness, const double inorganicDensity, const std::vector<double> & time,
+bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, unsigned int indI, unsigned int indJ,
+                           double thickness, double inorganicDensity, const std::vector<double> & time,
                            const std::vector<double> & temperature, const std::vector<double> & pressure)
 {
   registerProperties();

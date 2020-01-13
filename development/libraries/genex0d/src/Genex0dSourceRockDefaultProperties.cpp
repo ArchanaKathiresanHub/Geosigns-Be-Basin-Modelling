@@ -13,8 +13,6 @@
 namespace genex0d
 {
 
-Genex0dSourceRockDefaultProperties Genex0dSourceRockDefaultProperties::m_instance = Genex0dSourceRockDefaultProperties();
-
 Genex0dSourceRockDefaultProperties::Genex0dSourceRockDefaultProperties() :
   m_properties{}
 {
@@ -25,9 +23,11 @@ Genex0dSourceRockDefaultProperties::~Genex0dSourceRockDefaultProperties()
 {
 }
 
+///Changing the Singleton implementation to thread safe type.
 const Genex0dSourceRockDefaultProperties & Genex0dSourceRockDefaultProperties::getInstance()
 {
-  return m_instance;
+	static Genex0dSourceRockDefaultProperties	m_instance;
+	return m_instance;
 }
 
 void Genex0dSourceRockDefaultProperties::setPropertyMap(const std::string & sourceRockType,

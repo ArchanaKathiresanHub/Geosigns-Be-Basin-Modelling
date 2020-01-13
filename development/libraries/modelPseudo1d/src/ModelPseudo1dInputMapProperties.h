@@ -52,7 +52,6 @@ private:
   void setTwoWayTimeIoTbl();
   void setOceaCrustalThicknessIoTbl();
 
-  static ModelPseudo1dInputMapProperties m_instance;
   TypeTablePropertyMap m_tableMapProperty;
 };
 
