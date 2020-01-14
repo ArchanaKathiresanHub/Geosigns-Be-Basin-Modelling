@@ -29,15 +29,11 @@ public:
 
   static const SourceRockDefaultProperties & getInstance();
   DataAccess::Interface::SourceRockProperty getProperties(const std::string & typeName) const;
-
-  const std::unordered_map<std::string, std::string> & CfgFileNameBySRType() const;
 private:
   SourceRockDefaultProperties();
   ~SourceRockDefaultProperties();
 
   void setPropertyMap(const std::string& sourceRockType,
-                      const std::vector<std::string> & nameListNoSulphur,
-                      const std::string & nameWithSulphur,
                       const double TocIni,
                       const double HCVRe05,
                       const double SCVRe05,
@@ -51,7 +47,6 @@ private:
   void setPropertyMaps();
 
   std::unordered_map<std::string, DataAccess::Interface::SourceRockProperty> m_properties;
-  std::unordered_map<std::string, std::string> m_CfgFileNameBySRType;
 };
 
 } // namespace Genex6
