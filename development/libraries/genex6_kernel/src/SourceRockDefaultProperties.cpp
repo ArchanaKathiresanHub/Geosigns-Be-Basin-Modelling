@@ -55,20 +55,28 @@ void SourceRockDefaultProperties::setPropertyMap(const std::string & srCfgFileTy
   property->setC15AroDiffusionEnergy(C15AroDiffusionEnergy);
   property->setC15SatDiffusionEnergy(C15SatDiffusionEnergy);
   property->setTypeNameID(srCfgFileTypeName);
-  for (const std::string & nameNoSulphur : SourceRockTypeNameMappings::getInstance().typeNamesSR(srCfgFileTypeName))
+
+  typedef const SourceRockTypeNameMappings & (*(SRTypeNameMappingsFunc))();
+  SRTypeNameMappingsFunc srTypeNameMappingFunc = SourceRockTypeNameMappings::getInstance;
+
+  std::vector<std::string> typeNameList;
+  (*srTypeNameMappingFunc)().typeNamesSR(typeNameList, srCfgFileTypeName);
+  for (const std::string & nameNoSulphur : typeNameList)
   {
     m_properties[nameNoSulphur] = *property;
   }
 
   // with Sulphur
-  if (SourceRockTypeNameMappings::getInstance().typeNamesSRWithSulphur(srCfgFileTypeName).empty())
+  typeNameList.clear();
+  (*srTypeNameMappingFunc)().typeNamesSRWithSulphur(typeNameList, srCfgFileTypeName);
+  if (typeNameList.empty())
   {
     return;
   }
   property->setHCVRe05(HCVRe05WithSulphur);
   property->setSCVRe05(SCVRe05WithSulphur);
 
-  for (const std::string & nameWithSulphur : SourceRockTypeNameMappings::getInstance().typeNamesSRWithSulphur(srCfgFileTypeName))
+  for (const std::string & nameWithSulphur : typeNameList)
   {
     m_properties[nameWithSulphur] = *property;
   }

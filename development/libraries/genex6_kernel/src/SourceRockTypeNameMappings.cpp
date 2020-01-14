@@ -116,27 +116,27 @@ void SourceRockTypeNameMappings::setCfgFileNameBySRType()
   }
 }
 
-std::vector<std::string> SourceRockTypeNameMappings::typeNamesSRWithSulphur(const std::string & srCfgFileTypeName) const
+void SourceRockTypeNameMappings::typeNamesSRWithSulphur(std::vector<std::string> & typeNameList, const std::string & srCfgFileTypeName) const
 {
   if (m_typeNamesSRWithSulphur.count(srCfgFileTypeName) == 0)
   {
-    return {};
+    return;
   }
 
-  return m_typeNamesSRWithSulphur.at(srCfgFileTypeName);
+  typeNameList = m_typeNamesSRWithSulphur.at(srCfgFileTypeName);
 }
 
-std::vector<std::string> SourceRockTypeNameMappings::typeNamesSR(const std::string & srCfgFileTypeName) const
+void SourceRockTypeNameMappings::typeNamesSR(std::vector<std::string> & typeNameList, const std::string & srCfgFileTypeName) const
 {
   if (m_typeNamesSR.count(srCfgFileTypeName) == 0)
   {
-    return {};
+    return;
   }
 
-  return m_typeNamesSR.at(srCfgFileTypeName);
+  typeNameList = m_typeNamesSR.at(srCfgFileTypeName);
 }
 
-const std::unordered_map<std::string, std::string>& SourceRockTypeNameMappings::CfgFileNameBySRType() const
+const std::unordered_map<std::string, std::string> & SourceRockTypeNameMappings::CfgFileNameBySRType() const
 {
   return m_CfgFileNameBySRType;
 }

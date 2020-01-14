@@ -26,8 +26,8 @@ public:
 
   static const SourceRockTypeNameMappings & getInstance();
   const std::unordered_map<std::string, std::string> & CfgFileNameBySRType() const;
-  std::vector<std::string> typeNamesSR(const std::string & srCfgFileTypeName) const;
-  std::vector<std::string> typeNamesSRWithSulphur(const std::string & srCfgFileTypeName) const;
+  void typeNamesSR(std::vector<std::string> & typeNameList, const std::string & srCfgFileTypeName) const;
+  void typeNamesSRWithSulphur(std::vector<std::string> & typeNameList, const std::string & srCfgFileTypeName) const;
 
 private:
   SourceRockTypeNameMappings();
