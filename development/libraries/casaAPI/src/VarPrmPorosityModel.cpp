@@ -179,7 +179,7 @@ size_t VarPrmPorosityModel::dimension() const
    {
       case PrmPorosityModel::Exponential:       return 3;
       case PrmPorosityModel::SoilMechanics:     return 1;
-      case PrmPorosityModel::DoubleExponential: return 4;
+      case PrmPorosityModel::DoubleExponential: return 5;
       default: return 0;
    }
 }

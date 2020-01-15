@@ -1170,27 +1170,30 @@ TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
 
-   ASSERT_EQ( minV.size(),  4U );
-   ASSERT_EQ( maxV.size(),  4U );
-   ASSERT_EQ( baseV.size(), 4U );
+   ASSERT_EQ( minV.size(),  5U );
+   ASSERT_EQ( maxV.size(),  5U );
+   ASSERT_EQ( baseV.size(), 5U );
 
     // does it range have given min value
    ASSERT_NEAR( minV[0], 30.0,  eps );
    ASSERT_NEAR( minV[1], 2.0,   eps );
    ASSERT_NEAR( minV[2], 10.0,  eps );
    ASSERT_NEAR( minV[3], 3.0,   eps );
+   ASSERT_NEAR( minV[4], 0.1,   eps );
 
    // does it range have given max value
    ASSERT_NEAR( maxV[0], 60.0,  eps );
    ASSERT_NEAR( maxV[1], 4.0,   eps );
    ASSERT_NEAR( maxV[2], 20.0,  eps );
    ASSERT_NEAR( maxV[3], 5.0,   eps );
+   ASSERT_NEAR( maxV[4], 0.3,   eps );
 
    // does it have base values as middle values?
    ASSERT_NEAR( baseV[0], 45.0, eps );
    ASSERT_NEAR( baseV[1], 3.0,  eps );
    ASSERT_NEAR( baseV[2], 15.0, eps );
    ASSERT_NEAR( baseV[3], 4.0,  eps );
+   ASSERT_NEAR( baseV[4], 0.2,  eps );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
