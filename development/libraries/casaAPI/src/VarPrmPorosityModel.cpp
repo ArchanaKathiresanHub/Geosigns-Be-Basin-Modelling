@@ -39,6 +39,9 @@ VarPrmPorosityModel::VarPrmPorosityModel( const char * lithoName
                                         , double                              baseCompCoeffB
                                         , double                              minCompCoeffB
                                         , double                              maxCompCoeffB
+                                        , double                              baseCompRatio
+                                        , double                              minCompRatio
+                                        , double                              maxCompRatio
                                         , PDF                                 prmPDF
                                         , const char                        * name
                                         )
@@ -84,16 +87,19 @@ VarPrmPorosityModel::VarPrmPorosityModel( const char * lithoName
          minPorModelPrms.push_back( minMinPor );
          minPorModelPrms.push_back( minCompCoeff );
          minPorModelPrms.push_back( minCompCoeffB );
+         minPorModelPrms.push_back( minCompRatio );
 
          maxPorModelPrms.push_back( maxSurfPor );
          maxPorModelPrms.push_back( maxMinPor );
          maxPorModelPrms.push_back( maxCompCoeff );
          maxPorModelPrms.push_back( maxCompCoeffB );
+         maxPorModelPrms.push_back( maxCompRatio );
 
          basPorModelPrms.push_back( baseSurfPor );
          basPorModelPrms.push_back( baseMinPor );
          basPorModelPrms.push_back( baseCompCoeff );
          basPorModelPrms.push_back( baseCompCoeffB );
+         basPorModelPrms.push_back( baseCompRatio );
          break;
 
       default:

@@ -318,8 +318,7 @@ namespace casa
 
       /// @brief Add porosity model parameters variation
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VaryPorosityModelParameters(
-            ScenarioAnalysis    & sa            ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
+      ErrorHandler::ReturnCode VaryPorosityModelParameters(ScenarioAnalysis    & sa            ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
           , const char          * name          ///< user specified name for influential parameter
           , const char *          layerName     ///< [in] stratigraphy layer name, if layerName is not NULL, it will copy lithology record before making changes
           , const char *          litName       ///< [in] lithology name
@@ -332,6 +331,8 @@ namespace casa
           , double                maxMinPor     ///< [in] max range value for the minimal porosity value (Double_Exponential model only)
           , double                minCompCoef1  ///< [in] min range value for the compaction coefficient for the second exponent (Double_Exponential model only)
           , double                maxCompCoef1  ///< [in] max range value for the compaction coefficient for the second exponent (Double_Exponential model only)
+          , double                minCompRatio  ///< [in] min range value for the compaction ratio (Double_Exponential model only)
+          , double                maxCompRatio  ///< [in] max range value for the compaction ratio (Double_Exponential model only)
           , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the influential parameter. If PDF needs
                                                         some middle parameter value it will be taken from the base case model */
           );

@@ -1006,7 +1006,9 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
                , "Eponential"
                , 30.0, 60.0, 2.0, 4.0,
                Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue,
-               Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue, VarPrmContinuous::Block
+               Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue,
+               Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue,
+               VarPrmContinuous::Block
                ) );
 
    // set the parameter
@@ -1018,6 +1020,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
             , "Exponential"
             , 30.0, 60.0
             , 2.0, 4.0
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
             , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
             , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
             , VarPrmContinuous::Block )
@@ -1084,6 +1087,7 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
                , "Soil_Mechanics"
                , 30.0, 60.0, 2.0, 4.0
                , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+               , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
                , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue, VarPrmContinuous::Block
                ) );
 
@@ -1095,6 +1099,7 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
             , "Std. Sandstone"
             , "Soil_Mechanics"
             , 30.0, 60.0
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
             , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
             , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
             , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
@@ -1147,6 +1152,7 @@ TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
             , 2.0,  4.0   // compaction coeff. A
             , 10,   20    // minimal porosity
             , 3.0,  5.0   // compaction coeff. B
+            , 0.1, 0.3    // compaction ratio
             , VarPrmContinuous::Block )
             );
 
