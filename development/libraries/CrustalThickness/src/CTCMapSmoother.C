@@ -7,7 +7,7 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
-#include "MapSmoother.h"
+#include "CTCMapSmoother.h"
 
 // utilitites
 #include "LogHandler.h"

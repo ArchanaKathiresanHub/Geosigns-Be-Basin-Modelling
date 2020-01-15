@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 namespace AbstractDerivedProperties
 {
@@ -193,7 +194,7 @@ protected:
 
   void zeroTimeStepAccumulations ();
 
-  Genex6::ChemicalModel * loadChemicalModel( const DataAccess::Interface::SourceRock * sr,
+  ChemicalModel * loadChemicalModel( const DataAccess::Interface::SourceRock * sr,
                                              const bool printInitialisationDetails = true );
 
   /// The valid nodes of the source rock
@@ -203,7 +204,7 @@ protected:
   double m_time;
 
 private: 
-  Genex6::AdsorptionSimulator * getAdsorptionSimulator() const;
+  AdsorptionSimulator * getAdsorptionSimulator() const;
 
   /// Apply SR mixing flag
   bool m_applySRMixing;
@@ -212,22 +213,20 @@ private:
   bool m_minorOutput;
 
   /// The chemical model associated with the source rock1
-  Genex6::ChemicalModel *m_theChemicalModel1;
+  ChemicalModel *m_theChemicalModel1;
 
   /// The chemical model associated with the source rock2
-  Genex6::ChemicalModel *m_theChemicalModel2;
+  ChemicalModel *m_theChemicalModel2;
 
   /// \brief The simulator for adsorption processes.
-  Genex6::AdsorptionSimulator* m_adsorptionSimulator;
-  Genex6::AdsorptionSimulator* m_adsorptionSimulator2;
+  AdsorptionSimulator* m_adsorptionSimulator;
+  AdsorptionSimulator* m_adsorptionSimulator2;
 
   AbstractDerivedProperties::AbstractPropertyManager * m_propertyManager;
 
   std::map<std::string, DataAccess::Interface::GridMap*> m_theSnapShotOutputMaps;
   /// \brief Mapping between source rock name and source rock type as written in genex configuration file
-  static std::map<std::string, std::string> s_CfgFileNameBySRType;
-  static void initializeCfgFileNameBySRType();
-
+  const std::unordered_map<std::string, std::string> & s_CfgFileNameBySRType;
 
   DataAccess::Interface::GridMap* m_hcSaturationOutputMap;
   DataAccess::Interface::GridMap* m_irreducibleWaterSaturationOutputMap;

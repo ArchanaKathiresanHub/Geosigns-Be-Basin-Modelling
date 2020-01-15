@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "../src/MapSmoother.h"
+#include "../src/CTCMapSmoother.h"
 
 // DataAccess libraries
 #include "../../SerialDataAccess/src/SerialGrid.h"

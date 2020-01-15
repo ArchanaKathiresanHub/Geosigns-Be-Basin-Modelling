@@ -14,7 +14,7 @@
 namespace genex0d
 {
 
-class Genex0dInputData;
+struct Genex0dInputData;
 
 class Genex0dPointAdsorptionHistory : public DataAccess::Interface::PointAdsorptionHistory
 {

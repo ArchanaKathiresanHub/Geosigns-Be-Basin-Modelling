@@ -26,7 +26,7 @@ class GenexSourceRock;
 namespace genex0d
 {
 
-class Genex0dInputData;
+struct Genex0dInputData;
 class Genex0dGenexSourceRock;
 
 class Genex0dSimulator : public GeoPhysics::ProjectHandle
@@ -38,7 +38,7 @@ public:
   ~Genex0dSimulator();
   
   static Genex0dSimulator * CreateFrom(const std::string & fileName, DataAccess::Interface::ObjectFactory * objectFactory);
-  bool run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, const unsigned int indI, const unsigned int indJ, const double thickness, const double inorganicDensity, const std::vector<double>& time, const std::vector<double>& temperature, const std::vector<double>& pressure);
+  bool run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, unsigned int indI, unsigned int indJ, double thickness, double inorganicDensity, const std::vector<double>& time, const std::vector<double>& temperature, const std::vector<double>& pressure);
   bool saveTo(const std::string & outputFileName);
   
 private:

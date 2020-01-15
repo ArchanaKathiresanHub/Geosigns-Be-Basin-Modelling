@@ -10,7 +10,7 @@
 
 #include "CommonDefinitions.h"
 #include "Genex0dPointAdsorptionHistory.h"
-#include "Genex0dSourceRockDefaultProperties.h"
+#include "SourceRockDefaultProperties.h"
 
 // Genex6
 #include "ConstantsGenex.h"

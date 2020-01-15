@@ -58,12 +58,12 @@ ModelPseudo1dProjectManager::ModelPseudo1dProjectManager(const ModelPseudo1dInpu
   catch (const ErrorHandler::Exception & ex)
   {
     cleanup();
-    throw;
+    throw ex;
   }
   catch (const modelPseudo1d::ModelPseudo1dException  & ex)
   {
     cleanup();
-    throw;
+    throw ex;
   }
 }
 

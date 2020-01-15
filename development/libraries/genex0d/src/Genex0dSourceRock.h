@@ -11,8 +11,7 @@
 #pragma once
 
 #include "Genex0dInputData.h"
-#include "Genex0dSourceRockProperty.h"
-#include "GenexSourceRock.h"
+#include "SourceRock.h"
 
 namespace DataAccess
 {
@@ -53,11 +52,12 @@ public:
   const DataAccess::Interface::GridMap * getMap(DataAccess::Interface::SourceRockMapAttributeId attributeId) const final;
 
 protected:
-  Genex0dSourceRockProperty m_srProperties;
   const std::string & m_formationName;
   const std::string m_sourceRockType;
 
 private:
+  void setPropertiesFromDefaults();
+
   void setPropertiesFromInput(const double ToCIni, const double SCVRe05, const double HCVRe05);
   const GridMap * loadMap (DataAccess::Interface::SourceRockMapAttributeId attributeId, const double mapScalarValue) const;
 

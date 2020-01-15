@@ -29,7 +29,7 @@ using namespace DataAccess::Interface;
 
 // Crustal Thickness library
 #include "DensityCalculator.h"
-#include "MapSmoother.h"
+#include "CTCMapSmoother.h"
 #include "McKenzieCrustCalculator.h"
 #include "TotalTectonicSubsidenceCalculator.h"
 #include "PaleowaterdepthCalculator.h"
@@ -400,6 +400,7 @@ void CrustalThicknessCalculator::smoothOutputs() {
    //Smooth the PWD and crustal thicknesses maps if requested
    if (m_applySmoothing) {
       std::vector<outputMaps> mapsToSmooth = { isostaticBathymetry, thicknessBasaltMap, thicknessCrustMap };
+
       MapSmoother mapSmoother( m_inputData->getSmoothRadius() );
       LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "applying spatial smoothing with radius set to " << m_inputData->getSmoothRadius() << " for maps:";
 
