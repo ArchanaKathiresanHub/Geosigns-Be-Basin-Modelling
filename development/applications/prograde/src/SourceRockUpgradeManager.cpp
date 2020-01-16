@@ -52,6 +52,8 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 	
 	for (size_t id = 0; id < stratIo_table->size(); ++id)
 	{
+		bpa2SourceRockTypeName.resize(0);
+		sourceRockTypeName.resize(0);
 		if (m_model.stratigraphyManager().isSourceRockMixingEnabled(id) && m_model.stratigraphyManager().isSourceRockActive(id))
 		{
 			layerName = m_model.stratigraphyManager().layerName(id);
@@ -116,7 +118,7 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 						else if (m_model.sourceRockManager().sourceRockType(sourceRockId).compare(sourceRockTypeName[1]) == 0)
 						{
 							std::string baseSourceRockTypeName = m_model.sourceRockManager().baseSourceRockType(sourceRockId);							
-							LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "For source rock mixing, source rock type and base source rock type are respectively '" << sourceRockTypeName[0] << "' and '" << baseSourceRockTypeName<<"'";
+							LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "For source rock mixing, source rock type and base source rock type are respectively '" << sourceRockTypeName[1] << "' and '" << baseSourceRockTypeName<<"'";
 							bpaHcVre05 = m_model.sourceRockManager().hcIni(sourceRockId);
 							bpaScVre05 = m_model.sourceRockManager().scIni(sourceRockId);
 							bpaEa = m_model.sourceRockManager().preAsphActEnergy(sourceRockId);
