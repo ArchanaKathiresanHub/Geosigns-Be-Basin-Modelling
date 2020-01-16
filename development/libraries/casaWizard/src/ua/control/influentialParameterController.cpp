@@ -89,9 +89,8 @@ void InfluentialParameterController::slotArgumentsPopup(const int row)
   }
 }
 
-
 void InfluentialParameterController::slotRefresh()
-{  
+{
   table_->updateTable(manager_.influentialParameters(), manager_.options());
 }
 

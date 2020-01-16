@@ -33,29 +33,37 @@ CorrelationController::CorrelationController(CorrelationTab* correlationTab,
           SLOT(correlationSelectionItemChanged()));
 }
 
-void CorrelationController::slotRefresh(int tabID)
+void CorrelationController::slotRefresh()
+{
+  const InfluentialParameterManager& manager{casaScenario_.influentialParameterManager()};
+
+  if (casaScenario_.isStageComplete(StageTypesUA::mcmc))
+  {
+    correlationTab_->fillCorrelationSelectionTable(manager.influentialParameters(), manager.isUsedInCorrelation());
+    updateCorrelationPlotLayout();
+  }
+  else
+  {
+    correlationTab_->fillCorrelationSelectionTable({},{});
+    correlationTab_->updateCorrelationPlotLayout({},{},{},{});
+  }
+}
+
+void CorrelationController::slotUpdateTabGUI(int tabID)
 {
   if (tabID != static_cast<int>(TabID::Correlations))
   {
     return;
   }
 
-  const InfluentialParameterManager& manager{casaScenario_.influentialParameterManager()};
-  correlationTab_->fillCorrelationSelectionTable(manager.influentialParameters(), manager.isUsedInCorrelation());
-  updateCorrelationPlotLayout();
-}
-
-void CorrelationController::slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage)
-{
-  if (tabID != static_cast<int>(TabID::Correlations) || correlationTab_->isEnabled())
+  correlationTab_->setEnabled(true);
+  if (!casaScenario_.isStageComplete(StageTypesUA::mcmc))
   {
-    return;
+    correlationTab_->setEnabled(false);
+    Logger::log() << "MCMC data is not available! Complete MCMC data creation stage in MCMC tab first." << Logger::endl();
   }
 
-  if (hasLogMessage)
-  {
-    Logger::log() << "MCMC data is not available! Complete MCMC data creation stage in UA tab first." << Logger::endl();
-  }
+  slotRefresh();
 }
 
 void CorrelationController::updateCorrelationPlotLayout()
@@ -71,16 +79,6 @@ void CorrelationController::correlationSelectionItemChanged()
   InfluentialParameterManager& manager{casaScenario_.influentialParameterManager()};
   manager.setIsUsedInCorrelation(correlationTab_->isCorrelationSelectTableItemSelected());
   updateCorrelationPlotLayout();
-}
-
-void CorrelationController::slotEnableTabAndUpdateDependentWorkflowTabs()
-{
-  correlationTab_->setEnabled(true);
-}
-
-void CorrelationController::slotDisableTabAndUpdateDependentWorkflowTabs()
-{
-  correlationTab_->setEnabled(false);
 }
 
 } // namespace ua

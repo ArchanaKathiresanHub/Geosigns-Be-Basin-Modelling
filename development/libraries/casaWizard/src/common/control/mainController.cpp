@@ -40,17 +40,19 @@ void MainController::constructWindow(LogReceiver* logReceiver)
 
   connect(mainWindow().menu()->actionExpertUser(), SIGNAL(toggled(bool)), this, SLOT(slotExpertUser(bool)));
 
-  emitAllRefreshSignals();
-  signalEnableDisableWorkflowTabs(0, false);
+  showFirstTab();
+}
+
+void MainController::showFirstTab()
+{
+  mainWindow().tabWidget()->setCurrentIndex(0);
+  emit signalUpdateTabGUI(0);
 }
 
 void MainController::slotNew()
 {
   scenario().clear();
-  emit signalResestToStartingStage();
-  emitAllRefreshSignals();
-  emitAllEnableDisableSignals();
-  mainWindow().tabWidget()->setCurrentIndex(0);
+  showFirstTab();
   logReceiver_->clear();
   Logger::log() << "Clearing the scenario" << Logger::endl();
 }
@@ -89,12 +91,8 @@ void MainController::slotOpen()
   scenario().setWorkingDirectory( folderLocation.path() );
 
   emit signalProjectOpened();
-  emit signalResestToStartingStage();
-  emitAllRefreshSignals();
-  emitAllEnableDisableSignals(false);
+  showFirstTab();
   Logger::log() << "Reading from file " << file << Logger::endl();
-
-  emit signalRefreshAfterOpen();
 }
 
 void MainController::slotExit()
@@ -124,26 +122,7 @@ void MainController::logMessage()
 
 void MainController::slotTabSwitch(int tabIndex)
 {
-  emit signalRefresh(tabIndex);
-  emit signalEnableDisableWorkflowTabs(tabIndex);
-}
-
-void MainController::emitAllRefreshSignals()
-{
-  const QTabWidget* tabWidget{mainWindow().tabWidget()};
-  for (int i = 0; i < tabWidget->count(); ++i)
-  {
-    emit signalRefresh(i);
-  }
-}
-
-void MainController::emitAllEnableDisableSignals(const bool hasLogMessage)
-{
-  const QTabWidget* tabWidget{mainWindow().tabWidget()};
-  for (int i = 0; i < tabWidget->count(); ++i)
-  {
-    emit signalEnableDisableWorkflowTabs(i, hasLogMessage);
-  }
+  emit signalUpdateTabGUI(tabIndex);
 }
 
 } // namespace casaWizard

@@ -104,7 +104,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProductionGridScaling::setInModel(mbapi:
 
   if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mID, minVal, maxVal ) )
   {
-    throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+    throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
   }
 
   //double scaleCoeff = NumericFunctions::isEqual( 0.0, maxVal, 1e-10 ) ? 0.0 : ( m_value / maxVal );
@@ -112,19 +112,19 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProductionGridScaling::setInModel(mbapi:
   // scale map with new maximum value
   if ( ErrorHandler::NoError != mpMgr.scaleMap( cmID, m_factor ) )
   {
-    throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+    throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
   }
 
   // save map to separate HDF file
   if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + mapFileSuffix ) )
   {
-    throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+    throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
   }
 
   // update project with new map name
   if ( ErrorHandler::NoError != caldModel.setTableValue( tableName, 0, mapColumn, newMapName ) )
   {
-    throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+    throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
   }
 
   return ErrorHandler::NoError;

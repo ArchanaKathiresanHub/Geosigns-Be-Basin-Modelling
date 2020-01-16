@@ -23,10 +23,12 @@ bool AddCasesScript::prepareKill() const
 
 void AddCasesScript::writeScriptContents(QFile& file) const
 {
+  const QString stateFileNameDoE = uaScenario().runLocation() + "/" + uaScenario().iterationDirName() + "/" + uaScenario().stateFileNameDoE();
+
   QTextStream out(&file);
 
   out << writeBaseProject(uaScenario().project3dFilename());
-  out << writeLoadState(uaScenario().runLocation() + "/" + uaScenario().iterationDirName() + "/" + uaScenario().stateFileNameDoE());
+  out << writeLoadState(stateFileNameDoE);
 
   const ManualDesignPointManager& designPointManager = uaScenario().manualDesignPointManager();
   const QVector<bool> completed = designPointManager.completed();
@@ -40,7 +42,7 @@ void AddCasesScript::writeScriptContents(QFile& file) const
 
   out << writeLocation(uaScenario().runLocation(), true);
   out << writeRun(uaScenario().clusterName());
-  out << writeSaveState(uaScenario().stateFileNameDoE());
+  out << writeSaveState(stateFileNameDoE);
 }
 
 } // namespace ua

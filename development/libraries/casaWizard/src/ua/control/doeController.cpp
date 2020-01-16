@@ -69,16 +69,49 @@ DoEcontroller::DoEcontroller(DoeTab* doeTab,
   connect(manualDesignPointController_,       SIGNAL(designPointsChanged()),              this, SLOT(slotManualDesignPointsChanged()));
 
   connect(this, SIGNAL(signalRefresh()), influentialParameterController_, SLOT(slotRefresh()));
-  connect(this, SIGNAL(signalRefresh()), manualDesignPointController_, SLOT(slotRefresh()));
+  connect(this, SIGNAL(signalRefresh()), manualDesignPointController_,    SLOT(slotRefresh()));
 }
 
-void DoEcontroller::slotRefresh(int tabID)
+void DoEcontroller::slotUpdateIterationDir()
+{
+  RunCaseSetFileManager& runCaseSetFileManager = casaScenario_.runCaseSetFileManager();
+  runCaseSetFileManager.setIterationPath(casaScenario_.project3dPath());
+}
+
+void DoEcontroller::setDoEstageIncomplete()
+{
+  casaScenario_.setStageComplete(StageTypesUA::doe, false);
+  casaScenario_.setStageComplete(StageTypesUA::qc, false);
+  casaScenario_.setStageComplete(StageTypesUA::mcmc, false);
+}
+
+void DoEcontroller::slotUpdateTabGUI(int tabID)
 {
   if (tabID != static_cast<int>(TabID::DoE))
   {
     return;
   }
 
+  doeTab_->setEnabled(true);
+  if (casaScenario_.isStageComplete(StageTypesUA::doe))
+  {
+    const RunCaseSetFileManager& runCaseSetFileManager = casaScenario_.runCaseSetFileManager();
+    if (runCaseSetFileManager.isIterationDirDeleted(casaScenario_.project3dPath()))
+    {
+      doeTab_->setEnabled(false);
+      Logger::log() << "Disabled DoE tab!" << Logger::endl();
+    }
+  }
+  else
+  {
+    Logger::log() << "DoE stage is not completed! Run CASA to complete it." << Logger::endl();
+  }
+
+  slotRefresh();
+}
+
+void DoEcontroller::slotRefresh()
+{
   QSignalBlocker blockerProject3d(doeTab_->lineEditProject3D());
   doeTab_->lineEditProject3D()->setText(casaScenario_.project3dPath());
 
@@ -97,75 +130,13 @@ void DoEcontroller::slotRefresh(int tabID)
   emit signalRefresh();
 }
 
-void DoEcontroller::slotResetTab()
-{
-  doeTab_->setEnabled(true);
-}
-
-void DoEcontroller::slotUpdateIterationDir()
-{
-  RunCaseSetFileManager& runCaseSetFileManager = casaScenario_.runCaseSetFileManager();
-  runCaseSetFileManager.setIterationPath(casaScenario_.project3dPath());
-  runCaseSetFileManager.updateIterationDirFileDateTime();
-}
-
-void DoEcontroller::slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage)
-{
-  if (tabID != static_cast<int>(TabID::DoE))
-  {
-    return;
-  }
-
-  StageCompletionUA& stageCompletion = casaScenario_.isStageComplete();
-  if (stageCompletion.isComplete(StageTypesUA::doe))
-  {
-    RunCaseSetFileManager& runCaseSetFileManager = casaScenario_.runCaseSetFileManager();
-    if (!runCaseSetFileManager.isIterationDirDeleted(casaScenario_.project3dPath()))
-    {
-      emit signalEnableDependentWorkflowTabs();
-      emit signalEnableDisableDependentTabRunCasaButton(static_cast<int>(TabID::QC), true);
-      return;
-    }
-
-    if (stageCompletion.isComplete(StageTypesUA::qc))
-    {
-      doeTab_->setEnabled(false);
-      emit signalEnableDependentWorkflowTabs();
-      emit signalEnableDisableDependentTabRunCasaButton(static_cast<int>(TabID::QC), false);
-      return;
-    }
-
-    stageCompletion.setStageIsComplete(StageTypesUA::doe, false);
-    doeTab_->setEnabled(true);
-  }
-
-  emit signalEnableDisableDependentTabRunCasaButton(static_cast<int>(TabID::QC), true);
-  emit signalDisableDependentWorkflowTabs();
-
-  if (hasLogMessage)
-  {
-    Logger::log() << "DoE stage is not completed! Run CASA to complete it." << Logger::endl();
-  }
-}
-
-void DoEcontroller::slotDisableTab()
-{
-  const StageCompletionUA& stageCompletion = casaScenario_.isStageComplete();
-  if (!stageCompletion.isComplete(StageTypesUA::qc))
-  {
-    return;
-  }
-
-  doeTab_->setEnabled(false);
-
-  Logger::log() << "Disabled DoE tab!" << Logger::endl();
-}
-
 void DoEcontroller::slotUpdateDoeOptionTable()
 {
   const InfluentialParameterManager& manager = casaScenario_.influentialParameterManager();
   casaScenario_.updateDoeConstantNumberOfDesignPoints(manager.totalNumberOfInfluentialParameters());
   doeTab_->updateDoeOptionTable(casaScenario_.doeOptions(), casaScenario_.isDoeOptionSelected());
+
+  setDoEstageIncomplete();
 }
 
 void DoEcontroller::slotUpdateDesignPointTable()
@@ -176,10 +147,18 @@ void DoEcontroller::slotUpdateDesignPointTable()
   const QStringList names = influentialParameterManager.nameList();
 
   manualDesignPointController_->updateInfluentialParameters(numberNew, names);
+
+  setDoEstageIncomplete();
 }
 
 void DoEcontroller::slotPushButtonDoErunCasaClicked()
 {
+  if (casaScenario_.isStageComplete(StageTypesUA::doe))
+  {
+    Logger::log() << "Nothing to be done. DoE is already run with current settings" << Logger::endl();
+    return;
+  }
+
   scenarioBackup::backup(casaScenario_);
   ManualDesignPointManager& designPointManager = casaScenario_.manualDesignPointManager();
   if (casaScenario_.doeSelected().isEmpty() && designPointManager.numberOfPoints() == 0)
@@ -196,28 +175,35 @@ void DoEcontroller::slotPushButtonDoErunCasaClicked()
   scriptRunController_.runScript(doe);
   designPointManager.completeAll();
 
-  StageCompletionUA& stageCompletion{casaScenario_.isStageComplete()};
-  stageCompletion.setStageIsComplete(StageTypesUA::doe);
-  stageCompletion.setStageIsComplete(StageTypesUA::qc, false);
+  casaScenario_.setStageComplete(StageTypesUA::doe, true);
 
-  RunCaseSetFileManager& runCaseSetFileManager = casaScenario_.runCaseSetFileManager();
-  runCaseSetFileManager.setIterationPath(casaScenario_.project3dPath());
+  const QString source = casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameDoE();
+  const QString target = casaScenario_.workingDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameDoE();
 
-  if (QFile::copy(casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameDoE(),
-                  casaScenario_.workingDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameDoE()))
+  if (QFile::exists(target))
   {
-    if (!QFile::remove(casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameDoE()))
-    {
-      Logger::log() << "There was a problem while moving " << casaScenario_.stateFileNameDoE() << " file to " << casaScenario_.iterationDirName() << " Folder." << Logger::endl();
-    }
+    QFile::remove(target);
   }
 
-  emit signalRefresh();
-  emit signalEnableDependentWorkflowTabs();
+  if (QFile::copy(source, target))
+  {
+    QFile::remove(source);
+  }
+
+  slotUpdateIterationDir();
+  slotUpdateTabGUI(static_cast<int>(TabID::DoE));
+
+  scenarioBackup::backup(casaScenario_);
 }
 
 void DoEcontroller::slotPushButtonRunAddedCasesClicked()
 {
+  if (casaScenario_.isStageComplete(StageTypesUA::doe))
+  {
+    Logger::log() << "Nothing to be done. DoE is already run with current settings" << Logger::endl();
+    return;
+  }
+
   scenarioBackup::backup(casaScenario_);
   ManualDesignPointManager& designPointManager = casaScenario_.manualDesignPointManager();
   QVector<bool> completed = designPointManager.completed();
@@ -243,13 +229,12 @@ void DoEcontroller::slotPushButtonRunAddedCasesClicked()
   scriptRunController_.runScript(addCasesScript);
   designPointManager.completeAll();
 
-  rcsFileManager.updateIterationDirFileDateTime();
+  casaScenario_.setStageComplete(StageTypesUA::doe);
 
-  StageCompletionUA stageCompletion = casaScenario_.isStageComplete();
-  stageCompletion.setStageIsComplete(StageTypesUA::doe);
+  slotUpdateIterationDir();
+  slotUpdateTabGUI(static_cast<int>(TabID::DoE));
 
-  emit signalRefresh();
-  emit signalEnableDependentWorkflowTabs();
+  scenarioBackup::backup(casaScenario_);
 }
 
 void DoEcontroller::slotPushSelectProject3dClicked()
@@ -268,14 +253,18 @@ void DoEcontroller::slotPushSelectProject3dClicked()
 
   WorkspaceDialog popupWorkspace{originalWorkspaceLocation,casaWizard::workspaceGenerator::getSuggestedWorkspace(fileName) };
 
-  if (popupWorkspace.exec() == QDialog::Accepted)
-  {
-    casaWizard::workspaceGenerator::createWorkspace(originalWorkspaceLocation, popupWorkspace.optionSelected());
-  }
-  else
+  if (popupWorkspace.exec() != QDialog::Accepted)
   {
     return;
   }
+
+  if (!casaWizard::workspaceGenerator::createWorkspace(originalWorkspaceLocation, popupWorkspace.optionSelected()))
+  {
+    Logger::log() << "Unable to create workspace, do you have write access to: " << popupWorkspace.optionSelected() << Logger::endl();
+    return;
+  }
+
+  setDoEstageIncomplete();
 
   casaScenario_.setWorkingDirectory(popupWorkspace.optionSelected());
   casaScenario_.setProject3dFilePath(fileName);
@@ -288,11 +277,13 @@ void DoEcontroller::slotPushSelectProject3dClicked()
 
 void DoEcontroller::slotComboBoxApplicationCurrentTextChanged(const QString& applicationName)
 {
+  setDoEstageIncomplete();
   casaScenario_.setApplicationName(applicationName);
 }
 
 void DoEcontroller::slotLineEditProject3dTextChanged(const QString& project3dPath)
 {
+  setDoEstageIncomplete();
   casaScenario_.setProject3dFilePath(project3dPath);
 }
 
@@ -303,8 +294,9 @@ void DoEcontroller::slotSpinBoxCpusValueChanged(int cpus)
 
 void DoEcontroller::slotManualDesignPointsChanged()
 {
+  setDoEstageIncomplete();
   casaScenario_.setNumberOfManualDesignPoints();
-  slotRefresh(static_cast<int>(TabID::DoE));
+  slotRefresh();
 }
 
 void DoEcontroller::slotComboBoxClusterCurrentTextChanged(const QString& clusterName)
@@ -314,6 +306,7 @@ void DoEcontroller::slotComboBoxClusterCurrentTextChanged(const QString& cluster
 
 void DoEcontroller::slotDoeSelectionItemChanged(QTableWidgetItem* item)
 {
+  setDoEstageIncomplete();
   if (item->column() == doeTab_->columnIndexCheckBoxDoeOptionTable())
   {
     casaScenario_.setIsDoeOptionSelected(item->row(), item->checkState() == Qt::Checked);

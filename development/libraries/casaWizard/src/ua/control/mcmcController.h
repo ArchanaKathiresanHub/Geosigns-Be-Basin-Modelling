@@ -27,7 +27,7 @@ public:
                QObject* parent);
 
 private slots:
-  void slotPushButtonUArunCasaClicked();
+  void slotPushButtonMCMCrunCasaClicked();
   void slotTablePredictionTargetClicked(int row, int column);
   void slotPushButtonExportOptimalCasesClicked();
   void slotPushButtonRunOptimalCasesClicked();
@@ -35,15 +35,8 @@ private slots:
   void slotCheckBoxHistoryPlotModeChanged(const int checkState);
   void slotPushButtonAddOptimalDesignPointClicked();
 
-  void slotRefresh(int tabID);
-  void slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage);
-
-  void slotEnableTabAndUpdateDependentWorkflowTabs();
-  void slotDisableTabAndUpdateDependentWorkflowTabs();
-
-signals:
-  void signalEnableDependentWorkflowTabs();
-  void signalDisableDependentWorkflowTabs();
+  void slotRefresh();
+  void slotUpdateTabGUI(int tabID);
 
 private:
   MCMCTab* mcmcTab_;

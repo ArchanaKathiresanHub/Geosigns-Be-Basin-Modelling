@@ -26,7 +26,6 @@ private slots:
   void slotPushButtonDelInfluentialParameterClicked();
   void slotArgumentsPopup(const int row);
   void slotChangeInfluentialParameter(const int row, const int selected);
-
   void slotRefresh();
 
 signals:

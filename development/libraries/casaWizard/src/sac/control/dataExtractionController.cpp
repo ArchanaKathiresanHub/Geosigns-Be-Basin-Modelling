@@ -31,14 +31,14 @@ void DataExtractionController::readResults()
 
   OptimizedLithofractionExtractor lithoExtractor{scenario_};
 
-  if (!lithoExtractor.iterationPath().isEmpty())
-  {
-    readCaseData(lithoExtractor, "extracting optimized lithofractions");
-  }
-  else
+  if (lithoExtractor.iterationPath().isEmpty())
   {
     Logger::log() << "There are no run cases available! Please run CASA in SAC tab first." << Logger::endl();
+    return;
   }
+
+  readCaseData(lithoExtractor, "extracting optimized lithofractions");
+  scenarioBackup::backup(scenario_);
 }
 
 void DataExtractionController::readCaseData(CaseExtractor& extractor, const QString& message)

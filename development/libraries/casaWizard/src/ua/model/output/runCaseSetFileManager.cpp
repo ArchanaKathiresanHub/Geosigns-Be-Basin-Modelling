@@ -8,6 +8,7 @@
 #include <QVector>
 
 #include <algorithm>
+#include <iostream>
 
 namespace casaWizard
 {
@@ -26,20 +27,15 @@ double convertByteToMegaByte(const double sizeInBytes)
 } // namespace
 
 RunCaseSetFileManager::RunCaseSetFileManager():
-  iterationDirFileInfo_{QFileInfo{""}},
-  iterationDirDateTime_{}
+  iterationDirFileInfo_{QFileInfo{""}}
 {
 }
 
 QFileInfoList RunCaseSetFileManager::getIterationPathList(const QString& project3dPath) const
 {
-  QDir caseSetPath{QString("./CaseSet")};
+  QFileInfo project3dPathFileInfo{project3dPath};
+  QDir caseSetPath{project3dPathFileInfo.absolutePath() + QString("/CaseSet")};
   return caseSetPath.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::Time | QDir::Reversed);
-}
-
-QDateTime RunCaseSetFileManager::iterationDirDateTime() const
-{
-  return iterationDirDateTime_;
 }
 
 QString RunCaseSetFileManager::iterationDirPath() const
@@ -69,21 +65,13 @@ void RunCaseSetFileManager::setIterationPath(const QString& project3dPath)
 
     if (iterationPathList.isEmpty())
     {
-      lastIterationDir = QFileInfo{""};
+      return;
     }
-    else
-    {
-      lastIterationDir = iterationPathList.last();
-    }
-  }
 
-  if (lastIterationDir.fileName().isEmpty())
-  {
-    return;
+    lastIterationDir = iterationPathList.last();
   }
 
   iterationDirFileInfo_ = lastIterationDir;
-  iterationDirDateTime_ = lastIterationDir.created();
 }
 
 double RunCaseSetFileManager::iterationDirFilesSize() const
@@ -141,8 +129,7 @@ bool RunCaseSetFileManager::isIterationDirDeleted(const QString& project3dPath) 
   }
 
   QFileInfo myIterationDir = iterationPathList.last();
-  while (!(myIterationDir.absoluteFilePath() == iterationDirPath()
-         && myIterationDir.lastModified() == iterationDirDateTime_)
+  while (!(myIterationDir.absoluteFilePath() == iterationDirPath())
          && !iterationPathList.isEmpty())
   {
     iterationPathList.pop_back();
@@ -170,31 +157,21 @@ QString RunCaseSetFileManager::iterationDirName() const
   return iterationDirFileInfo_.fileName();
 }
 
-void RunCaseSetFileManager::updateIterationDirFileDateTime()
-{
-  iterationDirFileInfo_ = QFileInfo(iterationDirFileInfo_.absoluteFilePath());
-  iterationDirDateTime_ = iterationDirFileInfo_.lastModified();
-}
-
 void RunCaseSetFileManager::writeToFile(ScenarioWriter& writer) const
 {
   writer.writeValue("RunCaseSetFileManagerVersion", 0);
   writer.writeValue("iterationDirFileInfo",  + "./CaseSet/" + iterationDirName());
-  writer.writeValue("iterationDirDateTime", iterationDirDateTime_.toString());
 }
 
 void RunCaseSetFileManager::readFromFile(const ScenarioReader& reader)
 {
   const QString& iterationDirFileInfoStr = reader.readString("iterationDirFileInfo");
   iterationDirFileInfo_ = QFileInfo{iterationDirFileInfoStr};
-  const QString& iterationDirDateTimeStr = reader.readString("iterationDirDateTime");
-  iterationDirDateTime_ = QDateTime::fromString(iterationDirDateTimeStr);
 }
 
 void RunCaseSetFileManager::clear()
 {
   iterationDirFileInfo_ = {};
-  iterationDirDateTime_ = {};
 }
 
 } // namespace ua

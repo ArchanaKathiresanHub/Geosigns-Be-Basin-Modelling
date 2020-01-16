@@ -81,9 +81,6 @@ TEST_F( RunCaseSetFileManager, testFileWriteRead )
   const QString& iterationDirPathExpected = rcFileManager_.iterationDirPath();
   const QString& iterationDirPathActual = rcFileManagerForReading.iterationDirPath();
   EXPECT_EQ(iterationDirPathExpected, iterationDirPathActual);
-  const QDateTime& timeOfFileCreationExpected = rcFileManager_.iterationDirDateTime();
-  const QDateTime& timeOfFileCreationActual = rcFileManagerForReading.iterationDirDateTime();
-  EXPECT_EQ(timeOfFileCreationExpected, timeOfFileCreationActual);
 }
 
 TEST_F( RunCaseSetFileManager, testIterationDirSize )

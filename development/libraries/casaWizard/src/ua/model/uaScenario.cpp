@@ -348,7 +348,6 @@ QVector<TargetQC> UAScenario::targetQCs() const
 
 void UAScenario::setTargetQCs(const QVector<TargetQC>& targetQCs)
 {
-  targetQCs_.clear();
   targetQCs_ = targetQCs;
 }
 
@@ -496,20 +495,20 @@ void UAScenario::clear()
 QString UAScenario::iterationDirName() const
 {
   const QString iterationPath = workingDirectory() + "/" + runLocation();
-
   const QDir dir(iterationPath);
-  QDateTime dateTime = QFileInfo(dir.path()).lastModified();
-
+  QDateTime dateTime;
   QString dirName{""};
+  bool first{true};
   for (const QString entry : dir.entryList())
   {
     if (entry.toStdString().find("Iteration_") == 0)
     {
       const QFileInfo info{dir.path() + "/" + entry};
-      if (info.lastModified() >= dateTime)
+      if (first || info.lastModified() >= dateTime)
       {
         dateTime = info.lastModified();
         dirName = entry;
+        first = false;
       }
     }
   }
@@ -517,14 +516,14 @@ QString UAScenario::iterationDirName() const
   return dirName;
 }
 
-const StageCompletionUA& UAScenario::isStageComplete() const
+bool UAScenario::isStageComplete(const StageTypesUA& stageType) const
 {
-  return isStageComplete_;
+  return isStageComplete_.isComplete(stageType);
 }
 
-StageCompletionUA& UAScenario::isStageComplete()
+void UAScenario::setStageComplete(const StageTypesUA& stageType, bool isComplete)
 {
-  return isStageComplete_;
+  isStageComplete_.setStageIsComplete(stageType, isComplete);
 }
 
 } // namespace ua

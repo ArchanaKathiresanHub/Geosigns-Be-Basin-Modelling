@@ -56,6 +56,8 @@ QCDoeOptionTable::QCDoeOptionTable(QWidget* parent) :
 
 void QCDoeOptionTable::updateTable(const QStringList& doeOptionNames, const QVector<bool>& isQcDoeOptionsSelected)
 {
+  QSignalBlocker blocker(tableWidgetQcDoeOption_);
+
   tableWidgetQcDoeOption_->clearContents();
   tableWidgetQcDoeOption_->setRowCount(doeOptionNames.size());
 
@@ -76,7 +78,10 @@ void QCDoeOptionTable::updateTable(const QStringList& doeOptionNames, const QVec
 
 void QCDoeOptionTable::setProxyComboBoxes(const Proxy& proxy)
 {
+  QSignalBlocker blocker1(comboBoxProxyOrder_);
   comboBoxProxyOrder_->setCurrentIndex(Proxy::orderOptions().indexOf(proxy.order()));
+
+  QSignalBlocker blocker2(comboBoxKriging_);
   comboBoxKriging_->setCurrentIndex(Proxy::krigingMethodOptions().indexOf(proxy.krigingMethod()));
 }
 

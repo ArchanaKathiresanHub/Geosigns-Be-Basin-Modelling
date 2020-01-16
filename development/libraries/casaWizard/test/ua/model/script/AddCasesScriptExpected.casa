@@ -3,4 +3,4 @@ loadstate "CaseSet/Iteration_1/stateFileTestCasaScriptDoE.txt" "txt"
 addDesignPoint 1.4
 location "CaseSet" "append"
 run "LOCAL" ""
-savestate "stateFileTestCasaScriptDoE.txt" "txt"
+savestate "CaseSet/Iteration_1/stateFileTestCasaScriptDoE.txt" "txt"

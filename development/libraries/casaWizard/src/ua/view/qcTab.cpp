@@ -22,12 +22,12 @@ namespace ua
 {
 
 QCTab::QCTab(QWidget* parent) : QWidget(parent),
-  pushButtonSArunCASA_{new QPushButton("Run CASA", this)},
+  pushButtonQCrunCASA_{new QPushButton("Run CASA", this)},
   tableQC_{new QTableWidget(this)},
   qcPlot_{new QCPlot(this)},
   qcDoeOptionTable_{new QCDoeOptionTable(this)}
 {
-  pushButtonSArunCASA_->setFixedSize(120, 30);
+  pushButtonQCrunCASA_->setFixedSize(120, 30);
 
   tableQC_->setRowCount(0);
   tableQC_->setColumnCount(5);
@@ -51,7 +51,7 @@ QCTab::QCTab(QWidget* parent) : QWidget(parent),
   gridLayout->addWidget(tableQC_, 0, 0, 2, 1);
   gridLayout->addWidget(qcPlot_, 0, 1, 2, 2);
   gridLayout->addWidget(qcDoeOptionTable_, 2, 0);
-  gridLayout->addWidget(pushButtonSArunCASA_, 2, 2);
+  gridLayout->addWidget(pushButtonQCrunCASA_, 2, 2);
   gridLayout->setColumnStretch(1, 1);
   gridLayout->setRowStretch(2, 1);
 
@@ -60,12 +60,7 @@ QCTab::QCTab(QWidget* parent) : QWidget(parent),
 
 const QPushButton* QCTab::pushButtonQCrunCASA() const
 {
-  return pushButtonSArunCASA_;
-}
-
-QPushButton* QCTab::pushButtonQCrunCASA()
-{
-  return pushButtonSArunCASA_;
+  return pushButtonQCrunCASA_;
 }
 
 void QCTab::fillQCtable(const QVector<TargetQC>& targetQCs)
@@ -114,6 +109,12 @@ QCDoeOptionTable* QCTab::qcDoeOptionTable() const
 QTableWidget* QCTab::tableQC() const
 {
   return tableQC_;
+}
+
+void QCTab::allowModification(bool allow)
+{
+  pushButtonQCrunCASA_->setEnabled(allow);
+  qcDoeOptionTable_->setEnabled(allow);
 }
 
 } // namespace ua

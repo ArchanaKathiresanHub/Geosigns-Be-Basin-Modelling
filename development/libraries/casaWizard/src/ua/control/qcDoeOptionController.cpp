@@ -30,19 +30,27 @@ QCDoeOptionController::QCDoeOptionController(QCDoeOptionTable* table,
           this,                             SLOT(slotComboBoxKrigingItemChanged(QString)));
 }
 
+void QCDoeOptionController::updateAfterModification()
+{
+  emit modelChange();
+}
+
 void QCDoeOptionController::slotTableWidgetQcDoeOptionItemChanged(QTableWidgetItem* item)
 {
   casaScenario_.setIsQcDoeOptionSelected(item->row(), item->checkState() == Qt::Checked);
+  updateAfterModification();
 }
 
 void QCDoeOptionController::slotComboBoxProxyOrderItemChanged(QString proxyOrder)
 {
   casaScenario_.setProxyOrder(proxyOrder.toInt());
+  updateAfterModification();
 }
 
 void QCDoeOptionController::slotComboBoxKrigingItemChanged(QString krigingMethod)
 {
   casaScenario_.setProxyKrigingMethod(krigingMethod);
+  updateAfterModification();
 }
 
 void QCDoeOptionController::slotRefresh()

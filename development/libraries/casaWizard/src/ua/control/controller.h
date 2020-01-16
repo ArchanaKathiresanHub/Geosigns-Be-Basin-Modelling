@@ -37,7 +37,7 @@ private:
   DoEcontroller* doeController_;
   TargetController* targetController_;
   QCController* qcController_;
-  MCMCController* uaController_;
+  MCMCController* mcmcController_;
   CorrelationController* correlationController_;
 };
 

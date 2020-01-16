@@ -22,7 +22,7 @@ QString getSuggestedWorkspace(const QString &currentPath)
   return rootPath + workspaceName;
 }
 
-bool createWorkspace(const QString& currentPath,const QString& newFolderPath)
+bool createWorkspace(const QString& currentPath, const QString& newFolderPath)
 {
   const QDir originalWorkspacelocation{currentPath};
   const QDir newWorkspaceLocation{newFolderPath};

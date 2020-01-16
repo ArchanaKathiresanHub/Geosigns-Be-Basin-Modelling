@@ -10,6 +10,7 @@ namespace ua
 {
 
 StageCompletionUA::StageCompletionUA() :
+  Writable(),
   isComplete_{QVector<bool>(static_cast<int>(StageTypesUA::Count), false)}
 {
 }

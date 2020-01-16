@@ -20,7 +20,7 @@ enum class StageTypesUA
   Count = 3 // holds number of stages
 };
 
-class StageCompletionUA : Writable
+class StageCompletionUA : public Writable
 {
 public:
   StageCompletionUA();

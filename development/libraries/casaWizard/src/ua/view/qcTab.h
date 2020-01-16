@@ -24,16 +24,17 @@ class QCTab : public QWidget
 
 public:
   explicit QCTab(QWidget* parent = 0);
+
   const QPushButton* pushButtonQCrunCASA() const;
-  QPushButton* pushButtonQCrunCASA();
+  QCDoeOptionTable* qcDoeOptionTable() const;
   QTableWidget* tableQC() const;
+
+  void allowModification(bool allow = true);
   void fillQCtable(const QVector<TargetQC>& targetQCs);
   void updateQCPlot(const TargetQC& targetQC);
 
-  QCDoeOptionTable* qcDoeOptionTable() const;
-
 private:
-  QPushButton* pushButtonSArunCASA_;
+  QPushButton* pushButtonQCrunCASA_;
   QTableWidget* tableQC_;
   QCPlot* qcPlot_;
   QCDoeOptionTable* qcDoeOptionTable_;

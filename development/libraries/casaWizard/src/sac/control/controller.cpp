@@ -21,12 +21,12 @@ Controller::Controller() :
   //t2zController_{new T2Zcontroller{ui_.t2zTab(), scenario_, scriptRunController(), this}},
   resultsController_{new ResultsController{ui_.resultsTab(), scenario_, scriptRunController(), this}}
 {
-  connect(this, SIGNAL(signalRefresh()), sacController_, SLOT(slotRefresh()));
-  connect(this, SIGNAL(signalRefreshAfterOpen()), sacController_, SLOT(extractAfterOpen()));
-  connect(this, SIGNAL(signalRefresh()), resultsController_, SLOT(slotRefresh()));
+  connect(this, SIGNAL(signalRefresh()),       resultsController_, SLOT(slotRefresh()));
+  connect(this, SIGNAL(signalRefresh()),       sacController_,     SLOT(slotRefresh()));
+  connect(this, SIGNAL(signalProjectOpened()), sacController_,     SLOT(extractAfterOpen()));
 
-  constructWindow(new LogDisplayController(ui_.logDisplay(), this));
   ui_.show();
+  constructWindow(new LogDisplayController(ui_.logDisplay(), this));
 }
 
 MainWindow& Controller::mainWindow()

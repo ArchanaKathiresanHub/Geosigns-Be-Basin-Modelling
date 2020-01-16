@@ -32,11 +32,8 @@ public:
 private slots:
   void correlationSelectionItemChanged();
 
-  void slotRefresh(int tabID);
-  void slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage);
-
-  void slotEnableTabAndUpdateDependentWorkflowTabs();
-  void slotDisableTabAndUpdateDependentWorkflowTabs();
+  void slotRefresh();
+  void slotUpdateTabGUI(int tabID);
 
 private:
   void updateCorrelationPlotLayout();

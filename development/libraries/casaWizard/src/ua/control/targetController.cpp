@@ -41,31 +41,34 @@ TargetController::TargetController(TargetTab* targetTab,
   connect(this, SIGNAL(signalRefresh()), surfaceTargetController_,     SLOT(slotRefresh()));
 }
 
-void TargetController::slotRefresh(int tabID)
+void TargetController::slotRefresh()
 {
-  if (tabID == static_cast<int>(TabID::Targets))
-  {
-    return;
-  }
-
   QSignalBlocker blockCalibration{targetTab_->lineEditCalibration()};
   targetTab_->lineEditCalibration()->setText("");
+
   emit signalRefresh();
 }
 
-void TargetController::slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage)
+void TargetController::slotUpdateTabGUI(int tabID)
 {
-  if (tabID != static_cast<int>(TabID::Targets) || targetTab_->isEnabled())
+  if (tabID != static_cast<int>(TabID::Targets))
   {
     return;
   }
 
-  if (hasLogMessage)
+  if (scenario_.isStageComplete(StageTypesUA::doe))
   {
+    const RunCaseSetFileManager& runCaseSetFileManager = scenario_.runCaseSetFileManager();
+    targetTab_->setEnabled(!runCaseSetFileManager.isIterationDirDeleted(scenario_.project3dPath()));
+  }
+  else
+  {
+    targetTab_->setEnabled(false);
     Logger::log() << "DoE data is not available! Complete DoE stage in DoE tab first." << Logger::endl();
   }
-}
 
+  slotRefresh();
+}
 
 void TargetController::slotPushSelectCalibrationClicked()
 {
@@ -83,16 +86,6 @@ void TargetController::slotLineEditCalibrationTextChanged(const QString& calibra
 
   calibrationTargetCreator::createFromExcel(scenario_, calibrationTargetsFilename);
   emit signalRefresh();
-}
-
-void TargetController::slotEnableTabAndUpdateDependentWorkflowTabs()
-{
-  targetTab_->setEnabled(true);
-}
-
-void TargetController::slotDisableTabAndUpdateDependentWorkflowTabs()
-{
-  targetTab_->setEnabled(false);
 }
 
 }  // namespace casaWizard

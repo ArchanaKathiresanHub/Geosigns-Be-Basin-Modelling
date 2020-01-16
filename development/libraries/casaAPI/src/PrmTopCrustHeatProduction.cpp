@@ -35,8 +35,6 @@ static const char * s_bottomBoundaryModel  = "BottomBoundaryModel";
 static const char * s_topCrustHeatProd     = "TopCrustHeatProd";
 static const char * s_topCrustHeatProdGrid = "TopCrustHeatProdGrid";
 
-static const char * s_mapFileSuffix        = "_VarRHPR.HDF";
-static const char * s_mapNameSuffix        = "_RHPR";
 
 // Update given model with the parameter value
 PrmTopCrustHeatProduction::PrmTopCrustHeatProduction(mbapi::Model& mdl, const std::vector<string>& /*parameters*/) :

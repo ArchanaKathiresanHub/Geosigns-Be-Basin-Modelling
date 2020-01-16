@@ -21,6 +21,9 @@ class QCDoeOptionController : public QObject
 public:
   explicit QCDoeOptionController(QCDoeOptionTable* table, UAScenario& casaScenario, QObject* parent);
 
+signals:
+  void modelChange();
+
 private slots:
   void slotTableWidgetQcDoeOptionItemChanged(QTableWidgetItem* item);
   void slotComboBoxProxyOrderItemChanged(QString proxyOrder);
@@ -28,8 +31,9 @@ private slots:
 
   void slotRefresh();
 
-
 private:
+  void updateAfterModification();
+
   QCDoeOptionTable* table_;
   UAScenario& casaScenario_;
 };

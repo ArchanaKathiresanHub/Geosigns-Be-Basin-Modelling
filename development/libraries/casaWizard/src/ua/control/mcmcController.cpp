@@ -41,7 +41,7 @@ MCMCController::MCMCController(MCMCTab* mcmcTab,
   casaScenario_{casaScenario},
   scriptRunController_{scriptRunController}
 {
-  connect(mcmcTab_->pushButtonUArunCASA(),             SIGNAL(clicked()),            this, SLOT(slotPushButtonUArunCasaClicked()));
+  connect(mcmcTab_->pushButtonUArunCASA(),             SIGNAL(clicked()),            this, SLOT(slotPushButtonMCMCrunCasaClicked()));
   connect(mcmcTab_->tablePredictionTargets(),          SIGNAL(cellClicked(int,int)), this, SLOT(slotTablePredictionTargetClicked(int, int)));
   connect(mcmcTab_->pushButtonExportOptimalCase(),     SIGNAL(clicked()),            this, SLOT(slotPushButtonExportOptimalCasesClicked()));
   connect(mcmcTab_->pushButtonRunOptimalCase(),        SIGNAL(clicked()),            this, SLOT(slotPushButtonRunOptimalCasesClicked()));
@@ -50,54 +50,49 @@ MCMCController::MCMCController(MCMCTab* mcmcTab,
   connect(mcmcTab_->checkBoxHistoryPlotsMode(),        SIGNAL(stateChanged(int)),    this, SLOT(slotCheckBoxHistoryPlotModeChanged(int)));
 }
 
-void MCMCController::slotRefresh(int tabID)
+void MCMCController::slotRefresh()
 {
-  if (tabID != static_cast<int>(TabID::UA))
-  {
-    return;
-  }
-
   const PredictionTargetManager& predictionTargetManager = casaScenario_.predictionTargetManager();
   const MonteCarloDataManager& monteCarloData = casaScenario_.monteCarloDataManager();
 
-  mcmcTab_->setL2norm(monteCarloData.rmseOptimalRunCase());
-  mcmcTab_->setL2normRS(casaScenario_.responseSurfacesL2NormBestMC());
-  mcmcTab_->fillPredictionTargetTable(predictionTargetManager.predictionTargets());
+  if (casaScenario_.isStageComplete(StageTypesUA::mcmc))
+  {
+    mcmcTab_->setL2norm(monteCarloData.rmseOptimalRunCase());
+    mcmcTab_->setL2normRS(casaScenario_.responseSurfacesL2NormBestMC());
+    mcmcTab_->fillPredictionTargetTable(predictionTargetManager.predictionTargets());
+  }
+  else
+  {
+    mcmcTab_->setL2norm(-9999);
+    mcmcTab_->setL2normRS(-9999);
+    mcmcTab_->fillPredictionTargetTable({});
+  }
   mcmcTab_->updateHistogram(nullptr, {0});
 }
 
-void MCMCController::slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage)
+void MCMCController::slotUpdateTabGUI(int tabID)
 {
-  if (tabID != static_cast<int>(TabID::UA))
+  if (tabID != static_cast<int>(TabID::MCMC))
   {
     return;
   }
 
-  if (!mcmcTab_->isEnabled())
+  mcmcTab_->setEnabled(casaScenario_.isStageComplete(StageTypesUA::doe) &&
+                       casaScenario_.isStageComplete(StageTypesUA::qc));
+
+  if (!casaScenario_.isStageComplete(StageTypesUA::qc))
   {
-    if (hasLogMessage)
-    {
-      Logger::log() << "QC data is not available! Complete QC stage in QC tab first." << Logger::endl();
-    }
-    return;
+    Logger::log() << "QC data is not available! Complete QC stage in QC tab first." << Logger::endl();
   }
-
-  const StageCompletionUA& stageCompletion = casaScenario_.isStageComplete();
-
-  if (stageCompletion.isComplete(StageTypesUA::mcmc))
-  {
-    emit signalEnableDependentWorkflowTabs();
-    return;
-  }
-
-  emit signalDisableDependentWorkflowTabs();
-  if (hasLogMessage)
+  else if (!casaScenario_.isStageComplete(StageTypesUA::mcmc))
   {
     Logger::log() << "MCMC data creation stage is not completed! Run MCMC to complete it." << Logger::endl();
   }
+
+  slotRefresh();
 }
 
-void MCMCController::slotPushButtonUArunCasaClicked()
+void MCMCController::slotPushButtonMCMCrunCasaClicked()
 {
   scenarioBackup::backup(casaScenario_);
   McmcScript mcmc{casaScenario_};
@@ -113,8 +108,6 @@ void MCMCController::slotPushButtonUArunCasaClicked()
       const PredictionTargetManager& manager = casaScenario_.predictionTargetManager();
       mcmcTab_->fillPredictionTargetTable(manager.predictionTargets());
       mcmcTab_->setL2normRS(casaScenario_.responseSurfacesL2NormBestMC());
-      RunCaseSetFileManager& rcsFileManager = casaScenario_.runCaseSetFileManager();
-      rcsFileManager.updateIterationDirFileDateTime();
       scenarioBackup::backup(casaScenario_);
     }
     catch (const std::exception& e)
@@ -136,14 +129,17 @@ void MCMCController::slotPushButtonUArunCasaClicked()
     }
   }
 
-  StageCompletionUA& stageCompletion{casaScenario_.isStageComplete()};
-  stageCompletion.setStageIsComplete(StageTypesUA::mcmc);
+  casaScenario_.setStageComplete(StageTypesUA::mcmc);
 
-  emit signalEnableDependentWorkflowTabs();
+  scenarioBackup::backup(casaScenario_);
+
+  slotUpdateTabGUI(static_cast<int>(TabID::MCMC));
 }
 
 void MCMCController::slotPushButtonExportOptimalCasesClicked()
 {
+  scenarioBackup::backup(casaScenario_);
+
   OptimalCaseScript optimal{casaScenario_};
   const QString directory{optimal.optimalCaseDirectory()};
 
@@ -169,6 +165,8 @@ void MCMCController::slotPushButtonExportOptimalCasesClicked()
 
 void MCMCController::slotPushButtonRunOptimalCasesClicked()
 {
+  scenarioBackup::backup(casaScenario_);
+
   RunOptimalCaseScript optimal{casaScenario_};
   if (!casaScriptWriter::writeCasaScript(optimal))
   {
@@ -180,7 +178,7 @@ void MCMCController::slotPushButtonRunOptimalCasesClicked()
     const double L2norm = functions::rmseCalibrationTargets(fileParser.rowDominantMatrix()[0], casaScenario_.calibrationTargetManager());
     MonteCarloDataManager& manager = casaScenario_.monteCarloDataManager();
     manager.setRmseOptimalRunCase(L2norm);
-    mcmcTab_->setL2norm(manager.rmseOptimalRunCase());
+    mcmcTab_->setL2norm(L2norm);
     scenarioBackup::backup(casaScenario_);
   }
 }
@@ -202,6 +200,10 @@ void MCMCController::slotPushButtonAddOptimalDesignPointClicked()
 
   casaScenario_.setNumberOfManualDesignPoints();
   casaScenario_.changeUserDefinedPointStatus(true);
+  casaScenario_.setStageComplete(StageTypesUA::doe, false);
+  casaScenario_.setStageComplete(StageTypesUA::qc, false);
+  casaScenario_.setStageComplete(StageTypesUA::mcmc, false);
+
   scenarioBackup::backup(casaScenario_);
 }
 
@@ -261,24 +263,6 @@ void MCMCController::slotCheckBoxHistoryPlotModeChanged(const int checkState)
   mcmcTab_->setEnableTimeSeries(checkState);
   slotTablePredictionTargetClicked(mcmcTab_->tablePredictionTargets()->currentRow(), 0);
 }
-
-void MCMCController::slotEnableTabAndUpdateDependentWorkflowTabs()
-{
-  if (mcmcTab_->isEnabled())
-  {
-    return;
-  }
-
-  mcmcTab_->setEnabled(true);
-  emit signalDisableDependentWorkflowTabs();
-}
-
-void MCMCController::slotDisableTabAndUpdateDependentWorkflowTabs()
-{
-  mcmcTab_->setEnabled(false);
-  emit signalDisableDependentWorkflowTabs();
-}
-
 
 } // namespace ua
 

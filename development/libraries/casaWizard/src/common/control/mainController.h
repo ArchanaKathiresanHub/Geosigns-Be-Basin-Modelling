@@ -24,6 +24,7 @@ public:
   virtual MainWindow& mainWindow() = 0;
   virtual CasaScenario& scenario() = 0;
   void constructWindow(LogReceiver* logReceiver);
+  void showFirstTab();
 
 private slots:
   void slotNew();
@@ -39,9 +40,8 @@ private slots:
 
 signals:
   void signalRefresh(int tabIndex = 0);
-  void signalEnableDisableWorkflowTabs(int tabIndex, bool hasLogMessage = true);
-  void signalResestToStartingStage();
-  void signalRefreshAfterOpen();
+  void signalUpdateTabGUI(int tabIndex);
+  void signalResetToStartingStage();
   void signalProjectOpened();
 
 private:

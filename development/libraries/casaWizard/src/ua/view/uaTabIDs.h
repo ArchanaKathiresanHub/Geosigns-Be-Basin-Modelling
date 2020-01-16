@@ -12,7 +12,7 @@ enum class TabID
   DoE = 0,
   Targets = 1,
   QC = 2,
-  UA = 3,
+  MCMC = 3,
   Correlations = 4,
   Count = 5 // Counts number of tabs
 };

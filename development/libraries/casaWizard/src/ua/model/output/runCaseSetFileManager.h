@@ -4,7 +4,6 @@
 #include "model/writable.h"
 
 #include <QFileInfo>
-#include <QDateTime>
 
 #include <QString>
 
@@ -27,10 +26,8 @@ public:
   bool removeAllIterationDirs(const QString& project3dPath);
   QString iterationDirName() const;
   bool isIterationDirDeleted(const QString& project3dPath) const;
-  QDateTime iterationDirDateTime() const;
   QString iterationDirPath() const;
   QString caseSetDirPath() const;
-  void updateIterationDirFileDateTime();
 
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;
@@ -40,7 +37,6 @@ private:
   QFileInfoList getIterationPathList(const QString& project3dPath) const;
 
   QFileInfo iterationDirFileInfo_;
-  QDateTime iterationDirDateTime_;
 };
 
 } // namespace ua

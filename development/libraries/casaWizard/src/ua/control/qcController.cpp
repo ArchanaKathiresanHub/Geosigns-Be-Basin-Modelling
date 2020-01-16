@@ -40,64 +40,58 @@ QCController::QCController(QCTab* QCTab,
   connect(QCTab_->tableQC(),             SIGNAL(currentItemChanged(QTableWidgetItem*, QTableWidgetItem*)),
           this,                          SLOT(slotTableQCCurrentItemChanged(QTableWidgetItem*, QTableWidgetItem*)));
 
-  connect(this, SIGNAL(signalRefresh()), qcDoeOptionController_, SLOT(slotRefresh()));
+  connect(this,                   SIGNAL(signalRefresh()), qcDoeOptionController_, SLOT(slotRefresh()));
+  connect(qcDoeOptionController_, SIGNAL(modelChange()),   this,                   SLOT(slotModelChange()));
 }
 
-void QCController::slotRefresh(int tabID)
+void QCController::slotModelChange()
 {
-  if (tabID != static_cast<int>(TabID::QC))
-  {
-    return;
-  }
+  casaScenario_.setStageComplete(StageTypesUA::qc, false);
+  casaScenario_.setStageComplete(StageTypesUA::mcmc, false);
+
+  casaScenario_.setTargetQCs({});
+  casaScenario_.monteCarloDataManager().clear();
+
+  slotRefresh();
+}
+
+void QCController::slotRefresh()
+{
+  QCTab_->fillQCtable(casaScenario_.targetQCs());
+  QCTab_->updateQCPlot({});
 
   emit signalRefresh();
-
-  QCTab_->fillQCtable(casaScenario_.targetQCs());
-  TargetQC emptyTarget;
-  QCTab_->updateQCPlot(emptyTarget);
 }
 
-void QCController::slotEnableDisableRunCasa(int tabID, bool isEnabled)
+void QCController::slotUpdateTabGUI(int tabID)
 {
   if (tabID != static_cast<int>(TabID::QC))
   {
     return;
   }
 
-  QPushButton* qcTabPushButton = QCTab_->pushButtonQCrunCASA();
-  qcTabPushButton->setEnabled(isEnabled);
-}
+  QCTab_->allowModification();
+  QCTab_->setEnabled(true);
 
-void QCController::slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage)
-{
-  if (tabID != static_cast<int>(TabID::QC))
+  if (!casaScenario_.isStageComplete(StageTypesUA::doe))
   {
-    return;
+    QCTab_->setEnabled(false);
+    Logger::log() << "DoE data is not available! Complete DoE stage in DoE tab first." << Logger::endl();
   }
-
-  if (!QCTab_->isEnabled())
-  {
-    if (hasLogMessage)
-    {
-      Logger::log() << "DoE data is not available! Complete DoE stage in DoE tab first." << Logger::endl();
-    }
-    return;
-  }
-
-  const StageCompletionUA& stageCompletion = casaScenario_.isStageComplete();
-
-  if (stageCompletion.isComplete(StageTypesUA::qc))
-  {
-    emit signalEnableDependentWorkflowTabs();
-    return;
-  }
-
-  emit signalDisableDependentWorkflowTabs();
-
-  if (hasLogMessage)
+  else if (!casaScenario_.isStageComplete(StageTypesUA::qc))
   {
     Logger::log() << "QC stage is not completed! Run CASA to complete it." << Logger::endl();
   }
+  else
+  {
+    const RunCaseSetFileManager& runCaseSetFileManager = casaScenario_.runCaseSetFileManager();
+    if (runCaseSetFileManager.isIterationDirDeleted(casaScenario_.project3dPath()))
+    {
+      QCTab_->allowModification(false);
+    }
+  }
+
+  slotRefresh();
 }
 
 void QCController::slotPushButtonQCrunCasaClicked()
@@ -138,20 +132,25 @@ void QCController::slotPushButtonQCrunCasaClicked()
     }
   }
 
-  if (QFile::copy(casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameQC() ,
-                  casaScenario_.workingDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameQC()))
+  const QString source = casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameQC() ;
+  const QString target = casaScenario_.workingDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameQC();
+
+  if (QFile::exists(target))
   {
-    if (!QFile::remove(casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameQC()))
-    {
-      Logger::log() << "There was a problem while moving " << casaScenario_.stateFileNameQC() << " file to " << casaScenario_.iterationDirName() << " Folder." << Logger::endl();
-    }
+    QFile::remove(target);
   }
 
-  StageCompletionUA& stageCompletion{casaScenario_.isStageComplete()};
-  stageCompletion.setStageIsComplete(StageTypesUA::qc);
-  stageCompletion.setStageIsComplete(StageTypesUA::mcmc, false);
+  if (QFile::copy(source, target))
+  {
+    QFile::remove(source);
+  }
 
-  emit signalEnableDependentWorkflowTabs();
+  casaScenario_.setStageComplete(StageTypesUA::qc);
+  casaScenario_.setStageComplete(StageTypesUA::mcmc, false);
+
+  scenarioBackup::backup(casaScenario_);
+
+  slotUpdateTabGUI(static_cast<int>(TabID::QC));
 }
 
 void QCController::slotTableQCCurrentItemChanged(QTableWidgetItem* current, QTableWidgetItem* /*previous*/)
@@ -164,23 +163,6 @@ void QCController::slotTableQCCurrentItemChanged(QTableWidgetItem* current, QTab
 
   QCTab_->updateQCPlot(casaScenario_.targetQCs()[row]);
   Logger::log() << "Displaying target " << casaScenario_.targetQCs()[row].id() << Logger::endl();
-}
-
-void QCController::slotEnableTabAndUpdateDependentWorkflowTabs()
-{
-  if (QCTab_->isEnabled())
-  {
-    return;
-  }
-
-  QCTab_->setEnabled(true);
-  emit signalDisableDependentWorkflowTabs();
-}
-
-void QCController::slotDisableTabAndUpdateDependentWorkflowTabs()
-{
-  QCTab_->setEnabled(false);
-  emit signalDisableDependentWorkflowTabs();
 }
 
 } // namespace ua

@@ -30,11 +30,8 @@ private slots:
   void slotPushSelectCalibrationClicked();
   void slotLineEditCalibrationTextChanged(const QString& calibrationTargetsFilename);
 
-  void slotRefresh(int tabID);
-  void slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage);
-
-  void slotEnableTabAndUpdateDependentWorkflowTabs();
-  void slotDisableTabAndUpdateDependentWorkflowTabs();
+  void slotRefresh();
+  void slotUpdateTabGUI(int tabID);
 
 signals:
   void signalRefresh();

@@ -4,6 +4,7 @@
 #include "control/scriptRunController.h"
 #include "model/logger.h"
 #include "model/sacScenario.h"
+#include "model/scenarioBackup.h"
 #include "model/script/depthCalibrationScript.h"
 #include "model/script/sacScript.h"
 #include "model/input/calibrationTargetCreator.h"
@@ -42,6 +43,7 @@ T2Zcontroller::T2Zcontroller(T2Ztab* t2zTab,
 
 void T2Zcontroller::slotPushButtonSACrunT2ZClicked()
 {
+  scenarioBackup::backup(casaScenario_);
   const QString workingDir = casaScenario_.workingDirectory();
 
   const QString calibrationDir{casaScenario_.calibrationDirectory()};
@@ -88,6 +90,7 @@ void T2Zcontroller::slotPushButtonSACrunT2ZClicked()
       {
         QFile::copy(recalibrationDir + "/ThreeDFromOneD/Input.HDF", calibratedProjectDir + "/Input.HDF");
       }
+      scenarioBackup::backup(casaScenario_);
     }
   }
 }

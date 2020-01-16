@@ -79,7 +79,7 @@ void SACcontroller::slotRefresh()
 }
 
 void SACcontroller::extractAfterOpen()
-{ 
+{
     dataExtractionController_->readResults();
 }
 
@@ -134,6 +134,7 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
     {
       Logger::log() << "- An error occurred while moving the statFile to the last iteration Folder. " << Logger::endl();
     }
+    scenarioBackup::backup(casaScenario_);
   }
 }
 

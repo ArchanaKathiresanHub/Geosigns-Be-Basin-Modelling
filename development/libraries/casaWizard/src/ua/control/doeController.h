@@ -42,25 +42,18 @@ private slots:
   void slotManualDesignPointsChanged();
   void slotDoeSelectionItemChanged(QTableWidgetItem* item);
 
-  void slotUpdateDoeOptionTable();
+  void slotRefresh();
   void slotUpdateDesignPointTable();
-
-  void slotRefresh(int tabID);
-  void slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage);
-  void slotDisableTab();
-
-  void slotResetTab();
+  void slotUpdateDoeOptionTable();
   void slotUpdateIterationDir();
+  void slotUpdateTabGUI(int tabID);
 
 signals:
   void signalRefresh();
 
-  void signalEnableDependentWorkflowTabs();
-  void signalDisableDependentWorkflowTabs();
-
-  void signalEnableDisableDependentTabRunCasaButton(int tabID, bool isEnabled);
-
 private:
+  void setDoEstageIncomplete();
+
   DoeTab* doeTab_;
   UAScenario& casaScenario_;
   ScriptRunController& scriptRunController_;

@@ -74,7 +74,7 @@ bool UAScript::validateScenario() const
     }
   }
 
-  const QString absolutePathStateFile = runFolderStr + "/" + dirName + "/" + scenario_.stateFileNameDoE();
+  const QString absolutePathStateFile = runFolderStr + "/" + scenario_.iterationDirName() + "/" + scenario_.stateFileNameDoE();
   const QFileInfo checkFile(absolutePathStateFile);
 
   if (!checkFile.exists())

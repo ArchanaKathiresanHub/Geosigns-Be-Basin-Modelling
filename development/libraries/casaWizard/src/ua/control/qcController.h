@@ -31,19 +31,12 @@ private slots:
   void slotPushButtonQCrunCasaClicked();
   void slotTableQCCurrentItemChanged(QTableWidgetItem* current, QTableWidgetItem* previous);
 
-  void slotRefresh(int tabID);
-  void slotEnableDisableDependentWorkflowTabs(int tabID, bool hasLogMessage);
-  void slotEnableDisableRunCasa(int tabID, bool isEnabled);
-
-  void slotEnableTabAndUpdateDependentWorkflowTabs();
-  void slotDisableTabAndUpdateDependentWorkflowTabs();
+  void slotModelChange();
+  void slotRefresh();
+  void slotUpdateTabGUI(int tabID);
 
 signals:
   void signalRefresh();
-
-  void signalEnableDependentWorkflowTabs();
-  void signalDisableDependentWorkflowTabs();
-  void signalDisableReverseWorkflowTabs();
 
 private:
   bool writeCasaScriptSA();

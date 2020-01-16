@@ -95,8 +95,8 @@ public:
   void clear() override;
   QString iterationDirName() const override;
 
-  StageCompletionUA& isStageComplete();
-  const StageCompletionUA& isStageComplete() const;
+  void setStageComplete(const StageTypesUA& stageType, bool isComplete = true);
+  bool isStageComplete(const StageTypesUA& stageType) const;
 
   void changeUserDefinedPointStatus(const bool status);
 

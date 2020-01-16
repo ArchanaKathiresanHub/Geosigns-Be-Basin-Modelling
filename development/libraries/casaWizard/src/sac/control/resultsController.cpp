@@ -88,6 +88,7 @@ void ResultsController::saveOptimized()
     return;
   }
   scriptRunController_.runScript(saveOptimized);
+  scenarioBackup::backup(scenario_);
 
   QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
   if (!sourceDir.exists())
@@ -104,6 +105,7 @@ void ResultsController::saveOptimized()
   }
 
   const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
+  scenarioBackup::backup(scenario_);
 
   Logger::log() << (filesCopied ? "Finished saving optimized case" :
                                   "Failed saving optimized case, no files were copied") << Logger::endl();
@@ -118,6 +120,8 @@ void ResultsController::runOptimized()
 
   const bool isOptimized{true};
   import3dWellData(baseDirectory, isOptimized);
+
+  scenarioBackup::backup(scenario_);
 }
 
 void ResultsController::baseCase()
@@ -255,6 +259,7 @@ void ResultsController::run3dCase(const QString baseDirectory)
     return;
   }
   scriptRunController_.runScript(cauldron);
+  scenarioBackup::backup(scenario_);
 }
 
 void ResultsController::import3dWellData(const QString baseDirectory, const bool isOptimized)

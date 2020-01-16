@@ -28,43 +28,23 @@ Controller::Controller() :
   doeController_{new DoEcontroller{ui_.doeTab(), scenario_, scriptRunController(), this}},
   targetController_{new TargetController{ui_.targetTab(), scenario_, this}},
   qcController_{new QCController{ui_.qcTab(), scenario_, scriptRunController(), this}},
-  uaController_{new MCMCController{ui_.mcmcTab(), scenario_, scriptRunController(), this}},
+  mcmcController_{new MCMCController{ui_.mcmcTab(), scenario_, scriptRunController(), this}},
   correlationController_{new CorrelationController{ui_.correlationsTab(), scenario_, scriptRunController(), this}}
-{ 
+{
   const MenuBarUA* menuBarUA = ui_.menuUA();
-  connect(menuBarUA->actionRemoveDoeData(), SIGNAL(triggered()), this, SLOT(slotPopupRemoveDoeData()));
+  connect(menuBarUA->actionRemoveDoeData(),    SIGNAL(triggered()), this, SLOT(slotPopupRemoveDoeData()));
   connect(menuBarUA->actionRemoveDoeDataAll(), SIGNAL(triggered()), this, SLOT(slotPopupRemoveDoeDataAll()));
-
-  connect(this, SIGNAL(signalResestToStartingStage()), doeController_, SLOT(slotResetTab()));
-
-  connect(this, SIGNAL(signalRefresh(int)), doeController_,         SLOT(slotRefresh(int)));
-  connect(this, SIGNAL(signalRefresh(int)), targetController_,      SLOT(slotRefresh(int)));
-  connect(this, SIGNAL(signalRefresh(int)), qcController_,          SLOT(slotRefresh(int)));
-  connect(this, SIGNAL(signalRefresh(int)), uaController_,          SLOT(slotRefresh(int)));
-  connect(this, SIGNAL(signalRefresh(int)), correlationController_, SLOT(slotRefresh(int)));
 
   connect(this, SIGNAL(signalProjectOpened()), doeController_, SLOT(slotUpdateIterationDir()));
 
-  connect(this, SIGNAL(signalEnableDisableWorkflowTabs(int, bool)), doeController_,         SLOT(slotEnableDisableDependentWorkflowTabs(int, bool)));
-  connect(this, SIGNAL(signalEnableDisableWorkflowTabs(int, bool)), targetController_,      SLOT(slotEnableDisableDependentWorkflowTabs(int, bool)));
-  connect(this, SIGNAL(signalEnableDisableWorkflowTabs(int, bool)), qcController_,          SLOT(slotEnableDisableDependentWorkflowTabs(int, bool)));
-  connect(this, SIGNAL(signalEnableDisableWorkflowTabs(int, bool)), uaController_,          SLOT(slotEnableDisableDependentWorkflowTabs(int, bool)));
-  connect(this, SIGNAL(signalEnableDisableWorkflowTabs(int, bool)), correlationController_, SLOT(slotEnableDisableDependentWorkflowTabs(int, bool)));
+  connect(this, SIGNAL(signalUpdateTabGUI(int)), doeController_,         SLOT(slotUpdateTabGUI(int)));
+  connect(this, SIGNAL(signalUpdateTabGUI(int)), targetController_,      SLOT(slotUpdateTabGUI(int)));
+  connect(this, SIGNAL(signalUpdateTabGUI(int)), qcController_,          SLOT(slotUpdateTabGUI(int)));
+  connect(this, SIGNAL(signalUpdateTabGUI(int)), mcmcController_,        SLOT(slotUpdateTabGUI(int)));
+  connect(this, SIGNAL(signalUpdateTabGUI(int)), correlationController_, SLOT(slotUpdateTabGUI(int)));
 
-  connect(doeController_, SIGNAL(signalEnableDependentWorkflowTabs()),  qcController_,          SLOT(slotEnableTabAndUpdateDependentWorkflowTabs()));
-  connect(doeController_, SIGNAL(signalEnableDependentWorkflowTabs()),  targetController_,      SLOT(slotEnableTabAndUpdateDependentWorkflowTabs()));
-  connect(doeController_, SIGNAL(signalDisableDependentWorkflowTabs()), targetController_,      SLOT(slotDisableTabAndUpdateDependentWorkflowTabs()));
-  connect(doeController_, SIGNAL(signalDisableDependentWorkflowTabs()), qcController_,          SLOT(slotDisableTabAndUpdateDependentWorkflowTabs()));
-  connect(qcController_,  SIGNAL(signalEnableDependentWorkflowTabs()),  uaController_,          SLOT(slotEnableTabAndUpdateDependentWorkflowTabs()));
-  connect(qcController_,  SIGNAL(signalDisableDependentWorkflowTabs()), uaController_,          SLOT(slotDisableTabAndUpdateDependentWorkflowTabs()));
-  connect(uaController_,  SIGNAL(signalEnableDependentWorkflowTabs()),  correlationController_, SLOT(slotEnableTabAndUpdateDependentWorkflowTabs()));
-  connect(uaController_,  SIGNAL(signalDisableDependentWorkflowTabs()), correlationController_, SLOT(slotDisableTabAndUpdateDependentWorkflowTabs()));
-
-  connect(qcController_,  SIGNAL(signalDisableReverseWorkflowTabs()),          doeController_, SLOT(slotDisableTab()));
-  connect(doeController_, SIGNAL(signalEnableDisableDependentTabRunCasaButton(int, bool)), qcController_,  SLOT(slotEnableDisableRunCasa(int, bool)));
-
-  constructWindow(new LogDisplayController(ui_.logDisplay(), this));
   ui_.show();
+  constructWindow(new LogDisplayController(ui_.logDisplay(), this));
 }
 
 MainWindow& Controller::mainWindow()
@@ -104,26 +84,17 @@ void Controller::slotPopupRemoveDoeData()
     return;
   }
 
-  const StageCompletionUA& stageCompletion = scenario_.isStageComplete();
-  int retWarning = QMessageBox::Yes;
-  if (!stageCompletion.isComplete(StageTypesUA::qc))
+  if (!scenario_.isStageComplete(StageTypesUA::qc))
   {
     QMessageBox warningBox;
     warningBox.setText("Target values are not extracted from DoE data yet (and QC stage is not complete)!");
     warningBox.setInformativeText("Do you still want to continue?");
     warningBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     warningBox.setDefaultButton(QMessageBox::No);
-    retWarning = warningBox.exec();
-  }
-  else
-  {
-    emit qcController_->signalDisableReverseWorkflowTabs();
-    emit doeController_->signalEnableDisableDependentTabRunCasaButton(static_cast<int>(TabID::QC), false);
-  }
-
-  if (retWarning == QMessageBox::No)
-  {
-    return;
+    if ( warningBox.exec() == QMessageBox::No)
+    {
+      return;
+    }
   }
 
   if (!runCaseSetFileManager.removeIterationDir())
@@ -134,6 +105,8 @@ void Controller::slotPopupRemoveDoeData()
   {
     Logger::log() << "Removed directory " << runCaseSetFileManager.iterationDirName() << " with DoE data!" << Logger::endl();
   }
+
+  showFirstTab();
 }
 
 void Controller::slotPopupRemoveDoeDataAll()
@@ -165,6 +138,8 @@ void Controller::slotPopupRemoveDoeDataAll()
       Logger::log() << "Removed all DoE data!" << Logger::endl();
     }
   }
+
+  showFirstTab();
 }
 
 } // namespace ua

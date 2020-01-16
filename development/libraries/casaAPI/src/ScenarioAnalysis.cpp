@@ -662,9 +662,12 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations(RunCaseSet & rcs , c
    RunCase* baseRunCase = m_baseCaseRunCase.get();
    ibs::FolderPath baseCasePath = caseSetPath;
    baseCasePath << std::string( "BaseCase");
-   baseCasePath.create();
-   baseCasePath << projectFileName;
-   baseRunCase->mutateCaseTo( baseCase(), baseCasePath.path().c_str() );
+   if ( !baseCasePath.exists() )
+   {
+     baseCasePath.create();
+     baseCasePath << projectFileName;
+     baseRunCase->mutateCaseTo( baseCase(), baseCasePath.path().c_str() );
+   }
 
    for ( size_t i = 0; i < rcs.size(); ++i )
    {
