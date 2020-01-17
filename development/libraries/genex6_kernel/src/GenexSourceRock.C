@@ -17,7 +17,7 @@
 #include "LocalGridInterpolator.h"
 #include "SimulatorState.h"
 #include "SnapshotInterval.h"
-#include "SourceRockDefaultProperties.h"
+#include "SourceRockTypeNameMappings.h"
 #include "SpeciesResult.h"
 
 // Genex6
@@ -63,7 +63,7 @@ namespace Genex6
 GenexSourceRock::GenexSourceRock (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record)
   : DataAccess::Interface::SourceRock {projectHandle, record},
     GenexBaseSourceRock{},
-    s_CfgFileNameBySRType{SourceRockDefaultProperties::getInstance().CfgFileNameBySRType()}
+    s_CfgFileNameBySRType{SourceRockTypeNameMappings::getInstance().CfgFileNameBySRType()}
 {
   m_theChemicalModel1 = nullptr;
   m_theChemicalModel2 = nullptr;
