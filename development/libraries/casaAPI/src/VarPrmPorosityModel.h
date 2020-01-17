@@ -31,7 +31,7 @@ namespace casa
       /// -# Soil mechanics
       /// -# Double exponential
       /// These models are described @link CASA_PorosityModelPage here. @endlink
-      VarPrmPorosityModel( const char * lithoName      ///< name of the lithology type
+      VarPrmPorosityModel(const char * lithoName      ///< name of the lithology type
                          , PrmPorosityModel::PorosityModelType mdlType ///< type of porosity model, supported: Exponential/Soil_Mechanics/Double_Exponential
                          , double       baseSurfPor    ///< base value for surface porosity
                          , double       minSurfPor     ///< minimal value for surface porosity
@@ -45,6 +45,9 @@ namespace casa
                          , double       baseCompCoeffB ///< base value for compaction coefficient "B" (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
                          , double       minCompCoeffB  ///< minimal value for compaction coefficient "B" (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
                          , double       maxCompCoeffB  ///< maximal value for compaction coefficient "B" (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       baseCompRatio  ///< base value for compaction ratio (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       minCompRatio   ///< minimal value for compaction ratio (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       maxCompRatio   ///< maximal value for compaction ratio (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
                          , PDF          prmPDF         ///< probability density function for all 4 sub-parameters
                          , const char * name = 0       ///< user specified parameter name
                          );

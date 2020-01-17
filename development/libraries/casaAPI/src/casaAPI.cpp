@@ -1189,6 +1189,8 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                                                     , double                maxMinPor
                                                     , double                minCompCoef1
                                                     , double                maxCompCoef1
+                                                    , double                minCompRatio
+                                                    , double                maxCompRatio
                                                     , VarPrmContinuous::PDF pdfType
                                                     )
 {
@@ -1209,6 +1211,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
       double baseCompCoef  = 0.5 * ( minCompCoef  + maxCompCoef  );
       double baseMinPor    = 0.5 * ( minMinPor    + maxMinPor    );
       double baseCompCoef1 = 0.5 * ( minCompCoef1 + maxCompCoef1 );
+      double baseCompRatio = 0.5 * ( minCompRatio + maxCompRatio );
 
       if ( PrmPorosityModel::SoilMechanics == mdlType )
       {
@@ -1252,6 +1255,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                   baseCompCoef  = baseValues[1];
                   baseMinPor    = baseValues[2];
                   baseCompCoef1 = baseValues[3];
+                  baseCompRatio = baseValues[4];
                   break;
 
                default:
@@ -1269,6 +1273,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
          case PrmPorosityModel::DoubleExponential:
             if ( baseMinPor < minMinPor || baseMinPor > maxMinPor ) { throw ex << "Minimal porosity in the base case is outside of the given range"; }
             if ( baseCompCoef1 < minCompCoef1 || baseCompCoef1 > maxCompCoef1 ) { throw ex << "Compaction coeff. (the second one) in the base case is outside of the given range"; }
+            if ( baseCompRatio < minCompRatio || baseCompRatio > maxCompRatio ) { throw ex << "Compaction ratio in the base case is outside of the given range"; }
 
          case PrmPorosityModel::Exponential:
            if ( baseSurfPor < minSurfPor || baseSurfPor > maxSurfPor ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
@@ -1309,6 +1314,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                                                                                       baseMinPor,    minMinPor,    maxMinPor,
                                                                                       baseCompCoef,  minCompCoef,  maxCompCoef,
                                                                                       baseCompCoef1, minCompCoef1, maxCompCoef1,
+                                                                                      baseCompRatio, minCompRatio, maxCompRatio,
                                                                                       pdfType, name
                                                                                     ) )
          ) {  throw ErrorHandler::Exception( varPrmsSet.errorCode() ) << varPrmsSet.errorMessage(); }

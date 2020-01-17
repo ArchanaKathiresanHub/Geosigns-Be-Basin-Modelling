@@ -1086,21 +1086,24 @@ public:
       size_t pos = 1;
       const size_t expModelSize = 11;
       const size_t sandstoneModelSize = 9;
-      const size_t doubleExpModelSize = 13;
+      const size_t doubleExpModelSize = 15;
 
-      const char * layerName   = ( prms.size() == doubleExpModelSize || prms.size() == expModelSize || prms.size() == sandstoneModelSize ) ? prms[pos++].c_str() : NULL;
-      const char * lithoName   = prms[pos++].c_str();
-      const char * modelName   = prms[pos++].c_str();
-      double       minSurfPor  = atof( prms[pos++].c_str() );
-      double       maxSurfPor  = atof( prms[pos++].c_str() );
-      double       minCompCoef = atof( prms[pos++].c_str() );
-      double       maxCompCoef = atof( prms[pos++].c_str() );
+      const char * layerName    = ( prms.size() == doubleExpModelSize || prms.size() == expModelSize || prms.size() == sandstoneModelSize ) ? prms[pos++].c_str() : NULL;
+      const char * lithoName    = prms[pos++].c_str();
+      const char * modelName    = prms[pos++].c_str();
+      double       minSurfPor   = atof( prms[pos++].c_str() );
+      double       maxSurfPor   = atof( prms[pos++].c_str() );
+      double       minCompCoef  = atof( prms[pos++].c_str() );
+      double       maxCompCoef  = atof( prms[pos++].c_str() );
 
       double minMinPor = Utilities::Numerical::IbsNoDataValue;
       double maxMinPor = Utilities::Numerical::IbsNoDataValue;
 
       double minCompCoef1 = Utilities::Numerical::IbsNoDataValue;
       double maxCompCoef1 = Utilities::Numerical::IbsNoDataValue;
+
+      double minCompRatio = Utilities::Numerical::IbsNoDataValue;
+      double maxCompRatio = Utilities::Numerical::IbsNoDataValue;
 
       //minimum porosity i used in exponential and double exponential models
       if ( prms.size() >= expModelSize - 1 )
@@ -1113,6 +1116,8 @@ public:
       {
          minCompCoef1 = atof( prms[pos++].c_str() );
          maxCompCoef1 = atof( prms[pos++].c_str() );
+         minCompRatio = atof( prms[pos++].c_str() );
+         maxCompRatio = atof( prms[pos++].c_str() );
       }
       else if ( prms.size() != sandstoneModelSize - 1 && prms.size() != sandstoneModelSize && prms.size() != expModelSize - 1 && prms.size() != expModelSize )
       {
@@ -1133,13 +1138,15 @@ public:
                                                                                             , maxMinPor
                                                                                             , minCompCoef1
                                                                                             , maxCompCoef1
+                                                                                            , minCompRatio
+                                                                                            , maxCompRatio
                                                                                             , pdfType
                                                                                             )
          ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    }
 
    size_t expectedParametersNumber() const { return 7; } // lay_name, lit_name, mod_name, surf_por mn/mx, cc mn/mx, min_por mn/mx, cc2 mn/mx, pdf
-   size_t optionalParametersNumber() const { return 5; }
+   size_t optionalParametersNumber() const { return 7; }
 
    virtual std::string name() const { return "LithotypeIoTbl:Porosity_Model"; }
 
@@ -1149,7 +1156,7 @@ public:
    {
       std::ostringstream oss;
       oss << "    \"" << name() << "\" [layName] <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> \n";
-      oss << "                                                   [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
+      oss << "                               [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1> <mnCmpRatio> <mxCmpRatio>] <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       layName    - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
       oss << "       litName    - lithology name\n";
@@ -1162,6 +1169,8 @@ public:
       oss << "       mxMinPr    - minimal porosity (for Double_Exponential model only) - maximal range value\n";
       oss << "       mnCmpCf1   - compaction coefficient for the second exponent (for Double_Exponential model only) - minimal range value\n";
       oss << "       mxCmpCf1   - compaction coefficient for the second exponent (for Double_Exponential model only) - maximal range value\n";
+      oss << "       mnCmpRatio - compaction ratio (for Double_Exponential model only) - minimal range value\n";
+      oss << "       mxCmpRatio - compaction ratio (for Double_Exponential model only) - maximal range value\n";
       oss << "       prmPDF     - the parameter probability density function type\n";
       oss << "\n";
       oss << "    Note: for the Soil_Mechanics model only one parameter variation is possible, the second one should has same values\n";

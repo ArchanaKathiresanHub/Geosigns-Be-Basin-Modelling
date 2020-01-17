@@ -39,6 +39,7 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
    , m_compCoef(    Utilities::Numerical::IbsNoDataValue )
    , m_minPorosity( Utilities::Numerical::IbsNoDataValue )
    , m_compCoef1(   Utilities::Numerical::IbsNoDataValue )
+   , m_compRatio(   Utilities::Numerical::IbsNoDataValue )
 
 {
    mbapi::LithologyManager & mgr = mdl.lithologyManager();
@@ -76,6 +77,7 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
             m_compCoef    = modelPrms[1];
             m_minPorosity = modelPrms[2];
             m_compCoef1   = modelPrms[3];
+            m_compRatio   = modelPrms[4];
             break;
 
          default:
@@ -101,6 +103,7 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
    , m_compCoef(    Utilities::Numerical::IbsNoDataValue )
    , m_minPorosity( Utilities::Numerical::IbsNoDataValue )
    , m_compCoef1(   Utilities::Numerical::IbsNoDataValue )
+   , m_compRatio(   Utilities::Numerical::IbsNoDataValue )
 {
    // check parameters for the model
    ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
@@ -116,7 +119,7 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
          break;
 
       case DoubleExponential:
-         if ( mdlPrms.size() != 4 ) { throw ex << "Wrong parameters number for Double Expi. porosity model, expected 4, but given: " << mdlPrms.size(); }
+         if ( mdlPrms.size() != 5 ) { throw ex << "Wrong parameters number for Double Expi. porosity model, expected 5, but given: " << mdlPrms.size(); }
          break;
 
       default: throw ex << "Undefined type of porosity model: " << m_modelType;  break;
@@ -140,6 +143,7 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
          m_minPorosity = mdlPrms[1];
          m_compCoef    = mdlPrms[2];
          m_compCoef1   = mdlPrms[3];
+         m_compRatio   = mdlPrms[4];
          break;
 
       default:
@@ -176,6 +180,7 @@ ErrorHandler::ReturnCode PrmPorosityModel::setInModel( mbapi::Model & caldModel,
          porModelPrms.push_back( m_minPorosity );
          porModelPrms.push_back( m_compCoef );
          porModelPrms.push_back( m_compCoef1 );
+         porModelPrms.push_back( m_compRatio );
          break;
 
       default:
@@ -218,10 +223,11 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
          break;
 
       case DoubleExponential:
-         if ( m_surfPor     < 0 || m_surfPor > 100            ) oss << "Surf. porosity for lithology " << m_lithoName << " is out of range [0:100]: "     << m_surfPor      << "\n";
-         if ( m_minPorosity < 0 || m_minPorosity >= m_surfPor ) oss << "Min.  porosity for lithology " << m_lithoName << " is out of range [0:surfPor]: " << m_minPorosity  << "\n";
-         if ( m_compCoef    < 0 || m_compCoef  > 50           ) oss << "Comp. coef. \"A\" for lithology " << m_lithoName << " is out of range [0:50]: "   << m_compCoef     << "\n";
-         if ( m_compCoef1   < 0 || m_compCoef1 > 50           ) oss << "Comp. coef. \"B\" for lithology " << m_lithoName << " is out of range [0:50]: "   << m_compCoef1    << "\n";
+         if ( m_surfPor     < 0 || m_surfPor > 100            ) oss << "Surf. porosity for lithology "    << m_lithoName << " is out of range [0:100]: "     << m_surfPor     << "\n";
+         if ( m_minPorosity < 0 || m_minPorosity >= m_surfPor ) oss << "Min.  porosity for lithology "    << m_lithoName << " is out of range [0:surfPor]: " << m_minPorosity << "\n";
+         if ( m_compCoef    < 0 || m_compCoef  > 50           ) oss << "Comp. coef. \"A\" for lithology " << m_lithoName << " is out of range [0:50]: "      << m_compCoef    << "\n";
+         if ( m_compCoef1   < 0 || m_compCoef1 > 50           ) oss << "Comp. coef. \"B\" for lithology " << m_lithoName << " is out of range [0:50]: "      << m_compCoef1   << "\n";
+         if ( m_compRatio   < 0 || m_compRatio > 1           ) oss  << "Comp. ratio for lithology "       << m_lithoName << " is out of range [0:1]: "       << m_compRatio   << "\n";
          break;
 
       default:
@@ -253,6 +259,7 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
          bool sameMinPor   = true;
          bool sameCCA      = true;
          bool sameCCB      = true;
+         bool sameCR       = true;
 
          int minPoroIdx =2;
 
@@ -282,11 +289,12 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
                samePorModel = m_modelType == DoubleExponential;
                if ( samePorModel )
                {
-                  minPoroIdx = 1;
+                  minPoroIdx  = 1;
                   sameSurfPor = NumericFunctions::isEqual( m_surfPor,     mdlPrms[0], 1.e-4 );
                   sameMinPor  = NumericFunctions::isEqual( m_minPorosity, mdlPrms[minPoroIdx], 1.e-4 );
                   sameCCA     = NumericFunctions::isEqual( m_compCoef,    mdlPrms[2], 1.e-4 );
                   sameCCB     = NumericFunctions::isEqual( m_compCoef1,   mdlPrms[3], 1.e-4 );
+                  sameCR      = NumericFunctions::isEqual( m_compRatio,   mdlPrms[4], 1.e-4 );
                }
                break;
 
@@ -296,15 +304,17 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
          }
          if ( !samePorModel ) oss << "Porosity model type for lithology "     << m_lithoName << " defined in project, is different from the parameter value" << std::endl;
          if ( !sameSurfPor  ) oss << "Surface porosity for lithology "        << m_lithoName << " in project: "        << mdlPrms[0] <<
-                                     " is differ from the parameter value: "  << m_surfPor << std::endl;
+                                     " is different from the parameter value: "  << m_surfPor << std::endl;
          if ( !sameCC       ) oss << "Compaction coeff. for lithology "       << m_lithoName << " in project: "        << mdlPrms[1] <<
-                                     " is differ from the parameter value: "  << m_compCoef << std::endl;
+                                     " is different from the parameter value: "  << m_compCoef << std::endl;
          if ( !sameMinPor   ) oss << "Minimal porosity for lithology "        << m_lithoName << " defined in project " << mdlPrms[minPoroIdx] <<
-                                     " is differ from the parameter value "   << m_minPorosity << std::endl;
+                                     " is different from the parameter value "   << m_minPorosity << std::endl;
          if ( !sameCCA      ) oss << "Compaction coeff. \"A\" for lithology " << m_lithoName << " in project: "        << mdlPrms[2] <<
-                                     " is differ from the parameter value: "  << m_compCoef << std::endl;
+                                     " is different from the parameter value: "  << m_compCoef << std::endl;
          if ( !sameCCB      ) oss << "Compaction coeff. \"B\" for lithology " << m_lithoName << " in project: "        << mdlPrms[3] <<
-                                     " is differ from the parameter value: "  << m_compCoef1 << std::endl;
+                                     " is different from the parameter value: "  << m_compCoef1 << std::endl;
+         if ( !sameCR       ) oss << "Compaction ratio for lithology " << m_lithoName << " in project: "               << mdlPrms[4] <<
+                                     " is different from the parameter value: "  << m_compRatio << std::endl;
       }
    }
    return oss.str();
@@ -331,6 +341,7 @@ std::vector<double> PrmPorosityModel::asDoubleArray() const
          vals.push_back( m_compCoef );
          vals.push_back( m_minPorosity );
          vals.push_back( m_compCoef1 );
+         vals.push_back( m_compRatio );
          break;
 
       default:
@@ -369,6 +380,7 @@ bool PrmPorosityModel::operator == ( const Parameter & prm ) const
          if ( !NumericFunctions::isEqual( m_compCoef,    pp->m_compCoef,    eps ) ) return false;
          if ( !NumericFunctions::isEqual( m_minPorosity, pp->m_minPorosity, eps ) ) return false;
          if ( !NumericFunctions::isEqual( m_compCoef1,   pp->m_compCoef1,   eps ) ) return false;
+         if ( !NumericFunctions::isEqual( m_compRatio,   pp->m_compRatio,   eps ) ) return false;
          break;
 
       default:
@@ -389,6 +401,7 @@ bool PrmPorosityModel::save( CasaSerializer & sz ) const
    ok = ok ? sz.save( m_compCoef,                    "CompactionCoeff"  ) : ok;
    ok = ok ? sz.save( m_minPorosity,                 "MinimalPorosity"  ) : ok;
    ok = ok ? sz.save( m_compCoef1,                   "CompactionCoeffB" ) : ok;
+   ok = ok ? sz.save( m_compRatio,                   "CompactionRatio"  ) : ok;
    ok = ok ? sz.save( m_clayFraction,                "ClayFraction"     ) : ok;
 
    return ok;
@@ -409,6 +422,12 @@ PrmPorosityModel::PrmPorosityModel( CasaDeserializer & dz, unsigned int objVer )
    ok = ok ? dz.load( m_compCoef,     "CompactionCoeff"  ) : ok;
    ok = ok ? dz.load( m_minPorosity,  "MinimalPorosity"  ) : ok;
    ok = ok ? dz.load( m_compCoef1,    "CompactionCoeffB" ) : ok;
+
+   if (version() > 0)
+   {
+     ok = ok ? dz.load( m_compRatio,    "CompactionRatio" ) : ok;
+   }
+
    ok = ok ? dz.load( m_clayFraction, "ClayFraction"     ) : ok;
 
    if ( !ok )
