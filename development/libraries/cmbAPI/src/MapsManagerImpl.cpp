@@ -434,7 +434,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
       }
 
       const bool writingSucceed = m_mapPropertyValuesWriter->writeInputMap( m_mapObj[id], static_cast<int>( rec->getValue<int>( s_MapSeqNbrColName ) ) );
-      if ( !writingSucceed )
+      if ( !writingSucceed && !append )
       {
          throw Exception( IoError ) << "Can not write the map " << m_mapName[id] << " to HDF ";
       }

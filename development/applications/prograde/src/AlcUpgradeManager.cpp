@@ -9,7 +9,7 @@
 //
 
 #include "AlcUpgradeManager.h"
-
+#define MERGEOceaToInputsHDF 1 // 1=YES, 0=No
 //utilities
 #include "LogHandler.h"
 
@@ -169,12 +169,21 @@ void Prograde::AlcUpgradeManager::writeOceaCrustalThicknessIoTbl() {
    {
       const auto age = pair.first->getTime();
       const auto gridMap = const_cast<DataAccess::Interface::GridMap*>(pair.second.get());
-      const auto outputFileName     = "Input.HDF";
-      const auto mapName            = "OceanicCrustThicknessFromLegacyALC_" + std::to_string(age);
-      const auto refferedTable      = "OceaCrustalThicknessIoTbl";
-      const auto ageField           = "Age";
-      const auto thicknessGridField = "ThicknessGrid";
-      size_t mapsSequenceNbr = 0;
+#if MERGEOceaToInputsHDF
+	  const auto outputFileName = "Inputs.HDF";
+#else
+	  const auto outputFileName = "Input.HDF";
+#endif      
+	  const auto mapName = "OceanicCrustThicknessFromLegacyALC_" + std::to_string(age);
+	  const auto refferedTable = "OceaCrustalThicknessIoTbl";
+	  const auto ageField = "Age";
+	  const auto thicknessGridField = "ThicknessGrid";
+
+#if MERGEOceaToInputsHDF
+	  size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
+#else
+	  size_t mapsSequenceNbr = 0;
+#endif
       m_model.mapsManager().generateMap(refferedTable, mapName, gridMap, mapsSequenceNbr, outputFileName);
       m_model.addRowToTable(refferedTable);
       m_model.setTableValue(refferedTable, rowNumber, ageField, age);

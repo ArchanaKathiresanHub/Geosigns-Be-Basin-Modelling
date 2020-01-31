@@ -150,7 +150,7 @@ void ChainClusterAlg::setLinkingStrength( double linkingStrength )
    m_linkingStrength = linkingStrength;
 }
 
-bool ChainClusterAlg::ClusterCompare::operator()( const Cluster* cluster1, const Cluster* cluster2 )
+bool ChainClusterAlg::ClusterCompare::operator()( const Cluster* cluster1, const Cluster* cluster2 ) const
 {
    return ( cluster1->getNumPoints() < cluster2->getNumPoints() );
 }

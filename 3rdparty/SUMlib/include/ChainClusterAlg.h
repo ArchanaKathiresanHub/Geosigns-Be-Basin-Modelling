@@ -65,8 +65,8 @@ class INTERFACE_SUMLIB ChainClusterAlg
        */
       struct ClusterCompare
       {
-         bool operator()(const Cluster* cluster1, const Cluster* cluster2 );
-      };
+		 bool operator()(const Cluster* cluster1, const Cluster* cluster2) const;
+	  };
 
    protected:
       std::multiset<const Cluster*, ClusterCompare>   m_clusters;             //! Clusters found by the algorithm, sorted by size
