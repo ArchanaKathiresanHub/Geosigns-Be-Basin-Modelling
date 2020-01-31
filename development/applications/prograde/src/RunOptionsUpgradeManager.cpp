@@ -57,8 +57,8 @@ void Prograde::RunOptionsUpgradeManager::upgrade() {
 	// check workflow type
 	m_model.runOptionsManager().getWorkflowType(workflowType);
 	if (workflowType.compare("DarcyFlow") == 0) {
-		LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "workflowType : DarcyFlow Projects are not required to be upgraded";
-		return;
+		LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "workflowType : DarcyFlow Projects are not required to be upgraded; Project3D file is not prograded";
+		exit(200);
 	}
 
 	// get all other items for upgrade
