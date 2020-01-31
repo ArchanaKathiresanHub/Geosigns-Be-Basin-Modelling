@@ -168,16 +168,28 @@ public:
 
    void hiresGridArealSize( long & sizeI, long & sizeJ );
 
-   void interpolateLithoFractions( const std::vector<double> & xin
-                                 , const std::vector<double> & yin
-                                 , const std::vector<double> & lf1
-                                 , const std::vector<double> & lf2
-                                 , const std::vector<double> & lf3
-                                 , std::vector<double>       & xInt
-                                 , std::vector<double>       & yInt
-                                 , std::vector<double>       & rpInt
-                                 , std::vector<double>       & r13Int
-                                 );
+   void interpolateLithoFractionsNN( const std::vector<double> & xin
+                                   , const std::vector<double> & yin
+                                   , const std::vector<double> & lf1
+                                   , const std::vector<double> & lf2
+                                   , const std::vector<double> & lf3
+                                   , std::vector<double>       & xInt
+                                   , std::vector<double>       & yInt
+                                   , std::vector<double>       & rpInt
+                                   , std::vector<double>       & r13Int
+                                   );
+
+   void interpolateLithoFractionsIDW( const double              & IDWpower
+                                    , const std::vector<double> & xin
+                                    , const std::vector<double> & yin
+                                    , const std::vector<double> & lf1
+                                    , const std::vector<double> & lf2
+                                    , const std::vector<double> & lf3
+                                    , std::vector<double>       & xInt
+                                    , std::vector<double>       & yInt
+                                    , std::vector<double>       & rpInt
+                                    , std::vector<double>       & r13Int
+                                    );
 
    void smoothenVector( std::vector<double>& vec
                       , const int method
@@ -598,25 +610,47 @@ Model::ReturnCode Model::hiresGridArealSize( long & sizeI, long & sizeJ )
    return NoError;
 }
 
-Model::ReturnCode Model::interpolateLithoFractions( const std::vector<double> & xin
-                                                  , const std::vector<double> & yin
-                                                  , const std::vector<double> & lf1
-                                                  , const std::vector<double> & lf2
-                                                  , const std::vector<double> & lf3
-                                                  ,       std::vector<double> & xInt
-                                                  ,       std::vector<double> & yInt
-                                                  ,       std::vector<double> & rpInt
-                                                  ,       std::vector<double> & r13Int
-                                                  )
+Model::ReturnCode Model::interpolateLithoFractionsNN( const std::vector<double> & xin
+                                                    , const std::vector<double> & yin
+                                                    , const std::vector<double> & lf1
+                                                    , const std::vector<double> & lf2
+                                                    , const std::vector<double> & lf3
+                                                    ,       std::vector<double> & xInt
+                                                    ,       std::vector<double> & yInt
+                                                    ,       std::vector<double> & rpInt
+                                                    ,       std::vector<double> & r13Int
+                                                    )
 {
    if ( errorCode() != NoError ) resetError();
 
-   try { m_pimpl->interpolateLithoFractions( xin, yin, lf1, lf2, lf3, xInt, yInt, rpInt, r13Int ); }
+   try { m_pimpl->interpolateLithoFractionsNN( xin, yin, lf1, lf2, lf3, xInt, yInt, rpInt, r13Int ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
+
+Model::ReturnCode Model::interpolateLithoFractionsIDW( const double              & IDWpower
+                                                     , const std::vector<double> & xin
+                                                     , const std::vector<double> & yin
+                                                     , const std::vector<double> & lf1
+                                                     , const std::vector<double> & lf2
+                                                     , const std::vector<double> & lf3
+                                                     ,       std::vector<double> & xInt
+                                                     ,       std::vector<double> & yInt
+                                                     ,       std::vector<double> & rpInt
+                                                     ,       std::vector<double> & r13Int
+                                                     )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try { m_pimpl->interpolateLithoFractionsIDW( IDWpower, xin, yin, lf1, lf2, lf3, xInt, yInt, rpInt, r13Int ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
 
 Model::ReturnCode Model::smoothenVector( std::vector<double>& vec,
                                          const int method,
@@ -1520,133 +1554,232 @@ void Model::ModelImpl::hiresGridArealSize( long & sizeI, long & sizeJ )
 }
 
 // transform the lithofractions and interpolate the results
-void Model::ModelImpl::interpolateLithoFractions( const std::vector<double> & xin
-                                                , const std::vector<double> & yin
-                                                , const std::vector<double> & lf1
-                                                , const std::vector<double> & lf2
-                                                , const std::vector<double> & lf3
-                                                ,       std::vector<double> & xInt
-                                                ,       std::vector<double> & yInt
-                                                ,       std::vector<double> & rpInt
-                                                ,       std::vector<double> & r13Int
-                                                )
+void Model::ModelImpl::interpolateLithoFractionsNN( const std::vector<double> & xin
+                                                  , const std::vector<double> & yin
+                                                  , const std::vector<double> & lf1
+                                                  , const std::vector<double> & lf2
+                                                  , const std::vector<double> & lf3
+                                                  ,       std::vector<double> & xInt
+                                                  ,       std::vector<double> & yInt
+                                                  ,       std::vector<double> & rpInt
+                                                  ,       std::vector<double> & r13Int
+                                                  )
 {
-   const double shift                = 100.0;
-   const int    convexHullEdgePoints = 25;
-   const size_t nin                  = lf1.size();
+  const double shift                = 100.0;
+  const int    convexHullEdgePoints = 25;
 
-   // for all wells calculate rp, r12
-   std::vector<double> rp;
-   std::vector<double> r13;
-   std::vector<double> x;
-   std::vector<double> y;
+  const size_t nin                  = lf1.size();
 
-   // all wells are considered to calculate the mean values to use at the adges. this could be refined later on to use only the closest wells
-   double sumLf1hat = 0.0;
-   double sumLf2hat = 0.0;
-   double sumLf3hat = 0.0;
+  // for all wells calculate rp, r12
+  std::vector<double> rp;
+  std::vector<double> r13;
+  std::vector<double> x;
+  std::vector<double> y;
 
-   for ( size_t i = 0; i < nin; ++i )
-   {
-      sumLf1hat += lf1[i] + shift;
-      sumLf2hat += lf2[i] + shift;
-      sumLf3hat += lf3[i] + shift;
-   }
+  // the vertices of the domain must be included as interpolation points
+  if ( !m_projHandle ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::interpolateLithoFractions(): no project was loaded"; }
+  const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
 
-   double meanLf1hat = sumLf1hat / nin;
-   double meanLf2hat = sumLf2hat / nin;
-   double meanLf3hat = sumLf3hat / nin;
+  const double xmin   = pd->getXOrigin();
+  const double ymin   = pd->getYOrigin();
 
-   double rpmean  = ( meanLf1hat + meanLf3hat ) / meanLf2hat;
-   double r13mean =   meanLf1hat / meanLf3hat;
+  const double deltaX = pd->getDeltaX();
+  const double deltaY = pd->getDeltaY();
 
-   // the vertices of the domain must be included as interpolation points
-   if ( !m_projHandle ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::interpolateLithoFractions(): no project was loaded"; }
-   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+  const int    numI   = pd->getNumberOfXNodes();
+  const int    numJ   = pd->getNumberOfYNodes();
 
-   double xmin   = pd->getXOrigin();
-   double ymin   = pd->getYOrigin();
+  const double xmax   = xmin + numI * deltaX;
+  const double ymax   = ymin + numJ * deltaY;
 
-   double deltaX = pd->getDeltaX();
-   double deltaY = pd->getDeltaY();
+  // all wells are considered to calculate the mean values to use at the edges. this could be refined later on to use only the closest wells
+  double sumLf1hat = 0.0;
+  double sumLf2hat = 0.0;
+  double sumLf3hat = 0.0;
 
-   int    numI   = pd->getNumberOfXNodes();
-   int    numJ   = pd->getNumberOfYNodes();
+  for ( size_t i = 0; i < nin; ++i )
+  {
+    sumLf1hat += lf1[i] + shift;
+    sumLf2hat += lf2[i] + shift;
+    sumLf3hat += lf3[i] + shift;
+  }
 
-   double xmax   = xmin + numI * deltaX;
-   double ymax   = ymin + numJ * deltaY;
+  double meanLf1hat = sumLf1hat / nin;
+  double meanLf2hat = sumLf2hat / nin;
+  double meanLf3hat = sumLf3hat / nin;
 
-   const double deltaXConvexHull = ( xmax - xmin ) / convexHullEdgePoints;
-   const double deltaYConvexHull = ( ymax - ymin ) / convexHullEdgePoints;
+  double rpmean  = ( meanLf1hat + meanLf3hat ) / meanLf2hat;
+  double r13mean =   meanLf1hat / meanLf3hat;
 
-   // first add the points at the edges in CCW order
-   for ( int i = 0; i <= convexHullEdgePoints; ++i )
-   {
-      x.push_back( xmin + deltaXConvexHull * i );
-      y.push_back( ymin );
-      rp.push_back( rpmean );
-      r13.push_back( r13mean );
-   }
+  const double deltaXConvexHull = ( xmax - xmin ) / convexHullEdgePoints;
+  const double deltaYConvexHull = ( ymax - ymin ) / convexHullEdgePoints;
 
-   for ( int i = 1; i < convexHullEdgePoints; ++i )
-   {
-      x.push_back( xmax );
-      y.push_back( ymin + i * deltaYConvexHull );
-      rp.push_back( rpmean );
-      r13.push_back( r13mean );
-   }
+  // first add the points at the edges in CCW order
+  for ( int i = 0; i <= convexHullEdgePoints; ++i )
+  {
+    x.push_back( xmin + deltaXConvexHull * i );
+    y.push_back( ymin );
+    rp.push_back( rpmean );
+    r13.push_back( r13mean );
+  }
 
-   for ( int i = convexHullEdgePoints; i >= 0; --i )
-   {
-      x.push_back( xmin + deltaXConvexHull * i );
-      y.push_back( ymax );
-      rp.push_back( rpmean );
-      r13.push_back( r13mean );
-   }
+  for ( int i = 1; i < convexHullEdgePoints; ++i )
+  {
+    x.push_back( xmax );
+    y.push_back( ymin + i * deltaYConvexHull );
+    rp.push_back( rpmean );
+    r13.push_back( r13mean );
+  }
 
-   for ( int i = convexHullEdgePoints - 1; i >= 1; --i )
-   {
-      x.push_back( xmin );
-      y.push_back( ymin + i * deltaYConvexHull );
-      rp.push_back( rpmean );
-      r13.push_back( r13mean );
-   }
+  for ( int i = convexHullEdgePoints; i >= 0; --i )
+  {
+    x.push_back( xmin + deltaXConvexHull * i );
+    y.push_back( ymax );
+    rp.push_back( rpmean );
+    r13.push_back( r13mean );
+  }
 
-   // add well points only after the convex hull has been defined
-   for ( size_t i = 0; i < nin; ++i )
-   {
-      double lf1hat = lf1[i] + shift;
-      double lf2hat = lf2[i] + shift;
-      double lf3hat = lf3[i] + shift;
-      x.push_back( xin[i] );
-      y.push_back( yin[i] );
-      rp.push_back( ( lf1hat + lf3hat ) / lf2hat );
-      r13.push_back(  lf1hat / lf3hat );
-   }
+  for ( int i = convexHullEdgePoints - 1; i >= 1; --i )
+  {
+    x.push_back( xmin );
+    y.push_back( ymin + i * deltaYConvexHull );
+    rp.push_back( rpmean );
+    r13.push_back( r13mean );
+  }
 
-   // interpolate
-   if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, rp
-                                                        , xmin + deltaX * 0.5
-                                                        , xmax - deltaX * 0.5
-                                                        , ymin + deltaY * 0.5
-                                                        , ymax - deltaY * 0.5
-                                                        , numI, numJ, xInt, yInt, rpInt
-                                                        ) )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "NNlib interpolation failed for rp ";
-   }
+  // add well points only after the convex hull has been defined
+  for ( size_t i = 0; i < nin; ++i )
+  {
+    double lf1hat = lf1[i] + shift;
+    double lf2hat = lf2[i] + shift;
+    double lf3hat = lf3[i] + shift;
+    x.push_back( xin[i] );
+    y.push_back( yin[i] );
+    rp.push_back( ( lf1hat + lf3hat ) / lf2hat );
+    r13.push_back(  lf1hat / lf3hat );
+  }
 
-   if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, r13
-                                                        , xmin + deltaX * 0.5
-                                                        , xmax - deltaX * 0.5
-                                                        , ymin + deltaY * 0.5
-                                                        , ymax - deltaY * 0.5
-                                                        , numI, numJ, xInt, yInt, r13Int
-                                                        ) )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "NNlib interpolation failed for r13 ";
-   }
+  // interpolate
+  if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, rp
+                                                         , xmin + deltaX * 0.5
+                                                         , xmax - deltaX * 0.5
+                                                         , ymin + deltaY * 0.5
+                                                         , ymax - deltaY * 0.5
+                                                         , numI, numJ, xInt, yInt, rpInt
+                                                         ) )
+  {
+    throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "NNlib interpolation failed for rp ";
+  }
 
+  if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, r13
+                                                         , xmin + deltaX * 0.5
+                                                         , xmax - deltaX * 0.5
+                                                         , ymin + deltaY * 0.5
+                                                         , ymax - deltaY * 0.5
+                                                         , numI, numJ, xInt, yInt, r13Int
+                                                         ) )
+  {
+    throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "NNlib interpolation failed for r13 ";
+  }
+
+}
+
+// transform the lithofractions and interpolate the results
+void Model::ModelImpl::interpolateLithoFractionsIDW( const double              & IDWpower
+                                                   , const std::vector<double> & xin
+                                                   , const std::vector<double> & yin
+                                                   , const std::vector<double> & lf1
+                                                   , const std::vector<double> & lf2
+                                                   , const std::vector<double> & lf3
+                                                   ,       std::vector<double> & xInt
+                                                   ,       std::vector<double> & yInt
+                                                   ,       std::vector<double> & rpInt
+                                                   ,       std::vector<double> & r13Int
+                                                   )
+{
+  const double shift                = 100.0;
+  const double tol                  = 1.0; // 1 meter tolerance
+
+  const size_t nin                  = lf1.size();
+
+  // for all wells calculate rp, r12
+  std::vector<double> rp;
+  std::vector<double> r13;
+  std::vector<double> x;
+  std::vector<double> y;
+
+  // the vertices of the domain must be included as interpolation points
+  if ( !m_projHandle ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::interpolateLithoFractionsIDW(): no project was loaded"; }
+  const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+  const double xmin   = pd->getXOrigin();
+  const double ymin   = pd->getYOrigin();
+
+  const double deltaX = pd->getDeltaX();
+  const double deltaY = pd->getDeltaY();
+
+  const int    numI   = pd->getNumberOfXNodes();
+  const int    numJ   = pd->getNumberOfYNodes();
+
+  for ( size_t i = 0; i < nin; ++i )
+  {
+     double lf1hat = lf1[i] + shift;
+     double lf2hat = lf2[i] + shift;
+     double lf3hat = lf3[i] + shift;
+     x.push_back( xin[i] );
+     y.push_back( yin[i] );
+     rp.push_back( ( lf1hat + lf3hat ) / lf2hat );
+     r13.push_back(  lf1hat / lf3hat );
+  }
+
+  int nout = numI*numJ;
+  xInt.resize(nout);
+  yInt.resize(nout);
+  rpInt.resize(nout);
+  r13Int.resize(nout);
+
+  double yval = ymin + 0.5*deltaY;
+  int k = 0;
+  for ( int j = 0; j<numJ; ++j )
+  {
+    double xval = xmin + 0.5*deltaX;
+    for ( int i = 0; i<numI; ++i )
+    {
+      xInt[k] = xval;
+      yInt[k] = yval;
+
+      double v1 = 0.0;
+      double v2 = 0.0;
+      double s1 = 0.0;
+      double s2 = 0.0;
+      for ( size_t n = 0; n < nin; ++n )
+      {
+        const double dx = xval - x[n];
+        const double dy = yval - y[n];
+        const double dis = std::sqrt( dx*dx + dy*dy );
+        if (dis < tol)
+        {
+          v1 = rp[n]; s1 = 1.0;
+          v2 = r13[n]; s2 = 1.0;
+          continue;
+        }
+        else
+        {
+          const double weight = std::pow( 1.0/dis, IDWpower );
+          v1 += rp[n] * weight;
+          v2 += r13[n]* weight;
+          s1 += weight;
+          s2 += weight;
+        }
+      }
+      rpInt[k] = v1/s1;
+      r13Int[k] = v2/s2;
+      ++k;
+
+      xval += deltaX;
+    }
+    yval += deltaY;
+  }
 }
 
 // Do smoothing of a maps
@@ -1691,8 +1824,8 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
    // back-transform and correct the lithofractions
    for ( size_t i = 0; i < rpInt.size(); ++i )
    {
-      double lf2Int =   sumLfInt            / ( rpInt[i]  + 1 );
-      double lf3Int = ( sumLfInt - lf2Int ) / ( r13Int[i] + 1 );
+      double lf2Int =   sumLfInt            / ( rpInt[i]  + 1.0 );
+      double lf3Int = ( sumLfInt - lf2Int ) / ( r13Int[i] + 1.0 );
       double lf1Int =   sumLfInt - lf2Int   -   lf3Int;
       lf1Int -= shift;
       lf2Int -= shift;

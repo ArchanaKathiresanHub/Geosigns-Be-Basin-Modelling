@@ -21,7 +21,6 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QLineEdit>
-#include <QListWidget>
 #include <QObject>
 #include <QPushButton>
 #include <QSpinBox>

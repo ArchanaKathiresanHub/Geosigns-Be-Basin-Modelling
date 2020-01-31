@@ -50,7 +50,7 @@ unsigned int MapSmootherVectorized::getN() const
 
 unsigned int MapSmootherVectorized::getM() const
 {
-  return m_numI;
+  return m_numJ;
 }
 
 double MapSmootherVectorized::getDx() const
@@ -66,21 +66,21 @@ double MapSmootherVectorized::getDy() const
 std::vector<std::vector<double>> MapSmootherVectorized::getMap() const
 {
   std::vector<std::vector<double>> grid;
-  for ( unsigned int i = 0; i<getN(); ++i )
+  for ( unsigned int i = 0; i < m_numI; ++i )
   {
-    std::vector<double> row;
-    for ( unsigned int j = 0; j<getM(); ++j )
+    std::vector<double> col;
+    for ( unsigned int j = 0; j<m_numJ; ++j )
     {
-      row.push_back( m_vec[i * getM() + j] );
+      col.push_back( m_vec[i + j * m_numI] );
     }
-    grid.push_back( row );
+    grid.push_back( col );
   }
   return grid;
 }
 
 void MapSmootherVectorized::setMapValue( const unsigned int i, const unsigned int j, const double value ) const
 {
-  m_vec[i * m_numJ + j] = value;
+  m_vec[i + j * m_numI] = value;
 }
 
 } // namespace MapSmoothing

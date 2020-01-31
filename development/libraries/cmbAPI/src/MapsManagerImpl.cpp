@@ -323,20 +323,21 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapSetValues( MapID id, const std::vec
    try
    {
       loadGridMap( id );
-      m_mapObj[id]->retrieveData();
+      DataAccess::Interface::GridMap* gridMap = m_mapObj[id];
+      gridMap->retrieveData();
 
-      const double nulVal = m_mapObj[id]->getUndefinedValue();
-      const int    numI   = m_mapObj[id]->lastI() + 1;
+      const double nulVal = gridMap->getUndefinedValue();
 
-      for ( unsigned int j = m_mapObj[id]->firstJ(); j <= m_mapObj[id]->lastJ(); ++j )
+      int k = 0;
+      for ( unsigned int j = gridMap->firstJ(); j <= gridMap->lastJ(); ++j )
       {
-         for ( unsigned int i = m_mapObj[id]->firstI(); i <= m_mapObj[id]->lastI(); ++i )
+         for ( unsigned int i = gridMap->firstI(); i <= gridMap->lastI(); ++i )
          {
-            const unsigned int pos = i + j * numI; // values in vin are saved row-wise
-            m_mapObj[id]->setValue( i, j, NumericFunctions::isEqual( vin[pos], nulVal, 1e-5 ) ? nulVal : vin[pos] );
+            const double v = vin[k++];
+            gridMap->setValue( i, j, NumericFunctions::isEqual( v, nulVal, 1e-5 ) ? nulVal : v );
          }
       }
-      m_mapObj[id]->restoreData();
+      gridMap->restoreData();
    }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
 
@@ -349,20 +350,22 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapGetValues( MapID id, std::vector<do
    try
    {
       loadGridMap( id ); // check if map is loaded and load it if not loaded before
-      m_mapObj[id]->retrieveData();
+      DataAccess::Interface::GridMap* gridMap = m_mapObj[id];
+      gridMap->retrieveData();
 
-      const int numI = m_mapObj[id]->lastI() +1;
-      const int numJ = m_mapObj[id]->lastJ() +1;
+      const int numI = gridMap->lastI() - gridMap->firstI() + 1;
+      const int numJ = gridMap->lastJ() - gridMap->firstJ() + 1;
       vout.resize( numI * numJ );
 
-      for ( unsigned int j = m_mapObj[id]->firstJ(); j <= m_mapObj[id]->lastJ(); ++j )
+      int k = 0;
+      for ( unsigned int j = gridMap->firstJ(); j <= gridMap->lastJ(); ++j )
       {
-         for ( unsigned int i = m_mapObj[id]->firstI(); i <= m_mapObj[id]->lastI(); ++i )
+         for ( unsigned int i = gridMap->firstI(); i <= gridMap->lastI(); ++i )
          {
-               vout[i + j * numI] = m_mapObj[id]->getValue( i, j );
+            vout[k++] = gridMap->getValue( i, j );
          }
       }
-      m_mapObj[id]->restoreData();
+      gridMap->restoreData();
    }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
 

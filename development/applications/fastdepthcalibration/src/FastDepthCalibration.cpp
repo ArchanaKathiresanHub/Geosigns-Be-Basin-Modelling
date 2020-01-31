@@ -415,13 +415,13 @@ void FastDepthCalibration::calculateNewDepths(const DataAccess::Interface::GridM
 void FastDepthCalibration::fillArray( const DataAccess::Interface::GridMap * grid, std::vector<double> & v, int k, const double convFact )
 {
   grid->retrieveData();
-  const unsigned int numI = grid->lastI() + 1;
 
+  int it = 0;
   for ( unsigned int j = grid->firstJ( ); j <= grid->lastJ( ); ++j )
   {
     for ( unsigned int i = grid->firstI( ); i <= grid->lastI( ); ++i )
     {
-      v[i + j * numI] = grid->getValue( i, j, (unsigned int)k ) * convFact;
+      v[it++] = grid->getValue( i, j, (unsigned int)k ) * convFact;
     }
   }
   grid->restoreData( );

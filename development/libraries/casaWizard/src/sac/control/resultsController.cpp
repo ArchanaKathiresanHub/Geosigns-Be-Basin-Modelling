@@ -43,7 +43,7 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
 
   connect(resultsTab_->buttonSaveOptimized(), SIGNAL(clicked()), this, SLOT(saveOptimized()));
   connect(resultsTab_->buttonRunOptimized(),  SIGNAL(clicked()), this, SLOT(runOptimized()));
-  connect(resultsTab_->buttonBaseCase(),      SIGNAL(clicked()), this, SLOT(baseCase()));
+  connect(resultsTab_->buttonBaseCase(),      SIGNAL(clicked()), this, SLOT(runBaseCase()));
 
   connect(resultsTab_->plotOptions(), SIGNAL(activeChanged()), this, SLOT(refreshPlot()));
   connect(resultsTab_->plotOptions(), SIGNAL(plotTypeChange(int)), this, SLOT(togglePlotType(int)));
@@ -116,15 +116,16 @@ void ResultsController::runOptimized()
   scenarioBackup::backup(scenario_);
 
   const QString baseDirectory{scenario_.calibrationDirectory() + "/ThreeDFromOneD"};
-  run3dCase(baseDirectory);
 
-  const bool isOptimized{true};
-  import3dWellData(baseDirectory, isOptimized);
-
-  scenarioBackup::backup(scenario_);
+  if (run3dCase(baseDirectory))
+  {
+    const bool isOptimized{true};
+    import3dWellData(baseDirectory, isOptimized);
+    scenarioBackup::backup(scenario_);
+  }
 }
 
-void ResultsController::baseCase()
+void ResultsController::runBaseCase()
 {
   const QString runDirectory{scenario_.calibrationDirectory() + "/ThreeDBase"};
 
@@ -144,10 +145,11 @@ void ResultsController::baseCase()
     return;
   }
 
-  run3dCase(runDirectory);
-
-  const bool isOptimized{false};
-  import3dWellData(runDirectory, isOptimized);
+  if (run3dCase(runDirectory))
+  {
+    const bool isOptimized{false};
+    import3dWellData(runDirectory, isOptimized);
+  }
 }
 
 void ResultsController::togglePlotType(const int currentIndex)
@@ -248,18 +250,20 @@ void ResultsController::updateBirdView()
   resultsTab_->updateActiveWells(selectedWells());
 }
 
-void ResultsController::run3dCase(const QString baseDirectory)
+bool ResultsController::run3dCase(const QString baseDirectory)
 {
   const int cores = QInputDialog::getInt(0, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 48, 1);
   scenario_.setNumberCPUs(cores);
   scenarioBackup::backup(scenario_);
   CauldronScript cauldron{scenario_, baseDirectory};
-  if (!casaScriptWriter::writeCasaScript(cauldron))
+  if (!casaScriptWriter::writeCasaScript(cauldron) ||
+      !scriptRunController_.runScript(cauldron))
   {
-    return;
+    return false;
   }
-  scriptRunController_.runScript(cauldron);
+
   scenarioBackup::backup(scenario_);
+  return true;
 }
 
 void ResultsController::import3dWellData(const QString baseDirectory, const bool isOptimized)
@@ -283,7 +287,11 @@ void ResultsController::import3dWellData(const QString baseDirectory, const bool
                               yCoordinates,
                               properties,
                               scenario_.project3dFilename()};
-  scriptRunController_.runScript(import);
+  if (!scriptRunController_.runScript(import))
+  {
+    Logger::log() << "Failed to run well import" << Logger::endl();
+    return;
+  }
 
   Case3DTrajectoryReader reader{baseDirectory + "/welldata.csv"};
   try

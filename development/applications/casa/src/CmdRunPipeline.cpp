@@ -18,12 +18,20 @@ CmdRunPipeline::CmdRunPipeline(CasaCommander& parent, const std::vector<std::str
   CasaCmd(parent, cmdPrms)
 {
   m_cluster = m_prms.size() > 0 ? m_prms[0] : "";
+  m_cldVer  = m_prms.size() > 1 ? m_prms[1] : "";
+
+  if ( m_cldVer.empty() || m_cldVer == "Default" )
+  {
+     m_cldVer = ibs::Path::applicationFullPath().path();
+  }
 }
 
 void CmdRunPipeline::execute(std::unique_ptr<casa::ScenarioAnalysis>& sa)
 {
    casa::RunManager & rm = sa->runManager();
-   if ( ErrorHandler::NoError != rm.setClusterName( m_cluster.c_str() ) )
+
+   if ( ErrorHandler::NoError != rm.setCauldronVersion( m_cldVer.c_str() ) ||
+        ErrorHandler::NoError != rm.setClusterName( m_cluster.c_str() ) )
    {
      throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
@@ -46,9 +54,11 @@ void CmdRunPipeline::execute(std::unique_ptr<casa::ScenarioAnalysis>& sa)
 
 void CmdRunPipeline::printHelpPage(const char* cmdName)
 {
-   std::cout << "  " << cmdName << R"( <HPC cluster name>)
+   std::cout << "  " << cmdName << R"( <HPC cluster name>) [<Cauldron version>]
 
     - runs the pipeline of applications in the present folder
      Here:
-     <HPC cluster name> - cluster name, LOCAL | AMSGDC | HOUGDC.\n)";
+     <HPC cluster name> - cluster name, LOCAL | AMSGDC | HOUGDC.\n
+     <Cauldron version> - (Optional) simulator version. Must be installed in IBS folder. Could be specified as "Default"
+                          In this case the same simulator version as casa application will be used.)";
 }

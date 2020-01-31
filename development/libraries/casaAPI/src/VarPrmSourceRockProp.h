@@ -50,7 +50,7 @@ namespace casa
                                                    , const std::vector<double>             & xin    ///< x coordinates of each 1D project
                                                    , const std::vector<double>             & yin    ///< y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec ///< the optimal parameter values of each 1D project
-                                                   , const SmoothingParams& smoothingParams ///< set of smoothing parameters
+                                                   , const InterpolationParams& interpolationParams ///< set of interpolation parameters
                                                    ) const;
 
       /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters

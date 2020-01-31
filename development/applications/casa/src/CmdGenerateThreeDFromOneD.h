@@ -30,8 +30,10 @@ public:
    static void printHelpPage( const char * cmdName );
 
 private:
-   double m_smoothingRadius;
+   int m_interpolationMethod;
+   double m_IDWpower;
    int m_smoothingMethod;
+   double m_smoothingRadius;
    int m_nrOfThreads;
 };
 

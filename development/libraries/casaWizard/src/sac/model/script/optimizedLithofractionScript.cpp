@@ -47,7 +47,7 @@ void OptimizedLithofractionScript::createScriptInFolder(const QString& folderNam
   }
   QTextStream out(&file);
   out << "loadstate \"casa_state.bin\" \"bin\"\n";
-  out << "exportDataTxt \"DoEParameters\" \"optimalLithofractions.txt\"\n";
+  out << "exportDataTxt \"DoEParameters\" \"optimalLithofractions.txt\" \"BestMatchedCase\"\n";
   file.close();
 }
 

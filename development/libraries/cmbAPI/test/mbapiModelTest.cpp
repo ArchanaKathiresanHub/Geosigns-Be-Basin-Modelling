@@ -269,7 +269,7 @@ TEST_F(mbapiModelTest, SourceRockHI_HCSettings)
 
          double hiSR2 = srMgr.hiIni(sid2);
          double hcSR2 = srMgr.hcIni(sid2);
-						   
+
          ASSERT_NEAR(hiSR, 94.364356335, eps);
          ASSERT_NEAR(hiSR2, 472.0687704, eps);
 
@@ -971,7 +971,7 @@ TEST_F(mbapiModelTest, MapsManagerNNInterpolation)
    std::vector<double> rpInt;
    std::vector<double> r13Int;
 
-   testModel.interpolateLithoFractions(xin, yin, lf1, lf2, lf3, xout, yout, rpInt, r13Int);
+   testModel.interpolateLithoFractionsNN( xin, yin, lf1, lf2, lf3, xout, yout, rpInt, r13Int);
 
    // check the number of points is correct
    ASSERT_EQ(xout.size(), 6527U);

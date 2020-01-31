@@ -103,7 +103,7 @@ SharedParameterPtr VarPrmOneCrustThinningEvent::makeThreeDFromOneD( mbapi::Model
                                                                   , const std::vector<double>             & // xin
                                                                   , const std::vector<double>             & // yin
                                                                   , const std::vector<SharedParameterPtr> & // prmVec
-                                                                  , const SmoothingParams                 & // smoothingParams
+                                                                  , const InterpolationParams             & // interpolationParams
                                                                   ) const
 {
    // Not yet implemented

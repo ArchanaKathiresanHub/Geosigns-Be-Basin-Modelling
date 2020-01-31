@@ -306,6 +306,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
       mapOutputProperties.push_back ( BULKDENSITYVEC );
       mapOutputProperties.push_back ( DIFFUSIVITYVEC );
       mapOutputProperties.push_back ( FRACTURE_PRESSURE );
+      mapOutputProperties.push_back ( GAMMARAY );
       mapOutputProperties.push_back ( HEAT_FLOW );
       mapOutputProperties.push_back ( HYDROSTATICPRESSURE );
       mapOutputProperties.push_back ( LITHOSTATICPRESSURE );
@@ -554,6 +555,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
      m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
      m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
+     m_volumeOutputProperties.push_back ( GAMMARAY );
      m_volumeOutputProperties.push_back ( HEAT_FLOW );
      m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
      m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );

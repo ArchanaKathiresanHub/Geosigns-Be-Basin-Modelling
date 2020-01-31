@@ -37,6 +37,7 @@ void SaveOptimizedScript::writeScriptContents(QFile& file) const
   QTextStream out(&file);
 
   out << writeLoadState(scenario_.runLocation() + "/" + scenario_.iterationDirName() + "/" + scenario_.stateFileNameSAC());
+  out << writeRunDataDigger();
   out << QString("importOneDResults\n");
   out << QString("setFilterOneDResults smartLithoFractionGridding\n");
   out << QString("generateThreeDFromOneD\n");

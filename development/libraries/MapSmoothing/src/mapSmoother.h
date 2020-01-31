@@ -38,7 +38,7 @@ protected:
   virtual unsigned int getNrOfThreads() const = 0;
   virtual unsigned int getN() const = 0;
   virtual unsigned int getM() const = 0;
-  virtual std::vector<std::vector<double>> getMap() const = 0;
+  virtual std::vector<std::vector<double>> getMap() const = 0; // Vector of column vectors
   virtual void setMapValue( unsigned int i, unsigned int j, double value ) const = 0;
 };
 

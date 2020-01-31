@@ -58,21 +58,21 @@ void MapSmoother::doSmoothing( const FilterType& filterType ) const
           {
             const unsigned int ii = std::max( rX, std::min( n - 1 + rX, k + i ) );
 
-            const std::vector<double>& gridRow = grid[ ii - rX ];
-            const std::vector<double>& maskRow = mask[ ii - i ];
+            const std::vector<double>& gridCol = grid[ ii - rX ];
+            const std::vector<double>& maskCol = mask[ ii - i ];
 
             for ( unsigned int l = 0; l<maskSizeY; ++l )
             {
               const unsigned int jj = std::max( rY, std::min( m - 1 + rY, l + j ) );
 
-              const double value = gridRow[ jj - rY ];
+              const double value = gridCol[ jj - rY ];
               if ( value == undefinedValue )
               {
                 // Ignore neighbors with undefined value
                 continue;
               }
 
-              const double f = maskRow[jj - j];
+              const double f = maskCol[jj - j];
               val += value * f;
               div += f;
             }

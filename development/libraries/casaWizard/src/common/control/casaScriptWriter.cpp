@@ -33,6 +33,7 @@ void modifyCasaScript(const QString& filename)
   if (dialog.exec() == QDialog::Accepted)
   {
     file.reset();
+    file.resize(0);
     textStream << dialog.plainText();
     Logger::log() << "- Expert modification of casa script successful" << Logger::endl();
   }
@@ -45,7 +46,7 @@ void modifyCasaScript(const QString& filename)
 }
 
 bool writeCasaScript(CasaScript& script)
-{ 
+{
   if (!script.writeScript())
   {
     Logger::log() << "- Failed to write casa script " << script.scriptFilename() << Logger::endl();

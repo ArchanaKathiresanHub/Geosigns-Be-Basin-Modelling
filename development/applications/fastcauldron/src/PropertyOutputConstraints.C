@@ -78,6 +78,7 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* ThicknessError         */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* ChemicalCompaction     */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* Lithology              */
+     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* GammaRay               */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* TwoWayTime             */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* TwoWayTimeResidual     */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressureGas100 */
@@ -236,6 +237,7 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false, false,  true, false, false,  true, false,  true, false },  /* ThicknessError         */
    { false, false, false, false, false, false, false, false, false, false },  /* ChemicalCompaction     */
    {  true,  true,  true,  true,  true,  true,  true,  true,  true, false },  /* Lithology              */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* GammaRay               */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* TwoWayTime             */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* TwoWayTimeResidual     */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureGas100 */
@@ -379,6 +381,7 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    { false, false, false,  true, false, false,  true, false,  true, false },  /* ThicknessError                            */
    { false, false, false, false, false, false, false, false, false, false },  /* ChemicalCompaction                        */
    {  true,  true,  true,  true,  true,  true,  true,  true,  true, false },  /* Lithology                                 */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* GammaRay                                  */
    { false, false, false, false, false, false, false, false, false, false },  /* TwoWayTime                                */
    { false, false, false, false, false, false, false, false, false, false },  /* TwoWayTimeResidual                        */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureGas100                   */

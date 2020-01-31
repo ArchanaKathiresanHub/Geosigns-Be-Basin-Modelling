@@ -125,12 +125,18 @@ namespace casa
 
       /// @brief Generate a 3D project from 1D results using appropriate parameter averages
       /// @param expLabel name of the cases where the averages should take place
+      /// @param interpolationMethod Interpolation method
+      /// @param IDWpower Power parameter needed for inverse distance weighting interpolation method
       /// @param smoothingMethod Smoothing method
       /// @param smoothingRadius Smoothing radius [m]
       /// @param nrOfThreads Number of threads
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
-      ErrorHandler::ReturnCode generateThreeDFromOneD( const std::string & expLabel, const int smoothingMethod,
-                                                       const double smoothingRadius, const int nrOfThreads );
+      ErrorHandler::ReturnCode generateThreeDFromOneD(const std::string & expLabel,
+                                                       const int interpolationMethod,
+                                                       const double IDWpower,
+                                                       const int smoothingMethod,
+                                                       const double smoothingRadius,
+                                                       const int nrOfThreads );
 
       /// @brief Create copy of the base case model and set all influential parameters value defined for each case. Each call of
       ///        this function increase scenario iteration number.

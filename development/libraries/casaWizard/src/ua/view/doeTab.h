@@ -5,7 +5,6 @@
 
 class QComboBox;
 class QLineEdit;
-class QListWidget;
 class QPushButton;
 class QSpinBox;
 class QTableWidget;
@@ -30,7 +29,6 @@ public:
 
   InfluentialParameterTable* influentialParameterTable() const;
   ManualDesignPointTable* manualDesignPointTable() const;
-  QListWidget* listDoeSelection() const;
 
   QLineEdit* lineEditProject3D() const;
   const QPushButton* pushSelectProject3D() const;

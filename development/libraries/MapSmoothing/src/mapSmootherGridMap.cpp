@@ -63,12 +63,12 @@ std::vector<std::vector<double>> MapSmootherGridMap::getMap() const
   std::vector<std::vector<double>> grid;
   for ( unsigned int i = 0; i<getN(); ++i )
   {
-    std::vector<double> row;
+    std::vector<double> col;
     for ( unsigned int j = 0; j<getM(); ++j )
     {
-      row.push_back( m_gridMap->getValue( i, j ) );
+      col.push_back( m_gridMap->getValue( i, j ) );
     }
-    grid.push_back( row );
+    grid.push_back( col );
   }
   return grid;
 }

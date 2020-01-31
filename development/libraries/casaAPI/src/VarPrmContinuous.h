@@ -52,9 +52,11 @@ namespace casa
    {
    public:
 
-      struct SmoothingParams
+      struct InterpolationParams
       {
-        int method;
+        int interpolationMethod;
+        double IDWpower;
+        int smoothingMethod;
         double radius;
         int nrOfThreads;
       };
@@ -118,7 +120,7 @@ namespace casa
                                                    , const std::vector<double> & xin ///< the x coordinates of each 1D project
                                                    , const std::vector<double> & yin ///< the y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
-                                                   , const SmoothingParams& smoothingParams
+                                                   , const InterpolationParams& interpolationParams
                                                    )  const;
 
       /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters

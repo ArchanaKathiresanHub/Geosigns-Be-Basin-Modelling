@@ -6,6 +6,7 @@
 #include "control/lithofractionController.h"
 #include "control/objectiveFunctionController.h"
 #include "control/scriptRunController.h"
+#include "model/functions/copyCaseFolder.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "model/logger.h"
 #include "model/output/wellTrajectoryWriter.h"
@@ -108,10 +109,10 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
     calDir.mkpath(".");
   }
 
-  const QString projectFilename{QDir::separator() + QFileInfo(casaScenario_.project3dPath()).fileName()};
-  QFile::copy(workingDir + "/Inputs.HDF", calibrationDir + "/Inputs.HDF");
-  QFile::copy(workingDir + projectFilename, calibrationDir + projectFilename);
-  if (QFile(workingDir + "/Input.HDF").exists()) QFile::copy(workingDir + "/Input.HDF", calibrationDir + "/Input.HDF");
+  const bool filesCopied = functions::copyCaseFolder(workingDir, calibrationDir);
+
+  Logger::log() << (filesCopied ? "Finished copying case to " + calibrationDir :
+                                  "Failed copying case, no files were copied") << Logger::endl();
 
   scenarioBackup::backup(casaScenario_);
   SACScript sac{casaScenario_, calibrationDir};
@@ -132,7 +133,7 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
     }
     else
     {
-      Logger::log() << "- An error occurred while moving the statFile to the last iteration Folder. " << Logger::endl();
+      Logger::log() << "- An error occurred while moving the state file to the last iteration folder." << Logger::endl();
     }
     scenarioBackup::backup(casaScenario_);
   }

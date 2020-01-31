@@ -358,6 +358,10 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesPercentageM
       // set the percentage grid maps
       rec->setValue<std::string>( s_lithoTypePercent1GridFiledName, mapNameFirstLithoPercentage );
       rec->setValue<std::string>( s_lithoTypePercent2GridFiledName, mapNameSecondLithoPercentage );
+
+      rec->setValue<double>( s_lithoTypePercent1FiledName, Utilities::Numerical::IbsNoDataValue );
+      rec->setValue<double>( s_lithoTypePercent2FiledName, Utilities::Numerical::IbsNoDataValue );
+      rec->setValue<double>( s_lithoTypePercent3FiledName, Utilities::Numerical::IbsNoDataValue );
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 

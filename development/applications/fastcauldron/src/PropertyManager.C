@@ -50,6 +50,7 @@ PropertyManager::PropertyManager():
   m_propertyName2OutputName [ "FluidVelocityX" ]         = "FluidVelocity";
   m_propertyName2OutputName [ "FluidVelocityY" ]         = "FluidVelocity";
   m_propertyName2OutputName [ "FluidVelocityZ" ]         = "FluidVelocity";
+  m_propertyName2OutputName [ "GammaRay" ]               = "GammaRay";
   m_propertyName2OutputName [ "HeatFlow" ]               = "HeatFlow";
   m_propertyName2OutputName [ "HeatFlowX" ]              = "HeatFlow";
   m_propertyName2OutputName [ "HeatFlowY" ]              = "HeatFlow";

@@ -393,19 +393,33 @@ namespace mbapi {
       ReturnCode windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc );
 
       // Natural neighbour interpolation of the lithofractions
-
       /// @brief Transform lithofractions, set up interpolation points at the edge of the domain and interpolate
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      ReturnCode interpolateLithoFractions( const std::vector<double> & xin    ///< [in]  x coordinates of the wells
-                                          , const std::vector<double> & yin    ///< [in]  y coordinates of the wells
-                                          , const std::vector<double> & lf1    ///< [in]  first litofraction
-                                          , const std::vector<double> & lf2    ///< [in]  second litofraction
-                                          , const std::vector<double> & lf3    ///< [in]  third litofraction
-                                          , std::vector<double>       & xInt   ///< [out] x coordinates of the interpolated points
-                                          , std::vector<double>       & yInt   ///< [out] y coordinates of the interpolated points
-                                          , std::vector<double>       & rpInt  ///< [out] interpolated values
-                                          , std::vector<double>       & r13Int ///< [out] interpolated values
-                                          );
+      ReturnCode interpolateLithoFractionsNN( const std::vector<double> & xin    ///< [in]  x coordinates of the wells
+                                            , const std::vector<double> & yin    ///< [in]  y coordinates of the wells
+                                            , const std::vector<double> & lf1    ///< [in]  first litofraction
+                                            , const std::vector<double> & lf2    ///< [in]  second litofraction
+                                            , const std::vector<double> & lf3    ///< [in]  third litofraction
+                                            , std::vector<double>       & xInt   ///< [out] x coordinates of the interpolated points
+                                            , std::vector<double>       & yInt   ///< [out] y coordinates of the interpolated points
+                                            , std::vector<double>       & rpInt  ///< [out] interpolated values
+                                            , std::vector<double>       & r13Int ///< [out] interpolated values
+                                            );
+
+      // Inverse distance weighting interpolation of the lithofractions
+      /// @brief Transform lithofractions
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode interpolateLithoFractionsIDW( const double              & IDWpower            ///< [in]  Power value
+                                               , const std::vector<double> & xin    ///< [in]  x coordinates of the wells
+                                               , const std::vector<double> & yin    ///< [in]  y coordinates of the wells
+                                               , const std::vector<double> & lf1    ///< [in]  first litofraction
+                                               , const std::vector<double> & lf2    ///< [in]  second litofraction
+                                               , const std::vector<double> & lf3    ///< [in]  third litofraction
+                                               , std::vector<double>       & xInt   ///< [out] x coordinates of the interpolated points
+                                               , std::vector<double>       & yInt   ///< [out] y coordinates of the interpolated points
+                                               , std::vector<double>       & rpInt  ///< [out] interpolated values
+                                               , std::vector<double>       & r13Int ///< [out] interpolated values
+                                               );
 
       /// @ brief Smoothen a vector representing the values on a 2d grid
       /// @return ErrorHandler::NoError on success, or error code otherwise

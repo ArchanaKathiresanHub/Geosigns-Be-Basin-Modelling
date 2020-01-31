@@ -47,6 +47,7 @@ void MainController::showFirstTab()
 {
   mainWindow().tabWidget()->setCurrentIndex(0);
   emit signalUpdateTabGUI(0);
+  emit signalRefresh();
 }
 
 void MainController::slotNew()

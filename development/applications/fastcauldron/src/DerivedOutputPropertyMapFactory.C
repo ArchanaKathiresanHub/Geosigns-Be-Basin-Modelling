@@ -518,6 +518,10 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 
    volumeTraits.m_propertyAllocator = allocateEmptyVolume;
    volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap[ GAMMARAY ] = volumeTraits;
+
+   volumeTraits.m_propertyAllocator = allocateEmptyVolume;
+   volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap[ TWOWAYTIME ] = volumeTraits;
 
    volumeTraits.m_propertyAllocator = allocateVitriniteReflectanceVolumeCalculator;

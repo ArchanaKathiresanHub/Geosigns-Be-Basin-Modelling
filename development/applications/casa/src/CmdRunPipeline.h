@@ -30,7 +30,8 @@ public:
    static void printHelpPage( const char * cmdName );
 
 private:
-   std::string m_cluster;
+   std::string m_cldVer;         // cauldron version
+   std::string m_cluster;        // cluster name
 };
 
 #endif // CASA_CMD_RUNPIPELINE_H

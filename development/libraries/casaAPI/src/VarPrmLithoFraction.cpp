@@ -94,7 +94,7 @@ namespace casa
                                                              , const std::vector<double>             & xin
                                                              , const std::vector<double>             & yin
                                                              , const std::vector<SharedParameterPtr> & prmVec
-                                                             , const SmoothingParams                 & smoothingParams
+                                                             , const InterpolationParams             & interpolationParams
                                                              ) const
    {
       // get the lithofractions calculate the lithopercentages
@@ -104,8 +104,8 @@ namespace casa
 
       for ( size_t i = 0; i != prmVec.size(); ++i )
       {
-         const std::vector<double> & lithoFractions = prmVec[i].get()->asDoubleArray();
-         const std::vector<double> & lithoPercentages = PrmLithoFraction::createLithoPercentages( lithoFractions, m_lithoFractionsInds );
+         const std::vector<double> lithoFractions = prmVec[i].get()->asDoubleArray();
+         const std::vector<double> lithoPercentages = PrmLithoFraction::createLithoPercentages( lithoFractions, m_lithoFractionsInds );
          if ( lithoPercentages.size() != 3 )
          {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The number of lithopercentages is incorrect: " << lithoPercentages.size();
@@ -121,17 +121,27 @@ namespace casa
       std::vector<double> rpInt;
       std::vector<double> r13Int;
 
-      if ( ErrorHandler::NoError != mdl.interpolateLithoFractions( xin, yin, lf1, lf2, lf3, xout, yout, rpInt, r13Int ) )
+      ErrorHandler::ReturnCode returnCode = ErrorHandler::UnknownError;
+      if ( interpolationParams.interpolationMethod == 1 )
+      {
+         returnCode = mdl.interpolateLithoFractionsNN( xin, yin, lf1, lf2, lf3, xout, yout, rpInt, r13Int );
+      }
+      else
+      {
+         returnCode = mdl.interpolateLithoFractionsIDW( interpolationParams.IDWpower, xin, yin, lf1, lf2, lf3, xout, yout, rpInt, r13Int );
+      }
+
+      if ( ErrorHandler::NoError != returnCode )
       {
          throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The interpolation of the lithopercentages failed for the layer : " << m_layerName;
       }
 
-      if ( ErrorHandler::NoError != mdl.smoothenVector( rpInt, smoothingParams.method, smoothingParams.radius, smoothingParams.nrOfThreads ) )
+      if ( ErrorHandler::NoError != mdl.smoothenVector( rpInt, interpolationParams.smoothingMethod, interpolationParams.radius, interpolationParams.nrOfThreads ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The smoothing of the rp intermediate state failed for the layer : " << m_layerName;
       }
 
-      if ( ErrorHandler::NoError != mdl.smoothenVector( r13Int, smoothingParams.method, smoothingParams.radius, smoothingParams.nrOfThreads ) )
+      if ( ErrorHandler::NoError != mdl.smoothenVector( r13Int, interpolationParams.smoothingMethod, interpolationParams.radius, interpolationParams.nrOfThreads ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The smoothing of the r13 intermediate state failed for the layer : " << m_layerName;
       }

@@ -68,7 +68,7 @@ namespace casa
                                                             const std::vector<double>& /*xin*/,
                                                             const std::vector<double>& /*yin*/,
                                                             const std::vector<SharedParameterPtr>& /*prmVec*/,
-                                                            const SmoothingParams& /*smoothingParams*/ ) const
+                                                            const InterpolationParams& /*interpolationParams*/ ) const
    {
      throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmLithoSTPThermalCond";
      return nullptr;

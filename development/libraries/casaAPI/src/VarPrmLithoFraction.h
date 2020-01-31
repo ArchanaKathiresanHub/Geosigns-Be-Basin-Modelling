@@ -63,7 +63,7 @@ namespace casa
                                                    , const std::vector<double>   & xin     /// the vector to store 1D projects x coordinates
                                                    , const std::vector<double>   & yin     /// the vector to store 1D projects y coordinates
                                                    , const std::vector<SharedParameterPtr> & prmVec  /// the vector to stores the optimal parameter value of each 1D project
-                                                   , const SmoothingParams& smoothingParams ///< set of smoothing parameters
+                                                   , const InterpolationParams& interpolationParams ///< set of smoothing parameters
                                                    ) const;
 
       /// @{
