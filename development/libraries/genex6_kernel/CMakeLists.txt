@@ -37,7 +37,13 @@ INSTALLTARGET
 # Unit tests for convertHItoHC
 
 add_gtest ( NAME GENEX6_KERNEL::convertHItoHC
-   SOURCES test/HiToHcTest.cpp
+   SOURCES test/HiToHcTest.cpp 
    LIBRARIES genex6 genex6_kernel DataAccess DistributedDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+ )
+ add_gtest ( NAME GENEX6_KERNEL::checkTargetHCValues
+   SOURCES test/GenexSourceRockTest.cpp
+   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+   LIBRARIES genex6 genex6_kernel DataAccess SerialDataAccess
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
  )

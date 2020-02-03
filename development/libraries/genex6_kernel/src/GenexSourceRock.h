@@ -26,6 +26,9 @@
 #include <map>
 #include <unordered_map>
 
+#define CURT_MIN 99
+#define CURT_MAX 100
+
 namespace AbstractDerivedProperties
 {
 class AbstractPropertyManager;
@@ -111,8 +114,11 @@ public:
   /// \brief Gets variable that indicates whether output is desired also at minor snapshots
   bool getMinor (void) const;
 
-protected:
+  /// Checks target raster H/C values are within the range. If not, clip that value to nearby valid value
+  int checkTargetHC(double minHc, double maxHc, double &hcValue, double &maxValue, int &count);
 
+protected:
+  
   /// Construct the valid source rock node set, the valid snapshot intervals
   bool preprocess () final;
 

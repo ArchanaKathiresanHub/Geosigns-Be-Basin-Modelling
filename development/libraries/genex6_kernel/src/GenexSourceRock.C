@@ -514,6 +514,28 @@ bool GenexSourceRock::initialize ( const bool printInitialisationDetails )
   return status;
 }
 
+// Checks target raster H/C values are within the range. If not, curtail that value to nearest valid value
+int GenexSourceRock::checkTargetHC(double minHc, double maxHc, double &hcValue, double &maxValue, int &count) {
+
+	if (hcValue < minHc) {
+        if ((minHc - hcValue) > maxValue)
+            maxValue = minHc - hcValue;
+		hcValue = minHc;
+		count++;
+		return CURT_MIN;
+	}
+	
+    if (hcValue > maxHc) {
+        if ((hcValue - maxHc) > maxValue)
+            maxValue = hcValue - maxHc;
+		hcValue = maxHc;
+		count++;
+        return CURT_MAX;
+	}
+	
+	return 0;
+}
+
 bool GenexSourceRock::preprocess()
 {
   bool status = true;
@@ -591,7 +613,6 @@ bool GenexSourceRock::preprocess()
   if ( vreMap != nullptr )  delete vreMap;
   return status;
 }
-
 bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
                                    const DataAccess::Interface::GridMap* vre,
                                    const bool printInitialisationDetails ) {
@@ -725,6 +746,9 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
         endMapJ = validityMap->firstJ ();
      }
 
+	 int count = 0; // the no. of instances of occurance of the HC map raster validation fails
+	 double maxValue = 0; // the highest deviation among all HC map raster values from the range of min/max
+
      for (lowResI = validityMap->firstI (); lowResI <= endMapI; ++lowResI)
      {
         for (lowResJ = validityMap->firstJ (); lowResJ <= endMapJ; ++lowResJ)
@@ -779,11 +803,15 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
                     if( testPercentage ) {
                        f1 = hcValue;
                     } else {
-                       if(( minHc > hcValue ) || ( maxHc < hcValue ) ) { // may be it's not necessary if already has been done in BPA..
-                          status = false;
-                          LogHandler( LogHandler::ERROR_SEVERITY ) << "HC map value  " << hcValue << " is out of range: H/C1 = " << Hc1 << " and H/C2 = " << Hc2 << ".";
-                          break;
-                       }
+						auto indicator = checkTargetHC(minHc, maxHc, hcValue, maxValue, count);
+#ifdef OBSOLETE
+						if (indicator == CURT_MIN) {
+							LogHandler(LogHandler::WARNING_SEVERITY) << "HC map value  " << hcValue << " is smaller than lower limit " << minHc << ". Hence, HC map value is clipped to lower limit = " << minHc << ".";
+						}
+						else if (indicator == CURT_MAX) {
+							LogHandler(LogHandler::WARNING_SEVERITY) << "HC map value  " << hcValue << " is higher than upper limit " << maxHc << ". Hence, HC map value is clipped to upper limit = " << maxHc << ".";
+						}
+#endif
                        if( hcValue == Hc1 ) { f1 = 1.0; }
                        else if (  hcValue == Hc2 ) { f1 = 0.0; }
                        else {
@@ -807,6 +835,8 @@ bool GenexSourceRock::preprocess ( const DataAccess::Interface::GridMap* validit
         }
 
      }
+	 if(count)
+		 LogHandler(LogHandler::WARNING_SEVERITY) << count<<" target H/C map raster values are outside the valid H/C range and maximum deviation is "<<maxValue<<". All the out of range target H/C map raster values are clipped to the closest valid value";
 #ifdef OBSOLETE
      if (DataAccess::Interface::MODE1D == theMode) {
         if (m_theNodes.empty ()) {
