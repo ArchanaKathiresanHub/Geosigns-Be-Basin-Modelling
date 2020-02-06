@@ -812,13 +812,12 @@ TEST_F(mbapiModelTest, PorosityModelParametersTest)
    ASSERT_NEAR(modelPrms3[1], modelPrms2[1], eps);
 
    // Check set Exponential porosity model
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setPorosityModel(lid2, porModel1, modelPrms1));
+   ASSERT_EQ(ErrorHandler::OutOfRangeValue, lthMgr.setPorosityModel(lid2, porModel1, modelPrms1));
    ASSERT_EQ(ErrorHandler::NoError, lthMgr.porosityModel(lid2, porModel3, modelPrms3));
-   ASSERT_EQ(porModel3, porModel1);
-   ASSERT_EQ(modelPrms3.size(), modelPrms1.size());
-   ASSERT_NEAR(modelPrms3[0], modelPrms1[0], eps);
-   ASSERT_NEAR(modelPrms3[1], modelPrms1[1], eps);
-   ASSERT_NEAR(modelPrms3[2], modelPrms1[2], eps);
+   ASSERT_EQ(porModel3, porModel2);
+   ASSERT_EQ(modelPrms3.size(), modelPrms2.size());
+   ASSERT_NEAR(modelPrms3[0], modelPrms2[0], eps);
+   ASSERT_NEAR(modelPrms3[1], modelPrms2[1], eps);
 }
 
 TEST_F(mbapiModelTest, GetSetLithologyDescriptionTest)

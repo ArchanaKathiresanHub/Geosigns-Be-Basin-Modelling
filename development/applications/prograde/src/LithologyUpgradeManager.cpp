@@ -18,15 +18,6 @@
 //cmbAPI
 #include "cmbAPI.h"
 #include "LithologyManager.h"
-#include "StratigraphyManager.h"
-
-
-//DataAccess
-#include "ProjectHandle.h"
-#include "RunParameters.h"
-
-#include <algorithm>
-
 using namespace mbapi;
 
 //------------------------------------------------------------//
@@ -78,10 +69,10 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	}
 
 	int lithologyFlag;
-	std::string parentLithologyDetails, parentLithologyName, legacyDefinitionDate, legacyLastChangedBy, legacyLastChangedDate, permModelName;
-	std::string legacyLithoTypeName, bpa2LithoName, legacyDescription, updatedDescription;
-	//mbapi::LithologyManager::PorosityModel porModel; // porosity calculation model
-	//std::vector<double> porModelPrms, updatedPorModelPrms; // poro. model parameters, depends on the given model
+	std::string parentLithologyDetails, legacyParentLithoName, bpa2ParentLithoName, legacyDefinitionDate, legacyLastChangedBy, legacyLastChangedDate, permModelName;
+	std::string legacyLithoTypeName, bpa2LithoName, legacyLithoDescription, updatedDescription;
+	mbapi::LithologyManager::PorosityModel porModel; // porosity calculation model
+	std::vector<double> porModelPrms, updatedPorModelPrms; // to store poro. model parameters, depends on the given model
 	mbapi::LithologyManager::PermeabilityModel prmModel; // permeability calculation model
 	std::vector<double> mpPor;     // for multi-point perm. model the porosity values vector
 	std::vector<double> mpPerm;    // for multi-point perm. model the log. of perm values vector
@@ -90,14 +81,15 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	{
 		m_model.lithologyManager().getUserDefinedFlagForLithology(lithoId, lithologyFlag);
 		m_model.lithologyManager().getReferenceLithology(lithoId, parentLithologyDetails);
-
-		parentLithologyName = modelConverter.findParentLithology(parentLithologyDetails);
-
-//......................................UPGRADING LITHOLOGY NAME and DESCRIPTION.......................................//	
-		//Upgrading the lithotype names for BPA1 standard lithotypes
 		legacyLithoTypeName = m_model.lithologyManager().lithologyName(lithoId);//get the lithotype name
-		legacyDescription = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "Description");// get legacy description for lith id 
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Lithotype encountered in the LithotypeIoTbl is '"<<legacyLithoTypeName<<"'";
+		legacyLithoDescription = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "Description");// get legacy description for lith id 
+		
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Lithotype encountered in the LithotypeIoTbl is '" << legacyLithoTypeName << "'";
+
+		legacyParentLithoName = modelConverter.findParentLithology(parentLithologyDetails, legacyLithoDescription, lithologyFlag);
+		
+		//......................................UPGRADING LITHOLOGY NAME and DESCRIPTION.......................................//	
+		//Upgrading the lithotype names for BPA1 standard lithotypes
 		
 		if (lithologyFlag == 0)
 		{
@@ -114,15 +106,16 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  Updated the 'MantleLithoName' field of BasementIoTbl from '" << legacyLithoTypeName << "' to 'Mantle'.";
 				}
 			}
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Description: No upgrade is done for this standard lithology which will get updated as per the description of the BPA2 mapped lithology while importing into BPA2-Basin.";
+			
 		}
-		else
-		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Lithology Name: '" << legacyLithoTypeName << "' is a user defined lithology. No upgrade is done for the lithology name.";
-			updatedDescription = modelConverter.upgradeLithologyDescription(legacyDescription, lithologyFlag, parentLithologyName);
-			m_model.setTableValue("LithotypeIoTbl", lithoId, "Description", updatedDescription);//Upgrading the description in LithotypeIoTbl
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Description: Updated the description for this userDefined lithology by appending 'Based on legacy BPA "<< parentLithologyName<<"'.";
-		}
+		//This is added just to check the legacy parent litho names. It further needs to be updated to the corresponding BPA2 litholigy Name
+		bpa2ParentLithoName = modelConverter.upgradeLithologyName(legacyParentLithoName); 
+		m_model.setTableValue("LithotypeIoTbl", lithoId, "DefinedBy", bpa2ParentLithoName);
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* DefinedBy: Updated from '" << parentLithologyDetails << "' to '" << bpa2ParentLithoName << "'.";
+				
+		//Checking and updating the Lithology description
+		updatedDescription = modelConverter.upgradeLithologyDescription(legacyLithoDescription, lithologyFlag, legacyParentLithoName);
+		m_model.setTableValue("LithotypeIoTbl", lithoId, "Description", updatedDescription);//Upgrading the description in LithotypeIoTbl
 
 		//upgrading the audit details for the lithotypes
 		legacyDefinitionDate = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "DefinitionDate");// get legacy date of definition for the selected lithology 
@@ -133,25 +126,21 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "LastChangedBy", legacyLastChangedBy);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "LastChangedDate", legacyLastChangedDate);
 		
-		//The porosity model upgradation needs further modifications as the requirement got changed during its implementation which will be taken in the next sprint......hence commented for the time being
-#if 0 
-//......................................POROSITY MODEL UPGRADATION......................................//	
+		//......................................POROSITY MODEL UPGRADATION......................................//	
 		//Upgrading the deprecated Soil Mechanics porosity model to Exponential model for user defined lithotypes of BPA1
 		m_model.lithologyManager().porosityModel(lithoId, porModel, porModelPrms);
 		updatedPorModelPrms.clear();
-		modelConverter.computeSingleExpModelParameters(parentLithology, lithologyFlag, porModel, porModelPrms, updatedPorModelPrms);
+		modelConverter.computeSingleExpModelParameters(legacyParentLithoName, lithologyFlag, porModel, porModelPrms, updatedPorModelPrms);
 		m_model.lithologyManager().setPorosityModel(lithoId, porModel, updatedPorModelPrms);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "CompacCoefESA", Utilities::Numerical::IbsNoDataValue);
-		//m_model.setTableValue("LithotypeIoTbl", lithoId, "CompacCoefESA", -9999);//Error ...not in the above linr???
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "CompacCoefESB", Utilities::Numerical::IbsNoDataValue);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "Compaction_Coefficient_SM", Utilities::Numerical::IbsNoDataValue);
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  " << "Upgrading " << "CompacCoefESA, CompacCoefESB and Compaction_Coefficient_SM values to " << Utilities::Numerical::IbsNoDataValue;
-#endif
-//......................................PERMEABILITY MODEL UPGRADATION......................................//	
-      //Upgrading the permeability parameters for system and user defined lithotypes of BPA1
-      m_model.lithologyManager().getPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts);
-      if (lithologyFlag) // user defined lithology
-      {
+		//......................................PERMEABILITY MODEL UPGRADATION......................................//	
+		//Upgrading the permeability parameters for system and user defined lithotypes of BPA1
+		m_model.lithologyManager().getPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts);
+		if (lithologyFlag) // user defined lithology
+		{
          switch (prmModel) {
          case mbapi::LithologyManager::PermSandstone:
          {
@@ -209,9 +198,9 @@ void Prograde::LithologyUpgradeManager::upgrade() {
          default:
             break;
          }
-      }
-      else // Sytem defined Lithology
-      {
+		}
+		else // Sytem defined Lithology
+		{
          modelConverter.upgradePermModelForSysDefLitho(bpa2LithoName, mpPor, mpPerm, numPts);
 		 string permModelName=m_model.tableValueAsString("LithotypeIoTbl", lithoId, "PermMixModel");// get legacy description for lith id 
          m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);
@@ -226,7 +215,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 			 m_model.setTableValue("LithotypeIoTbl", lithoId, "PermAnisotropy", updatedPermAnisotropy);//upgrading the Permeability Anisotropy value
 			 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading PermAnisotropy value from " << legacyPermAnisotropy << " to " << updatedPermAnisotropy;
 		 }
-      }
+		}
 	}
 	
 //......................................UPGRADING LITHOLOGY NAME in stratIoTbl......................................//	

@@ -110,8 +110,9 @@ TEST(LithologyConverter, upgradeLithologyDescription)
 
 	// upgrading descriptions for standardlLithotype
 	userDefinedFlag = 0;
+	legacyDescription = "Std. Sandstone";
 	upgradedDescription = modelConverter.upgradeLithologyDescription(legacyDescription, userDefinedFlag, parentLithology);
-	EXPECT_EQ("User defined lithology based on Std. Sandstone", upgradedDescription);
+	EXPECT_EQ("Std. Sandstone", upgradedDescription);
 
 }
 //Tests to validate the upgradation of audit informations for a particular lithology 
@@ -145,82 +146,74 @@ TEST(LithologyConverter, findParentLithology)
 	Prograde::LithologyConverter modelConverter;
 
 	std::string legacyParentLithoDetails = "BPA REF INFO|Gabbro/Dry basalt|Std. Basalt";
-	std::string parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails);
+	std::string legacyDescription = "Soil Mechanics 40% clay";
+	std::string parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails, legacyDescription, 0);
 	EXPECT_EQ("Gabbro/Dry basalt", parentLithologyName);
 
+	legacyParentLithoDetails = "BPA REF INFO||CLAY"; 
+	legacyDescription = "SM Mudstone 80% Clay";
+	parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails, legacyDescription, 1);
+	EXPECT_EQ("SM.Mudst.60%Clay", parentLithologyName);
+
 	legacyParentLithoDetails = "BPA REF INFO||CLAY";
-	parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails);
+	legacyDescription = "Description not available in the mapping sheet";
+	parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails, legacyDescription, 1);
 	EXPECT_EQ("", parentLithologyName);
 }
 
-//These test cases needs further modifications as the strategy for POROSITY model upgradation has changed which will be taken in the next sprint......hence commented for the time being
-#if 0
-//test to check whether the porosity model parameters are upgraded correctly from Soil Mechanics to Exponential model, if the parent lithology contains the string “sand” 
+//test to validate the upgradation of Soil Mechanics model to Exponential model for custom lithologies whose parent lithology contains Sandstone sub-string 
 TEST(LithologyConverter, upgradePorosityModelForSandLitho)
 {
 	Prograde::LithologyConverter modelConverter;
-	
-	std::string baseLithoType = "BPA REF INFO|Std. Sandstone|Std. Sandstone";
+
+	std::string baseLithoType = "Std. Sandstone";
 	int lithologyFlag = 1;
-	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorSoilMechanics;//porosity model found in the project file
+	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorSoilMechanics;//deprecated porosity model 
 
 	std::vector<double> OriginalPorosityModelParam = { 62, 2 };
 	std::vector<double> updatedPorModelParam;
-	std::vector<double> actualPorModelParameter;
-
-	actualPorModelParameter.push_back(45);
-	actualPorModelParameter.push_back(3.25);
-	actualPorModelParameter.push_back(5);
+	std::vector<double> actualPorModelParameter = { 45,3.25,5 };
 
 	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
-	EXPECT_NEAR(actualPorModelParameter[0], updatedPorModelParam[0], eps);
-	EXPECT_NEAR(actualPorModelParameter[1], updatedPorModelParam[1], eps);
-	EXPECT_NEAR(actualPorModelParameter[2], updatedPorModelParam[2], eps);
-
-	OriginalPorosityModelParam.clear();
-	updatedPorModelParam.clear();
-	actualPorModelParameter.clear();
+	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
+	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
+	EXPECT_EQ(actualPorModelParameter[2], updatedPorModelParam[2]);
 }
 
-//test to check whether the porosity model parameters are upgraded correctly from Soil Mechanics to Exponential model, if the parent lithology contains the string “silt” 
+//test to validate the upgradation of Soil Mechanics model to Exponential model for custom lithologies whose parent lithology contains Siltstone sub-string
 TEST(LithologyConverter, upgradePorosityModelForSiltLitho)
 {
 	Prograde::LithologyConverter modelConverter;
 
-	std::string baseLithoType = "BPA REF INFO|Std. Siltstone|Std. Siltstone";
+	std::string baseLithoType = "Std. Siltstone";
 	int lithologyFlag = 1;
-	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorSoilMechanics;
+	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorSoilMechanics;//Deprecated porosity model
 
 	std::vector<double> OriginalPorosityModelParam = { 62, 2 };
 	std::vector<double> updatedPorModelParam;
-	std::vector<double> actualPorModelParameter;
-
-	actualPorModelParameter.push_back(36);
-	actualPorModelParameter.push_back(5.5);
-	actualPorModelParameter.push_back(4);
+	std::vector<double> actualPorModelParameter = { 35,5.5,2 };
 
 	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
-	EXPECT_NEAR(actualPorModelParameter[0], updatedPorModelParam[0], eps);
-	EXPECT_NEAR(actualPorModelParameter[1], updatedPorModelParam[1], eps);
-	EXPECT_NEAR(actualPorModelParameter[2], updatedPorModelParam[2], eps);
+	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
+	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
+	EXPECT_EQ(actualPorModelParameter[2], updatedPorModelParam[2]);
 	OriginalPorosityModelParam.clear();
 	updatedPorModelParam.clear();
 	actualPorModelParameter.clear();
 
 }
-
-//test to check whether the porosity model parameters are upgraded correctly from Soil Mechanics to Exponential model, if the user defined lithology is based not on "sand" or "silt"
-TEST(LithologyConverter, upgradePorosityModelForOtherLitho)
+//test to validate the upgradation of Soil Mechanics model to Exponential model for custom lithologies whose parent lithologie contains sub-strings “shale” or “mudst
+TEST(LithologyConverter, upgradePorosityModelForMudstoneLitho)
 {
 	Prograde::LithologyConverter modelConverter;
 
-	std::string baseLithoType = "BPA REF INFO|SM.Mudst.50%Clay|SM.Mudst.50%Clay";
+	std::string baseLithoType = "SM.Mudst.50%Clay";
 	int lithologyFlag = 1;
 	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorSoilMechanics;
 
@@ -240,66 +233,143 @@ TEST(LithologyConverter, upgradePorosityModelForOtherLitho)
 	ASSERT_NEAR(actualPorModelParameter[1], updatedPorModelParam[1], eps);
 	ASSERT_NEAR(actualPorModelParameter[2], updatedPorModelParam[2], eps);
 
-	OriginalPorosityModelParam.clear();
-	updatedPorModelParam.clear();
-	actualPorModelParameter.clear();
-
 }
-//test to check whether the porosity model parameters are upgraded correctly, if the lithotype is not a user defined lithology and having the SoilMechanics porosity model
-TEST(LithologyConverter, upgradePorosityModelForStandardLithoWithSoilMechanicsModel)
+//test to validate the upgradation of Soil Mechanics model to Exponential model for custom lithologies whose parent lithologie are carbonate
+TEST(LithologyConverter, upgradePorosityModelForCarbonateLitho)
 {
 	Prograde::LithologyConverter modelConverter;
-	
-	std::string baseLithoType = "BPA REF INFO|Std. Sandstone|Std. Sandstone";
-	int lithologyFlag = 0;
+
+	std::string baseLithoType = "Std.Dolo.Mudstone";
+	int lithologyFlag = 1;
 	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorSoilMechanics;
 
-	std::vector<double> OriginalPorosityModelParam = { 25, 0.2546 };
+	std::vector<double> OriginalPorosityModelParam = { 62, 1.9 };
 	std::vector<double> updatedPorModelParam;
-	std::vector<double> actualPorModelParameter;
-
-	actualPorModelParameter.push_back(25);
-	actualPorModelParameter.push_back(0.2546);
-
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
-
-	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorSoilMechanics, porModel);//Updated the porosity model from SM to Exponential
-	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
-	EXPECT_NEAR(actualPorModelParameter[0], updatedPorModelParam[0], eps);
-	EXPECT_NEAR(actualPorModelParameter[1], updatedPorModelParam[1], eps);
-
-	OriginalPorosityModelParam.clear();
-	updatedPorModelParam.clear();
-	actualPorModelParameter.clear();
-}
-
-// test to check whether the porosity model parameters are upgraded correctly if the lithotype is not a user defined lithology and having the Exponential porosity model
-TEST(LithologyConverter, upgradePorosityModelForStandardLithoWithExpModel)
-{
-	Prograde::LithologyConverter modelConverter;
-
-	std::string baseLithoType = "BPA REF INFO|Std. Sandstone|Std. Sandstone";
-	int lithologyFlag = 0;
-	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorExponential;
-
-	std::vector<double> OriginalPorosityModelParam = { 31, 1.25, 1.5 };
-	std::vector<double> updatedPorModelParam;
-	std::vector<double> actualPorModelParameter;
-
-	actualPorModelParameter.push_back(31);
-	actualPorModelParameter.push_back(1.25);
-	actualPorModelParameter.push_back(1.5);
+	std::vector<double> actualPorModelParameter = { 35,6,3 };
 
 	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
-	EXPECT_NEAR(actualPorModelParameter[0], updatedPorModelParam[0], eps);
-	EXPECT_NEAR(actualPorModelParameter[1], updatedPorModelParam[1], eps);
-	EXPECT_NEAR(actualPorModelParameter[2], updatedPorModelParam[2], eps);
+	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
+	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
+	EXPECT_EQ(actualPorModelParameter[2], updatedPorModelParam[2]);
+
+}
+//test to validate the upgradation of porosity model for custom lithologies which are based on the other parent lithologies for whom mapping is not available
+TEST(LithologyConverter, upgradePorosityModelForUnknownLitho)
+{
+	Prograde::LithologyConverter modelConverter;
+
+	std::string baseLithoType = "Std. Anhydrite";
+	int lithologyFlag = 1;
+	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorSoilMechanics;
+
+	std::vector<double> OriginalPorosityModelParam = { 62, 1.9 };
+	std::vector<double> updatedPorModelParam;
+	std::vector<double> actualPorModelParameter = { 62,1.9 };
+
+	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+
+	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorSoilMechanics, porModel);//Updated the porosity model from SM to Exponential
+	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
+	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
+	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
+}
+
+//test to validate the upgradation of Soil Mechanics model to Exponential model for standard lithologies
+TEST(LithologyConverter, upgradePorosityModelForStandardLithoWithSoilMechanicsModel)
+{
+	Prograde::LithologyConverter modelConverter;
+
+	std::string baseLithoType = "Std. Sandstone";
+	int lithologyFlag = 0;
+	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorSoilMechanics;
+
+	std::vector<double> OriginalPorosityModelParam = { 25, 0.2546 };
+	std::vector<double> updatedPorModelParam;
+	std::vector<double> actualPorModelParameter = { 25,0.2546 };
+
+	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+
+	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorSoilMechanics, porModel);//Updated the porosity model from SM to Exponential
+	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
+	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
+	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
+}
+
+// test to check whether the porosity model parameters are upgraded correctly for standard lithology having the Exponential porosity model
+TEST(LithologyConverter, upgradePorosityModelForStandardLithoWithExpModel)
+{
+	Prograde::LithologyConverter modelConverter;
+
+	std::string baseLithoType = "Std. Sandstone";
+	int lithologyFlag = 0;
+	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorExponential;
+
+	std::vector<double> OriginalPorosityModelParam = { 31, 1.25, 1.5 };//SurfacePor=31, CompCoeffES=1.25, MinPor=1.5
+	std::vector<double> updatedPorModelParam;
+	std::vector<double> actualPorModelParameter = { 31,1.25,1.5 };
+
+	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+
+	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
+	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
+	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
+	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
+	EXPECT_EQ(actualPorModelParameter[2], updatedPorModelParam[2]);
 
 	OriginalPorosityModelParam.clear();
 	updatedPorModelParam.clear();
-	actualPorModelParameter.clear(); 
+	actualPorModelParameter.clear();
+
+	//For exponential model with legacy parameters values outside the allowed range of BPA2..
+	//Not updated in Prograde as all the parameters for Standard lithologies will automatically updated from BPA2 reference catalog
+	OriginalPorosityModelParam = { 100.1, 25.1, 0 };//SurfacePor=100.0, CompCoeffES=25.1, MinPor=0
+
+	actualPorModelParameter = { 100.1,25.1,0 };
+	
+	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+
+	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
+	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
+	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
+	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
+	EXPECT_EQ(actualPorModelParameter[2], updatedPorModelParam[2]);
 }
-#endif
+// test to check whether the porosity model parameters are upgraded correctly for custom lithology having the Exponential porosity model
+TEST(LithologyConverter, upgradePorosityModelForCustomLithoWithExpModel)
+{
+	Prograde::LithologyConverter modelConverter;
+
+	std::string baseLithoType = "Std. Sandstone";
+	int lithologyFlag = 1;
+	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorExponential;
+
+	std::vector<double> OriginalPorosityModelParam = { 31, 1.25, 1.5 };
+	std::vector<double> updatedPorModelParam;
+	std::vector<double> actualPorModelParameter = { 31,1.25,1.5 };
+
+	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+
+	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
+	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
+	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
+	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
+	EXPECT_EQ(actualPorModelParameter[2], updatedPorModelParam[2]);
+
+	OriginalPorosityModelParam.clear();
+	updatedPorModelParam.clear();
+	actualPorModelParameter.clear();
+
+	OriginalPorosityModelParam = { 100.1, 25.1, 0 };
+	actualPorModelParameter = { 100,25.0,0.1 };
+	
+	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+
+	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
+	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
+	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
+	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
+	EXPECT_EQ(actualPorModelParameter[2], updatedPorModelParam[2]);
+}

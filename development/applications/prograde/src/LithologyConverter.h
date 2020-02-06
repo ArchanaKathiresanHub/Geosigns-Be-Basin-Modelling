@@ -32,17 +32,18 @@ namespace Prograde
 		/// @details The standard lithologies of BPA are upgraded using to the new lithologies of BPA2 as per the mapping provided. No upgrade is needed for userDefined lithologies
 		std::string upgradeLithologyName(const std::string &);
 
-		/// @details Upgraded the descriptions of the userDefined lithologies of BPA1 by appending "Based on legacy BPA <Old Parent lithology>" to the original description
-		std::string upgradeLithologyDescription(const std::string &, const int &, const std::string &);
+		/// @brief Upgraded the descriptions of the userDefined lithologies of BPA1 by appending "Based on legacy BPA <Old Parent lithology>" to the original description
+		//@details The maximum length of the lithology description allowed in BPA2 is limited to 1000 characters. If the description exceeds this limit then we are resetting it to 1000 characters only
+		std::string upgradeLithologyDescription(std::string &, const int &, const std::string &);
 
 		/// @details Upgraded the DefinitionDate/LastChangedBy/LastChangedDate
 		void upgradeLithologyAuditInfo(std::string &, std::string &, std::string &, const int &);
 
 		/// @details Find the parent lithology name from the DefinedBy field of LithotypeIoTbl
-		std::string findParentLithology(std::string definedBy);
+		std::string findParentLithology(std::string definedBy, std::string, const int);
 
 		///@details The function computes the necessary model parameters (which are CompactionCoefficient, MinimumMecahnicalPorosity and the SurfacePorosity) used to define the single exponential model porosity model 
-		//std::vector<double> computeSingleExpModelParameters(const std::string, const int, mbapi::LithologyManager::PorosityModel &, std::vector<double> &, std::vector<double> &);
+		void computeSingleExpModelParameters(const std::string, const int, mbapi::LithologyManager::PorosityModel &, std::vector<double> &, std::vector<double> &);
 
       /// @brief Upgrades the permeability model parameters for standard LITHOLOGYs
       void upgradePermModelForSysDefLitho(const std::string &, std::vector<double> &, std::vector<double> &, int &);
