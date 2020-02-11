@@ -324,7 +324,6 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
 
       // and finaly remove the record in lithology table itself
       m_lithIoTbl->deleteRecord( lrec );
-	  //id--;// If we delete the current record then we need to shift the record id back
 	  
    }
    catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
@@ -789,14 +788,14 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
    switch ( porModel )
    {
       case PorExponential:
-         if ( porModelPrms[PhiSurf] < 0 || porModelPrms[PhiSurf] > 100 ){
-            return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
+         if ( porModelPrms[PhiSurf] < 0.1 || porModelPrms[PhiSurf] > 100 ){
+            return reportError( OutOfRangeValue, "Surface porosity value must be in range [0.1:100]" );
          }
-         if ( porModelPrms[CompactionCoef] < 0 || porModelPrms[CompactionCoef] > 50 ){
-            return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
+         if ( porModelPrms[CompactionCoef] < 0 || porModelPrms[CompactionCoef] > 25 ){
+            return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:25]" );
          }
-         if ( porModelPrms[PhiMin] < 0 || porModelPrms[PhiMin] > 100 ){
-            return reportError( OutOfRangeValue, "Minimal porosity value must be in range [0:100]" );
+         if ( porModelPrms[PhiMin] < 0.1 || porModelPrms[PhiMin] > 100 ){
+            return reportError( OutOfRangeValue, "Minimal porosity value must be in range [0.1:100]" );
          }
          if ( porModelPrms[PhiMin] > porModelPrms[PhiSurf] ){
             return reportError( OutOfRangeValue, "Minimal porosity value must be less then surface porosity value" );

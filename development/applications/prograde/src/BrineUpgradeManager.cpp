@@ -18,10 +18,6 @@
 #include "cmbAPI.h"
 #include "FluidManager.h"
 
-//DataAccess
-#include "ProjectHandle.h"
-#include "RunParameters.h"
-
 #include <algorithm>
 
 using namespace mbapi;
