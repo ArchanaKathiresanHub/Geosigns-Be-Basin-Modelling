@@ -57,10 +57,15 @@ void SourceRockTypeNameMappings::setPropertyMaps()
   typeNamesSR = {"Type_I_II_Mesozoic_MarineShale_lit",
                  "Type_I_II_Mesozoic_Marine_Shale_lit"};
   typeNamesSRWithSulphur = {"Type_I_II_Mesozoic_MarineShale_lit_s",
-                           "Type_I_II_Mesozoic_Marine_Shale_lit_s",
-                           "Type_I_II_Cenozoic_Marine_Marl_lit_s"};
+                            "Type_I_II_Mesozoic_Marine_Shale_lit_s"};
   m_typeNamesSR["TypeI_II"] = typeNamesSR;
   m_typeNamesSRWithSulphur["TypeI_II"] = typeNamesSRWithSulphur;
+
+  // TypeIIN
+  typeNamesSR = {};
+  typeNamesSRWithSulphur = {"Type_I_II_Cenozoic_Marine_Marl_lit_s"};
+  m_typeNamesSR["TypeIIN"] = typeNamesSR;
+  m_typeNamesSRWithSulphur["TypeIIN"] = typeNamesSRWithSulphur;
 
   // TypeIIS
   typeNamesSR = {"MesozoicCalcareousShale",
