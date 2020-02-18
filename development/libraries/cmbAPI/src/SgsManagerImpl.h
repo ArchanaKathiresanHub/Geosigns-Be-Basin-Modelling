@@ -66,13 +66,35 @@ namespace mbapi {
 		/// @param[in] newLangmuirVolume langmuir volume in LangmuirAdsorptionCapacityIsothermSetIoTbl table
 		virtual ReturnCode  setLangmuirVolume(sgsID id, double newLangmuirVolume);
 
+		/// @brief Get coefficient A for given ID
+		/// @param[in] id row ID in IrreducibleWaterSaturationIoTbl table
+		/// @param[out] CoefficientA coefficient A in IrreducibleWaterSaturationIoTbl table
+		virtual double getCoefficientA(sgsID id);
+
+		/// @brief Get coefficient B for given ID
+		/// @param[in] id row ID in IrreducibleWaterSaturationIoTbl table
+		/// @param[out] CoefficientB coefficient B in IrreducibleWaterSaturationIoTbl table
+		virtual double getCoefficientB(sgsID id);
+
+		/// @brief Set coefficient A for given ID
+		/// @param[in] id row ID in IrreducibleWaterSaturationIoTbl table
+		/// @param[in] newCoefficientA coefficient A in IrreducibleWaterSaturationIoTbl table
+		virtual ReturnCode  setCoefficientA(sgsID id, double newCoefficientA);
+
+		/// @brief Set coefficient B for given ID
+		/// @param[in] id row ID in IrreducibleWaterSaturationIoTbl table
+		/// @param[in] newCoefficientB coefficient B in IrreducibleWaterSaturationIoTbl table
+		virtual ReturnCode  setCoefficientB(sgsID id, double newCoefficientB);
+
 	private:
 		static const char * s_LangmuirAdsorptionCapacityIsothermSetTableName;   // table name for langmuir adsorption Capacity isotherm table in project file
 		static const char * s_LangmuirNameFieldName;							// name of the field which keeps langmuir name
 		static const char * s_LangmuirTemperatureFieldName;						// name of the field which keeps langmuir temperature name
 		static const char * s_LangmuirPressureFieldName;						// name of the field which keeps langmuir pressure name
-		static const char * s_LangmuirVolumeFieldName;							// name of the field which keeps langmuir volume name	
-
+		static const char * s_LangmuirVolumeFieldName;							// name of the field which keeps langmuir volume name
+		static const char * s_IrreducibleWaterSaturationTableName;				// table name for irreducible water saturation table in project file
+		static const char * s_CoefficientAFieldName;							// name of the field which keeps coefficient A name
+		static const char * s_CoefficientBFieldName;							// name of the field which keeps coefficient B name
 		// Copy constructor is disabled, use the copy operator instead
 		SgsManagerImpl(const SgsManager &);
 

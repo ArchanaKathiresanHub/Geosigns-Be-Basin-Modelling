@@ -61,3 +61,31 @@ TEST(SgsConverter, WhichAdsorptionSimulator)
 	bpa2WhichAdsorptionSimulator = sgsConverter.upgradeWhichAdsorptionSimulator(legacyComputeOTGC);
 	EXPECT_EQ(bpa2WhichAdsorptionSimulator, "OTGCC1AdsorptionSimulator"); 
 }
+
+// If user uses low, medium or high IWS data, no changes required else, user defined IWS data will be converted to low IWS data 
+TEST(SgsConverter, IrreducibleWaterSaturationCoefficients)
+{
+	Prograde::SgsConverter sgsConverter;
+	double legacyCoefficientA, legacyCoefficientB;
+	double bpa2CoefficientA, bpa2CoefficientB;
+	legacyCoefficientA = -0.13;
+	legacyCoefficientB = 0.7;
+	sgsConverter.upgradeIrreducibleWaterSaturationCoefficients(legacyCoefficientA, legacyCoefficientB, bpa2CoefficientA, bpa2CoefficientB);
+	EXPECT_EQ(bpa2CoefficientA, legacyCoefficientA);
+	EXPECT_EQ(bpa2CoefficientB, legacyCoefficientB);
+	legacyCoefficientA = -0.14;
+	legacyCoefficientB = 0.8;
+	sgsConverter.upgradeIrreducibleWaterSaturationCoefficients(legacyCoefficientA, legacyCoefficientB, bpa2CoefficientA, bpa2CoefficientB);
+	EXPECT_EQ(bpa2CoefficientA, legacyCoefficientA);
+	EXPECT_EQ(bpa2CoefficientB, legacyCoefficientB);
+	legacyCoefficientA = -0.15;
+	legacyCoefficientB = 0.9;
+	sgsConverter.upgradeIrreducibleWaterSaturationCoefficients(legacyCoefficientA, legacyCoefficientB, bpa2CoefficientA, bpa2CoefficientB);
+	EXPECT_EQ(bpa2CoefficientA, legacyCoefficientA);
+	EXPECT_EQ(bpa2CoefficientB, legacyCoefficientB);
+	legacyCoefficientA = -0.139;
+	legacyCoefficientB = 0.9;
+	sgsConverter.upgradeIrreducibleWaterSaturationCoefficients(legacyCoefficientA, legacyCoefficientB, bpa2CoefficientA, bpa2CoefficientB);
+	EXPECT_EQ(bpa2CoefficientA, -0.13);
+	EXPECT_EQ(bpa2CoefficientB, 0.7);
+}

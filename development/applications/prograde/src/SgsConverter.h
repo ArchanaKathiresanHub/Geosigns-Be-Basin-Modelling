@@ -29,7 +29,8 @@ namespace Prograde
 		int upgradeAdsorptionTOCDependent(int);
 		std::string upgradeAdsorptionCapacityFunctionName(int, const std::string &);
 		std::string upgradeWhichAdsorptionSimulator(int);
-
+		/// @brief Upgrades irreducible water saturation related fields in IrreducibleWaterSaturationIoTbl
+		void upgradeIrreducibleWaterSaturationCoefficients(const double, const double, double &, double & );
 	};
 }
 

@@ -29,6 +29,9 @@ namespace mbapi
 	const char * SgsManagerImpl::s_LangmuirTemperatureFieldName = "LangmuirTemperature";
 	const char * SgsManagerImpl::s_LangmuirPressureFieldName = "LangmuirPressure";
 	const char * SgsManagerImpl::s_LangmuirVolumeFieldName = "LangmuirVolume";
+	const char * SgsManagerImpl::s_IrreducibleWaterSaturationTableName = "IrreducibleWaterSaturationIoTbl";
+	const char * SgsManagerImpl::s_CoefficientAFieldName = "CoefficientA";
+	const char * SgsManagerImpl::s_CoefficientBFieldName = "CoefficientB";
 
 	// Constructor
 	SgsManagerImpl::SgsManagerImpl()
@@ -209,6 +212,118 @@ namespace mbapi
 				throw Exception(NonexistingID) << "No Langmuir name with such ID: " << id;
 			}
 			rec->setValue(s_LangmuirVolumeFieldName, newLangmuirVolume);
+		}
+		catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+		return NoError;
+	}
+
+	// Get coefficient A for given ID
+	double SgsManagerImpl::getCoefficientA(sgsID id)
+	{
+		if (errorCode() != NoError) resetError();
+		double coeffA;
+		try
+		{
+			// get pointer to the table
+			database::Table * table = m_db->getTable(s_IrreducibleWaterSaturationTableName);
+
+			// if table does not exist - report error
+			if (!table)
+			{
+				throw Exception(NonexistingID) << s_IrreducibleWaterSaturationTableName << " table could not be found in project";
+			}
+
+			database::Record * rec = table->getRecord(static_cast<int>(id));
+			if (!rec)
+			{
+				throw Exception(NonexistingID) << "No Coefficient A with such ID: " << id;
+			}
+			coeffA = rec->getValue<double>(s_CoefficientAFieldName);
+		}
+		catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+		return coeffA;
+	}
+
+	// Get coefficient B for given ID
+	double SgsManagerImpl::getCoefficientB(sgsID id)
+	{
+		if (errorCode() != NoError) resetError();
+		double coeffB;
+		try
+		{
+			// get pointer to the table
+			database::Table * table = m_db->getTable(s_IrreducibleWaterSaturationTableName);
+
+			// if table does not exist - report error
+			if (!table)
+			{
+				throw Exception(NonexistingID) << s_IrreducibleWaterSaturationTableName << " table could not be found in project";
+			}
+
+			database::Record * rec = table->getRecord(static_cast<int>(id));
+			if (!rec)
+			{
+				throw Exception(NonexistingID) << "No Coefficient B with such ID: " << id;
+			}
+			coeffB = rec->getValue<double>(s_CoefficientBFieldName);
+		}
+		catch (const Exception & e) { reportError(e.errorCode(), e.what()); }
+
+		return coeffB;
+	}
+
+	// Set coefficient A for given ID
+	ErrorHandler::ReturnCode SgsManagerImpl::setCoefficientA(sgsID id, double newCoefficientA)
+	{
+		if (errorCode() != NoError) resetError();
+		
+		try
+		{
+			// get pointer to the table
+			database::Table * table = m_db->getTable(s_IrreducibleWaterSaturationTableName);
+
+			// if table does not exist - report error
+			if (!table)
+			{
+				throw Exception(NonexistingID) << s_IrreducibleWaterSaturationTableName << " table could not be found in project";
+			}
+
+			database::Record * rec = table->getRecord(static_cast<int>(id));
+			if (!rec)
+			{
+				throw Exception(NonexistingID) << "No Coefficient A with such ID: " << id;
+			}
+			rec->setValue(s_CoefficientAFieldName, newCoefficientA);
+		}
+		catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+		return NoError;
+	}
+
+	// Set coefficient B for given ID
+	ErrorHandler::ReturnCode SgsManagerImpl::setCoefficientB(sgsID id, double newCoefficientB)
+	{
+		if (errorCode() != NoError) resetError();
+
+		try
+		{
+			// get pointer to the table
+			database::Table * table = m_db->getTable(s_IrreducibleWaterSaturationTableName);
+
+			// if table does not exist - report error
+			if (!table)
+			{
+				throw Exception(NonexistingID) << s_IrreducibleWaterSaturationTableName << " table could not be found in project";
+			}
+
+			database::Record * rec = table->getRecord(static_cast<int>(id));
+			if (!rec)
+			{
+				throw Exception(NonexistingID) << "No Coefficient B with such ID: " << id;
+			}
+			rec->setValue(s_CoefficientBFieldName, newCoefficientB);
 		}
 		catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
 

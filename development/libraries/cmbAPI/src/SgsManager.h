@@ -64,6 +64,26 @@ namespace mbapi {
 		/// @param[in] newLangmuirVolume langmuir volume in LangmuirAdsorptionCapacityIsothermSetIoTbl table
 		virtual ReturnCode setLangmuirVolume(sgsID id, double newLangmuirVolume) = 0;
 
+		/// @brief Get coefficient A for given ID
+		/// @param[in] id row ID in IrreducibleWaterSaturationIoTbl table
+		/// @param[out] CoefficientA coefficient A in IrreducibleWaterSaturationIoTbl table
+		virtual double getCoefficientA(sgsID id)=0;
+
+		/// @brief Get coefficient B for given ID
+		/// @param[in] id row ID in IrreducibleWaterSaturationIoTbl table
+		/// @param[out] CoefficientB coefficient B in IrreducibleWaterSaturationIoTbl table
+		virtual double getCoefficientB(sgsID id)=0;
+
+		/// @brief Set coefficient A for given ID
+		/// @param[in] id row ID in IrreducibleWaterSaturationIoTbl table
+		/// @param[in] newCoefficientA coefficient A in IrreducibleWaterSaturationIoTbl table
+		virtual ReturnCode  setCoefficientA(sgsID id, double newCoefficientA)=0;
+
+		/// @brief Set coefficient B for given ID
+		/// @param[in] id row ID in IrreducibleWaterSaturationIoTbl table
+		/// @param[in] newCoefficientB coefficient B in IrreducibleWaterSaturationIoTbl table
+		virtual ReturnCode  setCoefficientB(sgsID id, double newCoefficientB)=0;
+
 		/// @}		
 
 	protected:

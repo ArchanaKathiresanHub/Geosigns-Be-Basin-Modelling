@@ -44,8 +44,10 @@ void Prograde::SgsUpgradeManager::upgrade() {
 	int legacyApplyAdsorption, legacyAdsorptionTOCDependent, legacyComputeOTGC, bpa2AdsorptionTOCDependent;
 	std::string legacyAdsorptionCapacityFunctionName, bpa2AdsorptionCapacityFunctionName, bpa2WhichAdsorptionSimulator;
 	int isToc = 1;
+	double legacyCoefficientA, legacyCoefficientB, bpa2CoefficientA, bpa2CoefficientB;
 
 	database::Table * sourceRock_table = m_ph->getTable("SourceRockLithoIoTbl");
+	database::Table * iws_table = m_ph->getTable("IrreducibleWaterSaturationIoTbl");
 	for (size_t sourceRockId = 0; sourceRockId < sourceRock_table->size(); ++sourceRockId)
 	{		
 		m_model.sourceRockManager().getAdsoptionList(sourceRockId, legacyApplyAdsorption, legacyAdsorptionTOCDependent, legacyComputeOTGC, legacyAdsorptionCapacityFunctionName);
@@ -117,5 +119,14 @@ void Prograde::SgsUpgradeManager::upgrade() {
 			m_model.sourceRockManager().setWhichAdsorptionSimulator(sourceRockId, bpa2WhichAdsorptionSimulator);
 		}
 		
+	}
+
+	for (size_t iwsId = 0; iwsId < iws_table->size(); ++iwsId)
+	{
+		legacyCoefficientA = m_model.sgsManager().getCoefficientA(iwsId);
+		legacyCoefficientB = m_model.sgsManager().getCoefficientB(iwsId);
+		modelConverter.upgradeIrreducibleWaterSaturationCoefficients(legacyCoefficientA, legacyCoefficientB, bpa2CoefficientA, bpa2CoefficientB);
+		m_model.sgsManager().setCoefficientA(iwsId, bpa2CoefficientA);
+		m_model.sgsManager().setCoefficientB(iwsId, bpa2CoefficientB);
 	}
 }

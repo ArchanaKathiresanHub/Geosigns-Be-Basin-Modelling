@@ -53,4 +53,31 @@ std::string Prograde::SgsConverter::upgradeWhichAdsorptionSimulator(int legacyCo
 		
 	return bpa2WhichAdsorptionSimulator;
 }
+
+void Prograde::SgsConverter::upgradeIrreducibleWaterSaturationCoefficients(const double legacyCoefficientA, const double legacyCoefficientB, double& bpa2CoefficientA, double& bpa2CoefficientB)
+{
+	if ((legacyCoefficientA == -0.13) && (legacyCoefficientB == 0.7))
+	{
+		bpa2CoefficientA = legacyCoefficientA;
+		bpa2CoefficientB = legacyCoefficientB;
+	}
+	else if ((legacyCoefficientA == -0.14) && (legacyCoefficientB == 0.8))
+	{
+		bpa2CoefficientA = legacyCoefficientA;
+		bpa2CoefficientB = legacyCoefficientB;
+	}
+	else if ((legacyCoefficientA == -0.15) && (legacyCoefficientB == 0.9))
+	{
+		bpa2CoefficientA = legacyCoefficientA;
+		bpa2CoefficientB = legacyCoefficientB;
+	}
+	else
+	{
+		bpa2CoefficientA = -0.13;
+		bpa2CoefficientB = 0.7;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "User defined Irreducible water saturation identified, with CoefficientA: "<< legacyCoefficientA << " and CoefficientB: "<< legacyCoefficientB;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Prograded to default low irreducible water saturation CoefficientA: " << bpa2CoefficientA << " and CoefficientB: " << bpa2CoefficientB;		
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Note: BPA2-Basin allows only low, medium or high IWS data";
+	}
+}
 	
