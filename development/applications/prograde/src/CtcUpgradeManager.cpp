@@ -82,7 +82,7 @@ void Prograde::CtcUpgradeManager::upgrade() {
    {
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value of UpperLowerOceanicCrustRatio is not detected";
       
-      m_model.ctcManager().setUpperLowerContinentalCrustRatio(ULOceaCrstRatio);
+      m_model.ctcManager().setUpperLowerOceanicCrustRatio(ULOceaCrstRatio);
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Default value of 1 for UpperLowerOceanicCrustRatio is set";
    }
    else
