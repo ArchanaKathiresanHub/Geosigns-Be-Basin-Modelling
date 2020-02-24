@@ -18,6 +18,8 @@ CalibrationTargetController::CalibrationTargetController(CalibrationTargetTable*
 {
   connect(calibrationTable_, SIGNAL(itemChanged(QTableWidgetItem*)),
           this, SLOT(slotCalibrationTargetCheckBoxStateChanged(QTableWidgetItem*)));
+
+  connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 }
 
 void CalibrationTargetController::slotRefresh()

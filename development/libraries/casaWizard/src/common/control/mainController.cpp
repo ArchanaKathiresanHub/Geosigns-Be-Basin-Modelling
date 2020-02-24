@@ -27,8 +27,6 @@ void MainController::constructWindow(LogReceiver* logReceiver)
 {
   logReceiver_ = logReceiver;
 
-  connect(this, SIGNAL(signalRefresh()), SLOT(slotRefresh()));
-
   connect(&Logger::log(), SIGNAL(logSignal(const QString&)), logReceiver_, SLOT(log(const QString&)));
   connect(scriptRunController_,  SIGNAL(readyReadStandardOutput()), this, SLOT(logMessage()));
   connect(mainWindow().tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(slotTabSwitch(int)));
@@ -47,7 +45,8 @@ void MainController::showFirstTab()
 {
   mainWindow().tabWidget()->setCurrentIndex(0);
   emit signalUpdateTabGUI(0);
-  emit signalRefresh();
+
+  refreshGUI();
 }
 
 void MainController::slotNew()
@@ -106,7 +105,7 @@ void MainController::slotExpertUser(bool isExpertUser)
   scenario().setExpertUser(isExpertUser);
 }
 
-void MainController::slotRefresh()
+void MainController::refreshGUI()
 {
   mainWindow().menu()->setActionExpertUser(scenario().expertUser());
 }

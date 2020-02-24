@@ -28,6 +28,8 @@ InfluentialParameterController::InfluentialParameterController(InfluentialParame
   connect(table_, SIGNAL(changeInfluentialParameter(int, int)), this, SLOT(slotChangeInfluentialParameter(int, int)));
   connect(table_, SIGNAL(popupArguments(const int)),            this, SLOT(slotArgumentsPopup(const int)));
 
+  connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
+
   connect(this, SIGNAL(influentialParametersChanged()), SLOT(slotRefresh()));
 }
 

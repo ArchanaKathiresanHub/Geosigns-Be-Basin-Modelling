@@ -28,6 +28,8 @@ QCDoeOptionController::QCDoeOptionController(QCDoeOptionTable* table,
           this,                             SLOT(slotComboBoxProxyOrderItemChanged(QString)));
   connect(table_->comboBoxKriging(),        SIGNAL(currentTextChanged(QString)),
           this,                             SLOT(slotComboBoxKrigingItemChanged(QString)));
+
+  connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 }
 
 void QCDoeOptionController::updateAfterModification()

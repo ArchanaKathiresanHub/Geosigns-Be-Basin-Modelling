@@ -35,14 +35,6 @@ Controller::Controller() :
   connect(menuBarUA->actionRemoveDoeData(),    SIGNAL(triggered()), this, SLOT(slotPopupRemoveDoeData()));
   connect(menuBarUA->actionRemoveDoeDataAll(), SIGNAL(triggered()), this, SLOT(slotPopupRemoveDoeDataAll()));
 
-  connect(this, SIGNAL(signalProjectOpened()), doeController_, SLOT(slotUpdateIterationDir()));
-
-  connect(this, SIGNAL(signalUpdateTabGUI(int)), doeController_,         SLOT(slotUpdateTabGUI(int)));
-  connect(this, SIGNAL(signalUpdateTabGUI(int)), targetController_,      SLOT(slotUpdateTabGUI(int)));
-  connect(this, SIGNAL(signalUpdateTabGUI(int)), qcController_,          SLOT(slotUpdateTabGUI(int)));
-  connect(this, SIGNAL(signalUpdateTabGUI(int)), mcmcController_,        SLOT(slotUpdateTabGUI(int)));
-  connect(this, SIGNAL(signalUpdateTabGUI(int)), correlationController_, SLOT(slotUpdateTabGUI(int)));
-
   ui_.show();
   constructWindow(new LogDisplayController(ui_.logDisplay(), this));
 }

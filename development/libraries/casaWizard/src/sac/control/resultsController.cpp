@@ -15,6 +15,7 @@
 #include "view/plot/wellScatterPlot.h"
 #include "view/plotOptions.h"
 #include "view/resultsTab.h"
+#include "view/sacTabIDs.h"
 
 #include <QFileDialog>
 #include <QInputDialog>
@@ -53,12 +54,22 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
   connect(resultsTab_->wellScatterPlot(), SIGNAL(selectedWell(int)), this, SLOT(selectedWellFromScatter(int)));
 }
 
-void ResultsController::slotRefresh()
+void ResultsController::refreshGUI()
 {
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
   resultsTab_->updateWellList(ctManager.wells());
   resultsTab_->updateBirdsView(ctManager.activeWells());
   resultsTab_->plotOptions()->setActivePlots(scenario_.activePlots());
+}
+
+void ResultsController::slotUpdateTabGUI(int tabID)
+{
+  if (tabID != static_cast<int>(TabID::Results))
+  {
+    return;
+  }
+
+  refreshGUI();
 }
 
 void ResultsController::updateWell(int wellId)

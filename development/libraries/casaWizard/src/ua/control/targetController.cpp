@@ -32,21 +32,18 @@ TargetController::TargetController(TargetTab* targetTab,
   calibrationTargetController_{new CalibrationTargetController(targetTab_->calibrationTargetTable(), scenario_, this)},
   objectiveFunctionController_{new ObjectiveFunctionController(targetTab_->objectiveFunctionTable(), scenario_.calibrationTargetManager(), this)}
 {
+  connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
+
   connect(targetTab_->pushSelectCalibration(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectCalibrationClicked()));
   connect(targetTab_->lineEditCalibration(),   SIGNAL(textChanged(const QString&)), this, SLOT(slotLineEditCalibrationTextChanged(const QString&)));
-
-  connect(this, SIGNAL(signalRefresh()), calibrationTargetController_, SLOT(slotRefresh()));
-  connect(this, SIGNAL(signalRefresh()), objectiveFunctionController_, SLOT(slotRefresh()));
-  connect(this, SIGNAL(signalRefresh()), depthTargetController_,       SLOT(slotRefresh()));
-  connect(this, SIGNAL(signalRefresh()), surfaceTargetController_,     SLOT(slotRefresh()));
 }
 
-void TargetController::slotRefresh()
+void TargetController::refreshGUI()
 {
   QSignalBlocker blockCalibration{targetTab_->lineEditCalibration()};
   targetTab_->lineEditCalibration()->setText("");
 
-  emit signalRefresh();
+  emit signalRefreshChildWidgets();
 }
 
 void TargetController::slotUpdateTabGUI(int tabID)
@@ -67,7 +64,7 @@ void TargetController::slotUpdateTabGUI(int tabID)
     Logger::log() << "DoE data is not available! Complete DoE stage in DoE tab first." << Logger::endl();
   }
 
-  slotRefresh();
+  refreshGUI();
 }
 
 void TargetController::slotPushSelectCalibrationClicked()
@@ -77,7 +74,7 @@ void TargetController::slotPushSelectCalibrationClicked()
                                                   "",
                                                   "Spreadsheet (*.xlsx)");
   targetTab_->lineEditCalibration()->setText(fileName);
-  emit signalRefresh();
+  emit signalRefreshChildWidgets();
 }
 
 void TargetController::slotLineEditCalibrationTextChanged(const QString& calibrationTargetsFilename)
@@ -85,7 +82,7 @@ void TargetController::slotLineEditCalibrationTextChanged(const QString& calibra
   scenario_.clearWellsAndCalibrationTargets();
 
   calibrationTargetCreator::createFromExcel(scenario_, calibrationTargetsFilename);
-  emit signalRefresh();
+  emit signalRefreshChildWidgets();
 }
 
 }  // namespace casaWizard

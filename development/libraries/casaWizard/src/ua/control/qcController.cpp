@@ -35,13 +35,14 @@ QCController::QCController(QCTab* QCTab,
   scriptRunController_{scriptRunController},
   qcDoeOptionController_{new QCDoeOptionController(QCTab_->qcDoeOptionTable(), casaScenario_, this)}
 {
+  connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
+
   connect(QCTab_->pushButtonQCrunCASA(), SIGNAL(clicked()),
           this,                          SLOT(slotPushButtonQCrunCasaClicked()));
   connect(QCTab_->tableQC(),             SIGNAL(currentItemChanged(QTableWidgetItem*, QTableWidgetItem*)),
           this,                          SLOT(slotTableQCCurrentItemChanged(QTableWidgetItem*, QTableWidgetItem*)));
 
-  connect(this,                   SIGNAL(signalRefresh()), qcDoeOptionController_, SLOT(slotRefresh()));
-  connect(qcDoeOptionController_, SIGNAL(modelChange()),   this,                   SLOT(slotModelChange()));
+  connect(qcDoeOptionController_, SIGNAL(modelChange()), this, SLOT(slotModelChange()));
 }
 
 void QCController::slotModelChange()
@@ -52,15 +53,15 @@ void QCController::slotModelChange()
   casaScenario_.setTargetQCs({});
   casaScenario_.monteCarloDataManager().clear();
 
-  slotRefresh();
+  refreshGUI();
 }
 
-void QCController::slotRefresh()
+void QCController::refreshGUI()
 {
   QCTab_->fillQCtable(casaScenario_.targetQCs());
   QCTab_->updateQCPlot({});
 
-  emit signalRefresh();
+  emit signalRefreshChildWidgets();
 }
 
 void QCController::slotUpdateTabGUI(int tabID)
@@ -91,7 +92,7 @@ void QCController::slotUpdateTabGUI(int tabID)
     }
   }
 
-  slotRefresh();
+  refreshGUI();
 }
 
 void QCController::slotPushButtonQCrunCasaClicked()

@@ -28,6 +28,8 @@ SurfaceTargetController::SurfaceTargetController(SurfaceTargetTable* table,
           this,                                  SLOT(slotTableWidgetSurfaceTargetsItemChanged(QTableWidgetItem*)));
   connect(table_->tableWidgetSurfaceTargets(),   SIGNAL(itemChanged(QTableWidgetItem*)),
           this,                                  SLOT(slotSurfaceTargetCheckBoxStateChanged(QTableWidgetItem*)));
+
+  connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 }
 
 void  SurfaceTargetController::slotPushButtonAddSurfaceTargetClicked()

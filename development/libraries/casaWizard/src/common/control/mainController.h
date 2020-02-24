@@ -36,15 +36,14 @@ private slots:
   void logMessage();
   void slotTabSwitch(int tabIndex);
 
-  void slotRefresh();
 
 signals:
-  void signalRefresh(int tabIndex = 0);
   void signalUpdateTabGUI(int tabIndex);
   void signalResetToStartingStage();
   void signalProjectOpened();
 
 private:
+  void refreshGUI();
   void emitAllRefreshSignals();
   void emitAllEnableDisableSignals(const bool hasLogMessage = true);
 

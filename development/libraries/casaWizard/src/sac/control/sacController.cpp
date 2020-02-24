@@ -16,6 +16,7 @@
 #include "model/script/depthCalibrationScript.h"
 #include "model/script/sacScript.h"
 #include "view/sacTab.h"
+#include "view/sacTabIDs.h"
 #include "view/workspaceDialog.h"
 
 #include <QComboBox>
@@ -61,12 +62,9 @@ SACcontroller::SACcontroller(SACtab* sacTab,
   connect(sacTab_->lineEditCalibration(),   SIGNAL(textChanged(QString)),        this, SLOT(slotLineEditCalibrationTextChanged(QString)));
   connect(sacTab_->comboBoxCluster(),       SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
   connect(sacTab_->comboBoxApplication(),   SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxApplicationChanged(QString)));
-
-  connect(this, SIGNAL(signalRefresh()), calibrationTargetController_, SLOT(slotRefresh()));
-  connect(this, SIGNAL(signalRefresh()), objectiveFunctionController_, SLOT(slotRefresh()));
 }
 
-void SACcontroller::slotRefresh()
+void SACcontroller::refreshGUI()
 {
   QSignalBlocker blocker(sacTab_->lineEditProject3D());
   QSignalBlocker blocker2(sacTab_->lineEditCalibration());
@@ -76,12 +74,22 @@ void SACcontroller::slotRefresh()
   sacTab_->comboBoxApplication()->setCurrentText(casaScenario_.applicationName());
   lithofractionController_->updateLithofractionTable();
 
-  emit signalRefresh();
+  emit signalRefreshChildWidgets();
 }
 
-void SACcontroller::extractAfterOpen()
+void SACcontroller::slotUpdateTabGUI(int tabID)
 {
-    dataExtractionController_->readResults();
+  if (tabID != static_cast<int>(TabID::SAC))
+  {
+    return;
+  }
+
+  refreshGUI();
+}
+
+void SACcontroller::slotExtractAfterOpen()
+{
+  dataExtractionController_->readResults();
 }
 
 void SACcontroller::slotPushButtonSACrunCasaClicked()
@@ -189,7 +197,7 @@ void SACcontroller::slotLineEditCalibrationTextChanged(QString calibrationTarget
 {
   calibrationTargetCreator::createFromExcel(casaScenario_, calibrationTargetsFilename);
 
-  emit signalRefresh();
+  emit signalRefreshChildWidgets();
 
   WellTrajectoryManager& wtManager = casaScenario_.wellTrajectoryManager();
 

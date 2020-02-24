@@ -28,6 +28,8 @@ DepthTargetController::DepthTargetController(DepthTargetTable* table,
           this,                                SLOT(slotTableWidgetDepthTargetsItemChanged(QTableWidgetItem*)));
   connect(table_->tableWidgetDepthTargets(),   SIGNAL(itemChanged(QTableWidgetItem*)),
           this,                                SLOT(slotDepthTargetCheckBoxStateChanged(QTableWidgetItem*)));
+
+  connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 }
 
 void DepthTargetController::slotPushButtonAddDepthTargetClicked()

@@ -44,13 +44,15 @@ private slots:
   void slotComboBoxClusterCurrentTextChanged(QString clusterName);
   void slotComboBoxApplicationChanged(QString application);
 
-  void slotRefresh();
-  void extractAfterOpen();
+  void slotExtractAfterOpen();
+  void slotUpdateTabGUI(int tabID);
 
 signals:
-  void signalRefresh();
+  void signalRefreshChildWidgets();
 
 private:
+  void refreshGUI();
+
   SACtab* sacTab_;
   SACScenario& casaScenario_;
   ScriptRunController& scriptRunController_;

@@ -32,16 +32,17 @@ private slots:
   void slotTableQCCurrentItemChanged(QTableWidgetItem* current, QTableWidgetItem* previous);
 
   void slotModelChange();
-  void slotRefresh();
   void slotUpdateTabGUI(int tabID);
 
 signals:
-  void signalRefresh();
+  void signalRefreshChildWidgets();
 
 private:
   bool writeCasaScriptSA();
 
 private:
+  void refreshGUI();
+
   QCTab* QCTab_;
   UAScenario& casaScenario_;
   ScriptRunController& scriptRunController_;
