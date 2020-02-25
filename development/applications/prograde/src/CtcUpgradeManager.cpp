@@ -111,7 +111,9 @@ void Prograde::CtcUpgradeManager::upgrade() {
    m_model.ctcManager().getBasaltMeltThicknessMap(thicknessMap);
 
    auto timesteps = m_model.ctcManager().getStratigraphyTblLayerID();
-
+   ///////////////////////////////////////////////////////////////////////////////////add check if ctcriftinghistoryiotbl alreasy exists; if it exists then it means that it is a bpa2 scenario then that doesnot need to be changed
+  // if (m_model.tableSize("CTCRiftingHistoryIoTbl") == 0) {}
+	   
    for (auto tsId : timesteps)
    {
       double age;
@@ -138,7 +140,8 @@ void Prograde::CtcUpgradeManager::upgrade() {
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "TectonicFlag field of CTCRiftingHistoryIoTbl is populated for each age as per the algorithm";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "DeltaSL and DeltaSLGrid fields of CTCRiftingHistoryIoTbl are populated for each age";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HBu and HBuGrid fields of CTCRiftingHistoryIoTbl are populated for each age";
-
+   
+   ////////////////////////////////////////////////////////////////////////////////////
    auto GridMapId = m_model.ctcManager().getGridMapID();
    std::string basaltThicknessMap,rdaMap,GridMapIoMapName,GridMapIoTblName,GridMapReferredBy;
    m_model.ctcManager().getBasaltMeltThicknessMap(basaltThicknessMap);
@@ -162,6 +165,8 @@ void Prograde::CtcUpgradeManager::upgrade() {
    }
    m_model.ctcManager().setBasaltMeltThicknessMap("");
    m_model.ctcManager().setResidualDepthAnomalyMap("");
+   m_model.ctcManager().setEndRiftingAgeMap("");
+
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "GridMapIoTbl needs to be updated";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Maps are referred for CTCRiftingHistoryIoTbl";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Maps related to deprecated fields of CTCIoTbl are removed ";

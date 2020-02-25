@@ -254,6 +254,22 @@ namespace mbapi
       return NoError;
    }
 
+   // Set end rifting age map
+   ErrorHandler::ReturnCode CtcManagerImpl::setEndRiftingAgeMap(const std::string & TRIniMapName)
+   {
+	   if (errorCode() != NoError) resetError();
+
+	   try
+	   {
+		   if (!m_ctcIoTbl) { throw Exception(NonexistingID) << s_ctcTableName << " table could not be found in project"; }
+		   database::Record * rec = m_ctcIoTbl->getRecord(static_cast<int>(0));
+		   if (!rec) { throw Exception(NonexistingID) << "No data found in CTC Io table: "; }
+		   rec->setValue<std::string>(s_endRiftingAgeGridFieldName, TRIniMapName);
+	   }
+	   catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+	   return NoError;
+   }
+
    // Get end rifting age scalar value
    ErrorHandler::ReturnCode CtcManagerImpl::getEndRiftingAge(double & RiftingEndAge)
    {
