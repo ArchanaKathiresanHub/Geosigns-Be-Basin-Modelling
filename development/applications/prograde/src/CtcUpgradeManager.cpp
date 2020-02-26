@@ -147,10 +147,7 @@ void Prograde::CtcUpgradeManager::upgrade() {
    m_model.ctcManager().getBasaltMeltThicknessMap(basaltThicknessMap);
    m_model.ctcManager().getResidualDepthAnomalyMap(rdaMap);
    GridMapIoTblName = "CTCRiftingHistoryIoTbl";
-   int i = 0;
-   for (auto tsId : GridMapId)
-   {
-      
+	  for(int tsId=0; tsId < GridMapId.size(); tsId ++){
       m_model.ctcManager().getGridMapIoTblMapName(tsId, GridMapIoMapName);
       m_model.ctcManager().getGridMapTablename(tsId, GridMapReferredBy);
       if (basaltThicknessMap == GridMapIoMapName || rdaMap== GridMapIoMapName)
@@ -159,9 +156,9 @@ void Prograde::CtcUpgradeManager::upgrade() {
       }
       if (GridMapIoMapName != basaltThicknessMap && GridMapIoMapName != rdaMap && GridMapReferredBy == "CTCIoTbl")
       {
-         m_model.removeRecordFromTable("GridMapIoTbl", i);
-      }
-      i++;
+         m_model.removeRecordFromTable("GridMapIoTbl", tsId);
+		 tsId--;
+      } 
    }
    m_model.ctcManager().setBasaltMeltThicknessMap("");
    m_model.ctcManager().setResidualDepthAnomalyMap("");
