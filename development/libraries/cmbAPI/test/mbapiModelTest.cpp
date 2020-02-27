@@ -1826,6 +1826,9 @@ TEST_F(mbapiModelTest, CtcManager)
 
    ctcMan.getEndRiftingAgeMap(MapName);
    EXPECT_EQ("TRIni@0", MapName);
+   ctcMan.setEndRiftingAgeMap("EndRifting_Map_New");
+   ctcMan.getEndRiftingAgeMap(MapName);
+   EXPECT_EQ("EndRifting_Map_New", MapName);
    ctcMan.getEndRiftingAge(age);
    EXPECT_NEAR(120.0, age, eps);
 
