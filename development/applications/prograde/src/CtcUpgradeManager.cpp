@@ -111,9 +111,8 @@ void Prograde::CtcUpgradeManager::upgrade() {
    m_model.ctcManager().getBasaltMeltThicknessMap(thicknessMap);
 
    auto timesteps = m_model.ctcManager().getStratigraphyTblLayerID();
-   ///////////////////////////////////////////////////////////////////////////////////add check if ctcriftinghistoryiotbl alreasy exists; if it exists then it means that it is a bpa2 scenario then that doesnot need to be changed
-  // if (m_model.tableSize("CTCRiftingHistoryIoTbl") == 0) {}
-	   
+  
+   m_model.clearTable("CTCRiftingHistoryIoTbl");
    for (auto tsId : timesteps)
    {
       double age;
@@ -135,13 +134,13 @@ void Prograde::CtcUpgradeManager::upgrade() {
       }
      
    }
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CTCRiftingHistoryIoTbl is cleared";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CTCRiftingHistoryIoTbl is created";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Age field of CTCRiftingHistoryIoTbl is populated as per the depositional age of the StratIoTbl";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "TectonicFlag field of CTCRiftingHistoryIoTbl is populated for each age as per the algorithm";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "DeltaSL and DeltaSLGrid fields of CTCRiftingHistoryIoTbl are populated for each age";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HBu and HBuGrid fields of CTCRiftingHistoryIoTbl are populated for each age";
    
-   ////////////////////////////////////////////////////////////////////////////////////
    auto GridMapId = m_model.ctcManager().getGridMapID();
    std::string basaltThicknessMap,rdaMap,GridMapIoMapName,GridMapIoTblName,GridMapReferredBy;
    m_model.ctcManager().getBasaltMeltThicknessMap(basaltThicknessMap);
