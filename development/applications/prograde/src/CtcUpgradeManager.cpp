@@ -111,8 +111,11 @@ void Prograde::CtcUpgradeManager::upgrade() {
    m_model.ctcManager().getBasaltMeltThicknessMap(thicknessMap);
 
    auto timesteps = m_model.ctcManager().getStratigraphyTblLayerID();
-  
-   m_model.clearTable("CTCRiftingHistoryIoTbl");
+   if (m_model.tableSize("CTCRiftingHistoryIoTbl")!=0) {
+	   m_model.clearTable("CTCRiftingHistoryIoTbl");
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CTCRiftingHistoryIoTbl is cleared";
+  }
+   
    for (auto tsId : timesteps)
    {
       double age;
@@ -134,7 +137,6 @@ void Prograde::CtcUpgradeManager::upgrade() {
       }
      
    }
-   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CTCRiftingHistoryIoTbl is cleared";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CTCRiftingHistoryIoTbl is created";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Age field of CTCRiftingHistoryIoTbl is populated as per the depositional age of the StratIoTbl";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "TectonicFlag field of CTCRiftingHistoryIoTbl is populated for each age as per the algorithm";
