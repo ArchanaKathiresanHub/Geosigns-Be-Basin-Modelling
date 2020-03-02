@@ -30,11 +30,11 @@ private slots:
   void slotPushSelectCalibrationClicked();
   void slotLineEditCalibrationTextChanged(const QString& calibrationTargetsFilename);
 
-  void slotRefresh();
+  void refreshGUI();
   void slotUpdateTabGUI(int tabID);
 
 signals:
-  void signalRefresh();
+  void signalRefreshChildWidgets();
 
 private:
   TargetTab* targetTab_;

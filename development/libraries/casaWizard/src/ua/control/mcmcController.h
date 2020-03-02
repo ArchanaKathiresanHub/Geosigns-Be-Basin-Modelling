@@ -35,10 +35,11 @@ private slots:
   void slotCheckBoxHistoryPlotModeChanged(const int checkState);
   void slotPushButtonAddOptimalDesignPointClicked();
 
-  void slotRefresh();
   void slotUpdateTabGUI(int tabID);
 
 private:
+  void refreshGUI();
+
   MCMCTab* mcmcTab_;
   UAScenario& casaScenario_;
   ScriptRunController& scriptRunController_;

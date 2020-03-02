@@ -35,9 +35,10 @@ private slots:
   void updateWellFromBirdView(const int lineIndex, const int pointIndex);
   void selectedWellFromScatter(const int wellIndex);
 
-  void slotRefresh();
+  void slotUpdateTabGUI(int tabID);
 
 private:
+  void refreshGUI();
   void updateOptimizedTable();
   void updateWellPlot();
   void updateScatterPlot();

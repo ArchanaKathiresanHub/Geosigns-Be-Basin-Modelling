@@ -32,10 +32,10 @@ public:
 private slots:
   void correlationSelectionItemChanged();
 
-  void slotRefresh();
   void slotUpdateTabGUI(int tabID);
 
 private:
+  void refreshGUI();
   void updateCorrelationPlotLayout();
   void updateCorrelationItem(const int row);
 

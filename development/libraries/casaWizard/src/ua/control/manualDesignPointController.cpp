@@ -22,6 +22,8 @@ ManualDesignPointController::ManualDesignPointController(ManualDesignPointTable*
   manager_{manager},
   headerNames_{}
 {
+  connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
+
   connect(table_->buttonAdd(),    SIGNAL(clicked()), this, SLOT(slotAddButtonClicked()));
   connect(table_->buttonDelete(), SIGNAL(clicked()), this, SLOT(slotDeleteButtonClicked()));
   connect(table_->table(), SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(slotTableItemChanged(QTableWidgetItem*)));

@@ -42,16 +42,16 @@ private slots:
   void slotManualDesignPointsChanged();
   void slotDoeSelectionItemChanged(QTableWidgetItem* item);
 
-  void slotRefresh();
   void slotUpdateDesignPointTable();
   void slotUpdateDoeOptionTable();
   void slotUpdateIterationDir();
   void slotUpdateTabGUI(int tabID);
 
 signals:
-  void signalRefresh();
+  void signalRefreshChildWidgets();
 
 private:
+  void refreshGUI();
   void setDoEstageIncomplete();
 
   DoeTab* doeTab_;

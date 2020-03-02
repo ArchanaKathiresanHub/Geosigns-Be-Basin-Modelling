@@ -17,6 +17,8 @@ ObjectiveFunctionController::ObjectiveFunctionController(ObjectiveFunctionTable*
 {
   connect(objectiveFunctionTable_, SIGNAL(itemChanged(QTableWidgetItem*)),
           this,                    SLOT(slotTableObjectiveFunctionChanged(QTableWidgetItem*)));
+
+  connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 }
 
 void ObjectiveFunctionController::slotRefresh()

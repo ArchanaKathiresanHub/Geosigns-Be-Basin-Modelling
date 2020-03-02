@@ -28,12 +28,14 @@ CorrelationController::CorrelationController(CorrelationTab* correlationTab,
   casaScenario_(casaScenario),
   scriptRunController_{scriptRunController}
 {
+  connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
+
   connect(correlationTab_->tableParameters(), SIGNAL(itemChanged(QTableWidgetItem*)),
           this,
           SLOT(correlationSelectionItemChanged()));
 }
 
-void CorrelationController::slotRefresh()
+void CorrelationController::refreshGUI()
 {
   const InfluentialParameterManager& manager{casaScenario_.influentialParameterManager()};
 
@@ -63,7 +65,7 @@ void CorrelationController::slotUpdateTabGUI(int tabID)
     Logger::log() << "MCMC data is not available! Complete MCMC data creation stage in MCMC tab first." << Logger::endl();
   }
 
-  slotRefresh();
+  refreshGUI();
 }
 
 void CorrelationController::updateCorrelationPlotLayout()

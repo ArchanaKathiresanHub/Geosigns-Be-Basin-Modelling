@@ -41,6 +41,8 @@ MCMCController::MCMCController(MCMCTab* mcmcTab,
   casaScenario_{casaScenario},
   scriptRunController_{scriptRunController}
 {
+  connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
+
   connect(mcmcTab_->pushButtonUArunCASA(),             SIGNAL(clicked()),            this, SLOT(slotPushButtonMCMCrunCasaClicked()));
   connect(mcmcTab_->tablePredictionTargets(),          SIGNAL(cellClicked(int,int)), this, SLOT(slotTablePredictionTargetClicked(int, int)));
   connect(mcmcTab_->pushButtonExportOptimalCase(),     SIGNAL(clicked()),            this, SLOT(slotPushButtonExportOptimalCasesClicked()));
@@ -50,7 +52,7 @@ MCMCController::MCMCController(MCMCTab* mcmcTab,
   connect(mcmcTab_->checkBoxHistoryPlotsMode(),        SIGNAL(stateChanged(int)),    this, SLOT(slotCheckBoxHistoryPlotModeChanged(int)));
 }
 
-void MCMCController::slotRefresh()
+void MCMCController::refreshGUI()
 {
   const PredictionTargetManager& predictionTargetManager = casaScenario_.predictionTargetManager();
   const MonteCarloDataManager& monteCarloData = casaScenario_.monteCarloDataManager();
@@ -89,7 +91,7 @@ void MCMCController::slotUpdateTabGUI(int tabID)
     Logger::log() << "MCMC data creation stage is not completed! Run MCMC to complete it." << Logger::endl();
   }
 
-  slotRefresh();
+  refreshGUI();
 }
 
 void MCMCController::slotPushButtonMCMCrunCasaClicked()

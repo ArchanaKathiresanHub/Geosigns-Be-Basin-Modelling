@@ -52,6 +52,9 @@ DoEcontroller::DoEcontroller(DoeTab* doeTab,
 
   slotUpdateDoeOptionTable();
 
+  connect(parent, SIGNAL(signalProjectOpened()),   this, SLOT(slotUpdateIterationDir()));
+  connect(parent, SIGNAL(signalUpdateTabGUI(int)), this, SLOT(slotUpdateTabGUI(int)));
+
   connect(doeTab_->pushButtonDoeRunCASA(),    SIGNAL(clicked()),                          this, SLOT(slotPushButtonDoErunCasaClicked()));
   connect(doeTab_->pushButtonRunAddedCases(), SIGNAL(clicked()),                          this, SLOT(slotPushButtonRunAddedCasesClicked()));
   connect(doeTab_->pushSelectProject3D(),     SIGNAL(clicked()),                          this, SLOT(slotPushSelectProject3dClicked()));
@@ -66,9 +69,6 @@ DoEcontroller::DoEcontroller(DoeTab* doeTab,
   connect(influentialParameterController_,    SIGNAL(removeInfluentialParameter(int)),
           manualDesignPointController_,       SLOT(removeParameter(int)));
   connect(manualDesignPointController_,       SIGNAL(designPointsChanged()),              this, SLOT(slotManualDesignPointsChanged()));
-
-  connect(this, SIGNAL(signalRefresh()), influentialParameterController_, SLOT(slotRefresh()));
-  connect(this, SIGNAL(signalRefresh()), manualDesignPointController_,    SLOT(slotRefresh()));
 }
 
 void DoEcontroller::slotUpdateIterationDir()
@@ -106,10 +106,10 @@ void DoEcontroller::slotUpdateTabGUI(int tabID)
     Logger::log() << "DoE stage is not completed! Run CASA to complete it." << Logger::endl();
   }
 
-  slotRefresh();
+  refreshGUI();
 }
 
-void DoEcontroller::slotRefresh()
+void DoEcontroller::refreshGUI()
 {
   QSignalBlocker blockerProject3d(doeTab_->lineEditProject3D());
   doeTab_->lineEditProject3D()->setText(casaScenario_.project3dPath());
@@ -126,7 +126,7 @@ void DoEcontroller::slotRefresh()
   QSignalBlocker blockerDoeOptionTable(doeTab_->doeOptionTable());
   doeTab_->updateDoeOptionTable(casaScenario_.doeOptions(), casaScenario_.isDoeOptionSelected());
 
-  emit signalRefresh();
+  emit signalRefreshChildWidgets();
 }
 
 void DoEcontroller::slotUpdateDoeOptionTable()
@@ -295,7 +295,7 @@ void DoEcontroller::slotManualDesignPointsChanged()
 {
   setDoEstageIncomplete();
   casaScenario_.setNumberOfManualDesignPoints();
-  slotRefresh();
+  refreshGUI();
 }
 
 void DoEcontroller::slotComboBoxClusterCurrentTextChanged(const QString& clusterName)

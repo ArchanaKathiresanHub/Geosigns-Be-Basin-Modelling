@@ -163,23 +163,32 @@ void Plot::setLegend(const QStringList& legend)
 
 void Plot::updateMinMaxData()
 {
-  if (plotData_.empty() ||
-      plotData_.first().xValues.empty() ||
-      plotData_.first().yValues.empty())
-  {
-    return;
-  }
-
-  double xAxisMinValue = plotData_.first().xValues[0];
-  double xAxisMaxValue = xAxisMinValue;
-  double yAxisMinValue = plotData_.first().yValues[0];
-  double yAxisMaxValue = yAxisMinValue;
+  double xAxisMinValue = 0.0;
+  double xAxisMaxValue = 1.0;
+  double yAxisMinValue = 0.0;
+  double yAxisMaxValue = 1.0;
+  bool first = true;
   for (const PlotData& lineData : plotData_)
   {
-    xAxisMinValue = std::min(xAxisMinValue, *std::min_element(lineData.xValues.constBegin(), lineData.xValues.constEnd()));
-    xAxisMaxValue = std::max(xAxisMaxValue, *std::max_element(lineData.xValues.constBegin(), lineData.xValues.constEnd()));
-    yAxisMinValue = std::min(yAxisMinValue, *std::min_element(lineData.yValues.constBegin(), lineData.yValues.constEnd()));
-    yAxisMaxValue = std::max(yAxisMaxValue, *std::max_element(lineData.yValues.constBegin(), lineData.yValues.constEnd()));
+    if (lineData.xValues.empty() || lineData.yValues.empty())
+    {
+      continue;
+    }
+    else if (first)
+    {
+      xAxisMinValue = *std::min_element(lineData.xValues.constBegin(), lineData.xValues.constEnd());
+      xAxisMaxValue = *std::max_element(lineData.xValues.constBegin(), lineData.xValues.constEnd());
+      yAxisMinValue = *std::min_element(lineData.yValues.constBegin(), lineData.yValues.constEnd());
+      yAxisMaxValue = *std::max_element(lineData.yValues.constBegin(), lineData.yValues.constEnd());
+      first = false;
+    }
+    else
+    {
+      xAxisMinValue = std::min(xAxisMinValue, *std::min_element(lineData.xValues.constBegin(), lineData.xValues.constEnd()));
+      xAxisMaxValue = std::max(xAxisMaxValue, *std::max_element(lineData.xValues.constBegin(), lineData.xValues.constEnd()));
+      yAxisMinValue = std::min(yAxisMinValue, *std::min_element(lineData.yValues.constBegin(), lineData.yValues.constEnd()));
+      yAxisMaxValue = std::max(yAxisMaxValue, *std::max_element(lineData.yValues.constBegin(), lineData.yValues.constEnd()));
+    }
   }
   setMinMaxValues(xAxisMinValue, xAxisMaxValue, yAxisMinValue, yAxisMaxValue);
 }

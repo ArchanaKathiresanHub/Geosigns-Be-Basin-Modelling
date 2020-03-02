@@ -158,12 +158,12 @@ void Prograde::SourceRockConverter::upgradeSourceRockName(const std::string & le
 		"Type_I_II_Cenozoic_Marine_Marl_lit_s" };
 	std::vector<std::string>bpa2SourceRockNameWithSulphur{
 		"Type I - Sulfur - CenoMesozoic Lacustrine Algal Shale (Kinetics)" ,
-		"Type I/II - Sulfur -Mesozoic Marine Shale (Literature)" ,
+		"Type I/II - Sulfur - Mesozoic Marine Shale (Literature)" ,
 		"Type II - Sulfur - Mesozoic Marine Shale (Kinetics)" ,
 		"Type II - Sulfur - Mesozoic Marine Marl (Kinetics)" ,
 		"Type II - Sulfur - Paleozoic Marine Shale (Kinetics)" ,
 		"Type II/III - Sulfur - Mesozoic Terrestrial Humic Coal (Literature)" ,
-		"Type I/II - Sulfur -Cenozoic Marine Marl (literature)" };
+		"Type I/II - Sulfur - Cenozoic Marine Marl (Literature)" };
 
 	if (legacyScVRe05 > 0.0)
 	{
