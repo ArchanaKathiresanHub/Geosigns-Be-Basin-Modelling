@@ -91,7 +91,7 @@ void Prograde::UpgradeManagers::runAll() const{
    managers.emplace_back(std::unique_ptr<Prograde::SourceRockUpgradeManager>(new Prograde::SourceRockUpgradeManager(m_model)));
 
    // Strat Io Table upgradation
-   managers.emplace_back(std::unique_ptr<Prograde::StratigraphyUpgradeManager>(new Prograde::StratigraphyUpgradeManager(m_model)));
+   //managers.emplace_back(std::unique_ptr<Prograde::StratigraphyUpgradeManager>(new Prograde::StratigraphyUpgradeManager(m_model)));
    // Other managers to be added in the same way   
 
    ///2. Run all upgrade managers
