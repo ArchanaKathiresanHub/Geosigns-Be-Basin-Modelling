@@ -37,12 +37,231 @@ Prograde::StratigraphyUpgradeManager::StratigraphyUpgradeManager(Model& model) :
 //------------------------------------------------------------//
 
 void Prograde::StratigraphyUpgradeManager::upgrade() {
+	Prograde::StratigraphyModelConverter modelConverter;
+	
+	std::string name;
+	std::string updated_name;
+
+	//updating the LayerName, SurfaceName and Fluidtype in StratIoTbl
+	database::Table * stratIo_table = m_ph->getTable("StratIoTbl");
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName, LayerName and Fluidtype in StratIoTbl :";
+
+	for (size_t id = 0; id < stratIo_table->size(); ++id) {
+		database::Record * rec = stratIo_table->getRecord(static_cast<int>(id));
+
+		name = rec->getValue<std::string>("SurfaceName");
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceName detected :" << name;
+		rec->setValue<std::string>("SurfaceName", modelConverter.upgradeName(name));
+
+		name = rec->getValue<std::string>("LayerName");
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "LayerName detected :" << name;
+		rec->setValue<std::string>("LayerName", modelConverter.upgradeName(name));
+		
+		name = rec->getValue<std::string>("Fluidtype");
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Fluidtype detected :" << name;
+		if ((name != "Std. Water") && (name != "Std. Sea Water") && (name != "Std. Hyper Saline Water")) { //detecting user-defined fluid
+			rec->setValue<std::string>("Fluidtype", modelConverter.upgradeName(name));
+		}
+		else {
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "System defined fluid detected. No change required";
+		}
+	}
+
+	//updating the LayerName, SurfaceName and Fluidtype in the respective tables
+
+	database::Table * ctcIo_table = m_ph->getTable("CTCIoTbl");
+	if (ctcIo_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in CTCIoTbl :";
+		for (size_t id = 0; id < ctcIo_table->size(); ++id) {
+			database::Record * rec = ctcIo_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("SurfaceName");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceName detected :" << name;
+			rec->setValue<std::string>("SurfaceName", modelConverter.upgradeName(name));
+		}
+	}
+	
+	database::Table * palinspasticio_table = m_ph->getTable("PalinspasticIoTbl");
+	if (palinspasticio_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in PalinspasticIoTbl :";
+		for (size_t id = 0; id < palinspasticio_table->size(); ++id) {
+			database::Record * rec = palinspasticio_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("SurfaceName");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceName detected :" << name;
+			rec->setValue<std::string>("SurfaceName", modelConverter.upgradeName(name));
+		}
+	}
+	/*
+	//////////////////////////////////////////////////NOT SURE///////////////////////////////////
+	database::Table * faultcutio_table = m_ph->getTable("FaultcutIoTbl");
+	if (faultcutio_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in FaultcutIoTbl :";
+		for (size_t id = 0; id < faultcutio_table->size(); ++id) {
+			database::Record * rec = faultcutio_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("SurfaceName");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceName detected :" << name;
+			rec->setValue<std::string>("SurfaceName", modelConverter.upgradeName(name));
+		}
+	}
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	*/
+	database::Table * twowaytimeio_table = m_ph->getTable("TwoWayTimeIoTbl");
+	if (twowaytimeio_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in TwoWayTimeIoTbl :";
+		for (size_t id = 0; id < twowaytimeio_table->size(); ++id) {
+			database::Record * rec = twowaytimeio_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("SurfaceName");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceName detected :" << name;
+			rec->setValue<std::string>("SurfaceName", modelConverter.upgradeName(name));
+		}
+	}
+	
+	database::Table * touchstonemapio_table = m_ph->getTable("TouchstoneMapIoTbl");
+	if (touchstonemapio_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in TouchstoneMapIoTbl :";
+		for (size_t id = 0; id < touchstonemapio_table->size(); ++id) {
+			database::Record * rec = touchstonemapio_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("SurfaceName");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceName detected :" << name;
+			rec->setValue<std::string>("SurfaceName", modelConverter.upgradeName(name));
+		}
+	}
+
+	database::Table * moblaythickio_table = m_ph->getTable("MobLayThicknIoTbl");
+	if (moblaythickio_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in MobLayThicknIoTbl :";
+		for (size_t id = 0; id < moblaythickio_table->size(); ++id) {
+			database::Record * rec = moblaythickio_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("LayerName");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "LayerName detected :" << name;
+			rec->setValue<std::string>("LayerName", modelConverter.upgradeName(name));
+		}
+	}
+	
+	database::Table * allochthonlithointerpio_table = m_ph->getTable("AllochthonLithoInterpIoTbl");
+	if (allochthonlithointerpio_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoInterpIoTbl :";
+		for (size_t id = 0; id < allochthonlithointerpio_table->size(); ++id) {
+			database::Record * rec = allochthonlithointerpio_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("LayerName");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "LayerName detected :" << name;
+			rec->setValue<std::string>("LayerName", modelConverter.upgradeName(name));
+		}
+	}
+
+	database::Table * allochthonlithodistribio_table = m_ph->getTable("AllochthonLithoDistribIoTbl");
+	if (allochthonlithodistribio_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoDistribIoTbl :";
+		for (size_t id = 0; id < allochthonlithodistribio_table->size(); ++id) {
+			database::Record * rec = allochthonlithodistribio_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("LayerName");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "LayerName detected :" << name;
+			rec->setValue<std::string>("LayerName", modelConverter.upgradeName(name));
+		}
+	}
+
+	database::Table * allochthonlithoio_table = m_ph->getTable("AllochthonLithoIoTbl");
+	if (allochthonlithoio_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoIoTbl :";
+		for (size_t id = 0; id < allochthonlithoio_table->size(); ++id) {
+			database::Record * rec = allochthonlithoio_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("LayerName");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "LayerName detected :" << name;
+			rec->setValue<std::string>("LayerName", modelConverter.upgradeName(name));
+		}
+	}
+
+	database::Table * sourcerocklithoio_table = m_ph->getTable("SourceRockLithoIoTbl");
+	if (sourcerocklithoio_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in SourceRockLithoIoTbl :";
+		for (size_t id = 0; id < sourcerocklithoio_table->size(); ++id) {
+			database::Record * rec = sourcerocklithoio_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("LayerName");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "LayerName detected :" << name;
+			rec->setValue<std::string>("LayerName", modelConverter.upgradeName(name));
+		}
+	}
+
+	database::Table * fluidtypeio_table = m_ph->getTable("FluidtypeIoTbl");
+	if (fluidtypeio_table->size() != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the Fluidtype in FluidtypeIoTbl :";
+		for (size_t id = 0; id < fluidtypeio_table->size(); ++id) {
+			database::Record * rec = fluidtypeio_table->getRecord(static_cast<int>(id));
+			name = rec->getValue<std::string>("Fluidtype");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Fluidtype detected :" << name;
+			if ((name != "Std. Water") && (name != "Std. Sea Water") && (name != "Std. Hyper Saline Water")) { //detecting user-defined fluid
+				rec->setValue<std::string>("Fluidtype", modelConverter.upgradeName(name));
+			}
+			else {
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "System defined fluid detected. No change required";
+			}
+		}
+	}
+
+	//Updating the StratioTbl for DepoAge,
+	database::Table * stratIo_Table = m_ph->getTable("StratIoTbl");
+
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the StratIoTbl for DepoAge, MixModel, Depth & Thickness and ChemicalCompaction :";
+	unsigned num = 0;
+	for (size_t id = 0; id < stratIo_Table->size(); ++id) {
+		database::Record * rec = stratIo_Table->getRecord(static_cast<int>(id));
+		name = rec->getValue<std::string>("SurfaceName");
+		//////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////
+		double age = rec->getValue<double>("DepoAge");
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Deposition age for the surface "<<name<<" is : "<<age;
+
+		if (age > 999) {
+			rec->setValue<double>("DepoAge",999);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Deposition age exceeds the limit (0-999). So, the age is changed to 999";
+			num++;
+		}
+		else {
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Deposition age lies within the limit (0-999). No change required";
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	//failing the scenario if more than one surfaces exceed the age limit (0-900)
+	if (num > 1) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "More than one surfaces are crossing the age limits; Scenario Rejected";
+		exit(100);
+	}
 
 
 

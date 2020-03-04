@@ -20,12 +20,17 @@ using namespace mbapi;
 std::string Prograde::StratigraphyModelConverter::upgradeName(const std::string &originalName)
 {
 	std::string updatedName;
-	for (unsigned i = 0; i < originalName.size(); i++) {
-		if ((originalName[i] >= 48 && originalName[i] <= 57) || (originalName[i] == 32) || (originalName[i] >= 65 && originalName[i] <= 90) || (originalName[i] >= 97 && originalName[i] <= 122) || (originalName[i] == 0)) {
+	for (unsigned i = 0; i < originalName.size(); i++) { //ASCII characters
+		if ((originalName[i] >= 48 && originalName[i] <= 57) || (originalName[i] == 32) || (originalName[i] >= 65 && originalName[i] <= 90) || (originalName[i] >= 97 && originalName[i] <= 122) || (originalName[i] == 0) || (originalName[i] == 95)) {
 			updatedName.push_back(originalName[i]);
 		}
 	}
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << originalName << " is changed to " << updatedName;
+	if (originalName.compare(updatedName) != 0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << originalName << " is changed to " << updatedName;
+	}
+	else {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "No change required";
+	}
 	return updatedName;
 }
 
