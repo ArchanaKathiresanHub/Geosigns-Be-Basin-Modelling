@@ -34,6 +34,24 @@ std::string Prograde::StratigraphyModelConverter::upgradeName(const std::string 
 	return updatedName;
 }
 
+double Prograde::StratigraphyModelConverter::upgradeDepthThickness(const double & originalVal)
+{
+	double updatedVal = originalVal;
+	if (updatedVal>6380000) {
+		updatedVal = 6380000;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value exceeds the upper limit of 6380000. Hence, trimmed to 6380000";
+		return updatedVal;
+	}
+	else if(updatedVal < -6380000){
+		updatedVal = -6380000;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value subceeds the lower limit of -6380000. Hence, trimmed to -6380000";
+		return updatedVal;
+	}
+	
+	else return originalVal;
+	
+}
+
 
 /*
 int Prograde::BrineModelConverter::upgradeUserDefined

@@ -200,15 +200,19 @@ void Prograde::StratigraphyUpgradeManager::upgrade() {
 	//Updating the StratioTbl for DepoAge,
 	database::Table * stratIo_Table = m_ph->getTable("StratIoTbl");
 
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the StratIoTbl for DepoAge, MixModel, Depth & Thickness and ChemicalCompaction :";
+
 	unsigned num = 0;
 	for (size_t id = 0; id < stratIo_Table->size(); ++id) {
 		database::Record * rec = stratIo_Table->getRecord(static_cast<int>(id));
 		name = rec->getValue<std::string>("SurfaceName");
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the Surface " << name << " in StratIoTbl for Depth & Thickness, MixModel, ChemicalCompaction and DepoAge :";
 		//////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
+		double depth = rec->getValue<double>("Depth");
+		double thickness = rec->getValue<double>("Thickness");
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Depth value for the surface " << name << " is : " << depth;
+		rec->setValue<double>("Depth", modelConverter.upgradeDepthThickness(depth));
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Thickness value for the surface " << name << " is : " << thickness;
+		rec->setValue<double>("Thickness", modelConverter.upgradeDepthThickness(thickness));
 
 
 
@@ -238,11 +242,8 @@ void Prograde::StratigraphyUpgradeManager::upgrade() {
 
 		if (age > 999) {
 			rec->setValue<double>("DepoAge",999);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Deposition age exceeds the limit (0-999). So, the age is changed to 999";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Deposition age exceeds the limit (0-999). So, the value is changed to 999";
 			num++;
-		}
-		else {
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Deposition age lies within the limit (0-999). No change required";
 		}
 	}
 
@@ -260,7 +261,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade() {
 	//failing the scenario if more than one surfaces exceed the age limit (0-900)
 	if (num > 1) {
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "More than one surfaces are crossing the age limits; Scenario Rejected";
-		exit(100);
+		//exit(200);
 	}
 
 

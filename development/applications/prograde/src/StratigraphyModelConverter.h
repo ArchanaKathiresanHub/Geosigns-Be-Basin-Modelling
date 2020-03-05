@@ -29,6 +29,7 @@ namespace Prograde
 
 
 		std::string upgradeName(const std::string &);
+		double upgradeDepthThickness(const double &);
 		/*
 		/// @brief Upgrades the deprecated standard brines
 		/// @details The fluid user defined flags are upgraded using upgradeUserDefined and fluid descriptions are upgraded using upgradeDescription
