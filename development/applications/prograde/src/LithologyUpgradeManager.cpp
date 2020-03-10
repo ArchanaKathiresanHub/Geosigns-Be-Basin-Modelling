@@ -45,7 +45,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 
 	size_t table_size1 = litho_table->size();
 	
-	//Deleting the lithotypes ("Astheno. Mantle" and "Std. Basalt") if they are not referred in the StratIoTbl. Also clearing the reference from LitThCondIoTbl and LitHeatCapIoTbl
+	//Deleting the litholytes ("Astheno. Mantle" and "Std. Basalt") if they are not referred in the StratIoTbl. Also clearing the reference from LitThCondIoTbl and LitHeatCapIoTbl
 	for (size_t LithId = 0; LithId < litho_table->size(); ++LithId)
 	{
 		
@@ -68,7 +68,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		}
 	}
 
-	int lithologyFlag, numPts;
+	int lithologyFlag;
 	std::string parentLithologyDetails, legacyParentLithoName, bpa2ParentLithoName, legacyDefinitionDate, legacyLastChangedBy, legacyLastChangedDate, permModelName;
 	std::string legacyLithoTypeName, bpa2LithoName, legacyLithoDescription, updatedDescription;
 	mbapi::LithologyManager::PorosityModel porModel; // porosity calculation model
@@ -76,8 +76,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	mbapi::LithologyManager::PermeabilityModel prmModel; // permeability calculation model
 	std::vector<double> mpPor;     // for multi-point perm. model the porosity values vector
 	std::vector<double> mpPerm;    // for multi-point perm. model the log. of perm values vector
-   std::double_t litPropValue;
-   std::string lithoDescription;  //Lithology description
+	int numPts;
 	for (size_t lithoId = 0; lithoId < litho_table->size(); ++lithoId)
 	{
 		m_model.lithologyManager().getUserDefinedFlagForLithology(lithoId, lithologyFlag);
@@ -109,7 +108,6 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 			}
 			
 		}
-
 		//This is added just to check the legacy parent litho names. It further needs to be updated to the corresponding BPA2 litholigy Name
 		bpa2ParentLithoName = modelConverter.upgradeLithologyName(legacyParentLithoName); 
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "DefinedBy", bpa2ParentLithoName);
@@ -118,57 +116,6 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		//Checking and updating the Lithology description
 		updatedDescription = modelConverter.upgradeLithologyDescription(legacyLithoDescription, lithologyFlag, legacyParentLithoName);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "Description", updatedDescription);//Upgrading the description in LithotypeIoTbl
-
-      //Check and update lithotype property values are in proposed range in LithotypeIoTbl field
-      //Density
-      litPropValue = m_model.lithologyManager().getLitPropDensity(lithoId);
-      modelConverter.upgradeLitPropDensity(litPropValue);
-      m_model.lithologyManager().setLitPropDensity(lithoId, litPropValue);
-      //Heat Production
-      litPropValue = m_model.lithologyManager().getLitPropHeatProduction(lithoId);
-      modelConverter.upgradeLitPropHeatProduction(litPropValue);
-      m_model.lithologyManager().setLitPropHeatProduction(lithoId, litPropValue);
-      //Thermal Conductivity
-      litPropValue = m_model.lithologyManager().getLitPropThrConductivity(lithoId);
-      modelConverter.upgradeLitPropThrConductivity(litPropValue);
-      m_model.lithologyManager().setLitPropThrConductivity(lithoId, litPropValue);
-      //Thermal Conductivity Anistropy
-      litPropValue = m_model.lithologyManager().getLitPropThrCondAnistropy(lithoId);
-      modelConverter.upgradeLitPropThrCondAnistropy(litPropValue);
-      m_model.lithologyManager().setLitPropThrCondAnistropy(lithoId, litPropValue);
-      //Permeability Anistropy
-      litPropValue = m_model.lithologyManager().getLitPropPermAnistropy(lithoId);
-      modelConverter.upgradeLitPropPermAnistropy(litPropValue);
-      m_model.lithologyManager().setLitPropPermAnistropy(lithoId, litPropValue);
-      //Seismic Velocity
-      litPropValue = m_model.lithologyManager().getLitPropSeisVelocity(lithoId);
-      modelConverter.upgradeLitPropSeisVelocity(litPropValue);
-      m_model.lithologyManager().setLitPropSeisVelocity(lithoId, litPropValue);
-      //Seismic Velocity Exponent
-      litPropValue = m_model.lithologyManager().getLitPropSeisVeloExponent(lithoId);
-      modelConverter.upgradeLitPropSeisVeloExponent(litPropValue);
-      m_model.lithologyManager().setLitPropSeisVeloExponent(lithoId, litPropValue);
-      //Entry Pressure Coefficient 1
-      litPropValue = m_model.lithologyManager().getLitPropEntryPresCoeff1(lithoId);
-      modelConverter.upgradeLitPropEntryPresCoeff1(litPropValue);
-      m_model.lithologyManager().setLitPropEntryPresCoeff1(lithoId, litPropValue);
-      //Entry Pressure Coefficient 2
-      litPropValue = m_model.lithologyManager().getLitPropEntryPresCoeff2(lithoId);
-      modelConverter.upgradeLitPropEntryPresCoeff2(litPropValue);
-      m_model.lithologyManager().setLitPropEntryPresCoeff2(lithoId, litPropValue);
-      //Hydraulic Fracturing
-      litPropValue = m_model.lithologyManager().getLitPropHydFracturing(lithoId);
-      modelConverter.upgradeLitPropHydFracturing(litPropValue);
-      m_model.lithologyManager().setLitPropHydFracturing(lithoId, litPropValue);
-      //ReferenceSolidViscosity
-      litPropValue = m_model.lithologyManager().getLitPropRefSoldViscosity(lithoId);
-      modelConverter.upgradeLitPropRefSoldViscosity(litPropValue);
-      m_model.lithologyManager().setLitPropRefSoldViscosity(lithoId, litPropValue);
-      //Intrusion Temperature
-      litPropValue = m_model.lithologyManager().getLitPropIntrTemperature(lithoId);
-      modelConverter.upgradeLitPropIntrTemperature(litPropValue);
-      m_model.lithologyManager().setLitPropIntrTemperature(lithoId, litPropValue);
-
 
 		//upgrading the audit details for the lithotypes
 		legacyDefinitionDate = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "DefinitionDate");// get legacy date of definition for the selected lithology 

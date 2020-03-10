@@ -837,46 +837,6 @@ TEST_F(mbapiModelTest, GetSetLithologyDescriptionTest)
    ASSERT_EQ("Standard Sandstone (upgraded to double exponential model)", lthMgr.getDescription(lid));
 }
 
-TEST_F(mbapiModelTest, getSetLithotypeIoTblFieldValueTest)
-{
-   mbapi::Model testModel;
-   double litPropValue;
-
-   // load test project
-   ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile(m_lithologyTestProject));
-
-   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
-
-   // Get a lithology description
-   mbapi::LithologyManager::LithologyID lid = lthMgr.findID("Crust");
-
-   //get and set lithotype property values in LithotypeIoTbl field
-   ASSERT_NEAR(2800, lthMgr.getLitPropDensity(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropDensity(lid, litPropValue));
-   ASSERT_NEAR(0, lthMgr.getLitPropHeatProduction(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropHeatProduction(lid, litPropValue));
-   ASSERT_NEAR(4.09, lthMgr.getLitPropThrConductivity(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropThrConductivity(lid, litPropValue));
-   ASSERT_NEAR(1, lthMgr.getLitPropThrCondAnistropy(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropThrCondAnistropy(lid, litPropValue));
-   ASSERT_NEAR(0, lthMgr.getLitPropPermAnistropy(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropPermAnistropy(lid, litPropValue));
-   ASSERT_NEAR(0, lthMgr.getLitPropSeisVelocity(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropSeisVelocity(lid, litPropValue));
-   ASSERT_NEAR(0, lthMgr.getLitPropSeisVeloExponent(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropSeisVeloExponent(lid, litPropValue));
-   ASSERT_NEAR(0.33, lthMgr.getLitPropEntryPresCoeff1(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropEntryPresCoeff1(lid, litPropValue));
-   ASSERT_NEAR(0.2611, lthMgr.getLitPropEntryPresCoeff2(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropEntryPresCoeff2(lid, litPropValue));
-   ASSERT_NEAR(100, lthMgr.getLitPropHydFracturing(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropHydFracturing(lid, litPropValue));
-   ASSERT_NEAR(1e+17, lthMgr.getLitPropRefSoldViscosity(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropRefSoldViscosity(lid, litPropValue));
-   ASSERT_NEAR(-9999, lthMgr.getLitPropIntrTemperature(lid), eps);
-   ASSERT_EQ(ErrorHandler::NoError, lthMgr.setLitPropIntrTemperature(lid, litPropValue));
-}
-
 TEST_F(mbapiModelTest, MapsManagerCopyMapTest)
 {
    mbapi::Model testModel;

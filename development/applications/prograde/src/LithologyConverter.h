@@ -50,43 +50,6 @@ namespace Prograde
 
       /// @brief Upgrades the permeability model parameters for user defined LITHOLOGYs
       void upgradePermModelForUsrDefLitho(const std::string &, std::vector<double> &, std::vector<double> &, int &);
-
-      /// @brief Check and update Density property value in proposed range
-      void upgradeLitPropDensity(double &);
-
-      /// @brief Check and update Heat Production property value in proposed range
-      void upgradeLitPropHeatProduction(double &);
-
-      /// @brief Check and update Thermal Conductivity property value in proposed range
-      void upgradeLitPropThrConductivity(double &);
-
-      /// @brief Check and update Thermal Conductivity Anistropy property value in proposed range
-      void upgradeLitPropThrCondAnistropy(double &);
-
-      /// @brief Check and update Permeability Anistropy property value in proposed range
-      void upgradeLitPropPermAnistropy(double &);
-
-      /// @brief Check and update Seismic Velocity property value in proposed range
-      void upgradeLitPropSeisVelocity(double &);
-
-      /// @brief Check and update Seismic Velocity Exponent property value in proposed range
-      void upgradeLitPropSeisVeloExponent(double &);
-
-      /// @brief Check and update Entry Pressure Coefficient 1 property value in proposed range
-      void upgradeLitPropEntryPresCoeff1(double &);
-
-      /// @brief Check and update Entry Pressure Coefficient 2 property value in proposed range
-      void upgradeLitPropEntryPresCoeff2(double &);
-
-      /// @brief Check and update Hydraulic Fracturing property value in proposed range
-      void upgradeLitPropHydFracturing(double &);
-
-      /// @brief Check and update ReferenceSolidViscosity property value in proposed range
-      void upgradeLitPropRefSoldViscosity(double &);
-
-      /// @brief Check and update Intrusion Temperature property value in proposed range
-      void upgradeLitPropIntrTemperature(double &);
-
 	};
 }
 
