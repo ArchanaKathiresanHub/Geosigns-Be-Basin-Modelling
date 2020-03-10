@@ -31,7 +31,7 @@ namespace DataAccess {
 namespace Prograde
 {
 	/// @class StratigraphyUpgradeManager is used to upgrade the SurfaceName, LayerName and Fluidtype columns of StratIoTbl by removing the special characters from them as in BPA2. This upgrade manager is also used to upgrade inputs-> the age limits, lithology mixing modes, depth and thickness values and chemical compaction models to inputs of BPA2 mathematical models.
-	/// @brief Legacy projects can have special characters in the names of layers, surfaces and fluidtypes. However, only alphanumeric characters are permitted in BPA2.
+	/// @brief Legacy projects can have special characters in the names of layers, surfaces and fluidtypes. However, only alphanumeric characters are permitted in BPA2. The scalar limits of depth, thicknesses and DepoAge are different in BPA2 than  BPA legacy. Moreover, ChemicalCompaction and Lithology MixModels LayeringIndex have different inputs than BPA legacy
 	class StratigraphyUpgradeManager : public IUpgradeManager {
 
 	public:
@@ -48,11 +48,6 @@ namespace Prograde
 		/// @brief 
 		/// @details
 		void upgrade() final;
-		//std::vector<std::string> StratIoTblReferredFluids();//returns a vector containing the unique fluid type referred in StratIoTbl
-		//std::vector<std::string> ThermCondtypeReferred();//returns a vector containing the unique ThermCondtype referred in FluidtypeIoTbl
-		//void ResetFltThCondIoTbl();
-		//void ResetFltHeatCapIoTbl();
-
 	private:
 
 		mbapi::Model& m_model; ///< The model to upgrade

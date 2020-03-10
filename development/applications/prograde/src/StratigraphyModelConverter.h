@@ -27,28 +27,26 @@ namespace Prograde
 		~StratigraphyModelConverter() = default;
 
 
-
+		/// @brief Upgrades the names of stratigraphy components according to BPA2 standards
+		/// @details In BPA2, only alphanumeric characters are allowed for naming the stratigraphy surfaces, layers and fluidnames so, the special characters are removed
 		std::string upgradeName(const std::string &);
+		
+		///@brief Upgrades the (min,max) limits of depth and thickness values in StratIoTbl according to BPA2 standards
+		///@details In BPA2, the depth and thickness values are set to (-6380000, +6380000) contrary to (-infinity, +infinity) in BPA legacy
 		double upgradeDepthThickness(const double &);
-		/*
-		/// @brief Upgrades the deprecated standard brines
-		/// @details The fluid user defined flags are upgraded using upgradeUserDefined and fluid descriptions are upgraded using upgradeDescription
-		int upgradeUserDefined(const std::string &, const int);
 
-		std::string upgradeDescription(const std::string &, const std::string &);
+		///@brief Upgrades the LayeringIndex in StratIoTbl depending upon the selected MixModel as per BPA2 standards
+		///@details In BPA2, the LayeringIndex is set to -9999 for Homogeneous MixModel contrary to the value 1 in BPA legacy
+		double upgradeLayeringIndex(const std::string &, const double &);
 
-		std::string upgradeHeatCapType(const std::string &, const std::string &, const std::string &);
+		///@brief Checks the ChemicalCompaction value set to 0 for Hydrostatic PTCouplingMode in RunOptionsIoTbl
+		///@details ChemicalCompaction can not be activated if PTCouplingMode is set as Homogeneous
+		int	checkChemicalCompaction(const std::string &, const int &);
 
-		std::string upgradeThermCondType(const std::string &, const std::string &, const std::string &);
+		///@brief Upgrades the ChemicalCompaction in StratIoTbl according to BPA2 standards
+		///@details In BPA2, ChemicalCompaction can not be set individually in each layer, it can be set globally for each layer in RunOptionsIoTbl, so values of ChemicalCompaction in each layer is set as same as in RunOptionsIoTbl
+		int	upgradeChemicalCompaction(const int &, const int &);
 
-		std::string upgradeDefinedBy(const std::string &, const std::string &);
-
-		/// @brief Upgrades the corresponding brine models
-		/// @details The density models are upgraded using upgradeDensityModel and seismic velocity models are upgraded using upgradeSeismicVelocityModel
-		mbapi::FluidManager::FluidDensityModel upgradeDensityModel(const mbapi::FluidManager::FluidDensityModel, const std::string &) const;
-
-		mbapi::FluidManager::CalculationModel upgradeSeismicVelocityModel(const mbapi::FluidManager::CalculationModel, const std::string &) const;
-		*/
 	};
 
 }
