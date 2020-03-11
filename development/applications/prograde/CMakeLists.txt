@@ -234,7 +234,7 @@ add_gtest( NAME ${TARGET_NAME}::SourceRockConverter
 # 16. Stratigraphy upgrade testing
 #
 add_gtest( NAME ${TARGET_NAME}::StratigraphyConverter
-           SOURCES test/StratigraphyModelConverter.cpp src/StratigraphyModelConverter.cpp
+           SOURCES test/StratigraphyModelConverterTest.cpp src/StratigraphyModelConverter.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src             
 		   LIBRARIES cmbapi
