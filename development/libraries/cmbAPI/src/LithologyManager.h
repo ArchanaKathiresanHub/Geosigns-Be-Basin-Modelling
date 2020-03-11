@@ -182,6 +182,138 @@ namespace mbapi {
 	  /// @return NoError on success or NonexistingID on error
 	  virtual ReturnCode getReferenceLithology(const LithologyID id, std::string & referenceLithology) = 0;
 
+     /// @brief get the Density
+     /// @param[in] id lithology ID
+     /// @return Density
+     virtual double  getLitPropDensity(const LithologyID id) = 0;
+
+     /// @brief get the Heat Production
+     /// @param[in] id lithology ID
+     /// @return Heat Production
+     virtual double  getLitPropHeatProduction(const LithologyID id) = 0;
+
+     /// @brief get the Thermal Conductivity
+     /// @param[in] id lithology ID
+     /// @return Thermal Conductivity
+     virtual double  getLitPropThrConductivity(const LithologyID id) = 0;
+
+     /// @brief get the Thermal Conductivity Anistropy
+     /// @param[in] id lithology ID
+     /// @return Thermal Conductivity Anistropy
+     virtual double  getLitPropThrCondAnistropy(const LithologyID id) = 0;
+
+     /// @brief get the Permeability Anistropy
+     /// @param[in] id lithology ID
+     /// @return Permeability Anistropy
+     virtual double  getLitPropPermAnistropy(const LithologyID id) = 0;
+
+     /// @brief get the Seismic Velocity
+     /// @param[in] id lithology ID
+     /// @return Seismic Velocity
+     virtual double  getLitPropSeisVelocity(const LithologyID id) = 0;
+
+     /// @brief get the Seismic Velocity Exponent
+     /// @param[in] id lithology ID
+     /// @return Seismic Velocity Exponent
+     virtual double  getLitPropSeisVeloExponent(const LithologyID id) = 0;
+
+     /// @brief get the Entry Pressure Coefficient 1
+     /// @param[in] id lithology ID
+     /// @return Entry Pressure Coefficient 1
+     virtual double  getLitPropEntryPresCoeff1(const LithologyID id) = 0;
+
+     /// @brief get the Entry Pressure Coefficient 2
+     /// @param[in] id lithology ID
+     /// @return Entry Pressure Coefficient 2
+     virtual double  getLitPropEntryPresCoeff2(const LithologyID id) = 0;
+
+     /// @brief get the Hydraulic Fracturing
+     /// @param[in] id lithology ID
+     /// @return Hydraulic Fracturing
+     virtual double  getLitPropHydFracturing(const LithologyID id) = 0;
+
+     /// @brief get the ReferenceSolidViscosity
+     /// @param[in] id lithology ID
+     /// @return ReferenceSolidViscosity
+     virtual double  getLitPropRefSoldViscosity(const LithologyID id) = 0;
+
+     /// @brief get the Intrusion Temperature
+     /// @param[in] id lithology ID
+     /// @return Intrusion Temperature
+     virtual double  getLitPropIntrTemperature(const LithologyID id) = 0;
+
+     /// @brief set the Density
+     /// @param[in] id lithology ID
+     /// @param[in] value Density 
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropDensity(const LithologyID id, double & value) = 0;
+
+     /// @brief set the Heat Production
+     /// @param[in] id lithology ID
+     /// @param[in] value Heat Production
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropHeatProduction(const LithologyID id, double & value) = 0;
+
+     /// @brief set the Thermal Conductivity
+     /// @param[in] id lithology ID
+     /// @param[in] value Thermal Conductivity
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropThrConductivity(const LithologyID id, double & value) = 0;
+
+     /// @brief set the Thermal Conductivity Anistropy
+     /// @param[in] id lithology ID
+     /// @param[in] value Thermal Conductivity Anistropy
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropThrCondAnistropy(const LithologyID id, double & value) = 0;
+
+     /// @brief set the Permeability Anistropy
+     /// @param[in] id lithology ID
+     /// @param[in] value Permeability Anistropy
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropPermAnistropy(const LithologyID id, double & value) = 0;
+
+     /// @brief set the Seismic Velocity
+     /// @param[in] id lithology ID
+     /// @param[in] value Seismic Velocity
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropSeisVelocity(const LithologyID id, double & value) = 0;
+
+     /// @brief set the Seismic Velocity Exponent
+     /// @param[in] id lithology ID
+     /// @param[in] value Seismic Velocity Exponent
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropSeisVeloExponent(const LithologyID id, double & value) = 0;
+
+     /// @brief set the Entry Pressure Coefficient 1
+     /// @param[in] id lithology ID
+     /// @param[in] value Entry Pressure Coefficient 1
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropEntryPresCoeff1(const LithologyID id, double & value) = 0;
+
+     /// @brief set the Entry Pressure Coefficient 2
+     /// @param[in] id lithology ID
+     /// @param[in] value Entry Pressure Coefficient 2
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropEntryPresCoeff2(const LithologyID id, double & value) = 0;
+
+     /// @brief set the Hydraulic Fracturing
+     /// @param[in] id lithology ID
+     /// @param[in] value Hydraulic Fracturing
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropHydFracturing(const LithologyID id, double & value) = 0;
+
+     /// @brief set the ReferenceSolidViscosity
+     /// @param[in] id lithology ID
+     /// @param[in] value ReferenceSolidViscosity
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropRefSoldViscosity(const LithologyID id, double & value) = 0;
+
+     /// @brief set the Intrusion Temperature
+     /// @param[in] id lithology ID
+     /// @param[in] value Intrusion Temperature
+     // return NoError on success or NonexistingID on error
+     virtual ReturnCode  setLitPropIntrTemperature(const LithologyID id, double & value) = 0;
+
       /// @brief Get lithology description for the given ID
       /// @param[in] id lithology ID
       /// @return lithology description for given lithology ID or empty string in case of error
