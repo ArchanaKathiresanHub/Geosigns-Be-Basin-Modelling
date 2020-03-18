@@ -28,10 +28,7 @@ std::string Prograde::StratigraphyModelConverter::upgradeName(const std::string 
 	if (originalName.compare(updatedName) != 0) {
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << originalName << " is changed to " << updatedName;
 	}
-	else {
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "No change required";
-	}
-	return updatedName;
+		return updatedName;
 }
 
 double Prograde::StratigraphyModelConverter::upgradeDepthThickness(const double & originalVal)
@@ -44,10 +41,6 @@ double Prograde::StratigraphyModelConverter::upgradeDepthThickness(const double 
 	else if(updatedVal < -6380000){
 		updatedVal = -6380000;
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value subceeds the lower limit of -6380000. Hence, trimmed to -6380000";
-	}
-	
-	else {
-		return updatedVal;
 	}
 		return updatedVal;
 	
@@ -75,10 +68,8 @@ int Prograde::StratigraphyModelConverter::checkChemicalCompaction(const std::str
 
 int Prograde::StratigraphyModelConverter::upgradeChemicalCompaction(const int &originalChemicalCompaction_run, const int &originalChemicalCompaction_layer)
 {
-	int updatedChemCompaction_layer = originalChemicalCompaction_layer;
-	if (updatedChemCompaction_layer != originalChemicalCompaction_run) {
-		updatedChemCompaction_layer = originalChemicalCompaction_run;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ChemicalCompaction is changed from " << originalChemicalCompaction_layer << " to " << updatedChemCompaction_layer;
+	if (originalChemicalCompaction_layer != originalChemicalCompaction_run) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ChemicalCompaction is changed from " << originalChemicalCompaction_layer << " to " << originalChemicalCompaction_run;
 	}
-	return updatedChemCompaction_layer;
+	return originalChemicalCompaction_run;
 }

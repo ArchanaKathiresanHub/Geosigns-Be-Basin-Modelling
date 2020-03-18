@@ -76,9 +76,6 @@ void Prograde::StratigraphyUpgradeManager::upgrade() {
 		if ((name != "Std. Water") && (name != "Std. Sea Water") && (name != "Std. Hyper Saline Water")) { //detecting user-defined fluid
 			rec->setValue<std::string>("Fluidtype", modelConverter.upgradeName(name));
 		}
-		else {
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "System defined fluid detected. No change required";
-		}
 	}
 
 	//updating the LayerName, SurfaceName and Fluidtype in the respective tables
@@ -191,9 +188,6 @@ void Prograde::StratigraphyUpgradeManager::upgrade() {
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Fluidtype detected :" << name;
 			if ((name != "Std. Water") && (name != "Std. Sea Water") && (name != "Std. Hyper Saline Water")) { //detecting user-defined fluid
 				rec->setValue<std::string>("Fluidtype", modelConverter.upgradeName(name));
-			}
-			else {
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "System defined fluid detected. No change required";
 			}
 		}
 	}
