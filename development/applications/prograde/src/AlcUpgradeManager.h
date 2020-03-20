@@ -98,9 +98,6 @@ namespace Prograde
          ///    Map naming convention: OceanicCrustThicknessFromLegacyALC_{age}, written to Input.HDF
          void writeOceaCrustalThicknessIoTbl();
 
-         /// @brief Clean the BasaltThicknessIoTbl which is the legacy ALC table
-       //  void cleanBasaltThicknessIoTbl() const;
-
          mbapi::Model& m_model;                                      ///< The model to upgrade
          std::shared_ptr<DataAccess::Interface::ProjectHandle> m_ph; ///< The project handle of the model to upgrade
          const DataAccess::Interface::CrustFormation* m_crust;       ///< The crust formation of the model to upgrade

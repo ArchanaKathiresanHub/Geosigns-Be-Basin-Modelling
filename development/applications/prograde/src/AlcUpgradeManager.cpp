@@ -206,10 +206,3 @@ void Prograde::AlcUpgradeManager::writeOceaCrustalThicknessIoTbl() {
       rowNumber++;
    } );
 }
-
-//------------------------------------------------------------//
-/*
-void Prograde::AlcUpgradeManager::cleanBasaltThicknessIoTbl() const {
-   m_model.clearTable("BasaltThicknessIoTbl");
-}
-*/
