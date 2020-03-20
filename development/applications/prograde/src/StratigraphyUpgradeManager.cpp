@@ -231,16 +231,18 @@ void Prograde::StratigraphyUpgradeManager::upgrade() {
 		double age = rec->getValue<double>("DepoAge");
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Deposition age for the surface "<<name<<" is : "<<age;
 
-		if (age > 999) {
-			rec->setValue<double>("DepoAge",999);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Deposition age exceeds the limit (0-999). So, the value is changed to 999";
+		if (age >= 999) {
+			if (age > 999) {
+				rec->setValue<double>("DepoAge", 999);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Deposition age exceeds the limit (0-999). So, the value is changed to 999";
+			}
 			num++;
 		}
 	}
 
-	//failing the scenario if more than one surfaces exceed the age limit (0-900)
+	//failing the scenario if more than one surfaces exceed the age limit (0-999)
 	if (num > 1) {
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "More than one surfaces are crossing the age limits; Scenario Rejected";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "More than one surfaces are have DepoAge >=999 (maximum limit); Scenario Rejected";
 		exit(200);
 	}
 }
