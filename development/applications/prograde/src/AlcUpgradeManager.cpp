@@ -80,9 +80,6 @@ void Prograde::AlcUpgradeManager::upgrade() {
 		  }
 	  }
 
-
-
-
       Prograde::AlcModelConverter modelConverter;
 
       //upgrading the crust property model to standard conductivity crust
@@ -179,6 +176,14 @@ void Prograde::AlcUpgradeManager::computeBasaltThickness() {
 //------------------------------------------------------------//
 
 void Prograde::AlcUpgradeManager::writeOceaCrustalThicknessIoTbl() {
+	
+	/*
+	database::Table * stratIo_Table = m_ph->getTable("StratIoTbl");
+	size_t id = stratIo_Table->size() - 1;
+	database::Record * rec = stratIo_Table->getRecord(static_cast<int>(id));
+	double const BASEMENT_AGE = rec->getValue<double>("DepoAge");
+	*/
+
    std::size_t rowNumber = 0;
    std::for_each(m_basaltThicknessHistory.begin(), m_basaltThicknessHistory.end(), [this, &rowNumber] (const SmartAbstractSnapshotSmartGridMapPair& pair)
    {
