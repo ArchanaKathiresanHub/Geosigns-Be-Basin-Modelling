@@ -242,7 +242,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade() {
 
 	//failing the scenario if more than one surfaces exceed the age limit (0-999)
 	if (num > 1) {
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "More than one surfaces are have DepoAge >=999 (maximum limit); Scenario Rejected";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "More than one surfaces have DepoAge >=999 (maximum limit); Scenario Rejected";
 		exit(200);
 	}
 }
