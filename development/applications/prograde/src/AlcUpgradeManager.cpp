@@ -66,7 +66,22 @@ void Prograde::AlcUpgradeManager::upgrade() {
       createCrustThickness();
       computeBasaltThickness();
       writeOceaCrustalThicknessIoTbl();
-      cleanBasaltThicknessIoTbl();
+	  m_model.clearTable("BasaltThicknessIoTbl");
+	  m_model.clearTable("CrustIoTbl");
+	  m_model.clearTable("MntlHeatFlowIoTbl");
+
+	  std::string GridMapReferredBy;
+	  auto GridMapId = m_model.ctcManager().getGridMapID();
+	  for (int tsId = 0; tsId < GridMapId.size(); tsId++) {
+		  m_model.ctcManager().getGridMapTablename(tsId, GridMapReferredBy);
+		  if (GridMapReferredBy == "BasaltThicknessIoTbl" || GridMapReferredBy == "CrustIoTbl" || GridMapReferredBy == "MntlHeatFlowIoTbl") {
+			  m_model.removeRecordFromTable("GridMapIoTbl", tsId);
+			  tsId--;
+		  }
+	  }
+
+
+
 
       Prograde::AlcModelConverter modelConverter;
 
@@ -193,9 +208,8 @@ void Prograde::AlcUpgradeManager::writeOceaCrustalThicknessIoTbl() {
 }
 
 //------------------------------------------------------------//
-
+/*
 void Prograde::AlcUpgradeManager::cleanBasaltThicknessIoTbl() const {
    m_model.clearTable("BasaltThicknessIoTbl");
 }
-
-
+*/

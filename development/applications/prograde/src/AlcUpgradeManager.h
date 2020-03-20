@@ -99,7 +99,7 @@ namespace Prograde
          void writeOceaCrustalThicknessIoTbl();
 
          /// @brief Clean the BasaltThicknessIoTbl which is the legacy ALC table
-         void cleanBasaltThicknessIoTbl() const;
+       //  void cleanBasaltThicknessIoTbl() const;
 
          mbapi::Model& m_model;                                      ///< The model to upgrade
          std::shared_ptr<DataAccess::Interface::ProjectHandle> m_ph; ///< The project handle of the model to upgrade
