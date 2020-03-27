@@ -327,7 +327,6 @@ void Prograde::AlcUpgradeManager::writeOceaCrustalThicknessIoTbl(double basement
 		  if (age == timeWithSystemSnapshots[i]) {
 			  if (age > basement_age) return; // return from the function when age reaches basement age
 			  const auto gridMap = const_cast<DataAccess::Interface::GridMap*>(pair.second.get());
-
 #if MERGEOceaToInputsHDF
 			  const auto outputFileName = "Inputs.HDF";
 #else
