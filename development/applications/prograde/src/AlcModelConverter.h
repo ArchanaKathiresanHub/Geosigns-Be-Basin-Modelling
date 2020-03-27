@@ -34,6 +34,12 @@ namespace Prograde
       /// @details The mantle property models are upgraded to high conductivity mantle model
       mbapi::BottomBoundaryManager::MantlePropertyModel upgradeAlcMantlePropModel(const mbapi::BottomBoundaryManager::MantlePropertyModel) const;
 
+	  std::string updateBottomBoundaryModel(std::string &);
+
+	  double updateTopCrustHeatProd(double);
+
+	  double updateInitialLithosphericMantleThickness(double);
+
 
    };
 }
