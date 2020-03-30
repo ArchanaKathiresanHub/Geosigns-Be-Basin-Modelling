@@ -62,7 +62,17 @@ Prograde::AlcUpgradeManager::AlcUpgradeManager( mbapi::Model& model ):
 //------------------------------------------------------------//
 
 void Prograde::AlcUpgradeManager::upgrade() {
+	
+	//get the number of nodes in x and y directions for each map
+	database::Table * projectIo_Table = m_ph->getTable("ProjectIoTbl");
+	size_t i = projectIo_Table->size() - 1;
+	database::Record * re = projectIo_Table->getRecord(static_cast<int>(i));
+	const int numX = re->getValue<int>("NumberX");
+	const int numY = re->getValue<int>("NumberY");
+	
+
    if (isLegacyAlc()) {
+	  
 	  Prograde::AlcModelConverter modelConverter;
 
 	  // Check the DepoAge of basement layer and set it to 999 if it crosses the upper limit of 999; basement age will be used to clip the rows till basement age
@@ -98,13 +108,20 @@ void Prograde::AlcUpgradeManager::upgrade() {
 			  double TopCrustHeatProd = rec->getValue<double>("TopCrustHeatProd");
 			  rec->setValue<double>("TopCrustHeatProd", modelConverter.updateTopCrustHeatProd(TopCrustHeatProd));
 		  }
-		  /*
+		  
 		  else{
-		  
-		  //conditions for maps - TopCrustHeatProdGrid range [0,1000]
-		  
+			  double valInMap = 0;
+			  size_t mapId = m_model.mapsManager().findID(TopCrustHeatProdGrid);
+			  for (size_t i = 0; i < numX; i++) {
+				  for (size_t j = 0; j < numY; j++) {
+					 valInMap= m_model.mapsManager().mapGetValue(mapId, i, j);
+					 if (valInMap > 1000) {
+						 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value in the grid TopCrustHeatProdGrid at node (X,Y) (" << i + 1 << "," << j + 1 << ") is " << valInMap << " which is greater than 1000";
+					 }
+				  }
+			  }		  
 		  }
-		  */
+		  
 		  double LithoMantleThickness = rec->getValue<double>("LithoMantleThickness");
 		  double InitialLthMntThickns = rec->getValue<double>("InitialLthMntThickns");
 		  double FixedCrustThickness = rec->getValue<double>("FixedCrustThickness");
@@ -239,16 +256,6 @@ void Prograde::AlcUpgradeManager::computeBasaltThickness() {
 
 //--------------------------------------------------------------//
 void Prograde::AlcUpgradeManager::writeContCrustalThicknessIoTbl(double basement_age) {
-	/*/
-	const DataAccess::Interface::PaleoFormationPropertyList* paleoFormations = m_crust->getPaleoThicknessHistory();
-	SmartAbstractSnapshotVsSmartGridMap crustThicknesses;
-	std::for_each(paleoFormations->begin(), paleoFormations->end(), [&crustThicknesses](const DataAccess::Interface::PaleoFormationProperty *const it)
-	{
-		const DataAccess::Interface::GridMap* const gridMap = it->getMap(DataAccess::Interface::CrustThinningHistoryInstanceThicknessMap);
-		const DataModel::AbstractSnapshot* const snapshot = it->getSnapshot();
-		crustThicknesses.insert(std::pair<const DataModel::AbstractSnapshot* const, const DataAccess::Interface::GridMap* const>(snapshot, gridMap));
-	});
-	*/
 
 	database::Table * contCrustalThicknessIo_Table = m_ph->getTable("ContCrustalThicknessIoTbl");
 	for (size_t id = 0; id < contCrustalThicknessIo_Table->size(); ++id) {
@@ -259,41 +266,73 @@ void Prograde::AlcUpgradeManager::writeContCrustalThicknessIoTbl(double basement
 			--id;
 		}
 	}
-	/*
-	std::size_t rowNumber = contCrustalThicknessIo_Table->size();
-	std::for_each(crustThicknesses.begin(), crustThicknesses.end(), [this, &rowNumber, basement_age](const SmartAbstractSnapshotSmartGridMapPair& pair)
+	
+	int rowNumber= contCrustalThicknessIo_Table->size();
+	const DataAccess::Interface::PaleoFormationPropertyList* paleoFormations = m_crust->getPaleoThicknessHistory();
+	AbstractSnapshotVsGridMap crustThicknesses;
+	std::for_each(paleoFormations->begin(), paleoFormations->end(), [&crustThicknesses,basement_age,rowNumber,this](const DataAccess::Interface::PaleoFormationProperty *const it)
 	{
-			const auto age = pair.first->getTime();
-			if (age > basement_age) return; // return from the function when age reaches basement age
-			if (age == basement_age) {
-				const auto gridMap = const_cast<DataAccess::Interface::GridMap*>(pair.second.get());
+		const DataAccess::Interface::GridMap* const gridMap = it->getMap(DataAccess::Interface::CrustThinningHistoryInstanceThicknessMap);
+		const DataModel::AbstractSnapshot* const snapshot = it->getSnapshot();
+		crustThicknesses.insert(std::pair<const DataModel::AbstractSnapshot* const, const DataAccess::Interface::GridMap* const>(snapshot, gridMap));
+		double age = snapshot->getTime();
+		if (age > basement_age) return;
+		if (age == basement_age) {
+			double value = 0;
+			std::vector<double>valuesAtAge;
+			for (unsigned int j = gridMap->firstJ(); j <= gridMap->lastJ(); ++j)
+			{
+				for (unsigned int i = gridMap->firstI(); i <= gridMap->lastI(); ++i)
+				{
+					value = gridMap->getValue(i, j);
+					valuesAtAge.push_back(value);
+					if (value > 6300000) {
+						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value in the grid ContCrustalThicknessIoTbl at age " << age << " at node (X,Y) (" << i + 1 << "," << j + 1 << ") is " << value << " which is greater than 6300000";
+					}
+					if (value<0) {
+						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value in the grid ContCrustalThicknessIoTbl at age " << age << " at node (X,Y) (" << i + 1 << "," << j + 1 << ") is " << value << " which is less than 0";
+					}
+				}
+			}
 
+			const auto mapName = "ContCrustThicknessInterpolated" + std::to_string(age);
+			const auto refferedTable = "ContCrustalThicknessIoTbl";
+			const auto ageField = "Age";
+			const auto thicknessField = "Thickness";
+			const auto thicknessGridField = "ThicknessGrid";
+
+			sort(valuesAtAge.begin(), valuesAtAge.end());
+			int count = std::distance(valuesAtAge.begin(), std::unique(valuesAtAge.begin(), valuesAtAge.end()));
+			if (count == 1) {
+				m_model.addRowToTable(refferedTable);
+				m_model.setTableValue(refferedTable, rowNumber, ageField, age);
+				m_model.setTableValue(refferedTable, rowNumber, thicknessField, value);
+				m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, "");
+			}
+			else if (count > 1) {
 #if MERGECrustToInputsHDF
 				const auto outputFileName = "Inputs.HDF";
 #else
 				const auto outputFileName = "Input.HDF";
 #endif      
-				const auto mapName = "ContCrustThicknessInterpolated" + std::to_string(age);
-				const auto refferedTable = "ContCrustalThicknessIoTbl";
-				const auto ageField = "Age";
-				const auto thicknessGridField = "ThicknessGrid";
 
 #if MERGECrustToInputsHDF
 				size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
 #else
 				size_t mapsSequenceNbr = 0;
 #endif
-				
 				m_model.mapsManager().generateMap(refferedTable, mapName, gridMap, mapsSequenceNbr, outputFileName);
-				
 				m_model.addRowToTable(refferedTable);
 				m_model.setTableValue(refferedTable, rowNumber, ageField, age);
 				m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, mapName);
-				
 			}
+			else {
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The grid in ContCrustalThicknessIoTbl at age " << age << "is empty";
+			}
+
+
+		}
 	});
-	*/
-	
 }
 
 
@@ -325,28 +364,64 @@ void Prograde::AlcUpgradeManager::writeOceaCrustalThicknessIoTbl(double basement
 
 	  for (int i = 0; i < timeWithSystemSnapshots.size(); i++) {
 		  if (age == timeWithSystemSnapshots[i]) {
-			  if (age > basement_age) return; // return from the function when age reaches basement age
+			  if (age > basement_age) return;
+			  // return from the function when age reaches basement age
 			  const auto gridMap = const_cast<DataAccess::Interface::GridMap*>(pair.second.get());
-#if MERGEOceaToInputsHDF
-			  const auto outputFileName = "Inputs.HDF";
-#else
-			  const auto outputFileName = "Input.HDF";
-#endif      
+//////////////////////////////////////////////////////////
+			  double value = 0;
+			  std::vector<double>valuesAtAge;
+			  for (unsigned int j = gridMap->firstJ(); j <= gridMap->lastJ(); ++j)
+			  {
+				  for (unsigned int i = gridMap->firstI(); i <= gridMap->lastI(); ++i)
+				  {
+					  value = gridMap->getValue(i, j);
+					  valuesAtAge.push_back(value);
+					  if (value > 500000) {
+						  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value in the grid OceaCrustalThicknessIoTbl at age " << age << " at node (X,Y) (" << i + 1 << "," << j + 1 << ") is " << value << " which is greater than 500000";
+					  }
+					  if (value < 0) {
+						  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value in the grid OceaCrustalThicknessIoTbl at age " << age << " at node (X,Y) (" << i + 1 << "," << j + 1 << ") is " << value << " which is less than 0";
+					  }
+				  }
+			  }
+
 			  const auto mapName = "OceanicCrustThicknessFromLegacyALC_" + std::to_string(age);
 			  const auto refferedTable = "OceaCrustalThicknessIoTbl";
 			  const auto ageField = "Age";
+			  const auto thicknessField = "Thickness";
 			  const auto thicknessGridField = "ThicknessGrid";
+			  
+			  sort(valuesAtAge.begin(), valuesAtAge.end());
+			  int count = std::distance(valuesAtAge.begin(), std::unique(valuesAtAge.begin(), valuesAtAge.end()));
+			  if (count == 1) {
+				  m_model.addRowToTable(refferedTable);
+				  m_model.setTableValue(refferedTable, rowNumber, ageField, age);
+				  m_model.setTableValue(refferedTable, rowNumber, thicknessField, value);
+				  m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, "");
+				  rowNumber++;
+			  }
+			  else if (count > 1) {
 
 #if MERGEOceaToInputsHDF
-			  size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
+				  const auto outputFileName = "Inputs.HDF";
 #else
-			  size_t mapsSequenceNbr = 0;
+				  const auto outputFileName = "Input.HDF";
+#endif      
+				 
+#if MERGEOceaToInputsHDF
+				  size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
+#else
+				  size_t mapsSequenceNbr = 0;
 #endif
-			  m_model.mapsManager().generateMap(refferedTable, mapName, gridMap, mapsSequenceNbr, outputFileName);
-			  m_model.addRowToTable(refferedTable);
-			  m_model.setTableValue(refferedTable, rowNumber, ageField, age);
-			  m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, mapName);
-			  rowNumber++;
+				  m_model.mapsManager().generateMap(refferedTable, mapName, gridMap, mapsSequenceNbr, outputFileName);
+				  m_model.addRowToTable(refferedTable);
+				  m_model.setTableValue(refferedTable, rowNumber, ageField, age);
+				  m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, mapName);
+				  rowNumber++;
+			  }
+			  else {
+				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The grid in OceaCrustalThicknessIoTbl at age " << age << "is empty";
+			  }
 		  }
 	  }
    } );
