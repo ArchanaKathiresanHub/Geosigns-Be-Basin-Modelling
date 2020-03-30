@@ -448,7 +448,7 @@ void Prograde::AlcUpgradeManager::writeContCrustalThicknessIoTbl(double basement
 		}
 		}
 
-	int rowNumber = contCrustalThicknessIo_Table->size();
+	size_t rowNumber = contCrustalThicknessIo_Table->size();
 	const DataAccess::Interface::PaleoFormationPropertyList* paleoFormations = m_crust->getPaleoThicknessHistory();
 	AbstractSnapshotVsGridMap crustThicknesses;
 	std::for_each(paleoFormations->begin(), paleoFormations->end(), [&crustThicknesses, basement_age](const DataAccess::Interface::PaleoFormationProperty *const it)
@@ -459,7 +459,6 @@ void Prograde::AlcUpgradeManager::writeContCrustalThicknessIoTbl(double basement
 	});
 
 
-	std::size_t rowNumber = 0;
 	std::for_each(crustThicknesses.begin(), crustThicknesses.end(), [this, &rowNumber, basement_age](const AbstractSnapshotVsGridMapPair& pair)
 	{
 		const auto age = pair.first->getTime();
@@ -467,7 +466,7 @@ void Prograde::AlcUpgradeManager::writeContCrustalThicknessIoTbl(double basement
 		if (age == basement_age) {
 			double value = 0;
 			std::vector<double>valuesAtAge;
-			const auto gridMap = const_cast<DataAccess::Interface::GridMap*>(pair.second.get());
+			const auto gridMap = const_cast<DataAccess::Interface::GridMap*>(pair.second);
 
 			for (unsigned int j = gridMap->firstJ(); j <= gridMap->lastJ(); ++j)
 			{
