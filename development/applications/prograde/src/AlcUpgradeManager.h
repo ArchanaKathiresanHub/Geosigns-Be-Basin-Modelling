@@ -95,9 +95,12 @@ namespace Prograde
 
          /// @brief Write the OceaCrustalThicknessIoTbl from the basalt thickness history maps stored in m_basaltThicknessHistory
          /// @details Adds basalt thickness maps to Input.HDF and reference them in GridMapIoTbl
-         ///    Map naming convention: OceanicCrustThicknessFromLegacyALC_{age}, written to Input.HDF
+         ///    Map naming convention: OceanicCrustThicknessFromLegacyALC_{age}, written to Inputs.HDF
          void writeOceaCrustalThicknessIoTbl(double);
 
+		 //@brief Modifies the ContCrustalThicknessIoTbl 
+		 //creates a map at basement age by using linear interpolation and adds it to ContCrustalThicknessIoTbl
+		 /// Map naming convention: ContCrustThicknessInterpolated_{age}, written to Inputs.HDF
 		 void writeContCrustalThicknessIoTbl(double);
 
          mbapi::Model& m_model;                                      ///< The model to upgrade
