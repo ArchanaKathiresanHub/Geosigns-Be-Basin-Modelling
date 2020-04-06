@@ -89,6 +89,10 @@ namespace mbapi {
       /// @brief Get Rifting end age grid map
       virtual ReturnCode getEndRiftingAgeMap(std::string & TRIniMapName) = 0;
 
+	  /// @{
+	  /// @brief Set Rifting end age grid map
+	  virtual ReturnCode setEndRiftingAgeMap(const std::string & TRIniMapName) = 0;
+	  
       /// @{
       /// @brief Get Rifting end age scalar value
       virtual ReturnCode getEndRiftingAge(double & RiftingEndAge) = 0;
