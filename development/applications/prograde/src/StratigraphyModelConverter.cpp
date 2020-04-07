@@ -25,9 +25,6 @@ std::string Prograde::StratigraphyModelConverter::upgradeName(const std::string 
 			updatedName.push_back(originalName[i]);
 		}
 	}
-	if (originalName.compare(updatedName) != 0) {
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << originalName << " is changed to " << updatedName;
-	}
 		return updatedName;
 }
 
@@ -36,11 +33,9 @@ double Prograde::StratigraphyModelConverter::upgradeDepthThickness(const double 
 	double updatedVal = originalVal;
 	if (updatedVal>6380000) {
 		updatedVal = 6380000;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value exceeds the upper limit of 6380000. Hence, trimmed to 6380000";
 	}
 	else if(updatedVal < -6380000){
 		updatedVal = -6380000;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value subceeds the lower limit of -6380000. Hence, trimmed to -6380000";
 	}
 		return updatedVal;
 	
@@ -51,7 +46,6 @@ double Prograde::StratigraphyModelConverter::upgradeLayeringIndex(const std::str
 	double updatedLayeringIndex = originalLayeringIndex;
 	if (!mixModel.compare("Homogeneous")){
 		updatedLayeringIndex = -9999;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Layering Index is changed from " << originalLayeringIndex << " to " << updatedLayeringIndex;
 	}
 	return updatedLayeringIndex;
 }
@@ -68,8 +62,5 @@ int Prograde::StratigraphyModelConverter::checkChemicalCompaction(const std::str
 
 int Prograde::StratigraphyModelConverter::upgradeChemicalCompaction(const int &originalChemicalCompaction_run, const int &originalChemicalCompaction_layer)
 {
-	if (originalChemicalCompaction_layer != originalChemicalCompaction_run) {
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ChemicalCompaction is changed from " << originalChemicalCompaction_layer << " to " << originalChemicalCompaction_run;
-	}
 	return originalChemicalCompaction_run;
 }
