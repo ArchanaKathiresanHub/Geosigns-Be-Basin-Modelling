@@ -82,7 +82,7 @@ void Prograde::CtcUpgradeManager::upgrade() {
    {
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value of UpperLowerOceanicCrustRatio is not detected";
       
-      m_model.ctcManager().setUpperLowerContinentalCrustRatio(ULOceaCrstRatio);
+      m_model.ctcManager().setUpperLowerOceanicCrustRatio(ULOceaCrstRatio);
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Default value of 1 for UpperLowerOceanicCrustRatio is set";
    }
    else
@@ -111,7 +111,11 @@ void Prograde::CtcUpgradeManager::upgrade() {
    m_model.ctcManager().getBasaltMeltThicknessMap(thicknessMap);
 
    auto timesteps = m_model.ctcManager().getStratigraphyTblLayerID();
-
+   if (m_model.tableSize("CTCRiftingHistoryIoTbl")!=0) {
+	   m_model.clearTable("CTCRiftingHistoryIoTbl");
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CTCRiftingHistoryIoTbl is cleared";
+  }
+   
    for (auto tsId : timesteps)
    {
       double age;
@@ -138,16 +142,13 @@ void Prograde::CtcUpgradeManager::upgrade() {
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "TectonicFlag field of CTCRiftingHistoryIoTbl is populated for each age as per the algorithm";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "DeltaSL and DeltaSLGrid fields of CTCRiftingHistoryIoTbl are populated for each age";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HBu and HBuGrid fields of CTCRiftingHistoryIoTbl are populated for each age";
-
+   
    auto GridMapId = m_model.ctcManager().getGridMapID();
    std::string basaltThicknessMap,rdaMap,GridMapIoMapName,GridMapIoTblName,GridMapReferredBy;
    m_model.ctcManager().getBasaltMeltThicknessMap(basaltThicknessMap);
    m_model.ctcManager().getResidualDepthAnomalyMap(rdaMap);
    GridMapIoTblName = "CTCRiftingHistoryIoTbl";
-   int i = 0;
-   for (auto tsId : GridMapId)
-   {
-      
+	  for(int tsId=0; tsId < GridMapId.size(); tsId ++){
       m_model.ctcManager().getGridMapIoTblMapName(tsId, GridMapIoMapName);
       m_model.ctcManager().getGridMapTablename(tsId, GridMapReferredBy);
       if (basaltThicknessMap == GridMapIoMapName || rdaMap== GridMapIoMapName)
@@ -156,12 +157,14 @@ void Prograde::CtcUpgradeManager::upgrade() {
       }
       if (GridMapIoMapName != basaltThicknessMap && GridMapIoMapName != rdaMap && GridMapReferredBy == "CTCIoTbl")
       {
-         m_model.removeRecordFromTable("GridMapIoTbl", i);
-      }
-      i++;
+         m_model.removeRecordFromTable("GridMapIoTbl", tsId);
+		 tsId--;
+      } 
    }
    m_model.ctcManager().setBasaltMeltThicknessMap("");
    m_model.ctcManager().setResidualDepthAnomalyMap("");
+   m_model.ctcManager().setEndRiftingAgeMap("");
+
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "GridMapIoTbl needs to be updated";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Maps are referred for CTCRiftingHistoryIoTbl";
    LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Maps related to deprecated fields of CTCIoTbl are removed ";

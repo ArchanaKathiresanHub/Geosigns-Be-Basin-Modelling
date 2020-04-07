@@ -220,7 +220,7 @@ add_gtest( NAME ${TARGET_NAME}::SgsConverter
 )
 
 #
-# 14. Source Rock upgrade testing
+# 15. Source Rock upgrade testing
 #
 add_gtest( NAME ${TARGET_NAME}::SourceRockConverter
            SOURCES test/SourceRockConverter.cpp src/SourceRockConverter.cpp
@@ -230,3 +230,13 @@ add_gtest( NAME ${TARGET_NAME}::SourceRockConverter
            FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
+#
+# 16. Stratigraphy upgrade testing
+#
+add_gtest( NAME ${TARGET_NAME}::StratigraphyConverter
+           SOURCES test/StratigraphyModelConverterTest.cpp src/StratigraphyModelConverter.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/cmbAPI/src             
+		   LIBRARIES cmbapi
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
