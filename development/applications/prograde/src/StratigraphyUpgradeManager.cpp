@@ -247,7 +247,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade() {
 			rec->setValue<double>("Depth", updatedDepth);
 		}
 		if (updatedDepth != thickness) {
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Thickness value for the surface " << name << " is changed from " << thickness << " to : " << updatedDepth << " as it is crossing the limits (-6380000,6380000)";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Thickness value for the surface " << name << " is changed from " << thickness << " to : " << updatedThickness << " as it is crossing the limits (-6380000,6380000)";
 			rec->setValue<double>("Thickness", updatedThickness);
 		}
 		
