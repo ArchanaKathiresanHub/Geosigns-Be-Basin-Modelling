@@ -90,8 +90,8 @@ void Prograde::AlcUpgradeManager::upgrade() {
 
 		  database::Table * BasementIo_Table = m_ph->getTable("BasementIoTbl");
 		  database::Record * rec = BasementIo_Table->getRecord(0);
-		  std::string BottomBoundaryModel = rec->getValue<std::string>("BottomBoundaryModel");
-		  rec->setValue<std::string>("BottomBoundaryModel", modelConverter.updateBottomBoundaryModel(BottomBoundaryModel));
+	//	  std::string BottomBoundaryModel = rec->getValue<std::string>("BottomBoundaryModel");
+	//    rec->setValue<std::string>("BottomBoundaryModel", modelConverter.updateBottomBoundaryModel(BottomBoundaryModel));
 
 		  double TopAsthenoTemp = rec->getValue<double>("TopAsthenoTemp");
 		  if (TopAsthenoTemp != 1333) {
@@ -107,6 +107,14 @@ void Prograde::AlcUpgradeManager::upgrade() {
 		  }
 
 		  else {
+
+			  //setting the scalar value in TopCrustHeatProd to -9999 if both grid as well as scalar is present; grid will be used
+			  double TopCrustHeatProd = rec->getValue<double>("TopCrustHeatProd");
+			  if (TopCrustHeatProd != -9999) {
+				  rec->setValue<double>("TopCrustHeatProd", -9999);
+				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The value of TopCrustHeatProd is changed from " << TopCrustHeatProd << " to -9999 as both grid and scalar value were present; Grid is used";
+			  }
+
 			  double valInMap = 0;
 			  size_t mapId = m_model.mapsManager().findID(TopCrustHeatProdGrid);
 			  for (size_t i = 0; i < numX; i++) {
@@ -163,7 +171,7 @@ void Prograde::AlcUpgradeManager::upgrade() {
 			  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The MapName " << mapName << " referred by the table " << GridMapReferredBy << " is cleared as the table has been cleared";
 		  }
 	  }
-
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMapIoTbl is updated for the changes in OceaCrustalThicknessIoTbl and ContCrustalThicknessIoTbl as well";
       //upgrading the crust property model to standard conductivity crust
 
       BottomBoundaryManager::CrustPropertyModel crstPropModel;
@@ -377,79 +385,87 @@ void Prograde::AlcUpgradeManager::updateContCrustalThicknessIoTbl(double basemen
 
 	for (size_t id = contCrustalThicknessIo_Table->size() - 1; id >= 0; --id) {
 		database::Record * rec = contCrustalThicknessIo_Table->getRecord(static_cast<int>(id));
-		double age = rec->getValue<double>("Age");
-		if (age <= basement_age) {
+		double Age = rec->getValue<double>("Age");
+		if (Age <= basement_age) {
 			break;
 		}
 		else {
 			m_model.removeRecordFromTable("ContCrustalThicknessIoTbl", id);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The record with age : " << age << " is removed as it is greater than the basement age : " << basement_age;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The record with age : " << Age << " is removed as it is greater than the basement age : " << basement_age;
 			--id;
 		}
 	}
 
-	size_t rowNumber = contCrustalThicknessIo_Table->size();
-	const DataAccess::Interface::PaleoFormationPropertyList* paleoFormations = m_crust->getPaleoThicknessHistory();
-	AbstractSnapshotVsGridMap crustThicknesses;
-	std::for_each(paleoFormations->begin(), paleoFormations->end(), [&crustThicknesses, basement_age](const DataAccess::Interface::PaleoFormationProperty *const it)
-	{
-		const DataAccess::Interface::GridMap* const gridMap = it->getMap(DataAccess::Interface::CrustThinningHistoryInstanceThicknessMap);
-		const DataModel::AbstractSnapshot* const snapshot = it->getSnapshot();
-		crustThicknesses.insert(std::pair<const DataModel::AbstractSnapshot* const, const DataAccess::Interface::GridMap* const>(snapshot, gridMap));
-	});
+	database::Record * rec = contCrustalThicknessIo_Table->getRecord(static_cast<int>(contCrustalThicknessIo_Table->size() - 1));
+	double age_lastRecord = rec->getValue<double>("Age");
+
+	if (age_lastRecord != basement_age)
+	{ //saving the interpolated map or value at basement age if there is no value at the basement age
+		size_t rowNumber = contCrustalThicknessIo_Table->size();
+		const DataAccess::Interface::PaleoFormationPropertyList* paleoFormations = m_crust->getPaleoThicknessHistory();
+		AbstractSnapshotVsGridMap crustThicknesses;
+		std::for_each(paleoFormations->begin(), paleoFormations->end(), [&crustThicknesses, basement_age](const DataAccess::Interface::PaleoFormationProperty *const it)
+		{
+			const DataAccess::Interface::GridMap* const gridMap = it->getMap(DataAccess::Interface::CrustThinningHistoryInstanceThicknessMap);
+			const DataModel::AbstractSnapshot* const snapshot = it->getSnapshot();
+			crustThicknesses.insert(std::pair<const DataModel::AbstractSnapshot* const, const DataAccess::Interface::GridMap* const>(snapshot, gridMap));
+		});
 
 
-	std::for_each(crustThicknesses.rbegin(), crustThicknesses.rend(), [this, &rowNumber, basement_age](const AbstractSnapshotVsGridMapPair& pair)
-	{
-		const auto age = pair.first->getTime();
-		if (age == basement_age) {
-			double value = 0;
-			std::vector<double>valuesAtAge;//vector to store the values of gridmap at any age
-			const auto gridMap = const_cast<DataAccess::Interface::GridMap*>(pair.second);
+		std::for_each(crustThicknesses.rbegin(), crustThicknesses.rend(), [this, &rowNumber, basement_age](const AbstractSnapshotVsGridMapPair& pair)
+		{
+			const auto age = pair.first->getTime();
+			if (age == basement_age) {
+				double value = 0;
+				std::vector<double>valuesAtAge;//vector to store the values of gridmap at any age
+				const auto gridMap = const_cast<DataAccess::Interface::GridMap*>(pair.second);
 
-			for (unsigned int j = gridMap->firstJ(); j <= gridMap->lastJ(); ++j)
-			{
-				for (unsigned int i = gridMap->firstI(); i <= gridMap->lastI(); ++i)
+				for (unsigned int j = gridMap->firstJ(); j <= gridMap->lastJ(); ++j)
 				{
-					value = gridMap->getValue(i, j);
-					if (value != 99999) {
-						valuesAtAge.push_back(value);
+					for (unsigned int i = gridMap->firstI(); i <= gridMap->lastI(); ++i)
+					{
+						value = gridMap->getValue(i, j);
+						if (value != 99999) {
+							valuesAtAge.push_back(value);
+						}
+
 					}
-					
 				}
-			}
 
-			const auto mapName = "ContCrustThicknessInterpolated_" + std::to_string(age);
-			const auto refferedTable = "ContCrustalThicknessIoTbl";
-			const auto ageField = "Age";
-			const auto thicknessField = "Thickness";
-			const auto thicknessGridField = "ThicknessGrid";
+				const auto mapName = "ContCrustThicknessInterpolated_" + std::to_string(age);
+				const auto refferedTable = "ContCrustalThicknessIoTbl";
+				const auto ageField = "Age";
+				const auto thicknessField = "Thickness";
+				const auto thicknessGridField = "ThicknessGrid";
 
-			//check if the values at all the nodes in the gridmap is a constant value; if constant then store it as a scalar instead of grid 
-			sort(valuesAtAge.begin(), valuesAtAge.end());
-			int count = std::distance(valuesAtAge.begin(), std::unique(valuesAtAge.begin(), valuesAtAge.end()));
-			if (count == 1) {
-				m_model.addRowToTable(refferedTable);
-				m_model.setTableValue(refferedTable, rowNumber, ageField, age);
-				m_model.setTableValue(refferedTable, rowNumber, thicknessField, valuesAtAge[0]);
-				m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, "");
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with interpolated value of thickness : " << valuesAtAge[0] << " at the basement age : " << age << " is added";
+				//check if the values at all the nodes in the gridmap is a constant value; if constant then store it as a scalar instead of grid 
+				sort(valuesAtAge.begin(), valuesAtAge.end());
+				int count = std::distance(valuesAtAge.begin(), std::unique(valuesAtAge.begin(), valuesAtAge.end()));
+				if (count == 1) {
+					m_model.addRowToTable(refferedTable);
+					m_model.setTableValue(refferedTable, rowNumber, ageField, age);
+					m_model.setTableValue(refferedTable, rowNumber, thicknessField, valuesAtAge[0]);
+					m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, "");
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with interpolated value of thickness : " << valuesAtAge[0] << " at the basement age : " << age << " is added";
+				}
+				else if (count > 1) {
+					const auto outputFileName = "Inputs.HDF";
+					size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
+					m_model.mapsManager().generateMap(refferedTable, mapName, gridMap, mapsSequenceNbr, outputFileName);
+					m_model.addRowToTable(refferedTable);
+					m_model.setTableValue(refferedTable, rowNumber, ageField, age);
+					m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, mapName);
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with Interpolated map : " << mapName << " at the basement age : " << age << " is added";
+				}
+				else {
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The grid in ContCrustalThicknessIoTbl at age " << age << "is empty";
+				}
+				return;
 			}
-			else if (count > 1) {
-				const auto outputFileName = "Inputs.HDF";
-				size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
-				m_model.mapsManager().generateMap(refferedTable, mapName, gridMap, mapsSequenceNbr, outputFileName);
-				m_model.addRowToTable(refferedTable);
-				m_model.setTableValue(refferedTable, rowNumber, ageField, age);
-				m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, mapName);
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with Interpolated map : " << mapName << " at the basement age : " << age << " is added";
-			}
-			else {
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The grid in ContCrustalThicknessIoTbl at age " << age << "is empty";
-			}
-			return;
-		}
-	});
+		});
+		//clean memory
+		delete paleoFormations;
+	}
 
 	{ //checking for values in ContCrustalThicknessIoTbl to be in the range
 		database::Table * ContCrustalThicknessIo_Table = m_ph->getTable("ContCrustalThicknessIoTbl");
@@ -488,6 +504,5 @@ void Prograde::AlcUpgradeManager::updateContCrustalThicknessIoTbl(double basemen
 			}
 		}
 	}
-	//clean memory
-	delete paleoFormations;
+
 }
