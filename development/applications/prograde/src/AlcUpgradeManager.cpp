@@ -394,7 +394,7 @@ void Prograde::AlcUpgradeManager::updateContCrustalThicknessIoTbl(double basemen
 
 	 if (age_lastRecord > basement_age) {
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating ContCrustalThicknessIoTbl";
-		for (size_t id = contCrustalThicknessIo_Table->size() - 1; id >= 0; --id) {
+		for (int id = contCrustalThicknessIo_Table->size() - 1; id >= 0; --id) {
 			database::Record * rec = contCrustalThicknessIo_Table->getRecord(static_cast<int>(id));
 			double Age = rec->getValue<double>("Age");
 			if (Age <= basement_age) {
