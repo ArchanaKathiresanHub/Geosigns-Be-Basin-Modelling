@@ -413,9 +413,12 @@ void Prograde::AlcUpgradeManager::updateContCrustalThicknessIoTbl(double basemen
 			AbstractSnapshotVsGridMap crustThicknesses;
 			std::for_each(paleoFormations->begin(), paleoFormations->end(), [&crustThicknesses, basement_age](const DataAccess::Interface::PaleoFormationProperty *const it)
 			{
-				const DataAccess::Interface::GridMap* const gridMap = it->getMap(DataAccess::Interface::CrustThinningHistoryInstanceThicknessMap);
 				const DataModel::AbstractSnapshot* const snapshot = it->getSnapshot();
-				crustThicknesses.insert(std::pair<const DataModel::AbstractSnapshot* const, const DataAccess::Interface::GridMap* const>(snapshot, gridMap));
+				auto age = snapshot->getTime();
+				if (age <= basement_age) {
+					const DataAccess::Interface::GridMap* const gridMap = it->getMap(DataAccess::Interface::CrustThinningHistoryInstanceThicknessMap);
+					crustThicknesses.insert(std::pair<const DataModel::AbstractSnapshot* const, const DataAccess::Interface::GridMap* const>(snapshot, gridMap));
+				}
 			});
 
 
