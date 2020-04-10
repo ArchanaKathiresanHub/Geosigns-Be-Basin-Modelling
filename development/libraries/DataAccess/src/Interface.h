@@ -424,7 +424,7 @@ namespace DataAccess
 			WYLLIES_VELOCITY_ALGORITHM
 		};
 
-			enum CoordinateAxis { X_COORD, Y_COORD };
+      enum CoordinateAxis { X_COORD, Y_COORD, Z_COORD };
 
       /// operator type definition used in the computation of GridMaps from other GridMaps
       typedef double( *BinaryOperator ) ( double, double );

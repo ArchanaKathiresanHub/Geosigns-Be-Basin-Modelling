@@ -1,22 +1,23 @@
+//
+// Copyright (C) 2015-2020 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _LANDMARK_FAULT_FILE_READER_H
 #define _LANDMARK_FAULT_FILE_READER_H
 
-#include "FaultFileReader.h"
-#include "auxiliaryfaulttypes.h"
+#include "FaultFileReader2D.h"
 
-///
-/// The identifier and object allocator for the fault file reader factory.
-///
 namespace DataAccess
 {
    namespace Interface
    {
       const std::string LandmarkFaultFileReaderID = "LANDMARKPOLYGON";
 
-      FaultFileReader* allocateLandmarkFaultFileReader ();
-
-
-      class LandmarkFaultFileReader : public ASCIIFaultFileReader {
+      class LandmarkFaultFileReader : public FaultFileReader2D {
 
          public :
 
@@ -68,7 +69,7 @@ namespace DataAccess
             static const int EndOfFault    = 3;
 
             ///
-            /// Strings (char arrays) are zero based, so all constants here that designate the start of 
+            /// Strings (char arrays) are zero based, so all constants here that designate the start of
             /// a particular field are 1 less than those specified in the landmark fault file format spec.
             /// E.g. In the spec. FAULT_NAME starts in column 44, and so it will start at position 43 in the string.
             ///

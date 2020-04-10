@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2015-2020 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "ZycorFaultFileReader.h"
 #include <sstream>
 using std::ostringstream;
@@ -8,23 +16,12 @@ using namespace Interface;
 
 //------------------------------------------------------------//
 
-FaultFileReader *DataAccess::Interface::allocateZyCorFaultFileReader ()
-{
-   return new ZyCorFaultFileReader;
-}
-
-//------------------------------------------------------------//
-
 void ZyCorFaultFileReader::preParseFaults ()
 {
-   if (!isOpen)
+   if (!m_isOpen)
    {
-#ifndef _FAULTUNITTEST_
-      fprintf (stderr,
-                   "****************    ERROR ZyCorFaultFileReader::readFault   fault file is not open   ****************\n");
-      //PetscPrintf (PETSC_COMM_WORLD,
-      //             "****************    ERROR ZyCorFaultFileReader::readFault   fault file is not open   ****************\n");
-#endif
+      fprintf ( stderr,
+                "****************    ERROR ZyCorFaultFileReader::readFault   fault file is not open   ****************\n");
       return;
    }
 
@@ -41,7 +38,7 @@ void ZyCorFaultFileReader::preParseFaults ()
    readLine (xCoord, yCoord, faultNumber);
    currentFaultNumber = faultNumber;
 
-   while (faultFile.good ())
+   while (m_faultFile.good ())
    {
       ostringstream newFaultName;
 
@@ -51,10 +48,11 @@ void ZyCorFaultFileReader::preParseFaults ()
 
       newFault = false;
 
-      while (faultFile.good () && !newFault)
+      while (m_faultFile.good () && !newFault)
       {
          faultPoint (Interface::X_COORD) = xCoord;
          faultPoint (Interface::Y_COORD) = yCoord;
+         faultPoint (Interface::Z_COORD) = 0.0;
 
          newFaultLine.push_back (faultPoint);
 
@@ -67,7 +65,7 @@ void ZyCorFaultFileReader::preParseFaults ()
          }
       }
 
-      addFault (newFaultName.str (), newFaultLine);
+      addFault (newFaultName.str (), { newFaultLine } );
    }
 }
 
@@ -75,9 +73,9 @@ void ZyCorFaultFileReader::preParseFaults ()
 
 void ZyCorFaultFileReader::readLine (double &xCoord, double &yCoord, int &faultNumber)
 {
-   faultFile >> xCoord;
-   faultFile >> yCoord;
-   faultFile >> faultNumber;
+   m_faultFile >> xCoord;
+   m_faultFile >> yCoord;
+   m_faultFile >> faultNumber;
 }
 
 //------------------------------------------------------------//

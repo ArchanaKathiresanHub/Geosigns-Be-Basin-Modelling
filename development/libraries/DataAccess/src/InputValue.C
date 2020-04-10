@@ -54,7 +54,6 @@ InputValueType InputValue::getType (void) const
    else if (mapType == "CPS3") return PropertyMap;
    else if (mapType == "EPIRUS") return PropertyMap;
    else if (mapType == "LANDMARK") return PropertyMap;
-   else if (mapType == "CHARISMA") return PropertyMap;
    else return FaultMap;
 
 }

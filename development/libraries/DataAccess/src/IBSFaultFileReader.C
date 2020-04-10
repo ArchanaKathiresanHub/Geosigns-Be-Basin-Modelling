@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2015-2020 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <math.h>
 #include "IBSFaultFileReader.h"
 #include <sstream>
@@ -6,22 +14,17 @@ using std::stringstream;
 using namespace DataAccess;
 using namespace Interface;
 
+//class FaultFileReader;
 //------------------------------------------------------------//
 
 const double IBSFaultFileReader::IBSFaultNullPoint = 999.999;
 
-//------------------------------------------------------------//
-
-FaultFileReader *DataAccess::Interface::allocateIBSFaultFileReader ()
-{
-   return new IBSFaultFileReader;
-}
 
 //------------------------------------------------------------//
 
 IBSFaultFileReader::IBSFaultFileReader ()
 {
-   isOpen = false;
+   m_isOpen = false;
    faultCount = 0;
 }
 
@@ -46,7 +49,7 @@ void IBSFaultFileReader::preParseFaults ()
       newFaultLine.clear ();
       readFault (newFaultName, newFaultLine, done);
       if (done) break;
-      addFault (newFaultName, newFaultLine);
+      addFault (newFaultName, { newFaultLine });
    }
 }
 
@@ -54,14 +57,10 @@ void IBSFaultFileReader::preParseFaults ()
 
 void IBSFaultFileReader::readFault (std::string & newFaultName, PointSequence & newFaultLine, bool &done)
 {
-   if (!isOpen)
+   if (!m_isOpen)
    {
-#ifndef _FAULTUNITTEST_
-      fprintf (stderr,
-                   "****************    ERROR IBSFaultFileReader::readFault   fault file is not open   ****************\n");
-      //PetscPrintf (PETSC_COMM_WORLD,
-      //             "****************    ERROR IBSFaultFileReader::readFault   fault file is not open   ****************\n");
-#endif
+      fprintf ( stderr,
+                "****************    ERROR IBSFaultFileReader::readFault   fault file is not open   ****************\n");
       return;
    }
 
@@ -70,17 +69,18 @@ void IBSFaultFileReader::readFault (std::string & newFaultName, PointSequence & 
    bool endOfFaultLine = false;
    char buffer[BufferSize];
    Point faultPoint;
+   faultPoint (Interface::Z_COORD) = 0.0;
 
    faultCount = faultCount + 1;
    done = false;
 
-   while (faultFile.good () && !endOfFaultLine)
+   while (m_faultFile.good () && !endOfFaultLine)
    {
       stringstream pointBuffer;
 
-      faultFile.getline (buffer, BufferSize);
+      m_faultFile.getline (buffer, BufferSize);
 
-      if (faultFile.good () && !isCommentLine (buffer))
+      if (m_faultFile.good () && !isCommentLine (buffer))
       {
          pointBuffer << buffer;
          pointBuffer >> faultPoint (X_COORD);
@@ -96,9 +96,11 @@ void IBSFaultFileReader::readFault (std::string & newFaultName, PointSequence & 
          if (!endOfFaultLine)
          {
             ///
-            /// If the point that was read is not the end-of-fault marker and there was no error in 
+            /// If the point that was read is not the end-of-fault marker and there was no error in
             /// reading the point, then it is safe to add the point to the fault line sequence.
             ///
+            ///
+
             newFaultLine.push_back (faultPoint);
          }
 
@@ -116,7 +118,7 @@ void IBSFaultFileReader::readFault (std::string & newFaultName, PointSequence & 
 
    newFaultName = buf.str ();
 
-   done = !faultFile.good ();
+   done = !m_faultFile.good ();
 }
 
 //------------------------------------------------------------//
