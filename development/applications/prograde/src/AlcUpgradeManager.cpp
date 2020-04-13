@@ -335,7 +335,12 @@ void Prograde::AlcUpgradeManager::writeOceaCrustalThicknessIoTbl(double basement
 				  m_model.setTableValue(refferedTable, rowNumber, thicknessField, valuesAtAge[0]);
 				  m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, "");
 				  rowNumber++;
-				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with interpolated value of thickness : " << valuesAtAge[0] << " at the basement age : " << age << " is added";
+				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with calculated value of thickness : " << valuesAtAge[0] << " m at the age : " << age << " Ma is added";
+				  //check for limits
+				  if (!NumericFunctions::inRange(valuesAtAge[0], 0.0, 6300000.0)) {
+					  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "In OceaCrustalThicknessIoTbl, the value of thickness at age : " << age << " Ma is " << valuesAtAge[0] << " m which is not in the acceptable limits (0-6300000)";
+				  }
+
 			  }
 			  else if (count > 1) {
 				  const auto outputFileName = "Inputs.HDF";
@@ -345,54 +350,34 @@ void Prograde::AlcUpgradeManager::writeOceaCrustalThicknessIoTbl(double basement
 				  m_model.setTableValue(refferedTable, rowNumber, ageField, age);
 				  m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, mapName);
 				  rowNumber++;
-				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with Interpolated map : " << mapName << " at the basement age : " << age << " is added";
+				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with calculated thickness map : " << mapName << " at the age : " << age << " Ma is added";
+				  //check for range
+				  size_t mapId = m_model.mapsManager().findID(mapName);
+				  double minV = 0, maxV = 0;
+				  m_model.mapsManager().mapValuesRange(mapId, minV, maxV);
+				  if ((!NumericFunctions::inRange(minV, 0.0, 6300000.0)) || (!NumericFunctions::inRange(maxV, 0.0, 6300000.0))) {
+					  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "In OceaCrustalThicknessIoTbl, the values in the ThicknessGrid : " << mapName << " at age : " << age << " Ma are not in the acceptable limits (0-6300000)";
+				  }
 			  }
 			  else {
-				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The grid in OceaCrustalThicknessIoTbl at age " << age << "is empty";
+				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The grid in OceaCrustalThicknessIoTbl at age : " << age << " Ma is empty";
 			  }
 		  }
+		  break;
 	  }
    } );
 
-   { //checking for values in OceaCrustalThicknessIoTbl to be in the range
-	   database::Table * OceaCrustalThicknessIo_Table = m_ph->getTable("OceaCrustalThicknessIoTbl");
-	   std::string ThicknessGrid;
-	   double Thickness = 0;
-	   double valInMap = 0;
-	   double age = 0;
-	   for (size_t id = 0; id < OceaCrustalThicknessIo_Table->size(); ++id) {
-		   database::Record * rec = OceaCrustalThicknessIo_Table->getRecord(static_cast<int>(id));
-		   ThicknessGrid = rec->getValue<std::string>("ThicknessGrid");
-		   age = rec->getValue<double>("Age");
-
-		   if (!ThicknessGrid.compare("")) {
-			   Thickness = rec->getValue<double>("Thickness");
-			   //check for limits
-			   if (!NumericFunctions::inRange(Thickness, 0.0, 6300000.0)) {
-				   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "In OceaCrustalThicknessIoTbl, the value of thickness at age : " << age << " is " << Thickness << " which is not in the acceptable limits (0-6300000)";
-			   }
-		   }
-		   else {
-			   size_t mapId = m_model.mapsManager().findID(ThicknessGrid);
-			   double minV = 0, maxV = 0;
-			   m_model.mapsManager().mapValuesRange(mapId, minV, maxV);
-			   if ((!NumericFunctions::inRange(minV, 0.0, 6300000.0)) || (!NumericFunctions::inRange(maxV, 0.0, 6300000.0))) {
-				   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "In OceaCrustalThicknessIoTbl, the values in the ThicknessGrid : " << ThicknessGrid << " at age : " << age << " are not in the acceptable limits (0-6300000)";
-			   }		   
-		   }
-	   }
-   }
 }
 
 //--------------------------------------------------------------//
 void Prograde::AlcUpgradeManager::updateContCrustalThicknessIoTbl(double basement_age) {
-	
+
 	database::Table * contCrustalThicknessIo_Table = m_ph->getTable("ContCrustalThicknessIoTbl");
 
 	database::Record * rec = contCrustalThicknessIo_Table->getRecord(static_cast<int>(contCrustalThicknessIo_Table->size() - 1));
 	double age_lastRecord = rec->getValue<double>("Age");
 
-	 if (age_lastRecord > basement_age) {
+	if (age_lastRecord > basement_age) {
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating ContCrustalThicknessIoTbl";
 		for (int id = contCrustalThicknessIo_Table->size() - 1; id >= 0; --id) {
 			database::Record * rec = contCrustalThicknessIo_Table->getRecord(static_cast<int>(id));
@@ -402,12 +387,12 @@ void Prograde::AlcUpgradeManager::updateContCrustalThicknessIoTbl(double basemen
 			}
 			else {
 				m_model.removeRecordFromTable("ContCrustalThicknessIoTbl", id);
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The record with age : " << Age << " is removed as it is greater than the basement age : " << basement_age;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The record with age : " << Age << " Ma is removed as it is greater than the basement age : " << basement_age << " Ma";
 				--id;
 			}
 		}
 
-		{ 
+		{
 			size_t rowNumber = contCrustalThicknessIo_Table->size();
 			const DataAccess::Interface::PaleoFormationPropertyList* paleoFormations = m_crust->getPaleoThicknessHistory();
 			AbstractSnapshotVsGridMap crustThicknesses;
@@ -456,7 +441,11 @@ void Prograde::AlcUpgradeManager::updateContCrustalThicknessIoTbl(double basemen
 						m_model.setTableValue(refferedTable, rowNumber, ageField, age);
 						m_model.setTableValue(refferedTable, rowNumber, thicknessField, valuesAtAge[0]);
 						m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, "");
-						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with interpolated value of thickness : " << valuesAtAge[0] << " at the basement age : " << age << " is added";
+						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with interpolated value of thickness : " << valuesAtAge[0] << " m at the age : " << age << " Ma is added";
+						//check for limits
+						if (!NumericFunctions::inRange(valuesAtAge[0], 0.0, 6300000.0)) {
+							LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "In ContCrustalThicknessIoTbl, the value of thickness at age : " << age << " Ma is " << valuesAtAge[0] << " m which is not in the acceptable limits (0-6300000)";
+						}
 					}
 					else if (count > 1) {
 						const auto outputFileName = "Inputs.HDF";
@@ -465,10 +454,17 @@ void Prograde::AlcUpgradeManager::updateContCrustalThicknessIoTbl(double basemen
 						m_model.addRowToTable(refferedTable);
 						m_model.setTableValue(refferedTable, rowNumber, ageField, age);
 						m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, mapName);
-						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with Interpolated map : " << mapName << " at the basement age : " << age << " is added";
+						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with interpolated map : " << mapName << " at the age : " << age << " Ma is added";
+						//check for the range
+						size_t mapId = m_model.mapsManager().findID(mapName);
+						double minV = 0, maxV = 0;
+						m_model.mapsManager().mapValuesRange(mapId, minV, maxV);
+						if ((!NumericFunctions::inRange(minV, 0.0, 6300000.0)) || (!NumericFunctions::inRange(maxV, 0.0, 6300000.0))) {
+							LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "In ContCrustalThicknessIoTbl, the values in the ThicknessGrid : " << mapName << " at age : " << age << " Ma are not in the acceptable limits (0-6300000)";
+						}
 					}
 					else {
-						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The grid in ContCrustalThicknessIoTbl at age " << age << "is empty";
+						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The grid in ContCrustalThicknessIoTbl at age " << age << " Ma is empty";
 					}
 					return;
 				}
@@ -477,35 +473,5 @@ void Prograde::AlcUpgradeManager::updateContCrustalThicknessIoTbl(double basemen
 			delete paleoFormations;
 		}
 	}
-
-
-	{ //checking for values in ContCrustalThicknessIoTbl to be in the range
-		database::Table * ContCrustalThicknessIo_Table = m_ph->getTable("ContCrustalThicknessIoTbl");
-		std::string ThicknessGrid;
-		double Thickness = 0;
-		double valInMap = 0;
-		double age = 0;
-		for (size_t id = 0; id < ContCrustalThicknessIo_Table->size(); ++id) {
-			database::Record * rec = ContCrustalThicknessIo_Table->getRecord(static_cast<int>(id));
-			ThicknessGrid = rec->getValue<std::string>("ThicknessGrid");
-			age = rec->getValue<double>("Age");
-
-			if (!ThicknessGrid.compare("")) {
-				Thickness = rec->getValue<double>("Thickness");
-				//check for limits
-				if (!NumericFunctions::inRange(Thickness, 0.0, 6300000.0)) {
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "In ContCrustalThicknessIoTbl, the value of thickness at age : " << age << " is " << Thickness << " which is not in the acceptable limits (0-6300000)";
-				}
-			}
-			else {
-				size_t mapId = m_model.mapsManager().findID(ThicknessGrid);
-				double minV = 0, maxV = 0;
-				m_model.mapsManager().mapValuesRange(mapId, minV, maxV);
-				if ((!NumericFunctions::inRange(minV, 0.0, 6300000.0)) || (!NumericFunctions::inRange(maxV, 0.0, 6300000.0))) {
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "In ContCrustalThicknessIoTbl, the values in the ThicknessGrid : "<< ThicknessGrid <<" at age : "<<age<<" are not in the acceptable limits (0-6300000)";
-				}
-			}
-		}
-	}
-
 }
+
