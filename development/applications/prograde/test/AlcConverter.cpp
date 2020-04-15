@@ -22,8 +22,6 @@ using namespace mbapi;
 TEST(AlcModelConverter, upgrade)
 {
 	Prograde::AlcModelConverter modelConverter;
-	std::string originalALC = "Advanced Lithosphere Calculator";
-	std::string text = "Anything_xyz";
 
 	EXPECT_EQ(BottomBoundaryManager::CrustPropertyModel::StandardCondModel, modelConverter.upgradeAlcCrustPropModel(BottomBoundaryManager::CrustPropertyModel::LegacyCrust));
 	EXPECT_EQ(BottomBoundaryManager::CrustPropertyModel::StandardCondModel, modelConverter.upgradeAlcCrustPropModel(BottomBoundaryManager::CrustPropertyModel::LowCondModel));
@@ -34,6 +32,8 @@ TEST(AlcModelConverter, upgrade)
 	EXPECT_EQ(BottomBoundaryManager::MantlePropertyModel::HighCondMnModel, modelConverter.upgradeAlcMantlePropModel(BottomBoundaryManager::MantlePropertyModel::StandardCondMnModel));
 	EXPECT_EQ(BottomBoundaryManager::MantlePropertyModel::HighCondMnModel, modelConverter.upgradeAlcMantlePropModel(BottomBoundaryManager::MantlePropertyModel::HighCondMnModel));
 
+	std::string originalALC = "Advanced Lithosphere Calculator";
+	std::string text = "Anything_xyz";
 	EXPECT_EQ("Improved Lithosphere Calculator Linear Element Mode", modelConverter.updateBottomBoundaryModel(originalALC));
 	EXPECT_EQ(text, modelConverter.updateBottomBoundaryModel(text));
 }
