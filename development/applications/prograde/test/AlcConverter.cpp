@@ -36,13 +36,5 @@ TEST(AlcModelConverter, upgrade)
 
 	EXPECT_EQ("Improved Lithosphere Calculator Linear Element Mode", modelConverter.updateBottomBoundaryModel(originalALC));
 	EXPECT_EQ(text, modelConverter.updateBottomBoundaryModel(text));
-
-	EXPECT_EQ(0, modelConverter.updateTopCrustHeatProd(-50.05));
-	EXPECT_EQ(1000, modelConverter.updateTopCrustHeatProd(15200.78));
-	EXPECT_EQ(598.89, modelConverter.updateTopCrustHeatProd(598.89));
-
-	EXPECT_EQ(0, modelConverter.updateInitialLithosphericMantleThickness(-89.5));
-	EXPECT_EQ(6300000, modelConverter.updateInitialLithosphericMantleThickness(800000000));
-	EXPECT_EQ(38850, modelConverter.updateInitialLithosphericMantleThickness(38850));
 	
 }

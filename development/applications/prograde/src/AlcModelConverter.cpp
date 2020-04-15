@@ -106,33 +106,5 @@ std::string Prograde::AlcModelConverter::updateBottomBoundaryModel(std::string &
 	return BottomBoundaryModel_updated;
 }
 
-double Prograde::AlcModelConverter::updateTopCrustHeatProd(double TopCrustHeatProd)
-{
-	if (TopCrustHeatProd < 0) {
-		TopCrustHeatProd = 0;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "TopCrustHeatProd subceeds the lower limit : 0. Hence, trimmed to 0";
-	}
-	else if (TopCrustHeatProd > 1000) {
-		TopCrustHeatProd = 1000;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "TopCrustHeatProd exceeds the upper limit : 1000. Hence, trimmed to 1000";
-	}
-
-	return TopCrustHeatProd;
-}
-
-double Prograde::AlcModelConverter::updateInitialLithosphericMantleThickness(double InitialLithosphericMantleThickness)
-{
-	if (InitialLithosphericMantleThickness < 0) {
-		InitialLithosphericMantleThickness = 0;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "InitialLithosphericMantleThickness subceeds the lower limit : 0. Hence, trimmed to 0";
-	}
-	else if (InitialLithosphericMantleThickness > 6300000) {
-		InitialLithosphericMantleThickness = 6300000;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "InitialLithosphericMantleThickness exceeds the upper limit : 1000. Hence, trimmed to 1000";
-	}
-		
-	return InitialLithosphericMantleThickness;
-}
-
 
 
