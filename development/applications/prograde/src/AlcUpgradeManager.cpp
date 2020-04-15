@@ -67,7 +67,6 @@ void Prograde::AlcUpgradeManager::upgrade()
 	
    if (isLegacyAlc()) 
    {
-	  
 	  Prograde::AlcModelConverter modelConverter;
 
 	  // Get the DepoAge of basement layer 
