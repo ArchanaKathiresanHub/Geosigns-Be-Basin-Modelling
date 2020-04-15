@@ -13,12 +13,13 @@
 
 //Prograde
 #include "IUpgradeManager.h"
-
+#include "ErrorHandler.h"
 //std
 #include <memory>
 
 namespace mbapi {
    class Model;
+   class MapsManager;
 }
 
 namespace DataAccess {
@@ -57,7 +58,17 @@ namespace Prograde
 
       /// @brief Clean the Continental Crustal thickness IoTbl
       void cleanContCrustIoTbl() const;
+      /// @brief Clean the BasaltThicknessIoTbl
+      void cleanBasaltThicknessIoTbl() const;
 
+      /// @brief Clean the MntlHeatFlowIoTbl 
+      
+      /// @brief Interpolate at a given age
+      /// @Inputs
+      /// @return 
+      ErrorHandler::ReturnCode InterpolateIntermidiateValues(size_t mapIdToSave, size_t mapIdmin, size_t mapId, double* ageValuePoints, mbapi::MapsManager* mngr=nullptr);
+      
+      void cleanMntlHeatFlowIoTbl() const;
       mbapi::Model& m_model; ///< The model to upgrade
       std::shared_ptr<DataAccess::Interface::ProjectHandle> m_ph; ///< The project handle of the model to upgrade
    };

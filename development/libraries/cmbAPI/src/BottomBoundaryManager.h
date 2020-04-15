@@ -23,6 +23,14 @@
 ///
 
 namespace mbapi {
+
+    template <typename Enumeration>
+    auto as_integer(Enumeration const value)
+        -> typename std::underlying_type<Enumeration>::type
+    {
+        return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+    }
+
    /// @class BottomBoundaryManager BottomBoundaryManager.h "BottomBoundaryManager.h"
    /// @brief Class BottomBoundaryManager keeps a list of bottom boundary models in Cauldron model and allows to add/delete/edit bottom boundary models and the associated properties
    class BottomBoundaryManager : public ErrorHandler
@@ -36,28 +44,31 @@ namespace mbapi {
       typedef size_t OceaCrustTimeStepID;  ///< unique ID for time steps defined in the oceanic crustal thickness table
       typedef size_t GridMapTimeStepID;  ///< unique ID for time steps defined in the GridMapIoTbl
 
-      enum BottomBoundaryModel
+      enum class BottomBoundaryModel
       {
          BasicCrustThinning,
          AdvancedCrustThinning,
          ImprovedCrustThinningLinear,
-         BaseSedimentHeatFlow
+         BaseSedimentHeatFlow,
+         // UnknownBottomBoundaryModel
       };
 
-      enum CrustPropertyModel
+      enum class CrustPropertyModel
       {
          LegacyCrust,
          LowCondModel,
          StandardCondModel,
-         HighCondModel
+         HighCondModel,
+         // UnknownCrustPropertyModel
       };
 
-      enum MantlePropertyModel
+      enum class MantlePropertyModel
       {
          LegacyMantle,
          LowCondMnModel,
          StandardCondMnModel,
-         HighCondMnModel
+         HighCondMnModel,
+         // UnknownMantlePropertyModel
       };
 
 

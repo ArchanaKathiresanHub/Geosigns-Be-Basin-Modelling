@@ -217,7 +217,7 @@ namespace DataAccess
          /// return the list of LithoType objects.
          virtual LithoTypeList * getLithoTypes( void ) const;
          /// return the list of snapshots.
-         virtual SnapshotList * getSnapshots( int type = MAJOR ) const;
+         virtual SnapshotList * getSnapshots( int type = MAJOR ) const; // initialized on stack so delete after use
          /// return the list of formations, all or for a given snapshot.
          virtual FormationList * getFormations( const Snapshot * snapshot = nullptr, const bool includeBasement = false ) const;
          /// return the list of surfaces, all or for a given snapshot.

@@ -23,18 +23,28 @@ TEST(BasicCrustThinningModelConverter, upgrade)
 {
    Prograde::BasicCrustThinningModelConverter modelConverter;
 
-   EXPECT_EQ(BottomBoundaryManager::AdvancedCrustThinning, modelConverter.upgradeBotBoundModel(BottomBoundaryManager::BasicCrustThinning));
-   EXPECT_EQ(BottomBoundaryManager::BaseSedimentHeatFlow, modelConverter.upgradeBotBoundModel(BottomBoundaryManager::BaseSedimentHeatFlow));
-   EXPECT_EQ(BottomBoundaryManager::AdvancedCrustThinning, modelConverter.upgradeBotBoundModel(BottomBoundaryManager::AdvancedCrustThinning));
+   EXPECT_EQ(BottomBoundaryManager::BottomBoundaryModel::AdvancedCrustThinning, modelConverter.upgradeBotBoundModel(
+       BottomBoundaryManager::BottomBoundaryModel::BasicCrustThinning));
+   EXPECT_EQ(BottomBoundaryManager::BottomBoundaryModel::BaseSedimentHeatFlow, modelConverter.upgradeBotBoundModel(
+       BottomBoundaryManager::BottomBoundaryModel::BaseSedimentHeatFlow));
+   EXPECT_EQ(BottomBoundaryManager::BottomBoundaryModel::AdvancedCrustThinning, modelConverter.upgradeBotBoundModel(
+       BottomBoundaryManager::BottomBoundaryModel::AdvancedCrustThinning));
 
-   EXPECT_EQ(BottomBoundaryManager::StandardCondModel, modelConverter.upgradeCrustPropModel(BottomBoundaryManager::LegacyCrust));
-   EXPECT_EQ(BottomBoundaryManager::StandardCondModel, modelConverter.upgradeCrustPropModel(BottomBoundaryManager::LowCondModel));
-   EXPECT_EQ(BottomBoundaryManager::StandardCondModel, modelConverter.upgradeCrustPropModel(BottomBoundaryManager::StandardCondModel));
+   EXPECT_EQ(BottomBoundaryManager::CrustPropertyModel::StandardCondModel, modelConverter.upgradeCrustPropModel(
+       BottomBoundaryManager::CrustPropertyModel::LegacyCrust));
+   EXPECT_EQ(BottomBoundaryManager::CrustPropertyModel::StandardCondModel, modelConverter.upgradeCrustPropModel(
+       BottomBoundaryManager::CrustPropertyModel::LowCondModel));
+   EXPECT_EQ(BottomBoundaryManager::CrustPropertyModel::StandardCondModel, modelConverter.upgradeCrustPropModel(
+       BottomBoundaryManager::CrustPropertyModel::StandardCondModel));
 
-   EXPECT_EQ(BottomBoundaryManager::HighCondMnModel, modelConverter.upgradeMantlePropModel(BottomBoundaryManager::LegacyMantle));
-   EXPECT_EQ(BottomBoundaryManager::HighCondMnModel, modelConverter.upgradeMantlePropModel(BottomBoundaryManager::LowCondMnModel));
-   EXPECT_EQ(BottomBoundaryManager::HighCondMnModel, modelConverter.upgradeMantlePropModel(BottomBoundaryManager::StandardCondMnModel));
-   EXPECT_EQ(BottomBoundaryManager::HighCondMnModel, modelConverter.upgradeMantlePropModel(BottomBoundaryManager::HighCondMnModel));
+   EXPECT_EQ(BottomBoundaryManager::MantlePropertyModel::HighCondMnModel, modelConverter.upgradeMantlePropModel(
+       BottomBoundaryManager::MantlePropertyModel::LegacyMantle));
+   EXPECT_EQ(BottomBoundaryManager::MantlePropertyModel::HighCondMnModel, modelConverter.upgradeMantlePropModel(
+       BottomBoundaryManager::MantlePropertyModel::LowCondMnModel));
+   EXPECT_EQ(BottomBoundaryManager::MantlePropertyModel::HighCondMnModel, modelConverter.upgradeMantlePropModel(
+       BottomBoundaryManager::MantlePropertyModel::StandardCondMnModel));
+   EXPECT_EQ(BottomBoundaryManager::MantlePropertyModel::HighCondMnModel, modelConverter.upgradeMantlePropModel(
+       BottomBoundaryManager::MantlePropertyModel::HighCondMnModel));
 
    EXPECT_EQ("ContCrustalThicknessIoTbl", modelConverter.upgradeGridMapTable("CrustIoTbl"));
    EXPECT_EQ("StratIoTbl", modelConverter.upgradeGridMapTable("StratIoTbl"));
