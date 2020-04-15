@@ -100,9 +100,6 @@
 #include "Faulting.h"
 #include "FaultFileReaderFactory.h"
 #include "FaultFileReader.h"
-#include "IBSFaultFileReader.h"
-#include "LandmarkFaultFileReader.h"
-#include "ZycorFaultFileReader.h"
 #include "PointAdsorptionHistory.h"
 #include "IrreducibleWaterSaturationSample.h"
 #include "LangmuirAdsorptionIsothermSample.h"
@@ -178,10 +175,6 @@ ProjectHandle* DataAccess::Interface::OpenCauldronProject( const string & name,
 database::ProjectFileHandlerPtr DataAccess::Interface::CreateDatabaseFromCauldronProject( const string & name,
                                                                                           const std::vector<std::string>& outputTableNames )
 {
-   FaultFileReaderFactory::getInstance().registerReader( IBSFaultFileReaderID, allocateIBSFaultFileReader );
-   FaultFileReaderFactory::getInstance().registerReader( LandmarkFaultFileReaderID, allocateLandmarkFaultFileReader );
-   FaultFileReaderFactory::getInstance().registerReader( ZyCorFaultFileReaderID, allocateZyCorFaultFileReader );
-
    return database::ProjectFileHandlerPtr ( new database::ProjectFileHandler ( name, outputTableNames ));
 }
 
@@ -1581,7 +1574,10 @@ bool ProjectHandle::loadFaultCollections( void )
       FaultFileReader::FaultDataSetIterator faultIter;
       for ( faultIter = reader->begin(); faultIter != reader->end(); ++faultIter )
       {
-         faultCollection->addFault( reader->faultName( faultIter ), reader->faultLine( faultIter ) );
+        for ( PointSequence pointSeq : reader->fault( faultIter ) )
+        {
+          faultCollection->addFault( reader->faultName( faultIter ), pointSeq );
+        }
       }
 
       reader->close();

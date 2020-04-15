@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2015-2020 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -6,11 +14,6 @@
 using namespace DataAccess;
 using namespace Interface;
 
-//------------------------------------------------------------//
-
-FaultFileReader* DataAccess::Interface::allocateLandmarkFaultFileReader () {
-  return new LandmarkFaultFileReader;
-}
 
 //------------------------------------------------------------//
 
@@ -26,13 +29,10 @@ LandmarkFaultFileReader::~LandmarkFaultFileReader () {
 
 void LandmarkFaultFileReader::preParseFaults () {
 
-  if ( ! isOpen ) {
-    #ifndef _FAULTUNITTEST_
+  if ( ! m_isOpen )
+  {
     fprintf ( stderr,
-                  "****************    ERROR LandmarkFaultFileReader::readFault   fault file is not open   ****************\n");
-    //PetscPrintf ( PETSC_COMM_WORLD,
-    //              "****************    ERROR LandmarkFaultFileReader::readFault   fault file is not open   ****************\n");
-    #endif
+              "****************    ERROR LandmarkFaultFileReader::readFault   fault file is not open   ****************\n");
     return;
   }
 
@@ -48,16 +48,17 @@ void LandmarkFaultFileReader::preParseFaults () {
 
   readBuffer ( buffer );
 
-  while ( faultFile.good ()) {
+  while ( m_faultFile.good ()) {
     newFaultName = getFaultName ( buffer );
 
     unit = getDistanceUnit ( buffer );
     newFault = false;
     newFaultLine.clear ();
 
-    while ( faultFile.good () && ! newFault ) {
+    while ( m_faultFile.good () && ! newFault ) {
       faultPoint ( X_COORD ) = getXCoordinate ( buffer );
       faultPoint ( Y_COORD ) = getYCoordinate ( buffer );
+      faultPoint ( Z_COORD ) = 0.0;
 
       convertDistanceUnits ( unit, METRE, faultPoint ( X_COORD ));
       convertDistanceUnits ( unit, METRE, faultPoint ( Y_COORD ));
@@ -66,16 +67,14 @@ void LandmarkFaultFileReader::preParseFaults () {
 
       readBuffer ( buffer );
 
-      if ( faultFile.good ()) {
+      if ( m_faultFile.good ()) {
         newFault = (newFaultName != getFaultName ( buffer ));
       }
 
     }
 
-    addFault ( newFaultName, newFaultLine );
+    addFault ( newFaultName, { newFaultLine } );
   }
-
-
 }
 
 //------------------------------------------------------------//
@@ -84,12 +83,12 @@ void LandmarkFaultFileReader::readBuffer ( char* buffer ) {
 
   do {
     buffer [ 0 ] = 0;
-    faultFile.getline ( buffer, FaultFileLineLength );
+    m_faultFile.getline ( buffer, FaultFileLineLength );
 
     ///
     /// 156 here is the location in the string where the domain units is specified.
     ///
-  } while ( faultFile.good () && ( strlen ( buffer ) < 156 || isComment ( buffer )));
+  } while ( m_faultFile.good () && ( strlen ( buffer ) < 156 || isComment ( buffer )));
 
 }
 

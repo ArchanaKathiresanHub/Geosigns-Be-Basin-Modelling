@@ -1,53 +1,42 @@
+//
+// Copyright (C) 2015-2020 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _FAULT_FILE_READER_FACTORY_H
 #define _FAULT_FILE_READER_FACTORY_H
 
 #include <string>
-#include <map>
 
-#include "FaultFileReader.h"
-
+#include "CharismaFaultFileReader.h"
+#include "IBSFaultFileReader.h"
+#include "LandmarkFaultFileReader.h"
+#include "ZycorFaultFileReader.h"
 
 namespace DataAccess
 {
    namespace Interface
    {
-      ///
-      /// The ID of the fault file reader, e.g. "FLT", "LANDMARKPOLYGON", ...
-      ///
-      typedef std::string FaultFileReaderID;
-
-      ///
-      /// A pointer to a function that allocates a concrete fault file reader object.
-      ///
-      typedef FaultFileReader* (*FaultFileReaderAllocator)();
-
-
-      class FaultFileReaderFactory {
-
-         typedef std::map<FaultFileReaderID, FaultFileReaderAllocator> ReaderAllocatorMap;
-
+      class FaultFileReaderFactory
+      {
          public :
 
-         ~FaultFileReaderFactory();
+           ~FaultFileReaderFactory();
 
-         static FaultFileReaderFactory& getInstance ();
+           static FaultFileReaderFactory& getInstance ();
 
-         void registerReader ( const FaultFileReaderID&        ID,
-               const FaultFileReaderAllocator& newAllocator );
+           FaultFileReader* createReader ( const std::string& ID ) const;
 
-         FaultFileReader* createReader ( const FaultFileReaderID& ID ) const;
+      private :
 
-         bool readerTypeIsRegistered ( const FaultFileReaderID& ID ) const;
+           FaultFileReaderFactory ();
 
-         private :
+           static FaultFileReaderFactory* s_FaultFileReaderFactoryInstance;
 
-         FaultFileReaderFactory ();
-
-         static FaultFileReaderFactory* s_FaultFileReaderFactoryInstance;
-
-         ReaderAllocatorMap readerAllocator;
-
-      }; 
+      };
    }
 }
 

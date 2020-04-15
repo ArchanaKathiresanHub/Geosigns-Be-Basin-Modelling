@@ -29,7 +29,7 @@ create_bm_library( TARGET ${LIB_NAME}
    utilities
 )
 
-add_gtest( NAME ${LIB_NAME}
+add_gtest( NAME DA::${LIB_NAME}
            SOURCES test/DataAccess.C
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
            LIBRARIES ${LIB_NAME} SerialDataAccess Serial_Hdf5
@@ -38,6 +38,23 @@ add_gtest( NAME ${LIB_NAME}
 )
 
 copy_test_file(DataAccessTest.project3d)
+
+add_gtest( NAME DA::CharismaFaultFileReaderTest
+  SOURCES test/CharismaFaultFileReaderTest.C
+  INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
+  LIBRARIES ${LIB_NAME} SerialDataAccess FileSystem
+  FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
+
+copy_test_file(FaultFileTest.charisma)
+copy_test_file(FaultEmptyFileTest.charisma)
+
+add_gtest( NAME DA::FaultFileReaderFactoryTest
+  SOURCES test/FaultFileReaderFactoryTest.C
+  INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
+  LIBRARIES ${LIB_NAME} SerialDataAccess FileSystem
+  FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
 
 generate_dox( src/DataAccess.cfg )
 
@@ -60,5 +77,15 @@ if ( MSVC )
       CSHARP_UNIT_TESTS_SRC         test/SerialDataAccessTest.cs
    )
 
-   configure_file(test/Project.project3d  ${CMAKE_BINARY_DIR}/Project.project3d COPYONLY)   
+   configure_file(test/Project.project3d  ${CMAKE_BINARY_DIR}/Project.project3d COPYONLY)
 endif (MSVC)
+
+
+
+#configure_file( test/FaultFileTest.charisma FaultFileTest.charisma COPYONLY )
+
+#add_gtest( NAME ${TARGET_NAME}::CharismaFaultFileReaderTest
+#  SOURCES test/CharismaFaultFileReaderTest.C src/CharismaFaultFileReader.C
+#  LIBRARIES FileSystem
+#  FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+#)

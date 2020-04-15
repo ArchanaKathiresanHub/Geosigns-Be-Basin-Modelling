@@ -85,10 +85,10 @@ namespace mbapi
          if (!rec) { throw Exception(NonexistingID) << "No data found in Basement table: "; }
 
          const std::string bottomBoundModelName = rec->getValue<std::string>(s_bottomBoundaryModelFieldName);
-         if (bottomBoundModelName == "Fixed Temperature") BBCModel = BasicCrustThinning;
-         else if (bottomBoundModelName == "Advanced Lithosphere Calculator") BBCModel = AdvancedCrustThinning;
-         else if (bottomBoundModelName == "Improved Lithosphere Calculator Linear Element Mode") BBCModel = ImprovedCrustThinningLinear;
-         else if (bottomBoundModelName == "Fixed HeatFlow") BBCModel = BaseSedimentHeatFlow;
+         if (bottomBoundModelName == "Fixed Temperature") BBCModel = BottomBoundaryModel::BasicCrustThinning;
+         else if (bottomBoundModelName == "Advanced Lithosphere Calculator") BBCModel = BottomBoundaryModel::AdvancedCrustThinning;
+         else if (bottomBoundModelName == "Improved Lithosphere Calculator Linear Element Mode") BBCModel = BottomBoundaryModel::ImprovedCrustThinningLinear;
+         else if (bottomBoundModelName == "Fixed HeatFlow") BBCModel = BottomBoundaryModel::BaseSedimentHeatFlow;
          else { throw Exception(UndefinedValue) << "Unknown bottom boundary model:" << bottomBoundModelName; }
 
       }
@@ -110,23 +110,23 @@ namespace mbapi
 
          switch (BBCModel)
          {
-         case BasicCrustThinning:
+         case BottomBoundaryModel::BasicCrustThinning:
             rec->setValue<std::string>(s_bottomBoundaryModelFieldName, "Fixed Temperature");
             break;
 
-         case AdvancedCrustThinning:
+         case BottomBoundaryModel::AdvancedCrustThinning:
             rec->setValue<std::string>(s_bottomBoundaryModelFieldName, "Advanced Lithosphere Calculator");
             break;
 
-         case ImprovedCrustThinningLinear:
+         case BottomBoundaryModel::ImprovedCrustThinningLinear:
             rec->setValue<std::string>(s_bottomBoundaryModelFieldName, "Improved Lithosphere Calculator Linear Element Mode");
             break;
 
-         case BaseSedimentHeatFlow:
+         case BottomBoundaryModel::BaseSedimentHeatFlow:
             rec->setValue<std::string>(s_bottomBoundaryModelFieldName, "Fixed HeatFlow");
             break;
 
-         default: throw Exception(UndefinedValue) << "Unknown bottom boundary model:" << BBCModel;
+         default: throw Exception(UndefinedValue) << "Unknown bottom boundary model:" << as_integer(BBCModel /*BottomBoundaryModel::UnknownBottomBoundaryModel*/);//BBCModel
          }
       }
       catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
@@ -148,9 +148,9 @@ namespace mbapi
          if (!rec) { throw Exception(NonexistingID) << "No data found in Basement table: "; }
 
          const std::string crustPropModelName = rec->getValue<std::string>(s_crustPropModelFieldName);
-         if (crustPropModelName == "Legacy Crust") CrustPropModel = LegacyCrust;
-         else if (crustPropModelName == "Low Conductivity Crust") CrustPropModel = LowCondModel;
-         else if (crustPropModelName == "Standard Conductivity Crust") CrustPropModel = StandardCondModel;
+         if (crustPropModelName == "Legacy Crust") CrustPropModel = CrustPropertyModel::LegacyCrust;
+         else if (crustPropModelName == "Low Conductivity Crust") CrustPropModel = CrustPropertyModel::LowCondModel;
+         else if (crustPropModelName == "Standard Conductivity Crust") CrustPropModel = CrustPropertyModel::StandardCondModel;
          else { throw Exception(UndefinedValue) << "Unknown crust property model:" << crustPropModelName; }
 
       }
@@ -173,19 +173,19 @@ namespace mbapi
 
          switch (CrustPropModel)
          {
-         case LegacyCrust:
+         case CrustPropertyModel::LegacyCrust:
             rec->setValue<std::string>(s_crustPropModelFieldName, "Legacy Crust");
             break;
 
-         case LowCondModel:
+         case CrustPropertyModel::LowCondModel:
             rec->setValue<std::string>(s_crustPropModelFieldName, "Low Conductivity Crust");
             break;
 
-         case StandardCondModel:
+         case CrustPropertyModel::StandardCondModel:
             rec->setValue<std::string>(s_crustPropModelFieldName, "Standard Conductivity Crust");
             break;
 
-         default: throw Exception(UndefinedValue) << "Unknown bottom boundary model:" << CrustPropModel;
+         default: throw Exception(UndefinedValue) << "Unknown bottom boundary model:" <<as_integer(CrustPropModel);
          }
       }
       catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
@@ -207,10 +207,10 @@ namespace mbapi
          if (!rec) { throw Exception(NonexistingID) << "No data found in Basement table: "; }
 
          const std::string mantlePropModelName = rec->getValue<std::string>(s_mantlePropModelFieldName);
-         if (mantlePropModelName == "Legacy Mantle") MantlePropModel = LegacyMantle;
-         else if (mantlePropModelName == "Low Conductivity Mantle") MantlePropModel = LowCondMnModel;
-         else if (mantlePropModelName == "Standard Conductivity Mantle") MantlePropModel = StandardCondMnModel;
-         else if (mantlePropModelName == "High Conductivity Mantle") MantlePropModel = HighCondMnModel;
+         if (mantlePropModelName == "Legacy Mantle") MantlePropModel = MantlePropertyModel::LegacyMantle;
+         else if (mantlePropModelName == "Low Conductivity Mantle") MantlePropModel = MantlePropertyModel::LowCondMnModel;
+         else if (mantlePropModelName == "Standard Conductivity Mantle") MantlePropModel = MantlePropertyModel::StandardCondMnModel;
+         else if (mantlePropModelName == "High Conductivity Mantle") MantlePropModel = MantlePropertyModel::HighCondMnModel;
          else { throw Exception(UndefinedValue) << "Unknown crust property model:" << mantlePropModelName; }
 
       }
@@ -233,23 +233,23 @@ namespace mbapi
 
          switch (MantlePropModel)
          {
-         case LegacyMantle:
+         case MantlePropertyModel::LegacyMantle:
             rec->setValue<std::string>(s_mantlePropModelFieldName, "Legacy Mantle");
             break;
 
-         case LowCondMnModel:
+         case MantlePropertyModel::LowCondMnModel:
             rec->setValue<std::string>(s_mantlePropModelFieldName, "Low Conductivity Mantle");
             break;
 
-         case StandardCondMnModel:
+         case MantlePropertyModel::StandardCondMnModel:
             rec->setValue<std::string>(s_mantlePropModelFieldName, "Standard Conductivity Mantle");
             break;
 
-         case HighCondMnModel:
+         case MantlePropertyModel::HighCondMnModel:
             rec->setValue<std::string>(s_mantlePropModelFieldName, "High Conductivity Mantle");
             break;
 
-         default: throw Exception(UndefinedValue) << "Unknown bottom boundary model:" << MantlePropModel;
+         default: throw Exception(UndefinedValue) << "Unknown bottom boundary model:" << as_integer(MantlePropModel);
          }
       }
       catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }

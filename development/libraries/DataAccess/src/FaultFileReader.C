@@ -1,4 +1,14 @@
+//
+// Copyright (C) 2015-2020 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "FaultFileReader.h"
+
+#include <fstream>
 
 using namespace DataAccess;
 using namespace Interface;
@@ -11,14 +21,6 @@ FaultFileReader::FaultFileReader () {
 //------------------------------------------------------------//
 
 FaultFileReader::~FaultFileReader () {
-
-  FaultDataSet::iterator faultIter;
-
-  for ( faultIter = faultData.begin (); faultIter != faultData.end (); ++faultIter ) {
-    faultIter->faultLine.clear ();
-  }
-
-  faultData.clear ();
 }
 
 //------------------------------------------------------------//
@@ -30,49 +32,22 @@ const std::string& FaultFileReader::faultName ( const FaultDataSetIterator& Iter
 
 //------------------------------------------------------------//
 
-const PointSequence&  FaultFileReader::faultLine ( const FaultDataSetIterator& Iter ) const {
-  return Iter->faultLine;
-}
-
-//------------------------------------------------------------//
-
-
-FaultFileReader::FaultDataSetIterator FaultFileReader::begin () const {
-  return faultData.begin ();
-}
-
-//------------------------------------------------------------//
-
-FaultFileReader::FaultDataSetIterator FaultFileReader::end () const {
-  return faultData.end ();
-}
-
-//------------------------------------------------------------//
-
-void FaultFileReader::addFault ( const std::string&   newFaultName,
-                                 const PointSequence& newFaultLine ) {
-
-  FaultDataItem newItem;
-
-  newItem.faultName = newFaultName;
-  newItem.faultLine = newFaultLine;
-
-  faultData.push_back ( newItem );
-
+const std::vector<PointSequence>&  FaultFileReader::fault ( const FaultDataSetIterator& Iter ) const {
+  return Iter->fault;
 }
 
 //------------------------------------------------------------//
 
 ASCIIFaultFileReader::ASCIIFaultFileReader () {
-  isOpen = false;
+  m_isOpen = false;
 }
 
 //------------------------------------------------------------//
 
 ASCIIFaultFileReader::~ASCIIFaultFileReader () {
 
-  if ( isOpen ) {
-    faultFile.close ();
+  if ( m_isOpen ) {
+    m_faultFile.close ();
   }
 
 }
@@ -82,17 +57,14 @@ ASCIIFaultFileReader::~ASCIIFaultFileReader () {
 void ASCIIFaultFileReader::open ( const std::string& fileName,
                                         bool&        fileIsOpen ) {
 
-  faultFile.open ( fileName.c_str ());
-  isOpen = faultFile.good ();
-  fileIsOpen = isOpen;
+  m_faultFile.open ( fileName.c_str ());
+  m_isOpen = m_faultFile.good ();
+  fileIsOpen = m_isOpen;
 
-  if ( ! isOpen ) {
-    #ifndef _FAULTUNITTEST_
+  if ( ! m_isOpen )
+  {
      fprintf ( stderr,
-                  "****************    ERROR ASCIIFaultFileReader::open   fault file, %s, could not be opened   ****************\n", fileName.c_str ());
-     //PetscPrintf ( PETSC_COMM_WORLD,
-     //             "****************    ERROR ASCIIFaultFileReader::open   fault file, %s, could not be opened   ****************\n", fileName.c_str ());
-    #endif
+               "****************    ERROR ASCIIFaultFileReader::open   fault file, %s, could not be opened   ****************\n", fileName.c_str ());
   }
 
 }
@@ -101,11 +73,16 @@ void ASCIIFaultFileReader::open ( const std::string& fileName,
 
 void ASCIIFaultFileReader::close () {
 
-  if ( isOpen ) {
-    faultFile.close ();
-    isOpen = false;
+  if ( m_isOpen ) {
+    m_faultFile.close ();
+    m_isOpen = false;
   }
 
 }
 
 //------------------------------------------------------------//
+
+bool ASCIIFaultFileReader::isEmpty()
+{
+    return m_faultFile.peek() == std::ifstream::traits_type::eof();
+}

@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2015-2020 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _INTERFACE_AUXILIARY_FAULT_TYPES_H
 #define _INTERFACE_AUXILIARY_FAULT_TYPES_H
 
@@ -24,24 +32,25 @@ namespace DataAccess
 
 
       ///
-      /// A point in R^2
+      /// A point in R^3
       ///
       class Point
       {
          public :
-	    Point (void)
-	    {
-	    }
+            Point (void)
+            {
+            }
 
-	    virtual ~Point (void)
-	    {
-	    }
+            virtual ~Point (void)
+            {
+            }
 
-	    Point (const Point & point)
-	    {
-	       m_values[X_COORD] = point.m_values[X_COORD];
-	       m_values[Y_COORD] = point.m_values[Y_COORD];
-	    }
+            Point (const Point & point)
+            {
+               m_values[X_COORD] = point.m_values[X_COORD];
+               m_values[Y_COORD] = point.m_values[Y_COORD];
+               m_values[Z_COORD] = point.m_values[Z_COORD];
+            }
 
             virtual double  operator()( const CoordinateAxis axis ) const
             {
@@ -53,7 +62,7 @@ namespace DataAccess
             }
 
          private :
-            double m_values [ 2 ];
+            double m_values [ 3 ];
 
       };
 

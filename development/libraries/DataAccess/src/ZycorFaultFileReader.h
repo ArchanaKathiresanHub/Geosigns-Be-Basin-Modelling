@@ -1,21 +1,23 @@
+//
+// Copyright (C) 2015-2020 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _ZYCOR_FAULT_FILE_READER_H
 #define _ZYCOR_FAULT_FILE_READER_H
 
-#include "FaultFileReader.h"
-#include "auxiliaryfaulttypes.h"
+#include "FaultFileReader2D.h"
 
 namespace DataAccess
 {
    namespace Interface
    {
-      ///
-      /// The identifier and object allocator for the fault file reader factory.
-      ///
       const std::string ZyCorFaultFileReaderID = "ZYCFCUT";
 
-      FaultFileReader* allocateZyCorFaultFileReader ();
-
-      class ZyCorFaultFileReader : public ASCIIFaultFileReader
+      class ZyCorFaultFileReader : public FaultFileReader2D
       {
          public :
 

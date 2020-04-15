@@ -1,4 +1,11 @@
-//#include <cmath>
+//
+// Copyright (C) 2015-2020 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <math.h>
 
 #include "Grid.h"
@@ -55,7 +62,7 @@ Point DataAccess::Interface::midPoint ( const Point& P1, const Point& P2 ) {
 }
 
 bool DataAccess::Interface::operator== ( const Point& P1, const Point& P2 ) {
-  return P1 ( Interface::X_COORD ) == P2 ( Interface::X_COORD ) && P1 ( Interface::Y_COORD ) == P2 ( Interface::Y_COORD );
+  return P1 ( Interface::X_COORD ) == P2 ( Interface::X_COORD ) && P1 ( Interface::Y_COORD ) == P2 ( Interface::Y_COORD  ) && P1 ( Interface::Z_COORD ) == P2 ( Interface::Z_COORD );
 }
 
 bool DataAccess::Interface::operator!= ( const Point& P1, const Point& P2 ) {
