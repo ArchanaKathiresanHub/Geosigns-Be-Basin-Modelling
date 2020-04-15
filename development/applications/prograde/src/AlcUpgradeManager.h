@@ -93,15 +93,11 @@ namespace Prograde
          /// @details Updates member variable m_basaltThicknessHistory
          void computeBasaltThickness();
 
-         /// @brief Write the OceaCrustalThicknessIoTbl from the basalt thickness history maps stored in m_basaltThicknessHistory
-         /// @details Adds basalt thickness maps to Input.HDF and reference them in GridMapIoTbl
-         ///    Map naming convention: OceanicCrustThicknessFromLegacyALC_{age}, written to Inputs.HDF
-         void writeOceaCrustalThicknessIoTbl(double);
-
-		 //@brief Modifies the ContCrustalThicknessIoTbl 
-		 //creates a map at basement age by using linear interpolation and adds it to ContCrustalThicknessIoTbl
-		 /// Map naming convention: ContCrustThicknessInterpolated_{age}, written to Inputs.HDF
-		 void updateContCrustalThicknessIoTbl(double);
+		 /// @brief Generates and saves the crustal map to Inputs.HDF at any age
+		 /// Given the crustal gridmap at any age, it generates and saves the map to Inputs.HDF with GridMapIoTbl updated for the new changes;
+		 /// It also adds the record in the specified row number of the specified Table
+		 /// Naming convention for the map : MapName_{age} : MapName can be passed as an argument to this method
+		 void generateCrustalMaps(std::string, double, DataAccess::Interface::GridMap* const, std::string, std::size_t &);
 
          mbapi::Model& m_model;                                      ///< The model to upgrade
          std::shared_ptr<DataAccess::Interface::ProjectHandle> m_ph; ///< The project handle of the model to upgrade
