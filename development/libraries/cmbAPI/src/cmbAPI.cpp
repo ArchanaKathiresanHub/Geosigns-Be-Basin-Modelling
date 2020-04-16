@@ -1946,7 +1946,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       mixList[layersName[i].second] = newLithoName;
 
       // set updated lithologies list back to the layer
-      if ( ErrorHandler::NoError != m_stratMgr.setLayerLithologiesList( lyd, mixList, lithPerc ) )
+      if ( ErrorHandler::NoError != m_stratMgr.setLayerLithologiesList( lyd, mixList, lithPerc, percMaps) )
       {
          throw ErrorHandler::Exception( m_stratMgr.errorCode() ) << m_stratMgr.errorMessage();
       }

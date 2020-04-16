@@ -95,6 +95,7 @@ namespace mbapi {
             LayerID                          id           ///< layer ID
           , const std::vector<std::string> & lithoList    ///< lithologies name list (max 3)
           , const std::vector<double>      & lithoPercent ///< corresponded lithology percentage
+		  , const std::vector<std::string> & lithoPercentGrid ///< corresponded lithology percentageGrid
                                                               ) = 0;
 
       /// @brief Collect layers where the given lithology is referenced
