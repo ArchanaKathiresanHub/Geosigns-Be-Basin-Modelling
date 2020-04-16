@@ -280,7 +280,7 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID 
 }
 
 // Set all lithologies associated with the given layer and percentage of each lithology in a mix
-ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( LayerID id, const std::vector<std::string> & lithoList, const std::vector<double> & lithoPercent )
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( LayerID id, const std::vector<std::string> & lithoList, const std::vector<double> & lithoPercent, const std::vector<std::string> & lithoPercentGrid)
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -303,14 +303,14 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( Layer
       // set 1st lithology
       rec->setValue<std::string>( s_lithoType1FiledName,        lithoList[0]    );
       rec->setValue<double>(      s_lithoTypePercent1FiledName, lithoPercent[0] );
-      rec->setValue<std::string>( s_lithoTypePercent1GridFiledName, "" );
+      rec->setValue<std::string>( s_lithoTypePercent1GridFiledName, lithoPercentGrid[0]);
 
       // set 2nd lithology
       if ( lithoList.size() > 1 )
       {
          rec->setValue<std::string>( s_lithoType2FiledName,        lithoList[1] );
          rec->setValue<double>(      s_lithoTypePercent2FiledName, lithoPercent[1] );
-         rec->setValue<std::string>( s_lithoTypePercent2GridFiledName, "" );
+         rec->setValue<std::string>( s_lithoTypePercent2GridFiledName, lithoPercentGrid[1] );
       }
       else
       {

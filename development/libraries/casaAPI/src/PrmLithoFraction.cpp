@@ -326,7 +326,7 @@ namespace casa
          lithoPercentages = createLithoPercentages( m_lithoFractions, m_lithoFractionsInds );
 
          // set the three percentages in the model
-         if ( ErrorHandler::NoError != stMgr.setLayerLithologiesList( lid, lithoNames, lithoPercentages ) )
+         if ( ErrorHandler::NoError != stMgr.setLayerLithologiesList( lid, lithoNames, lithoPercentages, percMaps) )
          {
             throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
          }

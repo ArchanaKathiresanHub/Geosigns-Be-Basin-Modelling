@@ -466,7 +466,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::cleanDuplicatedLithologies()
                      isReplaced = true;
                   }
                }
-               if ( isReplaced ) { m_stMgr->setLayerLithologiesList( layIDs[j], lithoNamesLst, lithoPerct ); }
+               if ( isReplaced ) { m_stMgr->setLayerLithologiesList( layIDs[j], lithoNamesLst, lithoPerct, percMaps); }
             }
 
             ////////////// process fault cuts

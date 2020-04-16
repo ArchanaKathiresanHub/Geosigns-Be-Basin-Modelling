@@ -100,6 +100,7 @@ namespace mbapi {
       virtual ErrorHandler::ReturnCode setLayerLithologiesList( LayerID                          id
                                                               , const std::vector<std::string> & lithoList
                                                               , const std::vector<double>      & lithoPercent
+															  , const std::vector<std::string> & lithoPercentGrid
                                                               );
 
       // Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also

@@ -109,9 +109,10 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 			}
 			
 		}
-
-		//This is added just to check the legacy parent litho names. It further needs to be updated to the corresponding BPA2 litholigy Name
-		bpa2ParentLithoName = modelConverter.upgradeLithologyName(legacyParentLithoName); 
+		else {
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Lithology Name: '" << legacyLithoTypeName << "' is a BPA userDefined lithology. No upgrade to the lithology name is needed.";
+		}
+		bpa2ParentLithoName = modelConverter.upgradeLithologyName(legacyParentLithoName);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "DefinedBy", bpa2ParentLithoName);
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* DefinedBy: Updated from '" << parentLithologyDetails << "' to '" << bpa2ParentLithoName << "'.";
 				
@@ -274,7 +275,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 //......................................UPGRADING LITHOLOGY NAME in stratIoTbl......................................//	
 	//updating the lithology names for the Lithotype1, Lithotype2 and Lithotype3 of stratIoTbl 
 	database::Table * strat_table = m_ph->getTable("StratIoTbl");
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the lithotype names in StratIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the lithotype names in StratIoTbl as per the mapping of BPA->BPA2 standard lithologies";
 	for (size_t stratId = 0; stratId < strat_table->size(); ++stratId)
 	{
 		newlithoNamesLst.clear();
@@ -284,8 +285,14 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 			legacyLithoTypeName = lithoNamesLst[temp];
 			bpa2LithoName = modelConverter.upgradeLithologyName(legacyLithoTypeName);
 			newlithoNamesLst.push_back(bpa2LithoName);
+			if (temp<2 && lithoPerct[temp] != DataAccess::Interface::DefaultUndefinedScalarValue && percMaps[temp]!= "")
+			{
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "*Both scalar and maps are found for litholotype["<<temp+1<<"] percentage for StratigraphyId="<< stratId<<". Keeping the map and deleting the scalar field";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << " Percent scalar value is updated from "<< lithoPerct[temp]<<" to "<< DataAccess::Interface::DefaultUndefinedScalarValue;
+				lithoPerct[temp] = DataAccess::Interface::DefaultUndefinedScalarValue;
+			}
 		}
-		m_model.stratigraphyManager().setLayerLithologiesList(stratId, newlithoNamesLst, lithoPerct);
+		m_model.stratigraphyManager().setLayerLithologiesList(stratId, newlithoNamesLst, lithoPerct, percMaps);
 	}
 
 //......................................UPGRADING LITHOLOGY NAME in AllochthonLithoIoTbl......................................//	
