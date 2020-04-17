@@ -161,22 +161,22 @@ void Prograde::AlcUpgradeManager::upgrade()
 
 	  /////////////////////////////////////////////////////////////////////////////////// updating ContCrustalThicknessIoTbl //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		 ///In ContCrustalThicknessIoTbl, if the last record's age is less than the DepoAge of basement, then add a new row with age = basement age copying data from the last record
-		 ///This condition has been taken care separately because the ContCrustalThickness is required at the age >=basement age for calculations of OceanicCrustalThickness values
-		  database::Table * contCrustalThicknessIo_Table = m_ph->getTable("ContCrustalThicknessIoTbl");
-		  database::Record * record = contCrustalThicknessIo_Table->getRecord(static_cast<int>(contCrustalThicknessIo_Table->size() - 1));
-		  double age_lastRecord = record->getValue<double>("Age");
-		  if (age_lastRecord < basementAge)
-		  {
-			  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating ContCrustalThicknessIoTbl";
-			  double thickness_lastRecord = record->getValue<double>("Thickness");
-			  std::string thickGrid_lastRecord = rec->getValue<std::string>("ThicknessGrid");
-			  m_model.addRowToTable("ContCrustalThicknessIoTbl");
-			  m_model.setTableValue("ContCrustalThicknessIoTbl", contCrustalThicknessIo_Table->size() - 1, "Age", basementAge);
-			  m_model.setTableValue("ContCrustalThicknessIoTbl", contCrustalThicknessIo_Table->size() - 1, "Thickness", thickness_lastRecord);
-			  m_model.setTableValue("ContCrustalThicknessIoTbl", contCrustalThicknessIo_Table->size() - 1, "ThicknessGrid", thickGrid_lastRecord);
-			  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "As the age of the last record in ContCrustalThicknessIoTbl : " << age_lastRecord << " is less than the basement age : " << basementAge << ", a new row is added with age = basement age with data copied from the last record";
-		  }
+	  ///In ContCrustalThicknessIoTbl, if the last record's age is less than the DepoAge of basement, then add a new row with age = basement age copying data from the last record
+	  ///This condition has been taken care separately because the ContCrustalThickness is required at the age >=basement age for calculations of OceanicCrustalThickness values
+	  database::Table * contCrustalThicknessIo_Table = m_ph->getTable("ContCrustalThicknessIoTbl");
+	  database::Record * record = contCrustalThicknessIo_Table->getRecord(static_cast<int>(contCrustalThicknessIo_Table->size() - 1));
+	  double age_lastRecord = record->getValue<double>("Age");
+	  if (age_lastRecord < basementAge)
+	  {
+		  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating ContCrustalThicknessIoTbl";
+		  double thickness_lastRecord = record->getValue<double>("Thickness");
+		  std::string thickGrid_lastRecord = rec->getValue<std::string>("ThicknessGrid");
+		  m_model.addRowToTable("ContCrustalThicknessIoTbl");
+		  m_model.setTableValue("ContCrustalThicknessIoTbl", contCrustalThicknessIo_Table->size() - 1, "Age", basementAge);
+		  m_model.setTableValue("ContCrustalThicknessIoTbl", contCrustalThicknessIo_Table->size() - 1, "Thickness", thickness_lastRecord);
+		  m_model.setTableValue("ContCrustalThicknessIoTbl", contCrustalThicknessIo_Table->size() - 1, "ThicknessGrid", thickGrid_lastRecord);
+		  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "As the age of the last record in ContCrustalThicknessIoTbl : " << age_lastRecord << " is less than the basement age : " << basementAge << ", a new row is added with age = basement age with data copied from the last record";
+	  }
 
       createCrustThickness(); /// creates crustal thicknesses
       computeBasaltThickness(); /// computes basalt thicknesses
