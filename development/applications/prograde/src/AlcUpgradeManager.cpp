@@ -180,13 +180,11 @@ void Prograde::AlcUpgradeManager::upgrade()
 
       createCrustThickness(); // creates crustal thicknesses
       computeBasaltThickness(); // computes basalt thicknesses
-
 	  /// we need to update the ContCrustalThicknessIoTbl only in case if age_lastRecord > basementAge as the case age_lastRecord < basementAge has already been taken care and in case if age_lastRecord = basementAge then we donot have to do anything
 	  if (age_lastRecord > basementAge) 
 	  {
 		  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating ContCrustalThicknessIoTbl";
 		  //Deleting all the rows for which age > basement age
-		  database::Table * contCrustalThicknessIo_Table = m_ph->getTable("ContCrustalThicknessIoTbl");
 		  for (int id = contCrustalThicknessIo_Table->size() - 1; id >= 0; --id)
 		  {
 			  database::Record * rec = contCrustalThicknessIo_Table->getRecord(static_cast<int>(id));
@@ -198,22 +196,27 @@ void Prograde::AlcUpgradeManager::upgrade()
 			  }
 			  else break;
 		  }
-		  size_t rowNumber = contCrustalThicknessIo_Table->size();
-		  const DataAccess::Interface::PaleoFormationPropertyList* paleoFormations = m_crust->getPaleoThicknessHistory();
-		  AbstractSnapshotVsGridMap crustThicknesses;
-		  std::for_each(paleoFormations->begin(), paleoFormations->end(), [&crustThicknesses, basementAge, this, &rowNumber](const DataAccess::Interface::PaleoFormationProperty *const it)
+		  database::Record * updatedRecord = contCrustalThicknessIo_Table->getRecord(static_cast<int>(contCrustalThicknessIo_Table->size() - 1));
+		  double age_updatedLastRecord = updatedRecord->getValue<double>("Age");
+		  if (age_updatedLastRecord != basementAge) ///if a record with age=basement age is present then we donot have to interpolate
 		  {
-			  const DataModel::AbstractSnapshot* const snapshot = it->getSnapshot();
-			  auto age = snapshot->getTime();
-			  if (age == basementAge)
+			  size_t rowNumber = contCrustalThicknessIo_Table->size();
+			  const DataAccess::Interface::PaleoFormationPropertyList* paleoFormations = m_crust->getPaleoThicknessHistory();
+			  AbstractSnapshotVsGridMap crustThicknesses;
+			  std::for_each(paleoFormations->begin(), paleoFormations->end(), [&crustThicknesses, basementAge, this, &rowNumber](const DataAccess::Interface::PaleoFormationProperty *const it)
 			  {
-				  const auto gridMap = const_cast<DataAccess::Interface::GridMap*>(it->getMap(DataAccess::Interface::CrustThinningHistoryInstanceThicknessMap));
-				  generateCrustalMaps("ContCrustalThicknessIoTbl", age, gridMap, "ContCrustThicknessInterpolated_", rowNumber);
-				  rowNumber++;
-			  }
-		  });
-		  //clean memory
-		  delete paleoFormations;
+				  const DataModel::AbstractSnapshot* const snapshot = it->getSnapshot();
+				  auto age = snapshot->getTime();
+				  if (age == basementAge)
+				  {
+					  const auto gridMap = const_cast<DataAccess::Interface::GridMap*>(it->getMap(DataAccess::Interface::CrustThinningHistoryInstanceThicknessMap));
+					  generateCrustalMaps("ContCrustalThicknessIoTbl", age, gridMap, "ContCrustThicknessInterpolated_", rowNumber);
+					  rowNumber++;
+				  }
+			  });
+			  //clean memory
+			  delete paleoFormations;
+		  }
 	  }
 	  // ContCrustalThicknessIoTbl updated
 
@@ -377,8 +380,8 @@ void Prograde::AlcUpgradeManager::computeBasaltThickness()
 void Prograde::AlcUpgradeManager::generateCrustalMaps(std::string refferedTable, double age, DataAccess::Interface::GridMap* const gridMap, std::string mapName_part, std::size_t &rowNumber )
 {
 	double value = 0;
-	double minV = 0;
-	double maxV = 0;
+	double minV = 6300000.0;///initialising with the maximum possible value
+	double maxV = 0;///initialising with the minimum possible value
 	for (unsigned int j = gridMap->firstJ(); j <= gridMap->lastJ(); ++j)
 	{
 		for (unsigned int i = gridMap->firstI(); i <= gridMap->lastI(); ++i)
