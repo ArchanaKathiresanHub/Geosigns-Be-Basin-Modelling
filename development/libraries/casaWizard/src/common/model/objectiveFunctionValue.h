@@ -10,7 +10,7 @@ class ObjectiveFunctionValue
 {
 public:
   ObjectiveFunctionValue() = default;
-  explicit ObjectiveFunctionValue(const QString& var, const double absErr = 0.0, const double relErr = 0.1, const double w = 0.0);
+  explicit ObjectiveFunctionValue(const QString& var, const double absErr = 0.0, const double relErr = 0.0, const double w = 0.0);
   static ObjectiveFunctionValue read(const int version, const QStringList& p);
   int version() const;
   QStringList write() const;

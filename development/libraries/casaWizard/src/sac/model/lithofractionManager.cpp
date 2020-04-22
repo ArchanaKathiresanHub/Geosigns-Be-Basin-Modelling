@@ -21,7 +21,7 @@ LithofractionManager::LithofractionManager() :
 {
 }
 
-const QVector<Lithofraction>&LithofractionManager::lithofractions() const
+const QVector<Lithofraction>& LithofractionManager::lithofractions() const
 {
   return lithofractions_;
 }
