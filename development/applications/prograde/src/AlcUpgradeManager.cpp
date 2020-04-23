@@ -277,8 +277,9 @@ void Prograde::AlcUpgradeManager::upgrade()
 			  m_model.ctcManager().getGridMapIoTblMapName(tsId, mapName);
 			  m_model.removeRecordFromTable("GridMapIoTbl", tsId);
 			  tsId--;
+			  GridMapId = m_model.ctcManager().getGridMapID();
 			  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The MapName " << mapName << " referred by the table " << GridMapReferredBy << " is cleared as the table has been cleared";
-		  }
+		  }  
 	  }
 	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMapIoTbl is updated for the changes in OceaCrustalThicknessIoTbl and ContCrustalThicknessIoTbl as well";
      
@@ -377,7 +378,7 @@ void Prograde::AlcUpgradeManager::computeBasaltThickness()
 }
 //------------------------------------------------------------//
 
-void Prograde::AlcUpgradeManager::generateCrustalMaps(std::string refferedTable, double age, DataAccess::Interface::GridMap* const gridMap, std::string mapName_part, std::size_t &rowNumber )
+void Prograde::AlcUpgradeManager::generateCrustalMaps(std::string refferedTable, double age, DataAccess::Interface::GridMap* const gridMap, std::string mapName_part, std::size_t &rowNumber)
 {
 	double value = 0;
 	double minV = 6300000.0;///initialising with the maximum possible value
@@ -403,18 +404,31 @@ void Prograde::AlcUpgradeManager::generateCrustalMaps(std::string refferedTable,
 	{
 		///check for limits and clip values to range
 		double updatedValue = minV;
-		if (!NumericFunctions::inRange(minV, 0.0, 6300000.0))
+
+		if (!refferedTable.compare("ContCrustalThicknessIoTbl"))
 		{
-			updatedValue = NumericFunctions::clipValueToRange(minV, 0.0, 6300000.0);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The calculated value of thickness at age : " << age << " Ma : " << minV << " m  is not in the acceptable limits [0,6300000], hence clipped to : " << updatedValue;
+			if (!NumericFunctions::inRange(minV, 0.0, 6300000.0))
+			{
+				updatedValue = NumericFunctions::clipValueToRange(minV, 0.0, 6300000.0);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The calculated value of thickness at age : " << age << " Ma : " << minV << " m  is not in the acceptable limits [0,6300000.0], hence clipped to : " << updatedValue;
+			}
 		}
+		else if (!refferedTable.compare("OceaCrustalThicknessIoTbl"))
+		{
+			if (!NumericFunctions::inRange(minV, 0.0, 500000.0))
+			{
+				updatedValue = NumericFunctions::clipValueToRange(minV, 0.0, 6300000.0);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The calculated value of thickness at age : " << age << " Ma : " << minV << " m  is not in the acceptable limits [0,500000], hence clipped to : " << updatedValue;
+			}
+		}
+
 		m_model.addRowToTable(refferedTable);
 		m_model.setTableValue(refferedTable, rowNumber, ageField, age);
 		m_model.setTableValue(refferedTable, rowNumber, thicknessField, updatedValue);
 		m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, "");
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with calculated value of thickness : " << updatedValue << " m at the age : " << age << " Ma is added";
 	}
-	else 
+	else
 	{
 		const auto outputFileName = "Inputs.HDF";
 		size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
@@ -425,9 +439,20 @@ void Prograde::AlcUpgradeManager::generateCrustalMaps(std::string refferedTable,
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with calculated thickness map : " << mapName << " at the age : " << age << " Ma is added";
 		//check for the values in the maps to be in range
 		size_t mapId = m_model.mapsManager().findID(mapName);
-		if ((!NumericFunctions::inRange(minV, 0.0, 6300000.0)) || (!NumericFunctions::inRange(maxV, 0.0, 6300000.0)))
+		if (!refferedTable.compare("ContCrustalThicknessIoTbl"))
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The values in the ThicknessGrid : " << mapName << " at age : " << age << " Ma are not in the acceptable limits [0,6300000]";
+			if ((!NumericFunctions::inRange(minV, 0.0, 6300000.0)) || (!NumericFunctions::inRange(maxV, 0.0, 6300000.0)))
+			{
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The values in the ThicknessGrid : " << mapName << " at age : " << age << " Ma are not in the acceptable limits [0,6300000]";
+			}
+		}
+		else if (!refferedTable.compare("OceaCrustalThicknessIoTbl"))
+		{
+			if ((!NumericFunctions::inRange(minV, 0.0, 500000.0)) || (!NumericFunctions::inRange(maxV, 0.0, 500000.0)))
+			{
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The values in the ThicknessGrid : " << mapName << " at age : " << age << " Ma are not in the acceptable limits [0,500000]";
+			}
+
 		}
 	}
 }
