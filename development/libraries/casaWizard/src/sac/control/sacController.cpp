@@ -177,6 +177,8 @@ void SACcontroller::slotPushSelectProject3dClicked()
   const QString projectName = casaScenario_.project3dFilename();
 
   sacTab_->lineEditProject3D()->setText(workingDir + "/" + projectName);
+
+  lithofractionController_->loadLayersFromProject();
 }
 
 void SACcontroller::slotPushSelectCalibrationClicked()

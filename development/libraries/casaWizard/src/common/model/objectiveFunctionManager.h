@@ -32,6 +32,7 @@ public:
 private:
   ObjectiveFunctionManager(const ObjectiveFunctionManager&) = delete;
   ObjectiveFunctionManager& operator=(ObjectiveFunctionManager) = delete;
+  ObjectiveFunctionValue createObjectiveFunctionValue(const QString& variable) const;
 
   QVector<ObjectiveFunctionValue> values_;
 };

@@ -24,7 +24,7 @@ LithofractionTable::LithofractionTable(QWidget* parent) :
   table_{new QTableWidget(this)},
   addRow_{new QPushButton("Add", this)},
   delRow_{new QPushButton("Delete", this)},
-  fillLayers_{new QPushButton("Fill from project 3d", this)}
+  fillLayers_{new QPushButton("Restore defaults from project 3d", this)}
 {
   const int columns{7};
   const QStringList tableHeaders{"Layer name", "Litho 1", "Min", "Max", "Litho 2", "Min", "Max"};

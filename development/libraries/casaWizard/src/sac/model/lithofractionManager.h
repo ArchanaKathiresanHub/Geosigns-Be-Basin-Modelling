@@ -50,6 +50,7 @@ private:
   QVector<OptimizedLithofraction> optimizedLithofractions_;
 
   void checkLithofractionPercentWarning(int index) const;
+
 };
 
 }  // namespace sac

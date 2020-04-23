@@ -3,6 +3,8 @@
 #include "scenarioReader.h"
 #include "scenarioWriter.h"
 
+#include <QMap>
+#include <QPair>
 #include <QString>
 
 namespace casaWizard
@@ -40,7 +42,7 @@ void ObjectiveFunctionManager::setVariables(const QStringList& variables)
   {
     if (!currentVariables.contains(variable))
     {
-      ObjectiveFunctionValue val(variable);
+      const ObjectiveFunctionValue val = createObjectiveFunctionValue(variable);
       values_.push_back(val);
       currentVariables << variable;
       change = true;
@@ -131,6 +133,25 @@ void ObjectiveFunctionManager::readFromFile(const ScenarioReader& reader)
 void ObjectiveFunctionManager::clear()
 {
   values_.clear();
+}
+
+ObjectiveFunctionValue ObjectiveFunctionManager::createObjectiveFunctionValue(const QString &variable) const
+{
+  QMap<QString, QPair<double, double>> defaultValueMap;
+  defaultValueMap.insert(QString("TwoWayTime"), {50.0, 0.0});
+  defaultValueMap.insert(QString("BulkDensity"), {20.0, 0.0});
+  defaultValueMap.insert(QString("SonicSlowness"), {1.0, 0.05});
+
+  if (defaultValueMap.contains(variable) == 0)
+  {
+    return ObjectiveFunctionValue(variable);
+  }
+
+  const QPair<double, double>& p = defaultValueMap[variable];
+  const double defaultAbsoluteError = p.first;
+  const double defaultRelativeError = p.second;
+
+  return ObjectiveFunctionValue(variable, defaultAbsoluteError, defaultRelativeError);
 }
 
 } // namespace casaWizard

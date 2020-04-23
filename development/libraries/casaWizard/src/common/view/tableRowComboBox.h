@@ -13,6 +13,7 @@ class TableRowComboBox : public QComboBox
 
 public:
   explicit TableRowComboBox(int tableRow, QWidget* parent = 0);
+  void wheelEvent(QWheelEvent* e) final;
 
 signals:
   void currentTextChanged(const int row, const QString& currentText);

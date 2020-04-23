@@ -14,6 +14,10 @@ TableRowComboBox::TableRowComboBox(int tableRow, QWidget* parent) :
   setMinimumHeight(30);
 }
 
+void TableRowComboBox::wheelEvent(QWheelEvent* /*e*/)
+{
+}
+
 void TableRowComboBox::handleTextChanged(QString currentText)
 {
   emit currentTextChanged(tableRow_, currentText);
@@ -23,6 +27,5 @@ void TableRowComboBox::handleIndexChanged(int selectedIndex)
 {
   emit currentIndexChanged(tableRow_, selectedIndex);
 }
-
 } // namespace casaWizard
 

@@ -7,6 +7,7 @@
 
 #include <QPushButton>
 #include <QTableWidgetItem>
+#include <QMessageBox>
 
 namespace casaWizard
 {
@@ -82,6 +83,25 @@ void LithofractionController::slotTableChange(QTableWidgetItem* item)
 
 void LithofractionController::slotLayersFromProject()
 {
+  loadLayersFromProject();
+}
+
+void LithofractionController::loadLayersFromProject()
+{
+  if (!lithofractionManager_.lithofractions().empty())
+  {
+    QMessageBox willOverwrite(QMessageBox::Icon::Warning,
+                             "Warning",
+                             "Your changes in lithology will be overwritten by the defaults as defined in the project3d file. Continue anyway?",
+                             QMessageBox::Yes | QMessageBox::No);
+    if (willOverwrite.exec() == QMessageBox::No)
+    {
+      return;
+    }
+
+    lithofractionManager_.clear();
+  }
+
   const QStringList layerNames = projectReader_.layerNames();
   for (const QString& name : layerNames )
   {

@@ -24,6 +24,7 @@ class LithofractionController : public QObject
 public:
   explicit LithofractionController(LithofractionTable* table, SACScenario& scenario, QObject* parent);
   void updateLithofractionTable();
+  void loadLayersFromProject();
 
 private slots:
   void slotAddRow();
