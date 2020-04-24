@@ -46,7 +46,7 @@ void Prograde::UpgradeManagers::runAll() const{
    // Project details upgradation 
    managers.emplace_back(std::unique_ptr<Prograde::ProjectIoTblUpgradeManager>(new Prograde::ProjectIoTblUpgradeManager(m_model)));
 
-   // Strat Io Table upgradation (keep it before AlcUpgradeManager because of range check [0-999] on basement age and basement age is used for crust calculations in ALC
+   // Strat Io Table upgradation 
    managers.emplace_back(std::unique_ptr<Prograde::StratigraphyUpgradeManager>(new Prograde::StratigraphyUpgradeManager(m_model)));
 
    // ALCv1 to ALCv2

@@ -83,9 +83,12 @@ void Prograde::AlcUpgradeManager::upgrade() {
 
       LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS ) << "ALC upgrade done";
    }
-   else {
-      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "production ALC detected (v2018.01+)";
-      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS ) << "no ALC upgrade needed";
+   else
+   {
+	   if (m_ph->isFixedTempBasement()) LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Basic Crust Thinning mode detected";
+	   else if (m_ph->isFixedHeatFlow())  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Fixed Heat Flow mode detected";
+	   else  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Bottom Boundary Condition : Unknown";
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "no ALC upgrade needed";
    }
 }
 

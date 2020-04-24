@@ -101,7 +101,7 @@ void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceTempIoTable() {
 	}
 
 	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceTemperature Layer age Values are clipped";
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceTemperature Layer age values are clipped to a mamxium of 999, anything above 999 is placed between 998 and 999";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceTemperature Layer age values are clipped to a maximum of 999, anything above 999 is placed between 998 and 999";
 }
 
 

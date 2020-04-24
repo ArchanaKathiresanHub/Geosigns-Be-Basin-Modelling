@@ -169,6 +169,7 @@ void Prograde::CtcUpgradeManager::upgrade() {
 		   {
 			   m_model.removeRecordFromTable("GridMapIoTbl", tsId);
 			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Legacy Map:" << GridMapIoMapName << " related to deprecated fields of CTCIoTbl is removed from GridMapIoTbl";
+			   GridMapId = m_model.ctcManager().getGridMapID();
 			   tsId--;
 		   }
 #if 0
