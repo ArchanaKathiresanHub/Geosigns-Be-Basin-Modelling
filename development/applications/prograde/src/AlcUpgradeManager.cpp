@@ -86,11 +86,9 @@ void Prograde::AlcUpgradeManager::upgrade()
 	  database::Table * BasementIo_Table = m_ph->getTable("BasementIoTbl");
 	  database::Record * Rec = BasementIo_Table->getRecord(0);
 
-	  //Below code converts the BottomBoundaryModel name "Advanced Lithosphere Calculator" to "Improved Lithosphere Calculator Linear Element Mode"; As of now, the code is commented out because the new name is not updated in the basin code. Once updated, use this code.
-	  /*
+	  //Below code converts the BottomBoundaryModel name "Advanced Lithosphere Calculator" to "Improved Lithosphere Calculator Linear Element Mode"
 	  std::string BottomBoundaryModel = rec->getValue<std::string>("BottomBoundaryModel");
 	  rec->setValue<std::string>("BottomBoundaryModel", modelConverter.updateBottomBoundaryModel(BottomBoundaryModel));
-	  */
 
 	  // log the value of TopAsthenoTemp if it is not the default value
 	  double TopAsthenoTemp = Rec->getValue<double>("TopAsthenoTemp");
@@ -415,10 +413,10 @@ void Prograde::AlcUpgradeManager::generateCrustalMaps(std::string refferedTable,
 		}
 		else if (!refferedTable.compare("OceaCrustalThicknessIoTbl"))
 		{
-			if (!NumericFunctions::inRange(minV, 0.0, 500000.0))
+			if (!NumericFunctions::inRange(minV, 0.0, 50000.0))
 			{
-				updatedValue = NumericFunctions::clipValueToRange(minV, 0.0, 6300000.0);
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The calculated value of thickness at age : " << age << " Ma : " << minV << " m  is not in the acceptable limits [0,500000], hence clipped to : " << updatedValue;
+				updatedValue = NumericFunctions::clipValueToRange(minV, 0.0, 50000.0);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The calculated value of thickness at age : " << age << " Ma : " << minV << " m  is not in the acceptable limits [0,50000], hence clipped to : " << updatedValue;
 			}
 		}
 
@@ -448,9 +446,9 @@ void Prograde::AlcUpgradeManager::generateCrustalMaps(std::string refferedTable,
 		}
 		else if (!refferedTable.compare("OceaCrustalThicknessIoTbl"))
 		{
-			if ((!NumericFunctions::inRange(minV, 0.0, 500000.0)) || (!NumericFunctions::inRange(maxV, 0.0, 500000.0)))
+			if ((!NumericFunctions::inRange(minV, 0.0, 50000.0)) || (!NumericFunctions::inRange(maxV, 0.0, 50000.0)))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The values in the ThicknessGrid : " << mapName << " at age : " << age << " Ma are not in the acceptable limits [0,500000]";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The values in the ThicknessGrid : " << mapName << " at age : " << age << " Ma are not in the acceptable limits [0,50000]";
 			}
 
 		}
