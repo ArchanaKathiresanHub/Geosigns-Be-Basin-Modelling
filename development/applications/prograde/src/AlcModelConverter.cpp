@@ -96,3 +96,15 @@ BottomBoundaryManager::MantlePropertyModel Prograde::AlcModelConverter::upgradeA
 
 }
 
+std::string Prograde::AlcModelConverter::updateBottomBoundaryModel(std::string & BottomBoundaryModel_original)
+{
+	std::string BottomBoundaryModel_updated = BottomBoundaryModel_original;
+	if (!BottomBoundaryModel_updated.compare("Advanced Lithosphere Calculator")) {
+		BottomBoundaryModel_updated = "Improved Lithosphere Calculator Linear Element Mode";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BottomBoundaryModel changed from 'Advanced Lithosphere Calculator' to 'Improved Lithosphere Calculator Linear Element Mode'";
+	}
+	return BottomBoundaryModel_updated;
+}
+
+
+
