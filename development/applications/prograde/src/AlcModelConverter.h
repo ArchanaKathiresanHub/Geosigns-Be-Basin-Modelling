@@ -34,6 +34,9 @@ namespace Prograde
       /// @details The mantle property models are upgraded to high conductivity mantle model
       mbapi::BottomBoundaryManager::MantlePropertyModel upgradeAlcMantlePropModel(const mbapi::BottomBoundaryManager::MantlePropertyModel) const;
 
+	  ///@brief Upgrades the BottomBoundaryModel column of BasementIoTbl
+	  ///@details Sets the value to Improved Lithosphere Calculator Linear Element Mode if it is Advanced Lithosphere Calculator
+	  std::string updateBottomBoundaryModel(std::string &);
 
    };
 }

@@ -159,13 +159,13 @@ void ContinentalCrustHistoryGenerator::createAdvancedLithosphereCalculatorCrust(
       }
       else
       {
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP) << "setting InitialCrustalThickness to " <<
+         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "setting InitialCrustalThickness to " <<
             initialCrustalThickness;
       }
    }
    else
    {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP) << "InitialCrustalThickness = " <<
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "InitialCrustalThickness = " <<
          initialCrustalThickness;
    }
    m_initialCrustalThickness = initialCrustalThickness;
