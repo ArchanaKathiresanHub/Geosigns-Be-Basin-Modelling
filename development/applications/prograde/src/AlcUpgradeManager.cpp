@@ -87,8 +87,8 @@ void Prograde::AlcUpgradeManager::upgrade()
 	  database::Record * Rec = BasementIo_Table->getRecord(0);
 
 	  //Below code converts the BottomBoundaryModel name "Advanced Lithosphere Calculator" to "Improved Lithosphere Calculator Linear Element Mode"
-	  std::string BottomBoundaryModel = rec->getValue<std::string>("BottomBoundaryModel");
-	  rec->setValue<std::string>("BottomBoundaryModel", modelConverter.updateBottomBoundaryModel(BottomBoundaryModel));
+	  std::string BottomBoundaryModel = Rec->getValue<std::string>("BottomBoundaryModel");
+	  Rec->setValue<std::string>("BottomBoundaryModel", modelConverter.updateBottomBoundaryModel(BottomBoundaryModel));
 
 	  // log the value of TopAsthenoTemp if it is not the default value
 	  double TopAsthenoTemp = Rec->getValue<double>("TopAsthenoTemp");
