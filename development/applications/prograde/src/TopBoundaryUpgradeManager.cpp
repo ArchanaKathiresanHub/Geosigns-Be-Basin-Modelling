@@ -72,7 +72,7 @@ void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceDepthIoTable() {
 		for (size_t i = 0; i < surfIDs.size(); ++i) {
 			if (updated_surfaceAgeList[i] != original_surfaceAgeList[i]) {
 				m_model.topBoundaryManager().setSurfaceDepthAge(surfIDs[i], updated_surfaceAgeList[i]);
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceDepth Layer age : " << original_surfaceAgeList[i] << " is updated to : " << updated_surfaceAgeList[i];
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceDepth Layer age is updated from " << original_surfaceAgeList[i] << " to " << updated_surfaceAgeList[i];
 			}	
 		}
 	}
@@ -106,7 +106,7 @@ void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceTempIoTable() {
 			if (updated_surfaceAgeList[i] != original_surfaceAgeList[i])
 			{
 				m_model.topBoundaryManager().setSurfaceTempAge(surfIDs[i], updated_surfaceAgeList[i]);
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceTemperature Layer age : " << original_surfaceAgeList[i] << " is updated to : " << updated_surfaceAgeList[i];
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceTemperature Layer age is updated from " << original_surfaceAgeList[i] << " to " << updated_surfaceAgeList[i];
 			}
 		}
 	}
