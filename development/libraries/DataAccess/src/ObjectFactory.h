@@ -64,8 +64,6 @@ namespace DataAccess
 
          virtual LithoType * produceLithoType (ProjectHandle& projectHandle, database::Record * record) const;
 
-         virtual TouchstoneMap * produceTouchstoneMap (ProjectHandle& projectHandle, database::Record * record) const;
-
          virtual SourceRock * produceSourceRock (ProjectHandle& projectHandle, database::Record * record) const;
 
          virtual Surface * produceSurface (ProjectHandle& projectHandle, database::Record * record) const;

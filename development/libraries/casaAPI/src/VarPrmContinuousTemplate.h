@@ -57,7 +57,7 @@ public:
   /// @return dimension of influential parameter
   size_t dimension() const override;
 
-  const char * typeName() const;
+  std::string typeName() const;
 
   /// @brief Create parameter by reading the values stored in the project file
   /// @param[in, out] mdl the model where the parameters values should be read

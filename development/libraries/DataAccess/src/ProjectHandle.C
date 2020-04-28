@@ -73,7 +73,6 @@
 #include "MapWriter.h"
 #include "MantleFormation.h"
 #include "MobileLayer.h"
-#include "TouchstoneMap.h"
 #include "ObjectFactory.h"
 #include "OceanicCrustThicknessHistoryData.h"
 #include "OutputProperty.h"
@@ -265,7 +264,6 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    loadReservoirs();
    loadGlobalReservoirOptions();
    loadMobileLayers();
-   loadTouchstoneMaps();
    loadAllochthonousLithologies();
    loadAllochthonousLithologyDistributions();
    loadAllochthonousLithologyInterpolations();
@@ -389,7 +387,6 @@ ProjectHandle::~ProjectHandle( void )
    deleteSourceRocks();
    deleteReservoirs();
    deleteMobileLayers();
-   deleteTouchstoneMaps();
    deleteAllochthonousLithologies();
    deleteAllochthonousLithologyDistributions();
    deleteAllochthonousLithologyInterpolations();
@@ -1192,9 +1189,6 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockPressure",               "ResRockPressure",               "MPa",     RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockTemperature",            "ResRockTemperature",            "C",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "ResRockCapacity",               "ResRockCapacity",               "m3",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTMIG_PROPERTY ));
-
-   // Touchstone properties.
-   m_properties.push_back( getFactory()->produceProperty( *this, 0, "Resq: *", "Resq: *", "", FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTTOUCH_PROPERTY ) );
 
    // trap properties
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "VolumeFGIIP",        "VolumeFGIIP",        "m3",        TRAPPROPERTY, DataModel::TRAP_PROPERTY, DataModel::TRAPS_PROPERTY )); // Volume of free gas initially in place
@@ -2233,19 +2227,6 @@ int ProjectHandle::getMaximumNumberOfMantleElements() const {
    return m_maximumNumberOfMantleElements;
 }
 
-bool ProjectHandle::loadTouchstoneMaps( void )
-{
-   database::Table* touchstoneMapTbl = getTable( "TouchstoneMapIoTbl" );
-   database::Table::iterator tblIter;
-   for ( tblIter = touchstoneMapTbl->begin(); tblIter != touchstoneMapTbl->end(); ++tblIter )
-   {
-      Record * touchstoneMapRecord = *tblIter;
-      m_touchstoneMaps.push_back( getFactory()->produceTouchstoneMap( *this, touchstoneMapRecord ) );
-   }
-
-   return true;
-}
-
 bool ProjectHandle::loadAllochthonousLithologies( void )
 {
    database::Table * allochthonousLithoTbl = getTable( "AllochthonLithoIoTbl" );
@@ -2401,14 +2382,7 @@ bool ProjectHandle::loadMapPropertyValues( void )
             const Surface * surface = dynamic_cast<const Surface *>( findSurface( surfaceName ) );
             if ( formation == 0 && surface == 0 ) continue;
 
-            if( property->getPropertyOutputAttribute() == DataModel::FASTTOUCH_PROPERTY) {
-               const Property * fasttouchProperty = addFasttouchProperty(propertyValueName);
-               if( fasttouchProperty != 0 ) {
-                  addPropertyValue( timeIoRecord, propertyValueName, fasttouchProperty, snapshot, 0, formation, 0, TIMEIOTBL );
-               }
-            } else {
-               addPropertyValue( timeIoRecord, propertyValueName, property, snapshot, 0, formation, surface, TIMEIOTBL );
-            }
+            addPropertyValue( timeIoRecord, propertyValueName, property, snapshot, 0, formation, surface, TIMEIOTBL );
          }
          else if ( property->getType() == RESERVOIRPROPERTY )
          {
@@ -2422,14 +2396,6 @@ bool ProjectHandle::loadMapPropertyValues( void )
       }
    }
    return true;
-}
-
-const Property * ProjectHandle::addFasttouchProperty(const string & propertyValueName) {
-
-   Interface::Property * newProperty = getFactory()->produceProperty( *this, 0, propertyValueName, propertyValueName, "", FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTTOUCH_PROPERTY );
-
-   addPropertyToFront( newProperty );
-   return newProperty;
 }
 
 bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
@@ -2566,7 +2532,7 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
 
          // output primary properties in double precision for fastcauldron simulations
          if(( getActivityName() != "Genex5" and getActivityName() != "HighResMigration" and
-              getActivityName() != "FastTouch" and getActivityName() != "CrustalThicknessCalculator" )) {
+              getActivityName() != "CrustalThicknessCalculator" )) {
             saveAsPrimary = true;
          }
       }
@@ -3351,20 +3317,6 @@ Interface::PaleoPropertyList * ProjectHandle::getSurfaceTemperatureHistory() con
    }
 
    return surfaceTemperatureHistoryList;
-}
-
-Interface::TouchstoneMapList * ProjectHandle::getTouchstoneMaps( void ) const
-{
-   Interface::TouchstoneMapList * touchstoneMapList = new Interface::TouchstoneMapList;
-
-   MutableTouchstoneMapList::const_iterator touchstoneMapIter;
-
-   for ( touchstoneMapIter = m_touchstoneMaps.begin(); touchstoneMapIter != m_touchstoneMaps.end(); ++touchstoneMapIter )
-   {
-      TouchstoneMap * touchstoneMap = *touchstoneMapIter;
-      touchstoneMapList->push_back( touchstoneMap );
-   }
-   return touchstoneMapList;
 }
 
 Interface::AllochthonousLithologyDistributionList * ProjectHandle::getAllochthonousLithologyDistributions( const Interface::AllochthonousLithology * allochthonousLithology ) const
@@ -5075,18 +5027,6 @@ void ProjectHandle::deleteMobileLayers( void )
       delete mobileLayer;
    }
    m_mobileLayers.clear();
-}
-
-void ProjectHandle::deleteTouchstoneMaps( void )
-{
-   MutableTouchstoneMapList::const_iterator touchstoneMapIter;
-
-   for ( touchstoneMapIter = m_touchstoneMaps.begin(); touchstoneMapIter != m_touchstoneMaps.end(); ++touchstoneMapIter )
-   {
-      TouchstoneMap * touchstoneMap = *touchstoneMapIter;
-      delete touchstoneMap;
-   }
-   m_touchstoneMaps.clear();
 }
 
 void ProjectHandle::deleteAllochthonousLithologies( void ) {

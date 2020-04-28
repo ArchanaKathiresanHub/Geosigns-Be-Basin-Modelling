@@ -105,7 +105,7 @@ namespace casa
       virtual unsigned int version() const { return 1; }
 
       // Get type name of the serializable object, used in deserialization to create object with correct type
-      virtual const char * typeName() const { return "RunCaseImpl"; }
+      virtual std::string typeName() const { return "RunCaseImpl"; }
 
       // Serialize object to the given stream
       virtual bool save( CasaSerializer & sz ) const;

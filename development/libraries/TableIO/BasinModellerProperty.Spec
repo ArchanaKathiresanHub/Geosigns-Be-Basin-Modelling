@@ -4324,57 +4324,6 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Type                : string
     Default             : ""
 
-# Touchstone Map Properties
-
-    Identification      : TcfName
-    Description         : Touchstone tcf filename for output Map
-    Unit of measurement :
-    Type                : string
-
-    Identification      : FaciesNumber
-    Description         : Integer indicating up to 4 facies, 0 if calculations are not performed
-    Unit of measurement :
-    Type                : integer
-    Default             : 0
-
-    Identification      : Category
-    Description         : Touchstone Category for output Map
-    Unit of measurement :
-    Type                : string
-
-    Identification      : Format
-    Description         : Touchstone Format for output Map
-    Unit of measurement :
-    Type                : string
-
-    Identification      : Percentile
-    Description         : Touchstone percent for output Map
-    Unit of measurement :
-    Type                : float
-    Default             : 100
-
-    Identification      : FaciesMap
-    Description         : String to indicate the map applied to each TCF
-    Unit of measurement :
-    Type                : string
-	
-	Identification      : RunName
-    Description         : The name of the run (See ResQ phase 2 requirement document)
-    Unit of measurement :
-    Type                : string
-
-    Identification      : PercentUsed
-    Description         : Touchstone percent for output Map
-    Unit of measurement :
-    Type                : boolean
-    Default             : 0
-
-    Identification      : MapDone
-    Description         : Touchstone percent for output Map
-    Unit of measurement :
-    Type                : boolean
-    Default             : 0
-
 #### Allochthonous lithology property data --------------------------------
 
     Identification      : InterpFileName
@@ -4842,15 +4791,6 @@ START-property-tables
     Column         : Waterdepth
     Header         : Location Data
 	
-    Identification : TouchstoneWellIoTbl
-    Description    : Table with Well location data for Touchstone
-    Version        : 100
-    Column         : WellName
-    Column         : XCoord
-    Column         : YCoord
-    Column         : BHFName
-    Header         : Touchstone Well Data
-
 #### Project - 3d tables --------------------------------------------------
 
     Identification : GridMapIoTbl
@@ -5852,20 +5792,6 @@ START-property-tables
     Column         : TwoWayTimeGrid
     Column         : TwoWayTime
 
-    Identification : TouchstoneMapIoTbl
-    Description    : List of map choices made by user
-    Version        : 100
-    Column         : TcfName
-    Column         : FaciesNumber
-    Column         : SurfaceName
-    Column         : FormationName
-    Column         : Category
-    Column         : Format
-    Column         : Percentile
-    Column         : FaciesMap
-	Column         : RunName
-    Header         : List of Touchstone Map Combinations
-
 # Genex History location Table
 
     Identification : GenexHistoryLocationIoTbl
@@ -5956,7 +5882,6 @@ START-application-class-properties
     Property : RunOptionsIoTbl
     Property : SnapshotIoTbl
     Property : WellLocIoTbl
-    Property : TouchstoneMapIoTbl
     Property : GridMapIoTbl
     Property : StratIoTbl
     Property : SourceRockLithoIoTbl

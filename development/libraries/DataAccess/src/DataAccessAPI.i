@@ -1,5 +1,5 @@
 /* File : DotNetAPI.i */
- 
+
 %module DataAccessAPI
 
 %{
@@ -89,7 +89,6 @@ using namespace CBMGenerics;
 #include "Surface.h"
 #include "TableOceanicCrustThicknessHistory.h"
 using namespace DataAccess::Interface;
-#include "TouchstoneMap.h"
 #include "Trap.h"
 #include "Trapper.h"
 #include "zycorfaultfilereader.h"
@@ -204,7 +203,6 @@ using namespace DataAccess::Interface;
 %include "Snapshot.h"
 %include "SourceRock.h"
 %include "TableOceanicCrustThicknessHistory.h"
-%include "TouchstoneMap.h"
 %include "Trap.h"
 %include "Trapper.h"
 %include "IgneousIntrusionEvent.h"
@@ -225,7 +223,6 @@ using namespace DataAccess::Interface;
 
 %template(SnapshotList)                std::vector<const DataAccess::Interface::Snapshot *>;               // list type for the snapshots
 %template(LithoTypeList)               std::vector<const DataAccess::Interface::LithoType *>;              // list type for the lithotypes
-%template(TouchstoneMapList)           std::vector<const DataAccess::Interface::TouchstoneMap *>;          // list type for the TouchstoneMaps
 %template(FormationList)               std::vector<const DataAccess::Interface::Formation *>;              // list type for the formations
 %template(SurfaceList)                 std::vector<const DataAccess::Interface::Surface *>;                // list type for the surfaces
 %template(ReservoirList)               std::vector<const DataAccess::Interface::Reservoir *>;              // list type for the reservoirs

@@ -17,7 +17,6 @@ set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 
 #Set 3rd party tools versions:
 set(PETSC_VERSION "3.5.4"  CACHE STRING "PETSc version")
-set(TSLIB_VERSION "7.4.2"  CACHE STRING "Geocosm library version")
 set(SWIG_VERSION  "3.0.12" CACHE STRING "The version number of the swig executable")
 
 
@@ -33,9 +32,6 @@ endif()
 if (UNIX AND EXISTS /apps/sss/share/getos2 )
    set(defaultPreset "ShellLinux")
 
-elseif (UNIX AND EXISTS /glb/data/cauldron )
-   set(defaultPreset "PDSCluster")
-
 elseif(WIN32)
    set(defaultPreset "Windows")
 
@@ -43,7 +39,7 @@ else()
    set(defaultPreset OFF)
 endif()
 
-set( BM_CONFIG_PRESET "${defaultPreset}" CACHE STRING "Reference to CMake file containing configuration presets. You can choose from: ShellLinux, Windows, and OFF") 
+set( BM_CONFIG_PRESET "${defaultPreset}" CACHE STRING "Reference to CMake file containing configuration presets. You can choose from: ShellLinux, Windows, and OFF")
 if ( BM_CONFIG_PRESET )
    message( STATUS "Loading environment for ${BM_CONFIG_PRESET}" )
    include("cmake/Go${BM_CONFIG_PRESET}.cmake")
@@ -188,7 +184,7 @@ if(UNIX)
        #    available on the system, because its NSS functions (gethostbyname,
        #    etc...) depend on it.
        # 3) Linking statically with libgcc is also a bad idea if you link with
-       #    3rd party libraries that link with it dynamically. 
+       #    3rd party libraries that link with it dynamically.
        # 4) Linking statically with libstdc++ is considered to be a good idea,
        #    but with GCC versions < 4.5 this is quite cumbersome.
 
@@ -231,12 +227,11 @@ find_package(Hdf5 REQUIRED CONFIG)
 find_package(Eigen REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
 find_package(BLAS REQUIRED CONFIG)
-find_package(Nuget REQUIRED CONFIG)
+#find_package(Nuget REQUIRED CONFIG)
 if (BM_BUILD_HYPRE)
    find_package(Hypre REQUIRED CONFIG)
 endif (BM_BUILD_HYPRE)
 find_package(PETSC REQUIRED CONFIG)
-find_package(Touchstone REQUIRED CONFIG)
 find_package(SUMlib REQUIRED CONFIG)
 find_package(NNlib REQUIRED CONFIG)
 find_package(LSF REQUIRED CONFIG)
@@ -324,7 +319,7 @@ if (UNIX)
           )
    if (BM_BUILD_HYPRE)
       # Install shared libraries to the binaries folder
-      install( FILES "${HYPRE_LIBRARIES}" 
+      install( FILES "${HYPRE_LIBRARIES}"
                DESTINATION bin
                PERMISSIONS
                   OWNER_READ OWNER_EXECUTE

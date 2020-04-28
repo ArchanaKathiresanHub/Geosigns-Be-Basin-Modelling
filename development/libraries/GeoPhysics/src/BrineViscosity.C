@@ -67,9 +67,6 @@ void GeoPhysics::Brine::Viscosity::get( const GeoPhysics::Brine::PhaseStateVec &
    {
       /// aqueousBatzleWang will be applied through vectorization to all the vector elements,
       /// then the other phases will be adjusted
-#ifndef _MSC_VER
-      #pragma omp simd aligned (temperature, brineProp)
-#endif
       for( int i=0; i < n; ++i )             brineProp [i]                = aqueousBatzleWang( temperature[i] );
       for( int i=0; i < vapourNum; ++i )     brineProp [vapourIdx[i]]     = vapourConstant();
       for( int i=0; i < transitionNum; ++i ) brineProp [transitionIdx[i]] = transitionRegion( temperature[transitionIdx[i]],
@@ -81,9 +78,6 @@ void GeoPhysics::Brine::Viscosity::get( const GeoPhysics::Brine::PhaseStateVec &
    {
       /// transitionRegion will be applied through vectorization to all the vector elements,
       /// then the other phases will be adjusted
-#ifndef _MSC_VER
-      #pragma omp simd aligned (temperature, pressure, higherTemperature, lowerTemperature, brineProp)
-#endif
       for( int i=0; i < n; ++i )           brineProp [i]                = transitionRegion( temperature[i],
                                                                                               pressure[i],
                                                                                               higherTemperature[i],

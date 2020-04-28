@@ -51,7 +51,6 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
    if (      m_prms[it] == "fastcauldron" ) m_app = casa::RunManager::fastcauldron;
    else if ( m_prms[it] == "fastgenex6"   ) m_app = casa::RunManager::fastgenex6;
    else if ( m_prms[it] == "fastctc"      ) m_app = casa::RunManager::fastctc;
-   else if ( m_prms[it] == "fasttouch7"   ) m_app = casa::RunManager::fasttouch7;
    else if ( m_prms[it] == "fastmig"      ) m_app = casa::RunManager::fastmig;
    else if ( m_prms[it] == "tracktraps"   ) m_app = casa::RunManager::tracktraps;
    else if ( m_prms[it] == "track1d"      ) m_app = casa::RunManager::track1d;
@@ -113,7 +112,6 @@ void CmdAddCldApp::printHelpPage( const char * cmdName )
                      "fastcauldron"  - P/T calculation
                      "fastgenex6"    - source rock HC generation calculation
                      "fastctc"       - crustal thickness calculator
-                     "fasttouch7"    - reservoir quality calculator
                      "fastmig"       - HC migration simulator
                      "tracktraps"    - traps tracking over time
                      "track1d"       - extracting properties value along vertical well

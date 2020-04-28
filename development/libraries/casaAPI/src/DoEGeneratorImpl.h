@@ -60,7 +60,7 @@ namespace casa
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "DoEGeneratorImpl"; }
+      virtual std::string typeName() const { return "DoEGeneratorImpl"; }
 
       // Serialize object to the given stream
       virtual bool save(CasaSerializer & sz) const;

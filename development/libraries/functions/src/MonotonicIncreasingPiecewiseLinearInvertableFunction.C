@@ -14,21 +14,21 @@ namespace functions {
       std::sort( m_xToY.begin(), m_xToY.end(), [](const element_type & a, const element_type & b )->bool{return a[0]<b[0];} );
    }
 
-   Tuple2<MonotonicIncreasingPiecewiseLinearInvertableFunction::element_type> 
+   Tuple2<MonotonicIncreasingPiecewiseLinearInvertableFunction::element_type>
       MonotonicIncreasingPiecewiseLinearInvertableFunction::piece(int index) const
    {
      assert(0 <= index && index < static_cast<int>(m_xToY.size())-1);
      return Tuple2<MonotonicIncreasingPiecewiseLinearInvertableFunction::element_type>(m_xToY[index], m_xToY[index+1]);
    }
 
-   const MonotonicIncreasingPiecewiseLinearInvertableFunction::element_type&  
+   const MonotonicIncreasingPiecewiseLinearInvertableFunction::element_type&
       MonotonicIncreasingPiecewiseLinearInvertableFunction::begin(int index) const
    {
      assert(0 <= index && index < static_cast<int>(m_xToY.size())-1);
      return m_xToY[index];
    }
 
-   const MonotonicIncreasingPiecewiseLinearInvertableFunction::element_type&  
+   const MonotonicIncreasingPiecewiseLinearInvertableFunction::element_type&
       MonotonicIncreasingPiecewiseLinearInvertableFunction::end(int index) const
    {
      assert(0 <= index && index < static_cast<int>(m_xToY.size())-1);
@@ -102,7 +102,7 @@ namespace functions {
         return m_xToY.back()[0];
 
       // equal_range instead of upper_bound ?
-      data_type::const_iterator j = std::upper_bound(m_xToY.begin(), 
+      data_type::const_iterator j = std::upper_bound(m_xToY.begin(),
         m_xToY.end(), CompareY(y));
 
       assert(j != m_xToY.begin());
@@ -142,8 +142,20 @@ namespace functions {
    MonotonicIncreasingPiecewiseLinearInvertableFunction& MonotonicIncreasingPiecewiseLinearInvertableFunction::
       operator+=(const Tuple2<double>& value)
    {
-      for (data_type::iterator i = m_xToY.begin(); i != m_xToY.end(); ++i)
-         (*i) += value;
+      for (element_ref i : m_xToY)
+      {
+         i += value;
+      }
+      return *this;
+   }
+
+   MonotonicIncreasingPiecewiseLinearInvertableFunction& MonotonicIncreasingPiecewiseLinearInvertableFunction::
+      operator-=(const Tuple2<double>& value)
+   {
+      for (element_ref i : m_xToY)
+      {
+         i -= value;
+      }
       return *this;
    }
 
@@ -151,51 +163,64 @@ namespace functions {
       operator*=(const Tuple2<double>& value)
    {
       assert(value[0] > 0.0 && value[1] > 0.0);
-      for (data_type::iterator i = m_xToY.begin(); i != m_xToY.end(); ++i)
-         (*i) *= value;
+      for (element_ref i : m_xToY)
+      {
+         i *= value;
+      }
       return *this;
    }
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction operator+(const 
-     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second) 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction& MonotonicIncreasingPiecewiseLinearInvertableFunction::
+      operator/=(const Tuple2<double>& value)
+   {
+      assert(value[0] > 0.0 && value[1] > 0.0);
+      for (element_ref i : m_xToY)
+      {
+         i /= value;
+      }
+      return *this;
+   }
+
+   MonotonicIncreasingPiecewiseLinearInvertableFunction operator+(const
+     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second)
    {
      MonotonicIncreasingPiecewiseLinearInvertableFunction result(first);
      return result += second;
    }
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction operator-(const 
-     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second) 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction operator-(const
+     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second)
    {
      MonotonicIncreasingPiecewiseLinearInvertableFunction result(first);
      return result -= second;
    }
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction operator*(const 
-     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second) 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction operator*(const
+     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second)
    {
      MonotonicIncreasingPiecewiseLinearInvertableFunction result(first);
      return result *= second;
    }
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction operator/(const 
-     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second) 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction operator/(const
+     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second)
    {
      MonotonicIncreasingPiecewiseLinearInvertableFunction result(first);
      return result /= second;
    }
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction shiftX(const 
-     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const double& second) 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction shiftX(const
+     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const double& second)
    {
      MonotonicIncreasingPiecewiseLinearInvertableFunction result(first);
      return result.shiftXBy(second);
    }
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction widenX(const 
-     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const double& second) 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction widenX(const
+     MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const double& second)
    {
      MonotonicIncreasingPiecewiseLinearInvertableFunction result(first);
      return result.widenXBy(second);
    }
 
-} // namespace functions 
+} // namespace functions

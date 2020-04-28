@@ -16,7 +16,7 @@ include(cmake/EnvSetup.cmake)
 # Some of the below variables are already set by Go*.cmake files
 set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compiler collection")
 
-set(INTEL_MPI_VERSION "2017.05" CACHE STRING "Intel MPI version")
+set(INTEL_MPI_VERSION "2019a" CACHE STRING "Intel MPI version")
 set(INTEL_MPI_ROOT "INTEL_MPI_ROOT-NOTFOUND" CACHE PATH "Path to Intel MPI library" )
 set(INTEL_MPI_FLAVOUR "opt" CACHE STRING "Intel MPI library type. Choose from: opt, opt_mt, dbg, dbg_mt, log, log_mt" )
 
@@ -38,7 +38,7 @@ if (UNIX)
    init_wrapper( mpirun )  # mpirun command
 
    # Intel MPI compiler version 5 and later adds the followin striping commands when called with -show option to avoid
-   # this we need to add -nostrip option 
+   # this we need to add -nostrip option
    # objcopy --only-keep-debug a.out a.out.dbg
    # objcopy --strip-debug a.out
    # objcopy --add-gnu-debuglink=a.out.dbg a.out
@@ -89,7 +89,7 @@ if (UNIX)
          finish_wrapper( cxx "icpc ${args}" CXX_Compiler ADDITIVE)
       endif()
       # Rely on system default if not using Intel compiler
-   
+
    else(NOT BM_PARALLEL)
 
       # If we do build parallel applications
@@ -121,10 +121,10 @@ if (UNIX)
             # Use the MPI compiler frontends to the Intel compiler -- mpiicc and mpiicpc -- as compilers.
             finish_wrapper( cc "mpiicc ${linkOpts} ${args}" C_Compiler ADDITIVE)
             finish_wrapper( cxx "mpiicpc ${linkOpts} ${args}" CXX_Compiler ADDITIVE)
- 
+
             finish_wrapper( ccwl "mpiicc ${args}" C_Compiler_Without_Linking ADDITIVE)
             finish_wrapper( cxxwl "mpiicpc ${args}" CXX_Compiler_Without_Linking ADDITIVE)
-        
+
             # start generating environment for mpiexec and mpirun utilitise
             add_environment_source_script_to_wrapper( mpiexec "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
             add_environment_source_script_to_wrapper( mpirun "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
@@ -158,7 +158,7 @@ if (UNIX)
             execute_process( COMMAND "${CXX_Compiler_Without_Linking}" "-c" "${NO_STRIP_OPTION}" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendNonLinkingCXX
             )
-            
+
             # Intel C++ 2017 add '' around @$ argument which is breaking compilation script
             STRING( REGEX REPLACE "'" "" evaluatedFrontendLinkingCXX    "${evaluatedFrontendLinkingCXX}"    )
             STRING( REGEX REPLACE "'" "" evaluatedFrontendLinkingC      "${evaluatedFrontendLinkingC}"      )
@@ -218,7 +218,7 @@ if (UNIX)
          # Detect compiler so that we can detect MPI
          enable_language(CXX)
          enable_language(C)
-  
+
          # Detect MPI
          find_package(MPI REQUIRED)
 
@@ -254,17 +254,17 @@ if (UNIX)
    if (BM_PARALLEL)
       find_package(MPI REQUIRED)
    endif()
-   
+
 elseif(WIN32)
    message(STATUS "Set environment for VS2015...")
- 
+
    # First detect the Compiler
    enable_language(CXX)
    enable_language(C)
 
    # If required the MPI implementation
    if (BM_PARALLEL)
-       
+
       set( MPIEXEC "${MPI_ROOT}/bin/mpiexec.exe" CACHE FILEPATH "Location of mpiexec command" )
       set( MPIRUN "${MPI_ROOT}/bin/mpiexec.exe" CACHE FILEPATH "Location of mpirun command" )
 

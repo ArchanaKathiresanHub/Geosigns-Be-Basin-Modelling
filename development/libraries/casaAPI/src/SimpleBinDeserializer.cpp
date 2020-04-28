@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 
@@ -85,7 +85,7 @@ namespace casa
       unsigned char tpID;
       bool ok = loadValue( fp, tpID );
       SimpleDataTypeBinID readTypeName = static_cast<SimpleDataTypeBinID>( tpID );
-      
+
       if ( ok && readTypeName != typeName )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -147,7 +147,7 @@ namespace casa
    bool SimpleBinDeserializer::checkSignature( istream & ifs )
    {
       string sig;
-      
+
       boost::iostreams::filtering_istream cfp;
       cfp.push( boost::iostreams::gzip_decompressor() );
       cfp.push( ifs );
@@ -171,7 +171,7 @@ namespace casa
 
       bool ok = loadObjectDescription( objType, objName, objVer );
 
-      // read info from file about serializer      
+      // read info from file about serializer
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -204,7 +204,7 @@ namespace casa
    }
 
    // Read the description of the next object in file. Works only for CasaSerializable objects
-   bool SimpleBinDeserializer::checkObjectDescription( const char * objType, const string & objName, unsigned int & ver )
+   bool SimpleBinDeserializer::checkObjectDescription( const std::string& objType, const string & objName, unsigned int & ver )
    {
       string readObjType;
       string readObjName;
@@ -240,7 +240,7 @@ namespace casa
       bool ok = loadValue( m_file, objType );
       ok = ok ? loadValue( m_file, objName ) : ok;
       ok = ok ? loadValue( m_file, ver     ) : ok;
-     
+
       return ok;
    }
 

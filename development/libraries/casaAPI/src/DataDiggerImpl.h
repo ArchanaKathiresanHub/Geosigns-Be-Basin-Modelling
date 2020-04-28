@@ -74,7 +74,7 @@ namespace casa
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "DataDiggerImpl"; }
+      virtual std::string typeName() const { return "DataDiggerImpl"; }
 
       /// @brief Create a new DataDiggerImpl instance and deserialize it from the given stream
       /// @param dz input stream

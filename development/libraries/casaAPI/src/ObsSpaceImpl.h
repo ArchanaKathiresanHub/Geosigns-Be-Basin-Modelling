@@ -66,7 +66,7 @@ public:
    virtual bool save(CasaSerializer & sz) const;
 
    // Get type name of the serialaizable object, used in deserialization to create object with correct type
-   virtual const char * typeName() const { return "ObsSpaceImpl"; }
+   virtual std::string typeName() const { return "ObsSpaceImpl"; }
 
    // Create a new instance and deserialize it from the given stream
    ObsSpaceImpl( CasaDeserializer & dz, const char * objName );

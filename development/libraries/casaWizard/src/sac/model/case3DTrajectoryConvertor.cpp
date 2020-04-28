@@ -4,6 +4,7 @@
 #include "sacScenario.h"
 
 #include <assert.h>
+#include <cmath>
 
 namespace casaWizard
 {

@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 
@@ -182,7 +182,7 @@ namespace casa
          ok = string2val( tokens[i + 3], inVal );
          val[i] = inVal;
       }
-      
+
       return ok;
    }
 
@@ -193,7 +193,7 @@ namespace casa
       ifs.read( buf, 15 );
       buf[13] = 0;
       ifs.seekg( 0, std::ios::beg );
-      
+
       return !strcmp( buf, "TxtSerializer" ) ? true : false;
    }
 
@@ -205,7 +205,7 @@ namespace casa
 
       bool ok = loadObjectDescription( objType, objName, objVer );
 
-      // read info from file about serializer      
+      // read info from file about serializer
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -238,7 +238,7 @@ namespace casa
    }
 
    // Read the description of the next object in file. Works only for CasaSerializable objects
-   bool SimpleTxtDeserializer::checkObjectDescription( const char * objType, const std::string & objName, unsigned int & ver )
+   bool SimpleTxtDeserializer::checkObjectDescription( const std::string& objType, const std::string & objName, unsigned int & ver )
    {
       std::string readObjType;
       std::string readObjName;
@@ -285,7 +285,7 @@ namespace casa
       unsigned objVer;
       ok = string2val( tokens.back(), objVer );
       ver = objVer;
-      
+
       return ok;
    }
 

@@ -36,15 +36,6 @@ DIR=\"$( cd \"$( dirname \"\${BASH_SOURCE\[0\]}\" )\" && pwd )\"
 
 ")
 
-if( NOT CMAKE_BUILD_TYPE STREQUAL "Release" )
-    file( APPEND ${scriptName}
-"# Special module to debug with intel compiler 2017 in Shell
-if [ -e /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh ]; then
-   module load GDB/7.8.2-GCC-4.9.2
-fi
-")
-endif()
-
     file( APPEND ${scriptName}
 "
 # Running application forwarding all the script inputs
@@ -111,14 +102,14 @@ foreach(v ${APPLICATION_ENV_VAR_VARS})
     if( ${isVarName} EQUAL 0 )
         file( APPEND ${scriptName} "export ${v}=" )
     else()
-        file( APPEND ${scriptName} "${v} 
+        file( APPEND ${scriptName} "${v}
 " )
     endif()
     math( EXPR index "${index}+1" )
 endforeach()
 
 foreach(v ${APPLICATION_ENV_VAR_CUSTOM_COMMAND})
-   file( APPEND ${scriptName} "${v} 
+   file( APPEND ${scriptName} "${v}
 ")
 endforeach()
 

@@ -88,7 +88,7 @@ set +x
 . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
 module load HpcSoftwareStack/PRODUCTION
 module purge
-module load intel/2017.05
+module load intel/2019a
 set -x
 
 # Set the simplest locale so that there won't be any text conversion problems

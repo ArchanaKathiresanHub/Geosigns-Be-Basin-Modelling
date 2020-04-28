@@ -24,12 +24,6 @@ namespace functions
 
      inline ~Tuple2() {}
 
-     explicit Tuple2(const ENTRY* data) {
-       if(nullptr==data) throw std::runtime_error("nullptr provided to Tuple2 ctr");
-       m_first = data[0];
-       m_second = data[1];
-     }
-
      Tuple2(const ENTRY& value1, const ENTRY& value2):
        m_first(value1),
        m_second(value2)

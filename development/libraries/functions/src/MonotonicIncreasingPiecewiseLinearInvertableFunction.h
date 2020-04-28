@@ -36,7 +36,7 @@ namespace functions {
 
       /// Calculate the index of the linear piece which contains pred.
       ///
-      /// @return: -1 if all entries are larger than pred 
+      /// @return: -1 if all entries are larger than pred
       ///           0..size()-1 if pred is within the range
       ///           size() if pred is equal or larger than the last entry.
       template <typename Predicate>
@@ -45,7 +45,7 @@ namespace functions {
          assert(m_xToY.size() > 1);
 
          // This function returns the linear piece corresponding to pred.operator<(Tuple2<double>).
-         // However, when pred indicates that the element one searches for lies beyond the 
+         // However, when pred indicates that the element one searches for lies beyond the
          // the last element, linear piece m_xToY.size() is returned, i.e. one more than size().
          // And likewise, if pred corresponds to the element just in front of m_xToY.front(),
          // value -1 is returned.
@@ -63,40 +63,33 @@ namespace functions {
 
       MonotonicIncreasingPiecewiseLinearInvertableFunction& operator+=(const Tuple2<double>& value);
 
-      MonotonicIncreasingPiecewiseLinearInvertableFunction& operator-=(const Tuple2<double>& value) {
-         Tuple2<double> minus(-value[0],-value[0]);
-         return operator+=(minus);
-      }
+      MonotonicIncreasingPiecewiseLinearInvertableFunction& operator-=(const Tuple2<double>& value);
 
       MonotonicIncreasingPiecewiseLinearInvertableFunction& operator*=(const Tuple2<double>& value);
 
-      MonotonicIncreasingPiecewiseLinearInvertableFunction& operator/=(const Tuple2<double>& value) {
-         assert(value[0] != 0.0);
-         assert(value[1] != 0.0);
-         return operator*=(Tuple2<double>(1.0/value[0],1.0/value[1]));
-      }
+      MonotonicIncreasingPiecewiseLinearInvertableFunction& operator/=(const Tuple2<double>& value);
 
       MonotonicIncreasingPiecewiseLinearInvertableFunction& shiftXBy(const double& value);
 
       MonotonicIncreasingPiecewiseLinearInvertableFunction& widenXBy(const double& value);
    };
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction operator+(const 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction operator+(const
      MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second);
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction operator-(const 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction operator-(const
      MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second);
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction operator*(const 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction operator*(const
      MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second);
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction operator/(const 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction operator/(const
      MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const Tuple2<double>& second);
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction shiftX(const 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction shiftX(const
      MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const double& second);
 
-   MonotonicIncreasingPiecewiseLinearInvertableFunction widenX(const 
+   MonotonicIncreasingPiecewiseLinearInvertableFunction widenX(const
      MonotonicIncreasingPiecewiseLinearInvertableFunction& first, const double& second);
 
 } // namespace functions

@@ -94,7 +94,6 @@ namespace DataAccess
       class Snapshot;
       class SourceRock;
       class Surface;
-      class TouchstoneMap;
       class Trap;
       class Trapper;
       class Migration;
@@ -109,8 +108,6 @@ namespace DataAccess
       typedef vector<const Snapshot *> SnapshotList;
       /// list type for the lithotypes
       typedef vector<const LithoType *> LithoTypeList;
-      /// list type for the TouchstoneMaps
-      typedef vector<const TouchstoneMap *> TouchstoneMapList;
       /// list type for the formations
       typedef vector<const Formation *> FormationList;
       /// list type for the surfaces
@@ -592,7 +589,6 @@ namespace DataAccess
       class Surface;
       class SurfaceDepthHistoryInstance;
       class SurfaceTemperatureHistoryInstance;
-      class TouchstoneMap;
       class Trap;
       class Trapper;
       class Migration;
@@ -603,8 +599,6 @@ namespace DataAccess
       typedef vector<LithoType *> MutableLithoTypeList;
       /// mutable list type for the SourceRocks
       typedef vector<SourceRock *> MutableSourceRockList;
-      /// mutable list type for the TouchstoneMaps
-      typedef vector<TouchstoneMap *> MutableTouchstoneMapList;
       /// mutable list type for the formations
       typedef vector<Formation *> MutableFormationList;
       /// mutable list type for the surfaces

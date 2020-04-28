@@ -125,7 +125,7 @@ namespace casa
       virtual bool save(CasaSerializer & sz) const;
 
       // Get type name of the serialaizable object, used in deserialization to create object with correct type
-      virtual const char * typeName() const { return "MonteCarloSolverImpl"; }
+      virtual std::string typeName() const { return "MonteCarloSolverImpl"; }
 
       // Create a new instance and deserialize it from the given stream
       MonteCarloSolverImpl( CasaDeserializer & inStream, const char * objName );

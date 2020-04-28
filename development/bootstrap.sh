@@ -6,25 +6,6 @@
 #  $ mkdir linux_build_debug
 #  $ cd linux_build_debug
 #  $ <source dir>/bootstrap.sh
-#  $ make all install -j12
-
-
-##Testing QT library
-
-[[ -r /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh ]] && . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
-
-module load Qt/5.4.1-intel-2017.05 
-
-
-# Prepare environment
-. /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
-module load HpcSoftwareStack/PRODUCTION
-module purge &> /dev/null
-module load CMake/3.8.2
-module load intel/2017.05;
-module load Qt/5.4.1-intel-2017.05
-export CXX=icpc;
-export CC=icc
 
 source_directory=$(dirname ${BASH_SOURCE[0]})
 build_directory=$PWD
@@ -62,6 +43,12 @@ do
          ;;
    esac
 done
+
+# Prepare environment
+source "${source_directory}/setupEnv.sh"
+module load CMake/3.9.6
+export CXX=icpc;
+export CC=icc
 
 ### Run CMake
 rm -rf CMakeCache.txt CMakeFiles

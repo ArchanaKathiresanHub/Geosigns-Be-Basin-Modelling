@@ -223,8 +223,6 @@ namespace DataAccess
          /// return the list of surfaces, all or for a given snapshot.
          // Do we need to include igneous intrusions here, as they will have the same snapshot time as the surface below.
          virtual SurfaceList * getSurfaces( const Snapshot * snapshot = nullptr, const bool includeBasement = false ) const;
-         /// return the list of TouchstoneMaps
-         virtual TouchstoneMapList * getTouchstoneMaps( void ) const;
          /// return the list of reservoirs
          virtual ReservoirList * getReservoirs( const Formation * formation = nullptr ) const;
          /// @return the global reservoir options
@@ -463,7 +461,7 @@ namespace DataAccess
 
          void addProperty( Property * property );
          void addPropertyToFront( Property * property );
-         const Property * addFasttouchProperty(const string & propertyValueName);
+
          // Function supporting the implementation
          PropertyValue * addPropertyValue( database::Record * record, const string & name, const Property * property, const Snapshot * snapshot,
             const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName = "" );
@@ -690,7 +688,6 @@ namespace DataAccess
          MutablePaleoPropertyList m_surfaceDepthHistory;
          MutablePaleoPropertyList m_surfaceTemperatureHistory;
 
-         MutableTouchstoneMapList m_touchstoneMaps;
          MutableAllochthonousLithologyList m_allochthonousLithologies;
          MutableAllochthonousLithologyDistributionList m_allochthonousLithologyDistributions;
          MutableAllochthonousLithologyInterpolationList m_allochthonousLithologyInterpolations;
@@ -794,7 +791,6 @@ namespace DataAccess
          static bool isEqualTime( double t1, double t2 );
          bool loadGrids( void );
          bool loadLithoTypes( void );
-         bool loadTouchstoneMaps( void );
 
          bool loadSurfaces( void );
          bool loadFormations( void );
@@ -897,7 +893,6 @@ namespace DataAccess
          void deleteSourceRocks( void );
          void deleteReservoirs( void );
          void deleteMobileLayers( void );
-         void deleteTouchstoneMaps( void );
          void deleteAllochthonousLithologies( void );
          void deleteAllochthonousLithologyDistributions( void );
          void deleteAllochthonousLithologyInterpolations( void );

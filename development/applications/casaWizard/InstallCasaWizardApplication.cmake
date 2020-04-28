@@ -8,9 +8,9 @@ if(UNIX)
 
 DIR=$(dirname $0)
 . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
-module load HpcSoftwareStack/PRODUCTION 
+module load HpcSoftwareStack/PRODUCTION
 module purge &> /dev/null
-module load Qt/5.4.1-intel-${INTEL_CXX_VERSION}
+module load Qt5/5.10.1-intel-2019a
 
 EXEC_NAME=${TARGETNAME}.exe
 export PATH=$DIR:$PATH
@@ -19,7 +19,7 @@ if [ -d \"$DIR/../../misc\" ]; then
 else
   if [ -d \"$DIR/../misc\" ]; then
     export CTCDIR=$DIR/../misc
-  fi 
+  fi
 fi
 $(dirname $0)/$EXEC_NAME
 " )

@@ -13,7 +13,6 @@
 include(cmake/AddPackage.cmake)
 
 set(DOXYGEN_EXECUTABLE "DOXYGEN_EXECUTABLE-NOTFOUND" CACHE PATH "Path to doxygen executable")
-set(DOT_EXECUTABLE "DOT_EXECUTABLE-NOTFOUND" CACHE PATH "Path to dot executable")
 
 find_package(Doxygen)
 

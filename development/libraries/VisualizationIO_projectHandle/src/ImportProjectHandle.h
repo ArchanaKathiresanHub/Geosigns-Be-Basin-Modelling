@@ -54,7 +54,6 @@ public:
     void addTrapperIO();
     void addTrapIO();
     void addGenexHistory();
-    void addBurialHistory();
     void addMassBalance();
     void add1Ddata();
 

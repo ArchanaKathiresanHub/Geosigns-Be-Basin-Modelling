@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file TornadoSensitivityInfo.cpp
 /// @brief This file keeps implementation of TornadoSensitivityInfo methods
@@ -21,6 +21,8 @@
 // CMB API
 #include "UndefinedValues.h"
 
+#include <cmath>
+
 namespace casa
 {
    //////////////////////////////////////////////////////////////
@@ -31,7 +33,7 @@ namespace casa
                                                  , double obsRefVal
                                                  , const  std::vector< std::pair<const VarParameter *, int> > & varPrms
                                                  , const  SensitivityData & sensData
-                                                 , const  SensitivityData & relSensData 
+                                                 , const  SensitivityData & relSensData
                                                  )
                                                  : m_obs( obs )
                                                  , m_obsSubID( obsSubID )
@@ -51,7 +53,7 @@ namespace casa
                   const std::vector<bool> & selPrms = cprm->selected();
 
                   if ( selPrms[subID] )  // if parameter not fixed add to tornado
-                  { 
+                  {
                      m_vprmPtr.push_back( varPrms[i] );
                      m_sensitivities.push_back( sensData[i] );
                      m_relSensitivities.push_back( relSensData[i] );
@@ -183,33 +185,33 @@ namespace casa
       double sumOfMaxAbsSensitivities = 0.0;
 
       // first accumulate sensitivities
-      for ( size_t i = 0; i < m_sensitivities.size(); ++i ) // min/max on boundaries of IP range 
+      for ( size_t i = 0; i < m_sensitivities.size(); ++i ) // min/max on boundaries of IP range
       {
          double smin = IsValueUndefined( m_sensitivities[i].front() ) ? 0.0 : m_sensitivities[i].front();
          double smax = IsValueUndefined( m_sensitivities[i].back()  ) ? 0.0 : m_sensitivities[i].back();
          switch ( m_vprmPtr[i].first->variationType() )
-         {  
+         {
             case VarParameter::Continuous:
-               sumOfAbsSensitivities += smin * smax < 0.0 ? ( fabs( smin ) + fabs( smax ) ) : ( std::max( fabs( smin ), fabs( smax ) ) );
+               sumOfAbsSensitivities += smin * smax < 0.0 ? ( std::fabs( smin ) + std::fabs( smax ) ) : ( std::max( std::fabs( smin ), std::fabs( smax ) ) );
                break;
 
-            case VarParameter::Categorical: sumOfAbsSensitivities += fabs( smin ); break;
+            case VarParameter::Categorical: sumOfAbsSensitivities += std::fabs( smin ); break;
 
             default: throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Unsupported parameter type for tornado calculation";
          }
       }
-      
-      for ( size_t i = 0; i < m_maxSensitivities.size(); ++i ) // min/max inside IP range 
-      { 
+
+      for ( size_t i = 0; i < m_maxSensitivities.size(); ++i ) // min/max inside IP range
+      {
          double smin = IsValueUndefined( m_maxSensitivities[i].front() ) ? 0.0 : m_maxSensitivities[i].front();
          double smax = IsValueUndefined( m_maxSensitivities[i].back()  ) ? 0.0 : m_maxSensitivities[i].back();
          switch ( m_vprmPtr[i].first->variationType() )
-         {  
+         {
             case VarParameter::Continuous:
-               sumOfMaxAbsSensitivities += smin * smax < 0.0 ? ( fabs( smin ) + fabs( smax ) ) : ( std::max( fabs( smin ), fabs( smax ) ) );
+               sumOfMaxAbsSensitivities += smin * smax < 0.0 ? ( std::fabs( smin ) + std::fabs( smax ) ) : ( std::max( std::fabs( smin ), std::fabs( smax ) ) );
                break;
 
-            case VarParameter::Categorical: sumOfMaxAbsSensitivities += fabs( smin ); break;
+            case VarParameter::Categorical: sumOfMaxAbsSensitivities += std::fabs( smin ); break;
 
             default: throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Unsupported parameter type for tornado calculation";
          }
@@ -220,32 +222,32 @@ namespace casa
       m_relSensitivities.clear();
 
       if ( sumOfAbsSensitivities > 1e-12 ) // can't calculate relative sensitivities
-      {   
+      {
          for ( size_t i = 0; i < m_sensitivities.size(); ++i )
          {
             double smin = IsValueUndefined( m_sensitivities[i].front() ) ? 0.0 : m_sensitivities[i].front();
             double smax = IsValueUndefined( m_sensitivities[i].back()  ) ? 0.0 : m_sensitivities[i].back();
-            
+
             m_relSensitivities.push_back( std::vector<double>() );
 
             switch ( m_vprmPtr[i].first->variationType() )
-            {  
+            {
                case VarParameter::Continuous:
                   m_relSensitivities[i].push_back( 100.0 * smin / sumOfAbsSensitivities );
                   m_relSensitivities[i].push_back( 100.0 * smax / sumOfAbsSensitivities );
                   break;
 
-               case VarParameter::Categorical: 
+               case VarParameter::Categorical:
                   m_relSensitivities[i].push_back( 100.0 * smin / sumOfAbsSensitivities );
                   break;
-   
+
                default: throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Unsupported parameter type for tornado calculation";
             }
          }
       }
-      
+
       if ( sumOfMaxAbsSensitivities > 1e-12 ) // can't calculate max relative sensitivities
-      {   
+      {
          for ( size_t i = 0; i < m_maxSensitivities.size(); ++i )
          {
             double smin = IsValueUndefined( m_maxSensitivities[i].front() ) ? 0.0 : m_maxSensitivities[i].front();
@@ -254,16 +256,16 @@ namespace casa
             m_maxRelSensitivities.push_back( std::vector<double>() );
 
             switch ( m_vprmPtr[i].first->variationType() )
-            {  
+            {
                case VarParameter::Continuous:
                   m_maxRelSensitivities[i].push_back( 100.0 * smin / sumOfMaxAbsSensitivities );
                   m_maxRelSensitivities[i].push_back( 100.0 * smax / sumOfMaxAbsSensitivities );
                   break;
 
-               case VarParameter::Categorical: 
+               case VarParameter::Categorical:
                   m_maxRelSensitivities[i].push_back( 100.0 * smin / sumOfMaxAbsSensitivities );
                   break;
-   
+
                default: throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Unsupported parameter type for tornado calculation";
             }
          }

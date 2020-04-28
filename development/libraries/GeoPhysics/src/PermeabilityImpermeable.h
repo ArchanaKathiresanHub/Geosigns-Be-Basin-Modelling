@@ -40,22 +40,14 @@ public:
    }
 
    virtual void calculate ( const unsigned int       n,
-                            ArrayDefs::ConstReal_ptr ves,
-                            ArrayDefs::ConstReal_ptr maxVes,
-                            ArrayDefs::ConstReal_ptr calculatedPorosity,
+                            ArrayDefs::ConstReal_ptr /*ves*/,
+                            ArrayDefs::ConstReal_ptr /*maxVes*/,
+                            ArrayDefs::ConstReal_ptr /*calculatedPorosity*/,
                             ArrayDefs::Real_ptr      permeabilities ) const
    {
-
-      // Added to prevent compiler warnings about unused parameters.
-      (void) ves;
-      (void) maxVes;
-      (void) calculatedPorosity;
-
-      #pragma omp simd aligned ( permeabilities )
       for ( unsigned int i = 0; i < n; ++i ) {
          permeabilities [ i ] = ImpermeablePermeability;
       }
-
    }
 
    /// Compte the derivative of the permeability function.
@@ -78,22 +70,13 @@ public:
    }
 
    virtual void calculateDerivative ( const unsigned int       n,
-                                      ArrayDefs::ConstReal_ptr ves,
-                                      ArrayDefs::ConstReal_ptr maxVes,
-                                      ArrayDefs::ConstReal_ptr calculatedPorosity,
-                                      ArrayDefs::ConstReal_ptr porosityDerivativeWrtVes,
+                                      ArrayDefs::ConstReal_ptr /*ves*/,
+                                      ArrayDefs::ConstReal_ptr /*maxVes*/,
+                                      ArrayDefs::ConstReal_ptr /*calculatedPorosity*/,
+                                      ArrayDefs::ConstReal_ptr /*porosityDerivativeWrtVes*/,
                                       ArrayDefs::Real_ptr      permeabilities,
                                       ArrayDefs::Real_ptr      derivatives ) const
    {
-
-
-      // Added to prevent compiler warnings about unused parameters.
-      (void) ves;
-      (void) maxVes;
-      (void) calculatedPorosity;
-      (void) porosityDerivativeWrtVes;
-
-      #pragma omp simd aligned ( permeabilities, derivatives )
       for ( unsigned int i = 0; i < n; ++i ) {
          permeabilities [ i ] = ImpermeablePermeability;
          derivatives [ i ] = 0.0;

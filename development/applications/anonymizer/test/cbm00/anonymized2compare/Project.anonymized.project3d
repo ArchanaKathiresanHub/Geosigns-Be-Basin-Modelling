@@ -312,15 +312,6 @@
 [End]
 ;
 ;
-; TouchstoneWellIoTbl
-;
-[TouchstoneWellIoTbl]
-;v100
-                WellName                   XCoord                   YCoord                  BHFName
-                      ()                      (m)                      (m)                       ()
-[End]
-;
-;
 ; GridMapIoTbl
 ;
 [GridMapIoTbl]
@@ -1885,15 +1876,6 @@ BottomBoundaryModel TopAsthenoTemp TopCrustHeatProd TopCrustHeatProdGrid CrustHe
         "SurfaceName006"             "MapName011"                    -9999
         "SurfaceName007"             "MapName013"                    -9999
         "SurfaceName008"             "MapName015"                    -9999
-[End]
-;
-;
-; TouchstoneMapIoTbl
-;
-[TouchstoneMapIoTbl]
-;v100
-                 TcfName             FaciesNumber              SurfaceName            FormationName                 Category                   Format               Percentile                FaciesMap                  RunName
-                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
 ;

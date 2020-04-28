@@ -78,7 +78,7 @@ namespace casa
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "ObsGridXYLayerTopSurfaceProp"; }
+      virtual std::string typeName() const { return "ObsGridXYLayerTopSurfaceProp"; }
 
       /// @brief Create a new observable instance and deserialize it from the given stream
       /// @param dz input stream

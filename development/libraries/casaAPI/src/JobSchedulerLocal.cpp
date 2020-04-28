@@ -382,7 +382,7 @@ public:
    virtual unsigned int version() const { return 1; }
 
    // Get type name of the serialaizable object, used in deserialization to create object with correct type
-   virtual const char * typeName() const { return "JobSchedulerLocal::Job"; }
+   virtual std::string typeName() const { return "JobSchedulerLocal::Job"; }
 
    // Serialize object to the given stream
    virtual bool save( CasaSerializer & sz ) const

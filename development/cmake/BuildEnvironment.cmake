@@ -15,7 +15,7 @@
 #
 
 add_environment_variable(IBS_LIMITEDBUILDANDINSTALL true)
-   
+
 # Set the field width in the tables that TableIO outputs
 add_environment_variable(IBS_FIELDWIDTH 24)
 
@@ -26,14 +26,6 @@ add_environment_variable( GENEX5DIR "${PROJECT_SOURCE_DIR}/geocase/misc/genex50"
 add_environment_variable( GENEX6DIR "${PROJECT_SOURCE_DIR}/geocase/misc/genex60")
 add_environment_variable( OTGCDIR "${PROJECT_SOURCE_DIR}/geocase/misc/OTGC")
 add_environment_variable( CTCDIR "${PROJECT_SOURCE_DIR}/geocase/misc")
-
-if (TSLIB_ROOT)
-add_environment_variable( GEOCOSMBASEDIR "${TSLIB_ROOT}" )
-add_environment_variable( GEOCOSMDIR "${TSLIB_LIBRARY_DIR}")
-add_environment_variable( MATLABMCR "${MCR_ROOT}" )
-add_environment_variable( XAPPLRESDIR "${MCR_ROOT}/X11/app-defaults" )
-add_environment_variable( TOUCH_LD_LIBRARY_PATH "${MCR_ROOT}/runtime/glnxa64:${MCR_ROOT}/runtime/bin/glnxa64:${MCR_ROOT}/sys/os/glnxa64:${MCR_ROOT}/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:${MCR_ROOT}/sys/java/jre/glnxa64/jre/lib/amd64/server:${MCR_ROOT}/sys/java/jre/glnxa64/jre/lib/amd64:${TSLIB_LIBRARY_DIR}:\$LD_LIBRARY_PATH")
-endif()
 
 add_environment_variable( LANG "en_US.UTF-8" )
 

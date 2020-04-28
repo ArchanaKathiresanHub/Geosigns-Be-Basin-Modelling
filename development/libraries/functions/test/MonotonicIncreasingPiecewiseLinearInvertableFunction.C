@@ -16,7 +16,7 @@ namespace
 {
     const static int s_size = 2;
     const static double s_double = 23.;
-    
+
    struct CompareX
    {
       double m_x;
@@ -44,7 +44,7 @@ TEST( MonotonicIncreasingPiecewiseLinearInvertableFunction, ConstructorAndAccess
    EXPECT_DOUBLE_EQ( f.piece(0)[0][1], 2.*s_double );
    EXPECT_DOUBLE_EQ( f.piece(0)[1][0], s_double+1 );
    EXPECT_DOUBLE_EQ( f.piece(0)[1][1], 2.*s_double+1 );
-   
+
    EXPECT_DOUBLE_EQ( f.begin(0)[0], s_double );
    EXPECT_DOUBLE_EQ( f.begin(0)[1], 2.*s_double );
    EXPECT_DOUBLE_EQ( f.end(0)[0],   s_double+1 );
@@ -57,7 +57,7 @@ TEST( MonotonicIncreasingPiecewiseLinearInvertableFunction, AccessOperator )
    v[1][0] += 1.;
    v[1][1] *= 2;
    functions::MonotonicIncreasingPiecewiseLinearInvertableFunction f(v);
-   
+
    // Lower than the X of the first element
    EXPECT_DOUBLE_EQ( f(s_double-2.), v[0][1] );
    // First element
@@ -77,7 +77,7 @@ TEST( MonotonicIncreasingPiecewiseLinearInvertableFunction, Invert )
    v[1][0] += 1.;
    v[1][1] *= 2;
    functions::MonotonicIncreasingPiecewiseLinearInvertableFunction f(v);
-   
+
    // Lower than the Y of the first element
    EXPECT_DOUBLE_EQ( f.invert(s_double-2.), v[0][0] );
    // First element

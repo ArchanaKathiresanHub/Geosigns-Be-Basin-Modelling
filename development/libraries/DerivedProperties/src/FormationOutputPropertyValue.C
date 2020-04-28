@@ -35,10 +35,10 @@ void DerivedProperties::FormationOutputPropertyValue::retrieveData () const {
    }
 }
 
-const string & DerivedProperties::FormationOutputPropertyValue::getName() const { 
+const string & DerivedProperties::FormationOutputPropertyValue::getName() const {
 
    if( m_formationProperty != nullptr ) {
-      return  m_formationProperty->getProperty()->getName(); 
+      return  m_formationProperty->getProperty()->getName();
    } else {
       return s_nullString;
    }
@@ -85,7 +85,7 @@ const DataModel::AbstractGrid* DerivedProperties::FormationOutputPropertyValue::
    if( m_formationProperty != nullptr ) {
       return m_formationProperty->getGrid();
    }
-   return false;
+   return nullptr;
 }
 
 bool DerivedProperties::FormationOutputPropertyValue::hasProperty() const {

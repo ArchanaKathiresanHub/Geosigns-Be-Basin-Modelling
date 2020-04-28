@@ -74,7 +74,6 @@ namespace GeoPhysics
       assert( ((uintptr_t)(const void *)(chemicalComp) % 32) == 0 );
       assert( ((uintptr_t)(const void *)(porosities) % 32) == 0 );
 
-      #pragma omp simd aligned (ves, maxVes, chemicalComp, porosities)
       for( size_t i = 0; i < n; ++i)
       {
          porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalComp[i] );
@@ -96,7 +95,6 @@ namespace GeoPhysics
       assert( ((uintptr_t)(const void *)(porosities) % 32) == 0 );
       assert( ((uintptr_t)(const void *)(porosityDers) % 32) == 0 );
 
-      #pragma omp simd aligned (ves, maxVes, chemicalComp, porosities, porosityDers)
       for( size_t i = 0; i < n; ++i)
       {
           porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalComp[i] );

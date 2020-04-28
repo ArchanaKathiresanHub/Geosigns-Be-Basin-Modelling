@@ -54,7 +54,7 @@ public:
   MOCK_CONST_METHOD1(checkObservableForProject, bool(mbapi::Model&));
   MOCK_CONST_METHOD1(checkObservableOriginForProject, bool(mbapi::Model&));
   MOCK_CONST_METHOD1(save, bool(casa::CasaSerializer&));
-  MOCK_CONST_METHOD0(typeName, const char*());
+  MOCK_CONST_METHOD0(typeName, std::string());
   MOCK_CONST_METHOD0(depth, std::vector<double>());
   MOCK_CONST_METHOD0(xCoords, std::vector<double>());
   MOCK_CONST_METHOD0(yCoords, std::vector<double>());

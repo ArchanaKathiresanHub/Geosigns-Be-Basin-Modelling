@@ -84,7 +84,6 @@ bool Anonymizer::run( const std::string & projectFolder )
          read();
          renameMapFiles();
          if( m_shiftCoord ) shiftCoordinates();
-         processTouchstonFile();
          write();
       }
    }
@@ -137,8 +136,6 @@ void Anonymizer::read()
    createMapping( "ReservoirIoTbl", "ReservoirName", m_reservoirNames );
 
    createMapping( "GridMapIoTbl", "MapFileName", m_mapFileNames );
-
-   createMapping( "TouchstoneMapIoTbl", "TcfName", m_mapFileNames );
 
    createMapping( "LangmuirAdsorptionCapacityIsothermSetIoTbl", "LangmuirName", m_langmuirNames );
    createMapping( "LangmuirAdsorptionCapacityTOCFunctionIoTbl", "LangmuirName", m_langmuirNames );
@@ -243,9 +240,6 @@ void Anonymizer::write()
    update( "DataMiningIoTbl"          , "FormationName"                 , m_layerNames      );
    update( "DataMiningIoTbl"          , "SurfaceName"                   , m_surfaceNames    );
    update( "DataMiningIoTbl"          , "ReservoirName"                 , m_reservoirNames  );
-   update( "TouchstoneMapIoTbl"       , "TcfName"                       , m_mapFileNames    );
-   update( "TouchstoneMapIoTbl"       , "FormationName"                 , m_layerNames      );
-   update( "TouchstoneMapIoTbl"       , "SurfaceName"                   , m_surfaceNames    );
    update( "TwoWayTimeIoTbl"          , "TwoWayTimeGrid"                , m_gridMap         );
    update( "TwoWayTimeIoTbl"          , "SurfaceName"                   , m_surfaceNames    );
    update( "WellLocIoTbl"             , "WellName"                      , m_wellNames       );
@@ -530,7 +524,6 @@ void Anonymizer::writeMappingtoFile()
 void Anonymizer::shiftCoordinates()
 {
    shift( "WellLocIoTbl", "XCoord", "YCoord" );
-   shift( "TouchstoneWellIoTbl", "XCoord", "YCoord" );
    shift( "DataMiningIoTbl", "XCoord", "YCoord" );
    shift( "GenexHistoryLocationIoTbl", "XPlanePosition", "YPlanePosition" );
    shift( "AdsorptionHistoryIoTbl", "XPlanePosition", "YPlanePosition" );
@@ -646,64 +639,6 @@ void Anonymizer::shiftHDFCoordinates( const std::string & fileName ) const
    status = H5Dclose( datasetId );
 
    H5Fclose ( fileId );
-}
-
-
-void Anonymizer::processTouchstonFile() const
-{
-   // Anonymizing Touchstone XML files
-   for( const auto & mapElem : m_mapFileNames )
-   {
-      ibs::FilePath fPath = ibs::FilePath( m_projectFolder );
-      fPath << s_anonymizedFolder << mapElem.second;
-      const std::string extension = fPath.fileNameExtension();
-      if( extension == "TCF" and fPath.exists() )
-      {
-          pugi::xml_document xml;
-          if( ! xml.load_file( fPath.fullPath().path().c_str() ) )
-          {
-             throw formattingexception::GeneralException() << __FUNCTION__ << " cannot open file " << fPath.fullPath().path();
-          }
-
-          bool status = true;
-          pugi::xml_node root = xml.child("tns:tcfFile");
-          pugi::xml_node header = root.child("tcfHeader");
-
-          pugi::xml_node analysts = header.child("analysts");
-          updateXMLField( analysts, "contactPerson", "misterX", status );
-          updateXMLField( analysts, "petrographer", "misterY", status );
-          updateXMLField( analysts, "basinModeler", "misterZ", status );
-
-          pugi::xml_node geolInfo = header.child("geologicInformation");
-          updateXMLField( geolInfo, "basinName", "AnonymousBasin", status );
-          updateXMLField( geolInfo, "reservoirUnitName", "ReservoirUnit", status );
-
-          for( pugi::xml_node sample : geolInfo.children("samplesSelectedForRun") )
-          {
-            updateXMLField( sample, "wellName", "Well", status );
-            updateXMLField( sample, "unitName", "ReservoirUnit", status );
-          }
-
-          pugi::xml_node sampleData = root.child("sampleData");
-          for( pugi::xml_node data : sampleData.children("sampleMeasurements") )
-          {
-            status &= data.attribute("wellName").set_value("Well");
-            status &= data.attribute("unitName").set_value("ReservoirUnit");
-          }
-
-          updateXMLField( header, "runName", "AnonymousRun", status );
-
-          if( ! status )
-          {
-             throw formattingexception::GeneralException() << __FUNCTION__ << " XML fields update error";
-          }
-
-          if( ! xml.save_file( fPath.fullPath().path().c_str() ) )
-          {
-             throw formattingexception::GeneralException() << __FUNCTION__ << " cannot write file " << fPath.fullPath().path();
-          }
-      }
-   }
 }
 
 
