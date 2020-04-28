@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef BIN_DESERIALIZER_H
 #define BIN_DESERIALIZER_H
@@ -43,11 +43,11 @@ namespace casa
 
       /// @brief Read the description of the next object from file and compare with given data. Works only for CasaSerializable objects
       /// @param objType string representation of object type as it returned by CasaSerializable::typeName() virtual method
-      /// @param objName object name 
-      /// @param [in,out] ver expected version of object, if version of the object in file is newer it will throw an exception. 
+      /// @param objName object name
+      /// @param [in,out] ver expected version of object, if version of the object in file is newer it will throw an exception.
       ///                     On return it keeps object version from the file.
       /// @return true on success, false on any error
-      virtual bool checkObjectDescription( const char * objType, const std::string & objName, unsigned int & ver );
+      virtual bool checkObjectDescription( const std::string& objType, const std::string & objName, unsigned int & ver );
 
       /// @brief Read the description of the next object in file. Works only for class objects
       /// @param objType string representation of object type as it returned by typeid().name()
@@ -180,7 +180,7 @@ namespace casa
 
    private:
       std::istream                        & m_cfile;  ///< input stream
-      boost::iostreams::filtering_istream   m_file;   ///< compressed stream 
+      boost::iostreams::filtering_istream   m_file;   ///< compressed stream
 
       unsigned int    m_version;
       char          * m_buf;

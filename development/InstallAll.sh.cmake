@@ -22,7 +22,7 @@ else
    installgrp=""
 fi
 
-# Check whether we don't add too many versions. 
+# Check whether we don't add too many versions.
 # The SSSLauncher (which many people still use) has a problem when the sum of
 # all version string lengths is more than a 1000.
 pushd @BM_SSSDEV_INSTALL_DIR@ > /dev/null
@@ -75,7 +75,7 @@ if [ -e /apps/sss/share/getos2 ]; then
     pushd $targetDirectory > /dev/null
     ln -s @CSCE_PLATFORM@ LinuxRHEL64
     popd > /dev/null
-  fi  
+  fi
 fi
 
 # Install platform independent files
@@ -86,12 +86,6 @@ else
    echo " - Geocase"
    # Install Geocase
    cp -r @CMAKE_INSTALL_PREFIX@/misc $targetDirectory
-
-   # installing 3rdparty stuff
-   echo " - Geocosm's TsLib"
-   # Note: The --no-same-permissions flag in the tar commands below, is necessary to get enough 
-   # permissions for everyone to read and execute the shared-libraries.
-   tar --no-same-permissions -xzf @CMAKE_CURRENT_SOURCE_DIR@/../3rdparty/sources/geocosm.tar.gz -C $miscDirectory
 
    if [ "x${cldgrp}" != "x" ]; then
       echo " - Changing group to $cldgrp"

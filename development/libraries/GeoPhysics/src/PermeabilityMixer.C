@@ -373,7 +373,6 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoHomogeneous ( const unsigned in
    double permeabilityAnisotropy2 = m_anisotropies [ 1 ];
 
    double fractionLithology1 = m_weights [ 0 ];
-   double fractionLithology2 = m_weights [ 1 ]; // = 1 - fractionLithology1
 
    // This can be done when the object is "reset"
    double mixedAnisotropy = std::pow ( permeabilityAnisotropy1 / permeabilityAnisotropy2, fractionLithology1 ) * permeabilityAnisotropy2;
@@ -383,7 +382,6 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoHomogeneous ( const unsigned in
    ArrayDefs::Real_ptr permeabilities2 = simplePermeabilities.getData ( 1 );
 
    // The permeability cannot be zero
-#pragma omp simd aligned ( permeabilities1, permeabilities2, permeabilityNormal, permeabilityPlane )
    for ( unsigned int i = 0; i < size; ++i ) {
       mixedPermeability = MilliDarcyToM2 * std::pow ( permeabilities1 [ i ] / permeabilities2 [ i ], fractionLithology1 ) * permeabilities2 [ i ];
       permeabilityNormal [ i ] = mixedPermeability;
@@ -403,7 +401,6 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeHomogeneous ( const unsigned 
 
    double fractionLithology1 = m_weights [ 0 ];
    double fractionLithology2 = m_weights [ 1 ];
-   double fractionLithology3 = m_weights [ 2 ]; // = 1 - f1 - f2
 
    ArrayDefs::Real_ptr permeabilities1 = simplePermeabilities.getData ( 0 );
    ArrayDefs::Real_ptr permeabilities2 = simplePermeabilities.getData ( 1 );
@@ -414,7 +411,6 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeHomogeneous ( const unsigned 
    double mixedPermeability;
 
    // The permeability cannot be zero
-   #pragma omp simd aligned ( permeabilities1, permeabilities2, permeabilities3, permeabilityNormal, permeabilityPlane )
    for ( unsigned int i = 0; i < size; ++i ) {
       double invPerm3 = 1.0 / permeabilities3 [ i ];
       mixedPermeability = MilliDarcyToM2 * ( std::pow ( permeabilities1 [ i ] * invPerm3, fractionLithology1 ) * std::pow ( permeabilities2 [ i ] * invPerm3, fractionLithology2 ) * permeabilities3 [ i ]);
@@ -430,10 +426,6 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexZero ( const unsig
                                                                      ArrayDefs::Real_ptr          permeabilityPlane ) const {
 
    double permeabilityAnisotropy1 = m_anisotropies [ 0 ];
-   double permeabilityAnisotropy2 = m_anisotropies [ 1 ];
-
-   double fractionLithology1 = m_weights [ 0 ];
-   double fractionLithology2 = m_weights [ 1 ]; // = 1 - fractionLithology1
 
    ArrayDefs::Real_ptr permeabilities1 = simplePermeabilities.getData ( 0 );
    ArrayDefs::Real_ptr permeabilities2 = simplePermeabilities.getData ( 1 );
@@ -442,7 +434,6 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexZero ( const unsig
    double normal;
    double plane;
 
-#pragma omp simd aligned ( permeabilities1, permeabilities2, permeabilityNormal, permeabilityPlane )
    for ( unsigned int i = 0; i < size; ++i ) {
       k21 = std::cbrt ( permeabilities2 [ i ] / permeabilities1 [ i ]);
       normal = 1.0 + m_percentRatio2 * k21;
@@ -460,12 +451,6 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexZero ( const uns
                                                                        ArrayDefs::Real_ptr          permeabilityPlane ) const {
 
    double permeabilityAnisotropy1 = m_anisotropies [ 0 ];
-   double permeabilityAnisotropy2 = m_anisotropies [ 1 ];
-   double permeabilityAnisotropy3 = m_anisotropies [ 2 ];
-
-   double fractionLithology1 = m_weights [ 0 ];
-   double fractionLithology2 = m_weights [ 1 ];
-   double fractionLithology3 = m_weights [ 2 ]; // = 1 - f1 - f2
 
    ArrayDefs::Real_ptr permeabilities1 = simplePermeabilities.getData ( 0 );
    ArrayDefs::Real_ptr permeabilities2 = simplePermeabilities.getData ( 1 );
@@ -477,7 +462,6 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexZero ( const uns
    double plane;
    double k1Inv;
 
-#pragma omp simd aligned ( permeabilities1, permeabilities2, permeabilities3, permeabilityNormal, permeabilityPlane )
    for ( unsigned int i = 0; i < size; ++i ) {
       k1Inv = permeabilities1 [ i ];
       k21 = std::cbrt ( permeabilities2 [ i ] / k1Inv );
@@ -497,9 +481,7 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexQuarter ( const un
                                                                         ArrayDefs::Real_ptr          permeabilityPlane ) const {
 
    double permeabilityAnisotropy1 = m_anisotropies [ 0 ];
-   double permeabilityAnisotropy2 = m_anisotropies [ 1 ];
 
-   double fractionLithology1 = m_weights [ 0 ];
    double fractionLithology2 = m_weights [ 1 ]; // = 1 - fractionLithology1
 
    ArrayDefs::Real_ptr permeabilities1 = simplePermeabilities.getData ( 0 );
@@ -508,7 +490,6 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexQuarter ( const un
    double perm;
    double permRatio;
 
-#pragma omp simd aligned ( permeabilities1, permeabilities2, permeabilityNormal, permeabilityPlane )
    for ( unsigned int i = 0; i < size; ++i ) {
       permRatio = permeabilities2 [ i ] / permeabilities1 [ i ];
       permeabilityNormal [ i ] = MilliDarcyToM2 * std::pow ( permRatio, fractionLithology2 ) * permeabilities1 [ i ];
@@ -525,10 +506,7 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexQuarter ( const 
                                                                           ArrayDefs::Real_ptr          permeabilityPlane ) const {
 
    double permeabilityAnisotropy1 = m_anisotropies [ 0 ];
-   double permeabilityAnisotropy2 = m_anisotropies [ 1 ];
-   double permeabilityAnisotropy3 = m_anisotropies [ 2 ];
 
-   double fractionLithology1 = m_weights [ 0 ];
    double fractionLithology2 = m_weights [ 1 ];
    double fractionLithology3 = m_weights [ 2 ]; // = 1 - f1 - f2
 
@@ -540,7 +518,6 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexQuarter ( const 
    double permRatio21;
    double permRatio31;
 
-#pragma omp simd aligned ( permeabilities1, permeabilities2, permeabilities3, permeabilityNormal, permeabilityPlane )
    for ( unsigned int i = 0; i < size; ++i ) {
       permRatio21 = permeabilities2 [ i ] / permeabilities1 [ i ];
       permRatio31 = permeabilities3 [ i ] / permeabilities1 [ i ];
@@ -561,10 +538,6 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexGeneral ( const un
 
    // Homogeneous model is kept for backward compatibility only.
    double permeabilityAnisotropy1 = m_anisotropies [ 0 ];
-   double permeabilityAnisotropy2 = m_anisotropies [ 1 ];
-
-   double fractionLithology1 = m_weights [ 0 ];
-   double fractionLithology2 = m_weights [ 1 ]; // = 1 - fractionLithology1
 
    ArrayDefs::Real_ptr permeabilities1 = simplePermeabilities.getData ( 0 );
    ArrayDefs::Real_ptr permeabilities2 = simplePermeabilities.getData ( 1 );
@@ -572,7 +545,6 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexGeneral ( const un
    double permRatio;
    double permRatioExp;
 
-#pragma omp simd aligned ( permeabilities1, permeabilities2, permeabilityNormal, permeabilityPlane )
    for ( unsigned int i = 0; i < size; ++i ) {
       permRatio = permeabilities2 [ i ] / permeabilities1 [ i ];
       permRatioExp = std::pow(permRatio, m_mixHorizonExp);
@@ -592,12 +564,6 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexGeneral ( const 
                                                                           ArrayDefs::Real_ptr          permeabilityPlane ) const {
 
    double permeabilityAnisotropy1 = m_anisotropies [ 0 ];
-   double permeabilityAnisotropy2 = m_anisotropies [ 1 ];
-   double permeabilityAnisotropy3 = m_anisotropies [ 2 ];
-
-   double fractionLithology1 = m_weights [ 0 ];
-   double fractionLithology2 = m_weights [ 1 ];
-   double fractionLithology3 = m_weights [ 2 ]; // = 1 - f1 - f2
 
    ArrayDefs::Real_ptr permeabilities1 = simplePermeabilities.getData ( 0 );
    ArrayDefs::Real_ptr permeabilities2 = simplePermeabilities.getData ( 1 );
@@ -609,7 +575,6 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexGeneral ( const 
    double permRatio21Exp;
    double permRatio31Exp;
 
-#pragma omp simd aligned ( permeabilities1, permeabilities2, permeabilities3, permeabilityNormal, permeabilityPlane )
    for ( unsigned int i = 0; i < size; ++i ) {
       perm1Inv = 1.0 / permeabilities1 [ i ];
       permRatio21 = permeabilities2 [ i ] * perm1Inv;

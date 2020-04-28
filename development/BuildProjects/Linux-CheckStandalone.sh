@@ -127,10 +127,8 @@ tar xzf $tar || { echo "tar : error : Could not uncompress tarfile"; exit 1 ; }
 [[ -r /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh ]] && . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
 module load HpcSoftwareStack/PRODUCTION
 module purge
-module load intel/2017.05
-module load impi/2017.4.239-iccifort-2017.5.239-GCC-4.9.3-2.25
-module load imkl/2017.4.239-iimpi-2017.05-GCC-4.9.3-2.25
-module load CMake/3.8.2
+module load intel/2019a
+module load CMake/3.9.6
 
 echo "Configuring the package"
 ${srcdir}/development/bootstrap.sh \

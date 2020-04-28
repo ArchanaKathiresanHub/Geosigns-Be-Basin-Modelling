@@ -165,9 +165,6 @@ private:
    /// \brief Shift coordinates in HDF file
    void shiftHDFCoordinates( const std::string & fileName ) const;
 
-   /// \brief Anonymize touchstone file
-   void processTouchstonFile() const;
-
    /// \brief
    void updateXMLField( pugi::xml_node node,
                         const char* field,

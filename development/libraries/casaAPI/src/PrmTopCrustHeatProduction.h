@@ -78,7 +78,7 @@ namespace casa
 
      /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
      /// @return object class name
-     virtual const char * typeName() const { return "PrmTopCrustHeatProduction"; }
+     virtual std::string typeName() const { return "PrmTopCrustHeatProduction"; }
 
      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
      /// @return Actual version of serialized object representation

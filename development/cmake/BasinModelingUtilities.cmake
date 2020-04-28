@@ -18,7 +18,7 @@ macro(create_bm_library)
   cmake_parse_arguments("${prefix}" "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   file(GLOB ALL_HEADERS src/*.h)
-  file(GLOB ALL_SOURCES src/*.C src/*.cpp)
+  file(GLOB ALL_SOURCES src/*.C src/*.cpp src/*.hpp)
 
   source_group(include FILES ${ALL_HEADERS} ${BM_ADD_HEADERS})
   source_group(source  FILES ${ALL_SOURCES} ${BM_ADD_SOURCES})
@@ -26,9 +26,9 @@ macro(create_bm_library)
   add_library(${BM_TARGET} ${ALL_SOURCES} ${BM_ADD_SOURCES}
                            ${ALL_HEADERS} ${BM_ADD_HEADERS} )
   target_include_directories(${BM_TARGET} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-  target_link_libraries(${BM_TARGET} ${BM_LIBRARIES})  
+  target_link_libraries(${BM_TARGET} ${BM_LIBRARIES})
   set_target_properties( ${BM_TARGET} PROPERTIES FOLDER "${BASE_FOLDER}/${BM_TARGET}" )
-  
+
   if (BM_INSTALLTARGET)
     install(TARGETS ${BM_TARGET}
             RUNTIME DESTINATION bin
@@ -39,11 +39,11 @@ macro(create_bm_library)
 endmacro(create_bm_library)
 
 
-# The following function is copied from 
+# The following function is copied from
 # http://stackoverflow.com/questions/10113017/setting-the-msvc-runtime-in-cmake
 macro(configure_msvc_runtime FLAVOR)
   if(MSVC)
-       
+
     # Set compiler options.
     set(variables
       CMAKE_C_FLAGS_DEBUG
@@ -103,7 +103,7 @@ macro( generate_dox DOXYGEN_CONFIG_FILE )
       )
     endif(WIN32)
     add_dependencies(doc "doc_${id}")
-    
+
     set_target_properties( "doc_${id}" PROPERTIES FOLDER "Documentation" )
   endif()
 endmacro(generate_dox)
@@ -117,10 +117,10 @@ macro(new_guid Output)
   string( RANDOM LENGTH 4 ALPHABET ${Alphabet} three)
   string( RANDOM LENGTH 4 ALPHABET ${Alphabet} four)
   string( RANDOM LENGTH 12 ALPHABET ${Alphabet} five)
-  
+
   set(${Output} "${one}-${two}-${three}-${four}-${five}")
 endmacro(new_guid)
-  
+
 # Define a macro to get the current date
 macro(today RESULT)
    if (UNIX)
@@ -182,11 +182,11 @@ macro(generate_nuget_pkg)
        set(parameterType Atom)
       elseif(param STREQUAL PKG_DESCRIPTION)
         set(parameterName  PKG_DESCRIPTION)
-       set(parameterType Atom)         
+       set(parameterType Atom)
       elseif(param STREQUAL PKG_RELEASE_NOTES)
          set(parameterName PKG_RELEASE_NOTES)
        set(parameterType Atom)
-     
+
         set(parameterName  PKG_TAGS)
        set(parameterType Atom)
       elseif(param STREQUAL PKG_COPYRIGHT)
@@ -207,10 +207,10 @@ macro(generate_nuget_pkg)
        list(APPEND ${parameterName} ${param})
       endif()
   endforeach(param)
- 
+
    # Extract project name to use it in nuget package creation
    get_filename_component(PROJ_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-   
+
    if (BUILD_SHARED_LIBS)
       set(LIB_SFX so)
    else (BUILD_SHARED_LIBS)
@@ -236,7 +236,7 @@ macro(generate_nuget_pkg)
          get_filename_component(libPath ${lib} DIRECTORY)
          get_filename_component(libFile ${lib} NAME)
          get_filename_component(fullLibPath "${CMAKE_CURRENT_BINARY_DIR}/${libPath}" ABSOLUTE)
-         
+
          file(TO_NATIVE_PATH ${fullLibPath}/lib${libFile}.${LIB_SFX} fullFilePathNative)
          set(PKG_LIBS "${PKG_LIBS}    <file src=\"${fullFilePathNative}\" target=\"lib/\"/>\n")
       endforeach()
@@ -245,7 +245,7 @@ macro(generate_nuget_pkg)
    endif ()
 
    # Create list of additional headers for nuget package
-   if (AdditionalHeaders)              
+   if (AdditionalHeaders)
       foreach(doth ${AdditionalHeaders})
          get_filename_component(fullFilePath "${CMAKE_CURRENT_SOURCE_DIR}/src/${doth}" ABSOLUTE)
          file(TO_NATIVE_PATH ${fullFilePath} fullFilePathNative)
@@ -255,7 +255,7 @@ macro(generate_nuget_pkg)
    else ()
       set(PKG_HEADERS)
    endif ()
-   
+
    file(TO_NATIVE_PATH ${CMAKE_BINARY_DIR} TARGET_FILE_PATH)
    set(NUGET_SPEC_FILE_NAME  ${PKG_NAMESPACE}.${BLD_ARCH}.${PKG_NAME}.nuspec)
 
@@ -289,7 +289,7 @@ macro(generate_csharp_api)
    set(ExtraDependencies)
    set(AdditionalHeaders)
    set(AdditionalLibs)
-   
+
    # parse parameters
   set(parameterName)
   set(parameterType)
@@ -309,7 +309,7 @@ macro(generate_csharp_api)
        set(parameterType Atom)
       elseif(param STREQUAL CSPROJ_ASSEMBLY_DESCRIPTION)
         set(parameterName CSPROJ_ASSEMBLY_DESCRIPTION)
-       set(parameterType Atom)         
+       set(parameterType Atom)
       elseif(param STREQUAL CSPROJ_ASSEMBLY_RELEASE_NOTES)
         set(parameterName CSPROJ_ASSEMBLY_RELEASE_NOTES)
        set(parameterType Atom)
@@ -331,21 +331,21 @@ macro(generate_csharp_api)
       elseif(param STREQUAL CSHARP_UNIT_TESTS_SRC) # list of files with C# unit tests
          set(parameterName UnitTestsFileList)
        set(parameterType Sequence)
-      elseif(param STREQUAL CSPROJ_EXTRA_DEPS) # 
+      elseif(param STREQUAL CSPROJ_EXTRA_DEPS) #
          set(parameterName ExtraDependencies)
-       set(parameterType Sequence)      
+       set(parameterType Sequence)
     elseif(parameterType STREQUAL Atom)
        set(${parameterName} ${param})
     elseif(parameterType STREQUAL Sequence)
        list(APPEND ${parameterName} ${param})
       endif()
   endforeach(param)
-   
+
   if (MSVC)
-      
+
       configure_file(${PROJECT_SOURCE_DIR}/cmake/version.rc.cmake version.rc)
       configure_file(${PROJECT_SOURCE_DIR}/cmake/AssemblyInfo.cs.cmake csharp/Properties/AssemblyInfo.cs)
-      
+
       # Extract project name to use it in nuget package creation
       get_filename_component(PROJ_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
@@ -355,13 +355,13 @@ macro(generate_csharp_api)
             get_filename_component(libPath ${lib} DIRECTORY)
             get_filename_component(libFile ${lib} NAME)
             get_filename_component(fullLibPath "${CMAKE_CURRENT_BINARY_DIR}/${libPath}" ABSOLUTE)
-            
+
             file(TO_NATIVE_PATH ${fullLibPath}/Release/${libFile} fullFilePathNative)
             set(ADDITIONAL_LIBS "${ADDITIONAL_LIBS}    <file src=\"${fullFilePathNative}\" target=\"lib\\native\\x64\\Release\"/>\n")
-            
+
             file(TO_NATIVE_PATH ${fullLibPath}/Debug/${libFile} fullFilePathNative)
             set(ADDITIONAL_LIBS "${ADDITIONAL_LIBS}    <file src=\"${fullFilePathNative}\" target=\"lib\\native\\x64\\Debug\"/>\n")
-            
+
             string(REPLACE ".lib" ".pdb" libFilePDB ${libFile})
             file(TO_NATIVE_PATH ${fullLibPath}/Debug/${libFilePDB} fullFilePathNative)
             set(ADDITIONAL_LIBS "${ADDITIONAL_LIBS}    <file src=\"${fullFilePathNative}\" target=\"lib\\native\\x64\\Debug\"/>\n")
@@ -371,7 +371,7 @@ macro(generate_csharp_api)
       endif ()
 
       # Create list of additional headers for nuget package
-      if (AdditionalHeaders)              
+      if (AdditionalHeaders)
          foreach(doth ${AdditionalHeaders})
             get_filename_component(fullFilePath "${CMAKE_CURRENT_SOURCE_DIR}/src/${doth}" ABSOLUTE)
             file(TO_NATIVE_PATH ${fullFilePath} fullFilePathNative)
@@ -387,11 +387,11 @@ macro(generate_csharp_api)
       # Copy assembly icon
       configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/${CSPROJ_NAME}.png ${CMAKE_BINARY_DIR} COPYONLY)
       configure_file(${PROJECT_SOURCE_DIR}/cmake/CSharpSwigAPITemplate.targets.cmake ${CMAKE_BINARY_DIR}/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.targets)
-   
+
       set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
 
       set(SWIG_INP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/${CSPROJ_NAME}.i)
-      
+
       if (NOT EXISTS "${SWIG_INP_FILE}")
          MESSAGE(STATUS "File ${CMAKE_CURRENT_SOURCE_DIR}/src/${CSPROJ_NAME}.i does not exist. Configure swig to use generated .i file")
          set(SWIG_INP_FILE ${CMAKE_CURRENT_BINARY_DIR}/${CSPROJ_NAME}.i)
@@ -403,16 +403,16 @@ macro(generate_csharp_api)
             CPLUSPLUS ON
       )
 #            PROPERTIES SWIG_FLAGS "-namespace;${CSPROJ_NAMESPACE}.${CSPROJ_NAME};-I${CMAKE_CURRENT_BINARY_DIR}"
-   
+
       if( ExtraDependencies )
          MESSAGE(STATUS "Set extra dependencies ${ExtraDependencies} for ${CSPROJ_NAME}")
          set(SWIG_MODULE_${CSPROJ_NAME}_EXTRA_DEPS ${ExtraDependencies})
-      endif ()      
+      endif ()
 
       swig_add_library(${CSPROJ_NAME} TYPE MODULE LANGUAGE csharp SOURCES ${SWIG_INP_FILE} ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
       swig_link_libraries(${CSPROJ_NAME} ${ProjectLinkLibraries})
 
-      # Before C# generation, remove all existing files. The directory should be empty before generation  
+      # Before C# generation, remove all existing files. The directory should be empty before generation
       add_custom_command( TARGET ${CSPROJ_NAME}
          PRE_BUILD
          COMMAND ${CMAKE_COMMAND} ARGS "-E" "remove" "*.cs"
@@ -421,12 +421,12 @@ macro(generate_csharp_api)
 
       # Visual studio should reload the project after C# generation
       add_custom_command(TARGET ${CSPROJ_NAME}
-         PRE_LINK 
+         PRE_LINK
          COMMAND ${CMAKE_COMMAND} ARGS "-E" "touch_nocreate" "${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj"
          WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/csharp"
       )
 
-      # Generate C# project to compile generated C# files. 
+      # Generate C# project to compile generated C# files.
       new_guid(Guid)
       configure_file(${PROJECT_SOURCE_DIR}/cmake/CSharpSwigAPITemplate.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj)
 
@@ -436,13 +436,13 @@ macro(generate_csharp_api)
          GUID "${Guid}"
          ${CSPROJ_NAME}
       )
-   
+
       ###### Installation
       install(TARGETS ${CSPROJ_NAME}
          RUNTIME DESTINATION bin
          LIBRARY DESTINATION bin
       )
-    
+
       install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Debug/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.dll
          DESTINATION  bin
          CONFIGURATIONS Debug
@@ -452,7 +452,7 @@ macro(generate_csharp_api)
          DESTINATION  bin
          CONFIGURATIONS Release
       )
-      
+
       configure_file(${PROJECT_SOURCE_DIR}/cmake/AssemblyInfo.cs.test.cmake csharp-test/Properties/AssemblyInfo.cs)
 
       add_csharp_unittest(NAME ${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.Test
@@ -464,19 +464,19 @@ macro(generate_csharp_api)
          TFS_SERVER_URL ${BM_TFS_SERVER_URL}
          TFS_BUILD_NUMBER ${BM_TFS_BUILD_NUMBER}
          TFS_PROJECT_NAME ${BM_TFS_PROJECT_NAME}
-         DEPLOYMENT_ITEMS "../\$(Configuration)/${CSPROJ_NAME}.dll" 
+         DEPLOYMENT_ITEMS "../\$(Configuration)/${CSPROJ_NAME}.dll"
          PROJECT_REFERENCE ${CSPROJ_NAMESPACE}.${CSPROJ_NAME}
          "${Guid}"
          "${CMAKE_CURRENT_BINARY_DIR}/csharp/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj"
-      )   
+      )
 
   endif(MSVC)
-   
+
 endmacro( generate_csharp_api )
 
 ### Add C# Unit tests
 macro(add_csharp_unittest )
-    
+
   set(TestProjectName)
   set(Platform)
   set(Directory)
@@ -490,7 +490,7 @@ macro(add_csharp_unittest )
   set(ProjectReferenceGuid)
   set(ProjectReferencePath)
   set(TestSourceFilesList)
-  
+
   # parse parameters
   set(parameterName)
   set(parameterType)
@@ -553,7 +553,7 @@ macro(add_csharp_unittest )
       if (ProjectReferenceName AND ProjectReferencePath AND ProjectReferenceGuid)
          file(TO_NATIVE_PATH "${ProjectReferencePath}" ProjectReferencePath)
        set(ProjectReferences "<ProjectReference Include='${ProjectReferencePath}'><Project>{${ProjectReferenceGuid}}</Project><Name>${ProjectReferenceName}</Name></ProjectReference>")
-    endif()  
+    endif()
 
     set (DeploymentItemsList)
       foreach (item ${DeploymentItems})
@@ -572,19 +572,19 @@ macro(add_csharp_unittest )
     else(TestSourceFilesList)
         set(FileListForCompilation "*.cs")
     endif(TestSourceFilesList)
-    
+
       configure_file("${PROJECT_SOURCE_DIR}/cmake/CSharpTestProjectTemplate.csproj.cmake" "${Directory}/${TestProjectName}.csproj" @ONLY)
-          
+
     ## Write the local.testsettings file
     set(TestSettings "${CMAKE_CURRENT_BINARY_DIR}/${Directory}/local.testsettings")
     file(WRITE "${TestSettings}" "<?xml version='1.0' encoding='UTF-8'?><TestSettings name='Local' id='4fd90fa6-1a9f-49c6-a25d-79db40300acb' xmlns='http://microsoft.com/schemas/VisualStudio/TeamTest/2010'> <Description>These are default test settings for a local test run.</Description><Deployment>")
-  
+
       foreach (item ${DeploymentItems})
          file(APPEND "${TestSettings}" "<DeploymentItem filename='${item}' />")
       endforeach(item)
-     
+
       if ( Platform STREQUAL x64 )
-       set( TestSettingsExecutionParams hostProcessPlatform="MSIL" ) 
+       set( TestSettingsExecutionParams hostProcessPlatform="MSIL" )
          # Adding this attribute let's MSTest test 64-bit code
          # Note, see http://www.cmake.org/Wiki/CMake/Language_Syntax for the weird rules on quoting in CMake
       elseif ( Platform STREQUAL Win32 )
@@ -595,20 +595,20 @@ macro(add_csharp_unittest )
          set( TestSettingsExecutionParams )
       endif()
       file(APPEND "${TestSettings}" "</Deployment><Execution ${TestSettingsExecutionParams} ><TestTypeSpecific /><AgentRule name='LocalMachineDefaultRole'/></Execution></TestSettings>")
-               
+
      ## Include the generated C# project
     include_external_msproject("${TestProjectName}" "${CMAKE_CURRENT_BINARY_DIR}/${Directory}/${TestProjectName}.csproj"
-      TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
+      TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx )
       PLATFORM "${Platform}"
       GUID "${Guid}"
       ${Dependencies}
     )
 
       # Add the test, and publish results if the necessary information is available
-    
+
     if (TfsServerUrl AND TfsBuildNumber AND TfsProjectName)
         add_test(NAME "${TestProjectName}"
-         COMMAND "${MSTEST}" 
+         COMMAND "${MSTEST}"
           "/testcontainer:${Directory}/bin/$<CONFIGURATION>/${TestProjectName}.dll"
           "/testsettings:${TestSettings}"
           "/test:${TestList}"
@@ -620,7 +620,7 @@ macro(add_csharp_unittest )
       )
     else()
         add_test(NAME "${TestProjectName}"
-         COMMAND "${MSTEST}" 
+         COMMAND "${MSTEST}"
           "/testcontainer:${Directory}/bin/$<CONFIGURATION>/${TestProjectName}.dll"
           "/testsettings:${TestSettings}"
           "/test:${TestList}"
@@ -629,7 +629,7 @@ macro(add_csharp_unittest )
   endif(MSVC)
 endmacro(add_csharp_unittest)
 
-### 
+###
 
 
 # Local Variables:

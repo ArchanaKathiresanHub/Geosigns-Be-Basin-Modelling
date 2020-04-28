@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cassert>
 #include <algorithm>
+#include <stdint.h>
 
 
 GeoPhysics::Brine::PhaseStateBase::PhaseStateBase( const double salinity ) :
@@ -138,7 +139,7 @@ void GeoPhysics::Brine::PhaseStateVec::set( const unsigned int n,
 
    findT2( n, m_inRangePres, m_highEndTransitionTemp );
    findT1( n, m_highEndTransitionTemp, m_lowEndTransitionTemp );
-   
+
    updatePhaseStatesVector( temperature );
 }
 
@@ -171,11 +172,6 @@ void GeoPhysics::Brine::PhaseStateVec::findT1( const int n,
                                                ArrayDefs::ConstReal_ptr higherTemperature,
                                                ArrayDefs::Real_ptr t1 )
 {
-#ifdef __INTEL_COMPILER
-   // The trip count after loop unrolling is too small compared to the vector length. To fix: Prevent loop unrolling
-   #pragma omp simd aligned (higherTemperature, t1)
-   #pragma nounroll
-#endif
    for(int i=0; i<n; ++i)
    {
       t1[i] = higherTemperature[i] - 2.0 * s_halfWidth;
@@ -244,9 +240,6 @@ void GeoPhysics::Brine::PhaseStateVec::enforceRanges( ArrayDefs::ConstReal_ptr t
                                                       ArrayDefs::Real_ptr cutTemp,
                                                       ArrayDefs::Real_ptr cutPres )
 {
-#ifndef _MSC_VER
-   #pragma omp simd aligned (pressure, temperature, cutTemp, cutPres)
-#endif
    for(unsigned int i=0; i<m_size; ++i)
    {
       cutTemp[i] = enforceTemperatureRanges( temperature[i] );

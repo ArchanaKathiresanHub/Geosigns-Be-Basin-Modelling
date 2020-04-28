@@ -110,11 +110,6 @@ TEST(DataAccess, OpenCauldronProject)
    EXPECT_EQ( surf->getName(), "Surface 0" );
    EXPECT_DOUBLE_EQ( surf->getSnapshot()->getTime(), 0. );
 
-   // Check TouchstoneMaps
-   std::unique_ptr<DataAccess::Interface::TouchstoneMapList> touchList(ph->getTouchstoneMaps());
-   if( touchList == nullptr ) FAIL();
-   EXPECT_EQ( touchList->size(), 0 );
-
    // Check reservoirs
    std::unique_ptr<DataAccess::Interface::ReservoirList> resList(ph->getReservoirs());
    if( resList == nullptr ) FAIL();

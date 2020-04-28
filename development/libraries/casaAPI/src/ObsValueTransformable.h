@@ -95,7 +95,7 @@ namespace casa
 
       /// @brief Get type name of the serializable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "ObsValueTransformable"; }
+      virtual std::string typeName() const { return "ObsValueTransformable"; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream

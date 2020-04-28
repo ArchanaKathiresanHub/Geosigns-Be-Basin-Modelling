@@ -58,7 +58,6 @@ using namespace std;
 #include "Snapshot.h"
 #include "SourceRock.h"
 #include "Surface.h"
-#include "TouchstoneMap.h"
 #include "Trap.h"
 #include "Trapper.h"
 #include "Migration.h"
@@ -100,11 +99,6 @@ LithoType * ObjectFactory::produceLithoType (ProjectHandle& projectHandle, datab
 SourceRock * ObjectFactory::produceSourceRock (ProjectHandle& projectHandle, database::Record * record) const
 {
    return new SourceRock (projectHandle, record);
-}
-
-TouchstoneMap * ObjectFactory::produceTouchstoneMap (ProjectHandle& projectHandle, database::Record * record) const
-{
-   return new TouchstoneMap (projectHandle, record);
 }
 
 Surface * ObjectFactory::produceSurface (ProjectHandle& projectHandle, database::Record * record) const

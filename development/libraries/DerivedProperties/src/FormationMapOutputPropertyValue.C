@@ -55,9 +55,9 @@ unsigned int DerivedProperties::FormationMapOutputPropertyValue::getDepth () con
 }
 
 const string & DerivedProperties::FormationMapOutputPropertyValue::getName() const {
-   
+
    if ( m_formationMapProperty != nullptr ) {
-      return m_formationMapProperty->getProperty()->getName(); 
+      return m_formationMapProperty->getProperty()->getName();
    } else {
       return s_nullString;
    }
@@ -68,10 +68,10 @@ const DataModel::AbstractGrid* DerivedProperties::FormationMapOutputPropertyValu
    if( m_formationMapProperty != nullptr ) {
       return m_formationMapProperty->getGrid();
    }
-   return false;
+   return nullptr;
 }
 
-bool DerivedProperties::FormationMapOutputPropertyValue::isPrimary() const { 
+bool DerivedProperties::FormationMapOutputPropertyValue::isPrimary() const {
 
    if( m_formationMapProperty != nullptr ) {
       return m_formationMapProperty->isPrimary();

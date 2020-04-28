@@ -42,7 +42,6 @@ namespace casa
                                                     , { "Genex5_Results.HDF"                    , "", "", "", "", "" }  // Genex
                                                     , { "HighResDecompaction_Results.HDF"       , "", "", "", "", "" }  // HiResDecompaction
                                                     , { "HighResMigration_Results.HDF"          , "", "", "", "", "" }  // Migration
-                                                    , { "FastTouch_Results.HDF"                 , "", "", "", "", "" }
                                                     , { "datadriller_Results.HDF"               , "", "", "", "", "" }  // Postprocessing
                                                     };
 

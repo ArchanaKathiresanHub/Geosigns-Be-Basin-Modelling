@@ -91,9 +91,6 @@ std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandl
     // Find genex/shale-gas history files
     import.addGenexHistory();
 
-   // Find burial history files
-    import.addBurialHistory();
-
     // Add reference to massBalance file
     import.addMassBalance();
 
@@ -1467,38 +1464,6 @@ void ImportProjectHandle::addGenexHistory()  {
 
          }
          it ++;
-      }
-   }
-}
-
-void ImportProjectHandle::addBurialHistory() {
-
-   database::Table * bhfTable = m_projectHandle.getTable("TouchstoneWellIoTbl");
-   std::vector<std::string> historyFilesDefined;
-
-   database::Table::iterator tblIter;
-   for (tblIter = bhfTable->begin(); tblIter != bhfTable->end(); ++tblIter)
-   {
-      database::Record * tableRecord = *tblIter;
-      if (getBHFName(tableRecord) != "") {
-         historyFilesDefined.push_back(getBHFName(tableRecord));
-      }
-   }
-   ibs::FilePath folderPath(m_projectHandle.getFullOutputDir());
-
-
-   if (folderPath.exists()) {
-      boost::filesystem::directory_iterator it(folderPath.path());
-      boost::filesystem::directory_iterator endit;
-
-      while (it != endit) {
-         if (std::find(historyFilesDefined.begin(), historyFilesDefined.end(), it->path().filename()) != historyFilesDefined.end()) {
-
-            ibs::FilePath oneFilePath(it->path().string());
-            m_project->addBurialHistoryRecord(oneFilePath.cpath());
-
-         }
-         it++;
       }
    }
 }

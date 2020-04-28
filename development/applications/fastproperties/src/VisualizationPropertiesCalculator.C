@@ -421,12 +421,6 @@ void VisualizationPropertiesCalculator::addTables ()
          import.addGenexHistory();
       }
 
-      if (m_attribute == DataModel::FASTTOUCH_PROPERTY or m_all2Dproperties)
-      {
-         // Find burial history files (replace existing)
-         import.addBurialHistory();
-      }
-
       // Add 1D tables
       import.add1Ddata();    // todo
    }
@@ -1305,10 +1299,6 @@ bool VisualizationPropertiesCalculator::parseCommandLine(int argc, char ** argv)
             else if (simulatorName == "fastctc")
             {
                m_attribute = DataModel::FASTCTC_PROPERTY;
-            }
-            else if (simulatorName == "fasttouch7")
-            {
-               m_attribute = DataModel::FASTTOUCH_PROPERTY;
             }
             else
             {

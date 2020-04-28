@@ -38,7 +38,7 @@ namespace casa
       /// @brief  Destructor
       virtual ~CasaDeserializer() { ; }
 
-      /// @brief Factory for deserializer. It creates deserializer depending on the requested output format. 
+      /// @brief Factory for deserializer. It creates deserializer depending on the requested output format.
       /// @param fid input stream
       /// @param fileFormat file format. Currently implemented: "txt" or "bin"
       /// @param ver scenario file format version
@@ -51,7 +51,7 @@ namespace casa
       /// @param [in,out] ver expected version of object, if version of the object in file is newer it will throw an exception.
       ///                     On return it keeps object version from the file.
       /// @return true on success, false on any error
-      virtual bool checkObjectDescription( const char * objType, const std::string & objName, unsigned int & ver ) = 0;
+      virtual bool checkObjectDescription( const std::string& objType, const std::string & objName, unsigned int & ver ) = 0;
 
       /// @brief Read the description of the next object in file. Works only for class objects
       /// @param objType string representation of object type as it returned by CasaSerializable::typeName() virtual method

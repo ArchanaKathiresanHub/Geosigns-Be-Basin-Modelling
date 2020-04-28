@@ -17,7 +17,7 @@ public:
   MOCK_METHOD1(validate, std::string(mbapi::Model&));
   MOCK_CONST_METHOD0(asInteger, int());
   MOCK_CONST_METHOD1(save, bool(casa::CasaSerializer&));
-  MOCK_CONST_METHOD0(typeName, const char*());
+  MOCK_CONST_METHOD0(typeName, std::string());
   bool operator==(const casa::Parameter& prm) const
   {
     return values_ == prm.asDoubleArray();

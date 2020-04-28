@@ -1248,21 +1248,6 @@ void compareGenexHistory(std::shared_ptr<CauldronIO::Project> projectXml, std::u
    EXPECT_EQ(recordExist, true);
 }
 
-void compareBurialHistory(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
-
-   const std::vector<std::string> &historyFiles = projectXml->getBurialHistoryList();
-   database::Table * bhfTable = projectP3d->getTable ("TouchstoneWellIoTbl");
-   EXPECT_EQ(bhfTable->size(), historyFiles.size());
-
-   database::Table::iterator tblIter;
-   for (tblIter = bhfTable->begin(); tblIter != bhfTable->end(); ++tblIter) {
-      ibs::FilePath folderPath(projectP3d->getFullOutputDir());
-      folderPath << database::getBHFName( * tblIter );
-      bool recordExist = std::find(historyFiles.begin(), historyFiles.end(),  folderPath.path()) != historyFiles.end();
-      EXPECT_EQ(recordExist, true);
-   }
-}
-
 void compareMassBalance(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
 
    const std::string& massBalance = projectXml->getMassBalance();
@@ -1313,7 +1298,6 @@ TEST_F(CompareTest, CompareData1)
    compareTraps(projectXml, projectP3d);
         compareGenexHistory(projectXml, projectP3d);
         compareMassBalance(projectXml, projectP3d);
-        compareBurialHistory(projectXml, projectP3d);
 
         compareDataDriller(projectXml, projectP3d);
 

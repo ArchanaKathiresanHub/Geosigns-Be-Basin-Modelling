@@ -63,16 +63,11 @@ PermeabilitySandStone::PermeabilitySandStone( double depoPorosity, double depoPe
    }
 
    void PermeabilitySandStone::calculate ( const unsigned int       n,
-                                           ArrayDefs::ConstReal_ptr ves,
-                                           ArrayDefs::ConstReal_ptr maxVes,
+                                           ArrayDefs::ConstReal_ptr /*ves*/,
+                                           ArrayDefs::ConstReal_ptr /*maxVes*/,
                                            ArrayDefs::ConstReal_ptr calculatedPorosity,
                                            ArrayDefs::Real_ptr      permeabilities ) const {
 
-      // Added to prevent some compiler warnings about unused parameters.
-      (void) ves;
-      (void) maxVes;
-
-      #pragma omp simd aligned (calculatedPorosity, permeabilities)
       for ( unsigned int i = 0; i < n; ++i ) {
          permeabilities [ i ] = calculateSingleValue ( calculatedPorosity [ i ]);
       }
@@ -94,18 +89,13 @@ void PermeabilitySandStone::calculateDerivative( const double ves,
 }
 
    void PermeabilitySandStone::calculateDerivative ( const unsigned int       n,
-                                                     ArrayDefs::ConstReal_ptr ves,
-                                                     ArrayDefs::ConstReal_ptr maxVes,
+                                                     ArrayDefs::ConstReal_ptr /*ves*/,
+                                                     ArrayDefs::ConstReal_ptr /*maxVes*/,
                                                      ArrayDefs::ConstReal_ptr calculatedPorosity,
                                                      ArrayDefs::ConstReal_ptr porosityDerivativeWrtVes,
                                                      ArrayDefs::Real_ptr      permeabilities,
                                                      ArrayDefs::Real_ptr      derivatives ) const {
 
-      // Added to prevent some compiler warnings about unused parameters.
-      (void) ves;
-      (void) maxVes;
-
-      #pragma omp simd aligned (calculatedPorosity, porosityDerivativeWrtVes, permeabilities, derivatives)
       for ( unsigned int i = 0; i < n; ++i ) {
          calculateSingleValue ( calculatedPorosity [ i ],
                                 porosityDerivativeWrtVes [ i ],

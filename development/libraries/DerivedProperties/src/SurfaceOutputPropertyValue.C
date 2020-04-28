@@ -83,7 +83,7 @@ const DataModel::AbstractGrid* DerivedProperties::SurfaceOutputPropertyValue::ge
    if( m_surfaceProperty != 0 ) {
       return m_surfaceProperty->getGrid();
    }
-   return false;
+   return nullptr;
 }
 
 const string & DerivedProperties::SurfaceOutputPropertyValue::getName() const {
@@ -95,12 +95,12 @@ const string & DerivedProperties::SurfaceOutputPropertyValue::getName() const {
    }
 }
 
-const DataModel::AbstractSurface* DerivedProperties::SurfaceOutputPropertyValue::getSurface() const { 
+const DataModel::AbstractSurface* DerivedProperties::SurfaceOutputPropertyValue::getSurface() const {
 
    if( m_surfaceProperty != 0 ) {
       return  m_surfaceProperty->getSurface();
    } else {
-      return 0;
+      return nullptr;
    }
 }
 

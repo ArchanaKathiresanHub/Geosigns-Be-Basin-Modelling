@@ -76,9 +76,6 @@ void GeoPhysics::Brine::Density::get( const GeoPhysics::Brine::PhaseStateVec & p
    {
       /// aqueousBatzleWang will be applied through vectorization to all the vector elements,
       /// then the other phases will be adjusted
-#ifndef _MSC_VER
-      #pragma omp simd aligned (temperature, pressure, brineProp)
-#endif
       for( int i=0; i < n; ++i )             brineProp [i]                = aqueousBatzleWang( temperature[i],
                                                                                                pressure[i],
                                                                                                salinity );
@@ -95,9 +92,6 @@ void GeoPhysics::Brine::Density::get( const GeoPhysics::Brine::PhaseStateVec & p
    {
       /// transitionRegion will be applied through vectorization to all the vector elements,
       /// then the other phases will be adjusted
-#ifndef _MSC_VER
-      #pragma omp simd aligned (temperature, pressure, higherTemperature, lowerTemperature, brineProp)
-#endif
       for( int i=0; i < n; ++i )           brineProp [i]              = transitionRegion( temperature[i],
                                                                                           pressure[i],
                                                                                           salinity,
@@ -187,7 +181,7 @@ double GeoPhysics::Brine::Density::computeDerivativeT( const double temperature,
       m_fdTemp[1] = 0.99 * temperature;
       m_fdTemp[2] = 1.01 * temperature;
       m_fdTemp[3] = 1.02 * temperature;
-      
+
       m_perturbatedPhases.setSalinity( salinity );
       m_perturbatedPhases.set( s_fdStencil, m_fdTemp, m_fdPres );
       get( m_perturbatedPhases, m_fdDens );
@@ -258,7 +252,7 @@ double GeoPhysics::Brine::Density::computeDerivativeP( const double temperature,
       m_fdPres[1] = 0.99 * pressure;
       m_fdPres[2] = 1.01 * pressure;
       m_fdPres[3] = 1.02 * pressure;
-      
+
       m_perturbatedPhases.setSalinity( salinity );
       m_perturbatedPhases.set( s_fdStencil, m_fdTemp, m_fdPres );
       get( m_perturbatedPhases, m_fdDens );

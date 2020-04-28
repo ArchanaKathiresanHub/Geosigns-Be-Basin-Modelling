@@ -78,7 +78,6 @@ namespace GeoPhysics
       m_porosityPermeabilityInterpolant.evaluate ( n, calculatedPorosity, permeabilities );
 
       // Now compute the permeability.
-      #pragma omp simd aligned ( permeabilities )
       for ( unsigned int i = 0; i < n; ++i ) {
          permeabilities [ i ] = permeabilities [ i ] < LogMaxPermeability ? exp ( permeabilities [ i ] ) : MaxPermeability;
       }
@@ -124,7 +123,6 @@ namespace GeoPhysics
       // Initialise permeabilities array with the log of the permeabilty.
       m_porosityPermeabilityInterpolant.evaluate ( n, calculatedPorosity, permeabilities, derivatives );
 
-      #pragma omp simd aligned ( porosityDerivativeWrtVes, permeabilities, derivatives )
       for ( unsigned int i = 0; i < n; ++i ) {
 
 #if WHICH_IS_FASTER

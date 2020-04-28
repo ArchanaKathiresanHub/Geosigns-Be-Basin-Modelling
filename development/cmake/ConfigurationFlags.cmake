@@ -12,15 +12,17 @@
 
 if (UNIX)
    set(preciseFpModel)
+   set(strictFpModel)
    if (BM_USE_INTEL_COMPILER)
      set(preciseFpModel "-fp-model precise")
+     set(strictFpModel "-fp-model strict")
    endif()
    set(cxxVersion "-std=c++11")
    MESSAGE(STATUS "CXX version is set to ${cxxVersion}")
 
    #Release
-   set(CMAKE_C_FLAGS_RELEASE "-g -O2" CACHE STRING "List of C compiler flags for a Release build")
-   set(CMAKE_CXX_FLAGS_RELEASE "-g -O2 ${cxxVersion}" CACHE STRING "List of C++ compiler flags for a Release build")
+   set(CMAKE_C_FLAGS_RELEASE "-g -O2 ${strictFpModel}" CACHE STRING "List of C compiler flags for a Release build")
+   set(CMAKE_CXX_FLAGS_RELEASE "-g -O2 ${strictFpModel} ${cxxVersion}" CACHE STRING "List of C++ compiler flags for a Release build")
 
    #Debug
    set(CMAKE_C_FLAGS_DEBUG"-g -O0 ${preciseFpModel}" CACHE STRING "List of C compiler flags for a Debug build")

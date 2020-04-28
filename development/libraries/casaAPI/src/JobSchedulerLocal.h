@@ -68,7 +68,7 @@ namespace casa
       virtual bool save( CasaSerializer & sz ) const;
 
       // Get type name of the serialaizable object, used in deserialization to create object with correct type
-      virtual const char * typeName() const { return "JobSchedulerLocal"; }
+      virtual std::string typeName() const { return "JobSchedulerLocal"; }
 
       // Create a new instance and deserialize it from the given stream
       JobSchedulerLocal( CasaDeserializer & dz, unsigned int objVer );

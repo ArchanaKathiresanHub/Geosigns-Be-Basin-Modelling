@@ -7,7 +7,7 @@ namespace DataModel {
 
    /// \enum PropertyAttribute
    /// \brief Attributes of properties to indicate if they are continuous across surface, discontinuous or otherwise.
-   enum PropertyAttribute { 
+   enum PropertyAttribute {
       /// Indicates a property is calculated for the 3d grid and is continuous across a surface.
       ///
       /// For example Temperature, Pressure.
@@ -43,7 +43,7 @@ namespace DataModel {
 
    /// \enum Output Attribute
    /// \brief Output Attributes of properties to indicate which simulator are they belong
-   enum PropertyOutputAttribute { 
+   enum PropertyOutputAttribute {
       /// Indicates a property is output by fastcauldron
       ///
       /// For example Temperature, Pressure.
@@ -58,11 +58,6 @@ namespace DataModel {
       ///
       /// E.g. ResRockBarriers, ResRockCapacity
       FASTMIG_PROPERTY,
-
-      /// Indicates that the property is output by fasttouch
-      ///
-      /// E.g. Resq:
-      FASTTOUCH_PROPERTY,
 
       /// Indicates that the property is output by fastctc
       ///

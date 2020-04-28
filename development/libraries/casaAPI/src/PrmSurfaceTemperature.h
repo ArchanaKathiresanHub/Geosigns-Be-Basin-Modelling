@@ -67,7 +67,7 @@ public:
 
   /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
   /// @return object class name
-  virtual const char * typeName() const { return "PrmSurfaceTemperature"; }
+  virtual std::string typeName() const { return "PrmSurfaceTemperature"; }
 
   /// @brief Read obsolete old varparameter specific information
   static void loadVarPrm( CasaDeserializer& dz, const unsigned int objVer );

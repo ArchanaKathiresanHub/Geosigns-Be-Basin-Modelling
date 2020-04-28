@@ -17,6 +17,7 @@ ScriptRunController::ScriptRunController(QObject* parent) :
   baseDirectory_{""},
   script_{}
 {
+  dialog_.close();
   dialog_.setWindowModality(Qt::ApplicationModal);
   dialog_.setFixedWidth(400);
   dialog_.setWindowTitle("Executing");

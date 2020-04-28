@@ -42,7 +42,7 @@ const DataModel::AbstractGrid* DerivedProperties::FormationSurfaceOutputProperty
    if( m_formationSurfaceProperty != 0 ) {
       return m_formationSurfaceProperty->getGrid();
    }
-   return false;
+   return nullptr;
 }
 
 double DerivedProperties::FormationSurfaceOutputPropertyValue::getValue ( const double i, const double j, const double k ) const {
@@ -61,7 +61,7 @@ unsigned int DerivedProperties::FormationSurfaceOutputPropertyValue::getDepth ()
    } else {
       return 0;
    }
-   
+
 }
 
 void DerivedProperties::FormationSurfaceOutputPropertyValue::setMapName( const string& mapName ) {
@@ -84,20 +84,20 @@ bool DerivedProperties::FormationSurfaceOutputPropertyValue::isPrimary() const {
 }
 
 const string &  DerivedProperties::FormationSurfaceOutputPropertyValue::getName() const {
-   
+
    if ( m_formationSurfaceProperty != 0 ) {
-      return  m_formationSurfaceProperty->getProperty()->getName(); 
+      return  m_formationSurfaceProperty->getProperty()->getName();
    } else {
       return s_nullString;
    }
 }
 
-const DataModel::AbstractSurface* DerivedProperties::FormationSurfaceOutputPropertyValue::getSurface() const { 
+const DataModel::AbstractSurface* DerivedProperties::FormationSurfaceOutputPropertyValue::getSurface() const {
 
    if( m_formationSurfaceProperty != 0 ) {
       return  m_formationSurfaceProperty->getSurface();
    } else {
-      return 0;
+      return nullptr;
    }
 }
 

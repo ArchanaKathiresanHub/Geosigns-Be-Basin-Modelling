@@ -23,7 +23,7 @@ TEST( Tuple2, DefaultCtr )
    functions::Tuple2<int> tInt;
    EXPECT_EQ( tInt[0], -std::numeric_limits<int>::max() );
    EXPECT_EQ( tInt[1], -std::numeric_limits<int>::max() );
-   
+
    functions::Tuple2<double> tDouble;
    EXPECT_DOUBLE_EQ( tDouble[0], -std::numeric_limits<double>::max() );
    EXPECT_DOUBLE_EQ( tDouble[1], -std::numeric_limits<double>::max() );
@@ -34,37 +34,10 @@ TEST( Tuple2, InputCtr )
    functions::Tuple2<int> tInt( s_int, s_int+1 );
    EXPECT_EQ( tInt[0], s_int );
    EXPECT_EQ( tInt[1], s_int+1 );
-   
+
    functions::Tuple2<double> tDouble( s_double, s_double+1 );
    EXPECT_DOUBLE_EQ( tDouble[0], s_double );
    EXPECT_DOUBLE_EQ( tDouble[1], s_double+1 );
-}
-
-TEST( Tuple2, ArrayCtr )
-{
-   std::vector<int> vInt(2,s_int);
-   functions::Tuple2<int> tInt( vInt.data() );
-   EXPECT_EQ( tInt[0], s_int );
-   EXPECT_EQ( tInt[1], s_int );
-   
-   std::vector<double> vDouble(2,s_double);
-   functions::Tuple2<double> tDouble( vDouble.data() );
-   EXPECT_DOUBLE_EQ( tDouble[0], s_double );
-   EXPECT_DOUBLE_EQ( tDouble[1], s_double );
-}
-
-TEST( Tuple2, ArrayCtrAssertFail )
-{
-   const int * vInt = nullptr;
-   try
-   {
-      functions::Tuple2<int> t( vInt );
-      FAIL() << "Failure was expected";
-   }
-   catch(...)
-   {
-      SUCCEED();
-   }
 }
 
 #ifndef NDEBUG

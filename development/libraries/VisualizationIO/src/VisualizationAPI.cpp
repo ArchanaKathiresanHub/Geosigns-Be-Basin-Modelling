@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <math.h>
 
 #ifdef _MSC_VER
 #pragma warning (push)

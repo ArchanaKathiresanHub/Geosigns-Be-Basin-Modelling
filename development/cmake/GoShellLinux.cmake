@@ -25,14 +25,13 @@ else()
    set( BM_PLATFORM_ID "${CSCE_PLATFORM}" CACHE STRING "An identifier for the platform (OS, etc...) for this is build" )
 endif()
 
-set(CBM_HOME "/nfs/rvl/groups/ept-sg/SWEast/Cauldron" CACHE PATH "The path the shared drive of the development team")
 set(BM_EXTERNAL_COMPONENTS_DIR "${CBM_HOME}/hpc-library" CACHE PATH "The path to the directory of prebuilt libraries")
 set(BM_SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation path")
 
-set(INTEL_CXX_VERSION "2017.05" CACHE STRING "The version number of intel compiler. Used in module load command")
-set(INTEL_CXX_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/icc/2017.5.239-GCC-4.9.3-2.25/compilers_and_libraries_2017.5.239/linux" CACHE PATH "Path to Intel's compiler collection")
-set(INTEL_MPI_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/impi/2017.4.239-iccifort-2017.5.239-GCC-4.9.3-2.25" CACHE PATH "Path to Intel MPI library" )
-set(INTEL_MKL_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/imkl/2017.4.239-iimpi-2017.05-GCC-4.9.3-2.25/mkl" CACHE PATH "Path to Intel MKL" )
+set(INTEL_CXX_VERSION "2019a" CACHE STRING "The version number of intel compiler. Used in module load command")
+set(INTEL_CXX_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/7/icc/2019.1.144-GCC-8.2.0-2.31.1/compilers_and_libraries_2019.1.144/linux/" CACHE PATH "Path to Intel's compiler collection")
+set(INTEL_MPI_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/7/impi/2018.4.274-iccifort-2019.1.144-GCC-8.2.0-2.31.1" CACHE PATH "Path to Intel MPI library" )
+set(INTEL_MKL_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/7/imkl/2019.1.144-iimpi-2019a/mkl" CACHE PATH "Path to Intel MKL" )
 
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler" ON)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI" ON)
@@ -46,8 +45,7 @@ set(BLA_VENDOR "MKL")
 set(FLEXLM_ROOT "/apps/3rdparty/EPTFlexLm/v9.2" CACHE PATH "Path to FlexLM directory" )
 set(FLEXLM_LIBRARY "${FLEXLM_ROOT}/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE FILEPATH "Path of FlexLM libraries" )
 
-set(DOXYGEN_EXECUTABLE "${CBM_HOME}/Tools/bin/doxygen" CACHE PATH "Path to doxygen executable")
-set(DOT_EXECUTABLE "${CBM_HOME}/Tools/bin/dot" CACHE PATH "Path to dot executable")
+set(DOXYGEN_EXECUTABLE "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/Doxygen/1.8.10/bin/doxygen" CACHE PATH "Path to doxygen executable")
 
 # LSF setup
 if (DEFINED ENV{LSF_BINDIR})
@@ -57,10 +55,3 @@ else ()
 endif ()
 set(LSF_CAULDRON_PROJECT_NAME               "cldrn"     CACHE STRING "Project name for submitting jobs to LSF (for billing purpose)" )
 
-# Paraview plugin setup
-set(PARAVIEW_CONFIG_ROOT "${CBM_HOME}/Tools/paraview/Paraview-4.1.0-Release/Linux64x_26/lib/cmake/paraview-4.1"
-      CACHE PATH "Path where ParaViewConfig.cmake can be found")
-
-# Matlab MCR (needed by TSLib Geocosm library)
-set( MCR_ROOT "/apps/sss/matlab/8.0" CACHE PATH "Path to Matlab")
-set( MCR_VERSION "8.0" CACHE STRING "Matlab Version")

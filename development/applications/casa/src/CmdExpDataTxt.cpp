@@ -17,6 +17,7 @@
 
 #include "LogHandler.h"
 
+#include <cmath>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -123,7 +124,7 @@ CmdExpDataTxt::CmdExpDataTxt(CasaCommander & parent, const std::vector<std::stri
   }
   else if (m_whatToSave == "MCResults")
   {
-    // no parameters to be parsed    
+    // no parameters to be parsed
   }
   else
   {

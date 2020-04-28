@@ -42,9 +42,9 @@ size_t VarPrmContinuousTemplate<Prm>::dimension() const
 }
 
 template<class Prm>
-const char * VarPrmContinuousTemplate<Prm>::typeName() const
+std::string VarPrmContinuousTemplate<Prm>::typeName() const
 {
-  return Prm::varprmName().c_str();
+  return Prm::varprmName();
 }
 
 template<class Prm>

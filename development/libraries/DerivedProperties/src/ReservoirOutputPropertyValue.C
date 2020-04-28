@@ -14,7 +14,7 @@ DerivedProperties::ReservoirOutputPropertyValue::ReservoirOutputPropertyValue ( 
                                                                                 const DataModel::AbstractProperty*                  property,
                                                                                 const DataModel::AbstractSnapshot*                  snapshot,
                                                                                 const DataModel::AbstractReservoir*                 reservoir ) : OutputPropertyValue ( property ) {
-   
+
    if ( property != 0 and snapshot != 0 and reservoir != 0 ) {
       m_reservoirProperty = propertyManager.getReservoirProperty ( property, snapshot, reservoir );
    }
@@ -53,9 +53,9 @@ unsigned int DerivedProperties::ReservoirOutputPropertyValue::getDepth () const 
 }
 
 const string & DerivedProperties::ReservoirOutputPropertyValue::getName() const {
-   
+
    if ( m_reservoirProperty != 0 ) {
-      return m_reservoirProperty->getProperty()->getName(); 
+      return m_reservoirProperty->getProperty()->getName();
    } else {
       return s_nullString;
    }
@@ -66,7 +66,7 @@ const DataModel::AbstractReservoir*  DerivedProperties::ReservoirOutputPropertyV
    if ( m_reservoirProperty != 0 ) {
       return m_reservoirProperty->getReservoir();
    }
-   return 0;
+   return nullptr;
 }
 
 const DataModel::AbstractGrid* DerivedProperties::ReservoirOutputPropertyValue::getGrid () const {
@@ -74,10 +74,10 @@ const DataModel::AbstractGrid* DerivedProperties::ReservoirOutputPropertyValue::
    if( m_reservoirProperty != 0 ) {
       return m_reservoirProperty->getGrid();
    }
-   return false;
+   return nullptr;
 }
 
-bool DerivedProperties::ReservoirOutputPropertyValue::isPrimary() const { 
+bool DerivedProperties::ReservoirOutputPropertyValue::isPrimary() const {
 
    if( m_reservoirProperty != 0 ) {
       return m_reservoirProperty->isPrimary();

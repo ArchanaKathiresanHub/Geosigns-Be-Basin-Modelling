@@ -21,8 +21,6 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableRunOptionsIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSnapshotIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableWellLocIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableTouchstoneWellIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableTouchstoneMapIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableGridMapIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableStratIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSourceRockLithoIoTbl.h
@@ -97,8 +95,6 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableRunOptionsIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSnapshotIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableWellLocIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableTouchstoneWellIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableTouchstoneMapIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableGridMapIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableStratIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSourceRockLithoIoTbl.cpp
@@ -220,7 +216,7 @@ add_gtest(NAME TableIO::CauldronSchemaAPITest
 if (MSVC)
    generate_version_by_git_last_checkin(../TableIO/BasinModellerProperty.Spec API_FILE_GIT_DATE_AS_VER)
    MESSAGE(STATUS "Version extracted for Project3dAPI as: ${API_FILE_GIT_DATE_AS_VER}")
-   ##### Generate the C# API  
+   ##### Generate the C# API
    generate_csharp_api(
       CSPROJ_NAME                   Project3dAPI
       CSPROJ_NAMESPACE              Bpa2.Basin.Project3d
@@ -234,6 +230,6 @@ if (MSVC)
       CSPROJ_EXTRA_DEPS             cpp_generated_api_files
       CSPROJ_LIBRARIES              project3d TableIO FileSystem ${Boost_LIBRARIES}
       CSHARP_UNIT_TESTS_SRC         test/Project3dAPITest.cs test/Project3dAPITest_gen.cs
-   )     
+   )
 endif()
- 
+

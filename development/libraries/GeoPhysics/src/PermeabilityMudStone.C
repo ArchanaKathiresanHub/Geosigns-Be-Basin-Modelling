@@ -29,7 +29,6 @@ namespace GeoPhysics
       (void) calculatedPorosity;
 
       const double cutOff = 0.0;
-      double val = 0.0;
 
       // The reason for the check (ves > cutoff) is to prevent the possibility of a nan or an inf
       // being returned from this permeability function.
@@ -59,7 +58,6 @@ namespace GeoPhysics
                                           ArrayDefs::ConstReal_ptr calculatedPorosity,
                                           ArrayDefs::Real_ptr      permeabilities ) const {
 
-      #pragma omp simd aligned ( ves, maxVes, calculatedPorosity, permeabilities )
       for ( unsigned int i = 0; i < n; ++i ) {
          permeabilities [ i ] = calculate ( ves [ i ], maxVes [ i ], calculatedPorosity [ i ]);
       }
@@ -258,7 +256,6 @@ namespace GeoPhysics
                                                     ArrayDefs::Real_ptr      permeabilities,
                                                     ArrayDefs::Real_ptr      derivatives ) const {
 
-      #pragma omp simd aligned ( calculatedPorosity, porosityDerivativeWrtVes, permeabilities, derivatives )
       for ( unsigned int i = 0; i < n; ++i ) {
          calculateDerivative ( ves [ i ], maxVes [ i ],
                                calculatedPorosity [ i ], porosityDerivativeWrtVes [ i ],

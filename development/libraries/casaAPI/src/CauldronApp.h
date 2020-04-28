@@ -56,7 +56,7 @@ namespace casa
       } ShellType;
 
       /// @brief Constructor
-      /// @param appName name of an application like fastcauldron/fasttouch7/fastgenex6/...
+      /// @param appName name of an application like fastcauldron/fastgenex6/...
       /// @param isParallel is this application will be run as a parallel app (requires mpirun in command line)
       CauldronApp(const std::string & appName, bool isParallel = true );
 
@@ -131,7 +131,7 @@ namespace casa
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "CauldronApp"; }
+      virtual std::string typeName() const { return "CauldronApp"; }
 
       /// @brief Create a new CauldronApp instance and deserialize it from the given stream
       /// @param inStream input stream
