@@ -111,13 +111,14 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			}
 		}
 	}
-	//PalinspasticIoTbl
+	//PalinspasticIoTbl - SurfaceName and BottomFormationName 
 	database::Table * palinspasticio_table = m_ph->getTable("PalinspasticIoTbl");
 	if (palinspasticio_table->size() != 0)
 	{
 		for (size_t id = 0; id < palinspasticio_table->size(); ++id)
 		{
 			database::Record * rec = palinspasticio_table->getRecord(static_cast<int>(id));
+			//SurfaceName
 			name = rec->getValue<std::string>("SurfaceName");
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
@@ -125,6 +126,15 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in PalinspasticIoTbl :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("SurfaceName", updated_name);
+			}
+			//BottomFormationName
+			name = rec->getValue<std::string>("BottomFormationName");
+			updated_name = modelConverter.upgradeName(name);
+			if (name.compare(updated_name))
+			{
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the BottomFormationName in PalinspasticIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BottomFormationName :" << name << " is changed to " << updated_name;
+				rec->setValue<std::string>("BottomFormationName", updated_name);
 			}
 		}
 	}
