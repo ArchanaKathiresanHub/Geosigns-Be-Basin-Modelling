@@ -323,7 +323,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 		depoAge = rec->getValue<double>("DepoAge");
 		if (depoAge > 999) //generating logs for the surfaces which have depoAge greater than 999.
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName : " << name << " with Deposition age : " << depoAge << " is crossing the upper limit of 999 Ma";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName : " << name << " with Deposition age : " << depoAge << " Ma is crossing the upper limit of 999 Ma";
 			countDepoAgeCrossingLimits++;
 		}
 	}
