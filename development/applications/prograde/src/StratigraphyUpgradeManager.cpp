@@ -58,7 +58,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 
 	//updating the LayerName, SurfaceName and Fluidtype in StratIoTbl that is removing the special characters from the names
 	database::Table * stratIo_table = m_ph->getTable("StratIoTbl");
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName, LayerName and Fluidtype in StratIoTbl :";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName, LayerName and Fluidtype in StratIoTbl by removing the special characters (except underscore) :";
 
 	for (size_t id = 0; id < stratIo_table->size(); ++id)
 	{
@@ -105,7 +105,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in CTCIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in CTCIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("SurfaceName", updated_name);
 			}
@@ -123,7 +123,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in PalinspasticIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in PalinspasticIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("SurfaceName", updated_name);
 			}
@@ -132,7 +132,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the BottomFormationName in PalinspasticIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the BottomFormationName in PalinspasticIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BottomFormationName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("BottomFormationName", updated_name);
 			}
@@ -149,7 +149,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in TwoWayTimeIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in TwoWayTimeIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("SurfaceName", updated_name);
 			}
@@ -166,7 +166,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in TouchstoneMapIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in TouchstoneMapIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("SurfaceName", updated_name);
 			}
@@ -183,7 +183,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in MobLayThicknIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in MobLayThicknIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LayerName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("LayerName", updated_name);
 			}
@@ -200,7 +200,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoInterpIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoInterpIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LayerName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("LayerName", updated_name);
 			}
@@ -217,7 +217,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoDistribIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoDistribIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LayerName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("LayerName", updated_name);
 			}
@@ -234,7 +234,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LayerName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("LayerName", updated_name);
 			}
@@ -251,7 +251,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in SourceRockLithoIoTbl :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in SourceRockLithoIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LayerName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("LayerName", updated_name);
 			}
@@ -270,7 +270,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 				updated_name = modelConverter.upgradeName(name);
 				if (name.compare(updated_name))
 				{
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the Fluidtype in FluidtypeIoTbl :";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the Fluidtype in FluidtypeIoTbl by removing the special characters (except underscore) :";
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Fluidtype :" << name << " is changed to " << updated_name;
 					rec->setValue<std::string>("Fluidtype", updated_name);
 				}
@@ -342,6 +342,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 	if (countDepoAgeCrossingLimits)
 	{
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Surface with Deposition age greater than 999 Ma is detected; Hence, Scenario is Rejected";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Migration from BPA to BPA2 Basin Aborted...";
 		exit(200);
 	}
 

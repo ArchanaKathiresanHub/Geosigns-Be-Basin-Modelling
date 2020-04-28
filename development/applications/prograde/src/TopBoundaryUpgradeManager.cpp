@@ -48,6 +48,7 @@ void Prograde::TopBoundaryUpgradeManager::upgrade() {
 
 void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceDepthIoTable() {
 	auto surfIDs = m_model.topBoundaryManager().getSurfaceDepthIDs();
+	mbapi::TopBoundaryManager&  topBoundaryLocal = m_model.topBoundaryManager();
 
 	std::vector<double> original_surfaceAgeList;
 	std::vector<double> updated_surfaceAgeList;
@@ -55,7 +56,9 @@ void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceDepthIoTable() {
 	for (auto surfID : surfIDs) {
 
 		double surfAge;
-		m_model.topBoundaryManager().getSurfaceDepthAge(surfID, surfAge);
+		auto err = m_model.topBoundaryManager().getSurfaceDepthAge(surfID, surfAge);
+		if (ErrorHandler::NoError != err)
+			throw ErrorHandler::Exception(topBoundaryLocal.errorCode()) << topBoundaryLocal.errorMessage();
 		original_surfaceAgeList.push_back(surfAge);
 		updated_surfaceAgeList.push_back(surfAge);
 	}
@@ -71,7 +74,9 @@ void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceDepthIoTable() {
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceDepth Layer age values are clipped to a maximum of 999, anything above 999 is placed between 998 and 999";
 		for (size_t i = 0; i < surfIDs.size(); ++i) {
 			if (updated_surfaceAgeList[i] != original_surfaceAgeList[i]) {
-				m_model.topBoundaryManager().setSurfaceDepthAge(surfIDs[i], updated_surfaceAgeList[i]);
+				auto err = m_model.topBoundaryManager().setSurfaceDepthAge(surfIDs[i], updated_surfaceAgeList[i]);
+				if (ErrorHandler::NoError != err)
+					throw ErrorHandler::Exception(topBoundaryLocal.errorCode()) << topBoundaryLocal.errorMessage();
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceDepth Layer age is updated from " << original_surfaceAgeList[i] << " to " << updated_surfaceAgeList[i];
 			}	
 		}
@@ -80,6 +85,7 @@ void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceDepthIoTable() {
 
 void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceTempIoTable() {
 	auto surfIDs = m_model.topBoundaryManager().getSurfaceTempIDs();
+	mbapi::TopBoundaryManager&  topBoundaryLocal = m_model.topBoundaryManager();
 
 	std::vector<double> original_surfaceAgeList;
 	std::vector<double> updated_surfaceAgeList;
@@ -87,7 +93,9 @@ void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceTempIoTable() {
 	for (auto surfID : surfIDs) {
 
 		double surfAge;
-		m_model.topBoundaryManager().getSurfaceTempAge(surfID, surfAge);
+		auto err = m_model.topBoundaryManager().getSurfaceTempAge(surfID, surfAge);
+		if (ErrorHandler::NoError != err)
+			throw ErrorHandler::Exception(topBoundaryLocal.errorCode()) << topBoundaryLocal.errorMessage();
 		original_surfaceAgeList.push_back(surfAge);
 		updated_surfaceAgeList.push_back(surfAge);
 	}
@@ -105,7 +113,9 @@ void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceTempIoTable() {
 		for (size_t i = 0; i < surfIDs.size(); ++i) {
 			if (updated_surfaceAgeList[i] != original_surfaceAgeList[i])
 			{
-				m_model.topBoundaryManager().setSurfaceTempAge(surfIDs[i], updated_surfaceAgeList[i]);
+				auto err = m_model.topBoundaryManager().setSurfaceTempAge(surfIDs[i], updated_surfaceAgeList[i]);
+				if (ErrorHandler::NoError != err)
+					throw ErrorHandler::Exception(topBoundaryLocal.errorCode()) << topBoundaryLocal.errorMessage();
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceTemperature Layer age is updated from " << original_surfaceAgeList[i] << " to " << updated_surfaceAgeList[i];
 			}
 		}
