@@ -2193,6 +2193,16 @@ bool ProjectHandle::isALC() const
          m_bottomBoundaryConditions == Interface::IMPROVED_LITHOSPHERE_CALCULATOR_LINEAR_ELEMENT_MODE;
 }
 
+bool ProjectHandle::isFixedTempBasement() const
+{
+	return m_bottomBoundaryConditions == Interface::FIXED_BASEMENT_TEMPERATURE;
+}
+
+bool ProjectHandle::isFixedHeatFlow() const
+{
+	return m_bottomBoundaryConditions == Interface::MANTLE_HEAT_FLOW;
+}
+
 const string & ProjectHandle::getCrustPropertyModel() const {
    return m_crustPropertyModel;
 }

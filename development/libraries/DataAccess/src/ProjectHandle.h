@@ -537,6 +537,8 @@ namespace DataAccess
          BottomBoundaryConditions getBottomBoundaryConditions() const;
 
          bool isALC() const;
+		 bool isFixedTempBasement() const;
+		 bool isFixedHeatFlow() const;
 
          const string & getCrustPropertyModel() const;
          const string & getMantlePropertyModel() const;

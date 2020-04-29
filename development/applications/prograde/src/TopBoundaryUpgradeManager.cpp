@@ -48,60 +48,78 @@ void Prograde::TopBoundaryUpgradeManager::upgrade() {
 
 void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceDepthIoTable() {
 	auto surfIDs = m_model.topBoundaryManager().getSurfaceDepthIDs();
+	mbapi::TopBoundaryManager&  topBoundaryLocal = m_model.topBoundaryManager();
 
-	std::vector<double> surfaceAgeList;
+	std::vector<double> original_surfaceAgeList;
+	std::vector<double> updated_surfaceAgeList;
 
 	for (auto surfID : surfIDs) {
 
 		double surfAge;
-		m_model.topBoundaryManager().getSurfaceDepthAge(surfID, surfAge);
-		surfaceAgeList.push_back(surfAge);
+		auto err = m_model.topBoundaryManager().getSurfaceDepthAge(surfID, surfAge);
+		if (ErrorHandler::NoError != err)
+			throw ErrorHandler::Exception(topBoundaryLocal.errorCode()) << topBoundaryLocal.errorMessage();
+		original_surfaceAgeList.push_back(surfAge);
+		updated_surfaceAgeList.push_back(surfAge);
 	}
 
 	// do the age transformations and set them to the records
-	bool isClipped = clipAndBufferSurfaceAges(surfaceAgeList);
+	bool isClipped = clipAndBufferSurfaceAges(updated_surfaceAgeList);
 
-	if (!isClipped)
-	{
+	if (!isClipped){
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceDepth Layer age Values not needed to be clipped";
 		return;
 	}
-
-
-	for (size_t i = 0; i < surfIDs.size(); ++i) {
-		m_model.topBoundaryManager().setSurfaceDepthAge(surfIDs[i], surfaceAgeList[i]);
+	else{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceDepth Layer age values are clipped to a maximum of 999, anything above 999 is placed between 998 and 999";
+		for (size_t i = 0; i < surfIDs.size(); ++i) {
+			if (updated_surfaceAgeList[i] != original_surfaceAgeList[i]) {
+				auto err = m_model.topBoundaryManager().setSurfaceDepthAge(surfIDs[i], updated_surfaceAgeList[i]);
+				if (ErrorHandler::NoError != err)
+					throw ErrorHandler::Exception(topBoundaryLocal.errorCode()) << topBoundaryLocal.errorMessage();
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceDepth Layer age is updated from " << original_surfaceAgeList[i] << " to " << updated_surfaceAgeList[i];
+			}	
+		}
 	}
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceDepth Layer age Values are clipped";
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceDepth Layer age values are clipped to a mamxium of 999, anything above 999 is placed between 998 and 999";
 }
 
 void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceTempIoTable() {
 	auto surfIDs = m_model.topBoundaryManager().getSurfaceTempIDs();
+	mbapi::TopBoundaryManager&  topBoundaryLocal = m_model.topBoundaryManager();
 
-	std::vector<double> surfaceAgeList;
+	std::vector<double> original_surfaceAgeList;
+	std::vector<double> updated_surfaceAgeList;
 
 	for (auto surfID : surfIDs) {
 
 		double surfAge;
-		m_model.topBoundaryManager().getSurfaceTempAge(surfID, surfAge);
-		surfaceAgeList.push_back(surfAge);
+		auto err = m_model.topBoundaryManager().getSurfaceTempAge(surfID, surfAge);
+		if (ErrorHandler::NoError != err)
+			throw ErrorHandler::Exception(topBoundaryLocal.errorCode()) << topBoundaryLocal.errorMessage();
+		original_surfaceAgeList.push_back(surfAge);
+		updated_surfaceAgeList.push_back(surfAge);
 	}
 
 	// do the age transformations and set them to the records
-	bool isClipped = clipAndBufferSurfaceAges(surfaceAgeList);
+	bool isClipped = clipAndBufferSurfaceAges(updated_surfaceAgeList);
 
 	if (!isClipped)
 	{
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceTemperature Layer age Values not needed to be clipped";
-		return;
 	}
-
-	for (size_t i = 0; i < surfIDs.size(); ++i) {
-		m_model.topBoundaryManager().setSurfaceTempAge(surfIDs[i], surfaceAgeList[i]);
+	else
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceTemperature Layer age values are clipped to a maximum of 999, anything above 999 is placed between 998 and 999";
+		for (size_t i = 0; i < surfIDs.size(); ++i) {
+			if (updated_surfaceAgeList[i] != original_surfaceAgeList[i])
+			{
+				auto err = m_model.topBoundaryManager().setSurfaceTempAge(surfIDs[i], updated_surfaceAgeList[i]);
+				if (ErrorHandler::NoError != err)
+					throw ErrorHandler::Exception(topBoundaryLocal.errorCode()) << topBoundaryLocal.errorMessage();
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceTemperature Layer age is updated from " << original_surfaceAgeList[i] << " to " << updated_surfaceAgeList[i];
+			}
+		}
 	}
-
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "SurfaceTemperature Layer age Values are clipped";
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceTemperature Layer age values are clipped to a mamxium of 999, anything above 999 is placed between 998 and 999";
 }
 
 
