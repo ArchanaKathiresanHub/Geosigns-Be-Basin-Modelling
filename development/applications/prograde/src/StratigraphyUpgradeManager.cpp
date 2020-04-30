@@ -111,7 +111,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			}
 		}
 	}
-	//PalinspasticIoTbl - SurfaceName and BottomFormationName 
+	//PalinspasticIoTbl - SurfaceName and BottomFormationName
 	database::Table * palinspasticio_table = m_ph->getTable("PalinspasticIoTbl");
 	if (palinspasticio_table->size() != 0)
 	{
@@ -150,23 +150,6 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			if (name.compare(updated_name))
 			{
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in TwoWayTimeIoTbl by removing the special characters (except underscore) :";
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName :" << name << " is changed to " << updated_name;
-				rec->setValue<std::string>("SurfaceName", updated_name);
-			}
-		}
-	}
-	//TouchstoneMapIoTbl
-	database::Table * touchstonemapio_table = m_ph->getTable("TouchstoneMapIoTbl");
-	if (touchstonemapio_table->size() != 0)
-	{
-		for (size_t id = 0; id < touchstonemapio_table->size(); ++id)
-		{
-			database::Record * rec = touchstonemapio_table->getRecord(static_cast<int>(id));
-			name = rec->getValue<std::string>("SurfaceName");
-			updated_name = modelConverter.upgradeName(name);
-			if (name.compare(updated_name))
-			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in TouchstoneMapIoTbl by removing the special characters (except underscore) :";
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName :" << name << " is changed to " << updated_name;
 				rec->setValue<std::string>("SurfaceName", updated_name);
 			}
