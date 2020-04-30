@@ -32,6 +32,7 @@
 #include "SgsUpgradeManager.h"
 #include "SourceRockUpgradeManager.h"
 #include "StratigraphyUpgradeManager.h"
+#include "HeatFlowModeUpgradeManager.h"
 
 //Prograde
 #include "IUpgradeManager.h"
@@ -92,6 +93,9 @@ void Prograde::UpgradeManagers::runAll() const{
 
    // SourceRockLitho and Strat Io Table upgradation
    managers.emplace_back(std::unique_ptr<Prograde::SourceRockUpgradeManager>(new Prograde::SourceRockUpgradeManager(m_model)));
+
+   // HeatFlow mode related tables upgradation
+   managers.emplace_back(std::unique_ptr<Prograde::HeatFlowModeUpgradeManager>(new Prograde::HeatFlowModeUpgradeManager(m_model)));
 
    // Other managers to be added in the same way   
 

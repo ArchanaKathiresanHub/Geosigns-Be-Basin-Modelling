@@ -23,8 +23,8 @@ BottomBoundaryManager::BottomBoundaryModel Prograde::BasicCrustThinningModelConv
    if (myBBCModel == BottomBoundaryManager::BottomBoundaryModel::BasicCrustThinning)
    {
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) <<"Deprecated basic crust thinning model detected";
-      myBBCModel = BottomBoundaryManager::BottomBoundaryModel::AdvancedCrustThinning;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) <<"upgraded to new Crust thinning model: Advanced Lithosphere Calculator";
+      myBBCModel = BottomBoundaryManager::BottomBoundaryModel::ImprovedCrustThinningLinear;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) <<"Upgraded to new Crust thinning model: 'Improved Lithosphere Calculator Linear Element Mode'";
    }
    
    return myBBCModel;
@@ -35,24 +35,24 @@ BottomBoundaryManager::CrustPropertyModel Prograde::BasicCrustThinningModelConve
    switch(CrPropModel){
    case BottomBoundaryManager::CrustPropertyModel::LegacyCrust:
    {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "legacy crust model detected, upgrading crust property model to standard conductivity model";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Legacy crust model detected, upgrading crust property model to 'Standard Conductivity Crust' model";
       myCrPropModel = BottomBoundaryManager::CrustPropertyModel::StandardCondModel;
       break;
    }
    case BottomBoundaryManager::CrustPropertyModel::LowCondModel:
    {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "low conductivity crust model detected, upgrading crust property model to standard conductivity model";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Low conductivity crust model detected, upgrading crust property model to 'Standard Conductivity Crust' model";
       myCrPropModel = BottomBoundaryManager::CrustPropertyModel::StandardCondModel;
       break;
    }
    case BottomBoundaryManager::CrustPropertyModel::StandardCondModel:
    {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "latest crust property model detected, no upgrade needed ";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Latest crust property model detected, no upgrade needed ";
       break;
    }
    default:
    myCrPropModel = BottomBoundaryManager::CrustPropertyModel::StandardCondModel;
-   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "unknown crust property model detected, crust property model upgrade done";
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Unknown crust property model detected, crust property model is upgraded to 'Standard Conductivity Crust' model.";
    break;
    }
    return myCrPropModel;
@@ -64,31 +64,30 @@ BottomBoundaryManager::MantlePropertyModel Prograde::BasicCrustThinningModelConv
    switch (MnPropModel) {
    case BottomBoundaryManager::MantlePropertyModel::LegacyMantle:
    {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "legacy mantle model detected, upgrading mantle property model to High Conductivity Mantle model";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Legacy mantle model detected, upgrading mantle property model to 'High Conductivity Mantle' model";
       myMnPropModel = BottomBoundaryManager::MantlePropertyModel::HighCondMnModel;
       break;
    }
    case BottomBoundaryManager::MantlePropertyModel::LowCondMnModel:
    {
-       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "low conductivity mantle model detected, upgrading mantle property model to High Conductivity Mantle model";
+       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Low conductivity mantle model detected, upgrading mantle property model to 'High Conductivity Mantle' model";
        myMnPropModel = BottomBoundaryManager::MantlePropertyModel::HighCondMnModel;
        break;
    }
    case BottomBoundaryManager::MantlePropertyModel::StandardCondMnModel:
    {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "standard conductivity mantle model detected, upgrading mantle property model to High Conductivity Mantle model";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Standard conductivity mantle model detected, upgrading mantle property model to 'High Conductivity Mantle' model";
       myMnPropModel = BottomBoundaryManager::MantlePropertyModel::HighCondMnModel;
       break;
    }
    case BottomBoundaryManager::MantlePropertyModel::HighCondMnModel:
    {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "latest mantle property model detected, no upgrade needed ";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Latest mantle property model detected, no upgrade needed ";
       break;
    }
    default:
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "unknown mantle property model detected";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Unknown mantle property model detected, mantle property model is upgraded to 'High Conductivity Mantle' model";
       myMnPropModel = BottomBoundaryManager::MantlePropertyModel::HighCondMnModel;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "mantle property model upgrade done";
       break;
    }
    return myMnPropModel;

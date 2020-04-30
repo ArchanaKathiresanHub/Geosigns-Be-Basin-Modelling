@@ -23,7 +23,7 @@ TEST(BasicCrustThinningModelConverter, upgrade)
 {
    Prograde::BasicCrustThinningModelConverter modelConverter;
 
-   EXPECT_EQ(BottomBoundaryManager::BottomBoundaryModel::AdvancedCrustThinning, modelConverter.upgradeBotBoundModel(
+   EXPECT_EQ(BottomBoundaryManager::BottomBoundaryModel::ImprovedCrustThinningLinear, modelConverter.upgradeBotBoundModel(
        BottomBoundaryManager::BottomBoundaryModel::BasicCrustThinning));
    EXPECT_EQ(BottomBoundaryManager::BottomBoundaryModel::BaseSedimentHeatFlow, modelConverter.upgradeBotBoundModel(
        BottomBoundaryManager::BottomBoundaryModel::BaseSedimentHeatFlow));

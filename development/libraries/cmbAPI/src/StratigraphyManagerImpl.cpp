@@ -237,6 +237,7 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID 
 
    lithoList.clear();
    lithoPercent.clear();
+   lithoPercMap.clear();
 
    try
    {

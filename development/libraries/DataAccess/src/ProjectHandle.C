@@ -1941,8 +1941,9 @@ bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
       for ( thicknessIter = newCrustalThicknesses.begin(); thicknessIter != newCrustalThicknesses.end(); ++thicknessIter ) {
          m_crustPaleoThicknesses.push_back( *thicknessIter );
       }
-      sort( m_crustPaleoThicknesses.begin(), m_crustPaleoThicknesses.end(), PaleoPropertyTimeLessThan() );
+	  sort( m_crustPaleoThicknesses.begin(), m_crustPaleoThicknesses.end(), PaleoPropertyTimeLessThan());
 
+	  //newCrustalThicknesses is deleted in ProjectHandle::deleteCrustThinningHistory( void) 
       delete snapshots;
    }
 

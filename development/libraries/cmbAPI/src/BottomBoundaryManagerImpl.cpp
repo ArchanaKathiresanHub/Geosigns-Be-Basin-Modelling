@@ -249,7 +249,7 @@ namespace mbapi
             rec->setValue<std::string>(s_mantlePropModelFieldName, "High Conductivity Mantle");
             break;
 
-         default: throw Exception(UndefinedValue) << "Unknown bottom boundary model:" << as_integer(MantlePropModel);
+         default: throw Exception(UndefinedValue) << "Unknown mantle property model:" << as_integer(MantlePropModel);
          }
       }
       catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
