@@ -50,9 +50,9 @@ void ZyCorFaultFileReader::preParseFaults ()
 
       while (m_faultFile.good () && !newFault)
       {
-         faultPoint (Interface::X_COORD) = xCoord;
-         faultPoint (Interface::Y_COORD) = yCoord;
-         faultPoint (Interface::Z_COORD) = 0.0;
+         faultPoint [Interface::X_COORD] = xCoord;
+         faultPoint [Interface::Y_COORD] = yCoord;
+         faultPoint [Interface::Z_COORD] = 0.0;
 
          newFaultLine.push_back (faultPoint);
 
@@ -65,7 +65,7 @@ void ZyCorFaultFileReader::preParseFaults ()
          }
       }
 
-      addFault (newFaultName.str (), { newFaultLine } );
+      addFault (newFaultName.str (), newFaultLine );
    }
 }
 

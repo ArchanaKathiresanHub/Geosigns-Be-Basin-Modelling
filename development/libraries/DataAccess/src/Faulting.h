@@ -25,24 +25,17 @@ namespace DataAccess
 
          public:
 
-            FaultEvent (const Snapshot * snapshot, const std::string & statusName);
+            FaultEvent (const double & age, const std::string & statusName);
 
-            const Snapshot * getSnapshot () const;
+            const double * getAge () const;
             FaultStatus getStatus () const;
             const std::string & getStatusName () const;
 
             friend ostream & operator<< (ostream & o, const FaultEvent & faultEvent);
 
          private:
-            const Snapshot * m_snapshot;
+            const double * m_FaultAge;
             FaultStatus m_status;
-      };
-
-      /// Enables the overpressure-fault-events to be sorted (by age).
-      class FaultEventLessThan
-      {
-         public:
-            bool operator  () (const FaultEvent & event1, const FaultEvent & event2) const;
       };
 
 
@@ -53,11 +46,11 @@ namespace DataAccess
 
       public :
 
-         OverpressureFaultEvent ( const Snapshot*    snapshot,
+         OverpressureFaultEvent ( const double & age,
                                   const std::string& faultLithology,
-                                  const bool         usedInOverpressure );
+                                  const bool usedInOverpressure );
 
-         const Snapshot * getSnapshot () const;
+         const double * getAge () const;
 
          const std::string& getFaultLithologyName () const;
 
@@ -65,7 +58,7 @@ namespace DataAccess
 
       private :
 
-         const Snapshot* m_snapshot;
+         const double *  m_FaultAge;
          std::string     m_faultLithologyName;
          bool            m_usedInOverpressureCalculation;
 
@@ -107,9 +100,9 @@ namespace DataAccess
          ///
          ///
          ///
-         void addEvent (const Snapshot * snapshot, const std::string & status);
+         void addEvent (const double & age, const std::string & status);
 
-         void addOverpressureEvent (const Snapshot * snapshot,
+         void addOverpressureEvent (const double & age,
                                     const std::string& faultLithology,
                                     const bool         usedInOverpressure );
 
@@ -117,7 +110,7 @@ namespace DataAccess
 
 	 virtual PointList * getPoints () const;
 
-         FaultStatus getStatus (const Snapshot * snapshot) const;
+         FaultStatus getStatus (const double age) const;
          const std::string & getStatusName (const Snapshot * snapshot) const;
 
          /// \brief Determine the number of migration events a fault has.

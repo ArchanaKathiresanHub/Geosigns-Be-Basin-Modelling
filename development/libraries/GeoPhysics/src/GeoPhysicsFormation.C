@@ -421,7 +421,7 @@ void GeoPhysics::GeoPhysicsFormation::setFaultLithologies ( bool& layerHasFaults
             const Interface::OverpressureFaultEvent& event = *eventIter;
 
             if ( event.getUsedInOverpressureCalculation ()) {
-               const double startAge = event.getSnapshot ()->getTime ();
+               const double startAge = * event.getAge();
 
                // Set here because even though the fault may not lie in any element of this process,
                // the formation nevertheless has faults.

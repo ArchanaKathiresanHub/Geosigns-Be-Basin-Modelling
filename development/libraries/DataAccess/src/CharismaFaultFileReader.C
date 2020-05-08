@@ -7,12 +7,27 @@
 
 #include "CharismaFaultFileReader.h"
 
+#include "FaultCollection.h"
+#include "Formation.h"
+#include "ProjectHandle.h"
+#include "Surface.h"
+#include "FaultPlane.h"
+
+#include <memory>
 #include <sstream>
 #include <string>
+#include <algorithm>
 
 using namespace DataAccess;
 using namespace Interface;
 
+
+CharismaFaultFileReader::CharismaFaultFileReader() :
+  FaultFileReader3D(),
+  m_splitDistance( 5000 ),
+  m_faultSticks()
+{
+}
 
 void CharismaFaultFileReader::preParseFaults ()
 {
@@ -34,8 +49,6 @@ void CharismaFaultFileReader::preParseFaults ()
 
   PointSequence faultStick;
   Point faultPoint;
-  std::vector<PointSequence> faultSticks;
-  std::string fName;
 
   std::string line;
 
@@ -57,12 +70,12 @@ void CharismaFaultFileReader::preParseFaults ()
     ss >> xCoord;
     ss >> yCoord;
     ss >> zCoord;
-    ss >> fName;
+    ss >> dummy;
     ss >> faultNumber;
 
-    faultPoint (Interface::X_COORD) = xCoord;
-    faultPoint (Interface::Y_COORD) = yCoord;
-    faultPoint (Interface::Z_COORD) = zCoord;
+    faultPoint [Interface::X_COORD] = xCoord;
+    faultPoint [Interface::Y_COORD] = yCoord;
+    faultPoint [Interface::Z_COORD] = zCoord;
 
     if ( currentFaultNumber == -1 )
     {
@@ -71,15 +84,48 @@ void CharismaFaultFileReader::preParseFaults ()
     else if ( faultNumber != currentFaultNumber )
     {
       currentFaultNumber = faultNumber;
-      faultSticks.push_back( faultStick );
+      m_faultSticks.push_back( faultStick );
       faultStick.clear();
     }
 
     faultStick.push_back( faultPoint );
   }
 
-  faultSticks.push_back( faultStick );
+  m_faultSticks.push_back( faultStick );
+}
 
-  addFault( fName, faultSticks );
+MutableFaultCollectionList CharismaFaultFileReader::parseFaults(ProjectHandle* projectHandle, const string& mapName) const
+{
+  // Do conversion from m_faultSticks to a FaultCollectionList with correct Formations and names
+  // All individual Faults have to be called "faultPlane" so the events are copied to all faults in a fault plane
+  //"faultPlane"
 
+  MutableFaultCollectionList faultCollectionList;
+
+  FaultPlane plane ( m_faultSticks );
+
+  std::unique_ptr<SurfaceList> surfaceList ( projectHandle->getSurfaces() );
+  for ( const Surface* surface : *surfaceList )
+  {
+    std::cout << "Surface " << surface->getName() << std::endl;
+    std::vector<PointSequence> faultCuts;
+    if (plane.intersect(surface->getInputDepthMap(), m_splitDistance, faultCuts))
+    {
+      const Formation* formation = surface->getBottomFormation();
+      const std::string faultCollectionName = mapName + "_" + formation->getMangledName();
+      FaultCollection* faultCollection = projectHandle->getFactory()->produceFaultCollection( *projectHandle, faultCollectionName );
+      int counter = 0;
+      for (PointSequence faultCut : faultCuts)
+      {
+        faultCollection->addFault( "faultPlane" + std::to_string(counter), faultCut );
+        counter++;
+      }
+
+      faultCollection->addFormation( formation );
+      faultCollectionList.push_back(faultCollection);
+    }
+  }
+
+
+  return faultCollectionList;
 }

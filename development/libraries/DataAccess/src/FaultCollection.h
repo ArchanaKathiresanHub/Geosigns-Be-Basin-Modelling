@@ -37,10 +37,10 @@ namespace DataAccess
 
          void addFault (const std::string & faultName, const PointSequence & faultLine);
 
-         void addEvent (const std::string & faultName, const Snapshot * snapshot, const string & status);
+         void addEvent (const std::string & faultName, const double & age, const string & status);
 
          void addOverpressureEvent (const std::string & faultName,
-                                    const Snapshot * snapshot,
+                                    const double & age,
                                     const string & faultLithology,
                                     const bool usedInOverpressure );
 

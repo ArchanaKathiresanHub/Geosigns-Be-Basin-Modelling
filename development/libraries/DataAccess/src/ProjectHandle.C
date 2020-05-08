@@ -1523,14 +1523,6 @@ bool ProjectHandle::loadConstrainedOverpressureIntervals() {
 
 bool ProjectHandle::loadFaults( void )
 {
-   loadFaultCollections();
-   connectFaultCollections();
-   loadFaultEvents();
-   return true;
-}
-
-bool ProjectHandle::loadFaultCollections( void )
-{
    MutableInputValueList::const_iterator inputValueIter;
 
    for ( inputValueIter = m_inputValues.begin(); inputValueIter != m_inputValues.end(); ++inputValueIter )
@@ -1544,10 +1536,6 @@ bool ProjectHandle::loadFaultCollections( void )
 
       if ( !reader )
          continue;
-
-      FaultCollection *faultCollection = getFactory()->produceFaultCollection( *this, inputValue->getMapName() );
-
-      m_faultCollections.push_back( faultCollection );
 
       bool fileIsOpen;
 
@@ -1565,13 +1553,12 @@ bool ProjectHandle::loadFaultCollections( void )
 
       reader->preParseFaults();
 
-      FaultFileReader::FaultDataSetIterator faultIter;
-      for ( faultIter = reader->begin(); faultIter != reader->end(); ++faultIter )
+      for ( FaultCollection* faultCollection : reader->parseFaults( this, inputValue->getMapName() ) )
       {
-        for ( PointSequence pointSeq : reader->fault( faultIter ) )
-        {
-          faultCollection->addFault( reader->faultName( faultIter ), pointSeq );
-        }
+        m_faultCollections.push_back( faultCollection );
+
+        connectFaultCollections( faultCollection );
+        loadFaultEvents( faultCollection );
       }
 
       reader->close();
@@ -1598,23 +1585,19 @@ Interface::FaultCollection * ProjectHandle::findFaultCollection( const string & 
 }
 
 
-bool ProjectHandle::connectFaultCollections( void )
+bool ProjectHandle::connectFaultCollections( FaultCollection* faultCollection ) const
 {
    database::Table *palinspasticTbl = getTable( "PalinspasticIoTbl" );
-   database::Table::iterator tblIter;
 
-   for ( tblIter = palinspasticTbl->begin(); tblIter != palinspasticTbl->end(); ++tblIter )
+   for ( Record * palinspasticRecord : *palinspasticTbl )
    {
-      Record * palinspasticRecord = *tblIter;
       if ( !palinspasticRecord ) continue;
 
       const string & faultcutsMap = database::getFaultcutsMap( palinspasticRecord );
+      if (faultcutsMap != faultCollection->getName()) continue;
+
       const string & surfaceName = database::getSurfaceName( palinspasticRecord );
       const string & bottomFormationName = database::getBottomFormationName( palinspasticRecord );
-
-      FaultCollection *faultCollection = (FaultCollection *)findFaultCollection( faultcutsMap );
-      if ( !faultCollection ) continue;
-
 
       const Surface *topSurface = dynamic_cast<const Surface *>( findSurface( surfaceName ) );
 
@@ -1666,52 +1649,40 @@ bool ProjectHandle::connectFaultCollections( void )
    return true;
 }
 
-bool ProjectHandle::loadFaultEvents( void )
+bool ProjectHandle::loadFaultEvents( FaultCollection * fc ) const
 {
-   database::Table *tbl = getTable( "FaultcutIoTbl" );
+   database::Table* faultcutTbl = getTable( "FaultcutIoTbl" );
 
-   if ( tbl )
+   if ( faultcutTbl )
    {
-      database::Table::iterator tblIter;
-      for ( tblIter = tbl->begin(); tblIter != tbl->end(); ++tblIter )
+      for ( Record *record : *faultcutTbl )
       {
-         Record *record = *tblIter;
-
-         double age = database::getAge( record );
-         const Snapshot * snapshot = (const Snapshot *)findSnapshot( age );
-         if ( !snapshot ) continue;
-
          const string & fcName = database::getSurfaceName( record );
+         if (fc->getName().find(fcName) != 0) continue;
+
+         const double age = findSnapshot( database::getAge( record ) )->getTime(); //rounding to nearest snapshot
          const string & faultName = database::getFaultName( record );
          const string & status = database::getFaultcutStatus( record );
 
-         FaultCollection * fc = (FaultCollection *)findFaultCollection( fcName );
-         if ( !fc ) continue;
-         fc->addEvent( faultName, snapshot, status );
+         fc->addEvent( faultName, age, status );
       }
    }
 
-   tbl = getTable( "PressureFaultcutIoTbl" );
+   database::Table* pressureFaultcutTbl = getTable( "PressureFaultcutIoTbl" );
 
-   if ( tbl )
+   if ( pressureFaultcutTbl )
    {
-      database::Table::iterator tblIter;
-      for ( tblIter = tbl->begin(); tblIter != tbl->end(); ++tblIter )
+      for ( Record* record : *pressureFaultcutTbl )
       {
-         Record *record = *tblIter;
-
-         double age = database::getStartAge( record );
-         const Snapshot * snapshot = (const Snapshot *)findSnapshot( age );
-         if ( !snapshot ) continue;
-
          const string & fcName = database::getFaultcutsMap( record );
+         if (fc->getName().find(fcName) != 0) continue;
+
+         const double age = findSnapshot( database::getStartAge( record ) )->getTime(); //rounding to nearest snapshot
          const string & faultName = database::getFaultName( record );
          const string & faultLithology = database::getFaultLithology( record );
-         bool usedInOverpressure = database::getUsedInOverpressure( record ) ? true : false;
+         const bool usedInOverpressure = database::getUsedInOverpressure( record );
 
-         FaultCollection * fc = (FaultCollection *)findFaultCollection( fcName );
-         if ( !fc ) continue;
-         fc->addOverpressureEvent( faultName, snapshot, faultLithology, usedInOverpressure );
+         fc->addOverpressureEvent( faultName, age, faultLithology, usedInOverpressure );
       }
    }
 
@@ -1941,9 +1912,9 @@ bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
       for ( thicknessIter = newCrustalThicknesses.begin(); thicknessIter != newCrustalThicknesses.end(); ++thicknessIter ) {
          m_crustPaleoThicknesses.push_back( *thicknessIter );
       }
-	  sort( m_crustPaleoThicknesses.begin(), m_crustPaleoThicknesses.end(), PaleoPropertyTimeLessThan());
+    sort( m_crustPaleoThicknesses.begin(), m_crustPaleoThicknesses.end(), PaleoPropertyTimeLessThan());
 
-	  //newCrustalThicknesses is deleted in ProjectHandle::deleteCrustThinningHistory( void) 
+    //newCrustalThicknesses is deleted in ProjectHandle::deleteCrustThinningHistory( void)
       delete snapshots;
    }
 
@@ -2196,12 +2167,12 @@ bool ProjectHandle::isALC() const
 
 bool ProjectHandle::isFixedTempBasement() const
 {
-	return m_bottomBoundaryConditions == Interface::FIXED_BASEMENT_TEMPERATURE;
+  return m_bottomBoundaryConditions == Interface::FIXED_BASEMENT_TEMPERATURE;
 }
 
 bool ProjectHandle::isFixedHeatFlow() const
 {
-	return m_bottomBoundaryConditions == Interface::MANTLE_HEAT_FLOW;
+  return m_bottomBoundaryConditions == Interface::MANTLE_HEAT_FLOW;
 }
 
 const string & ProjectHandle::getCrustPropertyModel() const {
@@ -4048,7 +4019,7 @@ const Interface::Snapshot * ProjectHandle::findSnapshot( double time, int type )
    }
 
    // The highway failed, take the scenic road.
-   const Snapshot * nearestSnapshot = 0;
+   const Snapshot * nearestSnapshot = nullptr;
    double nearestDifference = 1e12;
    for ( snapshotIter = m_snapshots.begin(); snapshotIter != m_snapshots.end(); ++snapshotIter )
    {

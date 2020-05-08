@@ -25,18 +25,10 @@ namespace DataAccess
 
             virtual ~FaultFileReader2D ();
 
-            ///
-            /// Return an iterator pointing to the start of the fault sequence
-            ///
-            FaultDataSetIterator begin () const final;
-
-            ///
-            /// Return an iterator pointing to the end of the fault sequence
-            ///
-            FaultDataSetIterator end () const final;
+            MutableFaultCollectionList parseFaults ( ProjectHandle* projectHandle, const std::string& mapName ) const final;
 
         protected:
-           void addFault ( const std::string& newFaultName, const std::vector<PointSequence>& newFaultLine ) final;
+            void addFault ( const std::string& newFaultName, const PointSequence& newFault );
 
         private:
            FaultDataSet m_faultData;

@@ -39,7 +39,6 @@ namespace DataAccess
 
 			void preParseFaults ();
 
-
 	 private :
 
 			static const double IBSFaultNullPoint;
