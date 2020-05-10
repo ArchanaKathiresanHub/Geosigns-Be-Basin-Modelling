@@ -56,12 +56,12 @@ void LandmarkFaultFileReader::preParseFaults () {
     newFaultLine.clear ();
 
     while ( m_faultFile.good () && ! newFault ) {
-      faultPoint [ X_COORD ] = getXCoordinate ( buffer );
-      faultPoint [ Y_COORD ] = getYCoordinate ( buffer );
-      faultPoint [ Z_COORD ] = 0.0;
+      faultPoint ( X_COORD ) = getXCoordinate ( buffer );
+      faultPoint ( Y_COORD ) = getYCoordinate ( buffer );
+      faultPoint ( Z_COORD ) = 0.0;
 
-      convertDistanceUnits ( unit, METRE, faultPoint [ X_COORD ]);
-      convertDistanceUnits ( unit, METRE, faultPoint [ Y_COORD ]);
+      convertDistanceUnits ( unit, METRE, faultPoint ( X_COORD ));
+      convertDistanceUnits ( unit, METRE, faultPoint ( Y_COORD ));
 
       newFaultLine.push_back ( faultPoint );
 
@@ -73,7 +73,7 @@ void LandmarkFaultFileReader::preParseFaults () {
 
     }
 
-    addFault ( newFaultName, newFaultLine );
+    addFault ( newFaultName, { newFaultLine } );
   }
 }
 

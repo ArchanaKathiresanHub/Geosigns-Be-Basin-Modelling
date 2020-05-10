@@ -20,14 +20,11 @@ namespace DataAccess
 {
    namespace Interface
    {
-      class FaultCollection;
-      class ProjectHandle;
-
       class FaultFileReader {
          public :
             struct FaultDataItem {
                std::string faultName;
-               PointSequence fault;
+               std::vector<PointSequence> fault;
             };
 
             typedef std::vector <FaultDataItem> FaultDataSet;
@@ -37,7 +34,8 @@ namespace DataAccess
 
             virtual ~FaultFileReader ();
 
-            virtual void open ( const std::string& fileName, bool& fileIsOpen ) = 0;
+            virtual void open ( const std::string& fileName,
+                  bool&        fileIsOpen ) = 0;
 
             virtual void close () = 0;
 
@@ -46,8 +44,26 @@ namespace DataAccess
             ///
             virtual void preParseFaults () = 0;
 
-            virtual MutableFaultCollectionList parseFaults ( ProjectHandle* projectHandle, const std::string& mapName ) const = 0;
+            const std::string&    faultName ( const FaultDataSetIterator& Iter ) const;
 
+            const std::vector<PointSequence>&  fault ( const FaultDataSetIterator& Iter ) const;
+
+
+            ///
+            /// Return an iterator pointing to the start of the fault sequence
+            ///
+            virtual FaultDataSetIterator begin () const = 0;
+
+            ///
+            /// Return an iterator pointing to the end of the fault sequence
+            ///
+            virtual FaultDataSetIterator end () const = 0;
+
+
+      protected:
+
+         virtual void addFault ( const std::string&   newFaultName,
+            const std::vector<PointSequence>& newfault ) = 0;
       };
 
 

@@ -66,7 +66,7 @@ bool FaultElementCalculator::computeFaultGridMap (GridMap * faultMap, FaultColle
 
          computeFaultElements (fault->getFaultLine (), faultElements);
 
-         FaultStatus faultStatus = fault->getStatus (m_snapshot->getTime());
+         FaultStatus faultStatus = fault->getStatus (m_snapshot);
 
          ElementSet::iterator elementIter;
 
@@ -198,8 +198,8 @@ void LineSegment::print () const {
 //------------------------------------------------------------//
 
 void PointLessThan::setPoint ( const Point& P ) {
-  startPoint [ X_COORD ] = P ( X_COORD );
-  startPoint [ Y_COORD ] = P ( Y_COORD );
+  startPoint ( X_COORD ) = P ( X_COORD );
+  startPoint ( Y_COORD ) = P ( Y_COORD );
 }
 
 //------------------------------------------------------------//
@@ -320,9 +320,9 @@ void FaultElementCalculator::computeGridIntersectionPoints ( const LineSegment& 
    ///
    for (I = startElement (X_COORD); I <= endElement (X_COORD); I++)
    {
-      P [X_COORD] = m_grid->minIGlobal () + double (I) * m_grid->deltaI ();
+      P (X_COORD) = m_grid->minIGlobal () + double (I) * m_grid->deltaI ();
 
-      P [Y_COORD] = LS.computeY (P (X_COORD));
+      P (Y_COORD) = LS.computeY (P (X_COORD));
       gridIntersectionPoints.push_back (P);
    }
 
@@ -350,9 +350,9 @@ void FaultElementCalculator::computeGridIntersectionPoints ( const LineSegment& 
    ///
    for (I = startElement (Y_COORD); I <= endElement (Y_COORD); I++)
    {
-      P [Y_COORD] = m_grid->minJGlobal () + double (I) * m_grid->deltaJ ();
+      P (Y_COORD) = m_grid->minJGlobal () + double (I) * m_grid->deltaJ ();
 
-      P [X_COORD] = LS.computeX (P (Y_COORD));
+      P (X_COORD) = LS.computeX (P (Y_COORD));
       gridIntersectionPoints.push_back (P);
    }
 
@@ -458,8 +458,8 @@ void FaultElementCalculator::getElementsTraversed ( const Point&      P1,
          ///
          /// The normal to the line between p1 and p2.
          ///
-         segmentNormal [X_COORD] = segmentDirection (Y_COORD);
-         segmentNormal [Y_COORD] = -segmentDirection (X_COORD);
+         segmentNormal (X_COORD) = segmentDirection (Y_COORD);
+         segmentNormal (Y_COORD) = -segmentDirection (X_COORD);
 
          Length = sqrt (segmentNormal (X_COORD) * segmentNormal (X_COORD) +
                         segmentNormal (Y_COORD) * segmentNormal (Y_COORD));
@@ -472,8 +472,8 @@ void FaultElementCalculator::getElementsTraversed ( const Point&      P1,
          ///
          /// How far from the original line should the new line be displaced?
          ///
-         segmentDisplacement [X_COORD] = EpsilonX * segmentNormal (X_COORD);
-         segmentDisplacement [Y_COORD] = EpsilonY * segmentNormal (Y_COORD);
+         segmentDisplacement (X_COORD) = EpsilonX * segmentNormal (X_COORD);
+         segmentDisplacement (Y_COORD) = EpsilonY * segmentNormal (Y_COORD);
 
          ///
          /// Compute the end points of the slightly displaced line

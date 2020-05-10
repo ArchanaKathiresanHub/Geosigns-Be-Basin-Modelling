@@ -8,10 +8,7 @@
 
 #include "FaultFileReader3D.h"
 
-#include "auxiliaryfaulttypes.h"
-
 #include <string>
-#include <vector>
 
 namespace DataAccess
 {
@@ -26,15 +23,7 @@ namespace DataAccess
       {
          public :
 
-            CharismaFaultFileReader();
-
             void preParseFaults ();
-
-            MutableFaultCollectionList parseFaults ( ProjectHandle* projectHandle, const std::string& mapName ) const final;
-
-         private:
-            double m_splitDistance;
-            std::vector<PointSequence> m_faultSticks;
       };
    }
 }

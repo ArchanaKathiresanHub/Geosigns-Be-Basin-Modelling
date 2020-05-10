@@ -8,11 +8,6 @@
 
 #include "FaultFileReader2D.h"
 
-#include "auxiliaryfaulttypes.h"
-#include "ObjectFactory.h"
-#include "ProjectHandle.h"
-#include "FaultCollection.h"
-
 using namespace DataAccess;
 using namespace Interface;
 
@@ -26,28 +21,26 @@ FaultFileReader2D::FaultFileReader2D () {
 FaultFileReader2D::~FaultFileReader2D () {
 }
 
+//------------------------------------------------------------//
 
-MutableFaultCollectionList FaultFileReader2D::parseFaults(ProjectHandle* projectHandle, const std::string& mapName ) const
-{
-  FaultCollection* faultCollection = projectHandle->getFactory()->produceFaultCollection( *projectHandle, mapName );
+FaultFileReader2D::FaultDataSetIterator FaultFileReader2D::begin () const {
+  return m_faultData.begin();
+}
 
-  FaultDataSetIterator faultIter;
-  for ( faultIter = m_faultData.begin(); faultIter != m_faultData.end(); ++faultIter )
-  {
-    faultCollection->addFault( faultIter->faultName, faultIter->fault );
-  }
+//------------------------------------------------------------//
 
-  return {faultCollection};
+FaultFileReader2D::FaultDataSetIterator FaultFileReader2D::end () const {
+  return m_faultData.end();
 }
 
 //------------------------------------------------------------//
 
 void FaultFileReader2D::addFault ( const std::string&   newFaultName,
-                                   const PointSequence& newFault ) {
+                                 const std::vector<PointSequence>& newfault ) {
 
   FaultDataItem newItem;
   newItem.faultName = newFaultName;
-  newItem.fault = newFault;
+  newItem.fault.push_back( newfault[0] );
 
   m_faultData.push_back( newItem );
 }

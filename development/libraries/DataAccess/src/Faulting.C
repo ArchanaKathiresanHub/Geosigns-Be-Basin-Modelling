@@ -21,8 +21,7 @@ const std::string FaultStatusNames [] =
 
 //------------------------------------------------------------//
 
-FaultEvent::FaultEvent (const double & age, const std::string & statusName)
-  : m_FaultAge (&age)
+FaultEvent::FaultEvent (const Snapshot * snapshot, const std::string & statusName) : m_snapshot (snapshot)
 {
    m_status = NoFault;
 
@@ -37,9 +36,9 @@ FaultEvent::FaultEvent (const double & age, const std::string & statusName)
 
 //------------------------------------------------------------//
 
-const double * FaultEvent::getAge () const
+const Snapshot * FaultEvent::getSnapshot () const
 {
-   return m_FaultAge;
+   return m_snapshot;
 }
 
 //------------------------------------------------------------//
@@ -61,24 +60,40 @@ const std::string & FaultEvent::getStatusName () const
 
 ostream & DataAccess::Interface::operator<< (ostream & o, const FaultEvent & faultEvent)
 {
-   o << faultEvent.getAge() << "  " << faultEvent.getStatusName () << endl;
+   o << faultEvent.getSnapshot ()->getTime () << "  " << faultEvent.getStatusName () << endl;
 
    return o;
 }
 
 //------------------------------------------------------------//
 
-OverpressureFaultEvent::OverpressureFaultEvent ( const double & age,
-                                                 const std::string& faultLithology,
-                                                 const bool         usedInOverpressure )
-  : m_FaultAge ( &age ), m_faultLithologyName ( faultLithology ), m_usedInOverpressureCalculation ( usedInOverpressure )
+bool FaultEventLessThan::operator  () (const FaultEvent & event1, const FaultEvent & event2)
+     const
+     {
+
+        return * event1.getSnapshot () < * event2.getSnapshot ();
+     }
+
+//------------------------------------------------------------//
+
+bool OverpressureFaultEventLessThan::operator () (const OverpressureFaultEvent & event1, const OverpressureFaultEvent & event2) const
 {
+   return * event1.getSnapshot () < * event2.getSnapshot ();
 }
 
 //------------------------------------------------------------//
 
-const double * OverpressureFaultEvent::getAge () const {
-   return m_FaultAge;
+OverpressureFaultEvent::OverpressureFaultEvent ( const Snapshot*    snapshot,
+                                                 const std::string& faultLithology,
+                                                 const bool         usedInOverpressure ) :
+   m_snapshot ( snapshot ), m_faultLithologyName ( faultLithology ), m_usedInOverpressureCalculation ( usedInOverpressure ) {
+
+}
+
+//------------------------------------------------------------//
+
+const Snapshot * OverpressureFaultEvent::getSnapshot () const {
+   return m_snapshot;
 }
 
 //------------------------------------------------------------//
@@ -89,8 +104,7 @@ const std::string& OverpressureFaultEvent::getFaultLithologyName () const {
 
 //------------------------------------------------------------//
 
-bool OverpressureFaultEvent::getUsedInOverpressureCalculation () const
-{
+bool OverpressureFaultEvent::getUsedInOverpressureCalculation () const {
    return m_usedInOverpressureCalculation;
 }
 
@@ -132,32 +146,33 @@ size_t Fault::getNumberOfMigrationEvents () const {
    return m_events.size ();
 }
 
-void Fault::addEvent (const double & age , const std::string & status)
+void Fault::addEvent (const Snapshot * snapshot, const std::string & status)
 {
-   FaultEvent newEvent (age, status);
-   //FaultEventLessThan eventComparison;
+   FaultEvent newEvent (snapshot, status);
+   FaultEventLessThan eventComparison;
 
    m_events.push_back (newEvent);
 
    ///
    /// Need to keep the sequence in correct order, that is: oldest first.
    ///
-   std::sort(m_events.begin(), m_events.end(), [](const FaultEvent a, const FaultEvent& b){ return a.getAge() > b.getAge(); });
+   std::sort (m_events.begin (), m_events.end (), eventComparison);
 }
 
 //------------------------------------------------------------//
 
 
-void Fault::addOverpressureEvent (const double & age, const std::string & faultLithology, const bool usedInOverpressure )
+void Fault::addOverpressureEvent (const Snapshot * snapshot, const std::string & faultLithology, const bool usedInOverpressure )
 {
-   OverpressureFaultEvent newEvent (age, faultLithology, usedInOverpressure);
+   OverpressureFaultEvent newEvent (snapshot, faultLithology, usedInOverpressure );
+   OverpressureFaultEventLessThan eventComparison;
 
    m_overpressureEvents.push_back (newEvent);
 
    ///
    /// Need to keep the sequence in correct order, that is: oldest first.
    ///
-   std::sort(m_overpressureEvents.begin(), m_overpressureEvents.end(), [](const OverpressureFaultEvent a, const OverpressureFaultEvent& b){ return a.getAge() > b.getAge(); });
+   std::sort ( m_overpressureEvents.begin (), m_overpressureEvents.end (), eventComparison);
 }
 
 //------------------------------------------------------------//
@@ -171,12 +186,12 @@ const PointSequence & Fault::getFaultLine () const
 
 
 
-FaultStatus Fault::getStatus (const double age) const
+FaultStatus Fault::getStatus (const Snapshot * snapshot) const
 {
    FaultEventSequence::const_iterator feIter;
    for (feIter = m_events.begin (); feIter != m_events.end (); ++feIter)
    {
-      if (* (*feIter).getAge () >= age)
+      if (* (*feIter).getSnapshot () >= * snapshot)
          return (*feIter).getStatus ();
    }
    return NoFault;
@@ -184,7 +199,7 @@ FaultStatus Fault::getStatus (const double age) const
 
 const std::string & Fault::getStatusName (const Snapshot * snapshot) const
 {
-   return FaultStatusNames[getStatus (snapshot->getTime())];
+   return FaultStatusNames[getStatus (snapshot)];
 }
 
 

@@ -225,7 +225,7 @@ namespace database {
          modHeader.insert( pos, ";! " );
          // cerr << "modHeader" << modHeader << endl;
       } while ( (pos = modHeader.find( "\n", pos + 4 )) != string::npos &&
-                pos < (modHeader.length() - 2)
+                pos < (modHeader.length() - 2) 
               );
 
       ofile << modHeader;
@@ -275,7 +275,7 @@ namespace database {
       result = loadFromStream( infile );
       infile.close();
 
-      if ( result )
+      if ( result ) 
       {
          m_fileName = filename;
       }
@@ -286,20 +286,20 @@ namespace database {
    bool Database::reload( std::string tableName )
    {
       if ( m_fileName.empty() ) { return false; }
-
+ 
       if ( tableName.empty() )
       {
          m_tablesInFile.clear();
-
+      
          for ( auto tbl : m_tables ) { delete tbl; }
          m_tables.clear();
 
          return loadFromFile( m_fileName );
       }
-
+      
       Table* table = getTable( tableName );
-      if ( table != nullptr ) // delete records in table
-      {
+      if ( table != nullptr ) // delete records in table 
+      {  
          table->clear();
       }
 
@@ -709,7 +709,7 @@ namespace database {
 
       if ( !loadLine( infile, line, true ) ) { return false; }
 
-      int version = m_tableDefinition.version();
+      int version = m_tableDefinition.version(); 
       if ( line.find( ";v " ) == 0 ) // if table has version - read it
       {
          version = stoi( line.substr( 2 ) );
@@ -1137,7 +1137,7 @@ namespace database {
          string fieldValue;
 
          if (linePos == string::npos)
-         {
+         { 
             return false;
          }
 
@@ -1152,7 +1152,7 @@ namespace database {
          }
 
          if (!assignFromStringToIndex(fieldValue, toIndex))
-         {
+         {  
             return false;
          }
       }

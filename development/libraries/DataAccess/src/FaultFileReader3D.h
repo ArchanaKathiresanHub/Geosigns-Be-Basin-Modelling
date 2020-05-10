@@ -21,6 +21,21 @@ namespace DataAccess
       {
          public :
 
+            ///
+            /// Return an iterator pointing to the start of the fault sequence
+            ///
+            FaultDataSetIterator begin () const final;
+
+            ///
+            /// Return an iterator pointing to the end of the fault sequence
+            ///
+            FaultDataSetIterator end () const final;
+
+      protected:
+         void addFault ( const std::string& newFaultName, const std::vector<PointSequence>& newFaultLine ) final;
+
+      private:
+         FaultDataSet m_faultData;
 
       };
    }

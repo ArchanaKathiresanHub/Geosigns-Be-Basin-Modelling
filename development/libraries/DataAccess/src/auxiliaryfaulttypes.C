@@ -17,7 +17,7 @@ using namespace Interface;
 
 //------------------------------------------------------------//
 
-void DataAccess::Interface::convertDistanceUnits ( const DistanceUnit From,
+void DataAccess::Interface::convertDistanceUnits ( const DistanceUnit From, 
                             const DistanceUnit To,
                                   double&      Value ) {
 
@@ -36,7 +36,7 @@ bool ElementLess::operator()( const Element& E1, const Element& E2 ) const {
    if( E1 ( Interface::X_COORD ) < E2 ( Interface::X_COORD ) ||
        ( E1 ( Interface::X_COORD ) == E2 ( Interface::X_COORD ) && E1 ( Interface::Y_COORD ) < E2 ( Interface::Y_COORD ) ) )
     return true;
-   else
+   else 
   return false;
 }
 
@@ -55,10 +55,8 @@ Point DataAccess::Interface::midPoint ( const Point& P1, const Point& P2 ) {
 
   Point MP;
 
-  MP [ Interface::X_COORD ] = 0.5 * ( P1 ( Interface::X_COORD ) + P2 ( Interface::X_COORD ));
-  MP [ Interface::Y_COORD ] = 0.5 * ( P1 ( Interface::Y_COORD ) + P2 ( Interface::Y_COORD ));
-  MP [ Interface::Z_COORD ] = 0.5 * ( P1 ( Interface::Z_COORD ) + P2 ( Interface::Z_COORD ));
-
+  MP ( Interface::X_COORD ) = 0.5 * ( P1 ( Interface::X_COORD ) + P2 ( Interface::X_COORD ));
+  MP ( Interface::Y_COORD ) = 0.5 * ( P1 ( Interface::Y_COORD ) + P2 ( Interface::Y_COORD ));
 
   return MP;
 }
@@ -76,10 +74,8 @@ Point DataAccess::Interface::operator-( const Point& P1, const Point& P2 ) {
 
   Point Result;
 
-  Result [ Interface::X_COORD ] = P1 ( Interface::X_COORD ) - P2 ( Interface::X_COORD );
-  Result [ Interface::Y_COORD ] = P1 ( Interface::Y_COORD ) - P2 ( Interface::Y_COORD );
-  Result [ Interface::Z_COORD ] = P1 ( Interface::Z_COORD ) - P2 ( Interface::Z_COORD );
-
+  Result ( Interface::X_COORD ) = P1 ( Interface::X_COORD ) - P2 ( Interface::X_COORD );
+  Result ( Interface::Y_COORD ) = P1 ( Interface::Y_COORD ) - P2 ( Interface::Y_COORD );
 
   return Result;
 }
@@ -89,10 +85,8 @@ Point DataAccess::Interface::operator+( const Point& P1, const Point& P2 ) {
 
   Point Result;
 
-  Result [ Interface::X_COORD ] = P1 ( Interface::X_COORD ) + P2 ( Interface::X_COORD );
-  Result [ Interface::Y_COORD ] = P1 ( Interface::Y_COORD ) + P2 ( Interface::Y_COORD );
-  Result [ Interface::Z_COORD ] = P1 ( Interface::Z_COORD ) + P2 ( Interface::Z_COORD );
-
+  Result ( Interface::X_COORD ) = P1 ( Interface::X_COORD ) + P2 ( Interface::X_COORD );
+  Result ( Interface::Y_COORD ) = P1 ( Interface::Y_COORD ) + P2 ( Interface::Y_COORD );
 
   return Result;
 }
@@ -102,34 +96,29 @@ Point DataAccess::Interface::operator*( const double X, const Point& P1 ) {
 
   Point Result;
 
-  Result [ Interface::X_COORD ] = X * P1 ( Interface::X_COORD );
-  Result [ Interface::Y_COORD ] = X * P1 ( Interface::Y_COORD );
-  Result [ Interface::Z_COORD ] = X * P1 ( Interface::Z_COORD );
+  Result ( Interface::X_COORD ) = X * P1 ( Interface::X_COORD );
+  Result ( Interface::Y_COORD ) = X * P1 ( Interface::Y_COORD );
 
   return Result;
 }
-
-
 
 
 Point DataAccess::Interface::operator/( const Point& P1, const double X ) {
 
   Point Result;
 
-  Result [ Interface::X_COORD ] = P1 ( Interface::X_COORD ) / X;
-  Result [ Interface::Y_COORD ] = P1 ( Interface::Y_COORD ) / X;
-  Result [ Interface::Z_COORD ] = P1 ( Interface::Z_COORD ) / X;
+  Result ( Interface::X_COORD ) = P1 ( Interface::X_COORD ) / X;
+  Result ( Interface::Y_COORD ) = P1 ( Interface::Y_COORD ) / X;
 
   return Result;
 }
+
 
 double DataAccess::Interface::separationDistance ( const Point& P1, const Point& P2 ) {
 
   Point DV = P1 - P2;
 
-  return std::sqrt ( DV ( Interface::X_COORD ) * DV ( Interface::X_COORD ) +
-                     DV ( Interface::Y_COORD ) * DV ( Interface::Y_COORD ) +
-                     DV ( Interface::Z_COORD ) * DV ( Interface::Z_COORD ));
+  return sqrt ( DV ( Interface::X_COORD ) * DV ( Interface::X_COORD ) + DV ( Interface::Y_COORD ) * DV ( Interface::Y_COORD ));
 
 }
 

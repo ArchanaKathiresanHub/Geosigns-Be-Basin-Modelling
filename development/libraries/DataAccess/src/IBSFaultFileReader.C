@@ -49,7 +49,7 @@ void IBSFaultFileReader::preParseFaults ()
       newFaultLine.clear ();
       readFault (newFaultName, newFaultLine, done);
       if (done) break;
-      addFault (newFaultName, newFaultLine);
+      addFault (newFaultName, { newFaultLine });
    }
 }
 
@@ -69,6 +69,7 @@ void IBSFaultFileReader::readFault (std::string & newFaultName, PointSequence & 
    bool endOfFaultLine = false;
    char buffer[BufferSize];
    Point faultPoint;
+   faultPoint (Interface::Z_COORD) = 0.0;
 
    faultCount = faultCount + 1;
    done = false;
@@ -82,8 +83,8 @@ void IBSFaultFileReader::readFault (std::string & newFaultName, PointSequence & 
       if (m_faultFile.good () && !isCommentLine (buffer))
       {
          pointBuffer << buffer;
-         pointBuffer >> faultPoint [X_COORD];
-         pointBuffer >> faultPoint [Y_COORD];
+         pointBuffer >> faultPoint (X_COORD);
+         pointBuffer >> faultPoint (Y_COORD);
 
          ///
          /// Check to see of the point that was read is not the end-of-fault marker (a pair of 999.999's)

@@ -1,8 +1,6 @@
 #include <assert.h>
 #include <iostream>
-#include <map>
 #include <sstream>
-#include <string>
 using namespace std;
 
 #include "FaultCollection.h"
@@ -89,23 +87,14 @@ void FaultCollection::addFault (const std::string & faultName, const PointSequen
 
 //------------------------------------------------------------//
 
-void FaultCollection::addEvent (const std::string & faultName, const double & age, const string & status)
+void FaultCollection::addEvent (const std::string & faultName, const Snapshot * snapshot, const string & status)
 {
-   if ( faultName.find("faultPlane") == 0 )
-   {
-     for ( auto& it : m_faults)
-     {
-       it.second->addEvent( age, status );
-     }
-     return;
-   }
-
    NameFaultMapping::iterator selectedFault = m_faults.find (faultName);
 
    if (selectedFault != m_faults.end ())
    {
       Fault * fault = (*selectedFault).second;
-      fault->addEvent (age, status);
+      fault->addEvent (snapshot, status);
    }
    else
    {
@@ -123,25 +112,16 @@ void FaultCollection::addEvent (const std::string & faultName, const double & ag
                                     const bool usedInOverpressure );
 
 void FaultCollection::addOverpressureEvent (const std::string & faultName,
-                                            const double & age,
+                                            const Snapshot * snapshot,
                                             const string & faultLithology,
                                             const bool usedInOverpressure )
 {
-   if ( faultName.find("faultPlane") == 0  )
-   {
-     for ( auto& it : m_faults )
-     {
-       it.second->addOverpressureEvent (age, faultLithology, usedInOverpressure );
-     }
-     return;
-   }
-
    NameFaultMapping::iterator selectedFault = m_faults.find (faultName);
 
    if (selectedFault != m_faults.end ())
    {
       Fault * fault = (*selectedFault).second;
-      fault->addOverpressureEvent (age, faultLithology, usedInOverpressure );
+      fault->addOverpressureEvent (snapshot, faultLithology, usedInOverpressure );
    }
    else
    {
