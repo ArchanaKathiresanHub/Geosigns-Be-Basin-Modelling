@@ -4,9 +4,10 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 
-
 #include "CharismaFaultFileReader.h"
+#include "FaultCollection.h"
 #include "FaultFileReader.h"
+#include "Faulting.h"
 
 #include "FilePath.h"
 
@@ -17,21 +18,35 @@ using namespace DataAccess;
 using namespace Interface;
 using namespace std;
 
-class PlanesExpected {
+class FaultExpected {
 
 public :
 
-   PlanesExpected ();
+  FaultExpected ();
 
-   void createFaultPlanesExpected (std::vector<FaultFileReader::FaultDataItem>& faultPlanesExpected) const;
+  Fault createFaultFaultExpected () const;
 
 };
 
-TEST(CharismaFaultFileReaderTest, readFaultFile)
+TEST(DataAccess, ReadCharismaFileTest)
 {
+  DataAccess::Interface::ObjectFactory factory;
+  DataAccess::Interface::ObjectFactory* factoryptr = &factory;
+  std::unique_ptr<DataAccess::Interface::ProjectHandle> ph;
+  try
+  {
+    ph.reset( DataAccess::Interface::OpenCauldronProject("Project.project3d", factoryptr) );
+  }
+  catch (const std::exception& e)
+  {
+    std::cout << e.what();
+  }
+
+  if( nullptr == ph ) FAIL();
+
   DataAccess::Interface::CharismaFaultFileReader reader;
 
-  const char* FaultFile = "FaultFileTest.charisma";
+  const char* FaultFile = "FaultIntersect.charisma";
 
   bool fileIsOpen;
 
@@ -39,64 +54,108 @@ TEST(CharismaFaultFileReaderTest, readFaultFile)
   fullFileName << FaultFile;
   reader.open( fullFileName.path(), fileIsOpen );
 
+  EXPECT_TRUE(fileIsOpen);
+
+  reader.preParseFaults();
+
+  MutableFaultCollectionList faultCollectionList = reader.parseFaults(ph.get(), "FaultIntersect");
+
+  EXPECT_FALSE(faultCollectionList.empty());
+
+  FaultExpected fault;
+  Fault faultExpected = fault.createFaultFaultExpected();
+
+  MutableFaultCollectionList::const_iterator fcIter;
+
+  for ( fcIter = faultCollectionList.begin(); fcIter != faultCollectionList.end(); ++fcIter )
+  {
+    FaultCollection * fc = *fcIter;
+
+    FaultList::const_iterator faultIter;
+
+    std::unique_ptr<FaultList> faults(fc->getFaults());
+    for (faultIter = faults->begin (); faultIter != faults->end (); ++faultIter)
+    {
+      EXPECT_TRUE( faultExpected.getFaultLine() == (*faultIter)->getFaultLine());
+      EXPECT_TRUE( faultExpected.getName() == (*faultIter)->getName());
+    }
+  }
+
+  reader.close();
+}
+
+TEST(DataAccess, ReadCharismaNoIntersectionTest)
+{
+  DataAccess::Interface::ObjectFactory factory;
+  DataAccess::Interface::ObjectFactory* factoryptr = &factory;
+  std::unique_ptr<DataAccess::Interface::ProjectHandle> ph;
+  try
+  {
+    ph.reset( DataAccess::Interface::OpenCauldronProject("Project.project3d", factoryptr) );
+  }
+  catch (const std::exception& e)
+  {
+    std::cout << e.what();
+  }
+
+  if( nullptr == ph ) FAIL();
+
+  DataAccess::Interface::CharismaFaultFileReader reader;
+
+  const char* FaultFile = "FaultNoIntersect.charisma";
+
+  bool fileIsOpen;
+
+  ibs::FilePath fullFileName( "." );
+  fullFileName << FaultFile;
+  reader.open( fullFileName.path(), fileIsOpen );
 
   EXPECT_TRUE(fileIsOpen);
 
   reader.preParseFaults();
 
-  std::vector<FaultFileReader::FaultDataItem> faultPlanesExpected;
+  MutableFaultCollectionList faultCollectionList = reader.parseFaults(ph.get(), "FaultIntersect");
 
-  PlanesExpected planes;
-  planes.createFaultPlanesExpected( faultPlanesExpected );
-
-  FaultFileReader::FaultDataSetIterator faultIter;
-
-  int faultElement = 0;
-  for ( faultIter = reader.begin(); faultIter != reader.end(); ++faultIter )
-  {
-     ASSERT_EQ( reader.faultName( faultIter ), faultPlanesExpected[faultElement].faultName );
-
-     int pntSeqItem = 0;
-     for (PointSequence pntSeq : reader.fault( ( faultIter ) ) )
-     {
-       int pntItem = 0;
-       for (Point pnt : pntSeq)
-       {
-         ASSERT_EQ( pnt , faultPlanesExpected[faultElement].fault[pntSeqItem][pntItem] );
-         pntItem++;
-       }
-       pntSeqItem++;
-     }
-     faultElement++;
-  }
+  EXPECT_TRUE(faultCollectionList.empty());
 
   reader.close();
-
 }
 
 TEST(CharismaFaultFileReaderTest, readEmptyFaultFile)
 {
+  DataAccess::Interface::ObjectFactory factory;
+  DataAccess::Interface::ObjectFactory* factoryptr = &factory;
+  std::unique_ptr<DataAccess::Interface::ProjectHandle> ph;
+  try
+  {
+    ph.reset( DataAccess::Interface::OpenCauldronProject("Project.project3d", factoryptr) );
+  }
+  catch (const std::exception& e)
+  {
+    std::cout << e.what();
+  }
+
+  if( nullptr == ph ) FAIL();
+
   DataAccess::Interface::CharismaFaultFileReader reader;
+
+  const char* FaultFile = "FaultEmptyFileTest.charisma";
 
   bool fileIsOpen;
 
-  reader.open( "FaultEmptyFileTest.charisma", fileIsOpen );
+  ibs::FilePath fullFileName( "." );
+  fullFileName << FaultFile;
+  reader.open( fullFileName.path(), fileIsOpen );
 
   EXPECT_TRUE(fileIsOpen);
 
   reader.preParseFaults();
 
-  FaultFileReader::FaultDataSetIterator faultIter;
+  MutableFaultCollectionList faultCollectionList = reader.parseFaults(ph.get(), "FaultIntersect");
 
-  int faultElement = 0;
-  for ( faultIter = reader.begin(); faultIter != reader.end(); ++faultIter )
-  {
-     faultElement++;
-  }
+  EXPECT_TRUE(faultCollectionList.empty());
 
   reader.close();
-
-  ASSERT_EQ( 0 , faultElement );
 }
 
 TEST(CharismaFaultFileReaderTest, readFileNotFound)
@@ -110,88 +169,29 @@ TEST(CharismaFaultFileReaderTest, readFileNotFound)
   EXPECT_FALSE(fileIsOpen);
 }
 
-PlanesExpected::PlanesExpected () {
+FaultExpected::FaultExpected ()
+{
 }
 
-void PlanesExpected::createFaultPlanesExpected (std::vector<FaultFileReader::FaultDataItem>& faultPlanesExpected) const
+Fault FaultExpected::createFaultFaultExpected () const
 {
-
-  FaultFileReader::FaultDataItem faultPlane;
-  std::vector<PointSequence> faultSticks;
-
-  PointSequence faultStick;
+  PointSequence line;
   Point faultPoint;
 
-  faultPoint (Interface::X_COORD) = 532819.00000;
-  faultPoint (Interface::Y_COORD) = 54877.00000;
-  faultPoint (Interface::Z_COORD) = 1148.43750;
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750001.277108434;
 
-  faultStick.push_back(faultPoint);
+  line.push_back(faultPoint);
 
-  faultPoint (Interface::X_COORD) = 532819.00000;
-  faultPoint (Interface::Y_COORD) = 54402.00000;
-  faultPoint (Interface::Z_COORD) = 1656.25000;
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750002.594059406;
 
-  faultStick.push_back(faultPoint);
-  faultSticks.push_back(faultStick);
-  faultPlane.faultName = "Fault3_0";
-  faultPlane.fault = faultSticks;
+  line.push_back(faultPoint);
 
-  faultPlanesExpected.push_back(faultPlane);
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750002.721311475;
 
-  faultStick.clear();
-  faultSticks.clear();
+  line.push_back(faultPoint);
 
-  faultPoint (Interface::X_COORD) = 531819.00000;
-  faultPoint (Interface::Y_COORD) = 55402.00000;
-  faultPoint (Interface::Z_COORD) = 31.25000;
-
-  faultStick.push_back(faultPoint);
-  faultPoint (Interface::X_COORD) = 531819.00000;
-  faultPoint (Interface::Y_COORD) = 55052.00000;
-  faultPoint (Interface::Z_COORD) = 1164.06250;
-
-  faultStick.push_back(faultPoint);
-
-  faultPoint (Interface::X_COORD) = 531819.00000;
-  faultPoint (Interface::Y_COORD) = 54852.00000;
-  faultPoint (Interface::Z_COORD) = 1632.81250;
-
-  faultStick.push_back(faultPoint);
-  faultSticks.push_back(faultStick);
-  faultPlane.faultName = "Fault3_1";
-  faultPlane.fault = faultSticks;
-
-  faultPlanesExpected.push_back(faultPlane);
-
-  faultStick.clear();
-  faultSticks.clear();
-
-  faultPoint (Interface::X_COORD) = 531319.00000;
-  faultPoint (Interface::Y_COORD) = 55302.00000;
-  faultPoint (Interface::Z_COORD) = 39.06250;
-
-  faultStick.push_back(faultPoint);
-  faultPoint (Interface::X_COORD) = 531319.00000;
-  faultPoint (Interface::Y_COORD) = 55152.00000;
-  faultPoint (Interface::Z_COORD) = 1054.68750;
-
-  faultStick.push_back(faultPoint);
-
-  faultPoint (Interface::X_COORD) = 531319.00000;
-  faultPoint (Interface::Y_COORD) = 54877.00000;
-  faultPoint (Interface::Z_COORD) = 1460.93750;
-
-  faultStick.push_back(faultPoint);
-
-  faultPoint (Interface::X_COORD) = 531319.00000;
-  faultPoint (Interface::Y_COORD) = 54502.00000;
-  faultPoint (Interface::Z_COORD) = 1937.50000;
-
-  faultStick.push_back(faultPoint);
-  faultSticks.push_back(faultStick);
-  faultPlane.faultName = "Fault3_2";
-  faultPlane.fault = faultSticks;
-
-  faultPlanesExpected.push_back(faultPlane);
+  return Fault ("faultPlane0", line);
 }

@@ -25,19 +25,6 @@ FaultFileReader::~FaultFileReader () {
 
 //------------------------------------------------------------//
 
-
-const std::string& FaultFileReader::faultName ( const FaultDataSetIterator& Iter ) const {
-  return Iter->faultName;
-}
-
-//------------------------------------------------------------//
-
-const std::vector<PointSequence>&  FaultFileReader::fault ( const FaultDataSetIterator& Iter ) const {
-  return Iter->fault;
-}
-
-//------------------------------------------------------------//
-
 ASCIIFaultFileReader::ASCIIFaultFileReader () {
   m_isOpen = false;
 }

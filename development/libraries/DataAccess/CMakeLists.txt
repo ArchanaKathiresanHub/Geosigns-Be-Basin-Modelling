@@ -46,8 +46,25 @@ add_gtest( NAME DA::CharismaFaultFileReaderTest
   FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
+copy_test_file(Project.project3d)
 copy_test_file(FaultFileTest.charisma)
 copy_test_file(FaultEmptyFileTest.charisma)
+copy_test_file(FaultIntersect.charisma)
+copy_test_file(FaultNoIntersect.charisma)
+
+add_gtest( NAME DA::TriangleTest
+  SOURCES test/TriangleTest.C
+  INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
+  LIBRARIES ${LIB_NAME} SerialDataAccess
+  FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
+
+add_gtest( NAME DA::FaultPlaneTest
+  SOURCES test/FaultPlaneTest.C
+  INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
+  LIBRARIES ${LIB_NAME} SerialDataAccess
+  FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
 
 add_gtest( NAME DA::FaultFileReaderFactoryTest
   SOURCES test/FaultFileReaderFactoryTest.C
@@ -79,7 +96,6 @@ if ( MSVC )
 
    configure_file(test/Project.project3d  ${CMAKE_BINARY_DIR}/Project.project3d COPYONLY)
 endif (MSVC)
-
 
 
 #configure_file( test/FaultFileTest.charisma FaultFileTest.charisma COPYONLY )

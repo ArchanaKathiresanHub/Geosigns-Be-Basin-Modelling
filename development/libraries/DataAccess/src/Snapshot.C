@@ -141,16 +141,6 @@ bool DataAccess::Interface::operator> (const Snapshot & ss1, const Snapshot & ss
    return ss1.getTime () < ss2.getTime ();
 }
 
-bool DataAccess::Interface::operator<= (const Snapshot & ss1, const Snapshot & ss2)
-{
-   return !(ss1 > ss2);
-}
-
-bool DataAccess::Interface::operator>= (const Snapshot & ss1, const Snapshot & ss2)
-{
-   return !(ss1 < ss2);
-}
-
 bool SnapshotLessThan::operator ()( const Snapshot* ss1,
                                     const Snapshot* ss2 ) const {
    return ss1->getTime () < ss2->getTime ();

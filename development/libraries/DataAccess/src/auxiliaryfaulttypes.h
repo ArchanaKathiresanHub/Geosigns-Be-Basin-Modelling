@@ -26,7 +26,7 @@ namespace DataAccess
       enum DistanceUnit { METRE, FOOT };
 
 
-      void convertDistanceUnits ( const DistanceUnit From, 
+      void convertDistanceUnits ( const DistanceUnit From,
             const DistanceUnit To,
             double&      Value );
 
@@ -36,12 +36,16 @@ namespace DataAccess
       ///
       class Point
       {
+         private :
+            double m_values [ 3 ];
+
          public :
-            Point (void)
+            explicit Point () :
+              m_values{0.0, 0.0, 0.0}
             {
             }
 
-            virtual ~Point (void)
+            ~Point (void)
             {
             }
 
@@ -52,18 +56,28 @@ namespace DataAccess
                m_values[Z_COORD] = point.m_values[Z_COORD];
             }
 
-            virtual double  operator()( const CoordinateAxis axis ) const
+            Point(double x, double y, double z)
+            {
+              m_values[X_COORD] = x;
+              m_values[Y_COORD] = y;
+              m_values[Z_COORD] = z;
+            }
+
+            void operator = ( const Point& point )
+            {
+              m_values[X_COORD] = point.m_values[X_COORD];
+              m_values[Y_COORD] = point.m_values[Y_COORD];
+              m_values[Z_COORD] = point.m_values[Z_COORD];
+            }
+
+            double  operator()( const CoordinateAxis axis ) const
             {
                return m_values [ axis ];
             }
 
-            virtual double& operator()( const CoordinateAxis axis )  {
+            double& operator[]( const CoordinateAxis axis )  {
                return m_values [ axis ];
             }
-
-         private :
-            double m_values [ 3 ];
-
       };
 
       ///
@@ -73,13 +87,13 @@ namespace DataAccess
 
       ostream& operator<< ( ostream& o, const Point& P );
 
-      bool operator== ( const Point& P1, const Point& P2 );
+      bool operator == ( const Point& P1, const Point& P2 );
 
-      bool operator!= ( const Point& P1, const Point& P2 );
+      bool operator != ( const Point& P1, const Point& P2 );
 
-      Point operator-( const Point& P1, const Point& P2 );
+      Point operator - ( const Point& P1, const Point& P2 );
 
-      Point operator+( const Point& P1, const Point& P2 );
+      Point operator + ( const Point& P1, const Point& P2 );
 
       Point operator * ( const double X, const Point& P1 );
 
@@ -90,7 +104,6 @@ namespace DataAccess
       typedef std::vector<Point> PointSequence;
 
       typedef const PointSequence& PointSequenceConstRef;
-
 
       ///
       /// The indices of an element.

@@ -836,9 +836,8 @@ namespace DataAccess
          bool loadFracturePressureFunctionParameters( void );
          bool loadDiffusionLeakageParameters( void );
 
-         bool loadFaultCollections( void );
-         bool connectFaultCollections( void );
-         bool loadFaultEvents( void );
+         bool connectFaultCollections( FaultCollection* faultCollection ) const;
+         bool loadFaultEvents( FaultCollection* faultCollection ) const;
 
          bool loadFluidTypes();
 
