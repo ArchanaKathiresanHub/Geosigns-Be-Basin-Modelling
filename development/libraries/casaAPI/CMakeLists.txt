@@ -33,6 +33,7 @@ create_bm_library( TARGET ${LIB_NAME}
                              FileSystem
                              utilities
                              SUMlib
+                             modelpseudo1dlib
                              NNlib
                              ${Boost_LIBRARIES} )
 

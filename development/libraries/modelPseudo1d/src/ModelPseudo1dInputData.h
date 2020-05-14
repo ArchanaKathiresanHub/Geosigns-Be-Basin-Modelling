@@ -10,26 +10,38 @@
 
 #pragma once
 
+
 #include <string>
+
+namespace mbapi
+{
+class Model;
+} // namespace mbapi
+
 
 namespace modelPseudo1d
 {
 
 struct ModelPseudo1dInputData
 { 
+  mbapi::Model & m_mdl;
   double xCoord;
   double yCoord;
   std::string projectFilename;
   std::string outProjectFilename;
 
-  ModelPseudo1dInputData(const double xCoord = 0.0,
+  ModelPseudo1dInputData(mbapi::Model& mdl,
+                         const double xCoord = 0.0,
                          const double yCoord = 0.0,
                          const std::string & projectFilename = "",
-                         const std::string & outProjectFilename = "") :
+                         const std::string & outProjectFilename = ""
+                         ) :
+    m_mdl{mdl},
     xCoord{xCoord},
     yCoord{yCoord},
     projectFilename{projectFilename},
     outProjectFilename{outProjectFilename}
+
   {
   }
 };

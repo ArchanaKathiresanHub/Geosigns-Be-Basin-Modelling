@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "cmbAPI.h"
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -48,7 +50,7 @@ public:
   unsigned int indI() const;
   unsigned int indJ() const;
 
-  std::shared_ptr<mbapi::Model> mdl() const;
+  //mbapi::Model& mdl() const;
 
   ConstIteratorReferredTableSet referredTableConstIteratorBegin() const;
   ConstIteratorReferredTableSet referredTableConstIteratorend() const;
@@ -68,7 +70,7 @@ private:
 
   DataAccess::Mining::ObjectFactory * m_objectFactory;
   DataAccess::Mining::ProjectHandle * m_projectHandle;
-  std::shared_ptr<mbapi::Model> m_mdl;
+  mbapi::Model& m_mdl;
   UnorderedStringSet m_referredTablesSet;
   ConstIteratorReferredTableSet m_referredTableConstIterator;
 };

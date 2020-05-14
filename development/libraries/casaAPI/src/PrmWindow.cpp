@@ -15,6 +15,10 @@
 #include "PrmWindow.h"
 #include "VarParameter.h"
 
+// ModelPseudo1d
+#include "ModelPseudo1d.h"
+#include "ModelPseudo1dInputData.h"
+
 // CMB API
 #include "cmbAPI.h"
 
@@ -26,6 +30,9 @@
 #include <cassert>
 #include <cmath>
 #include <sstream>
+
+
+//class modelPseudo1d;
 
 namespace casa
 {
@@ -58,12 +65,28 @@ PrmWindow::PrmWindow(const int xMin, const int xMax, const int yMin, const int y
                     {}
 
 // Set this parameter value in Cauldron model
-ErrorHandler::ReturnCode PrmWindow::setInModel( mbapi::Model & caldModel, size_t /*caseID*/ )
+ErrorHandler::ReturnCode PrmWindow::setInModel( mbapi::Model & caldModel, size_t /*caseID*/ )//_TODO: change here.
 {
    try
    {
       int scX = caldModel.tableValueAsInteger( s_projectIoTblName, 0, s_ScaleX );
       int scY = caldModel.tableValueAsInteger( s_projectIoTblName, 0, s_ScaleY );
+//_> Faraz Library here
+
+      std::cout << "SetInModel ... " << std::endl;
+
+      modelPseudo1d::ModelPseudo1dInputData inputData(caldModel);
+      inputData.projectFilename = "Project.project3d";
+      inputData.outProjectFilename = "out.Project3d";
+      inputData.xCoord = m_xCoordObservable;
+      inputData.yCoord = m_yCoordObservable;
+
+      modelPseudo1d::ModelPseudo1d mdlPseudo1d (inputData);
+
+      mdlPseudo1d.initialize();
+      mdlPseudo1d.extractScalarsFromInputMaps();
+      mdlPseudo1d.setScalarsInModel();
+      mdlPseudo1d.finalize();
 
       bool ok = true;
       ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_WindowXMinCol, (long) m_xMin) : ok;

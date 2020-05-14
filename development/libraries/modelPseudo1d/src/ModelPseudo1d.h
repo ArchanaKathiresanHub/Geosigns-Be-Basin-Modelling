@@ -36,7 +36,7 @@ class ModelPseudo1d
   typedef std::unordered_map<std::string, std::vector<PairModelPseudo1dTableProperty>> TablePropertyMapList;
   typedef std::unordered_map<std::string, mbapi::MapsManager::MapID> MapIDsHashTable;
 public:
-  explicit ModelPseudo1d(const ModelPseudo1dInputData & inputData);
+  explicit ModelPseudo1d( modelPseudo1d::ModelPseudo1dInputData& inputData );
 
   void initialize();
   void extractScalarsFromInputMaps();
@@ -47,7 +47,7 @@ private:
   double extractScalarFromInputMaps(const ModelPseudo1dTableProperty & tableProperty, const std::string & tableName, const int row, const MapIDsHashTable & mapNameIDs);
 
   ModelPseudo1dProjectManager m_projectMgr;
-  std::shared_ptr<mbapi::Model> m_mdl;
+  mbapi::Model& m_mdl;
   std::vector<TablePropertyMapList> m_tablePropertyMapsLists;
 
   std::string m_outProjectFileName;

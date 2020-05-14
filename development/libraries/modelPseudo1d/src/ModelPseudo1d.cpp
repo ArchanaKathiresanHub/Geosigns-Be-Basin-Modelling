@@ -24,13 +24,13 @@
 namespace modelPseudo1d
 {
 
-ModelPseudo1d::ModelPseudo1d(const ModelPseudo1dInputData & inputData) :
+ModelPseudo1d::ModelPseudo1d( modelPseudo1d::ModelPseudo1dInputData& inputData ) :
   m_projectMgr{inputData},
-  m_mdl{nullptr},
+  m_mdl{inputData.m_mdl},
   m_tablePropertyMapsLists{},
   m_outProjectFileName{inputData.outProjectFilename}
 {
-  m_mdl = m_projectMgr.mdl();
+  //m_mdl = inputData.m_mdl;
 }
 
 void ModelPseudo1d::initialize()
@@ -45,8 +45,8 @@ void ModelPseudo1d::initialize()
 
 double ModelPseudo1d::extractScalarFromInputMaps(const ModelPseudo1dTableProperty & tableDefaultProperty, const std::string & tableName, const int row, const MapIDsHashTable& mapNameIDs)
 {                                           
-  mbapi::MapsManager & mapsMgr = m_mdl->mapsManager();
-  mbapi::PropertyManager & propMgr = m_mdl->propertyManager();
+  mbapi::MapsManager & mapsMgr = m_mdl.mapsManager();
+  mbapi::PropertyManager & propMgr = m_mdl.propertyManager();
 
   if (ErrorHandler::NoError != propMgr.requestPropertyInSnapshots(tableDefaultProperty.name))
   {
@@ -54,7 +54,7 @@ double ModelPseudo1d::extractScalarFromInputMaps(const ModelPseudo1dTablePropert
     return DataAccess::Interface::DefaultUndefinedScalarValue;
   }
 
-  const std::string & myMapName = m_mdl->tableValueAsString(tableName, row, tableDefaultProperty.nameGridMap);
+  const std::string & myMapName = m_mdl.tableValueAsString(tableName, row, tableDefaultProperty.nameGridMap);
   if (myMapName.empty())
   {
     return DataAccess::Interface::DefaultUndefinedScalarValue;
@@ -65,7 +65,7 @@ double ModelPseudo1d::extractScalarFromInputMaps(const ModelPseudo1dTablePropert
 
 void ModelPseudo1d::extractScalarsFromInputMaps()
 {
-  mbapi::MapsManager & mapsMgr = m_mdl->mapsManager();
+  mbapi::MapsManager & mapsMgr = m_mdl.mapsManager();
   const MapIDsHashTable & mapNameIDs = mapsMgr.mapNameIDs();
 
   ModelPseudo1dProjectManager::ConstIteratorReferredTableSet tableNameIterator = m_projectMgr.referredTableConstIteratorBegin();
@@ -79,7 +79,7 @@ void ModelPseudo1d::extractScalarsFromInputMaps()
       continue;
     }
 
-    const int tableSize = m_mdl->tableSize(*tableNameIterator);
+    const int tableSize = m_mdl.tableSize(*tableNameIterator);
     TablePropertyMapList tablePropertyValuesMap;
     for (const ModelPseudo1dTableProperty & tableDefaultProperty : tableDefaultProperties)
     {
@@ -116,18 +116,18 @@ void ModelPseudo1d::setScalarsInModel()
       for (const PairModelPseudo1dTableProperty & tablePropertyPair : tablePropertyIterator->second)
       {
         const ModelPseudo1dTableProperty & tableProperty = tablePropertyPair.second;
-        if (ErrorHandler::NoError != m_mdl->setTableValue(tablePropertyIterator->first, tablePropertyPair.first, tableProperty.name, tableProperty.value))
+        if (ErrorHandler::NoError != m_mdl.setTableValue(tablePropertyIterator->first, tablePropertyPair.first, tableProperty.name, tableProperty.value))
         {
-          throw ErrorHandler::Exception(m_mdl->errorCode())
+          throw ErrorHandler::Exception(m_mdl.errorCode())
               << "Table " << tablePropertyIterator->first << " was not updated at row " << tablePropertyPair.first
-              << " for table property " << tableProperty.name << " with scalar value " << tableProperty.value << ", " << m_mdl->errorMessage();
+              << " for table property " << tableProperty.name << " with scalar value " << tableProperty.value << ", " << m_mdl.errorMessage();
         }
 
-        if (ErrorHandler::NoError != m_mdl->setTableValue(tablePropertyIterator->first, tablePropertyPair.first, tableProperty.nameGridMap, ""))
+        if (ErrorHandler::NoError != m_mdl.setTableValue(tablePropertyIterator->first, tablePropertyPair.first, tableProperty.nameGridMap, ""))
         {
-          throw ErrorHandler::Exception(m_mdl->errorCode())
+          throw ErrorHandler::Exception(m_mdl.errorCode())
               << "Failed at removing map name in table " << tablePropertyIterator->first << " at row " << tablePropertyPair.first
-              << " for table property " << tableProperty.name << ", " << m_mdl->errorMessage();
+              << " for table property " << tableProperty.name << ", " << m_mdl.errorMessage();
         }
       }
     }
@@ -137,11 +137,11 @@ void ModelPseudo1d::setScalarsInModel()
 
 void ModelPseudo1d::finalize()
 {
-  LogHandler(LogHandler::INFO_SEVERITY) << "Finalizing and saving to output file ...";
+//  LogHandler(LogHandler::INFO_SEVERITY) << "Finalizing and saving to output file ...";
   m_projectMgr.setSingleCellWindowXY();
-  m_mdl->saveModelToProjectFile(m_outProjectFileName.c_str());
-  LogHandler(LogHandler::INFO_SEVERITY) << "ModelPseudo1d was successfully saved to output project file: "
-                                        << m_outProjectFileName;
+//  m_mdl.saveModelToProjectFile(m_outProjectFileName.c_str());
+//  LogHandler(LogHandler::INFO_SEVERITY) << "ModelPseudo1d was successfully saved to output project file: "
+//                                        << m_outProjectFileName;
 }
 
 } // namespace modelPseudo1d
