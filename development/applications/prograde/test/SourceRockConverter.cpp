@@ -36,18 +36,24 @@ std::vector<std::string>bpaBaseSourceRockNameWithSulphur{
 TEST(SourceRockConverter, HcVre05)
 {	
 	std::vector<double>measuredHcVre05{ 1.45, 1.35, 1.25, 1.25, 1.2, 1.03, 0.801 };
+	std::vector<double>measuredHI{ 747, 656, 471, 471, 361, 210, 94 };
 	std::vector<double>measuredHcVre05s{ 1.56, 1.35, 1.24, 1.24, 1.13, 1.03, 1.35 };
-
+	std::vector<double>measuredHIs{ 823, 656, 444, 444, 281, 210, 656 };
+	double minHI = 9999.0; 
+	double maxHI = -9999.0;
+	double hcVre05;
 	for (size_t i = 0; i < bpaBaseSourceRockNameWithoutSulphur.size(); ++i)
-	{
-		double hcVre05 = sourceRockConverter.upgradeHcVre05("Type_II_Mesozoic_Marl_kin", bpaBaseSourceRockNameWithoutSulphur[i], 1.1, 0.0);
-		EXPECT_EQ(hcVre05, measuredHcVre05[i]);
+	{		
+		hcVre05 = sourceRockConverter.upgradeHcVre05("Type_II_Mesozoic_Marl_kin", bpaBaseSourceRockNameWithoutSulphur[i], 1.1, 0.0, minHI, maxHI);
+		EXPECT_EQ(hcVre05, measuredHcVre05[i]);		
 	}
 	for (size_t i = 0; i < bpaBaseSourceRockNameWithSulphur.size(); ++i)
 	{
-		double hcVre05 = sourceRockConverter.upgradeHcVre05("Type_II_Mesozoic_Marl_kin", bpaBaseSourceRockNameWithSulphur[i], 1.1, 0.2);
-		EXPECT_EQ(hcVre05, measuredHcVre05s[i]);
+		hcVre05 = sourceRockConverter.upgradeHcVre05("Type_II_Mesozoic_Marl_kin", bpaBaseSourceRockNameWithSulphur[i], 1.1, 0.2, minHI, maxHI);
+		EXPECT_EQ(hcVre05, measuredHcVre05s[i]);		
 	}
+	EXPECT_EQ(minHI, 94);
+	EXPECT_EQ(maxHI, 823);
 }
 
 TEST(SourceRockConverter, ScVre05)
@@ -112,25 +118,52 @@ TEST(SourceRockConverter, upgradeSourceRockName)
 		"Type II - Sulfur - Paleozoic Marine Shale (Kinetics)" ,
 		"Type II/III - Sulfur - Mesozoic Terrestrial Humic Coal (Literature)" ,
 		"Type I/II - Sulfur - Cenozoic Marine Marl (Literature)" };
-
+	bool litFlag = 0;
 	for (size_t i = 0; i < bpaBaseSourceRockNameWithoutSulphur.size(); ++i)
 	{
 		std::string SourceRockType;
 		std::string bpa2SourceRockType;
 		std::string bpa2BaseSourceRockType;
-		sourceRockConverter.upgradeSourceRockName(SourceRockType, bpaBaseSourceRockNameWithoutSulphur[i], 0.0, bpa2SourceRockType, bpa2BaseSourceRockType);
+		sourceRockConverter.upgradeSourceRockName(SourceRockType, bpaBaseSourceRockNameWithoutSulphur[i], 0.0, 
+			bpa2SourceRockType, bpa2BaseSourceRockType, litFlag);
 		EXPECT_EQ(bpa2SourceRockType, bpa2SourceRockNameWithoutSulphur[i]);
-		EXPECT_EQ(bpa2BaseSourceRockType, bpa2BaseSourceRockNameWithoutSulphur[i]);
+		EXPECT_EQ(bpa2BaseSourceRockType, bpa2BaseSourceRockNameWithoutSulphur[i]);						
 	}
 	for (size_t i = 0; i < bpaBaseSourceRockNameWithSulphur.size(); ++i)
 	{
 		std::string SourceRockType;
 		std::string bpa2SourceRockType;
 		std::string bpa2BaseSourceRockType;
-		sourceRockConverter.upgradeSourceRockName(SourceRockType, bpaBaseSourceRockNameWithSulphur[i], 1.2, bpa2SourceRockType, bpa2BaseSourceRockType);
+		sourceRockConverter.upgradeSourceRockName(SourceRockType, bpaBaseSourceRockNameWithSulphur[i], 1.2, 
+			bpa2SourceRockType, bpa2BaseSourceRockType, litFlag);
 		EXPECT_EQ(bpa2SourceRockType, bpa2SourceRockNameWithSulphur[i]);
 		EXPECT_EQ(bpa2BaseSourceRockType, bpa2BaseSourceRockNameWithSulphur[i]);
 	}
+}
+
+TEST(SourceRockConverter, testLitSourceRockName)
+{
+	const std::string BSrWithoutSulfur = "Type_I_II_Mesozoic_MarineShale_lit";
+	std::string SourceRockType;
+	std::string bpa2SourceRockType;
+	std::string bpa2BaseSourceRockType;
+	bool litFlag = 0;
+	sourceRockConverter.upgradeSourceRockName(SourceRockType, BSrWithoutSulfur, 0.0,
+		bpa2SourceRockType, bpa2BaseSourceRockType, litFlag);
+	
+	EXPECT_EQ(litFlag, 1);
+	litFlag = 0;
+	
+	std::string BSrWithSulfur = "Type_III_II_Mesozoic_HumicCoal_lit_s";
+	sourceRockConverter.upgradeSourceRockName(SourceRockType, BSrWithSulfur, 1.2,
+		bpa2SourceRockType, bpa2BaseSourceRockType, litFlag);
+	EXPECT_EQ(litFlag, 1);
+	litFlag = 0;
+
+	BSrWithSulfur = "Type_III_II_Mesozoic_HumicCoal_lit";
+	sourceRockConverter.upgradeSourceRockName(SourceRockType, BSrWithSulfur, 1.2,
+		bpa2SourceRockType, bpa2BaseSourceRockType, litFlag);
+	EXPECT_EQ(litFlag, 1);
 }
 
 TEST(SourceRockConverter, upgradeDiffusionEnergy)
@@ -153,6 +186,7 @@ TEST(SourceRockConverter, upgradeDiffusionEnergy)
 		double bpaResinDE = 10;
 		double bpaC15AroDE = 10;
 		double bpaC15SatDE = 10;
+		//std::cerr << "[          ] random seed = " << bpaBaseSourceRockNameWithSulphur[i] << std::endl;
 		sourceRockConverter.upgradeDiffusionEnergy(bpaBaseSourceRockNameWithoutSulphur[i], 0.0, bpaAsphalteneDE, bpaResinDE, bpaC15AroDE, bpaC15SatDE);
 		EXPECT_EQ(bpaAsphalteneDE, asphalteneDE[i]);
 		EXPECT_EQ(bpaResinDE, resinDE[i]);
@@ -175,6 +209,7 @@ TEST(SourceRockConverter, upgradeDiffusionEnergy)
 		double bpaResinDEs = 10;
 		double bpaC15AroDEs = 10;
 		double bpaC15SatDEs = 10;
+		//std::cerr << "[          ] random seed = " << bpaBaseSourceRockNameWithSulphur[i] << std::endl;
 		sourceRockConverter.upgradeDiffusionEnergy(bpaBaseSourceRockNameWithSulphur[i], 1.2, bpaAsphalteneDEs, bpaResinDEs, bpaC15AroDEs, bpaC15SatDEs);
 		EXPECT_EQ(bpaAsphalteneDEs, asphalteneDEs[i]);
 		EXPECT_EQ(bpaResinDEs, resinDEs[i]);

@@ -532,11 +532,11 @@ std::vector<std::string> StratigraphyManagerImpl::sourceRockTypeName( LayerID li
          srtNames.push_back( rec->getValue<std::string>( s_sourceRockType1FieldName ) );
 
          // check if mixing is enabled
-         int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixingFieldName );
-         if ( 1 == isMixingEnabled )
-         {
+        int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixingFieldName );
+        if ( 1 == isMixingEnabled )
+        {
             srtNames.push_back( rec->getValue<std::string>( s_sourceRockType2FieldName ) );
-         }
+        }
       }
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
