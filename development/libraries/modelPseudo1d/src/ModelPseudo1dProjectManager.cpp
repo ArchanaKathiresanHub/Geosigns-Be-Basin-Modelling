@@ -36,8 +36,7 @@ ModelPseudo1dProjectManager::ModelPseudo1dProjectManager(const std::string proje
   m_outProjectFileName{outProjectFileName},
   m_objectFactory{nullptr},
   m_projectHandle{nullptr},
-  m_mdl{nullptr},
-  m_referredTablesSet{}
+  m_mdl{nullptr}
 {
   try
   {
@@ -77,7 +76,7 @@ ModelPseudo1dProjectManager::~ModelPseudo1dProjectManager()
 
 void ModelPseudo1dProjectManager::setModel()
 {
-  //m_mdl->reset(new mbapi::Model);
+  m_mdl.reset(new mbapi::Model);
   if (ErrorHandler::NoError != m_mdl->loadModelFromProjectFile(m_projectFileName.c_str()))
   {
     throw ErrorHandler::Exception(m_mdl->errorCode())

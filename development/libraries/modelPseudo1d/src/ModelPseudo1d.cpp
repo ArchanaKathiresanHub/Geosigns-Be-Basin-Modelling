@@ -21,11 +21,6 @@
 #include <unordered_map>
 #include <vector>
 
-//delete below:
-#include <fstream>
-#include <string>
-#include <iostream>
-
 namespace modelPseudo1d
 {
 

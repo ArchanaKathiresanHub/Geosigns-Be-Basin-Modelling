@@ -31,14 +31,6 @@
 #include <cmath>
 #include <sstream>
 
-//delete below:
-#include <fstream>
-#include <string>
-#include <iostream>
-
-
-//class modelPseudo1d;
-
 namespace casa
 {
 
@@ -72,45 +64,15 @@ PrmWindow::PrmWindow(const int xMin, const int xMax, const int yMin, const int y
 // Set this parameter value in Cauldron model
 ErrorHandler::ReturnCode PrmWindow::setInModel( mbapi::Model & caldModel, size_t /*caseID*/ )//_TODO: change here.
 {
-  bool tryNewImplementation = true;
-
   try
   {
-    if ( tryNewImplementation )
-    {
-      std::cout << "SetInModel ... " << std::endl;
+    modelPseudo1d::ModelPseudo1d mdlPseudo1d (caldModel, m_xCoordObservable, m_yCoordObservable);
 
-      modelPseudo1d::ModelPseudo1d mdlPseudo1d (caldModel, m_xCoordObservable, m_yCoordObservable);
+    mdlPseudo1d.initialize();
+    mdlPseudo1d.extractScalarsFromInputMaps();
+    mdlPseudo1d.setScalarsInModel();
+    mdlPseudo1d.setSingleCellWindowXY();
 
-      mdlPseudo1d.initialize();
-      mdlPseudo1d.extractScalarsFromInputMaps();
-      mdlPseudo1d.setScalarsInModel();  // m_mdl.setTableValue inside setScalarsInModel
-      mdlPseudo1d.setSingleCellWindowXY();
-
-    }
-    else
-    {
-      int scX = caldModel.tableValueAsInteger( s_projectIoTblName, 0, s_ScaleX );
-      int scY = caldModel.tableValueAsInteger( s_projectIoTblName, 0, s_ScaleY );
-
-      bool ok = true;
-      ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_WindowXMinCol, (long) m_xMin) : ok;
-      ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_WindowXMaxCol, (long) m_xMax) : ok;
-      ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_WindowYMinCol, (long) m_yMin) : ok;
-      ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_WindowYMaxCol, (long) m_yMax) : ok;
-
-      if ( (m_xMax - m_xMin) / scX  < 1 || (m_xMax - m_xMin) % scX != 0 )
-      {
-        ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_ScaleX, 1L ) : ok;
-      }
-
-      if ( (m_yMax - m_yMin) / scY  < 1 || (m_yMax - m_yMin) % scY != 0 )
-      {
-        ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_projectIoTblName, 0, s_ScaleY, 1L ) : ok;
-      }
-
-      if ( !ok ) { throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage(); }
-    }
   }
   catch( const ErrorHandler::Exception & ex ) { return caldModel.reportError( ex.errorCode(), ex.what() ); }
 
@@ -139,30 +101,6 @@ std::string PrmWindow::validate( mbapi::Model & caldModel )
     int mdlVal = caldModel.tableValueAsInteger( s_projectIoTblName, 0, colNames[i] );
     if ( ErrorHandler::NoError != caldModel.errorCode() ) { oss << caldModel.errorMessage() << std::endl; return oss.str(); }
     if ( mdlVal != prms[i] ) { oss << colNames[i] << " in the model (" << mdlVal << ") is differ from a parameter value (" << prms[i] << ")\n"; }
-
-    // TEST PARAMETERS
-
-    std::cout << "\n\n ParametersValues in the model (" << mdlVal << ") are: \n" << std::endl;
-
-    std::cout << "m_xMin: " << std::to_string(m_xMin)<< std::endl;
-    std::cout << "m_xMax: " << std::to_string(m_xMax)<< std::endl;
-    std::cout << "m_yMin: " << std::to_string(m_yMin)<< std::endl;
-    std::cout << "m_yMax: " << std::to_string(m_yMax)<< std::endl;
-    std::cout << "m_xCoordObservable: " << std::to_string(m_xCoordObservable)<< std::endl;
-    std::cout << "m_yCoordObservable: " << std::to_string(m_yCoordObservable)<< std::endl;
-    std::cout << "\n\n"<< std::endl;
-
-
-    std::ofstream out("/scratch/testParameters.txt", std::ios_base::app);
-    out << "\n\n ParametersValues in the model (" << mdlVal << ") are: \n" << std:: endl;
-    out << std::to_string(m_xMin) << std:: endl;
-    out << std::to_string(m_xMax) << std:: endl;
-    out << std::to_string(m_yMin) << std:: endl;
-    out << std::to_string(m_yMax) << std:: endl;
-    out << std::to_string(m_xCoordObservable) << std:: endl;
-    out << std::to_string(m_yCoordObservable) << std:: endl;
-    out.close();
-
   }
   return oss.str();
 }
@@ -198,7 +136,6 @@ bool PrmWindow::operator == ( const Parameter & prm ) const
 
   return true;
 }
-
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
 bool PrmWindow::save( CasaSerializer & sz ) const

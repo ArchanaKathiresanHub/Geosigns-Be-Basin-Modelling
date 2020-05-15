@@ -33,14 +33,9 @@ class Model;
 namespace modelPseudo1d
 {
 
-struct ModelPseudo1dInputData;
-
 class ModelPseudo1dProjectManager
 {
-  typedef std::unordered_set<std::string> UnorderedStringSet;
 public:
-  typedef UnorderedStringSet::const_iterator ConstIteratorReferredTableSet;
-
   explicit ModelPseudo1dProjectManager(const std::string projectFileName, const std::string outProjectFileName );
   ~ModelPseudo1dProjectManager();
 
@@ -58,8 +53,6 @@ private:
   DataAccess::Mining::ObjectFactory * m_objectFactory;
   DataAccess::Mining::ProjectHandle * m_projectHandle;
   std::shared_ptr<mbapi::Model> m_mdl;
-  UnorderedStringSet m_referredTablesSet;
-  ConstIteratorReferredTableSet m_referredTableConstIterator;
 };
 
 } // namespace modelPseudo1d
