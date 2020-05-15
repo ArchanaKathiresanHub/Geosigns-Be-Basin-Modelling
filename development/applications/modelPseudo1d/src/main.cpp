@@ -47,11 +47,11 @@ int main(int argc, char** argv)
 //      throw modelPseudo1d::ModelPseudo1dException() << ioErrorMessage;
 //    }
 
-//    modelPseudo1d::ModelPseudo1d mdlPseudo1d(std::move(inputDataMgr.inputData()));
+//    modelPseudo1d::ModelPseudo1d mdlPseudo1d(inputDataMgr.inputData().m_mdl, inputDataMgr.inputData().xCoord, inputDataMgr.inputData().yCoord);
 //    mdlPseudo1d.initialize();
 //    mdlPseudo1d.extractScalarsFromInputMaps();
 //    mdlPseudo1d.setScalarsInModel();
-//    mdlPseudo1d.finalize();
+//    mdlPseudo1d.setSingleCellWindowXY();
 //  }
 //  catch (const ErrorHandler::Exception & ex)
 //  {

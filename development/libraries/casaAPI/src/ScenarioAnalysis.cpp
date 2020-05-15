@@ -730,7 +730,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
       int    minI, maxI, minJ, maxJ;
       double centreX, centreY;
 
-      if ( NoError != mdl.windowSize( (*it)->xCoords().front(), (*it)->yCoords().front(), minI, maxI, minJ, maxJ, centreX, centreY ) ) //_TODO
+      if ( NoError != mdl.windowSize( (*it)->xCoords().front(), (*it)->yCoords().front(), minI, maxI, minJ, maxJ, centreX, centreY ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Setting window around well: " << (*it)->xCoords().front() << " "
                                                                                                   << (*it)->yCoords().front() << " "
@@ -741,7 +741,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
       std::shared_ptr<RunCase> newCase( new casa::RunCaseImpl() );
 
       //  the new window
-      SharedParameterPtr window( new casa::PrmWindow( minI, maxI, minJ, maxJ, (*it)->xCoords().front(), (*it)->yCoords().front() ) );//_TODO
+      SharedParameterPtr window( new casa::PrmWindow( minI, maxI, minJ, maxJ, (*it)->xCoords().front(), (*it)->yCoords().front() ) );
       newCase->addParameter( window );
 
       // the well coordinates ( for interpolation)
