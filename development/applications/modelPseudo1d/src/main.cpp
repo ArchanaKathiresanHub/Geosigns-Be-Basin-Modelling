@@ -55,6 +55,8 @@ int main(int argc, char** argv)
     mdlPseudo1d.extractScalarsFromInputMaps();
     mdlPseudo1d.setScalarsInModel();
     mdlPseudo1d.setSingleCellWindowXY();
+
+    mdlPseudo1dPrjctManager.save();
   }
   catch (const ErrorHandler::Exception & ex)
   {
