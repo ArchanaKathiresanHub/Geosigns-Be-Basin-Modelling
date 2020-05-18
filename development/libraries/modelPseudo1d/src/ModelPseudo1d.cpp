@@ -60,7 +60,7 @@ void ModelPseudo1d::checkSubSampling()
   }
 
   LogHandler(LogHandler::WARNING_SEVERITY) << "\n The model is subsampled! Subsampling values will be reset to 1.0. \n";
-  if (ErrorHandler::NoError != m_mdl.setSubsampling((long)1, (long)1))
+  if (ErrorHandler::NoError != m_mdl.setSubsampling( 1, 1 ))
   {
     throw  ErrorHandler::Exception(m_mdl.errorCode()) << "Resetting of the subsampling was not successful, " << m_mdl.errorMessage();
   }
@@ -86,8 +86,6 @@ void ModelPseudo1d::getXYIndices()
 
   m_indI = minI;
   m_indJ = minJ;
-
-  return;
 }
 
 void ModelPseudo1d::setReferredTablesSet()
@@ -196,5 +194,15 @@ void ModelPseudo1d::setSingleCellWindowXY()
     throw ErrorHandler::Exception(m_mdl.errorCode())
         << "Windowing around the specified location failed, " << m_mdl.errorMessage();
   }
+}
+
+unsigned int ModelPseudo1d::indI() const
+{
+  return m_indI;
+}
+
+unsigned int ModelPseudo1d::indJ() const
+{
+  return m_indJ;
 }
 } // namespace modelPseudo1d

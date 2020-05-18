@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include "cmbAPI.h"
-
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -36,12 +34,12 @@ namespace modelPseudo1d
 class ModelPseudo1dProjectManager
 {
 public:
-  explicit ModelPseudo1dProjectManager(const std::string projectFileName, const std::string outProjectFileName );
+  explicit ModelPseudo1dProjectManager(const std::string& projectFileName, const std::string& outProjectFileName );
   ~ModelPseudo1dProjectManager();
 
   void save() const;
 
-  std::shared_ptr<mbapi::Model> mdl() const;
+  mbapi::Model& mdl() const;
 
 private:
   void cleanup();

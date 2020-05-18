@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "cmbAPI.h"
+
 #include "ModelPseudo1dProjectManager.h"
 #include "ModelPseudo1dTableProperty.h"
 
@@ -42,6 +44,9 @@ public:
   void extractScalarsFromInputMaps();
   void setScalarsInModel();
   void setSingleCellWindowXY();
+
+  unsigned int indI() const;
+  unsigned int indJ() const;
 
 private:
   double extractScalarFromInputMaps(const ModelPseudo1dTableProperty & tableProperty, const std::string & tableName, const int row, const MapIDsHashTable & mapNameIDs);

@@ -13,7 +13,7 @@ TEST(TestModelPseudo1dProjectManager, TestObjectInstantiation)
 
 TEST(TestModelPseudo1dProjectManager, TestOutputCreation)
 {
-  ifstream ifile;
+  std::ifstream ifile;
   ifile.open("out.project3d");
   if(ifile)
   {

@@ -31,7 +31,7 @@
 namespace modelPseudo1d
 {
 
-ModelPseudo1dProjectManager::ModelPseudo1dProjectManager(const std::string projectFileName, const std::string outProjectFileName ):
+ModelPseudo1dProjectManager::ModelPseudo1dProjectManager(const std::string& projectFileName, const std::string& outProjectFileName ):
   m_projectFileName{projectFileName},
   m_outProjectFileName{outProjectFileName},
   m_objectFactory{nullptr},
@@ -85,16 +85,16 @@ void ModelPseudo1dProjectManager::setModel()
   }
 }
 
-std::shared_ptr<mbapi::Model> ModelPseudo1dProjectManager::mdl() const
+mbapi::Model& ModelPseudo1dProjectManager::mdl() const
 {
-  return m_mdl;
+  return *m_mdl;
 }
 
 void ModelPseudo1dProjectManager::save() const
  {
   LogHandler(LogHandler::INFO_SEVERITY) << "Saving to output file ...";
 
-  m_mdl->saveModelToProjectFile(m_outProjectFileName.c_str());
+  m_mdl->saveModelToProjectFile(m_outProjectFileName);
   LogHandler(LogHandler::INFO_SEVERITY) << "ModelPseudo1d was successfully saved to output project file: "
                                         << m_outProjectFileName;
 }
