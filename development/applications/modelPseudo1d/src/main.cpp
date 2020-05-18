@@ -48,20 +48,18 @@ int main(int argc, char** argv)
       throw modelPseudo1d::ModelPseudo1dException() << ioErrorMessage;
     }
 
-    const std::string projectFileName = inputDataMgr.inputData().projectFilename;
-    const std::string outProjectFileName = inputDataMgr.inputData().outProjectFilename;
-    const double xCoord = inputDataMgr.inputData().xCoord;
-    const double yCoord = inputDataMgr.inputData().yCoord;
+    const modelPseudo1d::ModelPseudo1dInputData& inputData = inputDataMgr.inputData();
 
-    modelPseudo1d::ModelPseudo1dProjectManager mdlPseudo1dPrjctManager(projectFileName, outProjectFileName);
+    modelPseudo1d::ModelPseudo1dProjectManager mdlPseudo1dPrjctManager(inputData.projectFilename, inputData.outProjectFilename);
 
-    modelPseudo1d::ModelPseudo1d mdlPseudo1d(mdlPseudo1dPrjctManager.mdl(), xCoord, yCoord);
+    modelPseudo1d::ModelPseudo1d mdlPseudo1d(mdlPseudo1dPrjctManager.mdl(), inputData.xCoord, inputData.yCoord);
+
     mdlPseudo1d.initialize();
     mdlPseudo1d.extractScalarsFromInputMaps();
     mdlPseudo1d.setScalarsInModel();
     mdlPseudo1d.setSingleCellWindowXY();
-
     mdlPseudo1dPrjctManager.save();
+
   }
   catch (const ErrorHandler::Exception & ex)
   {
