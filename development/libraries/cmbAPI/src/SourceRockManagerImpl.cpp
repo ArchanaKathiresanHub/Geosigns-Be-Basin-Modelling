@@ -226,6 +226,34 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setSourceRockType(const SourceRo
 	return NoError;
 }
 
+ErrorHandler::ReturnCode SourceRockManagerImpl::deleteSourceRockRecord(SourceRockID id, database::Table::iterator& newIt)
+{
+	if (errorCode() != NoError) resetError();
+
+	try
+	{
+		// get pointer to the table
+		database::Table* table = m_db->getTable(s_sourceRockTableName);
+
+		// if table does not exist - report error
+		if (!table)
+		{
+			throw Exception(NonexistingID) << s_sourceRockTableName << " table could not be found in project";
+		}
+
+		database::Record* rec = table->getRecord(static_cast<int>(id));
+		if (!rec)
+		{
+			throw Exception(NonexistingID) << "No source rock lithology with such ID: " << id;
+		}
+		auto it = table->findRecordPosition(rec);
+		newIt = table->removeRecord(it);
+	}
+	catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+
+	return NoError;
+}
+
 // Get base source rock type name for source rock lithology
 std::string SourceRockManagerImpl::baseSourceRockType(SourceRockID id)
 {

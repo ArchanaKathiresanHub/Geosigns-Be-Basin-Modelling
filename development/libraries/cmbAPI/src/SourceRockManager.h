@@ -16,7 +16,7 @@
 
 #include <vector>
 #include "ErrorHandler.h"
-
+#include "database.h"
 /// @page SourceRockManagerPage Source Rock Manager
 /// @link mbapi::SourceRockManager Source rock manager @endlink provides set of interfaces to create/delete/edit
 /// list various source rocks in the data model. Also it has set of interfaces to get/set property of any source
@@ -57,7 +57,10 @@ namespace mbapi {
       /// @param id source rock ID
       /// @return source rock type name for the given source rock lithology ID or empty string in case of error
       virtual std::string sourceRockType( SourceRockID id ) = 0;
-
+	  
+	  // Delete source for the given ID from the table
+	  virtual ReturnCode deleteSourceRockRecord(SourceRockID id, database::Table::iterator& newIt)=0;
+	  
 	  /// @brief Set source rock type name for the given ID
 	  /// @param id source rock ID
 	  /// @param newSourceRockType new source rock type

@@ -18,6 +18,12 @@ std::string toLower ( const std::string& str ) {
     std::transform ( strCpy.begin(), strCpy.end(), strCpy.begin(), ::tolower );
     return strCpy;
 }
+
+std::string tail(std::string const& source, size_t const length) {
+    if (length >= source.size()) { return source; }
+    return source.substr(source.size() - length);
+} // tail
+
 void TransformStringToUpper(std::string &theString)
 {
    std::string::iterator it;

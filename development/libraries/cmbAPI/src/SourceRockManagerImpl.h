@@ -17,6 +17,7 @@
 #include "ProjectFileHandler.h"
 
 #include "SourceRockManager.h"
+#include "database.h"
 
 namespace mbapi {
 
@@ -59,6 +60,9 @@ namespace mbapi {
 
 	  // Get source rock type name for the given ID
 	  virtual ReturnCode setSourceRockType(SourceRockID id, const std::string & newSourceRockType);
+
+	  // Delete source for the given ID from the table
+	  virtual ReturnCode deleteSourceRockRecord(SourceRockID id, database::Table::iterator& newIt);
 
 	  // Get base source rock type name for the given ID
 	  virtual std::string baseSourceRockType(SourceRockID id);

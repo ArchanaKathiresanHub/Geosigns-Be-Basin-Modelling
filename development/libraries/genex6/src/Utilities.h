@@ -23,6 +23,7 @@ namespace Genex6
   bool fabsEqualDouble(const double val1, const double val2, const double EPS = 1E-05);
   bool EqualDouble(const double val1, const double val2, const double EPS = 1E-05);
   std::string toLower ( const std::string& str ); 
+  std::string tail(std::string const& source, size_t const length);
 }
 
 #endif
