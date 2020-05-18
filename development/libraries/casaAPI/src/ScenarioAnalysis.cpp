@@ -694,8 +694,6 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations(RunCaseSet & rcs , c
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::string & expLabel )
 {
-  std::cout << "Inside extractOneDProjects ... " << std::endl;
-
    struct XYCoordComp
    {
       bool operator() ( const casa::ObsGridPropertyWell * c1, const casa::ObsGridPropertyWell * c2 ) const

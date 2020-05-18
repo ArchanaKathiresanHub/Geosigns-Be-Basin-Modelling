@@ -23,17 +23,6 @@ TEST(TestModelPseudo1dProjectManager, TestCheckInitialize)
   EXPECT_NO_THROW(mdlPseudo1d.initialize());
 }
 
-// There is no check for the x_coord and y_coord. So, the test below fails.
-//TEST(TestModelPseudo1dProjectManager, TestCheckWrongInitialize)
-//{
-//  mbapi::Model testModel;
-//  ASSERT_EQ(ErrorHandler::NoError, testModel.loadModelFromProjectFile("Project.project3d"));
-
-//  modelPseudo1d::ModelPseudo1d mdlPseudo1d(testModel,99999999,99999999);
-
-//  EXPECT_THROW(mdlPseudo1d.initialize(), modelPseudo1d::ModelPseudo1dException);
-//}
-
 TEST(TestModelPseudo1dProjectManager, TestCheckNullModel)
 {
   mbapi::Model testModel;

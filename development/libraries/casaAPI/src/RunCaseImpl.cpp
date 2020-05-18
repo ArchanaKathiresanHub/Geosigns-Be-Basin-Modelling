@@ -113,8 +113,7 @@ namespace casa
       {
          if ( ErrorHandler::NoError != m_prmsSet[i]->setInModel( *m_model, id() ) )
          {
-            auto errorMessage = m_model->errorMessage();
-            //throw ErrorHandler::Exception( m_model->errorCode() ) << m_model->errorMessage();
+            throw ErrorHandler::Exception( m_model->errorCode() ) << m_model->errorMessage();
          }
       }
 
