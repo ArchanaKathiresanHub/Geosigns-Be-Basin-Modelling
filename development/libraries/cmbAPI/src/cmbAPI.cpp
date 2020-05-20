@@ -132,7 +132,7 @@ public:
 
    // IO methods
    void loadModelFromProjectFile( const char * projectFileName );
-   void saveModelToProjectFile(   const char * projectFileName, bool copyFiles );
+   void saveModelToProjectFile( const std::string& projectFileName, bool copyFiles );
    std::string projectFileName() { return m_projFileName; }
 
    // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists
@@ -476,7 +476,7 @@ Model::ReturnCode Model::loadModelFromProjectFile( const char * projectFileName 
    return NoError;
 }
 
-Model::ReturnCode Model::saveModelToProjectFile( const char * projectFileName, bool copyFiles )
+Model::ReturnCode Model::saveModelToProjectFile( const std::string&  projectFileName, bool copyFiles )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -1410,7 +1410,7 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 }
 
 // Save model to the project file
-void Model::ModelImpl::saveModelToProjectFile( const char * projectFileName, bool copyFiles )
+void Model::ModelImpl::saveModelToProjectFile( const std::string& projectFileName, bool copyFiles )
 {
    if ( !m_projHandle.get() )
    {

@@ -12,6 +12,7 @@
 #include "ModelPseudo1d.h"
 #include "ModelPseudo1dCommonDefinitions.h"
 #include "ModelPseudo1dInputManager.h"
+#include "ModelPseudo1dProjectManager.h"
 
 #include "LogHandler.h"
 
@@ -47,11 +48,18 @@ int main(int argc, char** argv)
       throw modelPseudo1d::ModelPseudo1dException() << ioErrorMessage;
     }
 
-    modelPseudo1d::ModelPseudo1d mdlPseudo1d(std::move(inputDataMgr.inputData()));
+    const modelPseudo1d::ModelPseudo1dInputData& inputData = inputDataMgr.inputData();
+
+    modelPseudo1d::ModelPseudo1dProjectManager mdlPseudo1dPrjctManager(inputData.projectFilename, inputData.outProjectFilename);
+
+    modelPseudo1d::ModelPseudo1d mdlPseudo1d(mdlPseudo1dPrjctManager.mdl(), inputData.xCoord, inputData.yCoord);
+
     mdlPseudo1d.initialize();
     mdlPseudo1d.extractScalarsFromInputMaps();
     mdlPseudo1d.setScalarsInModel();
-    mdlPseudo1d.finalize();
+    mdlPseudo1d.setSingleCellWindowXY();
+    mdlPseudo1dPrjctManager.save();
+
   }
   catch (const ErrorHandler::Exception & ex)
   {

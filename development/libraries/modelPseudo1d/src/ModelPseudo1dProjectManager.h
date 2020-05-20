@@ -31,29 +31,15 @@ class Model;
 namespace modelPseudo1d
 {
 
-struct ModelPseudo1dInputData;
-
 class ModelPseudo1dProjectManager
 {
-  typedef std::unordered_set<std::string> UnorderedStringSet;
 public:
-  typedef UnorderedStringSet::const_iterator ConstIteratorReferredTableSet;
-
-  explicit ModelPseudo1dProjectManager(const ModelPseudo1dInputData & inputData);
+  explicit ModelPseudo1dProjectManager(const std::string& projectFileName, const std::string& outProjectFileName );
   ~ModelPseudo1dProjectManager();
 
-  void checkSubSampling();
-  void getXYIndices();
-  void setReferredTablesSet();
-  unsigned int indI() const;
-  unsigned int indJ() const;
+  void save() const;
 
-  std::shared_ptr<mbapi::Model> mdl() const;
-
-  ConstIteratorReferredTableSet referredTableConstIteratorBegin() const;
-  ConstIteratorReferredTableSet referredTableConstIteratorend() const;
-
-  void setSingleCellWindowXY();
+  mbapi::Model& mdl() const;
 
 private:
   void cleanup();
@@ -61,16 +47,10 @@ private:
 
   const std::string m_projectFileName;
   const std::string m_outProjectFileName;
-  const double m_xCoord;
-  const double m_yCoord;
-  unsigned int m_indI;
-  unsigned int m_indJ;
 
   DataAccess::Mining::ObjectFactory * m_objectFactory;
   DataAccess::Mining::ProjectHandle * m_projectHandle;
   std::shared_ptr<mbapi::Model> m_mdl;
-  UnorderedStringSet m_referredTablesSet;
-  ConstIteratorReferredTableSet m_referredTableConstIterator;
 };
 
 } // namespace modelPseudo1d

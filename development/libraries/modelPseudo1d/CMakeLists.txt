@@ -51,3 +51,9 @@ add_gtest( NAME "ModelPseudo1dProjectManager"
     LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataAccess DataMining TableIO
     ENV_VARS CTCDIR=${CFGFLS}
     FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )
+
+  add_gtest( NAME "ModelPseudo1d"
+      SOURCES src/ModelPseudo1d.cpp test/TestModelPseudo1d.cpp
+      LIBRARIES ${M1D_LIB_NAME} utilities cmbapi DataAccess DataMining TableIO
+      ENV_VARS CTCDIR=${CFGFLS}
+      FOLDER "${BASE_FOLDER}/${M1D_TARGET_NAME}" )
