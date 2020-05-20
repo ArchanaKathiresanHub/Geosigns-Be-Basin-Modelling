@@ -40,7 +40,7 @@ add_gtest( NAME DA::${LIB_NAME}
 copy_test_file(DataAccessTest.project3d)
 
 add_gtest( NAME DA::CharismaFaultFileReaderTest
-  SOURCES test/CharismaFaultFileReaderTest.C
+  SOURCES test/CharismaFaultFileReaderTest.cpp
   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
   LIBRARIES ${LIB_NAME} SerialDataAccess FileSystem
   FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
@@ -53,14 +53,14 @@ copy_test_file(FaultIntersect.charisma)
 copy_test_file(FaultNoIntersect.charisma)
 
 add_gtest( NAME DA::TriangleTest
-  SOURCES test/TriangleTest.C
+  SOURCES test/TriangleTest.cpp
   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
   LIBRARIES ${LIB_NAME} SerialDataAccess
   FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
 add_gtest( NAME DA::FaultPlaneTest
-  SOURCES test/FaultPlaneTest.C
+  SOURCES test/FaultPlaneTest.cpp
   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
   LIBRARIES ${LIB_NAME} SerialDataAccess
   FOLDER "${BASE_FOLDER}/${TARGET_NAME}"

@@ -57,6 +57,30 @@ bool FaultPlane::determineIntersectionPoint(const GridMap* surfaceMap, double mi
                                static_cast<unsigned int>(std::max(firstIy,
                                                                   std::max(std::ceil((faultSegment.first(Y_COORD)-origY)/deltaY),
                                                                            std::ceil((faultSegment.second(Y_COORD)-origY)/deltaY)))));
+  // Fix if the min and max indices are the same
+  if (xMin == xMax)
+  {
+    if (xMin == surfaceMap->lastI())
+    {
+      xMin -= 1;
+    }
+    else
+    {
+      xMax += 1;
+    }
+  }
+
+  if (yMin == yMax)
+  {
+    if (yMin == surfaceMap->lastJ())
+    {
+      yMin -= 1;
+    }
+    else
+    {
+      yMax += 1;
+    }
+  }
 
   for (unsigned int xIndex = xMin; xIndex < xMax; xIndex++)
   {
@@ -140,8 +164,8 @@ unsigned int FaultPlane::determineOptimumPlacement(const Point& candidate, const
   for (unsigned int i = 1; i < orderedFaultCut.size(); i++)
   {
     tryDistance = separationDistance(orderedFaultCut[i-1], candidate)
-                + separationDistance(candidate, orderedFaultCut[i])
-                - separationDistance(orderedFaultCut[i], orderedFaultCut[i-1]);
+        + separationDistance(candidate, orderedFaultCut[i])
+        - separationDistance(orderedFaultCut[i], orderedFaultCut[i-1]);
 
     if (tryDistance < optimalDistance)
     {
@@ -232,24 +256,26 @@ void FaultPlane::createSegments()
 
       m_segments.push_back({p1, p2});
 
-      double closestDistance = 1.0e99;
-      Point closestPoint(0,0,0);
-      for ( const PointSequence& faultStick1 : m_faultSticks )
+      if (m_faultSticks.size() > 1)
       {
-        if ( faultStick1 == faultStick ) continue;
-
-        for ( const Point& p3 : faultStick1 )
+        double closestDistance = 1.0e99;
+        Point closestPoint(0,0,0);
+        for ( const PointSequence& faultStick1 : m_faultSticks )
         {
-          double d =  separationDistance(p1, p3);  if ( d > closestDistance) continue;
-          d += separationDistance(p2, p3); if ( d > closestDistance) continue;
+          if ( faultStick1 == faultStick ) continue;
 
-          closestDistance = d;
-          closestPoint = p1;
+          for ( const Point& p3 : faultStick1 )
+          {
+            double d =  separationDistance(p1, p3);  if ( d > closestDistance) continue;
+            d += separationDistance(p2, p3); if ( d > closestDistance) continue;
+
+            closestDistance = d;
+            closestPoint = p3;
+          }
         }
+//        m_segments.push_back({p1, closestPoint});
+//        m_segments.push_back({p2, closestPoint});
       }
-      //      std::cout << " closest distance: " << closestDistance << std::endl;
-//      m_segments.push_back({p1, closestPoint});
-//      m_segments.push_back({p2, closestPoint});
     }
   }
 }

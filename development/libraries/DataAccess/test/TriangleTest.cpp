@@ -30,43 +30,42 @@ TEST(TriangleTest, triangleTestNoneIntersection)
   EXPECT_FALSE(test_test.findIntersection(segment, intersectionCandidate));
 }
 
-TEST(TriangleTest, triangleTestWithIntersection)
+void testIntersectionAtLocation(const Triangle& triangle, double xPosition, double yPosition)
 {
-  const Triangle triangle({Point{0.0, 0.0, 0.0},
-                            Point{1.0, 0.0, 0.0},
-                            Point{0.0, 1.0, 0.0}});
-
-  const Point pointSegment_one (0.5 , 0.5, 1.0);
-  const Point pointSegment_two (0.5 , 0.5, -1.0);
+  const Point pointSegment_one (xPosition , yPosition, 1.0);
+  const Point pointSegment_two (xPosition , yPosition, -1.0);
 
   const std::pair<Point, Point> segment(pointSegment_one, pointSegment_two);
 
-  const Point pointIntersectionExpected(0.5 , 0.5, 0.0);
+  const Point pointIntersectionExpected(xPosition, yPosition, 0.0);
   Point pointIntersection;
 
   EXPECT_TRUE(triangle.findIntersection(segment, pointIntersection));
   EXPECT_EQ(pointIntersection,pointIntersectionExpected);
 }
 
-TEST(TriangleTest, triangleTestSomeIntersections)
+TEST(TriangleTest, triangleTestCornerPointsIntersection)
 {
   const Triangle triangle({Point{0.0, 0.0, 0.0},
                             Point{1.0, 0.0, 0.0},
                             Point{0.0, 1.0, 0.0}});
 
-  const Point pointSegment_one (0.5 , 0.5, 1.0);
-  const Point pointSegment_two (0.5 , 0.5, -1.0);
-
-  const std::pair<Point, Point> segment(pointSegment_one, pointSegment_two);
-
-  const Point pointIntersectionExpected(0.5 , 0.5, 0.0);
-  Point pointIntersection;
-
-  EXPECT_TRUE(triangle.findIntersection(segment, pointIntersection));
-  EXPECT_EQ(pointIntersection,pointIntersectionExpected);
+  testIntersectionAtLocation(triangle, 0.0, 0.0);
+  testIntersectionAtLocation(triangle, 1.0, 0.0);
+  testIntersectionAtLocation(triangle, 0.0, 1.0);
 }
 
-TEST(TriangleTest, triangleTestDinamicIntersections)
+
+TEST(TriangleTest, triangleTestIntersection)
+{
+  const Triangle triangle({Point{0.0, 0.0, 0.0},
+                            Point{1.0, 0.0, 0.0},
+                            Point{0.0, 1.0, 0.0}});
+
+  testIntersectionAtLocation(triangle, 0.5, 0.5);
+}
+
+TEST(TriangleTest, triangleTestDynamicIntersections)
 {
   const Triangle triangle({Point{0.0, 0.0, 0.0},
                             Point{1.0, 0.0, 0.0},
