@@ -33,6 +33,7 @@
 #include "SourceRockUpgradeManager.h"
 #include "StratigraphyUpgradeManager.h"
 #include "HeatFlowModeUpgradeManager.h"
+#include "FaultCutUpgradeManager.h"
 
 //Prograde
 #include "IUpgradeManager.h"
@@ -97,8 +98,11 @@ void Prograde::UpgradeManagers::runAll() const{
    // HeatFlow mode related tables upgradation
    managers.emplace_back(std::unique_ptr<Prograde::HeatFlowModeUpgradeManager>(new Prograde::HeatFlowModeUpgradeManager(m_model)));
 
-   // Other managers to be added in the same way   
+   //FaultCut related tables upgradation
+   managers.emplace_back(std::unique_ptr<Prograde::FaultCutUpgradeManager>(new Prograde::FaultCutUpgradeManager(m_model)));
 
+   // Other managers to be added in the same way   
+   
    ///2. Run all upgrade managers
    std::for_each(managers.begin(), managers.end(), [] ( std::shared_ptr<Prograde::IUpgradeManager> manager)
    {

@@ -16,7 +16,6 @@
 
 //std
 #include <memory>
-#include <vector>
 
 namespace mbapi {
 	class Model;
@@ -45,8 +44,8 @@ namespace Prograde
 
 		~StratigraphyUpgradeManager() final = default;
 
-		/// @brief 
-		/// @details
+		/// @brief Upgrades the model to the BPA-2 standards
+		/// @details Upgrades only if necessary
 		void upgrade() final;
 	private:
 
@@ -56,4 +55,3 @@ namespace Prograde
 }
 
 #endif
-
