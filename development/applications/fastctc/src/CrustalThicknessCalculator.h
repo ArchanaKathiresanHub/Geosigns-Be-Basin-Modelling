@@ -66,19 +66,20 @@ public :
    void run();
 
    /// @brief Delete property values associated with crustal thickness calculator
-   void deleteCTCPropertyValues();
+   bool deleteCTCPropertyValues();
 
    /// @brief Merge output files if nessecary
    /// @details Must be called at end of calculation.
    bool mergeOutputFiles();
 private :
 
-   static string m_projectFileName;   ///< The input project file name, and output project file name by default
-   static string m_outputFileName;    ///< The output project file name, specified via command line under -save
+   static string m_projectFileName;     ///< The input project file name, and output project file name by default
+   static string m_outputFileName;      ///< The output project file name, specified via command line under -save
+   bool m_meregHDF;              ///< The output CTC hdfs will be mereged to Inputs.HDF -merge
 
-   int    m_outputOptions;    ///< The output option is the combination the output options defined in the command line (xyz, sur, hdf)
-   bool   m_debug;            ///< Run the CTC in debug mode
-   bool   m_applySmoothing;   ///< Smooth the WLS map
+   int    m_outputOptions;              ///< The output option is the combination the output options defined in the command line (xyz, sur, hdf)
+   bool   m_debug;                      ///< Run the CTC in debug mode
+   bool   m_applySmoothing;             ///< Smooth the WLS map
 
    std::shared_ptr<InterfaceInput>  m_inputData;  ///< Interface for input data (user inputs and configuration file)
    InterfaceOutput  m_outputData;                 ///< Interface for output data (maps)
@@ -111,6 +112,17 @@ private :
 
    /// @brief Restore the grid map data
    void restoreData();
+   
+   /**
+    * Sort the rows of three tabes in acending order of age
+    * SurfaceDepthTbl, OceaCrustalThicknessIoTbl, ContCrustalThicknessIoTbl
+    * in a project 3d file
+    *
+    * @param[in] None
+    * @return success or failure
+    * @throw no Exception Handeling
+ */
+   bool sortCTCOuputTabl();
 };
 
 //------------------------------------------------------------//

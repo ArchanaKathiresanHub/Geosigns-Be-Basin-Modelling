@@ -34,10 +34,36 @@
 // utilitites
 #include "LogHandler.h"
 #include "ConstantsNames.h"
+# include "ConstantsNumerical.h"
+
+//cmbAPI
+#include "MapsManager.h"
+#include "cmbAPI.h"
+#include "BottomBoundaryManager.h"
+
+#include <algorithm>
+
+using namespace mbapi;
 
 using namespace DataAccess;
 using namespace Interface;
 using namespace CrustalThicknessInterface;
+
+const char * InterfaceOutput::s_contCrustalThicknessTableName = "ContCrustalThicknessIoTbl";
+const char * InterfaceOutput::s_oceaCrustalThicknessTableName = "OceaCrustalThicknessIoTbl";
+const char * InterfaceOutput::s_SurfaceDepthTableName = "SurfaceDepthIoTbl";
+const char * InterfaceOutput::s_GridMapIoTblName = "GridMapIoTbl";
+const char * InterfaceOutput::s_GridMapRefByFieldName = "ReferredBy";
+const char * InterfaceOutput::s_GridMapMapNameFieldName = "MapName";
+const char * InterfaceOutput::s_GridMapMapTypeFieldName = "MapType";
+const char * InterfaceOutput::s_GridMapMapFileNameFieldName = "MapFileName";
+const char * InterfaceOutput::s_GridMapMapSeqNbrFieldName = "MapSeqNbr";
+const char * InterfaceOutput::s_ContOceaCrustalThicknessAgeFieldName = "Age";
+const char * InterfaceOutput::s_ContOceaCrustalThicknessFieldName = "Thickness";
+const char * InterfaceOutput::s_ContOceaCrustalThicknessGridFieldName = "ThicknessGrid";
+const char * InterfaceOutput::s_SurfaceDepthioTblAgeFieldName = "Age";
+const char * InterfaceOutput::s_SurfaceDepthIoTblDepthFieldName = "Depth";
+const char * InterfaceOutput::s_SurfaceDepthIoTblDepthGridFieldName = "DepthGrid";
 
 //------------------------------------------------------------//
 InterfaceOutput::InterfaceOutput() {
@@ -118,6 +144,139 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
    }
    delete mapWriter;
    return true;
+}
+
+bool InterfaceOutput::mergeOutputMapsWithRef(DataAccess::Interface::ProjectHandle* pHandle, const DataAccess::Interface::Snapshot* theSnapshot)
+{
+    bool success = false;
+    LogHandler(LogHandler::DEBUG_SEVERITY) << "saveOutputMaps: My rank is " << pHandle->getRank();
+
+    std::vector<outputMaps> mapsToMerge = { isostaticBathymetry, thicknessBasaltMap, thicknessCrustMap };
+    int mapsSequenceNbr = 0;
+    string outputFileName = "Inputs.HDF";
+
+    Interface::MapWriter* mapWriter = pHandle->getFactory()->produceMapWriter();
+    success = mapWriter->open(outputFileName, true);
+
+    //to get the latest Maps Sequence Number from GridMapIoTbl
+    mapsSequenceNbr = InterfaceOutput::getMapsSequenceNbr(pHandle);
+
+    for (int i = 0; i < mapsToMerge.size(); ++i) {
+       auto ii =  mapsToMerge[i];
+       if (m_outputMapsMask[ii] != 0 && m_outputMaps[ii] != 0) {
+          mapsSequenceNbr++; // increment by 1
+
+          // to write ctc maps in Inputs.HDF file
+          success = mapWriter->writeInputMap(m_outputMaps[ii], mapsSequenceNbr);
+          LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Map " << outputMapsNames[ii] << " saved into " << outputFileName << ".";
+
+          // append newly added ctc map references in GridMapIoTbl record
+          success = InterfaceOutput::addRecordsInGridMapIoTbl(pHandle, mapsSequenceNbr, mapsToMerge[i]);
+          
+          // Here we update the projectHandle with new record, right? the actual writing happens in saveToFile( m_projectFileName )
+          success = InterfaceOutput::addCTCoutputMapRecordsInProject3dIoTbl(pHandle, theSnapshot, mapsSequenceNbr, mapsToMerge[i]);
+        }
+    }
+
+    success = mapWriter->close();
+    delete mapWriter;
+    return success;
+}
+
+int InterfaceOutput::getMapsSequenceNbr(DataAccess::Interface::ProjectHandle* pHandle)
+{
+    int nextMapSeqVal, mapsSequenceNbr = 0;
+    database::Table::iterator tblIter;
+    database::Record* gridMapRecord;
+
+    database::Table* gridMapTbl = pHandle->getTable(s_GridMapIoTblName);
+
+    for (tblIter = gridMapTbl->begin(); tblIter != gridMapTbl->end(); ++tblIter)
+    {
+        gridMapRecord = gridMapTbl->getRecord(tblIter);
+        nextMapSeqVal = gridMapRecord->getValue<int>(s_GridMapMapSeqNbrFieldName);
+        if (tblIter != gridMapTbl->begin())
+            mapsSequenceNbr = (mapsSequenceNbr > nextMapSeqVal) ? mapsSequenceNbr : nextMapSeqVal;
+        else
+            mapsSequenceNbr = nextMapSeqVal;
+    }
+
+    return mapsSequenceNbr;
+}
+
+//------------------------------------------------------------//
+bool InterfaceOutput::addCTCoutputMapRecordsInProject3dIoTbl(DataAccess::Interface::ProjectHandle* pHandle, const DataAccess::Interface::Snapshot* theSnapshot, int mapsSequenceNbr, int mapsToMerge)
+{
+    bool success = false;
+    string s_tblName;
+    database::Table::iterator tblIter;
+    database::Record* crustThckIoTblRecord;
+    if (mapsToMerge == isostaticBathymetry)
+        s_tblName = s_SurfaceDepthTableName;
+    else if (mapsToMerge == thicknessBasaltMap)
+        s_tblName = s_oceaCrustalThicknessTableName;
+    else if (mapsToMerge == thicknessCrustMap)
+        s_tblName = s_contCrustalThicknessTableName;
+    else
+        return true;
+
+    database::Table* crustThckIoTbl = pHandle->getTable(s_tblName);
+
+    //crustThckIoTbl->clear(true);
+    crustThckIoTbl->createRecord();
+    crustThckIoTblRecord = crustThckIoTbl->getRecord((int)crustThckIoTbl->size() - 1);
+
+    if (mapsToMerge == isostaticBathymetry)
+    {
+        crustThckIoTblRecord->setValue<double>(s_SurfaceDepthioTblAgeFieldName, theSnapshot->getTime());
+        crustThckIoTblRecord->setValue<double>(s_SurfaceDepthIoTblDepthFieldName, -9999);
+        crustThckIoTblRecord->setValue<std::string>(s_SurfaceDepthIoTblDepthGridFieldName, "MAP-" + std::to_string(mapsSequenceNbr));
+    }
+    else
+    {
+        crustThckIoTblRecord->setValue<double>(s_ContOceaCrustalThicknessAgeFieldName, theSnapshot->getTime());
+        crustThckIoTblRecord->setValue<double>(s_ContOceaCrustalThicknessFieldName, -9999);
+        crustThckIoTblRecord->setValue<std::string>(s_ContOceaCrustalThicknessGridFieldName, "MAP-" + std::to_string(mapsSequenceNbr));
+    }
+
+    //delete old records of same age
+    for (tblIter = crustThckIoTbl->begin(); tblIter != (crustThckIoTbl->end() - 1); ++tblIter)
+    {
+        database::Record* record = *tblIter;
+        if (crustThckIoTblRecord->getValue<double>(s_ContOceaCrustalThicknessAgeFieldName) == record->getValue<double>(s_ContOceaCrustalThicknessAgeFieldName))
+        {
+            success = crustThckIoTbl->eraseRecord(record);
+            break;
+        }
+    }
+
+    return success;
+}
+
+
+bool InterfaceOutput::addRecordsInGridMapIoTbl(DataAccess::Interface::ProjectHandle* pHandle, int mapsSequenceNbr, int mapsToMerge)
+{
+   bool success = false;
+   database::Table* gridMapTbl = pHandle->getTable(s_GridMapIoTblName);
+   database::Record * gridMapRecord;
+   string outputFileName = "Inputs.HDF";
+
+   gridMapTbl->createRecord();
+   gridMapRecord = gridMapTbl->getRecord((int)gridMapTbl->size() - 1);
+
+   if (mapsToMerge == isostaticBathymetry)
+      gridMapRecord->setValue<std::string>(s_GridMapRefByFieldName, s_SurfaceDepthTableName);
+   else if (mapsToMerge == thicknessBasaltMap)
+      gridMapRecord->setValue<std::string>(s_GridMapRefByFieldName, s_oceaCrustalThicknessTableName);
+   else
+      gridMapRecord->setValue<std::string>(s_GridMapRefByFieldName, s_contCrustalThicknessTableName);
+
+   gridMapRecord->setValue<std::string>(s_GridMapMapNameFieldName, "MAP-" + std::to_string(mapsSequenceNbr));
+   gridMapRecord->setValue<std::string>(s_GridMapMapTypeFieldName, "HDF5");
+   gridMapRecord->setValue<std::string>(s_GridMapMapFileNameFieldName, outputFileName);
+   gridMapRecord->setValue(s_GridMapMapSeqNbrFieldName, mapsSequenceNbr);
+
+   return success;
 }
 
 //------------------------------------------------------------//
@@ -381,8 +540,9 @@ void InterfaceOutput::disableOutput( ProjectHandle * pHandle, const Interface::S
 }
 
 //------------------------------------------------------------//
-void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot ) {
+void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot, bool merge ) {
 
+   bool success = true;
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "save maps to local disk";
    if( isDebug ) {
       if( outputOptions & XYZ ) {
@@ -407,6 +567,13 @@ void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDeb
       saveXYZOutputMaps( pHandle );
    } else  if( outputOptions & HDF ) {
       saveOutputMaps( pHandle, theSnapshot );
+   }
+   else if (merge) {
+      success = mergeOutputMapsWithRef(pHandle, theSnapshot);
+      if (!success)
+      {
+         throw ErrorHandler::Exception(ErrorHandler::IoError) << "Failed to merge output maps.";
+      }
    }
    
 }

@@ -61,7 +61,8 @@ CrustalThicknessCalculator::CrustalThicknessCalculator(const database::ProjectFi
      m_previousTTS                        (nullptr),
      m_previousRiftTTS                    (nullptr),
      m_previousContinentalCrustalThickness(nullptr),
-     m_previousOceanicCrustalThickness    (nullptr)
+     m_previousOceanicCrustalThickness    (nullptr),
+     m_meregHDF                           (false  )
 {}
 
 //------------------------------------------------------------//
@@ -176,7 +177,7 @@ void CrustalThicknessCalculator::setRequestedOutputProperties( InterfaceOutput &
 
 //------------------------------------------------------------//
 
-void CrustalThicknessCalculator::deleteCTCPropertyValues()
+bool CrustalThicknessCalculator::deleteCTCPropertyValues()
 {
    Interface::MutablePropertyValueList::iterator propertyValueIter = m_propertyValues.begin ();
 
@@ -192,12 +193,13 @@ void CrustalThicknessCalculator::deleteCTCPropertyValues()
          }
 
          delete propertyValue;
+         propertyValue = nullptr;
       } else {
          ++ propertyValueIter;
       }
 
    }
-
+   return m_propertyValues.empty();
 }
 
 //------------------------------------------------------------//
@@ -300,13 +302,26 @@ void CrustalThicknessCalculator::run() {
          smoothOutputs();
 
          restoreData();
-         m_outputData.saveOutput( this, m_debug, m_outputOptions, theSnapshot );
+
+         m_outputData.saveOutput( this, m_debug, m_outputOptions, theSnapshot, m_meregHDF );
 
          // Save properties to disk.
          continueActivity();
       }
    }
+   
+   // 9. This is where all BC files from ctc are merged into Input.HDF for importing to BPA2-Basin
 
+   if (m_meregHDF)
+   {
+       auto success = sortCTCOuputTabl();
+       if (!success)
+       {
+           throw (std::invalid_argument("sorting CTC Table gone wrong!"));
+       }
+       // to write the reference in project3d file in GridMapIoTbl for the CTC output maps which are merged in Inputs.HDF file
+       // done in CrustalThicknessCalculator::finalise
+   }
 }
 
 //------------------------------------------------------------//
@@ -369,6 +384,11 @@ bool CrustalThicknessCalculator::parseCommandLine() {
    PetscOptionsGetString (nullptr, "-save", outputFileName, 128, &isDefined);
    if(isDefined) {
       m_outputFileName = outputFileName;
+   }
+
+   PetscOptionsHasName(nullptr, "-merge", &isDefined);
+   if (isDefined) {
+       m_meregHDF = true;
    }
    return true;
 }
@@ -440,3 +460,55 @@ void CrustalThicknessCalculator::restoreData(){
       m_previousRiftTTS->restoreData();
    }
 }
+
+//---------------------------------------------------
+
+//----------------------------------------------------
+bool CrustalThicknessCalculator::sortCTCOuputTabl()
+{
+    bool success = false;
+    string s_tblName;
+    int i_numberOfTblToSort = 3;
+
+    //sort table with respect to current age to older age
+    for (int i = 0; i < i_numberOfTblToSort; ++i)
+    {
+        if (i == 0)
+            s_tblName = InterfaceOutput::s_SurfaceDepthTableName;
+        else if (i == 1)
+            s_tblName = InterfaceOutput::s_oceaCrustalThicknessTableName;
+        else
+            s_tblName = InterfaceOutput::s_contCrustalThicknessTableName;
+
+        database::Table* ctcIoTbl = this->getTable(s_tblName);
+
+        int ictcTblSize = ctcIoTbl->size();
+        for (int j = 0; j < (ictcTblSize - 1); ++j)
+        {
+            database::Record* record = ctcIoTbl->getRecord(j);
+            int i_getIndex = 0;
+            bool b_moveRecord = false;
+            for (int k = (j + 1); k < ictcTblSize; ++k)
+            {
+                const database::Record* recordNext = ctcIoTbl->getRecord(k);
+                // * Kumaran why we need two variable for same char literal "Age" ?
+                if (record->getValue<double>(InterfaceOutput::s_ContOceaCrustalThicknessAgeFieldName) > 
+                    recordNext->getValue<double>(InterfaceOutput::s_ContOceaCrustalThicknessAgeFieldName))
+                {
+                    i_getIndex = k;
+                    b_moveRecord = true;
+                }
+            }
+            if (b_moveRecord)
+            {
+                success = ctcIoTbl->moveRecord( ctcIoTbl->getRecord(i_getIndex) , (record) );
+            }
+        }
+
+    }
+
+    return success;
+}
+
+
+

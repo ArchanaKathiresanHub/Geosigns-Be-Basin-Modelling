@@ -26,6 +26,11 @@
 // utilities library
 #include "FormattingException.h"
 
+namespace mbapi {
+   class MapsManager;
+   class Model;
+}
+
 using namespace std;
 using namespace CrustalThicknessInterface;
 
@@ -60,7 +65,19 @@ public:
    /// @ param theSnapshot The snapshot at which the output maps are saved
    bool saveOutputMaps            ( DataAccess::Interface::ProjectHandle * pHandle,
                                     const DataAccess::Interface::Snapshot * theSnapshot );
-   /// @brief Save output maps to XYZ file
+   /// @defgroup MergeCTCMapsToInputs.HDF
+   /// @{
+   /// @brief Save output maps to Inputs.HDF file for the given snapshot
+   /// @ param pHandle The ProjectHandle and theSnapshot The snapshot at which the output maps are saved
+   bool mergeOutputMapsWithRef(DataAccess::Interface::ProjectHandle* pHandle,
+       const DataAccess::Interface::Snapshot* theSnapshot);
+   /// @defgroup SaveMaps
+   /// @{
+   /// @brief Add newly added CTC output map record in GridMapIoTbl
+   bool addRecordsInGridMapIoTbl(DataAccess::Interface::ProjectHandle* pHandle, 
+                                 int mapsSequenceNbr, int mapsToMerge);
+   
+      /// @brief Save output maps to XYZ file
    bool saveXYZOutputMaps         ( DataAccess::Interface::ProjectHandle * pHandle );
    /// @brief Save output maps to SUR file
    bool saveExcelSurfaceOutputMaps( DataAccess::Interface::ProjectHandle * pHandle );
@@ -71,7 +88,7 @@ public:
    void saveOutput( DataAccess::Interface::ProjectHandle * pHandle, 
                     bool isDebug,
                     int outputOptions,
-                    const DataAccess::Interface::Snapshot * theSnapshot );
+                    const DataAccess::Interface::Snapshot * theSnapshot, bool merge = false );
    /// @}
 
    /// @defgroup SetMaps
@@ -162,6 +179,24 @@ public:
    bool   getOutputMask( outputMaps mapIndex ) const;
    /// @}
 
+   static const char* s_oceaCrustalThicknessTableName;	// OceaCrustalThicknessIoTbl name
+   static const char* s_contCrustalThicknessTableName;	// ContCrustalThicknessIoTbl name
+   static const char* s_SurfaceDepthTableName;	// SurfaceDepthIoTbl name
+   static const char* s_ContOceaCrustalThicknessAgeFieldName;		// column name for continental crust Age value in ContCrustalThicknessIoTbl
+
+   protected:
+       /// @defgroup SaveMaps
+   /// @{
+   /// @brief get latest maps sequence number from GridMapIoTbl
+       int getMapsSequenceNbr(DataAccess::Interface::ProjectHandle* pHandle);
+
+       /// @defgroup SaveMaps
+   /// @{
+   /// @brief Add newly added CTC output map record in ContCrustalThicknessIoTbl and OceaCrustalThicknessIoTbl
+       bool addCTCoutputMapRecordsInProject3dIoTbl(DataAccess::Interface::ProjectHandle* pHandle,
+           const DataAccess::Interface::Snapshot* theSnapshot,
+           int mapsSequenceNbr, int mapsToMerge);
+
 private:
    void disableOutput( DataAccess::Interface::ProjectHandle * pHandle,
                        const DataAccess::Interface::Surface* theSurface,
@@ -171,6 +206,19 @@ private:
    DataAccess::Interface::GridMap * m_outputMaps[numberOfOutputMaps];   ///< List of CTC output maps
    bool                             m_outputMapsMask [numberOfOutputMaps];   ///< Mask list corresponding to the CTC output maps (true = output, false = no output)
    double                           m_outputValues [numberOfOutputMaps];   ///< The temporary values of the maps for a defined (i,j) node. Used to set all the map values at once.
+   //
+   static const char * s_GridMapIoTblName;	// GridMapIoTbl name
+   static const char * s_GridMapRefByFieldName;	// column name for grid map "ReferredBy" field of GridMapIoTbl
+   static const char * s_GridMapMapNameFieldName;	// column name for grid map "MapName" field of GridMapIoTbl
+   static const char * s_GridMapMapTypeFieldName;	// column name for grid map "MapType" field of GridMapIoTbl
+   static const char * s_GridMapMapFileNameFieldName;	// column name for grid map "MapFileName" field of GridMapIoTbl
+   static const char * s_GridMapMapSeqNbrFieldName;	// column name for grid map "MapSeqNbr" field of GridMapIoTbl
+   static const char * s_ContOceaCrustalThicknessFieldName;	// column name for continental crust thickness value in ContCrustalThicknessIoTbl
+   static const char * s_ContOceaCrustalThicknessGridFieldName;	// column name for continental crustal thickness grid map in ContCrustalThicknessIoTbl
+   static const char * s_SurfaceDepthioTblAgeFieldName;		// column name for oceanic crust Age value in SurfaceDepthIoTbl
+   static const char * s_SurfaceDepthIoTblDepthFieldName;	// column name for oceanic crustal thickness value in SurfaceDepthIoTbl
+   static const char * s_SurfaceDepthIoTblDepthGridFieldName;	// column name for continental crustal thickness grid map in SurfaceDepthIoTbl
+
 
    /// @brief Clean all the members of the class
    void clean();

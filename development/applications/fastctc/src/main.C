@@ -59,7 +59,9 @@ namespace Fastctc
          << "\t[-xyz]                     Output selected maps also in XYZ format" << endl
          << "\t[-sur]                     Use only in combination with -debug. Output selected maps in SUR format (to visualize surface chart in Excel)" << endl
          << "\t[-hdf]                     Use only in combination with -debug. Output all maps in separate HDF files." << endl
-         << "\t[-help]                    Shows this help message and exit." << endl << endl;
+         << "\t[-help]                    Shows this help message and exit." 
+          << "\t[-merge]                  Merge CTC maps to Inputs.HDF."
+          << endl << endl;
    }
 
    //------------------------------------------------------------//
@@ -175,7 +177,7 @@ int main (int argc, char ** argv)
          LogHandler( "fastctc", LogHandler::DETAILED_LEVEL, rank );
       }
    }
-   catch (formattingexception::GeneralException& ex){
+   catch (const formattingexception::GeneralException& ex){
       std::cout << ex.what();
       return 1;
    }
@@ -236,17 +238,17 @@ int main (int argc, char ** argv)
       LogHandler( LogHandler::INFO_SEVERITY, LogHandler::TITLE ) << "RUN CTC";
       crustalThicknessCalculator->run();
    }
-   catch (std::invalid_argument& ex){
+   catch (const std::invalid_argument& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC INPUT ERROR";
       Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), *crustalThicknessCalculator );
       return 1;
    }
-   catch (CtcException& ex){
+   catch (const CtcException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC COMPUTATION ERROR";
       Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), *crustalThicknessCalculator );
       return 1;
    }
-   catch (std::runtime_error& ex){
+   catch (const std::system_error & ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC COMPUTATION ERROR";
       Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), *crustalThicknessCalculator );
       return 1;

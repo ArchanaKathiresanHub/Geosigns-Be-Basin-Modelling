@@ -12,16 +12,9 @@
 
 if (BM_PARALLEL)
 
-set( all_headers
-   src/CrustalThicknessCalculator.h
-   src/CrustalThicknessCalculatorFactory.h
-)
+FILE( GLOB all_headers src/*.h )
 
-set( all_srcs
-   src/CrustalThicknessCalculator.C 
-   src/CrustalThicknessCalculatorFactory.C 
-   src/main.C
-)
+FILE( GLOB all_srcs src/*.C src/*.cpp)
 
 source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
@@ -88,6 +81,26 @@ set_target_properties(${APP_NAME}
 
 install(TARGETS ${APP_NAME}
    RUNTIME DESTINATION bin
+)
+
+### Unit Tests
+configure_file(test/data/Project.project3d ${CMAKE_CURRENT_BINARY_DIR}/Project.project3d COPYONLY)
+configure_file(test/data/Inputs.HDF ${CMAKE_CURRENT_BINARY_DIR}/Inputs.HDF COPYONLY)
+
+
+add_gtest( NAME "Fasctc::CrustalThicknessCalculator"
+    SOURCES test/CrustalThicknessCalculatorTest.cpp src/CrustalThicknessCalculator.C src/CrustalThicknessCalculatorFactory.C
+    LIBRARIES   DataModel
+                Utilities_Petsc
+                DataMining
+                DataAccess
+                DistributedDataAccess
+                GeoPhysics 
+                CrustalThickness
+
+    ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
+    ##WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data
+    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 # Create doxygen

@@ -22,6 +22,7 @@ include_directories( SYSTEM
 
 create_bm_library( TARGET ${LIB_NAME}
                    LIBRARIES DataMining
+				             cmbapi
                              DataAccess
                              AbstractDerivedProperties
                              DerivedProperties
