@@ -272,31 +272,35 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		}
 	}
 	
-//......................................UPGRADING LITHOLOGY NAME in stratIoTbl......................................//	
-	//updating the lithology names for the Lithotype1, Lithotype2 and Lithotype3 of stratIoTbl 
+//......................................UPGRADING LITHOLOGY inputs of stratIoTbl......................................//	
 	database::Table * strat_table = m_ph->getTable("StratIoTbl");
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the lithotype names in StratIoTbl as per the mapping of BPA->BPA2 standard lithologies";
-	for (size_t stratId = 0; stratId < strat_table->size(); ++stratId)
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating lithotype inputs of StratIoTbl";
+	mbapi::StratigraphyManager & stratMgrLocal = m_model.stratigraphyManager();
+	for (size_t stratId = 0; stratId < strat_table->size()-1; ++stratId)
 	{
-		newlithoNamesLst.clear();
-		m_model.stratigraphyManager().layerLithologiesList(stratId, lithoNamesLst, lithoPerct, percMaps);
-		for (size_t temp = 0; temp<lithoNamesLst.size(); temp++)
-		{
-			legacyLithoTypeName = lithoNamesLst[temp];
-			bpa2LithoName = modelConverter.upgradeLithologyName(legacyLithoTypeName);
-			newlithoNamesLst.push_back(bpa2LithoName);
-			if (temp<2 && lithoPerct[temp] != DataAccess::Interface::DefaultUndefinedScalarValue && percMaps[temp]!= "")
-			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "*Both scalar and maps are found for litholotype["<<temp+1<<"] percentage for StratigraphyId="<< stratId<<". Keeping the map and deleting the scalar field";
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << " Percent scalar value is updated from "<< lithoPerct[temp]<<" to "<< DataAccess::Interface::DefaultUndefinedScalarValue;
-				lithoPerct[temp] = DataAccess::Interface::DefaultUndefinedScalarValue;
-			}
+		std::string stratLayerName = m_model.tableValueAsString("StratIoTbl", stratId, "LayerName");
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* For stratigraphylayer with LayerName: "<< stratLayerName;
+		lithoNamesLst.clear();
+		lithoPerct.clear();
+		percMaps.clear();
+		ErrorHandler::ReturnCode err = m_model.stratigraphyManager().layerLithologiesList(stratId, lithoNamesLst, lithoPerct, percMaps);
+		if (err != ErrorHandler::ReturnCode::NoError){
+			throw ErrorHandler::Exception(stratMgrLocal.errorCode()) << stratMgrLocal.errorMessage();
 		}
-		m_model.stratigraphyManager().setLayerLithologiesList(stratId, newlithoNamesLst, lithoPerct, percMaps);
+		
+		//Processing lithotype inputs of StratIoTbl before updating
+		err = modelConverter.PreprocessLithofaciesInputOfStratIoTbl(lithoNamesLst, lithoPerct, percMaps);
+		if (err != ErrorHandler::ReturnCode::NoError) {
+			throw ErrorHandler::Exception(ErrorHandler::ReturnCode::ValidationError) << "Lithology inputs of stratigraphy layer : '"<< stratLayerName<<"' is not correct";
+		}
+		err = m_model.stratigraphyManager().setLayerLithologiesList(stratId, lithoNamesLst, lithoPerct, percMaps);
+		if (err != ErrorHandler::ReturnCode::NoError){
+			throw ErrorHandler::Exception(stratMgrLocal.errorCode()) << stratMgrLocal.errorMessage();
+		}
 	}
 
 //......................................UPGRADING LITHOLOGY NAME in AllochthonLithoIoTbl......................................//	
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the lithotype names in AllochthonLithoIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updated the names for the system defined lithotypes as per the mapping in AllochthonLithoIoTbl";
 	database::Table * alochthon_table = m_ph->getTable("AllochthonLithoIoTbl");
 	for (size_t alocthonId = 0; alocthonId < alochthon_table->size(); ++alocthonId)
 	{
@@ -306,7 +310,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	}
 
 //......................................UPGRADING LITHOLOGY NAME in LitThCondIoTbl......................................//	
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the lithotype names in LitThCondIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updated the names for the system defined lithotypes as per the mapping in LitThCondIoTbl";
 	database::Table * lithoThCond_table = m_ph->getTable("LitThCondIoTbl");
 	 
 	for (size_t lithThCondId = 0; lithThCondId < lithoThCond_table->size(); ++lithThCondId)
@@ -317,7 +321,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	}
 
 //......................................UPGRADING LITHOLOGY NAME in LitHeatCapIoTbl......................................//	
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the lithotype names in LitHeatCapIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updated the names for the system defined lithotypes as per the mapping in LitHeatCapIoTbl";
 	database::Table * lithoHeatCap_table = m_ph->getTable("LitHeatCapIoTbl");
 	for (size_t htCaphId = 0; htCaphId < lithoHeatCap_table->size(); ++htCaphId)
 	{
@@ -327,7 +331,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	}
 
 //......................................UPGRADING LITHOLOGY NAME in PressureFaultcutIoTbl......................................//	
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the lithotype names in PressureFaultcutIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updated the names for the system defined lithotypes as per the mapping in PressureFaultcutIoTbl";
 	database::Table * fltCut_table = m_ph->getTable("PressureFaultcutIoTbl");
 	for (size_t Id = 0; Id < fltCut_table->size(); ++Id)
 	{

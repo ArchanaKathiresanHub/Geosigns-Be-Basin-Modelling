@@ -536,3 +536,72 @@ TEST(LithologyConverter, upgradeLithoTableFieldValues)
    modelConverter.upgradeLitPropIntrTemperature(value);
    EXPECT_EQ(1650, value);
 }
+//Tests to check and update lithotype inputs of StratIoTbl
+TEST(LithologyConverter, preprocessingLithoDataTest)
+{
+	//Test-1: Positive scenario with correct legacy inputs for lithology percenteges. This needs modification of the lithotype names only 
+	std::string layerName{"Formation1"};
+	std::vector<std::string> legacyLithoNames{"Std. Sandstone", "Std. Shale", "User defined litho"};
+	std::vector<double> lithoPercnt{ 70, 20, 10 };
+	std::vector<std::string> lithoPercntMap{"", ""};
+	Prograde::LithologyConverter modelConverter;
+	ErrorHandler::ReturnCode er = modelConverter.PreprocessLithofaciesInputOfStratIoTbl(legacyLithoNames, lithoPercnt, lithoPercntMap);
+	EXPECT_EQ(ErrorHandler::ReturnCode::NoError, er);
+	EXPECT_EQ(3, legacyLithoNames.size()); 
+	EXPECT_EQ(3, lithoPercnt.size()); 
+	EXPECT_EQ(2, lithoPercntMap.size());
+
+	EXPECT_EQ("Sandstone, typical", legacyLithoNames[0]);
+	EXPECT_EQ("Mudstone, 60% clay", legacyLithoNames[1]);
+	EXPECT_EQ("User defined litho", legacyLithoNames[2]);
+
+	EXPECT_EQ(70, lithoPercnt[0]);
+	EXPECT_EQ(20, lithoPercnt[1]);
+	EXPECT_EQ(10, lithoPercnt[2]);
+
+	EXPECT_EQ("", lithoPercntMap[0]);
+	EXPECT_EQ("", lithoPercntMap[1]);
+	
+	//Test-2: Legacy inputs where lithology percentages are available even when lithotype is not available. This needs modification for the lithology percentages also along with the modifications in the lithology names
+	std::vector<std::string> legacyLithoNames1{ "Std. Sandstone", "", "" };
+	er = modelConverter.PreprocessLithofaciesInputOfStratIoTbl(legacyLithoNames1, lithoPercnt, lithoPercntMap);
+	EXPECT_EQ(ErrorHandler::ReturnCode::NoError, er);
+
+	EXPECT_EQ("Sandstone, typical", legacyLithoNames1[0]);
+	EXPECT_EQ("", legacyLithoNames1[1]);
+	EXPECT_EQ("", legacyLithoNames1[2]);
+
+	EXPECT_EQ(70, lithoPercnt[0]);
+	EXPECT_EQ(-9999, lithoPercnt[1]);
+	EXPECT_EQ(-9999, lithoPercnt[2]);
+
+	//Test-3: Eronious inputs having specified more than 3 lithotypes for a particular layer which will be rejected from migration 
+	std::vector<std::string> legacyLithoNames2{ "Std. Sandstone", "", "", "Std. Shale" };
+	er = modelConverter.PreprocessLithofaciesInputOfStratIoTbl(legacyLithoNames2, lithoPercnt, lithoPercntMap);
+	EXPECT_EQ(ErrorHandler::ReturnCode::ValidationError, er);
+
+	//Test-4: Eronious inputs having all the 3 lithotypes NULL wrt a particular layer will be rejected from migration
+	std::vector<std::string> legacyLithoNames3{ "", "", "" };
+	er = modelConverter.PreprocessLithofaciesInputOfStratIoTbl(legacyLithoNames3, lithoPercnt, lithoPercntMap);
+	EXPECT_EQ(ErrorHandler::ReturnCode::ValidationError, er);
+
+	//Test-4: Eronious inputs having which will be rejected from migration
+	std::vector<std::string> legacyLithoNames4{ "", "" };
+	er = modelConverter.PreprocessLithofaciesInputOfStratIoTbl(legacyLithoNames4, lithoPercnt, lithoPercntMap);
+	EXPECT_EQ(ErrorHandler::ReturnCode::ValidationError, er);
+
+	//Test-5: Eronious legacy inputs where both maps and scalar values are available for each lithotypes
+	std::vector<std::string> lithoPercntMap1{ "MAP1", "MAP2" };
+	er = modelConverter.PreprocessLithofaciesInputOfStratIoTbl(legacyLithoNames, lithoPercnt, lithoPercntMap1);
+	EXPECT_EQ(ErrorHandler::ReturnCode::NoError, er);
+	EXPECT_EQ("Sandstone, typical", legacyLithoNames[0]);
+	EXPECT_EQ("Mudstone, 60% clay", legacyLithoNames[1]);
+	EXPECT_EQ("User defined litho", legacyLithoNames[2]);
+
+	EXPECT_EQ(-9999, lithoPercnt[0]);
+	EXPECT_EQ(-9999, lithoPercnt[1]);
+	EXPECT_EQ(-9999, lithoPercnt[2]);
+
+	EXPECT_EQ("MAP1", lithoPercntMap1[0]);
+	EXPECT_EQ("MAP2", lithoPercntMap1[1]);
+}

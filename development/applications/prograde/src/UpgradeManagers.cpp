@@ -41,69 +41,78 @@
 //utilities
 #include "LogHandler.h"
 
+#define isDoubleExponential 0 //1=Yes, 0=No => implies if the deprecated SM porosity model is to be upgraded to double exponential model of BPA2 or not  
+
 void Prograde::UpgradeManagers::runAll() const{
-   ///1. Create list of upgrade managers
+   ///I. Create list of upgrade managers
    std::vector<std::shared_ptr<Prograde::IUpgradeManager>> managers;
 
-   // Project details upgradation 
+   // 1. Project details upgradation 
    managers.emplace_back(std::unique_ptr<Prograde::ProjectIoTblUpgradeManager>(new Prograde::ProjectIoTblUpgradeManager(m_model)));
 
-   // Strat Io Table upgradation 
+   // 2. Strat Io Table upgradation 
    managers.emplace_back(std::unique_ptr<Prograde::StratigraphyUpgradeManager>(new Prograde::StratigraphyUpgradeManager(m_model)));
-
-   // ALCv1 to ALCv2
+   
+   //3. //@brief Upgrading ALCv1 to ILCLEM mode of BPA2
    managers.emplace_back(std::unique_ptr<Prograde::AlcUpgradeManager>(new Prograde::AlcUpgradeManager(m_model)));
 
-   //LithotypeIoTbl upgradation
+   //4. //@brief Upgrading legacy lithotype inputs to the standards of BPA2 lithotype 
+   /*@details Upgrading the legacy system defined lithotype names, deprecated SM porosity model to Exponential model, deprecated permeability models to multipoint model etc. */
    managers.emplace_back(std::unique_ptr<Prograde::LithologyUpgradeManager>(new Prograde::LithologyUpgradeManager(m_model)));
 
-   // Upgrading Soil mechanics compaction model to Double exponential compaction model. 
-   //This approach for upgrading Soil Mechanics to Double Exponential model is discarded as a new approach to convert Soil Mechanics Model to Single Exponential model 
-   //is finalized for porosity model upgradation. This new strategy to upgrade depreacted porosity model will be taken care in the "LithologyUpgradeManager" itself.
-   //managers.emplace_back(std::unique_ptr<Prograde::PorosityUpgradeManager>(new Prograde::PorosityUpgradeManager(m_model)));
+   //@brief Upgrading Soil mechanics compaction model to Double exponential compaction model. 
+   /*@details Upgrading Soil Mechanics to Double Exponential model is discarded as a new approach to convert Soil Mechanics Model to Single Exponential model 
+			  is finalized for porosity model upgradation. The upgradation of deprecated SM porosity model to Single Exponential is taken care in the "LithologyUpgradeManager"*/
+#if isDoubleExponential
+	managers.emplace_back(std::unique_ptr<Prograde::PorosityUpgradeManager>(new Prograde::PorosityUpgradeManager(m_model)));
+#endif
 
-   // Mudstone and Sandstone permeability models to Multipoint permeability model
+   //@brief Upgrading deprecated Mudstone and Sandstone permeability models to Multipoint permeability model.
+   //@details This upgradation strategy is replaced by new strategy proposed by Lorcan and is implemented in the "LithologyUpgradeManager"
    //managers.emplace_back(std::unique_ptr<Prograde::PermeabilityUpgradeManager>(new Prograde::PermeabilityUpgradeManager(m_model)));
 
-   // Constant model to modified B&W model for density and seismic velocity calculations of Brines
+   //5. //@brief Upgrading density and seismic velocity calculations of Brines
+   /*@details Constant models to calculate brine density and seismic vel are upgraded to modified B&W model, legacy "Std. Merine water" is upgraded to user-defined brine,
+			  Cleared brine details from FluidTypeIotbl if the brine is nor referred in the model, upgraded HeatCaptype/ ThermCondtype of each brine to the respective brine 
+			  upgrading the */
    managers.emplace_back(std::unique_ptr<Prograde::BrineUpgradeManager>(new Prograde::BrineUpgradeManager(m_model)));
 
-   //BPA1 reservoir layer-wise parameters to BPA2 reservoir global parameters
+   //6. BPA1 reservoir layer-wise parameters to BPA2 reservoir global parameters
    managers.emplace_back(std::unique_ptr<Prograde::ReservoirUpgradeManager>(new Prograde::ReservoirUpgradeManager(m_model)));
 
-   // Boidegradation
+   //7. Boidegradation
    managers.emplace_back(std::unique_ptr<Prograde::BiodegradeUpgradeManager>(new Prograde::BiodegradeUpgradeManager(m_model)));
 
-   // Basic crust thinning bottom boundary model to the new Crust Thinning model
+   //8. Basic crust thinning bottom boundary model to the new Crust Thinning model
    managers.emplace_back(std::unique_ptr<Prograde::BasicCrustThinningUpgradeManager>(new Prograde::BasicCrustThinningUpgradeManager(m_model)));
 
-   // CTCv1 to CTCv2
+   //9. CTCv1 to CTCv2
    managers.emplace_back(std::unique_ptr<Prograde::CtcUpgradeManager>(new Prograde::CtcUpgradeManager(m_model)));
 
-   // Fracture pressure 
+   //10. Fracture pressure 
    managers.emplace_back(std::unique_ptr<Prograde::FracturePressureUpgradeManager>(new Prograde::FracturePressureUpgradeManager(m_model)));
 
-   // Top Boundary conditions
+   //11. Top Boundary conditions
    managers.emplace_back(std::unique_ptr<Prograde::TopBoundaryUpgradeManager>(new Prograde::TopBoundaryUpgradeManager(m_model)));
 
-   // Run Options Io Table
+   //12. Run Options Io Table
    managers.emplace_back(std::unique_ptr<Prograde::RunOptionsUpgradeManager>(new Prograde::RunOptionsUpgradeManager(m_model)));
 
-   // Shale Gas Io Table upgradation
+   //13. Shale Gas Io Table upgradation
    managers.emplace_back(std::unique_ptr<Prograde::SgsUpgradeManager>(new Prograde::SgsUpgradeManager(m_model)));
 
-   // SourceRockLitho and Strat Io Table upgradation
+   //14. SourceRockLitho and Strat Io Table upgradation
    managers.emplace_back(std::unique_ptr<Prograde::SourceRockUpgradeManager>(new Prograde::SourceRockUpgradeManager(m_model)));
 
-   // HeatFlow mode related tables upgradation
+   //15. //@brief Upgrading HeatFlow mode related inputs 
    managers.emplace_back(std::unique_ptr<Prograde::HeatFlowModeUpgradeManager>(new Prograde::HeatFlowModeUpgradeManager(m_model)));
 
    //FaultCut related tables upgradation
    managers.emplace_back(std::unique_ptr<Prograde::FaultCutUpgradeManager>(new Prograde::FaultCutUpgradeManager(m_model)));
 
    // Other managers to be added in the same way   
-   
-   ///2. Run all upgrade managers
+
+   ///II. Run all upgrade managers
    std::for_each(managers.begin(), managers.end(), [] ( std::shared_ptr<Prograde::IUpgradeManager> manager)
    {
       LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "running " + manager->getName();

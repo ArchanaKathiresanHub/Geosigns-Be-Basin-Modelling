@@ -170,11 +170,12 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 
 			   //Safeguard to avoid ActivityStartAge values less than the reservoir depo age. If it is less then upgrade its value to the depo age
 			   m_model.reservoirManager().getResActivityStartAge(nextResId_Index, activityStartAge);
+			   std::string resFormationName = m_model.tableValueAsString("ReservoirIoTbl", nextResId_Index, "FormationName");
 			   for (size_t stratigraphyId : stratigraphy)
 			   {
 				   std::string layerName = m_model.stratigraphyManager().layerName(stratigraphyId);
 
-				   if (layerName.compare(resName) == 0)
+				   if (layerName.compare(resFormationName) == 0)
 				   {
 					   m_model.stratigraphyManager().getDepoAge(stratigraphyId, stratigraphicAge);
 					   m_model.reservoirManager().setResActivityStartAge(nextResId_Index, reservoirConverter.upgradeActivityStartAge(activityMode, stratigraphicAge, activityStartAge));

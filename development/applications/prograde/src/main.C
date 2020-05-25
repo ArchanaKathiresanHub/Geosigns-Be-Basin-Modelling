@@ -209,12 +209,14 @@ int main( const int argc, char ** argv )
       Prograde::UpgradeManagers upgradeManagers(cldProject);
       upgradeManagers.runAll();
    }
-   catch( std::exception& ex ){
+   catch( const std::exception& ex ){
        LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not upgrade project file, see details below";
-       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what()<<" Migration from BPA to BPA2 Basin Aborted...";
+	   return -1;
    }
    catch (...) {
-      LogHandler( LogHandler::FATAL_SEVERITY ) << "Unexpected error when upgrading project file";
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "Unexpected error when upgrading project file. Migration from BPA to BPA2 Basin Aborted...";
+	  return -1;
    }
 
    //clean project

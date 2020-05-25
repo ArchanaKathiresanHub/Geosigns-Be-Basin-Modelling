@@ -49,10 +49,10 @@ void Prograde::ReservoirConverter::blockingIndLogic(const int valueProject3d, in
 double Prograde::ReservoirConverter::upgradeActivityStartAge(const std::string & resMode, const double & stratDepoAge, double & resActivityStartAge)
 {
 	double originalActivityStartAge = resActivityStartAge;
-	if (resMode.compare("ActiveFrom") == 0 && resActivityStartAge < stratDepoAge)
+	if (resMode.compare("ActiveFrom") == 0 && resActivityStartAge > stratDepoAge)
 	{
 		resActivityStartAge = stratDepoAge;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original activityStartAge ("<< originalActivityStartAge <<") is less than the reservoir depo age ("<< stratDepoAge<<"). Resetting its value to '"<< stratDepoAge <<"' ";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original activityStartAge ("<< originalActivityStartAge <<" Ma) is greater than the reservoir depo age ("<< stratDepoAge<<" Ma). Resetting its value to depoAge of "<< stratDepoAge <<" Ma ";
 	}
 	return resActivityStartAge;
 }

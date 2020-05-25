@@ -15,63 +15,57 @@
 //cmbAPI
 #include "StratigraphyManager.h"
 using namespace mbapi;
+#include<map>
+
+std::map<std::string, std::string> Prograde::LithologyConverter::createMapForLithoNames()
+{
+	std::map<std::string, std::string> m;
+	m.insert(std::pair<std::string, std::string>("Diorite/Granodiorite","Diorite/Granodiorite (SI)"));
+	m.insert(std::pair<std::string, std::string>("Gabbro/Dry basalt", "Dry Gabbro/Basalt (SI)"));
+	m.insert(std::pair<std::string, std::string>("Gabbro/Wet basal", "Granite/Rhyolite (SI)"));
+	m.insert(std::pair<std::string, std::string>("Granite/Rhyolite", "Wet Gabbro/Basalt (SI)"));
+	m.insert(std::pair<std::string, std::string>("HEAT Chalk", "Chalk, white"));
+	m.insert(std::pair<std::string, std::string>("Std. Chalk", "Chalk, white"));
+	m.insert(std::pair<std::string, std::string>("HEAT Dolostone", "Grainstone, dolomitic, typical"));
+	m.insert(std::pair<std::string, std::string>("HEAT Limestone", "Grainstone, calcitic, typical"));
+	m.insert(std::pair<std::string, std::string>("HEAT Sandstone", "Sandstone, typical"));
+	m.insert(std::pair<std::string, std::string>("Std. Sandstone", "Sandstone, typical"));
+	m.insert(std::pair<std::string, std::string>("SM. Sandstone", "Sandstone, typical"));
+	m.insert(std::pair<std::string, std::string>("SM.Mudst.40%Clay", "Mudstone, 40% clay"));
+	m.insert(std::pair<std::string, std::string>("SM.Mudst.50%Clay", "Mudstone, 50% clay"));
+	m.insert(std::pair<std::string, std::string>("SM.Mudst.60%Clay", "Mudstone, 60% clay"));
+	m.insert(std::pair<std::string, std::string>("Std. Shale", "Mudstone, 60% clay"));
+	m.insert(std::pair<std::string, std::string>("HEAT Shale", "Mudstone, 60% clay"));
+	m.insert(std::pair<std::string, std::string>("Standard Ice", "Ice"));
+	m.insert(std::pair<std::string, std::string>("Std. Anhydrite", "Anhydrite"));
+	m.insert(std::pair<std::string, std::string>("Std. Basalt", "Basalt, typical"));
+	m.insert(std::pair<std::string, std::string>("Std. Coal", "Coal"));
+	m.insert(std::pair<std::string, std::string>("Std. Marl", "Marl"));
+	m.insert(std::pair<std::string, std::string>("Std. Salt", "Halite"));
+	m.insert(std::pair<std::string, std::string>("Std. Siltstone", "Siltstone, 20% clay"));
+	m.insert(std::pair<std::string, std::string>("Std.Dolo.Grainstone", "Grainstone, dolomitic, typical"));
+	m.insert(std::pair<std::string, std::string>("Std.Dolo.Mudstone", "Lime-Mudstone, dolomitic"));
+	m.insert(std::pair<std::string, std::string>("Std.Grainstone", "Grainstone, calcitic, typical"));
+	m.insert(std::pair<std::string, std::string>("Std.Lime Mudstone", "Lime-Mudstone"));
+	m.insert(std::pair<std::string, std::string>("Sylvite", "Potash-Sylvite"));
+	m.insert(std::pair<std::string, std::string>("Astheno. Mantle", "Mantle"));
+	m.insert(std::pair<std::string, std::string>("Litho. Mantle", "Mantle"));
+
+	return m;
+}
+std::map<std::string, std::string> Prograde::LithologyConverter::lithologyNameMaps = createMapForLithoNames();
 
 std::string Prograde::LithologyConverter::upgradeLithologyName(const std::string & legacyLithotypeName)
 {
-	std::string newLithoTypeNameAssigned;
-	
-		if (legacyLithotypeName.compare("Diorite/Granodiorite") == 0)
-			newLithoTypeNameAssigned = "Diorite/Granodiorite (SI)";
-		else if (legacyLithotypeName.compare("Gabbro/Dry basalt") == 0)
-			newLithoTypeNameAssigned = "Dry Gabbro/Basalt (SI)";
-		else if (legacyLithotypeName.compare("Gabbro/Wet basalt") == 0)
-			newLithoTypeNameAssigned = "Granite/Rhyolite (SI)";
-		else if (legacyLithotypeName.compare("Granite/Rhyolite") == 0)
-			newLithoTypeNameAssigned = "Wet Gabbro/Basalt (SI)";
-		else if ((legacyLithotypeName.compare("HEAT Chalk") == 0) || (legacyLithotypeName.compare("Std. Chalk") == 0))
-			newLithoTypeNameAssigned = "Chalk, white";
-		else if (legacyLithotypeName.compare("HEAT Dolostone") == 0)
-			newLithoTypeNameAssigned = "Grainstone, dolomitic, typical";
-		else if (legacyLithotypeName.compare("HEAT Limestone") == 0)
-			newLithoTypeNameAssigned = "Grainstone, calcitic, typical";
-		else if ((legacyLithotypeName.compare("HEAT Sandstone") == 0) || (legacyLithotypeName.compare("Std. Sandstone") == 0) || (legacyLithotypeName.compare("SM. Sandstone") == 0))
-			newLithoTypeNameAssigned = "Sandstone, typical";
-		else if (legacyLithotypeName.compare("SM.Mudst.40%Clay") == 0)
-			newLithoTypeNameAssigned = "Mudstone, 40% clay";
-		else if (legacyLithotypeName.compare("SM.Mudst.50%Clay") == 0)
-			newLithoTypeNameAssigned = "Mudstone, 50% clay";
-		else if ((legacyLithotypeName.compare("SM.Mudst.60%Clay") == 0) || (legacyLithotypeName.compare("Std. Shale") == 0) || (legacyLithotypeName.compare("HEAT Shale") == 0))
-			newLithoTypeNameAssigned = "Mudstone, 60% clay";
-		else if (legacyLithotypeName.compare("Standard Ice") == 0)
-			newLithoTypeNameAssigned = "Ice";
-		else if (legacyLithotypeName.compare("Std. Anhydrite") == 0)
-			newLithoTypeNameAssigned = "Anhydrite";
-		else if (legacyLithotypeName.compare("Std. Basalt") == 0)
-			newLithoTypeNameAssigned = "Basalt, typical";
-		else if (legacyLithotypeName.compare("Std. Coal") == 0)
-			newLithoTypeNameAssigned = "Coal";
-		else if (legacyLithotypeName.compare("Std. Marl") == 0)
-			newLithoTypeNameAssigned = "Marl";
-		else if (legacyLithotypeName.compare("Std. Salt") == 0)
-			newLithoTypeNameAssigned = "Halite";
-		else if (legacyLithotypeName.compare("Std. Siltstone") == 0)
-			newLithoTypeNameAssigned = "Siltstone, 20% clay";
-		else if (legacyLithotypeName.compare("Std.Dolo.Grainstone") == 0)
-			newLithoTypeNameAssigned = "Grainstone, dolomitic, typical";
-		else if (legacyLithotypeName.compare("Std.Dolo.Mudstone") == 0)
-			newLithoTypeNameAssigned = "Lime-Mudstone, dolomitic";
-		else if (legacyLithotypeName.compare("Std.Grainstone") == 0)
-			newLithoTypeNameAssigned = "Grainstone, calcitic, typical";
-		else if (legacyLithotypeName.compare("Std.Lime Mudstone") == 0)
-			newLithoTypeNameAssigned = "Lime-Mudstone";
-		else if (legacyLithotypeName.compare("Sylvite") == 0)
-			newLithoTypeNameAssigned = "Potash-Sylvite";
-		else if ((legacyLithotypeName.compare("Astheno. Mantle") == 0) || (legacyLithotypeName.compare("Litho. Mantle") == 0))
-			newLithoTypeNameAssigned = "Mantle";
-	else
-			newLithoTypeNameAssigned = legacyLithotypeName;
+	//std::string newLithoTypeNameAssigned;
+	auto lithology = lithologyNameMaps.find(legacyLithotypeName);
 
-	return newLithoTypeNameAssigned;
+	if (lithology != lithologyNameMaps.end())
+	{
+		return lithology->second;
+	}
+
+	return legacyLithotypeName;
 }
 std::string Prograde::LithologyConverter::upgradeLithologyDescription(std::string & legacyDescription, const int & lithologyFlag, const std::string & legacyParentLithology)
 {
@@ -278,7 +272,7 @@ std::string Prograde::LithologyConverter::findParentLithology(std::string legacy
 		}
 		else if (lithologyDescription.compare("Qatar Limestone") == 0)
 		{
-			ParentLithoName = "Heat Limestone";
+			ParentLithoName = "HEAT Limestone";
 		}
 		else if (lithologyDescription.compare("Qatar Shale") == 0)
 		{
@@ -437,6 +431,61 @@ void Prograde::LithologyConverter::upgradePermModelForUsrDefLitho(const std::str
       mpPerm[0] = -6.4;
       mpPerm[1] = -2.16;
    }
+}
+
+ErrorHandler::ReturnCode Prograde::LithologyConverter::PreprocessLithofaciesInputOfStratIoTbl(std::vector<std::string>& lithologyNamesSingleLayer, std::vector<double>& lithoPercntSingleLayer, std::vector<std::string>& lithoPercntGridSingleLayer)
+{
+	if (lithologyNamesSingleLayer.size() != 3 or lithoPercntSingleLayer.size() != 3 or lithoPercntGridSingleLayer.size() != 2 or 
+		( lithologyNamesSingleLayer[0] == "" and lithologyNamesSingleLayer[1] == "" and lithologyNamesSingleLayer[2]=="") )
+	{//Added just as a precautionary measure to filter it out erronious scenarios like this from importing in to BPA2-Basin
+		return ErrorHandler::ReturnCode::ValidationError;
+	}
+	else
+	{
+		for (size_t temp = 0; temp < lithologyNamesSingleLayer.size(); temp++)
+		{
+			std::string legacyLithoTypeName = lithologyNamesSingleLayer[temp];
+			double legacyLithoPerctScalar = lithoPercntSingleLayer[temp];
+
+			//This loop is provided to preprocess the inputs as per the need of Import validation...If the inputs are not as per the BPA2 import validation code structure then modify the inputs
+			//	-> Lithology can't be imported if the lithology name is not available but lithology percents are available.
+			//		-> If this is the case, then reset the lithology percentages to NO-DATA-VALUE
+			//	-> If lithology is available but lithology percentages have both scalar and map specified then 
+			//		-> Keep the map info and reset the scalar value to NO-DATA-VALUE
+			if (legacyLithoTypeName.compare("") == 0 && legacyLithoPerctScalar != DataAccess::Interface::DefaultUndefinedScalarValue)
+			{
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> Lithology percent is found whereas the Lithotype" << (temp + 1) << " is not defined. " <<
+					"Resetting Percent" << (temp + 1) << " from " << legacyLithoPerctScalar << " to " << DataAccess::Interface::DefaultUndefinedScalarValue;
+
+				lithoPercntSingleLayer[temp] = DataAccess::Interface::DefaultUndefinedScalarValue;
+				if (temp < 2)
+				{
+					std::string legacyLithoPerctMap = lithoPercntGridSingleLayer[temp];
+					if (legacyLithoPerctMap != DataAccess::Interface::NullString)
+					{
+						lithoPercntGridSingleLayer[temp] = DataAccess::Interface::NullString;
+						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> Resetting lithology PercentGrid" << (temp + 1) << " from " << legacyLithoPerctMap << " to " << DataAccess::Interface::NullString;
+					}
+				}
+
+				///Check if lithology==NULL, percent=-9999 but PercentGrid != NULL...Is this a possible use case????
+			}
+			else
+			{
+				std::string bpa2LithoName = upgradeLithologyName(legacyLithoTypeName);
+				lithologyNamesSingleLayer[temp] = bpa2LithoName;
+				if (bpa2LithoName != legacyLithoTypeName)
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> Lithotype" << (temp + 1) << " name is updated from '" << legacyLithoTypeName << "' to '" << bpa2LithoName << "'";
+				if (temp < 2 && lithoPercntSingleLayer[temp] != DataAccess::Interface::DefaultUndefinedScalarValue && lithoPercntGridSingleLayer[temp] != "")
+				{
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> Lithotype" << (temp + 1) << " has both scalar and maps. Percent" << (temp + 1) << " value is updated from " << lithoPercntSingleLayer[temp] << " to " << DataAccess::Interface::DefaultUndefinedScalarValue;
+					lithoPercntSingleLayer[temp] = DataAccess::Interface::DefaultUndefinedScalarValue;
+				}
+			}
+		}
+	}
+
+	return ErrorHandler::ReturnCode::NoError;
 }
 
 void Prograde::LithologyConverter::upgradePermModelForSysDefLitho(const std::string & bpa2LithoName, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts)

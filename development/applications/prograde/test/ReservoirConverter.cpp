@@ -151,9 +151,12 @@ TEST(ReservoirConverter, reservoirActiveAge)
 	double activityStartAge = 500;
 	std::string activityMode = "ActiveFrom";
 	double layerDepoAge = 600.0;
-	EXPECT_NEAR(600, resConverter.upgradeActivityStartAge(activityMode, layerDepoAge, activityStartAge), 1e-6);
+	EXPECT_NEAR(500, resConverter.upgradeActivityStartAge(activityMode, layerDepoAge, activityStartAge), 1e-6);
 	activityMode = "AlwaysActive";
-	activityStartAge = 400;
-	EXPECT_NEAR(400, resConverter.upgradeActivityStartAge(activityMode, layerDepoAge, activityStartAge), 1e-6);
+	activityStartAge = 0.0;
+	EXPECT_NEAR(0.0, resConverter.upgradeActivityStartAge(activityMode, layerDepoAge, activityStartAge), 1e-6);
+	activityMode = "ActiveFrom";
+	activityStartAge = 601.0;
+	EXPECT_NEAR(600.0, resConverter.upgradeActivityStartAge(activityMode, layerDepoAge, activityStartAge), 1e-6);
 }
 

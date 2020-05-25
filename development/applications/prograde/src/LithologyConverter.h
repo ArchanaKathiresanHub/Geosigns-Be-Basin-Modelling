@@ -27,6 +27,7 @@ namespace Prograde
 		LithologyConverter& operator=(const LithologyConverter &) = delete;
 		~LithologyConverter() = default;
 
+		static std::map<std::string, std::string> createMapForLithoNames();
 
 		/// @brief Upgrades the deprecated standard LITHOLOGYs
 		/// @details The standard lithologies of BPA are upgraded using to the new lithologies of BPA2 as per the mapping provided. No upgrade is needed for userDefined lithologies
@@ -44,6 +45,12 @@ namespace Prograde
 
 		///@details The function computes the necessary model parameters (which are CompactionCoefficient, MinimumMecahnicalPorosity and the SurfacePorosity) used to define the single exponential model porosity model 
 		void computeSingleExpModelParameters(const std::string, const int, mbapi::LithologyManager::PorosityModel &, std::vector<double> &, std::vector<double> &);
+
+		//@brief  Preprocessing the inputs to check whether the legacy inputs are as per the BPA2 import validation code requirement or not....If not then modify the inputs
+		/*@details Lithology can't be imported if the lithology name is not available but lithology percents are available. If this is the case, then reset the lithology percentages to NO-DATA-VALUE
+				   If lithology is available but lithology percentages have both scalar and map specified then keep the map info and reset the scalar value to NO-DATA-VALUE*/
+
+		ErrorHandler::ReturnCode PreprocessLithofaciesInputOfStratIoTbl(std::vector<std::string> & lithologyNamesSingleLayer, std::vector<double> & lithoPercntSingleLayer, std::vector<std::string> & lithoPercntGridSingleLayer);
 
       /// @brief Upgrades the permeability model parameters for standard LITHOLOGYs
       void upgradePermModelForSysDefLitho(const std::string &, std::vector<double> &, std::vector<double> &, int &);
@@ -86,6 +93,8 @@ namespace Prograde
 
       /// @brief Check and update Intrusion Temperature property value in proposed range
       void upgradeLitPropIntrTemperature(double &);
+
+	  static std::map<std::string, std::string> lithologyNameMaps;
 
 	};
 }
