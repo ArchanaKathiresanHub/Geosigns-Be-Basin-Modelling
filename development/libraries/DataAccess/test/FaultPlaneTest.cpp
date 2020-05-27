@@ -113,17 +113,6 @@ TEST_F(FaultPlaneTest, NullFaultPlane)
   EXPECT_EQ(pntSeq.size(), 0);
 }
 
-TEST_F(FaultPlaneTest, NullGridMap)
-{
-  PlaneExpected planeExpected;
-  FaultPlane faultPlane (planeExpected.createFaultPlane(false));
-
-  std::vector<PointSequence> pntSeq;
-
-  ASSERT_EXIT((faultPlane.intersect( nullptr, 5000, pntSeq ),exit(0)),::testing::KilledBySignal(SIGSEGV),".*"); // Segmentation fault expected:
-  EXPECT_EQ(pntSeq.size(), 0);
-}
-
 TEST_F(FaultPlaneTest, checkOrderOfFaultCuts)
 {
   PlaneExpected planeExpected;
