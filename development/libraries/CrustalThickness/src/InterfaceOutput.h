@@ -69,7 +69,7 @@ public:
    /// @{
    /// @brief Save output maps to Inputs.HDF file for the given snapshot
    /// @ param pHandle The ProjectHandle and theSnapshot The snapshot at which the output maps are saved
-   bool mergeOutputMapsWithRef(DataAccess::Interface::ProjectHandle* pHandle,
+   bool mergeOutputMapsToInputs(DataAccess::Interface::ProjectHandle* pHandle,
        const DataAccess::Interface::Snapshot* theSnapshot);
    /// @defgroup SaveMaps
    /// @{

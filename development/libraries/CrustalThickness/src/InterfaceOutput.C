@@ -146,7 +146,7 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
    return true;
 }
 
-bool InterfaceOutput::mergeOutputMapsWithRef(DataAccess::Interface::ProjectHandle* pHandle, const DataAccess::Interface::Snapshot* theSnapshot)
+bool InterfaceOutput::mergeOutputMapsToInputs(DataAccess::Interface::ProjectHandle* pHandle, const DataAccess::Interface::Snapshot* theSnapshot)
 {
     bool success = false;
     LogHandler(LogHandler::DEBUG_SEVERITY) << "saveOutputMaps: My rank is " << pHandle->getRank();
@@ -154,9 +154,16 @@ bool InterfaceOutput::mergeOutputMapsWithRef(DataAccess::Interface::ProjectHandl
     std::vector<outputMaps> mapsToMerge = { isostaticBathymetry, thicknessBasaltMap, thicknessCrustMap };
     int mapsSequenceNbr = 0;
     string outputFileName = "Inputs.HDF";
+    std::fstream file;
 
     Interface::MapWriter* mapWriter = pHandle->getFactory()->produceMapWriter();
-    success = mapWriter->open(outputFileName, true);
+    file.open(outputFileName);
+    if (!file)
+       success = mapWriter->open(outputFileName, false);
+    else
+       success = mapWriter->open(outputFileName, true);
+    file.close();
+
 
     //to get the latest Maps Sequence Number from GridMapIoTbl
     mapsSequenceNbr = InterfaceOutput::getMapsSequenceNbr(pHandle);
@@ -569,7 +576,7 @@ void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDeb
       saveOutputMaps( pHandle, theSnapshot );
    }
    else if (merge) {
-      success = mergeOutputMapsWithRef(pHandle, theSnapshot);
+      success = mergeOutputMapsToInputs(pHandle, theSnapshot);
       if (!success)
       {
          throw ErrorHandler::Exception(ErrorHandler::IoError) << "Failed to merge output maps.";
