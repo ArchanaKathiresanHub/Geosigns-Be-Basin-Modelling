@@ -55,6 +55,8 @@ private:
   void getXYIndices();
   void setReferredTablesSet();
 
+  bool removeEntryInTable(const std::string& tableName,const std::string& tableEntry, const std::string& colName) const;
+
   mbapi::Model& m_mdl;
   const double m_xCoord;
   const double m_yCoord;

@@ -181,10 +181,39 @@ void ModelPseudo1d::setScalarsInModel()
               << "Failed at removing map name in table " << tablePropertyIterator->first << " at row " << tablePropertyPair.first
               << " for table property " << tableProperty.name << ", " << m_mdl.errorMessage();
         }
+
+        if (!removeEntryInTable("GridMapIoTbl", tablePropertyIterator->first, "ReferredBy"))
+        {
+          throw ErrorHandler::Exception(ErrorHandler::UnknownError)
+              << "Failed at removing "<< tablePropertyIterator->first << " map entry in GridMapIoTbl table. Element has not been found.";
+        }
+
+        removeEntryInTable("BPANameMapping", "GridMapIoTbl:" + tablePropertyIterator->first, "TblIoMappingEncode");
       }
     }
   }
   LogHandler(LogHandler::INFO_SEVERITY) << "Successfully updated model!";
+}
+
+bool ModelPseudo1d::removeEntryInTable(const std::string& tableName,const std::string& tableEntry, const std::string& colName) const
+{
+  for ( int entryTblRow = 0; entryTblRow <= m_mdl.tableSize(tableName); entryTblRow++)
+  {
+    if ( m_mdl.tableValueAsString(tableName, entryTblRow, colName).find(tableEntry) != std::string::npos )
+    {
+      if (ErrorHandler::NoError != m_mdl.removeRecordFromTable(tableName, entryTblRow))
+      {
+        throw ErrorHandler::Exception(m_mdl.errorCode())
+            << "Failed at removing "<< tableEntry << " entry in table "<< tableName << " at row " << entryTblRow;
+      }
+      else
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 void ModelPseudo1d::setSingleCellWindowXY()
