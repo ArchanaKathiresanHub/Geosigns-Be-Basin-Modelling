@@ -15,8 +15,9 @@ TEST(ProjectIoModelConverter, upgrade)
    std::string modellingMode="1d";
    EXPECT_EQ("3d", modelConverter.upgradeModellingMode(modellingMode));
    EXPECT_EQ("3d", modelConverter.upgradeModellingMode("3d"));
-   EXPECT_EQ("UnknownMode", modelConverter.upgradeModellingMode("UnknownMode"));
+   EXPECT_EQ("3d", modelConverter.upgradeModellingMode("UnknownMode"));
 
+#if 0 //these unit tests are not valid now...as there will no be any upgrade performed on node counts
    //tests to verify whether the number of nodes are correctly manipulated if out of range values are found for the same
    int nodeX = 1, nodeY = 1, OriginalWindowMax=0, NewWindowMax;
    EXPECT_EQ(2, modelConverter.upgradeNodeX("1d", nodeX, OriginalWindowMax, NewWindowMax));//when original nodeX is less than 2 for 1d cases 
@@ -48,17 +49,24 @@ TEST(ProjectIoModelConverter, upgrade)
    EXPECT_EQ(184, NewWindowMax);
    EXPECT_EQ(nodeX, modelConverter.upgradeNodeY("UnknownMode", nodeY, OriginalWindowMax, NewWindowMax));//when unknown modelling mode is found
    EXPECT_EQ(OriginalWindowMax, NewWindowMax);
+#endif
 
    //tests to verify whether grid spacings are manipulated correctly if out of range values are found for node counts 
-   EXPECT_EQ(100.0, modelConverter.upgradeDeltaX("1d", 100.0));//default value is found...nothing to do
-   EXPECT_EQ(100.0, modelConverter.upgradeDeltaX("1d", 500.0));//default value is not found...upgraded to default value
-   EXPECT_EQ(500.0, modelConverter.upgradeDeltaX("3d", 500.0));
-   EXPECT_EQ(500.0, modelConverter.upgradeDeltaX("UnknownMode", 500.0));
+   EXPECT_EQ(100.0, modelConverter.upgradeDeltaX("1d", 100.0, 2));//default value is found...nothing to do
+   EXPECT_EQ(100.0, modelConverter.upgradeDeltaX("1d", 500.0, 2));//default value is not found...upgraded to default value
+   EXPECT_EQ(100.0, modelConverter.upgradeDeltaX("Both", 500.0, 2));//default value is not found...upgraded to default value
+   EXPECT_EQ(500.0, modelConverter.upgradeDeltaX("1d", 500.0, 1));
+   EXPECT_EQ(500.0, modelConverter.upgradeDeltaX("Both", 500.0, 1));
+   EXPECT_EQ(500.0, modelConverter.upgradeDeltaX("3d", 500.0, 185));
+   EXPECT_EQ(500.0, modelConverter.upgradeDeltaX("UnknownMode", 500.0, 185));
 
-   EXPECT_EQ(100.0, modelConverter.upgradeDeltaY("1d", 100.0));//default value is found...nothing to do
-   EXPECT_EQ(100.0, modelConverter.upgradeDeltaY("1d", 500.0));//default value is not found...upgraded to default value
-   EXPECT_EQ(500.0, modelConverter.upgradeDeltaY("3d", 500.0));
-   EXPECT_EQ(500.0, modelConverter.upgradeDeltaY("UnknownMode", 500.0));
+   EXPECT_EQ(100.0, modelConverter.upgradeDeltaY("1d", 100.0, 2));//default value is found...nothing to do
+   EXPECT_EQ(100.0, modelConverter.upgradeDeltaY("1d", 500.0, 2));//default value is not found...upgraded to default value
+   EXPECT_EQ(100.0, modelConverter.upgradeDeltaY("Both", 500.0, 2));//default value is not found...upgraded to default value
+   EXPECT_EQ(500.0, modelConverter.upgradeDeltaY("1d", 500.0, 1));
+   EXPECT_EQ(500.0, modelConverter.upgradeDeltaY("Both", 500.0, 1));
+   EXPECT_EQ(500.0, modelConverter.upgradeDeltaY("3d", 500.0, 125));
+   EXPECT_EQ(500.0, modelConverter.upgradeDeltaY("UnknownMode", 500.0, 125));
 
    //tests to verify whether the description field is correctly manipulated
    EXPECT_EQ("Migrated from BPA", modelConverter.upgradeDescription("3d","")); 

@@ -158,9 +158,9 @@ void Prograde::HeatFlowModeUpgradeManager::upgradeMantleHeatFlowIoTbl()
 	{
 		DataAccess::Interface::GridMap* gridMap = this->generateInterpolatedMapAtAge("Fixed HeatFlow", doInterpolate1, BasinAge, age1, age2);
 		//Saves the map in the Inputs.hdf, create the map references in the GridMapIoTbl and the respective bottom boundary table. In the bottomboundaryTable, the new map is appended at the end of the table  
-		this->saveInterpolatedMap(gridMap, tableName, heatFlowHistoryTableSize, propertyName, BasinAge);
+		this->saveInterpolatedMap(gridMap, tableName, heatFlowHistoryTableSize, propertyName, BasinAge, allowedMinV, allowedMaxV);
 	}	
-	this->removeRecordsOlderThanBasinAge(tableName, BasinAge);
+	this->removeRecordsOlderThanBasinAge(tableName, BasinAge, propertyName);
 }
 
 

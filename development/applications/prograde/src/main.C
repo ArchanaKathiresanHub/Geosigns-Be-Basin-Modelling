@@ -211,7 +211,7 @@ int main( const int argc, char ** argv )
    }
    catch( const std::exception& ex ){
        LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not upgrade project file, see details below";
-       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what()<<" Migration from BPA to BPA2 Basin Aborted...";
+       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what()<<". Migration from BPA to BPA2 Basin Aborted...";
 	   return -1;
    }
    catch (...) {

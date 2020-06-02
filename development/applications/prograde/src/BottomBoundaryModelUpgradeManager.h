@@ -28,7 +28,7 @@ namespace DataAccess {
 		class GridMap;
 	}
 }
-
+#include <vector>
 namespace Prograde
 {
 	/// @class BottomBoundaryModelUpgradeManager  is an inteface provided for handling all the upgrades related to any of the legacy bottom boundary models
@@ -63,11 +63,15 @@ namespace Prograde
 		//@brief Generate a new map at basinAge by lineraly interpolating the values defined at interpolatingLowerAge and interpolatingHigherAge 
 		DataAccess::Interface::GridMap* generateInterpolatedMapAtAge(std::string bottomBoundaryModel, bool needInterpolation, const double basinAge, double& interpolatingLowerAge, double& interpolatingHigherAge);
 
-		//@brief save the newly generated interpolated map in the inputs.hdf. If the map is having only constant value then save it as a scalar instead of a map. Also refer the map in the GridMapIoTbl 
-		void saveInterpolatedMap(DataAccess::Interface::GridMap* gridmap, const std::string tableName, const size_t rowIndex, const std::string propertyName, const double basinAge);
+		//@brief Save the newly generated interpolated map in the inputs.hdf.  
+		/*@details If the newly generated map is having only constant value then save it as a scalar instead of a map. 
+				   If map is found then refer the map in the GridMapIoTbl
+				   Also checks whether the map falls within the acceptable limit or not.*/
+		void saveInterpolatedMap(DataAccess::Interface::GridMap* gridmap, const std::string tableName, const size_t rowIndex, const std::string propertyName, const double basinAge, const double allowedMinValue, const double allowedMaxValue);
 
 		//records older than the basin age specified in the bottom boundary model tables are not used in the simulation...hence removed from the input p3d file
-		void removeRecordsOlderThanBasinAge(const std::string & tableName, const double basinAge);
+		//void removeRecordsOlderThanBasinAge(const std::string & tableName, const double basinAge, std::string propertyName);
+		std::vector<std::pair<std::string, std::string>> removeRecordsOlderThanBasinAge(const std::string & tableName, const double basinAge, std::string propertyName);
 		
 		//@brief Clear tables which are not applicable to a particular bottom boundary model
 		bool cleartables(std::string tableName);

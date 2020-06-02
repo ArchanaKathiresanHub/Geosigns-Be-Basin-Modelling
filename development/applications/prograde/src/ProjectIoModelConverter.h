@@ -30,6 +30,7 @@ namespace Prograde
 
       ~ProjectIoModelConverter() = default;
 
+#if 0 //these methods are not releavent...as there will no be any upgrade performed on node counts
       /// @brief update number of nodes in x-direction of origin 
       /// @details Update the number of x-nodes depending upon modellingMode if out-of-range values are found.
 	  //Also update the windowing size as needed.
@@ -39,14 +40,15 @@ namespace Prograde
       /// @details Update the number of y-nodes depending upon modellingMode if out-of-range values are found 
 	  //Also update the windowing size as needed.
       int upgradeNodeY(const std::string&, const int&, const int&, int&);
+#endif
 
       /// @brief update deltaX 
-      /// @details check and update deltaX for 1d scenario if default values of BPA2 is not used
-      double upgradeDeltaX(const std::string&, const double&);
+      /// @details check and update deltaX based on NodeX rather than modelling mode. This is done as it has been observed that legacy scenarios with "Both" modelling mode can also have 2x2 nodes
+      double upgradeDeltaX(const std::string& modellingMode, const double& deltaX, const int nodeX);
 
       /// @brief update deltaY 
-      /// @details check and update deltaY for 1d scenario if default values of BPA2 is not used
-      double upgradeDeltaY(const std::string&, const double&);
+      /// @details check and update deltaY based on NodeY rather than modelling mode. This is done as it has been observed that legacy scenarios with "Both" modelling mode can also have 2x2 nodes
+	  double upgradeDeltaY(const std::string& modellingMode, const double& deltaY, const int nodeY);
 
       /// @brief update modelling mode 
       /// @details check and update modelling mode for 1d/both scenario as BPA2 does not have these modes

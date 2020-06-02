@@ -12,7 +12,8 @@
 #define PROGRADE_BOTTOM_BOUNDARY_UPGRADE_MANAGER_H
 
 //Prograde
-#include "IUpgradeManager.h"
+//#include "IUpgradeManager.h"
+#include "BottomBoundaryModelUpgradeManager.h"
 #include "ErrorHandler.h"
 //std
 #include <memory>
@@ -27,11 +28,10 @@ namespace DataAccess {
       class ProjectHandle;
    }
 }
-
 namespace Prograde
 {
    /// @class BasicCrustThinningUpgradeManager Manager to upgrade a basic crustal thinning model project to use the new crustal thinning model
-   class BasicCrustThinningUpgradeManager : public IUpgradeManager {
+   class BasicCrustThinningUpgradeManager : public BottomBoundaryModelUpgradeManager {
 
    public:
       BasicCrustThinningUpgradeManager() = delete;
@@ -49,9 +49,6 @@ namespace Prograde
       void upgrade() final;
 
    private:
-      /// @brief Detects if the project is using the basic crust thinning model for bottom boundary condition 
-      /// @return True if the project is using basic crust thinning model, false otherwise
-      //bool isBasicCrustThinning() const;
 
       /// @brief Clean the CrustIoTbl
       void cleanCrustIoTbl() const;
@@ -62,15 +59,11 @@ namespace Prograde
       void cleanBasaltThicknessIoTbl() const;
 
       /// @brief Clean the MntlHeatFlowIoTbl 
-      
-      /// @brief Interpolate at a given age
-      /// @Inputs
-      /// @return 
-      ErrorHandler::ReturnCode InterpolateIntermidiateValues(size_t mapIdToSave, size_t mapIdmin, size_t mapId, double* ageValuePoints, mbapi::MapsManager* mngr=nullptr);
-      
       void cleanMntlHeatFlowIoTbl() const;
-      mbapi::Model& m_model; ///< The model to upgrade
-      std::shared_ptr<DataAccess::Interface::ProjectHandle> m_ph; ///< The project handle of the model to upgrade
+	  //@brief Generate a new map at basinAge by lineraly interpolating the values defined at interpolatingLowerAge and interpolatingHigherAge 
+	  DataAccess::Interface::GridMap* generateInterpolatedMapAtAge(std::string bottomBoundaryModel, bool needInterpolation, const double basinAge, double& interpolatingLowerAge, double& interpolatingHigherAge);
+      //mbapi::Model& m_model; ///< The model to upgrade
+      //std::shared_ptr<DataAccess::Interface::ProjectHandle> m_ph; ///< The project handle of the model to upgrade
    };
 }
 

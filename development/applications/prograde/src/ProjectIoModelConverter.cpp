@@ -16,7 +16,7 @@
 #include "ProjectDataManager.h"
 
 using namespace mbapi;
-
+#if 0 //these methods are not releavent...as there will no be any upgrade performed on node counts
 int Prograde::ProjectIoModelConverter::upgradeNodeX(const std::string& modellingMode, const int& nodeX, const int& OriginalwindowXMax, int& NewWindowXMax)
 {
    int upgradeNodeX, node_diff;
@@ -103,50 +103,26 @@ int Prograde::ProjectIoModelConverter::upgradeNodeY(const std::string& modelling
    }
    return upgradeNodeY;
 }
-double Prograde::ProjectIoModelConverter::upgradeDeltaX(const std::string& modellingMode, const double& deltaX)
+#endif
+
+double Prograde::ProjectIoModelConverter::upgradeDeltaX(const std::string& modellingMode, const double& deltaX, const int nodeX)
 {
-   double upgradeDeltaX;
-   if (modellingMode == "1d")
+   double upgradeDeltaX = deltaX;
+   if ( (modellingMode == "1d" or modellingMode == "Both") and nodeX == 2 and deltaX != 100)
    {
-      if (deltaX != 100)
-      {
-         upgradeDeltaX = 100;
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value of DeltaX for this 1d scenario is not found. Resetting its value from " << deltaX << " to " << upgradeDeltaX;
-      }
-      else
-      {
-         upgradeDeltaX = deltaX;
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value of DeltaX for this 1d scenario is found. No upgrade required";
-      }
-   }
-   else
-   {
-      upgradeDeltaX = deltaX;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "DeltaX value is upto date for this scenario, no upgradation required";
+	   upgradeDeltaX = 100;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Default value of DeltaX for scenario with 2 nodes is not found. Resetting its value from " << deltaX << " to " << upgradeDeltaX;
    }
    
    return upgradeDeltaX;
 }
-double Prograde::ProjectIoModelConverter::upgradeDeltaY(const std::string& modellingMode, const double& deltaY)
+double Prograde::ProjectIoModelConverter::upgradeDeltaY(const std::string& modellingMode, const double& deltaY, const int nodeY)
 {
-   double upgradeDeltaY;
-   if (modellingMode == "1d")
+   double upgradeDeltaY = deltaY;
+   if ((modellingMode == "1d" or modellingMode == "Both") and nodeY == 2 and deltaY != 100)
    {
-      if (deltaY != 100)
-      {
-         upgradeDeltaY = 100;
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value of DeltaY for this 1d scenario is not found. Resetting its value from " << deltaY << " to " << upgradeDeltaY;
-      }
-      else
-      {
-         upgradeDeltaY = deltaY;
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value of DeltaY for this 1d scenario is found. No upgrade required";
-      }
-   }
-   else
-   {
-      upgradeDeltaY = deltaY;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "DeltaY value is upto date for this scenario, no upgradation required";
+	   upgradeDeltaY = 100;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Default value of DeltaY for scenario with 2 nodes is not found. Resetting its value from " << deltaY << " to " << upgradeDeltaY;
    }
 
    return upgradeDeltaY;
@@ -158,18 +134,18 @@ std::string Prograde::ProjectIoModelConverter::upgradeModellingMode(const std::s
    if (originalModellingMode == "1d" || originalModellingMode=="Both")
    {
       upgradeModellingMode = "3d";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Deprecated modelling mode ("<< originalModellingMode<<") is identified";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The modelling mode is upgraded to "<< upgradeModellingMode;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Deprecated modelling mode is identified";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Modelling mode is upgraded from "<< originalModellingMode<<" to "<< upgradeModellingMode;
    }
    else if (originalModellingMode == "3d")
    {
       upgradeModellingMode = originalModellingMode;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Deprecated modelling mode is not found. No upgrade required";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Deprecated modelling mode is not found. No upgrade required";
    }
    else//This is unlikely to found any other modelling mode but is added here to track if unknownly this field is got edited 
    {
-	   upgradeModellingMode = originalModellingMode;
-	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Unknown ModellingMode (" << originalModellingMode << ") is found. No upgradation is done as it is not a valid scenario";
+	   upgradeModellingMode = "3d";
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Unknown ModellingMode (" << originalModellingMode << ") is found; upgraded to 3d";
    }
    return upgradeModellingMode;
 }

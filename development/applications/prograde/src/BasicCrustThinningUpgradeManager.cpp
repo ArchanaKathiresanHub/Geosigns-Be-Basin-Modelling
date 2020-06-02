@@ -9,11 +9,11 @@
 //
 
 #include "BasicCrustThinningUpgradeManager.h"
-#include "MapsManagerImpl.h"
+
 //std
 #include <vector>
 #include <algorithm> // for copy
-#include <iterator> // for ostream_iterator
+
 //utilities
 #include "LogHandler.h"
 #include "NumericFunctions.h"
@@ -23,28 +23,30 @@
 //cmbAPI
 #include "cmbAPI.h"
 #include "BottomBoundaryManager.h"
+#include "MapsManagerImpl.h"
+#include "CtcManager.h"
 
 //DataAccess
 #include "ProjectHandle.h"
 #include "CrustFormation.h"
 #include "Surface.h"
 #include "Snapshot.h"
-#include "RunParameters.h"
 #include "ContinentalCrustHistoryGenerator.h"
+
+#include "PaleoFormationProperty.h"
+
+// TableIO library
+#include "cauldronschemafuncs.h"
+#include "database.h"
+#include "cauldronschema.h"
+
 using namespace mbapi;
-// The new interpolated maps are required to be in a new Layer of HDF file
-constexpr char InterpMapName[] = "interpolatedMap_";
 
 //------------------------------------------------------------//
 
 Prograde::BasicCrustThinningUpgradeManager::BasicCrustThinningUpgradeManager(mbapi::Model& model) :
-   IUpgradeManager("basic crustal thinning model upgrade manager"), m_model(model)
+	BottomBoundaryModelUpgradeManager("basic crustal thinning model upgrade manager", model)
 {
-   const auto ph = m_model.projectHandle();
-   if (ph == nullptr) {
-      throw std::invalid_argument(getName() + " cannot retreive the project handle from Cauldron data model");
-   }
-   m_ph = ph;
 }
 
 //------------------------------------------------------------//
@@ -159,180 +161,62 @@ void Prograde::BasicCrustThinningUpgradeManager::upgrade() {
       delete SnapshotList;
       
       double age=0.0;
-      bool doInterpolate = false;
-      double thickness{};
-      std::string thicknessGrid{}, TableName{};
-      std::pair<double, std::string> lastAgeMapNamePair;
-      std::pair<double, double> lastAgeThicknessPair;
-      lastAgeMapNamePair =  std::make_pair(0,"");
-      lastAgeThicknessPair = std::make_pair(0.0, 0.0);
-      size_t index = 0;
+	  double thickness{};
+	  std::string thicknessGrid{};
+ 
       auto timesteps = m_model.bottomBoundaryManager().getTimeStepsID();
 
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating Cont. CrustalThickness";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating CrustIoTbl";
+	  std::string tableName{ "CrustIoTbl" };
+	  std::string propertyName{ "Thickness" };
+	  double minValueAllowedForCrustalThickness = 0.0;
+	  double maxValueAllowedForCrustalThickness = 6300000.0;
+	  database::Table * crustHistory_Table = m_ph->getTable(tableName);
 
-      for (auto tsId : timesteps) 
+	  size_t crustHistoryTableSize = crustHistory_Table->size();
+	  this->preProcessingInput(tableName, propertyName, minValueAllowedForCrustalThickness, maxValueAllowedForCrustalThickness);
+	  //Checking whether interpolation is needed or not
+	  double age1, age2;
+	  bool doInterpolate1 = this->findInterpolatingAges(tableName, propertyName, BasinAge, age1, age2);
+	  if (doInterpolate1)
+	  {
+		  DataAccess::Interface::GridMap* gridMap = this->generateInterpolatedMapAtAge("Fixed Temperature", doInterpolate1, BasinAge, age1, age2);
+		  if (gridMap != nullptr)
+			  this->saveInterpolatedMap(gridMap, tableName, crustHistoryTableSize, propertyName, BasinAge, minValueAllowedForCrustalThickness, maxValueAllowedForCrustalThickness);
+		  else
+			  throw ErrorHandler::Exception(ErrorHandler::ReturnCode::UnknownError) << "Could not save the interpolated maps";
+	  }
+
+	  auto updatedTimesteps = m_model.bottomBoundaryManager().getTimeStepsID();
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating ContCrustalThicknessIoTbl";
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Updated CrustIoTbl is copied to the ContCrustalThicknessIoTbl";
+      for (auto tsId : updatedTimesteps)
       {
-          m_model.addRowToTable("ContCrustalThicknessIoTbl");
-          // copying Age,thickness and thickness maps corresponding to a particular time step ID from CrustIoTbl to ContCrustalThicknessIoTbl
+          // copying Age,thickness and thickness maps of crustIoTbl to ContCrustalThicknessIoTbl
           m_model.bottomBoundaryManager().getAge(tsId, age); 
+		  m_model.bottomBoundaryManager().getThickness(tsId, thickness);
+		  m_model.bottomBoundaryManager().getCrustThicknessGrid(tsId, thicknessGrid);
+
+		  m_model.addRowToTable("ContCrustalThicknessIoTbl");
+		  m_model.bottomBoundaryManager().setContCrustAge(tsId, age);
+		  m_model.bottomBoundaryManager().setContCrustThickness(tsId, thickness);
+		  m_model.bottomBoundaryManager().setContCrustThicknessGrid(tsId, thicknessGrid);
+		  
           // Checking if an age from ContCrustalThicknessIoTbl is missing from OceaCrustalThicknessIoTbl's list
           auto aCTage = std::find(agesForOceaTbl.begin(), agesForOceaTbl.end(), age);
           // if missing put in this age
           if (aCTage == std::end(agesForOceaTbl) && (age < BasinAge || abs(age - BasinAge) < 1e-6))
               agesForOceaTbl.push_back(age);
-          // ================== Scalar ===============//
-          m_model.bottomBoundaryManager().getThickness(tsId, thickness);
-          if (thickness != DataAccess::Interface::DefaultUndefinedScalarValue) {
-              /* check for the acceptable limits of[0, 6300000] for crustal thickness scalar */
-              if (!NumericFunctions::inRange(thickness, 0.0, 6300000.0)) {
-                  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << thickness << " OUT of Range [0, 6300000] ";
-                  thickness = NumericFunctions::clipValueToRange(thickness, 0.0, 6300000.0);
-              }
-          }
-          // ================= Grid ==================//
-          m_model.bottomBoundaryManager().getCrustThicknessGrid(tsId, thicknessGrid);
-          // if gripMap
-          if (thicknessGrid.compare(DataAccess::Interface::NullString)) 
-          {
-              auto mi = mapsMgrLocal.findID(thicknessGrid);
-              /* check for the acceptable limits of[0, 6300000] for crustal thickness grid*/
-              double oldMin;
-              double oldMax;
-              if (ErrorHandler::NoError != mapsMgrLocal.mapValuesRange(mi, oldMin, oldMax))
-                  throw ErrorHandler::Exception(mapsMgrLocal.errorCode()) << mapsMgrLocal.errorMessage();
-              if (! (NumericFunctions::inRange(oldMin, 0.0, 6300000.0)
-                        && NumericFunctions::inRange(oldMax, 0.0, 6300000.0)
-                    )
-                  )
-                  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << thicknessGrid + " map OUT of Range [0, 6300000] ";
-              // if a map is provided set Scalar to undefined value
-              double ageToshow = age;
-              if (!(age < BasinAge)) {
-                  ageToshow = BasinAge;
-                  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "For age: " << ageToshow << " Ma, setting thickness from " << thickness << " to -9999 since a thickness map is defined";
-              }
-              thickness = DataAccess::Interface::DefaultUndefinedScalarValue;
-          }
-          
-          // Now, that we have both thickness & thicknessGrid... check if interpolation is required
-          /* Thumb rule is that cont. crustal thickness must be defined at basement age
-           if age > Basin age set cont. crust age to basin age and Interpolate thickness/thicknessGrid*/
-          ((age < BasinAge) || (abs(age - BasinAge) < 1e-6)) ? false :(doInterpolate = true);        
-          ++index;
-          if (doInterpolate) 
-          {
-              double coeff = 0.0;
-              // Scalar-Scalar interpolation
-              /* Interpolate the Scalar Value from given data at this age to that at the Basin age*/
-              if (thickness != DataAccess::Interface::DefaultUndefinedScalarValue 
-                && lastAgeThicknessPair.second != DataAccess::Interface::DefaultUndefinedScalarValue // else its a map interpolation 
-                ) 
-              {
-                  double thePoints[6] = { age,thickness,lastAgeMapNamePair.first,lastAgeThicknessPair.second,BasinAge, 0.0 };
-                  // coeff = (BasinAge - lastAgeThicknessPair.first) / (age - lastAgeThicknessPair.first);
-                  // thickness = lastAgeThicknessPair.second + (thickness - lastAgeThicknessPair.second) * coeff;
-                  if (InterpolateIntermidiateValues(0, 0, 0, thePoints) != ErrorHandler::NoError)
-                      throw ErrorHandler::Exception(ErrorHandler::OutOfRangeValue) << "thicknessGrid interpolation failed for ContCrustalThicknessIoTbl ";
-                  thickness = thePoints[5];
-                  // thicknessGrid = DataAccess::Interface::NullString; is this required?
-              }
-              else 
-              {
-                  // current age gridMap enrty is present
-                  /* Interpolate the map from given data at this age to that at the Basin age*/
-                  long N{}, M{};    
-                  m_model.hiresGridArealSize(N, M);   
-                  auto s = N * M; std::vector<double> vdata(s);
-                  size_t mapId{}, mapIdmin{}, mapIdToSave{};  const auto refferedTable = "ContCrustalThicknessIoTbl"; 
-                  size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
-                  if (!thicknessGrid.compare(DataAccess::Interface::NullString)) 
-                  {
-                      // scalar-map interpolation
-                      // if this map is NULL then the scalar value MUST exist
-                      std::fill(vdata.begin(), vdata.end(), thickness);
-                      // lastAgeMapNamePair.second can not be null => both is null and its a Scalar-Scalar interpolation, that's handled
-                      // So, create the thicknessGrid with scalar thickness like so... 
-                      mapId = mapsMgrLocal.generateMap(refferedTable, InterpMapName + to_string(BasinAge), vdata, mapsSequenceNbr, "", false);
-                      mapIdmin = mapsMgrLocal.findID(lastAgeMapNamePair.second);
-                      mapIdToSave = mapId;
-                  }
-                  else if (!lastAgeMapNamePair.second.compare(DataAccess::Interface::NullString)) 
-                  {
-                      // last age gridMap enrty is present
-                      // map-scalar interpolation
-                      // if the last map is NULL then the scalar value MUST exist
-                      std::fill(vdata.begin(), vdata.end(), lastAgeThicknessPair.second);
-                      // present thicknessGrid can not be null => both is null and its a Scalar-Scalar interpolation, that's handled
-                      // So, create the thicknessGrid with last age scalar thickness like so... 
-                      mapIdmin = mapsMgrLocal.generateMap(refferedTable, InterpMapName + to_string(BasinAge), vdata, mapsSequenceNbr, "", false);
-                      mapId = mapsMgrLocal.findID(thicknessGrid);
-                      mapIdToSave = mapIdmin;
-                  }
-                  else 
-                  {
-                      // map-map interpolation
-                      mapId = mapsMgrLocal.findID(thicknessGrid);
-                      mapIdmin = mapsMgrLocal.findID(lastAgeMapNamePair.second);
-                      mapIdToSave = mapsMgrLocal.generateMap(refferedTable, InterpMapName + to_string(BasinAge), vdata, mapsSequenceNbr, "Inputs.HDF", false);
-                  }
-                  // if valid maps with the IDs are created or found
-                  if (!IsValueUndefined(mapId) && !IsValueUndefined(mapIdmin)) 
-                  {
-                      thicknessGrid = InterpMapName + to_string(BasinAge);
-                      double thePoints[6] = { age,0.0,lastAgeMapNamePair.first,0.0,BasinAge,0.0 };
-                      
-                      if (InterpolateIntermidiateValues(mapIdToSave, mapIdmin, mapId,thePoints, &mapsMgrLocal)!= ErrorHandler::NoError)
-                          throw ErrorHandler::Exception(ErrorHandler::OutOfRangeValue) << "thicknessGrid interpolation failed for ContCrustalThicknessIoTbl ";
-                      // Save new map to file
-                      if (ErrorHandler::NoError != mapsMgrLocal.saveMapToHDF(mapIdToSave, "Inputs.HDF"))
-                          throw ErrorHandler::Exception(mapsMgrLocal.errorCode()) << mapsMgrLocal.errorMessage();
-                  }
-                  else
-                      throw ErrorHandler::Exception(ErrorHandler::ValidationError) << "thicknessGrid map not valid in ContCrustalThicknessIoTbl ";
-              }
-              // set the age to Basin age and the intepolated values/maps at basin age
-              m_model.bottomBoundaryManager().setContCrustAge(tsId, BasinAge);
-              m_model.bottomBoundaryManager().setContCrustThickness(tsId, thickness);
-              m_model.bottomBoundaryManager().setContCrustThicknessGrid(tsId, thicknessGrid); 
-              if (thickness != DataAccess::Interface::DefaultUndefinedScalarValue )
-              {
-                  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS)
-                      << "For age: " << BasinAge << " Ma, the Continental crust thickness was interpolated to " << thickness;
-              }
-              else {
-                  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS)
-                      << "For age: " << BasinAge << " Ma, the Continental crust thickness was interpolated to Grip map " << thicknessGrid;
-              }
-              // Consider no more ages in CrustIoTbl cause they are all > Basin Age hence on
-              break;
-          }
-          lastAgeMapNamePair.first = age; lastAgeMapNamePair.second = thicknessGrid;
-          lastAgeThicknessPair.first = age; lastAgeThicknessPair.second = thickness;
-          m_model.bottomBoundaryManager().setContCrustAge(tsId, age);
-          m_model.bottomBoundaryManager().setContCrustThickness(tsId, thickness);
-          m_model.bottomBoundaryManager().setContCrustThicknessGrid(tsId, thicknessGrid);
       }
+	  
+	  std::vector<std::pair<std::string, std::string>> removedRecords = this->removeRecordsOlderThanBasinAge("ContCrustalThicknessIoTbl", BasinAge, propertyName);
 
-      // If the last age in CrustIoTbl is less that basin age add a line with basin age 
-      // & no intepolation needed just put the value/map of this age to basin age
-      if (age < BasinAge) {
-          m_model.addRowToTable("ContCrustalThicknessIoTbl");  
-          m_model.bottomBoundaryManager().setContCrustAge(index, BasinAge); 
-          m_model.bottomBoundaryManager().getThickness(index, thickness);
-          m_model.bottomBoundaryManager().setContCrustThickness(index, thickness);
-          m_model.bottomBoundaryManager().getCrustThicknessGrid(index, thicknessGrid);
-          m_model.bottomBoundaryManager().setContCrustThicknessGrid(index, thicknessGrid);
-          LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS)
-              << "For " << age << " Ma, which is less that basin age "<< BasinAge << " Ma, setting the same , Map/Value of" 
-              << " continetal crust thickness, for Basin age";
-      }
       /* Updating OceaCrustalThicknessIoTblwith all the major, system defined snapshot ages*/
-      index = 0;
+	  size_t index = 0;
       std::sort(agesForOceaTbl.begin(), agesForOceaTbl.end());
 
       (LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating  Ocea. CrustalThickness");
-      (LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Setting entries to zero for all ages");
+      (LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting oceanic thickness to 0 m for all the system generated snapshot ages");
       for (const auto OceaAge : agesForOceaTbl) {
           m_model.addRowToTable("OceaCrustalThicknessIoTbl");
           //setting thickness of OceaCrustalThicknessIoTbl to 0.0 for scalers
@@ -342,36 +226,54 @@ void Prograde::BasicCrustThinningUpgradeManager::upgrade() {
           ++index;
       }
       
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CrustIoTbl is copied/interpolated to the ContCrustalThicknessIoTbl";
       cleanCrustIoTbl();
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> CrustIoTbl is cleared";
       cleanBasaltThicknessIoTbl();
-      cleanMntlHeatFlowIoTbl();
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "CrustIoTbl is cleaned";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "BasaltThicknessIoTbl is cleaned";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "MntlHeatFlowIoTbl is cleaned";
-
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating GridMapIoTbl";
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> BasaltThicknessIoTbl is cleared";
+      cleanMntlHeatFlowIoTbl();  
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> MntlHeatFlowIoTbl is cleared";
+      
       timesteps = m_model.bottomBoundaryManager().getGridMapTimeStepsID();
-      int delCount = 0;
-      // cleaning ReferredBy field from GridMapIoTbl for all deleted entries in BasementIoTbl
-      for (auto tsId : timesteps)
-      {
-         std::string TableName;
-         m_model.bottomBoundaryManager().getReferredBy(delCount, TableName);
-         auto newName = modelConverter.upgradeGridMapTable(TableName);
-         if(newName.compare(""))
-            m_model.bottomBoundaryManager().setReferredBy(delCount, newName);
-         else {
-             m_model.removeRecordFromTable("GridMapIoTbl", delCount);
-             LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMapIoTbl is cleaned of "<< TableName<< " gridmaps!";
-             continue;
-         }
-         delCount++;
-      }
+	  if (timesteps.size() != 0)
+	  {
+		  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating GridMapIoTbl";
+		  
+		  // cleaning ReferredBy field from GridMapIoTbl for all deleted entries in BasementIoTbl
+		  for (int tsId = 0; tsId < timesteps.size(); tsId++)
+		  {
+			  std::string TableName, mapName;
+			  m_model.bottomBoundaryManager().getReferredBy(tsId, TableName);
+			  m_model.ctcManager().getGridMapIoTblMapName(tsId, mapName);
+			  auto newName = modelConverter.upgradeGridMapTable(TableName);
+			  if ( newName == "ContCrustalThicknessIoTbl")
+			  {
+				  m_model.bottomBoundaryManager().setReferredBy(tsId, newName);
+				  for (int i = 0; i < removedRecords.size(); i++)
+				  {
+					  if (removedRecords[i].second == mapName)
+					  {
+						  m_model.removeRecordFromTable("GridMapIoTbl", tsId);
+						  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMapIoTbl record for " << TableName << " with map " << mapName << " is removed.";
+						  tsId--;
+						  timesteps = m_model.bottomBoundaryManager().getGridMapTimeStepsID();
+					  }
+				  }
+
+			  }
+			  else if (newName == "")
+			  {
+				  m_model.removeRecordFromTable("GridMapIoTbl", tsId);
+				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMapIoTbl record for " << TableName << " with map " << mapName << " is removed.";
+				  //continue;
+				  tsId--;
+				  timesteps = m_model.bottomBoundaryManager().getGridMapTimeStepsID();
+			  }
+
+		  }
+	  }
    }
    else {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Deprecated basic crust thinning model is not found";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "no upgrade needed";
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Deprecated basic crust thinning model is not found, no upgrade needed";
    }
 
    
@@ -392,30 +294,62 @@ void Prograde::BasicCrustThinningUpgradeManager::cleanBasaltThicknessIoTbl() con
     m_model.clearTable("BasaltThicknessIoTbl");
 }
 
-//   \
-//    *(age1,val1 or currentMap) 
-//     \
-//      *(Given_age,val/Map=?)
-//       \
-//        *(age2,val2 or lastMap)
-//          \                   0     1     2     3          4    5
-//          agePoints[6] = {age1, val1, age2, val2, Given_age,  val}
-ErrorHandler::ReturnCode Prograde::BasicCrustThinningUpgradeManager::InterpolateIntermidiateValues(size_t mapIdToSave, size_t mapIdmin, size_t mapId,
-    double* ageValuePoints, mbapi::MapsManager* mngr)
-{
-    double coeff = (ageValuePoints[4] - ageValuePoints[2]) / (ageValuePoints[0] - ageValuePoints[2]);
-    if (!mngr) {
-        
-        ageValuePoints[5] = ageValuePoints[3] + (ageValuePoints[1] - ageValuePoints[3]) * coeff;
-        return(ErrorHandler::NoError);
-    }
-    else
-    {
-        return (mngr->interpolateMap(mapIdToSave, mapIdmin, mapId, coeff));
-    }
-}
-
 void Prograde::BasicCrustThinningUpgradeManager::cleanMntlHeatFlowIoTbl() const
 {
     m_model.clearTable("MntlHeatFlowIoTbl");
+}
+
+DataAccess::Interface::GridMap * Prograde::BasicCrustThinningUpgradeManager::generateInterpolatedMapAtAge(std::string bottomBoundaryModel, bool needInterpolation, const double basinAge, double & interpolatingLowerAge, double & interpolatingHigherAge)
+{
+	DataAccess::Interface::GridMap* interpolatedMap = nullptr;
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> BasinAge is younger than the oldest property age. Genearating the property history at basinAge(" << basinAge << " Ma) by Linear Interpolation using the properties at " << interpolatingLowerAge << " Ma and " << interpolatingHigherAge << " Ma";
+	m_ph->loadCrustThinningHistory();
+	const DataAccess::Interface::PaleoFormationPropertyList* crustalMaps=m_ph->getCrustPaleoThicknessHistory();
+	DataAccess::Interface::PaleoFormationPropertyList::const_iterator CrustalThicknessIter;
+
+	double age1 = 0.0, age2 = 0.0;
+	const DataAccess::Interface::GridMap* crustalMap1, *crustalMap2, *crustalMap;
+
+	bool foundInterpolatingLowerAge = false;
+	bool foundInterpolatingHigherAge = false;
+
+	for (CrustalThicknessIter = crustalMaps->begin(); CrustalThicknessIter != crustalMaps->end(); ++CrustalThicknessIter)
+	{
+		const DataAccess::Interface::PaleoFormationProperty* crustalHistoryInstance = dynamic_cast<const DataAccess::Interface::PaleoFormationProperty*>(*CrustalThicknessIter);
+		const double age = crustalHistoryInstance->getSnapshot()->getTime();
+		crustalMap = crustalHistoryInstance->getMap(DataAccess::Interface::CrustThinningHistoryInstanceThicknessMap);
+		if (age == interpolatingLowerAge)
+		{
+			foundInterpolatingLowerAge = true;
+			crustalMap1 = crustalMap;
+			age1 = age;
+			
+		}
+		if (age == interpolatingHigherAge)
+		{
+			foundInterpolatingHigherAge = true;
+			crustalMap2 = crustalMap;
+			age2 = age;
+			
+		}
+		if (foundInterpolatingLowerAge && foundInterpolatingHigherAge)
+		{
+			database::Record record = database::Record(*(*CrustalThicknessIter)->getRecord());
+			database::setAge(&record, basinAge);
+
+			DataAccess::Interface::PaleoFormationProperty* interpolatedCrustalThicknessMap = m_ph->getFactory()->producePaleoFormationProperty(*m_ph.get(), &record, m_ph->getCrustFormation());
+			DataAccess::Interface::InterpolateFunctor functor(age1, age2, basinAge);
+			interpolatedMap = interpolatedCrustalThicknessMap->computeMap(DataAccess::Interface::CrustThinningHistoryInstanceThicknessMap, crustalMap1, crustalMap2, functor);
+			
+			break;
+		}
+	}
+	if (age1 == 0.0){
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Error> Crustal thickness map at age "<< interpolatingLowerAge<< " Ma is not found";
+	}
+	if (age2 == 0.0) {
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Error> Crustal thickness map at age " << interpolatingHigherAge << " Ma is not found";
+	}
+	
+	return interpolatedMap;
 }

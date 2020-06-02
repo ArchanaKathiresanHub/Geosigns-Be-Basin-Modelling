@@ -100,17 +100,17 @@ std::string Prograde::BasicCrustThinningModelConverter::upgradeGridMapTable(cons
    if (OriginalName == "CrustIoTbl")
    {
       upgradedName = "ContCrustalThicknessIoTbl";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "CrustIoTbl is detected in GridMapIoTbl, upgraded to ContCrustalThicknessIoTbl";
+      //LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "CrustIoTbl is detected in GridMapIoTbl, upgraded to ContCrustalThicknessIoTbl";
    }
    if (OriginalName == "BasaltThicknessIoTbl")
    {
        upgradedName = "";
-       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BasaltThicknessIoTbl is detected in GridMapIoTbl, cleared BasaltThicknessIoTbl";
+       //LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BasaltThicknessIoTbl is detected in GridMapIoTbl, cleared BasaltThicknessIoTbl";
    }
    if (OriginalName == "MntlHeatFlowIoTbl")
    {
        upgradedName = "";
-       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "MntlHeatFlowIoTbl is detected in GridMapIoTbl, cleared MntlHeatFlowIoTbl";
+       //LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "MntlHeatFlowIoTbl is detected in GridMapIoTbl, cleared MntlHeatFlowIoTbl";
    }
       
    return upgradedName;

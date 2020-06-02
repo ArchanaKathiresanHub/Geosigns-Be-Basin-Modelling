@@ -29,6 +29,9 @@
 #include "LogHandler.h"
 
 using namespace mbapi;
+//using namespace std;
+//#include<map>
+#include <algorithm>
 
 Prograde::BottomBoundaryModelUpgradeManager::BottomBoundaryModelUpgradeManager(std::string name, mbapi::Model & model) :
 	IUpgradeManager(name), m_model(model)
@@ -68,11 +71,11 @@ void Prograde::BottomBoundaryModelUpgradeManager::preProcessingInput(const std::
 				throw ErrorHandler::Exception(mapsMgrLocal.errorCode()) << mapsMgrLocal.errorMessage();
 
 			if (!(NumericFunctions::inRange(minV, allowedMinValue, allowedMaxValue) && NumericFunctions::inRange(maxV, allowedMinValue, allowedMaxValue)))
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Note: The max-min of input " << propertyName << " map at age " << age << " Ma is found ["<< minV<<","<< maxV<<"] which are OUT of Range [" << allowedMinValue << "," << allowedMaxValue << "]";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> The max-min of legacy " << propertyName << " map at " << age << " Ma is found ["<< minV<<","<< maxV<<"] which are OUT of Range [" << allowedMinValue << "," << allowedMaxValue << "]";
 			if (propoertyValue != DataAccess::Interface::DefaultUndefinedScalarValue)
 			{
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Legacy " << propertyName << " value of "<< propoertyValue<<" at " << age << " Ma is reset to " << DataAccess::Interface::DefaultUndefinedScalarValue << " as map is defined at that age";
 				propoertyValue = DataAccess::Interface::DefaultUndefinedScalarValue;
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Note: Input " << propertyName << " value at age " << age << " Ma is reset to " << DataAccess::Interface::DefaultUndefinedScalarValue << " as map is defined at that age";
 				m_model.setTableValue(tableName, id, propertyName, propoertyValue);
 			}
 		}
@@ -80,7 +83,7 @@ void Prograde::BottomBoundaryModelUpgradeManager::preProcessingInput(const std::
 		{
 			if (!(NumericFunctions::inRange(propoertyValue, allowedMinValue, allowedMaxValue)))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Note: " << propertyName << " scalar value at age " << age << " Ma is " << propoertyValue << ", which is OUT of range [" << allowedMinValue << "," << allowedMaxValue << "]. Resetting to nearest limit! ";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Legacy " << propertyName << " value of " << propoertyValue << " at " << age << " Ma is " << propoertyValue << ", which is OUT of range [" << allowedMinValue << "," << allowedMaxValue << "]. Resetting to nearest limit! ";
 				propoertyValue = NumericFunctions::clipValueToRange(propoertyValue, allowedMinValue, allowedMaxValue);
 				m_model.setTableValue(tableName, id, propertyName, propoertyValue);
 			}
@@ -96,11 +99,11 @@ bool Prograde::BottomBoundaryModelUpgradeManager::findInterpolatingAges(const st
 	database::Record *lastRec = bottomBoundary_Table->getRecord(static_cast<int>(bottomBoundaryTableSize) - 1);
 
 	double oldestBottomBoundaryAge = lastRec->getValue<double>("Age");
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The oldest " << propertyName << " Age is: " << oldestBottomBoundaryAge << "Ma";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> The oldest " << propertyName << " Age is: " << oldestBottomBoundaryAge << "Ma";
 
 	if (oldestBottomBoundaryAge < basinAge)
 	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BasinAge is older than the oldest " << propertyName << " age. Genearating the " << propertyName << " history at basement age by constant extrapolation";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> BasinAge is older than the oldest " << propertyName << " age. Genearating the " << propertyName << " history at basement age by constant extrapolation";
 		double property_lastRecord = lastRec->getValue<double>(propertyName);
 		std::string propertyGrid_lastRecord = lastRec->getValue<std::string>(propertyName + "Grid");
 		m_model.addRowToTable(tableName);
@@ -120,7 +123,7 @@ bool Prograde::BottomBoundaryModelUpgradeManager::findInterpolatingAges(const st
 			if (age == basinAge)
 			{
 				doInterpolate = false;
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Heat Flow history at basement age is present. No extra calculations to generate the heatflow values at the BasinAge is needed.";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> "<<propertyName <<" at basement age is present. No extra calculations to generate the heatflow values at the BasinAge is needed.";
 			}
 			else if (age > basinAge)
 			{
@@ -165,13 +168,7 @@ DataAccess::Interface::GridMap * Prograde::BottomBoundaryModelUpgradeManager::ge
 				{
 					foundInterpolatingLowerAge = true;
 					heatFlowMap1 = heatFlowMap;
-					/*for (unsigned int j = heatFlowMap1->firstJ(); j <= heatFlowMap1->lastJ(); ++j)
-					{
-					for (unsigned int i = heatFlowMap1->firstI(); i <= heatFlowMap1->lastI(); ++i)
-					{
-					double value = heatFlowMap1->getValue(i, j);
-					}
-					}*/
+				
 					age1 = age;
 				}
 				if (age == interpolatingHigherAge)
@@ -189,13 +186,6 @@ DataAccess::Interface::GridMap * Prograde::BottomBoundaryModelUpgradeManager::ge
 					DataAccess::Interface::InterpolateFunctor functor(age1, age2, basinAge);
 					interpolatedMap = interpolatedHeatFlowMap->computeMap(DataAccess::Interface::HeatFlowHistoryInstanceHeatFlowMap, heatFlowMap1, heatFlowMap2, functor);
 
-					/*for (unsigned int j = interpolatedMap->firstJ(); j <= interpolatedMap->lastJ(); ++j)
-					{
-					for (unsigned int i = interpolatedMap->firstI(); i <= interpolatedMap->lastI(); ++i)
-					{
-					double value = interpolatedMap->getValue(i, j);
-					}
-					}*/
 					break;
 				}
 			}
@@ -204,13 +194,12 @@ DataAccess::Interface::GridMap * Prograde::BottomBoundaryModelUpgradeManager::ge
 		{
 
 		}
-		//delete....interpolatedHeatFlowMap....
 	}
 	return interpolatedMap;
 }
 
 //This function appended the newly generated map at BasinAge at the specified "rowIndex" to the respective table (tableName)
-void Prograde::BottomBoundaryModelUpgradeManager::saveInterpolatedMap(DataAccess::Interface::GridMap * gridmap, const std::string tableName, const size_t rowIndex, const std::string propertyName, const double basinAge)
+void Prograde::BottomBoundaryModelUpgradeManager::saveInterpolatedMap(DataAccess::Interface::GridMap * gridmap, const std::string tableName, const size_t rowIndex, const std::string propertyName, const double basinAge, const double allowedMinValue, const double allowedMaxValue)
 {
 	const auto outputFileName = "Inputs.HDF";
 	const auto mapName = "InterpolatedMap_" + std::to_string(basinAge);
@@ -219,14 +208,14 @@ void Prograde::BottomBoundaryModelUpgradeManager::saveInterpolatedMap(DataAccess
 	//Check whether the newly calculated map is constant or not..meaning the map is having a single value (scalar) or not mutiple
 	//If it is true then save the entry as a scalar in the respective table else save it as a map and have the map in the inputs.hdf.
 	bool isConstant = gridmap->isConstant();
-	double allowedPropertyValueMin = 0.0;
-	double allowedPropertyValueMax = 1000.0;
+	double allowedPropertyValueMin = allowedMinValue;
+	double allowedPropertyValueMax = allowedMaxValue;
 	if (isConstant)
 	{
 		double propoValue = gridmap->getConstantValue();
 		if (!(NumericFunctions::inRange(propoValue, allowedPropertyValueMin, allowedPropertyValueMax)))
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Note: Interpolated " << propertyName << " scalar value at basinAge (" << basinAge << " Ma) is " << propoValue << ", which is OUT of range [" << allowedPropertyValueMin << "," << allowedPropertyValueMax << "]. Resetting to nearest limit! ";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Interpolated " << propertyName << " scalar value at basinAge (" << basinAge << " Ma) is " << propoValue << ", which is OUT of range [" << allowedPropertyValueMin << "," << allowedPropertyValueMax << "]. Resetting to nearest limit! ";
 			propoValue = NumericFunctions::clipValueToRange(propoValue, allowedPropertyValueMin, allowedPropertyValueMax);
 
 		}
@@ -234,7 +223,7 @@ void Prograde::BottomBoundaryModelUpgradeManager::saveInterpolatedMap(DataAccess
 		m_model.setTableValue(tableName, rowIndex, "Age", basinAge);
 		m_model.setTableValue(tableName, rowIndex, propertyName, propoValue);
 		m_model.setTableValue(tableName, rowIndex, (propertyName + "Grid"), DataAccess::Interface::NullString);
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Interpolated " << propertyName << " value of " << propoValue << " at basinAge (" << basinAge << " Ma) is added in " << tableName;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Interpolated " << propertyName << " of " << propoValue << " m at basinAge (" << basinAge << " Ma) is added in " << tableName;
 
 	}
 	else
@@ -249,10 +238,10 @@ void Prograde::BottomBoundaryModelUpgradeManager::saveInterpolatedMap(DataAccess
 			//Additional check to know whether the map values are within the allowed range or not 
 			double minV, maxV;
 			gridmap->getMinMaxValue(minV, maxV);
-			if (!(NumericFunctions::inRange(minV, 0.0, 1000.0) && NumericFunctions::inRange(maxV, allowedPropertyValueMin, allowedPropertyValueMax)))
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Note: The max-min of interpolated " << propertyName + " map at age " << basinAge << " Ma is found [" << minV << "," << maxV << "] which are OUT of Range [" << allowedPropertyValueMin << "," << allowedPropertyValueMax << "]";
+			if (!(NumericFunctions::inRange(minV, allowedPropertyValueMin, allowedPropertyValueMax) && NumericFunctions::inRange(maxV, allowedPropertyValueMin, allowedPropertyValueMax)))
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> The max-min of interpolated " << propertyName + " map at " << basinAge << " Ma is [" << minV << "," << maxV << "] which are OUT of Range [" << allowedPropertyValueMin << "," << allowedPropertyValueMax << "]";
 
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Interpolated " << propertyName << " map at basinAge (" << basinAge << " Ma) is added in " << tableName;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Interpolated " << propertyName << " map at basinAge (" << basinAge << " Ma) is added in " << tableName;
 			m_model.addRowToTable(tableName);
 			m_model.setTableValue(tableName, rowIndex, "Age", basinAge);
 			m_model.setTableValue(tableName, rowIndex, propertyName, DataAccess::Interface::DefaultUndefinedScalarValue);
@@ -261,41 +250,91 @@ void Prograde::BottomBoundaryModelUpgradeManager::saveInterpolatedMap(DataAccess
 	}
 }
 
-void Prograde::BottomBoundaryModelUpgradeManager::removeRecordsOlderThanBasinAge(const std::string & tableName, const double basinAge)
+//void Prograde::BottomBoundaryModelUpgradeManager::removeRecordsOlderThanBasinAge(const std::string & tableName, const double basinAge, std::string propertyName)
+std::vector<std::pair<std::string, std::string>> Prograde::BottomBoundaryModelUpgradeManager::removeRecordsOlderThanBasinAge(const std::string & tableName, const double basinAge, std::string propertyName)
 {
+	mbapi::BottomBoundaryManager& bbmMgrLocal = m_model.bottomBoundaryManager();
 	database::Table * tableToCheck = m_ph->getTable(tableName);
-	for (int index = (static_cast<int>(tableToCheck->size()) - 1); index > 0; index--)
+	std::vector<std::pair<std::string, std::string>> removed_TableName_MapName;
+	std::vector<std::string> mapsUsedInYoungerEvenets, mapsUsedInOlderEvents;//Younger and older are defined wrt basinAge 
+	for (int index = 0; index <= (static_cast<int>(tableToCheck->size()) - 1); index++)
 	{
 		database::Record *rec = tableToCheck->getRecord(index);
 		double ageOfTheRecord = rec->getValue<double>("Age");
+		std::string mapName = rec->getValue<std::string>(propertyName+"Grid");
 		if (ageOfTheRecord > basinAge)
 		{
 			ErrorHandler::ReturnCode err = m_model.removeRecordFromTable(tableName, index);
 			if (err == ErrorHandler::ReturnCode::NoError)
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Note: Removing the record from " << tableName << " at age (" << ageOfTheRecord << " Ma) as it is older than the basin age (" << basinAge << " Ma)";
+			{	
+				index--;
+				tableToCheck = m_ph->getTable(tableName);//size of the table gets updated as removing the record will reduce the table size by 1
+				//Storing the map names which are getting used in the record removed from the table. These maps needs to be deleted from the GridMapIoTbl. 
+				//There will be no issue if the records removed have uniques maps. However, special care needs to be taken if the mapName gethered for the older wvents were specified in the younger events 
+				mapsUsedInOlderEvents.push_back(mapName);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Removing the record from " << tableName << " at age (" << ageOfTheRecord << " Ma) as it is older than the basin age (" << basinAge << " Ma)";
+			}
 			else
-				throw err;
+				throw ErrorHandler::Exception(err) << "Can't delete the record from "<< tableName;
 		}
-		//else
-		//break;//To break it like this...I need to sort it first..I am not sorting
+		else
+		{
+			mapsUsedInYoungerEvenets.push_back(mapName);
+		}
 	}
 
+	//Sort the mapsUsedInOlderEvents and mapsUsedInYoungerEvenets to have only unique maps first
+	sort(mapsUsedInYoungerEvenets.begin(), mapsUsedInYoungerEvenets.end());
+	sort(mapsUsedInOlderEvents.begin(), mapsUsedInOlderEvents.end());
+
+	//remove the duplicates
+	mapsUsedInYoungerEvenets.erase(unique(mapsUsedInYoungerEvenets.begin(), mapsUsedInYoungerEvenets.end()), mapsUsedInYoungerEvenets.end());	
+	mapsUsedInOlderEvents.erase(unique(mapsUsedInOlderEvents.begin(), mapsUsedInOlderEvents.end()), mapsUsedInOlderEvents.end());
+
+	//Updating mapsUsedInOlderEvents to keep only the map names that does not matches with the maps stored in mapsUsedInYoungerEvenets vector. 
+	std::vector<std::string>::iterator it = mapsUsedInOlderEvents.begin();
+	while (it!= mapsUsedInOlderEvents.end())
+	{
+		std::string mapDeleted = *it;
+		std::vector<std::string>::iterator it1 = std::find(std::begin(mapsUsedInYoungerEvenets), std::end(mapsUsedInYoungerEvenets), mapDeleted);
+	
+		if (it1 != mapsUsedInYoungerEvenets.end())
+		{
+			std::vector<std::string>::iterator position = std::find(mapsUsedInOlderEvents.begin(), mapsUsedInOlderEvents.end(), *it1);
+			if (position != mapsUsedInOlderEvents.end())
+			{
+				it=mapsUsedInOlderEvents.erase(position);
+				continue;
+			}
+			else
+				it++;		
+		} 
+		else
+			it++;	
+	}
+
+	for (int i = 0; i < mapsUsedInOlderEvents.size(); i++)
+	{
+		std::string mapDeleted = mapsUsedInOlderEvents[i];
+		removed_TableName_MapName.push_back(std::make_pair(tableName, mapDeleted));
+	}
+
+	return removed_TableName_MapName;
 }
 
 bool Prograde::BottomBoundaryModelUpgradeManager::cleartables(std::string tableName)
 {
 	database::Table * tableToClear = m_ph->getTable(tableName);
 	size_t SizeOfTableToClear = tableToClear->size();
-	mbapi::MapsManager& mapsMgrLocal = m_model.mapsManager();
 
 	//Clear the tables only if the legacy tables are having records..otherwise no need to perform this cleaning.
 	if (static_cast<int>(SizeOfTableToClear) != 0)
 	{
 		ErrorHandler::ReturnCode err = m_model.clearTable(tableName);
 		if (err != ErrorHandler::ReturnCode::NoError)
-			throw ErrorHandler::Exception(err) << mapsMgrLocal.errorMessage();
+			throw ErrorHandler::Exception(err) << tableName << " can't be cleared";
 		else {
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << tableName << " is cleared as not needed";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> "<< tableName << " is cleared as not needed";
 			return true;
 		}
 	}
@@ -317,7 +356,7 @@ void Prograde::BottomBoundaryModelUpgradeManager::removeRecordsFromGridMapIoTbl(
 			if (referredBy == tableName)
 			{
 				m_model.removeRecordFromTable("GridMapIoTbl", id);
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Map record (" << mapName << ") for " << tableName << " is removed from the GridMapIoTbl since " << tableName << " is cleared";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Map record (" << mapName << ") for " << tableName << " is removed from the GridMapIoTbl since " << tableName << " is cleared";
 				id--;
 				tableSize = tableToClear->size();//The size of the table will also reduced by 1 if we remove a record from there. So resizing the loop count
 			}
