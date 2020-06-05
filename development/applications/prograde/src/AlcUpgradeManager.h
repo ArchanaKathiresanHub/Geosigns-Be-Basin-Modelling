@@ -25,7 +25,6 @@
 //Prograde
 #include "IUpgradeManager.h"
 
-
 //DataModel
 #include "AbstractSnapshot.h"
 

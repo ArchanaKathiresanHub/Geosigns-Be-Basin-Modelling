@@ -11,8 +11,15 @@
 // std
 #include<algorithm>
 
+//Prograde
 #include "SourceRockUpgradeManager.h"
 #include "SourceRockConverter.h"
+//Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
+#include "GridMapIoTblUpgradeManager.h"
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+*/
 
 //utilities
 #include "LogHandler.h"
@@ -64,6 +71,10 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 	// list of the bpa2 names of SourceRocks with their corresponding Hi values
 	std::vector<bpa2nameHiPair> theNameHiList;
 	std::vector<LayIdStratIoLayNamePair> SnglSrsFromStratIoLayIdNamePairList;
+
+	// list of SourceRock Mixing(HI/HC) Grids which are cleared if the SR is inactive
+	std::vector<std::string> srInactiveMixHIGridsCleared, srInactiveMixHCgridsCleared;
+
 	//// ============================ 1. Check StratIoTbl ================================================////
 	// for all the layers
 	std::for_each(StartIoLayIds.begin(), StartIoLayIds.end(),
@@ -157,6 +168,11 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 				m_model.stratigraphyManager().setSourceRockMixingEnabled(LayIdFromStratIo, false);
 				// the above should be the sequence of calls to update SourceRockTypeNames and RockMixingEnabled
 				// see implementation of both the methods
+
+				// making a lists of SR mixing grids which have been removed from StratIoTbl if SR is inactive
+				srInactiveMixHIGridsCleared.push_back(m_model.tableValueAsString("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHIGrid"));
+				srInactiveMixHCgridsCleared.push_back(m_model.tableValueAsString("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHCGrid"));
+
 				m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHI", 0.0);
 				//m_model.stratigraphyManager().setSourceRockMixHI(LayIdFromStratIo, 0.0);
 				m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHIGrid", "");
@@ -170,8 +186,12 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 	);
 	// If SourceRock is not enabled
 	if (srLayersFromStratIoTbl.size() == 0) {
-		if(cleanSourceRockLithoIoTbl( ) == ErrorHandler::NoError)
+		if (cleanSourceRockLithoIoTbl() == ErrorHandler::NoError)
+		{
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SourceRock disabled, clearing SourceRockLithoIoTbl! ";
+			Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("SourceRockLithoIoTbl");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMaps ReferredBy SourceRockLithoIoTbl (if any) will be cleared by GridMapIoTbl Upgrade Manager";
+		}
 		else
 			throw ErrorHandler::Exception(ErrorHandler::ValidationError) << "Something went wrong in cleaning SourceRockLithoIoTbl";
 		
@@ -202,6 +222,68 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 		
 	}
 
+	// Removing unnecessary map references related to SourceRockLithoIoTbl from GridMapIoTbl 
+	std::vector<std::string> srLithoIoTblMaps; //vector containing the list of maps in SourceRockLithoIoTbl; 
+	database::Table * srLithoiotbl = m_ph->getTable("SourceRockLithoIoTbl");
+	for (size_t id = 0; id < srLithoiotbl->size(); ++id)
+	{
+		database::Record * rec = srLithoiotbl->getRecord(static_cast<int> (id));
+		std::string TocIniGridMap = rec->getValue<std::string>("TocIniGrid");
+		srLithoIoTblMaps.push_back(TocIniGridMap);
+	}
+	// Identifying the unnecessary map references in GridMapIoTbl ReferredBy SourceRockLithoIoTbl
+	database::Table * gridMapiotbl = m_ph->getTable("GridMapIoTbl");
+	for (size_t id = 0; id < gridMapiotbl->size(); ++id)
+	{
+		database::Record * rec = gridMapiotbl->getRecord(static_cast<int> (id));
+		std::string referredBy = rec->getValue<std::string>("ReferredBy");
+		if (referredBy == "SourceRockLithoIoTbl")
+		{
+			std::string mapNameFromIoTbl = rec->getValue<std::string>("MapName");
+			for (int i = 0; i < srLithoIoTblMaps.size(); ++i)
+			{
+				if (mapNameFromIoTbl == srLithoIoTblMaps[i]) break;
+				else if (i == srLithoIoTblMaps.size()-1)
+				{
+					Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("SourceRockLithoIoTbl", mapNameFromIoTbl);
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMap " << mapNameFromIoTbl << " ReferredBy SourceRockLithoIoTbl will be cleared by GridMapIoTbl Upgrade Manager as the map has no reference in SourceRockLithoIoTbl";
+				}
+			}
+		}
+	}
+
+	//Identifying the unnecessary map references in GridMapIoTbl ReferredBy StratIoTbl for inactive SR - SR mixing Gridmaps
+	database::Table * stratioTbl = m_ph->getTable("StratIoTbl");
+	// Inactive SR - SourceRockMixingHIGrid cleared
+	for (int i = 0; i < srInactiveMixHIGridsCleared.size(); i++)
+	{
+		for (size_t id = 0; id < stratioTbl->size(); id++)
+		{
+			database::Record * rec = stratioTbl->getRecord(static_cast<int> (id));
+			std::string srMixHIGrid = rec->getValue<std::string>("SourceRockMixingHIGrid");
+			if (srInactiveMixHIGridsCleared[id] == srMixHIGrid) break;
+			else if (id == stratioTbl->size() - 1)
+			{
+				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("StratIoTbl", srMixHIGrid);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMap " << srMixHIGrid << " ReferredBy StratIoTbl will be cleared by GridMapIoTbl Upgrade Manager as the map is no longer referenced in StratIoTbl";
+			}
+		}
+	}
+	// Inactive SR - SourceRockMixingHCGrid cleared
+	for (int i = 0; i < srInactiveMixHCgridsCleared.size(); i++)
+	{
+		for (size_t id = 0; id < stratioTbl->size(); ++id)
+		{
+			database::Record * rec = stratioTbl->getRecord(static_cast<int> (id));
+			std::string srMixHCGrid = rec->getValue<std::string>("SourceRockMixingHCGrid");
+			if (srInactiveMixHCgridsCleared[id] == srMixHCGrid) break;
+			else if (id == stratioTbl->size() - 1)
+			{
+				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("StratIoTbl", srMixHCGrid);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMap " << srMixHCGrid << " ReferredBy StratIoTbl will be cleared by GridMapIoTbl Upgrade Manager as the map is no longer referenced in StratIoTbl";
+			}
+		}
+	}
 }
 
 ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::cleanSourceRockLithoIoTbl(void) const

@@ -10,6 +10,12 @@
 
 #include "ReservoirUpgradeManager.h"
 #include "ReservoirConverter.h"
+//Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
+#include "GridMapIoTblUpgradeManager.h"
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+*/
 
 //utilities
 #include "LogHandler.h"
@@ -194,11 +200,7 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Activity mode is found to be 'NeverActive' for the current reservoir layer. Deleting this record from the ReservoirIoTbl";
 			   nextResId_Index--;
 		   }
-		   
-		   
 	   }
-
-	   
 	   // Updating ReservoirOptionsIoTbl
 	   // Globle values are obtained from ReservoirIoTbl
 	   size_t resId = 0;   // there is only one row in ReservoirOptionsIoTable, hence resID = 0 ;
@@ -224,5 +226,6 @@ void Prograde::ReservoirUpgradeManager::upgrade()
    {
 	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Number of reservoirs detected is 0. No update is to be done";
    }
-   
+   Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("ReservoirIoTbl");
+   Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("DetectedReservoirIoTbl");
 }

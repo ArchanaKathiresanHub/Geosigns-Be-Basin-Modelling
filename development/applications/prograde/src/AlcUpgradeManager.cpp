@@ -26,6 +26,12 @@
 //Prograde
 #include "LegacyBasaltThicknessCalculator.h"
 #include "AlcModelConverter.h"
+//Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
+#include "GridMapIoTblUpgradeManager.h"
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+*/
 
 //cmbAPI
 #include "MapsManager.h"
@@ -182,18 +188,42 @@ void Prograde::AlcUpgradeManager::upgrade()
 	  if (age_lastRecord > basementAge) 
 	  {
 		  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating ContCrustalThicknessIoTbl";
-		  //Deleting all the rows for which age > basement age
-		  for (int id = contCrustalThicknessIo_Table->size() - 1; id >= 0; --id)
+
+		  // Deleting all the rows for which age > basement age
+		  std::vector<std::string> mapNames;
+		  int size_contCrustalThicknessIoTbl = contCrustalThicknessIo_Table->size();
+
+		  for (int id = 0; id < size_contCrustalThicknessIoTbl; id++)
 		  {
 			  database::Record * rec = contCrustalThicknessIo_Table->getRecord(static_cast<int>(id));
 			  double Age = rec->getValue<double>("Age");
-			  if (Age > basementAge)
+			  std::string thicknessGrid = rec->getValue<std::string>("ThicknessGrid");
+
+			  if (Age <= basementAge)
 			  {
-				  m_model.removeRecordFromTable("ContCrustalThicknessIoTbl", id);
-				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The record with age : " << Age << " Ma is removed as it is greater than the basement age : " << basementAge << " Ma";
+				  mapNames.push_back(thicknessGrid);
 			  }
-			  else break;
+			  else
+			  {
+				  m_model.removeRecordFromTable("ContCrustalThicknessIoTbl", id--);
+				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The record with age : " << Age << " Ma is removed as it is greater than the basement age : " << basementAge << " Ma";
+				  size_contCrustalThicknessIoTbl = contCrustalThicknessIo_Table->size();
+				  // Checking for each of the GridMap which is cleared as the row is removed if it is referred in any other row of the same table
+				  int flag = 0;
+				  for (flag = 0; flag < mapNames.size(); flag++)
+				  {
+					  if (thicknessGrid == mapNames[flag])
+						  break;
+				  }
+				  /// if the map is not referred in any other row of the same table then we can remove it from GridMapIoTbl
+				  if (flag == mapNames.size()&&(thicknessGrid!=""))
+				  {
+					  Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("ContCrustalThicknessIoTbl",thicknessGrid);
+					  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMap " << thicknessGrid <<" ReferredBy ContCrustalThicknessIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
+				  }
+			  }
 		  }
+
 		  database::Record * updatedRecord = contCrustalThicknessIo_Table->getRecord(static_cast<int>(contCrustalThicknessIo_Table->size() - 1));
 		  double age_updatedLastRecord = updatedRecord->getValue<double>("Age");
 		  if (age_updatedLastRecord != basementAge) ///if a record with age=basement age is present then we donot have to interpolate
@@ -259,27 +289,16 @@ void Prograde::AlcUpgradeManager::upgrade()
 	  m_model.clearTable("CrustIoTbl");
 	  m_model.clearTable("MntlHeatFlowIoTbl");
 	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "BasaltThicknessIoTbl is cleared";
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMaps ReferredBy BasaltThicknessIoTbl (if any) will be cleared by GridMapIoTbl Upgrade Manager";
 	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CrustIoTbl is cleared";
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMaps ReferredBy CrustIoTbl (if any) will be cleared by GridMapIoTbl Upgrade Manager";
 	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "MntlHeatFlowIoTbl is cleared";
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMaps ReferredBy MntlHeatFlowIoTbl (if any) will be cleared by GridMapIoTbl Upgrade Manager";
 
 	  //updating GridMapIoTbl for deleting the references of the maps in the tables cleared
-	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating GridMapIoTbl";
-	  std::string GridMapReferredBy;
-	  std::string mapName;
-	  auto GridMapId = m_model.ctcManager().getGridMapID();
-	  for (int tsId = 0; tsId < GridMapId.size(); tsId++) 
-	  {
-		  m_model.ctcManager().getGridMapTablename(tsId, GridMapReferredBy);
-		  if (GridMapReferredBy == "BasaltThicknessIoTbl" || GridMapReferredBy == "CrustIoTbl" || GridMapReferredBy == "MntlHeatFlowIoTbl") 
-		  {
-			  m_model.ctcManager().getGridMapIoTblMapName(tsId, mapName);
-			  m_model.removeRecordFromTable("GridMapIoTbl", tsId);
-			  tsId--;
-			  GridMapId = m_model.ctcManager().getGridMapID();
-			  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The MapName " << mapName << " referred by the table " << GridMapReferredBy << " is cleared as the table has been cleared";
-		  }  
-	  }
-	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "GridMapIoTbl is updated for the changes in OceaCrustalThicknessIoTbl and ContCrustalThicknessIoTbl as well";
+	  Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("BasaltThicknessIoTbl");
+	  Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("CrustIoTbl");
+	  Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("MntlHeatFlowIoTbl");
      
 	  //upgrading the crust property model to standard conductivity crust
       BottomBoundaryManager::CrustPropertyModel crstPropModel;
@@ -436,9 +455,8 @@ void Prograde::AlcUpgradeManager::generateCrustalMaps(std::string refferedTable,
 		m_model.addRowToTable(refferedTable);
 		m_model.setTableValue(refferedTable, rowNumber, ageField, age);
 		m_model.setTableValue(refferedTable, rowNumber, thicknessGridField, mapName);
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with calculated thickness map : " << mapName << " at the age : " << age << " Ma is added";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "A record with calculated thickness map : " << mapName << " at the age : " << age << " Ma is added; Reference to GridMapIoTbl is added";
 		//check for the values in the maps to be in range
-		size_t mapId = m_model.mapsManager().findID(mapName);
 		if (!refferedTable.compare("ContCrustalThicknessIoTbl"))
 		{
 			if ((!NumericFunctions::inRange(minV, 0.0, 6300000.0)) || (!NumericFunctions::inRange(maxV, 0.0, 6300000.0)))
@@ -452,7 +470,6 @@ void Prograde::AlcUpgradeManager::generateCrustalMaps(std::string refferedTable,
 			{
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The values in the ThicknessGrid : " << mapName << " at age : " << age << " Ma are not in the acceptable limits [0,50000]";
 			}
-
 		}
 	}
 }

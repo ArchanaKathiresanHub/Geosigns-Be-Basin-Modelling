@@ -19,6 +19,12 @@
 #include "NumericFunctions.h"
 //Prograde
 #include "BasicCrustThinningModelConverter.h"
+//Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
+#include "GridMapIoTblUpgradeManager.h"
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+*/
 
 //cmbAPI
 #include "cmbAPI.h"
@@ -248,35 +254,24 @@ void Prograde::BasicCrustThinningUpgradeManager::upgrade() {
 			  if ( newName == "ContCrustalThicknessIoTbl")
 			  {
 				  m_model.bottomBoundaryManager().setReferredBy(tsId, newName);
-				  for (int i = 0; i < removedRecords.size(); i++)
-				  {
-					  if (removedRecords[i].second == mapName)
-					  {
-						  m_model.removeRecordFromTable("GridMapIoTbl", tsId);
-						  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMapIoTbl record for " << TableName << " with map " << mapName << " is removed.";
-						  tsId--;
-						  timesteps = m_model.bottomBoundaryManager().getGridMapTimeStepsID();
-					  }
-				  }
-
 			  }
-			  else if (newName == "")
-			  {
-				  m_model.removeRecordFromTable("GridMapIoTbl", tsId);
-				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMapIoTbl record for " << TableName << " with map " << mapName << " is removed.";
-				  //continue;
-				  tsId--;
-				  timesteps = m_model.bottomBoundaryManager().getGridMapTimeStepsID();
-			  }
-
 		  }
+		  for (int i = 0; i < removedRecords.size(); i++)
+		  {
+				  Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap(removedRecords[i].first, removedRecords[i].second);
+				  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMap " << removedRecords[i].second << " ReferredBy " << removedRecords[i].first << " will be cleared by GridMapIoTbl Upgrade Manager";
+		  }
+		  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMapIoTbl records for CrustIoTbl are updated to ContCrustalThicknessIoTbl as CrustIoTbl is copied to ContCrustalThicknessIoTbl and cleared";
+		  Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("BasaltThicknessIoTbl");
+		  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMaps ReferredBy BasaltThicknessIoTbl (if any) in GridMapIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
+		  Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("MntlHeatFlowIoTbl");
+		  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMaps ReferredBy MntlHeatFlowIoTbl (if any) in GridMapIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
 	  }
    }
-   else {
+   else 
+   {
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Deprecated basic crust thinning model is not found, no upgrade needed";
    }
-
-   
 }
 
 //------------------------------------------------------------//

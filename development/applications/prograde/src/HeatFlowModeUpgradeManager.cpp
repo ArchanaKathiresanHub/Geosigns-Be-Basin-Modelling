@@ -9,6 +9,12 @@
 //
 
 #include "HeatFlowModeUpgradeManager.h"
+//Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
+#include "GridMapIoTblUpgradeManager.h"
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+*/
 
 //utilities
 #include "LogHandler.h"
@@ -46,13 +52,24 @@ void Prograde::HeatFlowModeUpgradeManager::upgrade() {
 		this->upgradeBasementIoTbl();
 		this->upgradeMantleHeatFlowIoTbl();
 		bool tableCleared = this->cleartables("CrustIoTbl");
-		this->removeRecordsFromGridMapIoTbl(tableCleared, "CrustIoTbl");
+		if (tableCleared)
+		{
+			Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("CrustIoTbl");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMaps ReferredBy CrustIoTbl (if any) in GridMapIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
+		}
 		tableCleared = this->cleartables("ContCrustalThicknessIoTbl");
-		this->removeRecordsFromGridMapIoTbl(tableCleared, "ContCrustalThicknessIoTbl");
+		if (tableCleared)
+		{
+			Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("ContCrustalThicknessIoTbl");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMaps ReferredBy ContCrustalThicknessIoTbl (if any) in GridMapIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
+		}
 		tableCleared = this->cleartables("BasaltThicknessIoTbl");
-		this->removeRecordsFromGridMapIoTbl(tableCleared, "BasaltThicknessIoTbl");
+		if (tableCleared)
+		{
+			Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("BasaltThicknessIoTbl");
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMaps ReferredBy BasaltThicknessIoTbl (if any) in GridMapIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
+		}	
 	}
-
 }
 
 void Prograde::HeatFlowModeUpgradeManager::upgradeBasementRelatedProperty(const std::string & tableName, const std::string & propName, double value)
@@ -160,7 +177,12 @@ void Prograde::HeatFlowModeUpgradeManager::upgradeMantleHeatFlowIoTbl()
 		//Saves the map in the Inputs.hdf, create the map references in the GridMapIoTbl and the respective bottom boundary table. In the bottomboundaryTable, the new map is appended at the end of the table  
 		this->saveInterpolatedMap(gridMap, tableName, heatFlowHistoryTableSize, propertyName, BasinAge, allowedMinV, allowedMaxV);
 	}	
-	this->removeRecordsOlderThanBasinAge(tableName, BasinAge, propertyName);
+	std::vector<std::pair<std::string, std::string>> removedRecords = this->removeRecordsOlderThanBasinAge(tableName, BasinAge, propertyName);
+	for (int i = 0; i < removedRecords.size(); i++)
+	{
+		Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap(removedRecords[i].first, removedRecords[i].second);
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMap " << removedRecords[i].second << " ReferredBy " << removedRecords[i].first <<" will be cleared by GridMapIoTbl Upgrade Manager";
+	}
 }
 
 

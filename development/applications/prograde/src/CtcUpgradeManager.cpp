@@ -16,6 +16,12 @@
 
 //Prograde
 #include "CtcModelConverter.h"
+//Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
+#include "GridMapIoTblUpgradeManager.h"
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+*/
 
 //cmbAPI
 #include "cmbAPI.h"
@@ -107,6 +113,7 @@ void Prograde::CtcUpgradeManager::upgrade() {
 	   m_model.ctcManager().getBasaltMeltThicknessValue(thickness);
 	   m_model.ctcManager().getBasaltMeltThicknessMap(MaximumThicknessOfBasaltMeltMap);//Getting the map name for HBuGrid field from CTCIoTbl
 
+	   //clearing CTCRiftingHistoryIoTbl if any (ideally there should not be as CTCRiftingHistoryIoTbl is not defined in BPA-legacy project3d file)
 	   if (m_model.tableSize("CTCRiftingHistoryIoTbl") != 0) {
 		   m_model.clearTable("CTCRiftingHistoryIoTbl");
 		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "CTCRiftingHistoryIoTbl is cleared";
@@ -167,11 +174,15 @@ void Prograde::CtcUpgradeManager::upgrade() {
 		   }
 		   if (GridMapIoMapName != MaximumThicknessOfBasaltMeltMap && GridMapIoMapName != rdaMap && GridMapReferredBy == "CTCIoTbl")
 		   {
-			   m_model.removeRecordFromTable("GridMapIoTbl", tsId);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Legacy Map:" << GridMapIoMapName << " related to deprecated fields of CTCIoTbl is removed from GridMapIoTbl";
-			   GridMapId = m_model.ctcManager().getGridMapID();
-			   tsId--;
+			   Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("CTCIoTbl", GridMapIoMapName);
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Legacy Map:" << GridMapIoMapName << " related to deprecated fields of CTCIoTbl will be removed from GridMapIoTbl by GridMapIoTbl Upgrade Manager";
 		   }
+
+		   /*
+		   In the upgrade managers,DO NOT USE removeRecordFromTable() TO REMOVE RECORD FROM GridMapIoTbl
+		   instead use the static function  Prograde::GridMapIoTblUpgradeManager::clearMapNameTblNamepReferenceGridMap()
+		   of GridMapIoTblUpgradeManager which updates the GridMapIoTbl for the unnecessary maps to be removed after the last upgrade manager execution
+		   */
 #if 0
 		   //Remove basalt referrences from the GridMapIoTbl..This part is removed from here as it is taken care in the current implementation of ALCUpgrade manager
 		   if (GridMapReferredBy == "BasaltThicknessIoTbl")

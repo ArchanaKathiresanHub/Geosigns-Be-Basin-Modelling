@@ -10,6 +10,12 @@
 
 #include "FaultCutUpgradeManager.h"
 #include "StratigraphyModelConverter.h"
+//Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
+#include "GridMapIoTblUpgradeManager.h"
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+*/
 
 //utilities
 #include "LogHandler.h"
@@ -81,6 +87,18 @@ void Prograde::FaultCutUpgradeManager::upgrade()
 	size_t sizeFaultcutIoTbl = faultcutio_table->size();
 	if (sizeFaultcutIoTbl != 0)
 	{
+		std::string mapName;
+		std::vector<std::string> mapNames;
+		for (size_t id = 0; id < sizeFaultcutIoTbl; ++id)
+		{
+			database::Record * rec = faultcutio_table->getRecord(static_cast<int>(id));
+			mapName = rec->getValue<std::string>("SurfaceName");
+			age = rec->getValue<double>("Age");
+			if (age < basementAge)
+			{
+				mapNames.push_back(mapName);
+			}
+		}
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the FaultcutIoTbl : ";
 		for (size_t id = 0; id < sizeFaultcutIoTbl; ++id)
 		{
@@ -88,10 +106,19 @@ void Prograde::FaultCutUpgradeManager::upgrade()
 			age = rec->getValue<double>("Age");
 			if (age >= basementAge)
 			{
-				m_model.removeRecordFromTable("FaultcutIoTbl", id);
+				mapName = rec->getValue<std::string>("SurfaceName");
+				m_model.removeRecordFromTable("FaultcutIoTbl", id--);
 				sizeFaultcutIoTbl = faultcutio_table->size();
-				--id;
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Record with Age : " << age << " is removed as the age is greater than or equal to the basement age : " << basementAge;
+				for (int i = 0; i < mapNames.size(); i++)
+				{
+					if (mapName == mapNames[i]) break;
+					else
+					{
+						Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("FaultcutIoTbl", mapName);
+						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMap " << mapName << " ReferredBy FaultcutIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
+					}		
+				}
 			}
 		}
 	}

@@ -34,6 +34,7 @@
 #include "StratigraphyUpgradeManager.h"
 #include "HeatFlowModeUpgradeManager.h"
 #include "FaultCutUpgradeManager.h"
+#include "GridMapIoTblUpgradeManager.h"
 
 //Prograde
 #include "IUpgradeManager.h"
@@ -80,7 +81,7 @@ void Prograde::UpgradeManagers::runAll() const{
    //6. BPA1 reservoir layer-wise parameters to BPA2 reservoir global parameters
    managers.emplace_back(std::unique_ptr<Prograde::ReservoirUpgradeManager>(new Prograde::ReservoirUpgradeManager(m_model)));
 
-   //7. Boidegradation
+   //7. Biodegradation
    managers.emplace_back(std::unique_ptr<Prograde::BiodegradeUpgradeManager>(new Prograde::BiodegradeUpgradeManager(m_model)));
 
    //8. Basic crust thinning bottom boundary model to the new Crust Thinning model
@@ -107,10 +108,14 @@ void Prograde::UpgradeManagers::runAll() const{
    //15. //@brief Upgrading HeatFlow mode related inputs 
    managers.emplace_back(std::unique_ptr<Prograde::HeatFlowModeUpgradeManager>(new Prograde::HeatFlowModeUpgradeManager(m_model)));
 
-   //FaultCut related tables upgradation
+   //16. FaultCut related tables upgradation
    managers.emplace_back(std::unique_ptr<Prograde::FaultCutUpgradeManager>(new Prograde::FaultCutUpgradeManager(m_model)));
 
-   // Other managers to be added in the same way   
+   // Other managers to be added in the same way BUT BEFORE GridMapIoTblUpgradeManager 
+   // Add other managers HERE
+
+   // GridMapIoTbl upgradation - deletion of unnecessary GridMaps from GridMapIoTbl
+   managers.emplace_back(std::unique_ptr<Prograde::GridMapIoTblUpgradeManager>(new Prograde::GridMapIoTblUpgradeManager(m_model)));
 
    ///II. Run all upgrade managers
    std::for_each(managers.begin(), managers.end(), [] ( std::shared_ptr<Prograde::IUpgradeManager> manager)

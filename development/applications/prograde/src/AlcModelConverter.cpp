@@ -105,6 +105,3 @@ std::string Prograde::AlcModelConverter::updateBottomBoundaryModel(std::string &
 	}
 	return BottomBoundaryModel_updated;
 }
-
-
-
