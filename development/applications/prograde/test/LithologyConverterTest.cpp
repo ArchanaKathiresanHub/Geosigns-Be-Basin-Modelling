@@ -106,7 +106,7 @@ TEST(LithologyConverter, upgradeLithologyDescription)
 	// upgrading descriptions for userDefined lithotype
 	int userDefinedFlag = 1;
 	std::string upgradedDescription = modelConverter.upgradeLithologyDescription(legacyDescription, userDefinedFlag, parentLithology);
-	EXPECT_EQ("User defined lithology based on Std. Sandstone. Based on legacy BPA Std. Sandstone", upgradedDescription);
+	EXPECT_EQ("User defined lithology based on Std. Sandstone( Based on BPA Std. Sandstone)", upgradedDescription);
 
 	// upgrading descriptions for standardlLithotype
 	userDefinedFlag = 0;
@@ -145,20 +145,29 @@ TEST(LithologyConverter, findParentLithology)
 {
 	Prograde::LithologyConverter modelConverter;
 
-	std::string legacyParentLithoDetails = "BPA REF INFO|Gabbro/Dry basalt|Std. Basalt";
-	std::string legacyDescription = "Soil Mechanics 40% clay";
-	std::string parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails, legacyDescription, 0);
-	EXPECT_EQ("Gabbro/Dry basalt", parentLithologyName);
+	std::string legacyParentLithoDetails = "BPA REF INFO|Std. Basalt|Std. Basalt";//Parent lithology name is available
+	std::string parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails);
+	EXPECT_EQ("Std. Basalt", parentLithologyName);
 
-	legacyParentLithoDetails = "BPA REF INFO||CLAY"; 
-	legacyDescription = "SM Mudstone 80% Clay";
-	parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails, legacyDescription, 1);
-	EXPECT_EQ("SM.Mudst.60%Clay", parentLithologyName);
-
-	legacyParentLithoDetails = "BPA REF INFO||CLAY";
-	legacyDescription = "Description not available in the mapping sheet";
-	parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails, legacyDescription, 1);
+	legacyParentLithoDetails = "BPA REF INFO||CLAY"; //Parent lithology name is not available
+	parentLithologyName = modelConverter.findParentLithology(legacyParentLithoDetails);
 	EXPECT_EQ("", parentLithologyName);
+
+	//Since parent lithology name is not found in the original inputs...it will be checked with the mapping which is based on description and/or lithology names
+	std::string legacyDescription = "See \\n\\nBPA2_Reference_Lithology_Catalog_Signed_Off_latest_version_in_Sharepoint_dated_modified_December_2019.xlsx\\n\\nUse in most cases for rift filling basalt.";
+	parentLithologyName = modelConverter.findMissingParentLithology("UserDefinedName", legacyDescription);
+	EXPECT_EQ("Std. Basalt", parentLithologyName);
+
+	legacyDescription = "Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); \\n\\nSlightly increased Surface Porosity\\nComp Coeff (Eff Stress) increased\\nMultipoint Perm Model Sm Sandstone\\nSeisVel=6500 instead of 5750\\n\\nHighest thermal conductivity";
+	parentLithologyName = modelConverter.findMissingParentLithology("UserDefinedName", legacyDescription);
+	EXPECT_EQ("Std. Basalt", parentLithologyName);
+	parentLithologyName = modelConverter.findMissingParentLithology("SDR_basalt+volclastic_LK04022014 EH27102015 (high k)", legacyDescription);
+	EXPECT_EQ("Basalt, SDR extrusive flows", parentLithologyName);
+
+	legacyDescription = "Description not available in the mapping sheet";
+	parentLithologyName = modelConverter.findMissingParentLithology("UserDefinedName", legacyDescription);
+	EXPECT_EQ("", parentLithologyName);
+	
 }
 
 //test to validate the upgradation of Soil Mechanics model to Exponential model for custom lithologies whose parent lithology contains Sandstone sub-string 

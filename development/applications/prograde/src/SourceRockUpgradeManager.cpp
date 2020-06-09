@@ -125,7 +125,7 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 						// \m_model.stratigraphyManager().setSourceRockMixingEnabled(LayIdFromStratIo, isEnbl);
 					}
 				}
-				auto sr1 = &theSRTypesInStraiIo[0];//r->getValue<std::string>("SourceRockType1");
+				auto sr1 = &theSRTypesInStraiIo[0];
 				// case 2: this is a 1st SR in the layer; change it to new name
 				if ((*sr1).compare("")) // if there is a name
 				{
@@ -163,7 +163,7 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 				 theSRTypesIntStraiIo == null when SR inavtive althought names might be preset:
 				 see implementation of stratigraphyManager().isSourceRockActive*/
 			{
-				theSRTypesInStraiIo.resize(2); long zer = 0;
+				theSRTypesInStraiIo.resize(2); 
 				m_model.stratigraphyManager().setSourceRockTypeName(LayIdFromStratIo,theSRTypesInStraiIo);
 				m_model.stratigraphyManager().setSourceRockMixingEnabled(LayIdFromStratIo, false);
 				// the above should be the sequence of calls to update SourceRockTypeNames and RockMixingEnabled
@@ -173,13 +173,12 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 				srInactiveMixHIGridsCleared.push_back(m_model.tableValueAsString("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHIGrid"));
 				srInactiveMixHCgridsCleared.push_back(m_model.tableValueAsString("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHCGrid"));
 
-				m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHI", 0.0);
-				//m_model.stratigraphyManager().setSourceRockMixHI(LayIdFromStratIo, 0.0);
+				m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHI", DataAccess::Interface::DefaultUndefinedScalarValue);// Changed as per the BPA2 standard for no SR layer
+				
 				m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHIGrid", "");
-				//m_model.stratigraphyManager().setSourceRockMixHIMapName(LayIdFromStratIo, "");
-				//zer = Utilities::Numerical::IbsNoDataValue;
+				/*Note: Not needed to set SourceRockMixingHC/SourceRockMixingHCGrid fields explicitely. 
+						Can we remove these two fields from the BasinModellerProperty.Spec file as these two fields are already removed from the downloaded p3d file from BPA2 	*/			
 				m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHC", 0.);
-				/*m_model.stratigraphyManager().setSourceRockMixHC(LayIdFromStratIo, zer);*/
 				m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHCGrid", "");
 			}
 		}
@@ -297,10 +296,9 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::SetSourceRockProper
 {
 	ErrorHandler::ReturnCode err = ErrorHandler::NoError;
 	auto srLayIds = m_model.sourceRockManager().sourceRockIDs();
-	//size_t sourceRockId = 0;
+	
 	for (auto srRecord : ValidSrIds) {
 		size_t sourceRockId = srRecord.first;
-		//std::cout << srRecord.first << ' ' << srRecord.second << ' '<< sourceRockId << std::endl;
 		auto layerName = m_model.sourceRockManager().layerName(sourceRockId);
 		auto bpaSourceRockTypeName = m_model.sourceRockManager().sourceRockType(sourceRockId);
 		auto bpaScVre05 = m_model.sourceRockManager().scIni(sourceRockId) > 0;
@@ -332,16 +330,13 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::SetSourceRockProper
 			err = m_model.sourceRockManager().setPreAsphActEnergy(sourceRockId, newVal);
 			newVal = mConvert->upgradeHcVre05(bpaSourceRockTypeName, bpaBaseSourceRockType, bpaHcIni, bpaScVre05,HiRange[0],HiRange[1]);
 			err = m_model.sourceRockManager().setHCIni(sourceRockId, newVal);
-			//	newVal = mConvert->upgradeHiVre05(bpaSourceRockTypeName, bpaBaseSourceRockType, bpaHiIni, bpaScVre05, HiRange[0], HiRange[1])		
-			//	rec->setValue( s_hcIni, hcIni );
-			//	\ the next function is a misnomer, although it says setHi it actually sets Hc, cause in BPA2 here are no Hi for single SRs
-			//err = m_model.sourceRockManager().setHIIni(sourceRockId, newVal);
 			newVal = mConvert->upgradeScVre05(bpaSourceRockTypeName, bpaBaseSourceRockType, bpaScVre05);
 			err = m_model.sourceRockManager().setSCIni(sourceRockId, newVal);
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SourceRock " << bpa2SourceRockTypeName
 				<<" used in a mixed source rock layer "
 				<< layerName << " is reset to default properties";
 		}
+#if 0		// This was a temporary solution solution and now not needed as this has been now taken care in the middle tier in PBI #.
 		else {
 			// This is the PART where HI value for Single SR is put into SourceRockMixingHI
 			// \ has to be removed later when "middle" tire is corrected
@@ -356,6 +351,7 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::SetSourceRockProper
 				m_model.setTableValue("StratIoTbl", (*itSrId).first, "SourceRockMixingHI", bpaHiIni);
 			}
 		}
+#endif
 		err = m_model.sourceRockManager().setSourceRockType(sourceRockId, bpa2SourceRockTypeName);
 		err = m_model.sourceRockManager().setBaseSourceRockType(sourceRockId, bpa2BaseSourceRockType);
 		err = m_model.sourceRockManager().setAsphalteneDiffusionEnergy(sourceRockId, bpaAsphalteneDE);
@@ -364,7 +360,6 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::SetSourceRockProper
 		err = m_model.sourceRockManager().setC15SatDiffusionEnergy(sourceRockId, bpaC15SatDE);
 		err = m_model.sourceRockManager().setVESlimit(sourceRockId, VESlimit);
 		err = m_model.sourceRockManager().setVREthreshold(sourceRockId, VREthreshold);
-		//++sourceRockId;
 	}
 	return err;
 }
@@ -472,8 +467,7 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::UpdateOfInconsisten
 	auto SrLithIoSrIds = m_model.sourceRockManager().sourceRockIDs();
 	int countOfDelResId = 0; int originalResIDPosition = -1;
 	int renumerSrId = 0;
-	/*database::Table::iterator newIt;
-	database::Table::iterator It;*/
+	
 	std::for_each(SrLithIoSrIds.begin(), SrLithIoSrIds.end(),
 		[&](size_t & SrId) {
 			originalResIDPosition++;
@@ -486,7 +480,7 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::UpdateOfInconsisten
 			if (it == ValidSrIds.end()) {
 				// not found in "Exists" list
 				countOfDelResId++;
-				/*m_model.sourceRockManager().deleteSourceRockRecord(SrId, newIt);*/
+				
 				auto idRem = (originalResIDPosition + 1) - countOfDelResId;
 
 				auto t = m_model.tableSize("SourceRockLithoIoTbl");

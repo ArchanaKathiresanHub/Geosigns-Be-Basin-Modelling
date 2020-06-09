@@ -16,11 +16,15 @@
 #include "StratigraphyManager.h"
 using namespace mbapi;
 #include<map>
+#include <algorithm> 
+#include <sstream> 
+
+std::map<std::string, std::string> Prograde::LithologyConverter::lithologyNameMaps = createMapForLithoNames();
 
 std::map<std::string, std::string> Prograde::LithologyConverter::createMapForLithoNames()
 {
 	std::map<std::string, std::string> m;
-	m.insert(std::pair<std::string, std::string>("Diorite/Granodiorite","Diorite/Granodiorite (SI)"));
+	m.insert(std::pair<std::string, std::string>("Diorite/Granodiorite", "Diorite/Granodiorite (SI)"));
 	m.insert(std::pair<std::string, std::string>("Gabbro/Dry basalt", "Dry Gabbro/Basalt (SI)"));
 	m.insert(std::pair<std::string, std::string>("Gabbro/Wet basal", "Granite/Rhyolite (SI)"));
 	m.insert(std::pair<std::string, std::string>("Granite/Rhyolite", "Wet Gabbro/Basalt (SI)"));
@@ -53,7 +57,92 @@ std::map<std::string, std::string> Prograde::LithologyConverter::createMapForLit
 
 	return m;
 }
-std::map<std::string, std::string> Prograde::LithologyConverter::lithologyNameMaps = createMapForLithoNames();
+std::map<std::string, std::string> Prograde::LithologyConverter::mappingOfLithologyNameBasedOndescription = createMapForUnparentedLithoNames();
+
+std::map<std::string, std::string> Prograde::LithologyConverter::createMapForUnparentedLithoNames()
+{
+	std::map<std::string, std::string> map;
+	//Map created for Exponential porosity model based unparented legacy lithologies => std::pair::(<Decription>, <legacy parent litholgy name>)
+	map.insert(std::pair<std::string, std::string>("Al Bashair Shale", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("Allow minor porosity and permeability near surface.", "Std. Basalt"));
+	map.insert(std::pair<std::string, std::string>("Chalk as used by IBS-HEAT", "HEAT Chalk"));
+	map.insert(std::pair<std::string, std::string>("Cold Shale_1.0", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("DeepCompactedSand", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("DeepSh_LP20%", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("DeepShaleLowPerm", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("hot_shale to introduce a great amount of heat from the surface into the model by introducitn a hot Radiogenic heat genration", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("Klaus_Sand", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("Klaus_Sand2", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("Lower Depositional Perm (value of std shale not std siltstone).\\n\\nLower thermal conductivity (using geometric not arithmetic mean).\\n\\nModified to fit general result from RS initial inversion. Summary much lower CC (why? OP? sandier?).\\n\\nMix Lithology created from: Project Lithology Std. Shale(50%); Project Lithology Std. Sandstone(25%); Project Lithology Std.Lime Mudstone(15%); Project Lithology Std.Dolo.Mudstone(10%); \\n\\nAdjusted to match Phi-VP xlsx", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("Lower thermal conductivity (using geometric not arithmetic mean).\\n\\nModified to fit general result from RS initial inversion. Summary much lower CC (why? OP? sandier?).\\n\\nMix Lithology created from: Project Lithology Std. Shale(50%); Project Lithology Std. Sandstone(25%); Project Lithology Std.Lime Mudstone(15%); Project Lithology Std.Dolo.Mudstone(10%); \\n\\nAdjusted to match Phi-VP xlsx", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("lowporositywadsand", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("LSB_Vlieland", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("Mod. Basalt", "Std. Basalt"));
+	map.insert(std::pair<std::string, std::string>("NewAnhydrite", "Std. Anhydrite"));
+	map.insert(std::pair<std::string, std::string>("Nile Sandstone", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("Qatar Anhydrite", "Std. Anhydrite"));
+	map.insert(std::pair<std::string, std::string>("Qatar Dolo Lime", "Std.Dolo.Mudstone"));
+	map.insert(std::pair<std::string, std::string>("Qatar Dolomite", "Std.Dolo.Mudstone"));
+	map.insert(std::pair<std::string, std::string>("Qatar Limestone", "HEAT Limestone"));
+	map.insert(std::pair<std::string, std::string>("Qatar Shale", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("Shale as used by IBS-HEAT", "HEAT Shale"));
+	map.insert(std::pair<std::string, std::string>("silica ooze", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("Soil Mechanics Mudstone 40% Clay", "SM.Mudst.40%Clay"));
+	map.insert(std::pair<std::string, std::string>("Soil Mechanics Mudstone 50% Clay", "SM.Mudst.50%Clay"));
+	map.insert(std::pair<std::string, std::string>("Standard Basalt", "Std. Basalt"));
+	map.insert(std::pair<std::string, std::string>("Standard Calcareous Mudstone (Limestone)", "Std.Lime Mudstone"));
+	map.insert(std::pair<std::string, std::string>("Standard Chalk", "Std. Chalk"));
+	map.insert(std::pair<std::string, std::string>("Standard Coal", "Std. Coal"));
+	map.insert(std::pair<std::string, std::string>("Standard Domlomitic Grainstone (Dolostone)", "Std.Dolo.Grainstone"));
+	map.insert(std::pair<std::string, std::string>("Standard Grainstone (Limestone)", "Std.Grainstone"));
+	map.insert(std::pair<std::string, std::string>("Standard Marl", "Std. Marl"));
+	map.insert(std::pair<std::string, std::string>("Standard Salt", "Std. Salt"));
+	map.insert(std::pair<std::string, std::string>("Standard Sandstone", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("Standard Shale", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("Standard Shale\\nFor tests constructed by Philipp in WSB", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("Standard Siltstone", "Std. Siltstone"));
+	map.insert(std::pair<std::string, std::string>("WAD_chalk", "Std. Chalk"));
+	map.insert(std::pair<std::string, std::string>("WAD_sandstone", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("WAD_shale", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); ", "Std. Basalt"));//////
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); \\n\\nSeisVel=6500 instead of 5750", "Std. Basalt"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); \\n\\nSlightly increased Surface Porosity\\nComp Coeff (Eff Stress) increased\\nMultipoint Perm Model Sm Sandstone\\nSeisVel=6500 instead of 5750", "Std. Basalt"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); \\n\\nSlightly increased Surface Porosity\\nComp Coeff (Eff Stress) increased\\nMultipoint Perm Model Sm Sandstone\\nSeisVel=6500 instead of 5750\\n\\nHighest thermal conductivity", "Std. Basalt"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); \\n\\nSlightly increased Surface Porosity\\nComp Coeff (Eff Stress) increased\\nMultipoint Perm Model Sm Sandstone\\nSeisVel=6500 instead of 5750\\n\\nLowest thermal conductivity", "Std. Basalt"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%);\\nAssign density 2830 for consistency with CTC basalt (combines true basalt and mantle depletion uplift effects).", "Std. Basalt"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Sandstone(20%); Project Lithology Std. Shale(80%);\\n\\nEst 12%clay equivalent\\nEst 6.46 comp coeff\\nEst Surf Phi 0.656\\nExcel estimates\\nVP solid 5670\\nRho solid 2652\\nThC Geom Mean 1.72", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Sandstone(20%); Project Lithology Std. Shale(80%);\\n\\nUse for Orange SPOB12-09 test\\nEdited k = weighted harm mean\\ncomp coeff from spreadsheet", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Sandstone(40%); Project Lithology Std. Siltstone(60%); ", "Std. Siltstone"));//////
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Sandstone(75%); Project Lithology Std. Shale(25%);\\nEst 15%clay equivalent\\nEst 4.2325 comp coeff\\nEst Surf Phi 0.535\\nRaise to 80% due to Wyllie prob\\nExcel estimates\\nVP solid 5575\\nRho solid 2652\\nThC Geom Mean 3.02", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Sandstone(75%); Project Lithology Std. Shale(25%);\\nEst 15%clay equivalent\\nEst 4.2325 comp coeff\\nEst Surf Phi 0.535\\nRaise to 85% due to Wyllie prob\\nExcel estimates\\nVP solid 5575\\nRho solid 2652\\nThC Geom Mean 3.02", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Sandstone(75%); Project Lithology Std. Shale(25%);\\nEst 30%clay equivalent\\nEst 5.245 comp coeff\\nEst Surf Phi 0.59\\nChanged to 0.65% due to Wyllie problem.\\nExcel estimates\\nVP solid 5150\\nRho solid 2654\\nThC Geom Mean 2.34", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Shale(25%); Project Lithology Std. Sandstone(75%); ", "Std. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std. Shale(50%); Project Lithology Std. Sandstone(25%); Project Lithology Std.Lime Mudstone(15%); Project Lithology Std.Dolo.Mudstone(10%); \\n\\nAdjusted to match Phi-VP xls", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("Modified to fit general result from RS initial inversion. Summary much lower CC (why? OP? sandier?).\\n\\nMix Lithology created from: Project Lithology Std. Shale(50%); Project Lithology Std. Sandstone(25%); Project Lithology Std.Lime Mudstone(15%); Project Lithology Std.Dolo.Mudstone(10%); \\n\\nAdjusted to match Phi-VP xlsx", "Std. Shale"));
+
+	//Part2 mapping....lithologies are based on new BPA2 lithotypes
+	map.insert(std::pair<std::string, std::string>("Based on New Std Candidate Extrusive Basalt SDR Hybrid LK16032017\\nAllow minor porosity and permeability near surface.", "Basalt, SDR extrusive flows"));
+	map.insert(std::pair<std::string, std::string>("Low porosity like new BPA2 basalt\\n\\nMix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); \\n\\nSlightly increased Surface Porosity\\nComp Coeff (Eff Stress) increased\\nMultipoint Perm Model Sm Sandstone\\nSeisVel=6500 instead of 5750\\n\\nHighest thermal conductivity", "Basalt, SDR extrusive flows"));
+	map.insert(std::pair<std::string, std::string>("See \\n\\nBPA2_Reference_Lithology_Catalog_Signed_Off_latest_version_in_Sharepoint_dated_modified_December_2019.xlsx\\n\\nFor use in upper part of oceanic crust extrusive, rubble sediment layers.", "Basalt, oceanic crust"));
+	map.insert(std::pair<std::string, std::string>("See \\n\\nBPA2_Reference_Lithology_Catalog_Signed_Off_latest_version_in_Sharepoint_dated_modified_December_2019.xlsx\\n\\nUse in most cases for rift filling basalt.", "Std. Basalt"));
+	map.insert(std::pair<std::string, std::string>("See \\n\\nBPA2_Reference_Lithology_Catalog_Signed_Off_latest_version_in_Sharepoint_dated_modified_December_2019.xlsx\\n\\nUse in SDRs if known very high density in logs (eg Lopra, Faroes).", "Basalt, SDR extrusive flows"));
+	map.insert(std::pair<std::string, std::string>("See \\n\\nBPA2_Standard_lithologies_for_MvdM_OM_PB_prograde_LK01102019v2.xlsx", "Basalt, SDR extrusive flows"));
+
+	//Map created for Soil Mecahnics porosity model based unparented legacy lithologies =>
+	map.insert(std::pair<std::string, std::string>("Soil Mechanics Sandstone", "SM. Sandstone"));
+	map.insert(std::pair<std::string, std::string>("SM Mudstone 20% Clay", "SM.Mudst.40%Clay"));
+	map.insert(std::pair<std::string, std::string>("SGP_Shale", "Std. Shale"));
+	map.insert(std::pair<std::string, std::string>("SM Mudstone 80% Clay", "SM.Mudst.60%Clay"));
+	map.insert(std::pair<std::string, std::string>("Soil Mechanics Mudstone 60% Clay", "SM.Mudst.60%Clay"));
+	map.insert(std::pair<std::string, std::string>("SM Siltstone", "Std. Siltstone"));
+	map.insert(std::pair<std::string, std::string>("Standard Coal", "Std. Coal"));
+	map.insert(std::pair<std::string, std::string>("StaSm Grainstone", "Std.Grainstone"));
+	map.insert(std::pair<std::string, std::string>("Limestone as used by IBS-HEAT", "HEAT Limestone"));
+	map.insert(std::pair<std::string, std::string>("New Salt SM GVB", "Std. Salt"));
+	map.insert(std::pair<std::string, std::string>("StanSM Dolo Grainsto", "Std.Dolo.Grainstone"));
+
+	return map;
+}
 
 std::string Prograde::LithologyConverter::upgradeLithologyName(const std::string & legacyLithotypeName)
 {
@@ -73,7 +162,7 @@ std::string Prograde::LithologyConverter::upgradeLithologyDescription(std::strin
 	updatedDescription = legacyDescription;
 	if (lithologyFlag == 1)
 	{
-		updatedDescription = legacyDescription + ". Based on legacy BPA " + legacyParentLithology;
+		updatedDescription = legacyDescription + "( Based on BPA " + legacyParentLithology + ")";
 	}
 	if (updatedDescription.size()>1000)
 	{
@@ -84,11 +173,11 @@ std::string Prograde::LithologyConverter::upgradeLithologyDescription(std::strin
 		}
 		else
 		{
-			int SizeOfAppendedString = static_cast<int>(legacyParentLithology.size() + 22);
+			int SizeOfAppendedString = static_cast<int>(legacyParentLithology.size() + 16);
 			int allowedLegacyDescriptionSize = 1000 - SizeOfAppendedString;
 			legacyDescription.resize(allowedLegacyDescriptionSize);
-			updatedDescription = legacyDescription + ". Based on legacy BPA " + legacyParentLithology;
-			
+			updatedDescription = legacyDescription + "( Based on BPA " + legacyParentLithology + ")";
+
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Description: Length of legacy description exceeds the allowed length of BPA2. Cutting the length of the original description and appended 'Based on legacy BPA <legacyParentLithoName' to it.";
 		}
 	}
@@ -115,7 +204,7 @@ void Prograde::LithologyConverter::upgradeLithologyAuditInfo(std::string & Defin
 		LastChangedBy = "Lorcan Kenan";
 		LastChangedDate = "November 21 2019 12:00";
 
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Audit Info: Updating DefinitionDate from '"<<OriginalDefinitionDate<< "' to '"<<DefinitionDate<<"', LastChangedBy from '"<<OriginalLastChangedBy<<"' to '"<< LastChangedBy<<"' and LastChangedDate from '"<<OriginalLastChangedDate<<"' to '"<< LastChangedDate<<"'.";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Audit Info: Updating DefinitionDate from '" << OriginalDefinitionDate << "' to '" << DefinitionDate << "', LastChangedBy from '" << OriginalLastChangedBy << "' to '" << LastChangedBy << "' and LastChangedDate from '" << OriginalLastChangedDate << "' to '" << LastChangedDate << "'.";
 	}
 	else
 	{
@@ -125,318 +214,133 @@ void Prograde::LithologyConverter::upgradeLithologyAuditInfo(std::string & Defin
 	}
 }
 
-std::string Prograde::LithologyConverter::findParentLithology(std::string legacydefinedBy, std::string lithologyDescription, const int lithologyFlag)
+std::string Prograde::LithologyConverter::findParentLithology(std::string legacydefinedBy)
 {
 	string ParentLithoName;
+	//The legacy format of DefinedBy field is: "BPA REF INFO|<StadandLitho1>|<StadandLitho2>"...and the actual parent lithology name is <StadandLitho1>
 	size_t pos_FirstPipe = legacydefinedBy.find("|");
 	size_t pos_SecondPipe = legacydefinedBy.find_last_of("|");
-	ParentLithoName = legacydefinedBy.substr((pos_FirstPipe + 1), (pos_SecondPipe - 1) - pos_FirstPipe);// It gives the base litho after the First pipe
-	
-	if(ParentLithoName!="")
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Parent Lithology Name:  Parent lithology name is  " << ParentLithoName << " and is derived from original DefinedBy field information.";
-	
-		//If the parent lithology namme is not available in the "DefinedBy" field then try to extract from the Description field as per the mapping available for some selected lithologies
-	else
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Parent Lithology Name: Parent lithology information is not available in the DefinedBy field of the original project file for this user defined lithotype.";
-		if (lithologyDescription.compare("Soil Mechanics Sandstone") == 0)
-		{
-			ParentLithoName = "SM. Sandstone";
-		}
-		else if (lithologyDescription.compare("Soil Mechanics Mudstone 50% Clay") == 0)
-		{
-			ParentLithoName = "SM.Mudst.50%Clay";
-		}
-		else if (lithologyDescription.compare("Soil Mechanics Mudstone 40% Clay") == 0 || lithologyDescription.compare("SM Mudstone 20% Clay") == 0)
-		{
-			ParentLithoName = "SM.Mudst.40%Clay";
-		}
-		else if (lithologyDescription.compare("SGP_Shale") == 0 || lithologyDescription.compare("Standard Shale") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("SM Mudstone 80% Clay") == 0 || lithologyDescription.compare("Soil Mechanics Mudstone 60% Clay") == 0)
-		{
-			ParentLithoName = "SM.Mudst.60%Clay";
-		}
-		else if (lithologyDescription.compare("SM Siltstone") == 0 || lithologyDescription.compare("Standard Siltstone") == 0)
-		{
-			ParentLithoName = "Std. Siltstone";
-		}
-		else if (lithologyDescription.compare("Standard Coal") == 0)
-		{
-			ParentLithoName = "Std. Coal";
-		}
-		else if (lithologyDescription.compare("StaSm Grainstone") == 0)
-		{
-			ParentLithoName = "Std.Grainstone";
-		}
-		else if (lithologyDescription.compare("Limestone as used by IBS-HEAT") == 0)
-		{
-			ParentLithoName = "HEAT Limestone";
-		}
-		else if (lithologyDescription.compare("New Salt SM GVB") == 0)
-		{
-			ParentLithoName = "Std. Salt";
-		}
-		else if (lithologyDescription.compare("StanSM Dolo Grainsto") == 0)
-		{
-			ParentLithoName = "Std.Dolo.Grainstone";
-		}
-		else if (lithologyDescription.compare("Standard Sandstone") == 0 || lithologyDescription.compare("silica ooze") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
+	ParentLithoName = legacydefinedBy.substr((pos_FirstPipe + 1), (pos_SecondPipe - 1) - pos_FirstPipe);
 
-
-
-		else if (lithologyDescription.compare("Al Bashair Shale") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("Allow minor porosity and permeability near surface.") == 0)
-		{
-			ParentLithoName = "Std. Basalt";
-		}
-		else if (lithologyDescription.compare("Chalk as used by IBS-HEAT") == 0)
-		{
-			ParentLithoName = "HEAT Chalk";
-		}
-		else if (lithologyDescription.compare("Cold Shale_1.0") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("DeepCompactedSand") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("DeepSh_LP20%") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("DeepShaleLowPerm") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("hot_shale to introduce a great amount of heat from the surface into the model by introducitn a hot Radiogenic heat genration") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("Klaus_Sand") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("Klaus_Sand2") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("Lower Depositional Perm (value of std shale not std siltstone).\\n\\nLower thermal conductivity (using geometric not arithmetic mean).\\n\\nModified to fit general result from RS initial inversion. Summary much lower CC (why? OP? sandier?).\\n\\nMix Lithology created from: Project Lithology Std. Shale(50%); Project Lithology Std. Sandstone(25%); Project Lithology Std.Lime Mudstone(15%); Project Lithology Std.Dolo.Mudstone(10%); \\n\\nAdjusted to match Phi-VP xlsx") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("Lower thermal conductivity (using geometric not arithmetic mean).\\n\\nModified to fit general result from RS initial inversion. Summary much lower CC (why? OP? sandier?).\\n\\nMix Lithology created from: Project Lithology Std. Shale(50%); Project Lithology Std. Sandstone(25%); Project Lithology Std.Lime Mudstone(15%); Project Lithology Std.Dolo.Mudstone(10%); \\n\\nAdjusted to match Phi-VP xlsx") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("lowporositywadsand") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("LSB_Vlieland") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("Mod. Basalt") == 0)
-		{
-			ParentLithoName = "Std. Basalt";
-		}
-		else if (lithologyDescription.compare("NewAnhydrite") == 0)
-		{
-			ParentLithoName = "Std. Anhydrite";
-		}
-		else if (lithologyDescription.compare("Nile Sandstone") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("Qatar Anhydrite") == 0)
-		{
-			ParentLithoName = "Std. Anhydrite";
-		}
-		else if (lithologyDescription.compare("Qatar Dolo Lime") == 0)
-		{
-			ParentLithoName = "Std.Dolo.Mudstone";
-		}
-		else if (lithologyDescription.compare("Qatar Dolomite") == 0)
-		{
-			ParentLithoName = "Std.Dolo.Mudstone";
-		}
-		else if (lithologyDescription.compare("Qatar Limestone") == 0)
-		{
-			ParentLithoName = "HEAT Limestone";
-		}
-		else if (lithologyDescription.compare("Qatar Shale") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("Shale as used by IBS-HEAT") == 0)
-		{
-			ParentLithoName = "HEAT Shale";
-		}
-		else if (lithologyDescription.compare("Standard Basalt") == 0)
-		{
-			ParentLithoName = "Std. Basalt";
-		}
-		else if (lithologyDescription.compare("Standard Calcareous Mudstone (Limestone)") == 0)
-		{
-			ParentLithoName = "Std.Lime Mudstone";
-		}
-		else if (lithologyDescription.compare("Standard Chalk") == 0)
-		{
-			ParentLithoName = "Std. Chalk";
-		}
-		else if (lithologyDescription.compare("Standard Coal") == 0)
-		{
-			ParentLithoName = "Std. Coal";
-		}
-		else if (lithologyDescription.compare("Standard Domlomitic Grainstone (Dolostone)") == 0)
-		{
-			ParentLithoName = "Std.Dolo.Grainstone";
-		}
-		else if (lithologyDescription.compare("Standard Grainstone (Limestone)") == 0)
-		{
-			ParentLithoName = "Std.Grainstone";
-		}
-		else if (lithologyDescription.compare("Standard Marl") == 0)
-		{
-			ParentLithoName = "Std. Marl";
-		}
-		else if (lithologyDescription.compare("Standard Salt") == 0)
-		{
-			ParentLithoName = "Std. Salt";
-		}
-		else if (lithologyDescription.compare("WAD_chalk") == 0)
-		{
-			ParentLithoName = "Std. Chalk";
-		}
-		else if (lithologyDescription.compare("WAD_sandstone") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("WAD_shale") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); ") == 0)//check extra space at the end
-		{
-			ParentLithoName = "Std. Basalt";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); \\n\\nSeisVel=6500 instead of 5750") == 0)
-		{
-			ParentLithoName = "Std. Basalt";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); \\n\\nSlightly increased Surface Porosity\\nComp Coeff (Eff Stress) increased\\nMultipoint Perm Model Sm Sandstone\\nSeisVel=6500 instead of 5750") == 0)
-		{
-			ParentLithoName = "Std. Basalt";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); \\n\\nSlightly increased Surface Porosity\\nComp Coeff (Eff Stress) increased\\nMultipoint Perm Model Sm Sandstone\\nSeisVel=6500 instead of 5750\\n\\nHighest thermal conductivity") == 0)
-		{
-			ParentLithoName = "Std. Basalt";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%); \\n\\nSlightly increased Surface Porosity\\nComp Coeff (Eff Stress) increased\\nMultipoint Perm Model Sm Sandstone\\nSeisVel=6500 instead of 5750\\n\\nLowest thermal conductivity") == 0)
-		{
-			ParentLithoName = "Std. Basalt";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Basalt(90%); Project Lithology Std. Sandstone(10%);\\nAssign density 2830 for consistency with CTC basalt (combines true basalt and mantle depletion uplift effects).") == 0)
-		{
-			ParentLithoName = "Std. Basalt";
-		}
-		//Seems to be same record in the spreadsheet...Crossckeck?
-
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Sandstone(20%); Project Lithology Std. Shale(80%);\\n\\nEst 12%clay equivalent\\nEst 6.46 comp coeff\\nEst Surf Phi 0.656\\nExcel estimates\\nVP solid 5670\\nRho solid 2652\\nThC Geom Mean 1.72") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Sandstone(20%); Project Lithology Std. Shale(80%);\\n\\nUse for Orange SPOB12-09 test\\nEdited k = weighted harm mean\\ncomp coeff from spreadsheet") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Sandstone(40%); Project Lithology Std. Siltstone(60%); ") == 0)//check extra space at last
-		{
-			ParentLithoName = "Std. Siltstone";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Sandstone(75%); Project Lithology Std. Shale(25%);\\nEst 15%clay equivalent\\nEst 4.2325 comp coeff\\nEst Surf Phi 0.535\\nRaise to 80% due to Wyllie prob\\nExcel estimates\\nVP solid 5575\\nRho solid 2652\\nThC Geom Mean 3.02") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Sandstone(75%); Project Lithology Std. Shale(25%);\\nEst 15%clay equivalent\\nEst 4.2325 comp coeff\\nEst Surf Phi 0.535\\nRaise to 85% due to Wyllie prob\\nExcel estimates\\nVP solid 5575\\nRho solid 2652\\nThC Geom Mean 3.02") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Sandstone(75%); Project Lithology Std. Shale(25%);\\nEst 30%clay equivalent\\nEst 5.245 comp coeff\\nEst Surf Phi 0.59\\nChanged to 0.65% due to Wyllie problem.\\nExcel estimates\\nVP solid 5150\\nRho solid 2654\\nThC Geom Mean 2.34") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Shale(25%); Project Lithology Std. Sandstone(75%); ") == 0)
-		{
-			ParentLithoName = "Std. Sandstone";
-		}
-		else if (lithologyDescription.compare("Mix Lithology created from: Project Lithology Std. Shale(50%); Project Lithology Std. Sandstone(25%); Project Lithology Std.Lime Mudstone(15%); Project Lithology Std.Dolo.Mudstone(10%); \\n\\nAdjusted to match Phi-VP xlsx") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("Modified to fit general result from RS initial inversion. Summary much lower CC (why? OP? sandier?).\\n\\nMix Lithology created from: Project Lithology Std. Shale(50%); Project Lithology Std. Sandstone(25%); Project Lithology Std.Lime Mudstone(15%); Project Lithology Std.Dolo.Mudstone(10%); \\n\\nAdjusted to match Phi-VP xlsx") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		//Seems to be same as above..crosscheck
-		else if (lithologyDescription.compare("Modified to fit general result from RS initial inversion. Summary much lower CC (why? OP? sandier?).\\n\\nMix Lithology created from: Project Lithology Std. Shale(50%); Project Lithology Std. Sandstone(25%); Project Lithology Std.Lime Mudstone(15%); Project Lithology Std.Dolo.Mudstone(10%); \\n\\nAdjusted to match Phi-VP xlsx") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-		else if (lithologyDescription.compare("Standard Shale\\nFor tests constructed by Philipp in WSB") == 0)
-		{
-			ParentLithoName = "Std. Shale";
-		}
-
-		//check for the null string again
-		if (ParentLithoName.compare("") == 0)
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  Error: Cann't update the parent lithology name from the lithology descriptionas as no mapping is available.";
-		else
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  Parent lithology is mapped to " << ParentLithoName << " from the legacy lithotype description.";
-
-	}
 	return ParentLithoName;
 }
 
+std::string Prograde::LithologyConverter::findMissingParentLithology(const std::string lithologyName, std::string lithologyDescription)
+{
+	std::string ParentLithoName{};
+
+	//Remove the "spaces" from the original lithology description and then compare find the corresponding descriptions available in the mappingOfLithologyNameBasedOndescription
+	lithologyDescription.erase(remove(lithologyDescription.begin(), lithologyDescription.end(), ' '), lithologyDescription.end());
+
+	for (auto it = mappingOfLithologyNameBasedOndescription.begin(); it != mappingOfLithologyNameBasedOndescription.end(); ++it)
+	{
+		std::string description;
+		description = it->first;
+		description.erase(remove(description.begin(), description.end(), ' '), description.end());
+
+		if (description == lithologyDescription)
+		{
+			ParentLithoName = it->second;
+			if (ParentLithoName == "Std. Basalt" and (lithologyName == "SDR_basalt+volclastic_LK04022014 EH27102015 (high k)" or lithologyName == "SDR_basalt+volclastic_LK04022014 EH26102015 (low k)"))
+				//This check is done because the same description is mapped to "Std. Basalt" and "Basalt, SDR extrusive flows". The later is basically derived from the lithotype name. 
+				ParentLithoName = "Basalt, SDR extrusive flows";
+			break;
+		}
+	}
+
+	return ParentLithoName;
+}
+
+bool Prograde::LithologyConverter::isDefinedBeforeThanCutOffDate(const std::string dateOfCreation)
+{
+	string creationMonth, creationDate, creationYear, creationDateAndYear;
+
+	//in BPA1, the date format is : month_date_year_time (underscore are spaces only) i.e., "June 01 2020 09:49"
+	size_t startPos = dateOfCreation.find_first_not_of(" ");;
+	size_t pos_FirstSpace = dateOfCreation.find_first_of(" ");
+	size_t pos_lastSpace = dateOfCreation.find_last_of(" ");
+
+	creationMonth = dateOfCreation.substr(startPos, pos_FirstSpace);
+	creationDateAndYear = dateOfCreation.substr((pos_FirstSpace + 1), ((pos_lastSpace - 1) - pos_FirstSpace));
+
+	startPos = creationDateAndYear.find_first_not_of(" ");
+	pos_FirstSpace = creationDateAndYear.find_first_of(" ");
+	creationDate = creationDateAndYear.substr(startPos, pos_FirstSpace);
+	creationYear = creationDateAndYear.substr(pos_FirstSpace + 1);
+
+	std::vector<std::pair<std::string, std::string>> monthMap;
+	monthMap.push_back(std::make_pair("January", "1"));
+	monthMap.push_back(std::make_pair("February", "2"));
+	monthMap.push_back(std::make_pair("March", "3"));
+	monthMap.push_back(std::make_pair("April", "4"));
+	monthMap.push_back(std::make_pair("May", "5"));
+	monthMap.push_back(std::make_pair("June", "6"));
+	monthMap.push_back(std::make_pair("July", "7"));
+	monthMap.push_back(std::make_pair("August", "8"));
+	monthMap.push_back(std::make_pair("September", "9"));
+	monthMap.push_back(std::make_pair("October", "10"));
+	monthMap.push_back(std::make_pair("November", "11"));
+	monthMap.push_back(std::make_pair("December", "12"));
+
+	// Convert name of the month to number format
+	for (int i = 0; i < monthMap.size(); i++)
+	{
+		if (creationMonth == monthMap[i].first)
+		{
+			creationMonth = monthMap[i].second;
+			break;
+		}
+	}
+
+	stringstream y(creationYear), m(creationMonth), d(creationDate);
+	int year = 0, month = 0, date = 0;
+	y >> year;
+	m >> month;
+	d >> date;
+
+	if (year<2020)
+	{
+		return true;
+	}
+	else
+	{
+		if (month <= 4)
+			return true;
+	}
+
+	return false;
+}
+
+
 void Prograde::LithologyConverter::upgradePermModelForUsrDefLitho(const std::string & permModelName, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts)
 {
-   if ((permModelName == "None") || (permModelName == "Impermeable"))
-   {
-      mpPor[0] = 5;
-      mpPor[1] = 60;
-      mpPerm[0] = -6;
-      mpPerm[1] = -6;
-   }
-   else if (permModelName == "Sands") 
-   {
-      mpPor[0] = 5;
-      mpPor[1] = 60;
-      mpPerm[0] = 0.2;
-      mpPerm[1] = 4.9;
-   }
-   else if (permModelName == "Shales") 
-   {
-      mpPor[0] = 5;
-      mpPor[1] = 60;
-      mpPerm[0] = -6.4;
-      mpPerm[1] = -2.16;
-   }
+	if ((permModelName == "None") || (permModelName == "Impermeable"))
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -6;
+		mpPerm[1] = -6;
+	}
+	else if (permModelName == "Sands")
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = 0.2;
+		mpPerm[1] = 4.9;
+	}
+	else if (permModelName == "Shales")
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -6.4;
+		mpPerm[1] = -2.16;
+	}
 }
 
 ErrorHandler::ReturnCode Prograde::LithologyConverter::PreprocessLithofaciesInputOfStratIoTbl(std::vector<std::string>& lithologyNamesSingleLayer, std::vector<double>& lithoPercntSingleLayer, std::vector<std::string>& lithoPercntGridSingleLayer)
 {
-	if (lithologyNamesSingleLayer.size() != 3 or lithoPercntSingleLayer.size() != 3 or lithoPercntGridSingleLayer.size() != 2 or 
-		( lithologyNamesSingleLayer[0] == "" and lithologyNamesSingleLayer[1] == "" and lithologyNamesSingleLayer[2]=="") )
+	if (lithologyNamesSingleLayer.size() != 3 or lithoPercntSingleLayer.size() != 3 or lithoPercntGridSingleLayer.size() != 2 or
+		(lithologyNamesSingleLayer[0] == "" and lithologyNamesSingleLayer[1] == "" and lithologyNamesSingleLayer[2] == ""))
 	{//Added just as a precautionary measure to filter it out erronious scenarios like this from importing in to BPA2-Basin
 		return ErrorHandler::ReturnCode::ValidationError;
 	}
@@ -490,109 +394,109 @@ ErrorHandler::ReturnCode Prograde::LithologyConverter::PreprocessLithofaciesInpu
 
 void Prograde::LithologyConverter::upgradePermModelForSysDefLitho(const std::string & bpa2LithoName, std::vector<double> & mpPor, std::vector<double> & mpPerm, int & numPts)
 {
-   numPts = 2;
-   mpPor.resize(numPts);
-   mpPerm.resize(numPts);
-   if ((bpa2LithoName.compare("Mantle") == 0) || (bpa2LithoName.compare("Crust") == 0) || 
-      (bpa2LithoName.compare("Diorite/Granodiorite (SI)") == 0) || (bpa2LithoName.compare("Dry Gabbro/Basalt (SI)") == 0) ||
-      (bpa2LithoName.compare("Wet Gabbro/Basalt (SI)") == 0) || (bpa2LithoName.compare("Granite/Rhyolite (SI)") == 0) ||
-      (bpa2LithoName.compare("Basalt, typical") == 0))
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = -4;
-         mpPerm[1] = -4;
-      }
-   else if (bpa2LithoName.compare("Chalk, white") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = -5.45;
-         mpPerm[1] = 1.8;
-      }
-   else if (bpa2LithoName.compare("Grainstone, dolomitic, typical") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = 1.6;
-         mpPerm[1] = 6.4;
-      }
-   else if (bpa2LithoName.compare("Grainstone, calcitic, typical") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = 1.6;
-         mpPerm[1] = 6.4;
-      }
-   else if (bpa2LithoName.compare("Sandstone, typical") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = 0.2;
-         mpPerm[1] = 4.9;
-      }
-   else if (bpa2LithoName.compare("Mudstone, 60% clay") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = -6.4;
-         mpPerm[1] = -2.16;
-      }
-   else if (bpa2LithoName.compare("Mudstone, 50% clay") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = -6.19;
-         mpPerm[1] = -1.28;
-      }
-   else if (bpa2LithoName.compare("Mudstone, 40% clay") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = -5.98;
-         mpPerm[1] = -0.39;
-      }
-   else if ((bpa2LithoName.compare("Ice") == 0) || (bpa2LithoName.compare("Anhydrite") == 0) ||
-      (bpa2LithoName.compare("Coal") == 0) || (bpa2LithoName.compare("Halite") == 0) ||
-      (bpa2LithoName.compare("Potash-Sylvite") == 0))
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = -6;
-         mpPerm[1] = -6;
-      }
-   else if (bpa2LithoName.compare("Marl") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = -5.98;
-         mpPerm[1] = -0.39;
-      }
-   else if (bpa2LithoName.compare("Siltstone, 20% clay") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = -5.55;
-         mpPerm[1] = 1.37;
-      }
-   else if (bpa2LithoName.compare("Lime-Mudstone, dolomitic") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = -6.19;
-         mpPerm[1] = -1.28;
-      }
-   else if (bpa2LithoName.compare("Lime-Mudstone") == 0)
-      {
-         mpPor[0] = 5;
-         mpPor[1] = 60;
-         mpPerm[0] = -6.19;
-         mpPerm[1] = -1.28;
-      }
-   else
-   {
-      //
-   }
+	numPts = 2;
+	mpPor.resize(numPts);
+	mpPerm.resize(numPts);
+	if ((bpa2LithoName.compare("Mantle") == 0) || (bpa2LithoName.compare("Crust") == 0) ||
+		(bpa2LithoName.compare("Diorite/Granodiorite (SI)") == 0) || (bpa2LithoName.compare("Dry Gabbro/Basalt (SI)") == 0) ||
+		(bpa2LithoName.compare("Wet Gabbro/Basalt (SI)") == 0) || (bpa2LithoName.compare("Granite/Rhyolite (SI)") == 0) ||
+		(bpa2LithoName.compare("Basalt, typical") == 0))
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -4;
+		mpPerm[1] = -4;
+	}
+	else if (bpa2LithoName.compare("Chalk, white") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -5.45;
+		mpPerm[1] = 1.8;
+	}
+	else if (bpa2LithoName.compare("Grainstone, dolomitic, typical") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = 1.6;
+		mpPerm[1] = 6.4;
+	}
+	else if (bpa2LithoName.compare("Grainstone, calcitic, typical") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = 1.6;
+		mpPerm[1] = 6.4;
+	}
+	else if (bpa2LithoName.compare("Sandstone, typical") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = 0.2;
+		mpPerm[1] = 4.9;
+	}
+	else if (bpa2LithoName.compare("Mudstone, 60% clay") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -6.4;
+		mpPerm[1] = -2.16;
+	}
+	else if (bpa2LithoName.compare("Mudstone, 50% clay") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -6.19;
+		mpPerm[1] = -1.28;
+	}
+	else if (bpa2LithoName.compare("Mudstone, 40% clay") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -5.98;
+		mpPerm[1] = -0.39;
+	}
+	else if ((bpa2LithoName.compare("Ice") == 0) || (bpa2LithoName.compare("Anhydrite") == 0) ||
+		(bpa2LithoName.compare("Coal") == 0) || (bpa2LithoName.compare("Halite") == 0) ||
+		(bpa2LithoName.compare("Potash-Sylvite") == 0))
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -6;
+		mpPerm[1] = -6;
+	}
+	else if (bpa2LithoName.compare("Marl") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -5.98;
+		mpPerm[1] = -0.39;
+	}
+	else if (bpa2LithoName.compare("Siltstone, 20% clay") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -5.55;
+		mpPerm[1] = 1.37;
+	}
+	else if (bpa2LithoName.compare("Lime-Mudstone, dolomitic") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -6.19;
+		mpPerm[1] = -1.28;
+	}
+	else if (bpa2LithoName.compare("Lime-Mudstone") == 0)
+	{
+		mpPor[0] = 5;
+		mpPor[1] = 60;
+		mpPerm[0] = -6.19;
+		mpPerm[1] = -1.28;
+	}
+	else
+	{
+		//
+	}
 }
 
 void Prograde::LithologyConverter::computeSingleExpModelParameters(const std::string legacyParentLithoName, const int lithologyFlag, mbapi::LithologyManager::PorosityModel &porModel, std::vector<double> & originalPorModelParam, std::vector<double> & newPorModelParam)
@@ -825,202 +729,202 @@ void Prograde::LithologyConverter::computeSingleExpModelParameters(const std::st
 
 void Prograde::LithologyConverter::upgradeLitPropDensity(double & value)
 {
-   double lwrLimit = 500;
-   double uprLimit = 10000;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Density value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Density value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = 500;
+	double uprLimit = 10000;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Density value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Density value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropHeatProduction(double & value)
 {
-   double lwrLimit = 0;
-   double uprLimit = 25;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Heat Production value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Heat Production value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = 0;
+	double uprLimit = 25;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Heat Production value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Heat Production value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropThrConductivity(double & value)
 {
-   double lwrLimit = 0;
-   double uprLimit = 10;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Thermal Conductivity value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Thermal Conductivity value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = 0;
+	double uprLimit = 10;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Thermal Conductivity value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Thermal Conductivity value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropThrCondAnistropy(double & value)
 {
-   double lwrLimit = 0;
-   double uprLimit = 10;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Thermal Conductivity Anistropy value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Thermal Conductivity Anistropy value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = 0;
+	double uprLimit = 10;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Thermal Conductivity Anistropy value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Thermal Conductivity Anistropy value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropPermAnistropy(double & value)
 {
-   double lwrLimit = 0;
-   double uprLimit = 100;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Permeability Anistropy value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Permeability Anistropy value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = 0;
+	double uprLimit = 100;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Permeability Anistropy value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Permeability Anistropy value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropSeisVelocity(double & value)
 {
-   double lwrLimit = 1000;
-   double uprLimit = 9000;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Seismic Velocity value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Seismic Velocity value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = 1000;
+	double uprLimit = 9000;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Seismic Velocity value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Seismic Velocity value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropSeisVeloExponent(double & value)
 {
-   double lwrLimit = -1;
-   double uprLimit = 1;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Seismic Velocity Exponent value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Seismic Velocity Exponent value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = -1;
+	double uprLimit = 1;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Seismic Velocity Exponent value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Seismic Velocity Exponent value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropEntryPresCoeff1(double & value)
 {
-   double lwrLimit = 0.1;
-   double uprLimit = 2;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Entry Pressure Coefficient 1 value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Entry Pressure Coefficient 1 value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = 0.1;
+	double uprLimit = 2;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Entry Pressure Coefficient 1 value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Entry Pressure Coefficient 1 value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropEntryPresCoeff2(double & value)
 {
-   double lwrLimit = -1.5;
-   double uprLimit = 1.5;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Entry Pressure Coefficient 2 value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Entry Pressure Coefficient 2 value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = -1.5;
+	double uprLimit = 1.5;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Entry Pressure Coefficient 2 value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Entry Pressure Coefficient 2 value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropHydFracturing(double & value)
 {
-   double lwrLimit = 0;
-   double uprLimit = 100;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Hydraulic Fracturing value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Hydraulic Fracturing value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = 0;
+	double uprLimit = 100;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Hydraulic Fracturing value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Hydraulic Fracturing value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropRefSoldViscosity(double & value)
 {
-   double lwrLimit = 0;
-   double uprLimit = 1e18;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original ReferenceSolidViscosity value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original ReferenceSolidViscosity value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = 0;
+	double uprLimit = 1e18;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original ReferenceSolidViscosity value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original ReferenceSolidViscosity value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 void Prograde::LithologyConverter::upgradeLitPropIntrTemperature(double & value)
 {
-   double lwrLimit = 600;
-   double uprLimit = 1650;
-   if (value == -9999)
-      return;
-   if (value < lwrLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Intrusion Temperature value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-      value = lwrLimit;
-   }
-   else if (value > uprLimit)
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Intrusion Temperature value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-      value = uprLimit;
-   }
+	double lwrLimit = 600;
+	double uprLimit = 1650;
+	if (value == -9999)
+		return;
+	if (value < lwrLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Intrusion Temperature value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
+		value = lwrLimit;
+	}
+	else if (value > uprLimit)
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original Intrusion Temperature value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
+		value = uprLimit;
+	}
 
 }
 
-	
 
-	
+
+
 
 
 

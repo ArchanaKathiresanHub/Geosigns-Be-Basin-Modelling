@@ -28,6 +28,7 @@ namespace Prograde
 		~LithologyConverter() = default;
 
 		static std::map<std::string, std::string> createMapForLithoNames();
+		static std::map<std::string, std::string> createMapForUnparentedLithoNames();
 
 		/// @brief Upgrades the deprecated standard LITHOLOGYs
 		/// @details The standard lithologies of BPA are upgraded using to the new lithologies of BPA2 as per the mapping provided. No upgrade is needed for userDefined lithologies
@@ -41,60 +42,68 @@ namespace Prograde
 		void upgradeLithologyAuditInfo(std::string &, std::string &, std::string &, const int &);
 
 		/// @details Find the parent lithology name from the DefinedBy field of LithotypeIoTbl
-		std::string findParentLithology(std::string definedBy, std::string, const int);
+		std::string findParentLithology(std::string definedBy);
+
+		/// @brief Find the parent lithology name either from the description or from the LithologyName itself as per the mapping. 
+		//@details This will be needed if the parent lithology name is not present in the original DefinedBy field of LithotypeIoTbl
+		std::string findMissingParentLithology(const std::string lithologyName, std::string lithologyDescription);
+
+		bool isDefinedBeforeThanCutOffDate(const std::string dateOfCreation);
 
 		///@details The function computes the necessary model parameters (which are CompactionCoefficient, MinimumMecahnicalPorosity and the SurfacePorosity) used to define the single exponential model porosity model 
 		void computeSingleExpModelParameters(const std::string, const int, mbapi::LithologyManager::PorosityModel &, std::vector<double> &, std::vector<double> &);
 
 		//@brief  Preprocessing the inputs to check whether the legacy inputs are as per the BPA2 import validation code requirement or not....If not then modify the inputs
 		/*@details Lithology can't be imported if the lithology name is not available but lithology percents are available. If this is the case, then reset the lithology percentages to NO-DATA-VALUE
-				   If lithology is available but lithology percentages have both scalar and map specified then keep the map info and reset the scalar value to NO-DATA-VALUE*/
+		If lithology is available but lithology percentages have both scalar and map specified then keep the map info and reset the scalar value to NO-DATA-VALUE*/
 
 		ErrorHandler::ReturnCode PreprocessLithofaciesInputOfStratIoTbl(std::vector<std::string> & lithologyNamesSingleLayer, std::vector<double> & lithoPercntSingleLayer, std::vector<std::string> & lithoPercntGridSingleLayer);
 
-      /// @brief Upgrades the permeability model parameters for standard LITHOLOGYs
-      void upgradePermModelForSysDefLitho(const std::string &, std::vector<double> &, std::vector<double> &, int &);
+		/// @brief Upgrades the permeability model parameters for standard LITHOLOGYs
+		void upgradePermModelForSysDefLitho(const std::string &, std::vector<double> &, std::vector<double> &, int &);
 
-      /// @brief Upgrades the permeability model parameters for user defined LITHOLOGYs
-      void upgradePermModelForUsrDefLitho(const std::string &, std::vector<double> &, std::vector<double> &, int &);
+		/// @brief Upgrades the permeability model parameters for user defined LITHOLOGYs
+		void upgradePermModelForUsrDefLitho(const std::string &, std::vector<double> &, std::vector<double> &, int &);
 
-      /// @brief Check and update Density property value in proposed range
-      void upgradeLitPropDensity(double &);
+		/// @brief Check and update Density property value in proposed range
+		void upgradeLitPropDensity(double &);
 
-      /// @brief Check and update Heat Production property value in proposed range
-      void upgradeLitPropHeatProduction(double &);
+		/// @brief Check and update Heat Production property value in proposed range
+		void upgradeLitPropHeatProduction(double &);
 
-      /// @brief Check and update Thermal Conductivity property value in proposed range
-      void upgradeLitPropThrConductivity(double &);
+		/// @brief Check and update Thermal Conductivity property value in proposed range
+		void upgradeLitPropThrConductivity(double &);
 
-      /// @brief Check and update Thermal Conductivity Anistropy property value in proposed range
-      void upgradeLitPropThrCondAnistropy(double &);
+		/// @brief Check and update Thermal Conductivity Anistropy property value in proposed range
+		void upgradeLitPropThrCondAnistropy(double &);
 
-      /// @brief Check and update Permeability Anistropy property value in proposed range
-      void upgradeLitPropPermAnistropy(double &);
+		/// @brief Check and update Permeability Anistropy property value in proposed range
+		void upgradeLitPropPermAnistropy(double &);
 
-      /// @brief Check and update Seismic Velocity property value in proposed range
-      void upgradeLitPropSeisVelocity(double &);
+		/// @brief Check and update Seismic Velocity property value in proposed range
+		void upgradeLitPropSeisVelocity(double &);
 
-      /// @brief Check and update Seismic Velocity Exponent property value in proposed range
-      void upgradeLitPropSeisVeloExponent(double &);
+		/// @brief Check and update Seismic Velocity Exponent property value in proposed range
+		void upgradeLitPropSeisVeloExponent(double &);
 
-      /// @brief Check and update Entry Pressure Coefficient 1 property value in proposed range
-      void upgradeLitPropEntryPresCoeff1(double &);
+		/// @brief Check and update Entry Pressure Coefficient 1 property value in proposed range
+		void upgradeLitPropEntryPresCoeff1(double &);
 
-      /// @brief Check and update Entry Pressure Coefficient 2 property value in proposed range
-      void upgradeLitPropEntryPresCoeff2(double &);
+		/// @brief Check and update Entry Pressure Coefficient 2 property value in proposed range
+		void upgradeLitPropEntryPresCoeff2(double &);
 
-      /// @brief Check and update Hydraulic Fracturing property value in proposed range
-      void upgradeLitPropHydFracturing(double &);
+		/// @brief Check and update Hydraulic Fracturing property value in proposed range
+		void upgradeLitPropHydFracturing(double &);
 
-      /// @brief Check and update ReferenceSolidViscosity property value in proposed range
-      void upgradeLitPropRefSoldViscosity(double &);
+		/// @brief Check and update ReferenceSolidViscosity property value in proposed range
+		void upgradeLitPropRefSoldViscosity(double &);
 
-      /// @brief Check and update Intrusion Temperature property value in proposed range
-      void upgradeLitPropIntrTemperature(double &);
+		/// @brief Check and update Intrusion Temperature property value in proposed range
+		void upgradeLitPropIntrTemperature(double &);
 
-	  static std::map<std::string, std::string> lithologyNameMaps;
+		static std::map<std::string, std::string> lithologyNameMaps;
+
+		static std::map<std::string, std::string> mappingOfLithologyNameBasedOndescription;
 
 	};
 }

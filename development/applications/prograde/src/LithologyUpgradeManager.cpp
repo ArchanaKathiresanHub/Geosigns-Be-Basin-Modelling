@@ -84,12 +84,13 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		m_model.lithologyManager().getReferenceLithology(lithoId, parentLithologyDetails);
 		legacyLithoTypeName = m_model.lithologyManager().lithologyName(lithoId);//get the lithotype name
 		legacyLithoDescription = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "Description");// get legacy description for lith id 
+		legacyDefinitionDate = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "DefinitionDate");// get legacy date of definition for the selected lithology 
+		legacyLastChangedBy = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "LastChangedBy");// get legacy user name who has made changes to the selected lithology
+		legacyLastChangedDate = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "LastChangedDate");// get legacy date when the last changed has made by the user to the selected lithology
 		
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Lithotype encountered in the LithotypeIoTbl is '" << legacyLithoTypeName << "'";
-
-		legacyParentLithoName = modelConverter.findParentLithology(parentLithologyDetails, legacyLithoDescription, lithologyFlag);
 		
-		//......................................UPGRADING LITHOLOGY NAME and DESCRIPTION.......................................//	
+		//......................................UPGRADING LITHOLOGY NAME .......................................//	
 		//Upgrading the lithotype names for BPA1 standard lithotypes
 		
 		if (lithologyFlag == 0)
@@ -112,13 +113,48 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		else {
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Lithology Name: '" << legacyLithoTypeName << "' is a BPA userDefined lithology. No upgrade to the lithology name is needed.";
 		}
+		//.............................Updating the parent lithology name in the "DefinedBy" field of lithotypeIoTbl..........................//
+		legacyParentLithoName = modelConverter.findParentLithology(parentLithologyDetails);
+
+		if (legacyParentLithoName != "")
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Parent Lithology Name:  legacy name of Parent lithology is '" << legacyParentLithoName << "'";
+		else //If the parentlithology name is not available in the legacy p3d file, then try to get it from the available mapping of lithology description or lithology name
+		{
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Parent Lithology Name: Not found in the legacy p3d file; try to find out from the mapping sheet based on Description or Lithology name";
+			legacyParentLithoName = modelConverter.findMissingParentLithology(legacyLithoTypeName, legacyLithoDescription);
+			if (legacyParentLithoName == "")
+			{
+				//check the DefinitionDate...the cut-off date is 30th April 2020....If the DefinitonDate is older than the cut-off date, then abort the migration
+				bool flag = modelConverter.isDefinedBeforeThanCutOffDate(legacyDefinitionDate);
+				if (!flag)
+				{
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  Lithology created after the cut-off date of 30th April 2020";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  Migration from BPA to BPA2 Basin Aborted...";
+					exit(41);
+				}
+				else {
+					throw ErrorHandler::Exception(ErrorHandler::NonexistingID) << "Not found parent lithology for lithotype '"<< legacyLithoTypeName <<"'...crosscheck the description and/or the date format";
+				}
+			}
+			else
+			{
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  Parent Lithology Name is derived as '"<< legacyParentLithoName<<"'";
+			}
+		}	
+
 		bpa2ParentLithoName = modelConverter.upgradeLithologyName(legacyParentLithoName);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "DefinedBy", bpa2ParentLithoName);
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* DefinedBy: Updated from '" << parentLithologyDetails << "' to '" << bpa2ParentLithoName << "'.";
 				
-		//Checking and updating the Lithology description
+		//........................Checking and updating the Lithology description.....................
 		updatedDescription = modelConverter.upgradeLithologyDescription(legacyLithoDescription, lithologyFlag, legacyParentLithoName);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "Description", updatedDescription);//Upgrading the description in LithotypeIoTbl
+
+		//...........................upgrading the audit details for the lithotypes.......................
+		modelConverter.upgradeLithologyAuditInfo(legacyDefinitionDate, legacyLastChangedBy, legacyLastChangedDate, lithologyFlag);
+		m_model.setTableValue("LithotypeIoTbl", lithoId, "DefinitionDate", legacyDefinitionDate);
+		m_model.setTableValue("LithotypeIoTbl", lithoId, "LastChangedBy", legacyLastChangedBy);
+		m_model.setTableValue("LithotypeIoTbl", lithoId, "LastChangedDate", legacyLastChangedDate);
 
       //Check and update lithotype property values are in proposed range in LithotypeIoTbl field
       //Density
@@ -170,16 +206,6 @@ void Prograde::LithologyUpgradeManager::upgrade() {
       modelConverter.upgradeLitPropIntrTemperature(litPropValue);
       m_model.lithologyManager().setLitPropIntrTemperature(lithoId, litPropValue);
 
-
-		//upgrading the audit details for the lithotypes
-		legacyDefinitionDate = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "DefinitionDate");// get legacy date of definition for the selected lithology 
-		legacyLastChangedBy = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "LastChangedBy");// get legacy user name who has made changes to the selected lithology
-		legacyLastChangedDate = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "LastChangedDate");// get legacy date when the last changed has made by the user to the selected lithology 
-		modelConverter.upgradeLithologyAuditInfo(legacyDefinitionDate, legacyLastChangedBy, legacyLastChangedDate, lithologyFlag);
-		m_model.setTableValue("LithotypeIoTbl", lithoId, "DefinitionDate", legacyDefinitionDate);
-		m_model.setTableValue("LithotypeIoTbl", lithoId, "LastChangedBy", legacyLastChangedBy);
-		m_model.setTableValue("LithotypeIoTbl", lithoId, "LastChangedDate", legacyLastChangedDate);
-		
 		//......................................POROSITY MODEL UPGRADATION......................................//	
 		//Upgrading the deprecated Soil Mechanics porosity model to Exponential model for user defined lithotypes of BPA1
 		m_model.lithologyManager().porosityModel(lithoId, porModel, porModelPrms);
