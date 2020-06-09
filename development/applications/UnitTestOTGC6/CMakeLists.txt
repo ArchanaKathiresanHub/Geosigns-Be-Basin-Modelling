@@ -11,8 +11,8 @@
 #########################################################################
 
 add_executable(UnitTestOTGC6
-	src/TestingCode.C
-	src/main.C
+        src/TestingCode.cpp
+        src/main.cpp
 )
 
 include_directories( SYSTEM

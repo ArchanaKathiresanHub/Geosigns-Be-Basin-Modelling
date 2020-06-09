@@ -12,7 +12,7 @@
 
 set( TARGET_NAME "isosurface" )
 add_executable(${TARGET_NAME}
-   src/isosurface.C
+   src/isosurface.cpp
 )
 set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 

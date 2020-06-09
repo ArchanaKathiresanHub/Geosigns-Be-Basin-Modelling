@@ -17,19 +17,19 @@ include_directories(
 )
 
 add_executable(benchmark
-  tools/benchmark.C
-  tools/fastcauldronenvironment.C
-  tools/FastCauldronEnvironmentConfigurationTokenizer.C
-  tools/cmdlineparameter.C
-  tools/project3dparameter.C
-  tools/parameterdefinitions.C
-  tools/parametersettings.C
-  tools/parser.C
-  tools/system.C
-  tools/hpccluster.C
-  tools/configurationfile.C
-  tools/resultstabulator.C
-  tools/variabledefinitions.C
+  tools/benchmark.cpp
+  tools/fastcauldronenvironment.cpp
+  tools/FastCauldronEnvironmentConfigurationTokenizer.cpp
+  tools/cmdlineparameter.cpp
+  tools/project3dparameter.cpp
+  tools/parameterdefinitions.cpp
+  tools/parametersettings.cpp
+  tools/parser.cpp
+  tools/system.cpp
+  tools/hpccluster.cpp
+  tools/configurationfile.cpp
+  tools/resultstabulator.cpp
+  tools/variabledefinitions.cpp
 )
 
 target_link_libraries(benchmark
@@ -62,9 +62,9 @@ endif()
 
 add_gtest(
    NAME    hpc::FastCauldronEnvironmentConfigurationTokenizer
-   SOURCES test/FastCauldronEnvironmentConfigurationTokenizer.C
-           tools/FastCauldronEnvironmentConfigurationTokenizer.C
-           tools/system.C
+   SOURCES test/FastCauldronEnvironmentConfigurationTokenizer.cpp
+           tools/FastCauldronEnvironmentConfigurationTokenizer.cpp
+           tools/system.cpp
    LIBRARIES
            utilities
            projectdependencies
@@ -74,10 +74,10 @@ add_gtest(
 
 add_gtest(
    NAME    hpc::FastCauldronEnvironment
-   SOURCES test/FastcauldronEnvironment.C
-           tools/fastcauldronenvironment.C
-           tools/FastCauldronEnvironmentConfigurationTokenizer.C
-           tools/system.C
+   SOURCES test/FastcauldronEnvironment.cpp
+           tools/fastcauldronenvironment.cpp
+           tools/FastCauldronEnvironmentConfigurationTokenizer.cpp
+           tools/system.cpp
    LIBRARIES
            utilities
            projectdependencies
@@ -87,10 +87,10 @@ add_gtest(
 
 add_gtest(
    NAME    hpc::Project3DParameter
-   SOURCES test/Project3DParameter.C
-           tools/project3dparameter.C
-           tools/parser.C
-           test/test.project3d.C
+   SOURCES test/Project3DParameter.cpp
+           tools/project3dparameter.cpp
+           tools/parser.cpp
+           test/test.project3d.cpp
    LIBRARIES
            utilities
            DataAccess

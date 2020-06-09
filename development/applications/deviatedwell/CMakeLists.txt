@@ -11,16 +11,16 @@
 #########################################################################
 
 add_executable(deviatedwell
-   src/DeviatedWellData.C
-   src/deviatedwell.C
-   src/GlobalDefs.C
-   src/WellTrajectoryLocation.C
-   src/CSVWellWriter.C
-   src/MatlabWellWriter.C
-   src/StdOutWellWriter.C
-   src/StreamWellWriter.C
-   src/WellWriter.C
-   src/WellWriterFactory.C
+   src/DeviatedWellData.cpp
+   src/deviatedwell.cpp
+   src/GlobalDefs.cpp
+   src/WellTrajectoryLocation.cpp
+   src/CSVWellWriter.cpp
+   src/MatlabWellWriter.cpp
+   src/StdOutWellWriter.cpp
+   src/StreamWellWriter.cpp
+   src/WellWriter.cpp
+   src/WellWriterFactory.cpp
 )
 
 include_directories( SYSTEM

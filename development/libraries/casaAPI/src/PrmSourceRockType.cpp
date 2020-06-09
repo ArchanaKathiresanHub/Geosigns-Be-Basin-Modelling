@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmSourceRockType.C
+/// @file PrmSourceRockType.cpp
 /// @brief This file keeps API implementation for Source Rock Type categorical parameter
 
 // CASA API

@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmSurfacePorosity.C
+/// @file PrmSurfacePorosity.cpp
 /// @brief This file keeps API implementation for handling Porosity model parameter Surface porosity
 
 // CASA API

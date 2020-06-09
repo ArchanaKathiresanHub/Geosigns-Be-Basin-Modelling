@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file LithologyManagerImpl.C
+/// @file LithologyManagerImpl.cpp
 /// @brief This file keeps API implementation for manipulating lithologies in Cauldron model
 
 // CMB API

@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ObsValueDoubleScalar.C
+/// @file ObsValueDoubleScalar.cpp
 
 #include "Observable.h"
 #include "ObsValueDoubleScalar.h"

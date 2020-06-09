@@ -11,7 +11,7 @@
 #########################################################################
 
 set( TARGET_NAME "EosPackDemo" )
-add_executable(${TARGET_NAME} src/main.C)
+add_executable(${TARGET_NAME} src/main.cpp)
 set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
 target_link_libraries( ${TARGET_NAME}

@@ -28,7 +28,7 @@
 /// \brief The namespace for the visualization IO library related classes
 namespace CauldronIO
 {
-    // From ProjectHandle.C 
+    // From ProjectHandle.cpp 
     const float DefaultUndefinedValue = 99999;
     const float DefaultUndefinedScalarValue = -9999;
     // maximum length for string parameters

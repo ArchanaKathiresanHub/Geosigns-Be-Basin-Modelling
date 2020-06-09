@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ObsTrapDerivedProp.C
+/// @file ObsTrapDerivedProp.cpp
 
 // CASA API
 #include "ObsTrapDerivedProp.h"

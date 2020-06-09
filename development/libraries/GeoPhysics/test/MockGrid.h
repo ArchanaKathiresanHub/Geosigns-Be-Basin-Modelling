@@ -9,7 +9,7 @@
 //
 
 /**
- * \file SchmeiderCompactionCalculatorTest.C
+ * \file SchmeiderCompactionCalculatorTest.cpp
  * \brief Test the SchneiderCompactionCalculator class
  * \author Magali Cougnenc magali.cougnenc@pds.nl
  * \date May 2014

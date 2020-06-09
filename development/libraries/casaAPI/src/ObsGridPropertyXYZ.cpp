@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ObsGridPropertyXYZ.C
+/// @file ObsGridPropertyXYZ.cpp
 
 #include "ObsGridPropertyXYZ.h"
 #include "ObsValueDoubleScalar.h"

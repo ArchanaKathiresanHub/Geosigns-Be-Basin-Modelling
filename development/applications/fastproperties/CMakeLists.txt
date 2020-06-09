@@ -11,7 +11,7 @@
 #########################################################################
 
 #FILE( GLOB all_headers src/*.h )
-#FILE( GLOB all_srcs src/*.C)
+#FILE( GLOB all_srcs src/*.cpp)
 set (all_headers,
    src/AbstractPropertiesCalculator.h
    src/HdfPropertiesCalculator.h
@@ -20,12 +20,12 @@ set (all_headers,
    src/ExportToHDF.h )
  
 set(all_srcs
-   src/AbstractPropertiesCalculator.C
-   src/HdfPropertiesCalculator.C
-   src/VisualizationPropertiesCalculator.C
-   src/Utilities.C
+   src/AbstractPropertiesCalculator.cpp
+   src/HdfPropertiesCalculator.cpp
+   src/VisualizationPropertiesCalculator.cpp
+   src/Utilities.cpp
    src/ExportToHDF.cpp
-   src/main.C)
+   src/main.cpp)
 
 source_group(include FILES ${all_headers})
 
@@ -94,7 +94,7 @@ if (UNIX)
 endif (UNIX)
                                     
 add_gtest( NAME Fastproperties::ConvertProperties_MPInp2
-           SOURCES test/ConvertProperties.C src/Utilities.C src/Utilities.h
+           SOURCES test/ConvertProperties.cpp src/Utilities.cpp src/Utilities.h
            LIBRARIES DerivedProperties VisualizationIO DataAccess DistributedDataAccess  GeoPhysics  Parallel_Hdf5 VisualizationIO_projectHandle
            MPI_SIZE 2
            MPIRUN_PRMS ${MACHINE_FILE}

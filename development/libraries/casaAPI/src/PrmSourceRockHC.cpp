@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmSourceRockHC.C
+/// @file PrmSourceRockHC.cpp
 /// @brief This file keeps API implementation for Source Rock H/C parameter handling
 
 // CASA API

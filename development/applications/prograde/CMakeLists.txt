@@ -62,7 +62,7 @@ install( TARGETS ${TARGET_NAME}
 # 1. ALC upgrade testing
 #
 add_gtest( NAME ${TARGET_NAME}::LegacyBasaltThicknessCalculator
-           SOURCES test/LegacyBasaltThicknessCalculatorTest.cpp src/LegacyBasaltThicknessCalculator.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/DataModel/test/MockValidator.C
+           SOURCES test/LegacyBasaltThicknessCalculatorTest.cpp src/LegacyBasaltThicknessCalculator.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/DataModel/test/MockValidator.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/SerialDataAccess/src/Interface
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/DataModel/test

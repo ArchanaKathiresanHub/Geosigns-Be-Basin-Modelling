@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file DoEGeneratorImpl.C
+/// @file DoEGeneratorImpl.cpp
 /// @brief This file keeps API implementation of Design of Experiments generator
 
 #include "DoEGeneratorImpl.h"

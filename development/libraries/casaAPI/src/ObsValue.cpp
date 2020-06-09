@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file ObsValue.C
+/// @file ObsValue.cpp
 /// @brief This file keeps loaders for all possible types of ObsValue
 
 #include "ErrorHandler.h"

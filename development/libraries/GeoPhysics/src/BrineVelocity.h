@@ -26,7 +26,7 @@ namespace GeoPhysics
       constexpr double PressureMaxForVelocity = 100.0;
 
       /// \brief Velocity is intended to handle the calculations of seismic velocity for brines whose physical parameters (T,P,S) are
-      ///        within the allowed ranges (see BrinePhases.C). It uses Batzle-Wang analytic equation in the aqueous phase and ideal-gas
+      ///        within the allowed ranges (see BrinePhases.cpp). It uses Batzle-Wang analytic equation in the aqueous phase and ideal-gas
       ///        equation in the vapour phase. In the transition region bi-linear interpolation between the two approaches is used.
       class Velocity
       {
@@ -52,12 +52,12 @@ namespace GeoPhysics
          double aqueousBatzleWang ( const double temperature, const double pressure, const double salinity ) const;
 
          /// Analytic function implementing the ideal-gas equation for the value of the seismic velocity of a brine.
-         /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.C).
+         /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.cpp).
          /// \post Guarantees the return of a non-negative value for the velocity.
          double vapourIdealGas ( const double temperature, const double salinity ) const;
 
          /// Linearly interpolates between the values at the two sides of the transition region and returns the value.
-         /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.C) and lowerTemperature < higherTemperature.
+         /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.cpp) and lowerTemperature < higherTemperature.
          /// \post Guarantees the return of a non-negative value for the velocity.
          double transitionRegion ( const double temperature,
                                    const double pressure,

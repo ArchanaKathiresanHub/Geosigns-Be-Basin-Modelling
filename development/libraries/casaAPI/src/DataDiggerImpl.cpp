@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file DataDiggerImpl.C
+/// @file DataDiggerImpl.cpp
 /// @brief This file keeps API implementation for data digger.
 
 #include "DataDiggerImpl.h"

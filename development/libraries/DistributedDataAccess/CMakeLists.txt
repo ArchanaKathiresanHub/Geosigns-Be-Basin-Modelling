@@ -57,7 +57,7 @@ if (BM_PARALLEL)
 
 
    add_gtest( NAME DistributedGridMap_MPInp4
-              SOURCES test/DistributedGridMap.C
+              SOURCES test/DistributedGridMap.cpp
               COMPILE_FLAGS "-DNO_ASSERT_DEATH"
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
@@ -67,7 +67,7 @@ if (BM_PARALLEL)
    )
 
    add_gtest( NAME DistributedGridMap_MPInp2
-              SOURCES test/DistributedGridMap.C
+              SOURCES test/DistributedGridMap.cpp
               COMPILE_FLAGS "-DNO_ASSERT_DEATH"
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
@@ -78,7 +78,7 @@ if (BM_PARALLEL)
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::AssertDeath1
-              SOURCES test/DistributedGridMap.C
+              SOURCES test/DistributedGridMap.cpp
               COMPILE_FLAGS "-DASSERT_DEATH_CTR_1"
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
@@ -89,7 +89,7 @@ if (BM_PARALLEL)
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::AssertDeath2
-              SOURCES test/DistributedGridMap.C
+              SOURCES test/DistributedGridMap.cpp
               COMPILE_FLAGS "-DASSERT_DEATH_CTR_2"
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
@@ -100,7 +100,7 @@ if (BM_PARALLEL)
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::AssertDeath3
-              SOURCES test/DistributedGridMap.C
+              SOURCES test/DistributedGridMap.cpp
               COMPILE_FLAGS "-DASSERT_DEATH_CTR_3"
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
@@ -111,7 +111,7 @@ if (BM_PARALLEL)
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::AssertDeathNotRetrieved
-              SOURCES test/DistributedGridMap.C
+              SOURCES test/DistributedGridMap.cpp
               COMPILE_FLAGS "-DASSERT_DEATH_NOT_RETRIEVED"
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
@@ -122,7 +122,7 @@ if (BM_PARALLEL)
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::HangingCommunication
-              SOURCES test/DistributedGridMap.C
+              SOURCES test/DistributedGridMap.cpp
               COMPILE_FLAGS "-DASSERT_THROW_ON_RESTORE"
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"

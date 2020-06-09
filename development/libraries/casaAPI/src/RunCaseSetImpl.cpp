@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file RunCaseSetImpl.C
+/// @file RunCaseSetImpl.cpp
 /// @brief This file keeps definitions for RunCaseSet API implementation
 
 #include "RunCaseSetImpl.h"

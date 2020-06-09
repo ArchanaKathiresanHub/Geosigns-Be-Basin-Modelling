@@ -31,7 +31,7 @@ create_bm_library( TARGET ${LIB_NAME}
                    INSTALLTARGET )
 
 add_gtest( NAME DataMiningProjectHandle
-           SOURCES test/DataMiningProjectHandle.C
+           SOURCES test/DataMiningProjectHandle.cpp
            LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

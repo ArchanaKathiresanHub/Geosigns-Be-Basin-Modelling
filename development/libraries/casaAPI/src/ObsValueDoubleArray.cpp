@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ObsValueDoubleArray.C
+/// @file ObsValueDoubleArray.cpp
 
 #include "Observable.h"
 #include "ObsValueDoubleArray.h"

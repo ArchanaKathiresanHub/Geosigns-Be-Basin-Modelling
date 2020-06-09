@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file SUMlibUtils.C
+/// @file SUMlibUtils.cpp
 /// @brief This file keeps implementation of the set of utility functions to convert data SUMlib <-> CASA
 
 #include "SUMlibUtils.h"

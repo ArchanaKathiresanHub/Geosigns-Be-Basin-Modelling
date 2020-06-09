@@ -11,16 +11,16 @@
 #########################################################################
 
 add_executable(geomorph
-	src/GeoMorphAllochthonousLithology.C
-	src/GeoMorphAllochthonousLithologyDistribution.C
-	src/AllochthonousLithologySimulator.C
-	src/AllochthonousModellingFactory.C
-	src/ErrorPointSet.C
-	src/geomorph.C
-	src/MapIntervalInterpolator.C
-	src/MapProcessingOperations.C
-	src/PrescribedGridPointCondenser.C
-	src/SubsampledGridPointCondenser.C
+	src/GeoMorphAllochthonousLithology.cpp
+	src/GeoMorphAllochthonousLithologyDistribution.cpp
+	src/AllochthonousLithologySimulator.cpp
+	src/AllochthonousModellingFactory.cpp
+	src/ErrorPointSet.cpp
+	src/geomorph.cpp
+	src/MapIntervalInterpolator.cpp
+	src/MapProcessingOperations.cpp
+	src/PrescribedGridPointCondenser.cpp
+	src/SubsampledGridPointCondenser.cpp
 )
 
 include_directories( SYSTEM

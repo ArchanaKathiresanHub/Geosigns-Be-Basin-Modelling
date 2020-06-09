@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file Observable.C
+/// @file Observable.cpp
 /// @brief This file keeps loaders for all possible types of Observable
 
 #include "ObsGridPropertyXYZ.h"

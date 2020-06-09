@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ObsValueTransformable.C
+/// @file ObsValueTransformable.cpp
 
 #include "Observable.h"
 #include "ObsValueTransformable.h"

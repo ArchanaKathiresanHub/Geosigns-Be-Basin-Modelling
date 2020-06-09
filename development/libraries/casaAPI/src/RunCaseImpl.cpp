@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file RunCaseImpl.C
+/// @file RunCaseImpl.cpp
 /// @brief This file keeps API implementation to keep a single run of Cauldron or a single Monte Carlo point
 
 // CASA

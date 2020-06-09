@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file CauldronApp.C
+/// @file CauldronApp.cpp
 /// @brief This file keeps implementation the generic part of Cauldron Applications set
 
 // CASA API

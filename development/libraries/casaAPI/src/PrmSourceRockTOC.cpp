@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmSourceRockTOC.C
+/// @file PrmSourceRockTOC.cpp
 /// @brief This file keeps API implementation for Source Rock TOC parameter handling
 
 // CASA API

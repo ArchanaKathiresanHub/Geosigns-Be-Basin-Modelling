@@ -11,7 +11,7 @@
 #########################################################################
 
 add_executable(cauldron-crop
-   src/crop.C
+   src/crop.cpp
 )
 
 include_directories( SYSTEM

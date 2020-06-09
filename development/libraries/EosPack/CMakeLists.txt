@@ -25,7 +25,7 @@ generate_dox( src/EosPack.cfg )
 # Unit tests for PTDiagramCalculator
 
 add_gtest( NAME PTDiagramCalculator
-   SOURCES test/PTDiagramBuilderTest.C test/PVTCfgFileMgr.C
+   SOURCES test/PTDiagramBuilderTest.cpp test/PVTCfgFileMgr.cpp
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
@@ -35,7 +35,7 @@ add_gtest( NAME PTDiagramCalculator
 # Windows run sometimes crashed in Debug version for no obvious reason
 if(UNIX)
 add_gtest( NAME PTDiagramCalculator_MT
-   SOURCES test/PTDiagramBuilderMTTest.C test/PVTCfgFileMgr.C
+   SOURCES test/PTDiagramBuilderMTTest.cpp test/PVTCfgFileMgr.cpp
    LIBRARIES ${LIB_NAME}
    COMPILE_FLAGS "${OpenMP_CXX_FLAGS}"
    LINK_FLAGS "${OpenMP_CXX_FLAGS} ${OpenMP_LINK_FLAGS}"
@@ -46,7 +46,7 @@ endif(UNIX)
 ######################################
 # Unit test for flasher
 add_gtest( NAME pvtFlash::CAPI
-   SOURCES test/EosPackTest.C test/PVTCfgFileMgr.C
+   SOURCES test/EosPackTest.cpp test/PVTCfgFileMgr.cpp
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
@@ -56,7 +56,7 @@ add_gtest( NAME pvtFlash::CAPI
 # Windows run sometimes crashed in Debug version for no obvious reason
 if(UNIX)
 add_gtest( NAME pvtFlash::CAPI_MT
-   SOURCES test/EosPackMTTest.C test/PVTCfgFileMgr.C
+   SOURCES test/EosPackMTTest.cpp test/PVTCfgFileMgr.cpp
    LIBRARIES ${LIB_NAME}
    COMPILE_FLAGS "${OpenMP_CXX_FLAGS}"
    LINK_FLAGS "${OpenMP_CXX_FLAGS} ${OpenMP_LINK_FLAGS}"

@@ -11,11 +11,11 @@
 #########################################################################
 
 add_library(projectdependencies
-      src/projectdependencies.C
+      src/projectdependencies.cpp
 )
 
 add_executable(xcauldron
-	src/xcauldron.C
+	src/xcauldron.cpp
 )
 
 

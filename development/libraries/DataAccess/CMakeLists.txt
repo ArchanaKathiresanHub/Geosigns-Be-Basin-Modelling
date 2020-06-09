@@ -30,7 +30,7 @@ create_bm_library( TARGET ${LIB_NAME}
 )
 
 add_gtest( NAME DA::${LIB_NAME}
-           SOURCES test/DataAccess.C
+           SOURCES test/DataAccess.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
            LIBRARIES ${LIB_NAME} SerialDataAccess Serial_Hdf5
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
@@ -67,7 +67,7 @@ add_gtest( NAME DA::FaultPlaneTest
 )
 
 add_gtest( NAME DA::FaultFileReaderFactoryTest
-  SOURCES test/FaultFileReaderFactoryTest.C
+  SOURCES test/FaultFileReaderFactoryTest.cpp
   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
   LIBRARIES ${LIB_NAME} SerialDataAccess FileSystem
   FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
@@ -101,7 +101,7 @@ endif (MSVC)
 #configure_file( test/FaultFileTest.charisma FaultFileTest.charisma COPYONLY )
 
 #add_gtest( NAME ${TARGET_NAME}::CharismaFaultFileReaderTest
-#  SOURCES test/CharismaFaultFileReaderTest.C src/CharismaFaultFileReader.C
+#  SOURCES test/CharismaFaultFileReaderTest.cpp src/CharismaFaultFileReader.cpp
 #  LIBRARIES FileSystem
 #  FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 #)

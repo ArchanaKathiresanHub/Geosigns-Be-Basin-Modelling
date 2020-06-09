@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file VarPrmContinuous.C
+/// @file VarPrmContinuous.cpp
 /// @brief This file keeps API definition for handling continuous parameters.
 
 #include "VarPrmContinuous.h"

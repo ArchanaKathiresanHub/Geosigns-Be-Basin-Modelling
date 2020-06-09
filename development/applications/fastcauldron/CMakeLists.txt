@@ -163,131 +163,131 @@ set( all_headers,
 )
 
 #
-# 2. This list contains all implementation files except main.C
+# 2. This list contains all implementation files except main.cpp
 #
 set( all_srcs_except_main
-     src/AllochthonousLithologyMapCalculator.C
-     src/BasementPropertyCalculator.C
-     src/BiomarkersAdapter.C
-     src/BiomarkersCalculator.C
-     src/BoundaryConditions.C
-     src/BoundaryId.C
-     src/CapillaryPressureCalculator.C
-     src/ChemicalCompactionGrid.C
-     src/ChemicalCompactionSchneiderGrid.C
-     src/ChemicalCompactionWalderhaugGrid.C
-     src/ComponentConcentrationCalculator.C
-     src/CompositeElementActivityPredicate.C
-     src/ComputationalDomain.C
-     src/ConstantsFastcauldron.C
-     src/CauldronCrustFormation.C
-     src/DarcyCalculations.C
-     src/DerivedOutputPropertyMapFactory.C
-     src/element_contributions.C
-     src/ElementContributions.C
-     src/ElementDofsMixin.C
-     src/ElementFaceValues.C
-     src/ElementGrid.C
-     src/ElementVolumeGrid.C
-     src/ErosionFactorCalculator.C
-     src/ExplicitMultiComponentFlowSolver.C
-     src/FaceAreaInterpolatorCalculator.C
-     src/FacePermeabilityInterpolatorCalculator.C
-     src/FastcauldronFactory.C
-     src/FastcauldronSimulator.C
-     src/FastcauldronStartup.C
-     src/FaultElementMapCalculator.C
-     src/fctcalc.C
-     src/FCTCorrectionCalculator.C
-     src/fem_grid_auxiliary_functions.C
-     src/fem_grid.C
-     src/fileio.C
-     src/filterwizard.C
-     src/FissionTrackCalculator.C
-     src/FluidPropertyCalculator.C
-     src/FormationSubdomainElementGrid.C
-     src/GeometricLoopPressureSolver.C
-     src/ghost_array.C
-     src/HcFluidVelocityCalculator.C
-     src/history.C
-     src/HydraulicFracturingManager.C
-     src/ImmobileSpeciesValues.C
-     src/layer.C
-     src/LayerElement.C
-     src/layer_iterators.C
-     src/LinearPropertyInterpolator.C
-     src/Lithology.C
-     src/LithologyIdCalculator.C
-     src/LithologyVolumeCalculator.C
-     src/CauldronMantleFormation.C
-     src/MapElement.C
-     src/mapinterpolator.C
-     src/MatrixNonZeroCalculator.C
-     src/MaxVesCalculator.C
-     src/Mesh3DIndex.C
-     src/milestones.C
-     src/MultiComponentFlowHandler.C
-     src/NodalGrid.C
-     src/NodalVolumeGrid.C
-     src/NonGeometricLoopPressureSolver.C
-     src/OptionalGenexPropertyCalculator.C
-     src/Output.C
-     src/OutputPropertyMap.C
-     src/PetscLogStages.C
-     src/PetscObjectAllocator.C
-     src/PetscObjectsIO.C
-     src/PetscSolver.C
-     src/PoreVolumeInterpolatorCalculator.C
-     src/PressureElementMatrixAssembly.C
-     src/PressureSolver.C
-     src/PrimaryOutputPropertyMap.C
-     src/PrimaryOutputPropertyVolume.C
-     src/PropertiesIoTbl.C
-     src/Property.C
-     src/property_manager.C
-     src/PropertyManager.C
-     src/PropertyOutputConstraints.C
-     src/CauldronPropertyValue.C
-     src/propinterface.C
-     src/PVTCalculator.C
-     src/PvtHcProperties.C
-     src/readproperties.C
-     src/CauldronRelatedProject.C
-     src/RelativePermeabilityCalculator.C
-     src/RequiredGenex5PropertyCalculator.C
-     src/CauldronRunParameters.C
-     src/Saturation.C
-     src/SaturationCalculator.C
-     src/SmectiteIlliteAdapter.C
-     src/SmectiteIlliteCalculator.C
-     src/snapshotdata.C
-     src/snapshotinterpolator.C
-     src/SolutionVectorMapping.C
-     src/SourceRocksTemporalInterpolator.C
-     src/SourceTermInterpolatorCalculator.C
-     src/SourceTermTemporalInterpolator.C
-     src/StratigraphicColumn.C
-     src/StratigraphicGrids.C
-     src/Subdomain.C
-     src/TemperatureElementAssembly.C
-     src/TemperatureForVreInputGrid.C
-     src/temperature_solver.C
-     src/TemporalPropertyInterpolator.C
-     src/ThicknessErrorMapCalculator.C
-     src/timefilter.C
-     src/TimeOfElementInvasionCalculator.C
-     src/TransportedVolumeCalculator.C
-     src/utils.C
-     src/VitriniteReflectanceCalculator.C
-     src/VolumeCalculator.C
-     src/VreGrid.C
-     src/VreOutputGrid.C
-     src/VtkMeshWriter.C
-     src/Well.C
+     src/AllochthonousLithologyMapCalculator.cpp
+     src/BasementPropertyCalculator.cpp
+     src/BiomarkersAdapter.cpp
+     src/BiomarkersCalculator.cpp
+     src/BoundaryConditions.cpp
+     src/BoundaryId.cpp
+     src/CapillaryPressureCalculator.cpp
+     src/ChemicalCompactionGrid.cpp
+     src/ChemicalCompactionSchneiderGrid.cpp
+     src/ChemicalCompactionWalderhaugGrid.cpp
+     src/ComponentConcentrationCalculator.cpp
+     src/CompositeElementActivityPredicate.cpp
+     src/ComputationalDomain.cpp
+     src/ConstantsFastcauldron.cpp
+     src/CauldronCrustFormation.cpp
+     src/DarcyCalculations.cpp
+     src/DerivedOutputPropertyMapFactory.cpp
+     src/element_contributions.cpp
+     src/ElementContributions.cpp
+     src/ElementDofsMixin.cpp
+     src/ElementFaceValues.cpp
+     src/ElementGrid.cpp
+     src/ElementVolumeGrid.cpp
+     src/ErosionFactorCalculator.cpp
+     src/ExplicitMultiComponentFlowSolver.cpp
+     src/FaceAreaInterpolatorCalculator.cpp
+     src/FacePermeabilityInterpolatorCalculator.cpp
+     src/FastcauldronFactory.cpp
+     src/FastcauldronSimulator.cpp
+     src/FastcauldronStartup.cpp
+     src/FaultElementMapCalculator.cpp
+     src/fctcalc.cpp
+     src/FCTCorrectionCalculator.cpp
+     src/fem_grid_auxiliary_functions.cpp
+     src/fem_grid.cpp
+     src/fileio.cpp
+     src/filterwizard.cpp
+     src/FissionTrackCalculator.cpp
+     src/FluidPropertyCalculator.cpp
+     src/FormationSubdomainElementGrid.cpp
+     src/GeometricLoopPressureSolver.cpp
+     src/ghost_array.cpp
+     src/HcFluidVelocityCalculator.cpp
+     src/history.cpp
+     src/HydraulicFracturingManager.cpp
+     src/ImmobileSpeciesValues.cpp
+     src/layer.cpp
+     src/LayerElement.cpp
+     src/layer_iterators.cpp
+     src/LinearPropertyInterpolator.cpp
+     src/Lithology.cpp
+     src/LithologyIdCalculator.cpp
+     src/LithologyVolumeCalculator.cpp
+     src/CauldronMantleFormation.cpp
+     src/MapElement.cpp
+     src/mapinterpolator.cpp
+     src/MatrixNonZeroCalculator.cpp
+     src/MaxVesCalculator.cpp
+     src/Mesh3DIndex.cpp
+     src/milestones.cpp
+     src/MultiComponentFlowHandler.cpp
+     src/NodalGrid.cpp
+     src/NodalVolumeGrid.cpp
+     src/NonGeometricLoopPressureSolver.cpp
+     src/OptionalGenexPropertyCalculator.cpp
+     src/Output.cpp
+     src/OutputPropertyMap.cpp
+     src/PetscLogStages.cpp
+     src/PetscObjectAllocator.cpp
+     src/PetscObjectsIO.cpp
+     src/PetscSolver.cpp
+     src/PoreVolumeInterpolatorCalculator.cpp
+     src/PressureElementMatrixAssembly.cpp
+     src/PressureSolver.cpp
+     src/PrimaryOutputPropertyMap.cpp
+     src/PrimaryOutputPropertyVolume.cpp
+     src/PropertiesIoTbl.cpp
+     src/Property.cpp
+     src/property_manager.cpp
+     src/PropertyManager.cpp
+     src/PropertyOutputConstraints.cpp
+     src/CauldronPropertyValue.cpp
+     src/propinterface.cpp
+     src/PVTCalculator.cpp
+     src/PvtHcProperties.cpp
+     src/readproperties.cpp
+     src/CauldronRelatedProject.cpp
+     src/RelativePermeabilityCalculator.cpp
+     src/RequiredGenex5PropertyCalculator.cpp
+     src/CauldronRunParameters.cpp
+     src/Saturation.cpp
+     src/SaturationCalculator.cpp
+     src/SmectiteIlliteAdapter.cpp
+     src/SmectiteIlliteCalculator.cpp
+     src/snapshotdata.cpp
+     src/snapshotinterpolator.cpp
+     src/SolutionVectorMapping.cpp
+     src/SourceRocksTemporalInterpolator.cpp
+     src/SourceTermInterpolatorCalculator.cpp
+     src/SourceTermTemporalInterpolator.cpp
+     src/StratigraphicColumn.cpp
+     src/StratigraphicGrids.cpp
+     src/Subdomain.cpp
+     src/TemperatureElementAssembly.cpp
+     src/TemperatureForVreInputGrid.cpp
+     src/temperature_solver.cpp
+     src/TemporalPropertyInterpolator.cpp
+     src/ThicknessErrorMapCalculator.cpp
+     src/timefilter.cpp
+     src/TimeOfElementInvasionCalculator.cpp
+     src/TransportedVolumeCalculator.cpp
+     src/utils.cpp
+     src/VitriniteReflectanceCalculator.cpp
+     src/VolumeCalculator.cpp
+     src/VreGrid.cpp
+     src/VreOutputGrid.cpp
+     src/VtkMeshWriter.cpp
+     src/Well.cpp
 )
 
 source_group(include FILES ${all_headers})
-source_group(source FILES ${all_srcs_except_main} src/main.C)
+source_group(source FILES ${all_srcs_except_main} src/main.cpp)
 
 #
 # 3. FastcauldronApplication library, contains all code except main.c
@@ -306,7 +306,7 @@ set_target_properties( ${FASTCAULDRONAPP_TARGET_NAME} PROPERTIES FOLDER "${BASE_
 # 4. fastcauldron application
 #
 set( FASTCAULDRON_TARGET_NAME "fastcauldron" )
-add_executable( ${FASTCAULDRON_TARGET_NAME} src/main.C ${all_headers} )
+add_executable( ${FASTCAULDRON_TARGET_NAME} src/main.cpp ${all_headers} )
 set_target_properties( ${FASTCAULDRON_TARGET_NAME} PROPERTIES SUFFIX ".exe" )
 set_target_properties( ${FASTCAULDRON_TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${FASTCAULDRON_TARGET_NAME}" )
 create_application_run_script( ${FASTCAULDRON_TARGET_NAME} )
@@ -324,7 +324,7 @@ application_env_var( TARGET ${FASTCAULDRON_TARGET_NAME} VARS
 # 5. linearSolver application
 #
 set( LINEARSOLVER_TARGET_NAME "linearSolver" )
-add_executable( ${LINEARSOLVER_TARGET_NAME} linearSolver/main.C ${all_headers} )
+add_executable( ${LINEARSOLVER_TARGET_NAME} linearSolver/main.cpp ${all_headers} )
 set_target_properties( ${LINEARSOLVER_TARGET_NAME} PROPERTIES SUFFIX ".exe" )
 set_target_properties( ${LINEARSOLVER_TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LINEARSOLVER_TARGET_NAME}" )
 create_application_run_script( ${LINEARSOLVER_TARGET_NAME} )
@@ -460,13 +460,13 @@ endif(BM_BUILD_ENABLE_TESTING)
 #
 #
 add_gtest( NAME "VectorInterpolator"
-           SOURCES test/InterpolationTest.C
+           SOURCES test/InterpolationTest.cpp
            LIBRARIES LinearAlgebra
            FOLDER "${BASE_FOLDER}/${FASTCAULDRON_TARGET_NAME}"
          )
 
 add_gtest( NAME "MatrixInterpolator"
-           SOURCES test/MatrixInterpolationTest.C
+           SOURCES test/MatrixInterpolationTest.cpp
            LIBRARIES LinearAlgebra
            FOLDER "${BASE_FOLDER}/${FASTCAULDRON_TARGET_NAME}"
          )
@@ -475,7 +475,7 @@ add_gtest( NAME "MatrixInterpolator"
 #
 #
 add_gtest( NAME "PetscSolver"
-           SOURCES src/PetscSolver.C test/PetscSolver.C
+           SOURCES src/PetscSolver.cpp test/PetscSolver.cpp
            LIBRARIES ${PETSC_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:${HYPRE_LIBRARY_DIR}
@@ -486,7 +486,7 @@ add_gtest( NAME "PetscSolver"
 #
 #
 add_gtest( NAME "PetscObjectsIO"
-           SOURCES src/PetscObjectsIO.C test/PetscObjectsIO.C
+           SOURCES src/PetscObjectsIO.cpp test/PetscObjectsIO.cpp
            LIBRARIES ${PETSC_LIBRARIES} ${Boost_LIBRARIES} FileSystem
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            FOLDER "${BASE_FOLDER}/${FASTCAULDRON_TARGET_NAME}"
@@ -601,7 +601,7 @@ configure_file(
 set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 
 add_gtest( NAME "MeshUnitTesterFull"
-           SOURCES test/MeshUnitTester.C test/MeshUnitTesterFull.C
+           SOURCES test/MeshUnitTester.cpp test/MeshUnitTesterFull.cpp
            LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics FileSystem calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
@@ -609,7 +609,7 @@ add_gtest( NAME "MeshUnitTesterFull"
          )
 
 add_gtest( NAME "MeshUnitTesterSediments"
-           SOURCES test/MeshUnitTester.C test/MeshUnitTesterSediments.C
+           SOURCES test/MeshUnitTester.cpp test/MeshUnitTesterSediments.cpp
            LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
@@ -617,7 +617,7 @@ add_gtest( NAME "MeshUnitTesterSediments"
          )
 
 add_gtest( NAME "MeshUnitTesterHoles01"
-           SOURCES test/MeshUnitTester.C test/MeshUnitTesterHoles01.C
+           SOURCES test/MeshUnitTester.cpp test/MeshUnitTesterHoles01.cpp
            LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
@@ -625,7 +625,7 @@ add_gtest( NAME "MeshUnitTesterHoles01"
          )
 
 add_gtest( NAME "MeshUnitTesterHoles02"
-           SOURCES test/MeshUnitTester.C test/MeshUnitTesterHoles02.C
+           SOURCES test/MeshUnitTester.cpp test/MeshUnitTesterHoles02.cpp
            LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
@@ -633,7 +633,7 @@ add_gtest( NAME "MeshUnitTesterHoles02"
          )
 
 add_gtest( NAME "MeshUnitTesterMixedHoles"
-           SOURCES test/MeshUnitTester.C test/MeshUnitTesterMixedHoles.C
+           SOURCES test/MeshUnitTester.cpp test/MeshUnitTesterMixedHoles.cpp
            LIBRARIES  ${FASTCAULDRONAPP_TARGET_NAME} DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50

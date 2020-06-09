@@ -13,13 +13,13 @@
 set( APP_NAME "tracktraps" )
 
 add_executable(${APP_NAME}
-   src/TrackProjectHandle.C
-   src/PersistentTrap.C
-   src/PersistentTrapFactory.C
-   src/TrackReservoir.C
-   src/TrackTrap.C
-   src/generics.C
-   src/main.C
+   src/TrackProjectHandle.cpp
+   src/PersistentTrap.cpp
+   src/PersistentTrapFactory.cpp
+   src/TrackReservoir.cpp
+   src/TrackTrap.cpp
+   src/generics.cpp
+   src/main.cpp
 )
 
 set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )

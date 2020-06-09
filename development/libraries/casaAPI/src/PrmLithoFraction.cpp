@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmLithoFraction.C
+/// @file PrmLithoFraction.cpp
 /// @brief This file keeps API implementation for lithofraction parameter handling.
 
 // CASA APIlayerLithologiesList

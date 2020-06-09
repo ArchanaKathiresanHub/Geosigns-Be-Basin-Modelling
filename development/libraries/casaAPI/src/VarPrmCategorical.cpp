@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file VarPrmCategorical.C
+/// @file VarPrmCategorical.cpp
 /// @brief This file keeps loaders for all possible types of VarPrmCategorical
 
 #include "VarPrmCategorical.h"

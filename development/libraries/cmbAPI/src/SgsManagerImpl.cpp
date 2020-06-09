@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file SgsManagerImpl.C
+/// @file SgsManagerImpl.cpp
 /// @brief This file keeps API implementation for manipulating shale gas related table in Cauldron model
 
 // CMB API

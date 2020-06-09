@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file RSProxyImpl.C
+/// @file RSProxyImpl.cpp
 /// @brief This file keeps API implementation of Response Surface Proxy
 
 // CASA

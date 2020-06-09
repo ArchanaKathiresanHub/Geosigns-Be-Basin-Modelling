@@ -10,9 +10,9 @@
 #                                                                       #
 #########################################################################
 
-# Note: The .c source file are compiled with a c compiler and the .C source files with the c++ compiler. Those are then packed into a single archive
+# Note: The .c source file are compiled with a c compiler and the .cpp source files with the c++ compiler. Those are then packed into a single archive
 
-set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c src/h5merge.C src/fileHandler.C src/fileHandlerReuse.C src/fileHandlerAppend.C )
+set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c src/h5merge.cpp src/fileHandler.cpp src/fileHandlerReuse.cpp src/fileHandlerAppend.cpp )
 set( all_headers src/HDF5VirtualFileDriver.h src/RewriteFileName.h src/h5merge.h src/fileHandler.h src/fileHandlerReuse.h src/fileHandlerAppend.h )
 
 set_source_files_properties( src/HDF5VirtualFileDriver.c
@@ -52,26 +52,26 @@ endif (UNIX)
 
 
 add_gtest( NAME ${LIB_NAME}::rewriteFileName
-           SOURCES test/RewriteFileName.C
+           SOURCES test/RewriteFileName.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::HDF5VirtualFileDriver
-           SOURCES test/HDF5VirtualFileDriver.C
+           SOURCES test/HDF5VirtualFileDriver.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::HDF5VirtualFileDriver-MPIPROCS=2
-           SOURCES test/HDF5VirtualFileDriver.C
+           SOURCES test/HDF5VirtualFileDriver.cpp
            LIBRARIES ${LIB_NAME}
            MPI_SIZE 2
            MPIRUN_PRMS ${MACHINE_FILE}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 add_gtest( NAME ${LIB_NAME}::h5mergeTest-MPIPROCS=2
-           SOURCES test/readDataset.C src/h5merge.C
+           SOURCES test/readDataset.cpp src/h5merge.cpp
            LIBRARIES ${LIB_NAME}
            MPI_SIZE 2
            MPIRUN_PRMS ${MACHINE_FILE}

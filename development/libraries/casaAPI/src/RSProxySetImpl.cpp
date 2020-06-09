@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file RSProxySetImpl.C
+/// @file RSProxySetImpl.cpp
 /// @brief This file keeps definitions for PRoxySet API implementation
 
 // CASA

@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmSourceRockPreAsphaltStartAct.C
+/// @file PrmSourceRockPreAsphaltStartAct.cpp
 /// @brief This file keeps API implementation for Source Rock Preasphaltene Activation Energy parameter handling
 
 // CASA API

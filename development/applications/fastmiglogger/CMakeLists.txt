@@ -12,7 +12,7 @@
 
 set( TARGET_NAME "fastmiglogger" )
 add_executable(${TARGET_NAME}
-   src/fastmiglogger.C
+   src/fastmiglogger.cpp
 )
 set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 

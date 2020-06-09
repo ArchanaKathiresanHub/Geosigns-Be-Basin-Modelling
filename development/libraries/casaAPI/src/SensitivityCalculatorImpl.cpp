@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file SensitivityCalculatorImpl.C
+/// @file SensitivityCalculatorImpl.cpp
 /// @brief This file keeps API implementation of SensitivityCalculator
 
 // CASA

@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file SnapshotManagerImpl.C
+/// @file SnapshotManagerImpl.cpp
 /// @brief This file keeps implementation for API which provides access to simulation results
 
 #include "SnapshotManagerImpl.h"

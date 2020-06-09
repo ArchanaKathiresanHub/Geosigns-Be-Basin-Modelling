@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file VarPrmDiscrete.C
+/// @file VarPrmDiscrete.cpp
 /// @brief This file keeps loaders for all possible types of VarPrmDiscrete
 
 #include "VarPrmDiscrete.h"

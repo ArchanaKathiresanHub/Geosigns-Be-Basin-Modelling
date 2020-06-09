@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file cmbAPI.C
+/// @file cmbAPI.cpp
 /// @brief This file keeps API definition for creating Cauldron data model
 
 // CMB API

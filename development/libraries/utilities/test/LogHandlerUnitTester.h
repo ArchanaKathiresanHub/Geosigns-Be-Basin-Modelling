@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file LogHandlerUnitTester.C
+/// @file LogHandlerUnitTester.cpp
 /// @brief This file is a testing utility for all LogHandler unit tests
 
 #ifndef UTILITIES_LOGHANDLERUNITTESTER_H

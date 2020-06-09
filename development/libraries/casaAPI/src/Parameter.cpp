@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file Parameter.C
+/// @file Parameter.cpp
 /// @brief This file keeps loaders for all possible types of Parameter
 
 #include "ErrorHandler.h"

@@ -19,7 +19,7 @@ namespace casa
    // Set of axillary function to be used in loading 
 
    // to reduce binary file size, change simple data types to IDs
-   // this enum is duplicated in SimpleSerializer.C
+   // this enum is duplicated in SimpleSerializer.cpp
    typedef enum
    {
       BoolID,

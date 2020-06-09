@@ -63,12 +63,12 @@ namespace GeoPhysics
          double aqueousTable ( const double temperature, const double pressure ) const;
 
          /// Uses bi-linear interpolation to return the value of thermal conductivity using the table provided in Sengers et al. (1984)
-         /// \pre Requires the values of T,P to be within the allowed ranges (see BrinePhases.C).
+         /// \pre Requires the values of T,P to be within the allowed ranges (see BrinePhases.cpp).
          /// \post Guarantees the return of non-negative value for the thermal conductivity.
          double vapourTable ( const double temperature, const double pressure ) const;
 
          /// Linearly interpolates between the values at the two sides of the transition region and returns the value.
-         /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.C) and lowerTemperature < higherTemperature.
+         /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.cpp) and lowerTemperature < higherTemperature.
          /// \post Guarantees the return of a non-negative value for the velocity.
          double transitionRegion ( const double temperature,
                                    const double pressure,
@@ -95,7 +95,7 @@ namespace GeoPhysics
          const double m_lowEndTransitionTempMax;
 
          /// Bi-linear interpolator used in both the aqueous and the vapour phase of the brines.
-         /// \pre Requires that both T and P are within the range of the values defined in the Sengers et al. table (see BrineConductivity.C).
+         /// \pre Requires that both T and P are within the range of the values defined in the Sengers et al. table (see BrineConductivity.cpp).
          /// \post Guarantees the return of a non-negative thermal-conductivity value.
          double interpolate2d ( const double temperature, const double pressure ) const;
 

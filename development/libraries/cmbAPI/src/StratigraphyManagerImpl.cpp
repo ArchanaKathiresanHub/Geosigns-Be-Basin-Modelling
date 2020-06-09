@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file StratigraphyManagerImpl.C
+/// @file StratigraphyManagerImpl.cpp
 /// @brief This file keeps API implementation for manipulating layers/surfaces in Cauldron model
 
 // CMB API

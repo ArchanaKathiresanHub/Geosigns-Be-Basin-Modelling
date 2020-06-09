@@ -12,7 +12,7 @@
 
 set( APP_NAME "cauldron2eclipse" )
 add_executable(${APP_NAME}
-   src/cauldron2eclipse.C
+   src/cauldron2eclipse.cpp
 )
 set_target_properties( ${APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${APP_NAME}" )
 

@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file VarSpaceImpl.C
+/// @file VarSpaceImpl.cpp
 /// @brief This file keeps API implementation for influential parameters set manager.
 
 #include "VarSpaceImpl.h"

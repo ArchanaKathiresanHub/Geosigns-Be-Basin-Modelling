@@ -28,7 +28,7 @@ const string OutputOptionName[] = {
 };
 
 enum PropertyIdentifier {
-   //Please use alphabetic order inside subcategories, and update PropertyOutputConstraints.C according to the order
+   //Please use alphabetic order inside subcategories, and update PropertyOutputConstraints.cpp according to the order
 
    //Vector Properties
    BULKDENSITYVEC, DIFFUSIVITYVEC, HEAT_FLOW, HEAT_FLOWY, HEAT_FLOWZ, HEAT_FLOW_,

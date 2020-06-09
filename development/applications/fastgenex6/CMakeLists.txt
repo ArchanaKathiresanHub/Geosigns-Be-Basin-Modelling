@@ -15,7 +15,7 @@ if (BM_PARALLEL)
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.C)
+FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
 set( APP_NAME "fastgenex6" )

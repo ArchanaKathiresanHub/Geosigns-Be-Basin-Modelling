@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ObsSourceRockMapProp.C
+/// @file ObsSourceRockMapProp.cpp
 
 #include "ObsValueDoubleScalar.h"
 #include "ObsSourceRockMapProp.h"

@@ -16,49 +16,49 @@ create_bm_library( TARGET ${LIB_NAME}
                    INSTALLTARGET)
 
 add_gtest ( NAME SimdTraits::TraitsTest
-            SOURCES test/TraitsTest.C
+            SOURCES test/TraitsTest.cpp
             LIBRARIES ${LIB_NAME}
             FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest ( NAME SimdTraits::InstTest01
-            SOURCES test/SimdInstTest01.C
+            SOURCES test/SimdInstTest01.cpp
             LIBRARIES ${LIB_NAME}
             FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest ( NAME SimdTraits::InstTest02
-            SOURCES test/SimdInstTest02.C
+            SOURCES test/SimdInstTest02.cpp
             LIBRARIES ${LIB_NAME}
             FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest ( NAME MatrixTests::ConstructionTest
-            SOURCES test/MatrixTest01.C
+            SOURCES test/MatrixTest01.cpp
             LIBRARIES ${LIB_NAME}
             FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest ( NAME MatrixTests::MultTest
-            SOURCES test/MatrixMultTest01.C
+            SOURCES test/MatrixMultTest01.cpp
             LIBRARIES ${LIB_NAME}
             FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest ( NAME MatrixTests::SimpleMultTest
-            SOURCES test/MatrixMultTest03.C
+            SOURCES test/MatrixMultTest03.cpp
             LIBRARIES ${LIB_NAME}
             FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest ( NAME MatrixTests::SimpleMultAddTest
-            SOURCES test/MatrixAddMultTest01.C
+            SOURCES test/MatrixAddMultTest01.cpp
             LIBRARIES ${LIB_NAME}
             FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest ( NAME MatrixTests::GeneralMultTest
-            SOURCES test/MatrixMultTest04.C
+            SOURCES test/MatrixMultTest04.cpp
             LIBRARIES ${LIB_NAME}
             FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

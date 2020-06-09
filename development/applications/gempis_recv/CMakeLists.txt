@@ -11,7 +11,7 @@
 #########################################################################
 
 add_executable(gempis_recv
-	src/gempis_recv.C
+	src/gempis_recv.cpp
 )
 
 target_link_libraries(gempis_recv

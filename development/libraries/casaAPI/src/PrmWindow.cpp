@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmWindow.C
+/// @file PrmWindow.cpp
 /// @brief This file keeps API implementation for for window handling.
 
 // CASA API

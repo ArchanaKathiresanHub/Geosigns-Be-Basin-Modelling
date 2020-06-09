@@ -14,7 +14,7 @@
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
-# 2. This list contains all implementation files except main.C
+# 2. This list contains all implementation files except main.cpp
 FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 

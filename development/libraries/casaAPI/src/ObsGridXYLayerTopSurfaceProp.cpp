@@ -6,7 +6,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ObsGridXYLayerTopSurfaceProp.C
+/// @file ObsGridXYLayerTopSurfaceProp.cpp
 
 #include "ObsValueDoubleScalar.h"
 #include "ObsGridXYLayerTopSurfaceProp.h"

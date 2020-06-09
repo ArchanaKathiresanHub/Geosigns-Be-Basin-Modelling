@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file RunOptionsManagerImpl.C
+/// @file RunOptionsManagerImpl.cpp
 /// @brief This file keeps API implementation for manipulating runOptionsIoTbl in Cauldron model
 
 #include "RunOptionsManagerImpl.h"

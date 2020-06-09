@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file FluidManagerImpl.C
+/// @file FluidManagerImpl.cpp
 /// @brief This file keeps API implementation for manipulating fluids in Cauldron model
 
 #include "FluidManagerImpl.h"

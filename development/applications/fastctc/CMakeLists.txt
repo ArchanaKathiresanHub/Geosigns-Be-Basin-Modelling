@@ -14,7 +14,7 @@ if (BM_PARALLEL)
 
 FILE( GLOB all_headers src/*.h )
 
-FILE( GLOB all_srcs src/*.C src/*.cpp)
+FILE( GLOB all_srcs src/*.cpp src/*.cpp)
 
 source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
@@ -89,7 +89,7 @@ configure_file(test/data/Inputs.HDF ${CMAKE_CURRENT_BINARY_DIR}/Inputs.HDF COPYO
 
 
 add_gtest( NAME "Fasctc::CrustalThicknessCalculator"
-    SOURCES test/CrustalThicknessCalculatorTest.cpp src/CrustalThicknessCalculator.C src/CrustalThicknessCalculatorFactory.C
+    SOURCES test/CrustalThicknessCalculatorTest.cpp src/CrustalThicknessCalculator.cpp src/CrustalThicknessCalculatorFactory.cpp
     LIBRARIES   DataModel
                 Utilities_Petsc
                 DataMining

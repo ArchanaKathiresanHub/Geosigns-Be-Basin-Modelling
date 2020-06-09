@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmPermeabilityModel.C
+/// @file PrmPermeabilityModel.cpp
 /// @brief This file keeps API implementation for Permeability model parameter handling
 
 // CASA API

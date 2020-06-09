@@ -35,13 +35,13 @@ if (UNIX)
 endif(UNIX)
 
 add_gtest( NAME SerialGridMap
-           SOURCES test/SerialGridMap.C
+           SOURCES test/SerialGridMap.cpp
            LIBRARIES ${LIB_NAME} DataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME SerialMapWriter
-           SOURCES test/SerialMapWriter.C
+           SOURCES test/SerialMapWriter.cpp
            LIBRARIES ${LIB_NAME} DataAccess Serial_Hdf5 FileSystem
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

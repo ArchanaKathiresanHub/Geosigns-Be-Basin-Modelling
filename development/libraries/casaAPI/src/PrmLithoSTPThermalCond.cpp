@@ -6,7 +6,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmLithoSTPThermalCond.C
+/// @file PrmLithoSTPThermalCond.cpp
 /// @brief This file keeps API implementation for STP thermal conductivity coefficient parameter
 
 // CASA API

@@ -15,7 +15,7 @@ if (BM_PARALLEL)
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.C)
+FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
 set( APP_NAME "fastmig" )
@@ -96,62 +96,62 @@ set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 ### Unit Tests
 
 add_gtest( NAME "Fastmig::Biodegrade"
-   SOURCES test/BiodegradeTest.C src/Biodegrade.C
+   SOURCES test/BiodegradeTest.cpp src/Biodegrade.cpp
    LIBRARIES DataAccess DistributedDataAccess
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest( NAME "Fastmig::CapillarySealStrength"
-   SOURCES test/CapillarySealStrength.C src/MigrationCapillarySealStrength.C src/Composition.C src/Biodegrade.C src/DiffusionLeak.C src/DiffusionCoefficient.C
+   SOURCES test/CapillarySealStrength.cpp src/MigrationCapillarySealStrength.cpp src/Composition.cpp src/Biodegrade.cpp src/DiffusionLeak.cpp src/DiffusionCoefficient.cpp
    LIBRARIES DataAccess DistributedDataAccess CBMGenerics EosPack GeoPhysics functions DerivedProperties
    ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest( NAME "Fastmig::Leak"
-   SOURCES test/Leak.C src/Leak.C
+   SOURCES test/Leak.cpp src/Leak.cpp
    LIBRARIES functions DataAccess ${Boost_LIBRARIES} DistributedDataAccess
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest( NAME "Fastmig::LeakGas"
-   SOURCES test/LeakGas.C src/Leak.C src/LeakGas.C
+   SOURCES test/LeakGas.cpp src/Leak.cpp src/LeakGas.cpp
    LIBRARIES functions utilities DataAccess DistributedDataAccess
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest( NAME "Fastmig::LeakOrSpill"
-   SOURCES test/LeakOrSpill.C src/Leak.C src/Spill.C src/LeakOrSpill.C
+   SOURCES test/LeakOrSpill.cpp src/Leak.cpp src/Spill.cpp src/LeakOrSpill.cpp
    LIBRARIES functions DataAccess ${Boost_LIBRARIES} DistributedDataAccess
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest( NAME "Fastmig::Spill"
-   SOURCES test/Spill.C src/Spill.C 
+   SOURCES test/Spill.cpp src/Spill.cpp 
    LIBRARIES functions
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest( NAME "Fastmig::SpillOilAndGas"
-   SOURCES test/SpillOilAndGas.C src/Spill.C src/SpillOilAndGas.C 
+   SOURCES test/SpillOilAndGas.cpp src/Spill.cpp src/SpillOilAndGas.cpp 
    LIBRARIES functions
    FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest( NAME "Fastmig::LeakOrWaste"
-           SOURCES test/LeakOrWaste.cpp src/LeakOrWaste.C src/Leak.C src/Waste.C
+           SOURCES test/LeakOrWaste.cpp src/LeakOrWaste.cpp src/Leak.cpp src/Waste.cpp
            LIBRARIES functions DataAccess ${Boost_LIBRARIES} DistributedDataAccess
            FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )
 
 add_gtest( NAME "Fastmig::LeakOrWasteGasAndSpillOil"
-           SOURCES test/LeakOrWasteGasAndSpillOil.cpp src/LeakOrWasteGasAndSpillOil.C src/Leak.C src/Waste.C src/Spill.C src/LeakGas.C src/LeakGasAndSpillOil.C src/LeakOrSpill.C src/SpillOilAndGas.C src/WasteGasAndSpillOil.C
+           SOURCES test/LeakOrWasteGasAndSpillOil.cpp src/LeakOrWasteGasAndSpillOil.cpp src/Leak.cpp src/Waste.cpp src/Spill.cpp src/LeakGas.cpp src/LeakGasAndSpillOil.cpp src/LeakOrSpill.cpp src/SpillOilAndGas.cpp src/WasteGasAndSpillOil.cpp
            LIBRARIES functions utilities DataAccess DistributedDataAccess
            FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )
 
 add_gtest( NAME "Fastmig::LeakGasAndSpillOil"
-           SOURCES test/LeakGasAndSpillOil.cpp src/Leak.C src/LeakGas.C src/LeakGasAndSpillOil.C src/Spill.C src/SpillOilAndGas.C
+           SOURCES test/LeakGasAndSpillOil.cpp src/Leak.cpp src/LeakGas.cpp src/LeakGasAndSpillOil.cpp src/Spill.cpp src/SpillOilAndGas.cpp
           LIBRARIES functions utilities DataAccess ${LIB_NAME} ${HDF5_LIBRARIES} DistributedDataAccess
            FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )

@@ -15,7 +15,7 @@ if (ParaView_FOUND)
    include_directories(	SYSTEM ${HDF5_INCLUDE_DIRS} )
    add_paraview_plugin(ParaViewReader "1.0" 
           SERVER_MANAGER_XML ParaViewReader.xml
-          SERVER_MANAGER_SOURCES src/ParaViewReader.C
+          SERVER_MANAGER_SOURCES src/ParaViewReader.cpp
           REQUIRED_ON_SERVER
       )
 

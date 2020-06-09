@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file JobSchedulerLocal.C
+/// @file JobSchedulerLocal.cpp
 /// @brief This file keeps methods implementation of the class for local job scheduler.
 
 // CASA

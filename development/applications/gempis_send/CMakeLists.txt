@@ -11,7 +11,7 @@
 #########################################################################
 
 add_executable(gempis_send
-	src/gempis_send.C
+	src/gempis_send.cpp
 )
 
 install(TARGETS gempis_send

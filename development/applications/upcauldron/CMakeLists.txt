@@ -10,7 +10,7 @@
 #                                                                       #
 #########################################################################
 
-add_executable(upcauldron src/upcauldron.C src/process.C)
+add_executable(upcauldron src/upcauldron.cpp src/process.cpp)
 
 target_link_libraries(upcauldron
    TableIO

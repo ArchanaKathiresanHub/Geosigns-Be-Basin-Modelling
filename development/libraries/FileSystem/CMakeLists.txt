@@ -18,19 +18,19 @@ create_bm_library( TARGET "${LIB_NAME}"
 generate_dox( src/FileSystem.cfg )
 
 add_gtest( NAME "${LIB_NAME}::Path"
-           SOURCES test/Path.C
+           SOURCES test/Path.cpp
            LIBRARIES FileSystem utilities ${Boost_LIBRARIES}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME "${LIB_NAME}::FilePath"
-           SOURCES test/FilePath.C
+           SOURCES test/FilePath.cpp
            LIBRARIES ${LIB_NAME} utilities ${Boost_LIBRARIES}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME "${LIB_NAME}::FolderPath"
-           SOURCES test/FolderPath.C
+           SOURCES test/FolderPath.cpp
            LIBRARIES ${LIB_NAME} utilities ${Boost_LIBRARIES}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

@@ -14,13 +14,13 @@
 
 # GEMPIS
 add_executable(pstree       src/pstree.c)
-add_executable(parselog     src/ParseLog.C)
+add_executable(parselog     src/ParseLog.cpp)
 add_executable(getnextjobid 
-	src/File.C 
-	src/FileLock.C 
-	src/JobId.C
-	src/Signal.C
-	src/GetNextJobid.C
+	src/File.cpp 
+	src/FileLock.cpp 
+	src/JobId.cpp
+	src/Signal.cpp
+	src/GetNextJobid.cpp
 )
 
 install(TARGETS pstree parselog getnextjobid

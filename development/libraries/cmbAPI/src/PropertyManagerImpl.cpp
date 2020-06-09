@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PropertyManagerImpl.C
+/// @file PropertyManagerImpl.cpp
 /// @brief This file keeps implementation for API to
 
 // CMB API

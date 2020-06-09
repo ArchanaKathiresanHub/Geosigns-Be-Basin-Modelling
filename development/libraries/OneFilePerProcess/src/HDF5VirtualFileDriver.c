@@ -10,7 +10,7 @@
 //    the original MPIPOSIX driver
 //  - The source of the MPIPOSIX driver is re-included with the MPIPOSIX driver ID
 //    redefined. This works because those functions are defined to to be 'static', which means
-//    they are invisible for other translation units (fancy word for .C file). There
+//    they are invisible for other translation units (fancy word for .cpp file). There
 //    are few non-static functions in there, which will cause collission. These
 //    functions are given an other name with, again, help of the preprocessor.
 //

@@ -26,7 +26,7 @@ namespace GeoPhysics
       constexpr double VapourViscosity = 2.5e-5;
 
       /// \brief Viscosity is intended to handle the calculations of viscosity for brines whose physical parameters (T,P,S) are
-      ///        within the allowed ranges (see BrinePhases.C). It uses Batzle-Wang analytic equation in the aqueous phase and a constant
+      ///        within the allowed ranges (see BrinePhases.cpp). It uses Batzle-Wang analytic equation in the aqueous phase and a constant
       ///        value in the vapour phase. In the transition region bi-linear interpolation between the two approaches is used.
       class Viscosity
       {
@@ -62,7 +62,7 @@ namespace GeoPhysics
          double vapourConstant () const;
 
          /// Linearly interpolates between the values at the two sides of the transition region and returns the value.
-         /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.C) and lowerTemperature < higherTemperature.
+         /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.cpp) and lowerTemperature < higherTemperature.
          /// \post Guarantees the return of a non-negative value for the density.
 #if defined(__INTEL_COMPILER) and defined(NDEBUG)
          // GCC 4.9.3 gives multiple definition error on linking unit test

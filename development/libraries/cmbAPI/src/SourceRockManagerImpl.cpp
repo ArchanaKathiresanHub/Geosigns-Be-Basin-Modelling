@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file SourceRockManagerImpl.C
+/// @file SourceRockManagerImpl.cpp
 /// @brief This file keeps API implementation for manipulating source rocks in Cauldron model
 
 // CMB API

@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file RunManagerImpl.C
+/// @file RunManagerImpl.cpp
 /// @brief This file keeps API implementation of Run Manager
 
 // FileSystem

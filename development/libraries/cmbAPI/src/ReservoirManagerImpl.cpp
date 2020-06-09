@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file ReservoirManagerImpl.C
+/// @file ReservoirManagerImpl.cpp
 /// @brief This file keeps API implementation for manipulating Reservoirs in Cauldron model
 
 #include "ReservoirManagerImpl.h"

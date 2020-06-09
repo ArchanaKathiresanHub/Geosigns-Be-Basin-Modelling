@@ -44,86 +44,86 @@ endif (UNIX)
 ######################
 # AlignedWorkSpaceArray tests
 add_gtest( NAME "${LIB_NAME}::AlignedWorkSpaceArrays"
-   SOURCES test/AlignedWorkSpaceArraysTest.C
+   SOURCES test/AlignedWorkSpaceArraysTest.cpp
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 ######################
 # PiecewiseInterpolator tests
 add_gtest( NAME "${LIB_NAME}::PiecewiseInterpolator"
-   SOURCES test/PiecewiseInterpolatorTest.C
+   SOURCES test/PiecewiseInterpolatorTest.cpp
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 add_gtest( NAME "${LIB_NAME}::PIDerivative"
-   SOURCES test/PiecewiseInterpolatorDerivativeTest.C
+   SOURCES test/PiecewiseInterpolatorDerivativeTest.cpp
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 ######################
 # IBSInterpolator tests
 add_gtest( NAME "${LIB_NAME}::IBSinterpolator"
-   SOURCES test/IBSinterpolator.C
+   SOURCES test/IBSinterpolator.cpp
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 add_gtest( NAME "${LIB_NAME}::IBSinterpolator2d"
-   SOURCES test/IBSinterpolator2d.C
+   SOURCES test/IBSinterpolator2d.cpp
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 ######################
 # LogHandler tests
 add_gtest( NAME "${LIB_NAME}::LogHandlerCreate"
-   SOURCES test/LogHandlerCreate.C test/LogHandlerUnitTester.h
+   SOURCES test/LogHandlerCreate.cpp test/LogHandlerUnitTester.h
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 add_gtest( NAME "${LIB_NAME}::LogHandlerDiagnostic"
-   SOURCES test/LogHandlerDiagnostic.C test/LogHandlerUnitTester.h
+   SOURCES test/LogHandlerDiagnostic.cpp test/LogHandlerUnitTester.h
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 add_gtest( NAME "${LIB_NAME}::LogHandlerDetailed"
-   SOURCES test/LogHandlerDetailed.C test/LogHandlerUnitTester.h
+   SOURCES test/LogHandlerDetailed.cpp test/LogHandlerUnitTester.h
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 add_gtest( NAME "${LIB_NAME}::LogHandlerNormal"
-   SOURCES test/LogHandlerNormal.C test/LogHandlerUnitTester.h
+   SOURCES test/LogHandlerNormal.cpp test/LogHandlerUnitTester.h
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 add_gtest( NAME "${LIB_NAME}::LogHandlerQuiet"
-   SOURCES test/LogHandlerQuiet.C test/LogHandlerUnitTester.h
+   SOURCES test/LogHandlerQuiet.cpp test/LogHandlerUnitTester.h
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 add_gtest( NAME "${LIB_NAME}::LogHandlerMinimal"
-   SOURCES test/LogHandlerMinimal.C test/LogHandlerUnitTester.h
+   SOURCES test/LogHandlerMinimal.cpp test/LogHandlerUnitTester.h
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 add_gtest( NAME "${LIB_NAME}::LogHandlerStyles"
-   SOURCES test/LogHandlerStyles.C test/LogHandlerUnitTester.h
+   SOURCES test/LogHandlerStyles.cpp test/LogHandlerUnitTester.h
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 add_gtest( NAME "${LIB_NAME}::LogHandlerTime"
-   SOURCES test/LogHandlerTime.C test/LogHandlerUnitTester.h
+   SOURCES test/LogHandlerTime.cpp test/LogHandlerUnitTester.h
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 ######################
 # StringHandler tests
 add_gtest( NAME "${LIB_NAME}::StringHandler"
-   SOURCES test/StringHandler.C
+   SOURCES test/StringHandler.cpp
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 ######################
 # MapExtensions tests
 add_gtest( NAME "${LIB_NAME}::MapExtensions"
-   SOURCES test/MapExtensionsTest.C
+   SOURCES test/MapExtensionsTest.cpp
    LIBRARIES ${LIB_NAME}
    FOLDER "${BASE_FOLDER}/${LIB_NAME}")

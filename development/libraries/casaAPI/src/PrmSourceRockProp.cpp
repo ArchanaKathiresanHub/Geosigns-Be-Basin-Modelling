@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmSourceRockProp.C
+/// @file PrmSourceRockProp.cpp
 /// @brief This file keeps API implementation for common part of all source rock  lithology parameter handling
 
 // CASA API

@@ -11,7 +11,7 @@
 #########################################################################
 
 add_executable(UnitTestGenex6
-	src/main.C
+        src/main.cpp
 )
 
 include_directories( SYSTEM

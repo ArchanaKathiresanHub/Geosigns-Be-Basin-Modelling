@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmOneCrustThinningEvent.C
+/// @file PrmOneCrustThinningEvent.cpp
 /// @brief This file keeps API implementation for single event crust thinning parameter handling
 
 // CASA API

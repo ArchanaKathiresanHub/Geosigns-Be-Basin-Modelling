@@ -19,24 +19,24 @@ set( LIB_NAME "LookupTables" )
 create_bm_library( TARGET ${LIB_NAME} )
 
 add_gtest( NAME TSRlookupTest:GetValue
-           SOURCES test/lookup.C
+           SOURCES test/lookup.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 add_gtest( NAME TSRlookupTest:GetTableName
-           SOURCES test/lookup.C
+           SOURCES test/lookup.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME TSRlookupTest:TablesCheck
-           SOURCES test/lookup.C
+           SOURCES test/lookup.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME TSRlookupTest:GetValueForSalinity
-           SOURCES test/lookup.C
+           SOURCES test/lookup.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

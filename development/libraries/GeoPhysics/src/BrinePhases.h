@@ -170,7 +170,7 @@ namespace GeoPhysics
          ~PhaseStateScalar();
       
          /// phaseChange() returns the value of a given physical parameter for an input triplet of T, P, S (temperature, pressure, salinity) values.
-         /// \pre Input values should be within the defined ranges (see BrinePhases.C). In case they are not they will be internally adjusted to the relevant limits.
+         /// \pre Input values should be within the defined ranges (see BrinePhases.cpp). In case they are not they will be internally adjusted to the relevant limits.
          /// \post Guarantees the return of a non-negative number.
          void set( const double temperature, const double pressure );
 
@@ -217,7 +217,7 @@ namespace GeoPhysics
          ~PhaseStateVec();
       
          /// phaseChange() returns the value of a given physical parameter for an input triplet of T, P, S (temperature, pressure, salinity) values.
-         /// \pre Input values should be within the defined ranges (see BrinePhases.C). In case they are not they will be internally adjusted to the relevant limits.
+         /// \pre Input values should be within the defined ranges (see BrinePhases.cpp). In case they are not they will be internally adjusted to the relevant limits.
          /// \post Guarantees the return of a non-negative number.
          void set( const unsigned int n,
                    ArrayDefs::ConstReal_ptr temperature,

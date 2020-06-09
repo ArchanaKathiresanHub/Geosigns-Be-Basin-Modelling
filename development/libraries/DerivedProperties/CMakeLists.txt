@@ -41,100 +41,100 @@ generate_dox( DerivedProperties.cfg )
 #
 set ( MockGRPropertyManagerFiles 
     test/MockGRPropertyManager.h
-    test/MockGRPropertyManager.C
+    test/MockGRPropertyManager.cpp
 )
 
 set ( MockPorosityCalculatorFiles 
     test/MockPorosityCalculator.h
-    test/MockPorosityCalculator.C
+    test/MockPorosityCalculator.cpp
 )
 
 add_gtest( NAME ${LIB_NAME}::${LIB_NAME}
-           SOURCES test/DerivedProperties.C
+           SOURCES test/DerivedProperties.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SimplePropertyManagerTest
-           SOURCES test/SimplePropertyManagerTest.C
+           SOURCES test/SimplePropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::CompoundFormationMapPropertyManagerTest
-           SOURCES test/CompoundFormationMapPropertyManagerTest.C
+           SOURCES test/CompoundFormationMapPropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::CompoundContinuousPropertyManagerTest
-           SOURCES test/CompoundContinuousPropertyManagerTest.C
+           SOURCES test/CompoundContinuousPropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::CompoundDiscontinuousPropertyManagerTest
-           SOURCES test/CompoundDiscontinuousPropertyManagerTest.C
+           SOURCES test/CompoundDiscontinuousPropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultiplePropertyManagerTest
-           SOURCES test/MultiplePropertyManagerTest.C
+           SOURCES test/MultiplePropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultipleFormationMapPropertyManagerTest
-           SOURCES test/MultipleFormationMapPropertyManagerTest.C
+           SOURCES test/MultipleFormationMapPropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultipleFormationSurfacePropertyManagerTest
-           SOURCES test/MultipleFormationSurfacePropertyManagerTest.C
+           SOURCES test/MultipleFormationSurfacePropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::MultipleFormationPropertyManagerTest
-           SOURCES test/MultipleFormationPropertyManagerTest.C
+           SOURCES test/MultipleFormationPropertyManagerTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::ThicknessPropertyTest
-           SOURCES test/ThicknessPropertyTest.C
+           SOURCES test/ThicknessPropertyTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::OverpressurePropertyTest
-           SOURCES test/OverpressurePropertyTest.C
+           SOURCES test/OverpressurePropertyTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::SurfacePropertyTest
-           SOURCES test/SurfacePropertyTest.C
+           SOURCES test/SurfacePropertyTest.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::GammaRayFormationCalculatorTest
-           SOURCES test/GammaRayFormationCalculatorTest.C ${MockGRPropertyManagerFiles} ${MockPorosityCalculatorFiles} 
+           SOURCES test/GammaRayFormationCalculatorTest.cpp ${MockGRPropertyManagerFiles} ${MockPorosityCalculatorFiles} 
            INCLUDE_DIRS  ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src ${PETSC_INCLUDE_DIRS}
            LIBRARIES ${LIB_NAME} ${PETSC_LIBRARIES} Utilities_Petsc GeoPhysics DataAccess DistributedDataAccess
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
@@ -150,7 +150,7 @@ if (UNIX)
 endif (UNIX)
 
 add_gtest( NAME ${LIB_NAME}::GammaRayFormationCalculatorDistributedTest
-           SOURCES test/GammaRayFormationCalculatorDistributedTest.C ${MockGRPropertyManagerFiles} ${MockPorosityCalculatorFiles} 
+           SOURCES test/GammaRayFormationCalculatorDistributedTest.cpp ${MockGRPropertyManagerFiles} ${MockPorosityCalculatorFiles} 
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src ${PETSC_INCLUDE_DIRS}
            LIBRARIES ${LIB_NAME} ${PETSC_LIBRARIES} Utilities_Petsc GeoPhysics DataAccess DistributedDataAccess
            LINK_FLAGS "${PETSC_LINK_FLAGS}"

@@ -15,13 +15,13 @@ set( LIB_NAME "functions" )
 create_bm_library( TARGET ${LIB_NAME} INSTALLTARGET )
 
 add_gtest( NAME ${LIB_NAME}::Tuple2
-           SOURCES test/Tuple2.C
+           SOURCES test/Tuple2.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME Functions::MonoIncrPwLinInvertFun
-           SOURCES test/MonotonicIncreasingPiecewiseLinearInvertableFunction.C
+           SOURCES test/MonotonicIncreasingPiecewiseLinearInvertableFunction.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

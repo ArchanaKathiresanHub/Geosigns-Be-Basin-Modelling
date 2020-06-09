@@ -17,37 +17,37 @@ create_bm_library( TARGET ${LIB_NAME}
                    INSTALLTARGET )
 
 add_gtest( NAME ${LIB_NAME}::Point
-           SOURCES test/Point.C
+           SOURCES test/Point.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::GeometryVector
-           SOURCES test/GeometryVector.C
+           SOURCES test/GeometryVector.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::GenericTwoDArray
-           SOURCES test/GenericTwoDArray.C
+           SOURCES test/GenericTwoDArray.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::RBF
-           SOURCES test/RBF.C
+           SOURCES test/RBF.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::RBFInterpolant
-           SOURCES test/RBFInterpolant.C
+           SOURCES test/RBFInterpolant.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ${LIB_NAME}::RBFGeneralOperations
-           SOURCES test/RBFGeneralOperations.C
+           SOURCES test/RBFGeneralOperations.cpp
            LIBRARIES ${LIB_NAME}
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

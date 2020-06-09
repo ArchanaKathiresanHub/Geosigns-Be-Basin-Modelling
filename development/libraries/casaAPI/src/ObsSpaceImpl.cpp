@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ObsSpaceImpl.C
+/// @file ObsSpaceImpl.cpp
 /// @brief This file keeps API implementation for observables manager.
 
 #include "ObsSpaceImpl.h"

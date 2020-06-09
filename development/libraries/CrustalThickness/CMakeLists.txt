@@ -50,7 +50,7 @@ set ( io_ctcMockFiles
    test/MockConfigFileParameterCtc.h
    test/MockInterfaceInput.h
    test/MockInterfaceOutput.h
-   test/MockInterfaceOutput.C
+   test/MockInterfaceOutput.cpp
 )
 
 set ( io_dataAccessMockFiles
@@ -60,7 +60,7 @@ set ( io_dataAccessMockFiles
 
 set ( io_derivedPropertiesMockFiles
    ../DerivedProperties/test/MockDerivedSurfaceProperty.h
-   ../DerivedProperties/test/MockDerivedSurfaceProperty.C
+   ../DerivedProperties/test/MockDerivedSurfaceProperty.cpp
    ../DerivedProperties/test/MockGrid.h
    ../DerivedProperties/test/MockFormation.h
    ../DerivedProperties/test/MockProperty.h
@@ -69,31 +69,31 @@ set ( io_derivedPropertiesMockFiles
 
 set ( io_dataModelMockFiles
    ../DataModel/test/MockValidator.h
-   ../DataModel/test/MockValidator.C
+   ../DataModel/test/MockValidator.cpp
 )
 
 set ( tester_interface
    test/InterfaceInputTester.h
-   test/InterfaceInputTester.C
+   test/InterfaceInputTester.cpp
 )
 
 set ( tester_McKenzie
    test/McKenzieTester.h
-   test/McKenzieTester.C
+   test/McKenzieTester.cpp
 )
 
 #
 # 2. Inputs testing
 #
 add_gtest( NAME "${LIB_NAME}::ConfigFileCtc"
-           SOURCES test/ConfigFileCtc.C
+           SOURCES test/ConfigFileCtc.cpp
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
            ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
 
 add_gtest( NAME "${LIB_NAME}::InterfaceInput"
-           SOURCES test/InterfaceInput.C ${io_ctcMockFiles} ${io_dataAccessMockFiles} ${io_dataModelMockFiles} ${tester_interface} ../utilities/test/GoogleTestMacros.h
+           SOURCES test/InterfaceInput.cpp ${io_ctcMockFiles} ${io_dataAccessMockFiles} ${io_dataModelMockFiles} ${tester_interface} ../utilities/test/GoogleTestMacros.h
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
            ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
@@ -103,48 +103,48 @@ add_gtest( NAME "${LIB_NAME}::InterfaceInput"
 # 3. Calculator testing
 #
 add_gtest( NAME "${LIB_NAME}::Density"
-           SOURCES test/Density.C ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
+           SOURCES test/Density.cpp ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} SerialDataAccess DataMining DataAccess SerialDataAccess DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
 
 add_gtest( NAME "${LIB_NAME}::TotTectSubsidence"
-           SOURCES test/TotalTectonicSubsidence.C ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
+           SOURCES test/TotalTectonicSubsidence.cpp ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
 
 add_gtest( NAME "${LIB_NAME}::Paleowaterdepth"
-           SOURCES test/Paleowaterdepth.C ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
+           SOURCES test/Paleowaterdepth.cpp ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
 
 add_gtest( NAME "${LIB_NAME}::PWDResidual"
-           SOURCES test/PaleowaterdepthResidual.C ${io_ctcMockFiles} ${io_dataModelMockFiles} ${io_dataModelMockFiles}
+           SOURCES test/PaleowaterdepthResidual.cpp ${io_ctcMockFiles} ${io_dataModelMockFiles} ${io_dataModelMockFiles}
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
 
 add_gtest( NAME "${LIB_NAME}::LinearFunction"
-           SOURCES test/LinearFunction.C
+           SOURCES test/LinearFunction.cpp
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
 
 add_gtest( NAME "${LIB_NAME}::McKenzieEquations"
-           SOURCES test/McKenzieEquations.C ${tester_McKenzie} ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
+           SOURCES test/McKenzieEquations.cpp ${tester_McKenzie} ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
 
 add_gtest( NAME "${LIB_NAME}::McKenzieCompute"
-           SOURCES test/McKenzieCompute.C  ${tester_McKenzie} ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
+           SOURCES test/McKenzieCompute.cpp  ${tester_McKenzie} ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles} ${io_dataModelMockFiles}
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../DataModel/test
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
@@ -155,7 +155,7 @@ add_gtest( NAME "${LIB_NAME}::McKenzieCompute"
 #
 
 add_gtest( NAME "${LIB_NAME}::MapSmootherSerial"
-           SOURCES test/MapSmootherSerial.C
+           SOURCES test/MapSmootherSerial.cpp
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
@@ -169,7 +169,7 @@ if (UNIX)
 endif (UNIX)
 
 add_gtest( NAME "${LIB_NAME}::MSDistributed"
-           SOURCES test/MapSmootherDistributed.C
+           SOURCES test/MapSmootherDistributed.cpp
            LIBRARIES ${LIB_NAME} ${PETSC_LIBRARIES} Utilities_Petsc DataMining DataAccess DistributedDataAccess
            INCLUDE_DIRS ${PETSC_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
@@ -179,7 +179,7 @@ add_gtest( NAME "${LIB_NAME}::MSDistributed"
          )
 
 add_gtest( NAME "${LIB_NAME}::RiftingEvent"
-           SOURCES test/RiftingEvent.C ${io_ctcMockFiles} ${io_dataModelMockFiles}
+           SOURCES test/RiftingEvent.cpp ${io_ctcMockFiles} ${io_dataModelMockFiles}
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )

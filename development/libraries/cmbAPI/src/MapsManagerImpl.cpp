@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file MapsManagerImpl.C
+/// @file MapsManagerImpl.cpp
 /// @brief This file keeps API implementation for manipulating input 2D maps
 
 // CMB API

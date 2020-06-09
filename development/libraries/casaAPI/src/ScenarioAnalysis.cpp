@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file ScenarioAnalysis.C
+/// @file ScenarioAnalysis.cpp
 /// This file keeps methods definition for ScenarioAnalysis class
 
 // CASA

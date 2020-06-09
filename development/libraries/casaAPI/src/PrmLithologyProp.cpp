@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file PrmLithologyProp.C
+/// @file PrmLithologyProp.cpp
 /// @brief This file keeps API implementation of common part of any Lithology property parameter implemented as influential parameter
 
 // CASA API

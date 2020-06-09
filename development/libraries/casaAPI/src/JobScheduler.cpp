@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file JobScheduler.C
+/// @file JobScheduler.cpp
 /// @brief This file keeps loaders for all possible types of JobScheduler
 
 // CMB

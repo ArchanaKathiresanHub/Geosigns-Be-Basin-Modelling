@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-/// @file MonteCarloSolverImpl.C
+/// @file MonteCarloSolverImpl.cpp
 /// @brief This file keeps implementation of API for performing Monte Carlo simulation
 
 // CASA
