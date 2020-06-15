@@ -265,27 +265,25 @@ TEST(LithologyConverter, upgradePorosityModelForCarbonateLitho)
 	EXPECT_EQ(actualPorModelParameter[2], updatedPorModelParam[2]);
 
 }
+#if 0
+//This test is no longer valid as it is decided to abort prograde if such a case arises
 //test to validate the upgradation of porosity model for custom lithologies which are based on the other parent lithologies for whom mapping is not available
 TEST(LithologyConverter, upgradePorosityModelForUnknownLitho)
 {
-	Prograde::LithologyConverter modelConverter;
-
-	std::string baseLithoType = "Std. Anhydrite";
-	int lithologyFlag = 1;
-	mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorSoilMechanics;
-
-	std::vector<double> OriginalPorosityModelParam = { 62, 1.9 };
-	std::vector<double> updatedPorModelParam;
-	std::vector<double> actualPorModelParameter = { 62,1.9 };
-
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
-
-	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorSoilMechanics, porModel);//Updated the porosity model from SM to Exponential
-	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
-	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
-	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
+Prograde::LithologyConverter modelConverter;
+std::string baseLithoType = "Std. Anhydrite";
+int lithologyFlag = 1;
+mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorosityModel::PorSoilMechanics;
+std::vector<double> OriginalPorosityModelParam = { 62, 1.9 };
+std::vector<double> updatedPorModelParam;
+std::vector<double> actualPorModelParameter = { 62,1.9 };
+modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorSoilMechanics, porModel);//Updated the porosity model from SM to Exponential
+EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
+EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
+EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
 }
-
+#endif
 //test to validate the upgradation of Soil Mechanics model to Exponential model for standard lithologies
 TEST(LithologyConverter, upgradePorosityModelForStandardLithoWithSoilMechanicsModel)
 {
