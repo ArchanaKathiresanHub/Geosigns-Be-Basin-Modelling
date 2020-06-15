@@ -21,7 +21,7 @@ using namespace mbapi;
 //------------------------------------------------------------//
 
 Prograde::GridMapIoTblUpgradeManager::GridMapIoTblUpgradeManager(Model& model) :
-	IUpgradeManager("gridmapiotbl upgrade manager"), m_model(model)
+	IUpgradeManager("GridMapIoTbl upgrade manager"), m_model(model)
 {
 	const auto ph = m_model.projectHandle();
 	if (ph == nullptr) {
@@ -34,10 +34,9 @@ Prograde::GridMapIoTblUpgradeManager::GridMapIoTblUpgradeManager(Model& model) :
 
 void Prograde::GridMapIoTblUpgradeManager::upgrade()
 {
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating GridMapIoTbl";
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "(Removing the references from GridMapIoTbl for the GridMaps which are removed from iotables in Project3d file during prograde)";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating GridMapIoTbl - Removing the references from GridMapIoTbl for the GridMaps which are removed from iotables in Project3d file during prograde";
 	database::Table * gridMapIo_Table = m_ph->getTable("GridMapIoTbl");
-	
+
 	/**Removing the unnecessary maps from the GridMapIoTbl
 	** There are two situations in which need to clear the references from the GridMapIoTbl -->
 	** Case 1. When the table is cleared that is after prograde it is empty so all the maps that are referenced by that table need to be removed from GridMapIoTbl
@@ -48,7 +47,7 @@ void Prograde::GridMapIoTblUpgradeManager::upgrade()
 	{
 		size_t size_gridMapIoTbl = gridMapIo_Table->size();
 		///Running through GridMapIoTbl
-		for (size_t id = 0; id < size_gridMapIoTbl; ++id)
+		for (int id = 0; id < size_gridMapIoTbl; ++id)
 		{
 			database::Record * rec = gridMapIo_Table->getRecord(static_cast<int> (id));
 			std::string tblName = rec->getValue<std::string>("ReferredBy");
@@ -57,15 +56,15 @@ void Prograde::GridMapIoTblUpgradeManager::upgrade()
 			if ((itr->first == tblName) && (itr->second == "All"))
 			{
 				m_model.removeRecordFromTable("GridMapIoTbl", id--);
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Record with the MapName " << mapName << " and ReferredBy " << tblName << " is removed as the table is cleared";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Record with the MapName " << mapName << " and ReferredBy " << tblName << " is removed as the table is cleared";
 				size_gridMapIoTbl = gridMapIo_Table->size();
 			}
 			// Case 2. When a grid map from a specific table is removed
 			else if ((itr->first == tblName) && (itr->second == mapName))
 			{
-				 m_model.removeRecordFromTable("GridMapIoTbl", id);
-				 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Record with the MapName " << mapName << " and ReferredBy " << tblName << " is removed";
-				 break;
+				m_model.removeRecordFromTable("GridMapIoTbl", id);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Record with the MapName " << mapName << " and ReferredBy " << tblName << " is removed";
+				break;
 			}
 		}
 	}
@@ -79,8 +78,8 @@ void Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap(
 {
 	Prograde::GridMapIoTblUpgradeManager::tblNameMapName.push_back(std::pair<std::string, std::string>(tblName, mapName));
 }
-///Defining the overload of the  static method clearMapNameTblNamepReferenceGridMap
+///defining the overload of the  static method clearMapNameTblNamepReferenceGridMap
 void Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap(const std::string & tblName)
 {
-	Prograde::GridMapIoTblUpgradeManager::tblNameMapName.push_back(std::pair<std::string, std::string>(tblName,"All"));
+	Prograde::GridMapIoTblUpgradeManager::tblNameMapName.push_back(std::pair<std::string, std::string>(tblName, "All"));
 }

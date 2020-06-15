@@ -57,9 +57,9 @@ void Prograde::SgsUpgradeManager::upgrade() {
 			if (legacyAdsorptionTOCDependent)
 			{
 				if (legacyComputeOTGC)
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "'" << legacyAdsorptionCapacityFunctionName << "'" << " adsorption model is selected and OTGC is on";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> '" << legacyAdsorptionCapacityFunctionName << "'" << " adsorption model is selected and OTGC is on";
 				else
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "'" << legacyAdsorptionCapacityFunctionName << "'" << " adsorption model is selected and OTGC is off";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> '" << legacyAdsorptionCapacityFunctionName << "'" << " adsorption model is selected and OTGC is off";
 				
 				bpa2AdsorptionTOCDependent = modelConverter.upgradeAdsorptionTOCDependent(legacyAdsorptionTOCDependent);
 				bpa2AdsorptionCapacityFunctionName = modelConverter.upgradeAdsorptionCapacityFunctionName(legacyAdsorptionTOCDependent, legacyAdsorptionCapacityFunctionName);
@@ -73,7 +73,7 @@ void Prograde::SgsUpgradeManager::upgrade() {
 					size_t id = langmuirAdsorptionCapacityIsothermSet_table->size();
 					m_model.addRowToTable("LangmuirAdsorptionCapacityIsothermSetIoTbl");
 					m_model.addRowToTable("LangmuirAdsorptionCapacityIsothermSetIoTbl");
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "updating LangmuirAdsorptionCapacityIsothermSetIoTbl with the following parameters";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> updating LangmuirAdsorptionCapacityIsothermSetIoTbl with the following parameters";
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LangmuirName				LangmuirTemperature[C]		LangmuirPressure[MPa]	LangmuirVolume[cc/gm]";
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Low Langmuir Isotherm				20						6.8						2.0E-5";
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Low Langmuir Isotherm				115						7.48					1.0E-5";
@@ -89,14 +89,14 @@ void Prograde::SgsUpgradeManager::upgrade() {
 					m_model.sgsManager().setLangmuirPressure(id, 7.48);
 					m_model.sgsManager().setLangmuirVolume(id, 1.0e-5);
 										
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Clear LangmuirAdsorptionCapacityTOCFunctionIoTbl";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Clear LangmuirAdsorptionCapacityTOCFunctionIoTbl";
 					m_model.clearTable("LangmuirAdsorptionCapacityTOCFunctionIoTbl");
 				}				
 
 			}
 			else
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "'" << legacyAdsorptionCapacityFunctionName << "'" << " adsorption model is selected and OTGC is "<< "'" << legacyComputeOTGC << "'";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> '" << legacyAdsorptionCapacityFunctionName << "'" << " adsorption model is selected and OTGC is "<< "'" << legacyComputeOTGC << "'";
 				bpa2AdsorptionCapacityFunctionName = modelConverter.upgradeAdsorptionCapacityFunctionName(legacyAdsorptionTOCDependent, legacyAdsorptionCapacityFunctionName);
 				m_model.sourceRockManager().setAdsorptionCapacityFunctionName(sourceRockId, bpa2AdsorptionCapacityFunctionName);
 				database::Table * langmuirAdsorptionCapacityIsothermSet_table = m_ph->getTable("LangmuirAdsorptionCapacityIsothermSetIoTbl");				

@@ -76,7 +76,7 @@ void Prograde::HeatFlowModeUpgradeManager::upgradeBasementRelatedProperty(const 
 {
 	double legacyValue = m_model.tableValueAsDouble(tableName, 0, propName);
 	m_model.setTableValue(tableName, 0, propName, value);
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << propName<< " is upgraded from " << legacyValue << " to "<< value<<" m";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << propName<< " is upgraded from " << legacyValue << " to "<< value<<" m";
 }
 
 void Prograde::HeatFlowModeUpgradeManager::upgradeMantlePropertyModel(const std::string & bottomBoundaryModelName, const std::string & tableName, const std::string & propName)
@@ -86,14 +86,14 @@ void Prograde::HeatFlowModeUpgradeManager::upgradeMantlePropertyModel(const std:
 	if (bottomBoundaryModelName == "Fixed HeatFlow") {
 		updatedmodel = DataAccess::Interface::NullString;
 		m_model.setTableValue(tableName, 0, propName, updatedmodel);
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << propName << " is upgraded from '" << legacyValue << "' to null-string";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << propName << " is upgraded from '" << legacyValue << "' to null-string";
 	}
 	else if( (bottomBoundaryModelName == "Fixed Temperature" || bottomBoundaryModelName == "Advanced Lithosphere Calculator") ){
 		if (legacyValue != "High Conductivity Mantle")
 		{
 			updatedmodel = "High Conductivity Mantle";
 			m_model.setTableValue(tableName, 0, propName, updatedmodel);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << propName << " is upgraded from '" << legacyValue << "' to '" << updatedmodel<<"'";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << propName << " is upgraded from '" << legacyValue << "' to '" << updatedmodel<<"'";
 		}
 	}
 	
@@ -105,7 +105,7 @@ void Prograde::HeatFlowModeUpgradeManager::upgradeCrustPropertyModel(const std::
 	if (bottomBoundaryModelName == "Fixed HeatFlow") {
 		updatedmodel = DataAccess::Interface::NullString;
 		m_model.setTableValue(tableName, 0, propName, updatedmodel);
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << propName << " is upgraded from '" << legacyValue << "' to null-string";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << propName << " is upgraded from '" << legacyValue << "' to null-string";
 	}
 	else if ((bottomBoundaryModelName == "Fixed Temperature" || bottomBoundaryModelName == "Advanced Lithosphere Calculator")) 
 	{
@@ -113,12 +113,9 @@ void Prograde::HeatFlowModeUpgradeManager::upgradeCrustPropertyModel(const std::
 		{
 			updatedmodel = "Standard Conductivity Crust";
 			m_model.setTableValue(tableName, 0, propName, updatedmodel);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << propName << " is upgraded from '" << legacyValue << "' to '" << updatedmodel<<"'";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << propName << " is upgraded from '" << legacyValue << "' to '" << updatedmodel<<"'";
 		}
-		else
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Latest model is found for "<< propName<<", no update is needed";
 	}
-
 }
 
 /*void Prograde::HeatFlowModeUpgradeManager::updateTableValue(const std::string & tableName, const std::string & fieldName, const double bpa2DefaultValue)
@@ -156,7 +153,7 @@ void Prograde::HeatFlowModeUpgradeManager::upgradeMantleHeatFlowIoTbl()
 	std::string tableName{ "MntlHeatFlowIoTbl" };
 	std::string propertyName{ "HeatFlow" };
 
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the MntlHeatFlowIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the MntlHeatFlowIoTbl";
 	auto BasinAge = m_ph->getCrustFormation()->getTopSurface()->getSnapshot()->getTime();
 	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The basement Age is: " << BasinAge << "Ma";
 
@@ -181,12 +178,6 @@ void Prograde::HeatFlowModeUpgradeManager::upgradeMantleHeatFlowIoTbl()
 	for (int i = 0; i < removedRecords.size(); i++)
 	{
 		Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap(removedRecords[i].first, removedRecords[i].second);
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMap " << removedRecords[i].second << " ReferredBy " << removedRecords[i].first <<" will be cleared by GridMapIoTbl Upgrade Manager";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> GridMap " << removedRecords[i].second << " ReferredBy " << removedRecords[i].first <<" will be cleared by GridMapIoTbl Upgrade Manager";
 	}
 }
-
-
-
-
-
-

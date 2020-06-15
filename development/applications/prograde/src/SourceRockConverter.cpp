@@ -86,7 +86,7 @@ double Prograde::SourceRockConverter::upgradeHcVre05(const std::string & legacyS
 	if (maxHI < measuredHI) maxHI = measuredHI;
 	if (legacyHcVre05 != measuredHcVre05)
 	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "'HcVre05' value is identified as " << "'"
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> 'HcVre05' value is identified as " << "'"
 			<< legacyHcVre05 << "' which is not equal to measured 'HcVre05' for this base sourcerock."
 			<<"Hence, 'HcVre05' value; resetting to measured value of " << measuredHcVre05;
 		return measuredHcVre05;
@@ -108,7 +108,7 @@ double Prograde::SourceRockConverter::upgradeHiVre05(const std::string& legacySo
 	if (maxHI < measuredHI) maxHI = measuredHI;
 	if (legacyHiVre05 != measuredHI)
 	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "'HiVre05' value is identified as " << "'"
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> 'HiVre05' value is identified as " << "'"
 			<< legacyHiVre05 << "' which is not equal to measured 'HiVre05' for this base sourcerock."
 			<< "Hence, 'HiVre05' value; resetting to measured value of " << measuredHI;
 		return measuredHI;
@@ -131,7 +131,7 @@ double Prograde::SourceRockConverter::upgradeScVre05(const std::string & legacyS
 
 	if (legacyScVre05 != measuredScVre05s)
 	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "'ScVre05' value is identified as" << "'"
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> 'ScVre05' value is identified as" << "'"
 			<< legacyScVre05 << "' which is not equal to measured 'ScVre05' for this base sourcerock. Hence, 'ScVre05' "<<
 			"value is resetting to measured value of " << measuredScVre05s;
 		return measuredScVre05s;
@@ -151,7 +151,7 @@ double Prograde::SourceRockConverter::upgradeEa(const std::string & legacySource
 	auto measuredEa = GetmeasuredEa(legacyBaseSourceRockType_);
 	if (legacyEa != measuredEa)
 	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "'PreAsphaltStartAct' value is identified as" << "'"
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> 'PreAsphaltStartAct' value is identified as" << "'"
 			<< legacyEa << "' which is not equal to measured 'PreAsphaltStartAct'" << 
 			"for this base sourcerock. Hence, 'PreAsphaltStartAct' value is resetting to measured value of " << measuredEa;
 		return measuredEa;
@@ -169,8 +169,8 @@ void Prograde::SourceRockConverter::upgradeSourceRockName(const std::string & le
 	bpa2SourceRockType = GetBPA2RockName(legacyBaseSourceRockType_);
 	litFlag = isSrFromLiterature(legacyBaseSourceRockType_);
 
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Source rock type is prograded to '" << bpa2SourceRockType << "'";
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Base source rock type is prograded to '" << bpa2BaseSourceRockType << "'";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> Source rock type is prograded from '"<< legacySourceRockType << "' to '" << bpa2SourceRockType << "'";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> Base rock type is prograded from '" << legacyBaseSourceRockType << "' to '" << bpa2BaseSourceRockType << "'";
 }
 	
 void Prograde::SourceRockConverter::upgradeDiffusionEnergy(const std::string & bpaBaseSourceRockType, double ScVre05, double & asphalteneDE, double & resinDE, double & C15AroDE, double & C15SatDE)
@@ -190,25 +190,25 @@ void Prograde::SourceRockConverter::upgradeDiffusionEnergy(const std::string & b
 	if (asphalteneDE != bpaBaseSourceRockAsphalteneDE)
 	{
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) <<
-			"Asphaltene Diffusion energy field is prograded from " << asphalteneDE << " to " << bpaBaseSourceRockAsphalteneDE;
+			"  <Basin-Warning> Asphaltene Diffusion energy field is prograded from " << asphalteneDE << " to " << bpaBaseSourceRockAsphalteneDE;
 		asphalteneDE = bpaBaseSourceRockAsphalteneDE;
 	}
 	if (resinDE != bpaBaseSourceRockResinDE)
 	{
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) <<
-			"Resin Diffusion energy field is prograded from " << resinDE << " to " << bpaBaseSourceRockResinDE;
+			"  <Basin-Warning> Resin Diffusion energy field is prograded from " << resinDE << " to " << bpaBaseSourceRockResinDE;
 		resinDE = bpaBaseSourceRockResinDE;
 	}
 	if (C15AroDE != bpaBaseSourceRockC15AroDE)
 	{
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) <<
-			"C15Aro Diffusion energy field is prograded from " << C15AroDE << " to " << bpaBaseSourceRockC15AroDE;
+			"  <Basin-Warning> C15Aro Diffusion energy field is prograded from " << C15AroDE << " to " << bpaBaseSourceRockC15AroDE;
 		C15AroDE = bpaBaseSourceRockC15AroDE;
 	}
 	if (C15SatDE != bpaBaseSourceRockC15SatDE)
 	{
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) <<
-			"C15Sat Diffusion energy field is prograded from " << C15SatDE << " to " << bpaBaseSourceRockC15SatDE;
+			"  <Basin-Warning> C15Sat Diffusion energy field is prograded from " << C15SatDE << " to " << bpaBaseSourceRockC15SatDE;
 		C15SatDE = bpaBaseSourceRockC15SatDE;
 	}
 	
@@ -220,22 +220,22 @@ void Prograde::SourceRockConverter::upgradeVESlimit(const std::string & legacyVE
 	{
 		if (VESlimit == Utilities::Numerical::IbsNoDataValue)
 		{			
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BPA Cauldron VES limit indicator identified as '" << legacyVESlimitIndicator << "' and VES Limit value is '" << VESlimit << "'";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> BPA Cauldron VES limit indicator identified as '" << legacyVESlimitIndicator << "' and VES Limit value is '" << VESlimit << "'";
 			VESlimit = 50;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BPA2-Basin VES limit indicator remain as '" << legacyVESlimitIndicator << "' and VES Limit is set as '" << VESlimit << "'";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> BPA2-Basin VES limit indicator remain as '" << legacyVESlimitIndicator << "' and VES Limit is set as '" << VESlimit << "'";
 		}		
 	}
 	else if (VESlimit < 0.0)
 	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BPA Cauldron VES limit indicator identified as '" << legacyVESlimitIndicator << "' and VES Limit value is '" << VESlimit << "'";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> BPA Cauldron VES limit indicator identified as '" << legacyVESlimitIndicator << "' and VES Limit value is '" << VESlimit << "'";
 		VESlimit = 0.0;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BPA2-Basin VES limit indicator remain as '" << legacyVESlimitIndicator << "' and VES Limit is set as '" << VESlimit << "'";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> BPA2-Basin VES limit indicator remain as '" << legacyVESlimitIndicator << "' and VES Limit is set as '" << VESlimit << "'";
 	}
 	else if (VESlimit > 70.0)
 	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BPA Cauldron VES limit indicator identified as '" << legacyVESlimitIndicator << "' and VES Limit value is '" << VESlimit << "'";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> BPA Cauldron VES limit indicator identified as '" << legacyVESlimitIndicator << "' and VES Limit value is '" << VESlimit << "'";
 		VESlimit = 70.0;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BPA2-Basin VES limit indicator remain as '" << legacyVESlimitIndicator << "' and VES Limit is set as '" << VESlimit << "'";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> BPA2-Basin VES limit indicator remain as '" << legacyVESlimitIndicator << "' and VES Limit is set as '" << VESlimit << "'";
 	} // For all other cases VESlimit will remain same
 }
 
@@ -245,9 +245,9 @@ void Prograde::SourceRockConverter::upgradeVREthreshold(const std::string & lega
 	{
 		if (VREthreshold == Utilities::Numerical::IbsNoDataValue)
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BPA Cauldron VRE optimization identified as '" << legacyVREoptimization << "' and VRE threshold value is '" << VREthreshold << "'";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> BPA Cauldron VRE optimization identified as '" << legacyVREoptimization << "' and VRE threshold value is '" << VREthreshold << "'";
 			VREthreshold = 0.5;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "BPA2-Basin VRE optimization remain as '" << legacyVREoptimization << "' and VRE threshold is set as '" << VREthreshold << "'";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> BPA2-Basin VRE optimization remain as '" << legacyVREoptimization << "' and VRE threshold is set as '" << VREthreshold << "'";
 		}
 	}	
 }

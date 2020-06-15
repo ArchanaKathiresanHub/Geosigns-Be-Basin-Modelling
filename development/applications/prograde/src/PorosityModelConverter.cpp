@@ -41,7 +41,7 @@ LithologyManager::PorosityModel Prograde::PorosityModelConverter::upgradePorosit
    if (myPorModel == LithologyManager::PorSoilMechanics)
    {
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) <<
-         "Deprecated Soil Mechanics porosity model detected for " << lithoName;
+         "<Basin-Warning> Deprecated Soil Mechanics porosity model detected for " << lithoName;
       myPorModel = LithologyManager::PorDoubleExponential;
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << lithoName <<
          " upgraded to double exponential porosity model ";
@@ -49,7 +49,7 @@ LithologyManager::PorosityModel Prograde::PorosityModelConverter::upgradePorosit
    else
    {
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) <<
-         "Valid porosity model detected for " << lithoName;
+         "<Basin-Info> Valid porosity model detected for " << lithoName;
    }
    return myPorModel;
 }
@@ -69,12 +69,12 @@ std::vector<double> Prograde::PorosityModelConverter::upgradeModelParameters
       myPorModelPrms.push_back( myCompacPrms[1] * 100.0 );
       myPorModelPrms.push_back( myCompacPrms[2] );
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) <<
-         "Upgraded model parameters calculated and updated for " << lithoName;
+         "<Basin-Info> Upgraded model parameters calculated and updated for " << lithoName;
    }
    else
    {
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) <<
-         "No upgradation of model parameters required for " << lithoName;
+         "<Basin-Info> No upgradation of model parameters required for " << lithoName;
       return porModelPrms;
    }
    return myPorModelPrms;

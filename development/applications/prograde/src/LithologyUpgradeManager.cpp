@@ -63,8 +63,8 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		{	
 			LithId--;
 			table_size1 = table_size2;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << lithoName << " is not referred in StratIoTbl for the scenario";
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Deleted the row from LithotypeIoTbl. Also removed the referrences from LitThCondIoTbl and LitHeatCapIoTbl";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> "<<lithoName << " is not referred in StratIoTbl for the scenario";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Deleted the row from LithotypeIoTbl. Also removed the referrences from LitThCondIoTbl and LitHeatCapIoTbl";
 		}
 	}
 
@@ -88,7 +88,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		legacyLastChangedBy = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "LastChangedBy");// get legacy user name who has made changes to the selected lithology
 		legacyLastChangedDate = m_model.tableValueAsString("LithotypeIoTbl", lithoId, "LastChangedDate");// get legacy date when the last changed has made by the user to the selected lithology
 		
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Lithotype encountered in the LithotypeIoTbl is '" << legacyLithoTypeName << "'";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Lithotype encountered in the LithotypeIoTbl is '" << legacyLithoTypeName << "'";
 		
 		//......................................UPGRADING LITHOLOGY NAME .......................................//	
 		//Upgrading the lithotype names for BPA1 standard lithotypes
@@ -97,7 +97,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		{
 			bpa2LithoName = modelConverter.upgradeLithologyName(legacyLithoTypeName);
 			m_model.lithologyManager().setLithologyName(lithoId, bpa2LithoName);//Upgrading the lithology names in LithotypeIoTbl
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Lithology Name: '" << legacyLithoTypeName << "' is a BPA standard lithology. Lithology name is updated from '" << legacyLithoTypeName << "' to '" << bpa2LithoName << "'.";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Lithology Name: '" << legacyLithoTypeName << "' is a BPA standard lithology. Lithology name is updated from '" << legacyLithoTypeName << "' to '" << bpa2LithoName << "'.";
 
 			if (bpa2LithoName.compare("Mantle") == 0)
 			{
@@ -105,22 +105,22 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 				if (LithoName_Mantle.compare("Mantle") != 0)
 				{
 					m_model.setTableValue("BasementIoTbl", 0, "MantleLithoName", "Mantle");
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  Updated the 'MantleLithoName' field of BasementIoTbl from '" << legacyLithoTypeName << "' to 'Mantle'.";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> Updated the 'MantleLithoName' field of BasementIoTbl from '" << legacyLithoTypeName << "' to 'Mantle'.";
 				}
 			}
 			
 		}
 		else {
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Lithology Name: '" << legacyLithoTypeName << "' is a BPA userDefined lithology. No upgrade to the lithology name is needed.";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Lithology Name: '" << legacyLithoTypeName << "' is a BPA userDefined lithology. No upgrade to the lithology name is needed.";
 		}
 		//.............................Updating the parent lithology name in the "DefinedBy" field of lithotypeIoTbl..........................//
 		legacyParentLithoName = modelConverter.findParentLithology(parentLithologyDetails);
 
 		if (legacyParentLithoName != "")
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Parent Lithology Name:  legacy name of Parent lithology is '" << legacyParentLithoName << "'";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Parent Lithology Name:  legacy name of Parent lithology is '" << legacyParentLithoName << "'";
 		else //If the parentlithology name is not available in the legacy p3d file, then try to get it from the available mapping of lithology description or lithology name
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Parent Lithology Name: Not found in the legacy p3d file; try to find out from the mapping sheet based on Description or Lithology name";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Parent Lithology Name: Not found in the legacy p3d file; try to find out from the mapping sheet based on Description or Lithology name";
 			legacyParentLithoName = modelConverter.findMissingParentLithology(legacyLithoTypeName, legacyLithoDescription);
 			if (legacyParentLithoName == "")
 			{
@@ -128,23 +128,23 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 				bool flag = modelConverter.isDefinedBeforeThanCutOffDate(legacyDefinitionDate);
 				if (!flag)
 				{
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  Lithology created after the cut-off date of 30th April 2020";
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  Migration from BPA to BPA2 Basin Aborted...";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> Lithology created after the cut-off date of 30th April 2020";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Error> Migration from BPA to BPA2 Basin Aborted...";
 					exit(41);
 				}
 				else {
-					throw ErrorHandler::Exception(ErrorHandler::NonexistingID) << "Not found parent lithology for lithotype '"<< legacyLithoTypeName <<"'...crosscheck the description and/or the date format";
+					throw ErrorHandler::Exception(ErrorHandler::NonexistingID) << "<Basin-Info> Not found parent lithology for lithotype '"<< legacyLithoTypeName <<"'...crosscheck the description and/or the date format";
 				}
 			}
 			else
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  Parent Lithology Name is derived as '"<< legacyParentLithoName<<"'";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> Parent Lithology Name is derived as '"<< legacyParentLithoName<<"'";
 			}
 		}	
 
 		bpa2ParentLithoName = modelConverter.upgradeLithologyName(legacyParentLithoName);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "DefinedBy", bpa2ParentLithoName);
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* DefinedBy: Updated from '" << parentLithologyDetails << "' to '" << bpa2ParentLithoName << "'.";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> DefinedBy: Updated from '" << parentLithologyDetails << "' to '" << bpa2ParentLithoName << "'.";
 				
 		//........................Checking and updating the Lithology description.....................
 		updatedDescription = modelConverter.upgradeLithologyDescription(legacyLithoDescription, lithologyFlag, legacyParentLithoName);
@@ -215,7 +215,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "CompacCoefESA", Utilities::Numerical::IbsNoDataValue);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "CompacCoefESB", Utilities::Numerical::IbsNoDataValue);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "Compaction_Coefficient_SM", Utilities::Numerical::IbsNoDataValue);
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  " << "Upgrading " << "CompacCoefESA, CompacCoefESB and Compaction_Coefficient_SM values to " << Utilities::Numerical::IbsNoDataValue;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  " << "<Basin-Warning> Upgrading " << "CompacCoefESA, CompacCoefESB and Compaction_Coefficient_SM values to " << Utilities::Numerical::IbsNoDataValue;
 		//......................................PERMEABILITY MODEL UPGRADATION......................................//	
 		//Upgrading the permeability parameters for system and user defined lithotypes of BPA1
 		m_model.lithologyManager().getPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts);
@@ -226,20 +226,20 @@ void Prograde::LithologyUpgradeManager::upgrade() {
          {
             modelConverter.upgradePermModelForUsrDefLitho("Sands", mpPor, mpPerm, numPts);
             m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Permeability Model: Legacy Sandstone permeability model is detected, upgrading to Multipoint.";
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading Number_Of_Data_Points to " << numPts;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Permeability Model: Legacy Sandstone permeability model is detected, upgrading to Multipoint.";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading Number_Of_Data_Points to " << numPts;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
             break;
          }
          case mbapi::LithologyManager::PermMudstone:
          {
             modelConverter.upgradePermModelForUsrDefLitho("Shales", mpPor, mpPerm, numPts);
             m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Permeability Model: Legacy Mudstone permeability model is detected, upgrading to 'Multipoint'.";
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading Number_Of_Data_Points to " << numPts;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Permeability Model: Legacy Mudstone permeability model is detected, upgrading to 'Multipoint'.";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading Number_Of_Data_Points to " << numPts;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
             break;
          }
          case mbapi::LithologyManager::PermNone:
@@ -248,11 +248,11 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 			double legacyPermAnisotropy = m_model.tableValueAsDouble("LithotypeIoTbl", lithoId, "PermAnisotropy");
             m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);	
 			double updatedPermAnisotropy = 1;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Permeability Model: Legacy None permeability model is detected, upgrading to 'Multipoint'.";
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading Number_Of_Data_Points to " << numPts;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading PermAnisotropy value from "<< legacyPermAnisotropy <<" to " << updatedPermAnisotropy;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Permeability Model: Legacy None permeability model is detected, upgrading to 'Multipoint'.";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading Number_Of_Data_Points to " << numPts;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading PermAnisotropy value from "<< legacyPermAnisotropy <<" to " << updatedPermAnisotropy;
             break;
          }
          case mbapi::LithologyManager::PermImpermeable:
@@ -261,17 +261,17 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 			double legacyPermAnisotropy = m_model.tableValueAsDouble("LithotypeIoTbl", lithoId, "PermAnisotropy");
             m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);
 			double updatedPermAnisotropy = 1;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Permeability Model: Legacy Impermeable permeability model is detected, upgrading to 'Multipoint'.";
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading Number_Of_Data_Points to " << numPts;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading PermAnisotropy value from " << legacyPermAnisotropy << " to " << updatedPermAnisotropy;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Permeability Model: Legacy Impermeable permeability model is detected, upgrading to 'Multipoint'.";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading Number_Of_Data_Points to " << numPts;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading PermAnisotropy value from " << legacyPermAnisotropy << " to " << updatedPermAnisotropy;
             break;
          }
          case mbapi::LithologyManager::PermMultipoint:
          {
-			 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Permeability Model: Multipoint permeability model is detected. No upgrade is needed.";
-			 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+			 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Permeability Model: Multipoint permeability model is detected. No upgrade is needed.";
+			 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
             break;
          }
          case mbapi::LithologyManager::PermUnknown:
@@ -284,28 +284,28 @@ void Prograde::LithologyUpgradeManager::upgrade() {
          modelConverter.upgradePermModelForSysDefLitho(bpa2LithoName, mpPor, mpPerm, numPts);
 		 string permModelName=m_model.tableValueAsString("LithotypeIoTbl", lithoId, "PermMixModel");// get legacy description for lith id 
          m_model.lithologyManager().setPermeabilityModel(lithoId, prmModel, mpPor, mpPerm, numPts, lithologyFlag);
-		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* Permeability Model: Upgrading the permeability model from '"<< permModelName <<"' to 'Multipoint' with the properties of BPA2 '"<< bpa2LithoName<<"'.";
-		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
-		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading Number_Of_Data_Points to " << numPts;
-		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Permeability Model: Upgrading the permeability model from '"<< permModelName <<"' to 'Multipoint' with the properties of BPA2 '"<< bpa2LithoName<<"'.";
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "DepoPerm, PermDecrStressCoef and PermIncrRelaxCoef values to " << Utilities::Numerical::IbsNoDataValue;
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading Number_Of_Data_Points to " << numPts;
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading " << "Multipoint_Porosity to " << mpPor[0] << " " << mpPor[1] << " and Multipoint_Permeability to " << mpPerm[0] << " " << mpPerm[1];
 		 if(permModelName.compare("None") == 0 || permModelName.compare("Impermeable") == 0)
 		 {
 			 double legacyPermAnisotropy = m_model.tableValueAsDouble("LithotypeIoTbl", lithoId, "PermAnisotropy");
 			 double updatedPermAnisotropy = 1;
 			 m_model.setTableValue("LithotypeIoTbl", lithoId, "PermAnisotropy", updatedPermAnisotropy);//upgrading the Permeability Anisotropy value
-			 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  upgrading PermAnisotropy value from " << legacyPermAnisotropy << " to " << updatedPermAnisotropy;
+			 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> upgrading PermAnisotropy value from " << legacyPermAnisotropy << " to " << updatedPermAnisotropy;
 		 }
 		}
 	}
 	
 //......................................UPGRADING LITHOLOGY inputs of stratIoTbl......................................//	
 	database::Table * strat_table = m_ph->getTable("StratIoTbl");
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating lithotype inputs of StratIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating lithotype inputs of StratIoTbl";
 	mbapi::StratigraphyManager & stratMgrLocal = m_model.stratigraphyManager();
 	for (size_t stratId = 0; stratId < strat_table->size()-1; ++stratId)
 	{
 		std::string stratLayerName = m_model.tableValueAsString("StratIoTbl", stratId, "LayerName");
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* For stratigraphylayer with LayerName: "<< stratLayerName;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> For stratigraphylayer with LayerName: "<< stratLayerName;
 		lithoNamesLst.clear();
 		lithoPerct.clear();
 		percMaps.clear();
@@ -317,7 +317,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		//Processing lithotype inputs of StratIoTbl before updating
 		err = modelConverter.PreprocessLithofaciesInputOfStratIoTbl(lithoNamesLst, lithoPerct, percMaps);
 		if (err != ErrorHandler::ReturnCode::NoError) {
-			throw ErrorHandler::Exception(ErrorHandler::ReturnCode::ValidationError) << "Lithology inputs of stratigraphy layer : '"<< stratLayerName<<"' is not correct";
+			throw ErrorHandler::Exception(ErrorHandler::ReturnCode::ValidationError) << "<Basin-Info> Lithology inputs of stratigraphy layer : '"<< stratLayerName<<"' is not correct";
 		}
 		err = m_model.stratigraphyManager().setLayerLithologiesList(stratId, lithoNamesLst, lithoPerct, percMaps);
 		if (err != ErrorHandler::ReturnCode::NoError){
@@ -326,7 +326,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	}
 
 //......................................UPGRADING LITHOLOGY NAME in AllochthonLithoIoTbl......................................//	
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updated the names for the system defined lithotypes as per the mapping in AllochthonLithoIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updated the names for the system defined lithotypes as per the mapping in AllochthonLithoIoTbl";
 	database::Table * alochthon_table = m_ph->getTable("AllochthonLithoIoTbl");
 	for (size_t alocthonId = 0; alocthonId < alochthon_table->size(); ++alocthonId)
 	{
@@ -336,7 +336,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	}
 
 //......................................UPGRADING LITHOLOGY NAME in LitThCondIoTbl......................................//	
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updated the names for the system defined lithotypes as per the mapping in LitThCondIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updated the names for the system defined lithotypes as per the mapping in LitThCondIoTbl";
 	database::Table * lithoThCond_table = m_ph->getTable("LitThCondIoTbl");
 	 
 	for (size_t lithThCondId = 0; lithThCondId < lithoThCond_table->size(); ++lithThCondId)
@@ -347,7 +347,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	}
 
 //......................................UPGRADING LITHOLOGY NAME in LitHeatCapIoTbl......................................//	
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updated the names for the system defined lithotypes as per the mapping in LitHeatCapIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updated the names for the system defined lithotypes as per the mapping in LitHeatCapIoTbl";
 	database::Table * lithoHeatCap_table = m_ph->getTable("LitHeatCapIoTbl");
 	for (size_t htCaphId = 0; htCaphId < lithoHeatCap_table->size(); ++htCaphId)
 	{
@@ -357,7 +357,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 	}
 
 //......................................UPGRADING LITHOLOGY NAME in PressureFaultcutIoTbl......................................//	
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updated the names for the system defined lithotypes as per the mapping in PressureFaultcutIoTbl";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updated the names for the system defined lithotypes as per the mapping in PressureFaultcutIoTbl";
 	database::Table * fltCut_table = m_ph->getTable("PressureFaultcutIoTbl");
 	for (size_t Id = 0; Id < fltCut_table->size(); ++Id)
 	{

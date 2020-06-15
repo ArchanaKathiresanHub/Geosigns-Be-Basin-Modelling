@@ -23,7 +23,7 @@ using namespace mbapi;
 //------------------------------------------------------------//
 
 Prograde::StratigraphyUpgradeManager::StratigraphyUpgradeManager(Model& model) :
-	IUpgradeManager("stratigraphy upgrade manager"), m_model(model)
+	IUpgradeManager("Stratigraphy upgrade manager"), m_model(model)
 {
 	const auto ph = m_model.projectHandle();
 	if (ph == nullptr) {
@@ -42,24 +42,25 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 	std::string updated_name;
 	std::string ptCouplingMode;
 	double depoAge = 0;
-	unsigned countDepoAgeCrossingLimits = 0; //variable containing the number of surfaces crossing the DepoAge limits
+	// Variable containing the number of surfaces crossing the DepoAge limits
+	unsigned countDepoAgeCrossingLimits = 0;
 	int	chemCompaction_RunOptionsIoTbl = 1;
 
-	//fetching the chemical compaction flag from RunOptionsIoTbl and if Hydrostatic mode is detected in PTCouplingMode, check the ChemicalCompaction should be 0.
+	// Fetching the chemical compaction flag from RunOptionsIoTbl and if Hydrostatic mode is detected in PTCouplingMode, check the ChemicalCompaction should be 0.
 	database::Table * runoptionsio_tbl = m_ph->getTable("RunOptionsIoTbl");
 	database::Record * rec = runoptionsio_tbl->getRecord(0);
 	chemCompaction_RunOptionsIoTbl = rec->getValue<int>("ChemicalCompaction");
 	ptCouplingMode = rec->getValue<std::string>("PTCouplingMode");
 	int	upgradedChemCompaction_RunOptionsIoTbl = modelConverter.checkChemicalCompaction(ptCouplingMode, chemCompaction_RunOptionsIoTbl);
 	rec->setValue<int>("ChemicalCompaction", upgradedChemCompaction_RunOptionsIoTbl);//chemical compaction for Hydrostatic mode should be 0.
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "ChemicalCompaction in RunOptionsIoTbl is : " << upgradedChemCompaction_RunOptionsIoTbl;
 
-	//updating the LayerName, SurfaceName and Fluidtype in StratIoTbl that is removing the special characters from the names
+	// Updating the LayerName, SurfaceName and Fluidtype in StratIoTbl that is by removing the special characters (except underscore) from the names
 	database::Table * stratIo_table = m_ph->getTable("StratIoTbl");
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName, LayerName and Fluidtype in StratIoTbl by removing the special characters (except underscore) :";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the SurfaceName, LayerName and Fluidtype in StratIoTbl by removing the special characters (except underscore) :";
 
+	// Updating the LayerName, SurfaceName and Fluidtype in the StratioTBl
 	for (size_t id = 0; id < stratIo_table->size(); ++id)
-	{
+	{/// for loop on StratIoTbl starts here
 		database::Record * rec = stratIo_table->getRecord(static_cast<int>(id));
 		depoAge = rec->getValue<double>("DepoAge");
 
@@ -67,7 +68,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 		updated_name = modelConverter.upgradeName(name);
 		if (name.compare(updated_name))
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "At DepoAge : " << depoAge << " , SurfaceName : " << name << " is changed to " << updated_name;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> At DepoAge : " << depoAge << " , SurfaceName : " << name << " is updated to " << updated_name;
 			rec->setValue<std::string>("SurfaceName", updated_name);
 		}
 
@@ -75,24 +76,26 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 		updated_name = modelConverter.upgradeName(name);
 		if (name.compare(updated_name))
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "At DepoAge : " << depoAge << " , LayerName : " << name << " is changed to " << updated_name;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> At DepoAge : " << depoAge << " , LayerName : " << name << " is updated to " << updated_name;
 			rec->setValue<std::string>("LayerName", updated_name);
 		}
 
 		name = rec->getValue<std::string>("Fluidtype");
+		// Detecting user - defined fluids
+		// Names to be updated on for the user-defined fluids
 		if ((name != "Std. Water") && (name != "Std. Sea Water") && (name != "Std. Hyper Saline Water") && (name != "Std. Marine Water"))
-		{ //detecting user-defined fluid
+		{
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "At DepoAge : " << depoAge << " , FluidType : " << name << " is changed to " << updated_name;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> At DepoAge : " << depoAge << " , FluidType : " << name << " is updated to " << updated_name;
 				rec->setValue<std::string>("Fluidtype", modelConverter.upgradeName(name));
 			}
 		}
-	}
+	}/// for loop on StratIoTbl ends here
 
-	//updating the LayerName, SurfaceName and Fluidtype in the respective tables
-	// CTCIoTbl
+	 // Updating the LayerName, SurfaceName and Fluidtype in the respective tables
+	 // CTCIoTbl
 	database::Table * ctcIo_table = m_ph->getTable("CTCIoTbl");
 	if (ctcIo_table->size() != 0)
 	{
@@ -103,13 +106,13 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in CTCIoTbl by removing the special characters (except underscore) :";
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName : " << name << " is changed to " << updated_name;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the SurfaceName in CTCIoTbl by removing the special characters (except underscore) :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> SurfaceName : " << name << " is updated to " << updated_name;
 				rec->setValue<std::string>("SurfaceName", updated_name);
 			}
-		}
-	}	
-	//TwoWayTimeIoTbl
+		}/// loop ends here
+	}
+	// TwoWayTimeIoTbl
 	database::Table * twowaytimeio_table = m_ph->getTable("TwoWayTimeIoTbl");
 	if (twowaytimeio_table->size() != 0)
 	{
@@ -120,13 +123,13 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the SurfaceName in TwoWayTimeIoTbl by removing the special characters (except underscore) :";
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName : " << name << " is changed to " << updated_name;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the SurfaceName in TwoWayTimeIoTbl by removing the special characters (except underscore) :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> SurfaceName : " << name << " is updated to " << updated_name;
 				rec->setValue<std::string>("SurfaceName", updated_name);
 			}
-		}
+		}/// loop ends here
 	}
-	//MobLayThicknessIoTbl
+	// MobLayThicknessIoTbl
 	database::Table * moblaythickio_table = m_ph->getTable("MobLayThicknIoTbl");
 	if (moblaythickio_table->size() != 0)
 	{
@@ -137,13 +140,13 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in MobLayThicknIoTbl by removing the special characters (except underscore) :";
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LayerName : " << name << " is changed to " << updated_name;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the LayerName in MobLayThicknIoTbl by removing the special characters (except underscore) :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> LayerName : " << name << " is updated to " << updated_name;
 				rec->setValue<std::string>("LayerName", updated_name);
 			}
-		}
+		}/// loop ends here
 	}
-	//AllochthonLithoInteroIoTbl
+	// AllochthonLithoInteroIoTbl
 	database::Table * allochthonlithointerpio_table = m_ph->getTable("AllochthonLithoInterpIoTbl");
 	if (allochthonlithointerpio_table->size() != 0)
 	{
@@ -154,13 +157,13 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoInterpIoTbl by removing the special characters (except underscore) :";
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LayerName : " << name << " is changed to " << updated_name;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the LayerName in AllochthonLithoInterpIoTbl by removing the special characters (except underscore) :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> LayerName : " << name << " is updated to " << updated_name;
 				rec->setValue<std::string>("LayerName", updated_name);
 			}
-		}
+		}/// loop ends here
 	}
-	//AllochthonLithoDistribIoTbl
+	// AllochthonLithoDistribIoTbl
 	database::Table * allochthonlithodistribio_table = m_ph->getTable("AllochthonLithoDistribIoTbl");
 	if (allochthonlithodistribio_table->size() != 0)
 	{
@@ -171,13 +174,13 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoDistribIoTbl by removing the special characters (except underscore) :";
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LayerName : " << name << " is changed to " << updated_name;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the LayerName in AllochthonLithoDistribIoTbl by removing the special characters (except underscore) :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> LayerName : " << name << " is updated to " << updated_name;
 				rec->setValue<std::string>("LayerName", updated_name);
 			}
-		}
+		}/// loop ends here
 	}
-	//AllochthonLithoIoTbl
+	// AllochthonLithoIoTbl
 	database::Table * allochthonlithoio_table = m_ph->getTable("AllochthonLithoIoTbl");
 	if (allochthonlithoio_table->size() != 0)
 	{
@@ -188,13 +191,13 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in AllochthonLithoIoTbl by removing the special characters (except underscore) :";
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LayerName : " << name << " is changed to " << updated_name;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the LayerName in AllochthonLithoIoTbl by removing the special characters (except underscore) :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> LayerName : " << name << " is updated to " << updated_name;
 				rec->setValue<std::string>("LayerName", updated_name);
 			}
-		}
+		}/// loop ends here
 	}
-	//SourceRockLithoIoTbl
+	// SourceRockLithoIoTbl
 	database::Table * sourcerocklithoio_table = m_ph->getTable("SourceRockLithoIoTbl");
 	if (sourcerocklithoio_table->size() != 0)
 	{
@@ -205,13 +208,13 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			updated_name = modelConverter.upgradeName(name);
 			if (name.compare(updated_name))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the LayerName in SourceRockLithoIoTbl by removing the special characters (except underscore) :";
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LayerName : " << name << " is changed to " << updated_name;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the LayerName in SourceRockLithoIoTbl by removing the special characters (except underscore) :";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> LayerName : " << name << " is updated to " << updated_name;
 				rec->setValue<std::string>("LayerName", updated_name);
 			}
-		}
+		}/// loop ends here
 	}
-	//FluidtypeIoTbl
+	// FluidtypeIoTbl
 	database::Table * fluidtypeio_table = m_ph->getTable("FluidtypeIoTbl");
 	if (fluidtypeio_table->size() != 0)
 	{
@@ -224,79 +227,86 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 				updated_name = modelConverter.upgradeName(name);
 				if (name.compare(updated_name))
 				{
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the Fluidtype in FluidtypeIoTbl by removing the special characters (except underscore) :";
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Fluidtype : " << name << " is changed to " << updated_name;
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the Fluidtype in FluidtypeIoTbl by removing the special characters (except underscore) :";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Fluidtype : " << name << " is updated to " << updated_name;
 					rec->setValue<std::string>("Fluidtype", updated_name);
 				}
 			}
-		}
+		}/// loop ends here
 	}
 
-	//Updating the StratioTbl for Surfaces for Depth & Thickness limits, LayeringIndex, ChemicalCompaction and DepoAge
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Updating the StratIoTbl for Depth & Thickness, LayeringIndex, ChemicalCompaction and DepoAge :";
+	// Updating the StratioTbl for Surfaces for Depth & Thickness limits, LayeringIndex, ChemicalCompaction and DepoAge
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the StratIoTbl for Depth, Thickness, LayeringIndex, ChemicalCompaction and DepoAge :";
 	database::Table * stratIo_Table = m_ph->getTable("StratIoTbl");
 	for (size_t id = 0; id < stratIo_Table->size(); ++id)
-	{
+	{/// for loop on StratIoTbl begins here
 		database::Record * rec = stratIo_Table->getRecord(static_cast<int>(id));
 		name = rec->getValue<std::string>("SurfaceName");
 		double depth = rec->getValue<double>("Depth");
 		double thickness = rec->getValue<double>("Thickness");
+
+		// Checking if depth and thickness scalar values to be in range if not then trim to the range boundaries
 		double updatedDepth = modelConverter.upgradeDepthThickness(depth);
 		double updatedThickness = modelConverter.upgradeDepthThickness(thickness);
-
+		// Log the information if the values are trimmed
 		if (updatedDepth != depth)
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Depth value for the surface " << name << " is changed from " << depth << " to : " << updatedDepth << " as it is crossing the limits (-6380000,6380000)";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Depth value for the surface " << name << " is changed from " << depth << " to : " << updatedDepth << " as it is crossing the limits [-6380000,6380000]";
 			rec->setValue<double>("Depth", updatedDepth);
 		}
 		if (updatedThickness != thickness)
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Thickness value for the surface " << name << " is changed from " << thickness << " to : " << updatedThickness << " as it is crossing the limits (-6380000,6380000)";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Thickness value for the surface " << name << " is changed from " << thickness << " to : " << updatedThickness << " as it is crossing the limits [-6380000,6380000]";
 			rec->setValue<double>("Thickness", updatedThickness);
 		}
 
+		// Updating the Layering Index of each layer 
+		// As per BPA2 standards, if MixModel is Homogeneous then the Layering Index should be -9999
 		std::string mixModel = rec->getValue<std::string>("MixModel");
 		double layeringIndex = rec->getValue<double>("LayeringIndex");
 		double updatedLayeringIndex = modelConverter.upgradeLayeringIndex(mixModel, layeringIndex);
+		// Log the information if the LayeringIndex is updated
 		if (updatedLayeringIndex != layeringIndex)
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "MixModel for the surface " << name << " is : " << mixModel << ". Hence, Layering Index is changed from " << layeringIndex << " to " << updatedLayeringIndex;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> MixModel detected for the surface " << name << " is : " << mixModel << ". Hence, the LayeringIndex of the surface is changed from " << layeringIndex << " to " << updatedLayeringIndex << " as per BPA2 standards";
 			rec->setValue<double>("LayeringIndex", updatedLayeringIndex);
 		}
 
+		// Chemical compaction cannot be applied to the basement
 		if (id < (stratIo_Table->size() - 1))
-		{ //Chemical compaction cannot be applied to the basement
+		{
 			int chemCompaction_layer = rec->getValue<int>("ChemicalCompaction");
-			int updatedChemCompaction_layer = modelConverter.upgradeChemicalCompaction(chemCompaction_RunOptionsIoTbl, chemCompaction_layer);
+			int updatedChemCompaction_layer = modelConverter.upgradeChemicalCompaction(upgradedChemCompaction_RunOptionsIoTbl, chemCompaction_layer);
 			if (updatedChemCompaction_layer != chemCompaction_layer)
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ChemicalCompaction for the surface " << name << " is : " << chemCompaction_layer << ". Hence, changed to " << updatedChemCompaction_layer << " as in the RunOptionsIoTbl";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> ChemicalCompaction detected for the surface " << name << "  is : " << chemCompaction_layer << " ! Hence, changed to " << updatedChemCompaction_layer << " as in the RunOptionsIoTbl";
 				rec->setValue<int>("ChemicalCompaction", updatedChemCompaction_layer);
 			}
 		}
 		else
 		{
 			int chemCompaction_layer = rec->getValue<int>("ChemicalCompaction");
+			// Chemical compaction is set to NULL at basement
 			if (chemCompaction_layer != -9999)
 			{
-				rec->setValue<int>("ChemicalCompaction", -9999); //chemical compaction set to NULL at basement
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ChemicalCompaction for the surface (basement) " << name << " is changed from : " << chemCompaction_layer << " to -9999 (NULL)";
+				rec->setValue<int>("ChemicalCompaction", -9999);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> ChemicalCompaction for the surface (basement) " << name << " is changed from : " << chemCompaction_layer << " to -9999 (NULL)";
 			}
 		}
 
 		depoAge = rec->getValue<double>("DepoAge");
-		if (depoAge > 999) //generating logs for the surfaces which have depoAge greater than 999.
+		// Generating logs for the surfaces which have depoAge greater than 999 
+		if (depoAge > 999)
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "SurfaceName : " << name << " with Deposition age : " << depoAge << " Ma is crossing the upper limit of 999 Ma";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Error> SurfaceName : " << name << " with Deposition age : " << depoAge << " Ma is crossing the upper limit of 999 Ma";
 			countDepoAgeCrossingLimits++;
 		}
-	}
+	}/// for loop on StratIoTbl ends here
 
-	//failing the scenario for prograde if any of the surfaces exceed the age limit (0-999)
+	 // Failing the scenario for prograde if any of the surfaces exceed the age limit (0-999)
 	if (countDepoAgeCrossingLimits)
 	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Surface with Deposition age greater than 999 Ma is detected; Hence, Scenario is Rejected";
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Migration from BPA to BPA2 Basin Aborted...";
-		exit(200);
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Error> Surface with Deposition age greater than 999 Ma is detected; Migration from BPA to BPA2 Basin Aborted...";
+		exit(21);
 	}
-}
+}/// update function ends here

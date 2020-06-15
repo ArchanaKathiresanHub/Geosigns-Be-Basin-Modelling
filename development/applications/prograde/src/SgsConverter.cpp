@@ -20,7 +20,7 @@ using namespace mbapi;
 int Prograde::SgsConverter::upgradeAdsorptionTOCDependent(int legacyAdsorptionTOCDependent)
 {
 	if (legacyAdsorptionTOCDependent)
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Since TOC dependent adsoption model is deprecated in BPA2, AdsorptionTOCDependent is prograded from '1' to '0' in SourceRockLithoIoTbl";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Since TOC dependent adsoption model is deprecated in BPA2, AdsorptionTOCDependent is prograded from '1' to '0' in SourceRockLithoIoTbl";
 
 	return 0;
 }
@@ -30,12 +30,12 @@ std::string Prograde::SgsConverter::upgradeAdsorptionCapacityFunctionName(int le
 	if (legacyAdsorptionTOCDependent)
 	{
 		bpa2AdsorptionCapacityFunctionName = "Low Langmuir Isotherm";
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Since TOC dependent adsoption model is deprecated in BPA2, AdsorptionCapacityFunctionName is prograded from " <<"'"<< legacyAdsorptionCapacityFunctionName<<"'" << " to 'Low Langmuir Isotherm' in SourceRockLithoIoTbl";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Since TOC dependent adsoption model is deprecated in BPA2, AdsorptionCapacityFunctionName is prograded from " <<"'"<< legacyAdsorptionCapacityFunctionName<<"'" << " to 'Low Langmuir Isotherm' in SourceRockLithoIoTbl";
 	}
 	else if (legacyAdsorptionCapacityFunctionName == "Langmuir Isotherm")
 	{
 		bpa2AdsorptionCapacityFunctionName = "Default Langmuir Isotherm";
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "AdsorptionCapacityFunctionName is prograded from " << "'" << legacyAdsorptionCapacityFunctionName << "'" << " to 'Default Langmuir Isotherm' in SourceRockLithoIoTbl";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> AdsorptionCapacityFunctionName is prograded from " << "'" << legacyAdsorptionCapacityFunctionName << "'" << " to 'Default Langmuir Isotherm' in SourceRockLithoIoTbl";
 
 	}
 	
@@ -48,7 +48,7 @@ std::string Prograde::SgsConverter::upgradeWhichAdsorptionSimulator(int legacyCo
 	if (!legacyComputeOTGC)	
 	{
 		bpa2WhichAdsorptionSimulator = "C1AdsorptionSimulator";
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "WhichAdsorptionSimulator is prograded from 'OTGCC1AdsorptionSimulator' to 'C1AdsorptionSimulator' in SourceRockLithoIoTbl ";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> WhichAdsorptionSimulator is prograded from 'OTGCC1AdsorptionSimulator' to 'C1AdsorptionSimulator' in SourceRockLithoIoTbl ";
 	}
 		
 	return bpa2WhichAdsorptionSimulator;
@@ -75,9 +75,8 @@ void Prograde::SgsConverter::upgradeIrreducibleWaterSaturationCoefficients(const
 	{
 		bpa2CoefficientA = -0.13;
 		bpa2CoefficientB = 0.7;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "User defined Irreducible water saturation identified, with CoefficientA: "<< legacyCoefficientA << " and CoefficientB: "<< legacyCoefficientB;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Prograded to default low irreducible water saturation CoefficientA: " << bpa2CoefficientA << " and CoefficientB: " << bpa2CoefficientB;		
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Note: BPA2-Basin allows only low, medium or high IWS data";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> User defined Irreducible water saturation identified, with CoefficientA: "<< legacyCoefficientA << " and CoefficientB: "<< legacyCoefficientB;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Prograded to default low irreducible water saturation CoefficientA: " << bpa2CoefficientA << " and CoefficientB: " << bpa2CoefficientB;		
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> BPA2-Basin allows only low, medium or high IWS data";
 	}
 }
-	

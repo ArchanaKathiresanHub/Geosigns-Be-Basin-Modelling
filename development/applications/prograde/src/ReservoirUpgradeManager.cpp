@@ -125,22 +125,22 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 		   {
 			   // setting globle TrapCapacity
 			   m_model.reservoirManager().getResCapacity(nextResId_Index, trapCapacity);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Original TrapCapacity is '" << trapCapacity << "' and updated TrapCapacity is '" << minTrapCapa << "' for " << resName;
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original TrapCapacity is '" << trapCapacity << "' and updated TrapCapacity is '" << minTrapCapa << "' for " << resName;
 			   m_model.reservoirManager().setResCapacity(nextResId_Index, minTrapCapa);
 			   
 			   // setting globle BioDegradInd
 			   m_model.reservoirManager().getResBioDegradInd(nextResId_Index, bioDegradInd);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgrading BioDegradInd to the global value (TRUE, if it is true for any of the detected reservoirs else FALSE). Original BioDegradInd is '" << bioDegradInd << "' which is upgraded to global value of '" << globalBioDegradInd << "' for " << resName;
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading BioDegradInd to the global value (TRUE, if it is true for any of the detected reservoirs else FALSE). Original BioDegradInd is '" << bioDegradInd << "' which is upgraded to global value of '" << globalBioDegradInd << "' for " << resName;
 			   m_model.reservoirManager().setResBioDegradInd(nextResId_Index, globalBioDegradInd);
 			   
 			   //setting globle OilToGasCrackingInd
 			   m_model.reservoirManager().getResOilToGasCrackingInd(nextResId_Index, oilToGasCrackingInd);
 			   m_model.reservoirManager().setResOilToGasCrackingInd(nextResId_Index, globalOilToGasCrackingInd);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgrading OilToGasCrackingInd to the global value (TRUE, if it is true for any of the detected reservoirs else FALSE). Original OilToGasCrackingInd is '" << oilToGasCrackingInd << "' which is upgraded to the global value of '" << globalOilToGasCrackingInd << "' for " << resName;
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading OilToGasCrackingInd to the global value (TRUE, if it is true for any of the detected reservoirs else FALSE). Original OilToGasCrackingInd is '" << oilToGasCrackingInd << "' which is upgraded to the global value of '" << globalOilToGasCrackingInd << "' for " << resName;
 			   
 			   //setting globle BlockingInd
 			   m_model.reservoirManager().getResBlockingInd(nextResId_Index, blockingInd);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgrading BlockingInd to the global value (TRUE, if it is true for all reservoir else FALSE). Original BlockingInd is '" << blockingInd << "' which is upgraded to the global value of '" << globalBlockingInd << "' for " << resName;
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading BlockingInd to the global value (TRUE, if it is true for all reservoir else FALSE). Original BlockingInd is '" << blockingInd << "' which is upgraded to the global value of '" << globalBlockingInd << "' for " << resName;
 			   m_model.reservoirManager().setResBlockingInd(nextResId_Index, globalBlockingInd);
 			   
 			   //setting globle BlockingPermeability threshold value
@@ -148,31 +148,31 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 			   if (globalBlockingInd == 0)
 			   {
 				   m_model.reservoirManager().setResBlockingPermeability(nextResId_Index, 1.0e-09);
-				   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgrading BlockingPermeability (if BlockingInd is true and all reservoir have same BlockingPermeability value then that value is the global, else set the default value i.e., 1e-09). Original BlockingPermeability is '" << blockingPermeability << "' which is upgraded to the default global value of 1.0e-09, as the blockingInd is off for " << resName;
+				   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading BlockingPermeability (if BlockingInd is true and all reservoir have same BlockingPermeability value then that value is the global, else set the default value i.e., 1e-09). Original BlockingPermeability is '" << blockingPermeability << "' which is upgraded to the default global value of 1.0e-09, as the blockingInd is off for " << resName;
 			   }
 			   else
 			   {
-				   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgrading BlockingPermeability (if BlockingInd is true and all reservoir have same BlockingPermeability value then that value is the global, else set the default value i.e., 1e-09). Original BlockingPermeability is '" << blockingPermeability << "' which is upgraded to the global value of '" << globalBlockingPermeability << "' for " << resName;
+				   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading BlockingPermeability (if BlockingInd is true and all reservoir have same BlockingPermeability value then that value is the global, else set the default value i.e., 1e-09). Original BlockingPermeability is '" << blockingPermeability << "' which is upgraded to the global value of '" << globalBlockingPermeability << "' for " << resName;
 				   m_model.reservoirManager().setResBlockingPermeability(nextResId_Index, globalBlockingPermeability);
 			   }
 
 			   //setting globle DiffusionInd
 			   m_model.reservoirManager().setResDiffusionInd(nextResId_Index, globalDiffusionInd);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgrading DiffusionInd: there is no DiffusionInd in BPA1. Setting its default value to FALSE for " << resName;
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading DiffusionInd: there is no DiffusionInd in BPA1. Setting its default value to FALSE for " << resName;
 			   
 			   //setting globle MinOilColumnHeight
 			   m_model.reservoirManager().getResMinOilColumnHeight(nextResId_Index, minOilColHeight);
 			   m_model.reservoirManager().setResMinOilColumnHeight(nextResId_Index, globalMinOilColumnHeight);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgrading MinOilColumnHeight from '" << minOilColHeight << "' to BPA2 default value of 1m for " << resName;
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading MinOilColumnHeight from '" << minOilColHeight << "' to BPA2 default value of 1m for " << resName;
 			   
 			   //setting globle MinGasColumnHeight
 			   m_model.reservoirManager().getResMinGasColumnHeight(nextResId_Index, minGasColHeight);
 			   m_model.reservoirManager().setResMinGasColumnHeight(nextResId_Index, globalMinGasColumnHeight);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgrading MinGasColumnHeight from '" << minGasColHeight << "' to BPA2 default value of 1m for " << resName;
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading MinGasColumnHeight from '" << minGasColHeight << "' to BPA2 default value of 1m for " << resName;
 			   
 			   //setting globle ResBlockingPorosity
 			   m_model.reservoirManager().setResBlockingPorosity(nextResId_Index, globalBlockingPorosity);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgrading BlockingPorosity: there is no BlockingPorosity in BPA1 and hence its default value is 0 for " << resName;
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading BlockingPorosity: there is no BlockingPorosity in BPA1 and hence its default value is 0 for " << resName;
 
 			   //Safeguard to avoid ActivityStartAge values less than the reservoir depo age. If it is less then upgrade its value to the depo age
 			   m_model.reservoirManager().getResActivityStartAge(nextResId_Index, activityStartAge);
@@ -197,7 +197,7 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 			   //remove the record since the activity mode is found to be "NeverActive"
 			   countOfDelResId++;
 			   m_model.removeRecordFromTable("ReservoirIoTbl", (originalResIDPosition + 1) - countOfDelResId);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Activity mode is found to be 'NeverActive' for the current reservoir layer. Deleting this record from the ReservoirIoTbl";
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Activity mode is found to be 'NeverActive' for the current reservoir layer. Deleting this record from the ReservoirIoTbl";
 			   nextResId_Index--;
 		   }
 	   }
@@ -221,10 +221,6 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 	   m_model.reservoirManager().setResOptionsMinOilColumnHeight(resId, globalMinOilColumnHeight);
 	   m_model.reservoirManager().setResOptionsMinGasColumnHeight(resId, globalMinGasColumnHeight);
 	   m_model.reservoirManager().setResOptionsBlockingPorosity(resId, globalBlockingPorosity);
-   }
-   else
-   {
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Number of reservoirs detected is 0. No update is to be done";
    }
    Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("ReservoirIoTbl");
    Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("DetectedReservoirIoTbl");

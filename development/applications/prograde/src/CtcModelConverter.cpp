@@ -16,14 +16,12 @@ using namespace mbapi;
 
 std::string Prograde::CtcModelConverter::upgradeTectonicFlag(const double & Age, const double & Min)
 {
-   std::string tectonicFlag;
-   if (Age > Min)
-      tectonicFlag = "Active Rifting";
-   else if (Age == 0.0)
-      tectonicFlag = "Flexural Basin";
-   else
-      tectonicFlag = "Passive Margin";
-   return tectonicFlag;
+	std::string tectonicFlag;
+	if (Age > Min)
+		tectonicFlag = "Active Rifting";
+	else if (Age == 0.0)
+		tectonicFlag = "Flexural Basin";
+	else
+		tectonicFlag = "Passive Margin";
+	return tectonicFlag;
 }
-
-

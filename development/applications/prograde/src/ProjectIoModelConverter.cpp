@@ -27,13 +27,12 @@ int Prograde::ProjectIoModelConverter::upgradeNodeX(const std::string& modelling
 		   upgradeNodeX = 3; 
 		   node_diff = upgradeNodeX - nodeX;
 		   NewWindowXMax = OriginalwindowXMax + node_diff;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of x-nodes specified is less than 3. Resetting values of nodeX from " << nodeX << " to " << upgradeNodeX << " , simulation window max size from "<< OriginalwindowXMax<< " to "<< NewWindowXMax;
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> The number of x-nodes specified is less than 3. Resetting values of nodeX from " << nodeX << " to " << upgradeNodeX << " , simulation window max size from "<< OriginalwindowXMax<< " to "<< NewWindowXMax;
 	   }
 	   else
 	   {
 		   upgradeNodeX = nodeX;
 		   NewWindowXMax = OriginalwindowXMax;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of x-nodes specified is within the valid range of BPA2 for 3d scenarios. No upgrade is required";
 	   }
    }
    else if (modellingMode == "1d")
@@ -43,13 +42,12 @@ int Prograde::ProjectIoModelConverter::upgradeNodeX(const std::string& modelling
 		   upgradeNodeX = 2;
 		   node_diff = upgradeNodeX - nodeX;
 		   NewWindowXMax= OriginalwindowXMax + node_diff;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value for number of x-nodes is not found. Resetting its value from " << nodeX << " to " << upgradeNodeX << " as it is a 1d scenario";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Default value for number of x-nodes is not found. Resetting its value from " << nodeX << " to " << upgradeNodeX << " as it is a 1d scenario";
 	   }
 	   else
 	   {
 		   upgradeNodeX = nodeX;
 		   NewWindowXMax = OriginalwindowXMax;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value for number of x-nodes is found for 1d scenarios. No upgrade is required";
 	   }
    }
    else
@@ -70,13 +68,12 @@ int Prograde::ProjectIoModelConverter::upgradeNodeY(const std::string& modelling
 		   upgradeNodeY = 3; 
 		   node_diff = 3 - nodeY;	   
 		   NewWindowYMax = OriginalwindowYMax + node_diff;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of y-nodes specified is less 3. Resetting values of nodeX from " << nodeY << " to " << upgradeNodeY << " , simulation window max size from " << OriginalwindowYMax << " to " << NewWindowYMax;;
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> The number of y-nodes specified is less 3. Resetting values of nodeX from " << nodeY << " to " << upgradeNodeY << " , simulation window max size from " << OriginalwindowYMax << " to " << NewWindowYMax;;
 	   }
 	   else
 	   {
 		   upgradeNodeY = nodeY;
 		   NewWindowYMax = OriginalwindowYMax;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "The number of y-nodes specified is within the valid range of BPA2 for 3d scenarios. No upgrade is required";
 	   }
    }
    else if (modellingMode == "1d")
@@ -86,13 +83,12 @@ int Prograde::ProjectIoModelConverter::upgradeNodeY(const std::string& modelling
 		   upgradeNodeY = 2;
 		   node_diff = upgradeNodeY - nodeY;
 		   NewWindowYMax = OriginalwindowYMax + node_diff;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value for number of y-nodes is not found. Resetting its value from " << nodeY << " to " << upgradeNodeY << " as it is a 1d scenario";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Default value for number of y-nodes is not found. Resetting its value from " << nodeY << " to " << upgradeNodeY << " as it is a 1d scenario";
 	   }
 	   else
 	   {
 		   upgradeNodeY = nodeY;
 		   NewWindowYMax = OriginalwindowYMax;
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Default value for number of y-nodes is found for 1d scenarios. No upgrade is required";
 	   }
    }
    else
@@ -140,7 +136,6 @@ std::string Prograde::ProjectIoModelConverter::upgradeModellingMode(const std::s
    else if (originalModellingMode == "3d")
    {
       upgradeModellingMode = originalModellingMode;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Deprecated modelling mode is not found. No upgrade required";
    }
    else//This is unlikely to found any other modelling mode but is added here to track if unknownly this field is got edited 
    {
@@ -157,20 +152,17 @@ std::string Prograde::ProjectIoModelConverter::upgradeDescription(const std::str
 	   if (ModellingMode == "3d" || ModellingMode == "1d")
 	   {
 		   upgradedDescription = "Migrated from BPA";
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty";
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Project description is empty; Description is upgraded";
 	   }
 	   else if (ModellingMode == "Both")
 	   {
 		   upgradedDescription = "Migrated from BPA (Please note that the original modelling mode was 1Dand3D)";
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty";
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Project description is empty; Description is upgraded";
 	   }
 	   else
 	   {
 		   upgradedDescription = "Migrated from BPA";
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty with unknown modelling mode";
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description but not the modelling mode";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Project description is empty with unknown modelling mode; Description is upgraded but not the modelling mode";
 	   }
    }
    else
@@ -179,22 +171,19 @@ std::string Prograde::ProjectIoModelConverter::upgradeDescription(const std::str
 	   {
 		   upgradedDescription.append(orignalDescription);
 		   upgradedDescription.append(": Migrated from BPA");
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is not empty";
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description by appending";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Project description is not empty; Description is upgraded by appending";
 	   }
 	   else if (ModellingMode == "Both")
 	   {
 		   upgradedDescription.append(orignalDescription);
 		   upgradedDescription.append(": Migrated from BPA (Please note that the original modelling mode was 1Dand3D)");
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is not empty";
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description by appending";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Project description is not empty; Description is upgraded by appending";
 	   }
 	   else
 	   {
 		   upgradedDescription.append(orignalDescription);
 		   upgradedDescription.append(": Migrated from BPA");
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Project description is empty with unknown modelling mode";
-		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Upgraded the description but not the modelling mode";
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Project description is empty with unknown modelling mode; Description is upgraded but not the modelling mode";
 	   }
    }
 

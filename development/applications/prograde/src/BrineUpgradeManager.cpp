@@ -42,13 +42,13 @@ void Prograde::BrineUpgradeManager::upgrade() {
    std::vector<std::string> FluidTypesUsed = StratIoTblReferredFluids();
    std::vector<std::string> baseFluidForUserDefinedBrine;//To store the base fluid type for a userDefined brine
                                                          //std::string baseFluidForUserDefinedBrine;//To store the base fluid type for a userDefined brine
+   
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating FluidTypeIoTbl";
    for (auto flId : fluids) {
 
       std::string fluidName;
 
       m_model.fluidManager().getFluidName(flId, fluidName);
-
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "FluidType encountered in the FluidTypeIoTbl is: " << fluidName;
 
       int fluidUserDefined;                      //Fluid user defined flag
       m_model.fluidManager().getUserDefined(flId, fluidUserDefined);
@@ -141,8 +141,7 @@ void Prograde::BrineUpgradeManager::upgrade() {
          countOfNotMatchingflId++;
          // remove record from table if not match
          m_model.removeRecordFromTable("FluidtypeIoTbl", (originalRowPosition + 1) - countOfNotMatchingflId);
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << fluidName << " is not referred in StratIoTbl for the scenario";
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Deleting the row from FluidTypeIoTbl for " << fluidName;
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> " << fluidName << " is not referred in StratIoTbl for the scenario; the row from FluidTypeIoTbl is deleted";
          nextFluidTypeIOTbl_Index--;
       }
    }
@@ -234,7 +233,7 @@ void Prograde::BrineUpgradeManager::ResetFltThCondIoTbl()
 
          thCondIdCount++;
       }
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << " FltThCondIoTbl has been updated to include the property values for " << TherCondTypeUsed[ThCondType];
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> FltThCondIoTbl has been updated to include the property values for " << TherCondTypeUsed[ThCondType];
    }
 
 }
@@ -278,7 +277,6 @@ void Prograde::BrineUpgradeManager::ResetFltHeatCapIoTbl()
 
          heatCapIdCount++;
       }
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << " FltHeatCapIoTbl has been updated to include the property values for " << HeatCapTypeUsed[HeatCapType];
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> FltHeatCapIoTbl has been updated to include the property values for " << HeatCapTypeUsed[HeatCapType];
    }
-
 }

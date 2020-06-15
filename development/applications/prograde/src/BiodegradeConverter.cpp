@@ -26,36 +26,31 @@ void Prograde::BiodegradeConverter::upgradeBioConstants(const std::string & BioC
 {
    if (BioConsName == "MaxBioTemp") {
       if (BioConsFromP3dFile < MIN_BIO_TEMP || BioConsFromP3dFile > MAX_BIO_TEMP) {
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << " Legacy Biodegradation Constant " << BioConsName << ": " << BioConsFromP3dFile << " not in valid range ["<< MIN_BIO_TEMP<<", "<<MAX_BIO_TEMP<<"]";
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << " Upgrading Biodegradation Constant " << BioConsName <<" from "<< BioConsFromP3dFile <<" to " << BioConsValue;
+         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Biodegradation Constant " << BioConsName <<" is updated from "<< BioConsFromP3dFile <<" to " << BioConsValue<<" as the value was not in valid range [" << MIN_BIO_TEMP << ", " << MAX_BIO_TEMP << "]";
          BioConsFromP3dFile = BioConsValue;
       }
    }
    else if (BioConsName == "TempConstant") {
       if (BioConsFromP3dFile < MIN_TEMP_CONSTANT || BioConsFromP3dFile > MAX_TEMP_CONSTANT) {
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << " Legacy Biodegradation Constant " << BioConsName << ": " << BioConsFromP3dFile << " not in valid range [" << MIN_TEMP_CONSTANT << ", " << MAX_TEMP_CONSTANT << "]";
-		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << " Upgrading Biodegradation Constant " << BioConsName << " from " << BioConsFromP3dFile << " to " << BioConsValue;
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Biodegradation Constant " << BioConsName << " is updated from " << BioConsFromP3dFile << " to " << BioConsValue << " as the value was not in valid range [" << MIN_TEMP_CONSTANT << ", " << MAX_TEMP_CONSTANT << "]";
          BioConsFromP3dFile = BioConsValue;
       }
    }
    else if (BioConsName == "TimeConstant") {
       if (BioConsFromP3dFile < MIN_TIME_CONSTANT || BioConsFromP3dFile > MAX_TIME_CONSTANT) {
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << " Legacy Biodegradation Constant " << BioConsName << ": " << BioConsFromP3dFile << " not in valid range [" << MIN_TIME_CONSTANT << ", " << MAX_TIME_CONSTANT << "]";
-		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << " Upgrading Biodegradation Constant " << BioConsName << " from " << BioConsFromP3dFile << " to " << BioConsValue;
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Biodegradation Constant " << BioConsName << " is updated from " << BioConsFromP3dFile << " to " << BioConsValue << " as the value was not in valid range [" << MIN_TIME_CONSTANT << ", " << MAX_TIME_CONSTANT << "]";
          BioConsFromP3dFile = BioConsValue;
       }
    }
    else if (BioConsName == "BioRate") {
       if (BioConsFromP3dFile < MIN_BIO_RATE || BioConsFromP3dFile > MAX_BIO_RATE) {
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << " Legacy Biodegradation Constant " << BioConsName << ": " << BioConsFromP3dFile << " not in valid input range [" << MIN_BIO_RATE << ", " << MAX_BIO_RATE << "]";
-		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << " Upgrading Biodegradation Constant " << BioConsName << " from " << BioConsFromP3dFile << " to " << BioConsValue;
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Biodegradation Constant " << BioConsName << " is updated from " << BioConsFromP3dFile << " to " << BioConsValue << " as the value was not in valid range [" << MIN_BIO_RATE << ", " << MAX_BIO_RATE << "]";
          BioConsFromP3dFile = BioConsValue;
       }
    }
    else
       if (BioConsValue != BioConsFromP3dFile) {
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << " Legacy Biodegradation Constant "<< BioConsName<<" has a non standard value "<< BioConsFromP3dFile;
-		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << " Upgrading Biodegradation Constant " << BioConsName << " from " << BioConsFromP3dFile << " to " << BioConsValue;
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Upgrading Biodegradation Constant " << BioConsName << " from " << BioConsFromP3dFile << " to " << BioConsValue << " as a non standard value was detected!";
          BioConsFromP3dFile = BioConsValue;
       }
 }

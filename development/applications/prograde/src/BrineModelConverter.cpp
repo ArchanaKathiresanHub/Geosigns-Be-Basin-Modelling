@@ -26,26 +26,15 @@ int Prograde::BrineModelConverter::upgradeUserDefined
       if (upgradedUserDefined != 1)
       {
          upgradedUserDefined = 1;
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "UserDefined: "<< fluidName << " is no longer a system defined brine in BPA2. The UserDefined flag is updated to " << upgradedUserDefined;
-      }
-      else
-      {
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "User defined " << fluidName << " detected";
-         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << " no upgrade required";
+		 LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) <<"<Basin-Info> " <<fluidName << ", is no longer a system defined brine in BPA2; UserDefined flag is updated from " << originalUserDefined << " to " << upgradedUserDefined;
       }
    }
    else if (fluidName != "Std. Sea Water" && fluidName != "Std. Water" && fluidName != "Std. Hyper Saline Water" )
    {
       upgradedUserDefined = 1;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "UserDefined: " << fluidName << " is a user defined brine. The UserDefined flag is updated to " << upgradedUserDefined;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", is a user defined brine; UserDefined flag is updated from " << originalUserDefined << " to " << upgradedUserDefined;
       
-   }
-   else
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "UserDefined: " << fluidName << " is a system defined brine. No upgradation is required";
-   }
-   
-   
+   }   
    return upgradedUserDefined;
 }
 
@@ -56,26 +45,26 @@ std::string Prograde::BrineModelConverter::upgradeDescription
    if (upgradedDescription == "KSEPL's Standard Marine Water")
    {
       upgradedDescription = std::string("Deprecated Marine Water");
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Description: Upgraded by removing KSEPL's prefix for " << fluidName;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", Description is upgraded from '" << originalDescription << "' to '" << upgradedDescription << "' by removing KSEPL's prefix";
    }
    
    if (upgradedDescription == "KSEPL's Standard Water")
    {
       upgradedDescription = std::string("Standard Water");
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Description: Upgraded by removing KSEPL's prefix for " << fluidName;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", Description is upgraded from '" << originalDescription << "' to '" << upgradedDescription << "' by removing KSEPL's prefix";
    }
   
   
    if (upgradedDescription == "KSEPL's Standard Ultra Marine Water")
    {
       upgradedDescription = std::string("Standard Ultra Marine Water");
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Description: Upgraded by removing KSEPL's prefix for " << fluidName;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", Description is upgraded from '" << originalDescription << "' to '" << upgradedDescription << "' by removing KSEPL's prefix";
    }
      
    if (upgradedDescription == "KSEPL's Standard Sea Water")
    {
       upgradedDescription = std::string("Standard Sea Water");
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Description: Upgraded by removing KSEPL's prefix for " << fluidName;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", Description is upgraded from '" << originalDescription << "' to '" << upgradedDescription << "' by removing KSEPL's prefix";
    }
  
    return upgradedDescription;
@@ -87,17 +76,16 @@ FluidManager::FluidDensityModel Prograde::BrineModelConverter::upgradeDensityMod
    case FluidManager::Constant:
    {
       upgradedModel = FluidManager::Calculated;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Density model: Legacy model is detected for "<< fluidName << ". Upgrading it to modified B&W density model ";
-		break;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << fluidName << ", density model is upgraded from 'Constant' to 'Modified B&W density model' as the model is deprecated in BPA2";
+	  break;
    }
 	case FluidManager::Calculated:
    {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Density model: Latest density model is detected for " << fluidName << ". No upgrade is needed ";
       break;
    }
    default:
       upgradedModel = FluidManager::Calculated;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Density model: Unknown density model is detected for " << fluidName << ". Upgrading it to modified B&W density model";
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << fluidName << ", an unknown density model is detected; upgraded to 'Modified B&W density model' as the model is deprecated in BPA2";
       break;
    }
    return upgradedModel;
@@ -109,17 +97,16 @@ FluidManager::CalculationModel Prograde::BrineModelConverter::upgradeSeismicVelo
    case FluidManager::ConstantModel:
    {
       upgradedModel = FluidManager::CalculatedModel;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Seismic velocity model: Legacy model is detected for " << fluidName << ". Upgrading it to modified B&W seismic velocity model ";
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << fluidName << ", seismic velocity model is upgraded from 'Constant' to 'Modified B&W seismic velocity model' as the model is deprecated in BPA2";
       break;
    }
    case FluidManager::CalculatedModel:
    {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Seismic velocity model: Latest model is detected for " << fluidName << ". No upgrade is needed "; 
       break;
    }
    default:
       upgradedModel = FluidManager::CalculatedModel;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Seismic velocity model: Unknown seismic velocity model is detected for " << fluidName << ". Upgrading it to modified B&W seismic velocity model"; 
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << fluidName << ", an unknown seismic velocity model is detected ; upgraded to 'Modified B&W seismic velocity model' as the model is deprecated in BPA2";
       break;
    }
    return upgradedModel;
@@ -133,17 +120,16 @@ std::string Prograde::BrineModelConverter::upgradeHeatCapType
    if(fluidDescription == "KSEPL's Standard Ultra Marine Water")
    {
       upgradedHeatCapType = "Std. Hyper Saline Water";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType: Legacy model is found for this brine. It is upgraded from "<< originalHeatCapType<< " to " << upgradedHeatCapType;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", HeatCapType is upgraded from " << originalHeatCapType << " to " << upgradedHeatCapType;
    }
    else if (fluidDescription == "KSEPL's Standard Sea Water")
    {
       upgradedHeatCapType = "Std. Sea Water";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType: Legacy model is found for this brine. It is upgraded from " << originalHeatCapType << " to " << upgradedHeatCapType;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", HeatCapType is upgraded from " << originalHeatCapType << " to " << upgradedHeatCapType;
    }
    else
    {
       upgradedHeatCapType = "Std. Water";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "HeatCapType: Latest model is found for this brine. No upgradation is required";
    }
    return upgradedHeatCapType;
 }
@@ -156,17 +142,16 @@ std::string Prograde::BrineModelConverter::upgradeThermCondType
    if (fluidDescription == "KSEPL's Standard Ultra Marine Water")
    {
       upgradedThermCondType = "Std. Hyper Saline Water";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ThermCondType: Legacy model is found for this brine. It is upgraded from  "<< originalThermCondType<<" to " << upgradedThermCondType;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", ThermCondType is upgraded from " << originalThermCondType << " to " << upgradedThermCondType;
    }
    else if (fluidDescription == "KSEPL's Standard Sea Water")
    {
       upgradedThermCondType = "Std. Sea Water";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ThermCondType: Legacy model is found for this brine. It is upgraded from  " << originalThermCondType << " to " << upgradedThermCondType;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", ThermCondType is upgraded from " << originalThermCondType << " to " << upgradedThermCondType;
    }
    else
    {
       upgradedThermCondType = originalThermCondType;
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "ThermCondType: Latest model is found for this brine. No upgradation is required";
    }
    return upgradedThermCondType;
 }
@@ -176,12 +161,12 @@ std::string Prograde::BrineModelConverter::upgradeDefinedBy(const std::string & 
    if (fluidName == "Std. Water" || fluidName == "Std. Sea Water" || fluidName == "Std. Hyper Saline Water")
    {
       upgradedDefinedBy = "System";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "DefinedBy: "<< fluidName << " is a system defined brine. The DefinedBy field is updated from "<< OriginalDefinedBy<<" to " << upgradedDefinedBy ;
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", is a system defined brine; The DefinedBy field is updated from " << OriginalDefinedBy << " to " << upgradedDefinedBy;
    }
    else
    {
       upgradedDefinedBy = "BPA user";
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "DefinedBy: " << fluidName << " is a user defined brine. The DefinedBy field is updated from " << OriginalDefinedBy << " to " << upgradedDefinedBy;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> " << fluidName << ", is a user defined brine. The DefinedBy field is updated from " << OriginalDefinedBy << " to " << upgradedDefinedBy;
    }
 
    return upgradedDefinedBy;

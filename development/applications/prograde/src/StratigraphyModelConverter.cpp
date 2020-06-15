@@ -25,7 +25,7 @@ std::string Prograde::StratigraphyModelConverter::upgradeName(const std::string 
 			updatedName.push_back(originalName[i]);
 		}
 	}
-		return updatedName;
+	return updatedName;
 }
 
 double Prograde::StratigraphyModelConverter::upgradeDepthThickness(const double & originalVal)
@@ -34,17 +34,17 @@ double Prograde::StratigraphyModelConverter::upgradeDepthThickness(const double 
 	if (updatedVal>6380000) {
 		updatedVal = 6380000;
 	}
-	else if(updatedVal < -6380000){
+	else if (updatedVal < -6380000) {
 		updatedVal = -6380000;
 	}
-		return updatedVal;
-	
+	return updatedVal;
+
 }
 
 double Prograde::StratigraphyModelConverter::upgradeLayeringIndex(const std::string &mixModel, const double &originalLayeringIndex)
 {
 	double updatedLayeringIndex = originalLayeringIndex;
-	if (!mixModel.compare("Homogeneous")){
+	if (!mixModel.compare("Homogeneous")) {
 		updatedLayeringIndex = -9999;
 	}
 	return updatedLayeringIndex;
@@ -53,9 +53,10 @@ double Prograde::StratigraphyModelConverter::upgradeLayeringIndex(const std::str
 int Prograde::StratigraphyModelConverter::checkChemicalCompaction(const std::string &ptCoupling, const int &originalChemCompaction_run)
 {
 	int	updatedChemCompaction_run = originalChemCompaction_run;
-	if(!ptCoupling.compare("Hydrostatic")&&(updatedChemCompaction_run !=0)){
+	if (!ptCoupling.compare("Hydrostatic") && (updatedChemCompaction_run != 0)) {
 		updatedChemCompaction_run = 0;
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Hydrostatic mode detected! ChemicalCompaction flag in RunOptionsIoTbl is corrected from " << originalChemCompaction_run << " to " << updatedChemCompaction_run;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Updating RunOptionsIoTbl";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Hydrostatic mode detected! ChemicalCompaction flag in RunOptionsIoTbl is corrected from " << originalChemCompaction_run << " to " << updatedChemCompaction_run;
 	}
 	return updatedChemCompaction_run;
 }
