@@ -28,134 +28,75 @@ public :
 
 };
 
-TEST(DataAccess, ReadCharismaFileTest)
+void readCharismaFile(const std::string& fileName, MutableFaultCollectionList& faultCollectionList)
 {
   DataAccess::Interface::ObjectFactory factory;
-  DataAccess::Interface::ObjectFactory* factoryptr = &factory;
-  std::unique_ptr<DataAccess::Interface::ProjectHandle> ph;
+  std::unique_ptr<DataAccess::Interface::ProjectHandle> projectHandle;
   try
   {
-    ph.reset( DataAccess::Interface::OpenCauldronProject("Project.project3d", factoryptr) );
+    projectHandle.reset( DataAccess::Interface::OpenCauldronProject("Project.project3d", &factory) );
   }
   catch (const std::exception& e)
   {
     std::cout << e.what();
   }
 
-  if( nullptr == ph ) FAIL();
+  if( nullptr == projectHandle ) FAIL();
 
   DataAccess::Interface::CharismaFaultFileReader reader;
-
-  const char* FaultFile = "FaultIntersect.charisma";
 
   bool fileIsOpen;
 
   ibs::FilePath fullFileName( "." );
-  fullFileName << FaultFile;
+  fullFileName << fileName;
   reader.open( fullFileName.path(), fileIsOpen );
 
   EXPECT_TRUE(fileIsOpen);
 
   reader.preParseFaults();
 
-  MutableFaultCollectionList faultCollectionList = reader.parseFaults(ph.get(), "FaultIntersect");
+  faultCollectionList = reader.parseFaults(projectHandle.get(), "TestFault");
+  reader.close();
+}
+
+TEST(DataAccess, ReadCharismaFileTest)
+{
+  MutableFaultCollectionList faultCollectionList;
+  readCharismaFile("FaultIntersect.charisma", faultCollectionList);
 
   EXPECT_FALSE(faultCollectionList.empty());
 
   FaultExpected fault;
   Fault faultExpected = fault.createFaultFaultExpected();
 
-  MutableFaultCollectionList::const_iterator fcIter;
-
-  for ( fcIter = faultCollectionList.begin(); fcIter != faultCollectionList.end(); ++fcIter )
+  for (FaultCollection* fc : faultCollectionList)
   {
-    FaultCollection * fc = *fcIter;
-
-    FaultList::const_iterator faultIter;
-
     std::unique_ptr<FaultList> faults(fc->getFaults());
-    for (faultIter = faults->begin (); faultIter != faults->end (); ++faultIter)
+    for (const Fault* fault : *faults)
     {
-      EXPECT_TRUE( faultExpected.getFaultLine() == (*faultIter)->getFaultLine());
-      EXPECT_TRUE( faultExpected.getName() == (*faultIter)->getName());
+      std::cout << std::setprecision(17);
+      std::cout <<fault->getFaultLine() << std::endl;
+
+      EXPECT_TRUE( faultExpected.getFaultLine() == fault->getFaultLine());
+      EXPECT_TRUE( faultExpected.getName() == fault->getName());
     }
   }
-
-  reader.close();
 }
 
 TEST(DataAccess, ReadCharismaNoIntersectionTest)
 {
-  DataAccess::Interface::ObjectFactory factory;
-  DataAccess::Interface::ObjectFactory* factoryptr = &factory;
-  std::unique_ptr<DataAccess::Interface::ProjectHandle> ph;
-  try
-  {
-    ph.reset( DataAccess::Interface::OpenCauldronProject("Project.project3d", factoryptr) );
-  }
-  catch (const std::exception& e)
-  {
-    std::cout << e.what();
-  }
-
-  if( nullptr == ph ) FAIL();
-
-  DataAccess::Interface::CharismaFaultFileReader reader;
-
-  const char* FaultFile = "FaultNoIntersect.charisma";
-
-  bool fileIsOpen;
-
-  ibs::FilePath fullFileName( "." );
-  fullFileName << FaultFile;
-  reader.open( fullFileName.path(), fileIsOpen );
-
-  EXPECT_TRUE(fileIsOpen);
-
-  reader.preParseFaults();
-
-  MutableFaultCollectionList faultCollectionList = reader.parseFaults(ph.get(), "FaultIntersect");
+  MutableFaultCollectionList faultCollectionList;
+  readCharismaFile("FaultNoIntersect.charisma", faultCollectionList);
 
   EXPECT_TRUE(faultCollectionList.empty());
-
-  reader.close();
 }
 
 TEST(CharismaFaultFileReaderTest, readEmptyFaultFile)
 {
-  DataAccess::Interface::ObjectFactory factory;
-  DataAccess::Interface::ObjectFactory* factoryptr = &factory;
-  std::unique_ptr<DataAccess::Interface::ProjectHandle> ph;
-  try
-  {
-    ph.reset( DataAccess::Interface::OpenCauldronProject("Project.project3d", factoryptr) );
-  }
-  catch (const std::exception& e)
-  {
-    std::cout << e.what();
-  }
-
-  if( nullptr == ph ) FAIL();
-
-  DataAccess::Interface::CharismaFaultFileReader reader;
-
-  const char* FaultFile = "FaultEmptyFileTest.charisma";
-
-  bool fileIsOpen;
-
-  ibs::FilePath fullFileName( "." );
-  fullFileName << FaultFile;
-  reader.open( fullFileName.path(), fileIsOpen );
-
-  EXPECT_TRUE(fileIsOpen);
-
-  reader.preParseFaults();
-
-  MutableFaultCollectionList faultCollectionList = reader.parseFaults(ph.get(), "FaultIntersect");
+  MutableFaultCollectionList faultCollectionList;
+  readCharismaFile("FaultEmptyFileTest.charisma", faultCollectionList);
 
   EXPECT_TRUE(faultCollectionList.empty());
-
-  reader.close();
 }
 
 TEST(CharismaFaultFileReaderTest, readFileNotFound)
@@ -163,7 +104,6 @@ TEST(CharismaFaultFileReaderTest, readFileNotFound)
   DataAccess::Interface::CharismaFaultFileReader reader;
 
   bool fileIsOpen;
-
   reader.open( "ThisDoesNotExist.charisma", fileIsOpen );
 
   EXPECT_FALSE(fileIsOpen);
@@ -179,17 +119,87 @@ Fault FaultExpected::createFaultFaultExpected () const
   Point faultPoint;
 
   faultPoint [Interface::X_COORD] = 460002;
-  faultPoint [Interface::Y_COORD] = 6750001.277108434;
+  faultPoint [Interface::Y_COORD] = 6750002.7792207794;
 
   line.push_back(faultPoint);
 
   faultPoint [Interface::X_COORD] = 460002;
-  faultPoint [Interface::Y_COORD] = 6750002.594059406;
+  faultPoint [Interface::Y_COORD] = 6750002.7792207794;
 
   line.push_back(faultPoint);
 
   faultPoint [Interface::X_COORD] = 460002;
-  faultPoint [Interface::Y_COORD] = 6750002.721311475;
+  faultPoint [Interface::Y_COORD] = 6750002.7696476961;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750002.7536231885;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750002.7352024922;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750002.7213114752;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750002.662251655;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750002.5940594058;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750002.2816901412;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750002;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750001.7752808984;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750001.4082840234;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750001.3432835825;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750001.2771084337;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750001.1895604394;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750001;
+
+  line.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = 460002;
+  faultPoint [Interface::Y_COORD] = 6750002.7792207794;
 
   line.push_back(faultPoint);
 

@@ -8,20 +8,24 @@
 
 
 #include "FaultPlane.h"
+#include "FaultCutCreator.h"
 #include "GridMap.h"
 #include "Triangle.h"
 
 #include <algorithm>
 #include <cmath>
 
+#include <iostream>
+#include <fstream>
+
 using namespace DataAccess;
 using namespace Interface;
 
+
+
 FaultPlane::FaultPlane (const std::vector<PointSequence>& faultSticks) :
-  m_faultSticks( faultSticks ),
-  m_segments()
+  m_faultSticks( faultSticks )
 {
-  createSegments();
 }
 
 FaultPlane::~FaultPlane()
@@ -146,87 +150,6 @@ std::vector<Triangle> FaultPlane::makeTriangles(const std::vector<double>& xSegm
   return triangles;
 }
 
-unsigned int FaultPlane::determineOptimumPlacement(const Point& candidate, const PointSequence& orderedFaultCut) const
-{
-  // Distance when new point is placed at the start
-  unsigned int optimalPlacement = 0;
-  double optimalDistance = separationDistance(candidate, orderedFaultCut.front());
-
-  // Distance when new point placed at the end
-  double tryDistance = separationDistance(candidate, orderedFaultCut.back());
-  if (tryDistance < optimalDistance)
-  {
-    optimalDistance = tryDistance;
-    optimalPlacement = static_cast<unsigned int>(orderedFaultCut.size() + 1);
-  }
-
-  // Try all other positions and find the optimum
-  for (unsigned int i = 1; i < orderedFaultCut.size(); i++)
-  {
-    tryDistance = separationDistance(orderedFaultCut[i-1], candidate)
-        + separationDistance(candidate, orderedFaultCut[i])
-        - separationDistance(orderedFaultCut[i], orderedFaultCut[i-1]);
-
-    if (tryDistance < optimalDistance)
-    {
-      optimalDistance = tryDistance;
-      optimalPlacement = i;
-    }
-  }
-
-  return optimalPlacement;
-}
-
-void FaultPlane::orderIntersections(PointSequence& faultCut) const
-{
-  PointSequence orderedFaultCut;
-
-  for (const Point& candidate : faultCut)
-  {
-    if (orderedFaultCut.size() < 2)
-    {
-      orderedFaultCut.push_back(candidate);
-      continue;
-    }
-
-    const unsigned int optimalPlacement = determineOptimumPlacement(candidate, orderedFaultCut);
-
-    if (optimalPlacement > orderedFaultCut.size())
-    {
-      orderedFaultCut.push_back(candidate);
-    }
-    else
-    {
-      orderedFaultCut.emplace(orderedFaultCut.begin() + optimalPlacement, candidate);
-    }
-  }
-
-  faultCut = orderedFaultCut;
-}
-
-std::vector<PointSequence> FaultPlane::createFaultCuts(const PointSequence& intersections, const double splitDistance) const
-{
-  std::vector<PointSequence> faultCuts;
-
-  PointSequence faultCutSegment;
-  for (unsigned int i = 0; i < intersections.size() - 1; i++)
-  {
-    faultCutSegment.push_back(intersections[i]);
-
-    if (separationDistance(intersections[i], intersections[i+1]) >= splitDistance)
-    {
-      faultCuts.push_back(faultCutSegment);
-      faultCutSegment.clear();
-    }
-  }
-
-  // Add the last element and last segment to the faultcuts
-  faultCutSegment.push_back(intersections.back());
-  faultCuts.push_back(faultCutSegment);
-
-  return faultCuts;
-}
-
 bool FaultPlane::findIntersection(const std::vector<double>& xSegment, const std::vector<double> &ySegment,
                                   const std::vector<double>& zTopSegment, const std::pair<Point, Point> &segment, Point& intersection) const
 {
@@ -245,50 +168,144 @@ bool FaultPlane::findIntersection(const std::vector<double>& xSegment, const std
   return false;
 }
 
-void FaultPlane::createSegments()
+void writeSegmentsToCSV(std::vector<std::pair<Point, Point>> segments)
 {
+  std::ofstream myFile;
+  myFile.open("segments.csv");
+
+  for (std::pair<Point, Point> segment : segments)
+  {
+    myFile << segment.first(X_COORD) << ","
+           << segment.first(Y_COORD) << ","
+           << segment.first(Z_COORD) << ",,"
+           << segment.second(X_COORD) << ","
+           << segment.second(Y_COORD) << ","
+           << segment.second(Z_COORD) << ",\n";
+  }
+
+  myFile.close();
+}
+
+std::vector<std::pair<Point, Point>> FaultPlane::createSegments() const
+{
+  std::vector<std::pair<Point, Point>> segments;
+
+  const double maxAngle = 90.0; //Degrees
+
+  int i = 0;
   for (const PointSequence& faultStick : m_faultSticks)
   {
     for (unsigned int pointIndex = 0; pointIndex < faultStick.size() - 1; pointIndex++)
     {
       const Point& p1 = faultStick[ pointIndex ];
       const Point& p2 = faultStick[ pointIndex + 1 ];
+      segments.push_back({p1, p2});
 
-      m_segments.push_back({p1, p2});
-
-      if (m_faultSticks.size() > 1)
+      const double s = separationDistance( p1, p2 );
+      const double dz = std::fabs( p1(Z_COORD) - p2(Z_COORD));
+      if ( s < 1.e-10 || std::acos( dz/s ) * 180.0/M_PI > maxAngle )
       {
-        double closestDistance = 1.0e99;
-        Point closestPoint(0,0,0);
-        for ( const PointSequence& faultStick1 : m_faultSticks )
-        {
-          if ( faultStick1 == faultStick ) continue;
-
-          for ( const Point& p3 : faultStick1 )
-          {
-            double d =  separationDistance(p1, p3);  if ( d > closestDistance) continue;
-            d += separationDistance(p2, p3); if ( d > closestDistance) continue;
-
-            closestDistance = d;
-            closestPoint = p3;
-          }
-        }
-//        m_segments.push_back({p1, closestPoint});
-//        m_segments.push_back({p2, closestPoint});
+        continue;
       }
+
+      const double lowerLimit = s*1.1;
+      const double upperLimit = s*2.0;
+
+      Point p3;
+      double closestDistance = upperLimit;
+      int k3 = -1;
+      int j = -1;
+      for ( const PointSequence& faultStick1 : m_faultSticks )
+      {
+        ++j;
+        if ( i == j ) continue;
+
+        for ( const Point& point : faultStick1 )
+        {
+          const double d = separationDistance(p1, point) + separationDistance(p2, point);
+          if ( d >= closestDistance || d < lowerLimit || d > upperLimit ) continue;
+
+          p3 = point;
+          closestDistance = d;
+          k3 = j;
+        }
+      }
+      if (k3 == -1) continue;
+
+      segments.push_back({p1, p3});
+      segments.push_back({p2, p3});
+      addSegments(segments, p1, p2, p3, 2);
+
+      Point mPoint = midPoint(p1, p2);
+
+      Point p4;
+      closestDistance = upperLimit;
+      int k4 = -1;
+      j = -1;
+      for ( const PointSequence& faultStick1 : m_faultSticks )
+      {
+        ++j;
+        if ( i == j || j == k3 ) continue;
+
+        for ( const Point& point : faultStick1 )
+        {
+          if ((point(X_COORD)-mPoint(X_COORD))*(p3(X_COORD)-mPoint(X_COORD)) +
+              (point(Y_COORD)-mPoint(Y_COORD))*(p3(Y_COORD)-mPoint(Y_COORD)) +
+              (point(Z_COORD)-mPoint(Z_COORD))*(p3(Z_COORD)-mPoint(Z_COORD)) > 0.0 ) continue;
+
+          const double d = separationDistance(p1, point) + separationDistance(p2, point);
+          if ( d >= closestDistance || d < lowerLimit || d > upperLimit ) continue;
+
+          p4 = point;
+          closestDistance = d;
+          k4 = j;
+        }
+      }
+
+      if ( k4 > -1)
+      {
+        segments.push_back({p1, p4});
+        segments.push_back({p2, p4});
+        addSegments(segments, p1, p2, p4, 2);
+      }
+
     }
+    ++i;
   }
+
+#ifndef NDEBUG
+  writeSegmentsToCSV(segments);
+#endif
+
+  return segments;
 }
 
-bool FaultPlane::intersect(const GridMap* surfaceMap, const double splitDistance, std::vector<PointSequence>& faultCuts)
+void FaultPlane::addSegments(std::vector<std::pair<Point, Point>>& segments, const Point& p1, const Point& p2, const Point& p3, int level) const
+{
+  if (level == 0) return;
+
+  Point p4 = p1 + p2 + p3;
+  p4 = p4 / 3.0;
+
+  segments.push_back({p1, p4});
+  segments.push_back({p2, p4});
+  segments.push_back({p3, p4});
+
+  addSegments(segments, p1, p2, p4, level-1);
+  addSegments(segments, p1, p3, p4, level-1);
+  addSegments(segments, p2, p3, p4, level-1);
+}
+
+bool FaultPlane::intersect(const GridMap* surfaceMap, std::vector<PointSequence>& faultCuts)
 {
   surfaceMap->retrieveData();
 
   double minDepth;
   double maxDepth;
   surfaceMap->getMinMaxValue(minDepth, maxDepth);
+
   PointSequence intersections;
-  for (const std::pair<Point, Point>& segment : m_segments )
+  for (const std::pair<Point, Point>& segment : createSegments() )
   {
     const double maxZ = std::max(segment.first(Interface::Z_COORD), segment.second(Interface::Z_COORD));
     if ( maxZ < minDepth ) continue;
@@ -302,14 +319,14 @@ bool FaultPlane::intersect(const GridMap* surfaceMap, const double splitDistance
       intersections.push_back(intersection);
     }
   }
-  surfaceMap->release();
-
 
   if (!intersections.empty())
   {
-    orderIntersections(intersections);
-    faultCuts = createFaultCuts(intersections, splitDistance);
+    const double splitDistance = (surfaceMap->deltaI() + surfaceMap->deltaJ())*10.0;
+    FaultCutCreator faultCutCreator(intersections);
+    faultCuts = faultCutCreator.createFaultCuts(splitDistance);
   }
+  surfaceMap->release();
 
   return !faultCuts.empty();
 }

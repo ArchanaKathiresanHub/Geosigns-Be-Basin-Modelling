@@ -82,7 +82,7 @@ GeoPhysics::ProjectHandle::ProjectHandle (database::ProjectFileHandlerPtr pfh, c
    }
 
    // Now load anything that was not loaded by default in the constructor of the default project handle.
-   ProjectHandle::loadFaults ();
+//   ProjectHandle::loadFaults ();
    ProjectHandle::loadConstrainedOverpressureIntervals ();
 
    const bool status = ProjectHandle::loadCrustThinningHistory ();

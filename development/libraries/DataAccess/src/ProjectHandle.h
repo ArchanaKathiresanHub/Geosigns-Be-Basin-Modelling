@@ -289,9 +289,6 @@ namespace DataAccess
          /// return the list of FaultCollections for a Formation
          virtual FaultCollectionList * getFaultCollections( const Formation * formation ) const;
 
-         /// Find a fault collection
-         virtual FaultCollection * findFaultCollection( const std::string & name ) const;
-
          /// Load and process the fault descriptions
          virtual bool loadFaults( void );
 

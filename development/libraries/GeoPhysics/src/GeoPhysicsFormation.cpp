@@ -385,8 +385,7 @@ void GeoPhysics::GeoPhysicsFormation::setFaultLithologies ( bool& layerHasFaults
 
    GeoPhysics::ProjectHandle& project = dynamic_cast<GeoPhysics::ProjectHandle&>( getProjectHandle() );
 
-   Interface::FaultCollectionList* faultCollections = Interface::Formation::getFaultCollections ();
-   Interface::FaultCollectionList::const_iterator faultCollectionIter;
+   std::unique_ptr<Interface::FaultCollectionList> faultCollections( Interface::Formation::getFaultCollections () );
 
    const Interface::Grid* activityGrid = dynamic_cast<const Interface::Grid*>(project.getActivityOutputGrid ());
 
@@ -401,14 +400,11 @@ void GeoPhysics::GeoPhysicsFormation::setFaultLithologies ( bool& layerHasFaults
 
    error = false;
 
-   for ( faultCollectionIter = faultCollections->begin (); faultCollectionIter != faultCollections->end (); ++faultCollectionIter ) {
-      const Interface::FaultCollection* faultCollection = *faultCollectionIter;
-
-      const Interface::FaultList* faults = faultCollection->getFaults ();
-      Interface::FaultList::const_iterator faultIter;
-
-      for ( faultIter = faults->begin (); faultIter != faults->end (); ++faultIter ) {
-         const Interface::Fault* fault = *faultIter;
+   for ( const Interface::FaultCollection* faultCollection : *faultCollections )
+   {
+      std::unique_ptr<Interface::FaultList> faults( faultCollection->getFaults () );
+      for ( const Interface::Fault* fault : *faults )
+      {
          faultElements.clear ();
 
          // Find all the elements that the fault intersects.
@@ -430,9 +426,8 @@ void GeoPhysics::GeoPhysicsFormation::setFaultLithologies ( bool& layerHasFaults
 
                Interface::ElementSet::const_iterator elementIter;
 
-               for ( elementIter = faultElements.begin (); elementIter != faultElements.end (); ++elementIter ) {
-                  const Interface::Element& element = *elementIter;
-
+               for ( const Interface::Element& element : faultElements )
+               {
                   // Check to see if the element is a valid element on this subdomain.
                   if ( m_compoundLithologies.validIndex ( element ( X_COORD ), element ( Y_COORD ))) {
                      faultLithology = project.getLithologyManager ().getCompoundFaultLithology ( lithologyName,
@@ -466,10 +461,8 @@ void GeoPhysics::GeoPhysicsFormation::setFaultLithologies ( bool& layerHasFaults
          }
 
       }
-      delete faults;
    }
 
-   delete faultCollections;
    m_containsFault = layerHasFaults;
 }
 

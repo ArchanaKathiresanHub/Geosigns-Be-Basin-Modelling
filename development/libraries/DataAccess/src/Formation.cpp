@@ -455,7 +455,7 @@ const AllochthonousLithology * Formation::getAllochthonousLithology (void) const
    return m_allochthonousLithology;
 }
 
-/// return the list of reservoirs in this formation.
+/// return the list of fault collections in this formation.
 FaultCollectionList * Formation::getFaultCollections (void) const
 {
    return getProjectHandle().getFaultCollections (this);

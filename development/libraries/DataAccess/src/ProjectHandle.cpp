@@ -1532,10 +1532,9 @@ bool ProjectHandle::loadFaults( void )
       if ( inputValue->getType() != Interface::FaultMap )
          continue;
 
-      FaultFileReader *reader = FaultFileReaderFactory::getInstance().createReader( inputValue->getMapType() );
+      std::unique_ptr<FaultFileReader> reader( FaultFileReaderFactory::getInstance().createReader( inputValue->getMapType() ) );
 
-      if ( !reader )
-         continue;
+      if ( !reader ) continue;
 
       bool fileIsOpen;
 
@@ -1552,38 +1551,44 @@ bool ProjectHandle::loadFaults( void )
       }
 
       reader->preParseFaults();
-
+      MutableFaultCollectionList writableFaultCollection;
       for ( FaultCollection* faultCollection : reader->parseFaults( this, inputValue->getMapName() ) )
       {
         m_faultCollections.push_back( faultCollection );
-
+        writableFaultCollection.push_back( faultCollection );
         connectFaultCollections( faultCollection );
         loadFaultEvents( faultCollection );
       }
 
-      reader->close();
+#ifndef NDEBUG
+      int layerCounter = 0;
+      for ( const FaultCollection* faultCollection : writableFaultCollection )
+      {
+        int faultCounter = 1;
+        for ( const Fault* fault : *(faultCollection->getFaults()))
+        {
+          const PointSequence& faultCut = fault->getFaultLine();
+          ofstream myFile;
+          myFile.open(fullFileName.path() + "_Layer" + std::to_string(layerCounter) + "Fault" + std::to_string(faultCounter) + ".csv");
+          for (const Point& point : faultCut)
+          {
+            myFile << point(X_COORD) << ","
+                   << point(Y_COORD) << ","
+                   << point(Z_COORD) << ",\n";
+          }
+          myFile.close();
 
-      delete reader;
+          faultCounter++;
+        }
+        layerCounter++;
+      }
+#endif
+
+      reader->close();
    }
 
    return true;
 }
-
-Interface::FaultCollection * ProjectHandle::findFaultCollection( const string & name ) const
-{
-   MutableFaultCollectionList::const_iterator fcIter;
-
-   for ( fcIter = m_faultCollections.begin(); fcIter != m_faultCollections.end(); ++fcIter )
-   {
-      FaultCollection * fc = *fcIter;
-      if ( fc->getName() == name )
-      {
-         return fc;
-      }
-   }
-   return 0;
-}
-
 
 bool ProjectHandle::connectFaultCollections( FaultCollection* faultCollection ) const
 {

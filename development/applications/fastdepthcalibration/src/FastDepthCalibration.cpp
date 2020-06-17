@@ -56,6 +56,7 @@ FastDepthCalibration::FastDepthCalibration(char* projectFileName, int referenceS
   m_argc(argc),
   m_argv(argv),
   m_rank(rank),
+  m_depthsEndSurface(),
   m_fdcProjectManager(projectFileName),
   m_mdl(m_fdcProjectManager.getModel()),
   m_fdcMapFieldProperties(m_mdl, m_referenceSurface, m_endSurface),

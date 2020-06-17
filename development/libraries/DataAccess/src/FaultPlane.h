@@ -25,7 +25,8 @@ namespace DataAccess
     public:
       explicit FaultPlane(const std::vector<PointSequence>& faultSticks);
       ~FaultPlane();
-      bool intersect(const GridMap* surfaceMap, const double splitDistance, std::vector<PointSequence>& faultCuts);
+
+      bool intersect(const GridMap* surfaceMap, std::vector<PointSequence>& faultCuts);
 
     private:
       bool determineIntersectionPoint(const GridMap* surfaceMap, double minZ, double maxZ, const std::pair<Point, Point>& faultSegment, Point& intersection) const;
@@ -34,15 +35,10 @@ namespace DataAccess
 
       std::vector<Triangle> makeTriangles(const std::vector<double>& xSegment, const std::vector<double>& ySegment, const std::vector<double>& zSegment) const;
 
-      void orderIntersections(PointSequence& faultCut) const;
-      unsigned int determineOptimumPlacement(const Point& candidate, const PointSequence& orderedFaultCut) const;
-
-      std::vector<PointSequence> createFaultCuts(const PointSequence& intersections, const double splitDistance) const;
-
-      void createSegments();
+      std::vector<std::pair<Point, Point>> createSegments() const;
+      void addSegments(std::vector<std::pair<Point, Point>>& segments, const Point& p1, const Point& p2, const Point& p3, int level) const;
 
       std::vector<PointSequence> m_faultSticks;
-      std::vector<std::pair<Point, Point>> m_segments;
     };
   }
 }

@@ -3,7 +3,6 @@
 
 #include "FaultFileReader.h"
 #include "Faulting.h"
-#include "FaultElementCalculator.h"
 #include "FaultFileReaderFactory.h"
 #include <sstream>
 using std::ostringstream;

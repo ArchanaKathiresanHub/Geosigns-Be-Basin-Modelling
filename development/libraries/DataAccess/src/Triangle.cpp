@@ -93,7 +93,7 @@ bool Triangle::findIntersection(const std::pair<Point, Point> &segment, Point &i
   const Vector segmentDirection(segment.second - segment.first);
 
   const double normalDotSegmentDirection = segmentDirection.dot(normal);
-  if (std::fabs(normalDotSegmentDirection) < 0.00001 /*epsilon*/)
+  if (std::fabs(normalDotSegmentDirection) < 1e-5 /*epsilon*/)
   {
     return false;
   }
@@ -102,7 +102,7 @@ bool Triangle::findIntersection(const std::pair<Point, Point> &segment, Point &i
 
   const Point intersectionCandidate = segment.first + si * segmentDirection.point();
 
-  if (si > 0 && si <= 1 && pointInTriangle(intersectionCandidate))
+  if (si > 0.0 && si <= 1.0 && pointInTriangle(intersectionCandidate))
   {
     intersection = intersectionCandidate;
     intersection[Z_COORD] = 0.0;

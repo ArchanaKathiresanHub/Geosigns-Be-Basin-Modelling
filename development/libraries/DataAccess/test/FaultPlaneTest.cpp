@@ -23,7 +23,7 @@ public:
   FaultPlaneTest() :
     m_firstI( 0 ), m_firstJ( 0 ), m_lastI( 4 ), m_lastJ(4),
     m_minI(0.0), m_minJ(0.0), m_maxI(10000.0), m_maxJ(10000.0),
-    m_numI(5), m_numJ(5)
+    m_numI(1000), m_numJ(1000)
   {
     m_grid    = new DataAccess::Interface::SerialGrid( m_minI, m_minJ, m_maxI, m_maxJ, m_numI, m_numJ );
     m_gridMap = new DataAccess::Interface::SerialGridMap( nullptr, 0, m_grid, 0, 1 );
@@ -62,8 +62,10 @@ public :
   std::vector<PointSequence> createOutOfBoundsFaultPlane() const;
   std::vector<PointSequence> createFaultPlaneOnBoundaryGridPoints() const;
   std::vector<PointSequence> createFaultPlaneOnInnerGridPoints() const;
+  std::vector<PointSequence> createDifficultFaultPlaneShape() const;
 private:
   PointSequence createVerticalFaultStick(double xPosition, double yPosition) const;
+  PointSequence createFaultStickWithTwoIntersections(double xCoordinate) const;
 };
 
 TEST_F(FaultPlaneTest, FaultPlaneWithoutIntersection)
@@ -73,7 +75,7 @@ TEST_F(FaultPlaneTest, FaultPlaneWithoutIntersection)
 
   std::vector<PointSequence> pntSeq;
 
-  EXPECT_FALSE(faultPlane.intersect( m_gridMap, 5000, pntSeq ));
+  EXPECT_FALSE(faultPlane.intersect( m_gridMap, pntSeq ));
   EXPECT_EQ(pntSeq.size(), 0);
 }
 
@@ -84,7 +86,7 @@ TEST_F(FaultPlaneTest, FaultPlaneIntersectionOutOfBounds)
 
   std::vector<PointSequence> pntSeq;
 
-  EXPECT_FALSE(faultPlane.intersect( m_gridMap, 5000, pntSeq ));
+  EXPECT_FALSE(faultPlane.intersect( m_gridMap, pntSeq ));
   EXPECT_EQ(pntSeq.size(), 0);
 }
 
@@ -95,11 +97,9 @@ TEST_F(FaultPlaneTest, FaultPlaneWithIntersection)
 
   std::vector<PointSequence> pntSeq;
 
-  EXPECT_TRUE(faultPlane.intersect( m_gridMap, 5000, pntSeq ));
-  if (pntSeq.size() > 0)
-  {
-    EXPECT_EQ(pntSeq[0].size(), 3);
-  }
+  EXPECT_TRUE(faultPlane.intersect( m_gridMap, pntSeq ));
+  ASSERT_TRUE(pntSeq.size() > 0);
+  EXPECT_EQ(pntSeq[0].size(), 3);
 }
 
 TEST_F(FaultPlaneTest, NullFaultPlane)
@@ -109,7 +109,7 @@ TEST_F(FaultPlaneTest, NullFaultPlane)
 
   std::vector<PointSequence> pntSeq;
 
-  EXPECT_FALSE(faultPlaneNull.intersect( m_gridMap, 5000, pntSeq ));
+  EXPECT_FALSE(faultPlaneNull.intersect( m_gridMap, pntSeq ));
   EXPECT_EQ(pntSeq.size(), 0);
 }
 
@@ -120,7 +120,7 @@ TEST_F(FaultPlaneTest, checkOrderOfFaultCuts)
 
   std::vector<PointSequence> pntSeq;
 
-  faultPlane.intersect( m_gridMap, 5000, pntSeq );
+  faultPlane.intersect( m_gridMap, pntSeq );
 
   double totalDistanceX = 0.0;
   double totalDistanceY = 0.0;
@@ -131,8 +131,8 @@ TEST_F(FaultPlaneTest, checkOrderOfFaultCuts)
     totalDistanceY += std::fabs(pntSeq[0][i](Y_COORD) - pntSeq[0][i+1](Y_COORD));
   }
 
-  EXPECT_TRUE(std::fabs(totalDistanceX - 3.4) < 0.00001);
-  EXPECT_TRUE(std::fabs(totalDistanceY - 3.4) < 0.00001);
+  EXPECT_TRUE(std::fabs(totalDistanceX - 350) < 0.00001);
+  EXPECT_TRUE(std::fabs(totalDistanceY - 350) < 0.00001);
 }
 
 TEST_F(FaultPlaneTest, intersectionOnBoundaryGridPointCheck)
@@ -141,7 +141,7 @@ TEST_F(FaultPlaneTest, intersectionOnBoundaryGridPointCheck)
   FaultPlane faultPlane (planeExpected.createFaultPlaneOnBoundaryGridPoints());
 
   std::vector<PointSequence> pntSeq;
-  faultPlane.intersect( m_gridMap, 5000, pntSeq );
+  faultPlane.intersect( m_gridMap, pntSeq );
 
   EXPECT_EQ(pntSeq.size(), 4);
 }
@@ -152,39 +152,29 @@ TEST_F(FaultPlaneTest, intersectionOnInnerGridPointCheck)
   FaultPlane faultPlane (planeExpected.createFaultPlaneOnInnerGridPoints());
 
   std::vector<PointSequence> pntSeq;
-  faultPlane.intersect( m_gridMap, 5000, pntSeq );
-  EXPECT_TRUE(pntSeq.size() > 0 );
+  faultPlane.intersect( m_gridMap, pntSeq );
+  ASSERT_TRUE(pntSeq.size() > 0 );
 
-  if (pntSeq.size() > 0)
-  {
-    EXPECT_EQ(pntSeq[0].size(), 2);
-  }
+  EXPECT_EQ(pntSeq[0].size(), 2);
 }
 
-TEST_F(FaultPlaneTest, checkOrderOfClosedLoop)
+TEST_F(FaultPlaneTest, checkIfLoopClosed)
 {
   PlaneExpected planeExpected;
   FaultPlane faultPlane (planeExpected.createClosedLoopFaultPlane());
 
   std::vector<PointSequence> pntSeq;
 
-  faultPlane.intersect( m_gridMap, 5000, pntSeq );
+  faultPlane.intersect( m_gridMap, pntSeq );
 
-  double totalDistanceX = 0.0;
-  double totalDistanceY = 0.0;
+  EXPECT_EQ(pntSeq[0].front(), pntSeq[0].back());
 
-  for (unsigned int i = 0; i < pntSeq[0].size() - 1; i++)
+  for ( unsigned int i = 0; i < pntSeq[0].size()-1; i++)
   {
-    totalDistanceX += std::fabs(pntSeq[0][i](X_COORD) - pntSeq[0][i+1](X_COORD));
-    totalDistanceY += std::fabs(pntSeq[0][i](Y_COORD) - pntSeq[0][i+1](Y_COORD));
+    EXPECT_TRUE(std::fabs(separationDistance(pntSeq[0][i], pntSeq[0][i+1]) - 100) < 1e-5);
   }
 
-  std::cout << totalDistanceX << std::endl;
-  std::cout << totalDistanceY << std::endl;
 
-
-  EXPECT_TRUE(std::fabs(totalDistanceX - 1.0) < 0.00001);
-  EXPECT_TRUE(std::fabs(totalDistanceY - 0.5) < 0.00001);
 }
 
 TEST_F(FaultPlaneTest, checkSplittedFaultPlane)
@@ -194,10 +184,25 @@ TEST_F(FaultPlaneTest, checkSplittedFaultPlane)
 
   std::vector<PointSequence> faultCuts;
 
-
-  faultPlane.intersect( m_gridMap, 5000, faultCuts );
+  faultPlane.intersect( m_gridMap, faultCuts );
 
   EXPECT_EQ(faultCuts.size(), 2);
+}
+
+
+TEST_F(FaultPlaneTest, checkOrderOfDifficultFaultPlane)
+{
+  PlaneExpected planeExpected;
+  FaultPlane faultPlane (planeExpected.createDifficultFaultPlaneShape());
+
+  std::vector<PointSequence> faultCuts;
+
+  faultPlane.intersect( m_gridMap, faultCuts );
+
+  for (unsigned int i = 0; i < faultCuts[0].size() - 1; i++)
+  {
+    EXPECT_TRUE(faultCuts[0][i](X_COORD) > faultCuts[0][i + 1](X_COORD));
+  }
 }
 
 
@@ -217,18 +222,18 @@ std::vector<PointSequence> PlaneExpected::createFaultPlane (const bool& intersec
   faultPoint [Interface::Z_COORD] = -1.0 * intersection;
   faultStick.push_back(faultPoint);
 
-  faultPoint [Interface::X_COORD] = 1.1;
-  faultPoint [Interface::Y_COORD] = 1.1;
+  faultPoint [Interface::X_COORD] = 100;
+  faultPoint [Interface::Y_COORD] = 100;
   faultPoint [Interface::Z_COORD] = 1.0 * intersection;
   faultStick.push_back(faultPoint);
 
-  faultPoint [Interface::X_COORD] = 2.2;
-  faultPoint [Interface::Y_COORD] = 2.2;
+  faultPoint [Interface::X_COORD] = 200;
+  faultPoint [Interface::Y_COORD] = 200;
   faultPoint [Interface::Z_COORD] = -1.0 * intersection;
   faultStick.push_back(faultPoint);
 
-  faultPoint [Interface::X_COORD] = 3.3;
-  faultPoint [Interface::Y_COORD] = 3.3;
+  faultPoint [Interface::X_COORD] = 300;
+  faultPoint [Interface::Y_COORD] = 300;
   faultPoint [Interface::Z_COORD] = 1.0 * intersection;
   faultStick.push_back(faultPoint);
 
@@ -241,15 +246,34 @@ std::vector<PointSequence> PlaneExpected::createDisorderedFaultPlane () const
 {
   std::vector<PointSequence> faultSticks;
 
-  faultSticks.push_back(createVerticalFaultStick(0.5, 0.5));
-  faultSticks.push_back(createVerticalFaultStick(0.1, 0.1));
-  faultSticks.push_back(createVerticalFaultStick(3.0, 3.0));
-  faultSticks.push_back(createVerticalFaultStick(3.5, 3.5));
-  faultSticks.push_back(createVerticalFaultStick(0.2, 0.2));
-  faultSticks.push_back(createVerticalFaultStick(2.8, 2.8));
+  faultSticks.push_back(createVerticalFaultStick(300, 300));
+  faultSticks.push_back(createVerticalFaultStick(150, 150));
+  faultSticks.push_back(createVerticalFaultStick(350, 350));
+  faultSticks.push_back(createVerticalFaultStick(50, 50));
+  faultSticks.push_back(createVerticalFaultStick(100, 100));
+  faultSticks.push_back(createVerticalFaultStick(10, 10));
+  faultSticks.push_back(createVerticalFaultStick(280, 280));
+  faultSticks.push_back(createVerticalFaultStick(0.0, 0.0));
 
   return faultSticks;
 }
+
+std::vector<PointSequence> PlaneExpected::createDifficultFaultPlaneShape () const
+{
+  std::vector<PointSequence> faultSticks;
+
+  faultSticks.push_back(createVerticalFaultStick(100, 50));
+  faultSticks.push_back(createVerticalFaultStick(200, 50));
+  faultSticks.push_back(createVerticalFaultStick(300, 50));
+  faultSticks.push_back(createVerticalFaultStick(400, 50));
+  faultSticks.push_back(createVerticalFaultStick(500, 50));
+  faultSticks.push_back(createVerticalFaultStick(600, 50));
+  faultSticks.push_back(createVerticalFaultStick(450, 150));
+  faultSticks.push_back(createVerticalFaultStick(250, 150));
+
+  return faultSticks;
+}
+
 
 std::vector<PointSequence> PlaneExpected::createSplittedFaultPlane () const
 {
@@ -265,14 +289,15 @@ std::vector<PointSequence> PlaneExpected::createSplittedFaultPlane () const
   return faultSticks;
 }
 
+
 std::vector<PointSequence> PlaneExpected::createClosedLoopFaultPlane () const
 {
   std::vector<PointSequence> faultSticks;
 
-  faultSticks.push_back(createVerticalFaultStick(0.5, 0.5));
-  faultSticks.push_back(createVerticalFaultStick(1.0, 1.0));
-  faultSticks.push_back(createVerticalFaultStick(0.5, 1.0));
-  faultSticks.push_back(createVerticalFaultStick(1.0, 0.5));
+  faultSticks.push_back(createVerticalFaultStick(0, 0));
+  faultSticks.push_back(createVerticalFaultStick(100, 0));
+  faultSticks.push_back(createVerticalFaultStick(100, 100));
+  faultSticks.push_back(createVerticalFaultStick(0, 100));
 
   return faultSticks;
 }
@@ -306,8 +331,8 @@ std::vector<PointSequence> PlaneExpected::createFaultPlaneOnInnerGridPoints () c
 {
   std::vector<PointSequence> faultSticks;
 
-  faultSticks.push_back(createVerticalFaultStick(2500.0, 2500.0));
-  faultSticks.push_back(createVerticalFaultStick(5000.0, 2500.0));
+  faultSticks.push_back(createVerticalFaultStick(20, 20));
+  faultSticks.push_back(createVerticalFaultStick(50, 50));
 
   return faultSticks;
 }
@@ -325,6 +350,28 @@ PointSequence PlaneExpected::createVerticalFaultStick(double xPosition, double y
   faultPoint [Interface::X_COORD] = xPosition;
   faultPoint [Interface::Y_COORD] = yPosition;
   faultPoint [Interface::Z_COORD] = 1.0;
+  faultStick.push_back(faultPoint);
+
+  return faultStick;
+}
+
+PointSequence PlaneExpected::createFaultStickWithTwoIntersections(double xCoordinate) const
+{
+  PointSequence faultStick;
+  Point faultPoint;
+  faultPoint [Interface::X_COORD] = xCoordinate;
+  faultPoint [Interface::Y_COORD] = 0.5;
+  faultPoint [Interface::Z_COORD] = 0.01;
+  faultStick.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = xCoordinate;
+  faultPoint [Interface::Y_COORD] = 1.0;
+  faultPoint [Interface::Z_COORD] = -1.0;
+  faultStick.push_back(faultPoint);
+
+  faultPoint [Interface::X_COORD] = xCoordinate;
+  faultPoint [Interface::Y_COORD] = 1.5;
+  faultPoint [Interface::Z_COORD] = 0.01;
   faultStick.push_back(faultPoint);
 
   return faultStick;

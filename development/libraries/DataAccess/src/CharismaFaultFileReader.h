@@ -33,7 +33,6 @@ namespace DataAccess
             MutableFaultCollectionList parseFaults ( ProjectHandle* projectHandle, const std::string& mapName ) const final;
 
          private:
-            double m_splitDistance;
             std::vector<PointSequence> m_faultSticks;
       };
    }

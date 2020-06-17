@@ -31,7 +31,6 @@
 #include "Snapshot.h"
 #include "ObjectFactory.h"
 #include "ProjectHandle.h"
-#include "FaultElementCalculator.h"
 #include "FluidType.h"
 #include "AllochthonousLithology.h"
 

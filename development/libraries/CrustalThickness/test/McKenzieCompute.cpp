@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -408,6 +408,7 @@ TEST_F( McKenzieTester, computeNDV_3 )
 // Once issues in projecthandle and the data access library are fixed
 // then we will be able to enable the death test on windows
 // However this is not an easy problem as it seems that the memory is corrupted
+#ifndef NDEBUG
 TEST_F( McKenzieTester, death_tests ) {
    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
    // Make the average rift age negative by setting a very high value to the current age
@@ -415,4 +416,5 @@ TEST_F( McKenzieTester, death_tests ) {
    McKenzieCrustCalculatorPtr mcKenzieCalculator = createMcKenzieCalculator();
    ASSERT_DEATH( mcKenzieCalculator->compute(), "" );
 }
+#endif
 #endif

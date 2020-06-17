@@ -24,7 +24,6 @@ using namespace Interface;
 
 CharismaFaultFileReader::CharismaFaultFileReader() :
   FaultFileReader3D(),
-  m_splitDistance( 5000 ),
   m_faultSticks()
 {
 }
@@ -98,7 +97,7 @@ MutableFaultCollectionList CharismaFaultFileReader::parseFaults(ProjectHandle* p
 {
   // Do conversion from m_faultSticks to a FaultCollectionList with correct Formations and names
   // All individual Faults have to be called "faultPlane" so the events are copied to all faults in a fault plane
-  //"faultPlane"
+  // "faultPlane"
 
   MutableFaultCollectionList faultCollectionList;
 
@@ -107,9 +106,8 @@ MutableFaultCollectionList CharismaFaultFileReader::parseFaults(ProjectHandle* p
   std::unique_ptr<SurfaceList> surfaceList ( projectHandle->getSurfaces() );
   for ( const Surface* surface : *surfaceList )
   {
-    std::cout << "Surface " << surface->getName() << std::endl;
     std::vector<PointSequence> faultCuts;
-    if (plane.intersect(surface->getInputDepthMap(), m_splitDistance, faultCuts))
+    if (plane.intersect(surface->getInputDepthMap(), faultCuts))
     {
       const Formation* formation = surface->getBottomFormation();
       const std::string faultCollectionName = mapName + "_" + formation->getMangledName();
@@ -125,7 +123,6 @@ MutableFaultCollectionList CharismaFaultFileReader::parseFaults(ProjectHandle* p
       faultCollectionList.push_back(faultCollection);
     }
   }
-
 
   return faultCollectionList;
 }

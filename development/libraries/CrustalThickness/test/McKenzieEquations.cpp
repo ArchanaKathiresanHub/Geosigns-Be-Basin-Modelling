@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -164,6 +164,7 @@ TEST_F( McKenzieTester, calculates_crustproperties )
 // Once issues in projecthandle and the data access library are fixed
 // then we will be able to enable the death test on windows
 // However this is not an easy problem as it seems that the memory is corrupted
+#ifndef NDEBUG
 TEST_F( McKenzieTester, death_tests ){
    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
    McKenzieCrustCalculatorPtr mcKenzieCalculator = createMcKenzieCalculator();
@@ -174,6 +175,7 @@ TEST_F( McKenzieTester, death_tests ){
    ASSERT_DEATH( mcKenzieCalculator->defineLinearFunction( linearFunction, 4000, 2833.29679953964, 0.77240632040, 0,                6097.83831174862 ), "" );
    ASSERT_DEATH( mcKenzieCalculator->calculateEffectiveCrustalThickness( 1096.79311836947, 3518.09157429785, 40000, 0 ), "" );
 }
+#endif
 #endif
 
 TEST_F( McKenzieTester, calculates_thinningfactors )
