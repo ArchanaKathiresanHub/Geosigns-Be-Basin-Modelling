@@ -27,8 +27,6 @@
 #include <vector>
 #include <algorithm>
 #include <sstream>
-using std::ostringstream;
-using namespace std;
 
 // utilities library
 #include "LogHandler.h"
@@ -38,6 +36,9 @@ using namespace std;
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 using namespace AbstractDerivedProperties;
+using std::ostringstream;
+using namespace std;
+using namespace ibs;
 
 namespace migration
 {
@@ -121,7 +122,7 @@ namespace migration
 
          assert (this == column);
       }
-      
+
       return 0;
    }
 
@@ -230,14 +231,14 @@ namespace migration
       m_diffusionStartTime = -1;
       clearProperties ();
       m_pasteurizationStatus = 0;
-	  // Composition buffers
-	  m_vaporTargetBuffer.clear();
-	  m_liquidTargetBuffer.clear();
-	  m_vaporSpillBuffer.clear();
-	  m_liquidSpillBuffer.clear();
-	  m_vaporWasteBuffer.clear();
-	  m_liquidWasteBuffer.clear();
-	  m_mergingBuffer.clear();
+          // Composition buffers
+          m_vaporTargetBuffer.clear();
+          m_liquidTargetBuffer.clear();
+          m_vaporSpillBuffer.clear();
+          m_liquidSpillBuffer.clear();
+          m_vaporWasteBuffer.clear();
+          m_liquidWasteBuffer.clear();
+          m_mergingBuffer.clear();
    }
 
    LocalColumn::~LocalColumn (void)
@@ -252,14 +253,14 @@ namespace migration
          delete m_compositionToBeMigrated;
          m_compositionToBeMigrated = 0;
       }
-	  // Composition buffers
-	  m_vaporTargetBuffer.clear();
-	  m_liquidTargetBuffer.clear();
-	  m_vaporSpillBuffer.clear();
-	  m_liquidSpillBuffer.clear();
-	  m_vaporWasteBuffer.clear();
-	  m_liquidWasteBuffer.clear();
-	  m_mergingBuffer.clear();
+          // Composition buffers
+          m_vaporTargetBuffer.clear();
+          m_liquidTargetBuffer.clear();
+          m_vaporSpillBuffer.clear();
+          m_liquidSpillBuffer.clear();
+          m_vaporWasteBuffer.clear();
+          m_liquidWasteBuffer.clear();
+          m_mergingBuffer.clear();
    }
 
    void LocalColumn::retainPreviousProperties (void)
@@ -622,7 +623,7 @@ namespace migration
 
    double LocalColumn::getOWCTemperature (const double hydrocarbonWaterContactDepth) const
    {
-      // Obtain a gridMap of temperature thanks to the DerivedProperties   
+      // Obtain a gridMap of temperature thanks to the DerivedProperties
       FormationPropertyPtr gridMapTemperature = m_reservoir->getFormationPropertyPtr ("Temperature", m_reservoir->getEnd ());
 
       if (gridMapTemperature == 0) // No gridMap, then we use the temperature of the crest column for biodegradation
@@ -1430,9 +1431,9 @@ namespace migration
 
       flashChargesToBeMigrated (phaseCompositions);
 
-	  // calculate the global position
-	  int numI = m_reservoir->getGrid()->numIGlobal();
-	  int position = getI() + getJ() * numI;
+          // calculate the global position
+          int numI = m_reservoir->getGrid()->numIGlobal();
+          int position = getI() + getJ() * numI;
 
       for (unsigned int phase = 0; phase < NumPhases; ++phase)
       {
@@ -1471,24 +1472,24 @@ namespace migration
 
    void LocalColumn::manipulateCompositionPosition(ValueSpec valueSpec, int phase, int position, Composition & composition)
    {
-	   switch (valueSpec)
-	   {
-	   case INCREASEBUFFERTARGET:
-		   addTargetCompositionToBuffer((PhaseId)phase, position, composition);
-		   break;
-	   case INCREASEBUFFERWASTE:
-		   addWasteCompositionToBuffer((PhaseId)phase, position, composition);
-		   break;
-	   case INCREASEBUFFERSPILL:
-		   addSpillCompositionToBuffer((PhaseId)phase, position, composition);
-		   break;
-	   case INCREASEBUFFEMERGE:
-		   addMergingCompositionToBuffer(position, composition);
-		   break;
-	   default:
-		   LogHandler(LogHandler::ERROR_SEVERITY) << "Error in LocalColumn::manipulateCompositionPosition: Unknown request " << valueSpec;
-		   assert(0);
-	   }
+           switch (valueSpec)
+           {
+           case INCREASEBUFFERTARGET:
+                   addTargetCompositionToBuffer((PhaseId)phase, position, composition);
+                   break;
+           case INCREASEBUFFERWASTE:
+                   addWasteCompositionToBuffer((PhaseId)phase, position, composition);
+                   break;
+           case INCREASEBUFFERSPILL:
+                   addSpillCompositionToBuffer((PhaseId)phase, position, composition);
+                   break;
+           case INCREASEBUFFEMERGE:
+                   addMergingCompositionToBuffer(position, composition);
+                   break;
+           default:
+                   LogHandler(LogHandler::ERROR_SEVERITY) << "Error in LocalColumn::manipulateCompositionPosition: Unknown request " << valueSpec;
+                   assert(0);
+           }
    }
 
    void LocalColumn::getComposition (ValueSpec valueSpec, int phase, Composition & composition)
@@ -1519,125 +1520,125 @@ namespace migration
    // Add target composition
    void LocalColumn::addTargetCompositionToBuffer(PhaseId phase, int position, Composition & composition)
    {
-	   if ((PhaseId)phase == GAS)
-	   {
-		   m_vaporTargetBuffer.push_back(std::make_pair(position,composition));
-	   }
-	   if ((PhaseId)phase == OIL)
-	   {
-		   m_liquidTargetBuffer.push_back(std::make_pair(position, composition));
-	   }
+           if ((PhaseId)phase == GAS)
+           {
+                   m_vaporTargetBuffer.push_back(std::make_pair(position,composition));
+           }
+           if ((PhaseId)phase == OIL)
+           {
+                   m_liquidTargetBuffer.push_back(std::make_pair(position, composition));
+           }
    }
 
    void LocalColumn::addTargetBuffer()
    {
-	   bufferCompositionSorter bufferCompositionSorter;
-	   std::sort(m_vaporTargetBuffer.begin(), m_vaporTargetBuffer.end(), bufferCompositionSorter);
-	   for (size_t i=0;i<m_vaporTargetBuffer.size();++i)
-	   {
-		   if (!m_composition) m_composition = new Composition;
-		   m_composition->add(m_vaporTargetBuffer[i].second);
-		   m_compositionState |= INITIAL;
-	   }
+           bufferCompositionSorter bufferCompositionSorter;
+           std::sort(m_vaporTargetBuffer.begin(), m_vaporTargetBuffer.end(), bufferCompositionSorter);
+           for (size_t i=0;i<m_vaporTargetBuffer.size();++i)
+           {
+                   if (!m_composition) m_composition = new Composition;
+                   m_composition->add(m_vaporTargetBuffer[i].second);
+                   m_compositionState |= INITIAL;
+           }
 
-	   std::sort(m_liquidTargetBuffer.begin(), m_liquidTargetBuffer.end(), bufferCompositionSorter);
-	   for (size_t i = 0; i<m_liquidTargetBuffer.size(); ++i)
-	   {
-		   if (!m_composition) m_composition = new Composition;
-		   m_composition->add(m_liquidTargetBuffer[i].second);
-		   m_compositionState |= INITIAL;
-	   }
-	   m_vaporTargetBuffer.clear();
-	   m_liquidTargetBuffer.clear();
+           std::sort(m_liquidTargetBuffer.begin(), m_liquidTargetBuffer.end(), bufferCompositionSorter);
+           for (size_t i = 0; i<m_liquidTargetBuffer.size(); ++i)
+           {
+                   if (!m_composition) m_composition = new Composition;
+                   m_composition->add(m_liquidTargetBuffer[i].second);
+                   m_compositionState |= INITIAL;
+           }
+           m_vaporTargetBuffer.clear();
+           m_liquidTargetBuffer.clear();
    }
 
    // Add waste composition
    void LocalColumn::addWasteCompositionToBuffer(PhaseId phase, int position, Composition & composition)
    {
-	   if ((PhaseId)phase == GAS)
-	   {
-		   m_vaporWasteBuffer.push_back(std::make_pair(position, composition));
-	   }
-	   if ((PhaseId)phase == OIL)
-	   {
-		   m_liquidWasteBuffer.push_back(std::make_pair(position, composition));
-	   }
+           if ((PhaseId)phase == GAS)
+           {
+                   m_vaporWasteBuffer.push_back(std::make_pair(position, composition));
+           }
+           if ((PhaseId)phase == OIL)
+           {
+                   m_liquidWasteBuffer.push_back(std::make_pair(position, composition));
+           }
    }
 
    void LocalColumn::addWasteBuffer()
    {
-	   bufferCompositionSorter bufferCompositionSorter;
-	   std::sort(m_vaporWasteBuffer.begin(), m_vaporWasteBuffer.end(), bufferCompositionSorter);
-	   for (size_t i = 0; i<m_vaporWasteBuffer.size(); ++i)
-	   {
-		   if (!m_composition) m_composition = new Composition;
-		   m_composition->add(m_vaporWasteBuffer[i].second);
-		   m_compositionState |= WASTED;
-	   }
+           bufferCompositionSorter bufferCompositionSorter;
+           std::sort(m_vaporWasteBuffer.begin(), m_vaporWasteBuffer.end(), bufferCompositionSorter);
+           for (size_t i = 0; i<m_vaporWasteBuffer.size(); ++i)
+           {
+                   if (!m_composition) m_composition = new Composition;
+                   m_composition->add(m_vaporWasteBuffer[i].second);
+                   m_compositionState |= WASTED;
+           }
 
-	   std::sort(m_liquidWasteBuffer.begin(), m_liquidWasteBuffer.end(), bufferCompositionSorter);
-	   for (size_t i = 0; i<m_liquidWasteBuffer.size(); ++i)
-	   {
-		   if (!m_composition) m_composition = new Composition;
-		   m_composition->add(m_liquidWasteBuffer[i].second);
-		   m_compositionState |= WASTED;
-	   }
-	   m_vaporWasteBuffer.clear();
-	   m_liquidWasteBuffer.clear();
+           std::sort(m_liquidWasteBuffer.begin(), m_liquidWasteBuffer.end(), bufferCompositionSorter);
+           for (size_t i = 0; i<m_liquidWasteBuffer.size(); ++i)
+           {
+                   if (!m_composition) m_composition = new Composition;
+                   m_composition->add(m_liquidWasteBuffer[i].second);
+                   m_compositionState |= WASTED;
+           }
+           m_vaporWasteBuffer.clear();
+           m_liquidWasteBuffer.clear();
    }
 
    // Add spill composition
    void LocalColumn::addSpillCompositionToBuffer(PhaseId phase, int position, Composition & composition)
    {
-	   if ((PhaseId)phase == GAS)
-	   {
-		   m_vaporSpillBuffer.push_back(std::make_pair(position, composition));
-	   }
-	   if ((PhaseId)phase == OIL)
-	   {
-		   m_liquidSpillBuffer.push_back(std::make_pair(position, composition));
-	   }
+           if ((PhaseId)phase == GAS)
+           {
+                   m_vaporSpillBuffer.push_back(std::make_pair(position, composition));
+           }
+           if ((PhaseId)phase == OIL)
+           {
+                   m_liquidSpillBuffer.push_back(std::make_pair(position, composition));
+           }
    }
 
    void LocalColumn::addSpillBuffer()
    {
-	   bufferCompositionSorter bufferCompositionSorter;
-	   std::sort(m_vaporSpillBuffer.begin(), m_vaporSpillBuffer.end(), bufferCompositionSorter);
-	   for (size_t i = 0; i<m_vaporSpillBuffer.size(); ++i)
-	   {
-		   if (!m_composition) m_composition = new Composition;
-		   m_composition->add(m_vaporSpillBuffer[i].second);
-		   m_compositionState |= SPILLED;
-	   }
+           bufferCompositionSorter bufferCompositionSorter;
+           std::sort(m_vaporSpillBuffer.begin(), m_vaporSpillBuffer.end(), bufferCompositionSorter);
+           for (size_t i = 0; i<m_vaporSpillBuffer.size(); ++i)
+           {
+                   if (!m_composition) m_composition = new Composition;
+                   m_composition->add(m_vaporSpillBuffer[i].second);
+                   m_compositionState |= SPILLED;
+           }
 
-	   std::sort(m_liquidSpillBuffer.begin(), m_liquidSpillBuffer.end(), bufferCompositionSorter);
-	   for (size_t i = 0; i<m_liquidSpillBuffer.size(); ++i)
-	   {
-		   if (!m_composition) m_composition = new Composition;
-		   m_composition->add(m_liquidSpillBuffer[i].second);
-		   m_compositionState |= SPILLED;
-	   }
-	   m_vaporSpillBuffer.clear();
-	   m_liquidSpillBuffer.clear();
+           std::sort(m_liquidSpillBuffer.begin(), m_liquidSpillBuffer.end(), bufferCompositionSorter);
+           for (size_t i = 0; i<m_liquidSpillBuffer.size(); ++i)
+           {
+                   if (!m_composition) m_composition = new Composition;
+                   m_composition->add(m_liquidSpillBuffer[i].second);
+                   m_compositionState |= SPILLED;
+           }
+           m_vaporSpillBuffer.clear();
+           m_liquidSpillBuffer.clear();
    }
 
    // Add merging composition
    void LocalColumn::addMergingCompositionToBuffer(int position, Composition & composition)
    {
-	   m_mergingBuffer.push_back(std::make_pair(position, composition));
+           m_mergingBuffer.push_back(std::make_pair(position, composition));
    }
 
    void LocalColumn::addMergedBuffer()
    {
-	   bufferCompositionSorter bufferCompositionSorter;
-	   std::sort(m_mergingBuffer.begin(), m_mergingBuffer.end(), bufferCompositionSorter);
-	   for (size_t i = 0; i<m_mergingBuffer.size(); ++i)
-	   {
-		   if (!m_composition) m_composition = new Composition;
-		   m_composition->add(m_mergingBuffer[i].second);
-		   m_compositionState |= INITIAL;
-	   }
-	   m_mergingBuffer.clear();
+           bufferCompositionSorter bufferCompositionSorter;
+           std::sort(m_mergingBuffer.begin(), m_mergingBuffer.end(), bufferCompositionSorter);
+           for (size_t i = 0; i<m_mergingBuffer.size(); ++i)
+           {
+                   if (!m_composition) m_composition = new Composition;
+                   m_composition->add(m_mergingBuffer[i].second);
+                   m_compositionState |= INITIAL;
+           }
+           m_mergingBuffer.clear();
    }
 
    void LocalColumn::addLeakComposition (Composition & composition)
@@ -1661,7 +1662,7 @@ namespace migration
       if ((liquidWeight + vapourWeight - totalWeight) / totalWeight > 0.01)
          LogHandler (LogHandler::WARNING_SEVERITY) << "Warning: something is wrong with composition of seepage at i=" << getI () << ", j=" << getJ () <<
             "\nTotal weight: " << totalWeight << "\nVapor weight: " << vapourWeight << "\nLiquid weight: " << liquidWeight;
-     
+
       double pvtMassError = totalWeight - (liquidWeight + vapourWeight);
 
       m_reservoir->accumulateErrorInPVT (-pvtMassError);
@@ -1872,71 +1873,71 @@ namespace migration
    // Add target composition
    void ProxyColumn::addTargetCompositionToBuffer(PhaseId phase, int position, Composition & composition)
    {
-	   ColumnCompositionPositionRequest chargesRequest;
-	   ColumnCompositionPositionRequest chargesResponse;
+           ColumnCompositionPositionRequest chargesRequest;
+           ColumnCompositionPositionRequest chargesResponse;
 
-	   chargesRequest.i = getI();
-	   chargesRequest.j = getJ();
-	   chargesRequest.phase = phase;
-	   chargesRequest.position = position;
-	   chargesRequest.reservoirIndex = m_reservoir->getIndex();
-	   chargesRequest.valueSpec = INCREASEBUFFERTARGET;
-	   chargesRequest.composition = composition;
+           chargesRequest.i = getI();
+           chargesRequest.j = getJ();
+           chargesRequest.phase = phase;
+           chargesRequest.position = position;
+           chargesRequest.reservoirIndex = m_reservoir->getIndex();
+           chargesRequest.valueSpec = INCREASEBUFFERTARGET;
+           chargesRequest.composition = composition;
 
-	   RequestHandling::SendRequest(chargesRequest, chargesResponse);
+           RequestHandling::SendRequest(chargesRequest, chargesResponse);
 
    }
 
    // Add waste composition
    void ProxyColumn::addWasteCompositionToBuffer(PhaseId phase, int position, Composition & composition)
    {
-	   ColumnCompositionPositionRequest chargesRequest;
-	   ColumnCompositionPositionRequest chargesResponse;
+           ColumnCompositionPositionRequest chargesRequest;
+           ColumnCompositionPositionRequest chargesResponse;
 
-	   chargesRequest.i = getI();
-	   chargesRequest.j = getJ();
-	   chargesRequest.phase = phase;
-	   chargesRequest.position = position;
-	   chargesRequest.reservoirIndex = m_reservoir->getIndex();
-	   chargesRequest.valueSpec = INCREASEBUFFERWASTE;
-	   chargesRequest.composition = composition;
+           chargesRequest.i = getI();
+           chargesRequest.j = getJ();
+           chargesRequest.phase = phase;
+           chargesRequest.position = position;
+           chargesRequest.reservoirIndex = m_reservoir->getIndex();
+           chargesRequest.valueSpec = INCREASEBUFFERWASTE;
+           chargesRequest.composition = composition;
 
-	   RequestHandling::SendRequest(chargesRequest, chargesResponse);
+           RequestHandling::SendRequest(chargesRequest, chargesResponse);
 
    }
 
    // Add spill composition
    void ProxyColumn::addSpillCompositionToBuffer(PhaseId phase, int position, Composition & composition)
    {
-	   ColumnCompositionPositionRequest chargesRequest;
-	   ColumnCompositionPositionRequest chargesResponse;
+           ColumnCompositionPositionRequest chargesRequest;
+           ColumnCompositionPositionRequest chargesResponse;
 
-	   chargesRequest.i = getI();
-	   chargesRequest.j = getJ();
-	   chargesRequest.phase = phase;
-	   chargesRequest.position = position;
-	   chargesRequest.reservoirIndex = m_reservoir->getIndex();
-	   chargesRequest.valueSpec = INCREASEBUFFERSPILL;
-	   chargesRequest.composition = composition;
+           chargesRequest.i = getI();
+           chargesRequest.j = getJ();
+           chargesRequest.phase = phase;
+           chargesRequest.position = position;
+           chargesRequest.reservoirIndex = m_reservoir->getIndex();
+           chargesRequest.valueSpec = INCREASEBUFFERSPILL;
+           chargesRequest.composition = composition;
 
-	   RequestHandling::SendRequest(chargesRequest, chargesResponse);
+           RequestHandling::SendRequest(chargesRequest, chargesResponse);
 
    }
 
    // Add merged composition. Phase is not relevant here.
    void ProxyColumn::addMergingCompositionToBuffer(int position, Composition & composition)
    {
-	   ColumnCompositionPositionRequest chargesRequest;
-	   ColumnCompositionPositionRequest chargesResponse;
+           ColumnCompositionPositionRequest chargesRequest;
+           ColumnCompositionPositionRequest chargesResponse;
 
-	   chargesRequest.i = getI();
-	   chargesRequest.j = getJ();
-	   chargesRequest.position = position;
-	   chargesRequest.reservoirIndex = m_reservoir->getIndex();
-	   chargesRequest.valueSpec = INCREASEBUFFEMERGE;
-	   chargesRequest.composition = composition;
+           chargesRequest.i = getI();
+           chargesRequest.j = getJ();
+           chargesRequest.position = position;
+           chargesRequest.reservoirIndex = m_reservoir->getIndex();
+           chargesRequest.valueSpec = INCREASEBUFFEMERGE;
+           chargesRequest.composition = composition;
 
-	   RequestHandling::SendRequest(chargesRequest, chargesResponse);
+           RequestHandling::SendRequest(chargesRequest, chargesResponse);
 
    }
 
@@ -1979,7 +1980,7 @@ namespace migration
       if (!m_compositionToBeMigrated) m_compositionToBeMigrated = new Composition;
       m_compositionToBeMigrated->add (composition);
    }
-  
+
    void ProxyColumn::addToYourTrap (unsigned int i, unsigned int j)
    {
       ColumnColumnRequest columnRequest;

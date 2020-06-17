@@ -14,7 +14,6 @@
 #include <sys/types.h>
 
 #include <string>
-using namespace std;
 
 #include "AbstractProperty.h"
 #include "PropertyAttribute.h"

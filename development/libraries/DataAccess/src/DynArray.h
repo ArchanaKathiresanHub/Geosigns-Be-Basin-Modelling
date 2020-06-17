@@ -19,34 +19,37 @@ template < class ObjType > class DynArray
 
    ~DynArray ();
 
+   DynArray(const DynArray& dynArray) = delete;
+   DynArray(DynArray&& dynArray) = delete;
+
+   DynArray& operator=(const DynArray& dynArray) = delete;
+   DynArray& operator=(DynArray&& dynArray) = delete;
+
    /// return number of elements in the array, O(N).
-   inline unsigned int size () const;
+   unsigned int size () const;
 
    // return largest possible number of elements in the array, O(1).
-   inline unsigned int capacity () const
-   {
-      return m_capacity;
-   }
+   unsigned int capacity () const;
 
    /// index of the next non-zero array entry following the entry of the given index, O(1).
-   inline unsigned int next (const unsigned int index) const;
+   unsigned int next (const unsigned int index) const;
 
    /// returns the element at the index.
-   inline const ObjType & get (const unsigned int index) const;
+   const ObjType & get (const unsigned int index) const;
 
    /// puts an element at the index and returns the old one.
-   inline ObjType & put (const unsigned int index, const ObjType & value);
+   ObjType & put (const unsigned int index, const ObjType & value);
 
    /// array operator for retrieval and assignment.
-   inline ObjType & operator[](const unsigned int index);
+   ObjType & operator[](const unsigned int index);
 
    /// remove all elements
-   inline void clear (void);
+   void clear (void);
 
    /// return an iterator for the array positioned at the first element of the array
-   inline DynArrayIterator< ObjType > begin ();
+   DynArrayIterator< ObjType > begin ();
    /// return an iterator for the array positioned beyond the last element of the array
-   inline DynArrayIterator< ObjType > end ();
+   DynArrayIterator< ObjType > end ();
 
 
  private:
@@ -56,7 +59,7 @@ template < class ObjType > class DynArray
    ObjType *m_table;
    ObjType nullObject;
    //Helper functions
-   inline void resize (unsigned int index);
+   void resize (unsigned int index);
 };
 
 
@@ -70,10 +73,15 @@ template < class ObjType > class DynArrayIterator
    unsigned int m_index;
 
  public:
-
    DynArrayIterator (PDynArray & hashtable);
-   DynArrayIterator (const DynArrayIterator<ObjType> & rhs);
-   DynArrayIterator<ObjType> & operator= (const DynArrayIterator<ObjType> & rhs);
+   DynArrayIterator (const DynArrayIterator<ObjType>& rhs);
+   DynArrayIterator<ObjType>& operator= (const DynArrayIterator<ObjType>& rhs);
+
+   DynArrayIterator (DynArrayIterator<ObjType>&& rhs) = delete;
+   DynArrayIterator<ObjType>& operator= (DynArrayIterator<ObjType>&& rhs) = delete;
+
+   ~DynArrayIterator();
+
    bool first (void);
    bool next (void);
    DynArrayIterator<ObjType> & operator++ (void);
@@ -96,7 +104,7 @@ DynArray < ObjType >::DynArray (unsigned int initialSize, float resizeFactor)
    m_table = new ObjType [m_capacity];
 
    nullObject = 0;
-   
+
    for (unsigned int i = 0; i < m_capacity; i++)
       m_table[i] = 0;
 }
@@ -108,7 +116,7 @@ DynArray < ObjType >::~DynArray ()
 }
 
 template < class ObjType >
-unsigned int DynArray < ObjType >::size (void) const
+inline unsigned int DynArray < ObjType >::size (void) const
 {
    int sz = 0;
    for (unsigned int i = 0; i < m_capacity; i++)
@@ -117,7 +125,13 @@ unsigned int DynArray < ObjType >::size (void) const
 }
 
 template < class ObjType >
-unsigned int DynArray < ObjType >::next (const unsigned int index) const
+inline unsigned int DynArray < ObjType >::capacity() const
+{
+  return m_capacity;
+}
+
+template < class ObjType >
+inline unsigned int DynArray < ObjType >::next (const unsigned int index) const
 {
    for (unsigned int i = index + 1; i < m_capacity; i++)
       if (m_table[i]) return i;
@@ -125,7 +139,7 @@ unsigned int DynArray < ObjType >::next (const unsigned int index) const
 }
 
 template < class ObjType >
-const ObjType & DynArray < ObjType >::get (const unsigned int index) const
+inline const ObjType & DynArray < ObjType >::get (const unsigned int index) const
 {
    if (index < m_capacity)
       return m_table[index];
@@ -134,7 +148,7 @@ const ObjType & DynArray < ObjType >::get (const unsigned int index) const
 }
 
 template < class ObjType >
-void DynArray < ObjType >::resize (unsigned int index)
+inline void DynArray < ObjType >::resize (unsigned int index)
 {
    unsigned int oldCapacity = m_capacity;
    ObjType *oldTable = m_table;
@@ -153,7 +167,7 @@ void DynArray < ObjType >::resize (unsigned int index)
 }
 
 template < class ObjType >
-ObjType & DynArray < ObjType >::put (const unsigned int index, const ObjType & value)
+inline ObjType & DynArray < ObjType >::put (const unsigned int index, const ObjType & value)
 {
    ObjType null = 0;
    ObjType & old = null;
@@ -169,7 +183,7 @@ ObjType & DynArray < ObjType >::put (const unsigned int index, const ObjType & v
 }
 
 template < class ObjType >
-ObjType & DynArray < ObjType >::operator[](const unsigned int index)
+inline ObjType & DynArray < ObjType >::operator[](const unsigned int index)
 {
    if (index >= m_capacity)
       resize (index + 1);
@@ -177,14 +191,14 @@ ObjType & DynArray < ObjType >::operator[](const unsigned int index)
 }
 
 template < class ObjType >
-void DynArray < ObjType >::clear (void)
+inline void DynArray < ObjType >::clear (void)
 {
    for (unsigned int i = 0; i < m_capacity; i++)
       m_table[i] = 0;
 }
 
 template < class ObjType >
-DynArrayIterator< ObjType > DynArray < ObjType >::begin (void)
+inline DynArrayIterator< ObjType > DynArray < ObjType >::begin (void)
 {
    DynArrayIterator< ObjType > theIterator (* this);
    theIterator.first ();
@@ -193,7 +207,7 @@ DynArrayIterator< ObjType > DynArray < ObjType >::begin (void)
 }
 
 template < class ObjType >
-DynArrayIterator< ObjType > DynArray < ObjType >::end (void)
+inline DynArrayIterator< ObjType > DynArray < ObjType >::end (void)
 {
    DynArrayIterator< ObjType > theIterator (* this);
 
@@ -209,6 +223,11 @@ DynArrayIterator < ObjType >::DynArrayIterator (PDynArray & rhs)
 }
 
 template < class ObjType >
+DynArrayIterator < ObjType >::~DynArrayIterator ()
+{
+}
+
+template < class ObjType >
 DynArrayIterator < ObjType >::DynArrayIterator (const DynArrayIterator<ObjType> & rhs)
 {
    m_array = rhs.m_array;
@@ -218,8 +237,11 @@ DynArrayIterator < ObjType >::DynArrayIterator (const DynArrayIterator<ObjType> 
 template < class ObjType >
 DynArrayIterator<ObjType> & DynArrayIterator < ObjType >::operator= (const DynArrayIterator<ObjType> & rhs)
 {
-   m_array = rhs.m_array;
-   m_index = rhs.m_index;
+   if (this != &rhs)
+   {
+     m_array = rhs.m_array;
+     m_index = rhs.m_index;
+   }
 
    return * this;
 }

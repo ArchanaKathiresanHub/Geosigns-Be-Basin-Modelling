@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+using namespace ibs;
+
 static const double       minI = 0.0;
 static const double       minJ = -2.0;
 static const double       maxI = 10.0;

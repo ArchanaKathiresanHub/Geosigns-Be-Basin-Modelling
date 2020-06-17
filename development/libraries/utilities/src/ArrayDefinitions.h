@@ -10,11 +10,12 @@
 #ifndef UTILITIES__ARRAY_DEFINITIONS__H
 #define UTILITIES__ARRAY_DEFINITIONS__H
 
+/// \def ARRAY_ALIGNMENT
+/// \brief The alignment, in bytes, required by arrays of the types below (Real_ptr and ConstReal_ptr)
+const int ARRAY_ALIGNMENT = 32;
+
 namespace ArrayDefs
 {
-   /// \def ARRAY_ALIGNMENT
-   /// \brief The alignment, in bytes, required by arrays of the types below (Real_ptr and ConstReal_ptr)
-  #define ARRAY_ALIGNMENT 32
 
 #ifdef _MSC_VER
    typedef __declspec(align(ARRAY_ALIGNMENT)) int * Int_ptr;

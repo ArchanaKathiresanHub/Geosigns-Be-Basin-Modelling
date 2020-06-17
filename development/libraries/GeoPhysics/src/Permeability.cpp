@@ -115,8 +115,12 @@ Permeability& Permeability::operator= (const Permeability& permeability){
 }
 
 Permeability::Permeability( const Permeability& permeability )
-   :m_algorithm( permeability.m_algorithm )
+  :m_algorithm( permeability.m_algorithm )
 {}
+
+Permeability::~Permeability()
+{
+}
 
 
 }

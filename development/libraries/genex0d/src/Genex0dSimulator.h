@@ -45,7 +45,7 @@ private:
   void setRequestedOutputProperties();
   void setRequestedSpeciesOutputProperties();
   void registerProperties();
-  bool isPropertyRegistered(const string & propertyName);
+  bool isPropertyRegistered(const std::string & propertyName);
   bool computeSourceRock(const DataAccess::Interface::Formation * aFormation);
 
   std::unique_ptr<Genex0dGenexSourceRock> m_gnx0dSourceRock;

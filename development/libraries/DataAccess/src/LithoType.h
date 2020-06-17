@@ -11,11 +11,8 @@
 #ifndef _INTERFACE_LITHOTYPE_H_
 #define _INTERFACE_LITHOTYPE_H_
 
-using namespace std;
-
 #include "DAObject.h"
 #include "Interface.h"
-
 
 namespace DataAccess
 {
@@ -33,11 +30,7 @@ namespace DataAccess
          virtual const string & getName (void) const;
 
          /// Return the value of the specified attribute
-         const AttributeValue & getAttributeValue (LithoTypeAttributeId attributeId) const;
-
-         /// Return the type of the specified attribute
-         AttributeType getAttributeType (LithoTypeAttributeId attributeId) const;
-
+         const AttributeValue & getLithoTypeAttributeValue (LithoTypeAttributeId attributeId) const;
 
          /// Return the hydraulic fracturing percentage.
          ///

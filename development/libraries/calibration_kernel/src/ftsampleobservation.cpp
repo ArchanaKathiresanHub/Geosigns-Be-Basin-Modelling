@@ -112,7 +112,7 @@ void FtSampleObservation::addGrain(FtGrain* grain)
 FtGrain* FtSampleObservation::getGrain(int grainId)
 {
    FtGrain* grain = 0;
-   list<FtGrain*>::const_iterator iter;
+   std::list<FtGrain*>::const_iterator iter;
    for (iter = m_grains.begin() ; iter != m_grains.end(); ++iter )
    {
       if ( (*iter)->getGrainId() == grainId )
@@ -129,13 +129,13 @@ void FtSampleObservation::binTrackLengths()
 {
    FtParameters& params = FtParameters::getInstance();
    
-   list<FtGrain*>::const_iterator iGrain;
+   std::list<FtGrain*>::const_iterator iGrain;
 
    for (iGrain = m_grains.begin(); iGrain != m_grains.end(); ++iGrain)
    {
       size_t indexCl =  params.indexFromClWeightPercent( (*iGrain)->getClWeightPercent() );
-      list<double>& lengths = (*iGrain)->getTrackLengths();
-      list<double>::const_iterator iLength;
+      std::list<double>& lengths = (*iGrain)->getTrackLengths();
+      std::list<double>::const_iterator iLength;
       for (iLength = lengths.begin(); iLength != lengths.end(); ++iLength)
       {
          if (( indexCl < m_trackLengths.size() ) && m_trackLengths[ indexCl ] )
@@ -150,7 +150,7 @@ void FtSampleObservation::binTrackLengths()
 
 void FtSampleObservation::binGrainAges()
 {
-   list<FtGrain*>::const_iterator iGrain;
+   std::list<FtGrain*>::const_iterator iGrain;
    
    FtParameters& params = FtParameters::getInstance();
    
@@ -258,7 +258,7 @@ void FtSampleObservation::calcAgeChi2()
 
    FtParameters& params = FtParameters::getInstance();
 
-   list<FtGrain*>::const_iterator iGrain;
+   std::list<FtGrain*>::const_iterator iGrain;
    
    for ( iGrain = m_grains.begin(); iGrain != m_grains.end(); ++iGrain )
    {
@@ -300,7 +300,7 @@ void FtSampleObservation::calcCorrCoeff()
 
    FtParameters& params = FtParameters::getInstance();
 
-   list<FtGrain*>::const_iterator iGrain;
+   std::list<FtGrain*>::const_iterator iGrain;
    
    for ( iGrain = m_grains.begin(); iGrain != m_grains.end(); ++iGrain )
    {
@@ -350,7 +350,7 @@ void FtSampleObservation::calcVarSqrtNiNs ()
    aveSqrtNs = 0.0;
 
    // Calculate the average of the square root of Ni and Ns
-   list<FtGrain*>::const_iterator iGrain;
+   std::list<FtGrain*>::const_iterator iGrain;
    
    for ( iGrain = m_grains.begin(); iGrain != m_grains.end(); ++iGrain )
    {
@@ -428,7 +428,7 @@ void  FtSampleObservation::calcMeanRatioNsNiAndError()
 
 
 
-   list<FtGrain*>::const_iterator iGrain;
+   std::list<FtGrain*>::const_iterator iGrain;
    
    for ( iGrain = m_grains.begin(); iGrain != m_grains.end(); ++iGrain )
    {
@@ -482,7 +482,7 @@ void FtSampleObservation::calcCentralAgeAndError()
 
       FtParameters& params = FtParameters::getInstance();
 
-      list<FtGrain*>::const_iterator iGrain;
+      std::list<FtGrain*>::const_iterator iGrain;
 
       for ( iGrain = m_grains.begin(); iGrain != m_grains.end(); ++iGrain )
       {

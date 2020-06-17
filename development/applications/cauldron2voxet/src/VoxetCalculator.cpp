@@ -22,6 +22,8 @@
 #include "ProjectHandle.h"
 #include "Snapshot.h"
 
+using namespace ibs;
+
 #undef Min
 #define Min(a,b)  ((a) < (b) ? (a) : (b))
 
@@ -57,7 +59,7 @@ VoxetCalculator::~VoxetCalculator () {
 
 //------------------------------------------------------------//
 
-void VoxetCalculator::setDepthProperty ( const Property* depth ) {
+void VoxetCalculator::setDepthProperty ( const DataAccess::Interface::Property* depth ) {
    m_depthProperty = depth;
 }
 
@@ -82,11 +84,11 @@ void VoxetCalculator::setDefinedNodes ( const AbstractDerivedProperties::Formati
    for (depthPropertyIter = depthPropertyValueList.begin (); depthPropertyIter != depthPropertyValueList.end (); ++depthPropertyIter ) {
       depthPropertyValue = *depthPropertyIter;
 
-      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION )) {
+      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const DataAccess::Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == DataAccess::Interface::BASEMENT_FORMATION )) {
          continue;
       }
 
-      if (dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION){
+      if (dynamic_cast<const DataAccess::Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == DataAccess::Interface::BASEMENT_FORMATION){
          if(verbose){
       cout << "  Using basement: " << depthPropertyValue->getFormation ()->getName () << endl;
          }
@@ -108,7 +110,7 @@ void VoxetCalculator::setDefinedNodes ( const AbstractDerivedProperties::Formati
 
 //------------------------------------------------------------//
 
-void VoxetCalculator::addProperty ( const Property* property ) {
+void VoxetCalculator::addProperty ( const DataAccess::Interface::Property* property ) {
 
    PropertyInterpolator* newProperty2 = new PropertyInterpolator ( m_gridDescription.getVoxetNodeCount ( 0 ), m_gridDescription.getVoxetNodeCount ( 1 ), property );
    m_propertyInterpolators [ property ] = newProperty2;
@@ -118,7 +120,7 @@ void VoxetCalculator::addProperty ( const Property* property ) {
 
 //------------------------------------------------------------//
 
-void VoxetCalculator::deleteProperty ( const Property* property ) {
+void VoxetCalculator::deleteProperty ( const DataAccess::Interface::Property* property ) {
 
    PropertyInterpolatorMap::iterator propertyIter = m_propertyInterpolators.find ( property );
 
@@ -131,12 +133,12 @@ void VoxetCalculator::deleteProperty ( const Property* property ) {
 
 //------------------------------------------------------------//
 
-int VoxetCalculator::computeInterpolators ( const Snapshot * snapshot,
+int VoxetCalculator::computeInterpolators ( const DataAccess::Interface::Snapshot * snapshot,
                                             const bool   verbose ) {
 
    m_interpolatorIsDefined = Array<bool>::create2d ( m_gridDescription.getVoxetNodeCount ( 0 ), m_gridDescription.getVoxetNodeCount ( 1 ), true );
 
-   PropertyValueList* depthPropertyValueList = m_projectHandle.getPropertyValues (FORMATION, m_depthProperty, snapshot, 0, 0, 0);
+   DataAccess::Interface::PropertyValueList* depthPropertyValueList = m_projectHandle.getPropertyValues (DataAccess::Interface::FORMATION, m_depthProperty, snapshot, 0, 0, 0);
    AbstractDerivedProperties::FormationPropertyList depthDerivedPropertyValueList = m_propertyManager.getFormationProperties ( m_depthProperty, snapshot, useBasement ());
 
    if ( depthDerivedPropertyValueList.size () == 0 ) {
@@ -175,8 +177,8 @@ bool VoxetCalculator::validCauldronElement ( const int i, const int j ) const {
 //------------------------------------------------------------//
 
 void VoxetCalculator::initialiseInterpolators ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList,
-                                                const Snapshot*                                         snapshot,
-                                                const bool                                              verbose )
+                                                const DataAccess::Interface::Snapshot* snapshot,
+                                                const bool verbose )
 {
    int sedimentCount = 0;
    int numberOfLayerDepthNodes;
@@ -212,7 +214,7 @@ void VoxetCalculator::initialiseInterpolators ( const AbstractDerivedProperties:
    {
       depthPropertyValue = *depthPropertyIter;
 
-      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION )) {
+      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const DataAccess::Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == DataAccess::Interface::BASEMENT_FORMATION )) {
          continue;
       }
 
@@ -291,7 +293,7 @@ void VoxetCalculator::initialiseInterpolators ( const AbstractDerivedProperties:
    {
       depthPropertyValue = *depthPropertyIter;
 
-      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION )) {
+      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const DataAccess::Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == DataAccess::Interface::BASEMENT_FORMATION )) {
          continue;
       }
 
@@ -342,7 +344,7 @@ int VoxetCalculator::getMaximumNumberOfLayerNodes ( const AbstractDerivedPropert
    for (depthPropertyIter = depthPropertyValueList.begin (); depthPropertyIter != depthPropertyValueList.end (); ++depthPropertyIter ) {
       depthPropertyValue = *depthPropertyIter;
 
-      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION )) {
+      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const DataAccess::Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == DataAccess::Interface::BASEMENT_FORMATION )) {
          continue;
       }
 
@@ -360,7 +362,7 @@ int VoxetCalculator::getMaximumNumberOfLayerNodes ( const AbstractDerivedPropert
 //------------------------------------------------------------//
 
 void VoxetCalculator::calculatorInterpolatorValues ( const AbstractDerivedProperties::FormationPropertyList& depthPropertyValueList,
-                                                     const bool                                              verbose )
+                                                     const bool verbose )
 {
    int i;
    int j;
@@ -420,7 +422,7 @@ void VoxetCalculator::calculatorInterpolatorValues ( const AbstractDerivedProper
 
 									depthPropertyValue = *depthPropertyIter;
 
-			if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == Interface::BASEMENT_FORMATION )) {
+			if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const DataAccess::Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == DataAccess::Interface::BASEMENT_FORMATION )) {
 				 continue;
 			}
 
@@ -637,7 +639,7 @@ bool VoxetCalculator::useBasement () const
 
 //------------------------------------------------------------//
 
-float VoxetCalculator::getNullValue ( const Property* property ) const {
+float VoxetCalculator::getNullValue ( const DataAccess::Interface::Property* property ) const {
 
    float nullValue;
 
@@ -659,7 +661,7 @@ float VoxetCalculator::getNullValue ( const Property* property ) const {
 
 //------------------------------------------------------------//
 
-VoxetDomainInterpolator& VoxetCalculator::getVoxetDomainInterpolator ( const Property* property )
+VoxetDomainInterpolator& VoxetCalculator::getVoxetDomainInterpolator ( const DataAccess::Interface::Property* property )
 {
    PropertyInterpolatorMap::iterator interpolator = m_propertyInterpolators.find (property);
 
@@ -703,7 +705,7 @@ VoxetDomainInterpolator& VoxetCalculator::getAnyVoxetDomainInterpolator ()
 
 VoxetCalculator::PropertyInterpolator::PropertyInterpolator ( const unsigned int nodesX,
                                                               const unsigned int nodesY,
-                                                              const Property*    property ) :
+                                                              const DataAccess::Interface::Property* property ) :
    m_property ( property ),
    m_interpolators ( nodesX, nodesY ) {
 }
@@ -717,21 +719,21 @@ VoxetCalculator::PropertyInterpolator::~PropertyInterpolator () {
 
 void VoxetCalculator::PropertyInterpolator::setSnapshot ( const GeoPhysics::ProjectHandle& projectHandle,
                                                           DerivedProperties::DerivedPropertyManager& propertyManager,
-                                                          const Snapshot*                            snapshot,
-                                                          const bool                                 useBasement ) {
+                                                          const DataAccess::Interface::Snapshot* snapshot,
+                                                          const bool useBasement ) {
    m_snapshot = snapshot;
    m_derivedPropertyValues = propertyManager.getFormationProperties ( m_property, m_snapshot, useBasement );
 }
 
 //------------------------------------------------------------//
 
-const Snapshot* VoxetCalculator::PropertyInterpolator::getSnapshot () const {
+const DataAccess::Interface::Snapshot* VoxetCalculator::PropertyInterpolator::getSnapshot () const {
    return m_snapshot;
 }
 
 //------------------------------------------------------------//
 
-const Property* VoxetCalculator::PropertyInterpolator::getProperty () const {
+const DataAccess::Interface::Property* VoxetCalculator::PropertyInterpolator::getProperty () const {
    return m_property;
 }
 

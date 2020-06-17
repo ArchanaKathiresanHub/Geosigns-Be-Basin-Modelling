@@ -58,9 +58,9 @@ const std::string & FaultEvent::getStatusName () const
 
 //------------------------------------------------------------//
 
-ostream & DataAccess::Interface::operator<< (ostream & o, const FaultEvent & faultEvent)
+std::ostream & DataAccess::Interface::operator<< (std::ostream & o, const FaultEvent & faultEvent)
 {
-   o << faultEvent.getAge() << "  " << faultEvent.getStatusName () << endl;
+   o << faultEvent.getAge() << "  " << faultEvent.getStatusName () << std::endl;
 
    return o;
 }
@@ -108,7 +108,7 @@ Fault::~Fault ()
    m_events.clear ();
 }
 
-const string & Fault::getName (void) const
+const std::string & Fault::getName (void) const
 {
    return m_faultName;
 }
@@ -192,12 +192,12 @@ Fault::OverpressureFaultEventIterator Fault::endOverpressureEvents () const {
 
 //------------------------------------------------------------//
 
-ostream & DataAccess::Interface::operator<< (ostream & o, const Fault & singleFault)
+std::ostream & DataAccess::Interface::operator<< (std::ostream & o, const Fault & singleFault)
 {
    Fault::FaultEventSequence::const_iterator event;
 
-   o << "fault name: " << singleFault.m_faultName << endl;
-   o << "points (" << singleFault.m_faultLine.size () << "):" << endl;
+   o << "fault name: " << singleFault.m_faultName << std::endl;
+   o << "points (" << singleFault.m_faultLine.size () << "):" << std::endl;
 
    size_t i;
 
@@ -206,7 +206,7 @@ ostream & DataAccess::Interface::operator<< (ostream & o, const Fault & singleFa
       o << singleFault.m_faultLine[i];
    }
 
-   o << "events (" << singleFault.m_events.size () << "):" << endl;
+   o << "events (" << singleFault.m_events.size () << "):" << std::endl;
    for (event = singleFault.m_events.begin (); event != singleFault.m_events.end (); ++event)
    {
       o << *event;

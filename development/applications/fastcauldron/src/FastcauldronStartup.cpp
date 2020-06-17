@@ -85,11 +85,11 @@ bool FastcauldronStartup::prepare()
   // FlexLM license handling only for node with rank = 0
   if ( ourRank() == 0 )
   {
-    sprintf( m_feauture, "ibs_cauldron_calc" );
+    snprintf( m_feauture, sizeof (m_feauture), "ibs_cauldron_calc" );
 #ifdef IBSFLEXLMVERSION
-    sprintf( version, IBSFLEXLMVERSION );
+    snprintf( version, sizeof (version), IBSFLEXLMVERSION );
 #else
-    sprintf( version, "9999.99" );
+    snprintf( version, sizeof (version), "9999.99" );
 #endif
     if ( m_checkLicense )
     {
@@ -109,7 +109,7 @@ bool FastcauldronStartup::prepare()
         fprintf( stderr, "\n@@@@@@@@@@@@@@@\n FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n" );
       }
     }
-    else { sprintf( m_feauture, "ibs_cauldron_calc" ); }
+    else { snprintf( m_feauture, sizeof (m_feauture), "ibs_cauldron_calc" ); }
   }
   MPI_Bcast( &rc, 1, MPI_INT, 0, PETSC_COMM_WORLD );
   m_canRunSaltModelling = m_checkLicense ? determineSaltModellingCapability() : true;
@@ -121,7 +121,7 @@ bool FastcauldronStartup::prepare()
   }
 
 #else
-  sprintf( m_feauture, "ibs_cauldron_calc" );
+  snprintf( m_feauture, sizeof (m_feauture), "ibs_cauldron_calc" );
 #endif
 
   return true;
@@ -363,11 +363,11 @@ bool FastcauldronStartup::determineSaltModellingCapability()
   // FlexLM license handling only for node with rank = 0
   if ( ourRank() == 0 )
   {
-    sprintf( m_feauture, "ibs_cauldron_halo" );
+    snprintf( m_feauture, sizeof (m_feauture), "ibs_cauldron_halo" );
 #ifdef IBSFLEXLMVERSION
-    sprintf( version, IBSFLEXLMVERSION );
+    snprintf( version, sizeof (version), IBSFLEXLMVERSION );
 #else
-    sprintf( version, "9999.99" );
+    snprintf( version, sizeof (version), "9999.99" );
 #endif
 
     rc = EPTFlexLmInit( errmessage );

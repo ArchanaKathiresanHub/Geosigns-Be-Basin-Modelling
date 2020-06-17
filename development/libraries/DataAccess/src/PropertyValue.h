@@ -4,7 +4,6 @@
 #include <sys/types.h>
 
 #include <string>
-using namespace std;
 
 #include "DAObject.h"
 
@@ -33,7 +32,7 @@ namespace DataAccess
       {
       public:
          PropertyValue (ProjectHandle& projectHandle, database::Record * record,
-                        const string & name, const Property * property, const Snapshot * snapshot,
+                        const std::string & name, const Property * property, const Snapshot * snapshot,
                         const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName = "");
 
          virtual ~PropertyValue ();
@@ -43,14 +42,14 @@ namespace DataAccess
                                  const Surface * surface, int propertyType) const;
 
          /// brief method to expose the HDF filename and HDF dataset name of this propertyvalue
-         void getHDFinfo(string& filename, string& datasetname, string& outputDir) const;
+         void getHDFinfo(std::string& filename, std::string& datasetname, std::string& outputDir) const;
 
          GridMap * createGridMap (const Grid * grid, unsigned int depth = 0);
 
          /// Return the name of this PropertyValue
-         const string & getName (void) const;
+         const std::string & getName (void) const;
          /// Return the name of the output file for this PropertyValue
-         const string & getFileName (void) const;
+         const std::string & getFileName (void) const;
          /// Return the Snapshot for which this PropertyValue was computed
          const Snapshot * getSnapshot (void) const;
          /// Return the Snapshot for which this PropertyValue was computed
@@ -106,8 +105,8 @@ namespace DataAccess
          static bool SortByDepoAge (const PropertyValue * lhs, const PropertyValue * rhs);
 
 
-         virtual void printOn (ostream &) const;
-         virtual void asString (string &) const;
+         virtual void printOn (std::ostream &) const;
+         virtual void asString (std::string &) const;
 
          /// Return true if the property has a record in a project file
          bool hasRecord (void) const;

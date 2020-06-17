@@ -38,7 +38,7 @@ int main( int argc, char ** argv )
    {
       char cmd[150];
 
-      sprintf (cmd, "ddd  %s %d &", argv[0],  getpid ());
+      snprintf (cmd, sizeof (cmd), "ddd  %s %d &", argv[0],  getpid ());
 
       system (cmd);
       sleep (20);

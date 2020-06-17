@@ -1,6 +1,8 @@
 #include "VoxetPropertyGrid.h"
 #include "array.h"
 
+using namespace ibs;
+
 VoxetPropertyGrid::VoxetPropertyGrid ( const GridDescription& grid ) : m_grid ( grid ) {
    m_propertyValues = Array<float>::create3d ( m_grid.getVoxetNodeCount ( 2 ), m_grid.getVoxetNodeCount ( 1 ), m_grid.getVoxetNodeCount ( 0 ));
 }

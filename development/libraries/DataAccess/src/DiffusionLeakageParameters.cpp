@@ -48,9 +48,9 @@ TransientModel DiffusionLeakageParameters::transientModel() const
     SteadyState;
 }
 
-vector<double> DiffusionLeakageParameters::diffusionConsts() const
+std::vector<double> DiffusionLeakageParameters::diffusionConsts() const
 {
-  vector<double> diffusionConsts;
+  std::vector<double> diffusionConsts;
   diffusionConsts.push_back( database::getC1_DiffFactor(m_record) );
   diffusionConsts.push_back( database::getC2_DiffFactor(m_record) );
   diffusionConsts.push_back( database::getC3_DiffFactor(m_record) );
@@ -65,9 +65,9 @@ double DiffusionLeakageParameters::activationEnergy() const
   return database::getActEnergy(m_record);
 }
 
-vector<double> DiffusionLeakageParameters::concentrationConsts() const
+std::vector<double> DiffusionLeakageParameters::concentrationConsts() const
 {
-  vector<double> concentrationConsts;
+  std::vector<double> concentrationConsts;
   concentrationConsts.push_back( database::getC1_ConcFactor(m_record) );
   concentrationConsts.push_back( database::getC2_ConcFactor(m_record) );
   concentrationConsts.push_back( database::getC3_ConcFactor(m_record) );

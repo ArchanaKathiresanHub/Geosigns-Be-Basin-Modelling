@@ -15,7 +15,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-using namespace std;
+
 
 namespace ddd
 {
@@ -53,8 +53,10 @@ namespace DataAccess
       class AttributeValue;
       class BasementFormation;
       class BasementSurface;
+      class BiodegradationParameters;
       class ConstrainedOverpressureInterval;
       class CrustFormation;
+      class DiffusionLeakageParameters;
       class Fault;
       class FaultCollection;
       class FluidDensitySample;
@@ -62,6 +64,8 @@ namespace DataAccess
       class FluidThermalConductivitySample;
       class FluidType;
       class Formation;
+      class FracturePressureFunctionParameters;
+      class GlobalGrid;
       class Grid;
       class GridMap;
       class IgneousIntrusionEvent;
@@ -72,12 +76,15 @@ namespace DataAccess
       class LithoType;
       class LithologyHeatCapacitySample;
       class LithologyThermalConductivitySample;
+      class MapWriter;
       class MantleFormation;
       class MobileLayer;
+      class ObjectFactory;
       class OutputProperty;
       class PaleoFormationProperty;
       class PaleoProperty;
       class PaleoSurfaceProperty;
+      class Parent;
       class PermafrostEvent;
       class Point;
       class PointAdsorptionHistory;
@@ -94,9 +101,12 @@ namespace DataAccess
       class Snapshot;
       class SourceRock;
       class Surface;
+      class SurfaceDepthHistoryInstance;
+      class SurfaceTemperatureHistoryInstance;
       class Trap;
       class Trapper;
       class Migration;
+
 
       // Data classes, each of them corresponding to a complete IoTbl
       class CrustalThicknessData;               ///< Data from [CTCIoTbl                 ]
@@ -104,104 +114,105 @@ namespace DataAccess
       class OceanicCrustThicknessHistoryData;   ///< Data from [OceaCrustalThicknessIoTbl]
 
 
+
       /// list type for the snapshots
-      typedef vector<const Snapshot *> SnapshotList;
+      typedef std::vector<const Snapshot *> SnapshotList;
       /// list type for the lithotypes
-      typedef vector<const LithoType *> LithoTypeList;
+      typedef std::vector<const LithoType *> LithoTypeList;
       /// list type for the formations
-      typedef vector<const Formation *> FormationList;
+      typedef std::vector<const Formation *> FormationList;
       /// list type for the surfaces
-      typedef vector<const Surface *> SurfaceList;
+      typedef std::vector<const Surface *> SurfaceList;
       /// list type for the reservoirs
-      typedef vector<const Reservoir *> ReservoirList;
+      typedef std::vector<const Reservoir *> ReservoirList;
       /// list type for the MobileLayers
-      typedef vector<const MobileLayer *> MobileLayerList;
+      typedef std::vector<const MobileLayer *> MobileLayerList;
       /// list type for the PaleoProperties.
-      typedef vector<const PaleoProperty *> PaleoPropertyList;
+      typedef std::vector<const PaleoProperty *> PaleoPropertyList;
       /// list type for the PaleoFormationProperties.
-      typedef vector<const PaleoFormationProperty *> PaleoFormationPropertyList;
+      typedef std::vector<const PaleoFormationProperty *> PaleoFormationPropertyList;
       /// list type for the PaleoSurfaceProperties.
-      typedef vector<const PaleoSurfaceProperty *> PaleoSurfacePropertyList;
+      typedef std::vector<const PaleoSurfaceProperty *> PaleoSurfacePropertyList;
       /// list type of FluidTypes.
-      typedef vector<const FluidType*> FluidTypeList;
+      typedef std::vector<const FluidType*> FluidTypeList;
       /// list type of FaultCollection.
-      typedef vector<const FaultCollection*> FaultCollectionList;
+      typedef std::vector<const FaultCollection*> FaultCollectionList;
       /// list type for Faults
-      typedef vector<const Fault *> FaultList;
+      typedef std::vector<const Fault *> FaultList;
       /// list type for the AllochthonousLithologies
-      typedef vector<const Point *> PointList;
+      typedef std::vector<const Point *> PointList;
       /// list type for the AllochthonousLithologies
-      typedef vector<const AllochthonousLithology *> AllochthonousLithologyList;
+      typedef std::vector<const AllochthonousLithology *> AllochthonousLithologyList;
       /// list type for the AllochthonousLithologyDistributions
-      typedef vector<const AllochthonousLithologyDistribution *> AllochthonousLithologyDistributionList;
+      typedef std::vector<const AllochthonousLithologyDistribution *> AllochthonousLithologyDistributionList;
       /// list type for the AllochthonousLithologyInterpolations
-      typedef vector<const AllochthonousLithologyInterpolation *> AllochthonousLithologyInterpolationList;
+      typedef std::vector<const AllochthonousLithologyInterpolation *> AllochthonousLithologyInterpolationList;
       /// list type for the traps
-      typedef vector<const Trap *> TrapList;
+      typedef std::vector<const Trap *> TrapList;
       /// list type for the trappers
-      typedef vector<const Trapper *> TrapperList;
+      typedef std::vector<const Trapper *> TrapperList;
       /// list type for the Migrations
-      typedef vector<const Migration *> MigrationList;
+      typedef std::vector<const Migration *> MigrationList;
       /// list type for the (Mapped)InputValues
-      typedef vector<const InputValue *> InputValueList;
+      typedef std::vector<const InputValue *> InputValueList;
       /// list type for the properties
-      typedef vector<const Property *> PropertyList;
+      typedef std::vector<const Property *> PropertyList;
       /// list type for the property values
-      typedef vector<const PropertyValue *> PropertyValueList;
+      typedef std::vector<const PropertyValue *> PropertyValueList;
       /// map type for the properties and property values
-      typedef map<const Property*, PropertyValueList> PropertyPropertyValueListMap;
+      typedef std::map<const Property*, PropertyValueList> PropertyPropertyValueListMap;
       /// list type for the output properties.
-      typedef vector<const OutputProperty *> OutputPropertyList;
+      typedef std::vector<const OutputProperty *> OutputPropertyList;
       /// list type for the lithology heat-capacity samples.
-      typedef vector<const LithologyHeatCapacitySample *> LithologyHeatCapacitySampleList;
+      typedef std::vector<const LithologyHeatCapacitySample *> LithologyHeatCapacitySampleList;
       /// list type for the lithology thermal-conductivity samples.
-      typedef vector<const LithologyThermalConductivitySample *> LithologyThermalConductivitySampleList;
+      typedef std::vector<const LithologyThermalConductivitySample *> LithologyThermalConductivitySampleList;
       /// list type for the fluid density  samples.
-      typedef vector<const FluidDensitySample *> FluidDensitySampleList;
+      typedef std::vector<const FluidDensitySample *> FluidDensitySampleList;
       /// list type for the fluid thermal-conductivity samples.
-      typedef vector<const FluidThermalConductivitySample *> FluidThermalConductivitySampleList;
+      typedef std::vector<const FluidThermalConductivitySample *> FluidThermalConductivitySampleList;
       /// list type for the fluid heat-capacity samples.
-      typedef vector<const FluidHeatCapacitySample *> FluidHeatCapacitySampleList;
+      typedef std::vector<const FluidHeatCapacitySample *> FluidHeatCapacitySampleList;
       /// list type for the related-projects.
-      typedef vector<const RelatedProject *> RelatedProjectList;
+      typedef std::vector<const RelatedProject *> RelatedProjectList;
       /// list type for constrained overpressure intervals.
-      typedef vector<const ConstrainedOverpressureInterval*> ConstrainedOverpressureIntervalList;
+      typedef std::vector<const ConstrainedOverpressureInterval*> ConstrainedOverpressureIntervalList;
 
       /// list type for the SimulationDetails
-      typedef vector<const SimulationDetails*> SimulationDetailsList;
+      typedef std::vector<const SimulationDetails*> SimulationDetailsList;
 
       /// \typedef SimulationDetailsListPtr
-      /// \brief Smart pointer to vector of simulation-details.
+      /// \brief Smart pointer to std::vector of simulation-details.
       typedef std::shared_ptr<SimulationDetailsList> SimulationDetailsListPtr;
 
       /// \typedef PropertyListPtr
-      /// \brief Smart pointer to vector of properties.
+      /// \brief Smart pointer to std::vector of properties.
       typedef std::shared_ptr<PropertyList> PropertyListPtr;
 
 
-      const string ALCBasalt = "ALC Basalt";
+      const std::string ALCBasalt = "ALC Basalt";
 
       // Shale-gas specific classes.
 
       /// \typedef IrreducibleWaterSaturationSampleList
       /// \brief List of all irreducible-water-saturation samples.
-      typedef vector<const IrreducibleWaterSaturationSample*> IrreducibleWaterSaturationSampleList;
+      typedef std::vector<const IrreducibleWaterSaturationSample*> IrreducibleWaterSaturationSampleList;
 
       /// \typedef LangmuirAdsorptionIsothermSampleList
       /// \brief List of all Langmuir-adsorption-isotherm samples.
-      typedef vector<const LangmuirAdsorptionIsothermSample*> LangmuirAdsorptionIsothermSampleList;
+      typedef std::vector<const LangmuirAdsorptionIsothermSample*> LangmuirAdsorptionIsothermSampleList;
 
       /// \typedef LangmuirAdsorptionTOCEntryList
       /// \brief List of all Langmuir-adsorption-toc entries.
-      typedef vector<const LangmuirAdsorptionTOCEntry*> LangmuirAdsorptionTOCEntryList;
+      typedef std::vector<const LangmuirAdsorptionTOCEntry*> LangmuirAdsorptionTOCEntryList;
 
       /// \typedef PointAdsorptionHistoryList
       /// \brief List of all adsorption-history points.
-      typedef vector<const PointAdsorptionHistory*> PointAdsorptionHistoryList;
+      typedef std::vector<const PointAdsorptionHistory*> PointAdsorptionHistoryList;
 
       /// \typedef SGDensitySampleList
       /// \brief List of all sg-density samples.
-      typedef vector<const SGDensitySample*> SGDensitySampleList;
+      typedef std::vector<const SGDensitySample*> SGDensitySampleList;
 
 
       /// Used to select Surface PropertyValues whose Properties are continuous across Formation boundaries
@@ -421,7 +432,7 @@ namespace DataAccess
 			WYLLIES_VELOCITY_ALGORITHM
 		};
 
-      enum CoordinateAxis { X_COORD, Y_COORD, Z_COORD };
+			enum CoordinateAxis { X_COORD, Y_COORD, Z_COORD };
 
       /// operator type definition used in the computation of GridMaps from other GridMaps
       typedef double( *BinaryOperator ) ( double, double );
@@ -500,7 +511,7 @@ namespace DataAccess
       class SubtractConstant : public UnaryFunctor {
       public:
 
-         SubtractConstant( const double value ) : m_value( value ) {}
+         explicit SubtractConstant( const double value ) : m_value( value ) {}
 
          double operator ()( const double operand ) const;
 
@@ -513,7 +524,7 @@ namespace DataAccess
       class SubtractFromConstant : public UnaryFunctor {
       public:
 
-         SubtractFromConstant( const double value ) : m_value( value ) {}
+         explicit SubtractFromConstant( const double value ) : m_value( value ) {}
 
          double operator ()( const double operand ) const;
 
@@ -526,7 +537,7 @@ namespace DataAccess
       class AddConstant : public UnaryFunctor {
       public:
 
-         AddConstant( const double value ) : m_value( value ) {}
+         explicit AddConstant( const double value ) : m_value( value ) {}
 
          double operator ()( const double operand ) const;
 
@@ -536,161 +547,105 @@ namespace DataAccess
 
       };
 
-      class AllochthonousLithology;
-      class AllochthonousLithologyDistribution;
-      class AllochthonousLithologyInterpolation;
-      class AttributeValue;
-      class BasementSurface;
-      class BiodegradationParameters;
-      class ConstrainedOverpressureInterval;
-      class CrustFormation;
-      class DiffusionLeakageParameters;
-      class Fault;
-      class FaultCollection;
-      class FluidDensitySample;
-      class FluidHeatCapacitySample;
-      class FluidThermalConductivitySample;
-      class FluidType;
-      class Formation;
-      class FracturePressureFunctionParameters;
-      class GlobalGrid;
-      class Grid;
-      class Grid;
-      class GridMap;
-      class GridMap;
-      class InputValue;
-      class IrreducibleWaterSaturationSample;
-      class LangmuirAdsorptionIsothermSample;
-      class LangmuirAdsorptionTOCEntry;
-      class LithoType;
-      class LithologyHeatCapacitySample;
-      class LithologyThermalConductivitySample;
-      class MantleFormation;
-      class MapWriter;
-      class MobileLayer;
-      class ObjectFactory;
-      class OutputProperty;
-      class PaleoFormationProperty;
-      class PaleoProperty;
-      class PaleoSurfaceProperty;
-      class Parent;
-      class Point;
-      class PointAdsorptionHistory;
-      class ProjectData;
-      class ProjectHandle;
-      class Property;
-      class PropertyValue;
-      class RelatedProject;
-      class Reservoir;
-      class RunParameters;
-      class SGDensitySample;
-      class Snapshot;
-      class SourceRock;
-      class Surface;
-      class SurfaceDepthHistoryInstance;
-      class SurfaceTemperatureHistoryInstance;
-      class Trap;
-      class Trapper;
-      class Migration;
 
       /// mutable list type for the snapshots
-      typedef vector<Snapshot *> MutableSnapshotList;
+      typedef std::vector<Snapshot *> MutableSnapshotList;
       /// mutable list type for the lithotypes
-      typedef vector<LithoType *> MutableLithoTypeList;
+      typedef std::vector<LithoType *> MutableLithoTypeList;
       /// mutable list type for the SourceRocks
-      typedef vector<SourceRock *> MutableSourceRockList;
+      typedef std::vector<SourceRock *> MutableSourceRockList;
       /// mutable list type for the formations
-      typedef vector<Formation *> MutableFormationList;
+      typedef std::vector<Formation *> MutableFormationList;
       /// mutable list type for the surfaces
-      typedef vector<Surface *> MutableSurfaceList;
+      typedef std::vector<Surface *> MutableSurfaceList;
       /// mutable list type for the reservoirs
-      typedef vector<Reservoir *> MutableReservoirList;
+      typedef std::vector<Reservoir *> MutableReservoirList;
       /// mutable list type for the MobileLayers
-      typedef vector<MobileLayer *> MutableMobileLayerList;
+      typedef std::vector<MobileLayer *> MutableMobileLayerList;
       ///  mutable list type for the FluidTypes.
-      typedef vector<FluidType*> MutableFluidTypeList;
+      typedef std::vector<FluidType*> MutableFluidTypeList;
       /// mutable list type for the SurfaceTemperatureHistoryInstances.
-      typedef vector<SurfaceTemperatureHistoryInstance *> MutableSurfaceTemperatureHistoryInstanceList;
+      typedef std::vector<SurfaceTemperatureHistoryInstance *> MutableSurfaceTemperatureHistoryInstanceList;
       /// mutable list type for the SurfaceDepthHistoryInstances.
-      typedef vector<SurfaceDepthHistoryInstance *> MutableSurfaceDepthHistoryInstanceList;
+      typedef std::vector<SurfaceDepthHistoryInstance *> MutableSurfaceDepthHistoryInstanceList;
       /// mutable list type for the AllochthonousLithologies
-      typedef vector<AllochthonousLithology *> MutableAllochthonousLithologyList;
+      typedef std::vector<AllochthonousLithology *> MutableAllochthonousLithologyList;
       /// mutable list type for the AllochthonousLithologyDistributions
-      typedef vector<AllochthonousLithologyDistribution *> MutableAllochthonousLithologyDistributionList;
+      typedef std::vector<AllochthonousLithologyDistribution *> MutableAllochthonousLithologyDistributionList;
       /// mutable list type for the AllochthonousLithologyInterpolations
-      typedef vector<AllochthonousLithologyInterpolation *> MutableAllochthonousLithologyInterpolationList;
+      typedef std::vector<AllochthonousLithologyInterpolation *> MutableAllochthonousLithologyInterpolationList;
       /// mutable list type for the traps
-      typedef vector<Trap *> MutableTrapList;
+      typedef std::vector<Trap *> MutableTrapList;
       /// mutable list type for the trappers
-      typedef vector<Trapper *> MutableTrapperList;
+      typedef std::vector<Trapper *> MutableTrapperList;
       /// mutable list type for the Migrations
-      typedef vector<Migration *> MutableMigrationList;
+      typedef std::vector<Migration *> MutableMigrationList;
       /// mutable list type for the (Mapped)InputValues
-      typedef vector<InputValue *> MutableInputValueList;
+      typedef std::vector<InputValue *> MutableInputValueList;
       /// mutable list type for the Properties
-      typedef vector<Property *> MutablePropertyList;
+      typedef std::vector<Property *> MutablePropertyList;
       /// mutable list type for the PropertyValues
-      typedef vector<PropertyValue *> MutablePropertyValueList;
+      typedef std::vector<PropertyValue *> MutablePropertyValueList;
       /// mutable list type for the output properties.
-      typedef vector<OutputProperty *> MutableOutputPropertyList;
+      typedef std::vector<OutputProperty *> MutableOutputPropertyList;
       /// mutable list type for the lithology heat-capacity samples.
-      typedef vector<LithologyHeatCapacitySample *> MutableLithologyHeatCapacitySampleList;
+      typedef std::vector<LithologyHeatCapacitySample *> MutableLithologyHeatCapacitySampleList;
       /// list type for the lithology thermal-conductivity samples.
-      typedef vector<LithologyThermalConductivitySample *> MutableLithologyThermalConductivitySampleList;
+      typedef std::vector<LithologyThermalConductivitySample *> MutableLithologyThermalConductivitySampleList;
       /// mutable list type for the fluid density  samples.
-      typedef vector<FluidDensitySample *> MutableFluidDensitySampleList;
+      typedef std::vector<FluidDensitySample *> MutableFluidDensitySampleList;
       /// mutable list type for the fluid thermal-conductivity samples.
-      typedef vector<FluidThermalConductivitySample *> MutableFluidThermalConductivitySampleList;
+      typedef std::vector<FluidThermalConductivitySample *> MutableFluidThermalConductivitySampleList;
       /// mutable list type for the fluid heat-capacity samples.
-      typedef vector<FluidHeatCapacitySample *> MutableFluidHeatCapacitySampleList;
+      typedef std::vector<FluidHeatCapacitySample *> MutableFluidHeatCapacitySampleList;
       /// list type for related-projects.
-      typedef vector<RelatedProject *> MutableRelatedProjectList;
+      typedef std::vector<RelatedProject *> MutableRelatedProjectList;
       /// list type for the PaleoProperties.
-      typedef vector<PaleoProperty *> MutablePaleoPropertyList;
+      typedef std::vector<PaleoProperty *> MutablePaleoPropertyList;
       /// list type for the PaleoFormationProperties.
-      typedef vector<PaleoFormationProperty *> MutablePaleoFormationPropertyList;
+      typedef std::vector<PaleoFormationProperty *> MutablePaleoFormationPropertyList;
       /// list type for the PaleoSurfaceProperties.
-      typedef vector<PaleoSurfaceProperty *> MutablePaleoSurfacePropertyList;
+      typedef std::vector<PaleoSurfaceProperty *> MutablePaleoSurfacePropertyList;
       /// list type for constrained overpressure intervals.
-      typedef vector<ConstrainedOverpressureInterval*> MutableConstrainedOverpressureIntervalList;
+      typedef std::vector<ConstrainedOverpressureInterval*> MutableConstrainedOverpressureIntervalList;
 
       /// mutable list type for FaultCollections
-      typedef vector<FaultCollection *> MutableFaultCollectionList;
+      typedef std::vector<FaultCollection *> MutableFaultCollectionList;
 
       /// mutable list type for the Crustal Thickness input data
-      typedef vector< CrustalThicknessData *> MutableCrustalThicknessDataList;
+      typedef std::vector< CrustalThicknessData *> MutableCrustalThicknessDataList;
 
       /// \brief Mutable array of ingneous-intrusion events.
-      typedef vector<IgneousIntrusionEvent*> MutableIgneousIntrusionEventList;
+      typedef std::vector<IgneousIntrusionEvent*> MutableIgneousIntrusionEventList;
 
       /// \brief Mutable array of permafrost events.
-      typedef vector<PermafrostEvent*> MutablePermafrostEventList;
+      typedef std::vector<PermafrostEvent*> MutablePermafrostEventList;
 
       // Shale-gas specific classes.
 
       /// \typedef MutableIrreducibleWaterSaturationSampleList
       /// \brief Mutable list of all irreducible-water-saturation samples.
-      typedef vector<IrreducibleWaterSaturationSample*> MutableIrreducibleWaterSaturationSampleList;
+      typedef std::vector<IrreducibleWaterSaturationSample*> MutableIrreducibleWaterSaturationSampleList;
 
       /// \typedef MutableLangmuirAdsorptionIsothermSampleList
       /// \brief Mutable list of all Langmuir-adsorption-isotherm samples.
-      typedef vector<LangmuirAdsorptionIsothermSample*> MutableLangmuirAdsorptionIsothermSampleList;
+      typedef std::vector<LangmuirAdsorptionIsothermSample*> MutableLangmuirAdsorptionIsothermSampleList;
 
       /// \typedef MutableLangmuirAdsorptionTOCEntryList
       /// \brief Mutable list of all Langmuir-adsorption-toc entries.
-      typedef vector<LangmuirAdsorptionTOCEntry*> MutableLangmuirAdsorptionTOCEntryList;
+      typedef std::vector<LangmuirAdsorptionTOCEntry*> MutableLangmuirAdsorptionTOCEntryList;
 
       /// \typedef MutablePointAdsorptionHistoryList
       /// \brief Mutable list of all adsorption-history points.
-      typedef vector<PointAdsorptionHistory*> MutablePointAdsorptionHistoryList;
+      typedef std::vector<PointAdsorptionHistory*> MutablePointAdsorptionHistoryList;
 
       /// \typedef MutableSGDensitySampleList
       /// \brief Mutable list of all sg-density samples.
-      typedef vector<SGDensitySample*> MutableSGDensitySampleList;
+      typedef std::vector<SGDensitySample*> MutableSGDensitySampleList;
 
 
       /// list type for the SimulationDetails
-      typedef vector<SimulationDetails*> MutableSimulationDetailsList;
+      typedef std::vector<SimulationDetails*> MutableSimulationDetailsList;
 
       /// Value for undefined used in maps
       const double DefaultUndefinedMapValue = 99999;

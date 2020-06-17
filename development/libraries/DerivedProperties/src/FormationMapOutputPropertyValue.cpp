@@ -54,7 +54,7 @@ unsigned int DerivedProperties::FormationMapOutputPropertyValue::getDepth () con
    }
 }
 
-const string & DerivedProperties::FormationMapOutputPropertyValue::getName() const {
+const std::string & DerivedProperties::FormationMapOutputPropertyValue::getName() const {
 
    if ( m_formationMapProperty != nullptr ) {
       return m_formationMapProperty->getProperty()->getName();

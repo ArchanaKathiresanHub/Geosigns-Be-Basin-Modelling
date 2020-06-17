@@ -39,7 +39,7 @@
 using Utilities::Numerical::CauldronNoDataValue;
 
 using namespace DataAccess;
-
+using namespace ibs;
 
 typedef std::vector < double > DoubleArray;
 

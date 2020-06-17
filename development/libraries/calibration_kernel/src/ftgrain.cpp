@@ -51,7 +51,7 @@ void   FtGrain::addTrackLength(const double length)
    m_trackLengths.push_back(length);
 }
 
-list<double>&  FtGrain::getTrackLengths()
+std::list<double>&  FtGrain::getTrackLengths()
 {
    return m_trackLengths;
 }

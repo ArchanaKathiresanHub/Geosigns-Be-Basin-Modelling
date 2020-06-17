@@ -64,12 +64,12 @@ unsigned int DerivedProperties::FormationSurfaceOutputPropertyValue::getDepth ()
 
 }
 
-void DerivedProperties::FormationSurfaceOutputPropertyValue::setMapName( const string& mapName ) {
+void DerivedProperties::FormationSurfaceOutputPropertyValue::setMapName( const std::string& mapName ) {
 
    m_mapName = mapName;
 }
 
-const string & DerivedProperties::FormationSurfaceOutputPropertyValue::getMapName() const {
+const std::string & DerivedProperties::FormationSurfaceOutputPropertyValue::getMapName() const {
 
    return m_mapName;
 }
@@ -83,7 +83,7 @@ bool DerivedProperties::FormationSurfaceOutputPropertyValue::isPrimary() const {
    }
 }
 
-const string &  DerivedProperties::FormationSurfaceOutputPropertyValue::getName() const {
+const std::string &  DerivedProperties::FormationSurfaceOutputPropertyValue::getName() const {
 
    if ( m_formationSurfaceProperty != 0 ) {
       return  m_formationSurfaceProperty->getProperty()->getName();

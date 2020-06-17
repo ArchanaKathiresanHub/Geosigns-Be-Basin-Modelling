@@ -12,21 +12,19 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <vector>
-#include <map>
-#include <string>
-
-#include <fstream>
-using std::istream;
-using std::ofstream;
-using std::ostream;
-
-#include <assert.h>
-
 #include "dataschema.h"
 #include "datatype.h"
 
+#include <assert.h>
+#include <fstream>
+#include <map>
 #include <memory>
+#include <string>
+#include <vector>
+
+using std::istream;
+using std::ofstream;
+using std::ostream;
 
 namespace database
 {
@@ -124,10 +122,10 @@ namespace database
       const std::string & tableName() const;
 
       /// Return the list index of the field with the specified name.
-      inline int getIndex (const std::string & fieldName);
+      int getIndex (const std::string & fieldName);
 
-      inline const TableDefinition & getTableDefinition() const;
-      inline Table * getTable() const;
+      const TableDefinition & getTableDefinition() const;
+      Table * getTable() const;
 
 
       template <typename Type>
@@ -149,13 +147,17 @@ namespace database
       }
 
       template < class Type >
-      const Type & getValue (const std::string & fieldName, int * cachedIndex = 0) const
+      const Type & getValue (const std::string & fieldName, int * cachedIndex = nullptr) const
       {
          return std::dynamic_pointer_cast< const Field < Type > >( getField (fieldName, cachedIndex) )->getValue();
       }
 
       Record (const TableDefinition & tableDefinition, Table * table);
       Record (const Record & record);
+      Record (Record&& record) = delete;
+
+      Record& operator=(const Record& record) = delete;
+      Record& operator=(Record&& record) = delete;
 
       /// \brief Construct a new record.
       ///
@@ -258,18 +260,18 @@ namespace database
       /// return verision of data schema in which this table was written. Used in table upgrade scheme
       int version() { return m_version; }
 
-      inline Record * getRecord (Table::iterator & iter);
+      Record * getRecord (Table::iterator & iter);
 
       /// return the table definition
-      inline const TableDefinition & getTableDefinition () const;
+      const TableDefinition & getTableDefinition () const;
 
       /// Return the number of Records in the Table.
       size_t size() { return m_records.size(); }
 
       /// Return the Record at the specified index
-      inline Record *getRecord (int i);
+      Record *getRecord (int i);
       /// Return the Record at the specified index
-      inline Record *operator[] (int i);
+      Record *operator[] (int i);
 
       /// Find a record in which the specified field has the specified value
       Record * findRecord( const std::string & fieldName, const std::string & value );
@@ -280,7 +282,7 @@ namespace database
       void clear (bool deleteRecords = true);
 
       /// Get the index of a field in a Record of this Table.
-      inline int getIndex (const std::string & fieldName);
+      int getIndex (const std::string & fieldName);
 
       /// Save this Table to a file with the specified name.
       bool saveToFile (const std::string & filename);
@@ -293,13 +295,13 @@ namespace database
       bool loadFromStream (istream & ifile);
 
       /// Return an iterator pointing to the beginning of the Table.
-      inline Table::iterator begin();
+      Table::iterator begin();
       /// Return an iterator pointing to the end of the Table.
-      inline Table::iterator end();
+      Table::iterator end();
       /// Return an const_iterator pointing to the beginning of the Table.
-      inline Table::const_iterator begin() const;
+      Table::const_iterator begin() const;
       /// Return an const_iterator pointing to the end of the Table.
-      inline Table::const_iterator end() const;
+      Table::const_iterator end() const;
 
       /// \brief Copy the records in the current table to the table passed as a parameter.
       ///
@@ -412,14 +414,14 @@ namespace database
       /// Return an iterator pointing to the end of the Database.
       Database::iterator end() { return m_tables.end (); }
 
-      inline static void SetFieldWidth (int fieldWidth);
-      inline static int GetFieldWidth();
+      static void SetFieldWidth (int fieldWidth);
+      static int GetFieldWidth();
 
-      inline static void SetPrecision (int precision);
-      inline static int GetPrecision();
+      static void SetPrecision (int precision);
+      static int GetPrecision();
 
-      inline static void SetMaxFieldsPerLine (int fields);
-      inline static int GetMaxFieldsPerLine();
+      static void SetMaxFieldsPerLine (int fields);
+      static int GetMaxFieldsPerLine();
 
       bool saveToStream (ostream & ofile);
 
@@ -459,32 +461,32 @@ namespace database
    // IMPLEMENTATIONS ////////////////////////////////////////////////////
    ///////////////////////////////////////////////////////////////////////
 
-   void Database::SetPrecision (int precision)
+   inline void Database::SetPrecision (int precision)
    {
       s_precision = precision;
    }
 
-   int Database::GetPrecision()
+   inline int Database::GetPrecision()
    {
       return s_precision;
    }
 
-   void Database::SetMaxFieldsPerLine (int fields)
+   inline void Database::SetMaxFieldsPerLine (int fields)
    {
       s_maxFieldsPerLine = fields;
    }
 
-   int Database::GetMaxFieldsPerLine()
+   inline int Database::GetMaxFieldsPerLine()
    {
       return s_maxFieldsPerLine;
    }
 
-   void Database::SetFieldWidth (int fieldWidth)
+   inline void Database::SetFieldWidth (int fieldWidth)
    {
       s_fieldWidth = fieldWidth;
    }
 
-   int Database::GetFieldWidth()
+   inline int Database::GetFieldWidth()
    {
       return s_fieldWidth;
    }
@@ -493,22 +495,22 @@ namespace database
       return m_dataSchema;
    }
 
-   Record * Table::getRecord (Table::iterator & iter)
+   inline Record * Table::getRecord (Table::iterator & iter)
    {
       return (iter == m_records.end () ? 0 : * iter);
    }
 
-   const TableDefinition & Table::getTableDefinition () const
+   inline const TableDefinition & Table::getTableDefinition () const
    {
       return m_tableDefinition;
    }
 
-   Record *Table::operator[] (int i)
+   inline Record *Table::operator[] (int i)
    {
       return getRecord (i);
    }
 
-   Record *Table::getRecord (int i)
+   inline Record *Table::getRecord (int i)
    {
       if (i >= 0 && i < (int) size ())
          return m_records[i];
@@ -516,42 +518,42 @@ namespace database
          return 0;
    }
 
-   int Table::getIndex (const std::string & fieldName)
+   inline int Table::getIndex (const std::string & fieldName)
    {
       return m_tableDefinition.getIndex (fieldName);
    }
 
-   Table::iterator Table::begin()
+   inline Table::iterator Table::begin()
    {
       return m_records.begin ();
    }
 
-   Table::iterator Table::end()
+   inline Table::iterator Table::end()
    {
       return m_records.end ();
    }
 
-   Table::const_iterator Table::begin() const
+   inline Table::const_iterator Table::begin() const
    {
       return m_records.begin();
    }
 
-   Table::const_iterator Table::end() const
+   inline Table::const_iterator Table::end() const
    {
       return m_records.end();
    }
 
-   int Record::getIndex (const std::string & fieldName)
+   inline int Record::getIndex (const std::string & fieldName)
    {
       return m_tableDefinition.getIndex (fieldName);
    }
 
-   const TableDefinition & Record::getTableDefinition() const
+   inline const TableDefinition & Record::getTableDefinition() const
    {
       return m_tableDefinition;
    }
 
-   Table * Record::getTable() const
+   inline Table * Record::getTable() const
    {
       return m_table;
    }

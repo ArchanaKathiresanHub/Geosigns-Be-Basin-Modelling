@@ -2,6 +2,8 @@
 
 #include "array.h"
 
+using namespace ibs;
+
 VoxetDomainInterpolator::VoxetDomainInterpolator ( const unsigned int nodesX,
                                                    const unsigned int nodesY ) :
    m_nodesX ( nodesX ),

@@ -35,7 +35,7 @@ void DerivedProperties::FormationOutputPropertyValue::retrieveData () const {
    }
 }
 
-const string & DerivedProperties::FormationOutputPropertyValue::getName() const {
+const std::string & DerivedProperties::FormationOutputPropertyValue::getName() const {
 
    if( m_formationProperty != nullptr ) {
       return  m_formationProperty->getProperty()->getName();

@@ -11,13 +11,6 @@
 #ifndef INTERFACE_DAOBJECT_H
 #define INTERFACE_DAOBJECT_H
 
-namespace database
-{
-   class Database;
-   class Table;
-   class Record;
-}
-
 // DataAccess library
 #include "Parent.h"
 #include "AttributeValue.h"
@@ -30,7 +23,13 @@ namespace database
 #include <string>
 #include <exception>
 
-using namespace std;
+namespace database
+{
+   class Database;
+   class Table;
+   class Record;
+}
+
 using DataAccess::Interface::GridMap;
 
 namespace DataAccess
@@ -73,7 +72,6 @@ namespace DataAccess
             mutable database::Record * m_record;
 
             AttributeValue & getAttributeValue (const string & attributeName, unsigned int indexOffset) const;
-            AttributeType getAttributeType (const string & attributeName) const;
             int getAttributeIndex (const string & attributeName) const;
             ProjectHandle& m_projectHandle;
 
@@ -86,6 +84,7 @@ namespace DataAccess
             /// @param[in] mapAttributeNames The list of map names
             template< typename T >
             GridMap * loadMap( const T attributeId, const std::vector<std::string>& mapAttributeNames ) const;
+            AttributeType getAttributeType (const string & attributeName) const;
       };
    }
 }

@@ -41,7 +41,7 @@ namespace DerivedProperties {
       unsigned int getDepth () const;
 
       /// \brief Get the name of the property
-      const string & getName() const;
+      const std::string & getName() const;
 
       /// \brief Get the Surface for which the property is allocated
       const DataModel::AbstractSurface* getSurface() const;
@@ -59,10 +59,10 @@ namespace DerivedProperties {
       bool isPrimary() const;
 
       /// \brief Set the map name to be used in a project file
-      void setMapName( const string& mapName );
+      void setMapName( const std::string& mapName );
 
       /// \brief Get the map name to be used in a project file
-      const string & getMapName() const;
+      const std::string & getMapName() const;
 
       /// \brief Determine whether or not the property value has a property
       bool hasProperty() const;
@@ -72,7 +72,7 @@ namespace DerivedProperties {
       AbstractDerivedProperties::SurfacePropertyPtr m_surfaceProperty;
 
       /// \brief The name which is used in a project file
-      string m_mapName;
+      std::string m_mapName;
 
    };
 

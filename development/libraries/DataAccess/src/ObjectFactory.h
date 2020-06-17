@@ -13,13 +13,13 @@
 // std library
 #include <string>
 #include <memory>
-using namespace std;
-
 
 #include <ProjectFileHandler.h>
 #include "PropertyAttribute.h"
 
 #include "Interface.h"
+
+using namespace std;
 
 namespace database
 {

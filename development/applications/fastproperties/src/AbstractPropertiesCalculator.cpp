@@ -873,7 +873,7 @@ void AbstractPropertiesCalculator::displayProgress(const string & fileName, doub
    long hrs = remainder / (60 * 60);
 
    char time[124];
-   sprintf (time, "%2.2ld:%2.2ld:%2.2ld", hrs, mins, secs);
+   snprintf (time, sizeof (time), "%2.2ld:%2.2ld:%2.2ld", hrs, mins, secs);
 
    ostringstream buf;
    buf.precision(4);

@@ -221,7 +221,7 @@ void Genex0dSimulator::registerProperties()
   m_registeredProperties.insert("TOC");
 }
 
-bool Genex0dSimulator::isPropertyRegistered(const string & propertyName)
+bool Genex0dSimulator::isPropertyRegistered(const std::string & propertyName)
 {
   std::unordered_set<std::string>::const_iterator it = m_registeredProperties.find(propertyName);
   return it != m_registeredProperties.end();

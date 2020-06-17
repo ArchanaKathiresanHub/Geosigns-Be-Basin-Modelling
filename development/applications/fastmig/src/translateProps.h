@@ -32,9 +32,9 @@ namespace migration
 
          CBMGenerics::capillarySealStrength::LithoProp operator()(const LithoType* lithoType)
          {
-            return CBMGenerics::capillarySealStrength::LithoProp (lithoType->getAttributeValue (Interface::DepoPerm).getDouble (),
-               lithoType->getAttributeValue (Interface::CapC1).getDouble (),
-               lithoType->getAttributeValue (Interface::CapC2).getDouble ());
+            return CBMGenerics::capillarySealStrength::LithoProp (lithoType->getLithoTypeAttributeValue (Interface::DepoPerm).getDouble (),
+               lithoType->getLithoTypeAttributeValue (Interface::CapC1).getDouble (),
+               lithoType->getLithoTypeAttributeValue (Interface::CapC2).getDouble ());
          }
       };
 
@@ -45,7 +45,7 @@ namespace migration
          double operator()(const LithoType* lithoType)
          {
             // Converting percentage to fraction through the 0.01 factor
-            return (0.01 * lithoType->getAttributeValue (Interface::HydraulicFracturingPercent).getDouble ());
+            return (0.01 * lithoType->getLithoTypeAttributeValue (Interface::HydraulicFracturingPercent).getDouble ());
          }
       };
 

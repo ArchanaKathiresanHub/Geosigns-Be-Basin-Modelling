@@ -116,7 +116,7 @@ int main (int argc, char ** argv)
    {
       char cmd[150];
 
-      sprintf (cmd, "ddd %s %d &", argv[0],  getpid ());
+      snprintf (cmd, sizeof (cmd), "ddd %s %d &", argv[0],  getpid ());
       system (cmd);
       sleep (10);
    }
@@ -127,7 +127,7 @@ int main (int argc, char ** argv)
    {
       char cmd[150];
 
-      sprintf (cmd, "idb -p %d %s &", getpid (), argv[0]);
+      snprintf (cmd, sizeof (cmd), "idb -p %d %s &", getpid (), argv[0]);
       system (cmd);
       sleep (15);
    }
@@ -138,7 +138,7 @@ int main (int argc, char ** argv)
    {
       char cmd[150];
 
-      sprintf (cmd, "cvd -pid %d &", getpid ());
+      snprintf (cmd, sizeof (cmd), "cvd -pid %d &", getpid ());
       system (cmd);
       sleep (20);
    }
@@ -149,7 +149,7 @@ int main (int argc, char ** argv)
    {
       char cmd[150];
 
-      sprintf (cmd, "gdb %s %d &", argv[0],  getpid ());
+      snprintf (cmd, sizeof (cmd), "gdb %s %d &", argv[0],  getpid ());
       system (cmd);
       sleep (10);
    }
@@ -169,11 +169,11 @@ int main (int argc, char ** argv)
    // FlexLM license handling only for node with rank = 0
    if( rank == 0 )
    {
-      sprintf(feature, "ibs_cauldron_calc");
+      snprintf(feature, sizeof (feature), "ibs_cauldron_calc");
 #ifdef IBSFLEXLMVERSION
-      sprintf(version, IBSFLEXLMVERSION);
+      snprintf(version, sizeof (version), IBSFLEXLMVERSION);
 #else
-      sprintf(version, "9999.99");
+      snprintf(version, sizeof (version), "9999.99");
 #endif
 
       rc = EPTFlexLmInit(errmessage);

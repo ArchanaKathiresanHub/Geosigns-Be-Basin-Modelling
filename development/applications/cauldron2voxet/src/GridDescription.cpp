@@ -4,14 +4,13 @@
 
 #include "Grid.h"
 
-
 GridDescription::GridDescription (       database::Record* cauldronRecord,
                                          database::Record* voxetRecord,
-                                   const Interface::Grid*  cauldronGrid ) : 
+                                   const DataAccess::Interface::Grid*  cauldronGrid ) :
    m_cauldronRecord ( cauldronRecord ),
-   m_voxetRecord ( voxetRecord ) {
-
-   m_cauldronGrid = cauldronGrid;
+   m_voxetRecord ( voxetRecord ),
+   m_cauldronGrid ( cauldronGrid )
+{
 
    m_voxetNodeCount [ 0 ] = database::getNumberOfVoxetNodesX ( m_voxetRecord );
    m_voxetNodeCount [ 1 ] = database::getNumberOfVoxetNodesY ( m_voxetRecord );
@@ -73,6 +72,10 @@ GridDescription::GridDescription ( const GridDescription& gridDescription ) {
 
 }
 
+GridDescription::~GridDescription()
+{
+}
+
 
 float GridDescription::getVoxetGridOrigin ( const unsigned int axes ) const {
    return m_voxetOrigin [ axes ];
@@ -96,12 +99,12 @@ int GridDescription::getVoxetNodeCount () const {
 
 float GridDescription::getCauldronGridOrigin ( const unsigned int axes,
                                                const bool         windowArea ) const {
-   return m_cauldronOrigin [ axes ][( windowArea ? 0 : 1 )];
+   return m_cauldronOrigin [ axes ][windowArea ? 0 : 1];
 }
 
 float GridDescription::getCauldronGridMaximum ( const unsigned int axes,
                                                 const bool         windowArea ) const {
-   return m_cauldronMaxima [ axes ][( windowArea ? 0 : 1 )];
+   return m_cauldronMaxima [ axes ][windowArea ? 0 : 1];
 }
 
 float GridDescription::getCauldronGridDelta ( const unsigned int axes ) const {
@@ -112,6 +115,6 @@ int GridDescription::getCauldronNodeCount ( const unsigned int axes ) const {
    return m_cauldronNodeCount [ axes ];
 }
 
-const Interface::Grid* GridDescription::getCauldronGrid () const {
+const DataAccess::Interface::Grid* GridDescription::getCauldronGrid () const {
    return m_cauldronGrid;
 }

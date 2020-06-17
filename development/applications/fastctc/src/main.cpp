@@ -59,7 +59,7 @@ namespace Fastctc
          << "\t[-xyz]                     Output selected maps also in XYZ format" << endl
          << "\t[-sur]                     Use only in combination with -debug. Output selected maps in SUR format (to visualize surface chart in Excel)" << endl
          << "\t[-hdf]                     Use only in combination with -debug. Output all maps in separate HDF files." << endl
-         << "\t[-help]                    Shows this help message and exit." 
+         << "\t[-help]                    Shows this help message and exit."
           << "\t[-merge]                  Merge CTC maps to Inputs.HDF."
           << endl << endl;
    }
@@ -105,11 +105,11 @@ int main (int argc, char ** argv)
 
    // FlexLM license handling only for node with rank = 0
    if( rank == 0 ) {
-      sprintf(feature, "ibs_cauldron_calc");
+      snprintf(feature, sizeof (feature), "ibs_cauldron_calc");
 #ifdef IBSFLEXLMVERSION
-      sprintf(version, IBSFLEXLMVERSION);
+      snprintf(version, sizeof (version), IBSFLEXLMVERSION);
 #else
-      sprintf(version, "9999.99");
+      snprintf(version, sizeof (version), "9999.99");
 #endif
 
       rc = EPTFlexLmInit(errmessage);
@@ -152,7 +152,7 @@ int main (int argc, char ** argv)
    {
       char cmd[150];
 
-      sprintf (cmd, "myddd  %s %d &", argv[0],  getpid ());
+      snprintf (cmd, sizeof (cmd), "myddd  %s %d &", argv[0],  getpid ());
 
       system (cmd);
       sleep (20);

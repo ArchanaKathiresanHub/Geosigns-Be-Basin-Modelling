@@ -14,7 +14,6 @@
 #define NEWPOLYF
 
 #include <vector>
-using namespace std;
 
 namespace CBMGenerics
 {
@@ -26,19 +25,21 @@ public:
    class Point
    {
    public:
-      inline double getX () const;
-      inline double getY () const;
+      double getX () const;
+      double getY () const;
       static void printStatus ();
-      inline void setX (double x);
-      inline void setY (double y);
-      inline void raiseY (double r);
-      inline void scaleY (double factor);
-      inline Point (double x, double y);
-      inline Point (const Point & p);
-      inline Point ();
-      inline ~Point ();
+      void setX (double x);
+      void setY (double y);
+      void raiseY (double r);
+      void scaleY (double factor);
+      Point (double x, double y);
+      explicit Point (const Point & p);
+      Point ();
+      ~Point ();
+      Point const& operator=(const Point&& rhs) = delete;
+      Point(const Point&& rhs) = delete;
 
-    private:
+   private:
       double m_x;
       double m_y;
       static int s_instanceCount;
@@ -48,7 +49,7 @@ public:
 
 public:
 
-  typedef vector < Point * > Polypoint;
+  typedef std::vector < Point * > Polypoint;
   typedef Polypoint::iterator iterator;
   typedef Polypoint::const_iterator const_iterator;
   typedef Polypoint::const_reverse_iterator const_reverse_iterator;
@@ -66,14 +67,14 @@ public:
   bool descending (double x) const;
   double F (double x) const;
 
-  inline iterator getBegin ();
-  inline iterator begin ();
-  inline iterator getEnd ();
-  inline iterator end ();
-  inline const_reverse_iterator getRBegin () const;
-  inline reverse_iterator rbegin ();
-  inline const_reverse_iterator getREnd () const;
-  inline reverse_iterator rend ();
+  iterator getBegin ();
+  iterator begin ();
+  iterator getEnd ();
+  iterator end ();
+  const_reverse_iterator getRBegin () const;
+  reverse_iterator rbegin ();
+  const_reverse_iterator getREnd () const;
+  reverse_iterator rend ();
 
   double MinX (double &y) const;
   double MaxX (double &y) const;
@@ -108,95 +109,95 @@ private:
 
 };
 
-double Polyfunction::Point::getX () const
+inline double Polyfunction::Point::getX () const
 {
    return m_x;
 }
 
-double Polyfunction::Point::getY () const
+inline double Polyfunction::Point::getY () const
 {
    return m_y;
 }
 
-void Polyfunction::Point::setX (double x)
+inline void Polyfunction::Point::setX (double x)
 {
    m_x = x;
 }
 
-void Polyfunction::Point::setY (double y)
+inline void Polyfunction::Point::setY (double y)
 {
    m_y = y;
 }
 
-void Polyfunction::Point::raiseY (double r)
+inline void Polyfunction::Point::raiseY (double r)
 {
    m_y += r;
 }
 
-void Polyfunction::Point::scaleY (double factor)
+inline void Polyfunction::Point::scaleY (double factor)
 {
    m_y *= factor;
 }
 
-Polyfunction::Point::Point (double x, double y) : m_x (x), m_y (y)
+inline Polyfunction::Point::Point (double x, double y) : m_x (x), m_y (y)
 {
    s_instanceCount++;
    s_maxInstanceCount++;
 }
 
-Polyfunction::Point::Point (const Point & p) : m_x (p.m_x), m_y (p.m_y)
+inline Polyfunction::Point::Point (const Point & p) : m_x (p.m_x), m_y (p.m_y)
 {
    s_instanceCount++;
    s_maxInstanceCount++;
 }
 
-Polyfunction::Point::Point () : m_x (0), m_y (0)
+inline Polyfunction::Point::Point () : m_x (0), m_y (0)
 {
    s_instanceCount++;
    s_maxInstanceCount++;
 }
 
-Polyfunction::Point::~Point ()
+inline Polyfunction::Point::~Point ()
 {
    s_instanceCount--;
 }
 
-Polyfunction::iterator Polyfunction::getBegin ()
+inline Polyfunction::iterator Polyfunction::getBegin ()
 {
    return m_points.begin ();
 }
 
-Polyfunction::iterator Polyfunction::begin ()
+inline Polyfunction::iterator Polyfunction::begin ()
 {
    return m_points.begin ();
 }
 
-Polyfunction::iterator Polyfunction::getEnd ()
+inline Polyfunction::iterator Polyfunction::getEnd ()
 {
    return m_points.end ();
 }
 
-Polyfunction::iterator Polyfunction::end ()
+inline Polyfunction::iterator Polyfunction::end ()
 {
    return m_points.end ();
 }
 
-Polyfunction::const_reverse_iterator Polyfunction::getRBegin () const
+inline Polyfunction::const_reverse_iterator Polyfunction::getRBegin () const
 {
    return m_points.rbegin ();
 }
 
-Polyfunction::reverse_iterator Polyfunction::rbegin ()
+inline Polyfunction::reverse_iterator Polyfunction::rbegin ()
 {
    return m_points.rbegin ();
 }
 
-Polyfunction::const_reverse_iterator Polyfunction::getREnd () const
+inline Polyfunction::const_reverse_iterator Polyfunction::getREnd () const
 {
    return m_points.rend ();
 }
 
-Polyfunction::reverse_iterator Polyfunction::rend ()
+inline Polyfunction::reverse_iterator Polyfunction::rend ()
 {
    return m_points.rend ();
 }

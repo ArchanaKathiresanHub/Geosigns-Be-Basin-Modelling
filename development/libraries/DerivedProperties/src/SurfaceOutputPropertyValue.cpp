@@ -29,12 +29,12 @@ DerivedProperties::SurfaceOutputPropertyValue::SurfaceOutputPropertyValue ( Surf
    m_mapName = "";
 }
 
-void DerivedProperties::SurfaceOutputPropertyValue::setMapName( const string& mapName ) {
+void DerivedProperties::SurfaceOutputPropertyValue::setMapName( const std::string& mapName ) {
 
    m_mapName = mapName;
 }
 
-const string & DerivedProperties::SurfaceOutputPropertyValue::getMapName() const {
+const std::string & DerivedProperties::SurfaceOutputPropertyValue::getMapName() const {
 
    return m_mapName;
 }
@@ -86,7 +86,7 @@ const DataModel::AbstractGrid* DerivedProperties::SurfaceOutputPropertyValue::ge
    return nullptr;
 }
 
-const string & DerivedProperties::SurfaceOutputPropertyValue::getName() const {
+const std::string & DerivedProperties::SurfaceOutputPropertyValue::getName() const {
 
    if( m_surfaceProperty != 0 ) {
       return m_surfaceProperty->getProperty()->getName();

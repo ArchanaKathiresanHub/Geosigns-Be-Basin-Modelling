@@ -95,6 +95,8 @@ namespace GeoPhysics
       /// @brief Overwrite default copy constructor to avoid bitwise copy
       Permeability( const Permeability& permeability );
 
+      ~Permeability();
+
       Model  getPermModel() const;
       double getDepoPerm()  const;
       double getPermAniso() const;

@@ -142,6 +142,8 @@ namespace GeoPhysics
       /// @brief Overwrite default copy constructor to avoid bitwise copy
       Porosity( const Porosity& porosity );
 
+      ~Porosity();
+
       /*!
        * \brief Get the porosity model
        */

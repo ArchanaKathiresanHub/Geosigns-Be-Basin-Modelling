@@ -393,7 +393,7 @@ struct RecordSorter
             case datatype::Double:
                { double v = r1->getValue<double>( id ); double w = r2->getValue<double>( id ); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
                break;
-            case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
+            case datatype::String: { std::string v = r1->getValue<std::string>( id ); std::string w = r2->getValue<std::string>( id ); if ( v != w ) return v < w; } break;
             default: ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown data type for LithoType database record: " << m_fldTypes[i];
          }
       }

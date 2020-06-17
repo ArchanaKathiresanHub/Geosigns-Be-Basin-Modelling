@@ -4,8 +4,6 @@
 #include <stddef.h>
 
 #ifdef __cplusplus
-namespace OneFilePerProcess
-{
 extern "C" {
 #endif
 
@@ -28,7 +26,6 @@ size_t rewriteFileName( const char * pattern, const char *  fileName, int
 
 #ifdef __cplusplus
 } // extern "C"
-} // namespace OneFilePerProcess
 #endif
 
 

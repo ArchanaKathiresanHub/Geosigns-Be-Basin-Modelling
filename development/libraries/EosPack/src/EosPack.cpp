@@ -32,6 +32,8 @@ void testPolynomialParse();
 #include "Parse.h"
 #include "ComponentManager.h"
 
+using namespace std;
+
 std::string pvtFlash::pvtPropertiesConfigFile;
 
 static const std::string ConfigFileName = "PVT_properties.cfg";
@@ -71,11 +73,11 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
          }
 
          // read config-file tables
-         pvtFlash::pvtPropertiesConfigFile = std::string( eosPackDir ) + 
+         pvtFlash::pvtPropertiesConfigFile = std::string( eosPackDir ) +
 #ifdef _WIN32
             "\\"
 #else
-            "/"  
+            "/"
 #endif
             + ConfigFileName;
       }
@@ -88,22 +90,22 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
       }
 
       fileIO::Table compPropTable( ifs );
-      
+
       string tableNameWanted = "PVT-Component-Properties";
-      
+
       if ( ( ! compPropTable.isReadSuccessful() ) ||
            (   compPropTable.getTableName().find( tableNameWanted, 0 ) == string::npos )
          )
       {
          throw tableNameWanted + " table expected. Aborting...";
       }
-     
+
       fileIO::Table generalPropTable;
       //concatenate as many "PVT-Component-Properties"-tables as available, last table contains general properties
       while ( true )
       {
          fileIO::Table table( ifs );
-         if ( table.getTableName().find( tableNameWanted, 0 ) != std::string::npos ) 
+         if ( table.getTableName().find( tableNameWanted, 0 ) != std::string::npos )
          {
             compPropTable.concatTable(table);
          }
@@ -112,8 +114,8 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
             generalPropTable = table;
             break;
          }
-      } 
-      
+      }
+
 #ifdef DEBUG_EXTENSIVE
       std::cout << "component table:" << compPropTable << std::endl<< std::endl;
       std::cout << "general table:" << std::endl << generalPropTable << std::endl << std::endl;
@@ -121,7 +123,7 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
       ofs << compPropTable;
       ofs << std::endl << std::endl;
 #endif
-      
+
       // parse component based data
       m_propertyFunc = new polynomials::PiecewisePolynomial*[NUM_COMP];
       int nCompProp = 6;
@@ -131,7 +133,7 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
       {
          m_propertyFunc[iComp]= m_propertyFunc[iComp - 1] + nCompProp;
       }
-      
+
       for ( int i = 0; i < NUM_COMP; ++i )
       {
          int indexFramework = theComponentManager.getSpeciesIdByName( compPropTable.getEntry( i, 0 ) );
@@ -141,21 +143,21 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
          }
 
          for ( int iProp = 0; iProp < nCompProp; ++iProp )
-         {   
+         {
             const string& func = compPropTable.getEntry( i, iProp+1 );
 
             std::vector<polynomials::parse::Token> tokens;
 
             polynomials::parse::GetTokens( func, tokens );
-            
+
             size_t start = 0;
             polynomials::parse::ParsePiecewisePolynomial( tokens, start, m_propertyFunc[indexFramework][iProp] );
          }
       }
 
-#ifdef DEBUG_EXTENSIVE         
+#ifdef DEBUG_EXTENSIVE
       for ( int i = 0; i < NUM_COMP; ++i )
-      {   
+      {
          int indexFramework = theComponentManager.getSpeciesIdByName( compPropTable.getEntry( i, 0 ) );
 
          // test output: are critical temperatures read correctly?
@@ -174,11 +176,11 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
       {
          m_isRK = 0;
       }
-      
+
       m_omegaA  = new polynomials::PiecewisePolynomial;
       m_omegaB  = new polynomials::PiecewisePolynomial;
       m_corrLBC = new polynomials::PiecewisePolynomial[5];
-      
+
       std::vector<polynomials::parse::Token> tokens;
       polynomials::parse::GetTokens( generalPropTable.getEntry( 0, 1 ).c_str(), tokens );
       size_t start = 0;
@@ -212,8 +214,8 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
       lumpedSpeciesIndex[ComponentId::C6_MINUS_14BP  ]  = lumpedSpeciesIndex[ComponentId::C6_MINUS_14ARO];
       lumpedSpeciesIndex[ComponentId::C6_MINUS_14SAT_S] = lumpedSpeciesIndex[ComponentId::C6_MINUS_14ARO];
       lumpedSpeciesIndex[ComponentId::C6_MINUS_14ARO_S] = lumpedSpeciesIndex[ComponentId::C6_MINUS_14ARO];
-   
-#ifdef DEBUG_EXTENSIVE         
+
+#ifdef DEBUG_EXTENSIVE
       //output for generating function values
       //cout.setf(std::ios_base::scientific, std::ios_base::floatfield);
       std::cout.precision( 15 );
@@ -222,7 +224,7 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
       std::cout << "VolShift C6-14Aro (1.242) = " << m_propertyFunc[ComponentId::C6_MINUS_14ARO][3](1.242) << std::endl;
 
       std::cout << std::endl << "CritPressure" << std::endl;
-      
+
       std::cout <<"Pc resins      (2.4) = " << m_propertyFunc[ComponentId::RESIN         ][4](2.4) << std::endl;
       std::cout <<"Pc resins      (2.5) = " << m_propertyFunc[ComponentId::RESIN         ][4](2.5) << std::endl;
       std::cout <<"Pc C15+Sat     (2.4) = " << m_propertyFunc[ComponentId::C15_PLUS_SAT  ][4](2.4) << std::endl;
@@ -235,7 +237,7 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
       std::cout <<"Pc C15+Aro     (2.5) = " << m_propertyFunc[ComponentId::C15_PLUS_ARO  ][4](2.5) << std::endl;
       std::cout <<"Pc C6-14Aro    (2.4) = " << m_propertyFunc[ComponentId::C6_MINUS_14ARO][4](2.4) << std::endl;
       std::cout <<"Pc C6-14Aro    (2.5) = " << m_propertyFunc[ComponentId::C6_MINUS_14ARO][4](2.5) << std::endl;
-      
+
       std::cout << std::endl << "CritTemperature" << std::endl;
 
       std::cout <<"Tc resins      (2.4) = " << m_propertyFunc[ComponentId::RESIN         ][5](2.4) << std::endl;
@@ -251,7 +253,7 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
       std::cout <<"Tc C6-14Aro    (2.4) = " << m_propertyFunc[ComponentId::C6_MINUS_14ARO][5](2.4) << std::endl;
       std::cout <<"Tc C6-14Aro    (2.5) = " << m_propertyFunc[ComponentId::C6_MINUS_14ARO][5](2.5) << std::endl;
 #endif
-   }   
+   }
    catch ( polynomials::error::SyntaxError& s )
    {
       m_isReadInOk = false;
@@ -285,11 +287,11 @@ pvtFlash::EosPack::~EosPack()
       if ( m_propertyFunc[0] ) delete [] m_propertyFunc[0];
       delete [] m_propertyFunc;
    }
-   
+
    if ( m_omegaA  ) delete m_omegaA;
    if ( m_omegaB  ) delete m_omegaB;
    if ( m_corrLBC ) delete [] m_corrLBC;
-}   
+}
 
 const char * pvtFlash::EosPack::getEosPackDir ()
 {
@@ -331,7 +333,7 @@ void pvtFlash::EosPack::lumpComponents( const double in_compMasses[], // size is
                                         double unlump_fraction[] )    // size is NUMBER_OF_SPECIES
 {
    CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
-   
+
    const int NUM_COMP     = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
    const int NUM_COMP_TOT = ComponentId::NUMBER_OF_SPECIES;
 
@@ -369,8 +371,8 @@ void pvtFlash::EosPack::lumpComponents( const double in_compMasses[], // size is
 
             lump_component_ind = ComponentId::C6_MINUS_14ARO;    // theComponentManager.getSpeciedIdByName("C6-14Aro");
             break;
-         
-         default: 
+
+         default:
             assert(0);
             break;
       }
@@ -380,9 +382,9 @@ void pvtFlash::EosPack::lumpComponents( const double in_compMasses[], // size is
       for ( int i = 0; i < cmpNum; ++i ) std::cout << compIndex[i] << ", ";
       std::cout << std::endl;
 #endif
-   
+
       for( int i = 0; i < cmpNum; ++i )
-      { 
+      {
          out_compMasses[lump_component_ind] += in_compMasses[compIndex[i]];
       }
 
@@ -391,16 +393,16 @@ void pvtFlash::EosPack::lumpComponents( const double in_compMasses[], // size is
          double invMass = 1.0 / out_compMasses[lump_component_ind];
 
          for( int i = 0; i < cmpNum; ++i )
-         { 
+         {
             unlump_fraction[compIndex[i]] = in_compMasses[compIndex[i]] * invMass;
          }
          unlump_fraction[lump_component_ind] = in_compMasses[lump_component_ind] * invMass;
       }
    }
 
-#ifdef DEBUG_EXTENSIVE1         
+#ifdef DEBUG_EXTENSIVE1
    // debug check
-  
+
    double in_totMasses = 0, out_totMasses = 0, unlump_sum = 0;
    for( int i = 0; i < NUM_COMP; ++ i )
    {
@@ -421,7 +423,7 @@ void pvtFlash::EosPack::lumpComponents( const double in_compMasses[], // size is
 
 void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][ComponentId::NUMBER_OF_SPECIES_TO_FLASH],
                                           double out_phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES],
-                                          double unlump_fraction[] ) 
+                                          double unlump_fraction[] )
 {
    CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
    const int NUM_COMP = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
@@ -462,8 +464,8 @@ void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][ComponentId
 
             lump_component_ind = ComponentId::C6_MINUS_14ARO;    // theComponentManager.getSpeciedIdByName("C6-14Aro");
             break;
-         
-         default: 
+
+         default:
             assert(0);
             break;
       }
@@ -476,7 +478,7 @@ void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][ComponentId
       out_phaseCompMasses[iOil][lump_component_ind] = in_paseCompMasses[iOil][lump_component_ind] * unlump_fraction[lump_component_ind];
       out_phaseCompMasses[iGas][lump_component_ind] = in_paseCompMasses[iGas][lump_component_ind] * unlump_fraction[lump_component_ind];
 
-#ifdef DEBUG_EXTENSIVE1         
+#ifdef DEBUG_EXTENSIVE1
       std::cout << "Unlumped from "<<  lump_component_ind << " : ";
       for ( int i = 0; i < cmpNum; ++i ) std::cout << compIndex[i] << ", ";
       std::cout << std::endl;
@@ -489,57 +491,57 @@ void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][ComponentId
       std::cout << std::endl;
       std::cout << "Out masses = gas:" << out_totMassesGas << " , oil: " <<  out_totMassesOil << ", Total = " <<  out_totMassesGas+out_totMassesOil  << "." << std::endl;
 #endif
-   } 
+   }
 }
 
 
-bool pvtFlash::EosPack::computeWithLumping( double  temperature, 
-                                            double  pressure, 
-                                            double  in_compMasses[],                     
+bool pvtFlash::EosPack::computeWithLumping( double  temperature,
+                                            double  pressure,
+                                            double  in_compMasses[],
                                             double  out_phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES],
                                             double  phaseDensity [],
                                             double  phaseViscosity[],
                                             bool    isGormPrescribed,
                                             double  gorm,
                                             double* pKValues
-                                          )   
+                                          )
 {
    const int NUM_COMP     = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
    const int NUM_COMP_TOT = ComponentId::NUMBER_OF_SPECIES;
-   
+
    double compMasses[NUM_COMP];
    double phaseCompMasses[PhaseId::NUMBER_OF_PHASES][NUM_COMP];
    double unlump_fractions[NUM_COMP_TOT];
 
    pvtFlash::EosPack::lumpComponents( in_compMasses, compMasses, unlump_fractions );
-   
+
    bool ret = pvtFlash::EosPack::compute( temperature, pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, isGormPrescribed, gorm, pKValues );
 
    pvtFlash::EosPack::unlumpComponents( phaseCompMasses, out_phaseCompMasses, unlump_fractions );
 
    return ret;
-} 
+}
 
 
-bool pvtFlash::EosPack::compute( double  temperature, 
-                                 double  pressure, 
-                                 double  compMasses[],                     
+bool pvtFlash::EosPack::compute( double  temperature,
+                                 double  pressure,
+                                 double  compMasses[],
                                  double  phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES_TO_FLASH],
                                  double  phaseDensity[],
                                  double  phaseViscosity[],
                                  bool    isGormPrescribed,
                                  double  gorm,
                                  double* pKValues
-                               )   
+                               )
 {
    try
-   {     
+   {
       if ( !m_isReadInOk )
       {
          throw std::string( "PVT configuration file not read correctly." );
       }
-      
-#ifdef DEBUG_EXTENSIVE1         
+
+#ifdef DEBUG_EXTENSIVE1
       std::cout << "Compute for: T = " << temperature << ", P = " << pressure << std::endl;
 #endif
 
@@ -555,7 +557,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
       EosPvtTable* pvttable;
 
       /* Terms for equation of state */
-      double pMw[ 1 + iNc * ( 9 + iNc ) ];  
+      double pMw[ 1 + iNc * ( 9 + iNc ) ];
       double* pPc     = pMw     + iNc;
       double* pTc     = pPc     + iNc;
       double* pVc     = pTc     + iNc;
@@ -569,20 +571,20 @@ bool pvtFlash::EosPack::compute( double  temperature,
       double* pShiftC = pOmegaB + iNc;
       double* pBinary = pShiftC + iNc;
 
-#ifdef DEBUG_EXTENSIVE         
+#ifdef DEBUG_EXTENSIVE
 //      testPolynomialParse();
-#endif      
-      
+#endif
+
       if ( !isGormPrescribed )
       {
-         double gasMass = compMasses [ CBMGenerics::ComponentManager::C1 ] + 
+         double gasMass = compMasses [ CBMGenerics::ComponentManager::C1 ] +
                           compMasses [ CBMGenerics::ComponentManager::C2 ] +
                           compMasses [ CBMGenerics::ComponentManager::C3 ] +
                           compMasses [ CBMGenerics::ComponentManager::C4 ] +
                           compMasses [ CBMGenerics::ComponentManager::C5 ] +
                           compMasses [ CBMGenerics::ComponentManager::H2S ];
 
-         double oilMass = compMasses [ CBMGenerics::ComponentManager::RESIN          ] + 
+         double oilMass = compMasses [ CBMGenerics::ComponentManager::RESIN          ] +
                           compMasses [ CBMGenerics::ComponentManager::C15_PLUS_SAT   ] +
                           compMasses [ CBMGenerics::ComponentManager::C6_MINUS_14SAT ] +
                           compMasses [ CBMGenerics::ComponentManager::ASPHALTENE     ] +
@@ -594,14 +596,14 @@ bool pvtFlash::EosPack::compute( double  temperature,
 
       //fill arrays
       for ( int i = 0; i < iNc; ++i )
-      {   
+      {
          pMw[i]     =  m_propertyFunc[i][0]( gorm );
          pAc[i]     =  m_propertyFunc[i][1]( gorm );
          pVc[i]     =  m_propertyFunc[i][2]( gorm );
          pShiftC[i] =  m_propertyFunc[i][3]( gorm );
          pPc[i]     =  m_propertyFunc[i][4]( gorm );
          pTc[i]     =  m_propertyFunc[i][5]( gorm );
-         
+
          pOmegaA[i] =  (*m_omegaA)( gorm );
          pOmegaB[i] =  (*m_omegaB)( gorm );
       }
@@ -613,7 +615,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
 
       //normalize volume shift terms
       for ( int i = 0; i < iNc; ++i )
-      {   
+      {
          pShiftC[i] = pShiftC[i] * ( pPc[i] / 8314.472 ) / ( pOmegaB[i] * pTc[i] ); //consistent units
          //pShiftC[i] = pShiftC[i] * ( pPc[i] / 8.314472 ) / ( pOmegaB[i] * pTc[i] );
       }
@@ -628,7 +630,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
       eosout << "gorm:  " << gorm << std::endl << std::endl << std::endl;
 
       for ( int i = 0; i < iNc; ++i )
-      {   
+      {
          eosout << "pMw[ "     << theComponentManager.getSpeciesName(i) << "]    " << pMw[i] << std::endl;
          eosout << "pAc[ "     << theComponentManager.getSpeciesName(i) << "]    " << pAc[i] << std::endl;
          eosout << "pVc[ "     << theComponentManager.getSpeciesName(i) << "]    " << pVc[i] << std::endl;
@@ -637,7 +639,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
          eosout << "pTc[ "     << theComponentManager.getSpeciesName(i) << "]    " << pTc[i] << std::endl;
          eosout << "pOmegaA[ " << theComponentManager.getSpeciesName(i) << "]    " << pOmegaA[i] << std::endl;
          eosout << "pOmegaB[ " << theComponentManager.getSpeciesName(i) << "]    " << pOmegaB[i] << std::endl;
-         eosout << std::endl <<endl;   
+         eosout << std::endl <<endl;
       }
 
       for ( int i = 0; i < 5; ++i )
@@ -650,7 +652,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
       eosout << "pBinary[ " << iNc  << ", " << iNc << " ]" << std::endl;
 
       for ( int i = 0; i < iNc; ++i )
-      {   
+      {
          for ( int j = 0; j < iNc; ++j )
          {
             eosout << pBinary[i*iNc+j] << "   ";
@@ -665,7 +667,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
       /* Constants */
       int iOil = 1;
       int iGas = 0;
-      
+
       /* Set conversion terms */
 //      dCvp = 6894.7;         //psia to pascal
 //      dCvt = 1.0 / 1.8;      //fahrenheit to celsius without -32 translation
@@ -674,7 +676,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
 
       /* Memory distribution done in stack */
       const int iFlashes = 1;
-      
+
       double pTemperature[ iFlashes * ( 2 + iNc + 2 * ( 3 + iNc )) ];
       double* pPressure     = pTemperature  + iFlashes;
       double* pAccumulation = pPressure     + iFlashes;
@@ -692,14 +694,14 @@ bool pvtFlash::EosPack::compute( double  temperature,
       {
          pAccumulation[i] = compMasses[i];
       }
-      
+
 #ifdef DEBUG_EXTENSIVE
       for ( int i = 0; i < iFlashes; i++ )
       {
          std::cout << setw(  9 ) << i
               << setw( 15 ) << pPressure[i]
               << setw( 15 ) << pTemperature[i];
-         for ( int iJ = 0; iJ < iNc; iJ++ ) 
+         for ( int iJ = 0; iJ < iNc; iJ++ )
          {
             std::cout << setw( 20 ) << pAccumulation[i+iJ*iFlashes];
          }
@@ -710,11 +712,11 @@ bool pvtFlash::EosPack::compute( double  temperature,
 
       /* Call the function */
       EosCauldron::EosGetProperties( iFlashes, iOil, iGas, pPressure, pTemperature, pAccumulation, pKValues,
-                                     pPhaseAcc, pMassFraction, pDensity, pViscosity, 
+                                     pPhaseAcc, pMassFraction, pDensity, pViscosity,
                                      pvttable, m_maxItersNum, m_stopTolerance, m_NewtonRelaxCoeff );
 
 #ifdef EOSPACK_OUT
-      //output 
+      //output
       eosout << "Pressure        " << pPressure[0]    << std::endl;
       eosout << "Temperature     " << pTemperature[0] << std::endl;
 
@@ -726,15 +728,15 @@ bool pvtFlash::EosPack::compute( double  temperature,
       eosout << "Gas_Viscosity   " << ( iGas > -1 ? pViscosity[iGas] : 0.0 ) << std::endl;
 
       for ( int i = 0; i < iNc; ++i )
-      {   
+      {
          eosout << "Gas_Phase_Frac_" << theComponentManager.getSpeciesName(i) << "   " << pMassFraction[i+iNc*iGas] << "   "
                 << "Oil_Phase_Frac_" << theComponentManager.getSpeciesName(i) << "   " << pMassFraction[i+iNc*iOil] << std::endl;
       }
-      eosout << std::endl << std::endl;   
+      eosout << std::endl << std::endl;
 #endif
 
-#ifdef DEBUG_EXTENSIVE      
-      std::cout 
+#ifdef DEBUG_EXTENSIVE
+      std::cout
       << setw(  9 ) << "Flash_Nb"
       << setw( 17 ) << "Pressure"
       << setw( 17 ) << "Temperature"
@@ -765,9 +767,9 @@ bool pvtFlash::EosPack::compute( double  temperature,
       << setw( 17 ) << "Gas_C6-14A_Mass"
       << setw( 17 ) << "Gas_C15+_Mass"
       << std::endl;
-#endif      
+#endif
 
-      for ( int i = 0; i < iFlashes; ++i ) 
+      for ( int i = 0; i < iFlashes; ++i )
       {
          phaseDensity[iOil]   = iOil > -1 ? pDensity[ i + iOil * iFlashes] : 0.0;
          phaseDensity[iGas]   = iGas > -1 ? pDensity[ i + iGas * iFlashes] : 0.0;
@@ -777,11 +779,11 @@ bool pvtFlash::EosPack::compute( double  temperature,
             phaseViscosity[iOil] = iOil > -1 ? pViscosity[ i + iOil * iFlashes] * 1000 : 0.0;
             phaseViscosity[iGas] = iGas > -1 ? pViscosity[ i + iGas * iFlashes] * 1000 : 0.0;
          }
-         
+
 #ifdef DEBUG_EXTENSIVE
          std::cout.precision( 7 );
 
-         std::cout << setw( 9 ) 
+         std::cout << setw( 9 )
               << i
               << setw( 17 ) << pPressure[i]
               << setw( 17 ) << pTemperature[i]
@@ -796,7 +798,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
          }
 #endif
 
-         for ( int iJ = 0; iJ < iNc; ++iJ ) 
+         for ( int iJ = 0; iJ < iNc; ++iJ )
          {
             phaseCompMasses[iOil][iJ] = iOil > -1 ? pMassFraction[i + ( iJ + iNc * iOil) * iFlashes] * pPhaseAcc[i + iOil * iFlashes] : 0.0;
             phaseCompMasses[iGas][iJ] = iGas > -1 ? pMassFraction[i + ( iJ + iNc * iGas) * iFlashes] * pPhaseAcc[i + iGas * iFlashes] : 0.0;
@@ -807,7 +809,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
          {
             std::cout << setw( 17 ) << phaseCompMasses[iOil][iJ];
          }
-         for ( int iJ = 0; iJ < iNc; ++iJ ) 
+         for ( int iJ = 0; iJ < iNc; ++iJ )
          {
             std::cout << setw( 17 ) << phaseCompMasses[iGas][iJ];
          }
@@ -817,7 +819,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
       /* Free memory */
       delete pvttable;
 
-#ifdef DEBUG_EXTENSIVE1         
+#ifdef DEBUG_EXTENSIVE1
       std::cout << "Computed successfully " << std::endl;
 #endif
 
@@ -842,7 +844,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
       cerr << "Error: unhandled exception in EosPack. " << std::endl;
       return false;
    }
-   
+
    return true;
 }
 
@@ -854,12 +856,12 @@ double pvtFlash::EosPack::getMolWeightLumped( int componentId, double gorm )
 double pvtFlash::EosPack::getMolWeight( int componentId, double gorm )
 {
    return m_propertyFunc[componentId][0]( gorm );
-} 
+}
 
 double pvtFlash::EosPack::getCriticalTemperature( int componentId, double gorm )
 {
    return m_propertyFunc[componentId][5]( gorm );
-} 
+}
 
 double pvtFlash::getCriticalTemperature(int componentId, double gorm)
 {
@@ -875,18 +877,18 @@ double pvtFlash::EosPack::getCriticalVolume( int componentId, double gorm )
 double pvtFlash::EosPack::getCriticalTemperatureLumped( int componentId, double gorm )
 {
    return getCriticalTemperature( getLumpedIndex( componentId ), gorm  );
-} 
+}
 
 double pvtFlash::EosPack::getCriticalVolumeLumped( int componentId, double gorm )
 {
    return getCriticalVolume( getLumpedIndex( componentId ), gorm );
-} 
+}
 
 double pvtFlash::EosPack::gorm( const double weights[ComponentId::NUMBER_OF_SPECIES] )
 {
    const vector<double> weightVec( weights, weights + ComponentId::NUMBER_OF_SPECIES );
 
-   return pvtFlash::gorm( weightVec ); 
+   return pvtFlash::gorm( weightVec );
 }
 
 double pvtFlash::gorm( const vector<double>& weights )
@@ -912,7 +914,7 @@ double pvtFlash::gorm( const vector<double>& weights )
    denom       += weights[ComponentId::C6_MINUS_14ARO_S];
 
    assert( denom >= 0.0 );
-   
+
    if ( denom == 0.0 )
    {
       // return CBMGenerics::undefined;
@@ -926,7 +928,7 @@ double pvtFlash::gorm( const vector<double>& weights )
    num       += weights[ComponentId::C5];
 
    num       += weights[ComponentId::H2S];
-   
+
    return num / denom;
 }
 
@@ -936,10 +938,10 @@ double pvtFlash::getMolWeight( int componentId, const vector<double>& weights )
    return weights[componentId] / eosPack.getMolWeightLumped( componentId, gorm( weights ) );
 }
 
-/// The determination of the critical temperature can be done using Li's mixing rule 
-/// (based on effective concentration), which is more appropriate than the pseudocritical 
-/// temperature calculated with Kay's mixing rule (based on molar fraction).  Compared 
-/// to the full EOS (?) computation, deviation with Li's mixing rule average to less than 
+/// The determination of the critical temperature can be done using Li's mixing rule
+/// (based on effective concentration), which is more appropriate than the pseudocritical
+/// temperature calculated with Kay's mixing rule (based on molar fraction).  Compared
+/// to the full EOS (?) computation, deviation with Li's mixing rule average to less than
 /// 4K for binary systems and 11K for multicomponent systems.
 ///
 /// Li's mixing rule is given by:
@@ -968,9 +970,9 @@ double pvtFlash::getMolWeight( int componentId, const vector<double>& weights )
 double pvtFlash::criticalTemperatureAccordingToLiMixingRule( const vector<double>& phaseWeights, const double& gorm )
 {
    EosPack& eosPack = EosPack::getInstance();
-   
-   // We roll the three for loops (i.e. the loop in order to calculate the total number of moles 
-   // (for the molar fraction), the loop in order to calculate the sum over Z_i V_ci into one 
+
+   // We roll the three for loops (i.e. the loop in order to calculate the total number of moles
+   // (for the molar fraction), the loop in order to calculate the sum over Z_i V_ci into one
    // and calculate:
    //
    //         --  weight[i]
@@ -978,9 +980,9 @@ double pvtFlash::criticalTemperatureAccordingToLiMixingRule( const vector<double
    //         -- molWeight[i]    ci   ci
    //          i
    //   T  =  --------------------------
-   //    c    
+   //    c
    //             --  weight[i]
-   //             >  ------------   V    
+   //             >  ------------   V
    //             -- molWeight[i]    ci
    //              i
    //
@@ -994,14 +996,14 @@ double pvtFlash::criticalTemperatureAccordingToLiMixingRule( const vector<double
       double molWeight_i = eosPack.getMolWeight( i, gorm );
       assert( molWeight_i > 0.0 );
       double moles_i = phaseWeights[i] / molWeight_i;
-      
+
       double V_ci = eosPack.getCriticalVolume( i, gorm );
       double T_ci = eosPack.getCriticalTemperature( i, gorm );
 
       double lambda_i = moles_i * V_ci;
       critialTemperature += lambda_i * T_ci;
       norm += lambda_i;
-   }   
+   }
    assert(norm > 0.0);
    critialTemperature /= norm;
    return critialTemperature;
@@ -1021,10 +1023,10 @@ double pvtFlash::criticalTemperatureAccordingToLiMixingRuleWithLumping( const ve
 
       int lumpedInd = eosPack.getLumpedIndex( i );
       double molWeight_i = eosPack.getMolWeight( lumpedInd, gorm );
- 
+
       assert( molWeight_i > 0.0 );
       double moles_i = phaseWeights[i] / molWeight_i;
-      
+
       double V_ci = eosPack.getCriticalVolume( lumpedInd, gorm );
       double T_ci = eosPack.getCriticalTemperature( lumpedInd, gorm );
 
@@ -1034,7 +1036,7 @@ double pvtFlash::criticalTemperatureAccordingToLiMixingRuleWithLumping( const ve
    }
    assert( norm > 0.0 );
    critialTemperature /= norm;
-  
+
    return critialTemperature;
 }
 
@@ -1070,11 +1072,11 @@ void testPolynomialParse()
    //   string func="5";
 
    std::cout << "string to be parsed:  " << func << std::endl;
-   
+
    std::vector<polynomials::parse::Token> theTokens;
 
    polynomials::parse::GetTokens( func, theTokens );
-   
+
    std::cout << std::endl << "theTokens: ";
 
    for ( size_t i = 0; i < theTokens.size(); ++i )
@@ -1082,17 +1084,17 @@ void testPolynomialParse()
       std::cout << theTokens[i];
    }
    std::cout << std::endl;
-   
+
    polynomials::Polynomial poly;
 
    size_t start = 0;
    polynomials::PiecewisePolynomial piecewise;
    polynomials::parse::ParsePiecewisePolynomial( theTokens, start, piecewise );
-   
+
    std::cout << std::endl << piecewise << std::endl;
    double x = 2.0;
    std::cout << "x=" << x << " -> " << piecewise(x) << std::endl;
-   
+
    x = 4.0;
    std::cout << "x=" << x << " -> " << piecewise(x) << std::endl;
 }

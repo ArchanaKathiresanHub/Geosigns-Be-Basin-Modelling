@@ -1435,7 +1435,7 @@ namespace migration
 
       char fname[256];
 
-      sprintf (fname, "%s_%d.txt", getName ().c_str (), static_cast <int>(curSnapshot->getTime ()));
+      snprintf (fname, sizeof (fname), "%s_%d.txt", getName ().c_str (), static_cast <int>(curSnapshot->getTime ()));
       FILE *fres = fopen (fname, "w");
       LocalFormationNode *fnode;
 

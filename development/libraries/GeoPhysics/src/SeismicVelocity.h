@@ -67,6 +67,9 @@ namespace GeoPhysics
       /// @brief Overwrite default copy constructor to avoid bitwise copy
       SeismicVelocity( const SeismicVelocity& seismicVelocity );
 
+      ~SeismicVelocity();
+
+
 		/*! \class Algorithm
 		* \brief Abstract class member of seismicVelocity. Compute the seismicVelocity (of the bulk, inlc. prosity and fluid).
 		*/

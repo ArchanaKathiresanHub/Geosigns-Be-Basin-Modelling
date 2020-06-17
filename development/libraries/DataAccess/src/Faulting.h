@@ -31,7 +31,7 @@ namespace DataAccess
             FaultStatus getStatus () const;
             const std::string & getStatusName () const;
 
-            friend ostream & operator<< (ostream & o, const FaultEvent & faultEvent);
+            friend std::ostream & operator<< (std::ostream & o, const FaultEvent & faultEvent);
 
          private:
             double m_faultAge;
@@ -88,7 +88,7 @@ namespace DataAccess
 
          virtual ~Fault ();
 
-   virtual const string & getName (void) const;
+   virtual const std::string & getName (void) const;
 
          ///
          ///
@@ -127,7 +127,7 @@ namespace DataAccess
          ///
          PointSequence m_faultLine;
 
-         friend ostream & operator<< (ostream & o, const Fault & singleFault);
+         friend std::ostream & operator<< (std::ostream & o, const Fault & singleFault);
       };
    }
 }

@@ -24,6 +24,8 @@
 #include "ImportProjectHandle.h"
 #include "ImportFromXML.h"
 
+using namespace ibs;
+
 //-------------------------------------------------------------//
 VisualizationPropertiesCalculator::VisualizationPropertiesCalculator(int aRank) : AbstractPropertiesCalculator (aRank)
 {

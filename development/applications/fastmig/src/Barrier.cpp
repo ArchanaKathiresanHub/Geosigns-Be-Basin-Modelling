@@ -31,6 +31,7 @@ using DataAccess::Interface::GridMap;
 
 using namespace migration;
 using namespace AbstractDerivedProperties;
+using namespace ibs;
 
 Barrier::Barrier (MigrationReservoir * reservoir) : m_reservoir (reservoir)
 {
@@ -92,7 +93,7 @@ void Barrier::updateBlockingPermeability (const migration::MigrationFormation * 
    gridMap->restoreData ();
 
 }
-   
+
 void Barrier::updateBlockingPorosity (const migration::MigrationFormation * formation,
                                       const DataAccess::Interface::Snapshot * snapshot)
 {
@@ -125,7 +126,7 @@ void Barrier::updateBlockingPorosity (const migration::MigrationFormation * form
       }
    }
    gridMap->restoreData ();
-   
+
       }
 
 

@@ -9,7 +9,7 @@ class VoxetPropertyGrid {
 
 public :
 
-   VoxetPropertyGrid ( const GridDescription& grid );
+   explicit VoxetPropertyGrid ( const GridDescription& grid );
 
    ~VoxetPropertyGrid ();
 

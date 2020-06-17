@@ -158,7 +158,7 @@ int main (int argc, char ** argv)
 
       char errorstring[1024];
 
-      sprintf (errorstring, "Could not create directory '%s'", outputDirectory);
+      snprintf (errorstring, sizeof (errorstring), "Could not create directory '%s'", outputDirectory);
       perror (errorstring);
 
       return 5;
@@ -292,17 +292,17 @@ int main (int argc, char ** argv)
 
       if (firstLine)
       {
-	 if (getDepoAge (stratRecord) != 0)
-	 {
-	    if (!quiet)
-	    {
-	       cerr << inputFileName << ":" << endl;
-	       cerr << "  Changing DepoAge of top surface " << getSurfaceName (stratRecord)
-		  << " from " << getDepoAge (stratRecord) << " to 0" << endl << endl;
-	    }
-	    setDepoAge (stratRecord, 0);
-	 }
-	 firstLine = false;
+   if (getDepoAge (stratRecord) != 0)
+   {
+      if (!quiet)
+      {
+         cerr << inputFileName << ":" << endl;
+         cerr << "  Changing DepoAge of top surface " << getSurfaceName (stratRecord)
+      << " from " << getDepoAge (stratRecord) << " to 0" << endl << endl;
+      }
+      setDepoAge (stratRecord, 0);
+   }
+   firstLine = false;
       }
    }
 
@@ -381,37 +381,37 @@ int main (int argc, char ** argv)
          if (!quiet)
          {
             cerr << inputFileName << ":" << endl;
-	    if (sourceRockTypeOld == "")
-	    {
-	       cerr << "  Found unnamed source rock type of formation " << getLayerName (sourceRockLithoRecord) << endl << endl;
-	    }
-	    else
-	    {
-	       cerr << "  Did not recognize source rock type " << sourceRockTypeOld  << " of formation " << getLayerName (sourceRockLithoRecord) << endl << endl;
-	    }
+      if (sourceRockTypeOld == "")
+      {
+         cerr << "  Found unnamed source rock type of formation " << getLayerName (sourceRockLithoRecord) << endl << endl;
+      }
+      else
+      {
+         cerr << "  Did not recognize source rock type " << sourceRockTypeOld  << " of formation " << getLayerName (sourceRockLithoRecord) << endl << endl;
+      }
          }
 
-	 double HC = getHcVRe05 (sourceRockLithoRecord);
+   double HC = getHcVRe05 (sourceRockLithoRecord);
 
 	 if (HC > 1.35)       sourceRockTypeNew = "Type_I_CenoMesozoic_Lacustrine_kin";
 	 else if (HC > 1.225) sourceRockTypeNew = "Type_II_Mesozoic_MarineShale_kin";
 	 else if (HC > 1.00)  sourceRockTypeNew = "Type_II_Paleozoic_MarineShale_kin";
 	 else                 sourceRockTypeNew = "Type_III_MesoPaleozoic_VitriniticCoal_kin";
-      }
+			}
 
       if (sourceRockTypeOld != sourceRockTypeNew)
       {
          if (!quiet)
          {
             cerr << inputFileName << ":" << endl;
-	    if (sourceRockTypeOld == "")
-	    {
-	       cerr << "  Mapping unnamed source rock type of formation " << getLayerName (sourceRockLithoRecord) <<  " onto" << endl;
-	    }
-	    else
-	    {
-	       cerr << "  Mapping old-fashionedly named source rock type " << sourceRockTypeOld << " of formation " << getLayerName (sourceRockLithoRecord) << " onto" << endl;
-	    }
+      if (sourceRockTypeOld == "")
+      {
+         cerr << "  Mapping unnamed source rock type of formation " << getLayerName (sourceRockLithoRecord) <<  " onto" << endl;
+      }
+      else
+      {
+         cerr << "  Mapping old-fashionedly named source rock type " << sourceRockTypeOld << " of formation " << getLayerName (sourceRockLithoRecord) << " onto" << endl;
+      }
 
             cerr << "  source rock type " << sourceRockTypeNew << endl;
             cerr << "  Please verify that this is correct" << endl << endl;
@@ -424,7 +424,7 @@ int main (int argc, char ** argv)
          {
             char newName[128];
 
-            sprintf (newName, "DerivedType_%d", index);
+            snprintf (newName, sizeof (newName), "DerivedType_%d", index);
             sourceRockTypeNew = newName;
             if (!quiet)
             {
@@ -586,7 +586,7 @@ int main (int argc, char ** argv)
 
             ibs::FilePath fullOutputMapFileName( outputDirectory );
             fullOutputMapFileName << outputMapFileName;
-	    
+
             args[n] = strdup ("grid2grid");
             n++;
 
@@ -625,12 +625,12 @@ int main (int argc, char ** argv)
                char resolutionXStr[32];
                char resolutionYStr[32];
 
-               sprintf (originXStr, "%lf", getXCoord (projectIoRecord));
-               sprintf (originYStr, "%lf", getYCoord (projectIoRecord));
-               sprintf (deltaXStr, "%lf", getDeltaX (projectIoRecord));
-               sprintf (deltaYStr, "%lf", getDeltaY (projectIoRecord));
-               sprintf (resolutionXStr, "%d", getNumberX (projectIoRecord));
-               sprintf (resolutionYStr, "%d", getNumberY (projectIoRecord));
+               snprintf (originXStr, sizeof (originXStr),  "%lf", getXCoord (projectIoRecord));
+               snprintf (originYStr, sizeof (originYStr), "%lf", getYCoord (projectIoRecord));
+               snprintf (deltaXStr, sizeof (deltaXStr), "%lf", getDeltaX (projectIoRecord));
+               snprintf (deltaYStr, sizeof (deltaYStr), "%lf", getDeltaY (projectIoRecord));
+               snprintf (resolutionXStr, sizeof (resolutionXStr), "%d", getNumberX (projectIoRecord));
+               snprintf (resolutionYStr, sizeof (resolutionYStr), "%d", getNumberY (projectIoRecord));
 
                args[n] = strdup ("-origin");
                n++;
@@ -654,11 +654,11 @@ int main (int argc, char ** argv)
             args[n] = 0;
 
 
-	    if (!quiet)
-	    {
-	       cerr << inputFileName << ":" << endl;
-	       cerr << "  Converting " << mapFileName << " to HDF5 format" << endl << endl;
-	    }
+			if (!quiet)
+			{
+				 cerr << inputFileName << ":" << endl;
+				 cerr << "  Converting " << mapFileName << " to HDF5 format" << endl << endl;
+			}
 
             processCmd ("grid2grid", args, true);
          }
@@ -718,8 +718,8 @@ int main (int argc, char ** argv)
 
 	 if (inputonly)
 	 {
-	    args[n] = strdup ("-inputonly");
-	    n++;
+			args[n] = strdup ("-inputonly");
+			n++;
 	 }
 
          args[n] = strdup ("-project");
@@ -732,7 +732,7 @@ int main (int argc, char ** argv)
          n++;
          args[n] = strdup (outputDirectory);
          n++;
-	 args[n] = 0;
+   args[n] = 0;
 
          if (!quiet)
          {
@@ -749,7 +749,7 @@ int main (int argc, char ** argv)
          n++;
          args[n] = strdup (outputDirectory);
          n++;
-	 args[n] = 0;
+   args[n] = 0;
 
          if (!quiet)
          {
@@ -763,7 +763,7 @@ int main (int argc, char ** argv)
 
    char fullpath[1024];
 
-   sprintf (fullpath, "%s/%s", outputDirectory, outputFileName);
+   snprintf (fullpath, sizeof (fullpath), "%s/%s", outputDirectory, outputFileName);
    tables->saveToFile (fullpath);
 
    waitForChildren ();

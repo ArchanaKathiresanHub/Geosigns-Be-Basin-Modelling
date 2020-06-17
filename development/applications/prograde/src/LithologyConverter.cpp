@@ -216,7 +216,8 @@ void Prograde::LithologyConverter::upgradeLithologyAuditInfo(std::string & Defin
 
 std::string Prograde::LithologyConverter::findParentLithology(std::string legacydefinedBy)
 {
-	string ParentLithoName;
+	std::string ParentLithoName;
+
 	//The legacy format of DefinedBy field is: "BPA REF INFO|<StadandLitho1>|<StadandLitho2>"...and the actual parent lithology name is <StadandLitho1>
 	size_t pos_FirstPipe = legacydefinedBy.find("|");
 	size_t pos_SecondPipe = legacydefinedBy.find_last_of("|");
@@ -253,7 +254,7 @@ std::string Prograde::LithologyConverter::findMissingParentLithology(const std::
 
 bool Prograde::LithologyConverter::isDefinedBeforeThanCutOffDate(const std::string dateOfCreation)
 {
-	string creationMonth, creationDate, creationYear, creationDateAndYear;
+	std::string creationMonth, creationDate, creationYear, creationDateAndYear;
 
 	//in BPA1, the date format is : month_date_year_time (underscore are spaces only) i.e., "June 01 2020 09:49"
 	size_t startPos = dateOfCreation.find_first_not_of(" ");;
@@ -292,7 +293,7 @@ bool Prograde::LithologyConverter::isDefinedBeforeThanCutOffDate(const std::stri
 		}
 	}
 
-	stringstream y(creationYear), m(creationMonth), d(creationDate);
+	std::stringstream y(creationYear), m(creationMonth), d(creationDate);
 	int year = 0, month = 0, date = 0;
 	y >> year;
 	m >> month;
@@ -501,7 +502,7 @@ void Prograde::LithologyConverter::upgradePermModelForSysDefLitho(const std::str
 
 void Prograde::LithologyConverter::computeSingleExpModelParameters(const std::string legacyParentLithoName, const int lithologyFlag, mbapi::LithologyManager::PorosityModel &porModel, std::vector<double> & originalPorModelParam, std::vector<double> & newPorModelParam)
 {
-	string baseLithologyType = legacyParentLithoName;
+	std::string baseLithologyType = legacyParentLithoName;
 
 	double newSurfacePorosity;
 	double newMinMechanicalPorosity;

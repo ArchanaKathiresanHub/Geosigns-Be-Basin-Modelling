@@ -77,8 +77,12 @@ namespace GeoPhysics
    }
 
    Porosity::Porosity( const Porosity& porosity )
-      :m_algorithm( porosity.m_algorithm )
+     :m_algorithm( porosity.m_algorithm )
    {}
+
+   Porosity::~Porosity()
+   {
+   }
 
    Porosity::Algorithm::Algorithm(double depoPorosity, double minimumMechanicalPorosity):
       m_depoPorosity((depoPorosity < MinimumPorosityNonLegacy) ? 0.0 : depoPorosity),

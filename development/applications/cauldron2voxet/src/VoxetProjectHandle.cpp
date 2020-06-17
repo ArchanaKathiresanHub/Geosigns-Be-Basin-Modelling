@@ -2,11 +2,12 @@
 #include "voxetschemafuncs.h"
 #include "voxetschema.h"
 #include "database.h"
+#include "LogHandler.h"
 
 #include "CauldronProperty.h"
 
 VoxetProjectHandle::VoxetProjectHandle ( const std::string& voxetProjectFileName,
-                                         const ProjectHandle& projectHandle ) :
+                                         const DataAccess::Interface::ProjectHandle& projectHandle ) :
    m_voxetProjectFileName ( voxetProjectFileName ),
    m_cauldronProjectHandle ( projectHandle ) {
 
@@ -24,53 +25,51 @@ void VoxetProjectHandle::loadCauldronProperties () {
 
    database::Table* propTable = m_database->getTable ( "CauldronPropertyIoTbl" );
 
-   if ( propTable == 0 ) {
-      cout << " Cannot load CauldronPropertyIoTbl." << endl;
+   if ( propTable == nullptr ) {
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Cannot load CauldronPropertyIoTbl.";
    }
 
-   assert ( propTable != 0 );
+   assert ( propTable != nullptr );
 
    database::Table::iterator propIter;
-   database::Record* propRecord;
 
    for ( propIter = propTable->begin (); propIter != propTable->end (); ++propIter ) {
-      m_cauldronProperties.push_back ( new CauldronProperty ( m_cauldronProjectHandle, this, *propIter ));
+      m_cauldronProperties.push_back ( new CauldronProperty ( m_cauldronProjectHandle, *propIter ));
    }
 
 }
 
 //------------------------------------------------------------//
 
-void VoxetProjectHandle::loadVoxetGrid ( const Interface::Grid* cauldronGrid ) {
+void VoxetProjectHandle::loadVoxetGrid ( const DataAccess::Interface::Grid* cauldronGrid ) {
 
    database::Table* voxetGridTable = m_database->getTable ( "VoxetGridIoTbl" );
    database::Table* cauldronGridTable = m_cauldronProjectHandle.getTable ( "ProjectIoTbl" );
 
-   if ( voxetGridTable == 0 ) {
-      cout << " Cannot load VoxetGridIoTbl." << endl;
+   if ( voxetGridTable == nullptr ) {
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Cannot load VoxetGridIoTbl.";
    }
 
-   assert ( voxetGridTable != 0 );
+   assert ( voxetGridTable != nullptr );
 
-   if ( cauldronGridTable == 0 ) {
-      cout << " Cannot load ProjectIoTbl." << endl;
+   if ( cauldronGridTable == nullptr ) {
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Cannot load ProjectIoTbl.";
    }
-
-   assert ( cauldronGridTable != 0 );
+   assert ( cauldronGridTable != nullptr );
 
    database::Record* cauldronRecord = cauldronGridTable->getRecord ( 0 );
    database::Record* voxetRecord = voxetGridTable->getRecord ( 0 );
 
-   if ( voxetRecord == 0 ) {
-      cout << " No data found in VoxetGridIoTbl." << endl;
+   if ( voxetRecord == nullptr ) {
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " No data found in VoxetGridIoTbl.";
    }
 
-   if ( cauldronRecord == 0 ) {
-      cout << " No data found in ProjectIoTbl." << endl;
+   if ( cauldronRecord == nullptr ) {
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " No data found in ProjectIoTbl.";
    }
 
-   assert ( cauldronRecord != 0 );
-   assert ( voxetRecord != 0 );
+   assert ( cauldronRecord != nullptr );
+   assert ( voxetRecord != nullptr );
 
    m_gridDescription = new GridDescription ( cauldronRecord, voxetRecord, cauldronGrid );
 }
@@ -79,15 +78,15 @@ void VoxetProjectHandle::loadSnapshotTime () {
 
    database::Table* snapshotTimeTable = m_database->getTable ( "SnapshotTimeIoTbl" );
 
-   if ( snapshotTimeTable == 0 ) {
-      cout << " Cannot load SnapshotTimeIoTbl." << endl;
+   if ( snapshotTimeTable == nullptr ) {
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Cannot load SnapshotTimeIoTbl.";
    }
 
-   assert ( snapshotTimeTable != 0 );
+   assert ( snapshotTimeTable != nullptr );
 
    database::Record* snapshotTimeRecord = snapshotTimeTable->getRecord ( 0 );
 
-   if ( snapshotTimeRecord == 0 )
+   if ( snapshotTimeRecord == nullptr )
    {
       m_snapshotTime = 0;
    }

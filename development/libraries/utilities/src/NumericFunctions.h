@@ -50,7 +50,7 @@ namespace NumericFunctions {
                   const Number& upperBound );
 
    template<class Number>
-   bool isEqual ( const Number& x, const Number& y, const Number& tolerance); 
+   bool isEqual ( const Number& x, const Number& y, const Number& tolerance);
 
    /// \brief Clips a value so that it lies within the desired range.
    ///
@@ -68,7 +68,7 @@ namespace NumericFunctions {
    struct ScalarValues;
 
 
-   #if defined(_WIN32) || defined (_WIN64)	
+   #if defined(_WIN32) || defined (_WIN64)
    #else
 
 
@@ -90,7 +90,7 @@ namespace NumericFunctions {
       static const int Zero = 0;
       static const int One  = 1;
    };
-	#endif
+  #endif
 }
 
 //------------------------------------------------------------//
@@ -145,7 +145,7 @@ bool NumericFunctions::inRange ( const Number& value,
                                  const Number& lowerBound,
                                  const Number& upperBound ) {
 
-   return lowerBound <= value and value <= upperBound;
+   return lowerBound <= value && value <= upperBound;
 }
 
 //------------------------------------------------------------//
@@ -187,7 +187,7 @@ Scalar NumericFunctions::clipValueToRange ( const Scalar value, const Scalar low
 
 //------------------------------------------------------------//
 
-   #if defined(_WIN32) || defined (_WIN64)	
+   #if defined(_WIN32) || defined (_WIN64)
    #else
 
 template<typename Scalar>

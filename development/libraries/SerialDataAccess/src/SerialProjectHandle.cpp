@@ -24,6 +24,7 @@
 using namespace DataAccess;
 using namespace Interface;
 using namespace std;
+using namespace ibs;
 
 //float GetUndefinedValue (hid_t fileId);
 

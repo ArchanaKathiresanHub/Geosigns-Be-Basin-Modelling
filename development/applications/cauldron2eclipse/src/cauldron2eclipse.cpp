@@ -409,7 +409,7 @@ int main (int argc, char ** argv)
    // open file for binary stream
    if (doBinary)
    {
-      sprintf (outputFileNameBin, "%s.EGRID", outputFileName.c_str ());
+      snprintf (outputFileNameBin, sizeof (outputFileNameBin), "%s.EGRID", outputFileName.c_str ());
       fpw = fopen (outputFileNameBin, "wb");
    }
 
@@ -810,7 +810,7 @@ int main (int argc, char ** argv)
       writeDelimiter ();
 
       fclose (fpw);
-      sprintf (outputFileNameBin, "%s.INIT", outputFileName.c_str ());
+      snprintf (outputFileNameBin, sizeof (outputFileNameBin), "%s.INIT", outputFileName.c_str ());
       fpw = fopen (outputFileNameBin, "wb");
 
       writeINITHeader (swapMode, numI + 1, numJ + 1, numberOfHorizons);
@@ -1238,7 +1238,7 @@ int main (int argc, char ** argv)
       //------------- Binary data
       if (doBinary)
       {
-         sprintf (uWord, "%8s", conversion.eclipseName.c_str ());
+         snprintf (uWord, sizeof (uWord), "%8s", conversion.eclipseName.c_str ());
          noItems = (numI) * (numJ) * (numberOfHorizons - 1);
          writeKeywordRecord (uWord, noItems, "REAL");
 
@@ -1595,7 +1595,7 @@ void writeEGRIDHeader( const bool& swapMode, const int& numI, const int& numJ,
    writeDelimiter ();
    writeValue (noItems * 8, swapMode);
 
-   sprintf (uWord, "%s\0", "METRES  ");
+   snprintf (uWord, sizeof (uWord), "%s\0", "METRES  ");
    nlen = strlen (uWord);
    fwrite (uWord, nlen, sizeof (char), fpw);
 
@@ -1638,11 +1638,11 @@ void writeEGRIDHeader( const bool& swapMode, const int& numI, const int& numJ,
    writeDelimiter ();
    writeValue (noItems * 8, swapMode);
 
-   sprintf (uWord, "%s\0", "METRES  ");
+   snprintf (uWord, sizeof (uWord), "%s\0", "METRES  ");
    nlen = strlen (uWord);
    fwrite (uWord, nlen, sizeof (char), fpw);
 
-   sprintf (uWord, "%s\0", "MAP     ");
+   snprintf (uWord, sizeof (uWord), "%s\0", "MAP     ");
    nlen = strlen (uWord);
    fwrite (uWord, nlen, sizeof (char), fpw);
 

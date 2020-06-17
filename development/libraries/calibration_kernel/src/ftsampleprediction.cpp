@@ -99,7 +99,7 @@ void FtSamplePrediction::calcTrackLengths (double timestep, double temperature, 
    {
       // Cl weight percentage is present in the sample
       
-      vector<double> newCount( params.getNumBinTrackLengths(), 0.0 ); //!!! is allocation a performance issue? Otherwise make it a static / member!
+      std::vector<double> newCount( params.getNumBinTrackLengths(), 0.0 ); //!!! is allocation a performance issue? Otherwise make it a static / member!
 
       // Get the Cl weight percentage dependent parameters
       c0 = params.getC0( ClIndex );
@@ -213,7 +213,7 @@ void FtSamplePrediction::calcTrackLengths (double timestep, double temperature, 
          tBeg = tEnd;
          iBeg = iEnd;
 
-         cout.setf(ios::scientific,ios::floatfield);
+         cout.setf(std::ios::scientific,std::ios::floatfield);
          cout << setw(25) << setprecision(18);
 
          //cout << "end of predLength-loop " << i << ": hEnd " << hEnd << " tEnd " << tEnd << " iEnd " << iEnd <<endl;
@@ -380,7 +380,7 @@ void FtSamplePrediction::geotrackCorrPredTracklengthDists()
    Histogram *histogram, *partdist, *sum;
    double L0, tracklength, tl, sigma;
    double p, nextp, a, b, epx, bjval;
-   vector<double> bj;
+   std::vector<double> bj;
 
    FtParameters& params = FtParameters::getInstance();
 

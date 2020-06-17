@@ -115,20 +115,15 @@ namespace DataAccess
          /// the GridMap is three-dimensional
          unsigned int getDepth() const final;
 
-         /// cease usage of this object
-         /// Informs the Parent object that the user application has stopped using this GridMap so that
-         /// it may be deleted.
-         void release() const final;
-
          /// Return the array of values managed by this GridMap
          double const * const * const * getValues() const final;
 
          /// Save this gridmap in the HDF5 format
-         bool saveHDF5(const string & fileName) const final;
+         bool saveHDF5(const std::string & fileName) const final;
 
          /// Print the attributes and map values of this GridMap
               // May not work if user application is compiled under IRIX with CC -lang:std
-         void printOn(ostream &) const final;
+         void printOn(std::ostream &) const final;
 
          /// map interpolation functionality
          bool convertToGridMap(GridMap *mapB) const final;

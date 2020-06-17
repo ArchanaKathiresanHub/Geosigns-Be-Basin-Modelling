@@ -41,7 +41,7 @@
            << sizeof (type) << ", totalling " << size * sizeof (type) \
            << " bytes" << std::endl; \
       return 0; \
-   } 
+   }
 
 #define CheckArray(myarray) \
    if (!myarray) \
@@ -74,12 +74,12 @@ namespace ibs
          }
          return array;
       }
-   
+
       static void delete1d (Type * array)
       {
          delete [] array;
       }
-   
+
       static Type ** create2d (size_t n1, size_t n2)
       {
          Type * array1d = Array<Type>::create1d (n1 * n2);
@@ -87,7 +87,7 @@ namespace ibs
 
          Type ** array = Array<Type *>::create1d (n1);
          CheckArray (array);
-      
+
          for (size_t j = 0; j < n1; ++j)
          {
             array[j] = array1d + j * n2;
@@ -146,7 +146,7 @@ namespace ibs
       {
          Type *** array = Array<Type>::create3d (n1, n2, n3);
          CheckArray (array);
-      
+
          for (size_t j = 0; j < n1*n2*n3; ++j)
          {
             array[0][0][j] = value;
@@ -212,6 +212,11 @@ namespace ibs
          Array<Type>::delete2d ( Entries );
       }
 
+      Array2D (const Array2D& array2D) = delete;
+      Array2D (Array2D&& array2D) = delete;
+      Array2D& operator=(const Array2D& array2D) = delete;
+      Array2D& operator=(Array2D&& array2D) = delete;
+
       Type  operator ()( const int xPosition, const int yPosition ) const {
          return Entries [ xPosition ][ yPosition ];
       }
@@ -232,13 +237,13 @@ namespace ibs
          for ( I = 0; I < A.Dimensions [ 0 ]; I++ ) {
 
             for ( J = 0; J < A.Dimensions [ 1 ]; J++ ) {
-               std::cout << A.Entries [ I ][ J ] << "  ";
+               o << A.Entries [ I ][ J ] << "  ";
             }
 
-            std::cout << std::endl;
+            o << std::endl;
          }
 
-         std::cout << std::endl;
+         o << std::endl;
          return o;
       }
 
@@ -270,6 +275,11 @@ namespace ibs
        Array<Type>::delete3d ( Entries );
      }
 
+     Array3D (const Array3D& array3D) = delete;
+     Array3D (Array3D&& array3D) = delete;
+     Array3D& operator=(const Array3D& array3D) = delete;
+     Array3D& operator=(Array3D&& array3D) = delete;
+
      Type  operator ()( const int X_Position, const int Y_Position, const int Z_Position ) const {
        return Entries [ X_Position ][ Y_Position ][ Z_Position ];
      }
@@ -294,6 +304,5 @@ namespace ibs
    }; // end class Array3D
 
 } // end namespace ibs
-using namespace ibs;
 
 #endif // __rbyutilities_multidimensional_array___

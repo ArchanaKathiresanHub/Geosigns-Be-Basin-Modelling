@@ -20,7 +20,6 @@
 
 // CBMGenerics library
 #include "ComponentManager.h"
-typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 #include "AbstractCompoundLithology.h"
 #include "ArrayDefinitions.h"
 #include "CompoundLithologyComposition.h"
@@ -33,6 +32,8 @@ typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
 #include "PermeabilityMixer.h"
 #include "AlignedWorkSpaceArrays.h"
+
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
 namespace GeoPhysics {
    class ProjectHandle;

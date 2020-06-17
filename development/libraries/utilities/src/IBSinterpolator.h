@@ -12,8 +12,6 @@
 
 #include <vector>
 
-using namespace std;
-
 namespace ibs {
 
    // Helper class for the interpolator and other classes.
@@ -78,21 +76,25 @@ namespace ibs {
 
       Sorter d_sorterFunc;
 
-      typedef vector<XF>	    vectorXF;
-   
+      typedef std::vector<XF>	    vectorXF;
+
    public:
 
       typedef enum { UnOrdered, Ascending, Descending } SorterType;
-   
+
       Interpolator (SorterType sorterType = UnOrdered);
       Interpolator ( const Interpolator& interp );
-      ~Interpolator (void); 
-   
+      Interpolator (Interpolator&& interp) = delete;
+      ~Interpolator (void);
+
+      Interpolator operator =(Interpolator&& interp) = delete;
+      Interpolator operator =(const Interpolator& interp) = delete;
+
       enum Extrapolation { linear, constant, none };
-   
+
       // input function elements (x, f)
       void    addPoint(double x, double f);
-   
+
       // compute f given (x)
       double  compute(double x, Extrapolation type = linear);
 
@@ -100,9 +102,9 @@ namespace ibs {
       void freeze ();
 
       void print (void);
-   
+
    private:
-   
+
       // whether the table was sorted.
       int d_sorted;
       // Tables that store the function values.
@@ -124,7 +126,7 @@ inline bool ibs::XYAscendingOrderFunctor::operator ()( const XF& xf1, const XF& 
 
    if ( xf1.getX () < xf2.getX ()) {
       return true;
-   } else if ( xf1.getX () == xf2.getX () and xf1.getF () < xf2.getF ()) {
+   } else if ( xf1.getX () == xf2.getX () && xf1.getF () < xf2.getF ()) {
       return true;
    } else {
       return false;
@@ -136,7 +138,7 @@ inline bool ibs::XYDecendingOrderFunctor::operator ()( const XF& xf1, const XF& 
 
    if ( xf1.getX () > xf2.getX ()) {
       return true;
-   } else if ( xf1.getX () == xf2.getX () and xf1.getF () > xf2.getF ()) {
+   } else if ( xf1.getX () == xf2.getX () && xf1.getF () > xf2.getF ()) {
       return true;
    } else {
       return false;

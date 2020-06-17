@@ -10,28 +10,17 @@ namespace DataAccess { namespace Interface {
    class Property;
 } }
 
-using namespace DataAccess;
-using namespace Interface;
-
 // Table-io
 namespace database {
    class Record;
 }
-
-
-// // Voxet-project
-// #include "VoxetProjectHandle.h"
-
-// Forward declaration of VoxetProjectHandle.
-class VoxetProjectHandle;
 
 /// A property that is computed and output by Cauldron.
 class CauldronProperty {
 
 public :
 
-   CauldronProperty ( const Interface::ProjectHandle& cauldronProjectHandle,
-                      VoxetProjectHandle*            voxetHandle,
+   CauldronProperty ( const DataAccess::Interface::ProjectHandle& cauldronProjectHandle,
                       database::Record*              record );
 
    /// The name of the property.
@@ -41,7 +30,7 @@ public :
    const std::string& getVoxetName () const;
 
    /// The DAL cauldron property object.
-   const Property* getProperty () const;
+   const DataAccess::Interface::Property* getProperty () const;
 
    /// Should this property be output in the voxet file.
    bool getVoxetOutput () const;
@@ -54,8 +43,7 @@ public :
 
 private :
 
-   const Interface::ProjectHandle& m_cauldronProjectHandle;
-   VoxetProjectHandle*            m_voxetHandle;
+   const DataAccess::Interface::ProjectHandle& m_cauldronProjectHandle;
    database::Record*              m_record;
 
 

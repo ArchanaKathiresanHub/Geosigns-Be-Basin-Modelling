@@ -43,7 +43,7 @@ namespace DerivedProperties {
       unsigned int getDepth () const;
       
       /// \brief Get the name of the property
-      const string & getName() const;
+      const std::string & getName() const;
 
       /// \brief Get the grid on which the property values are defined.
       const DataModel::AbstractGrid* getGrid () const;

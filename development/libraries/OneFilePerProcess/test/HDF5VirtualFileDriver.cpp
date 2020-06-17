@@ -44,7 +44,6 @@ namespace
 {
   static const char * RewritePattern = "{NAME}-{MPI_SIZE}-{MPI_RANK}";
   static const char * StdDataSetName = "/DummyData";
-  using OneFilePerProcess::rewriteFileName;
 }
 
 struct MPIHelper

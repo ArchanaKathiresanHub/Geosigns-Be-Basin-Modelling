@@ -9,18 +9,24 @@ const int MAX_FILE_DIMENSION = 3;
 const int MAX_ATTRIBUTE_NAME_SIZE = 64;
 
 
-/// \brief This file contains a functionality for merging multiple HDF files (located in  $TMPDIRs) into one file (located in Project path). 
+/// \brief This file contains a functionality for merging multiple HDF files (located in  $TMPDIRs) into one file (located in Project path).
 ///        Different merging modes:
 /// CREATE - Every process reads its local file. Process with rank 0 creates a global file in project path directory and writes merging results to it
-/// REUSE  - Every process reads its local file. Process with rank 0 re-writes its local file with merging results. 
+/// REUSE  - Every process reads its local file. Process with rank 0 re-writes its local file with merging results.
 ///          The merging file has to be copied to a final destination afterwards.
 /// APPEND - Every process reads its local file. Process with rank 0 opens/create a global file in Project path and updates it with merging results.
 
    /// \brief Handles merging of HDF output files produced by simulation with OFPP (one file per process) enabled
 class  FileHandler {
- 
-public:  
-   FileHandler( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName );  
+
+public:
+   FileHandler( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName );
+   FileHandler( const FileHandler& fileHandler) = delete;
+   FileHandler( FileHandler&& fileHandler) = delete;
+
+   FileHandler& operator=(const FileHandler& fileHandler) = delete;
+   FileHandler& operator=(FileHandler&& fileHandler) = delete;
+
 
    virtual ~FileHandler();
 
@@ -39,7 +45,7 @@ public:
    virtual void createGroup( const char* name );
    /// \brief Close global file
    virtual hid_t closeGlobalFile();
-   /// \brief Close filespace and memspace 
+   /// \brief Close filespace and memspace
    virtual void closeSpaces();
    /// \brief Close DataSet in global file
    virtual void closeGlobalDset();
@@ -53,9 +59,9 @@ public:
 
    /// \brief read/write attributes if neseccary
    herr_t readAttributes( hid_t localId, hid_t globalId );
-   
+
    /// \brief Reallocate buffers for reading of dataset depends on datasize type
-   herr_t reallocateBuffers ( ssize_t dataSize ); 
+   herr_t reallocateBuffers ( ssize_t dataSize );
 
    /// \brief merge 1D dataset
    herr_t merge1D ( const char* name, hid_t dtype );
@@ -74,7 +80,7 @@ public:
    hid_t getFilespace() const;
    hid_t getSpatialDimension() const;
    const char * getFileName() const;
-   
+
    void setLocalFileId ( hid_t aLocalId );
    void setGlobalFileId ( hid_t aGlobalId );
    void setGroupId( hid_t aGroupId );
@@ -89,11 +95,14 @@ protected:
    hsize_t m_offset [MAX_FILE_DIMENSION];
 
 private:
+
+   friend void readGroup(const char* name, FileHandler* reader, void* voidReader);
+
    int      m_rank;      // rank of the processor
    MPI_Comm m_comm;
 
    /// \brief Name of the file to merge
-   std::string m_fileName; 
+   std::string m_fileName;
 
    hid_t m_groupId;
    hid_t m_localFileId;   // local data file (to read from)
@@ -111,10 +120,10 @@ private:
    std::vector<char> m_attrData;  // attributes buffer
 
    int m_spatialDimension;        // data dimentions
-   hsize_t m_dimensions [MAX_FILE_DIMENSION]; 
+   hsize_t m_dimensions [MAX_FILE_DIMENSION];
 
    /// \brief Path to Temporary directory where local files are located
-   std::string m_tempDirName; 
+   std::string m_tempDirName;
 
    /// \brief Operation to collect data on 0 process
    MPI_Op m_op;
@@ -123,7 +132,7 @@ private:
    std::string m_groupName;
 };
 
- 
+
 herr_t readDataset ( hid_t groupId, const char* name, void * voidReader);
 
 

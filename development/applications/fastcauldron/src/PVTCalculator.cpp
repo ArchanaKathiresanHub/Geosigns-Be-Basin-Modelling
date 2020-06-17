@@ -17,8 +17,8 @@
 #include "ComponentManager.h"
 
 #ifdef _MSC_VER
-#include <float.h>  
-#define isfinite(x) _finite(x) 
+#include <float.h>
+#define isfinite(x) _finite(x)
 #endif /** _MSC_VER */
 
 PVTCalc* PVTCalc::m_theInstance = 0;
@@ -153,7 +153,7 @@ double dot ( const PVTComponents& components1,
 PVTComponents& PVTComponents::operator += ( const PVTComponents& components ) {
 
 #ifdef USE_MKL_VML
-   //cblas_daxpy( n, a, x, 1, y, 1 ) : y = a * x + y 
+   //cblas_daxpy( n, a, x, 1, y, 1 ) : y = a * x + y
    cblas_daxpy( NumberOfPVTComponents, 1.0, components.m_components, 1, m_components, 1 );
 #else
    int i;
@@ -459,10 +459,10 @@ bool PVTComponents::isFinite () const {
 int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-     if(!isfinite(m_components[i]))
-	   return false;
+     if(!std::isfinite(m_components[i]))
+           return false;
    }
-  
+
   return true;
 }
 
@@ -543,7 +543,7 @@ PVTPhaseComponents& PVTPhaseComponents::operator+=( const PVTPhaseComponents& co
 #ifdef USE_MKL_VML
    int i;
 
-   //cblas_daxpy( n, a, x, 1, y, 1 ) : y = a * x + y 
+   //cblas_daxpy( n, a, x, 1, y, 1 ) : y = a * x + y
    for ( i = 0; i < pvtFlash::numberOfPhases; ++ i ) {
       cblas_daxpy( NumberOfPVTComponents, 1.0, &components.m_masses[ i ][ 0 ], 1, &m_masses[ i ][ 0 ], 1 );
    }
@@ -630,7 +630,7 @@ PVTPhaseComponents& PVTPhaseComponents::operator/= ( const PVTPhaseValues& phase
 
    const double vaporValue  = 1.0 / phases ( PhaseId::VAPOUR );
    const double liquidValue = 1.0 / phases ( PhaseId::LIQUID );
-   
+
    cblas_dscal ( NumberOfPVTComponents, vaporValue,  &m_masses[ PhaseId::VAPOUR ][ 0 ], 1 );
    cblas_dscal ( NumberOfPVTComponents, liquidValue, &m_masses[ PhaseId::LIQUID ][ 0 ], 1 );
 
@@ -843,7 +843,7 @@ std::string PVTPhaseValues::image () const {
 }
 
 
-PVTPhaseValues maximum ( const PVTPhaseValues& values, 
+PVTPhaseValues maximum ( const PVTPhaseValues& values,
                          const double          scalar ) {
 
    PVTPhaseValues result;
@@ -854,7 +854,7 @@ PVTPhaseValues maximum ( const PVTPhaseValues& values,
    return result;
 }
 
-PVTPhaseValues maximum ( const PVTPhaseValues& values1, 
+PVTPhaseValues maximum ( const PVTPhaseValues& values1,
                          const PVTPhaseValues& values2 ) {
 
    PVTPhaseValues result;
@@ -902,7 +902,7 @@ PVTCalc::PVTCalc () {
    m_molarMass ( ComponentId::C6_MINUS_14SAT_S ) = 1.564147e+02;
    m_molarMass ( ComponentId::C6_MINUS_14ARO_S ) = 1.564147e+02;
 
-   
+
 
 }
 
@@ -917,7 +917,7 @@ PVTComponents PVTCalc::computeMolarMass ( const PVTComponents& weights ) const {
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       component = ComponentId ( i );
       //molarMass ( component ) = pvtFlash::EosPack::getInstance ().getMolWeight ( i, gorm );
-	  molarMass ( component ) = pvtFlash::EosPack::getInstance ().getMolWeightLumped ( i, gorm );
+          molarMass ( component ) = pvtFlash::EosPack::getInstance ().getMolWeightLumped ( i, gorm );
    }
 
    return molarMass;
@@ -962,7 +962,7 @@ PVTPhaseValues PVTCalc::computeCriticalTemperature ( const PVTPhaseComponents& c
       lambda = composition ( PhaseId::LIQUID, component ) * componentCriticalVolume / componentMolarWeight;
       critialTemperature ( PhaseId::LIQUID ) += lambda * componentCriticalTemperature;
       norm ( PhaseId::LIQUID ) += lambda;
-   }   
+   }
 
    // assert(norm > 0.0);
    critialTemperature /= norm;
@@ -1003,7 +1003,7 @@ double PVTCalc::computeCriticalTemperature ( const PVTComponents& composition,
       lambda = composition ( component ) * componentCriticalVolume / componentMolarWeight;
       critialTemperature += lambda * componentCriticalTemperature;
       norm += lambda;
-   }   
+   }
 
    // assert(norm > 0.0);
    critialTemperature /= norm;
@@ -1056,38 +1056,38 @@ double PVTCalc::computeGorm ( const PVTComponents& weights ) const {
   denom += weights(ComponentId::C15_PLUS_SAT  );
   denom += weights(ComponentId::RESIN         );
   denom += weights(ComponentId::ASPHALTENE    );
-  
+
   denom += weights(ComponentId::LSC           );
   denom += weights(ComponentId::C15_PLUS_AT   );
   denom += weights(ComponentId::C15_PLUS_ARO_S);
   denom += weights(ComponentId::C15_PLUS_SAT_S);
-  
+
   denom += weights(ComponentId::C6_MINUS_14BT   );
   denom += weights(ComponentId::C6_MINUS_14DBT  );
   denom += weights(ComponentId::C6_MINUS_14BP   );
   denom += weights(ComponentId::C6_MINUS_14SAT_S);
   denom += weights(ComponentId::C6_MINUS_14ARO_S);
-  
+
   //assert(denom >= 0.0);
-  
+
   if (denom == 0.0) {
-	// return CBMGenerics::undefined;
-	return 1.0e+80; 
+        // return CBMGenerics::undefined;
+        return 1.0e+80;
   }
-  
+
   double num = 0.0;
   num += weights(ComponentId::C1);
   num += weights(ComponentId::C2);
   num += weights(ComponentId::C3);
   num += weights(ComponentId::C4);
   num += weights(ComponentId::C5);
-  
+
   num += weights( ComponentId::H2S);
 
   //what about N2
-  
+
   return num / denom;
-  
+
 }
 
 
@@ -1107,9 +1107,9 @@ double PVTCalc::computeGorm ( const PVTComponents& vapour,
    {
      liquidMass += vapour ( ComponentId ( i )) + liquid ( ComponentId ( i ));
    }
-   //what about N2 
+   //what about N2
 
-   
+
    if ( liquidMass == 0.0 ) {
       gorm = 1.0e80;
    } else {
@@ -1139,10 +1139,10 @@ double PVTCalc::computeGorm ( const PVTPhaseComponents& phaseComponents ) const 
    for ( i = ComponentId::LSC; i <= ComponentId::C6_MINUS_14ARO_S; ++i )
    {
       liquidMass += phaseComponents ( PhaseId::VAPOUR, ComponentId ( i )) +
-                    phaseComponents ( PhaseId::LIQUID, ComponentId ( i )); 
+                    phaseComponents ( PhaseId::LIQUID, ComponentId ( i ));
    }
 
-    //what about N2 
+    //what about N2
 
    if ( liquidMass == 0.0 ) {
       gorm = 1.0e80;
@@ -1160,7 +1160,7 @@ double PVTCalc::computeGorm ( const PVTPhaseComponents& phaseComponents ) const 
    return gorm;
 }
 
-PVTComponents operator* ( const PVTPhaseComponents& cmps, 
+PVTComponents operator* ( const PVTPhaseComponents& cmps,
                           const PVTPhaseValues&     phases ) {
 
    PVTComponents result;

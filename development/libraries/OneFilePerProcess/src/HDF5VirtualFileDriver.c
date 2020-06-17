@@ -1,11 +1,11 @@
-// This Virtual File Driver for HDF5 allows to output in one file per process, 
+// This Virtual File Driver for HDF5 allows to output in one file per process,
 // which will have better performance on non-parallel file systems.  Since its
 // functionality is very similar to HDF5's MPIPOSIX driver, this implementation
 // derives from it. Unfortunately, C doesn't have Object Orientated Programming
 // features like C++ has. Therefore this actual way of deriving looks like a
 // hack:
 //  - The structs that store File Access Property Lists and the actual File
-//    state store the MPIPOSIX data at the beginning. At the end they store 
+//    state store the MPIPOSIX data at the beginning. At the end they store
 //    this implementation's specific data. That way there stay compatible with
 //    the original MPIPOSIX driver
 //  - The source of the MPIPOSIX driver is re-included with the MPIPOSIX driver ID
@@ -46,13 +46,13 @@ static hid_t H5FD_mpiposix_init_disabled(void);
 // include the source which this implementation derives from, but do enable the
 // NDEBUG flag, because otherwise there will be link errors.
 #ifndef NDEBUG
-  #define RESET_NDEBUG 1
+#define RESET_NDEBUG 1
 #else
-  #define RESET_NDEBUG 0
+#define RESET_NDEBUG 0
 #endif
 
 #if RESET_NDEBUG
-  #define NDEBUG
+#define NDEBUG
 #endif
 
 #ifdef __INTEL_COMPILER // disable warning in the original HDF5 source file
@@ -62,12 +62,12 @@ static hid_t H5FD_mpiposix_init_disabled(void);
 
 #include "H5FDmpiposix.c"
 
-#ifdef __INTEL_COMPILER 
+#ifdef __INTEL_COMPILER
 #pragma warning pop
 #endif
 
 #if RESET_NDEBUG
-  #undef NDEBUG
+#undef NDEBUG
 #endif
 
 
@@ -88,7 +88,7 @@ typedef struct OFPP_FileState
 
 // A struct to store relevant driver details in a File Access Property List.
 // This derives from the MPIPOSIX equivalent.
-typedef struct OFPP_FAPL 
+typedef struct OFPP_FAPL
 {
    // Base data
    H5FD_mpiposix_fapl_t m_mpiPosixFAPL;
@@ -103,7 +103,7 @@ typedef struct OFPP_FAPL
 
 // Forward declarations of the overridden functions.
 static void * OFPP_fapl_copy( const void * other);
-static void * OFPP_fapl_get( H5FD_t * file);
+static void * OFPP_fapl_get( H5FD_t* file);
 static herr_t OFPP_fapl_free( void * fapl);
 H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_t maxaddr);
 static herr_t OFPP_closeFile(H5FD_t * file);
@@ -147,12 +147,12 @@ static H5FD_class_mpi_t interface =
        H5FD_mpiposix_mpi_size,         /* get_size         */
        H5FD_mpiposix_communicator      /* get_comm         */
      };
-  
+
 hid_t OFPP_init(void)
 {
    if (H5I_VFL != H5Iget_type(OFPP_DriverID))
      OFPP_DriverID = H5FD_register((const H5FD_class_t *) & interface, sizeof(H5FD_class_mpi_t) , FALSE);
-   
+
    return OFPP_DriverID;
 }
 
@@ -160,9 +160,10 @@ void OFPP_term(void)
 {
    herr_t status = H5FDunregister( OFPP_DriverID );
    assert( status >= 0 );
+   (void) status;
 }
 
-void H5Pset_fapl_ofpp( hid_t fapl, MPI_Comm comm, const char * fileNameRewritePattern, hbool_t useGpfs) 
+void H5Pset_fapl_ofpp( hid_t fapl, MPI_Comm comm, const char * fileNameRewritePattern, hbool_t useGpfs)
 {
   assert( MPI_COMM_NULL != comm );
   OFPP_init();
@@ -183,6 +184,7 @@ void H5Pset_fapl_ofpp( hid_t fapl, MPI_Comm comm, const char * fileNameRewritePa
   // set driver
   herr_t status = H5P_set_driver(plist, OFPP_DriverID, &fa);
   assert( status >= 0);
+  (void) status;
 }
 
 // Copy an OFPP_FAPL object
@@ -206,6 +208,7 @@ static void * OFPP_fapl_copy( const void * other)
    // Copy the actual communicator
    mpiError = MPI_Comm_dup( oldFapl->m_comm, & newFapl->m_comm );
    assert( mpiError == MPI_SUCCESS );
+   (void) mpiError;
 
    // assign it a copy of the file name rewrite pattern
    if (oldFapl->m_fileNameRewritePattern)
@@ -244,6 +247,7 @@ static void * OFPP_fapl_get( H5FD_t * file)
    // Copy the actual communicator
    mpiError = MPI_Comm_dup( fileState->m_comm, & newFapl->m_comm );
    assert( mpiError == MPI_SUCCESS );
+   (void) mpiError;
 
    // assign it a copy of the file name rewrite pattern
    newFapl->m_fileNameRewritePattern = strdup( fileState->m_fileNameRewritePattern );
@@ -262,12 +266,12 @@ static herr_t OFPP_fapl_free( void * fapl)
    MPI_Comm_free(& thisFapl->m_mpiPosixFAPL.comm);
 
    MPI_Comm_free(& thisFapl->m_comm );
-  
+
    if (thisFapl->m_fileNameRewritePattern)
       free( thisFapl->m_fileNameRewritePattern );
 
    H5MM_xfree( thisFapl );
-   
+
    return 0;
 }
 
@@ -303,7 +307,8 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
    // Construct the file name
    const char * fileName = 0;
    char * generatedFileName = 0;
-   int mpiRank, mpiSize;
+   int mpiRank;
+   int mpiSize;
    MPI_Comm_rank( fa->m_comm, &mpiRank);
    MPI_Comm_size( fa->m_comm, &mpiSize);
    if ( fa->m_fileNameRewritePattern)
@@ -311,7 +316,7 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
       size_t generatedFileNameSize = rewriteFileName( fa->m_fileNameRewritePattern, name, mpiRank, mpiSize, NULL, 0);
       generatedFileName = malloc( generatedFileNameSize);
       rewriteFileName( fa->m_fileNameRewritePattern, name, mpiRank, mpiSize, generatedFileName, generatedFileNameSize);
-      fileName = generatedFileName ; 
+      fileName = generatedFileName ;
    }
    else
    {
@@ -328,12 +333,13 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
 
    int totalRetryCount = 0;
    MPI_Allreduce( &meWillRetry, &totalRetryCount, 1, MPI_INT, MPI_SUM, fa->m_comm);
-   
+
    if ( totalRetryCount > 0 )
    {
       if( file != NULL ) {
          herr_t status = H5FD_mpiposix_close( (H5FD_t *) file );
-         assert( status >= 0 );      
+         assert( status >= 0 );
+         (void) status;
       }
       // All will retry opening the file with the normal name
       file = (H5FD_mpiposix_t *) H5FD_mpiposix_open( name, flags, fapl_id, maxaddr ) ;
@@ -347,12 +353,14 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
    {
       if( file != NULL ) {
          herr_t status = H5FD_mpiposix_close( (H5FD_t *) file );
-         assert( status >= 0 );      
+         assert( status >= 0 );
+         (void) status;
       }
       return NULL;
    }
 
    assert( file != NULL );
+   if ( file == NULL ) return NULL;
 
    // Transplant the file state in our extended data type
    OFPP_FileState * extendedFile = H5MM_malloc(sizeof(OFPP_FileState));
@@ -360,10 +368,11 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
    assert( sizeof(*extendedFile) >= sizeof(*file));
    memcpy( extendedFile, file, sizeof(*file));
    H5MM_xfree( file );
-   
+
    // Add the extended information
    int mpiError = MPI_Comm_dup( fa->m_comm, & extendedFile->m_comm);
-   assert( mpiError == MPI_SUCCEED);
+   assert( mpiError == MPI_SUCCESS );
+   if ( mpiError != MPI_SUCCESS ) return NULL;
 
    if (fa->m_fileNameRewritePattern)
       extendedFile->m_fileNameRewritePattern = strdup( fa->m_fileNameRewritePattern );

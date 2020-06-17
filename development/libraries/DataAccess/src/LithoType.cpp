@@ -120,16 +120,10 @@ const string & LithoType::getName (void) const
    return database::getLithotype (m_record);
 }
 
-const AttributeValue & LithoType::getAttributeValue (LithoTypeAttributeId attributeId) const
+const AttributeValue & LithoType::getLithoTypeAttributeValue (LithoTypeAttributeId attributeId) const
 {
-   return DAObject::getAttributeValue (s_attributeNames[attributeId], 0);
+   return getAttributeValue (s_attributeNames[attributeId], 0);
 }
-
-AttributeType LithoType::getAttributeType (LithoTypeAttributeId attributeId) const
-{
-   return DAObject::getAttributeType (s_attributeNames[attributeId]);
-}
-
 
 double LithoType::getHydraulicFracturingPercent () const {
    return database::getHydraulicFracturingPercent ( m_record );

@@ -135,9 +135,9 @@ std::string GeoPhysics::CompoundLithologyComposition::returnKeyString () const{
   Key_String += "_";
   Key_String += m_lythoType3;
   Key_String += "_";
-  char char_percent1[8]; sprintf(char_percent1,"%7.3f",m_percent1);
-  char char_percent2[8]; sprintf(char_percent2,"%7.3f",m_percent2);
-  char char_percent3[8]; sprintf(char_percent3,"%7.3f",m_percent3);
+  char char_percent1[8]; snprintf(char_percent1, sizeof (char_percent1), "%7.3f",m_percent1);
+  char char_percent2[8]; snprintf(char_percent2, sizeof (char_percent2), "%7.3f",m_percent2);
+  char char_percent3[8]; snprintf(char_percent3, sizeof (char_percent3), "%7.3f",m_percent3);
   Key_String += char_percent1;
   Key_String += "_";
   Key_String += char_percent2;
@@ -148,7 +148,7 @@ std::string GeoPhysics::CompoundLithologyComposition::returnKeyString () const{
   if (m_mixModel == "Layered")
   {
      Key_String += "_";
-     char char_layeringIndex[6]; sprintf( char_layeringIndex, "%5.3f", m_mixLayeringIndex );
+     char char_layeringIndex[6]; snprintf( char_layeringIndex, sizeof (char_layeringIndex),  "%5.3f", m_mixLayeringIndex );
      Key_String += char_layeringIndex;
   }
   return Key_String;

@@ -31,6 +31,7 @@
 
 using namespace DataAccess;
 using namespace Interface;
+using namespace ibs;
 
 
 SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, const Grid * grid, double undefinedValue, unsigned int depth, float *** values) :
@@ -53,7 +54,7 @@ SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, con
          for (unsigned int k = 0; k < m_depth; ++k)
          {
             m_values[i][j][k] = static_cast<double>(values[i][j][m_depth - 1 - k]);
-            if (first) 
+            if (first)
             {
                constantValue = m_values[i][j][k];
                first = false;
@@ -67,7 +68,7 @@ SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, con
    }
    if (isConstant)
    {
-      Array<double>::delete3d (m_values);
+      ibs::Array<double>::delete3d (m_values);
       m_values = nullptr;
       m_singleValue = constantValue;
       m_averageValue = m_singleValue;
@@ -318,7 +319,7 @@ double SerialGridMap::getValue (double i, double j, double k) const
 {
    const double MinOffset = 1e-6;
 
-   const auto baseI = static_cast<unsigned int>(i); 
+   const auto baseI = static_cast<unsigned int>(i);
    const auto baseJ = static_cast<unsigned int>(j);
    const auto baseK = static_cast<unsigned int>(k);
 
@@ -363,7 +364,7 @@ double SerialGridMap::getValue (double i, double j, double k) const
    if (fractionI > 0 && fractionJ > 0 && fractionK > 0 &&
          !valueIsDefined (baseI + 1, baseJ + 1, baseK + 1)) return m_undefinedValue;
 
-   const double value = 
+   const double value =
       getFractionalValue (fractionI         * fractionJ         * fractionK,         baseI + 1, baseJ + 1, baseK + 1) +
       getFractionalValue (fractionI         * fractionJ         * (1.0 - fractionK), baseI + 1, baseJ + 1, baseK    ) +
       getFractionalValue (fractionI         * (1.0 - fractionJ) * fractionK,         baseI + 1, baseJ,     baseK + 1) +
@@ -454,8 +455,8 @@ double SerialGridMap::getAverageValue () const
 /// return the minimum & maximum value calculated over all GridPoints with a defined value
 void SerialGridMap::getMinMaxValue (double & min, double & max) const
 {
-   min = std::numeric_limits< double >::max(); 
-   max = -std::numeric_limits< double >::max(); 
+   min = std::numeric_limits< double >::max();
+   max = -std::numeric_limits< double >::max();
 
    for (unsigned int i = 0; i < static_cast<unsigned int>(m_grid->numI ()); i++)
    {
@@ -550,11 +551,6 @@ unsigned int SerialGridMap::getDepth () const
    return m_depth;
 }
 
-void SerialGridMap::release () const
-{
-   Child::release ();
-}
-
 double const * const * const * SerialGridMap::getValues () const
 {
    if (!m_values)
@@ -565,7 +561,7 @@ double const * const * const * SerialGridMap::getValues () const
    return m_values;
 }
 
-bool SerialGridMap::saveHDF5 (const string & fileName) const
+bool SerialGridMap::saveHDF5 (const std::string & fileName) const
 {
    const hid_t fileHandle = H5Fcreate (fileName.c_str (), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
@@ -626,7 +622,7 @@ bool SerialGridMap::saveHDF5 (const string & fileName) const
    return true;
 }
 
-void SerialGridMap::printOn (ostream & ostr) const
+void SerialGridMap::printOn (std::ostream & ostr) const
 {
    const unsigned int depth = getDepth ();
    const unsigned int numI = getGrid ()->numI ();
@@ -674,7 +670,7 @@ bool SerialGridMap::convertToGridMap(GridMap *mapB) const
    return ret;
 }
 
-bool SerialGridMap::transformHighRes2LowRes(GridMap *mapB) const 
+bool SerialGridMap::transformHighRes2LowRes(GridMap *mapB) const
 {
    const Grid *gridB = mapB->getGrid();
 

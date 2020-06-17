@@ -11,13 +11,11 @@
 #define INTERFACE_GRIDMAP_H
 
 #include <iostream>
-using namespace std;
-
 #include <string>
-using namespace std;
 
 #include "Interface.h"
 #include "Child.h"
+
 namespace DataAccess
 {
    namespace Interface
@@ -99,20 +97,15 @@ namespace DataAccess
          /// the GridMap is three-dimensional
          virtual unsigned int getDepth (void) const = 0;
 
-         /// cease usage of this object
-         /// Informs the Parent object that the user application has stopped using this GridMap so that
-         /// it may be deleted.
-         virtual void release (void) const = 0;
-
          /// Return the array of values managed by this GridMap
          virtual double const * const * const * getValues (void) const = 0;
 
          /// Save this gridmap in the HDF5 format
-         virtual bool saveHDF5 (const string & fileName) const = 0;
+         virtual bool saveHDF5 (const std::string & fileName) const = 0;
 
          /// Print the attributes and map values of this GridMap
          // May not work if user application is compiled under IRIX with CC -lang:std
-         virtual void printOn (ostream &) const = 0;
+         virtual void printOn (std::ostream &) const = 0;
 
          /// map interpolation functionality
          virtual bool convertToGridMap(GridMap *mapB) const = 0;

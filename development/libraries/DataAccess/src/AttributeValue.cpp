@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <sstream>
-using namespace std;
 
 #include "AttributeValue.h"
 
@@ -44,7 +43,7 @@ AttributeValue::AttributeValue (const Parent * owner, unsigned int childIndex, d
    u_double = value;
 }
 
-AttributeValue::AttributeValue (const Parent * owner, unsigned int childIndex, const string & value) : Child (owner, childIndex), m_type (String)
+AttributeValue::AttributeValue (const Parent * owner, unsigned int childIndex, const std::string & value) : Child (owner, childIndex), m_type (String)
 {
    u_string = & value;
 }
@@ -84,7 +83,7 @@ double AttributeValue::getDouble (void) const
    return u_double;
 }
 
-const string & AttributeValue::getString (void) const
+const std::string & AttributeValue::getString (void) const
 {
    assert (getType () == String);
    return * u_string;
@@ -95,18 +94,18 @@ void AttributeValue::release (void) const
    Child::release ();
 }
 
-void AttributeValue::printOn (ostream & ostr) const
+void AttributeValue::printOn (std::ostream & ostr) const
 {
-   string str;
+   std::string str;
    asString (str);
-   ostr << str << endl;
+   ostr << str << std::endl;
 }
 
-void AttributeValue::asString (string & str) const
+void AttributeValue::asString (std::string & str) const
 {
-   ostringstream buf;
+   std::ostringstream buf;
 
-   const string typeNames[] = { "Bool", "Int", "Long", "Float", "Double", "String" };
+   const std::string typeNames[] = { "Bool", "Int", "Long", "Float", "Double", "String" };
    buf << "AttributeValue:";
    buf << " type = ";
    if (getType () != -1)
@@ -144,7 +143,7 @@ void AttributeValue::asString (string & str) const
 	 buf << "No Value";
 	 break;
    }
-   buf << endl;
+   buf << std::endl;
 
    str = buf.str ();
 

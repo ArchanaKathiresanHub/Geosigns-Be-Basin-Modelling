@@ -11,7 +11,6 @@
 
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 #include <assert.h>
 #include <time.h>
@@ -23,6 +22,9 @@ using namespace std;
 
 #include "migration.h"
 #include "RequestDefs.h"
+
+using namespace std;
+using namespace ibs;
 
 namespace migration
 {
@@ -155,7 +157,7 @@ string & migration::GetRankString (void)
    char timestr[32];
    timespec tp;
    clock_gettime(CLOCK_REALTIME, &tp);
-   sprintf (timestr, "%9ld.%9ld\t", tp.tv_sec, tp.tv_nsec);
+   snprintf (timestr, sizeof (timestr), "%9ld.%9ld\t", tp.tv_sec, tp.tv_nsec);
 #endif
 
    static string rankString = "";
@@ -166,7 +168,7 @@ string & migration::GetRankString (void)
          rankString += "    ";
       }
       char tmp[4];
-      sprintf (tmp, "%d", GetRank ());
+      snprintf (tmp, sizeof (tmp), "%d", GetRank ());
       rankString += tmp;
    }
 

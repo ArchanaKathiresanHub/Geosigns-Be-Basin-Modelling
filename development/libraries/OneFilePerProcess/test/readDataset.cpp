@@ -14,10 +14,11 @@
 #include <string>
 #include <cstdio>
 #include <algorithm>
+#include <random>
 
 // Tesing of the merging of "one file per process" output files into a one hdf file
 //
-// Each process creates a local file, process 0 creates a global file. All processes call "readDataset" method. 
+// Each process creates a local file, process 0 creates a global file. All processes call "readDataset" method.
 // Output of "readDataset": The merging file is written (not closed yet)
 //
 //  1: Dataset is written correctly
@@ -35,7 +36,6 @@ namespace
   static const char * StdDataSetName = "/DummyData";
   static const char * AttributeName  = "Attribute";
   static const char * AttributeData  = "Dummy attribute data";
-  using OneFilePerProcess::rewriteFileName;
 }
 
 struct MPIHelper
@@ -51,14 +51,20 @@ struct MPIHelper
       MPI_Finalize();
    }
 
+   MPIHelper(const MPIHelper& mpiHelper) = delete;
+   MPIHelper(MPIHelper&& mpiHelper) = delete;
+
+   MPIHelper& operator= (const MPIHelper& mpiHelper) = delete;
+   MPIHelper& operator= (MPIHelper&& mpiHelper) = delete;
+
    static MPIHelper & instance()
    {
       static MPIHelper object;
       return object;
    }
 
-   static int rank() 
-   { 
+   static int rank()
+   {
       instance();
 
       int rank;
@@ -66,8 +72,8 @@ struct MPIHelper
       return rank;
    }
 
-   static int size() 
-   { 
+   static int size()
+   {
       instance();
 
       int size;
@@ -75,7 +81,7 @@ struct MPIHelper
       return size;
    }
 
-   static void barrier() 
+   static void barrier()
    {
       instance();
       MPI_Barrier(MPI_COMM_WORLD);
@@ -97,10 +103,10 @@ public:
       , m_exists( false )
       , m_saveOnDisk( false )
   {
-      
+
       int mpiRank = MPIHelper::rank();
       int mpiSize = MPIHelper::size();
-      
+
       if (extendedName)
       {
          std::vector<char> buffer( rewriteFileName( RewritePattern, name.c_str(), mpiRank, mpiSize, 0, 0 ) );
@@ -109,13 +115,20 @@ public:
       }
       m_h5file = H5P_DEFAULT;
    }
+
+   File(const File& file) = delete;
+   File(File&& file) = delete;
+
+   File& operator= (const File& file) = delete;
+   File& operator= (File&& file) = delete;
+
    int open( Access access, int data, bool saveOnDisk )
    {
       const int rank = MPIHelper::rank();
 
       herr_t status = 0;
       hsize_t dims[2]  = { 1, 1 };
-      
+
 
       hid_t fapl = H5Pcreate(H5P_FILE_ACCESS);
       EXPECT_GE( fapl, 0);
@@ -123,7 +136,7 @@ public:
       if( !saveOnDisk ) {
          H5Pset_fapl_core( fapl, 128, false);
       }
-      
+
       switch ( access )
       {
          case CreateWithAttr:
@@ -162,7 +175,7 @@ public:
       {
          // Open global file
          data = -1;
-         
+
          hid_t dataset = H5Dopen( m_h5file, StdDataSetName, H5P_DEFAULT);
          EXPECT_GE(dataset, 0);
 
@@ -174,26 +187,26 @@ public:
             char attrData [64];
             memset( attrData, 'X', sizeof(attrData) );
 
-            hid_t attrId = H5Aopen_idx(dataset, 0 );   
+            hid_t attrId = H5Aopen_idx(dataset, 0 );
             EXPECT_GE(attrId, 0);
-    
+
             // get the name of the attribute
-            status = H5Aget_name( attrId, 64, attrData );   
+            status = H5Aget_name( attrId, 64, attrData );
             EXPECT_EQ(status, strlen( AttributeName ));
             attrData[status] = '\0';
-            
+
             EXPECT_STREQ (  AttributeName, attrData );
 
             // Read the attribute data (start with a buffer full of zeros)
             memset( attrData, 0, sizeof(attrData) );
             status = H5Aread( attrId, H5T_C_S1, attrData );
             EXPECT_GE(status, 0);
-            
+
             EXPECT_STREQ (  AttributeData, attrData );
-            
+
             status = H5Aclose( attrId );
             EXPECT_GE(status, 0);
-         
+
          }
          status = H5Dclose(dataset);
          EXPECT_GE(status, 0);
@@ -205,24 +218,24 @@ public:
          EXPECT_GE(data, 0);
          hid_t dataset = H5Dcreate( m_h5file, StdDataSetName, H5T_NATIVE_FLOAT, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
          EXPECT_GE(dataset, 0);
-         
-         status = H5Dwrite( dataset, H5T_NATIVE_FLOAT, space, space, H5P_DEFAULT, &data ); 
+
+         status = H5Dwrite( dataset, H5T_NATIVE_FLOAT, space, space, H5P_DEFAULT, &data );
          EXPECT_GE(status, 0);
-         
+
          if( access == CreateWithAttr ) {
             hsize_t spatialAttrDims = strlen( AttributeData );
 
             size_t  attrSpace = H5Screate_simple ( 1, &spatialAttrDims, NULL );
-        
+
             hid_t attrData = H5Acreate( dataset, AttributeName, H5T_C_S1, attrSpace, H5P_DEFAULT, H5P_DEFAULT );
             EXPECT_GE(attrData, 0);
-            
+
             status = H5Awrite ( attrData, H5T_C_S1, AttributeData );
             EXPECT_GE(status, 0);
-            
+
             status = H5Aclose( attrData );
             EXPECT_GE(status, 0);
- 
+
             status = H5Sclose(attrSpace);
             EXPECT_GE(status, 0);
          }
@@ -241,8 +254,8 @@ public:
 
       return data;
    }
- 
-      
+
+
    void close() {
 
       if( m_h5file != H5P_DEFAULT ) {
@@ -253,17 +266,17 @@ public:
          m_h5file = H5P_DEFAULT;
       }
    }
-  
+
    ~File()
    {
       close();
-      
+
       if ( m_exists )
       {
          int status = -1;
          if (m_saveOnDisk) {
             status = std::remove( m_file.c_str() );
-            
+
             EXPECT_EQ(0, status);
          }
       }
@@ -272,11 +285,11 @@ public:
    const std::string & name() const
    { return m_file ; }
 
-   hid_t fileId() 
+   hid_t fileId()
    { return m_h5file ; }
 
 
-   static std::string tempName() 
+   static std::string tempName()
    {
       int rank =  MPIHelper::rank();
       char * name = 0;
@@ -284,24 +297,19 @@ public:
       if ( rank == 0)
       {
          std::generate( buffer.begin(), buffer.end(), randomChar);
-      } 
+      }
       MPI_Bcast( &buffer[0], buffer.size(), MPI_CHAR, 0, MPI_COMM_WORLD);
-      
+
       return std::string( buffer.begin(), buffer.end());
    }
 
 private:
    static char randomChar()
    {
-      static const char characters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklnmnopqrstuvwxyz0123456789";
-      static bool seeded = false;
-      if (!seeded)
-      {
-         srand( time(0) );
-         seeded = true;
-      }
-      size_t index = (sizeof(characters) - 1) * ( rand() / (double) RAND_MAX );
-      return characters[ index ];
+     static char characters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklnmnopqrstuvwxyz0123456789";
+     std::random_device rd;
+     std::shuffle(std::begin(characters), std::end(characters) - 1, std::mt19937(rd()));
+     return characters[ 0 ];
    }
 
    hid_t m_h5file;
@@ -338,12 +346,12 @@ TEST( h5mergeTest, MergeExistingFiles1 )
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
       if (MPIHelper::rank() == 0)
-      {      
+      {
          b.close();
          EXPECT_EQ( 5, b.open( File::Open, -1, true ));
       }
    }
-                 
+
 }
 
 TEST( h5mergeTest, MergeExistingFiles2 )
@@ -358,7 +366,7 @@ TEST( h5mergeTest, MergeExistingFiles2 )
 
       int status = a.open( File::CreateWithAttr, 5, false );
       ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
-  
+
       EXPECT_EQ( 5, status );
 
       File b( name, false );
@@ -375,12 +383,12 @@ TEST( h5mergeTest, MergeExistingFiles2 )
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
       if (MPIHelper::rank() == 0)
-      {      
+      {
          b.close();
          EXPECT_EQ( 5, b.open( File::OpenWithAttr, -1, true ));
       }
    }
-                 
+
 }
 
 TEST( h5mergeTest, MergeExistingFiles3 )
@@ -389,10 +397,10 @@ TEST( h5mergeTest, MergeExistingFiles3 )
    {
       std::string name  = File::tempName();
       FileHandler reader(  MPI_COMM_WORLD, name, "." );
- 
+
       EXPECT_EQ( -1, readDataset( NULL, StdDataSetName, &reader ));
    }
-                 
+
 }
 
 TEST( h5mergeTest, MergeExistingFiles4 )
@@ -406,7 +414,7 @@ TEST( h5mergeTest, MergeExistingFiles4 )
 
       int status = a.open( File::Create, 5, false );
       ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
-  
+
       EXPECT_EQ( 5, status );
 
       File b( name, false );
@@ -419,17 +427,17 @@ TEST( h5mergeTest, MergeExistingFiles4 )
       }
       reader.setGlobalFileId ( b.fileId () );
       reader.setLocalFileId  ( a.fileId () );
- 
+
       EXPECT_EQ( -1, readDataset( a.fileId(), "", &reader ));
    }
-                 
+
 }
 
 TEST( h5mergeTest, MergeExistingFiles5 )
 {
    FileHandler reader( MPI_COMM_WORLD, "", "." );
    reader.setSpatialDimension ( 3 );
-   
+
    EXPECT_EQ( 0, reader.reallocateBuffers ( 5 ));
    EXPECT_EQ( 0, reader.reallocateBuffers ( 0 ));
    EXPECT_EQ( 0, reader.reallocateBuffers ( -1 ));
@@ -456,12 +464,12 @@ TEST( h5mergeTest, ReuseExistingFiles7 )
    {
       std::string name  = File::tempName();
       FileHandlerReuse reader(  MPI_COMM_WORLD, name, "." );
- 
+
       File a( name, true );
 
       int status = a.open( File::CreateWithAttr, 5, true );
       ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
-  
+
       EXPECT_EQ( 5, status );
 
       reader.setLocalFileId(  a.fileId ());
@@ -470,12 +478,12 @@ TEST( h5mergeTest, ReuseExistingFiles7 )
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
       if (MPIHelper::rank() == 0)
-      {      
+      {
          a.close();
          EXPECT_EQ( 5, a.open( File::OpenWithAttr, -1, true ));
       }
    }
-                 
+
 }
 
 TEST( h5mergeTest, AppendExistingFiles8 )
@@ -484,24 +492,24 @@ TEST( h5mergeTest, AppendExistingFiles8 )
    {
       std::string name  = File::tempName();
       FileHandlerAppend reader(  MPI_COMM_WORLD, name, "." );
- 
+
       File a( name, true );
 
       int status = a.open( File::CreateWithAttr, 5, true );
       ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
-  
+
       EXPECT_EQ( 5, status );
 
       reader.setLocalFileId(  a.fileId ());
       reader.setGlobalFileId ( a.fileId () );
- 
+
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
       if (MPIHelper::rank() == 0)
-      {      
+      {
          a.close();
          EXPECT_EQ( 5, a.open( File::OpenWithAttr, -1, true ));
       }
    }
-                 
+
 }

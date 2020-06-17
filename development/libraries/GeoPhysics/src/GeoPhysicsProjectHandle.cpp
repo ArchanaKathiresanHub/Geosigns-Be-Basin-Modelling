@@ -1913,7 +1913,7 @@ void GeoPhysics::ProjectHandle::printValidNeedles ( std::ostream& o  ) const
 }
 
 //------------------------------------------------------------//
-bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileName) {
+bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const std::string & cfgFileName) {
 
    m_basementLithoProps = nullptr;
    if( m_isALCMode ) {

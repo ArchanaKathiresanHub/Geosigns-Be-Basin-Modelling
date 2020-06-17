@@ -13,6 +13,8 @@
 #include "ProjectHandle.h"
 #include "Property.h"
 
+using namespace ibs;
+
 namespace DataExtraction
 {
 

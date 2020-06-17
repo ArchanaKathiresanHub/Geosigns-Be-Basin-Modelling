@@ -44,7 +44,7 @@ int getNumProcessors (void)
 {
    long numProcessors;
 #ifdef sgi
-   numProcessors = sysconf( _SC_NPROC_ONLN );   
+   numProcessors = sysconf( _SC_NPROC_ONLN );
 #else
    numProcessors = sysconf( _SC_NPROCESSORS_ONLN );
 #endif
@@ -96,7 +96,7 @@ int processCmd (char * path, char ** argv, bool wait)
       // we are in the child
       if (setpgid (0, 0) < 0)
       {
-	 perror ("setpgid (0, 0) failed: ");
+   perror ("setpgid (0, 0) failed: ");
       }
 
       close (0);
@@ -106,7 +106,7 @@ int processCmd (char * path, char ** argv, bool wait)
       {
          char errorstr[128];
 
-         sprintf (errorstr, "Could not open /dev/null:");
+         snprintf (errorstr, sizeof (errorstr), "Could not open /dev/null:");
          perror (errorstr);
       }
 
@@ -114,7 +114,7 @@ int processCmd (char * path, char ** argv, bool wait)
       {
          char errorstr[128];
 
-         sprintf (errorstr, "Exec of '%s' failed: ", path);
+         snprintf (errorstr, sizeof (errorstr), "Exec of '%s' failed: ", path);
          perror (errorstr);
          exit (-errno);
       }
@@ -130,7 +130,7 @@ int processCmd (char * path, char ** argv, bool wait)
       NumChildren++;
       if (wait)
       {
-	 // and wait for the child to finish
+   // and wait for the child to finish
          int status;
 
          (void) waitpid (pid, &status, 0);
@@ -148,8 +148,8 @@ int processCmd (char * path, char ** argv, bool wait)
       }
       else
       {
-	 // and do not wait for the child to finish
-	 return pid;
+   // and do not wait for the child to finish
+   return pid;
       }
    }
 }
@@ -213,18 +213,18 @@ char * findExecutable (char * name)
       ptrEnd = strchr (ptrStart, ':');
       if (ptrEnd) * ptrEnd = '\0';
 
-      sprintf (execPath, "%s/%s", ptrStart, name);
+      snprintf (execPath, sizeof (execPath), "%s/%s", ptrStart, name);
 
       // Restore $PATH
       if (ptrEnd) * ptrEnd = ':';
-      
-      if (stat (execPath, &statusbuffer) == 0 &&
-	  access (execPath, X_OK) == 0)
-      {
+
+			if (stat (execPath, &statusbuffer) == 0 &&
+		access (execPath, X_OK) == 0)
+			{
 	 // found it!!
 	 return execPath;
-      }
-   }
+			}
+	 }
 
    // Didn't find it.
    return NULL;

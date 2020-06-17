@@ -185,7 +185,7 @@ void getFormattedString(double value, char *format, char *destString)
    if( value < 0.0 )
       strcpy(destString, "N/A");
    else
-      sprintf(destString, format, value);
+      snprintf(destString, 32, format, value);
 }
 
 double percentage(double component, double total)

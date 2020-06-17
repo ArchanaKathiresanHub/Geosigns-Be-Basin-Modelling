@@ -96,18 +96,18 @@ namespace CBMGenerics
       std::string getSpeciesSourceRockExpelledByName( const int speciesIndex ) const;
 
       /// \brief Simple check to determine if the id is in the range [C1, C5]
-      inline bool isGas( const SpeciesNamesId id ) const;
+      bool isGas( const SpeciesNamesId id ) const;
 
       /// \brief Simple check to determine if the id is in the range [C6, asphaltene].
       ///
       /// i.e. not isGas.
-      inline bool isOil( const SpeciesNamesId id ) const;
+      bool isOil( const SpeciesNamesId id ) const;
 
       int getSpeciesIdByName( const std::string& name ) const;
       int getPhaseIdByName  ( const std::string& name ) const;
 
-      inline bool isSulphurComponent    ( const int id ) const;
-      inline bool isSbearingHCsComponent( const int id ) const;
+      bool isSulphurComponent    ( const int id ) const;
+      bool isSbearingHCsComponent( const int id ) const;
 
       /// \returns The component manager static object
       static ComponentManager& getInstance();
@@ -115,7 +115,7 @@ namespace CBMGenerics
       ~ComponentManager() {;}
 
    private:
-      /// @todo All this names could be the same but it requires to update the database/UI
+      /// All this names could be the same but it requires to update the database/UI
       static const char *       s_SpeciesNames       [NUMBER_OF_SPECIES]; ///< Output names of the hydrocarbone species
       static const char *       s_SpeciesNamesInput  [NUMBER_OF_SPECIES]; ///< Input names of the hydrocarbone species
       static const std::string  s_SpeciesNamesHistory[NUMBER_OF_SPECIES]; ///< Output names of the hydrocarbone species for history files (*.dat)
@@ -134,22 +134,22 @@ namespace CBMGenerics
 
    inline bool ComponentManager::isGas( const SpeciesNamesId id ) const
    {
-      return id == C1 or id == C2 or id == C3 or id == C4 or id == C5;
+      return id == C1 || id == C2 || id == C3 || id == C4 || id == C5;
    }
 
    inline bool ComponentManager::isOil( const SpeciesNamesId id ) const
    {
-      return not isGas ( id ) and id != UNKNOWN and id != NUMBER_OF_SPECIES;
+      return !isGas ( id )  && id != UNKNOWN  && id != NUMBER_OF_SPECIES;
    }
 
    inline bool ComponentManager::isSulphurComponent( const int id ) const
    {
-      return id >= H2S and id < NUMBER_OF_SPECIES;
+      return id >= H2S  && id < NUMBER_OF_SPECIES;
    }
 
    inline bool ComponentManager::isSbearingHCsComponent( const int id ) const
    {
-      return id != C6_MINUS_14BP and id > H2S and id < NUMBER_OF_SPECIES;
+      return id != C6_MINUS_14BP  && id > H2S  && id < NUMBER_OF_SPECIES;
    }
 
 }

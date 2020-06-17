@@ -58,8 +58,12 @@ namespace GeoPhysics
    }
 
    SeismicVelocity::SeismicVelocity( const SeismicVelocity& seismicVelocity )
-      :m_algorithm( seismicVelocity.m_algorithm )
+     :m_algorithm( seismicVelocity.m_algorithm )
    {}
+
+   SeismicVelocity::~SeismicVelocity()
+   {
+   }
 
 	SeismicVelocity::Algorithm::Algorithm()
 	{}

@@ -4,20 +4,20 @@
 #include <gtest/gtest.h>
 
 
-// rewriteFileName has 6 input parameters. 
-// pattern: 
+// rewriteFileName has 6 input parameters.
+// pattern:
 //   Typical equivalence classes: "Abc{NAME}def{MPI_RANK}ghi{MPI_SIZE}jkl"
 //   Atpyical: NULL | "" | "Abc" | "{" | "Abc{def}g" | "{NAME}"
 //
 // fileName:
 //   Typical: "./a path/Some_file.dat"
-//   Atpyical: NULL | "" 
+//   Atpyical: NULL | ""
 //
 // mpiRank:
 //   Typical: Any non-negative integer
 //   Atypical: A negative number
-// 
-// mpiSize: 
+//
+// mpiSize:
 //   Typical: Any strict positive integer
 //   Atypical: Any non-positive integer
 //
@@ -27,7 +27,6 @@
 
 TEST( OneFilePerProcess, rewriteFileName)
 {
-   using OneFilePerProcess :: rewriteFileName;
    ::testing::FLAGS_gtest_death_test_style="threadsafe";
 
    char buffer[80];

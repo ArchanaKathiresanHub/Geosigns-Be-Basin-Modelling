@@ -40,7 +40,7 @@ namespace  DerivedProperties {
       virtual double getUndefinedValue () const;
 
       /// \brief Get the name of the property
-      virtual const string & getName() const = 0;
+      virtual const std::string & getName() const = 0;
 
       /// \brief Get the grid on which the property values are defined.
       virtual const DataModel::AbstractGrid* getGrid () const = 0;
@@ -67,7 +67,7 @@ namespace  DerivedProperties {
       virtual bool hasProperty() const = 0;
 
       /// \brief Get the map name if it's not equal to the propetry name
-      virtual const string & getMapName() const { return getName(); }
+      virtual const std::string & getMapName() const { return getName(); }
 
       static std::string s_nullString;
   private :

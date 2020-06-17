@@ -3,11 +3,9 @@
 
 #include "ProjectHandle.h"
 
-CauldronProperty::CauldronProperty ( const ProjectHandle& cauldronProjectHandle,
-                                     VoxetProjectHandle*       voxetHandle,
+CauldronProperty::CauldronProperty ( const DataAccess::Interface::ProjectHandle& cauldronProjectHandle,
                                      database::Record*         record ) :
    m_cauldronProjectHandle ( cauldronProjectHandle ),
-   m_voxetHandle ( voxetHandle ),
    m_record ( record ) {
 }
 
@@ -19,7 +17,7 @@ const std::string& CauldronProperty::getVoxetName () const {
    return database::getVoxetPropertyName ( m_record );
 }
 
-const Property* CauldronProperty::getProperty () const {
+const DataAccess::Interface::Property* CauldronProperty::getProperty () const {
    return m_cauldronProjectHandle.findProperty ( getCauldronName ());
 }
 

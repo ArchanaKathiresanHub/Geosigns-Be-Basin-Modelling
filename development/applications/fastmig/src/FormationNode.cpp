@@ -8,7 +8,6 @@
 //
 
 #include <iostream>
-using namespace std;
 
 #ifdef _MSC_VER
 #include <io.h>
@@ -37,17 +36,21 @@ using namespace std;
 
 #include "BrooksCorey.h"
 
-using namespace FiniteElementMethod;
-using namespace CBMGenerics;
-using namespace capillarySealStrength;
 
 // utilities library
 #include "ConstantsPhysics.h"
-using Utilities::Physics::AccelerationDueToGravity;
 #include "ConstantsMathematics.h"
-using Utilities::Maths::PaToMegaPa;
 
 #include "LogHandler.h"
+
+using namespace FiniteElementMethod;
+using namespace CBMGenerics;
+using namespace capillarySealStrength;
+using namespace std;
+using namespace ibs;
+
+using Utilities::Physics::AccelerationDueToGravity;
+using Utilities::Maths::PaToMegaPa;
 
 //#define USECAPILLARYPRESSUREMAPS 1
 //#define GAS_DENSITY_FLOW_DIRECTION
@@ -167,7 +170,7 @@ namespace migration
       return value;
    }
 
-   //dedicated function for chached double values that does not truncate the decimal part 
+   //dedicated function for chached double values that does not truncate the decimal part
    double ProxyFormationNode::getCachedDoubleValue (ValueSpec valueSpec, FormationNodeCacheBit cacheBit, double & value)
    {
       if (!isCached (cacheBit))
@@ -265,7 +268,7 @@ namespace migration
       return getScalarValue<bool> (ISENDOFPATH);
    }
 
-   //use getCachedDoubleValue for doubles 
+   //use getCachedDoubleValue for doubles
    double ProxyFormationNode::getDepth ()
    {
       return getCachedDoubleValue (DEPTH, DEPTHCACHE, m_depth);
@@ -344,7 +347,7 @@ namespace migration
       return threeVectorResponse.values;
    }
 
-   // New getFiniteElementValue 
+   // New getFiniteElementValue
    double ProxyFormationNode::getFiniteElementValue (double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex)
    {
       FormationNodeThreeVectorValueRequest threeVectorValueRequest;
@@ -841,7 +844,7 @@ namespace migration
 
          // calculate the density contrast
          double densityContrast = m_waterDensity - m_vapourDensity;
-         // get the vapour pressure contrast 
+         // get the vapour pressure contrast
          pressureContrastVapour = getPressureContrast( topNode, GAS, pressureRun );
 
          // Positive pressure contrast and negative density contrast
@@ -862,7 +865,7 @@ namespace migration
 
          // re-calculate the density contrast
          densityContrast = m_waterDensity - m_liquidDensity;
-         // get the liquid pressure contrast 
+         // get the liquid pressure contrast
          pressureContrastLiquid = getPressureContrast( topNode, OIL, pressureRun );
 
          // Positive pressure contrast and negative density contrast
@@ -915,9 +918,9 @@ namespace migration
       {
          // An array of capillary-pressure values is only calculated for the top element.
          // But here 'this' may actually be an element below the top one, in case of erosion etc.
-         double capillaryEntryPressureVapour = ( getK() == (getFormation()->getMaximumNumberOfElements() - 1) ) ? 
+         double capillaryEntryPressureVapour = ( getK() == (getFormation()->getMaximumNumberOfElements() - 1) ) ?
             m_capillaryEntryPressureVapour[1] : m_topFormationNode->m_capillaryEntryPressureVapour[0];
-         
+
          // calculate actual capillary sealing pressure for vapour
          capillaryPressureContrast = topNode->m_capillaryEntryPressureVapour[0] - capillaryEntryPressureVapour * resCorr;
       }
@@ -925,7 +928,7 @@ namespace migration
       {
          // An array of capillary-pressure values is only calculated for the top element.
          // But here 'this' may actually be an element below the top one, in case of erosion etc.
-         double capillaryEntryPressureLiquid = ( getK() == (getFormation()->getMaximumNumberOfElements() - 1) ) ? 
+         double capillaryEntryPressureLiquid = ( getK() == (getFormation()->getMaximumNumberOfElements() - 1) ) ?
             m_capillaryEntryPressureLiquid[1] : m_topFormationNode->m_capillaryEntryPressureLiquid[0];
 
          // calculate actual capillary sealing pressure  for liquid
@@ -957,7 +960,7 @@ namespace migration
          return false;
       }
 
-      //Calculations performed as in Reservoir::getAdjacentColumn. m_isCrestGas and m_isCrestOil are set true in the constructor. 
+      //Calculations performed as in Reservoir::getAdjacentColumn. m_isCrestGas and m_isCrestOil are set true in the constructor.
       //if the neighbours nodes are zero thickness nodes does not matter, the highest depth is always taken
       int top = m_formation->getNodeDepth () - 1;
 
@@ -991,7 +994,7 @@ namespace migration
                return false;
             }
          }
-         
+
          // Account for pinch-out traps
          if (neighbourNode->hasNoThickness())
             continue;
@@ -1005,7 +1008,7 @@ namespace migration
 
          if (isSealingNeighbourNode)
          {
-            // a SealingNeighbourNode cannot be a trap crest 
+            // a SealingNeighbourNode cannot be a trap crest
             continue;
          }
 
@@ -1016,13 +1019,13 @@ namespace migration
          }
          else if (isDeeperThan (neighbourNode))
          {
-            // neighbour is shallower 
+            // neighbour is shallower
             unsetCrestFlag (phase);
             return false;
          }
       }
 
-      // return true if the node is crest column AND can hold gas or oil 
+      // return true if the node is crest column AND can hold gas or oil
       if (phase == GAS)
          return (m_isCrestVapour and getReservoirVapour ());
       else
@@ -1043,7 +1046,7 @@ namespace migration
    /// Does not take into account whether columns are sealing or wasting
    int FormationNode::compareDepths (FormationNode * node, bool useTieBreaker)
    {
-      // top depth of the current node and neighbour node 
+      // top depth of the current node and neighbour node
       MigrationFormation * formation = getFormation ();
       double depth = formation->getPropertyValue (DEPTHPROPERTY, getI (), getJ (), getK () + 1);
       double nodedepth = formation->getPropertyValue (DEPTHPROPERTY, node->getI (), node->getJ (), getK () + 1);
@@ -1098,7 +1101,7 @@ namespace migration
       int i = getI ();
       int j = getJ ();
       int k = getK ();
-      
+
       if (!performAdvancedMigration () or hasNoThickness ())
       {
          // let's assume everything will go straight up in this case
@@ -1470,7 +1473,7 @@ namespace migration
       {
          FormationNode * adjacentFormationNode = getAdjacentFormationNode ();
          assert (adjacentFormationNode);
-         
+
          m_entered = true; // allows us to check for re-entrancy
 
          adjacentFormationNode->computeTargetFormationNode ();

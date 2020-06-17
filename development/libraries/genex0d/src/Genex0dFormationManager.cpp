@@ -95,7 +95,7 @@ void Genex0dFormationManager::setProperties(const double x, const double y)
 
 double Genex0dFormationManager::getLithoDensity(const DataAccess::Interface::LithoType * theLitho)
 {
-  const DataAccess::Interface::AttributeValue theDensity = theLitho->getAttributeValue(DataAccess::Interface::Density);
+  const DataAccess::Interface::AttributeValue theDensity = theLitho->getLithoTypeAttributeValue(DataAccess::Interface::Density);
   return theDensity.getDouble();
 }
 

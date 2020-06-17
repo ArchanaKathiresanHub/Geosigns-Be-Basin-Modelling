@@ -11,9 +11,6 @@ namespace DataAccess { namespace Interface {
    class Grid;
 } }
 
-using namespace DataAccess;
-using namespace Interface;
-
 /// The model grid description.
 ///
 /// This contains both the voxet-grid-description and the Cauldron map-description.
@@ -23,9 +20,15 @@ public :
 
    GridDescription (       database::Record* cauldronRecord,
                            database::Record* voxetRecord,
-                     const Interface::Grid*  cauldronGrid );
+                     const DataAccess::Interface::Grid*  cauldronGrid );
 
    GridDescription ( const GridDescription& gridDescription );
+
+   ~GridDescription();
+
+   GridDescription(const GridDescription&& gridDescription) = delete;
+   GridDescription const& operator=(GridDescription&& gridDescription) = delete;
+   GridDescription& operator=(const GridDescription& gridDescription) = delete;
 
    /// \name Voxet data
    //@{
@@ -69,7 +72,7 @@ public :
    int getCauldronNodeCount ( const unsigned int axes ) const;
 
    /// Return a const pointer to the cauldron grid map.
-   const Interface::Grid* getCauldronGrid () const;
+   const DataAccess::Interface::Grid* getCauldronGrid () const;
 
    //@}
 
@@ -89,7 +92,7 @@ private :
    float m_cauldronDelta [ 2 ];
    int   m_cauldronNodeCount [ 2 ];
 
-   const Interface::Grid* m_cauldronGrid;
+   const DataAccess::Interface::Grid* m_cauldronGrid;
    
 
 };

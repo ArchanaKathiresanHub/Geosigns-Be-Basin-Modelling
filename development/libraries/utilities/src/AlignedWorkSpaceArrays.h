@@ -29,6 +29,11 @@ public :
    enum { MaximumSize = GenericMaximumSize };
 
    AlignedWorkSpaceArrays ( const unsigned int valueCount );
+   AlignedWorkSpaceArrays ( const AlignedWorkSpaceArrays& alignedWorkSpaceArrays) = delete;
+   AlignedWorkSpaceArrays ( AlignedWorkSpaceArrays&& alignedWorkSpaceArrays) = delete;
+
+   AlignedWorkSpaceArrays& operator =(const AlignedWorkSpaceArrays& alignedWorkSpaceArrays) = delete;
+   AlignedWorkSpaceArrays& operator =(AlignedWorkSpaceArrays&& alignedWorkSpaceArrays) = delete;
 
    ~AlignedWorkSpaceArrays ();
 

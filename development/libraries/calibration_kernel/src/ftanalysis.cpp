@@ -23,17 +23,17 @@ FtAnalysis::FtAnalysis ()
 
 FtAnalysis::~FtAnalysis ()
 {
-   map<const std::string, FtSamplePrediction*>::const_iterator predSampIt;
+   std::map<const std::string, FtSamplePrediction*>::const_iterator predSampIt;
 
    for ( predSampIt = m_predSamples.begin(); predSampIt != m_predSamples.end(); ++predSampIt )
       delete (*predSampIt).second;
 
-   map<const std::string, FtSampleObservation*>::const_iterator obsSampIt;
+   std::map<const std::string, FtSampleObservation*>::const_iterator obsSampIt;
 
    for ( obsSampIt = m_obsSamples.begin(); obsSampIt != m_obsSamples.end(); ++obsSampIt )
       delete (*obsSampIt).second;
 
-   list<FtGrain*>::const_iterator grainIt;
+   std::list<FtGrain*>::const_iterator grainIt;
 
    for ( grainIt = m_grains.begin(); grainIt != m_grains.end(); ++grainIt )
       delete (*grainIt);
@@ -174,7 +174,7 @@ void FtAnalysis::finalize()
 
 }
 
-list<FtGrain*>& FtAnalysis::getGrains()
+std::list<FtGrain*>& FtAnalysis::getGrains()
 {
    return m_grains;
 }
@@ -250,7 +250,7 @@ void FtAnalysis::calcLengthChi2 ()
             chi2 += CalcChi2 (predhist, obshist);
          }
       }
-      const string& sampleId = iObsSample -> first;
+      const std::string& sampleId = iObsSample -> first;
       m_lengthChi2s[ sampleId ] = chi2;
    }
 }

@@ -53,16 +53,16 @@ namespace DerivedProperties {
       void restoreData() const;
 
       /// \brief Set the name for the property to be saved in a project file
-      void setMapName( const string& mapName );
+      void setMapName( const std::string& mapName );
 
       /// \brief Get the name of the property to be saved in a project file
-      const string & getMapName() const;
+      const std::string & getMapName() const;
 
       /// \brief Get the grid on which the property values are defined.
       const DataModel::AbstractGrid* getGrid () const;
 
       /// \brief Get the name of the property
-      const string & getName() const;
+      const std::string & getName() const;
 
       /// \brief Get the surface for which the property is allocated
       const DataModel::AbstractSurface* getSurface() const;
@@ -76,7 +76,7 @@ namespace DerivedProperties {
       AbstractDerivedProperties::FormationSurfacePropertyPtr m_formationSurfaceProperty;
 
       /// \brief The name which is used in the project file
-      string m_mapName;
+      std::string m_mapName;
 
    };
 

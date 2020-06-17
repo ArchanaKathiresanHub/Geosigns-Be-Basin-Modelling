@@ -5,9 +5,6 @@
 #include "ProjectHandle.h"
 #include "Grid.h"
 
-using namespace DataAccess;
-using namespace Interface;
-
 #include "GridDescription.h"
 
 // Forward declarations.
@@ -23,7 +20,7 @@ class VoxetProjectHandle {
 
 public :
 
-   VoxetProjectHandle ( const std::string& voxetProjectFileName, const ProjectHandle& projectHandle );
+   VoxetProjectHandle ( const std::string& voxetProjectFileName, const DataAccess::Interface::ProjectHandle& projectHandle );
 
 
    CauldronPropertyList::iterator cauldronPropertyBegin ();
@@ -38,13 +35,13 @@ public :
 
 private :
 
-   void loadVoxetGrid ( const Interface::Grid* cauldronGrid );
+   void loadVoxetGrid ( const DataAccess::Interface::Grid* cauldronGrid );
    void loadSnapshotTime ();
    void loadCauldronProperties ();
 
    const std::string m_voxetProjectFileName;
 
-   const Interface::ProjectHandle& m_cauldronProjectHandle;
+   const DataAccess::Interface::ProjectHandle& m_cauldronProjectHandle;
 
    double m_snapshotTime;
 

@@ -87,7 +87,7 @@ inline int DepthInterpolator::lastLayerNumber () const {
 
 inline bool DepthInterpolator::isPartOfWaterColumn ( const double depth ) const {
    if (m_isNull) return false;
-   return 0 <= depth and depth < topOfInterval ();
+   return 0 <= depth && depth < topOfInterval ();
 }
 
 

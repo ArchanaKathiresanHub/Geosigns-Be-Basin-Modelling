@@ -26,6 +26,7 @@
 
 using namespace DataAccess;
 using namespace Interface;
+using namespace ibs;
 
 DistributedGridMap::~DistributedGridMap (void)
 {
@@ -981,11 +982,6 @@ bool DistributedGridMap::setValue (unsigned int i, unsigned int j, unsigned int 
 unsigned int DistributedGridMap::getDepth (void) const
 {
    return m_depth;
-}
-
-void DistributedGridMap::release (void) const
-{
-   Child::release ();
 }
 
 double const * const * const * DistributedGridMap::getValues (void) const

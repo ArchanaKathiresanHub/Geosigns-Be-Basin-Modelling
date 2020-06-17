@@ -319,7 +319,7 @@ namespace GeoPhysics {
                                                double age );
 
       /// Load constants from configuration file ( ALC mode )
-      bool loadALCConfigurationFile( const string & cfgFileName );
+      bool loadALCConfigurationFile( const std::string & cfgFileName );
 
       /// Manages both the simple- and compound-lithologies.
       LithologyManager* m_lithologyManager;

@@ -32,7 +32,7 @@ namespace DataModel {
       template <typename T>
       struct ComparePointers {
          bool operator() (const T lhs, const T rhs) const {
-            if(lhs==nullptr or rhs==nullptr) return false;
+            if(lhs==nullptr || rhs==nullptr) return false;
             return lhs->getTime()<rhs->getTime();
          }
       };

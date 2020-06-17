@@ -2309,7 +2309,7 @@ void GenexSourceRock::addNode(Genex6::SourceRockNode* in_Node)
 double GenexSourceRock::getLithoDensity(const DataAccess::Interface::LithoType *theLitho) const
 {
   DataAccess::Interface::LithoTypeAttributeId theId = DataAccess::Interface::Density;
-  const DataAccess::Interface::AttributeValue theDensity = theLitho->getAttributeValue(theId);
+  const DataAccess::Interface::AttributeValue theDensity = theLitho->getLithoTypeAttributeValue(theId);
   double density = theDensity.getDouble();
   return density;
 }

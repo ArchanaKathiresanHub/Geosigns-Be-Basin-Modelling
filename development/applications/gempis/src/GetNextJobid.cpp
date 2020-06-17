@@ -40,7 +40,7 @@ void usage( const char * msg )
   exit( 1 );
 }
 
-// signal handler routine to prevent application from terminating in an 
+// signal handler routine to prevent application from terminating in an
 // unknown state.
 //
 bool termination_detected = false;
@@ -59,7 +59,7 @@ void terminate_loop (int signum)
 bool test_flag = false;   // == test file locking looping until user terminates
 extern char *optarg;
 extern int optind, opterr;
-int main( int argc, char **argv ) 
+int main( int argc, char **argv )
 {
   // filenames
   string lock_filename;
@@ -74,7 +74,7 @@ int main( int argc, char **argv )
   opterr = 0;
   while ( (c = getopt(argc, argv, optstring)) != -1 )
   {
-    switch (c) 
+    switch (c)
     {
     case 1:
       switch ( count++ )
@@ -89,7 +89,7 @@ int main( int argc, char **argv )
         break;
       default:
         char buf[1024];
-        sprintf( buf, "Error unknown option [%s]", optarg );
+        snprintf( buf, sizeof (buf), "Error unknown option [%s]", optarg );
         usage( buf );  // won't return
       }
       break;
@@ -103,7 +103,7 @@ int main( int argc, char **argv )
       break;
     case '?':
       char buf[1024];
-      sprintf( buf, "Error unknown option [%s]", optarg );
+      snprintf( buf, sizeof (buf), "Error unknown option [%s]", optarg );
       usage( buf );  // won't return
     }
   }
@@ -129,11 +129,11 @@ int main( int argc, char **argv )
     verbose( "Error setting file names." );
     exit( 1 );
   }
-	     
-  // run 
+
+  // run
   if ( test_flag == false )
   {
-    // if not a test once 
+    // if not a test once
     if ( JobId::Instance()->SetNext() == false )
     {
       verbose( "Error detected setting next jobid." );
@@ -146,13 +146,13 @@ int main( int argc, char **argv )
     // define signal handler, deletes itself when complete
     Signal x( terminate_loop );
 
-    // this is a loop to test file locking 
+    // this is a loop to test file locking
     int i=0;
     while ( termination_detected == false )
     {
       // display a loop counter
       char buf[1024];
-      sprintf( buf, "Loop %d", i++ );
+      snprintf( buf, sizeof (buf), "Loop %d", i++ );
       verbose( buf );
 
       if ( JobId::Instance()->SetNext() == false )

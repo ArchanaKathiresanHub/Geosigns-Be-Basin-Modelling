@@ -46,7 +46,7 @@ JobValue & JobValue::operator++( void )
   }
 
   // set string value
-  sprintf( m_string, "%d", m_value );
+  snprintf( m_string, sizeof (m_string), "%d", m_value );
 
   return *this;
 }
@@ -69,7 +69,7 @@ void JobValue::Set( const char * str )
   }
 
   // set string value
-  sprintf( m_string, "%d", m_value );
+  snprintf( m_string, sizeof (m_string), "%d", m_value );
 }
 
 // returns string value
@@ -84,7 +84,7 @@ const char * JobValue::Get( void )
 // JobId class
 //
 
-// singleton instance 
+// singleton instance
 JobId* JobId::s_instance = 0;
 
 // c'tor
@@ -92,7 +92,7 @@ JobId::JobId() :
   m_filesDefined( false ),
   m_dataFilename( "" ),
   m_fileLock( 0 ),
-  m_file( 0 ) 
+  m_file( 0 )
 {
 #ifdef DEBUG_JOBID
   cout << "JobId:JobId()" << endl;
@@ -131,7 +131,7 @@ JobId * JobId::Instance()
 #endif
 
   if ( s_instance == 0 )
-  { 
+  {
     s_instance = new JobId;
   }
   return s_instance;
@@ -207,7 +207,7 @@ const char * JobId::Get( void )
 // private members
 //
 
-// gets lock to jobid 
+// gets lock to jobid
 bool JobId::getLock( void )
 {
 #ifdef DEBUG_JOBID
@@ -323,7 +323,7 @@ bool JobId::writeData( void )
 
   // write job value, terminate end of line with <LF>
   char buffer[ 16 ];
-  sprintf( buffer, "%s\n", m_jobValue->Get() );
+  snprintf( buffer, sizeof (buffer), "%s\n", m_jobValue->Get() );
   if ( m_file->Write( buffer ) == false )
   {
 #ifdef DEBUG_JOBID

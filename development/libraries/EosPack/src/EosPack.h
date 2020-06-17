@@ -12,8 +12,6 @@
 
 // CBMGenerics library
 #include "ComponentManager.h"
-typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
-typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
 // Eospack library
 #include "polynomials.h"
@@ -21,6 +19,9 @@ typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 // std library
 #include <vector>
 #include <string>
+
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
 namespace pvtFlash
 {
@@ -33,8 +34,8 @@ namespace pvtFlash
    /// component masses the corresponding phase component masses, densities and viscosities.
    /// In order to get the (only) instance of this class, call member getInstance(), which calls the
    /// constructor only at first time being called, otherwise it only returns a reference
-   /// to a static object.(singleton-pattern). During the only 
-   /// constructor-execution, the component properties and additional parameters describing 
+   /// to a static object.(singleton-pattern). During the only
+   /// constructor-execution, the component properties and additional parameters describing
    /// the equation of state are read from a configuration file. The properties and parameters are
    /// possibly GORM-dependent and therefore stored as piecewise polynomials.
    class EosPack
@@ -44,21 +45,21 @@ namespace pvtFlash
       static EosPack& getInstance();
 
       static const char * getEosPackDir ();
- 
+
       /// \brief In multithreading cases we need separate instance for each thread. Creates such instance
       static EosPack* createNewInstance() { return new EosPack(); }
-       
+
       int getLumpedIndex( int componentId ) const;
 
       /// \brief Computes from pressure, temperature and component masses the corresponding phase component masses, densities and viscosities
       /// \param[in] temperature   (in K)
       /// \param[in] pressure      (in Pa)
       /// \param[in] compMasses [number of components]  masses of feed components (in kg)
-      /// \param[in] isGormPrescribed if true, a prescribed GORM is passed to the function used to evaluate the 
-      ///            GORM-dependent component properties. if false (default) the GORM is computed as 
+      /// \param[in] isGormPrescribed if true, a prescribed GORM is passed to the function used to evaluate the
+      ///            GORM-dependent component properties. if false (default) the GORM is computed as
       ///            the ratio
       ///            (mass C1-C5)/(mass of oil components)
-      /// \param[in]  gorm prescribed GORM (only significant when isPrescribed is true)       
+      /// \param[in]  gorm prescribed GORM (only significant when isPrescribed is true)
       /// \param[out] phaseCompMasses [gas==0, oil==1][number of components]: masses of components per phase (in kg)
       /// \param[out] phaseDensity [gas==0, oil==1]:   density per phase (in kg/m3)
       /// \param[out] phaseViscosity [gas==0, oil==1]:  viscosity per phase (in cP)
@@ -67,8 +68,8 @@ namespace pvtFlash
       ///                If this array is null then the normal initialisation will occur and the k-values will not be passed back to the calling procedure.
       ///                If the array is not null and the first value is -1.0 then normal initialisation will occur
       ///                and the k-values will be stored in the array.
-      bool compute( double temperature, 
-                    double pressure, 
+      bool compute( double temperature,
+                    double pressure,
                     double compMasses[],
                     double phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES_TO_FLASH],
                     double phaseDensity[],
@@ -79,9 +80,9 @@ namespace pvtFlash
                   );
 
       /// \brief Compute with lumped sulphur species into C15+Sat and C6-14Aro
-      bool computeWithLumping( double temperature, 
-                               double pressure, 
-                               double in_compMasses[],  				       
+      bool computeWithLumping( double temperature,
+                               double pressure,
+                               double in_compMasses[],
                                double out_phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES],
                                double phaseDensity [],
                                double phaseViscosity[],
@@ -92,16 +93,16 @@ namespace pvtFlash
 
       /// \brief returns gas/oil mass ratio
       double gorm( const double in_compMasses[ComponentId::NUMBER_OF_SPECIES] );
-       
+
       /// \brief returns the molecular weight of componentId for a prescribed gorm
       double getMolWeight( int componentId, double gorm );
-       
+
       /// \brief returns the molecular weight of componentId for a prescribed gorm. For Sulphur component use MolWeight of component to which it has to be lumped.
       double getMolWeightLumped( int componentId, double gorm );
-       
+
       /// \brief returns the molecular weight of componentId for a prescribed gorm
       double getCriticalTemperature( int componentId, double gorm );
-       
+
       /// \brief returns the molecular weight of componentId for a prescribed gorm
       double getCriticalVolume( int componentId, double gorm );
 
@@ -111,13 +112,13 @@ namespace pvtFlash
       /// \brief returns critical volume with weight lumped of componentId for a prescribed gorm
       double getCriticalVolumeLumped( int componentId, double gorm );
 
-      /// \brief lump/unlump sulphur components before compute 
+      /// \brief lump/unlump sulphur components before compute
       /// \param[in] in_compMasses input array of size ComponentManager::NUMBER_OF_SPECIES with component masses
       /// \param[out] out_compMasses output array of size ComponentManager::NumberOfSpeciesToFlash with lumped component masses
       /// \param unlump_fraction array of size ComponentManager::NUMBER_OF_SPECIES with components fractions
       void lumpComponents( const double in_compMasses[], double out_compMasses[], double unlump_fraction[] );
 
-      /// \brief calculate unlumping fractions. 
+      /// \brief calculate unlumping fractions.
       /// \param[in] weights array of size ComponentManager::NUMBER_OF_SPECIES
       /// \param[out] unlump_fraction array of size ComponentManager::NUMBER_OF_SPECIES
       void getLumpingFractions( const std::vector<double>& weights, double unlump_fraction[] );
@@ -125,12 +126,12 @@ namespace pvtFlash
       /// \param[in] in_paseCompMasses masses for each lumped component for each phase
       /// \param[out] out_phaseCompMasses masses for each unlumped component for each phase
       /// \param unlump_fraction array of size ComponentManager::NUMBER_OF_SPECIES
-      void  unlumpComponents( double in_paseCompMasses[][ComponentId::NUMBER_OF_SPECIES_TO_FLASH], 
-                              double out_phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES], 
+      void  unlumpComponents( double in_paseCompMasses[][ComponentId::NUMBER_OF_SPECIES_TO_FLASH],
+                              double out_phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES],
                               double unlump_fraction[]);
 
       /// \brief Change the default value which is used for single phase lableing in PVT library. Also this call
-      ///        changes method to labeling single phase to 
+      ///        changes method to labeling single phase to
       /// \param val the new value. The default value is 5.0
       void setCritAoverBterm( double val );
 
@@ -166,7 +167,7 @@ namespace pvtFlash
       bool m_isReadInOk;
 
       int    m_phaseIdMethod;    ///< Method for labeling a single phase
-      double m_CritAoverB;       ///< if m_phaseIdMethode is set to EOS_SINGLE_PHASE_AOVERB, this value will 
+      double m_CritAoverB;       ///< if m_phaseIdMethode is set to EOS_SINGLE_PHASE_AOVERB, this value will
                                  ///  be used for labeling single phase as liquid or vapor
 
       int    m_maxItersNum;      ///< maximal iterations number for the nonlinear solver
@@ -175,10 +176,10 @@ namespace pvtFlash
 
       int lumpedSpeciesIndex[ComponentId::NUMBER_OF_SPECIES];
    };
-      
+
    /// Size(weights) = ComponentManager::NUMBER_OF_SPECIES
    double gorm( const std::vector<double>& weights );
-   
+
    /// Size(weights) = ComponentManager::NUMBER_OF_SPECIES
    double getMolWeight( int componentId, const std::vector<double>& weights );
 

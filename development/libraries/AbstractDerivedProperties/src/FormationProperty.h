@@ -183,8 +183,8 @@ inline double AbstractDerivedProperties::FormationProperty::checkedGet ( unsigne
                                                                          unsigned int j,
                                                                          unsigned int k ) const {
 
-   if ( NumericFunctions::inRange<unsigned int>( i, firstI ( true ), lastI ( true )) and
-        NumericFunctions::inRange<unsigned int>( j, firstJ ( true ), lastJ ( true )) and
+   if ( NumericFunctions::inRange<unsigned int>( i, firstI ( true ), lastI ( true )) &&
+        NumericFunctions::inRange<unsigned int>( j, firstJ ( true ), lastJ ( true )) &&
         NumericFunctions::inRange<unsigned int>( k, firstK (), lastK ())) {
 
          return get ( i, j, k );

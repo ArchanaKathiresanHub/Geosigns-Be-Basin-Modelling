@@ -52,7 +52,7 @@ unsigned int DerivedProperties::ReservoirOutputPropertyValue::getDepth () const 
    }
 }
 
-const string & DerivedProperties::ReservoirOutputPropertyValue::getName() const {
+const std::string & DerivedProperties::ReservoirOutputPropertyValue::getName() const {
 
    if ( m_reservoirProperty != 0 ) {
       return m_reservoirProperty->getProperty()->getName();

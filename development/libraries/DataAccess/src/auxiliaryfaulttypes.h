@@ -85,7 +85,7 @@ namespace DataAccess
       ///
       Point midPoint ( const Point& P1, const Point& P2 );
 
-      ostream& operator<< ( ostream& o, const Point& P );
+      std::ostream& operator<< ( std::ostream& o, const Point& P );
 
       bool operator == ( const Point& P1, const Point& P2 );
 
@@ -121,7 +121,7 @@ namespace DataAccess
             }
 
 
-            friend ostream& operator<< ( ostream& o, const Element& E );
+            friend std::ostream& operator<< ( std::ostream& o, const Element& E );
 
 
          private :
@@ -150,9 +150,9 @@ namespace DataAccess
       bool operator== ( const Element& E1, const Element& E2 );
       bool operator!= ( const Element& E1, const Element& E2 );
 
-      ostream& operator << ( ostream& o, const ElementSet& ES );
+      std::ostream& operator << ( std::ostream& o, const ElementSet& ES );
 
-      ostream& operator << ( ostream& o, const PointSequence& PS );
+      std::ostream& operator << ( std::ostream& o, const PointSequence& PS );
 
 
       ///

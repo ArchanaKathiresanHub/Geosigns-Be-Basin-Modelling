@@ -13,7 +13,6 @@
 #include <iomanip>
 #include <sstream>
 #include <string.h>
-using namespace std;
 
 
 #include "EosPack.h"
@@ -49,28 +48,28 @@ void ReadComposition( double compMasses[ComponentId::NUMBER_OF_SPECIES], double 
 
          for ( int i = ComponentId::NUMBER_OF_SPECIES - 1; i >= 0; --i ) ifc >> compMasses[i];
 
-         cout << "Read" << endl;
+         std::cout << "Read" << std::endl;
 
          char c;
          ifc >> c;
          if ( c == 'g' )
          {
-            cin >> gorm;
+            std::cin >> gorm;
          }
          return;
       }
    }
    
-   cin >> pressure >> temperature;
+   std::cin >> pressure >> temperature;
 
-   for ( int i = ComponentId::NUMBER_OF_SPECIES - 1; i >= 0; --i ) cin >> compMasses[i];
+   for ( int i = ComponentId::NUMBER_OF_SPECIES - 1; i >= 0; --i ) std::cin >> compMasses[i];
 
-   cout << "Read" << endl;
+   std::cout << "Read" << std::endl;
    char c;
-   cin >> c;
+   std::cin >> c;
    if (c == 'g')
    {
-      cin >> gorm;
+      std::cin >> gorm;
    }
 }
 
@@ -86,26 +85,26 @@ int CalcAll( double compMasses[ComponentId::NUMBER_OF_SPECIES], double pressure,
 
    isGormPrescribed = gorm < 0 ? false : true;
 
-   cout.precision (8);
+   std::cout.precision (8);
 
    double totMass = 0;
    for (int i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i)
    {
-      cout << "mass " << setw(12) << theComponentManager.getSpeciesName (i) << ": " << setw(14) << compMasses[i] << "\n";
+      std::cout << "mass " << std::setw(12) << theComponentManager.getSpeciesName (i) << ": " << std::setw(14) << compMasses[i] << "\n";
       totMass += compMasses[i];
    }
 
-   cout << "\nTotal mass:    " << totMass << " [kg]\n";
-   cout << "Temperature:   " << temperature << " [K]\n";
-   cout << "Pressure:      " << pressure << " [Pa]\n\n";
+   std::cout << "\nTotal mass:    " << totMass << " [kg]\n";
+   std::cout << "Temperature:   " << temperature << " [K]\n";
+   std::cout << "Pressure:      " << pressure << " [Pa]\n\n";
 
    if ( pvtFlash::EosPack::getInstance().computeWithLumping ( temperature, pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, isGormPrescribed, gorm ) )
    {
-      //cout.setf( std::ios_base::fixed, std::ios_base::floatfield );
+      //std::cout.setf( std::ios_base::fixed, std::ios_base::floatfield );
 
-      cout << "results of run 1:\n\n";
-      cout << "OilDensity: " << phaseDensity[1] << "\n";
-      cout << "GasDensity: " << phaseDensity[0] << "\n\n";
+      std::cout << "results of run 1:\n\n";
+      std::cout << "OilDensity: " << phaseDensity[1] << "\n";
+      std::cout << "GasDensity: " << phaseDensity[0] << "\n\n";
 
       double liqPhaseMass = 0;
       double vapPhaseMass = 0;
@@ -116,16 +115,16 @@ int CalcAll( double compMasses[ComponentId::NUMBER_OF_SPECIES], double pressure,
          vapPhaseMass += phaseCompMasses[0][i];
       }
       
-      cout << "Liquid phase mass: " << liqPhaseMass << "\n";
-      cout << "Vapour phase mass: " << vapPhaseMass << "\n\n";
+      std::cout << "Liquid phase mass: " << liqPhaseMass << "\n";
+      std::cout << "Vapour phase mass: " << vapPhaseMass << "\n\n";
 
-      cout << "Liquid mass phase fraction: " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << "\n";
-      cout << "Vapour mass phase fraction: " << vapPhaseMass/(liqPhaseMass + vapPhaseMass) << "\n\n";
+      std::cout << "Liquid mass phase fraction: " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << "\n";
+      std::cout << "Vapour mass phase fraction: " << vapPhaseMass/(liqPhaseMass + vapPhaseMass) << "\n\n";
 
-      vector<double>compMassesVec( compMasses, compMasses + ComponentId::NUMBER_OF_SPECIES );
+      std::vector<double>compMassesVec( compMasses, compMasses + ComponentId::NUMBER_OF_SPECIES );
 
       double gorm = pvtFlash::gorm(compMassesVec);
-      cout << "Gorm = " << gorm << "\n\n";
+      std::cout << "Gorm = " << gorm << "\n\n";
 
       liqPhaseMass = 0;
       vapPhaseMass = 0;
@@ -136,41 +135,41 @@ int CalcAll( double compMasses[ComponentId::NUMBER_OF_SPECIES], double pressure,
          liqPhaseMass += phaseCompMasses[1][i]/molW;
          vapPhaseMass += phaseCompMasses[0][i]/molW;
       }
-      cout << "Liquid mole phase fraction: " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << "\n";
-      cout << "Vapour mole phase fraction: " << vapPhaseMass/(liqPhaseMass + vapPhaseMass) << "\n\n";
+      std::cout << "Liquid mole phase fraction: " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << "\n";
+      std::cout << "Vapour mole phase fraction: " << vapPhaseMass/(liqPhaseMass + vapPhaseMass) << "\n\n";
    }
 
    for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES_TO_FLASH; ++i )
    {
-      cout << "mass " << setw(12) << theComponentManager.getSpeciesName (i) << " [gasphase]: " << setw(12) << phaseCompMasses[0][i] << " --- "
-           << "mass " << setw(12) << theComponentManager.getSpeciesName (i) << " [oilphase]: " << setw(12) << phaseCompMasses[1][i] << "\n";
+      std::cout << "mass " << std::setw(12) << theComponentManager.getSpeciesName (i) << " [gasphase]: " << std::setw(12) << phaseCompMasses[0][i] << " --- "
+           << "mass " << std::setw(12) << theComponentManager.getSpeciesName (i) << " [oilphase]: " << std::setw(12) << phaseCompMasses[1][i] << "\n";
    }
 
 
    if ( pvtFlash::EosPack::getInstance().computeWithLumping( temperature, pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, isGormPrescribed, gorm ) )
    {
-      //cout.setf( std::ios_base::fixed, std::ios_base::floatfield );
+      //std::cout.setf( std::ios_base::fixed, std::ios_base::floatfield );
 
-      cout.precision (8);
-      cout << "\nresults of run 2:" << "\n";
-      cout << "OilDensity: " << phaseDensity[1] << "\n";
-      cout << "GasDensity: " << phaseDensity[0] << "\n\n";
+      std::cout.precision (8);
+      std::cout << "\nresults of run 2:" << "\n";
+      std::cout << "OilDensity: " << phaseDensity[1] << "\n";
+      std::cout << "GasDensity: " << phaseDensity[0] << "\n\n";
 
       
-      vector<double> compMassesVec( compMasses, compMasses + ComponentId::NUMBER_OF_SPECIES );
+      std::vector<double> compMassesVec( compMasses, compMasses + ComponentId::NUMBER_OF_SPECIES );
 
       double compMolWeight0, compMolWeight, compMolWeightL, compMolWeightV;
 
       double gorm_unlumped = pvtFlash::gorm( compMassesVec );
-      cout << "Gorm unlumped = " << gorm_unlumped << "\n\n";
+      std::cout << "Gorm unlumped = " << gorm_unlumped << "\n\n";
       
-      vector<double> outWeights( ComponentId::NUMBER_OF_SPECIES_TO_FLASH );
+      std::vector<double> outWeights( ComponentId::NUMBER_OF_SPECIES_TO_FLASH );
       double unlumpFractions[ComponentId::NUMBER_OF_SPECIES];
 
       pvtFlash::EosPack::getInstance ().lumpComponents(compMasses, (double *)(&outWeights[0]), unlumpFractions);
  
       //    double gorm_lumped = pvtFlash::gorm(outWeights);
-      //  cout << "Gorm lumped = " << gorm_lumped  << endl;
+      //  std::cout << "Gorm lumped = " << gorm_lumped  << std::endl;
       double gorm_lumped =  gorm_unlumped;
       for (int i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i )
       {
@@ -192,10 +191,10 @@ int CalcAll( double compMasses[ComponentId::NUMBER_OF_SPECIES], double pressure,
 
          double testMW = pvtFlash::EosPack::getInstance().getMolWeightLumped( i, testGorm );
 
-         cout << "Mol weight(0, unlumpgorm, lumpgorm, testgorm): " << setw(12) << theComponentManager.getSpeciesName(i) << " (" << setw(2) << i << ") = ";
+         std::cout << "Mol weight(0, unlumpgorm, lumpgorm, testgorm): " << std::setw(12) << theComponentManager.getSpeciesName(i) << " (" << std::setw(2) << i << ") = ";
 
-         cout << setw(10) << compMolWeight0 << ", " << setw(10) << compMolWeight  << ", ";
-         cout << setw(10) << compMolWeightV << ", " << setw(10) << compMolWeightL << ", " << setw(10) << testMW << "\n";
+         std::cout << std::setw(10) << compMolWeight0 << ", " << std::setw(10) << compMolWeight  << ", ";
+         std::cout << std::setw(10) << compMolWeightV << ", " << std::setw(10) << compMolWeightL << ", " << std::setw(10) << testMW << "\n";
       }
 
       double testBuf[ComponentId::NUMBER_OF_SPECIES + 2];
@@ -207,13 +206,13 @@ int CalcAll( double compMasses[ComponentId::NUMBER_OF_SPECIES], double pressure,
       testBuf[ComponentId::NUMBER_OF_SPECIES]      = 131;
       testBuf[ComponentId::NUMBER_OF_SPECIES + 1]  = 231;
      
-      cout << "\nSize = " << sizeof(compMasses) / sizeof(double) << ", " << ComponentId::NUMBER_OF_SPECIES << endl;
+      std::cout << "\nSize = " << sizeof(compMasses) / sizeof(double) << ", " << ComponentId::NUMBER_OF_SPECIES << std::endl;
 
       double gorm1 = pvtFlash::EosPack::getInstance ().gorm(  compMasses );
-      cout << "Gorm with normal buffer = " << gorm1 << endl;
+      std::cout << "Gorm with normal buffer = " << gorm1 << std::endl;
       
       gorm1 = pvtFlash::EosPack::getInstance ().gorm( testBuf );
-      cout << "Gorm with bigger buffer = " << gorm1 << endl; 
+      std::cout << "Gorm with bigger buffer = " << gorm1 << std::endl;
    }  
 
    return 0;
@@ -242,9 +241,9 @@ int main (int nArg, char *pszArgs[] )
 
       if ( calcGorm )
       {
-         vector<double> compMassesVec( compMasses, compMasses + ComponentId::NUMBER_OF_SPECIES );
+         std::vector<double> compMassesVec( compMasses, compMasses + ComponentId::NUMBER_OF_SPECIES );
          double gorm = pvtFlash::gorm( compMassesVec );
-         cout << "Gorm = " << gorm << ";\n";
+         std::cout << "Gorm = " << gorm << ";\n";
       }
 
       if ( calcProp )
@@ -252,12 +251,12 @@ int main (int nArg, char *pszArgs[] )
          if ( pvtFlash::EosPack::getInstance().computeWithLumping ( temperature, pressure, compMasses, phaseCompMasses, phaseDensity, 
                                                                     phaseViscosity, (gorm < 0 ? false : true), gorm ) )
          {
-            //cout.setf( std::ios_base::fixed, std::ios_base::floatfield );
-            cout << "DensityLiq = " << phaseDensity[1] << "\n;";
-            cout << "DensityVap = " << phaseDensity[0] << "\n;";
+            //std::cout.setf( std::ios_base::fixed, std::ios_base::floatfield );
+            std::cout << "DensityLiq = " << phaseDensity[1] << "\n;";
+            std::cout << "DensityVap = " << phaseDensity[0] << "\n;";
 
-            cout << "ViscosityLiq = " << phaseViscosity[1] << "\n;";
-            cout << "ViscosityVap = " << phaseViscosity[0] << "\n;";
+            std::cout << "ViscosityLiq = " << phaseViscosity[1] << "\n;";
+            std::cout << "ViscosityVap = " << phaseViscosity[0] << "\n;";
          }
       }
 
@@ -275,12 +274,12 @@ int main (int nArg, char *pszArgs[] )
                vapPhaseMass += phaseCompMasses[0][i];
             }
          
-            cout << "PhaseMassLig = " << liqPhaseMass << ";\n";
-            cout << "PhaseMassVap = " << vapPhaseMass << ";\n";
-            cout << "PhaseMassFracLiq = " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
-            cout << "PhaseMassFracVap = " << vapPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
+            std::cout << "PhaseMassLig = " << liqPhaseMass << ";\n";
+            std::cout << "PhaseMassVap = " << vapPhaseMass << ";\n";
+            std::cout << "PhaseMassFracLiq = " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
+            std::cout << "PhaseMassFracVap = " << vapPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
 
-            vector<double> compMassesVec( compMasses, compMasses + ComponentId::NUMBER_OF_SPECIES );
+            std::vector<double> compMassesVec( compMasses, compMasses + ComponentId::NUMBER_OF_SPECIES );
             double gorm = pvtFlash::gorm( compMassesVec );
 
             liqPhaseMass = 0;
@@ -292,8 +291,8 @@ int main (int nArg, char *pszArgs[] )
                liqPhaseMass += phaseCompMasses[1][i]/molW;
                vapPhaseMass += phaseCompMasses[0][i]/molW;
             }
-            cout << "MolePhaseFracLiq = " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
-            cout << "MolePhaseFracVap = " << vapPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
+            std::cout << "MolePhaseFracLiq = " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
+            std::cout << "MolePhaseFracVap = " << vapPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
          }
       }
    }

@@ -95,7 +95,7 @@ namespace DataAccess
 
       /// restore data according to specifications
       bool restoreData (bool save = true, bool withGhosts = false) const;
-         
+
       /// return whether the map is in ascending order or not
       bool isAscendingOrder() const;
 
@@ -208,25 +208,20 @@ namespace DataAccess
       /// return the depth (size) of the third dimension of the GridMap
       virtual unsigned int getDepth (void) const;
 
-      /// cease usage of this object
-      /// Informs the Parent object that the user application has stopped using this GridMap so that
-      /// it may be deleted.
-      virtual void release (void) const;
-
       /// Return the array of values managed by this GridMap
       virtual double const * const * const * getValues (void) const;
 
       virtual bool saveHDF5 (const std::string & fileName) const;
       virtual void printOn (std::ostream &) const;
       virtual void printOn (MPI_Comm comm) const;
-    
+
       ///map interpolation functionality
       bool convertToGridMap(GridMap *mapB) const;
 
       bool retrieved() const { return m_retrieved; }
 
       private:
-      
+
       // Prevent copy constructor and assignement
       DistributedGridMap & operator=(const DistributedGridMap & other);
       DistributedGridMap (const DistributedGridMap & other);
@@ -265,10 +260,10 @@ namespace DataAccess
 
       /// whether data was changed after retrieval
       mutable bool m_modified;
-    
-      ///Transforms a high res local grid map to a low res local grid map 
+
+      ///Transforms a high res local grid map to a low res local grid map
       bool transformHighRes2LowRes (GridMap *mapB) const;
-      ///Transforms a low res local grid map to a high res local grid map 
+      ///Transforms a low res local grid map to a high res local grid map
       bool transformLowRes2HighRes (GridMap *mapB, bool extrapolateAOI = false) const;
       bool findLowResElementCoordinates( const unsigned int HighResI,
                                          const unsigned int HighResJ,

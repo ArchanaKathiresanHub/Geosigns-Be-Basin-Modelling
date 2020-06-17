@@ -25,7 +25,6 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-using namespace std;
 
 // DataAccess API includes
 #include "GridMap.h"
@@ -65,7 +64,6 @@ using namespace std;
 
 #include <string>
 #include <vector>
-using namespace std;
 
 using namespace DataAccess;
 using namespace Interface;
@@ -73,16 +71,21 @@ using namespace Interface;
 #define Max(a,b)        (a > b ? a : b)
 #define Min(a,b)        (a < b ? a : b)
 
-const double CauldronUndefined = 99999;
-const double EclipseUndefined = -9999;
-
-static char * argv0 = 0;
-static void showUsage (const char * message = 0);
+static char * argv0 = nullptr;
+static void showUsage (const char * message = nullptr);
 static void changeUndefinedValue (double & var, double oldValue, double newValue);
 
-double originX = MAXDOUBLE, originY = MAXDOUBLE, originZ = MAXDOUBLE;
-double deltaX = MAXDOUBLE, deltaY = MAXDOUBLE, deltaZ = MAXDOUBLE;
-double countX = MAXDOUBLE, countY = MAXDOUBLE, countZ = MAXDOUBLE;
+double originX = MAXDOUBLE;
+double originY = MAXDOUBLE;
+double originZ = MAXDOUBLE;
+
+double deltaX = MAXDOUBLE;
+double deltaY = MAXDOUBLE;
+double deltaZ = MAXDOUBLE;
+
+double countX = MAXDOUBLE;
+double countY = MAXDOUBLE;
+double countZ = MAXDOUBLE;
 
 /// Print to stdout a default voxet file based on the cauldron project file that has been input.
 void createVoxetProjectFile ( ProjectHandle& cauldronProject,
@@ -128,16 +131,9 @@ int main (int argc, char ** argv)
    string createVoxetFileName;
    string outputFileName;
 
-   int numberOfInterpolatedXNodes = 101;
-   int numberOfInterpolatedYNodes = 101;
-   int numberOfInterpolatedZNodes = 41;
-
-   float interpolatedZOrigin = 0.0;
-   float interpolatedZEnd = 4500.0;
-
    std::map<std::string, double > propertyNullValueReplaceLookup = std::map<std::string, double >();
 
-   if ((argv0 = strrchr (argv[0], '/')) != 0)
+   if ((argv0 = strrchr (argv[0], '/')) != nullptr)
    {
       ++argv0;
    }
@@ -300,7 +296,7 @@ int main (int argc, char ** argv)
 
          char errorMessage[256];
 
-         sprintf (errorMessage, " Illegal argument: %s", argv[arg]);
+         snprintf (errorMessage, sizeof (errorMessage), " Illegal argument: %s", argv[arg]);
          showUsage (errorMessage);
          return -1;
       }
@@ -326,17 +322,17 @@ int main (int argc, char ** argv)
    bool coupledCalculationMode = false;
    bool started = projectHandle->startActivity ( "cauldron2voxet", projectHandle->getLowResolutionOutputGrid (), false, false, false );
 
-   if ( not started ) {
+   if ( !started ) {
       return 1;
    }
 
    const Interface::SimulationDetails* simulationDetails = projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
 
-   if ( simulationDetails != 0 ) {
-      coupledCalculationMode = simulationDetails->getSimulatorMode () == "Overpressure" or
-                               simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
-                               simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
-                               simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
+   if ( simulationDetails != nullptr ) {
+      coupledCalculationMode = simulationDetails->getSimulatorMode () == "Overpressure" ||
+                               simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" ||
+                               simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" ||
+                               simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" ||
                                simulationDetails->getSimulatorMode () == "CoupledDarcy";
    } else {
       // If this table is not present the assume that the last
@@ -348,13 +344,13 @@ int main (int argc, char ** argv)
 
    started = projectHandle->initialise ( coupledCalculationMode );
 
-   if ( not started ) {
+   if ( !started ) {
       return 1;
    }
 
    started = projectHandle->setFormationLithologies ( true, true );
 
-   if ( not started ) {
+   if ( !started ) {
       return 1;
    }
 
@@ -363,11 +359,9 @@ int main (int argc, char ** argv)
 
    if (!snapshot)
    {
-      cerr << "No calculations have been made for snapshot time " << snapshotTime << endl;
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "No calculations have been made for snapshot time " << snapshotTime;
       return -1;
    }
-
-   const Grid *cauldronGrid = projectHandle->getLowResolutionOutputGrid ();
 
    if (createVoxetFileName != "")
    {
@@ -376,7 +370,7 @@ int main (int argc, char ** argv)
       voxetProjectFileStream.open (createVoxetFileName.c_str ());
       if (!voxetProjectFileStream.is_open ())
       {
-         cerr << "Could not open temporary file " << createVoxetFileName << ", aborting ...." << endl;
+         LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "Could not open temporary file " << createVoxetFileName << ", aborting ....";
          return -1;
       }
 
@@ -384,7 +378,7 @@ int main (int argc, char ** argv)
       return 0;
    }
 
-   VoxetProjectHandle *voxetProject = 0;
+   VoxetProjectHandle *voxetProject = nullptr;
 
    if (voxetFileName == "")
    {
@@ -392,12 +386,12 @@ int main (int argc, char ** argv)
 
       char tmpVoxetFileName[256];
 
-      sprintf (tmpVoxetFileName, "/tmp/voxetProjectFile%d", getpid ());
+      snprintf (tmpVoxetFileName, sizeof (tmpVoxetFileName), "/tmp/voxetProjectFile%d", getpid ());
 
       voxetProjectFileStream.open (tmpVoxetFileName);
       if (!voxetProjectFileStream.is_open ())
       {
-         cerr << "Could not open temporary file " << tmpVoxetFileName << ", aborting ...." << endl;
+         LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "Could not open temporary file " << tmpVoxetFileName << ", aborting ....";
          return -1;
       }
 
@@ -416,7 +410,7 @@ int main (int argc, char ** argv)
 
    if (!voxetProject->isConsistent ())
    {
-      cout << " Voxet file is not consistent. " << endl;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::DEFAULT) << " Voxet file is not consistent. ";
       exit (-1);
    }
 
@@ -427,15 +421,13 @@ int main (int argc, char ** argv)
    }
    string binaryFileName = outputFileName;
 
-   FILE *binaryOutputFile;
-
    ofstream asciiOutputFile;
 
    asciiOutputFile.open (asciiFileName.c_str ());
 
    if (asciiOutputFile.fail ())
    {
-      cerr << "Could not open output file " << asciiFileName << endl;
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "Could not open output file " << asciiFileName;
       return -1;
    }
 
@@ -443,30 +435,23 @@ int main (int argc, char ** argv)
 
    if (projectFileName.length () == 0)
    {
-      cerr << "Could not open project file " << projectFileName << endl;
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "Could not open project file " << projectFileName;
       return -1;
    }
 
    if (verbose)
    {
-      cout << "Using snapshot " << setprecision (10) << snapshot->getTime () << endl;
-   }
-
-   if (verbose)
-   {
-      cout << endl;
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::DEFAULT) << "Using snapshot " << setprecision (10) << snapshot->getTime ();
    }
 
    const Property *depthProperty = projectHandle->findProperty ("Depth");
 
    if (!depthProperty)
    {
-      cerr << "Could not find the Depth property in the project file " << endl << "Are you sure the project file contains output data?" << endl;
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "Could not find the Depth property in the project file. "
+                                                                  << "Are you sure the project file contains output data?";
       return -1;
    }
-
-   const GridMap *depthGridMap = 0;
-   const GridMap *vesGridMap = 0;
 
    int propertyCount = 1;
 
@@ -474,7 +459,7 @@ int main (int argc, char ** argv)
 
    VoxetCalculator vc (*projectHandle, propertyManager, voxetProject->getGridDescription (),propertyNullValueReplaceLookup);
 
-   if (useBasement && verbose) cout << "Using basement" << endl;
+   if (useBasement && verbose) LogHandler(LogHandler::INFO_SEVERITY, LogHandler::DEFAULT) << "Using basement";
    vc.useBasement() = useBasement;
 
    vc.setDepthProperty (depthProperty);
@@ -494,7 +479,7 @@ int main (int argc, char ** argv)
 
       if (!property)
       {
-         cerr << " Unknown property: " << (*cauldronPropIter)->getCauldronName () << endl;
+         LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Unknown property: " << (*cauldronPropIter)->getCauldronName ();
          continue;
       }
 
@@ -520,7 +505,7 @@ int main (int argc, char ** argv)
 
       if (verbose)
       {
-         cout << " Adding cauldron property: " << property->getName () << endl;
+         LogHandler(LogHandler::INFO_SEVERITY, LogHandler::DEFAULT) << " Adding cauldron property: " << property->getName ();
       }
 
       if ((*cauldronPropIter)->getVoxetOutput ())
@@ -530,7 +515,7 @@ int main (int argc, char ** argv)
 
          if (vc.computeInterpolators (snapshot, verbose) == -1)
          {
-            cerr << " Are there any results in the project? " << endl;
+            LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Are there any results in the project? ";
             return -1;
          }
 
@@ -544,7 +529,7 @@ int main (int argc, char ** argv)
          ++propertyCount;
 
          if ( verbose ) {
-            cout << " deleting interpolators for property: " << property->getName () << endl;
+            LogHandler(LogHandler::INFO_SEVERITY, LogHandler::DEFAULT) << " deleting interpolators for property: " << property->getName ();
          }
 
          if(singlePropertyHeader){
@@ -555,7 +540,7 @@ int main (int argc, char ** argv)
 
             if (asciiHeaderOutputFile.fail ())
             {
-               cerr << "Could not open output file " << asciiHeaderFileName << endl;
+               LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "Could not open output file " << asciiHeaderFileName;
                return -1;
             }
 
@@ -577,15 +562,11 @@ int main (int argc, char ** argv)
 
    }
 
-   if (verbose)
-   {
-      cout << endl;
-   }
    writeVOtail(asciiOutputFile);
    asciiOutputFile.close ();
 
    if (debug)
-      cerr << "Project closed" << endl;
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "Project closed";
 
    return 0;
 }
@@ -647,8 +628,8 @@ void write ( const std::string& name,
 
    file = fopen ( name.c_str (), "w" );
 
-   if ( file == 0 ) {
-      cerr << " cannot open file: " << name << " for writing" << endl;
+   if ( file == nullptr ) {
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " cannot open file: " << name << " for writing";
       return;
    }
 
@@ -700,9 +681,9 @@ void correctEndian ( VoxetPropertyGrid& values )
 
 bool splitString (char * string, char separator, char * & firstPart, char * & secondPart, char * & thirdPart)
 {
-   firstPart = 0;
-   secondPart = 0;
-   thirdPart = 0;
+   firstPart = nullptr;
+   secondPart = nullptr;
+   thirdPart = nullptr;
    char * tail;
    if (!string || strlen (string) == 0) return false;
 
@@ -711,9 +692,9 @@ bool splitString (char * string, char separator, char * & firstPart, char * & se
    firstPart = string;
    tail = strchr (firstPart, separator);
 
-   if (tail == 0) return false;
+   if (tail == nullptr) return false;
 
-   if (tail == firstPart) firstPart = 0;
+   if (tail == firstPart) firstPart = nullptr;
 
    * tail = '\0';
    ++tail;
@@ -724,9 +705,9 @@ bool splitString (char * string, char separator, char * & firstPart, char * & se
    secondPart = tail;
    tail = strchr (secondPart, separator);
 
-   if (tail == 0) return false;
+   if (tail == nullptr) return false;
 
-   if (tail == secondPart) secondPart = 0;
+   if (tail == secondPart) secondPart = nullptr;
 
    * tail = '\0';
    ++tail;
@@ -797,8 +778,6 @@ void createVoxetProjectFile ( Interface::ProjectHandle& cauldronProject,
    database::Database*   database = database::Database::CreateFromSchema ( *voxetSchema );
    database::Table*      table;
    database::Record*     record;
-   Interface::FormationList* formations;
-   Interface::FormationList::iterator formationIter;
    const Interface::Grid * grid;
 
    //------------------------------------------------------------//
@@ -833,7 +812,8 @@ void createVoxetProjectFile ( Interface::ProjectHandle& cauldronProject,
 
    if (!depthProperty)
    {
-      cerr << "Could not find the Depth property in the project file " << endl << "Are you sure the project file contains output data?" << endl;
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "Could not find the Depth property in the project file. "
+                                                                  << "Are you sure the project file contains output data?";
       return;
    }
 
@@ -843,34 +823,37 @@ void createVoxetProjectFile ( Interface::ProjectHandle& cauldronProject,
    AbstractDerivedProperties::SurfacePropertyPtr abstractBottomDepthPropertyValue = propertyManager.getSurfaceProperty ( depthProperty, snapshot, bottomSurface );
    auto bottomDepthPropertyValue = dynamic_pointer_cast<const DerivedProperties::PrimarySurfaceProperty>(abstractBottomDepthPropertyValue);
 
-   if (bottomDepthPropertyValue == 0 )
+   if (bottomDepthPropertyValue == nullptr )
    {
-      cerr << " Depth property for bottom surface " << bottomSurface->getName () << " at snapshot " << snapshot->getTime () << " is not available." << endl;
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for bottom surface " << bottomSurface->getName ()
+                                                                  << " at snapshot " << snapshot->getTime () << " is not available.";
       return;
    }
 
-   const GridMap *bottomDepthGridMap = 0; // = bottomDepthPropertyValueList->front ()->getGridMap ();
-   const GridMap *topDepthGridMap = 0;
+   const GridMap *bottomDepthGridMap = nullptr;
+   const GridMap *topDepthGridMap = nullptr;
 
    bottomDepthGridMap = bottomDepthPropertyValue.get ()->getGridMap ();
 
-   if ( bottomDepthGridMap == 0 )
+   if ( bottomDepthGridMap == nullptr )
    {
-      cerr << " Depth property for bottom surface " << bottomSurface->getName () << " at snapshot " << snapshot->getTime () << " is not available." << endl;
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for bottom surface " << bottomSurface->getName ()
+                                                                  << " at snapshot " << snapshot->getTime () << " is not available.";
       return;
    }
 
    Interface::SurfaceList::iterator surfaceIter;
-   for ( surfaceIter = surfaces->begin (); topDepthGridMap == 0 && surfaceIter != surfaces->end (); ++surfaceIter )
+   for ( surfaceIter = surfaces->begin (); topDepthGridMap == nullptr && surfaceIter != surfaces->end (); ++surfaceIter )
    {
       const Interface::Surface * topSurface = *surfaceIter;
 
       AbstractDerivedProperties::SurfacePropertyPtr abstractTopDepthPropertyValue = propertyManager.getSurfaceProperty ( depthProperty, snapshot, topSurface );
       auto topDepthPropertyValue = dynamic_pointer_cast<const DerivedProperties::PrimarySurfaceProperty>(abstractTopDepthPropertyValue);
 
-      if ( topDepthPropertyValue == 0 )
+      if ( topDepthPropertyValue == nullptr )
       {
-         cerr << " Depth property for top surface " << topSurface->getName () << " at snapshot " << snapshot->getTime () << " is not available." << endl;
+         LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for top surface " << topSurface->getName ()
+                                                                     << " at snapshot " << snapshot->getTime () << " is not available.";
          continue;
       }
 
@@ -879,9 +862,9 @@ void createVoxetProjectFile ( Interface::ProjectHandle& cauldronProject,
    }
 
 
-   if ( topDepthGridMap == 0 )
+   if ( topDepthGridMap == nullptr )
    {
-      cerr << " Depth property for top surface " << " is not available." << endl;
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for top surface" << " is not available.";
       return;
    }
 

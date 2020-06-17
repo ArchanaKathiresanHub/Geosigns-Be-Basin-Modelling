@@ -68,7 +68,7 @@ namespace DataAccess
 
          protected :
 
-            ifstream m_faultFile;
+            std::ifstream m_faultFile;
 
             ///
             /// Only reason for this is because, when using the IRIX compiler it doesn't seem to

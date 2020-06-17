@@ -46,8 +46,8 @@ bool ElementLess::operator()( const Element& E1, const Element& E2 ) const {
 
 
 
-ostream& DataAccess::Interface::operator<< ( ostream& o, const Point& P ) {
-  o  << P ( Interface::X_COORD ) << "  " << P ( Interface::Y_COORD ) << endl;
+std::ostream& DataAccess::Interface::operator<< ( std::ostream& o, const Point& P ) {
+  o  << P ( Interface::X_COORD ) << "  " << P ( Interface::Y_COORD ) << std::endl;
   return o;
 }
 
@@ -137,7 +137,7 @@ double DataAccess::Interface::separationDistance ( const Point& P1, const Point&
 //------------------------------------------------------------//
 
 
-ostream& DataAccess::Interface::operator<< ( ostream& o, const Element& E ) {
+std::ostream& DataAccess::Interface::operator<< ( std::ostream& o, const Element& E ) {
   o  << E ( Interface::Y_COORD ) << "  " << E ( Interface::X_COORD );
   return o;
 }
@@ -174,14 +174,14 @@ std::string DataAccess::Interface::pressurefaultStatusImage ( const DataAccess::
 
 //------------------------------------------------------------//
 
-ostream& DataAccess::Interface::operator << ( ostream& o, const ElementSet& ES ) {
+std::ostream& DataAccess::Interface::operator << ( std::ostream& o, const ElementSet& ES ) {
 
   ElementSet::const_iterator elemIter;
 
-  o << " ElementSet size " << ES.size () << endl;
+  o << " ElementSet size " << ES.size () << std::endl;
 
   for ( elemIter = ES.begin(); elemIter != ES.end (); ++elemIter ) {
-    o << (*elemIter) << endl;
+    o << (*elemIter) << std::endl;
   }
 
   return o;
@@ -189,14 +189,14 @@ ostream& DataAccess::Interface::operator << ( ostream& o, const ElementSet& ES )
 
 //------------------------------------------------------------//
 
-ostream& DataAccess::Interface::operator << ( ostream& o, const PointSequence& PS ) {
+std::ostream& DataAccess::Interface::operator << ( std::ostream& o, const PointSequence& PS ) {
 
   PointSequence::const_iterator pntIter;
 
-  o << " ElementSet size " << PS.size () << endl;
+  o << " ElementSet size " << PS.size () << std::endl;
 
   for ( pntIter = PS.begin(); pntIter != PS.end (); ++pntIter ) {
-    o << (*pntIter) << endl;
+    o << (*pntIter) << std::endl;
   }
 
   return o;

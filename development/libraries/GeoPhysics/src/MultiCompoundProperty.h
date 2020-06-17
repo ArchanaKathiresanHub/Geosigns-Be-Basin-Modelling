@@ -170,7 +170,7 @@ inline unsigned int GeoPhysics::MultiCompoundProperty::getLeadingDimension () co
 inline double& GeoPhysics::MultiCompoundProperty::getSimpleData ( const unsigned int lithology,
                                                                   const unsigned int value ) {
 
-   if ( lithology >= m_numberOfLithologies or value >= m_dataCount ) {
+   if ( lithology >= m_numberOfLithologies || value >= m_dataCount ) {
       throw formattingexception::GeneralException () << " lithology or value out of bounds";
    }
 
@@ -180,7 +180,7 @@ inline double& GeoPhysics::MultiCompoundProperty::getSimpleData ( const unsigned
 inline double GeoPhysics::MultiCompoundProperty::getSimpleData ( const unsigned int lithology,
                                                                  const unsigned int value ) const {
 
-   if ( lithology >= m_numberOfLithologies or value >= m_dataCount ) {
+   if ( lithology >= m_numberOfLithologies || value >= m_dataCount ) {
       throw formattingexception::GeneralException () << " lithology or value out of bounds";
    }
 

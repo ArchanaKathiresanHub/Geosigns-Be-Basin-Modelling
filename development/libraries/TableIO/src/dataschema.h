@@ -15,19 +15,17 @@
 // Note: Comments starting with '///' are suitable for parsing by 'doxygen' to produce readable documentation
 // in the form of html, latex or rtf files.
 
-#include <cstdlib>
 #include <cassert>
-
+#include <cstdlib>
 #include <fstream>
-
-using std::istream;
-using std::ofstream;
-using std::ostream;
-
 #include <string>
 #include <vector>
 
 #include "datatype.h"
+
+using std::istream;
+using std::ofstream;
+using std::ostream;
 
 namespace database
 {
@@ -38,7 +36,7 @@ namespace database
    {
    public:
       typedef enum { Volatile, Persistent } StorageType;
-   
+
    private:
       friend class TableDefinition;
       friend class Record;
@@ -72,21 +70,21 @@ namespace database
 
       public:
       /// returns the storage type (Volatile or Persistent)
-      inline StorageType storageType () const;
+      StorageType storageType () const;
       /// returns the name
-      inline const std::string & name () const;
+      const std::string & name () const;
       /// returns the type
-      inline datatype::DataType dataType () const;
+      datatype::DataType dataType () const;
       /// returns the unit
-      inline const std::string & unit () const;
+      const std::string & unit () const;
       /// returns the defaultValue
-      inline const std::string & defaultValue () const;
-      inline int outputOrder () const;
+      const std::string & defaultValue () const;
+      int outputOrder () const;
 
       /// checks if it has a name
-      inline bool isValid (void) const;
+      bool isValid (void) const;
       /// checks if it has the specified name
-      inline bool hasName (const std::string theName) const;
+      bool hasName (const std::string theName) const;
    };
 
    /// This class defines what the records of a Table that comforms to a TableDefinition look like.
@@ -112,15 +110,15 @@ namespace database
       bool addFieldDefinition (FieldDefinition * fieldDefinition);
 
 
-      inline bool isValid (void) const;
-      inline bool hasName (const std::string theName) const;
+      bool isValid (void) const;
+      bool hasName (const std::string theName) const;
 
       bool saveToStream (ostream & ofile, bool rowBased) const;
       bool saveFieldDefinitionsToStream (ostream & ofile) const;
 
       /// returns the index of the FieldDefinition that is outputed at the position specified
       /// by order
-      inline size_t getPosition (size_t order) const;
+      size_t getPosition (size_t order) const;
 
       public:
       /// return the name of a TableDefinition
@@ -147,13 +145,13 @@ namespace database
             const std::string & unit, const std::string & defaultValue);
 
       /// returns the FieldDefinition at the specified index
-      inline FieldDefinition * getFieldDefinition (size_t i) const;
+      FieldDefinition * getFieldDefinition (size_t i) const;
 
       /// returns the number of FieldDefinitions
-      inline size_t size (void) const;
+      size_t size (void) const;
 
       /// returns the number of non-volatile FieldDefinitions
-      inline size_t persistentSize (void) const;
+      size_t persistentSize (void) const;
 
    public:
       TableDefinition (const std::string & name, const std::string & description, int version );
@@ -198,8 +196,8 @@ namespace database
       TableDefinition * getTableDefinition (const std::string & name) const;
 
       /// Return the TableDefinition at the given index
-      inline TableDefinition * getTableDefinition (size_t i) const { return m_tableDefinitionList[i]; }
-      
+      TableDefinition * getTableDefinition (size_t i) const { return m_tableDefinitionList[i]; }
+
       /// Find the index of a TableDefinition with the given name. Returns -1 if not found
       int getIndex (const std::string & name) const;
 
@@ -207,74 +205,74 @@ namespace database
       size_t size (void) const { return m_tableDefinitionList.size (); }
    };
 
-   FieldDefinition::StorageType FieldDefinition::storageType () const
+   inline FieldDefinition::StorageType FieldDefinition::storageType () const
    {
       return m_storageType;
    }
 
-   const std::string & FieldDefinition::name () const
+   inline const std::string & FieldDefinition::name () const
    {
       return m_name;
    }
 
-   datatype::DataType FieldDefinition::dataType () const
+   inline datatype::DataType FieldDefinition::dataType () const
    {
       return m_dataType;
    }
 
-   const std::string & FieldDefinition::unit () const
+   inline const std::string & FieldDefinition::unit () const
    {
       return m_unit;
    }
 
-   const std::string & FieldDefinition::defaultValue () const
+   inline const std::string & FieldDefinition::defaultValue () const
    {
       return m_defaultValue;
    }
 
-   int FieldDefinition::outputOrder () const
+   inline int FieldDefinition::outputOrder () const
    {
       return m_outputOrder;
    }
 
-   bool FieldDefinition::isValid (void) const
+   inline bool FieldDefinition::isValid (void) const
    {
       return m_name.length () != 0;
    }
 
-   bool FieldDefinition::hasName (const std::string theName) const
+   inline bool FieldDefinition::hasName (const std::string theName) const
    {
       return m_name == theName;
    }
 
-   bool TableDefinition::isValid (void) const
+   inline bool TableDefinition::isValid (void) const
    {
       return m_name.length () != 0;
    }
 
-   bool TableDefinition::hasName (const std::string theName) const
+   inline bool TableDefinition::hasName (const std::string theName) const
    {
       return m_name == theName;
    }
 
-   size_t TableDefinition::getPosition (size_t order) const
+   inline size_t TableDefinition::getPosition (size_t order) const
    {
       assert (order < m_outputOrdering.size ());
 
       return m_outputOrdering[order];
    }
 
-   size_t TableDefinition::size (void) const
+   inline size_t TableDefinition::size (void) const
    {
       return m_fieldDefinitionList.size ();
    }
 
-   size_t TableDefinition::persistentSize (void) const
+   inline size_t TableDefinition::persistentSize (void) const
    {
       return m_outputOrdering.size ();
    }
 
-   FieldDefinition * TableDefinition::getFieldDefinition  (size_t i) const
+   inline FieldDefinition * TableDefinition::getFieldDefinition  (size_t i) const
    {
       if (i >= size ())
          return 0;

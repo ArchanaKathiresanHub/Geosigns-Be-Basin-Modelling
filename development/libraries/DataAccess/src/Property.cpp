@@ -2,13 +2,13 @@
 
 #include <iostream>
 #include <sstream>
-using namespace std;
 
 #include "Property.h"
 #include "ProjectHandle.h"
 
 using namespace DataAccess;
 using namespace Interface;
+using namespace std;
 
 Property::Property (ProjectHandle& projectHandle, database::Record * record,
                     const string & userName, const string & cauldronName, const string & unit,

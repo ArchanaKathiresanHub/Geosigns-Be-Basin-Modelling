@@ -38,8 +38,8 @@ Polyfunction::Polyfunction()
    m_points.reserve (2);
    s_instanceCount++;
    s_maxInstanceCount++;
-   m_max = 0;
-   m_min = 0;
+   m_max = nullptr;
+   m_min = nullptr;
 }
 
 Polyfunction::Polyfunction(const Polyfunction& original)
@@ -47,8 +47,8 @@ Polyfunction::Polyfunction(const Polyfunction& original)
    m_points.reserve (2);
    s_instanceCount++;
    s_maxInstanceCount++;
-   m_max = 0;
-   m_min = 0;
+   m_max = nullptr;
+   m_min = nullptr;
 
    deepCopyAllPoints (original);
 }
@@ -82,12 +82,12 @@ bool Polyfunction::AddPoint(double x, double y)
 
    m_points.insert (it, point);
 
-   if (m_max == 0 || m_max->getY () <= point->getY ())
+   if (m_max == nullptr || m_max->getY () <= point->getY ())
    {
       m_max = point;
    }
 
-   if (m_min == 0 || m_min->getY () >= point->getY ())
+   if (m_min == nullptr || m_min->getY () >= point->getY ())
    {
       m_min = point;
    }
@@ -145,8 +145,8 @@ void Polyfunction::DeleteAllPoints()
       delete (*it);
    }
    m_points.clear ();
-   m_max = 0;
-   m_min = 0;
+   m_max = nullptr;
+   m_min = nullptr;
 }
 
 bool Polyfunction::descending(double x) const
@@ -183,8 +183,8 @@ double Polyfunction::F(double x) const
 
 #define USESEEDPOINTS
 #ifdef USESEEDPOINTS
-   const Point *low = 0;
-   const Point *high = 0;
+   const Point *low = nullptr;
+   const Point *high = nullptr;
 
    if (seedPoints (x, low, high))
    {

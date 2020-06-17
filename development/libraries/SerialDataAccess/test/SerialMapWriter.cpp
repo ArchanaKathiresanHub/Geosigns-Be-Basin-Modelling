@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+using namespace ibs;
+
 static const double       s_minI = 0.0;
 static const double       s_minJ = -2.0;
 static const double       s_maxI = 10.0;
@@ -141,13 +143,13 @@ TEST_F( TestWriter, AppendInvalidPermission )
 {
    EXPECT_TRUE( open(fName) );
    EXPECT_TRUE( close() );
-   
+
    const boost::filesystem::path path( fName );
    const boost::filesystem::perms oldPerm = boost::filesystem::status( path ).permissions();
    boost::filesystem::permissions( path, boost::filesystem::owner_read );
    EXPECT_FALSE( open(fName) );
    EXPECT_FALSE( open(fName, true) );
-   
+
    boost::filesystem::permissions( path, oldPerm );
 }
 
@@ -173,7 +175,7 @@ TEST_F( TestWriter, writeMapToHDFappend )
    EXPECT_TRUE( open(fName) );
    EXPECT_TRUE( writeMapToHDF( sGridMap.get(), s_time, s_depoAge, std::string(s_propertyGrid+"1"), s_surfaceName ) );
    EXPECT_TRUE( close() );
-   
+
    EXPECT_TRUE( open(fName, true) );
    EXPECT_TRUE( writeMapToHDF( sGridMap.get(), s_time, s_depoAge, std::string(s_propertyGrid+"2"), s_surfaceName ) );
    EXPECT_TRUE( close() );
@@ -198,7 +200,7 @@ TEST_F( TestWriter, writeInputMap )
    // Check HDF file content
    hid_t fileId = H5Fopen(fName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
    if( fileId < 0 ) FAIL();
-   
+
    compare1Ddata(fileId, DataAccess::Interface::SerialMapWriter::DELTA_I_DATASET_NAME,  static_cast<float>(sGridMap->deltaI()) );
    compare1Ddata(fileId, DataAccess::Interface::SerialMapWriter::DELTA_J_DATASET_NAME,  static_cast<float>(sGridMap->deltaJ()) );
    compare1Ddata(fileId, DataAccess::Interface::SerialMapWriter::VERSION_DATASET_NAME,  static_cast<int>(0) );

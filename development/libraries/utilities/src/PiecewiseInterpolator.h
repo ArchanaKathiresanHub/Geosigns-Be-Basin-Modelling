@@ -43,8 +43,14 @@ namespace ibs {
    public :
 
       PiecewiseInterpolator ();
+      PiecewiseInterpolator (const PiecewiseInterpolator& pieceWiseInterpolator) = delete;
+      PiecewiseInterpolator (PiecewiseInterpolator&& pieceWiseInterpolator) = delete;
+      PiecewiseInterpolator& operator=(PiecewiseInterpolator&& pieceWiseInterpolator) = delete;
 
       ~PiecewiseInterpolator ();
+
+
+
 
       /// \brief Set the values for the interpolator.
       ///

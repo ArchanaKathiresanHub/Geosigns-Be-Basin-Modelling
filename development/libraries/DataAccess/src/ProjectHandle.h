@@ -17,7 +17,6 @@
 #include <vector>
 #include <iostream>
 #include <set>
-using namespace std;
 
 //DataAccess
 #include "Interface.h"
@@ -81,14 +80,14 @@ namespace DataAccess
    {
       /// Create a project from a project file with the given name
       /// return the associated ProjectHandle
-      ProjectHandle * OpenCauldronProject( const string & name,
+      ProjectHandle * OpenCauldronProject( const std::string & name,
                                            const ObjectFactory* objectFactory,
                                            const std::vector<std::string>& outputTableNames = NoTableNames );
 
       /// @brief Create TableIO database object from project file. This function is used by OpenCauldronProject()
       /// @param name project file name
       /// @return Database object pointer which must be deleted by the caller
-      database::ProjectFileHandlerPtr CreateDatabaseFromCauldronProject( const string& name,
+      database::ProjectFileHandlerPtr CreateDatabaseFromCauldronProject( const std::string& name,
                                                                          const std::vector<std::string>& outputTableNames = NoTableNames );
 
       /// A ProjectHandle contains references to the entities in a Project.
@@ -100,7 +99,7 @@ namespace DataAccess
 
       public:
          /// Constructor
-         ProjectHandle( database::ProjectFileHandlerPtr projectFileHandler, const string & name, const ObjectFactory* objectFactory );
+         ProjectHandle( database::ProjectFileHandlerPtr projectFileHandler, const std::string & name, const ObjectFactory* objectFactory );
 
          /// Destructor
          virtual ~ProjectHandle( void );
@@ -109,7 +108,7 @@ namespace DataAccess
          std::string GetSpeciesName( int i );
 
          /// Get a handle to the Table with the given name
-         database::Table * getTable( const string & tableName ) const;
+         database::Table * getTable( const std::string & tableName ) const;
 
 
          /// \brief Set the table to be saved in the table output file.
@@ -119,7 +118,7 @@ namespace DataAccess
          const ObjectFactory* getFactory( void ) const;
 
          /// save the project to the specified file
-         bool saveToFile( const string & fileName );
+         bool saveToFile( const std::string & fileName );
 
          /// \brief Set details about the current simulation.
          void setSimulationDetails ( const std::string& simulatorName,
@@ -136,19 +135,19 @@ namespace DataAccess
          const SimulationDetails* getDetailsOfLastFastcauldron () const;
 
          /// Return the full file name of the project
-         virtual const string & getName( void ) const;
+         virtual const std::string & getName( void ) const;
          /// Return the directory of the project
-         virtual const string & getProjectPath( void ) const;
+         virtual const std::string & getProjectPath( void ) const;
          /// Return the name of the project without the .project extension
-         virtual const string & getProjectName( void ) const;
+         virtual const std::string & getProjectName( void ) const;
          /// Return the file name of the project without the directory path
-         virtual const string & getFileName( void ) const;
+         virtual const std::string & getFileName( void ) const;
 
          /// set the Grid that is used to produce new PropertyValues
          bool setActivityOutputGrid( const Grid * grid );
 
          /// start a new activity
-         bool startActivity( const string & name, const Grid * grid, bool saveAsInputGrid = false, bool createResultsFile = true, bool append = false );
+         bool startActivity( const std::string & name, const Grid * grid, bool saveAsInputGrid = false, bool createResultsFile = true, bool append = false );
 
          /// Restart an activity.
          bool restartActivity( void );
@@ -188,16 +187,16 @@ namespace DataAccess
          /// Find the Snapshot with the given time
          virtual const Snapshot * findPreviousSnapshot( double time, int type = MAJOR ) const;
          /// Find the LithoType with the given name
-         virtual const LithoType * findLithoType( const string & name ) const;
+         virtual const LithoType * findLithoType( const std::string & name ) const;
          /// Find the Formation with the given name
-         virtual const Formation * findFormation( const string & name ) const;
+         virtual const Formation * findFormation( const std::string & name ) const;
          /// Find the Surface with the given name
-         virtual const Surface * findSurface( const string & name ) const;
+         virtual const Surface * findSurface( const std::string & name ) const;
          /// Find the Reservoir with the given name
-         virtual const Reservoir * findReservoir( const string & name ) const;
+         virtual const Reservoir * findReservoir( const std::string & name ) const;
 
          /// Find the Property  with the given name
-         virtual const Property * findProperty( const string & name ) const;
+         virtual const Property * findProperty( const std::string & name ) const;
 
          /// Find and return a const pointer to the property int the time-filter.
          ///
@@ -205,14 +204,14 @@ namespace DataAccess
          virtual const OutputProperty * findTimeOutputProperty( const std::string & propertyName ) const;
 
          /// Find the InputValue  with the given attributes
-         virtual const InputValue * findInputValue( const string & tableName, const string & mapName ) const;
+         virtual const InputValue * findInputValue( const std::string & tableName, const std::string & mapName ) const;
          /// Find the SourceRock with the given layer name
-         virtual const SourceRock * findSourceRock( const string & name ) const;
+         virtual const SourceRock * findSourceRock( const std::string & name ) const;
          /// return the AllochthonousLithology of the specified formation.
          /// if formation equals 0, then null is returned.
-         virtual const AllochthonousLithology * findAllochthonousLithology( const string& formationName ) const;
+         virtual const AllochthonousLithology * findAllochthonousLithology( const std::string& formationName ) const;
          /// Find the FluidType with the given name.
-         virtual const FluidType* findFluid( const string& name ) const;
+         virtual const FluidType* findFluid( const std::string& name ) const;
 
          /// return the list of LithoType objects.
          virtual LithoTypeList * getLithoTypes( void ) const;
@@ -291,7 +290,7 @@ namespace DataAccess
          virtual FaultCollectionList * getFaultCollections( const Formation * formation ) const;
 
          /// Find a fault collection
-         virtual FaultCollection * findFaultCollection( const string & name ) const;
+         virtual FaultCollection * findFaultCollection( const std::string & name ) const;
 
          /// Load and process the fault descriptions
          virtual bool loadFaults( void );
@@ -302,7 +301,7 @@ namespace DataAccess
 
          /// return a list of Migration objects based on the given arguments.
          /// if an argument equals 0, it is used as a wildcard.
-         virtual MigrationList * getMigrations( const string & process, const Formation * sourceFormation,
+         virtual MigrationList * getMigrations( const std::string & process, const Formation * sourceFormation,
             const Snapshot * sourceSnapshot, const Reservoir * sourceReservoir, const Trapper * sourceTrapper,
             const Snapshot * destinationSnapshot, const Reservoir * destinationReservoir, const Trapper * destinationTrapper
             ) const;
@@ -450,11 +449,11 @@ namespace DataAccess
 
 
          /// Create a Map-based PropertyValue
-         virtual PropertyValue * createMapPropertyValue( const string & propertyValueName, const Snapshot * snapshot,
+         virtual PropertyValue * createMapPropertyValue( const std::string & propertyValueName, const Snapshot * snapshot,
             const Reservoir * reservoir, const Formation * formation, const Surface * surface );
 
          /// Create a Volume-based PropertyValue
-         virtual PropertyValue * createVolumePropertyValue( const string & propertyValueName, const Snapshot * snapshot,
+         virtual PropertyValue * createVolumePropertyValue( const std::string & propertyValueName, const Snapshot * snapshot,
             const Reservoir * reservoir, const Formation * formation, unsigned int depth, const std::string & fileName = "" );
 
          void printPropertyValues( PropertyValueList * propertyValues ) const;
@@ -463,7 +462,7 @@ namespace DataAccess
          void addPropertyToFront( Property * property );
 
          // Function supporting the implementation
-         PropertyValue * addPropertyValue( database::Record * record, const string & name, const Property * property, const Snapshot * snapshot,
+         PropertyValue * addPropertyValue( database::Record * record, const std::string & name, const Property * property, const Snapshot * snapshot,
             const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage, const std::string & fileName = "" );
 
          /// Utilities to parse a HDF5 file
@@ -475,32 +474,32 @@ namespace DataAccess
          const Property * getCurrentProperty( void );
 
          /// Utilities to parse a HDF5 file
-         void setCurrentPropertyValueName( const string & name );
-         const string & getCurrentPropertyValueName( void );
+         void setCurrentPropertyValueName( const std::string & name );
+         const std::string & getCurrentPropertyValueName( void );
 
          /// Utilities to parse a HDF5 file
-         //void setLayerName (const string & layerName);
-         //const string & getLayerName (void);
+         //void setLayerName (const std::string & layerName);
+         //const std::string & getLayerName (void);
 
          /// Create a PropertyValue GridMap from the data found in the HDF file specified by fileName at the location specified by propertyId and
          /// add it to the specified parent at the specified index
-         GridMap * loadOutputMap( const Parent * parent, unsigned int childIndex, const string & fileName, const string & propertyId );
+         GridMap * loadOutputMap( const Parent * parent, unsigned int childIndex, const std::string & fileName, const std::string & propertyId );
 
          /// In the given file find the name of the dataset that starts with "Layer=" and ends with the given layerIndex
-         //const string & findLayerName (const string & filePathName, int layerIndex);
+         //const std::string & findLayerName (const std::string & filePathName, int layerIndex);
 
          /// Create a GridMap from the data found in the HDF file specified by filePathName at the location specified by dataSetName and
          /// add it to the specified parent at the specified index
-         GridMap * loadGridMap( const Parent * parent, unsigned int childIndex, const string & filePathName, const string & dataSetName );
+         GridMap * loadGridMap( const Parent * parent, unsigned int childIndex, const std::string & filePathName, const std::string & dataSetName );
 
          /// Get the name of the output directory
          virtual std::string getOutputDir( void ) const;
-         virtual const string  getFullOutputDir( void ) const;
+         virtual const std::string  getFullOutputDir( void ) const;
          virtual bool makeOutputDir() const;
 
          void resetSnapshotIoTbl(  ) const;
 
-         const string & getCrustIoTableName();
+         const std::string & getCrustIoTableName();
          database::Table* getCrustIoTable( void );
 
          virtual bool loadCrustThinningHistory( void );
@@ -512,7 +511,7 @@ namespace DataAccess
          bool correctCrustThicknessHistory();
 
          /// Load the input map specified by the given arguments
-         GridMap * loadInputMap( const string & referringTable, const string & mapName );
+         GridMap * loadInputMap( const std::string & referringTable, const std::string & mapName );
 
          const Grid * findOutputGrid( int numI, int numJ ) const;
          const Grid * findGrid( int numI, int numJ ) const;
@@ -536,14 +535,14 @@ namespace DataAccess
 
          BottomBoundaryConditions getBottomBoundaryConditions() const;
 
-         bool isALC() const;
+				 bool isALC() const;
 		 bool isFixedTempBasement() const;
 		 bool isFixedHeatFlow() const;
 
-         const string & getCrustPropertyModel() const;
-         const string & getMantlePropertyModel() const;
-         const string & getCrustLithoName() const;
-         const string & getMantleLithoName() const;
+         const std::string & getCrustPropertyModel() const;
+         const std::string & getMantlePropertyModel() const;
+         const std::string & getCrustLithoName() const;
+         const std::string & getMantleLithoName() const;
          double getTopAsthenosphericTemperature() const;
          int getMaximumNumberOfMantleElements() const;
 
@@ -609,9 +608,9 @@ namespace DataAccess
          /// set primary properties flag
          void setPrimaryDouble( const bool primaryFlag );
 
-         const string & getActivityName( void ) const;
+         const std::string & getActivityName( void ) const;
 
-         bool isPrimaryProperty( const string propertyName ) const;
+         bool isPrimaryProperty( const std::string propertyName ) const;
 
          void mapFileCacheDestructor( void );
 
@@ -644,20 +643,20 @@ namespace DataAccess
          ModellingMode m_modellingMode;
 
          /// the full path of the project
-         const string m_name;
+         const std::string m_name;
 
          /// the directory in which the project is to be found
-         string m_projectPath;
+         std::string m_projectPath;
          /// The name of the project file
-         string m_fileName;
+         std::string m_fileName;
          /// The name of the project
-         string m_projectName;
+         std::string m_projectName;
 
          /// A function to extract the project directory and the project file name
          void splitName( void );
 
          /// The name of the current activity producing output values
-         string m_activityName;
+         std::string m_activityName;
 
          database::ProjectFileHandlerPtr m_projectFileHandler;
 
@@ -721,10 +720,10 @@ namespace DataAccess
          MantleFormation* m_mantleFormation;
 
          BottomBoundaryConditions m_bottomBoundaryConditions;
-         string m_crustPropertyModel;
-         string m_mantlePropertyModel;
-         string m_crustLithoName;
-         string m_mantleLithoName;
+         std::string m_crustPropertyModel;
+         std::string m_mantlePropertyModel;
+         std::string m_crustLithoName;
+         std::string m_mantleLithoName;
          double m_topAsthenosphericTemperature;
          double m_equilibriumOceanicLithosphereThickness;
          int    m_maximumNumberOfMantleElements;
@@ -767,7 +766,7 @@ namespace DataAccess
 
          void mapFileCacheConstructor( void );
 
-         void checkForValidPartitioning( const string & name, int M, int N ) const;
+         void checkForValidPartitioning( const std::string & name, int M, int N ) const;
 
          enum { auxiliary, hrdecompaction, genex, fastcauldron };
 
@@ -776,11 +775,11 @@ namespace DataAccess
          /// Variables used in the traversal of HDF5 files.
          const Snapshot * m_currentSnapshot;
          const Property * m_currentProperty;
-         string m_currentPropertyValueName;
+         std::string m_currentPropertyValueName;
 
          void resetActivityName( void );
          /// set the name of the data production activity
-         bool setActivityName( const string & name );
+         bool setActivityName( const std::string & name );
 
 
          void resetActivityOutputGrid( void );

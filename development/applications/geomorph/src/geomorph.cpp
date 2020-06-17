@@ -67,12 +67,12 @@ int main ( int argc, char* argv []) {
   char errmessage[EPTFLEXLM_MAX_MESS_LEN];
 
   // FlexLM license handling only for node with rank = 0
-  sprintf(feature, "ibs_cauldron_halo");
+  snprintf(feature, sizeof (feature), "ibs_cauldron_halo");
 
 #ifdef IBSFLEXLMVERSION
-  sprintf(version, IBSFLEXLMVERSION);
+  snprintf(version, sizeof (version), IBSFLEXLMVERSION);
 #else
-  sprintf(version, "9999.99");
+  snprintf(version, sizeof (version), "9999.99");
 #endif
   fprintf (stderr, "version = %s\n", version);
   fprintf (stderr, "revision = %s\n", SVNREVISION);

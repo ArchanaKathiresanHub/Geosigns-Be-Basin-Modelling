@@ -29,8 +29,11 @@ public:
 
    GeneralException & operator = ( const GeneralException & other )
    {
-      m_message.str( other.m_message.str() );
-      m_formatted.clear();
+      if (this != &other)
+      {
+        m_message.str( other.m_message.str() );
+        m_formatted.clear();
+      }
       return *this;
    }
 

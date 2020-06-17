@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <signal.h>
-#include <netdb.h> 
+#include <netdb.h>
 
 void error(const char *msg)
 {
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
          if (jobid != 0)
          {
             char kill_cmd[128];
-            sprintf (kill_cmd, "bkill %s", jobid);
+            snprintf (kill_cmd, sizeof (kill_cmd), "bkill %s", jobid);
             system (kill_cmd);
             sleep (5);
          }
