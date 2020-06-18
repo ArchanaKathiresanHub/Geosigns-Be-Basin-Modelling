@@ -296,7 +296,7 @@ void FaultPlane::addSegments(std::vector<std::pair<Point, Point>>& segments, con
   addSegments(segments, p2, p3, p4, level-1);
 }
 
-bool FaultPlane::intersect(const GridMap* surfaceMap, std::vector<PointSequence>& faultCuts)
+bool FaultPlane::intersect(const GridMap* surfaceMap, std::vector<PointSequence>& faultCuts) const
 {
   surfaceMap->retrieveData();
 

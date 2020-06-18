@@ -26,7 +26,7 @@ namespace DataAccess
       explicit FaultPlane(const std::vector<PointSequence>& faultSticks);
       ~FaultPlane();
 
-      bool intersect(const GridMap* surfaceMap, std::vector<PointSequence>& faultCuts);
+      bool intersect(const GridMap* surfaceMap, std::vector<PointSequence>& faultCuts) const;
 
     private:
       bool determineIntersectionPoint(const GridMap* surfaceMap, double minZ, double maxZ, const std::pair<Point, Point>& faultSegment, Point& intersection) const;

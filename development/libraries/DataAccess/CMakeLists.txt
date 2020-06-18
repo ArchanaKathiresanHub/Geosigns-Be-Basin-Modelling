@@ -66,6 +66,13 @@ add_gtest( NAME DA::FaultPlaneTest
   FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
 )
 
+add_gtest( NAME DA::FaultCutCreatorTest
+  SOURCES test/faultcutcreatortest.cpp
+  INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
+  LIBRARIES ${LIB_NAME} SerialDataAccess
+  FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
+)
+
 add_gtest( NAME DA::FaultFileReaderFactoryTest
   SOURCES test/FaultFileReaderFactoryTest.cpp
   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
@@ -96,12 +103,3 @@ if ( MSVC )
 
    configure_file(test/Project.project3d  ${CMAKE_BINARY_DIR}/Project.project3d COPYONLY)
 endif (MSVC)
-
-
-#configure_file( test/FaultFileTest.charisma FaultFileTest.charisma COPYONLY )
-
-#add_gtest( NAME ${TARGET_NAME}::CharismaFaultFileReaderTest
-#  SOURCES test/CharismaFaultFileReaderTest.cpp src/CharismaFaultFileReader.cpp
-#  LIBRARIES FileSystem
-#  FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
-#)
