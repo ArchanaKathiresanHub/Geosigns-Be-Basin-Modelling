@@ -147,7 +147,7 @@ namespace DataAccess
          bool setActivityOutputGrid( const Grid * grid );
 
          /// start a new activity
-         bool startActivity( const std::string & name, const Grid * grid, bool saveAsInputGrid = false, bool createResultsFile = true, bool append = false );
+         virtual bool startActivity( const std::string & name, const Grid * grid, bool saveAsInputGrid = false, bool createResultsFile = true, bool append = false );
 
          /// Restart an activity.
          bool restartActivity( void );
@@ -474,16 +474,9 @@ namespace DataAccess
          void setCurrentPropertyValueName( const std::string & name );
          const std::string & getCurrentPropertyValueName( void );
 
-         /// Utilities to parse a HDF5 file
-         //void setLayerName (const std::string & layerName);
-         //const std::string & getLayerName (void);
-
          /// Create a PropertyValue GridMap from the data found in the HDF file specified by fileName at the location specified by propertyId and
          /// add it to the specified parent at the specified index
          GridMap * loadOutputMap( const Parent * parent, unsigned int childIndex, const std::string & fileName, const std::string & propertyId );
-
-         /// In the given file find the name of the dataset that starts with "Layer=" and ends with the given layerIndex
-         //const std::string & findLayerName (const std::string & filePathName, int layerIndex);
 
          /// Create a GridMap from the data found in the HDF file specified by filePathName at the location specified by dataSetName and
          /// add it to the specified parent at the specified index

@@ -99,17 +99,17 @@ public:
    /// @param[in] logName The main name of the log file (i.e. fastcauldron)
    /// @param[in] verbosity The level of verbosity used as a filter for the log file
    /// @param[in] mpiRank The MPI rank which will be added as a sufix of the log file name (i.e. "24"). Set to 0 by default.
-   LogHandler( const std::string & logName, const VerbosityLevel verbosity, int mpiRank = 0 );
+   LogHandler( const std::string & logName, const VerbosityLevel& verbosity, int mpiRank = 0 );
 
    /// @brief Constructor which must be used to write into the boost log file
    /// @details Style is set to default
    /// @param[in] severity The severity level of the message
-   LogHandler( const SeverityLevel severity );
+   explicit LogHandler( const SeverityLevel& severity );
 
    /// @brief Constructor which must be used to write into the boost log file
    /// @param[in] severity The severity level of the message
    /// @param[in] style The style of the message
-   LogHandler( const SeverityLevel severity, const Style style );
+   LogHandler( const SeverityLevel& severity, const Style& style );
 
    /// @brief Delete default assginment operator
    LogHandler & operator = ( const LogHandler & ) = delete;

@@ -495,16 +495,12 @@ namespace DataAccess
 
          double operator ()( const double operand ) const;
 
-      private:
-
       };
 
       class IdentityMinusFunctor : public UnaryFunctor {
       public:
 
          double operator ()( const double operand ) const;
-
-      private:
 
       };
 

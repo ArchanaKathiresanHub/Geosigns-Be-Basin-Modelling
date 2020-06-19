@@ -28,7 +28,7 @@ public :
    /// \brief The maximum number of workspace vectors.
    enum { MaximumSize = GenericMaximumSize };
 
-   AlignedWorkSpaceArrays ( const unsigned int valueCount );
+   explicit AlignedWorkSpaceArrays ( const unsigned int valueCount );
    AlignedWorkSpaceArrays ( const AlignedWorkSpaceArrays& alignedWorkSpaceArrays) = delete;
    AlignedWorkSpaceArrays ( AlignedWorkSpaceArrays&& alignedWorkSpaceArrays) = delete;
 
@@ -90,7 +90,7 @@ private :
    unsigned int m_alignedArraySize;
 
    /// \brief Array containing all the data values
-   ArrayDefs::Real_ptr m_allValues;
+   ArrayDefs::Real_ptr m_allValues = nullptr;
 
    /// \brief Array of arrays containing the property values for each work-space vector.
    ArrayDefs::Real_ptr m_workSpaceValues [ MaximumSize ];
@@ -101,8 +101,7 @@ private :
 
 template<const unsigned int GenericMaximumSize>
 AlignedWorkSpaceArrays<GenericMaximumSize>::AlignedWorkSpaceArrays ( const unsigned int valueCount ) :
-   m_valueCount ( valueCount ),
-   m_allValues ( nullptr )
+   m_valueCount ( valueCount )
 {
    allocate ( m_valueCount );
 }

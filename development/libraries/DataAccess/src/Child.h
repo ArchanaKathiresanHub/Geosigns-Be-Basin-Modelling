@@ -23,7 +23,7 @@ namespace DataAccess
        /// return the parent
        virtual const Parent * getParent (void) const;
 
-    protected:
+    private:
             /// The Child's Parent
        mutable const Parent * m_parent;
             /// the index of the Child at the Parent

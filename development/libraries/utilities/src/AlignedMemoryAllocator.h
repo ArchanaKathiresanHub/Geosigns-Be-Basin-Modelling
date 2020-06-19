@@ -20,8 +20,8 @@
 ///
 /// The alignment must be a power of 2 and a multiple of the address size.
 template<typename Type, const unsigned int Alignment>
-struct AlignedMemoryAllocator {
-
+class AlignedMemoryAllocator {
+public:
    /// \brief Compilation should fail if the type used to instatiate this class is not a fundamental type
    ///
    /// Fundamental types are: float, double, (signed or unsigned) char, short, int, long.

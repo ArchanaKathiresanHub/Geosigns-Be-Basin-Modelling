@@ -24,7 +24,6 @@ public:
 
    GeneralException( const GeneralException & other ) : std::exception( other )
                                                       , m_message(other.m_message.str())
-                                                      , m_formatted()
    {}
 
    GeneralException & operator = ( const GeneralException & other )

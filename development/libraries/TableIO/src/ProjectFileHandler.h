@@ -46,7 +46,7 @@ namespace database {
       /// \brief Constructor loads the project file into the database.
       ///
       /// Also loads the output tables if output tables have been set in project file.
-      ProjectFileHandler ( const std::string& fileName );
+      explicit ProjectFileHandler ( const std::string& fileName );
 
       /// \brief Constructor loads the project file into the database.
       ///

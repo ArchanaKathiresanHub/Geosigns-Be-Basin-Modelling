@@ -38,8 +38,9 @@ namespace
   static const char * AttributeData  = "Dummy attribute data";
 }
 
-struct MPIHelper
+class MPIHelper
 {
+public:
    MPIHelper()
    {
       MPI_Init(NULL, NULL);
@@ -100,8 +101,6 @@ public:
    // Construct a file name with a normal name.
    File( const std::string & name, bool extendedName )
       : m_file( name )
-      , m_exists( false )
-      , m_saveOnDisk( false )
   {
 
       int mpiRank = MPIHelper::rank();
@@ -314,8 +313,8 @@ private:
 
    hid_t m_h5file;
    std::string m_file;
-   bool m_exists;
-   bool m_saveOnDisk;
+   bool m_exists = false;
+   bool m_saveOnDisk = false;
 };
 
 TEST( h5mergeTest, MergeExistingFiles1 )

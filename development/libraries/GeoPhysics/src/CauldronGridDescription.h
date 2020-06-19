@@ -6,8 +6,8 @@
 
 namespace GeoPhysics {
 
-   struct CauldronGridDescription {
-
+   class CauldronGridDescription {
+   public:
       CauldronGridDescription ();
 
       unsigned int nrI;

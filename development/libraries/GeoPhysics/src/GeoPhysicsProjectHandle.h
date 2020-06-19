@@ -61,7 +61,7 @@ namespace GeoPhysics {
                            const DataAccess::Interface::Grid* grid,
                            bool saveAsInputGrid = false,
                            bool createResultsFile = true,
-                           bool append = false );
+                           bool append = false ) final;
 
       /// Assign the litholgies to the formations.
       ///

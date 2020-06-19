@@ -32,7 +32,7 @@ namespace DataAccess
 
          /// @brief Loads the [CTCIoTbl]
          /// @details Calls the associated factory
-         TableCTC( ProjectHandle& projectHandle );
+         explicit TableCTC( ProjectHandle& projectHandle );
          const std::shared_ptr<const CrustalThicknessData> data() const { return m_data; }
 
       private:

@@ -25,18 +25,15 @@ void VoxetProjectHandle::loadCauldronProperties () {
 
    database::Table* propTable = m_database->getTable ( "CauldronPropertyIoTbl" );
 
+   assert ( propTable != nullptr );
    if ( propTable == nullptr ) {
       LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Cannot load CauldronPropertyIoTbl.";
+      return;
    }
 
-   assert ( propTable != nullptr );
-
-   database::Table::iterator propIter;
-
-   for ( propIter = propTable->begin (); propIter != propTable->end (); ++propIter ) {
-      m_cauldronProperties.push_back ( new CauldronProperty ( m_cauldronProjectHandle, *propIter ));
+   for ( database::Record* record : *propTable ) {
+      m_cauldronProperties.push_back ( new CauldronProperty ( m_cauldronProjectHandle, record ));
    }
-
 }
 
 //------------------------------------------------------------//
@@ -46,30 +43,32 @@ void VoxetProjectHandle::loadVoxetGrid ( const DataAccess::Interface::Grid* caul
    database::Table* voxetGridTable = m_database->getTable ( "VoxetGridIoTbl" );
    database::Table* cauldronGridTable = m_cauldronProjectHandle.getTable ( "ProjectIoTbl" );
 
+   assert ( voxetGridTable != nullptr );
    if ( voxetGridTable == nullptr ) {
       LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Cannot load VoxetGridIoTbl.";
+      return;
    }
 
-   assert ( voxetGridTable != nullptr );
-
+   assert ( cauldronGridTable != nullptr );
    if ( cauldronGridTable == nullptr ) {
       LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Cannot load ProjectIoTbl.";
+      return;
    }
-   assert ( cauldronGridTable != nullptr );
 
    database::Record* cauldronRecord = cauldronGridTable->getRecord ( 0 );
    database::Record* voxetRecord = voxetGridTable->getRecord ( 0 );
 
+   assert ( voxetRecord != nullptr );
    if ( voxetRecord == nullptr ) {
       LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " No data found in VoxetGridIoTbl.";
-   }
-
-   if ( cauldronRecord == nullptr ) {
-      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " No data found in ProjectIoTbl.";
+      return;
    }
 
    assert ( cauldronRecord != nullptr );
-   assert ( voxetRecord != nullptr );
+   if ( cauldronRecord == nullptr ) {
+      LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " No data found in ProjectIoTbl.";
+      return;
+   }
 
    m_gridDescription = new GridDescription ( cauldronRecord, voxetRecord, cauldronGrid );
 }
@@ -80,6 +79,7 @@ void VoxetProjectHandle::loadSnapshotTime () {
 
    if ( snapshotTimeTable == nullptr ) {
       LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Cannot load SnapshotTimeIoTbl.";
+      return;
    }
 
    assert ( snapshotTimeTable != nullptr );
@@ -117,18 +117,4 @@ CauldronPropertyList::iterator VoxetProjectHandle::cauldronPropertyEnd () {
 double VoxetProjectHandle::getSnapshotTime () const {
    return m_snapshotTime;
 }
-
-//------------------------------------------------------------//
-
-bool VoxetProjectHandle::isConsistent () const {
-   // Perform checks on:
-   //     o input properties, do all properties exist;
-   //     o Formation names, are all formation mentioned and those that are, are they in the cauldron project file;
-   //     o Function names, that formations to not access a function that does not exist;
-   //     o anything else?
-   return true;
-}
-
-//------------------------------------------------------------//
-
 

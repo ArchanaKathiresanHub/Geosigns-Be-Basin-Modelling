@@ -31,8 +31,6 @@ public :
 
    const GridDescription& getGridDescription () const;
 
-   bool isConsistent () const;
-
 private :
 
    void loadVoxetGrid ( const DataAccess::Interface::Grid* cauldronGrid );

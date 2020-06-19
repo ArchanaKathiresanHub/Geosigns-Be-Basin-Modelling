@@ -49,7 +49,7 @@ namespace GeoPhysics {
       /// \brief Create typedef for the workspace of vectors used in intermediate permeability calculation.
       typedef PermeabilityMixer::PermeabilityWorkSpaceArrays PermeabilityWorkSpaceArrays;
 
-      CompoundLithology(GeoPhysics::ProjectHandle& projectHandle);
+      explicit CompoundLithology(GeoPhysics::ProjectHandle& projectHandle);
 
       virtual ~CompoundLithology();
 

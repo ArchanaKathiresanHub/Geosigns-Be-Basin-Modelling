@@ -82,7 +82,7 @@ namespace ibs {
 
       typedef enum { UnOrdered, Ascending, Descending } SorterType;
 
-      Interpolator (SorterType sorterType = UnOrdered);
+      explicit Interpolator (SorterType sorterType = UnOrdered);
       Interpolator ( const Interpolator& interp );
       Interpolator (Interpolator&& interp) = delete;
       ~Interpolator (void);

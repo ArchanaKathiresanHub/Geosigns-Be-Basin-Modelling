@@ -1,8 +1,6 @@
 //
-// Copyright (C) 2015-2018 Shell International Exploration & Production.
+// Copyright (C) 2015-2020 Shell International Exploration & Production.
 // All rights reserved.
-//
-// Developed under license for Shell by PDS BV.
 //
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
@@ -38,22 +36,6 @@ namespace AbstractDerivedProperties {
    };
 
    typedef std::shared_ptr<const AbstractPropertyValues> AbstractPropertyValuesPtr;
-
-
-}
-
-//
-// Inline functions.
-//
-
-inline void AbstractDerivedProperties::AbstractPropertyValues::retrieveData () const {
-}
-
-inline bool AbstractDerivedProperties::AbstractPropertyValues::isRetrieved () const {
-   return true;
-}
-
-inline void AbstractDerivedProperties::AbstractPropertyValues::restoreData () const {
 }
 
 #endif // ABSTRACTDERIVED_PROPERTIES__ABSTRACT_PROPERTY_VALUES_H

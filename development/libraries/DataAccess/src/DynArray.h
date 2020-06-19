@@ -57,7 +57,7 @@ template < class ObjType > class DynArray
    unsigned int m_capacity;            //the size of the table.
    float m_resizeFactor;
    ObjType *m_table;
-   ObjType nullObject;
+   ObjType nullObject = 0;
    //Helper functions
    void resize (unsigned int index);
 };
@@ -73,7 +73,7 @@ template < class ObjType > class DynArrayIterator
    unsigned int m_index;
 
  public:
-   DynArrayIterator (PDynArray & hashtable);
+   explicit DynArrayIterator (PDynArray & hashtable);
    DynArrayIterator (const DynArrayIterator<ObjType>& rhs);
    DynArrayIterator<ObjType>& operator= (const DynArrayIterator<ObjType>& rhs);
 
@@ -95,15 +95,12 @@ template < class ObjType > class DynArrayIterator
 
 /// Implementation of constructor, destructor, and member functions of DynArray
 template < class ObjType >
-DynArray < ObjType >::DynArray (unsigned int initialSize, float resizeFactor)
+DynArray < ObjType >::DynArray (unsigned int initialSize, float resizeFactor) :
+  m_capacity(initialSize),
+  m_resizeFactor(resizeFactor > 1 ? resizeFactor : 1)
 {
-   m_capacity = initialSize;
-   m_resizeFactor = resizeFactor > 1 ? resizeFactor : 1;
-
    /// initialize and set to null
    m_table = new ObjType [m_capacity];
-
-   nullObject = 0;
 
    for (unsigned int i = 0; i < m_capacity; i++)
       m_table[i] = 0;
@@ -216,10 +213,10 @@ inline DynArrayIterator< ObjType > DynArray < ObjType >::end (void)
 
 //Implementaion of DynArrayIterator methods
 template < class ObjType >
-DynArrayIterator < ObjType >::DynArrayIterator (PDynArray & rhs)
+DynArrayIterator < ObjType >::DynArrayIterator (PDynArray & rhs) :
+  m_array(& rhs),
+  m_index(-1)
 {
-   m_array = & rhs;
-   m_index = -1;
 }
 
 template < class ObjType >
@@ -228,10 +225,10 @@ DynArrayIterator < ObjType >::~DynArrayIterator ()
 }
 
 template < class ObjType >
-DynArrayIterator < ObjType >::DynArrayIterator (const DynArrayIterator<ObjType> & rhs)
+DynArrayIterator < ObjType >::DynArrayIterator (const DynArrayIterator<ObjType> & rhs) :
+  m_array(rhs.m_array),
+  m_index(rhs.m_index)
 {
-   m_array = rhs.m_array;
-   m_index = rhs.m_index;
 }
 
 template < class ObjType >

@@ -8,11 +8,8 @@
 #include "fileHandlerAppend.h"
 
 FileHandlerAppend::FileHandlerAppend( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName ):
-      FileHandler( comm, fileName, tempDirName) { 
-
-   m_update = true;
-
-};  
+      FileHandler( comm, fileName, tempDirName) {
+};
 
 void FileHandlerAppend::openGlobalFile () {
 
@@ -29,15 +26,15 @@ void FileHandlerAppend::openGlobalFile () {
 //  Open or create a group in the global file
 void FileHandlerAppend::createGroup( const char* name ) {
 
-   if( getRank() == 0 ) {       
+   if( getRank() == 0 ) {
       // Open existing group for update
-      setGroupId( H5Gopen( getGlobalFileId(), name, H5P_DEFAULT )); 
+      setGroupId( H5Gopen( getGlobalFileId(), name, H5P_DEFAULT ));
       // create a group if it doesn't exist
-      if( getGroupId() < 0 ) { 
-         setGroupId ( H5Gcreate( getGlobalFileId(), name,  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT )); 
+      if( getGroupId() < 0 ) {
+         setGroupId ( H5Gcreate( getGlobalFileId(), name,  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ));
          // Unset update flag because the file is created
          m_update = false;
-      } 
+      }
       if( getGroupId() < 0 ) {
          std::cout << " ERROR Cannot open or create the group " << name << std::endl;
       }
@@ -47,7 +44,7 @@ void FileHandlerAppend::createGroup( const char* name ) {
 void FileHandlerAppend::writeAttributes( ) {
 
    if(! m_update ) {
-      herr_t status = readAttributes( getLocalDsetId(), getGlobalDsetId() ); 
+      herr_t status = readAttributes( getLocalDsetId(), getGlobalDsetId() );
       if( status < 0 ) {
          std::cout << " ERROR Cannot write attributes " << std::endl;
       }
@@ -58,10 +55,10 @@ void FileHandlerAppend::writeAttributes( ) {
 void FileHandlerAppend::createDataset( const char* name , hid_t dtype ) {
 
    if( getRank() == 0 ) {
- 
+
       // Write the global data into the global file
-      setMemspace( H5Screate_simple( getSpatialDimension(), m_count, NULL )); 
-      
+      setMemspace( H5Screate_simple( getSpatialDimension(), m_count, NULL ));
+
       if( getGroupId() != H5P_DEFAULT ) {
          // Dataset is under the sub-group
          setGlobalDsetId( H5Dopen ( getGroupId(), name, H5P_DEFAULT ));
@@ -70,16 +67,16 @@ void FileHandlerAppend::createDataset( const char* name , hid_t dtype ) {
          }
       } else {
          // Dataset is under the main group
-         setGlobalDsetId ( H5Dopen ( getGlobalFileId(), name, H5P_DEFAULT )); 
+         setGlobalDsetId ( H5Dopen ( getGlobalFileId(), name, H5P_DEFAULT ));
          if( getGlobalDsetId() < 0 ) {
             setGlobalDsetId( H5Dcreate( getGlobalFileId(), name, dtype, getMemspace(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ));
          }
       }
-      
+
       if( getGlobalDsetId() < 0 ) {
          std::cout << " ERROR Cannot create the dataset " << name << std::endl;
       }
-      
+
       setFilespace ( H5Dget_space( getGlobalDsetId() ));
       H5Sselect_hyperslab( getFilespace(), H5S_SELECT_SET, m_offset, NULL, m_count, NULL );
    }

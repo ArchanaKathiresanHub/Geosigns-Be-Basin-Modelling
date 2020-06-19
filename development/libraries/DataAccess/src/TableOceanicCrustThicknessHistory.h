@@ -33,7 +33,7 @@ namespace DataAccess
 
          /// @brief Loads the [OceaCrustalThicknessIoTbl]
          /// @details Calls the associated factory
-         TableOceanicCrustThicknessHistory( ProjectHandle& projectHandle );
+         explicit TableOceanicCrustThicknessHistory( ProjectHandle& projectHandle );
          const std::vector<std::shared_ptr<const OceanicCrustThicknessHistoryData>>& data() const { return m_data; }
 
       private:

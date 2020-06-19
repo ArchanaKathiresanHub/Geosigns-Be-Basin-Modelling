@@ -73,7 +73,6 @@ using namespace Interface;
 
 static char * argv0 = nullptr;
 static void showUsage (const char * message = nullptr);
-static void changeUndefinedValue (double & var, double oldValue, double newValue);
 
 double originX = MAXDOUBLE;
 double originY = MAXDOUBLE;
@@ -88,7 +87,7 @@ double countY = MAXDOUBLE;
 double countZ = MAXDOUBLE;
 
 /// Print to stdout a default voxet file based on the cauldron project file that has been input.
-void createVoxetProjectFile ( ProjectHandle& cauldronProject,
+void createVoxetProjectFile (const ProjectHandle &cauldronProject,
                               DerivedProperties::DerivedPropertyManager& propertyManager,
                               ostream & outputStream, const Snapshot * snapshot );
 
@@ -408,13 +407,6 @@ int main (int argc, char ** argv)
 
    snapshot = projectHandle->findSnapshot (voxetProject->getSnapshotTime ());
 
-   if (!voxetProject->isConsistent ())
-   {
-      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::DEFAULT) << " Voxet file is not consistent. ";
-      exit (-1);
-   }
-
-
    string asciiFileName = outputFileName + ".vo";
    if(singlePropertyHeader){
       asciiFileName = outputFileName + "_all.vo";
@@ -483,9 +475,8 @@ int main (int argc, char ** argv)
          continue;
       }
 
-
       // Check if the property has values (only for 2016.11 release. Remove this check to enable DerivedProperty calculation)
-      PropertyValueList *propertyValueListAvailable = projectHandle->getPropertyValues (FORMATION, property, snapshot, 0, 0, 0, VOLUME);
+      const PropertyValueList *propertyValueListAvailable = projectHandle->getPropertyValues (FORMATION, property, snapshot, nullptr, nullptr, nullptr, VOLUME);
       unsigned int propertiesSize = propertyValueListAvailable->size ();
       delete propertyValueListAvailable;
       if (propertiesSize == 0)
@@ -519,7 +510,7 @@ int main (int argc, char ** argv)
             return -1;
          }
 
-   string propertyFileName = binaryFileName + "_" + (*cauldronPropIter)->getCauldronName () + "@@";
+   std::string propertyFileName = binaryFileName + "_" + (*cauldronPropIter)->getCauldronName () + "@@";
 
          writeVOproperty(asciiOutputFile, propertyCount, *cauldronPropIter, propertyFileName, vc.getNullValue(property) );
 
@@ -533,8 +524,8 @@ int main (int argc, char ** argv)
          }
 
          if(singlePropertyHeader){
-            ofstream asciiHeaderOutputFile;
-            string asciiHeaderFileName=outputFileName + "_" + (*cauldronPropIter)->getCauldronName ()+".vo";
+            std::ofstream asciiHeaderOutputFile;
+            std::string asciiHeaderFileName=outputFileName + "_" + (*cauldronPropIter)->getCauldronName ()+".vo";
 
             asciiHeaderOutputFile.open (asciiHeaderFileName.c_str ());
 
@@ -544,7 +535,7 @@ int main (int argc, char ** argv)
                return -1;
             }
 
-            asciiHeaderOutputFile.flags (ios::fixed);
+            asciiHeaderOutputFile.flags (std::ios::fixed);
 
             writeVOheader(asciiHeaderOutputFile, gridDescription, outputFileName);
 
@@ -614,12 +605,6 @@ void showUsage (const char * message)
          << "    -usage                Print this message." << endl << endl;
    exit (-1);
 }
-
-static void changeUndefinedValue (double & var, double oldValue, double newValue)
-{
-   if (var == oldValue) var = newValue;
-}
-
 
 void write ( const std::string& name,
             const VoxetPropertyGrid& values ) {
@@ -726,7 +711,7 @@ double selectDefined (double undefinedValue, double preferred, double alternativ
 }
 
 
-void createVoxetProjectFile ( Interface::ProjectHandle& cauldronProject,
+void createVoxetProjectFile ( const Interface::ProjectHandle& cauldronProject,
                               DerivedProperties::DerivedPropertyManager& propertyManager,
                               ostream &outputStream, const Snapshot * snapshot )
 {
@@ -774,11 +759,11 @@ void createVoxetProjectFile ( Interface::ProjectHandle& cauldronProject,
       ""
    };
 
-   database::DataSchema* voxetSchema = database::createVoxetSchema ();
-   database::Database*   database = database::Database::CreateFromSchema ( *voxetSchema );
-   database::Table*      table;
-   database::Record*     record;
-   const Interface::Grid * grid;
+   const database::DataSchema* voxetSchema = database::createVoxetSchema ();
+   database::Database* database = database::Database::CreateFromSchema ( *voxetSchema );
+   database::Table* table;
+   database::Record* record;
+   const Interface::Grid* grid;
 
    //------------------------------------------------------------//
 
@@ -787,7 +772,7 @@ void createVoxetProjectFile ( Interface::ProjectHandle& cauldronProject,
    int p;
    for (p = 0; strlen (propertyNames[p]) != 0; ++p)
    {
-      const Property * property = cauldronProject.findProperty (propertyNames[p]);
+      const Property* property = cauldronProject.findProperty (propertyNames[p]);
       if (property)
       {
    record = table->createRecord ();

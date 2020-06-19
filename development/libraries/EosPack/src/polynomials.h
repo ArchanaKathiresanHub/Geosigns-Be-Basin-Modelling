@@ -181,9 +181,9 @@ namespace polynomials
 
 	public:
 		Token();
-		Token(TokenType type);
-		Token(int intNum);
-		Token(double realNum);
+		explicit Token(TokenType type);
+		explicit Token(int intNum);
+		explicit Token(double realNum);
 
 		TokenType getType() const;
 		int getIntNum() const;
@@ -222,13 +222,13 @@ namespace polynomials
       struct SyntaxError
       {
   std::string info;
-  SyntaxError(std::string str) { info = str; }
+  explicit SyntaxError(const std::string& str) : info(str) {}
       };
 
       struct NumericError
       {
   std::string info;
-  NumericError(std::string str) { info = str; }
+  explicit NumericError(const std::string& str) : info(str) {}
       };
 
 

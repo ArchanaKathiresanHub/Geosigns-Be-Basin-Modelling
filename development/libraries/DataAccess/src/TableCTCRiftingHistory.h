@@ -33,7 +33,7 @@ namespace DataAccess
 
          /// @brief Loads the [CTCRiftingHistoryIoTbl]
          /// @details Calls the associated factory
-         TableCTCRiftingHistory( ProjectHandle& projectHandle );
+         explicit TableCTCRiftingHistory( ProjectHandle& projectHandle );
          const std::vector<std::shared_ptr<const CrustalThicknessRiftingHistoryData>>& data() const { return m_data; }
 
       private:

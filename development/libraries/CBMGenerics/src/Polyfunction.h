@@ -40,22 +40,18 @@ public:
       Point(const Point&& rhs) = delete;
 
    private:
-      double m_x;
-      double m_y;
+      double m_x = 0.0;
+      double m_y = 0.0;
       static int s_instanceCount;
       static int s_maxInstanceCount;
 
    };
-
-public:
 
   typedef std::vector < Point * > Polypoint;
   typedef Polypoint::iterator iterator;
   typedef Polypoint::const_iterator const_iterator;
   typedef Polypoint::const_reverse_iterator const_reverse_iterator;
   typedef Polypoint::reverse_iterator reverse_iterator;
-
-public:
 
   Polyfunction ();
   Polyfunction (const Polyfunction & original);
@@ -151,7 +147,7 @@ inline Polyfunction::Point::Point (const Point & p) : m_x (p.m_x), m_y (p.m_y)
    s_maxInstanceCount++;
 }
 
-inline Polyfunction::Point::Point () : m_x (0), m_y (0)
+inline Polyfunction::Point::Point ()
 {
    s_instanceCount++;
    s_maxInstanceCount++;

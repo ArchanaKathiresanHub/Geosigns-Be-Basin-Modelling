@@ -35,7 +35,7 @@ std::string LogHandler::s_logName;
 
 //------------------------------------------------------------//
 
-LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbosity, int mpiRank ){
+LogHandler::LogHandler(const std::string & logName, const VerbosityLevel &verbosity, int mpiRank ){
 
    // C++11 const std::string mpiRankString = std::to_string( mpiRank );
    std::ostringstream mpiRankConverter;
@@ -96,14 +96,14 @@ LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbos
 
 //------------------------------------------------------------//
 
-LogHandler::LogHandler( const SeverityLevel severity ){
+LogHandler::LogHandler(const SeverityLevel &severity ){
    m_severity = severity;
    m_style = LogHandler::DEFAULT;
 }
 
 //------------------------------------------------------------//
 
-LogHandler::LogHandler( const SeverityLevel severity, const Style style ) {
+LogHandler::LogHandler(const SeverityLevel &severity, const Style &style ) {
    m_severity = severity;
    m_style    = style;
 }

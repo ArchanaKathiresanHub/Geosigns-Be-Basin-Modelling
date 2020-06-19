@@ -71,7 +71,7 @@ namespace DataAccess
    protected :
 
        /// The record is null.
-       Surface (ProjectHandle& projectHandle);
+       explicit Surface (ProjectHandle& projectHandle);
 
       string m_mangledName;
 

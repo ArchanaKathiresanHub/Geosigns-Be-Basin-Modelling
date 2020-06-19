@@ -84,7 +84,7 @@ namespace database
       /// checks if it has a name
       bool isValid (void) const;
       /// checks if it has the specified name
-      bool hasName (const std::string theName) const;
+      bool hasName (const std::string &theName) const;
    };
 
    /// This class defines what the records of a Table that comforms to a TableDefinition look like.
@@ -111,7 +111,7 @@ namespace database
 
 
       bool isValid (void) const;
-      bool hasName (const std::string theName) const;
+      bool hasName (const std::string &theName) const;
 
       bool saveToStream (ostream & ofile, bool rowBased) const;
       bool saveFieldDefinitionsToStream (ostream & ofile) const;
@@ -153,7 +153,6 @@ namespace database
       /// returns the number of non-volatile FieldDefinitions
       size_t persistentSize (void) const;
 
-   public:
       TableDefinition (const std::string & name, const std::string & description, int version );
      ~TableDefinition ();
 
@@ -240,7 +239,7 @@ namespace database
       return m_name.length () != 0;
    }
 
-   inline bool FieldDefinition::hasName (const std::string theName) const
+   inline bool FieldDefinition::hasName (const std::string& theName) const
    {
       return m_name == theName;
    }
@@ -250,7 +249,7 @@ namespace database
       return m_name.length () != 0;
    }
 
-   inline bool TableDefinition::hasName (const std::string theName) const
+   inline bool TableDefinition::hasName (const std::string& theName) const
    {
       return m_name == theName;
    }

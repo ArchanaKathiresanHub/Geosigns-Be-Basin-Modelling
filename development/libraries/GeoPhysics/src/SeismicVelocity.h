@@ -99,7 +99,7 @@ namespace GeoPhysics
 	private:
 
 		/// Private constructor setting the algorithm member.
-		SeismicVelocity(Algorithm * algorithm);
+		explicit SeismicVelocity(Algorithm * algorithm);
 
 		/// SmartPointer to abstract class for seismic velocity computation.
 		std::shared_ptr< Algorithm > m_algorithm;

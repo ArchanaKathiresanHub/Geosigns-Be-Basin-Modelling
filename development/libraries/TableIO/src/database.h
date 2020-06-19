@@ -49,7 +49,7 @@ namespace database
       public:
          virtual ~AbstractField() {}
 
-         AbstractField( const FieldDefinition & fieldDefinition )
+         explicit AbstractField( const FieldDefinition & fieldDefinition )
             : m_fieldDefinition(fieldDefinition)
          {}
 
@@ -76,7 +76,7 @@ namespace database
          /// save the value to a stream.
          bool saveToStream (ostream & ofile, int &borrowed);
 
-         Field (const FieldDefinition & fieldDef)
+         explicit Field (const FieldDefinition & fieldDef)
             : AbstractField(fieldDef)
          {
             assignFromString(fieldDef.defaultValue());
@@ -135,7 +135,7 @@ namespace database
       }
 
       template < class Type >
-      void setValue (const std::string & fieldName, const Type & value, int * cachedIndex = 0) const
+      void setValue (const std::string & fieldName, const Type & value, int * cachedIndex = nullptr) const
       {
          std::dynamic_pointer_cast< Field < Type > >( getField (fieldName, cachedIndex) )->setValue(value);
       }
@@ -252,7 +252,7 @@ namespace database
       void stable_sort (const std::vector<std::string> & fldList);
 
       /// Remove duplicate records based on the specified equality function after merging them based on the specified merge function
-      void unique (EqualityFunc equalityFunc, MergeFunc mergeFunc = 0);
+      void unique (EqualityFunc equalityFunc, MergeFunc mergeFunc = nullptr);
 
       /// return the name of the Table.
       const std::string & name() { return m_tableDefinition.name(); }
@@ -260,7 +260,7 @@ namespace database
       /// return verision of data schema in which this table was written. Used in table upgrade scheme
       int version() { return m_version; }
 
-      Record * getRecord (Table::iterator & iter);
+      Record * getRecord (const Table::iterator & iter) const;
 
       /// return the table definition
       const TableDefinition & getTableDefinition () const;
@@ -276,7 +276,7 @@ namespace database
       /// Find a record in which the specified field has the specified value
       Record * findRecord( const std::string & fieldName, const std::string & value );
       Record * findRecord( const std::string & field1, const std::string & value1, const std::string & field2,
-                           const std::string & value2, Record * other = 0);
+                           const std::string & value2, Record * other = nullptr);
 
       /// Remove all Records from this Table and destroy them as requested.
       void clear (bool deleteRecords = true);
@@ -318,7 +318,7 @@ namespace database
       RecordList m_records;
       int        m_version;
 
-      Table (const TableDefinition & tableDefinition);
+      explicit Table (const TableDefinition & tableDefinition);
       ~Table();
 
       /// Get the partitioning for the field name
@@ -447,7 +447,7 @@ namespace database
 
       std::string m_header;
 
-      Database (DataSchema& dataSchema);
+      explicit Database (DataSchema& dataSchema);
 
       bool skipTableFromStream (istream & infile);
 
@@ -495,9 +495,9 @@ namespace database
       return m_dataSchema;
    }
 
-   inline Record * Table::getRecord (Table::iterator & iter)
+   inline Record * Table::getRecord (const iterator& iter) const
    {
-      return (iter == m_records.end () ? 0 : * iter);
+      return (iter == m_records.end () ? nullptr : * iter);
    }
 
    inline const TableDefinition & Table::getTableDefinition () const
@@ -512,10 +512,10 @@ namespace database
 
    inline Record *Table::getRecord (int i)
    {
-      if (i >= 0 && i < (int) size ())
+      if (i >= 0 && i < static_cast<int>(size ()))
          return m_records[i];
       else
-         return 0;
+         return nullptr;
    }
 
    inline int Table::getIndex (const std::string & fieldName)

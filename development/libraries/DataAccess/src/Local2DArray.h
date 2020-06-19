@@ -91,8 +91,7 @@ namespace DataAccess
 //------------------------------------------------------------//
 
 template <typename T>
-DataAccess::Interface::Local2DArray<T>::Local2DArray () {
-   m_values = 0;
+DataAccess::Interface::Local2DArray<T>::Local2DArray () : m_values(nullptr) {
    m_first [ 0 ] = 0;
    m_first [ 1 ] = 0;
 

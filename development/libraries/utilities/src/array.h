@@ -201,11 +201,11 @@ namespace ibs
 
    public :
 
-      Array2D ( const int xSize, const int ySize ) {
+      Array2D ( const int xSize, const int ySize ) :
+         Entries( Array<Type>::create2d ( xSize, ySize ) )
+      {
          Dimensions [ 0 ] = xSize;
          Dimensions [ 1 ] = ySize;
-
-         Entries = Array<Type>::create2d ( xSize, ySize );
       }
 
       ~Array2D () {
@@ -263,12 +263,12 @@ namespace ibs
 
    public :
 
-     Array3D ( const int X_Size, const int Y_Size, const int Z_Size ) {
+     Array3D ( const int X_Size, const int Y_Size, const int Z_Size ) :
+       Entries( Array<Type>::create3d ( X_Size, Y_Size, Z_Size ) )
+     {
        Dimensions [ 0 ] = X_Size;
        Dimensions [ 1 ] = Y_Size;
        Dimensions [ 2 ] = Z_Size;
-
-       Entries = Array<Type>::create3d ( X_Size, Y_Size, Z_Size );
      }
 
      ~Array3D () {

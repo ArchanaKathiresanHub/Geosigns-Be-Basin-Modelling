@@ -36,7 +36,7 @@ namespace DerivedProperties {
 
    public :
 
-      PrimarySurfaceProperty ( const DataAccess::Interface::PropertyValue* propertyValue );
+      explicit PrimarySurfaceProperty ( const DataAccess::Interface::PropertyValue* propertyValue );
 
       ~PrimarySurfaceProperty();
 

@@ -392,7 +392,7 @@ void polynomials::parse::ParsePolynomial (std::vector<Token> theTokens, size_t& 
          if (start < theTokens.size())
             tok = theTokens[start];
          else
-            tok = END;
+            tok = Token(END);
          
       }
       

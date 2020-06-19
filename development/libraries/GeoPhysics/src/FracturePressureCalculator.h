@@ -23,7 +23,7 @@ namespace GeoPhysics {
 
    public :
 
-      FracturePressureCalculator ( DataAccess::Interface::ProjectHandle& projectHandle );
+      explicit FracturePressureCalculator ( DataAccess::Interface::ProjectHandle& projectHandle );
 
       virtual ~FracturePressureCalculator ();
 

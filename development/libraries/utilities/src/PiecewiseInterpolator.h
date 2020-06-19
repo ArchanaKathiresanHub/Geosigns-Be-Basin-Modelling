@@ -29,7 +29,7 @@ namespace ibs {
       public :
 
          /// Constructor with the array to be sorted.
-         PointerSort ( const double* xVals );
+         explicit PointerSort ( const double* xVals );
 
          bool operator ()( const unsigned int p1,
                            const unsigned int p2 ) const;

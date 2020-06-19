@@ -104,14 +104,14 @@ private:
    /// \brief Name of the file to merge
    std::string m_fileName;
 
-   hid_t m_groupId;
-   hid_t m_localFileId;   // local data file (to read from)
-   hid_t m_globalFileId;  // global data file (to write into)
-   hid_t m_local_dset_id;
-   hid_t m_global_dset_id;
+   hid_t m_groupId = H5P_DEFAULT;
+   hid_t m_localFileId = H5P_DEFAULT;   // local data file (to read from)
+   hid_t m_globalFileId = H5P_DEFAULT;  // global data file (to write into)
+   hid_t m_local_dset_id = H5P_DEFAULT;
+   hid_t m_global_dset_id = H5P_DEFAULT;
 
-   hid_t m_memspace;
-   hid_t m_filespace;
+   hid_t m_memspace = H5P_DEFAULT;
+   hid_t m_filespace = H5P_DEFAULT;
 
    std::vector<float> m_data;     // local data buffer for 2D dataset (for reading)
    std::vector<float> m_sumData;  // global data buffer for 2D dataset (for collecting data on rank 0)
@@ -119,7 +119,7 @@ private:
    std::vector<char> m_data1D;    // data buffer for 1D dataset (for reading and writing )
    std::vector<char> m_attrData;  // attributes buffer
 
-   int m_spatialDimension;        // data dimentions
+   int m_spatialDimension = 0;        // data dimentions
    hsize_t m_dimensions [MAX_FILE_DIMENSION];
 
    /// \brief Path to Temporary directory where local files are located
