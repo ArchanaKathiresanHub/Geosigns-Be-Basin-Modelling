@@ -1077,9 +1077,9 @@ void Temperature_Solver::getAlcBcsAndLithology ( const GeneralElement&     eleme
       const PETSC_3D_Array& temperature = currentFormation->Current_Properties.getArray ( Basin_Modelling::Temperature );
 
       for ( int n = 0; n < 8; ++n ) {
-         double Hfix = fc.getLithosphereThicknessMod ( element.getNodeI ( n ), element.getNodeJ ( n ), currentTime );
-         int i = layerElement.getNodeIPosition ( n );
-         int j = layerElement.getNodeJPosition ( n );
+         const int i = layerElement.getNodeIPosition ( n );
+         const int j = layerElement.getNodeJPosition ( n );
+         const double Hfix = fc.getLithosphereThicknessMod ( i, j, currentTime ) - fc.getCrustThickness( i, j, currentTime );
 
          if ( geometryMatrixOffset ( 3, n + 1 ) > Hfix ) {
             // Is this just the bottom BC (1333)?
