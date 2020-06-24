@@ -329,7 +329,7 @@ DataAccess::Interface::GridMap * Prograde::BasicCrustThinningUpgradeManager::gen
 		}
 		if (foundInterpolatingLowerAge && foundInterpolatingHigherAge)
 		{
-			database::Record record = database::Record(*(*CrustalThicknessIter)->getRecord());
+			database::Record record(*(*CrustalThicknessIter)->getRecord());
 			database::setAge(&record, basinAge);
 
 			DataAccess::Interface::PaleoFormationProperty* interpolatedCrustalThicknessMap = m_ph->getFactory()->producePaleoFormationProperty(*m_ph.get(), &record, m_ph->getCrustFormation());

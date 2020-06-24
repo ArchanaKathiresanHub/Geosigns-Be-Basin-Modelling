@@ -179,8 +179,8 @@ DataAccess::Interface::GridMap * Prograde::BottomBoundaryModelUpgradeManager::ge
 				}
 				if (foundInterpolatingLowerAge && foundInterpolatingHigherAge)
 				{
-					database::Record record = database::Record(*(*heatFlowIter)->getRecord());
-					database::setAge(&record, basinAge);//Check with Arijit about the header file for this in line 31...what to do for that????
+					database::Record record(*(*heatFlowIter)->getRecord());
+					database::setAge(&record, basinAge);
 
 					DataAccess::Interface::PaleoSurfaceProperty* interpolatedHeatFlowMap = m_ph->getFactory()->producePaleoSurfaceProperty(*m_ph.get(), &record, m_ph->getCrustFormation()->getTopSurface());
 					DataAccess::Interface::InterpolateFunctor functor(age1, age2, basinAge);
@@ -189,10 +189,6 @@ DataAccess::Interface::GridMap * Prograde::BottomBoundaryModelUpgradeManager::ge
 					break;
 				}
 			}
-		}
-		else//update it for BCT later
-		{
-
 		}
 	}
 	return interpolatedMap;

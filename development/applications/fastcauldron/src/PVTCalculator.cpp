@@ -18,7 +18,6 @@
 
 #ifdef _MSC_VER
 #include <float.h>
-#define isfinite(x) _finite(x)
 #endif /** _MSC_VER */
 
 PVTCalc* PVTCalc::m_theInstance = 0;
@@ -247,7 +246,6 @@ std::string PVTComponents::image ( const bool reverseOrder ) const {
 
    std::stringstream buffer;
    int i;
-   int j;
    int position;
 
    buffer.flags ( std::ios::scientific );
@@ -424,7 +422,6 @@ PVTComponents maximum ( const PVTComponents& left,
 
 double minimum ( const PVTComponents& cmps ) {
 
-   ComponentId id;
    int i;
    double val = cmps ( static_cast<ComponentId>( 0 ));
 
@@ -742,7 +739,6 @@ std::string PVTPhaseComponents::image ( const bool reverseOrder ) const {
 
    std::stringstream buffer;
    int i;
-   int j;
    int position;
 
    buffer.flags ( std::ios::scientific );

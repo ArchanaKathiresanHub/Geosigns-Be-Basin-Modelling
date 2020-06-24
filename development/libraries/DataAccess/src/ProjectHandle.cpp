@@ -1909,6 +1909,7 @@ bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
                newCrustalThicknesses.push_back( crustThicknessMap );
                map1 = crustThicknessMap->getMap( Interface::CrustThinningHistoryInstanceThicknessMap );
                age1 = age3;
+               delete record;
             }
             ++snapshotIter;
          }
