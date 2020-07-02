@@ -81,6 +81,15 @@ void CasaScenario::loadProject3dFile() const
   }
 }
 
+void CasaScenario::updateRelevantProperties()
+{
+  if (projectReader_)
+  {
+    QStringList activeProperties = calibrationTargetManager().activeProperties();
+    projectReader_->setRelevantOutputParameters(activeProperties);
+  }
+}
+
 void CasaScenario::setWorkingDirectory(const QString& workingDirectory)
 {
   workingDirectory_ = workingDirectory;
