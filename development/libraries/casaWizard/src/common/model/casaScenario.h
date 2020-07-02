@@ -58,7 +58,6 @@ public:
   virtual void clear() override;
   virtual QString iterationDirName() const { return ""; }
 
-  void updateRelevantProperties();
 private:
   void loadProject3dFile() const;
 

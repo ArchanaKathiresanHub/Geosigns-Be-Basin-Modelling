@@ -1,14 +1,16 @@
 #ifndef _INTERFACE_OUTPUTPROPERTY_H_
 #define _INTERFACE_OUTPUTPROPERTY_H_
 
+#include <iostream>
+using namespace std;
+
+#include <sys/types.h>
+#include <string>
+using namespace std;
+
 #include "Property.h"
 #include "DAObject.h"
 #include "Interface.h"
-
-#include <iostream>
-#include <sys/types.h>
-#include <string>
-
 
 
 namespace DataAccess

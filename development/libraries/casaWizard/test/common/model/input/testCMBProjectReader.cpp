@@ -1,16 +1,8 @@
-﻿//
-// Copyright (C) 2020 Shell International Exploration & Production.
-// All rights reserved.
-//
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
-
 #include "model/input/cmbProjectReader.h"
 
-#include <gtest/gtest.h>
 #include <numeric>
-#include <stdio.h>
+
+#include <gtest/gtest.h>
 
 const double epsilon = std::numeric_limits<double>::epsilon();
 
@@ -150,50 +142,3 @@ TEST_F( CMBProjectReaderTest, testLithologyTypesForLayer)
   EXPECT_EQ(shale, layer4Names[1]);
   EXPECT_EQ(sand, layer4Names[2]);
 }
-
-TEST_F( CMBProjectReaderTest, testUpdateOutputProperties)
-{
-  // Given
-  QStringList activeProperties = {"TwoWayTime", "VRe"};
-  std::remove("Output.project3d");
-
-  // When
-  reader_.setRelevantOutputParameters(activeProperties, "Output.project3d");
-
-  // Then
-  reader_.load(QString("Output.project3d"));
-  std::map<std::string, std::string> outputProperties = reader_.readOutputProperties();
-  for (auto propertyPair : outputProperties)
-  {
-    if (propertyPair.first == "TwoWayTime")
-    {
-      EXPECT_EQ(propertyPair.second, "SedimentsOnly");
-    }
-    else if (propertyPair.first == "VrVec")
-    {
-      EXPECT_EQ(propertyPair.second, "SedimentsOnly");
-    }
-    else if (propertyPair.first == "Depth")
-    {
-      EXPECT_EQ(propertyPair.second, "SedimentsPlusBasement");
-    }
-    else
-    {
-      EXPECT_EQ(propertyPair.second, "None");
-    }
-  }
-}
-
-TEST_F( CMBProjectReaderTest, testReadOutputProperties)
-{
-  // When
-  std::map<std::string, std::string> outputProperties = reader_.readOutputProperties();
-
-  // Then
-  EXPECT_EQ(outputProperties.at("Depth"), "SedimentsPlusBasement");
-  EXPECT_EQ(outputProperties.at("Massflux"), "SedimentsPlusBasement");
-  EXPECT_EQ(outputProperties.at("VrVec"), "SedimentsOnly");
-  EXPECT_EQ(outputProperties.at("DryGasExpelledRate"), "None");
-  EXPECT_EQ(outputProperties.at("SourceRockEndMember1"), "SourceRockOnly");
-}
-

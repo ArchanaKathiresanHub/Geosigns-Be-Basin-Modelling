@@ -23,9 +23,6 @@ public:
   virtual double initialLithosphericMantleThickness() const = 0;
   virtual double equilibriumOceanicLithosphereThickness() const = 0;
   virtual QVector<double> agesFromMajorSnapshots() const = 0;
-
-  virtual void setRelevantOutputParameters(const QStringList& activeProperties, const std::string& saveName = "") = 0;
-
 };
 
 } // namespace casaWizard
