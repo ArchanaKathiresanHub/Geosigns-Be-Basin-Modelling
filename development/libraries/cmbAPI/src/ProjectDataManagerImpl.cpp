@@ -25,8 +25,12 @@ namespace mbapi
    const char* ProjectDataManagerImpl::s_yGridSpecingFieldName = "DeltaY";
    const char* ProjectDataManagerImpl::s_modellingModeFieldName = "ModellingMode"; 
    const char* ProjectDataManagerImpl::s_projectDescriptionFieldName = "Description";
-   const char* ProjectDataManagerImpl::s_windowXMaxFieldName = "WindowXMax";
+   const char* ProjectDataManagerImpl::s_windowXMaxFieldName = "WindowXMax"; 
+   const char* ProjectDataManagerImpl::s_windowXMinFieldName = "WindowXMin"; 
+   const char* ProjectDataManagerImpl::s_stepXFieldName = "ScaleX";
    const char* ProjectDataManagerImpl::s_windowYMaxFieldName = "WindowYMax";
+   const char* ProjectDataManagerImpl::s_windowYMinFieldName = "WindowYMin";
+   const char* ProjectDataManagerImpl::s_stepYFieldName = "ScaleY";
 
    // Constructor
    ProjectDataManagerImpl::ProjectDataManagerImpl()
@@ -234,8 +238,8 @@ namespace mbapi
       return NoError;
    }
 
-   // Get the count of WindowXMax and WindowsYMax specified in the ProjectIoTbl
-   ErrorHandler::ReturnCode ProjectDataManagerImpl::getSimulationWindowMax(int& WindowXMax, int& WindowYMax)
+   /// Get the values of WindowXMin, WindowsXMax, StepX, WindowYMin, WindowsYMax and StepY specified in the ProjectIoTbl
+   ErrorHandler::ReturnCode ProjectDataManagerImpl::getSimulationWindowDetails(int& WindowXMin, int& WindowXMax, int& stepX, int& WindowYMin, int& WindowYMax, int& stepY)
    {
 	   if (errorCode() != NoError) resetError();
 	   try
@@ -244,15 +248,19 @@ namespace mbapi
 		   database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
 		   if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
 		   WindowXMax = rec->getValue<int>(s_windowXMaxFieldName);
+           WindowXMin = rec->getValue<int>(s_windowXMinFieldName);
+           stepX = rec->getValue<int>(s_stepXFieldName);
 		   WindowYMax = rec->getValue<int>(s_windowYMaxFieldName);
+           WindowYMin = rec->getValue<int>(s_windowYMinFieldName);
+           stepY = rec->getValue<int>(s_stepYFieldName);
 	   }
 
 	   catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
 	   return NoError;
    }
 
-   // Set the count of WindowXMax and WindowsYMax in the ProjectIoTbl
-   ErrorHandler::ReturnCode ProjectDataManagerImpl::setSimulationWindowMax(const int& WindowXMax,const int& WindowYMax)
+   // Set the count of WindowXMin, WindowsXMax and StepX in the ProjectIoTbl
+   ErrorHandler::ReturnCode ProjectDataManagerImpl::setSimulationWindowX(const int& WindowXMin,const int& WindowXMax, const int& StepX)
    {
 	   if (errorCode() != NoError) resetError();
 	   try
@@ -261,10 +269,28 @@ namespace mbapi
 		   database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
 		   if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
 		   rec->setValue<int>(s_windowXMaxFieldName, WindowXMax);
-		   rec->setValue<int>(s_windowYMaxFieldName, WindowYMax);
+		   rec->setValue<int>(s_windowXMinFieldName, WindowXMin);
+           rec->setValue<int>(s_stepXFieldName, StepX);
 	   }
 	   catch (const Exception& e) { return reportError(e.errorCode(), e.what()); }
 	   return NoError;
+   }
+
+   // Set the count of WindowYMin, WindowsYMax and StepY in the ProjectIoTbl
+   ErrorHandler::ReturnCode ProjectDataManagerImpl::setSimulationWindowY(const int& WindowYMin, const int& WindowYMax, const int& StepY)
+   {
+       if (errorCode() != NoError) resetError();
+       try
+       {
+           if (!m_projectIoTbl) { throw Exception(NonexistingID) << s_projectOptionsTableName << " table could not be found in project"; }
+           database::Record* rec = m_projectIoTbl->getRecord(static_cast<int>(0));
+           if (!rec) { throw Exception(NonexistingID) << "No data found in ProjectIo table: "; }
+           rec->setValue<int>(s_windowYMaxFieldName, WindowYMax);
+           rec->setValue<int>(s_windowYMinFieldName, WindowYMin);
+           rec->setValue<int>(s_stepYFieldName, StepY);
+       }
+       catch (const Exception & e) { return reportError(e.errorCode(), e.what()); }
+       return NoError;
    }
 
 }

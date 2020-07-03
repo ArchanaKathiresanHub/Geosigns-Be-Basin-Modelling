@@ -41,6 +41,12 @@ namespace Prograde
 	  //Also update the windowing size as needed.
       int upgradeNodeY(const std::string&, const int&, const int&, int&);
 #endif
+      /// @brief update the simulation window if invalid values are found
+      void upgradeSimulationWindow(const std::string& , int& windowXMin, int& windowXMax, int nodeX, int& scaleX);
+
+      // @brief It is just to ensure that the original simulation window defined is within the acceptable limit defined by [0, nodeCount] in each direction. 
+      // @details If the values are not found within the acceptable limit then reset it to the nearest limiting value
+      void preProcessSimulationWindow(int& windowMin, int& windowMax, int nodeCount);
 
       /// @brief update deltaX 
       /// @details check and update deltaX based on NodeX rather than modelling mode. This is done as it has been observed that legacy scenarios with "Both" modelling mode can also have 2x2 nodes

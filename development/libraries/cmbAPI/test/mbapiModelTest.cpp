@@ -2114,14 +2114,23 @@ TEST_F(mbapiModelTest, ProjectDataManager)
    ProjectMan.getProjectDescription(description);
    EXPECT_EQ("Legacy scenario", description);
 
-   int windowMax_X, windowMax_Y;
-   ProjectMan.getSimulationWindowMax(windowMax_X, windowMax_Y);
+   int windowMin_X, windowMax_X, step_x, windowMin_Y, windowMax_Y, step_y;
+   ProjectMan.getSimulationWindowDetails(windowMin_X, windowMax_X, step_x, windowMin_Y, windowMax_Y, step_y);
    EXPECT_EQ(184, windowMax_X);
    EXPECT_EQ(124, windowMax_Y);
-   ProjectMan.setSimulationWindowMax(284, 224);
-   ProjectMan.getSimulationWindowMax(windowMax_X, windowMax_Y);
-   EXPECT_EQ(284, windowMax_X);
-   EXPECT_EQ(224, windowMax_Y);
+   EXPECT_EQ(0, windowMin_X);
+   EXPECT_EQ(0, windowMin_Y);
+   EXPECT_EQ(2, step_x);
+   EXPECT_EQ(2, step_y);
+   ProjectMan.setSimulationWindowX(100, 200, 5);
+   ProjectMan.setSimulationWindowY(101, 111, 7);
+   ProjectMan.getSimulationWindowDetails(windowMin_X, windowMax_X, step_x, windowMin_Y, windowMax_Y, step_y);
+   EXPECT_EQ(200, windowMax_X);
+   EXPECT_EQ(111, windowMax_Y);
+   EXPECT_EQ(100, windowMin_X);
+   EXPECT_EQ(101, windowMin_Y);
+   EXPECT_EQ(5, step_x);
+   EXPECT_EQ(7, step_y);
 
 }
 

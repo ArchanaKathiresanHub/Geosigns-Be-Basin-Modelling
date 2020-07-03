@@ -42,7 +42,7 @@ void Prograde::ProjectIoTblUpgradeManager::upgrade() {
 
    std::string description, originalModellingMode;
    double deltaX, deltaY;
-   int xnodes, ynodes;
+   int xnodes, ynodes, legacyWindowXMin, legacyWindowXMax, legacyWindowYMin, legacyWindowYMax, stepX, stepY;
 
    m_model.projectDataManager().getModellingMode(originalModellingMode);
    m_model.projectDataManager().setModellingMode(modelConverter.upgradeModellingMode(originalModellingMode));
@@ -51,15 +51,18 @@ void Prograde::ProjectIoTblUpgradeManager::upgrade() {
    m_model.projectDataManager().getNumberOfNodesX(xnodes);
    m_model.projectDataManager().getNumberOfNodesY(ynodes);
 
-   /*Note: As per the earlier mapping sheet, depending on the legacy modellingMode, Prograde has to upgrade the nodeX/nodeY (and hence simulation window area), if the legacy input is not valid as per BPA2 standard.
-   The old strategy is now changed and @Matthijs has confirmed that no upgrade of the number of nodes will needed to be done inPrograde even though it is outside the valid ranges of BPA2...
-   This type of scenarios will automatically get failed in import if the validations are not met. (for setails refer to the Work item #379379)*/
-   /*m_model.projectDataManager().getSimulationWindowMax(windowXMax, windowYMax);
-   NewWindowXMax = windowXMax;
-   NewWindowYMax = windowYMax; 
-   m_model.projectDataManager().setNumberOfNodesX(modelConverter.upgradeNodeX(originalModellingMode, xnodes, windowXMax, NewWindowXMax));
-   m_model.projectDataManager().setNumberOfNodesY(modelConverter.upgradeNodeY(modellingMode, ynodes, windowYMax, NewWindowYMax));
-   m_model.projectDataManager().setSimulationWindowMax(NewWindowXMax, NewWindowYMax);*/
+   // Upgrading the simulation window if the legacy inputs doesn't satisfy BPA2 GUI validations
+   m_model.projectDataManager().getSimulationWindowDetails(legacyWindowXMin, legacyWindowXMax, stepX, legacyWindowYMin, legacyWindowYMax, stepY);
+   
+   modelConverter.preProcessSimulationWindow(legacyWindowXMin, legacyWindowXMax, xnodes);
+   modelConverter.preProcessSimulationWindow(legacyWindowYMin, legacyWindowYMax, ynodes);
+   
+   //Upgrade the simulation window if needed
+   modelConverter.upgradeSimulationWindow(originalModellingMode, legacyWindowXMin, legacyWindowXMax, xnodes, stepX);
+   m_model.projectDataManager().setSimulationWindowX(legacyWindowXMin, legacyWindowXMax, stepX);
+
+   modelConverter.upgradeSimulationWindow(originalModellingMode, legacyWindowYMin, legacyWindowYMax, ynodes, stepY);
+   m_model.projectDataManager().setSimulationWindowY(legacyWindowYMin, legacyWindowYMax, stepY);
 
    //If any invalid case is encountered then Prograde log is updated just to have this extra information.
    if (originalModellingMode == "3d" and (xnodes < 3 or ynodes < 3))

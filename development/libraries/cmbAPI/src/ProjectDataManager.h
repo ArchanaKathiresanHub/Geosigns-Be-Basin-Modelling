@@ -35,12 +35,16 @@ namespace mbapi {
       virtual ReturnCode setNumberOfNodesX(const int& NodesX) = 0;
 
 	  /// @{
-	  /// @brief Get the count of WindowXMax and WindowsYMax specified in the ProjectIoTbl
-	  virtual ReturnCode getSimulationWindowMax(int& WindowXMax, int& WindowYMax) = 0;
+      /// @brief Get the values of WindowXMin, WindowsXMax, StepX, WindowYMin, WindowsYMax and StepY specified in the ProjectIoTbl
+      virtual ReturnCode getSimulationWindowDetails(int& WindowXMin, int& WindowXMax, int& stepX, int& WindowYMin, int& WindowYMax, int& stepY) = 0;
 
 	  /// @{
-	  /// @brief Set the count of WindowXMax and WindowsYMax in the ProjectIoTbl
-	  virtual ReturnCode setSimulationWindowMax(const int& WindowXMax, const int& WindowYMax) = 0;
+	  /// @brief Set the count of WindowXMin and WindowsXMax and StepX in the ProjectIoTbl
+	  virtual ReturnCode setSimulationWindowX(const int& WindowXMin, const int& WindowXMax, const int& StepX) = 0;
+
+      /// @{
+      /// @brief Set the count of WindowYMin, WindowsYMax and StepY in the ProjectIoTbl
+      virtual ReturnCode setSimulationWindowY(const int& WindowYMin, const int& WindowYMax, const int& StepY) = 0;
 
       /// @{
       /// @brief Get number of the y-nodes specified in the ProjectIoTbl
