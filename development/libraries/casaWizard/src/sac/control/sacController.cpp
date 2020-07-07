@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2020 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "sacController.h"
 
 #include "control/calibrationTargetController.h"
@@ -204,6 +212,8 @@ void SACcontroller::slotLineEditCalibrationTextChanged(QString calibrationTarget
   WellTrajectoryManager& wtManager = casaScenario_.wellTrajectoryManager();
 
   wtManager.updateWellTrajectories(casaScenario_.calibrationTargetManager());
+
+  casaScenario_.updateRelevantProperties();
 }
 
 void SACcontroller::slotComboBoxClusterCurrentTextChanged(QString clusterName)
