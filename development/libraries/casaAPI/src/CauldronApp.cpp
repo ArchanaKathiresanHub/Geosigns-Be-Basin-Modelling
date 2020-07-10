@@ -242,11 +242,6 @@ namespace casa
       else if ( m_appName.substr( 0, 4 ) == "casa"    ) { ; }
       else if ( !outProjectFile.empty()               ) { oss << " " << m_outputOpt << " " << outProjectFile; }
 
-      if ( m_appName == "datadriller" || m_appName == "track1d" )
-      {
-        oss << " -lean";
-      }
-
       // redirect stdout & stderr
       switch ( m_sh )
       {

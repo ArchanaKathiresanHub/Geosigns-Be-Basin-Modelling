@@ -20,13 +20,13 @@ namespace DataAccess
          virtual ~MapWriter() {}
          
          /// open a file
-         virtual bool open( const string & fileName, bool append = false ) = 0;
+         virtual bool open( const std::string & fileName, bool append = false ) = 0;
          
          /// close a file
          virtual bool close() = 0;
          
          /// return the filename without the leading directories
-         virtual const string & getFileName() = 0;
+         virtual const std::string & getFileName() = 0;
          
          /// enable output in chunks
          virtual void setChunking() = 0;
@@ -35,8 +35,8 @@ namespace DataAccess
          virtual bool writeMapToHDF( GridMap      * gridMap
                                      , float          time
                                      , double         depoAge
-                                     , const string & propertyGrid
-                                     , const string & surfaceName
+                                     , const std::string & propertyGrid
+                                     , const std::string & surfaceName
                                      , const bool     saveAsPrimary = false 
                                      ) = 0;
          
@@ -44,13 +44,13 @@ namespace DataAccess
          virtual bool writeInputMap( GridMap * gridMap, int mapSeqNumber ) = 0;
          
          /// write a 3D gridmap to a file, not yet implemented
-         virtual bool writeVolumeToHDF( GridMap * gridMap, const string & propertyName, const string & layerName, const bool isPrimary = false ) = 0;
+         virtual bool writeVolumeToHDF( GridMap * gridMap, const std::string & propertyName, const std::string & layerName, const bool isPrimary = false ) = 0;
          
-         //virtual bool write2DDataSet (const string & dataSetName, float *data, int *start, int *count, int *size) = 0;
+         //virtual bool write2DDataSet (const std::string & dataSetName, float *data, int *start, int *count, int *size) = 0;
          
-         virtual bool Write1DDataSet( const long size, const string & dataSetName, const hid_t dataType, const void *data ) = 0;
+         virtual bool Write1DDataSet( const long size, const std::string & dataSetName, const hid_t dataType, const void *data ) = 0;
          
-         virtual bool writeAttribute( const string & dataSetName
+         virtual bool writeAttribute( const std::string & dataSetName
                                       , const char   * attributeName
                                       , const hid_t    attributeType
                                       , const hsize_t  dims
