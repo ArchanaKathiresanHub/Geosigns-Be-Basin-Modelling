@@ -288,11 +288,10 @@ namespace casa
          oss << "CAULDRON_VERSION=" << m_version << "\nIBS_ROOT=" << m_rootPath << "\n\n";
 
             // compute path to the projdiff utility
-         oss << "os1=`/apps/sss/share/getos2` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
-             << "os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n"
+         oss << "os1=`/apps/sss/share/getos2 --os` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
              << "APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/projdiff\n"
              << "if [ ! -e $APP ]; then\n"
-             << "   APP=" << ( ibs::Path::applicationFullPath() << "projdiff" ).path() << "\n"
+             << "   APP=" << m_version << "/projdiff\n"
              << "fi\n"
              << "if [ ! -e $APP ]; then\n   echo Could not find application executable: ${APP}\n   exit 1\nfi\n\nallOk=0;\n\n";
          break;
@@ -301,7 +300,7 @@ namespace casa
          oss << "@echo off\n\nset    CASA_SCENARIO_ID=\"" << scenarioID << "\"\n\n";
          oss << "set CAULDRON_VERSION=" << m_version << "\nset IBS_ROOT=" << m_rootPath << "\n\n";
 
-         if ( !appPath.exists() ) { oss << "set APP=" << ( ibs::Path::applicationFullPath() << "projdiff").path(); }
+         if ( !appPath.exists() ) { oss << "set APP=" << ( ibs::FilePath( m_rootPath ) << m_version << "bin" << "projdiff" ).path( );}
          else                     { oss << "set APP=" << appPath.path() << '\n'; }
          oss << "\nset allOK=0\n\n";
          break;

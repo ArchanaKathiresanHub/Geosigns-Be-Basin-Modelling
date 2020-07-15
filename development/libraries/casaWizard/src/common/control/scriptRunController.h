@@ -33,6 +33,7 @@ private slots:
 private:
   bool processCommand(const RunCommand& command);
 
+  bool processCancelled_;
   QProgressDialog dialog_;
   QProcess* process_;
   QString baseDirectory_;

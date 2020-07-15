@@ -12,6 +12,8 @@
 #include "RunCaseImpl.h"
 #include "ScenarioAnalysis.h"
 
+#include "utilities.h"
+
 #include <iostream>
 
 CmdRunPipeline::CmdRunPipeline(CasaCommander& parent, const std::vector<std::string>& cmdPrms) :
@@ -20,10 +22,7 @@ CmdRunPipeline::CmdRunPipeline(CasaCommander& parent, const std::vector<std::str
   m_cluster = m_prms.size() > 0 ? m_prms[0] : "";
   m_cldVer  = m_prms.size() > 1 ? m_prms[1] : "";
 
-  if ( m_cldVer.empty() || m_cldVer == "Default" )
-  {
-     m_cldVer = ibs::Path::applicationFullPath().path();
-  }
+  casaAppUtils::checkCauldronVersion(m_cldVer);
 }
 
 void CmdRunPipeline::execute(std::unique_ptr<casa::ScenarioAnalysis>& sa)

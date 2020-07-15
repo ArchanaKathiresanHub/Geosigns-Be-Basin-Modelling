@@ -115,22 +115,20 @@ void QCController::slotPushButtonQCrunCasaClicked()
   }
 
   QCScript qc{casaScenario_};
-  if (!casaScriptWriter::writeCasaScript(qc))
+  if (!casaScriptWriter::writeCasaScript(qc) ||
+      !scriptRunController_.runScript(qc))
   {
     return;
   }
 
-  if (scriptRunController_.runScript(qc))
+  try
   {
-    try
-    {
-      targetQCdataCreator::readTargetQCs(casaScenario_);
-      QCTab_->fillQCtable(casaScenario_.targetQCs());
-    }
-    catch (const std::exception& e)
-    {
-      Logger::log() << "Failed to read the targets for the quality check: " << e.what() << Logger::endl();
-    }
+    targetQCdataCreator::readTargetQCs(casaScenario_);
+    QCTab_->fillQCtable(casaScenario_.targetQCs());
+  }
+  catch (const std::exception& e)
+  {
+    Logger::log() << "Failed to read the targets for the quality check: " << e.what() << Logger::endl();
   }
 
   const QString source = casaScenario_.workingDirectory() + "/" + casaScenario_.stateFileNameQC() ;

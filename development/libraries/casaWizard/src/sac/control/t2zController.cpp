@@ -76,22 +76,20 @@ void T2Zcontroller::slotPushButtonSACrunT2ZClicked()
     }
 
     SACScript sac{casaScenario_, recalibrationDir};
-    if (!casaScriptWriter::writeCasaScript(sac))
+    if (!casaScriptWriter::writeCasaScript(sac) ||
+        !scriptRunController_.runScript(sac))
     {
       return;
     }
 
-    if (scriptRunController_.runScript(sac))
+    QDir().mkdir(calibratedProjectDir);
+    QFile::copy(recalibrationDir + "/ThreeDFromOneD" + projectFilename, calibratedProjectDir + projectFilename);
+    QFile::copy(recalibrationDir + "/ThreeDFromOneD/Inputs.HDF", calibratedProjectDir + "/Inputs.HDF");
+    if (QFile(recalibrationDir + "/ThreeDFromOneD/Input.HDF").exists())
     {
-      QDir().mkdir(calibratedProjectDir);
-      QFile::copy(recalibrationDir + "/ThreeDFromOneD" + projectFilename, calibratedProjectDir + projectFilename);
-      QFile::copy(recalibrationDir + "/ThreeDFromOneD/Inputs.HDF", calibratedProjectDir + "/Inputs.HDF");
-      if (QFile(recalibrationDir + "/ThreeDFromOneD/Input.HDF").exists())
-      {
-        QFile::copy(recalibrationDir + "/ThreeDFromOneD/Input.HDF", calibratedProjectDir + "/Input.HDF");
-      }
-      scenarioBackup::backup(casaScenario_);
+      QFile::copy(recalibrationDir + "/ThreeDFromOneD/Input.HDF", calibratedProjectDir + "/Input.HDF");
     }
+    scenarioBackup::backup(casaScenario_);
   }
 }
 

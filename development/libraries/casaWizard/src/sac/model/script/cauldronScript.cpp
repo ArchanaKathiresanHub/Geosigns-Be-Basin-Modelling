@@ -39,7 +39,7 @@ void CauldronScript::writeScriptContents(QFile& file) const
 
   out << writeApp(scenario_.numberCPUs(), scenario_.applicationName() + " \"-allproperties\" \"-onlyat 0\"");
   out << writeBaseProject(scenario_.project3dFilename());
-  out << "runPipeline \"" + scenario_.clusterName() + "\"\n";
+  out << "runPipeline \"" + scenario_.clusterName() + "\" \"Default\"\n";
 }
 
 bool CauldronScript::validateScenario() const

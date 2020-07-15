@@ -132,16 +132,12 @@ namespace casa
                                             , const std::string cmdLine = ""      ///< (optional) if app is "general", contains the script body
                                             );
 
-      /// @brief Set up Cauldron version. Version should be defined as "v2014.1007" (which is the default)
+      /// @brief Set up Cauldron version. Version should be defined as "v2020.01nightly" (which is the default)
       ///        Version also could be defined by the environment influential CAULDRON_VERSION. This interface
       ///        has a priority over the environment influential.
       /// @param verString Cauldron version which will be used for submit jobs to HPC cluster.
       /// @return NoError on success, error code otherwise
-      virtual ErrorHandler::ReturnCode setCauldronVersion( const char * verString ) = 0;
-
-      /// @brief Get Cauldron version chosen for the scenario.
-      /// @return Cauldron version as string
-      virtual std::string cauldronVersion() = 0;
+      virtual ErrorHandler::ReturnCode setCauldronVersion( const std::string& verString ) = 0;
 
       /// @todo Add interface for casa::RunManager to set up IBS_ROOT
 

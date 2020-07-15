@@ -158,11 +158,12 @@ void MCMCController::slotPushButtonExportOptimalCasesClicked()
   }
 
   const RunCaseSetFileManager& rcsFileManager = casaScenario_.runCaseSetFileManager();
-  if (casaScriptWriter::writeCasaScriptFilterOutDataDir(optimal, rcsFileManager.caseSetDirPath()))
+  if (!casaScriptWriter::writeCasaScriptFilterOutDataDir(optimal, rcsFileManager.caseSetDirPath()) ||
+      !scriptRunController_.runScript(optimal))
   {
-    scriptRunController_.runScript(optimal);
-    scenarioBackup::backup(casaScenario_);
+    return;
   }
+  scenarioBackup::backup(casaScenario_);
 }
 
 void MCMCController::slotPushButtonRunOptimalCasesClicked()
@@ -170,19 +171,18 @@ void MCMCController::slotPushButtonRunOptimalCasesClicked()
   scenarioBackup::backup(casaScenario_);
 
   RunOptimalCaseScript optimal{casaScenario_};
-  if (!casaScriptWriter::writeCasaScript(optimal))
+  if (!casaScriptWriter::writeCasaScript(optimal) ||
+      !scriptRunController_.runScript(optimal))
   {
     return;
   }
-  if (scriptRunController_.runScript(optimal))
-  {
-    DataFileParser<double> fileParser(optimal.absoluteDirectory() + casaScenario_.runCasesObservablesTextFileName());
-    const double L2norm = functions::rmseCalibrationTargets(fileParser.rowDominantMatrix()[0], casaScenario_.calibrationTargetManager());
-    MonteCarloDataManager& manager = casaScenario_.monteCarloDataManager();
-    manager.setRmseOptimalRunCase(L2norm);
-    mcmcTab_->setL2norm(L2norm);
-    scenarioBackup::backup(casaScenario_);
-  }
+
+  DataFileParser<double> fileParser(optimal.absoluteDirectory() + casaScenario_.runCasesObservablesTextFileName());
+  const double L2norm = functions::rmseCalibrationTargets(fileParser.rowDominantMatrix()[0], casaScenario_.calibrationTargetManager());
+  MonteCarloDataManager& manager = casaScenario_.monteCarloDataManager();
+  manager.setRmseOptimalRunCase(L2norm);
+  mcmcTab_->setL2norm(L2norm);
+  scenarioBackup::backup(casaScenario_);
 }
 
 void MCMCController::slotPushButtonAddOptimalDesignPointClicked()

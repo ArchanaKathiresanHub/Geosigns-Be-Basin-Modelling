@@ -7,6 +7,7 @@ if(UNIX)
 "#!/bin/bash
 
 DIR=$(dirname $0)
+
 . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
 module load HpcSoftwareStack/PRODUCTION
 module purge &> /dev/null
@@ -14,13 +15,21 @@ module load Qt5/5.10.1-intel-2019a
 
 EXEC_NAME=${TARGETNAME}.exe
 export PATH=$DIR:$PATH
+MISCDIR=\"\"
 if [ -d \"$DIR/../../misc\" ]; then
-  export CTCDIR=$DIR/../../misc
+  MISCDIR=$DIR/../../misc
 else
   if [ -d \"$DIR/../misc\" ]; then
-    export CTCDIR=$DIR/../misc
+    MISCDIR=$DIR/../misc
   fi
 fi
+export CTCDIR=$MISCDIR
+export GENEXDIR=$MISCDIR/genex40
+export GENEX5DIR=$MISCDIR/genex50
+export GENEX6DIR=$MISCDIR/genex60
+export OTGCDIR=$MISCDIR/OTGC
+export EOSPACKDIR=$MISCDIR/eospack
+
 $(dirname $0)/$EXEC_NAME
 " )
   install( PROGRAMS ${SCRIPTNAME} DESTINATION bin )

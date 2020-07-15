@@ -15,6 +15,8 @@
 
 #include "LogHandler.h"
 
+#include "utilities.h"
+
 #include <cstdlib>
 #include <iostream>
 
@@ -32,10 +34,7 @@ CmdCalibrateProject::CmdCalibrateProject( CasaCommander & parent, const std::vec
    if ( m_bmcName.empty()  ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty output project name for project calibration";
    if ( m_optimAlg.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty optimization algorithm name was given";
 
-   if ( m_cldVer.empty() || m_cldVer == "Default" )
-   {
-      m_cldVer = ibs::Path::applicationFullPath().path();
-   }
+   casaAppUtils::checkCauldronVersion(m_cldVer);
 }
 
 void CmdCalibrateProject::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )

@@ -12,6 +12,7 @@ namespace casaWizard
 
 ScriptRunController::ScriptRunController(QObject* parent) :
   QObject(parent),
+  processCancelled_{false},
   dialog_{},
   process_{new QProcess(this)},
   baseDirectory_{""},
@@ -46,6 +47,7 @@ bool ScriptRunController::processCommand(const RunCommand& command)
 
 bool ScriptRunController::runScript(RunScript& script)
 {
+  processCancelled_ = false;
   script_ = &script;
 
   if (!script.generateCommands())
@@ -87,7 +89,7 @@ bool ScriptRunController::runScript(RunScript& script)
     return false;
   }
 
-  return true;
+  return !processCancelled_;
 }
 
 QByteArray ScriptRunController::readAllStandardOutput()
@@ -97,6 +99,7 @@ QByteArray ScriptRunController::readAllStandardOutput()
 
 void ScriptRunController::killProcess()
 {
+  processCancelled_ = true;
   Logger::log() << "Preparing interruption ... "  << Logger::endl();
   if (script_->prepareKill())
   {

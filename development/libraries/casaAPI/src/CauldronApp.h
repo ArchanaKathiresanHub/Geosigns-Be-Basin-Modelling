@@ -61,7 +61,7 @@ namespace casa
       CauldronApp(const std::string & appName, bool isParallel = true );
 
       /// @brief Destructor
-      virtual ~CauldronApp() {;}
+      virtual ~CauldronApp() {}
 
       /// @brief Get position of this application in cauldron applications pipeline
       /// @return position of this applicaiton in apps pipepline
@@ -72,8 +72,8 @@ namespace casa
       void setScriptBody( const std::string & cmdLine ) { m_scriptBody = cmdLine; }
 
       /// @brief Set which version of the Cauldron app will be used. This string is used as part of path to an application
-      /// @param ver cauldron version like "v2014.7nightly"
-      virtual void setCauldronVersion( const std::string & ver ) { if ( !ver.empty() ) m_version = ver; }
+      /// @param ver cauldron version like "v2020.01nightly"
+      void setCauldronVersion( const std::string & ver ) {if ( !ver.empty() ) m_version = ver;}
 
       /// @brief Generates script file which contains environment set up and application run for given input/output project file
       /// @param inProjectFile input project file name
@@ -88,10 +88,6 @@ namespace casa
       /// @param scenarioID uniquie scenario ID to allow set reference between GUI and engine
       /// @return generated script as a string
       virtual std::string generateCopyResultsScript( const std::string & fromProj, const std::string & toProj, const std::string & scenarioID );
-
-      /// @brief Set path where applications with different versions are. Could be also set through IBS_ROOT environment influential
-      /// @param rootPath path to IBS folder with different versions of cauldron
-      virtual void setPathToApp( const std::string & rootPath ) { m_rootPath = rootPath; }
 
       /// @brief Set the number of MPI processes which will be used for the application, if it is a parallel application
       /// @param numOfCPUs number of cpus for parallel simulation
@@ -140,7 +136,7 @@ namespace casa
       CauldronApp( CasaDeserializer & inStream, const char * objName );
       /// @}
 
-   protected:
+   private:
 
       std::map< std::string, std::string >   m_env;               ///< keeps environment variables in map: [influential] -> value
       std::string                            m_appName;           ///< name of application like fastcauldron/genex6/...

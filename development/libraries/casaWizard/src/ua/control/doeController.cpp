@@ -167,11 +167,11 @@ void DoEcontroller::slotPushButtonDoErunCasaClicked()
   }
 
   DoEScript doe{casaScenario_};
-  if (!casaScriptWriter::writeCasaScript(doe))
+  if (!casaScriptWriter::writeCasaScript(doe) ||
+      !scriptRunController_.runScript(doe))
   {
     return;
   }
-  scriptRunController_.runScript(doe);
   designPointManager.completeAll();
 
   casaScenario_.setStageComplete(StageTypesUA::doe, true);
@@ -220,12 +220,11 @@ void DoEcontroller::slotPushButtonRunAddedCasesClicked()
 
   AddCasesScript addCasesScript{casaScenario_};
   RunCaseSetFileManager& rcsFileManager = casaScenario_.runCaseSetFileManager();
-  if (!casaScriptWriter::writeCasaScriptFilterOutDataDir(addCasesScript, rcsFileManager.caseSetDirPath()))
+  if (!casaScriptWriter::writeCasaScriptFilterOutDataDir(addCasesScript, rcsFileManager.caseSetDirPath()) ||
+      !scriptRunController_.runScript(addCasesScript))
   {
     return;
   }
-
-  scriptRunController_.runScript(addCasesScript);
   designPointManager.completeAll();
 
   casaScenario_.setStageComplete(StageTypesUA::doe);

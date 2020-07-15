@@ -43,7 +43,7 @@ private:
   void updateWellPlot();
   void updateScatterPlot();
   void updateBirdView();
-  bool run3dCase(const QString baseDirectory);
+  bool run3dCase(const QString directory);
   void import3dWellData(const QString baseDirectory, const bool isOptimized);
   QVector<int> selectedWells();
 

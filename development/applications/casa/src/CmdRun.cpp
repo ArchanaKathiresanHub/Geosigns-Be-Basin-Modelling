@@ -18,6 +18,8 @@
 
 #include "CauldronEnvConfig.h"
 
+#include "utilities.h"
+
 #include <cstdlib>
 #include <iostream>
 
@@ -36,10 +38,7 @@ CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPr
 
    if ( m_cluster.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty HPC cluster name";
 
-   if ( m_cldVer.empty() || m_cldVer == "Default" )
-   {
-      m_cldVer = ibs::Path::applicationFullPath().path();
-   }
+   casaAppUtils::checkCauldronVersion(m_cldVer);
 }
 
 void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )

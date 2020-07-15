@@ -94,11 +94,11 @@ void ResultsController::saveOptimized()
 
   scenarioBackup::backup(scenario_);
   SaveOptimizedScript saveOptimized{scenario_};
-  if (!casaScriptWriter::writeCasaScript(saveOptimized))
+  if (!casaScriptWriter::writeCasaScript(saveOptimized) ||
+      !scriptRunController_.runScript(saveOptimized))
   {
     return;
   }
-  scriptRunController_.runScript(saveOptimized);
   scenarioBackup::backup(scenario_);
 
   QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
@@ -261,12 +261,18 @@ void ResultsController::updateBirdView()
   resultsTab_->updateActiveWells(selectedWells());
 }
 
-bool ResultsController::run3dCase(const QString baseDirectory)
+bool ResultsController::run3dCase(const QString directory)
 {
-  const int cores = QInputDialog::getInt(0, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 48, 1);
+  bool ok = true;
+  const int cores = QInputDialog::getInt(0, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 48, 1, &ok);
+  if (!ok)
+  {
+    return false;
+  }
+
   scenario_.setNumberCPUs(cores);
   scenarioBackup::backup(scenario_);
-  CauldronScript cauldron{scenario_, baseDirectory};
+  CauldronScript cauldron{scenario_, directory};
   if (!casaScriptWriter::writeCasaScript(cauldron) ||
       !scriptRunController_.runScript(cauldron))
   {

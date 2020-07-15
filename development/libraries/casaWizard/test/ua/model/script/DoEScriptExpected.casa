@@ -5,5 +5,5 @@ doe "Tornado"
 doe "SpaceFilling" 50
 addDesignPoint 1.2
 location "CaseSet"
-run "LOCAL" ""
+run "LOCAL" "Default"
 savestate "stateFileTestCasaScriptDoE.txt" "txt"

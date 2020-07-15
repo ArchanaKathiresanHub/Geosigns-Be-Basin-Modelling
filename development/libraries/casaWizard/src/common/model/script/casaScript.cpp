@@ -82,7 +82,7 @@ bool CasaScript::createStopExecFile() const
     Logger::log() << "Failed to create " << stopExecFilename << " in folder " << baseDirectory()
                   << "\n RunManager will not clean up running jobs" << Logger::endl();
   }
-  return !success;
+  return success;
 }
 
 QString CasaScript::writeDoeTextList(const QStringList& doeList) const
@@ -135,7 +135,7 @@ QString CasaScript::writeLocation(const QString& location, const bool append) co
 
 QString CasaScript::writeRun(const QString& clusterName) const
 {
-  return QString("run \"" + clusterName + "\" \"\"\n");
+  return QString("run \"" + clusterName + "\" \"Default\"\n");
 }
 
 QString CasaScript::writeRunDataDigger() const
