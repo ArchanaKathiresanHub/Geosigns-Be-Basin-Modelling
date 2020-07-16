@@ -5,6 +5,11 @@
 /build*
 /obj*
 *.vcxproj*
+*.log
+last-cl-gen
+CreateChangeLog.sh
+perlSrForChangelog
+VERSION
 
 #ignore linux backup files
 *~
