@@ -986,7 +986,7 @@ void Prograde::LithologyConverter::computeSingleExpModelParameters(const std::st
 		}
 		else {
 			newPorModelParam = originalPorModelParam;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is not upgraded to 'Exponential' as no mapping is available for this parent lithology. ";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Error> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is not upgraded to 'Exponential' as no mapping is available for this parent lithology. ";
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Error> Migration from BPA to BPA2 Basin Aborted...";
 			exit(42);
 		}

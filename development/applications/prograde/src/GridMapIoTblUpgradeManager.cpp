@@ -68,6 +68,38 @@ void Prograde::GridMapIoTblUpgradeManager::upgrade()
 			}
 		}
 	}
+
+	/** The code below changes the map sequence of FLT maps
+	* The MapSeqNbr of maps in each map file starts from 0
+	* In case when we have maps imported from multiple HDF/FLT files then we have multiple maps in GridMapIoTbl starting from 0
+	* and hence the MapSeqNbr is repeated which is perfectly fine as such maps belong to different files. However, maps with 
+	* same MapSeqNbr though belonging to different files is not handled by scenario import which results in import failure
+	* [TEMPORARY SOLUTION] Hence, in order to successfully import the scenarios to bpa2, for the time being, 
+	* the MapSeqNbr of FLT maps are changed to have unique values by assigning them the values next to the largest value 
+	* of MapSeqNbr in the GridMapIoTbl
+	*/
+	size_t maxMapSeqNbr = 0; // Max. value of map sequence number
+	std::vector<size_t> idsFLT; // Vector containing the list of all the ids in GridMapIoTbl with FLT maps
+	size_t size_gridMapIoTbl = gridMapIo_Table->size();
+	// Finding the value of maxMapSeqNbr and idsFLT from the GridMapIoTbl
+	for (int id = 0; id < size_gridMapIoTbl; ++id)
+	{
+		database::Record* rec = gridMapIo_Table->getRecord(static_cast<int> (id));
+		size_t mapSeqNbr = rec->getValue<int>("MapSeqNbr");
+		if (mapSeqNbr > maxMapSeqNbr) maxMapSeqNbr = mapSeqNbr;
+		std::string mapType = rec->getValue<std::string>("MapType");
+		if (mapType == "FLT") idsFLT.push_back(id);
+	}
+	// Updating the value of MapSeqNbr for FLT maps
+	for (auto i : idsFLT)
+	{
+		database::Record* rec = gridMapIo_Table->getRecord(static_cast<int> (i));
+		size_t mapSeqNbr = rec->getValue<int>("MapSeqNbr");
+		std::string mapName = rec->getValue<std::string>("MapName");
+		std::string referredBy = rec->getValue<std::string>("ReferredBy");
+		rec->setValue<int>("MapSeqNbr", (int) ++maxMapSeqNbr);
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> MapSeqNbr for the map : " << mapName << " ReferredBy : " << referredBy << " is changed from "<< mapSeqNbr <<" to "<< maxMapSeqNbr;
+	}	
 }
 
 ///Defining the static variable tblNameMapName

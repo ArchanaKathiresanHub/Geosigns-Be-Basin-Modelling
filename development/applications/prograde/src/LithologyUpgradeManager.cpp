@@ -128,7 +128,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 				bool flag = modelConverter.isDefinedBeforeThanCutOffDate(legacyDefinitionDate);
 				if (!flag)
 				{
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Info> Lithology created after the cut-off date of 30th April 2020";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Error> Lithology created after the cut-off date of 30th April 2020";
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Error> Migration from BPA to BPA2 Basin Aborted...";
 					exit(41);
 				}
