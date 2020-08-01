@@ -27,8 +27,7 @@ namespace Prograde
 
 		/// @brief Upgrades shale gas related fields in SourceRockLithoIoTbl		
 		int upgradeAdsorptionTOCDependent(int);
-		std::string upgradeAdsorptionCapacityFunctionName(int, const std::string &);
-		std::string upgradeWhichAdsorptionSimulator(int);
+		std::string upgradeAdsorptionCapacityFunctionName(int, const std::string &);		
 		/// @brief Upgrades irreducible water saturation related fields in IrreducibleWaterSaturationIoTbl
 		void upgradeIrreducibleWaterSaturationCoefficients(const double, const double, double &, double & );
 	};

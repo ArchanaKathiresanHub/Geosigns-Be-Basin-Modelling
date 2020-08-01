@@ -42,7 +42,7 @@ void Prograde::SgsUpgradeManager::upgrade() {
 	Prograde::SgsConverter modelConverter;
 
 	int legacyApplyAdsorption, legacyAdsorptionTOCDependent, legacyComputeOTGC, bpa2AdsorptionTOCDependent;
-	std::string legacyAdsorptionCapacityFunctionName, bpa2AdsorptionCapacityFunctionName, bpa2WhichAdsorptionSimulator;
+	std::string legacyAdsorptionCapacityFunctionName, bpa2AdsorptionCapacityFunctionName;
 	int isToc = 1;
 	double legacyCoefficientA, legacyCoefficientB, bpa2CoefficientA, bpa2CoefficientB;
 
@@ -112,11 +112,7 @@ void Prograde::SgsUpgradeManager::upgrade() {
 					}
 
 				}
-
-
 			}			
-			bpa2WhichAdsorptionSimulator = modelConverter.upgradeWhichAdsorptionSimulator(legacyComputeOTGC);			
-			m_model.sourceRockManager().setWhichAdsorptionSimulator(sourceRockId, bpa2WhichAdsorptionSimulator);
 		}
 		
 	}

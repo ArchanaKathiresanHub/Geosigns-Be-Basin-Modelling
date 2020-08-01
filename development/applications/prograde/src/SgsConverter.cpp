@@ -42,18 +42,6 @@ std::string Prograde::SgsConverter::upgradeAdsorptionCapacityFunctionName(int le
 	return bpa2AdsorptionCapacityFunctionName;
 }
 
-std::string Prograde::SgsConverter::upgradeWhichAdsorptionSimulator(int legacyComputeOTGC)
-{
-	std::string bpa2WhichAdsorptionSimulator = "OTGCC1AdsorptionSimulator";
-	if (!legacyComputeOTGC)	
-	{
-		bpa2WhichAdsorptionSimulator = "C1AdsorptionSimulator";
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> WhichAdsorptionSimulator is prograded from 'OTGCC1AdsorptionSimulator' to 'C1AdsorptionSimulator' in SourceRockLithoIoTbl ";
-	}
-		
-	return bpa2WhichAdsorptionSimulator;
-}
-
 void Prograde::SgsConverter::upgradeIrreducibleWaterSaturationCoefficients(const double legacyCoefficientA, const double legacyCoefficientB, double& bpa2CoefficientA, double& bpa2CoefficientB)
 {
 	if ((legacyCoefficientA == -0.13) && (legacyCoefficientB == 0.7))

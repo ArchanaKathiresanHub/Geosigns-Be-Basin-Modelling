@@ -48,20 +48,6 @@ TEST(SgsConverter, AdsorptionCapacityFunctionName)
 	
 }
 
-
-// If OTGC is off, set WhichAdsorptionSimulator to C1AdsorptionSimulator
-TEST(SgsConverter, WhichAdsorptionSimulator)
-{
-	Prograde::SgsConverter sgsConverter;	
-	std::string bpa2WhichAdsorptionSimulator;
-	int legacyComputeOTGC = 0;
-	bpa2WhichAdsorptionSimulator = sgsConverter.upgradeWhichAdsorptionSimulator(legacyComputeOTGC);
-	EXPECT_EQ(bpa2WhichAdsorptionSimulator, "C1AdsorptionSimulator");
-        legacyComputeOTGC = 1;
-	bpa2WhichAdsorptionSimulator = sgsConverter.upgradeWhichAdsorptionSimulator(legacyComputeOTGC);
-	EXPECT_EQ(bpa2WhichAdsorptionSimulator, "OTGCC1AdsorptionSimulator"); 
-}
-
 // If user uses low, medium or high IWS data, no changes required else, user defined IWS data will be converted to low IWS data 
 TEST(SgsConverter, IrreducibleWaterSaturationCoefficients)
 {
