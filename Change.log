@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-08-02  Sudip.S.Das  <Sudip.S.Das@shell.com>
+
+	fix: dev: WhichAdsorptionSimulator is prograded as is in BPA.
+	 * Removed the related lines of code which were implemented before from SgsConverter.cpp, SgsConverter.h, SgsUpgradeManager.cpp.
+	================== COMMIT-END ========================
+	Commit-ID:<3fa794b89a04c80dc54b6ff3e9a8808edaf4c424>	  (HEAD -> master, origin/master)
+
+++
 2020-07-28  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Prograde MapSeqNbr of FLT Maps in GridMapIoTbl !feature.
