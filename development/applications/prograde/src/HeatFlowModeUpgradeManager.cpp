@@ -157,6 +157,10 @@ void Prograde::HeatFlowModeUpgradeManager::upgradeMantleHeatFlowIoTbl()
 	auto BasinAge = m_ph->getCrustFormation()->getTopSurface()->getSnapshot()->getTime();
 	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "The basement Age is: " << BasinAge << "Ma";
 
+	// This function below checks if the MntlHeatFlowIoTbl has only records greater than the basement age
+	// In this case, the record at the basement age is obtained by constant interpolation from the first record
+	Prograde::BottomBoundaryModelUpgradeManager::onlyAgesOlderThanBasinPresent(tableName, BasinAge);
+
 	database::Table * mantleHeatFlowHistory_Table = m_ph->getTable(tableName);
 
 	size_t heatFlowHistoryTableSize = mantleHeatFlowHistory_Table->size();

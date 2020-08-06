@@ -47,6 +47,9 @@ namespace Prograde
 		/// @brief Upgrades the model to the BPA-2 standards
 		/// @details Upgrades only if necessary
 		void upgrade() final;
+
+		// @brief Gets the LayerName for a given SurfaceName from StratIoTbl
+		std::string getLayerNameFromStratIoTbl(const std::string&);
 	private:
 
 		mbapi::Model& m_model; ///< The model to upgrade

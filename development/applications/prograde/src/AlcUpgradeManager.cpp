@@ -180,18 +180,35 @@ void Prograde::AlcUpgradeManager::upgrade()
 			m_model.setTableValue("ContCrustalThicknessIoTbl", contCrustalThicknessIo_Table->size() - 1, "ThicknessGrid", thickGrid_lastRecord);
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> BasinAge : " << basementAge << " is older than the oldest crust age : " << age_lastRecord << ", Generating the crustal history at BasinAge by constant extrapolation";
 		}
+		else
+		{
+			/// Condition to check if all the records present are of age older than the basement age, 
+			/// then in that case the first record is labelled as the record for the basement age that is constant interpolation
+			record = contCrustalThicknessIo_Table->getRecord(0);
+			double ageFirst = record->getValue<double>("Age");
+			if (ageFirst > basementAge)
+			{
+				record->setValue<double>("Age", basementAge);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> ContCrustalThicknessIoTbl contains records only for ages greater than the basement age : " << basementAge 
+					<< "; Hence, the record at the basement age is obtained by constant interpolation from the record at age : " << ageFirst;
+				///  The age_lastRecord is updated for the case if the ContCrustalThicknessIoTbl had only one record that was greater than the basement age but now that record is updated as the 
+				///  record for the basement age, so new age_lastRecord becomes the basement age; Now we can avoid the next condition in line.
+				record = contCrustalThicknessIo_Table->getRecord(static_cast<int>(contCrustalThicknessIo_Table->size() - 1));
+				age_lastRecord = record->getValue<double>("Age");
+			}
+		}
 
 		createCrustThickness(); // creates crustal thicknesses
 		computeBasaltThickness(); // computes basalt thicknesses
-								  /// we need to update the ContCrustalThicknessIoTbl only in case if age_lastRecord > basementAge as the case age_lastRecord < basementAge has already been taken care and in case if age_lastRecord = basementAge then we donot have to do anything
+
+		/// The condition below could not be merged with the previous condition because of calculations for the crustal thicknesses; The calculations need to be at this place only.
+		/// we need to update the ContCrustalThicknessIoTbl only in case if age_lastRecord > basementAge as the case age_lastRecord < basementAge has already been taken care and in case if age_lastRecord = basementAge then we donot have to do anything
 		if (age_lastRecord > basementAge)
 		{
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating ContCrustalThicknessIoTbl";
-
 			// Deleting all the rows for which age > basement age
 			std::vector<std::string> mapNames;
 			int size_contCrustalThicknessIoTbl = contCrustalThicknessIo_Table->size();
-
 			for (int id = 0; id < size_contCrustalThicknessIoTbl; id++)
 			{
 				database::Record * rec = contCrustalThicknessIo_Table->getRecord(static_cast<int>(id));
@@ -377,6 +394,9 @@ void Prograde::AlcUpgradeManager::computeBasaltThickness()
 	catch (std::invalid_argument& ex) {
 		LogHandler(LogHandler::ERROR_SEVERITY) << "One of the Legacy Advanced Lithosphere Calculator (ALC) input is invalid (see details below)";
 		LogHandler(LogHandler::ERROR_SEVERITY) << ex.what();
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Error> Migration from BPA to BPA2 Basin Aborted...";
+		// there is only one kind of exception caught in this catch block that is the maps with -ve thickness which as per the business decision makes the scenario invalid for migration to bpa2
+		exit(31);
 	}
 	catch (std::runtime_error& ex) {
 		LogHandler(LogHandler::ERROR_SEVERITY) << "The Legacy Advanced Lithosphere Calculator (ALC) could not compute the Effective Crustal Thickness (see details below)";

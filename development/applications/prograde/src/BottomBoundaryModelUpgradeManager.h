@@ -37,6 +37,10 @@ namespace Prograde
 
 	public:
 		BottomBoundaryModelUpgradeManager(std::string name, mbapi::Model& model);
+
+		//@brief Checks if only ages older than the basement age are present; if so then it does constant interpolation to get the maps at basement age from the just higher age.
+		void onlyAgesOlderThanBasinPresent(const std::string& tableName, const double basementAge);
+
 		virtual ~BottomBoundaryModelUpgradeManager(void) {};
 
 	protected:
@@ -86,10 +90,8 @@ namespace Prograde
 		//@brief Checks if the fieldName of the tableName has default values of BPA2 or not. If is not having the default value then make it visible in the log. No update of the value is done.
 		bool CheckDefaultValues(const std::string & tableName, const std::string & fieldName, const double bpa2DefaultValue);
 
-
 		mbapi::Model& m_model; ///< The model to upgrade
 		std::shared_ptr<DataAccess::Interface::ProjectHandle> m_ph; ///< The project handle of the model to upgrade
-	
 	};
 }
 

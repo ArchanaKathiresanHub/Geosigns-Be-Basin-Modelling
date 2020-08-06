@@ -184,6 +184,10 @@ void Prograde::BasicCrustThinningUpgradeManager::upgrade() {
 		double maxValueAllowedForCrustalThickness = 6300000.0;
 		database::Table * crustHistory_Table = m_ph->getTable(tableName);
 
+		// This function below checks if the CrustIoTbl has only records greater than the basement age
+		// In this case, the record at the basement age is obtained by constant interpolation from the first record
+		Prograde::BottomBoundaryModelUpgradeManager::onlyAgesOlderThanBasinPresent(tableName, BasinAge);
+
 		size_t crustHistoryTableSize = crustHistory_Table->size();
 		this->preProcessingInput(tableName, propertyName, minValueAllowedForCrustalThickness, maxValueAllowedForCrustalThickness);
 		//Checking whether interpolation is needed or not

@@ -50,11 +50,16 @@ void Prograde::FaultCutUpgradeManager::upgrade()
 	std::string updated_name;
 
 	database::Table * stratIo_Table = m_ph->getTable("StratIoTbl");
+	if (stratIo_Table == nullptr) throw ErrorHandler::Exception(ErrorHandler::NonexistingID) << "Could not find the StratIoTbl in the Project3d file";
 	database::Record * rec = stratIo_Table->getRecord(static_cast<int>(stratIo_Table->size() - 1));
 	double basementAge = rec->getValue<double>("DepoAge");
 
-	// Updating PalinspasticIoTbl - remove the special characters from SurfaceName and BottomFormationName 
+	// Updating PalinspasticIoTbl - remove the special characters from SurfaceName and BottomFormationName
+	// and if the BottomFormationName is empty then populate it with the layer name for which the column SurfaceName identifies the top surface
+	std::string faulcutmaps;
+	std::string nameSurface;
 	database::Table * palinspasticio_table = m_ph->getTable("PalinspasticIoTbl");
+	if (palinspasticio_table == nullptr) throw ErrorHandler::Exception(ErrorHandler::NonexistingID) << "Could not find the PalinspasticIoTbl in the Project3d file";
 	if (palinspasticio_table->size() != 0)
 	{
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating the PalinspasticIoTbl : ";
@@ -62,28 +67,50 @@ void Prograde::FaultCutUpgradeManager::upgrade()
 		{
 			database::Record * rec = palinspasticio_table->getRecord(static_cast<int>(id));
 			age = rec->getValue<double>("Age");
-			// SurfaceName
+
+			// SurfaceName - update for the special characters
 			name = rec->getValue<std::string>("SurfaceName");
 			updated_name = modelConverter.upgradeName(name);
-			// LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* At age : " << age<<",";
+
+			nameSurface = updated_name;
+
 			if (name.compare(updated_name))
 			{
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info>  At age : " << age << ", SurfaceName : " << name << " is updated to " << updated_name;
 				rec->setValue<std::string>("SurfaceName", updated_name);
 			}
-			// BottomFormationName
+
+			// BottomFormationName - update for the special characters and BottomFormationName as empty
 			name = rec->getValue<std::string>("BottomFormationName");
-			updated_name = modelConverter.upgradeName(name);
-			if (name.compare(updated_name))
+
+			// if the BottomFormationName is empty
+			// No need to check for the special characters in this case as the BottomFormationName is getting populated from the StratIoTbl's LayerName
+			// which has already been checked for the special characters in Stratigraphy Update Manager
+			if (!name.compare(""))
 			{
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> At age : " << age << ", BottomFormationName : " << name << " is updated to " << updated_name;
-				rec->setValue<std::string>("BottomFormationName", updated_name);
+				faulcutmaps = rec->getValue<std::string>("FaultcutsMap");
+				// get the LayerName corresponding to the surface from StratIoTbl
+				name = getLayerNameFromStratIoTbl(nameSurface);
+				rec->setValue<std::string>("BottomFormationName", name);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> For the FaultcutsMap : "<< faulcutmaps<<", BottomFormationName is updated from empty to : '" 
+					<< name << "' which is the formation name corresponding to the Surface defining the faultcut";
+			}
+			// if the BottomFormationName is not empty then check for the special characters
+			else
+			{
+				updated_name = modelConverter.upgradeName(name);
+				if (name.compare(updated_name))
+				{
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> At age : " << age << ", BottomFormationName : " << name << " is updated to " << updated_name;
+					rec->setValue<std::string>("BottomFormationName", updated_name);
+				}
 			}
 		}/// for loop ends here
 	}
 
 	// Updating FaultCutIoTbl - by removing the rows with Age >= basementAge
 	database::Table * faultcutio_table = m_ph->getTable("FaultcutIoTbl");
+	if (faultcutio_table == nullptr) throw ErrorHandler::Exception(ErrorHandler::NonexistingID) << "Could not find the FaultcutIoTbl in the Project3d file";
 	size_t sizeFaultcutIoTbl = faultcutio_table->size();
 	if (sizeFaultcutIoTbl != 0)
 	{
@@ -123,3 +150,24 @@ void Prograde::FaultCutUpgradeManager::upgrade()
 		}/// for loop ends here
 	}
 }
+
+std::string Prograde::FaultCutUpgradeManager::getLayerNameFromStratIoTbl(const std::string& surfaceNameSearch)
+{
+	std::string layerName;
+	std::string surfaceName;
+	database::Table* stratIo_Table = m_ph->getTable("StratIoTbl");
+	size_t sizeStratIoTbl = stratIo_Table->size();
+	for (int id = 0; id < sizeStratIoTbl; ++id)
+	{
+		database::Record* rec = stratIo_Table->getRecord(static_cast<int>(id));
+	    surfaceName = rec->getValue<std::string>("SurfaceName");
+		if (!surfaceName.compare(surfaceNameSearch))
+		{
+			layerName = rec->getValue<std::string>("LayerName");
+			break;
+		}
+	}
+	return layerName;
+}
+
+

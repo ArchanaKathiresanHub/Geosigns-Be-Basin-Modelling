@@ -416,4 +416,14 @@ void Prograde::BottomBoundaryModelUpgradeManager::checkRangeForMaps(const std::s
 	}
 }
 
-
+void Prograde::BottomBoundaryModelUpgradeManager::onlyAgesOlderThanBasinPresent(const std::string& tableName, const double basementAge)
+{
+	database::Table* tableToCheck = m_ph->getTable(tableName);
+	database::Record* rec = tableToCheck->getRecord(0);
+	double age = rec->getValue<double>("Age");
+	if (age > basementAge)
+	{
+		rec->setValue<double>("Age", basementAge);
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Table " << tableName << " contains records only for ages greater than the basement age : " << basementAge<<"; Hence, the record at the basement age is obtained by constant interpolation from the record at age : " << age;
+	}
+}
