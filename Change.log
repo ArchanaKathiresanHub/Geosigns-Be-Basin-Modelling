@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-08-06  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Prograde Changes for End to End Migration.
+	 * Changes are made for successful import of BPA legacy scenarios to BPA
+	 * Work item number 2389763
+	================== COMMIT-END ========================
+	Commit-ID:<5904342921636a06a7db53342aa15c0dcb98e622>	  (HEAD -> master, origin/master)
+
+++
 2020-08-02  Sudip.S.Das  <Sudip.S.Das@shell.com>
 
 	fix: dev: WhichAdsorptionSimulator is prograded as is in BPA.
