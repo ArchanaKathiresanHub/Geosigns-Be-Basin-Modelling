@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-08-13  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
+
+	fix: dev: usr: PropertyAttribute for GenEx Property is Corrected.
+	 * H2SRisk and PorosityLossFromPyroBitumen are corrected as FORMATION_2D_PROPERTY
+	 Relate work item: #388201
+
+	================== COMMIT-END ========================
+	Commit-ID:<791101aee99d9050a913540b07fa24ca79fe87a0>	  (HEAD -> master, origin/master)
+
+++
 2020-08-06  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Prograde Changes for End to End Migration.
