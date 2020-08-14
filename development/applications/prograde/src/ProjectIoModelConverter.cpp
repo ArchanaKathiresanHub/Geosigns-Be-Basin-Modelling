@@ -120,7 +120,7 @@ void Prograde::ProjectIoModelConverter::upgradeSimulationWindow(const std::strin
 		minimumRequiredNode = (stepX * 3) - stepX + 1;
 	}
 
-	if (nodesInOriginalWindow < 3 and (legacyModellingMode =="3d" or (legacyModellingMode=="Both")) and nodeX > 2)//if the window area itself is smaller than the allowable limit...update the window area.. 
+	if (nodesInOriginalWindow < minimumRequiredNode and (legacyModellingMode =="3d" or (legacyModellingMode=="Both")) and nodeX > 2)//if the window area itself is smaller than the allowable limit...update the window area.. 
 	{
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Simulation window defined in the legacy scenario is not acceptable to BPA2";
 		

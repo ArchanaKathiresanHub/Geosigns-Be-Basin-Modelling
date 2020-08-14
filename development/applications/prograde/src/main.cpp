@@ -210,8 +210,7 @@ int main( const int argc, char ** argv )
       upgradeManagers.runAll();
    }
    catch( const std::exception& ex ){
-       LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not upgrade project file, see details below";
-       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what()<<". Migration from BPA to BPA2 Basin Aborted...";
+       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what()<<". Could not upgrade project file, Migration from BPA to BPA2 Basin Aborted...";
 	   return -1;
    }
    catch (...) {

@@ -301,3 +301,71 @@ TEST(SourceRockConverter, upgradeVESlimit)
 	EXPECT_EQ(legacyVESlimitIndicator, "Yes");
 	EXPECT_EQ(VESlimit, 60.0);
 }
+
+TEST(SourceRockConverter, upgradeHCEalimit)
+{
+	std::string bpaBaseSR = "Type_I_CenoMesozoic_Lacustrine_kin";
+	double HcVal = 1.0;
+	double EaVal = 200;
+	double ScVre = 0;
+	sourceRockConverter.limitHcEa(bpaBaseSR, HcVal, EaVal, ScVre);
+	EXPECT_EQ(HcVal, 1.24);
+	EXPECT_EQ(EaVal, 212);
+
+	bpaBaseSR = "Type_I_CenoMesozoic_Lacustrine_kin";
+	HcVal = 1.6;
+	EaVal = 250;
+	ScVre = 0;
+	sourceRockConverter.limitHcEa(bpaBaseSR, HcVal, EaVal, ScVre);
+	EXPECT_EQ(HcVal, 1.479);
+	EXPECT_EQ(EaVal, 215);
+
+	bpaBaseSR = "Type_I_CenoMesozoic_Lacustrine_kin";
+	HcVal = 1.48;
+	EaVal = 215.1;
+	ScVre = 0;
+	sourceRockConverter.limitHcEa(bpaBaseSR, HcVal, EaVal, ScVre);
+	EXPECT_EQ(HcVal, 1.479);
+	EXPECT_EQ(EaVal, 215);
+
+	bpaBaseSR = "Type_I_CenoMesozoic_Lacustrine_kin";
+	HcVal = 1.28;
+	EaVal = 215.1;
+	ScVre = 0.1;
+	sourceRockConverter.limitHcEa(bpaBaseSR, HcVal, EaVal, ScVre);
+	EXPECT_EQ(HcVal, 1.3);
+	EXPECT_EQ(EaVal, 214);
+
+	bpaBaseSR = "Type_II_Paleozoic_MarineShale_kin";
+	HcVal = 0.2;
+	EaVal = 300;
+	ScVre = 0;
+	sourceRockConverter.limitHcEa(bpaBaseSR, HcVal, EaVal, ScVre);
+	EXPECT_EQ(HcVal, 0.9);
+	EXPECT_EQ(EaVal, 212);
+
+	bpaBaseSR = "Type_I_II_Mesozoic_MarineShale_lit";
+	HcVal = 1.51;
+	EaVal = 199.9;
+	ScVre = 0.6;
+	sourceRockConverter.limitHcEa(bpaBaseSR, HcVal, EaVal, ScVre);
+	EXPECT_EQ(HcVal, 1.499);
+	EXPECT_EQ(EaVal, 209);
+
+	bpaBaseSR = "Type_II_Mesozoic_Marl_kin";
+	HcVal = 1.41;
+	EaVal = 213;
+	ScVre = 0;
+	sourceRockConverter.limitHcEa(bpaBaseSR, HcVal, EaVal, ScVre);
+	EXPECT_EQ(HcVal, 1.4);
+	EXPECT_EQ(EaVal, 212);
+
+	bpaBaseSR = "Type_II_Mesozoic_Marl_kin";
+	HcVal = 1.42;
+	EaVal = 212;
+	ScVre = 0.1;
+	sourceRockConverter.limitHcEa(bpaBaseSR, HcVal, EaVal, ScVre);
+	EXPECT_EQ(HcVal, 1.41);
+	EXPECT_EQ(EaVal, 211);
+
+}

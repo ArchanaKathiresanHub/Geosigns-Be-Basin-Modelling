@@ -18,6 +18,7 @@
 #include <utility>
 #include <string>
 #include "Utilities.h"
+#include "NumericFunctions.h"
 
 
 namespace Prograde
@@ -48,6 +49,9 @@ namespace Prograde
 
 		static const pairMap SrNameMaps;
 		static const DefaultValueMap SrDefValueMap;
+
+		static const DefaultValueMap bpaBaseSRminMaxHcEa;
+
 		/// @brief
 		std::string GetBPA2BaseRockName(const std::string& bpaBaseSourceRockName,const std::string* bpaSourceRockName=nullptr) const;
 		std::string GetBPA2RockName(const std::string& bpaBaseSourceRockName,const std::string* bpaSourceRockName=nullptr) const;
@@ -58,6 +62,9 @@ namespace Prograde
 
 		int getIndexOfSrMap(const std::string& bpaBaseSourceRockName, const std::string* bpaSourceRockName = nullptr);
 		double GetmeasuredHI(const std::string& bpaBaseSourceRockName, const std::string* bpaSourceRockName = nullptr) const;
+
+		// @brief This method checks for the value of HcVRe05 and PreAsphaltStartAct to be in the valid range and clips the invalid values to the nearest limit
+		void limitHcEa(const std::string& bpaBaseSRName, double& Hc, double& Ea, double ScVre);
 
 
 	private:

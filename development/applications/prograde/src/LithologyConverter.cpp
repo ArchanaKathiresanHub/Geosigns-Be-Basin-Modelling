@@ -421,7 +421,6 @@ std::map<std::string, std::string> Prograde::LithologyConverter::createMapForUnp
 	map.insert(std::pair<std::string, std::string>("Klaus_SS_nopress", "Std. Sandstone"));
 	map.insert(std::pair<std::string, std::string>("Mechanics Sandstone", "Std. Sandstone"));
 	map.insert(std::pair<std::string, std::string>("Mix Lithology created from: Project Lithology Std.Dolo.Mudstone(20%); Project Lithology Std.Grainstone(30%); Project Lithology Std.Lime Mudstone(50%); ", "Std.Lime Mudstone"));
-	map.insert(std::pair<std::string, std::string>("20 pc of salt / 80pc of Klaus SH 50", "Std. Shale"));
 	map.insert(std::pair<std::string, std::string>("Standard Shale", "Std. Shale"));
 	map.insert(std::pair<std::string, std::string>("Pebble_HP_shale", "Std. Shale"));
 	map.insert(std::pair<std::string, std::string>("Soil Mecha40% Clay mixed with Sand", "Std. Shale"));
@@ -986,8 +985,7 @@ void Prograde::LithologyConverter::computeSingleExpModelParameters(const std::st
 		}
 		else {
 			newPorModelParam = originalPorModelParam;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Error> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is not upgraded to 'Exponential' as no mapping is available for this parent lithology. ";
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Error> Migration from BPA to BPA2 Basin Aborted...";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Error> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is not upgraded to 'Exponential' as no mapping is available for this parent lithology; Migration from BPA to BPA2 Basin Aborted... ";
 			exit(42);
 		}
 	}

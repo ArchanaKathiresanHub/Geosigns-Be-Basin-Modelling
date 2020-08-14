@@ -306,7 +306,8 @@ DataAccess::Interface::GridMap * Prograde::BasicCrustThinningUpgradeManager::gen
 	const DataAccess::Interface::PaleoFormationPropertyList* crustalMaps = m_ph->getCrustPaleoThicknessHistory();
 	DataAccess::Interface::PaleoFormationPropertyList::const_iterator CrustalThicknessIter;
 
-	double age1 = 0.0, age2 = 0.0;
+	// value 5000.0	is selected randomly based on the condition that ages never exceeds or equals to this value
+	double age1 = 5000.0, age2 = 5000.0;
 	const DataAccess::Interface::GridMap* crustalMap1, *crustalMap2, *crustalMap;
 
 	bool foundInterpolatingLowerAge = false;
@@ -343,10 +344,10 @@ DataAccess::Interface::GridMap * Prograde::BasicCrustThinningUpgradeManager::gen
 			break;
 		}
 	}
-	if (age1 == 0.0) {
+	if (age1 == 5000.0) {
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Error> Crustal thickness map at age " << interpolatingLowerAge << " Ma is not found";
 	}
-	if (age2 == 0.0) {
+	if (age2 == 5000.0) {
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Error> Crustal thickness map at age " << interpolatingHigherAge << " Ma is not found";
 	}
 

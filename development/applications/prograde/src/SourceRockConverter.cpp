@@ -67,10 +67,38 @@ static Prograde::DefaultValueMap create_map2()
 	return m;
 };
 
+static Prograde::DefaultValueMap create_map3()
+{
+	Prograde::DefaultValueMap m =
+	{
+		// bpaBaseSourceRockNames						//minHC maxHC minEa maxEa
+		{"Type_I_CenoMesozoic_Lacustrine_kin",			{1.24,1.479,212,215}},
+		{"Type_I_II_Mesozoic_MarineShale_lit",			{1.15,1.479,209,212}},
+		{"Type_II_Mesozoic_MarineShale_kin",			{0.9,1.41,209,211}},
+		{"Type_II_Mesozoic_Marl_kin",					{0.9,1.4,209,212}},
+
+		{"Type_II_Paleozoic_MarineShale_kin",			{0.9,1.248,209,212}}, 
+		/// maxHC = 1.25 from mapping sheet; However, for H/C=1.25, then from H/C to HI conversion leads to HI breaching the upper limit because of conversion errors; Hence maxHC=1.248 is taken from the GUI
+
+		{"Type_III_II_Mesozoic_HumicCoal_lit",			{0.801,1.24,206,210}},
+		{"Type_III_MesoPaleozoic_VitriniticCoal_kin",	{0.632,1.1,205,207}},
+		// with Sulfur
+		{"Type_I_CenoMesozoic_Lacustrine_kin_s",		{1.3,1.65,212,214}},
+		{"Type_I_II_Mesozoic_MarineShale_lit_s",		{1.15,1.499,209,212}},
+		{"Type_II_Mesozoic_MarineShale_kin_s",			{0.9,1.41,208,211}},
+		{"Type_II_Mesozoic_Marl_kin_s",					{0.9,1.41,208,211}},
+		{"Type_II_Paleozoic_MarineShale_kin_s",			{0.9,1.36,208,211}},
+		{"Type_III_II_Mesozoic_HumicCoal_lit_s", 		{0.801,1.24,206,210}},
+		{"Type_I_II_Cenozoic_Marl_kin_s",				{1.15,1.499,208,211}}
+	};
+	return m;
+}
+
 Prograde::pairMap const Prograde::SourceRockConverter::SrNameMaps = create_map();
 
 Prograde::DefaultValueMap const Prograde::SourceRockConverter::SrDefValueMap = create_map2();
 
+Prograde::DefaultValueMap const Prograde::SourceRockConverter::bpaBaseSRminMaxHcEa = create_map3();
 
 double Prograde::SourceRockConverter::upgradeHcVre05(const std::string & legacySourceRockType, const std::string & baseSRName, double legacyHcVre05, 
 	double legacyScVre05, double & minHI, double & maxHI) const
@@ -435,4 +463,23 @@ double Prograde::SourceRockConverter::GetbpaBaseSourceRockC15SatDE(const std::st
 		return res->second[7];
 	}
 	return 0.0;
+}
+
+void Prograde::SourceRockConverter::limitHcEa(const std::string& bpaBaseSRName, double& Hc, double& Ea, double ScVre)
+{
+	auto bpaBaseSourceRockName_ = bpaBaseSRName;
+
+	if (ScVre > 0.0)
+		bpaBaseSourceRockName_ = AddTailing_sToSulfurousBpaBaseSrName(bpaBaseSRName);
+
+	auto res = bpaBaseSRminMaxHcEa.find(bpaBaseSourceRockName_);
+	if (res != bpaBaseSRminMaxHcEa.end())
+	{
+		double minHc = res->second[0];
+		double maxHc = res->second[1];
+		double minEa = res->second[2];
+		double maxEa = res->second[3];
+		Hc = NumericFunctions::clipValueToRange(Hc, minHc, maxHc);
+		Ea = NumericFunctions::clipValueToRange(Ea, minEa, maxEa);
+	}
 }

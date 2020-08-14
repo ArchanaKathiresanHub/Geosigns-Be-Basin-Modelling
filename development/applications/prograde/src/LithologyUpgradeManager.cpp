@@ -128,8 +128,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 				bool flag = modelConverter.isDefinedBeforeThanCutOffDate(legacyDefinitionDate);
 				if (!flag)
 				{
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Error> Lithology created after the cut-off date of 30th April 2020";
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Error> Migration from BPA to BPA2 Basin Aborted...";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Error> Lithology created after the cut-off date of 30th April 2020; Migration from BPA to BPA2 Basin Aborted...";
 					exit(41);
 				}
 				else {
@@ -317,7 +316,7 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		//Processing lithotype inputs of StratIoTbl before updating
 		err = modelConverter.PreprocessLithofaciesInputOfStratIoTbl(lithoNamesLst, lithoPerct, percMaps);
 		if (err != ErrorHandler::ReturnCode::NoError) {
-			throw ErrorHandler::Exception(ErrorHandler::ReturnCode::ValidationError) << "<Basin-Info> Lithology inputs of stratigraphy layer : '"<< stratLayerName<<"' is not correct";
+			throw ErrorHandler::Exception(ErrorHandler::ReturnCode::ValidationError) << "Lithology inputs of stratigraphy layer : '"<< stratLayerName<<"' is not correct; No lithotype name is found for this layer";
 		}
 		err = m_model.stratigraphyManager().setLayerLithologiesList(stratId, lithoNamesLst, lithoPerct, percMaps);
 		if (err != ErrorHandler::ReturnCode::NoError){

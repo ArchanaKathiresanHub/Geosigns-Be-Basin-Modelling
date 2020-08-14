@@ -57,7 +57,7 @@ void Prograde::RunOptionsUpgradeManager::upgrade() {
 	// check workflow type
 	m_model.runOptionsManager().getWorkflowType(workflowType);
 	if (workflowType.compare("DarcyFlow") == 0) {
-		LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Error> DarcyFlow workflowType detected! Migration from BPA to BPA2 Basin Aborted...";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Error> DarcyFlow workflowType detected! Migration from BPA to BPA2 Basin Aborted...";
 		exit(12);
 	}
 

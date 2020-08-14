@@ -75,6 +75,57 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 	// list of SourceRock Mixing(HI/HC) Grids which are cleared if the SR is inactive
 	std::vector<std::string> srInactiveMixHIGridsCleared, srInactiveMixHCgridsCleared;
 
+	//// === 0. Check and update SourceRockLithoIoTbl for H/C and Preasphaltene activation energy values to be in the respective limits ===========================////
+	database::Table* sourceRockLithoIo_tbl = m_ph->getTable("SourceRockLithoIoTbl");
+	if (sourceRockLithoIo_tbl->size() != 0) 
+	{
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Checking SourceRockLithoIoTbl for the H/C and PreAsphaltStartAct to be in the respective valid limits";
+		std::string bpaBaseSR;
+		std::string sourceRockType;
+		std::string layerName;
+
+		double Hc_original = 0.0;
+		double Ea_original = 0.0;
+		double Hc_updated = 0.0;
+		double Ea_updated = 0.0;
+		double ScVre = 0.0;
+		int count = 0;
+		for (int id = 0; id < sourceRockLithoIo_tbl->size(); ++id)
+		{
+			database::Record* rec = sourceRockLithoIo_tbl->getRecord(static_cast<int>(id));
+			layerName = rec->getValue<std::string>("LayerName");
+			sourceRockType = rec->getValue<std::string>("SourceRockType");
+			bpaBaseSR = rec->getValue<std::string>("BaseSourceRockType");
+			Hc_original = rec->getValue<double>("HcVRe05");
+			Ea_original = rec->getValue<double>("PreAsphaltStartAct");
+			ScVre = rec->getValue<double>("ScVRe05");
+			Hc_updated = Hc_original;
+			Ea_updated = Ea_original;
+
+			modelConverter.limitHcEa(bpaBaseSR, Hc_updated, Ea_updated, ScVre);
+
+			if (Hc_updated != Hc_original)
+			{
+				count++;
+				rec->setValue<double>("HcVRe05", Hc_updated);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> In the layer "<< layerName<<" BPA-legacy source rock "<< sourceRockType<<" has invalid HcVRe05 values for the BPA-legacy base source type "<< bpaBaseSR;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Hence, the HcVRe05 is updated from " << Hc_original << " to " << Hc_updated;
+			}
+			if (Ea_updated != Ea_original)
+			{
+				count++;
+				rec->setValue<double>("PreAsphaltStartAct", Ea_updated);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> In the layer " << layerName << " BPA-legacy source rock " << sourceRockType << " has invalid PreAsphaltStartAct values for the BPA-legacy base source type " << bpaBaseSR;
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> Hence, the PreAsphaltStartAct is updated from " << Ea_original << " to " << Ea_updated;
+			}
+		}
+		if (count == 0)
+		{
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> H/C and PreAsphaltStartAct for the Source Rocks are within the acceptable limits";
+		}
+		else LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Note that BPA-legacy Source rock names will be updated in the project3d file; Please refer the prograde log to find the corresponding BPA-2 names for each of the Source rock";
+	}
+
 	//// ============================ 1. Check StratIoTbl ================================================////
 	// for all the layers
 	std::for_each(StartIoLayIds.begin(), StartIoLayIds.end(),

@@ -47,6 +47,28 @@ void Prograde::TopBoundaryUpgradeManager::upgrade() {
 
 
 void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceDepthIoTable() {
+
+	// Updating the Depth and DepthGrid values of SurfaceDepthIoTbl table at age = 0
+	// Currently blank but cauldron reads the values of the data at age = 0 Ma from StratIoTbl
+	database::Table* surfaceDepthIo_tbl = m_ph->getTable("SurfaceDepthIoTbl");
+	database::Record* recSurface = surfaceDepthIo_tbl->getRecord(0);
+	// we know the first row of SurfaceDepthIoTbl and StratIoTBl is always at age=0;
+	std::string gridMapSD = recSurface->getValue<std::string>("DepthGrid");
+	double depthSD = recSurface->getValue<double>("Depth");
+	if (gridMapSD == "" && depthSD == -9999)
+	{
+		// get the record from stratIoTbl
+		database::Table* stratIo_tbl = m_ph->getTable("StratIoTbl");
+		database::Record* recStrat = stratIo_tbl->getRecord(0);
+		std::string gridMapStrat = recStrat->getValue<std::string>("DepthGrid");
+		double depthStrat = recStrat->getValue<double>("Depth");
+		// set the record to SurfaceDepthIoTbl
+		recSurface->setValue<std::string>("DepthGrid", gridMapStrat);
+		recSurface->setValue<double>("Depth", depthStrat);
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating SurfaceDepthIoTbl";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> SurfaceDepthIoTbl is updated for the record at age = 0Ma by using the data from the StratIoTbl at age = 0Ma";
+	}
+
 	auto surfIDs = m_model.topBoundaryManager().getSurfaceDepthIDs();
 	mbapi::TopBoundaryManager&  topBoundaryLocal = m_model.topBoundaryManager();
 

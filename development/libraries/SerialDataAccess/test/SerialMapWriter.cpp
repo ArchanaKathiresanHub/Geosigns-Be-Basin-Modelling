@@ -210,7 +210,7 @@ TEST_F( TestWriter, writeInputMap )
    compare1Ddata(fileId, DataAccess::Interface::SerialMapWriter::ORIGIN_J_DATASET_NAME, static_cast<float>(sGridMap->minJ()) );
    compare1Ddata(fileId, DataAccess::Interface::SerialMapWriter::NR_I_DATASET_NAME,     static_cast<int>(sGridMap->numI()) );
    compare1Ddata(fileId, DataAccess::Interface::SerialMapWriter::NR_J_DATASET_NAME,     static_cast<int>(sGridMap->numJ()) );
-   compare2Ddata(fileId, std::string(DataAccess::Interface::SerialMapWriter::LAYER_DATASET_PREFIX)+std::string("00") );
+   compare2Ddata(fileId, std::string(DataAccess::Interface::SerialMapWriter::LAYER_DATASET_PREFIX)+std::string("0") );
 
    H5Fclose(fileId);
 }

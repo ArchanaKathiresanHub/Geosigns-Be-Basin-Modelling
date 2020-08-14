@@ -120,7 +120,9 @@ bool SerialMapWriter::writeMapToHDF (GridMap * gridMap, float time, double depoA
 
 bool SerialMapWriter::writeInputMap( GridMap * gridMap, int mapSeqNumber )
 {
-   string dataSetName = std::string( LAYER_DATASET_PREFIX ) + (mapSeqNumber < 10 ? "0" : "" ) + std::to_string( mapSeqNumber );
+    // The below code is changed to the code in the next line in order to make the mapSeqNumber consistent in GridMapIoTbl of Project3d file and the mapSeqNumber in HDF file
+   //string dataSetName = std::string(LAYER_DATASET_PREFIX) + (mapSeqNumber < 10 ? "0" : "") + std::to_string(mapSeqNumber);
+   string dataSetName = std::string( LAYER_DATASET_PREFIX ) + std::to_string( mapSeqNumber );
    bool newDataset = true;
    bool ok = writeMapData( dataSetName, gridMap, newDataset );
 
