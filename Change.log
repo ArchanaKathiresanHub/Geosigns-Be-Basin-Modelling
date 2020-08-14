@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-08-14  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Prograde Changes for Scenario Import.
+	 * Prograde changes are made to migrate some valid BPA-legacy scenario to BPA-2
+	 * Refer the PBI: 389879 for all the details
+	================== COMMIT-END ========================
+	Commit-ID:<a5e8fe93b13db7026a711d65107d0d1c1ff86831>	  (HEAD -> master, origin/master)
+
+++
 2020-08-13  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
 
 	fix: dev: usr: PropertyAttribute for GenEx Property is Corrected.
