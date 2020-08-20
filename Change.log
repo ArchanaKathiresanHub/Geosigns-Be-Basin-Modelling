@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-08-20  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	new: Add user defined snapshot table.
+	User defined snapshot table is added
+	Prograde functionality added
+
+	Related work items: #388885
+	Commit-ID:<4ed225446f09202ac4bc9855105394ce5a3cf179>	  (refs/heads/master)
+
+++
 2020-08-14  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Prograde Changes for Scenario Import.
