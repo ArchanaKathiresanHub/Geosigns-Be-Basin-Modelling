@@ -27,7 +27,7 @@ Prograde::StratigraphyUpgradeManager::StratigraphyUpgradeManager(Model& model) :
 {
 	const auto ph = m_model.projectHandle();
 	if (ph == nullptr) {
-		throw std::invalid_argument(getName() + " cannot retreive the project handle from Cauldron data model");
+		throw std::invalid_argument(getName() + " cannot retrieve the project handle from Cauldron data model");
 	}
 	m_ph = ph;
 }
@@ -260,7 +260,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 			rec->setValue<double>("Thickness", updatedThickness);
 		}
 
-		// Updating the Layering Index of each layer 
+		// Updating the Layering Index of each layer
 		// As per BPA2 standards, if MixModel is Homogeneous then the Layering Index should be -9999
 		std::string mixModel = rec->getValue<std::string>("MixModel");
 		double layeringIndex = rec->getValue<double>("LayeringIndex");
@@ -295,7 +295,7 @@ void Prograde::StratigraphyUpgradeManager::upgrade()
 		}
 
 		depoAge = rec->getValue<double>("DepoAge");
-		// Generating logs for the surfaces which have depoAge greater than 999 
+		// Generating logs for the surfaces which have depoAge greater than 999
 		if (depoAge > 999)
 		{
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> SurfaceName : " << name << " with Deposition age : " << depoAge << " Ma is crossing the upper limit of 999 Ma";

@@ -150,10 +150,10 @@ void InterfaceInput::loadCTCIoTblData() {
    m_baseRiftSurfaceName   = m_crustalThicknessData->getSurfaceName();
 
    if (m_HCuMap == nullptr){
-      throw std::invalid_argument( "Basin_Error: The initial crustal thickness map maps cannot be retreived by the interface input" );
+      throw std::invalid_argument( "Basin_Error: The initial crustal thickness map maps cannot be retrieved by the interface input" );
    }
    else if (m_HLMuMap == nullptr) {
-      throw std::invalid_argument( "Basin_Error: The initial lithospheric mantle thickness map maps cannot be retreived by the interface input" );
+      throw std::invalid_argument( "Basin_Error: The initial lithospheric mantle thickness map maps cannot be retrieved by the interface input" );
    }
    else if ( m_continentalCrustRatio < 0 ) {
       throw std::invalid_argument( "Basin_Error: The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is negative" );
@@ -519,7 +519,7 @@ void InterfaceInput::loadDerivedPropertyManager(){
       }
       m_derivedManager.reset( new DerivedProperties::DerivedPropertyManager( projectHandle ) );
       if (m_derivedManager == nullptr){
-         throw InputException() << "Derived property manager cannot be retreived by the interface input";
+         throw InputException() << "Derived property manager cannot be retrieved by the interface input";
       }
    }
    else{

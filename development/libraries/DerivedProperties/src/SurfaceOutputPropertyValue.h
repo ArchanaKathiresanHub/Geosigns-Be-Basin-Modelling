@@ -49,7 +49,7 @@ namespace DerivedProperties {
       /// \brief Get the grid on which the property values are defined.
       const DataModel::AbstractGrid* getGrid () const;
 
-      /// \brief Retreive the grid map
+      /// \brief Retrieve the grid map
       void retrieveData() const;
 
       /// \brief Restore the grid map

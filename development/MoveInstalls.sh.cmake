@@ -32,13 +32,13 @@ do
    if [ -d $installDirectory/$installToMove ]; then
       echo "$installDirectory/$installToMove exists"
       if [ ! -d  $installDirectory/$installToMoveTo ]; then
-	 echo "$installDirectory/$installToMoveTo does not exist"
-	 echo "moving $installDirectory/$installToMove to $installDirectory/$installToMoveTo"
-	 mv $installDirectory/$installToMove $installDirectory/$installToMoveTo
+         echo "$installDirectory/$installToMoveTo does not exist"
+         echo "moving $installDirectory/$installToMove to $installDirectory/$installToMoveTo"
+         mv $installDirectory/$installToMove $installDirectory/$installToMoveTo
       else
-	 echo "$installDirectory/$installToMoveTo exists"
-	 echo "Cannot move $installDirectory/$installToMove to $installDirectory/$installToMoveTo"
-	 exit 1
+         echo "$installDirectory/$installToMoveTo exists"
+         echo "Cannot move $installDirectory/$installToMove to $installDirectory/$installToMoveTo"
+         exit 1
       fi
    else
       echo "$installDirectory/$installToMove does not exist"

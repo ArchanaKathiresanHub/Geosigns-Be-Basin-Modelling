@@ -17,6 +17,7 @@
 #include <vector>
 #include <iostream>
 #include <set>
+#include <list>
 
 //DataAccess
 #include "Interface.h"
@@ -177,8 +178,6 @@ namespace DataAccess
 
          /// print the snapshot table
          void printSnapshotTable () const;
-         /// sort the snapshots
-         void sortSnapshots();
 
          /// Find the Snapshot with the given time
          virtual const Snapshot * findSnapshot( double time, int type = MAJOR ) const;
@@ -625,6 +624,9 @@ namespace DataAccess
          /// \return the validator which contains node validity information
          const Validator& getValidator () const;
          /// @}
+         ///
+
+         static bool isEqualTime( double t1, double t2 );
 
       protected:
 
@@ -774,10 +776,11 @@ namespace DataAccess
 
          void resetActivityOutputGrid( void );
 
-         bool loadSnapshots( void );
-         bool createSnapshotsAtGeologicalEvents( void );
-         bool createSnapshotsAtRiftEvents( void );
-         static bool isEqualTime( double t1, double t2 );
+         void loadSnapshots( );
+         void createSnapshotsAtGeologicalEvents( );
+         void createSnapshotsAtRiftEvents( );
+         void createSnapshotsAtUserDefinedTimes( );
+
          bool loadGrids( void );
          bool loadLithoTypes( void );
 
@@ -931,22 +934,26 @@ namespace DataAccess
          void addUndefinedAreas( const GridMap* theMap );
 
 
-         MutableLangmuirAdsorptionIsothermSampleList m_langmuirIsotherms;
-         MutableLangmuirAdsorptionTOCEntryList m_langmuirTocAdsorptionEntries;
          MutablePointAdsorptionHistoryList m_adsorptionPointHistoryList;
 
-         IrreducibleWaterSaturationSample* m_irreducibleWaterSample;
-         SGDensitySample* m_sgDensitySample;
-
       private:
+         void fillSnapshotIoTbl( std::list<double>& ages, const bool isUserDefined );
+         double getStartAge() const;
+
          static float GetUndefinedValue( hid_t fileId );
-         double m_previousIgneousIntrusionTime;
 
          /// \brief Allocate architecture related clases.
          ///
          /// E.g. Message-handler, global-operations.
          void allocateArchitectureRelatedParameters();
 
+         double m_previousIgneousIntrusionTime;
+
+         MutableLangmuirAdsorptionIsothermSampleList m_langmuirIsotherms;
+         MutableLangmuirAdsorptionTOCEntryList m_langmuirTocAdsorptionEntries;
+
+         IrreducibleWaterSaturationSample* m_irreducibleWaterSample;
+         SGDensitySample* m_sgDensitySample;
 
          DataAccess::Interface::MessageHandler* m_messageHandler;
          DataAccess::Interface::ApplicationGlobalOperations* m_globalOperations;

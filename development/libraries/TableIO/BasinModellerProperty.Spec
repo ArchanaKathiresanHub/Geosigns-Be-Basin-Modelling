@@ -4753,6 +4753,12 @@ START-property-tables
     Column         : PTCouplingMode
     Header         : Run Options
 
+    Identification : UserDefinedSnapshotIoTbl
+    Description    : table with user defined snapshots (3D only)
+    Version        : 100
+    Column         : Time
+    Header         : Run Options
+
     Identification : SnapshotIoTbl
     Description    : table with snapshot data (3D only)
     Version        : 100
@@ -5880,6 +5886,7 @@ START-application-class-properties
     Property : ProjectIoTbl
     Property : RelatedProjectsIoTbl
     Property : RunOptionsIoTbl
+    Property : UserDefinedSnapshotIoTbl
     Property : SnapshotIoTbl
     Property : WellLocIoTbl
     Property : GridMapIoTbl
