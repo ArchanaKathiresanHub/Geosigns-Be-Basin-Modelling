@@ -97,7 +97,7 @@ private:
    bool determineSaltModellingCapability( );
 
    /// \brief Set the tables that are to be saved in the output tables file.
-   std::vector<string> getOutputTables() const;
+   void getOutputTables ( std::vector<std::string>& outputTableNames ) const;
 
    /// @brief Determines the current rank
    /// @return the current rank

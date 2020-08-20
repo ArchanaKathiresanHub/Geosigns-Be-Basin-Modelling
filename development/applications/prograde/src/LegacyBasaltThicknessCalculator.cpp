@@ -95,7 +95,7 @@ void Prograde::LegacyBasaltThicknessCalculator::compute( SmartAbstractSnapshotVs
    const GridMap* prevContCrustThicknessMap = nullptr;
    bool basaltStatus = true, onsetStatus = true;
 
-   ///2. Retrieve data
+   ///2. Retreive data
    retrieveData();
 
    ///3. Compute the effective crustal thickness and associated properties (basalt thickness if needed and end of rift)

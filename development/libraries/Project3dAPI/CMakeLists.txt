@@ -19,7 +19,6 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableProjectIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableRelatedProjectsIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableRunOptionsIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableUserDefinedSnapshotIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSnapshotIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableWellLocIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableGridMapIoTbl.h
@@ -87,7 +86,6 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableSimulationDetailsIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableOutputTablesFileIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableOutputTablesIoTbl.h
-
 )
 
 set(allsources
@@ -95,7 +93,6 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableProjectIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableRelatedProjectsIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableRunOptionsIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableUserDefinedSnapshotIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSnapshotIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableWellLocIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableGridMapIoTbl.cpp

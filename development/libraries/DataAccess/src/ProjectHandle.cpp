@@ -26,6 +26,8 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
+#include <vector>
+#include <list>
 #include <cstring>
 #include <boost/filesystem.hpp>
 
@@ -643,65 +645,125 @@ void ProjectHandle::setAsOutputTable ( const std::string& tableName )
 }
 
 
-void ProjectHandle::loadSnapshots()
+bool ProjectHandle::loadSnapshots( void )
 {
-  database::Table* snapshotTbl = getTable( "SnapshotIoTbl" );
-  if (snapshotTbl->size() == 0)
-  {
-    createSnapshotsAtGeologicalEvents();
-    createSnapshotsAtUserDefinedTimes();
-  }
+   database::Table* snapshotTbl = getTable( "SnapshotIoTbl" );
+   database::Table::iterator tblIter;
+   if ( snapshotTbl->size() == 0 )
+   {
+      createSnapshotsAtGeologicalEvents();
+   }
 
-  snapshotTbl->sort( []( database::Record * recordL, database::Record * recordR )
-  { return database::getTime( recordL ) < database::getTime( recordR ); } );
+   for ( tblIter = snapshotTbl->begin(); tblIter != snapshotTbl->end(); ++tblIter )
+   {
+      Record * snapshotRecord = *tblIter;
+      m_snapshots.push_back( getFactory()->produceSnapshot( *this, snapshotRecord ) );
+   }
 
-  for ( Record* snapshotRecord : *snapshotTbl )
-  {
-    m_snapshots.push_back( getFactory()->produceSnapshot( *this, snapshotRecord ) );
-  }
+   std::sort( m_snapshots.begin(), m_snapshots.end(), SnapshotLessThan() );
+
+   if ( isALC() )
+   {
+      createSnapshotsAtRiftEvents();
+   }
+   return true;
 }
 
-void ProjectHandle::createSnapshotsAtUserDefinedTimes( )
+bool ProjectHandle::createSnapshotsAtRiftEvents()
 {
-  //initialize start age and list of geological events
-  const double startAge = getStartAge();
-  std::list<double> userDefinedAges;
+   const string tableName = getCrustIoTableName();
+   unsigned int  i;
 
-  Table* tbl = getTable( "UserDefinedSnapshotIoTbl" );
-  assert( tbl );
-
-  for ( Record* record : *tbl )
-  {
-     assert( record );
-
-     const double age = getTime( record );
-     if ( age < startAge )
-     {
-        userDefinedAges.push_back( age );
-     }
-  }
-
-  fillSnapshotIoTbl( userDefinedAges, true );
-}
-
-void ProjectHandle::createSnapshotsAtGeologicalEvents()
-{
    //initialize start age and list of geological events
-   double startAge = getStartAge();
+   double startAge = -1.0;
    std::list<double> geologicalEventAges;
 
    // Add events from the StratIoTbl
-   Table* tbl = getTable( "StratIoTbl" );
+   Table * tbl = getTable( "StratIoTbl" );
    assert( tbl );
 
-   for ( Record* record : *tbl )
+   for ( i = 0; i < tbl->size(); i++ )
    {
+      Record *record = tbl->getRecord( i );
       assert( record );
 
       // Add DepoAge
-      const double depoAge = getDepoAge( record );
+      double depoAge = getDepoAge( record );
       if ( depoAge != 0.0 )
       {
+         startAge = max( startAge, depoAge );
+      }
+   }
+
+   tbl = getTable( tableName );
+   assert( tbl );
+
+   for ( i = 0; i < tbl->size(); i++ )
+   {
+      Record *record = tbl->getRecord( i );
+      assert( record );
+
+      double age = getAge( record );
+      if ( age < startAge )
+      {
+         geologicalEventAges.push_back( age );
+      }
+   }
+   //sort and remove duplicates
+   geologicalEventAges.sort();
+   geologicalEventAges.unique( isEqualTime );
+
+   std::list<double>::const_iterator iter;
+
+   //add sorted entries to SnapshotIoTbl
+   database::Table *snapshotIoTbl = getTable( "SnapshotIoTbl" );
+   assert( snapshotIoTbl );
+   const double tolerance = 1e-6;
+
+   for ( iter = geologicalEventAges.begin(); iter != geologicalEventAges.end(); ++iter )
+   {
+      const Snapshot * snapshot = findSnapshot( *iter, MAJOR );
+      if ( snapshot == 0 ||
+         not( snapshot->getTime() >= *iter - tolerance && snapshot->getTime() <= *iter + tolerance ) ) {
+
+         Record* record = snapshotIoTbl->createRecord();
+
+         setTime( record, *iter );
+         setIsMinorSnapshot( record, 0 );
+         setTypeOfSnapshot( record, "System Generated" );
+         setSnapshotFileName( record, "" );
+
+         m_snapshots.push_back (getFactory ()->produceSnapshot (*this, record));
+      }
+   }
+   std::sort ( m_snapshots.begin (), m_snapshots.end (), SnapshotLessThan ());
+
+   return true;
+}
+
+bool ProjectHandle::createSnapshotsAtGeologicalEvents()
+{
+
+   unsigned int  i;
+
+   //initialize start age and list of geological events
+   double startAge = -1.0;
+   std::list<double> geologicalEventAges;
+
+   // Add events from the StratIoTbl
+   database::Table *tbl = getTable( "StratIoTbl" );
+   assert( tbl );
+
+   for ( i = 0; i < tbl->size(); i++ )
+   {
+      Record *record = tbl->getRecord( i );
+      assert( record );
+
+      // Add DepoAge
+      double depoAge = getDepoAge( record );
+      if ( depoAge != 0.0 )
+      {
+         startAge = max( startAge, depoAge );
          geologicalEventAges.push_back( depoAge );
       }
    }
@@ -719,22 +781,26 @@ void ProjectHandle::createSnapshotsAtGeologicalEvents()
    Record *firstRecord = tbl->getRecord( 0 );
    assert( firstRecord );
 
-   const bool isFixedTemperature = ( database::getBottomBoundaryModel( firstRecord ) == "Fixed Temperature" );
-   tableNameList.push_back( ( ( isFixedTemperature || isALC() ) ? getCrustIoTableName() : "MntlHeatFlowIoTbl" ) );
+   bool isFixedTemperature = ( database::getBottomBoundaryModel( firstRecord ) == "Fixed Temperature" );
+
+   const string tableName = ( ( isFixedTemperature || isALC() ) ? getCrustIoTableName() : "MntlHeatFlowIoTbl" );
+
+   tableNameList.push_back( tableName );
 
    //loop over all gathered tables: get ages of entries
    std::list<string>::const_iterator tableNameIter;
 
-   for ( const std::string& tableName : tableNameList )
+   for ( tableNameIter = tableNameList.begin(); tableNameIter != tableNameList.end(); tableNameIter++ )
    {
-      tbl = getTable( tableName );
+      tbl = getTable( *tableNameIter );
       assert( tbl );
 
-      for ( Record* record : *tbl )
+      for ( i = 0; i < tbl->size(); i++ )
       {
+         Record *record = tbl->getRecord( i );
          assert( record );
 
-         const double age = getAge( record );
+         double age = getAge( record );
          if ( age < startAge )
          {
             geologicalEventAges.push_back( age );
@@ -752,7 +818,7 @@ void ProjectHandle::createSnapshotsAtGeologicalEvents()
    assert( propertyBoundaryIoTbl );
    assert( boundaryValuesIoTbl );
 
-   for ( unsigned int i = 0; i < geologicalBoundaryIoTbl->size(); i++ )
+   for ( i = 0; i < geologicalBoundaryIoTbl->size(); i++ )
    {
       Record* geologRecord = geologicalBoundaryIoTbl->getRecord( i );
       assert( geologRecord );
@@ -788,79 +854,30 @@ void ProjectHandle::createSnapshotsAtGeologicalEvents()
       }
    }
 
-   if ( isALC() ) // Create snapshots at rift events
-   {
-     tbl = getTable( getCrustIoTableName() );
-     assert( tbl );
-
-     for ( Record* record : *tbl )
-     {
-        assert( record );
-
-        const double age = getAge( record );
-        if ( age < startAge )
-        {
-           geologicalEventAges.push_back( age );
-        }
-     }
-   }
-
    //make sure present day's age is included as well
    geologicalEventAges.push_back( 0.0 );
 
-   fillSnapshotIoTbl( geologicalEventAges, false );
-}
+   //sort and remove duplicates
+   geologicalEventAges.sort();
+   geologicalEventAges.unique( isEqualTime );
 
-double ProjectHandle::getStartAge() const
-{
-  //initialize start age and list of geological events
-  double startAge = -1.0;
+   std::list<double>::const_iterator iter;
 
-  // Get start age from the StratIoTbl
-  Table * tbl = getTable( "StratIoTbl" );
-  assert( tbl );
+   //add sorted entries to SnapshotIoTbl
+   database::Table *snapshotIoTbl = getTable( "SnapshotIoTbl" );
+   assert( snapshotIoTbl );
 
-  for ( Record *record : *tbl )
-  {
-     assert( record );
+   for ( iter = geologicalEventAges.begin(); iter != geologicalEventAges.end(); ++iter )
+   {
+      Record* record = snapshotIoTbl->createRecord();
 
-     const double depoAge = getDepoAge( record );
-     if ( depoAge != 0.0 )
-     {
-        startAge = std::max( startAge, depoAge );
-     }
-  }
-  return startAge;
-}
+      setTime( record, *iter );
+      setIsMinorSnapshot( record, 0 );
+      setTypeOfSnapshot( record, "System Generated" );
+      setSnapshotFileName( record, "" );
+   }
 
-void ProjectHandle::fillSnapshotIoTbl( std::list<double>& times, const bool isUserDefined )
-{
-  //sort and remove duplicates
-  times.sort();
-  times.unique( isEqualTime );
-
-  //add sorted entries to SnapshotIoTbl
-  database::Table* snapshotIoTbl = getTable( "SnapshotIoTbl" );
-  assert( snapshotIoTbl );
-
-  std::set<double> uniqueTimes;
-  for ( Record* record : *snapshotIoTbl )
-  {
-     uniqueTimes.insert( getTime( record ) );
-  }
-
-  for ( const double time : times )
-  {
-     if ( uniqueTimes.find( time ) != uniqueTimes.end() ) continue;  // check for duplicates
-     uniqueTimes.insert( time );
-
-     Record* record = snapshotIoTbl->createRecord();
-
-     setTime( record, time );
-     setIsMinorSnapshot( record, 0 );
-     setTypeOfSnapshot( record, isUserDefined ? "User Defined" : "System Generated" );
-     setSnapshotFileName( record, "" );
-  }
+   return true;
 }
 
 bool ProjectHandle::isEqualTime( double t1, double t2 )
@@ -870,6 +887,18 @@ bool ProjectHandle::isEqualTime( double t1, double t2 )
 
 bool ProjectHandle::loadGrids( void )
 {
+
+
+
+
+
+
+
+
+
+
+
+
    // (void) getHighResolutionOutputGrid();
    // (void) getLowResolutionOutputGrid();
    // (void) getInputGrid();
@@ -4014,6 +4043,11 @@ const Interface::Snapshot * ProjectHandle::findSnapshot( double time, int type )
 
 
    return nearestSnapshot;
+}
+
+void ProjectHandle::sortSnapshots()
+{
+   std::sort( m_snapshots.begin(), m_snapshots.end(), SnapshotLessThan() );
 }
 
 void ProjectHandle::printSnapshotTable() const

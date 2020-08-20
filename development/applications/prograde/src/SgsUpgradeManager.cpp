@@ -32,7 +32,7 @@ Prograde::SgsUpgradeManager::SgsUpgradeManager(Model& model):
 {
 	const auto ph = m_model.projectHandle();
 	if (ph == nullptr) {
-		throw std::invalid_argument(getName() + " cannot retrieve the project handle from Cauldron data model");
+		throw std::invalid_argument(getName() + " cannot retreive the project handle from Cauldron data model");
 	}
 	m_ph = ph;
 }
@@ -49,24 +49,24 @@ void Prograde::SgsUpgradeManager::upgrade() {
 	database::Table * sourceRock_table = m_ph->getTable("SourceRockLithoIoTbl");
 	database::Table * iws_table = m_ph->getTable("IrreducibleWaterSaturationIoTbl");
 	for (size_t sourceRockId = 0; sourceRockId < sourceRock_table->size(); ++sourceRockId)
-	{
+	{		
 		m_model.sourceRockManager().getAdsoptionList(sourceRockId, legacyApplyAdsorption, legacyAdsorptionTOCDependent, legacyComputeOTGC, legacyAdsorptionCapacityFunctionName);
-
+		
 		if(legacyApplyAdsorption)
-		{
+		{			
 			if (legacyAdsorptionTOCDependent)
 			{
 				if (legacyComputeOTGC)
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> '" << legacyAdsorptionCapacityFunctionName << "'" << " adsorption model is selected and OTGC is on";
 				else
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> '" << legacyAdsorptionCapacityFunctionName << "'" << " adsorption model is selected and OTGC is off";
-
+				
 				bpa2AdsorptionTOCDependent = modelConverter.upgradeAdsorptionTOCDependent(legacyAdsorptionTOCDependent);
 				bpa2AdsorptionCapacityFunctionName = modelConverter.upgradeAdsorptionCapacityFunctionName(legacyAdsorptionTOCDependent, legacyAdsorptionCapacityFunctionName);
 				m_model.sourceRockManager().setAdsorptionTOCDependent(sourceRockId, bpa2AdsorptionTOCDependent);
-				m_model.sourceRockManager().setAdsorptionCapacityFunctionName(sourceRockId, bpa2AdsorptionCapacityFunctionName);
+				m_model.sourceRockManager().setAdsorptionCapacityFunctionName(sourceRockId, bpa2AdsorptionCapacityFunctionName);				
 				if(isToc)
-				{
+				{ 
 					isToc = 0;
 					database::Table * langmuirAdsorptionCapacityIsothermSet_table = m_ph->getTable("LangmuirAdsorptionCapacityIsothermSetIoTbl");
 					std::string langName = m_model.tableValueAsString("LangmuirAdsorptionCapacityTOCFunctionIoTbl", 0, "LangmuirName");
@@ -88,10 +88,10 @@ void Prograde::SgsUpgradeManager::upgrade() {
 					m_model.sgsManager().setLangmuirTemperature(id, 115);
 					m_model.sgsManager().setLangmuirPressure(id, 7.48);
 					m_model.sgsManager().setLangmuirVolume(id, 1.0e-5);
-
+										
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Clear LangmuirAdsorptionCapacityTOCFunctionIoTbl";
 					m_model.clearTable("LangmuirAdsorptionCapacityTOCFunctionIoTbl");
-				}
+				}				
 
 			}
 			else
@@ -99,7 +99,7 @@ void Prograde::SgsUpgradeManager::upgrade() {
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> '" << legacyAdsorptionCapacityFunctionName << "'" << " adsorption model is selected and OTGC is "<< "'" << legacyComputeOTGC << "'";
 				bpa2AdsorptionCapacityFunctionName = modelConverter.upgradeAdsorptionCapacityFunctionName(legacyAdsorptionTOCDependent, legacyAdsorptionCapacityFunctionName);
 				m_model.sourceRockManager().setAdsorptionCapacityFunctionName(sourceRockId, bpa2AdsorptionCapacityFunctionName);
-				database::Table * langmuirAdsorptionCapacityIsothermSet_table = m_ph->getTable("LangmuirAdsorptionCapacityIsothermSetIoTbl");
+				database::Table * langmuirAdsorptionCapacityIsothermSet_table = m_ph->getTable("LangmuirAdsorptionCapacityIsothermSetIoTbl");				
 				size_t tableSize = langmuirAdsorptionCapacityIsothermSet_table->size();
 				if (tableSize)
 				{
@@ -112,9 +112,9 @@ void Prograde::SgsUpgradeManager::upgrade() {
 					}
 
 				}
-			}
+			}			
 		}
-
+		
 	}
 
 	for (size_t iwsId = 0; iwsId < iws_table->size(); ++iwsId)

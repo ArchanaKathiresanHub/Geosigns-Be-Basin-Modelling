@@ -212,7 +212,7 @@ namespace migration
       void sortReservoirs () const;
 
       /// \brief Get a list of the tables that are to be output tables.
-      std::vector<std::string> getOutputTableNames ( ) const;
+      void getOutputTableNames ( std::vector<std::string>& outputTableNames ) const;
 
 
       mutable DataAccess::Interface::FormationList * m_formations;

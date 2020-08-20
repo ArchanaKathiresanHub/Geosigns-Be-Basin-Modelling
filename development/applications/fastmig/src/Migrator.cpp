@@ -86,7 +86,9 @@ extern string NumProcessorsArg;
 Migrator::Migrator (const string & name) :
   m_objectFactory(this)
 {
-   m_projectHandle.reset (dynamic_cast<GeoPhysics::ProjectHandle *> (Interface::OpenCauldronProject (name, &m_objectFactory, getOutputTableNames() )));
+   std::vector<std::string> outputTableNames;
+   getOutputTableNames ( outputTableNames );
+   m_projectHandle.reset (dynamic_cast<GeoPhysics::ProjectHandle *> (Interface::OpenCauldronProject (name, &m_objectFactory, outputTableNames )));
 
    if (!m_projectHandle.get ())
    {
@@ -132,9 +134,7 @@ Migrator::~Migrator (void)
    }
 }
 
-std::vector<std::string> Migrator::getOutputTableNames ( ) const {
-
-  std::vector<std::string> outputTableNames;
+void Migrator::getOutputTableNames ( std::vector<std::string>& outputTableNames ) const {
 
    const int MaximumNumberOfOutputTables = 256;
 
@@ -143,6 +143,7 @@ std::vector<std::string> Migrator::getOutputTableNames ( ) const {
    int numberOfOutputTables = MaximumNumberOfOutputTables;
 
    PetscOptionsGetStringArray ( PETSC_NULL, "-outtabs", outputTableNamesArray, &numberOfOutputTables, &outputTablesDefined );
+   outputTableNames.clear ();
 
    if ( outputTablesDefined ) {
 
@@ -152,7 +153,6 @@ std::vector<std::string> Migrator::getOutputTableNames ( ) const {
 
    }
 
-   return outputTableNames;
 }
 
 bool Migrator::saveTo (const string & outputFileName)

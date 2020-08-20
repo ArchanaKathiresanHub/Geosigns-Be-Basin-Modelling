@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <functional>
 
 using namespace DataAccess;
 using namespace Interface;

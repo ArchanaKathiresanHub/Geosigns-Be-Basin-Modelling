@@ -50,7 +50,7 @@ namespace DerivedProperties {
       /// \brief Determine whether or not the property is a primary property
       bool isPrimary() const;
 
-      /// \brief Retrieve the grid map
+      /// \brief Retreive the grid map
       void retrieveData () const;
 
       /// \brief Restore the grid map

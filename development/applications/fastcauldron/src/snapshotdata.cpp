@@ -1,12 +1,12 @@
-//
+//                                                                      
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-//
+// 
 // Developed under license for Shell by PDS BV.
-//
+// 
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-//
+// 
 #include "snapshotdata.h"
 #include "petscts.h"
 
@@ -16,6 +16,8 @@
 #include "cauldronschemafuncs.h"
 #include "utils.h"
 #include "FilePath.h"
+
+#include "FastcauldronSimulator.h"
 
 //------------------------------------------------------------//
 
@@ -60,7 +62,7 @@ double SnapshotEntry::time () const  {
 
 const std::string& SnapshotEntry::type () const  {
   return m_type;
-}
+} 
 
 const std::string& SnapshotEntry::fileName () const  {
   return m_fileName;
@@ -187,9 +189,9 @@ void SnapshotData::initialiseMinorSnapshotVector ( const bool usingDarcy ) {
   } else {
 
     ///
-    /// Need to create the minor snapshot times. These times may not be used since
+    /// Need to create the minor snapshot times. These times may not be used since 
     /// the time steps may not land exactly on one of the time computed here.
-    /// The minor snapshot time that will be used will be the next time step after
+    /// The minor snapshot time that will be used will be the next time step after 
     /// the time computed here.
     ///
 
@@ -331,6 +333,63 @@ void SnapshotData::advanceMinorSnapshotIterator ( const double                  
     }
 
   }
+
+}
+
+//------------------------------------------------------------//
+
+
+void SnapshotData::writeSnapshotIoTbl ( database::Table* snapshotTable ) {
+
+  database::Table::iterator  tblIter;
+  SnapshotEntrySetIterator it;
+  std::vector < database::Record* > recordsForDeletion;
+  std::vector < database::Record* >::iterator recordIterator;
+  database::Record* newRecord;
+
+  ///
+  /// Delete ALL entries from the SnapshotIoTbl.
+  /// Create a list of all the records that must be deleted from the snapshot io table.
+  ///
+  for ( tblIter = snapshotTable->begin (); tblIter != snapshotTable->end (); ++tblIter ) {
+    recordsForDeletion.push_back ( *tblIter );
+  }
+
+  ///
+  /// Delete all records that are on the list.
+  ///
+  for ( recordIterator = recordsForDeletion.begin (); recordIterator != recordsForDeletion.end (); recordIterator++ ) {
+    snapshotTable->deleteRecord ( *recordIterator );
+  }
+
+  ///
+  /// Create new MAJOR snapshot entries in the table
+  ///
+  for ( it = majorSnapshotsBegin (); it != majorSnapshotsEnd (); ++it ) {
+    newRecord = snapshotTable->createRecord ();
+
+    database::setTime ( newRecord, (*it)->time ());
+    database::setTypeOfSnapshot ( newRecord, (*it)->type ());
+    database::setIsMinorSnapshot ( newRecord, 0 );
+    database::setSnapshotFileName ( newRecord, (*it)->fileName ());
+  }
+
+  ///
+  /// Create new MINOR snapshot entries in the table
+  ///
+  for ( it = minorSnapshotsBegin (); it != minorSnapshotsEnd (); ++it ) {
+    newRecord = snapshotTable->createRecord ();
+
+    database::setTime ( newRecord, (*it)->time ());
+    database::setTypeOfSnapshot ( newRecord, (*it)->type ());
+    database::setIsMinorSnapshot ( newRecord, 1 );
+    database::setSnapshotFileName ( newRecord, (*it)->fileName ());
+  }
+
+  ///
+  /// Sort the entries into time order.
+  ///
+  snapshotTable->sort ( SnapshotRecordLess );
 
 }
 
@@ -508,7 +567,7 @@ void SnapshotData::setActualMinorSnapshots ( const snapshottimeContainer& savedM
                                                     SystemGeneratedSnapshotStr,
                                                     generatePropertyFileName ( "", true, *ssIter )));
   }
-
+ 
 
 }
 

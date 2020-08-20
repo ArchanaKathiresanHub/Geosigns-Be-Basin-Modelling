@@ -127,9 +127,7 @@ bool FastcauldronStartup::prepare()
   return true;
 }
 
-std::vector<std::string> FastcauldronStartup::getOutputTables ( ) const {
-
-  std::vector<std::string> outputTableNames;
+void FastcauldronStartup::getOutputTables ( std::vector<std::string>& outputTableNames ) const {
 
   const int MaximumNumberOfOutputTables = 256;
 
@@ -138,6 +136,7 @@ std::vector<std::string> FastcauldronStartup::getOutputTables ( ) const {
   int numberOfOutputTables = MaximumNumberOfOutputTables;
 
   PetscOptionsGetStringArray ( PETSC_NULL, "-outtabs", outputTableNamesArray, &numberOfOutputTables, &outputTablesDefined );
+  outputTableNames.clear ();
 
   if ( outputTablesDefined ) {
 
@@ -146,7 +145,6 @@ std::vector<std::string> FastcauldronStartup::getOutputTables ( ) const {
     }
 
   }
-  return outputTableNames;
 }
 
 
@@ -165,8 +163,11 @@ bool FastcauldronStartup::startup( int        argc,
     return false;
   }
 
+  std::vector<std::string> outputTableNames;
+
   StatisticsHandler::initialise();
-  FastcauldronSimulator::CreateFrom( m_cauldron, m_factory, getOutputTables() );
+  getOutputTables ( outputTableNames );
+  FastcauldronSimulator::CreateFrom( m_cauldron, m_factory, outputTableNames );
 
   FastcauldronSimulator::getInstance().readCommandLineParametersEarlyStage( argc, argv );
   FastcauldronSimulator::getInstance().deleteTemporaryDirSnapshots();

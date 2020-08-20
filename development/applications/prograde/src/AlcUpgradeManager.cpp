@@ -57,11 +57,11 @@ Prograde::AlcUpgradeManager::AlcUpgradeManager(mbapi::Model& model) :
 {
 	const auto ph = m_model.projectHandle();
 	if (ph == nullptr) {
-		throw std::invalid_argument(getName() + " cannot retrieve the project handle from Cauldron data model");
+		throw std::invalid_argument(getName() + " cannot retreive the project handle from Cauldron data model");
 	}
 	const auto crust = ph->getCrustFormation();
 	if (crust == nullptr) {
-		throw std::invalid_argument(getName() + " cannot retrieve the crust from project handle");
+		throw std::invalid_argument(getName() + " cannot retreive the crust from project handle");
 	}
 	m_ph = ph;
 	m_crust = crust;
@@ -76,7 +76,7 @@ void Prograde::AlcUpgradeManager::upgrade()
 	{
 		Prograde::AlcModelConverter modelConverter;
 
-		// Get the DepoAge of basement layer
+		// Get the DepoAge of basement layer 
 		database::Table * stratIo_Table = m_ph->getTable("StratIoTbl");
 		size_t id = stratIo_Table->size() - 1;
 		database::Record * rec = stratIo_Table->getRecord(static_cast<int>(id));
@@ -160,7 +160,7 @@ void Prograde::AlcUpgradeManager::upgrade()
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> The value of InitialLithosphericMantleThickness is changed from " << InitialLithosphericMantleThickness << " to " << updatedInitialLithosphericMantleThickness << " as the value is not in acceptable limits [0,6300000.0]";
 		}
 
-		// BasementIoTbl updated
+		// BasementIoTbl updated 
 
 		/////////////////////////////////////////////////////////////////////////////////// updating ContCrustalThicknessIoTbl //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -182,16 +182,16 @@ void Prograde::AlcUpgradeManager::upgrade()
 		}
 		else
 		{
-			/// Condition to check if all the records present are of age older than the basement age,
+			/// Condition to check if all the records present are of age older than the basement age, 
 			/// then in that case the first record is labelled as the record for the basement age that is constant interpolation
 			record = contCrustalThicknessIo_Table->getRecord(0);
 			double ageFirst = record->getValue<double>("Age");
 			if (ageFirst > basementAge)
 			{
 				record->setValue<double>("Age", basementAge);
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> ContCrustalThicknessIoTbl contains records only for ages greater than the basement age : " << basementAge
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> ContCrustalThicknessIoTbl contains records only for ages greater than the basement age : " << basementAge 
 					<< "; Hence, the record at the basement age is obtained by constant interpolation from the record at age : " << ageFirst;
-				///  The age_lastRecord is updated for the case if the ContCrustalThicknessIoTbl had only one record that was greater than the basement age but now that record is updated as the
+				///  The age_lastRecord is updated for the case if the ContCrustalThicknessIoTbl had only one record that was greater than the basement age but now that record is updated as the 
 				///  record for the basement age, so new age_lastRecord becomes the basement age; Now we can avoid the next condition in line.
 				record = contCrustalThicknessIo_Table->getRecord(static_cast<int>(contCrustalThicknessIo_Table->size() - 1));
 				age_lastRecord = record->getValue<double>("Age");
@@ -265,7 +265,7 @@ void Prograde::AlcUpgradeManager::upgrade()
 
 		/////////////////////////////////////////////////////////////////////////////////// updating OceaCrustalThicknessIoTbl //////////////////////////////////////////////////////////////////////////////////////////////////////////
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Creating OceaCrustalThicknessIoTbl";
-		/// In OceaCrustalThicknessIoTbl, times with only system generated snapshots are required.
+		/// In OceaCrustalThicknessIoTbl, times with only system generated snapshots are required. 
 		database::Table * snapshotIo_Table = m_ph->getTable("SnapshotIoTbl");
 		std::vector<double>timeWithSystemSnapshots;
 		for (size_t id = 0; id < snapshotIo_Table->size(); ++id)
@@ -432,7 +432,7 @@ void Prograde::AlcUpgradeManager::generateCrustalMaps(std::string refferedTable,
 	const auto ageField = "Age";
 	const auto thicknessField = "Thickness";
 	const auto thicknessGridField = "ThicknessGrid";
-	///check if the values at all the nodes in the gridmap is a constant value; if constant then store it as a scalar instead of a map
+	///check if the values at all the nodes in the gridmap is a constant value; if constant then store it as a scalar instead of a map 
 	if (minV == maxV)
 	{
 		///check for limits and clip values to range

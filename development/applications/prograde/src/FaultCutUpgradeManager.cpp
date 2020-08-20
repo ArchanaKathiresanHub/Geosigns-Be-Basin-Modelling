@@ -33,7 +33,7 @@ Prograde::FaultCutUpgradeManager::FaultCutUpgradeManager(Model& model) :
 {
 	const auto ph = m_model.projectHandle();
 	if (ph == nullptr) {
-		throw std::invalid_argument(getName() + " cannot retrieve the project handle from Cauldron data model");
+		throw std::invalid_argument(getName() + " cannot retreive the project handle from Cauldron data model");
 	}
 	m_ph = ph;
 }
@@ -92,7 +92,7 @@ void Prograde::FaultCutUpgradeManager::upgrade()
 				// get the LayerName corresponding to the surface from StratIoTbl
 				name = getLayerNameFromStratIoTbl(nameSurface);
 				rec->setValue<std::string>("BottomFormationName", name);
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> For the FaultcutsMap : "<< faulcutmaps<<", BottomFormationName is updated from empty to : '"
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> For the FaultcutsMap : "<< faulcutmaps<<", BottomFormationName is updated from empty to : '" 
 					<< name << "' which is the formation name corresponding to the Surface defining the faultcut";
 			}
 			// if the BottomFormationName is not empty then check for the special characters
@@ -160,7 +160,7 @@ std::string Prograde::FaultCutUpgradeManager::getLayerNameFromStratIoTbl(const s
 	for (int id = 0; id < sizeStratIoTbl; ++id)
 	{
 		database::Record* rec = stratIo_Table->getRecord(static_cast<int>(id));
-			surfaceName = rec->getValue<std::string>("SurfaceName");
+	    surfaceName = rec->getValue<std::string>("SurfaceName");
 		if (!surfaceName.compare(surfaceNameSearch))
 		{
 			layerName = rec->getValue<std::string>("LayerName");

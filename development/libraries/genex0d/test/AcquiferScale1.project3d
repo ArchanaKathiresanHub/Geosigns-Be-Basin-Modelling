@@ -68,18 +68,6 @@
 [End]
 ;
 ;
-; UserDefinedSnapshotIoTbl
-;
-[UserDefinedSnapshotIoTbl]
-;v100
-Time
-(Ma)
-2
-4
-6
-[End]
-;
-;
 ; SnapshotIoTbl
 ;
 [SnapshotIoTbl]

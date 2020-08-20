@@ -31,7 +31,7 @@ Prograde::ProjectIoTblUpgradeManager::ProjectIoTblUpgradeManager(mbapi::Model& m
 {
    const auto ph = m_model.projectHandle();
    if (ph == nullptr) {
-      throw std::invalid_argument(getName() + " cannot retrieve the project handle from Cauldron data model");
+      throw std::invalid_argument(getName() + " cannot retreive the project handle from Cauldron data model");
    }
    m_ph = ph;
 }

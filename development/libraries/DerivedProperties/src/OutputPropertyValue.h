@@ -54,7 +54,7 @@ namespace  DerivedProperties {
       /// \brief Get the property
       virtual const DataModel::AbstractProperty* getProperty () const;
 
-      /// \brief Retrieve the grid map
+      /// \brief Retreive the grid map
       virtual void retrieveData() const = 0;
 
       /// \brief Restore the grid map

@@ -78,7 +78,7 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
    double agePrev = 0;
    const GridMap* prevContCrustThicknessMap = nullptr;
 
-   ///2. Retrieve data
+   ///2. Retreive data
    retrieveData();
 
    ///3. Precompute constant for calculation

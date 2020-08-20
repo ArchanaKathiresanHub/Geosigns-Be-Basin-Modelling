@@ -27,7 +27,7 @@ namespace AbstractDerivedProperties {
       /// \brief Determine if the map has been retrieved or not.
       virtual bool isRetrieved () const;
 
-      /// \brief Retrieve the grid map
+      /// \brief Retreive the grid map
       virtual void retrieveData () const;
 
       /// \brief Restore the grid map.
