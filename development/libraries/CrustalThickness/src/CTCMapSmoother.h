@@ -40,7 +40,7 @@ namespace CrustalThicknessInterface {
       /// @brief To be executed in this order
       /// @{
       /// @brief Initialize class attributes according to the map to smooth
-      /// @details Also retreive maps data with gohst nodes
+      /// @details Also retrieve maps data with gohst nodes
       bool initialize( DataAccess::Interface::GridMap * mapToSmooth );
       /// @brief Compute the first columns along the first row according to the map to smooth
       void computeFirstColumnsSums( DataAccess::Interface::GridMap * mapToSmooth );

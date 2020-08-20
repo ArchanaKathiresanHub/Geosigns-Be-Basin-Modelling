@@ -91,7 +91,7 @@ public :
    /// \brief Determine if the map has been retrieved or not.
    virtual bool isRetrieved () const;
 
-   /// \brief Retreive the grid map
+   /// \brief Retrieve the grid map
    virtual void retrieveData () const;
 
    /// \brief Restore the grid map.

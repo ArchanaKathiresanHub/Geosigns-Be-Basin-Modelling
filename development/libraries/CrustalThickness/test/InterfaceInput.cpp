@@ -172,7 +172,7 @@ TEST_F( InterfaceInputTester, loadCTCIoTbl_exceptions ){
    auto tempHCuIni = m_HCuIni;
    m_HCuIni = nullptr;
    std::shared_ptr<InterfaceInput> interfaceInput3 = createInterfaceInput();
-   std::invalid_argument exception3( "Basin_Error: The initial crustal thickness map maps cannot be retreived by the interface input" );
+   std::invalid_argument exception3( "Basin_Error: The initial crustal thickness map maps cannot be retrieved by the interface input" );
    EXPECT_EXCEPTION_EQ( interfaceInput3->loadInputData(), exception3 )
    m_HCuIni = tempHCuIni;
 
@@ -181,7 +181,7 @@ TEST_F( InterfaceInputTester, loadCTCIoTbl_exceptions ){
    auto tempHLMuIni = m_HLMuIni;
    m_HLMuIni = nullptr;
    std::shared_ptr<InterfaceInput> interfaceInput4 = createInterfaceInput();
-   std::invalid_argument exception4( "Basin_Error: The initial lithospheric mantle thickness map maps cannot be retreived by the interface input");
+   std::invalid_argument exception4( "Basin_Error: The initial lithospheric mantle thickness map maps cannot be retrieved by the interface input");
    EXPECT_EXCEPTION_EQ( interfaceInput4->loadInputData(), exception4 )
    m_HLMuIni = tempHLMuIni;
 

@@ -68,16 +68,6 @@ namespace DataAccess
       bool operator<  (const Snapshot & ss1, const Snapshot & ss2);
       bool operator>  (const Snapshot & ss1, const Snapshot & ss2);
 
-      /// \brief Functor class for ordering snapshots.
-      class SnapshotLessThan {
-
-         public :
-
-            bool operator ()( const Snapshot* ss1,
-                              const Snapshot* ss2 ) const;
-
-      };
-
    }
 }
 

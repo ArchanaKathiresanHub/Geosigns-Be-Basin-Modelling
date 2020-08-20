@@ -105,8 +105,6 @@ public :
 
   void initialiseMinorSnapshotVector ( const bool usingDarcy );
 
-  void writeSnapshotIoTbl ( database::Table * snapshotTable );
-
   void addSnapshotEntry ( const double       time,
                           const bool         snapshotIsMinor,
                           const std::string& typeOfSnapshot,
@@ -137,13 +135,13 @@ public :
   /// ie. Are we performing a coupled temperature calculation.
   bool projectPrescribesMinorSnapshots () const;
 
-  /// Get snapshots from current major snapshot up to and including next 
+  /// Get snapshots from current major snapshot up to and including next
   /// major snapshot, optionally include intervening minor snapshots.
   void getSucceedingSnapshotInterval ( const SnapshotEntrySetIterator& fromMajorSnapshot,
                                        const bool                      includeMinorSnapshots,
                                              SnapshotInterval&         interval );
 
-  /// Get snapshots up to and including current major snapshot from previous 
+  /// Get snapshots up to and including current major snapshot from previous
   /// major snapshot, optionally include intervening minor snapshots.
   void getPrecedingSnapshotInterval ( const SnapshotEntrySetIterator& uptoMajorSnapshot,
                                       const bool                      includeMinorSnapshots,
@@ -161,7 +159,7 @@ public :
   bool isMinorSnapshot ( const double                    age,
                          const SnapshotEntrySetIterator& snapshots ) const;
 
-  /// 
+  ///
   bool validMinorSnapshots ( const SnapshotEntrySetIterator& snapshots ) const;
 
   /// Deletes the minor snapshot files specified in the snapshotTime Container.
@@ -201,7 +199,7 @@ private :
 
   void setMaximumNumberOfMinorSnapshots ();
 
-  /// Find all minor snapshots that have a time between the startTime 
+  /// Find all minor snapshots that have a time between the startTime
   /// and endTime and add them to the snapshot interval
   void getMinorSnapshotsInInterval ( const double            startTime,
                                      const double            endTime,
@@ -217,7 +215,7 @@ private :
   bool m_minorSnapshotsPrescribed;
   int  maximumNumberOfMinorSnapshotsValue;
 
-}; 
+};
 
 
 
