@@ -34,8 +34,8 @@ class UserDefinedSnapshotUpgradeManager : public IUpgradeManager
 {
 public:
   UserDefinedSnapshotUpgradeManager() = delete;
-  UserDefinedSnapshotUpgradeManager(const UserDefinedSnapshotUpgradeManager &) = delete;
-  UserDefinedSnapshotUpgradeManager& operator=(const UserDefinedSnapshotUpgradeManager &) = delete;
+  UserDefinedSnapshotUpgradeManager(const UserDefinedSnapshotUpgradeManager&) = delete;
+  UserDefinedSnapshotUpgradeManager& operator=(const UserDefinedSnapshotUpgradeManager&) = delete;
 
   /// @param[in] model The model on which to perform the user defined snapshot table upgrade
   /// throw std::invalid_argument if the model's project handle is null
