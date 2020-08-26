@@ -36,6 +36,19 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-08-27  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
+
+	chg: dev: usr: Changes in fastgenex/fastproperties Related to UndefinedMapValue
+	 *  Calculation of CGR is updated where GOR is undefined
+	 *  Lithology percentage values (min/max) is corrected in the XML file for scenarios with mixed lithologies are used
+	 * <constantvalue> parameter in the XML file is corrected for scenarios where both valid/invalid values are present
+
+	Related work items: #389751
+
+	================== COMMIT-END ========================
+	Commit-ID:<7e7df2f31b2b6e80804e6721fb143f4afd579646>	  (HEAD -> master, origin/master)
+
+++
 2020-08-26  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: dev: Added a commit to increase minor version number !v2.2.0
