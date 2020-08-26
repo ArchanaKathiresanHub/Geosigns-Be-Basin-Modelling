@@ -1163,8 +1163,12 @@ void ImportProjectHandle::addStratTableFormation(const Interface::Formation* for
       float* data = new float[geometry->getNumI() * geometry->getNumJ()];
       const float* inputData = lithPerc1Map->getSurfaceValues();
 
-      for (int i = 0; i < geometry->getNumI() * geometry->getNumJ(); ++i)
-         data[i] = 100 - inputData[i];
+      for (int i = 0; i < geometry->getNumI() * geometry->getNumJ(); ++i) {
+          if (inputData[i] != DataAccess::Interface::DefaultUndefinedMapValue)
+              data[i] = 100 - inputData[i];
+          else
+              data[i] = DataAccess::Interface::DefaultUndefinedMapValue;
+      }
 
       lithPerc2Map->setData_IJ(data);
       lithPerc2Map->getMaxValue(); // trigger updating min/max
@@ -1193,8 +1197,12 @@ void ImportProjectHandle::addStratTableFormation(const Interface::Formation* for
       const float* inputData1 = lithPerc1Map->getSurfaceValues();
       const float* inputData2 = lithPerc2Map->getSurfaceValues();
 
-      for (int i = 0; i < geometry->getNumI() * geometry->getNumJ(); ++i)
-         data[i] = 100 - inputData1[i] - inputData2[i];
+      for (int i = 0; i < geometry->getNumI() * geometry->getNumJ(); ++i) {
+          if (inputData1[i] != DataAccess::Interface::DefaultUndefinedMapValue && inputData2[i] != DataAccess::Interface::DefaultUndefinedMapValue)
+              data[i] = 100.0f - inputData1[i] - inputData2[i];      
+          else
+              data[i] = DataAccess::Interface::DefaultUndefinedMapValue;
+      }
 
       lithPerc3Map->setData_IJ(data);
       lithPerc3Map->getMaxValue(); // trigger updating min/max

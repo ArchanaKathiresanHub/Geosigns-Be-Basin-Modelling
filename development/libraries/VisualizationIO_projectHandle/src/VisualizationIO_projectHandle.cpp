@@ -86,7 +86,7 @@ void CauldronIO::MapProjectHandle::retrieveFromHDF()
     assert(m_info.size() == 1 && m_info[0]->getData() != nullptr);
     float* hdfData = m_info[0]->getData(); 
 
-    float constantValue;
+    float constantValue = DataAccess::Interface::DefaultUndefinedMapValue;
     bool isConstant = true;
     bool firstConstant = true;
     float* mapData = new float[m_numI * m_numJ];
@@ -103,13 +103,14 @@ void CauldronIO::MapProjectHandle::retrieveFromHDF()
             float val = hdfData[j + i * m_numJ];
             mapData[index++] = val;
 
-            if (firstConstant)
+            if (firstConstant && val != DataAccess::Interface::DefaultUndefinedMapValue)
             {
                 constantValue = val;
                 firstConstant = false;
             }
 
-            if (isConstant) isConstant = val == constantValue;
+            if (isConstant && !firstConstant && val!= DataAccess::Interface::DefaultUndefinedMapValue)
+                isConstant = val == constantValue;
         }
     }
 

@@ -103,8 +103,8 @@ void DerivedProperties::updateVolumeDataConstantValue( shared_ptr<CauldronIO::Vo
       }
    }
 
-   if ((minValue == maxValue and not foundUndefined) or (minValue == DefaultUndefinedValue and maxValue == DefaultUndefinedValue)) {
-      volDataNew->setConstantValue( minValue );
+   if ((minValue == maxValue) or (minValue == DefaultUndefinedValue and maxValue == DefaultUndefinedValue)) {
+       volDataNew->setConstantValue(minValue);
    }
 }
 

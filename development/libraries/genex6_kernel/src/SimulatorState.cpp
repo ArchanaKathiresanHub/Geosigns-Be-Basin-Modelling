@@ -650,19 +650,34 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
    //ExpulsionCondensateGasRatioInst,
    if(theResultManager.IsResultRequired(GenexResultManager::ExpulsionCondensateGasRatioInst)) {
       double ExpulsionCondensateGasRatioInst = 0.0;
-      if(ExpulsionGasOilRatioInst > 10000.0) {
-	      ExpulsionCondensateGasRatioInst = 1.0 / ExpulsionGasOilRatioInst ;   
-      }   
+      
+      //When GOR is undefined, then the 
+      if (ExpulsionGasOilRatioInst != CauldronNoDataValue)
+      {
+          if (ExpulsionGasOilRatioInst > 10000.0)
+              ExpulsionCondensateGasRatioInst = 1.0 / ExpulsionGasOilRatioInst;
+          else
+              ExpulsionCondensateGasRatioInst = 0.0;
+      }
+      else
+          ExpulsionCondensateGasRatioInst = CauldronNoDataValue;
       SetResult(GenexResultManager::ExpulsionCondensateGasRatioInst, ExpulsionCondensateGasRatioInst);
    }
 
    //ExpulsionCondensateGasRatioCum,
    if(theResultManager.IsResultRequired(GenexResultManager::ExpulsionCondensateGasRatioCum)) {
       double ExpulsionCondensateGasRatioCum = 0.0;
-      if(ExpulsionGasOilRatioCum > 10000.0) {
-	      ExpulsionCondensateGasRatioCum = 1.0 / ExpulsionGasOilRatioCum ;    
+      
+      if (ExpulsionGasOilRatioCum != CauldronNoDataValue)
+      {
+          if (ExpulsionGasOilRatioCum > 10000.0)
+              ExpulsionCondensateGasRatioCum = 1.0 / ExpulsionGasOilRatioCum;
+          else
+              ExpulsionCondensateGasRatioCum = 0.0;
       }
-      SetResult(GenexResultManager::ExpulsionCondensateGasRatioCum, ExpulsionCondensateGasRatioCum);
+      else
+          ExpulsionCondensateGasRatioCum = CauldronNoDataValue;
+      SetResult(GenexResultManager::ExpulsionCondensateGasRatioCum, ExpulsionCondensateGasRatioCum); 
    }
 
    //ExpulsionGasWetnessInst

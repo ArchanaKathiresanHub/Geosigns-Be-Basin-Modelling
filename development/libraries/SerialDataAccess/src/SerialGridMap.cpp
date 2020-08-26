@@ -54,14 +54,16 @@ SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, con
          for (unsigned int k = 0; k < m_depth; ++k)
          {
             m_values[i][j][k] = static_cast<double>(values[i][j][m_depth - 1 - k]);
-            if (first)
+            float temp = m_values[i][j][k];
+            
+            if (first && temp != DefaultUndefinedMapValue)
             {
-               constantValue = m_values[i][j][k];
-               first = false;
+                constantValue = m_values[i][j][k];
+                first = false;
             }
-            else if (isConstant && constantValue != m_values[i][j][k])
+            if (isConstant && !first && temp!= DefaultUndefinedMapValue)
             {
-               isConstant = false;
+                isConstant = temp == constantValue;
             }
          }
       }

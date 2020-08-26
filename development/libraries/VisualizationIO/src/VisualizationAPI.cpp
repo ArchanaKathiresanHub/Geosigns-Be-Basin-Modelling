@@ -1905,7 +1905,7 @@ void CauldronIO::SurfaceData::updateMinMax() throw (CauldronIOException)
     m_minValue = minValue;
     m_maxValue = maxValue;
 
-    if ((minValue == maxValue && !foundUndefined) || (minValue == DefaultUndefinedValue && maxValue == DefaultUndefinedValue))
+    if ((minValue == maxValue ) || (minValue == DefaultUndefinedValue && maxValue == DefaultUndefinedValue))
     {
         release();
         setConstantValue(minValue);
