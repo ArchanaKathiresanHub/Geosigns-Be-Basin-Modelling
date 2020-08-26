@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.1.0		2020-07-16 21:44:52 +0530
+Cauldron-v2.2.0		2020-08-26 08:29:01 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-08-26  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: dev: Added a commit to increase minor version number !v2.2.0
+
+	* User defined snapshot table was added which is a minor update
+	* Added this commit to fix the changelog
+	https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/388885
+	================== COMMIT-END ========================
+	Commit-ID:<50337bb372c99e08d86f49abce7f80bf04480132>	  (tag: refs/tags/v2.2.0, refs/heads/master)
+
+++
 2020-08-20  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	new: Add user defined snapshot table.
