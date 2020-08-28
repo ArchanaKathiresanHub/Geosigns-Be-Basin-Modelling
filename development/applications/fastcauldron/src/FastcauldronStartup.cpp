@@ -137,7 +137,7 @@ std::vector<std::string> FastcauldronStartup::getOutputTables ( ) const {
   char* outputTableNamesArray [ MaximumNumberOfOutputTables ];
   int numberOfOutputTables = MaximumNumberOfOutputTables;
 
-  PetscOptionsGetStringArray ( PETSC_NULL, "-outtabs", outputTableNamesArray, &numberOfOutputTables, &outputTablesDefined );
+  PetscOptionsGetStringArray (PETSC_IGNORE, PETSC_IGNORE, "-outtabs", outputTableNamesArray, &numberOfOutputTables, &outputTablesDefined );
 
   if ( outputTablesDefined ) {
 

@@ -69,7 +69,7 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
   double Bottom_Depth;
 
   // Get the size of the layer DA.
-  DMDAGetGhostCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+  DMDAGetGhostCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
 
   while ( ! Pressure_Layers.Iteration_Is_Done ()) {
     currentLayer = Pressure_Layers.Current_Layer ();
@@ -640,7 +640,7 @@ void GeometricLoopPressureSolver::computeDependantProperties ( const double prev
    const Boolean2DArray& Valid_Needle = cauldron->getValidNeedles ();
 
    int X_Start, Y_Start, Z_Start, X_Count, Y_Count, Z_Count;
-   DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+   DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_IGNORE, &X_Count, &Y_Count, PETSC_IGNORE );
 
    Double_Array_2D Hydrostatic_Pressure_Above ( X_Count, Y_Count );
    Double_Array_2D Pore_Pressure_Above        ( X_Count, Y_Count );

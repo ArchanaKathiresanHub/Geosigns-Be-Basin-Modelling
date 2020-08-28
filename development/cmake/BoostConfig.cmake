@@ -51,9 +51,11 @@ if (UNIX)
    # Add Boost as an external project
    add_external_project_to_repository(
          NAME Boost
-         VERSION 1.65.1
-         ARCHIVE "${THIRD_PARTY_DIR}/sources/boost_1_65_1.tar.gz"
-         ARCHIVE_MD5 "ee64fd29a3fe42232c6ac3c419e523cf"
+         VERSION 1.73.0
+         #ARCHIVE "${THIRD_PARTY_DIR}/sources/boost_1_65_1.tar.gz"
+		 #ARCHIVE_MD5 "EE64FD29A3FE42232C6AC3C419E523CF"
+		 ARCHIVE "${THIRD_PARTY_DIR}/sources/boost_1_73_0.tar.gz"
+         ARCHIVE_MD5 "4036cd27ef7548b8d29c30ea10956196" 
          PATCH_COMMAND
             "./bootstrap.sh"
             "--with-libraries=${COMMA_SEP_BOOST_LIBS_LIST}"
@@ -87,7 +89,7 @@ if (UNIX)
       CAPABILITY BoostLib
       NAME    "Boost"
       VENDOR  "Boost"
-      VERSION "1.65.1"
+      VERSION "1.73.0"
       LICENSE_TYPE "Boost v1"
       LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost.txt"
       URL "http://boost.org"
@@ -124,14 +126,14 @@ elseif(WIN32)
     if (NOT BUILD_SHARED_LIBS)
         set(Boost_USE_STATIC_LIBS        ON) # only find static libs
     endif()
-
+	# mininum required is boost 1.65.1
     find_package( Boost 1.65.1 REQUIRED COMPONENTS ${BOOST_LIBS_LIST} )
 
     add_external_package_info(
       CAPABILITY BoostLib
       NAME    "Boost"
       VENDOR  "Boost"
-      VERSION "1.65.1"
+      VERSION "1.73.0"
       LICENSE_TYPE "Boost v1"
       LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost.txt"
       URL "http://boost.org"

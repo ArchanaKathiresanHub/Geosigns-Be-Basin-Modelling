@@ -315,7 +315,7 @@ void HydraulicFracturingManager::checkForFracturing ( LayerProps*           theL
   // For output and debugging purposes only.
   double maxFractureValue = 0.0;
 
-  DMDAGetCorners ( theLayer->layerDA, &xLocalStart, &yLocalStart, PETSC_NULL, &xLocalCount, &yLocalCount, PETSC_NULL );
+  DMDAGetCorners ( theLayer->layerDA, &xLocalStart, &yLocalStart, PETSC_IGNORE, &xLocalCount, &yLocalCount, PETSC_IGNORE );
   DMDAGetCorners ( theLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
 
   theLayer->Current_Properties.Activate_Property ( Basin_Modelling::Depth );

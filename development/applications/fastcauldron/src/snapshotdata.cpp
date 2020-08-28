@@ -195,7 +195,7 @@ void SnapshotData::initialiseMinorSnapshotVector ( const bool usingDarcy ) {
 
     clearSnapshotEntrySet ( minorSnapshotTimes );
 
-    PetscOptionsGetInt( PETSC_NULL, "-numberminorss", &maximumNumberOfMinorSnapshotsValue, &foundMinorSnapshotCount );
+    PetscOptionsGetInt(PETSC_IGNORE, PETSC_IGNORE, "-numberminorss", &maximumNumberOfMinorSnapshotsValue, &foundMinorSnapshotCount );
 
 #if 0
     if ( ! foundMinorSnapshotCount ) {

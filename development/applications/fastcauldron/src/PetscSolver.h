@@ -19,18 +19,26 @@ public:
    /// Copy constructor (deleted)
    PetscSolver( const PetscSolver & ) = delete;
    
-   /// Assignement opeartor (deleted)
+   /// Assignment operator (deleted)
    PetscSolver & operator=(const PetscSolver & ) = delete;
 
    /// Destructor
    virtual ~PetscSolver();
 
    /// Sets PETSc KSP options from the options database
-   void loadCmdLineOptions();
-
+   void loadCmdLineOptionsAndSetZeroPivot();
+   /// <summary>
+   ///  Adds a particular type of quantity to the diagonal of the matrix during numerical factorization, thus the matrix has nonzero pivots
+   /// </summary>
+   /// <param name="ShiftType"></param> Numeric Shift for factorizations
+   /// <param name="shiftAmount"></param> amount to shift
+   void setPCFactorSetShiftType(MatFactorShiftType ShiftType, double shiftAmount);
    /// Prints to screen the settings of the KSP solver
    void viewSettings() const;
-
+   /// <summary>
+   ///  resets the solver context
+   /// </summary>
+   void reset() ;
    /// Gets the maximum number of iterations used by the KSP convergence tests
    int  getMaxIterations() const;
 

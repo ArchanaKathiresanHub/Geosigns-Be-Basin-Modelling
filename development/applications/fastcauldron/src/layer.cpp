@@ -184,8 +184,8 @@ LayerProps::LayerProps ( Interface::ProjectHandle& projectHandle,
   Previous_Properties.Set_Property_Vector ( Basin_Modelling::Temperature,          &Previous_Temperature );
   Previous_Properties.Set_Property_Vector ( Basin_Modelling::Chemical_Compaction,  &Previous_Chemical_Compaction );
 
-  FCTCorrection    = PETSC_NULL;
-  allochthonousLithologyMap = PETSC_NULL;
+  FCTCorrection    = PETSC_IGNORE;
+  allochthonousLithologyMap = PETSC_IGNORE;
 
   vesInterpolator = nullptr;
   maxVesInterpolator = nullptr;
@@ -1053,7 +1053,7 @@ void LayerProps::nullify (){
 
   layerDA               = nullptr;
 
-  depthvec              = PETSC_NULL;
+  depthvec              = PETSC_IGNORE;
 
   Depth                 = nullptr;
   Porosity              = nullptr;

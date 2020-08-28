@@ -91,7 +91,7 @@ int main (int argc, char ** argv)
    int rank = 99999;
    typedef formattingexception::GeneralException CtcException;
 
-   PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
+   PetscInitialize (&argc, &argv, (char *) 0, PETSC_IGNORE);
 
    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 
@@ -147,7 +147,7 @@ int main (int argc, char ** argv)
 
 #ifndef _MSC_VER
    PetscBool myddd = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-myddd", &myddd);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-myddd", &myddd);
    if (myddd)
    {
       char cmd[150];
@@ -163,10 +163,10 @@ int main (int argc, char ** argv)
    ///1. Intitialise fastctc loger
    try{
       PetscBool log = PETSC_FALSE;
-      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-verbosity", &log );
       if (log){
          char verbosity[11];
-         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE, "-verbosity", verbosity, 11, 0 );
          if      (!strcmp( verbosity, "minimal"    )) { LogHandler( "fastctc", LogHandler::MINIMAL_LEVEL,    rank ); }
          else if (!strcmp( verbosity, "normal"     )) { LogHandler( "fastctc", LogHandler::NORMAL_LEVEL,     rank ); }
          else if (!strcmp( verbosity, "detailed"   )) { LogHandler( "fastctc", LogHandler::DETAILED_LEVEL,   rank ); }
@@ -190,7 +190,7 @@ int main (int argc, char ** argv)
    ///2. Check command line parameters
    PetscBool isDefined = PETSC_FALSE;
 
-   PetscOptionsHasName (PETSC_NULL, "-help", &isDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-help", &isDefined);
    if (isDefined) {
       Fastctc::showUsage ();
       PetscFinalize ();
@@ -201,7 +201,7 @@ int main (int argc, char ** argv)
    char inputFileName[lineSize];
    inputFileName[0] = '\0';
 
-   PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, lineSize, &isDefined);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-project", inputFileName, lineSize, &isDefined);
 
    if (!isDefined)  {
       LogHandler( LogHandler::ERROR_SEVERITY ) << "ERROR Error when reading the project file";

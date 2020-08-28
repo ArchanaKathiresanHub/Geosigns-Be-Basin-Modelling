@@ -6,7 +6,7 @@
 int VreGrid::getNumberOfNodes( DM * mapDA, const LayerList & layerList )
 {
    int xs, ys, zs, xm, ym, zm;
-   DMDAGetCorners( *mapDA, PETSC_NULL, PETSC_NULL, PETSC_NULL ,&xm, &ym, PETSC_NULL);
+   DMDAGetCorners( *mapDA, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE ,&xm, &ym, PETSC_IGNORE);
 
    Basin_Modelling::Layer_Iterator layers;
    layers.Initialise_Iterator ( layerList, 

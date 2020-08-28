@@ -60,16 +60,18 @@ void NodalGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
       m_yPartitioning [ i ] = static_cast<int> ( nodeGrid->numsJ ()[ i ]);
    }
 
-   DMDACreate2d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
-                  totalNumberOfXNodes,
-                  totalNumberOfYNodes,
-                  m_numberOfXProcessors,
-                  m_numberOfYProcessors,
-                  1, 1,
-                  m_xPartitioning,
-                  m_yPartitioning,
-                  &nodalDa );
+   PetscErrorCode ierr = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+       totalNumberOfXNodes,
+       totalNumberOfYNodes,
+       m_numberOfXProcessors,
+       m_numberOfYProcessors,
+       1, 1,
+       m_xPartitioning,
+       m_yPartitioning,
+       &nodalDa);
+   ierr = DMSetFromOptions(nodalDa);
+   ierr = DMSetUp(nodalDa);
    
-   DMDAGetLocalInfo ( nodalDa, &m_localInfo );
+   ierr = DMDAGetLocalInfo ( nodalDa, &m_localInfo );
 }
 

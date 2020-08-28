@@ -150,9 +150,9 @@ bool AppCtx::readProjectName () {
    PetscBool hasProject   = PETSC_FALSE;
 
 
-   PetscOptionsGetString (PETSC_NULL, "-project", fname, MaxLineSize, 0);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-project", fname, MaxLineSize, 0);
 
-   PetscOptionsHasName( PETSC_NULL, "-project", &hasProject );
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-project", &hasProject );
 
 
    projectFileReadOkay = projectFileReadOkay && setProjectFileName (fname);
@@ -161,7 +161,7 @@ bool AppCtx::readProjectName () {
      return false;
    }
 
-   PetscOptionsGetString (PETSC_NULL, "-save", fname1, MaxLineSize, 0);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-save", fname1, MaxLineSize, 0);
    setFastCauldronProjectFileName (fname1);
 
    return projectFileReadOkay;
@@ -636,40 +636,40 @@ bool AppCtx::getCommandLineOptions() {
 
   PetscFunctionBegin;
 
-  ierr = PetscOptionsHasName(PETSC_NULL,"-help",&ShowHelp); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE,"-help",&ShowHelp); CHKERRQ(ierr);
   if (ShowHelp) {
     printHelp ();
     ierr = PetscFinalize(); CHKERRQ(ierr);
     exit(0);
   }
 
-  ierr = PetscOptionsHasName( PETSC_NULL, "-cvd",&Dummy); CHKERRQ(ierr);
-  ierr = PetscOptionsHasName( PETSC_NULL, "-debug1",&debug1); CHKERRQ(ierr);
-  ierr = PetscOptionsHasName( PETSC_NULL, "-debug2",&debug2); CHKERRQ(ierr);
-  ierr = PetscOptionsHasName( PETSC_NULL, "-debug3",&debug3); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-cvd",&Dummy); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-debug1",&debug1); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-debug2",&debug2); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-debug3",&debug3); CHKERRQ(ierr);
 
-  ierr = PetscOptionsHasName( PETSC_NULL, "-verbose", &verbose); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-verbose", &verbose); CHKERRQ(ierr);
 
-  ierr = PetscOptionsHasName( PETSC_NULL, "-decompaction",&DoDecompaction); CHKERRQ(ierr);
-  ierr = PetscOptionsHasName( PETSC_NULL, "-hrdecompaction", &DoHighResDecompaction); CHKERRQ (ierr);
-  ierr = PetscOptionsHasName( PETSC_NULL, "-temperature",&DoTemperature); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-decompaction",&DoDecompaction); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-hrdecompaction", &DoHighResDecompaction); CHKERRQ (ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-temperature",&DoTemperature); CHKERRQ(ierr);
 
-  ierr = PetscOptionsHasName( PETSC_NULL, "-genex",&doGenex); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-genex",&doGenex); CHKERRQ(ierr);
 
-  ierr = PetscOptionsHasName( PETSC_NULL, "-itcoupled", &Do_Iteratively_Coupled ); CHKERRQ(ierr);
-  ierr = PetscOptionsHasName( PETSC_NULL, "-overpressure",&DoOverPressure); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-itcoupled", &Do_Iteratively_Coupled ); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-overpressure",&DoOverPressure); CHKERRQ(ierr);
 
-  ierr = PetscOptionsHasName (PETSC_NULL, "-nonlinear", &Nonlinear_Temperature ); CHKERRQ(ierr);
-  ierr = PetscOptionsHasName( PETSC_NULL, "-readfct",&readFCTCorrectionFactor ); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-nonlinear", &Nonlinear_Temperature ); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-readfct",&readFCTCorrectionFactor ); CHKERRQ(ierr);
 
-  ierr = PetscOptionsHasName( PETSC_NULL, "-bbtemp", &bbtemp ); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-bbtemp", &bbtemp ); CHKERRQ(ierr);
 
-  ierr = PetscOptionsHasName( PETSC_NULL, "-nohdfoutput",&outputNotRequired ); CHKERRQ(ierr);
-  PetscOptionsGetReal ( PETSC_NULL, "-onlyat", &outputAge, &outputAgeChanged );
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-nohdfoutput",&outputNotRequired ); CHKERRQ(ierr);
+  PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-onlyat", &outputAge, &outputAgeChanged );
 
-  PetscOptionsGetReal ( PETSC_NULL, "-exitat", &exitAge, &exitAgeChanged );
+  PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-exitat", &exitAge, &exitAgeChanged );
 
-  ierr = PetscOptionsHasName( PETSC_NULL, "-saveonerror", &saveResultsIfDarcyError ); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-saveonerror", &saveResultsIfDarcyError ); CHKERRQ(ierr);
 
   if ( saveResultsIfDarcyError ) {
      m_saveOnDarcyError = true;
@@ -715,7 +715,7 @@ bool AppCtx::getCommandLineOptions() {
   else if ( DoTemperature )
   {
      PetscBool coupledParameter;
-     ierr = PetscOptionsHasName( PETSC_NULL, "-coupled",&coupledParameter ); CHKERRQ(ierr);
+     ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-coupled",&coupledParameter ); CHKERRQ(ierr);
 
      IsCalculationCoupled = ( coupledParameter == PETSC_TRUE );
 
@@ -749,7 +749,7 @@ bool AppCtx::getCommandLineOptions() {
   // option. To make things slightly easier to read (and understand) we use
   // the "positive" Use_Geometric_Loop variable.
   //
-  ierr = PetscOptionsHasName(PETSC_NULL,"-ngl",&Use_Non_Geometric_Loop); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE,"-ngl",&Use_Non_Geometric_Loop); CHKERRQ(ierr);
   Use_Geometric_Loop = ! Use_Non_Geometric_Loop;
 
   if ( debug1 || verbose) {
@@ -772,7 +772,7 @@ bool AppCtx::getCommandLineOptions() {
 
   Output_Level_Str [0] = '\0';
 
-  PetscOptionsGetString (PETSC_NULL, "-outputlevel", Output_Level_Str, MaxLineSize, &Found );
+  PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-outputlevel", Output_Level_Str, MaxLineSize, &Found );
 
   if ( Found ) {
     Output_Level = atoi ( Output_Level_Str );
@@ -840,7 +840,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
    PetscBool setNewTolerances = PETSC_FALSE;
 
-   PetscOptionsHasName ( PETSC_NULL, "-newtolerances", &setNewTolerances );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-newtolerances", &setNewTolerances );
 
    if ( setNewTolerances ) {
       PressureSolver::setMaximumNumberOfNonlinearIterations ( Optimisation_Level, DefaultMaximumNumberOfNonlinearIterations );
@@ -853,29 +853,29 @@ void AppCtx::setAdditionalCommandLineParameters () {
       Temperature_Solver::setLinearSolverTolerance ( Optimisation_Level, DefaultLinearSolverTolerance );
    }
 
-   PetscOptionsGetString (PETSC_NULL, "-lateralstress", lateralStressFileName, MaxLineSize, &hasLateralStressFile );
-   PetscOptionsGetInt  ( PETSC_NULL, "-pressplanequadrature", &pressurePlaneDegree, &pressurePlaneDegreeChanged );
-   PetscOptionsGetInt  ( PETSC_NULL, "-pressdepthquadrature", &pressureDepthDegree, &pressureDepthDegreeChanged );
-   PetscOptionsGetInt  ( PETSC_NULL, "-tempplanequadrature",  &temperaturePlaneDegree, &temperaturePlaneDegreeChanged );
-   PetscOptionsGetInt  ( PETSC_NULL, "-tempdepthquadrature",  &temperatureDepthDegree, &temperatureDepthDegreeChanged );
-   PetscOptionsGetReal ( PETSC_NULL, "-nonlintol", &newtonTolerance, &newtonToleranceChanged );
-   PetscOptionsGetInt  ( PETSC_NULL, "-nonlinits", &newtonIterations, &newtonIterationsChanged );
-   PetscOptionsGetInt  ( PETSC_NULL, "-fracmodel", &fractureModel, &fractureModelChanged );
-   PetscOptionsGetInt  ( PETSC_NULL, "-its2changeilufill", &iterationsForIluFillLevelUpdate, &iterationsForIluFillLevelUpdateChanged );
-   PetscOptionsGetInt  ( PETSC_NULL, "-recompjacevery", &pressureJacobianReuseCount, &allowPressureJacobianReuse );
-   PetscOptionsHasName ( PETSC_NULL, "-allowilufillinc", &allowIluFillIncrease );
-   PetscOptionsHasName ( PETSC_NULL, "-allowsolverchange", &allowSolverChange );
-   PetscOptionsGetReal ( PETSC_NULL, "-mints", &newMinimumTimeStep, &minimumTimeStepChanged );
-   PetscOptionsGetReal ( PETSC_NULL, "-maxts", &newMaximumTimeStep, &maximumTimeStepChanged );
-   PetscOptionsGetReal ( PETSC_NULL, "-fixts", &newFixedTimeStep, &fixedTimeStepChanged );
-   PetscOptionsHasName ( PETSC_NULL, "-cflts", &petscCflTimeStepping );
-   PetscOptionsHasName ( PETSC_NULL, "-brts", &petscBurialRateTimeStepping );
-   PetscOptionsGetReal ( PETSC_NULL, "-brfrac", &elementFraction, &petscBurialRateFraction );
-   PetscOptionsGetReal ( PETSC_NULL, "-erfrac", &elementErosionFraction, &petscErosionRateFraction );
-   PetscOptionsGetReal ( PETSC_NULL, "-fcvesscale", &vesScale, &vesScaleChanged );
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-lateralstress", lateralStressFileName, MaxLineSize, &hasLateralStressFile );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-pressplanequadrature", &pressurePlaneDegree, &pressurePlaneDegreeChanged );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-pressdepthquadrature", &pressureDepthDegree, &pressureDepthDegreeChanged );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-tempplanequadrature",  &temperaturePlaneDegree, &temperaturePlaneDegreeChanged );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-tempdepthquadrature",  &temperatureDepthDegree, &temperatureDepthDegreeChanged );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-nonlintol", &newtonTolerance, &newtonToleranceChanged );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-nonlinits", &newtonIterations, &newtonIterationsChanged );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-fracmodel", &fractureModel, &fractureModelChanged );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-its2changeilufill", &iterationsForIluFillLevelUpdate, &iterationsForIluFillLevelUpdateChanged );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-recompjacevery", &pressureJacobianReuseCount, &allowPressureJacobianReuse );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-allowilufillinc", &allowIluFillIncrease );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-allowsolverchange", &allowSolverChange );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mints", &newMinimumTimeStep, &minimumTimeStepChanged );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-maxts", &newMaximumTimeStep, &maximumTimeStepChanged );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-fixts", &newFixedTimeStep, &fixedTimeStepChanged );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-cflts", &petscCflTimeStepping );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-brts", &petscBurialRateTimeStepping );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-brfrac", &elementFraction, &petscBurialRateFraction );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-erfrac", &elementErosionFraction, &petscErosionRateFraction );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-fcvesscale", &vesScale, &vesScaleChanged );
 
-   PetscOptionsHasName ( PETSC_NULL, "-permafrost", &petscPermafrost );
-   PetscOptionsGetReal ( PETSC_NULL, "-permafrost", &m_fixedPermafrostTimeStep, &petscPermafrostTimeStep );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-permafrost", &petscPermafrost );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-permafrost", &m_fixedPermafrostTimeStep, &petscPermafrostTimeStep );
 
   if ( petscBurialRateTimeStepping ) {
      m_burialRateTimeStepping = bool ( petscBurialRateTimeStepping );
@@ -1581,7 +1581,7 @@ void AppCtx::Print_Nodes_Value_From_Polyfunction( ) {
   int IX, IY, IZ;
   int XS, YS;
 
-  DMDAGetCorners( *mapDA, &XS, &YS, PETSC_NULL, &NX, &NY, PETSC_NULL );
+  DMDAGetCorners( *mapDA, &XS, &YS, PETSC_IGNORE, &NX, &NY, PETSC_IGNORE );
 
   LayerProps_Ptr Current_Layer;
   Layer_Iterator Layers;
@@ -3413,8 +3413,8 @@ void AppCtx::printFCT() {
   int xs, ys, xm, ym;
   size_t layer;
   DMDAGetCorners(*mapDA,
-                 &xs, &ys, PETSC_NULL,
-                 &xm, &ym, PETSC_NULL);
+                 &xs, &ys, PETSC_IGNORE,
+                 &xm, &ym, PETSC_IGNORE);
 
 
   for (layer=0; layer<layers.size(); layer++) {
@@ -3447,9 +3447,9 @@ void AppCtx::setUp2dEltMapping()
 
    int xs,ys,xm,ym,xdim,ydim;
 
-   DMDAGetInfo(*mapDA,PETSC_NULL,&xdim,&ydim,PETSC_NULL,PETSC_NULL,
-               PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
-   DMDAGetCorners(*mapDA,&xs,&ys,PETSC_NULL,&xm,&ym,PETSC_NULL);
+   DMDAGetInfo(*mapDA,PETSC_IGNORE,&xdim,&ydim,PETSC_IGNORE,PETSC_IGNORE,
+               PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
+   DMDAGetCorners(*mapDA,&xs,&ys,PETSC_IGNORE,&xm,&ym,PETSC_IGNORE);
 
    int i, j;
 
@@ -3492,13 +3492,13 @@ void AppCtx::setUp2dEltMapping()
 void AppCtx::Examine_Load_Balancing() {
 
   int xs,ys,xm,ym;
-  DMDAGetCorners(*mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL);
+  DMDAGetCorners(*mapDA, &xs, &ys, PETSC_IGNORE, &xm, &ym, PETSC_IGNORE);
 
   int Number_Of_Valid_Nodes = xm*ym;
 
   int NNodeX,NNodeY;
-  DMDAGetInfo( *mapDA, PETSC_NULL, &NNodeX, &NNodeY, PETSC_NULL, PETSC_NULL, PETSC_NULL,
-               PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+  DMDAGetInfo( *mapDA, PETSC_IGNORE, &NNodeX, &NNodeY, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+               PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE );
 
   float Percentage_Of_Total_Number_Of_Nodes = float(xm*ym) / float(NNodeX*NNodeY) * 100.0;
 
@@ -3913,7 +3913,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    ElementGeometryMatrix Geometry_Matrix;
    const CompoundLithology *  Element_Lithology;
 
-   DMDAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
+   DMDAGetCorners ( *mapDA, &xs, &ys, PETSC_IGNORE, &xm, &ym, PETSC_IGNORE );
 
    CauldronCrustFormation * crust = dynamic_cast<CauldronCrustFormation *>(layers [layers.size () - 2]);
    assert( crust != 0 );
@@ -3932,7 +3932,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    PETSC_2D_Array origMantleDepth       ( *mapDA, mantle->UpliftedOrigMantleDepth );
    PETSC_2D_Array hlmod                 ( *mapDA, mantle->LithosphereThicknessMod );
 
-   DMDAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
+   DMDAGetCorners ( *mapDA, &xs, &ys, PETSC_IGNORE, &xm, &ym, PETSC_IGNORE );
 
    PETSC_3D_Array depth ( crust->layerDA, crust->Current_Properties ( Basin_Modelling::Depth ));
    PETSC_3D_Array mantleDepth ( mantle->layerDA, mantle->Current_Properties ( Basin_Modelling::Depth ));

@@ -36,7 +36,7 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
 
   PetscBool allProperties = PETSC_FALSE;
 
-  PetscOptionsHasName ( PETSC_NULL, "-allproperties", &allProperties );
+  PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-allproperties", &allProperties );
 
 #if LITHOLOGYID
   // Remove from list until the lithology id has been fixed.
@@ -139,7 +139,7 @@ void FCTCalc::decompact(){
 
   PetscBool minorSnapshots;
 
-  PetscOptionsHasName ( PETSC_NULL, "-minor", &minorSnapshots );
+  PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-minor", &minorSnapshots );
 
   SnapshotEntrySet allSnapshots;
 
@@ -242,9 +242,9 @@ bool FCTCalc::getGrid ( const double                    currentTime,
 
     LayerProps_Ptr Current_Layer = Layers.Current_Layer();
 
-    DMDAGetInfo(*cauldron->mapDA, PETSC_NULL,
+    DMDAGetInfo(*cauldron->mapDA, PETSC_IGNORE,
                 &M, &N, &P, &m, &n, &p,
-                PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+                PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
 
     status &= Current_Layer -> allocateNewVecs ( cauldron, currentTime );
 

@@ -47,10 +47,12 @@ public:
    // public methods
    void createGlobalArray (DM &globalArray, const PetscDimensionType &dims)
    {
-      DMDACreate2d (PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
-                    (PetscInt)(dims[0]), (PetscInt)(dims[1]), PETSC_DECIDE, PETSC_DECIDE,
-                    1, 1, PETSC_NULL, 
-                    PETSC_NULL, &globalArray);
+       PetscErrorCode ierr = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+           (PetscInt)(dims[0]), (PetscInt)(dims[1]), PETSC_DECIDE, PETSC_DECIDE,
+           1, 1, PETSC_IGNORE,
+           PETSC_IGNORE, &globalArray);
+       ierr = DMSetFromOptions(globalArray);
+       ierr = DMSetUp(globalArray);
    }
 
    int createGlobalVector (DM& globalArray, Vec &globalVec)
@@ -79,10 +81,12 @@ public:
    // public methods
    void createGlobalArray (DM &globalArray, const PetscDimensionType &dims)
    {
-      DMDACreate3d (PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+       PetscErrorCode err = DMDACreate3d (PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                     (PetscInt)dims[0], (PetscInt)dims[1], (PetscInt)dims[2], PETSC_DECIDE, PETSC_DECIDE,
-                    PETSC_DECIDE, 1, 1, PETSC_NULL, 
-                    PETSC_NULL, PETSC_NULL, &globalArray);
+                    PETSC_DECIDE, 1, 1, PETSC_IGNORE, 
+                    PETSC_IGNORE, PETSC_IGNORE, &globalArray);
+      err = DMSetFromOptions(globalArray);
+      err = DMSetUp(globalArray);
    }
 
    int createGlobalVector (DM& globalArray, Vec &globalVec)

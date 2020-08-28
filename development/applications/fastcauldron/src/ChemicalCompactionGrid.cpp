@@ -50,7 +50,7 @@ int ChemicalCompactionGrid :: getNumberOfNodes( DM * mapViewOfDomain, const Laye
    //Return the sum of number of nodes on compactable layers
    int xm;
    int ym;
-   DMDAGetCorners( *mapViewOfDomain, PETSC_NULL, PETSC_NULL, PETSC_NULL ,&xm, &ym, PETSC_NULL);
+   DMDAGetCorners( *mapViewOfDomain, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE ,&xm, &ym, PETSC_IGNORE);
 
    Basin_Modelling::Layer_Iterator layers;
    layers.Initialise_Iterator ( layerList,

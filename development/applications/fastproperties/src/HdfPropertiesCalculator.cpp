@@ -284,7 +284,7 @@ bool HdfPropertiesCalculator::copyFiles() {
    if (rank != 0) return true;
 
    PetscBool noFileRemove = PETSC_FALSE;
-   PetscOptionsHasName(PETSC_NULL, "-noremove", &noFileRemove);
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-noremove", &noFileRemove);
 
    PetscLogDouble StartMergingTime;
    PetscTime(&StartMergingTime);
@@ -381,10 +381,10 @@ bool HdfPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
    {
       PetscBool parameterDefined = PETSC_FALSE;
 
-      PetscOptionsHasName (PETSC_NULL, "-project-properties", &parameterDefined);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-project-properties", &parameterDefined);
       if (parameterDefined) m_projectProperties = true;
 
-      PetscOptionsHasName (PETSC_NULL, "-copy", &parameterDefined);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-copy", &parameterDefined);
       if (parameterDefined) m_copy = true;
 
       status = checkParameters();

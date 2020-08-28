@@ -538,7 +538,7 @@ void Basin_Modelling::computeBulkDensityVectors ( AppCtx* Basin_Model ) {
 
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
-  DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+  DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
 
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
     currentLayer = Layers.Current_Layer ();
@@ -549,7 +549,7 @@ void Basin_Modelling::computeBulkDensityVectors ( AppCtx* Basin_Model ) {
     PETSC_3D_Array layerLithoPressure( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Lithostatic_Pressure ) );
     PETSC_3D_Array layerTemperature  ( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Temperature ));
 
-    DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+    DMDAGetCorners ( currentLayer->layerDA, PETSC_IGNORE, PETSC_IGNORE, &zStart, PETSC_IGNORE, PETSC_IGNORE, &zCount );
     DMCreateGlobalVector ( currentLayer -> layerDA, &currentLayer -> BulkDensity );
     VecSet ( currentLayer -> BulkDensity, CauldronNoDataValue );
     layerBulkDensity.Set_Global_Array ( currentLayer -> layerDA, 
@@ -640,7 +640,7 @@ void Basin_Modelling::computeThermalConductivityVectors ( AppCtx*        Basin_M
   LayerProps_Ptr currentLayer;
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
-  DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+  DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
 
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
     currentLayer = Layers.Current_Layer ();
@@ -653,7 +653,7 @@ void Basin_Modelling::computeThermalConductivityVectors ( AppCtx*        Basin_M
     PETSC_3D_Array layerLithoPressure ( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
     PETSC_3D_Array layerPorePressure ( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Pore_Pressure ));
 
-    DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+    DMDAGetCorners ( currentLayer->layerDA, PETSC_IGNORE, PETSC_IGNORE, &zStart, PETSC_IGNORE, PETSC_IGNORE, &zCount );
     DMCreateGlobalVector ( currentLayer -> layerDA, &currentLayer -> BulkTHCondN );
     VecSet ( currentLayer -> BulkTHCondN, CauldronNoDataValue );
 
@@ -760,7 +760,7 @@ void Basin_Modelling::computeThicknessVectors ( AppCtx*        Basin_Model ) {
   LayerProps_Ptr currentLayer;
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
-  DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+  DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
 
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
     currentLayer = Layers.Current_Layer ();
@@ -769,7 +769,7 @@ void Basin_Modelling::computeThicknessVectors ( AppCtx*        Basin_Model ) {
 
     PETSC_3D_Array layerDepth       ( currentLayer->layerDA, currentLayer->Current_Properties ( Basin_Modelling::Depth ));
 
-    DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+    DMDAGetCorners ( currentLayer->layerDA, PETSC_IGNORE, PETSC_IGNORE, &zStart, PETSC_IGNORE, PETSC_IGNORE, &zCount );
 
     //
     // The full 3D array must be allocated here, even though its only partially filled.
@@ -867,7 +867,7 @@ void Basin_Modelling::computePermeabilityVectors ( AppCtx*        Basin_Model ) 
   LayerProps_Ptr currentLayer;
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
-  DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+  DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
 
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
     currentLayer = Layers.Current_Layer ();
@@ -881,7 +881,7 @@ void Basin_Modelling::computePermeabilityVectors ( AppCtx*        Basin_Model ) 
     PETSC_3D_Array layerVES                ( currentLayer->layerDA, currentLayer->Current_Properties ( Basin_Modelling::VES_FP ));
     PETSC_3D_Array layerMaxVES             ( currentLayer->layerDA, currentLayer->Current_Properties ( Basin_Modelling::Max_VES ));
 
-    DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+    DMDAGetCorners ( currentLayer->layerDA, PETSC_IGNORE, PETSC_IGNORE, &zStart, PETSC_IGNORE, PETSC_IGNORE, &zCount );
 
     //
     // The full 3D array must be allocated here, even though its only partially filled.
@@ -946,7 +946,7 @@ void Basin_Modelling::collectAndSaveIsoValues(const double Current_Time, AppCtx 
    LayerProps_Ptr currentLayer;
 
    Layers.Initialise_Iterator ( basinModel->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
-   DMDAGetCorners ( *basinModel->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+   DMDAGetCorners ( *basinModel->mapDA, &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
    
    std::unique_ptr<Polyfunction> temperatureDepthFunction (new Polyfunction);
    std::unique_ptr<Polyfunction> vreDepthFunction (new Polyfunction);
@@ -966,7 +966,7 @@ void Basin_Modelling::collectAndSaveIsoValues(const double Current_Time, AppCtx 
       PETSC_3D_Array layerTemperature ( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Temperature ));
       PETSC_3D_Array layerDepth ( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Depth ));
       
-      DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+      DMDAGetCorners ( currentLayer->layerDA, PETSC_IGNORE, PETSC_IGNORE, &zStart, PETSC_IGNORE, PETSC_IGNORE, &zCount );
 
       int xPosition = xStart ;//1d case only, assumption for lower left corner
       int yPosition = yStart ;//1d case only, assumption for lower left corner
@@ -1059,14 +1059,14 @@ void Basin_Modelling::updateSedimentBottomSurfaceCurves(const double Current_Tim
 	{ 
            return;
 	}
-	DMDAGetCorners ( *basinModel->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+	DMDAGetCorners ( *basinModel->mapDA, &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
 
    currentLayer = Layers.Bottom_Layer();
 
    PETSC_3D_Array layerVre    ( currentLayer -> layerDA, currentLayer -> Vre );
 	PETSC_3D_Array layerTemperature ( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Temperature ));
 	PETSC_3D_Array layerDepth ( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Depth ));
-   DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+   DMDAGetCorners ( currentLayer->layerDA, PETSC_IGNORE, PETSC_IGNORE, &zStart, PETSC_IGNORE, PETSC_IGNORE, &zCount );
 
    int xPosition = xStart ;//1d case only, assumption for lower left corner
 	int yPosition = yStart ;//1d case only, assumption for lower left corner
@@ -1144,7 +1144,7 @@ void Basin_Modelling::computeBasementLithostaticPressureForCurrentTimeStep ( App
    double segmentThickness;
       
    DMDAGetCorners ( *basinModel->mapDA,
-                    &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+                    &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
       
    Double_Array_2D lithostaticPressureAbove ( xCount, yCount );
       
@@ -1154,7 +1154,7 @@ void Basin_Modelling::computeBasementLithostaticPressureForCurrentTimeStep ( App
                                                    bottomLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
          
       DMDAGetCorners ( bottomLayer->layerDA,
-                       PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+                       PETSC_IGNORE, PETSC_IGNORE, &zStart, PETSC_IGNORE, PETSC_IGNORE, &zCount );
          
       // Copy lithostatic pressure from the layer array to the local 2D array, for the top of the crust.
       copyBottomNodes ( xStart, xCount, yStart, yCount, basinModel->getValidNeedles (), lithostaticPressureAbove, sedimentLithostaticPressure );
@@ -1248,7 +1248,7 @@ void Basin_Modelling::computeBasementLithostaticPressure ( AppCtx* basinModel,
   double segmentThickness;
 
   DMDAGetCorners ( *basinModel->mapDA,
-                   &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+                   &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
 
   Double_Array_2D lithostaticPressureAbove ( xCount, yCount );
 
@@ -1258,7 +1258,7 @@ void Basin_Modelling::computeBasementLithostaticPressure ( AppCtx* basinModel,
                                                  bottomLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
 
     DMDAGetCorners ( bottomLayer->layerDA,
-                     PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+                     PETSC_IGNORE, PETSC_IGNORE, &zStart, PETSC_IGNORE, PETSC_IGNORE, &zCount );
 
     // Copy lithostatic pressure from the layer array to the local 2D array, for the top of the crust.
     copyBottomNodes ( xStart, xCount, yStart, yCount, basinModel->getValidNeedles (), lithostaticPressureAbove, sedimentLithostaticPressure );

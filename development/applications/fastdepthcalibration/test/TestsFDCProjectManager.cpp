@@ -9,7 +9,7 @@ class TestFDCProjectManager : public ::testing::Test
 protected:
   void SetUp() final
   {
-    PetscInitialize( 0, nullptr, (char *)0, PETSC_NULL );
+    PetscInitialize( 0, nullptr, (char *)0, PETSC_IGNORE );
     fdcPM = std::unique_ptr<fastDepthCalibration::FDCProjectManager>(new fastDepthCalibration::FDCProjectManager(projectFileName));
   }
 

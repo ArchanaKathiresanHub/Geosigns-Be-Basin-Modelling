@@ -114,7 +114,7 @@ public:
    {
       // create global vector
       // globalVector should be already allocated
-      if( globalVector == PETSC_NULL ) {
+      if( globalVector == PETSC_IGNORE ) {
          petscD->createGlobalVector (globalDa, globalVector);
       }
       // create local vector

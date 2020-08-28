@@ -29,9 +29,9 @@ int main(int argc, char** argv)
   // If bad_alloc is raised during an allocation of memory then this function will be called.
   std::set_new_handler( abortOnBadAlloc );
 
-  PetscInitialize( &argc, &argv, (char *)0, PETSC_NULL );
-  PetscOptionsInsertString("-noofpp");
-  PetscOptionsInsertString("-allproperties");
+  PetscInitialize( &argc, &argv, (char *)0, PETSC_IGNORE );
+  PetscOptionsInsertString(PETSC_IGNORE, "-noofpp");
+  PetscOptionsInsertString(PETSC_IGNORE, "-allproperties");
 
   try
   {
@@ -44,7 +44,7 @@ int main(int argc, char** argv)
     int ierr;
     PetscBool tmp_bool = PETSC_FALSE;
 
-    ierr = PetscOptionsHasName( PETSC_NULL, "-help", &tmp_bool); CHKERRQ( ierr );
+    ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-help", &tmp_bool); CHKERRQ( ierr );
 
     if ( tmp_bool==PETSC_TRUE )
     {
@@ -56,24 +56,24 @@ int main(int argc, char** argv)
       return -1;
     }
 
-    ierr = PetscOptionsHasName( PETSC_NULL, "-NoCalculatedTWToutput", &tmp_bool); CHKERRQ( ierr );
+    ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-NoCalculatedTWToutput", &tmp_bool); CHKERRQ( ierr );
     bool optionNoCalculatedTWToutput = (tmp_bool==PETSC_TRUE);
 
-    ierr = PetscOptionsHasName( PETSC_NULL, "-preserveErosion", &tmp_bool); CHKERRQ( ierr );
+    ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-preserveErosion", &tmp_bool); CHKERRQ( ierr );
     bool preserveErosion = (tmp_bool==PETSC_TRUE);
 
-    ierr = PetscOptionsHasName( PETSC_NULL, "-NoExtrapolation", &tmp_bool);CHKERRQ( ierr );
+    ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-NoExtrapolation", &tmp_bool);CHKERRQ( ierr );
     bool noExtrapolation = (tmp_bool==PETSC_TRUE);
 
     int  optionReferenceSurface;
-    ierr = PetscOptionsGetInt( PETSC_NULL, "-referenceSurface", &optionReferenceSurface, PETSC_NULL ); CHKERRQ( ierr );
+    ierr = PetscOptionsGetInt(PETSC_IGNORE, PETSC_IGNORE, "-referenceSurface", &optionReferenceSurface, PETSC_IGNORE ); CHKERRQ( ierr );
 
     int  optionEndSurface;
-    ierr = PetscOptionsGetInt( PETSC_NULL, "-endSurface", &optionEndSurface, PETSC_NULL ); CHKERRQ( ierr );
+    ierr = PetscOptionsGetInt(PETSC_IGNORE, PETSC_IGNORE, "-endSurface", &optionEndSurface, PETSC_IGNORE ); CHKERRQ( ierr );
 
     char projectName[Utilities::Numerical::MaxLineSize];
     projectName[0] = 0;
-    ierr = PetscOptionsGetString( PETSC_NULL, "-project", projectName, Utilities::Numerical::MaxLineSize, PETSC_NULL ); CHKERRQ( ierr );
+    ierr = PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE, "-project", projectName, Utilities::Numerical::MaxLineSize, PETSC_IGNORE ); CHKERRQ( ierr );
 
     fastDepthCalibration::FastDepthCalibration fastDepthCalibration( projectName, optionReferenceSurface, optionEndSurface, optionNoCalculatedTWToutput, preserveErosion, noExtrapolation, argc, argv, rank );
     fastDepthCalibration.run();
@@ -119,11 +119,11 @@ void showUsage ()
 void initializeFastDepthCalibrationLogger(const int rank)
 {
   PetscBool log = PETSC_FALSE;
-  PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+  PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-verbosity", &log );
   if ( log )
   {
     char verbosity[11];
-    PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+    PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE, "-verbosity", verbosity, 11, 0 );
 
     if (      !strcmp( verbosity, "quiet"      ) ) { LogHandler( "fastdepthcalibration", LogHandler::QUIET_LEVEL,      rank ); }
     else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( "fastdepthcalibration", LogHandler::MINIMAL_LEVEL,    rank ); }

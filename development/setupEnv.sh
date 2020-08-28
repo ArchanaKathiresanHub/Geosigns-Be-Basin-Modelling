@@ -16,6 +16,7 @@ if [ "x${loadedMdl}" == "x" ]; then
    module load ${intelCmplModuleName}
    module load Qt5/5.10.1-intel-2019a
    module load GCCcore/8.2.0
+   export LANG="en_US.UTF-8"
 fi
 loadedMdl=$(module list 2>&1 | grep ${intelCmplModuleName})
 if [ "x${loadedMdl}" == "x" ]; then

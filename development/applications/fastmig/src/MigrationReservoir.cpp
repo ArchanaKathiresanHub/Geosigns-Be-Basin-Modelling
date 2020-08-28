@@ -2277,9 +2277,9 @@ namespace migration
       PetscBool genexFraction;
       PetscBool printDebug;
 
-      PetscOptionsHasName (PETSC_NULL, "-genex", &genexMinorSnapshots);
-      PetscOptionsHasName (PETSC_NULL, "-genexf", &genexFraction);
-      PetscOptionsHasName (PETSC_NULL, "-debug", &printDebug);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-genex", &genexMinorSnapshots);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-genexf", &genexFraction);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-debug", &printDebug);
 
       const double depoTime = formation->getTopSurface ()->getSnapshot ()->getTime ();
       bool sourceRockIsActive = (depoTime > getStart ()->getTime ()) or fabs (depoTime - getStart ()->getTime ()) < Genex6::Constants::Zero;

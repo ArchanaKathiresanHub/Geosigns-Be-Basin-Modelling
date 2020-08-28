@@ -1259,13 +1259,13 @@ bool VisualizationPropertiesCalculator::parseCommandLine(int argc, char ** argv)
 
       PetscBool parameterDefined = PETSC_FALSE;
 
-      PetscOptionsHasName (PETSC_NULL, "-hdfonly", &parameterDefined);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-hdfonly", &parameterDefined);
       if (parameterDefined) m_vizFormatHDFonly = true;
 
-      PetscOptionsHasName (PETSC_NULL, "-listXml", &parameterDefined);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-listXml", &parameterDefined);
       if (parameterDefined) m_vizListXml = true;
 
-      PetscOptionsHasName (PETSC_NULL, "-pminor", &parameterDefined);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-pminor", &parameterDefined);
       if (parameterDefined)
       {
          m_snapshotsType = MAJOR | MINOR;
@@ -1275,7 +1275,7 @@ bool VisualizationPropertiesCalculator::parseCommandLine(int argc, char ** argv)
       PetscInt numberOfParameters = MaximumLengh;
       char parameter[MaximumLengh];
 
-      PetscOptionsGetString (PETSC_NULL, "-sim", parameter, numberOfParameters, &parameterDefined);
+      PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-sim", parameter, numberOfParameters, &parameterDefined);
       if (parameterDefined)
       {
          string simulatorName = string (parameter);
@@ -1310,7 +1310,7 @@ bool VisualizationPropertiesCalculator::parseCommandLine(int argc, char ** argv)
          }
       }
 
-      PetscOptionsGetString (PETSC_NULL, "-xml", parameter, numberOfParameters, &parameterDefined);
+      PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-xml", parameter, numberOfParameters, &parameterDefined);
       if (parameterDefined)
       {
          m_fileNameExistingXml = string (parameter);
@@ -1321,7 +1321,7 @@ bool VisualizationPropertiesCalculator::parseCommandLine(int argc, char ** argv)
          }
       }
 
-      PetscOptionsGetString (PETSC_NULL, "-savexml", parameter, numberOfParameters, &parameterDefined);
+      PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-savexml", parameter, numberOfParameters, &parameterDefined);
       if (parameterDefined)
       {
          m_fileNameXml = string (parameter);

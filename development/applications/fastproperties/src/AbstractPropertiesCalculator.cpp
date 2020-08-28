@@ -107,7 +107,7 @@ bool  AbstractPropertiesCalculator::finalise (bool isComplete) {
       outputFileName[0] = '\0';
 
       PetscBool isDefined = PETSC_FALSE;
-      PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, 128, &isDefined);
+      PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-save", outputFileName, 128, &isDefined);
       if (isDefined)
       {
          m_projectHandle->saveToFile(outputFileName);
@@ -651,8 +651,8 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
 
    PetscBool uDefined = PETSC_FALSE;
 
-   PetscOptionsHasName (PETSC_NULL, "-help", &parameterDefined);
-   PetscOptionsHasName (PETSC_NULL, "-usage", &uDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-help", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-usage", &uDefined);
 
    if (parameterDefined or uDefined)
    {
@@ -662,7 +662,7 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
    }
 
    PetscInt numberOfParameters = MaximumLengh;
-   PetscOptionsGetString (PETSC_NULL, "-project", parameter, numberOfParameters, &parameterDefined);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-project", parameter, numberOfParameters, &parameterDefined);
    if (not parameterDefined)
    {
       showUsage (argv[0], "No project file specified");
@@ -671,11 +671,11 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
       m_projectFileName = string(parameter);
    }
 
-   PetscOptionsHasName (PETSC_NULL, "-properties", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-properties", &parameterDefined);
    if (parameterDefined)
    {
       numberOfParameters = MaximumLengh;
-      PetscOptionsGetStringArray (PETSC_NULL, "-properties", parametersArray, &numberOfParameters, &parameterDefined);
+      PetscOptionsGetStringArray (PETSC_IGNORE, PETSC_IGNORE, "-properties", parametersArray, &numberOfParameters, &parameterDefined);
       if (not parameterDefined)
       {
          showUsage (argv[0], "Argument for '-properties' is missing");
@@ -690,11 +690,11 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
    }
 
    double agesArray[MaximumLengh];
-   PetscOptionsHasName (PETSC_NULL, "-ages", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-ages", &parameterDefined);
    if (parameterDefined)
    {
       numberOfParameters = MaximumLengh;
-      PetscOptionsGetRealArray (PETSC_NULL, "-ages", agesArray, &numberOfParameters, &parameterDefined);
+      PetscOptionsGetRealArray (PETSC_IGNORE, PETSC_IGNORE, "-ages", agesArray, &numberOfParameters, &parameterDefined);
       if (numberOfParameters == 0)
       {
          showUsage (argv[0], "Argument for '-ages' is missing");
@@ -713,11 +713,11 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
       }
    }
 
-   PetscOptionsHasName(PETSC_NULL, "-formations", &parameterDefined);
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-formations", &parameterDefined);
    if (parameterDefined)
    {
       numberOfParameters = MaximumLengh;
-      PetscOptionsGetStringArray (PETSC_NULL, "-formations", parametersArray, &numberOfParameters, &parameterDefined);
+      PetscOptionsGetStringArray (PETSC_IGNORE, PETSC_IGNORE, "-formations", parametersArray, &numberOfParameters, &parameterDefined);
       if (not parameterDefined)
       {
          showUsage (argv[0], "Argument for '-formations' is missing");
@@ -730,34 +730,34 @@ bool AbstractPropertiesCalculator::parseCommandLine(int argc, char ** argv) {
          m_formationNames.push_back (parametersArray[i]);
       }
    }
-   PetscOptionsHasName (PETSC_NULL, "-nobasement", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-nobasement", &parameterDefined);
    if (parameterDefined) m_basement = false;
 
-   PetscOptionsHasName (PETSC_NULL, "-minor", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-minor", &parameterDefined);
    if (parameterDefined) m_snapshotsType = MAJOR | MINOR;
 
-   PetscOptionsHasName (PETSC_NULL, "-all-2D-properties", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-all-2D-properties", &parameterDefined);
    if (parameterDefined) m_all2Dproperties = true;
 
-   PetscOptionsHasName (PETSC_NULL, "-all-3D-properties", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-all-3D-properties", &parameterDefined);
    if (parameterDefined) m_all3Dproperties = true;
 
-   PetscOptionsHasName (PETSC_NULL, "-list-properties", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-list-properties", &parameterDefined);
    if (parameterDefined) m_listProperties = true;
 
-   PetscOptionsHasName (PETSC_NULL, "-list-snapshots", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-list-snapshots", &parameterDefined);
    if (parameterDefined) m_listSnapshots = true;
 
-   PetscOptionsHasName (PETSC_NULL, "-list-stratigraphy", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-list-stratigraphy", &parameterDefined);
    if (parameterDefined) m_listStratigraphy = true;
 
-   PetscOptionsHasName (PETSC_NULL, "-debug", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-debug", &parameterDefined);
    if (parameterDefined) m_debug = true;
 
-   PetscOptionsHasName (PETSC_NULL, "-primaryPod", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-primaryPod", &parameterDefined);
    if (parameterDefined) m_primaryPod = true;
 
-   PetscOptionsHasName (PETSC_NULL, "-extract2D", &parameterDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-extract2D", &parameterDefined);
    if (parameterDefined) m_extract2D = true;
 
 

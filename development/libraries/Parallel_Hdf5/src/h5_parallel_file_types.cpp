@@ -86,8 +86,8 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool createDi
    PetscBool ofLustre   = PETSC_FALSE;
 
 #ifndef _MSC_VER
-   PetscOptionsHasName ( PETSC_NULL, "-noofpp", &noOfpp );
-   PetscOptionsHasName ( PETSC_NULL, "-lustre", &ofLustre );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-noofpp", &noOfpp );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-lustre", &ofLustre );
 
    if( !noOfpp and !ofLustre ) {
 
@@ -97,8 +97,8 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool createDi
       memset ( temporaryDirName, 0, PETSC_MAX_PATH_LEN );
 
       PetscBool oneFilePerProcess;
-      PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
-      PetscOptionsGetString ( PETSC_NULL, "-primaryPod", temporaryDirName, PETSC_MAX_PATH_LEN, &primaryPod );
+      PetscOptionsGetString ( PETSC_IGNORE, PETSC_IGNORE, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
+      PetscOptionsGetString ( PETSC_IGNORE, PETSC_IGNORE, "-primaryPod", temporaryDirName, PETSC_MAX_PATH_LEN, &primaryPod );
 
       setPrimaryPod ( primaryPod );
 
@@ -184,7 +184,7 @@ bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathNam
 
    if( rank == 0 ) {
       PetscBool noFileCopy = PETSC_FALSE;
-      PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+      PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-nocopy", &noFileCopy );
 
        if( !noFileCopy ) {
           ibs::FilePath curPath( getTempDirName() );
@@ -206,7 +206,7 @@ bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathNam
 void H5_Parallel_PropertyList ::  setOneNodeCollectiveBufferingOption()
 {
    PetscBool useAllNodesForCollectiveBuffering = PETSC_FALSE;
-   PetscOptionsGetBool( PETSC_NULL, "-useallnodesforcb", &useAllNodesForCollectiveBuffering, NULL );
+   PetscOptionsGetBool(PETSC_IGNORE, PETSC_IGNORE, "-useallnodesforcb", &useAllNodesForCollectiveBuffering, NULL );
 
    if (! useAllNodesForCollectiveBuffering)
    {
@@ -235,9 +235,9 @@ bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, 
    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 
    PetscBool noFileCopy = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-nocopy", &noFileCopy );
    PetscBool noFileRemove = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-noremove", &noFileRemove );
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-noremove", &noFileRemove );
 
    string fileName = activityName + "_Results.HDF" ;
    ibs::FilePath filePathName( localPath );

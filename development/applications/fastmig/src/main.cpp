@@ -73,7 +73,7 @@ int main (int argc, char ** argv)
    char inputFileName[PETSC_MAX_PATH_LEN];
    PetscBool inputFileSet;
 
-   PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, PETSC_MAX_PATH_LEN, &inputFileSet);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-project", inputFileName, PETSC_MAX_PATH_LEN, &inputFileSet);
    if (!inputFileSet)
    {
       printUsage (argv0);
@@ -84,7 +84,7 @@ int main (int argc, char ** argv)
    char outputFileName[PETSC_MAX_PATH_LEN];
    PetscBool outputFileSet;
 
-   PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, PETSC_MAX_PATH_LEN, &outputFileSet);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-save", outputFileName, PETSC_MAX_PATH_LEN, &outputFileSet);
    if (!outputFileSet)
    {
       strcpy (outputFileName, inputFileName);
@@ -94,7 +94,7 @@ int main (int argc, char ** argv)
    PetscBool numProcessorsSet;
 
    NumProcessorsArg = "";
-   PetscOptionsGetString (PETSC_NULL, "-procs", numProcessors, PETSC_MAX_PATH_LEN, &numProcessorsSet);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-procs", numProcessors, PETSC_MAX_PATH_LEN, &numProcessorsSet);
    if (numProcessorsSet)
    {
       NumProcessorsArg += "_";
@@ -103,7 +103,7 @@ int main (int argc, char ** argv)
 
    bool opLeak = false;
    PetscBool op_leakage = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-op_leak", &op_leakage);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-op_leak", &op_leakage);
    if (op_leakage)
    {
       opLeak = true;
@@ -111,7 +111,7 @@ int main (int argc, char ** argv)
 
 #ifndef _MSC_VER
    PetscBool ddd = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-ddd", &ddd);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-ddd", &ddd);
    if (ddd)
    {
       char cmd[150];
@@ -122,7 +122,7 @@ int main (int argc, char ** argv)
    }
 
    PetscBool idb = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-idb", &idb);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-idb", &idb);
    if (idb)
    {
       char cmd[150];
@@ -133,7 +133,7 @@ int main (int argc, char ** argv)
    }
 
    PetscBool cvd = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-cvd", &cvd);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-cvd", &cvd);
    if (cvd)
    {
       char cmd[150];
@@ -144,7 +144,7 @@ int main (int argc, char ** argv)
    }
 
    PetscBool gdb = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-gdb", &gdb);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-gdb", &gdb);
    if (gdb)
    {
       char cmd[150];
@@ -218,11 +218,11 @@ int main (int argc, char ** argv)
    try
    {
       PetscBool log = PETSC_FALSE;
-      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-verbosity", &log );
       if ( log )
       {
          char verbosity[11];
-         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         PetscOptionsGetString( PETSC_IGNORE, PETSC_IGNORE, "-verbosity", verbosity, 11, 0 );
          if      ( !strcmp( verbosity, "quiet"      ))  { LogHandler( "fastmig", LogHandler::QUIET_LEVEL,      rank ); }
          else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( "fastmig", LogHandler::MINIMAL_LEVEL   , rank ); }
          else if ( !strcmp( verbosity, "normal"     ) ) { LogHandler( "fastmig", LogHandler::NORMAL_LEVEL    , rank ); }

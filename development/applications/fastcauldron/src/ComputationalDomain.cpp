@@ -39,8 +39,8 @@ ComputationalDomain::ComputationalDomain ( const LayerProps& topLayer,
    m_column ( topLayer, bottomLayer ),
    m_activityPredicate ( activityPredicate ),
    m_isActive ( false ),
-   m_globalDofNumbers ( PETSC_NULL ),
-   m_local2global ( PETSC_NULL ),
+   m_globalDofNumbers ( PETSC_IGNORE ),
+   m_local2global ( PETSC_IGNORE ),
    m_currentAge ( -1.0 ),
    m_rank ( FastcauldronSimulator::getInstance ().getRank ()),
    m_localStartDofNumber ( 0 ),
@@ -79,7 +79,7 @@ ComputationalDomain::~ComputationalDomain () {
       VecDestroy ( &m_globalDofNumbers );
    }
 
-   if ( m_local2global != PETSC_NULL ) {
+   if ( m_local2global != PETSC_IGNORE ) {
       ISLocalToGlobalMappingDestroy ( &m_local2global );
    }
 
@@ -322,9 +322,12 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
    PetscViewerCreate ( PETSC_COMM_WORLD, &viewer);
    PetscViewerSetType(viewer, PETSCVIEWERASCII );
 #if PETSC_VIEWER_FORMAT_MATLAB
-   PetscViewerSetFormat( viewer, PETSC_VIEWER_ASCII_MATLAB );
+   PetscViewerPushFormat( viewer, PETSC_VIEWER_ASCII_MATLAB );
 #endif
    VecView ( m_globalDofNumbers, viewer );
+#if PETSC_VIEWER_FORMAT_MATLAB
+   PetscViewerPopFormat(viewer);
+#endif
    PetscViewerDestroy ( &viewer );
 #endif
 
@@ -711,7 +714,7 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
 
 void ComputationalDomain::numberLocalToGlobalMapping () {
 
-   if ( m_local2global != PETSC_NULL ) {
+   if ( m_local2global != PETSC_IGNORE ) {
       ISLocalToGlobalMappingDestroy ( &m_local2global );
    }
 

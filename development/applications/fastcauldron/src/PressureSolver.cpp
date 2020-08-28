@@ -147,7 +147,7 @@ void PressureSolver::checkPressureSolution () {
   Layer_Iterator Layers ( cauldron->layers, Ascending, Sediments_Only, Active_Layers_Only );
   LayerProps_Ptr Current_Layer;
 
-  DMDAGetCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+  DMDAGetCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
 
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
     Current_Layer = Layers.Current_Layer ();
@@ -446,7 +446,7 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
 
   double mantleMaximumElementThickness = FastcauldronSimulator::getInstance ().getRunParameters ()->getBrickHeightMantle ();
 
-  DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+  DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_IGNORE, &X_Count, &Y_Count, PETSC_IGNORE );
 
   CauldronCrustFormation* Crust_Layer  = cauldron->Crust ();
   CauldronMantleFormation* Mantle_Layer = cauldron->Mantle ();

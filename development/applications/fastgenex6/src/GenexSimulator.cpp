@@ -102,7 +102,7 @@ bool GenexSimulator::run()
 
    PetscBool minorSnapshots;
 
-   PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-minor", &minorSnapshots);
 
    PetscLogDouble run_Start_Time;
    PetscTime(&run_Start_Time);

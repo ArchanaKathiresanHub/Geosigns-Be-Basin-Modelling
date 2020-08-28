@@ -58,7 +58,7 @@ class TestCrustalThicknessCalculatorMerging : public TestCrustalThicknessCalcula
             auto c = const_cast<char*>(argvList[i].c_str());
             argv[i] = c ;
         }
-        auto ierr=PetscInitialize(&argc, &argv, (char*)0, PETSC_NULL); if (ierr) throw (std::runtime_error("PetscInitialize Failed")) ;
+        auto ierr=PetscInitialize(&argc, &argv, (char*)0, PETSC_IGNORE); if (ierr) throw (std::runtime_error("PetscInitialize Failed")) ;
         TestCrustalThicknessCalculator::SetUp();
     }
 

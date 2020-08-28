@@ -75,14 +75,47 @@ void PetscSolver::setInitialGuessNonZero ( const bool isNonZero ) {
    KSPSetInitialGuessNonzero ( m_solver, petscIsNonZero );
 }
 
-void PetscSolver::loadCmdLineOptions()
+void PetscSolver::loadCmdLineOptionsAndSetZeroPivot()
 {
-   KSPSetFromOptions ( m_solver );
+    KSPSetFromOptions(m_solver);
+
+    // \Set the ZERO for NULL pivot detection in preconditioner;
+    PC pc; PetscReal zero(1e-30);
+    KSPGetPC(m_solver, &pc);
+
+    if (pc != nullptr) {
+        PCFactorSetZeroPivot(pc, zero);
+        /* The above should work; else apply the next two lines
+            setPCFactorSetShiftType(MAT_SHIFT_NONZERO,PETSC_DECIDE);
+            or;
+            -pc_factor_shift_type NONZERO -pc_factor_shift_amount <dampingfactor>
+            from the command line
+        */
+    }
 }
+
+void PetscSolver::setPCFactorSetShiftType(MatFactorShiftType ShiftType, double shiftAmount)
+{
+	PC pc; KSPGetPC(m_solver, &pc);
+	if (pc != nullptr) {
+		PCFactorSetShiftType(pc, ShiftType);
+		if (shiftAmount != PETSC_DECIDE)
+			PCFactorSetShiftAmount(pc, shiftAmount);
+		else
+			PCFactorSetShiftAmount(pc, PETSC_DECIDE);
+	}
+}
+
+
 
 void PetscSolver::viewSettings() const
 {
    KSPView( m_solver, PETSC_VIEWER_STDOUT_WORLD );
+}
+
+void PetscSolver::reset()
+{
+    KSPReset(m_solver);
 }
 
 int PetscSolver :: getMaxIterations() const
@@ -131,14 +164,14 @@ void PetscSolver :: setPCtype ( const PCType pcType )
          for( unsigned int i = 0; i < hypreNumOpt; ++i )
          {
             hypreOption = "-" + hypreOptions[i].first;
-            PetscOptionsClearValue( hypreOption.c_str() );
+            PetscOptionsClearValue(PETSC_IGNORE, hypreOption.c_str() );
          }
       }
       m_pc = pcType;
       if( PCHYPRE == m_pc )
       {
          createHypreOptionString( hypreOption );
-         PetscOptionsInsertString( hypreOption.c_str() );
+         PetscOptionsInsertString(PETSC_IGNORE, hypreOption.c_str() );
       }
 
       // Destroy current solver
@@ -178,7 +211,7 @@ void PetscSolver :: createHypreOptionString( std::string & optionString ) const
       const std::string optionName = "-" + hypreOptions[i].first + " ";
       optionString.append( optionName );
       // If the options has already been defined at command line it has higher priority
-      PetscOptionsGetString( NULL, optionName.c_str(), optionValue, sizeof(optionValue), &flg );
+      PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE, optionName.c_str(), optionValue, sizeof(optionValue), &flg);
       if( flg and optionValue[0] != 0 )
       {
          optionString.append( optionValue );

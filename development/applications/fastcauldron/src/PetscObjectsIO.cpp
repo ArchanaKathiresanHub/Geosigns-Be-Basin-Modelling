@@ -55,15 +55,17 @@ namespace PetscObjectsIO
             // PETSc by default prevents writing to ASCII file matrices with more than 1024 rows,
             // in this case an additional command line option has to be added to override it
             char additionalOptions[] = "-mat_ascii_output_large";
-            status = PetscOptionsInsertString( additionalOptions );
+            status = PetscOptionsInsertString(PETSC_IGNORE, additionalOptions );
          }
          fileName = fPath.path() + s_matlabExt;
          status = PetscViewerASCIIOpen( PETSC_COMM_WORLD, fileName.c_str(), &viewer );
-         status = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+         status = PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
       }
       status = PetscViewerSetFromOptions( viewer );
       status = PetscObjectSetName( (PetscObject) matrix, "A" );
       status = MatView( matrix, viewer ); // Write matrix to file
+      if(!binary)
+          status = PetscViewerPopFormat(viewer);
       status = PetscViewerDestroy( &viewer );
 
       return status;
@@ -133,11 +135,13 @@ namespace PetscObjectsIO
       {
          fileName = fPath.path() + s_matlabExt;
          status = PetscViewerASCIIOpen( PETSC_COMM_WORLD, fileName.c_str(), &viewer );
-         status = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+         status = PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB); 
       }
       status = PetscViewerSetFromOptions( viewer );
       status = PetscObjectSetName( (PetscObject) vector, "b" );
       status = VecView( vector, viewer ); // Write vector to file
+      if (!binary)
+          status = PetscViewerPopFormat(viewer);
       status = PetscViewerDestroy( &viewer );
 
       return status;

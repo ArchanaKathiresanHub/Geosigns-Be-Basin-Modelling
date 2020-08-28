@@ -31,7 +31,7 @@ int main(int argc, char** argv)
    std::set_new_handler ( abortOnBadAlloc );
 
    // Initialise Petsc and get rank & size of MPI
-   PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
+   PetscInitialize (&argc, &argv, (char *) 0, PETSC_IGNORE);
    int rank;
    MPI_Comm_rank( PETSC_COMM_WORLD, &rank );
    Utilities::CheckMemory::MemoryChecker mc(rank);
@@ -40,11 +40,11 @@ int main(int argc, char** argv)
    try
    {
       PetscBool log = PETSC_FALSE;
-      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-verbosity", &log );
       if ( log )
       {
          char verbosity[11];
-         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         PetscOptionsGetString( PETSC_IGNORE, PETSC_IGNORE, "-verbosity", verbosity, 11, 0 );
          if      ( !strcmp( verbosity, "quiet"      ))  { LogHandler( "fastcauldron", LogHandler::QUIET_LEVEL     , rank ); }
          else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( "fastcauldron", LogHandler::MINIMAL_LEVEL   , rank ); }
          else if ( !strcmp( verbosity, "normal"     ) ) { LogHandler( "fastcauldron", LogHandler::NORMAL_LEVEL    , rank ); }

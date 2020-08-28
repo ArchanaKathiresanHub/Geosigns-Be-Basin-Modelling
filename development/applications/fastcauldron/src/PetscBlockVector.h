@@ -2,6 +2,7 @@
 #define _FASTCAULDRON__PETSC_BLOCK_VECTOR__H_
 
 #include "petsc.h"
+#include "PetscVectors.h"
 
 #include "ElementVolumeGrid.h"
 #include "NodalVolumeGrid.h"
@@ -185,7 +186,8 @@ PetscBlockVector<BlockValueType>::~PetscBlockVector () {
       DMDAVecRestoreArray ( m_da, m_localVector, &m_values );
 
       if ( m_globalVector != m_localVector ) {
-         DMRestoreLocalVector ( m_da, &m_localVector );
+         //DMRestoreLocalVector ( m_da, &m_localVector );
+         Destroy_Petsc_Vector(m_localVector);
       }
 
    }
@@ -237,7 +239,8 @@ void PetscBlockVector<BlockValueType>::setVector ( const ElementVolumeGrid& grid
    m_globalVector = globalVector;
 
    if ( includeGhosts ) {
-      DMGetLocalVector     ( m_da, &m_localVector );
+      //DMGetLocalVector     ( m_da, &m_localVector );
+      DMCreateLocalVector(m_da, &m_localVector);
       DMGlobalToLocalBegin ( m_da, m_globalVector, mode, m_localVector );
       DMGlobalToLocalEnd   ( m_da, m_globalVector, mode, m_localVector );
    } else {
@@ -268,7 +271,8 @@ void PetscBlockVector<BlockValueType>::setVector ( const NodalVolumeGrid& grid,
    m_globalVector = globalVector;
 
    if ( includeGhosts ) {
-      DMGetLocalVector     ( m_da, &m_localVector );
+      //DMGetLocalVector     ( m_da, &m_localVector );
+      DMCreateLocalVector(m_da, &m_localVector);
       DMGlobalToLocalBegin ( m_da, m_globalVector, mode, m_localVector );
       DMGlobalToLocalEnd   ( m_da, m_globalVector, mode, m_localVector );
    } else {
@@ -322,7 +326,8 @@ void PetscBlockVector<BlockValueType>::restoreVector ( const PETScUpdateMode upd
    }
 
    if ( m_withGhosts ) {
-      DMRestoreLocalVector ( m_da, &m_localVector );
+      //DMRestoreLocalVector ( m_da, &m_localVector );
+      Destroy_Petsc_Vector(m_localVector);
    }
 
    m_dataRestored = true;

@@ -102,11 +102,10 @@ void ElementGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
    for ( i = 0; i < m_numberOfYProcessors; ++i ) {
       MPI_Allreduce ( &buffer [ i ], &m_yPartitioning [ i ], 1, MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
    }
-
+   /* Create a DMDA and an associated vector */
    // // Fill yElementPartitioning array.
    // MPI_Allreduce ( buffer, m_yPartitioning, m_numberOfYProcessors, MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
-
-   DMDACreate2d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
+   PetscErrorCode err = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
                   totalNumberOfXElements,
                   totalNumberOfYElements,
                   m_numberOfXProcessors,
@@ -116,8 +115,9 @@ void ElementGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
                   m_yPartitioning,
                   &elementDa );
    
-   DMDAGetLocalInfo ( elementDa, &m_localInfo );
-
+   err = DMSetFromOptions(elementDa);
+   err = DMSetUp(elementDa);
+   err = DMDAGetLocalInfo(elementDa, &m_localInfo);
    delete [] buffer;
 }
 

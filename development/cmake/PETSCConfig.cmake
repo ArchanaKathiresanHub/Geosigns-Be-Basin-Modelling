@@ -20,13 +20,13 @@ add_external_project_to_repository(
       NAME PETSC
       VERSION ${PETSC_VERSION}_Hypre
       ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-${PETSC_VERSION}.tar.gz"
-      ARCHIVE_MD5 "781af0eec1e821f82fb3ecc7a2dfda8e"
+      ARCHIVE_MD5 "E21EC10AEA4111A315DF83DD398E141A"
       DEPENDS_NAME "Hypre"
-      DEPENDS_VER "2.9.1"
+      DEPENDS_VER "2.18.2"
       CONFIGURE_COMMAND
          "./configure"
             "--prefix={ROOT}"
-            "--with-clanguage=cxx"
+            #"--with-clanguage=cxx"
             "--with-large-file-io=1"
             "--with-precision=double"
             "--with-x=0"
@@ -46,8 +46,11 @@ add_external_project_to_repository(
       TEST_COMMAND    "make" "test"
       INSTALL_COMMAND "make" "install"
       CONFIGURE_OPTIONS
-        COMPILER "{CurrentCompiler}"  "--with-cc={CC}" "--with-cxx={CXX}"
-        MPI      "{CurrentMPI}"    "--with-mpi=1" "--with-mpi-dir=${INTEL_MPI_ROOT}"
+        #COMPILER "{CurrentCompiler}"  "--with-cc=${INTEL_MPI_ROOT}/bin64/mpigcc" "--with-cxx=${INTEL_MPI_ROOT}/bin64/mpigxx"
+		#COMPILER "{CurrentCompiler}"  "--with-cc=gcc" "--with-cxx=g++"
+		COMPILER "{CurrentCompiler}"  "--with-cc={CC}" "--with-cxx={CXX}"
+        #MPI      "{CurrentMPI}"    "--with-mpi=1"  "--with-mpi-dir=${INTEL_MPI_ROOT}"
+		MPI      "{CurrentMPI}"    "--with-mpi=1" "--with-mpi-compilers=0"
         SPEED    "Release"         "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g" "--CXXFLAGS=-g" "--with-debugging=no"
         SPEED    "Debug"           "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g" "--CXXFLAGS=-g" "--with-debugging=no"
         SPEED    "DebugAll"        "--with-debugging"
@@ -69,11 +72,11 @@ add_external_project_to_repository(
       NAME PETSC
       VERSION ${PETSC_VERSION}
       ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-${PETSC_VERSION}.tar.gz"
-      ARCHIVE_MD5 "781af0eec1e821f82fb3ecc7a2dfda8e"
+      ARCHIVE_MD5 "E21EC10AEA4111A315DF83DD398E141A"
       CONFIGURE_COMMAND
          "./configure"
             "--prefix={ROOT}"
-            "--with-clanguage=cxx"
+            #"--with-clanguage=cxx"
             "--with-large-file-io=1"
             "--with-precision=double"
             "--with-x=0"
@@ -91,8 +94,11 @@ add_external_project_to_repository(
       TEST_COMMAND    "make" "test"
       INSTALL_COMMAND "make" "install"
       CONFIGURE_OPTIONS
-        COMPILER "{CurrentCompiler}"  "--with-cc={CC}" "--with-cxx={CXX}"
-        MPI      "{CurrentMPI}"    "--with-mpi=1" "--with-mpi-dir=${INTEL_MPI_ROOT}"
+        #COMPILER "{CurrentCompiler}"  "--with-cc=${INTEL_MPI_ROOT}/bin64/mpigcc" "--with-cxx=${INTEL_MPI_ROOT}/bin64/mpigxx"
+		#COMPILER "{CurrentCompiler}"  "--with-cc=gcc" "--with-cxx=g++"
+		COMPILER "{CurrentCompiler}"  "--with-cc={CC}" "--with-cxx={CXX}"
+        #MPI      "{CurrentMPI}"    "--with-mpi=1"  "--with-mpi-dir=${INTEL_MPI_ROOT}"
+		MPI      "{CurrentMPI}"    "--with-mpi=1" "--with-mpi-compilers=0"
         SPEED    "Release"         "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g" "--CXXFLAGS=-g" "--with-debugging=no"
         SPEED    "Debug"           "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g" "--CXXFLAGS=-g" "--with-debugging=no"
         SPEED    "DebugAll"        "--with-debugging"
@@ -123,9 +129,11 @@ elseif (WIN32) # windows
    if(CMAKE_BUILD_TYPE STREQUAL "Release")
       set(PETSC_INCLUDE_DIRS "${PETSC_INCLUDE_DIRS}" "${PETSC_RELEASE}/include")
       set(PETSC_LIBRARIES "${PETSC_LIBRARIES}" "${PETSC_RELEASE}/lib/libpetsc.lib")
+	  set(PETSC_LIBRARIES "${PETSC_LIBRARIES}" "${HYPRE_LIBRARIES}")
    else() # Debug
       set(PETSC_INCLUDE_DIRS "${PETSC_INCLUDE_DIRS}" "${PETSC_DEBUG}/include")
       set(PETSC_LIBRARIES "${PETSC_LIBRARIES}" "${PETSC_DEBUG}/lib/libpetsc.lib")
+	  set(PETSC_LIBRARIES "${PETSC_LIBRARIES}" "${HYPRE_LIBRARIES}")
    endif()
 
    set(PETSC_FOUND TRUE)
@@ -139,8 +147,8 @@ add_external_package_info(
     NAME         "PETSc"
     VENDOR       "Argonne National Laboratory"
     VERSION      "${PETSC_VERSION}"
-    LICENSE_TYPE "Simplified BSD"
-    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Petsc-3.5.4.txt"
+    LICENSE_TYPE "2-clause BSD license"
+    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Petsc-3.13.1.txt"
     URL          "http://www.mcs.anl.gov/petsc/"
     DESCRIPTION  "Portable, Extensible Toolkit for Scientific Computation"
     REQUIRED_AT  "Runtime"

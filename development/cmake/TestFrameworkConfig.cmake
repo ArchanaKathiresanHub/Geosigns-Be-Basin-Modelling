@@ -27,6 +27,7 @@ if (MSVC11)
   add_definitions(-D_VARIADIC_MAX=10)
 endif()
     
+# add_subdirectory(${THIRD_PARTY_DIR}/googletest-master gmock EXCLUDE_FROM_ALL) ## retaining this for the future to upgrade gtest version
 add_subdirectory(${THIRD_PARTY_DIR}/gmock-1.6.0 gmock EXCLUDE_FROM_ALL)
 
 # Mark internal Google test variables as advanced
@@ -159,7 +160,7 @@ macro(add_gtest)
    
    # Windows has a 260 character limitation of path names, so want to keep the executable name length limited
    if (WIN32)
-     set(maxExeNameLength 40)
+     set(maxExeNameLength 100)
      string(LENGTH "${execName}" exeNameLength)
      if (exeNameLength GREATER maxExeNameLength)
        string(SUBSTRING "${execName}" 0 "${maxExeNameLength}" croppedExeName)

@@ -15,6 +15,16 @@ struct Init
   ~Init() { PetscFinalize(); }
 } initMe;
 
+TEST(PetscObjectsIO, PETScVersionNumber)
+{
+    char           version[128];
+    PetscInt       major, minor, subminor;
+    PetscGetVersion(version, sizeof(version));
+    PetscGetVersionNumber(&major, &minor, &subminor, NULL);
+    EXPECT_EQ(major ,3);
+    EXPECT_EQ(minor , 13);
+    EXPECT_EQ(subminor , 1);
+}
 
 TEST( PetscObjectsIO, MissingFolderOnRead )
 {

@@ -68,7 +68,7 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
    m_convertingTo (0), m_conversionsToI (0), m_conversionsToJ (0), m_returnsI (0), m_returnsJ (0)
 {
    int numICores, numJCores;
-
+   PetscErrorCode err;
    int size;
    MPI_Comm_size (PETSC_COMM_WORLD, &size);
 
@@ -95,14 +95,18 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
       exit (-1);
    }
 
-
-   DMDACreate2d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
-                  numIGlobal (), numJGlobal (),
-                  numICores, numJCores, 1, 1,
-                  PETSC_NULL, PETSC_NULL, &m_localInfo.da );
-
-   DMDAGetLocalInfo (m_localInfo.da, &m_localInfo);
-   DMCreateGlobalVector (m_localInfo.da, &m_vecGlobal);
+   PetscInt M = numIGlobal();
+   PetscInt N = numJGlobal();
+   PetscInt m = numICores;
+   PetscInt n = numJCores;
+   err = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+       M, N,
+       m, n,
+       1, 1, NULL, NULL, &m_localInfo.da);
+   err = DMSetFromOptions(m_localInfo.da);
+   err = DMSetUp(m_localInfo.da);
+   err = DMDAGetLocalInfo(m_localInfo.da, &m_localInfo);
+   err = DMCreateGlobalVector(m_localInfo.da, &m_vecGlobal);
 
    calculateNums(this); // calculated because fastcauldron is using them to create its own DA's.
 }
@@ -115,23 +119,33 @@ DistributedGrid::DistributedGrid (const Grid * referenceGrid, double minI, doubl
 {
 
    calculateNums(referenceGrid);
+   PetscErrorCode err;
+   //  global dimension in each direction of the array
+   PetscInt M = numIGlobal();
+   PetscInt N = numJGlobal();
+   // corresponding number of processors in each dimension
+   PetscInt m = referenceGrid->numProcsI();
+   PetscInt n = referenceGrid->numProcsJ();
+   //Arrays containing the number of nodes in each cell along the x and y coordinates, or NULL. If non-null, these must be of length as m and n, and the corresponding m and n cannot be PETSC_DECIDE. 
+   //The sum of the lx[] entries must be M, and the sum of the ly[] entries must be N.
+   auto lx = numsI();
+   auto ly = numsJ();
+   err = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+       M, N,
+       m, n, 1, 1,
+       lx, ly, &m_localInfo.da);
 
-   DMDACreate2d (PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
-                 numIGlobal (), numJGlobal (),
-                 referenceGrid->numProcsI (), referenceGrid->numProcsJ (), 1, 1,
-                 numsI (), numsJ (), &m_localInfo.da);
-
-   DMDAGetLocalInfo (m_localInfo.da, &m_localInfo);
-
-#if 0
+#if DEBUGGING
    PetscSynchronizedPrintf (PETSC_COMM_WORLD, "Rank %d: xs = %d, xm = %d, ys = %d, ym = %d\n",
     ddd::GetRank (), m_localInfo.xs, m_localInfo.xm, m_localInfo.ys, m_localInfo.ym);
    PetscSynchronizedPrintf (PETSC_COMM_WORLD, "Rank %d: gxs = %d, gxm = %d, gys = %d, gym = %d\n",
     ddd::GetRank (), m_localInfo.gxs, m_localInfo.gxm, m_localInfo.gys, m_localInfo.gym);
-   PetscSynchronizedFlush (PETSC_COMM_WORLD);
+   //PetscSynchronizedFlush (PETSC_COMM_WORLD);
 #endif
-
-   DMCreateGlobalVector (m_localInfo.da, &m_vecGlobal);
+   err = DMSetFromOptions(m_localInfo.da);
+   err = DMSetUp(m_localInfo.da);
+   err = DMDAGetLocalInfo(m_localInfo.da, &m_localInfo);
+   err = DMCreateGlobalVector(m_localInfo.da, &m_vecGlobal);
 }
 
 void DistributedGrid::calculateNums(const Grid * referenceGrid)
@@ -429,12 +443,12 @@ int DistributedGrid::numProcsI (void) const
 {
    if (m_numProcsI < 0)
    {
-   DMDAGetInfo( m_localInfo.da, PETSC_NULL,
-                PETSC_NULL, PETSC_NULL, PETSC_NULL,
-                &m_numProcsI, PETSC_NULL, PETSC_NULL,
-                PETSC_NULL,PETSC_NULL,
-                PETSC_NULL,PETSC_NULL,PETSC_NULL,
-                PETSC_NULL);
+   DMDAGetInfo( m_localInfo.da, PETSC_IGNORE,
+                PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+                &m_numProcsI, PETSC_IGNORE, PETSC_IGNORE,
+                PETSC_IGNORE,PETSC_IGNORE,
+                PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,
+                PETSC_IGNORE);
    }
 
    return m_numProcsI;
@@ -444,24 +458,24 @@ int DistributedGrid::numProcsJ (void) const
 {
    if (m_numProcsJ < 0)
    {
-   DMDAGetInfo( m_localInfo.da, PETSC_NULL,
-                PETSC_NULL, PETSC_NULL, PETSC_NULL,
-                PETSC_NULL, &m_numProcsJ, PETSC_NULL,
-                PETSC_NULL,PETSC_NULL,
-                PETSC_NULL,PETSC_NULL,PETSC_NULL,
-                PETSC_NULL);
+   DMDAGetInfo( m_localInfo.da, PETSC_IGNORE,
+                PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+                PETSC_IGNORE, &m_numProcsJ, PETSC_IGNORE,
+                PETSC_IGNORE,PETSC_IGNORE,
+                PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,
+                PETSC_IGNORE);
    }
    return m_numProcsJ;
 }
 
 PetscInt * DistributedGrid::numsI (void) const
 {
-   return (m_numsI ? m_numsI : PETSC_NULL);
+   return (m_numsI ? m_numsI : PETSC_IGNORE);
 }
 
 PetscInt * DistributedGrid::numsJ (void) const
 {
-   return (m_numsJ ? m_numsJ : PETSC_NULL);
+   return (m_numsJ ? m_numsJ : PETSC_IGNORE);
 }
 
 bool DistributedGrid::isGridPoint (unsigned int i, unsigned int j) const

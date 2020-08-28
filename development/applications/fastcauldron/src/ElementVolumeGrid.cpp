@@ -72,7 +72,7 @@ void ElementVolumeGrid::construct ( const ElementGrid& grid,
       m_yPartitioning [ i ] = grid.getYPartitioning ()[ i ];
    }
 
-   DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
+   PetscErrorCode err = DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
                   grid.getNumberOfXElements (),
                   grid.getNumberOfYElements (),
                   numberOfZElements,
@@ -83,10 +83,11 @@ void ElementVolumeGrid::construct ( const ElementGrid& grid,
                   1,
                   m_xPartitioning,
                   m_yPartitioning,
-                  PETSC_NULL,
+                  PETSC_IGNORE,
                   &volumeDa );
-   
-   DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
+   err = DMSetFromOptions(volumeDa);
+   err = DMSetUp(volumeDa);
+   err = DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
 
    m_first [ 0 ] = m_localInfo.xs;
    m_first [ 1 ] = m_localInfo.ys;
@@ -118,22 +119,22 @@ void ElementVolumeGrid::resizeInZDirection ( const int numberOfZElements ) {
       DM volumeDa;
 
       DMDestroy ( &m_localInfo.da );
-
-      DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
-                     getNumberOfXElements (),
-                     getNumberOfYElements (),
-                     numberOfZElements,
-                     getNumberOfXProcessors (),
-                     getNumberOfYProcessors (),
-                     1, 
-                     getNumberOfDofs (),
-                     1,
-                     m_xPartitioning,
-                     m_yPartitioning,
-                     PETSC_NULL,
-                     &volumeDa );
-
-      DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
+      PetscErrorCode err = DMDACreate3d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
+          getNumberOfXElements(),
+          getNumberOfYElements(),
+          numberOfZElements,
+          getNumberOfXProcessors(),
+          getNumberOfYProcessors(),
+          1,
+          getNumberOfDofs(),
+          1,
+          m_xPartitioning,
+          m_yPartitioning,
+          PETSC_IGNORE,
+          &volumeDa);
+      err = DMSetFromOptions(volumeDa);
+      err = DMSetUp(volumeDa);
+      err = DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
 
       m_first [ 0 ] = m_localInfo.xs;
       m_first [ 1 ] = m_localInfo.ys;

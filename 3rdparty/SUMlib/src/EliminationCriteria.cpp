@@ -10,6 +10,7 @@
 #include <boost/none.hpp>
 #include <cmath>
 #include <iterator>
+#include <algorithm>
 
 namespace SUMlib {
 

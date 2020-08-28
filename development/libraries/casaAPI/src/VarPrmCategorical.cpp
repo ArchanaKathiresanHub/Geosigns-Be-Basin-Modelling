@@ -140,9 +140,9 @@ std::vector< unsigned int> VarPrmCategorical::valuesAsUnsignedIntSortedSet() con
       }
 
       // to inform dependent parameter that there was a choice of new category value
-      m_catDependentVarPrms.connect( boost::bind( &VarPrmContinuous::onCategoryChosen, depPrm, _1 ) );
+      m_catDependentVarPrms.connect( boost::bind( &VarPrmContinuous::onCategoryChosen, depPrm, boost::placeholders::_1 ) );
 
       // to inform dependent parameter that this parameter was serialized to store dependency
-      m_serDependentVarPrms.connect(    boost::bind( &VarPrmContinuous::onSerialization, depPrm, _1 ) );
+      m_serDependentVarPrms.connect(    boost::bind( &VarPrmContinuous::onSerialization, depPrm, boost::placeholders::_1 ) );
    }
 }

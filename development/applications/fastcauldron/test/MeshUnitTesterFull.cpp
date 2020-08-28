@@ -57,7 +57,7 @@ TEST ( DofCountingUnitTest, FullMesh ) {
    argv [ 3 ] = "-decompaction";
    argv [ 4 ] = NULL;
 
-   PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
+   PetscInitialize (&argc, &argv, (char *) 0, PETSC_IGNORE);
 
    // Declaration block required so as to finalise all fastcauldron objects before calling PetscFinalise.
    {

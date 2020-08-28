@@ -178,13 +178,13 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      pressureSolver = new GeometricLoopPressureSolver ( basinModel );
   }
 
-  DMDAGetInfo ( *basinModel -> mapDA, PETSC_NULL,
-                &Number_Of_X_Nodes, &Number_Of_Y_Nodes, PETSC_NULL,
+  DMDAGetInfo ( *basinModel -> mapDA, PETSC_IGNORE,
+                &Number_Of_X_Nodes, &Number_Of_Y_Nodes, PETSC_IGNORE,
                 &Number_Of_X_Processors, &Number_Of_Y_Processors,
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL);
+                PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE);
 
-  DMDAGetCorners ( *basinModel -> mapDA, PETSC_NULL, PETSC_NULL, PETSC_NULL,
-                   &Local_Number_Of_X_Nodes, &Local_Number_Of_Y_Nodes, PETSC_NULL );
+  DMDAGetCorners ( *basinModel -> mapDA, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+                   &Local_Number_Of_X_Nodes, &Local_Number_Of_Y_Nodes, PETSC_IGNORE );
 
   Include_Ghost_Values = true;
   Update_Ghost_Values  = true;
@@ -238,7 +238,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   // If we are using the advanced lithospheric calculator
   if (basinModel->isALC()) {
      PetscBool debugAlc = PETSC_FALSE;
-     PetscOptionsHasName( PETSC_NULL, "-debugalc", &debugAlc );
+     PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-debugalc", &debugAlc );
 
      //default alc outputs
      mapOutputProperties.push_back( TOP_BASALT_ALC );
@@ -583,7 +583,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   // Not clear to us why we need this list, this will need to be checked when revising properties
 
   PetscBool addMinorProperties;
-  PetscOptionsHasName( PETSC_NULL, "-minor", &addMinorProperties );
+  PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-minor", &addMinorProperties );
 
   if ( addMinorProperties || basinModel->primaryOutput() ) {
      looselyCoupledOutputProperties.push_back( CHEMICAL_COMPACTION );
@@ -654,18 +654,18 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_saveMatrixToFile   = PETSC_FALSE;
   m_saveInMatlabFormat = PETSC_FALSE;
   m_saveTimeStep       = 0.0;
-  PetscOptionsHasName( NULL, "-saveMatrix", &m_saveMatrixToFile );
+  PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-saveMatrix", &m_saveMatrixToFile );
   if( m_saveMatrixToFile )
   {
      PetscBool status = PETSC_FALSE;
-     PetscOptionsGetReal( NULL, "-saveMatrix", &m_saveTimeStep, &status );
+     PetscOptionsGetReal(PETSC_IGNORE, PETSC_IGNORE, "-saveMatrix", &m_saveTimeStep, &status );
      if( !status )
      {
         m_saveMatrixToFile = PETSC_FALSE;
      }
      else
      {
-        PetscOptionsHasName( NULL, "-matlab", &m_saveInMatlabFormat );
+        PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-matlab", &m_saveInMatlabFormat );
         m_saveTimeStep = std::min( m_saveTimeStep, FastcauldronSimulator::getInstance().getAgeOfBasin() );
         m_saveTimeStep = std::max( m_saveTimeStep, 0.0 );
      }
@@ -2203,7 +2203,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
 
   std::shared_ptr<PetscSolver> pressureLinearSolver ( new PetscCG ( pressureSolver->getLinearSolverTolerance ( basinModel->Optimisation_Level ),
                                                                     PressureSolver::DefaultMaximumPressureLinearSolverIterations ));
-  pressureLinearSolver->loadCmdLineOptions();
+  pressureLinearSolver->loadCmdLineOptionsAndSetZeroPivot();
 
 
   Jacobian = PetscObjectAllocator::allocateMatrix ( m_pressureComputationalDomain );
@@ -2213,7 +2213,9 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
 
   SolutionVectorMapping mapping ( m_pressureComputationalDomain, Basin_Modelling::Overpressure );
 
-  PetscViewerSetFormat(PETSC_VIEWER_STDOUT_WORLD, PETSC_VIEWER_ASCII_MATLAB );
+// I don't understand the use of this viewer here... Ak
+  PetscViewerPushFormat(PETSC_VIEWER_STDOUT_WORLD, PETSC_VIEWER_ASCII_MATLAB );
+  PetscViewerPopFormat(PETSC_VIEWER_STDOUT_WORLD );
 
   mapping.getSolution ( Overpressure );
 
@@ -2339,7 +2341,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
 
          // Check if HYPRE has been disabled from command line
          PetscBool disableHypre = PETSC_FALSE;
-         PetscOptionsHasName( NULL, "-disableHypre", &disableHypre );
+         PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-disableHypre", &disableHypre );
 
          if( (PETSC_FALSE == disableHypre) && (convergedReason == KSP_DIVERGED_ITS) && (pressureLinearSolver->getPCtype() != PCHYPRE) )
          {
@@ -2375,7 +2377,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
                                                                 pressureLinearSolver->getMaxIterations ()));
 
                   gmres = dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
-                  gmres->loadCmdLineOptions();
+                  gmres->loadCmdLineOptionsAndSetZeroPivot();
                   gmres->setRestart ( std::max( gmres->getRestart(), PressureSolver::DefaultGMResRestartValue ));
                   gmres->setMaxIterations( std::max( pressureLinearSolver->getMaxIterations(), PressureSolver::DefaultMaximumPressureLinearSolverIterations) );
 
@@ -2417,9 +2419,11 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
         PetscViewer    viewer;
         PetscViewerCreate( PETSC_COMM_WORLD, &viewer);
         PetscViewerSetType(viewer, PETSC_VIEWER_ASCII );
-        PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB );
+        PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB );
         MatView ( Jacobian, viewer );
         VecView ( Residual, viewer );
+        PetscViewerPopFormat(viewer);
+        PetscViewerDestroy(&viewer);
       }
 #endif
 
@@ -2558,7 +2562,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
   }
 
   PetscScalar Maximum_Overpressure;
-  VecMax( Overpressure, PETSC_NULL, &Maximum_Overpressure );
+  VecMax( Overpressure, PETSC_IGNORE, &Maximum_Overpressure );
 
   PetscScalar Max_Difference = pressureSolver->maximumPressureDifference ();
 
@@ -2691,7 +2695,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
                                                       basinModel->Temperature_GMRes_Restart ));
   }
 
-  temperatureLinearSolver->loadCmdLineOptions();
+  temperatureLinearSolver->loadCmdLineOptionsAndSetZeroPivot();
 
   PetscScalar Previous_T_Norm = 0.0;
 
@@ -2950,7 +2954,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   }
 
   temperatureLinearSolver->setInitialGuessNonZero ( true );
-  temperatureLinearSolver->loadCmdLineOptions();
+  temperatureLinearSolver->loadCmdLineOptionsAndSetZeroPivot();
 
   PetscLogStages::push( PetscLogStages :: TEMPERATURE_LINEAR_SOLVER );
   PetscTime(&Iteration_Start_Time);
@@ -3039,7 +3043,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
 
      // Tell the linear solver that the initial guess is not the zero vector.
      temperatureLinearSolver->setInitialGuessNonZero ( true );
-     temperatureLinearSolver->loadCmdLineOptions();
+     temperatureLinearSolver->loadCmdLineOptionsAndSetZeroPivot();
      temperatureLinearSolver->solve(Stiffness_Matrix, Load_Vector, Temperature, &numberOfLinearIterations, &convergedReason);
 
      if ( convergedReason < 0 ) {
@@ -3251,7 +3255,7 @@ void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const
   Layer_Iterator Layers;
   const CompoundLithology*  Current_Lithology;
 
-  DMDAGetCorners ( *basinModel->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+  DMDAGetCorners ( *basinModel->mapDA, &X_Start, &Y_Start, PETSC_IGNORE, &X_Count, &Y_Count, PETSC_IGNORE );
   const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 
 
@@ -3669,7 +3673,7 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
 
   Pressure_Layers.Initialise_Iterator ( basinModel->layers, Descending, Basin_Bottom, Active_Layers_Only );
 
-  DMDAGetCorners ( *basinModel->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+  DMDAGetCorners ( *basinModel->mapDA, &X_Start, &Y_Start, PETSC_IGNORE, &X_Count, &Y_Count, PETSC_IGNORE );
 
   bool onThisNode = false;
 

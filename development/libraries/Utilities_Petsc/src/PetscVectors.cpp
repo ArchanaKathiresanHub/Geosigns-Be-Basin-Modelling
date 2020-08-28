@@ -53,7 +53,18 @@ PETSC_3D_Array::PETSC_3D_Array ( const DM         Global_Array,
   Global_Distributed_Vector = Global_Vector;
 
   if ( Include_Ghost_Values ) {
-    DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+      //
+      //    DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+      //    can not be used with new PETSc Because of the way PETSc handle reference counting you cannot put 
+      //    a DMRestoreLocalVector() or DMRestoreGlobalVector() into an object destructor. From PETSc developers
+	 /* ========= Solution =============================================================================================
+            1) locate all uses of DMGetLocalVector() or DMGetGlobalVector() where you keep the vector beyond the subroutine where the original DMGetLocalVector() or DMGetGlobalVector() is called
+		    2) replace them with DMCreateLocalVector() or DMCreateGlobalVector().
+		    3) Then on those vectors in your destructor call VecDestroy() instead of DMRestoreLocalVector() or DMRestoreGlobalVector()   
+      */
+
+    DMCreateLocalVector(Global_Distributed_Array, &Local_Distributed_Vector);
+
     DMGlobalToLocalBegin ( Global_Distributed_Array, Global_Distributed_Vector, 
 			   addv, Local_Distributed_Vector );
     DMGlobalToLocalEnd   ( Global_Distributed_Array, Global_Distributed_Vector, 
@@ -95,7 +106,8 @@ PETSC_3D_Array::~PETSC_3D_Array () {
     DMDAVecRestoreArray ( Global_Distributed_Array, Local_Distributed_Vector, 
                           &Distributed_Data );
     if ( Global_Distributed_Vector != Local_Distributed_Vector) {
-      DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+      //DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+      Destroy_Petsc_Vector(Local_Distributed_Vector);
     }
   } // end if
 
@@ -114,7 +126,9 @@ void PETSC_3D_Array::Set_Global_Array ( const DM         Global_Array,
   Global_Distributed_Vector = Global_Vector;
 
   if ( Include_Ghost_Values ) {
-    DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+    //DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+    DMCreateLocalVector(Global_Distributed_Array, &Local_Distributed_Vector);
+
     DMGlobalToLocalBegin ( Global_Distributed_Array, Global_Distributed_Vector, 
 			   addv, Local_Distributed_Vector );
     DMGlobalToLocalEnd   ( Global_Distributed_Array, Global_Distributed_Vector, 
@@ -177,7 +191,8 @@ void PETSC_3D_Array::Restore_Global_Array ( const Update_Mode Update_Method ) {
 
   if ( Global_Distributed_Vector != Local_Distributed_Vector ) 
   {
-    DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+   // DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+    Destroy_Petsc_Vector(Local_Distributed_Vector);
   }
 
   Data_Not_Restored = false;
@@ -231,7 +246,9 @@ PETSC_2D_Array::PETSC_2D_Array ( const DM         Global_Array,
   Global_Distributed_Vector = Global_Vector;
 
   if ( Include_Ghost_Values ) {
-    DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+    //DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+    DMCreateLocalVector(Global_Distributed_Array, &Local_Distributed_Vector);
+
     DMGlobalToLocalBegin ( Global_Distributed_Array, Global_Distributed_Vector, 
 			   addv, Local_Distributed_Vector );
     DMGlobalToLocalEnd   ( Global_Distributed_Array, Global_Distributed_Vector, 
@@ -269,7 +286,8 @@ PETSC_2D_Array::~PETSC_2D_Array () {
     DMDAVecRestoreArray ( Global_Distributed_Array, Local_Distributed_Vector, 
 			&Distributed_Data );
     if ( Global_Distributed_Vector != Local_Distributed_Vector) {
-      DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+      //DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+      Destroy_Petsc_Vector(Local_Distributed_Vector);
     }
   } // end if
 
@@ -288,7 +306,9 @@ void PETSC_2D_Array::Set_Global_Array ( const DM         Global_Array,
   Global_Distributed_Vector = Global_Vector;
 
   if ( Include_Ghost_Values ) {
-    DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+    //DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+    DMCreateLocalVector(Global_Distributed_Array, &Local_Distributed_Vector);
+
     DMGlobalToLocalBegin ( Global_Distributed_Array, Global_Distributed_Vector, 
 			   addv, Local_Distributed_Vector );
     DMGlobalToLocalEnd   ( Global_Distributed_Array, Global_Distributed_Vector, 
@@ -346,7 +366,8 @@ void PETSC_2D_Array::Restore_Global_Array ( const Update_Mode Update_Method ) {
 
   if ( Global_Distributed_Vector != Local_Distributed_Vector ) 
   {
-    DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+    //DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+    Destroy_Petsc_Vector(Local_Distributed_Vector);
   }
 
   Data_Not_Restored = false;
@@ -394,7 +415,9 @@ PETSC_1D_Array::PETSC_1D_Array ( const DM         Global_Array,
 
   if ( Include_Ghost_Values ) 
   {
-    DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+    //DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+    DMCreateLocalVector(Global_Distributed_Array, &Local_Distributed_Vector);
+
     DMGlobalToLocalBegin ( Global_Distributed_Array, Global_Distributed_Vector, 
 			   addv, Local_Distributed_Vector );
     DMGlobalToLocalEnd   ( Global_Distributed_Array, Global_Distributed_Vector, 
@@ -433,7 +456,8 @@ PETSC_1D_Array::~PETSC_1D_Array ()
     
      if ( Global_Distributed_Vector != Local_Distributed_Vector) 
      {
-        DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+        //DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+        Destroy_Petsc_Vector(Local_Distributed_Vector);
      }
    } 
 
@@ -451,7 +475,8 @@ void PETSC_1D_Array::Set_Global_Array ( const DM         Global_Array,
 
   if ( Include_Ghost_Values ) 
   {
-    DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+    //DMGetLocalVector     ( Global_Distributed_Array, &Local_Distributed_Vector );
+    DMCreateLocalVector(Global_Distributed_Array, &Local_Distributed_Vector);
 
     DMGlobalToLocalBegin ( Global_Distributed_Array, Global_Distributed_Vector, 
 			   addv, Local_Distributed_Vector );
@@ -513,7 +538,8 @@ void PETSC_1D_Array::Restore_Global_Array ( const Update_Mode Update_Method )
 
   if ( Global_Distributed_Vector != Local_Distributed_Vector ) 
   {
-    DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+    //DMRestoreLocalVector( Global_Distributed_Array, &Local_Distributed_Vector);
+    Destroy_Petsc_Vector(Local_Distributed_Vector);
   }
 
   Data_Not_Restored = false;

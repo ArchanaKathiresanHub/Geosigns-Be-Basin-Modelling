@@ -142,7 +142,7 @@ std::vector<std::string> Migrator::getOutputTableNames ( ) const {
    char* outputTableNamesArray [ MaximumNumberOfOutputTables ];
    int numberOfOutputTables = MaximumNumberOfOutputTables;
 
-   PetscOptionsGetStringArray ( PETSC_NULL, "-outtabs", outputTableNamesArray, &numberOfOutputTables, &outputTablesDefined );
+   PetscOptionsGetStringArray (PETSC_IGNORE, PETSC_IGNORE, "-outtabs", outputTableNamesArray, &numberOfOutputTables, &outputTablesDefined );
 
    if ( outputTablesDefined ) {
 
@@ -241,10 +241,10 @@ bool Migrator::compute (const bool overpressuredLeakage)
 
    PetscBool minorSnapshots, genexOnTheFly;
 
-   PetscOptionsHasName (PETSC_NULL, "-genex", &genexOnTheFly);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-genex", &genexOnTheFly);
    m_genexOnTheFly = (genexOnTheFly == PETSC_TRUE);
 
-   PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-minor", &minorSnapshots);
 
    Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots (minorSnapshots ? (Interface::MAJOR | Interface::MINOR)
                                                                         : Interface::MAJOR);
@@ -2013,7 +2013,7 @@ bool Migrator::mergeOutputFiles ()
    const string flowpart = flowPathsFileNamePrefix;
 
    PetscBool minorSnapshots;
-   PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-minor", &minorSnapshots);
 
    for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
       bool isMinor = database::getIsMinorSnapshot( *timeTableIter ) == 1;

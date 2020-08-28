@@ -183,7 +183,7 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
       return;
    }
 
-   DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+   DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
    const Boolean2DArray& Valid_Needle = Basin_Model->getValidNeedles ();
 
 
@@ -193,7 +193,7 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
 
       PETSC_3D_Array layerPorosity ( currentLayer->layerDA, currentLayer->Porosity );
       PETSC_3D_Array layerHeatProduction ( currentLayer->layerDA, currentLayer->BulkHeatProd );
-      DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+      DMDAGetCorners ( currentLayer->layerDA, PETSC_IGNORE, PETSC_IGNORE, &zStart, PETSC_IGNORE, PETSC_IGNORE, &zCount );
 
       //For everything except igneous intrusion at the time of intrusion
       if ( !(currentLayer->getIsIgneousIntrusion ()) or previousTime != currentLayer->getIgneousIntrusionAge ()) {
@@ -320,7 +320,7 @@ void Temperature_Solver::setSurfaceTemperature ( AppCtx*      basinModel,
   LayerProps_Ptr currentLayer;
   Layer_Iterator Layers;
 
-  DMDAGetCorners ( *basinModel->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+  DMDAGetCorners ( *basinModel->mapDA, &xStart, &yStart, PETSC_IGNORE, &xCount, &yCount, PETSC_IGNORE );
 
   Double_Array_2D Temperature_Above ( xCount, yCount );
 
@@ -385,13 +385,13 @@ void Temperature_Solver::Estimate_Basement_Temperature ( )
 
   const double Top_Asthenospheric_Temperature = FastcauldronSimulator::getInstance ().getTopAsthenosphericTemperature ();
 
-  DMDAGetCorners( *Basin_Model -> mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+  DMDAGetCorners( *Basin_Model -> mapDA, &X_Start, &Y_Start, PETSC_IGNORE, &X_Count, &Y_Count, PETSC_IGNORE );
 
-  DMDAGetCorners( Crust_Layer -> layerDA, PETSC_NULL, PETSC_NULL, PETSC_NULL,
-                  PETSC_NULL, PETSC_NULL, &Crust_Z_Nodes );
+  DMDAGetCorners( Crust_Layer -> layerDA, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+                  PETSC_IGNORE, PETSC_IGNORE, &Crust_Z_Nodes );
 
-  DMDAGetCorners( Mantle_Layer -> layerDA, PETSC_NULL, PETSC_NULL, PETSC_NULL,
-                  PETSC_NULL, PETSC_NULL, &Mantle_Z_Nodes );
+  DMDAGetCorners( Mantle_Layer -> layerDA, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+                  PETSC_IGNORE, PETSC_IGNORE, &Mantle_Z_Nodes );
 
 
   PETSC_3D_Array Crust_Depth( Crust_Layer -> layerDA,
@@ -468,7 +468,7 @@ void Temperature_Solver::Estimate_Temperature ( AppCtx*      basinModel,
   Layer_Iterator Pressure_Layers ( basinModel->layers, Ascending, Sediments_Only, Active_Layers_Only );
   LayerProps_Ptr Current_Layer;
 
-  DMDAGetCorners ( *basinModel->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+  DMDAGetCorners ( *basinModel->mapDA, &X_Start, &Y_Start, PETSC_IGNORE, &X_Count, &Y_Count, PETSC_IGNORE );
 
   Double_Array_2D Seabottom_Temperature ( X_Count, Y_Count );
   Double_Array_2D Seabottom_Depth       ( X_Count, Y_Count );
@@ -560,7 +560,7 @@ void Temperature_Solver::correctTemperatureSolution ( const double Current_Time 
   Layer_Iterator Layers ( Basin_Model -> layers, Ascending, Basement_And_Sediments, Active_Layers_Only );
   LayerProps_Ptr Current_Layer;
 
-  DMDAGetCorners ( *Basin_Model->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+  DMDAGetCorners ( *Basin_Model->mapDA, &X_Start, &Y_Start, PETSC_IGNORE, &X_Count, &Y_Count, PETSC_IGNORE );
 
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ )
   {
@@ -627,7 +627,7 @@ PetscScalar Temperature_Solver::Maximum_Temperature_Difference ()
 
     VecWAXPY(Temperature_Difference, NegOne, Previous_Temperature, Current_Temperature );
     VecAbs( Temperature_Difference );
-    VecMax( Temperature_Difference,PETSC_NULL,&Maximum_Layer_Difference );
+    VecMax( Temperature_Difference,PETSC_IGNORE,&Maximum_Layer_Difference );
     Destroy_Petsc_Vector( Temperature_Difference );
 
     Maximum_Difference = PetscMax ( Maximum_Difference, Maximum_Layer_Difference );
@@ -683,7 +683,7 @@ PetscScalar Temperature_Solver::Maximum_Temperature_Difference_In_Source_Rocks (
 
     VecWAXPY(Temperature_Difference, NegOne, Previous_Temperature, Current_Temperature );
     VecAbs( Temperature_Difference );
-    VecMax( Temperature_Difference,PETSC_NULL,&Maximum_Layer_Difference );
+    VecMax( Temperature_Difference,PETSC_IGNORE,&Maximum_Layer_Difference );
     Destroy_Petsc_Vector( Temperature_Difference );
 
     Maximum_Difference = PetscMax ( Maximum_Difference, Maximum_Layer_Difference );

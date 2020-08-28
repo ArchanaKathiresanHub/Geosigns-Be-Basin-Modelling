@@ -16,9 +16,13 @@ cmake_policy(SET CMP0054 NEW)
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 
 #Set 3rd party tools versions:
-set(PETSC_VERSION "3.5.4"  CACHE STRING "PETSc version")
+set(PETSC_VERSION "3.13.1"  CACHE STRING "PETSc version")
 set(SWIG_VERSION  "3.0.12" CACHE STRING "The version number of the swig executable")
-
+if (WIN32)
+	set(BOOST_VERSION_WIN  "1_73_0" CACHE STRING "The Boost version number used")
+else(UNIX)
+	set(BOOST_VERSION  "1_73_0" CACHE STRING "The Boost version number used")
+endif()
 
 if (UNIX)
    set(HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version") # 1.8.17 doesn't have H5FDmpiposix.c
@@ -96,12 +100,17 @@ message(STATUS "Loading common configuration flags...")
 #
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Installation prefix" )
-set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type ('Release' or 'Debug' or 'MemCheck' or 'CodeCoverage')")
+if(WIN32)
+	set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "CMake build type ('Release' or 'Debug' or 'MemCheck' or 'CodeCoverage')")
+else()
+	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type ('Release' or 'Debug' or 'MemCheck' or 'CodeCoverage')")
+endif()
 include(cmake/ConfigurationFlags.cmake)
 
 #
 # Determine minimum toolset: CMake & C++ Compiler
 #
+message(STATUS "Loading Environment for Basin-Modelling...")
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 include(cmake/EnvSetup.cmake)
 init_environment()
@@ -112,7 +121,7 @@ find_package(Compiler CONFIG)
 # Start the project description & enable the compiler
 #
 Project(BasinModeling)
-
+message(STATUS "Loading external projects...")
 #
 # General Include files
 #
@@ -126,7 +135,7 @@ include(cmake/WarningFlags.cmake)
 #
 
 configure_external_projects()
-
+message(STATUS "Setting compile flags...")
 #
 # Setting compile flags
 #
@@ -330,6 +339,20 @@ if (UNIX)
    # Install setupEnv script (only in Shell), it will be sourced (!!) to run regression tests by *.ini scripts
    if("${BM_CONFIG_PRESET}" STREQUAL "ShellLinux")
       install( FILES "${CMAKE_CURRENT_SOURCE_DIR}/setupEnv.sh"
+               DESTINATION bin
+               PERMISSIONS
+                  OWNER_READ OWNER_EXECUTE
+                  GROUP_READ GROUP_EXECUTE
+                  WORLD_READ WORLD_EXECUTE
+             )
+			 install( FILES "${CMAKE_CURRENT_SOURCE_DIR}/../Change.log"
+               DESTINATION bin
+               PERMISSIONS
+                  OWNER_READ OWNER_EXECUTE
+                  GROUP_READ GROUP_EXECUTE
+                  WORLD_READ WORLD_EXECUTE
+             )
+			 install( FILES "${CMAKE_CURRENT_SOURCE_DIR}/../VERSION"
                DESTINATION bin
                PERMISSIONS
                   OWNER_READ OWNER_EXECUTE

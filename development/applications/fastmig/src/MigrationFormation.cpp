@@ -1507,8 +1507,8 @@ namespace migration
       PetscBool genexMinorSnapshots;
       PetscBool genexFraction;
 
-      PetscOptionsHasName (PETSC_NULL, "-genex",  &genexMinorSnapshots);
-      PetscOptionsHasName (PETSC_NULL, "-genexf", &genexFraction);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-genex",  &genexMinorSnapshots);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-genexf", &genexFraction);
 
       const double depoTime = getTopSurface ()->getSnapshot ()->getTime ();
       bool sourceRockIsActive = (depoTime > begin->getTime ()) or fabs (depoTime - begin->getTime ()) < Genex6::Constants::Zero;
@@ -1580,7 +1580,7 @@ namespace migration
    void MigrationFormation::computeExpulsionMapsOnTheFly (const Interface::Snapshot * begin, const Interface::Snapshot * end)
    {
       PetscBool printDebug;
-      PetscOptionsHasName (PETSC_NULL, "-debug",  &printDebug);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-debug",  &printDebug);
 
       if (!isPreprocessed ())
       {
@@ -1732,7 +1732,7 @@ namespace migration
          return;
 
       PetscBool genexMinorSnapshots;
-      PetscOptionsHasName (PETSC_NULL, "-genex",  &genexMinorSnapshots);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-genex",  &genexMinorSnapshots);
 
       if (genexMinorSnapshots and m_genexData != nullptr)
          m_genexData->retrieveData();
@@ -1967,7 +1967,7 @@ namespace migration
    bool MigrationFormation::calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool advancedMigration)
    {
       PetscBool genexMinorSnapshots;
-      PetscOptionsHasName (PETSC_NULL, "-genex",  &genexMinorSnapshots);
+      PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-genex",  &genexMinorSnapshots);
 
       if (genexMinorSnapshots and m_genexData != nullptr)
          m_genexData->retrieveData();

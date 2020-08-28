@@ -46,10 +46,10 @@ done
 
 # Prepare environment
 source "${source_directory}/setupEnv.sh"
-module load CMake/3.9.6
+
 export CXX=icpc;
 export CC=icc
-
+module load CMake/3.9.6
 ### Run CMake
 rm -rf CMakeCache.txt CMakeFiles
 cmake -DCMAKE_INSTALL_PREFIX=${build_directory}/install ${configuration_option} $@ $source_directory

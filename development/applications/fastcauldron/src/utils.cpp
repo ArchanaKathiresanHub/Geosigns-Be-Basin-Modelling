@@ -323,6 +323,7 @@ const std::string& getKspConvergedReasonImage ( const KSPConvergedReason reason 
       stringReasons [ KSP_DIVERGED_NANORINF ] = "KSP_DIVERGED_NANORINF";
       stringReasons [ KSP_DIVERGED_INDEFINITE_MAT ] = "KSP_DIVERGED_INDEFINITE_MAT";
       stringReasons [ KSP_CONVERGED_ITERATING ] = "KSP_CONVERGED_ITERATING";
+      stringReasons[KSP_DIVERGED_PC_FAILED] = "KSP_DIVERGED_PC_FAILED";
       stringsInitialised = true;
    }
 

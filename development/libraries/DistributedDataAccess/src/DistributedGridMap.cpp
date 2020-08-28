@@ -43,7 +43,7 @@ DistributedGridMap::DistributedGridMap( const Grid * grid,
       m_averageValue (m_undefinedValue),
       m_depth (depth),
       m_retrieved (false),
-      m_vecGlobal(PETSC_NULL),
+      m_vecGlobal(PETSC_IGNORE),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -64,7 +64,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_depth (depth),
       m_grid (grid),
       m_retrieved (false),
-      m_vecGlobal(PETSC_NULL),
+      m_vecGlobal(PETSC_IGNORE),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -84,7 +84,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_averageValue (m_undefinedValue),
       m_depth (depth),
       m_retrieved (false),
-      m_vecGlobal(PETSC_NULL),
+      m_vecGlobal(PETSC_IGNORE),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -121,7 +121,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_averageValue (m_undefinedValue),
       m_depth (operand1->getDepth ()),
       m_retrieved (false),
-      m_vecGlobal(PETSC_NULL),
+      m_vecGlobal(PETSC_IGNORE),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -203,7 +203,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
    m_averageValue (m_undefinedValue),
    m_depth (operand1->getDepth ()),
    m_retrieved (false),
-   m_vecGlobal(PETSC_NULL),
+   m_vecGlobal(PETSC_IGNORE),
    m_vecLocal(nullptr)
 {
    initialize ();
@@ -284,7 +284,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_averageValue (m_undefinedValue),
       m_depth (operand->getDepth ()),
       m_retrieved (false),
-      m_vecGlobal(PETSC_NULL),
+      m_vecGlobal(PETSC_IGNORE),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -346,7 +346,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_averageValue (m_undefinedValue),
       m_depth (operand->getDepth ()),
       m_retrieved (false),
-      m_vecGlobal(PETSC_NULL),
+      m_vecGlobal(PETSC_IGNORE),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -406,14 +406,16 @@ void DistributedGridMap::initialize (void)
    }
    else
    {
-      DMDACreate3d (PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
-                    dynamic_cast<const DistributedGrid * > (m_grid)->numIGlobal (), dynamic_cast<const DistributedGrid * > (m_grid)->numJGlobal (), m_depth,
-                    dynamic_cast<const DistributedGrid * > (m_grid)->numProcsI (), dynamic_cast<const DistributedGrid * > (m_grid)->numProcsJ (), 1,
-                    1, 1,
-                    dynamic_cast<const DistributedGrid * > (m_grid)->numsI (), dynamic_cast<const DistributedGrid * > (m_grid)->numsJ (), PETSC_NULL,
-                    &m_localInfo.da);
-      DMDAGetLocalInfo (m_localInfo.da, &m_localInfo);
-      DMCreateGlobalVector (m_localInfo.da, &m_vecGlobal);
+       PetscErrorCode err = DMDACreate3d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+           dynamic_cast<const DistributedGrid*> (m_grid)->numIGlobal(), dynamic_cast<const DistributedGrid*> (m_grid)->numJGlobal(), m_depth,
+           dynamic_cast<const DistributedGrid*> (m_grid)->numProcsI(), dynamic_cast<const DistributedGrid*> (m_grid)->numProcsJ(), 1,
+           1, 1,
+           dynamic_cast<const DistributedGrid*> (m_grid)->numsI(), dynamic_cast<const DistributedGrid*> (m_grid)->numsJ(), PETSC_IGNORE,
+           &m_localInfo.da);
+       err = DMSetFromOptions(m_localInfo.da);
+       err = DMSetUp(m_localInfo.da);
+       err = DMDAGetLocalInfo (m_localInfo.da, &m_localInfo);
+       err = DMCreateGlobalVector (m_localInfo.da, &m_vecGlobal);
    }
 
    m_modified = false;
@@ -432,7 +434,9 @@ bool DistributedGridMap::retrieveData (bool withGhosts) const
 
    if (m_withGhosts)
    {
-      DMGetLocalVector (m_localInfo.da, &m_vecLocal);
+     // DMGetLocalVector (m_localInfo.da, &m_vecLocal);
+      DMCreateLocalVector(m_localInfo.da, &m_vecLocal);
+
       DMGlobalToLocalBegin (m_localInfo.da, m_vecGlobal, INSERT_VALUES, m_vecLocal);
       DMGlobalToLocalEnd (m_localInfo.da, m_vecGlobal, INSERT_VALUES, m_vecLocal);
    }
@@ -510,7 +514,8 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
 
    if (m_withGhosts)
    {
-      DMRestoreLocalVector (m_localInfo.da, &m_vecLocal);
+      //DMRestoreLocalVector (m_localInfo.da, &m_vecLocal);
+      VecDestroy(&m_vecLocal);
    }
 
    m_retrieved = false;

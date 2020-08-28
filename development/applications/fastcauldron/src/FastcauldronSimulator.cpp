@@ -151,8 +151,8 @@ void FastcauldronSimulator::setFormationElementHeightScalingFactors () {
 
    int i;
 
-   PetscOptionsGetStringArray ( PETSC_NULL, "-refinenamedforms", namedFormationScalingArray, &namedFormationCount, &namedFormationRangeInput );
-   PetscOptionsGetIntArray ( PETSC_NULL, "-refinenumberedforms", numberedFormationScalingArray, &numberedFormationCount, &numberedFormationRangeInput );
+   PetscOptionsGetStringArray (PETSC_IGNORE, PETSC_IGNORE, "-refinenamedforms", namedFormationScalingArray, &namedFormationCount, &namedFormationRangeInput );
+   PetscOptionsGetIntArray (PETSC_IGNORE, PETSC_IGNORE, "-refinenumberedforms", numberedFormationScalingArray, &numberedFormationCount, &numberedFormationRangeInput );
 
    // Initialise the array containing the formation refinement information.
    for ( i = 0; i < m_formations.size (); ++i ) {
@@ -819,9 +819,9 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
 #ifndef _MSC_VER
 
    PetscBool noFileCopy = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-nocopy", &noFileCopy );
    PetscBool noFileRemove = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-noremove", &noFileRemove );
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-noremove", &noFileRemove );
 
    PetscLogDouble StartMergingTime;
    PetscTime(&StartMergingTime);
@@ -929,9 +929,9 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
    if( m_rank == 0 ) {
 
       PetscBool noFileCopy = PETSC_FALSE;
-      PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+      PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-nocopy", &noFileCopy );
       PetscBool noFileRemove = PETSC_FALSE;
-      PetscOptionsHasName( PETSC_NULL, "-noremove", &noFileRemove );
+      PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-noremove", &noFileRemove );
 
       PetscLogDouble StartMergingTime;
       PetscTime(&StartMergingTime);
@@ -2043,7 +2043,7 @@ LayerProps* FastcauldronSimulator::findLayer ( const std::string& layerName ) co
 
 int FastcauldronSimulator::DACreate2D ( DM& theDA ) {
 
-   int ierr;
+    PetscErrorCode ierr;
 
    ierr = DMDACreate2d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                          getInstance ().getActivityOutputGrid ()->numIGlobal (),
@@ -2054,14 +2054,15 @@ int FastcauldronSimulator::DACreate2D ( DM& theDA ) {
                          getInstance ().getActivityOutputGrid ()->numsI (),
                          getInstance ().getActivityOutputGrid ()->numsJ (),
                          &theDA );
-
+   ierr = DMSetFromOptions(theDA);
+   ierr = DMSetUp(theDA);
    return ierr;
 }
 
 int FastcauldronSimulator::DACreate3D ( const int numberOfZNodes,
                                         DM& theDA ) {
 
-   int ierr;
+    PetscErrorCode ierr;
 
    ierr = DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                          getInstance ().getActivityOutputGrid ()->numIGlobal (),
@@ -2072,8 +2073,11 @@ int FastcauldronSimulator::DACreate3D ( const int numberOfZNodes,
                          1, 1, 1,
                          getInstance ().getActivityOutputGrid ()->numsI (),
                          getInstance ().getActivityOutputGrid ()->numsJ (),
-                         PETSC_NULL,
+                         PETSC_IGNORE,
                          &theDA );
+
+   ierr = DMSetFromOptions(theDA);
+   ierr = DMSetUp(theDA);
 
    return ierr;
 }
@@ -2109,9 +2113,9 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
      PetscBool onlyPrimaryDouble = PETSC_FALSE;
      PetscBool allProperties     = PETSC_FALSE;
      // output the primary properties in double precision
-     PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimaryDouble );
+     PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-primaryDouble", &onlyPrimaryDouble );
      // output all properties
-     PetscOptionsHasName( PETSC_NULL, "-allproperties", &allProperties );
+     PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-allproperties", &allProperties );
 
      const bool onlyPrimaryFloat = !( onlyPrimaryDouble || allProperties );
 
@@ -2134,9 +2138,9 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    PetscBool hasPrintCommandLine;
    PetscBool computeCapillaryPressure;
 
-   PetscOptionsHasName ( PETSC_NULL, "-printcl", &hasPrintCommandLine );
-   PetscOptionsGetReal  ( PETSC_NULL, "-glfctweight", &fctScaling, &fctScalingChanged );
-   PetscOptionsHasName ( PETSC_NULL, "-fcpce", &computeCapillaryPressure );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-printcl", &hasPrintCommandLine );
+   PetscOptionsGetReal  (PETSC_IGNORE, PETSC_IGNORE, "-glfctweight", &fctScaling, &fctScalingChanged );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-fcpce", &computeCapillaryPressure );
 
    if ( fctScalingChanged ) {
       m_fctCorrectionScalingWeight = NumericFunctions::clipValueToRange ( fctScaling, 0.0, 1.0 );
@@ -2199,8 +2203,8 @@ void FastcauldronSimulator::readCommandLineWells () {
 
    int i;
 
-   PetscOptionsGetIntArray ( PETSC_NULL, "-fcwellindex", pseudoWellIndices, &numberOfWellIndicesInput, &pseudoWellIndexInput );
-   PetscOptionsGetRealArray ( PETSC_NULL, "-fcwelllocation", pseudoWellLocations, &numberOfWellLocationsInput, &pseudoWellLocationInput );
+   PetscOptionsGetIntArray (PETSC_IGNORE, PETSC_IGNORE, "-fcwellindex", pseudoWellIndices, &numberOfWellIndicesInput, &pseudoWellIndexInput );
+   PetscOptionsGetRealArray (PETSC_IGNORE, PETSC_IGNORE, "-fcwelllocation", pseudoWellLocations, &numberOfWellLocationsInput, &pseudoWellLocationInput );
 
    if ( pseudoWellIndexInput ) {
 
@@ -2298,16 +2302,16 @@ void FastcauldronSimulator::readRelPermCommandLineParameters () {
 
    PetscBool useTemisPackViscosities;
 
-   // PetscOptionsGetString ( PETSC_NULL, "-relperm", relPermMethodName, MAXLINESIZE, &relPermMethodDescribed );
-   PetscOptionsGetReal   ( PETSC_NULL, "-minhcsat", &minimumHcSaturation, &minimumHcSaturationChanged );
-   PetscOptionsGetReal   ( PETSC_NULL, "-minwatersat", &minimumWaterSaturation, &minimumWaterSaturationChanged );
-   PetscOptionsGetReal   ( PETSC_NULL, "-waterexpo", &waterCurveExponent, &waterCurveExponentChanged );
-   PetscOptionsGetReal   ( PETSC_NULL, "-hcexpo", &hcCurveExponent, &hcCurveExponentChanged );
+   // PetscOptionsGetString ( PETSC_IGNORE, PETSC_IGNORE, "-relperm", relPermMethodName, MAXLINESIZE, &relPermMethodDescribed );
+   PetscOptionsGetReal   (PETSC_IGNORE, PETSC_IGNORE, "-minhcsat", &minimumHcSaturation, &minimumHcSaturationChanged );
+   PetscOptionsGetReal   (PETSC_IGNORE, PETSC_IGNORE, "-minwatersat", &minimumWaterSaturation, &minimumWaterSaturationChanged );
+   PetscOptionsGetReal   (PETSC_IGNORE, PETSC_IGNORE, "-waterexpo", &waterCurveExponent, &waterCurveExponentChanged );
+   PetscOptionsGetReal   (PETSC_IGNORE, PETSC_IGNORE, "-hcexpo", &hcCurveExponent, &hcCurveExponentChanged );
 
-   PetscOptionsGetReal   ( PETSC_NULL, "-hcvapexpo", &hcVapourCurveExponent, &hcVapourCurveExponentChanged );
-   PetscOptionsGetReal   ( PETSC_NULL, "-hcliqexpo", &hcLiquidCurveExponent, &hcLiquidCurveExponentChanged );
+   PetscOptionsGetReal   (PETSC_IGNORE, PETSC_IGNORE, "-hcvapexpo", &hcVapourCurveExponent, &hcVapourCurveExponentChanged );
+   PetscOptionsGetReal   (PETSC_IGNORE, PETSC_IGNORE, "-hcliqexpo", &hcLiquidCurveExponent, &hcLiquidCurveExponentChanged );
 
-   PetscOptionsHasName   ( PETSC_NULL, "-temisviscosity", &useTemisPackViscosities );
+   PetscOptionsHasName   (PETSC_IGNORE, PETSC_IGNORE, "-temisviscosity", &useTemisPackViscosities );
 
    if ( minimumHcSaturationChanged ) {
       m_minimumHcSaturation = minimumHcSaturation;

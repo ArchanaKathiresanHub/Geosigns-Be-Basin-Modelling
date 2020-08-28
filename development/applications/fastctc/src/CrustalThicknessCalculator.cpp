@@ -359,34 +359,34 @@ bool CrustalThicknessCalculator::parseCommandLine() {
    PetscBool isDefined = PETSC_FALSE;
 
    H5_Parallel_PropertyList::setOneFilePerProcessOption();
-   PetscOptionsHasName (nullptr, "-xyz", &isDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-xyz", &isDefined);
    if (isDefined) {
       m_outputOptions |= XYZ;
    }
 
-   PetscOptionsHasName (nullptr, "-sur", &isDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-sur", &isDefined);
    if (isDefined) {
       m_outputOptions |= SUR;
    }
 
-   PetscOptionsHasName (nullptr, "-debug", &isDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-debug", &isDefined);
    if (isDefined) {
       m_debug = true;
    }
 
-   PetscOptionsHasName (nullptr, "-hdf", &isDefined);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-hdf", &isDefined);
    if (isDefined) {
       m_outputOptions |= HDF;
    }
    char outputFileName[128];
    outputFileName[0] = '\0';
 
-   PetscOptionsGetString (nullptr, "-save", outputFileName, 128, &isDefined);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-save", outputFileName, 128, &isDefined);
    if(isDefined) {
       m_outputFileName = outputFileName;
    }
 
-   PetscOptionsHasName(nullptr, "-merge", &isDefined);
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-merge", &isDefined);
    if (isDefined) {
        m_meregHDF = true;
    }
@@ -400,13 +400,13 @@ void CrustalThicknessCalculator::setAdditionalOptionsFromCommandLine() {
    PetscBool isDefined = PETSC_FALSE;
    int radius;
 
-   PetscOptionsHasName ( nullptr, "-nosmooth", &isDefined );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-nosmooth", &isDefined );
    if (isDefined) {
       m_applySmoothing = false;
       m_inputData->setSmoothingRadius( 0 );
    }
 
-   PetscOptionsGetInt ( nullptr, "-smooth", &radius, &isDefined );
+   PetscOptionsGetInt (PETSC_IGNORE, PETSC_IGNORE, "-smooth", &radius, &isDefined );
    if (isDefined) {
       m_applySmoothing = ( radius > 0 );
       m_inputData->setSmoothingRadius( static_cast<unsigned int>(radius) );
@@ -482,7 +482,7 @@ bool CrustalThicknessCalculator::sortCTCOuputTabl()
 
         database::Table* ctcIoTbl = this->getTable(s_tblName);
 
-        int ictcTblSize = ctcIoTbl->size();
+        size_t ictcTblSize = ctcIoTbl->size();
         for (int j = 0; j < (ictcTblSize - 1); ++j)
         {
             database::Record* record = ctcIoTbl->getRecord(j);

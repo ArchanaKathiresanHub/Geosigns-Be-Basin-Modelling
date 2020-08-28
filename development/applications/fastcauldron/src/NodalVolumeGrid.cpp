@@ -72,21 +72,23 @@ void NodalVolumeGrid::construct ( const NodalGrid& grid,
       m_yPartitioning [ i ] = grid.getYPartitioning ()[ i ];
    }
 
-   DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
-                  grid.getNumberOfXNodes (),
-                  grid.getNumberOfYNodes (),
-                  numberOfZNodes,
-                  grid.getNumberOfXProcessors (),
-                  grid.getNumberOfYProcessors (),
-                  1, 
-                  numberOfDofs,
-                  1,
-                  m_xPartitioning,
-                  m_yPartitioning,
-                  PETSC_NULL,
-                  &volumeDa );
+   PetscErrorCode err = DMDACreate3d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+       grid.getNumberOfXNodes(),
+       grid.getNumberOfYNodes(),
+       numberOfZNodes,
+       grid.getNumberOfXProcessors(),
+       grid.getNumberOfYProcessors(),
+       1,
+       numberOfDofs,
+       1,
+       m_xPartitioning,
+       m_yPartitioning,
+       PETSC_IGNORE,
+       &volumeDa);
+   err = DMSetFromOptions(volumeDa);
+   err = DMSetUp(volumeDa);
 
-   DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
+   err = DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
 }
 
 //------------------------------------------------------------//
@@ -101,21 +103,22 @@ void NodalVolumeGrid::resizeInZDirection ( const int numberOfZNodes ) {
 
       DMDestroy ( &m_localInfo.da );
 
-      DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
-                     getNumberOfXNodes (),
-                     getNumberOfYNodes (),
-                     numberOfZNodes,
-                     getNumberOfXProcessors (),
-                     getNumberOfYProcessors (),
-                     1, 
-                     getNumberOfDofs (),
-                     1,
-                     m_xPartitioning,
-                     m_yPartitioning,
-                     PETSC_NULL,
-                     &volumeDa );
-      
-      DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
+      PetscErrorCode err = DMDACreate3d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+          getNumberOfXNodes(),
+          getNumberOfYNodes(),
+          numberOfZNodes,
+          getNumberOfXProcessors(),
+          getNumberOfYProcessors(),
+          1,
+          getNumberOfDofs(),
+          1,
+          m_xPartitioning,
+          m_yPartitioning,
+          PETSC_IGNORE,
+          &volumeDa);
+      err = DMSetFromOptions(volumeDa);
+      err = DMSetUp(volumeDa);
+      err = DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
    }
 
 }

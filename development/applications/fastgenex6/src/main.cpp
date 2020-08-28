@@ -59,7 +59,7 @@ int main (int argc, char ** argv)
    char inputFileName[128];
    PetscBool inputFileSet;
 
-   PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, 128, &inputFileSet);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-project", inputFileName, 128, &inputFileSet);
    if (!inputFileSet)  {
       printUsage ();
       PetscFinalize ();
@@ -69,14 +69,14 @@ int main (int argc, char ** argv)
    char outputFileName[128];
    PetscBool outputFileSet;
 
-   PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, 128, &outputFileSet);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-save", outputFileName, 128, &outputFileSet);
    if (!outputFileSet) {
       strcpy (outputFileName, inputFileName);
    }
 
 #ifndef _MSC_VER
    PetscBool ddd = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-ddd", &ddd);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-ddd", &ddd);
    if (ddd)  {
       char cmd[150];
 
@@ -87,7 +87,7 @@ int main (int argc, char ** argv)
    }
 
    PetscBool myddd = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-myddd", &myddd);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-myddd", &myddd);
    if (myddd)
    {
       char cmd[150];
@@ -99,7 +99,7 @@ int main (int argc, char ** argv)
    }
 
    PetscBool idb = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-idb", &idb);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-idb", &idb);
    if (idb)
    {
       char cmd[150];
@@ -110,7 +110,7 @@ int main (int argc, char ** argv)
    }
 
    PetscBool cvd = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-cvd", &cvd);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-cvd", &cvd);
    if (cvd) {
       char cmd[150];
 
@@ -177,11 +177,11 @@ int main (int argc, char ** argv)
    {
       const std::string applicatioName = "fastgenex";
       PetscBool log = PETSC_FALSE;
-      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-verbosity", &log );
       if ( log )
       {
          char verbosity[11];
-         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         PetscOptionsGetString( PETSC_IGNORE, PETSC_IGNORE, "-verbosity", verbosity, 11, 0 );
          if      ( !strcmp( verbosity, "quiet"      ))  { LogHandler( applicatioName, LogHandler::QUIET_LEVEL     , rank ); }
          else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( applicatioName, LogHandler::MINIMAL_LEVEL   , rank ); }
          else if ( !strcmp( verbosity, "normal"     ) ) { LogHandler( applicatioName, LogHandler::NORMAL_LEVEL    , rank ); }

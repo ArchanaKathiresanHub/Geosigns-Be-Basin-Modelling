@@ -211,7 +211,7 @@ void Well::Save_Well_Data( Location& needle, const string& Related_Project_Name 
   
   int  Top_Z_Node_Index;
   int  Number_Of_Segment;
-  int  Number_Of_Formation_Layers = Basin_Model -> layers.size() - 2;
+  size_t  Number_Of_Formation_Layers = Basin_Model -> layers.size() - 2;
   int  Layer_It;
 
   bool IncludeGhosts = true;

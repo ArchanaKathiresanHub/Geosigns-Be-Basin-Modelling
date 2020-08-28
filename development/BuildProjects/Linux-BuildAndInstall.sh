@@ -5,7 +5,7 @@ set
 svnRepository=file:///nfs/rvl/groups/ept-sg/SWEast/Cauldron/SUBVERSION/repository
 src=${SRC_DIR:-`dirname $0`/../..}
 platform=${PLATFORM:-Linux}
-nprocs=${NUMBER_OF_CORES:-20}
+nprocs=${NUMBER_OF_CORES:-40}
 deploy=${DEPLOY:-True}
 geocase=${GEOCASE:-False}
 version_number_major=${VERSION_NUMBER_MAJOR:-`date +%Y`}

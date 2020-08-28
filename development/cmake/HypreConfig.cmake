@@ -16,9 +16,9 @@ if (UNIX)
 
 add_external_project_to_repository(
       NAME Hypre
-      VERSION 2.9.1
-      ARCHIVE "${THIRD_PARTY_DIR}/sources/hypre-2.9.1a.tar.gz"
-      ARCHIVE_MD5 "e1e9bb31db0c5863a83dc10828daa60d"
+      VERSION 2.18.2
+      ARCHIVE "${THIRD_PARTY_DIR}/sources/hypre-2.18.2.tar.gz"
+      ARCHIVE_MD5 "ea8804978032f12a6a8d9931d1b7e201"
       CONFIGURE_COMMAND 
          "./configure" 
             "--prefix={ROOT}" 
@@ -62,18 +62,18 @@ set( HYPRE_ROOT "${Hypre_ROOT}" CACHE PATH "Path to HYPRE library" )
 set( Hypre_FOUND TRUE )
 set( HYPRE_INCLUDE_DIRS "${HYPRE_ROOT}/include" )
 set( HYPRE_LIBRARY_DIR "${HYPRE_ROOT}/lib" )
-set( HYPRE_LIBRARIES "${HYPRE_LIBRARY_DIR}/libHYPRE-2.9.1a.so" )
+set( HYPRE_LIBRARIES "${HYPRE_LIBRARY_DIR}/libHYPRE-2.18.2.so" )
 
 
 add_external_package_info( 
     CAPABILITY  HypreLib
     NAME         "Hypre"
     VENDOR       "Lawrence Livermore National Laboratory"
-    VERSION      "2.9.1"
-    LICENSE_TYPE "LGPL 2.1"
-    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Hypre-2.9.1a.txt"
-    URL          "http://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods"
-    DESCRIPTION  "Library of linear solvers"
+    VERSION      "2.18.2"
+    LICENSE_TYPE "MIT license, Apache License (Version 2.0)"
+    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Hypre-2.18.2.txt"
+    URL          "http://www.llnl.gov/casc/hypre/"
+    DESCRIPTION  "is a library of high performance preconditioners and solvers featuring multigrid methods for the solution of large, sparse linear systems of equations on massively parallel computers"
     REQUIRED_AT  "Runtime"
     COUNTRY_OF_ORIGIN "USA"
     SHIPPED      "Yes"
@@ -84,7 +84,7 @@ add_external_package_info(
 )                   
 
 elseif (WIN32) # windows
-# PETSc is already built with Hypre for Windows (though statically linked, which is not license-compliant)
+# PETSc is built with Hypre-2.18.2 for Windows (though statically linked, which is not license-compliant)
 endif ()
 
 # Local Variables:

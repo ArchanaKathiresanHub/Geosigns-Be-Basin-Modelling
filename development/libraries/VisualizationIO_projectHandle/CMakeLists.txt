@@ -51,10 +51,7 @@ copy_test_file(data/ARD_simple-test_CauldronOutputDir/Time_50.000000.h5)
 copy_test_file(data/ARD_simple-test_CauldronOutputDir/Time_70.000000.h5)
 copy_test_file(data/Project-1d.project3d)
 
-add_custom_command(TARGET ${LIB_NAME} PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   test/data/ARD_simple-test_CauldronOutputDir ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir )
-
+file(COPY test/data/ARD_simple-test_CauldronOutputDir DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir)
 add_gtest( NAME CauldronIO::Project
            SOURCES test/Project.cpp test/DataStore.cpp test/VerifyData.cpp  test/VerifyData1D.cpp test/CellCentered.cpp
            LIBRARIES VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO ${LIB_NAME} Serial_Hdf5 CBMGenerics ${HDF5_LIBRARIES} ${Boost_LIBRARIES}

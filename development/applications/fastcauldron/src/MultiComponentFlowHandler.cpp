@@ -222,7 +222,7 @@ MultiComponentFlowHandler::~MultiComponentFlowHandler () {
 //------------------------------------------------------------//
 
 void MultiComponentFlowHandler::determineUsage () {
-   PetscOptionsHasName ( PETSC_NULL, "-mcf", &m_solveFlowEquations );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcf", &m_solveFlowEquations );
 }
 
 //------------------------------------------------------------//
@@ -325,62 +325,62 @@ void MultiComponentFlowHandler::initialise () {
    m_applyOtgc = static_cast<PetscBool>(FastcauldronSimulator::getInstance ().getRunParameters ()->getApplyOtgcToDarcy ());
    m_maximumTimeStepSize = static_cast<double>(FastcauldronSimulator::getInstance().getRunParameters ()->getDarcyMaxTimeStep());
 
-   PetscOptionsHasName ( PETSC_NULL, "-mcfnootgc",  &doNotApplyOtgc );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfotgc",  &applyOtgc );
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfinode", &m_debugINode, &iNodeWanted );
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfjnode", &m_debugJNode, &jNodeWanted );
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfknode", &m_debugKNode, &kNodeWanted );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfnootgc",  &doNotApplyOtgc );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfotgc",  &applyOtgc );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-mcfinode", &m_debugINode, &iNodeWanted );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-mcfjnode", &m_debugJNode, &jNodeWanted );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-mcfknode", &m_debugKNode, &kNodeWanted );
 
-   PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxgp", &newGradPressureMaximum, &gradPressureMaximumChanged );
-   PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxperm", &newFluxPermeabilityMaximum, &fluxPermeabilityMaximumChanged );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mcfmaxgp", &newGradPressureMaximum, &gradPressureMaximumChanged );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mcfmaxperm", &newFluxPermeabilityMaximum, &fluxPermeabilityMaximumChanged );
 
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfdebug", &m_debugLevel, &mcfDebugLevelSet );
-   PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxts", &newMaximumMcfTimeStep, &maximumMcfTimeStepChanged );
-   PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxfluxfrac", &newMaximumMcfHCFractionForFlux, &maximumMcfHCFractionForFluxChanged );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-mcfdebug", &m_debugLevel, &mcfDebugLevelSet );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mcfmaxts", &newMaximumMcfTimeStep, &maximumMcfTimeStepChanged );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mcfmaxfluxfrac", &newMaximumMcfHCFractionForFlux, &maximumMcfHCFractionForFluxChanged );
 
-   PetscOptionsHasName ( PETSC_NULL, "-mcfcflts", &nonuniformTimeStepping);
-   PetscOptionsHasName ( PETSC_NULL, "-mcfuniformts", &uniformTimeStepping);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfcflts", &nonuniformTimeStepping);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfuniformts", &uniformTimeStepping);
 
-   PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxformperm", &lowPermeability, &lowPermeabilityDefined );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mcfmaxformperm", &lowPermeability, &lowPermeabilityDefined );
 
-   PetscOptionsHasName ( PETSC_NULL, "-mcfsavevol",  &saveVolumeOutput );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfsavevoltrans",  &saveTransportedVolumeOutput );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfsavevol",  &saveVolumeOutput );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfsavevoltrans",  &saveTransportedVolumeOutput );
 
-   PetscOptionsHasName ( PETSC_NULL, "-mcfnosatop",  &doNotIncludeWaterSaturationInOp );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfcp",  &includeCapillaryPressureInDarcy );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfnosatop",  &doNotIncludeWaterSaturationInOp );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfcp",  &includeCapillaryPressureInDarcy );
 
-   PetscOptionsHasName ( PETSC_NULL, "-mcfpvtaverage",  &includePvtAveraging );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfpvtaverage",  &includePvtAveraging );
 
-   PetscOptionsHasName ( PETSC_NULL, "-mcfnoperminterp", &notIncludePermeabilityInterpolation );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfnopvinterp", &notIncludePoreVolumeInterpolation );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfnofainterp", &notIncludeFaceAreaInterpolation );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfnosrterminterp",&notIncludeSourceTermInterpolation );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfnointerp",  &removeAllInterpolation );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfnoperminterp", &notIncludePermeabilityInterpolation );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfnopvinterp", &notIncludePoreVolumeInterpolation );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfnofainterp", &notIncludeFaceAreaInterpolation );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfnosrterminterp",&notIncludeSourceTermInterpolation );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfnointerp",  &removeAllInterpolation );
 
-   PetscOptionsHasName ( PETSC_NULL, "-mcfusesatest", &useSaturationEstimate );
-   PetscOptionsGetReal ( PETSC_NULL, "-mcfsorscal", &newResidualHcSaturationScaling, &residualHcSaturationScalingChanged );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfusesatest", &useSaturationEstimate );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mcfsorscal", &newResidualHcSaturationScaling, &residualHcSaturationScalingChanged );
 
-   PetscOptionsGetReal ( PETSC_NULL, "-mcfstopsource", &ageToStopHCSource, &ageToStopHCSourceChanged );
-   PetscOptionsGetReal ( PETSC_NULL, "-mcfstoptrans", &ageToStopHCTransport, &ageToStopHCTransportChanged );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfnostoptrans", &doNotStopHCTransportChanged );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfmaps", &includeDarcyMaps );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfelemmasses", &includeElementMasses );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mcfstopsource", &ageToStopHCSource, &ageToStopHCSourceChanged );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mcfstoptrans", &ageToStopHCTransport, &ageToStopHCTransportChanged );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfnostoptrans", &doNotStopHCTransportChanged );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfmaps", &includeDarcyMaps );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfelemmasses", &includeElementMasses );
 
-   PetscOptionsGetReal ( PETSC_NULL, "-mcfcflfrac", &newMcfAdaptiveTimeStepFraction, &mcfAdaptiveTimeStepFractionChanged );
-   PetscOptionsGetIntArray ( PETSC_NULL, "-mcfforms", formationRangeArray, &formationCount, &formationRangeInput );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mcfcflfrac", &newMcfAdaptiveTimeStepFraction, &mcfAdaptiveTimeStepFractionChanged );
+   PetscOptionsGetIntArray (PETSC_IGNORE, PETSC_IGNORE, "-mcfforms", formationRangeArray, &formationCount, &formationRangeInput );
 
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcffacequad", &faceQuadDegree, &faceQuadDegreeSet );
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfprevquad", &prevQuadDegree, &prevQuadDegreeSet );
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfsourcequad", &sourceQuadDegree, &sourceQuadDegreeSet );
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfmassmatquad", &massMatQuadDegree, &massMatQuadDegreeSet );
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcfquad", &allQuadDegree, &allQuadDegreeSet );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-mcffacequad", &faceQuadDegree, &faceQuadDegreeSet );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-mcfprevquad", &prevQuadDegree, &prevQuadDegreeSet );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-mcfsourcequad", &sourceQuadDegree, &sourceQuadDegreeSet );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-mcfmassmatquad", &massMatQuadDegree, &massMatQuadDegreeSet );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-mcfquad", &allQuadDegree, &allQuadDegreeSet );
 
-   PetscOptionsGetInt  ( PETSC_NULL, "-mcftssubsamp", &newTimeStepSubSampleStep, &changeTimeStepSubSampleStep );
-   PetscOptionsGetStringArray ( PETSC_NULL, "-mcftssubsampproc", subProcessNames, &numberOfSubProcesses, &subSamplingForSubProcessesRequired );
+   PetscOptionsGetInt  (PETSC_IGNORE, PETSC_IGNORE, "-mcftssubsamp", &newTimeStepSubSampleStep, &changeTimeStepSubSampleStep );
+   PetscOptionsGetStringArray (PETSC_IGNORE, PETSC_IGNORE, "-mcftssubsampproc", subProcessNames, &numberOfSubProcesses, &subSamplingForSubProcessesRequired );
 
-   PetscOptionsHasName ( PETSC_NULL, "-mcfimmobsat", &useImmobileSaturation );
-   PetscOptionsGetReal ( PETSC_NULL, "-mcftssmooth", &timeStepSmoothingValue,  &timeStepSmoothgingSet );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfnotssmooth", &timeStepSmoothingUnset );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfimmobsat", &useImmobileSaturation );
+   PetscOptionsGetReal (PETSC_IGNORE, PETSC_IGNORE, "-mcftssmooth", &timeStepSmoothingValue,  &timeStepSmoothgingSet );
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-mcfnotssmooth", &timeStepSmoothingUnset );
 
 
    if ( applyOtgc and not doNotApplyOtgc ) {

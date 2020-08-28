@@ -71,7 +71,7 @@ int main(int argc, char** argv)
    l_argv[l_argc] = NULL;
 
    // Initializes the PETSc database and MPI
-   rc = PetscInitialize(&l_argc, &l_argv, (char *)0, PETSC_NULL);
+   rc = PetscInitialize(&l_argc, &l_argv, (char *)0, PETSC_IGNORE);
 
    // Check command line parameters
    std::string matrixFile, rhsFile, solutionFile;
@@ -196,7 +196,7 @@ bool getCommandLineParams( std::string & matrixFile,
    char fileName[PETSC_MAX_PATH_LEN];
    PetscBool flg = PETSC_FALSE;
 
-   rc = PetscOptionsGetString( NULL, "-matrix", fileName, sizeof(fileName), &flg );
+   rc = PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE,  "-matrix", fileName, sizeof(fileName), &flg );
    if( !flg ) return false;
    matrixFile = std::string( fileName );
    ibs::FilePath fPath = ibs::FilePath( matrixFile );
@@ -208,7 +208,7 @@ bool getCommandLineParams( std::string & matrixFile,
       return false;
    }
    
-   rc = PetscOptionsGetString( NULL, "-rhs", fileName, sizeof(fileName), &flg );
+   rc = PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE, "-rhs", fileName, sizeof(fileName), &flg );
    if( !flg ) return false;
    rhsFile = std::string( fileName );
    fPath = ibs::FilePath( rhsFile );
@@ -220,7 +220,7 @@ bool getCommandLineParams( std::string & matrixFile,
       return false;
    }
    
-   rc = PetscOptionsGetString( NULL, "-project", fileName, sizeof(fileName), &flg );
+   rc = PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE, "-project", fileName, sizeof(fileName), &flg );
    hasProject = (flg == PETSC_TRUE);
    fPath = ibs::FilePath( std::string( fileName ) );
    if( hasProject and !fPath.exists() )
@@ -231,7 +231,7 @@ bool getCommandLineParams( std::string & matrixFile,
       return false;
    }
    
-   rc = PetscOptionsGetString( NULL, "-solution", fileName, sizeof(fileName), &flg );
+   rc = PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE, "-solution", fileName, sizeof(fileName), &flg );
    solutionFile = (flg == PETSC_TRUE) ? std::string( fileName ) : std::string();
    fPath = ibs::FilePath( solutionFile );
    if( (!solutionFile.empty()) and !fPath.exists() )
@@ -244,9 +244,9 @@ bool getCommandLineParams( std::string & matrixFile,
 
    if( hasProject )
    {
-      rc = PetscOptionsHasName( NULL, "-presMatrix", &flg );
+      rc = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-presMatrix", &flg );
       isPressure = (flg == PETSC_TRUE);
-      if( !flg ) rc = PetscOptionsHasName( NULL, "-tempMatrix", &flg );
+      if( !flg ) rc = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-tempMatrix", &flg );
       if( !flg )
       {
          rc = PetscPrintf( PETSC_COMM_WORLD, "ERROR: specify matrix type (-presMatrix or -tempMatrix)\n" );

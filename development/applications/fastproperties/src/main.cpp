@@ -26,14 +26,14 @@ using namespace Utilities::CheckMemory;
 int main( int argc, char ** argv )
 {
 
-   PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
+   PetscInitialize (&argc, &argv, (char *) 0, PETSC_IGNORE);
    int rank;
 
    MPI_Comm_rank ( PETSC_COMM_WORLD, &rank );
 
 #ifndef _MSC_VER
    PetscBool myddd = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-ddd", &myddd);
+   PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-ddd", &myddd);
    if (myddd)
    {
       char cmd[150];
@@ -48,10 +48,10 @@ int main( int argc, char ** argv )
    ///1. Initialise fastproperties logger
    try{
       PetscBool log = PETSC_FALSE;
-      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-verbosity", &log );
       if (log){
          char verbosity[11];
-         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         PetscOptionsGetString( PETSC_IGNORE, PETSC_IGNORE, "-verbosity", verbosity, 11, 0 );
          if      (!strcmp( verbosity, "quiet"      )) { LogHandler( "fastproperties", LogHandler::QUIET_LEVEL     , rank ); }
          else if (!strcmp( verbosity, "minimal"    )) { LogHandler( "fastproperties", LogHandler::MINIMAL_LEVEL   , rank ); }
          else if (!strcmp( verbosity, "normal"     )) { LogHandler( "fastproperties", LogHandler::NORMAL_LEVEL    , rank ); }
@@ -82,7 +82,7 @@ int main( int argc, char ** argv )
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
 
    PetscBool vizOption = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-viz", &vizOption );
+   PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-viz", &vizOption );
 
    AbstractPropertiesCalculator * propCalculator;
 
