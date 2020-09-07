@@ -53,9 +53,13 @@ namespace DataAccess
          /// \details This function is only used if the thermal model is Advanced Lithosphere Calculator
          const GridMap * getBasaltThicknessMap() const;
 
-         /// \return The crust paleothickness history stored by the project handle
+         /// \return The crust paleo-thickness history stored by the project handle
          /// \warning This function allocates a new PaleoFormationPropertyList object which needs to be deleted
          PaleoFormationPropertyList * getPaleoThicknessHistory () const override;
+
+		 /// \return The Oceanic crust paleo-thickness history stored by the project handle
+		 /// \warning This function allocates a new PaleoFormationPropertyList object which needs to be deleted
+		 PaleoFormationPropertyList* getOceaPaleoThicknessHistory() const ;
 
          /// \return The "fake" deposition sequence of the crust which is defined to be -1
          /// \details This has no geological meaning and is used to comply with legacy code

@@ -269,21 +269,21 @@ void DataAccess::Interface::Validator::addCrustUndefinedAreas( const CrustFormat
 
    if (crust != nullptr) {
       PaleoFormationPropertyList* thicknesses = crust->getPaleoThicknessHistory();
-
-      for (PaleoFormationPropertyList::const_iterator thicknessIter = thicknesses->begin(); thicknessIter != thicknesses->end(); ++thicknessIter) {
-         addUndefinedAreas( dynamic_cast<const GridMap*>((*thicknessIter)->getMap( CrustThinningHistoryInstanceThicknessMap )) );
+      for (const auto& thicknessIter : *thicknesses) {
+		  addUndefinedAreas((thicknessIter)->getMap(CrustThinningHistoryInstanceThicknessMap));
       }
-
       if (m_projectHandle.isALC()) {
-         auto oceaData = m_projectHandle.getTableOceanicCrustThicknessHistory().data();
-         std::for_each( oceaData.begin(), oceaData.end(), [&]( std::shared_ptr<const OceanicCrustThicknessHistoryData> oceanicCrust )
-         {
-            addUndefinedAreas( oceanicCrust->getMap() );
-         } );
+          PaleoFormationPropertyList* oceathicknesses = crust->getOceaPaleoThicknessHistory();
+          if (oceathicknesses) {
+              for (const auto& thicknessIter : *oceathicknesses) {
+				  addUndefinedAreas((thicknessIter)->getMap(OceaCrustThinningHistoryInstanceThicknessMap));
+              }
+              delete oceathicknesses; oceathicknesses = nullptr;
+          }
       }
-      addUndefinedAreas( dynamic_cast<const GridMap*>(crust->getCrustHeatProductionMap()) );
+      addUndefinedAreas( crust->getCrustHeatProductionMap() );
 
-      delete thicknesses;
+      delete thicknesses; thicknesses = nullptr;
    }
 
 }

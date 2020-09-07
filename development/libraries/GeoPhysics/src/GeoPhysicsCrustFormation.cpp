@@ -317,13 +317,23 @@ void GeoPhysics::GeoPhysicsCrustFormation::retrieveAllThicknessMaps () {
    if ( getProjectHandle().getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ||
         getProjectHandle().isALC() ) {
       Interface::PaleoFormationPropertyList* crustThicknesses = getPaleoThicknessHistory ();
-      Interface::PaleoFormationPropertyList::iterator crustThicknessIter;
-
-      for ( crustThicknessIter = crustThicknesses->begin (); crustThicknessIter != crustThicknesses->end (); ++crustThicknessIter ) {
-         dynamic_cast<const Interface::GridMap*>((*crustThicknessIter)->getMap (Interface::CrustThinningHistoryInstanceThicknessMap))->retrieveGhostedData ();
+      Interface::PaleoFormationPropertyList* oceacrustThicknesses = getOceaPaleoThicknessHistory();
+      
+      if (crustThicknesses) {
+          for (const auto& crustThicknessIter : *crustThicknesses) {
+              dynamic_cast<const Interface::GridMap*>((crustThicknessIter)->getMap(Interface::CrustThinningHistoryInstanceThicknessMap))->retrieveGhostedData();
+          }
+          delete crustThicknesses; crustThicknesses = nullptr;
       }
 
-      delete crustThicknesses;
+      if (oceacrustThicknesses) {
+          for (const auto& crustThicknessIter : *oceacrustThicknesses) {
+              dynamic_cast<const Interface::GridMap*>((crustThicknessIter)->getMap(Interface::OceaCrustThinningHistoryInstanceThicknessMap))
+                  ->retrieveGhostedData();
+          }
+          delete oceacrustThicknesses; oceacrustThicknesses = nullptr;
+      }
+
    }
 
 }
@@ -339,13 +349,23 @@ void GeoPhysics::GeoPhysicsCrustFormation::restoreAllThicknessMaps () {
 
       Interface::PaleoFormationPropertyList* crustThicknesses = getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::iterator crustThicknessIter;
+	  Interface::PaleoFormationPropertyList* oceacrustThicknesses = getOceaPaleoThicknessHistory();
 
-
-      for ( crustThicknessIter = crustThicknesses->begin (); crustThicknessIter != crustThicknesses->end (); ++crustThicknessIter ) {
-         dynamic_cast<const Interface::GridMap*>((*crustThicknessIter)->getMap (Interface::CrustThinningHistoryInstanceThicknessMap))->restoreData ( false, true );
+      if ( crustThicknesses) {
+          for (crustThicknessIter = crustThicknesses->begin(); crustThicknessIter != crustThicknesses->end(); ++crustThicknessIter) {
+              dynamic_cast<const Interface::GridMap*>((*crustThicknessIter)->getMap(Interface::CrustThinningHistoryInstanceThicknessMap))
+                  ->restoreData(false, true);
+          }
+          delete crustThicknesses; crustThicknesses = nullptr;
       }
 
-      delete crustThicknesses;
+      if (oceacrustThicknesses) {
+          for (crustThicknessIter = oceacrustThicknesses->begin(); crustThicknessIter != oceacrustThicknesses->end(); ++crustThicknessIter) {
+              dynamic_cast<const Interface::GridMap*>((*crustThicknessIter)->getMap(Interface::OceaCrustThinningHistoryInstanceThicknessMap))->restoreData(false, true);
+          }
+          delete oceacrustThicknesses; oceacrustThicknesses = nullptr;
+      }
+      
    }
 
 }

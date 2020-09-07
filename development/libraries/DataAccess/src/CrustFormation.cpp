@@ -184,6 +184,10 @@ PaleoFormationPropertyList * CrustFormation::getPaleoThicknessHistory () const {
 }
 
 //------------------------------------------------------------//
+PaleoFormationPropertyList* CrustFormation::getOceaPaleoThicknessHistory() const {
+	return getProjectHandle().getOceaCrustPaleoThicknessHistory();
+}
+//-----------------------------------------------------------//
 
 double CrustFormation::getHeatProductionDecayConstant () const {
    return database::getCrustHeatPDecayConst ( m_record );

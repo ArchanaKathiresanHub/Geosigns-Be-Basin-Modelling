@@ -203,7 +203,6 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    m_name( name ), m_projectFileHandler(pfh),
    m_tableCTC                         ( *this ),
    m_tableCTCRiftingHistory           ( *this ),
-   m_tableOceanicCrustThicknessHistory( *this ),
    m_validator( *this ),
    m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 )
 {
@@ -351,7 +350,7 @@ bool ProjectHandle::loadModellingMode( void )
    }
    else
    {
-      cout << "Basin_Warning: Modelling mode was not set in table ProjectIoTbl. Setting Modelling mode to 3D..." << endl;
+      cout << "Basin_Warning: Modeling mode was not set in table ProjectIoTbl. Setting Modeling mode to 3D..." << endl;
       m_modellingMode = Interface::MODE3D;
    }
    return true;
@@ -684,12 +683,13 @@ void ProjectHandle::createSnapshotsAtUserDefinedTimes( )
   fillSnapshotIoTbl( userDefinedAges, true );
 }
 
-void ProjectHandle::createSnapshotsAtGeologicalEvents()
+bool ProjectHandle::createSnapshotsAtGeologicalEvents()
 {
    //initialize start age and list of geological events
    double startAge = getStartAge();
    std::list<double> geologicalEventAges;
-
+   // the age records from any IoTbl that are greater than the basement age
+   std::set<double> agesGreaterThanBasementAge;
    // Add events from the StratIoTbl
    Table* tbl = getTable( "StratIoTbl" );
    assert( tbl );
@@ -739,6 +739,9 @@ void ProjectHandle::createSnapshotsAtGeologicalEvents()
          {
             geologicalEventAges.push_back( age );
          }
+         else {
+             agesGreaterThanBasementAge.insert(age);
+         }
       }
    }
 
@@ -780,9 +783,16 @@ void ProjectHandle::createSnapshotsAtGeologicalEvents()
             {
                geologicalEventAges.push_back( beginTime );
             }
+            else {
+                agesGreaterThanBasementAge.insert(beginTime);
+            }
+
             if ( endTime < startAge )
             {
                geologicalEventAges.push_back( endTime );
+            }
+            else {
+                agesGreaterThanBasementAge.insert(endTime);
             }
          }
       }
@@ -802,14 +812,21 @@ void ProjectHandle::createSnapshotsAtGeologicalEvents()
         {
            geologicalEventAges.push_back( age );
         }
+        else {
+            agesGreaterThanBasementAge.insert(age);
+        }
      }
    }
 
    //make sure present day's age is included as well
    geologicalEventAges.push_back( 0.0 );
-
+   geologicalEventAges.insert(geologicalEventAges.end(), agesGreaterThanBasementAge.begin(), agesGreaterThanBasementAge.end());
+   //   or add the immediate age that is greater than the basement age for a particular IoTbl and ignore the rest
    fillSnapshotIoTbl( geologicalEventAges, false );
+
+   return true;
 }
+
 
 double ProjectHandle::getStartAge() const
 {
@@ -942,11 +959,11 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HeatFlowZ",                      "HeatFlowZ",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
 
-   // not sure which attribute this property shoudl have, so give it the most general one
+   // not sure which attribute this property should have, so give it the most general one
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HopaneIsomerisation",            "HopaneIsomerisation",            "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "HydroStaticPressure",            "HydroStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
-   // not sure which attribute this property shoudl have, so give it the most general one
+   // not sure which attribute this property should have, so give it the most general one
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "IlliteFraction",                 "IlliteFraction",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "Lithology",                      "Lithology",                      "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "LithoStaticPressure",            "LithoStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
@@ -963,10 +980,10 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "Reflectivity",                   "ReflectivityVec2",               "",      FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "SonicSlowness",                  "SonicVec2",                      "us/m",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
-   // not sure which attribute this property shoudl have, so give it the most general one
+   // not sure which attribute this property should have, so give it the most general one
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "SteraneAromatisation",           "SteraneAromatisation",           "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
 
-   // not sure which attribute this property shoudl have, so give it the most general one
+   // not sure which attribute this property should have, so give it the most general one
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "SteraneIsomerisation",           "SteraneIsomerisation",           "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "Temperature",                    "Temperature",                    "C",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( *this, 0, "ThCond",                         "ThCondVec2",                     "W/mK",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY, DataModel::FASTCAULDRON_PROPERTY ));
@@ -1241,7 +1258,7 @@ bool ProjectHandle::loadTimeOutputProperties() {
          recordMode = Interface::MODE1D;
       }
       else {
-         // It may be that the modelling mode string = "multi-1d", in which case
+         // It may be that the modeling mode string = "multi-1d", in which case
          // it will be switched to 3d.
          recordMode = Interface::MODE3D;
       }
@@ -1821,18 +1838,33 @@ const string & ProjectHandle::getCrustIoTableName( void )
 bool ProjectHandle::loadCrustThinningHistory( void )
 {
    database::Table* crustThinningTbl = getCrustIoTable();
-
+   bool isSuccess = true;
    for ( database::Table::iterator tblIter = crustThinningTbl->begin(); tblIter != crustThinningTbl->end(); ++tblIter )
    {
       Record * crustThinningRecord = *tblIter;
       m_crustPaleoThicknesses.push_back( getFactory()->producePaleoFormationProperty( *this, crustThinningRecord, m_crustFormation ) );
    }
-
+   isSuccess = not m_crustPaleoThicknesses.empty();
    // Sort the items in the table into the correct order.
    sort( m_crustPaleoThicknesses.begin(), m_crustPaleoThicknesses.end(), PaleoPropertyTimeLessThan() );
+   
+   database::Table* OceacrustThinningTbl = (isALC() ? getTable("OceaCrustalThicknessIoTbl") : nullptr);
+   // this check is for the UTs that read a old project3d files that has no "OceaCrustalThicknessIoTbl"
+   if (OceacrustThinningTbl) {
+	   for (database::Table::iterator tblIter = OceacrustThinningTbl->begin(); tblIter != OceacrustThinningTbl->end(); ++tblIter)
+	   {
+		   Record* OceacrustThinningRecord = *tblIter;
+		   m_OceaCrustPaleoThicknesses.push_back(getFactory()->producePaleoFormationProperty(*this, OceacrustThinningRecord, m_crustFormation));
+	   }
 
-   return not m_crustPaleoThicknesses.empty();
+	   // Sort the items in the table into the correct order.
+	   sort(m_OceaCrustPaleoThicknesses.begin(), m_OceaCrustPaleoThicknesses.end(), PaleoPropertyTimeLessThan());
+	   isSuccess = not m_OceaCrustPaleoThicknesses.empty();
+
+   }
+   return (isSuccess);
 }
+
 
 bool CrustIoTblSorter( database::Record * recordL, database::Record * recordR )
 {
@@ -1841,62 +1873,88 @@ bool CrustIoTblSorter( database::Record * recordL, database::Record * recordR )
 }
 
 bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
-
-   if ( isALC() ) {
-      MutablePaleoFormationPropertyList newCrustalThicknesses;
-
-      // calculate and insert additional crust thickness maps at all snapshot events
-      MutablePaleoFormationPropertyList::const_iterator thicknessIter = m_crustPaleoThicknesses.begin();
-
-      const Interface::Snapshot* oldestSnapshot = getCrustFormation()->getTopSurface()->getSnapshot();
-      assert( oldestSnapshot != nullptr );
-
-      Interface::SnapshotList* snapshots = getSnapshots( Interface::MAJOR );
-      Interface::SnapshotList::const_iterator snapshotIter = snapshots->begin();
-
-      const string tableName = getCrustIoTableName();
-      Table * crustIoTbl = getTable( tableName );
-      assert( crustIoTbl );
-
-      for ( thicknessIter = m_crustPaleoThicknesses.begin(); thicknessIter != m_crustPaleoThicknesses.end(); ++thicknessIter ) {
-         const Interface::GridMap* map1 = ( *thicknessIter )->getMap( Interface::CrustThinningHistoryInstanceThicknessMap );
-
-         MutablePaleoFormationPropertyList::const_iterator thicknessIter2 = thicknessIter + 1;
-
-         const Interface::GridMap* map2 = ( thicknessIter2 != m_crustPaleoThicknesses.end() ?
-            ( *thicknessIter2 )->getMap( Interface::CrustThinningHistoryInstanceThicknessMap ) : map1 );
-         double age1 = ( *thicknessIter )->getSnapshot()->getTime();
-         const double age2 = ( thicknessIter2 != m_crustPaleoThicknesses.end() ? ( *thicknessIter2 )->getSnapshot()->getTime() : age1 );
-
-         while ( snapshotIter != snapshots->end() && age2 >= ( *snapshotIter )->getTime() ) {
-            double age3 = ( *snapshotIter )->getTime();
-            if ( age1 < age3 && age2 != age3 && age3 <= oldestSnapshot->getTime() ) {
-               database::Record * record = new Record( *( *thicknessIter )->getRecord() );
-               setAge( record, age3 );
-               PaleoFormationProperty* crustThicknessMap = getFactory()->producePaleoFormationProperty( *this, record, m_crustFormation );
-               Interface::InterpolateFunctor functor( age1, age2, age3 );
-               crustThicknessMap->computeMap( Interface::CrustThinningHistoryInstanceThicknessMap, map1, map2, functor );
-
-               newCrustalThicknesses.push_back( crustThicknessMap );
-               map1 = crustThicknessMap->getMap( Interface::CrustThinningHistoryInstanceThicknessMap );
-               age1 = age3;
-               delete record;
-            }
-            ++snapshotIter;
-         }
-      }
-      sort( crustIoTbl->begin(), crustIoTbl->end(), CrustIoTblSorter );
-      for ( thicknessIter = newCrustalThicknesses.begin(); thicknessIter != newCrustalThicknesses.end(); ++thicknessIter ) {
-         m_crustPaleoThicknesses.push_back( *thicknessIter );
-      }
-    sort( m_crustPaleoThicknesses.begin(), m_crustPaleoThicknesses.end(), PaleoPropertyTimeLessThan());
-
-    //newCrustalThicknesses is deleted in ProjectHandle::deleteCrustThinningHistory( void)
-      delete snapshots;
-   }
-
-   return true;
+    bool success = true;
+    if (isALC()) {
+        success = addOceaCrustThinningHistoryMaps();
+        success = addContiCrustThinningHistoryMaps() and success;
+    }
+    return success;
 }
+
+bool DataAccess::Interface::ProjectHandle::addOceaCrustThinningHistoryMaps()
+{
+    MutablePaleoFormationPropertyList newCrustalThicknesses;
+        return addTheThinningHistoryMaps("OceaCrustalThicknessIoTbl",
+            Interface::OceaCrustThinningHistoryInstanceThicknessMap,m_OceaCrustPaleoThicknesses, newCrustalThicknesses);
+}
+
+bool DataAccess::Interface::ProjectHandle::addContiCrustThinningHistoryMaps(void)
+{
+    MutablePaleoFormationPropertyList newCrustalThicknesses;
+		const string tableName = getCrustIoTableName();
+		return addTheThinningHistoryMaps(tableName, 
+            Interface::CrustThinningHistoryInstanceThicknessMap, m_crustPaleoThicknesses, newCrustalThicknesses);
+}
+
+bool ProjectHandle::addTheThinningHistoryMaps(const std::string& TableName, PaleoPropertyMapAttributeId propId,
+    MutablePaleoFormationPropertyList& theThicknessEntries,
+    MutablePaleoFormationPropertyList& newCrustalThicknesses) {
+
+    bool isSuccess = true;
+	// calculate and insert additional crust thickness maps at all snapshot events
+	MutablePaleoFormationPropertyList::const_iterator thicknessIter = theThicknessEntries.begin();
+
+	const Interface::Snapshot* oldestSnapshot = getCrustFormation()->getTopSurface()->getSnapshot();
+	assert(oldestSnapshot != nullptr);
+
+	Interface::SnapshotList* snapshots = getSnapshots(Interface::MAJOR);
+	Interface::SnapshotList::const_iterator snapshotIter = snapshots->begin();
+
+
+	Table* crustIoTbl = getTable(TableName);
+	assert(crustIoTbl);
+
+	for (thicknessIter = theThicknessEntries.begin(); thicknessIter != theThicknessEntries.end(); ++thicknessIter) {
+		const Interface::GridMap* map1 = (*thicknessIter)->getMap(propId);
+
+		MutablePaleoFormationPropertyList::const_iterator thicknessIter2 = thicknessIter + 1;
+
+		const Interface::GridMap* map2 = (thicknessIter2 != theThicknessEntries.end() ?
+			(*thicknessIter2)->getMap(propId) : map1);
+		double age1 = (*thicknessIter)->getSnapshot()->getTime();
+		const double age2 = (thicknessIter2 != theThicknessEntries.end() ? (*thicknessIter2)->getSnapshot()->getTime() : age1);
+
+		while (snapshotIter != snapshots->end() && age2 >= (*snapshotIter)->getTime()) {
+			const double age3 = (*snapshotIter)->getTime();
+			if (age1 < age3 && age2 != age3 && age3 <= oldestSnapshot->getTime()) {
+				database::Record* record = new Record(*(*thicknessIter)->getRecord());
+				setAge(record, age3);
+				PaleoFormationProperty* crustThicknessMap = getFactory()->producePaleoFormationProperty(*this, record, m_crustFormation);
+				Interface::InterpolateFunctor functor(age1, age2, age3);
+
+                isSuccess = (crustThicknessMap->computeMap(propId, map1, map2, functor) == nullptr) ? false : true;
+
+				newCrustalThicknesses.push_back(crustThicknessMap);
+				map1 = crustThicknessMap->getMap(propId);
+				age1 = age3;
+				delete record;
+			}
+			++snapshotIter;
+		}
+	}
+	sort(crustIoTbl->begin(), crustIoTbl->end(), CrustIoTblSorter);
+	for (thicknessIter = newCrustalThicknesses.begin(); thicknessIter != newCrustalThicknesses.end(); ++thicknessIter) {
+		theThicknessEntries.push_back(*thicknessIter);
+	}
+	sort(theThicknessEntries.begin(), theThicknessEntries.end(), PaleoPropertyTimeLessThan());
+
+
+	//newCrustalThicknesses is deleted in ProjectHandle::deleteCrustThinningHistory( void)
+	delete snapshots;
+
+    return isSuccess;
+}
+
 
 
 //------------------------------------------------------------//
@@ -1962,6 +2020,35 @@ bool ProjectHandle::correctCrustThicknessHistory() {
       std::sort( m_mantlePaleoThicknesses.begin(), m_mantlePaleoThicknesses.end(), Interface::PaleoPropertyTimeLessThan() );
    }
 
+   // For projects that lack OceaThicknessIoTbl
+   if (m_OceaCrustPaleoThicknesses.size()) {
+       beforeSimulation = nullptr; afterSimulation = nullptr;
+       for (i = 0; i < m_OceaCrustPaleoThicknesses.size(); ++i) {
+
+           if (m_OceaCrustPaleoThicknesses[i]->getSnapshot()->getTime() > firstSimulationSnapshot->getTime()) {
+
+               if (beforeSimulation == nullptr or beforeSimulation->getSnapshot()->getTime() > m_OceaCrustPaleoThicknesses[i]->getSnapshot()->getTime()) {
+                   beforeSimulation = m_OceaCrustPaleoThicknesses[i];
+               }
+
+           }
+
+           if (m_OceaCrustPaleoThicknesses[i]->getSnapshot()->getTime() < firstSimulationSnapshot->getTime()) {
+
+               if (afterSimulation == nullptr or afterSimulation->getSnapshot()->getTime() < m_OceaCrustPaleoThicknesses[i]->getSnapshot()->getTime()) {
+                   afterSimulation = m_OceaCrustPaleoThicknesses[i];
+               }
+
+           }
+
+       }
+       assert(beforeSimulation != nullptr or afterSimulation != nullptr);
+
+       if (beforeSimulation != nullptr and afterSimulation != nullptr) {
+           m_OceaCrustPaleoThicknesses.push_back(getFactory()->producePaleoFormationProperty(*this, m_crustFormation, beforeSimulation, afterSimulation, firstSimulationSnapshot));
+       }
+       std::sort(m_OceaCrustPaleoThicknesses.begin(), m_OceaCrustPaleoThicknesses.end(), Interface::PaleoPropertyTimeLessThan());
+   }
    return true;
 }
 
@@ -3138,6 +3225,21 @@ Interface::PaleoFormationPropertyList * ProjectHandle::getCrustPaleoThicknessHis
    return crustThinningHistoryList;
 }
 
+Interface::PaleoFormationPropertyList* ProjectHandle::getOceaCrustPaleoThicknessHistory() const {
+
+	Interface::PaleoFormationPropertyList* crustThinningHistoryList = new Interface::PaleoFormationPropertyList;
+
+	MutablePaleoFormationPropertyList::const_iterator crustThinningHistoryIter;
+
+	for (crustThinningHistoryIter = m_OceaCrustPaleoThicknesses.begin();
+		crustThinningHistoryIter != m_OceaCrustPaleoThicknesses.end(); ++crustThinningHistoryIter)
+	{
+		const PaleoFormationProperty* crustThinningHistoryInstance = *crustThinningHistoryIter;
+		crustThinningHistoryList->push_back(crustThinningHistoryInstance);
+	}
+
+	return crustThinningHistoryList;
+}
 
 void ProjectHandle::computeMantlePaleoThicknessHistory() const {
 
@@ -3231,10 +3333,6 @@ Interface::PaleoSurfacePropertyList * ProjectHandle::getHeatFlowHistory() const 
    }
 
    return heatFlowHistoryList;
-}
-
-const Interface::TableOceanicCrustThicknessHistory& ProjectHandle::getTableOceanicCrustThicknessHistory() const {
-   return m_tableOceanicCrustThicknessHistory;
 }
 
 Interface::PaleoPropertyList * ProjectHandle::getSurfaceDepthHistory() const
@@ -5033,7 +5131,7 @@ void ProjectHandle::deleteTraps( void )
 }
 
 /// check of the m_traps is not empty
-bool ProjectHandle::trapsAreAvailable()
+bool ProjectHandle::trapsAreAvailable() const
 {
    return !m_traps.empty();
 }
@@ -5203,7 +5301,19 @@ void ProjectHandle::deleteCrustThinningHistory( void ) {
    for ( crustThinningHistoryIter = m_crustPaleoThicknesses.begin(); crustThinningHistoryIter != m_crustPaleoThicknesses.end(); ++crustThinningHistoryIter )
    {
       PaleoFormationProperty * crustThinningInstance = *crustThinningHistoryIter;
-      delete crustThinningInstance;
+      if (crustThinningInstance) {
+          delete crustThinningInstance;
+          crustThinningInstance = nullptr;
+      }
+   }
+
+   for (crustThinningHistoryIter = m_OceaCrustPaleoThicknesses.begin(); crustThinningHistoryIter != m_OceaCrustPaleoThicknesses.end(); ++crustThinningHistoryIter)
+   {
+	   PaleoFormationProperty* crustThinningInstance = *crustThinningHistoryIter;
+	   if (crustThinningInstance) {
+		   delete crustThinningInstance;
+		   crustThinningInstance = nullptr;
+	   }
    }
 
 }
@@ -5246,7 +5356,7 @@ void ProjectHandle::setSimulationDetails ( const std::string& simulatorName,
    int lastSequenceNumber = 0;
 
    if ( m_simulationDetails.size () > 0 ) {
-      // Sequence of simulation details should be ordered, so the last entry should have the largest seqnence number.
+      // Sequence of simulation details should be ordered, so the last entry should have the largest sequence number.
       lastSequenceNumber = m_simulationDetails [ m_simulationDetails.size () - 1 ]->getSimulationSequenceNumber ();
    }
 

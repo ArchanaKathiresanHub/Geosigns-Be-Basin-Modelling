@@ -351,8 +351,9 @@ bool GeoPhysics::ProjectHandle::initialise ( const bool readSizeFromVolumeData,
    if( m_isALCMode ) {
       // check inputs before they are modified by addCrustThinningHistoryMaps method
       /// @todo The inputs should never be modified, only outputs should be interpolated in this case
+      result = addCrustThinningHistoryMaps() and result;
+      // \ check the entries after the maps were interpolated
       checkAlcCrustHistoryInput();
-      addCrustThinningHistoryMaps();
    }
 
    result = createSeaBottomTemperature    () and result;
@@ -392,12 +393,19 @@ void GeoPhysics::ProjectHandle::checkAlcCrustHistoryInput() const
    for (auto continentalCrustReverseIter = crustThicknesses->rbegin(); continentalCrustReverseIter != crustThicknesses->rend(); ++continentalCrustReverseIter) {
       const PaleoFormationProperty* contCrustThicknessInstance = *continentalCrustReverseIter;
       const double age = contCrustThicknessInstance->getSnapshot()->getTime();
-      const auto oceanicCrustThicknessIt = std::find_if( m_tableOceanicCrustThicknessHistory.data().begin(), m_tableOceanicCrustThicknessHistory.data().end(),
-         [&age]( std::shared_ptr<const OceanicCrustThicknessHistoryData> obj ) { return obj->getAge() == age; } );
-      if (oceanicCrustThicknessIt == m_tableOceanicCrustThicknessHistory.data().end()) {
+      
+      const auto oceanicCrustThicknessIt = std::find_if(m_OceaCrustPaleoThicknesses.begin(), 
+          m_OceaCrustPaleoThicknesses.end(),
+         [&age] (const PaleoFormationProperty* obj ) {
+                    return (obj)->getSnapshot()->getTime() == age; }
+                );
+      
+      if (oceanicCrustThicknessIt == m_OceaCrustPaleoThicknesses.end()) {
          throw std::invalid_argument( "There is no oceanic crustal thickness corresponding to the continental crustal thickness defined at " + std::to_string( age ) + "Ma" );
       }
    }
+   if (crustThicknesses)
+       delete crustThicknesses; crustThicknesses = nullptr;
 }
 
 //------------------------------------------------------------//
@@ -584,12 +592,13 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () const
    m_endOfRiftEvent.reallocate        ( getActivityOutputGrid() );
 
    Interface::PaleoFormationPropertyList* crustThicknesses = getCrustFormation()->getPaleoThicknessHistory();
+   Interface::PaleoFormationPropertyList* OceacrustThicknesses = getCrustFormation()->getOceaPaleoThicknessHistory();
    auto*  crust = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>(m_crustFormation);
    const double initialLithosphericMantleThickness = getMantleFormation()->getInitialLithosphericMantleThickness();
    const double initialCrustalThickness            = crust->getInitialCrustalThickness();
 
-   EffectiveCrustalThicknessCalculator ectCalculator( crustThicknesses,
-                                                      m_tableOceanicCrustThicknessHistory,
+   EffectiveCrustalThicknessCalculator ectCalculator( crustThicknesses, OceacrustThicknesses,
+                                                      //m_tableOceanicCrustThicknessHistory,
                                                       initialLithosphericMantleThickness,
                                                       initialCrustalThickness,
                                                       m_validator );
@@ -604,10 +613,11 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () const
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
    }
    catch (...) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "The Advanced Lithosphere Calculator encounterred a fatal error (unkown details)";
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "The Advanced Lithosphere Calculator encountered a fatal error (unknown details)";
    }
 
    delete crustThicknesses;
+   delete OceacrustThicknesses;
    return status;
 }
 
