@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-09-11  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: usr: Prograde Implementation for SurfaceDepthIoTbl and Soil Mechanics Porosity Models Lithologies
+	 * Reference of SurfaceDepth at age = 0Ma from StratIoTbl is added to SurfaceDepthIoTbl
+	 * Soil Mechanics Lithogies in bpa-legacy HOU are mapped to the Exponential porosity models
+	 * Related work items: #390698, #393500
+	================== COMMIT-END ========================
+	Commit-ID:<de084a3a5f64485986caf408c56607f48d491a52>	  (HEAD -> master, origin/master)
+
+++
 2020-09-07  arijit.khan Khan  <arijit.khan@shell.com>
 
 	fix: dev: Interpolation fix for geologic events that are defined at an age older than the basement age
