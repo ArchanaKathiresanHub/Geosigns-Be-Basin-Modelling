@@ -808,8 +808,9 @@ void Prograde::LithologyConverter::upgradePermModelForSysDefLitho(const std::str
 	}
 }
 
-void Prograde::LithologyConverter::computeSingleExpModelParameters(const std::string legacyParentLithoName, const int lithologyFlag, mbapi::LithologyManager::PorosityModel &porModel, std::vector<double> & originalPorModelParam, std::vector<double> & newPorModelParam)
+std::vector<double> Prograde::LithologyConverter::computeSingleExpModelParameters(const std::string legacyParentLithoName, const int lithologyFlag, mbapi::LithologyManager::PorosityModel &porModel, std::vector<double> & originalPorModelParam)
 {
+	std::vector<double> newPorModelParam;
 	std::string baseLithologyType = legacyParentLithoName;
 
 	double newSurfacePorosity;
@@ -820,36 +821,24 @@ void Prograde::LithologyConverter::computeSingleExpModelParameters(const std::st
 	{
 		if ((baseLithologyType.compare("HEAT Sandstone") == 0) || (baseLithologyType.compare("SM. Sandstone") == 0) || (baseLithologyType.compare("Std. Sandstone") == 0))
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
 			newSurfacePorosity = 45.0;
 			newExponentialCompCoeff = 3.25;
 			newMinMechanicalPorosity = 5.0;
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Sandstone,typical'. ";
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
 		else if (baseLithologyType.compare("Std. Siltstone") == 0)
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
 			newSurfacePorosity = 35.0;
 			newExponentialCompCoeff = 5.5;
 			newMinMechanicalPorosity = 2.0;
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Siltstone, clean'. ";
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
 		else if (baseLithologyType.compare("Std. Shale") == 0 || baseLithologyType.compare("HEAT Shale") == 0 ||
 			baseLithologyType.compare("SM.Mudst.40%Clay") == 0 || baseLithologyType.compare("SM.Mudst.50%Clay") == 0 ||
-			baseLithologyType.compare("SM.Mudst.60%Clay") == 0)
+			baseLithologyType.compare("SM.Mudst.60%Clay") == 0 || baseLithologyType.compare("Mudstone, 30% clay") == 0 ||
+			baseLithologyType.compare("Astheno. Mantle") == 0 || baseLithologyType.compare("Diorite/Granodiorite") == 0)
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with model parameters calculated from the imperical formula. ";
-
 			newSurfacePorosity = (0.0173*originalPorModelParam[0] * originalPorModelParam[0]) - (0.6878*originalPorModelParam[0]) + 27.73;
 			//Newly calculated SurfacePorosity values must be in the range [0.1,100]. Resetting it's value if it is outside this range
 			if (newSurfacePorosity < 0.1) {
@@ -882,112 +871,101 @@ void Prograde::LithologyConverter::computeSingleExpModelParameters(const std::st
 				newMinMechanicalPorosity = newSurfacePorosity;
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "  <Basin-Warning> Newly calculated MinPorosity is greater than the value of SurfacePorosity. Resetting its value to SurfacePorosity.";
 			}
-
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
-		else if (baseLithologyType.compare("Std.Dolo.Grainstone") == 0)
+		else if (baseLithologyType.compare("Std.Dolo.Grainstone") == 0 || baseLithologyType.compare("HEAT Dolostone") == 0)
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
 			newSurfacePorosity = 35.0;
 			newExponentialCompCoeff = 8.0;
 			newMinMechanicalPorosity = 5.0;
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Grainstone, dolomitic, typical'. ";
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
-		else if (baseLithologyType.compare("Std.Grainstone") == 0)
+		else if (baseLithologyType.compare("Std.Grainstone") == 0 || baseLithologyType.compare("HEAT Limestone") == 0)
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
 			newSurfacePorosity = 35.0;
 			newExponentialCompCoeff = 8.0;
 			newMinMechanicalPorosity = 5.0;
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Grainstone, calcitic, typical'. ";
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
 		else if (baseLithologyType.compare("Std.Lime Mudstone") == 0)
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
 			newSurfacePorosity = 35.0;
 			newExponentialCompCoeff = 6.0;
 			newMinMechanicalPorosity = 3.0;
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Lime-Mudstone'. ";
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
 		else if ((baseLithologyType.compare("Std.Dolo.Mudstone")) == 0)
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
 			newSurfacePorosity = 35.0;
 			newExponentialCompCoeff = 6.0;
 			newMinMechanicalPorosity = 3.0;
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Lime-Mudstone, dolomitic'. ";
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
 		else if (baseLithologyType.compare("Std. Marl") == 0)
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
 			newSurfacePorosity = 50.0;
 			newExponentialCompCoeff = 5.0;
 			newMinMechanicalPorosity = 3.0;
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Marl'. ";
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
 		else if (baseLithologyType.compare("HEAT Limestone") == 0)
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
 			newSurfacePorosity = 35.0;
 			newExponentialCompCoeff = 8.0;
 			newMinMechanicalPorosity = 5.0;
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Graistone, calcitic, typical'. ";
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
 		else if (baseLithologyType.compare("Std. Salt") == 0)
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
 			newSurfacePorosity = 0.1;
 			newExponentialCompCoeff = 0.0;
 			newMinMechanicalPorosity = 0.1;
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Halite'. ";
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
 		else if (baseLithologyType.compare("Std. Coal") == 0)
 		{
-			porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
 			newSurfacePorosity = 75.0;
 			newExponentialCompCoeff = 15;
 			newMinMechanicalPorosity = 1.1;
-
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Coal'. ";
-			newPorModelParam.push_back(newSurfacePorosity);
-			newPorModelParam.push_back(newExponentialCompCoeff);
-			newPorModelParam.push_back(newMinMechanicalPorosity);
 		}
-		else {
+		else if (baseLithologyType.compare("HEAT Chalk") == 0 || baseLithologyType.compare("Std. Chalk") == 0)
+		{
+		newSurfacePorosity = 60.0;
+		newExponentialCompCoeff = 6.5;
+		newMinMechanicalPorosity = 5.0;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Coal'. ";
+		}
+		else if (baseLithologyType.compare("Std. Coal") == 0)
+		{
+		newSurfacePorosity = 75.0;
+		newExponentialCompCoeff = 15.0;
+		newMinMechanicalPorosity = 1.1;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Coal'. ";
+		}
+		else if (baseLithologyType.compare("Std. Salt") == 0)
+		{
+		newSurfacePorosity = 0.1;
+		newExponentialCompCoeff = 0.0;
+		newMinMechanicalPorosity = 0.1;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Coal'. ";
+		}
+		else if (baseLithologyType.compare("Std. Basalt") == 0)
+		{
+		newSurfacePorosity = 0.1;
+		newExponentialCompCoeff = 0.0;
+		newMinMechanicalPorosity = 0.1;
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Coal'. ";
+		}
+		else 
+		{
 			newPorModelParam = originalPorModelParam;
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Error> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is not upgraded to 'Exponential' as no mapping is available for this parent lithology; Migration from BPA to BPA2 Basin Aborted... ";
 			exit(42);
 		}
+		porModel = mbapi::LithologyManager::PorosityModel::PorExponential;//upgrading the porosity model to "Exponential"
+		newPorModelParam.push_back(newSurfacePorosity);
+		newPorModelParam.push_back(newExponentialCompCoeff);
+		newPorModelParam.push_back(newMinMechanicalPorosity);
 	}
 	else if (lithologyFlag == 0 && porModel == mbapi::LithologyManager::PorosityModel::PorSoilMechanics) {
 		newPorModelParam = originalPorModelParam;
@@ -1033,200 +1011,5 @@ void Prograde::LithologyConverter::computeSingleExpModelParameters(const std::st
 		newPorModelParam = originalPorModelParam;
 	}
 
-	//return newPorModelParam;
-
-}
-
-void Prograde::LithologyConverter::upgradeLitPropDensity(double & value)
-{
-	double lwrLimit = 500;
-	double uprLimit = 10000;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Density value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Density value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropHeatProduction(double & value)
-{
-	double lwrLimit = 0;
-	double uprLimit = 25;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Heat Production value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Heat Production value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropThrConductivity(double & value)
-{
-	double lwrLimit = 0;
-	double uprLimit = 10;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Thermal Conductivity value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Thermal Conductivity value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropThrCondAnistropy(double & value)
-{
-	double lwrLimit = 0;
-	double uprLimit = 10;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Thermal Conductivity Anistropy value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Thermal Conductivity Anistropy value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropPermAnistropy(double & value)
-{
-	double lwrLimit = 0;
-	double uprLimit = 100;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Permeability Anistropy value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Permeability Anistropy value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropSeisVelocity(double & value)
-{
-	double lwrLimit = 1000;
-	double uprLimit = 9000;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Seismic Velocity value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Seismic Velocity value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropSeisVeloExponent(double & value)
-{
-	double lwrLimit = -1;
-	double uprLimit = 1;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Seismic Velocity Exponent value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Seismic Velocity Exponent value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropEntryPresCoeff1(double & value)
-{
-	double lwrLimit = 0.1;
-	double uprLimit = 2;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Entry Pressure Coefficient 1 value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Entry Pressure Coefficient 1 value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropEntryPresCoeff2(double & value)
-{
-	double lwrLimit = -1.5;
-	double uprLimit = 1.5;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Entry Pressure Coefficient 2 value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Entry Pressure Coefficient 2 value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropHydFracturing(double & value)
-{
-	double lwrLimit = 0;
-	double uprLimit = 100;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Hydraulic Fracturing value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Hydraulic Fracturing value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropRefSoldViscosity(double & value)
-{
-	double lwrLimit = 0;
-	double uprLimit = 1e18;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original ReferenceSolidViscosity value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original ReferenceSolidViscosity value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
-
-}
-void Prograde::LithologyConverter::upgradeLitPropIntrTemperature(double & value)
-{
-	double lwrLimit = 600;
-	double uprLimit = 1650;
-	if (value == -9999)
-		return;
-	if (value < lwrLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Intrusion Temperature value '" << value << "' is less than the minimum acceptable value of BPA2 and updating its value to '" << lwrLimit << "'";
-		value = lwrLimit;
-	}
-	else if (value > uprLimit)
-	{
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Intrusion Temperature value '" << value << "' is larger than the acceptable value of BPA2 and updating its value to '" << uprLimit << "'";
-		value = uprLimit;
-	}
+	return newPorModelParam;
 }

@@ -50,8 +50,11 @@ void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceDepthIoTable() {
 
 	// Updating the Depth and DepthGrid values of SurfaceDepthIoTbl table at age = 0
 	// Currently blank but cauldron reads the values of the data at age = 0 Ma from StratIoTbl
+	// The reference of DepthGrid of SurfaceDepthIoTbl is added in GridMapIoTbl by GridMapIoTblUpgradeManager 
 	database::Table* surfaceDepthIo_tbl = m_ph->getTable("SurfaceDepthIoTbl");
 	database::Record* recSurface = surfaceDepthIo_tbl->getRecord(0);
+	if (recSurface == nullptr)
+		throw ErrorHandler::Exception(ErrorHandler::IoError) << "In the prject3d file, the SurfaceDepthIoTbl is empty";
 	// we know the first row of SurfaceDepthIoTbl and StratIoTBl is always at age=0;
 	std::string gridMapSD = recSurface->getValue<std::string>("DepthGrid");
 	double depthSD = recSurface->getValue<double>("Depth");
