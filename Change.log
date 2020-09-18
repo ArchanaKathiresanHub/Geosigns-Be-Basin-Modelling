@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-09-18  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Add logging when Newton solver for pressure does not converge.
+	A log is created when the Newton solver does not converge
+
+	Related work items: #365260, #398341
+	Commit-ID:<6d8866cb42a094b5b53da27f80f2410f1af3f8db>	  (refs/heads/master)
+
+++
 2020-09-11  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: usr: Prograde Implementation for SurfaceDepthIoTbl and Soil Mechanics Porosity Models Lithologies

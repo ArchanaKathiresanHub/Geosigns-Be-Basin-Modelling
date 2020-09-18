@@ -2641,8 +2641,13 @@ void Basin_Modelling::FEM_Grid::logMaxResidualLocations(const std::vector<unsign
       const ComputationalDomain::FormationGeneralElementGrid* formationGrid =
           m_pressureComputationalDomain.getFormationGrid ( column.getLayer ( location[3] ));
 
-      std::cout << "rank " << printRank << ", residual: " << maximumResidual << ", i: " << location[0] << ", j: " << location[1] <<
-                   ", k: " << location[2] <<  ", Formation: " << formationGrid->getFormation().getName() << std::endl;
+      const DataAccess::Interface::Grid* grid = FastcauldronSimulator::getInstance().getActivityOutputGrid();
+
+      std::cout << "rank " << printRank << ", residual: " << maximumResidual << ", i: " << location[0] << ", j: " << location[1]
+                << ", k: " << location[2] <<  ", Formation: " << formationGrid->getFormation().getName()
+                << ", x[m]: " << grid->minI() + grid->deltaI()*location[0]
+                << ", y[m]: " << grid->minJ() + grid->deltaJ()*location[1]
+                << std::endl;
     }
     std::cout << " -----------------------------------------------------------------------------------------------------------" << std::endl;
   }
