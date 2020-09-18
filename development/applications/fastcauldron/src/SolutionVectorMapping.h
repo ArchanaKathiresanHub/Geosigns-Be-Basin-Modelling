@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #ifndef FASTCAULDRON__SOLUTION_VECTOR_MAPPING__H
 #define FASTCAULDRON__SOLUTION_VECTOR_MAPPING__H
 
@@ -32,7 +32,7 @@ public :
    /// \brief Constructor.
    ///
    /// \param [in] domain   The domain for which the solution vector mapping is to be calculated.
-   /// \param [in] property The property to be stored. 
+   /// \param [in] property The property to be stored.
    /// \pre property can be only Temperature or Overpressure.
    SolutionVectorMapping ( ComputationalDomain&                        domain,
                            const Basin_Modelling::Fundamental_Property property );
@@ -42,6 +42,8 @@ public :
 
    /// \brief Get the solution vector from the 3d arrays contained in each layer.
    void getSolution ( Vec vector ) const;
+
+   std::vector<unsigned int> getLocationMaxValue(Vec vector, double& maxResidual) const;
 
 private :
 

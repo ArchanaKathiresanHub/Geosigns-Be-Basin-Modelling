@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "SolutionVectorMapping.h"
 
 // Access to the utilities library.
@@ -27,7 +27,7 @@ using Utilities::Maths::MegaPaToPa;
 //------------------------------------------------------------//
 
 SolutionVectorMapping::SolutionVectorMapping ( ComputationalDomain&                        domain,
-                                               const Basin_Modelling::Fundamental_Property property ) : 
+                                               const Basin_Modelling::Fundamental_Property property ) :
    m_computationalDomain ( domain ),
    m_property ( property ),
    m_scalingFactor ( property == Basin_Modelling::Overpressure ? MegaPaToPa : 1.0 ),
@@ -37,7 +37,7 @@ SolutionVectorMapping::SolutionVectorMapping ( ComputationalDomain&             
    if ( property != Basin_Modelling::Temperature and property != Basin_Modelling::Overpressure ) {
       PetscPrintf ( PETSC_COMM_WORLD,
                     " Incorrect property: %s, should be either Temperature or Overpressure.\n",
-                    Basin_Modelling::fundamentalPropertyImage ( property ).c_str ());      
+                    Basin_Modelling::fundamentalPropertyImage ( property ).c_str ());
       exit ( 1 );
    }
 
@@ -242,5 +242,62 @@ void SolutionVectorMapping::getSolution ( Vec vector ) const {
 
    VecRestoreArray ( vector, &localArray );
 }
+
+
+std::vector<unsigned int> SolutionVectorMapping::getLocationMaxValue ( Vec vector, double& maxResidual ) const {
+
+   const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
+   const StratigraphicColumn& column = m_computationalDomain.getStratigraphicColumn ();
+
+   size_t topLayerIndex = column.getTopLayerIndex ( m_computationalDomain.getCurrentAge ());
+   size_t numberOfLayers = column.getNumberOfLayers ();
+   const NodalVolumeGrid&  scalarNodeGrid = m_computationalDomain.getStratigraphicGrids ().getNodeGrid ();
+
+   double* localArray;
+
+   VecGetArray ( vector, &localArray );
+
+   unsigned int maxI = 0;
+   unsigned int maxJ = 0;
+   unsigned int maxK = 0;
+   unsigned int maxL = 0;
+
+   for ( size_t l = topLayerIndex; l < numberOfLayers ; ++l )
+   {
+     ComputationalDomain::FormationGeneralElementGrid* formationGrid = m_computationalDomain.getFormationGrid ( column.getLayer ( l ));
+     const Integer3DArray& layerMappingNumbers = m_layerMappingNumbers [ l ];
+
+     // Loop over the nodes that are local to the rank.
+     for ( unsigned int i = scalarNodeGrid.firstI (); i <= scalarNodeGrid.lastI (); ++i )
+     {
+       for ( unsigned int j = scalarNodeGrid.firstJ (); j <= scalarNodeGrid.lastJ (); ++j )
+       {
+         if ( fc.nodeIsDefined ( i, j ))
+         {
+           for ( unsigned int k = 0; k <= formationGrid->getFormation ().getMaximumNumberOfElements (); ++k )
+           {
+             if ( layerMappingNumbers ( i, j, k ) != ComputationalDomain::NullDofNumber )
+             {
+               const double absVal = std::fabs(localArray [ layerMappingNumbers ( i, j, k )]);
+               if (absVal > maxResidual)
+               {
+                 maxI = i;
+                 maxJ = j;
+                 maxK = k;
+                 maxL = l;
+                 maxResidual = absVal;
+               }
+             }
+           }
+         }
+       }
+     }
+   }
+
+   VecRestoreArray ( vector, &localArray );
+
+   return {maxI, maxJ, maxK, maxL};
+}
+
 
 //------------------------------------------------------------//

@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2018 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #ifndef FASTCAULDRON__COMPUTATIONAL_DOMAIN__H
 #define FASTCAULDRON__COMPUTATIONAL_DOMAIN__H
 
@@ -125,9 +125,9 @@ public :
    /// \brief Get 3 dimensional array of node activity.
    ///
    /// A node is active if it takes part the calculation for the computational-domain.
-   /// If n nodes are at the same location, due to a series of zero thickness segments, then 
+   /// If n nodes are at the same location, due to a series of zero thickness segments, then
    /// only 1 of them will be active.
-   /// The active nodes array is valid only for the nodes that are local to the process, it 
+   /// The active nodes array is valid only for the nodes that are local to the process, it
    /// does not include the ghost nodes.
    const LocalBooleanArray3D& getActiveNodes () const;
 
@@ -160,7 +160,7 @@ private :
 
    /// \brief Array of pointers to GeneralElement.
    ///
-   /// The raw pointer is used here because we take a reference of the element from the 
+   /// The raw pointer is used here because we take a reference of the element from the
    /// 3d array of elements. It will be used to hold a list of elements that are active.
    typedef std::vector<GeneralElement*> GeneralElementArray;
 
@@ -272,7 +272,7 @@ private :
    /// \brief Local to global mapping.
    ISLocalToGlobalMapping            m_local2global;
 
-   /// \brief Array indicating which node is active 
+   /// \brief Array indicating which node is active
    LocalBooleanArray3D               m_activeNodes;
 
    /// \brief The current age for the computational domain.
