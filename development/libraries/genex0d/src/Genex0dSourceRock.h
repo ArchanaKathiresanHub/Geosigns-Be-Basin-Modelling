@@ -50,19 +50,21 @@ public:
   const string & getAdsorptionCapacityFunctionName(void) const final;
   const string & getAdsorptionSimulatorName(void) const final;
   const DataAccess::Interface::GridMap * getMap(DataAccess::Interface::SourceRockMapAttributeId attributeId) const final;
+  const std::string& getTypeID() const;
 
 protected:
   const std::string & m_formationName;
   const std::string m_sourceRockType;
 
 private:
-  void setPropertiesFromDefaults();
+  std::string extractTypeID() const;
 
-  void setPropertiesFromInput(const double ToCIni, const double SCVRe05, const double HCVRe05);
+  void setPropertiesFromInput(const Genex0dInputData &inData);
   const GridMap * loadMap (DataAccess::Interface::SourceRockMapAttributeId attributeId, const double mapScalarValue) const;
 
   const double m_vreThreshold;
   const double m_vesMax;
+  const bool m_vesMaxEnabled;
   const std::string & m_adsorptionCapacityFunctionName;
   const std::string & m_adsorptionSimulatorName;
 };

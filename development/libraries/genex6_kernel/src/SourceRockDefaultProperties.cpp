@@ -95,7 +95,7 @@ void SourceRockDefaultProperties::setPropertyMaps()
   
   // TypeIIS
   setPropertyMap("TypeIIS", 10.0, 1.25, 0.0, 211000.0, 88000.0, 85000.0, 74000.0, 69000.0, 1.24, 0.05);
-  
+
   // TypeIIHS
   setPropertyMap("TypeIIHS", 10.0, 1.2, 0.0, 212000.0, 87000.0, 80000.0, 77000.0, 71000.0, 1.13, 0.045);
 

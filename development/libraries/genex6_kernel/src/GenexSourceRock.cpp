@@ -1314,6 +1314,7 @@ bool GenexSourceRock::process()
     }
 
   }
+  saveSourceRockNodeAdsorptionHistory ();
 
   delete VESInterpolator;
   delete TempInterpolator;
@@ -1333,7 +1334,6 @@ bool GenexSourceRock::process()
     LogHandler( LogHandler::INFO_SEVERITY ) << "-------------------------------------";
   }
 
-  saveSourceRockNodeAdsorptionHistory ();
 
   return status;
 }

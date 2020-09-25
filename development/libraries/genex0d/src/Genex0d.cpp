@@ -65,7 +65,7 @@ void Genex0d::initialize()
   loadFormation();
   loadProjectMgr();
 
-  m_gnx0dSimulator->deletePropertyValues(DataAccess::Interface::RESERVOIR , 0, 0, 0, 0, 0,
+  m_gnx0dSimulator->deletePropertyValues(DataAccess::Interface::RESERVOIR , nullptr, nullptr, nullptr, nullptr, nullptr,
                                          DataAccess::Interface::MAP);
 
   LogHandler(LogHandler::INFO_SEVERITY) << "Successfully initialized the genex0d simulator!";
@@ -77,13 +77,19 @@ void Genex0d::run()
 
   m_projectMgr->requestPropertyHistory("Temperature");
   m_projectMgr->requestPropertyHistory("Ves");
+  m_projectMgr->requestPropertyHistory("Vr");
+  m_projectMgr->requestPropertyHistory("Pressure");
+
+
   m_projectMgr->extract();
 
   if (!m_gnx0dSimulator->run(m_formationMgr->formation(), m_inData, m_formationMgr->indI(), m_formationMgr->indJ(),
                              m_formationMgr->getThickness(), m_formationMgr->getInorganicDensity(),
                              m_projectMgr->agesAll(),
                              m_projectMgr->getValues("Temperature"),
-                             m_projectMgr->getValues("Ves")))
+                             m_projectMgr->getValues("Ves"),
+                             m_projectMgr->getValues("Vr"),
+                             m_projectMgr->getValues("Pressure")))
   {
     throw Genex0dException() << "Genex0d simulator could not be initiated!";
   }

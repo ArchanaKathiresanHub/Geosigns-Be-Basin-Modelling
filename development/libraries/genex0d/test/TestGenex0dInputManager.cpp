@@ -11,29 +11,12 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsHelp)
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_ERROR_EXIT);
 }
 
-TEST(TestGenex0dInputManager, TestInitialCheckArgsLessThanMinCompulsory)
-{
-  int argc = 6;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.Project3d", "-formation", "Formation6", "-SRType"};
-  genex0d::Genex0dInputManager inputMgr(argc, argv);
-  std::string ioErrorMssgActual = "";
-  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
-}
-
-TEST(TestGenex0dInputManager, TestInitialCheckArgsMinCompulsory)
-{
-  int argc = 7;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine"};
-  genex0d::Genex0dInputManager inputMgr(argc, argv);
-  std::string ioErrorMssgActual = "";
-  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
-}
-
 TEST(TestGenex0dInputManager, TestInitialCheckArgsEmptyValue)
 {
-  int argc = 10;
-  // empty formation argument valu.
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-formation", "-SRType", "Type I - Lacustrine", "-HC", "1.2", "-SC", "0.01"};
+  int argc = 30;
+  // empty formation argument value.
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
   genex0d::Genex0dInputManager inputMgr(argc, argv);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
@@ -42,10 +25,12 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsEmptyValue)
 
 TEST(TestGenex0dInputManager, TestInitialCheckArgsRepeatedArgument)
 {
-  int argc = 9;
+  int argc = 33;
   // formation repeated
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                 "-formation", "Formation1"};
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin",
+                  "80", "-C15Aro", "77", "-C15Sat", "71", "-formation", "FormationDuplicated"};
+
   genex0d::Genex0dInputManager inputMgr(argc, argv);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
@@ -54,9 +39,9 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsRepeatedArgument)
 
 TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
 {
-  int argc = 19;
+  int argc = 31;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01"};
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
   genex0d::Genex0dInputManager inputMgr(argc, argv);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
@@ -99,4 +84,190 @@ TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
   const double SCExpected = 0.01;
   const double SCActual = inputData.SCVRe05;
   EXPECT_DOUBLE_EQ(SCExpected, SCActual);
+
+  const double activationEnergyExpected = 211000.0;
+  const double activationEnergyActual = inputData.activationEnergy;
+  EXPECT_DOUBLE_EQ(activationEnergyExpected, activationEnergyActual);
+
+  const double VesLimitExpected = 10;
+  const double VesLimitActual = inputData.maxVes;
+  EXPECT_DOUBLE_EQ(VesLimitExpected, VesLimitActual);
+
+  const double asphalteneDiffusionEnergyExpected = 87000;
+  const double asphalteneDiffusionEnergyActual = inputData.asphalteneDiffusionEnergy;
+  EXPECT_DOUBLE_EQ(asphalteneDiffusionEnergyExpected, asphalteneDiffusionEnergyActual);
+
+  const double C15AroDiffusionEnergyExpected = 77000;
+  const double C15AroDiffusionEnergyActual = inputData.C15AroDiffusionEnergy;
+  EXPECT_DOUBLE_EQ(C15AroDiffusionEnergyExpected, C15AroDiffusionEnergyActual);
+
+  const double C15SatDiffusionEnergyExpected = 71000;
+  const double C15SatDiffusionEnergyActual = inputData.C15SatDiffusionEnergy;
+  EXPECT_DOUBLE_EQ(C15SatDiffusionEnergyExpected, C15SatDiffusionEnergyActual);
+
+  const double resinDiffusionEnergyExpected = 80000;
+  const double resinDiffusionEnergyActual = inputData.resinDiffusionEnergy;
+  EXPECT_DOUBLE_EQ(resinDiffusionEnergyExpected, resinDiffusionEnergyActual);
 }
+
+TEST(TestGenex0dInputManager, TestMaxVesDisabled)
+{
+  // No VesLimit argument is given
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+
+  const genex0d::Genex0dInputData & inputData = inputMgr.inputData();
+
+  EXPECT_FALSE(inputData.maxVesEnabled);
+}
+
+TEST(TestGenex0dInputManager, TestMissingYArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingXArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingProjectArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingFormationArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingSRTypeArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingTOCArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingHCArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingSCArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingEAArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingAsphArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingResinArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-C15Aro", "77", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingC15AroArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Sat", "71"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingC15SatArgumentExit)
+{
+  int argc = 29;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+
+

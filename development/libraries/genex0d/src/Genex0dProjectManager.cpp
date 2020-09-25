@@ -81,12 +81,12 @@ void Genex0dProjectManager::computeAgesFromAllSnapShots(const double depositionT
   DataAccess::Interface::SnapshotList * snapshots = m_projectHandle.getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR);
   DataAccess::Interface::SnapshotList::reverse_iterator snapshotIter;
 
-  if (snapshots->size() < 1)
+  if (snapshots->empty())
   {
     return;
   }
 
-  for (snapshotIter = snapshots->rbegin(); snapshotIter != snapshots->rend() - 1; ++ snapshotIter)
+  for (snapshotIter = snapshots->rbegin(); snapshotIter != snapshots->rend(); ++ snapshotIter)
   {
     if (depositionTimeTopSurface < (*snapshotIter)->getTime())
     {

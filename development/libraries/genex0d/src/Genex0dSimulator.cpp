@@ -58,12 +58,12 @@ Genex0dSimulator::~Genex0dSimulator()
 
 Genex0dSimulator* Genex0dSimulator::CreateFrom(const std::string & fileName, DataAccess::Interface::ObjectFactory* objectFactory)
 {
-  return dynamic_cast<Genex0dSimulator *>(DataAccess::Interface::OpenCauldronProject (fileName, objectFactory));
+  return dynamic_cast<Genex0dSimulator*>(DataAccess::Interface::OpenCauldronProject (fileName, objectFactory));
 }
 
-bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, unsigned int indI, unsigned int indJ,
-                           double thickness, double inorganicDensity, const std::vector<double> & time,
-                           const std::vector<double> & temperature, const std::vector<double> & pressure)
+bool Genex0dSimulator::run(const DataAccess::Interface::Formation* formation, const Genex0dInputData& inData, unsigned int indI, unsigned int indJ,
+                           double thickness, double inorganicDensity, const std::vector<double>& time,
+                           const std::vector<double>& temperature, const std::vector<double>& pressure, const std::vector<double>& VRE, const std::vector<double>& porePressure)
 {
   registerProperties();
 
@@ -74,7 +74,7 @@ bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, c
     return false;
   }
 
-  m_gnx0dSourceRock->initializeComputations(thickness, inorganicDensity, time, temperature, pressure);
+  m_gnx0dSourceRock->initializeComputations(thickness, inorganicDensity, time, temperature, pressure, VRE, porePressure);
 
   if (!computeSourceRock(formation))
   {

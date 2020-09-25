@@ -12,6 +12,10 @@
 
 #include <string>
 
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+
 namespace genex0d
 {
 
@@ -22,6 +26,13 @@ struct Genex0dInputData
   double ToCIni;
   double HCVRe05;
   double SCVRe05;
+  double activationEnergy;
+  double asphalteneDiffusionEnergy;
+  double resinDiffusionEnergy;
+  double C15AroDiffusionEnergy;
+  double C15SatDiffusionEnergy;
+  double maxVes;
+  bool maxVesEnabled;
   std::string projectFilename;
   std::string outProjectFilename;
   std::string formationName;
@@ -29,11 +40,18 @@ struct Genex0dInputData
   std::string nodeHistoryFileName;
   std::string whichAdsorptionSimulator;
 
-  Genex0dInputData(const double xCoord = 0,
-                   const double yCoord = 0.0,
-                   const double ToCIni = 0.0,
-                   const double HCVRe05 = 0.0,
-                   const double SCVRe05 = 0.0,
+  Genex0dInputData(const double xCoord = CauldronNoDataValue,
+                   const double yCoord = CauldronNoDataValue,
+                   const double ToCIni = CauldronNoDataValue,
+                   const double HCVRe05 = CauldronNoDataValue,
+                   const double SCVRe05 = CauldronNoDataValue,
+                   const double activationEnergy = CauldronNoDataValue,
+                   const double asphalteneDiffusionEnergy = CauldronNoDataValue,
+                   const double resinDiffusionEnergy = CauldronNoDataValue,
+                   const double C15AroDiffusionEnergy = CauldronNoDataValue,
+                   const double C15SatDiffusionEnergy = CauldronNoDataValue,
+                   const double maxVes = CauldronNoDataValue,
+                   const bool maxVesEnabled = false,
                    const std::string & projectFilename = "",
                    const std::string & outProjectFilename = "out.project3d",
                    const std::string & formationName = "",
@@ -45,6 +63,13 @@ struct Genex0dInputData
     ToCIni{ToCIni},
     HCVRe05{HCVRe05},
     SCVRe05{SCVRe05},
+    activationEnergy{activationEnergy},
+    asphalteneDiffusionEnergy{asphalteneDiffusionEnergy},
+    resinDiffusionEnergy{resinDiffusionEnergy},
+    C15AroDiffusionEnergy{C15AroDiffusionEnergy},
+    C15SatDiffusionEnergy{C15SatDiffusionEnergy},
+    maxVes{maxVes},
+    maxVesEnabled{maxVesEnabled},
     projectFilename{projectFilename},
     outProjectFilename{outProjectFilename},
     formationName{formationName},

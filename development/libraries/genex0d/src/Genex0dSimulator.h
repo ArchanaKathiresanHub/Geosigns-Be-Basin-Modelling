@@ -37,8 +37,8 @@ public:
                    const DataAccess::Interface::ObjectFactory* objectFactory);
   ~Genex0dSimulator();
   
-  static Genex0dSimulator * CreateFrom(const std::string & fileName, DataAccess::Interface::ObjectFactory * objectFactory);
-  bool run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, unsigned int indI, unsigned int indJ, double thickness, double inorganicDensity, const std::vector<double>& time, const std::vector<double>& temperature, const std::vector<double>& pressure);
+  static Genex0dSimulator * CreateFrom(const std::string& fileName, DataAccess::Interface::ObjectFactory* objectFactory);
+  bool run(const DataAccess::Interface::Formation* formation, const Genex0dInputData& inData, unsigned int indI, unsigned int indJ, double thickness, double inorganicDensity, const std::vector<double>& time, const std::vector<double>& temperature, const std::vector<double>& pressure, const std::vector<double>& VRE, const std::vector<double>& porePressure);
   bool saveTo(const std::string & outputFileName);
   
 private:

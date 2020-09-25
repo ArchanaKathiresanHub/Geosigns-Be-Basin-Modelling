@@ -9,7 +9,7 @@
 #include "Genex0dSourceRock.h"
 
 #include "CommonDefinitions.h"
-#include "SourceRockDefaultProperties.h"
+#include "SourceRockTypeNameMappings.h"
 
 #include "ConstantsGenex.h"
 #include "Simulator.h"
@@ -23,31 +23,47 @@ namespace genex0d
 Genex0dSourceRock::Genex0dSourceRock(DataAccess::Interface::ProjectHandle & projectHandle,
                                      const Genex0dInputData & inData) :
   DataAccess::Interface::SourceRock{projectHandle, nullptr},
-  m_sourceRockType{inData.sourceRockType},
   m_formationName{inData.formationName},
+  m_sourceRockType{inData.sourceRockType},
   m_vreThreshold{0.5},
-  m_vesMax{50},
+  m_vesMax{inData.maxVes * Utilities::Maths::MegaPaToPa},
+  m_vesMaxEnabled{inData.maxVesEnabled},
   m_adsorptionCapacityFunctionName{""},
   m_adsorptionSimulatorName{inData.whichAdsorptionSimulator}
 {
-  setPropertiesFromInput(inData.ToCIni, inData.SCVRe05, inData.HCVRe05);
-  setPropertiesFromDefaults();
+  setPropertiesFromInput(inData);
 }
 
 Genex0dSourceRock::~Genex0dSourceRock()
 {
 }
 
-void Genex0dSourceRock::setPropertiesFromDefaults()
+void Genex0dSourceRock::setPropertiesFromInput(const Genex0dInputData& inData)
 {
-  m_srProperties = Genex6::SourceRockDefaultProperties::getInstance().getProperties(m_sourceRockType);
+  m_srProperties.setTypeNameID(extractTypeID());
+
+  m_srProperties.setTocIni(inData.ToCIni);
+  m_srProperties.setSCVRe05(inData.SCVRe05);
+  m_srProperties.setHCVRe05(inData.HCVRe05);
+  m_srProperties.setActivationEnergy(inData.activationEnergy);
+  m_srProperties.setAsphalteneDiffusionEnergy(inData.asphalteneDiffusionEnergy);
+  m_srProperties.setResinDiffusionEnergy(inData.resinDiffusionEnergy);
+  m_srProperties.setC15AroDiffusionEnergy(inData.C15AroDiffusionEnergy);
+  m_srProperties.setC15SatDiffusionEnergy(inData.C15SatDiffusionEnergy);
 }
 
-void Genex0dSourceRock::setPropertiesFromInput(const double ToCIni, const double SCVRe05, const double HCVRe05)
+std::string Genex0dSourceRock::extractTypeID() const
 {
-  m_srProperties.setTocIni(ToCIni);
-  m_srProperties.setSCVRe05(SCVRe05);
-  m_srProperties.setHCVRe05(HCVRe05);
+  std::string typeId = "";
+  std::unordered_map<std::string, std::string> typeToIDMap = Genex6::SourceRockTypeNameMappings::getInstance().CfgFileNameBySRType();
+  std::unordered_map<std::string, std::string>::const_iterator it = typeToIDMap.find(m_sourceRockType);
+
+  if(it != typeToIDMap.end())
+  {
+    typeId = it ->second;
+  }
+
+  return typeId;
 }
 
 const std::string & Genex0dSourceRock::getLayerName (void) const
@@ -58,6 +74,11 @@ const std::string & Genex0dSourceRock::getLayerName (void) const
 const std::string & Genex0dSourceRock::getType (void) const
 {
   return m_sourceRockType;
+}
+
+const std::string & Genex0dSourceRock::getTypeID (void) const
+{
+  return m_srProperties.typeNameID();
 }
 
 const double & Genex0dSourceRock::getHcVRe05(void) const
@@ -112,7 +133,7 @@ const std::string & Genex0dSourceRock::getBaseSourceRockType (void) const
 
 bool Genex0dSourceRock::isVESMaxEnabled(void) const
 {
-  return false; // TODO: See if it's necessary to be parsed from input
+  return m_vesMaxEnabled;
 }
 
 const double & Genex0dSourceRock::getVESMax(void) const

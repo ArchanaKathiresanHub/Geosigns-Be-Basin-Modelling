@@ -27,8 +27,7 @@ include_directories( SYSTEM
 )
 
 create_bm_library( TARGET ${LIB_NAME}
-                   LIBRARIES genex6_kernel
-                             DataAccess
+                   LIBRARIES DataAccess
                              Interpolation
                              LinearAlgebra
                              genex6

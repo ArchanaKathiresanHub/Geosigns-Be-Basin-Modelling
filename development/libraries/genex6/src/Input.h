@@ -23,6 +23,9 @@ using namespace std;
 // utilities library
 #include "ConstantsMathematics.h"
 using Utilities::Maths::CelciusToKelvin;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+
 
 namespace Genex6
 {
@@ -30,7 +33,7 @@ class Input
 {
 public:
    Input(const double in_currentTime, const double in_temperature, 
-         const double in_pressure, const double thicknessScaleFactor = 1.0);
+         const double in_pressure, const double vre = CauldronNoDataValue, const double in_PorePressure = CauldronNoDataValue, const double thicknessScaleFactor = 1.0) ;
 
    Input ( const double in_previousTime,
            const double in_currentTime,

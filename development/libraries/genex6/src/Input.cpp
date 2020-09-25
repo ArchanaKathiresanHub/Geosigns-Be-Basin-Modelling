@@ -17,8 +17,8 @@ using Utilities::Numerical::CauldronNoDataValue;
 
 namespace Genex6
 {
-Input::Input(const double in_currentTime, const double in_temperature, 
-             const double in_pressure, const double thicknessScaleFactor):
+Input::Input(const double in_currentTime, const double in_temperature,
+             const double in_pressure, const double vre, const double in_PorePressure, const double thicknessScaleFactor):
    m_previousTime(in_currentTime),
    m_currentTime(in_currentTime),
    m_startTemperature(in_temperature),
@@ -27,13 +27,12 @@ Input::Input(const double in_currentTime, const double in_temperature,
    m_thicknessScaleFactor(thicknessScaleFactor),
    m_lithostaticPressure (CauldronNoDataValue),
    m_hydrostaticPressure (CauldronNoDataValue),
-   m_startPorePressure   (CauldronNoDataValue),
-   m_endPorePressure     (CauldronNoDataValue),
+   m_startPorePressure   (in_PorePressure),
+   m_endPorePressure     (in_PorePressure),
    m_porosity            (CauldronNoDataValue),
    m_permeability        (CauldronNoDataValue),
-   m_vre                 (CauldronNoDataValue)
+   m_vre                 (vre)
 {
-
 }
 
 Input::Input ( const double in_previousTime,

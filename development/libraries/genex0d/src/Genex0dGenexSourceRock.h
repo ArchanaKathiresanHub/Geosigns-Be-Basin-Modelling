@@ -54,7 +54,7 @@ public:
   virtual ~Genex0dGenexSourceRock();
 
   void initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
-                              const std::vector<double> & temperature, const std::vector<double> & Ves);
+                              const std::vector<double> & temperature, const std::vector<double> & Ves, const std::vector<double>& VRE, const std::vector<double>& porePressure);
 
   const Genex6::SourceRockNode & getSourceRockNode() const;
   const Genex6::Simulator & simulator() const;
@@ -68,7 +68,7 @@ protected:
   bool process() final;
 
 private:
-  bool computePTSnapShot(const double time, const double inPressure, const double inTemperature);
+  bool computePTSnapShot(const double time, double inPressure, const double inTemperature, const double inVre, const double inPorePressure);
 
   std::unique_ptr<Genex6::SourceRockNode> m_sourceRockNode;
   double m_thickness;
@@ -78,6 +78,9 @@ private:
   std::vector<double> m_inTimes;
   std::vector<double> m_inTemperatures;
   std::vector<double> m_inVesAll;
+  std::vector<double> m_inVRE;
+  std::vector<double> m_inPorePressure;
+
   Genex0dPointAdsorptionHistory * m_pointAdsorptionHistory;
 };
 
