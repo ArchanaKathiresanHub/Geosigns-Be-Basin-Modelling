@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-09-25  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Genex0d argument extension & bug fixing.
+	* Related work items: #395998
+	* Extension of arguments and small bug-fixing for the genex0d application
+	Commit-ID:<ab71013a083957260fd3ef1d060d5c28456b4659>	  (refs/heads/master)
+
+++
 2020-09-18  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Add logging when Newton solver for pressure does not converge.
