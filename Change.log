@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-09-30  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Use logger instead of cout in Newton warning.
+	* Related work items: #365260
+	Commit-ID:<b01e523318a07dbb908926fabbcf4656a0a23a3d>	  (refs/heads/master)
+
+++
 2020-09-25  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Genex0d argument extension & bug fixing.
