@@ -2622,10 +2622,10 @@ void Basin_Modelling::FEM_Grid::logMaxResidualLocations(const std::vector<unsign
   {
     const StratigraphicColumn& column = m_pressureComputationalDomain.getStratigraphicColumn ();
 
-    std::cout << " -----------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << " Newton solve for pressure equation has not converged, maximum number of iterations (" <<
-                 maximumNumberOfNonlinearIterations <<  ") reached." << std::endl;
-    std::cout << " These are the nodes with the maximum absolute residual per rank: " << std::endl << std::endl;
+    LogHandler( LogHandler::WARNING_SEVERITY ) << " -----------------------------------------------------------------------------------------------------------";
+    LogHandler( LogHandler::WARNING_SEVERITY ) << " Newton solve for pressure equation has not converged, maximum number of iterations (" <<
+                 maximumNumberOfNonlinearIterations <<  ") reached.";
+    LogHandler( LogHandler::WARNING_SEVERITY ) << " These are the nodes with the maximum absolute residual per rank: ";
 
     std::vector<unsigned int> location(locationMaxValue);
     double maximumResidual = maxResidual;
@@ -2643,13 +2643,12 @@ void Basin_Modelling::FEM_Grid::logMaxResidualLocations(const std::vector<unsign
 
       const DataAccess::Interface::Grid* grid = FastcauldronSimulator::getInstance().getActivityOutputGrid();
 
-      std::cout << "rank " << printRank << ", residual: " << maximumResidual << ", i: " << location[0] << ", j: " << location[1]
+      LogHandler( LogHandler::WARNING_SEVERITY ) << "rank " << printRank << ", residual: " << maximumResidual << ", i: " << location[0] << ", j: " << location[1]
                 << ", k: " << location[2] <<  ", Formation: " << formationGrid->getFormation().getName()
                 << ", x[m]: " << grid->minI() + grid->deltaI()*location[0]
-                << ", y[m]: " << grid->minJ() + grid->deltaJ()*location[1]
-                << std::endl;
+                << ", y[m]: " << grid->minJ() + grid->deltaJ()*location[1];
     }
-    std::cout << " -----------------------------------------------------------------------------------------------------------" << std::endl;
+    LogHandler( LogHandler::WARNING_SEVERITY ) << " -----------------------------------------------------------------------------------------------------------";
   }
   else
   {
