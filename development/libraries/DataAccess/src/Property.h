@@ -35,18 +35,18 @@ namespace DataAccess
       {
       public:
          Property (ProjectHandle& projectHandle, database::Record * record,
-                   const string & userName, const string & cauldronName,
-                   const string & unit, PropertyType type,
+                   const std::string & userName, const std::string & cauldronName,
+                   const std::string & unit, PropertyType type,
                    const DataModel::PropertyAttribute attr, DataModel::PropertyOutputAttribute outputAttr );
 
          virtual ~Property (void);
 
          /// Return the name of this Property
-         virtual const string & getName (void) const;
-         virtual const string & getUserName (void) const;
-         virtual const string & getCauldronName (void) const;
+         virtual const std::string & getName (void) const;
+         virtual const std::string & getUserName (void) const;
+         virtual const std::string & getCauldronName (void) const;
          /// Return the unit of this Property
-         virtual const string & getUnit (void) const;
+         virtual const std::string & getUnit (void) const;
          virtual PropertyType getType (void) const;
 
          /// \brief Get the PropertyAttribute of the property.
@@ -74,15 +74,15 @@ namespace DataAccess
                                                         const Reservoir * reservoir, const Formation * formation,
                                                         const Surface * surface) const;
 
-         virtual void printOn (ostream &) const;
-         virtual void asString (string &) const;
+         virtual void printOn (std::ostream &) const;
+         virtual void asString (std::string &) const;
 
          bool isPrimary() const;
 
       private:
-         string m_userName;
-         string m_cauldronName;
-         string m_unit;
+         std::string m_userName;
+         std::string m_cauldronName;
+         std::string m_unit;
 
          bool m_isPrimaryProperty;
 

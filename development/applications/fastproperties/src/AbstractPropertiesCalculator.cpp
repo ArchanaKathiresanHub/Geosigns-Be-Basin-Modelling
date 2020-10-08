@@ -7,13 +7,49 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
-#include <sys/types.h>
-#include <assert.h>
 
 #include "AbstractPropertiesCalculator.h"
 
 #include "h5_parallel_file_types.h"
+
+//DataAccess library
+#include "Snapshot.h"
+#include "Surface.h"
+#include "Formation.h"
+#include "ObjectFactory.h"
+#include "OutputProperty.h"
+#include "Property.h"
+#include "PropertyValue.h"
+#include "RunParameters.h"
+#include "SimulationDetails.h"
+
+//GeoPhysics
 #include "GeoPhysicsFormation.h"
+#include "GeoPhysicsObjectFactory.h"
+#include "GeoPhysicsProjectHandle.h"
+
+//DerivedProperties
+#include "AbstractPropertyManager.h"
+#include "DerivedPropertyManager.h"
+#include "OutputPropertyValue.h"
+#include "FormationOutputPropertyValue.h"
+#include "FormationMapOutputPropertyValue.h"
+#include "SurfaceOutputPropertyValue.h"
+#include "Utilities.h"
+
+#include "PropertyManager.h"
+
+//std library
+#include <assert.h>
+#include <stdexcept>
+#include <sstream>
+#include <string>
+#include <sys/types.h>
+#include <utility>
+#include <vector>
+
+using namespace DataAccess;
+using namespace Interface;
 
 static bool snapshotSorter (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
 static bool snapshotIsEqual (const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2);
@@ -262,7 +298,7 @@ bool AbstractPropertiesCalculator::allowBasementOutput (const string & propertyN
 
 //------------------------------------------------------------//
 
-bool AbstractPropertiesCalculator::acquireSnapshots(SnapshotList & snapshots)
+bool AbstractPropertiesCalculator::acquireSnapshots(Interface::SnapshotList & snapshots)
 {
    if (m_ages.size() == 0)
    {
@@ -895,4 +931,130 @@ void AbstractPropertiesCalculator::displayTime (const double timeToDisplay, cons
    PetscPrintf (PETSC_COMM_WORLD, "%s: %d hours %d minutes %d seconds\n", msgToDisplay, hours, minutes, seconds);
    PetscPrintf (PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 
+}
+
+Interface::PropertyOutputOption AbstractPropertiesCalculator::checkTimeFilter3D (const std::string& name) const
+{
+   const std::string& outputPropertyName = PropertyManager::getInstance ().findOutputPropertyName(name);
+   const Interface::OutputProperty * property = getProjectHandle().findTimeOutputProperty( outputPropertyName );
+
+   if (property == nullptr || property->getOption() == Interface::NO_OUTPUT)
+   {
+     return Interface::NO_OUTPUT;
+   }
+
+   if (property->getOption() == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT)
+   {
+     if ( name == "AllochthonousLithology" ||
+          name == "Lithology" ||
+          name == "BrineDensity" ||
+          name == "BrineViscosity" ||
+          name == "HydroStaticPressure" )
+     {
+        return Interface::SEDIMENTS_ONLY_OUTPUT;
+     }
+   }
+
+   if (name == "FracturePressure" && m_projectHandle->getRunParameters ()->getFractureType () == "None")
+   {
+      return Interface::NO_OUTPUT;
+   }
+
+   if (name == "FaultElements")
+   {
+      if (getProjectHandle().getBasinHasActiveFaults ())
+      {
+         return Interface::SEDIMENTS_ONLY_OUTPUT;
+      }
+      else
+      {
+         return Interface::NO_OUTPUT;
+      }
+   }
+   if (name == "HorizontalPermeability")
+   {
+      const Interface::OutputProperty* permeability = getProjectHandle().findTimeOutputProperty ("PermeabilityVec");
+      const Interface::PropertyOutputOption permeabilityOption = (permeability == nullptr ? Interface::NO_OUTPUT : permeability->getOption ());
+      const Interface::OutputProperty* hpermeability = getProjectHandle().findTimeOutputProperty ("HorizontalPermeability");
+      const Interface::PropertyOutputOption hpermeabilityOption = (hpermeability == nullptr ? Interface::NO_OUTPUT : hpermeability->getOption ());
+
+      if (hpermeabilityOption  == Interface::NO_OUTPUT && permeability != nullptr)
+      {
+         return permeabilityOption;
+      }
+      if (permeability == nullptr)
+      {
+         return hpermeabilityOption;
+      }
+   }
+
+   if (m_simulationMode == "HydrostaticDecompaction" && name == "LithoStaticPressure" &&
+       property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT)
+   {
+      return Interface::SEDIMENTS_ONLY_OUTPUT;
+   }
+
+   return property->getOption ();
+}
+
+//------------------------------------------------------------//
+
+bool AbstractPropertiesCalculator::allowOutput (const std::string & propertyName3D,
+                                                const Interface::Formation * formation, const Interface::Surface * surface) const
+{
+   std::string propertyName = propertyName3D;
+
+   if (propertyName.find("HeatFlow") != std::string::npos)
+   {
+      propertyName = "HeatFlow";
+   }
+   else if (propertyName.find("FluidVelocity") != std::string::npos)
+   {
+      propertyName = "FluidVelocity";
+   }
+   else
+   {
+      std::size_t len = 4;
+      std::size_t pos = propertyName.find("Vec2");
+
+      if (pos != std::string::npos) {
+         // Replace Vec2 with Vec.
+         propertyName.replace(pos, len, "Vec");
+      }
+
+   }
+
+   if (m_decompactionMode && (propertyName == "BulkDensity") && surface == nullptr)
+   {
+      return false;
+   }
+
+   bool basementFormation = formation->kind () == DataAccess::Interface::BASEMENT_FORMATION;
+
+   // The top of the crust is a part of the sediment
+   if (basementFormation && surface != nullptr && (propertyName == "Depth" || propertyName == "Temperature"))
+   {
+      if (dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(formation)->isCrust())
+      {
+         if (formation->getTopSurface() && (formation->getTopSurface() == surface))
+         {
+            return true;
+         }
+      }
+   }
+   PropertyOutputOption outputOption = checkTimeFilter3D (propertyName);
+
+   if (outputOption == Interface::NO_OUTPUT)
+   {
+      return false;
+   }
+   if (basementFormation)
+   {
+      if (outputOption < Interface::SEDIMENTS_AND_BASEMENT_OUTPUT)
+      {
+         return false;
+      }
+   }
+
+   return true;
 }

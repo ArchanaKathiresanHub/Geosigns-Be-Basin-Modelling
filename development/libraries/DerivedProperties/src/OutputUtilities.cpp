@@ -16,6 +16,7 @@
 #include "AbstractPropertyManager.h"
 
 using namespace AbstractDerivedProperties;
+using namespace Interface;
 
 bool DerivedProperties::acquireProperties( GeoPhysics::ProjectHandle& projectHandle, const AbstractPropertyManager& propertyManager,
                                            PropertyList & properties, StringVector & propertyNames  ) {

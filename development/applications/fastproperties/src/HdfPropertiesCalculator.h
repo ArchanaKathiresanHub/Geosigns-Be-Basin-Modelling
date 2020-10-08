@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -28,12 +28,6 @@ private:
     /// \brief Check command-line parameters consistency
    bool checkParameters();
 
-   /// \brief Check if the property the formation/surface is allowed to be output
-   bool allowOutput ( const string & propertyName, const Interface::Formation * formation, const Interface::Surface * surface ) const;
-
-   /// \brief Check if the property the formation/surface is selected to be output in the project file
-   PropertyOutputOption checkTimeFilter3D ( const string & name ) const;
-
 public:
 
    void calculateProperties( FormationSurfaceVector& formationItems, Interface::PropertyList properties, Interface::SnapshotList & snapshots );
@@ -41,12 +35,12 @@ public:
    bool parseCommandLine ( int argc, char ** argv );
 
    bool copyFiles();
- 
+
    void writeToHDF();
    void listXmlProperties();
    bool hdfonly() const;
    bool listXml() const;
-  
+
 };
 
 inline bool HdfPropertiesCalculator::getProperiesActivity () const {

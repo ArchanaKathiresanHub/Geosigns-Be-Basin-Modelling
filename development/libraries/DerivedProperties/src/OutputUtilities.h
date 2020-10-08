@@ -27,7 +27,6 @@
 
 using namespace std;
 using namespace DataAccess;
-using namespace Interface;
 using namespace DerivedProperties;
 
 namespace DerivedProperties {
@@ -38,10 +37,10 @@ namespace DerivedProperties {
 
    typedef map < const Interface::Property *, OutputPropertyValuePtr > OutputPropertyValueMap;
 
-   typedef pair < const Interface::Formation *, const Surface * > FormationSurface;
+   typedef pair < const Interface::Formation *, const Interface::Surface * > FormationSurface;
    typedef vector < FormationSurface > FormationSurfaceVector;
    typedef map < const FormationSurface, OutputPropertyValueMap > FormationSurfaceOutputPropertyValueMap;
-   typedef map < const Snapshot *, FormationSurfaceOutputPropertyValueMap> SnapshotFormationSurfaceOutputPropertyValueMap;
+   typedef map < const Interface::Snapshot *, FormationSurfaceOutputPropertyValueMap> SnapshotFormationSurfaceOutputPropertyValueMap;
 
    bool isEqualPropertyName( const string s1, const string s2 );
 
@@ -99,7 +98,7 @@ namespace DerivedProperties {
    /// \param [in]  projectHandle           The pointer to the project handle
    /// \param [in]  allOutputPropertyValues The set of allocated output property values (calculators)
 
-   void outputSnapshotFormationData( GeoPhysics::ProjectHandle& projectHandle, const Snapshot * snapshot,
+   void outputSnapshotFormationData( GeoPhysics::ProjectHandle& projectHandle, const Interface::Snapshot * snapshot,
                                      const FormationSurface                         & formationSurfaceItem,
                                      DataAccess::Interface::PropertyList            & properties,
                                      SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues );
@@ -115,7 +114,7 @@ namespace DerivedProperties {
 
    bool createSnapshotResultPropertyValue ( GeoPhysics::ProjectHandle& projectHandle,
                                             OutputPropertyValuePtr propertyValue,
-                                            const Snapshot * snapshot,
+                                            const Interface::Snapshot * snapshot,
                                             const Interface::Formation * formation,
                                             const Interface::Surface * surface );
 
@@ -125,7 +124,7 @@ namespace DerivedProperties {
                         const DataModel::AbstractSurface   * surface,
                         const DataModel::AbstractSnapshot  * snapshot );
 
-   void removeProperties (  const Snapshot * snapshot,
+   void removeProperties (  const Interface::Snapshot * snapshot,
                             SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues );
    }
 #endif // DERIVED_PROPERTIES__OUTPUT_UTILITIES_HH

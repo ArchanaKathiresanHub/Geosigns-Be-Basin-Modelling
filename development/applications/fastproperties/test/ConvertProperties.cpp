@@ -94,7 +94,7 @@ TestUnit::TestUnit() {
    geometry = std::shared_ptr< CauldronIO::Geometry3D>(new CauldronIO::Geometry3D(numIGlobal, numJGlobal, numK - minK, minK, 500, 500, minIGlobal, minJGlobal));
    std::shared_ptr<CauldronIO::Formation> formation1(new CauldronIO::Formation(minK, 3, "Formation1"));
    std::shared_ptr<CauldronIO::Formation> formation2(new CauldronIO::Formation(3, numK, "Formation2"));
-   std::shared_ptr<Volume> volume(new Volume(CauldronIO::Sediment));
+   std::shared_ptr<CauldronIO::Volume> volume(new CauldronIO::Volume(CauldronIO::Sediment));
 
    snapshot->setVolume(volume);
    vizProject->addFormation(formation1);
@@ -189,19 +189,19 @@ TEST(ConvertProperties, AddVolume)
    EXPECT_EQ(mILocalExp, mILocal);
 
    oneProject.AddDerivedContVolume ();
-   const std::shared_ptr<Volume> volume = oneProject.snapshot->getVolume();
+   const std::shared_ptr<CauldronIO::Volume> volume = oneProject.snapshot->getVolume();
 
-   PropertyVolumeDataList& propVolList = volume->getPropertyVolumeDataList();
+   CauldronIO::PropertyVolumeDataList& propVolList = volume->getPropertyVolumeDataList();
    EXPECT_EQ(1, propVolList.size());
 
    int rank = MPIHelper::rank();
 
 
    if(rank == 0) {
-      for(PropertyVolumeData& propVolume: propVolList) {
+      for(CauldronIO::PropertyVolumeData& propVolume: propVolList) {
          std::string propName = propVolume.first->getName();
          std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
-         std::shared_ptr<const Geometry3D> geometry = valueMap->getGeometry();
+         std::shared_ptr<const CauldronIO::Geometry3D> geometry = valueMap->getGeometry();
 
          float sedimentMinValue = valueMap->getSedimentMinValue();
          float sedimentMaxValue = valueMap->getSedimentMaxValue();

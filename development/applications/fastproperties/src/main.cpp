@@ -17,9 +17,11 @@ using namespace std;
 #include "LogHandler.h"
 #include "StatisticsHandler.h"
 
-#include "AbstractPropertiesCalculator.h"
 #include "VisualizationPropertiesCalculator.h"
 #include "HdfPropertiesCalculator.h"
+
+//GeoPhysics
+#include "GeoPhysicsObjectFactory.h"
 
 using namespace Utilities::CheckMemory;
 
@@ -162,7 +164,7 @@ int main( int argc, char ** argv )
       return 1;
    };
 
-   SnapshotList snapshots;
+   Interface::SnapshotList snapshots;
    Interface::PropertyList properties;
 
    propCalculator->acquireSnapshots( snapshots );

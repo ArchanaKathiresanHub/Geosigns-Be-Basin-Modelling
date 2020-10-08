@@ -17,31 +17,30 @@ namespace DataAccess
       class OutputProperty;
    }
 }
-using namespace DataAccess;
 
-class Property : public Interface::Property {
+class Property : public DataAccess::Interface::Property {
 
 public :
 
-   Property ( Interface::ProjectHandle& projectHandle,
+   Property ( DataAccess::Interface::ProjectHandle& projectHandle,
               database::Record * record,
               const string & userName, const string & cauldronName,
-              const string & unit, const Interface::PropertyType type,
+              const string & unit, const DataAccess::Interface::PropertyType type,
               const DataModel::PropertyAttribute attr, const DataModel::PropertyOutputAttribute attrOut );
 
 
-   Interface::PropertyOutputOption getOption () const;
+   DataAccess::Interface::PropertyOutputOption getOption () const;
 
-   const Interface::OutputProperty* getOutputProperty () const;
+   const DataAccess::Interface::OutputProperty* getOutputProperty () const;
 
-   void setOutputProperty ( const Interface::OutputProperty* outputProperty );
+   void setOutputProperty ( const DataAccess::Interface::OutputProperty* outputProperty );
 
    void asString ( string& str ) const;
 
 private :
 
    /// From time-filter table.
-   const Interface::OutputProperty* m_outputProperty;
+   const DataAccess::Interface::OutputProperty* m_outputProperty;
 
 };
 

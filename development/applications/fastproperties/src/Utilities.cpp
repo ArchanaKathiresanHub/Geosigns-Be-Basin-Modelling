@@ -12,6 +12,11 @@
 #include "VisualizationAPI.h"
 #include "DataStore.h"
 
+using namespace std;
+using namespace DataAccess;
+using namespace Interface;
+using namespace CauldronIO;
+
 //------------------------------------------------------------//
 
 std::shared_ptr<CauldronIO::FormationInfoList> DerivedProperties::getDepthFormations( GeoPhysics::ProjectHandle& projectHandle, const Snapshot* snapShot) {
