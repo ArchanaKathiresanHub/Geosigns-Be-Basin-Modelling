@@ -38,6 +38,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2020-10-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
+	fix: Fix the filtering of vizIO output.
+	* Related to https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/396272
+	Commit-ID:<4834b4f22b8cf7b61650f7de1e06a7d3b7b06975>	  (refs/heads/master)
+
+++
+2020-10-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
 	fix: add new redhat version when installing.
 	* Add new redhat version when installing
 	Commit-ID:<a95ce4149f170d33b670343aee49ad12cd7189e0>	  (refs/heads/master)
