@@ -75,9 +75,9 @@ void SourceRockNode::initialise () {
    ClearOutputHistory ();
 }
 
-SimulatorState &SourceRockNode::GetSimulatorState( int id ) const
+SimulatorState* SourceRockNode::GetSimulatorState( int id ) const
 {
-   return * (m_theSimulatorStates[id]);
+   return m_theSimulatorStates[id];
 }
 SimulatorState &SourceRockNode::GetMixedSimulatorState() const
 {

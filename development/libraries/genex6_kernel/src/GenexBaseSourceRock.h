@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "AdsorptionSimulator.h"
 #include "SourceRock.h"
 
 #include "SourceRockAdsorptionHistory.h"
@@ -115,6 +116,29 @@ protected:
   /// The snapshot intervals related to the source rock
   std::vector <SnapshotInterval*> m_theIntervals;
 
+  /// Apply SR mixing flag
+  bool m_applySRMixing;
+
+  /// Output results also at minor snapshots
+  bool m_minorOutput;
+
+  /// The chemical model associated with the source rock1
+  ChemicalModel *m_theChemicalModel1;
+
+  /// The chemical model associated with the source rock2
+  ChemicalModel *m_theChemicalModel2;
+
+  /// \brief The simulator for adsorption processes.
+  AdsorptionSimulator* m_adsorptionSimulator;
+  AdsorptionSimulator* m_adsorptionSimulator2;
+
+  AdsorptionSimulator* getAdsorptionSimulator() const;
+
+  void processNode(Input *theInput, SourceRockNode &itNode, bool adsorptionActive, bool adsorptionOutputPropertiesActive);
+
+  void initializeAdsorptionModel(bool printInitialisationDetails, bool& status, bool isTOCDependent, const std::string& adsorptionCapacityFunctionName,
+                                 const std::string& adsorptionSimulatorName, bool computeOTGC, DataAccess::Interface::ProjectHandle& projectHandle);
+
   ///The deposition time of the source rock
   double m_depositionTime;
 
@@ -122,6 +146,7 @@ protected:
   Genex6::SourceRockAdsorptionHistoryList m_sourceRockNodeAdsorptionHistory;
 
   const DataAccess::Interface::Formation * m_formation;
+
   /// if Sulphur is included
   bool m_isSulphur;
 

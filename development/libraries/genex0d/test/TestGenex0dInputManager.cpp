@@ -30,7 +30,6 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsRepeatedArgument)
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin",
                   "80", "-C15Aro", "77", "-C15Sat", "71", "-formation", "FormationDuplicated"};
-
   genex0d::Genex0dInputManager inputMgr(argc, argv);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
@@ -39,9 +38,10 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsRepeatedArgument)
 
 TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
 {
-  int argc = 31;
+  int argc = 37;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
+                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1"};
   genex0d::Genex0dInputManager inputMgr(argc, argv);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
@@ -108,6 +108,16 @@ TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
   const double resinDiffusionEnergyExpected = 80000;
   const double resinDiffusionEnergyActual = inputData.resinDiffusionEnergy;
   EXPECT_DOUBLE_EQ(resinDiffusionEnergyExpected, resinDiffusionEnergyActual);
+
+  const std::string adsorptionSimulatorExpected = "OTGCC1AdsorptionSimulator";
+  const std::string & adsorptionSimulatorActual = inputData.whichAdsorptionSimulator;
+  EXPECT_EQ(adsorptionSimulatorExpected, adsorptionSimulatorActual);
+
+  const std::string adsorptionCapacityFuncExpected = "Default Langmuir Isotherm";
+  const std::string & adsorptionCapacityFuncActual = inputData.whichAdsorptionFunction;
+  EXPECT_EQ(adsorptionCapacityFuncExpected, adsorptionCapacityFuncActual);
+
+  EXPECT_TRUE(inputData.doOTCG);
 }
 
 TEST(TestGenex0dInputManager, TestMaxVesDisabled)
@@ -186,6 +196,7 @@ TEST(TestGenex0dInputManager, TestMissingTOCArgumentExit)
   int argc = 29;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+
   genex0d::Genex0dInputManager inputMgr(argc, argv);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
@@ -263,6 +274,57 @@ TEST(TestGenex0dInputManager, TestMissingC15SatArgumentExit)
   int argc = 29;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+}
+
+TEST(TestGenex0dInputManager, TestMissingAdsFuncArgumentWhenAdsSimulatorEnabledExit)
+{
+  int argc = 35;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
+                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-doOTGC", "1"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+  EXPECT_EQ(ioErrorMssgActual, "An adsorption simulator was provided, but no adsorption capacity function");
+}
+
+TEST(TestGenex0dInputManager, TestMissingAdsSimulatorArgumentWhenOTCGEnabledExit)
+{
+  int argc = 33;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
+                  "-C15Aro", "77", "-C15Sat", "71", "-doOTGC", "1"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+  EXPECT_EQ(ioErrorMssgActual, "OTGC was enabled, but no adsorption simulator was provided");
+}
+
+TEST(TestGenex0dInputManager, TestMissingAdsSimulatorArgumentWhenAdsFuncGivenExit)
+{
+  int argc = 33;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
+                  "-C15Aro", "77", "-C15Sat", "71", "-AdsCapacityFunc", "Default Langmuir Isotherm"};
+  genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+  EXPECT_EQ(ioErrorMssgActual, "An adsorption capacity function was provided, but no adsorption simulator");
+}
+
+TEST(TestGenex0dInputManager, TestMissingLastArgument)
+{
+  int argc = 30;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
+                  "-C15Aro", "77", "-C15Sat"};
   genex0d::Genex0dInputManager inputMgr(argc, argv);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), genex0d::Genex0dInputManager::NO_EXIT);

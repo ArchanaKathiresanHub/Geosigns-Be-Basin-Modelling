@@ -6,6 +6,7 @@
 #include "AdsorptionSimulator.h"
 #include "ComponentManager.h"
 #include "SimulatorState.h"
+#include "Input.h"
 #include "SourceRockNodeInput.h"
 #include "SourceRockNodeOutput.h"
 

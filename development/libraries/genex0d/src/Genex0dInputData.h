@@ -33,12 +33,14 @@ struct Genex0dInputData
   double C15SatDiffusionEnergy;
   double maxVes;
   bool maxVesEnabled;
+  bool doOTCG;
   std::string projectFilename;
   std::string outProjectFilename;
   std::string formationName;
   std::string sourceRockType;
   std::string nodeHistoryFileName;
   std::string whichAdsorptionSimulator;
+  std::string whichAdsorptionFunction;
 
   Genex0dInputData(const double xCoord = CauldronNoDataValue,
                    const double yCoord = CauldronNoDataValue,
@@ -52,12 +54,14 @@ struct Genex0dInputData
                    const double C15SatDiffusionEnergy = CauldronNoDataValue,
                    const double maxVes = CauldronNoDataValue,
                    const bool maxVesEnabled = false,
-                   const std::string & projectFilename = "",
-                   const std::string & outProjectFilename = "out.project3d",
-                   const std::string & formationName = "",
-                   const std::string & sourceRockType = "",
-                   const std::string & nodeHistoryFileName = "nodeHistory.dat",
-                   const std::string & whichAdsorptionSimulator = "") :
+                   const bool doOTCG = false,
+                   const std::string& projectFilename = "",
+                   const std::string& outProjectFilename = "out.project3d",
+                   const std::string& formationName = "",
+                   const std::string& sourceRockType = "",
+                   const std::string& nodeHistoryFileName = "nodeHistory.dat",
+                   const std::string& whichAdsorptionSimulator = "",
+                   const std::string& whichAdsorptionFunction = "") :
     xCoord{xCoord},
     yCoord{yCoord},
     ToCIni{ToCIni},
@@ -70,12 +74,14 @@ struct Genex0dInputData
     C15SatDiffusionEnergy{C15SatDiffusionEnergy},
     maxVes{maxVes},
     maxVesEnabled{maxVesEnabled},
+    doOTCG{doOTCG},
     projectFilename{projectFilename},
     outProjectFilename{outProjectFilename},
     formationName{formationName},
     sourceRockType{sourceRockType},
     nodeHistoryFileName{nodeHistoryFileName},
-    whichAdsorptionSimulator{whichAdsorptionSimulator}
+    whichAdsorptionSimulator{whichAdsorptionSimulator},
+    whichAdsorptionFunction{whichAdsorptionFunction}
   {
   }
 };

@@ -9,6 +9,8 @@
 // Genex6
 #include "GenexBaseSourceRock.h"
 #include "ChemicalModel.h"
+#include "AdsorptionFunctionFactory.h"
+#include "AdsorptionSimulatorFactory.h"
 
 // DataAccess library
 #include "Surface.h"
@@ -50,6 +52,13 @@ GenexBaseSourceRock::GenexBaseSourceRock ()
    m_formation = nullptr;
    m_theChemicalModel  = nullptr;
 
+   m_theChemicalModel1 = nullptr;
+   m_theChemicalModel2 = nullptr;
+
+   m_adsorptionSimulator = nullptr;
+   m_adsorptionSimulator2 = nullptr;
+
+   m_applySRMixing = false;
    m_isSulphur = false;
 }
 
@@ -120,6 +129,18 @@ void GenexBaseSourceRock::clearBase()
    if (m_theChemicalModel)
    {
      m_theChemicalModel = nullptr;
+   }
+
+   m_theChemicalModel2 = nullptr;
+   m_theChemicalModel = nullptr;
+
+   if ( m_adsorptionSimulator != nullptr ) {
+     delete m_adsorptionSimulator;
+     m_adsorptionSimulator = nullptr;
+   }
+   if ( m_adsorptionSimulator2 != nullptr ) {
+     delete m_adsorptionSimulator2;
+     m_adsorptionSimulator2 = nullptr;
    }
 }
 
@@ -193,6 +214,13 @@ double GenexBaseSourceRock::getMaximumTimeStepSize ( const double depositionTime
    return m_theSimulator->GetMaximumTimeStepSize ( depositionTime );
 }
 
+AdsorptionSimulator * GenexBaseSourceRock::getAdsorptionSimulator() const
+{
+  if( m_adsorptionSimulator  != nullptr ) return m_adsorptionSimulator;
+  if( m_adsorptionSimulator2 != nullptr ) return m_adsorptionSimulator2;
+
+  return nullptr;
+}
 
 void GenexBaseSourceRock::computeSnapshotIntervals (const DataAccess::Interface::SnapshotList & snapshots)
 {
@@ -223,6 +251,78 @@ void GenexBaseSourceRock::computeSnapshotIntervals (const DataAccess::Interface:
       //throw
    }
 }
+
+void GenexBaseSourceRock::processNode(Input *theInput, Genex6::SourceRockNode& itNode, bool adsorptionActive, bool adsorptionOutputPropertiesActive)
+{
+  itNode.AddInput(theInput);
+
+  m_theSimulator->setChemicalModel( m_theChemicalModel1 );
+
+
+  bool isInitialTimeStep = itNode.RequestComputation(0, *m_theSimulator ); // 0 - first SourceRock
+
+  if( m_applySRMixing ) {
+    m_theSimulator->setChemicalModel( m_theChemicalModel2 );
+    itNode.RequestComputation( 1, *m_theSimulator ); // 1 -  second Source Rock
+    m_theSimulator->setChemicalModel( m_theChemicalModel1 );
+  }
+
+  if ( not isInitialTimeStep && adsorptionActive) {
+    m_adsorptionSimulator->compute( *theInput, itNode.GetSimulatorState(0));
+  }
+  if( m_applySRMixing && !isInitialTimeStep && m_adsorptionSimulator2 != nullptr ) {
+    m_adsorptionSimulator2->compute( *theInput, itNode.GetSimulatorState(1));
+  }
+
+  if ( m_applySRMixing ) {
+    itNode.RequestMixing( m_theChemicalModel ); // we always use the chemicalModel with bigger number of Species - m_theChemicalModel - for mixing
+  }
+
+  if ( !isInitialTimeStep && adsorptionActive ) {
+    itNode.getPrincipleSimulatorState ().postProcessShaleGasTimeStep ( m_theChemicalModel, theInput->GetPreviousTime() - theInput->GetTime() );
+  }
+
+  if ( not isInitialTimeStep ) {
+    itNode.collectHistory ();
+  }
+
+  if ( adsorptionOutputPropertiesActive ) {
+    itNode.updateAdsorptionOutput ( *getAdsorptionSimulator() );
+  }
+}
+
+void GenexBaseSourceRock::initializeAdsorptionModel(bool printInitialisationDetails, bool& status, bool isTOCDependent, const std::string& adsorptionCapacityFunctionName,
+                                                const std::string& adsorptionSimulatorName, bool computeOTGC, DataAccess::Interface::ProjectHandle& projectHandle)
+{
+  if ( printInitialisationDetails ) {
+     LogHandler( LogHandler::INFO_SEVERITY ) << "Applying adsorption, TOCDependent is " << (isTOCDependent ? "true" : "false" )
+        << ", function is " << adsorptionCapacityFunctionName
+        << ", OTGC is " << ( computeOTGC ? "on" : "off" );
+  }
+
+  AdsorptionFunction*  adsorptionFunction = AdsorptionFunctionFactory::getInstance ().getAdsorptionFunction ( projectHandle,
+                                                                                                              isTOCDependent,
+                                                                                                              adsorptionCapacityFunctionName);
+
+  m_adsorptionSimulator = AdsorptionSimulatorFactory::getInstance ().getAdsorptionSimulator ( projectHandle,
+                                                                                              m_theChemicalModel1->getSpeciesManager(),
+                                                                                              adsorptionSimulatorName,
+                                                                                              computeOTGC,
+                                                                                              false );
+
+  status = status && adsorptionFunction->isValid ();
+
+  if ( not adsorptionFunction->isValid () && printInitialisationDetails ) {
+     LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid adsorption function. Please check adsorption function parameters. Aborting ...";
+     LogHandler( LogHandler::ERROR_SEVERITY ) << adsorptionFunction->getErrorMessage ();
+  }
+
+  assert ( m_adsorptionSimulator != nullptr );
+  assert ( adsorptionFunction != nullptr );
+
+  m_adsorptionSimulator->setAdsorptionFunction ( adsorptionFunction );
+}
+
 
 int GenexBaseSourceRock::getRunType(const double in_SC) const
 {

@@ -65,6 +65,8 @@ private:
   const double m_vreThreshold;
   const double m_vesMax;
   const bool m_vesMaxEnabled;
+  const bool m_applyAdsorption;
+  const bool m_doOTCG;
   const std::string & m_adsorptionCapacityFunctionName;
   const std::string & m_adsorptionSimulatorName;
 };

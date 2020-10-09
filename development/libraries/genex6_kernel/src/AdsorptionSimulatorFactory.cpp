@@ -3,7 +3,7 @@
 #include "C1AdsorptionSimulator.h"
 #include "OTGCC1AdsorptionSimulator.h"
 
-Genex6::AdsorptionSimulatorFactory* Genex6::AdsorptionSimulatorFactory::s_adsorptionSimulatorFactory = 0;
+Genex6::AdsorptionSimulatorFactory* Genex6::AdsorptionSimulatorFactory::s_adsorptionSimulatorFactory = nullptr;
 
 
 Genex6::AdsorptionSimulatorFactory::AdsorptionSimulatorFactory () {
@@ -28,7 +28,7 @@ Genex6::AdsorptionSimulator* Genex6::AdsorptionSimulatorFactory::getAdsorptionSi
    if ( simulatorIter != m_adsorptionSimulatorAllocatorMapping.end ()) {
       return (simulatorIter->second)( projectHandle, speciesManager, applyOtgc, isManaged );
    } else {
-      return 0;
+      return nullptr;
    }
 
 }
@@ -42,14 +42,14 @@ Genex6::NodeAdsorptionHistory* Genex6::AdsorptionSimulatorFactory::allocateNodeA
    if ( simulatorIter != m_adsorptionHistoryAllocatorMapping.end ()) {
       return (simulatorIter->second)( speciesManager, projectHandle );
    } else {
-      return 0;
+      return nullptr;
    }
 
 }
 
 Genex6::AdsorptionSimulatorFactory& Genex6::AdsorptionSimulatorFactory::getInstance () {
 
-   if ( s_adsorptionSimulatorFactory == 0 ) {
+   if ( s_adsorptionSimulatorFactory == nullptr ) {
       s_adsorptionSimulatorFactory = new AdsorptionSimulatorFactory;
    }
 

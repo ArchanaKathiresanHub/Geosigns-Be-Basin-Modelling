@@ -6,9 +6,6 @@
 #endif
 #include <vector>
 
-#include "Input.h"
-#include "SimulatorStateBase.h"
-
 namespace Genex6 {
 
    /// \brief Base class for all sub-processes.
@@ -18,10 +15,6 @@ namespace Genex6 {
 
       /// \brief Destructor.
       virtual ~SubProcessSimulator () {}
-
-      /// \brief Compute the sub-process.
-      virtual void compute ( const Input&        input,
-                             SimulatorStateBase* state ) = 0;
 
       /// \brief Priority of sub-process.
       ///

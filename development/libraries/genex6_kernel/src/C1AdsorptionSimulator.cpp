@@ -77,10 +77,8 @@ Genex6::C1AdsorptionSimulator::C1AdsorptionSimulator (const SpeciesManager& spec
 }
 
 void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRockInput,
-                                                    SimulatorStateBase* baseState ) {
+                                                    SimulatorState* simulatorState ) {
 
-
-   SimulatorState* simulatorState = dynamic_cast<SimulatorState*>( baseState );
 
    if ( simulatorState == 0 ) {
       // Error?

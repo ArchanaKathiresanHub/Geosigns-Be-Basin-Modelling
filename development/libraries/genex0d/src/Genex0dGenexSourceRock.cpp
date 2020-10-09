@@ -11,6 +11,7 @@
 #include "CommonDefinitions.h"
 #include "Genex0dPointAdsorptionHistory.h"
 #include "SourceRockDefaultProperties.h"
+#include "GeoPhysicsFormation.h"
 
 // Genex6
 #include "ConstantsGenex.h"
@@ -61,25 +62,52 @@ Genex0dGenexSourceRock::Genex0dGenexSourceRock (DataAccess::Interface::ProjectHa
   m_inVesAll{},
   m_inVRE{},
   m_inPorePressure{},
+  m_inPorosity{},
+  m_inPermeability{},
+  m_inLithoPressure{},
+  m_inHydroPressure{},
   m_pointAdsorptionHistory{new Genex0dPointAdsorptionHistory(projectHandle, inData)}
 {
 }
 
 Genex0dGenexSourceRock::~Genex0dGenexSourceRock()
 {
+  clearBase();
 }
 
 void Genex0dGenexSourceRock::initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
-                                                    const std::vector<double> & temperature, const std::vector<double> & Ves, const std::vector<double> &VRE, const std::vector<double> &porePressure)
+                                                    const std::vector<double>& temperature, const std::vector<double>& Ves, const std::vector<double>& VRE,
+                                                    const std::vector<double>& porePressure, const std::vector<double>& permeability, const std::vector<double>& porosity,
+                                                    const std::vector<double>& lithoPressure, const std::vector<double>& hydroPressure)
 {
   m_inTimes = time;
   m_inTemperatures = temperature;
   m_inVesAll = Ves;
   m_inVRE = VRE;
   m_inPorePressure = porePressure;
+  m_inPermeability = permeability;
+  m_inPorosity = porosity;
+  m_inLithoPressure = lithoPressure;
+  m_inHydroPressure = hydroPressure;
+
+  for (double& porosity : m_inPorosity)
+  {
+    porosity /= 100; // Convert from percentage to fraction
+  }
+
   for (double& porepressure : m_inPorePressure)
   {
     porepressure *= Utilities::Maths::MegaPaToPa;
+  }
+
+  for (double& lithoPressure : m_inLithoPressure)
+  {
+    lithoPressure *= Utilities::Maths::MegaPaToPa;
+  }
+
+  for (double& hydroPressure : m_inHydroPressure)
+  {
+    hydroPressure *= Utilities::Maths::MegaPaToPa;
   }
 
   m_theSimulator = new Genex6::Simulator();
@@ -89,6 +117,15 @@ void Genex0dGenexSourceRock::initializeComputations(const double thickness, cons
                                                          m_srProperties.activationEnergy(), m_srProperties.Vr(),
                                                          m_srProperties.AsphalteneDiffusionEnergy(), m_srProperties.ResinDiffusionEnergy(),
                                                          m_srProperties.C15AroDiffusionEnergy(), m_srProperties.C15SatDiffusionEnergy());
+
+  // These are identical right now, but will change when adding source rock mixing (with a theChemicalModel2)
+  m_theChemicalModel1 = m_theSimulator->loadChemicalModel(getGenexEnvironment(m_srProperties.SCVRe05()), getRunType(m_srProperties.SCVRe05()),
+                                                         m_srProperties.typeNameID(), m_srProperties.HCVRe05(), m_srProperties.SCVRe05(),
+                                                         m_srProperties.activationEnergy(), m_srProperties.Vr(),
+                                                         m_srProperties.AsphalteneDiffusionEnergy(), m_srProperties.ResinDiffusionEnergy(),
+                                                         m_srProperties.C15AroDiffusionEnergy(), m_srProperties.C15SatDiffusionEnergy());
+
+  m_theSimulator->setChemicalModel( m_theChemicalModel1 );
 
   if (!m_theSimulator->Validate())
   {
@@ -151,7 +188,7 @@ bool Genex0dGenexSourceRock::initialize(const bool printInitialisationDetails)
 
   if (doApplyAdsorption())
   {
-    throw Genex0dException() << "genex0d does not perform adsorption simulation yet!";
+    initializeAdsorptionModel(printInitialisationDetails, status, false, getAdsorptionCapacityFunctionName(), getAdsorptionSimulatorName(), doComputeOTGC(), getProjectHandle());
   }
 
   double maximumTimeStepSize = m_theSimulator->getMaximumTimeStepSize();
@@ -219,20 +256,46 @@ bool Genex0dGenexSourceRock::addHistoryToNodes()
   Genex6::SourceRockAdsorptionHistory * history = new Genex6::SourceRockAdsorptionHistory(m_projectHandle, m_pointAdsorptionHistory);
   Genex6::NodeAdsorptionHistory * adsorptionHistory;
 
-  // GenexHistory (no adsorption implemented yet)
-  adsorptionHistory = Genex6::AdsorptionSimulatorFactory::getInstance().allocateNodeAdsorptionHistory(m_theChemicalModel->getSpeciesManager(),
-                                                                                                      m_projectHandle,
-                                                                                                      Genex6::GenexSimulatorId);
-
-  if (adsorptionHistory == nullptr)
+  if (doApplyAdsorption())
   {
-    LogHandler(LogHandler::ERROR_SEVERITY) << "Failed while running Genex0d!";
-    delete history;
-    return false;
+    adsorptionHistory = Genex6::AdsorptionSimulatorFactory::getInstance().allocateNodeAdsorptionHistory(m_theChemicalModel->getSpeciesManager(),
+                                                                                                        m_projectHandle,
+                                                                                                        getAdsorptionSimulatorName());
+    if ( adsorptionHistory != nullptr )
+    {
+      // Add the node-adsorption-history object to the sr-history-object.
+      history->setNodeAdsorptionHistory ( adsorptionHistory );
+      m_sourceRockNode->addNodeAdsorptionHistory ( adsorptionHistory );
+      m_sourceRockNodeAdsorptionHistory.push_back ( history );
+    }
+    else
+    {
+        LogHandler(LogHandler::ERROR_SEVERITY) << "Failed while running Genex0d!";
+        delete history;
+        return false;
+    }
   }
-  m_sourceRockNode->addNodeAdsorptionHistory(adsorptionHistory);
-  history->setNodeGenexHistory(adsorptionHistory);
-  m_sourceRockNodeAdsorptionHistory.push_back(history);
+  else
+  {
+    adsorptionHistory = Genex6::AdsorptionSimulatorFactory::getInstance().allocateNodeAdsorptionHistory(m_theChemicalModel->getSpeciesManager(),
+                                                                                                        m_projectHandle,
+                                                                                                        Genex6::GenexSimulatorId);
+    if ( adsorptionHistory != nullptr )
+    {
+      // Add the node-adsorption-history object to the sr-history-object.
+      history->setNodeGenexHistory( adsorptionHistory );
+      m_sourceRockNode->addNodeAdsorptionHistory ( adsorptionHistory );
+      m_sourceRockNodeAdsorptionHistory.push_back ( history );
+
+    }
+    else
+    {
+        LogHandler(LogHandler::ERROR_SEVERITY) << "Failed while running Genex0d!";
+        delete history;
+        return false;
+    }
+  }
+
   return true;
 }
 
@@ -248,10 +311,13 @@ bool Genex0dGenexSourceRock::process()
   LogHandler(LogHandler::INFO_SEVERITY) << "-------------------------------------";
 
   std::vector<Genex6::SnapshotInterval*>::iterator itSnapInterv = m_theIntervals.begin();
-  const DataAccess::Interface::Snapshot * intervalStart = (*itSnapInterv)->getStart();;
+  const DataAccess::Interface::Snapshot * intervalStart = (*itSnapInterv)->getStart();
   const DataAccess::Interface::Snapshot * intervalEnd = (*itSnapInterv)->getEnd();
 
   int i = 0;
+  double porePressureInterpPrevious = m_inPorePressure[0];
+  double temperatureInterpPrevious = m_inTemperatures[0];
+
   while (itSnapInterv != m_theIntervals.end())
   {
     intervalStart = (*itSnapInterv)->getStart();
@@ -273,7 +339,8 @@ bool Genex0dGenexSourceRock::process()
     }
 
     // Processing pressure and temperature at interval start of the first interval
-    computePTSnapShot(intervalStart->getTime(), m_inVesAll[i], m_inTemperatures[i], m_inVRE[i], m_inPorePressure[i]);
+    computePTSnapShot(intervalStart->getTime(), intervalStart->getTime(), m_inVesAll[i], temperatureInterpPrevious, m_inTemperatures[i], m_inVRE[i],
+                      porePressureInterpPrevious, m_inPorePressure[i], m_inPermeability[i], m_inPorosity[i], m_inLithoPressure[i], m_inHydroPressure[i]);
 
     double tPrevious = intervalStart->getTime();
     double t = tPrevious - deltaT;
@@ -285,8 +352,17 @@ bool Genex0dGenexSourceRock::process()
       const double temperatureInterp = interpolateSnapshotProperty(m_inTemperatures[i], m_inTemperatures[i+1], tPrevious, t, deltaTInterval);
       const double VreInterp = interpolateSnapshotProperty(m_inVRE[i], m_inVRE[i+1], tPrevious, t, deltaTInterval);
       const double porePressureInterp = interpolateSnapshotProperty(m_inPorePressure[i], m_inPorePressure[i+1], tPrevious, t, deltaTInterval);
+      const double permeabilityInterp = interpolateSnapshotProperty(m_inPermeability[i], m_inPermeability[i+1], tPrevious, t, deltaTInterval);
+      const double porosityInterp = interpolateSnapshotProperty(m_inPorosity[i], m_inPorosity[i+1], tPrevious, t, deltaTInterval);
+      const double lithoPressureInterp = interpolateSnapshotProperty(m_inLithoPressure[i], m_inLithoPressure[i+1], tPrevious, t, deltaTInterval);
+      const double hydroPressureInterp = interpolateSnapshotProperty(m_inHydroPressure[i], m_inHydroPressure[i+1], tPrevious, t, deltaTInterval);
 
-      computePTSnapShot(t, VesInterp, temperatureInterp, VreInterp, porePressureInterp);
+      computePTSnapShot(t + deltaT, t, VesInterp, temperatureInterpPrevious, temperatureInterp, VreInterp,
+                        porePressureInterpPrevious, porePressureInterp, permeabilityInterp, porosityInterp,
+                        lithoPressureInterp, hydroPressureInterp);
+
+      porePressureInterpPrevious = porePressureInterp;
+      temperatureInterpPrevious = temperatureInterp;
 
       t -= deltaT;
 
@@ -300,10 +376,8 @@ bool Genex0dGenexSourceRock::process()
     ++i;
   }
 
-
-
   // Set the interval end for the current interval (doesn't need interpolation)
-  computePTSnapShot(intervalEnd->getTime(), m_inVesAll[i], m_inTemperatures[i], m_inVRE[i], m_inPorePressure[i]);
+  computePTSnapShot(intervalEnd->getTime(), intervalEnd->getTime(), m_inVesAll[i], m_inTemperatures[i], m_inTemperatures[i], m_inVRE[i], m_inPorePressure[i], m_inPorePressure[i], m_inPermeability[i], m_inPorosity[i], m_inLithoPressure[i], m_inHydroPressure[i]);
 
   clearSimulatorBase();
 
@@ -319,7 +393,12 @@ bool Genex0dGenexSourceRock::process()
   return true;
 }
 
-bool Genex0dGenexSourceRock::computePTSnapShot(const double time, double inPressure, const double inTemperature, const double inVre, const double inPorePressure)
+bool Genex0dGenexSourceRock::computePTSnapShot(const double timePrevious, const double time,
+                                               double inPressure,
+                                               const double inTemperaturePrevious, const double inTemperature,
+                                               const double inVre,
+                                               const double inPorePressurePrevious, const double inPorePressure,
+                                               const double inPermeability, const double inPorosity, const double inLithoPressure, const double inHydroPressure)
 {
   LogHandler( LogHandler::INFO_SEVERITY ) << "Computing time instance t:" << time;
 
@@ -329,15 +408,10 @@ bool Genex0dGenexSourceRock::computePTSnapShot(const double time, double inPress
       inPressure = getVESMax();
   }
 
-  Genex6::Input * theInput = new Genex6::Input(time, inTemperature, inPressure, inVre, inPorePressure);
-  m_sourceRockNode->AddInput(theInput);
-  m_theSimulator->setChemicalModel(m_theChemicalModel);
+  Genex6::Input* theInput = new Genex6::Input(timePrevious, time, inTemperaturePrevious, inTemperature, inPressure, inLithoPressure, inHydroPressure,
+                                               inPorePressurePrevious, inPorePressure, inPorosity, inPermeability, inVre, 0, 0);
 
-  bool isInitialTimeStep =  m_sourceRockNode->RequestComputation(0, *m_theSimulator);
-  if (!isInitialTimeStep)
-  {
-    m_sourceRockNode->collectHistory();
-  }
+  processNode(theInput, *m_sourceRockNode, doApplyAdsorption(), doApplyAdsorption());
   m_sourceRockNode->ClearInputHistory();
 
   return true;

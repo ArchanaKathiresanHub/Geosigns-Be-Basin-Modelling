@@ -210,24 +210,6 @@ protected:
   double m_time;
 
 private: 
-  AdsorptionSimulator * getAdsorptionSimulator() const;
-
-  /// Apply SR mixing flag
-  bool m_applySRMixing;
-
-  /// Output results also at minor snapshots
-  bool m_minorOutput;
-
-  /// The chemical model associated with the source rock1
-  ChemicalModel *m_theChemicalModel1;
-
-  /// The chemical model associated with the source rock2
-  ChemicalModel *m_theChemicalModel2;
-
-  /// \brief The simulator for adsorption processes.
-  AdsorptionSimulator* m_adsorptionSimulator;
-  AdsorptionSimulator* m_adsorptionSimulator2;
-
   AbstractDerivedProperties::AbstractPropertyManager * m_propertyManager;
 
   std::map<std::string, DataAccess::Interface::GridMap*> m_theSnapShotOutputMaps;

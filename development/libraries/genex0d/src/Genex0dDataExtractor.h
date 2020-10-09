@@ -21,7 +21,7 @@ namespace Genex0dDataExtractor
 void run(const std::string & projectFileName)
 {
   DataExtraction::DataDriller dataDriller(projectFileName);
-  dataDriller.run(false);
+  dataDriller.run(true);
   dataDriller.saveToFile(projectFileName);
 }
 

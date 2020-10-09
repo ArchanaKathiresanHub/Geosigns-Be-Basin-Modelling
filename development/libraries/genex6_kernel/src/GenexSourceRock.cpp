@@ -65,16 +65,9 @@ GenexSourceRock::GenexSourceRock (DataAccess::Interface::ProjectHandle& projectH
     GenexBaseSourceRock{},
     s_CfgFileNameBySRType{SourceRockTypeNameMappings::getInstance().CfgFileNameBySRType()}
 {
-  m_theChemicalModel1 = nullptr;
-  m_theChemicalModel2 = nullptr;
-
-  m_adsorptionSimulator = nullptr;
-  m_adsorptionSimulator2 = nullptr;
-
   m_sourceRockEndMember1 = nullptr;
   m_sourceRockEndMember2 = nullptr;
   m_tocOutputMap = nullptr;
-  m_applySRMixing = false;
 }
 
 GenexSourceRock::~GenexSourceRock(void)
@@ -100,17 +93,7 @@ void GenexSourceRock::clear()
   m_freeOutputMaps.clear ();
   m_retainedOutputMaps.clear ();
 
-  m_theChemicalModel2 = nullptr;
-  m_theChemicalModel = nullptr;
 
-  if ( m_adsorptionSimulator != nullptr ) {
-    delete m_adsorptionSimulator;
-    m_adsorptionSimulator = nullptr;
-  }
-  if ( m_adsorptionSimulator2 != nullptr ) {
-    delete m_adsorptionSimulator2;
-    m_adsorptionSimulator2 = nullptr;
-  }
 
   m_hcSaturationOutputMap = nullptr;
   m_irreducibleWaterSaturationOutputMap = nullptr;
@@ -177,16 +160,9 @@ bool GenexSourceRock::doOutputAdsorptionProperties( void ) const
     return ( doApplyAdsorption() || sourceRock2->doApplyAdsorption());
   }
   return doApplyAdsorption();
-
 }
 
-AdsorptionSimulator * GenexSourceRock::getAdsorptionSimulator() const
-{
-  if( m_adsorptionSimulator  != nullptr ) return m_adsorptionSimulator;
-  if( m_adsorptionSimulator2 != nullptr ) return m_adsorptionSimulator2;
 
-  return 0;
-}
 
 bool GenexSourceRock::setFormationData( const DataAccess::Interface::Formation * aFormation )
 {
@@ -426,36 +402,11 @@ bool GenexSourceRock::initialize ( const bool printInitialisationDetails )
         }
      }
   }
-  if ( status && m_theSimulator != 0 and doApplyAdsorption ()) {
+  if ( status && m_theSimulator != nullptr && doApplyAdsorption ()) {
 
-     if ( printInitialisationDetails ) {
-        LogHandler( LogHandler::INFO_SEVERITY ) << "Applying adsorption, TOCDependent is " << (adsorptionIsTOCDependent () ? "true" : "false" )
-           << ", function is " << getAdsorptionCapacityFunctionName ()
-           << ", OTGC is " << ( doComputeOTGC () ? "on" : "off" );
-     }
-
-     AdsorptionFunction*  adsorptionFunction = AdsorptionFunctionFactory::getInstance ().getAdsorptionFunction ( getProjectHandle(),
-                                                                                                                 adsorptionIsTOCDependent (),
-                                                                                                                 getAdsorptionCapacityFunctionName ());
-
-     m_adsorptionSimulator = AdsorptionSimulatorFactory::getInstance ().getAdsorptionSimulator ( getProjectHandle(),
-                                                                                                 m_theChemicalModel1->getSpeciesManager(),
-                                                                                                 getAdsorptionSimulatorName (),
-                                                                                                 doComputeOTGC (),
-                                                                                                 false );
-
-     status = status and adsorptionFunction->isValid ();
-
-     if ( not adsorptionFunction->isValid () and printInitialisationDetails ) {
-        LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid adsorption function. Please check adsorption function parameters. Aborting ...";
-        LogHandler( LogHandler::ERROR_SEVERITY ) << adsorptionFunction->getErrorMessage ();
-     }
-
-
-     assert ( m_adsorptionSimulator != 0 );
-     assert ( adsorptionFunction != 0 );
-
-     m_adsorptionSimulator->setAdsorptionFunction ( adsorptionFunction );
+    initializeAdsorptionModel(printInitialisationDetails, status, adsorptionIsTOCDependent(),
+                              getAdsorptionCapacityFunctionName(), getAdsorptionSimulatorName(),
+                              doComputeOTGC(), getProjectHandle());
 
      // Since it was allocated with managed = true, the adsorption-simulator
      // must be deleted when the source-rock destructor is called.
@@ -1999,6 +1950,8 @@ void GenexSourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
 
 }
 
+
+
 bool GenexSourceRock::computeSnapshot ( const double previousTime,
                                         const DataAccess::Interface::Snapshot *theSnapshot )
 {
@@ -2115,7 +2068,7 @@ bool GenexSourceRock::computeSnapshot ( const double previousTime,
 
       double nodeLithostaticPressure =  ( calcLP ?  1.0e6 * calcLP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Utilities::Numerical::CauldronNoDataValue );
 
-      Genex6::Input *theInput = new Genex6::Input( previousTime, time,
+      Genex6::Input* theInput = new Genex6::Input( previousTime, time,
                                                    in_Temp,
                                                    // The duplicate value is not used in the fastgenex6 simulator
                                                    in_Temp,
@@ -2132,43 +2085,10 @@ bool GenexSourceRock::computeSnapshot ( const double previousTime,
                                                    (*itNode)->GetJ (),
                                                    in_thicknessScaling );
 
-      (*itNode)->AddInput(theInput);
-      m_theSimulator->setChemicalModel( m_theChemicalModel1 );
-
-      bool isInitialTimeStep = (*itNode)->RequestComputation(0, *m_theSimulator ); // 0 - first SourceRock
-
-      if( m_applySRMixing ) {
-        m_theSimulator->setChemicalModel( m_theChemicalModel2 );
-        (*itNode)->RequestComputation( 1, *m_theSimulator ); // 1 -  second Source Rock
-        m_theSimulator->setChemicalModel( m_theChemicalModel1 );
-      }
-
-      if ( not isInitialTimeStep && doApplyAdsorption ()) {
-        m_adsorptionSimulator->compute( *theInput, &(*itNode)->GetSimulatorState(0));
-      }
-      if( m_applySRMixing && not isInitialTimeStep && m_adsorptionSimulator2 != nullptr ) {
-        m_adsorptionSimulator2->compute( *theInput, &(*itNode)->GetSimulatorState(1));
-      }
-
-      if ( m_applySRMixing ) {
-        (*itNode)->RequestMixing( m_theChemicalModel ); // we always use the chemicalModel with bigger number of Species - m_theChemicalModel - for mixing
-      }
-
-      if ( not isInitialTimeStep and doApplyAdsorption () ) {
-        (*itNode)->getPrincipleSimulatorState ().postProcessShaleGasTimeStep ( m_theChemicalModel, previousTime - time );
-      }
-
-      if ( not isInitialTimeStep ) {
-        (*itNode)->collectHistory ();
-      }
-
-      if ( doOutputAdsorptionProperties ()) {
-        (*itNode)->updateAdsorptionOutput ( *getAdsorptionSimulator() );
-      }
+      processNode(theInput, **itNode, doApplyAdsorption(), doOutputAdsorptionProperties());
 
       updateSnapShotOutputMaps((*itNode));
       (*itNode)->ClearInputHistory();
-
     }
 
     saveSnapShotOutputMaps();
@@ -2270,10 +2190,10 @@ void GenexSourceRock::computeTimeInstance ( const double &startTime,
     }
 
     if ( not isInitialTimeStep && doApplyAdsorption ()) {
-      m_adsorptionSimulator->compute( *theInput, &(*itNode)->GetSimulatorState(0));
+      m_adsorptionSimulator->compute( *theInput, (*itNode)->GetSimulatorState(0));
     }
     if( m_applySRMixing && not isInitialTimeStep && m_adsorptionSimulator2 != nullptr ) {
-      m_adsorptionSimulator2->compute( *theInput, &(*itNode)->GetSimulatorState(1));
+      m_adsorptionSimulator2->compute( *theInput, (*itNode)->GetSimulatorState(1));
     }
 
     if( m_applySRMixing ) {

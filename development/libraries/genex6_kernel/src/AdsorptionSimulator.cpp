@@ -4,16 +4,16 @@ Genex6::AdsorptionSimulator::AdsorptionSimulator (DataAccess::Interface::Project
                                                    const bool isManaged ) :
    m_projectHandle ( projectHandle ) {
 
-   m_adsorptionFunction = 0;
+   m_adsorptionFunction = nullptr;
    m_priority = DefaultPriority;
    m_isManaged = isManaged;
 }
 
 Genex6::AdsorptionSimulator::~AdsorptionSimulator () {
 
-   if ( m_adsorptionFunction != 0 ) {
+   if ( m_adsorptionFunction != nullptr ) {
       delete m_adsorptionFunction;
-      m_adsorptionFunction = 0;
+      m_adsorptionFunction = nullptr;
    }
 
 }

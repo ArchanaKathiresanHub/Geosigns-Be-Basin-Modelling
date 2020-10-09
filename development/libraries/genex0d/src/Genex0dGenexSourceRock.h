@@ -53,11 +53,12 @@ public:
                                   const unsigned int indJ);
   virtual ~Genex0dGenexSourceRock();
 
-  void initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double> & time,
-                              const std::vector<double> & temperature, const std::vector<double> & Ves, const std::vector<double>& VRE, const std::vector<double>& porePressure);
+  void initializeComputations(const double thickness, const double inorganicDensity, const std::vector<double>& time,
+                              const std::vector<double>& temperature, const std::vector<double>& Ves, const std::vector<double>& VRE, const std::vector<double>& porePressure, const std::vector<double>& permeability,
+                              const std::vector<double>& porosity, const std::vector<double>& lithoPressure, const std::vector<double>& hydroPressure);
 
-  const Genex6::SourceRockNode & getSourceRockNode() const;
-  const Genex6::Simulator & simulator() const;
+  const Genex6::SourceRockNode& getSourceRockNode() const;
+  const Genex6::Simulator& simulator() const;
 
   bool initialize(const bool printInitialisationDetails = true) final;
   bool addHistoryToNodes() final;
@@ -68,7 +69,7 @@ protected:
   bool process() final;
 
 private:
-  bool computePTSnapShot(const double time, double inPressure, const double inTemperature, const double inVre, const double inPorePressure);
+  bool computePTSnapShot(const double timePrevious, const double time, double inPressure, const double inTemperaturePrevious, const double inTemperature, const double inVre, const double inPorePressurePrevious, const double inPorePressure, const double inPermeability, const double inPorosity, const double inLithoPressure, const double HydroPressure);
 
   std::unique_ptr<Genex6::SourceRockNode> m_sourceRockNode;
   double m_thickness;
@@ -80,6 +81,10 @@ private:
   std::vector<double> m_inVesAll;
   std::vector<double> m_inVRE;
   std::vector<double> m_inPorePressure;
+  std::vector<double> m_inPorosity;
+  std::vector<double> m_inPermeability;
+  std::vector<double> m_inLithoPressure;
+  std::vector<double> m_inHydroPressure;
 
   Genex0dPointAdsorptionHistory * m_pointAdsorptionHistory;
 };

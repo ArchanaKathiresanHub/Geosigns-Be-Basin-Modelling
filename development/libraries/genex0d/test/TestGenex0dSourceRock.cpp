@@ -40,6 +40,27 @@ genex0d::Genex0dInputData setInputs()
   input.C15AroDiffusionEnergy = 81000;
   input.C15SatDiffusionEnergy = 82000;
   input.asphalteneDiffusionEnergy = 83000;
+  input.doOTCG = true;
+  input.whichAdsorptionFunction = "Default Langmuir Isotherm";
+  input.whichAdsorptionSimulator = "OTGCC1AdsorptionSimulator";
+
+  return input;
+}
+
+genex0d::Genex0dInputData setInputsWithoutAdsorption()
+{
+  genex0d::Genex0dInputData input;
+  input.maxVes = 100;
+  input.maxVesEnabled = true;
+  input.HCVRe05 = 1.25;
+  input.SCVRe05 = 0.0;
+  input.formationName = "TestFormation";
+  input.projectFilename = "AcquiferScale1.project3d";
+  input.activationEnergy = 210000;
+  input.resinDiffusionEnergy = 80000;
+  input.C15AroDiffusionEnergy = 81000;
+  input.C15SatDiffusionEnergy = 82000;
+  input.asphalteneDiffusionEnergy = 83000;
 
   return input;
 }
@@ -66,7 +87,24 @@ TEST_F( TestGenex0dSourceRock, TestInputs )
   EXPECT_EQ(input.C15AroDiffusionEnergy, sourceRock->getC15AroDiffusionEnergy());
   EXPECT_EQ(input.C15SatDiffusionEnergy, sourceRock->getC15SatDiffusionEnergy());
   EXPECT_EQ(input.asphalteneDiffusionEnergy, sourceRock->getAsphalteneDiffusionEnergy());
+  EXPECT_EQ(input.doOTCG, sourceRock->doComputeOTGC());
+  EXPECT_EQ(true, sourceRock->doApplyAdsorption());
+  EXPECT_EQ(input.whichAdsorptionFunction, sourceRock->getAdsorptionCapacityFunctionName());
+  EXPECT_EQ(input.whichAdsorptionSimulator, sourceRock->getAdsorptionSimulatorName());
 }
+
+TEST_F( TestGenex0dSourceRock, TestInputsWithoutAdsorption )
+{
+  // Given
+  genex0d::Genex0dInputData input = setInputsWithoutAdsorption();
+
+  // When
+  std::unique_ptr<genex0d::Genex0dSourceRock> sourceRock(new genex0d::Genex0dSourceRock(*projectHandle, input));
+
+  // Then
+  EXPECT_EQ(false, sourceRock->doApplyAdsorption());
+}
+
 
 TEST_F( TestGenex0dSourceRock, TestTypenames )
 {

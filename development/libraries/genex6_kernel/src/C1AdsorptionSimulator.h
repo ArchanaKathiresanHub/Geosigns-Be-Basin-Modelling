@@ -44,7 +44,7 @@ namespace Genex6 {
 
       /// Perform the adsorption simulation.
       void compute ( const Input&              sourceRockInput,
-                           SimulatorStateBase* baseState );
+                           SimulatorState*     simulatorState );
 
       /// Determine which of the species defined in the component manager are a part of the adsorption simulation.
       bool speciesIsSimulated ( const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;

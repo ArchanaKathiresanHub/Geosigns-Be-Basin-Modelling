@@ -21,15 +21,17 @@ namespace genex0d
 {
 
 Genex0dSourceRock::Genex0dSourceRock(DataAccess::Interface::ProjectHandle & projectHandle,
-                                     const Genex0dInputData & inData) :
+                                     const Genex0dInputData& inData) :
   DataAccess::Interface::SourceRock{projectHandle, nullptr},
   m_formationName{inData.formationName},
   m_sourceRockType{inData.sourceRockType},
   m_vreThreshold{0.5},
   m_vesMax{inData.maxVes * Utilities::Maths::MegaPaToPa},
   m_vesMaxEnabled{inData.maxVesEnabled},
-  m_adsorptionCapacityFunctionName{""},
-  m_adsorptionSimulatorName{inData.whichAdsorptionSimulator}
+  m_adsorptionCapacityFunctionName{inData.whichAdsorptionFunction},
+  m_applyAdsorption{inData.whichAdsorptionSimulator != ""},
+  m_adsorptionSimulatorName{inData.whichAdsorptionSimulator},
+  m_doOTCG{inData.doOTCG}
 {
   setPropertiesFromInput(inData);
 }
@@ -143,7 +145,7 @@ const double & Genex0dSourceRock::getVESMax(void) const
 
 bool Genex0dSourceRock::doApplyAdsorption(void) const
 {
-  return false; // TODO: See if it's necessary to be parsed from input
+  return m_applyAdsorption;
 }
 
 bool Genex0dSourceRock::adsorptionIsTOCDependent(void) const
@@ -153,7 +155,7 @@ bool Genex0dSourceRock::adsorptionIsTOCDependent(void) const
 
 bool Genex0dSourceRock::doComputeOTGC(void) const
 {
-  return false; // TODO: See if it's necessary to be parsed from input
+  return m_doOTCG;
 }
 
 const string & Genex0dSourceRock::getAdsorptionCapacityFunctionName(void) const
