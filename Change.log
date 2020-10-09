@@ -36,6 +36,12 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-10-09  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added adsorption model functionality to genex0d.
+	Commit-ID:<693491b5639ac1e5685463955c4c54beacc48b29>	  (refs/heads/master)
+
+++
 2020-10-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Fix the filtering of vizIO output.
