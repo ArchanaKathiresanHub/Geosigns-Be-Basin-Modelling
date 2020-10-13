@@ -13,6 +13,7 @@
 
 #include "ExportToHDF.h"
 #include "FolderPath.h"
+#include "PropertyAttribute.h"
 
 // DataAccess library
 #include "ProjectData.h"
@@ -227,9 +228,13 @@ void VisualizationPropertiesCalculator::calculateProperties(FormationSurfaceVect
          for (propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter)
          {
             const Interface::Property * property = *propertyIter;
-            if (!allowOutput(property->getName(), formation, surface))
+
+            if (property->getPropertyOutputAttribute() == DataModel::FASTGENEX_PROPERTY || property->getPropertyOutputAttribute() == DataModel::FASTCAULDRON_PROPERTY)
             {
-              continue;
+              if (!allowOutput(property->getName(), formation, surface))
+              {
+                continue;
+              }
             }
 
             if (m_no3Dproperties && surface == 0 && property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY)
