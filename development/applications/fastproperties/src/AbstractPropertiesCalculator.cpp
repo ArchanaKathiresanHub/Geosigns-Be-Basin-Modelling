@@ -936,7 +936,12 @@ void AbstractPropertiesCalculator::displayTime (const double timeToDisplay, cons
 Interface::PropertyOutputOption AbstractPropertiesCalculator::checkTimeFilter3D (const std::string& name) const
 {
    const std::string& outputPropertyName = PropertyManager::getInstance ().findOutputPropertyName(name);
+
    const Interface::OutputProperty * property = getProjectHandle().findTimeOutputProperty( outputPropertyName );
+   if (property == nullptr)
+   {
+     property = getProjectHandle().findTimeOutputProperty( name ); // Check if name is the output name, mapping might be incomplete
+   }
 
    if (property == nullptr || property->getOption() == Interface::NO_OUTPUT)
    {
@@ -1004,24 +1009,13 @@ bool AbstractPropertiesCalculator::allowOutput (const std::string & propertyName
 {
    std::string propertyName = propertyName3D;
 
-   if (propertyName.find("HeatFlow") != std::string::npos)
-   {
-      propertyName = "HeatFlow";
-   }
-   else if (propertyName.find("FluidVelocity") != std::string::npos)
-   {
-      propertyName = "FluidVelocity";
-   }
-   else
-   {
-      std::size_t len = 4;
-      std::size_t pos = propertyName.find("Vec2");
+   std::size_t len = 4;
+   std::size_t pos = propertyName.find("Vec2");
 
-      if (pos != std::string::npos) {
-         // Replace Vec2 with Vec.
-         propertyName.replace(pos, len, "Vec");
-      }
-
+   if (pos != std::string::npos)
+   {
+      // Replace Vec2 with Vec.
+      propertyName.replace(pos, len, "Vec");
    }
 
    if (m_decompactionMode && (propertyName == "BulkDensity") && surface == nullptr)
