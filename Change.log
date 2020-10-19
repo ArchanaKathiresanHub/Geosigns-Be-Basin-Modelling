@@ -38,6 +38,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2020-10-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
+	fix: lean datadriller and track1d in casa.
+	* Mistakenly removed previously, lean is always ok as it will fallback to full calculation for derived properties
+	Commit-ID:<8c5b58d4fd85d7d580dd9e295425b539bdcd1a20>	  (refs/heads/master)
+
+++
+2020-10-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
 	fix: Fix fast properties when output name is not mapped.
 	* Related to https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/396272
 	Commit-ID:<1547c0b4b4f6c5e74e545d9be355b616a46d6585>	  (refs/heads/master)
