@@ -29,6 +29,8 @@
 #define CURT_MIN 99
 #define CURT_MAX 100
 
+struct MixingParameters;
+
 namespace AbstractDerivedProperties
 {
 class AbstractPropertyManager;
@@ -63,7 +65,7 @@ class Simulator;
 class SnapshotInterval;
 class SourceRockNode;
 
-class GenexSourceRock : public DataAccess::Interface::SourceRock, public GenexBaseSourceRock
+class GenexSourceRock : public GenexBaseSourceRock
 {
 public:
   GenexSourceRock (DataAccess::Interface::ProjectHandle& projectHandle, database::Record * record);
@@ -86,9 +88,6 @@ public:
 
   /// \brief Clears the source-rock of any nodes, ...
   void clear ();
-
-  /// \brief Clears the simulators and checmical models frmo the source rock.
-  void clearSimulator();
 
   // After each computeTimeInstance call this must be called to clear the output data buffers.
   void clearOutputHistory ();
@@ -117,6 +116,8 @@ public:
   /// Checks target raster H/C values are within the range. If not, clip that value to nearby valid value
   int checkTargetHC(double minHc, double maxHc, double &hcValue, double &maxValue, int &count);
 
+
+  
 protected:
   
   /// Construct the valid source rock node set, the valid snapshot intervals
@@ -194,14 +195,7 @@ protected:
 
   void saveSnapShotOutputMaps();
 
-  bool validateGuiValue(const double GuiValue, const double LowerBound, const double UpperBound);
-
-  const std::string & determineConfigurationFileName(const std::string & SourceRockType);
-
   void zeroTimeStepAccumulations ();
-
-  ChemicalModel * loadChemicalModel( const DataAccess::Interface::SourceRock * sr,
-                                             const bool printInitialisationDetails = true );
 
   /// The valid nodes of the source rock
   std::vector<Genex6::SourceRockNode*> m_theNodes;
@@ -213,8 +207,7 @@ private:
   AbstractDerivedProperties::AbstractPropertyManager * m_propertyManager;
 
   std::map<std::string, DataAccess::Interface::GridMap*> m_theSnapShotOutputMaps;
-  /// \brief Mapping between source rock name and source rock type as written in genex configuration file
-  const std::unordered_map<std::string, std::string> & s_CfgFileNameBySRType;
+
 
   DataAccess::Interface::GridMap* m_hcSaturationOutputMap;
   DataAccess::Interface::GridMap* m_irreducibleWaterSaturationOutputMap;

@@ -15,7 +15,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace genex0d
+namespace Genex0d
 {
 
 class Genex0dInputManager

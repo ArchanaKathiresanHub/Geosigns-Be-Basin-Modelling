@@ -26,7 +26,7 @@
 
 #include <iomanip>
 
-namespace genex0d
+namespace Genex0d
 {
 
 namespace
@@ -159,7 +159,7 @@ void Genex0dProjectManager::requestPropertyHistory(const std::string & propertyN
 
 void Genex0dProjectManager::extract()
 {
-  genex0d::Genex0dDataExtractor::run(m_projectFileName);
+  Genex0d::Genex0dDataExtractor::run(m_projectFileName);
   reloadModel();
 }
 

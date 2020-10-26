@@ -63,6 +63,8 @@ namespace Utilities
 
       // Statistic conversion tools
       constexpr double FractionToPercentage = 100; ///< Fraction to percentage conversion fasctor
+      constexpr double PercentageToFraction = 0.01; ///< Percentage to fraction conversion fasctor
+
       
       // Data conversion tools
       constexpr double KiloBytesToMegaBytes = 1024; ///< Positive value to convert kilobytes to megabytes

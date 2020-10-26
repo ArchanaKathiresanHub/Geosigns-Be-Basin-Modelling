@@ -33,7 +33,7 @@ public:
    /// \brief Sets the source-rock-node to an initial state.
    void initialise ();
 
-   void ClearInputHistory();
+   void clearInputHistory();
    void ClearOutputHistory();
    void ClearSimulatorStates();
    

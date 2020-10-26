@@ -10,7 +10,7 @@
 
 #include "CommonDefinitions.h"
 #include "Genex0dInputData.h"
-#include "Genex0dGenexSourceRock.h"
+#include "Genex0dSourceRock.h"
 
 // cmbAPI
 #include "ErrorHandler.h"
@@ -29,7 +29,7 @@
 // utilities
 #include "LogHandler.h"
 
-namespace genex0d
+namespace Genex0d
 {
 
 Genex0dSimulator::Genex0dSimulator(database::ProjectFileHandlerPtr database,
@@ -70,13 +70,13 @@ bool Genex0dSimulator::run(const DataAccess::Interface::Formation* formation, co
   registerProperties();
 
   setRequestedOutputProperties();
-  m_gnx0dSourceRock.reset(new Genex0dGenexSourceRock(*this, inData, indI, indJ));
+  m_gnx0dSourceRock.reset(new Genex0dSourceRock(*this, inData, indI, indJ));
   if (m_gnx0dSourceRock == nullptr)
   {
     return false;
   }
 
-  m_gnx0dSourceRock->initializeComputations(thickness, inorganicDensity, time, temperature, pressure, VRE, porePressure, permeability, porosity, lithoPressure, hydroPressure);
+  m_gnx0dSourceRock->initializeInputs(thickness, inorganicDensity, time, temperature, pressure, VRE, porePressure, permeability, porosity, lithoPressure, hydroPressure);
 
   if (!computeSourceRock(formation))
   {

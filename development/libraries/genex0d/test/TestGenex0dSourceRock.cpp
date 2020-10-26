@@ -26,20 +26,27 @@ protected:
   DataAccess::Interface::ProjectHandle* projectHandle;
 };
 
-genex0d::Genex0dInputData setInputs()
+Genex0d::Genex0dInputData setInputs()
 {
-  genex0d::Genex0dInputData input;
+  Genex0d::Genex0dInputData input;
   input.maxVes = 100;
   input.maxVesEnabled = true;
   input.HCVRe05 = 1.25;
   input.SCVRe05 = 0.0;
   input.formationName = "TestFormation";
   input.projectFilename = "AcquiferScale1.project3d";
-  input.activationEnergy = 210000;
-  input.resinDiffusionEnergy = 80000;
-  input.C15AroDiffusionEnergy = 81000;
-  input.C15SatDiffusionEnergy = 82000;
-  input.asphalteneDiffusionEnergy = 83000;
+  input.activationEnergy = 210;
+  input.resinDiffusionEnergy = 80;
+  input.C15AroDiffusionEnergy = 81;
+  input.C15SatDiffusionEnergy = 82;
+  input.asphalteneDiffusionEnergy = 83;
+
+  return input;
+}
+
+Genex0d::Genex0dInputData setInputsWithAdsorption()
+{
+  Genex0d::Genex0dInputData input = setInputs();
   input.doOTCG = true;
   input.whichAdsorptionFunction = "Default Langmuir Isotherm";
   input.whichAdsorptionSimulator = "OTGCC1AdsorptionSimulator";
@@ -47,31 +54,29 @@ genex0d::Genex0dInputData setInputs()
   return input;
 }
 
-genex0d::Genex0dInputData setInputsWithoutAdsorption()
+Genex0d::Genex0dInputData setInputsWithSecondSourceRock()
 {
-  genex0d::Genex0dInputData input;
-  input.maxVes = 100;
-  input.maxVesEnabled = true;
-  input.HCVRe05 = 1.25;
-  input.SCVRe05 = 0.0;
-  input.formationName = "TestFormation";
-  input.projectFilename = "AcquiferScale1.project3d";
-  input.activationEnergy = 210000;
-  input.resinDiffusionEnergy = 80000;
-  input.C15AroDiffusionEnergy = 81000;
-  input.C15SatDiffusionEnergy = 82000;
-  input.asphalteneDiffusionEnergy = 83000;
+  Genex0d::Genex0dInputData input = setInputs();
+  input.HCVRe05SR2 = 1.25;
+  input.SCVRe05SR2 = 0.0;
+  input.activationEnergySR2 = 211;
+  input.resinDiffusionEnergySR2 = 81;
+  input.C15AroDiffusionEnergySR2 = 83;
+  input.C15SatDiffusionEnergySR2 = 84;
+  input.asphalteneDiffusionEnergySR2 = 85;
+  input.sourceRockTypeSR2 = "Type_II_Paleozoic_Marine_Shale_kin_s";
 
   return input;
 }
 
+
 TEST_F( TestGenex0dSourceRock, TestInputs )
 {
   // Given
-  genex0d::Genex0dInputData input = setInputs();
+  Genex0d::Genex0dInputData input = setInputsWithAdsorption();
 
   // When
-  std::unique_ptr<genex0d::Genex0dSourceRock> sourceRock(new genex0d::Genex0dSourceRock(*projectHandle, input));
+  std::unique_ptr<Genex0d::Genex0dSourceRock> sourceRock(new Genex0d::Genex0dSourceRock(*projectHandle, input, 0, 0));
 
   // Then
   EXPECT_DOUBLE_EQ(input.maxVes * Utilities::Maths::MegaPaToPa, sourceRock->getVESMax());
@@ -96,24 +101,50 @@ TEST_F( TestGenex0dSourceRock, TestInputs )
 TEST_F( TestGenex0dSourceRock, TestInputsWithoutAdsorption )
 {
   // Given
-  genex0d::Genex0dInputData input = setInputsWithoutAdsorption();
+  Genex0d::Genex0dInputData input = setInputs();
 
   // When
-  std::unique_ptr<genex0d::Genex0dSourceRock> sourceRock(new genex0d::Genex0dSourceRock(*projectHandle, input));
+  std::unique_ptr<Genex0d::Genex0dSourceRock> sourceRock(new Genex0d::Genex0dSourceRock(*projectHandle, input, 0, 0));
 
   // Then
   EXPECT_EQ(false, sourceRock->doApplyAdsorption());
+}
+
+TEST_F( TestGenex0dSourceRock, TestInputsWithSecondSourceRock)
+{
+  // Given
+  Genex0d::Genex0dInputData input = setInputsWithSecondSourceRock();
+
+  // When
+  std::unique_ptr<Genex0d::Genex0dSourceRock> sourceRock(new Genex0d::Genex0dSourceRock(*projectHandle, input, 0, 0));
+  sourceRock->initialize();
+
+  // Then
+  EXPECT_FALSE(sourceRock->getChemicalModel2() == nullptr);
+}
+
+TEST_F( TestGenex0dSourceRock, TestInputsWithoutSecondSourceRock)
+{
+  // Given
+  Genex0d::Genex0dInputData input = setInputs();
+
+  // When
+  std::unique_ptr<Genex0d::Genex0dSourceRock> sourceRock(new Genex0d::Genex0dSourceRock(*projectHandle, input, 0, 0));
+  sourceRock->initialize();
+
+  // Then
+  EXPECT_TRUE(sourceRock->getChemicalModel2() == nullptr);
 }
 
 
 TEST_F( TestGenex0dSourceRock, TestTypenames )
 {
   // Given
-  genex0d::Genex0dInputData input = setInputs();
+  Genex0d::Genex0dInputData input = setInputsWithAdsorption();
   input.sourceRockType = "Type_I_II_Cenozoic_Marine_Marl_lit_s";
 
   // When
-  std::unique_ptr<genex0d::Genex0dSourceRock> sourceRock(new genex0d::Genex0dSourceRock(*projectHandle, input));
+  std::unique_ptr<Genex0d::Genex0dSourceRock> sourceRock(new Genex0d::Genex0dSourceRock(*projectHandle, input, 0, 0));
 
   // Then
   EXPECT_EQ("TypeIIN", sourceRock->getTypeID());
@@ -122,11 +153,11 @@ TEST_F( TestGenex0dSourceRock, TestTypenames )
 TEST_F( TestGenex0dSourceRock, TestNonValidTypenames )
 {
   // Given
-  genex0d::Genex0dInputData input = setInputs();
+  Genex0d::Genex0dInputData input = setInputsWithAdsorption();
   input.sourceRockType = "NotValid";
 
   // When
-  std::unique_ptr<genex0d::Genex0dSourceRock> sourceRock(new genex0d::Genex0dSourceRock(*projectHandle, input));
+  std::unique_ptr<Genex0d::Genex0dSourceRock> sourceRock(new Genex0d::Genex0dSourceRock(*projectHandle, input, 0, 0));
 
   // Then
   EXPECT_EQ("", sourceRock->getTypeID());

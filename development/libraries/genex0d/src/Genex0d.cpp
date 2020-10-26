@@ -19,7 +19,7 @@
 
 #include "LogHandler.h"
 
-namespace genex0d
+namespace Genex0d
 {
 
 Genex0d::Genex0d(const Genex0dInputData & inputData) :

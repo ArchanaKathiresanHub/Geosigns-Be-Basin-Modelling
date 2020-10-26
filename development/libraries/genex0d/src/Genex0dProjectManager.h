@@ -29,7 +29,7 @@ namespace mbapi
 class Model;
 } // namespace mbapi
 
-namespace genex0d
+namespace Genex0d
 {
 
 class Genex0dProjectManager

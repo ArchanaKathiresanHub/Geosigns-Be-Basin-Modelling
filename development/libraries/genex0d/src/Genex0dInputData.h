@@ -16,7 +16,7 @@
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::CauldronNoDataValue;
 
-namespace genex0d
+namespace Genex0d
 {
 
 struct Genex0dInputData
@@ -41,6 +41,16 @@ struct Genex0dInputData
   std::string nodeHistoryFileName;
   std::string whichAdsorptionSimulator;
   std::string whichAdsorptionFunction;
+  double HCVRe05SR2;
+  double SCVRe05SR2;
+  double activationEnergySR2;
+  double asphalteneDiffusionEnergySR2;
+  double resinDiffusionEnergySR2;
+  double C15AroDiffusionEnergySR2;
+  double C15SatDiffusionEnergySR2;
+  std::string sourceRockTypeSR2;
+  double mixingHI;
+
 
   Genex0dInputData(const double xCoord = CauldronNoDataValue,
                    const double yCoord = CauldronNoDataValue,
@@ -61,7 +71,16 @@ struct Genex0dInputData
                    const std::string& sourceRockType = "",
                    const std::string& nodeHistoryFileName = "nodeHistory.dat",
                    const std::string& whichAdsorptionSimulator = "",
-                   const std::string& whichAdsorptionFunction = "") :
+                   const std::string& whichAdsorptionFunction = "",
+                   const double HCVRe05SR2 = CauldronNoDataValue,
+                   const double SCVRe05SR2 = CauldronNoDataValue,
+                   const double activationEnergySR2 = CauldronNoDataValue,
+                   const double asphalteneDiffusionEnergySR2 = CauldronNoDataValue,
+                   const double resinDiffusionEnergySR2 = CauldronNoDataValue,
+                   const double C15AroDiffusionEnergySR2 = CauldronNoDataValue,
+                   const double C15SatDiffusionEnergySR2 = CauldronNoDataValue,
+                   const std::string& sourceRockTypeSR2 = "",
+                   const double mixingHI = CauldronNoDataValue) :
     xCoord{xCoord},
     yCoord{yCoord},
     ToCIni{ToCIni},
@@ -81,9 +100,17 @@ struct Genex0dInputData
     sourceRockType{sourceRockType},
     nodeHistoryFileName{nodeHistoryFileName},
     whichAdsorptionSimulator{whichAdsorptionSimulator},
-    whichAdsorptionFunction{whichAdsorptionFunction}
+    whichAdsorptionFunction{whichAdsorptionFunction},
+    HCVRe05SR2{HCVRe05SR2},
+    SCVRe05SR2{SCVRe05SR2},
+    activationEnergySR2{activationEnergySR2},
+    asphalteneDiffusionEnergySR2{asphalteneDiffusionEnergySR2},
+    resinDiffusionEnergySR2{resinDiffusionEnergySR2},
+    C15AroDiffusionEnergySR2{C15AroDiffusionEnergySR2},
+    C15SatDiffusionEnergySR2{C15SatDiffusionEnergySR2},
+    sourceRockTypeSR2{sourceRockTypeSR2},
+    mixingHI{mixingHI}
   {
   }
 };
-
 } // namespace genex0d

@@ -5,7 +5,7 @@
 #include <sstream>
 
 Genex6::SourceRockAdsorptionHistory::SourceRockAdsorptionHistory (DataAccess::Interface::ProjectHandle& projectHandle,
-                                                                   const DataAccess::Interface::PointAdsorptionHistory* record ) :
+                                                                   const DataAccess::Interface::PointAdsorptionHistory& record ) :
    m_projectHandle ( projectHandle ),
    m_historyRecord ( record ),
    m_adsorptionHistory ( 0 ),
@@ -34,11 +34,11 @@ Genex6::NodeAdsorptionHistory* Genex6::SourceRockAdsorptionHistory::getNodeGenex
 
 void Genex6::SourceRockAdsorptionHistory::save ()
 {
-   if (m_historyRecord != 0 and (m_adsorptionHistory != 0 || m_genexHistory != 0))
+   if (m_adsorptionHistory != 0 || m_genexHistory != 0)
    {
       std::string fileName;
 
-      if (m_historyRecord->getFileName () == "")
+      if (m_historyRecord.getFileName () == "")
       {
          std::stringstream buffer;
 
@@ -46,14 +46,14 @@ void Genex6::SourceRockAdsorptionHistory::save ()
                 << m_projectHandle.getProjectName ()
                 << "_"
                 << (m_adsorptionHistory != 0 ? "shalegas" : "genex")
-                << "_" << m_historyRecord->getMangledFormationName ();
+                << "_" << m_historyRecord.getMangledFormationName ();
 
          if (m_projectHandle.getModellingMode () == DataAccess::Interface::MODE3D)
          {
             buffer << "_"
-                   << m_historyRecord->getX ()
+                   << m_historyRecord.getX ()
                    << "_"
-                   << m_historyRecord->getY ();
+                   << m_historyRecord.getY ();
          }
          buffer << ".dat";
 
@@ -61,7 +61,7 @@ void Genex6::SourceRockAdsorptionHistory::save ()
       }
       else
       {
-         fileName = m_historyRecord->getFileName ();
+         fileName = m_historyRecord.getFileName ();
       }
 
 
@@ -74,13 +74,13 @@ void Genex6::SourceRockAdsorptionHistory::save ()
       std::ofstream historyFile (filePath.cpath (), std::ios::out);
 
       if( m_adsorptionHistory != 0 ) {
-         historyFile << m_historyRecord->getFormationName ();
+         historyFile << m_historyRecord.getFormationName ();
 
          if (m_projectHandle.getModellingMode () == DataAccess::Interface::MODE3D )
          {
             historyFile << "  "
-                        << m_historyRecord->getX ()
-                        << "  " << m_historyRecord->getY ()
+                        << m_historyRecord.getX ()
+                        << "  " << m_historyRecord.getY ()
                         << std::endl;
          }
          m_adsorptionHistory->write (historyFile);

@@ -23,11 +23,11 @@ namespace Genex6
 class GenexSourceRock;
 }
 
-namespace genex0d
+namespace Genex0d
 {
 
 struct Genex0dInputData;
-class Genex0dGenexSourceRock;
+class Genex0dSourceRock;
 
 class Genex0dSimulator : public GeoPhysics::ProjectHandle
 {
@@ -51,7 +51,7 @@ private:
   bool isPropertyRegistered(const std::string & propertyName);
   bool computeSourceRock(const DataAccess::Interface::Formation * aFormation);
 
-  std::unique_ptr<Genex0dGenexSourceRock> m_gnx0dSourceRock;
+  std::unique_ptr<Genex0dSourceRock> m_gnx0dSourceRock;
   std::unordered_set<std::string> m_registeredProperties;
   std::vector<std::string> m_shaleProperties;
   std::vector<std::string> m_requestedProperties;

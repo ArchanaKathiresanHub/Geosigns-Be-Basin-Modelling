@@ -16,6 +16,7 @@ namespace DataAccess
       {
    public:
       SourceRock (ProjectHandle& projectHandle, database::Record * record);
+
       virtual ~SourceRock (void);
 
 

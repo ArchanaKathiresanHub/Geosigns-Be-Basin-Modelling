@@ -24,7 +24,7 @@ protected:
     objectFactory = new DataAccess::Interface::ObjectFactory();
     projectHandle = DataAccess::Interface::OpenCauldronProject(projectFileName, objectFactory);
     ASSERT_NO_THROW(genex0dProjectMgr =
-        new genex0d::Genex0dProjectManager(*projectHandle, projectFileName, xCoord, yCoord, topSurfaceName, formationName));
+        new Genex0d::Genex0dProjectManager(*projectHandle, projectFileName, xCoord, yCoord, topSurfaceName, formationName));
   }
 
   void TearDown() final
@@ -37,7 +37,7 @@ protected:
   static const std::string projectFileName;
   DataAccess::Interface::ObjectFactory * objectFactory;
   DataAccess::Interface::ProjectHandle * projectHandle;
-  genex0d::Genex0dProjectManager * genex0dProjectMgr;
+  Genex0d::Genex0dProjectManager * genex0dProjectMgr;
 };
 const std::string TestGenex0dProjectManager::projectFileName = "AcquiferScale1.project3d";
 

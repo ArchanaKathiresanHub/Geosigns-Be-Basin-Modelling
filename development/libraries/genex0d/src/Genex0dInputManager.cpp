@@ -15,7 +15,7 @@
 #include <iostream>
 #include <cmath>
 
-namespace genex0d
+namespace Genex0d
 {
 
 Genex0dInputManager::Genex0dInputManager(int argc, char** argv) :
@@ -173,6 +173,72 @@ Genex0dInputManager::ExitStatus Genex0dInputManager::checkInputIsValid(std::stri
     }
   }
 
+  if (!m_inputData.sourceRockTypeSR2.empty())
+  {
+    if (std::fabs(m_inputData.HCVRe05SR2 - CauldronNoDataValue) < epsilon)
+    {
+      ioErrorMessage = "No H/C ratio provided for source rock 2!";
+      return WITH_ERROR_EXIT;
+    }
+
+    if (std::fabs(m_inputData.SCVRe05SR2 - CauldronNoDataValue) < epsilon)
+    {
+      ioErrorMessage = "No S/C ratio provided for source rock 2!";
+      return WITH_ERROR_EXIT;
+    }
+
+    if (std::fabs(m_inputData.activationEnergySR2 - CauldronNoDataValue) < epsilon)
+    {
+      ioErrorMessage = "No activation energy provided for source rock 2!";
+      return WITH_ERROR_EXIT;
+    }
+
+    if (std::fabs(m_inputData.resinDiffusionEnergySR2 - CauldronNoDataValue) < epsilon)
+    {
+      ioErrorMessage = "No resin diffusion energy provided for source rock 2!";
+      return WITH_ERROR_EXIT;
+    }
+
+    if (std::fabs(m_inputData.C15AroDiffusionEnergySR2 - CauldronNoDataValue) < epsilon)
+    {
+      ioErrorMessage = "No C15 Aro diffusion energy provided for source rock 2!";
+      return WITH_ERROR_EXIT;
+    }
+
+    if (std::fabs(m_inputData.C15SatDiffusionEnergySR2 - CauldronNoDataValue) < epsilon)
+    {
+      ioErrorMessage = "No C15 Sat diffusion energy provided for source rock 2!";
+      return WITH_ERROR_EXIT;
+    }
+
+    if (std::fabs(m_inputData.asphalteneDiffusionEnergySR2 - CauldronNoDataValue) < epsilon)
+    {
+      ioErrorMessage = "No asphaltene diffusion energy provided for source rock 2!";
+      return WITH_ERROR_EXIT;
+    }
+
+    if (std::fabs(m_inputData.mixingHI - CauldronNoDataValue) < epsilon)
+    {
+      ioErrorMessage = "A second source rock was provided, but no mixing HI!";
+      return WITH_ERROR_EXIT;
+    }
+  }
+
+  if (m_inputData.sourceRockTypeSR2.empty())
+  {
+    if (std::fabs(m_inputData.HCVRe05SR2 - CauldronNoDataValue) >= epsilon ||
+        std::fabs(m_inputData.SCVRe05SR2 - CauldronNoDataValue) >= epsilon ||
+        std::fabs(m_inputData.activationEnergySR2 - CauldronNoDataValue) >= epsilon ||
+        std::fabs(m_inputData.resinDiffusionEnergySR2 - CauldronNoDataValue) >= epsilon ||
+        std::fabs(m_inputData.C15AroDiffusionEnergySR2 - CauldronNoDataValue) >= epsilon ||
+        std::fabs(m_inputData.C15SatDiffusionEnergySR2 - CauldronNoDataValue) >= epsilon ||
+        std::fabs(m_inputData.asphalteneDiffusionEnergySR2 - CauldronNoDataValue) >= epsilon)
+    {
+      ioErrorMessage = "No source rock type provided for source rock 2!";
+      return WITH_ERROR_EXIT;
+    }
+  }
+
   return NO_EXIT;
 }
 
@@ -201,6 +267,18 @@ void Genex0dInputManager::setArgumentFieldNames()
   m_argumentFields["-AdsSimulator"] = 0;
   m_argumentFields["-AdsCapacityFunc"] = 0;
   m_argumentFields["-doOTGC"] = 0;
+
+  // Source Rock 2 parameters
+  m_argumentFields["-SRType_SR2"] = 0;
+  m_argumentFields["-HC_SR2"] = 0;
+  m_argumentFields["-SC_SR2"] = 0;
+  m_argumentFields["-EA_SR2"] = 0;
+  m_argumentFields["-Asph_SR2"] = 0;
+  m_argumentFields["-Resin_SR2"] = 0;
+  m_argumentFields["-C15Aro_SR2"] = 0;
+  m_argumentFields["-C15Sat_SR2"] = 0;
+  m_argumentFields["-MixingHI"] = 0;
+
 }
 
 bool Genex0dInputManager::initialCheckArgument(const std::string& argument, const std::string& argumentValue, std::string& ioErrorMessage)
@@ -272,23 +350,23 @@ void Genex0dInputManager::storeArgument(const std::string& argument, const std::
   }
   else if (argument == "-EA")
   {
-    m_inputData.activationEnergy = std::stod(argumentValue) * 1e3;
+    m_inputData.activationEnergy = std::stod(argumentValue);
   }
   else if (argument == "-Asph")
   {
-    m_inputData.asphalteneDiffusionEnergy = std::stod(argumentValue) * 1e3;
+    m_inputData.asphalteneDiffusionEnergy = std::stod(argumentValue);
   }
   else if (argument == "-Resin")
   {
-    m_inputData.resinDiffusionEnergy = std::stod(argumentValue) * 1e3;
+    m_inputData.resinDiffusionEnergy = std::stod(argumentValue);
   }
   else if (argument == "-C15Aro")
   {
-    m_inputData.C15AroDiffusionEnergy = std::stod(argumentValue) * 1e3;
+    m_inputData.C15AroDiffusionEnergy = std::stod(argumentValue);
   }
   else if (argument == "-C15Sat")
   {
-    m_inputData.C15SatDiffusionEnergy = std::stod(argumentValue) * 1e3;
+    m_inputData.C15SatDiffusionEnergy = std::stod(argumentValue);
   }
   else if (argument == "-AdsSimulator")
   {
@@ -305,6 +383,46 @@ void Genex0dInputManager::storeArgument(const std::string& argument, const std::
       m_inputData.doOTCG = true ;
     }
   }
+
+  // Source Rock 2 parameters
+  else if (argument == "-SRType_SR2")
+  {
+    m_inputData.sourceRockTypeSR2 = argumentValue;
+  }
+  else if (argument == "-HC_SR2")
+  {
+    m_inputData.HCVRe05SR2 = std::stod(argumentValue);
+  }
+  else if (argument == "-SC_SR2")
+  {
+    m_inputData.SCVRe05SR2 = std::stod(argumentValue);
+  }
+  else if (argument == "-EA_SR2")
+  {
+    m_inputData.activationEnergySR2 = std::stod(argumentValue);
+  }
+  else if (argument == "-Asph_SR2")
+  {
+    m_inputData.asphalteneDiffusionEnergySR2 = std::stod(argumentValue);
+  }
+  else if (argument == "-Resin_SR2")
+  {
+    m_inputData.resinDiffusionEnergySR2 = std::stod(argumentValue);
+  }
+  else if (argument == "-C15Aro_SR2")
+  {
+    m_inputData.C15AroDiffusionEnergySR2 = std::stod(argumentValue);
+  }
+  else if (argument == "-C15Sat_SR2")
+  {
+    m_inputData.C15SatDiffusionEnergySR2 = std::stod(argumentValue);
+  }
+  else if (argument == "-MixingHI")
+  {
+    m_inputData.mixingHI = std::stod(argumentValue);
+  }
+
+
 }
 
 Genex0dInputManager::ExitStatus Genex0dInputManager::storeInput(std::string & ioErrorMessage)

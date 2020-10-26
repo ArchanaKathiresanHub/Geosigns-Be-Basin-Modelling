@@ -12,7 +12,7 @@
 
 #include "datadriller.h"
 
-namespace genex0d
+namespace Genex0d
 {
 
 namespace Genex0dDataExtractor

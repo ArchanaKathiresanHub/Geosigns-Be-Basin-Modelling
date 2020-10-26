@@ -4,7 +4,7 @@
 
 #include "mangle.h"
 
-namespace genex0d
+namespace Genex0d
 {
 
 Genex0dPointAdsorptionHistory::Genex0dPointAdsorptionHistory(DataAccess::Interface::ProjectHandle & projectHandle,
