@@ -89,16 +89,16 @@ void Prograde::RunOptionsUpgradeManager::upgrade() {
    
 	chemCompactionAlgorithm = runOptionsModelConverter.upgradeChemicalCompactionAlgorithm(chemCompactionAlgorithm);
 	m_model.runOptionsManager().setChemicalCompactionAlgorithm(chemCompactionAlgorithm);
-   
+#ifdef _PROGRADE_DEPRECATED   // Geometric-loop optimization retained "As-is"
 	optimizationLevel = runOptionsModelConverter.upgradeOptimisationLevel(optimizationLevel);
 	m_model.runOptionsManager().setOptimisationLevel(optimizationLevel);
-   
+#endif // _PROGRADE_DEPRECATED   
 	OTTempDiff = runOptionsModelConverter.upgradeTemperatureRange(OTTempDiff, "OptimalTotalTempDiff");
 	m_model.runOptionsManager().setOptimalTotalTempDiff(OTTempDiff);
    
 	OSRTempDiff = runOptionsModelConverter.upgradeTemperatureRange(OSRTempDiff, "OptimalSourceRockTempDiff");
 	m_model.runOptionsManager().setOptimalSourceRockTempDiff(OSRTempDiff);
 
-	OTPresDiff = runOptionsModelConverter.upgradePressureRange(OTPresDiff, "OptimalSourceRockPresDiff");
+	OTPresDiff = runOptionsModelConverter.upgradePressureRange(OTPresDiff, "OptimalTotalPresDiff");
 	m_model.runOptionsManager().setOptimalTotalPresDiff(OTPresDiff);
 }

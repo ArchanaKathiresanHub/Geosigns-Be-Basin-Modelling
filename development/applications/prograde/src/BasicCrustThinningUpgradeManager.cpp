@@ -21,9 +21,9 @@
 #include "BasicCrustThinningModelConverter.h"
 //Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
 #include "GridMapIoTblUpgradeManager.h"
-/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
-* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
-* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
 */
 
 //cmbAPI
@@ -265,11 +265,11 @@ void Prograde::BasicCrustThinningUpgradeManager::upgrade() {
 			}
 			for (int i = 0; i < removedRecords.size(); i++)
 			{
-				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap(removedRecords[i].first, removedRecords[i].second);
+				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap(removedRecords[i].first, removedRecords[i].second);
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> GridMapIoTbl: GridMap " << removedRecords[i].second << " ReferredBy " << removedRecords[i].first << " will be cleared by GridMapIoTbl Upgrade Manager";
 			}
-			Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("BasaltThicknessIoTbl");
-			Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("MntlHeatFlowIoTbl");
+			Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("BasaltThicknessIoTbl");
+			Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("MntlHeatFlowIoTbl");
 		}
 	}
 	else

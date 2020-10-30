@@ -24,6 +24,11 @@ std::string Prograde::StratigraphyModelConverter::upgradeName(const std::string 
 		if ((originalName[i] >= 48 && originalName[i] <= 57) || (originalName[i] == 32) || (originalName[i] >= 65 && originalName[i] <= 90) || (originalName[i] >= 97 && originalName[i] <= 122) || (originalName[i] == 0) || (originalName[i] == 95)) {
 			updatedName.push_back(originalName[i]);
 		}
+		else
+		{
+			// offending Chars are changed to underScore.
+			updatedName.push_back('_');
+		}
 	}
 	return updatedName;
 }

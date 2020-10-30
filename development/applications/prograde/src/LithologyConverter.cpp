@@ -831,14 +831,14 @@ std::vector<double> Prograde::LithologyConverter::computeSingleExpModelParameter
 			newSurfacePorosity = 35.0;
 			newExponentialCompCoeff = 5.5;
 			newMinMechanicalPorosity = 2.0;
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Siltstone, clean'. ";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with default values of BPA2 'Siltstone, 20% clay'. ";
 		}
 		else if (baseLithologyType.compare("Std. Shale") == 0 || baseLithologyType.compare("HEAT Shale") == 0 ||
 			baseLithologyType.compare("SM.Mudst.40%Clay") == 0 || baseLithologyType.compare("SM.Mudst.50%Clay") == 0 ||
 			baseLithologyType.compare("SM.Mudst.60%Clay") == 0 || baseLithologyType.compare("Mudstone, 30% clay") == 0 ||
 			baseLithologyType.compare("Astheno. Mantle") == 0 || baseLithologyType.compare("Diorite/Granodiorite") == 0)
 		{
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with model parameters calculated from the imperical formula. ";
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Warning> Deprecated 'Soil Mechanics' model is detected for this lithotype which is based on legacy " << baseLithologyType << ". Porosity model is upgraded to 'Exponential' model with model parameters calculated from the Empirical formula. ";
 			newSurfacePorosity = (0.0173*originalPorModelParam[0] * originalPorModelParam[0]) - (0.6878*originalPorModelParam[0]) + 27.73;
 			//Newly calculated SurfacePorosity values must be in the range [0.1,100]. Resetting it's value if it is outside this range
 			if (newSurfacePorosity < 0.1) {

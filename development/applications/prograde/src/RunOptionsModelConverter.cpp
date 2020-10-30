@@ -55,10 +55,11 @@ std::string Prograde::RunOptionsModelConverter::upgradeChemicalCompactionAlgorit
 
 std::string Prograde::RunOptionsModelConverter::upgradeOptimisationLevel(std::string optimisationLevel) {
 
+
 	if (optimisationLevel.compare("Level 1") == 0 ||
 		optimisationLevel.compare("Level 2") == 0 ||
 		optimisationLevel.compare("Level 3") == 0) {
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Optimisation level upgraded from " << optimisationLevel << " to Level 4";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Optimization level upgraded from " << optimisationLevel << " to Level 4";
 		return "Level 4";
 	}
 	else 

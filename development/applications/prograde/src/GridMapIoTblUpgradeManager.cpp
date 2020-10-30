@@ -156,12 +156,12 @@ void Prograde::GridMapIoTblUpgradeManager::upgrade()
 std::vector<std::pair<std::string, std::string>> Prograde::GridMapIoTblUpgradeManager::tblNameMapName;
 
 ///Defining the static method clearMapNameTblNamepReferenceGridMap
-void Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap(const std::string& tblName, const std::string& mapName)
+void Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap(const std::string& tblName, const std::string& mapName)
 {
 	Prograde::GridMapIoTblUpgradeManager::tblNameMapName.push_back(std::pair<std::string, std::string>(tblName, mapName));
 }
 ///defining the overload of the  static method clearMapNameTblNamepReferenceGridMap
-void Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap(const std::string & tblName)
+void Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap(const std::string & tblName)
 {
 	Prograde::GridMapIoTblUpgradeManager::tblNameMapName.push_back(std::pair<std::string, std::string>(tblName, "All"));
 }

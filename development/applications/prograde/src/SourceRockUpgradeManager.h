@@ -39,9 +39,11 @@ namespace database
 
 namespace Prograde
 {
-	// @brief the pair of <bpa2BaseSR,bpa2SR> &            the bpa2 Hi
-	typedef std::pair<std::pair<std::string, std::string>, double> bpa2nameHiPair;
+	// @brief the pair of <bpa2BaseSR,bpa2SR> & the pair of <the bpa2 Hi, pair of <SrLithoIoTblid,StartIoid>>
+	typedef std::pair<std::pair<std::string, std::string>, std::pair<double,std::pair<size_t,size_t>>> bpa2nameHiPair;
+	// @brief list of pair <SrIds,isMix> from SrLithoIo
 	typedef std::vector<std::pair<size_t, bool>> theValidSrMixList;
+	// @brief
 	typedef std::pair<size_t, std::string> LayIdStratIoLayNamePair;
 	/// @class SourceRockUpgradeManager Manager to upgrade the BPA1 SourceRockLithoIoTbl to BPA2 SourceRockLithoIoTbl standard
 	/// @brief 
@@ -62,7 +64,7 @@ namespace Prograde
 		void upgrade() final;
 
 		/// @brief
-		/// this is to clear-out the SourceRockLithoIoTbl if there are no active source rocks in the startigraphy 
+		/// this is to clear-out the SourceRockLithoIoTbl if there are no active source rocks in the stratigraphy 
 		ErrorHandler::ReturnCode cleanSourceRockLithoIoTbl(void) const;
 	protected:
 		/// @brief method for Updating SourceRockLithoIoTbl to BPA2 standards
@@ -75,11 +77,12 @@ namespace Prograde
 		const size_t & LayIdFromStraIOTbl, size_t& srIdFromSrLitoIoTbl, const Prograde::SourceRockConverter* mConvert=nullptr
 		,bool isMixingEnable=false
 		);
-		/// @brief method for Updating SourceRockLithoIoTbl to BPA2 standards for mixed Source rocks
-		void CheckValidHiRangesForMixedSRs(const std::vector<size_t>& theActiveSrs, std::vector < bpa2nameHiPair>& SrNameHiList);
+		/// @brief method for checking HI ranges for mixed Source rocks; return the list of SRIds in StartIo that failed
+		std::vector<size_t> CheckValidHiRangesForMixedSRs(const std::vector<size_t>& theActiveSrs, std::vector < bpa2nameHiPair>& SrNameHiList);
 		ErrorHandler::ReturnCode UpdateOfInconsistentEntriesInSrLithoIoTbl(theValidSrMixList& ValidSrIds,
 			const Prograde::SourceRockConverter* mConvert);
-
+		ErrorHandler::ReturnCode upgradeAsNormalLayer(size_t LayId);
+		ErrorHandler::ReturnCode clearMixingParams(size_t LayId);
 	private:
 		mbapi::Model& m_model; ///< The model to upgrade
 		std::shared_ptr<DataAccess::Interface::ProjectHandle> m_ph; ///< The project handle of the model to upgrade
