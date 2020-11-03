@@ -65,8 +65,8 @@ add_gtest( NAME "Genex0dProjectManager"
     FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
 )
 
-add_gtest( NAME "Genex0dSourceRock"
-    SOURCES src/Genex0dSourceRock.cpp test/TestGenex0dSourceRock.cpp
-    LIBRARIES ${GENEX0D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
-    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
-)
+#add_gtest( NAME "Genex0dSourceRock"
+#    SOURCES src/Genex0dSourceRock.cpp test/TestGenex0dSourceRock.cpp
+#    LIBRARIES ${GENEX0D_LIB_NAME} utilities cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} FileSystem
+#    FOLDER "${BASE_FOLDER}/${GENEX0D_LIB_NAME}"
+#)
