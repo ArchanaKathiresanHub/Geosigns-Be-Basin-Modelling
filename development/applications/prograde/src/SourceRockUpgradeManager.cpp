@@ -10,7 +10,7 @@
 
 // std
 #include<algorithm>
-
+#include <iomanip>
 //Prograde
 #include "SourceRockUpgradeManager.h"
 #include "SourceRockConverter.h"
@@ -189,6 +189,9 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 				if (srNa2.compare("")) {// if there is a name in SR2... clear it out
 					theSRTypesInStraiIo.push_back(""); // expand the vector to 2 elements ... for later use
 													   //(*sr2) = ""; // set the sr2 to null
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP)
+						<< "<Basin-Warning> Found 2nd SourceRock in this layer '" << LayerNameInStratIo << "' although mixing flag disabled,"
+						<< " clearing mixing parameters and the 2nd source rock <" << srNa2 << "> will be removed!";
 #if !HiAnamoly
 					clearMixingParams(LayIdFromStratIo);
 #endif // !HiAnamoly
@@ -225,7 +228,7 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 						{
 							LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP)
 								<< "<Basin-Warning> Mixing of sulfur and non sulfur source rock is identified in source rock mixing in Layer '"
-								<< LayerNameInStratIo << "'  and BPA2 does not allow mixing of sulfur and non-sulfur source rocks; Migration from BPA to BPA2 Basin changed this layer as a non-source rock layer...";
+								<< LayerNameInStratIo << "'  and BPA2 does not allow mixing of sulfur and non-sulfur source rocks; Migration from BPA to BPA2-Basin changed this layer as a non-source rock layer...";
 							upgradeAsNormalLayer(LayIdFromStratIo);
 							listOfSrInSrLithoIoTblThatMustExist.pop_back();
 							theNameHiList.pop_back()/* is a improperSR so clear*/;
@@ -237,8 +240,9 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 							&& !is2ndSRLiteratureType)
 						{
 							LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP)
-								<< "<Basin-Warning> Mixing of same type of Source Rocks Identified <" << theSRTypesInStraiIo[0] << "> identified in source rock mixing in Layer '"
-								<< LayerNameInStratIo << "'  and BPA2 does not allow mixing of same source rocks; Migration from BPA to BPA2 Basin changed this layer as a non-source rock layer...";
+								<< "<Basin-Warning> Mixing of same Source Rocks (or with identical measured Hi) is detected, <" << theSRTypesInStraiIo[0] << "> and <"
+								<< theSRTypesInStraiIo[1] <<">, in source rock mixing in Layer '"
+								<< LayerNameInStratIo << "'  and BPA2 does not allow mixing of same source rocks; Migration from BPA to BPA2-Basin changed this layer as a non-source rock layer...";
 							upgradeAsNormalLayer(LayIdFromStratIo);
 							listOfSrInSrLithoIoTblThatMustExist.pop_back();
 							theNameHiList.pop_back()/* is a improperSR so clear*/;
@@ -415,7 +419,7 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::SetSourceRockProper
 		// return data
 		std::string bpa2SourceRockTypeName, bpa2BaseSourceRockType; bool litFlag{};
 
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* For the Layer Name : " << layerName << ",";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* For the Layer Name : '" << layerName << "',";
 
 		upgradeToBPA2Names(mConvert, bpaSourceRockTypeName,
 			bpaBaseSourceRockType, bpa2SourceRockTypeName, bpa2BaseSourceRockType, litFlag, bpaScVre05);
@@ -494,7 +498,7 @@ Prograde::bpa2nameHiPair Prograde::SourceRockUpgradeManager::GetBpa2SourceRockNa
 			auto theBpa2Hi = Utilities::Numerical::IbsNoDataValue;
 			if (mConvert->isSrFromLiterature(bsr, &bpaSrName) && isMixingEnable) {
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Literature source is identified in source rock mixing in Layer '"
-					<< LyrNameStarIo << "' and BPA2 does not allow literature source rocks in source rock mixing'; Migration from BPA to BPA2 Basin changed this layer as a non-source rock layer...";
+					<< LyrNameStarIo << "' and BPA2 does not allow literature source rocks in source rock mixing'; Migration from BPA to BPA2-Basin changed this layer as a non-source rock layer...";
 				upgradeAsNormalLayer(LayIdFromStraIOTbl);
 
 			}
@@ -552,7 +556,7 @@ std::vector<size_t> Prograde::SourceRockUpgradeManager::CheckValidHiRangesForMix
 
 							" which is out of allowed range (" << arr[0] << "," << arr[1] <<
 
-							") for source rock mixing" << "in BPA2 Basin; Migration from BPA to BPA2 Basin changed this layer as a non-source rock layer...";
+							") for source rock mixing" << "in BPA2-Basin; Migration from BPA to BPA2-Basin changed this layer as a non-source rock layer...";
 						upgradeAsNormalLayer(stratIoSRs);
 						auto itt = std::find_if(SrNameHiList.begin(), SrNameHiList.end(),
 							[&](Prograde::bpa2nameHiPair& element) ->bool {
@@ -604,12 +608,13 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::UpdateOfInconsisten
 
 			auto idRem = (originalResIDPosition + 1) - countOfDelResId;
 
-			auto t = m_model.tableSize("SourceRockLithoIoTbl");
-			auto srRem = m_model.sourceRockManager().sourceRockType(idRem);
-			auto layername = m_model.sourceRockManager().layerName(idRem);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> For the layer " << layername << ", invalid SourceRock '" << srRem << "' is removed";
-
-			err = m_model.removeRecordFromTable("SourceRockLithoIoTbl", idRem);
+			if (m_model.tableSize("SourceRockLithoIoTbl") != 0) {
+				auto srRem = m_model.sourceRockManager().sourceRockType(idRem);
+				auto layername = m_model.sourceRockManager().layerName(idRem);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> For the layer '" << layername << "', invalid SourceRock '" << srRem << "' with the following properties is removed";
+				PrintInvalidSrProperties(idRem);
+				err = m_model.removeRecordFromTable("SourceRockLithoIoTbl", idRem);
+			}
 		}
 		else {
 			// Re-order the srId after deleting SourceRockLithoIoTbl rows
@@ -647,4 +652,66 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::clearMixingParams(s
 
 	err = m_model.setTableValue("StratIoTbl", LayId, "SourceRockMixingHCGrid", "");
 	return err;
+}
+
+ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::PrintInvalidSrProperties(size_t srIdFromSrLithoIoTbl)
+{
+	std::vector<std::string> head = {
+		"TocIni/TocIniGrid",
+		"HcVRe05",
+		"HiVRe05(approx)",
+		"PreAsphaltStartAct",
+		"ScVRe05",
+		"AsphalteneDiffusionEnergy",
+		"ResinDiffusionEnergy",
+		"C15AroDiffusionEnergy",
+		"C15SatDiffusionEnergy",
+		"VREoptimization",
+		"VREthreshold",
+		"VESLimitIndicator",
+		"VESLimit"
+	};
+	std::vector<int> widths;
+	std::for_each(head.begin(), head.end(),
+		[&](std::string const &  s ) {
+			widths.push_back(5 * (s.length() / 5 + 1));
+		}
+	);
+
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << 
+		std::setw(widths[0]) << head[0] << 
+		std::setw(widths[1]) << head[1] <<
+		std::setw(widths[2]) << head[2] <<
+		std::setw(widths[3]) << head[3] <<
+		std::setw(widths[4]) << head[4] <<
+		std::setw(widths[5]) << head[5] <<
+		std::setw(widths[6]) << head[6] <<
+		std::setw(widths[7]) << head[7] <<
+		std::setw(widths[8]) << head[8] <<
+		std::setw(widths[9]) << head[9] <<
+		std::setw(widths[10]) << head[10] <<
+		std::setw(widths[11]) << head[11] <<
+		std::setw(widths[12]) << head[12] <<'\n';
+
+
+
+
+	auto tocIniMap = m_model.sourceRockManager().tocInitMapName(srIdFromSrLithoIoTbl);
+
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) <<
+		std::setw(widths[0]) << (!tocIniMap.compare("") ?  to_string(m_model.sourceRockManager().tocIni(srIdFromSrLithoIoTbl)) : tocIniMap) <<
+		std::setw(widths[1]) << m_model.sourceRockManager().hcIni(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[2]) << std::floor(m_model.sourceRockManager().hiIni(srIdFromSrLithoIoTbl)) <<
+		std::setw(widths[3]) << m_model.sourceRockManager().preAsphActEnergy(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[4]) << m_model.sourceRockManager().scIni(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[5]) << m_model.sourceRockManager().getAsphalteneDiffusionEnergy(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[6]) << m_model.sourceRockManager().getResinDiffusionEnergy(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[7]) << m_model.sourceRockManager().getC15AroDiffusionEnergy(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[8]) << m_model.sourceRockManager().getC15SatDiffusionEnergy(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[9]) << m_model.sourceRockManager().getVREoptimization(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[10]) << m_model.sourceRockManager().getVREthreshold(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[11]) << m_model.sourceRockManager().getVESlimitIndicator(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[12]) << m_model.sourceRockManager().getVESlimit(srIdFromSrLithoIoTbl) << '\n';
+	// Will have to figure out How to use the error code here, hence retaining it for now
+	return ErrorHandler::ReturnCode(ErrorHandler::NoError);
 }

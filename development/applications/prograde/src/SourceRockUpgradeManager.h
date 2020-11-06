@@ -83,6 +83,7 @@ namespace Prograde
 			const Prograde::SourceRockConverter* mConvert);
 		ErrorHandler::ReturnCode upgradeAsNormalLayer(size_t LayId);
 		ErrorHandler::ReturnCode clearMixingParams(size_t LayId);
+		ErrorHandler::ReturnCode PrintInvalidSrProperties(size_t srIdFromSrLithoIoTbl);
 	private:
 		mbapi::Model& m_model; ///< The model to upgrade
 		std::shared_ptr<DataAccess::Interface::ProjectHandle> m_ph; ///< The project handle of the model to upgrade
