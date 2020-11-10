@@ -90,3 +90,10 @@ double Prograde::RunOptionsModelConverter::upgradePressureRange(double pressure,
 	}
 	return pressure;
 }
+
+int Prograde::RunOptionsModelConverter::upgradeLegacyFlag(int legacy)
+{
+	if (legacy == 1) legacy = 0;
+	else throw ErrorHandler::Exception(ErrorHandler::ValidationError) << "Not a legacy scenario; Legacy flag is  "<< legacy <<" in RunOptionsIoTbl";
+	return legacy;
+}

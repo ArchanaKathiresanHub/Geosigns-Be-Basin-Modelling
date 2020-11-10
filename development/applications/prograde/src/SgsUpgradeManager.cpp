@@ -74,9 +74,9 @@ void Prograde::SgsUpgradeManager::upgrade() {
 					m_model.addRowToTable("LangmuirAdsorptionCapacityIsothermSetIoTbl");
 					m_model.addRowToTable("LangmuirAdsorptionCapacityIsothermSetIoTbl");
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> updating LangmuirAdsorptionCapacityIsothermSetIoTbl with the following parameters";
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LangmuirName				LangmuirTemperature[C]		LangmuirPressure[MPa]	LangmuirVolume[cc/gm]";
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Low Langmuir Isotherm				20						6.8						2.0E-5";
-					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Low Langmuir Isotherm				115						7.48					1.0E-5";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "LangmuirName\t LangmuirTemperature[C]\t LangmuirPressure[MPa]\t LangmuirVolume[cc/gm]";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Low Langmuir Isotherm\t 20\t\t	6.8\t\t\t 2.0E-5";
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "Low Langmuir Isotherm\t 115\t\t\t3.868571429\t\t 1.0E-5";
 
 					m_model.sgsManager().setLangmuirName(id, "Low Langmuir Isotherm");
 					m_model.sgsManager().setLangmuirTemperature(id, 20);
@@ -86,7 +86,7 @@ void Prograde::SgsUpgradeManager::upgrade() {
 					id += 1;
 					m_model.sgsManager().setLangmuirName(id, "Low Langmuir Isotherm");
 					m_model.sgsManager().setLangmuirTemperature(id, 115);
-					m_model.sgsManager().setLangmuirPressure(id, 7.48);
+					m_model.sgsManager().setLangmuirPressure(id, 3.868571429);
 					m_model.sgsManager().setLangmuirVolume(id, 1.0e-5);
 
 					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Clear LangmuirAdsorptionCapacityTOCFunctionIoTbl";

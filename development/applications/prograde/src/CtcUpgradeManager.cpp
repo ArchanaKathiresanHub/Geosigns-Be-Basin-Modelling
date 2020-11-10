@@ -61,7 +61,7 @@ void Prograde::CtcUpgradeManager::upgrade() {
 		m_model.ctcManager().getFilterHalfWidthValue(temp);
 		if (temp != FHWidth) {
 			m_model.ctcManager().setFilterHalfWidthValue(FHWidth);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting the FilterHalfWidth value to BPA2 default value:" << FHWidth << " from " << temp;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting the FilterHalfWidth value to BPA2 default value:" << FHWidth;
 		}
 
 		double temp1;

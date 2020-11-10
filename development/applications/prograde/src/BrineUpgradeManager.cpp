@@ -69,14 +69,16 @@ void Prograde::BrineUpgradeManager::upgrade() {
       FluidManager::FluidDensityModel densModel; // Fluid density calculation model
       double refDens;
       m_model.fluidManager().densityModel(flId, densModel, refDens);
-      refDens = -9999;
-      m_model.fluidManager().setDensityModel(flId, modelConverter.upgradeDensityModel(densModel, fluidName), refDens);
+      double updatedRefDens = -9999;
+      m_model.fluidManager().setDensityModel(flId, modelConverter.upgradeDensityModel(densModel, fluidName), updatedRefDens);
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << fluidName << ", Reference Density value is set to "<< updatedRefDens <<" (Undefined Value) from "<< refDens<<" as the model is updated to Calculated";
 
       FluidManager::CalculationModel seisVelModel; // Seismic velocity calculation model
       double refSeisVel;
       m_model.fluidManager().seismicVelocityModel(flId, seisVelModel, refSeisVel);
-      refSeisVel = -9999;
-      m_model.fluidManager().setSeismicVelocityModel(flId, modelConverter.upgradeSeismicVelocityModel(seisVelModel, fluidName), refSeisVel);
+      double updatedRefSeisVel = -9999;
+      m_model.fluidManager().setSeismicVelocityModel(flId, modelConverter.upgradeSeismicVelocityModel(seisVelModel, fluidName), updatedRefSeisVel);
+      LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << fluidName << ", Reference SeisVelocity value is set to "<< updatedRefSeisVel<<" (Undefined Value) from " << refSeisVel << " as the model is updated to Calculated";
 
       m_model.fluidManager().getUserDefined(flId, fluidUserDefined);
       if (fluidUserDefined == 1)

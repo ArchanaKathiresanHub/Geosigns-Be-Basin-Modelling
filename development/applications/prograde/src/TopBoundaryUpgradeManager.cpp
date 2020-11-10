@@ -66,10 +66,18 @@ void Prograde::TopBoundaryUpgradeManager::upgradeSurfaceDepthIoTable() {
 		std::string gridMapStrat = recStrat->getValue<std::string>("DepthGrid");
 		double depthStrat = recStrat->getValue<double>("Depth");
 		// set the record to SurfaceDepthIoTbl
-		recSurface->setValue<std::string>("DepthGrid", gridMapStrat);
-		recSurface->setValue<double>("Depth", depthStrat);
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating SurfaceDepthIoTbl";
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> SurfaceDepthIoTbl is updated for the record at age = 0Ma by using the data from the StratIoTbl at age = 0Ma";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> SurfaceDepthIoTbl is updated for the record at age = 0Ma by using the data from the StratIoTbl at age = 0Ma";
+		if (gridMapStrat == "" && depthStrat != -9999)
+		{
+			recSurface->setValue<double>("Depth", depthStrat);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> At age = 0Ma, " << depthSD << " is updated to " << depthStrat;
+		}
+		else if (gridMapStrat != "" && depthStrat == -9999)
+		{
+			recSurface->setValue<std::string>("DepthGrid", gridMapStrat);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* <Basin-Info> At age = 0Ma," << gridMapSD << " \"\" is updated to " << gridMapStrat;
+		}
+			
 	}
 
 	auto surfIDs = m_model.topBoundaryManager().getSurfaceDepthIDs();

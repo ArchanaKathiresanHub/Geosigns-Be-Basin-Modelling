@@ -50,12 +50,11 @@ TEST(RunOptionsModelConverter, upgrade)
    EXPECT_NEAR(1e5, modelConverter.upgradeTemperatureRange(100005, "dummy"), 1e-5);
    EXPECT_NEAR(2019, modelConverter.upgradeTemperatureRange(2019, "dummy"), 1e-5);
 
-
    // pressure
    EXPECT_NEAR(0.0, modelConverter.upgradePressureRange(-10.0, "dummy"), 1e-5);
    EXPECT_NEAR(1e5, modelConverter.upgradePressureRange(100005, "dummy"), 1e-5);
    EXPECT_NEAR(2019, modelConverter.upgradePressureRange(2019, "dummy"), 1e-5);
 
-
-
+   // legacy
+   EXPECT_EQ(0, modelConverter.upgradeLegacyFlag(1));
 }

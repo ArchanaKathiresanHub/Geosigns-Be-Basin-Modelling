@@ -52,6 +52,9 @@ namespace Prograde
 	  // UNIT : MPa (Mega Pascal)
 	  double upgradePressureRange(double pressure, std::string fieldName);
 
+	  /// @breif updates the Legacy column in RunOptionsIoTbl
+	  // Updated from 1 to 0
+	  int upgradeLegacyFlag(int legacy);
    };
 }
 

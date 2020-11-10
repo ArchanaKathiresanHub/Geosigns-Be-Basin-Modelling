@@ -97,11 +97,9 @@ void Prograde::AlcUpgradeManager::upgrade()
 
 		// log the value of TopAsthenoTemp if it is not the default value
 		double TopAsthenoTemp = Rec->getValue<double>("TopAsthenoTemp");
-		if (TopAsthenoTemp != 1333)
-		{
+		if (!NumericFunctions::isEqual(TopAsthenoTemp, 1333.0, 1e-5))
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> The value of TopAsthenoTemp is : " << TopAsthenoTemp << " which is not equal to BPA2 default value of 1333";
-		}
-
+	
 		// log the value of CrustHeatPDecayConst if it is not the default value
 		double CrustHeatPDecayConst = Rec->getValue<double>("CrustHeatPDecayConst");
 		if (CrustHeatPDecayConst != 10000)

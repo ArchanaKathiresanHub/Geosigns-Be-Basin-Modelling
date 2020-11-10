@@ -109,12 +109,12 @@ void Prograde::BasicCrustThinningUpgradeManager::upgrade() {
 
 		// checking CrustHeatPDecayConst in BasementIoTbl for its default value of BPA2=10,000
 		double CrustHeatPDecayConst = m_model.tableValueAsDouble("BasementIoTbl", 0, "CrustHeatPDecayConst");
-		if (!NumericFunctions::isEqual(CrustHeatPDecayConst, 10000., 1e-4))
+		if (!NumericFunctions::isEqual(CrustHeatPDecayConst, 10000., 1e-5))
 			(LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> CrustHeatPDecayConst-" << CrustHeatPDecayConst << " is not equal the default value of BPA2: 10000");
 
 		// checking TopAsthenoTemp in BasementIoTbl for its default value of BPA2=1333 oC
 		auto TopAsthenoTemp = m_model.tableValueAsDouble("BasementIoTbl", 0, "TopAsthenoTemp");
-		if (!NumericFunctions::isEqual(TopAsthenoTemp, 1333.0, 1e-4))
+		if (!NumericFunctions::isEqual(TopAsthenoTemp, 1333.0, 1e-5))
 			(LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> TopAsthenoTemp-" << TopAsthenoTemp << " is not equal the default value of BPA2: 1333 degrees centegrade ");
 		/*Copy the value as is if the value lies within[0, 1000].Else reset its value to the nearest limiting value.If map is defined
 		then copy the map name as is but put a check if the map is having out - of - range value or not.If the map
@@ -146,7 +146,21 @@ void Prograde::BasicCrustThinningUpgradeManager::upgrade() {
 			m_model.setTableValue("BasementIoTbl", 0, "TopCrustHeatProd", DataAccess::Interface::DefaultUndefinedScalarValue);
 		}
 
-
+		// To convert BCT model to ALC, ContCrustalThicknessIoTbl is cleared and the CrustIoTbl is copied to ContCrustalThicknessIoTbl
+		// When the ContCrustThicknessIoTbl is cleared, the maps present in ContCrustThicknessIoTbl has to be removed from the GridMapIoTbl as well
+		database::Table* contCrustIo_table = m_ph->getTable("ContCrustalThicknessIoTbl");
+		// Checking if the table is not empty
+		if (contCrustIo_table->size() != 0)
+		{ // if not empty then, get the maps present in the table and clear them from GridMapIoTbl
+			for (int id = 0; id < contCrustIo_table->size(); ++id)
+			{
+				database::Record* rec = contCrustIo_table->getRecord(static_cast<int>(id));
+				std::string mapName = rec->getValue<std::string>("ThicknessGrid");
+				// checking if there is a map present in the table
+				if(mapName.compare("")) 
+					Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("ContCrustalThicknessIoTbl", mapName);
+			}
+		}
 		cleanContCrustIoTbl();
 
 		auto BasinAge = m_ph->getCrustFormation()->getTopSurface()->getSnapshot()->getTime();
