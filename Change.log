@@ -36,6 +36,26 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-11-10  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Updated Prograde Code after Prograde Validation.
+	 * Bugs fixes and improved change logs.
+	 Link - https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_backlogs/backlog/Team%20Charlie/Backlog%20items
+	================== COMMIT-END ========================
+	Commit-ID:<e097e88e28d110cceff9006155a4eab33b962ef5>	  (HEAD -> master, origin/master)
+
+2020-10-30  arijit.khan Khan  <arijit.khan@shell.com>
+
+	fix: dev: Corrections & Enhancements to Prograde !minor.
+	 * replace invalid chars in names with underscore
+	 * Special Source rock mixing cases identified and the layers with invalid mixing changed to non-source rock layer
+	 * Geometric-loop optimization retained as is from BPA
+
+	Related work items: #401187, #401423, #402403
+	================== COMMIT-END ========================
+	Commit-ID:<bc33390b82069e531d0065d42d479326393cd706>	  (origin/Developers/sumant.kalra/402738/ProgradeFixes2, Developers/sumant.kalra/402738/ProgradeFixes2)
+
+++
 2020-10-26  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Implementation of Mixed Source Rock in Genex0D.
