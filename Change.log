@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.2.1		2020-09-07 14:46:02 +0000
+Cauldron-v2.3.0		2020-10-26 12:54:48 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -59,13 +59,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2020-10-26  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Implementation of Mixed Source Rock in Genex0D.
-	Commit-ID:<8fde757b1a3f6c3a78940a42775433e8c84c14de>	  (refs/heads/master)
+	================== COMMIT-END ========================
+	Commit-ID:<8fde757b1a3f6c3a78940a42775433e8c84c14de>	  (tag: refs/tags/v2.3.0)
 
 ++
 2020-10-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: lean datadriller and track1d in casa.
 	* Mistakenly removed previously, lean is always ok as it will fallback to full calculation for derived properties
+	================== COMMIT-END ========================
 	Commit-ID:<8c5b58d4fd85d7d580dd9e295425b539bdcd1a20>	  (refs/heads/master)
 
 ++
@@ -73,6 +75,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 
 	fix: Fix fast properties when output name is not mapped.
 	* Related to https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/396272
+	================== COMMIT-END ========================
 	Commit-ID:<1547c0b4b4f6c5e74e545d9be355b616a46d6585>	  (refs/heads/master)
 
 ++
@@ -80,12 +83,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 
 	Fix: only filter the cauldron and genex results.
 	* Fix for the bug 401783 https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/401783
+	================== COMMIT-END ========================
 	Commit-ID:<a976a4b4551a89c537f9cf9b42a0f61abec01650>	  (refs/heads/master)
 
 ++
 2020-10-09  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Added adsorption model functionality to genex0d.
+	================== COMMIT-END ========================
 	Commit-ID:<693491b5639ac1e5685463955c4c54beacc48b29>	  (refs/heads/master)
 
 ++
@@ -93,6 +98,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 
 	fix: Fix the filtering of vizIO output.
 	* Related to https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/396272
+	================== COMMIT-END ========================
 	Commit-ID:<4834b4f22b8cf7b61650f7de1e06a7d3b7b06975>	  (refs/heads/master)
 
 ++
@@ -100,13 +106,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 
 	fix: add new redhat version when installing.
 	* Add new redhat version when installing
+	================== COMMIT-END ========================
 	Commit-ID:<a95ce4149f170d33b670343aee49ad12cd7189e0>	  (refs/heads/master)
 
 ++
 2020-09-30  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Use logger instead of cout in Newton warning.
-	* Related work items: #365260
+	
+	Related work items: #365260
+	================== COMMIT-END ========================
 	Commit-ID:<b01e523318a07dbb908926fabbcf4656a0a23a3d>	  (refs/heads/master)
 
 ++
@@ -115,6 +124,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 	chg: Genex0d argument extension & bug fixing.
 	* Related work items: #395998
 	* Extension of arguments and small bug-fixing for the genex0d application
+	================== COMMIT-END ========================
 	Commit-ID:<ab71013a083957260fd3ef1d060d5c28456b4659>	  (refs/heads/master)
 
 ++
@@ -124,6 +134,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 	A log is created when the Newton solver does not converge
 
 	Related work items: #365260, #398341
+	================== COMMIT-END ========================
 	Commit-ID:<6d8866cb42a094b5b53da27f80f2410f1af3f8db>	  (refs/heads/master)
 
 ++
@@ -177,6 +188,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 	Prograde functionality added
 
 	Related work items: #388885
+	================== COMMIT-END ========================
 	Commit-ID:<4ed225446f09202ac4bc9855105394ce5a3cf179>	  (refs/heads/master)
 
 ++
