@@ -1,4 +1,4 @@
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+﻿++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ____  __     _   _  _        ____   ______   _____  __
    / __/ /_ \   | | | || |      / __ \ |  _   / |  _  ||  \  |
   / /   //_\ \  | | | || |     / /  / \| |_| |  | | | || |\\ |
@@ -36,11 +36,20 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-11-19  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: usr: ReservoirOptionsIoTbl log created.
+	 * Log message for newly introduced ReservoirOptionsIoTbl is added
+	 * Work Item #402738
+	================== COMMIT-END ========================
+	Commit-ID:<421336c10082147a630f0f1910920c16483a6771>	  (HEAD -> master, origin/master)
+
+++
 2020-11-10  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Updated Prograde Code after Prograde Validation.
 	 * Bugs fixes and improved change logs.
-	 Link - https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_backlogs/backlog/Team%20Charlie/Backlog%20items
+	 * Work Item #402738
 	================== COMMIT-END ========================
 	Commit-ID:<e097e88e28d110cceff9006155a4eab33b962ef5>	  (HEAD -> master, origin/master)
 
