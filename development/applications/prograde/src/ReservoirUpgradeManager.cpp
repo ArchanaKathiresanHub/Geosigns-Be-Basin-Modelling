@@ -215,19 +215,31 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 	   m_model.reservoirManager().setResOptionsBioDegradInd(resId, globalBioDegradInd);
 	   m_model.reservoirManager().setResOptionsOilToGasCrackingInd(resId, globalOilToGasCrackingInd);
 	   m_model.reservoirManager().setResOptionsBlockingInd(resId, globalBlockingInd);
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Creating ReservoirOptionsIoTable with the global parameters determined from the legacy ReservoirIoTbl inputs";
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting TrapCapacity : " << minTrapCapa;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BioDegradInd : " << globalBioDegradInd;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting OilToGasCrackingInd : " << globalOilToGasCrackingInd;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BlockingInd : " << globalBlockingInd;
+
 	   if (globalBlockingInd == 0)
 	   {
 		   m_model.reservoirManager().setResOptionsBlockingPermeability(resId, 1.0e-09);
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BlockingPermeability : 1.0e-09";
 	   }
 	   else
 	   {
 		   m_model.reservoirManager().setResOptionsBlockingPermeability(resId, globalBlockingPermeability);
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BlockingPermeability : "<< globalBlockingPermeability;
 	   }
 
 	   m_model.reservoirManager().setResOptionsDiffusionInd(resId, globalDiffusionInd);
 	   m_model.reservoirManager().setResOptionsMinOilColumnHeight(resId, globalMinOilColumnHeight);
 	   m_model.reservoirManager().setResOptionsMinGasColumnHeight(resId, globalMinGasColumnHeight);
 	   m_model.reservoirManager().setResOptionsBlockingPorosity(resId, globalBlockingPorosity);
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting DiffusionInd : " << globalDiffusionInd;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting MinOilColumnHeight : " << globalMinOilColumnHeight;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting MinGasColumnHeight : " << globalMinGasColumnHeight;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BlockingPorosity : " << globalBlockingPorosity;
    }
 
    /*	clearing the reference from GridmapIoTbl which are no longer used in ReservoirIoTbl
@@ -287,7 +299,7 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 		   if (!isNetToGrossGridMap)
 		   {
 			   Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("ReservoirIoTbl", reservoirMapGridmapIoTbl);
-			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Gridmap " << reservoirMapGridmapIoTbl << " ReferredBy ReservoirIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Gridmap " << reservoirMapGridmapIoTbl << " ReferredBy ReservoirIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
 		   }
 		   // reset the isNetToGrossGridMap flag to false for the next Reservoir map in GridMapIoTbl
 		   isNetToGrossGridMap = false;
