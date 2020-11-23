@@ -157,9 +157,7 @@ void Genex6::OTGCC1AdsorptionSimulator::setAdsorptionFunction ( Genex6::Adsorpti
 }
 
 void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&              sourceRockInput,
-                                                        Genex6::SimulatorStateBase* baseState ) {
-
-   SimulatorState* simulatorState = dynamic_cast<SimulatorState*>( baseState );
+                                                        Genex6::SimulatorState*     simulatorState ) {
 
    if ( simulatorState == 0 ) {
       // Error?

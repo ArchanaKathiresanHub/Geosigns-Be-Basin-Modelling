@@ -9,7 +9,7 @@
 
 #include "FormattingException.h"
 
-namespace genex0d
+namespace Genex0d
 {
 
 typedef formattingexception::GeneralException Genex0dException;

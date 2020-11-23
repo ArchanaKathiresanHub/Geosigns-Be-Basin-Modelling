@@ -15,8 +15,8 @@ namespace Genex6 {
 
    public :
 
-      SourceRockAdsorptionHistory ( DataAccess::Interface::ProjectHandle & projectHandle,
-                                    const DataAccess::Interface::PointAdsorptionHistory* record );
+      SourceRockAdsorptionHistory (DataAccess::Interface::ProjectHandle & projectHandle,
+                                    const DataAccess::Interface::PointAdsorptionHistory& record );
 
 
       // This object now take control over the life-time of the NodeAdsorptionHistory object.
@@ -35,7 +35,7 @@ namespace Genex6 {
    private :
 
       DataAccess::Interface::ProjectHandle&                m_projectHandle;
-      const DataAccess::Interface::PointAdsorptionHistory* m_historyRecord;
+      const DataAccess::Interface::PointAdsorptionHistory& m_historyRecord;
       Genex6::NodeAdsorptionHistory*                            m_adsorptionHistory;
 
       Genex6::NodeAdsorptionHistory*                            m_genexHistory;

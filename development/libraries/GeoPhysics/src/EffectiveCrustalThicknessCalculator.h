@@ -34,17 +34,17 @@ namespace GeoPhysics
          /// @param[in] oceanicCrustThicknessHistory
          /// @param[in] continentalCrustThicknessPolyfunction Used to retrieve the present day crustal thickness
          /// @throw std::invalid_argument When one of the input is missing or invalid
-         EffectiveCrustalThicknessCalculator( const PaleoFormationPropertyList*        continentalCrustThicknessHistory,
-                                              const TableOceanicCrustThicknessHistory& oceanicCrustThicknessHistory,
-                                              const double                             initialLithosphericMantleThickness,
-                                              const double                             initialCrustThickness,
-                                              const DataModel::AbstractValidator&      validator
+         EffectiveCrustalThicknessCalculator( const PaleoFormationPropertyList*         continentalCrustThicknessHistory,
+                                              const PaleoFormationPropertyList*         oceanicCrustThicknessHistory,
+                                              const double                              initialLithosphericMantleThickness,
+                                              const double                              initialCrustThickness,
+                                              const DataModel::AbstractValidator&       validator
          );
 
          /// @brief Computes the Effective Crustal Thickness History, Oceanic Crust Thickness History and End Of Rifting Event History
          /// @param[out] effectiveCrustThicknessHistory The Effective Crustal Thickness (ECT) history which represents the thickness of the crust formation
          /// @param[out] oceanicCrustThicknessHistory The Oceanic Crustal Thickness history (also called basalt crustal thicknes history) which represents the thickness of the basalt lithology
-         ///    which will be lithoswitched in the mantle/crust formations
+         ///    which will be litho-switched in the mantle/crust formations
          /// @param[out] endOfRiftEvent The end age of the rifting event, used to determine when the boundary conditions are changing in the temperature solver
          /// @throw std::invalid_argument if the input thicknesses are negative
          /// @throw std::runtime_error if the oceanic crustal thickness history doesn't correspond (in ages) with the continental crustal thickness history
@@ -70,13 +70,13 @@ namespace GeoPhysics
          };
 
          /// @brief Calculates the effective crustal thickness
-         /// @param[in] coeff The multiplicative coefficient which is the ration of the inital crust thickness by the total initial crust and lithospheric mantle thickness
+         /// @param[in] coeff The multiplicative coefficient which is the ration of the initial crust thickness by the total initial crust and lithospheric mantle thickness
       static double calculateEffectiveCrustalThickness( const double continentalCrustThickness,
                                                         const double basaltThickness,
                                                         const double coeff) noexcept;
 
          /// @brief Update the end of the rift (last crustal thinning age) of the given node to the given age
-         ///    if and only if the current continetal crust is thinner than the previous continental crust
+         ///    if and only if the current continental crust is thinner than the previous continental crust
          /// @details This end of rift property is used as in the temperature solver boundary conditions
          /// @param[out] endOfRiftEvent The array of the end of rift for each (i,j) node
          void updateEndOfRift( const double continentalCrustThickness,
@@ -85,9 +85,9 @@ namespace GeoPhysics
                                const Node& node,
                                Local2DArray <double>& endOfRiftEvent) const noexcept;
 
-         /// @brief Retrieve all input maps accoring to the algorithm version
+         /// @brief Retrieve all input maps according to the algorithm version
          void retrieveData() const;
-         /// @breif Retrieve all output maps accoring to the algorithm version
+         /// @breif Retrieve all output maps according to the algorithm version
          void restoreData() const;
 
          /// @brief Check that the given value is positive and throw a detailed exception if not
@@ -99,13 +99,13 @@ namespace GeoPhysics
                                        const double       value);
 
          const PaleoFormationPropertyList*       m_continentalCrustThicknessHistory;
-         const TableOceanicCrustThicknessHistory m_oceanicCrustThicknessHistory;
+         const PaleoFormationPropertyList*       m_oceanicCrustThicknessHistory;
          const double                            m_initialLithosphericMantleThickness;
          const double                            m_initialCrustThickness;
          const DataModel::AbstractValidator&     m_validator;                          ///< The validator to check if a node (i,j) is valid or not
 
          static const double s_minimumEffectiveCrustalThickness; ///< The minimum allowed Effective Crustal Thickness [m]
-         static const bool   s_gosthNodes;                       ///< Defines if the input maps should output the gosth nodes
+         static const bool   s_gosthNodes;                       ///< Defines if the input maps should output the ghost nodes
    };
 }
 

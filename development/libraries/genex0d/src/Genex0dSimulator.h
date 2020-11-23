@@ -23,11 +23,11 @@ namespace Genex6
 class GenexSourceRock;
 }
 
-namespace genex0d
+namespace Genex0d
 {
 
 struct Genex0dInputData;
-class Genex0dGenexSourceRock;
+class Genex0dSourceRock;
 
 class Genex0dSimulator : public GeoPhysics::ProjectHandle
 {
@@ -37,8 +37,11 @@ public:
                    const DataAccess::Interface::ObjectFactory* objectFactory);
   ~Genex0dSimulator();
   
-  static Genex0dSimulator * CreateFrom(const std::string & fileName, DataAccess::Interface::ObjectFactory * objectFactory);
-  bool run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, unsigned int indI, unsigned int indJ, double thickness, double inorganicDensity, const std::vector<double>& time, const std::vector<double>& temperature, const std::vector<double>& pressure);
+  static Genex0dSimulator * CreateFrom(const std::string& fileName, DataAccess::Interface::ObjectFactory* objectFactory);
+  bool run(const DataAccess::Interface::Formation* formation, const Genex0dInputData& inData, unsigned int indI, unsigned int indJ,
+           double thickness, double inorganicDensity, const std::vector<double>& time, const std::vector<double>& temperature,
+           const std::vector<double>& pressure, const std::vector<double>& VRE, const std::vector<double>& porePressure, const std::vector<double>& permeability,
+           const std::vector<double>& porosity, const std::vector<double>& lithoPressure, const std::vector<double>& hydroPressure);
   bool saveTo(const std::string & outputFileName);
   
 private:
@@ -48,7 +51,7 @@ private:
   bool isPropertyRegistered(const std::string & propertyName);
   bool computeSourceRock(const DataAccess::Interface::Formation * aFormation);
 
-  std::unique_ptr<Genex0dGenexSourceRock> m_gnx0dSourceRock;
+  std::unique_ptr<Genex0dSourceRock> m_gnx0dSourceRock;
   std::unordered_set<std::string> m_registeredProperties;
   std::vector<std::string> m_shaleProperties;
   std::vector<std::string> m_requestedProperties;

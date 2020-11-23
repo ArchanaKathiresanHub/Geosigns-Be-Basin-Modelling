@@ -183,7 +183,7 @@ TEST(LithologyConverter, upgradePorosityModelForSandLitho)
 	std::vector<double> updatedPorModelParam;
 	std::vector<double> actualPorModelParameter = { 45,3.25,5 };
 
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+	updatedPorModelParam = modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
@@ -205,7 +205,7 @@ TEST(LithologyConverter, upgradePorosityModelForSiltLitho)
 	std::vector<double> updatedPorModelParam;
 	std::vector<double> actualPorModelParameter = { 35,5.5,2 };
 
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+	updatedPorModelParam = modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
@@ -234,7 +234,7 @@ TEST(LithologyConverter, upgradePorosityModelForMudstoneLitho)
 	actualPorModelParameter.push_back((-1.508*OriginalPorosityModelParam[1] * OriginalPorosityModelParam[1]) + (2.526*OriginalPorosityModelParam[1]) + 5.05);
 	actualPorModelParameter.push_back((0.00123*OriginalPorosityModelParam[0] * OriginalPorosityModelParam[0]) - (0.04913*OriginalPorosityModelParam[0]) + 4.34);
 
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+	updatedPorModelParam = modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
@@ -256,7 +256,7 @@ TEST(LithologyConverter, upgradePorosityModelForCarbonateLitho)
 	std::vector<double> updatedPorModelParam;
 	std::vector<double> actualPorModelParameter = { 35,6,3 };
 
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+	updatedPorModelParam = modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
@@ -277,7 +277,7 @@ mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::Poros
 std::vector<double> OriginalPorosityModelParam = { 62, 1.9 };
 std::vector<double> updatedPorModelParam;
 std::vector<double> actualPorModelParameter = { 62,1.9 };
-modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+updatedPorModelParam = modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
 EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorSoilMechanics, porModel);//Updated the porosity model from SM to Exponential
 EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
 EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
@@ -297,7 +297,7 @@ TEST(LithologyConverter, upgradePorosityModelForStandardLithoWithSoilMechanicsMo
 	std::vector<double> updatedPorModelParam;
 	std::vector<double> actualPorModelParameter = { 25,0.2546 };
 
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+	updatedPorModelParam = modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorSoilMechanics, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
@@ -318,7 +318,7 @@ TEST(LithologyConverter, upgradePorosityModelForStandardLithoWithExpModel)
 	std::vector<double> updatedPorModelParam;
 	std::vector<double> actualPorModelParameter = { 31,1.25,1.5 };
 
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+	updatedPorModelParam = modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
@@ -336,7 +336,7 @@ TEST(LithologyConverter, upgradePorosityModelForStandardLithoWithExpModel)
 
 	actualPorModelParameter = { 100.1,25.1,0 };
 	
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+	updatedPorModelParam = modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
@@ -357,7 +357,7 @@ TEST(LithologyConverter, upgradePorosityModelForCustomLithoWithExpModel)
 	std::vector<double> updatedPorModelParam;
 	std::vector<double> actualPorModelParameter = { 31,1.25,1.5 };
 
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+	updatedPorModelParam = modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
@@ -372,176 +372,13 @@ TEST(LithologyConverter, upgradePorosityModelForCustomLithoWithExpModel)
 	OriginalPorosityModelParam = { 100.1, 25.1, 0 };
 	actualPorModelParameter = { 100,25.0,0.1 };
 	
-	modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam, updatedPorModelParam);
+	updatedPorModelParam = modelConverter.computeSingleExpModelParameters(baseLithoType, lithologyFlag, porModel, OriginalPorosityModelParam);
 
 	EXPECT_EQ(mbapi::LithologyManager::PorosityModel::PorExponential, porModel);//Updated the porosity model from SM to Exponential
 	EXPECT_EQ(actualPorModelParameter.size(), updatedPorModelParam.size());
 	EXPECT_EQ(actualPorModelParameter[0], updatedPorModelParam[0]);
 	EXPECT_EQ(actualPorModelParameter[1], updatedPorModelParam[1]);
 	EXPECT_EQ(actualPorModelParameter[2], updatedPorModelParam[2]);
-}
-
-//Tests to check and update lithotype property values are in proposed range in LithotypeIoTbl field
-TEST(LithologyConverter, upgradeLithoTableFieldValues)
-{
-   Prograde::LithologyConverter modelConverter;
-   double value;
-   // Density
-   // value with in the range 
-   value = 2800;
-   modelConverter.upgradeLitPropDensity(value);
-   EXPECT_EQ(2800, value);
-   // value less than lower limit; set it to lower limit  
-   value = 450;
-   modelConverter.upgradeLitPropDensity(value);
-   EXPECT_EQ(500, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 11000;
-   modelConverter.upgradeLitPropDensity(value);
-   EXPECT_EQ(10000, value);
-   // Heat Production
-   // value with in the range 
-   value = 20;
-   modelConverter.upgradeLitPropHeatProduction(value);
-   EXPECT_EQ(20, value);
-   // value less than lower limit; set it to lower limit  
-   value = -1;
-   modelConverter.upgradeLitPropHeatProduction(value);
-   EXPECT_EQ(0, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 30;
-   modelConverter.upgradeLitPropHeatProduction(value);
-   EXPECT_EQ(25, value);
-   // Thermal Conductivity
-   // value with in the range 
-   value = 7;
-   modelConverter.upgradeLitPropThrConductivity(value);
-   EXPECT_EQ(7, value);
-   // value less than lower limit; set it to lower limit  
-   value = -1;
-   modelConverter.upgradeLitPropThrConductivity(value);
-   EXPECT_EQ(0, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 15;
-   modelConverter.upgradeLitPropThrConductivity(value);
-   EXPECT_EQ(10, value);
-   // Thermal Conductivity Anistropy
-   // value with in the range 
-   value = 7;
-   modelConverter.upgradeLitPropThrCondAnistropy(value);
-   EXPECT_EQ(7, value);
-   // value less than lower limit; set it to lower limit  
-   value = -1;
-   modelConverter.upgradeLitPropThrCondAnistropy(value);
-   EXPECT_EQ(0, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 15;
-   modelConverter.upgradeLitPropThrCondAnistropy(value);
-   EXPECT_EQ(10, value);
-   // Permeability Anistropy
-   // value with in the range 
-   value = 7;
-   modelConverter.upgradeLitPropPermAnistropy(value);
-   EXPECT_EQ(7, value);
-   // value less than lower limit; set it to lower limit  
-   value = -1;
-   modelConverter.upgradeLitPropPermAnistropy(value);
-   EXPECT_EQ(0, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 115;
-   modelConverter.upgradeLitPropPermAnistropy(value);
-   EXPECT_EQ(100, value);
-   // Seismic Velocity
-   // value with in the range 
-   value = 1200;
-   modelConverter.upgradeLitPropSeisVelocity(value);
-   EXPECT_EQ(1200, value);
-   // value less than lower limit; set it to lower limit  
-   value = 900;
-   modelConverter.upgradeLitPropSeisVelocity(value);
-   EXPECT_EQ(1000, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 9500;
-   modelConverter.upgradeLitPropSeisVelocity(value);
-   EXPECT_EQ(9000, value);
-   // Seismic Velocity Exponent
-   // value with in the range 
-   value = 0;
-   modelConverter.upgradeLitPropSeisVeloExponent(value);
-   EXPECT_EQ(0, value);
-   // value less than lower limit; set it to lower limit  
-   value = -2;
-   modelConverter.upgradeLitPropSeisVeloExponent(value);
-   EXPECT_EQ(-1, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 2;
-   modelConverter.upgradeLitPropSeisVeloExponent(value);
-   EXPECT_EQ(1, value);
-   // Entry Pressure Coefficient 1
-   // value with in the range 
-   value = 1;
-   modelConverter.upgradeLitPropEntryPresCoeff1(value);
-   EXPECT_EQ(1, value);
-   // value less than lower limit; set it to lower limit  
-   value = 0.01;
-   modelConverter.upgradeLitPropEntryPresCoeff1(value);
-   EXPECT_EQ(0.1, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 3;
-   modelConverter.upgradeLitPropEntryPresCoeff1(value);
-   EXPECT_EQ(2, value);
-   // Entry Pressure Coefficient 2
-   // value with in the range 
-   value = 1;
-   modelConverter.upgradeLitPropEntryPresCoeff2(value);
-   EXPECT_EQ(1, value);
-   // value less than lower limit; set it to lower limit  
-   value = -2.5;
-   modelConverter.upgradeLitPropEntryPresCoeff2(value);
-   EXPECT_EQ(-1.5, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 3;
-   modelConverter.upgradeLitPropEntryPresCoeff2(value);
-   EXPECT_EQ(1.5, value);
-   // Hydraulic Fracturing
-   // value with in the range 
-   value = 10;
-   modelConverter.upgradeLitPropHydFracturing(value);
-   EXPECT_EQ(10, value);
-   // value less than lower limit; set it to lower limit  
-   value = -2.5;
-   modelConverter.upgradeLitPropHydFracturing(value);
-   EXPECT_EQ(0, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 110;
-   modelConverter.upgradeLitPropHydFracturing(value);
-   EXPECT_EQ(100, value);
-   // ReferenceSolidViscosity
-   // value with in the range 
-   value = 1e17;
-   modelConverter.upgradeLitPropRefSoldViscosity(value);
-   EXPECT_EQ(1e17, value);
-   // value less than lower limit; set it to lower limit  
-   value = -2.5;
-   modelConverter.upgradeLitPropRefSoldViscosity(value);
-   EXPECT_EQ(0, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 1e19;
-   modelConverter.upgradeLitPropRefSoldViscosity(value);
-   EXPECT_EQ(1e18, value);
-   // Intrusion Temperature
-   // value with in the range 
-   value = 700;
-   modelConverter.upgradeLitPropIntrTemperature(value);
-   EXPECT_EQ(700, value);
-   // value less than lower limit; set it to lower limit  
-   value = 500;
-   modelConverter.upgradeLitPropIntrTemperature(value);
-   EXPECT_EQ(600, value);
-   // value higher than upper limit; set it to upper limit  
-   value = 1800;
-   modelConverter.upgradeLitPropIntrTemperature(value);
-   EXPECT_EQ(1650, value);
 }
 //Tests to check and update lithotype inputs of StratIoTbl
 TEST(LithologyConverter, preprocessingLithoDataTest)

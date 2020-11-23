@@ -560,8 +560,8 @@ void PropertyManager::computeProperties ( AppCtx*                               
 
 void PropertyManager::computeVolumeProperties( AppCtx* cauldron,
                                                const PropListVec& volumeProperties,
-                                               const Snapshot* snapshot,
-                                               const PropertyOutputOption maximumOutputOption )
+                                               const Interface::Snapshot* snapshot,
+                                               const Interface::PropertyOutputOption maximumOutputOption )
 {
   PropListVec requiredVolumeProperties = volumeProperties;
   computePrimaryPropertyVolumes( cauldron, requiredVolumeProperties, snapshot, maximumOutputOption );
@@ -571,8 +571,8 @@ void PropertyManager::computeVolumeProperties( AppCtx* cauldron,
 
 void PropertyManager::computeMapProperties( AppCtx* cauldron,
                                             const PropListVec& mapProperties,
-                                            const Snapshot* snapshot,
-                                            const PropertyOutputOption maximumOutputOption )
+                                            const Interface::Snapshot* snapshot,
+                                            const Interface::PropertyOutputOption maximumOutputOption )
 {
   PropListVec requiredMapProperties = mapProperties;
   computePrimaryPropertyMaps( cauldron, requiredMapProperties, snapshot, maximumOutputOption );
@@ -798,9 +798,9 @@ OutputPropertyMap* PropertyManager::findOutputPropertyVolume ( const std::string
   return 0;
 }
 
-PropertyList PropertyManager::getProperties(const PropertyIdentifier& requiredProperty)
+Interface::PropertyList PropertyManager::getProperties(const PropertyIdentifier& requiredProperty)
 {
-  PropertyList propertyList;
+  Interface::PropertyList propertyList;
   const std::string& listName = propertyListName(requiredProperty);
   for ( auto& namePair : m_propertyName2OutputName )
   {

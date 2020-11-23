@@ -28,6 +28,7 @@
 #include <petscksp.h>
 #include <petsc.h>
 #include <petscdmda.h>
+#include <petscsys.h>
 
 //------------------------------------------------------------//
 
@@ -2531,7 +2532,14 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
       // Should do no more than 'MaximumNumberOfNonlinearIterations' iterations.
       // There is a conflict here, if the maximum number is smaller than the minimum number of iterations.
       // In this case the Maximum number of iterations it the number that is taken.
-      Converged = Converged || ( Number_Of_Nonlinear_Iterations >= MaximumNumberOfNonlinearIterations );
+      if ( Number_Of_Nonlinear_Iterations >= MaximumNumberOfNonlinearIterations )
+      {
+        double maxResidual = 0;
+        const std::vector<unsigned int> locationMaxValue = mapping.getLocationMaxValue ( Residual, maxResidual );
+        logMaxResidualLocations( locationMaxValue, maxResidual, MaximumNumberOfNonlinearIterations );
+
+        Converged = true; // Even though the pressure solver is not converged we still continue??
+      }
     }
 
     if ( HydraulicFracturingManager::getInstance ().isNonConservativeFractureModel () and fractureIterations == MaximumNumberOfFractureIterations - 1 ) {
@@ -2602,6 +2610,52 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
   cout.flags     ( Old_Flags );
 
   PetscLogStages::pop();
+}
+
+void Basin_Modelling::FEM_Grid::logMaxResidualLocations(const std::vector<unsigned int>& locationMaxValue, const double maxResidual,
+                                                        const int maximumNumberOfNonlinearIterations ) const
+{
+  int rank = FastcauldronSimulator::getInstance().getRank();
+  int size = FastcauldronSimulator::getInstance().getSize();
+
+  if (rank == 0)
+  {
+    const StratigraphicColumn& column = m_pressureComputationalDomain.getStratigraphicColumn ();
+
+    LogHandler( LogHandler::WARNING_SEVERITY ) << " -----------------------------------------------------------------------------------------------------------";
+    LogHandler( LogHandler::WARNING_SEVERITY ) << " Newton solve for pressure equation has not converged, maximum number of iterations (" <<
+                 maximumNumberOfNonlinearIterations <<  ") reached.";
+    LogHandler( LogHandler::WARNING_SEVERITY ) << " These are the nodes with the maximum absolute residual per rank: ";
+
+    std::vector<unsigned int> location(locationMaxValue);
+    double maximumResidual = maxResidual;
+    for ( int printRank = 0; printRank < size; ++printRank )
+    {
+      if ( printRank != 0)
+      {
+        MPI_Status recvStatus;
+        MPI_Recv( location.data(), 4, MPI_UNSIGNED, printRank, 0, PETSC_COMM_WORLD, &recvStatus );
+        MPI_Recv( &maximumResidual, 1, MPI_DOUBLE, printRank, 0, PETSC_COMM_WORLD, &recvStatus );
+      }
+
+      const ComputationalDomain::FormationGeneralElementGrid* formationGrid =
+          m_pressureComputationalDomain.getFormationGrid ( column.getLayer ( location[3] ));
+
+      const DataAccess::Interface::Grid* grid = FastcauldronSimulator::getInstance().getActivityOutputGrid();
+
+      LogHandler( LogHandler::WARNING_SEVERITY ) << "rank " << printRank << ", residual: " << maximumResidual << ", i: " << location[0] << ", j: " << location[1]
+                << ", k: " << location[2] <<  ", Formation: " << formationGrid->getFormation().getName()
+                << ", x[m]: " << grid->minI() + grid->deltaI()*location[0]
+                << ", y[m]: " << grid->minJ() + grid->deltaJ()*location[1];
+    }
+    LogHandler( LogHandler::WARNING_SEVERITY ) << " -----------------------------------------------------------------------------------------------------------";
+  }
+  else
+  {
+    MPI_Send( locationMaxValue.data(), 4, MPI_UNSIGNED, 0, 0, PETSC_COMM_WORLD );
+    MPI_Send( &maxResidual, 1, MPI_DOUBLE, 0, 0, PETSC_COMM_WORLD );
+  }
+  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 //------------------------------------------------------------//

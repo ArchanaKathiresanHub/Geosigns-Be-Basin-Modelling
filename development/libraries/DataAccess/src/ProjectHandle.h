@@ -237,6 +237,8 @@ namespace DataAccess
 
          virtual PaleoFormationPropertyList * getMantlePaleoThicknessHistory() const;
 
+         virtual PaleoFormationPropertyList* getOceaCrustPaleoThicknessHistory() const;
+
          /// return the list of surface temperature history.
          // Would it be better to have a ModelTopSurface kind of object, that also had the top boundary conditions?
          virtual PaleoPropertyList * getSurfaceTemperatureHistory() const;
@@ -248,9 +250,6 @@ namespace DataAccess
          /// return the list of heat-flow paleo-surface properties.
          virtual PaleoSurfacePropertyList * getHeatFlowHistory() const;
 
-         /// @return The data from OceaCrustalThicknessIoTbl
-         const TableOceanicCrustThicknessHistory& getTableOceanicCrustThicknessHistory() const;
-
          /// return the list of AllochthonousLithologyDistributions of the specified AllochthonousLithology.
          /// If allochthonousLithology equals 0, then null is returned.
          virtual AllochthonousLithologyDistributionList * getAllochthonousLithologyDistributions( const AllochthonousLithology * allochthonousLithology = nullptr ) const;
@@ -259,7 +258,7 @@ namespace DataAccess
          /// If formation equals 0, then all allochthonous lithology interpolations are returned.
          virtual AllochthonousLithologyInterpolationList * getAllochthonousLithologyInterpolations( const AllochthonousLithology * allochthonousLithology = nullptr ) const;
 
-         /// Return a list of the time-output properties for a current modelling mode.
+         /// Return a list of the time-output properties for a current modeling mode.
          virtual OutputPropertyList * getTimeOutputProperties() const;
 
          /// Return a list to the heat-capacity samples for the lithology.
@@ -296,28 +295,28 @@ namespace DataAccess
          virtual bool loadConstrainedOverpressureIntervals();
 
          /// return a list of Migration objects based on the given arguments.
-         /// if an argument equals 0, it is used as a wildcard.
+         /// if an argument equals 0, it is used as a wild card.
          virtual MigrationList * getMigrations( const std::string & process, const Formation * sourceFormation,
             const Snapshot * sourceSnapshot, const Reservoir * sourceReservoir, const Trapper * sourceTrapper,
             const Snapshot * destinationSnapshot, const Reservoir * destinationReservoir, const Trapper * destinationTrapper
             ) const;
 
          /// return a list of Trap objects based on the given arguments.
-         /// if an argument equals 0, it is used as a wildcard.
+         /// if an argument equals 0, it is used as a wild card.
          virtual TrapList * getTraps( const Reservoir * reservoir, const Snapshot * snapshot, unsigned int id ) const;
 
          /// return a Trapper that meets the given condition arguments.
-         /// If an argument equals 0, it is used as a wildcard.
+         /// If an argument equals 0, it is used as a wild card.
          virtual Trapper * findTrapper( const Reservoir * reservoir,
             const Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const;
 
          // return a list of Trapper objects based on the given arguments.
-         // if an argument equals 0, it is used as a wildcard.
+         // if an argument equals 0, it is used as a wild card.
          virtual TrapperList* getTrappers(const Reservoir* reservoir,
            const Snapshot* snapshot, unsigned int id, unsigned int persistentId) const;
 
          /// return a Trap that meets the given condition arguments.
-         /// If an argument equals 0, it is used as a wildcard.
+         /// If an argument equals 0, it is used as a wild card.
          /// If all arguments are non-0, at most one trap can meet the conditions.
          virtual const Trap * findTrap( const Reservoir * reservoir, const Snapshot * snapshot, unsigned int id ) const;
 
@@ -437,7 +436,7 @@ namespace DataAccess
          unsigned int deletePropertiesValuesMaps ( const Snapshot * snapshot );
 
          /// return a list of PropertyValues based on the given arguments.
-         /// if an argument equals 0, it is used as a wildcard
+         /// if an argument equals 0, it is used as a wild card
          bool hasPropertyValues( int selectionFlags,
             const Property * property, const Snapshot * snapshot,
             const Reservoir * reservoir, const Formation * formation,
@@ -496,7 +495,10 @@ namespace DataAccess
          virtual bool loadHeatFlowHistory( void );
          virtual bool loadRelatedProjects();
 
-         bool addCrustThinningHistoryMaps();
+         
+         bool addCrustThinningHistoryMaps(void);
+
+         //-----------------------------------------------------//
          bool correctCrustThicknessHistory();
 
          /// Load the input map specified by the given arguments
@@ -562,7 +564,7 @@ namespace DataAccess
 
          /// \brief Function to get global min/max values
          ///
-         /// In serial programmes this is a skip operation, in MPI programmes this calls the mpi-allReduce.
+         /// In serial program this is a skip operation, in MPI program this calls the mpi-allReduce.
          void getMinValue( double * localMin, double * globalMin ) const;
          void getMaxValue( double * localMax, double * globalMax ) const;
 
@@ -609,11 +611,11 @@ namespace DataAccess
          bool trappersAreAvailable();
 
          /// check of the m_traps is not empty
-         bool trapsAreAvailable();
+         bool trapsAreAvailable() const;
 
          /// @defgroup NodesValidation
          /// @{
-         /// @brief Initialise the valid-node array.
+         /// @brief Initialize the valid-node array.
          /// @details This function uses only the input data maps and is sufficient to construct
          /// all of the necessary items in the cauldron model, e.g. sea-surface temperature,
          /// crust-thickness history, etc. It may be necessary to restrict further the
@@ -669,10 +671,10 @@ namespace DataAccess
 
          MutablePaleoSurfacePropertyList   m_heatFlowHistory;
          MutablePaleoFormationPropertyList m_crustPaleoThicknesses;
+         MutablePaleoFormationPropertyList m_OceaCrustPaleoThicknesses;
          MutablePaleoFormationPropertyList m_mantlePaleoThicknesses;
          const TableCTC                          m_tableCTC;
          const TableCTCRiftingHistory            m_tableCTCRiftingHistory;
-         const TableOceanicCrustThicknessHistory m_tableOceanicCrustThicknessHistory;
 
          // Should really be a list of PaleoSurfaceProperty's,
          // but there is no surface defined for the top surface.
@@ -745,7 +747,7 @@ namespace DataAccess
          bool m_saveAsInputGrid; // whether to use the input grid to save the computed output
 
 
-         /// I.e. whether permafrost is being modelled
+         /// I.e. whether permafrost is being modeled
          bool m_permafrost;
 
          MapWriter * m_mapPropertyValuesWriter;
@@ -777,8 +779,8 @@ namespace DataAccess
          void resetActivityOutputGrid( void );
 
          void loadSnapshots( );
-         void createSnapshotsAtGeologicalEvents( );
-         void createSnapshotsAtRiftEvents( );
+         bool createSnapshotsAtGeologicalEvents( );
+         
          void createSnapshotsAtUserDefinedTimes( );
 
          bool loadGrids( void );
@@ -942,7 +944,7 @@ namespace DataAccess
 
          static float GetUndefinedValue( hid_t fileId );
 
-         /// \brief Allocate architecture related clases.
+         /// \brief Allocate architecture related classes.
          ///
          /// E.g. Message-handler, global-operations.
          void allocateArchitectureRelatedParameters();
@@ -958,6 +960,12 @@ namespace DataAccess
          DataAccess::Interface::MessageHandler* m_messageHandler;
          DataAccess::Interface::ApplicationGlobalOperations* m_globalOperations;
 
+		 bool addTheThinningHistoryMaps(const std::string& TableName, PaleoPropertyMapAttributeId propId,
+			 MutablePaleoFormationPropertyList& theThicknessEntries,
+			 MutablePaleoFormationPropertyList& newCrustalThicknesses);
+		 // \the following two methods is be clubbed together
+		 bool addContiCrustThinningHistoryMaps(void);
+		 bool addOceaCrustThinningHistoryMaps(void);
          /// List of the primary properties
          std::set<std::string> m_primaryList;
 

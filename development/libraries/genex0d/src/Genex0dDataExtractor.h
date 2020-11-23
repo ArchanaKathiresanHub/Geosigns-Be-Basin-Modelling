@@ -12,7 +12,7 @@
 
 #include "datadriller.h"
 
-namespace genex0d
+namespace Genex0d
 {
 
 namespace Genex0dDataExtractor
@@ -21,7 +21,7 @@ namespace Genex0dDataExtractor
 void run(const std::string & projectFileName)
 {
   DataExtraction::DataDriller dataDriller(projectFileName);
-  dataDriller.run(false);
+  dataDriller.run(true);
   dataDriller.saveToFile(projectFileName);
 }
 

@@ -27,7 +27,7 @@ class Record;
 class Database;
 } // namespace database
 
-namespace genex0d
+namespace Genex0d
 {
 
 class Genex0dSimulatorFactory : public GeoPhysics::ObjectFactory

@@ -299,12 +299,13 @@ namespace DataAccess
 
       /// Attributes for which a (GridMap) value can be requested via getMap ().
       enum PaleoPropertyMapAttributeId {
-         MobileLayerThicknessMap,                    ///< Thickness of mobile layer.
-         HeatFlowHistoryInstanceHeatFlowMap,         ///< Heat flow history.
-         CrustThinningHistoryInstanceThicknessMap,   ///< Thickness of crust.
-         MantleThicknessHistoryInstanceThicknessMap, ///< Thickness of mantle.
-         SurfaceTemperatureHistoryInstanceMap,       ///< Temperature of top surface.
-         SurfaceDepthHistoryInstanceMap              ///< Depth of top surface.
+         MobileLayerThicknessMap,                           ///< Thickness of mobile layer.
+         HeatFlowHistoryInstanceHeatFlowMap,                ///< Heat flow history.
+         CrustThinningHistoryInstanceThicknessMap,          ///< Thickness of crust.
+         MantleThicknessHistoryInstanceThicknessMap,        ///< Thickness of mantle.
+         SurfaceTemperatureHistoryInstanceMap,              ///< Temperature of top surface.
+         SurfaceDepthHistoryInstanceMap ,                    ///< Depth of top surface.
+         OceaCrustThinningHistoryInstanceThicknessMap      ///< Thickness of Ocean-crust.
       };
 
 

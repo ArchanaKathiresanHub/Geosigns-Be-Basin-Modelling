@@ -24,7 +24,7 @@ protected:
     objectFactory = new DataAccess::Interface::ObjectFactory();
     projectHandle = DataAccess::Interface::OpenCauldronProject(projectFileName, objectFactory);
     ASSERT_NO_THROW(genex0dProjectMgr =
-        new genex0d::Genex0dProjectManager(*projectHandle, projectFileName, xCoord, yCoord, topSurfaceName, formationName));
+        new Genex0d::Genex0dProjectManager(*projectHandle, projectFileName, xCoord, yCoord, topSurfaceName, formationName));
   }
 
   void TearDown() final
@@ -37,7 +37,7 @@ protected:
   static const std::string projectFileName;
   DataAccess::Interface::ObjectFactory * objectFactory;
   DataAccess::Interface::ProjectHandle * projectHandle;
-  genex0d::Genex0dProjectManager * genex0dProjectMgr;
+  Genex0d::Genex0dProjectManager * genex0dProjectMgr;
 };
 const std::string TestGenex0dProjectManager::projectFileName = "AcquiferScale1.project3d";
 
@@ -47,7 +47,7 @@ TEST_F( TestGenex0dProjectManager, TestcomputeAgesFromAllSnapShots )
                                       23.4705701, 23.0000000, 21.3125000, 19.9394985, 17.8874298, 16.4601443, 15.0591761, 14.0000000, 12.8762214, 11.8849351, 10.8657666,
                                       9.8499416, 8.8384686, 8.0000000, 7.5000000, 7.2500000, 6.9842912, 6.5229775, 6.2638751, 6.0000000, 5.5000000, 5.2277559, 4.9747352,
                                       4.5001344, 4.2399230, 4.0000000, 3.5000000, 3.2500000, 2.9865397, 2.4868929, 2.2486188, 2.0000000, 1.5000000, 1.2357986, 0.9933745,
-                                      0.5157488, 0.2655320};
+                                      0.5157488, 0.2655320, 0.0};
 
   const double depoAge = 33.0;
   EXPECT_NO_THROW(genex0dProjectMgr->computeAgesFromAllSnapShots(depoAge));

@@ -22,12 +22,13 @@ using namespace Interface;
 
 const string PaleoProperty::s_MapAttributeNames[] =
 {
-   "Thickness",   // Moile layers.
+   "Thickness",   // Mobile layers.
    "HeatFlow",    // Bottom boundary condition.
    "Thickness",   // Crust thickness.
    "Thickness",   // Crust thickness.
    "Temperature", // Top surface temperature.
-   "Depth"        // Top surface depth.
+   "Depth",        // Top surface depth.
+   "Thickness"   // Crust thickness.
 };
 
 PaleoProperty::PaleoProperty (ProjectHandle& projectHandle, Record * record) : DAObject (projectHandle, record)

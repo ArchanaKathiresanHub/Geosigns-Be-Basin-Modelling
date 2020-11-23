@@ -10,7 +10,7 @@
 
 #include "CommonDefinitions.h"
 #include "Genex0dInputData.h"
-#include "Genex0dGenexSourceRock.h"
+#include "Genex0dSourceRock.h"
 
 // cmbAPI
 #include "ErrorHandler.h"
@@ -29,7 +29,7 @@
 // utilities
 #include "LogHandler.h"
 
-namespace genex0d
+namespace Genex0d
 {
 
 Genex0dSimulator::Genex0dSimulator(database::ProjectFileHandlerPtr database,
@@ -58,23 +58,25 @@ Genex0dSimulator::~Genex0dSimulator()
 
 Genex0dSimulator* Genex0dSimulator::CreateFrom(const std::string & fileName, DataAccess::Interface::ObjectFactory* objectFactory)
 {
-  return dynamic_cast<Genex0dSimulator *>(DataAccess::Interface::OpenCauldronProject (fileName, objectFactory));
+  return dynamic_cast<Genex0dSimulator*>(DataAccess::Interface::OpenCauldronProject (fileName, objectFactory));
 }
 
-bool Genex0dSimulator::run(const DataAccess::Interface::Formation * formation, const Genex0dInputData & inData, unsigned int indI, unsigned int indJ,
-                           double thickness, double inorganicDensity, const std::vector<double> & time,
-                           const std::vector<double> & temperature, const std::vector<double> & pressure)
+bool Genex0dSimulator::run(const DataAccess::Interface::Formation* formation, const Genex0dInputData& inData, unsigned int indI, unsigned int indJ,
+                           double thickness, double inorganicDensity, const std::vector<double>& time,
+                           const std::vector<double>& temperature, const std::vector<double>& pressure, const std::vector<double>& VRE,
+                           const std::vector<double>& porePressure, const std::vector<double>& permeability, const std::vector<double>& porosity,
+                           const std::vector<double>& lithoPressure, const std::vector<double>& hydroPressure)
 {
   registerProperties();
 
   setRequestedOutputProperties();
-  m_gnx0dSourceRock.reset(new Genex0dGenexSourceRock(*this, inData, indI, indJ));
+  m_gnx0dSourceRock.reset(new Genex0dSourceRock(*this, inData, indI, indJ));
   if (m_gnx0dSourceRock == nullptr)
   {
     return false;
   }
 
-  m_gnx0dSourceRock->initializeComputations(thickness, inorganicDensity, time, temperature, pressure);
+  m_gnx0dSourceRock->initializeInputs(thickness, inorganicDensity, time, temperature, pressure, VRE, porePressure, permeability, porosity, lithoPressure, hydroPressure);
 
   if (!computeSourceRock(formation))
   {

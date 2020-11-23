@@ -8,7 +8,7 @@
 #include "SubProcessSimulator.h"
 
 #include "AdsorptionFunction.h"
-#include "SimulatorStateBase.h"
+#include "SimulatorState.h"
 #include "Input.h"
 #include "ComponentManager.h"
 
@@ -33,7 +33,7 @@ namespace Genex6 {
       ///
       /// Some check are performed on the simulator-state.
       virtual void compute ( const Input&              sourceRockInput,
-                                   SimulatorStateBase* baseState ) = 0;
+                                   SimulatorState* simulatorState ) = 0;
 
       /// \brief Determine which of the species defined in the component manager are being considered for adsorption.
       virtual bool speciesIsSimulated ( const CBMGenerics::ComponentManager::SpeciesNamesId species ) const = 0;

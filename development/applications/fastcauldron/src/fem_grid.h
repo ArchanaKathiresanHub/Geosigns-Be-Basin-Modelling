@@ -302,6 +302,10 @@ namespace Basin_Modelling {
      /// \brief Assign current values to layer-elements.
      void setLayerElements ( const double age );
 
+     /// \brief Log max residual locations
+     void logMaxResidualLocations( const std::vector<unsigned int>& locationMaxValue, const double maxResidual,
+                                   const int MaximumNumberOfNonlinearIterations ) const;
+
      ///------------------------------------------------------------//
 
 
@@ -402,7 +406,6 @@ namespace Basin_Modelling {
      PetscBool m_saveMatrixToFile;     // Boolean flag for saving matrix and rhs to file
      PetscBool m_saveInMatlabFormat;   // TRUE: matlab format, FALSE: binary
      double    m_saveTimeStep;         // Time step for matrix and rhs save
-
   }; // end class FEM_Grid
 
 

@@ -33,7 +33,7 @@ public:
    /// \brief Sets the source-rock-node to an initial state.
    void initialise ();
 
-   void ClearInputHistory();
+   void clearInputHistory();
    void ClearOutputHistory();
    void ClearSimulatorStates();
    
@@ -51,7 +51,7 @@ public:
    unsigned int GetJ()const;
 
    //  SimulatorState &GetSimulatorState() const;
-   SimulatorState &GetSimulatorState( int id ) const;
+   SimulatorState* GetSimulatorState( int id ) const;
    SimulatorState &GetMixedSimulatorState() const;
 
    /// \brief Returns simulator state of the mixed source rocks in the case of source-rock mixing otherwise returns the state of the single source-rock.

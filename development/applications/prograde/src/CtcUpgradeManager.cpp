@@ -18,9 +18,9 @@
 #include "CtcModelConverter.h"
 //Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
 #include "GridMapIoTblUpgradeManager.h"
-/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
-* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
-* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
 */
 
 //cmbAPI
@@ -61,7 +61,7 @@ void Prograde::CtcUpgradeManager::upgrade() {
 		m_model.ctcManager().getFilterHalfWidthValue(temp);
 		if (temp != FHWidth) {
 			m_model.ctcManager().setFilterHalfWidthValue(FHWidth);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting the FilterHalfWidth value to BPA2 default value:" << FHWidth << " from " << temp;
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting the FilterHalfWidth value to BPA2 default value:" << FHWidth;
 		}
 
 		double temp1;
@@ -163,7 +163,7 @@ void Prograde::CtcUpgradeManager::upgrade() {
 			}
 			if (GridMapIoMapName != MaximumThicknessOfBasaltMeltMap && GridMapIoMapName != rdaMap && GridMapReferredBy == "CTCIoTbl")
 			{
-				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("CTCIoTbl", GridMapIoMapName);
+				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("CTCIoTbl", GridMapIoMapName);
 				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> Legacy Map:" << GridMapIoMapName << " related to deprecated fields of CTCIoTbl will be removed from GridMapIoTbl by GridMapIoTbl Upgrade Manager";
 			}
 

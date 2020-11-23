@@ -15,7 +15,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace genex0d
+namespace Genex0d
 {
 
 class Genex0dInputManager
@@ -38,12 +38,14 @@ public:
 private:
   void printHelp() const;
   ExitStatus checkInputIsValid(std::string & ioErrorMessage) const;
+  bool initialCheckArgument(const std::string& argument, const std::string& argumentValue, std::string& ioErrorMessage);
+  void storeArgument(const std::string& argument, const std::string& argumentValue);
   void setArgumentFieldNames();
 
   int m_argc;
   char** m_argv;
 
-  std::unordered_map<std::string, int> m_argumntFields;
+  std::unordered_map<std::string, int> m_argumentFields;
   Genex0dInputData m_inputData;
 };
 

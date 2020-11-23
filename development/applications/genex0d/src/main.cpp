@@ -27,9 +27,9 @@ int main (int argc, char** argv)
   try
   {
     LogHandler("genex0d", LogHandler::DETAILED_LEVEL);
-    genex0d::Genex0dInputManager inputDataMgr(argc, argv);
+    Genex0d::Genex0dInputManager inputDataMgr(argc, argv);
 
-    typedef genex0d::Genex0dInputManager::ExitStatus ExitState;
+    typedef Genex0d::Genex0dInputManager::ExitStatus ExitState;
 
     std::string ioErrorMessage = "";
 
@@ -40,16 +40,16 @@ int main (int argc, char** argv)
     }
     else if (ioErrorFlag == ExitState::WITH_ERROR_EXIT)
     {
-      throw genex0d::Genex0dException() << ioErrorMessage;
+      throw Genex0d::Genex0dException() << ioErrorMessage;
     }
 
     ioErrorFlag = inputDataMgr.storeInput(ioErrorMessage);
     if (ioErrorFlag == ExitState::WITH_ERROR_EXIT)
     {
-      throw genex0d::Genex0dException() << ioErrorMessage;
+      throw Genex0d::Genex0dException() << ioErrorMessage;
     }
 
-    genex0d::Genex0d gnx0d(inputDataMgr.inputData());
+    Genex0d::Genex0d gnx0d(inputDataMgr.inputData());
     gnx0d.initialize();
     gnx0d.run();
   }
@@ -58,7 +58,7 @@ int main (int argc, char** argv)
     LogHandler(LogHandler::FATAL_SEVERITY) << "CMB API fatal error: " << ex.errorCode() << ", " << ex.what();
     return 1;
   }
-  catch (const genex0d::Genex0dException & ex)
+  catch (const Genex0d::Genex0dException & ex)
   {
     LogHandler(LogHandler::FATAL_SEVERITY) << "Genex0d fatal error: " << ex.what();
     return 1;

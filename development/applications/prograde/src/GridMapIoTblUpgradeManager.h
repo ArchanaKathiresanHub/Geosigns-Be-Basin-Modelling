@@ -54,11 +54,11 @@ namespace Prograde
 
 		/// @brief Static member method which fills the static member map mapNameTblName 
 		/// @details The list of the maps and their reference tables removed contained in mapNameTblName, reference of those maps is removed from GridMapIoTbl when update() is called
-		static void clearTblNameMapNamepReferenceGridMap(const std::string&, const std::string&);
+		static void clearTblNameMapNameReferenceGridMap(const std::string&, const std::string&);
 
 		/// @brief Overload of the function clearMapNameTblNamepReferenceGridMap
 		/// @details If we want to clear all the maps referred by a table in GridMapIoTbl, pass the name of the table to the method
-		static void clearTblNameMapNamepReferenceGridMap(const std::string&);
+		static void clearTblNameMapNameReferenceGridMap(const std::string&);
 
 	private:
 		mbapi::Model& m_model; ///< The model to upgrade

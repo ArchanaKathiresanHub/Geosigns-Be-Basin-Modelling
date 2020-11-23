@@ -13,6 +13,7 @@
 
 #include "ExportToHDF.h"
 #include "FolderPath.h"
+#include "PropertyAttribute.h"
 
 // DataAccess library
 #include "ProjectData.h"
@@ -24,7 +25,12 @@
 #include "ImportProjectHandle.h"
 #include "ImportFromXML.h"
 
-using namespace ibs;
+#include "SimulationDetails.h"
+#include "DerivedPropertyManager.h"
+#include "Utilities.h"
+
+using namespace DataAccess;
+using namespace Interface;
 
 //-------------------------------------------------------------//
 VisualizationPropertiesCalculator::VisualizationPropertiesCalculator(int aRank) : AbstractPropertiesCalculator (aRank)
@@ -72,7 +78,7 @@ void VisualizationPropertiesCalculator::createXML() {
       // Create output directory if not existing
       if (!folderPath.exists())
       {
-         FolderPath(folderPath.path()).create();
+         ibs::FolderPath(folderPath.path()).create();
       }
       m_pt = m_doc.append_child("project");
 
@@ -222,12 +228,21 @@ void VisualizationPropertiesCalculator::calculateProperties(FormationSurfaceVect
          for (propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter)
          {
             const Interface::Property * property = *propertyIter;
-            if (m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY)
+
+            if (property->getPropertyOutputAttribute() == DataModel::FASTGENEX_PROPERTY || property->getPropertyOutputAttribute() == DataModel::FASTCAULDRON_PROPERTY)
+            {
+              if (!allowOutput(property->getName(), formation, surface))
+              {
+                continue;
+              }
+            }
+
+            if (m_no3Dproperties && surface == 0 && property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY)
             {
                continue;
             }
 
-            if (not m_extract2D and surface != 0 and property->getPropertyAttribute() != DataModel::SURFACE_2D_PROPERTY)
+            if (not m_extract2D && surface != 0 && property->getPropertyAttribute() != DataModel::SURFACE_2D_PROPERTY)
             {
                continue;
             }
@@ -282,7 +297,7 @@ void VisualizationPropertiesCalculator::calculateProperties(FormationSurfaceVect
 
       getProjectHandle().deletePropertiesValuesMaps (snapshot);
 
-      StatisticsHandler::update ();
+      Utilities::CheckMemory::StatisticsHandler::update ();
    }
 
    saveXML();
@@ -321,7 +336,7 @@ void VisualizationPropertiesCalculator::listXmlProperties() {
 
    cout << "List of properties in " << m_fileNameXml << " : " << endl;
 
-   SnapShotList snapShotList = vizProject->getSnapShots();
+   CauldronIO::SnapShotList snapShotList = vizProject->getSnapShots();
    for (auto& snapShot : snapShotList)
    {
       cout << "Snapshot " << snapShot->getAge() << endl;
@@ -376,7 +391,7 @@ void VisualizationPropertiesCalculator::acquireSimulatorProperties () {
 //------------------------------------------------------------//
 void VisualizationPropertiesCalculator::updateVizSnapshotsConstantValue() {
 
-   SnapShotList snapShotList = m_vizProject->getSnapShots();
+   CauldronIO::SnapShotList snapShotList = m_vizProject->getSnapShots();
    for (auto& snapShot : snapShotList)
    {
       updateConstantValue(snapShot);
@@ -835,8 +850,8 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueCont
       float sedimentMaxValue = volDataNew->getSedimentMaxValue();
 
       if (
-         sedimentMinValue == DefaultUndefinedValue &&
-         sedimentMaxValue == DefaultUndefinedValue)
+         sedimentMinValue == CauldronIO::DefaultUndefinedValue &&
+         sedimentMaxValue == CauldronIO::DefaultUndefinedValue)
       {
           volDataNew->setSedimentMinMax(m_minValue, m_maxValue);
      }
@@ -1010,7 +1025,7 @@ bool VisualizationPropertiesCalculator::createVizSnapshotResultPropertyValueMap 
    m_vizProject->addGeometry(geometry);
 
    // find/create a property
-   PropertyAttribute attrib = (daSurface != 0 ? CauldronIO::Surface2DProperty : CauldronIO::Formation2DProperty);
+   CauldronIO::PropertyAttribute attrib = (daSurface != 0 ? CauldronIO::Surface2DProperty : CauldronIO::Formation2DProperty);
    shared_ptr<const CauldronIO::Property> vizProperty = findOrCreateProperty (propertyValue,  attrib);
 
    // find snapshot
@@ -1158,7 +1173,7 @@ shared_ptr<CauldronIO::Formation> VisualizationPropertiesCalculator::findOrCreat
 }
 
 //------------------------------------------------------------//
-shared_ptr<const CauldronIO::Property> VisualizationPropertiesCalculator::findOrCreateProperty(OutputPropertyValuePtr propertyValue, PropertyAttribute attrib) {
+shared_ptr<const CauldronIO::Property> VisualizationPropertiesCalculator::findOrCreateProperty(OutputPropertyValuePtr propertyValue, CauldronIO::PropertyAttribute attrib) {
 
    const Interface::Property* daProperty = dynamic_cast<const Interface::Property *>(propertyValue->getProperty());
    const string propName = propertyValue->getName();

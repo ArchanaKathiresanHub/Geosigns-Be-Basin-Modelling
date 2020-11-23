@@ -9,7 +9,7 @@ TEST(StratigraphyModelConverter, upgrade)
 {
    Prograde::StratigraphyModelConverter modelConverter;
    
-   EXPECT_EQ("Abc123", modelConverter.upgradeName("Abc@%$#123"));
+   EXPECT_EQ("Abc____123", modelConverter.upgradeName("Abc@%$#123"));
    EXPECT_EQ("FluidName", modelConverter.upgradeName("FluidName"));
    EXPECT_EQ("Fluid Name", modelConverter.upgradeName("Fluid Name"));
    EXPECT_EQ("Fluid_Name", modelConverter.upgradeName("Fluid_Name"));

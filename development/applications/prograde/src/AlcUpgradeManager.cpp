@@ -28,9 +28,9 @@
 #include "AlcModelConverter.h"
 //Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
 #include "GridMapIoTblUpgradeManager.h"
-/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
-* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
-* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
 */
 
 //cmbAPI
@@ -97,11 +97,9 @@ void Prograde::AlcUpgradeManager::upgrade()
 
 		// log the value of TopAsthenoTemp if it is not the default value
 		double TopAsthenoTemp = Rec->getValue<double>("TopAsthenoTemp");
-		if (TopAsthenoTemp != 1333)
-		{
+		if (!NumericFunctions::isEqual(TopAsthenoTemp, 1333.0, 1e-5))
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> The value of TopAsthenoTemp is : " << TopAsthenoTemp << " which is not equal to BPA2 default value of 1333";
-		}
-
+	
 		// log the value of CrustHeatPDecayConst if it is not the default value
 		double CrustHeatPDecayConst = Rec->getValue<double>("CrustHeatPDecayConst");
 		if (CrustHeatPDecayConst != 10000)
@@ -234,7 +232,7 @@ void Prograde::AlcUpgradeManager::upgrade()
 					/// if the map is not referred in any other row of the same table then we can remove it from GridMapIoTbl
 					if (flag == mapNames.size() && (thicknessGrid != ""))
 					{
-						Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("ContCrustalThicknessIoTbl", thicknessGrid);
+						Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("ContCrustalThicknessIoTbl", thicknessGrid);
 					}
 				}
 			}
@@ -308,9 +306,9 @@ void Prograde::AlcUpgradeManager::upgrade()
 		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> MntlHeatFlowIoTbl is cleared; map references in GridMapIoTbl will be removed by GridMapIoTbl Upgrade manager";
 
 		//updating GridMapIoTbl for deleting the references of the maps in the tables cleared
-		Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("BasaltThicknessIoTbl");
-		Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("CrustIoTbl");
-		Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("MntlHeatFlowIoTbl");
+		Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("BasaltThicknessIoTbl");
+		Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("CrustIoTbl");
+		Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("MntlHeatFlowIoTbl");
 
 		//upgrading the crust property model to standard conductivity crust
 		BottomBoundaryManager::CrustPropertyModel crstPropModel;

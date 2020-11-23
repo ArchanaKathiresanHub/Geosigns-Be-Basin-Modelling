@@ -12,13 +12,14 @@
 #include "ReservoirConverter.h"
 //Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
 #include "GridMapIoTblUpgradeManager.h"
-/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
-* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
-* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
 */
 
 //utilities
 #include "LogHandler.h"
+#include "NumericFunctions.h"
 
 //cmbAPI
 #include "cmbAPI.h"
@@ -47,14 +48,14 @@ Prograde::ReservoirUpgradeManager::ReservoirUpgradeManager(Model& model) :
 
 void Prograde::ReservoirUpgradeManager::upgrade()
 {
-   double minTrapCapa = numeric_limits<double>::max(); // Minimum trap capacity
+   double minTrapCapa = 5e5; // Minimum trap capacity
    int globalBioDegradInd = 0;
-   int globalOilToGasCrackingInd = 0;
+   int globalOilToGasCrackingInd = 1;
    int globalDiffusionInd = 0;
    double globalMinOilColumnHeight = 1.0;
    double globalMinGasColumnHeight = 1.0;
-   int globalBlockingInd = 1;
-   double globalBlockingPermeability;
+   int globalBlockingInd = 0;
+   double globalBlockingPermeability = 1e-9;
    double globalBlockingPorosity = 0;
    auto reservoirs = m_model.reservoirManager().getReservoirsID();
    auto stratigraphy = m_model.stratigraphyManager().layersIDs();
@@ -125,21 +126,25 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 		   {
 			   // setting globle TrapCapacity
 			   m_model.reservoirManager().getResCapacity(nextResId_Index, trapCapacity);
+			   if (!NumericFunctions::isEqual(minTrapCapa, trapCapacity, 1e-6))
 			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original TrapCapacity is '" << trapCapacity << "' and updated TrapCapacity is '" << minTrapCapa << "' for " << resName;
 			   m_model.reservoirManager().setResCapacity(nextResId_Index, minTrapCapa);
 			   
 			   // setting globle BioDegradInd
 			   m_model.reservoirManager().getResBioDegradInd(nextResId_Index, bioDegradInd);
+			   if(bioDegradInd!= globalBioDegradInd)
 			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading BioDegradInd to the global value (TRUE, if it is true for any of the detected reservoirs else FALSE). Original BioDegradInd is '" << bioDegradInd << "' which is upgraded to global value of '" << globalBioDegradInd << "' for " << resName;
 			   m_model.reservoirManager().setResBioDegradInd(nextResId_Index, globalBioDegradInd);
 			   
 			   //setting globle OilToGasCrackingInd
 			   m_model.reservoirManager().getResOilToGasCrackingInd(nextResId_Index, oilToGasCrackingInd);
 			   m_model.reservoirManager().setResOilToGasCrackingInd(nextResId_Index, globalOilToGasCrackingInd);
+			   if(oilToGasCrackingInd!= globalOilToGasCrackingInd)
 			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading OilToGasCrackingInd to the global value (TRUE, if it is true for any of the detected reservoirs else FALSE). Original OilToGasCrackingInd is '" << oilToGasCrackingInd << "' which is upgraded to the global value of '" << globalOilToGasCrackingInd << "' for " << resName;
 			   
 			   //setting globle BlockingInd
 			   m_model.reservoirManager().getResBlockingInd(nextResId_Index, blockingInd);
+			   if(blockingInd!= globalBlockingInd)
 			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading BlockingInd to the global value (TRUE, if it is true for all reservoir else FALSE). Original BlockingInd is '" << blockingInd << "' which is upgraded to the global value of '" << globalBlockingInd << "' for " << resName;
 			   m_model.reservoirManager().setResBlockingInd(nextResId_Index, globalBlockingInd);
 			   
@@ -148,10 +153,12 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 			   if (globalBlockingInd == 0)
 			   {
 				   m_model.reservoirManager().setResBlockingPermeability(nextResId_Index, 1.0e-09);
+				   if (!NumericFunctions::isEqual(blockingPermeability, 1.0e-09, 1e-3))
 				   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading BlockingPermeability (if BlockingInd is true and all reservoir have same BlockingPermeability value then that value is the global, else set the default value i.e., 1e-09). Original BlockingPermeability is '" << blockingPermeability << "' which is upgraded to the default global value of 1.0e-09, as the blockingInd is off for " << resName;
 			   }
 			   else
 			   {
+				   if (!NumericFunctions::isEqual(blockingPermeability, globalBlockingPermeability, 1e-3))
 				   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Upgrading BlockingPermeability (if BlockingInd is true and all reservoir have same BlockingPermeability value then that value is the global, else set the default value i.e., 1e-09). Original BlockingPermeability is '" << blockingPermeability << "' which is upgraded to the global value of '" << globalBlockingPermeability << "' for " << resName;
 				   m_model.reservoirManager().setResBlockingPermeability(nextResId_Index, globalBlockingPermeability);
 			   }
@@ -208,20 +215,96 @@ void Prograde::ReservoirUpgradeManager::upgrade()
 	   m_model.reservoirManager().setResOptionsBioDegradInd(resId, globalBioDegradInd);
 	   m_model.reservoirManager().setResOptionsOilToGasCrackingInd(resId, globalOilToGasCrackingInd);
 	   m_model.reservoirManager().setResOptionsBlockingInd(resId, globalBlockingInd);
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Creating ReservoirOptionsIoTable with the global parameters determined from the legacy ReservoirIoTbl inputs";
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting TrapCapacity : " << minTrapCapa;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BioDegradInd : " << globalBioDegradInd;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting OilToGasCrackingInd : " << globalOilToGasCrackingInd;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BlockingInd : " << globalBlockingInd;
+
 	   if (globalBlockingInd == 0)
 	   {
 		   m_model.reservoirManager().setResOptionsBlockingPermeability(resId, 1.0e-09);
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BlockingPermeability : 1.0e-09";
 	   }
 	   else
 	   {
 		   m_model.reservoirManager().setResOptionsBlockingPermeability(resId, globalBlockingPermeability);
+		   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BlockingPermeability : "<< globalBlockingPermeability;
 	   }
 
 	   m_model.reservoirManager().setResOptionsDiffusionInd(resId, globalDiffusionInd);
 	   m_model.reservoirManager().setResOptionsMinOilColumnHeight(resId, globalMinOilColumnHeight);
 	   m_model.reservoirManager().setResOptionsMinGasColumnHeight(resId, globalMinGasColumnHeight);
 	   m_model.reservoirManager().setResOptionsBlockingPorosity(resId, globalBlockingPorosity);
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting DiffusionInd : " << globalDiffusionInd;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting MinOilColumnHeight : " << globalMinOilColumnHeight;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting MinGasColumnHeight : " << globalMinGasColumnHeight;
+	   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Setting BlockingPorosity : " << globalBlockingPorosity;
    }
-   Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("ReservoirIoTbl");
-   Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("DetectedReservoirIoTbl");
+
+   /*	clearing the reference from GridmapIoTbl which are no longer used in ReservoirIoTbl
+   *	Since all the grid map related columns in ReservoirIoTbl are deprecated except NetToGrossGrid
+   *	So, all the grid map references from GridMapIoTbl related to ReservoirIoTbl are cleared 
+   *	except the maps in NetToGrossGrid
+   */
+
+   // collect the maps present in the NetToGrossGrid columns of the ReservoirIoTbl in a vector
+   std::string mapName;
+   std::vector<std::string> netToGrossGridMaps;
+   database::Table* reservoirIoTbl = m_ph->getTable("ReservoirIoTbl");
+   for (size_t id = 0; id < reservoirIoTbl->size(); ++id)
+   {
+	   database::Record* rec = reservoirIoTbl->getRecord(static_cast<int>(id));
+	   mapName = rec->getValue<std::string>("NetToGrossGrid");
+	   netToGrossGridMaps.push_back(mapName);  
+   }
+   // Note that the NetToGrossGrid are collected after "NeverActive" reservoirs are cleared
+   // Hence, if there is any NetToGrossGrid map was present initially in a NeverActive reservoir,
+   // that will also get cleared
+
+   // check the grid maps present in the GridMapIoTbl referred by ReservoirIoTbl
+   std::string referredBy;
+   std::vector<std::string> gridmapsReservoirGridmapIoTbl;
+   database::Table* gridmapIoTbl = m_ph->getTable("GridMapIoTbl");
+   for (size_t id = 0; id < gridmapIoTbl->size(); ++id)
+   {
+	   database::Record* rec = gridmapIoTbl->getRecord(static_cast<int>(id));
+	   referredBy = rec->getValue<std::string>("ReferredBy");
+	   if (!referredBy.compare("ReservoirIoTbl"))
+	   {
+		   mapName = rec->getValue<std::string>("MapName");
+		   gridmapsReservoirGridmapIoTbl.push_back(mapName);
+	   }
+   }
+   // condition to check that there are Reservoir maps in GridMapIoTbl
+   // if empty, then there is no need to clear anything from GridMapIoTbl
+   if (!gridmapsReservoirGridmapIoTbl.empty())
+   {
+	   // clear all the maps referred by ReservoirIoTbl except those in the netToGrossGridMaps list
+	   bool isNetToGrossGridMap = false; //flag to check if any map is a isNetToGrossGridMap
+	   // loop through all the Reservoir maps in GridMapIoTbl
+	   for (auto reservoirMapGridmapIoTbl : gridmapsReservoirGridmapIoTbl)
+	   {
+		   // check if the ReservoirMap in GridMapIoTbl is a netToGrossGridMap by
+		   // looping through all the NetToGrossGridmaps in the ReservoirIoTbl
+		   for (auto netToGrossMap : netToGrossGridMaps)
+		   {
+			   // if yes, then change the isNetToGrossGridMap flag to true
+			   if (!reservoirMapGridmapIoTbl.compare(netToGrossMap))
+			   {
+				   isNetToGrossGridMap = true;
+			   }
+		   }
+		   // isNetToGrossGridMap is false for a Reservoir map in GridMapIoTbl, then that map is cleared from GridMapIoTbl
+		   if (!isNetToGrossGridMap)
+		   {
+			   Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("ReservoirIoTbl", reservoirMapGridmapIoTbl);
+			   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Gridmap " << reservoirMapGridmapIoTbl << " ReferredBy ReservoirIoTbl will be cleared by GridMapIoTbl Upgrade Manager";
+		   }
+		   // reset the isNetToGrossGridMap flag to false for the next Reservoir map in GridMapIoTbl
+		   isNetToGrossGridMap = false;
+	   }
+   }
+	// DetectedReservoirIoTbl is deprecated, hence all the maps in GridMapIoTbl related to DetectedReservoirIoTbl are cleared
+   Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("DetectedReservoirIoTbl");
 }

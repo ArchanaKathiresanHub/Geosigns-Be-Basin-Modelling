@@ -53,7 +53,7 @@ SourceRockNode::SourceRockNode(const double in_thickness, const double in_TOC,
 }
 SourceRockNode::~SourceRockNode()
 {
-   ClearInputHistory();
+   clearInputHistory();
    ClearOutputHistory();
 
    ClearSimulatorStates();
@@ -71,13 +71,13 @@ void SourceRockNode::initialise () {
 
    m_ConcKi.clear ();
 
-   ClearInputHistory ();
+   clearInputHistory ();
    ClearOutputHistory ();
 }
 
-SimulatorState &SourceRockNode::GetSimulatorState( int id ) const
+SimulatorState* SourceRockNode::GetSimulatorState( int id ) const
 {
-   return * (m_theSimulatorStates[id]);
+   return m_theSimulatorStates[id];
 }
 SimulatorState &SourceRockNode::GetMixedSimulatorState() const
 {
@@ -88,7 +88,7 @@ SimulatorState &SourceRockNode::getPrincipleSimulatorState () const
    return ( m_mixedSimulatorState != 0 ? * m_mixedSimulatorState : * m_currentState );
 }
 
-void SourceRockNode::ClearInputHistory()
+void SourceRockNode::clearInputHistory()
 {
    std::vector<Input*>::iterator itEnd  = m_theInput.end();
    for(std::vector<Input*>::iterator it = m_theInput.begin(); it != itEnd; ++ it) {

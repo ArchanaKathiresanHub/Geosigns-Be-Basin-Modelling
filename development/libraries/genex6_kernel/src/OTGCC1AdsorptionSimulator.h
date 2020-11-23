@@ -52,7 +52,7 @@ namespace Genex6 {
 
       /// Perform the adsorption simulation.
       void compute ( const Genex6::Input&              input,
-                           Genex6::SimulatorStateBase* baseState );
+                           Genex6::SimulatorState* simulatorState );
 
       /// Determine which of the species defined in the component manager are a part of the adsorption simulation.
       bool speciesIsSimulated ( const CBMGenerics::ComponentManager::SpeciesNamesId species ) const;

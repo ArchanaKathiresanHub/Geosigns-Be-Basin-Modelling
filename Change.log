@@ -1,4 +1,4 @@
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+﻿++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ____  __     _   _  _        ____   ______   _____  __
    / __/ /_ \   | | | || |      / __ \ |  _   / |  _  ||  \  |
   / /   //_\ \  | | | || |     / /  / \| |_| |  | | | || |\\ |
@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.2.0		2020-08-26 08:29:01 +0000
+Cauldron-v2.3.0		2020-10-26 12:54:48 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,137 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-11-19  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: usr: ReservoirOptionsIoTbl log created.
+	 * Log message for newly introduced ReservoirOptionsIoTbl is added
+	 * Work Item #402738
+	================== COMMIT-END ========================
+	Commit-ID:<421336c10082147a630f0f1910920c16483a6771>	  (HEAD -> master, origin/master)
+
+++
+2020-11-10  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Updated Prograde Code after Prograde Validation.
+	 * Bugs fixes and improved change logs.
+	 * Work Item #402738
+	================== COMMIT-END ========================
+	Commit-ID:<e097e88e28d110cceff9006155a4eab33b962ef5>	  (HEAD -> master, origin/master)
+
+2020-10-30  arijit.khan Khan  <arijit.khan@shell.com>
+
+	fix: dev: Corrections & Enhancements to Prograde !minor.
+	 * replace invalid chars in names with underscore
+	 * Special Source rock mixing cases identified and the layers with invalid mixing changed to non-source rock layer
+	 * Geometric-loop optimization retained as is from BPA
+
+	Related work items: #401187, #401423, #402403
+	================== COMMIT-END ========================
+	Commit-ID:<bc33390b82069e531d0065d42d479326393cd706>	  (origin/Developers/sumant.kalra/402738/ProgradeFixes2, Developers/sumant.kalra/402738/ProgradeFixes2)
+
+++
+2020-10-26  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Implementation of Mixed Source Rock in Genex0D.
+	================== COMMIT-END ========================
+	Commit-ID:<8fde757b1a3f6c3a78940a42775433e8c84c14de>	  (tag: refs/tags/v2.3.0)
+
+++
+2020-10-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: lean datadriller and track1d in casa.
+	* Mistakenly removed previously, lean is always ok as it will fallback to full calculation for derived properties
+	================== COMMIT-END ========================
+	Commit-ID:<8c5b58d4fd85d7d580dd9e295425b539bdcd1a20>	  (refs/heads/master)
+
+++
+2020-10-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix fast properties when output name is not mapped.
+	* Related to https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/396272
+	================== COMMIT-END ========================
+	Commit-ID:<1547c0b4b4f6c5e74e545d9be355b616a46d6585>	  (refs/heads/master)
+
+++
+2020-10-13  Richard Faasse  <Richard.Faasse@shell.com>
+
+	Fix: only filter the cauldron and genex results.
+	* Fix for the bug 401783 https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/401783
+	================== COMMIT-END ========================
+	Commit-ID:<a976a4b4551a89c537f9cf9b42a0f61abec01650>	  (refs/heads/master)
+
+++
+2020-10-09  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added adsorption model functionality to genex0d.
+	================== COMMIT-END ========================
+	Commit-ID:<693491b5639ac1e5685463955c4c54beacc48b29>	  (refs/heads/master)
+
+++
+2020-10-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix the filtering of vizIO output.
+	* Related to https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/396272
+	================== COMMIT-END ========================
+	Commit-ID:<4834b4f22b8cf7b61650f7de1e06a7d3b7b06975>	  (refs/heads/master)
+
+++
+2020-10-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: add new redhat version when installing.
+	* Add new redhat version when installing
+	================== COMMIT-END ========================
+	Commit-ID:<a95ce4149f170d33b670343aee49ad12cd7189e0>	  (refs/heads/master)
+
+++
+2020-09-30  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Use logger instead of cout in Newton warning.
+	
+	Related work items: #365260
+	================== COMMIT-END ========================
+	Commit-ID:<b01e523318a07dbb908926fabbcf4656a0a23a3d>	  (refs/heads/master)
+
+++
+2020-09-25  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Genex0d argument extension & bug fixing.
+	* Related work items: #395998
+	* Extension of arguments and small bug-fixing for the genex0d application
+	================== COMMIT-END ========================
+	Commit-ID:<ab71013a083957260fd3ef1d060d5c28456b4659>	  (refs/heads/master)
+
+++
+2020-09-18  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Add logging when Newton solver for pressure does not converge.
+	A log is created when the Newton solver does not converge
+
+	Related work items: #365260, #398341
+	================== COMMIT-END ========================
+	Commit-ID:<6d8866cb42a094b5b53da27f80f2410f1af3f8db>	  (refs/heads/master)
+
+++
+2020-09-11  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: usr: Prograde Implementation for SurfaceDepthIoTbl and Soil Mechanics Porosity Models Lithologies
+	 * Reference of SurfaceDepth at age = 0Ma from StratIoTbl is added to SurfaceDepthIoTbl
+	 * Soil Mechanics Lithogies in bpa-legacy HOU are mapped to the Exponential porosity models
+	 * Related work items: #390698, #393500
+	================== COMMIT-END ========================
+	Commit-ID:<de084a3a5f64485986caf408c56607f48d491a52>	  (HEAD -> master, origin/master)
+
+++
+2020-09-07  arijit.khan Khan  <arijit.khan@shell.com>
+
+	fix: dev: Interpolation fix for geologic events that are defined at an age older than the basement age
+	 * fastcauldron now interpolates missing values for any Age-Property pair wherever such entries are missing
+
+	Related work items: #372147
+	================== COMMIT-END ========================
+	Commit-ID:<6137047dc139ea4eeff841aa8ff10a6dbd80577c>	  (tag: refs/tags/v2.2.1, refs/heads/master)
+
+++
 2020-08-27  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
 
 	chg: dev: usr: Changes in fastgenex/fastproperties Related to UndefinedMapValue
@@ -44,7 +175,6 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 	 * <constantvalue> parameter in the XML file is corrected for scenarios where both valid/invalid values are present
 
 	Related work items: #389751
-
 	================== COMMIT-END ========================
 	Commit-ID:<7e7df2f31b2b6e80804e6721fb143f4afd579646>	  (HEAD -> master, origin/master)
 
@@ -67,6 +197,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 	Prograde functionality added
 
 	Related work items: #388885
+	================== COMMIT-END ========================
 	Commit-ID:<4ed225446f09202ac4bc9855105394ce5a3cf179>	  (refs/heads/master)
 
 ++

@@ -31,7 +31,7 @@ const bool EffectiveCrustalThicknessCalculator::s_gosthNodes = true;
 
 EffectiveCrustalThicknessCalculator::EffectiveCrustalThicknessCalculator(
    const PaleoFormationPropertyList*        continentalCrustThicknessHistory,
-   const TableOceanicCrustThicknessHistory& oceanicCrustThicknessHistory,
+   const PaleoFormationPropertyList*        oceanicCrustThicknessHistory,
    const double                             initialLithosphericMantleThickness,
    const double                             initialCrustThickness,
    const DataModel::AbstractValidator&      validator ):
@@ -57,12 +57,12 @@ EffectiveCrustalThicknessCalculator::EffectiveCrustalThicknessCalculator(
    else if (m_initialCrustThickness < 0.0) {
       throw std::invalid_argument( "The initial crust thickness is negative" );
    }
-   // d. The inital crust and lithospheric mantle thicknesses must sum to greater than 0
+   // d. The initial crust and lithospheric mantle thicknesses must sum to greater than 0
    else if (m_initialCrustThickness == 0 and m_initialLithosphericMantleThickness == 0) {
       throw std::invalid_argument( "Both the inital crust and the lithospheric mantle thicknesses have a zero thickness" );
    }
    // e. Oceanic crustal thickness history must not be empty
-   else if (oceanicCrustThicknessHistory.data().empty()) {
+   else if (oceanicCrustThicknessHistory->empty()) {
       throw std::invalid_argument( "No oceanic crustal thickness history was provided to the effective crustal thickness calculator (empty data vector)" );
    }
 }
@@ -81,7 +81,7 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
    ///2. Retrieve data
    retrieveData();
 
-   ///3. Precompute constant for calculation
+   ///3. Pre-compute constant for calculation
    // zero division already checked by the constructor
    const double coeff = m_initialCrustThickness / (m_initialLithosphericMantleThickness + m_initialCrustThickness);
 
@@ -96,12 +96,13 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
 
       // If we use the latest version of the ALC then we first need to find
       //    the oceanic crustal thickness corresponding to the current continental crust thickness
-      auto oceanicCrustData = m_oceanicCrustThicknessHistory.data();
-      auto oceanicCrustThicknessIt = oceanicCrustData.end();
-      oceanicCrustThicknessIt = std::find_if( oceanicCrustData.begin(), oceanicCrustData.end(), [&age]( std::shared_ptr<const OceanicCrustThicknessHistoryData> obj ) {return obj->getAge() == age; } );
-      if (oceanicCrustThicknessIt == oceanicCrustData.end()) {
+      auto oceanicCrustThicknessIt = std::find_if(m_oceanicCrustThicknessHistory->begin(), m_oceanicCrustThicknessHistory->end(), 
+          [&age](const PaleoFormationProperty* obj) {return (obj)->getSnapshot()->getTime() == age; }
+      );
+      if (oceanicCrustThicknessIt == m_oceanicCrustThicknessHistory->end()) {
+          // \Now this should never happen... nevertheless
          // since the inputs of the continental crust have been modified by the project handle, this can happen
-         // in that casewe just skip this age, it will be linearly interpolated fom the other ages
+         // in that case we just skip this age, it will be linearly interpolated from the other ages
          continue;
       }
       for (auto i = static_cast<unsigned int>(contCrustThicknessMap->getGrid()->firstI( s_gosthNodes )); i <= static_cast<unsigned int>(contCrustThicknessMap->getGrid()->lastI( s_gosthNodes )); ++i) {
@@ -109,11 +110,11 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
          for (auto j = static_cast<unsigned int>( contCrustThicknessMap->getGrid()->firstJ( s_gosthNodes )); j <= static_cast<unsigned int>(contCrustThicknessMap->getGrid()->lastJ( s_gosthNodes )); ++j) {
 
             if (m_validator.isValid( i, j )) {
-
-               // Initialise inputs and outputs used by all ALC versions
+                auto oceanicCrustThicknessIns = *oceanicCrustThicknessIt;
+               // Initialize inputs and outputs used by all ALC versions
                const double continentalCrustThicknessValue = contCrustThicknessMap->getValue( i, j );
                checkThicknessValue( "Continental crustal thickness", i, j, age, continentalCrustThicknessValue );
-               const double basaltThicknessValue = oceanicCrustThicknessIt->get()->getMap()->getValue( i, j );
+               const double basaltThicknessValue = oceanicCrustThicknessIns->getMap(OceaCrustThinningHistoryInstanceThicknessMap)->getValue( i, j );
                checkThicknessValue( "Oceanic crustal thickness", i, j, age, basaltThicknessValue );
                //the previous continental crust thickness value was already checked for in the previous iteration
                const double previousContinentalCrustThicknessValue = prevContCrustThicknessMap->getValue( i, j );
@@ -170,13 +171,17 @@ void GeoPhysics::EffectiveCrustalThicknessCalculator::updateEndOfRift( const dou
 void GeoPhysics::EffectiveCrustalThicknessCalculator::retrieveData() const
 {
 
-   std::for_each( m_continentalCrustThicknessHistory->begin(), m_continentalCrustThicknessHistory->end(), []( const PaleoFormationProperty* obj )
-   {
-      obj->getMap(CrustThinningHistoryInstanceThicknessMap)->retrieveData( s_gosthNodes );
-   } );
+   std::for_each( m_continentalCrustThicknessHistory->begin(), m_continentalCrustThicknessHistory->end(), 
+       []( const PaleoFormationProperty* obj )
+       {
+           obj->getMap(CrustThinningHistoryInstanceThicknessMap)->retrieveData( s_gosthNodes );
+       } );
 
-   auto oceanicCrustData = m_oceanicCrustThicknessHistory.data();
-   std::for_each( oceanicCrustData.begin(), oceanicCrustData.end(), []( std::shared_ptr<const OceanicCrustThicknessHistoryData> obj ) { obj->getMap()->retrieveData( s_gosthNodes ); } );
+   std::for_each(m_oceanicCrustThicknessHistory->begin(), m_oceanicCrustThicknessHistory->end(), 
+       [](const PaleoFormationProperty* obj) 
+       {
+           obj->getMap(OceaCrustThinningHistoryInstanceThicknessMap)->retrieveData( s_gosthNodes );
+       } );
 }
 
 //------------------------------------------------------------//
@@ -184,13 +189,17 @@ void GeoPhysics::EffectiveCrustalThicknessCalculator::retrieveData() const
 void GeoPhysics::EffectiveCrustalThicknessCalculator::restoreData() const
 {
 
-   std::for_each( m_continentalCrustThicknessHistory->begin(), m_continentalCrustThicknessHistory->end(), []( const PaleoFormationProperty* obj )
-   {
-      obj->getMap(CrustThinningHistoryInstanceThicknessMap)->restoreData(false, s_gosthNodes );
-   } );
+   std::for_each( m_continentalCrustThicknessHistory->begin(), m_continentalCrustThicknessHistory->end(), 
+       []( const PaleoFormationProperty* obj )
+       {
+           obj->getMap(CrustThinningHistoryInstanceThicknessMap)->restoreData(false, s_gosthNodes );
+       } );
 
-   auto oceanicCrustData = m_oceanicCrustThicknessHistory.data();
-   std::for_each( oceanicCrustData.begin(), oceanicCrustData.end(), []( std::shared_ptr<const OceanicCrustThicknessHistoryData> obj ) { obj->getMap()->restoreData(false, s_gosthNodes ); } );
+   std::for_each( m_oceanicCrustThicknessHistory->begin(), m_oceanicCrustThicknessHistory->end(), 
+       [](const PaleoFormationProperty* obj) 
+       { 
+           obj->getMap(OceaCrustThinningHistoryInstanceThicknessMap)->restoreData(false, s_gosthNodes);
+       } );
 
 }
 

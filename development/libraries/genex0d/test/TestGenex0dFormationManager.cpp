@@ -22,7 +22,7 @@ protected:
   {
     objectFactory = new DataAccess::Interface::ObjectFactory();
     projectHandle = DataAccess::Interface::OpenCauldronProject(projectFileName, objectFactory);
-    ASSERT_NO_THROW(genex0dFormationMgr = new genex0d::Genex0dFormationManager(
+    ASSERT_NO_THROW(genex0dFormationMgr = new Genex0d::Genex0dFormationManager(
           *projectHandle, formationName, xCoord, yCoord));
   }
 
@@ -36,7 +36,7 @@ protected:
   static const std::string projectFileName;
   DataAccess::Interface::ObjectFactory * objectFactory;
   DataAccess::Interface::ProjectHandle * projectHandle;
-  genex0d::Genex0dFormationManager * genex0dFormationMgr;
+  Genex0d::Genex0dFormationManager * genex0dFormationMgr;
 };
 const std::string TestGenex0dFormationManager::projectFileName = "AcquiferScale1.project3d";
 

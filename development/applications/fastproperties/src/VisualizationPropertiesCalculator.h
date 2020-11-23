@@ -81,25 +81,25 @@ private:
 
    /// \brief Create a property map in visualization format
    bool createVizSnapshotResultPropertyValueMap ( OutputPropertyValuePtr propertyValue,
-                                                  const Snapshot* snapshot, const Interface::Formation * formation,
+                                                  const Interface::Snapshot* snapshot, const Interface::Formation * formation,
                                                   const Interface::Surface * surface );
 
    /// \brief Create a continuous property in visualization format
    bool createVizSnapshotResultPropertyValueContinuous ( OutputPropertyValuePtr propertyValue,
-                                                         const Snapshot* snapshot, const Interface::Formation * formation );
+                                                         const Interface::Snapshot* snapshot, const Interface::Formation * formation );
 
    /// \brief Create a discontinuous property in visualization format
    bool  createVizSnapshotResultPropertyValueDiscontinuous ( OutputPropertyValuePtr propertyValue,
-                                                             const Snapshot* snapshot, const Interface::Formation * formation );
+                                                             const Interface::Snapshot* snapshot, const Interface::Formation * formation );
 
    /// \brief Create list of properties for a formation/surface pair at a snapshot age in visualization format
-   void  createVizSnapshotFormationData( const Snapshot * snapshot, const FormationSurface & formationItem,
+   void  createVizSnapshotFormationData( const Interface::Snapshot * snapshot, const FormationSurface & formationItem,
                                          DataAccess::Interface::PropertyList & properties,
                                          SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues );
 
    /// \brief Create a property for a formation/surface pair at a snapshot age in visualization format
    bool createVizSnapshotResultPropertyValue ( OutputPropertyValuePtr propertyValue,
-                                               const Snapshot* snapshot, const Interface::Formation * formation,
+                                               const Interface::Snapshot* snapshot, const Interface::Formation * formation,
                                                const Interface::Surface * surface );
 
    /// \brief Calculate k-range (offsets in depth) for all stratigraphy formations.

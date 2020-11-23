@@ -12,9 +12,9 @@
 #include "StratigraphyModelConverter.h"
 // Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
 #include "GridMapIoTblUpgradeManager.h"
-/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
-* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); // Clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
-* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); // Clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName"); // Clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName","mapName"); // Clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
 */
 
 //utilities
@@ -142,7 +142,7 @@ void Prograde::FaultCutUpgradeManager::upgrade()
 					if (mapName == mapNames[i]) break;
 					else
 					{
-						Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("FaultcutIoTbl", mapName);
+						Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("FaultcutIoTbl", mapName);
 						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> GridMap " << mapName << " ReferredBy FaultcutIoTbl will be cleared by GridMapIoTbl Upgrade Manager as the record containing the map is removed";
 					}
 				}

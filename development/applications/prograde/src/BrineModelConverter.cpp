@@ -76,7 +76,7 @@ FluidManager::FluidDensityModel Prograde::BrineModelConverter::upgradeDensityMod
    case FluidManager::Constant:
    {
       upgradedModel = FluidManager::Calculated;
-	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << fluidName << ", density model is upgraded from 'Constant' to 'Modified B&W density model' as the model is deprecated in BPA2";
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << fluidName << ", density model is upgraded from 'User Defined' to 'Modified B&W density model' as the model is deprecated in BPA2";
 	  break;
    }
 	case FluidManager::Calculated:
@@ -97,7 +97,7 @@ FluidManager::CalculationModel Prograde::BrineModelConverter::upgradeSeismicVelo
    case FluidManager::ConstantModel:
    {
       upgradedModel = FluidManager::CalculatedModel;
-	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << fluidName << ", seismic velocity model is upgraded from 'Constant' to 'Modified B&W seismic velocity model' as the model is deprecated in BPA2";
+	  LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> " << fluidName << ", seismic velocity model is upgraded from 'User Defined' to 'Modified B&W seismic velocity model' as the model is deprecated in BPA2";
       break;
    }
    case FluidManager::CalculatedModel:

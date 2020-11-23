@@ -12,7 +12,7 @@
 
 #include "database.h"
 
-namespace genex0d
+namespace Genex0d
 {
 
 GeoPhysics::ProjectHandle * Genex0dSimulatorFactory::produceProjectHandle (database::ProjectFileHandlerPtr database,

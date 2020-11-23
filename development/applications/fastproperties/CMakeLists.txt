@@ -16,9 +16,9 @@ set (all_headers,
    src/AbstractPropertiesCalculator.h
    src/HdfPropertiesCalculator.h
    src/VisualizationPropertiesCalculator.h
-   src/Utilities.h 
+   src/Utilities.h
    src/ExportToHDF.h )
- 
+
 set(all_srcs
    src/AbstractPropertiesCalculator.cpp
    src/HdfPropertiesCalculator.cpp
@@ -51,6 +51,7 @@ application_env_var( TARGET ${APP_NAME} VARS
 )
 
 include_directories( SYSTEM
+   ${PROJECT_SOURCE_DIR}/applications/fastcauldron/src
    ${HDF5_INCLUDE_DIRS}
    ${MPI_INCLUDE_DIRS}
    ${PETSC_INCLUDE_DIRS}
@@ -59,8 +60,10 @@ include_directories( SYSTEM
 )
 
 target_link_libraries(${APP_NAME}
+   FastcauldronApplication
    AbstractDerivedProperties
    DerivedProperties
+   calibration_kernel
    GeoPhysics
    DataAccess
    DistributedDataAccess
@@ -82,7 +85,7 @@ target_link_libraries(${APP_NAME}
 )
 
 install(TARGETS ${APP_NAME}
-   RUNTIME DESTINATION bin 
+   RUNTIME DESTINATION bin
 )
 
 if (UNIX)
@@ -92,7 +95,7 @@ if (UNIX)
    configure_file(test/machines machines COPYONLY )
    set( MACHINE_FILE -machinefile machines)
 endif (UNIX)
-                                    
+
 add_gtest( NAME Fastproperties::ConvertProperties_MPInp2
            SOURCES test/ConvertProperties.cpp src/Utilities.cpp src/Utilities.h
            LIBRARIES DerivedProperties VisualizationIO DataAccess DistributedDataAccess  GeoPhysics  Parallel_Hdf5 VisualizationIO_projectHandle

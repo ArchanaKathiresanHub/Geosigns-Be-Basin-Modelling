@@ -14,6 +14,7 @@
 
 //utilities
 #include "LogHandler.h"
+#include "NumericFunctions.h"
 
 //cmbAPI
 #include "cmbAPI.h"
@@ -154,62 +155,110 @@ void Prograde::LithologyUpgradeManager::upgrade() {
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "DefinitionDate", legacyDefinitionDate);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "LastChangedBy", legacyLastChangedBy);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "LastChangedDate", legacyLastChangedDate);
-
-      //Check and update lithotype property values are in proposed range in LithotypeIoTbl field
-      //Density
-      litPropValue = m_model.lithologyManager().getLitPropDensity(lithoId);
-      modelConverter.upgradeLitPropDensity(litPropValue);
-      m_model.lithologyManager().setLitPropDensity(lithoId, litPropValue);
-      //Heat Production
-      litPropValue = m_model.lithologyManager().getLitPropHeatProduction(lithoId);
-      modelConverter.upgradeLitPropHeatProduction(litPropValue);
-      m_model.lithologyManager().setLitPropHeatProduction(lithoId, litPropValue);
-      //Thermal Conductivity
-      litPropValue = m_model.lithologyManager().getLitPropThrConductivity(lithoId);
-      modelConverter.upgradeLitPropThrConductivity(litPropValue);
-      m_model.lithologyManager().setLitPropThrConductivity(lithoId, litPropValue);
-      //Thermal Conductivity Anistropy
-      litPropValue = m_model.lithologyManager().getLitPropThrCondAnistropy(lithoId);
-      modelConverter.upgradeLitPropThrCondAnistropy(litPropValue);
-      m_model.lithologyManager().setLitPropThrCondAnistropy(lithoId, litPropValue);
-      //Permeability Anistropy
-      litPropValue = m_model.lithologyManager().getLitPropPermAnistropy(lithoId);
-      modelConverter.upgradeLitPropPermAnistropy(litPropValue);
-      m_model.lithologyManager().setLitPropPermAnistropy(lithoId, litPropValue);
-      //Seismic Velocity
-      litPropValue = m_model.lithologyManager().getLitPropSeisVelocity(lithoId);
-      modelConverter.upgradeLitPropSeisVelocity(litPropValue);
-      m_model.lithologyManager().setLitPropSeisVelocity(lithoId, litPropValue);
-      //Seismic Velocity Exponent
-      litPropValue = m_model.lithologyManager().getLitPropSeisVeloExponent(lithoId);
-      modelConverter.upgradeLitPropSeisVeloExponent(litPropValue);
-      m_model.lithologyManager().setLitPropSeisVeloExponent(lithoId, litPropValue);
-      //Entry Pressure Coefficient 1
-      litPropValue = m_model.lithologyManager().getLitPropEntryPresCoeff1(lithoId);
-      modelConverter.upgradeLitPropEntryPresCoeff1(litPropValue);
-      m_model.lithologyManager().setLitPropEntryPresCoeff1(lithoId, litPropValue);
-      //Entry Pressure Coefficient 2
-      litPropValue = m_model.lithologyManager().getLitPropEntryPresCoeff2(lithoId);
-      modelConverter.upgradeLitPropEntryPresCoeff2(litPropValue);
-      m_model.lithologyManager().setLitPropEntryPresCoeff2(lithoId, litPropValue);
-      //Hydraulic Fracturing
-      litPropValue = m_model.lithologyManager().getLitPropHydFracturing(lithoId);
-      modelConverter.upgradeLitPropHydFracturing(litPropValue);
-      m_model.lithologyManager().setLitPropHydFracturing(lithoId, litPropValue);
-      //ReferenceSolidViscosity
-      litPropValue = m_model.lithologyManager().getLitPropRefSoldViscosity(lithoId);
-      modelConverter.upgradeLitPropRefSoldViscosity(litPropValue);
-      m_model.lithologyManager().setLitPropRefSoldViscosity(lithoId, litPropValue);
-      //Intrusion Temperature
-      litPropValue = m_model.lithologyManager().getLitPropIntrTemperature(lithoId);
-      modelConverter.upgradeLitPropIntrTemperature(litPropValue);
-      m_model.lithologyManager().setLitPropIntrTemperature(lithoId, litPropValue);
-
+	
+		//Check and update lithotype property values are in proposed range in LithotypeIoTbl field
+	    //Density
+		litPropValue = m_model.lithologyManager().getLitPropDensity(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, 500.0, 10000.0))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, 500.0, 10000.0);
+			m_model.lithologyManager().setLitPropDensity(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Density value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [500,10000]";
+		}
+		//Heat Production
+		litPropValue = m_model.lithologyManager().getLitPropHeatProduction(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, 0.0, 25.0))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, 0.0, 25.0);
+			m_model.lithologyManager().setLitPropHeatProduction(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Heat Production value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [0,25]";
+		}
+		//Thermal Conductivity
+		litPropValue = m_model.lithologyManager().getLitPropThrConductivity(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, 0.0, 10.0))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, 0.0, 10.0);
+			m_model.lithologyManager().setLitPropThrConductivity(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Thermal conductivity value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [0,10]";
+		}
+		//Thermal Conductivity Anistropy
+		litPropValue = m_model.lithologyManager().getLitPropThrCondAnistropy(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, 0.0, 10.0))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, 0.0, 10.0);
+			m_model.lithologyManager().setLitPropThrCondAnistropy(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Thermal conductivity Anistropy value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [0,10]";
+		}
+		//Permeability Anistropy
+		litPropValue = m_model.lithologyManager().getLitPropPermAnistropy(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, 0.0, 100.0))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, 0.0, 100.0);
+			m_model.lithologyManager().setLitPropPermAnistropy(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Permeability Anistropy value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [0,100]";
+		}
+		//Seismic Velocity
+		litPropValue = m_model.lithologyManager().getLitPropSeisVelocity(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, 1000.0, 9000.0))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, 1000.0, 9000.0);
+			m_model.lithologyManager().setLitPropSeisVelocity(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Seismic Velocity value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [1000,9000]";
+		}
+		//Seismic Velocity Exponent
+		litPropValue = m_model.lithologyManager().getLitPropSeisVeloExponent(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, -1.0, 1.0))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, -1.0, 1.0);
+			m_model.lithologyManager().setLitPropSeisVeloExponent(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Seismic Velocity Exponent value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [-1,1]";
+		}
+		//Entry Pressure Coefficient 1
+		litPropValue = m_model.lithologyManager().getLitPropEntryPresCoeff1(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, 0.1, 2.0))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, 0.1, 2.0);
+			m_model.lithologyManager().setLitPropEntryPresCoeff1(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Entry Pressure Coefficient 1 value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [0.1,2]";
+		}
+		//Entry Pressure Coefficient 2
+		litPropValue = m_model.lithologyManager().getLitPropEntryPresCoeff2(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, -1.5, 1.5))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, -1.5, 1.5);
+			m_model.lithologyManager().setLitPropEntryPresCoeff2(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Entry Pressure Coefficient 2 value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [-1.5,1.5]";
+		}
+		//Hydraulic Fracturing
+		litPropValue = m_model.lithologyManager().getLitPropHydFracturing(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, 0.0, 100.0))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, 0.0, 100.0);
+			m_model.lithologyManager().setLitPropHydFracturing(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Hydraulic Fracturing value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [0.0,100.0]";
+		}
+		//ReferenceSolidViscosity
+		litPropValue = m_model.lithologyManager().getLitPropRefSoldViscosity(lithoId);
+		if (!NumericFunctions::inRange(litPropValue, 0.0, 1e18))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, 0.0, 1e18);
+			m_model.lithologyManager().setLitPropRefSoldViscosity(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Reference Solid Viscosity value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [0,1e18]";
+		}
+		//Intrusion Temperature
+		litPropValue = m_model.lithologyManager().getLitPropIntrTemperature(lithoId);
+		if ((litPropValue != -9999) && (!NumericFunctions::inRange(litPropValue, 600.0, 1650.0)))
+		{
+			double updatedlitPropValue = NumericFunctions::clipValueToRange(litPropValue, 600.0, 1650.0);
+			m_model.lithologyManager().setLitPropIntrTemperature(lithoId, updatedlitPropValue);
+			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Warning> Original Hydraulic Fracturing value : " << litPropValue << " is changed to " << updatedlitPropValue << " as the value is not in acceptable limits [600.0,1650.0]";		
+		}
+	
 		//......................................POROSITY MODEL UPGRADATION......................................//	
 		//Upgrading the deprecated Soil Mechanics porosity model to Exponential model for user defined lithotypes of BPA1
 		m_model.lithologyManager().porosityModel(lithoId, porModel, porModelPrms);
 		updatedPorModelPrms.clear();
-		modelConverter.computeSingleExpModelParameters(legacyParentLithoName, lithologyFlag, porModel, porModelPrms, updatedPorModelPrms);
+		updatedPorModelPrms = modelConverter.computeSingleExpModelParameters(legacyParentLithoName, lithologyFlag, porModel, porModelPrms);
 		m_model.lithologyManager().setPorosityModel(lithoId, porModel, updatedPorModelPrms);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "CompacCoefESA", Utilities::Numerical::IbsNoDataValue);
 		m_model.setTableValue("LithotypeIoTbl", lithoId, "CompacCoefESB", Utilities::Numerical::IbsNoDataValue);

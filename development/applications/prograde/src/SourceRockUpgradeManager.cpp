@@ -10,15 +10,15 @@
 
 // std
 #include<algorithm>
-
+#include <iomanip>
 //Prograde
 #include "SourceRockUpgradeManager.h"
 #include "SourceRockConverter.h"
 //Prograde class to update the GridMapIoTbl if any GridMap is removed from any table
 #include "GridMapIoTblUpgradeManager.h"
-/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap()' is defined for the operation
-* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
-* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
+/**Static function named 'Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap()' is defined for the operation
+* Overload 1: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName"); //clears all the map references ReferredBy the table "tableName" from GridMapIoTbl
+* Overload 2: Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("tableName","mapName"); //clears the map reference of the "mapName" ReferredBy "tableName" from GridMapIoTbl
 */
 
 //utilities
@@ -32,6 +32,10 @@
 
 //DataAccess
 #include "ProjectHandle.h"
+					
+//======== THIS IS A TEMPORARY SOLUTION OF PLACING measuredHI of a SINGLE Source Rock in the SourceRockMixingHI field,
+#define HiAnamoly 0
+//======================================================================================
 
 using namespace mbapi;
 
@@ -59,7 +63,7 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 	// From StratIotbl get records that are SourceRocks
 	auto StartIoLayIds = m_model.stratigraphyManager().layersIDs();
 
-	// to detect if there is atleast one mixed SR case in the scenario
+	// to detect if there is at least one mixed SR case in the scenario
 	bool MixingOn = false;
 
 	// The SourceRock layers in the StratIoTbl
@@ -68,7 +72,7 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 	// The active SourceRocks in the StratIoTbl
 	theValidSrMixList listOfSrInSrLithoIoTblThatMustExist;
 
-	// list of the bpa2 names of SourceRocks with their corresponding Hi values
+	// list of the bpa2 names of SourceRocks with their corresponding Hi values -> SrId from SrLithoIo, and LayId from StratIo
 	std::vector<bpa2nameHiPair> theNameHiList;
 	std::vector<LayIdStratIoLayNamePair> SnglSrsFromStratIoLayIdNamePairList;
 
@@ -129,7 +133,7 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 	//// ============================ 1. Check StratIoTbl ================================================////
 	// for all the layers
 	std::for_each(StartIoLayIds.begin(), StartIoLayIds.end(),
-		[&](size_t& LayIdFromStratIo) // with layer id
+		[&](size_t const & LayIdFromStratIo) // with layer id
 	{
 		std::vector<std::string> theSRTypesInStraiIo{};
 		// Get the SourceRockTypes from StratIoTbl; return size()=zero if SR in not active, 
@@ -143,39 +147,54 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 			srLayersFromStratIoTbl.push_back(LayIdFromStratIo);
 
 			// this returns true only if SR is active
-			bool isEnbl = m_model.stratigraphyManager().isSourceRockMixingEnabled(LayIdFromStratIo);
+			bool isMixEnbl = m_model.stratigraphyManager().isSourceRockMixingEnabled(LayIdFromStratIo);
+			// variables to detect invalid mixing cases, numbered with (*SlNo.)
 			bool isSulfurous = false;
-
+			bool is2ndSRLiteratureType = false;
+			double hi2 = 0.0;
 			// case 1: Check Mixing
-			if (isEnbl)
+			if (isMixEnbl)
 			{
 				// the second source rock type is a sure thing
 				auto sr2 = &theSRTypesInStraiIo[1];
 				isSulfurous = modelConverter.isBpaSrSulfurous(*sr2);
+				// (*4) checking for literature type SR mixing, returns "","" as the names and 0.0 as measured Hi
 				theNameHiList.push_back(GetBpa2SourceRockNamesFromBpaNamesOfThisLayer((*sr2), LayIdFromStratIo,
-					srId, &modelConverter, isEnbl));
-				// changeing the same to new name
-				*sr2 = theNameHiList.back().first.second;
-
-				listOfSrInSrLithoIoTblThatMustExist.push_back(std::make_pair(srId, true)); // true => mixed SR2
-																						   // setSourceRockTypeName works as: sets 2 sr names iff mixing is enabled, sets 1 SR name is one
-																						   // active sr is present and none if no Sr in this layer
-
-				m_model.stratigraphyManager().setSourceRockTypeName(LayIdFromStratIo, theSRTypesInStraiIo);
-
-				// \m_model.stratigraphyManager().setSourceRockMixingEnabled(LayIdFromStratIo, isEnbl);
+					srId, &modelConverter, isMixEnbl));
+				 hi2 = theNameHiList.back().second.first;
+				// if there is a VALID SR-mixing name 
+				if (theNameHiList.back().first.second.compare(Utilities::Numerical::NoDataStringValue)) {
+					listOfSrInSrLithoIoTblThatMustExist.push_back(std::make_pair(srId, true)); // true => mixed SR2
+					// setSourceRockTypeName works as: sets 2 sr names iff mixing is enabled, sets 1 SR name is one
+					// active sr is present and none if no Sr in this layer
+					*sr2 = theNameHiList.back().first.second;
+					// \m_model.stratigraphyManager().setSourceRockTypeName(LayIdFromStratIo, theSRTypesInStraiIo);
+					// no need to set the 2nd SR here, we have collected the name in theSRTypesInStraiIo, we will set in one go when
+					// we set the 1st SR
+				}
+				else {
+					theNameHiList.pop_back()/* is a null string so clear*/;
+					// changing the same to new name
+					sr2 = nullptr;
+					is2ndSRLiteratureType = true;
+				}				
+				
 				MixingOn = true;
 			}
 			else
 			{
-				// Try and get the second SR name from this layer in STratIoTbl
+				// Try and get the second SR name from this layer in STratIoTbl theSRTypesInStraiIo[1] will not work
 				auto srNa2 = m_model.tableValueAsString("StratIoTbl", LayIdFromStratIo, "SourceRockType2");
 				// SR is active, EnableMixing is off but still SourceRockType2 is present
-				if (srNa2.compare("")) {// if there is a name in SR2
-					theSRTypesInStraiIo.push_back(""); // expand the vector to 2 elements
-													   //(*sr2) = ""; // null set the sr2
-													   // \m_model.stratigraphyManager().setSourceRockTypeName(LayIdFromStratIo, theSRTypesInStraiIo);
-													   // \m_model.stratigraphyManager().setSourceRockMixingEnabled(LayIdFromStratIo, isEnbl);
+				if (srNa2.compare("")) {// if there is a name in SR2... clear it out
+					theSRTypesInStraiIo.push_back(""); // expand the vector to 2 elements ... for later use
+													   //(*sr2) = ""; // set the sr2 to null
+					LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP)
+						<< "<Basin-Warning> Found 2nd SourceRock in this layer '" << LayerNameInStratIo << "' although mixing flag disabled,"
+						<< " clearing mixing parameters and the 2nd source rock <" << srNa2 << "> will be removed!";
+#if !HiAnamoly
+					clearMixingParams(LayIdFromStratIo);
+#endif // !HiAnamoly
 				}
 			}
 			auto sr1 = &theSRTypesInStraiIo[0];
@@ -184,27 +203,56 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 			{
 				bool is1stSrSulfurous = modelConverter.isBpaSrSulfurous(*sr1);
 				theNameHiList.push_back(GetBpa2SourceRockNamesFromBpaNamesOfThisLayer((*sr1), LayIdFromStratIo,
-					srId, &modelConverter, isEnbl));
-				// changeing the same to new name
+					srId, &modelConverter, isMixEnbl));
+				// changing the same to new name
 				*sr1 = theNameHiList.back().first.second;
-				listOfSrInSrLithoIoTblThatMustExist.push_back(std::make_pair(srId, false)); // false = non-mixed
-				m_model.stratigraphyManager().setSourceRockTypeName(LayIdFromStratIo, theSRTypesInStraiIo);
-				if (!isEnbl) {
-					/* ======== THIS IS A TEMPORARY SOLUTION OF PLACING measuredHI of a SINGLE Source Rock in the SourceRockMixingHI
-					=========== field, for import to work =======================================================================*/
+				auto hi1 = theNameHiList.back().second.first;
+				bool is1stSRLiteratureType = !theNameHiList.back().first.second.compare(Utilities::Numerical::NoDataStringValue);
+
+				if (!isMixEnbl) 
+				{
+					// This is a single SR
+					m_model.stratigraphyManager().setSourceRockTypeName(LayIdFromStratIo, theSRTypesInStraiIo);
+					listOfSrInSrLithoIoTblThatMustExist.push_back(std::make_pair(srId, false)); // isMixEnbl=false = non-mixed
+#if	HiAnamoly
 					SnglSrsFromStratIoLayIdNamePairList.push_back(std::make_pair(LayIdFromStratIo, LayerNameInStratIo));
+#endif
 				}
 				else {
-					// checking mixing of unrelated end-members w.r.t sulfur
-					listOfSrInSrLithoIoTblThatMustExist.back().second = true;
-					if (isSulfurous != is1stSrSulfurous)
-					{
-						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP)
-							<< "<Basin-Error> Mixing of sulfur and non sulfur source rock is identified in source rock mixing in Layer '"
-							<< LayerNameInStratIo << "'  and BPA2 does not allow mixing of sulfur and non-sulfur source rocks; Migration from BPA to BPA2 Basin Aborted...";
+					if (is1stSRLiteratureType && !is2ndSRLiteratureType)listOfSrInSrLithoIoTblThatMustExist.pop_back();
+					if (!is1stSRLiteratureType && !is2ndSRLiteratureType) {
+						m_model.stratigraphyManager().setSourceRockTypeName(LayIdFromStratIo, theSRTypesInStraiIo);
 
-						exit(142);
+						// (*1) checking mixing of unrelated end-members w.r.t sulfur
+						if (isSulfurous != is1stSrSulfurous && !is2ndSRLiteratureType)
+						{
+							LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP)
+								<< "<Basin-Warning> Mixing of sulfur and non sulfur source rock is identified in source rock mixing in Layer '"
+								<< LayerNameInStratIo << "'  and BPA2 does not allow mixing of sulfur and non-sulfur source rocks; Migration from BPA to BPA2-Basin changed this layer as a non-source rock layer...";
+							upgradeAsNormalLayer(LayIdFromStratIo);
+							listOfSrInSrLithoIoTblThatMustExist.pop_back();
+							theNameHiList.pop_back()/* is a improperSR so clear*/;
+
+						}
+						// (*2) checking same type SR mixing, sometimes in bpa names might differ but same measured hi can be used
+						else if ((!theSRTypesInStraiIo[1].compare(theSRTypesInStraiIo[0]) || hi1 == hi2)
+							&& theSRTypesInStraiIo[1] != ""
+							&& !is2ndSRLiteratureType)
+						{
+							LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP)
+								<< "<Basin-Warning> Mixing of same Source Rocks (or with identical measured Hi) is detected, <" << theSRTypesInStraiIo[0] << "> and <"
+								<< theSRTypesInStraiIo[1] <<">, in source rock mixing in Layer '"
+								<< LayerNameInStratIo << "'  and BPA2 does not allow mixing of same source rocks; Migration from BPA to BPA2-Basin changed this layer as a non-source rock layer...";
+							upgradeAsNormalLayer(LayIdFromStratIo);
+							listOfSrInSrLithoIoTblThatMustExist.pop_back();
+							theNameHiList.pop_back()/* is a improperSR so clear*/;
+
+						}
+						else 
+							listOfSrInSrLithoIoTblThatMustExist.push_back(std::make_pair(srId, true)); // isMixEnbl=true = mixed
 					}
+					else if(is1stSRLiteratureType || is2ndSRLiteratureType)
+						theNameHiList.pop_back();
 				}
 			}
 			else
@@ -216,33 +264,20 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 			theSRTypesIntStraiIo == null when SR inavtive althought names might be preset:
 			see implementation of stratigraphyManager().isSourceRockActive*/
 		{
-			theSRTypesInStraiIo.resize(2);
-			m_model.stratigraphyManager().setSourceRockTypeName(LayIdFromStratIo, theSRTypesInStraiIo);
-			m_model.stratigraphyManager().setSourceRockMixingEnabled(LayIdFromStratIo, false);
-			// the above should be the sequence of calls to update SourceRockTypeNames and RockMixingEnabled
-			// see implementation of both the methods
-
+			upgradeAsNormalLayer(LayIdFromStratIo);
 			// making a lists of SR mixing grids which have been removed from StratIoTbl if SR is inactive
 			srInactiveMixHIGridsCleared.push_back(m_model.tableValueAsString("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHIGrid"));
 			srInactiveMixHCgridsCleared.push_back(m_model.tableValueAsString("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHCGrid"));
-
-			m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHI", DataAccess::Interface::DefaultUndefinedScalarValue);// Changed as per the BPA2 standard for no SR layer
-
-			m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHIGrid", "");
-
-			m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHC", 0.);
-
-			m_model.setTableValue("StratIoTbl", LayIdFromStratIo, "SourceRockMixingHCGrid", "");
 		}
 	}
 	);
+	
 	// If SourceRock is not enabled
-	if (srLayersFromStratIoTbl.size() == 0) {
+	if (srLayersFromStratIoTbl.empty()) {
 		if (cleanSourceRockLithoIoTbl() == ErrorHandler::NoError)
 		{
 			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> SourceRock disabled, clearing SourceRockLithoIoTbl! GridMaps ReferredBy SourceRockLithoIoTbl (if any) will be cleared by GridMapIoTbl Upgrade Manager";
-			Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("SourceRockLithoIoTbl");
-
+			Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("SourceRockLithoIoTbl");
 		}
 		else
 			throw ErrorHandler::Exception(ErrorHandler::ValidationError) << "Something went wrong in cleaning SourceRockLithoIoTbl";
@@ -251,35 +286,46 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 	}
 	else
 	{
-		// clear up strayed SR entries from SourceRockLithoIoTbl that was left behind
-		std::sort(listOfSrInSrLithoIoTblThatMustExist.begin(), listOfSrInSrLithoIoTblThatMustExist.end());
-		auto err = UpdateOfInconsistentEntriesInSrLithoIoTbl(listOfSrInSrLithoIoTblThatMustExist, &modelConverter);
-		if (err != ErrorHandler::NoError)
-
-
-			throw ErrorHandler::Exception(ErrorHandler::ValidationError) << "Something went wrong in cleaning SourceRockLithoIoTbl";
-		// Collect consolidated record in a vector srLayersFromStratIoTbl
+		// Check if the HI_mixing ranges remain in valid ranges after resetting to default SRs for mixing cases
 		if (MixingOn) {
-			CheckValidHiRangesForMixedSRs(srLayersFromStratIoTbl, theNameHiList);
+			auto theFaildSrIdInStratIo = CheckValidHiRangesForMixedSRs(srLayersFromStratIoTbl, theNameHiList);
+			//(*3) Hi ranges that fail for mixing cases after user mixed SRs are reset to default Srs in BPA2
+			for (auto aFailedSr : theFaildSrIdInStratIo) {
+				listOfSrInSrLithoIoTblThatMustExist.erase(
+					std::remove_if(	listOfSrInSrLithoIoTblThatMustExist.begin(), 
+									listOfSrInSrLithoIoTblThatMustExist.end(),
+									[&](pair<size_t, bool>const & element) {
+										bool is = (element.first == aFailedSr);
+										return is;
+									}
+								   )
+							);
+			}
 		}
-
+		// clear up strayed SR entries from SourceRockLithoIoTbl that was left behind
+		//
+		auto err = UpdateOfInconsistentEntriesInSrLithoIoTbl(listOfSrInSrLithoIoTblThatMustExist, &modelConverter);
+		if (err != ErrorHandler::NoError) {
+			throw ErrorHandler::Exception(ErrorHandler::ValidationError) << "Something went wrong in cleaning SourceRockLithoIoTbl";
+		}
+		
 		// 2. Change SourceRockLithoIoTbl 
 		if (SetSourceRockPropertiesForBPA2(&modelConverter, listOfSrInSrLithoIoTblThatMustExist, SnglSrsFromStratIoLayIdNamePairList)
-			!= ErrorHandler::NoError)
-
-
+			!= ErrorHandler::NoError) {
 			throw ErrorHandler::Exception(ErrorHandler::ValidationError) << "Something went wrong in updating SourceRockLithoIoTbl";
-
+		}
 		// ============================== SourceRockLithoIoTbl updated =================================== //
 
 	}
 
-	// Removing unnecessary map references related to SourceRockLithoIoTbl from GridMapIoTbl 
-	std::vector<std::string> srLithoIoTblMaps; //vector containing the list of maps in SourceRockLithoIoTbl; 
-	database::Table * srLithoiotbl = m_ph->getTable("SourceRockLithoIoTbl");
+	// \Removing unnecessary map references related to SourceRockLithoIoTbl from GridMapIoTbl 
+	
+	// Collect remaining GridMap names in SourceRockLithoIoTbl
+	std::vector<std::string> srLithoIoTblMaps; // vector containing the list of maps in SourceRockLithoIoTbl; 
+	database::Table* srLithoiotbl = m_ph->getTable("SourceRockLithoIoTbl");
 	for (size_t id = 0; id < srLithoiotbl->size(); ++id)
 	{
-		database::Record * rec = srLithoiotbl->getRecord(static_cast<int> (id));
+		database::Record* rec = srLithoiotbl->getRecord(static_cast<int> (id));
 		std::string TocIniGridMap = rec->getValue<std::string>("TocIniGrid");
 		srLithoIoTblMaps.push_back(TocIniGridMap);
 	}
@@ -292,19 +338,21 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 		if (referredBy == "SourceRockLithoIoTbl")
 		{
 			std::string mapNameFromIoTbl = rec->getValue<std::string>("MapName");
+			if(srLithoIoTblMaps.size() == 0) // this is when the entire SourceRockLithoIoTbl is cleared
+				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("SourceRockLithoIoTbl");
 			for (int i = 0; i < srLithoIoTblMaps.size(); ++i)
 			{
 				if (mapNameFromIoTbl == srLithoIoTblMaps[i]) break;
 				else if (i == srLithoIoTblMaps.size() - 1)
 				{
-					Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("SourceRockLithoIoTbl", mapNameFromIoTbl);
-
+					Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("SourceRockLithoIoTbl", mapNameFromIoTbl);
+					// this creates a list of maps to be cleared when GidMapIoTbl upgrade Update method is called 
 				}
 			}
 		}
 	}
 
-	//Identifying the unnecessary map references in GridMapIoTbl ReferredBy StratIoTbl for inactive SR - SR mixing Gridmaps
+	// Identifying the unnecessary map references in GridMapIoTbl ReferredBy StratIoTbl for inactive SR - SR mixing Grid maps
 	database::Table * stratioTbl = m_ph->getTable("StratIoTbl");
 	// Inactive SR - SourceRockMixingHIGrid cleared
 	for (int i = 0; i < srInactiveMixHIGridsCleared.size(); i++)
@@ -316,7 +364,7 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 			if (srInactiveMixHIGridsCleared[id] == srMixHIGrid) break;
 			else if (id == stratioTbl->size() - 1)
 			{
-				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("StratIoTbl", srMixHIGrid);
+				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("StratIoTbl", srMixHIGrid);
 
 			}
 		}
@@ -331,7 +379,7 @@ void Prograde::SourceRockUpgradeManager::upgrade() {
 			if (srInactiveMixHCgridsCleared[id] == srMixHCGrid) break;
 			else if (id == stratioTbl->size() - 1)
 			{
-				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNamepReferenceGridMap("StratIoTbl", srMixHCGrid);
+				Prograde::GridMapIoTblUpgradeManager::clearTblNameMapNameReferenceGridMap("StratIoTbl", srMixHCGrid);
 
 			}
 		}
@@ -371,7 +419,7 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::SetSourceRockProper
 		// return data
 		std::string bpa2SourceRockTypeName, bpa2BaseSourceRockType; bool litFlag{};
 
-		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* For the Layer Name : " << layerName << ",";
+		LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "* For the Layer Name : '" << layerName << "',";
 
 		upgradeToBPA2Names(mConvert, bpaSourceRockTypeName,
 			bpaBaseSourceRockType, bpa2SourceRockTypeName, bpa2BaseSourceRockType, litFlag, bpaScVre05);
@@ -392,7 +440,7 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::SetSourceRockProper
 				<< " used in a mixed source rock layer "
 				<< layerName << " is reset to default properties";
 		}
-#if 0		// This was a temporary solution solution and now not needed as this has been now taken care in the middle tier in PBI #.
+#if HiAnamoly		// This was a temporary solution solution and now not needed as this has been now taken care in the middle tier in PBI #.
 		else {
 			// This is the PART where HI value for Single SR is put into SourceRockMixingHI
 			// \ has to be removed later when "middle" tire is corrected
@@ -446,37 +494,42 @@ Prograde::bpa2nameHiPair Prograde::SourceRockUpgradeManager::GetBpa2SourceRockNa
 		if ((!sr.compare(bpaSrName)) && (!lr.compare(LyrNameStarIo))) {
 			auto bsr = m_model.sourceRockManager().baseSourceRockType(*it);
 			srIdFromSrLitoIoTbl = *it;
+			std::pair < std::string, std::string> theSrNames(Utilities::Numerical::NoDataStringValue, Utilities::Numerical::NoDataStringValue);// BaseSR,SR name
+			auto theBpa2Hi = Utilities::Numerical::IbsNoDataValue;
 			if (mConvert->isSrFromLiterature(bsr, &bpaSrName) && isMixingEnable) {
-				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Error> Literature source is identified in source rock mixing in Layer '"
-					<< LyrNameStarIo << "' and BPA2 does not allow literature source rocks in source rock mixing'; Migration from BPA to BPA2 Basin Aborted...";
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Warning> Literature source is identified in source rock mixing in Layer '"
+					<< LyrNameStarIo << "' and BPA2 does not allow literature source rocks in source rock mixing'; Migration from BPA to BPA2-Basin changed this layer as a non-source rock layer...";
+				upgradeAsNormalLayer(LayIdFromStraIOTbl);
 
-				exit(141);
 			}
-			auto theBpa2Hi = mConvert->GetmeasuredHI(m_model.sourceRockManager().baseSourceRockType(srIdFromSrLitoIoTbl), &bpaSrName);
-			auto theSrNames = std::make_pair(
-				mConvert->GetBPA2BaseRockName(m_model.sourceRockManager().baseSourceRockType(srIdFromSrLitoIoTbl),
-					&bpaSrName),
-				mConvert->GetBPA2RockName(m_model.sourceRockManager().baseSourceRockType(srIdFromSrLitoIoTbl),
-					&bpaSrName));
+			else {
+				theBpa2Hi = mConvert->GetmeasuredHI(m_model.sourceRockManager().baseSourceRockType(srIdFromSrLitoIoTbl), &bpaSrName);
+				theSrNames = std::make_pair(
+					mConvert->GetBPA2BaseRockName(m_model.sourceRockManager().baseSourceRockType(srIdFromSrLitoIoTbl),
+						&bpaSrName),
+					mConvert->GetBPA2RockName(m_model.sourceRockManager().baseSourceRockType(srIdFromSrLitoIoTbl),
+						&bpaSrName));
+			}
 
-			return std::make_pair(theSrNames, theBpa2Hi);
+			return std::make_pair(theSrNames, make_pair( theBpa2Hi, make_pair(srIdFromSrLitoIoTbl, LayIdFromStraIOTbl)));
 		}
 	}
 
-	return std::make_pair(std::make_pair(std::string("Something is fishy BaseSr!"), std::string("Something is fishy Sr!")), Utilities::Numerical::IbsNoDataValue);
+	return std::make_pair(std::make_pair(std::string("Something is fishy BaseSr!"), std::string("Something is fishy Sr!")), make_pair(Utilities::Numerical::IbsNoDataValue, make_pair(Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue)));
 }
 
-void Prograde::SourceRockUpgradeManager::CheckValidHiRangesForMixedSRs(const std::vector<size_t>& theActiveSrs,
+std::vector<size_t> Prograde::SourceRockUpgradeManager::CheckValidHiRangesForMixedSRs(const std::vector<size_t>& theActiveSrs,
 	std::vector < bpa2nameHiPair>& SrNameHiList)
 {
+	std::vector<size_t> thefailedSrList;
 	for (auto stratIoSRs : theActiveSrs)
 	{
 		auto enbl = m_model.stratigraphyManager().isSourceRockMixingEnabled(stratIoSRs);
 		auto layName = m_model.stratigraphyManager().layerName(stratIoSRs);
 		if (enbl) {
 			auto SRs = m_model.stratigraphyManager().sourceRockTypeName(stratIoSRs);
-			// \ Only for Scalar Hi enties
-			if (!m_model.tableValueAsString("StratIoTbl", stratIoSRs, "SourceRockMixingHIGrid").compare(""))
+			// \ Only for Scalar Hi entries
+			if (!m_model.tableValueAsString("StratIoTbl", stratIoSRs, "SourceRockMixingHIGrid").compare("") && !SRs.empty())
 			{
 				auto mixHi = m_model.stratigraphyManager().sourceRockMixHI(stratIoSRs);
 				double arr[2] = { 0,0 };
@@ -484,14 +537,14 @@ void Prograde::SourceRockUpgradeManager::CheckValidHiRangesForMixedSRs(const std
 				auto it = std::find_if(SrNameHiList.begin(), SrNameHiList.end(),
 					[&](Prograde::bpa2nameHiPair& element) ->bool {
 					auto is = (element.first.second == SRs[0]);
-					if (is)arr[0] = element.second;
+					if (is)arr[0] = element.second.first;
 					return is;
 				});
 
 				auto it2 = std::find_if(SrNameHiList.begin(), SrNameHiList.end(),
 					[&](Prograde::bpa2nameHiPair& element) ->bool {
 					auto is = (element.first.second == SRs[1]);
-					if (is)arr[1] = element.second;
+					if (is)arr[1] = element.second.first;
 					return is;
 				});
 				int n = sizeof(arr) / sizeof(arr[0]);
@@ -499,12 +552,25 @@ void Prograde::SourceRockUpgradeManager::CheckValidHiRangesForMixedSRs(const std
 				if (it != SrNameHiList.end() && it2 != SrNameHiList.end()) {
 					if (!NumericFunctions::inRange(mixHi, arr[0], arr[1])) {
 						LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) <<
-							"<Basin-Error> Target Source Rock Mixing HI  in Layer '" << layName << "' is: " << mixHi <<
+							"<Basin-Warning> Target Source Rock Mixing HI  in Layer '" << layName << "' is: " << mixHi <<
 
 							" which is out of allowed range (" << arr[0] << "," << arr[1] <<
 
-							") for source rock mixing" << "in BPA2 Basin; Migration from BPA to BPA2 Basin Aborted...";
-						exit(143);
+							") for source rock mixing" << "in BPA2-Basin; Migration from BPA to BPA2-Basin changed this layer as a non-source rock layer...";
+						upgradeAsNormalLayer(stratIoSRs);
+						auto itt = std::find_if(SrNameHiList.begin(), SrNameHiList.end(),
+							[&](Prograde::bpa2nameHiPair& element) ->bool {
+								auto is = (element.first.second == SRs[0] && element.second.second.second == stratIoSRs);
+								if (is)thefailedSrList.push_back(element.second.second.first);
+								return is;
+							});
+
+						auto itt2 = std::find_if(SrNameHiList.begin(), SrNameHiList.end(),
+							[&](Prograde::bpa2nameHiPair& element) ->bool {
+								auto is = (element.first.second == SRs[1] && element.second.second.second == stratIoSRs);
+								if (is)thefailedSrList.push_back(element.second.second.first);
+								return is;
+							});
 					}
 				}
 			}
@@ -513,13 +579,14 @@ void Prograde::SourceRockUpgradeManager::CheckValidHiRangesForMixedSRs(const std
 			}
 		}
 	}
+	return thefailedSrList;
 }
 
 
 ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::UpdateOfInconsistentEntriesInSrLithoIoTbl(theValidSrMixList& ValidSrIds,
 	const Prograde::SourceRockConverter* mConvert)
 {
-	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating SourceRockLithoIoTbl - removing the inactive source rocks";
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "<Basin-Info> Updating SourceRockLithoIoTbl - removing the invalid source rocks";
 	ErrorHandler::ReturnCode err = ErrorHandler::NoError;
 	// SourceRocks from SrLithIo
 	auto SrLithIoSrIds = m_model.sourceRockManager().sourceRockIDs();
@@ -541,14 +608,13 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::UpdateOfInconsisten
 
 			auto idRem = (originalResIDPosition + 1) - countOfDelResId;
 
-			auto t = m_model.tableSize("SourceRockLithoIoTbl");
-			auto srRem = m_model.sourceRockManager().sourceRockType(idRem);
-			auto layername = m_model.sourceRockManager().layerName(idRem);
-			LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> For the layer " << layername << ", inactive SourceRock '" << srRem << "' is removed";
-
-
-
-			err = m_model.removeRecordFromTable("SourceRockLithoIoTbl", idRem);
+			if (m_model.tableSize("SourceRockLithoIoTbl") != 0) {
+				auto srRem = m_model.sourceRockManager().sourceRockType(idRem);
+				auto layername = m_model.sourceRockManager().layerName(idRem);
+				LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << "<Basin-Info> For the layer '" << layername << "', invalid SourceRock '" << srRem << "' with the following properties is removed";
+				PrintInvalidSrProperties(idRem);
+				err = m_model.removeRecordFromTable("SourceRockLithoIoTbl", idRem);
+			}
 		}
 		else {
 			// Re-order the srId after deleting SourceRockLithoIoTbl rows
@@ -557,4 +623,95 @@ ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::UpdateOfInconsisten
 	}
 	);
 	return err;
+}
+
+ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::upgradeAsNormalLayer(size_t LayId)
+{
+	std::vector<std::string> SRinStratIo(2, "");
+	auto err = m_model.stratigraphyManager().setSourceRockTypeName(LayId, SRinStratIo);
+	
+	err = m_model.stratigraphyManager().setSourceRockMixingEnabled(LayId, false);
+	// the above should be the sequence of calls to update SourceRockTypeNames and RockMixingEnabled
+	// see implementation of both the methods
+
+	err = clearMixingParams(LayId);
+
+	SRinStratIo.clear();// this is a trick to clear the "SourceRock" flag
+	err = m_model.stratigraphyManager().setSourceRockTypeName(LayId, SRinStratIo);
+
+	return err;
+}
+
+ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::clearMixingParams(size_t LayId)
+{
+	auto err = m_model.setTableValue("StratIoTbl", LayId, "SourceRockMixingHI", DataAccess::Interface::DefaultUndefinedScalarValue);// Changed as per the BPA2 standard for no SR layer
+
+	err = m_model.setTableValue("StratIoTbl", LayId, "SourceRockMixingHIGrid", "");
+
+	err = m_model.setTableValue("StratIoTbl", LayId, "SourceRockMixingHC", 0.);
+
+	err = m_model.setTableValue("StratIoTbl", LayId, "SourceRockMixingHCGrid", "");
+	return err;
+}
+
+ErrorHandler::ReturnCode Prograde::SourceRockUpgradeManager::PrintInvalidSrProperties(size_t srIdFromSrLithoIoTbl)
+{
+	std::vector<std::string> head = {
+		"TocIni/TocIniGrid",
+		"HcVRe05",
+		"HiVRe05(approx)",
+		"PreAsphaltStartAct",
+		"ScVRe05",
+		"AsphalteneDiffusionEnergy",
+		"ResinDiffusionEnergy",
+		"C15AroDiffusionEnergy",
+		"C15SatDiffusionEnergy",
+		"VREoptimization",
+		"VREthreshold",
+		"VESLimitIndicator",
+		"VESLimit"
+	};
+	std::vector<int> widths;
+	std::for_each(head.begin(), head.end(),
+		[&](std::string const &  s ) {
+			widths.push_back(5 * (s.length() / 5 + 1));
+		}
+	);
+
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) << 
+		std::setw(widths[0]) << head[0] << 
+		std::setw(widths[1]) << head[1] <<
+		std::setw(widths[2]) << head[2] <<
+		std::setw(widths[3]) << head[3] <<
+		std::setw(widths[4]) << head[4] <<
+		std::setw(widths[5]) << head[5] <<
+		std::setw(widths[6]) << head[6] <<
+		std::setw(widths[7]) << head[7] <<
+		std::setw(widths[8]) << head[8] <<
+		std::setw(widths[9]) << head[9] <<
+		std::setw(widths[10]) << head[10] <<
+		std::setw(widths[11]) << head[11] <<
+		std::setw(widths[12]) << head[12] <<'\n';
+
+
+
+
+	auto tocIniMap = m_model.sourceRockManager().tocInitMapName(srIdFromSrLithoIoTbl);
+
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS) <<
+		std::setw(widths[0]) << (!tocIniMap.compare("") ?  to_string(m_model.sourceRockManager().tocIni(srIdFromSrLithoIoTbl)) : tocIniMap) <<
+		std::setw(widths[1]) << m_model.sourceRockManager().hcIni(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[2]) << std::floor(m_model.sourceRockManager().hiIni(srIdFromSrLithoIoTbl)) <<
+		std::setw(widths[3]) << m_model.sourceRockManager().preAsphActEnergy(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[4]) << m_model.sourceRockManager().scIni(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[5]) << m_model.sourceRockManager().getAsphalteneDiffusionEnergy(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[6]) << m_model.sourceRockManager().getResinDiffusionEnergy(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[7]) << m_model.sourceRockManager().getC15AroDiffusionEnergy(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[8]) << m_model.sourceRockManager().getC15SatDiffusionEnergy(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[9]) << m_model.sourceRockManager().getVREoptimization(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[10]) << m_model.sourceRockManager().getVREthreshold(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[11]) << m_model.sourceRockManager().getVESlimitIndicator(srIdFromSrLithoIoTbl) <<
+		std::setw(widths[12]) << m_model.sourceRockManager().getVESlimit(srIdFromSrLithoIoTbl) << '\n';
+	// Will have to figure out How to use the error code here, hence retaining it for now
+	return ErrorHandler::ReturnCode(ErrorHandler::NoError);
 }

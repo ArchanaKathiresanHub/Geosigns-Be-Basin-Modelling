@@ -121,7 +121,7 @@ void DataDriller::calculateTrapAndMissingProperties()
     try
     {
       const double snapshotTime = database::getTime (record);
-      const DataAccess::Interface::Snapshot * snapshot = m_projectHandle->findSnapshot( snapshotTime );
+      const DataAccess::Interface::Snapshot * snapshot = m_projectHandle->findSnapshot( snapshotTime, Interface::MAJOR | Interface::MINOR );
 
       const double x = database::getXCoord( record );
       const double y = database::getYCoord( record );
@@ -153,15 +153,15 @@ void DataDriller::calculateTrapAndMissingProperties()
         {
           domain.findLocation( x, y, z, element );
         }
-        else if ( surfaceName != "" && formationName == "" ) // if only surface name is given - look for surface property
-        {
-          const DataAccess::Interface::Surface * surface = m_projectHandle->findSurface (surfaceName);
-          domain.findLocation( x, y, surface, element );
-        }
-        else if ( formationName != "" && surfaceName == "" ) // z is not defined and formation is given - here we are having formation map property
+        else if ( formationName != "" ) // z is not defined and formation is given - here we are having formation map property
         {
           const DataAccess::Interface::Formation * formation = m_projectHandle->findFormation( formationName );
           domain.findLocation( x, y, formation, element );
+        }
+        else if ( surfaceName != "") // if only surface name is given - look for surface property
+        {
+          const DataAccess::Interface::Surface * surface = m_projectHandle->findSurface (surfaceName);
+          domain.findLocation( x, y, surface, element );
         }
 
         // calculate property value for specified position

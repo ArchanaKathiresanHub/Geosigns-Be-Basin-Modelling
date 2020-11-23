@@ -330,7 +330,7 @@ bool Prograde::SourceRockConverter::isSrFromLiterature(const std::string& bpaBas
 	}
 	if (bpaSourceRockName) {
 		if (isBpaSrSulfurous(*bpaSourceRockName)) {
-			bpaBaseSourceRockName_ = AddTailing_sToSulfurousBpaBaseSrName(bpaBaseSourceRockName);
+			bpaBaseSourceRockName_ = AddTailing_sToSulfurousBpaBaseSrName(bpaBaseSourceRockName_);
 		}
 	}
 	

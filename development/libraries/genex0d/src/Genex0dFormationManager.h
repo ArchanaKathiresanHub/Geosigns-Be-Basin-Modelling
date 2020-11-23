@@ -22,7 +22,7 @@ class ProjectHandle;
 } // namespace Interface
 } // namespace DataAccess
 
-namespace genex0d
+namespace Genex0d
 {
 
 class Genex0dFormationManager

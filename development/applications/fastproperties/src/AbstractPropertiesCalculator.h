@@ -10,51 +10,21 @@
 #ifndef FASTPROPERTIES__ABSTRACT_PROPERTIES_CALCULATOR__H
 #define FASTPROPERTIES__ABSTRACT_PROPERTIES_CALCULATOR__H
 
-//std library
-#include <string>
-#include <sstream>
-#include <vector>
-#include <utility>
-#include <stdexcept>
 
-#include <petsc.h>
-
-//DataAccess library
-#include "Snapshot.h"
-#include "Surface.h"
-#include "Formation.h"
-#include "ObjectFactory.h"
-#include "Property.h"
-#include "PropertyValue.h"
-#include "SimulationDetails.h"
-
-//GeoPhysics
-#include "GeoPhysicsObjectFactory.h"
-#include "GeoPhysicsProjectHandle.h"
-
-//DerivedProperties
-#include "AbstractPropertyManager.h"
-#include "DerivedPropertyManager.h"
 #include "OutputUtilities.h"
-#include "OutputPropertyValue.h"
-#include "FormationOutputPropertyValue.h"
-#include "FormationMapOutputPropertyValue.h"
-#include "SurfaceOutputPropertyValue.h"
-#include "Utilities.h"
 
 // utilities library
 #include "LogHandler.h"
 #include "StatisticsHandler.h"
 
-using namespace std;
+#include <petsc.h>
 
-using namespace DataAccess;
-using namespace Interface;
-using namespace DerivedProperties;
+namespace DerivedProperties
+{
+  class DerivedPropertyManager;
+}
 
 typedef vector < double > DoubleVector;
-
-using namespace Utilities::CheckMemory;
 
 class AbstractPropertiesCalculator {
 
@@ -69,7 +39,7 @@ protected:
 
    PetscLogDouble m_startTime;
 
-   string m_projectFileName;
+   std::string m_projectFileName;
 
    bool m_primaryPod;        /// load results form the shared directory on the cluster
    bool m_extract2D;         ///< true if 2D primary/derived properties to be calculated and saved
@@ -87,8 +57,8 @@ protected:
    DoubleVector m_ages;
    StringVector m_formationNames;
 
-   string m_activityName;   ///< The name of the current activity producing output values
-   string m_simulationMode; ///< The name of the last simulation fastcauldron mode
+   std::string m_activityName;   ///< The name of the current activity producing output values
+   std::string m_simulationMode; ///< The name of the last simulation fastcauldron mode
    bool   m_decompactionMode;
    int    m_snapshotsType;  ///< The type of snapshots to calculate derived properties at
 
@@ -104,16 +74,16 @@ protected:
    virtual bool checkParameters() = 0;
 
    /// \brief Check if the property the formation/surface is allowed to be output
-   bool allowOutput ( const string & propertyName, const Interface::Formation * formation, const Interface::Surface * surface ) const;
+   bool allowOutput ( const std::string & propertyName, const Interface::Formation * formation, const Interface::Surface * surface ) const;
 
    /// \brief Check if the property the formation/surface is selected to be output in the project file
-   PropertyOutputOption checkTimeFilter3D ( const string & name ) const;
+   Interface::PropertyOutputOption checkTimeFilter3D ( const std::string& name ) const;
 
    /// \brief Reset project handle active grid to read primary properties in high resolution
    void resetProjectActivityGrid(const DataAccess::Interface::Property * property = 0);
 
    /// \brief Check if the property should be calculated for basement
-   bool isBasementProperty (const string& propertyName) const;
+   bool isBasementProperty (const std::string& propertyName) const;
 
    /// \brief Indicates whether or not open HDF file (2D data) for writing
    virtual bool getProperiesActivity() const = 0;
@@ -124,7 +94,7 @@ protected:
 public:
 
    GeoPhysics::ProjectHandle& getProjectHandle() const;
-   DerivedPropertyManager& getPropertyManager() const;
+   DerivedProperties::DerivedPropertyManager& getPropertyManager() const;
 
    bool showLists();
 
@@ -134,7 +104,7 @@ public:
 
    bool setFastcauldronActivityName();
 
-   bool acquireSnapshots( SnapshotList & snapshots );
+   bool acquireSnapshots( Interface::SnapshotList & snapshots );
    /// @brief Acquire outputable 3D properties from project handle
    /// @pre -all-3D-properties must be specified as a command line parameter
    void acquireAll3Dproperties();
@@ -146,7 +116,7 @@ public:
    /// @brief Acquire the proprerties list
    void acquireProperties( Interface::PropertyList & properties );
    /// @brief Check if the property should be calculated for basement
-   bool allowBasementOutput (const string& propertyName3D) const;
+   bool allowBasementOutput (const std::string& propertyName3D) const;
    /// @brief Acquire outputable simulator properties from project handle
    /// @pre -genex or -mig must be specified as a command line parameter
    virtual void acquireSimulatorProperties() { return; }
@@ -172,12 +142,12 @@ public:
 
    static void displayTime (const double timeToDisplay, const char * msgToDisplay);
 protected:
-   void displayProgress (const string & fileName, double startTime, const string & message);
+   void displayProgress (const std::string & fileName, double startTime, const std::string & message);
 
 private:
 
    std::unique_ptr<GeoPhysics::ProjectHandle> m_projectHandle;
-   DerivedPropertyManager * m_propertyManager;
+   DerivedProperties::DerivedPropertyManager * m_propertyManager;
 
 };
 

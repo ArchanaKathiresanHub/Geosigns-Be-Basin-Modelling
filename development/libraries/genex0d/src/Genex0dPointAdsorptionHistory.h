@@ -11,7 +11,7 @@
 
 #include "PointAdsorptionHistory.h"
 
-namespace genex0d
+namespace Genex0d
 {
 
 struct Genex0dInputData;

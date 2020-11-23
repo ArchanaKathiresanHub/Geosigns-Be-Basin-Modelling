@@ -26,7 +26,7 @@
 
 #include <cmath>
 
-namespace genex0d
+namespace Genex0d
 {
 
 Genex0dFormationManager::Genex0dFormationManager(DataAccess::Interface::ProjectHandle & projectHandle, const std::string & formationName, const double x, const double y) :
@@ -44,7 +44,7 @@ Genex0dFormationManager::Genex0dFormationManager(DataAccess::Interface::ProjectH
 
   if (!m_formation)
   {
-    throw genex0d::Genex0dException() << "Formation " << formationName << " not found";
+    throw Genex0d::Genex0dException() << "Formation " << formationName << " not found";
   }
   setProperties(x, y);
 }
