@@ -50,6 +50,8 @@ namespace DerivedProperties {
                                   const DataModel::AbstractSnapshot*                        snapshot,
                                   const DataModel::AbstractFormation*                       formation ) const;
 
+   private:
+      double calculateThickness(const double bottomDepth, const double topDepth) const;
    };
 
 } // namespace DerivedProperties

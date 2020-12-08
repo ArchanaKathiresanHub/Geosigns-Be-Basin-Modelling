@@ -19,16 +19,27 @@
 #include "errorhandling.h"
 #include "hdfReadManager.h"
 #include "trapPropertiesManager.h"
+#include "GeoPhysicsFormation.h"
+#include "derivedPropertyDriller.h"
 
 namespace DataExtraction
 {
 
 DataDriller::DataDriller( const std::string& inputProjectFileName ) :
   DataExtractor(),
+  m_obtained(),
   m_objectFactory( new DataAccess::Mining::ObjectFactory ),
-  m_projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, m_objectFactory ) ) ),
-  m_readFromHDF()
+  m_projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, m_objectFactory ) ) )
 {
+  database::Table* table = m_projectHandle->getTable( "DataMiningIoTbl" );
+
+  if ( !table )
+  {
+    return;
+  }
+
+  m_obtained = std::vector<bool>(table->size(), true);
+
   m_gridHighResolution = m_projectHandle->getHighResolutionOutputGrid();
   m_gridLowResolution = m_projectHandle->getLowResolutionOutputGrid();
   m_projectHandle->startActivity ( "datadriller", m_gridHighResolution );
@@ -45,24 +56,63 @@ DataDriller::~DataDriller()
 
 DataAccess::Interface::ProjectHandle& DataDriller::getProjectHandle() const
 {
-  return *m_projectHandle;
+    return *m_projectHandle;
 }
 
-bool DataDriller::allDataReadFromHDF()
+const GeoPhysics::GeoPhysicsFormation* DataExtraction::DataDriller::getFormation(const double i, const double j, const double z, const Snapshot* snapshot) const
 {
-  for ( const bool readDataFromHDF : m_readFromHDF )
+    HDFReadManager hdfReadManager( *m_projectHandle );
+    const std::string snapshotFileName = m_projectHandle->getFullOutputDir() + "/" + snapshot->getFileName();
+    hdfReadManager.openSnapshotFile( snapshotFileName );
+
+    const string depthDataGroup = "/Depth";
+    if ( !checkDataGroupInHDFFile( hdfReadManager, depthDataGroup, snapshotFileName ) )
+    {
+      return nullptr;
+    }
+
+    FormationList* myFormations = m_projectHandle->getFormations( snapshot, true );
+    for ( const Formation* formation : *myFormations )
+    {
+      const string depthPropertyFormationName = depthDataGroup + "/" + formation->getMangledName();
+      if ( !checkDataGroupInHDFFile( hdfReadManager, depthPropertyFormationName, snapshotFileName ) )
+      {
+          return nullptr;
+      }
+      DoubleVector depthVec = hdfReadManager.get3dCoordinatePropertyMatrix( {{ i, j}}, depthPropertyFormationName )[0];
+
+      for ( int zi = 0; zi < depthVec.size() - 1; ++zi )
+      {
+        const double kf = getKfraction( depthVec[zi+1], depthVec[zi], z );
+        if ( kf >= 0 && kf <= 1 )
+        {
+          return dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>( formation );
+        }
+      }
+    }
+    delete myFormations;
+
+    hdfReadManager.closeSnapshotFile();
+
+    return nullptr;
+}
+
+bool DataDriller::allDataObtained()
+{
+  for ( const bool obtained : m_obtained )
   {
-    if ( readDataFromHDF ) return false;
+    if ( !obtained ) return false;
   }
   return true;
 }
 
 void DataDriller::run( const bool doCalculateTrapAndMissingProperties )
 {
-  readDataFromHDF();
-  if ( doCalculateTrapAndMissingProperties && !allDataReadFromHDF() )
+  performDirectDataDrilling();
+
+  if ( doCalculateTrapAndMissingProperties && !allDataObtained() )
   {
-    calculateTrapAndMissingProperties();
+    perform3DDataMining();
   }
 }
 
@@ -71,7 +121,7 @@ void DataDriller::saveToFile( const std::string& outputProjectFileName )
   m_projectHandle->saveToFile( outputProjectFileName );
 }
 
-void DataDriller::calculateTrapAndMissingProperties()
+void DataDriller::perform3DDataMining()
 {
   const DataAccess::Interface::SimulationDetails* simulationDetails = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
   // If this table is not present the assume that the last
@@ -110,7 +160,7 @@ void DataDriller::calculateTrapAndMissingProperties()
   for ( database::Record* record : *table )
   {
     ++recordIndex;
-    if ( m_readFromHDF[recordIndex] )
+    if ( m_obtained[recordIndex] )
     {
       continue; // Already read from the HDF file directly;
     }
@@ -171,10 +221,11 @@ void DataDriller::calculateTrapAndMissingProperties()
           domainProperty->initialise();
           value = domainProperty->compute( element );
         }
-      }
+        }
     }
     catch( const RecordException & recordException )
     {
+      m_obtained[recordIndex] = false;
       cerr << "Error in row " << recordIndex+1 << " of DataMiningIoTbl: " << recordException.what () << endl;
     }
 
@@ -186,18 +237,69 @@ void DataDriller::calculateTrapAndMissingProperties()
   }
 }
 
-void DataDriller::readDataFromHDF()
+bool DataDriller::readPropertyFromHDF(const std::string& surfaceName, const std::string& formationName, const double x,
+                                      const double y, const double z, const Interface::Snapshot* snapshot, const Interface::Property* property,
+                                      double& value) const
+{
+  bool readFromHDF = false;
+  if ( z != DataAccess::Interface::DefaultUndefinedScalarValue || !surfaceName.empty() || !formationName.empty() )
+  {
+    double i, j;
+    if ( !m_gridLowResolution->getGridPoint( x, y, i, j ) ) throw RecordException( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
+
+    if ( z != DataAccess::Interface::DefaultUndefinedScalarValue ) // if z is given - look for the property at X,Y,Z point
+    {
+      readFromHDF = get3dPropertyFromHDF( i, j, z, property, snapshot, value);
+    }
+
+    if ( value == DataAccess::Interface::DefaultUndefinedScalarValue && surfaceName != "" )
+    {
+      const DataAccess::Interface::Surface * surface = m_projectHandle->findSurface (surfaceName);
+      if ( !surface ) throw RecordException( "Unknown SurfaceName value: %", surfaceName );
+
+      readFromHDF = get2dPropertyFromHDF( i, j, surface, nullptr, property, snapshot, value );
+    }
+
+    if ( value == DataAccess::Interface::DefaultUndefinedScalarValue && formationName != "" )
+    {
+      const DataAccess::Interface::Formation * formation = m_projectHandle->findFormation( formationName );
+      if ( !formation ) throw RecordException( "Unknown FormationName value: %", formationName );
+
+      readFromHDF = get2dPropertyFromHDF( i, j, nullptr, formation, property, snapshot, value );
+    }
+
+    if ( value == DataAccess::Interface::DefaultUndefinedScalarValue )
+    {
+      std::string formationMangledName = "";
+      if ( formationName != "" )
+      {
+        formationMangledName = m_projectHandle->findFormation( formationName )->getMangledName();
+      }
+      else if ( surfaceName != "" )
+      {
+        formationMangledName = m_projectHandle->findSurface( surfaceName )->getBottomFormation()->getMangledName();
+      }
+
+      readFromHDF = get3dPropertyFromHDF( i, j, formationMangledName, true, property, snapshot, value );
+    }
+  }
+  else
+  {
+    throw RecordException( "Illegal specification" );
+  }
+  return readFromHDF;
+}
+
+const Grid *DataDriller::getGridLowResolution() const
+{
+  return m_gridLowResolution;
+}
+
+void DataDriller::performDirectDataDrilling()
 {
   database::Table* table = m_projectHandle->getTable( "DataMiningIoTbl" );
-
-  if ( !table )
-  {
-    return;
-  }
-
-  m_readFromHDF = std::vector<bool>(table->size(), true);
-
   int recordIndex = -1;
+  DerivedPropertyDriller derivedPropertyDriller(this);
   for ( database::Record* record : *table )
   {
     ++recordIndex;
@@ -227,70 +329,34 @@ void DataDriller::readDataFromHDF()
       property = m_projectHandle->findProperty( propertyName );
       if ( !property ) throw RecordException( "Unknown PropertyName value: %", propertyName );
 
-      if ( property->getName() == "Porosity" ||
-           property->getName() == "Permeability"  ||
-           property->getName() == "HorizontalPermeability" )
-      {
-        m_readFromHDF[recordIndex] = false;
-        continue; // Not computed here due to inaccuracy of linear interpolation
-      }
-
-      // Get reservoir/trap property
+      // Skip in case of reservoir/trap property
       if ( reservoirName != "" )
       {
         const DataAccess::Interface::Reservoir * reservoir = m_projectHandle->findReservoir( reservoirName );
         if ( !reservoir ) throw RecordException( "Unknown ReservoirName value: %", reservoirName );
 
-        m_readFromHDF[recordIndex] = false;
+        m_obtained[recordIndex] = false;
         continue;
       }
+
       // Get property for X,Y,Z point or for Surface or Formation map
-
-      if ( z != DataAccess::Interface::DefaultUndefinedScalarValue || !surfaceName.empty() || !formationName.empty() )
+      if ( property->isPrimary() )
       {
-        double i, j;
-        if ( !m_gridLowResolution->getGridPoint( x, y, i, j ) ) throw RecordException( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
-
-        if ( z != DataAccess::Interface::DefaultUndefinedScalarValue ) // if z is given - look for the property at X,Y,Z point
-        {
-          value = get3dPropertyFromHDF( i, j, z, property, snapshot, recordIndex );
-        }
-
-        if ( value == DataAccess::Interface::DefaultUndefinedScalarValue && surfaceName != "" )
-        {
-          const DataAccess::Interface::Surface * surface = m_projectHandle->findSurface (surfaceName);
-          if ( !surface ) throw RecordException( "Unknown SurfaceName value: %", surfaceName );
-
-          value = get2dPropertyFromHDF( i, j, surface, nullptr, property, snapshot, recordIndex );
-        }
-
-        if ( value == DataAccess::Interface::DefaultUndefinedScalarValue && formationName != "" )
-        {
-          const DataAccess::Interface::Formation * formation = m_projectHandle->findFormation( formationName );
-          if ( !formation ) throw RecordException( "Unknown FormationName value: %", formationName );
-
-          value = get2dPropertyFromHDF( i, j, nullptr, formation, property, snapshot, recordIndex );
-        }
-
-        if ( value == DataAccess::Interface::DefaultUndefinedScalarValue )
-        {
-          std::string formationMangledName = "";
-          if ( formationName != "" )
-          {
-            formationMangledName = m_projectHandle->findFormation( formationName )->getMangledName();
-          }
-          else if ( surfaceName != "" )
-          {
-            formationMangledName = m_projectHandle->findSurface( surfaceName )->getBottomFormation()->getMangledName();
-          }
-
-          value = get3dPropertyFromHDF( i, j, formationMangledName, true, property, snapshot, recordIndex );
-        }
+        m_obtained[recordIndex] = readPropertyFromHDF(surfaceName, formationName, x, y, z, snapshot, property, value);
       }
       else
       {
-        throw RecordException( "Illegal specification" );
+        derivedPropertyDriller.setRecord(record);
+        derivedPropertyDriller.setSnapshot(snapshot);
+
+        m_obtained[recordIndex] = derivedPropertyDriller.run(value);
+
+        if ( !m_obtained[recordIndex] )
+        {
+          m_obtained[recordIndex] = readPropertyFromHDF(surfaceName, formationName, x, y, z, snapshot, property, value);
+        }
       }
+
     }
     catch( const RecordException & recordException )
     {
@@ -305,8 +371,8 @@ void DataDriller::readDataFromHDF()
   }
 }
 
-double DataDriller::get2dPropertyFromHDF( const double i, const double j, const Surface* surface, const Formation* formation,
-                                          const Property* property, const Snapshot* snapshot, const unsigned int recordIndex )
+bool DataDriller::get2dPropertyFromHDF( const double i, const double j, const Surface* surface, const Formation* formation,
+                                        const Property* property, const Snapshot* snapshot, double& value ) const
 {
   HDFReadManager hdfReadManager( *m_projectHandle );
   hdfReadManager.openMapsFile( getMapsFileName( property->getCauldronName() ) );
@@ -314,31 +380,35 @@ double DataDriller::get2dPropertyFromHDF( const double i, const double j, const 
   const DoubleVector values = hdfReadManager.get2dCoordinatePropertyVector( {{i, j}}, propertyFormationDataGroup );
   if ( !values.empty() )
   {
-    return values[0];
+    hdfReadManager.closeMapsFile();
+    value = values[0];
+    return true;
   }
 
-  m_readFromHDF[recordIndex] = false;
-  return DataAccess::Interface::DefaultUndefinedScalarValue;
+  hdfReadManager.closeMapsFile();
+  return false;
 }
 
-void DataDriller::checkDataGroupInHDFFile(HDFReadManager & hdfReadManager, const std::string dataGroup, const unsigned int recordIndex, const std::string & snapshotFileName)
+bool DataDriller::checkDataGroupInHDFFile(HDFReadManager& hdfReadManager, const std::string& dataGroup, const std::string& snapshotFileName) const
 {
   if ( !hdfReadManager.checkDataGroup( dataGroup ) )
   {
     hdfReadManager.closeSnapshotFile();
-    m_readFromHDF[recordIndex] = false;
-    throw RecordException( "Data group " + dataGroup + " is not available in " + snapshotFileName );
+    return false;
   }
+
+  return true;
 }
 
-double DataDriller::get3dPropertyFromHDF( const double i, const double j, const double z,
+bool DataDriller::get3dPropertyFromHDF( const double i, const double j, const double z,
                                           const DataAccess::Interface::Property* property,
                                           const DataAccess::Interface::Snapshot* snapshot,
-                                          const unsigned int recordIndex )
+                                          double& value) const
 {
   if ( z <= 0.0 && property->getName() == "TwoWayTime" ) // in case of TwoWayTime property and z <= 0 set the value to 0
   {
-    return 0.0;
+    value = 0.0;
+    return false;
   }
 
   HDFReadManager hdfReadManager( *m_projectHandle );
@@ -346,19 +416,19 @@ double DataDriller::get3dPropertyFromHDF( const double i, const double j, const 
   hdfReadManager.openSnapshotFile( snapshotFileName );
 
   const string depthDataGroup = "/Depth";
-  checkDataGroupInHDFFile( hdfReadManager, depthDataGroup, recordIndex, snapshotFileName );
-
   const string propertyDataGroup = "/" + property->getName();
-  checkDataGroupInHDFFile( hdfReadManager, propertyDataGroup, recordIndex, snapshotFileName );
+  if ( !checkDataGroupInHDFFile( hdfReadManager, depthDataGroup, snapshotFileName ) ||
+       !checkDataGroupInHDFFile( hdfReadManager, propertyDataGroup, snapshotFileName ) )
+  {
+    return false;
+  }
 
-  double value = DataAccess::Interface::DefaultUndefinedScalarValue;
   bool found = false;
-
   FormationList* myFormations = m_projectHandle->getFormations( snapshot, true );
   for ( const Formation* formation : *myFormations )
   {
     const string depthPropertyFormationName = depthDataGroup + "/" + formation->getMangledName();
-    checkDataGroupInHDFFile( hdfReadManager, depthPropertyFormationName, recordIndex, snapshotFileName );
+    checkDataGroupInHDFFile( hdfReadManager, depthPropertyFormationName, snapshotFileName );
     DoubleVector depthVec = hdfReadManager.get3dCoordinatePropertyMatrix( {{ i, j}}, depthPropertyFormationName )[0];
 
     for ( int zi = 0; zi < depthVec.size() - 1; ++zi )
@@ -367,7 +437,10 @@ double DataDriller::get3dPropertyFromHDF( const double i, const double j, const 
       if ( kf >= 0 && kf <= 1 )
       {
         const string propertyFormationDataGroup = propertyDataGroup + "/" + formation->getMangledName();
-        checkDataGroupInHDFFile( hdfReadManager, propertyFormationDataGroup, recordIndex, snapshotFileName );
+        if( !checkDataGroupInHDFFile( hdfReadManager, propertyFormationDataGroup, snapshotFileName ) )
+        {
+          return false;
+        }
         DoubleVector propertyVec = hdfReadManager.get3dCoordinatePropertyMatrix( {{ i, j}}, propertyFormationDataGroup )[0];
 
         value = interpolate1d( propertyVec[zi+1], propertyVec[zi], kf );
@@ -381,32 +454,30 @@ double DataDriller::get3dPropertyFromHDF( const double i, const double j, const 
 
   hdfReadManager.closeSnapshotFile();
 
-  if ( !found )
-  {
-    throw RecordException( "Out of bound depth value: ", z );
-  }
-  return value;
+  return found;
 }
 
-double DataDriller::get3dPropertyFromHDF( const double i, const double j,
+bool DataDriller::get3dPropertyFromHDF( const double i, const double j,
                                           const std::string & mangledName,
                                           const bool isSurfaceTop,
                                           const DataAccess::Interface::Property * property,
-                                          const DataAccess::Interface::Snapshot * snapshot,
-                                          const unsigned int recordIndex )
+                                          const DataAccess::Interface::Snapshot * snapshot, double& value ) const
 {
   HDFReadManager hdfReadManager( *m_projectHandle );
   const std::string snapshotFileName = m_projectHandle->getFullOutputDir() + "/" + snapshot->getFileName();
   hdfReadManager.openSnapshotFile( snapshotFileName );
 
   const string propertyDataGroup = "/" + property->getName();
-  checkDataGroupInHDFFile( hdfReadManager, propertyDataGroup, recordIndex, snapshotFileName );
-
   const string propertyFormationDataGroup = propertyDataGroup + "/" + mangledName;
-  checkDataGroupInHDFFile( hdfReadManager, propertyFormationDataGroup, recordIndex, snapshotFileName);
+  if ( !checkDataGroupInHDFFile( hdfReadManager, propertyDataGroup, snapshotFileName ) ||
+       !checkDataGroupInHDFFile( hdfReadManager, propertyFormationDataGroup, snapshotFileName) ||
+       mangledName == "")
+  {
+       return false;
+  }
+
   DoubleVector propertyVec = hdfReadManager.get3dCoordinatePropertyMatrix( {{ i, j}}, propertyFormationDataGroup )[0];
 
-  double value = DataAccess::Interface::DefaultUndefinedScalarValue;
   if (!propertyVec.empty())
   {
     value = (isSurfaceTop ? propertyVec.back() : propertyVec.front());
@@ -414,16 +485,15 @@ double DataDriller::get3dPropertyFromHDF( const double i, const double j,
 
   hdfReadManager.closeSnapshotFile();
 
-  m_readFromHDF[recordIndex] = true;
-  return value;
+  return true;
 }
 
-double DataDriller::interpolate1d( const double u, const double l, const double k)
+double DataDriller::interpolate1d( const double u, const double l, const double k) const
 {
   return u + k * (l - u);
 }
 
-double DataDriller::getKfraction( const double u, const double  l, const double v)
+double DataDriller::getKfraction( const double u, const double  l, const double v) const
 {
   if ( std::fabs( l - u ) < 1e-10)
   {

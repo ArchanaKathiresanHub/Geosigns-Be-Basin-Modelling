@@ -21,6 +21,7 @@
 #include "GeoPhysicsProjectHandle.h"
 
 #include "PropertyRetriever.h"
+#include "ConstantsMathematics.h"
 #include "VelocityFormationCalculator.h"
 
 using namespace AbstractDerivedProperties;
@@ -34,6 +35,28 @@ DerivedProperties::VelocityFormationCalculator::VelocityFormationCalculator () {
    addDependentPropertyName ( "Temperature" );
    addDependentPropertyName ( "Ves" );
    addDependentPropertyName ( "MaxVes" );
+}
+
+double DerivedProperties::VelocityFormationCalculator::calculateVelocity(const GeoPhysics::FluidType* const geophysicsFluid, const GeoPhysics::CompoundLithology* lithology,
+                                                                         const double temperature, const double pressure, const double bulkDensity, const double porosity,
+                                                                         const double ves, const double maxVes) const
+{
+  double seismicVelocityFluid;
+  double densityFluid;
+  if ( geophysicsFluid != nullptr ) {
+     seismicVelocityFluid = geophysicsFluid->seismicVelocity(temperature, pressure);
+     densityFluid = geophysicsFluid->density(temperature, pressure);
+  } else {
+     seismicVelocityFluid = -1;
+     densityFluid = -1;
+  }
+
+  return lithology->seismicVelocity().calculate ( seismicVelocityFluid,
+                                                  densityFluid,
+                                                  bulkDensity,
+                                                  Utilities::Maths::PercentageToFraction * porosity,
+                                                  ves,
+                                                  maxVes);
 }
 
 void DerivedProperties::VelocityFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
@@ -86,7 +109,7 @@ void DerivedProperties::VelocityFormationCalculator::calculate (       AbstractP
       double currentTime = snapshot->getTime ();
       double undefinedValue = velocity->getUndefinedValue ();
       double velocityValue;
-      double seismciVelocityFluid;
+      double seismicVelocityFluid;
       double densityFluid;
 
       for ( unsigned int i = velocity->firstI ( true ); i <= velocity->lastI ( true ); ++i ) {
@@ -97,23 +120,10 @@ void DerivedProperties::VelocityFormationCalculator::calculate (       AbstractP
 
                for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
 
-                  if ( geophysicsFluid != 0 ) {
-                     seismciVelocityFluid = geophysicsFluid->seismicVelocity(temperature->get(i, j, k),
-                                                                             pressure->get(i, j, k));
-                     densityFluid = geophysicsFluid->density(temperature->get(i, j, k),
-                                                             pressure->get(i, j, k));
-                  } else {
-                     seismciVelocityFluid = -1;
-                     densityFluid = -1;
-                  }
 
-                  velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().calculate ( seismciVelocityFluid,
-                                                                                                   densityFluid,
-                                                                                                   bulkDensity->get(i, j, k),
-                                                                                                   0.01 * porosity->get(i, j, k),
-                                                                                                   ves->get(i, j, k),
-                                                                                                   maxVes->get(i, j, k));
-                  velocity->set ( i, j, k, velocityValue );
+                  velocity->set ( i, j, k, calculateVelocity(geophysicsFluid, lithologies (i,j,currentTime), temperature->get(i,j,k),
+                                                             pressure->get(i,j,k), bulkDensity->get(i,j,k), porosity->get(i,j,k),
+                                                             ves->get(i,j,k), maxVes->get(i,j,k)));
                }
 
             } else {
@@ -233,4 +243,19 @@ bool DerivedProperties::VelocityFormationCalculator::isComputable ( const Abstra
    }
 
    return propertyIsComputable;
+}
+
+double DerivedProperties::VelocityFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                                                            const GeoPhysics::CompoundLithology* lithology,
+                                                                            const std::map<string, double>& dependentProperties ) const
+{
+  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType ());
+
+  return DerivedProperties::VelocityFormationCalculator::calculateVelocity(fluid, lithology,
+                                                                           dependentProperties.at("Temperature"),
+                                                                           dependentProperties.at("Pressure"),
+                                                                           dependentProperties.at("BulkDensity"),
+                                                                           dependentProperties.at("Porosity"),
+                                                                           dependentProperties.at("Ves"),
+                                                                           dependentProperties.at("MaxVes"));
 }

@@ -48,6 +48,13 @@ namespace Utilities
       // Time conversion tools
       constexpr double MillionYearToSecond = 3.15576e+13; ///< Million Years to Seconds conversion factor
       constexpr double YearToSecond = 3.15576e7;          ///< Year to Seconds conversion factor(under the assumption that there are 365.25 days per year)
+      constexpr double MicroSecondToSecond = 1e-6; ///< microsecond to second conversion factor
+      constexpr double SecondToMicroSecond = 1e6; ///< second to microsecond conversion factor
+
+
+      // Distance conversion tools
+      constexpr double KilometerToMeter = 1.0e3; ///< Kilometer to Meter conversion factor
+      constexpr double MeterToKilometer = 1.0e-3; ///< Meter to Kilometer conversion factor
 
       // Volume conversion tools 
       constexpr double CubicMetresToCubicFeet = 35.3146667;                                              ///< Cubic-feet to cubic-metre conversion factor

@@ -41,7 +41,7 @@ public:
   bool run(const DataAccess::Interface::Formation* formation, const Genex0dInputData& inData, unsigned int indI, unsigned int indJ,
            double thickness, double inorganicDensity, const std::vector<double>& time, const std::vector<double>& temperature,
            const std::vector<double>& pressure, const std::vector<double>& VRE, const std::vector<double>& porePressure, const std::vector<double>& permeability,
-           const std::vector<double>& porosity, const std::vector<double>& lithoPressure, const std::vector<double>& hydroPressure);
+           const std::vector<double>& porosity);
   bool saveTo(const std::string & outputFileName);
   
 private:

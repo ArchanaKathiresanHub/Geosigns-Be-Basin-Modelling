@@ -21,6 +21,8 @@
 #include "PropertyRetriever.h"
 #include "PorosityFormationCalculator.h"
 
+#include "ConstantsMathematics.h"
+
 using namespace AbstractDerivedProperties;
 
 DerivedProperties::PorosityFormationCalculator::PorosityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
@@ -40,6 +42,25 @@ DerivedProperties::PorosityFormationCalculator::PorosityFormationCalculator ( co
       addDependentPropertyName ( "ChemicalCompaction" );
    }
 
+}
+
+double DerivedProperties::PorosityFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                                                            const GeoPhysics::CompoundLithology* lithology,
+                                                                            const std::map<string, double>& dependentProperties ) const
+{
+  bool chemicalCompactionRequired = m_chemicalCompactionRequired and formation->hasChemicalCompaction ();
+  const double chemicalCompactionValue = ( chemicalCompactionRequired ? dependentProperties.at("ChemicalCompaction") : 0.0 );
+
+  return calculatePorosity(lithology,
+                           dependentProperties.at("Ves"),
+                           dependentProperties.at("MaxVes"),
+                           chemicalCompactionRequired,
+                           chemicalCompactionValue);
+}
+
+double DerivedProperties::PorosityFormationCalculator::calculatePorosity(const GeoPhysics::CompoundLithology* lithology, double ves, double maxVes, bool chemicalCompactionRequired, double chemicalCompactionValue) const
+{
+  return Utilities::Maths::FractionToPercentage * lithology->porosity ( ves, maxVes, chemicalCompactionRequired, chemicalCompactionValue );
 }
 
 void DerivedProperties::PorosityFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
@@ -100,9 +121,7 @@ void DerivedProperties::PorosityFormationCalculator::calculate (       AbstractP
 
                for ( unsigned int k = porosityProp->firstK (); k <= porosityProp->lastK (); ++k ) {
                   const double chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j, k ) : 0.0 );
-                  const double value = 100.0 * lithologies( i, j, currentTime )->porosity ( ves->get ( i, j, k ), maxVes->get ( i, j, k ),
-                                                                                          chemicalCompactionRequired,
-                                                                                          chemicalCompactionValue );
+                  const double value = calculatePorosity(lithologies( i, j, currentTime ), ves->get(i,j,k), maxVes->get(i,j,k), chemicalCompactionRequired, chemicalCompactionValue);
                   porosityProp->set ( i, j, k, value );
                }
             } else {

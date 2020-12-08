@@ -13,6 +13,12 @@
 
 #include "FormationPropertyCalculator.h"
 
+namespace GeoPhysics
+{
+  class CompoundLithology;
+  class FluidType;
+}
+
 namespace DerivedProperties {
 
    /// \brief Calculator for the velocity of a layer.
@@ -38,12 +44,21 @@ namespace DerivedProperties {
       void calculateForBasement ( AbstractDerivedProperties::AbstractPropertyManager& propManager,
                                   const DataModel::AbstractSnapshot*                  snapshot,
                                   const DataModel::AbstractFormation*                 formation,
+
                                   AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
       virtual bool isComputable ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
                                   const DataModel::AbstractSnapshot*                        snapshot,
                                   const DataModel::AbstractFormation*                       formation ) const;
 
+      virtual double calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                          const GeoPhysics::CompoundLithology* lithology,
+                                          const std::map<std::string, double>& dependentProperties ) const override;
+
+   private:
+      double calculateVelocity( const GeoPhysics::FluidType * const geophysicsFluid, const GeoPhysics::CompoundLithology *lithology,
+                                const double temperature, const double pressure, const double bulkDensity, const double porosity,
+                                const double ves, const double maxVes) const;
    };
 
 

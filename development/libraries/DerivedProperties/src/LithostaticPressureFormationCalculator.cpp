@@ -52,6 +52,11 @@ DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFo
    }
 }
 
+double DerivedProperties::LithostaticPressureFormationCalculator::calculateLithostaticPressure(double ves, double porePressure) const
+{
+  return ves * Utilities::Maths::PaToMegaPa + porePressure;
+}
+
 void DerivedProperties::LithostaticPressureFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                             const DataModel::AbstractSnapshot*  snapshot,
                                                                             const DataModel::AbstractFormation* formation,
@@ -92,7 +97,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate (     
 
                for ( unsigned int k = ves->firstK (); k <= ves->lastK (); ++k ) {
 
-                  lithostaticPressure->set ( i, j, k, ( ves->get ( i, j, k ) * Utilities::Maths::PaToMegaPa + porePressure->get ( i, j, k )));
+                  lithostaticPressure->set ( i, j, k, calculateLithostaticPressure(ves->get(i,j,k), porePressure->get(i,j,k)));
                }
             } else {
                for ( unsigned int k = ves->firstK (); k <= ves->lastK (); ++k ) {
@@ -358,4 +363,17 @@ bool DerivedProperties::LithostaticPressureFormationCalculator::isComputableForB
       }
    }
    return propertyIsComputable;
+}
+
+double DerivedProperties::LithostaticPressureFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                                                                       const GeoPhysics::CompoundLithology* /*lithology*/,
+                                                                                       const std::map<string, double>& dependentProperties ) const
+{
+  if( formation->kind() == DataAccess::Interface::BASEMENT_FORMATION )
+  {
+     return DataAccess::Interface::DefaultUndefinedScalarValue; // Not Implemented for 0D calculations
+  }
+
+  return DerivedProperties::LithostaticPressureFormationCalculator::calculateLithostaticPressure(dependentProperties.at("Ves"),
+                                                                                                 dependentProperties.at("Pressure"));
 }

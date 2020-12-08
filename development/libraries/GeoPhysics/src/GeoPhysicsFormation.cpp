@@ -60,287 +60,180 @@ GeoPhysics::GeoPhysicsFormation::~GeoPhysicsFormation () {
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::GeoPhysicsFormation::setLithologiesFromStratTable () {
+GeoPhysics::CompoundLithology* GeoPhysics::GeoPhysicsFormation::getLithologyFromStratTable ( bool& undefinedMapValue,
+                                                                                             bool useMaps,
+                                                                                             unsigned int i,
+                                                                                             unsigned int j,
+                                                                                             const Interface::GridMap* lithoMap1,
+                                                                                             const Interface::GridMap* lithoMap2,
+                                                                                             const Interface::GridMap* lithoMap3,
+                                                                                             const string& lithoName1,
+                                                                                             const string& lithoName2,
+                                                                                             const string& lithoName3 ) const
+{
+  const double LithologyTolerance = 1.0e-4;
 
-   const double LithologyTolerance = 1.0e-4;
+  double lithologyPercentage1 = 0.0;
+  if ( lithoMap1 )
+  {
+     lithologyPercentage1 = useMaps ? lithoMap1->getValue ( i, j ) : lithoMap1->getConstantValue();
+     if ( lithologyPercentage1 == Interface::DefaultUndefinedMapValue || lithologyPercentage1 == Interface::DefaultUndefinedScalarValue )
+     {
+       undefinedMapValue = true;
+       return nullptr;
+     }
+  }
+
+  double lithologyPercentage2 = 0.0;
+  if ( lithoMap2 )
+  {
+     lithologyPercentage2 = useMaps ? lithoMap2->getValue ( i, j ) : lithoMap2->getConstantValue();
+     if ( lithologyPercentage2 == Interface::DefaultUndefinedMapValue || lithologyPercentage2 == Interface::DefaultUndefinedScalarValue )
+     {
+       undefinedMapValue = true;
+       return nullptr;
+     }
+  }
+
+  double lithologyPercentage3 = 0.0;
+  if ( lithoMap3 )
+  {
+     lithologyPercentage3 = useMaps ? lithoMap3->getValue ( i, j ) : lithoMap3->getConstantValue();
+     if ( lithologyPercentage3 == Interface::DefaultUndefinedMapValue || lithologyPercentage3 == Interface::DefaultUndefinedScalarValue )
+     {
+       undefinedMapValue = true;
+       return nullptr;
+     }
+  }
+
+  double minimumPercentage = NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 );
+  double maximumPercentage = NumericFunctions::Maximum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 );
+  double percentageSum = lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3;
+
+  GeoPhysics::LithologyManager& lithologyManager = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ();
+  if ( !useMaps && getProjectHandle().getModellingMode () == Interface::MODE1D &&
+       NumericFunctions::isEqual ( lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3, 0.0, LithologyTolerance ))
+  {
+     CompoundLithologyComposition lc ( OneDHiatusLithologyName, "", "",
+                                       100.0, 0.0, 0.0,
+                                       getMixModelStr (), getLayeringIndex());
+
+     return lithologyManager.getCompoundLithology ( lc );
+  }
+  else if ( minimumPercentage < -LithologyTolerance ||
+            maximumPercentage > 100.0 + LithologyTolerance ||
+            ! NumericFunctions::isEqual<double> ( percentageSum, 100.0, LithologyTolerance ))
+  {
+     std::ostringstream errorBuffer;
+     if (useMaps)
+     {
+       errorBuffer << " Percentage Maps incorrect: ( " << i << ", " << j << " ) "
+                   << lithologyPercentage1 << "  " << lithologyPercentage2 << "  " << lithologyPercentage3 << "  " << std::endl;
+     }
+     else
+     {
+       errorBuffer << " Percentage values incorrect: " << std::endl;
+     }
+     errorBuffer << "          min (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << -LithologyTolerance << "; or " << endl
+                 << "          max (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << 100 + LithologyTolerance << "; or " << endl
+                 << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = "
+                 << lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3 << " /= " << 100 + LithologyTolerance << ". " << endl;
+
+     const std::string errorMessage = errorBuffer.str ();
+     cout << "Basin_Error: "  << errorMessage << endl;
+     return nullptr;
+  }
+  else
+  {
+     CompoundLithologyComposition lc ( lithoName1,           lithoName2,           lithoName3,
+                                       lithologyPercentage1, lithologyPercentage2, lithologyPercentage3,
+                                       getMixModelStr (), getLayeringIndex());
+
+     return dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ().getCompoundLithology ( lc );
+  }
+}
+
+bool GeoPhysics::GeoPhysicsFormation::setLithologiesFromStratTable ()
+{
+   bool createdLithologies = true;
 
    m_compoundLithologies.allocate ( getProjectHandle().getActivityOutputGrid ());
 
-   const Interface::GridMap* lithoMap1 = dynamic_cast<const Interface::GridMap*>(getLithoType1PercentageMap ());
-   const Interface::GridMap* lithoMap2 = dynamic_cast<const Interface::GridMap*>(getLithoType2PercentageMap ());
-   const Interface::GridMap* lithoMap3 = dynamic_cast<const Interface::GridMap*>(getLithoType3PercentageMap ());
-
-   string lithoName1;
-   string lithoName2;
-   string lithoName3;
-
-   double lithologyPercentage1;
-   double lithologyPercentage2;
-   double lithologyPercentage3;
-
-   double minimumPercentage;
-   double maximumPercentage;
-   double percentageSum;
-
-   bool createLithoFromMaps = false;
-   bool noDefinedLithologyValue;
-   bool createdLithologies = true;
-
-   std::string errorMessage;
-
-   CompoundLithology*  pMixedLitho;
-
-   // Load the lithology maps.
-   if ( lithoMap1 != 0 ) {
-      lithoMap1->retrieveGhostedData ();
-   }
-
-   if ( lithoMap2 != 0 ) {
-      lithoMap2->retrieveGhostedData ();
-   }
-
-   if ( lithoMap3 != 0 ) {
-      lithoMap3->retrieveGhostedData ();
-   }
-
-   // Are any of the lithologies defined by a varying lithology map?
-   if (( lithoMap1 != 0 and not lithoMap1->isConstant ()) or
-       ( lithoMap2 != 0 and not lithoMap2->isConstant ()) or
-       ( lithoMap3 != 0 and not lithoMap3->isConstant ())) {
-      createLithoFromMaps = true;
-   } else {
-      createLithoFromMaps = false;
-   }
+   const Interface::GridMap* lithoMap1 = getLithoType1PercentageMap ();
+   const Interface::GridMap* lithoMap2 = getLithoType2PercentageMap ();
+   const Interface::GridMap* lithoMap3 = getLithoType3PercentageMap ();
 
    // Get lithology names.
-   if ( getLithoType1 () != 0 ) {
-      lithoName1 = getLithoType1 ()->getName ();
-   } else {
-      lithoName1 = "";
-   }
+   const string lithoName1 = ( getLithoType1 () ) ? getLithoType1 ()->getName () : "";
+   const string lithoName2 = ( getLithoType2 () ) ? getLithoType2 ()->getName () : "";
+   const string lithoName3 = ( getLithoType3 () ) ? getLithoType3 ()->getName () : "";
 
-   if ( getLithoType2 () != 0 ) {
-      lithoName2 = getLithoType2 ()->getName ();
-   } else {
-      lithoName2 = "";
-   }
+   // Load the lithology maps.
+   if ( lithoMap1 ) lithoMap1->retrieveGhostedData ();
+   if ( lithoMap2 ) lithoMap2->retrieveGhostedData ();
+   if ( lithoMap3 ) lithoMap3->retrieveGhostedData ();
 
-   if ( getLithoType3 () != 0 ) {
-      lithoName3 = getLithoType3 ()->getName ();
-   } else {
-      lithoName3 = "";
-   }
+   // Are any of the lithologies defined by a varying lithology map?
+   if (( lithoMap1 && ! lithoMap1->isConstant ()) ||
+       ( lithoMap2 && ! lithoMap2->isConstant ()) ||
+       ( lithoMap3 && ! lithoMap3->isConstant ()))
+   {
+      for ( unsigned int i = m_compoundLithologies.first ( 0 ); i <= m_compoundLithologies.last ( 0 ); ++i )
+      {
+         for ( unsigned int j = m_compoundLithologies.first ( 1 ); j <= m_compoundLithologies.last ( 1 ); ++j )
+         {
+            bool undefinedMapValue = false;
+            CompoundLithology* pMixedLitho = getLithologyFromStratTable( undefinedMapValue, true, i, j, lithoMap1, lithoMap2, lithoMap3, lithoName1, lithoName2, lithoName3);
 
-   if (createLithoFromMaps) {
-      unsigned int i;
-      unsigned int j;
-
-      for ( i = m_compoundLithologies.first ( 0 ); i <= m_compoundLithologies.last ( 0 ); ++i ) {
-
-         for ( j = m_compoundLithologies.first ( 1 ); j <= m_compoundLithologies.last ( 1 ); ++j ) {
-            noDefinedLithologyValue = false;
-
-            if ( lithoMap1 != 0 ) {
-               lithologyPercentage1 = lithoMap1->getValue ( i, j );
-
-               if ( lithologyPercentage1 == Interface::DefaultUndefinedMapValue ) {
-                  lithologyPercentage1 = 0.0;
-                  noDefinedLithologyValue = true;
-               }
-
+            if ( pMixedLitho || undefinedMapValue )
+            {
+               m_compoundLithologies.addStratigraphyTableLithology ( i, j, pMixedLitho );
             } else {
-               lithologyPercentage1 = 0.0;
+               createdLithologies = false;
+               break;
             }
-
-            if ( lithoMap2 != 0 ) {
-               lithologyPercentage2 = lithoMap2->getValue ( i, j );
-
-               if ( lithologyPercentage2 == Interface::DefaultUndefinedMapValue ) {
-                  lithologyPercentage2 = 0.0;
-                  noDefinedLithologyValue = true;
-               }
-
-            } else {
-               lithologyPercentage2 = 0.0;
-            }
-
-            if ( lithoMap3 != 0 ) {
-               lithologyPercentage3 = lithoMap3->getValue ( i, j );
-
-               if ( lithologyPercentage3 == Interface::DefaultUndefinedMapValue ) {
-                  lithologyPercentage3 = 0.0;
-                  noDefinedLithologyValue = true;
-               }
-
-            } else {
-               lithologyPercentage3 = 0.0;
-            }
-
-            if ( noDefinedLithologyValue ) {
-               m_compoundLithologies.addStratigraphyTableLithology ( i, j, 0 );
-            } else {
-
-               minimumPercentage = NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 );
-               maximumPercentage = NumericFunctions::Maximum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 );
-               percentageSum = lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3;
-
-               if ( minimumPercentage < -LithologyTolerance or
-                    maximumPercentage > 100.0 + LithologyTolerance or
-                    not NumericFunctions::isEqual<double> ( percentageSum, 100.0, LithologyTolerance )) {
-
-                  createdLithologies = false;
-
-                  std::ostringstream errorBuffer;
-                  errorBuffer << " Percentage Maps incorrect: ( " << i << ", " << j << " ) "
-                              << (lithoMap1 ? lithoMap1->getValue ( i, j ) : 0) << "  "
-                              << (lithoMap2 ? lithoMap2->getValue ( i, j ) : 0) << "  "
-                              << (lithoMap3 ? lithoMap3->getValue ( i, j ) : 0) << "  "
-                              << std::endl
-                              << "          min (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << -LithologyTolerance << "; or " << endl
-                              << "          max (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << 100 + LithologyTolerance << "; or " << endl
-                              << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = "
-                              << lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3 << " /= " << 100 + LithologyTolerance << ". " << endl;
-
-                  errorMessage = errorBuffer.str ();
-
-                  cout << "Basin_Error: "  << errorMessage << endl;
-
-                  break;
-
-               } else {
-
-                  CompoundLithologyComposition lc ( lithoName1,           lithoName2,           lithoName3,
-                                                    lithologyPercentage1, lithologyPercentage2, lithologyPercentage3,
-                                                    getMixModelStr (), getLayeringIndex());
-
-                  pMixedLitho = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ().getCompoundLithology ( lc );
-
-                  if ( pMixedLitho != 0 ) {
-                     m_compoundLithologies.addStratigraphyTableLithology ( i, j, pMixedLitho );
-                  } else {
-                     createdLithologies = false;
-                     break;
-                  }
-
-               }
-
-            }
-
          }
 
-         if ( not createdLithologies ) {
+         if ( ! createdLithologies ) {
             // If created-lithologies is false then exit the outer loop as well.
             break;
          }
-
       }
+   }
+   else
+   {
+     bool undefinedMapValue = false;
+     CompoundLithology* pMixedLitho = getLithologyFromStratTable( undefinedMapValue, false, 0, 0, lithoMap1, lithoMap2, lithoMap3, lithoName1, lithoName2, lithoName3);
 
-//       if ( not successfulExecution ( createdLithologies )) {
-//         return false;
-//       }
-
-   } else {
-      noDefinedLithologyValue = false;
-
-      if ( lithoMap1 != 0 ) {
-         lithologyPercentage1 = lithoMap1->getConstantValue ();
-
-         if ( lithologyPercentage1 == Interface::DefaultUndefinedMapValue or lithologyPercentage1 == Interface::DefaultUndefinedScalarValue ) {
-            lithologyPercentage1 = 0.0;
-            noDefinedLithologyValue = true;
-         }
-
-      } else {
-         lithologyPercentage1 = 0.0;
-      }
-
-      if ( lithoMap2 != 0 ) {
-         lithologyPercentage2 = lithoMap2->getConstantValue ();
-
-         if ( lithologyPercentage2 == Interface::DefaultUndefinedMapValue or lithologyPercentage2 == Interface::DefaultUndefinedScalarValue ) {
-            lithologyPercentage2 = 0.0;
-            noDefinedLithologyValue = true;
-         }
-
-      } else {
-         lithologyPercentage2 = 0.0;
-      }
-
-      if ( lithoMap3 != 0 ) {
-         lithologyPercentage3 = lithoMap3->getConstantValue ();
-
-         if ( lithologyPercentage3 == Interface::DefaultUndefinedMapValue or lithologyPercentage3 == Interface::DefaultUndefinedScalarValue ) {
-            lithologyPercentage3 = 0.0;
-            noDefinedLithologyValue = true;
-         }
-
-      } else {
-         lithologyPercentage3 = 0.0;
-      }
-
-      GeoPhysics::LithologyManager& lithologyManager = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ();
-
-      if ( getProjectHandle().getModellingMode () == Interface::MODE1D and
-           NumericFunctions::isEqual ( lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3, 0.0, LithologyTolerance )) {
-
-         CompoundLithologyComposition lc ( OneDHiatusLithologyName, "", "",
-                                           100.0, 0.0, 0.0,
-                                           getMixModelStr (), getLayeringIndex());
-
-         pMixedLitho = lithologyManager.getCompoundLithology ( lc );
-         createdLithologies = pMixedLitho != 0;
-      } else if ( NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) < -LithologyTolerance or
-                  NumericFunctions::Maximum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) > 100.0 + LithologyTolerance or
-                  not NumericFunctions::isEqual ( lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3, 100.0, LithologyTolerance )) {
-
-         pMixedLitho = 0;
-         createdLithologies = false;
-         std::ostringstream errorBuffer;
-         errorBuffer << " Percentage values incorrect: " << std::endl
-                     << "          min (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << -LithologyTolerance << "; or " << endl
-                     << "          max (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << 100 + LithologyTolerance << "; or " << endl
-                     << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = "
-                     << lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3 << " /= " << 100 + LithologyTolerance << ". " << endl;
-
-         errorMessage = errorBuffer.str ();
-
-         cout << "Basin_Error: "  << errorMessage << endl;
-
-      } else {
-         CompoundLithologyComposition lc ( lithoName1,           lithoName2,           lithoName3,
-                                           lithologyPercentage1, lithologyPercentage2, lithologyPercentage3,
-                                           getMixModelStr (), getLayeringIndex() );
-
-         pMixedLitho = lithologyManager.getCompoundLithology ( lc );
-         createdLithologies = pMixedLitho != 0;
-      }
-
-      if ( createdLithologies ) {
-         m_compoundLithologies.fillWithLithology ( pMixedLitho );
-      }
-
+     createdLithologies = (pMixedLitho);
+     if ( createdLithologies )
+     {
+        m_compoundLithologies.fillWithLithology ( pMixedLitho );
+     }
    }
 
-   if ( not createdLithologies ) {
+   if ( ! createdLithologies ) {
       cout << "Basin_Error: Could not create lithologies for layer: " << getName () << endl;
    }
 
 
-   if ( lithoMap1 != 0 ) {
-      lithoMap1->restoreData ( false, true );
+   if ( lithoMap1 )
+   {
+     lithoMap1->restoreData ( false, true );
+     lithoMap1->release();
    }
 
-   if ( lithoMap2 != 0 ) {
-      lithoMap2->restoreData ( false, true );
+   if ( lithoMap2 )
+   {
+     lithoMap2->restoreData ( false, true );
+     lithoMap2->release();
    }
 
-   if ( lithoMap3 != 0 ) {
-      lithoMap3->restoreData ( false, true );
+   if ( lithoMap3 )
+   {
+     lithoMap3->restoreData ( false, true );
+     lithoMap3->release();
    }
-
-   if ( lithoMap1 ) lithoMap1->release();
-   if ( lithoMap2 ) lithoMap2->release();
-   if ( lithoMap3 ) lithoMap3->release();
 
    return createdLithologies;
 }
@@ -433,7 +326,7 @@ void GeoPhysics::GeoPhysicsFormation::setFaultLithologies ( bool& layerHasFaults
                      faultLithology = project.getLithologyManager ().getCompoundFaultLithology ( lithologyName,
                                                                                                  getCompoundLithology ( element ( X_COORD ), element ( Y_COORD ))->getComposition ());
 
-                     if ( faultLithology != 0 ) {
+                     if ( faultLithology != nullptr ) {
                         //
                         // Then define a change of lithology at the age specified.
                         //
@@ -553,7 +446,7 @@ unsigned int GeoPhysics::GeoPhysicsFormation::setMaximumNumberOfElements ( const
 
       const Interface::PropertyValue* ves = *vesValueList->begin ();
 
-      if ( ves != 0 and ves->getGridMap () != 0 ) {
+      if ( ves != nullptr and ves->getGridMap () != nullptr ) {
          m_maximumNumberOfElements = ves->getGridMap ()->getDepth () - 1;
       } else {
          m_maximumNumberOfElements = 1;

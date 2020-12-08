@@ -171,22 +171,14 @@ bool GeoPhysics::ProjectHandle::startActivity ( const std::string& name, const D
 bool GeoPhysics::ProjectHandle::setFormationLithologies ( const bool canRunGeomorph,
                                                           const bool includeFaults ) {
 
-   Interface::MutableFormationList::iterator formationIter;
    bool createdLithologies = true;
    bool errorOccurredInLayer;
 
-   for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
-
-      if ((*formationIter)->kind () == Interface::SEDIMENT_FORMATION ) {
-         GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(*formationIter);
-
-         createdLithologies = createdLithologies and formation->setLithologiesFromStratTable ();
-      }
-
+   for ( Formation* formation : m_formations )
+   {
+      GeoPhysics::GeoPhysicsFormation* geophysicsFormation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(formation);
+      createdLithologies = createdLithologies && geophysicsFormation->setLithologiesFromStratTable ();
    }
-
-   createdLithologies = createdLithologies and dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>( m_crustFormation )->setLithologiesFromStratTable ();
-   createdLithologies = createdLithologies and dynamic_cast<GeoPhysics::GeoPhysicsMantleFormation*>( m_mantleFormation )->setLithologiesFromStratTable ();
 
    // Set the allochthonous lithologies.
    if ( canRunGeomorph ) {
@@ -214,15 +206,15 @@ bool GeoPhysics::ProjectHandle::setFormationLithologies ( const bool canRunGeomo
    {
       bool layerHasFaults;
 
-      for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+      for ( Formation* formation : m_formations ) {
 
          // There are no faults in the basement formations.
-         if ((*formationIter)->kind () == Interface::SEDIMENT_FORMATION ) {
-            GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(*formationIter);
+         if ((formation)->kind () == Interface::SEDIMENT_FORMATION ) {
+            GeoPhysics::GeoPhysicsFormation* geophysicsFormation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>(formation);
 
-            formation->setFaultLithologies ( layerHasFaults, errorOccurredInLayer );
-            m_basinHasActiveFaults = m_basinHasActiveFaults or layerHasFaults;
-            createdLithologies = createdLithologies and not errorOccurredInLayer;
+            geophysicsFormation->setFaultLithologies ( layerHasFaults, errorOccurredInLayer );
+            m_basinHasActiveFaults = m_basinHasActiveFaults || layerHasFaults;
+            createdLithologies = createdLithologies && ! errorOccurredInLayer;
          }
 
       }
@@ -351,21 +343,21 @@ bool GeoPhysics::ProjectHandle::initialise ( const bool readSizeFromVolumeData,
    if( m_isALCMode ) {
       // check inputs before they are modified by addCrustThinningHistoryMaps method
       /// @todo The inputs should never be modified, only outputs should be interpolated in this case
-      result = addCrustThinningHistoryMaps() and result;
+      result = addCrustThinningHistoryMaps() && result;
       // \ check the entries after the maps were interpolated
       checkAlcCrustHistoryInput();
    }
 
-   result = createSeaBottomTemperature    () and result;
-   result = createPaleoBathymetry         () and result;
-   result = createMantleHeatFlow          () and result;
+   result = createSeaBottomTemperature    () && result;
+   result = createPaleoBathymetry         () && result;
+   result = createMantleHeatFlow          () && result;
    createCrustThickness();
    if( m_isALCMode ){
-     result = createBasaltThicknessAndECT () and result;
+     result = createBasaltThicknessAndECT () && result;
    }
-   result = determineLayerMinMaxThickness () and result;
-   result = determineCrustThinningRatio   () and result;
-   result = determineMaximumNumberOfSegmentsPerLayer ( readSizeFromVolumeData, printTable ) and result;
+   result = determineLayerMinMaxThickness () && result;
+   result = determineCrustThinningRatio   () && result;
+   result = determineMaximumNumberOfSegmentsPerLayer ( readSizeFromVolumeData, printTable ) && result;
 
    return result;
 }
@@ -393,13 +385,13 @@ void GeoPhysics::ProjectHandle::checkAlcCrustHistoryInput() const
    for (auto continentalCrustReverseIter = crustThicknesses->rbegin(); continentalCrustReverseIter != crustThicknesses->rend(); ++continentalCrustReverseIter) {
       const PaleoFormationProperty* contCrustThicknessInstance = *continentalCrustReverseIter;
       const double age = contCrustThicknessInstance->getSnapshot()->getTime();
-      
-      const auto oceanicCrustThicknessIt = std::find_if(m_OceaCrustPaleoThicknesses.begin(), 
+
+      const auto oceanicCrustThicknessIt = std::find_if(m_OceaCrustPaleoThicknesses.begin(),
           m_OceaCrustPaleoThicknesses.end(),
          [&age] (const PaleoFormationProperty* obj ) {
                     return (obj)->getSnapshot()->getTime() == age; }
                 );
-      
+
       if (oceanicCrustThicknessIt == m_OceaCrustPaleoThicknesses.end()) {
          throw std::invalid_argument( "There is no oceanic crustal thickness corresponding to the continental crustal thickness defined at " + std::to_string( age ) + "Ma" );
       }
@@ -653,17 +645,17 @@ bool GeoPhysics::ProjectHandle::determineCrustThinningRatio () const
    bool status = true;
    const double mantleElementHeight = getRunParameters ()->getBrickHeightMantle ();
 
-   status = status and crust->determineCrustThinningRatio ();
+   status = status && crust->determineCrustThinningRatio ();
    const double minimumCrustThickness = crust->getMinimumThickness ();
    const double maximumBasementThickness = ( m_isALCMode ? mantle->getInitialLithosphericMantleThickness() + crust->getInitialCrustalThickness() :
                                           mantle->getPresentDayThickness () + crust->getCrustMaximumThicknessHistory ( 0.0 ) );
    const double maximumCrustThinningRatio = crust->getCrustThinningRatio ();
 
 
-   if ( not status ) {
+   if ( ! status ) {
       getMessageHandler ().printLine ( " Basin_Error:  Crust has some non-positive thickness values." );
       getMessageHandler ().printLine ( " Basin_Error:  For correct execution all crust thickness values must be positive" );
-   } else if ( status and maximumCrustThinningRatio > MaximumReasonableCrustThinningRatio and not m_isALCMode ) {
+   } else if ( status && maximumCrustThinningRatio > MaximumReasonableCrustThinningRatio && ! m_isALCMode ) {
       getMessageHandler ().printLine ( " Basin_Warning:  Crust has very large ratio of crust thicknesses." );
       getMessageHandler ().printLine ( " Basin_Warning:  This can result in an unreasonable number of elements in the basement." );
       getMessageHandler ().printLine ( " Basin_Warning:  Possibly, resulting in extended execution-times." );
@@ -680,7 +672,7 @@ bool GeoPhysics::ProjectHandle::determineCrustThinningRatio () const
 bool GeoPhysics::ProjectHandle::determineMaximumNumberOfSegmentsPerLayer ( const bool readSizeFromVolumeData,
                                                                            const bool printTable ) {
 
-   if ( printTable and getRank () == 0 ) {
+   if ( printTable && getRank () == 0 ) {
       cout << endl
            << "------------------------- Number of Segments --------------------------" << endl;
       cout << "        LayerName    (Depo)Age  Min.Thickness  Max.Thickness    Effective Max. Elem. Hgt.   Nb.Seg " << endl << endl;
@@ -695,7 +687,7 @@ bool GeoPhysics::ProjectHandle::determineMaximumNumberOfSegmentsPerLayer ( const
       const unsigned int numberOfSegments = formation->setMaximumNumberOfElements ( readSizeFromVolumeData );
       totalSegmentCount += numberOfSegments;
 
-      if ( printTable and getRank () == 0 ) {
+      if ( printTable && getRank () == 0 ) {
 
          if ( formation->isMantle ()) {
             std::cout << std::setw ( 20 ) << formation->getName ()
@@ -728,7 +720,7 @@ bool GeoPhysics::ProjectHandle::determineMaximumNumberOfSegmentsPerLayer ( const
 
    }
 
-   if ( printTable and getRank () == 0 ) {
+   if ( printTable && getRank () == 0 ) {
       cout << "                                                                           -------------------" << endl;
       std::cout << std::setw ( 84 ) << "Total"
                 << std::setw ( 10 ) << totalSegmentCount
@@ -843,7 +835,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
 
                auto* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>( m_formations [ static_cast<unsigned int>(formCount)]);
 
-               if ( not computeThicknessHistories ( i, j, formation, numberOfErrorsPerLayer )) {
+               if ( ! computeThicknessHistories ( i, j, formation, numberOfErrorsPerLayer )) {
                   errorFound = true;
                }
 
@@ -866,7 +858,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
             uncThickness.push_front (100000);
 
             // And now from top to bottom
-            // Do not include crust or mantle !!
+            // Do not include crust || mantle !!
             for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter )
             {
                GeoPhysics::GeoPhysicsFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsFormation*>( *formationIter );
@@ -912,7 +904,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
    getMaxValue ( errorFoundInt, globalErrorFoundInt );
    errorFound = ( globalErrorFoundInt == 1 );
 
-   return not errorFound;
+   return ! errorFound;
 }
 
 //------------------------------------------------------------//
@@ -944,7 +936,7 @@ bool GeoPhysics::ProjectHandle::computeThicknessHistories ( const unsigned int i
                                                                   IntegerArray& numberOfErrorsPerLayer ) const
 {
 
-   if ( formation->isMobileLayer () or formation->kind () == Interface::BASEMENT_FORMATION ) {
+   if ( formation->isMobileLayer () || formation->kind () == Interface::BASEMENT_FORMATION ) {
       return setMobileLayerThicknessHistory ( i, j, formation, numberOfErrorsPerLayer );
    } else if ( formation->getIsIgneousIntrusion ()) {
       return setIgneousIntrusionThicknessHistory ( i, j, formation, numberOfErrorsPerLayer );
@@ -1020,7 +1012,7 @@ bool GeoPhysics::ProjectHandle::setHistoriesForUnconformity ( const unsigned int
 
    GeoPhysics::GeoPhysicsFormation* currentFormation = formation;
 
-   while ( result and uncThickness > ThicknessTolerance ) {
+   while ( result && uncThickness > ThicknessTolerance ) {
 
       currentFormation = const_cast<GeoPhysics::GeoPhysicsFormation*>(dynamic_cast<const GeoPhysics::GeoPhysicsFormation*>(currentFormation->getBottomSurface ()->getBottomFormation ()));
 
@@ -1218,7 +1210,7 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
       if ( segmentThickness < 0.0 ) {
          onlyPositiveThickness = false;
 
-         if ( formation->getDepositionSequence () > 0 and formation->getDepositionSequence () != Interface::DefaultUndefinedScalarValue ) {
+         if ( formation->getDepositionSequence () > 0 && formation->getDepositionSequence () != Interface::DefaultUndefinedScalarValue ) {
             ++numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ];
 
             if ( numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ] <= MaximumNumberOfErrorsPerLayer ) {
@@ -1315,7 +1307,7 @@ bool GeoPhysics::ProjectHandle::setIgneousIntrusionThicknessHistory ( const unsi
    if ( segmentThickness < 0.0 ) {
       onlyPositiveThickness = false;
 
-      if ( formation->getDepositionSequence () > 0 and formation->getDepositionSequence () != Interface::DefaultUndefinedScalarValue ) {
+      if ( formation->getDepositionSequence () > 0 && formation->getDepositionSequence () != Interface::DefaultUndefinedScalarValue ) {
          ++numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ];
 
          if ( numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ] <= MaximumNumberOfErrorsPerLayer ) {
@@ -1463,7 +1455,7 @@ bool GeoPhysics::ProjectHandle::compFCThicknessHistories ( const unsigned int i,
    // we have 3 possible types of layer: 1: a mobile layer, 2: a normal
    // sedimented layer or 3: an erosion (layer).
 
-   if ( formation->isMobileLayer () or formation->getIsIgneousIntrusion ()) {
+   if ( formation->isMobileLayer () || formation->getIsIgneousIntrusion ()) {
       // mobile layer or igneous intrusion!!
       return updateMobileLayerOrIgneousIntrusionMaxVes (i, j, formation, uncMaxVes.front ());
    } else  {
@@ -1941,7 +1933,7 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const std::string & cfg
          fp << cfgFileName;
          fullpath = fp.path();
       } else {
-         std::cout<< "Basin_Warning: Environment Variable CTCDIR is not set." << std::endl;;
+         std::cout<< "Basin_Warning: Environment Variable CTCDIR is not set." << std::endl;
          return false;
       }
 

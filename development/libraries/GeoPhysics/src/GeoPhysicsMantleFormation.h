@@ -77,6 +77,15 @@ namespace GeoPhysics {
 
       double getMantleElementHeight0(double maxLocalCrustThicknessRatio = 0.0, int k = 0, int kMax = 0) const;
 
+      GeoPhysics::CompoundLithology* getLithologyFromStratTable( bool& undefinedMapValue,
+                                                                 bool useMaps = false,
+                                                                 unsigned int i = 0, unsigned int = 0,
+                                                                 const GridMap* lithoMap1 = nullptr,
+                                                                 const GridMap* lithoMap2 = nullptr,
+                                                                 const GridMap* lithoMap3 = nullptr,
+                                                                 const string& lithoName1 = "",
+                                                                 const string& lithoName2 = "",
+                                                                 const string& lithoName3 = "") const;
    private:
       double m_mantleElementHeight0;
       double m_globalMaxCrustThinningRatio;

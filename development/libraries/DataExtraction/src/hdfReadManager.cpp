@@ -13,6 +13,8 @@
 #include "ProjectHandle.h"
 #include "Property.h"
 
+#include "algorithm"
+
 using namespace ibs;
 
 namespace DataExtraction
@@ -89,31 +91,47 @@ DoubleVector HDFReadManager::get2dCoordinatePropertyVector( const DoublePairVect
 
   const hid_t datasetId = H5Dopen2( m_mapsFileId, propertyFormationDataGroup.c_str(), H5P_DEFAULT );
   const hid_t datatype = H5Dget_type( datasetId );
-  const hid_t dataspace = H5Dget_space( datasetId );
+  hid_t dataspace = H5Dget_space( datasetId );
   hsize_t dims[2];
-  H5Sget_simple_extent_dims( dataspace, dims, NULL );
-  float** propertyData = Array<float>::create2d(dims[0], dims[1]);
-  H5Dread( datasetId, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, &propertyData[0][0] );
+  H5Sget_simple_extent_dims( dataspace , dims, NULL);
   H5Sclose( dataspace );
-  H5Dclose( datasetId );
+
+  if ( dims[0] < 2 || dims[1] < 2 )
+  {
+    return coordinatePropertyVector;
+  }
+
+  float** propertyData = Array<float>::create2d(2, 2);
 
   for ( const DoublePair& coordinate : coordinates )
   {
     const double i = coordinate.first;
     const double j = coordinate.second;
 
-    const unsigned int i1 = static_cast<unsigned int>(i);
+    const unsigned int i1 = std::min(static_cast<unsigned int>(i), static_cast<unsigned int>(dims[0] - 2));
     const double di = i - i1;
-    const unsigned int j1 = static_cast<unsigned int>(j);
+    const unsigned int j1 = std::min(static_cast<unsigned int>(j), static_cast<unsigned int>(dims[1] - 2));
     const double dj = j - j1;
 
-    const double ll = propertyData[i1  ][j1];
-    const double lr = propertyData[i1+1][j1];
-    const double tl = propertyData[i1  ][j1+1];
-    const double tr = propertyData[i1+1][j1+1];
+    hsize_t offset[2] = { i1, j1 };
+    hsize_t count[2] = { 2, 2 };
+    hid_t dataspace = H5Dget_space( datasetId );
+    H5Sselect_hyperslab( dataspace, H5S_SELECT_SET, offset, NULL, count, NULL );
+    hid_t memspace = H5Screate_simple(2, count, NULL);
+    H5Dread(datasetId, datatype, memspace, dataspace, H5P_DEFAULT, &propertyData[0][0] );
+
+    const double ll = propertyData[0][0];
+    const double lr = propertyData[1][0];
+    const double tl = propertyData[0][1];
+    const double tr = propertyData[1][1];
     coordinatePropertyVector.push_back( interpolate2d( ll, lr, tl, tr, di, dj ) );
+
+    H5Sclose( dataspace );
+    H5Sclose( memspace );
   }
   Array<float>::delete2d(propertyData);
+
+  H5Dclose( datasetId );
 
   return coordinatePropertyVector;
 }
@@ -130,36 +148,53 @@ DoubleMatrix HDFReadManager::get3dCoordinatePropertyMatrix( const DoublePairVect
 
   const hid_t datasetId = H5Dopen2( m_snapshotFileId, propertyFormationDataGroup.c_str(), H5P_DEFAULT );
   const hid_t datatype = H5Dget_type( datasetId );
-  const hid_t dataspace = H5Dget_space( datasetId );
+
+  hid_t dataspace = H5Dget_space( datasetId );
   hsize_t dims[3];
   H5Sget_simple_extent_dims( dataspace , dims, NULL);
-  float*** propertyData = Array<float>::create3d(dims[0], dims[1], dims[2]);
-  H5Dread( datasetId, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, &propertyData[0][0][0] );
   H5Sclose( dataspace );
-  H5Dclose( datasetId );
+
+  if ( dims[0] < 2 || dims[1] < 2 )
+  {
+    return coordinatePropertyMatrix;
+  }
+
+  float*** propertyData = Array<float>::create3d(2, 2, dims[2]);
 
   for ( const DoublePair& coordinate : coordinates )
   {
     const double i = coordinate.first;
     const double j = coordinate.second;
 
-    const unsigned int i1 = static_cast<unsigned int>(i);
+    const unsigned int i1 = std::min(static_cast<unsigned int>(i), static_cast<unsigned int>(dims[0] - 2));
     const double di = i - i1;
-    const unsigned int j1 = static_cast<unsigned int>(j);
+    const unsigned int j1 = std::min(static_cast<unsigned int>(j), static_cast<unsigned int>(dims[1] - 2));
     const double dj = j - j1;
+
+    hsize_t offset[3] = { i1, j1, 0};
+    hsize_t count[3] = { 2, 2, dims[2]};
+    dataspace = H5Dget_space( datasetId );
+    H5Sselect_hyperslab( dataspace, H5S_SELECT_SET, offset, NULL, count, NULL );
+    hid_t memspace = H5Screate_simple(3, count, NULL);
+    H5Dread(datasetId, datatype, memspace, dataspace, H5P_DEFAULT, &propertyData[0][0][0] );
 
     std::vector<double> propertyVec;
     for ( int zi = 0; zi < dims[2]; ++zi )
     {
-      const double ll = propertyData[i1  ][j1  ][zi];
-      const double lr = propertyData[i1+1][j1  ][zi];
-      const double tl = propertyData[i1  ][j1+1][zi];
-      const double tr = propertyData[i1+1][j1+1][zi];
+      const double ll = propertyData[0][0][zi];
+      const double lr = propertyData[1][0][zi];
+      const double tl = propertyData[0][1][zi];
+      const double tr = propertyData[1][1][zi];
       propertyVec.push_back( interpolate2d( ll, lr, tl, tr, di, dj ) );
     }
     coordinatePropertyMatrix.push_back(propertyVec);
+
+    H5Sclose( dataspace );
+    H5Sclose( memspace );
   }
   Array<float>::delete3d(propertyData);
+
+  H5Dclose( datasetId );
 
   return coordinatePropertyMatrix;
 }

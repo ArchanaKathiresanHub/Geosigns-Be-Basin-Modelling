@@ -58,7 +58,13 @@ namespace DerivedProperties {
       virtual bool isComputableForBasement ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
                                              const DataModel::AbstractSnapshot*                        snapshot,
                                              const DataModel::AbstractFormation*                       formation ) const;
+
+      virtual double calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                          const GeoPhysics::CompoundLithology* lithology,
+                                          const std::map<std::string, double>& dependentProperties ) const override;
+      
    private :
+      double calculateLithostaticPressure(double ves, double porePressure) const;
 
       /// \brief Compute the lithostatic pressure at the top of the domain.
       void computeLithostaticPressureAtSeaBottom ( const AbstractDerivedProperties::AbstractPropertyManager& propertyManager,

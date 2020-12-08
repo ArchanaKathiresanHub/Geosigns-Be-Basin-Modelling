@@ -14,6 +14,11 @@
 #include "FormationPropertyCalculator.h"
 #include "GeoPhysicsProjectHandle.h"
 
+namespace GeoPhysics {
+  class CompoundLithology;
+  class CompoundProperty;
+}
+
 namespace DerivedProperties {
 
    class PermeabilityFormationCalculator : public AbstractDerivedProperties::FormationPropertyCalculator {
@@ -35,7 +40,13 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation*                       formation,
                                      AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
+      virtual double calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                          const GeoPhysics::CompoundLithology* lithology,
+                                          const std::map<std::string, double>& dependentProperties) const override;
+
    private :
+      void calculatePermeability(const GeoPhysics::CompoundLithology* lithology, double ves, double maxVes, bool chemicalCompactionRequired,
+                                 double chemicalCompactionValue, double& permNorm, double& permPlane, GeoPhysics::CompoundProperty& porosity) const;
 
       const GeoPhysics::ProjectHandle& m_projectHandle;
       bool m_chemicalCompactionRequired;

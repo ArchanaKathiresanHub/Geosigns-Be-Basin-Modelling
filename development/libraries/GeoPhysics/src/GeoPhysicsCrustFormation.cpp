@@ -52,39 +52,37 @@ GeoPhysics::GeoPhysicsCrustFormation::~GeoPhysicsCrustFormation () {
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () {
 
+GeoPhysics::CompoundLithology* GeoPhysics::GeoPhysicsCrustFormation::getLithologyFromStratTable( bool& /*undefinedMapValue*/, bool /*useMaps*/,
+                                                                                                 unsigned int /*i*/,  unsigned int /*j*/,
+                                                             const GridMap* /*lithoMap1*/, const GridMap* /*lithoMap2*/, const GridMap* /*lithoMap3*/,
+                                                             const string& /*lithoName1*/, const string& /*lithoName2*/, const string& /*lithoName3*/ ) const
+{
+  const std::string lithoName1 = DataAccess::Interface::CrustFormation::getLithoType1 ()->getName ();
+  CompoundLithologyComposition lc ( lithoName1,           "",  "",
+                                    100.0, 0.0, 0.0,
+                                    DataAccess::Interface::CrustFormation::getMixModelStr (),
+                                    DataAccess::Interface::CrustFormation::getLayeringIndex());
+
+  if( getProjectHandle().isALC() )
+  {
+     lc.setThermalModel( getProjectHandle().getCrustPropertyModel() );
+  }
+  return dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ().getCompoundLithology ( lc );
+}
+
+bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable ()
+{
    m_compoundLithologies.allocate ( GeoPhysics::GeoPhysicsFormation::getProjectHandle().getActivityOutputGrid ());
 
-   std::string lithoName1;
-
-   bool noDefinedLithologyValue;
-   bool createdLithologies = true;
-
-   CompoundLithology*  pMixedLitho;
-
-   lithoName1 = DataAccess::Interface::CrustFormation::getLithoType1 ()->getName ();
-   noDefinedLithologyValue = true;
-
-   CompoundLithologyComposition lc ( lithoName1,           "",  "",
-                                     100.0, 0.0, 0.0,
-                                     DataAccess::Interface::CrustFormation::getMixModelStr (),
-                                     DataAccess::Interface::CrustFormation::getLayeringIndex());
-
-   GeoPhysics::ProjectHandle& projectHandle = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle());
-
-   if( projectHandle.isALC() ) {
-      lc.setThermalModel( projectHandle.getCrustPropertyModel() );
-   }
-   pMixedLitho = projectHandle.getLithologyManager ().getCompoundLithology ( lc );
-   createdLithologies = pMixedLitho != 0;
+   bool undefinedMapValue = false;
+   CompoundLithology* pMixedLitho = getLithologyFromStratTable( undefinedMapValue );
+   const bool createdLithologies = pMixedLitho != nullptr;
    m_compoundLithologies.fillWithLithology ( pMixedLitho );
 
-   if( projectHandle.isALC() && getProjectHandle().getRank() == 0 ) {
+   if( getProjectHandle().isALC() && getProjectHandle().getRank() == 0 ) {
       cout << "Crust property model = " << pMixedLitho->getThermalModel() << endl;
    }
-
-
    return createdLithologies;
 }
 
@@ -318,7 +316,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::retrieveAllThicknessMaps () {
         getProjectHandle().isALC() ) {
       Interface::PaleoFormationPropertyList* crustThicknesses = getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList* oceacrustThicknesses = getOceaPaleoThicknessHistory();
-      
+
       if (crustThicknesses) {
           for (const auto& crustThicknessIter : *crustThicknesses) {
               dynamic_cast<const Interface::GridMap*>((crustThicknessIter)->getMap(Interface::CrustThinningHistoryInstanceThicknessMap))->retrieveGhostedData();
@@ -349,7 +347,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::restoreAllThicknessMaps () {
 
       Interface::PaleoFormationPropertyList* crustThicknesses = getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::iterator crustThicknessIter;
-	  Interface::PaleoFormationPropertyList* oceacrustThicknesses = getOceaPaleoThicknessHistory();
+    Interface::PaleoFormationPropertyList* oceacrustThicknesses = getOceaPaleoThicknessHistory();
 
       if ( crustThicknesses) {
           for (crustThicknessIter = crustThicknesses->begin(); crustThicknessIter != crustThicknesses->end(); ++crustThicknessIter) {
@@ -365,7 +363,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::restoreAllThicknessMaps () {
           }
           delete oceacrustThicknesses; oceacrustThicknesses = nullptr;
       }
-      
+
    }
 
 }

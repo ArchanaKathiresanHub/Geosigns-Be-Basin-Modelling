@@ -23,6 +23,8 @@
 #include "PropertyRetriever.h"
 #include "BulkDensityFormationCalculator.h"
 
+#include "ConstantsMathematics.h"
+
 using namespace AbstractDerivedProperties;
 
 DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
@@ -67,6 +69,53 @@ DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculato
    }
 }
 
+double DerivedProperties::BulkDensityFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                                                               const GeoPhysics::CompoundLithology* lithology,
+                                                                               const std::map<string, double>& dependentProperties) const
+{
+   if ( formation->kind () == DataAccess::Interface::BASEMENT_FORMATION )
+   {
+      if ( m_alcModeEnabled )
+      {
+         return calculateSingleNodeBulkDensityBasementAlc( lithology,
+                                                           dependentProperties.at("Temperature"),
+                                                           dependentProperties.at("LithoStaticPressure"),
+                                                           dependentProperties.at("Depth"),
+                                                           dependentProperties.at("ALCStepTopBasaltDepth"),
+                                                           dependentProperties.at("ALCStepBasaltThickness"));
+      }
+      else
+      {
+        return lithology->density();
+      }
+   }
+   else
+   {
+      // The sediment calculation does not depend on the alc mode.
+      if ( m_coupledModeEnabled )
+      {
+        const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType());
+        double solidDensity = lithology->density();
+        return calculateSingleNodeBulkDensitySedimentsCoupled( fluid,
+                                                               dependentProperties.at("Temperature"),
+                                                               dependentProperties.at("Pressure"),
+                                                               Utilities::Maths::PercentageToFraction * dependentProperties.at("Porosity"),
+                                                               solidDensity );
+      }
+      else
+      {
+        const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType());
+        const double temperatureGradient = m_projectHandle.getRunParameters ()->getTemperatureGradient () / Utilities::Maths::KilometerToMeter;
+        const double fluidDensity = fluid->getCorrectedSimpleDensity ( GeoPhysics::FluidType::DefaultStandardDepth,
+                                                                       GeoPhysics::FluidType::DefaultHydrostaticPressureGradient,
+                                                                       GeoPhysics::FluidType::StandardSurfaceTemperature,
+                                                                       temperatureGradient );
+        double solidDensity = lithology->density();
+        return calculateSingleNodeBulkDensitySedimentsHydrostatic( Utilities::Maths::PercentageToFraction * dependentProperties.at("Porosity"), solidDensity, fluidDensity );
+      }
+   }
+}
+
 
 void DerivedProperties::BulkDensityFormationCalculator::calculate ( AbstractPropertyManager&            propertyManager,
                                                                     const DataModel::AbstractSnapshot*  snapshot,
@@ -98,6 +147,11 @@ void DerivedProperties::BulkDensityFormationCalculator::calculate ( AbstractProp
 
    }
 
+}
+
+double DerivedProperties::BulkDensityFormationCalculator::calculateSingleNodeBulkDensitySedimentsHydrostatic( const double porosity, const double solidDensity, const double fluidDensity) const
+{
+  return ( 1.0 - porosity ) * solidDensity + porosity * fluidDensity;
 }
 
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedimentsHydrostatic ( AbstractPropertyManager&           propertyManager,
@@ -139,7 +193,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
                   const double porosity = 0.01 * layerPorosity->get ( i, j, k );
-                  bulkDensity->set ( i, j, k,  ( 1.0 - porosity ) * solidDensity + porosity * fluidDensity );
+                  bulkDensity->set ( i, j, k, calculateSingleNodeBulkDensitySedimentsHydrostatic( porosity, solidDensity, fluidDensity ) );
                }
 
             } else {
@@ -159,6 +213,13 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
 }
 
+
+double DerivedProperties::BulkDensityFormationCalculator::calculateSingleNodeBulkDensitySedimentsCoupled( const GeoPhysics::FluidType* fluid, const double temperature,
+                                                                                                          const double porePressure, const double porosity, const double solidDensity ) const
+{
+  const double fluidDensity = fluid->density ( temperature, porePressure );
+  return ( 1.0 - porosity ) * solidDensity + porosity * fluidDensity;
+}
 
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedimentsCoupled ( AbstractPropertyManager&           propertyManager,
                                                                                              const DataModel::AbstractSnapshot* snapshot,
@@ -199,8 +260,12 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
                   const double porosity = 0.01 * layerPorosity->get ( i, j, k );
-                  const double fluidDensity = fluid->density ( temperature->get ( i, j, k ), porePressure->get ( i, j, k ));
-                  bulkDensity->set ( i, j, k, ( 1.0 - porosity ) * solidDensity + porosity * fluidDensity );
+                  double bulkDensityValue = calculateSingleNodeBulkDensitySedimentsCoupled(fluid,
+                                                                                           temperature->get( i, j, k ),
+                                                                                           porePressure->get( i, j, k ),
+                                                                                           porosity,
+                                                                                           solidDensity);
+                  bulkDensity->set ( i, j, k, bulkDensityValue );
                }
 
             } else {
@@ -264,6 +329,19 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
    derivedProperties.push_back ( bulkDensity );
 }
 
+double DerivedProperties::BulkDensityFormationCalculator::calculateSingleNodeBulkDensityBasementAlc(const GeoPhysics::CompoundLithology* lithology, const double temperature, const double lithostaticPressure,
+                                                                                                    const double depth, const double topBasaltDepth, const double basaltThickness) const
+{
+  const double botBasaltDepth = topBasaltDepth + 1 + basaltThickness;
+
+  if( basaltThickness != 0 and ( topBasaltDepth <= depth && botBasaltDepth > depth)) {
+    return lithology->getSimpleLithology()->getBasaltDensity ( temperature, lithostaticPressure);
+  } else {
+    return lithology->computeDensity ( temperature, lithostaticPressure);
+  }
+
+}
+
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBasementAlc ( AbstractPropertyManager&           propertyManager,
                                                                                         const DataModel::AbstractSnapshot* snapshot,
                                                                                         const GeoPhysics::GeoPhysicsFormation*       formation,
@@ -321,15 +399,9 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
                   const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j, snapshot->getTime () );
 
                   const double topBasaltDepth = basaltDepth->get( i, j );
-                  const double botBasaltDepth = topBasaltDepth + 1 + basaltThickness->get( i, j );
-                  double solidDensity;
+                  double solidDensity = calculateSingleNodeBulkDensityBasementAlc( lithology, temperature->get(i,j,k), lithostaticPressure->get(i,j,k), depth->get(i,j,k),
+                                                                                   topBasaltDepth, basaltThickness->get(i,j) );
 
-                  if( basaltThickness->get( i, j ) != 0 and ( topBasaltDepth <= depth->get ( i, j, k ) and botBasaltDepth > depth->get ( i, j, k  ))) {
-
-                     solidDensity = lithology->getSimpleLithology()->getBasaltDensity ( temperature->get ( i, j, k ), lithostaticPressure->get ( i, j, k ));
-                  } else {
-                     solidDensity = lithology->computeDensity ( temperature->get ( i, j, k ), lithostaticPressure->get ( i, j, k ));
-                  }
                   bulkDensity->set ( i, j, k, solidDensity );
                }
 
@@ -425,3 +497,5 @@ bool DerivedProperties::BulkDensityFormationCalculator::isComputableForBasement 
    }
    return propertyIsComputable;
 }
+
+

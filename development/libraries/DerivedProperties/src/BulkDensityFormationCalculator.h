@@ -14,6 +14,12 @@
 #include "FormationPropertyCalculator.h"
 #include "GeoPhysicsProjectHandle.h"
 
+namespace GeoPhysics
+{
+  class CompoundLithology;
+  class FluidType;
+}
+
 namespace DerivedProperties {
 
    /// \brief Calculator for the bulk density of a layer.
@@ -46,8 +52,11 @@ namespace DerivedProperties {
                                              const DataModel::AbstractSnapshot*                        snapshot,
                                              const DataModel::AbstractFormation*                       formation ) const;
 
-   private :
+      virtual double calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                          const GeoPhysics::CompoundLithology* lithology,
+                                          const std::map<std::string, double>& dependentProperties ) const override;
 
+   private :
       const GeoPhysics::ProjectHandle& m_projectHandle;
 
       /// \brief Calculate the bulk density in the basement when ALC mode has not been enabled.
@@ -80,6 +89,9 @@ namespace DerivedProperties {
       /// \brief Used to indicate whether the fastcauldron simulation mode was coupled or not (hydrostatic).
       bool m_coupledModeEnabled;
 
+      double calculateSingleNodeBulkDensityBasementAlc(const GeoPhysics::CompoundLithology* lithology, const double temperature, const double lithostaticPressure, const double depth, const double topBasaltDepth, const double basaltThickness) const;
+      double calculateSingleNodeBulkDensitySedimentsCoupled(const GeoPhysics::FluidType* fluid, const double temperature, const double porePressure, const double porosity, const double solidDensity) const;
+      double calculateSingleNodeBulkDensitySedimentsHydrostatic(const double porosity, const double solidDensity, const double fluidDensity) const;
    };
 
 

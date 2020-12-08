@@ -20,6 +20,7 @@
 
 // Utility library
 #include "FormattingException.h"
+#include "ConstantsMathematics.h"
 
 #include "SonicFormationCalculator.h"
 
@@ -29,6 +30,11 @@ using namespace AbstractDerivedProperties;
 DerivedProperties::SonicFormationCalculator::SonicFormationCalculator() {
    addPropertyName ( "SonicSlowness" );
    addDependentPropertyName ( "Velocity" );
+}
+
+double DerivedProperties::SonicFormationCalculator::calculateSonic(double velocity) const
+{
+  return Utilities::Maths::SecondToMicroSecond * (1.0 / velocity);
 }
 
 void DerivedProperties::SonicFormationCalculator::calculate(       AbstractPropertyManager&      propertyManager,
@@ -67,7 +73,7 @@ void DerivedProperties::SonicFormationCalculator::calculate(       AbstractPrope
 
                for (unsigned int k = sonic->firstK(); k <= sonic->lastK(); ++k) {
 
-                  sonicValue = 1.0e6 / velocity->get( i, j, k );
+                  sonicValue = calculateSonic(velocity->get(i,j,k));
 
                   sonic->set( i, j, k, sonicValue );
                }
@@ -91,4 +97,11 @@ void DerivedProperties::SonicFormationCalculator::calculate(       AbstractPrope
       throw SonicException() << "Cannot get sonic slowness dependent property 'velocity'.";
    }
 
+}
+
+double DerivedProperties::SonicFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* /*formation*/,
+                                                                         const GeoPhysics::CompoundLithology* /*lithology*/,
+                                                                         const std::map<string, double>& dependentProperties ) const
+{
+  return calculateSonic( dependentProperties.at( "Velocity" ) );
 }
