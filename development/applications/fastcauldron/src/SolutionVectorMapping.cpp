@@ -244,7 +244,7 @@ void SolutionVectorMapping::getSolution ( Vec vector ) const {
 }
 
 
-std::vector<unsigned int> SolutionVectorMapping::getLocationMaxValue ( Vec vector, double& maxResidual ) const {
+std::vector<int> SolutionVectorMapping::getLocationMaxValue ( Vec vector, double& maxResidual ) const {
 
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
    const StratigraphicColumn& column = m_computationalDomain.getStratigraphicColumn ();
@@ -257,10 +257,10 @@ std::vector<unsigned int> SolutionVectorMapping::getLocationMaxValue ( Vec vecto
 
    VecGetArray ( vector, &localArray );
 
-   unsigned int maxI = 0;
-   unsigned int maxJ = 0;
-   unsigned int maxK = 0;
-   unsigned int maxL = 0;
+   int maxI = -1;
+   int maxJ = -1;
+   int maxK = -1;
+   int maxL = -1;
 
    for ( size_t l = topLayerIndex; l < numberOfLayers ; ++l )
    {
