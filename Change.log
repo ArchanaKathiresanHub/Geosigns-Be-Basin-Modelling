@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-12-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: No newton message for non-valid part of the computational domain.
+	* If a processor has no valid part of the computational domain, do not print newton log
+
+	* Related work items: #365260
+
+	================== COMMIT-END ========================
+	Commit-ID:<3d64b9f73e06ac9b23d01c4b2c6304c0428c9745>	  (refs/heads/master)
+
+++
 2020-11-19  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: usr: ReservoirOptionsIoTbl log created.
