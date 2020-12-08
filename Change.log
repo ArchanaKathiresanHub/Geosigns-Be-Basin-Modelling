@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.3.0		2020-10-26 12:54:48 +0000
+Cauldron-v2.4.0		2020-12-08 13:54:27 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-12-08  Richard Faasse  <Richard.Faasse@shell.com>
+
+	new: Implemented derived property drilling !v2.4.0.
+	* Several derived properties are calculated without instantiating the 3D domain, to improve performance of the datadriller application for derived properties
+	================== COMMIT-END ========================
+	Commit-ID:<ed7f1bdddeec64aa77cb6dd0d0904b3a40ec5844>	  (tag: refs/tags/v2.4.0, refs/heads/master)
+
+++
 2020-12-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: No newton message for non-valid part of the computational domain.
