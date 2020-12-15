@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-12-15  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed BPA2 to casawizard to BPA2 workflow issues.
+	================== COMMIT-END ========================
+	Commit-ID:<20fc4b128eeb8284c883d9973f8af87c1daba09b>	  (refs/heads/master)
+
+++
 2020-12-08  Richard Faasse  <Richard.Faasse@shell.com>
 
 	new: Implemented derived property drilling !v2.4.0.
