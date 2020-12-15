@@ -194,6 +194,13 @@ namespace mbapi
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode finalizeMapWriter( ) = 0;
 
+      /// @brief Removes a map reference from the GridMapIOTbl
+      /// @param[in] mapName the name of the map
+      /// @param[in] referredBy the name of the table which refers to this map
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode removeMapReferenceFromGridMapIOTbl( const std::string& mapName, const std::string& referredBy ) = 0;
+
+
       /// @}
 
    protected:

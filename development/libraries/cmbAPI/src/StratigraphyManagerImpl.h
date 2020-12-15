@@ -116,11 +116,14 @@ namespace mbapi {
       virtual std::vector<LayerID> findLayersForLithology( const std::string & lithoName );
 
       /// @brief For a given layer set the new lithofraction map names in the StratIoTbl
-      /// @param[in] lid layer ID
-      /// @param[in] the name of the first lithology percentage map
-      /// @param[in] the name of the second lithology percentage map
+      /// @param[in] id layer ID
+      /// @param[in] mapNameFirstLithoPercentage the name of the first lithology percentage map
+      /// @param[in] mapNameSecondLithoPercentage the name of the second lithology percentage map
+      /// @param[out] firstReplacedMapName the name of the first replaced map - returns empty string if no map was present before setting the new lithologies
+      /// @param[out] secondReplacedMapName the name of the second replaced map - returns empty string if no map was present before setting the new lithologies
       /// @return NoError on success or NonexistingID on error
-      virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps( LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage );
+      virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps(LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage ,
+                                                                         std::string& firstReplacedMapName, std::string& secondReplacedMapName) override;
 
 
       // Layer -> Source rock type relation methods

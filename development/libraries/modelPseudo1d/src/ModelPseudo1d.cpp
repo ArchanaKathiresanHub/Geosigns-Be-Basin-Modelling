@@ -20,6 +20,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <map>
 
 namespace modelPseudo1d
 {
@@ -96,24 +97,30 @@ void ModelPseudo1d::setReferredTablesSet()
   }
 }
 
-double ModelPseudo1d::extractScalarFromInputMaps(const ModelPseudo1dTableProperty & tableDefaultProperty, const std::string & tableName, const int row, const MapIDsHashTable& mapNameIDs)
-{                                           
+bool ModelPseudo1d::extractScalarFromInputMaps(const ModelPseudo1dTableProperty & tableDefaultProperty, const std::string & tableName, const int row, const MapIDsHashTable& mapNameIDs,
+                                               ModelPseudo1dTableProperty& tableProperty)
+{
   mbapi::MapsManager & mapsMgr = m_mdl.mapsManager();
   mbapi::PropertyManager & propMgr = m_mdl.propertyManager();
 
   if (ErrorHandler::NoError != propMgr.requestPropertyInSnapshots(tableDefaultProperty.name))
   {
     LogHandler(LogHandler::WARNING_SEVERITY) << "Warning! Initialization of table property " << tableDefaultProperty.name << " failed!";
-    return DataAccess::Interface::DefaultUndefinedScalarValue;
+    return false;
   }
 
-  const std::string & myMapName = m_mdl.tableValueAsString(tableName, row, tableDefaultProperty.nameGridMap);
-  if (myMapName.empty())
+  tableProperty.mapName = m_mdl.tableValueAsString(tableName, row, tableDefaultProperty.nameGridMap);
+  if (tableProperty.mapName.empty())
   {
-    return DataAccess::Interface::DefaultUndefinedScalarValue;
+    return false;
+  }
+  tableProperty.value = mapsMgr.mapGetValue(mapNameIDs.at(tableProperty.mapName), m_indI, m_indJ);
+  if (tableProperty.value == DataAccess::Interface::DefaultUndefinedScalarValue)
+  {
+    return false;
   }
 
-  return mapsMgr.mapGetValue(mapNameIDs.at(myMapName), m_indI, m_indJ);
+  return true;
 }
 
 void ModelPseudo1d::extractScalarsFromInputMaps()
@@ -141,13 +148,11 @@ void ModelPseudo1d::extractScalarsFromInputMaps()
       for (int row = 0; row < tableSize; ++row)
       {
         ModelPseudo1dTableProperty tableProperty = tableDefaultProperty;
-        const double value = extractScalarFromInputMaps(tableDefaultProperty, tableName, row, mapNameIDs);
-        if (value == DataAccess::Interface::DefaultUndefinedScalarValue)
+        if (!extractScalarFromInputMaps(tableDefaultProperty, tableName, row, mapNameIDs, tableProperty))
         {
           continue;
         }
 
-        tableProperty.value = value;
         tablePropertyValuesMap[tableName].push_back(make_pair(row, tableProperty));
       }
     }
@@ -160,46 +165,77 @@ void ModelPseudo1d::extractScalarsFromInputMaps()
 void ModelPseudo1d::setScalarsInModel()
 {
   LogHandler(LogHandler::INFO_SEVERITY) << "Setting extracted values in model ...";
-  for (const TablePropertyMapList & tablePropertyValuesMap : m_tablePropertyMapsLists)
+  std::vector<std::pair<std::string, std::string>> deletedFromGridMapIO;
+  for (const TablePropertyMapList& tablePropertyValuesMap : m_tablePropertyMapsLists)
   {
-    TablePropertyMapList::const_iterator tablePropertyIterator = tablePropertyValuesMap.begin();
-    for ( ; tablePropertyIterator != tablePropertyValuesMap.end(); ++tablePropertyIterator)
+    for ( const std::pair<std::string, std::vector<PairModelPseudo1dTableProperty>> tablePropertyMap : tablePropertyValuesMap)
     {
-      for (const PairModelPseudo1dTableProperty & tablePropertyPair : tablePropertyIterator->second)
+      const std::string& tableName = tablePropertyMap.first;
+
+      for (const PairModelPseudo1dTableProperty& tablePropertyPair : tablePropertyMap.second)
       {
-        const ModelPseudo1dTableProperty & tableProperty = tablePropertyPair.second;
-        if (ErrorHandler::NoError != m_mdl.setTableValue(tablePropertyIterator->first, tablePropertyPair.first, tableProperty.name, tableProperty.value))
-        {
-          throw ErrorHandler::Exception(m_mdl.errorCode())
-              << "Table " << tablePropertyIterator->first << " was not updated at row " << tablePropertyPair.first
-              << " for table property " << tableProperty.name << " with scalar value " << tableProperty.value << ", " << m_mdl.errorMessage();
-        }
+        int rowNumber = tablePropertyPair.first;
+        const ModelPseudo1dTableProperty& tableProperty = tablePropertyPair.second;
 
-        if (ErrorHandler::NoError != m_mdl.setTableValue(tablePropertyIterator->first, tablePropertyPair.first, tableProperty.nameGridMap, ""))
-        {
-          throw ErrorHandler::Exception(m_mdl.errorCode())
-              << "Failed at removing map name in table " << tablePropertyIterator->first << " at row " << tablePropertyPair.first
-              << " for table property " << tableProperty.name << ", " << m_mdl.errorMessage();
-        }
-
-        if (!removeEntryInTable("GridMapIoTbl", tablePropertyIterator->first, "ReferredBy"))
-        {
-          throw ErrorHandler::Exception(ErrorHandler::UnknownError)
-              << "Failed at removing "<< tablePropertyIterator->first << " map entry in GridMapIoTbl table. Element has not been found.";
-        }
-
-        removeEntryInTable("BPANameMapping", "GridMapIoTbl:" + tablePropertyIterator->first, "TblIoMappingEncode");
+        removeGridMapFromTable(tableName, rowNumber, tableProperty);
+        setScalarValueInTable(tableName, rowNumber, tableProperty);
+        removeGridMapIOTblReference(tableName, tableProperty, deletedFromGridMapIO);
+        removeEntryFromTable("BPANameMapping", "GridMapIoTbl:" + tableName, "TblIoMappingEncode");
       }
     }
   }
   LogHandler(LogHandler::INFO_SEVERITY) << "Successfully updated model!";
 }
 
-bool ModelPseudo1d::removeEntryInTable(const std::string& tableName,const std::string& tableEntry, const std::string& colName) const
+void ModelPseudo1d::removeGridMapFromTable(const std::string& tableName, const int rowNumber,
+                                           const ModelPseudo1dTableProperty& tableProperty)
+{
+  if (ErrorHandler::NoError != m_mdl.setTableValue(tableName, rowNumber, tableProperty.nameGridMap, ""))
+  {
+    throw ErrorHandler::Exception(m_mdl.errorCode())
+        << "Failed at removing map name in table " << tableName << " at row " << rowNumber
+        << " for table property " << tableProperty.name << ", " << m_mdl.errorMessage();
+  }
+}
+
+void ModelPseudo1d::setScalarValueInTable(const std::string& tableName, const int rowNumber,
+                                          const ModelPseudo1dTableProperty& tableProperty)
+{
+  if (ErrorHandler::NoError != m_mdl.setTableValue(tableName, rowNumber, tableProperty.name, tableProperty.value))
+  {
+    throw ErrorHandler::Exception(m_mdl.errorCode())
+        << "Table " << tableName << " was not updated at row " << rowNumber
+        << " for table property " << tableProperty.name << " with scalar value " << tableProperty.value << ", " << m_mdl.errorMessage();
+  }
+}
+
+void ModelPseudo1d::removeGridMapIOTblReference(const std::string& tableName,
+                                                const ModelPseudo1dTableProperty& tableProperty,
+                                                std::vector<std::pair<std::string, std::string>>& deletedFromGridMapIO)
+{
+  if (!removeEntryFromTable("GridMapIoTbl", tableName, "ReferredBy", tableProperty.mapName, "MapName"))
+  {
+    if (!alreadyDeleted(deletedFromGridMapIO, tableName, tableProperty.mapName))
+    {
+      throw ErrorHandler::Exception(ErrorHandler::UnknownError)
+          << "Failed at removing "<< tableName << " map entry in GridMapIoTbl table. Element has not been found.";
+    }
+  }
+  deletedFromGridMapIO.push_back({tableName, tableProperty.mapName});
+}
+
+bool ModelPseudo1d::removeEntryFromTable(const std::string& tableName,const std::string& tableEntry, const std::string& colName,
+                                       const std::string& conditionalEntry, const std::string& conditionalColumn) const
 {
   for ( int entryTblRow = 0; entryTblRow <= m_mdl.tableSize(tableName); entryTblRow++)
   {
-    if ( m_mdl.tableValueAsString(tableName, entryTblRow, colName).find(tableEntry) != std::string::npos )
+    std::string test1 = m_mdl.tableValueAsString(tableName, entryTblRow, colName);
+    std::string test2 = m_mdl.tableValueAsString(tableName, entryTblRow, conditionalColumn);
+
+
+    if ( m_mdl.tableValueAsString(tableName, entryTblRow, colName).find(tableEntry) != std::string::npos &&
+         ( conditionalEntry == "" ||
+           m_mdl.tableValueAsString(tableName, entryTblRow, conditionalColumn).find(conditionalEntry) != std::string::npos))
     {
       if (ErrorHandler::NoError != m_mdl.removeRecordFromTable(tableName, entryTblRow))
       {
@@ -210,6 +246,21 @@ bool ModelPseudo1d::removeEntryInTable(const std::string& tableName,const std::s
       {
         return true;
       }
+    }
+  }
+
+  return false;
+}
+
+bool ModelPseudo1d::alreadyDeleted(const std::vector<std::pair<std::string, std::string>>& deletedFromGridMapIO, const std::string& currentTable,
+                                   const std::string& currentMapName)
+{
+  for (const std::pair<std::string, std::string>& deleted : deletedFromGridMapIO)
+  {
+    if (deleted.first == currentTable &&
+        deleted.second == currentMapName)
+    {
+      return true;
     }
   }
 

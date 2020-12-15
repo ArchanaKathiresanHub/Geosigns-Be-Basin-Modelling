@@ -116,6 +116,9 @@ void ResultsController::saveOptimized()
   }
 
   const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
+  QString projectTextFile("/" + scenario_.project3dFilename().replace(QString("project3d"), QString("txt")));
+  QFile::copy(scenario_.workingDirectory() + projectTextFile, targetDir.absolutePath() + projectTextFile);
+
   scenarioBackup::backup(scenario_);
 
   Logger::log() << (filesCopied ? "Finished saving optimized case" :

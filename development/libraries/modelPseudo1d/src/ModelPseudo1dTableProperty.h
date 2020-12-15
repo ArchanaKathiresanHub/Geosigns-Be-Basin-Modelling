@@ -20,12 +20,15 @@ struct ModelPseudo1dTableProperty
   std::string name;
   std::string nameGridMap;
   double value;
+  std::string mapName;
 
-  ModelPseudo1dTableProperty(const std::string & name = "", const std::string & nameGridMap = "",
-                             const double value = DataAccess::Interface::DefaultUndefinedScalarValue) :
+  ModelPseudo1dTableProperty(const std::string& name = "", const std::string& nameGridMap = "",
+                             const double value = DataAccess::Interface::DefaultUndefinedScalarValue,
+                             const std::string& mapName = "") :
     name{name},
     nameGridMap{nameGridMap},
-    value{value}
+    value{value},
+    mapName{mapName}
   {
   }
 };

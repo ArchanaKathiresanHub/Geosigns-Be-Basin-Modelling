@@ -317,6 +317,25 @@ ErrorHandler::ReturnCode MapsManagerImpl::finalizeMapWriter()
    return NoError;
 }
 
+ErrorHandler::ReturnCode MapsManagerImpl::removeMapReferenceFromGridMapIOTbl(const string& mapName, const string& referredBy)
+{
+  // Delete Reference in GridMapIOTbl
+  database::Table * table = m_proj->getTable( s_mapsTableName );
+  if ( !table ) { throw Exception( NonexistingID ) << s_mapsTableName << " table could not be found in project " << m_projectFileName; }
+
+  database::Record* record = table->findRecord("ReferredBy", referredBy, "MapName", mapName);
+  table->removeRecord(record);
+
+  // Delete reference in member containing all the used map names
+  const auto pos = std::find( m_mapName.begin(), m_mapName.end(), mapName );
+  if (pos != m_mapName.end())
+  {
+    m_mapName.erase(pos);
+  }
+
+  return NoError;
+}
+
 ErrorHandler::ReturnCode MapsManagerImpl::mapSetValues( MapID id, const std::vector<double>& vin )
 {
    if ( errorCode() != NoError ) resetError();

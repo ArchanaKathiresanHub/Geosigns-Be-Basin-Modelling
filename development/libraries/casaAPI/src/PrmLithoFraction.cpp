@@ -333,7 +333,8 @@ namespace casa
       }
       else
       {
-         stMgr.setLayerLithologiesPercentageMaps( lid, m_mapNameFirstLithoPercentage, m_mapNameSecondLithoPercentage );
+         std::string firstReplacedMap, secondReplacedMap;
+         stMgr.setLayerLithologiesPercentageMaps( lid, m_mapNameFirstLithoPercentage, m_mapNameSecondLithoPercentage, firstReplacedMap, secondReplacedMap );
       }
 
       return ErrorHandler::NoError;

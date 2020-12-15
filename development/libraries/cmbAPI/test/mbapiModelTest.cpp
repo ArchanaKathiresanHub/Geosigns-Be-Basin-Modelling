@@ -1081,8 +1081,8 @@ TEST_F(mbapiModelTest, MapsManagerNNInterpolation)
       // second map, produce the map and update GridmapIoTbl
       id = mapsMgr.generateMap("StratIoTbl", correctSecondLithoFractionMap, lf2CorrInt, mapSeqNbr, masterResults.path());
       ASSERT_FALSE(IsValueUndefined(id));
-
-      ASSERT_EQ(ErrorHandler::NoError, strMgr.setLayerLithologiesPercentageMaps(lid, correctFirstLithoFractionMap, correctSecondLithoFractionMap));
+      std::string firstReplacedMap, secondReplacedMap;
+      ASSERT_EQ(ErrorHandler::NoError, strMgr.setLayerLithologiesPercentageMaps(lid, correctFirstLithoFractionMap, correctSecondLithoFractionMap, firstReplacedMap, secondReplacedMap));
 
       const std::vector<mbapi::MapsManager::MapID> & tids = tmpModel.mapsManager().mapsIDs();
       ASSERT_EQ(tids.size(), 28U);

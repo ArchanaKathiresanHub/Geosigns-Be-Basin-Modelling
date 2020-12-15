@@ -187,8 +187,10 @@ namespace casa
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameSecondLithoPercentage
                                                                         << " lithofraction map failed";
       }
-
-      strMgr.setLayerLithologiesPercentageMaps( lid, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage);
+      std::string firstReplacedMap, secondReplacedMap;
+      strMgr.setLayerLithologiesPercentageMaps( lid, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage, firstReplacedMap, secondReplacedMap );
+      mapsMgr.removeMapReferenceFromGridMapIOTbl(firstReplacedMap, "StratIoTbl");
+      mapsMgr.removeMapReferenceFromGridMapIOTbl(secondReplacedMap, "StratIoTbl");
 
       // both maps are provided, no scalar values is needed
       return SharedParameterPtr( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, std::vector<double>(),

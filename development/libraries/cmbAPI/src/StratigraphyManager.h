@@ -107,8 +107,11 @@ namespace mbapi {
       /// @param[in] id layer ID
       /// @param[in] mapNameFirstLithoPercentage the name of the first lithology percentage map
       /// @param[in] mapNameSecondLithoPercentage the name of the second lithology percentage map
+      /// @param[out] firstReplacedMapName the name of the first replaced map - returns empty string if no map was present before setting the new lithologies
+      /// @param[out] secondReplacedMapName the name of the second replaced map - returns empty string if no map was present before setting the new lithologies
       /// @return NoError on success or NonexistingID on error
-      virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps( LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage ) = 0;
+      virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps( LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage ,
+                                                                          std::string& firstReplacedMapName, std::string& secondReplacedMapName ) = 0;
       
       /// @brief Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also
       /// @param[in] lid layer ID
