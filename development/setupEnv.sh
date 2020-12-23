@@ -9,7 +9,7 @@ loadedMdl=$(module list 2>&1 | grep ${intelCmplModuleName})
 if [ "x${loadedMdl}" == "x" ]; then
    availMdl=$(module av 2>&1 | grep ${intelCmplModuleName})
    if [ "x${availMdl}" == "x" ]; then
-      [[ -r /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh ]] && . /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh 
+      [[ -r /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh ]] && . /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh 
       module load HpcSoftwareStack/PRODUCTION
    fi
    module purge
