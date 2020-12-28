@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2020-12-23  arijit.khan Khan  <arijit.khan@shell.com>
+
+	new: dev: Lmod changes applied to Build scripts !major.
+	 * This work is directed to the Notice "Outdated LMod initialization script /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh will be deleted on Feb 1st, 2021." dated Tue 9/22/2020 5:09 AM from HPCS Optimization Team.
+	 * To asses the impact of the changes to new LMod script
+	. /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh
+
+	Related work items: #399374
+	================== COMMIT-END ========================
+	Commit-ID:<45a2b24f537e01e9418064ef02e3652509529d92>	  (refs/heads/master)
+
+++
 2020-12-15  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fixed BPA2 to casawizard to BPA2 workflow issues.
