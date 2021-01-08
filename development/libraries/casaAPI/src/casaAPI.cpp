@@ -1134,10 +1134,10 @@ ErrorHandler::ReturnCode VaryLithoFraction( ScenarioAnalysis            & sa
          baseLithoFractions.push_back( ( minLithoFrac[0] + maxLithoFrac[0] ) * 0.5 );
          if ( minLithoFrac.size() == 1 )
          {
-            minLithoFrac.push_back( baseLithoFractions.back( ) );
-            maxLithoFrac.push_back( baseLithoFractions.back( ) );
+            minLithoFrac.push_back( 1.0 );
+            maxLithoFrac.push_back( 1.0 );
          }
-         baseLithoFractions.push_back( ( minLithoFrac[1] + maxLithoFrac[1] ) * 0.5 );
+         baseLithoFractions.push_back( std::min(1.0, ( minLithoFrac[1] + maxLithoFrac[1] ) * 0.5 ));
       }
       // Check ranges and the base value
       ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );

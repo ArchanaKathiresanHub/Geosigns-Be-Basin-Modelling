@@ -75,7 +75,7 @@ void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Scenarion execution succeeded";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Scenario execution succeeded";
 }
 
 void CmdRun::printHelpPage( const char * cmdName )

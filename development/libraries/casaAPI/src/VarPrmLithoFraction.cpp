@@ -57,7 +57,7 @@ namespace casa
 
          lithoFractions.push_back( *vals++ );
 
-         if ( minLithoFractions[i] > lithoFractions.back() || lithoFractions.back() > maxLithoFractions[i]  )
+         if ( minLithoFractions[i] > lithoFractions.back() || lithoFractions.back() > maxLithoFractions[i] )
          {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of the lithofraction parameter " << lithoFractions.back() <<
                                                                   " is out of range: [" << minLithoFractions[i] << ":" << maxLithoFractions[i] << "]";
@@ -77,8 +77,8 @@ namespace casa
       }
       else if ( vin.size() == 2 )
       {
-         std::vector<size_t> ij( 2, static_cast<size_t>( floor( vin[ 0 ] + 0.5 ) ) );
-         ij[1] = static_cast<size_t>( floor( vin[1] + 0.5 ) );
+         std::vector<size_t> ij = { static_cast<size_t>( floor( vin[0] + 0.5 ) ),
+                                    static_cast<size_t>( floor( vin[1] + 0.5 ) ) };
          prm.reset( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds, ij ) );
       }
       else

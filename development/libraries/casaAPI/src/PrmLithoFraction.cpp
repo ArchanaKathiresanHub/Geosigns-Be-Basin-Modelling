@@ -103,7 +103,7 @@ namespace casa
       }
       else
       {
-         lithoFractions.push_back( lithoPercentages[lithoFractionInds[1]] / ( 100.0 - lithoPercentages[lithoFractionInds[0]] ) );
+         lithoFractions.push_back( std::min( 1.0, lithoPercentages[lithoFractionInds[1]] / ( 100.0 - lithoPercentages[lithoFractionInds[0]] ) ) );
       }
 
       return lithoFractions;
@@ -114,6 +114,9 @@ namespace casa
                                      : Parameter( )
                                      , m_layerName( layerName )
                                      , m_lithoFractionsInds( lithoFractionsInds )
+                                     , m_lithoFractions()
+                                     , m_mapNameFirstLithoPercentage("")
+                                     , m_mapNameSecondLithoPercentage("")
    {
       mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager();
       // get the layer ID
@@ -133,35 +136,39 @@ namespace casa
 
       mbapi::MapsManager & mpMgr = mdl.mapsManager();
 
-      if ( !percMaps[0].empty() )
+      const std::string mapNameFirstLithoPercentage = percMaps[0];
+
+      if ( !mapNameFirstLithoPercentage.empty() )
       {
-         mbapi::MapsManager::MapID mFirstID = mpMgr.findID( percMaps[0] );
+         mbapi::MapsManager::MapID mFirstID = mpMgr.findID( mapNameFirstLithoPercentage );
 
          if ( IsValueUndefined( mFirstID ) )
          {
-            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[0]
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << mapNameFirstLithoPercentage
                << " defined for the first lithology percentage";
          }
-         m_mapNameFirstLithoPercentage = percMaps[0];
+         m_mapNameFirstLithoPercentage = mapNameFirstLithoPercentage;
       }
 
-      if ( !percMaps[1].empty() )
+      const std::string mapNameSecondLithoPercentage = percMaps[1];
+
+      if ( !mapNameSecondLithoPercentage.empty() )
       {
-         mbapi::MapsManager::MapID mSecondID = mpMgr.findID( percMaps[1] );
+         mbapi::MapsManager::MapID mSecondID = mpMgr.findID( mapNameSecondLithoPercentage );
 
          if ( IsValueUndefined( mSecondID ) )
          {
-            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[1]
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << mapNameSecondLithoPercentage
                << " defined for the second lithology percentage";
          }
-         m_mapNameSecondLithoPercentage = percMaps[1];
+         m_mapNameSecondLithoPercentage = mapNameSecondLithoPercentage;
       }
 
       if ( m_mapNameFirstLithoPercentage.empty() && m_mapNameSecondLithoPercentage.empty() )
       {
          m_lithoFractions = createLithoFractions( lithoPercentages, m_lithoFractionsInds );
 
-         if ( m_lithoFractions[0] < 0.0 || m_lithoFractions[0] > 100.0 )
+         if ( m_lithoFractions[0] < 0.0|| m_lithoFractions[0] > 100.0 )
          {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology percentage " << m_lithoFractionsInds[0] <<
                " for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n";
@@ -209,8 +216,7 @@ namespace casa
 
       mbapi::MapsManager & mpMgr = mdl.mapsManager();
 
-      // Here we assume to have always 2 maps!
-      if ( !percMaps[0].empty() && !percMaps[1].empty() )
+      if ( !percMaps[0].empty() )
       {
          // first map
          mbapi::MapsManager::MapID mFirstID = mpMgr.findID( percMaps[0] );
@@ -228,6 +234,12 @@ namespace casa
          // first lithoPercentage
          lithoPercentages[0] = value;
 
+         // since we got the punctual value, delete the maps (needed for later)
+         m_mapNameFirstLithoPercentage.clear();
+      }
+
+      if ( !percMaps[1].empty() )
+      {
          // the second map
          mbapi::MapsManager::MapID mSecondID = mpMgr.findID( percMaps[1] );
          if ( IsValueUndefined( mSecondID ) )
@@ -237,17 +249,19 @@ namespace casa
          }
 
          // get the value of the second map
-         value = mpMgr.mapGetValue( mSecondID, coordinates[0], coordinates[1] );
+         double value = mpMgr.mapGetValue( mSecondID, coordinates[0], coordinates[1] );
          if ( IsValueUndefined( value ) ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
 
          // second lithoPercentage
          lithoPercentages[1] = value;
-         // third lithoPercentage calculated by difference
-         lithoPercentages[2] = 100.0 - lithoPercentages[0] - lithoPercentages[1];
 
          // since we got the punctual value, delete the maps (needed for later)
-         m_mapNameFirstLithoPercentage.clear();
          m_mapNameSecondLithoPercentage.clear();
+      }
+
+      if ( IsValueUndefined( lithoPercentages[1] ) || lithoNames[2].empty() )
+      {
+        lithoPercentages[1] = 100.0 - lithoPercentages[0];
       }
 
       m_lithoFractions = createLithoFractions( lithoPercentages, m_lithoFractionsInds );
@@ -280,10 +294,9 @@ namespace casa
                                      , m_mapNameFirstLithoPercentage( mapNameFirstLithoPercentage )
                                      , m_mapNameSecondLithoPercentage( mapNameSecondLithoPercentage )
    {
-      // scalar case
-      if ( m_mapNameFirstLithoPercentage.empty() && m_mapNameSecondLithoPercentage.empty() ) // check the ranges only if a single value is set
+      if ( m_mapNameFirstLithoPercentage.empty() && m_mapNameSecondLithoPercentage.empty() )
       {
-         if ( m_lithoFractions[0] < 0.0 || lithoFractions[0] > 100.0 )
+        if ( m_lithoFractions[0] < 0.0 || m_lithoFractions[0] > 100.0 )
          {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology percentage " << m_lithoFractionsInds[0] <<
                "for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n";
@@ -408,7 +421,7 @@ namespace casa
          // check that percentages are set correctly
          for ( size_t i = 0; i < lithoPercentages.size(); ++i )
          {
-            if ( mdlLithoNames[i].empty() && lithoPercentages[i] > 0.0 )
+            if ( mdlLithoNames[i].empty() && lithoPercentages[i] > 1.e-10 )
             {
                oss << "The percent " << i << " for the layer " << m_layerName << " is not zero:" <<
                       lithoPercentages[i] << " for the empty lithology name\n";
