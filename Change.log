@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-01-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Repair bug, CASA could not handle derived lithofraction maps.
+	Fix CASA handling derived lithofraction map
+
+	Related work items: #407511
+	================== COMMIT-END ========================
+	Commit-ID:<214649f3109aaac4e1a5fd880f841304e547a46e>	  (refs/heads/master)
+
+++
 2020-12-23  arijit.khan Khan  <arijit.khan@shell.com>
 
 	new: dev: Lmod changes applied to Build scripts !major.
