@@ -1,15 +1,15 @@
 #include "resultsController.h"
 
 #include "control/casaScriptWriter.h"
+#include "control/functions/copyCaseFolder.h"
 #include "control/scriptRunController.h"
 #include "model/case3DTrajectoryConvertor.h"
-#include "model/functions/copyCaseFolder.h"
 #include "model/input/case3DTrajectoryReader.h"
 #include "model/logger.h"
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"
 #include "model/script/cauldronScript.h"
-#include "model/script/saveOptimizedScript.h"
+#include "model/script/Generate3DScenarioScript.h"
 #include "model/script/track1dAllWellScript.h"
 #include "view/plot/wellBirdsView.h"
 #include "view/plot/wellScatterPlot.h"
@@ -39,10 +39,10 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
   activeWell_{0},
   activeProperty_{""}
 {
-  connect(resultsTab_->wellsList(), SIGNAL(currentRowChanged(int)), this, SLOT(updateWell(int)));
+  connect(resultsTab_->wellsList(), SIGNAL(currentTextChanged(const QString&)), this, SLOT(updateWell(const QString&)));
   connect(resultsTab_->wellsList(), SIGNAL(itemSelectionChanged()), this, SLOT(refreshPlot()));
 
-  connect(resultsTab_->buttonSaveOptimized(), SIGNAL(clicked()), this, SLOT(saveOptimized()));
+  connect(resultsTab_->buttonExportOptimized(), SIGNAL(clicked()), this, SLOT(exportOptimized()));
   connect(resultsTab_->buttonRunOptimized(),  SIGNAL(clicked()), this, SLOT(runOptimized()));
   connect(resultsTab_->buttonBaseCase(),      SIGNAL(clicked()), this, SLOT(runBaseCase()));
 
@@ -57,7 +57,7 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
 void ResultsController::refreshGUI()
 {
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  resultsTab_->updateWellList(ctManager.wells());
+  resultsTab_->updateWellList(ctManager.activeWells());
   resultsTab_->updateBirdsView(ctManager.activeWells());
   resultsTab_->plotOptions()->setActivePlots(scenario_.activePlots());
 }
@@ -70,13 +70,41 @@ void ResultsController::slotUpdateTabGUI(int tabID)
   }
 
   refreshGUI();
+  setDefaultWellSelection();
 }
 
-void ResultsController::updateWell(int wellId)
+void ResultsController::setDefaultWellSelection()
 {
-  activeWell_ = wellId;
-  Logger::log() << "Selected well " << wellId << Logger::endl();
+  if (noValidWellSelected())
+  {
+    resultsTab_->wellsList()->setCurrentRow(0);
+  }
+}
+
+bool ResultsController::noValidWellSelected()
+{
+  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
+  const int nrOfActiveWells = ctManager.activeWells().size();
+  return ( nrOfActiveWells > 0 && ( resultsTab_->wellsList()->currentRow() < 0 ||
+                                    resultsTab_->wellsList()->currentRow() >= nrOfActiveWells) );
+}
+
+void ResultsController::updateWell(const QString& name)
+{
+  activeWell_ = -1;
+  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
+  for (const Well* well : ctManager.activeWells())
+  {
+    if (well->name() == name)
+    {
+      activeWell_ = well->id();
+      break;
+    }
+  }
+
+  Logger::log() << "Selected well " << activeWell_ << Logger::endl();
   updateOptimizedTable();
+  refreshPlot();
 }
 
 void ResultsController::refreshPlot()
@@ -88,26 +116,15 @@ void ResultsController::refreshPlot()
   updateBirdView();
 }
 
-void ResultsController::saveOptimized()
+void ResultsController::exportOptimized()
 {
-  Logger::log() << "Start saving optimized case" << Logger::endl();
-
-  scenarioBackup::backup(scenario_);
-  SaveOptimizedScript saveOptimized{scenario_};
-  if (!casaScriptWriter::writeCasaScript(saveOptimized) ||
-      !scriptRunController_.runScript(saveOptimized))
-  {
-    return;
-  }
-  scenarioBackup::backup(scenario_);
-
   QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
   if (!sourceDir.exists())
   {
     Logger::log() << "Optimized case is not available" << Logger::endl();
     return;
   }
-  QDir targetDir(QFileDialog::getExistingDirectory(0, "Save optimized case to directory", scenario_.workingDirectory(),
+  QDir targetDir(QFileDialog::getExistingDirectory(nullptr, "Save optimized case to directory", scenario_.workingDirectory(),
                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
   if (!targetDir.exists())
   {

@@ -39,6 +39,15 @@ public:
     return QStringList();
   }
 
+  size_t getLayerID(const std::string& /*layerName*/) const override
+  {
+    return 0;
+  }
+
+  void domainRange(double& /*xMin*/, double& /*xMax*/, double& /*yMin*/, double& /*yMax*/) const override
+  {
+  }
+
   double heatProductionRate() const override
   {
     return 0.0;

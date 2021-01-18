@@ -4,12 +4,16 @@ if ( Qt5_FOUND )
    endif()
 
    set( CASAWIZARD_COMMON_LIBNAME casawizard_common )
+   set( CASAWIZARD_COMMON_MODEL_LIBNAME casawizard_common_model )
    set( CASAWIZARD_UA_LIBNAME casawizard_ua )
+   set( CASAWIZARD_UA_MODEL_LIBNAME casawizard_ua_model )
    set( CASAWIZARD_SAC_LIBNAME casawizard_sac )
+   set( CASAWIZARD_SAC_MODEL_LIBNAME casawizard_sac_model )
 
    set( CMAKE_AUTOMOC ON )
+   set( CMAKE_AUTORCC ON )
 
-   add_subdirectory( src/QtXlsxWriter )
+   add_subdirectory( QtXlsxWriter )
    add_subdirectory( src/common )
    add_subdirectory( src/ua )
    add_subdirectory( src/sac )

@@ -21,7 +21,7 @@ class ExtractWellDataXlsx;
 class CasaScenario : public Writable
 {
 public:
-  CasaScenario(std::unique_ptr<ProjectReader> projectReader);
+  CasaScenario(ProjectReader* projectReader);
   virtual ~CasaScenario() = default;
 
   QString workingDirectory() const;

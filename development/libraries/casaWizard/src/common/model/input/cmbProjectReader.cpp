@@ -151,6 +151,31 @@ QStringList CMBProjectReader::layerNames() const
   return stringVectorToStringList(layerNames);
 }
 
+void CMBProjectReader::domainRange(double& xMin, double& xMax, double& yMin, double& yMax) const
+{
+  if (!loaded_)
+  {
+    return;
+  }
+
+  cmbModel_->origin(xMin, yMin);
+  double xDim, yDim;
+  cmbModel_->arealSize(xDim, yDim);
+  xMax = xMin + xDim;
+  yMax = yMin + yDim;
+}
+
+size_t CMBProjectReader::getLayerID(const std::string& layerName) const
+{
+  if (!loaded_)
+  {
+    return Utilities::Numerical::NoDataIDValue;
+  }
+
+  mbapi::StratigraphyManager& stratigraphyManager = cmbModel_->stratigraphyManager();
+  return stratigraphyManager.layerID(layerName);
+}
+
 QStringList CMBProjectReader::lithologyNames() const
 {
   if (!loaded_)
@@ -186,6 +211,7 @@ QStringList CMBProjectReader::lithologyTypesForLayer(const int layerIndex) const
   {
     return {};
   }
+
   mbapi::StratigraphyManager& stratigraphyManager = cmbModel_->stratigraphyManager();
   std::vector<std::string> lithoNames;
   std::vector<double> lithoPercent;

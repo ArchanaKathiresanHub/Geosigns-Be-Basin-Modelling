@@ -12,7 +12,7 @@ class Well;
 namespace functions
 {
 
-QVector<int> sortedByXWellIndices(const QVector<Well>& wells);
+QVector<int> sortedByXWellIndices(const QVector<const Well *> &wells);
 
 } // namespace functions
 

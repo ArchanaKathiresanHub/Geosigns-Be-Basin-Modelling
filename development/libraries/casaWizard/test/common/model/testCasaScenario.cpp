@@ -65,17 +65,17 @@ TEST( CasaScenarioTest, testWriteToFile )
   // Checking the read of the scenario
   EXPECT_EQ(writeScenario.workingDirectory().toStdString(), readScenario.workingDirectory().toStdString());
 
-  const QVector<casaWizard::Well>& wells1 = ctManagerWriter.wells();
-  const QVector<casaWizard::Well>& wells2 = ctManagerReader.wells();
+  const QVector<const casaWizard::Well*>& wells1 = ctManagerWriter.wells();
+  const QVector<const casaWizard::Well*>& wells2 = ctManagerReader.wells();
 
   ASSERT_EQ(wells1.size(), wells2.size());
   for (int i=0; i<wells1.size(); ++i)
   {
-    EXPECT_EQ(wells1[i].id(),              wells2[i].id());
-    EXPECT_EQ(wells1[i].name(),            wells2[i].name());
-    EXPECT_DOUBLE_EQ(wells1[i].x(),        wells2[i].x());
-    EXPECT_DOUBLE_EQ(wells1[i].y(),        wells2[i].y());
-    EXPECT_DOUBLE_EQ(wells1[i].isActive(), wells2[i].isActive());
+    EXPECT_EQ(wells1[i]->id(),              wells2[i]->id());
+    EXPECT_EQ(wells1[i]->name(),            wells2[i]->name());
+    EXPECT_DOUBLE_EQ(wells1[i]->x(),        wells2[i]->x());
+    EXPECT_DOUBLE_EQ(wells1[i]->y(),        wells2[i]->y());
+    EXPECT_DOUBLE_EQ(wells1[i]->isActive(), wells2[i]->isActive());
   }
 
   casaWizard::CalibrationTargetManager& ctManagerRead = readScenario.calibrationTargetManager();

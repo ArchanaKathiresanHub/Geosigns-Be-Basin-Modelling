@@ -6,7 +6,7 @@
 #include <QVector>
 
 class QFormLayout;
-class QRadioButton;
+class CustomRadioButton;
 class QStringList;
 
 namespace casaWizard
@@ -33,9 +33,9 @@ private:
 
   QFormLayout* formLayout_;
 
-  QRadioButton *radio1_;
-  QRadioButton *radio2_;
-  QRadioButton *radio3_;
+  CustomRadioButton *radio1_;
+  CustomRadioButton *radio2_;
+  CustomRadioButton *radio3_;
 };
 
 } // namespace casaWizard

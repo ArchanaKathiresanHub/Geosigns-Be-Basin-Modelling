@@ -3,6 +3,7 @@
 #include "model/input/projectReader.h"
 #include "model/lithofraction.h"
 #include "view/tableRowComboBox.h"
+#include "../common/view/components/customtitle.h"
 
 #include <QBoxLayout>
 #include <QComboBox>
@@ -27,7 +28,7 @@ LithofractionTable::LithofractionTable(QWidget* parent) :
   fillLayers_{new QPushButton("Restore defaults from project 3d", this)}
 {
   const int columns{7};
-  const QStringList tableHeaders{"Layer name", "Litho 1", "Min", "Max", "Litho 2", "Min", "Max"};
+  const QStringList tableHeaders{"Layer name", "Litho 1", "Min (%)", "Max (%)", "Litho 2", "Min (-)", "Max (-)"};
   table_->setRowCount(0);
   table_->setColumnCount(columns);
   for (int i = 0; i<columns; i++)
@@ -45,7 +46,7 @@ LithofractionTable::LithofractionTable(QWidget* parent) :
   buttons->addWidget(delRow_);
 
   QVBoxLayout* layout = new QVBoxLayout();
-  layout->addWidget(new QLabel("Lithofractions"));
+  layout->addWidget(new CustomTitle("Lithofractions"));
   layout->addWidget(table_,1);
   layout->addLayout(buttons);
 

@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+class CustomTitle;
+
 class QLabel;
 class QListWidget;
 class QPushButton;
@@ -36,14 +38,14 @@ public:
   explicit ResultsTab(QWidget* parent = 0);
 
   QListWidget* wellsList() const;
-  QPushButton* buttonSaveOptimized() const;
+  QPushButton* buttonExportOptimized() const;
   QPushButton* buttonRunOptimized() const;
   QPushButton* buttonBaseCase() const;
   PlotOptions* plotOptions() const;
   WellBirdsView* wellBirdsView() const;
   WellScatterPlot* wellScatterPlot() const;
 
-  void updateWellList(const QVector<Well>& wells);
+  void updateWellList(const QVector<const Well*> wells);
   void updateWellPlot(const QVector<QVector<CalibrationTarget>> targets,
                       const QStringList properties,
                       const QVector<QVector<WellTrajectory>> allTrajectories,
@@ -68,12 +70,12 @@ private:
   QTableWidget* optimizedLithoTable_;
   MultiWellPlot* multiWellPlot_;
   WellScatterPlot* wellScatterPlot_;
-  QPushButton* buttonSaveOptimized_;
+  QPushButton* buttonExportOptimized_;
   QPushButton* buttonRunOptimized_;
   QPushButton* buttonBaseCase_;
   PlotOptions* plotOptions_;
-  QLabel* tableLable_;
   QStackedLayout* layoutStackedPlots_;
+  CustomTitle* tableLable_;
   WellBirdsView* wellBirdsView_;
 };
 

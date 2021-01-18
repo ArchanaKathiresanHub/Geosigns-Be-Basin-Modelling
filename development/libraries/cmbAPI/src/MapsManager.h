@@ -121,6 +121,13 @@ namespace mbapi
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout ) = 0;
 
+     /// @brief Get the values contained in vin in the map
+     /// @param[in] id map ID
+     /// @param[out] i the number of gridpoints in the i direction
+     /// @param[out] j the number of gridpoints in the j direction
+     /// @return ErrorHandler::NoError on success, or error code otherwise
+     virtual ErrorHandler::ReturnCode mapGetDimensions( MapID id, int& i, int& j) = 0;
+
       /// @brief Create map by interpolating between 2 maps
       /// @param id new map id
       /// @param minId low range map

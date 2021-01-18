@@ -19,8 +19,8 @@ const QString defaultRunLocation{"CaseSet"};
 const bool defaultExpertUser{false};
 const int defaultNumberCPUs{1};
 
-CasaScenario::CasaScenario(std::unique_ptr<ProjectReader> projectReader) :
-  projectReader_(std::move(projectReader)),
+CasaScenario::CasaScenario(ProjectReader* projectReader) :
+  projectReader_(projectReader),
   clusterName_(defaultClusterName),
   applicationName_(defaultApplication),
   project3dFilename_(""),

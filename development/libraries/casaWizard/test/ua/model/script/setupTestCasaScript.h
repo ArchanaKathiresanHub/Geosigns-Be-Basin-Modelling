@@ -15,7 +15,7 @@
 class SetupTestCasaScript : public ::testing::Test
 {
 public:
-  casaWizard::ua::UAScenario scenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::ua::UAScenario scenario{new casaWizard::StubProjectReader()};
   std::string stateFile_ = "stateFileTestCasaScriptDoE.txt";
   void SetUp() override
   {

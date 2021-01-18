@@ -9,7 +9,7 @@
 
 TEST(SACScenarioTest, testWriteRead)
 {
-  casaWizard::sac::SACScenario writeScenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::sac::SACScenario writeScenario{new casaWizard::StubProjectReader()};
 
   writeScenario.setReferenceSurface(321);
   writeScenario.setLastSurface(123);
@@ -40,7 +40,7 @@ TEST(SACScenarioTest, testWriteRead)
 
   writer.close();
 
-  casaWizard::sac::SACScenario readScenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::sac::SACScenario readScenario{new casaWizard::StubProjectReader()};
   casaWizard::ScenarioReader reader{"scenario.dat"};
   readScenario.readFromFile(reader);
 

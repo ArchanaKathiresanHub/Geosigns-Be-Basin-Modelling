@@ -18,7 +18,7 @@ class StubCasaScenario : public CasaScenario
 {
 public:
   explicit StubCasaScenario() :
-    CasaScenario(std::unique_ptr<ProjectReader>(new StubProjectReader()))
+    CasaScenario(new StubProjectReader())
   {
   }
 };

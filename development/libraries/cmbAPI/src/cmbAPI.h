@@ -436,6 +436,9 @@ namespace mbapi {
                                             , std::vector<double>       & lf1CorrInt ///< [out] corrected interpolated first lithofraction
                                             , std::vector<double>       & lf2CorrInt ///< [out] corrected interpolated second lithofraction
                                             , std::vector<double>       & lf3CorrInt ///< [out] corrected interpolated third lithofraction
+                                            , const bool emptyMap1
+                                            , const bool emptyMap2
+                                            , const bool emptyMap3
                                             );
 
       ///@}

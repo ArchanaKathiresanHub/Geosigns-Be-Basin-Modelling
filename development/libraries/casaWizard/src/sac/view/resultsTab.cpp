@@ -13,6 +13,8 @@
 #include "model/well.h"
 #include "model/wellTrajectory.h"
 
+#include "../common/view/components/customtitle.h"
+
 #include <QHeaderView>
 #include <QLabel>
 #include <QLayout>
@@ -34,20 +36,20 @@ ResultsTab::ResultsTab(QWidget* parent) :
   optimizedLithoTable_{new QTableWidget(this)},
   multiWellPlot_{new MultiWellPlot(this)},
   wellScatterPlot_{new WellScatterPlot(this)},
-  buttonSaveOptimized_{new QPushButton("Save optimized", this)},
+  buttonExportOptimized_{new QPushButton("Export optimized", this)},
   buttonRunOptimized_{new QPushButton("Run optimized", this)},
   buttonBaseCase_{new QPushButton("Run and import base case", this)},
   plotOptions_{new PlotOptions(this)},
   layoutStackedPlots_{new QStackedLayout{}},
-  tableLable_{new QLabel("Optimized lithofractions",this)},
+  tableLable_{new CustomTitle("Optimized lithofractions",this)},
   wellBirdsView_{new WellBirdsView(this)}
 {
   // List with wells
   QVBoxLayout* wellList = new QVBoxLayout();
-
-  wellList->addWidget(new QLabel("Wells"), 0);
+  wellList->addWidget(new CustomTitle("Wells"), 0);
   wellList->addWidget(wellsList_, 1);
   wellList->addWidget(wellBirdsView_, 0);
+  wellBirdsView_->setMaximumSize(400, 250);
   wellList->addWidget(plotOptions_, 0);
 
   QVBoxLayout* optimizedLitho = new QVBoxLayout();
@@ -64,7 +66,7 @@ ResultsTab::ResultsTab(QWidget* parent) :
   optimizedLitho->addWidget(tableLable_, 0);
 
   QHBoxLayout* optimizedButtons = new QHBoxLayout();
-  optimizedButtons->addWidget(buttonSaveOptimized_);
+  optimizedButtons->addWidget(buttonExportOptimized_);
   optimizedButtons->addWidget(buttonRunOptimized_);
 
   optimizedLitho->addLayout(optimizedButtons);
@@ -87,9 +89,9 @@ QListWidget* ResultsTab::wellsList() const
   return wellsList_;
 }
 
-QPushButton* ResultsTab::buttonSaveOptimized() const
+QPushButton* ResultsTab::buttonExportOptimized() const
 {
-  return buttonSaveOptimized_;
+  return buttonExportOptimized_;
 }
 
 QPushButton* ResultsTab::buttonRunOptimized() const
@@ -117,14 +119,14 @@ WellScatterPlot* ResultsTab::wellScatterPlot() const
   return wellScatterPlot_;
 }
 
-void ResultsTab::updateWellList(const QVector<Well>& wells)
+void ResultsTab::updateWellList(const QVector<const Well*> wells)
 {
   const int row = wellsList()->currentRow();
 
   wellsList_->clear();
-  for (const Well& well : wells)
+  for (const Well* well : wells)
   {
-    wellsList_->addItem(well.name());
+    wellsList_->addItem(well->name());
   }
   wellsList_->setMinimumWidth(wellsList_->sizeHintForColumn(0));
 
@@ -212,7 +214,7 @@ void ResultsTab::updateBirdsView(const QVector<const Well*> wells)
 {
   QVector<double> x;
   QVector<double> y;
-  for (const Well *const well : wells)
+  for (const Well* well : wells)
   {
     x.append(well->x());
     y.append(well->y());
@@ -253,7 +255,7 @@ void ResultsTab::setVisibleLithofractionColumn(const bool visible)
 {
   buttonBaseCase_->setVisible(visible);
   buttonRunOptimized_->setVisible(visible);
-  buttonSaveOptimized_->setVisible(visible);
+  buttonExportOptimized_->setVisible(visible);
   optimizedLithoTable_->setVisible(visible);
   tableLable_->setVisible(visible);
 }

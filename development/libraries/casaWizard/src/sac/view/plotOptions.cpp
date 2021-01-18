@@ -1,12 +1,22 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "plotOptions.h"
+
 #include "model/trajectoryType.h"
 
+#include "../common/view/components/customcheckbox.h"
+#include "../common/view/components/customradiobutton.h"
+
 #include <QButtonGroup>
-#include <QCheckBox>
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
-#include <QRadioButton>
 
 namespace casaWizard
 {
@@ -16,14 +26,14 @@ namespace sac
 
 PlotOptions::PlotOptions(QWidget* parent) :
   QWidget(parent),
-  base1d_{new QCheckBox("Base 1d", this)},
-  optimized1d_{new QCheckBox("Optimized 1d", this)},
-  base3d_{new QCheckBox("Base 3d", this)},
-  optimized3d_{new QCheckBox("Optimized 3d", this)},
+  base1d_{new CustomCheckbox("Base 1d", this)},
+  optimized1d_{new CustomCheckbox("Optimized 1d", this)},
+  base3d_{new CustomCheckbox("Base 3d", this)},
+  optimized3d_{new CustomCheckbox("Optimized 3d", this)},
   properties_{new QComboBox(this)},
   plotType_{new QButtonGroup(this)},
-  linePlot_{new QRadioButton("Line plot", this)},
-  scatterPlot_{new QRadioButton("Scatter plot", this)}
+  linePlot_{new CustomRadioButton("Line plot", this)},
+  scatterPlot_{new CustomRadioButton("Scatter plot", this)}
 {
   linePlot_->setChecked(true);
   plotType_->addButton(linePlot_, 0);

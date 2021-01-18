@@ -94,6 +94,9 @@ namespace mbapi
       // Get the values from the map
       ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout ) final;
 
+      // Get map dimensions
+      ErrorHandler::ReturnCode mapGetDimensions( MapID id, int& i, int& j) final;
+
       // Get the value from the map
       double mapGetValue( MapID id, size_t i, size_t j ) final;
 

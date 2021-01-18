@@ -20,7 +20,7 @@ void convertToScenario(const Case3DTrajectoryReader& reader, SACScenario& scenar
   const double epsilon{1}; // Track 1d accuracy
 
   WellTrajectoryManager& manager = scenario.wellTrajectoryManager();
-  const QVector<Well> wells = scenario.calibrationTargetManager().wells();
+  const QVector<const Well*> wells = scenario.calibrationTargetManager().wells();
   QVector<double> x = reader.x();
   QVector<double> y = reader.y();
   QVector<double> depth = reader.depth();
@@ -36,8 +36,8 @@ void convertToScenario(const Case3DTrajectoryReader& reader, SACScenario& scenar
   for (const WellTrajectory& traj : trajectories)
   {
     const int wellId = traj.wellIndex();
-    currentX = wells[wellId].x();
-    currentY = wells[wellId].y();
+    currentX = wells[wellId]->x();
+    currentY = wells[wellId]->y();
 
     int iStart = 0;
     int iEnd = 0;

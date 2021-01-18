@@ -45,7 +45,7 @@ private:
   const UAScenario& scenario_;
   const Proxy& proxy_;
 
-  QString writeCalibrationTarget(const CalibrationTarget& target, const Well& well) const;
+  QString writeCalibrationTarget(const CalibrationTarget& target, const Well* well) const;
   QString writePredictionTarget(const PredictionTarget& predictionTarget) const;
 };
 

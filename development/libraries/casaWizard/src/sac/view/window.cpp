@@ -1,5 +1,6 @@
 #include "window.h"
 
+#include "view/mapsTab.h"
 #include "view/menuBar.h"
 #include "view/resultsTab.h"
 #include "view/sacTab.h"
@@ -18,6 +19,7 @@ Window::Window(QWidget* parent) :
   MainWindow(parent),
   sacTab_{new SACtab{this}},
   //t2zTab_ {new T2Ztab{this}},
+  mapsTab_{new MapsTab{this}},
   resultsTab_{new ResultsTab{this}},
   menuBarSAC_{new MenuBar{this}}
 {
@@ -26,7 +28,9 @@ Window::Window(QWidget* parent) :
   setWindowTitle("SAC Wizard");
 
   tabWidget()->addTab(sacTab_, "SAC");
+  tabWidget()->addTab(mapsTab_, "Maps");
   tabWidget()->addTab(resultsTab_, "Results");
+
   //tabWidget()->addTab(t2zTab_, "T2Z");
 
   assert(tabWidget()->count() == static_cast<int>(TabID::Count));
@@ -41,6 +45,11 @@ SACtab* Window::sacTab() const
 //{
 //  return t2zTab_;
 //}
+
+MapsTab* Window::mapsTab() const
+{
+  return mapsTab_;
+}
 
 ResultsTab* Window::resultsTab() const
 {

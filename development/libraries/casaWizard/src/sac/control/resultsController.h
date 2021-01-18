@@ -2,6 +2,8 @@
 
 #include <QObject>
 
+class QString;
+
 namespace casaWizard
 {
 
@@ -25,9 +27,9 @@ public:
   void updateTab();
 
 private slots:
-  void updateWell(int wellIndex);
+  void updateWell(const QString& name);
   void refreshPlot();
-  void saveOptimized();
+  void exportOptimized();
   void runOptimized();
   void runBaseCase();
   void togglePlotType(const int currentIndex);
@@ -53,6 +55,8 @@ private:
   int activeWell_;
   QString activeProperty_;
 
+  void setDefaultWellSelection();
+  bool noValidWellSelected();
 };
 
 } // namespace sac

@@ -35,7 +35,7 @@ bool copyCaseFolder(const QDir sourceDir, const QDir targetDir)
   for (const QFileInfo& file : sourceDir.entryInfoList(QDir::Files))
   {
     const QString suffix = file.completeSuffix().toLower();
-    if (suffix == "project3d" || suffix == "hdf")
+    if (suffix == "project3d" || suffix == "hdf" || suffix == "flt")
     {
       const QString sourcePath = file.absoluteFilePath();
       const QString targetPath = targetDir.absolutePath() + QDir::separator() + file.fileName();

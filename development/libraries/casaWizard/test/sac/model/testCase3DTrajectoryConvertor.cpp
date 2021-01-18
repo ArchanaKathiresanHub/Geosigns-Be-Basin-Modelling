@@ -13,7 +13,7 @@ TEST(Case3DTrajectoryConvertorTest, testConvert)
   casaWizard::sac::Case3DTrajectoryReader reader("input/wellDataCase3D.csv");
   reader.read();
 
-  casaWizard::sac::SACScenario scenario(std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader()));
+  casaWizard::sac::SACScenario scenario(new casaWizard::StubProjectReader());
 
 
   casaWizard::CalibrationTargetManager& calibrationTargetManager = scenario.calibrationTargetManager();
@@ -32,11 +32,11 @@ TEST(Case3DTrajectoryConvertorTest, testConvert)
   const QStringList properties = {"TwoWayTime","BulkDensity","SonicSlowness"};
 
   casaWizard::sac::WellTrajectoryManager& wellTrajectoryManager = scenario.wellTrajectoryManager();
-  for (const QString prop : properties)
+  for (const QString& prop : properties)
   {
-    for (const casaWizard::Well& well : calibrationTargetManager.wells())
+    for (const casaWizard::Well* well : calibrationTargetManager.wells())
     {
-      wellTrajectoryManager.addWellTrajectory(well.id(), prop);
+      wellTrajectoryManager.addWellTrajectory(well->id(), prop);
     }
   }
 

@@ -845,4 +845,21 @@ void MapsManagerImpl::loadGridMap( MapID id )
    if ( !m_mapObj[id] ) { throw Exception( UndefinedValue ) << "MapManager::saveMapToHDF(): Map " << m_mapName[id] << " wasn't modified. Nothing to save"; }
 }
 
+ErrorHandler::ReturnCode mbapi::MapsManagerImpl::mapGetDimensions(mbapi::MapsManager::MapID id, int& i, int& j)
+{
+  try
+  {
+    loadGridMap( id ); // check if map is loaded and load it if not loaded before
+
+    DataAccess::Interface::GridMap* gridMap = m_mapObj[id];
+    i = gridMap->lastI() - gridMap->firstI() + 1;
+    j = gridMap->lastJ() - gridMap->firstJ() + 1;
+  }
+  catch (Exception& ex)
+  {
+    return reportError( ex.errorCode(), ex.what());
+  }
+  return NoError;
+}
+
 }

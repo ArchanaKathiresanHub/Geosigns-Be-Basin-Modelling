@@ -1,5 +1,6 @@
 #include "wellBirdsView.h"
 
+#include "ConstantsMathematics.h"
 #include <assert.h>
 
 namespace casaWizard
@@ -13,19 +14,31 @@ WellBirdsView::WellBirdsView(QWidget* parent) :
   x_{},
   y_{}
 {
-  setMaximumSize(400, 250);
-  setXLabel("x [m]");
-  setYLabel("y [m]");
+  setXLabel("x [km]");
+  setYLabel("y [km]");
 }
 
-void WellBirdsView::setWellLocations(const QVector<double> x, const QVector<double> y)
+void WellBirdsView::setWellLocations(const QVector<double>& x, const QVector<double>& y)
 {
   clearData();
-  addXYscatter(x, y);
-  x_ = x;
-  y_ = y;
+  x_ = convertToKm(x);
+  y_ = convertToKm(y);
+  addXYscatter(x_, y_);
   update();
 }
+
+QVector<double> WellBirdsView::convertToKm(const QVector<double>& distancesInMeter)
+{
+  QVector<double> distancesInKm;
+  for (const double distance : distancesInMeter)
+  {
+    distancesInKm.push_back(distance * Utilities::Maths::MeterToKilometer);
+  }
+
+  return distancesInKm;
+}
+
+
 
 void WellBirdsView::setActiveWells(const QVector<int> activeWells)
 {

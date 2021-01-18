@@ -29,7 +29,7 @@ public:
   virtual CaseDataCreator& dataCreator() = 0;
 
 private:
-  void extractCase(const Well& well, const int caseIndex);
+  void extractCase(const Well* well, const int caseIndex);
   void obtainIterationPath();
   virtual void updateCaseScript(const int wellIndex, const QString relativeDataFolder) = 0;
 

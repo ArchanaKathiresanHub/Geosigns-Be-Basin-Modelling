@@ -202,6 +202,9 @@ public:
                                    , std::vector<double>       & lf1CorrInt
                                    , std::vector<double>       & lf2CorrInt
                                    , std::vector<double>       & lf3CorrInt
+                                   , const bool                  emptyMap1
+                                   , const bool                  emptyMap2
+                                   , const bool                  emptyMap3
                                    );
 
    // determine if a particular point lies within the formation top and bottom
@@ -671,11 +674,14 @@ Model::ReturnCode Model::backTransformLithoFractions( const std::vector<double> 
                                                     ,       std::vector<double> & lf1CorrInt
                                                     ,       std::vector<double> & lf2CorrInt
                                                     ,       std::vector<double> & lf3CorrInt
+                                                    , const bool emptyMap1
+                                                    , const bool emptyMap2
+                                                    , const bool emptyMap3
                                                     )
 {
    if ( errorCode() != NoError ) resetError();
 
-   try { m_pimpl->backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt ); }
+   try { m_pimpl->backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt, emptyMap1, emptyMap2, emptyMap3 ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -1811,6 +1817,9 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
                                                   , std::vector<double>       & lf1CorrInt
                                                   , std::vector<double>       & lf2CorrInt
                                                   , std::vector<double>       & lf3CorrInt
+                                                  , const bool emptyMap1
+                                                  , const bool emptyMap2
+                                                  , const bool emptyMap3
    )
 {
    const double eps      = 1e-4;
@@ -1830,6 +1839,25 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
       lf1Int -= shift;
       lf2Int -= shift;
       lf3Int -= shift;
+
+      if (emptyMap1)
+      {
+        lf2Int += lf1Int * 0.5;
+        lf3Int += lf1Int * 0.5;
+        lf1Int = 0.0;
+      }
+      if (emptyMap2)
+      {
+        lf1Int += lf2Int * 0.5;
+        lf3Int += lf2Int * 0.5;
+        lf2Int = 0.0;
+      }
+      if (emptyMap3)
+      {
+        lf1Int += lf3Int * 0.5;
+        lf2Int += lf3Int * 0.5;
+        lf3Int = 0.0;
+      }
 
       // correct lithofractions if something got wrong
       if ( ( lf1Int + lf2Int ) > 100.0 || lf1Int < 0.0 || lf2Int < 0.0 || lf3Int < 0.0 )

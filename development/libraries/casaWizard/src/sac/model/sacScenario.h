@@ -14,11 +14,25 @@ namespace sac
 class SACScenario : public CasaScenario
 {
 public:
-  SACScenario(std::unique_ptr<ProjectReader> projectReader);
+  SACScenario(ProjectReader* projectReader);
 
   QString stateFileNameSAC() const;
-  void setStateFileNameSAC(const QString& stateFileNameSAC);
   QString calibrationDirectory() const;
+
+  int interpolationMethod() const;
+  void setInterpolationMethod(int interpolationMethod);
+
+  int smoothingOption() const;
+  void setSmoothingOption(int smoothingOption);
+
+  int pIDW() const;
+  void setPIDW(int pIDW);
+
+  int threadsSmoothing() const;
+  void setThreadsSmoothing(int threadsSmoothing);
+
+  int radiusSmoothing() const;
+  void setRadiusSmoothing(int radiusSmoothing);
 
   int referenceSurface() const;
   void setReferenceSurface(int referenceSurface);
@@ -37,7 +51,6 @@ public:
   void clear() override;
   QString iterationDirName() const override;
 
-
   QVector<bool> activePlots() const;
   void setActivePlots(const QVector<bool>& activePlots);
 
@@ -47,6 +60,11 @@ private:
   LithofractionManager lithofractionManager_;
   WellTrajectoryManager wellTrajectoryManager_;
 
+  int interpolationMethod_;
+  int smoothingOption_;
+  int pIDW_;
+  int threadsSmoothing_;
+  int radiusSmoothing_; //[m]
   int referenceSurface_;
   int lastSurface_;
   QVector<bool> activePlots_;

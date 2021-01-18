@@ -5,11 +5,12 @@ namespace casaWizard
 
 MenuBar::MenuBar(QWidget* parent) :
   QMenuBar(parent),
+  menuOptions_{},
   actionNew_{new QAction("New", this)},
   actionOpen_{new QAction("Open", this)},
   actionSave_{new QAction("Save", this)},
   actionExit_{new QAction("Exit", this)},
-  menuOptions_{}
+  actionExpertUser_{new QAction("Expert CASA user", this)}
 {
   QMenu* menuFile = addMenu("File");
   menuFile->addAction(actionNew_);
@@ -17,7 +18,6 @@ MenuBar::MenuBar(QWidget* parent) :
   menuFile->addAction(actionSave_);
   menuFile->addAction(actionExit_);
 
-  actionExpertUser_ = new QAction("Expert user", this);
   actionExpertUser_->setCheckable(true);
 
   menuOptions_ = addMenu("Options");

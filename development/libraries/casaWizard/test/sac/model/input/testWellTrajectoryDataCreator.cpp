@@ -8,7 +8,7 @@
 
 TEST( WellTrajectoryDataCreatorTest, testReadTrack1DFile )
 {
-  casaWizard::sac::SACScenario scenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   scenario.setProject3dFilePath("Project.project3d");
 
   casaWizard::CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();

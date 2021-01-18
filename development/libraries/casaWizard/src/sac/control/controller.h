@@ -13,8 +13,9 @@ namespace casaWizard
 namespace sac
 {
 
-class SACcontroller;
+class MapsController;
 class ResultsController;
+class SACcontroller;
 class T2Zcontroller;
 
 class Controller : public MainController
@@ -22,7 +23,7 @@ class Controller : public MainController
   Q_OBJECT
 
 public:
-  Controller();  
+  Controller();
   MainWindow& mainWindow() override;
   CasaScenario& scenario() override;
 
@@ -31,6 +32,7 @@ private:
   SACScenario scenario_;
 
   SACcontroller* sacController_;
+  MapsController* mapsController_;
   //T2Zcontroller* t2zController_;
   ResultsController* resultsController_;
 };

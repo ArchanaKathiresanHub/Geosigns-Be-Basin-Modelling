@@ -44,17 +44,22 @@ void CalibrationTargetManager::addCalibrationTarget(const QString& name, const Q
 int CalibrationTargetManager::addWell(const QString& wellName, double x, double y)
 {
   const int newId = wells_.size();
-  Well newWell{newId, wellName, x, y, true};
+  Well newWell(newId, wellName, x, y);
   wells_.append(newWell);
   return newId;
 }
 
-const QVector<Well> CalibrationTargetManager::wells() const
+const QVector<const Well*> CalibrationTargetManager::wells() const
 {
-  return wells_;
+  QVector<const Well*> wells;
+  for (const Well& well : wells_)
+  {
+     wells.push_back(&well);
+  }
+  return wells;
 }
 
-QVector<const Well*> CalibrationTargetManager::activeWells() const
+const QVector<const Well*> CalibrationTargetManager::activeWells() const
 {
   QVector<const Well*> activeWells;
   for (const Well& well : wells_)
@@ -67,16 +72,35 @@ QVector<const Well*> CalibrationTargetManager::activeWells() const
   return activeWells;
 }
 
+const QVector<const Well*> CalibrationTargetManager::activeAndIncludedWells() const
+{
+  QVector<const Well*> activeAndIncludedWells;
+  for (const Well* well : activeWells())
+  {
+    if (!well->isExcluded())
+    {
+      activeAndIncludedWells.push_back(well);
+    }
+  }
+  return activeAndIncludedWells;
+}
+
 const Well& CalibrationTargetManager::well(const int wellIndex) const
 {
   assert(wellIndex>=0 && wellIndex<wells_.size());
   return wells_[wellIndex];
 }
 
-void CalibrationTargetManager::setWellIsActive(bool checkState, int row)
+void CalibrationTargetManager::setWellIsActive(bool active, int wellIndex)
 {
-  assert(row>=0 && row<wells_.size());
-  wells_[row].setIsActive(checkState);
+  assert(wellIndex>=0 && wellIndex<wells_.size());
+  wells_[wellIndex].setIsActive(active);
+}
+
+void CalibrationTargetManager::setWellIsExcluded(bool excluded, int wellIndex)
+{
+  assert(wellIndex>=0 && wellIndex<wells_.size());
+  wells_[wellIndex].setIsExcluded(excluded);
 }
 
 int CalibrationTargetManager::amountOfActiveCalibrationTargets() const
@@ -122,14 +146,11 @@ void CalibrationTargetManager::readFromFile(const ScenarioReader& reader)
 QVector<const CalibrationTarget*> CalibrationTargetManager::activeCalibrationTargets() const
 {
   QVector<const CalibrationTarget*> targets;
-  for (const Well& well : wells_)
+  for (const Well* well : activeWells())
   {
-    if (well.isActive())
+    for (const CalibrationTarget* target : well->calibrationTargets())
     {
-      for (const CalibrationTarget* target : well.calibrationTargets())
-      {
-        targets.push_back(target);
-      }
+      targets.push_back(target);
     }
   }
   return targets;

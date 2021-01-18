@@ -190,16 +190,23 @@ void Plot::updateMinMaxData()
       yAxisMaxValue = std::max(yAxisMaxValue, *std::max_element(lineData.yValues.constBegin(), lineData.yValues.constEnd()));
     }
   }
+
+  if (xAxisMaxValue == xAxisMinValue)
+  {
+    xAxisMaxValue += 0.1*xAxisMaxValue;
+    xAxisMinValue -= 0.1*xAxisMinValue;
+  }
+  if (yAxisMaxValue == yAxisMinValue)
+  {
+    yAxisMaxValue += 0.1*yAxisMaxValue;
+    yAxisMinValue -= 0.1*yAxisMinValue;
+  }
+
   setMinMaxValues(xAxisMinValue, xAxisMaxValue, yAxisMinValue, yAxisMaxValue);
 }
 
 void Plot::drawData(QPainter& painter)
 {
-  painter.save();
-  painter.setBrush(Qt::NoBrush);
-  painter.drawRect(QRectF(0, 0, width() - 1,height() - 1));
-  painter.restore();
-
   for (const PlotData& lineData : plotData_)
   {
     painter.save();

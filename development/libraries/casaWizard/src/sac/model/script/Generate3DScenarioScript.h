@@ -11,18 +11,20 @@ namespace sac
 
 class SACScenario;
 
-class SaveOptimizedScript : public CasaScript
+class Generate3DScenarioScript : public CasaScript
 {
 public:
-  explicit SaveOptimizedScript(const SACScenario& scenario);
+  explicit Generate3DScenarioScript(const SACScenario& scenario);
 
   const CasaScenario& scenario() const override;
-  QString scriptFilename() const;
+  QString scriptFilename() const override;
   QString workingDirectory() const override;
 
 private:
   void writeScriptContents(QFile& file) const override;
   bool validateScenario() const  override;
+  QString setFilterOneDResults() const;
+  QString generateThreeDFromOneD() const;
 
   const SACScenario& scenario_;
 };

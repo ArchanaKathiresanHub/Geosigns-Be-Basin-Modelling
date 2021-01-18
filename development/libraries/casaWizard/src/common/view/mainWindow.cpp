@@ -1,7 +1,9 @@
 #include "mainWindow.h"
 
+#include "initresources.h"
 #include "logDisplay.h"
 #include "menuBar.h"
+#include "view/components/customtab.h"
 
 #include <QStatusBar>
 #include <QVBoxLayout>
@@ -11,9 +13,10 @@ namespace casaWizard
 
 MainWindow::MainWindow(QWidget* parent) :
   QMainWindow(parent),
-  tabWidget_{new QTabWidget(this)},
+  tabWidget_{new CustomTab(this)},
   logDisplay_{new LogDisplay(this)}
 {
+  InitResources::initialise();
   QWidget* centralWidget = new QWidget(this);
   setCentralWidget(centralWidget);
 

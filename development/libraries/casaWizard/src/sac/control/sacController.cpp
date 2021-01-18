@@ -11,10 +11,10 @@
 #include "control/calibrationTargetController.h"
 #include "control/casaScriptWriter.h"
 #include "control/dataExtractionController.h"
+#include "control/functions/copyCaseFolder.h"
 #include "control/lithofractionController.h"
 #include "control/objectiveFunctionController.h"
 #include "control/scriptRunController.h"
-#include "model/functions/copyCaseFolder.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "model/logger.h"
 #include "model/output/wellTrajectoryWriter.h"
@@ -56,7 +56,7 @@ SACcontroller::SACcontroller(SACtab* sacTab,
   casaScenario_{casaScenario},
   scriptRunController_{scriptRunController},
   calibrationTargetController_{new CalibrationTargetController(sacTab->calibrationTargetTable(), casaScenario_, this)},
-  dataExtractionController_{new DataExtractionController(casaScenario_,scriptRunController_, this)},
+  dataExtractionController_{new DataExtractionController(casaScenario_, scriptRunController_, this)},
   lithofractionController_{new LithofractionController(sacTab->lithofractionTable() , casaScenario_, this)},
   objectiveFunctionController_{new ObjectiveFunctionController(sacTab->objectiveFunctionTable(), casaScenario_.calibrationTargetManager(), this)}
 {
@@ -223,7 +223,18 @@ void SACcontroller::slotComboBoxClusterCurrentTextChanged(QString clusterName)
 
 void SACcontroller::slotComboBoxApplicationChanged(QString application)
 {
-  casaScenario_.setApplicationName(application);
+  if (application == "Iteratively Coupled")
+  {
+    casaScenario_.setApplicationName("fastcauldron \"-itcoupled\"");
+  }
+  else if (application == "Hydrostatic")
+  {
+    casaScenario_.setApplicationName("fastcauldron \"-temperature\"");
+  }
+  else
+  {
+    casaScenario_.setApplicationName("");
+  }
 }
 
 } // namespace sac

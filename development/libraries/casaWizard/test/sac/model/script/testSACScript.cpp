@@ -11,7 +11,7 @@
 
 TEST(SACScriptTest, testWriteScript)
 {
-  casaWizard::sac::SACScenario scenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   casaWizard::sac::LithofractionManager& lithofractionManager{scenario.lithofractionManager()};
   casaWizard::sac::WellTrajectoryManager& wellTrajectoryManager{scenario.wellTrajectoryManager()};
   scenario.setWorkingDirectory(".");

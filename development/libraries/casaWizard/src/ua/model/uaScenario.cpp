@@ -19,8 +19,8 @@ namespace casaWizard
 namespace ua
 {
 
-UAScenario::UAScenario(std::unique_ptr<ProjectReader> projectReader) :
-  CasaScenario(std::move(projectReader)),
+UAScenario::UAScenario(ProjectReader* projectReader) :
+  CasaScenario(projectReader),
   stateFileNameDoE_{"casaStateDoE.txt"},
   stateFileNameQC_{"casaStateQC.txt"},
   stateFileNameMCMC_{"casaStateMCMC.txt"},

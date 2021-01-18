@@ -134,14 +134,11 @@ QString UAScript::writeExportDataTxt(const QString& exportDataType, const QStrin
 void UAScript::writeTargets(QTextStream& out, bool prediction) const
 {
   const CalibrationTargetManager& calibrationTargetManager = scenario_.calibrationTargetManager();
-  for (const Well& well : calibrationTargetManager.wells())
+  for (const Well* well : calibrationTargetManager.activeWells())
   {
-    if ( well.isActive() )
+    for (const CalibrationTarget* calibrationTarget : well->calibrationTargets())
     {
-      for (const CalibrationTarget* calibrationTarget : well.calibrationTargets())
-      {
-        out << writeCalibrationTarget(*calibrationTarget, well);
-      }
+      out << writeCalibrationTarget(*calibrationTarget, well);
     }
   }
 
@@ -170,14 +167,14 @@ QString UAScript::writePredictionTarget(const PredictionTarget& predictionTarget
 }
 
 
-QString UAScript::writeCalibrationTarget(const CalibrationTarget& target, const Well& well) const
+QString UAScript::writeCalibrationTarget(const CalibrationTarget& target, const Well* well) const
 {
   double ageCalibrationTarget = 0.0; // The measurments are only current day.
   double SAWeightCalibrationTarget = 1.0;
 
   return QString("target XYZPoint \"" + mapWizardToCasaName(target.property()) + "\" "
-                 + doubleToQString(well.x()) + " "
-                 + doubleToQString(well.y()) + " "
+                 + doubleToQString(well->x()) + " "
+                 + doubleToQString(well->y()) + " "
                  + doubleToQString(target.z()) + " "
                  + doubleToQString(ageCalibrationTarget) + " "
                  + doubleToQString(target.value()) + " "

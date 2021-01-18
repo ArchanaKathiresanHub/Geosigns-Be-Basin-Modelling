@@ -8,7 +8,7 @@
 
 TEST( OptimizedLithofractionDataCreator, testReadLithofractionFile )
 {
-  casaWizard::sac::SACScenario scenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   casaWizard::sac::LithofractionManager& lithofractionManager{scenario.lithofractionManager()};
   casaWizard::CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
   const int wellIndex1 = ctManager.addWell("Well1", 0, 0);

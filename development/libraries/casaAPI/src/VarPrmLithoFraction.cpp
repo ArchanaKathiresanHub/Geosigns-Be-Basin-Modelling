@@ -21,6 +21,7 @@
 #include <cassert>
 #include <cstring>
 #include <cmath>
+#include <numeric>
 
 namespace casa
 {
@@ -57,7 +58,7 @@ namespace casa
 
          lithoFractions.push_back( *vals++ );
 
-         if ( minLithoFractions[i] > lithoFractions.back() || lithoFractions.back() > maxLithoFractions[i] )
+         if ( std::fabs( maxLithoFractions[i] - minLithoFractions[i]) > 1e-10 && ( minLithoFractions[i] > lithoFractions.back() || lithoFractions.back() > maxLithoFractions[i] ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of the lithofraction parameter " << lithoFractions.back() <<
                                                                   " is out of range: [" << minLithoFractions[i] << ":" << maxLithoFractions[i] << "]";
@@ -102,9 +103,9 @@ namespace casa
       std::vector<double> lf2;
       std::vector<double> lf3;
 
-      for ( size_t i = 0; i != prmVec.size(); ++i )
+      for ( int i = 0; i != prmVec.size(); ++i )
       {
-         const std::vector<double> lithoFractions = prmVec[i].get()->asDoubleArray();
+         const std::vector<double> lithoFractions = prmVec[i]->asDoubleArray();
          const std::vector<double> lithoPercentages = PrmLithoFraction::createLithoPercentages( lithoFractions, m_lithoFractionsInds );
          if ( lithoPercentages.size() != 3 )
          {
@@ -151,7 +152,14 @@ namespace casa
       std::vector<double> lf2CorrInt;
       std::vector<double> lf3CorrInt;
 
-      if ( ErrorHandler::NoError != mdl.backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt ) )
+      const double sum1 = std::accumulate( lf1.begin(), lf1.end(), 0.0 );
+      const double sum2 = std::accumulate( lf2.begin(), lf2.end(), 0.0 );
+      const double sum3 = std::accumulate( lf3.begin(), lf3.end(), 0.0 );
+
+      if ( ErrorHandler::NoError != mdl.backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt,
+                                                                     sum1 < 1.e-5,
+                                                                     sum2 < 1.e-5,
+                                                                     sum3 < 1.e-5) )
       {
          throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The back transformation of the lithopercentages failed for the layer : "
                                                                      << m_layerName;

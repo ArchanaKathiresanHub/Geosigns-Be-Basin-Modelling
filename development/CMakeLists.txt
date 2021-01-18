@@ -250,7 +250,7 @@ find_package(LZlib REQUIRED CONFIG)
 if (UNIX)
    find_package(FlexLM REQUIRED CONFIG)
    find_package(ZLIB REQUIRED)
-   find_package(Qt5 COMPONENTS Core Gui Widgets CONFIG)
+   find_package(Qt5 COMPONENTS Core Gui Widgets Charts CONFIG)
 
    if (BM_BUILD_PARAVIEW_PLUGIN)
       find_package(ParaView REQUIRED CONFIG)

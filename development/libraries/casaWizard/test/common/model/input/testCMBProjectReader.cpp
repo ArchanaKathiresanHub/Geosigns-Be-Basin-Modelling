@@ -7,10 +7,13 @@
 //
 
 #include "model/input/cmbProjectReader.h"
+#include "ConstantsNumerical.h"
 
 #include <gtest/gtest.h>
 #include <numeric>
 #include <stdio.h>
+
+using namespace Utilities::Numerical;
 
 const double epsilon = std::numeric_limits<double>::epsilon();
 
@@ -102,6 +105,41 @@ TEST_F( CMBProjectReaderTest, testLayerNames )
   {
     EXPECT_EQ(layerNamesExpected[i], layerNamesActual[i]) << "Mismatch at entry [" << i << "]";
   }
+}
+
+TEST_F( CMBProjectReaderTest, testGetLayerID )
+{
+  const QStringList layerNamesActual = reader_.layerNames();
+
+  int layerIDExpected = 0;
+  for (QString layerName : layerNamesActual)
+  {
+    int layerIDActual = reader_.getLayerID(layerName.toStdString());
+    EXPECT_EQ(layerIDExpected, layerIDActual);
+
+    layerIDExpected++;
+  }
+}
+
+TEST_F( CMBProjectReaderTest, testGetLayerIDInvalidLayer )
+{
+  EXPECT_EQ(NoDataIDValue, reader_.getLayerID("Non-existent layer"));
+}
+
+TEST_F( CMBProjectReaderTest, testDomainRange )
+{
+  double xMinActual, xMaxActual, yMinActual, yMaxActual;
+  reader_.domainRange(xMinActual, xMaxActual, yMinActual, yMaxActual);
+
+  double xMinExpected = 179000;
+  double yMinExpected = 603500;
+  double xMaxExpected = 205500;
+  double yMaxExpected = 618500;
+
+  EXPECT_EQ(xMinExpected, xMinActual);
+  EXPECT_EQ(yMinExpected, yMinActual);
+  EXPECT_EQ(xMaxExpected, xMaxActual);
+  EXPECT_EQ(yMaxExpected, yMaxActual);
 }
 
 TEST_F( CMBProjectReaderTest, testHeatProductionRate )

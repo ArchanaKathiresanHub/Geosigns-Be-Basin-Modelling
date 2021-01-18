@@ -6,7 +6,7 @@
 
 TEST( MCDataCreatorTest, testSetData )
 {
-  casaWizard::ua::UAScenario scenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::ua::UAScenario scenario{new casaWizard::StubProjectReader()};
   const QString mcTextFileName{"testCasaV20161104MCdata.dat"};
   scenario.setMCtextFileName(mcTextFileName);
   scenario.setWorkingDirectory(".");

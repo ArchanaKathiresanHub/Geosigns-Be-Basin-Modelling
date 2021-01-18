@@ -9,7 +9,7 @@
 
 TEST( UAScenarioTest, TestWriteReadVersion0 )
 {
-  casaWizard::ua::UAScenario writeScenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::ua::UAScenario writeScenario{new casaWizard::StubProjectReader()};
 
   casaWizard::ua::InfluentialParameterManager& ipManagerWrite = writeScenario.influentialParameterManager();
   ipManagerWrite.add(0);
@@ -29,7 +29,7 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
   writeScenario.writeToFile(writer);
   writer.close();
 
-  casaWizard::ua::UAScenario readScenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::ua::UAScenario readScenario{new casaWizard::StubProjectReader()};
   casaWizard::ScenarioReader reader{"scenario.dat"};
   readScenario.readFromFile(reader);
 
@@ -89,7 +89,7 @@ TEST( UAScenarioTest, TestWriteReadVersion0 )
 // This unit test only covers the additions
 TEST( UAScenarioTest, TestWriteReadVersion1 )
 {
-  casaWizard::ua::UAScenario writeScenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::ua::UAScenario writeScenario{new casaWizard::StubProjectReader()};
 
   casaWizard::ua::ManualDesignPointManager& mdpManagerWrite = writeScenario.manualDesignPointManager();
   mdpManagerWrite.addInfluentialParameter(3);
@@ -100,7 +100,7 @@ TEST( UAScenarioTest, TestWriteReadVersion1 )
   writeScenario.writeToFile(writer);
   writer.close();
 
-  casaWizard::ua::UAScenario readScenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::ua::UAScenario readScenario{new casaWizard::StubProjectReader()};
   casaWizard::ScenarioReader reader{"scenario1.dat"};
   readScenario.readFromFile(reader);
   const casaWizard::ua::ManualDesignPointManager& mdpManagerRead = readScenario.manualDesignPointManager();

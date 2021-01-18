@@ -54,6 +54,7 @@ void MainController::slotNew()
   scenario().clear();
   showFirstTab();
   logReceiver_->clear();
+
   Logger::log() << "Clearing the scenario" << Logger::endl();
 }
 

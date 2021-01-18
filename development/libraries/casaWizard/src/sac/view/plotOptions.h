@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Widget that contains the plot options for the SAC results
 #pragma once
 
@@ -6,7 +14,7 @@
 class QButtonGroup;
 class QCheckBox;
 class QComboBox;
-class QRadioButton;
+class CustomRadioButton;
 
 namespace casaWizard
 {
@@ -42,8 +50,8 @@ private:
   QComboBox* properties_;
 
   QButtonGroup* plotType_;
-  QRadioButton* linePlot_;  
-  QRadioButton* scatterPlot_;
+  CustomRadioButton* linePlot_;
+  CustomRadioButton* scatterPlot_;
 };
 
 }  // namespace sac

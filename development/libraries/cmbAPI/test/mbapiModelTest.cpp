@@ -899,6 +899,15 @@ TEST_F(mbapiModelTest, MapsManagerCopyMapTest)
    mbapi::MapsManager::MapID id = mm.findID(mapName);
    ASSERT_EQ(id, 6U); // given map is 7th in the list
 
+   int i, j;
+   mm.mapGetDimensions(id, i, j);
+   EXPECT_EQ(i, 53);
+   EXPECT_EQ(j, 54);
+
+   mbapi::MapsManager::MapID nonExistentID = Utilities::Numerical::NoDataIDValue;
+   EXPECT_TRUE(mm.mapGetDimensions(nonExistentID, i, j) == ErrorHandler::ReturnCode::NonexistingID);
+
+
    double minV, maxV;
    ASSERT_EQ(ErrorHandler::NoError, mm.mapValuesRange(id, minV, maxV));
 
@@ -1039,7 +1048,7 @@ TEST_F(mbapiModelTest, MapsManagerNNInterpolation)
    std::vector<double> lf1CorrInt;
    std::vector<double> lf2CorrInt;
    std::vector<double> lf3CorrInt;
-   testModel.backTransformLithoFractions(rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt);
+   testModel.backTransformLithoFractions(rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt, false, false, false);
 
    // check the back transformation is correct, as in the original prototype
    std::ifstream NNbt("NNbt");

@@ -33,6 +33,7 @@ public:
   double yAxisMaxValue() const;
   void setXLabel(const QString& label);
   void setYLabel(const QString& label);
+  void setAspectRatio(const double aspectRatio);
   void setFontStyle(FontStyle font);
 
 protected:

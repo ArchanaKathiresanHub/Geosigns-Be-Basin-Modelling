@@ -59,14 +59,14 @@ void SACScript::writeScriptContents(QFile& file) const
   }
 
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  const QVector<Well>& wells = ctManager.wells();
+  const QVector<const Well*>& wells = ctManager.wells();
   const WellTrajectoryManager& mgr = scenario_.wellTrajectoryManager();
   for (const WellTrajectory& wellTrajectory: mgr.trajectoriesType(TrajectoryType::Base1D))
   {
-    const Well& well = wells[wellTrajectory.wellIndex()];
-    if ( well.isActive() )
+    const Well* well = wells[wellTrajectory.wellIndex()];
+    if ( well->isActive() )
     {
-      out << writeWellTrajectory(wellTrajectory, well.name());
+      out << writeWellTrajectory(wellTrajectory, well->name());
     }
   }
 

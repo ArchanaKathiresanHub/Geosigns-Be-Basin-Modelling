@@ -9,12 +9,13 @@
 namespace casaWizard
 {
 
-Well::Well(const int id, const QString& name, const double x, const double y, const bool isActive, const QVector<CalibrationTarget> calibrationTargets) :
+Well::Well(const int id, const QString& name, const double x, const double y, const bool isActive, const bool isExcluded, const QVector<CalibrationTarget> calibrationTargets) :
   id_{id},
   name_{name},
   x_{x},
   y_{y},
   isActive_{isActive},
+  isExcluded_{isExcluded},
   calibrationTargets_{calibrationTargets}
 {
 }
@@ -32,6 +33,7 @@ void Well::writeToFile(ScenarioWriter& writer) const
   writer.writeValue(wellName + "x", x_);
   writer.writeValue(wellName + "y", y_);
   writer.writeValue(wellName + "isActive", isActive_);
+  writer.writeValue(wellName + "isExcluded", isExcluded_);
   writer.writeValue(wellName + "targets", calibrationTargets_);
 }
 
@@ -43,6 +45,7 @@ void Well::readFromFile(const ScenarioReader& reader)
   x_ = reader.readDouble(wellName + "x");
   y_ = reader.readDouble(wellName + "y");
   isActive_ = reader.readBool(wellName + "isActive");
+  isExcluded_ = reader.readBool(wellName+ "isExcluded");
   calibrationTargets_ = reader.readVector<CalibrationTarget>(wellName + "targets");
 }
 
@@ -87,6 +90,15 @@ void Well::setIsActive(const bool isActive)
   isActive_ = isActive;
 }
 
+bool Well::isExcluded() const
+{
+  return isExcluded_;
+}
+
+void Well::setIsExcluded(const bool isExcluded)
+{
+  isExcluded_ = isExcluded;
+}
 QVector<const CalibrationTarget*> Well::calibrationTargets() const
 {
   QVector<const CalibrationTarget*> targets;

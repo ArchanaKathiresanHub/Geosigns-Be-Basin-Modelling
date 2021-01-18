@@ -42,6 +42,7 @@ public:
 
   void setXLabel(const QString& xLabel);
   void setYLabel(const QString& yLabel);
+  void setAspectRatio(const double aspectRatio);
 
   QPointF plotRangeTopLeft() const;
   QPointF plotRangeBottomRight() const;
@@ -50,8 +51,7 @@ public:
   void setFont(const QFont& font);
 
 private:
-  void tickCalculator(QVector<double>& majorXTicks, QVector<double>& majorYTicks, const double xAxisMinValue,
-                      const double xAxisMaxValue, const double yAxisMinValue, const double yAxisMaxValue);
+  void calculateTicks();
   void simpleTickCalculator(QVector<double>& majorTicks, const double axisMinValue, const double axisMaxValue);
 
   double xAxisMinValue_;
@@ -63,6 +63,8 @@ private:
   QVector<double> majorYticks_;
   double maxYtickWidth_;
 
+  double aspectRatioPlotArea_;
+
   QString xLabel_;
   QString yLabel_;
 
@@ -70,6 +72,8 @@ private:
   QPointF plotRangeBottomRight_;
 
   QFont font_;
+  void addBaseTicks(const double xBase, const double yBase);
+  void addExtraTicks(QVector<double>& ticks, const double axisMinValue, const double axisMaxValue, const double tickSeparation);
 };
 
 } // namespace casaWizard

@@ -6,6 +6,7 @@ add_casawizard_common_gtest( NAME ObjectiveFunctionManager SOURCES testObjective
 add_casawizard_common_gtest( NAME ScenarioReader           SOURCES testScenarioReader.cpp )
 add_casawizard_common_gtest( NAME ScenarioWriter           SOURCES testScenarioWriter.cpp )
 add_casawizard_common_gtest( NAME TargetMapCreator         SOURCES testTargetMapCreator.cpp )
+add_casawizard_common_gtest( NAME LithofractionMap         SOURCES testLithofractionMap.cpp )
 
 file( GLOB DATAFILES *.dat )
 foreach( FULLPATH ${DATAFILES} )
