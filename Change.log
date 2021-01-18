@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-01-18  Richard Faasse  <Richard.Faasse@shell.com>
+
+	new: Added the visualisation tab for the SAC wizard.
+	* Visualization of gridded lithology fraction maps resulting from 1D optimization
+
+	Related work items: #407512
+	================== COMMIT-END ========================
+	Commit-ID:<6ee50575b57f3e0bfd1e36cb36bd8686c216c399>	  (refs/heads/master)
+
+++
 2021-01-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Repair bug, CASA could not handle derived lithofraction maps.
