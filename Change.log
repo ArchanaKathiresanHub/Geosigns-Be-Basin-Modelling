@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-01-20  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Improvements for the lithofraction input table in the SAC wizard.
+        ================== COMMIT-END ========================
+	Commit-ID:<e35a18629d9731bc67a0df701055e9d10ae43056>	  (refs/heads/master)
+
+++
 2021-01-18  Richard Faasse  <Richard.Faasse@shell.com>
 
 	new: Added the visualisation tab for the SAC wizard.
