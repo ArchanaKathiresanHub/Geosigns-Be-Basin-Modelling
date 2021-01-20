@@ -13,13 +13,15 @@ namespace casaWizard
 
 CustomTab::CustomTab(QWidget *parent) : QTabWidget(parent)
 {
-  setStyleSheet("QTabWidget::pane { background : rgb(239,239,239)}"
+  setStyleSheet("QTabWidget::pane { background : rgb(255,255,255)}"
                 "QTabBar::tab { "
                     "background : rgb(239,239,239);"
                     "border: 2px solid rgb(239,239,239);"
-                    "border-bottom-color: #484848; "
+                    "border-bottom-color: #484848;"
+                    "font-size : 15px;"
                     "color: #484848;"
                     "min-width: 8ex;"
+                    "min-height: 24px;"
                 "}"
                 "QTabBar::tab:selected {"
                     "border-bottom : 4px solid #0C7CC7;"

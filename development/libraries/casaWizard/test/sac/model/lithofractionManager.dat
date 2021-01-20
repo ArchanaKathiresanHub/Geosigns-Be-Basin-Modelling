@@ -1,6 +1,6 @@
 LithofractionManagerVersion|int|0
 lithofractions|vector|2
-lithofractions|0|Litho1|1|2|2.000000|3.000000|0.500000|0.600000
-lithofractions|0|Litho2|0|1|0.010000|99.990000|0.001000|0.999000
+lithofractions|1|Litho1|1|2|2.000000|3.000000|0.500000|0.600000|true|false
+lithofractions|1|Litho2|0|1|0.010000|99.990000|0.001000|0.999000|false|false
 optimizedLithofractions|vector|1
 optimizedLithofractions|0|10|11|12.000000|13.000000

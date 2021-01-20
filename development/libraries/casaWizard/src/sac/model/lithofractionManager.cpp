@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "lithofractionManager.h"
 
 #include "model/logger.h"
@@ -119,6 +127,16 @@ void LithofractionManager::setLithofractionSecondMaxFraction(int index, double v
     value = maxFraction;
   }
   lithofractions_[index].setMaxFractionSecondComponent(value);
+}
+
+void LithofractionManager::setLithoFractionDoFirstOptimization(int index, bool doFirstOptimization)
+{
+  lithofractions_[index].setDoFirstOptimization(doFirstOptimization);
+}
+
+void LithofractionManager::setLithoFractionDoSecondOptimization(int index, bool doSecondOptimization)
+{
+  lithofractions_[index].setDoSecondOptimization(doSecondOptimization);
 }
 
 void LithofractionManager::addLithofraction(const QString& name)

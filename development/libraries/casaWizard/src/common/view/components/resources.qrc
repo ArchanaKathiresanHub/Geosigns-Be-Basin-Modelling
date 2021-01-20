@@ -4,5 +4,8 @@
         <file>Unchecked.png</file>
         <file>DefaultRadioButton.png</file>
         <file>SelectedRadioButton.png</file>
+        <file>Checked_DisabledCheckBox.png</file>
+        <file>Default_DisabledCheckBox.png</file>
+        <file>Help.png</file>
     </qresource>
 </RCC>

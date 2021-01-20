@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Controller for the table with the lithofractions, used in the SAC wizard
 #pragma once
 
@@ -23,19 +31,21 @@ class LithofractionController : public QObject
 
 public:
   explicit LithofractionController(LithofractionTable* table, SACScenario& scenario, QObject* parent);
-  void updateLithofractionTable();
+
   void loadLayersFromProject();
+  void updateLithofractionTable();
 
 private slots:
-  void slotAddRow();
-  void slotDelRow();
-  void slotTableChange(QTableWidgetItem* item);  
-  void slotLayersFromProject();
+  void slotFirstOptimizationChanged(int state, int row);
+  void slotSecondOptimizationChanged(int state, int row);
+  void slotTableChange(QTableWidgetItem* item);
 
 private:
-  const ProjectReader& projectReader_;
   LithofractionManager& lithofractionManager_;
+  const ProjectReader& projectReader_;
   LithofractionTable* table_;
+
+  void updateLithoPercentages(const int index);
 };
 
 } // namespace sac

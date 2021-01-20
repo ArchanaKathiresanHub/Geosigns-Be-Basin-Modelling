@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "sacScript.h"
 
 #include "model/sacScenario.h"
@@ -87,6 +95,11 @@ QString SACScript::writeLithofraction(const Lithofraction& lithofraction) const
 {
   auto doubleToQString = [](double d){return QString::number(d, 'g',3); };
 
+  if (!lithofraction.doFirstOptimization())
+  {
+    return {};
+  }
+
   QString scriptLine = "varprm ";
   scriptLine += "\"StratIoTbl:" + Lithofraction::percentNames[lithofraction.firstComponent()] + "\" "
       + "\"" + lithofraction.layerName() + "\" "
@@ -94,12 +107,13 @@ QString SACScript::writeLithofraction(const Lithofraction& lithofraction) const
       + doubleToQString(lithofraction.maxPercentageFirstComponent()) + " "
       + "\"Normal\"";
 
-  if (lithofraction.secondComponent() < 3)
+  if (lithofraction.doSecondOptimization())
   {
     scriptLine += " \"StratIoTbl:" + Lithofraction::percentNames[lithofraction.secondComponent()] + "\" "
         + doubleToQString(lithofraction.minFractionSecondComponent()) + " "
         + doubleToQString(lithofraction.maxFractionSecondComponent());
   }
+
   scriptLine += "\n";
 
   return scriptLine;

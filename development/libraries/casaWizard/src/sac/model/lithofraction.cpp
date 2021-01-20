@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "lithofraction.h"
 
 #include "model/scenarioIO.h"
@@ -18,51 +26,82 @@ Lithofraction::Lithofraction(const QString& layerName,
                              const double maxPercentageFirstComponent,
                              const int secondComponent,
                              const double minFractionSecondComponent,
-                             const double maxFractionSecondComponent) :
+                             const double maxFractionSecondComponent,
+                             const bool doFirstOptimization,
+                             const bool doSecondOptimization) :
   layerName_{layerName},
   firstComponent_{firstComponent},
   minPercentageFirstComponent_{minPercentageFirstComponent},
   maxPercentageFirstComponent_{maxPercentageFirstComponent},
   secondComponent_{secondComponent},
   minFractionSecondComponent_{minFractionSecondComponent},
-  maxFractionSecondComponent_{maxFractionSecondComponent}
+  maxFractionSecondComponent_{maxFractionSecondComponent},
+  doFirstOptimization_{doFirstOptimization},
+  doSecondOptimization_{doSecondOptimization}
 {
 }
 
 int Lithofraction::version() const
 {
-  return 0;
+  return 1;
 }
 
-Lithofraction Lithofraction::read(const int /*version*/, const QStringList& p)
+Lithofraction Lithofraction::read(const int version, const QStringList& p)
 {
-  if (p.size() != 7)
+  if (version == 0)
   {
-    return Lithofraction("UnknownFromRead", 0, 0, 0, 0, 0, 0);
+    if (p.size() == 7)
+    {
+      return Lithofraction
+      {
+        p[0],
+        p[1].toInt(),
+        p[3].toDouble(),
+        p[4].toDouble(),
+        p[2].toInt(),
+        p[5].toDouble(),
+        p[6].toDouble(),
+      };
+    }
   }
 
-  return Lithofraction
+  if (p.size() == 9)
   {
-    p[0],
-    p[1].toInt(),
-    p[3].toDouble(),
-    p[4].toDouble(),
-    p[2].toInt(),
-    p[5].toDouble(),
-    p[6].toDouble()
-  };
+    return Lithofraction
+    {
+      p[0],
+      p[1].toInt(),
+      p[3].toDouble(),
+      p[4].toDouble(),
+      p[2].toInt(),
+      p[5].toDouble(),
+      p[6].toDouble(),
+      p[7] == "true",
+      p[8] == "true",
+    };
+  }
+
+  return Lithofraction("UnknownFromRead", 0, 0, 0, 0, 0, 0);
 }
+
+
 
 QStringList Lithofraction::write() const
 {
   QStringList out;
+  QString firstOptimization = doFirstOptimization_ ? "true" : "false";
+  QString secondOptimization = doSecondOptimization_ ? "true" : "false";
+
   out << layerName_
       << QString::number(firstComponent_)
       << QString::number(secondComponent_)
       << scenarioIO::doubleToQString(minPercentageFirstComponent_)
       << scenarioIO::doubleToQString(maxPercentageFirstComponent_)
       << scenarioIO::doubleToQString(minFractionSecondComponent_)
-      << scenarioIO::doubleToQString(maxFractionSecondComponent_);
+      << scenarioIO::doubleToQString(maxFractionSecondComponent_)
+      << firstOptimization
+      << secondOptimization;
+
   return out;
 }
 
@@ -134,6 +173,26 @@ int Lithofraction::thirdComponent() const
 {
   // Three componenets, i.e., 0, 1 and 2 (sum = 3)
   return 3 - firstComponent_ - secondComponent_;
+}
+
+bool Lithofraction::doFirstOptimization() const
+{
+  return doFirstOptimization_;
+}
+
+void Lithofraction::setDoFirstOptimization(bool doFirstOptimization)
+{
+  doFirstOptimization_ = doFirstOptimization;
+}
+
+bool Lithofraction::doSecondOptimization() const
+{
+  return doSecondOptimization_;
+}
+
+void Lithofraction::setDoSecondOptimization(bool doSecondOptimization)
+{
+  doSecondOptimization_ = doSecondOptimization;
 }
 
 } // namespace sac

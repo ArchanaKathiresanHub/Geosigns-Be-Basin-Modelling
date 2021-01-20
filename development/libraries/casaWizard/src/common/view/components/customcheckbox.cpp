@@ -14,19 +14,40 @@ namespace casaWizard
 CustomCheckbox::CustomCheckbox(const QString& text, QWidget *parent) :
     QCheckBox(text, parent)
 {
-  setStyleSheet("QCheckBox::indicator { width: 15px; height: 15px}"
-                "QCheckBox::indicator:checked { image : url(:/Checked.png) }"
-                "QCheckBox::indicator:unchecked { image : url(:/Unchecked.png) }");
+  initialize();
 }
+
 
 CustomCheckbox::CustomCheckbox(QWidget *parent) :
     QCheckBox(parent)
+{
+  initialize();
+}
+
+void CustomCheckbox::initialize()
 {
   setStyleSheet("QCheckBox::indicator { width: 15px; height: 15px}"
                 "QCheckBox::indicator:checked { image : url(:/Checked.png) }"
                 "QCheckBox::indicator:unchecked { image : url(:/Unchecked.png) }");
 }
 
+void CustomCheckbox::enable(bool enabled)
+{
+  setEnabled(enabled);
 
+  if (enabled)
+  {
+    setStyleSheet("QCheckBox::indicator { width: 15px; height: 15px}"
+                  "QCheckBox::indicator:checked { image : url(:/Checked.png) }"
+                  "QCheckBox::indicator:unchecked { image : url(:/Unchecked.png) }");
+  }
+  else
+  {
+    setStyleSheet("QCheckBox::indicator { width: 15px; height: 15px}"
+                  "QCheckBox::indicator:unchecked { image : url(:/Default_DisabledCheckBox.png) }"
+                  "QCheckBox::indicator:checked { image : url(:/Checked_DisabledCheckBox.png) }");
+  }
 }
+
+} // namespace casaWizard
 
