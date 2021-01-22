@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-01-22  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Extension Genex0d command line arguments.
+	================== COMMIT-END ========================
+	Commit-ID:<e5d25c916cf48cc51849241731d77d7f0f6dfb23>	  (refs/heads/master)
+
+++
 2021-01-20  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Improvements for the lithofraction input table in the SAC wizard.
