@@ -251,6 +251,8 @@ void Genex0dInputManager::setArgumentFieldNames()
 {
   m_argumentFields["-project"] = 0;
   m_argumentFields["-out"] = 0;
+  m_argumentFields["-datFileName"] = 0;
+
   m_argumentFields["-formation"] = 0;
   m_argumentFields["-SRType"] = 0;
   m_argumentFields["-X"] = 0;
@@ -314,6 +316,10 @@ void Genex0dInputManager::storeArgument(const std::string& argument, const std::
   else if (argument == "-out")
   {
     m_inputData.outProjectFilename = argumentValue;
+  }
+  else if (argument == "-datFileName")
+  {
+    m_inputData.nodeHistoryFileName = argumentValue;
   }
   else if (argument == "-formation")
   {
