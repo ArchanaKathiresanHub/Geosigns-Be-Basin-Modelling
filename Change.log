@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-01-26  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Improved visualisation of LithoMaps in the SAC-wizard.
+	================== COMMIT-END ========================
+	Commit-ID:<0eeaef163df28ca4b7ae2dd55bc22389e1906dca>	  (refs/heads/master)
+
+++
 2021-01-22  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Extension Genex0d command line arguments.
