@@ -13,9 +13,9 @@
 #include "model/casaScenario.h"
 #include "model/sacScenario.h"
 
-#include "view/plot/grid2Dview.h"
 #include "view/grid2dplot.h"
 #include "view/lithofractionVisualisation.h"
+#include "view/plot/grid2Dview.h"
 
 #include "ConstantsMathematics.h"
 
@@ -32,14 +32,26 @@ LithofractionVisualisationController::LithofractionVisualisationController(Litho
                                                                            SACScenario& casaScenario,
                                                                            QObject* parent) :
   QObject{parent},
-  scenario_{casaScenario},
-  lithofractionVisualisation_{lithofractionVisualisation}
+  lithofractionVisualisation_{lithofractionVisualisation},
+  scenario_{casaScenario}
 {
   connect(lithofractionVisualisation_->layerSelection(), SIGNAL(currentTextChanged(const QString&)), this, SLOT(slotUpdatePlots(const QString&)));
+  connectToolTipSlots();
+}
+
+void LithofractionVisualisationController::connectToolTipSlots()
+{
+  int counter = 0;
+  for (const Grid2DPlot* lithoFractionPlot : lithofractionVisualisation_->lithoFractionPlots())
+  {
+    connect(lithoFractionPlot->grid2DView(), &Grid2DView::toolTipCreated, [=](const QPointF& point){toolTipCreated(point, counter);});
+    counter++;
+  }
 }
 
 void LithofractionVisualisationController::slotUpdatePlots(const QString& layerName)
 {
+  activeLayer_ = layerName;
   MapReader mapReader;
   const int layerID = scenario_.projectReader().getLayerID(layerName.toStdString());
 
@@ -66,8 +78,23 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
                                          yMax * Utilities::Maths::MeterToKilometer);
     lithoPlot->updateColorBar();
     lithoPlot->setTitle(lithologyTypes[counter], counter);
+    lithoPlot->grid2DView()->setToolTipVisible(false);
     counter ++;
   }
+}
+
+void LithofractionVisualisationController::toolTipCreated(const QPointF& point, const int plotID)
+{
+  std::vector<double> lithofractionsAtPoint;
+
+  for (const Grid2DPlot* lithoFractionPlot : lithofractionVisualisation_->lithoFractionPlots())
+  {
+    lithofractionsAtPoint.push_back(lithoFractionPlot->grid2DView()->getValue(point));
+    lithoFractionPlot->grid2DView()->setToolTipVisible(false);
+  }
+
+  lithofractionVisualisation_->lithoFractionPlots()[plotID]->grid2DView()->setToolTipData(lithofractionsAtPoint, plotID);
+  lithofractionVisualisation_->lithoFractionPlots()[plotID]->grid2DView()->correctToolTipPositioning();
 }
 
 bool LithofractionVisualisationController::openMaps(MapReader& mapReader, const int layerID)
@@ -163,10 +190,40 @@ void LithofractionVisualisationController::updateAvailableLayers()
   }
   else
   {
+    activeLayer_ = availableLayers[0];
     lithofractionVisualisation_->updateLayerOptions(availableLayers);
     lithofractionVisualisation_->setVisible(true);
     lithofractionVisualisation_->update();
   }
+}
+
+void LithofractionVisualisationController::updateBirdsView()
+{
+  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
+  QVector<OptimizedLithofraction> optimizedLithoFractions = getOptimizedLithoFractionsInActiveLayer(ctManager);
+
+  lithofractionVisualisation_->updateBirdsView(ctManager.activeAndIncludedWells(), optimizedLithoFractions);
+}
+
+QVector<OptimizedLithofraction> LithofractionVisualisationController::getOptimizedLithoFractionsInActiveLayer(const CalibrationTargetManager& ctManager)
+{
+  const LithofractionManager& lithoManager = scenario_.lithofractionManager();
+  const QVector<Lithofraction>& lithofractions = lithoManager.lithofractions();
+
+  QVector<OptimizedLithofraction> optimizedLithoFractions;
+  for (const Well* well : ctManager.activeAndIncludedWells())
+  {
+    QVector<OptimizedLithofraction> tmp = lithoManager.optimizedInWell(well->id());
+    for (OptimizedLithofraction lithofraction : tmp)
+    {
+      if (lithofractions[lithofraction.lithofractionId()].layerName() == activeLayer_)
+      {
+        optimizedLithoFractions.push_back(lithofraction);
+      }
+    }
+  }
+
+  return optimizedLithoFractions;
 }
 
 } // namespace sac

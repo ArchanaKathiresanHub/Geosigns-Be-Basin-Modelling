@@ -26,7 +26,9 @@ public:
   void drawLabels(QPainter& painter, const int height);
   void updatePlotRange(const int width, const int height);
 
-  QPointF valToPoint(double x, double y);
+  QPointF valToPoint(double x, double y) const;
+  QPointF pointToVal(double px, double py) const;
+  bool validPosition(double px, double py) const;
 
   double xAxisMinValue() const;
   void setXAxisMinValue(double xAxisMinValue);

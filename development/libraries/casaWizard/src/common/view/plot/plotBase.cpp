@@ -30,13 +30,34 @@ PlotBase::PlotBasePrivate::PlotBasePrivate() :
 {
 }
 
-QPointF PlotBase::PlotBasePrivate::valToPoint(double x, double y)
+QPointF PlotBase::PlotBasePrivate::valToPoint(double x, double y) const
 {
   QPointF origin(plotRangeTopLeft_.x(), plotRangeBottomRight_.y());
   const double px = (x - xAxisMinValue_)/(xAxisMaxValue_ - xAxisMinValue_)*(plotRangeBottomRight_.x() - plotRangeTopLeft_.x());
   const double py = (y - yAxisMinValue_)/(yAxisMaxValue_ - yAxisMinValue_)*(plotRangeTopLeft_.y() - plotRangeBottomRight_.y()); //y-direction is top down
 
   return origin + QPointF(px, py);
+}
+
+QPointF PlotBase::PlotBasePrivate::pointToVal(double px, double py) const
+{
+  QPointF origin(plotRangeTopLeft_.x(), plotRangeBottomRight_.y());
+
+  const double x = (px - origin.x()) * (xAxisMaxValue_ - xAxisMinValue_) / (plotRangeBottomRight_.x() - plotRangeTopLeft_.x()) + xAxisMinValue_;
+  const double y = (py - origin.y()) * (yAxisMaxValue_ - yAxisMinValue_) / (plotRangeTopLeft_.y() - plotRangeBottomRight_.y()) + yAxisMinValue_;
+
+  return QPointF(x, y);
+}
+
+bool PlotBase::PlotBasePrivate::validPosition(double px, double py) const
+{
+  QPointF origin(plotRangeTopLeft_.x(), plotRangeBottomRight_.y());
+
+  const double x = (px - origin.x()) * (xAxisMaxValue_ - xAxisMinValue_) / (plotRangeBottomRight_.x() - plotRangeTopLeft_.x()) + xAxisMinValue_;
+  const double y = (py - origin.y()) * (yAxisMaxValue_ - yAxisMinValue_) / (plotRangeTopLeft_.y() - plotRangeBottomRight_.y()) + yAxisMinValue_;
+
+  const bool outOfBounds = (x > xAxisMaxValue_ || x < xAxisMinValue_ || y > yAxisMaxValue_ || y < yAxisMinValue_);
+  return !outOfBounds;
 }
 
 QFont PlotBase::PlotBasePrivate::font() const
@@ -330,9 +351,19 @@ void PlotBase::paintEvent(QPaintEvent* /*event*/)
   drawData(painter);
 }
 
-QPointF PlotBase::valToPoint(double x, double y)
+QPointF PlotBase::valToPoint(double x, double y) const
 {
   return plotBasePrivate_->valToPoint(x, y);
+}
+
+QPointF PlotBase::pointToVal(double px, double py) const
+{
+  return plotBasePrivate_->pointToVal(px, py);
+}
+
+bool PlotBase::validPosition(double px, double py) const
+{
+  return plotBasePrivate_->validPosition(px, py);
 }
 
 void PlotBase::dataChanged()

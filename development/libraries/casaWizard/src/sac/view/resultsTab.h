@@ -63,6 +63,7 @@ public:
 
   void setPlotType(const int currentIndex);
 
+  void setRangeBirdsView(const double xMin, const double xMax, const double yMin, const double yMax);
 private:
   void setVisibleLithofractionColumn(const bool visible);
 

@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "resultsController.h"
 
 #include "control/casaScriptWriter.h"
@@ -16,6 +24,8 @@
 #include "view/plotOptions.h"
 #include "view/resultsTab.h"
 #include "view/sacTabIDs.h"
+
+#include "ConstantsMathematics.h"
 
 #include <QFileDialog>
 #include <QInputDialog>
@@ -56,10 +66,31 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
 
 void ResultsController::refreshGUI()
 {
+  setActiveWells();
+  setActivePlots();
+  setDomainBirdsView();
+}
+
+void ResultsController::setActiveWells()
+{
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
   resultsTab_->updateWellList(ctManager.activeWells());
   resultsTab_->updateBirdsView(ctManager.activeWells());
+}
+
+void ResultsController::setActivePlots()
+{
   resultsTab_->plotOptions()->setActivePlots(scenario_.activePlots());
+}
+
+void ResultsController::setDomainBirdsView()
+{
+  double xMin, xMax, yMin, yMax;
+  scenario_.projectReader().domainRange(xMin, xMax, yMin, yMax);
+  resultsTab_->setRangeBirdsView(xMin * Utilities::Maths::MeterToKilometer,
+                                 xMax * Utilities::Maths::MeterToKilometer,
+                                 yMin * Utilities::Maths::MeterToKilometer,
+                                 yMax * Utilities::Maths::MeterToKilometer);
 }
 
 void ResultsController::slotUpdateTabGUI(int tabID)

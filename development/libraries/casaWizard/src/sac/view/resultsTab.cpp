@@ -222,6 +222,11 @@ void ResultsTab::updateBirdsView(const QVector<const Well*> wells)
   wellBirdsView_->setWellLocations(x, y);
 }
 
+void ResultsTab::setRangeBirdsView(const double xMin, const double xMax, const double yMin, const double yMax)
+{
+  wellBirdsView_->updateRange(xMin, xMax, yMin, yMax);
+}
+
 void ResultsTab::updateActiveWells(const QVector<int> activeWells)
 {
   wellBirdsView_->setActiveWells(activeWells);

@@ -42,6 +42,7 @@ QVector<double> WellBirdsView::convertToKm(const QVector<double>& distancesInMet
 
 void WellBirdsView::setActiveWells(const QVector<int> activeWells)
 {
+  activeWells_ = activeWells;
   clearData();
   if (activeWells.size() == 0)
   {
@@ -69,6 +70,26 @@ void WellBirdsView::setActiveWells(const QVector<int> activeWells)
   addXYscatter(xInactive, yInactive);
   addXYscatter(xActive, yActive, SymbolType::Circle, 0);
   update();
+}
+
+const QVector<int>& WellBirdsView::activeWells()
+{
+  return activeWells_;
+}
+
+const QVector<double>& WellBirdsView::x() const
+{
+  return x_;
+}
+
+void WellBirdsView::updateRange(const double xMin, const double xMax, const double yMin, const double yMax)
+{
+  setMinMaxValues(xMin, xMax, yMin, yMax);
+}
+
+const QVector<double>&WellBirdsView::y() const
+{
+  return y_;
 }
 
 }  // namespace sac

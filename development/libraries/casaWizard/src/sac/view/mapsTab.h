@@ -38,8 +38,6 @@ class MapsTab : public QWidget
 public:
   explicit MapsTab(QWidget* parent = nullptr);
 
-  void updateBirdsView(const QVector<const Well*> wells);
-
   QPushButton* createGridsButton() const;
   QComboBox* interpolationType() const;
   LithofractionVisualisation* lithofractionVisualisation() const;
@@ -49,6 +47,7 @@ public:
   QSpinBox* threads() const;
   ActiveWellsTable* activeWellsTable() const;
 
+  void updateActiveWells(const QVector<int> activeWells);
 private slots:
   void slotInterpolationTypeChange(int interpolationType);
   void slotSmoothingTypeChange(int smoothingType);

@@ -57,7 +57,8 @@ MapsController::MapsController(MapsTab* mapsTab,
   connect(mapsTab_->threads(),           SIGNAL(valueChanged(int)),        this, SLOT(slotThreadsValueChanged(int)));
   connect(mapsTab_->createGridsButton(), SIGNAL(clicked()),                this, SLOT(slotGenerateLithoMaps()));
 
-  connect(mapsTab_->activeWellsTable(), SIGNAL(selectedWell(const QString&)), this, SLOT(updateWell(const QString&)));
+  connect(mapsTab_->activeWellsTable(), SIGNAL(itemSelectionChanged()), this, SLOT(slotUpdateBirdView()));
+  connect(mapsTab_->activeWellsTable(), SIGNAL(selectedWell(const QString&)), this, SLOT(slotUpdateWell(const QString&)));
 }
 
 void MapsController::slotInterpolationTypeCurrentIndexChanged(int interpolationType)
@@ -87,9 +88,6 @@ void MapsController::slotThreadsValueChanged(int threads)
 
 void MapsController::refreshGUI()
 {
-  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  mapsTab_->updateBirdsView(ctManager.activeAndIncludedWells());
-
   mapsTab_->interpolationType()->setCurrentIndex(scenario_.interpolationMethod());
   mapsTab_->pValue()->setValue(scenario_.pIDW());
   mapsTab_->smoothingType()->setCurrentIndex(scenario_.smoothingOption());
@@ -97,6 +95,9 @@ void MapsController::refreshGUI()
   mapsTab_->threads()->setValue(scenario_.threadsSmoothing());
 
   lithofractionVisualisationController_->updateAvailableLayers();  
+  lithofractionVisualisationController_->updateBirdsView();
+  mapsTab_->updateActiveWells({});
+
   emit signalRefreshChildWidgets();
 }
 
@@ -110,7 +111,7 @@ void MapsController::slotUpdateTabGUI(int tabID)
   refreshGUI();  
 }
 
-void MapsController::updateWell(const QString& name)
+void MapsController::slotUpdateWell(const QString& name)
 {
   activeWell_ = -1;
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
@@ -122,8 +123,9 @@ void MapsController::updateWell(const QString& name)
       break;
     }
   }
-  refreshGUI();
 
+  lithofractionVisualisationController_->updateBirdsView();
+  mapsTab_->updateActiveWells({});
   Logger::log() << "Selected well " << activeWell_ << Logger::endl();
 }
 
@@ -143,6 +145,71 @@ void MapsController::slotGenerateLithoMaps()
 
   lithofractionVisualisationController_->updateAvailableLayers();
 }
+
+void MapsController::slotUpdateBirdView()
+{
+  mapsTab_->updateActiveWells(selectedWells());
+}
+
+QVector<int> MapsController::selectedWells()
+{
+  const QVector<int> wellIndices = getSelectedWellIndices();
+  const QVector<int> excludedWells = getExcludedWells();
+
+  return transformToActiveAndIncluded(wellIndices, excludedWells);
+}
+
+QVector<int> MapsController::getSelectedWellIndices()
+{
+  QModelIndexList indices = mapsTab_->activeWellsTable()->selectionModel()->selectedIndexes();
+
+  QVector<int> wellIndices;
+  for(const QModelIndex& index : indices)
+  {
+    wellIndices.push_back(index.row());
+  }
+
+  return wellIndices;
+}
+
+QVector<int> MapsController::getExcludedWells()
+{
+  QVector<int> excludedWells;
+  int counter = 0;
+  for (const Well* well : scenario_.calibrationTargetManager().activeWells())
+  {
+    if (well->isExcluded())
+    {
+      excludedWells.push_back(counter);
+    }
+    counter++;
+  }
+
+  return excludedWells;
+}
+
+QVector<int> MapsController::transformToActiveAndIncluded(const QVector<int>& wellIndices, const QVector<int>& excludedWells)
+{
+  QVector<int> wellIndicesActiveIncluded;
+  for (int wellIndex : wellIndices)
+  {
+    int exclusionShift = 0;
+    bool excluded = false;
+    for (int excludedWellIndex : excludedWells)
+    {
+      if(wellIndex == excludedWellIndex) excluded = true;
+      if(wellIndex >  excludedWellIndex) exclusionShift++;
+    }
+
+    if (!excluded)
+    {
+      wellIndicesActiveIncluded.push_back(wellIndex - exclusionShift);
+    }
+  }
+
+  return wellIndicesActiveIncluded;
+}
+
 
 } // namespace sac
 

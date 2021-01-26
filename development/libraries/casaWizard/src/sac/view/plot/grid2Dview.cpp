@@ -1,12 +1,23 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "grid2Dview.h"
 
-#include <cmath>
 #include "../colormap.h"
+#include "../lithoMapsToolTip.h"
+#include "model/optimizedLithofraction.h"
 
 // QT
 #include <QGridLayout>
 #include <QLabel>
 #include <QPainter>
+
+#include <cmath>
 
 namespace casaWizard
 {
@@ -19,10 +30,12 @@ Grid2DView::Grid2DView(const ColorMap& colormap, QWidget* parent) :
   colorMap_{colormap},
   range_{new std::pair<double, double>(0, 100)},
   values_{},
+  lithoMapsToolTip_{new LithoMapsToolTip(this)},
   fixedRange_{false},
   stretched_{false},
   wellsVisible_{true}
 {
+  lithoMapsToolTip_->setVisible(false);
 }
 
 void Grid2DView::updatePlots(const QVector<QVector<double>> values)
@@ -126,13 +139,129 @@ void Grid2DView::drawData(QPainter& painter)
 
   if (wellsVisible_)
   {
-    WellBirdsView::drawData(painter);
+    painter.save();
+    drawPieChartsWells(painter);
+    drawPieChartsSelectedWells(painter);
+    painter.restore();
+  }
+}
+
+void Grid2DView::drawPieChartsWells(QPainter& painter)
+{
+  const int shade = activeWells().empty() ? 255 : 150;
+  painter.setPen(Qt::black);
+  painter.setRenderHint(QPainter::Antialiasing, true);
+  int counter = 0;
+  for (const OptimizedLithofraction& optimizedLitho : optimizedLithofractions_)
+  {
+    drawPieChart(painter, shade, 10, counter, optimizedLitho);
+    counter++;
+  }
+}
+
+void Grid2DView::drawPieChart(QPainter& painter, const int shade, const int size, const int counter, const OptimizedLithofraction& optimizedLitho)
+{
+  QPoint position = valToPoint(x()[counter], y()[counter]).toPoint();
+
+  double firstAngle = - optimizedLitho.optimizedPercentageFirstComponent()/100*360*16;
+  double secondAngle = - optimizedLitho.optimizedPercentageSecondComponent()/100*360*16;
+  double thirdAngle = - optimizedLitho.optimizedPercentageThirdComponent()/100*360*16;
+
+  painter.setBrush(QColor(shade, 0, 0));
+  painter.drawPie(QRect(position - QPoint(size,size), position + QPoint(size,size)), 90 * 16, firstAngle);
+
+  painter.setBrush(QColor(0, shade, 0));
+  painter.drawPie(QRect(position - QPoint(size,size), position + QPoint(size,size)), 90 * 16+ firstAngle, secondAngle);
+
+  painter.setBrush(QColor(0, 0, shade));
+  painter.drawPie(QRect(position - QPoint(size,size), position + QPoint(size,size)), 90 * 16+secondAngle + firstAngle, thirdAngle);
+}
+
+
+void Grid2DView::drawPieChartsSelectedWells(QPainter& painter)
+{
+  QPen border(Qt::black);
+  border.setWidthF(1.5);
+  painter.setPen(border);
+  painter.setRenderHint(QPainter::Antialiasing, true);
+
+  for (int i : activeWells())
+  {
+    drawPieChart(painter, 255, 12, i, optimizedLithofractions_[i]);
   }
 }
 
 void Grid2DView::updateMinMaxData()
 {
 
+}
+
+void Grid2DView::setOptimizedLithofractions(const QVector<OptimizedLithofraction>& optimizedLithofractions)
+{
+  optimizedLithofractions_ = optimizedLithofractions;
+  update();
+}
+
+void Grid2DView::mousePressEvent(QMouseEvent* event)
+{
+  setToolTipVisible(false);
+  mousePosition_ = event->pos();
+
+  if (validPosition(mousePosition_.x(), mousePosition_.y()))
+  {
+    initializeToolTip(mousePosition_);
+  }
+}
+
+
+void Grid2DView::initializeToolTip(const QPoint& mousePosition)
+{
+  const QPointF domainPosition = pointToVal(mousePosition.x(), mousePosition.y());
+  lithoMapsToolTip_->setDomainPosition(domainPosition);
+
+  lithoMapsToolTip_->move(mousePosition);
+  lithoMapsToolTip_->setMaximumHeight(height()/2);
+
+  emit toolTipCreated(domainPosition);
+}
+
+double Grid2DView::getValue(const QPointF& point) const
+{
+  const int valuesX = values_[0].size();
+  const int valuesY = values_.size();
+
+  const int xIndex = (point.x() - xAxisMinValue()) / (xAxisMaxValue() - xAxisMinValue()) * valuesX;
+  const int yIndex = (point.y() - yAxisMinValue()) / (yAxisMaxValue() - yAxisMinValue()) * valuesY;
+
+  return values_[yIndex][xIndex];
+}
+
+void Grid2DView::setToolTipData(const std::vector<double>& lithofractionsAtPoint, const int activePlot)
+{
+  lithoMapsToolTip_->setLithofractions(lithofractionsAtPoint, activePlot);
+}
+
+void Grid2DView::correctToolTipPositioning()
+{
+  QPoint toolTipPosition = lithoMapsToolTip_->pos();
+  const bool moveX = !validPosition(toolTipPosition.x() + lithoMapsToolTip_->width(), toolTipPosition.y());
+  const bool moveY = !validPosition(toolTipPosition.x(), toolTipPosition.y() + lithoMapsToolTip_->height());
+  if (moveY)
+  {
+    lithoMapsToolTip_->move(toolTipPosition - (QPoint(0,lithoMapsToolTip_->height())));
+    toolTipPosition = lithoMapsToolTip_->pos();
+  }
+  if (moveX)
+  {
+    lithoMapsToolTip_->move(toolTipPosition - (QPoint(lithoMapsToolTip_->width(),0)));
+  }
+  lithoMapsToolTip_->setCorner(moveX, moveY);
+  lithoMapsToolTip_->setVisible(true);
+}
+
+void Grid2DView::setToolTipVisible(const bool visible)
+{
+  lithoMapsToolTip_->setVisible(visible);
 }
 
 void Grid2DView::determineRange()

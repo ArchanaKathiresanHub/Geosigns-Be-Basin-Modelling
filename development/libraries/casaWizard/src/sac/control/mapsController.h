@@ -37,14 +37,15 @@ public:
   void updateTab();
 
 private slots:
-  void updateWell(const QString& name);
-  void slotUpdateTabGUI(int tabID);
-  void slotPvalueChanged(int pIDW);
+  void slotGenerateLithoMaps();
   void slotInterpolationTypeCurrentIndexChanged(int interpolationType);
+  void slotPvalueChanged(int pIDW);
   void slotSmoothingTypeCurrentIndexChanged(int smoothingType);
   void slotSmoothingRadiusValueChanged(int smoothingRadius);
   void slotThreadsValueChanged(int threads);
-  void slotGenerateLithoMaps();
+  void slotUpdateBirdView();
+  void slotUpdateTabGUI(int tabID);
+  void slotUpdateWell(const QString& name);
 
 signals:
   void signalRefreshChildWidgets();
@@ -52,7 +53,10 @@ signals:
 private:
   void refreshGUI();
 
+  QVector<int> getExcludedWells();
+  QVector<int> getSelectedWellIndices();
   QVector<int> selectedWells();
+  QVector<int> transformToActiveAndIncluded(const QVector<int>& wellIndices, const QVector<int>& excludedWells);
 
   MapsTab* mapsTab_;
   SACScenario& scenario_;

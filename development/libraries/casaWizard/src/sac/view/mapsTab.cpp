@@ -53,6 +53,11 @@ MapsTab::MapsTab(QWidget* parent) :
   slotSmoothingTypeChange(0);
 }
 
+void MapsTab::updateActiveWells(const QVector<int> activeWells)
+{
+  lithofractionVisualisation_->updateActiveWells(activeWells);
+}
+
 QVBoxLayout* MapsTab::setWellsAndOptionsLayout()
 {
   setGridGenerationOptionsLayout();
@@ -201,22 +206,7 @@ QComboBox* MapsTab::interpolationType() const
   return interpolationType_;
 }
 
-void MapsTab::updateBirdsView(const QVector<const Well*> wells)
-{
-  QVector<double> x;
-  QVector<double> y;
-  for (const Well *const well : wells)
-  {
-    x.append(well->x());
-    y.append(well->y());
-  }
 
-  for (Grid2DPlot* plot: lithofractionVisualisation()->lithoFractionPlots())
-  {
-    plot->grid2DView()->setWellLocations(x, y);
-  }
-
-}
 
 } // namespace sac
 

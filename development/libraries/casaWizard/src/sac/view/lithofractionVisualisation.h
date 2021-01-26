@@ -22,10 +22,12 @@ namespace casaWizard
 {
 
 class CustomCheckbox;
+class Well;
 
 namespace sac
 {
 
+class OptimizedLithofraction;
 class Grid2DPlot;
 class Grid2DView;
 class ColorBar;
@@ -37,12 +39,15 @@ public:
   explicit LithofractionVisualisation(QWidget *parent = nullptr);
 
   std::vector<Grid2DPlot*> lithoFractionPlots() const;
-  void updateLayerOptions(QStringList availableLayers);
-  void clearPlots();
 
   const QComboBox* layerSelection() const;
   QComboBox* colorMapSelection() const;
   QCheckBox* wellsVisible() const;
+
+  void clearPlots();
+  void updateBirdsView(const QVector<const Well*> wells, const QVector<OptimizedLithofraction>& optimizedLithoFractions);
+  void updateLayerOptions(QStringList availableLayers);
+  void updateActiveWells(const QVector<int> activeWells);
 
 private:
   QComboBox* percentageRange_;

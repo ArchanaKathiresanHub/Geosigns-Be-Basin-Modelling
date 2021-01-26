@@ -43,7 +43,9 @@ protected:
   void dataChanged();
   void setMinMaxValues(double xMin, double xMax, double yMin, double yMax);
 
-  QPointF valToPoint(double x, double y);
+  QPointF valToPoint(double x, double y) const;
+  QPointF pointToVal(double px, double py) const;
+  bool validPosition(double px, double py) const;
 
   void paintEvent(QPaintEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;

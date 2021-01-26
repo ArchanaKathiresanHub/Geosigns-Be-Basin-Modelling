@@ -13,6 +13,8 @@
 #include "plot/grid2Dview.h"
 #include "../common/view/components/customcheckbox.h"
 #include "../common/view/components/customtitle.h"
+#include "model/well.h"
+#include "model/optimizedLithofraction.h"
 
 #include <QLayout>
 #include <QLabel>
@@ -117,6 +119,7 @@ void LithofractionVisualisation::slotUpdateColorMaps(const QString& colormapType
   {
     update();
     plot->grid2DView()->update();
+    plot->grid2DView()->setToolTipVisible(false);
   }
 }
 
@@ -124,7 +127,8 @@ void LithofractionVisualisation::slotUpdateWellsVisibility(int state)
 {
   for (Grid2DPlot* plot : lithoFractionPlots_)
   {
-    plot->grid2DView()->setWellsVisible(state == 2);
+    plot->grid2DView()->setWellsVisible(state == Qt::CheckState::Checked);
+    plot->grid2DView()->setToolTipVisible(false);
   }
 }
 
@@ -132,7 +136,8 @@ void LithofractionVisualisation::slotUpdateAspectRatio(int state)
 {
   for (Grid2DPlot* plot : lithoFractionPlots_)
   {
-    plot->grid2DView()->setStretch(state == 2);
+    plot->grid2DView()->setStretch(state == Qt::CheckState::Checked);
+    plot->grid2DView()->setToolTipVisible(false);
   }
 }
 
@@ -144,6 +149,7 @@ void LithofractionVisualisation::slotUpdatePercentageRanges(const QString& perce
     {
       plot->grid2DView()->setVariableValueRange();
       plot->updateColorBar();
+      plot->grid2DView()->setToolTipVisible(false);
     }
   }
   else if (percentageRangeType == "Fixed between 0 and 100")
@@ -152,6 +158,7 @@ void LithofractionVisualisation::slotUpdatePercentageRanges(const QString& perce
     {
       plot->grid2DView()->setFixedValueRange({0,100});
       plot->updateColorBar();
+      plot->grid2DView()->setToolTipVisible(false);
     }
   }
   else if (percentageRangeType == "Fixed between global min and max")
@@ -167,6 +174,7 @@ void LithofractionVisualisation::slotUpdatePercentageRanges(const QString& perce
     {
       plot->grid2DView()->setFixedValueRange(globalRange);
       plot->updateColorBar();
+      plot->grid2DView()->setToolTipVisible(false);
     }
   }
 }
@@ -226,6 +234,31 @@ void LithofractionVisualisation::clearPlots()
 void LithofractionVisualisation::setColorMapType(const std::string& colorMapType)
 {
   colormap_->setColorMapType(colorMapType);
+}
+
+void LithofractionVisualisation::updateBirdsView(const QVector<const Well*> wells, const QVector<OptimizedLithofraction>& optimizedLithoFractions)
+{
+  QVector<double> x;
+  QVector<double> y;
+  for (const Well *const well : wells)
+  {
+    x.append(well->x());
+    y.append(well->y());
+  }
+
+  for (Grid2DPlot* plot: lithoFractionPlots())
+  {
+    plot->grid2DView()->setWellLocations(x, y);
+    plot->grid2DView()->setOptimizedLithofractions(optimizedLithoFractions);
+  }
+}
+
+void LithofractionVisualisation::updateActiveWells(const QVector<int> activeWells)
+{
+  for (Grid2DPlot* plot: lithoFractionPlots_)
+  {
+    plot->grid2DView()->setActiveWells(activeWells);
+  }
 }
 
 } // namespace sac
