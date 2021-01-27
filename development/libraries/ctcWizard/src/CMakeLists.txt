@@ -1,0 +1,10 @@
+ file(GLOB ctcWIZARD_H_HEADERS model/*.h view/*.h control/*.h )
+ file(GLOB ctcWIZARD_CPP_SOURCES model/*.cpp view/*.cpp control/*.cpp )
+
+include_directories( ${QTXLSX_INCLUDE_DIRS} )
+
+create_bm_library( TARGET ${CTCWIZARD_LIBNAME}
+                   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets 
+                   ADD_HEADERS ${ctcWIZARD_H_HEADERS}
+                   ADD_SOURCES ${ctcWIZARD_CPP_SOURCES} )
+target_include_directories( ${CTCWIZARD_LIBNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
