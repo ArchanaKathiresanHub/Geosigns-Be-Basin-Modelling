@@ -38,6 +38,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-01-27  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
+	fix: Fix install script, do not update with every RHEL update.
+	* Fix install script, do not update with every RHEL update
+
+	================== COMMIT-END ========================
+	Commit-ID:<63e14b071171f325e5d131733982d9e5444352ed>	  (refs/heads/master)
+
+++
+2021-01-27  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
 	chg: output table update.
 	* Improved output table
 
