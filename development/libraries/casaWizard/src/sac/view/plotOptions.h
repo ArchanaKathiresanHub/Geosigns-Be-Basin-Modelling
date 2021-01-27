@@ -50,6 +50,7 @@ private:
   QComboBox* properties_;
 
   QButtonGroup* plotType_;
+  CustomRadioButton* table_;
   CustomRadioButton* linePlot_;
   CustomRadioButton* scatterPlot_;
 };

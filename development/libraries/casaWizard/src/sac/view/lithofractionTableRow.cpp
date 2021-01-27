@@ -32,14 +32,14 @@ LithofractionTableRow::LithofractionTableRow(const Lithofraction& lithofraction,
 }
 
 void LithofractionTableRow::createLithoTypeItems()
-{
-  lithoTypeItems_.push_back(new QTableWidgetItem(lithoTypes_[0]));
-  lithoTypeItems_.push_back(new QTableWidgetItem(lithoTypes_.size() >= 2 ? lithoTypes_[1] : ""));
-  lithoTypeItems_.push_back(new QTableWidgetItem(lithoTypes_.size() >= 3 ? lithoTypes_[2] : ""));
-
-  for (QTableWidgetItem* lithotypeItem : lithoTypeItems_)
+{  
+  for ( const int component : {lithofraction_.firstComponent(),
+                               lithofraction_.secondComponent(),
+                               lithofraction_.thirdComponent()})
   {
+    QTableWidgetItem* lithotypeItem = new QTableWidgetItem(lithoTypes_[component]);
     lithotypeItem->setFlags(lithotypeItem->flags() & ~Qt::ItemIsEditable);
+    lithoTypeItems_.push_back(lithotypeItem);
   }
 }
 
@@ -52,8 +52,8 @@ void LithofractionTableRow::createOptimizationCheckBoxes()
 
 void LithofractionTableRow::initializeCheckBoxes()
 {
-  LithofractionTable::getCheckBoxFromWidget(secondOptimizationCheckBox_)->setCheckState(lithofraction_.doSecondOptimization() ? Qt::Checked : Qt::Unchecked);
   LithofractionTable::getCheckBoxFromWidget(firstOptimizationCheckBox_)->setCheckState(lithofraction_.doFirstOptimization() ? Qt::Checked : Qt::Unchecked);
+  LithofractionTable::getCheckBoxFromWidget(secondOptimizationCheckBox_)->setCheckState(lithofraction_.doSecondOptimization() ? Qt::Checked : Qt::Unchecked);
 }
 
 QWidget* LithofractionTableRow::createOptimizationCheckBox()

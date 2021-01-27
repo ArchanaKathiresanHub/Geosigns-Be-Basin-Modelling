@@ -14,7 +14,7 @@ namespace casaWizard
 namespace sac
 {
 
-CaseExtractor::CaseExtractor(SACScenario& scenario) :
+CaseExtractor::CaseExtractor(const SACScenario& scenario) :
   iterationPath_{""},
   scenario_{scenario}
 {
@@ -47,7 +47,7 @@ QString CaseExtractor::iterationPath() const
   return iterationPath_;
 }
 
-SACScenario& CaseExtractor::scenario()
+const SACScenario& CaseExtractor::scenario()
 {
   return scenario_;
 }

@@ -6,7 +6,6 @@
 #include "model/logger.h"
 #include "model/output/wellTrajectoryWriter.h"
 #include "model/sacScenario.h"
-#include "model/scenarioBackup.h"
 
 namespace casaWizard
 {
@@ -24,8 +23,7 @@ DataExtractionController::DataExtractionController(SACScenario& scenario,
 }
 
 void DataExtractionController::readResults()
-{
-  scenarioBackup::backup(scenario_);
+{  
   WellTrajectoryExtractor trajectoryExtractor{scenario_};
   readCaseData(trajectoryExtractor, "extracting trajectories using track1d");
 
@@ -38,7 +36,6 @@ void DataExtractionController::readResults()
   }
 
   readCaseData(lithoExtractor, "extracting optimized lithofractions");
-  scenarioBackup::backup(scenario_);
 }
 
 void DataExtractionController::readCaseData(CaseExtractor& extractor, const QString& message)

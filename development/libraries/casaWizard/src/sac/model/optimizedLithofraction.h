@@ -29,6 +29,8 @@ public:
   double optimizedPercentageSecondComponent() const;
   double optimizedPercentageThirdComponent() const;
 
+  void setLithofractionId(int lithofractionId);
+
 private:
   int wellId_;
   int lithofractionId_;

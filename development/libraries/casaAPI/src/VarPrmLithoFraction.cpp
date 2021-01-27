@@ -78,8 +78,8 @@ namespace casa
       }
       else if ( vin.size() == 2 )
       {
-         std::vector<size_t> ij = { static_cast<size_t>( floor( vin[0] + 0.5 ) ),
-                                    static_cast<size_t>( floor( vin[1] + 0.5 ) ) };
+         std::vector<unsigned int> ij = { static_cast<unsigned int>( floor( vin[0] + 0.5 ) ),
+                                          static_cast<unsigned int>( floor( vin[1] + 0.5 ) ) };
          prm.reset( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds, ij ) );
       }
       else
@@ -103,7 +103,7 @@ namespace casa
       std::vector<double> lf2;
       std::vector<double> lf3;
 
-      for ( int i = 0; i != prmVec.size(); ++i )
+      for ( unsigned int i = 0; i != prmVec.size(); ++i )
       {
          const std::vector<double> lithoFractions = prmVec[i]->asDoubleArray();
          const std::vector<double> lithoPercentages = PrmLithoFraction::createLithoPercentages( lithoFractions, m_lithoFractionsInds );

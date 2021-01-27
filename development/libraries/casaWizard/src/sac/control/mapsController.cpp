@@ -10,6 +10,7 @@
 
 #include "control/activeWellsController.h"
 #include "control/casaScriptWriter.h"
+#include "control/functions/copyCaseFolder.h"
 #include "control/scriptRunController.h"
 #include "control/lithofractionVisualisationController.h"
 
@@ -19,6 +20,7 @@
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"
 #include "model/script/cauldronScript.h"
+#include "model/script/track1dAllWellScript.h"
 #include "model/script/Generate3DScenarioScript.h"
 
 #include "view/activeWellsTable.h"
@@ -27,6 +29,8 @@
 #include "view/lithofractionVisualisation.h"
 
 #include <QComboBox>
+#include <QFileDialog>
+#include <QInputDialog>
 #include <QListWidget>
 #include <QPushButton>
 #include <QSpinBox>
@@ -50,6 +54,10 @@ MapsController::MapsController(MapsTab* mapsTab,
   lithofractionVisualisationController_{new LithofractionVisualisationController(mapsTab->lithofractionVisualisation(), scenario_, this)},
   activeWell_{0}
 {
+  connect(mapsTab_->buttonExportOptimized(), SIGNAL(clicked()), this, SLOT(exportOptimized()));
+  connect(mapsTab_->buttonRunOptimized(),  SIGNAL(clicked()), this, SLOT(runOptimized()));
+  connect(mapsTab_->buttonRunOriginal(),      SIGNAL(clicked()), this, SLOT(runOriginal()));
+
   connect(mapsTab_->interpolationType(), SIGNAL(currentIndexChanged(int)), this, SLOT(slotInterpolationTypeCurrentIndexChanged(int)));
   connect(mapsTab_->pValue(),            SIGNAL(valueChanged(int)),        this, SLOT(slotPvalueChanged(int)));
   connect(mapsTab_->smoothingType(),     SIGNAL(currentIndexChanged(int)), this, SLOT(slotSmoothingTypeCurrentIndexChanged(int)));
@@ -146,6 +154,138 @@ void MapsController::slotGenerateLithoMaps()
   lithofractionVisualisationController_->updateAvailableLayers();
 }
 
+void MapsController::exportOptimized()
+{
+  QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
+  if (!sourceDir.exists())
+  {
+    Logger::log() << "Optimized case is not available" << Logger::endl();
+    return;
+  }
+  QDir targetDir(QFileDialog::getExistingDirectory(nullptr, "Save optimized case to directory", scenario_.workingDirectory(),
+                                                   QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+  if (!targetDir.exists())
+  {
+    Logger::log() << "Target directory is not set" << Logger::endl();
+    return;
+  }
+
+  const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
+  QString projectTextFile("/" + scenario_.project3dFilename().replace(QString("project3d"), QString("txt")));
+  QFile::copy(scenario_.workingDirectory() + projectTextFile, targetDir.absolutePath() + projectTextFile);
+
+  scenarioBackup::backup(scenario_);
+
+  Logger::log() << (filesCopied ? "Finished saving optimized case" :
+                                  "Failed saving optimized case, no files were copied") << Logger::endl();
+}
+
+void MapsController::runOptimized()
+{
+  scenarioBackup::backup(scenario_);
+
+  const QString baseDirectory{scenario_.calibrationDirectory() + "/ThreeDFromOneD"};
+
+  if (run3dCase(baseDirectory))
+  {
+    const bool isOptimized{true};
+    import3dWellData(baseDirectory, isOptimized);
+    scenarioBackup::backup(scenario_);
+  }
+}
+
+void MapsController::runOriginal()
+{
+  const QString runDirectory{scenario_.calibrationDirectory() + "/ThreeDBase"};
+
+  const QDir sourceDir(scenario_.workingDirectory());
+  const QDir targetDir(runDirectory);
+  if (!sourceDir.exists())
+  {
+    Logger::log() << "Source directory " + sourceDir.absolutePath() + " not found" << Logger::endl();
+    return;
+  }
+
+  const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
+  if (!filesCopied)
+  {
+    Logger::log() << "Failed to create the 3D original case"
+                  << "\nThe original is not run" << Logger::endl();
+    return;
+  }
+
+  if (run3dCase(runDirectory))
+  {
+    const bool isOptimized{false};
+    import3dWellData(runDirectory, isOptimized);
+  }
+}
+
+bool MapsController::run3dCase(const QString directory)
+{
+  bool ok = true;
+  const int cores = QInputDialog::getInt(nullptr, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 48, 1, &ok);
+  if (!ok)
+  {
+    return false;
+  }
+
+  scenario_.setNumberCPUs(cores);
+  scenarioBackup::backup(scenario_);
+  CauldronScript cauldron{scenario_, directory};
+  if (!casaScriptWriter::writeCasaScript(cauldron) ||
+      !scriptRunController_.runScript(cauldron))
+  {
+    return false;
+  }
+
+  scenarioBackup::backup(scenario_);
+  return true;
+}
+
+void MapsController::import3dWellData(const QString baseDirectory, const bool isOptimized)
+{
+  Logger::log() << "Extracting data from the 3D case using track1d" << Logger::endl();
+
+  QVector<double> xCoordinates;
+  QVector<double> yCoordinates;
+  const CalibrationTargetManager& calibrationTargetManager = scenario_.calibrationTargetManager();
+  const QVector<const Well*> wells = calibrationTargetManager.activeWells();
+
+  for (const Well* well : wells)
+  {
+    xCoordinates.push_back(well->x());
+    yCoordinates.push_back(well->y());
+  }
+  QStringList properties = scenario_.calibrationTargetManager().activeProperties();
+
+  Track1DAllWellScript import{baseDirectory,
+                              xCoordinates,
+                              yCoordinates,
+                              properties,
+                              scenario_.project3dFilename()};
+  if (!scriptRunController_.runScript(import))
+  {
+    Logger::log() << "Failed to run well import" << Logger::endl();
+    return;
+  }
+
+  Case3DTrajectoryReader reader{baseDirectory + "/welldata.csv"};
+  try
+  {
+    reader.read();
+  }
+  catch(const std::exception& e)
+  {
+    Logger::log() << "Failed to read file" << e.what() << Logger::endl();
+    return;
+  }
+
+  case3DTrajectoryConvertor::convertToScenario(reader, scenario_, isOptimized);
+
+  Logger::log() << "Finished extracting data from the 3D case" << Logger::endl();
+}
+
 void MapsController::slotUpdateBirdView()
 {
   mapsTab_->updateActiveWells(selectedWells());
@@ -209,7 +349,6 @@ QVector<int> MapsController::transformToActiveAndIncluded(const QVector<int>& we
 
   return wellIndicesActiveIncluded;
 }
-
 
 } // namespace sac
 

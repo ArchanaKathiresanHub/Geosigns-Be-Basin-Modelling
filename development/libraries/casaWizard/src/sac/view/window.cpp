@@ -17,19 +17,19 @@ namespace sac
 
 Window::Window(QWidget* parent) :
   MainWindow(parent),
-  sacTab_{new SACtab{this}},
+  sacTab_{new SACtab{this}},  
   //t2zTab_ {new T2Ztab{this}},
-  mapsTab_{new MapsTab{this}},
   resultsTab_{new ResultsTab{this}},
+  mapsTab_{new MapsTab{this}},
   menuBarSAC_{new MenuBar{this}}
 {
   setMenuBar(menuBarSAC_);
 
   setWindowTitle("SAC Wizard");
 
-  tabWidget()->addTab(sacTab_, "SAC");
-  tabWidget()->addTab(mapsTab_, "Maps");
+  tabWidget()->addTab(sacTab_, "Input");
   tabWidget()->addTab(resultsTab_, "Results");
+  tabWidget()->addTab(mapsTab_, "Maps");
 
   //tabWidget()->addTab(t2zTab_, "T2Z");
 

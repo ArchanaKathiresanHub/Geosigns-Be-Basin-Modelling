@@ -98,7 +98,10 @@ namespace mbapi
       ErrorHandler::ReturnCode mapGetDimensions( MapID id, int& i, int& j) final;
 
       // Get the value from the map
-      double mapGetValue( MapID id, size_t i, size_t j ) final;
+      double mapGetValue(MapID id, unsigned int i, unsigned int j ) final;
+
+      // Get interpolated value from the map
+      double mapGetValue( MapID id, double x, double y ) final;
 
       // Interpolate between 2 maps, coefficient in range [0:1]
       ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff ) final;

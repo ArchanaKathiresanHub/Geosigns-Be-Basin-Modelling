@@ -21,7 +21,6 @@
 #include <QLabel>
 #include <QLayout>
 #include <QListWidget>
-#include <QPushButton>
 #include <QSpinBox>
 
 namespace casaWizard
@@ -32,7 +31,12 @@ namespace sac
 
 MapsTab::MapsTab(QWidget* parent) :
   QWidget(parent),
+  activeWellsTable_{new ActiveWellsTable(this)},
+  lithofractionVisualisation_{new LithofractionVisualisation(this)},
   createGridsButton_{new EmphasisButton("Create 2D lithofraction grids", this)},
+  buttonExportOptimized_{new EmphasisButton("Export optimized", this)},
+  buttonRunOptimized_{new EmphasisButton("Run optimized", this)},
+  buttonRunOriginal_{new EmphasisButton("Run original", this)},
   interpolationType_{new QComboBox(this)},
   iwdOptions_{new QWidget(this)},
   gridGenerationOptions_{new QWidget(this)},
@@ -40,13 +44,9 @@ MapsTab::MapsTab(QWidget* parent) :
   smoothingOptions_{new QWidget(this)},
   smoothingRadius_{new QSpinBox(this)},
   smoothingType_{new QComboBox(this)},
-  threads_{new QSpinBox(this)},
-  activeWellsTable_{new ActiveWellsTable(this)},
-  lithofractionVisualisation_{new LithofractionVisualisation(this)}
+  threads_{new QSpinBox(this)}
 {
-  QVBoxLayout* wellsAndOptions = setWellsAndOptionsLayout();
-  setTotalLayout(wellsAndOptions);
-
+  setTotalLayout();
   connectSignalsAndSlots();
 
   slotInterpolationTypeChange(0);
@@ -67,16 +67,18 @@ QVBoxLayout* MapsTab::setWellsAndOptionsLayout()
   label1->setFixedHeight(15);
   CustomTitle* label2 = new CustomTitle("Gridding options", this);
   label2->setFixedHeight(15);
+  CustomTitle* label3 = new CustomTitle("3D model", this);
+  label3->setFixedHeight(15);
 
   QVBoxLayout* wellsAndOptions = new QVBoxLayout();
-  wellsAndOptions->addWidget(label1,0);
-  wellsAndOptions->addWidget(activeWellsTable_, 1);
-  wellsAndOptions->addWidget(label2, 2);
-  wellsAndOptions->addWidget(gridGenerationOptions_, 3);
-  wellsAndOptions->setStretch(0,1);
-  wellsAndOptions->setStretch(1,20);
-  wellsAndOptions->setStretch(2,1);
-  wellsAndOptions->setStretch(3,1);
+  wellsAndOptions->addWidget(label1);
+  wellsAndOptions->addWidget(activeWellsTable_);
+  wellsAndOptions->addWidget(label2);
+  wellsAndOptions->addWidget(gridGenerationOptions_);
+  wellsAndOptions->addWidget(label3);
+  wellsAndOptions->addWidget(buttonExportOptimized_);
+  wellsAndOptions->addWidget(buttonRunOptimized_);
+  wellsAndOptions->addWidget(buttonRunOriginal_);
 
   return wellsAndOptions;
 }
@@ -141,19 +143,32 @@ void MapsTab::setDefaultGridGenerationOptions()
   smoothingRadius_->setMaximum(1e6);
 }
 
-void MapsTab::setTotalLayout(QVBoxLayout* wellsAndOptions)
+void MapsTab::setTotalLayout()
 {
   QHBoxLayout* total = new QHBoxLayout(this);
-  total->addLayout(wellsAndOptions, 0);
-  total->addWidget(lithofractionVisualisation_,1);
-  total->setStretch(0,1);
-  total->setStretch(1,5);
+  total->addLayout(setWellsAndOptionsLayout(), 1);
+  total->addWidget(lithofractionVisualisation_,5);
 }
 
 void MapsTab::connectSignalsAndSlots() const
 {
   connect(interpolationType_, SIGNAL(currentIndexChanged(int)), this, SLOT(slotInterpolationTypeChange(int)));
   connect(smoothingType_,     SIGNAL(currentIndexChanged(int)), this, SLOT(slotSmoothingTypeChange(int)));
+}
+
+QPushButton* MapsTab::buttonExportOptimized() const
+{
+  return buttonExportOptimized_;
+}
+
+QPushButton* MapsTab::buttonRunOptimized() const
+{
+  return buttonRunOptimized_;
+}
+
+QPushButton* MapsTab::buttonRunOriginal() const
+{
+  return buttonRunOriginal_;
 }
 
 ActiveWellsTable* MapsTab::activeWellsTable() const

@@ -5,8 +5,6 @@
 #include "model/sacScenario.h"
 #include "view/window.h"
 
-
-
 namespace casaWizard
 {
 
@@ -31,7 +29,7 @@ private:
   Window ui_;
   SACScenario scenario_;
 
-  SACcontroller* sacController_;
+  SACcontroller* sacController_;  
   MapsController* mapsController_;
   //T2Zcontroller* t2zController_;
   ResultsController* resultsController_;

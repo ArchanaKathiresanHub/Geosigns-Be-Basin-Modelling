@@ -65,7 +65,7 @@ namespace casa
       PrmLithoFraction( mbapi::Model              & mdl                 ///< Cauldron model interface object to get the percentages of each lithology
                       , const std::string         & layerName           ///< the layer name
                       , const std::vector<int>    & lithoFractionsInds  ///< the lithofractions indexes to calculate
-                      , const std::vector<size_t> & coordinates         ///< the i, j positions in the model grid
+                      , const std::vector<unsigned int> & coordinates         ///< the i, j positions in the model grid
                       );
 
       /// @brief Constructor. Create parameter object from the given parameter value

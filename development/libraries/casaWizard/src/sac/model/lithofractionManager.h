@@ -33,7 +33,6 @@ public:
   void addLithofraction(const QString& name);
   void removeLithofraction(int index);
 
-  void setLithofractionLayerName(int index, const QString& name);
   void setLithofractionFirstComponent(int index, int percent);
   void setLithofractionFirstMinPercentage(int index, double value);
   void setLithofractionFirstMaxPercentage(int index, double value);

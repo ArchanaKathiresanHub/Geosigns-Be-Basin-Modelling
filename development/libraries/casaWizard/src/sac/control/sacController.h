@@ -52,7 +52,6 @@ private slots:
   void slotComboBoxClusterCurrentTextChanged(QString clusterName);
   void slotComboBoxApplicationChanged(QString application);
 
-  void slotExtractAfterOpen();
   void slotUpdateTabGUI(int tabID);
 
 signals:

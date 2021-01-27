@@ -39,6 +39,9 @@ public:
   explicit MapsTab(QWidget* parent = nullptr);
 
   QPushButton* createGridsButton() const;
+  QPushButton* buttonExportOptimized() const;
+  QPushButton* buttonRunOptimized() const;
+  QPushButton* buttonRunOriginal() const;
   QComboBox* interpolationType() const;
   LithofractionVisualisation* lithofractionVisualisation() const;
   QSpinBox* pValue() const;
@@ -58,20 +61,23 @@ private:
   void setGridGenerationOptionsLayout();
   void setIdwOptionsLayout();
   void setSmoothingOptionsLayout();
-  void setTotalLayout(QVBoxLayout* wellsAndOptions);
+  void setTotalLayout();
   QVBoxLayout* setWellsAndOptionsLayout();
 
+  ActiveWellsTable* activeWellsTable_;
+  LithofractionVisualisation* lithofractionVisualisation_;
   EmphasisButton* createGridsButton_;
+  EmphasisButton* buttonExportOptimized_;
+  EmphasisButton* buttonRunOptimized_;
+  EmphasisButton* buttonRunOriginal_;
   QComboBox* interpolationType_;
   QWidget* iwdOptions_;
   QWidget* gridGenerationOptions_;
-  LithofractionVisualisation* lithofractionVisualisation_;
   QSpinBox* pValue_;
   QWidget* smoothingOptions_;
   QSpinBox* smoothingRadius_;
   QComboBox* smoothingType_;
   QSpinBox* threads_;
-  ActiveWellsTable* activeWellsTable_;
 };
 
 } // namespace sac

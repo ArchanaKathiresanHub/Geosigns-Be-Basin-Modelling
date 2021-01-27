@@ -187,7 +187,7 @@ namespace casa
    PrmLithoFraction::PrmLithoFraction( mbapi::Model              & mdl
                                      , const std::string         & layerName
                                      , const std::vector<int>    & lithoFractionsInds
-                                     , const std::vector<size_t> & coordinates
+                                     , const std::vector<unsigned int> & coordinates
                                      )
                                      : Parameter()
                                      , m_layerName( layerName )

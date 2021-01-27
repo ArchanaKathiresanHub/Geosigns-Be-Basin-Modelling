@@ -40,7 +40,7 @@ WellPlot::WellPlot(QWidget* parent) :
   setLegend(completeLegend_);
   setYLabel("Depth [m]");
 
-  setFixedWidth(300);
+  setMinimumWidth(300);
 }
 
 void WellPlot::setData(const QVector<CalibrationTarget>& targets,

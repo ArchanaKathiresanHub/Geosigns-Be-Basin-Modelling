@@ -39,6 +39,11 @@ public:
     return QStringList();
   }
 
+  QVector<double> lithologyValuesForLayerAtLocation(const int layerIndex, const double xLoc, const double yLoc) const override
+  {
+    return {};
+  }
+
   size_t getLayerID(const std::string& /*layerName*/) const override
   {
     return 0;

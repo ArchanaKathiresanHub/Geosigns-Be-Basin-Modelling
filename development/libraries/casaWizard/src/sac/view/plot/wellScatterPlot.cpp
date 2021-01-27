@@ -18,7 +18,9 @@ namespace sac
 WellScatterPlot::WellScatterPlot(QWidget* parent) :
   Plot(parent),
   completeLegend_{},
-  wellIndices_{}
+  wellIndices_{},
+  minValue_{0.0},
+  maxValue_{1.0}
 {
   QVector<QString> legend(4, "");
   legend[TrajectoryType::Base3D] = "Base 3d case";
@@ -43,6 +45,10 @@ void WellScatterPlot::setData(const QVector<QVector<CalibrationTarget>>& targets
   clearData();
   QStringList activeLegend;
   const int nTrajectories = targets.size();
+
+  minValue_ = 0.0;
+  maxValue_ = 1.0;
+  bool first = true;
 
   for (int j = 0; j < allTrajectories.size(); ++j)
   {
@@ -82,6 +88,18 @@ void WellScatterPlot::setData(const QVector<QVector<CalibrationTarget>>& targets
         {
           wellIndices_.append(allTrajectories[j][i].wellIndex());
         }
+
+        if (first)
+        {
+            minValue_ = valueMeasured[k];
+            maxValue_ = valueMeasured[k];
+            first = false;
+        }
+
+        if (minValue_ > valueMeasured[k])  minValue_ = valueMeasured[k];
+        if (minValue_ > valueSimulated[k]) minValue_ = valueSimulated[k];
+        if (maxValue_ < valueMeasured[k])  maxValue_ = valueMeasured[k];
+        if (maxValue_ < valueSimulated[k]) maxValue_ = valueSimulated[k];
       }
     }
     addXYscatter(allValuesMeasured, allValuesSimulated, j);
@@ -97,6 +115,11 @@ void WellScatterPlot::clear()
 {
   clearData();
   update();
+}
+
+void WellScatterPlot::updateMinMaxData()
+{
+  setMinMaxValues(minValue_, maxValue_, minValue_, maxValue_);
 }
 
 void WellScatterPlot::resizeEvent(QResizeEvent* event)

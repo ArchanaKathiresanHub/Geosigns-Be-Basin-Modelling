@@ -48,21 +48,25 @@ int Lithofraction::version() const
 
 Lithofraction Lithofraction::read(const int version, const QStringList& p)
 {
-  if (version == 0)
-  {
-    if (p.size() == 7)
+  if (version == 0 &&
+      p.size() == 7)
+  {       
+    Lithofraction lithofraction
     {
-      return Lithofraction
-      {
-        p[0],
-        p[1].toInt(),
-        p[3].toDouble(),
-        p[4].toDouble(),
-        p[2].toInt(),
-        p[5].toDouble(),
-        p[6].toDouble(),
-      };
+      p[0],
+      p[1].toInt(),
+      p[3].toDouble(),
+      p[4].toDouble(),
+      p[2].toInt(),
+      p[5].toDouble(),
+      p[6].toDouble(),
+    };
+    if (lithofraction.secondComponent() == 3)
+    {
+      lithofraction.setDoSecondOptimization(false);
+      lithofraction.setSecondComponent(3 - lithofraction.firstComponent());
     }
+    return lithofraction;
   }
 
   if (p.size() == 9)

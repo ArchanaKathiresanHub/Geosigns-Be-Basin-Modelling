@@ -113,7 +113,14 @@ namespace mbapi
       /// @param[in] i position
       /// @param[in] j position
       /// @return the parameter value
-      virtual double mapGetValue( MapID id, size_t i, size_t j ) = 0;
+      virtual double mapGetValue( MapID id, unsigned int i, unsigned int j ) = 0;
+
+       /// @brief Get a value contained in the map
+       /// @param[in] id map ID
+       /// @param[in] x position [m]
+       /// @param[in] y position [m]
+       /// @return the parameter value
+       virtual double mapGetValue( MapID id, double x, double y ) = 0;
 
       /// @brief Get the values contained in vin in the map
       /// @param[in] id map ID
@@ -215,10 +222,10 @@ namespace mbapi
       /// @{
 
       /// @brief Constructor which creates an empty model
-      MapsManager() {;}
+      MapsManager() {}
 
       /// @brief Destructor, no any actual work is needed here, all is done in the implementation part
-      virtual ~MapsManager() {;}
+      virtual ~MapsManager() {}
 
       /// @}
 

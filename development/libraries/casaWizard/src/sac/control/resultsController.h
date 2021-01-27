@@ -37,9 +37,6 @@ public:
 private slots:
   void updateWell(const QString& name);
   void refreshPlot();
-  void exportOptimized();
-  void runOptimized();
-  void runBaseCase();
   void togglePlotType(const int currentIndex);
   void updateProperty(const QString property);
   void updateWellFromBirdView(const int lineIndex, const int pointIndex);
@@ -52,8 +49,6 @@ private:
   void updateWellPlot();
   void updateScatterPlot();
   void updateBirdView();
-  bool run3dCase(const QString directory);
-  void import3dWellData(const QString baseDirectory, const bool isOptimized);
   QVector<int> selectedWells();
 
   ResultsTab* resultsTab_;

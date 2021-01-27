@@ -35,6 +35,7 @@ public:
   QStringList lithologyNames() const override;
   QStringList mapNames() const override;
   QStringList lithologyTypesForLayer(const int layerIndex) const override;
+  QVector<double> lithologyValuesForLayerAtLocation(const int layerIndex, const double xLoc, const double yLoc) const override;
   size_t getLayerID(const std::string& layerName) const override;
   void domainRange(double& xMin, double& xMax, double& yMin, double& yMax) const override;
   QVector<double> agesFromMajorSnapshots() const override;

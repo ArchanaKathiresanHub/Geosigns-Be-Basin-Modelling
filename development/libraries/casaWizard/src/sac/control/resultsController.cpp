@@ -9,7 +9,6 @@
 #include "resultsController.h"
 
 #include "control/casaScriptWriter.h"
-#include "control/functions/copyCaseFolder.h"
 #include "control/scriptRunController.h"
 #include "model/case3DTrajectoryConvertor.h"
 #include "model/input/case3DTrajectoryReader.h"
@@ -51,10 +50,6 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
 {
   connect(resultsTab_->wellsList(), SIGNAL(currentTextChanged(const QString&)), this, SLOT(updateWell(const QString&)));
   connect(resultsTab_->wellsList(), SIGNAL(itemSelectionChanged()), this, SLOT(refreshPlot()));
-
-  connect(resultsTab_->buttonExportOptimized(), SIGNAL(clicked()), this, SLOT(exportOptimized()));
-  connect(resultsTab_->buttonRunOptimized(),  SIGNAL(clicked()), this, SLOT(runOptimized()));
-  connect(resultsTab_->buttonBaseCase(),      SIGNAL(clicked()), this, SLOT(runBaseCase()));
 
   connect(resultsTab_->plotOptions(), SIGNAL(activeChanged()), this, SLOT(refreshPlot()));
   connect(resultsTab_->plotOptions(), SIGNAL(plotTypeChange(int)), this, SLOT(togglePlotType(int)));
@@ -132,92 +127,72 @@ void ResultsController::updateWell(const QString& name)
       break;
     }
   }
-
-  Logger::log() << "Selected well " << activeWell_ << Logger::endl();
-  updateOptimizedTable();
   refreshPlot();
+  Logger::log() << "Selected well " << activeWell_ << Logger::endl();
 }
 
 void ResultsController::refreshPlot()
 {
   QVector<bool> activePlots = resultsTab_->plotOptions()->activePlots();
   scenario_.setActivePlots(activePlots);
+  updateOptimizedTable();
   updateWellPlot();
   updateScatterPlot();
   updateBirdView();
-}
-
-void ResultsController::exportOptimized()
-{
-  QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
-  if (!sourceDir.exists())
-  {
-    Logger::log() << "Optimized case is not available" << Logger::endl();
-    return;
-  }
-  QDir targetDir(QFileDialog::getExistingDirectory(nullptr, "Save optimized case to directory", scenario_.workingDirectory(),
-                                                   QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
-  if (!targetDir.exists())
-  {
-    Logger::log() << "Target directory is not set" << Logger::endl();
-    return;
-  }
-
-  const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
-  QString projectTextFile("/" + scenario_.project3dFilename().replace(QString("project3d"), QString("txt")));
-  QFile::copy(scenario_.workingDirectory() + projectTextFile, targetDir.absolutePath() + projectTextFile);
-
-  scenarioBackup::backup(scenario_);
-
-  Logger::log() << (filesCopied ? "Finished saving optimized case" :
-                                  "Failed saving optimized case, no files were copied") << Logger::endl();
-}
-
-void ResultsController::runOptimized()
-{
-  scenarioBackup::backup(scenario_);
-
-  const QString baseDirectory{scenario_.calibrationDirectory() + "/ThreeDFromOneD"};
-
-  if (run3dCase(baseDirectory))
-  {
-    const bool isOptimized{true};
-    import3dWellData(baseDirectory, isOptimized);
-    scenarioBackup::backup(scenario_);
-  }
-}
-
-void ResultsController::runBaseCase()
-{
-  const QString runDirectory{scenario_.calibrationDirectory() + "/ThreeDBase"};
-
-  const QDir sourceDir(scenario_.workingDirectory());
-  const QDir targetDir(runDirectory);
-  if (!sourceDir.exists())
-  {
-    Logger::log() << "Source directory " + sourceDir.absolutePath() + " not found" << Logger::endl();
-    return;
-  }
-
-  const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
-  if (!filesCopied)
-  {
-    Logger::log() << "Failed to create the 3D base case"
-                  << "\nThe base case is not run" << Logger::endl();
-    return;
-  }
-
-  if (run3dCase(runDirectory))
-  {
-    const bool isOptimized{false};
-    import3dWellData(runDirectory, isOptimized);
-  }
 }
 
 void ResultsController::togglePlotType(const int currentIndex)
 {
   resultsTab_->setPlotType(currentIndex);
   refreshPlot();
+}
+
+void ResultsController::updateOptimizedTable()
+{
+  const LithofractionManager& manager{scenario_.lithofractionManager()};
+  double xLoc = 0.0;
+  double yLoc = 0.0;
+  if (activeWell_>-1)
+  {
+    const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
+    const Well& well = ctManager.well(activeWell_);
+    xLoc = well.x();
+    yLoc = well.y();
+  }
+
+  QVector<OptimizedLithofraction> optimizedLithofractions = manager.optimizedInWell(activeWell_);
+  const QVector<Lithofraction>& lithofractions = manager.lithofractions();
+  const QStringList layerNames = scenario_.projectReader().layerNames();
+
+  QStringList layerNameList;
+  QVector<QStringList> lithoNamesVector;
+  QVector<QVector<double>> originalValuesVector;
+  QVector<QVector<double>> optimizedValuesVector;
+  for (const OptimizedLithofraction& optimizedLithofraction : optimizedLithofractions)
+  {
+    const Lithofraction& litho = lithofractions[optimizedLithofraction.lithofractionId()];
+    layerNameList.push_back(litho.layerName());
+
+    const int layerIndex = layerNames.indexOf(litho.layerName());
+    const QStringList lithoNames = scenario_.projectReader().lithologyTypesForLayer(layerIndex);
+    QVector<double> originalValues = scenario_.projectReader().lithologyValuesForLayerAtLocation(layerIndex, xLoc, yLoc);
+
+    QStringList names = {lithoNames[litho.firstComponent()], lithoNames[litho.secondComponent()]};
+    QVector<double> original = {originalValues[litho.firstComponent()], originalValues[litho.secondComponent()]};
+    QVector<double> optimized = {optimizedLithofraction.optimizedPercentageFirstComponent(), optimizedLithofraction.optimizedPercentageSecondComponent()};
+    if (!lithoNames[litho.thirdComponent()].isEmpty())
+    {
+      names.push_back(lithoNames[litho.thirdComponent()]);
+      original.push_back(originalValues[litho.thirdComponent()]);
+      optimized.push_back(optimizedLithofraction.optimizedPercentageThirdComponent());
+    }
+
+    lithoNamesVector.push_back(names);
+    originalValuesVector.push_back(original);
+    optimizedValuesVector.push_back(optimized);
+  }
+
+  resultsTab_->updateOptimizedLithoTable(layerNameList, lithoNamesVector, originalValuesVector, optimizedValuesVector);
 }
 
 void ResultsController::updateProperty(const QString property)
@@ -264,12 +239,6 @@ void ResultsController::selectedWellFromScatter(const int wellIndex)
 
 }
 
-void ResultsController::updateOptimizedTable()
-{
-  const LithofractionManager& manager{scenario_.lithofractionManager()};
-  resultsTab_->updateOptimizedLithoTable(manager.optimizedInWell(activeWell_), manager.lithofractions(), scenario_.projectReader());
-}
-
 void ResultsController::updateWellPlot()
 {
   QStringList properties;
@@ -310,71 +279,6 @@ void ResultsController::updateScatterPlot()
 void ResultsController::updateBirdView()
 {
   resultsTab_->updateActiveWells(selectedWells());
-}
-
-bool ResultsController::run3dCase(const QString directory)
-{
-  bool ok = true;
-  const int cores = QInputDialog::getInt(0, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 48, 1, &ok);
-  if (!ok)
-  {
-    return false;
-  }
-
-  scenario_.setNumberCPUs(cores);
-  scenarioBackup::backup(scenario_);
-  CauldronScript cauldron{scenario_, directory};
-  if (!casaScriptWriter::writeCasaScript(cauldron) ||
-      !scriptRunController_.runScript(cauldron))
-  {
-    return false;
-  }
-
-  scenarioBackup::backup(scenario_);
-  return true;
-}
-
-void ResultsController::import3dWellData(const QString baseDirectory, const bool isOptimized)
-{
-  Logger::log() << "Extracting data from the 3D case using track1d" << Logger::endl();
-
-  QVector<double> xCoordinates;
-  QVector<double> yCoordinates;
-  const CalibrationTargetManager& calibrationTargetManager = scenario_.calibrationTargetManager();
-  const QVector<const Well*> wells = calibrationTargetManager.activeWells();
-
-  for (const Well* well : wells)
-  {
-    xCoordinates.push_back(well->x());
-    yCoordinates.push_back(well->y());
-  }
-  QStringList properties = scenario_.calibrationTargetManager().activeProperties();
-
-  Track1DAllWellScript import{baseDirectory,
-                              xCoordinates,
-                              yCoordinates,
-                              properties,
-                              scenario_.project3dFilename()};
-  if (!scriptRunController_.runScript(import))
-  {
-    Logger::log() << "Failed to run well import" << Logger::endl();
-    return;
-  }
-
-  Case3DTrajectoryReader reader{baseDirectory + "/welldata.csv"};
-  try
-  {
-    reader.read();
-  }
-  catch(const std::exception& e)
-  {
-    Logger::log() << "Failed to read file" << e.what() << Logger::endl();
-    return;
-  }
-
-  case3DTrajectoryConvertor::convertToScenario(reader, scenario_, isOptimized);
-
-  Logger::log() << "Finished extracting data from the 3D case" << Logger::endl();
 }
 
 QVector<int> ResultsController::selectedWells()

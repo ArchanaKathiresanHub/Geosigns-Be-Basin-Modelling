@@ -19,19 +19,19 @@ class Window : public MainWindow
   Q_OBJECT
 
 public:
-  Window(QWidget* parent = 0);
+  Window(QWidget* parent = nullptr);
 
   SACtab* sacTab() const;
   //T2Ztab* t2zTab() const;
-  MapsTab* mapsTab() const;
   ResultsTab* resultsTab() const;
+  MapsTab* mapsTab() const;
   MenuBar* menu() const override;
 
 private:
   SACtab* sacTab_;
   //T2Ztab* t2zTab_;
-  MapsTab* mapsTab_;
   ResultsTab* resultsTab_;
+  MapsTab* mapsTab_;
   MenuBar* menuBarSAC_;
 };
 

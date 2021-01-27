@@ -95,11 +95,6 @@ void SACcontroller::slotUpdateTabGUI(int tabID)
   refreshGUI();
 }
 
-void SACcontroller::slotExtractAfterOpen()
-{
-  dataExtractionController_->readResults();
-}
-
 void SACcontroller::slotPushButtonSACrunCasaClicked()
 {
   wellTrajectoryWriter::writeTrajectories(casaScenario_);

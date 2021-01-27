@@ -26,7 +26,7 @@ public:
                const QString property,
                const QVector<bool> activePlots);
   void clear();
-
+  void updateMinMaxData() override;
 signals:
   void selectedWell(int wellIndex);
 
@@ -40,6 +40,8 @@ private slots:
 private:
   QStringList completeLegend_;
   QVector<int> wellIndices_;
+  double minValue_;
+  double maxValue_;
 };
 
 }  // namespace sac

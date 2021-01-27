@@ -391,14 +391,39 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapGetValues( MapID id, std::vector<do
    return NoError;
 }
 
-double MapsManagerImpl::mapGetValue( MapID id, size_t i, size_t j )
+double MapsManagerImpl::mapGetValue( MapID id, unsigned int i, unsigned int j )
 {
    if ( errorCode() != NoError ) resetError();
 
-   loadGridMap( id ); // check if map is loaded and load it if not loaded before
-   m_mapObj[id]->retrieveData();
-   const double value = m_mapObj[id]->getValue( static_cast<unsigned int>( i ), static_cast<unsigned int>( j ) );
-   m_mapObj[id]->restoreData();
+   double value = 0.0;
+   try
+   {
+     loadGridMap( id ); // check if map is loaded and load it if not loaded before
+     m_mapObj[id]->retrieveData();
+     value = m_mapObj[id]->getValue( static_cast<unsigned int>( i ), static_cast<unsigned int>( j ) );
+     m_mapObj[id]->restoreData();
+   }
+   catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
+
+   return value;
+}
+
+double MapsManagerImpl::mapGetValue( MapID id, double x, double y )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   double value = 0.0;
+   try
+   {
+     loadGridMap( id ); // check if map is loaded and load it if not loaded before
+     const GridMap* map = m_mapObj[id];
+     map->retrieveData();
+     const double i = (x - map->minI()) / map->deltaI();
+     const double j = (y - map->minJ()) / map->deltaJ();
+     value = map->getValue(  i, j );
+     map->restoreData();
+   }
+   catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
 
    return value;
 }

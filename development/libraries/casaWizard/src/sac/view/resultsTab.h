@@ -7,9 +7,9 @@ class CustomTitle;
 
 class QLabel;
 class QListWidget;
-class QPushButton;
 class QStackedLayout;
 class QTableWidget;
+class QTableWidgetItem;
 
 namespace casaWizard
 {
@@ -37,10 +37,7 @@ class ResultsTab : public QWidget
 public:
   explicit ResultsTab(QWidget* parent = 0);
 
-  QListWidget* wellsList() const;
-  QPushButton* buttonExportOptimized() const;
-  QPushButton* buttonRunOptimized() const;
-  QPushButton* buttonBaseCase() const;
+  QListWidget* wellsList() const;  
   PlotOptions* plotOptions() const;
   WellBirdsView* wellBirdsView() const;
   WellScatterPlot* wellScatterPlot() const;
@@ -55,9 +52,10 @@ public:
                          const QVector<QVector<WellTrajectory>> allTrajectories,
                          const QVector<bool> activePlots,
                          const QString activeProperty);
-  void updateOptimizedLithoTable(const QVector<OptimizedLithofraction>& optimizedLithofractions,
-                                 const QVector<Lithofraction>& lithofractions,
-                                 const ProjectReader& projectReader);
+  void updateOptimizedLithoTable(const QStringList& layerNameList,
+                                 const QVector<QStringList>& lithoNamesVector,
+                                 const QVector<QVector<double> >& originalValuesVector,
+                                 const QVector<QVector<double> >& optimizedValuesVector);
   void updateBirdsView(const QVector<const Well*> wells);
   void updateActiveWells(const QVector<int> activeWells);
 
@@ -65,15 +63,14 @@ public:
 
   void setRangeBirdsView(const double xMin, const double xMax, const double yMin, const double yMax);
 private:
+  void addLithofractionRow(int &row, QVector<QTableWidgetItem*> items, const double diff);
   void setVisibleLithofractionColumn(const bool visible);
+  QTableWidgetItem* createHeaderItem(const QString& name, int align);
 
   QListWidget* wellsList_;
   QTableWidget* optimizedLithoTable_;
   MultiWellPlot* multiWellPlot_;
   WellScatterPlot* wellScatterPlot_;
-  QPushButton* buttonExportOptimized_;
-  QPushButton* buttonRunOptimized_;
-  QPushButton* buttonBaseCase_;
   PlotOptions* plotOptions_;
   QStackedLayout* layoutStackedPlots_;
   CustomTitle* tableLable_;

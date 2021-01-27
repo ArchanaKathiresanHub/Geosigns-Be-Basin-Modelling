@@ -55,6 +55,12 @@ int OptimizedLithofraction::wellId() const
 {
  return wellId_;
 }
+
+void OptimizedLithofraction::setLithofractionId( int lithofractionId)
+{
+  lithofractionId_ = lithofractionId;
+}
+
 int OptimizedLithofraction::lithofractionId() const
 {
   return lithofractionId_;

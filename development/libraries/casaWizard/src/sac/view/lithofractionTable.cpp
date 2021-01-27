@@ -134,10 +134,7 @@ QStringList LithofractionTable::obtainLithoTypes(const ProjectReader& projectRea
                                                  const QStringList& layerNames)
 {
   const int layerIndex = layerNames.indexOf(lithofraction.layerName());
-  QStringList lithoTypes = projectReader.lithologyTypesForLayer(layerIndex);
-  lithoTypes.removeAll("");
-
-  return lithoTypes;
+  return projectReader.lithologyTypesForLayer(layerIndex);
 }
 
 void LithofractionTable::addItemsToTable(const int row, const LithofractionTableRow& tableRow)

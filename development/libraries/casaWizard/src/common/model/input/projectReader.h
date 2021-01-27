@@ -18,6 +18,7 @@ public:
   virtual QStringList lithologyNames() const = 0;
   virtual QStringList mapNames() const = 0;
   virtual QStringList lithologyTypesForLayer(const int layerIndex) const = 0;
+  virtual QVector<double> lithologyValuesForLayerAtLocation(const int layerIndex, const double xLoc, const double yLoc) const = 0;
   virtual size_t getLayerID(const std::string& layerName) const = 0;
   virtual void domainRange(double& xMin, double& xMax, double& yMin, double& yMax) const = 0;
 
