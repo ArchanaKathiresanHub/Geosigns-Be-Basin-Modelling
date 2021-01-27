@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-01-27  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: output table update.
+	* Improved output table
+
+	* Related work items: #411436
+	================== COMMIT-END ========================
+	Commit-ID:<92b83004f78cba0e8406de875684d77d73e787f1>	  (refs/heads/master)
+
+++
 2021-01-26  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Improved visualisation of LithoMaps in the SAC-wizard.
