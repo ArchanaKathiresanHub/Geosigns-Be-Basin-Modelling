@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-01-27  arijit.khan Khan  <arijit.khan@shell.com>
+
+	dev: new: CTC wizard !wip.
+	* the ctc light deployment UI called ctcwizard is now version controlled.
+
+	Related work items: #377118, #383982, #411274, #413329
+	================== COMMIT-END ========================
+	Commit-ID:<ae8aa22e1da757f5202241be2aa6afa857a81e5f>	  (refs/heads/master)
+
+++
 2021-01-27  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Fix install script, do not update with every RHEL update.
@@ -72,7 +82,7 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 2021-01-20  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Improvements for the lithofraction input table in the SAC wizard.
-        ================== COMMIT-END ========================
+    ================== COMMIT-END ========================
 	Commit-ID:<e35a18629d9731bc67a0df701055e9d10ae43056>	  (refs/heads/master)
 
 ++
