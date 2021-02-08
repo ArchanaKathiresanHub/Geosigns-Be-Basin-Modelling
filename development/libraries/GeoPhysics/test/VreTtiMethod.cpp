@@ -134,9 +134,9 @@ ParameterSet oneTimeStepTestCases[] =
    { 100.0, 1.0, 1.0e-13, 0.0  }
 };
 
-INSTANTIATE_TEST_CASE_P( SingleTimestep,
-                        VreTtiMethodTest,
-                        ::testing::ValuesIn(oneTimeStepTestCases));
+INSTANTIATE_TEST_SUITE_P( SingleTimestep,
+                          VreTtiMethodTest,
+                          ::testing::ValuesIn(oneTimeStepTestCases));
 
 /** Following tests checks continuity of VR values across temperature
 differences that the TTI algorithm uses to decide how the calculation

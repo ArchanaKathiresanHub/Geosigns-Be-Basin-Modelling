@@ -12,7 +12,7 @@
 option(BM_CSHARP_API "Build the C sharp interface" ON)
 
 # Version of .NET for C# projects
-set(DONET_TARGET_VERSION "4.5.2") 
+set(DONET_TARGET_VERSION "4.8.0") 
 
 STRING(REPLACE "." "" DONET_TARGET_VERSION_SHORT ${DONET_TARGET_VERSION})
 
@@ -33,7 +33,8 @@ endif()
 set(BM_EXTERNAL_COMPONENTS_DIR "${CBM_HOME}/3rdparty" CACHE PATH "The path to the directory of prebuilt libraries")
 
 find_program( MSTEST "mstest.exe"
-       PATHS "C:/Program Files (x86)/Microsoft Visual Studio 14.0/Common7/IDE"
+       PATHS "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/IDE"
+             "C:/Program Files (x86)/Microsoft Visual Studio 14.0/Common7/IDE"
              "C:/Program Files (x86)/Microsoft Visual Studio 12.0/Common7/IDE"
              "C:/Program Files (x86)/Microsoft Visual Studio 11.0/Common7/IDE" 
              "C:/Program Files (x86)/Microsoft Visual Studio 10.0/Common7/IDE" 
@@ -122,6 +123,3 @@ if (IS_DIRECTORY "${BM_EXTERNAL_COMPONENTS_DIR}/HYPRE/lib" )
 	set(HYPRE_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/HYPRE" CACHE PATH "Installation directory of HYPRE")
 	mark_as_advanced(HYPRE_LIBRARIES)
 endif()
-# Matlab MCR (needed by TSLib Geocosm library)
-set( MCR_ROOT "${TSLIB_ROOT}/3rdparty/matlabmcr/matlab/v80" CACHE PATH "Location of Matlab Compiler Runtime" )
-set( MCR_VERSION "80" CACHE STRING "Versio number of Matlab Compiler Runtime")

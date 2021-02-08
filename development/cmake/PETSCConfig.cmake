@@ -43,7 +43,7 @@ add_external_project_to_repository(
             "--with-hypre-dir=${HYPRE_ROOT}"
 
       BUILD_COMMAND   "make"
-      TEST_COMMAND    "make" "test"
+      TEST_COMMAND    "make" "check"
       INSTALL_COMMAND "make" "install"
       CONFIGURE_OPTIONS
         #COMPILER "{CurrentCompiler}"  "--with-cc=${INTEL_MPI_ROOT}/bin64/mpigcc" "--with-cxx=${INTEL_MPI_ROOT}/bin64/mpigxx"
@@ -91,7 +91,7 @@ add_external_project_to_repository(
             "--with-mkl_pardiso-dir=${INTEL_MKL_ROOT}"
 
       BUILD_COMMAND   "make"
-      TEST_COMMAND    "make" "test"
+      TEST_COMMAND    "make" "check"
       INSTALL_COMMAND "make" "install"
       CONFIGURE_OPTIONS
         #COMPILER "{CurrentCompiler}"  "--with-cc=${INTEL_MPI_ROOT}/bin64/mpigcc" "--with-cxx=${INTEL_MPI_ROOT}/bin64/mpigxx"
