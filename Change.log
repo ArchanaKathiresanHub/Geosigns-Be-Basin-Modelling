@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-02-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Switch off unit tests for Petsc and update gtest framework to 1.10.
+	* Switch off unit tests for PetSC and update gtest framework to 1.10
+
+	================== COMMIT-END ========================
+	Commit-ID:<e8dfaf8656b2df075110ebb27744291a9bcb01dc>	  (refs/heads/master)
+
+++
 2021-01-27  arijit.khan Khan  <arijit.khan@shell.com>
 
 	dev: new: CTC wizard !wip.
