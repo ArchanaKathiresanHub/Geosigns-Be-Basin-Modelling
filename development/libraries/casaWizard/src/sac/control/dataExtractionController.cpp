@@ -31,7 +31,7 @@ void DataExtractionController::readResults()
 
   if (lithoExtractor.iterationPath().isEmpty())
   {
-    Logger::log() << "There are no run cases available! Please run CASA in SAC tab first." << Logger::endl();
+    Logger::log() << "There are no run cases available! Please run 1D optimization in 'Input' tab first." << Logger::endl();
     return;
   }
 

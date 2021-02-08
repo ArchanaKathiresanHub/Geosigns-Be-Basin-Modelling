@@ -10,7 +10,8 @@ MenuBar::MenuBar(QWidget* parent) :
   actionOpen_{new QAction("Open", this)},
   actionSave_{new QAction("Save", this)},
   actionExit_{new QAction("Exit", this)},
-  actionExpertUser_{new QAction("Expert CASA user", this)}
+  actionExpertUser_{new QAction("Expert CASA user", this)},
+  actionReload1Dresults_{new QAction("Reload 1D results", this)}
 {
   QMenu* menuFile = addMenu("File");
   menuFile->addAction(actionNew_);
@@ -22,6 +23,7 @@ MenuBar::MenuBar(QWidget* parent) :
 
   menuOptions_ = addMenu("Options");
   menuOptions_->addAction(actionExpertUser_);
+  menuOptions_->addAction(actionReload1Dresults_);
 }
 
 QAction* MenuBar::actionNew()
@@ -46,7 +48,12 @@ QAction* MenuBar::actionExit()
 
 QAction* MenuBar::actionExpertUser()
 {
-   return actionExpertUser_;
+  return actionExpertUser_;
+}
+
+QAction* MenuBar::actionReload1Dresults()
+{
+  return actionReload1Dresults_;
 }
 
 void MenuBar::setActionExpertUser(bool expertUser)

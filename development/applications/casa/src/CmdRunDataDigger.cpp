@@ -55,9 +55,10 @@ void CmdRunDataDigger::execute( std::unique_ptr<casa::ScenarioAnalysis> & scenar
 {
    LogHandler( LogHandler::INFO_SEVERITY ) << "Adding jobs to the queue and generating scripts...";
 
+   scenarioAnalysis->runManager().setClusterName("LOCAL");
    scenarioAnalysis->resetRunManager();
    casa::RunManager& runManager = scenarioAnalysis->runManager();
-   casa::RunCaseSet& runCaseSet = scenarioAnalysis->doeCaseSet();
+   casa::RunCaseSet& runCaseSet = scenarioAnalysis->doeCaseSet();   
 
    for ( size_t i = 0; i < runCaseSet.size(); ++i )
    {

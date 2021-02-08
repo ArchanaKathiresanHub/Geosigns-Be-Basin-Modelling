@@ -63,6 +63,8 @@ SACcontroller::SACcontroller(SACtab* sacTab,
   sacTab_->lineEditProject3D()->setText("");
   sacTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
 
+  connect( parent, SIGNAL(signalReload1Ddata()), this, SLOT(slotExtractData()));
+
   connect(sacTab_->pushButtonSACrunCASA(),  SIGNAL(clicked()),                   this, SLOT(slotPushButtonSACrunCasaClicked()));
   connect(sacTab_->pushSelectProject3D(),   SIGNAL(clicked()),                   this, SLOT(slotPushSelectProject3dClicked()));
   connect(sacTab_->pushSelectCalibration(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectCalibrationClicked()));
@@ -93,6 +95,17 @@ void SACcontroller::slotUpdateTabGUI(int tabID)
   }
 
   refreshGUI();
+}
+
+void SACcontroller::slotExtractData()
+{
+  if (casaScenario_.project3dPath().isEmpty())
+  {
+    return;
+  }
+
+  dataExtractionController_->readResults();
+  scenarioBackup::backup(casaScenario_);
 }
 
 void SACcontroller::slotPushButtonSACrunCasaClicked()

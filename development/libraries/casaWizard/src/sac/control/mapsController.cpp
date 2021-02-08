@@ -218,6 +218,7 @@ void MapsController::runOriginal()
   {
     const bool isOptimized{false};
     import3dWellData(runDirectory, isOptimized);
+    scenarioBackup::backup(scenario_);
   }
 }
 

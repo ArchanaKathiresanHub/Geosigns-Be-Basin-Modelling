@@ -21,6 +21,7 @@ const int defaultNumberCPUs{1};
 
 CasaScenario::CasaScenario(ProjectReader* projectReader) :
   projectReader_(projectReader),
+  workingDirectory_(""),
   clusterName_(defaultClusterName),
   applicationName_(defaultApplication),
   project3dFilename_(""),

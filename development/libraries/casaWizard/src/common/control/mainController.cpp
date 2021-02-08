@@ -37,6 +37,7 @@ void MainController::constructWindow(LogReceiver* logReceiver)
   connect(mainWindow().menu()->actionExit(), SIGNAL(triggered()), this, SLOT(slotExit()));
 
   connect(mainWindow().menu()->actionExpertUser(), SIGNAL(toggled(bool)), this, SLOT(slotExpertUser(bool)));
+  connect(mainWindow().menu()->actionReload1Dresults(), SIGNAL(triggered()), SIGNAL(signalReload1Ddata()));
 
   showFirstTab();
 }
