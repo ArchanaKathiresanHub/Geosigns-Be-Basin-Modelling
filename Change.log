@@ -38,6 +38,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-02-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
+	chg: SAC fixes.
+	* Option to run 1d data reading again
+	* Always use local machine for 1d datadrilling and map generation
+
+	================== COMMIT-END ========================
+	Commit-ID:<002b1713c9a7901815419afbf5f03b5bb7371198>	  (refs/heads/master)
+
+++
+2021-02-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
 	chg: Switch off unit tests for Petsc and update gtest framework to 1.10.
 	* Switch off unit tests for PetSC and update gtest framework to 1.10
 
