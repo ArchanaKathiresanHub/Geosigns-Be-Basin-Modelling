@@ -5190,6 +5190,8 @@ START-property-tables
     Column         : TrapCapacity
     Column         : ActivityMode
     Column         : ActivityStart
+    Column         : Thickness
+    Column         : ThicknessGrid
     Column         : NetToGross
     Column         : NetToGrossGrid
     Column         : BioDegradInd

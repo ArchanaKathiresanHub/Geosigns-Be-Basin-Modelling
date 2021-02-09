@@ -64,8 +64,11 @@ namespace migration
 
       bool createFormationNodes (void);
 
+      /// Compute the offsets of each reservoir from the top and bottom of its formation
+      bool computeDepthOffsets () const;
+
       /// Compute the net/gross fractions
-      bool computeNetToGross (void);
+      bool computeNetToGross (void) const;
 
       bool isHydrostaticCalculation (void) const;
 

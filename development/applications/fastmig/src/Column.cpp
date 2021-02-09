@@ -224,6 +224,8 @@ namespace migration
 
    LocalColumn::LocalColumn (unsigned int i, unsigned int j, MigrationReservoir * reservoir) : Column (i, j, reservoir)
    {
+      m_bottomDepthOffset = 0;
+
       m_composition = 0;
       m_compositionToBeMigrated = 0;
       /// Local column penetration distance is initially zero
@@ -681,6 +683,19 @@ namespace migration
    double LocalColumn::getNetToGross (void) const
    {
       return m_netToGross;
+   }
+
+   void LocalColumn::setBottomDepthOffset (double fraction)
+   {
+      fraction = Max (0., fraction);
+      fraction = Min (1., fraction);
+
+      m_bottomDepthOffset = fraction;
+   }
+
+   double LocalColumn::getBottomDepthOffset (void)
+   {
+      return m_bottomDepthOffset;
    }
 
    void LocalColumn::setOverburden (double overburden)
