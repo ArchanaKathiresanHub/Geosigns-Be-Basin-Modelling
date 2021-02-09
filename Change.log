@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-02-09  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	new: Get Reservoir thickness back from BPA-Cauldron.
+	* Get Reservoir thickness back from BPA-Cauldron
+
+	Link- https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/405952
+
+	================== COMMIT-END ========================
+	Commit-ID:<39e4201b9b274f3559859f5378623d3d732a3ef6>	  (refs/heads/master)
+
+++
 2021-02-09  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Added the BPA2 visualisation for the lithotypes to the maps tab of casa wizard
