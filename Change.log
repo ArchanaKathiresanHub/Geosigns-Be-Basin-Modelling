@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-02-09  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added the BPA2 visualisation for the lithotypes to the maps tab of casa wizard
+	* Related work items: #412595
+
+	================== COMMIT-END ========================
+	Commit-ID:<da31ae5faf0fd9080c017125e94c1cce44155164>	  (refs/heads/master)
+
+++
 2021-02-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: SAC fixes.
