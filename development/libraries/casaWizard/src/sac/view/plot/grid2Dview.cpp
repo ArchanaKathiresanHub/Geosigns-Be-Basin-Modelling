@@ -264,6 +264,11 @@ void Grid2DView::setToolTipVisible(const bool visible)
   lithoMapsToolTip_->setVisible(visible);
 }
 
+void Grid2DView::setToolTipLithotypes(const QStringList& lithotypes)
+{
+  lithoMapsToolTip_->setLithoNames(lithotypes);
+}
+
 void Grid2DView::determineRange()
 {
   if (fixedRange_)

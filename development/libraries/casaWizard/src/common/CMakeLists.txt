@@ -32,7 +32,7 @@ include_directories( SYSTEM
 
 
 create_bm_library( TARGET ${CASAWIZARD_COMMON_LIBNAME}
-                   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets utilities
+                   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Svg utilities
                    ADD_SOURCES ${CASAWIZARD_COMMON_CPP_SOURCES}
                    ADD_HEADERS ${CASAWIZARD_COMMON_H_HEADERS} )
 

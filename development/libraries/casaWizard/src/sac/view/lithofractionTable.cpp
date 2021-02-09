@@ -46,6 +46,7 @@ void LithofractionTable::setTableHeader()
   setHeaderTitles();
   setHelpToolTips();
   setHeaderResizeModes();
+  setHeaderAlignment();
 }
 
 void LithofractionTable::setHeaderTitles()
@@ -89,6 +90,23 @@ void LithofractionTable::stretchColumns()
   for (const int column : stretchColumns)
   {
     table_->horizontalHeader()->setSectionResizeMode(column, QHeaderView::Stretch);
+  }
+}
+
+void LithofractionTable::setHeaderAlignment()
+{
+  table_->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+  const std::vector<int> rightAlignColumns = {3, 4, 7, 8};
+  for (const int column : rightAlignColumns)
+  {
+    table_->horizontalHeaderItem(column)->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+  }
+
+  const std::vector<int> centerAlignColumns = {0, 6};
+  for (const int column : centerAlignColumns)
+  {
+    table_->horizontalHeaderItem(column)->setTextAlignment(Qt::AlignCenter);
   }
 }
 

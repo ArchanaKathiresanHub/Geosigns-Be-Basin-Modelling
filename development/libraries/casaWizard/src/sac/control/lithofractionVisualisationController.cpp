@@ -79,6 +79,8 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
     lithoPlot->updateColorBar();
     lithoPlot->setTitle(lithologyTypes[counter], counter);
     lithoPlot->grid2DView()->setToolTipVisible(false);
+    lithoPlot->grid2DView()->setToolTipLithotypes(lithologyTypes);
+
     counter ++;
   }
 }
@@ -93,6 +95,7 @@ void LithofractionVisualisationController::toolTipCreated(const QPointF& point, 
     lithoFractionPlot->grid2DView()->setToolTipVisible(false);
   }
 
+  lithofractionVisualisation_->lithoFractionPlots()[plotID]->grid2DView()->setToolTipVisible(true);
   lithofractionVisualisation_->lithoFractionPlots()[plotID]->grid2DView()->setToolTipData(lithofractionsAtPoint, plotID);
   lithofractionVisualisation_->lithoFractionPlots()[plotID]->grid2DView()->correctToolTipPositioning();
 }

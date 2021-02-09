@@ -4,6 +4,7 @@
 #include "logDisplay.h"
 #include "menuBar.h"
 #include "view/components/customtab.h"
+#include "view/lithoTypeBackgroundMapping.h"
 
 #include <QStatusBar>
 #include <QVBoxLayout>
@@ -32,6 +33,11 @@ MainWindow::MainWindow(QWidget* parent) :
   QVBoxLayout* layout = new QVBoxLayout(centralWidget);
   layout->addWidget(tabWidget_,3);
   layout->addWidget(logDisplay_,1);
+}
+
+MainWindow::~MainWindow()
+{
+  LithoTypeBackgroundMapping::deleteInstance();
 }
 
 QTabWidget* MainWindow::tabWidget() const

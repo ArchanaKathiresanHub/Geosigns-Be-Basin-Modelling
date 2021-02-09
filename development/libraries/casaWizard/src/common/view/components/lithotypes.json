@@ -1,0 +1,2552 @@
+{
+  "lithotypes": [
+    {
+      "id": 1,
+      "name": "Crust",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Typical continental crust for use  in stratigraphy if needed.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 1,
+        "pattern": "42902.svg",
+        "bgColour": "#f09977"
+      },
+      "density": 2850,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -4
+          },
+          {
+            "x": 60,
+            "y": -4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1,
+      "thermalConductivity": 4.1,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6500,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 2,
+      "name": "Serpentinized Mantle",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Typical serpentinized for use  in stratigraphy if needed.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 2,
+        "pattern": "429022.svg",
+        "bgColour": "#ea504b"
+      },
+      "density": 2550,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -4
+          },
+          {
+            "x": 60,
+            "y": -4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.01,
+      "thermalConductivity": 4,
+      "thermalConductivityAnisotropy": 1.5,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6300,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 3,
+      "name": "Mantle",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Typical mantle peridotite for use  in stratigraphy if needed.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 3,
+        "pattern": "429022.svg",
+        "bgColour": "#e4181f"
+      },
+      "density": 3350,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -4
+          },
+          {
+            "x": 60,
+            "y": -4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.1,
+      "thermalConductivity": 5.5,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 8000,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 4,
+      "name": "Diorite/Granodiorite (SI)",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Igneous (sill) lithology with temperature of 850 degree Celsius at time of emplacement.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 4,
+        "pattern": "428101.svg",
+        "bgColour": "#e83163"
+      },
+      "density": 2800,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -4
+          },
+          {
+            "x": 60,
+            "y": -4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1.4,
+      "thermalConductivity": 2.2,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": 850,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6000,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 5,
+      "name": "Dry Gabbro/Basalt (SI)",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Igneous (sill) lithology with temperature of 1150 degree Celsius at time of emplacement.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 5,
+        "pattern": "428201.svg",
+        "bgColour": "#e83163"
+      },
+      "density": 3000,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -4
+          },
+          {
+            "x": 60,
+            "y": -4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.015,
+      "thermalConductivity": 3.2,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": 1150,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6750,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 6,
+      "name": "Granite/Rhyolite (SI)",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Igneous (sill) lithology with temperature of 700 degree Celsius at time of emplacement.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 6,
+        "pattern": "428101.svg",
+        "bgColour": "#dd3d6b"
+      },
+      "density": 2650,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -4
+          },
+          {
+            "x": 60,
+            "y": -4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 2.25,
+      "thermalConductivity": 3,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": 700,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 5700,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 7,
+      "name": "Wet Gabbro/Basalt (SI)",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Igneous (sill) lithology with temperature of 1000 degree Celsius at time of emplacement.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 7,
+        "pattern": "428201.svg",
+        "bgColour": "#dd3d6b"
+      },
+      "density": 2870,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -4
+          },
+          {
+            "x": 60,
+            "y": -4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.18,
+      "thermalConductivity": 2.4,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": 1000,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6500,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 8,
+      "name": "Basalt, typical",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Typical basalt properties. If permeability required use Basalt, SDR extrusive flows.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 8,
+        "pattern": "46116.svg",
+        "bgColour": "#33754d"
+      },
+      "density": 2860,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -4
+          },
+          {
+            "x": 60,
+            "y": -4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.65,
+      "thermalConductivity": 2.5,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6250,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 9,
+      "name": "Basalt, oceanic crust",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Ocean crust basalt properties (for isostatic calculations). If permeability required use Basalt, SDR extrusive flows.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 9,
+        "pattern": "46116.svg",
+        "bgColour": "#3f9160"
+      },
+      "density": 2750,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -4
+          },
+          {
+            "x": 60,
+            "y": -4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.65,
+      "thermalConductivity": 2.5,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6500,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 10,
+      "name": "Basalt, SDR extrusive flows",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Porous and permeable basalt properties suitable for general use. High density corresponds to typical density in unaltered core of basalt pillows.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 10,
+        "pattern": "46116.svg",
+        "bgColour": "#74abac"
+      },
+      "density": 3000,
+      "surfacePorosity": 25,
+      "minimumPorosity": 3,
+      "compactionCoefficient": 3,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 1.5
+          },
+          {
+            "x": 60,
+            "y": 6.4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.65,
+      "thermalConductivity": 2.25,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 7000,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 11,
+      "name": "Sandstone, quartz arenite",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "High porosity, permeability sandstone suitable for use as reservoir.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 11,
+        "pattern": "46101.svg",
+        "bgColour": "#ffcf01"
+      },
+      "density": 2660,
+      "surfacePorosity": 48,
+      "minimumPorosity": 10,
+      "compactionCoefficient": 3,
+      "walderhaugCementationFactor": 205.2,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 0.4
+          },
+          {
+            "x": 60,
+            "y": 5.1
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.4,
+      "thermalConductivity": 6,
+      "thermalConductivityAnisotropy": 1.1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6000,
+      "seismicVelocityExponent": 0.55
+    },
+    {
+      "id": 12,
+      "name": "Sandstone, typical",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Typical porosity, permeability sandstone suitable for general use.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 12,
+        "pattern": "46103.svg",
+        "bgColour": "#ffee00"
+      },
+      "density": 2660,
+      "surfacePorosity": 45,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 3.25,
+      "walderhaugCementationFactor": 189,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 0.2
+          },
+          {
+            "x": 60,
+            "y": 4.9
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.8,
+      "thermalConductivity": 4.5,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 5700,
+      "seismicVelocityExponent": 0.45
+    },
+    {
+      "id": 13,
+      "name": "Sandstone, arkosic",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Sandstone with properties reflecting high feldspar content.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 13,
+        "pattern": "422210.svg",
+        "bgColour": "#f9f907"
+      },
+      "density": 2660,
+      "surfacePorosity": 42,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 3.5,
+      "walderhaugCementationFactor": 145.71,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 0.1
+          },
+          {
+            "x": 60,
+            "y": 4.8
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1.6,
+      "thermalConductivity": 3.75,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6000,
+      "seismicVelocityExponent": 0.35
+    },
+    {
+      "id": 14,
+      "name": "Sandstone, lithic",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Sandstone with properties reflecting high lithic, labile mineral, or volcanic content.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 14,
+        "pattern": "46101.svg",
+        "bgColour": "#eeee12"
+      },
+      "density": 2700,
+      "surfacePorosity": 39,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 3.75,
+      "walderhaugCementationFactor": 102,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -0.5
+          },
+          {
+            "x": 60,
+            "y": 4.7
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1.2,
+      "thermalConductivity": 3.5,
+      "thermalConductivityAnisotropy": 1.4,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 5500,
+      "seismicVelocityExponent": 0.25
+    },
+    {
+      "id": 15,
+      "name": "Siltstone, clean",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Quartz-dominated siltstone suitable for fine-grained reservoir use.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 15,
+        "pattern": "46102.svg",
+        "bgColour": "#aad5b1"
+      },
+      "density": 2700,
+      "surfacePorosity": 45,
+      "minimumPorosity": 4,
+      "compactionCoefficient": 5,
+      "walderhaugCementationFactor": 405,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -5.34
+          },
+          {
+            "x": 60,
+            "y": 2.27
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1,
+      "thermalConductivity": 3.5,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 5750,
+      "seismicVelocityExponent": 0.1
+    },
+    {
+      "id": 16,
+      "name": "Siltstone, 20% clay",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Quartz siltstone with moderate clay or lithic content suitable for general use.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 16,
+        "pattern": "422205a.svg",
+        "bgColour": "#b1cfb5"
+      },
+      "density": 2710,
+      "surfacePorosity": 35,
+      "minimumPorosity": 2,
+      "compactionCoefficient": 5.5,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -5.55
+          },
+          {
+            "x": 60,
+            "y": 1.37
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1.1,
+      "thermalConductivity": 3,
+      "thermalConductivityAnisotropy": 1.25,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 5250,
+      "seismicVelocityExponent": -0.1
+    },
+    {
+      "id": 17,
+      "name": "Mudstone, 30% clay",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 30% clay content and low to moderate density clay minerals, low carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 17,
+        "pattern": "422205a.svg",
+        "bgColour": "#b4ccb5"
+      },
+      "density": 2690,
+      "surfacePorosity": 37,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 5.4,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -5.77
+          },
+          {
+            "x": 60,
+            "y": -0.49
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1.2,
+      "thermalConductivity": 2.65,
+      "thermalConductivityAnisotropy": 1.5,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 5000,
+      "seismicVelocityExponent": -0.2
+    },
+    {
+      "id": 18,
+      "name": "Mudstone, 40% clay",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 40% clay content and low to moderate density clay minerals, low carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 18,
+        "pattern": "422205a.svg",
+        "bgColour": "#b7c9bc"
+      },
+      "density": 2700,
+      "surfacePorosity": 44,
+      "minimumPorosity": 5.5,
+      "compactionCoefficient": 5.5,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -5.98
+          },
+          {
+            "x": 60,
+            "y": -0.39
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1.5,
+      "thermalConductivity": 2.5,
+      "thermalConductivityAnisotropy": 1.5,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 4750,
+      "seismicVelocityExponent": -0.3
+    },
+    {
+      "id": 19,
+      "name": "Mudstone, 45% clay, high-velocity-density",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 45% clay content and high density clay minerals, opaque minerals or carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 19,
+        "pattern": "422205a.svg",
+        "bgColour": "#bac6c0"
+      },
+      "density": 2720,
+      "surfacePorosity": 47.5,
+      "minimumPorosity": 5.75,
+      "compactionCoefficient": 5.55,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.08
+          },
+          {
+            "x": 60,
+            "y": -0.84
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1.65,
+      "thermalConductivity": 2.85,
+      "thermalConductivityAnisotropy": 1.3,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 5000,
+      "seismicVelocityExponent": -0.1
+    },
+    {
+      "id": 20,
+      "name": "Mudstone, 50% clay",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 50% clay content and low to moderate density clay minerals, low carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 20,
+        "pattern": "46108.svg",
+        "bgColour": "#b9c2bd"
+      },
+      "density": 2710,
+      "surfacePorosity": 51,
+      "minimumPorosity": 6,
+      "compactionCoefficient": 5.6,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.19
+          },
+          {
+            "x": 60,
+            "y": -1.28
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1.8,
+      "thermalConductivity": 2.3,
+      "thermalConductivityAnisotropy": 1.4,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 4500,
+      "seismicVelocityExponent": -0.4
+    },
+    {
+      "id": 21,
+      "name": "Mudstone, 55% clay, high-velocity-density",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 55% clay content and high density clay minerals, opaque minerals or carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 21,
+        "pattern": "46108.svg",
+        "bgColour": "#b5beb9"
+      },
+      "density": 2740,
+      "surfacePorosity": 54.5,
+      "minimumPorosity": 6.25,
+      "compactionCoefficient": 5.65,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.3
+          },
+          {
+            "x": 60,
+            "y": -1.72
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1.95,
+      "thermalConductivity": 2.7,
+      "thermalConductivityAnisotropy": 1.3,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 4750,
+      "seismicVelocityExponent": -0.2
+    },
+    {
+      "id": 22,
+      "name": "Mudstone, 60% clay",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 60% clay content and low to moderate density clay minerals, low carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 22,
+        "pattern": "46108.svg",
+        "bgColour": "#b2b9b5"
+      },
+      "density": 2720,
+      "surfacePorosity": 58,
+      "minimumPorosity": 6.5,
+      "compactionCoefficient": 5.7,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.4
+          },
+          {
+            "x": 60,
+            "y": -2.16
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 2.1,
+      "thermalConductivity": 2.1,
+      "thermalConductivityAnisotropy": 1.4,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 4250,
+      "seismicVelocityExponent": -0.5
+    },
+    {
+      "id": 23,
+      "name": "Mudstone, 65% clay, low-velocity-density",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 65% clay content and low density clay minerals (smectite including water layers), low carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 23,
+        "pattern": "46108.svg",
+        "bgColour": "#afb3b1"
+      },
+      "density": 2690,
+      "surfacePorosity": 63,
+      "minimumPorosity": 6.75,
+      "compactionCoefficient": 5.75,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.51
+          },
+          {
+            "x": 60,
+            "y": -2.61
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 2.25,
+      "thermalConductivity": 1.8,
+      "thermalConductivityAnisotropy": 1.4,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 4000,
+      "seismicVelocityExponent": -0.65
+    },
+    {
+      "id": 24,
+      "name": "Mudstone, 65% clay",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 65% clay content and low to moderate density clay minerals, low carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 24,
+        "pattern": "46108.svg",
+        "bgColour": "#abadad"
+      },
+      "density": 2730,
+      "surfacePorosity": 61.5,
+      "minimumPorosity": 6.75,
+      "compactionCoefficient": 5.75,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.51
+          },
+          {
+            "x": 60,
+            "y": -2.61
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 2.25,
+      "thermalConductivity": 2,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 4125,
+      "seismicVelocityExponent": -0.55
+    },
+    {
+      "id": 25,
+      "name": "Mudstone, 65% clay, high-velocity-density",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 65% clay content and high density clay minerals, opaque minerals or carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 25,
+        "pattern": "46108.svg",
+        "bgColour": "#a7a9a9"
+      },
+      "density": 2755,
+      "surfacePorosity": 61.5,
+      "minimumPorosity": 6.75,
+      "compactionCoefficient": 5.75,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.51
+          },
+          {
+            "x": 60,
+            "y": -2.61
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 2.25,
+      "thermalConductivity": 2.55,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 4500,
+      "seismicVelocityExponent": -0.3
+    },
+    {
+      "id": 26,
+      "name": "Mudstone, 70% clay",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 70% clay content and low to moderate density clay minerals, low carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 26,
+        "pattern": "46108.svg",
+        "bgColour": "#a4a6a6"
+      },
+      "density": 2740,
+      "surfacePorosity": 65,
+      "minimumPorosity": 7,
+      "compactionCoefficient": 5.8,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 6,
+            "y": -6.61
+          },
+          {
+            "x": 60,
+            "y": -3.05
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 2.4,
+      "thermalConductivity": 1.9,
+      "thermalConductivityAnisotropy": 1.4,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 4000,
+      "seismicVelocityExponent": -0.6
+    },
+    {
+      "id": 27,
+      "name": "Mudstone, 75% clay, high-velocity-density",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 75% clay content and high density clay minerals, opaque minerals or carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 27,
+        "pattern": "46108.svg",
+        "bgColour": "#a1a3a3"
+      },
+      "density": 2770,
+      "surfacePorosity": 68.5,
+      "minimumPorosity": 7.25,
+      "compactionCoefficient": 5.85,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.72
+          },
+          {
+            "x": 60,
+            "y": -3.49
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 2.55,
+      "thermalConductivity": 2.4,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 4250,
+      "seismicVelocityExponent": -0.4
+    },
+    {
+      "id": 28,
+      "name": "Mudstone, 80% clay",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 80% clay content and low to moderate density clay minerals, low carbonate. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 28,
+        "pattern": "46108.svg",
+        "bgColour": "#9ea0a0"
+      },
+      "density": 2750,
+      "surfacePorosity": 72,
+      "minimumPorosity": 7.5,
+      "compactionCoefficient": 5.9,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.83
+          },
+          {
+            "x": 60,
+            "y": -3.93
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 2.7,
+      "thermalConductivity": 1.7,
+      "thermalConductivityAnisotropy": 1.3,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 3750,
+      "seismicVelocityExponent": -0.7
+    },
+    {
+      "id": 29,
+      "name": "Shale, organic rich",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with 80% clay content and velocity, density drop reflecting c. 10% organic matter. Porosity, compaction and permeability modified after Yang and Aplin 2004, 2010, similar to 'soil mechanics' lithologies.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 29,
+        "pattern": "46113.svg",
+        "bgColour": "#9ea0a0"
+      },
+      "density": 2550,
+      "surfacePorosity": 79,
+      "minimumPorosity": 3,
+      "compactionCoefficient": 6,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.83
+          },
+          {
+            "x": 60,
+            "y": -3.93
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 5,
+      "thermalConductivity": 1.5,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 3250,
+      "seismicVelocityExponent": -0.8
+    },
+    {
+      "id": 30,
+      "name": "Grainstone, calcitic, weakly-cemented",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Calcite grainstone with compaction trend to reproduce low compaction or cementation.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 30,
+        "pattern": "46105.svg",
+        "bgColour": "#98d9f6"
+      },
+      "density": 2740,
+      "surfacePorosity": 45,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 3.8,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 1.6
+          },
+          {
+            "x": 60,
+            "y": 6.4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.4,
+      "thermalConductivity": 3.5,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6250,
+      "seismicVelocityExponent": 0.25
+    },
+    {
+      "id": 31,
+      "name": "Grainstone, calcitic, sandy, weakly-cemented",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Calcite grainstone with compaction trend to reproduce low compaction or cementation and moderate silt or sand content.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 31,
+        "pattern": "46104.svg",
+        "bgColour": "#98d9f6"
+      },
+      "density": 2720,
+      "surfacePorosity": 45,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 3.8,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 1.6
+          },
+          {
+            "x": 60,
+            "y": 6.4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.5,
+      "thermalConductivity": 4.25,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6150,
+      "seismicVelocityExponent": 0.25
+    },
+    {
+      "id": 32,
+      "name": "Grainstone, dolomitic, weakly-cemented",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Dolomite grainstone with compaction trend to reproduce low compaction or cementation.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 32,
+        "pattern": "423203.svg",
+        "bgColour": "#a9a0cc"
+      },
+      "density": 2800,
+      "surfacePorosity": 45,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 3.8,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 1.6
+          },
+          {
+            "x": 60,
+            "y": 6.4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.3,
+      "thermalConductivity": 5,
+      "thermalConductivityAnisotropy": 1.1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6750,
+      "seismicVelocityExponent": 0.25
+    },
+    {
+      "id": 33,
+      "name": "Grainstone, calcitic, typical",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Calcite grainstone with compaction trend to reproduce typical compaction or cementation.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 33,
+        "pattern": "46105.svg",
+        "bgColour": "#84d1f4"
+      },
+      "density": 2740,
+      "surfacePorosity": 35,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 8,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 1.6
+          },
+          {
+            "x": 60,
+            "y": 6.4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.4,
+      "thermalConductivity": 3.5,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6250,
+      "seismicVelocityExponent": 0.35
+    },
+    {
+      "id": 34,
+      "name": "Grainstone, calcitic, sandy, typical",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Calcite grainstone with compaction trend to reproduce typical compaction or cementation and moderate silt or sand content.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 34,
+        "pattern": "46104.svg",
+        "bgColour": "#84d1f4"
+      },
+      "density": 2720,
+      "surfacePorosity": 35,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 8,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 1.6
+          },
+          {
+            "x": 60,
+            "y": 6.4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.5,
+      "thermalConductivity": 4.25,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6150,
+      "seismicVelocityExponent": 0.35
+    },
+    {
+      "id": 35,
+      "name": "Grainstone, dolomitic, typical",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Dolomite grainstone with compaction trend to reproduce typical compaction or cementation.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 35,
+        "pattern": "423203.svg",
+        "bgColour": "#9387bf"
+      },
+      "density": 2800,
+      "surfacePorosity": 35,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 8,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 1.6
+          },
+          {
+            "x": 60,
+            "y": 6.4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.3,
+      "thermalConductivity": 5,
+      "thermalConductivityAnisotropy": 1.1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6750,
+      "seismicVelocityExponent": 0.35
+    },
+    {
+      "id": 36,
+      "name": "Grainstone, calcitic, well-cemented",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Calcite grainstone with compaction trend to reproduce high compaction or cementation.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 36,
+        "pattern": "46105.svg",
+        "bgColour": "#0083c1"
+      },
+      "density": 2740,
+      "surfacePorosity": 25,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 12.5,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 1.6
+          },
+          {
+            "x": 60,
+            "y": 6.4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.4,
+      "thermalConductivity": 3.5,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6250,
+      "seismicVelocityExponent": 0.5
+    },
+    {
+      "id": 37,
+      "name": "Grainstone, calcitic, sandy, well-cemented",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Calcite grainstone with compaction trend to reproduce high compaction or cementation and moderate silt or sand content.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 37,
+        "pattern": "46104.svg",
+        "bgColour": "#0083c1"
+      },
+      "density": 2720,
+      "surfacePorosity": 25,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 12.5,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 1.6
+          },
+          {
+            "x": 60,
+            "y": 6.4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.5,
+      "thermalConductivity": 4.25,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6150,
+      "seismicVelocityExponent": 0.5
+    },
+    {
+      "id": 38,
+      "name": "Grainstone, dolomitic, well-cemented",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Dolomite grainstone with compaction trend to reproduce high compaction or cementation.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 38,
+        "pattern": "423203.svg",
+        "bgColour": "#586ca5"
+      },
+      "density": 2800,
+      "surfacePorosity": 25,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 12.5,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": 1.6
+          },
+          {
+            "x": 60,
+            "y": 6.4
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.3,
+      "thermalConductivity": 5,
+      "thermalConductivityAnisotropy": 1.1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6750,
+      "seismicVelocityExponent": 0.5
+    },
+    {
+      "id": 39,
+      "name": "Lime-Mudstone",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Calcitic mudstone with low permeability.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 39,
+        "pattern": "46106.svg",
+        "bgColour": "#9ec6da"
+      },
+      "density": 2740,
+      "surfacePorosity": 35,
+      "minimumPorosity": 3,
+      "compactionCoefficient": 6,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.19
+          },
+          {
+            "x": 60,
+            "y": -1.28
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.4,
+      "thermalConductivity": 3.5,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6250,
+      "seismicVelocityExponent": -0.5
+    },
+    {
+      "id": 40,
+      "name": "Lime-Mudstone, silty",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Calcitic mudstone with low permeability, with properties adjusted to reflect moderate silt content.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 40,
+        "pattern": "46106.svg",
+        "bgColour": "#98d9e0"
+      },
+      "density": 2720,
+      "surfacePorosity": 35,
+      "minimumPorosity": 3,
+      "compactionCoefficient": 6,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.19
+          },
+          {
+            "x": 60,
+            "y": -1.28
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.5,
+      "thermalConductivity": 4.25,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6150,
+      "seismicVelocityExponent": -0.5
+    },
+    {
+      "id": 41,
+      "name": "Lime-Mudstone, dolomitic",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Dolomitic mudstone with low permeability",
+      "basedOnId": null,
+      "visualization": {
+        "id": 41,
+        "pattern": "DoloMud.svg",
+        "bgColour": "#9387bf"
+      },
+      "density": 2800,
+      "surfacePorosity": 35,
+      "minimumPorosity": 3,
+      "compactionCoefficient": 6,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6.19
+          },
+          {
+            "x": 60,
+            "y": -1.28
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.3,
+      "thermalConductivity": 5,
+      "thermalConductivityAnisotropy": 1.1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6750,
+      "seismicVelocityExponent": -0.5
+    },
+    {
+      "id": 42,
+      "name": "Marl",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Mudstone with properties reflecting c. 50% clay content,  moderate permeability",
+      "basedOnId": null,
+      "visualization": {
+        "id": 42,
+        "pattern": "42401.svg",
+        "bgColour": "#94c028"
+      },
+      "density": 2750,
+      "surfacePorosity": 50,
+      "minimumPorosity": 3,
+      "compactionCoefficient": 5,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -5.98
+          },
+          {
+            "x": 60,
+            "y": -0.39
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 1.2,
+      "thermalConductivity": 2.5,
+      "thermalConductivityAnisotropy": 1.2,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 5000,
+      "seismicVelocityExponent": -0.5
+    },
+    {
+      "id": 43,
+      "name": "Chalk, grey",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Chalk with properties reflecting c. 25% clay content.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 43,
+        "pattern": "423206.svg",
+        "bgColour": "#b2e2f8"
+      },
+      "density": 2750,
+      "surfacePorosity": 50,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 5,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -5.85
+          },
+          {
+            "x": 60,
+            "y": 0.05
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.9,
+      "thermalConductivity": 2.75,
+      "thermalConductivityAnisotropy": 1.1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 5200,
+      "seismicVelocityExponent": -0.5
+    },
+    {
+      "id": 44,
+      "name": "Chalk, silicious",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Chalk with properties reflecting c. 1-5% layered chert bands.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 44,
+        "pattern": "46104.svg",
+        "bgColour": "#c8ebfa"
+      },
+      "density": 2710,
+      "surfacePorosity": 50,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 5,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -5.65
+          },
+          {
+            "x": 60,
+            "y": 0.95
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.5,
+      "thermalConductivity": 3.85,
+      "thermalConductivityAnisotropy": 1.05,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6200,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 45,
+      "name": "Chalk, white",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Chalk with low clay content and moderate compaction, North Sea trend.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 45,
+        "pattern": "46105.svg",
+        "bgColour": "#d4f5fc"
+      },
+      "density": 2720,
+      "surfacePorosity": 60,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 6.5,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -5.45
+          },
+          {
+            "x": 60,
+            "y": 1.8
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.4,
+      "thermalConductivity": 3.5,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6250,
+      "seismicVelocityExponent": -0.35
+    },
+    {
+      "id": 46,
+      "name": "Chalk, white, compact",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Chalk with low clay content and optional higher compaction.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 46,
+        "pattern": "46105.svg",
+        "bgColour": "#e9fafd"
+      },
+      "density": 2720,
+      "surfacePorosity": 55,
+      "minimumPorosity": 5,
+      "compactionCoefficient": 9,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -3.5
+          },
+          {
+            "x": 60,
+            "y": 1
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.4,
+      "thermalConductivity": 3.5,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6250,
+      "seismicVelocityExponent": -0.25
+    },
+    {
+      "id": 47,
+      "name": "Anhydrite",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Anhydrite, very high density and velocity evaporite. Impermeable.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 47,
+        "pattern": "46111.svg",
+        "bgColour": "#f2a1c5"
+      },
+      "density": 2963,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6
+          },
+          {
+            "x": 60,
+            "y": -6
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.09,
+      "thermalConductivity": 6.3,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6410,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 48,
+      "name": "Potash-Sylvite",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Potassium 'squeezing' salt,  low density and velocity evaporite. Impermeable.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 48,
+        "pattern": "42504.svg",
+        "bgColour": "#88ced9"
+      },
+      "density": 1987,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6
+          },
+          {
+            "x": 60,
+            "y": -6
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 6,
+      "thermalConductivity": 6.7,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 3925,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 49,
+      "name": "Halite",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Typical salt,  moderate density and velocity evaporite. Impermeable.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 49,
+        "pattern": "46110.svg",
+        "bgColour": "#88ced9"
+      },
+      "density": 2163,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6
+          },
+          {
+            "x": 60,
+            "y": -6
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.012,
+      "thermalConductivity": 6.5,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 4500,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 50,
+      "name": "Coal",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Low density, high TOC coal.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 50,
+        "pattern": "46113.svg",
+        "bgColour": "#272624"
+      },
+      "density": 1350,
+      "surfacePorosity": 75,
+      "minimumPorosity": 1.1,
+      "compactionCoefficient": 15,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6
+          },
+          {
+            "x": 60,
+            "y": -6
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.38,
+      "thermalConductivity": 0.3,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 3000,
+      "seismicVelocityExponent": -0.75
+    },
+    {
+      "id": 51,
+      "name": "Ice",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Ice for use with glacial loading functionality.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 51,
+        "pattern": "46115.svg",
+        "bgColour": "#ffffff"
+      },
+      "density": 917,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6
+          },
+          {
+            "x": 60,
+            "y": -6
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0,
+      "thermalConductivity": 2.14,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 3840,
+      "seismicVelocityExponent": 0
+    },
+    {
+      "id": 52,
+      "name": "Anhydrite-Carbonate high-density stringer",
+      "definedBy": "System",
+      "definedDate": "2019-11-28T21:00:00Z",
+      "locked": true,
+      "isDeleted": false,
+      "lastModifiedBy": null,
+      "lastModifiedDate": "2019-11-28T21:00:00Z",
+      "typeId": 1,
+      "description": "Anhydrite-Limestone mix,  very high density and velocity evaporite. Impermeable.",
+      "basedOnId": null,
+      "visualization": {
+        "id": 52,
+        "pattern": "428201.svg",
+        "bgColour": "#f2a1c5"
+      },
+      "density": 2850,
+      "surfacePorosity": 0.1,
+      "minimumPorosity": 0.1,
+      "compactionCoefficient": 0,
+      "walderhaugCementationFactor": 0,
+      "model": 2,
+      "anisotropy": 1,
+      "porosityValues": {
+        "points": [
+          {
+            "x": 5,
+            "y": -6
+          },
+          {
+            "x": 60,
+            "y": -6
+          }
+        ],
+        "xLabel": "Porosity [%]",
+        "yLabel": "VES [MPa]",
+        "size": 2
+      },
+      "heatProduction": 0.25,
+      "thermalConductivity": 4.7,
+      "thermalConductivityAnisotropy": 1,
+      "igneousIntrusionTemperature": null,
+      "hydraulicFracturing": 100,
+      "entryPressureCoefficient1": 0.33,
+      "entryPressureCoefficient2": 0.2611,
+      "seismicVelocity": 6350,
+      "seismicVelocityExponent": 0
+    }
+  ]
+}

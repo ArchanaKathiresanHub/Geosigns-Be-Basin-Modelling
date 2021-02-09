@@ -37,6 +37,7 @@ public:
   void setStretch(const bool stretched);
   void setToolTipData(const std::vector<double>& lithofractionsAtPoint, const int activePlot);
   void setToolTipVisible(const bool visible);
+  void setToolTipLithotypes(const QStringList& lithotypes);
   void setVariableValueRange();
   void setWellsVisible(const bool wellsVisible);
 

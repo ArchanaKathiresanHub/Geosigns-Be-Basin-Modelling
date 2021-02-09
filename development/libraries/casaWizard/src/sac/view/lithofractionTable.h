@@ -63,6 +63,7 @@ private:
   void setFieldsEnabled(const int row, const std::vector<int>& fields, const bool enabled);
   void setHeaderResizeModes();
   void setHeaderTitles();
+  void setHeaderAlignment();
   void setHelpToolTips();
   void setSecondCheckBoxEnabled(const int row, const bool enabled);
   void setTableHeader();

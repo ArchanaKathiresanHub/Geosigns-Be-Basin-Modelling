@@ -15,6 +15,8 @@ class MainWindow : public QMainWindow
 
 public:
   explicit MainWindow(QWidget* parent = 0);
+  virtual ~MainWindow();
+
   QTabWidget* tabWidget() const;
   LogDisplay* logDisplay() const;
   virtual MenuBar* menu() const = 0;

@@ -8,6 +8,8 @@
 
 #include "lithoMapsToolTip.h"
 
+#include "../common/view/lithoTypeBackgroundMapping.h"
+
 #include <QChart>
 #include <QChartView>
 #include <QLabel>
@@ -28,10 +30,11 @@ LithoMapsToolTip::LithoMapsToolTip(QWidget *parent) :
   domainPosition_(0,0),
   header_{new QLabel(this)},
   valueLabel_{new QLabel(this)},
+  overlay_{new LithoMapsToolTipOverlay(this)},
   pieChart_{new QChart()},
   chartView_{new QChartView(pieChart_, this)},
   series_{new QPieSeries(this)},
-  overlay_{new LithoMapsToolTipOverlay(this)}
+  lithoNames_{}
 {
   initializeChart();
   initializeHeader();
@@ -93,6 +96,7 @@ void LithoMapsToolTip::setTotalLayout()
   setPalette(pal);
 }
 
+
 void LithoMapsToolTip::setLithofractions(const std::vector<double>& lithofractions, const int activePlot)
 {
   series_->clear();
@@ -100,15 +104,35 @@ void LithoMapsToolTip::setLithofractions(const std::vector<double>& lithofractio
   series_->append("Litho 2", lithofractions[1]);
   series_->append("Litho 3", lithofractions[2]);
 
-  QPieSlice* slice = series_->slices().at(activePlot);
-  slice->setExploded(true);
-  slice->setPen(QPen(Qt::red));
+  if (!lithoNames_.empty())
+  {
+    updatePieSliceColors();
+  }
+
+  QPieSlice* activeSlice = series_->slices().at(activePlot);
+  activeSlice->setExploded(true);
+  QPen pen(Qt::red);
+  pen.setWidth(2);
+  activeSlice->setPen(pen);
 
   header_->setText("(" + QString::number(domainPosition_.x(),'f', 1) + ", " + QString::number(domainPosition_.y(),'f', 1) + ")");
   valueLabel_->setText("Value: " + QString::number(lithofractions[activePlot], 'f', 1) + "%");
   overlay_->setFixedSize(size());
   overlay_->move(QPoint(0,0));
   overlay_->update();
+}
+
+
+void LithoMapsToolTip::updatePieSliceColors()
+{
+  for (int i = 0; i < lithoNames_.size(); i++)
+  {
+    QPieSlice* slice = series_->slices().at(i);
+    slice->setPen(QPen(Qt::black));
+    QBrush brush = slice->brush();
+    LithoTypeBackgroundMapping::getBackgroundBrush(lithoNames_[i], brush);
+    slice->setBrush(brush);
+  }
 }
 
 void LithoMapsToolTip::setCorner(const bool movedX, const bool movedY)
@@ -137,6 +161,15 @@ void LithoMapsToolTip::setCorner(const bool movedX, const bool movedY)
   }
 
   overlay_->update();
+}
+
+void LithoMapsToolTip::setLithoNames(const QStringList& lithoNames)
+{
+  lithoNames_ = lithoNames;
+  if (!series_->slices().empty())
+  {
+    updatePieSliceColors();
+  }
 }
 
 void LithoMapsToolTip::setDomainPosition(const QPointF& domainPosition)

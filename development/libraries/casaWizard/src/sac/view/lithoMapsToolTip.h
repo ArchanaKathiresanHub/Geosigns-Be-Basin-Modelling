@@ -53,6 +53,8 @@ public:
   void setLithofractions(const std::vector<double>& lithofractions, const int activePlot);
   void setDomainPosition(const QPointF& domainPosition);
   void setCorner(const bool movedX, const bool movedY);
+  void setLithoNames(const QStringList& lithoNames);
+
 private:
   std::vector<double> lithofractions_;
   QPointF domainPosition_;
@@ -63,6 +65,7 @@ private:
   QtCharts::QChart* pieChart_;
   QtCharts::QChartView* chartView_;
   QtCharts::QPieSeries* series_;
+  QStringList lithoNames_;
 
   void setTotalLayout();
   void initializeChart();
@@ -70,6 +73,7 @@ private:
   void initializeHeader();
   void initializePieChart();
   void initializeValueLabel();
+  void updatePieSliceColors();
 };
 
 } // namespace sac

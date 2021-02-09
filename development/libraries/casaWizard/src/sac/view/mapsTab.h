@@ -67,9 +67,9 @@ private:
   ActiveWellsTable* activeWellsTable_;
   LithofractionVisualisation* lithofractionVisualisation_;
   EmphasisButton* createGridsButton_;
-  EmphasisButton* buttonExportOptimized_;
-  EmphasisButton* buttonRunOptimized_;
-  EmphasisButton* buttonRunOriginal_;
+  QPushButton* buttonExportOptimized_;
+  QPushButton* buttonRunOptimized_;
+  QPushButton* buttonRunOriginal_;
   QComboBox* interpolationType_;
   QWidget* iwdOptions_;
   QWidget* gridGenerationOptions_;
