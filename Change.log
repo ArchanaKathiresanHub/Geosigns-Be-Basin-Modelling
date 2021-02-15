@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.4.0		2020-12-08 13:54:27 +0000
+Cauldron-v2.5.0		2021-02-15 17:33:00 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -38,13 +38,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-02-09  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
-	new: Get Reservoir thickness back from BPA-Cauldron.
+	new: Get Reservoir thickness back from BPA-Cauldron. !v2.5.0
 	* Get Reservoir thickness back from BPA-Cauldron
 
 	Link- https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/405952
 
 	================== COMMIT-END ========================
-	Commit-ID:<39e4201b9b274f3559859f5378623d3d732a3ef6>	  (refs/heads/master)
+	Commit-ID:<39e4201b9b274f3559859f5378623d3d732a3ef6>	  (tag: refs/tags/v2.5.0, refs/heads/master)
 
 ++
 2021-02-09  Richard Faasse  <Richard.Faasse@shell.com>
