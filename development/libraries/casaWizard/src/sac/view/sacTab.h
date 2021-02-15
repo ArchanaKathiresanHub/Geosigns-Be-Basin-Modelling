@@ -7,6 +7,7 @@ class QLineEdit;
 class QPushButton;
 class QSpinBox;
 class QTableWidget;
+class EmphasisButton;
 
 namespace casaWizard
 {
@@ -54,7 +55,7 @@ private:
   QComboBox* comboBoxApplication_;
   QComboBox* comboBoxCluster_;
 
-  QPushButton* pushButtonSACrunCASA_;
+  EmphasisButton* pushButtonSACrunCASA_;
 };
 
 } // namespace sac

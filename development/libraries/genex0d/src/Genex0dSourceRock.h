@@ -58,7 +58,7 @@ public:
 
   void initializeInputs(const double thickness, const double inorganicDensity, const std::vector<double>& time,
                               const std::vector<double>& temperature, const std::vector<double>& Ves, const std::vector<double>& VRE, const std::vector<double>& porePressure, const std::vector<double>& permeability,
-                              const std::vector<double>& porosity, const std::vector<double>& lithoPressure, const std::vector<double>& hydroPressure);
+                              const std::vector<double>& porosity);
 
   const Genex6::SourceRockNode& getSourceRockNode() const;
   const Genex6::Simulator& simulator() const;
@@ -75,7 +75,7 @@ private:
 
   void setSourceRockPropertiesFromInput(const Genex0dInputData& inData);
   const GridMap * loadMap (DataAccess::Interface::SourceRockMapAttributeId attributeId, const double mapScalarValue) const;
-  bool computePTSnapShot(const double timePrevious, const double time, double inPressure, const double inTemperaturePrevious, const double inTemperature, const double inVre, const double inPorePressurePrevious, const double inPorePressure, const double inPermeability, const double inPorosity, const double inLithoPressure, const double HydroPressure, const bool isInterpolatedTime);
+  bool computePTSnapShot(const double timePrevious, const double time, double inPressure, const double inTemperaturePrevious, const double inTemperature, const double inVre, const double inPorePressurePrevious, const double inPorePressure, const double inPermeability, const double inPorosity, const bool isInterpolatedTime);
 
   const double m_vreThreshold;
   const double m_vesMax;
@@ -97,8 +97,6 @@ private:
   std::vector<double> m_inPorePressure;
   std::vector<double> m_inPorosity;
   std::vector<double> m_inPermeability;
-  std::vector<double> m_inLithoPressure;
-  std::vector<double> m_inHydroPressure;
   double m_inorganicDensity;
 
   const std::string m_formationName;

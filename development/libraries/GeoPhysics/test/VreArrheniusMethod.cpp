@@ -274,9 +274,9 @@ ParameterSet oneTimeStepTestCases[] =
       { 1.0, 0.99999999999999, 1e10, 1e10 }
    };
 
-INSTANTIATE_TEST_CASE_P( SingleTimestep,
-                         VreArrheniusMethodTest,
-                         ::testing::ValuesIn(oneTimeStepTestCases));
+INSTANTIATE_TEST_SUITE_P( SingleTimestep,
+                          VreArrheniusMethodTest,
+                          ::testing::ValuesIn(oneTimeStepTestCases));
 
 /** Following tests checks continuity of VR values across temperature
     differences that the Arrhenius algorithms use to decide how the calculation

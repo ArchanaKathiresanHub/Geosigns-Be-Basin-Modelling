@@ -26,7 +26,7 @@ void createFromExcel(CasaScenario& casaScenario, const QString& excelFilename)
     const QVector<QString> variableNames = wellData.calibrationTargetVars();
     const QVector<std::size_t> nTargetsPerVariable = wellData.nDataPerTargetVar();
 
-    int nTotalTargets = 0;
+    unsigned int nTotalTargets = 0;
     for (int iVariable = 0; iVariable < variableNames.size(); ++iVariable)
     {
       const QVector<double> z = wellData.depth();
@@ -41,7 +41,7 @@ void createFromExcel(CasaScenario& casaScenario, const QString& excelFilename)
       }
 
       // In wellData, the targets for different variables in the same well are stored in a contiguous array
-      for (std::size_t iTarget = nTotalTargets; iTarget < nTotalTargets + nTargetsPerVariable[iVariable]; ++iTarget)
+      for (unsigned int iTarget = nTotalTargets; iTarget < nTotalTargets + nTargetsPerVariable[iVariable]; ++iTarget)
       {
         const QString targetName(variableNames[iVariable] + "(" +
                                  QString::number(wellData.xCoord(),'f',1) + "," +

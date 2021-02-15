@@ -32,6 +32,11 @@ DerivedProperties::PressureFormationCalculator::PressureFormationCalculator ( co
    addDependentPropertyName ( "HydroStaticPressure" );
 }
 
+double DerivedProperties::PressureFormationCalculator::calculatePressure(double hydrostaticPressure)
+{
+  return hydrostaticPressure;
+}
+
 void DerivedProperties::PressureFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                  const DataModel::AbstractSnapshot*  snapshot,
                                                                  const DataModel::AbstractFormation* formation,
@@ -58,7 +63,7 @@ void DerivedProperties::PressureFormationCalculator::calculate (       AbstractP
          for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
 
             for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
-               porePressure->set ( i, j, k, hydrostaticPressure->get ( i, j, k ));
+               porePressure->set ( i, j, k, calculatePressure(hydrostaticPressure->get(i,j,k)));
             }
          }
       }

@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "lithofractionManager.h"
 
 #include "model/logger.h"
@@ -24,11 +32,6 @@ LithofractionManager::LithofractionManager() :
 const QVector<Lithofraction>& LithofractionManager::lithofractions() const
 {
   return lithofractions_;
-}
-
-void LithofractionManager::setLithofractionLayerName(int index, const QString& name)
-{
-  lithofractions_[index].setLayerName(name);
 }
 
 void LithofractionManager::setLithofractionFirstComponent(int index, int percent)
@@ -121,6 +124,16 @@ void LithofractionManager::setLithofractionSecondMaxFraction(int index, double v
   lithofractions_[index].setMaxFractionSecondComponent(value);
 }
 
+void LithofractionManager::setLithoFractionDoFirstOptimization(int index, bool doFirstOptimization)
+{
+  lithofractions_[index].setDoFirstOptimization(doFirstOptimization);
+}
+
+void LithofractionManager::setLithoFractionDoSecondOptimization(int index, bool doSecondOptimization)
+{
+  lithofractions_[index].setDoSecondOptimization(doSecondOptimization);
+}
+
 void LithofractionManager::addLithofraction(const QString& name)
 {
   Lithofraction newLithofraction
@@ -172,15 +185,28 @@ void LithofractionManager::clearOptimizedLithofractions()
 
 void LithofractionManager::writeToFile(ScenarioWriter& writer) const
 {
-  writer.writeValue("LithofractionManagerVersion", 0);
+  writer.writeValue("LithofractionManagerVersion", 1);
   writer.writeValue("lithofractions", lithofractions_);
   writer.writeValue("optimizedLithofractions", optimizedLithofractions_);
 }
 
 void LithofractionManager::readFromFile(const ScenarioReader& reader)
 {
+  const int version = reader.readInt("LithofractionManagerVersion");
   lithofractions_ = reader.readVector<Lithofraction>("lithofractions");
   optimizedLithofractions_ = reader.readVector<OptimizedLithofraction>("optimizedLithofractions");
+  if (version<1)
+  {
+    int indexOptimized = 0;
+    for (int index = 0; index < lithofractions_.size(); index++ )
+    {
+      if (lithofractions_[index].doFirstOptimization())
+      {
+        optimizedLithofractions_[indexOptimized].setLithofractionId(index);
+        indexOptimized++;
+      }
+    }
+  }
 }
 
 void LithofractionManager::clear()

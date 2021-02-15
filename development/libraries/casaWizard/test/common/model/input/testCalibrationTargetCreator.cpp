@@ -16,7 +16,7 @@ TEST( CalibrationTargetCreatorTest, testCreateFromExcel )
 
   casaWizard::calibrationTargetCreator::createFromExcel(scenario, excelFilename);
 
-  const QVector<casaWizard::Well> wellsActual = manager.wells();
+  const QVector<const casaWizard::Well*> wellsActual = manager.wells();
   const QVector<const casaWizard::CalibrationTarget*> targetsActual = manager.calibrationTargets();
 
   QVector<casaWizard::Well> wellsExpected{};
@@ -27,11 +27,11 @@ TEST( CalibrationTargetCreatorTest, testCreateFromExcel )
   const int nWells = wellsActual.size();
   for (int iWell = 0; iWell<nWells; ++iWell)
   {
-    EXPECT_EQ       (wellsActual[iWell].id(),                 wellsExpected[iWell].id())                 << " Mismatch at index " << iWell;
-    EXPECT_EQ       (wellsActual[iWell].name().toStdString(), wellsExpected[iWell].name().toStdString()) << " Mismatch at index " << iWell;
-    EXPECT_DOUBLE_EQ(wellsActual[iWell].x(),                  wellsExpected[iWell].x())                  << " Mismatch at index " << iWell;
-    EXPECT_DOUBLE_EQ(wellsActual[iWell].y(),                  wellsExpected[iWell].y())                  << " Mismatch at index " << iWell;
-    EXPECT_EQ       (wellsActual[iWell].isActive(),           wellsExpected[iWell].isActive())           << " Mismatch at index " << iWell;
+    EXPECT_EQ       (wellsActual[iWell]->id(),                 wellsExpected[iWell].id())                 << " Mismatch at index " << iWell;
+    EXPECT_EQ       (wellsActual[iWell]->name().toStdString(), wellsExpected[iWell].name().toStdString()) << " Mismatch at index " << iWell;
+    EXPECT_DOUBLE_EQ(wellsActual[iWell]->x(),                  wellsExpected[iWell].x())                  << " Mismatch at index " << iWell;
+    EXPECT_DOUBLE_EQ(wellsActual[iWell]->y(),                  wellsExpected[iWell].y())                  << " Mismatch at index " << iWell;
+    EXPECT_EQ       (wellsActual[iWell]->isActive(),           wellsExpected[iWell].isActive())           << " Mismatch at index " << iWell;
   }
 
   QVector<casaWizard::CalibrationTarget> targetsExpected{};

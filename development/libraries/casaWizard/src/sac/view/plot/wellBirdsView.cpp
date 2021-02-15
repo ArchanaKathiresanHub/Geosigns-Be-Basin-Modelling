@@ -1,5 +1,6 @@
 #include "wellBirdsView.h"
 
+#include "ConstantsMathematics.h"
 #include <assert.h>
 
 namespace casaWizard
@@ -13,22 +14,35 @@ WellBirdsView::WellBirdsView(QWidget* parent) :
   x_{},
   y_{}
 {
-  setMaximumSize(400, 250);
-  setXLabel("x [m]");
-  setYLabel("y [m]");
+  setXLabel("x [km]");
+  setYLabel("y [km]");
 }
 
-void WellBirdsView::setWellLocations(const QVector<double> x, const QVector<double> y)
+void WellBirdsView::setWellLocations(const QVector<double>& x, const QVector<double>& y)
 {
   clearData();
-  addXYscatter(x, y);
-  x_ = x;
-  y_ = y;
+  x_ = convertToKm(x);
+  y_ = convertToKm(y);
+  addXYscatter(x_, y_);
   update();
 }
 
+QVector<double> WellBirdsView::convertToKm(const QVector<double>& distancesInMeter)
+{
+  QVector<double> distancesInKm;
+  for (const double distance : distancesInMeter)
+  {
+    distancesInKm.push_back(distance * Utilities::Maths::MeterToKilometer);
+  }
+
+  return distancesInKm;
+}
+
+
+
 void WellBirdsView::setActiveWells(const QVector<int> activeWells)
 {
+  activeWells_ = activeWells;
   clearData();
   if (activeWells.size() == 0)
   {
@@ -56,6 +70,26 @@ void WellBirdsView::setActiveWells(const QVector<int> activeWells)
   addXYscatter(xInactive, yInactive);
   addXYscatter(xActive, yActive, SymbolType::Circle, 0);
   update();
+}
+
+const QVector<int>& WellBirdsView::activeWells()
+{
+  return activeWells_;
+}
+
+const QVector<double>& WellBirdsView::x() const
+{
+  return x_;
+}
+
+void WellBirdsView::updateRange(const double xMin, const double xMax, const double yMin, const double yMax)
+{
+  setMinMaxValues(xMin, xMax, yMin, yMax);
+}
+
+const QVector<double>&WellBirdsView::y() const
+{
+  return y_;
 }
 
 }  // namespace sac

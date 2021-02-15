@@ -24,6 +24,9 @@
 #include "ThermalDiffusivityFormationCalculator.h"
 #include "PropertyRetriever.h"
 
+#include "ConstantsNumerical.h"
+#include "ConstantsMathematics.h"
+
 using namespace AbstractDerivedProperties;
 
 DerivedProperties::ThermalDiffusivityFormationCalculator::ThermalDiffusivityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle ) : m_projectHandle ( projectHandle ) {
@@ -33,6 +36,38 @@ DerivedProperties::ThermalDiffusivityFormationCalculator::ThermalDiffusivityForm
    addDependentPropertyName ( "Pressure" );
    addDependentPropertyName ( "LithoStaticPressure" );
    addDependentPropertyName ( "Porosity" );
+}
+
+double DerivedProperties::ThermalDiffusivityFormationCalculator::calculateThermalDiffusivity(const GeoPhysics::CompoundLithology* lithology, const GeoPhysics::FluidType* fluid,
+                                                                                             const double porosity, const double porePressure, const double temperature,
+                                                                                             const double undefinedValue) const
+{
+  double thermalConductivityNormal;
+  double thermalConductivityPlane;
+  double bulkDensityXHeatCapacity;
+
+  lithology->calcBulkDensXHeatCapacity ( fluid,
+                                         Utilities::Maths::PercentageToFraction * porosity,
+                                         porePressure,
+                                         temperature,
+                                         0.0,
+                                         bulkDensityXHeatCapacity );
+
+  lithology->calcBulkThermCondNP ( fluid,
+                                   Utilities::Maths::PercentageToFraction * porosity,
+                                   temperature,
+                                   porePressure,
+                                   thermalConductivityNormal,
+                                   thermalConductivityPlane);
+
+  if ( thermalConductivityNormal != undefinedValue and bulkDensityXHeatCapacity != undefinedValue )
+  {
+    return thermalConductivityNormal / bulkDensityXHeatCapacity;
+  }
+  else
+  {
+    return undefinedValue;
+  }
 }
 
 void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate (        AbstractPropertyManager&      propertyManager,
@@ -76,9 +111,7 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate (      
 
       // We could use any of the formation-properties here to get the undefined value.
       double undefinedValue = thermalDiffusivity->getUndefinedValue ();
-      double thermalConductivityNormal;
-      double thermalConductivityPlane;
-      double bulkDensityXHeatCapacity;
+
 
       double currentTime = snapshot->getTime();
 
@@ -95,25 +128,8 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate (      
 
                for ( unsigned int k = thermalDiffusivity->firstK (); k <= thermalDiffusivity->lastK (); ++k ) {
 
-                     lithology->calcBulkDensXHeatCapacity ( fluid,
-                                                            0.01 * porosity->get ( i, j, k ),
-                                                            porePressure->get ( i, j, k ),
-                                                            temperature->get ( i, j, k ),
-                                                            0.0,
-                                                            bulkDensityXHeatCapacity );
-
-                     lithology->calcBulkThermCondNP ( fluid,
-                                                      0.01 * porosity->get ( i, j, k ),
-                                                      temperature->get ( i, j, k ),
-                                                      porePressure->get ( i, j, k ),
-                                                      thermalConductivityNormal,
-                                                      thermalConductivityPlane );
-
-                  if ( thermalConductivityNormal != undefinedValue and bulkDensityXHeatCapacity != undefinedValue ) {
-                     thermalDiffusivity->set ( i, j, k, thermalConductivityNormal / bulkDensityXHeatCapacity );
-                  } else {
-                     thermalDiffusivity->set ( i, j, k, undefinedValue );
-                  }
+                  thermalDiffusivity->set ( i, j, k, calculateThermalDiffusivity(lithology, fluid, porosity->get(i,j,k), porePressure->get(i,j,k),
+                                                                                 temperature->get(i,j,k), undefinedValue));
 
                }
 
@@ -235,6 +251,22 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculateForBasem
       derivedProperties.push_back ( thermalDiffusivity );
    }
 
+}
+
+double DerivedProperties::ThermalDiffusivityFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                                                                      const GeoPhysics::CompoundLithology* lithology,
+                                                                                      const std::map<std::string, double>& dependentProperties ) const
+{
+  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
+  if ( !fluid )
+  {
+    return DataAccess::Interface::DefaultUndefinedScalarValue;
+  }
+  return DerivedProperties::ThermalDiffusivityFormationCalculator::calculateThermalDiffusivity(lithology, fluid,
+                                                                                               dependentProperties.at("Porosity"),
+                                                                                               dependentProperties.at("Pressure"),
+                                                                                               dependentProperties.at("Temperature"),
+                                                                                               DataAccess::Interface::DefaultUndefinedMapValue);
 }
 
 bool DerivedProperties::ThermalDiffusivityFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,

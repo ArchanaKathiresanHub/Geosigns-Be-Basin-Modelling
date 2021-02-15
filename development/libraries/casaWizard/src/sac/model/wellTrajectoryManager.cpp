@@ -43,13 +43,13 @@ QVector<QVector<WellTrajectory>> WellTrajectoryManager::trajectoriesInWell(const
 void WellTrajectoryManager::updateWellTrajectories(const CalibrationTargetManager& calibrationTargetManager)
 {
   clear();
-  for (const Well& well : calibrationTargetManager.wells())
+  for (const Well* well : calibrationTargetManager.wells())
   {
     QStringList properties;
-    calibrationTargetManager.extractWellTargets(properties, well.id());
+    calibrationTargetManager.extractWellTargets(properties, well->id());
     for(const QString& property : properties)
     {
-      addWellTrajectory(well.id(), property);
+      addWellTrajectory(well->id(), property);
     }
   }
 }

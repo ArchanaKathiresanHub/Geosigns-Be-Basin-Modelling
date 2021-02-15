@@ -38,8 +38,8 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsRepeatedArgument)
 
 TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
 {
-  int argc = 55;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+  int argc = 57;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-datFileName", "test.dat" , "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
                   "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
                   "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
@@ -58,6 +58,10 @@ TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
   const std::string outProjectNameExpected = "outProj.project3d";
   const std::string & outProjectNameActual = inputData.outProjectFilename;
   EXPECT_EQ(outProjectNameExpected, outProjectNameActual);
+
+  const std::string outDatFileNameExpected = "test.dat";
+  const std::string & outDatFileNameActual = inputData.nodeHistoryFileName;
+  EXPECT_EQ(outDatFileNameExpected, outDatFileNameActual);
 
   const std::string formationNameExpected = "Formation6";
   const std::string & formationNameActual = inputData.formationName;

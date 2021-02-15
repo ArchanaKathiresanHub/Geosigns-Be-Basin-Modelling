@@ -62,6 +62,17 @@ build="`pwd -P`"
 popd
 
 ######################
+# Load module for intel <version> compiler
+set +x
+[[ -r /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh ]] && . /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh
+module load HpcSoftwareStack/PRODUCTION
+module purge
+module load intel/2019a
+module load CMake/3.9.6
+
+which cmake
+which ctest
+set -x
 # Standard applications
 if [ -e /glb/home/ksaho3/bin.Linux/svn ];
 then
@@ -83,13 +94,6 @@ else
     CTEST=`which ctest`
 fi
 
-# Load module for intel 2017.05 compiler
-set +x
-. /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
-module load HpcSoftwareStack/PRODUCTION
-module purge
-module load intel/2019a
-set -x
 
 # Set the simplest locale so that there won't be any text conversion problems
 # for the logged output between Linux and Windows

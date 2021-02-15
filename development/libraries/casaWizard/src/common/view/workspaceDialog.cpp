@@ -1,12 +1,13 @@
 #include "workspaceDialog.h"
 
+#include "view/components/customradiobutton.h"
+
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QLineEdit>
-#include <QRadioButton>
 #include <QString>
 #include <QStringList>
 
@@ -31,11 +32,11 @@ WorkspaceDialog::WorkspaceDialog(const QString originalPath, const QString sugge
 
   total->addLayout(formLayout_);
 
-  radio1_ = new QRadioButton("Option 1.- Suggested working directory: \n\n " + suggestedPath + "\n");
+  radio1_ = new CustomRadioButton("Option 1.- Suggested working directory: \n\n " + suggestedPath + "\n");
   radio1_->setProperty("id",suggestedPath);
-  radio2_ = new QRadioButton("Option 2.- Current working directory: \n\n " + originalPath + "\n");
+  radio2_ = new CustomRadioButton("Option 2.- Current working directory: \n\n " + originalPath + "\n");
   radio2_->setProperty("id", originalPath);
-  radio3_ = new QRadioButton("Option 3.- Select new directory");
+  radio3_ = new CustomRadioButton("Option 3.- Select new directory");
   radio3_->setProperty("id", "");
 
   radio1_->setChecked(true);

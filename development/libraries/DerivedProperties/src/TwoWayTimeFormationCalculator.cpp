@@ -26,6 +26,7 @@
 // Utility library
 #include "FormattingException.h"
 #include "LogHandler.h"
+#include "ConstantsMathematics.h"
 
 
 using namespace AbstractDerivedProperties;
@@ -97,7 +98,7 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractP
       double seismicVelocityNumerator;
       double seismicVelocityDenominator;
       double seismicVelocityBulk;
-      double seismciVelocityFluid;
+      double seismicVelocityFluid;
       double seaBottomDepth;
 
       for (unsigned int i = twoWayTime->firstI( true ); i <= twoWayTime->lastI( true ); ++i) {
@@ -125,14 +126,14 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractP
                         if (!fluid){
                            throw TwoWayTimeException() << "The model is under water but there is no fluid avalaible to compute the water column two-way-time";
                         }
-                        seismciVelocityFluid = fluid->seismicVelocity( temperature->get( i, j, temperature->lastK() ), pressure->get( i, j, temperature->lastK() ) );
-                        if (seismciVelocityFluid==0){
+                        seismicVelocityFluid = fluid->seismicVelocity( temperature->get( i, j, temperature->lastK() ), pressure->get( i, j, temperature->lastK() ) );
+                        if (seismicVelocityFluid==0){
                            // In case of weird fluids which are blocking the seismic waves (Vp=0), this should not be allowed by the UI
                            twoWayTimeValue = undefinedValue;
                            LogHandler( LogHandler::WARNING_SEVERITY ) << "Dividing by a 0 fluid seismic velocity during two-way-travel-time computation."
                               << " Two-way-time is set to undefined value for node (" << i << "," << j << "," << 0 << ").";
                         }
-                        twoWayTimeValue = 10e2 * 2 * seaBottomDepth / seismciVelocityFluid;
+                        twoWayTimeValue = Utilities::Maths::KilometerToMeter * 2 * seaBottomDepth / seismicVelocityFluid;
                      }
                   }
                   ///1.b.ii If no water above, then the initial TwoWayTime is 0
@@ -161,7 +162,7 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractP
                         << " Two-way-time is set to undefined value for node (" << i << "," << j << "," << k << ").";
                   }
                   else{
-                     twoWayTimeValue += 10e2 * 2 * distance / seismicVelocityBulk;
+                     twoWayTimeValue += Utilities::Maths::KilometerToMeter * 2 * distance / seismicVelocityBulk;
                   }
                   twoWayTime->set( i, j, k, twoWayTimeValue );
                } //for each k

@@ -338,7 +338,8 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( Layer
 }
 
 // Set the lithology percentages maps
-ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesPercentageMaps( LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage )
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesPercentageMaps(LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage,
+                                                                                     std::string& firstReplacedMapName, std::string& secondReplacedMapName)
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -355,6 +356,10 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesPercentageM
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
+
+      // get name of the grid maps which will be replaced
+      firstReplacedMapName = rec->getValue<std::string>(s_lithoTypePercent1GridFiledName);
+      secondReplacedMapName = rec->getValue<std::string>(s_lithoTypePercent2GridFiledName);
 
       // set the percentage grid maps
       rec->setValue<std::string>( s_lithoTypePercent1GridFiledName, mapNameFirstLithoPercentage );

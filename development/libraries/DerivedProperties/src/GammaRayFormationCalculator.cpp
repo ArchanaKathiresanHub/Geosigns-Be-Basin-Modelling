@@ -18,6 +18,10 @@
 // Utility library
 #include "FormattingException.h"
 #include "LogHandler.h"
+#include "ConstantsMathematics.h"
+
+#include "CompoundLithology.h"
+#include "GeoPhysicsFormation.h"
 
 using namespace AbstractDerivedProperties;
 
@@ -27,6 +31,13 @@ DerivedProperties::GammaRayFormationCalculator::GammaRayFormationCalculator( ) {
    addPropertyName ( "GammaRay" );
 
    addDependentPropertyName ( "Porosity" );
+}
+
+double DerivedProperties::GammaRayFormationCalculator::calculateGammaRay(const double porosity, const double solidRadiogenicHeatProduction) const
+{
+  const double actualPorosity = Utilities::Maths::PercentageToFraction * porosity;
+  const double bulkRadiogenicHeatProduction = ((1.0 - actualPorosity) * solidRadiogenicHeatProduction);
+  return (bulkRadiogenicHeatProduction / m_gammaRayScaleFactor) + m_gammaRayOffset;
 }
 
 void DerivedProperties::GammaRayFormationCalculator::calculate(        AbstractPropertyManager&      propertyManager,
@@ -47,8 +58,6 @@ void DerivedProperties::GammaRayFormationCalculator::calculate(        AbstractP
    if ( porosity != nullptr and formation != nullptr) {
       const DataModel::AbstractCompoundLithologyArray& lithologies = formation->getCompoundLithologyArray ();
       const double currentTime = snapshot->getTime ();
-      const double gammaRayScaleFactor=0.0158;
-      const double gammaRayOffset=0.8;
 
       PropertyRetriever porosityRetriever( porosity );
       DerivedFormationPropertyPtr gammaRay = DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( gammaRayProperty,
@@ -66,11 +75,7 @@ void DerivedProperties::GammaRayFormationCalculator::calculate(        AbstractP
                const double solidRadiogenicHeatProduction = lithologies ( i, j, currentTime )-> heatproduction ();
                for (int k = gammaRay->firstK(); k <= gammaRay->lastK(); ++k) {
 
-                  const double actualPorosity = 0.01 * porosity->get( i, j, k );
-                  const double bulkRadiogenicHeatProduction = ((1 - actualPorosity) * solidRadiogenicHeatProduction);
-                  const double gammaRayValue = (bulkRadiogenicHeatProduction / gammaRayScaleFactor) + gammaRayOffset;
-
-                  gammaRay->set( i, j, k, gammaRayValue );
+                  gammaRay->set( i, j, k, calculateGammaRay( porosity->get( i, j, k ), solidRadiogenicHeatProduction ) );
                }
             } // if valid node
             else {
@@ -110,4 +115,12 @@ bool DerivedProperties::GammaRayFormationCalculator::isComputable( const Abstrac
 
    DataModel::AbstractProperty const * const porosityProperty = propManager.getProperty( "Porosity" );
    return  propManager.formationPropertyIsComputable( porosityProperty, snapshot, formation );
+}
+
+double DerivedProperties::GammaRayFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* /*formation*/,
+                                                                            const GeoPhysics::CompoundLithology* lithology,
+                                                                            const std::map<std::string, double>& dependentProperties) const
+{
+  const double solidRadiogenicHeatProduction = lithology->heatproduction();
+  return calculateGammaRay(dependentProperties.at("Porosity"), solidRadiogenicHeatProduction);
 }

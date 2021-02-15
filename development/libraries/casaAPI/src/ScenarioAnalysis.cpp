@@ -122,7 +122,7 @@ public:
    void importOneDResults( const std::string & expLabel );
 
    // Set one filter for selecting the parameters from 1D optimizations
-   void setFilterOneDResults( const std::string & filterAlgorithm );
+   void setFilterOneDResults( const std::string & filterAlgorithm, const std::set<int>& excludeSet );
 
    // The parameter filter
    bool parameterFilter( Parameter * prm, RunCase * rc );
@@ -217,6 +217,7 @@ private:
    std::vector<double>                        m_xcoordOneD;          // x coordinates of the extracted wells for multi 1D
    std::vector<double>                        m_ycoordOneD;          // y coordinates of the extracted wells for multi 1D
    int                                        m_filteringAlgorithm;  // The filtering algorithm
+   std::set<int>                              m_excludeSet;          // Exclusion set for filter
 
    std::unique_ptr<mbapi::Model>          m_baseCase;
    std::unique_ptr<RunCase>               m_baseCaseRunCase;    // run case for the base case project
@@ -360,9 +361,9 @@ ErrorHandler::ReturnCode ScenarioAnalysis::importOneDResults( const std::string 
 
 }
 
-ErrorHandler::ReturnCode ScenarioAnalysis::setFilterOneDResults( const std::string & filterAlgorithm )
+ErrorHandler::ReturnCode ScenarioAnalysis::setFilterOneDResults( const std::string & filterAlgorithm, const std::set<int>& excludeSet )
 {
-   try { m_pimpl->setFilterOneDResults( filterAlgorithm ); }
+   try { m_pimpl->setFilterOneDResults( filterAlgorithm, excludeSet ); }
    catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
    catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
    catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
@@ -514,27 +515,23 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * stateFileBuf, si
 
 ///////////////////////////////////////////////////////////////////////////////
 // The actual implementation of CASA API
-ScenarioAnalysis::ScenarioAnalysisImpl::ScenarioAnalysisImpl()
+ScenarioAnalysis::ScenarioAnalysisImpl::ScenarioAnalysisImpl() :
+   m_iterationNum{1},
+   m_caseNum{1},
+   m_caseSetPath{"."},
+   m_scenarioID{"Undefined"},
+   m_filteringAlgorithm{0},
+   m_excludeSet{},
+   m_varSpace(   new VarSpaceImpl()   ),
+   m_obsSpace(   new ObsSpaceImpl()   ),
+   m_doeCases(   new RunCaseSetImpl() ),
+   m_mcCases(    new RunCaseSetImpl() ),
+   m_runManager( new RunManagerImpl() ),
+   m_dataDigger( new DataDiggerImpl() ),
+   m_rsProxySet( new RSProxySetImpl() ),
+   m_mcSolver(   new MonteCarloSolverImpl()   ),
+   m_sensCalc(   new SensitivityCalculatorImpl( m_varSpace.get(), m_obsSpace.get() ) )
 {
-   m_iterationNum = 1;
-   m_caseNum      = 1;
-   m_caseSetPath = ".";
-   m_scenarioID = "Undefined";
-   m_filteringAlgorithm = 0;
-
-   m_varSpace.reset(   new VarSpaceImpl()   );
-   m_obsSpace.reset(   new ObsSpaceImpl()   );
-
-   m_doeCases.reset(   new RunCaseSetImpl() );
-   m_mcCases.reset(    new RunCaseSetImpl() );
-
-   m_runManager.reset( new RunManagerImpl() );
-   m_dataDigger.reset( new DataDiggerImpl() );
-
-   m_rsProxySet.reset( new RSProxySetImpl() );
-
-   m_mcSolver.reset(   new MonteCarloSolverImpl()   );
-   m_sensCalc.reset(   new SensitivityCalculatorImpl( m_varSpace.get(), m_obsSpace.get() ) );
 }
 
 ScenarioAnalysis::ScenarioAnalysisImpl::~ScenarioAnalysisImpl()
@@ -839,12 +836,13 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    rcs.addNewCases( lastRunCases, "LastRunOneDCases" );
 }
 
-void ScenarioAnalysis::ScenarioAnalysisImpl::setFilterOneDResults( const std::string & filterAlgorithm )
+void ScenarioAnalysis::ScenarioAnalysisImpl::setFilterOneDResults(const std::string & filterAlgorithm , const std::set<int>& excludeSet)
 {
    // Just set the filtering algorithm
    if ( filterAlgorithm == "smartLithoFractionGridding")
    {
       m_filteringAlgorithm = 1;
+      m_excludeSet = excludeSet;
    }
    // for other cases add an else if
    else
@@ -856,18 +854,24 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setFilterOneDResults( const std::st
 bool ScenarioAnalysis::ScenarioAnalysisImpl::parameterFilter( Parameter * prm, RunCase * rc )
 {
    mbapi::Model  *  model = rc->caseModel( );
+
    bool includeParameter = false;
 
    if ( m_filteringAlgorithm == 1 )
    {
       // Only the lithofraction parameters should be filtered in smartLithoFractionGridding
       const casa::PrmLithoFraction * lf = dynamic_cast<PrmLithoFraction *>( prm );
-      if ( !lf ) return true;
+      if ( !lf ) return false;
       std::string layerName = lf->layerName( );
       int numObs = 0;
       size_t numObservables = rc->observablesNumber( );
       for ( size_t ob = 0; ob < numObservables; ++ob )
       {
+         if (m_excludeSet.find(ob) != m_excludeSet.end())
+         {
+           continue;
+         }
+
          const Observable * obsv = rc->obsValue( ob )->parent( );
          const casa::ObsGridPropertyWell * wellObs = dynamic_cast<const casa::ObsGridPropertyWell *>( obsv );
          if ( wellObs )
@@ -1174,6 +1178,12 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::calculateRSProxy( RSProxy          
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStream )
 {
+  std::vector<int> excludeVec;
+  for (const int i: m_excludeSet)
+  {
+    excludeVec.push_back(i);
+  }
+
    bool ok = outStream.save( m_caseSetPath,         "caseSetPath"           );
    ok = ok ? outStream.save( m_baseCaseProjectFile, "baseCaseProjectFile"   ) : ok;
    ok = ok ? outStream.save( m_iterationNum,        "iterationNum"          ) : ok;
@@ -1182,6 +1192,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
    ok = ok ? outStream.save( m_xcoordOneD,          "xCoord1D"              ) : ok; // version 10
    ok = ok ? outStream.save( m_ycoordOneD,          "yCoord1D"              ) : ok; // version 10
    ok = ok ? outStream.save( m_filteringAlgorithm,  "filteringAlgorithm"    ) : ok; // version 11
+   ok = ok ? outStream.save( excludeVec,            "excludeVec"            ) : ok; // version 12
 
    ok = ok ? outStream.save( obsSpace(),            "ObsSpace"              ) : ok; // serialize observables manager
    ok = ok ? outStream.save( varSpace(),            "VarSpace"              ) : ok; // serialize influential parameters set
@@ -1226,6 +1237,16 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
       ok = ok ? inStream.load( m_xcoordOneD,               "xCoord1D"           ) : ok; // version 10
       ok = ok ? inStream.load( m_ycoordOneD,               "yCoord1D"           ) : ok; // version 10
       ok = ok ? inStream.load( m_filteringAlgorithm,       "filteringAlgorithm" ) : ok; // version 11
+   }
+   if ( inStream.version() > 11 )
+   {
+     m_excludeSet.clear();
+     std::vector<int> excludeVec;
+     ok = ok ? inStream.load( excludeVec,       "excludeVec" ) : ok; // version 12
+     for (const int i : excludeVec)
+     {
+       m_excludeSet.insert(i);
+     }
    }
 
    if ( !ok ) throw Exception( DeserializationError ) << "Deserialization error in ScenarioAnalysis";

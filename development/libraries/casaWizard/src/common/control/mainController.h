@@ -41,6 +41,7 @@ signals:
   void signalUpdateTabGUI(int tabIndex);
   void signalResetToStartingStage();
   void signalProjectOpened();
+  void signalReload1Ddata();
 
 private:
   void refreshGUI();

@@ -26,8 +26,8 @@ public:
 private:
     void readCaseData(CaseExtractor& extractor, const QString& message);
 
-    SACScenario& scenario_;
     ScriptRunController& scriptRunController_;
+    SACScenario& scenario_;
 };
 
 } // namespace sac

@@ -35,11 +35,11 @@ void modifyCasaScript(const QString& filename)
     file.reset();
     file.resize(0);
     textStream << dialog.plainText();
-    Logger::log() << "- Expert modification of casa script successful" << Logger::endl();
+    Logger::log() << "- Expert modification of CASA script successful" << Logger::endl();
   }
   else
   {
-    Logger::log() << "- Expert modification of casa script cancelled" << Logger::endl();
+    Logger::log() << "- Expert modification of CASA script cancelled" << Logger::endl();
   }
 
   file.close();
@@ -49,7 +49,7 @@ bool writeCasaScript(CasaScript& script)
 {
   if (!script.writeScript())
   {
-    Logger::log() << "- Failed to write casa script " << script.scriptFilename() << Logger::endl();
+    Logger::log() << "- Failed to write CASA script " << script.scriptFilename() << Logger::endl();
     return false;
   }
 

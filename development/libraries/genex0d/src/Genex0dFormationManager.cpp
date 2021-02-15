@@ -23,6 +23,7 @@
 #include "Surface.h"
 
 #include "LogHandler.h"
+#include "ConstantsMathematics.h"
 
 #include <cmath>
 
@@ -107,8 +108,9 @@ void Genex0dFormationManager::calculateInorganicDensityOfLithoType(const DataAcc
   lithoTypePercentageMap->retrieveData ();
   const unsigned int depthlithoTypePercentageMap = lithoTypePercentageMap->getDepth ();
   inorganicDensity +=
-      lithoTypeDensity * 0.01 * lithoTypePercentageMap->getValue (m_indI, m_indJ,
-                                                                  depthlithoTypePercentageMap - 1);
+      lithoTypeDensity * Utilities::Maths::PercentageToFraction * lithoTypePercentageMap->getValue (m_indI, m_indJ,
+                                                                                                    depthlithoTypePercentageMap - 1);
+  lithoTypePercentageMap->restoreData(false, false);
 }
 
 double Genex0dFormationManager::getInorganicDensity()

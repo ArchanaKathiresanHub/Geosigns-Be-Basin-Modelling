@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Manager for the lithofractions in the SAC
 #pragma once
 
@@ -25,13 +33,14 @@ public:
   void addLithofraction(const QString& name);
   void removeLithofraction(int index);
 
-  void setLithofractionLayerName(int index, const QString& name);
   void setLithofractionFirstComponent(int index, int percent);
   void setLithofractionFirstMinPercentage(int index, double value);
   void setLithofractionFirstMaxPercentage(int index, double value);
   void setLithofractionSecondComponent(int index, int percent);
   void setLithofractionSecondMinFraction(int index, double value);
   void setLithofractionSecondMaxFraction(int index, double value);
+  void setLithoFractionDoFirstOptimization(int index, bool doFirstOptimization);
+  void setLithoFractionDoSecondOptimization(int index, bool doSecondOptimization);
 
   const QVector<OptimizedLithofraction>& optimizedLithofractions() const;
   QVector<OptimizedLithofraction> optimizedInWell(const int wellIndex) const;

@@ -20,6 +20,11 @@
 #include "FormationPropertyCalculator.h"
 #include "FormationProperty.h"
 
+namespace GeoPhysics
+{
+  class FluidType;
+}
+
 namespace DerivedProperties {
 
    /// \brief Calculator for the brine-density for a layer.
@@ -42,11 +47,16 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation*                         formation,
                                      AbstractDerivedProperties::FormationPropertyList&     derivedProperties ) const;
 
+      virtual double calculateAtPosition(const GeoPhysics::GeoPhysicsFormation* formation,
+                                         const GeoPhysics::CompoundLithology* lithology,
+                                         const std::map<std::string, double>& dependentProperties) const override;
    private :
 
       const GeoPhysics::ProjectHandle& m_projectHandle;
       bool m_hydrostaticMode;
 
+      double calculateBrineDensity(const GeoPhysics::FluidType* fluid, const double temperature, const double porePressure) const;
+      double calculateBrineDensityHydroStatic(const GeoPhysics::FluidType* fluid) const;
    };
 
 

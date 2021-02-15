@@ -270,13 +270,13 @@ void DataAccess::Interface::Validator::addCrustUndefinedAreas( const CrustFormat
    if (crust != nullptr) {
       PaleoFormationPropertyList* thicknesses = crust->getPaleoThicknessHistory();
       for (const auto& thicknessIter : *thicknesses) {
-		  addUndefinedAreas((thicknessIter)->getMap(CrustThinningHistoryInstanceThicknessMap));
+      addUndefinedAreas((thicknessIter)->getMap(CrustThinningHistoryInstanceThicknessMap));
       }
       if (m_projectHandle.isALC()) {
           PaleoFormationPropertyList* oceathicknesses = crust->getOceaPaleoThicknessHistory();
           if (oceathicknesses) {
               for (const auto& thicknessIter : *oceathicknesses) {
-				  addUndefinedAreas((thicknessIter)->getMap(OceaCrustThinningHistoryInstanceThicknessMap));
+          addUndefinedAreas((thicknessIter)->getMap(OceaCrustThinningHistoryInstanceThicknessMap));
               }
               delete oceathicknesses; oceathicknesses = nullptr;
           }
@@ -359,6 +359,9 @@ void DataAccess::Interface::Validator::addFormationUndefinedAreas( const Formati
       ReservoirList * reservoirs( formation->getReservoirs() );
 
       for (ReservoirList::const_iterator resIt = reservoirs->begin(); resIt != reservoirs->end(); ++resIt) {
+         const auto reservoirThicknessMap = dynamic_cast<const GridMap*>((*resIt)->getMap( ReservoirThickness ));
+         addUndefinedAreas( reservoirThicknessMap );
+         if (reservoirThicknessMap) reservoirThicknessMap->release();
          const auto netToGrossMap = dynamic_cast<const GridMap*>((*resIt)->getMap( NetToGross ));
          addUndefinedAreas( netToGrossMap );
          if (netToGrossMap) netToGrossMap->release();

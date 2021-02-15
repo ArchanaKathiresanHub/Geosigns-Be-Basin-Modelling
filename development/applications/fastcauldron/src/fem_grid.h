@@ -303,7 +303,7 @@ namespace Basin_Modelling {
      void setLayerElements ( const double age );
 
      /// \brief Log max residual locations
-     void logMaxResidualLocations( const std::vector<unsigned int>& locationMaxValue, const double maxResidual,
+     void logMaxDeltaOverPressureLocations( const std::vector<int>& locationMaxValue, const double maxResidual,
                                    const int MaximumNumberOfNonlinearIterations ) const;
 
      ///------------------------------------------------------------//

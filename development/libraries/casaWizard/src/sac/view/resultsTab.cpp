@@ -13,15 +13,20 @@
 #include "model/well.h"
 #include "model/wellTrajectory.h"
 
+#include "../common/view/components/customtitle.h"
+
 #include <QHeaderView>
 #include <QLabel>
 #include <QLayout>
 #include <QListWidget>
 #include <QPushButton>
+#include <QSignalBlocker>
 #include <QStackedLayout>
 #include <QTableWidget>
 
 #include <assert.h>
+#include <math.h>
+
 namespace casaWizard
 {
 
@@ -34,72 +39,59 @@ ResultsTab::ResultsTab(QWidget* parent) :
   optimizedLithoTable_{new QTableWidget(this)},
   multiWellPlot_{new MultiWellPlot(this)},
   wellScatterPlot_{new WellScatterPlot(this)},
-  buttonSaveOptimized_{new QPushButton("Save optimized", this)},
-  buttonRunOptimized_{new QPushButton("Run optimized", this)},
-  buttonBaseCase_{new QPushButton("Run and import base case", this)},
   plotOptions_{new PlotOptions(this)},
-  layoutStackedPlots_{new QStackedLayout{}},
-  tableLable_{new QLabel("Optimized lithofractions",this)},
+  layoutStackedPlots_{new QStackedLayout{}},  
   wellBirdsView_{new WellBirdsView(this)}
 {
   // List with wells
   QVBoxLayout* wellList = new QVBoxLayout();
-
-  wellList->addWidget(new QLabel("Wells"), 0);
+  wellList->addWidget(new CustomTitle("Wells"), 0);
   wellList->addWidget(wellsList_, 1);
   wellList->addWidget(wellBirdsView_, 0);
+  wellBirdsView_->setMaximumSize(400, 250);
   wellList->addWidget(plotOptions_, 0);
 
-  QVBoxLayout* optimizedLitho = new QVBoxLayout();
   optimizedLithoTable_->setRowCount(0);
-  optimizedLithoTable_->setColumnCount(3);
+  optimizedLithoTable_->setColumnCount(5);
 
-  optimizedLithoTable_->setHorizontalHeaderItem(0, new QTableWidgetItem("Layer name"));
-  optimizedLithoTable_->setHorizontalHeaderItem(1, new QTableWidgetItem("Lithofraction"));
-  optimizedLithoTable_->setHorizontalHeaderItem(2, new QTableWidgetItem("Value"));
+  optimizedLithoTable_->setHorizontalHeaderItem(0, createHeaderItem("Layer name", Qt::AlignLeft));
+  optimizedLithoTable_->setHorizontalHeaderItem(1, createHeaderItem("Lithofraction", Qt::AlignLeft));
+  optimizedLithoTable_->setHorizontalHeaderItem(2, createHeaderItem("Original value", Qt::AlignRight));
+  optimizedLithoTable_->setHorizontalHeaderItem(3, createHeaderItem("Optimized value", Qt::AlignRight));
+  optimizedLithoTable_->setHorizontalHeaderItem(4, createHeaderItem("Difference", Qt::AlignRight));
 
   optimizedLithoTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  optimizedLithoTable_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+  optimizedLithoTable_->verticalHeader()->hide();
+  optimizedLithoTable_->setSelectionMode(QAbstractItemView::NoSelection);
+  for (int i = 0; i<5; ++i)
+  {
+    optimizedLithoTable_->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
+  }
 
-  optimizedLitho->addWidget(tableLable_, 0);
-
-  QHBoxLayout* optimizedButtons = new QHBoxLayout();
-  optimizedButtons->addWidget(buttonSaveOptimized_);
-  optimizedButtons->addWidget(buttonRunOptimized_);
-
-  optimizedLitho->addLayout(optimizedButtons);
-  optimizedLitho->addWidget(buttonBaseCase_);
-  optimizedLitho->addWidget(optimizedLithoTable_);
-
+  layoutStackedPlots_->addWidget(optimizedLithoTable_);
   layoutStackedPlots_->addWidget(multiWellPlot_);
   layoutStackedPlots_->addWidget(wellScatterPlot_);
 
   QHBoxLayout* total = new QHBoxLayout();
-  total->addLayout(wellList,0);
-  total->addLayout(optimizedLitho, 2);
-  total->addLayout(layoutStackedPlots_, 0);
+  total->addLayout(wellList,1);
+  total->addLayout(layoutStackedPlots_, 4);
 
   setLayout(total);
+}
+
+QTableWidgetItem* ResultsTab::createHeaderItem(const QString& name, int align)
+{
+  QTableWidgetItem* item = new QTableWidgetItem(name);
+  QFont font = item->font();
+  font.setBold(true);
+  item->setFont(font);
+  item->setTextAlignment(align);
+  return item;
 }
 
 QListWidget* ResultsTab::wellsList() const
 {
   return wellsList_;
-}
-
-QPushButton* ResultsTab::buttonSaveOptimized() const
-{
-  return buttonSaveOptimized_;
-}
-
-QPushButton* ResultsTab::buttonRunOptimized() const
-{
-  return buttonRunOptimized_;
-}
-
-QPushButton* ResultsTab::buttonBaseCase() const
-{
-  return buttonBaseCase_;
 }
 
 PlotOptions* ResultsTab::plotOptions() const
@@ -117,14 +109,15 @@ WellScatterPlot* ResultsTab::wellScatterPlot() const
   return wellScatterPlot_;
 }
 
-void ResultsTab::updateWellList(const QVector<Well>& wells)
+void ResultsTab::updateWellList(const QVector<const Well*> wells)
 {
   const int row = wellsList()->currentRow();
 
+  QSignalBlocker blocker(wellsList_);
   wellsList_->clear();
-  for (const Well& well : wells)
+  for (const Well* well : wells)
   {
-    wellsList_->addItem(well.name());
+    wellsList_->addItem(well->name());
   }
   wellsList_->setMinimumWidth(wellsList_->sizeHintForColumn(0));
 
@@ -168,56 +161,72 @@ void ResultsTab::updateScatterPlot(const QVector<QVector<CalibrationTarget>> tar
                             activePlots);
 }
 
-void ResultsTab::updateOptimizedLithoTable(const QVector<OptimizedLithofraction>& optimizedLithofractions, const QVector<Lithofraction>& lithofractions, const ProjectReader& projectReader)
+void ResultsTab::updateOptimizedLithoTable(const QStringList& layerNameList,
+                                           const QVector<QStringList>& lithoNamesVector,
+                                           const QVector<QVector<double>>& originalValuesVector,
+                                           const QVector<QVector<double>>& optimizedValuesVector)
 {
   optimizedLithoTable_->clearContents();
   optimizedLithoTable_->setRowCount(0);
-  int row = 0;
 
   auto doubleToQString = [](double d){return QString::number(d, 'f',2); };
 
-  const QStringList layerNames = projectReader.layerNames();
-
-  for (const OptimizedLithofraction& optimized : optimizedLithofractions)
+  int row = 0;
+  for (int i = 0; i<layerNameList.size(); ++i)
   {
-    const Lithofraction& litho = lithofractions[optimized.lithofractionId()];
+    double diff =  optimizedValuesVector[i][0] - originalValuesVector[i][0];
+    addLithofractionRow(row, {new QTableWidgetItem(layerNameList[i]),
+                              new QTableWidgetItem(lithoNamesVector[i][0]),
+                              new QTableWidgetItem(doubleToQString(originalValuesVector[i][0])),
+                              new QTableWidgetItem(doubleToQString(optimizedValuesVector[i][0])),
+                              new QTableWidgetItem(doubleToQString(diff))}, diff);
 
-    const int layerIndex = layerNames.indexOf(litho.layerName());
-    const QStringList lithoNames = projectReader.lithologyTypesForLayer(layerIndex);
 
-    optimizedLithoTable_->setRowCount(row+1);
-
-    optimizedLithoTable_->setItem(row, 0, new QTableWidgetItem(litho.layerName()));
-    optimizedLithoTable_->setItem(row, 1, new QTableWidgetItem(lithoNames[litho.firstComponent()]));
-    optimizedLithoTable_->setItem(row, 2, new QTableWidgetItem(doubleToQString(optimized.optimizedPercentageFirstComponent())));
-    row++;
-
-    if (litho.secondComponent() < 3) // not None selected
+    for (int j = 1; j<lithoNamesVector[i].size(); ++j)
     {
-      optimizedLithoTable_->setRowCount(row+1);
-      optimizedLithoTable_->setItem(row, 1, new QTableWidgetItem(lithoNames[litho.secondComponent()]));
-      optimizedLithoTable_->setItem(row, 2, new QTableWidgetItem(doubleToQString(optimized.optimizedPercentageSecondComponent())));
-      row++;
-
-      optimizedLithoTable_->setRowCount(row+1);
-      optimizedLithoTable_->setItem(row, 1, new QTableWidgetItem(lithoNames[litho.thirdComponent()]));
-      optimizedLithoTable_->setItem(row, 2, new QTableWidgetItem(doubleToQString(optimized.optimizedPercentageThirdComponent())));
-      row++;
-
+      diff = optimizedValuesVector[i][j] - originalValuesVector[i][j];
+      addLithofractionRow(row, {nullptr,
+                                new QTableWidgetItem(lithoNamesVector[i][j]),
+                                new QTableWidgetItem(doubleToQString(originalValuesVector[i][j])),
+                                new QTableWidgetItem(doubleToQString(optimizedValuesVector[i][j])),
+                                new QTableWidgetItem(doubleToQString(diff))}, diff);
     }
   }
+}
+
+void ResultsTab::addLithofractionRow(int& row, QVector<QTableWidgetItem*> items, const double diff)
+{
+  optimizedLithoTable_->setRowCount(row+1);
+  for (int i = 0; i<items.size();++i)
+  {
+    optimizedLithoTable_->setItem(row, i, items[i]);
+    if (i>1)
+    {
+      items[i]->setTextAlignment(Qt::AlignRight);
+    }
+    if (i==4 && std::fabs(diff) > 10)
+    {
+      items[i]->setBackgroundColor(QColor(Qt::red));
+    }
+  }
+  row++;
 }
 
 void ResultsTab::updateBirdsView(const QVector<const Well*> wells)
 {
   QVector<double> x;
   QVector<double> y;
-  for (const Well *const well : wells)
+  for (const Well* well : wells)
   {
     x.append(well->x());
     y.append(well->y());
   }
   wellBirdsView_->setWellLocations(x, y);
+}
+
+void ResultsTab::setRangeBirdsView(const double xMin, const double xMax, const double yMin, const double yMax)
+{
+  wellBirdsView_->updateRange(xMin, xMax, yMin, yMax);
 }
 
 void ResultsTab::updateActiveWells(const QVector<int> activeWells)
@@ -227,35 +236,33 @@ void ResultsTab::updateActiveWells(const QVector<int> activeWells)
 
 void ResultsTab::setPlotType(const int currentIndex)
 {
+  optimizedLithoTable_->setEnabled(false);
   multiWellPlot_->setEnabled(false);
-  wellScatterPlot_->setEnabled(false);
-  setVisibleLithofractionColumn(true);
+  wellScatterPlot_->setEnabled(false);  
   wellsList_->setSelectionMode(QAbstractItemView::SingleSelection);
   switch(currentIndex)
   {
     case 0:
     {
-      multiWellPlot_->setEnabled(true);
-      layoutStackedPlots_->setCurrentWidget(multiWellPlot_);
-    }
+      optimizedLithoTable_->setEnabled(true);
+      layoutStackedPlots_->setCurrentWidget(optimizedLithoTable_);
       break;
+    }
     case 1:
     {
-      wellScatterPlot_->setEnabled(true);
-      setVisibleLithofractionColumn(false);
+      multiWellPlot_->setEnabled(true);
+      layoutStackedPlots_->setCurrentWidget(multiWellPlot_);
+      break;
+    }
+    case 2:
+    {
+      wellScatterPlot_->setEnabled(true);      
       wellsList_->setSelectionMode(QAbstractItemView::ExtendedSelection);
       layoutStackedPlots_->setCurrentWidget(wellScatterPlot_);
+      break;
     }
-  }
-}
 
-void ResultsTab::setVisibleLithofractionColumn(const bool visible)
-{
-  buttonBaseCase_->setVisible(visible);
-  buttonRunOptimized_->setVisible(visible);
-  buttonSaveOptimized_->setVisible(visible);
-  optimizedLithoTable_->setVisible(visible);
-  tableLable_->setVisible(visible);
+  }
 }
 
 } // namespace sac

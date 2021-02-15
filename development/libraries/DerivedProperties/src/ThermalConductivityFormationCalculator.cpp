@@ -24,8 +24,10 @@
 
 #include "ThermalConductivityFormationCalculator.h"
 #include "PropertyRetriever.h"
+#include "ConstantsMathematics.h"
 
 using namespace AbstractDerivedProperties;
+using namespace DataAccess::Interface;
 
 DerivedProperties::ThermalConductivityFormationCalculator::ThermalConductivityFormationCalculator ( const GeoPhysics::ProjectHandle& projectHandle )
    : m_projectHandle ( projectHandle )
@@ -43,6 +45,21 @@ DerivedProperties::ThermalConductivityFormationCalculator::ThermalConductivityFo
        addDependentPropertyName ( "ALCStepTopBasaltDepth" );
        addDependentPropertyName ( "ALCStepBasaltThickness" );
     }
+}
+
+double DerivedProperties::ThermalConductivityFormationCalculator::calculateThermalConductivity(const GeoPhysics::CompoundLithology* lithology, const GeoPhysics::FluidType* fluid,
+                                                                                               const double porosity, const double temperature, const double porePressure) const
+{
+  double thermalConductivityNormal;
+  double thermalConductivityPlane;
+
+  lithology->calcBulkThermCondNP ( fluid,
+                                   Utilities::Maths::PercentageToFraction * porosity,
+                                   temperature,
+                                   porePressure,
+                                   thermalConductivityNormal,
+                                   thermalConductivityPlane );
+  return thermalConductivityNormal;
 }
 
 void DerivedProperties::ThermalConductivityFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
@@ -94,8 +111,6 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate (     
 
       // We could use any of the formation-properties here to get the undefined value.
       double undefinedValue = thermalConductivity->getUndefinedValue ();
-      double thermalConductivityNormal;
-      double thermalConductivityPlane;
 
       for ( unsigned int i = thermalConductivity->firstI ( true ); i <= thermalConductivity->lastI ( true ); ++i ) {
 
@@ -106,14 +121,8 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate (     
 
                for ( unsigned int k = thermalConductivity->firstK (); k <= thermalConductivity->lastK (); ++k ) {
 
-                  lithology->calcBulkThermCondNP ( fluid,
-                                                   0.01 * porosity->get ( i, j, k ),
-                                                   temperature->get ( i, j, k ),
-                                                   porePressure->get ( i, j, k ),
-                                                   thermalConductivityNormal,
-                                                   thermalConductivityPlane );
-
-                  thermalConductivity->set ( i, j, k, thermalConductivityNormal );
+                  thermalConductivity->set ( i, j, k, calculateThermalConductivity(lithology, fluid, porosity->get(i,j,k),
+                                                                                   temperature->get(i,j,k), porePressure->get(i,j,k)) );
                }
 
             } else {
@@ -327,4 +336,21 @@ bool DerivedProperties::ThermalConductivityFormationCalculator::isComputableForB
       }
    }
    return propertyIsComputable;
+}
+
+double DerivedProperties::ThermalConductivityFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                                                                       const GeoPhysics::CompoundLithology* lithology,
+                                                                                       const std::map<string, double>& dependentProperties ) const
+{
+  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType() );
+
+  if ( formation->kind() == DataAccess::Interface::BASEMENT_FORMATION )
+  {
+    return DefaultUndefinedScalarValue; // Not Implemented for 0D calculation
+  }
+
+  return calculateThermalConductivity( lithology, fluid,
+                                       dependentProperties.at("Porosity"),
+                                       dependentProperties.at("Temperature"),
+                                       dependentProperties.at("Pressure") );
 }

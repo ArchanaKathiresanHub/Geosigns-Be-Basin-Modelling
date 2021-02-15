@@ -11,7 +11,7 @@
 class WellTrajectoryWriterTest : public ::testing::Test
 {
 public:
-  casaWizard::sac::SACScenario scenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   casaWizard::CalibrationTargetManager& ctManager{scenario.calibrationTargetManager()};
   const QString wellName1{"Well1"};
   const QString wellName2{"Well2"};

@@ -24,7 +24,7 @@ namespace ua
 Controller::Controller() :
   MainController(),
   ui_{},
-  scenario_{std::unique_ptr<ProjectReader>(new CMBProjectReader())},
+  scenario_{new CMBProjectReader()},
   doeController_{new DoEcontroller{ui_.doeTab(), scenario_, scriptRunController(), this}},
   targetController_{new TargetController{ui_.targetTab(), scenario_, this}},
   qcController_{new QCController{ui_.qcTab(), scenario_, scriptRunController(), this}},

@@ -1419,7 +1419,8 @@ namespace migration
          //add a record to the reservoir list
          database::Record * record = m_migrator->addDetectedReservoirRecord (this, start);
          MigrationReservoir* reservoir = dynamic_cast<MigrationReservoir*>(getProjectHandle().addDetectedReservoirs (record, this));
-         // Net to gross
+         // Offsets and net to gross
+         reservoir->computeDepthOffsets (m_projectHandle.findSnapshot (0.));
          reservoir->computeNetToGross ();
          m_detectedReservoir = true;
       }

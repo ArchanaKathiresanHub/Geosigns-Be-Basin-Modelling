@@ -16,7 +16,6 @@ include_directories( SYSTEM
 
 create_bm_library( TARGET ${LIB_NAME}
                    LIBRARIES
-     DataMining
      FiniteElements
      utilities
      Interpolation
@@ -28,6 +27,7 @@ create_bm_library( TARGET ${LIB_NAME}
      DataAccess
      GeoPhysics
      CBMGenerics
+     DataMining
      ${HDF5_LIBRARIES}
 )
 

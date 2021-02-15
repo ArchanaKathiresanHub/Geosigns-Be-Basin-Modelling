@@ -2,6 +2,7 @@ cmake_minimum_required( VERSION 3.8 )
 
 if ( Qt5_FOUND )
   set( CMAKE_AUTOMOC ON )
+  set( CMAKE_AUTORCC ON )
   include( InstallCasaWizardApplication.cmake )
   add_subdirectory( src/uaThermalWizard )
   add_subdirectory( src/sacWizard )

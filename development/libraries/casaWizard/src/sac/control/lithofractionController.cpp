@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "lithofractionController.h"
 
 #include "view/lithofractionTable.h"
@@ -17,35 +25,15 @@ namespace sac
 
 LithofractionController::LithofractionController(LithofractionTable* table, SACScenario& scenario, QObject* parent) :
   QObject(parent),
-  projectReader_{scenario.projectReader()},
   lithofractionManager_{scenario.lithofractionManager()},
+  projectReader_{scenario.projectReader()},
   table_{table}
 {
-  connect(table_->addRow(),     SIGNAL(clicked()), this, SLOT(slotAddRow()));
-  connect(table_->delRow(),     SIGNAL(clicked()), this, SLOT(slotDelRow()));
-  connect(table_->fillLayers(), SIGNAL(clicked()), this, SLOT(slotLayersFromProject()));
   connect(table_->table(), SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(slotTableChange(QTableWidgetItem*)));
-  updateLithofractionTable();
-}
+  connect(table_, SIGNAL(firstOptimizationChanged(int, int)), this, SLOT(slotFirstOptimizationChanged(int, int)));
+  connect(table_, SIGNAL(secondOptimizationChanged(int, int)), this, SLOT(slotSecondOptimizationChanged(int, int)));
 
-void LithofractionController::slotAddRow()
-{
-  lithofractionManager_.addLithofraction("New layer");
   updateLithofractionTable();
-}
-
-void LithofractionController::slotDelRow()
-{
-  int row = table_->table()->currentRow();
-  if (row < 0)
-  {
-    row = table_->table()->rowCount()-1;
-  }
-  if (row >= 0)
-  {
-    lithofractionManager_.removeLithofraction(row);
-    updateLithofractionTable();
-  }
 }
 
 void LithofractionController::slotTableChange(QTableWidgetItem* item)
@@ -53,37 +41,40 @@ void LithofractionController::slotTableChange(QTableWidgetItem* item)
   const int index = item->row();
   switch (item->column())
   {
-    case 0:
-      lithofractionManager_.setLithofractionLayerName(index, item->data(0).toString());
-      break;
-    case 1:
-      lithofractionManager_.setLithofractionFirstComponent(index, item->data(0).toInt());
-      break;
-    case 2:
-      lithofractionManager_.setLithofractionFirstMinPercentage(index, item->data(0).toDouble());
-      updateLithofractionTable();
-      break;
     case 3:
-      lithofractionManager_.setLithofractionFirstMaxPercentage(index, item->data(0).toDouble());
-      updateLithofractionTable();
+      lithofractionManager_.setLithofractionFirstMinPercentage(index, item->data(0).toDouble());
+      updateLithoPercentages(index);
       break;
     case 4:
-      lithofractionManager_.setLithofractionSecondComponent(index, item->data(0).toInt());
+      lithofractionManager_.setLithofractionFirstMaxPercentage(index, item->data(0).toDouble());
+      updateLithoPercentages(index);
       break;
-    case 5:
+    case 7:
       lithofractionManager_.setLithofractionSecondMinFraction(index, item->data(0).toDouble());
-      updateLithofractionTable();
+      updateLithoPercentages(index);
       break;
-    case 6:
+    case 8:
       lithofractionManager_.setLithofractionSecondMaxFraction(index, item->data(0).toDouble());
-      updateLithofractionTable();
+      updateLithoPercentages(index);
       break;
   }
 }
 
-void LithofractionController::slotLayersFromProject()
+void LithofractionController::updateLithoPercentages(const int index)
 {
-  loadLayersFromProject();
+  table_->updateLithoPercentagesAndFractions(lithofractionManager_.lithofractions(), index);
+}
+
+void LithofractionController::slotFirstOptimizationChanged(int state, int row)
+{
+  lithofractionManager_.setLithoFractionDoFirstOptimization(row, state == Qt::CheckState::Checked);
+  table_->disableProhibitedComponents(row);
+}
+
+void LithofractionController::slotSecondOptimizationChanged(int state, int row)
+{
+  lithofractionManager_.setLithoFractionDoSecondOptimization(row, state == Qt::CheckState::Checked);
+  table_->disableProhibitedComponents(row);
 }
 
 void LithofractionController::loadLayersFromProject()

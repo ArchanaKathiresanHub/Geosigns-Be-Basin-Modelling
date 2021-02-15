@@ -19,22 +19,22 @@ class CaseDataCreator;
 class CaseExtractor
 {
 public:
-  explicit CaseExtractor(SACScenario& scenario);
+  explicit CaseExtractor(const SACScenario& scenario);
 
   void extract();
   void readCaseData();
   QString iterationPath() const;
-  SACScenario& scenario();
+  const SACScenario& scenario();
   virtual RunScript& script() = 0;
   virtual CaseDataCreator& dataCreator() = 0;
 
 private:
-  void extractCase(const Well& well, const int caseIndex);
+  void extractCase(const Well* well, const int caseIndex);
   void obtainIterationPath();
   virtual void updateCaseScript(const int wellIndex, const QString relativeDataFolder) = 0;
 
   QString iterationPath_;
-  SACScenario& scenario_;
+  const SACScenario& scenario_;
 };
 
 } // namespace sac

@@ -14,7 +14,7 @@ namespace casaWizard
 namespace sac
 {
 
-CaseExtractor::CaseExtractor(SACScenario& scenario) :
+CaseExtractor::CaseExtractor(const SACScenario& scenario) :
   iterationPath_{""},
   scenario_{scenario}
 {
@@ -24,13 +24,13 @@ CaseExtractor::CaseExtractor(SACScenario& scenario) :
 void CaseExtractor::extract()
 {
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  const QVector<Well>& wells = ctManager.wells();
+  const QVector<const Well*>& wells = ctManager.wells();
   QVector<int> sortedIndices = casaWizard::functions::sortedByXWellIndices(wells);
   int caseIndex{0};
 
   for (const int wellIndex : sortedIndices)
   {
-    if (wells[wellIndex].isActive() )
+    if (wells[wellIndex]->isActive() )
     {
       extractCase(wells[wellIndex], ++caseIndex);
     }
@@ -47,16 +47,16 @@ QString CaseExtractor::iterationPath() const
   return iterationPath_;
 }
 
-SACScenario& CaseExtractor::scenario()
+const SACScenario& CaseExtractor::scenario()
 {
   return scenario_;
 }
 
-void CaseExtractor::extractCase(const Well& well, const int caseIndex)
+void CaseExtractor::extractCase(const Well* well, const int caseIndex)
 {
   if (iterationPath_.isEmpty())
   {
-    Logger::log() << "Cannot read for " << well.name() << " because the iteration path is not set" << Logger::endl();
+    Logger::log() << "Cannot read for " << well->name() << " because the iteration path is not set" << Logger::endl();
     return;
   }
   const QString relativeDataFolder = "Case_" + QString::number(caseIndex);
@@ -64,11 +64,11 @@ void CaseExtractor::extractCase(const Well& well, const int caseIndex)
   QDir data{iterationPath_ + "/" + relativeDataFolder};
   if (!data.exists())
   {
-    Logger::log() << "Folder <" << data.absolutePath() << "> for reading " << well.name() << " not found" << Logger::endl();
+    Logger::log() << "Folder <" << data.absolutePath() << "> for reading " << well->name() << " not found" << Logger::endl();
     return;
   }
 
-  updateCaseScript(well.id(), relativeDataFolder);
+  updateCaseScript(well->id(), relativeDataFolder);
 }
 
 void CaseExtractor::obtainIterationPath()

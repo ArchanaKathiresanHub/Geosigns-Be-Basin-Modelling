@@ -35,6 +35,12 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation*                       formation,
                                      AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
+      virtual double calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                          const GeoPhysics::CompoundLithology* lithology,
+                                          const std::map<std::string, double>& dependentProperties ) const override;
+
+   private:
+      double calculateSonic(double velocity) const;
    };
 
 

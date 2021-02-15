@@ -21,10 +21,12 @@ public:
   void setCalibrationTargetStandardDeviation(int index, double value);
   void setCalibrationTargetUAWeight(int index, double value);
 
-  const QVector<Well> wells() const;
-  QVector<const Well*> activeWells() const;
+  const QVector<const Well*> wells() const;
+  const QVector<const Well*> activeWells() const;
+  const QVector<const Well*> activeAndIncludedWells() const;
   const Well& well(const int wellIndex) const;
-  void setWellIsActive(bool checkState, int row);
+  void setWellIsActive(bool active, int wellIndex);
+  void setWellIsExcluded(bool excluded, int wellIndex);
   int addWell(const QString& wellName, double x, double y);
 
   int amountOfActiveCalibrationTargets() const;
@@ -38,7 +40,7 @@ public:
   void setObjectiveFunction(int row, int col, double value);
   void setObjectiveFunctionVariables(const QStringList& variables);
 
-  void clear();
+  void clear() override;
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;
 

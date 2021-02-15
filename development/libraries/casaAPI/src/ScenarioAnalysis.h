@@ -120,8 +120,9 @@ namespace casa
 
       /// @brief Set the filter algorithm
       /// @param filterAlgorithm the name of the filtering algorithm to use
+      /// @param excludeSet set of excluded observables
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
-      ErrorHandler::ReturnCode setFilterOneDResults( const std::string & filterAlgorithm );
+      ErrorHandler::ReturnCode setFilterOneDResults(const std::string & filterAlgorithm , const std::set<int>& excludeSet);
 
       /// @brief Generate a 3D project from 1D results using appropriate parameter averages
       /// @param expLabel name of the cases where the averages should take place
@@ -267,8 +268,10 @@ namespace casa
       // version 8: Added source rock type mixing ID, different TOC ranges for source rock category parameter
       // version 9: Reset all other objects versions to 0 due to backware uncompatibility with curent state
       // version 10: add m_xcoordOneD and  m_ycoordOneD - x,y coordinates of the extracted wells for multi 1D
+      // version 11: parameter filter
+      // version 12: add exclude set to filter
 
-      int version() { return 11; }
+      int version() { return 12; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in

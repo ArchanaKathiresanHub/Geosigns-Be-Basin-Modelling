@@ -8,7 +8,7 @@ if(UNIX)
 
 DIR=$(dirname $0)
 
-. /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh
+[[ -r /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh ]] && . /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh
 module load HpcSoftwareStack/PRODUCTION
 module purge &> /dev/null
 module load Qt5/5.10.1-intel-2019a

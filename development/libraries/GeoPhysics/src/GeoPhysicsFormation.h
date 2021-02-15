@@ -32,6 +32,7 @@ namespace DataAccess
 {
    namespace Interface
    {
+      class GridMap;
       class ProjectHandle;
    }
 }
@@ -44,17 +45,17 @@ namespace GeoPhysics {
    public :
 
       GeoPhysicsFormation ( DataAccess::Interface::ProjectHandle& projectHandle,
-                  database::Record*                          record );
+                            database::Record*                     record );
 
 
       ~GeoPhysicsFormation ();
 
       virtual bool setLithologiesFromStratTable ();
 
-      virtual void setAllochthonousLayer ( AllochthonousLithologyInterpolator* interpolator );
+      void setAllochthonousLayer ( AllochthonousLithologyInterpolator* interpolator );
 
-      virtual void setFaultLithologies ( bool& layerHasFaults,
-                                         bool& error );
+      void setFaultLithologies ( bool& layerHasFaults,
+                                 bool& error );
 
       bool getContainsFaults () const;
 
@@ -129,6 +130,16 @@ namespace GeoPhysics {
       /// \brief Set the refinement factor for the number of elements in the depth.
       void setDepthRefinementFactor ( const int zRefinementFactor );
 
+      virtual GeoPhysics::CompoundLithology* getLithologyFromStratTable( bool& undefinedMapValue,
+                                                                         bool useMaps,
+                                                                         unsigned int i,
+                                                                         unsigned int j,
+                                                                         const GridMap* lithoMap1,
+                                                                         const GridMap* lithoMap2,
+                                                                         const GridMap* lithoMap3,
+                                                                         const string& lithoName1,
+                                                                         const string& lithoName2,
+                                                                         const string& lithoName3) const;
    protected :
 
       // I hope just temporary.

@@ -644,8 +644,8 @@ FtClWeightBinStart FtClWeightBinWidth
 ;
 [ReservoirIoTbl]
 ;v100
-ReservoirName DetectedReservoir FormationName TrapCapacity ActivityMode ActivityStart NetToGross NetToGrossGrid BioDegradInd OilToGasCrackingInd DiffusionInd MinOilColumnHeight MinGasColumnHeight BlockingInd BlockingPermeability BlockingPorosity
-  ()   ()   () (m3)   () (Ma) (percent) (percent) () () () (m) (m) () (mD)  (%)
+ReservoirName DetectedReservoir FormationName TrapCapacity ActivityMode ActivityStart Thickness ThicknessGrid NetToGross NetToGrossGrid BioDegradInd OilToGasCrackingInd DiffusionInd MinOilColumnHeight MinGasColumnHeight BlockingInd BlockingPermeability BlockingPorosity
+  ()   ()   () (m3)   () (Ma)  (m)  (m) (percent) (percent) () () () (m) (m) () (mD)  (%)
 [End]
 ;
 ;

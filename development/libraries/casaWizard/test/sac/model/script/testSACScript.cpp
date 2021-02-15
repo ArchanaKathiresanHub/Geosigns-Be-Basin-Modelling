@@ -11,15 +11,18 @@
 
 TEST(SACScriptTest, testWriteScript)
 {
-  casaWizard::sac::SACScenario scenario{std::unique_ptr<casaWizard::ProjectReader>(new casaWizard::StubProjectReader())};
+  casaWizard::sac::SACScenario scenario{new casaWizard::StubProjectReader()};
   casaWizard::sac::LithofractionManager& lithofractionManager{scenario.lithofractionManager()};
   casaWizard::sac::WellTrajectoryManager& wellTrajectoryManager{scenario.wellTrajectoryManager()};
   scenario.setWorkingDirectory(".");
 
   lithofractionManager.addLithofraction("Layer 1");
   lithofractionManager.addLithofraction("Layer 2");
+  lithofractionManager.addLithofraction("Layer 3");
   lithofractionManager.setLithofractionSecondComponent(0, 3);
   lithofractionManager.setLithofractionSecondComponent(1, 2);
+  lithofractionManager.setLithoFractionDoSecondOptimization(0, false);
+  lithofractionManager.setLithoFractionDoFirstOptimization(2, false);
 
   casaWizard::CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
 

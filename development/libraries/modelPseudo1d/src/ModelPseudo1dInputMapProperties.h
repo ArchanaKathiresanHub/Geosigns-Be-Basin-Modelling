@@ -44,6 +44,7 @@ private:
   void setSourceRockLithoIoTbl();
   void setCTCIoTbl();
   void setBoundaryValuesIoTbl();
+  void setSurfaceDepthIoTbl();
   void setSurfaceTempIoTbl();
   void setMntlHeatFlowIoTbl();
   void setBasementIoTbl();

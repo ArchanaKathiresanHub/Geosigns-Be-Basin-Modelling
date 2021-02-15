@@ -40,37 +40,33 @@ GeoPhysics::GeoPhysicsMantleFormation::GeoPhysicsMantleFormation ( DataAccess::I
    // Nothing to do here!
 }
 
+GeoPhysics::CompoundLithology* GeoPhysics::GeoPhysicsMantleFormation::getLithologyFromStratTable( bool& /*undefinedMapValue*/, bool /*useMaps*/, unsigned int /*i*/,  unsigned int /*j*/,
+                                                             const GridMap* /*lithoMap1*/, const GridMap* /*lithoMap2*/, const GridMap* /*lithoMap3*/,
+                                                             const string& /*lithoName1*/, const string& /*lithoName2*/, const string& /*lithoName3*/ ) const
+{
+  const std::string lithoName1 = DataAccess::Interface::MantleFormation::getLithoType1 ()->getName ();
+  CompoundLithologyComposition lc ( lithoName1, "",  "",
+                                    100.0, 0.0, 0.0,
+                                    DataAccess::Interface::MantleFormation::getMixModelStr (),
+                                    DataAccess::Interface::MantleFormation::getLayeringIndex());
 
+  if( getProjectHandle().isALC() )
+  {
+     lc.setThermalModel( getProjectHandle().getMantlePropertyModel());
+  }
+  return dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle()).getLithologyManager ().getCompoundLithology ( lc );
+}
 
-bool GeoPhysics::GeoPhysicsMantleFormation::setLithologiesFromStratTable () {
-
+bool GeoPhysics::GeoPhysicsMantleFormation::setLithologiesFromStratTable ()
+{
    m_compoundLithologies.allocate ( getProjectHandle().getActivityOutputGrid ());
 
-   string lithoName1;
-
-   bool noDefinedLithologyValue;
-   bool createdLithologies = true;
-
-   CompoundLithology*  pMixedLitho;
-
-   lithoName1 = DataAccess::Interface::MantleFormation::getLithoType1 ()->getName ();
-   noDefinedLithologyValue = true;
-
-   CompoundLithologyComposition lc ( lithoName1, "",  "",
-                                     100.0, 0.0, 0.0,
-                                     DataAccess::Interface::MantleFormation::getMixModelStr (),
-                                     DataAccess::Interface::MantleFormation::getLayeringIndex());
-
-   GeoPhysics::ProjectHandle& projectHandle = dynamic_cast<GeoPhysics::ProjectHandle&>(getProjectHandle());
-   if( projectHandle.isALC() ) {
-      lc.setThermalModel( projectHandle.getMantlePropertyModel());
-   }
-
-   pMixedLitho = projectHandle.getLithologyManager ().getCompoundLithology ( lc );
-   createdLithologies = pMixedLitho != 0;
+   bool undefinedMapValue = false;
+   CompoundLithology* pMixedLitho = getLithologyFromStratTable( undefinedMapValue );
+   bool createdLithologies = pMixedLitho != nullptr;
    m_compoundLithologies.fillWithLithology ( pMixedLitho );
 
-   if( projectHandle.isALC() && getProjectHandle().getRank() == 0 ) {
+   if( getProjectHandle().isALC() && getProjectHandle().getRank() == 0 ) {
       cout << "Mantle property model = " << pMixedLitho->getThermalModel() << endl;
    }
    return createdLithologies;

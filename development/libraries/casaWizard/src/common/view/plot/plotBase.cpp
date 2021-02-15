@@ -12,7 +12,7 @@
 namespace casaWizard
 {
 
-const int textSpacing = 6;
+const int textSpacing = 3;
 const int majorTickLength = 6;
 
 // PlotBasePrivate
@@ -23,19 +23,41 @@ PlotBase::PlotBasePrivate::PlotBasePrivate() :
   yAxisMinValue_{0.0},
   yAxisMaxValue_{1.0},
   maxYtickWidth_{0.0},
+  aspectRatioPlotArea_{0.0},
   plotRangeTopLeft_{},
   plotRangeBottomRight_{},
   font_{"Sans",10}
 {
 }
 
-QPointF PlotBase::PlotBasePrivate::valToPoint(double x, double y)
+QPointF PlotBase::PlotBasePrivate::valToPoint(double x, double y) const
 {
   QPointF origin(plotRangeTopLeft_.x(), plotRangeBottomRight_.y());
   const double px = (x - xAxisMinValue_)/(xAxisMaxValue_ - xAxisMinValue_)*(plotRangeBottomRight_.x() - plotRangeTopLeft_.x());
   const double py = (y - yAxisMinValue_)/(yAxisMaxValue_ - yAxisMinValue_)*(plotRangeTopLeft_.y() - plotRangeBottomRight_.y()); //y-direction is top down
 
   return origin + QPointF(px, py);
+}
+
+QPointF PlotBase::PlotBasePrivate::pointToVal(double px, double py) const
+{
+  QPointF origin(plotRangeTopLeft_.x(), plotRangeBottomRight_.y());
+
+  const double x = (px - origin.x()) * (xAxisMaxValue_ - xAxisMinValue_) / (plotRangeBottomRight_.x() - plotRangeTopLeft_.x()) + xAxisMinValue_;
+  const double y = (py - origin.y()) * (yAxisMaxValue_ - yAxisMinValue_) / (plotRangeTopLeft_.y() - plotRangeBottomRight_.y()) + yAxisMinValue_;
+
+  return QPointF(x, y);
+}
+
+bool PlotBase::PlotBasePrivate::validPosition(double px, double py) const
+{
+  QPointF origin(plotRangeTopLeft_.x(), plotRangeBottomRight_.y());
+
+  const double x = (px - origin.x()) * (xAxisMaxValue_ - xAxisMinValue_) / (plotRangeBottomRight_.x() - plotRangeTopLeft_.x()) + xAxisMinValue_;
+  const double y = (py - origin.y()) * (yAxisMaxValue_ - yAxisMinValue_) / (plotRangeTopLeft_.y() - plotRangeBottomRight_.y()) + yAxisMinValue_;
+
+  const bool outOfBounds = (x > xAxisMaxValue_ || x < xAxisMinValue_ || y > yAxisMaxValue_ || y < yAxisMinValue_);
+  return !outOfBounds;
 }
 
 QFont PlotBase::PlotBasePrivate::font() const
@@ -66,6 +88,11 @@ void PlotBase::PlotBasePrivate::setXLabel(const QString& xLabel)
 void PlotBase::PlotBasePrivate::setYLabel(const QString& yLabel)
 {
   yLabel_ = yLabel;
+}
+
+void PlotBase::PlotBasePrivate::setAspectRatio(const double aspectRatio)
+{
+  aspectRatioPlotArea_ = aspectRatio;
 }
 
 double PlotBase::PlotBasePrivate::xAxisMinValue() const
@@ -110,7 +137,7 @@ void PlotBase::PlotBasePrivate::setYAxisMaxValue(double yAxisMaxValue)
 
 void PlotBase::PlotBasePrivate::updatePlotRange(const int width, const int height)
 {
-  tickCalculator(majorXticks_, majorYticks_, xAxisMinValue_, xAxisMaxValue_, yAxisMinValue_, yAxisMaxValue_);
+  calculateTicks();
 
   QFontMetrics fm(font_);
   maxYtickWidth_ = 0;
@@ -123,10 +150,25 @@ void PlotBase::PlotBasePrivate::updatePlotRange(const int width, const int heigh
   const double offsetHeight = majorTickLength + 2*fm.height() + 3*textSpacing;
   const double offsetWidth = majorTickLength + fm.height() + maxYtickWidth_ + 3*textSpacing;
 
-  plotRangeTopLeft_ = QPointF(offsetWidth, offsetHeight/3);
-  plotRangeBottomRight_ = QPointF(width - offsetWidth/3, height - offsetHeight);
-}
+  if (std::fabs(aspectRatioPlotArea_) < 1e-5)
+  {
+    plotRangeTopLeft_ = QPointF(offsetWidth, offsetHeight/3);
+    plotRangeBottomRight_ = QPointF(width - offsetWidth/3, height - offsetHeight);
+  }
+  else
+  {
+    int widthScaled = aspectRatioPlotArea_ * height;
+    int heightScaled = height;
+    if (widthScaled > width)
+    {
+      widthScaled = width;
+      heightScaled = width / aspectRatioPlotArea_;
+    }
 
+    plotRangeTopLeft_ = QPointF(offsetWidth + std::fabs(width - widthScaled)/2, offsetHeight/3 + (height - heightScaled) / 2);
+    plotRangeBottomRight_ = QPointF(widthScaled + std::fabs(width - widthScaled)/2 - offsetWidth/3, heightScaled - offsetHeight + (height - heightScaled) / 2);
+  }
+}
 
 void PlotBase::PlotBasePrivate::drawBorder(QPainter& painter, const int width, const int height)
 {
@@ -176,7 +218,7 @@ void PlotBase::PlotBasePrivate::drawTicks(QPainter& painter)
     painter.drawLine(p1, p2);
 
     text = QString::number(yTick,'g',4);
-    painter.drawText(p2 + QPointF(-(fm.width(text) + textSpacing), fm.height()/2.0), text);
+    painter.drawText(p2 + QPointF(-(fm.width(text) + textSpacing), fm.height()/4.0), text);
   }
   painter.restore();
 }
@@ -188,47 +230,66 @@ void PlotBase::PlotBasePrivate::drawLabels(QPainter& painter, const int height)
 
   const QPointF plotCenter = valToPoint( (xAxisMinValue_+xAxisMaxValue_)/2, (yAxisMinValue_+yAxisMaxValue_)/2);
 
-  const QPointF xLabelPosition( plotCenter.x() - fm.width(xLabel_)/2, height-textSpacing);
+  const QPointF xLabelPosition( plotCenter.x() - fm.width(xLabel_)/2, plotRangeBottomRight_.y() + textSpacing + 2*fm.height() + textSpacing);
   painter.drawText(xLabelPosition, xLabel_);
 
-  QPointF yLabelPosition( textSpacing + fm.height(), plotCenter.y() + fm.width(yLabel_)/2);
+  QPointF yLabelPosition( plotRangeTopLeft().x() - textSpacing - fm.height() - fm.width(QString::number(majorYticks_[0],'g',4)), plotCenter.y() + fm.width(yLabel_)/2);
   painter.translate(yLabelPosition);
   painter.rotate(-90);
   painter.drawText(QPoint(0,0), yLabel_);
   painter.restore();
 }
 
-void PlotBase::PlotBasePrivate::tickCalculator(QVector<double>& majorXTicks, QVector<double>& majorYTicks, const double xAxisMinValue,
-                                     const double xAxisMaxValue, const double yAxisMinValue, const double yAxisMaxValue)
+void PlotBase::PlotBasePrivate::calculateTicks()
 {
-  const double xBase = std::pow(10.0, std::floor(std::log10((xAxisMaxValue - xAxisMinValue)*0.9)));
-  const double yBase = std::pow(10.0, std::floor(std::log10((yAxisMaxValue - yAxisMinValue)*0.9)));
-  majorXTicks.clear();
-  majorYTicks.clear();
+  majorXticks_.clear();
+  majorYticks_.clear();
 
-  for (int i = -100; i <= 100; ++i)
+  const double xTickSeparation = std::pow(10.0, std::floor(std::log10((xAxisMaxValue_ - xAxisMinValue_)*0.9)));
+  const double yTickSeparation = std::pow(10.0, std::floor(std::log10((yAxisMaxValue_ - yAxisMinValue_)*0.9)));
+
+  addBaseTicks(xTickSeparation, yTickSeparation);
+
+  if (majorXticks_.size() <= 1)
   {
-    const double xValue = xBase*i;
-    if (xValue >= xAxisMinValue && xValue <= xAxisMaxValue)
-    {
-      majorXTicks.push_back(xValue);
-    }
-    const double yValue = yBase*i;
-    if (yValue >= yAxisMinValue && yValue <= yAxisMaxValue)
-    {
-      majorYTicks.push_back(yValue);
-    }
+    addExtraTicks(majorXticks_, xAxisMinValue_, xAxisMaxValue_, xTickSeparation / 2);
   }
 
-  // If the range is too small, use a simple stepping approach
-  if (majorXticks_.empty())
+  if (majorYticks_.size() <= 1)
   {
-    simpleTickCalculator(majorXticks_, xAxisMinValue_, xAxisMaxValue_);
+    addExtraTicks(majorYticks_, yAxisMinValue_, yAxisMaxValue_, yTickSeparation / 2);
   }
+}
 
-  if (majorYticks_.empty())
+void PlotBase::PlotBasePrivate::addBaseTicks(const double xBase, const double yBase)
+{
+  for (int i = 0; i <= 20; ++i)
   {
-    simpleTickCalculator(majorYticks_, yAxisMinValue_, yAxisMaxValue_);
+    const double xValue = std::floor(xAxisMinValue_/xBase) * xBase + xBase*i;
+    if (xValue >= xAxisMinValue_ && xValue <= xAxisMaxValue_)
+    {
+      majorXticks_.push_back(xValue);
+    }
+
+    const double yValue = std::floor(yAxisMinValue_/yBase) * yBase + yBase*i;
+    if (yValue >= yAxisMinValue_ && yValue <= yAxisMaxValue_)
+    {
+      majorYticks_.push_back(yValue);
+    }
+  }
+}
+
+void PlotBase::PlotBasePrivate::addExtraTicks(QVector<double>& ticks, const double axisMinValue, const double axisMaxValue, const double tickSeparation)
+{
+  ticks.clear();
+
+  for (int i = 0; i <= 20; ++i)
+  {
+    const double xValue = std::floor(axisMinValue/tickSeparation) * tickSeparation + tickSeparation*i;
+    if (xValue >= axisMinValue && xValue <= axisMaxValue)
+    {
+      ticks.push_back(xValue);
+    }
   }
 }
 
@@ -290,9 +351,19 @@ void PlotBase::paintEvent(QPaintEvent* /*event*/)
   drawData(painter);
 }
 
-QPointF PlotBase::valToPoint(double x, double y)
+QPointF PlotBase::valToPoint(double x, double y) const
 {
   return plotBasePrivate_->valToPoint(x, y);
+}
+
+QPointF PlotBase::pointToVal(double px, double py) const
+{
+  return plotBasePrivate_->pointToVal(px, py);
+}
+
+bool PlotBase::validPosition(double px, double py) const
+{
+  return plotBasePrivate_->validPosition(px, py);
 }
 
 void PlotBase::dataChanged()
@@ -336,6 +407,11 @@ void PlotBase::setXLabel(const QString& label)
 void PlotBase::setYLabel(const QString& label)
 {
   plotBasePrivate_->setYLabel(label);
+}
+
+void PlotBase::setAspectRatio(const double aspectRatio)
+{
+  plotBasePrivate_->setAspectRatio(aspectRatio);
 }
 
 void PlotBase::setFontStyle(FontStyle font)

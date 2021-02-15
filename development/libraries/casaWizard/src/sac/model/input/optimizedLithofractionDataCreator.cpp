@@ -35,18 +35,21 @@ void OptimizedLithofractionDataCreator::readCase(const int wellIndex, const int 
     values.clear();
   }
 
-  const int nValues = values.size();
+  const QVector<Lithofraction>& lithofractions = lithofractionManager_.lithofractions();
 
-  int valueIndex = 0;
-  int layerIndex = 0;
-  while (valueIndex < nValues)
+  int lithoFractionIndex = 0;
+  for ( int valueIndex = 0; valueIndex < values.size(); valueIndex+=2, lithoFractionIndex++ )
   {
+    while (!lithofractions[lithoFractionIndex].doFirstOptimization())
+    {
+      lithoFractionIndex++;
+    }
     OptimizedLithofraction newOptimal
     {
       wellIndex,
-      layerIndex++,
-      values[valueIndex++],
-      values[valueIndex++]
+      lithoFractionIndex,
+      values[valueIndex],
+      values[valueIndex + 1]
     };
     // Note that the fraction is present in the file, even if it is not used.
 

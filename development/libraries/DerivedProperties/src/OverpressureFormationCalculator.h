@@ -35,7 +35,9 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation*                       formation,
                                      AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
-    };
+   private:
+      double calculateOverpressure(const double porePressure, const double hydrostaticPressure) const;
+   };
 
 
 }

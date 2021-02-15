@@ -39,8 +39,14 @@ TEST(LithofractionManagerTest, testWriteToFile)
   manager.setLithofractionSecondMinFraction(0, 0.5);
   manager.setLithofractionSecondMaxFraction(0, 0.6);
 
-  casaWizard::sac::OptimizedLithofraction optim(10, 11, 12, 13);
-  manager.addOptimizedLithofraction(optim);
+  manager.setLithoFractionDoFirstOptimization(0, true);
+  manager.setLithoFractionDoSecondOptimization(0, false);
+
+  manager.setLithoFractionDoFirstOptimization(1, true);
+  manager.setLithoFractionDoSecondOptimization(1, false);
+
+  manager.addOptimizedLithofraction(casaWizard::sac::OptimizedLithofraction(10,0,12,13));
+  manager.addOptimizedLithofraction(casaWizard::sac::OptimizedLithofraction(11,1,14,15));
 
   casaWizard::ScenarioWriter writer{"lithofractionManagerActual.dat"};
   manager.writeToFile(writer);
@@ -49,15 +55,9 @@ TEST(LithofractionManagerTest, testWriteToFile)
   expectFileEq("lithofractionManager.dat", "lithofractionManagerActual.dat");
 }
 
-TEST(LithofractionManagerTest, testReadFromFile)
+void checkVersion0Reading(const QVector<casaWizard::sac::Lithofraction>& lithofractions,
+                          const QVector<casaWizard::sac::OptimizedLithofraction>& optimized)
 {
-  casaWizard::sac::LithofractionManager manager;
-  casaWizard::ScenarioReader reader{"lithofractionManager.dat"};
-
-  manager.readFromFile(reader);
-
-  const QVector<casaWizard::sac::Lithofraction>& lithofractions = manager.lithofractions();
-
   ASSERT_EQ(lithofractions.size(), 2);
   EXPECT_EQ(lithofractions[0].layerName().toStdString(), "Litho1");
   EXPECT_EQ(lithofractions[0].firstComponent(), 1);
@@ -68,11 +68,49 @@ TEST(LithofractionManagerTest, testReadFromFile)
   EXPECT_DOUBLE_EQ(lithofractions[0].maxFractionSecondComponent(), 0.6);
   EXPECT_EQ(lithofractions[1].layerName().toStdString(), "Litho2");
 
-  const QVector<casaWizard::sac::OptimizedLithofraction>& optimized = manager.optimizedLithofractions();
-
-  ASSERT_EQ(optimized.size(), 1);
+  ASSERT_EQ(optimized.size(), 2);
   EXPECT_EQ(optimized[0].wellId(), 10);
-  EXPECT_EQ(optimized[0].lithofractionId(), 11);
+  EXPECT_EQ(optimized[0].lithofractionId(), 0);
   EXPECT_DOUBLE_EQ(optimized[0].optimizedPercentageFirstComponent(), 12);
   EXPECT_DOUBLE_EQ(optimized[0].optimizedFractionSecondComponent(), 13);
+
+  EXPECT_EQ(optimized[1].wellId(), 11);
+  EXPECT_EQ(optimized[1].lithofractionId(), 1);
+  EXPECT_DOUBLE_EQ(optimized[1].optimizedPercentageFirstComponent(), 14);
+  EXPECT_DOUBLE_EQ(optimized[1].optimizedFractionSecondComponent(), 15);
+}
+
+void checkVersion1Reading(const QVector<casaWizard::sac::Lithofraction>& lithofractions )
+{
+  EXPECT_TRUE(lithofractions[0].doFirstOptimization());
+  EXPECT_FALSE(lithofractions[0].doSecondOptimization());
+  EXPECT_TRUE(lithofractions[1].doFirstOptimization());
+  EXPECT_FALSE(lithofractions[1].doSecondOptimization());
+}
+
+TEST(LithofractionManagerTest, testReadFromFile)
+{
+  casaWizard::sac::LithofractionManager manager;
+  casaWizard::ScenarioReader reader{"lithofractionManager.dat"};
+
+  manager.readFromFile(reader);
+
+  const QVector<casaWizard::sac::Lithofraction>& lithofractions = manager.lithofractions();
+  const QVector<casaWizard::sac::OptimizedLithofraction>& optimized = manager.optimizedLithofractions();
+
+  checkVersion0Reading(lithofractions, optimized);
+  checkVersion1Reading(lithofractions);
+}
+
+TEST(LithofractionManagerTest, testReadFromFileVersion0)
+{
+  casaWizard::sac::LithofractionManager manager;
+  casaWizard::ScenarioReader reader{"lithofractionManagerVersion0.dat"};
+
+  manager.readFromFile(reader);
+
+  const QVector<casaWizard::sac::Lithofraction>& lithofractions = manager.lithofractions();
+  const QVector<casaWizard::sac::OptimizedLithofraction>& optimized = manager.optimizedLithofractions();
+
+  checkVersion0Reading(lithofractions, optimized);
 }

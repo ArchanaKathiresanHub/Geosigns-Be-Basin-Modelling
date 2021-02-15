@@ -77,8 +77,6 @@ Genex0dSourceRock::Genex0dSourceRock(DataAccess::Interface::ProjectHandle& proje
   m_inPorePressure{},
   m_inPorosity{},
   m_inPermeability{},
-  m_inLithoPressure{},
-  m_inHydroPressure{},
   m_pointAdsorptionHistory{new Genex0dPointAdsorptionHistory(projectHandle, inData)},
   m_sourceRock2{nullptr},
   m_mixingHI{inData.mixingHI}
@@ -115,8 +113,6 @@ Genex0dSourceRock::Genex0dSourceRock(DataAccess::Interface::ProjectHandle& proje
   m_inPorePressure{},
   m_inPorosity{},
   m_inPermeability{},
-  m_inLithoPressure{},
-  m_inHydroPressure{},
   m_pointAdsorptionHistory{nullptr},
   m_sourceRock2{nullptr},
   m_mixingHI{CauldronNoDataValue}
@@ -178,8 +174,7 @@ std::string Genex0dSourceRock::extractTypeID(const std::string& sourceRockType) 
 
 void Genex0dSourceRock::initializeInputs(const double thickness, const double inorganicDensity, const std::vector<double> & time,
                                                     const std::vector<double>& temperature, const std::vector<double>& Ves, const std::vector<double>& VRE,
-                                                    const std::vector<double>& porePressure, const std::vector<double>& permeability, const std::vector<double>& porosity,
-                                                    const std::vector<double>& lithoPressure, const std::vector<double>& hydroPressure)
+                                                    const std::vector<double>& porePressure, const std::vector<double>& permeability, const std::vector<double>& porosity)
 {
   m_inTimes = time;
   m_inTemperatures = temperature;
@@ -188,8 +183,6 @@ void Genex0dSourceRock::initializeInputs(const double thickness, const double in
   m_inPorePressure = porePressure;
   m_inPermeability = permeability;
   m_inPorosity = porosity;
-  m_inLithoPressure = lithoPressure;
-  m_inHydroPressure = hydroPressure;
   m_thickness = thickness;
   m_inorganicDensity = inorganicDensity;
 
@@ -201,16 +194,6 @@ void Genex0dSourceRock::initializeInputs(const double thickness, const double in
   for (double& porepressure : m_inPorePressure)
   {
     porepressure *= Utilities::Maths::MegaPaToPa;
-  }
-
-  for (double& lithoPressure : m_inLithoPressure)
-  {
-    lithoPressure *= Utilities::Maths::MegaPaToPa;
-  }
-
-  for (double& hydroPressure : m_inHydroPressure)
-  {
-    hydroPressure *= Utilities::Maths::MegaPaToPa;
   }
 }
 
@@ -547,7 +530,7 @@ bool Genex0dSourceRock::process()
 
     // Processing pressure and temperature at interval start of the first interval
     computePTSnapShot(intervalStart->getTime(), intervalStart->getTime(), m_inVesAll[i], temperatureInterpPrevious, m_inTemperatures[i], m_inVRE[i],
-                      porePressureInterpPrevious, m_inPorePressure[i], m_inPermeability[i], m_inPorosity[i], m_inLithoPressure[i], m_inHydroPressure[i], false);
+                      porePressureInterpPrevious, m_inPorePressure[i], m_inPermeability[i], m_inPorosity[i], false);
 
     double tPrevious = intervalStart->getTime();
     double t = tPrevious - deltaT;
@@ -561,12 +544,9 @@ bool Genex0dSourceRock::process()
       const double porePressureInterp = interpolateSnapshotProperty(m_inPorePressure[i], m_inPorePressure[i+1], tPrevious, t, deltaTInterval);
       const double permeabilityInterp = interpolateSnapshotProperty(m_inPermeability[i], m_inPermeability[i+1], tPrevious, t, deltaTInterval);
       const double porosityInterp = interpolateSnapshotProperty(m_inPorosity[i], m_inPorosity[i+1], tPrevious, t, deltaTInterval);
-      const double lithoPressureInterp = interpolateSnapshotProperty(m_inLithoPressure[i], m_inLithoPressure[i+1], tPrevious, t, deltaTInterval);
-      const double hydroPressureInterp = interpolateSnapshotProperty(m_inHydroPressure[i], m_inHydroPressure[i+1], tPrevious, t, deltaTInterval);
 
       computePTSnapShot(t + deltaT, t, VesInterp, temperatureInterpPrevious, temperatureInterp, VreInterp,
-                        porePressureInterpPrevious, porePressureInterp, permeabilityInterp, porosityInterp,
-                        lithoPressureInterp, hydroPressureInterp, true);
+                        porePressureInterpPrevious, porePressureInterp, permeabilityInterp, porosityInterp, true);
 
       porePressureInterpPrevious = porePressureInterp;
       temperatureInterpPrevious = temperatureInterp;
@@ -584,7 +564,8 @@ bool Genex0dSourceRock::process()
   }
 
   // Set the interval end for the current interval (doesn't need interpolation)
-  computePTSnapShot(intervalEnd->getTime(), intervalEnd->getTime(), m_inVesAll[i], m_inTemperatures[i], m_inTemperatures[i], m_inVRE[i], m_inPorePressure[i], m_inPorePressure[i], m_inPermeability[i], m_inPorosity[i], m_inLithoPressure[i], m_inHydroPressure[i], false);
+  computePTSnapShot( intervalEnd->getTime(), intervalEnd->getTime(), m_inVesAll[i], m_inTemperatures[i], m_inTemperatures[i], m_inVRE[i],
+                    m_inPorePressure[i], m_inPorePressure[i], m_inPermeability[i], m_inPorosity[i], false );
 
   clearSimulatorBase();
 
@@ -603,8 +584,7 @@ bool Genex0dSourceRock::process()
 bool Genex0dSourceRock::computePTSnapShot(const double timePrevious, const double time, double inPressure,
                                           const double inTemperaturePrevious, const double inTemperature,
                                           const double inVre, const double inPorePressurePrevious, const double inPorePressure,
-                                          const double inPermeability, const double inPorosity, const double inLithoPressure,
-                                          const double inHydroPressure, const bool isInterpolatedTime)
+                                          const double inPermeability, const double inPorosity, const bool isInterpolatedTime)
 {
   LogHandler( LogHandler::INFO_SEVERITY ) << "Computing time instance t:" << time;
 
@@ -614,8 +594,8 @@ bool Genex0dSourceRock::computePTSnapShot(const double timePrevious, const doubl
       inPressure = getVESMax();
   }
 
-  Genex6::Input* theInput = new Genex6::Input(timePrevious, time, inTemperaturePrevious, inTemperature, inPressure, inLithoPressure, inHydroPressure,
-                                               inPorePressurePrevious, inPorePressure, inPorosity, inPermeability, inVre, 0, 0);
+  Genex6::Input* theInput = new Genex6::Input( timePrevious, time, inTemperaturePrevious, inTemperature, inPressure, DataAccess::Interface::DefaultUndefinedScalarValue,
+                                               DataAccess::Interface::DefaultUndefinedScalarValue, inPorePressurePrevious, inPorePressure, inPorosity, inPermeability, inVre, 0, 0 );
 
   if (isInterpolatedTime)
   {

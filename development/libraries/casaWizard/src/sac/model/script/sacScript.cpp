@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "sacScript.h"
 
 #include "model/sacScenario.h"
@@ -59,14 +67,14 @@ void SACScript::writeScriptContents(QFile& file) const
   }
 
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  const QVector<Well>& wells = ctManager.wells();
+  const QVector<const Well*>& wells = ctManager.wells();
   const WellTrajectoryManager& mgr = scenario_.wellTrajectoryManager();
   for (const WellTrajectory& wellTrajectory: mgr.trajectoriesType(TrajectoryType::Base1D))
   {
-    const Well& well = wells[wellTrajectory.wellIndex()];
-    if ( well.isActive() )
+    const Well* well = wells[wellTrajectory.wellIndex()];
+    if ( well->isActive() )
     {
-      out << writeWellTrajectory(wellTrajectory, well.name());
+      out << writeWellTrajectory(wellTrajectory, well->name());
     }
   }
 
@@ -87,6 +95,11 @@ QString SACScript::writeLithofraction(const Lithofraction& lithofraction) const
 {
   auto doubleToQString = [](double d){return QString::number(d, 'g',3); };
 
+  if (!lithofraction.doFirstOptimization())
+  {
+    return {};
+  }
+
   QString scriptLine = "varprm ";
   scriptLine += "\"StratIoTbl:" + Lithofraction::percentNames[lithofraction.firstComponent()] + "\" "
       + "\"" + lithofraction.layerName() + "\" "
@@ -94,12 +107,13 @@ QString SACScript::writeLithofraction(const Lithofraction& lithofraction) const
       + doubleToQString(lithofraction.maxPercentageFirstComponent()) + " "
       + "\"Normal\"";
 
-  if (lithofraction.secondComponent() < 3)
+  if (lithofraction.doSecondOptimization())
   {
     scriptLine += " \"StratIoTbl:" + Lithofraction::percentNames[lithofraction.secondComponent()] + "\" "
         + doubleToQString(lithofraction.minFractionSecondComponent()) + " "
         + doubleToQString(lithofraction.maxFractionSecondComponent());
   }
+
   scriptLine += "\n";
 
   return scriptLine;

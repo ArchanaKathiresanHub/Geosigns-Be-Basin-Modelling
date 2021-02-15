@@ -9,10 +9,11 @@ namespace sac
 
 enum class TabID
 {
-  SAC = 0,
-  Results = 1,
-//  T2Z = 2
-  Count = 2 // Counts number of tabs
+  SAC = 0,  
+  Results,
+  Maps,
+//  T2Z,
+  Count // Counts number of tabs
 };
 
 } // namespace sac

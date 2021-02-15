@@ -87,3 +87,9 @@ void AbstractDerivedProperties::FormationPropertyCalculator::setUp2dEltMapping( 
    }
 
 }
+
+double AbstractDerivedProperties::FormationPropertyCalculator::calculateAtPosition(const GeoPhysics::GeoPhysicsFormation* /*formation*/,
+                                                                                   const GeoPhysics::CompoundLithology* /*lithology*/, const std::map<std::string, double> &/*dependentProperties*/) const
+{
+  return -1;
+}

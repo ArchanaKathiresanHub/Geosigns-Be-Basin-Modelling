@@ -11,13 +11,13 @@ class CalibrationTargetTable : public QTableWidget
   Q_OBJECT
 
 public:
-  explicit CalibrationTargetTable(QWidget* parent = 0);
+  explicit CalibrationTargetTable(QWidget* parent = nullptr);
 
-  void updateTable(const QVector<Well> &wells);
-  int checkBoxColumn() const;
+  void updateTable(const QVector<const Well *> wells);
 
-private:
-  std::size_t columnCheckBox_;
+signals:
+  void checkBoxChanged(int, int);
+
 };
 
 }  // namespace casaWizard

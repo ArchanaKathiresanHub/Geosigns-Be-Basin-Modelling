@@ -17,6 +17,12 @@
 #include "FormationPropertyCalculator.h"
 #include "GeoPhysicsProjectHandle.h"
 
+namespace GeoPhysics
+{
+  class CompoundLithology;
+  class FluidType;
+}
+
 namespace DerivedProperties {
 
    /// \brief Calculates the thermal conductivity for a formation.
@@ -61,8 +67,15 @@ namespace DerivedProperties {
       virtual bool isComputableForBasement ( const AbstractDerivedProperties::AbstractPropertyManager& propManager,
                                              const DataModel::AbstractSnapshot*                        snapshot,
                                              const DataModel::AbstractFormation*                       formation ) const;
+
+      virtual double calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                          const GeoPhysics::CompoundLithology* lithology,
+                                          const std::map<std::string, double>& dependentProperties) const override;
+
    private :
 
+      double calculateThermalConductivity(  const GeoPhysics::CompoundLithology *lithology, const GeoPhysics::FluidType *fluid,
+                                           const double porosity, const double temperature, const double porePressure ) const;
       const GeoPhysics::ProjectHandle& m_projectHandle;
 
    };

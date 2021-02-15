@@ -113,13 +113,27 @@ namespace mbapi
       /// @param[in] i position
       /// @param[in] j position
       /// @return the parameter value
-      virtual double mapGetValue( MapID id, size_t i, size_t j ) = 0;
+      virtual double mapGetValue( MapID id, unsigned int i, unsigned int j ) = 0;
+
+       /// @brief Get a value contained in the map
+       /// @param[in] id map ID
+       /// @param[in] x position [m]
+       /// @param[in] y position [m]
+       /// @return the parameter value
+       virtual double mapGetValue( MapID id, double x, double y ) = 0;
 
       /// @brief Get the values contained in vin in the map
       /// @param[in] id map ID
       /// @param[out] vout the local (partitioned) values of the map
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout ) = 0;
+
+     /// @brief Get the values contained in vin in the map
+     /// @param[in] id map ID
+     /// @param[out] i the number of gridpoints in the i direction
+     /// @param[out] j the number of gridpoints in the j direction
+     /// @return ErrorHandler::NoError on success, or error code otherwise
+     virtual ErrorHandler::ReturnCode mapGetDimensions( MapID id, int& i, int& j) = 0;
 
       /// @brief Create map by interpolating between 2 maps
       /// @param id new map id
@@ -194,6 +208,13 @@ namespace mbapi
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode finalizeMapWriter( ) = 0;
 
+      /// @brief Removes a map reference from the GridMapIOTbl
+      /// @param[in] mapName the name of the map
+      /// @param[in] referredBy the name of the table which refers to this map
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode removeMapReferenceFromGridMapIOTbl( const std::string& mapName, const std::string& referredBy ) = 0;
+
+
       /// @}
 
    protected:
@@ -201,10 +222,10 @@ namespace mbapi
       /// @{
 
       /// @brief Constructor which creates an empty model
-      MapsManager() {;}
+      MapsManager() {}
 
       /// @brief Destructor, no any actual work is needed here, all is done in the implementation part
-      virtual ~MapsManager() {;}
+      virtual ~MapsManager() {}
 
       /// @}
 

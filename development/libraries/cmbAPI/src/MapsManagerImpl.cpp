@@ -317,6 +317,25 @@ ErrorHandler::ReturnCode MapsManagerImpl::finalizeMapWriter()
    return NoError;
 }
 
+ErrorHandler::ReturnCode MapsManagerImpl::removeMapReferenceFromGridMapIOTbl(const string& mapName, const string& referredBy)
+{
+  // Delete Reference in GridMapIOTbl
+  database::Table * table = m_proj->getTable( s_mapsTableName );
+  if ( !table ) { throw Exception( NonexistingID ) << s_mapsTableName << " table could not be found in project " << m_projectFileName; }
+
+  database::Record* record = table->findRecord("ReferredBy", referredBy, "MapName", mapName);
+  table->removeRecord(record);
+
+  // Delete reference in member containing all the used map names
+  const auto pos = std::find( m_mapName.begin(), m_mapName.end(), mapName );
+  if (pos != m_mapName.end())
+  {
+    m_mapName.erase(pos);
+  }
+
+  return NoError;
+}
+
 ErrorHandler::ReturnCode MapsManagerImpl::mapSetValues( MapID id, const std::vector<double>& vin )
 {
    if ( errorCode() != NoError ) resetError();
@@ -372,14 +391,39 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapGetValues( MapID id, std::vector<do
    return NoError;
 }
 
-double MapsManagerImpl::mapGetValue( MapID id, size_t i, size_t j )
+double MapsManagerImpl::mapGetValue( MapID id, unsigned int i, unsigned int j )
 {
    if ( errorCode() != NoError ) resetError();
 
-   loadGridMap( id ); // check if map is loaded and load it if not loaded before
-   m_mapObj[id]->retrieveData();
-   const double value = m_mapObj[id]->getValue( static_cast<unsigned int>( i ), static_cast<unsigned int>( j ) );
-   m_mapObj[id]->restoreData();
+   double value = 0.0;
+   try
+   {
+     loadGridMap( id ); // check if map is loaded and load it if not loaded before
+     m_mapObj[id]->retrieveData();
+     value = m_mapObj[id]->getValue( static_cast<unsigned int>( i ), static_cast<unsigned int>( j ) );
+     m_mapObj[id]->restoreData();
+   }
+   catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
+
+   return value;
+}
+
+double MapsManagerImpl::mapGetValue( MapID id, double x, double y )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   double value = 0.0;
+   try
+   {
+     loadGridMap( id ); // check if map is loaded and load it if not loaded before
+     const GridMap* map = m_mapObj[id];
+     map->retrieveData();
+     const double i = (x - map->minI()) / map->deltaI();
+     const double j = (y - map->minJ()) / map->deltaJ();
+     value = map->getValue(  i, j );
+     map->restoreData();
+   }
+   catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
 
    return value;
 }
@@ -824,6 +868,23 @@ void MapsManagerImpl::loadGridMap( MapID id )
 
    // load source map
    if ( !m_mapObj[id] ) { throw Exception( UndefinedValue ) << "MapManager::saveMapToHDF(): Map " << m_mapName[id] << " wasn't modified. Nothing to save"; }
+}
+
+ErrorHandler::ReturnCode mbapi::MapsManagerImpl::mapGetDimensions(mbapi::MapsManager::MapID id, int& i, int& j)
+{
+  try
+  {
+    loadGridMap( id ); // check if map is loaded and load it if not loaded before
+
+    DataAccess::Interface::GridMap* gridMap = m_mapObj[id];
+    i = gridMap->lastI() - gridMap->firstI() + 1;
+    j = gridMap->lastJ() - gridMap->firstJ() + 1;
+  }
+  catch (Exception& ex)
+  {
+    return reportError( ex.errorCode(), ex.what());
+  }
+  return NoError;
 }
 
 }

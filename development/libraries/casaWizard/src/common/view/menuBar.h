@@ -19,6 +19,7 @@ public:
   QAction* actionSave();
   QAction* actionExit();
   QAction* actionExpertUser();
+  QAction* actionReload1Dresults();
 
   void setActionExpertUser(bool expertUser);
 
@@ -32,7 +33,7 @@ private:
   QAction* actionSave_;
   QAction* actionExit_;
   QAction* actionExpertUser_;
-
+  QAction* actionReload1Dresults_;
 };
 
 } // namespace casaWizard

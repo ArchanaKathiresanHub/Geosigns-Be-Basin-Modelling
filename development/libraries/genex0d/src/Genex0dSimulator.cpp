@@ -64,8 +64,7 @@ Genex0dSimulator* Genex0dSimulator::CreateFrom(const std::string & fileName, Dat
 bool Genex0dSimulator::run(const DataAccess::Interface::Formation* formation, const Genex0dInputData& inData, unsigned int indI, unsigned int indJ,
                            double thickness, double inorganicDensity, const std::vector<double>& time,
                            const std::vector<double>& temperature, const std::vector<double>& pressure, const std::vector<double>& VRE,
-                           const std::vector<double>& porePressure, const std::vector<double>& permeability, const std::vector<double>& porosity,
-                           const std::vector<double>& lithoPressure, const std::vector<double>& hydroPressure)
+                           const std::vector<double>& porePressure, const std::vector<double>& permeability, const std::vector<double>& porosity)
 {
   registerProperties();
 
@@ -76,7 +75,7 @@ bool Genex0dSimulator::run(const DataAccess::Interface::Formation* formation, co
     return false;
   }
 
-  m_gnx0dSourceRock->initializeInputs(thickness, inorganicDensity, time, temperature, pressure, VRE, porePressure, permeability, porosity, lithoPressure, hydroPressure);
+  m_gnx0dSourceRock->initializeInputs(thickness, inorganicDensity, time, temperature, pressure, VRE, porePressure, permeability, porosity);
 
   if (!computeSourceRock(formation))
   {

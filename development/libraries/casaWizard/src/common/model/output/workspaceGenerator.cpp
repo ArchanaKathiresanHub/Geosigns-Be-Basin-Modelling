@@ -70,7 +70,8 @@ bool copyDir(const QString &src, const QString &dest)
     if (finfo.fileName().contains(".project3d") ||
         finfo.fileName().contains(".xlsx") ||
         finfo.fileName().contains(".HDF") ||
-        finfo.fileName().contains(".FLT"))
+        finfo.fileName().contains(".FLT") ||
+        finfo.fileName().contains(".txt"))
     {
       QFile file(finfo.filePath());
       file.copy(dirdest.absoluteFilePath(finfo.fileName()));

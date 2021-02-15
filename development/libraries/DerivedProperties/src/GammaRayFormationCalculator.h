@@ -45,6 +45,14 @@ namespace DerivedProperties {
                          const DataModel::AbstractSnapshot*                        snapshot,
                          const DataModel::AbstractFormation*                       formation ) const final;
 
+      virtual double calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                          const GeoPhysics::CompoundLithology* lithology,
+                                          const std::map<std::string, double>& dependentProperties) const override;
+   private:
+      const double m_gammaRayScaleFactor=0.0158;
+      const double m_gammaRayOffset=0.8;
+
+      double calculateGammaRay(const double porosity, const double solidRadiogenicHeatProduction) const;
    };
 
 

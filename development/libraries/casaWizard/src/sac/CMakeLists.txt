@@ -1,25 +1,34 @@
-file(GLOB CASAWIZARD_SAC_H_HEADERS model/*.h
-                               view/*.h
+file(GLOB CASAWIZARD_SAC_H_HEADERS view/*.h
                                view/plot/*.h
-                               control/*.h
-                               model/extractor/*.h
-                               model/input/*.h
-                               model/output/*.h
-                               model/script/*.h )
+                               control/*.h )
 
-file(GLOB CASAWIZARD_SAC_CPP_SOURCES model/*.cpp
-                                 view/*.cpp
+file(GLOB CASAWIZARD_SAC_CPP_SOURCES view/*.cpp
                                  view/plot/*.cpp
-                                 control/*.cpp
-                                 model/extractor/*.cpp
-                                 model/input/*.cpp
-                                 model/output/*.cpp
-                                 model/script/*.cpp )
+                                 control/*.cpp )
+
+file(GLOB CASAWIZARD_SAC_MODEL_H_HEADERS model/*.h
+                            model/extractor/*.h
+                            model/input/*.h
+                            model/output/*.h
+                            model/script/*.h )
+
+file(GLOB CASAWIZARD_SAC_MODEL_CPP_SOURCES model/*.cpp
+                              model/extractor/*.cpp
+                              model/input/*.cpp
+                              model/output/*.cpp
+                              model/script/*.cpp )
 
 include_directories( ${QTXLSX_INCLUDE_DIRS} )
 
 create_bm_library( TARGET ${CASAWIZARD_SAC_LIBNAME}
-                   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets ${CASAWIZARD_COMMON_LIBNAME}
+                   LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Charts Qt5::Svg ${CASAWIZARD_COMMON_LIBNAME} utilities
                    ADD_HEADERS ${CASAWIZARD_SAC_H_HEADERS}
                    ADD_SOURCES ${CASAWIZARD_SAC_CPP_SOURCES} )
+
+create_bm_library( TARGET ${CASAWIZARD_SAC_MODEL_LIBNAME}
+                   LIBRARIES Qt5::Core ${CASAWIZARD_COMMON_MODEL_LIBNAME}
+                   ADD_HEADERS ${CASAWIZARD_SAC_MODEL_H_HEADERS}
+                   ADD_SOURCES ${CASAWIZARD_SAC_MODEL_CPP_SOURCES} )
+
 target_include_directories( ${CASAWIZARD_SAC_LIBNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( ${CASAWIZARD_SAC_MODEL_LIBNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

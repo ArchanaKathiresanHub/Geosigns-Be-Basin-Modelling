@@ -43,7 +43,8 @@ public :
    /// \brief Get the solution vector from the 3d arrays contained in each layer.
    void getSolution ( Vec vector ) const;
 
-   std::vector<unsigned int> getLocationMaxValue(Vec vector, double& maxResidual) const;
+   /// \brief Get the location of the maximum value
+   std::vector<int> getLocationMaxValue(Vec vector, double& maxResidual) const;
 
 private :
 

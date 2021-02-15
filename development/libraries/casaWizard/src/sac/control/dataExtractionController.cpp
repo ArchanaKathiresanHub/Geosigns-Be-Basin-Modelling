@@ -6,7 +6,6 @@
 #include "model/logger.h"
 #include "model/output/wellTrajectoryWriter.h"
 #include "model/sacScenario.h"
-#include "model/scenarioBackup.h"
 
 namespace casaWizard
 {
@@ -24,8 +23,7 @@ DataExtractionController::DataExtractionController(SACScenario& scenario,
 }
 
 void DataExtractionController::readResults()
-{
-  scenarioBackup::backup(scenario_);
+{  
   WellTrajectoryExtractor trajectoryExtractor{scenario_};
   readCaseData(trajectoryExtractor, "extracting trajectories using track1d");
 
@@ -33,12 +31,11 @@ void DataExtractionController::readResults()
 
   if (lithoExtractor.iterationPath().isEmpty())
   {
-    Logger::log() << "There are no run cases available! Please run CASA in SAC tab first." << Logger::endl();
+    Logger::log() << "There are no run cases available! Please run 1D optimization in 'Input' tab first." << Logger::endl();
     return;
   }
 
   readCaseData(lithoExtractor, "extracting optimized lithofractions");
-  scenarioBackup::backup(scenario_);
 }
 
 void DataExtractionController::readCaseData(CaseExtractor& extractor, const QString& message)

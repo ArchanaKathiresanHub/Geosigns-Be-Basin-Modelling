@@ -46,6 +46,21 @@ DerivedProperties::BrineDensityCalculator::BrineDensityCalculator ( const GeoPhy
 
 }
 
+double DerivedProperties::BrineDensityCalculator::calculateBrineDensity(const GeoPhysics::FluidType* fluid, const double temperature, const double porePressure) const
+{
+  return fluid->density ( temperature, porePressure);
+}
+
+double DerivedProperties::BrineDensityCalculator::calculateBrineDensityHydroStatic(const GeoPhysics::FluidType* fluid) const
+{
+  const double temperatureGradient = 0.001 * m_projectHandle.getRunParameters ()->getTemperatureGradient ();
+
+  return fluid->getCorrectedSimpleDensity ( GeoPhysics::FluidType::DefaultStandardDepth,
+                                            GeoPhysics::FluidType::DefaultHydrostaticPressureGradient,
+                                            GeoPhysics::FluidType::StandardSurfaceTemperature,
+                                            temperatureGradient );
+}
+
 void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyManager&            propertyManager,
                                                             const DataModel::AbstractSnapshot*  snapshot,
                                                             const DataModel::AbstractFormation* formation,
@@ -56,7 +71,7 @@ void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyMana
 
    derivedProperties.clear();
 
-   if ( fluid == 0 or currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() ) {
+   if ( fluid == nullptr or currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() ) {
       return;
    }
 
@@ -68,11 +83,7 @@ void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyMana
 
    if ( m_hydrostaticMode ) {
       // The temperature gradient in the project file is in C/Km and not C/m and so needs to be converted.
-      const double temperatureGradient = 0.001 * m_projectHandle.getRunParameters ()->getTemperatureGradient ();
-      double fluidDensity = fluidDensity = fluid->getCorrectedSimpleDensity ( GeoPhysics::FluidType::DefaultStandardDepth,
-                                                                              GeoPhysics::FluidType::DefaultHydrostaticPressureGradient,
-                                                                              GeoPhysics::FluidType::StandardSurfaceTemperature,
-                                                                              temperatureGradient );
+      double fluidDensity  = calculateBrineDensityHydroStatic(fluid);
 
       for ( unsigned int i = brineDensity->firstI ( true ); i <= brineDensity->lastI ( true ); ++i ) {
 
@@ -109,7 +120,7 @@ void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyMana
             if ( m_projectHandle.getNodeIsValid ( i, j )) {
 
                for ( unsigned int k = brineDensity->firstK (); k <= brineDensity->lastK (); ++k ) {
-                  brineDensity->set ( i, j, k, fluid->density ( temperature->get ( i, j, k ), porePressure->get ( i, j, k )));
+                  brineDensity->set ( i, j, k, calculateBrineDensity(fluid, temperature->get(i,j,k), porePressure->get(i,j,k)));
                }
 
             } else {
@@ -125,4 +136,21 @@ void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyMana
    }
 
    derivedProperties.push_back ( brineDensity );
+}
+
+double DerivedProperties::BrineDensityCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                                                       const GeoPhysics::CompoundLithology* /*lithology*/,
+                                                                       const std::map<string, double>& dependentProperties ) const
+{
+  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType() );
+  if ( !fluid )
+  {
+    return DataAccess::Interface::DefaultUndefinedScalarValue;
+  }
+
+  if (m_hydrostaticMode)
+  {
+    return calculateBrineDensityHydroStatic(fluid);
+  }
+  return calculateBrineDensity(fluid, dependentProperties.at("Temperature"), dependentProperties.at("Pressure"));
 }

@@ -19,7 +19,8 @@ class Well : public Writable
 {
 public:
   Well() = default;
-  explicit Well(const int id, const QString& name, const double x, const double y, const bool isActive, const QVector<CalibrationTarget> calibrationTargets = {});
+  explicit Well(const int id, const QString& name, const double x, const double y, const bool isActive = true, const bool isExcluded = false,
+                const QVector<CalibrationTarget> calibrationTargets = {});
   int version() const;
 
   void writeToFile(ScenarioWriter& writer) const override;
@@ -33,6 +34,8 @@ public:
   double y() const;
   bool isActive() const;
   void setIsActive(const bool isActive);
+  bool isExcluded() const;
+  void setIsExcluded(const bool isExcluded);
 
   QVector<const CalibrationTarget*> calibrationTargets() const;
   void setCalibrationTargets(const QVector<CalibrationTarget>& calibrationTargets);
@@ -46,6 +49,7 @@ private:
   double x_;
   double y_;
   bool isActive_;
+  bool isExcluded_;
   QVector<CalibrationTarget> calibrationTargets_;
 };
 

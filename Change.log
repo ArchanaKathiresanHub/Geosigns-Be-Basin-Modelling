@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.3.0		2020-10-26 12:54:48 +0000
+Cauldron-v2.4.0		2020-12-08 13:54:27 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,153 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-02-09  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	new: Get Reservoir thickness back from BPA-Cauldron.
+	* Get Reservoir thickness back from BPA-Cauldron
+
+	Link- https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/405952
+
+	================== COMMIT-END ========================
+	Commit-ID:<39e4201b9b274f3559859f5378623d3d732a3ef6>	  (refs/heads/master)
+
+++
+2021-02-09  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added the BPA2 visualisation for the lithotypes to the maps tab of casa wizard
+	* Related work items: #412595
+
+	================== COMMIT-END ========================
+	Commit-ID:<da31ae5faf0fd9080c017125e94c1cce44155164>	  (refs/heads/master)
+
+++
+2021-02-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: SAC fixes.
+	* Option to run 1d data reading again
+	* Always use local machine for 1d datadrilling and map generation
+
+	================== COMMIT-END ========================
+	Commit-ID:<002b1713c9a7901815419afbf5f03b5bb7371198>	  (refs/heads/master)
+
+++
+2021-02-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Switch off unit tests for Petsc and update gtest framework to 1.10.
+	* Switch off unit tests for PetSC and update gtest framework to 1.10
+
+	================== COMMIT-END ========================
+	Commit-ID:<e8dfaf8656b2df075110ebb27744291a9bcb01dc>	  (refs/heads/master)
+
+++
+2021-01-27  arijit.khan Khan  <arijit.khan@shell.com>
+
+	dev: new: CTC wizard !wip.
+	* the ctc light deployment UI called ctcwizard is now version controlled.
+
+	Related work items: #377118, #383982, #411274, #413329
+	================== COMMIT-END ========================
+	Commit-ID:<ae8aa22e1da757f5202241be2aa6afa857a81e5f>	  (refs/heads/master)
+
+++
+2021-01-27  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix install script, do not update with every RHEL update.
+	* Fix install script, do not update with every RHEL update
+
+	================== COMMIT-END ========================
+	Commit-ID:<63e14b071171f325e5d131733982d9e5444352ed>	  (refs/heads/master)
+
+++
+2021-01-27  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: output table update.
+	* Improved output table
+
+	* Related work items: #411436
+	================== COMMIT-END ========================
+	Commit-ID:<92b83004f78cba0e8406de875684d77d73e787f1>	  (refs/heads/master)
+
+++
+2021-01-26  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Improved visualisation of LithoMaps in the SAC-wizard.
+	================== COMMIT-END ========================
+	Commit-ID:<0eeaef163df28ca4b7ae2dd55bc22389e1906dca>	  (refs/heads/master)
+
+++
+2021-01-22  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Extension Genex0d command line arguments.
+	================== COMMIT-END ========================
+	Commit-ID:<e5d25c916cf48cc51849241731d77d7f0f6dfb23>	  (refs/heads/master)
+
+++
+2021-01-20  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Improvements for the lithofraction input table in the SAC wizard.
+    ================== COMMIT-END ========================
+	Commit-ID:<e35a18629d9731bc67a0df701055e9d10ae43056>	  (refs/heads/master)
+
+++
+2021-01-18  Richard Faasse  <Richard.Faasse@shell.com>
+
+	new: Added the visualisation tab for the SAC wizard.
+	* Visualization of gridded lithology fraction maps resulting from 1D optimization
+
+	Related work items: #407512
+	================== COMMIT-END ========================
+	Commit-ID:<6ee50575b57f3e0bfd1e36cb36bd8686c216c399>	  (refs/heads/master)
+
+++
+2021-01-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Repair bug, CASA could not handle derived lithofraction maps.
+	Fix CASA handling derived lithofraction map
+
+	Related work items: #407511
+	================== COMMIT-END ========================
+	Commit-ID:<214649f3109aaac4e1a5fd880f841304e547a46e>	  (refs/heads/master)
+
+++
+2020-12-23  arijit.khan Khan  <arijit.khan@shell.com>
+
+	new: dev: Lmod changes applied to Build scripts !major.
+	 * This work is directed to the Notice "Outdated LMod initialization script /glb/apps/hpc/Lmod/etc/profile.d/z01_lmod-hpcs.sh will be deleted on Feb 1st, 2021." dated Tue 9/22/2020 5:09 AM from HPCS Optimization Team.
+	 * To asses the impact of the changes to new LMod script
+	. /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh
+
+	Related work items: #399374
+	================== COMMIT-END ========================
+	Commit-ID:<45a2b24f537e01e9418064ef02e3652509529d92>	  (refs/heads/master)
+
+++
+2020-12-15  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed BPA2 to casawizard to BPA2 workflow issues.
+	================== COMMIT-END ========================
+	Commit-ID:<20fc4b128eeb8284c883d9973f8af87c1daba09b>	  (refs/heads/master)
+
+++
+2020-12-08  Richard Faasse  <Richard.Faasse@shell.com>
+
+	new: Implemented derived property drilling !v2.4.0.
+	* Several derived properties are calculated without instantiating the 3D domain, to improve performance of the datadriller application for derived properties
+	================== COMMIT-END ========================
+	Commit-ID:<ed7f1bdddeec64aa77cb6dd0d0904b3a40ec5844>	  (tag: refs/tags/v2.4.0, refs/heads/master)
+
+++
+2020-12-08  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: No newton message for non-valid part of the computational domain.
+	* If a processor has no valid part of the computational domain, do not print newton log
+
+	* Related work items: #365260
+
+	================== COMMIT-END ========================
+	Commit-ID:<3d64b9f73e06ac9b23d01c4b2c6304c0428c9745>	  (refs/heads/master)
+
+++
 2020-11-19  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: usr: ReservoirOptionsIoTbl log created.

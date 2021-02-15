@@ -25,6 +25,11 @@ DerivedProperties::OverpressureFormationCalculator::OverpressureFormationCalcula
    addDependentPropertyName ( "Pressure" );
 }
 
+double DerivedProperties::OverpressureFormationCalculator::calculateOverpressure(const double porePressure, const double hydrostaticPressure) const
+{
+  return porePressure - hydrostaticPressure;
+}
+
 void DerivedProperties::OverpressureFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                      const DataModel::AbstractSnapshot*  snapshot,
                                                                      const DataModel::AbstractFormation* formation,
@@ -58,7 +63,8 @@ void DerivedProperties::OverpressureFormationCalculator::calculate (       Abstr
             if ( propertyManager.getNodeIsValid ( i, j )) {
                 
                for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
-                  overpressure->set ( i, j, k, porePressure->get ( i, j, k ) - hydrostaticPressure->get ( i, j, k ));
+
+                  overpressure->set ( i, j, k, calculateOverpressure(porePressure->get(i,j,k), hydrostaticPressure->get(i,j,k)));
                }
 
             } else {

@@ -16,8 +16,8 @@ CalibrationTargetController::CalibrationTargetController(CalibrationTargetTable*
   calibrationTable_{calibTable},
   casaScenario_{casaScenario}
 {
-  connect(calibrationTable_, SIGNAL(itemChanged(QTableWidgetItem*)),
-          this, SLOT(slotCalibrationTargetCheckBoxStateChanged(QTableWidgetItem*)));
+  connect(calibrationTable_, SIGNAL(checkBoxChanged(int, int)),
+          this, SLOT(slotCalibrationTargetCheckBoxStateChanged(int, int)));
 
   connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 }
@@ -28,13 +28,10 @@ void CalibrationTargetController::slotRefresh()
   calibrationTable_->updateTable(calibrationTargetManager.wells());
 }
 
-void CalibrationTargetController::slotCalibrationTargetCheckBoxStateChanged(QTableWidgetItem* item)
+void CalibrationTargetController::slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex)
 {
-  if (item->column() == calibrationTable_->checkBoxColumn())
-  {
-    CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
-    calibrationTargetManager.setWellIsActive(item->checkState() == Qt::Checked, item->row());
-  }
+  CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
+  calibrationTargetManager.setWellIsActive(state == Qt::Checked, wellIndex);
 }
 
 }  // namespace casaWizard

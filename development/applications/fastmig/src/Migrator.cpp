@@ -232,6 +232,8 @@ bool Migrator::compute (const bool overpressuredLeakage)
       m_projectHandle->deleteReservoirs();
    }
 
+   // compute the positions of the reservoirs within the formations
+   if (!computeDepthOffsets()) return false;
    if (!computeNetToGross()) return false;
 
    // delete the maps created for computeNetToGross
@@ -508,23 +510,36 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    return true;
 }
 
+/// compute the positions of the reservoirs within the formations
+bool Migrator::computeDepthOffsets () const
+{
+   for ( const Interface::Reservoir * reservoir : *getReservoirs ())
+   {
+      const MigrationReservoir * migrationReservoir = dynamic_cast<const MigrationReservoir*>( reservoir );
+
+      if (!migrationReservoir || !migrationReservoir->computeDepthOffsets (m_projectHandle->findSnapshot (0.)))
+      {
+        return false;
+      }
+   }
+
+   return true;
+}
+
 /// compute the nett/gross fractions
-bool Migrator::computeNetToGross (void)
+bool Migrator::computeNetToGross (void) const
 {
    if (m_reservoirDetection)
       return true;
 
-   Interface::ReservoirList * reservoirs = getReservoirs ();
-
-   Interface::ReservoirList::iterator reservoirIter;
-
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
+   for ( const Interface::Reservoir * reservoir : *getReservoirs ())
    {
-      MigrationReservoir * reservoir = (MigrationReservoir *)* reservoirIter;
+      const MigrationReservoir * migrationReservoir = dynamic_cast<const MigrationReservoir*>( reservoir );
 
-      assert (reservoir);
-
-      if (!reservoir->computeNetToGross ()) return false;
+      if (!migrationReservoir || !migrationReservoir->computeNetToGross ())
+      {
+        return false;
+      }
    }
    return true;
 }

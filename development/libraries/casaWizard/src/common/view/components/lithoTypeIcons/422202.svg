@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 22.8375 16.512501"
+   height="16.512501"
+   width="22.8375"
+   xml:space="preserve"
+   version="1.1"
+   id="svg2"><metadata
+     id="metadata8"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs6" /><g
+     transform="matrix(1.25,0,0,-1.25,0,16.5125)"
+     id="g10"><g
+       transform="scale(0.1,0.1)"
+       id="g12"><path
+         id="path14"
+         style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 106.68,91.7227 c 9.371,-9.0938 28.121,2.8711 10.5,13.4183 -17.637,10.547 -28.6448,4.199 -10.5,-13.4183 z" /><path
+         id="path16"
+         style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 22.7148,88.3945 C 34.4922,88.0781 49.625,94.6211 31.9961,105.168 14.3672,115.715 5.19531,88.8711 22.7148,88.3945 Z" /><path
+         id="path18"
+         style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 150.352,22.4922 c 11.449,-3.5625 26.882,6.2383 9.281,16.7695 C 141.996,49.8086 130,28.8242 150.352,22.4922 Z" /><path
+         id="path20"
+         style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 65.6289,23.3242 C 77.0625,19.7656 91.5664,27.2188 74.9141,40.0938 52.4727,57.4531 45.2305,29.6719 65.6289,23.3242 Z" /></g></g></svg>

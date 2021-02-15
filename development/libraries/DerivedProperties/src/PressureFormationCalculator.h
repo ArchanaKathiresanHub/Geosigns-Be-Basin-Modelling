@@ -41,6 +41,7 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation*                       formation,
                                      AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
+      static double calculatePressure(double hydrostaticPressure);
    private :
 
       const GeoPhysics::ProjectHandle& m_projectHandle;

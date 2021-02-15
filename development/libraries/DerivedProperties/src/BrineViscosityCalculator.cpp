@@ -34,6 +34,11 @@ DerivedProperties::BrineViscosityCalculator::BrineViscosityCalculator ( const Ge
 }
 
 
+double DerivedProperties::BrineViscosityCalculator::calculateBrineViscosity(const GeoPhysics::FluidType* fluid, double temperature, double pressure) const
+{
+  return fluid->viscosity ( temperature, pressure);
+}
+
 void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyManager&            propertyManager,
                                                               const DataModel::AbstractSnapshot*  snapshot,
                                                               const DataModel::AbstractFormation* formation,
@@ -71,7 +76,7 @@ void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyMa
          if ( m_projectHandle.getNodeIsValid ( i, j )) {
 
             for ( unsigned int k = brineViscosity->firstK (); k <= brineViscosity->lastK (); ++k ) {
-               brineViscosity->set ( i, j, k, fluid->viscosity ( temperature->get ( i, j, k ), pressure->get ( i, j, k )));
+               brineViscosity->set ( i, j, k, calculateBrineViscosity(fluid, temperature->get(i,j,k), pressure->get(i,j,k)));
             }
          } else {
             for ( unsigned int k = brineViscosity->firstK (); k <= brineViscosity->lastK (); ++k ) {
@@ -85,4 +90,17 @@ void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyMa
    }
 
    derivedProperties.push_back ( brineViscosity );
+}
+
+double DerivedProperties::BrineViscosityCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                                                         const GeoPhysics::CompoundLithology* /*lithology*/,
+                                                                         const std::map<string, double>& dependentProperties ) const
+{
+  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType() );
+  if ( !fluid )
+  {
+    return DataAccess::Interface::DefaultUndefinedScalarValue;
+  }
+
+  return calculateBrineViscosity( fluid, dependentProperties.at("Temperature"), dependentProperties.at("Pressure") );
 }

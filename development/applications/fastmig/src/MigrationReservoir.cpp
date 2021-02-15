@@ -926,8 +926,8 @@ namespace migration
             {
                LocalColumn *column = getLocalColumn (i, j);
 
-               double topIndex = (depth - 1);
-               double bottomIndex = 0;
+               const double topIndex = (depth - 1);
+               const double bottomIndex = column->getBottomDepthOffset() * (depth - 1);
 
                double topValue = formationGridMap->interpolate (i, j, topIndex);
                double bottomValue = formationGridMap->interpolate (i, j, bottomIndex);
@@ -982,12 +982,12 @@ namespace migration
             {
                LocalColumn *column = getLocalColumn (i, j);
 
-               double topSurfaceDepth = topSurfaceGridMap->get (i, j);
-               double bottomSurfaceDepth = bottomSurfaceGridMap->get (i, j);
-               double lowResTopSurfaceDepth = formationGridMap->get (i, j, depth - 1);
+               const double topSurfaceDepth = topSurfaceGridMap->get (i, j);
+               const double bottomSurfaceDepth = bottomSurfaceGridMap->get (i, j);
+               const double lowResTopSurfaceDepth = formationGridMap->get (i, j, depth - 1);
 
-               if (lowResTopSurfaceDepth == formationGridMap->getUndefinedValue () or
-                   topSurfaceDepth == topSurfaceGridMap->getUndefinedValue () or
+               if (lowResTopSurfaceDepth == formationGridMap->getUndefinedValue () ||
+                   topSurfaceDepth == topSurfaceGridMap->getUndefinedValue () ||
                    bottomSurfaceDepth == bottomSurfaceGridMap->getUndefinedValue ())
                {
                   column->setTopDepth (getUndefinedValue ());
@@ -995,11 +995,17 @@ namespace migration
                }
                else
                {
-                  column->setTopDepth (topSurfaceDepth);
+                  const double topValue = topSurfaceDepth;
+                  column->setTopDepth (topValue);
 
-                  if (bottomSurfaceDepth < topSurfaceDepth)
-                     bottomSurfaceDepth = topSurfaceDepth;
-                  column->setBottomDepth (bottomSurfaceDepth);
+                  double bottomValue = column->getBottomDepthOffset () * topSurfaceDepth +
+                                       (1 - column->getBottomDepthOffset ()) * bottomSurfaceDepth;
+
+                  if (bottomValue < topSurfaceDepth)
+                  {
+                     bottomValue = topSurfaceDepth;
+                  }
+                  column->setBottomDepth (bottomValue);
 
                   assert (column->isValid ());
                }
@@ -2171,6 +2177,83 @@ namespace migration
       return MaximumAll (numberOfTraps);
    }
 
+   bool MigrationReservoir::computeDepthOffsets (const Snapshot * presentDay) const
+   {
+      SurfacePropertyPtr formationTopDepthMap = getTopSurfaceProperty (depthPropertyName (), presentDay);
+      SurfacePropertyPtr formationBottomDepthMap = getBottomSurfaceProperty (depthPropertyName (), presentDay);
+
+      if (!formationTopDepthMap)
+      {
+         if (GetRank () == 0)
+         {
+            cerr << "WARNING: property value '" << depthPropertyName () << "' does not exist for top surface of formation "
+                 << getFormation ()->getName () << " at snapshot " << presentDay->getTime () <<
+               ",\n\tcannot compute depth offsets for reservoir " << getName () << endl;
+            cerr.flush ();
+         }
+         return false;
+      }
+
+      if (!formationBottomDepthMap)
+      {
+         if (GetRank () == 0)
+         {
+            cerr << "WARNING: property value '" << depthPropertyName () << "' does not exist for bottom surface of formation "
+                 << getFormation ()->getName () << " at snapshot " << presentDay->getTime () <<
+               ",\n\tcannot compute depth offsets for reservoir " << getName () << endl;
+            cerr.flush ();
+         }
+         return false;
+      }
+
+      const GridMap * thicknessMap = getMap (Interface::ReservoirThickness); // may be 0
+
+      formationTopDepthMap->retrieveData ();
+      formationBottomDepthMap->retrieveData ();
+      if (thicknessMap) thicknessMap->retrieveData ();
+
+      for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
+      {
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+         {
+            LocalColumn * column = getLocalColumn (i, j);
+
+            const double formationTopDepth = formationTopDepthMap->get (i, j);
+            const double formationBottomDepth = formationBottomDepthMap->get (i, j);
+
+            if (formationTopDepth == formationTopDepthMap->getUndefinedValue () ||
+                formationBottomDepth == formationBottomDepthMap->getUndefinedValue ())
+            {
+               // use default values 0, 0
+               continue;
+            }
+
+            double formationThickness = formationBottomDepth - formationTopDepth;
+            formationThickness = Max (0.001, formationThickness);
+
+            double thickness = formationThickness;
+            if (thicknessMap)
+            {
+               thickness = thicknessMap->getValue (i, j);
+               if (thickness == thicknessMap->getUndefinedValue () || thickness > formationThickness)
+               {
+                  thickness = formationThickness;
+               }
+            }
+
+            column->setBottomDepthOffset ((formationThickness - thickness) / formationThickness);
+         }
+      }
+
+      formationTopDepthMap->restoreData ();
+      formationBottomDepthMap->restoreData ();
+
+      if (thicknessMap) thicknessMap->restoreData ();
+      if (thicknessMap) thicknessMap->release();
+
+      return true;
+   }
+
    int MigrationReservoir::numberOfAllTraps (bool countUndersized)
    {
       int numberOfTraps = (int)m_traps.size ();
@@ -2186,7 +2269,7 @@ namespace migration
       return SumAll (numberOfTraps);
    }
 
-   bool MigrationReservoir::computeNetToGross (void)
+   bool MigrationReservoir::computeNetToGross (void) const
    {
       bool reservoirDetection = m_migrator->performReservoirDetection();
 

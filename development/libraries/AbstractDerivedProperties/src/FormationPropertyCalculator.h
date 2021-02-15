@@ -19,7 +19,13 @@
 
 #include <memory>
 #include <vector>
-
+#include <map>
+namespace GeoPhysics
+{
+  class GeoPhysicsFormation;
+  class ProjectHandle;
+  class CompoundLithology;
+}
 namespace AbstractDerivedProperties {
 
    // Forward declaration of PropertyManager
@@ -57,6 +63,10 @@ namespace AbstractDerivedProperties {
                                   const DataModel::AbstractFormation* formation ) const;
 
       virtual void setUp2dEltMapping( AbstractPropertyManager& propManager, const FormationPropertyPtr aProperty, ElementList & mapElementList ) const;
+
+      virtual double calculateAtPosition(const GeoPhysics::GeoPhysicsFormation* formation,
+                                         const GeoPhysics::CompoundLithology* lithology,
+                                         const std::map<std::string, double>& dependentProperties) const;
 
     };
 

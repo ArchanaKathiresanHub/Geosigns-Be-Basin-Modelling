@@ -108,6 +108,16 @@ namespace GeoPhysics {
       /// \brief Restores all the paleo crustal thicknesses map
       void restoreAllThicknessMaps ();
 
+      GeoPhysics::CompoundLithology* getLithologyFromStratTable( bool& undefinedMapValue,
+                                                                 bool useMaps = false,
+                                                                 unsigned int i = 0, unsigned int = 0,
+                                                                 const GridMap* lithoMap1 = nullptr,
+                                                                 const GridMap* lithoMap2 = nullptr,
+                                                                 const GridMap* lithoMap3 = nullptr,
+                                                                 const string& lithoName1 = "",
+                                                                 const string& lithoName2 = "",
+                                                                 const string& lithoName3 = "") const;
+
    protected :
 
 

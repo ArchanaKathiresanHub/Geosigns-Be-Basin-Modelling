@@ -49,6 +49,34 @@ DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalcula
 
 }
 
+double DerivedProperties::PermeabilityFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                                                                const GeoPhysics::CompoundLithology* lithology,
+                                                                                const std::map<string, double>& dependentProperties ) const
+{
+  double permNorm;
+  double permPlane;
+  GeoPhysics::CompoundProperty porosity;
+  bool chemicalCompactionRequired = m_chemicalCompactionRequired and formation->hasChemicalCompaction ();
+  const double chemicalCompactionValue = ( chemicalCompactionRequired ? dependentProperties.at("ChemicalCompaction") : 0.0 );
+
+  calculatePermeability(lithology,
+                        dependentProperties.at("Ves"),
+                        dependentProperties.at("MaxVes"),
+                        chemicalCompactionRequired, chemicalCompactionValue,
+                        permNorm, permPlane, porosity);
+  return permPlane;
+}
+
+void DerivedProperties::PermeabilityFormationCalculator::calculatePermeability(const GeoPhysics::CompoundLithology* lithology, double ves, double maxVes,
+                                                                               bool chemicalCompactionRequired, double chemicalCompactionValue,
+                                                                               double& permNorm, double& permPlane, GeoPhysics::CompoundProperty& porosity) const
+{
+  lithology->getPorosity ( ves, maxVes, chemicalCompactionRequired, chemicalCompactionValue, porosity );
+  lithology->calcBulkPermeabilityNP ( ves, maxVes, porosity, permNorm, permPlane );
+  permNorm  *= Utilities::Maths::M2ToMilliDarcy;
+  permPlane *= Utilities::Maths::M2ToMilliDarcy;
+}
+
 void DerivedProperties::PermeabilityFormationCalculator::calculate (       AbstractPropertyManager&      propertyManager,
                                                                      const DataModel::AbstractSnapshot*  snapshot,
                                                                      const DataModel::AbstractFormation* formation,
@@ -99,8 +127,8 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate (       Abstr
       const double undefinedValue = ves->getUndefinedValue ();
       const double currentAge = snapshot->getTime();
 
-      GeoPhysics::CompoundProperty porosity;
       double chemicalCompactionValue, permNorm, permPlane;
+      GeoPhysics::CompoundProperty porosity;
 
       for ( unsigned int i = verticalPermeability->firstI ( true ); i <= verticalPermeability->lastI ( true ); ++i ) {
 
@@ -111,12 +139,10 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate (       Abstr
                for ( unsigned int k = verticalPermeability->firstK (); k <= verticalPermeability->lastK (); ++k ) {
                   chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j, k ) : 0.0 );
 
-                  lithologies( i, j, currentAge )->getPorosity ( ves->get ( i, j, k ) , maxVes->get ( i, j, k ),
-                                                        chemicalCompactionRequired, chemicalCompactionValue, porosity );
-                  lithologies( i, j, currentAge )->calcBulkPermeabilityNP ( ves->get ( i, j, k ), maxVes->get ( i, j, k ), porosity, permNorm, permPlane );
-
-                  verticalPermeability->set ( i, j, k, permNorm / Utilities::Maths::MilliDarcyToM2 );
-                  horizontalPermeability->set ( i, j, k, permPlane / Utilities::Maths::MilliDarcyToM2 );
+                  calculatePermeability(lithologies( i, j, currentAge ), ves->get ( i, j, k ), maxVes->get ( i, j, k ), chemicalCompactionRequired,
+                                        chemicalCompactionValue, permNorm, permPlane, porosity);
+                  verticalPermeability->set ( i, j, k, permNorm );
+                  horizontalPermeability->set ( i, j, k, permPlane );
 
                }
             } else {
@@ -135,3 +161,5 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate (       Abstr
       }
    }
 }
+
+

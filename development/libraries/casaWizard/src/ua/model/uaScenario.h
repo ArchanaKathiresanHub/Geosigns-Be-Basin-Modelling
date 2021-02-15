@@ -25,7 +25,7 @@ class InfluentialParameter;
 class UAScenario : public CasaScenario
 {
 public:
-  UAScenario(std::unique_ptr<ProjectReader> projectReader);
+  UAScenario(ProjectReader* projectReader);
   ~UAScenario();
 
   QVector<DoeOption*> doeSelected() const;

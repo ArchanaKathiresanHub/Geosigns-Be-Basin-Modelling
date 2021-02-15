@@ -94,8 +94,14 @@ namespace mbapi
       // Get the values from the map
       ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout ) final;
 
+      // Get map dimensions
+      ErrorHandler::ReturnCode mapGetDimensions( MapID id, int& i, int& j) final;
+
       // Get the value from the map
-      double mapGetValue( MapID id, size_t i, size_t j ) final;
+      double mapGetValue(MapID id, unsigned int i, unsigned int j ) final;
+
+      // Get interpolated value from the map
+      double mapGetValue( MapID id, double x, double y ) final;
 
       // Interpolate between 2 maps, coefficient in range [0:1]
       ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff ) final;
@@ -137,6 +143,9 @@ namespace mbapi
 
       // Finalize the map writer
       ErrorHandler::ReturnCode finalizeMapWriter() final;
+
+      // Remove GridMapIOTbl Reference
+      ErrorHandler::ReturnCode removeMapReferenceFromGridMapIOTbl(const std::string &mapName, const std::string &referredBy) final;
 
       // Set of interfaces for interacting with a Cauldron model
       // Set project database. Reset all

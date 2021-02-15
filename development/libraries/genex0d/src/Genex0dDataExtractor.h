@@ -18,7 +18,7 @@ namespace Genex0d
 namespace Genex0dDataExtractor
 {
 
-void run(const std::string & projectFileName)
+void run(const std::string& projectFileName)
 {
   DataExtraction::DataDriller dataDriller(projectFileName);
   dataDriller.run(true);

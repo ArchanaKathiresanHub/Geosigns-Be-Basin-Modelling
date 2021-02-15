@@ -121,7 +121,7 @@ namespace casa
                                                    , const std::vector<double> & yin ///< the y coordinates of each 1D project
                                                    , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
                                                    , const InterpolationParams& interpolationParams
-                                                   )  const;
+                                                   ) const;
 
       /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters
       /// @param prm cauldron parameter with to this influential parameter corresponded type

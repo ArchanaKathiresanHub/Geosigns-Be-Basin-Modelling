@@ -53,6 +53,7 @@ if(UNIX)
    add_subdirectory(ParaViewPlugin)
    add_subdirectory(OneFilePerProcess)
    add_subdirectory(casaWizard)
+   add_subdirectory(ctcWizard)
 
    if(CMAKE_COMPILER_IS_GNUCXX)
      # Some libraries are already GCC warnings-free so we should keep them as they are

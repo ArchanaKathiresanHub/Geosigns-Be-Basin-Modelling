@@ -4,6 +4,8 @@ add_casawizard_sac_gtest( NAME WellTrajectoryManager     SOURCES testWellTraject
 add_casawizard_sac_gtest( NAME Case3DTrajectoryConvertor SOURCES testCase3DTrajectoryConvertor.cpp )
 
 configure_file( lithofractionManager.dat lithofractionManager.dat )
+configure_file( lithofractionManagerVersion0.dat lithofractionManagerVersion0.dat )
+
 configure_file( wellTrajectoryManager.dat wellTrajectoryManager.dat )
 
 add_subdirectory( input )

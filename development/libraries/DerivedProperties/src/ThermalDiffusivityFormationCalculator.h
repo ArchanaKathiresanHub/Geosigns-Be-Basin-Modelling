@@ -17,6 +17,12 @@
 #include "FormationPropertyCalculator.h"
 #include "GeoPhysicsProjectHandle.h"
 
+namespace GeoPhysics
+{
+  class CompoundLithology;
+  class FluidType;
+}
+
 namespace DerivedProperties {
 
    /// \brief Calculates the thermal diffusivity for a formation.
@@ -56,7 +62,12 @@ namespace DerivedProperties {
                                   const DataModel::AbstractFormation*                 formation,
                                   AbstractDerivedProperties::FormationPropertyList&   derivedProperties ) const;
 
+      virtual double calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* formation,
+                                          const GeoPhysics::CompoundLithology* lithology,
+                                          const std::map<std::string, double>& dependentProperties ) const override;
    private :
+      double calculateThermalDiffusivity(const GeoPhysics::CompoundLithology* lithology, const GeoPhysics::FluidType* fluid,
+                                         const double porosity, const double porePressure, const double temperature, const double undefinedValue) const;
 
       const GeoPhysics::ProjectHandle& m_projectHandle;
 

@@ -1,12 +1,22 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "plotOptions.h"
+
 #include "model/trajectoryType.h"
 
+#include "../common/view/components/customcheckbox.h"
+#include "../common/view/components/customradiobutton.h"
+
 #include <QButtonGroup>
-#include <QCheckBox>
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
-#include <QRadioButton>
 
 namespace casaWizard
 {
@@ -16,18 +26,20 @@ namespace sac
 
 PlotOptions::PlotOptions(QWidget* parent) :
   QWidget(parent),
-  base1d_{new QCheckBox("Base 1d", this)},
-  optimized1d_{new QCheckBox("Optimized 1d", this)},
-  base3d_{new QCheckBox("Base 3d", this)},
-  optimized3d_{new QCheckBox("Optimized 3d", this)},
+  base1d_{new CustomCheckbox("Base 1d", this)},
+  optimized1d_{new CustomCheckbox("Optimized 1d", this)},
+  base3d_{new CustomCheckbox("Base 3d", this)},
+  optimized3d_{new CustomCheckbox("Optimized 3d", this)},
   properties_{new QComboBox(this)},
   plotType_{new QButtonGroup(this)},
-  linePlot_{new QRadioButton("Line plot", this)},
-  scatterPlot_{new QRadioButton("Scatter plot", this)}
+  table_{new CustomRadioButton("Table", this)},
+  linePlot_{new CustomRadioButton("Line plot", this)},
+  scatterPlot_{new CustomRadioButton("Scatter plot", this)}
 {
-  linePlot_->setChecked(true);
-  plotType_->addButton(linePlot_, 0);
-  plotType_->addButton(scatterPlot_, 1);
+  table_->setChecked(true);
+  plotType_->addButton(table_, 0);
+  plotType_->addButton(linePlot_, 1);
+  plotType_->addButton(scatterPlot_, 2);
 
   QGridLayout* layout = new QGridLayout();
   layout->addWidget(new QLabel("Plot options", this), 0, 0);
@@ -35,11 +47,12 @@ PlotOptions::PlotOptions(QWidget* parent) :
   layout->addWidget(optimized1d_, 1, 1);
   layout->addWidget(base3d_, 2, 0);
   layout->addWidget(optimized3d_, 2, 1);
-  layout->addWidget(linePlot_, 3, 0);
-  layout->addWidget(scatterPlot_, 4, 0);
+  layout->addWidget(table_, 3, 0);
+  layout->addWidget(linePlot_, 4, 0);
+  layout->addWidget(scatterPlot_, 5, 0);
 
   properties_->setVisible(false);
-  layout->addWidget(properties_, 3, 1, 2, 1);
+  layout->addWidget(properties_, 5, 1, 2, 1);
   setLayout(layout);
 
   connect(base1d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
@@ -58,7 +71,7 @@ void PlotOptions::plotTypeButtonToggle(int index, bool checked)
     emit plotTypeChange(index);
     switch (index)
     {
-      case 1:
+      case 2:
         properties_->setVisible(true);
         break;
       default:

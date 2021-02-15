@@ -76,7 +76,6 @@ void Genex0d::run()
   LogHandler(LogHandler::INFO_SEVERITY) << "Runing genex0d ...";
 
   m_projectMgr->requestPropertyHistory("Temperature");
-  m_projectMgr->requestPropertyHistory("MaxVes");
   m_projectMgr->requestPropertyHistory("Ves");
   m_projectMgr->requestPropertyHistory("Vr");
   m_projectMgr->requestPropertyHistory("Pressure");
@@ -84,8 +83,6 @@ void Genex0d::run()
   // Only needed for adsorption, only load when needed???
   m_projectMgr->requestPropertyHistory("Permeability");
   m_projectMgr->requestPropertyHistory("Porosity");
-  m_projectMgr->requestPropertyHistory("LithoStaticPressure");
-  m_projectMgr->requestPropertyHistory("HydroStaticPressure");
 
   m_projectMgr->extract();
 
@@ -97,9 +94,7 @@ void Genex0d::run()
                              m_projectMgr->getValues("Vr"),
                              m_projectMgr->getValues("Pressure"),
                              m_projectMgr->getValues("Permeability"),
-                             m_projectMgr->getValues("Porosity"),
-                             m_projectMgr->getValues("LithoStaticPressure"),
-                             m_projectMgr->getValues("HydroStaticPressure")))
+                             m_projectMgr->getValues("Porosity")))
   {
     throw Genex0dException() << "Genex0d simulator could not be initiated!";
   }

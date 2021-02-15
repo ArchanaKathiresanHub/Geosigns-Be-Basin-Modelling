@@ -119,6 +119,15 @@ void ModelPseudo1dInputMapProperties::setBoundaryValuesIoTbl()
   m_tableMapProperty["BoundaryValuesIoTbl"] = tablePropertyVector;
 }
 
+void ModelPseudo1dInputMapProperties::setSurfaceDepthIoTbl()
+{
+  std::vector<ModelPseudo1dTableProperty> tablePropertyVector = {
+    ModelPseudo1dTableProperty("Depth", "DepthGrid"),
+  };
+
+  m_tableMapProperty["SurfaceDepthIoTbl"] = tablePropertyVector;
+}
+
 void ModelPseudo1dInputMapProperties::setSurfaceTempIoTbl()
 {
   std::vector<ModelPseudo1dTableProperty> tablePropertyVector = {
@@ -193,6 +202,7 @@ void ModelPseudo1dInputMapProperties::setProperties()
   setSourceRockLithoIoTbl();
   setCTCIoTbl();
   setBoundaryValuesIoTbl();
+  setSurfaceDepthIoTbl();
   setSurfaceTempIoTbl();
   setMntlHeatFlowIoTbl();
   setBasementIoTbl();

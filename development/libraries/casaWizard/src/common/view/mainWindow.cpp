@@ -1,7 +1,10 @@
 #include "mainWindow.h"
 
+#include "initresources.h"
 #include "logDisplay.h"
 #include "menuBar.h"
+#include "view/components/customtab.h"
+#include "view/lithoTypeBackgroundMapping.h"
 
 #include <QStatusBar>
 #include <QVBoxLayout>
@@ -11,9 +14,10 @@ namespace casaWizard
 
 MainWindow::MainWindow(QWidget* parent) :
   QMainWindow(parent),
-  tabWidget_{new QTabWidget(this)},
+  tabWidget_{new CustomTab(this)},
   logDisplay_{new LogDisplay(this)}
 {
+  InitResources::initialise();
   QWidget* centralWidget = new QWidget(this);
   setCentralWidget(centralWidget);
 
@@ -29,6 +33,11 @@ MainWindow::MainWindow(QWidget* parent) :
   QVBoxLayout* layout = new QVBoxLayout(centralWidget);
   layout->addWidget(tabWidget_,3);
   layout->addWidget(logDisplay_,1);
+}
+
+MainWindow::~MainWindow()
+{
+  LithoTypeBackgroundMapping::deleteInstance();
 }
 
 QTabWidget* MainWindow::tabWidget() const

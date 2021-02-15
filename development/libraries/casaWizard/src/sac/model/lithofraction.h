@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Struct for the lithofraction
 #pragma once
 
@@ -14,7 +22,8 @@ class Lithofraction
 public:
   Lithofraction() = default;
   explicit Lithofraction(const QString& layerName, const int firstComponent, const double minPercentageFirstComponent, const double maxPercentageFirstComponent,
-                         const int secondComponent, const double minFractionSecondComponent, const double maxFractionSecondComponent);
+                         const int secondComponent, const double minFractionSecondComponent, const double maxFractionSecondComponent, const bool doFirstOptimization = true,
+                         const bool doSecondOptimization = true);
   int version() const;
   static Lithofraction read(const int version, const QStringList& p);
   QStringList write() const;
@@ -42,6 +51,12 @@ public:
 
   int thirdComponent() const;
 
+  bool doFirstOptimization() const;
+  void setDoFirstOptimization(bool doFirstOptimization);
+
+  bool doSecondOptimization() const;
+  void setDoSecondOptimization(bool doSecondOptimization);
+
   static const QStringList percentNames;
 
 private:
@@ -52,6 +67,10 @@ private:
   int secondComponent_;
   double minFractionSecondComponent_;
   double maxFractionSecondComponent_;
+
+  bool doFirstOptimization_;
+  bool doSecondOptimization_;
+
 };
 
 } // namespace sac

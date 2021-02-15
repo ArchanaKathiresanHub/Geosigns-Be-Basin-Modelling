@@ -21,7 +21,7 @@ public:
                               QObject* parent);
 
 private slots:
-  void slotCalibrationTargetCheckBoxStateChanged(QTableWidgetItem* item);
+  void slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex);
 
   void slotRefresh();
 
