@@ -2235,7 +2235,7 @@ namespace migration
             if (thicknessMap)
             {
                thickness = thicknessMap->getValue (i, j);
-               if (thickness == thicknessMap->getUndefinedValue () || thickness > formationThickness)
+               if (thickness == thicknessMap->getUndefinedValue ())
                {
                   thickness = formationThickness;
                }
