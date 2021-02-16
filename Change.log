@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.5.0		2021-02-15 17:33:00 +0000
+Cauldron-v2.5.0		2021-02-09 09:48:31 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-02-16  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix mistake in reservoir thickness code.
+	* Fix mistake made in the recovery, the layer thickness can be larger, as users might experiment with it
+
+	================== COMMIT-END ========================
+	Commit-ID:<567764b98991de12d93905b6a9618a0e9cd721fb>	  (refs/heads/master)
+
+++
 2021-02-09  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	new: Get Reservoir thickness back from BPA-Cauldron. !v2.5.0
