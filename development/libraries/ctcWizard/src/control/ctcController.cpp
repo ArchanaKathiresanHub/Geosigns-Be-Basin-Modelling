@@ -614,7 +614,8 @@ void CTCcontroller::slotpushButtonExportCTCoutputMapsClicked()
 
 void CTCcontroller::slotPushSelectProject3dClicked()
 {
-  int iMaxPathLen = 114;
+    // this was a botch up; max fileName on Lnux is 255 chars & maximum path of 4096 characters
+  int iMaxPathLen = 4096;
 
   QString fileName = QFileDialog::getOpenFileName(ctcTab_,"Select project file",ctcScenario_.project3dPath(),
                                                     "Project files (*.project3d *.CTC)");
