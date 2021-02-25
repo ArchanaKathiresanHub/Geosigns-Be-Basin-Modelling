@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-02-25  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: test: Improved testing in the SAC/common casaWizard model libraries
+	* Related work items: #416561
+
+	================== COMMIT-END ========================
+	Commit-ID:<a9b9bc693f14c69ba3c823e63dc45b28e7767c44>	  (refs/heads/master)
+
+++
 2021-02-16  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Fix mistake in reservoir thickness code.
