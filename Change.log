@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-02-25  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Remove Inputs.HDF in the PrmWindow when making a 1d project from 3d
+	* Remove Inputs.HDF in the PrmWindow when making a 1d project from 3d
+
+	* Related work items: #417171
+	* Link: https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/417171
+	================== COMMIT-END ========================
+	Commit-ID:<eb961dc00d3eacb553d38bc89cb7fccda340a3e8>	  (refs/heads/master)
+
+++
 2021-02-25  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: test: Improved testing in the SAC/common casaWizard model libraries
