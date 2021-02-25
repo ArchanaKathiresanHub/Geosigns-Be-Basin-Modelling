@@ -73,6 +73,11 @@ ErrorHandler::ReturnCode PrmWindow::setInModel( mbapi::Model & caldModel, size_t
     mdlPseudo1d.setScalarsInModel();
     mdlPseudo1d.setSingleCellWindowXY();
 
+    caldModel.mapsManager().clearMaps();
+    ibs::FilePath path(caldModel.projectFileName());
+    path.cutLast();
+    ibs::FilePath inputsPath(path.path() + "/Inputs.HDF");
+    inputsPath.remove();
   }
   catch( const ErrorHandler::Exception & ex ) { return caldModel.reportError( ex.errorCode(), ex.what() ); }
 

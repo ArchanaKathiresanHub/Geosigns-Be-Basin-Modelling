@@ -762,22 +762,28 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( const std::vector<doub
    return NoError;
 }
 
+void MapsManagerImpl::clearMaps()
+{
+  // clear arrays
+  m_mapName.clear();
+  m_mapRefTable.clear();
+  m_mapObj.clear();
+
+  m_fileMaps.clear();
+  m_seqNrMap.clear();
+
+  // clear list of input maps files
+
+  m_mapsFileList.clear();
+}
+
 // Set project database. Reset all
 void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, const std::string & projectFileName )
 {
    m_projectFileName = projectFileName;
    m_proj = ph;
 
-   // clear arrays
-   m_mapName.clear();
-   m_mapRefTable.clear();
-   m_mapObj.clear();
-
-   m_fileMaps.clear();
-   m_seqNrMap.clear();
-
-   // clear list of input maps files
-   m_mapsFileList.clear();
+   clearMaps();
 
    // collecting map names and map files name
    // get pointer to the table

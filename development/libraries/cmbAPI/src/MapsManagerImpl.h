@@ -147,6 +147,9 @@ namespace mbapi
       // Remove GridMapIOTbl Reference
       ErrorHandler::ReturnCode removeMapReferenceFromGridMapIOTbl(const std::string &mapName, const std::string &referredBy) final;
 
+      // Clear maps
+      void clearMaps() final;
+
       // Set of interfaces for interacting with a Cauldron model
       // Set project database. Reset all
       void setProject( DataAccess::Interface::ProjectHandle * ph, const std::string & projectFileName );

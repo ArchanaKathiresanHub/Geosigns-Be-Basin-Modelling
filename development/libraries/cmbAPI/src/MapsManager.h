@@ -214,6 +214,8 @@ namespace mbapi
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode removeMapReferenceFromGridMapIOTbl( const std::string& mapName, const std::string& referredBy ) = 0;
 
+      /// @brief Clears all maps
+      virtual void clearMaps() = 0;
 
       /// @}
 

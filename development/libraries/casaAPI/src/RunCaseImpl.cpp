@@ -110,7 +110,7 @@ namespace casa
 
       // apply mutations
       for ( size_t i = 0; i < m_prmsSet.size(); ++i )
-      {
+      {         
          if ( ErrorHandler::NoError != m_prmsSet[i]->setInModel( *m_model, id() ) )
          {
             throw ErrorHandler::Exception( m_model->errorCode() ) << m_model->errorMessage();
@@ -127,7 +127,8 @@ namespace casa
       if ( ErrorHandler::NoError != m_model->saveModelToProjectFile( newProjectName ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can't write mutated project: " << newProjectName;
-      }
+      }      
+
       setRunStatus( NotSubmitted );
    }
 
