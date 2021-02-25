@@ -28,30 +28,70 @@ TEST( CasaScenarioTest, testAddOneWell )
       << "Well index in data does not match expected value";
 }
 
+void defineScenario(casaWizard::StubCasaScenario& scenario)
+{
+  scenario.setWorkingDirectory("workdir");
+  scenario.setExpertUser(true);
+  scenario.setNumberCPUs(10);
+  scenario.setRunLocation("TestRun");
+  scenario.setApplicationName("fastcauldron");
+  scenario.setClusterName("ClusterName");
+}
+
+TEST( CasaScenarioTest, testSetScenarioProperties)
+{
+  // Given
+  casaWizard::StubCasaScenario scenario{};
+
+  // When
+  defineScenario(scenario);
+
+  // Then
+  EXPECT_EQ(scenario.workingDirectory().toStdString(), "workdir");
+  EXPECT_EQ(scenario.expertUser(), true);
+  EXPECT_EQ(scenario.numberCPUs(), 10);
+  EXPECT_EQ(scenario.applicationName().toStdString(), "fastcauldron");
+  EXPECT_EQ(scenario.clusterName().toStdString(), "ClusterName");
+  EXPECT_EQ(scenario.runLocation().toStdString(), "TestRun");
+}
+
+TEST( CasaScenarioTest, testClearScenario )
+{
+  // Given
+  casaWizard::StubCasaScenario scenario{};
+  defineScenario(scenario);
+
+  // When
+  scenario.clear();
+
+  // Then
+  EXPECT_EQ(scenario.workingDirectory().toStdString(), "");
+  EXPECT_EQ(scenario.expertUser(), false);
+  EXPECT_EQ(scenario.numberCPUs(), 1);
+  EXPECT_EQ(scenario.applicationName().toStdString(), "fastcauldron \"-itcoupled\"");
+  EXPECT_EQ(scenario.clusterName().toStdString(), "LOCAL");
+  EXPECT_EQ(scenario.runLocation().toStdString(), "CaseSet");
+}
+
 TEST( CasaScenarioTest, testWriteToFile )
 {
   // Definition of the scenario to write
   casaWizard::StubCasaScenario writeScenario{};
-  QString workingDirectory{"workdir"};
-  const QString filename{"scenario.dat"};
+  defineScenario(writeScenario);
 
   casaWizard::CalibrationTargetManager& ctManagerWriter = writeScenario.calibrationTargetManager();
-
-  writeScenario.setWorkingDirectory(workingDirectory);
   ctManagerWriter.addWell("Test1", 10, 10);
   ctManagerWriter.addWell("Test2", 3, 4);
-
-  casaWizard::CalibrationTargetManager& ctManagerWrite = writeScenario.calibrationTargetManager();
-  ctManagerWrite.addCalibrationTarget("Target1", "Temperature", 1, 2, 3);
-  ctManagerWrite.addCalibrationTarget("Target2", "VRe", 1, 6, 7);
-
-  ctManagerWrite.setObjectiveFunctionVariables({"Temperature","VRe"});
-  ctManagerWrite.setObjectiveFunction(0, 0, 1);
-  ctManagerWrite.setObjectiveFunction(0, 1, 2);
-  ctManagerWrite.setObjectiveFunction(0, 2, 3);
-  ctManagerWrite.setObjectiveFunction(1, 0, 4);
+  ctManagerWriter.addCalibrationTarget("Target1", "Temperature", 1, 2, 3);
+  ctManagerWriter.addCalibrationTarget("Target2", "VRe", 1, 6, 7);
+  ctManagerWriter.setObjectiveFunctionVariables({"Temperature","VRe"});
+  ctManagerWriter.setObjectiveFunction(0, 0, 1);
+  ctManagerWriter.setObjectiveFunction(0, 1, 2);
+  ctManagerWriter.setObjectiveFunction(0, 2, 3);
+  ctManagerWriter.setObjectiveFunction(1, 0, 4);
 
   // Writing the scenario
+  const QString filename{"scenario.dat"};
   casaWizard::ScenarioWriter writer{filename};
   writeScenario.writeToFile(writer);
   writer.close();
@@ -64,6 +104,11 @@ TEST( CasaScenarioTest, testWriteToFile )
 
   // Checking the read of the scenario
   EXPECT_EQ(writeScenario.workingDirectory().toStdString(), readScenario.workingDirectory().toStdString());
+  EXPECT_EQ(writeScenario.expertUser(), readScenario.expertUser());
+  EXPECT_EQ(writeScenario.numberCPUs(), readScenario.numberCPUs());
+  EXPECT_EQ(writeScenario.applicationName().toStdString(), readScenario.applicationName().toStdString());
+  EXPECT_EQ(writeScenario.clusterName().toStdString(), readScenario.clusterName().toStdString());
+  EXPECT_EQ(writeScenario.runLocation().toStdString(), readScenario.runLocation().toStdString());
 
   const QVector<const casaWizard::Well*>& wells1 = ctManagerWriter.wells();
   const QVector<const casaWizard::Well*>& wells2 = ctManagerReader.wells();

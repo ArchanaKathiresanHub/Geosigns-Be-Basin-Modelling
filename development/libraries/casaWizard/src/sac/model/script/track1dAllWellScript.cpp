@@ -26,12 +26,10 @@ bool Track1DAllWellScript::generateCommands()
   addCommand("which track1d");
 
   const int nCoordinates = xCoordinates_.size();
-  if (properties_.size() == 0 || nCoordinates == 0)
+  if (properties_.size() == 0 || nCoordinates == 0 || nCoordinates != yCoordinates_.size())
   {
     return false;
   }
-
-  assert( nCoordinates == yCoordinates_.size());
 
   QString command = "track1d -coordinates ";
 
@@ -48,7 +46,7 @@ bool Track1DAllWellScript::generateCommands()
   }
 
   command += " -properties " + properties_.join(',')
-             + " -age 0 "
+             + " -age 0"
              + " -project " + projectFileName_
              + " -save welldata.csv";
 

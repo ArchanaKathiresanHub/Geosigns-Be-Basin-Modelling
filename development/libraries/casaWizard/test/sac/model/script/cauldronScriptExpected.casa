@@ -1,0 +1,3 @@
+app 10 fastcauldron "-itcoupled" "-allproperties" "-onlyat 0"
+base_project ""
+runPipeline "LOCAL" "Default"
