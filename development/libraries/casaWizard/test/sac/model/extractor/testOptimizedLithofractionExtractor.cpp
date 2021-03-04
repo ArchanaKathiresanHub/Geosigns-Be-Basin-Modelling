@@ -22,7 +22,7 @@ TEST(OptimizedLithofractionExtractorTest, testInitialization)
   OptimizedLithofractionExtractor extractor(*scenario);
 
   // Then
-  EXPECT_EQ(extractor.iterationPath(), QString("workingDirectory/calibration_step1/CaseSet/Iteration_1"));
+  EXPECT_EQ(extractor.iterationPath(), QString("workingDirectory/calibration_step1/CaseSet/Iteration_10"));
 }
 
 TEST(OptimizedLithofractionExtractorTest, testExtract)

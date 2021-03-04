@@ -80,12 +80,13 @@ void CaseExtractor::obtainIterationPath()
     Logger::log() << "Error: no run folder found while reading the well trajectory. <" << runFolder << "> not found" << Logger::endl();
     return;
   }
-  const QStringList iterations = dir.entryList({"Iteration_*"}, QDir::Filter::Dirs, QDir::SortFlag::Name);
+  const QStringList iterations = dir.entryList({"Iteration_*"}, QDir::Filter::Dirs, QDir::Time | QDir::Reversed);
   if (iterations.isEmpty())
   {
     Logger::log() << "Error: no results found in folder <" << runFolder << ">" << Logger::endl();
     return;
   }
+
   iterationPath_ = runFolder + "/" + iterations.last();
 }
 
