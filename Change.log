@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-03-04  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed the UT issue with creating an empty folder structure.
+	================== COMMIT-END ========================
+	Commit-ID:<816e5137150d761ec77be44192c4a0b8bc35d743>	  (refs/heads/master)
+
+++
 2021-02-25  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Remove Inputs.HDF in the PrmWindow when making a 1d project from 3d
