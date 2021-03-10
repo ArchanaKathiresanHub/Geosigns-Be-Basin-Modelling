@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-03-10  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Rename to deph conversion.
+	* Rename to depth conversion
+	* Move fastcauldron libs to libraries
+
+	================== COMMIT-END ========================
+	Commit-ID:<776d72ecfc5851c64a517d3d6521737a7b610849>	  (refs/heads/master)
+
+++
 2021-03-04  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fixed the UT issue with creating an empty folder structure.
