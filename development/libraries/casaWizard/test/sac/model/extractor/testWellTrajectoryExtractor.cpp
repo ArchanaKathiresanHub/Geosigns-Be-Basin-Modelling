@@ -22,7 +22,7 @@ TEST(WellTrajectoryExtractorTest, testInitialization)
   WellTrajectoryExtractor extractor(*scenario);
 
   // Then
-  EXPECT_EQ(extractor.iterationPath(), QString("workingDirectory/calibration_step1/CaseSet/Iteration_10"));
+  EXPECT_EQ(extractor.iterationPath(), QString("workingDirectory/calibration_step1/CaseSet/Iteration_1"));
 }
 
 TEST(WellTrajectoryExtractorTest, testExtract)

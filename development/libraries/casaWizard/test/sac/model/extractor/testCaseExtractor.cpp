@@ -21,7 +21,7 @@ TEST(CaseExtractorTest, testInitialization)
   StubCaseExtractor extractor(*scenario);
 
   // Then
-  EXPECT_EQ(extractor.iterationPath(), QString("workingDirectory/calibration_step1/CaseSet/Iteration_10"));
+  EXPECT_EQ(extractor.iterationPath().toStdString(), "workingDirectory/calibration_step1/CaseSet/Iteration_1");
 }
 
 TEST(CaseExtractorTest, testInitializationWithInvalidWorkingDirectory)

@@ -5,7 +5,7 @@
 #include "model/logger.h"
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"
-#include "model/script/depthCalibrationScript.h"
+#include "model/script/depthConversionScript.h"
 #include "model/script/sacScript.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "view/t2zTab.h"
@@ -64,8 +64,8 @@ void T2Zcontroller::slotPushButtonSACrunT2ZClicked()
     QFile::copy(calibrationDir + "/ThreeDFromOneD/Input.HDF", t2zDir + "/Input.HDF");
   }
 
-  DepthCalibrationScript depthCalibration{casaScenario_, t2zDir};
-  if (scriptRunController_.runScript(depthCalibration))
+  DepthConversionScript depthConversion{casaScenario_, t2zDir};
+  if (scriptRunController_.runScript(depthConversion))
   {
     QDir().mkdir(recalibrationDir);
     QFile::copy(t2zDir + "/CalibratedDepthMapsProject" + projectFilename, recalibrationDir + projectFilename);

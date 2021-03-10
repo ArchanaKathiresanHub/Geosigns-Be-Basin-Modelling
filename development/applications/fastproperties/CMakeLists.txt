@@ -51,7 +51,7 @@ application_env_var( TARGET ${APP_NAME} VARS
 )
 
 include_directories( SYSTEM
-   ${PROJECT_SOURCE_DIR}/applications/fastcauldron/src
+   ${PROJECT_SOURCE_DIR}/libraries/FastCauldron/src
    ${HDF5_INCLUDE_DIRS}
    ${MPI_INCLUDE_DIRS}
    ${PETSC_INCLUDE_DIRS}

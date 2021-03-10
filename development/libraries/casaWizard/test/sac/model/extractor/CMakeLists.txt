@@ -3,16 +3,7 @@ add_casawizard_sac_gtest( NAME OptimizedLithofractionExtractor   SOURCES testOpt
 add_casawizard_sac_gtest( NAME WellTrajectoryExtractor           SOURCES testWellTrajectoryExtractor.cpp )
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_1/Case_1)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_2/Case_1)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_3/Case_1)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_4/Case_1)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_5/Case_1)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_6/Case_1)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_7/Case_1)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_8/Case_1)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_9/Case_1)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_10/Case_1)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_10/Case_2)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_10/Case_4)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_1/Case_2)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectory/calibration_step1/CaseSet/Iteration_1/Case_4)
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/workingDirectoryNoIterations/calibration_step1/CaseSet)

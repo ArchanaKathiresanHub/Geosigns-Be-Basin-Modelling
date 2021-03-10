@@ -21,7 +21,7 @@
 #include "model/output/workspaceGenerator.h"
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"
-#include "model/script/depthCalibrationScript.h"
+#include "model/script/depthConversionScript.h"
 #include "model/script/sacScript.h"
 #include "view/sacTab.h"
 #include "view/sacTabIDs.h"
