@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-03-12  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Extended Genex0d input arguments for Adsorption model data.
+	* Related work items: #416179
+
+	================== COMMIT-END ========================
+	Commit-ID:<2214280c6dfe97b59bd6cf97bf7a9c5083be2795>	  (refs/heads/master)
+
+++
 2021-03-10  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Rename to deph conversion.
