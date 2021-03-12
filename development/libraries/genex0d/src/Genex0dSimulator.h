@@ -43,6 +43,7 @@ public:
            const std::vector<double>& pressure, const std::vector<double>& VRE, const std::vector<double>& porePressure, const std::vector<double>& permeability,
            const std::vector<double>& porosity);
   bool saveTo(const std::string & outputFileName);
+  void setLangmuirData(const std::string& adsorptionFunctionTPVData, const std::string& langmuirName);
   
 private:
   void setRequestedOutputProperties();

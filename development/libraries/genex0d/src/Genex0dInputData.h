@@ -41,6 +41,7 @@ struct Genex0dInputData
   std::string nodeHistoryFileName;
   std::string whichAdsorptionSimulator;
   std::string whichAdsorptionFunction;
+  std::string adsorptionFunctionTPVData;
   double HCVRe05SR2;
   double SCVRe05SR2;
   double activationEnergySR2;
@@ -72,6 +73,7 @@ struct Genex0dInputData
                    const std::string& nodeHistoryFileName = "nodeHistory.dat",
                    const std::string& whichAdsorptionSimulator = "",
                    const std::string& whichAdsorptionFunction = "",
+                   const std::string& adsorptionFunctionData = "",
                    const double HCVRe05SR2 = CauldronNoDataValue,
                    const double SCVRe05SR2 = CauldronNoDataValue,
                    const double activationEnergySR2 = CauldronNoDataValue,
@@ -101,6 +103,7 @@ struct Genex0dInputData
     nodeHistoryFileName{nodeHistoryFileName},
     whichAdsorptionSimulator{whichAdsorptionSimulator},
     whichAdsorptionFunction{whichAdsorptionFunction},
+    adsorptionFunctionTPVData{adsorptionFunctionData},
     HCVRe05SR2{HCVRe05SR2},
     SCVRe05SR2{SCVRe05SR2},
     activationEnergySR2{activationEnergySR2},

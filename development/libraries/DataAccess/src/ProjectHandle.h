@@ -937,6 +937,7 @@ namespace DataAccess
 
 
          MutablePointAdsorptionHistoryList m_adsorptionPointHistoryList;
+         MutableLangmuirAdsorptionIsothermSampleList m_langmuirIsotherms;
 
       private:
          void fillSnapshotIoTbl( std::list<double>& ages, const bool isUserDefined );
@@ -951,7 +952,6 @@ namespace DataAccess
 
          double m_previousIgneousIntrusionTime;
 
-         MutableLangmuirAdsorptionIsothermSampleList m_langmuirIsotherms;
          MutableLangmuirAdsorptionTOCEntryList m_langmuirTocAdsorptionEntries;
 
          IrreducibleWaterSaturationSample* m_irreducibleWaterSample;

@@ -19,6 +19,12 @@ namespace DataAccess {
          LangmuirAdsorptionIsothermSample ( ProjectHandle& projectHandle,
                                             database::Record* record );
 
+         LangmuirAdsorptionIsothermSample ( ProjectHandle& projectHandle,
+                                            const std::string& langmuirName,
+                                            const double langmuirTemperature,
+                                            const double langmuirPressure,
+                                            const double langmuirVolume );
+
          /// \brief Destructor.
          virtual ~LangmuirAdsorptionIsothermSample ();
 

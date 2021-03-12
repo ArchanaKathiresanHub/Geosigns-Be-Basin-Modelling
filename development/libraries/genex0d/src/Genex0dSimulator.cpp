@@ -18,6 +18,7 @@
 // database
 #include "cauldronschemafuncs.h"
 #include "ProjectFileHandler.h"
+#include "LangmuirAdsorptionIsothermSample.h"
 
 //
 #include "SimulationDetails.h"
@@ -28,6 +29,8 @@
 
 // utilities
 #include "LogHandler.h"
+
+#include <sstream>
 
 namespace Genex0d
 {
@@ -88,7 +91,21 @@ bool Genex0dSimulator::run(const DataAccess::Interface::Formation* formation, co
 
 bool Genex0dSimulator::saveTo(const std::string & outputFileName)
 {
-   return saveToFile(outputFileName);
+  return saveToFile(outputFileName);
+}
+
+void Genex0dSimulator::setLangmuirData(const std::string& adsorptionFunctionTPVData, const std::string& langmuirName)
+{
+  m_langmuirIsotherms.clear();
+  std::stringstream stream(adsorptionFunctionTPVData);
+
+  std::string temperature;
+  std::string pressure;
+  std::string volume;
+  while (stream >> temperature >> pressure >> volume)
+  {
+    m_langmuirIsotherms.push_back(new DataAccess::Interface::LangmuirAdsorptionIsothermSample(*this, langmuirName, std::stod(temperature), std::stod(pressure), std::stod(volume)));
+  }
 }
 
 bool Genex0dSimulator::computeSourceRock(const DataAccess::Interface::Formation * aFormation)

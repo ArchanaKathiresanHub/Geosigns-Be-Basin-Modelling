@@ -157,6 +157,11 @@ Genex0dInputManager::ExitStatus Genex0dInputManager::checkInputIsValid(std::stri
       ioErrorMessage = "An adsorption simulator was provided, but no adsorption capacity function";
       return WITH_ERROR_EXIT;
     }
+    if (m_inputData.adsorptionFunctionTPVData.empty())
+    {
+      ioErrorMessage = "An adsorption capacity function was provided, but no adsorption capacity function data";
+      return WITH_ERROR_EXIT;
+    }
   }
 
   if (m_inputData.whichAdsorptionSimulator.empty())
@@ -266,11 +271,14 @@ void Genex0dInputManager::setArgumentFieldNames()
   m_argumentFields["-Resin"] = 0;
   m_argumentFields["-C15Aro"] = 0;
   m_argumentFields["-C15Sat"] = 0;
+
+  // Adsorption parameters (optional)
   m_argumentFields["-AdsSimulator"] = 0;
+  m_argumentFields["-AdsLangmuirTpvTable"] = 0;
   m_argumentFields["-AdsCapacityFunc"] = 0;
   m_argumentFields["-doOTGC"] = 0;
 
-  // Source Rock 2 parameters
+  // Source Rock 2 parameters (optional)
   m_argumentFields["-SRType_SR2"] = 0;
   m_argumentFields["-HC_SR2"] = 0;
   m_argumentFields["-SC_SR2"] = 0;
@@ -382,6 +390,10 @@ void Genex0dInputManager::storeArgument(const std::string& argument, const std::
   {
     m_inputData.whichAdsorptionFunction = argumentValue;
   }
+  else if (argument == "-AdsLangmuirTpvTable")
+  {
+    m_inputData.adsorptionFunctionTPVData = argumentValue;
+  }
   else if (argument == "-doOTGC")
   {
     if (argumentValue == "1")
@@ -427,8 +439,6 @@ void Genex0dInputManager::storeArgument(const std::string& argument, const std::
   {
     m_inputData.mixingHI = std::stod(argumentValue);
   }
-
-
 }
 
 Genex0dInputManager::ExitStatus Genex0dInputManager::storeInput(std::string & ioErrorMessage)

@@ -38,10 +38,11 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsRepeatedArgument)
 
 TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
 {
-  int argc = 57;
+  int argc = 59;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-datFileName", "test.dat" , "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
+                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm",
+                  "-AdsLangmuirTpvTable", "20 6.8 3.67 50 7.48 2.35 90 4.64 0.99 115 3.868571429 0.03286", "-doOTGC", "1",
                   "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
                   "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
   Genex0d::Genex0dInputManager inputMgr(argc, argv);
@@ -122,6 +123,10 @@ TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
   const std::string adsorptionCapacityFuncExpected = "Default Langmuir Isotherm";
   const std::string & adsorptionCapacityFuncActual = inputData.whichAdsorptionFunction;
   EXPECT_EQ(adsorptionCapacityFuncExpected, adsorptionCapacityFuncActual);
+
+  const std::string adsorptionDataExpected = "20 6.8 3.67 50 7.48 2.35 90 4.64 0.99 115 3.868571429 0.03286";
+  const std::string & adsorptionDataActual = inputData.adsorptionFunctionTPVData;
+  EXPECT_EQ(adsorptionDataExpected, adsorptionDataActual);
 
   const double HCExpectedSR2 = 1.13;
   const double HCActualSR2 = inputData.HCVRe05SR2;
@@ -361,6 +366,22 @@ TEST(TestGenex0dInputManager, TestMissingAdsSimulatorArgumentWhenAdsFuncGivenExi
   EXPECT_EQ(ioErrorMssgActual, "An adsorption capacity function was provided, but no adsorption simulator");
 }
 
+TEST(TestGenex0dInputManager, TestMissingAdsLangmuirTpvTableArgumentWhenAdsSimulatorGivenExit)
+{
+  int argc = 57;
+  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-datFileName", "test.dat" , "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
+                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm",
+                  "-doOTGC", "1",
+                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
+                  "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
+  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+  EXPECT_EQ(ioErrorMssgActual, "An adsorption capacity function was provided, but no adsorption capacity function data");
+}
+
 TEST(TestGenex0dInputManager, TestMissingLastArgument)
 {
   int argc = 30;
@@ -375,10 +396,10 @@ TEST(TestGenex0dInputManager, TestMissingLastArgument)
 
 TEST(TestGenex0dInputManager, TestMissingSourceRockType2)
 {
-  int argc = 53;
+  int argc = 47;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
+                  "-C15Aro", "77", "-C15Sat", "71",
                   "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
                   "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
   Genex0d::Genex0dInputManager inputMgr(argc, argv);
@@ -390,10 +411,10 @@ TEST(TestGenex0dInputManager, TestMissingSourceRockType2)
 
 TEST(TestGenex0dInputManager, TestMissingHC_SR2)
 {
-  int argc = 53;
+  int argc = 47;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
+                  "-C15Aro", "77", "-C15Sat", "71",
                   "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
                   "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
   Genex0d::Genex0dInputManager inputMgr(argc, argv);
@@ -405,10 +426,10 @@ TEST(TestGenex0dInputManager, TestMissingHC_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingSC_SR2)
 {
-  int argc = 53;
+  int argc = 47;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
+                  "-C15Aro", "77", "-C15Sat", "71",
                   "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
                   "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
   Genex0d::Genex0dInputManager inputMgr(argc, argv);
@@ -420,10 +441,10 @@ TEST(TestGenex0dInputManager, TestMissingSC_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingEA_SR2)
 {
-  int argc = 53;
+  int argc = 47;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
+                  "-C15Aro", "77", "-C15Sat", "71",
                   "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-Asph_SR2", "90", "-Resin_SR2", "84",
                   "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
   Genex0d::Genex0dInputManager inputMgr(argc, argv);
@@ -435,10 +456,10 @@ TEST(TestGenex0dInputManager, TestMissingEA_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingAsph_SR2)
 {
-  int argc = 53;
+  int argc = 47;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
+                  "-C15Aro", "77", "-C15Sat", "71",
                   "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Resin_SR2", "84",
                   "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
   Genex0d::Genex0dInputManager inputMgr(argc, argv);
@@ -450,10 +471,10 @@ TEST(TestGenex0dInputManager, TestMissingAsph_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingResinSR2)
 {
-  int argc = 53;
+  int argc = 47;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
+                  "-C15Aro", "77", "-C15Sat", "71",
                   "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90",
                   "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
   Genex0d::Genex0dInputManager inputMgr(argc, argv);
@@ -465,10 +486,10 @@ TEST(TestGenex0dInputManager, TestMissingResinSR2)
 
 TEST(TestGenex0dInputManager, TestMissingC15Aro_SR2)
 {
-  int argc = 53;
+  int argc = 47;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
+                  "-C15Aro", "77", "-C15Sat", "71",
                   "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
                   "-C15Sat_SR2", "73", "-MixingHI", "400"};
   Genex0d::Genex0dInputManager inputMgr(argc, argv);
@@ -480,10 +501,10 @@ TEST(TestGenex0dInputManager, TestMissingC15Aro_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingC15Sat_SR2)
 {
-  int argc = 53;
+  int argc = 47;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
+                  "-C15Aro", "77", "-C15Sat", "71",
                   "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
                   "-C15Aro_SR2", "78", "-MixingHI", "400"};
   Genex0d::Genex0dInputManager inputMgr(argc, argv);
@@ -495,10 +516,10 @@ TEST(TestGenex0dInputManager, TestMissingC15Sat_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingMixinHI_SR2)
 {
-  int argc = 53;
+  int argc = 47;
   char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
                   "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm", "-doOTGC", "1",
+                  "-C15Aro", "77", "-C15Sat", "71",
                   "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
                   "-C15Aro_SR2", "78", "-C15Sat_SR2", "73"};
   Genex0d::Genex0dInputManager inputMgr(argc, argv);

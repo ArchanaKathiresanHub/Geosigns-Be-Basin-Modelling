@@ -15,6 +15,15 @@ DataAccess::Interface::LangmuirAdsorptionIsothermSample::LangmuirAdsorptionIsoth
    m_langmuirName = database::getLangmuirName ( record );
 }
 
+DataAccess::Interface::LangmuirAdsorptionIsothermSample::LangmuirAdsorptionIsothermSample(DataAccess::Interface::ProjectHandle& projectHandle, const string& langmuirName, const double langmuirTemperature, const double langmuirPressure, const double langmuirVolume) :
+  DAObject(projectHandle, nullptr),
+  m_langmuirTemperature(langmuirTemperature),
+  m_langmuirPressure(langmuirPressure),
+  m_langmuirVolume(langmuirVolume),
+  m_langmuirName(langmuirName)
+{
+}
+
 DataAccess::Interface::LangmuirAdsorptionIsothermSample::~LangmuirAdsorptionIsothermSample ()
 {
 }
