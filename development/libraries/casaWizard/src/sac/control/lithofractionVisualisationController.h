@@ -35,6 +35,9 @@ public:
   void updateAvailableLayers();
   void updateBirdsView();
 
+private slots:
+  void slotRefresh();
+
 private:
   QString activeLayer_;
   LithofractionVisualisation* lithofractionVisualisation_;

@@ -50,7 +50,7 @@ public:
   QSpinBox* threads() const;
   ActiveWellsTable* activeWellsTable() const;
 
-  void updateActiveWells(const QVector<int> activeWells);
+  void updateSelectedWells(const QVector<int> selectedWells);
 private slots:
   void slotInterpolationTypeChange(int interpolationType);
   void slotSmoothingTypeChange(int smoothingType);

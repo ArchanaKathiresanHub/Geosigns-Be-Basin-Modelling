@@ -19,8 +19,8 @@ public:
   explicit WellBirdsView(QWidget* parent = nullptr);
 
   void setWellLocations(const QVector<double>& x, const QVector<double>& y);
-  void setActiveWells(const QVector<int> activeWells);
-  const QVector<int>& activeWells();
+  void setSelectedWells(const QVector<int> selectedWells);
+  const QVector<int>& selectedWells();
   const QVector<double>& x() const;
   const QVector<double>& y() const;
 
@@ -29,7 +29,7 @@ public:
 private:
   QVector<double> x_;
   QVector<double> y_;
-  QVector<int> activeWells_;
+  QVector<int> selectedWells_;
 
   QVector<double> convertToKm(const QVector<double>& distancesInMeter);
 };

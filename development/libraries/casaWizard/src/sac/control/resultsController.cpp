@@ -14,7 +14,6 @@
 #include "model/input/case3DTrajectoryReader.h"
 #include "model/logger.h"
 #include "model/sacScenario.h"
-#include "model/scenarioBackup.h"
 #include "model/script/cauldronScript.h"
 #include "model/script/Generate3DScenarioScript.h"
 #include "model/script/track1dAllWellScript.h"
@@ -45,17 +44,16 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
   resultsTab_{resultsTab},
   scenario_{scenario},
   scriptRunController_{scriptRunController},
-  activeWell_{0},
+  activeWell_{-1},
   activeProperty_{""}
 {
-  connect(resultsTab_->wellsList(), SIGNAL(currentTextChanged(const QString&)), this, SLOT(updateWell(const QString&)));
-  connect(resultsTab_->wellsList(), SIGNAL(itemSelectionChanged()), this, SLOT(refreshPlot()));
-
-  connect(resultsTab_->plotOptions(), SIGNAL(activeChanged()), this, SLOT(refreshPlot()));
+  connect(resultsTab_->plotOptions(), SIGNAL(activeChanged()), this, SLOT(activeChanged()));
   connect(resultsTab_->plotOptions(), SIGNAL(plotTypeChange(int)), this, SLOT(togglePlotType(int)));
   connect(resultsTab_->plotOptions(), SIGNAL(propertyChanged(QString)), this, SLOT(updateProperty(QString)));
 
+  connect(resultsTab_->wellsList(), SIGNAL(itemSelectionChanged()), this, SLOT(updateWell()));
   connect(resultsTab_->wellBirdsView(), SIGNAL(pointSelectEvent(int,int)), this, SLOT(updateWellFromBirdView(int, int)));
+
   connect(resultsTab_->wellScatterPlot(), SIGNAL(selectedWell(int)), this, SLOT(selectedWellFromScatter(int)));
 }
 
@@ -63,7 +61,7 @@ void ResultsController::refreshGUI()
 {
   setActiveWells();
   setActivePlots();
-  setDomainBirdsView();
+  setDomainBirdsView();  
 }
 
 void ResultsController::setActiveWells()
@@ -79,8 +77,8 @@ void ResultsController::setActivePlots()
 }
 
 void ResultsController::setDomainBirdsView()
-{
-  double xMin, xMax, yMin, yMax;
+{  
+  double xMin = 0; double xMax = 1; double yMin = 0; double yMax = 1;
   scenario_.projectReader().domainRange(xMin, xMax, yMin, yMax);
   resultsTab_->setRangeBirdsView(xMin * Utilities::Maths::MeterToKilometer,
                                  xMax * Utilities::Maths::MeterToKilometer,
@@ -96,55 +94,49 @@ void ResultsController::slotUpdateTabGUI(int tabID)
   }
 
   refreshGUI();
-  setDefaultWellSelection();
+
+  initializeWellSelection();   
 }
 
-void ResultsController::setDefaultWellSelection()
+void ResultsController::initializeWellSelection()
 {
-  if (noValidWellSelected())
-  {
-    resultsTab_->wellsList()->setCurrentRow(0);
-  }
+  QListWidget* wellsList = resultsTab_->wellsList();
+  wellsList->setCurrentRow(wellsList->count()>0 ? 0 : -1);
 }
 
-bool ResultsController::noValidWellSelected()
-{
-  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  const int nrOfActiveWells = ctManager.activeWells().size();
-  return ( nrOfActiveWells > 0 && ( resultsTab_->wellsList()->currentRow() < 0 ||
-                                    resultsTab_->wellsList()->currentRow() >= nrOfActiveWells) );
-}
-
-void ResultsController::updateWell(const QString& name)
+void ResultsController::updateWell()
 {
   activeWell_ = -1;
-  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  for (const Well* well : ctManager.activeWells())
+  QVector<int> wells = selectedWells();
+  if (wells.size() == 1)
   {
-    if (well->name() == name)
-    {
-      activeWell_ = well->id();
-      break;
-    }
+    activeWell_ = wells.front();
+    Logger::log() << "Selected well " << activeWell_ << Logger::endl();
   }
+
+  updateBirdView();
   refreshPlot();
-  Logger::log() << "Selected well " << activeWell_ << Logger::endl();
+}
+
+void ResultsController::activeChanged()
+{
+  const QVector<bool> activePlots = resultsTab_->plotOptions()->activePlots();
+  scenario_.setActivePlots(activePlots);
+
+  refreshPlot();
 }
 
 void ResultsController::refreshPlot()
 {
-  QVector<bool> activePlots = resultsTab_->plotOptions()->activePlots();
-  scenario_.setActivePlots(activePlots);
   updateOptimizedTable();
   updateWellPlot();
   updateScatterPlot();
-  updateBirdView();
 }
 
 void ResultsController::togglePlotType(const int currentIndex)
 {
   resultsTab_->setPlotType(currentIndex);
-  refreshPlot();
+  initializeWellSelection();
 }
 
 void ResultsController::updateOptimizedTable()
@@ -202,28 +194,23 @@ void ResultsController::updateProperty(const QString property)
 }
 
 void ResultsController::updateWellFromBirdView(const int lineIndex, const int pointIndex)
-{
-  // Disable when multiple wells are selected
-  if (selectedWells().size() > 1)
-  {
-    return;
-  }
-  QSignalBlocker blocker(resultsTab_->wellsList());
+{  
   if (lineIndex != 1)
   {
     return;
   }
 
-  if (pointIndex<activeWell_)
+  const CalibrationTargetManager& mgr = scenario_.calibrationTargetManager();
+  const QVector<const Well*> wells = mgr.activeWells();
+  for (int i = 0; i< wells.size(); ++i)
   {
-    activeWell_ = pointIndex;
+    if (wells[i]->id() == pointIndex)
+    {
+      QListWidgetItem* item = resultsTab_->wellsList()->item(i);
+      item->setSelected(!item->isSelected());
+      return;
+    }
   }
-  else
-  {
-    activeWell_ = pointIndex + 1;
-  }
-  resultsTab_->wellsList()->setCurrentRow(activeWell_);
-  refreshPlot();
 }
 
 void ResultsController::selectedWellFromScatter(const int wellIndex)
@@ -236,7 +223,6 @@ void ResultsController::selectedWellFromScatter(const int wellIndex)
   }
 
   Logger::log() << "Selected point is in well " << wells[wellIndex]->name() << Logger::endl();
-
 }
 
 void ResultsController::updateWellPlot()
@@ -248,8 +234,6 @@ void ResultsController::updateWellPlot()
   const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
   const QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell({activeWell_}, properties);
   QVector<bool> activePlots{scenario_.activePlots()};
-
-
 
   resultsTab_->updateWellPlot(targetsInWell,
                               properties,
@@ -278,17 +262,20 @@ void ResultsController::updateScatterPlot()
 
 void ResultsController::updateBirdView()
 {
-  resultsTab_->updateActiveWells(selectedWells());
+  resultsTab_->updateSelectedWells(selectedWells());
 }
 
 QVector<int> ResultsController::selectedWells()
 {
+  const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
+  const QVector<const Well*> activeWells = calibrationManager.activeWells();
+
   QModelIndexList indices = resultsTab_->wellsList()->selectionModel()->selectedIndexes();
 
   QVector<int> wellIndices;
   for(const QModelIndex& index : indices)
   {
-    wellIndices.push_back(index.row());
+    wellIndices.push_back(activeWells[index.row()]->id());
   }
   std::sort(wellIndices.begin(), wellIndices.end());
   return wellIndices;

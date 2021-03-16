@@ -29,7 +29,7 @@ LithofractionController::LithofractionController(LithofractionTable* table, SACS
   projectReader_{scenario.projectReader()},
   table_{table}
 {
-  connect(table_->table(), SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(slotTableChange(QTableWidgetItem*)));
+  connect(table_, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(slotTableChange(QTableWidgetItem*)));
   connect(table_, SIGNAL(firstOptimizationChanged(int, int)), this, SLOT(slotFirstOptimizationChanged(int, int)));
   connect(table_, SIGNAL(secondOptimizationChanged(int, int)), this, SLOT(slotSecondOptimizationChanged(int, int)));
 
@@ -79,20 +79,6 @@ void LithofractionController::slotSecondOptimizationChanged(int state, int row)
 
 void LithofractionController::loadLayersFromProject()
 {
-  if (!lithofractionManager_.lithofractions().empty())
-  {
-    QMessageBox willOverwrite(QMessageBox::Icon::Warning,
-                             "Warning",
-                             "Your changes in lithology will be overwritten by the defaults as defined in the project3d file. Continue anyway?",
-                             QMessageBox::Yes | QMessageBox::No);
-    if (willOverwrite.exec() == QMessageBox::No)
-    {
-      return;
-    }
-
-    lithofractionManager_.clear();
-  }
-
   const QStringList layerNames = projectReader_.layerNames();
   for (const QString& name : layerNames )
   {

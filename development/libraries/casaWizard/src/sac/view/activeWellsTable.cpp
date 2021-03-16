@@ -29,10 +29,11 @@ ActiveWellsTable::ActiveWellsTable(QWidget* parent)
   setRowCount(0);
   setColumnCount(2);
   setHorizontalHeaderItem(0, new QTableWidgetItem("Used"));
-
   setHorizontalHeaderItem(1, new QTableWidgetItem("Well name"));
   horizontalHeader()->sectionSizeHint(200);
   horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+  resizeColumnsToContents();
 }
 
 void ActiveWellsTable::updateTable(const QVector<const Well*> wells)
@@ -61,8 +62,7 @@ void ActiveWellsTable::updateTable(const QVector<const Well*> wells)
     setCellWidget(row, 0, checkBoxWidget);
     setItem(row, 1, new QTableWidgetItem(well->name()));
     ++row;
-  }
-  resizeColumnsToContents();
+  }  
 }
 
 }  // namespace sac

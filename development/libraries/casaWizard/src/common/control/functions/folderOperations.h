@@ -11,6 +11,8 @@ namespace functions
 
 bool copyCaseFolder(const QDir sourceDir, const QDir targetDir);
 
+bool removeIfUserAgrees(const QString& directory);
+
 } // namespace functions
 
 } // namespace casaWizard

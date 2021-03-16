@@ -111,8 +111,6 @@ WellScatterPlot* ResultsTab::wellScatterPlot() const
 
 void ResultsTab::updateWellList(const QVector<const Well*> wells)
 {
-  const int row = wellsList()->currentRow();
-
   QSignalBlocker blocker(wellsList_);
   wellsList_->clear();
   for (const Well* well : wells)
@@ -120,11 +118,6 @@ void ResultsTab::updateWellList(const QVector<const Well*> wells)
     wellsList_->addItem(well->name());
   }
   wellsList_->setMinimumWidth(wellsList_->sizeHintForColumn(0));
-
-  if (row >= 0 && row < wellsList_->count())
-  {
-    wellsList_->setCurrentRow(row);
-  }
 }
 
 void ResultsTab::updateWellPlot(const QVector<QVector<CalibrationTarget> > targets, const QStringList properties, const QVector<QVector<WellTrajectory> > allTrajectories, const QVector<bool>& activePlots)
@@ -214,6 +207,7 @@ void ResultsTab::addLithofractionRow(int& row, QVector<QTableWidgetItem*> items,
 
 void ResultsTab::updateBirdsView(const QVector<const Well*> wells)
 {
+  QSignalBlocker blocker(wellBirdsView_);
   QVector<double> x;
   QVector<double> y;
   for (const Well* well : wells)
@@ -229,9 +223,9 @@ void ResultsTab::setRangeBirdsView(const double xMin, const double xMax, const d
   wellBirdsView_->updateRange(xMin, xMax, yMin, yMax);
 }
 
-void ResultsTab::updateActiveWells(const QVector<int> activeWells)
+void ResultsTab::updateSelectedWells(const QVector<int> selectedWells)
 {
-  wellBirdsView_->setActiveWells(activeWells);
+  wellBirdsView_->setSelectedWells(selectedWells);
 }
 
 void ResultsTab::setPlotType(const int currentIndex)
@@ -261,7 +255,6 @@ void ResultsTab::setPlotType(const int currentIndex)
       layoutStackedPlots_->setCurrentWidget(wellScatterPlot_);
       break;
     }
-
   }
 }
 

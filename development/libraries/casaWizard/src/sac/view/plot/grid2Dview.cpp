@@ -148,7 +148,7 @@ void Grid2DView::drawData(QPainter& painter)
 
 void Grid2DView::drawPieChartsWells(QPainter& painter)
 {
-  const int shade = activeWells().empty() ? 255 : 150;
+  const int shade = selectedWells().empty() ? 255 : 150;
   painter.setPen(Qt::black);
   painter.setRenderHint(QPainter::Antialiasing, true);
   int counter = 0;
@@ -180,12 +180,17 @@ void Grid2DView::drawPieChart(QPainter& painter, const int shade, const int size
 
 void Grid2DView::drawPieChartsSelectedWells(QPainter& painter)
 {
+  if (optimizedLithofractions_.empty())
+  {
+    return;
+  }
+
   QPen border(Qt::black);
   border.setWidthF(1.5);
   painter.setPen(border);
   painter.setRenderHint(QPainter::Antialiasing, true);
 
-  for (int i : activeWells())
+  for (int i : selectedWells())
   {
     drawPieChart(painter, 255, 12, i, optimizedLithofractions_[i]);
   }

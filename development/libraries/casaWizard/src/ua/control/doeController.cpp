@@ -1,5 +1,6 @@
 #include "doeController.h"
 
+#include "control/functions/folderOperations.h"
 #include "control/casaScriptWriter.h"
 #include "control/scriptRunController.h"
 #include "influentialParameterController.h"
@@ -252,6 +253,13 @@ void DoEcontroller::slotPushSelectProject3dClicked()
   WorkspaceDialog popupWorkspace{originalWorkspaceLocation,casaWizard::workspaceGenerator::getSuggestedWorkspace(fileName) };
 
   if (popupWorkspace.exec() != QDialog::Accepted)
+  {
+    return;
+  }
+
+  const QString workingDirectory = popupWorkspace.optionSelected();
+
+  if (!functions::removeIfUserAgrees(workingDirectory))
   {
     return;
   }

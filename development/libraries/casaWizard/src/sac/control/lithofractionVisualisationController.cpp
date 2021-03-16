@@ -35,6 +35,8 @@ LithofractionVisualisationController::LithofractionVisualisationController(Litho
   lithofractionVisualisation_{lithofractionVisualisation},
   scenario_{casaScenario}
 {
+  connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
+
   connect(lithofractionVisualisation_->layerSelection(), SIGNAL(currentTextChanged(const QString&)), this, SLOT(slotUpdatePlots(const QString&)));
   connectToolTipSlots();
 }
@@ -61,7 +63,7 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
     return;
   }
 
-  double xMin, xMax, yMin, yMax;
+  double xMin = 0; double xMax = 1; double yMin = 0; double yMax = 1;
   scenario_.projectReader().domainRange(xMin, xMax, yMin, yMax);
   const std::vector<LithofractionMap> lithologyMaps = obtainLithologyMaps(mapReader, layerID);
   const QStringList lithologyTypes = obtainLithologyTypes(layerID);
@@ -83,6 +85,8 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
 
     counter ++;
   }
+
+  updateBirdsView();
 }
 
 void LithofractionVisualisationController::toolTipCreated(const QPointF& point, const int plotID)
@@ -195,7 +199,7 @@ void LithofractionVisualisationController::updateAvailableLayers()
   {
     activeLayer_ = availableLayers[0];
     lithofractionVisualisation_->updateLayerOptions(availableLayers);
-    lithofractionVisualisation_->setVisible(true);
+    lithofractionVisualisation_->setVisible(true);    
     lithofractionVisualisation_->update();
   }
 }
@@ -206,6 +210,12 @@ void LithofractionVisualisationController::updateBirdsView()
   QVector<OptimizedLithofraction> optimizedLithoFractions = getOptimizedLithoFractionsInActiveLayer(ctManager);
 
   lithofractionVisualisation_->updateBirdsView(ctManager.activeAndIncludedWells(), optimizedLithoFractions);
+}
+
+void LithofractionVisualisationController::slotRefresh()
+{
+  updateAvailableLayers();
+  updateBirdsView();
 }
 
 QVector<OptimizedLithofraction> LithofractionVisualisationController::getOptimizedLithoFractionsInActiveLayer(const CalibrationTargetManager& ctManager)

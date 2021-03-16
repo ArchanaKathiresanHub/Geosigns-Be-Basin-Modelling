@@ -47,15 +47,15 @@ private slots:
   void slotUpdateTabGUI(int tabID);
   void slotUpdateWell(const QString& name);
 
-  void exportOptimized();
-  void runOptimized();
-  void runOriginal();
+  void slotExportOptimized();
+  void slotRunOptimized();
+  void slotRunOriginal();
 
 signals:
   void signalRefreshChildWidgets();
 
 private:
-  void import3dWellData(const QString baseDirectory, const bool isOptimized);
+  bool import3dWellData(const QString baseDirectory, const bool isOptimized);
   void refreshGUI();
   bool run3dCase(const QString directory);
 
@@ -70,7 +70,7 @@ private:
   ActiveWellsController* activeWellsController_;
   LithofractionVisualisationController* lithofractionVisualisationController_;
 
-  int activeWell_;
+  int selectedWell_;
 };
 
 } // namespace sac

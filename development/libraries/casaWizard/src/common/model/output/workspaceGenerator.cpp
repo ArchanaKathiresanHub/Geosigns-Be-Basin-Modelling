@@ -23,19 +23,27 @@ QString getSuggestedWorkspace(const QString &currentPath)
 }
 
 bool createWorkspace(const QString& currentPath, const QString& newFolderPath)
-{
-  const QDir originalWorkspacelocation{currentPath};
+{    
+  QDir originalWorkspacelocation{currentPath};
   const QDir newWorkspaceLocation{newFolderPath};
 
   if (originalWorkspacelocation.exists() && currentPath == newFolderPath)
   {
-    return true;
-  }
-  else
-  {
-    originalWorkspacelocation.mkdir(newFolderPath);
+    QString tempPath = newFolderPath + "_1";
+    while (QDir(tempPath).exists())
+    {
+      tempPath += "_1";
+    }
+    if (copyDir(currentPath, tempPath))
+    {
+      originalWorkspacelocation.removeRecursively();
+      originalWorkspacelocation.rename(tempPath, newFolderPath);
+      return true;
+    }
+    return false;
   }
 
+  originalWorkspacelocation.mkdir(newFolderPath);
   if (!newWorkspaceLocation.exists())
   {
     return false;

@@ -47,8 +47,6 @@ private slots:
   void slotPushSelectCalibrationClicked();
   void slotPushButtonSACrunCasaClicked();
 
-  void slotLineEditProject3dTextChanged(QString project3dPath);
-  void slotLineEditCalibrationTextChanged(QString CalibrationTargetsFilePath);
   void slotComboBoxClusterCurrentTextChanged(QString clusterName);
   void slotComboBoxApplicationChanged(QString application);
 

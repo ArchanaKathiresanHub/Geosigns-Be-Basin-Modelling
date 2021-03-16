@@ -53,9 +53,9 @@ MapsTab::MapsTab(QWidget* parent) :
   slotSmoothingTypeChange(0);
 }
 
-void MapsTab::updateActiveWells(const QVector<int> activeWells)
+void MapsTab::updateSelectedWells(const QVector<int> selectedWells)
 {
-  lithofractionVisualisation_->updateActiveWells(activeWells);
+  lithofractionVisualisation_->updateSelectedWells(selectedWells);
 }
 
 QVBoxLayout* MapsTab::setWellsAndOptionsLayout()

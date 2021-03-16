@@ -38,13 +38,11 @@ QVector<double> WellBirdsView::convertToKm(const QVector<double>& distancesInMet
   return distancesInKm;
 }
 
-
-
-void WellBirdsView::setActiveWells(const QVector<int> activeWells)
+void WellBirdsView::setSelectedWells(const QVector<int> selectedWells)
 {
-  activeWells_ = activeWells;
+  selectedWells_ = selectedWells;
   clearData();
-  if (activeWells.size() == 0)
+  if (selectedWells.size() == 0)
   {
     addXYscatter(x_, y_);
     update();
@@ -55,16 +53,13 @@ void WellBirdsView::setActiveWells(const QVector<int> activeWells)
 
   for (int i = 0; i< x_.size(); ++i)
   {
-    if (activeWells.contains(i))
+    if (selectedWells.contains(i))
     {
       xActive.append(x_[i]);
       yActive.append(y_[i]);
     }
-    else
-    {
-      xInactive.append(x_[i]);
-      yInactive.append(y_[i]);
-    }
+    xInactive.append(x_[i]);
+    yInactive.append(y_[i]);
   }
 
   addXYscatter(xInactive, yInactive);
@@ -72,9 +67,9 @@ void WellBirdsView::setActiveWells(const QVector<int> activeWells)
   update();
 }
 
-const QVector<int>& WellBirdsView::activeWells()
+const QVector<int>& WellBirdsView::selectedWells()
 {
-  return activeWells_;
+  return selectedWells_;
 }
 
 const QVector<double>& WellBirdsView::x() const

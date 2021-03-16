@@ -16,14 +16,11 @@ if (BM_PARALLEL)
 ######################### SET TARGETS ##########################
 ################################################################
 
-source_group(include FILES ${all_headers})
-source_group(source FILES ${all_srcs_except_main} src/main.cpp)
-
 #
 # fastcauldron application
 #
 set( FASTCAULDRON_TARGET_NAME "fastcauldron" )
-add_executable( ${FASTCAULDRON_TARGET_NAME} src/main.cpp ${all_headers} )
+add_executable( ${FASTCAULDRON_TARGET_NAME} src/main.cpp )
 set_target_properties( ${FASTCAULDRON_TARGET_NAME} PROPERTIES SUFFIX ".exe" )
 set_target_properties( ${FASTCAULDRON_TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${FASTCAULDRON_TARGET_NAME}" )
 create_application_run_script( ${FASTCAULDRON_TARGET_NAME} )

@@ -10,7 +10,7 @@
 
 #include "control/activeWellsController.h"
 #include "control/casaScriptWriter.h"
-#include "control/functions/copyCaseFolder.h"
+#include "control/functions/folderOperations.h"
 #include "control/scriptRunController.h"
 #include "control/lithofractionVisualisationController.h"
 
@@ -52,11 +52,11 @@ MapsController::MapsController(MapsTab* mapsTab,
   scriptRunController_{scriptRunController},
   activeWellsController_{new ActiveWellsController(mapsTab->activeWellsTable(), scenario_, this)},
   lithofractionVisualisationController_{new LithofractionVisualisationController(mapsTab->lithofractionVisualisation(), scenario_, this)},
-  activeWell_{0}
+  selectedWell_{0}
 {
-  connect(mapsTab_->buttonExportOptimized(), SIGNAL(clicked()), this, SLOT(exportOptimized()));
-  connect(mapsTab_->buttonRunOptimized(),  SIGNAL(clicked()), this, SLOT(runOptimized()));
-  connect(mapsTab_->buttonRunOriginal(),      SIGNAL(clicked()), this, SLOT(runOriginal()));
+  connect(mapsTab_->buttonExportOptimized(), SIGNAL(clicked()), this, SLOT(slotExportOptimized()));
+  connect(mapsTab_->buttonRunOptimized(),    SIGNAL(clicked()), this, SLOT(slotRunOptimized()));
+  connect(mapsTab_->buttonRunOriginal(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal()));
 
   connect(mapsTab_->interpolationType(), SIGNAL(currentIndexChanged(int)), this, SLOT(slotInterpolationTypeCurrentIndexChanged(int)));
   connect(mapsTab_->pValue(),            SIGNAL(valueChanged(int)),        this, SLOT(slotPvalueChanged(int)));
@@ -101,10 +101,7 @@ void MapsController::refreshGUI()
   mapsTab_->smoothingType()->setCurrentIndex(scenario_.smoothingOption());
   mapsTab_->smoothingRadius()->setValue(scenario_.radiusSmoothing());
   mapsTab_->threads()->setValue(scenario_.threadsSmoothing());
-
-  lithofractionVisualisationController_->updateAvailableLayers();  
-  lithofractionVisualisationController_->updateBirdsView();
-  mapsTab_->updateActiveWells({});
+  mapsTab_->updateSelectedWells({});
 
   emit signalRefreshChildWidgets();
 }
@@ -121,27 +118,25 @@ void MapsController::slotUpdateTabGUI(int tabID)
 
 void MapsController::slotUpdateWell(const QString& name)
 {
-  activeWell_ = -1;
+  selectedWell_ = -1;
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
   for (const Well* well : ctManager.activeWells())
   {
     if (well->name() == name)
     {
-      activeWell_ = well->id();
+      selectedWell_ = well->id();
       break;
     }
   }
 
-  lithofractionVisualisationController_->updateBirdsView();
-  mapsTab_->updateActiveWells({});
-  Logger::log() << "Selected well " << activeWell_ << Logger::endl();
+  refreshGUI();
+  Logger::log() << "Selected well " << selectedWell_ << Logger::endl();
 }
 
 void MapsController::slotGenerateLithoMaps()
 {
   Logger::log() << "Start saving optimized case" << Logger::endl();
 
-  scenarioBackup::backup(scenario_);
   Generate3DScenarioScript saveOptimized{scenario_};
   if (!casaScriptWriter::writeCasaScript(saveOptimized) ||
       !scriptRunController_.runScript(saveOptimized))
@@ -149,12 +144,10 @@ void MapsController::slotGenerateLithoMaps()
     return;
   }
 
-  scenarioBackup::backup(scenario_);
-
-  lithofractionVisualisationController_->updateAvailableLayers();
+  refreshGUI();
 }
 
-void MapsController::exportOptimized()
+void MapsController::slotExportOptimized()
 {
   QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
   if (!sourceDir.exists())
@@ -174,28 +167,26 @@ void MapsController::exportOptimized()
   QString projectTextFile("/" + scenario_.project3dFilename().replace(QString("project3d"), QString("txt")));
   QFile::copy(scenario_.workingDirectory() + projectTextFile, targetDir.absolutePath() + projectTextFile);
 
-  scenarioBackup::backup(scenario_);
-
   Logger::log() << (filesCopied ? "Finished saving optimized case" :
                                   "Failed saving optimized case, no files were copied") << Logger::endl();
 }
 
-void MapsController::runOptimized()
+void MapsController::slotRunOptimized()
 {
   scenarioBackup::backup(scenario_);
 
   const QString baseDirectory{scenario_.calibrationDirectory() + "/ThreeDFromOneD"};
 
-  if (run3dCase(baseDirectory))
+  if (run3dCase(baseDirectory) && import3dWellData(baseDirectory, true))
   {
-    const bool isOptimized{true};
-    import3dWellData(baseDirectory, isOptimized);
     scenarioBackup::backup(scenario_);
   }
 }
 
-void MapsController::runOriginal()
+void MapsController::slotRunOriginal()
 {
+  scenarioBackup::backup(scenario_);
+
   const QString runDirectory{scenario_.calibrationDirectory() + "/ThreeDBase"};
 
   const QDir sourceDir(scenario_.workingDirectory());
@@ -214,10 +205,8 @@ void MapsController::runOriginal()
     return;
   }
 
-  if (run3dCase(runDirectory))
+  if (run3dCase(runDirectory) && import3dWellData(runDirectory, false) )
   {
-    const bool isOptimized{false};
-    import3dWellData(runDirectory, isOptimized);
     scenarioBackup::backup(scenario_);
   }
 }
@@ -231,8 +220,7 @@ bool MapsController::run3dCase(const QString directory)
     return false;
   }
 
-  scenario_.setNumberCPUs(cores);
-  scenarioBackup::backup(scenario_);
+  scenario_.setNumberCPUs(cores);  
   CauldronScript cauldron{scenario_, directory};
   if (!casaScriptWriter::writeCasaScript(cauldron) ||
       !scriptRunController_.runScript(cauldron))
@@ -240,11 +228,10 @@ bool MapsController::run3dCase(const QString directory)
     return false;
   }
 
-  scenarioBackup::backup(scenario_);
   return true;
 }
 
-void MapsController::import3dWellData(const QString baseDirectory, const bool isOptimized)
+bool MapsController::import3dWellData(const QString baseDirectory, const bool isOptimized)
 {
   Logger::log() << "Extracting data from the 3D case using track1d" << Logger::endl();
 
@@ -268,7 +255,7 @@ void MapsController::import3dWellData(const QString baseDirectory, const bool is
   if (!scriptRunController_.runScript(import))
   {
     Logger::log() << "Failed to run well import" << Logger::endl();
-    return;
+    return false;
   }
 
   Case3DTrajectoryReader reader{baseDirectory + "/welldata.csv"};
@@ -279,17 +266,18 @@ void MapsController::import3dWellData(const QString baseDirectory, const bool is
   catch(const std::exception& e)
   {
     Logger::log() << "Failed to read file" << e.what() << Logger::endl();
-    return;
+    return false;
   }
 
   case3DTrajectoryConvertor::convertToScenario(reader, scenario_, isOptimized);
 
   Logger::log() << "Finished extracting data from the 3D case" << Logger::endl();
+  return true;
 }
 
 void MapsController::slotUpdateBirdView()
 {
-  mapsTab_->updateActiveWells(selectedWells());
+  mapsTab_->updateSelectedWells(selectedWells());
 }
 
 QVector<int> MapsController::selectedWells()

@@ -87,6 +87,7 @@ TEST_F( WorkspaceGenerator, testWorkspaceGenerator )
 
   QString path = oldWorkspaceLocation.absolutePath() + "/NewWorkspaceFolder";
   QDir newWorkspaceLocation = QDir(path);
+  if (newWorkspaceLocation.exists()) QDir().remove(path);
 
   EXPECT_TRUE (casaWizard::workspaceGenerator::createWorkspace(oldWorkspaceLocation.absolutePath(), newWorkspaceLocation.absolutePath()));
   EXPECT_TRUE (checkFiles(oldWorkspaceLocation.absolutePath() ,newWorkspaceLocation.absolutePath()));
@@ -97,6 +98,7 @@ TEST_F( WorkspaceGenerator, testWorkspaceGeneratorUsingSuggestedName )
 {
   QDir oldWorkspaceLocation = QDir(QDir::current().absolutePath() + "/SAC");
   QDir newWorkspaceLocation = QDir(casaWizard::workspaceGenerator::getSuggestedWorkspace(oldWorkspaceLocation.absolutePath()));
+  if (newWorkspaceLocation.exists()) QDir().remove(newWorkspaceLocation.path());
 
   EXPECT_TRUE (casaWizard::workspaceGenerator::createWorkspace(oldWorkspaceLocation.absolutePath(), newWorkspaceLocation.absolutePath()));
   EXPECT_TRUE (checkFiles(oldWorkspaceLocation.absolutePath(), newWorkspaceLocation.absolutePath()));

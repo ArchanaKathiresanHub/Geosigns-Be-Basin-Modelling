@@ -35,8 +35,8 @@ public:
   void updateTab();
 
 private slots:
-  void updateWell(const QString& name);
-  void refreshPlot();
+  void updateWell();
+  void activeChanged();
   void togglePlotType(const int currentIndex);
   void updateProperty(const QString property);
   void updateWellFromBirdView(const int lineIndex, const int pointIndex);
@@ -45,6 +45,7 @@ private slots:
 
 private:
   void refreshGUI();
+  void refreshPlot();
   void updateOptimizedTable();
   void updateWellPlot();
   void updateScatterPlot();
@@ -57,7 +58,7 @@ private:
   int activeWell_;
   QString activeProperty_;
 
-  bool noValidWellSelected();
+  void initializeWellSelection();
   void setActivePlots();
   void setActiveWells();
   void setDomainBirdsView();

@@ -14,6 +14,11 @@ namespace scenarioBackup
 
 void backup(const CasaScenario& scenario)
 {
+  if (scenario.workingDirectory().isEmpty())
+  {
+    return;
+  }
+
   const QString autoSaveDir{"autosave"};
   QDir dir{scenario.workingDirectory()};
   dir.mkdir(autoSaveDir);
@@ -27,6 +32,6 @@ void backup(const CasaScenario& scenario)
   writer.close();
 }
 
-} // namespace autosave
+} // namespace scenarioBackup
 
 } // namespace casaWizard

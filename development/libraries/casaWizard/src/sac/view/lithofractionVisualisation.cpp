@@ -253,11 +253,11 @@ void LithofractionVisualisation::updateBirdsView(const QVector<const Well*> well
   }
 }
 
-void LithofractionVisualisation::updateActiveWells(const QVector<int> activeWells)
+void LithofractionVisualisation::updateSelectedWells(const QVector<int> selectedWells)
 {
   for (Grid2DPlot* plot: lithoFractionPlots_)
   {
-    plot->grid2DView()->setActiveWells(activeWells);
+    plot->grid2DView()->setSelectedWells(selectedWells);
   }
 }
 

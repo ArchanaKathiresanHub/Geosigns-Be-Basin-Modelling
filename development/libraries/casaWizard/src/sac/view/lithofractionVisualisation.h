@@ -47,7 +47,7 @@ public:
   void clearPlots();
   void updateBirdsView(const QVector<const Well*> wells, const QVector<OptimizedLithofraction>& optimizedLithoFractions);
   void updateLayerOptions(QStringList availableLayers);
-  void updateActiveWells(const QVector<int> activeWells);
+  void updateSelectedWells(const QVector<int> selectedWells);
 
 private:
   QComboBox* percentageRange_;

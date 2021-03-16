@@ -24,6 +24,11 @@ CalibrationTargetTable::CalibrationTargetTable(QWidget* parent)
 
   horizontalHeader()->sectionSizeHint(100);
   horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+  resizeColumnsToContents();
+
+  disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectColumn(int)));
+  disconnect(verticalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectRow(int)));
 }
 
 void CalibrationTargetTable::updateTable(const QVector<const Well*> wells)
@@ -54,8 +59,7 @@ void CalibrationTargetTable::updateTable(const QVector<const Well*> wells)
     setItem(row, 3, new QTableWidgetItem(QString::number(well->y(), 'g', 12)));
 
     ++row;
-  }
-  resizeColumnsToContents();
+  }  
 }
 
 }  // namespace casaWizard

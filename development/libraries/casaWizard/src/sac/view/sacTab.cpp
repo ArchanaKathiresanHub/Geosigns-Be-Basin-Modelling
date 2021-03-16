@@ -27,8 +27,7 @@ SACtab::SACtab(QWidget* parent) :
   lineEditProject3D_{new QLineEdit(this)},
   calibrationTargetTable_{new CalibrationTargetTable(this)},
   lithofractionTable_{new LithofractionTable(this)},
-  objectiveFunctionTable_{new ObjectiveFunctionTable(this)},
-  lineEditCalibration_{new QLineEdit(this)},
+  objectiveFunctionTable_{new ObjectiveFunctionTable(this)},  
   pushSelectCalibration_{new QPushButton("Select", this)},
   comboBoxApplication_{new QComboBox(this)},
   comboBoxCluster_{new QComboBox(this)},
@@ -42,9 +41,9 @@ SACtab::SACtab(QWidget* parent) :
   layoutProject3D->addWidget(lineEditProject3D_);
   layoutProject3D->addWidget(pushSelectProject3D_);
 
+  lineEditProject3D_->setReadOnly(true);
+
   QHBoxLayout* layoutCalibrationFile = new QHBoxLayout();
-  layoutCalibrationFile->addWidget(new QLabel("Calibration targets", this));
-  layoutCalibrationFile->addWidget(lineEditCalibration_);
   layoutCalibrationFile->addWidget(pushSelectCalibration_);
 
   QWidget* runOptions = new QWidget(this);
@@ -60,25 +59,30 @@ SACtab::SACtab(QWidget* parent) :
   layoutOption->setMargin(0);
 
   QGridLayout* layoutTablesAndOptions = new QGridLayout();
+
+  QVBoxLayout* lithofractionLayout = new QVBoxLayout();
+  lithofractionLayout->addWidget(new CustomTitle("Lithofractions"));
+  lithofractionLayout->addWidget(lithofractionTable_);
+  layoutTablesAndOptions->addLayout(lithofractionLayout,0,0,1,3);
+
   QVBoxLayout* calibrationTargetTableLayout = new QVBoxLayout();
   calibrationTargetTableLayout->addWidget(new CustomTitle("Calibration Targets"));
+  calibrationTargetTableLayout->addLayout(layoutCalibrationFile);
   calibrationTargetTableLayout->addWidget(calibrationTargetTable_);
 
-  layoutTablesAndOptions->addLayout(calibrationTargetTableLayout, 0,0);
+  layoutTablesAndOptions->addLayout(calibrationTargetTableLayout, 1,0);
 
   QVBoxLayout* objectiveFunctionLayout = new QVBoxLayout();
 
   objectiveFunctionLayout->addWidget(new CustomTitle("Objective Function"));
   objectiveFunctionLayout->addWidget(objectiveFunctionTable_);
 
-  layoutTablesAndOptions->addLayout(objectiveFunctionLayout,0,1);
-  layoutTablesAndOptions->addWidget(runOptions,0,2, Qt::Alignment(Qt::AlignmentFlag::AlignTop));
+  layoutTablesAndOptions->addLayout(objectiveFunctionLayout,1,1);
+  layoutTablesAndOptions->addWidget(runOptions,1,2, Qt::Alignment(Qt::AlignmentFlag::AlignTop));
 
   QVBoxLayout* verticalLayoutTab = new QVBoxLayout(this);
-  verticalLayoutTab->addLayout(layoutProject3D);
-  verticalLayoutTab->addLayout(layoutCalibrationFile);
-  verticalLayoutTab->addWidget(lithofractionTable_);
-  verticalLayoutTab->addLayout(layoutTablesAndOptions);
+  verticalLayoutTab->addLayout(layoutProject3D);  
+  verticalLayoutTab->addLayout(layoutTablesAndOptions);  
 }
 
 CalibrationTargetTable* SACtab::calibrationTargetTable() const
@@ -114,11 +118,6 @@ QComboBox* SACtab::comboBoxApplication() const
 QComboBox* SACtab::comboBoxCluster() const
 {
   return comboBoxCluster_;
-}
-
-QLineEdit* SACtab::lineEditCalibration() const
-{
-  return lineEditCalibration_;
 }
 
 const QPushButton* SACtab::pushSelectCalibration() const

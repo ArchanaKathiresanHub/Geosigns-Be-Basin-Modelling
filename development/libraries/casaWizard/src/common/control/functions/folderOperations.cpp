@@ -1,4 +1,4 @@
-#include "copyCaseFolder.h"
+#include "folderOperations.h"
 
 #include "model/logger.h"
 
@@ -86,6 +86,22 @@ bool copyCaseFolder(const QDir sourceDir, const QDir targetDir)
   }
 
   return filesCopied;
+}
+
+bool removeIfUserAgrees(const QString& directory)
+{
+  if (QDir(directory).exists())
+  {
+    QMessageBox doesExist(QMessageBox::Icon::Question,
+                          "Directory exists.",
+                          "Delete directory: " + directory + " ?",
+                          QMessageBox::Yes | QMessageBox::No);
+    if (doesExist.exec() != QMessageBox::Yes)
+    {
+      return false;
+    }    
+  }
+  return true;
 }
 
 } // namespace functions

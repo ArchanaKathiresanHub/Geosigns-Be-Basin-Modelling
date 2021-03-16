@@ -57,7 +57,7 @@ public:
                                  const QVector<QVector<double> >& originalValuesVector,
                                  const QVector<QVector<double> >& optimizedValuesVector);
   void updateBirdsView(const QVector<const Well*> wells);
-  void updateActiveWells(const QVector<int> activeWells);
+  void updateSelectedWells(const QVector<int> selectedWells);
 
   void setPlotType(const int currentIndex);
 

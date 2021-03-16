@@ -11,7 +11,7 @@
 #include "control/calibrationTargetController.h"
 #include "control/casaScriptWriter.h"
 #include "control/dataExtractionController.h"
-#include "control/functions/copyCaseFolder.h"
+#include "control/functions/folderOperations.h"
 #include "control/lithofractionController.h"
 #include "control/objectiveFunctionController.h"
 #include "control/scriptRunController.h"
@@ -68,18 +68,14 @@ SACcontroller::SACcontroller(SACtab* sacTab,
   connect(sacTab_->pushButtonSACrunCASA(),  SIGNAL(clicked()),                   this, SLOT(slotPushButtonSACrunCasaClicked()));
   connect(sacTab_->pushSelectProject3D(),   SIGNAL(clicked()),                   this, SLOT(slotPushSelectProject3dClicked()));
   connect(sacTab_->pushSelectCalibration(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectCalibrationClicked()));
-  connect(sacTab_->lineEditProject3D(),     SIGNAL(textChanged(QString)),        this, SLOT(slotLineEditProject3dTextChanged(QString)));
-  connect(sacTab_->lineEditCalibration(),   SIGNAL(textChanged(QString)),        this, SLOT(slotLineEditCalibrationTextChanged(QString)));
+
   connect(sacTab_->comboBoxCluster(),       SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
   connect(sacTab_->comboBoxApplication(),   SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxApplicationChanged(QString)));
 }
 
 void SACcontroller::refreshGUI()
 {
-  QSignalBlocker blocker(sacTab_->lineEditProject3D());
-  QSignalBlocker blocker2(sacTab_->lineEditCalibration());
-  sacTab_->lineEditProject3D()->setText(casaScenario_.project3dPath());
-  sacTab_->lineEditCalibration()->setText("");
+  sacTab_->lineEditProject3D()->setText(casaScenario_.project3dPath());  
   sacTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
   sacTab_->comboBoxApplication()->setCurrentText(casaScenario_.applicationName());
   lithofractionController_->updateLithofractionTable();
@@ -114,6 +110,11 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
 
   const QString workingDir = casaScenario_.workingDirectory();
   const QString calibrationDir{casaScenario_.calibrationDirectory()};
+
+  if (workingDir.isEmpty())
+  {
+    return;
+  }
 
   QDir calDir(calibrationDir);
   if (calDir.exists())
@@ -174,27 +175,36 @@ void SACcontroller::slotPushSelectProject3dClicked()
     return;
   }
 
-  QDir fileNamePath = QFileInfo(fileName).absoluteDir();
-  QString originalWorkspaceLocation = fileNamePath.absolutePath();
+  const QDir fileNamePath = QFileInfo(fileName).absoluteDir();
+  const QString originalWorkspaceLocation = casaScenario_.workingDirectory().isEmpty() ?
+                                            fileNamePath.absolutePath() : casaScenario_.workingDirectory();
 
-  WorkspaceDialog popupWorkspace{originalWorkspaceLocation, casaWizard::workspaceGenerator::getSuggestedWorkspace(fileName) };
-
+  WorkspaceDialog popupWorkspace{originalWorkspaceLocation, casaWizard::workspaceGenerator::getSuggestedWorkspace(fileName)};
   if (popupWorkspace.exec() != QDialog::Accepted)
   {
     return;
   }
 
-  casaWizard::workspaceGenerator::createWorkspace(originalWorkspaceLocation, popupWorkspace.optionSelected());
+  const QString workingDirectory = popupWorkspace.optionSelected();
 
-  casaScenario_.setWorkingDirectory(popupWorkspace.optionSelected());
-  casaScenario_.setProject3dFilePath(fileName);
+  if (!functions::removeIfUserAgrees(workingDirectory))
+  {
+    return;
+  }
 
-  const QString workingDir = casaScenario_.workingDirectory();
-  const QString projectName = casaScenario_.project3dFilename();
+  if (!casaWizard::workspaceGenerator::createWorkspace(originalWorkspaceLocation, workingDirectory))
+  {
+    Logger::log() << "Unable to create workspace, do you have write access to: " << workingDirectory << Logger::endl();
+    return;
+  }
 
-  sacTab_->lineEditProject3D()->setText(workingDir + "/" + projectName);
-
+  casaScenario_.clear();
+  casaScenario_.setWorkingDirectory(workingDirectory);
+  casaScenario_.setProject3dFilePath(fileName);  
   lithofractionController_->loadLayersFromProject();
+
+  scenarioBackup::backup(casaScenario_);
+  refreshGUI();
 }
 
 void SACcontroller::slotPushSelectCalibrationClicked()
@@ -203,25 +213,14 @@ void SACcontroller::slotPushSelectCalibrationClicked()
                                                   "Select calibration targets",
                                                   "",
                                                   "Spreadsheet (*.xlsx)");
-  sacTab_->lineEditCalibration()->setText(fileName);
-}
 
-void SACcontroller::slotLineEditProject3dTextChanged(QString project3dPath)
-{
-  casaScenario_.setProject3dFilePath(project3dPath);
-}
-
-void SACcontroller::slotLineEditCalibrationTextChanged(QString calibrationTargetsFilename)
-{
-  calibrationTargetCreator::createFromExcel(casaScenario_, calibrationTargetsFilename);
-
-  emit signalRefreshChildWidgets();
-
+  calibrationTargetCreator::createFromExcel(casaScenario_, fileName);
   WellTrajectoryManager& wtManager = casaScenario_.wellTrajectoryManager();
-
   wtManager.updateWellTrajectories(casaScenario_.calibrationTargetManager());
-
   casaScenario_.updateRelevantProperties();
+
+  scenarioBackup::backup(casaScenario_);
+  refreshGUI();
 }
 
 void SACcontroller::slotComboBoxClusterCurrentTextChanged(QString clusterName)

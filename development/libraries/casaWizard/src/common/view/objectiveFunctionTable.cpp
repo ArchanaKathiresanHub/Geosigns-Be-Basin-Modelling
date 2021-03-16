@@ -20,6 +20,9 @@ ObjectiveFunctionTable::ObjectiveFunctionTable(QWidget* parent)
   policy.setHorizontalPolicy(QSizePolicy::Policy::Expanding);
   policy.setVerticalPolicy(QSizePolicy::Policy::Expanding);
   setSizePolicy(policy);
+
+  disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectColumn(int)));
+  disconnect(verticalHeader(), SIGNAL(sectionPressed(int)), this, SLOT(selectRow(int)));
 }
 
 void ObjectiveFunctionTable::updateTable(const ObjectiveFunctionManager& objectiveFunction)

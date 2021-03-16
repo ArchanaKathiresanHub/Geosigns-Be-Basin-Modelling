@@ -34,11 +34,9 @@ public:
   ObjectiveFunctionTable* objectiveFunctionTable() const;
 
   QLineEdit* lineEditProject3D() const;
-  const QPushButton* pushSelectProject3D() const;
-  const QLineEdit* lineEditID() const;
+  const QPushButton* pushSelectProject3D() const;  
   QComboBox* comboBoxApplication() const;
-  QComboBox* comboBoxCluster() const;  
-  QLineEdit* lineEditCalibration() const;
+  QComboBox* comboBoxCluster() const;    
   const QPushButton* pushSelectCalibration() const;
   const QPushButton* pushButtonSACrunCASA() const;
 
@@ -50,7 +48,6 @@ private:
   LithofractionTable* lithofractionTable_;
   ObjectiveFunctionTable* objectiveFunctionTable_;
 
-  QLineEdit* lineEditCalibration_;
   QPushButton* pushSelectCalibration_;
   QComboBox* comboBoxApplication_;
   QComboBox* comboBoxCluster_;
