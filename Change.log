@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-03-16  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: GUI glitches.
+	* Fix gui glitches
+
+	* Link: https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/417170
+
+	================== COMMIT-END ========================
+	Commit-ID:<b327d5d5089e4033ea325138a2f74e6568824e7a>	  (refs/heads/master)
+
+++
 2021-03-12  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Extended Genex0d input arguments for Adsorption model data.
