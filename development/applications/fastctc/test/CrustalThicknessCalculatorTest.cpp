@@ -50,7 +50,7 @@ class TestCrustalThicknessCalculatorMerging : public TestCrustalThicknessCalcula
     void SetUp() final
     {
         //argv[0], is the program's name.
-        std::vector<std::string> argvList = {"fastctc.exe","-project","Project.project3d","-save","Project.project3d.ctc","-merge"};
+        std::vector<std::string> argvList = {"fastctc.exe","-project","Project.project3d","-save","Project_out.project3d","-merge"};
         //while passing three arguments, argc is 4
         argc = argvList.size();
         argv = new char* [argvList.size()];
@@ -66,15 +66,66 @@ class TestCrustalThicknessCalculatorMerging : public TestCrustalThicknessCalcula
 
 
 TEST_F(TestCrustalThicknessCalculatorMerging, mockTest) {
-    
+
+    CrustalThicknessCalculatorFactory factory;
+    std::unique_ptr<CrustalThicknessCalculator> crustalThicknessCalculator(CrustalThicknessCalculator::createFrom("Project.project3d", &factory));  
+    if (crustalThicknessCalculator == nullptr) FAIL();
+
     ASSERT_EQ( crustalThicknessCalculator->parseCommandLine(), true);
-
     ASSERT_EQ( crustalThicknessCalculator->deleteCTCPropertyValues(), false);
-
     // Have to see how to test these??
-    //crustalThicknessCalculator->initialiseCTC();
+    crustalThicknessCalculator->initialiseCTC();
+    crustalThicknessCalculator->run();
+    crustalThicknessCalculator->finalise(true);
+    crustalThicknessCalculator.reset();
 
-    //crustalThicknessCalculator->run();
+    DataAccess::Interface::ObjectFactory factory1;
+    DataAccess::Interface::ObjectFactory* factoryptr = &factory1;
+    std::unique_ptr<DataAccess::Interface::ProjectHandle> ph;
+    
+    try
+    {
+        ph.reset(DataAccess::Interface::OpenCauldronProject("Project_out.project3d", factoryptr));//Will use the output p3d file created by CTC for validating the crustal thickness validation below
+    }
+    catch (...)
+    {
+        FAIL() << "Unexpected exception caught";
+    }
+    //// Check continental crustal history
+    database::Table* contCrustalHistoryIoTbl = ph->getTable("ContCrustalThicknessIoTbl"); 
+    if (contCrustalHistoryIoTbl == nullptr) FAIL();
+    EXPECT_EQ(contCrustalHistoryIoTbl->size(), 2);
+    database::Record* rec1 = contCrustalHistoryIoTbl->getRecord(0);
+    double age1= rec1->getValue<double>("Age");
+    double thickness1 = rec1->getValue<double>("Thickness");
+    std::string thicknessGrid1 = rec1->getValue<std::string>("ThicknessGrid");
+    EXPECT_EQ(age1, 0);
+    database::Record* rec2 = contCrustalHistoryIoTbl->getRecord(1);
+    double age2 = rec2->getValue<double>("Age");
+    double thickness2 = rec2->getValue<double>("Thickness");
+    std::string thicknessGrid2 = rec2->getValue<std::string>("ThicknessGrid");
+    EXPECT_EQ(age2, 155);
+    EXPECT_EQ(thickness1, thickness2);
+    EXPECT_EQ(thicknessGrid1, thicknessGrid2);//Depending upon the RiftingHistory provided for the scenario used for testing
+
+    //// Check oceanic crustal history
+    database::Table* oceaCrustalHistoryIoTbl = ph->getTable("OceaCrustalThicknessIoTbl");
+    if (oceaCrustalHistoryIoTbl == nullptr) FAIL();
+    EXPECT_EQ(oceaCrustalHistoryIoTbl->size(), 2);
+    EXPECT_EQ(oceaCrustalHistoryIoTbl->size(), contCrustalHistoryIoTbl->size());
+    rec1 = oceaCrustalHistoryIoTbl->getRecord(0);
+    age1 = rec1->getValue<double>("Age");
+    thickness1 = rec1->getValue<double>("Thickness");
+    thicknessGrid1 = rec1->getValue<std::string>("ThicknessGrid");
+    EXPECT_EQ(age1, 0);
+    rec2 = oceaCrustalHistoryIoTbl->getRecord(1);
+    age2 = rec2->getValue<double>("Age");
+    thickness2 = rec2->getValue<double>("Thickness");
+    thicknessGrid2 = rec2->getValue<std::string>("ThicknessGrid");
+    EXPECT_EQ(age2, 155);
+    EXPECT_EQ(thickness1, thickness2);
+    EXPECT_EQ(thicknessGrid1, thicknessGrid2);//Depending upon the RiftingHistory provided for the scenario used for testing
+            
 }
 
 

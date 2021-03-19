@@ -86,6 +86,18 @@ install(TARGETS ${APP_NAME}
 ### Unit Tests
 configure_file(test/data/Project.project3d ${CMAKE_CURRENT_BINARY_DIR}/Project.project3d COPYONLY)
 configure_file(test/data/Inputs.HDF ${CMAKE_CURRENT_BINARY_DIR}/Inputs.HDF COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/HydrostaticDecompaction_Results.HDF ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/HydrostaticDecompaction_Results.HDF COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Time_0.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Time_0.000000.h5 COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Time_5.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Time_5.000000.h5 COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Time_13.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Time_13.000000.h5 COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Time_54.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Time_54.000000.h5 COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Time_65.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Time_65.000000.h5 COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Time_90.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Time_90.000000.h5 COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Time_142.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Time_142.000000.h5 COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Time_146.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Time_146.000000.h5 COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Time_155.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Time_155.000000.h5 COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Time_300.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Time_300.000000.h5 COPYONLY)
+configure_file(test/data/Project_CauldronOutputDir/Output.iotables3d ${CMAKE_CURRENT_BINARY_DIR}/Project_CauldronOutputDir/Output.iotables3d COPYONLY)
 
 
 add_gtest( NAME "Fasctc::CrustalThicknessCalculator"

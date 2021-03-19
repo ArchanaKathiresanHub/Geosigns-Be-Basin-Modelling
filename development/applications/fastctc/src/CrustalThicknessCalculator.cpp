@@ -467,8 +467,35 @@ void CrustalThicknessCalculator::restoreData(){
 bool CrustalThicknessCalculator::sortCTCOuputTabl()
 {
     bool success = false;
-    string s_tblName;
+    string s_tblName, ctcRiftingHistoryTable;
+    ctcRiftingHistoryTable = "CTCRiftingHistoryIoTbl";
     int i_numberOfTblToSort = 3;
+    bool isFlexuralOtherThan_0Ma = false;
+    double startOfFlexuralEvent = 0.;
+
+    // To add the crustal thickness at the start of passive events and to add the map calculated for a Flexural event at an age older than 0Ma to be used for 0 Ma
+    database::Table* ctcRiftingHistoryIoTbl = this->getTable(ctcRiftingHistoryTable);
+    size_t ctcRiftingTblSize = ctcRiftingHistoryIoTbl->size();
+    std::vector<double> passiveRiftEventStartAges;
+    std::string prevTectonicFlag = "Active Rifting"; //Always active for basement
+    for (int k = (ctcRiftingTblSize - 2); k >= 0; k--)//Excluding the oldest record from this loop which always corresponds to basement age and 
+    {
+        database::Record* rec = ctcRiftingHistoryIoTbl->getRecord(k);
+        std::string tectonicFlag = rec->getValue<std::string>("TectonicFlag");
+        double age = rec->getValue<double>("Age");
+        if (tectonicFlag == "Passive Margin" && prevTectonicFlag != "Passive Margin")
+        {
+            passiveRiftEventStartAges.push_back(age);
+
+        }
+        if (tectonicFlag == "Flexural Basin" && !NumericFunctions::isEqual(age, 0., 1e-5) && prevTectonicFlag != "Flexural Basin")
+        {
+            isFlexuralOtherThan_0Ma = true;
+            startOfFlexuralEvent = age;
+        }
+
+        prevTectonicFlag = tectonicFlag;
+    }
 
     //sort table with respect to current age to older age
     for (int i = 0; i < i_numberOfTblToSort; ++i)
@@ -483,6 +510,57 @@ bool CrustalThicknessCalculator::sortCTCOuputTabl()
         database::Table* ctcIoTbl = this->getTable(s_tblName);
 
         size_t ictcTblSize = ctcIoTbl->size();
+        if (i != 0)//To create new records to specify the crustal thicknesses at the start of the passive events
+        {
+
+            for (int temp = 0; temp < passiveRiftEventStartAges.size(); temp++)
+            {
+                double newAge = passiveRiftEventStartAges[temp];
+                database::Record* newRecord = ctcIoTbl->createRecord(true);
+                database::setAge(newRecord, newAge);
+                database::setThickness(newRecord, DataAccess::Interface::DefaultUndefinedScalarValue); //initilize thickness with default value. This will be updated below
+                database::setThicknessGrid(newRecord, DataAccess::Interface::NullString); //initilize thicknessGrid with default value. This will be updated below
+            }
+            //Sort ctcIoTbl w.r.t age
+            ctcIoTbl->sort([](database::Record* recordL, database::Record* recordR)
+                {  bool isLess = database::getAge(recordL) < database::getAge(recordR);
+                   return isLess;
+                });
+           
+            for (int i = 0; i < (ctcIoTbl->size() - 1); i++)
+            {
+                database::Record* record1 = ctcIoTbl->getRecord(i);
+                double age1 = record1->getValue<double>("Age");
+                double thickness1 = record1->getValue<double>("Thickness");
+                std::string thicknessGrid1 = record1->getValue<std::string>("ThicknessGrid");
+
+                database::Record* record2 = ctcIoTbl->getRecord(i + 1);
+                double age2 = record2->getValue<double>("Age");
+                double thickness2 = record2->getValue<double>("Thickness");
+                std::string thicknessGrid2 = record2->getValue<std::string>("ThicknessGrid");
+
+                if ((NumericFunctions::isEqual(thickness2, DataAccess::Interface::DefaultUndefinedScalarValue, 1e-5) && thicknessGrid2 == ""))
+                {
+                    if (age1 == age2)
+                    {
+                        ctcIoTbl->removeRecord(record1);
+                        i = i-2;                 
+                    }
+                    else
+                    {
+                        database::setThickness(record2, thickness1);
+                        database::setThicknessGrid(record2, thicknessGrid1);
+                        i++;
+                    }          
+                }
+                if (age2 == startOfFlexuralEvent && isFlexuralOtherThan_0Ma == true)
+                {
+                    database::setThickness(record1, thickness2);
+                    database::setThicknessGrid(record1, thicknessGrid2);
+                }            
+            }
+        }
+        ictcTblSize = ctcIoTbl->size();
         for (int j = 0; j < (ictcTblSize - 1); ++j)
         {
             database::Record* record = ctcIoTbl->getRecord(j);
@@ -504,7 +582,6 @@ bool CrustalThicknessCalculator::sortCTCOuputTabl()
                 success = ctcIoTbl->moveRecord( ctcIoTbl->getRecord(i_getIndex) , (record) );
             }
         }
-
     }
 
     return success;
