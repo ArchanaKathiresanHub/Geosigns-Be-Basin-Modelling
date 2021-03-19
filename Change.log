@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.5.0		2021-02-09 09:48:31 +0000
+Cauldron-v2.5.1		2021-03-19 14:17:19 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-03-19  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
+
+	new: dev: usr: Crustal thickness maps are updated by the CTC as per the tectonic context
+	 * The continental/oceanic thickness maps are available at all the calculation ages in the Bottom Boundary Condition page after importing the scenario into BPA2-Basin.
+	 * The continental/oceanic  thickness map from any active/flexural age is reused at the start of the passive event preceding it (if any) on the Bottom boundary conditions page
+	 * If “flexural” context is applied at any age older than 0 Ma, then the map calculated for that age is also to be used for 0 Ma.
+
+	Related work items: #416993
+	================== COMMIT-END ========================
+	Commit-ID:<8354fd798ed006d63803749bdad66bcd0e96ee23>	  (tag: refs/tags/v2.5.1, refs/heads/master)
+
+++
 2021-03-16  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: GUI glitches.
