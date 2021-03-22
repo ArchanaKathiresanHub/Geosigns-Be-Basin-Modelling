@@ -99,6 +99,26 @@ void CMBProjectReader::setRelevantOutputParameters(const QStringList& activeProp
   }
 }
 
+void CMBProjectReader::setScaling(int scaleX, int scaleY, const std::string& saveName)
+{
+  if (!loaded_)
+  {
+    return;
+  }
+
+  cmbModel_->setSubsampling(scaleX, scaleY);
+
+  //Save
+  if (saveName == "")
+  {
+    cmbModel_->saveModelToProjectFile(cmbModel_->projectFileName());
+  }
+  else
+  {
+    cmbModel_->saveModelToProjectFile(saveName);
+  }
+}
+
 std::map<std::string, std::string> CMBProjectReader::readOutputProperties() const
 {
   std::map<std::string, std::string> outputProperties;
@@ -133,6 +153,47 @@ std::map<std::string, std::string> CMBProjectReader::readOutputProperties() cons
   return outputProperties;
 }
 
+int CMBProjectReader::lowestSurfaceWithTWTData() const
+{
+  if (!loaded_)
+  {
+    return DataAccess::Interface::DefaultUndefinedScalarIntValue;
+  }
+
+  QStringList layers = layerNames();
+  std::vector<std::string> layerNames;
+  mbapi::StratigraphyManager& stratigraphyManager = cmbModel_->stratigraphyManager();
+  const std::vector<mbapi::StratigraphyManager::SurfaceID> ids = stratigraphyManager.surfacesIDs();
+
+  // For-loop in opposite direction to start with lowest layer
+  for (int i = layers.size() - 1; i >= 0; i--)
+  {
+    if ( hasTWTData(ids[i]) )
+    {
+      return ids[i];
+    }
+  }
+
+  return DataAccess::Interface::DefaultUndefinedScalarIntValue;
+}
+
+bool CMBProjectReader::hasTWTData(int surfaceID) const
+{
+  mbapi::StratigraphyManager& stratigraphyManager = cmbModel_->stratigraphyManager();
+  return ( stratigraphyManager.twtValue(surfaceID) != DataAccess::Interface::DefaultUndefinedScalarValue ||
+           ! stratigraphyManager.twtGridName(surfaceID).empty());
+}
+
+bool CMBProjectReader::basementSurfaceHasTWT() const
+{
+  if (!loaded_)
+  {
+    return false;
+  }
+
+  const int basementSurfaceID = cmbModel_->stratigraphyManager().surfacesIDs().back();
+  return lowestSurfaceWithTWTData() == basementSurfaceID;
+}
 
 QStringList CMBProjectReader::layerNames() const
 {
@@ -149,6 +210,24 @@ QStringList CMBProjectReader::layerNames() const
     layerNames.push_back(stratigraphyManager.layerName(id));
   }
   return stringVectorToStringList(layerNames);
+}
+
+QStringList casaWizard::CMBProjectReader::surfaceNames() const
+{
+  if (!loaded_)
+  {
+    return QStringList();
+  }
+
+  mbapi::StratigraphyManager& stratigraphyManager = cmbModel_->stratigraphyManager();
+  std::vector<std::string> surfaceNames;
+  const std::vector<mbapi::StratigraphyManager::LayerID> ids = stratigraphyManager.surfacesIDs();
+  for( const mbapi::StratigraphyManager::LayerID& id : ids)
+  {
+    surfaceNames.push_back(stratigraphyManager.surfaceName(id));
+  }
+
+  return stringVectorToStringList(surfaceNames);
 }
 
 void CMBProjectReader::domainRange(double& xMin, double& xMax, double& yMin, double& yMax) const

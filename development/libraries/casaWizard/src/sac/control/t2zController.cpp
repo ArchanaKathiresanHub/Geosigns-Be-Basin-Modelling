@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "t2zController.h"
 
 #include "control/casaScriptWriter.h"
@@ -8,12 +16,20 @@
 #include "model/script/depthConversionScript.h"
 #include "model/script/sacScript.h"
 #include "model/input/calibrationTargetCreator.h"
+#include "model/input/cmbProjectReader.h"
+#include "view/sacTabIDs.h"
 #include "view/t2zTab.h"
+
+#include "../../common/model/output/workspaceGenerator.h"
+#include "../../common/control/functions/folderOperations.h"
 
 #include <QDir>
 #include <QSpinBox>
 #include <QPushButton>
 #include <QString>
+#include <QDialogButtonBox>
+#include <QComboBox>
+#include <QMessageBox>
 
 namespace casaWizard
 {
@@ -28,81 +44,179 @@ T2Zcontroller::T2Zcontroller(T2Ztab* t2zTab,
     QObject(parent),
     t2zTab_{t2zTab},
     casaScenario_{casaScenario},
-    scriptRunController_{scriptRunController}
+    scriptRunController_{scriptRunController},
+    t2zDir_{""},
+    sourceDir_{""}
 {
-  t2zTab_->spinBoxReferenceSurface()->setValue(casaScenario.referenceSurface());
-  t2zTab_->spinBoxLastSurface()->setValue(casaScenario.lastSurface());
+  connect(t2zTab_->pushButtonSACrunT2Z(),      SIGNAL(clicked()),                 this,   SLOT(slotPushButtonSACrunT2ZClicked()));
+  connect(t2zTab_->comboBoxReferenceSurface(), SIGNAL(currentIndexChanged(int)),  this,   SLOT(slotComboBoxReferenceSurfaceValueChanged(int)));
+  connect(t2zTab_->spinBoxSubSampling(),       SIGNAL(valueChanged(int)),         this,   SLOT(slotSpinBoxSubSamplingValueChanged(int)));
+  connect(t2zTab_->spinBoxNumberOfCPUs(),       SIGNAL(valueChanged(int)),         this,   SLOT(slotSpinBoxNumberOfCPUsValueChanged(int)));
 
-  connect(t2zTab_->pushButtonSACrunT2Z(),     SIGNAL(clicked()),
-          this,                               SLOT(slotPushButtonSACrunT2ZClicked()));
-  connect(t2zTab_->spinBoxReferenceSurface(), SIGNAL(valueChanged(int)),
-          this,                               SLOT(slotSpinBoxReferenceSurfaceValueChanged(int)));
-  connect(t2zTab_->spinBoxLastSurface(),      SIGNAL(valueChanged(int)),
-          this,                               SLOT(slotSpinBoxLastSurfaceValueChanged(int)));
+  connect(t2zTab_->comboBoxProjectSelection(), SIGNAL(currentTextChanged(const QString&)),
+          this,                                SLOT(slotComboBoxProjectSelectionTextChanged(const QString&)));
+  connect(t2zTab_->comboBoxClusterSelection(), SIGNAL(currentTextChanged(const QString&)),
+          this,                                SLOT(slotComboBoxClusterSelectionTextChanged(const QString&)));
+
 }
 
 void T2Zcontroller::slotPushButtonSACrunT2ZClicked()
 {
-  scenarioBackup::backup(casaScenario_);
-  const QString workingDir = casaScenario_.workingDirectory();
-
-  const QString calibrationDir{casaScenario_.calibrationDirectory()};
-  const QString t2zDir{workingDir + "/T2Z_step2"};
-  const QString recalibrationDir{workingDir + "/recalibration_step3"};
-  const QString calibratedProjectDir{workingDir + "/CalibratedProject"};
-
-  QDir(t2zDir).removeRecursively();
-  QDir(recalibrationDir).removeRecursively();
-  QDir(calibratedProjectDir).removeRecursively();
-
-  QDir().mkdir(t2zDir);
-  const QString projectFilename{QDir::separator() + QFileInfo(casaScenario_.project3dPath()).fileName()};
-  QFile::copy(calibrationDir + "/ThreeDFromOneD" + projectFilename, t2zDir + projectFilename);
-  QFile::copy(calibrationDir + "/ThreeDFromOneD/Inputs.HDF", t2zDir + "/Inputs.HDF");
-  if (QFile(calibrationDir + "/ThreeDFromOneD/Input.HDF").exists())
+  if (noProjectAvailable() || userCancelsRun())
   {
-    QFile::copy(calibrationDir + "/ThreeDFromOneD/Input.HDF", t2zDir + "/Input.HDF");
+    return;
   }
 
-  DepthConversionScript depthConversion{casaScenario_, t2zDir};
+  scenarioBackup::backup(casaScenario_);
+  if (!prepareT2ZWorkSpace())
+  {
+    return;
+  }
+
+  runDepthConversion();
+}
+
+bool T2Zcontroller::noProjectAvailable() const
+{
+  if (t2zTab_->noProjectAvailable())
+  {
+    QMessageBox noProject(QMessageBox::Icon::Information,
+                          "No project available",
+                          "Select a project in the input tab, or open a saved scenario",
+                          QMessageBox::Ok);
+    noProject.exec();
+  }
+
+  return t2zTab_->noProjectAvailable();
+}
+
+bool T2Zcontroller::userCancelsRun() const
+{
+  if (!casaScenario_.projectReader().basementSurfaceHasTWT())
+  {
+    QMessageBox continueAnyway(QMessageBox::Icon::Warning,
+                          "No TWT data for Basement",
+                          "Basement does not have TWT data, do you want to continue?",
+                          QMessageBox::Yes | QMessageBox::No);
+    if (continueAnyway.exec() != QMessageBox::Yes)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool T2Zcontroller::prepareT2ZWorkSpace()
+{
+  getSourceAndT2zDir();
+  if (!casaWizard::functions::removeIfUserAgrees(t2zDir_))
+  {
+    return false;
+  }
+
+  QDir(t2zDir_).removeRecursively();
+  workspaceGenerator::copyDir(sourceDir_ , t2zDir_);
+  setSubSampling();
+  return true;
+}
+
+void T2Zcontroller::getSourceAndT2zDir()
+{
+  sourceDir_ = "";
+  t2zDir_ = "";
+
+  if (casaScenario_.t2zRunOnOriginalProject())
+  {
+    sourceDir_ = casaScenario_.workingDirectory();
+    t2zDir_ = casaScenario_.workingDirectory() + "/T2Z_OnOriginalProject";
+  }
+  else
+  {
+    sourceDir_ = casaScenario_.calibrationDirectory() + "/ThreeDFromOneD";
+    t2zDir_ = casaScenario_.workingDirectory() + "/T2Z_step2";
+  }
+}
+
+void T2Zcontroller::setSubSampling()
+{
+  const QString projectFilename{QDir::separator() + QFileInfo(casaScenario_.project3dPath()).fileName()};
+  CMBProjectReader reader;
+  reader.load(t2zDir_ + projectFilename);
+  reader.setScaling(casaScenario_.t2zSubSampling(), casaScenario_.t2zSubSampling());
+}
+
+void T2Zcontroller::runDepthConversion()
+{
+  DepthConversionScript depthConversion{casaScenario_, t2zDir_};
   if (scriptRunController_.runScript(depthConversion))
   {
-    QDir().mkdir(recalibrationDir);
-    QFile::copy(t2zDir + "/CalibratedDepthMapsProject" + projectFilename, recalibrationDir + projectFilename);
-    QFile::copy(t2zDir + "/CalibratedDepthMapsProject/Inputs.HDF", recalibrationDir + "/Inputs.HDF");
-    if (QFile(t2zDir + "/CalibratedDepthMapsProject/Input.HDF").exists())
-    {
-      QFile::copy(t2zDir + "/CalibratedDepthMapsProject/Input.HDF", recalibrationDir + "/Input.HDF");
-    }
-
-    SACScript sac{casaScenario_, recalibrationDir};
-    if (!casaScriptWriter::writeCasaScript(sac) ||
-        !scriptRunController_.runScript(sac))
-    {
-      return;
-    }
-
-    QDir().mkdir(calibratedProjectDir);
-    QFile::copy(recalibrationDir + "/ThreeDFromOneD" + projectFilename, calibratedProjectDir + projectFilename);
-    QFile::copy(recalibrationDir + "/ThreeDFromOneD/Inputs.HDF", calibratedProjectDir + "/Inputs.HDF");
-    if (QFile(recalibrationDir + "/ThreeDFromOneD/Input.HDF").exists())
-    {
-      QFile::copy(recalibrationDir + "/ThreeDFromOneD/Input.HDF", calibratedProjectDir + "/Input.HDF");
-    }
     scenarioBackup::backup(casaScenario_);
   }
 }
 
-void T2Zcontroller::slotSpinBoxReferenceSurfaceValueChanged(int referenceSurface)
+void T2Zcontroller::slotComboBoxReferenceSurfaceValueChanged(int referenceSurface)
 {
-  casaScenario_.setReferenceSurface(referenceSurface);
+  casaScenario_.setT2zReferenceSurface(referenceSurface);
 }
 
-void T2Zcontroller::slotSpinBoxLastSurfaceValueChanged(int lastSurface)
+void T2Zcontroller::slotSpinBoxSubSamplingValueChanged(int subSampling)
 {
-  casaScenario_.setLastSurface(lastSurface);
+  casaScenario_.setT2zSubSampling(subSampling);
 }
 
+void T2Zcontroller::slotComboBoxProjectSelectionTextChanged(const QString& projectSelection)
+{
+  casaScenario_.setT2zRunOnOriginalProject(projectSelection == "Original Project");
+}
+
+void T2Zcontroller::slotSpinBoxNumberOfCPUsValueChanged(int numberOfCPUs)
+{
+  casaScenario_.setT2zNumberCPUs(numberOfCPUs);
+}
+
+void T2Zcontroller::slotComboBoxClusterSelectionTextChanged(const QString& clusterName)
+{
+  casaScenario_.setClusterName(clusterName);
+}
+
+void T2Zcontroller::slotUpdateTabGUI(int tabID)
+{
+  if (tabID != static_cast<int>(TabID::T2Z))
+  {
+    return;
+  }
+
+  t2zTab_->comboBoxReferenceSurface()->setCurrentIndex(casaScenario_.t2zReferenceSurface());
+  t2zTab_->comboBoxProjectSelection()->setCurrentText(casaScenario_.t2zRunOnOriginalProject() ? "Original Project" : "Optimized Project");
+  t2zTab_->spinBoxSubSampling()->setValue(casaScenario_.t2zSubSampling());
+  t2zTab_->spinBoxNumberOfCPUs()->setValue(casaScenario_.t2zNumberCPUs());
+  t2zTab_->comboBoxClusterSelection()->setCurrentText(casaScenario_.clusterName());
+
+  updateSurfaces();
+  updateProjectSelectionOptions();
+}
+
+void T2Zcontroller::updateSurfaces()
+{
+  QStringList surfaces = casaScenario_.projectReader().surfaceNames();
+  t2zTab_->setReferenceSurfaces(surfaces);
+}
+
+void T2Zcontroller::updateProjectSelectionOptions()
+{
+  QStringList projectSelectionOptions;
+  if (QDir(casaScenario_.calibrationDirectory() + "/ThreeDFromOneD").exists())
+  {
+    projectSelectionOptions.push_back("Optimized Project");
+  }
+  if (casaScenario_.project3dFilename() != "")
+  {
+    projectSelectionOptions.push_back("Original Project");
+  }
+
+  t2zTab_->addProjectSelectionOptions(projectSelectionOptions);
+}
 
 } // namespace sac
 

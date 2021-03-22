@@ -15,6 +15,7 @@ public:
   virtual void load(const QString& projectFile) = 0;
 
   virtual QStringList layerNames() const = 0;
+  virtual QStringList surfaceNames() const = 0;
   virtual QStringList lithologyNames() const = 0;
   virtual QStringList mapNames() const = 0;
   virtual QStringList lithologyTypesForLayer(const int layerIndex) const = 0;
@@ -28,6 +29,9 @@ public:
   virtual QVector<double> agesFromMajorSnapshots() const = 0;
 
   virtual void setRelevantOutputParameters(const QStringList& activeProperties, const std::string& saveName = "") = 0;
+  virtual void setScaling(int scaleX, int scaleY, const std::string& saveName = "") = 0;
+  virtual int lowestSurfaceWithTWTData() const = 0;
+  virtual bool basementSurfaceHasTWT() const = 0;
 
 };
 

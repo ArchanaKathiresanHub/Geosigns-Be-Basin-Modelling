@@ -18,7 +18,7 @@ void checkCauldronVersion(std::string& currentVersionPath)
   if ( currentVersionPath.empty() || currentVersionPath == "Default" )
   {
      currentVersionPath = ibs::Path::applicationFullPath().path();
-     std::size_t index = currentVersionPath.find(IBS_INSTALL_PATH);
+     std::size_t index = currentVersionPath.find("/apps/sss");
      if (index != std::string::npos)
      {
        currentVersionPath = currentVersionPath.substr(index);

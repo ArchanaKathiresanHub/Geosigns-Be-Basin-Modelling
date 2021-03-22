@@ -11,8 +11,9 @@ TEST(SACScenarioTest, testWriteRead)
 {
   casaWizard::sac::SACScenario writeScenario{new casaWizard::StubProjectReader()};
 
-  writeScenario.setReferenceSurface(321);
-  writeScenario.setLastSurface(123);
+  writeScenario.setT2zReferenceSurface(321);
+  writeScenario.setT2zNumberCPUs(12);
+  writeScenario.setT2zSubSampling(3);
 
   casaWizard::sac::LithofractionManager& lithofractionManagerWrite = writeScenario.lithofractionManager();
 
@@ -44,8 +45,18 @@ TEST(SACScenarioTest, testWriteRead)
   casaWizard::ScenarioReader reader{"scenario.dat"};
   readScenario.readFromFile(reader);
 
-  EXPECT_EQ(writeScenario.lastSurface(), readScenario.lastSurface());
-  EXPECT_EQ(writeScenario.referenceSurface(), readScenario.referenceSurface());
+  EXPECT_EQ(writeScenario.t2zLastSurface(), readScenario.t2zLastSurface());
+  EXPECT_EQ(writeScenario.t2zLastSurface(), 10); // Since stub reader returns 10 voor lowest layer with TWTT
+  EXPECT_EQ(writeScenario.t2zReferenceSurface(), readScenario.t2zReferenceSurface());
+  EXPECT_EQ(writeScenario.t2zNumberCPUs(), readScenario.t2zNumberCPUs());
+  EXPECT_EQ(writeScenario.t2zNumberCPUs(), 12);
+  EXPECT_EQ(writeScenario.t2zSubSampling(), 3);
+  EXPECT_EQ(writeScenario.t2zSubSampling(), readScenario.t2zSubSampling());
+
+  EXPECT_FALSE(writeScenario.t2zRunOnOriginalProject());
+  writeScenario.setT2zRunOnOriginalProject(true);
+  EXPECT_TRUE(writeScenario.t2zRunOnOriginalProject());
+
 
   const casaWizard::sac::LithofractionManager& lithofractionManagerRead = readScenario.lithofractionManager();
 
@@ -91,4 +102,10 @@ TEST(SACScenarioTest, testWriteRead)
   readScenario.writeToFile(writerLoaded);
   writerLoaded.close();
   expectFileEq("scenario.dat", "scenarioAgain.dat");
+
+  readScenario.clear();
+  EXPECT_EQ(readScenario.t2zReferenceSurface(), 0);
+  EXPECT_EQ(readScenario.t2zSubSampling(), 1);
+  EXPECT_FALSE(readScenario.t2zRunOnOriginalProject());
+  EXPECT_EQ(readScenario.t2zNumberCPUs(), 1);
 }

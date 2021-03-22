@@ -31,7 +31,7 @@ private:
 
   SACcontroller* sacController_;  
   MapsController* mapsController_;
-  //T2Zcontroller* t2zController_;
+  T2Zcontroller* t2zController_;
   ResultsController* resultsController_;
 };
 

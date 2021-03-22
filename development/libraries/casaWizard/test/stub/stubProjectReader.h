@@ -24,6 +24,11 @@ public:
     return QStringList("Layer");
   }
 
+  QStringList surfaceNames() const override
+  {
+    return {};
+  }
+
   QStringList lithologyNames() const override
   {
     return QStringList();
@@ -70,6 +75,20 @@ public:
 
   void setRelevantOutputParameters(const QStringList& /*activeProperties*/, const std::string& /*saveName*/) override
   {
+  }
+
+  void setScaling(int /*scaleX*/, int /*scaleY*/, const std::string& /*saveName*/) override
+  {
+  }
+
+  int lowestSurfaceWithTWTData() const override
+  {
+    return 10;
+  }
+
+  bool basementSurfaceHasTWT() const override
+  {
+    return true;
   }
 
   QVector<double> agesFromMajorSnapshots() const override

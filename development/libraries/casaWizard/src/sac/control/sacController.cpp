@@ -201,6 +201,7 @@ void SACcontroller::slotPushSelectProject3dClicked()
   casaScenario_.clear();
   casaScenario_.setWorkingDirectory(workingDirectory);
   casaScenario_.setProject3dFilePath(fileName);  
+  casaScenario_.updateT2zLastSurface();
   lithofractionController_->loadLayersFromProject();
 
   scenarioBackup::backup(casaScenario_);

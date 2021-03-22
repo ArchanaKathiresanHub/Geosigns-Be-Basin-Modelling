@@ -5,6 +5,7 @@
 
 class QSpinBox;
 class QPushButton;
+class QComboBox;
 
 namespace casaWizard
 {
@@ -20,13 +21,23 @@ public:
   explicit T2Ztab(QWidget* parent = 0);
 
   const QPushButton* pushButtonSACrunT2Z() const;
-  QSpinBox* spinBoxReferenceSurface() const;
-  QSpinBox* spinBoxLastSurface() const;
+  QComboBox* comboBoxProjectSelection() const;
+  QComboBox* comboBoxReferenceSurface() const;
+  QSpinBox* spinBoxSubSampling() const;
+  QSpinBox* spinBoxNumberOfCPUs() const;
+  QComboBox* comboBoxClusterSelection() const;
+
+  void addProjectSelectionOptions(const QStringList& options);
+  void setReferenceSurfaces(const QStringList& surfaces);
+  bool noProjectAvailable() const;
 
 private:
   QPushButton* pushButtonSACrunT2Z_;
-  QSpinBox* spinBoxReferenceSurface_;
-  QSpinBox* spinBoxLastSurface_;
+  QComboBox* comboBoxReferenceSurface_;
+  QComboBox* comboBoxProjectSelection_;
+  QSpinBox* spinBoxSubSampling_;
+  QSpinBox* spinBoxNumberOfCPUs_;
+  QComboBox* comboBoxClusterSelection_;
 };
 
 } // namespace sac

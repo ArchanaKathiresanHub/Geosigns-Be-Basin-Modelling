@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QCoreApplication>
 
 namespace casaWizard
 {
@@ -16,7 +17,7 @@ namespace sac
 DepthConversionScript::DepthConversionScript(const SACScenario& scenario, const QString& baseDirectory) :
   RunScript(baseDirectory),
   scenario_{scenario},
-  scriptFilename_{scenario.workingDirectory() + "/T2Z_step2/runt2z.sh"}
+  scriptFilename_{baseDirectory + "/runt2z.sh"}
 {
 }
 
@@ -24,10 +25,10 @@ bool DepthConversionScript::generateCommands()
 {
   if (scenario_.clusterName().toLower() == "local")
   {
-    addCommand("fastdepthconversion"
+    addCommand("mpirun_wrap.sh -n " + QString::number(scenario_.t2zNumberCPUs()) + " fastdepthconversion"
                " -project " + QFileInfo(scenario_.project3dPath()).fileName() + " -temperature -onlyat 0"
-               " -referenceSurface " + QString::number(scenario_.referenceSurface()) +
-               " -endSurface " + QString::number(scenario_.lastSurface()));
+               " -referenceSurface " + QString::number(scenario_.t2zReferenceSurface()) +
+               " -endSurface " + QString::number(scenario_.t2zLastSurface()));
   }
   else
   {
@@ -47,33 +48,43 @@ bool DepthConversionScript::generateCommands()
     file.close();
     Logger::log() << "- Finished writing depth conversion file to " << scriptFilename_ << Logger::endl();
 
-    addCommand("bsub -K < " + scriptFilename_);
+    addCommand(scriptFilename_);
   }
   return true;
 }
 
 void DepthConversionScript::writeScriptContents(QFile& file) const
-{
+{   
   QTextStream out(&file);
 
   out << QString("#!/bin/bash -lx\n");
-
+  out << QString("cat > runt2zCluster.sh << EOF\n");
   out << QString("#BSUB -P cldrn\n");
   out << QString("#BSUB -W 0:30\n");
   out << QString("#BSUB -J \"Fastcauldron T2Z conversion run\"\n");
-  out << QString("#BSUB -n " + QString::number(scenario_.numberCPUs()) + "\n");
+  out << QString("#BSUB -n " + QString::number(scenario_.t2zNumberCPUs()) + "\n");
   out << QString("#BSUB -o output.log\n");
   out << QString("#BSUB -x\n");
-  out << QString("#BSUB -cwd " + scenario_.workingDirectory() +"T2Z_step2\n");
+  out << QString("#BSUB -cwd " + baseDirectory() + "\n");
 
-  out << QString("mpirun_wrap.sh -n " + QString::number(scenario_.numberCPUs()) +
-                 " -outfile-pattern 'fastdepthconversion-output-rank-%r.log'"
-                 " fastdepthconversion"
-                 " -project " + QFileInfo(scenario_.project3dPath()).fileName() + " -temperature -onlyat 0" +
-                 " -referenceSurface " + QString::number(scenario_.referenceSurface()) +
-                 " -endSurface " + QString::number(scenario_.lastSurface()) +
-                 " -noofpp" +
-                 "\n");
+  std::string applicationPath = QCoreApplication::applicationDirPath().toStdString();
+  std::size_t index = applicationPath.find("/apps/sss");
+  if (index != std::string::npos)
+  {
+    applicationPath = applicationPath.substr(index);
+  }
+
+  out << QString("export PATH=" + QString::fromStdString(applicationPath) + ":$PATH\n" +
+                 "source setupEnv.sh\n");
+  out << QString("mpirun_wrap.sh -n " + QString::number(scenario_.t2zNumberCPUs()) +
+                 " -outfile-pattern 'fastdepthconversion-output-rank-%r.log'" +
+                 " fastdepthconversion" +
+                 " -project " + scenario_.project3dFilename() + " -temperature -onlyat 0" +
+                 " -referenceSurface " + QString::number(scenario_.t2zReferenceSurface()) +
+                 " -endSurface " + QString::number(scenario_.t2zLastSurface()) +
+                 " -noofpp\n" +
+                 "EOF\n\n");
+  out << QString("bsub -K < runt2zCluster.sh\n");
 }
 
 } // namespace sac

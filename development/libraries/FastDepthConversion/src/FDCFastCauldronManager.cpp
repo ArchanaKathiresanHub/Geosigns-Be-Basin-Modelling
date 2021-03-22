@@ -59,7 +59,7 @@ DataAccess::Interface::GridMap * FDCFastCauldronManager::getPropertyGridMap(cons
   std::unique_ptr<const DataAccess::Interface::PropertyValueList> propertyValues(getPropertyValues(propertyName, layerName));
   if (propertyValues->size() != 1) { throw T2Zexception() << "Invalid size of the property value"; }
 
-  if ( m_XScalingFactor < 2 || m_YScalingFactor < 2)
+  if ( m_XScalingFactor < 2 && m_YScalingFactor < 2)
   {
     propertyGridMap = propertyValues->at(0)->getGridMap();
     return propertyGridMap;

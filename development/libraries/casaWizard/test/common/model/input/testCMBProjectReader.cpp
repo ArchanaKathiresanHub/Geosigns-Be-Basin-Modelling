@@ -8,6 +8,7 @@
 
 #include "model/input/cmbProjectReader.h"
 #include "ConstantsNumerical.h"
+#include "Interface.h"
 
 #include <gtest/gtest.h>
 #include <numeric>
@@ -104,6 +105,30 @@ TEST_F( CMBProjectReaderTest, testLayerNames )
   for(int i = 0; i< nLithoActual; ++i)
   {
     EXPECT_EQ(layerNamesExpected[i], layerNamesActual[i]) << "Mismatch at entry [" << i << "]";
+  }
+}
+
+TEST_F( CMBProjectReaderTest, testSurfaceNames )
+{
+  const QStringList surfaceNamesActual = reader_.surfaceNames();
+  const QStringList surfaceNamesExpected =
+  {
+    "Water bottom",
+    "20_NS_B_TDinput_SD",
+    "30_CK_B_TDinput_SD",
+    "45_TR_T_TDinput_SD",
+    "50_ZE_T_TDinput_SD",
+    "Nr_Top_Rotliegend",
+    "Nr_Base_Rotliegend"
+  };
+
+  const int nSurfaceActual = surfaceNamesActual.size();
+  const int nSurfaceExpected = surfaceNamesExpected.size();
+  ASSERT_EQ(nSurfaceExpected, nSurfaceActual);
+
+  for(int i = 0; i< nSurfaceActual; ++i)
+  {
+    EXPECT_EQ(surfaceNamesExpected[i], surfaceNamesActual[i]) << "Mismatch at entry [" << i << "]";
   }
 }
 
@@ -222,6 +247,17 @@ TEST_F( CMBProjectReaderTest, testUpdateOutputProperties)
   }
 }
 
+TEST_F( CMBProjectReaderTest, testSetScale)
+{
+  // Given
+  QStringList activeProperties = {"TwoWayTime", "VRe"};
+  std::remove("OutputSetScale.project3d");
+
+  // Then
+  EXPECT_NO_THROW(reader_.setScaling(4, 4, "OutputSetScale.project3d"));
+}
+
+
 TEST_F( CMBProjectReaderTest, testReadOutputProperties)
 {
   // When
@@ -234,4 +270,57 @@ TEST_F( CMBProjectReaderTest, testReadOutputProperties)
   EXPECT_EQ(outputProperties.at("DryGasExpelledRate"), "None");
   EXPECT_EQ(outputProperties.at("SourceRockEndMember1"), "SourceRockOnly");
 }
+
+TEST_F( CMBProjectReaderTest, testReadMantleThickness)
+{
+  // When
+  double mantleThickness = reader_.initialLithosphericMantleThickness();
+
+  // Then
+  EXPECT_DOUBLE_EQ(mantleThickness, 80000);
+}
+
+TEST_F( CMBProjectReaderTest, testLowestLayerWithTWT_WhenTWTMapsAreMissing)
+{
+  // Given
+  //
+  // Structure of the stratigraphy:
+  // ----------------------------------
+  // Surface 0   --    Water Bottom    --
+  // Surface 1   -- 20_NS_B_TDinput_SD --
+  // Surface 2   -- 30_CK_B_TDinput_SD --
+  // Surface 3   -- 45_TR_T_TDinput_SD --
+  // Surface 4   -- 50_ZE_T_TDinput_SD --
+  // Surface 5   -- Nr_Top_Rotliegend  --
+  // Surface 6   -- Nr_Base_Rotliegend --
+  // ----------------------------------
+  // Where the last two surfaces don't have TWT data (enforced by removing these entries
+  // from the TwoWayTimeIoTbl. Therefore, the surfaceID of the lowest surface with TWT
+  // data is 4
+
+  // When
+  int lowestSurface = reader_.lowestSurfaceWithTWTData();
+  bool basementHasTWT = reader_.basementSurfaceHasTWT();
+
+  // Then
+  EXPECT_EQ(lowestSurface, 4);
+  EXPECT_FALSE(basementHasTWT);
+}
+
+TEST_F( CMBProjectReaderTest, testNotLoadedReader)
+{
+  casaWizard::CMBProjectReader notLoadedReader;
+
+  EXPECT_EQ(notLoadedReader.mapNames(), QStringList());
+  EXPECT_EQ(notLoadedReader.layerNames(), QStringList());
+  EXPECT_EQ(notLoadedReader.surfaceNames(), QStringList());
+  EXPECT_EQ(notLoadedReader.lithologyTypesForLayer(0), QStringList());
+  EXPECT_EQ(notLoadedReader.agesFromMajorSnapshots(), QVector<double>());
+  EXPECT_EQ(notLoadedReader.lowestSurfaceWithTWTData(), DataAccess::Interface::DefaultUndefinedScalarIntValue);
+  EXPECT_EQ(notLoadedReader.basementSurfaceHasTWT(), false);
+  EXPECT_EQ(notLoadedReader.getLayerID("Test"), NoDataIDValue);
+  EXPECT_DOUBLE_EQ(notLoadedReader.heatProductionRate(), 0.0);
+}
+
+
 

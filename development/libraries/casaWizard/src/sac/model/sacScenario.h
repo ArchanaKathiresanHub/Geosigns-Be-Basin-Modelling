@@ -34,11 +34,19 @@ public:
   int radiusSmoothing() const;
   void setRadiusSmoothing(int radiusSmoothing);
 
-  int referenceSurface() const;
-  void setReferenceSurface(int referenceSurface);
+  int t2zReferenceSurface() const;
+  void setT2zReferenceSurface(int t2zReferenceSurface);
 
-  int lastSurface() const;
-  void setLastSurface(int lastSurface);
+  int t2zLastSurface() const;
+
+  int t2zNumberCPUs() const;
+  void setT2zNumberCPUs(int t2zNumberCPUs);
+
+  int t2zSubSampling() const;
+  void setT2zSubSampling(int t2zSubSampling);
+
+  bool t2zRunOnOriginalProject() const;
+  void setT2zRunOnOriginalProject(bool t2zRunOnOriginalProject);
 
   LithofractionManager& lithofractionManager();
   const LithofractionManager& lithofractionManager() const;
@@ -53,6 +61,7 @@ public:
 
   QVector<bool> activePlots() const;
   void setActivePlots(const QVector<bool>& activePlots);
+  void updateT2zLastSurface();
 
 private:
   QString stateFileNameSAC_;
@@ -65,8 +74,12 @@ private:
   int pIDW_;
   int threadsSmoothing_;
   int radiusSmoothing_; //[m]
-  int referenceSurface_;
-  int lastSurface_;
+  int t2zLastSurface_;
+  int t2zReferenceSurface_;
+  int t2zSubSampling_;
+  bool t2zRunOnOriginalProject_;
+  int t2zNumberCPUs_;
+
   QVector<bool> activePlots_;
 };
 

@@ -29,18 +29,18 @@ ScriptRunController::ScriptRunController(QObject* parent) :
 
 bool ScriptRunController::processCommand(const RunCommand& command)
 {
-  process_->setWorkingDirectory(script_->baseDirectory() + "/" + command.relativeDirectory);
-  process_->start(command.command);
+  process_->setWorkingDirectory(script_->baseDirectory() + "/" + command.relativeDirectory);  
+  process_->start(command.command);  
   if (!process_->waitForStarted())
   {
-    process_->kill();
+    process_->kill();    
     return false;
-  }
+  }  
 
   while (!process_->waitForFinished(100))
   {
     qApp->processEvents();
-  }
+  }  
 
   return true;
 }

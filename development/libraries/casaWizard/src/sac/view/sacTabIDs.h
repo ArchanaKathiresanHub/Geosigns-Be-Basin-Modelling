@@ -12,7 +12,7 @@ enum class TabID
   SAC = 0,  
   Results,
   Maps,
-//  T2Z,
+  T2Z,
   Count // Counts number of tabs
 };
 

@@ -32,6 +32,7 @@ public:
   void load(const QString& projectFile) override;
 
   QStringList layerNames() const override;
+  QStringList surfaceNames() const override;
   QStringList lithologyNames() const override;
   QStringList mapNames() const override;
   QStringList lithologyTypesForLayer(const int layerIndex) const override;
@@ -45,11 +46,16 @@ public:
   double equilibriumOceanicLithosphereThickness() const override;
 
   void setRelevantOutputParameters(const QStringList& activeProperties, const std::string& saveName = "") override;
+  void setScaling(int scaleX, int scaleY, const std::string& saveName = "") override;
   std::map<std::string, std::string> readOutputProperties() const;
 
+  int lowestSurfaceWithTWTData() const override;
+  bool basementSurfaceHasTWT() const override;
 private:
   std::unique_ptr<mbapi::Model> cmbModel_;
   bool loaded_;
+
+  bool hasTWTData(int surfaceID) const;
 };
 
 } // namespace casaWizard

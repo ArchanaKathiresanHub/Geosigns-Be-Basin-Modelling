@@ -1,8 +1,11 @@
 #include "t2zTab.h"
 
+#include "../../common/view/components/emphasisbutton.h"
+#include "../../common/view/components/customtitle.h"
+
+#include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QPushButton>
 #include <QSpinBox>
 #include <QVBoxLayout>
 
@@ -14,19 +17,34 @@ namespace sac
 
 T2Ztab::T2Ztab(QWidget* parent) :
   QWidget(parent),
-  pushButtonSACrunT2Z_{new QPushButton("Run CASA", this)},
-  spinBoxReferenceSurface_{new QSpinBox(this)},
-  spinBoxLastSurface_{new QSpinBox(this)}
+  pushButtonSACrunT2Z_{new EmphasisButton("Run Depth Conversion", this)},
+  comboBoxReferenceSurface_{new QComboBox(this)},
+  comboBoxProjectSelection_{new QComboBox(this)},
+  spinBoxSubSampling_{new QSpinBox(this)},
+  spinBoxNumberOfCPUs_{new QSpinBox(this)},
+  comboBoxClusterSelection_{new QComboBox(this)}
 {
   QGridLayout* layout = new QGridLayout();
-  layout->addWidget(new QLabel("Reference surface", this), 0, 0);
-  layout->addWidget(spinBoxReferenceSurface_, 0, 1);
-  layout->addWidget(new QLabel("Last surface", this), 1, 0);
-  layout->addWidget(spinBoxLastSurface_, 1, 1);
-  layout->addWidget(pushButtonSACrunT2Z_, 2, 1);
+  layout->addWidget(new CustomTitle("Project Settings"), 0, 0);
+  layout->addWidget(new QLabel("Project Selection", this), 1, 0);
+  layout->addWidget(comboBoxProjectSelection_, 1, 1);
+  layout->addWidget(new QLabel("Reference surface", this), 2, 0);
+  layout->addWidget(comboBoxReferenceSurface_, 2, 1);
+  layout->addWidget(new CustomTitle("Run Parameters"), 3, 0);
+  spinBoxSubSampling()->setMinimum(1);
+  spinBoxSubSampling_->setValue(1);
+  layout->addWidget(new QLabel("Sub sampling", this), 4, 0);
+  layout->addWidget(spinBoxSubSampling_, 4, 1);
+  layout->addWidget(new QLabel("Number of CPUs", this), 5, 0);
+  layout->addWidget(spinBoxNumberOfCPUs_, 5, 1);
+  spinBoxNumberOfCPUs_->setMinimum(1);
+  layout->addWidget(new QLabel("Cluster", this), 6, 0);
+  layout->addWidget(comboBoxClusterSelection_, 6, 1);
+  comboBoxClusterSelection_->addItems({"LOCAL", "CLUSTER"});
+  layout->addWidget(pushButtonSACrunT2Z_, 7, 1);
 
-  layout->addWidget(new QWidget(this), 3, 2);
-  layout->setRowStretch(3,1);
+  layout->addWidget(new QWidget(this), 8, 2);
+  layout->setRowStretch(8,1);
   layout->setColumnStretch(2,1);
 
   setLayout(layout);
@@ -37,14 +55,46 @@ const QPushButton* T2Ztab::pushButtonSACrunT2Z() const
   return pushButtonSACrunT2Z_;
 }
 
-QSpinBox* T2Ztab::spinBoxReferenceSurface() const
+QComboBox* T2Ztab::comboBoxProjectSelection() const
 {
-  return spinBoxReferenceSurface_;
+  return comboBoxProjectSelection_;
 }
 
-QSpinBox* T2Ztab::spinBoxLastSurface() const
+QComboBox* T2Ztab::comboBoxReferenceSurface() const
 {
-  return spinBoxLastSurface_;
+  return comboBoxReferenceSurface_;
+}
+
+QSpinBox* T2Ztab::spinBoxSubSampling() const
+{
+  return spinBoxSubSampling_;
+}
+
+QSpinBox* T2Ztab::spinBoxNumberOfCPUs() const
+{
+  return spinBoxNumberOfCPUs_;
+}
+
+QComboBox*T2Ztab::comboBoxClusterSelection() const
+{
+  return comboBoxClusterSelection_;
+}
+
+void T2Ztab::addProjectSelectionOptions(const QStringList& options)
+{
+  comboBoxProjectSelection_->clear();
+  comboBoxProjectSelection_->addItems(options);
+}
+
+void T2Ztab::setReferenceSurfaces(const QStringList& surfaces)
+{
+  comboBoxReferenceSurface_->clear();
+  comboBoxReferenceSurface_->addItems(surfaces);
+}
+
+bool T2Ztab::noProjectAvailable() const
+{
+  return comboBoxProjectSelection_->count() == 0;
 }
 
 } // namespace sac

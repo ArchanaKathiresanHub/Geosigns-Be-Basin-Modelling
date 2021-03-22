@@ -22,14 +22,14 @@ public:
   Window(QWidget* parent = nullptr);
 
   SACtab* sacTab() const;
-  //T2Ztab* t2zTab() const;
+  T2Ztab* t2zTab() const;
   ResultsTab* resultsTab() const;
   MapsTab* mapsTab() const;
   MenuBar* menu() const override;
 
 private:
   SACtab* sacTab_;
-  //T2Ztab* t2zTab_;
+  T2Ztab* t2zTab_;
   ResultsTab* resultsTab_;
   MapsTab* mapsTab_;
   MenuBar* menuBarSAC_;
