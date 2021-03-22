@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-03-22  Richard Faasse  <Richard.Faasse@shell.com>
+
+	new: Added the time-depth conversion tab to SAC wizard.
+	* Related work items: #417564
+	================== COMMIT-END ========================
+	Commit-ID:<1e3e0d4ccca3c179c83f16072fac4ad8373e0eee>	  (refs/heads/master)
+
+++
 2021-03-19  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
 
 	new: dev: usr: Crustal thickness maps are updated by the CTC as per the tectonic context
