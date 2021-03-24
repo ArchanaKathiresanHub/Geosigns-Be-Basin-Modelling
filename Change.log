@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-03-24  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed bug of wrongly initialized optimization settings SAC.
+	================== COMMIT-END ========================
+	Commit-ID:<48fc42e9304bb2f29a0d191fab6bab053d4edcef>	  (refs/heads/master)
+
+++
 2021-03-22  Richard Faasse  <Richard.Faasse@shell.com>
 
 	new: Added the time-depth conversion tab to SAC wizard.
