@@ -80,11 +80,14 @@ void LithofractionController::slotSecondOptimizationChanged(int state, int row)
 void LithofractionController::loadLayersFromProject()
 {
   const QStringList layerNames = projectReader_.layerNames();
+
   for (const QString& name : layerNames )
   {
-    lithofractionManager_.addLithofraction(name);
+    const QStringList lithoTypes = projectReader_.lithologyTypesForLayer(projectReader_.getLayerID(name.toStdString()));
+    const bool doFirstOptimization = lithoTypes[1] != "";
+    const bool doSecondOptimization = lithoTypes[2] != "";
+    lithofractionManager_.addLithofraction(name, doFirstOptimization, doSecondOptimization);
   }
-  updateLithofractionTable();
 }
 
 void LithofractionController::updateLithofractionTable()

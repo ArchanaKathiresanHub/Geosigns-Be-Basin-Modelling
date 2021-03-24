@@ -30,7 +30,7 @@ public:
   LithofractionManager();
 
   const QVector<Lithofraction>& lithofractions() const;
-  void addLithofraction(const QString& name);
+  void addLithofraction(const QString& name, const bool doFirstOptimization=true, const bool doSecondOptimization=true);
   void removeLithofraction(int index);
 
   void setLithofractionFirstComponent(int index, int percent);

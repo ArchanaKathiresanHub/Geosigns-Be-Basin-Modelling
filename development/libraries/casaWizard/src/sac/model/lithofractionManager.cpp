@@ -134,7 +134,7 @@ void LithofractionManager::setLithoFractionDoSecondOptimization(int index, bool 
   lithofractions_[index].setDoSecondOptimization(doSecondOptimization);
 }
 
-void LithofractionManager::addLithofraction(const QString& name)
+void LithofractionManager::addLithofraction(const QString& name, const bool doFirstOptimization, const bool doSecondOptimization)
 {
   Lithofraction newLithofraction
   {
@@ -144,7 +144,9 @@ void LithofractionManager::addLithofraction(const QString& name)
     maxPercentage,
     1,
     minFraction,
-    maxFraction
+    maxFraction,
+    doFirstOptimization,
+    doSecondOptimization
   };
 
   lithofractions_.push_back(newLithofraction);

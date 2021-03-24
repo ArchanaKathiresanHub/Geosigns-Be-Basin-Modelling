@@ -176,8 +176,7 @@ void SACcontroller::slotPushSelectProject3dClicked()
   }
 
   const QDir fileNamePath = QFileInfo(fileName).absoluteDir();
-  const QString originalWorkspaceLocation = casaScenario_.workingDirectory().isEmpty() ?
-                                            fileNamePath.absolutePath() : casaScenario_.workingDirectory();
+  const QString originalWorkspaceLocation = fileNamePath.absolutePath();
 
   WorkspaceDialog popupWorkspace{originalWorkspaceLocation, casaWizard::workspaceGenerator::getSuggestedWorkspace(fileName)};
   if (popupWorkspace.exec() != QDialog::Accepted)
