@@ -704,6 +704,15 @@ bool ProjectHandle::createSnapshotsAtGeologicalEvents()
       {
          geologicalEventAges.push_back( depoAge );
       }
+
+      if ( getIsIgneousIntrusion( record ) == 1 )
+      {
+        const double igneousIntrusionAge = getIgneousIntrusionAge( record );
+        if ( igneousIntrusionAge != 0.0 )
+        {
+           geologicalEventAges.push_back( igneousIntrusionAge );
+        }
+      }
    }
 
    //add all names of tables from which ages are to be read in a list
