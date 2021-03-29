@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-03-29  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added Irreducible water saturation as arguments for GOTF.
+	*Added Irreducible water saturation as arguments for GOTF
+	* Related work items: #416179
+
+	================== COMMIT-END ========================
+	Commit-ID:<0c1324c6621b800e96985273c4bbf124b5e7696b>	  (refs/heads/master)
+
+++
 2021-03-26  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Add snapshot for sill intrusion.
