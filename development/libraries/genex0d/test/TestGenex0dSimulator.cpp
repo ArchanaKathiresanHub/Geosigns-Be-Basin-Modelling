@@ -3,6 +3,8 @@
 #include "Genex0dSimulatorFactory.h"
 #include "ObjectFactory.h"
 #include "LangmuirAdsorptionIsothermSample.h"
+#include "IrreducibleWaterSaturationSample.h"
+
 #include "Interface.h"
 
 #include <gtest/gtest.h>
@@ -59,6 +61,16 @@ TEST_F( TestGenex0dSimulator, TestSetLangmuirDataWithMissingData )
   EXPECT_EQ(list->size(), 3);
 }
 
+TEST_F( TestGenex0dSimulator, TestSetIrreducibleWaterSaturation )
+{
+  simulator->setIrreducibleWaterSaturationData("-0.13 0.7");
+  const DataAccess::Interface::IrreducibleWaterSaturationSample* sample = simulator->getIrreducibleWaterSaturationSample();
+  EXPECT_DOUBLE_EQ(-0.13, sample->getCoefficientA());
+  EXPECT_DOUBLE_EQ(0.7, sample->getCoefficientB());
+}
 
-
+TEST_F( TestGenex0dSimulator, TestSetIrreducibleWaterSaturationWithMissingDataThrows )
+{
+  EXPECT_THROW(simulator->setIrreducibleWaterSaturationData("-0.13"), std::invalid_argument);
+}
 

@@ -40,11 +40,13 @@ void Genex0d::loadSimulator()
 {
   m_gnx0dSimulatorFactory.reset(new Genex0dSimulatorFactory);
   m_gnx0dSimulator.reset(Genex0dSimulator::CreateFrom(m_inData.projectFilename, m_gnx0dSimulatorFactory.get()));
-  m_gnx0dSimulator->setLangmuirData(m_inData.adsorptionFunctionTPVData, m_inData.whichAdsorptionFunction);
   if (m_gnx0dSimulator == nullptr)
   {
     throw Genex0dException() << "Genex0d simulator could not be loaded!";
   }
+
+  m_gnx0dSimulator->setLangmuirData(m_inData.adsorptionFunctionTPVData, m_inData.whichAdsorptionFunction);
+  m_gnx0dSimulator->setIrreducibleWaterSaturationData(m_inData.irreducibleWaterSaturationData);
 }
 
 void Genex0d::loadFormation()

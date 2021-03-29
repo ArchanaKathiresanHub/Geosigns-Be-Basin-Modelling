@@ -938,6 +938,7 @@ namespace DataAccess
 
          MutablePointAdsorptionHistoryList m_adsorptionPointHistoryList;
          MutableLangmuirAdsorptionIsothermSampleList m_langmuirIsotherms;
+         IrreducibleWaterSaturationSample* m_irreducibleWaterSample;
 
       private:
          void fillSnapshotIoTbl( std::list<double>& ages, const bool isUserDefined );
@@ -954,7 +955,6 @@ namespace DataAccess
 
          MutableLangmuirAdsorptionTOCEntryList m_langmuirTocAdsorptionEntries;
 
-         IrreducibleWaterSaturationSample* m_irreducibleWaterSample;
          SGDensitySample* m_sgDensitySample;
 
          DataAccess::Interface::MessageHandler* m_messageHandler;

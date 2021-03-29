@@ -14,6 +14,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace Genex0d
 {
@@ -21,7 +22,7 @@ namespace Genex0d
 class Genex0dInputManager
 { 
 public:
-  explicit Genex0dInputManager(int argc, char** argv);
+  explicit Genex0dInputManager(const std::vector<std::string>& arguments);
 
   enum ExitStatus
   {
@@ -42,8 +43,7 @@ private:
   void storeArgument(const std::string& argument, const std::string& argumentValue);
   void setArgumentFieldNames();
 
-  int m_argc;
-  char** m_argv;
+  std::vector<std::string> m_argv;
 
   std::unordered_map<std::string, int> m_argumentFields;
   Genex0dInputData m_inputData;

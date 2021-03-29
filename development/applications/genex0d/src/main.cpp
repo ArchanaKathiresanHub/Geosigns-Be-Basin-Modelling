@@ -27,7 +27,15 @@ int main (int argc, char** argv)
   try
   {
     LogHandler("genex0d", LogHandler::DETAILED_LEVEL);
-    Genex0d::Genex0dInputManager inputDataMgr(argc, argv);
+
+    std::vector<std::string> arguments;
+
+    for (int i = 0; i < argc; i++)
+    {
+      arguments.push_back(argv[i]);
+    }
+
+    Genex0d::Genex0dInputManager inputDataMgr(arguments);
 
     typedef Genex0d::Genex0dInputManager::ExitStatus ExitState;
 

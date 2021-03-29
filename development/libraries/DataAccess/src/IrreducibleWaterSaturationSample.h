@@ -17,6 +17,10 @@ namespace DataAccess {
          IrreducibleWaterSaturationSample ( ProjectHandle& projectHandle,
                                             database::Record* record );
 
+         IrreducibleWaterSaturationSample ( ProjectHandle& projectHandle,
+                                            const double coeffA,
+                                            const double coeffB );
+
          /// \brief Destructor.
          virtual ~IrreducibleWaterSaturationSample ();
 

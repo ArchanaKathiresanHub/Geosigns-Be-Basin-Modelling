@@ -5483,7 +5483,6 @@ void ProjectHandle::deleteIrreducibleWaterSaturationSample() {
    if ( m_irreducibleWaterSample != 0 ) {
       delete m_irreducibleWaterSample;
    }
-
 }
 
 void ProjectHandle::deleteLangmuirIsotherms() {

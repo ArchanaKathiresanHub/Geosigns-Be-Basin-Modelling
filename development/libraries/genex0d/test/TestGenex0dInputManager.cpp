@@ -2,22 +2,47 @@
 
 #include <gtest/gtest.h>
 
+std::vector<std::string> generateFullInput()
+{
+  return {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-datFileName", "test.dat" , "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
+      "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
+      "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm",
+      "-AdsLangmuirTpvTable", "20 6.8 3.67 50 7.48 2.35 90 4.64 0.99 115 3.868571429 0.03286", "-doOTGC", "1",
+      "-AdsIrrWatSat", "-0.15 0.9",
+      "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
+      "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
+}
+
+void removeArgumentAndValueFromInput(std::vector<std::string>& inputs, const std::string argument)
+{
+  int indexToRemove = 0;
+  for (size_t i = 0; i < inputs.size(); i++)
+  {
+    if (inputs[i] == argument)
+    {
+      indexToRemove = i;
+    }
+  }
+
+  inputs.erase(inputs.begin() + indexToRemove, inputs.begin() + indexToRemove + 2);
+}
+
 TEST(TestGenex0dInputManager, TestInitialCheckArgsHelp)
 {
   int argc = 2;
-  char* argv[] = {"genex0d", "-help"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = {"genex0d", "-help"};
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_ERROR_EXIT);
 }
 
 TEST(TestGenex0dInputManager, TestInitialCheckArgsEmptyValue)
 {
-  int argc = 30;
   // empty formation argument value.
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector= {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "-SRType", "Type I - Lacustrine",
+                                        "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin",
+                                        "80", "-C15Aro", "77", "-C15Sat", "71"};
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -25,12 +50,11 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsEmptyValue)
 
 TEST(TestGenex0dInputManager, TestInitialCheckArgsRepeatedArgument)
 {
-  int argc = 33;
-  // formation repeated
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin",
-                  "80", "-C15Aro", "77", "-C15Sat", "71", "-formation", "FormationDuplicated"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  argvVector.push_back("-formation");
+  argvVector.push_back("DuplicateFormation");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -38,14 +62,9 @@ TEST(TestGenex0dInputManager, TestInitialCheckArgsRepeatedArgument)
 
 TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
 {
-  int argc = 59;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-datFileName", "test.dat" , "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm",
-                  "-AdsLangmuirTpvTable", "20 6.8 3.67 50 7.48 2.35 90 4.64 0.99 115 3.868571429 0.03286", "-doOTGC", "1",
-                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
-                  "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
@@ -128,6 +147,10 @@ TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
   const std::string & adsorptionDataActual = inputData.adsorptionFunctionTPVData;
   EXPECT_EQ(adsorptionDataExpected, adsorptionDataActual);
 
+  const std::string irreducibleWaterSaturationDataExpected = "-0.15 0.9";
+  const std::string & irreducibleWaterSaturationDataActual = inputData.irreducibleWaterSaturationData;
+  EXPECT_EQ(irreducibleWaterSaturationDataExpected, irreducibleWaterSaturationDataActual);
+
   const double HCExpectedSR2 = 1.13;
   const double HCActualSR2 = inputData.HCVRe05SR2;
   EXPECT_DOUBLE_EQ(HCExpectedSR2, HCActualSR2);
@@ -169,11 +192,10 @@ TEST(TestGenex0dInputManager, TestStoreInputsWithCorrectInput)
 
 TEST(TestGenex0dInputManager, TestMaxVesDisabled)
 {
-  // No VesLimit argument is given
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-VesLimit");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
@@ -181,14 +203,15 @@ TEST(TestGenex0dInputManager, TestMaxVesDisabled)
   const Genex0d::Genex0dInputData & inputData = inputMgr.inputData();
 
   EXPECT_FALSE(inputData.maxVesEnabled);
+
 }
 
 TEST(TestGenex0dInputManager, TestMissingYArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-Y");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -196,10 +219,10 @@ TEST(TestGenex0dInputManager, TestMissingYArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingXArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-X");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -207,10 +230,10 @@ TEST(TestGenex0dInputManager, TestMissingXArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingProjectArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-project");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -218,10 +241,10 @@ TEST(TestGenex0dInputManager, TestMissingProjectArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingFormationArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-formation");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -229,10 +252,10 @@ TEST(TestGenex0dInputManager, TestMissingFormationArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingSRTypeArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-SRType");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -240,11 +263,10 @@ TEST(TestGenex0dInputManager, TestMissingSRTypeArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingTOCArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-TOC");
 
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -252,10 +274,10 @@ TEST(TestGenex0dInputManager, TestMissingTOCArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingHCArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-HC");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -263,10 +285,10 @@ TEST(TestGenex0dInputManager, TestMissingHCArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingSCArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-SC");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -274,10 +296,10 @@ TEST(TestGenex0dInputManager, TestMissingSCArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingEAArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-EA");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -285,10 +307,10 @@ TEST(TestGenex0dInputManager, TestMissingEAArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingAsphArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Resin", "80", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-Asph");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -296,10 +318,10 @@ TEST(TestGenex0dInputManager, TestMissingAsphArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingResinArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-C15Aro", "77", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-Resin");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -307,10 +329,10 @@ TEST(TestGenex0dInputManager, TestMissingResinArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingC15AroArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Sat", "71"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-C15Aro");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -318,10 +340,10 @@ TEST(TestGenex0dInputManager, TestMissingC15AroArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingC15SatArgumentExit)
 {
-  int argc = 29;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80", "-C15Aro", "77"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-C15Sat");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -329,11 +351,10 @@ TEST(TestGenex0dInputManager, TestMissingC15SatArgumentExit)
 
 TEST(TestGenex0dInputManager, TestMissingAdsFuncArgumentWhenAdsSimulatorEnabledExit)
 {
-  int argc = 35;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-doOTGC", "1"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-AdsCapacityFunc");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -342,11 +363,11 @@ TEST(TestGenex0dInputManager, TestMissingAdsFuncArgumentWhenAdsSimulatorEnabledE
 
 TEST(TestGenex0dInputManager, TestMissingAdsSimulatorArgumentWhenOTCGEnabledExit)
 {
-  int argc = 33;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-doOTGC", "1"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-AdsSimulator");
+  removeArgumentAndValueFromInput(argvVector, "-AdsCapacityFunc");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -355,11 +376,11 @@ TEST(TestGenex0dInputManager, TestMissingAdsSimulatorArgumentWhenOTCGEnabledExit
 
 TEST(TestGenex0dInputManager, TestMissingAdsSimulatorArgumentWhenAdsFuncGivenExit)
 {
-  int argc = 33;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsCapacityFunc", "Default Langmuir Isotherm"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-AdsSimulator");
+  removeArgumentAndValueFromInput(argvVector, "-doOTGC");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -368,27 +389,34 @@ TEST(TestGenex0dInputManager, TestMissingAdsSimulatorArgumentWhenAdsFuncGivenExi
 
 TEST(TestGenex0dInputManager, TestMissingAdsLangmuirTpvTableArgumentWhenAdsSimulatorGivenExit)
 {
-  int argc = 57;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-datFileName", "test.dat" , "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71", "-AdsSimulator", "OTGCC1AdsorptionSimulator", "-AdsCapacityFunc", "Default Langmuir Isotherm",
-                  "-doOTGC", "1",
-                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
-                  "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-AdsLangmuirTpvTable");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
   EXPECT_EQ(ioErrorMssgActual, "An adsorption capacity function was provided, but no adsorption capacity function data");
 }
 
+TEST(TestGenex0dInputManager, TestMissingAdsIrrWatSatArgumentWhenAdsSimulatorGivenExit)
+{
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-AdsIrrWatSat");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
+  std::string ioErrorMssgActual = "";
+  EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
+  EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
+  EXPECT_EQ(ioErrorMssgActual, "An adsorption capacity function was provided, but no irreducible water saturation data");
+}
+
 TEST(TestGenex0dInputManager, TestMissingLastArgument)
 {
-  int argc = 30;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  argvVector.pop_back();
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -396,13 +424,9 @@ TEST(TestGenex0dInputManager, TestMissingLastArgument)
 
 TEST(TestGenex0dInputManager, TestMissingSourceRockType2)
 {
-  int argc = 47;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71",
-                  "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
-                  "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-SRType_SR2");
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -411,13 +435,10 @@ TEST(TestGenex0dInputManager, TestMissingSourceRockType2)
 
 TEST(TestGenex0dInputManager, TestMissingHC_SR2)
 {
-  int argc = 47;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71",
-                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
-                  "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-HC_SR2");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -426,13 +447,10 @@ TEST(TestGenex0dInputManager, TestMissingHC_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingSC_SR2)
 {
-  int argc = 47;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71",
-                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
-                  "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-SC_SR2");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -441,13 +459,10 @@ TEST(TestGenex0dInputManager, TestMissingSC_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingEA_SR2)
 {
-  int argc = 47;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71",
-                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-Asph_SR2", "90", "-Resin_SR2", "84",
-                  "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-EA_SR2");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -456,13 +471,10 @@ TEST(TestGenex0dInputManager, TestMissingEA_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingAsph_SR2)
 {
-  int argc = 47;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71",
-                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Resin_SR2", "84",
-                  "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-Asph_SR2");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -471,13 +483,10 @@ TEST(TestGenex0dInputManager, TestMissingAsph_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingResinSR2)
 {
-  int argc = 47;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71",
-                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90",
-                  "-C15Aro_SR2", "78", "-C15Sat_SR2", "73", "-MixingHI", "400"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-Resin_SR2");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -486,13 +495,10 @@ TEST(TestGenex0dInputManager, TestMissingResinSR2)
 
 TEST(TestGenex0dInputManager, TestMissingC15Aro_SR2)
 {
-  int argc = 47;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71",
-                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
-                  "-C15Sat_SR2", "73", "-MixingHI", "400"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-C15Aro_SR2");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -501,13 +507,10 @@ TEST(TestGenex0dInputManager, TestMissingC15Aro_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingC15Sat_SR2)
 {
-  int argc = 47;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71",
-                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
-                  "-C15Aro_SR2", "78", "-MixingHI", "400"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-C15Sat_SR2");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);
@@ -516,13 +519,10 @@ TEST(TestGenex0dInputManager, TestMissingC15Sat_SR2)
 
 TEST(TestGenex0dInputManager, TestMissingMixinHI_SR2)
 {
-  int argc = 47;
-  char* argv[] = {"genex0d", "-project", "AcquiferScale1.project3d", "-out", "outProj.project3d", "-formation", "Formation6", "-SRType", "Type I - Lacustrine",
-                  "-X", "2005.0", "-Y", "8456.0", "-TOC", "10.0", "-HC", "1.2", "-SC", "0.01", "-EA", "211", "-VesLimit", "10", "-Asph", "87", "-Resin", "80",
-                  "-C15Aro", "77", "-C15Sat", "71",
-                  "-SRType_SR2", "Type_II_Paleozoic_Marine_Shale_kin_s", "-HC_SR2", "1.13", "-SC_SR2", "0.0", "-EA_SR2", "210", "-Asph_SR2", "90", "-Resin_SR2", "84",
-                  "-C15Aro_SR2", "78", "-C15Sat_SR2", "73"};
-  Genex0d::Genex0dInputManager inputMgr(argc, argv);
+  std::vector<std::string> argvVector = generateFullInput();
+  removeArgumentAndValueFromInput(argvVector, "-MixingHI");
+
+  Genex0d::Genex0dInputManager inputMgr(argvVector);
   std::string ioErrorMssgActual = "";
   EXPECT_EQ(inputMgr.initialCheck(ioErrorMssgActual), Genex0d::Genex0dInputManager::NO_EXIT);
   EXPECT_EQ(inputMgr.storeInput(ioErrorMssgActual), Genex0d::Genex0dInputManager::WITH_ERROR_EXIT);

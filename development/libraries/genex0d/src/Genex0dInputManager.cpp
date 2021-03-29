@@ -18,9 +18,8 @@
 namespace Genex0d
 {
 
-Genex0dInputManager::Genex0dInputManager(int argc, char** argv) :
-  m_argc{argc},
-  m_argv{argv},
+Genex0dInputManager::Genex0dInputManager(const std::vector<std::string>& arguments) :
+  m_argv{arguments},
   m_inputData{},
   m_argumentFields{}
 {
@@ -29,7 +28,7 @@ Genex0dInputManager::Genex0dInputManager(int argc, char** argv) :
 
 Genex0dInputManager::ExitStatus Genex0dInputManager::initialCheck(std::string & ioErrorMessage) const
 {
-  if (m_argc <= 2 || std::strcmp(m_argv[1], "-help") == 0)
+  if (m_argv.size() <= 2 || m_argv[1] == "-help")
   {
     printHelp();
     return NO_ERROR_EXIT;
@@ -162,6 +161,11 @@ Genex0dInputManager::ExitStatus Genex0dInputManager::checkInputIsValid(std::stri
       ioErrorMessage = "An adsorption capacity function was provided, but no adsorption capacity function data";
       return WITH_ERROR_EXIT;
     }
+    if (m_inputData.irreducibleWaterSaturationData.empty())
+    {
+      ioErrorMessage = "An adsorption capacity function was provided, but no irreducible water saturation data";
+      return WITH_ERROR_EXIT;
+    }
   }
 
   if (m_inputData.whichAdsorptionSimulator.empty())
@@ -276,6 +280,7 @@ void Genex0dInputManager::setArgumentFieldNames()
   m_argumentFields["-AdsSimulator"] = 0;
   m_argumentFields["-AdsLangmuirTpvTable"] = 0;
   m_argumentFields["-AdsCapacityFunc"] = 0;
+  m_argumentFields["-AdsIrrWatSat"] = 0;
   m_argumentFields["-doOTGC"] = 0;
 
   // Source Rock 2 parameters (optional)
@@ -394,6 +399,10 @@ void Genex0dInputManager::storeArgument(const std::string& argument, const std::
   {
     m_inputData.adsorptionFunctionTPVData = argumentValue;
   }
+  else if (argument == "-AdsIrrWatSat")
+  {
+    m_inputData.irreducibleWaterSaturationData = argumentValue;
+  }
   else if (argument == "-doOTGC")
   {
     if (argumentValue == "1")
@@ -443,12 +452,12 @@ void Genex0dInputManager::storeArgument(const std::string& argument, const std::
 
 Genex0dInputManager::ExitStatus Genex0dInputManager::storeInput(std::string & ioErrorMessage)
 {
-  for (int argn = 1; argn < m_argc; ++argn)
+  for (int argn = 1; argn < m_argv.size(); ++argn)
   {
     const std::string argument = std::string(m_argv[argn]);
 
     // Check if the last argument has a value (needs to be checked separately to initialize argumentValue
-    if (argn + 1 >= m_argc)
+    if (argn + 1 >= m_argv.size())
     {
       ioErrorMessage = "Input error! Empty argument provided for: " + argument;
       return WITH_ERROR_EXIT;

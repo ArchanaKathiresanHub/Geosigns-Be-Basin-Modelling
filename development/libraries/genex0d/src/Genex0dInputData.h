@@ -42,6 +42,7 @@ struct Genex0dInputData
   std::string whichAdsorptionSimulator;
   std::string whichAdsorptionFunction;
   std::string adsorptionFunctionTPVData;
+  std::string irreducibleWaterSaturationData;
   double HCVRe05SR2;
   double SCVRe05SR2;
   double activationEnergySR2;
@@ -51,7 +52,6 @@ struct Genex0dInputData
   double C15SatDiffusionEnergySR2;
   std::string sourceRockTypeSR2;
   double mixingHI;
-
 
   Genex0dInputData(const double xCoord = CauldronNoDataValue,
                    const double yCoord = CauldronNoDataValue,
@@ -74,6 +74,7 @@ struct Genex0dInputData
                    const std::string& whichAdsorptionSimulator = "",
                    const std::string& whichAdsorptionFunction = "",
                    const std::string& adsorptionFunctionData = "",
+                   const std::string& irreducibleWaterSaturationData = "",
                    const double HCVRe05SR2 = CauldronNoDataValue,
                    const double SCVRe05SR2 = CauldronNoDataValue,
                    const double activationEnergySR2 = CauldronNoDataValue,
@@ -104,6 +105,7 @@ struct Genex0dInputData
     whichAdsorptionSimulator{whichAdsorptionSimulator},
     whichAdsorptionFunction{whichAdsorptionFunction},
     adsorptionFunctionTPVData{adsorptionFunctionData},
+    irreducibleWaterSaturationData{irreducibleWaterSaturationData},
     HCVRe05SR2{HCVRe05SR2},
     SCVRe05SR2{SCVRe05SR2},
     activationEnergySR2{activationEnergySR2},

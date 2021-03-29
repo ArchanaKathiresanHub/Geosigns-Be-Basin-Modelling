@@ -19,7 +19,7 @@
 #include "cauldronschemafuncs.h"
 #include "ProjectFileHandler.h"
 #include "LangmuirAdsorptionIsothermSample.h"
-
+#include "IrreducibleWaterSaturationSample.h"
 //
 #include "SimulationDetails.h"
 
@@ -96,6 +96,7 @@ bool Genex0dSimulator::saveTo(const std::string & outputFileName)
 
 void Genex0dSimulator::setLangmuirData(const std::string& adsorptionFunctionTPVData, const std::string& langmuirName)
 {
+  deleteLangmuirIsotherms();
   m_langmuirIsotherms.clear();
   std::stringstream stream(adsorptionFunctionTPVData);
 
@@ -105,6 +106,22 @@ void Genex0dSimulator::setLangmuirData(const std::string& adsorptionFunctionTPVD
   while (stream >> temperature >> pressure >> volume)
   {
     m_langmuirIsotherms.push_back(new DataAccess::Interface::LangmuirAdsorptionIsothermSample(*this, langmuirName, std::stod(temperature), std::stod(pressure), std::stod(volume)));
+  }
+}
+
+void Genex0d::Genex0dSimulator::setIrreducibleWaterSaturationData(const string &irreducibleWaterSaturationData)
+{
+  deleteIrreducibleWaterSaturationSample();
+
+  if (irreducibleWaterSaturationData != "")
+  {
+    std::stringstream stream(irreducibleWaterSaturationData);
+    std::string coeffA;
+    std::string coeffB;
+
+    stream >> coeffA >> coeffB;
+
+    m_irreducibleWaterSample = new DataAccess::Interface::IrreducibleWaterSaturationSample(*this, std::stod(coeffA), std::stod(coeffB));
   }
 }
 

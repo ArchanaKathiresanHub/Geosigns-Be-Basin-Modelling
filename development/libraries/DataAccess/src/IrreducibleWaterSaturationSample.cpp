@@ -10,6 +10,12 @@ DataAccess::Interface::IrreducibleWaterSaturationSample::IrreducibleWaterSaturat
    m_coeffB = database::getCoefficientB ( record );
 }
 
+DataAccess::Interface::IrreducibleWaterSaturationSample::IrreducibleWaterSaturationSample(DataAccess::Interface::ProjectHandle &projectHandle, const double coeffA, const double coeffB) :
+  DAObject(projectHandle, nullptr),
+  m_coeffA{coeffA},
+  m_coeffB{coeffB}
+{
+}
 
 DataAccess::Interface::IrreducibleWaterSaturationSample::~IrreducibleWaterSaturationSample ()
 {

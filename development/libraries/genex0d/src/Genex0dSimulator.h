@@ -44,7 +44,8 @@ public:
            const std::vector<double>& porosity);
   bool saveTo(const std::string & outputFileName);
   void setLangmuirData(const std::string& adsorptionFunctionTPVData, const std::string& langmuirName);
-  
+  void setIrreducibleWaterSaturationData(const std::string& irreducibleWaterSaturationData);
+
 private:
   void setRequestedOutputProperties();
   void setRequestedSpeciesOutputProperties();
