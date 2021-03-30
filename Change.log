@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-03-30  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: All properties flag does not work for minor snapshots.
+	* When user specifies -allproperties, fewer output is generated
+
+	* Related work items: #420560
+
+	================== COMMIT-END ========================
+	Commit-ID:<6d699f3c6161fb9a833cd3bf78260bd00f6f3bb4>	  (refs/heads/master)
+
+++
 2021-03-29  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Added Irreducible water saturation as arguments for GOTF.
