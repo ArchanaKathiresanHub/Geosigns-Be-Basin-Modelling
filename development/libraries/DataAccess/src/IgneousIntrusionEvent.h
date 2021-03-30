@@ -34,7 +34,7 @@ namespace DataAccess
          virtual double getStartOfIntrusion () const;
 
          /// \brief Get the age at which the intrusion finishes to inflate.
-         virtual const Snapshot* getEndOfIntrusion () const;
+         virtual double getEndOfIntrusion() const;
 
 
          /// \brief Return the strnig representation of the intrusion event object.

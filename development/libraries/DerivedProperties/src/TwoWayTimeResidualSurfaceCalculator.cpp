@@ -114,10 +114,6 @@ void DerivedProperties::TwoWayTimeResidualSurfaceCalculator::calculate( Abstract
       derivedProperties.push_back( twoWayTimeResidual );
    }
 
-   else{
-      throw TwoWayTimeResidualException() << "Cannot get two-way-time residual dependent property 'two-way-time'.";
-   }
-
    if (twoWayTimeInitialMap) {
       twoWayTimeInitialMap->restoreData();
    }

@@ -46,8 +46,8 @@ double DataAccess::Interface::IgneousIntrusionEvent::getStartOfIntrusion () cons
    return m_snapshot->getTime () + IgneousIntrusionEventDuration;
 }
 
-const DataAccess::Interface::Snapshot* DataAccess::Interface::IgneousIntrusionEvent::getEndOfIntrusion () const {
-   return m_snapshot;
+double DataAccess::Interface::IgneousIntrusionEvent::getEndOfIntrusion () const {
+   return m_snapshot->getTime ();
 }
 
 
@@ -58,7 +58,7 @@ std::string DataAccess::Interface::IgneousIntrusionEvent::image () const {
    buffer << "Igneous intrusion event." << std::endl;
    buffer << "  associated formation  : " << m_formation->getName () << std::endl;
    buffer << "  intrusion start age   : " << getStartOfIntrusion () << std::endl;
-   buffer << "  intrusion end age     : " << getEndOfIntrusion ()->getTime () << std::endl;
+   buffer << "  intrusion end age     : " << getEndOfIntrusion () << std::endl;
 
    return buffer.str ();
 }

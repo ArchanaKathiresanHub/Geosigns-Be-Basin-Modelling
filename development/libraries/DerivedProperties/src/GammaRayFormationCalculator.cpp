@@ -25,8 +25,6 @@
 
 using namespace AbstractDerivedProperties;
 
-typedef formattingexception::GeneralException GammaRayException;
-
 DerivedProperties::GammaRayFormationCalculator::GammaRayFormationCalculator( ) {
    addPropertyName ( "GammaRay" );
 
@@ -90,23 +88,7 @@ void DerivedProperties::GammaRayFormationCalculator::calculate(        AbstractP
       } // for each i
 
       derivedProperties.push_back( gammaRay );
-   } // if properties and formation are found
-   else{
-      std::string excepText = "Cannot get one of the gamma ray dependent properties and/or formations"; 
-      if(porosity == nullptr and formation == nullptr){
-         excepText += "(properties: porosity AND formation)";
-      }
-      else{
-         if(porosity == nullptr){
-           excepText += "(properties: porosity)";
-         }
-         else{
-           excepText += "(formation)";
-         }
-      }
-      throw GammaRayException() << excepText;
    }
-
 }
 
 bool DerivedProperties::GammaRayFormationCalculator::isComputable( const AbstractPropertyManager&      propManager,

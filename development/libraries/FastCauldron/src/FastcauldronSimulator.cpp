@@ -2105,7 +2105,7 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
 
    if( getModellingMode () == Interface::MODE1D )
    {
-     m_cauldron->setPrimaryOutput( false );
+     m_cauldron->setOnlyPrimaryOutput( false );
      m_cauldron->setNo2Doutput( false );
    }
    else
@@ -2122,7 +2122,7 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
      setPrimaryDouble( onlyPrimaryDouble );
 
      const bool doPrimary = onlyPrimaryFloat || onlyPrimaryDouble;
-     m_cauldron->setPrimaryOutput( doPrimary );
+     m_cauldron->setOnlyPrimaryOutput( doPrimary );
      m_cauldron->setNo2Doutput( doPrimary );
 
      H5_Parallel_PropertyList::setOneFilePerProcessOption ();

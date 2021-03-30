@@ -180,11 +180,7 @@ void DerivedProperties::TwoWayTimeFormationCalculator::calculate(      AbstractP
       } // for each i
 
       derivedProperties.push_back( twoWayTime );
-   } // if properties and formation are found
-   else{
-      throw TwoWayTimeException() << "Cannot get one of the two-way-time dependent properties or formation.";
    }
-
 }
 
 bool DerivedProperties::TwoWayTimeFormationCalculator::isComputable( const AbstractPropertyManager&      propManager,

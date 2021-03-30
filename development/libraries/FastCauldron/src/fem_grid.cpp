@@ -302,7 +302,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
     mapOutputProperties.push_back ( VES );
     mapOutputProperties.push_back ( VR );
 
-    if ( !basinModel->primaryOutput() )
+    if ( !basinModel->onlyPrimaryOutput() )
     {
       mapOutputProperties.push_back ( BULKDENSITYVEC );
       mapOutputProperties.push_back ( DIFFUSIVITYVEC );
@@ -386,7 +386,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
     genexOutputProperties.push_back ( VES );
     genexOutputProperties.push_back ( VR );
   }
-  if (not basinModel->primaryOutput()) {
+  if ( !basinModel->onlyPrimaryOutput()) {
      genexOutputProperties.push_back ( EROSIONFACTOR );
   }
 
@@ -406,7 +406,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
     shaleGasOutputProperties.push_back ( VES );
     shaleGasOutputProperties.push_back ( VR );
   }
-  if (not basinModel->primaryOutput()) {
+  if ( !basinModel->onlyPrimaryOutput()) {
      shaleGasOutputProperties.push_back ( EROSIONFACTOR );
   }
 
@@ -549,7 +549,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   //--------------------------------------
   //Set the derived volume properties that may be required for the simulation
 
-  if( not basinModel->primaryOutput() ) {
+  if( !basinModel->onlyPrimaryOutput() ) {
      m_volumeOutputProperties.push_back ( BRINEDENSITY );
      m_volumeOutputProperties.push_back ( BRINEVISCOSITY );
      m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
@@ -583,30 +583,23 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   //--------------------------------------
   // Not clear to us why we need this list, this will need to be checked when revising properties
 
-  PetscBool addMinorProperties;
-  PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-minor", &addMinorProperties );
+  looselyCoupledOutputProperties = m_volumeOutputProperties;
 
-  if ( addMinorProperties || basinModel->primaryOutput() ) {
-     looselyCoupledOutputProperties.push_back( CHEMICAL_COMPACTION );
-     looselyCoupledOutputProperties.push_back( PRESSURE );
-     looselyCoupledOutputProperties.push_back( TEMPERATURE );
-     looselyCoupledOutputProperties.push_back( VR );
-     looselyCoupledOutputProperties.push_back( DEPTH );
+  if ( !basinModel->onlyPrimaryOutput() ) {
+     looselyCoupledOutputMapProperties = mapOutputProperties;
   }
-  if ( basinModel->primaryOutput() ) {
+  else
+  {
      looselyCoupledOutputMapProperties.push_back( EROSIONFACTOR );
   }
 
-  if (basinModel->primaryOutput() and FastcauldronSimulator::getInstance().getCalculationMode() != OVERPRESSURE_MODE) {
+  if (FastcauldronSimulator::getInstance().getCalculationMode() != OVERPRESSURE_MODE) {
      basinModel->timefilter.setFilter("Depth", "SedimentsPlusBasement");
      FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
 
      basinModel->timefilter.setFilter("Temperature", "SedimentsPlusBasement");
      FastcauldronSimulator::getInstance().setOutputPropertyOption( TEMPERATURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
   }
-
-  looselyCoupledOutputProperties.push_back( MAXVES );
-  looselyCoupledOutputProperties.push_back( VES );
 
 
   //2.2 Debug properties------------------
@@ -1544,9 +1537,8 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double currentTime ) {
   PetscLogDouble End_Time;
 
   PetscTime(&Start_Time);
-  if (   ( currentTime == (*majorSnapshots)->time ()  )
-      || (    basinModel->isModellingMode1D()
-           && basinModel->projectSnapshots.isMinorSnapshot ( currentTime, minorSnapshots ) ) ) // 1D model: save minor AND major timesteps
+  if ( ( currentTime == (*majorSnapshots)->time () ) ||
+       ( basinModel->isModellingMode1D() && basinModel->projectSnapshots.isMinorSnapshot ( currentTime, minorSnapshots ) ) ) // 1D model: save minor AND major timesteps
   {
 
      const Interface::Snapshot* snapshot = FastcauldronSimulator::getInstance ().findOrCreateSnapshot ( currentTime );

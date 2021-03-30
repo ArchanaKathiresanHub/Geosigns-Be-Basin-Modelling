@@ -24,7 +24,6 @@
 
 #include "SonicFormationCalculator.h"
 
-typedef formattingexception::GeneralException SonicException;
 using namespace AbstractDerivedProperties;
 
 DerivedProperties::SonicFormationCalculator::SonicFormationCalculator() {
@@ -91,12 +90,7 @@ void DerivedProperties::SonicFormationCalculator::calculate(       AbstractPrope
       }
 
       derivedProperties.push_back ( sonic );
-   }
-
-   else{
-      throw SonicException() << "Cannot get sonic slowness dependent property 'velocity'.";
-   }
-
+   } 
 }
 
 double DerivedProperties::SonicFormationCalculator::calculateAtPosition( const GeoPhysics::GeoPhysicsFormation* /*formation*/,

@@ -90,7 +90,7 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
 {
    m_saveOnDarcyError = false;
    m_no2Doutput = false;
-   m_primaryOutput = false;
+   m_onlyPrimaryOutput = false;
 
    Reference_DA_For_Io_Maps = 0;
 
@@ -523,8 +523,7 @@ void AppCtx::printHelp () const {
   helpBuffer << "    -refinenumberedforms <form1,ref1,form2,ref2,...>" << endl
              << "                                Refine a selected set of the formations, formations are indicated by position from top, ref_i > 0." << endl;
   helpBuffer << "    -fcvesscale <val>           VES scaling factor when initialising the solid-thicknesses in the geometric loop pressure calculation, default value is " << DefaultVesScalingForFctInitialisation << endl;
-  helpBuffer << "    -minor                      Output Pressure, Depth, Temperature, Chemical Compaction volume properties at minor snapshots times." << endl;
-  helpBuffer << "                                Runs high resolution decompaction at major and minor snapshot times." << endl;
+  helpBuffer << "    -minor                      Runs high resolution decompaction at major and minor snapshot times." << endl;
 
   helpBuffer << endl;
   helpBuffer << endl;

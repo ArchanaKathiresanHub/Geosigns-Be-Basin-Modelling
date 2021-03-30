@@ -5697,7 +5697,7 @@ double ProjectHandle::getPreviousIgneousIntrusionTime( const double Current_Time
    MutableIgneousIntrusionEventList::const_iterator intrusionIter;
    for ( intrusionIter = m_igneousIntrusionEvents.begin(); intrusionIter != m_igneousIntrusionEvents.end(); ++intrusionIter )
    {
-      if ( Current_Time == (*intrusionIter)->getEndOfIntrusion()->getTime() )
+      if ( Current_Time == (*intrusionIter)->getEndOfIntrusion() )
       {
          m_previousIgneousIntrusionTime = Current_Time;
       }

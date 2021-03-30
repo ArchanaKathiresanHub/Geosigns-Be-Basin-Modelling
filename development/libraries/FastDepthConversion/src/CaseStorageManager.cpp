@@ -178,11 +178,14 @@ void CaseStorageManager::CopyTemporaryToMasterHDFMaps()
   if (m_rank == 0)
   {
     m_masterResultsFilePath.remove();
-    if (!m_casePathResultsHDFFile.copyFile(m_masterResultsFilePath)) { exception_rank0 == 1; }
+    if (!m_casePathResultsHDFFile.copyFile(m_masterResultsFilePath))
+    {
+      exception_rank0 == 1;
+    }
     m_casePath.remove();
     if (!m_fullMasterDirPath.setPath())
     {
-      throw T2Zexception() << " Cannot change to the master directory " << m_fullMasterDirPath.path();
+      exception_rank0 == 2;
     }
     setOriginalCaseProjectFilePath();
   }
@@ -193,6 +196,10 @@ void CaseStorageManager::CopyTemporaryToMasterHDFMaps()
   if(exception_rank0 == 1)
   {
     throw T2Zexception() << "Cannot copy the result file to " << m_masterResultsFilePath.fullPath().path();
+  }
+  if(exception_rank0 == 2)
+  {
+    throw T2Zexception() << " Cannot change to the master directory " << m_fullMasterDirPath.path();
   }
 }
 

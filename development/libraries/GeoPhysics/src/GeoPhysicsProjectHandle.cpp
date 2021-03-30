@@ -1320,7 +1320,7 @@ bool GeoPhysics::ProjectHandle::setIgneousIntrusionThicknessHistory ( const unsi
 
    const Interface::IgneousIntrusionEvent* intrusionEvent = formation->getIgneousIntrusionEvent ();
 
-   const double endOfIntrusionAge = intrusionEvent->getEndOfIntrusion ()->getTime ();
+   const double endOfIntrusionAge = intrusionEvent->getEndOfIntrusion ();
    const double startOfIntrusionAge = intrusionEvent->getStartOfIntrusion ();
    const double formationInclusionAge = formation->getTopSurface ()->getSnapshot ()->getTime ();
 
