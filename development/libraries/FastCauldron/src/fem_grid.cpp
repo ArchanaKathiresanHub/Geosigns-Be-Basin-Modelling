@@ -593,12 +593,15 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      looselyCoupledOutputMapProperties.push_back( EROSIONFACTOR );
   }
 
-  if (FastcauldronSimulator::getInstance().getCalculationMode() != OVERPRESSURE_MODE) {
-     basinModel->timefilter.setFilter("Depth", "SedimentsPlusBasement");
-     FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-
-     basinModel->timefilter.setFilter("Temperature", "SedimentsPlusBasement");
-     FastcauldronSimulator::getInstance().setOutputPropertyOption( TEMPERATURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+  if (FastcauldronSimulator::getInstance().getCalculationMode() != OVERPRESSURED_TEMPERATURE_MODE)
+  {
+    basinModel->timefilter.setFilter("Depth", "SedimentsPlusBasement");
+    FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+  }
+  if (FastcauldronSimulator::getInstance().getCalculationMode() != OVERPRESSURE_MODE)
+  {
+    basinModel->timefilter.setFilter("Temperature", "SedimentsPlusBasement");
+    FastcauldronSimulator::getInstance().setOutputPropertyOption( TEMPERATURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
   }
 
 
