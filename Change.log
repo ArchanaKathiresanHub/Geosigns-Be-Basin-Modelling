@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-07  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix loosely coupled mode.
+	* Fix loosely coupled mode
+
+	================== COMMIT-END ========================
+	Commit-ID:<e552fc946af9ee5b198ea1def427c11c08ec3c7a>	  (refs/heads/master)
+
+++
 2021-03-30  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: All properties flag does not work for minor snapshots.
