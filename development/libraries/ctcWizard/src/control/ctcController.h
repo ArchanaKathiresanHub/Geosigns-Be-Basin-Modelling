@@ -13,6 +13,15 @@ class CtcScenario;
 class Controller;
 class CTCtab;
 
+struct theDefaults
+{
+    static const QString InitialCrustThickness;
+    static const QString     InitialMantleThickness;
+    static const QString     SmoothingRadius;
+    static const QString     RDA;
+    static const QString     BasaltThickness;
+};
+
 class CTCcontroller : public QObject
 {
   Q_OBJECT
@@ -35,7 +44,7 @@ private slots:
 private:
   QString createProject3dwithCTCUIinputs(const QString& scenarioFolderPath);
   void updateProjectTxtFile(const QString& scenarioFolderPath);
-  bool checkfastCauldronResultsAvailable(const QString& fastcldrnRunMode);
+  bool isFastCauldronResultsAvailable(const QString& fastcldrnRunMode) const;
   bool validateCTCinputFields();
   void upateProject3dfileToStoreOutputs(const QString& filePath);
 

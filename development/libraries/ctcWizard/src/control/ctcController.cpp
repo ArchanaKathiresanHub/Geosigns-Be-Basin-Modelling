@@ -24,6 +24,11 @@
 
 namespace ctcWizard
 {
+	const QString theDefaults::InitialCrustThickness = "35000.0";
+	const QString     theDefaults::InitialMantleThickness = "90000.0";
+	const QString     theDefaults::SmoothingRadius = "0";
+	const QString     theDefaults::RDA = "0.0";
+	const QString     theDefaults::BasaltThickness = "7000.0";
 
 CTCcontroller::CTCcontroller(CTCtab* ctcTab,
                              CtcScenario& ctcScenario,
@@ -168,7 +173,7 @@ QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFol
                     if(RDA_Map ==  ctcScenario_.riftingHistory()[iRow].RDA_Map)
                     {
                         RDAMap = "MAP-" + QString::number(iCnt);
-                        RDAScalar = "-9999";
+                        //RDAScalar = "-9999";
                         break;
                     }
                     iCnt++;
@@ -181,7 +186,7 @@ QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFol
                     if(Basalt_Thck_Map ==  ctcScenario_.riftingHistory()[iRow].Basalt_Thickness_Map)
                     {
                         BasaltMap = "MAP-" + QString::number(iCnt);
-                        BasaltScalar = "-9999";
+                        //BasaltScalar = "-9999";
                         break;
                     }
                     iCnt++;
@@ -409,7 +414,7 @@ bool CTCcontroller::validateCTCinputFields()
         mainController_->log("- Invalid Input for: Initial Mantle Thickness");
         isValidFieldValues = false;
     }
-
+    // Smoothing Radius is actually the no. of cells to consider for map smoothing
     value = ctcScenario_.lithosphereParameters()[2].value.toInt(&validate);
     if(!validate)
     {
@@ -459,17 +464,17 @@ void CTCcontroller::slotPushButtonCTCrunCtcClicked()
             fastcldrnRunMode = ctcScenario_.runMode();
         if(isValidFieldValues)
         {
-            bool isResultsAvailable = checkfastCauldronResultsAvailable(fastcldrnRunMode);
+            bool isResultsAvailable = isFastCauldronResultsAvailable(fastcldrnRunMode);
             if(!isResultsAvailable)
             {
-                mainController_->log("- Fastcauldron results not exist");
-                mainController_->log("- !!!Run Fastcauldron");
+                mainController_->log("- Cauldron results not exist");
+                mainController_->log("- !!!Run Cauldron");
             }
             else
             {
                 QString scenarioFolderPath = mainController_->createCTCscenarioFolder(ctcScenario_.project3dPath());
                 QString ctcFilenameWithPath = createProject3dwithCTCUIinputs(scenarioFolderPath);
-                mainController_->executeCtcScript(ctcFilenameWithPath);
+                mainController_->executeCtcScript(ctcFilenameWithPath, ctcScenario_.numProc());
                 mainController_->mapOutputCtcScript(ctcFilenameWithPath);
                 updateProjectTxtFile(scenarioFolderPath);
             }
@@ -478,7 +483,7 @@ void CTCcontroller::slotPushButtonCTCrunCtcClicked()
 
 }
 
-bool CTCcontroller::checkfastCauldronResultsAvailable(const QString& fastcldrnRunMode)
+bool CTCcontroller::isFastCauldronResultsAvailable(const QString& fastcldrnRunMode) const
 {
 
     QString project3dFile = ctcTab_->lineEditProject3D()->text();
@@ -511,7 +516,7 @@ bool CTCcontroller::checkfastCauldronResultsAvailable(const QString& fastcldrnRu
         QFile resFile(dir.filePath("HydrostaticTemperature_Results.HDF"));
         if(!resFile.exists()) return false;
     }
-    else if(fastcldrnRunMode.contains("Thermal/Pressure"))
+    else if(fastcldrnRunMode.contains("Iteratively Coupled"))
     {
         QFile resFile(dir.filePath("PressureAndTemperature_Results.HDF"));
         if(!resFile.exists()) return false;
@@ -530,7 +535,7 @@ void CTCcontroller::slotpushButtonRunFastCauldronClicked()
         bool validate;
         double value;
         bool isValidFieldValues;
-        int iMaxNumProc = 10;
+        int iMaxNumProc = 1000;
         QString fastcldrnRunMode;
         value = ctcScenario_.numProc().toInt(&validate);
 
@@ -541,13 +546,13 @@ void CTCcontroller::slotpushButtonRunFastCauldronClicked()
 
         if(!validate)
         {
-            mainController_->log("- Invalid Input for: Number of Processors (Fastcauldron)");
+            mainController_->log("- Invalid Input for: Number of Processors (Cauldron)");
             isValidFieldValues = false;
         }
         else if(value > iMaxNumProc)
         {
-            mainController_->log("- Invalid Input for: Number of Processors (Fastcauldron)");
-            mainController_->log("- Number of Processors for Fastcauldron should not exceed 10");
+            mainController_->log("- Invalid Input for: Number of Processors (Cauldron)");
+            mainController_->log("- Number of Processors for Cauldron run should not exceed 1000");
             isValidFieldValues = false;
         }
         else {
@@ -557,15 +562,15 @@ void CTCcontroller::slotpushButtonRunFastCauldronClicked()
         if(isValidFieldValues)
         {
             upateProject3dfileToStoreOutputs(ctcScenario_.project3dPath());
-            bool isResultsAvailable = checkfastCauldronResultsAvailable(fastcldrnRunMode);
+            bool isResultsAvailable = isFastCauldronResultsAvailable(fastcldrnRunMode);
             if(!isResultsAvailable)
             {
-                mainController_->log("- Fastcauldron results not exist for run mode: " + fastcldrnRunMode);
+                mainController_->log("- Cauldron results not exist for Cauldron mode: " + fastcldrnRunMode);
                 mainController_->executeFastcauldronScript(ctcScenario_.project3dPath(), fastcldrnRunMode, ctcScenario_.numProc());
             }
             else
             {
-                mainController_->log("- Fastcauldron results already exist");
+                mainController_->log("- Cauldron results already exist for " + fastcldrnRunMode);
             }
         }
     }
@@ -585,26 +590,31 @@ void CTCcontroller::slotpushButtonExportCTCoutputMapsClicked()
     if(fileList.empty())
     {
         mainController_->log("");
-        mainController_->log("- Selected Senario folder doesn't contain CTC output maps!!!");
+        mainController_->log("- Selected Scenario folder doesn't contain CTC output maps!!!");
         mainController_->log("- Please select valid CTC Scenario folder!!!");
     }
     else
     {
         QStringList strLst = fileList[0].split(".");
-        QDir ctcOutputDir(scenarioFolder + "/" + strLst[0] + "_ctc_out_CauldronOutputDir");
+#ifdef Q_OS_WIN
+    QDir ctcOutputDir(scenarioFolder + "/" + strLst[0] + "_ctc_out_CauldronOutputDir" + ".lnk");
+#endif
+#ifdef Q_OS_LINUX
+    QDir ctcOutputDir(scenarioFolder + "/" + strLst[0] + "_ctc_out_CauldronOutputDir");
+#endif   
         if(!ctcOutputDir.exists())
         {
             //
             mainController_->log("");
-            mainController_->log("- Selected Senario folder doesn't contain CTC output maps!!!");
+            mainController_->log("- Selected Scenario folder doesn't contain CTC output maps!!!");
             mainController_->log("- Please select valid CTC Scenario folder!!!");
         }
         else
         {
             mainController_->log("");
-            mainController_->log("This CTC Scenario is used to create Scenario for ALC Workflow: ");
+            mainController_->log("This CTC Scenario is used to create Scenario for ALC Work-flow: ");
             mainController_->createScenarioForALC(scenarioFolder);
-            mainController_->deleteAllCTCscenarios(scenarioFolder);
+            //mainController_->deleteAllCTCscenarios(scenarioFolder);
         }
     }
 
@@ -663,9 +673,9 @@ void CTCcontroller::slotPushSelectProject3dClicked()
       }
       else
       {
-          ctcScenario_.addLithosphereParameter("Initial Crust Thickness [m]", "35000");
-          ctcScenario_.addLithosphereParameter("Initial Mantle Thickness [m]", "115000");
-          ctcScenario_.addLithosphereParameter("Smoothing Radius [number of cells]", "10");
+          ctcScenario_.addLithosphereParameter("Initial Crust Thickness [m]", theDefaults::InitialCrustThickness);
+          ctcScenario_.addLithosphereParameter("Initial Mantle Thickness [m]", theDefaults::InitialMantleThickness);
+          ctcScenario_.addLithosphereParameter("Smoothing Radius [number of cells]", theDefaults::SmoothingRadius);
       }
 
       // Rifting History Table
@@ -761,11 +771,11 @@ void CTCcontroller::slotPushSelectProject3dClicked()
               }
 
               if(i == 0)
-                  ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Flexural Basin","-300","","7000","");
+                  ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Flexural Basin",theDefaults::RDA,"",theDefaults::BasaltThickness,"");
               else if(i == stratIoTblVector.size() - 1)
-                  ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Active Rifting","-300","","7000","");
+                  ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Active Rifting", theDefaults::RDA, "", theDefaults::BasaltThickness, "");
               else
-                  ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Passive Margin","-300","","7000","");
+                  ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Passive Margin", theDefaults::RDA, "", theDefaults::BasaltThickness, "");
           }
       }
 
@@ -789,7 +799,7 @@ void CTCcontroller::slotPushSelectProject3dClicked()
 
       mainController_->log("Selected Scenario: \"" + info.absoluteDir().path() + "\"");
       mainController_->log("Loaded project3d file in CTC-UI: \"" + info.fileName() + "\"");
-      mainController_->log("- If RDA Adjustment Maps or Basalt Thickness Maps are selected, then respective scalar values are not considerd !!!");
+      mainController_->log("- If RDA Adjustment Maps or Basalt Thickness Maps are selected, then respective scalar values are not considered !!!");
   }
 
 }

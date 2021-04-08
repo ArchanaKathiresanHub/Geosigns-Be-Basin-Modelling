@@ -246,6 +246,12 @@ find_package(NNlib REQUIRED CONFIG)
 find_package(LSF REQUIRED CONFIG)
 find_package(PugiXMLlib REQUIRED CONFIG)
 find_package(LZlib REQUIRED CONFIG)
+## for ctcWizard on Windows
+## download and install Qt5 from the official site_name
+## make sure Qt5 directory path is added to %PATH% evn var on Windows.
+if (WIN32)
+	find_package(Qt5 COMPONENTS Core Gui Widgets Svg CONFIG) 
+endif(WIN32)
 
 if (UNIX)
    find_package(FlexLM REQUIRED CONFIG)

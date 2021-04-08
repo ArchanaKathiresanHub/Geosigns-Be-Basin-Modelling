@@ -14,13 +14,7 @@ QStringList CtcScenario::riftingHistoryOptions_ = QStringList() << "Active Rifti
 QStringList CtcScenario::riftingHistoryRDAMaps_ = QStringList() << "";
 QStringList CtcScenario::riftingHistoryBasaltMaps_ = QStringList() << "";
 
-CtcScenario::CtcScenario() :
-  ctcFilePathCTC_(""),
-  project3dPath_(""),
-  numProc_(""),
-  runMode_(""),
-  lithosphereParameters_(),
-  riftingHistory_{}
+CtcScenario::CtcScenario()
 {
     addLithosphereParameter("Initial Crust Thickness [m]","");
     addLithosphereParameter("Initial Mantle Thickness [m]","");

@@ -182,7 +182,7 @@ int main (int argc, char ** argv)
       return 1;
    }
    catch (...){
-      std::cout << "Basin_Fatal: Fatal error when initialising log file(s)";
+      std::cout << "Basin_Fatal: Fatal error when initializing log file(s)";
       return 1;
    }
 
@@ -197,11 +197,11 @@ int main (int argc, char ** argv)
       return -1;
    }
 
-   const int lineSize = 128;
-   char inputFileName[lineSize];
-   inputFileName[0] = '\0';
+   using namespace Utilities::Numerical;
+   char fname[MaxLineSize];
+   fname[0] = '\0';
 
-   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-project", inputFileName, lineSize, &isDefined);
+   PetscOptionsGetString(PETSC_IGNORE, PETSC_IGNORE, "-project", fname, MaxLineSize, &isDefined);
 
    if (!isDefined)  {
       LogHandler( LogHandler::ERROR_SEVERITY ) << "ERROR Error when reading the project file";
@@ -214,7 +214,7 @@ int main (int argc, char ** argv)
    PetscTime( &sim_Start_Time );
 
    CrustalThicknessCalculatorFactory factory;
-   std::unique_ptr<CrustalThicknessCalculator> crustalThicknessCalculator( CrustalThicknessCalculator::createFrom( inputFileName, &factory ));
+   std::unique_ptr<CrustalThicknessCalculator> crustalThicknessCalculator( CrustalThicknessCalculator::createFrom(fname, &factory ));
 
    if ( !crustalThicknessCalculator ) {
       LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not open the project file";

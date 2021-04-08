@@ -18,20 +18,20 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QDesktopWidget>
 
 namespace ctcWizard
 {
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
 {
-  setupUi();
+	setupUi(); resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
 }
 
 void MainWindow::setupUi()
 {
   setObjectName(QStringLiteral("MainWindow"));
-  setWindowTitle("CTC Wizard");
-  resize(1024, 768);
+  setWindowTitle("CTC Wizard:"+QString(CTCUI_VERSION));
   QSizePolicy sizePolicyNew(QSizePolicy::Expanding, QSizePolicy::Expanding);
   sizePolicyNew.setHorizontalStretch(1);
   sizePolicyNew.setVerticalStretch(1);

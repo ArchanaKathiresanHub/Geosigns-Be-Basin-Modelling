@@ -256,15 +256,13 @@ if (UNIX)
    endif()
 
 elseif(WIN32)
-   message(STATUS "Set environment for VS2015...")
-
    # First detect the Compiler
-   enable_language(CXX)
-   enable_language(C)
-
+	enable_language(CXX)
+	enable_language(C)
+	message(STATUS "Set environment for VS-${CMAKE_CXX_COMPILER_ID}_${CMAKE_CXX_COMPILER_VERSION}")
    # If required the MPI implementation
    if (BM_PARALLEL)
-
+	message (STATUS "setting BM_PARALLEL with MS-MPI on Windows!")
       set( MPIEXEC "${MPI_ROOT}/bin/mpiexec.exe" CACHE FILEPATH "Location of mpiexec command" )
       set( MPIRUN "${MPI_ROOT}/bin/mpiexec.exe" CACHE FILEPATH "Location of mpirun command" )
 
