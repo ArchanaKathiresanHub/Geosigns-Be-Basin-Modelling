@@ -547,8 +547,8 @@ void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* pro
          m_bottomOfSedimentSurface = formationCrust->getTopSurface();
       }
    }
-   //1.2 If the base of the rift is the not base of the stratigraphy (ie. crust layers in the stratigraphy)
-   // This is an R&D feature only which can be acctivated by edditing the project handle CTCIoTbl SurfaceName field
+   //1.2 If the base of the rift is the not base of the stratigraphy (i.e. crust layers in the stratigraphy)
+   // This is an R&D feature only which can be activated by editing the project handle CTCIoTbl SurfaceName field
    else {
       m_bottomOfSedimentSurface = projectHandle->findSurface( baseSurfaceName );
       if (m_bottomOfSedimentSurface == nullptr) {

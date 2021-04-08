@@ -18,7 +18,7 @@ LithosphereParameterTable::LithosphereParameterTable(QWidget *parent) : QWidget(
   tableWidgetLithosphereParameter_->setColumnCount(2);
   tableWidgetLithosphereParameter_->setHorizontalHeaderItem(0, new QTableWidgetItem("Lithosphere"));
   tableWidgetLithosphereParameter_->setHorizontalHeaderItem(1, new QTableWidgetItem("Value"));
-  QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Maximum);
+  QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
   sizePolicy1.setHorizontalStretch(1);
   sizePolicy1.setVerticalStretch(1);
   sizePolicy1.setHeightForWidth(tableWidgetLithosphereParameter_->sizePolicy().hasHeightForWidth());

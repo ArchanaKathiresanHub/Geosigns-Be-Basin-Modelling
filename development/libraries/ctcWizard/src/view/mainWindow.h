@@ -9,7 +9,7 @@ class QPushButton;
 
 namespace ctcWizard
 {
-
+	constexpr const char* CTCUI_VERSION = " 1.0";
 class CTCtab;
 
 class MainWindow : public QMainWindow

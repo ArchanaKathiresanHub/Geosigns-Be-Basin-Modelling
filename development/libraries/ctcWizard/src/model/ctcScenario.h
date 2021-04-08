@@ -51,11 +51,10 @@ public:
   static QStringList riftingHistoryRDAMaps_;
 
 private:
-  QString ctcFilePathCTC_;
-  QString project3dPath_;
-  QString numProc_;
-  QString runMode_;
-
+  QString ctcFilePathCTC_="";
+  QString project3dPath_="";
+  QString numProc_= "1";
+  QString runMode_="Decompaction";
   QVector<LithosphereParameter> lithosphereParameters_;
   QVector<RiftingHistory>  riftingHistory_;
 

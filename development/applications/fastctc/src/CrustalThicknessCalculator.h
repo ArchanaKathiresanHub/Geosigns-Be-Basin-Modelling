@@ -26,6 +26,7 @@
 
 // utilitites
 #include "FormattingException.h"
+#include "ConstantsNumerical.h"
 
 using namespace DataAccess;
 using namespace std;

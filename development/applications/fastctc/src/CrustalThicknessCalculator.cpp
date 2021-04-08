@@ -378,10 +378,10 @@ bool CrustalThicknessCalculator::parseCommandLine() {
    if (isDefined) {
       m_outputOptions |= HDF;
    }
-   char outputFileName[128];
+   char outputFileName[Utilities::Numerical::MaxLineSize];
    outputFileName[0] = '\0';
 
-   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-save", outputFileName, 128, &isDefined);
+   PetscOptionsGetString (PETSC_IGNORE, PETSC_IGNORE, "-save", outputFileName, Utilities::Numerical::MaxLineSize, &isDefined);
    if(isDefined) {
       m_outputFileName = outputFileName;
    }

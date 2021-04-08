@@ -21,7 +21,7 @@ CTCtab::CTCtab(QWidget* parent) :
   lineEditProject3D_{new QLineEdit(this)},
   lineEditNumProc_{new QLineEdit(this)},
   fastcldrnRunModeComboBox_{new QComboBox(this)},
-  pushButtonRunFastCauldron_{new QPushButton("Run Fastcauldron", this)},
+  pushButtonRunFastCauldron_{new QPushButton("Run Cauldron", this)},
   lithosphereParameterTable_{new LithosphereParameterTable(this)},
   riftingHistoryTable_{new RiftingHistoryTable(this)},
   pushButtonCTCrunCTC_{new QPushButton("Run CTC", this)},
@@ -68,16 +68,16 @@ CTCtab::CTCtab(QWidget* parent) :
   // Fastcauldron
   QGridLayout* fastCauldronGridLayout = new QGridLayout();
   fastCauldronGridLayout->setSpacing(6);
-  QLabel *numProc = new QLabel("Number of Processors (Fastcauldron):", this);
-  const QSize numProcSize = QSize(240, 30);
+  QLabel *numProc = new QLabel("Number of Processors (for HPC jobs):", this);
+  const QSize numProcSize = QSize(215, 30);
   numProc->setFixedSize(numProcSize);
   numProc->setLayoutDirection(Qt::LeftToRight);
   fastCauldronGridLayout->addWidget(numProc,0,0);
   //
-  lineEditNumProc_->setFixedWidth(40);
+  lineEditNumProc_->setFixedWidth(35);
   fastCauldronGridLayout->addWidget(lineEditNumProc_,0,1);
-  QLabel *runMode = new QLabel("Run Mode:", this);
-  const QSize runModeSize = QSize(80, 30);
+  QLabel *runMode = new QLabel("Cauldron Mode:", this);
+  const QSize runModeSize = QSize(90, 30);
   runMode->setFixedSize(runModeSize);
   runMode->setLayoutDirection(Qt::RightToLeft);
   fastCauldronGridLayout->addWidget(runMode,1,0);
@@ -88,7 +88,7 @@ CTCtab::CTCtab(QWidget* parent) :
   //
   const QSize runBtnFastCldrnSize = QSize(140, 30);
   pushButtonRunFastCauldron_->setFixedSize(runBtnFastCldrnSize);
-  pushButtonRunFastCauldron_->setLayoutDirection(Qt::LeftToRight);
+  pushButtonRunFastCauldron_->setLayoutDirection(Qt::RightToLeft);
   fastCauldronGridLayout->addWidget(pushButtonRunFastCauldron_,2,0,50,2);
   lithoGridLayout->addLayout(fastCauldronGridLayout,0,1);
 

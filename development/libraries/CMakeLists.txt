@@ -49,13 +49,14 @@ add_subdirectory(VisualizationIO_projectHandle)
 add_subdirectory(MapSmoothing)
 add_subdirectory(FastDepthConversion)
 add_subdirectory(FastCauldron)
+add_subdirectory(ctcWizard)
+add_subdirectory(WorkLoadManagers)
 
 if(UNIX)
    # Libraries that can only be built on Unix at the moment.
    add_subdirectory(ParaViewPlugin)
    add_subdirectory(OneFilePerProcess)
    add_subdirectory(casaWizard)
-   add_subdirectory(ctcWizard)
 
    if(CMAKE_COMPILER_IS_GNUCXX)
      # Some libraries are already GCC warnings-free so we should keep them as they are
