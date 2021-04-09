@@ -36,6 +36,20 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-09  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Improved the exporting of SAC scenarios.
+	* This includes:
+	* - Zipping the output for direct importing to BPA2-Basin
+	* - Including an info.txt with an overview of all settings used for creating the SAC scenario
+	* - Time-stamps appended to depth maps, lithofraction maps and scenario name.
+
+	* Related work items: #417194, #417356 #417357
+
+	================== COMMIT-END ========================
+	Commit-ID:<653d3f4c7c9cddcfd2d32a024a32c8c60c2e98f5>	  (refs/heads/master)
+
+++
 2021-04-09  arijit.khan Khan  <arijit.khan@shell.com>
 
 	fix: dev: SDU WorkLoadManagers fix for optional parameters !Wip.
