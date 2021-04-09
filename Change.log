@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.5.1		2021-03-19 14:17:19 +0000
+Cauldron-v2.6.0		2021-04-09 09:27:35 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-09  arijit.khan Khan  <arijit.khan@shell.com>
+
+	fix: dev: SDU WorkLoadManagers fix for optional parameters !Wip.
+	 * Some optional parameters for the workload managers were scoped out of exception errors
+
+	================== COMMIT-END ========================
+	Commit-ID:<eac2586cdfb5da8a9796181931815177fdda7769>	  (tag: refs/tags/v2.6.0, refs/heads/master)
+
+++
 2021-04-07  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Fix loosely coupled mode.
