@@ -125,11 +125,12 @@ std::string workloadmanagers::WorkLoadManager::JobSubmissionCommand(const std::s
 		isSuccess = writeWaitTimeSpecification(maximum_runtime_limit);
 	if (isSuccess)
 		isSuccess = writeJobNameSpecification(job_name);
-	if (isSuccess)
-		isSuccess = writeOutputLogSpecification(outfilename);
-	if (isSuccess)
-		isSuccess = writeErrorLogSpecification(errorfilename);
+
 	// The following are optional parameters that don't need check for success
+	if (isSuccess)
+		writeOutputLogSpecification(outfilename);
+	if (isSuccess)
+		writeErrorLogSpecification(errorfilename);
 	if (isSuccess)
 		writeExlusivitySpecification(isExlusive);
 	if (isSuccess)
@@ -186,7 +187,7 @@ void workloadmanagers::WorkLoadManager::CreateTheFileStream(void)
 	if (!JobSubmissionScriptStream) { std::cerr << "Error creating " + JobSubmissionScriptName; return; }
 
 	if (JobSubmissionScriptStream->is_open()) { // check for successful opening
-		(*JobSubmissionScriptStream) << "#!/bin/bash -lx\n#\n";
+		(*JobSubmissionScriptStream) << "#!/bin/bash\n#\n";
 	}
 	else
 	{

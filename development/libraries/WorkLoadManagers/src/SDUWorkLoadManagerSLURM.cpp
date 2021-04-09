@@ -68,7 +68,7 @@ bool workloadmanagers::WorkLoadManagerForSLURM::writeOutputLogSpecification(cons
 		boost::filesystem::remove(theJobSubmissionOutputLogSpec);
 	}
 
-	if ((*getTheFileStream()).is_open()) { // check for successful opening
+	if ((*getTheFileStream()).is_open() && !theJobSubmissionOutputLogSpec.empty()) { // check for successful opening
 		(*getTheFileStream()) << theSchedulerDirective() << "\t -o " << theJobSubmissionOutputLogSpec << '\n';
 		return true;
 	}

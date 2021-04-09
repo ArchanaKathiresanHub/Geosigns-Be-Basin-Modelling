@@ -30,7 +30,7 @@ namespace workloadmanagers{
 
 	// Expected vector of strings for the unit tests of LSF
 	static const std::vector<std::string> expVecOfStrLSF = {
-		"#!/bin/bash -lx",
+		"#!/bin/bash",
 		"#",
 		"#BSUB\t -P cldrn",
 		"#BSUB\t -q default.q",
@@ -43,9 +43,23 @@ namespace workloadmanagers{
 		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
 	};
 
+	// Expected vector of strings for the unit tests of LSF
+	static const std::vector<std::string> expNoOutLogVecOfStrLSF = {
+		"#!/bin/bash",
+		"#",
+		"#BSUB\t -P cldrn",
+		"#BSUB\t -q default.q",
+		"#BSUB\t -n 4",
+		"#BSUB\t -W 0:30",
+		"#BSUB\t -J ctcPressureJob",+
+		"#BSUB\t -e err.log",
+		"#BSUB\t -cwd " + boost::filesystem::current_path().string(),
+		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
+	};
+
 	// Expected vector of strings for the unit tests of SLURM
 	static const std::vector<std::string> expVecOfStrSLURM = {
-		"#!/bin/bash -lx",
+		"#!/bin/bash",
 		"#",
 		"#SBATCH\t -A cldrn",
 		"#SBATCH\t -q default.q",
@@ -53,6 +67,20 @@ namespace workloadmanagers{
 		"#SBATCH\t -t 0:30",
 		"#SBATCH\t --job-name ctcPressureJob",
 		"#SBATCH\t -o out.log",
+		"#SBATCH\t -e err.log",
+		"#SBATCH\t -cwd " + boost::filesystem::current_path().string(),
+		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
+	};
+
+	// Expected vector of strings for the unit tests of SLURM
+	static const std::vector<std::string> expNoOutLogVecOfStrSLURM = {
+		"#!/bin/bash",
+		"#",
+		"#SBATCH\t -A cldrn",
+		"#SBATCH\t -q default.q",
+		"#SBATCH\t -n 4",
+		"#SBATCH\t -t 0:30",
+		"#SBATCH\t --job-name ctcPressureJob",
 		"#SBATCH\t -e err.log",
 		"#SBATCH\t -cwd " + boost::filesystem::current_path().string(),
 		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
@@ -125,6 +153,29 @@ TEST(CTCWorkLoadManager, Job_Submission_LSF) {
 	}
 }
 
+TEST(CTCWorkLoadManager, Job_Submission_no_outlog_LSF) {
+	std::vector<std::string> vecOfStr;
+	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::IBM_LSF);
+
+	if (wlm) {
+		std::string runPT = wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "",
+			"err.log", std::to_string(numProc), "", "", "", false, false, (MPI_BIN + " -n " +
+				std::to_string(numProc) + ' ' + CLDRN_BIN + " -project " + filePath + " " + cldrnRunMode)
+		);
+
+		// Get the contents of file in a vector
+		bool result = getFileContent(wlmScriptPath, vecOfStr);
+
+		ASSERT_EQ(vecOfStr.size(), expNoOutLogVecOfStrLSF.size()) << "Vectors are of unequal length";
+		for (int i = 0; i < vecOfStr.size(); ++i) {
+			EXPECT_EQ(vecOfStr[i], expNoOutLogVecOfStrLSF[i]) << "Vectors differ at index " << i;
+		}
+
+		EXPECT_EQ(wlm->JobTerminationCommand(), std::string());
+		EXPECT_EQ(wlm->JobStatusCommand(), std::string());
+	}
+}
+
 TEST(CTCWorkLoadManager, Job_Submission_SLURM) {
 	std::vector<std::string> vecOfStr;
 	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
@@ -141,6 +192,29 @@ TEST(CTCWorkLoadManager, Job_Submission_SLURM) {
 		ASSERT_EQ(vecOfStr.size(), expVecOfStrSLURM.size()) << "Vectors are of unequal length";
 		for (int i = 0; i < vecOfStr.size(); ++i) {
 			EXPECT_EQ(vecOfStr[i], expVecOfStrSLURM[i]) << "Vectors differ at index " << i;
+		}
+
+		EXPECT_EQ(wlm->JobTerminationCommand(), std::string());
+		EXPECT_EQ(wlm->JobStatusCommand(), std::string());
+	}
+}
+
+TEST(CTCWorkLoadManager, Job_Submission_no_outlog_SLURM) {
+	std::vector<std::string> vecOfStr;
+	auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::SLURM);
+
+	if (wlm) {
+		std::string runPT = wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "",
+			"err.log", std::to_string(numProc), "", "", "", false, false, (MPI_BIN + " -n " +
+				std::to_string(numProc) + ' ' + CLDRN_BIN + " -project " + filePath + " " + cldrnRunMode)
+		);
+
+		// Get the contents of file in a vector
+		bool result = getFileContent(wlmScriptPath, vecOfStr);
+
+		ASSERT_EQ(vecOfStr.size(), expNoOutLogVecOfStrSLURM.size()) << "Vectors are of unequal length";
+		for (int i = 0; i < vecOfStr.size(); ++i) {
+			EXPECT_EQ(vecOfStr[i], expNoOutLogVecOfStrSLURM[i]) << "Vectors differ at index " << i;
 		}
 
 		EXPECT_EQ(wlm->JobTerminationCommand(), std::string());
