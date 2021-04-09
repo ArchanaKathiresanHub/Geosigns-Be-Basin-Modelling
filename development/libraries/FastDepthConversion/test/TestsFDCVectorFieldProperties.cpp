@@ -15,7 +15,7 @@ protected:
   void SetUp() final
   {
     mdl.reset(new mbapi::Model());
-    ASSERT_EQ(ErrorHandler::NoError, mdl->loadModelFromProjectFile(projectFileName.c_str()));
+    ASSERT_EQ(ErrorHandler::NoError, mdl->loadModelFromProjectFile(projectFileName));
 
     fdcVFP = std::unique_ptr<fastDepthConversion::FDCVectorFieldProperties>(
           new fastDepthConversion::FDCVectorFieldProperties(mdl, referenceSurface));

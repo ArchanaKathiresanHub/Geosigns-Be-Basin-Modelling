@@ -82,8 +82,7 @@ DataAccess::Interface::GridMap * FDCFastCauldronManager::getPropertyGridMap(cons
 
 void FDCFastCauldronManager::finalizeFastCauldronStartup()
 {
-  MPI_Barrier(PETSC_COMM_WORLD);
-  m_fastcauldronStartup->finalize();
+  m_fastcauldronStartup->finalize();  
 }
 
 } // namespace fastDepthConversion

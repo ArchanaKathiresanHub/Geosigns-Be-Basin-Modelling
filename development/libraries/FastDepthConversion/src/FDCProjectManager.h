@@ -49,7 +49,6 @@ public:
 
   std::shared_ptr<mbapi::Model> getModel() const;
   void reloadModel(const string& caseProjectFilePath);
-  void setAlternativeTableNames(const std::string & currentDate);
 
   long yScalingFactor() const;
   long xScalingFactor() const;
@@ -59,8 +58,8 @@ public:
   std::vector<string> addedTwtMapNames() const;
   void appendToAddedTwtMapNames(const string & surfaceName);
   void setCurrentSurfaceMapNameInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID s, const std::string & mapName);
-  std::string t2ZTemporaryMapName(const std::string & topName, const string& date) const;
-  std::string t2ZIsoPackMapName(const std::string & surfaceName, const std::string & date) const;
+  std::string t2ZTemporaryMapName(const std::string & topName) const;
+  std::string t2ZIsoPackMapName(const std::string & surfaceName) const;
 
 private:
   void setSubSamplingWindow();

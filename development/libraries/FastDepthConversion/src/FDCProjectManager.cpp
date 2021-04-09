@@ -18,21 +18,6 @@
 namespace fastDepthConversion
 {
 
-namespace
-{
-
-std::string t2zNameInBPANameMapping(const std::string & bpaNameMapping, const std::string & currentDate)
-{
-  return "T2Z_" + currentDate + "[" + bpaNameMapping + "]";
-}
-
-std::string t2zConversionNameInBPANameMapping(const std::string & bpaNameMapping, const std::string & currentDate, const std::string & BPAName = "")
-{
-  return "T2Z conversion " + currentDate + " with Base\\n" + (BPAName.empty() ? "" : BPAName + "\\n") + bpaNameMapping;
-}
-
-} // namespace
-
 FDCProjectManager::FDCProjectManager(const std::string & projectFileName ) :
   m_mdl(nullptr),
   m_XScalingFactor(0),
@@ -223,26 +208,15 @@ std::shared_ptr<mbapi::Model> FDCProjectManager::getModel() const
 }
 
 void FDCProjectManager::reloadModel(const std::string & caseProjectFilePath)
-{
-  MPI_Barrier(PETSC_COMM_WORLD);
+{  
   m_mdl.reset(new mbapi::Model());
-  if (ErrorHandler::NoError != m_mdl->loadModelFromProjectFile(caseProjectFilePath.c_str()))
-  { throw T2Zexception() << "Cannot load model from " << caseProjectFilePath << ", " << m_mdl->errorMessage(); }
-  MPI_Barrier(PETSC_COMM_WORLD);
+  if (ErrorHandler::NoError != m_mdl->loadModelFromProjectFile(caseProjectFilePath))
+  { throw T2Zexception() << "Cannot load model from " << caseProjectFilePath << ", " << m_mdl->errorMessage(); }  
 }
 
 std::string FDCProjectManager::bpaNameMapping(const size_t row) const
 {
   return m_mdl->tableValueAsString("BPANameMapping", row, "BPAColumnValue");
-}
-
-void FDCProjectManager::setAlternativeTableNames(const std::string & currentDate)
-{
-  const std::string BPAName = bpaNameMapping(0);
-  if (ErrorHandler::NoError != m_mdl->setTableValue("BPANameMapping", 0, "BPAColumnValue", t2zNameInBPANameMapping(bpaNameMapping(0), currentDate))) { throw T2Zexception() << "Cannot set CAULDRON_ALTERNATIVE NAME in BPANameMapping"; }
-  if (ErrorHandler::NoError != m_mdl->setTableValue("BPANameMapping", 1, "BPAColumnValue", t2zConversionNameInBPANameMapping(bpaNameMapping(1), currentDate, BPAName))) { throw T2Zexception() << "Cannot set CAULDRON_ALTERNATIVE DESCRIPTION in BPANameMapping"; }
-  if (ErrorHandler::NoError != m_mdl->setTableValue("BPANameMapping", 2, "BPAColumnValue", t2zNameInBPANameMapping(bpaNameMapping(2), currentDate))) { throw T2Zexception() << "Cannot set CAULDRON NAME in BPANameMapping"; }
-  if (ErrorHandler::NoError != m_mdl->setTableValue("BPANameMapping", 3, "BPAColumnValue", t2zConversionNameInBPANameMapping(bpaNameMapping(3), currentDate))) { throw T2Zexception() << "Cannot set CAULDRON  DESCRIPTION in BPANameMapping"; }
 }
 
 void FDCProjectManager::setCurrentSurfaceMapNameInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID s, const std::string & mapName)
@@ -307,14 +281,14 @@ void FDCProjectManager::appendToAddedTwtMapNames(const std::string & surfaceName
   m_addedTwtMapNames.push_back("Calculated_TWT_for_" + surfaceName);
 }
 
-std::string FDCProjectManager::t2ZTemporaryMapName(const std::string & topName, const std::string & date) const
+std::string FDCProjectManager::t2ZTemporaryMapName(const std::string & topName) const
 {
-  return "T2Z[" + date + "][" + topName + "]";
+  return "T2Z[" + topName + "]";
 }
 
-std::string FDCProjectManager::t2ZIsoPackMapName(const std::string & surfaceName, const std::string & date) const
+std::string FDCProjectManager::t2ZIsoPackMapName(const std::string & surfaceName) const
 {
-  return "T2ZIsoSurf[" + date + "][" + surfaceName + "]";
+  return "T2ZIsoSurf[" + surfaceName + "]";
 }
 
 } // namespace fastDepthConversion

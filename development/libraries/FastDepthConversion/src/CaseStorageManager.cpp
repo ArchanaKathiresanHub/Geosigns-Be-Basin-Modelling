@@ -68,11 +68,12 @@ void CaseStorageManager::createCase(ibs::FilePath & casePathResults)
 {
   int exception_rank0 = createAndSetupCase(casePathResults);
 
-  MPI_Bcast(&exception_rank0, 1, MPI_INT, 0, PETSC_COMM_WORLD);
-  MPI_Barrier(PETSC_COMM_WORLD);
+  MPI_Bcast(&exception_rank0, 1, MPI_INT, 0, PETSC_COMM_WORLD);  
 
   if (exception_rank0 == 1) { throw ErrorHandler::Exception(m_mdl->errorCode()) << m_mdl->errorMessage(); }
   else if (exception_rank0 == 2) { throw T2Zexception() << "Failed to copy file: " << casePathResults.path(); }
+
+  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 int CaseStorageManager::createAndSetupCase(ibs::FilePath & casePathResults)
@@ -143,7 +144,6 @@ void CaseStorageManager::setDate()
 void CaseStorageManager::createFinalCase()
 {
   setDate();
-  MPI_Barrier(PETSC_COMM_WORLD);
 
   std::string correct_myDate = m_date;
   std::replace_if(correct_myDate.begin(), correct_myDate.end(), ::ispunct, '_');
@@ -169,7 +169,6 @@ void CaseStorageManager::changeToTemporaryCaseDirectoryPath()
   {
     throw T2Zexception() << "Cannot change to the case directory " << m_casePath.fullPath().path();
   }
-  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 void CaseStorageManager::CopyTemporaryToMasterHDFMaps()
@@ -191,7 +190,6 @@ void CaseStorageManager::CopyTemporaryToMasterHDFMaps()
   }
 
   MPI_Bcast(&exception_rank0, 1, MPI_INT, 0, PETSC_COMM_WORLD);
-  MPI_Barrier(PETSC_COMM_WORLD);
 
   if(exception_rank0 == 1)
   {
@@ -218,7 +216,6 @@ void CaseStorageManager::changeToMasterDirectoryPath()
   {
     throw T2Zexception() << " Cannot change to the master directory " << m_fullMasterDirPath.path();
   }
-  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 std::string CaseStorageManager::masterResultsFilePath() const

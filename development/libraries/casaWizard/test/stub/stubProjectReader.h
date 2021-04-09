@@ -7,6 +7,7 @@
 //
 
 #pragma once
+
 #include "model/input/projectReader.h"
 
 namespace casaWizard
@@ -26,7 +27,7 @@ public:
 
   QStringList surfaceNames() const override
   {
-    return {};
+    return {"Water_Bottom", "Second Surface"};
   }
 
   QStringList lithologyNames() const override
@@ -73,14 +74,6 @@ public:
     return 0.0;
   }
 
-  void setRelevantOutputParameters(const QStringList& /*activeProperties*/, const std::string& /*saveName*/) override
-  {
-  }
-
-  void setScaling(int /*scaleX*/, int /*scaleY*/, const std::string& /*saveName*/) override
-  {
-  }
-
   int lowestSurfaceWithTWTData() const override
   {
     return 10;
@@ -95,6 +88,22 @@ public:
   {
     return {0, 23, 66, 100, 201, 252, 255, 299};
   }
+
+  bool hasTWTData(int surfaceID) const override
+  {
+    return surfaceID == 0;
+  }
+
+  QString getDepthGridName(int surfaceID) const override
+  {
+    return "";
+  }
+
+  QStringList mapNamesT2Z() const override
+  {
+    return {};
+  }
+
 };
 
 } // namespace casaWizard

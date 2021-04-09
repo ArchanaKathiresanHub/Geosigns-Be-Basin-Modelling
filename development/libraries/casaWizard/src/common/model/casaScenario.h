@@ -17,6 +17,7 @@ namespace casaWizard
 {
 
 class ExtractWellDataXlsx;
+class ProjectWriter;
 
 class CasaScenario : public Writable
 {
@@ -58,12 +59,14 @@ public:
   virtual void clear() override;
   virtual QString iterationDirName() const { return ""; }
 
-  void updateRelevantProperties();
-private:
+  void updateRelevantProperties(casaWizard::ProjectWriter& projectWriter);
   void loadProject3dFile() const;
+
+private:
 
   std::unique_ptr<ProjectReader> projectReader_;
   QString workingDirectory_;
+  QString timeStamp_;
   QString clusterName_;
   QString applicationName_;
   QString project3dFilename_;

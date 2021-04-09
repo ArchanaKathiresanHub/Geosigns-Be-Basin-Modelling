@@ -87,8 +87,3 @@ TEST_F( TestFDCProjectManager, TestGenerateMapInTwoWayTimeIoTbl )
   EXPECT_NO_THROW(fdcPM->generateMapInTwoWayTimeIoTbl(tarTwts, mapsSequenceNbrActual, resultsMapFileName));
   EXPECT_EQ(mapsSequenceNbrExpected, mapsSequenceNbrActual);
 }
-
-TEST_F( TestFDCProjectManager, TestSetAlternativeTableNames )
-{
-  EXPECT_NO_THROW(fdcPM->setAlternativeTableNames("2019-Jul-26 12:39:26"));
-}

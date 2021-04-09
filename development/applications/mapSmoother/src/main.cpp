@@ -65,7 +65,7 @@ int main( const int argc, char** argv )
 
   // Load project
   mbapi::Model cldModel;
-  if ( ErrorHandler::NoError != cldModel.loadModelFromProjectFile( inFileName.c_str() ) )
+  if ( ErrorHandler::NoError != cldModel.loadModelFromProjectFile( inFileName ) )
   {
     LogHandler( LogHandler::ERROR_SEVERITY ) << "Failed to load project file: " << inFileName;
     return -1;

@@ -77,7 +77,7 @@ ModelPseudo1dProjectManager::~ModelPseudo1dProjectManager()
 void ModelPseudo1dProjectManager::setModel()
 {
   m_mdl.reset(new mbapi::Model);
-  if (ErrorHandler::NoError != m_mdl->loadModelFromProjectFile(m_projectFileName.c_str()))
+  if (ErrorHandler::NoError != m_mdl->loadModelFromProjectFile(m_projectFileName))
   {
     throw ErrorHandler::Exception(m_mdl->errorCode())
         << "Cannot load model from " << m_projectFileName << ", " << m_mdl->errorMessage()

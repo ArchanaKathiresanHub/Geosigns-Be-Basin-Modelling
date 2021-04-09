@@ -10,15 +10,18 @@ namespace casaWizard
 namespace workspaceGenerator
 {
 
+QString getTimeStamp(const QString& prefix)
+{
+  const  QDateTime now{QDateTime::currentDateTime()};
+  return prefix + now.toString("yyyyMMdd-HHmmss");
+}
+
 QString getSuggestedWorkspace(const QString &currentPath)
 {
   const QDir originWspace = QFileInfo(currentPath).absoluteDir();
   const QString rootPath=originWspace.absolutePath();
 
-  const  QDateTime now{QDateTime::currentDateTime()};
-  const QString date{now.toString("yyyy-MM-dd-HH-mm")};
-
-  const QString workspaceName = "/casaWorkspace-" + date;
+  const QString workspaceName = "/casaWorkspace-" + getTimeStamp();
   return rootPath + workspaceName;
 }
 

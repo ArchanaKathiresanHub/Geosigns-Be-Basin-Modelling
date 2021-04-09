@@ -486,7 +486,7 @@ ReferredBy MapName MapType MapFileName FileId MD5Checksum MapSeqNbr HDF5FileName
 "TwoWayTimeIoTbl" "MAP-1511782113-4" "HDF5" "Inputs.HDF" -1 "" 5 ""
 "StratIoTbl" "MAP-1511782115-4" "HDF5" "Inputs.HDF" -1 "" 6 ""
 "TwoWayTimeIoTbl" "MAP-1511782117-4" "HDF5" "Inputs.HDF" -1 "" 7 ""
-"StratIoTbl" "MAP-1511782119-4" "HDF5" "Inputs.HDF" -1 "" 8 ""
+"StratIoTbl" "T2Z[50_ZE_T_TDinput_SD]" "HDF5" "Inputs.HDF" -1 "" 8 ""
 "TwoWayTimeIoTbl" "MAP-1511782121-4" "HDF5" "Inputs.HDF" -1 "" 9 ""
 "StratIoTbl" "MAP-1511782123-4" "HDF5" "Inputs.HDF" -1 "" 10 ""
 "TwoWayTimeIoTbl" "MAP-1511782125-4" "HDF5" "Inputs.HDF" -1 "" 11 ""
@@ -506,7 +506,7 @@ SurfaceName DepoAge Depth ErrDepth DepthGrid LayerName DepoSequence Thickness Ca
 "20_NS_B_TDinput_SD" 23 -9999 0 "MAP-1511782107-4" "Lr_M_N_Sea_Gp" 5 -9999 -9999 0 "" "LSB Sand Hybrid LK03042015" 49 "" "LSB Shale Hybrid LK03042015" 49 "" "LSB Chalk Hybrid LK03042015" 2 "Homogeneous" "Seawater_35kppm_LK21052013" -9999 0 0 0 0 -9999 0 0 0 "" "" 0 "" 1 0 0 0
 "30_CK_B_TDinput_SD" 66 -9999 0 "MAP-1511782111-4" "Chalk" 4 -9999 -9999 0 "" "LSB Chalk Hybrid LK03042015" 60 "" "LSB Shale Hybrid LK03042015" 30 "" "LSB Sand Hybrid LK03042015" 10 "Homogeneous" "Seawater_35kppm_LK21052013" -9999 0 0 0 0 -9999 0 0 0 "" "" 0 "" 1 0 0 0
 "45_TR_T_TDinput_SD" 201 -9999 0 "MAP-1511782115-4" "Triassic" 3 -9999 -9999 0 "" "LSB Sand Hybrid LK03042015" 60 "" "LSB Shale Hybrid LK03042015" 30 "" "LSB Chalk Hybrid LK03042015" 10 "Homogeneous" "Seawater_35kppm_LK21052013" -9999 0 0 0 0 -9999 0 0 0 "" "" 0 "" 1 0 0 0
-"50_ZE_T_TDinput_SD" 252 -9999 0 "MAP-1511782119-4" "Zechstein" 2 -9999 -9999 0 "" "Congo_Salt_Hybrid_LK25112015" 96 "" "LSB Shale Hybrid LK03042015" 2 "" "LSB Sand Hybrid LK03042015" 2 "Homogeneous" "Seawater_35kppm_LK21052013" -9999 0 0 0 0 -9999 0 0 0 "" "" 0 "" 1 0 0 0
+"50_ZE_T_TDinput_SD" 252 -9999 0 "T2Z[50_ZE_T_TDinput_SD]" "Zechstein" 2 -9999 -9999 0 "" "Congo_Salt_Hybrid_LK25112015" 96 "" "LSB Shale Hybrid LK03042015" 2 "" "LSB Sand Hybrid LK03042015" 2 "Homogeneous" "Seawater_35kppm_LK21052013" -9999 0 0 0 0 -9999 0 0 0 "" "" 0 "" 1 0 0 0
 "Nr_Top_Rotliegend" 255 -9999 0 "MAP-1511782123-4" "Rotliegend" 1 -9999 -9999 0 "" "LSB Sand Hybrid LK03042015" 80 "" "LSB Shale Hybrid LK03042015" 10 "" "LSB Chalk Hybrid LK03042015" 10 "Homogeneous" "Seawater_35kppm_LK21052013" -9999 0 0 0 0 -9999 0 0 0 "" "" 0 "" 1 0 0 0
 "Nr_Base_Rotliegend" 299 -9999 0 "MAP-1511782127-4" "" -9999 -9999 -9999 0 "" "" -9999 "" "" -9999 "" "" -9999 "" "" -9999 0 -9999 0 0 0 -9999 -9999 0 "" "" 0 "" 1 0 0 0
 [End]

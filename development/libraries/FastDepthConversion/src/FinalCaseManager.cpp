@@ -89,7 +89,7 @@ void FinalCaseManager::appendIsopacks(const mbapi::StratigraphyManager::SurfaceI
   for (mbapi::StratigraphyManager::SurfaceID s = endSurface + 1; s < getSurfacesID().size(); ++s)
   {
     const std::string surfaceName = strMgrFinal.surfaceName(s);
-    const std::string & mapName = m_fdcProjectManager.t2ZIsoPackMapName(surfaceName, m_caseStorageManager.date());
+    const std::string & mapName = m_fdcProjectManager.t2ZIsoPackMapName(surfaceName);
     m_fdcMapFieldProperties.setCorrectedMapsNames(s, mapName);
 
     if (m_rank == 0) { LogHandler(LogHandler::INFO_SEVERITY) << " Appending isopack for surface " << surfaceName; }
@@ -98,13 +98,6 @@ void FinalCaseManager::appendIsopacks(const mbapi::StratigraphyManager::SurfaceI
     updateIsoPackMapsInStratIoTbl(s, mapName, mapsMgrFinal);
     m_fdcProjectManager.setCurrentSurfaceMapNameInStratIoTbl(s, mapName);
   }
-}
-
-void FinalCaseManager::checkForCauldronAlternativeNameSetting()
-{
-  std::shared_ptr<mbapi::Model> mdl = m_fdcProjectManager.getModel();
-  if (mdl->tableSize("BPANameMapping") > 3)
-  { m_fdcProjectManager.setAlternativeTableNames(m_caseStorageManager.date()); }
 }
 
 void FinalCaseManager::saveProjectAndFinalize()
@@ -124,7 +117,6 @@ void FinalCaseManager::writeFinalProject(const mbapi::StratigraphyManager::Surfa
   fcmCreateFinalCase();
   m_fdcProjectManager.reloadModel(m_caseStorageManager.caseProjectFilePath());
   appendIsopacks(endSurface, depthsEndSurface);
-  checkForCauldronAlternativeNameSetting();
   saveProjectAndFinalize();
 }
 

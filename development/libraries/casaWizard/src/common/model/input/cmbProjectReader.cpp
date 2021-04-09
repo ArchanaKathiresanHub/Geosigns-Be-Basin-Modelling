@@ -45,112 +45,8 @@ CMBProjectReader::~CMBProjectReader()
 
 void CMBProjectReader::load(const QString& projectFile)
 {
-  cmbModel_->loadModelFromProjectFile(projectFile.toStdString().c_str());
+  cmbModel_->loadModelFromProjectFile(projectFile.toStdString());
   loaded_ = true;
-}
-
-void CMBProjectReader::setRelevantOutputParameters(const QStringList& activeProperties, const std::string& saveName)
-{
-  if (loaded_)
-  {
-    int tableSize = cmbModel_->tableSize("FilterTimeIoTbl");
-    for (size_t i = 0; i < tableSize; i++)
-    {
-      cmbModel_->setTableValue("FilterTimeIoTbl", i, "OutputOption", "None");
-    }
-
-    for (int i = 0; i < activeProperties.size(); i++)
-    {
-      // Mapping to Project3d names if necessary
-      if (activeProperties[i] == QString("BulkDensity"))
-      {
-        cmbModel_->propertyManager().requestPropertyInSnapshots("BulkDensityVec", "SedimentsOnly");
-      }
-      else if (activeProperties[i] == QString("SonicSlowness"))
-      {
-        cmbModel_->propertyManager().requestPropertyInSnapshots("SonicVec", "SedimentsOnly");
-      }
-      else if (activeProperties[i] == QString("Velocity"))
-      {
-        cmbModel_->propertyManager().requestPropertyInSnapshots("VelocityVec", "SedimentsOnly");
-      }
-      else if (activeProperties[i] == QString("VRe"))
-      {
-        cmbModel_->propertyManager().requestPropertyInSnapshots("VrVec", "SedimentsOnly");
-      }
-      else
-      {
-        cmbModel_->propertyManager().requestPropertyInSnapshots(activeProperties[i].toStdString(), "SedimentsOnly");
-      }
-    }
-
-    // Always output the Depth
-    cmbModel_->propertyManager().requestPropertyInSnapshots("Depth", "SedimentsPlusBasement");
-
-    //Save
-    if (saveName == "")
-    {
-      cmbModel_->saveModelToProjectFile(cmbModel_->projectFileName());
-    }
-    else
-    {
-      cmbModel_->saveModelToProjectFile(saveName);
-    }
-  }
-}
-
-void CMBProjectReader::setScaling(int scaleX, int scaleY, const std::string& saveName)
-{
-  if (!loaded_)
-  {
-    return;
-  }
-
-  cmbModel_->setSubsampling(scaleX, scaleY);
-
-  //Save
-  if (saveName == "")
-  {
-    cmbModel_->saveModelToProjectFile(cmbModel_->projectFileName());
-  }
-  else
-  {
-    cmbModel_->saveModelToProjectFile(saveName);
-  }
-}
-
-std::map<std::string, std::string> CMBProjectReader::readOutputProperties() const
-{
-  std::map<std::string, std::string> outputProperties;
-  DataAccess::Interface::OutputPropertyList* outputPropertyList = cmbModel_->projectHandle()->getTimeOutputProperties();
-  for (const OutputProperty* property : *outputPropertyList)
-  {
-    const std::string name = property->getName();
-    const PropertyOutputOption option = property->getOption();
-    std::string optionString;
-    switch (option)
-    {
-      case PropertyOutputOption::NO_OUTPUT:
-        optionString = "None";
-        break;
-      case PropertyOutputOption::SEDIMENTS_ONLY_OUTPUT:
-        optionString = "SedimentsOnly";
-        break;
-      case PropertyOutputOption::SEDIMENTS_AND_BASEMENT_OUTPUT:
-        optionString = "SedimentsPlusBasement";
-        break;
-      case PropertyOutputOption::SHALE_GAS_ONLY_OUTPUT:
-        optionString = "ShaleGasOnly";
-        break;
-      case PropertyOutputOption::SOURCE_ROCK_ONLY_OUTPUT:
-        optionString = "SourceRockOnly";
-        break;
-    }
-
-    outputProperties.insert({name, optionString});
-  }
-
-  return outputProperties;
 }
 
 int CMBProjectReader::lowestSurfaceWithTWTData() const
@@ -180,8 +76,14 @@ int CMBProjectReader::lowestSurfaceWithTWTData() const
 bool CMBProjectReader::hasTWTData(int surfaceID) const
 {
   mbapi::StratigraphyManager& stratigraphyManager = cmbModel_->stratigraphyManager();
-  return ( stratigraphyManager.twtValue(surfaceID) != DataAccess::Interface::DefaultUndefinedScalarValue ||
-           ! stratigraphyManager.twtGridName(surfaceID).empty());
+  return ( (stratigraphyManager.twtValue(surfaceID) != DataAccess::Interface::DefaultUndefinedScalarValue ||
+           ! stratigraphyManager.twtGridName(surfaceID).empty()) &&
+           stratigraphyManager.twtGridName(surfaceID).find("Calculated_TWT_for_") == std::string::npos );
+}
+
+QString CMBProjectReader::getDepthGridName(int surfaceID) const
+{
+  return QString::fromStdString(cmbModel_->tableValueAsString("StratIoTbl", surfaceID, "DepthGrid"));
 }
 
 bool CMBProjectReader::basementSurfaceHasTWT() const
@@ -283,6 +185,22 @@ QStringList CMBProjectReader::mapNames() const
   const std::vector<std::string> mapNames = mapsManager.mapNames();
   return stringVectorToStringList(mapNames);
 }
+
+QStringList CMBProjectReader::mapNamesT2Z() const
+{
+  QStringList maps = mapNames();
+  QStringList mapsT2Z;
+  for ( QString map : maps )
+  {
+    if (map.startsWith("T2Z"))
+    {
+      mapsT2Z.push_back(map);
+    }
+  }
+
+  return mapsT2Z;
+}
+
 
 QStringList CMBProjectReader::lithologyTypesForLayer(const int layerIndex) const
 {

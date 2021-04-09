@@ -141,7 +141,7 @@ namespace casa
 
          // try to load model
          m_model.reset( new mbapi::Model() );
-         if ( ErrorHandler::NoError != m_model->loadModelFromProjectFile( m_modelProjectFileName.c_str() ) )
+         if ( ErrorHandler::NoError != m_model->loadModelFromProjectFile( m_modelProjectFileName ) )
          {
             return std::string( "Can't read mutated project: " ) + m_modelProjectFileName;
          }
@@ -161,7 +161,7 @@ namespace casa
    mbapi::Model & RunCaseImpl::loadProject()
    {
       m_model.reset( new mbapi::Model() ); // if already having some model, drop it
-      m_model->loadModelFromProjectFile( m_modelProjectFileName.c_str() );
+      m_model->loadModelFromProjectFile( m_modelProjectFileName );
 
       return *m_model;
    }

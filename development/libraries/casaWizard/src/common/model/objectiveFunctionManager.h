@@ -29,6 +29,8 @@ public:
   void readFromFile(const ScenarioReader& reader) override;
   void clear() override;
 
+  const QVector<ObjectiveFunctionValue>& values() const;
+
 private:
   ObjectiveFunctionManager(const ObjectiveFunctionManager&) = delete;
   ObjectiveFunctionManager& operator=(ObjectiveFunctionManager) = delete;

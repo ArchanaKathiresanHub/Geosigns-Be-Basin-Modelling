@@ -131,7 +131,7 @@ public:
    void        tableSort( const std::string & tblName, const std::vector<std::string> & colsName );
 
    // IO methods
-   void loadModelFromProjectFile( const char * projectFileName );
+   void loadModelFromProjectFile( const std::string& projectFileName );
    void saveModelToProjectFile( const std::string& projectFileName, bool copyFiles );
    std::string projectFileName() { return m_projFileName; }
 
@@ -468,7 +468,7 @@ ErrorHandler::ReturnCode Model::addRowToTable( const std::string & tableName )
 }
 
 
-Model::ReturnCode Model::loadModelFromProjectFile( const char * projectFileName )
+Model::ReturnCode Model::loadModelFromProjectFile( const std::string& projectFileName )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -1384,7 +1384,7 @@ Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & /*oth
 }
 
 
-void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
+void Model::ModelImpl::loadModelFromProjectFile( const std::string& projectFileName )
 {
 	m_factory.reset(new DataAccess::Interface::ObjectFactory);
 	m_projHandle.reset( DataAccess::Interface::OpenCauldronProject( projectFileName, m_factory.get() ) );

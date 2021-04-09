@@ -150,7 +150,7 @@ bool FastDepthConversion::setTwtMapsIfMissingInBottomSurface()
 void FastDepthConversion::setDepthAndTwtMapsForNextSurfaceInTables(std::string & mapName, const bool generated_Twt, const std::vector<double> & increasedDepths)
 {
   const mbapi::StratigraphyManager::SurfaceID nextSurface = m_fdcLithoProperties.nextSurface();
-  mapName = m_fdcProjectManager.t2ZTemporaryMapName(m_fdcLithoProperties.nextTopName(), m_caseStorageManager.date());
+  mapName = m_fdcProjectManager.t2ZTemporaryMapName(m_fdcLithoProperties.nextTopName());
   m_fdcMapFieldProperties.setCorrectedMapsNames(nextSurface, mapName);
   size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
   m_fdcProjectManager.generateMapInGridMapIoTbl(mapName, increasedDepths, mapsSequenceNbr, m_caseStorageManager.resultsMapFileName(), nextSurface);
@@ -181,6 +181,7 @@ void FastDepthConversion::runFastCauldronAndCalculateNewDpeths()
     calculateNewDepths(twtGridMap, depthGridMap);
 
     fdcFastCauldronManager.finalizeFastCauldronStartup();
+    MPI_Barrier(PETSC_COMM_WORLD);
   }
   catch (const T2Zexception & ex)
   {
@@ -197,9 +198,7 @@ void FastDepthConversion::writeNewDepthAndCorrectedMapstoCaseFileInMasterDirecto
 }
 
 void FastDepthConversion::calibrateDepths()
-{
-  MPI_Barrier(PETSC_COMM_WORLD);
-
+{  
   for (mbapi::StratigraphyManager::SurfaceID currentSurface = m_referenceSurface; currentSurface < m_endSurface; ++currentSurface)
   {
     m_caseStorageManager.setOriginalCaseProjectFilePath();
@@ -409,8 +408,7 @@ void FastDepthConversion::calculateNewDepths(const DataAccess::Interface::GridMa
     }
   }
 
-  m_fdcVectorFieldProperties.setNewDepths(newDepths);
-  MPI_Barrier(PETSC_COMM_WORLD);
+  m_fdcVectorFieldProperties.setNewDepths(newDepths);  
 }
 
 void FastDepthConversion::fillArray( const DataAccess::Interface::GridMap * grid, std::vector<double> & v, int k, const double convFact )

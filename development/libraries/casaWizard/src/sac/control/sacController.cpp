@@ -17,6 +17,7 @@
 #include "control/scriptRunController.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "model/logger.h"
+#include "model/output/cmbProjectWriter.h"
 #include "model/output/wellTrajectoryWriter.h"
 #include "model/output/workspaceGenerator.h"
 #include "model/sacScenario.h"
@@ -185,8 +186,7 @@ void SACcontroller::slotPushSelectProject3dClicked()
   }
 
   const QString workingDirectory = popupWorkspace.optionSelected();
-
-  if (!functions::removeIfUserAgrees(workingDirectory))
+  if (!functions::overwriteIfDirectoryExists(workingDirectory))
   {
     return;
   }
@@ -198,7 +198,7 @@ void SACcontroller::slotPushSelectProject3dClicked()
   }
 
   casaScenario_.clear();
-  casaScenario_.setWorkingDirectory(workingDirectory);
+  casaScenario_.setWorkingDirectory(workingDirectory);  
   casaScenario_.setProject3dFilePath(fileName);  
   casaScenario_.updateT2zLastSurface();
   lithofractionController_->loadLayersFromProject();
@@ -217,7 +217,9 @@ void SACcontroller::slotPushSelectCalibrationClicked()
   calibrationTargetCreator::createFromExcel(casaScenario_, fileName);
   WellTrajectoryManager& wtManager = casaScenario_.wellTrajectoryManager();
   wtManager.updateWellTrajectories(casaScenario_.calibrationTargetManager());
-  casaScenario_.updateRelevantProperties();
+
+  CMBProjectWriter projectWriter(casaScenario_.project3dPath());
+  casaScenario_.updateRelevantProperties(projectWriter);
 
   scenarioBackup::backup(casaScenario_);
   refreshGUI();

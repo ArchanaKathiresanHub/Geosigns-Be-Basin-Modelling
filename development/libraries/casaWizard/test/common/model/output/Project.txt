@@ -1,0 +1,24 @@
+Project: Ameland_Time_Depth_Conversion_Demo_LK28062020
+Coord Ref System: Amersfoort / RD New [28992]
+Transform: Amersfoort to WGS 84 (2) [1672]
+Is Projected CRS: Yes
+Map Set Associated: 01_Ameland_Henk_Hake_model_T2Z_revised_LK06022018, 01_Ameland_Henk_Hake_model_T2Z_revised_LK22022018[01]
+Well Set Associated: 
+Scenario: 12e_w_only_Zech_salt_for_CasaSAC_LK10082020
+Description: BPA lithologies produce V artifacts in Zechstein, implied Z artifact if depth convert Rotliegend. Replace odd custom BPA1 evaporites with stds from BPA2 catalogue.
+Created by: EUROPE\Lorcan.Kennan 
+Created on: 8/10/2020 3:28:38 PM 
+Last Modified by: EUROPE\Lorcan.Kennan 
+Last Modified on: 8/10/2020 3:31:58 PM 
+Well ID: 
+General Run Parameters: Imported General Run Parameters
+Thermal/Pressure Run Parameters: Imported T/P Run Parameters 
+Petroleum System Run Parameters: Imported Petroleum System Run Parameters
+Stratigraphy: Stratigraphy #2 LK20022018[02][17][01][01][05][06]
+Top Boundary Conditions: Imported Top Boundary Conditions
+Confidence: 2
+Bottom Boundary Conditions: Imported Bottom Boundary Conditions
+Simulation Type: None
+Pressure Mode: IterativelyCoupled
+Basin Module Version: 2020.4
+Cauldron Version: v2019.01

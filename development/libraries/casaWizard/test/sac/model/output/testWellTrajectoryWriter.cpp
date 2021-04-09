@@ -1,12 +1,17 @@
-#include "model/output/wellTrajectoryWriter.h"
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
+#include "expectFileEq.h"
+#include "model/output/wellTrajectoryWriter.h"
 #include "model/sacScenario.h"
 #include "stubProjectReader.h"
 
-#include "expectFileEq.h"
-
 #include <gtest/gtest.h>
-#include <fstream>
 
 class WellTrajectoryWriterTest : public ::testing::Test
 {

@@ -42,6 +42,7 @@ private slots:
   void slotSpinBoxNumberOfCPUsValueChanged(int numberOfCPUs);
   void slotUpdateTabGUI(int tabID);
   void slotComboBoxClusterSelectionTextChanged(const QString& clusterName);
+  void slotExportT2ZScenarioClicked();
 
 private:
   bool noProjectAvailable() const;

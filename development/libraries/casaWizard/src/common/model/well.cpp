@@ -99,6 +99,7 @@ void Well::setIsExcluded(const bool isExcluded)
 {
   isExcluded_ = isExcluded;
 }
+
 QVector<const CalibrationTarget*> Well::calibrationTargets() const
 {
   QVector<const CalibrationTarget*> targets;

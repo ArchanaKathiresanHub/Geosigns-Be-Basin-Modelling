@@ -71,7 +71,7 @@ bool MapReader::mapExists(const std::string& mapName) const
 
 void MapReader::load(const std::string& projectFile)
 {
-  loaded_ = (cmbModel_->loadModelFromProjectFile(projectFile.c_str()) == ErrorHandler::ReturnCode::NoError);
+  loaded_ = (cmbModel_->loadModelFromProjectFile(projectFile) == ErrorHandler::ReturnCode::NoError);
 }
 
 std::vector<std::vector<double>> MapReader::resizeData(const std::vector<double>& out, const int numI, const int numJ) const

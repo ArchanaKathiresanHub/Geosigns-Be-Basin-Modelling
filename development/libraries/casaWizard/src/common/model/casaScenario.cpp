@@ -5,6 +5,7 @@
 #include "model/scenarioReader.h"
 #include "model/scenarioWriter.h"
 #include "model/output/workspaceGenerator.h"
+#include "output/projectWriter.h"
 
 #include <QFileInfo>
 #include <QStringList>
@@ -21,7 +22,7 @@ const int defaultNumberCPUs{1};
 
 CasaScenario::CasaScenario(ProjectReader* projectReader) :
   projectReader_(projectReader),
-  workingDirectory_(""),
+  workingDirectory_(""),  
   clusterName_(defaultClusterName),
   applicationName_(defaultApplication),
   project3dFilename_(""),
@@ -82,13 +83,10 @@ void CasaScenario::loadProject3dFile() const
   }
 }
 
-void CasaScenario::updateRelevantProperties()
+void CasaScenario::updateRelevantProperties(ProjectWriter& projectWriter)
 {
-  if (projectReader_)
-  {
-    QStringList activeProperties = calibrationTargetManager().activeProperties();
-    projectReader_->setRelevantOutputParameters(activeProperties);
-  }
+  QStringList activeProperties = calibrationTargetManager().activeProperties();
+  projectWriter.setRelevantOutputParameters(activeProperties);
 }
 
 void CasaScenario::setWorkingDirectory(const QString& workingDirectory)
@@ -154,7 +152,7 @@ const ProjectReader& CasaScenario::projectReader() const
 void CasaScenario::writeToFile(ScenarioWriter& writer) const
 {
   writer.writeValue("CasaScenarioVersion", 1);
-  writer.writeValue("workingDirectory", workingDirectory_);
+  writer.writeValue("workingDirectory", workingDirectory_);  
   writer.writeValue("clusterName", clusterName_);
   writer.writeValue("applicationName", applicationName_);
   writer.writeValue("project3dFilename", project3dFilename_);
@@ -176,9 +174,7 @@ void CasaScenario::readFromFile(const ScenarioReader& reader)
   runLocation_ = reader.readString("runLocation");
   expertUser_ = reader.readBool("expertUser");
   numberCPUs_ = reader.readInt("numberCPUs");
-  calibrationTargetManager_.readFromFile(reader);
-
-  loadProject3dFile();
+  calibrationTargetManager_.readFromFile(reader);    
 }
 
 void CasaScenario::clear()
@@ -189,7 +185,7 @@ void CasaScenario::clear()
   runLocation_ = defaultRunLocation;
   expertUser_ = defaultExpertUser;
   numberCPUs_ = defaultNumberCPUs;
-  workingDirectory_ = "";
+  workingDirectory_ = "";  
 
   calibrationTargetManager_.clear();
 }

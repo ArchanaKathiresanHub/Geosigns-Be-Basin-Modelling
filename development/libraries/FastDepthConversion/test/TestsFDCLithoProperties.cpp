@@ -15,7 +15,7 @@ protected:
   void SetUp() final
   {
     mdl.reset(new mbapi::Model());
-    ASSERT_EQ(ErrorHandler::NoError, mdl->loadModelFromProjectFile(projectFileName.c_str()));
+    ASSERT_EQ(ErrorHandler::NoError, mdl->loadModelFromProjectFile(projectFileName));
 
     fdcLP = std::unique_ptr<fastDepthConversion::FDCLithoProperties>(
           new fastDepthConversion::FDCLithoProperties(mdl->stratigraphyManager(), mdl->lithologyManager()));

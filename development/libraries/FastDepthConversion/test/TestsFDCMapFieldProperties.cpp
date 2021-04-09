@@ -8,7 +8,7 @@ protected:
   void SetUp() final
   {
     mdl.reset(new mbapi::Model());
-    ASSERT_EQ(ErrorHandler::NoError, mdl->loadModelFromProjectFile(projectFileName.c_str()));
+    ASSERT_EQ(ErrorHandler::NoError, mdl->loadModelFromProjectFile(projectFileName));
 
     fdcMFP = std::unique_ptr<fastDepthConversion::FDCMapFieldProperties>(
           new fastDepthConversion::FDCMapFieldProperties(mdl, referenceSurface, endSurface));

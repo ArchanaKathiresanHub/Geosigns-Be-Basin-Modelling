@@ -19,9 +19,7 @@ include_directories( SYSTEM
 
 create_bm_library( TARGET ${LIB_NAME}
                    LIBRARIES GeoPhysics
-                             SerialDataAccess
                              TableIO
-                             Serial_Hdf5
                              genex6
                              genex6_kernel
                              DataAccess

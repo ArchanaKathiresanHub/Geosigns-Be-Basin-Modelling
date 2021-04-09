@@ -39,7 +39,6 @@ private:
   void appendCurrentSurfaceIsoPacks(const mbapi::StratigraphyManager::SurfaceID s, const std::vector<double> & depthsEndSurface);
   void updateIsoPackMapsInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID s, const string & mapName, mbapi::MapsManager & mapsMgrFinal);
   void appendIsopacks(const mbapi::StratigraphyManager::SurfaceID endSurface, const std::vector<double> & depthsEndSurface);
-  void checkForCauldronAlternativeNameSetting();
   void saveProjectAndFinalize();
 
   FDCProjectManager  & m_fdcProjectManager;

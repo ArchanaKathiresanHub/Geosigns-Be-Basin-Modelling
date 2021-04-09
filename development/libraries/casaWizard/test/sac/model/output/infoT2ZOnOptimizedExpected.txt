@@ -1,0 +1,53 @@
+###################################################
+---------------------------------------------------
+General Settings
+---------------------------------------------------
+Run mode: Iteratively Coupled
+Cluster: LOCAL
+###################################################
+---------------------------------------------------
+Input Tab
+---------------------------------------------------
+Formation Neogene: INCLUDED
+Formation Olig_Eocene: INCLUDED
+Formation E_Paleocene_Senonian: INCLUDED
+Formation Turonian: INCLUDED
+Formation Cenomanian: INCLUDED
+Formation Albian: INCLUDED
+Formation Aptian_Neocomian: INCLUDED
+Formation Jurassic: INCLUDED
+Formation Extrusive_Basalt_SDR: EXCLUDED
+---------------------------------------------------
+Objective Function
+---------------------------------------------------
+###################################################
+---------------------------------------------------
+Map Generation
+---------------------------------------------------
+Interpolation: Inverse Distance Weighting, P = 1
+Smoothing: None
+###################################################
+---------------------------------------------------
+Wells
+---------------------------------------------------
+###################################################
+---------------------------------------------------
+T2Z Settings
+---------------------------------------------------
+Project Selection: Optimized
+Reference Surface: Water_bottom
+Subsampling: 4
+---------------------------------------------------
+Surfaces
+---------------------------------------------------
+Surface Water_bottom: NO CHANGES
+Surface Top_Oligocene: RECALCULATED DEPTH
+Surface 58ma_IntraPal_D: RECALCULATED DEPTH
+Surface 89ma_TopTuronian_D: NO TWTT; RECALCULATED DEPTH using calculated TWTT map
+Surface 93ma_TopCeno_D: RECALCULATED DEPTH
+Surface 99ma_TopAlbian_D: RECALCULATED DEPTH
+Surface 122ma_TopAptian_D: RECALCULATED DEPTH
+Surface 145ma_TopJurassic_D: RECALCULATED DEPTH
+Surface Mapped_Basement: RECALCULATED DEPTH
+Surface Base_Extrusive_Basalt_SDR: NO TWTT; RECALCULATED DEPTH using isopack
+###################################################

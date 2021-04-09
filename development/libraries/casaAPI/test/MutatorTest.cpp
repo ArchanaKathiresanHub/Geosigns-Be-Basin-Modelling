@@ -92,7 +92,7 @@ TEST_F( MutatorTest, Tornado2PrmsMutations )
 
       // get parameters from project file
       mbapi::Model caseModel;
-      caseModel.loadModelFromProjectFile( casePath.cpath() );
+      caseModel.loadModelFromProjectFile( casePath.path() );
 
       PrmTopCrustHeatProduction prm_tchp( caseModel );
       PrmSourceRockTOC          prm_toc(  caseModel, m_layerName );

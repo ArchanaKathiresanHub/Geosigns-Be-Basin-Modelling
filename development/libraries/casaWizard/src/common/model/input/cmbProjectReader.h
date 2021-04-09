@@ -20,6 +20,7 @@ namespace mbapi
 {
   class Model;
 }
+
 namespace casaWizard
 {
 
@@ -30,32 +31,27 @@ public:
   ~CMBProjectReader() override;
 
   void load(const QString& projectFile) override;
-
   QStringList layerNames() const override;
   QStringList surfaceNames() const override;
   QStringList lithologyNames() const override;
   QStringList mapNames() const override;
+  QStringList mapNamesT2Z() const override;
   QStringList lithologyTypesForLayer(const int layerIndex) const override;
   QVector<double> lithologyValuesForLayerAtLocation(const int layerIndex, const double xLoc, const double yLoc) const override;
   size_t getLayerID(const std::string& layerName) const override;
   void domainRange(double& xMin, double& xMax, double& yMin, double& yMax) const override;
   QVector<double> agesFromMajorSnapshots() const override;
-
   double heatProductionRate() const override;
   double initialLithosphericMantleThickness() const override;
   double equilibriumOceanicLithosphereThickness() const override;
-
-  void setRelevantOutputParameters(const QStringList& activeProperties, const std::string& saveName = "") override;
-  void setScaling(int scaleX, int scaleY, const std::string& saveName = "") override;
-  std::map<std::string, std::string> readOutputProperties() const;
-
+  bool hasTWTData(int surfaceID) const override;
+  QString getDepthGridName(int surfaceID) const override;
   int lowestSurfaceWithTWTData() const override;
-  bool basementSurfaceHasTWT() const override;
+  bool basementSurfaceHasTWT() const override;  
+
 private:
   std::unique_ptr<mbapi::Model> cmbModel_;
   bool loaded_;
-
-  bool hasTWTData(int surfaceID) const;
 };
 
 } // namespace casaWizard

@@ -62,7 +62,7 @@ Genex0dProjectManager::~Genex0dProjectManager()
 void Genex0dProjectManager::reloadModel()
 {
   m_mdl.reset(new mbapi::Model());
-  if (ErrorHandler::NoError != m_mdl->loadModelFromProjectFile(m_projectFileName.c_str()))
+  if (ErrorHandler::NoError != m_mdl->loadModelFromProjectFile(m_projectFileName))
   {
     throw ErrorHandler::Exception(m_mdl->errorCode()) << "Could not initialize data mining table, " << m_mdl->errorMessage();
   }

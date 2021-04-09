@@ -28,10 +28,12 @@ public:
   virtual double equilibriumOceanicLithosphereThickness() const = 0;
   virtual QVector<double> agesFromMajorSnapshots() const = 0;
 
-  virtual void setRelevantOutputParameters(const QStringList& activeProperties, const std::string& saveName = "") = 0;
-  virtual void setScaling(int scaleX, int scaleY, const std::string& saveName = "") = 0;
   virtual int lowestSurfaceWithTWTData() const = 0;
   virtual bool basementSurfaceHasTWT() const = 0;
+  virtual bool hasTWTData(int surfaceID) const = 0;
+  virtual QString getDepthGridName(int surfaceID) const = 0;
+
+  virtual QStringList mapNamesT2Z() const = 0;
 
 };
 

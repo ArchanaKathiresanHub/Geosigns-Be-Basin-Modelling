@@ -135,6 +135,11 @@ void ObjectiveFunctionManager::clear()
   values_.clear();
 }
 
+const QVector<ObjectiveFunctionValue>& ObjectiveFunctionManager::values() const
+{
+  return values_;
+}
+
 ObjectiveFunctionValue ObjectiveFunctionManager::createObjectiveFunctionValue(const QString &variable) const
 {
   QMap<QString, QPair<double, double>> defaultValueMap;

@@ -1,8 +1,15 @@
 #include "folderOperations.h"
 
 #include "model/logger.h"
+#include "model/output/cmbProjectWriter.h"
+#include "model/output/infoGenerator.h"
+#include "model/output/projectTXTManipulator.h"
+#include "model/output/workspaceGenerator.h"
 
+#include <QApplication>
+#include <QFileDialog>
 #include <QMessageBox>
+#include <QProcess>
 
 namespace casaWizard
 {
@@ -88,13 +95,34 @@ bool copyCaseFolder(const QDir sourceDir, const QDir targetDir)
   return filesCopied;
 }
 
-bool removeIfUserAgrees(const QString& directory)
+void zipFolderContent(const QDir& sourceDir, const QString& targetDestination, const QString& zipName)
+{
+  QProcess process;
+  process.setWorkingDirectory(targetDestination);
+  processCommand(process, QString("zip -r -j " + zipName + ".zip " + sourceDir.absolutePath()));
+}
+
+void processCommand(QProcess& process, const QString& command)
+{
+  process.start(command);
+  if (!process.waitForStarted())
+  {
+    process.kill();
+  }
+
+  while (!process.waitForFinished())
+  {
+    qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
+  }
+}
+
+bool overwriteIfDirectoryExists(const QString& directory)
 {
   if (QDir(directory).exists())
   {
     QMessageBox doesExist(QMessageBox::Icon::Question,
                           "Directory exists.",
-                          "Delete directory: " + directory + " ?",
+                          "Overwrite files in directory: " + directory + " ?",
                           QMessageBox::Yes | QMessageBox::No);
     if (doesExist.exec() != QMessageBox::Yes)
     {
@@ -102,6 +130,59 @@ bool removeIfUserAgrees(const QString& directory)
     }    
   }
   return true;
+}
+
+void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory, const QString& projectFile, InfoGenerator& infoGenerator)
+{
+  if (!sourceDir.exists())
+  {
+    Logger::log() << "Source directory for the export is not available" << Logger::endl();
+    return;
+  }
+
+  QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported scenario", workingDirectory,
+                                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+  QDir targetDir(targetPath);
+  if (!targetDir.exists() || targetPath == "")
+  {
+    Logger::log() << "Target directory is not set" << Logger::endl();
+    return;
+  }
+
+  const QString timeStamp = workspaceGenerator::getTimeStamp("SAC_");
+
+  QDir tmpdir(workingDirectory + "/tmpDirectory");
+  tmpdir.removeRecursively();
+  tmpdir.mkdir(workingDirectory + "/tmpDirectory");
+
+  const bool filesCopied = functions::copyCaseFolder(sourceDir, tmpdir);
+  QString projectTextFile = projectFile;
+  projectTextFile.replace(QString("project3d"), QString("txt"));
+  QFile::copy(workingDirectory + "/" + projectTextFile, tmpdir.absolutePath() + "/" + projectTextFile);
+
+  CMBProjectWriter writer(tmpdir.absolutePath() + "/" + projectFile);
+  writer.generateOutputProject(timeStamp);
+  ProjectTXTManipulator manipulator(tmpdir.absolutePath() + "/" + projectTextFile);
+  manipulator.appendStampToScenarioName(timeStamp);
+
+  infoGenerator.setFileName((targetDir.absolutePath() + "/" + timeStamp + "_info.txt").toStdString());
+  infoGenerator.loadProjectReader(tmpdir.absolutePath().toStdString());
+  infoGenerator.generateInfoTextFile();
+
+  cleanFolder(tmpdir, projectFile);
+
+  zipFolderContent(tmpdir, targetDir.absolutePath(), timeStamp);
+  tmpdir.removeRecursively();
+
+  Logger::log() << (filesCopied ? "Finished exporting the scenario to .zip" :
+                                  "Failed exporting, no files were copied") << Logger::endl();
+}
+
+void cleanFolder(const QDir& folder, const QString& projectFile)
+{
+  QString path = folder.absolutePath();
+  QFile(path + "/CalibratedInputs.HDF").remove();
 }
 
 } // namespace functions

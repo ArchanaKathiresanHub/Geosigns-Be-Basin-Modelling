@@ -16,17 +16,19 @@
 
 #include "model/case3DTrajectoryConvertor.h"
 #include "model/input/case3DTrajectoryReader.h"
+#include "model/input/cmbProjectReader.h"
 #include "model/logger.h"
+#include "model/output/LithoMapsInfoGenerator.h"
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"
 #include "model/script/cauldronScript.h"
-#include "model/script/track1dAllWellScript.h"
 #include "model/script/Generate3DScenarioScript.h"
+#include "model/script/track1dAllWellScript.h"
 
 #include "view/activeWellsTable.h"
+#include "view/lithofractionVisualisation.h"
 #include "view/mapsTab.h"
 #include "view/sacTabIDs.h"
-#include "view/lithofractionVisualisation.h"
 
 #include <QComboBox>
 #include <QFileDialog>
@@ -150,25 +152,11 @@ void MapsController::slotGenerateLithoMaps()
 void MapsController::slotExportOptimized()
 {
   QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
-  if (!sourceDir.exists())
-  {
-    Logger::log() << "Optimized case is not available" << Logger::endl();
-    return;
-  }
-  QDir targetDir(QFileDialog::getExistingDirectory(nullptr, "Save optimized case to directory", scenario_.workingDirectory(),
-                                                   QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
-  if (!targetDir.exists())
-  {
-    Logger::log() << "Target directory is not set" << Logger::endl();
-    return;
-  }
 
-  const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
-  QString projectTextFile("/" + scenario_.project3dFilename().replace(QString("project3d"), QString("txt")));
-  QFile::copy(scenario_.workingDirectory() + projectTextFile, targetDir.absolutePath() + projectTextFile);
+  CMBProjectReader projectReader;
+  LithoMapsInfoGenerator lithoMapsInfoGenerator(scenario_, projectReader);
 
-  Logger::log() << (filesCopied ? "Finished saving optimized case" :
-                                  "Failed saving optimized case, no files were copied") << Logger::endl();
+  functions::exportScenarioToZip(sourceDir, scenario_.workingDirectory(), scenario_.project3dFilename(), lithoMapsInfoGenerator);
 }
 
 void MapsController::slotRunOptimized()

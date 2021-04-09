@@ -101,7 +101,15 @@ void ResultsController::slotUpdateTabGUI(int tabID)
 void ResultsController::initializeWellSelection()
 {
   QListWidget* wellsList = resultsTab_->wellsList();
-  wellsList->setCurrentRow(wellsList->count()>0 ? 0 : -1);
+  if (wellsList->count() == 0)
+  {
+    wellsList->setCurrentRow(-1);
+    updateWell(); // Manual update, as the itemSelectionChanged() signal is not sent when the list is empty
+  }
+  else
+  {
+    wellsList->setCurrentRow(0);
+  }
 }
 
 void ResultsController::updateWell()

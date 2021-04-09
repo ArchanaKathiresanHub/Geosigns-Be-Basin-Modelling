@@ -1,0 +1,27 @@
+###################################################
+---------------------------------------------------
+General Settings
+---------------------------------------------------
+Run mode: Iteratively Coupled
+Cluster: LOCAL
+###################################################
+---------------------------------------------------
+T2Z Settings
+---------------------------------------------------
+Project Selection: Original
+Reference Surface: Water_bottom
+Subsampling: 4
+---------------------------------------------------
+Surfaces
+---------------------------------------------------
+Surface Water_bottom: NO CHANGES
+Surface Top_Oligocene: RECALCULATED DEPTH
+Surface 58ma_IntraPal_D: RECALCULATED DEPTH
+Surface 89ma_TopTuronian_D: NO TWTT; RECALCULATED DEPTH using calculated TWTT map
+Surface 93ma_TopCeno_D: RECALCULATED DEPTH
+Surface 99ma_TopAlbian_D: RECALCULATED DEPTH
+Surface 122ma_TopAptian_D: RECALCULATED DEPTH
+Surface 145ma_TopJurassic_D: RECALCULATED DEPTH
+Surface Mapped_Basement: RECALCULATED DEPTH
+Surface Base_Extrusive_Basalt_SDR: NO TWTT; RECALCULATED DEPTH using isopack
+###################################################

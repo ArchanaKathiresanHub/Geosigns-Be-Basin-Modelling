@@ -41,7 +41,7 @@ TEST_F( CMBProjectReaderTest, testMapNames )
     "MAP-1511782113-4",
     "MAP-1511782115-4",
     "MAP-1511782117-4",
-    "MAP-1511782119-4",
+    "T2Z[50_ZE_T_TDinput_SD]",
     "MAP-1511782121-4",
     "MAP-1511782123-4",
     "MAP-1511782125-4",
@@ -214,63 +214,6 @@ TEST_F( CMBProjectReaderTest, testLithologyTypesForLayer)
   EXPECT_EQ(sand, layer4Names[2]);
 }
 
-TEST_F( CMBProjectReaderTest, testUpdateOutputProperties)
-{
-  // Given
-  QStringList activeProperties = {"TwoWayTime", "VRe"};
-  std::remove("Output.project3d");
-
-  // When
-  reader_.setRelevantOutputParameters(activeProperties, "Output.project3d");
-
-  // Then
-  reader_.load(QString("Output.project3d"));
-  std::map<std::string, std::string> outputProperties = reader_.readOutputProperties();
-  for (auto propertyPair : outputProperties)
-  {
-    if (propertyPair.first == "TwoWayTime")
-    {
-      EXPECT_EQ(propertyPair.second, "SedimentsOnly");
-    }
-    else if (propertyPair.first == "VrVec")
-    {
-      EXPECT_EQ(propertyPair.second, "SedimentsOnly");
-    }
-    else if (propertyPair.first == "Depth")
-    {
-      EXPECT_EQ(propertyPair.second, "SedimentsPlusBasement");
-    }
-    else
-    {
-      EXPECT_EQ(propertyPair.second, "None");
-    }
-  }
-}
-
-TEST_F( CMBProjectReaderTest, testSetScale)
-{
-  // Given
-  QStringList activeProperties = {"TwoWayTime", "VRe"};
-  std::remove("OutputSetScale.project3d");
-
-  // Then
-  EXPECT_NO_THROW(reader_.setScaling(4, 4, "OutputSetScale.project3d"));
-}
-
-
-TEST_F( CMBProjectReaderTest, testReadOutputProperties)
-{
-  // When
-  std::map<std::string, std::string> outputProperties = reader_.readOutputProperties();
-
-  // Then
-  EXPECT_EQ(outputProperties.at("Depth"), "SedimentsPlusBasement");
-  EXPECT_EQ(outputProperties.at("Massflux"), "SedimentsPlusBasement");
-  EXPECT_EQ(outputProperties.at("VrVec"), "SedimentsOnly");
-  EXPECT_EQ(outputProperties.at("DryGasExpelledRate"), "None");
-  EXPECT_EQ(outputProperties.at("SourceRockEndMember1"), "SourceRockOnly");
-}
-
 TEST_F( CMBProjectReaderTest, testReadMantleThickness)
 {
   // When
@@ -320,6 +263,29 @@ TEST_F( CMBProjectReaderTest, testNotLoadedReader)
   EXPECT_EQ(notLoadedReader.basementSurfaceHasTWT(), false);
   EXPECT_EQ(notLoadedReader.getLayerID("Test"), NoDataIDValue);
   EXPECT_DOUBLE_EQ(notLoadedReader.heatProductionRate(), 0.0);
+}
+
+TEST_F( CMBProjectReaderTest, testGetDepthGridName)
+{
+  QStringList mapNamesExpected = {"MAP-1511782103-4",
+                                  "MAP-1511782107-4",
+                                  "MAP-1511782111-4",
+                                  "MAP-1511782115-4",
+                                  "T2Z[50_ZE_T_TDinput_SD]",
+                                  "MAP-1511782123-4",
+                                  "MAP-1511782127-4"};
+
+  for (int id = 0; id < reader_.surfaceNames().size(); id++)
+  {
+    EXPECT_EQ(mapNamesExpected[id], reader_.getDepthGridName(id));
+  }
+}
+
+TEST_F( CMBProjectReaderTest, testMapNamesT2Z)
+{
+  QStringList mapNamesExpected = {"T2Z[50_ZE_T_TDinput_SD]"};
+
+  EXPECT_EQ(mapNamesExpected, reader_.mapNamesT2Z());
 }
 
 

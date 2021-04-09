@@ -10,26 +10,28 @@
 
 #include "control/casaScriptWriter.h"
 #include "control/scriptRunController.h"
+#include "model/input/calibrationTargetCreator.h"
+#include "model/input/cmbProjectReader.h"
 #include "model/logger.h"
+#include "model/output/cmbProjectWriter.h"
+#include "model/output/T2ZInfoGenerator.h"
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"
 #include "model/script/depthConversionScript.h"
 #include "model/script/sacScript.h"
-#include "model/input/calibrationTargetCreator.h"
-#include "model/input/cmbProjectReader.h"
 #include "view/sacTabIDs.h"
 #include "view/t2zTab.h"
 
 #include "../../common/model/output/workspaceGenerator.h"
 #include "../../common/control/functions/folderOperations.h"
 
-#include <QDir>
-#include <QSpinBox>
-#include <QPushButton>
-#include <QString>
-#include <QDialogButtonBox>
 #include <QComboBox>
+#include <QDialogButtonBox>
+#include <QDir>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QString>
 
 namespace casaWizard
 {
@@ -49,6 +51,7 @@ T2Zcontroller::T2Zcontroller(T2Ztab* t2zTab,
     sourceDir_{""}
 {
   connect(t2zTab_->pushButtonSACrunT2Z(),      SIGNAL(clicked()),                 this,   SLOT(slotPushButtonSACrunT2ZClicked()));
+  connect(t2zTab_->exportT2ZScenario(),        SIGNAL(clicked()),                 this,   SLOT(slotExportT2ZScenarioClicked()));
   connect(t2zTab_->comboBoxReferenceSurface(), SIGNAL(currentIndexChanged(int)),  this,   SLOT(slotComboBoxReferenceSurfaceValueChanged(int)));
   connect(t2zTab_->spinBoxSubSampling(),       SIGNAL(valueChanged(int)),         this,   SLOT(slotSpinBoxSubSamplingValueChanged(int)));
   connect(t2zTab_->spinBoxNumberOfCPUs(),       SIGNAL(valueChanged(int)),         this,   SLOT(slotSpinBoxNumberOfCPUsValueChanged(int)));
@@ -57,7 +60,6 @@ T2Zcontroller::T2Zcontroller(T2Ztab* t2zTab,
           this,                                SLOT(slotComboBoxProjectSelectionTextChanged(const QString&)));
   connect(t2zTab_->comboBoxClusterSelection(), SIGNAL(currentTextChanged(const QString&)),
           this,                                SLOT(slotComboBoxClusterSelectionTextChanged(const QString&)));
-
 }
 
 void T2Zcontroller::slotPushButtonSACrunT2ZClicked()
@@ -72,7 +74,7 @@ void T2Zcontroller::slotPushButtonSACrunT2ZClicked()
   {
     return;
   }
-
+  casaScenario_.updateT2zLastSurface();
   runDepthConversion();
 }
 
@@ -110,7 +112,7 @@ bool T2Zcontroller::userCancelsRun() const
 bool T2Zcontroller::prepareT2ZWorkSpace()
 {
   getSourceAndT2zDir();
-  if (!casaWizard::functions::removeIfUserAgrees(t2zDir_))
+  if (!casaWizard::functions::overwriteIfDirectoryExists(t2zDir_))
   {
     return false;
   }
@@ -141,9 +143,8 @@ void T2Zcontroller::getSourceAndT2zDir()
 void T2Zcontroller::setSubSampling()
 {
   const QString projectFilename{QDir::separator() + QFileInfo(casaScenario_.project3dPath()).fileName()};
-  CMBProjectReader reader;
-  reader.load(t2zDir_ + projectFilename);
-  reader.setScaling(casaScenario_.t2zSubSampling(), casaScenario_.t2zSubSampling());
+  CMBProjectWriter writer(t2zDir_ + projectFilename);
+  writer.setScaling(casaScenario_.t2zSubSampling(), casaScenario_.t2zSubSampling());
 }
 
 void T2Zcontroller::runDepthConversion()
@@ -178,6 +179,22 @@ void T2Zcontroller::slotSpinBoxNumberOfCPUsValueChanged(int numberOfCPUs)
 void T2Zcontroller::slotComboBoxClusterSelectionTextChanged(const QString& clusterName)
 {
   casaScenario_.setClusterName(clusterName);
+}
+
+void T2Zcontroller::slotExportT2ZScenarioClicked()
+{
+  getSourceAndT2zDir();
+  const QStringList iterations = QDir(t2zDir_).entryList({"T2Zcal_*"}, QDir::Filter::Dirs, QDir::Time | QDir::Reversed);
+  if (iterations.empty())
+  {
+    Logger::log() << "No T2Z results are available for export.\n" << Logger::endl();
+    return;
+  }
+
+  QDir sourceDir(t2zDir_ + "/" + iterations.last());
+  CMBProjectReader projectReader;
+  T2ZInfoGenerator t2zInfoGenerator(casaScenario_, projectReader);
+  functions::exportScenarioToZip(sourceDir, casaScenario_.workingDirectory(), casaScenario_.project3dFilename(), t2zInfoGenerator);
 }
 
 void T2Zcontroller::slotUpdateTabGUI(int tabID)

@@ -3,13 +3,13 @@ All necessary files will be copied to the new location within this class. The ne
 using casaScenario_.setWorkingDirectory(NEW WORKSPACE LOCATION);*/
 #pragma once
 
-class QString;
-
+#include <QString>
 namespace casaWizard
 {
 
 namespace workspaceGenerator
 {
+QString getTimeStamp(const QString& prefix = "");
 bool createWorkspace(const QString& rootPath,const QString& newFolder );
 bool copyDir(const QString& currentPath,const QString& newWorkspace);
 QString getSuggestedWorkspace(const QString& currentPath);

@@ -250,16 +250,14 @@ void DoEcontroller::slotPushSelectProject3dClicked()
   const QDir fileNamePath = QFileInfo(fileName).absoluteDir();
   const QString originalWorkspaceLocation = fileNamePath.absolutePath();
 
-  WorkspaceDialog popupWorkspace{originalWorkspaceLocation,casaWizard::workspaceGenerator::getSuggestedWorkspace(fileName) };
-
+  WorkspaceDialog popupWorkspace{originalWorkspaceLocation, casaWizard::workspaceGenerator::getSuggestedWorkspace(fileName) };
   if (popupWorkspace.exec() != QDialog::Accepted)
   {
     return;
   }
 
   const QString workingDirectory = popupWorkspace.optionSelected();
-
-  if (!functions::removeIfUserAgrees(workingDirectory))
+  if (!functions::overwriteIfDirectoryExists(workingDirectory))
   {
     return;
   }
@@ -272,7 +270,7 @@ void DoEcontroller::slotPushSelectProject3dClicked()
 
   setDoEstageIncomplete();
 
-  casaScenario_.setWorkingDirectory(popupWorkspace.optionSelected());
+  casaScenario_.setWorkingDirectory(popupWorkspace.optionSelected());  
   casaScenario_.setProject3dFilePath(fileName);
 
   const QString workingDir = casaScenario_.workingDirectory();

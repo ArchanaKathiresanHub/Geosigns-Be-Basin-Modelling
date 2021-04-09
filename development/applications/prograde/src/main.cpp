@@ -197,7 +197,7 @@ int main( const int argc, char ** argv )
    // load project
    mbapi::Model cldProject;
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SUBSECTION ) << "Reading project file: " << inFileName;
-   if ( ErrorHandler::NoError != cldProject.loadModelFromProjectFile( inFileName.c_str() ) )
+   if ( ErrorHandler::NoError != cldProject.loadModelFromProjectFile( inFileName ) )
    {
       LogHandler( LogHandler::ERROR_SEVERITY ) << std::string( "Failing to load project file: " ) + inFileName;
       return -1;

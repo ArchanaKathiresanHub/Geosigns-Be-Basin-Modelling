@@ -556,7 +556,7 @@ mbapi::Model & ScenarioAnalysis::ScenarioAnalysisImpl::baseCase()
 
       m_baseCase.reset( new mbapi::Model() );
 
-      if ( NoError != m_baseCase->loadModelFromProjectFile( m_baseCaseProjectFile.c_str() ) )
+      if ( NoError != m_baseCase->loadModelFromProjectFile( m_baseCaseProjectFile ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "defineBaseCase() can not load model from " << m_baseCaseProjectFile;
       }

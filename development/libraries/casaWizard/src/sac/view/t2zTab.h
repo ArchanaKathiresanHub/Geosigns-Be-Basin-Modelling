@@ -21,6 +21,7 @@ public:
   explicit T2Ztab(QWidget* parent = 0);
 
   const QPushButton* pushButtonSACrunT2Z() const;
+  const QPushButton* exportT2ZScenario() const;
   QComboBox* comboBoxProjectSelection() const;
   QComboBox* comboBoxReferenceSurface() const;
   QSpinBox* spinBoxSubSampling() const;
@@ -38,6 +39,7 @@ private:
   QSpinBox* spinBoxSubSampling_;
   QSpinBox* spinBoxNumberOfCPUs_;
   QComboBox* comboBoxClusterSelection_;
+  QPushButton* exportT2ZScenario_;
 };
 
 } // namespace sac

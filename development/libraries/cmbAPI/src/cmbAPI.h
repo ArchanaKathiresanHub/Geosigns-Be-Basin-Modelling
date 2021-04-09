@@ -238,7 +238,7 @@ namespace mbapi {
       ///
       /// @param[in] projectFileName name of the Cauldron project1d/project3d file
       /// @return NoError in case of success, error code otherwise
-      ReturnCode loadModelFromProjectFile( const char * projectFileName );
+      ReturnCode loadModelFromProjectFile(const string& projectFileName );
 
       /// @brief Save the model to the Cauldron project project1d/project3d file under the given file name
       ///        If file exist, it will be overwritten

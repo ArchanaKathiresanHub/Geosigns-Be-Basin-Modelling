@@ -90,8 +90,8 @@ int main( int argc, char ** argv )
 
    if ( argc < 3 ) return Usage( argv[0] );
 
-   const char * in1File = NULL;
-   const char * in2File = NULL;
+   std::string in1File;
+   std::string in2File;
 
    // parser input args
    for ( int i = 1; i < argc; ++i )
@@ -141,8 +141,8 @@ int main( int argc, char ** argv )
       }
       else
       {
-         if (      !in1File ) { in1File = argv[i]; }
-         else if ( !in2File ) { in2File = argv[i]; }
+         if (      in1File.empty() ) { in1File = argv[i]; }
+         else if ( in2File.empty() ) { in2File = argv[i]; }
          else
          {
             Message( std::string( "Unknown parameter: " ) + argv[i], PD_ERROR );
@@ -150,7 +150,7 @@ int main( int argc, char ** argv )
          }
       }
    }
-   if ( !in1File || !in2File ) 
+   if ( in1File.empty() || in2File.empty() )
    {
       Message( std::string( "Wrong parameters number, project file name is missing" ), PD_ERROR );
       return Usage( argv[0] );

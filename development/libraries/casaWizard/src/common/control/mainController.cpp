@@ -92,6 +92,8 @@ void MainController::slotOpen()
   folderLocation.cdUp();
   scenario().setWorkingDirectory( folderLocation.path() );
 
+  scenario().loadProject3dFile();
+
   emit signalProjectOpened();
   showFirstTab();
   Logger::log() << "Reading from file " << file << Logger::endl();
