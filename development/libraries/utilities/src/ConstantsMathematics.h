@@ -50,6 +50,7 @@ namespace Utilities
       constexpr double YearToSecond = 3.15576e7;          ///< Year to Seconds conversion factor(under the assumption that there are 365.25 days per year)
       constexpr double MicroSecondToSecond = 1e-6; ///< microsecond to second conversion factor
       constexpr double SecondToMicroSecond = 1e6; ///< second to microsecond conversion factor
+      constexpr double YearsToMillionYears = 1e-6;  ///< Years to Million Years conversion factor
 
 
       // Distance conversion tools

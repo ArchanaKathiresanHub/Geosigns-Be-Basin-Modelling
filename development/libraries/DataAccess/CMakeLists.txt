@@ -20,8 +20,7 @@ create_bm_library( TARGET ${LIB_NAME}
                    LIBRARIES
    ${Boost_LIBRARIES}
    ${HDF5_LIBRARIES}
-   DataModel
-   Serial_Hdf5
+   DataModel   
    TableIO
    EosPack
    CBMGenerics
@@ -29,15 +28,23 @@ create_bm_library( TARGET ${LIB_NAME}
    utilities
 )
 
-add_gtest( NAME DA::${LIB_NAME}
+add_gtest( NAME DA::DataAccess
            SOURCES test/DataAccess.cpp
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
            LIBRARIES ${LIB_NAME} SerialDataAccess Serial_Hdf5
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
-
 copy_test_file(DataAccessTest.project3d)
+
+add_gtest( NAME DA::GenerateSnapshots
+           SOURCES test/GenerateSnapshots.cpp
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
+           LIBRARIES ${LIB_NAME} SerialDataAccess Serial_Hdf5
+           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+copy_test_file(GenerateSnapshotsTest.project3d)
 
 add_gtest( NAME DA::CharismaFaultFileReaderTest
   SOURCES test/CharismaFaultFileReaderTest.cpp

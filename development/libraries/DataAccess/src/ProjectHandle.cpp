@@ -113,6 +113,7 @@
 #include "array.h"
 #include "errorhandling.h"
 #include "LogHandler.h"
+#include "ConstantsMathematics.h"
 #include "ConstantsNames.h"
 
 // FileSystem library
@@ -708,9 +709,16 @@ bool ProjectHandle::createSnapshotsAtGeologicalEvents()
       if ( getIsIgneousIntrusion( record ) == 1 )
       {
         const double igneousIntrusionAge = getIgneousIntrusionAge( record );
-        if ( igneousIntrusionAge != 0.0 )
+        if ( igneousIntrusionAge <= depoAge )
         {
-           geologicalEventAges.push_back( igneousIntrusionAge );
+          for ( const double extraYears : {0.0, 25.0, 375.0, 1575.0, 6375.0})  // Values from CTM
+          {
+            const double age = igneousIntrusionAge - extraYears * Utilities::Maths::YearsToMillionYears;
+            if (age > 0.0 && age <= depoAge)
+            {
+              geologicalEventAges.push_back( age );
+            }
+          }
         }
       }
    }
