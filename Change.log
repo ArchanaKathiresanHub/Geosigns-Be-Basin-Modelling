@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-12  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Additional major snapshots for sill intrusion.
+	* Additional generated major snapshots for sill intrusion
+
+	================== COMMIT-END ========================
+	Commit-ID:<caece3cab2bc7f83a05006d2f6a9f5626ff74adf>	  (refs/heads/master)
+
+++
 2021-04-09  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Improved the exporting of SAC scenarios.
