@@ -64,7 +64,7 @@ int main(int argc, char** argv)
    }
    catch (...)
    {
-      std::cerr << "Fatal error when initialising log file(s).";
+      std::cerr << "Fatal error when initializing log file(s).";
       return 1;
    }
 

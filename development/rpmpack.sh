@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -f
 CLDRN_VERSION=$1;
 Build_BinariesDirectory=$2;
 
@@ -8,19 +9,29 @@ instapath=$3;
 distb=$4;
 
 rm -rf ${Build_BinariesDirectory}/*
-Build_BuildNumber=11;
+Build_BuildNumber=$5;
 
 archi="";
 specPath="";
+rpm_version="";
 if [ ${OSTYPE} == "cygwin" ];then
 	archi="cygwin"
 	specPath="C:\Users\Arijit.Khan\Source\Repos\Basin-Modelling\development"
 else
-	archi=`getos2`;
+	#LinuxRHEL64_x86_64_79WS
+	archi=`getos2`; 
+	array=(${archi//_/ });
+	for i in "${!array[@]}"
+		do
+			array[i]=`echo "${array[i]}" | tr '[:upper:]' '[:lower:]'`;
+		done
+	#convert to linuxrhel_79ws-x86_64
+	SUF=$(printf '%s' "${array[0]}" | tr -d '0123456789')
+	rpm_version=$SUF"_"${array[3]};
 	specPath="./Basin-Modelling/development/my_ibs_version.spec "
 fi
 
-echo ${archi}
+echo "The OS is ${archi} and rpm_version is ${rpm_version}"
 pwd
 rpmbuild -bb -v  --buildroot=${Build_BinariesDirectory}/rpmbuild \
 				 --define "_dbpath ${Build_BinariesDirectory}/rpmdb" \
@@ -29,9 +40,9 @@ rpmbuild -bb -v  --buildroot=${Build_BinariesDirectory}/rpmbuild \
 				 --define "_tmppath %{_topdir}/tmp" \
 				 --define "_builddir ${Build_BinariesDirectory}" \
 				 --define "_version ${CLDRN_VERSION}" \
-				 --define "release ${Build_BuildNumber}" \
-				 --define "architecture ${archi}" \
-				 --define "_rpm_version ${archi}" \
+				 --define "_bldnum ${Build_BuildNumber}" \
+				 --define "_archi ${archi}" \
+				 --define "_rpm_version ${rpm_version}" \
 				 --define "_rpmdir ${Build_BinariesDirectory}/RPMS" \
 				 --define '_os anyos' \
 				 --define '_cpu x86_64' \
