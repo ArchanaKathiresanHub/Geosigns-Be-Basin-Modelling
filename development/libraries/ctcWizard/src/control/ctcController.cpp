@@ -625,183 +625,189 @@ void CTCcontroller::slotpushButtonExportCTCoutputMapsClicked()
 void CTCcontroller::slotPushSelectProject3dClicked()
 {
     // this was a botch up; max fileName on Lnux is 255 chars & maximum path of 4096 characters
-  int iMaxPathLen = 4096;
+    int iMaxPathLen = 4096;             // Maximum path length
+    int iMaxProject3dFileLen = 239;     // Maximum file name a Project3d can safely assume
 
-  QString fileName = QFileDialog::getOpenFileName(ctcTab_,"Select project file",ctcScenario_.project3dPath(),
+    // Getting the project3d file name with path
+    QString fileName = QFileDialog::getOpenFileName(ctcTab_,"Select project file",ctcScenario_.project3dPath(),
                                                     "Project files (*.project3d *.CTC)");
+    QFileInfo p3dinfo(fileName);
 
-  if(fileName.length() > iMaxPathLen)
-  {
-      mainController_->log("Selected Project3d file: " + fileName);
-      mainController_->log("Selected Scenario Path is too lengthy to handle!!! Shorten the folder names and path!!!");
-  }
-  else
-  {
-      ctcTab_->lineEditProject3D()->setText(fileName);
+    // Checking if the input project3d file name length is within valid range
+    if (p3dinfo.fileName().length() > iMaxProject3dFileLen) {
+        mainController_->log("Selected Project3d file: " + p3dinfo.fileName());
+        mainController_->log("Selected Project3d filename can not exceeds 239 characters!!! Shorten the Project3d file name!!!");
+        return;
+    }
 
-      ctcScenario_.clearLithosphereTable();
-      ctcScenario_.clearRiftingHistoryTable();
-      LithosphereParameterController(ctcTab_->lithosphereParameterTable(), ctcScenario_, mainController_);
-      RiftingHistoryController(ctcTab_->riftingHistoryTable(), ctcScenario_, mainController_);
+    // Checking if the scenario path length is within valid range
+    if(fileName.length() > iMaxPathLen)
+    {
+        mainController_->log("Selected Project3d file with path: " + fileName);
+        mainController_->log("Selected Scenario Path is too lengthy to handle!!! Shorten the folder names and path!!!");
+        return;
+    }  
+ 
+    ctcTab_->lineEditProject3D()->setText(fileName);
 
-      //[CTCIoTbl]
-      QVector<QString> lithosphereTblVector;
-      QString tblName = "[CTCIoTbl]";
-      GetTableFromProject3d(fileName, lithosphereTblVector, tblName);
+    ctcScenario_.clearLithosphereTable();
+    ctcScenario_.clearRiftingHistoryTable();
+    LithosphereParameterController(ctcTab_->lithosphereParameterTable(), ctcScenario_, mainController_);
+    RiftingHistoryController(ctcTab_->riftingHistoryTable(), ctcScenario_, mainController_);
 
+    //[CTCIoTbl]
+    QVector<QString> lithosphereTblVector;
+    QString tblName = "[CTCIoTbl]";
+    GetTableFromProject3d(fileName, lithosphereTblVector, tblName);
 
-      if(lithosphereTblVector.size())
-      {
-          QString &str = lithosphereTblVector[0];
-          QStringList strLst = str.simplified().split(" ");
-          QString strHcuIni, strHLMuIni, strFilterHalfWidth, strUpLoContCrRatio, strUpLoOceCrRatio;
-          if(strLst[1].contains("\""))
-          {
-              strHcuIni = strLst[3];
-              strHLMuIni = strLst[5];
-              strFilterHalfWidth =strLst[11];
-          }
-          else
-          {
-              strHcuIni = strLst[3];
-              strHLMuIni = strLst[5];
-              strFilterHalfWidth =strLst[11];
-          }
-          ctcScenario_.addLithosphereParameter("Initial Crust Thickness [m]",strHcuIni);
-          ctcScenario_.addLithosphereParameter("Initial Mantle Thickness [m]",strHLMuIni);
-          ctcScenario_.addLithosphereParameter("Smoothing Radius [number of cells]",strFilterHalfWidth);
-      }
-      else
-      {
-          ctcScenario_.addLithosphereParameter("Initial Crust Thickness [m]", theDefaults::InitialCrustThickness);
-          ctcScenario_.addLithosphereParameter("Initial Mantle Thickness [m]", theDefaults::InitialMantleThickness);
-          ctcScenario_.addLithosphereParameter("Smoothing Radius [number of cells]", theDefaults::SmoothingRadius);
-      }
+    if(lithosphereTblVector.size())
+    {
+        QString &str = lithosphereTblVector[0];
+        QStringList strLst = str.simplified().split(" ");
+        QString strHcuIni, strHLMuIni, strFilterHalfWidth, strUpLoContCrRatio, strUpLoOceCrRatio;
+        if(strLst[1].contains("\""))
+        {
+            strHcuIni = strLst[3];
+            strHLMuIni = strLst[5];
+            strFilterHalfWidth =strLst[11];
+        }
+        else
+        {
+            strHcuIni = strLst[3];
+            strHLMuIni = strLst[5];
+            strFilterHalfWidth =strLst[11];
+        }
+        ctcScenario_.addLithosphereParameter("Initial Crust Thickness [m]",strHcuIni);
+        ctcScenario_.addLithosphereParameter("Initial Mantle Thickness [m]",strHLMuIni);
+        ctcScenario_.addLithosphereParameter("Smoothing Radius [number of cells]",strFilterHalfWidth);
+    }
+    else
+    {
+        ctcScenario_.addLithosphereParameter("Initial Crust Thickness [m]", theDefaults::InitialCrustThickness);
+        ctcScenario_.addLithosphereParameter("Initial Mantle Thickness [m]", theDefaults::InitialMantleThickness);
+        ctcScenario_.addLithosphereParameter("Smoothing Radius [number of cells]", theDefaults::SmoothingRadius);
+    }
 
-      // Rifting History Table
-      QVector<QString> riftHistTblVector;
-      tblName = "[CTCRiftingHistoryIoTbl]";
-      GetTableFromProject3d(fileName, riftHistTblVector, tblName);
+    // Rifting History Table
+    QVector<QString> riftHistTblVector;
+    tblName = "[CTCRiftingHistoryIoTbl]";
+    GetTableFromProject3d(fileName, riftHistTblVector, tblName);
 
-      // SurfaceDepthIoTbl
-      QVector<QString> SurfaceDepthIoTblVector;
-      QString strHasPWD;
-      tblName = "[SurfaceDepthIoTbl]";
-      QVector<QString> strVectHasPWD;
-      GetTableFromProject3d(fileName, SurfaceDepthIoTblVector, tblName);
-      if(SurfaceDepthIoTblVector.size())
-      {
-          for(int i = 0; i < SurfaceDepthIoTblVector.size(); ++i)
-          {
-              QStringList strLst = SurfaceDepthIoTblVector[i].simplified().split(" ");
-              strVectHasPWD << strLst[0];
-          }
-      }
+    // SurfaceDepthIoTbl
+    QVector<QString> SurfaceDepthIoTblVector;
+    QString strHasPWD;
+    tblName = "[SurfaceDepthIoTbl]";
+    QVector<QString> strVectHasPWD;
+    GetTableFromProject3d(fileName, SurfaceDepthIoTblVector, tblName);
+    if(SurfaceDepthIoTblVector.size())
+    {
+        for(int i = 0; i < SurfaceDepthIoTblVector.size(); ++i)
+        {
+            QStringList strLst = SurfaceDepthIoTblVector[i].simplified().split(" ");
+            strVectHasPWD << strLst[0];
+        }
+    }
 
-      if(riftHistTblVector.size())
-      {
-          for(int i = 0; i < riftHistTblVector.size(); ++i)
-          {
-              //QString &str = riftHistTblVector[i];
-              strHasPWD = "N";
-              QStringList strLst = riftHistTblVector[i].simplified().split(" ");
-              QString strTectonicFlg, strRDAMap, strBasaltMap;
-              if(strLst[1].contains("Flexural"))
-                  strTectonicFlg = "Flexural Basin";
-              else if(strLst[1].contains("Active"))
-                  strTectonicFlg = "Active Rifting";
-              else if(strLst[1].contains("Passive"))
-                  strTectonicFlg = "Passive Margin";
+    if(riftHistTblVector.size())
+    {
+        for(int i = 0; i < riftHistTblVector.size(); ++i)
+        {
+            //QString &str = riftHistTblVector[i];
+            strHasPWD = "N";
+            QStringList strLst = riftHistTblVector[i].simplified().split(" ");
+            QString strTectonicFlg, strRDAMap, strBasaltMap;
+            if(strLst[1].contains("Flexural"))
+                strTectonicFlg = "Flexural Basin";
+            else if(strLst[1].contains("Active"))
+                strTectonicFlg = "Active Rifting";
+            else if(strLst[1].contains("Passive"))
+                strTectonicFlg = "Passive Margin";
 
-              int len = strLst[6].size();
-              if(strLst[4].size() == 2)
-                  strRDAMap = "";
-              else
-                  strRDAMap = strLst[4].mid(1,len-2);
-              if(strLst[6].size() == 2)
-                  strBasaltMap = "";
-              else
-                  strBasaltMap = strLst[6].mid(1,len-2);
+            int len = strLst[6].size();
+            if(strLst[4].size() == 2)
+                strRDAMap = "";
+            else
+                strRDAMap = strLst[4].mid(1,len-2);
+            if(strLst[6].size() == 2)
+                strBasaltMap = "";
+            else
+                strBasaltMap = strLst[6].mid(1,len-2);
 
-              for(int j = 0; j < strVectHasPWD.size(); ++j)
-              {
-                  if(strVectHasPWD[j].contains(strLst[0]))
-                  {
-                      strHasPWD = "Y";
-                      break;
-                  }
-              }
-              ctcScenario_.addRiftingHistory(strLst[0], strHasPWD, strTectonicFlg, strLst[3], strRDAMap, strLst[5], strBasaltMap);
-          }
-      }
-      else
-      {
-          // StratIoTbl
-          QVector<QString> stratIoTblVector;
-          tblName = "[StratIoTbl]";
-          GetTableFromProject3d(fileName, stratIoTblVector, tblName);
-          for(int i = 0; i < stratIoTblVector.size(); ++i)
-          {
-              QString &str = stratIoTblVector[i];
-              QStringList strLst1 = str.simplified().split(" ");
-              QString strAge;
-              strHasPWD = "N";
-              if(strLst1[0].endsWith("\""))
-                  strAge = strLst1[1];
-              else
-              {
-                  for(int j = 1; j < strLst1.size(); ++j)
-                  {
-                      if(strLst1[j].endsWith("\""))
-                      {
-                          strAge = strLst1[j+1];
-                          break;
-                      }
-                  }
-              }
+            for(int j = 0; j < strVectHasPWD.size(); ++j)
+            {
+                if(strVectHasPWD[j].contains(strLst[0]))
+                {
+                    strHasPWD = "Y";
+                    break;
+                }
+            }
+            ctcScenario_.addRiftingHistory(strLst[0], strHasPWD, strTectonicFlg, strLst[3], strRDAMap, strLst[5], strBasaltMap);
+        }
+    }
+    else
+    {
+        // StratIoTbl
+        QVector<QString> stratIoTblVector;
+        tblName = "[StratIoTbl]";
+        GetTableFromProject3d(fileName, stratIoTblVector, tblName);
+        for(int i = 0; i < stratIoTblVector.size(); ++i)
+        {
+            QString &str = stratIoTblVector[i];
+            QStringList strLst1 = str.simplified().split(" ");
+            QString strAge;
+            strHasPWD = "N";
+            if(strLst1[0].endsWith("\""))
+                strAge = strLst1[1];
+            else
+            {
+                for(int j = 1; j < strLst1.size(); ++j)
+                {
+                    if(strLst1[j].endsWith("\""))
+                    {
+                        strAge = strLst1[j+1];
+                        break;
+                    }
+                }
+            }
 
-              for(int j = 0; j < strVectHasPWD.size(); ++j)
-              {
-                  if(strVectHasPWD[j].contains(strAge))
-                  {
-                      strHasPWD = "Y";
-                      break;
-                  }
+            for(int j = 0; j < strVectHasPWD.size(); ++j)
+            {
+                if(strVectHasPWD[j].contains(strAge))
+                {
+                    strHasPWD = "Y";
+                    break;
+                }
+            }
 
-              }
+            if(i == 0)
+                ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Flexural Basin",theDefaults::RDA,"",theDefaults::BasaltThickness,"");
+            else if(i == stratIoTblVector.size() - 1)
+                ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Active Rifting", theDefaults::RDA, "", theDefaults::BasaltThickness, "");
+            else
+                ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Passive Margin", theDefaults::RDA, "", theDefaults::BasaltThickness, "");
+        }
+    }
 
-              if(i == 0)
-                  ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Flexural Basin",theDefaults::RDA,"",theDefaults::BasaltThickness,"");
-              else if(i == stratIoTblVector.size() - 1)
-                  ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Active Rifting", theDefaults::RDA, "", theDefaults::BasaltThickness, "");
-              else
-                  ctcScenario_.addRiftingHistory(strAge, strHasPWD, "Passive Margin", theDefaults::RDA, "", theDefaults::BasaltThickness, "");
-          }
-      }
+    QFileInfo info(ctcScenario_.project3dPath());
+    QDir dir(info.absoluteDir().path());
+    QStringList filters;
+    filters << "*.HDF";
 
-      QFileInfo info(ctcScenario_.project3dPath());
-      QDir dir(info.absoluteDir().path());
-      QStringList filters;
-      filters << "*.HDF";
+    ctcScenario_.riftingHistoryBasaltMaps_ = QStringList() << " ";
+    ctcScenario_.riftingHistoryRDAMaps_ = QStringList() << " ";
 
-      ctcScenario_.riftingHistoryBasaltMaps_ = QStringList() << " ";
-      ctcScenario_.riftingHistoryRDAMaps_ = QStringList() << " ";
+    foreach (QString file, dir.entryList(filters, QDir::Files))
+    {
+        ctcScenario_.riftingHistoryRDAMaps_ << file;
+        ctcScenario_.riftingHistoryBasaltMaps_ << file;
+    }
 
-      foreach (QString file, dir.entryList(filters, QDir::Files))
-      {
-          ctcScenario_.riftingHistoryRDAMaps_ << file;
-          ctcScenario_.riftingHistoryBasaltMaps_ << file;
-      }
+    LithosphereParameterController(ctcTab_->lithosphereParameterTable(), ctcScenario_, mainController_);
+    RiftingHistoryController(ctcTab_->riftingHistoryTable(), ctcScenario_, mainController_);
 
-
-      LithosphereParameterController(ctcTab_->lithosphereParameterTable(), ctcScenario_, mainController_);
-      RiftingHistoryController(ctcTab_->riftingHistoryTable(), ctcScenario_, mainController_);
-
-      mainController_->log("Selected Scenario: \"" + info.absoluteDir().path() + "\"");
-      mainController_->log("Loaded project3d file in CTC-UI: \"" + info.fileName() + "\"");
-      mainController_->log("- If RDA Adjustment Maps or Basalt Thickness Maps are selected, then respective scalar values are not considered !!!");
-  }
-
+    mainController_->log("Selected Scenario: \"" + info.absoluteDir().path() + "\"");
+    mainController_->log("Loaded project3d file in CTC-UI: \"" + info.fileName() + "\"");
+    mainController_->log("- If RDA Adjustment Maps or Basalt Thickness Maps are selected, then respective scalar values are not considered !!!");
 }
 
 
