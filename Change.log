@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: GUI updates.
+	* GUI updates
+
+	================== COMMIT-END ========================
+	Commit-ID:<c4e86f1a1963dfed6c043473c09efc752ce56e82>	  (refs/heads/master)
+
+++
 2021-04-12  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Additional major snapshots for sill intrusion.
