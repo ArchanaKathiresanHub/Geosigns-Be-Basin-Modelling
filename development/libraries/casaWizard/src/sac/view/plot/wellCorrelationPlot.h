@@ -1,4 +1,12 @@
-// Scatter plot of the simulated versus the measured data
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+// Correlation plot of the simulated versus the measured data
 #pragma once
 
 #include "model/trajectoryType.h"
@@ -14,12 +22,12 @@ namespace sac
 
 struct WellTrajectory;
 
-class WellScatterPlot : public Plot
+class WellCorrelationPlot : public Plot
 {
   Q_OBJECT
 
 public:
-  explicit WellScatterPlot(QWidget* parent = 0);
+  explicit WellCorrelationPlot(QWidget* parent = nullptr);
 
   void setData(const QVector<QVector<CalibrationTarget> >& targets,
                const QVector<QVector<WellTrajectory>>& allTrajectories,

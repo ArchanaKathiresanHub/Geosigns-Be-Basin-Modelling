@@ -7,6 +7,7 @@ class CustomTitle;
 
 class QLabel;
 class QListWidget;
+class QPushButton;
 class QStackedLayout;
 class QTableWidget;
 class QTableWidgetItem;
@@ -24,7 +25,7 @@ namespace sac
 class MultiWellPlot;
 class PlotOptions;
 class WellBirdsView;
-class WellScatterPlot;
+class WellCorrelationPlot;
 
 struct Lithofraction;
 struct OptimizedLithofraction;
@@ -40,14 +41,14 @@ public:
   QListWidget* wellsList() const;  
   PlotOptions* plotOptions() const;
   WellBirdsView* wellBirdsView() const;
-  WellScatterPlot* wellScatterPlot() const;
+  WellCorrelationPlot* wellCorrelationPlot() const;
 
   void updateWellList(const QVector<const Well*> wells);
   void updateWellPlot(const QVector<QVector<CalibrationTarget>> targets,
                       const QStringList properties,
                       const QVector<QVector<WellTrajectory>> allTrajectories,
                       const QVector<bool>& activePlots);
-  void updateScatterPlot(const QVector<QVector<CalibrationTarget>> targets,
+  void updateCorrelationPlot(const QVector<QVector<CalibrationTarget>> targets,
                          const QStringList properties,
                          const QVector<QVector<WellTrajectory>> allTrajectories,
                          const QVector<bool> activePlots,
@@ -57,7 +58,7 @@ public:
                                  const QVector<QVector<double> >& originalValuesVector,
                                  const QVector<QVector<double> >& optimizedValuesVector);
   void updateBirdsView(const QVector<const Well*> wells);
-  void updateSelectedWells(const QVector<int> selectedWells);
+  void updateSelectedWells();
 
   void setPlotType(const int currentIndex);
 
@@ -67,10 +68,12 @@ private:
   void setVisibleLithofractionColumn(const bool visible);
   QTableWidgetItem* createHeaderItem(const QString& name, int align);
 
+  QPushButton* selectAll_;
+  QPushButton* selectClear_;
   QListWidget* wellsList_;
   QTableWidget* optimizedLithoTable_;
   MultiWellPlot* multiWellPlot_;
-  WellScatterPlot* wellScatterPlot_;
+  WellCorrelationPlot* wellCorrelationPlot_;
   PlotOptions* plotOptions_;
   QStackedLayout* layoutStackedPlots_;
   CustomTitle* tableLable_;

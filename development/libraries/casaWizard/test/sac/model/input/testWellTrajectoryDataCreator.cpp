@@ -21,7 +21,7 @@ TEST( WellTrajectoryDataCreatorTest, testReadTrack1DFile )
 
   dataCreator.read();
 
-  const QVector<casaWizard::sac::WellTrajectory> trajectories = wellTrajectoryManager.trajectoriesType(casaWizard::sac::TrajectoryType::Base1D);
+  const QVector<casaWizard::sac::WellTrajectory> trajectories = wellTrajectoryManager.trajectoriesType(casaWizard::sac::TrajectoryType::Original1D);
 
   QVector<double> depthActual = trajectories[0].depth();
   QVector<double> valueActual = trajectories[0].value();

@@ -8,9 +8,9 @@ namespace sac
 
 enum TrajectoryType
 {
-  Base3D,
-  Base1D,
+  Original1D,
   Optimized1D,
+  Original3D,
   Optimized3D
 };
 

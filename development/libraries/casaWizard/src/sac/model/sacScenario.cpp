@@ -35,6 +35,8 @@ SACScenario::SACScenario(ProjectReader* projectReader) :
   t2zNumberCPUs_{defaultt2zNumberCPUs},
   activePlots_(4, true)
 {
+  activePlots_[2] = false;
+  activePlots_[3] = false;
 }
 
 QString SACScenario::stateFileNameSAC() const

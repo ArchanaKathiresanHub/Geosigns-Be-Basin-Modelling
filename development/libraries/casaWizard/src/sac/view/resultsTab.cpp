@@ -2,7 +2,7 @@
 
 #include "multiWellPlot.h"
 #include "plot/wellBirdsView.h"
-#include "plot/wellScatterPlot.h"
+#include "plot/wellCorrelationPlot.h"
 #include "plotOptions.h"
 
 #include "model/calibrationTarget.h"
@@ -35,18 +35,27 @@ namespace sac
 
 ResultsTab::ResultsTab(QWidget* parent) :
   QWidget(parent),
+  selectAll_{new QPushButton("Select all", this)},
+  selectClear_{new QPushButton("Clear selection", this)},
   wellsList_{new QListWidget(this)},
   optimizedLithoTable_{new QTableWidget(this)},
   multiWellPlot_{new MultiWellPlot(this)},
-  wellScatterPlot_{new WellScatterPlot(this)},
+  wellCorrelationPlot_{new WellCorrelationPlot(this)},
   plotOptions_{new PlotOptions(this)},
   layoutStackedPlots_{new QStackedLayout{}},  
   wellBirdsView_{new WellBirdsView(this)}
 {
+  QHBoxLayout* selectionLayout = new QHBoxLayout();
+  selectionLayout->addWidget(selectAll_);
+  selectionLayout->addWidget(selectClear_);
+  selectAll_->setVisible(false);
+  selectClear_->setVisible(false);
+
   // List with wells
   QVBoxLayout* wellList = new QVBoxLayout();
   wellList->addWidget(new CustomTitle("Wells"), 0);
   wellList->addWidget(wellsList_, 1);
+  wellList->addLayout(selectionLayout);
   wellList->addWidget(wellBirdsView_, 0);
   wellBirdsView_->setMaximumSize(400, 250);
   wellList->addWidget(plotOptions_, 0);
@@ -68,15 +77,18 @@ ResultsTab::ResultsTab(QWidget* parent) :
     optimizedLithoTable_->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
   }
 
-  layoutStackedPlots_->addWidget(optimizedLithoTable_);
   layoutStackedPlots_->addWidget(multiWellPlot_);
-  layoutStackedPlots_->addWidget(wellScatterPlot_);
+  layoutStackedPlots_->addWidget(wellCorrelationPlot_);
+  layoutStackedPlots_->addWidget(optimizedLithoTable_);
 
   QHBoxLayout* total = new QHBoxLayout();
   total->addLayout(wellList,1);
   total->addLayout(layoutStackedPlots_, 4);
 
-  setLayout(total);
+  setLayout(total);  
+
+  connect(selectClear_, SIGNAL(clicked()), wellsList_, SLOT(clearSelection()));
+  connect(selectAll_,   SIGNAL(clicked()), wellsList_, SLOT(selectAll()));
 }
 
 QTableWidgetItem* ResultsTab::createHeaderItem(const QString& name, int align)
@@ -104,9 +116,9 @@ WellBirdsView* ResultsTab::wellBirdsView() const
   return wellBirdsView_;
 }
 
-WellScatterPlot* ResultsTab::wellScatterPlot() const
+WellCorrelationPlot* ResultsTab::wellCorrelationPlot() const
 {
-  return wellScatterPlot_;
+  return wellCorrelationPlot_;
 }
 
 void ResultsTab::updateWellList(const QVector<const Well*> wells)
@@ -129,15 +141,15 @@ void ResultsTab::updateWellPlot(const QVector<QVector<CalibrationTarget> > targe
                               activePlots);
 }
 
-void ResultsTab::updateScatterPlot(const QVector<QVector<CalibrationTarget>> targets,
-                                   const QStringList properties,
-                                   const QVector<QVector<WellTrajectory>> allTrajectories,
-                                   const QVector<bool> activePlots,
-                                   const QString activeProperty)
+void ResultsTab::updateCorrelationPlot(const QVector<QVector<CalibrationTarget>> targets,
+                                       const QStringList properties,
+                                       const QVector<QVector<WellTrajectory>> allTrajectories,
+                                       const QVector<bool> activePlots,
+                                       const QString activeProperty)
 {
   if(properties.size()==0)
   {
-    wellScatterPlot_->clear();
+    wellCorrelationPlot_->clear();
     return;
   }
   assert(targets.size() ==  allTrajectories[0].size());
@@ -148,7 +160,7 @@ void ResultsTab::updateScatterPlot(const QVector<QVector<CalibrationTarget>> tar
   }
   plotOptions_->setProperties(properties, activePropertyIndex);
 
-  wellScatterPlot_->setData(targets,
+  wellCorrelationPlot_->setData(targets,
                             allTrajectories,
                             properties[activePropertyIndex],
                             activePlots);
@@ -223,36 +235,46 @@ void ResultsTab::setRangeBirdsView(const double xMin, const double xMax, const d
   wellBirdsView_->updateRange(xMin, xMax, yMin, yMax);
 }
 
-void ResultsTab::updateSelectedWells(const QVector<int> selectedWells)
+void ResultsTab::updateSelectedWells()
 {
-  wellBirdsView_->setSelectedWells(selectedWells);
+  QVector<int> selectedIndices;
+  for(const QModelIndex& index : wellsList()->selectionModel()->selectedIndexes())
+  {
+    selectedIndices.push_back(index.row());
+  }
+
+  wellBirdsView_->setSelectedWells(selectedIndices);
 }
 
 void ResultsTab::setPlotType(const int currentIndex)
-{
+{  
+  selectClear_->setVisible(false);
+  selectAll_->setVisible(false);
   optimizedLithoTable_->setEnabled(false);
   multiWellPlot_->setEnabled(false);
-  wellScatterPlot_->setEnabled(false);  
+  wellCorrelationPlot_->setEnabled(false);
   wellsList_->setSelectionMode(QAbstractItemView::SingleSelection);
   switch(currentIndex)
   {
     case 0:
     {
-      optimizedLithoTable_->setEnabled(true);
-      layoutStackedPlots_->setCurrentWidget(optimizedLithoTable_);
-      break;
-    }
-    case 1:
-    {
       multiWellPlot_->setEnabled(true);
       layoutStackedPlots_->setCurrentWidget(multiWellPlot_);
       break;
     }
+    case 1:
+    {
+      selectClear_->setVisible(true);
+      selectAll_->setVisible(true);
+      wellCorrelationPlot_->setEnabled(true);
+      wellsList_->setSelectionMode(QAbstractItemView::ExtendedSelection);
+      layoutStackedPlots_->setCurrentWidget(wellCorrelationPlot_);
+      break;
+    }
     case 2:
     {
-      wellScatterPlot_->setEnabled(true);      
-      wellsList_->setSelectionMode(QAbstractItemView::ExtendedSelection);
-      layoutStackedPlots_->setCurrentWidget(wellScatterPlot_);
+      optimizedLithoTable_->setEnabled(true);
+      layoutStackedPlots_->setCurrentWidget(optimizedLithoTable_);
       break;
     }
   }

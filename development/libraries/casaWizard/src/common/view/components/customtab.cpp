@@ -20,7 +20,7 @@ CustomTab::CustomTab(QWidget *parent) : QTabWidget(parent)
                     "border-bottom-color: #484848;"
                     "font-size : 15px;"
                     "color: #484848;"
-                    "min-width: 8ex;"
+                    "min-width: 28ex;"
                     "min-height: 24px;"
                 "}"
                 "QTabBar::tab:selected {"

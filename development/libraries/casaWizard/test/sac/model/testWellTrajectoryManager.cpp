@@ -17,9 +17,9 @@ TEST(WellTrajectoryManagerTest, testAddTrajectory)
   const int wellIndex{15};
   mgr.addWellTrajectory(wellIndex, property);
 
-  const QVector<casasac::WellTrajectory> baseRunWells = mgr.trajectoriesType(casasac::TrajectoryType::Base1D);
+  const QVector<casasac::WellTrajectory> baseRunWells = mgr.trajectoriesType(casasac::TrajectoryType::Original1D);
   const QVector<casasac::WellTrajectory> bestMatchWells = mgr.trajectoriesType(casasac::TrajectoryType::Optimized1D);
-  const QVector<casasac::WellTrajectory> base3dWells = mgr.trajectoriesType(casasac::TrajectoryType::Base3D);
+  const QVector<casasac::WellTrajectory> base3dWells = mgr.trajectoriesType(casasac::TrajectoryType::Original3D);
   const QVector<casasac::WellTrajectory> optimized3dWells = mgr.trajectoriesType(casasac::TrajectoryType::Optimized3D);
 
   ASSERT_EQ( 1, baseRunWells.size());
@@ -48,7 +48,7 @@ TEST(WellTrajectoryManagerTest, testSelectFromWell)
   mgr.addWellTrajectory(0, "VRe");
   mgr.addWellTrajectory(2, "VRe");
 
-  const QVector<casasac::WellTrajectory> baseRunInWell = mgr.trajectoriesInWell({0}, {"Temperature","VRe"})[casasac::TrajectoryType::Base1D];
+  const QVector<casasac::WellTrajectory> baseRunInWell = mgr.trajectoriesInWell({0}, {"Temperature","VRe"})[casasac::TrajectoryType::Original1D];
 
   ASSERT_EQ( baseRunInWell.size(), 2);
 
@@ -67,7 +67,7 @@ TEST(WellTrajectoryManagerTest, testSelectMultiWell)
   mgr.addWellTrajectory(1, "VRe");
   mgr.addWellTrajectory(2, "SonicSlowness");
 
-  const QVector<casasac::WellTrajectory> baseRunInWell = mgr.trajectoriesInWell({0,2}, {"Temperature","VRe", "SonicSlowness"})[casasac::TrajectoryType::Base1D];
+  const QVector<casasac::WellTrajectory> baseRunInWell = mgr.trajectoriesInWell({0,2}, {"Temperature","VRe", "SonicSlowness"})[casasac::TrajectoryType::Original1D];
 
   ASSERT_EQ( 2, baseRunInWell.size());
 
@@ -89,9 +89,9 @@ TEST(WellTrajectoryManagerTest, testWriteToFile)
   const int wellIndex2{16};
   mgr.addWellTrajectory(wellIndex2, property);
 
-  mgr.setTrajectoryData(casasac::Base1D,      0, {1, 2, 3}, {4, 5, 6});
+  mgr.setTrajectoryData(casasac::Original1D,      0, {1, 2, 3}, {4, 5, 6});
   mgr.setTrajectoryData(casasac::Optimized1D, 0, {1, 2, 3}, {7, 8, 9});
-  mgr.setTrajectoryData(casasac::Base3D,      0, {1, 2, 3}, {10, 11, 12});
+  mgr.setTrajectoryData(casasac::Original3D,      0, {1, 2, 3}, {10, 11, 12});
   mgr.setTrajectoryData(casasac::Optimized3D, 0, {1, 2, 3}, {13, 14, 15});
 
   casaWizard::ScenarioWriter writer{"wellTrajectoryManagerActual.dat"};
@@ -111,9 +111,9 @@ TEST(WellTrajectoryManagerTest, testReadFromFile)
 
   const QVector<QVector<casasac::WellTrajectory>> trajectoriesInWell = mgr.trajectoriesInWell({15}, {"Temperature"});
 
-  const casasac::WellTrajectory baseRunWell = trajectoriesInWell[casasac::TrajectoryType::Base1D][0];
+  const casasac::WellTrajectory baseRunWell = trajectoriesInWell[casasac::TrajectoryType::Original1D][0];
   const casasac::WellTrajectory bestMatchWell = trajectoriesInWell[casasac::TrajectoryType::Optimized1D][0];
-  const casasac::WellTrajectory base3dWell = trajectoriesInWell[casasac::TrajectoryType::Base3D][0];
+  const casasac::WellTrajectory base3dWell = trajectoriesInWell[casasac::TrajectoryType::Original3D][0];
   const casasac::WellTrajectory optimized3dWell = trajectoriesInWell[casasac::TrajectoryType::Optimized3D][0];
 
   EXPECT_EQ(baseRunWell.property().toStdString(), "Temperature");
@@ -151,7 +151,7 @@ TEST(WellTrajectoryManagerTest, testWriteReadEmptyResults)
   managerRead.readFromFile(reader);
 
   const QVector<QVector<casasac::WellTrajectory>> trajectoriesInWell = managerRead.trajectoriesInWell({1}, {"Temperature"});
-  const casasac::WellTrajectory baseRunWell   = trajectoriesInWell[casasac::Base1D][0];
+  const casasac::WellTrajectory baseRunWell   = trajectoriesInWell[casasac::Original1D][0];
   const casasac::WellTrajectory bestMatchWell = trajectoriesInWell[casasac::Optimized1D][0];
 
   EXPECT_EQ(baseRunWell.depth().size(), 0);

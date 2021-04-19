@@ -36,7 +36,7 @@ void WellTrajectoryExtractor::updateCaseScript(const int wellIndex, const QStrin
   const CalibrationTargetManager& ctManager = scenario().calibrationTargetManager();
   const Well& well = ctManager.well(wellIndex);
   const WellTrajectoryManager& manager = scenario().wellTrajectoryManager();
-  const QVector<WellTrajectory> wellTrajectories = manager.trajectoriesType(TrajectoryType::Base1D);
+  const QVector<WellTrajectory> wellTrajectories = manager.trajectoriesType(TrajectoryType::Original1D);
   for (const WellTrajectory& trajectory : wellTrajectories)
   {
     if (trajectory.wellIndex() == well.id())

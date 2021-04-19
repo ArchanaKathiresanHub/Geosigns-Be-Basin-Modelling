@@ -29,7 +29,7 @@ void convertToScenario(const Case3DTrajectoryReader& reader, SACScenario& scenar
   assert(size == y.size());
   assert(size == depth.size());
 
-  const QVector<WellTrajectory> trajectories = manager.trajectories()[optimized?TrajectoryType::Optimized3D:TrajectoryType::Base3D];
+  const QVector<WellTrajectory> trajectories = manager.trajectories()[optimized?TrajectoryType::Optimized3D:TrajectoryType::Original3D];
   double currentX{0};
   double currentY{0};
 
@@ -79,7 +79,7 @@ void convertToScenario(const Case3DTrajectoryReader& reader, SACScenario& scenar
     }
     else
     {
-      manager.setTrajectoryData(TrajectoryType::Base3D, traj.trajectoryIndex(), d, v);
+      manager.setTrajectoryData(TrajectoryType::Original3D, traj.trajectoryIndex(), d, v);
     }
   }
 }

@@ -9,6 +9,7 @@
 #pragma once
 
 #include <QObject>
+#include <QVector>
 
 class QString;
 
@@ -40,7 +41,7 @@ private slots:
   void togglePlotType(const int currentIndex);
   void updateProperty(const QString property);
   void updateWellFromBirdView(const int lineIndex, const int pointIndex);
-  void selectedWellFromScatter(const int wellIndex);
+  void selectedWellFromCorrelation(const int wellIndex);
   void slotUpdateTabGUI(int tabID);
 
 private:
@@ -48,14 +49,14 @@ private:
   void refreshPlot();
   void updateOptimizedTable();
   void updateWellPlot();
-  void updateScatterPlot();
+  void updateCorrelationPlot();
   void updateBirdView();
-  QVector<int> selectedWells();
+  QVector<int> selectedWellsIDs();
 
   ResultsTab* resultsTab_;
   SACScenario& scenario_;
   ScriptRunController& scriptRunController_;
-  int activeWell_;
+  QVector<int> selectedWellsIDs_;
   QString activeProperty_;
 
   void initializeWellSelection();

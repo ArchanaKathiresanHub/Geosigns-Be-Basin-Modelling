@@ -32,9 +32,9 @@ WellPlot::WellPlot(QWidget* parent) :
 {
   QVector<QString> legend(5, "");
   legend[0] = "Measurement";
-  legend[1 + TrajectoryType::Base3D] = "Base 3d case";
-  legend[1 + TrajectoryType::Base1D] = "Base 1d case";
+  legend[1 + TrajectoryType::Original1D] = "Original 1d case";
   legend[1 + TrajectoryType::Optimized1D] = "Optimized 1d case";
+  legend[1 + TrajectoryType::Original3D] = "Original 3d case";
   legend[1 + TrajectoryType::Optimized3D] = "Optimized 3d case";
   completeLegend_ = legend.toList();
   setLegend(completeLegend_);

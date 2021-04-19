@@ -33,7 +33,7 @@ TEST(SACScenarioTest, testWriteRead)
   casaWizard::sac::WellTrajectoryManager& wellTrajectoryManagerWrite = writeScenario.wellTrajectoryManager();
   wellTrajectoryManagerWrite.addWellTrajectory(15, "Temperature");
   wellTrajectoryManagerWrite.addWellTrajectory(16, "Temperature");
-  wellTrajectoryManagerWrite.setTrajectoryData(casaWizard::sac::TrajectoryType::Base1D, 0, {1, 2, 3}, {4, 5, 6});
+  wellTrajectoryManagerWrite.setTrajectoryData(casaWizard::sac::TrajectoryType::Original1D, 0, {1, 2, 3}, {4, 5, 6});
   wellTrajectoryManagerWrite.setTrajectoryData(casaWizard::sac::TrajectoryType::Optimized1D, 0, {1, 2, 3},  {7, 8, 9});
 
   casaWizard::ScenarioWriter writer{"scenario.dat"};
@@ -81,7 +81,7 @@ TEST(SACScenarioTest, testWriteRead)
   const casaWizard::sac::WellTrajectoryManager& wellTrajectoryManagerRead = readScenario.wellTrajectoryManager();
 
   const QVector<QVector<casaWizard::sac::WellTrajectory>> trajectoriesInWell = wellTrajectoryManagerRead.trajectoriesInWell({15}, {"Temperature"});
-  const casaWizard::sac::WellTrajectory baseRunWell = trajectoriesInWell[casaWizard::sac::TrajectoryType::Base1D][0];
+  const casaWizard::sac::WellTrajectory baseRunWell = trajectoriesInWell[casaWizard::sac::TrajectoryType::Original1D][0];
   const casaWizard::sac::WellTrajectory bestMatchWell = trajectoriesInWell[casaWizard::sac::TrajectoryType::Optimized1D][0];
 
   EXPECT_EQ(baseRunWell.property().toStdString(), "Temperature");

@@ -78,7 +78,7 @@ QString Generate3DScenarioScript::setFilterOneDResults() const
   const QVector<const Well*>& wells = ctManager.wells();
   const WellTrajectoryManager& mgr = scenario_.wellTrajectoryManager();
   int i = 0;
-  for (const WellTrajectory& wellTrajectory: mgr.trajectoriesType(TrajectoryType::Base1D))
+  for (const WellTrajectory& wellTrajectory: mgr.trajectoriesType(TrajectoryType::Original1D))
   {
     const Well* well = wells[wellTrajectory.wellIndex()];
     if ( well->isActive() )

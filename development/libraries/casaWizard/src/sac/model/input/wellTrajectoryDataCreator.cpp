@@ -26,13 +26,13 @@ void WellTrajectoryDataCreator::readCase(const int wellIndex, const int caseInde
   const Well& well = calibrationTargetManager().well(wellIndex);
   const QString dataFolder = iterationPath() + "/Case_" + QString::number(caseIndex);
 
-  const QVector<WellTrajectory> trajectories = wellTrajectoryManager_.trajectoriesType(TrajectoryType::Base1D);
+  const QVector<WellTrajectory> trajectories = wellTrajectoryManager_.trajectoriesType(TrajectoryType::Original1D);
   for (const WellTrajectory& trajectory : trajectories )
   {
     if(trajectory.wellIndex() == well.id())
     {
       WellData baseRunData = readSingleTrajectory(trajectory, dataFolder, projectName_);
-      wellTrajectoryManager_.setTrajectoryData(TrajectoryType::Base1D, trajectory.trajectoryIndex(), baseRunData.depth, baseRunData.value);
+      wellTrajectoryManager_.setTrajectoryData(TrajectoryType::Original1D, trajectory.trajectoryIndex(), baseRunData.depth, baseRunData.value);
 
       WellData bestMatchData = readSingleTrajectory(trajectory, dataFolder, "bestMatchedCase");
       wellTrajectoryManager_.setTrajectoryData(TrajectoryType::Optimized1D, trajectory.trajectoryIndex(), bestMatchData.depth, bestMatchData.value);

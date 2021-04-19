@@ -131,8 +131,7 @@ void MapsController::slotUpdateWell(const QString& name)
     }
   }
 
-  refreshGUI();
-  Logger::log() << "Selected well " << selectedWell_ << Logger::endl();
+  refreshGUI();  
 }
 
 void MapsController::slotGenerateLithoMaps()

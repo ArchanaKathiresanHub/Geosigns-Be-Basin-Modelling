@@ -17,6 +17,7 @@
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
+#include <QPushButton>
 
 namespace casaWizard
 {
@@ -26,37 +27,37 @@ namespace sac
 
 PlotOptions::PlotOptions(QWidget* parent) :
   QWidget(parent),
-  base1d_{new CustomCheckbox("Base 1d", this)},
+  original1d_{new CustomCheckbox("Original 1d", this)},
   optimized1d_{new CustomCheckbox("Optimized 1d", this)},
-  base3d_{new CustomCheckbox("Base 3d", this)},
+  original3d_{new CustomCheckbox("Original 3d", this)},
   optimized3d_{new CustomCheckbox("Optimized 3d", this)},
   properties_{new QComboBox(this)},
   plotType_{new QButtonGroup(this)},
   table_{new CustomRadioButton("Table", this)},
-  linePlot_{new CustomRadioButton("Line plot", this)},
-  scatterPlot_{new CustomRadioButton("Scatter plot", this)}
+  depthPlot_{new CustomRadioButton("Depth plot", this)},
+  correlationPlot_{new CustomRadioButton("Correlation plot", this)}
 {
-  table_->setChecked(true);
-  plotType_->addButton(table_, 0);
-  plotType_->addButton(linePlot_, 1);
-  plotType_->addButton(scatterPlot_, 2);
+  depthPlot_->setChecked(true);
+  plotType_->addButton(depthPlot_, 0);
+  plotType_->addButton(correlationPlot_, 1);
+  plotType_->addButton(table_, 2);
 
   QGridLayout* layout = new QGridLayout();
   layout->addWidget(new QLabel("Plot options", this), 0, 0);
-  layout->addWidget(base1d_, 1, 0);
+  layout->addWidget(original1d_, 1, 0);
   layout->addWidget(optimized1d_, 1, 1);
-  layout->addWidget(base3d_, 2, 0);
+  layout->addWidget(original3d_, 2, 0);
   layout->addWidget(optimized3d_, 2, 1);
-  layout->addWidget(table_, 3, 0);
-  layout->addWidget(linePlot_, 4, 0);
-  layout->addWidget(scatterPlot_, 5, 0);
+  layout->addWidget(depthPlot_, 3, 0);
+  layout->addWidget(correlationPlot_, 4, 0);
+  layout->addWidget(table_, 5, 0);
 
   properties_->setVisible(false);
-  layout->addWidget(properties_, 5, 1, 2, 1);
+  layout->addWidget(properties_, 4, 1, 1, 1);
   setLayout(layout);
 
-  connect(base1d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
-  connect(base3d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
+  connect(original1d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
+  connect(original3d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
   connect(optimized1d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
   connect(optimized3d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
 
@@ -71,7 +72,7 @@ void PlotOptions::plotTypeButtonToggle(int index, bool checked)
     emit plotTypeChange(index);
     switch (index)
     {
-      case 2:
+      case 1:
         properties_->setVisible(true);
         break;
       default:
@@ -84,9 +85,9 @@ QVector<bool> PlotOptions::activePlots() const
 {
   QVector<bool> active(4, false);
 
-  active[TrajectoryType::Base1D] = base1d_->isChecked();
+  active[TrajectoryType::Original1D] = original1d_->isChecked();
   active[TrajectoryType::Optimized1D] = optimized1d_->isChecked();
-  active[TrajectoryType::Base3D] = base3d_->isChecked();
+  active[TrajectoryType::Original3D] = original3d_->isChecked();
   active[TrajectoryType::Optimized3D] = optimized3d_->isChecked();
 
   return active;
@@ -94,9 +95,9 @@ QVector<bool> PlotOptions::activePlots() const
 
 void PlotOptions::setActivePlots(const QVector<bool> activePlots)
 {
-  base1d_->setChecked(activePlots[TrajectoryType::Base1D]);
+  original1d_->setChecked(activePlots[TrajectoryType::Original1D]);
   optimized1d_->setChecked(activePlots[TrajectoryType::Optimized1D]);
-  base3d_->setChecked(activePlots[TrajectoryType::Base3D]);
+  original3d_->setChecked(activePlots[TrajectoryType::Original3D]);
   optimized3d_->setChecked(activePlots[TrajectoryType::Optimized3D]);
 }
 

@@ -28,7 +28,7 @@ Window::Window(QWidget* parent) :
   setWindowTitle("SAC Wizard");
 
   tabWidget()->addTab(sacTab_, "Input");
-  tabWidget()->addTab(resultsTab_, "Results");
+  tabWidget()->addTab(resultsTab_, "Well log plots and Results");
   tabWidget()->addTab(mapsTab_, "Maps");
   tabWidget()->addTab(t2zTab_, "T2Z");
 

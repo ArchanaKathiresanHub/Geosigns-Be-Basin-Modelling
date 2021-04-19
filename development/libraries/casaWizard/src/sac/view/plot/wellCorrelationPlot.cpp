@@ -1,4 +1,12 @@
-#include "wellScatterPlot.h"
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#include "wellCorrelationPlot.h"
 
 #include "model/calibrationTarget.h"
 #include "model/functions/interpolateVector.h"
@@ -15,7 +23,7 @@ namespace casaWizard
 namespace sac
 {
 
-WellScatterPlot::WellScatterPlot(QWidget* parent) :
+WellCorrelationPlot::WellCorrelationPlot(QWidget* parent) :
   Plot(parent),
   completeLegend_{},
   wellIndices_{},
@@ -23,11 +31,11 @@ WellScatterPlot::WellScatterPlot(QWidget* parent) :
   maxValue_{1.0}
 {
   QVector<QString> legend(4, "");
-  legend[TrajectoryType::Base3D] = "Base 3d case";
-  legend[TrajectoryType::Base1D] = "Base 1d case";
+  legend[TrajectoryType::Original1D] = "Original 1d case";
   legend[TrajectoryType::Optimized1D] = "Optimized 1d case";
+  legend[TrajectoryType::Original3D] = "Original 3d case";
   legend[TrajectoryType::Optimized3D] = "Optimized 3d case";
-  completeLegend_  = legend.toList();
+  completeLegend_ = legend.toList();
   setLegend(completeLegend_);
   setXLabel("Measurement");
   setYLabel("Simulation");
@@ -35,7 +43,7 @@ WellScatterPlot::WellScatterPlot(QWidget* parent) :
   connect(this, SIGNAL(pointSelectEvent(int,int)), this, SLOT(selectedPoint(int,int)));
 }
 
-void WellScatterPlot::setData(const QVector<QVector<CalibrationTarget>>& targets,
+void WellCorrelationPlot::setData(const QVector<QVector<CalibrationTarget>>& targets,
                               const QVector<QVector<WellTrajectory>>& allTrajectories,
                               const QString property,
                               const QVector<bool> activePlots)
@@ -111,18 +119,18 @@ void WellScatterPlot::setData(const QVector<QVector<CalibrationTarget>>& targets
   update();
 }
 
-void WellScatterPlot::clear()
+void WellCorrelationPlot::clear()
 {
   clearData();
   update();
 }
 
-void WellScatterPlot::updateMinMaxData()
+void WellCorrelationPlot::updateMinMaxData()
 {
   setMinMaxValues(minValue_, maxValue_, minValue_, maxValue_);
 }
 
-void WellScatterPlot::resizeEvent(QResizeEvent* event)
+void WellCorrelationPlot::resizeEvent(QResizeEvent* event)
 {
   const QSize currentSize = size();
   const int min = std::min(currentSize.width(), currentSize.height());
@@ -130,7 +138,7 @@ void WellScatterPlot::resizeEvent(QResizeEvent* event)
   Plot::resizeEvent(event);
 }
 
-void WellScatterPlot::selectedPoint(int plot, int point)
+void WellCorrelationPlot::selectedPoint(int plot, int point)
 {
   if (point >= wellIndices_.size())
   {
@@ -139,7 +147,7 @@ void WellScatterPlot::selectedPoint(int plot, int point)
   emit selectedWell(wellIndices_[point]);
 }
 
-void WellScatterPlot::paintEvent(QPaintEvent* event)
+void WellCorrelationPlot::paintEvent(QPaintEvent* event)
 {
   Plot::paintEvent(event);
 

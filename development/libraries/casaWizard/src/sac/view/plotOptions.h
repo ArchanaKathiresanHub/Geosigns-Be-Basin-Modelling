@@ -14,6 +14,7 @@
 class QButtonGroup;
 class QCheckBox;
 class QComboBox;
+class QPushButton;
 class CustomRadioButton;
 
 namespace casaWizard
@@ -43,16 +44,16 @@ private slots:
   void plotTypeButtonToggle(int index, bool checked);
 
 private:
-  QCheckBox* base1d_;
+  QCheckBox* original1d_;
   QCheckBox* optimized1d_;
-  QCheckBox* base3d_;
+  QCheckBox* original3d_;
   QCheckBox* optimized3d_;
   QComboBox* properties_;
 
   QButtonGroup* plotType_;
   CustomRadioButton* table_;
-  CustomRadioButton* linePlot_;
-  CustomRadioButton* scatterPlot_;
+  CustomRadioButton* depthPlot_;
+  CustomRadioButton* correlationPlot_;
 };
 
 }  // namespace sac

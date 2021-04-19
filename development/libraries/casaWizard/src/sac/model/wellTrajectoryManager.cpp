@@ -93,17 +93,17 @@ QVector<WellTrajectory> WellTrajectoryManager::selectFromWell(const QVector<Well
 void WellTrajectoryManager::writeToFile(ScenarioWriter& writer) const
 {
   writer.writeValue("WellTrajectoryManagerVersion", 0);
-  writer.writeValue("baseRunTrajectories", trajectories_[TrajectoryType::Base1D]);
+  writer.writeValue("baseRunTrajectories", trajectories_[TrajectoryType::Original1D]);
   writer.writeValue("bestMatchTrajectories", trajectories_[TrajectoryType::Optimized1D]);
-  writer.writeValue("base3dTrajectories", trajectories_[TrajectoryType::Base3D]);
+  writer.writeValue("base3dTrajectories", trajectories_[TrajectoryType::Original3D]);
   writer.writeValue("optimized3dTrajectories", trajectories_[TrajectoryType::Optimized3D]);
 }
 
 void WellTrajectoryManager::readFromFile(const ScenarioReader& reader)
 {
-  trajectories_[TrajectoryType::Base1D] = reader.readVector<WellTrajectory>("baseRunTrajectories");
+  trajectories_[TrajectoryType::Original1D] = reader.readVector<WellTrajectory>("baseRunTrajectories");
   trajectories_[TrajectoryType::Optimized1D] = reader.readVector<WellTrajectory>("bestMatchTrajectories");
-  trajectories_[TrajectoryType::Base3D] = reader.readVector<WellTrajectory>("base3dTrajectories");
+  trajectories_[TrajectoryType::Original3D] = reader.readVector<WellTrajectory>("base3dTrajectories");
   trajectories_[TrajectoryType::Optimized3D] = reader.readVector<WellTrajectory>("optimized3dTrajectories");
 }
 
