@@ -4,6 +4,7 @@
 #include "plot/wellBirdsView.h"
 #include "plot/wellCorrelationPlot.h"
 #include "plotOptions.h"
+#include "colormap.h"
 
 #include "model/calibrationTarget.h"
 #include "model/input/projectReader.h"
@@ -42,9 +43,12 @@ ResultsTab::ResultsTab(QWidget* parent) :
   multiWellPlot_{new MultiWellPlot(this)},
   wellCorrelationPlot_{new WellCorrelationPlot(this)},
   plotOptions_{new PlotOptions(this)},
-  layoutStackedPlots_{new QStackedLayout{}},  
-  wellBirdsView_{new WellBirdsView(this)}
+  layoutStackedPlots_{new QStackedLayout{}},
+  colorMap_{new ColorMap()},
+  wellBirdsView_{new WellBirdsView(*colorMap_, this)}
 {
+  colorMap_->setColorMapType("Gray scale");
+
   QHBoxLayout* selectionLayout = new QHBoxLayout();
   selectionLayout->addWidget(selectAll_);
   selectionLayout->addWidget(selectClear_);

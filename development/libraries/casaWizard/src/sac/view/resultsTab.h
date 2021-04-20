@@ -22,6 +22,7 @@ struct Well;
 namespace sac
 {
 
+class ColorMap;
 class MultiWellPlot;
 class PlotOptions;
 class WellBirdsView;
@@ -77,6 +78,7 @@ private:
   PlotOptions* plotOptions_;
   QStackedLayout* layoutStackedPlots_;
   CustomTitle* tableLable_;
+  ColorMap* colorMap_;
   WellBirdsView* wellBirdsView_;
 };
 

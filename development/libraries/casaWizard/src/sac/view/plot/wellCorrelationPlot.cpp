@@ -138,7 +138,7 @@ void WellCorrelationPlot::resizeEvent(QResizeEvent* event)
   Plot::resizeEvent(event);
 }
 
-void WellCorrelationPlot::selectedPoint(int plot, int point)
+void WellCorrelationPlot::selectedPoint(int /*plot*/, int point)
 {
   if (point >= wellIndices_.size())
   {

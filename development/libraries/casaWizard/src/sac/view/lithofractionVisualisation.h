@@ -27,10 +27,9 @@ class Well;
 namespace sac
 {
 
-class OptimizedLithofraction;
-class Grid2DPlot;
-class Grid2DView;
 class ColorBar;
+class Grid2DPlot;
+class OptimizedLithofraction;
 
 class LithofractionVisualisation : public QWidget
 {

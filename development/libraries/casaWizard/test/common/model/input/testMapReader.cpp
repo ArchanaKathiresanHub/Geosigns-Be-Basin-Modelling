@@ -23,7 +23,7 @@ public:
 
 TEST_F(MapReaderTest, testgetMapData)
 {
-  LithofractionMap lithoMap = reader_.getMapData("MAP-27109");
+  VectorVectorMap lithoMap = reader_.getMapData("MAP-27109");
 
   // Sample test
   EXPECT_DOUBLE_EQ(lithoMap.getData()[2][93], 1564.73046875);

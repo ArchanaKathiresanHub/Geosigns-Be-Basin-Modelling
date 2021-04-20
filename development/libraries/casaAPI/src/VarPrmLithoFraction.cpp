@@ -171,6 +171,20 @@ namespace casa
       // get the stratigraphy manager
       mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager();
 
+      // Correct for the region with valid data
+      std::vector<double> depths;
+      mdl.getGridMapDepthValues(0, depths);
+      assert(depths.size() == lf1CorrInt.size());
+      assert(depths.size() == lf2CorrInt.size());
+      for ( unsigned int i = 0; i < depths.size(); ++i )
+      {
+        if ( IsValueUndefined(depths[i]) )
+        {
+          lf1CorrInt[i] = Utilities::Numerical::CauldronNoDataValue;
+          lf2CorrInt[i] = Utilities::Numerical::CauldronNoDataValue;
+        }
+      }
+
       // get the layer ID
       mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( m_layerName );
       if ( strMgr.errorCode() != ErrorHandler::NoError )

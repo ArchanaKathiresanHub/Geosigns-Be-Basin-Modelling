@@ -9,8 +9,7 @@
 // Birds eye view for the wells, with the option to select those
 #pragma once
 
-#include "view/plot/plot.h"
-#include "QtCharts/QChart"
+#include "view/plot/grid2Dview.h"
 
 namespace casaWizard
 {
@@ -18,13 +17,12 @@ namespace casaWizard
 namespace sac
 {
 
-
-class WellBirdsView : public Plot
+class WellBirdsView : public Grid2DView
 {
   Q_OBJECT
 
 public:
-  explicit WellBirdsView(QWidget* parent = nullptr);
+  explicit WellBirdsView(const ColorMap& colormap, QWidget* parent = nullptr);
 
   void setWellLocations(const QVector<double>& x, const QVector<double>& y);
   void setSelectedWells(const QVector<int> selectedWells);
@@ -32,8 +30,8 @@ public:
   const QVector<double>& x() const;
   const QVector<double>& y() const;
 
-  void updateRange(const double xMin, const double xMax, const double yMin, const double yMax);
-  void updateMinMaxData() override {}
+  void drawData(QPainter& painter) override;
+
 private:
   QVector<double> x_;
   QVector<double> y_;

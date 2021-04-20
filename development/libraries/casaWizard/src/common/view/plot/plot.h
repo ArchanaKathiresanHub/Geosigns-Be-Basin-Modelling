@@ -66,7 +66,7 @@ signals:
   void pointSelectEvent(int, int);
 
 protected:
-  void clearData();
+  void clearData() override;
   void mousePressEvent(QMouseEvent* event) override;
   void drawData(QPainter& painter) override;
 

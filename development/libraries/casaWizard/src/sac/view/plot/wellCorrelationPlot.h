@@ -34,13 +34,13 @@ public:
                const QString property,
                const QVector<bool> activePlots);
   void clear();
-  void updateMinMaxData() override;
 signals:
   void selectedWell(int wellIndex);
 
 protected:
   void paintEvent(QPaintEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
+  void updateMinMaxData() override;
 
 private slots:
   void selectedPoint(int plot, int point);

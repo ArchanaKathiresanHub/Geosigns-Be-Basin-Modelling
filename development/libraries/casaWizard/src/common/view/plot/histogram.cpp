@@ -27,6 +27,7 @@ Histogram::Histogram(QWidget* parent) :
 
 void Histogram::setData(const QVector<double>& values, int bins)
 {
+  clearData();
   minValue_ = *std::min_element(values.constBegin(), values.constEnd());
   maxValue_ = *std::max_element(values.constBegin(), values.constEnd());
 
@@ -49,6 +50,12 @@ void Histogram::setData(const QVector<double>& values, int bins)
   percentileValues_ = percentileGenerator::getPercentileValues(values, percentileTargets);
 
   dataChanged();
+}
+
+void Histogram::clearData()
+{
+  dataBins_.clear();
+  percentileValues_.clear();
 }
 
 void Histogram::updateMinMaxData()

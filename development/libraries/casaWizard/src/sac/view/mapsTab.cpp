@@ -14,7 +14,7 @@
 #include "model/well.h"
 #include "view/activeWellsTable.h"
 #include "view/grid2dplot.h"
-#include "view/plot/grid2Dview.h"
+#include "view/plot/lithoPercent2Dview.h"
 #include "view/lithofractionVisualisation.h"
 
 #include <QComboBox>

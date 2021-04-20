@@ -150,23 +150,28 @@ void PlotBase::PlotBasePrivate::updatePlotRange(const int width, const int heigh
   const double offsetHeight = majorTickLength + 2*fm.height() + 3*textSpacing;
   const double offsetWidth = majorTickLength + fm.height() + maxYtickWidth_ + 3*textSpacing;
 
-  if (std::fabs(aspectRatioPlotArea_) < 1e-5)
+  plotRangeTopLeft_ = QPointF(offsetWidth, offsetHeight/3);
+  plotRangeBottomRight_ = QPointF(width - offsetWidth/3, height - offsetHeight);
+  if (std::fabs(aspectRatioPlotArea_) > 1e-5)
   {
-    plotRangeTopLeft_ = QPointF(offsetWidth, offsetHeight/3);
-    plotRangeBottomRight_ = QPointF(width - offsetWidth/3, height - offsetHeight);
-  }
-  else
-  {
-    int widthScaled = aspectRatioPlotArea_ * height;
-    int heightScaled = height;
-    if (widthScaled > width)
-    {
-      widthScaled = width;
-      heightScaled = width / aspectRatioPlotArea_;
-    }
+    const double w = plotRangeBottomRight_.x() - plotRangeTopLeft_.x();
+    const double h = plotRangeBottomRight_.y() - plotRangeTopLeft_.y();
 
-    plotRangeTopLeft_ = QPointF(offsetWidth + std::fabs(width - widthScaled)/2, offsetHeight/3 + (height - heightScaled) / 2);
-    plotRangeBottomRight_ = QPointF(widthScaled + std::fabs(width - widthScaled)/2 - offsetWidth/3, heightScaled - offsetHeight + (height - heightScaled) / 2);
+    double widthScaled = aspectRatioPlotArea_ * h;
+    if (widthScaled > w)
+    {      
+      double heightScaled = w / aspectRatioPlotArea_;
+
+      const QPointF offset(0.0, (h - heightScaled)/2);
+      plotRangeTopLeft_ += offset;
+      plotRangeBottomRight_ -= offset;
+    }
+    else
+    {
+      const QPointF offset((w - widthScaled)/2, 0.0);
+      plotRangeTopLeft_ += offset;
+      plotRangeBottomRight_ -= offset;
+    }
   }
 }
 
@@ -344,11 +349,11 @@ void PlotBase::paintEvent(QPaintEvent* /*event*/)
 
   plotBasePrivate_->updatePlotRange(width(), height());
 
+  drawData(painter);
   plotBasePrivate_->drawBorder(painter, width(), height());
   plotBasePrivate_->drawAxes(painter);
   plotBasePrivate_->drawTicks(painter);
   plotBasePrivate_->drawLabels(painter, height());
-  drawData(painter);
 }
 
 QPointF PlotBase::valToPoint(double x, double y) const

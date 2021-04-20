@@ -13,9 +13,9 @@
 namespace casaWizard
 {
 
-class ScriptRunController;
-class LithofractionMap;
 class MapReader;
+class ScriptRunController;
+class VectorVectorMap;
 
 namespace sac
 {

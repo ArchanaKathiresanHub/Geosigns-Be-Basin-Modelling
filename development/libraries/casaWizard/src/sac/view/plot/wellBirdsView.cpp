@@ -17,8 +17,8 @@ namespace casaWizard
 namespace sac
 {
 
-WellBirdsView::WellBirdsView(QWidget* parent) :
-  Plot(parent),
+WellBirdsView::WellBirdsView(const ColorMap& colormap, QWidget* parent) :
+  Grid2DView(colormap, parent),
   x_{},
   y_{}
 {
@@ -28,7 +28,7 @@ WellBirdsView::WellBirdsView(QWidget* parent) :
 
 void WellBirdsView::setWellLocations(const QVector<double>& x, const QVector<double>& y)
 {
-  clearData();
+  Plot::clearData();
   x_ = convertToKm(x);
   y_ = convertToKm(y);
   addXYscatter(x_, y_);
@@ -49,7 +49,7 @@ QVector<double> WellBirdsView::convertToKm(const QVector<double>& distancesInMet
 void WellBirdsView::setSelectedWells(const QVector<int> selectedWells)
 {
   selectedWells_ = selectedWells;
-  clearData();
+  Plot::clearData();
   if (selectedWells.size() == 0)
   {
     addXYscatter(x_, y_);
@@ -85,9 +85,10 @@ const QVector<double>& WellBirdsView::x() const
   return x_;
 }
 
-void WellBirdsView::updateRange(const double xMin, const double xMax, const double yMin, const double yMax)
+void WellBirdsView::drawData(QPainter& painter)
 {
-  setMinMaxValues(xMin, xMax, yMin, yMax);
+  Grid2DView::drawData(painter);
+  Plot::drawData(painter);
 }
 
 const QVector<double>&WellBirdsView::y() const

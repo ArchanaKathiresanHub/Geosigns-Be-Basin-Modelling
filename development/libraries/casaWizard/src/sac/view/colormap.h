@@ -21,9 +21,10 @@ class ColorMap
 {
 public:
   ColorMap();
-  void setColorMapType(const std::string& colorMapType);
+  void setColorMapType(const std::string& colorMapType);  
   QColor getColor(const double value, const double minValue, const double maxValue) const;
 
+  QColor getBackgroundColor() const;
 private:
   ColorMapType m_colorMapType;
   QColor getGrayScaleColor(const double relativeValue) const;

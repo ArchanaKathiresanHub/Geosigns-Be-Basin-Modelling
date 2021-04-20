@@ -1,25 +1,25 @@
-#include "lithofractionmap.h"
+#include "vectorvectormap.h"
 
 namespace casaWizard
 {
 
-LithofractionMap::LithofractionMap(const std::vector<std::vector<double>> mapData) :
+VectorVectorMap::VectorVectorMap(const std::vector<std::vector<double>> mapData) :
   mapData_(mapData)
 {
 
 }
 
-const std::vector<std::vector<double>>& LithofractionMap::getData() const
+const std::vector<std::vector<double>>& VectorVectorMap::getData() const
 {
   return mapData_;
 }
 
-LithofractionMap LithofractionMap::operator+(const LithofractionMap& lithoMap) const
+VectorVectorMap VectorVectorMap::operator+(const VectorVectorMap& lithoMap) const
 {
   const std::vector<std::vector<double>>& rhsData = lithoMap.getData();
   if (mapData_.size() != rhsData.size() || mapData_[0].size() != rhsData[0].size())
   {
-    return LithofractionMap({});
+    return VectorVectorMap({});
   }
 
   std::vector<std::vector<double>> resultData;
@@ -33,10 +33,10 @@ LithofractionMap LithofractionMap::operator+(const LithofractionMap& lithoMap) c
     resultData.push_back(resultRow);
   }
 
-  return LithofractionMap(resultData);
+  return VectorVectorMap(resultData);
 }
 
-LithofractionMap LithofractionMap::operator+(const double rhs) const
+VectorVectorMap VectorVectorMap::operator+(const double rhs) const
 {
   std::vector<std::vector<double>> resultData;
   for (int i = 0; i < mapData_.size(); i++)
@@ -49,10 +49,10 @@ LithofractionMap LithofractionMap::operator+(const double rhs) const
     resultData.push_back(resultRow);
   }
 
-  return LithofractionMap(resultData);
+  return VectorVectorMap(resultData);
 }
 
-LithofractionMap LithofractionMap::operator*(const double rhs) const
+VectorVectorMap VectorVectorMap::operator*(const double rhs) const
 {
   std::vector<std::vector<double>> resultData;
   for (int i = 0; i < mapData_.size(); i++)
@@ -65,7 +65,7 @@ LithofractionMap LithofractionMap::operator*(const double rhs) const
     resultData.push_back(resultRow);
   }
 
-  return LithofractionMap(resultData);
+  return VectorVectorMap(resultData);
 }
 
 } // namespace casaWizard

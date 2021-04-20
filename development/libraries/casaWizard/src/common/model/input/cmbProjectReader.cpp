@@ -75,6 +75,10 @@ int CMBProjectReader::lowestSurfaceWithTWTData() const
 
 bool CMBProjectReader::hasTWTData(int surfaceID) const
 {
+  if (!loaded_)
+  {
+    return false;
+  }
   mbapi::StratigraphyManager& stratigraphyManager = cmbModel_->stratigraphyManager();
   return ( (stratigraphyManager.twtValue(surfaceID) != DataAccess::Interface::DefaultUndefinedScalarValue ||
            ! stratigraphyManager.twtGridName(surfaceID).empty()) &&
@@ -83,6 +87,10 @@ bool CMBProjectReader::hasTWTData(int surfaceID) const
 
 QString CMBProjectReader::getDepthGridName(int surfaceID) const
 {
+  if (!loaded_)
+  {
+    return QString();
+  }
   return QString::fromStdString(cmbModel_->tableValueAsString("StratIoTbl", surfaceID, "DepthGrid"));
 }
 

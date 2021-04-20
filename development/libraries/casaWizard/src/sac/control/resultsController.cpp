@@ -12,6 +12,7 @@
 #include "control/scriptRunController.h"
 #include "model/case3DTrajectoryConvertor.h"
 #include "model/input/case3DTrajectoryReader.h"
+#include "model/input/mapreader.h"
 #include "model/logger.h"
 #include "model/sacScenario.h"
 #include "model/script/cauldronScript.h"
@@ -22,6 +23,7 @@
 #include "view/plotOptions.h"
 #include "view/resultsTab.h"
 #include "view/sacTabIDs.h"
+
 
 #include "ConstantsMathematics.h"
 
@@ -84,6 +86,20 @@ void ResultsController::setDomainBirdsView()
                                  xMax * Utilities::Maths::MeterToKilometer,
                                  yMin * Utilities::Maths::MeterToKilometer,
                                  yMax * Utilities::Maths::MeterToKilometer);
+
+  MapReader mapReader;
+  mapReader.load(scenario_.project3dPath().toStdString());
+  VectorVectorMap depthMap = mapReader.getMapData(scenario_.projectReader().getDepthGridName(0).toStdString());
+  std::vector<std::vector<double>> values = depthMap.getData();
+  for ( auto& row : values )
+  {
+    for ( double& value : row )
+    {
+      value = 1.0;
+    }
+  }
+  resultsTab_->wellBirdsView()->setFixedValueRange({0,1});
+  resultsTab_->wellBirdsView()->updatePlots( values, depthMap.getData());
 }
 
 void ResultsController::slotUpdateTabGUI(int tabID)

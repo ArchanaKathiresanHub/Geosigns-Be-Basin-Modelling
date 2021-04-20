@@ -30,9 +30,14 @@ QuartilePlot::QuartilePlot(QWidget* parent) :
 {
 }
 
-void QuartilePlot::setData(const QVector<double>& xAxisValuesSorted, const QVector<QVector<double>>& valuesMatrix, const QVector<double> sampleCoords)
+void QuartilePlot::clearData()
 {
   quartiles_.clear();
+}
+
+void QuartilePlot::setData(const QVector<double>& xAxisValuesSorted, const QVector<QVector<double>>& valuesMatrix, const QVector<double> sampleCoords)
+{
+  clearData();
   quartileSpacing_ = (xAxisValuesSorted.last() - xAxisValuesSorted[0])/(xAxisValuesSorted.size() - 1)*0.3;
 
   int i = 0;

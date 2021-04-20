@@ -12,7 +12,11 @@ namespace sac
 ColorMap::ColorMap() :
   m_colorMapType{ColorMapType::VIRIDIS}
 {
+}
 
+QColor ColorMap::getBackgroundColor() const
+{
+  return Qt::lightGray;
 }
 
 void ColorMap::setColorMapType(const std::string& colorMapType)

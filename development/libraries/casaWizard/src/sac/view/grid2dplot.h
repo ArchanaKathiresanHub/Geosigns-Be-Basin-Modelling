@@ -18,22 +18,22 @@ namespace casaWizard
 namespace sac
 {
 
-class Grid2DView;
 class ColorBar;
 class ColorMap;
+class LithoPercent2DView;
 
 class Grid2DPlot : public QWidget
 {
   Q_OBJECT
 public:
   explicit Grid2DPlot(const ColorMap& colormap, QWidget *parent = nullptr);
-  Grid2DView* grid2DView() const;
+  LithoPercent2DView* lithoPercent2DView() const;
   void setTitle(const QString& lithoType, int id);
   void updateColorBar();
 
 private:
   ColorBar* colorBar_;
-  Grid2DView* grid2dView_;
+  LithoPercent2DView* lithoPercent2dView_;
   CustomTitle* title_;
 
   void setTitleLayout();

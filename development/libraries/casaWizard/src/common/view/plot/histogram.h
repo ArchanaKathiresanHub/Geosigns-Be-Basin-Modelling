@@ -19,6 +19,7 @@ public:
   void setData(const QVector<double>& values, int bins = -1);
 
 private:
+  void clearData() final;
   void updateMinMaxData() final;
   void drawData(QPainter& painter) final;
 

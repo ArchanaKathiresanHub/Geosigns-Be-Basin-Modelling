@@ -9,13 +9,13 @@
 #include "lithofractionVisualisationController.h"
 
 #include "../common/model/input/mapreader.h"
-#include "../common/model/lithofractionmap.h"
+#include "../common/model/vectorvectormap.h"
 #include "model/casaScenario.h"
 #include "model/sacScenario.h"
 
 #include "view/grid2dplot.h"
 #include "view/lithofractionVisualisation.h"
-#include "view/plot/grid2Dview.h"
+#include "view/plot/lithoPercent2Dview.h"
 
 #include "ConstantsMathematics.h"
 
@@ -46,7 +46,7 @@ void LithofractionVisualisationController::connectToolTipSlots()
   int counter = 0;
   for (const Grid2DPlot* lithoFractionPlot : lithofractionVisualisation_->lithoFractionPlots())
   {
-    connect(lithoFractionPlot->grid2DView(), &Grid2DView::toolTipCreated, [=](const QPointF& point){toolTipCreated(point, counter);});
+    connect(lithoFractionPlot->lithoPercent2DView(), &LithoPercent2DView::toolTipCreated, [=](const QPointF& point){toolTipCreated(point, counter);});
     counter++;
   }
 }
@@ -65,25 +65,28 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
 
   double xMin = 0; double xMax = 1; double yMin = 0; double yMax = 1;
   scenario_.projectReader().domainRange(xMin, xMax, yMin, yMax);
-  const std::vector<LithofractionMap> lithologyMaps = obtainLithologyMaps(mapReader, layerID);
+  const std::vector<VectorVectorMap> lithologyMaps = obtainLithologyMaps(mapReader, layerID);
+
+  VectorVectorMap depthMap = mapReader.getMapData(scenario_.projectReader().getDepthGridName(0).toStdString());
+
   const QStringList lithologyTypes = obtainLithologyTypes(layerID);
 
   int counter = 0;
   for (Grid2DPlot* lithoPlot : lithofractionVisualisation_->lithoFractionPlots())
   {
-    lithoPlot->setVisible(lithologyTypes[counter] != "");
+    lithoPlot->setVisible(lithologyTypes[counter] != "");    
 
-    lithoPlot->grid2DView()->updatePlots(convertToQData(lithologyMaps[counter].getData()));
-    lithoPlot->grid2DView()->updateRange(xMin * Utilities::Maths::MeterToKilometer,
+    lithoPlot->lithoPercent2DView()->updatePlots(lithologyMaps[counter].getData(), depthMap.getData());
+    lithoPlot->lithoPercent2DView()->updateRange(xMin * Utilities::Maths::MeterToKilometer,
                                          xMax * Utilities::Maths::MeterToKilometer,
                                          yMin * Utilities::Maths::MeterToKilometer,
                                          yMax * Utilities::Maths::MeterToKilometer);
     lithoPlot->updateColorBar();
     lithoPlot->setTitle(lithologyTypes[counter], counter);
-    lithoPlot->grid2DView()->setToolTipVisible(false);
-    lithoPlot->grid2DView()->setToolTipLithotypes(lithologyTypes);
+    lithoPlot->lithoPercent2DView()->setToolTipVisible(false);
+    lithoPlot->lithoPercent2DView()->setToolTipLithotypes(lithologyTypes);
 
-    counter ++;
+    counter++;
   }
 
   updateBirdsView();
@@ -95,13 +98,13 @@ void LithofractionVisualisationController::toolTipCreated(const QPointF& point, 
 
   for (const Grid2DPlot* lithoFractionPlot : lithofractionVisualisation_->lithoFractionPlots())
   {
-    lithofractionsAtPoint.push_back(lithoFractionPlot->grid2DView()->getValue(point));
-    lithoFractionPlot->grid2DView()->setToolTipVisible(false);
+    lithofractionsAtPoint.push_back(lithoFractionPlot->lithoPercent2DView()->getValue(point));
+    lithoFractionPlot->lithoPercent2DView()->setToolTipVisible(false);
   }
 
-  lithofractionVisualisation_->lithoFractionPlots()[plotID]->grid2DView()->setToolTipVisible(true);
-  lithofractionVisualisation_->lithoFractionPlots()[plotID]->grid2DView()->setToolTipData(lithofractionsAtPoint, plotID);
-  lithofractionVisualisation_->lithoFractionPlots()[plotID]->grid2DView()->correctToolTipPositioning();
+  lithofractionVisualisation_->lithoFractionPlots()[plotID]->lithoPercent2DView()->setToolTipVisible(true);
+  lithofractionVisualisation_->lithoFractionPlots()[plotID]->lithoPercent2DView()->setToolTipData(lithofractionsAtPoint, plotID);
+  lithofractionVisualisation_->lithoFractionPlots()[plotID]->lithoPercent2DView()->correctToolTipPositioning();
 }
 
 bool LithofractionVisualisationController::openMaps(MapReader& mapReader, const int layerID)
@@ -121,9 +124,9 @@ bool LithofractionVisualisationController::openMaps(MapReader& mapReader, const 
   return true;
 }
 
-std::vector<LithofractionMap> LithofractionVisualisationController::obtainLithologyMaps(const MapReader& mapReader, int layerID)
+std::vector<VectorVectorMap> LithofractionVisualisationController::obtainLithologyMaps(const MapReader& mapReader, int layerID)
 {
-  std::vector<LithofractionMap> lithologyMaps;
+  std::vector<VectorVectorMap> lithologyMaps;
   lithologyMaps.push_back(mapReader.getMapData(std::to_string(layerID) + "_percent_1"));
 
   if (mapReader.mapExists(std::to_string(layerID) + "_percent_2"))
@@ -169,21 +172,6 @@ QStringList LithofractionVisualisationController::obtainLithologyTypes(const int
 {
   QStringList lithologyTypes = scenario_.projectReader().lithologyTypesForLayer(layerID);
   return lithologyTypes;
-}
-
-QVector<QVector<double>> LithofractionVisualisationController::convertToQData(const std::vector<std::vector<double>>& mapData)
-{
-  QVector<QVector<double>> QData;
-  for (const std::vector<double>& row : mapData)
-  {
-    QVector<double> QRow;
-    for (const double value : row)
-    {
-      QRow.push_back(value);
-    }
-    QData.push_back(QRow);
-  }
-  return QData;
 }
 
 void LithofractionVisualisationController::updateAvailableLayers()

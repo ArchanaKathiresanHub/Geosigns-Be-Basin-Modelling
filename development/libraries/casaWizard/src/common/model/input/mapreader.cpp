@@ -8,7 +8,7 @@
 
 #include "mapreader.h"
 
-#include "model/lithofractionmap.h"
+#include "model/vectorvectormap.h"
 #include "cmbAPI.h"
 #include "MapsManager.h"
 
@@ -28,11 +28,11 @@ MapReader::~MapReader()
 {
 }
 
-LithofractionMap MapReader::getMapData(const std::string& mapName) const
+VectorVectorMap MapReader::getMapData(const std::string& mapName) const
 {
   if (!loaded_)
   {
-    return LithofractionMap({});
+    return VectorVectorMap({});
   }
 
   mbapi::MapsManager& mapsManager = cmbModel_->mapsManager();
@@ -45,7 +45,7 @@ LithofractionMap MapReader::getMapData(const std::string& mapName) const
   int numI, numJ;
   mapsManager.mapGetDimensions(mapID, numI, numJ);
 
-  return LithofractionMap(resizeData(out, numI, numJ));
+  return VectorVectorMap(resizeData(out, numI, numJ));
 }
 
 bool MapReader::mapExists(const std::string& mapName) const

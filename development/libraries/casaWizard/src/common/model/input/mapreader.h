@@ -12,7 +12,7 @@
 #include <vector>
 #include <memory>
 
-#include "../lithofractionmap.h"
+#include "../vectorvectormap.h"
 namespace mbapi
 {
   class Model;
@@ -27,7 +27,7 @@ public:
   MapReader();
   ~MapReader();
 
-  LithofractionMap getMapData(const std::string& mapName) const;
+  VectorVectorMap getMapData(const std::string& mapName) const;
   void load(const std::string& projectFile);
   bool mapExists(const std::string& mapName) const;
 

@@ -1,4 +1,4 @@
-#include "model/lithofractionmap.h"
+#include "model/vectorvectormap.h"
 
 #include <gtest/gtest.h>
 
@@ -23,7 +23,7 @@ TEST(LithofractionMapTest, TestInitialisation)
 {
   std::vector<std::vector<double>> mapData = createConstantMap(7.5, 5, 10);
 
-  casaWizard::LithofractionMap lithoMap(mapData);
+  casaWizard::VectorVectorMap lithoMap(mapData);
   ASSERT_EQ(mapData, lithoMap.getData());
 }
 
@@ -32,10 +32,10 @@ TEST(LithofractionMapTest, TestAdditionOperation)
   std::vector<std::vector<double>> mapData = createConstantMap(7.5, 5, 10);
   std::vector<std::vector<double>> mapData2 = createConstantMap(16.4, 5, 10);
 
-  casaWizard::LithofractionMap lithoMap1(mapData);
-  casaWizard::LithofractionMap lithoMap2(mapData2);
+  casaWizard::VectorVectorMap lithoMap1(mapData);
+  casaWizard::VectorVectorMap lithoMap2(mapData2);
 
-  casaWizard::LithofractionMap resultMap = lithoMap1 + lithoMap2;
+  casaWizard::VectorVectorMap resultMap = lithoMap1 + lithoMap2;
 
   for (int i = 0; i < lithoMap1.getData().size(); i++)
   {
@@ -51,8 +51,8 @@ TEST(LithofractionMapTest, TestMultiplicationScalarOperation)
 {
   std::vector<std::vector<double>> mapData = createConstantMap(7.5, 5, 10);
 
-  casaWizard::LithofractionMap lithoMap1(mapData);
-  casaWizard::LithofractionMap resultMap = lithoMap1 * -1.0;
+  casaWizard::VectorVectorMap lithoMap1(mapData);
+  casaWizard::VectorVectorMap resultMap = lithoMap1 * -1.0;
 
   for (int i = 0; i < lithoMap1.getData().size(); i++)
   {
@@ -68,8 +68,8 @@ TEST(LithofractionMapTest, TestAdditionScalarOperation)
 {
   std::vector<std::vector<double>> mapData = createConstantMap(7.5, 5, 10);
 
-  casaWizard::LithofractionMap lithoMap1(mapData);
-  casaWizard::LithofractionMap resultMap = lithoMap1 + 1.0;
+  casaWizard::VectorVectorMap lithoMap1(mapData);
+  casaWizard::VectorVectorMap resultMap = lithoMap1 + 1.0;
 
   for (int i = 0; i < lithoMap1.getData().size(); i++)
   {
@@ -86,10 +86,10 @@ TEST(LithofractionMapTest, TestAdditionDifferentMapShapes)
   std::vector<std::vector<double>> mapData = createConstantMap(7.5, 5, 10);
   std::vector<std::vector<double>> mapData2 = createConstantMap(16.4, 10, 5);
 
-  casaWizard::LithofractionMap lithoMap1(mapData);
-  casaWizard::LithofractionMap lithoMap2(mapData2);
+  casaWizard::VectorVectorMap lithoMap1(mapData);
+  casaWizard::VectorVectorMap lithoMap2(mapData2);
 
-  casaWizard::LithofractionMap resultMap = lithoMap1 + lithoMap2;
+  casaWizard::VectorVectorMap resultMap = lithoMap1 + lithoMap2;
 
   EXPECT_EQ(resultMap.getData().empty(), true);
 }

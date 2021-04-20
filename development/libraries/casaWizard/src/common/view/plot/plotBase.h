@@ -37,6 +37,7 @@ public:
   void setFontStyle(FontStyle font);
 
 protected:
+  virtual void clearData() = 0;
   virtual void drawData(QPainter& painter) = 0;
   virtual void updateMinMaxData() = 0;
 

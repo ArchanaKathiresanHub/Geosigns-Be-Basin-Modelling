@@ -41,6 +41,7 @@ public:
   void setData(const QVector<double>& xAxisValuesSorted, const QVector<QVector<double>>& valuesMatrix, const QVector<double> pointCoords);
 
 private:
+  void clearData() final;
   void updateMinMaxData() final;
   void drawData(QPainter& painter) final;
   void drawMinMaxBar(QPainter& painter, const double xValue, const double y0, const double y1);

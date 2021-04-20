@@ -10,7 +10,7 @@
 
 #include "colorbar.h"
 #include "grid2dplot.h"
-#include "plot/grid2Dview.h"
+#include "plot/lithoPercent2Dview.h"
 #include "../common/view/components/customcheckbox.h"
 #include "../common/view/components/customtitle.h"
 #include "model/well.h"
@@ -118,8 +118,8 @@ void LithofractionVisualisation::slotUpdateColorMaps(const QString& colormapType
   for (Grid2DPlot* plot : lithoFractionPlots_)
   {
     update();
-    plot->grid2DView()->update();
-    plot->grid2DView()->setToolTipVisible(false);
+    plot->lithoPercent2DView()->update();
+    plot->lithoPercent2DView()->setToolTipVisible(false);
   }
 }
 
@@ -127,8 +127,8 @@ void LithofractionVisualisation::slotUpdateWellsVisibility(int state)
 {
   for (Grid2DPlot* plot : lithoFractionPlots_)
   {
-    plot->grid2DView()->setWellsVisible(state == Qt::CheckState::Checked);
-    plot->grid2DView()->setToolTipVisible(false);
+    plot->lithoPercent2DView()->setWellsVisible(state == Qt::CheckState::Checked);
+    plot->lithoPercent2DView()->setToolTipVisible(false);
   }
 }
 
@@ -136,8 +136,8 @@ void LithofractionVisualisation::slotUpdateAspectRatio(int state)
 {
   for (Grid2DPlot* plot : lithoFractionPlots_)
   {
-    plot->grid2DView()->setStretch(state == Qt::CheckState::Checked);
-    plot->grid2DView()->setToolTipVisible(false);
+    plot->lithoPercent2DView()->setStretch(state == Qt::CheckState::Checked);
+    plot->lithoPercent2DView()->setToolTipVisible(false);
   }
 }
 
@@ -147,45 +147,45 @@ void LithofractionVisualisation::slotUpdatePercentageRanges(const QString& perce
   {
     for (Grid2DPlot* plot : lithoFractionPlots_)
     {
-      plot->grid2DView()->setVariableValueRange();
+      plot->lithoPercent2DView()->setVariableValueRange();
       plot->updateColorBar();
-      plot->grid2DView()->setToolTipVisible(false);
+      plot->lithoPercent2DView()->setToolTipVisible(false);
     }
   }
   else if (percentageRangeType == "Fixed between 0 and 100")
   {
     for (Grid2DPlot* plot : lithoFractionPlots_)
     {
-      plot->grid2DView()->setFixedValueRange({0,100});
+      plot->lithoPercent2DView()->setFixedValueRange({0,100});
       plot->updateColorBar();
-      plot->grid2DView()->setToolTipVisible(false);
+      plot->lithoPercent2DView()->setToolTipVisible(false);
     }
   }
   else if (percentageRangeType == "Fixed between global min and max")
   {
     for (Grid2DPlot* plot : lithoFractionPlots_)
     {
-      plot->grid2DView()->setVariableValueRange();
+      plot->lithoPercent2DView()->setVariableValueRange();
     }
 
     std::pair<double, double> globalRange = getGlobalRange();
 
     for (Grid2DPlot* plot : lithoFractionPlots_)
     {
-      plot->grid2DView()->setFixedValueRange(globalRange);
+      plot->lithoPercent2DView()->setFixedValueRange(globalRange);
       plot->updateColorBar();
-      plot->grid2DView()->setToolTipVisible(false);
+      plot->lithoPercent2DView()->setToolTipVisible(false);
     }
   }
 }
 
 std::pair<double, double> LithofractionVisualisation::getGlobalRange()
 {
-  std::pair<double, double> globalRange = lithoFractionPlots_[0]->grid2DView()->getValueRange();
+  std::pair<double, double> globalRange = lithoFractionPlots_[0]->lithoPercent2DView()->getValueRange();
 
   for (Grid2DPlot* plot : lithoFractionPlots_)
   {
-    std::pair<double, double> range = plot->grid2DView()->getValueRange();
+    std::pair<double, double> range = plot->lithoPercent2DView()->getValueRange();
     globalRange.first = range.first < globalRange.first ? range.first : globalRange.first;
     globalRange.second = range.second > globalRange.second ? range.second : globalRange.second;
   }
@@ -226,7 +226,7 @@ void LithofractionVisualisation::clearPlots()
 {
   for (Grid2DPlot* plot : lithoFractionPlots_)
   {
-    plot->grid2DView()->clearData();
+    plot->lithoPercent2DView()->clearData();
     plot->updateColorBar();
   }
 }
@@ -248,8 +248,8 @@ void LithofractionVisualisation::updateBirdsView(const QVector<const Well*> well
 
   for (Grid2DPlot* plot: lithoFractionPlots())
   {
-    plot->grid2DView()->setWellLocations(x, y);
-    plot->grid2DView()->setOptimizedLithofractions(optimizedLithoFractions);
+    plot->lithoPercent2DView()->setWellLocations(x, y);
+    plot->lithoPercent2DView()->setOptimizedLithofractions(optimizedLithoFractions);
   }
 }
 
@@ -257,7 +257,7 @@ void LithofractionVisualisation::updateSelectedWells(const QVector<int> selected
 {
   for (Grid2DPlot* plot: lithoFractionPlots_)
   {
-    plot->grid2DView()->setSelectedWells(selectedWells);
+    plot->lithoPercent2DView()->setSelectedWells(selectedWells);
   }
 }
 

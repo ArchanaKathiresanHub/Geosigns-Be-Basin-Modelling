@@ -9,12 +9,10 @@
 #include "grid2Dview.h"
 
 #include "../colormap.h"
-#include "../lithoMapsToolTip.h"
-#include "model/optimizedLithofraction.h"
+#include "model/input/cmbDataAccess.h"
 
 // QT
 #include <QGridLayout>
-#include <QLabel>
 #include <QPainter>
 
 #include <cmath>
@@ -26,26 +24,33 @@ namespace sac
 {
 
 Grid2DView::Grid2DView(const ColorMap& colormap, QWidget* parent) :
-  WellBirdsView(parent),
+  Plot(parent),
   colorMap_{colormap},
   range_{new std::pair<double, double>(0, 100)},
   values_{},
-  lithoMapsToolTip_{new LithoMapsToolTip(this)},
   fixedRange_{false},
-  stretched_{false},
-  wellsVisible_{true}
+  stretched_{false}
 {
-  lithoMapsToolTip_->setVisible(false);
 }
 
-void Grid2DView::updatePlots(const QVector<QVector<double>> values)
+void Grid2DView::updatePlots(const std::vector<std::vector<double>>& values, const std::vector<std::vector<double>>& depthMap)
 {
   values_ = values;
+  for (int i = 0; i< values.size(); ++i)
+  {
+    for (int j = 0; j<values[0].size(); ++j)
+    {
+      if (depthMap[i][j] == CMBDataAccess::DefaultUndefinedMapValue)
+      {
+        values_[i][j] = CMBDataAccess::DefaultUndefinedMapValue;
+      }
+    }
+  }
+
   determineRange();
 
   update();
 }
-
 
 void Grid2DView::updateRange(const double xMin, const double xMax, const double yMin, const double yMax)
 {
@@ -66,12 +71,6 @@ void Grid2DView::stretch()
   }
 }
 
-void Grid2DView::setWellsVisible(const bool wellsVisible)
-{
-  wellsVisible_ = wellsVisible;
-  update();
-}
-
 void Grid2DView::setStretch(const bool stretched)
 {
   stretched_ = stretched;
@@ -83,6 +82,8 @@ void Grid2DView::clearData()
 {
   values_.clear();
   range_.reset(new std::pair<double, double>(0, 100));
+
+  Plot::clearData();
 
   update();
 }
@@ -113,121 +114,64 @@ void Grid2DView::drawData(QPainter& painter)
     return;
   }
 
-  const int valuesX = values_[0].size();
-  const int valuesY = values_.size();
-
-  const double deltaX = (xAxisMaxValue() - xAxisMinValue()) * 1.0 / valuesX;
-  const double deltaY = (yAxisMaxValue() - yAxisMinValue()) * 1.0 / valuesY;
-
-  const double w = 1.0*width() / valuesX;
-  const double h = 1.0*height() / valuesY;
-
   determineRange();
-  double yd = yAxisMinValue();
-  QColor color;
-  for ( const QVector<double>& rows : values_)
+
+  const QRect rect(valToPoint(xAxisMinValue(), yAxisMaxValue()).toPoint(), valToPoint(xAxisMaxValue(), yAxisMinValue()).toPoint());
+
+  double dx = values_[0].size() * 1.0 / rect.width();
+  double dy = values_.size() * 1.0 / rect.height();
+  int nx = rect.width();
+  int ny = rect.height();
+
+  if (dx < 1.0)
   {
-    double xd = xAxisMinValue();
-    for ( const double& value : rows )
+    nx = values_[0].size();
+    dx = 1.0;
+  }
+  if (dy < 1.0)
+  {
+    ny = values_.size();
+    dy = 1.0;
+  }
+
+  const QSize size(nx,ny);
+  QImage image(size, QImage::Format_ARGB32);
+  QPainter p(&image);
+
+  QPen backPen = p.pen();
+  backPen.setColor(colorMap_.getBackgroundColor());
+  QPen pen = p.pen();
+
+  int yd = ny - 1;
+  for ( int j = 0; j < ny; ++j )
+  {    
+    int xd = 0.0;
+    const std::vector<double>& row = values_[j*dy];
+    for ( int i = 0; i < nx; ++i )
     {
-      color = colorMap_.getColor(value, range_->first, range_->second);
-      painter.fillRect(QRectF(valToPoint(xd, yd) + QPointF(0, -h), QSizeF(w, h)), QBrush(color));
-      xd = xd + deltaX;
+      const double value = row[i*dx];
+
+      if ( value == CMBDataAccess::DefaultUndefinedMapValue )
+      {
+        p.setPen(backPen);
+      }
+      else
+      {
+        pen.setColor(colorMap_.getColor(value, range_->first, range_->second));
+        p.setPen(pen);
+      }
+
+      p.drawPoint(xd, yd);
+      xd += 1;
     }
-    yd += deltaY;
+    yd -= 1;
   }
 
-  if (wellsVisible_)
-  {
-    painter.save();
-    drawPieChartsWells(painter);
-    drawPieChartsSelectedWells(painter);
-    painter.restore();
-  }
-}
-
-void Grid2DView::drawPieChartsWells(QPainter& painter)
-{
-  const int shade = selectedWells().empty() ? 255 : 150;
-  painter.setPen(Qt::black);
-  painter.setRenderHint(QPainter::Antialiasing, true);
-  int counter = 0;
-  for (const OptimizedLithofraction& optimizedLitho : optimizedLithofractions_)
-  {
-    drawPieChart(painter, shade, 10, counter, optimizedLitho);
-    counter++;
-  }
-}
-
-void Grid2DView::drawPieChart(QPainter& painter, const int shade, const int size, const int counter, const OptimizedLithofraction& optimizedLitho)
-{
-  QPoint position = valToPoint(x()[counter], y()[counter]).toPoint();
-
-  double firstAngle = - optimizedLitho.optimizedPercentageFirstComponent()/100*360*16;
-  double secondAngle = - optimizedLitho.optimizedPercentageSecondComponent()/100*360*16;
-  double thirdAngle = - optimizedLitho.optimizedPercentageThirdComponent()/100*360*16;
-
-  painter.setBrush(QColor(shade, 0, 0));
-  painter.drawPie(QRect(position - QPoint(size,size), position + QPoint(size,size)), 90 * 16, firstAngle);
-
-  painter.setBrush(QColor(0, shade, 0));
-  painter.drawPie(QRect(position - QPoint(size,size), position + QPoint(size,size)), 90 * 16+ firstAngle, secondAngle);
-
-  painter.setBrush(QColor(0, 0, shade));
-  painter.drawPie(QRect(position - QPoint(size,size), position + QPoint(size,size)), 90 * 16+secondAngle + firstAngle, thirdAngle);
-}
-
-
-void Grid2DView::drawPieChartsSelectedWells(QPainter& painter)
-{
-  if (optimizedLithofractions_.empty())
-  {
-    return;
-  }
-
-  QPen border(Qt::black);
-  border.setWidthF(1.5);
-  painter.setPen(border);
-  painter.setRenderHint(QPainter::Antialiasing, true);
-
-  for (int i : selectedWells())
-  {
-    drawPieChart(painter, 255, 12, i, optimizedLithofractions_[i]);
-  }
+  painter.drawImage(rect, image);
 }
 
 void Grid2DView::updateMinMaxData()
 {
-
-}
-
-void Grid2DView::setOptimizedLithofractions(const QVector<OptimizedLithofraction>& optimizedLithofractions)
-{
-  optimizedLithofractions_ = optimizedLithofractions;
-  update();
-}
-
-void Grid2DView::mousePressEvent(QMouseEvent* event)
-{
-  setToolTipVisible(false);
-  mousePosition_ = event->pos();
-
-  if (validPosition(mousePosition_.x(), mousePosition_.y()))
-  {
-    initializeToolTip(mousePosition_);
-  }
-}
-
-
-void Grid2DView::initializeToolTip(const QPoint& mousePosition)
-{
-  const QPointF domainPosition = pointToVal(mousePosition.x(), mousePosition.y());
-  lithoMapsToolTip_->setDomainPosition(domainPosition);
-
-  lithoMapsToolTip_->move(mousePosition);
-  lithoMapsToolTip_->setMaximumHeight(height()/2);
-
-  emit toolTipCreated(domainPosition);
 }
 
 double Grid2DView::getValue(const QPointF& point) const
@@ -241,39 +185,6 @@ double Grid2DView::getValue(const QPointF& point) const
   return values_[yIndex][xIndex];
 }
 
-void Grid2DView::setToolTipData(const std::vector<double>& lithofractionsAtPoint, const int activePlot)
-{
-  lithoMapsToolTip_->setLithofractions(lithofractionsAtPoint, activePlot);
-}
-
-void Grid2DView::correctToolTipPositioning()
-{
-  QPoint toolTipPosition = lithoMapsToolTip_->pos();
-  const bool moveX = !validPosition(toolTipPosition.x() + lithoMapsToolTip_->width(), toolTipPosition.y());
-  const bool moveY = !validPosition(toolTipPosition.x(), toolTipPosition.y() + lithoMapsToolTip_->height());
-  if (moveY)
-  {
-    lithoMapsToolTip_->move(toolTipPosition - (QPoint(0,lithoMapsToolTip_->height())));
-    toolTipPosition = lithoMapsToolTip_->pos();
-  }
-  if (moveX)
-  {
-    lithoMapsToolTip_->move(toolTipPosition - (QPoint(lithoMapsToolTip_->width(),0)));
-  }
-  lithoMapsToolTip_->setCorner(moveX, moveY);
-  lithoMapsToolTip_->setVisible(true);
-}
-
-void Grid2DView::setToolTipVisible(const bool visible)
-{
-  lithoMapsToolTip_->setVisible(visible);
-}
-
-void Grid2DView::setToolTipLithotypes(const QStringList& lithotypes)
-{
-  lithoMapsToolTip_->setLithoNames(lithotypes);
-}
-
 void Grid2DView::determineRange()
 {
   if (fixedRange_)
@@ -281,13 +192,18 @@ void Grid2DView::determineRange()
     return;
   }
 
-  double min = values_[0][0];
-  double max = values_[0][0];
+  double min = 1.e99;
+  double max = -min;
 
-  for ( const QVector<double>& rows : values_)
+  for ( const std::vector<double>& rows : values_)
   {
     for ( const double& value : rows )
     {
+      if ( value == CMBDataAccess::DefaultUndefinedMapValue)
+      {
+        continue;
+      }
+
       min = value < min ? value : min;
       max = value > max ? value : max;
     }

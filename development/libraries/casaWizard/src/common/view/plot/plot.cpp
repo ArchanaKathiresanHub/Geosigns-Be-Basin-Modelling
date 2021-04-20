@@ -328,11 +328,11 @@ void Plot::drawLegend(QPainter& painter)
   QPen pen = painter.pen();
   pen.setWidth(lineWidth);
 
-  QFontMetrics fm(font());
+  QFontMetrics fm(painter.font());
   double maxLegendWidth = 0;
   for( int i = 0; i<nEntries; ++i)
   {
-    double w = fm.width(legend_[i]);
+    const double w = fm.width(legend_[i]);
     maxLegendWidth = (w>maxLegendWidth)?w:maxLegendWidth;
   }
 
@@ -341,7 +341,7 @@ void Plot::drawLegend(QPainter& painter)
 
   const QPointF v(0,verticalSpacing);
   const QPointF h(horizontalSpacing, 0);
-  const QPointF textTopLeft = valToPoint(xMax, yMax) - QPoint(maxLegendWidth, 0) - h;
+  const QPointF textTopLeft = valToPoint(xMax, yMax) - QPoint(maxLegendWidth, 0) - h + v;
 
   int iEntry = 0;
   for (const PlotData& data : plotData_)

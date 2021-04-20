@@ -10,7 +10,7 @@
 
 #include "colorbar.h"
 #include "../common/view/components/customtitle.h"
-#include "plot/grid2Dview.h"
+#include "plot/lithoPercent2Dview.h"
 
 #include <QLabel>
 #include <QLayout>
@@ -24,14 +24,14 @@ namespace sac
 Grid2DPlot::Grid2DPlot(const ColorMap& colormap, QWidget *parent) :
   QWidget(parent),
   colorBar_(new ColorBar(colormap, this)),
-  grid2dView_(new Grid2DView(colormap, this)),
+  lithoPercent2dView_(new LithoPercent2DView(colormap, this)),
   title_(new CustomTitle("Test Title", this))
 {
   QHBoxLayout* gridAndColorBar = new QHBoxLayout();
   gridAndColorBar->setMargin(0);
   colorBar_->setFixedWidth(100);
 
-  gridAndColorBar->addWidget(grid2dView_);
+  gridAndColorBar->addWidget(lithoPercent2dView_);
   gridAndColorBar->addWidget(colorBar_);
 
   setTitleLayout();
@@ -54,14 +54,14 @@ void Grid2DPlot::setTitleLayout()
   title_->setAlignment(Qt::Alignment(Qt::AlignmentFlag::AlignCenter));
 }
 
-Grid2DView* Grid2DPlot::grid2DView() const
+LithoPercent2DView* Grid2DPlot::lithoPercent2DView() const
 {
-  return grid2dView_;
+  return lithoPercent2dView_;
 }
 
 void Grid2DPlot::updateColorBar()
 {
-  colorBar_->setRange(grid2dView_->getValueRange());
+  colorBar_->setRange(lithoPercent2dView_->getValueRange());
 }
 
 void Grid2DPlot::setTitle(const QString& lithoType, int id)
