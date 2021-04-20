@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-20  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: AOI maps.
+	* Add AOI maps
+
+	* linked item: https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/417803
+	================== COMMIT-END ========================
+	Commit-ID:<1b66122e3b1f9027c1925af062ab4fb494ea7bf2>	  (refs/heads/master)
+
+++
 2021-04-20  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Cauldron2Voxet changes for BPA2 outputs !wip.
