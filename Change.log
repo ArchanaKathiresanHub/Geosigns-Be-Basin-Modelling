@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-20  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Cauldron2Voxet changes for BPA2 outputs !wip.
+	 * Remove the check for Derived properties
+	 * Implement the filter for properties on the basis of their computability on the basement
+
+	Related work items: #417633, #417634, #417635
+	 ================== COMMIT-END ========================
+	Commit-ID:<26aecaa5df3cf92c4069ba283654498bd930d306>	  (HEAD -> master, origin/master)
+
+++
 2021-04-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: GUI updates.
