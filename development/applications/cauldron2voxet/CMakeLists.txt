@@ -10,6 +10,17 @@
 #                                                                       #
 #########################################################################
 
+# 1. This list contains all header files
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+# 2. This list contains all implementation files except main.cpp
+FILE( GLOB all_srcs src/*.cpp)
+source_group(source FILES ${all_srcs})
+
+# 3. cauldron2voxet application
+set( TARGET_NAME "cauldron2voxet" )
+
 if (GIT_FOUND)
    # Exctract Spec file version information
    # the commit's SHA1, and whether the building workspace was dirty or not
@@ -51,7 +62,6 @@ set (voxetProjectFormatSources
 	)
 
 set( mainSources
-	src/cauldron2voxet.cpp
 	src/CauldronProperty.cpp
 	src/DepthInterpolator.cpp
 	src/GridDescription.cpp
@@ -60,18 +70,22 @@ set( mainSources
 	src/VoxetDomainInterpolator.cpp
 	src/VoxetProjectHandle.cpp
 	src/VoxetPropertyGrid.cpp
+    src/VoxetUtils.cpp
     )
 
-add_executable( cauldron2voxet
-   ${mainSources}
+add_executable( ${TARGET_NAME}
+    ${all_srcs}
+   ${all_headers}
    ${voxetProjectFormatSources}
 )
+
+set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
 include_directories( ${PROJECT_BINARY_DIR}/applications/cauldron2voxet )
 
 include_directories( SYSTEM	${HDF5_INCLUDE_DIRS} )
 
-target_link_libraries(cauldron2voxet
+target_link_libraries(${TARGET_NAME}
    AbstractDerivedProperties
    DerivedProperties
    DataMining
@@ -94,6 +108,36 @@ add_custom_command(OUTPUT ${voxetProjectFormatSources}
 	COMMAND parspec -schema VoxetSchema -directory ${PROJECT_BINARY_DIR}/applications/cauldron2voxet -input src/VoxetProperty.Spec
 )
 
-install(TARGETS cauldron2voxet
+install(TARGETS ${TARGET_NAME}
 	RUNTIME DESTINATION bin
 )
+
+
+#
+#   Unit Tests
+#
+
+# 1. cauldron2voxet.cpp
+#
+add_gtest( NAME ${TARGET_NAME}::cauldron2voxet
+           SOURCES test/cauldron2voxetTest.cpp 
+           ${mainSources} 
+           ${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschema.cpp
+           ${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschemafuncs.cpp
+           LIBRARIES cmbapi
+                    AbstractDerivedProperties
+                    DerivedProperties
+                    GeoPhysics
+                    DataAccess
+                    SerialDataAccess
+                    Interpolation
+                    LinearAlgebra
+                    TableIO
+                    EosPack
+                    CBMGenerics
+                    utilities
+                    Serial_Hdf5
+                    #${TARGET_NAME}
+                    ${HDF5_LIBRARIES}
+
+                   FOLDER "${BASE_FOLDER}/${TARGET_NAME}")
