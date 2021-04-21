@@ -34,10 +34,6 @@ DIR=\"$( cd \"$( dirname \"\${BASH_SOURCE\[0\]}\" )\" && pwd )\"
 # Sourcing environment variables script (if it exists)
 [[ -f \"$DIR/${targetName}Env.sh\" ]] && source $DIR/${targetName}Env.sh
 
-")
-
-    file( APPEND ${scriptName}
-"
 # Running application forwarding all the script inputs
 $DIR/${targetName}.exe \"$@\"
 ")

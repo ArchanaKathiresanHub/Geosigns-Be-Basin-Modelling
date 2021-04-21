@@ -6,7 +6,7 @@ if(UNIX)
   file( WRITE ${SCRIPTNAME}
 "#!/bin/bash
 
-DIR=$(dirname $0)
+DIR=\"$( cd \"$( dirname \"\${BASH_SOURCE\[0\]}\" )\" && pwd )\"
 
 [[ -r /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh ]] && . /glb/apps/hpc/EasyBuild/Public/Lmod/etc/profile.d/z01_lmod-hpcti.sh
 module load HpcSoftwareStack/PRODUCTION
@@ -30,7 +30,7 @@ export GENEX6DIR=$MISCDIR/genex60
 export OTGCDIR=$MISCDIR/OTGC
 export EOSPACKDIR=$MISCDIR/eospack
 
-$(dirname $0)/$EXEC_NAME
+$DIR/$EXEC_NAME
 " )
   install( PROGRAMS ${SCRIPTNAME} DESTINATION bin )
 endif(UNIX)
