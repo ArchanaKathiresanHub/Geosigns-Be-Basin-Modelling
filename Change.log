@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-21  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix casa install.
+	* Fix casa install
+
+	================== COMMIT-END ========================
+	Commit-ID:<26fe6f3832ae5d279a4f3b2edbca43b987820b32>	  (refs/heads/master)
+
+++
 2021-04-20  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: AOI maps.
