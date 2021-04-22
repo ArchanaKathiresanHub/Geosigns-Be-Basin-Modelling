@@ -19,7 +19,7 @@ TEST(WellTrajectoryExtractorTest, testInitialization)
   scenario->setRunLocation("CaseSet");
 
   // When
-  WellTrajectoryExtractor extractor(*scenario);
+  WellTrajectoryExtractor extractor(*scenario, "bestMatchedCase");
 
   // Then
   EXPECT_EQ(extractor.iterationPath(), QString("workingDirectory/calibration_step1/CaseSet/Iteration_1"));
@@ -38,14 +38,14 @@ TEST(WellTrajectoryExtractorTest, testExtract)
   manager.addWellTrajectory(0, "Density");
   manager.addWellTrajectory(1, "SonicSlowness");
 
-  WellTrajectoryExtractor extractor(*scenario);
+  WellTrajectoryExtractor extractor(*scenario, "bestMatchedCase");
 
   // When
   extractor.extract();
   extractor.script().generateCommands();
 
   // Then
-  EXPECT_EQ(extractor.script().commands().size(), 4); // size is number of trajectories x 2 due to the bestMatchedCase project commands
+  EXPECT_EQ(extractor.script().commands().size(), 2); // size is number of trajectories
 }
 
 TEST(OptimizedLithofractionExtractorTest, testGetDataCreator)
@@ -54,7 +54,7 @@ TEST(OptimizedLithofractionExtractorTest, testGetDataCreator)
   std::unique_ptr<StubSACScenario> scenario(new StubSACScenario);
   scenario->setWorkingDirectory("workingDirectory");
   scenario->setRunLocation("CaseSet");
-  WellTrajectoryExtractor extractor(*scenario);
+  WellTrajectoryExtractor extractor(*scenario, "bestMatchedCase");
 
   // Then
   EXPECT_NO_THROW(extractor.dataCreator());

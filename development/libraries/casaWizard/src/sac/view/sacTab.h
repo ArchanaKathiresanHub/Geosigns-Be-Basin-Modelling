@@ -39,6 +39,8 @@ public:
   QComboBox* comboBoxCluster() const;    
   const QPushButton* pushSelectCalibration() const;
   const QPushButton* pushButtonSACrunCASA() const;
+  const QPushButton* buttonRunOriginal1D() const;
+  const QPushButton* buttonRunOriginal3D() const;
 
 private:
   QPushButton* pushSelectProject3D_;
@@ -53,6 +55,8 @@ private:
   QComboBox* comboBoxCluster_;
 
   EmphasisButton* pushButtonSACrunCASA_;
+  QPushButton* buttonRunOriginal1D_;
+  QPushButton* buttonRunOriginal3D_;
 };
 
 } // namespace sac

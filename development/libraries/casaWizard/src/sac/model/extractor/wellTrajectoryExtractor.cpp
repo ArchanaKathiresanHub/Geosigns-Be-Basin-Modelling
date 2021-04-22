@@ -5,7 +5,6 @@
 #include "model/input/wellTrajectoryDataCreator.h"
 
 #include <QDir>
-#include <QFileInfo>
 #include <QProcess>
 
 namespace casaWizard
@@ -14,10 +13,14 @@ namespace casaWizard
 namespace sac
 {
 
-WellTrajectoryExtractor::WellTrajectoryExtractor(SACScenario& scenario) :
-  CaseExtractor(scenario),
-  script_{iterationPath(), QFileInfo(scenario.project3dPath()).baseName()},
-  dataCreator_{scenario, iterationPath()}
+WellTrajectoryExtractor::WellTrajectoryExtractor(SACScenario& scenario, const QString& projectName, const QString& iterPath) :
+  CaseExtractor(scenario, iterPath),
+  script_{iterationPath(), projectName},
+  dataCreator_{scenario, projectName, iterationPath()}
+{
+}
+
+WellTrajectoryExtractor::~WellTrajectoryExtractor()
 {
 }
 

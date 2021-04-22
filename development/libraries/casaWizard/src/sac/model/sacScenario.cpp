@@ -20,7 +20,8 @@ const int defaultt2zNumberCPUs{1};
 SACScenario::SACScenario(ProjectReader* projectReader) :
   CasaScenario{projectReader},
   stateFileNameSAC_{"casaStateSAC.txt"},
-  calibrationFolder_{"calibration_step1"},
+  calibrationDirectory_{"calibration_step1"},
+  original1dDirectory_{"original1d"},
   lithofractionManager_{},
   wellTrajectoryManager_{},
   interpolationMethod_{0},
@@ -96,7 +97,12 @@ void SACScenario::setRadiusSmoothing(int radiusSmoothing)
 
 QString SACScenario::calibrationDirectory() const
 {
-  return workingDirectory() + "/" + calibrationFolder_;
+  return workingDirectory() + "/" + calibrationDirectory_;
+}
+
+QString SACScenario::original1dDirectory() const
+{
+  return workingDirectory() + "/" + original1dDirectory_;
 }
 
 int SACScenario::t2zReferenceSurface() const

@@ -15,7 +15,6 @@ namespace casaWizard
 
 class MapReader;
 class ScriptRunController;
-class VectorVectorMap;
 
 namespace sac
 {
@@ -48,16 +47,13 @@ private slots:
   void slotUpdateWell(const QString& name);
 
   void slotExportOptimized();
-  void slotRunOptimized();
-  void slotRunOriginal();
+  void slotRunOptimized();  
 
 signals:
   void signalRefreshChildWidgets();
 
-private:
-  bool import3dWellData(const QString baseDirectory, const bool isOptimized);
-  void refreshGUI();
-  bool run3dCase(const QString directory);
+private:  
+  void refreshGUI();  
 
   QVector<int> getExcludedWells();
   QVector<int> getSelectedWellIndices();

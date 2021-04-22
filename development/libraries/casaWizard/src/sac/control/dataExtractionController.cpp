@@ -7,6 +7,8 @@
 #include "model/output/wellTrajectoryWriter.h"
 #include "model/sacScenario.h"
 
+#include <QFileInfo>
+
 namespace casaWizard
 {
 
@@ -22,10 +24,19 @@ DataExtractionController::DataExtractionController(SACScenario& scenario,
 {
 }
 
-void DataExtractionController::readResults()
+void DataExtractionController::readOriginalResults()
+{
+  const QString projectName = QFileInfo(scenario_.project3dPath()).baseName();
+  const QString iterationPath = scenario_.original1dDirectory() + "/" + scenario_.runLocation() + "/Iteration_1";
+
+  WellTrajectoryExtractor trajectoryExtractor(scenario_, projectName, iterationPath);
+  readCaseData(trajectoryExtractor, "extracting original trajectories using track1d");
+}
+
+void DataExtractionController::readOptimizedResults()
 {  
-  WellTrajectoryExtractor trajectoryExtractor{scenario_};
-  readCaseData(trajectoryExtractor, "extracting trajectories using track1d");
+  WellTrajectoryExtractor trajectoryExtractor(scenario_, "bestMatchedCase");
+  readCaseData(trajectoryExtractor, "extracting optimized trajectories using track1d");
 
   OptimizedLithofractionExtractor lithoExtractor{scenario_};
 

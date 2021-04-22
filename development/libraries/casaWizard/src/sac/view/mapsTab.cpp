@@ -35,8 +35,7 @@ MapsTab::MapsTab(QWidget* parent) :
   lithofractionVisualisation_{new LithofractionVisualisation(this)},
   createGridsButton_{new EmphasisButton("Create 2D lithofraction grids", this)},
   buttonExportOptimized_{new QPushButton("Export optimized", this)},
-  buttonRunOptimized_{new QPushButton("Run optimized", this)},
-  buttonRunOriginal_{new QPushButton("Run original", this)},
+  buttonRunOptimized_{new QPushButton("Run optimized", this)},  
   interpolationType_{new QComboBox(this)},
   iwdOptions_{new QWidget(this)},
   gridGenerationOptions_{new QWidget(this)},
@@ -77,8 +76,7 @@ QVBoxLayout* MapsTab::setWellsAndOptionsLayout()
   wellsAndOptions->addWidget(gridGenerationOptions_);
   wellsAndOptions->addWidget(label3);
   wellsAndOptions->addWidget(buttonExportOptimized_);
-  wellsAndOptions->addWidget(buttonRunOptimized_);
-  wellsAndOptions->addWidget(buttonRunOriginal_);
+  wellsAndOptions->addWidget(buttonRunOptimized_);  
 
   return wellsAndOptions;
 }
@@ -164,11 +162,6 @@ QPushButton* MapsTab::buttonExportOptimized() const
 QPushButton* MapsTab::buttonRunOptimized() const
 {
   return buttonRunOptimized_;
-}
-
-QPushButton* MapsTab::buttonRunOriginal() const
-{
-  return buttonRunOriginal_;
 }
 
 ActiveWellsTable* MapsTab::activeWellsTable() const

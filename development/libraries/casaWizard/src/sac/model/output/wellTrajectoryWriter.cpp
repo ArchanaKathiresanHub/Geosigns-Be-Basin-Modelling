@@ -64,7 +64,6 @@ void writeTrajectories(SACScenario& scenario)
       file.close();
     }
   }
-
 }
 
 } // namespace wellTrajectoryWriter

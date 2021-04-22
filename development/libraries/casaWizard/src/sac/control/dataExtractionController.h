@@ -21,7 +21,8 @@ public:
     explicit DataExtractionController(SACScenario& scenario,
                                       ScriptRunController& scriptRunController,
                                       QObject* parent);
-    void readResults();
+    void readOriginalResults();
+    void readOptimizedResults();
 
 private:
     void readCaseData(CaseExtractor& extractor, const QString& message);

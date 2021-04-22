@@ -21,7 +21,8 @@ class SACScenario;
 class WellTrajectoryExtractor : public CaseExtractor
 {
 public:
-  explicit WellTrajectoryExtractor(SACScenario& scenario);
+  explicit WellTrajectoryExtractor(SACScenario& scenario, const QString& projectName, const QString& iterationPath = "");
+  ~WellTrajectoryExtractor() override;
   RunScript& script() override;
   CaseDataCreator& dataCreator() override;
 

@@ -41,8 +41,7 @@ public:
 
 signals:
   void layersFromProject();
-  void firstOptimizationChanged(int, int);
-  void secondOptimizationChanged(int, int);
+  void firstOptimizationChanged(int, int);  
 
 private:
   void addRow(const int row, const Lithofraction& lithofraction, const ProjectReader& projectReader, const QStringList& layerNames);
@@ -58,8 +57,7 @@ private:
   void setHeaderResizeModes();
   void setHeaderTitles();
   void setHeaderAlignment();
-  void setHelpToolTips();
-  void setSecondCheckBoxEnabled(const int row, const bool enabled);
+  void setHelpToolTips();  
   void setTableHeader();  
   void stretchColumns();
 };

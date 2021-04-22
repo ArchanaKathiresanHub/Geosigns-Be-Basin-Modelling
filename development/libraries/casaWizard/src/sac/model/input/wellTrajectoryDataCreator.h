@@ -19,7 +19,7 @@ class WellTrajectoryManager;
 class WellTrajectoryDataCreator : public CaseDataCreator
 {
 public:
-  WellTrajectoryDataCreator(SACScenario& scenario, const QString& iterationPath);
+  WellTrajectoryDataCreator(SACScenario& scenario, const QString& projectName, const QString& iterationPath);
 
 private:
   struct WellData

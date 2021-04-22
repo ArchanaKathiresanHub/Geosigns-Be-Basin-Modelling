@@ -29,8 +29,8 @@ TEST(LithofractionManagerTest, testWriteToFile)
 {
   casaWizard::sac::LithofractionManager manager;
 
-  manager.addLithofraction("Litho1");
-  manager.addLithofraction("Litho2");
+  manager.addLithofraction("Litho1", true, false);
+  manager.addLithofraction("Litho2", true, false);
 
   manager.setLithofractionFirstComponent(0, 1);
   manager.setLithofractionFirstMinPercentage(0, 2);
@@ -38,12 +38,6 @@ TEST(LithofractionManagerTest, testWriteToFile)
   manager.setLithofractionSecondComponent(0, 2);
   manager.setLithofractionSecondMinFraction(0, 0.5);
   manager.setLithofractionSecondMaxFraction(0, 0.6);
-
-  manager.setLithoFractionDoFirstOptimization(0, true);
-  manager.setLithoFractionDoSecondOptimization(0, false);
-
-  manager.setLithoFractionDoFirstOptimization(1, true);
-  manager.setLithoFractionDoSecondOptimization(1, false);
 
   manager.addOptimizedLithofraction(casaWizard::sac::OptimizedLithofraction(10,0,12,13));
   manager.addOptimizedLithofraction(casaWizard::sac::OptimizedLithofraction(11,1,14,15));

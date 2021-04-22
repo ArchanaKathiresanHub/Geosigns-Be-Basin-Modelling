@@ -13,6 +13,10 @@ OptimizedLithofractionExtractor::OptimizedLithofractionExtractor(SACScenario& sc
 {  
 }
 
+OptimizedLithofractionExtractor::~OptimizedLithofractionExtractor()
+{
+}
+
 RunScript& OptimizedLithofractionExtractor::script()
 {
   return script_;

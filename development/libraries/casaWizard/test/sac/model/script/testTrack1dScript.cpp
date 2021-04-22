@@ -15,17 +15,13 @@ TEST(Track1dScriptTest, testGenerateCommands)
   script.generateCommands();
   QStringList expectedCommands;
   expectedCommands.push_back("track1d -coordinates 0.000000,1.100000 -properties Density -age 0 -project Project.project3d -save wellTrajectory-Project-Density.csv -lean");
-  expectedCommands.push_back("track1d -coordinates 0.000000,1.100000 -properties Density -age 0 -project bestMatchedCase.project3d -save wellTrajectory-bestMatchedCase-Density.csv -lean");
   expectedCommands.push_back("track1d -coordinates 2.200000,3.300000 -properties SonicSlowness -age 0 -project Project.project3d -save wellTrajectory-Project-SonicSlowness.csv -lean");
-  expectedCommands.push_back("track1d -coordinates 2.200000,3.300000 -properties SonicSlowness -age 0 -project bestMatchedCase.project3d -save wellTrajectory-bestMatchedCase-SonicSlowness.csv -lean");
 
   // Then
-  int counter = 0;
-  for (const casaWizard::RunCommand& command : script.commands())
-  {
-    EXPECT_EQ(command.relativeDirectory, counter < 2 ? "CaseSet" : "RunLocation");
-    EXPECT_EQ(command.command, expectedCommands[counter]) << "Wrong at command" << counter;
-    counter++;
-  }
+  EXPECT_EQ(script.commands()[0].relativeDirectory, "CaseSet");
+  EXPECT_EQ(script.commands()[0].command, expectedCommands[0]) << "Wrong at command 0";
+  EXPECT_EQ(script.commands()[1].relativeDirectory, "RunLocation");
+  EXPECT_EQ(script.commands()[1].command, expectedCommands[1]) << "Wrong at command 1";
 }
+
 

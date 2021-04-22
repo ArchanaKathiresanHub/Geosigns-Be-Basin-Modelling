@@ -30,8 +30,7 @@ class LithofractionTableRow
 public:
   LithofractionTableRow(const Lithofraction& lithofraction, const QStringList& lithoTypes);
 
-  QWidget* firstOptimizationCheckBox() const;
-  QWidget* secondOptimizationCheckBox() const;
+  QWidget* firstOptimizationCheckBox() const;  
   std::vector<QTableWidgetItem*> lithoTypeItems() const;
   QTableWidgetItem* firstOptimizationMinPercentage() const;
   QTableWidgetItem* firstOptimizationMaxPercentage() const;
@@ -40,8 +39,7 @@ public:
   const Lithofraction& lithofraction() const;
 
 private:
-  QWidget* firstOptimizationCheckBox_;
-  QWidget* secondOptimizationCheckBox_;
+  QWidget* firstOptimizationCheckBox_;  
   std::vector<QTableWidgetItem*> lithoTypeItems_;
   QTableWidgetItem* firstOptimizationMinPercentage_;
   QTableWidgetItem* firstOptimizationMaxPercentage_;

@@ -24,7 +24,11 @@ CmdLocation::CmdLocation( CasaCommander & parent, const std::vector< std::string
    m_locPath = m_prms.size() > 0 ? m_prms[0] : "";
    if ( m_locPath.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty path to generated cases";
 
-   m_appendCases = m_prms.size() > 1 && m_prms[1] == "append";
+   for  ( int i = 1; i < m_prms.size(); ++i )
+   {
+     if ( m_prms[i] == "append" ) m_appendCases = true;
+     if ( m_prms[i] == "noOptimization" ) m_noOptimization = true;
+   }
 }
 
 void CmdLocation::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
@@ -43,12 +47,15 @@ void CmdLocation::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception(sa->errorCode()) << sa->errorMessage();
    }
 
-   // Generate 1D .casa scenario files for each of 1D project in case of Multi1D SAC
-   const std::vector< SharedCmdPtr> & cmdq = m_commander.cmdQueue();
-   for ( size_t i = 0; i < cmdq.size(); ++i )
+   if ( !m_noOptimization )
    {
-      const CmdGenerateMultiOneD * cmd = dynamic_cast<const CmdGenerateMultiOneD *>( cmdq[i].get() );
-      if ( cmd ) { cmd->generateScenarioScripts( sa ); break; }
+     // Generate 1D .casa scenario files for each of 1D project in case of Multi1D SAC
+     const std::vector< SharedCmdPtr> & cmdq = m_commander.cmdQueue();
+     for ( size_t i = 0; i < cmdq.size(); ++i )
+     {
+        const CmdGenerateMultiOneD * cmd = dynamic_cast<const CmdGenerateMultiOneD *>( cmdq[i].get() );
+        if ( cmd ) { cmd->generateScenarioScripts( sa ); break; }
+     }
    }
 
    LogHandler( LogHandler::INFO_SEVERITY ) << "DoE cases generation succeeded";

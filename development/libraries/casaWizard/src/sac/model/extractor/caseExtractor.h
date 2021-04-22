@@ -19,7 +19,8 @@ class CaseDataCreator;
 class CaseExtractor
 {
 public:
-  explicit CaseExtractor(const SACScenario& scenario);
+  explicit CaseExtractor(const SACScenario& scenario, const QString& iterationPath = "");
+  virtual ~CaseExtractor();
 
   void extract();
   void readCaseData();

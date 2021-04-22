@@ -20,9 +20,10 @@ namespace casaWizard
 namespace sac
 {
 
-SACScript::SACScript(const SACScenario& scenario, const QString& baseDirectory) :
+SACScript::SACScript(const SACScenario& scenario, const QString& baseDirectory, const bool doOptimization) :
   CasaScript{baseDirectory},
-  scenario_{scenario}
+  scenario_{scenario},
+  doOptimization_{doOptimization}
 {
 }
 
@@ -79,7 +80,7 @@ void SACScript::writeScriptContents(QFile& file) const
   }
 
   out << QString("generateMulti1D \"Default\" \"none\" 0.01\n");
-  out << writeLocation(scenario_.runLocation());
+  out << writeLocation(scenario_.runLocation(), false, !doOptimization_);
   out << writeRun(scenario_.clusterName());
   out << writeSaveState(scenario_.stateFileNameSAC());
 }

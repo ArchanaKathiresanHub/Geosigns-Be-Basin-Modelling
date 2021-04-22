@@ -46,8 +46,7 @@ bool Track1DScript::generateCommands()
   const int nCalls = xCoordinate_.size();
   for (int iCall = 0; iCall < nCalls; ++iCall)
   {
-    addCommandProject(iCall, projectName_);
-    addCommandProject(iCall, "bestMatchedCase");
+    addCommandProject(iCall, projectName_);    
   }
   return true;
 }

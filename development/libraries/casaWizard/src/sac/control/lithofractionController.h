@@ -36,8 +36,7 @@ public:
   void updateLithofractionTable();
 
 private slots:
-  void slotFirstOptimizationChanged(int state, int row);
-  void slotSecondOptimizationChanged(int state, int row);
+  void slotFirstOptimizationChanged(int state, int row);  
   void slotTableChange(QTableWidgetItem* item);
 
 private:

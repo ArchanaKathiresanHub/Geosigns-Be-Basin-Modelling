@@ -34,7 +34,8 @@ public:
 
 protected:
    std::string m_locPath;
-   bool m_appendCases;
+   bool m_appendCases = false;
+   bool m_noOptimization = false;
 };
 
 #endif // CASA_CMD_LOCATION_H

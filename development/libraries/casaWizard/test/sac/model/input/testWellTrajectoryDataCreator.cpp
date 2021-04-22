@@ -17,7 +17,7 @@ TEST( WellTrajectoryDataCreatorTest, testReadTrack1DFile )
   wellTrajectoryManager.addWellTrajectory(wellIndex, "Temperature");
 
   const QString iterationPath{"TrajectoryData"};
-  casaWizard::sac::WellTrajectoryDataCreator dataCreator{scenario, iterationPath};
+  casaWizard::sac::WellTrajectoryDataCreator dataCreator{scenario, "Project", iterationPath};
 
   dataCreator.read();
 

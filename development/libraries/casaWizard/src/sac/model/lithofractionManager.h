@@ -39,8 +39,7 @@ public:
   void setLithofractionSecondComponent(int index, int percent);
   void setLithofractionSecondMinFraction(int index, double value);
   void setLithofractionSecondMaxFraction(int index, double value);
-  void setLithoFractionDoFirstOptimization(int index, bool doFirstOptimization);
-  void setLithoFractionDoSecondOptimization(int index, bool doSecondOptimization);
+  void setLithoFractionDoFirstOptimization(int index, bool doFirstOptimization);  
 
   const QVector<OptimizedLithofraction>& optimizedLithofractions() const;
   QVector<OptimizedLithofraction> optimizedInWell(const int wellIndex) const;

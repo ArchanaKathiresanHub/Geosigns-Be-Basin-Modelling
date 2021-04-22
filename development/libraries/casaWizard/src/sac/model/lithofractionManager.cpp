@@ -129,11 +129,6 @@ void LithofractionManager::setLithoFractionDoFirstOptimization(int index, bool d
   lithofractions_[index].setDoFirstOptimization(doFirstOptimization);
 }
 
-void LithofractionManager::setLithoFractionDoSecondOptimization(int index, bool doSecondOptimization)
-{
-  lithofractions_[index].setDoSecondOptimization(doSecondOptimization);
-}
-
 void LithofractionManager::addLithofraction(const QString& name, const bool doFirstOptimization, const bool doSecondOptimization)
 {
   Lithofraction newLithofraction

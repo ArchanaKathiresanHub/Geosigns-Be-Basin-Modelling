@@ -40,8 +40,7 @@ public:
 
   QPushButton* createGridsButton() const;
   QPushButton* buttonExportOptimized() const;
-  QPushButton* buttonRunOptimized() const;
-  QPushButton* buttonRunOriginal() const;
+  QPushButton* buttonRunOptimized() const;  
   QComboBox* interpolationType() const;
   LithofractionVisualisation* lithofractionVisualisation() const;
   QSpinBox* pValue() const;
@@ -68,8 +67,7 @@ private:
   LithofractionVisualisation* lithofractionVisualisation_;
   EmphasisButton* createGridsButton_;
   QPushButton* buttonExportOptimized_;
-  QPushButton* buttonRunOptimized_;
-  QPushButton* buttonRunOriginal_;
+  QPushButton* buttonRunOptimized_;  
   QComboBox* interpolationType_;
   QWidget* iwdOptions_;
   QWidget* gridGenerationOptions_;

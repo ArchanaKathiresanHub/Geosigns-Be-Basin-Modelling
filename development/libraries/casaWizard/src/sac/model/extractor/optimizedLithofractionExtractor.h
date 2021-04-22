@@ -17,6 +17,7 @@ class OptimizedLithofractionExtractor : public CaseExtractor
 {
 public:
   explicit OptimizedLithofractionExtractor(SACScenario& scenario);
+  ~OptimizedLithofractionExtractor() override;
   RunScript& script() override;
   CaseDataCreator& dataCreator() override;
 

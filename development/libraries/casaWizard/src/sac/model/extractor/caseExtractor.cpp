@@ -14,11 +14,18 @@ namespace casaWizard
 namespace sac
 {
 
-CaseExtractor::CaseExtractor(const SACScenario& scenario) :
-  iterationPath_{""},
+CaseExtractor::CaseExtractor(const SACScenario& scenario, const QString& iterationPath) :
+  iterationPath_{iterationPath},
   scenario_{scenario}
 {
-  obtainIterationPath();
+  if (iterationPath.isEmpty())
+  {
+    obtainIterationPath();
+  }
+}
+
+CaseExtractor::~CaseExtractor()
+{
 }
 
 void CaseExtractor::extract()

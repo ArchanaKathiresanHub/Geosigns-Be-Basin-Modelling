@@ -14,6 +14,7 @@
 #include "control/functions/folderOperations.h"
 #include "control/lithofractionController.h"
 #include "control/objectiveFunctionController.h"
+#include "control/run3dCaseController.h"
 #include "control/scriptRunController.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "model/logger.h"
@@ -70,6 +71,9 @@ SACcontroller::SACcontroller(SACtab* sacTab,
   connect(sacTab_->pushSelectProject3D(),   SIGNAL(clicked()),                   this, SLOT(slotPushSelectProject3dClicked()));
   connect(sacTab_->pushSelectCalibration(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectCalibrationClicked()));
 
+  connect(sacTab_->buttonRunOriginal1D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal1D()));
+  connect(sacTab_->buttonRunOriginal3D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal3D()));
+
   connect(sacTab_->comboBoxCluster(),       SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
   connect(sacTab_->comboBoxApplication(),   SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxApplicationChanged(QString)));
 }
@@ -101,7 +105,8 @@ void SACcontroller::slotExtractData()
     return;
   }
 
-  dataExtractionController_->readResults();
+  dataExtractionController_->readOriginalResults();
+  dataExtractionController_->readOptimizedResults();
   scenarioBackup::backup(casaScenario_);
 }
 
@@ -149,7 +154,7 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
 
   if (scriptRunController_.runScript(sac))
   {
-    dataExtractionController_->readResults();
+    dataExtractionController_->readOptimizedResults();
 
     if (QFile::copy(casaScenario_.calibrationDirectory() + "/" + casaScenario_.stateFileNameSAC() ,
                     casaScenario_.calibrationDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameSAC()))
@@ -161,6 +166,91 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
     {
       Logger::log() << "- An error occurred while moving the state file to the last iteration folder." << Logger::endl();
     }
+    scenarioBackup::backup(casaScenario_);
+  }
+}
+
+void SACcontroller::slotRunOriginal1D()
+{
+  wellTrajectoryWriter::writeTrajectories(casaScenario_);
+
+  const QString workingDir = casaScenario_.workingDirectory();
+  const QString original1dDir{casaScenario_.original1dDirectory()};
+
+  if (workingDir.isEmpty())
+  {
+    return;
+  }
+
+  QDir calDir(original1dDir);
+  if (calDir.exists())
+  {
+    QDir(original1dDir).removeRecursively();
+    calDir.mkpath(".");
+  }
+  else
+  {
+    calDir.mkpath(".");
+  }
+
+  const bool filesCopied = functions::copyCaseFolder(workingDir, original1dDir);
+
+  Logger::log() << (filesCopied ? "Finished copying case to " + original1dDir :
+                                  "Failed copying case, no files were copied") << Logger::endl();
+
+  scenarioBackup::backup(casaScenario_);
+  SACScript sac(casaScenario_, original1dDir, false);
+  if (!casaScriptWriter::writeCasaScript(sac))
+  {
+    return;
+  }
+
+  if (scriptRunController_.runScript(sac))
+  {
+    dataExtractionController_->readOriginalResults();
+
+    if (QFile::copy(casaScenario_.original1dDirectory() + "/" + casaScenario_.stateFileNameSAC() ,
+                    casaScenario_.original1dDirectory() + "/" + casaScenario_.runLocation() + "/Iteration_1/" + casaScenario_.stateFileNameSAC()))
+    {
+      QFile file (casaScenario_.original1dDirectory() + "/" + casaScenario_.stateFileNameSAC());
+      file.remove();
+    }
+    else
+    {
+      Logger::log() << "- An error occurred while moving the state file to the iteration folder." << Logger::endl();
+    }
+    scenarioBackup::backup(casaScenario_);
+  }
+}
+
+void SACcontroller::slotRunOriginal3D()
+{
+  if (casaScenario_.project3dPath().isEmpty())
+  {
+    return;
+  }
+
+  const QString runDirectory{casaScenario_.calibrationDirectory() + "/ThreeDBase"};
+
+  const QDir sourceDir(casaScenario_.workingDirectory());
+  const QDir targetDir(runDirectory);
+  if (!sourceDir.exists())
+  {
+    Logger::log() << "Source directory " + sourceDir.absolutePath() + " not found" << Logger::endl();
+    return;
+  }
+
+  const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
+  if (!filesCopied)
+  {
+    Logger::log() << "Failed to create the 3D original case"
+                  << "\nThe original is not run" << Logger::endl();
+    return;
+  }
+
+  Run3dCaseController run3dCaseController(casaScenario_, scriptRunController_);
+  if (run3dCaseController.run3dCase(runDirectory, false))
+  {
     scenarioBackup::backup(casaScenario_);
   }
 }
@@ -209,6 +299,10 @@ void SACcontroller::slotPushSelectProject3dClicked()
 
 void SACcontroller::slotPushSelectCalibrationClicked()
 {
+  if (casaScenario_.project3dPath().isEmpty())
+  {
+    return;
+  }
   QString fileName = QFileDialog::getOpenFileName(sacTab_,
                                                   "Select calibration targets",
                                                   "",

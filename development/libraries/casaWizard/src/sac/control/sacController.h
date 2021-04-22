@@ -53,6 +53,8 @@ private slots:
   void slotExtractData();
   void slotUpdateTabGUI(int tabID);
 
+  void slotRunOriginal1D();
+  void slotRunOriginal3D();
 signals:
   void signalRefreshChildWidgets();
 

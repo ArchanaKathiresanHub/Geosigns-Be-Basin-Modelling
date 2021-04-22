@@ -38,7 +38,7 @@ LithofractionTable::LithofractionTable(QWidget* parent) :
 void LithofractionTable::setTableHeader()
 {
   setRowCount(0);
-  setColumnCount(10);
+  setColumnCount(9);
 
   setHeaderTitles();
   setHelpToolTips();
@@ -52,7 +52,7 @@ void LithofractionTable::setTableHeader()
 void LithofractionTable::setHeaderTitles()
 {
   const QStringList tableHeaders{"Enable \n optimization", "Layer name", "Lithotype 1", "Min [%]", "Max [%]",
-                                 "Lithotype 2", "Enable 2nd \n optimization", "Min [-]", "Max [-]", "Lithotype 3"};
+                                 "Lithotype 2", "Min [-]", "Max [-]", "Lithotype 3"};
 
   for (int i = 0; i<columnCount(); i++)
   {
@@ -65,8 +65,8 @@ void LithofractionTable::setHelpToolTips()
   horizontalHeaderItem(3)->setIcon(QIcon(":/Help.png"));
   horizontalHeaderItem(3)->setToolTip("This percentage is defined as: \n litho1 / (litho1 + litho2 + litho3) * 100");
 
-  horizontalHeaderItem(7)->setIcon(QIcon(":/Help.png"));
-  horizontalHeaderItem(7)->setToolTip("This ratio is defined as: \n litho2 / (litho2 + litho3)");
+  horizontalHeaderItem(6)->setIcon(QIcon(":/Help.png"));
+  horizontalHeaderItem(6)->setToolTip("This ratio is defined as: \n litho2 / (litho2 + litho3)");
 }
 
 void LithofractionTable::setHeaderResizeModes()
@@ -77,7 +77,7 @@ void LithofractionTable::setHeaderResizeModes()
 
 void LithofractionTable::resizeColumnsToContents()
 {
-  const std::vector<int> resizeToContentsColumns = {0, 1, 3, 4, 6, 7, 8};
+  const std::vector<int> resizeToContentsColumns = {0, 1, 3, 4, 6, 7};
   for (const int column : resizeToContentsColumns)
   {
     horizontalHeader()->setSectionResizeMode(column, QHeaderView::ResizeToContents);
@@ -86,7 +86,7 @@ void LithofractionTable::resizeColumnsToContents()
 
 void LithofractionTable::stretchColumns()
 {
-  const std::vector<int> stretchColumns = {2, 5, 9};
+  const std::vector<int> stretchColumns = {2, 5, 8};
   for (const int column : stretchColumns)
   {
     horizontalHeader()->setSectionResizeMode(column, QHeaderView::Stretch);
@@ -97,13 +97,13 @@ void LithofractionTable::setHeaderAlignment()
 {
   horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-  const std::vector<int> rightAlignColumns = {3, 4, 7, 8};
+  const std::vector<int> rightAlignColumns = {3, 4, 6, 7};
   for (const int column : rightAlignColumns)
   {
     horizontalHeaderItem(column)->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
   }
 
-  const std::vector<int> centerAlignColumns = {0, 6};
+  const std::vector<int> centerAlignColumns = {0};
   for (const int column : centerAlignColumns)
   {
     horizontalHeaderItem(column)->setTextAlignment(Qt::AlignCenter);
@@ -153,17 +153,15 @@ void LithofractionTable::addItemsToTable(const int row, const LithofractionTable
   setItem(row, 2, tableRow.lithoTypeItems()[0]);
   setItem(row, 3, tableRow.firstOptimizationMinPercentage());
   setItem(row, 4, tableRow.firstOptimizationMaxPercentage());
-  setItem(row, 5, tableRow.lithoTypeItems()[1]);
-  setCellWidget(row, 6, tableRow.secondOptimizationCheckBox());
-  setItem(row, 7, tableRow.secondOptimizationMinFraction());
-  setItem(row, 8, tableRow.secondOptimizationMaxFraction());
-  setItem(row, 9, tableRow.lithoTypeItems()[2]);
+  setItem(row, 5, tableRow.lithoTypeItems()[1]);  
+  setItem(row, 6, tableRow.secondOptimizationMinFraction());
+  setItem(row, 7, tableRow.secondOptimizationMaxFraction());
+  setItem(row, 8, tableRow.lithoTypeItems()[2]);
 }
 
 void LithofractionTable::connectCheckBoxSignals(const int row, const LithofractionTableRow tableRow)
 {
   connect(getCheckBoxFromWidget(tableRow.firstOptimizationCheckBox()), &CustomCheckbox::stateChanged, [=](int state){emit firstOptimizationChanged(state, row);});
-  connect(getCheckBoxFromWidget(tableRow.secondOptimizationCheckBox()), &CustomCheckbox::stateChanged, [=](int state){emit secondOptimizationChanged(state, row);});
 }
 
 CustomCheckbox* LithofractionTable::getCheckBoxFromWidget(QWidget* widget)
@@ -179,13 +177,12 @@ void LithofractionTable::disableProhibitedComponents(const int row)
 
 void LithofractionTable::checkOptimizations(const int row)
 {
-  const std::vector<int> allFieldColumns = {1,2,3,4,5,7,8,9};
-  const std::vector<int> secondOptimizationColumns = {7,8};
+  const std::vector<int> allFieldColumns = {1,2,3,4,5,6,7,8};
+  const std::vector<int> secondOptimizationColumns = {6,7};
 
   const bool doFirstOptimization = static_cast<CustomCheckbox*>(cellWidget(row, 0)->children()[0])->isChecked();
-  const bool doSecondOptimization = doFirstOptimization && static_cast<CustomCheckbox*>(cellWidget(row, 6)->children()[0])->isChecked();
+  const bool doSecondOptimization = doFirstOptimization && !lessThanThreeLithoTypes(row);
 
-  setSecondCheckBoxEnabled(row, doFirstOptimization);
   setFieldsEnabled(row, allFieldColumns, doFirstOptimization);
   setFieldsEnabled(row, secondOptimizationColumns, doSecondOptimization);
 }
@@ -199,22 +196,8 @@ void LithofractionTable::setFieldsEnabled(const int row, const std::vector<int>&
   }
 }
 
-void LithofractionTable::setSecondCheckBoxEnabled(const int row, const bool enabled)
-{
-  CustomCheckbox* secondOptimization = dynamic_cast<CustomCheckbox*>(cellWidget(row, 6)->children()[0]);
-  if (secondOptimization)
-  {
-    secondOptimization->enable(enabled);
-  }
-}
-
 void LithofractionTable::checkNumberOfLithotypes(const int row)
 {
-  if (lessThanThreeLithoTypes(row))
-  {
-    getCheckBoxFromWidget(cellWidget(row, 6))->setCheckState(Qt::Unchecked);
-    getCheckBoxFromWidget(cellWidget(row, 6))->enable(false);
-  }
   if (lessThanTwoLithoTypes(row))
   {
     getCheckBoxFromWidget(cellWidget(row, 0))->setCheckState(Qt::Unchecked);
@@ -224,7 +207,7 @@ void LithofractionTable::checkNumberOfLithotypes(const int row)
 
 bool LithofractionTable::lessThanThreeLithoTypes(const int row) const
 {
-  return item(row, 9)->text() == "";
+  return item(row, 8)->text() == "";
 }
 
 bool LithofractionTable::lessThanTwoLithoTypes(const int row) const
@@ -234,7 +217,7 @@ bool LithofractionTable::lessThanTwoLithoTypes(const int row) const
 
 void LithofractionTable::updateLithoPercentagesAndFractions(const QVector<Lithofraction>& lithofractions, int row)
 {
-  std::vector<int> lithoPercentageFields = {3,4,7,8};
+  std::vector<int> lithoPercentageFields = {3,4,6,7};
   const Lithofraction lithoFraction = lithofractions[row];
   QStringList percentagesAndFractions{ percentageToQString(lithoFraction.minPercentageFirstComponent()),
                                        percentageToQString(lithoFraction.maxPercentageFirstComponent()),

@@ -28,16 +28,17 @@ struct WellTrajectory;
 class SACScript : public CasaScript
 {
 public:
-  explicit SACScript(const SACScenario& scenario, const QString& baseDirectory);
-  virtual ~SACScript() = default;
+  explicit SACScript(const SACScenario& scenario, const QString& baseDirectory, bool doOptimization = true);
+  virtual ~SACScript() override = default;
 
   const CasaScenario& scenario() const override;
   bool prepareKill() const override;
   QString scriptFilename() const override;
-  QString workingDirectory() const;
+  QString workingDirectory() const override;
 
 private:
   const SACScenario& scenario_;
+  const bool doOptimization_;
 
   void writeScriptContents(QFile& file) const override;
   bool validateScenario() const override;

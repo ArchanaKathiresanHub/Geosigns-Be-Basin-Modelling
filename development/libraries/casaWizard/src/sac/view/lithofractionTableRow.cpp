@@ -45,15 +45,13 @@ void LithofractionTableRow::createLithoTypeItems()
 
 void LithofractionTableRow::createOptimizationCheckBoxes()
 {
-  firstOptimizationCheckBox_ = createOptimizationCheckBox();
-  secondOptimizationCheckBox_ = createOptimizationCheckBox();
+  firstOptimizationCheckBox_ = createOptimizationCheckBox();  
   initializeCheckBoxes();
 }
 
 void LithofractionTableRow::initializeCheckBoxes()
 {
-  LithofractionTable::getCheckBoxFromWidget(firstOptimizationCheckBox_)->setCheckState(lithofraction_.doFirstOptimization() ? Qt::Checked : Qt::Unchecked);
-  LithofractionTable::getCheckBoxFromWidget(secondOptimizationCheckBox_)->setCheckState(lithofraction_.doSecondOptimization() ? Qt::Checked : Qt::Unchecked);
+  LithofractionTable::getCheckBoxFromWidget(firstOptimizationCheckBox_)->setCheckState(lithofraction_.doFirstOptimization() ? Qt::Checked : Qt::Unchecked);  
 }
 
 QWidget* LithofractionTableRow::createOptimizationCheckBox()
@@ -85,11 +83,6 @@ void LithofractionTableRow::createOptimizationInputFields()
 QWidget* LithofractionTableRow::firstOptimizationCheckBox() const
 {
   return firstOptimizationCheckBox_;
-}
-
-QWidget* LithofractionTableRow::secondOptimizationCheckBox() const
-{
-  return secondOptimizationCheckBox_;
 }
 
 std::vector<QTableWidgetItem*> LithofractionTableRow::lithoTypeItems() const

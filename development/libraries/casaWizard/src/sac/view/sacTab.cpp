@@ -31,7 +31,9 @@ SACtab::SACtab(QWidget* parent) :
   pushSelectCalibration_{new QPushButton("Select", this)},
   comboBoxApplication_{new QComboBox(this)},
   comboBoxCluster_{new QComboBox(this)},
-  pushButtonSACrunCASA_{new EmphasisButton("Run 1D optimization", this)}
+  pushButtonSACrunCASA_{new EmphasisButton("Run 1D optimization", this)},
+  buttonRunOriginal1D_{new QPushButton("Run original 1D", this)},
+  buttonRunOriginal3D_{new QPushButton("Run original 3D", this)}
 {
   comboBoxApplication_->insertItems(0, {"Iteratively Coupled", "Hydrostatic"});
   comboBoxCluster_->insertItems(0, {"LOCAL", "CLUSTER"});
@@ -51,11 +53,13 @@ SACtab::SACtab(QWidget* parent) :
   layoutOption->addWidget(new CustomTitle("Run Options", this), 0, 0);
   layoutOption->addWidget(new QLabel("Run Mode", this), 1, 0);
   layoutOption->addWidget(comboBoxApplication_, 1, 1);
-  layoutOption->addWidget(new QLabel("Cluster", this), 2, 0);
+  layoutOption->addWidget(new QLabel("Run Location", this), 2, 0);
   layoutOption->addWidget(comboBoxCluster_, 2, 1);
 
   layoutOption->addWidget(pushButtonSACrunCASA_, 3, 0, 1, 2);
-  runOptions->setMaximumHeight(110);
+  layoutOption->addWidget(buttonRunOriginal1D_, 4, 0, 1, 2);
+  layoutOption->addWidget(buttonRunOriginal3D_, 5, 0, 1, 2);
+  runOptions->setMaximumHeight(160);
   layoutOption->setMargin(0);
 
   QGridLayout* layoutTablesAndOptions = new QGridLayout();
@@ -128,6 +132,16 @@ const QPushButton* SACtab::pushSelectCalibration() const
 const QPushButton* SACtab::pushButtonSACrunCASA() const
 {
   return pushButtonSACrunCASA_;
+}
+
+const QPushButton* SACtab::buttonRunOriginal1D() const
+{
+  return buttonRunOriginal1D_;
+}
+
+const QPushButton* SACtab::buttonRunOriginal3D() const
+{
+  return buttonRunOriginal3D_;
 }
 
 } // namespace sac

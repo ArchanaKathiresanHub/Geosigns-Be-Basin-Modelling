@@ -30,8 +30,7 @@ LithofractionController::LithofractionController(LithofractionTable* table, SACS
   table_{table}
 {
   connect(table_, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(slotTableChange(QTableWidgetItem*)));
-  connect(table_, SIGNAL(firstOptimizationChanged(int, int)), this, SLOT(slotFirstOptimizationChanged(int, int)));
-  connect(table_, SIGNAL(secondOptimizationChanged(int, int)), this, SLOT(slotSecondOptimizationChanged(int, int)));
+  connect(table_, SIGNAL(firstOptimizationChanged(int, int)), this, SLOT(slotFirstOptimizationChanged(int, int)));  
 
   updateLithofractionTable();
 }
@@ -49,11 +48,11 @@ void LithofractionController::slotTableChange(QTableWidgetItem* item)
       lithofractionManager_.setLithofractionFirstMaxPercentage(index, item->data(0).toDouble());
       updateLithoPercentages(index);
       break;
-    case 7:
+    case 6:
       lithofractionManager_.setLithofractionSecondMinFraction(index, item->data(0).toDouble());
       updateLithoPercentages(index);
       break;
-    case 8:
+    case 7:
       lithofractionManager_.setLithofractionSecondMaxFraction(index, item->data(0).toDouble());
       updateLithoPercentages(index);
       break;
@@ -68,12 +67,6 @@ void LithofractionController::updateLithoPercentages(const int index)
 void LithofractionController::slotFirstOptimizationChanged(int state, int row)
 {
   lithofractionManager_.setLithoFractionDoFirstOptimization(row, state == Qt::CheckState::Checked);
-  table_->disableProhibitedComponents(row);
-}
-
-void LithofractionController::slotSecondOptimizationChanged(int state, int row)
-{
-  lithofractionManager_.setLithoFractionDoSecondOptimization(row, state == Qt::CheckState::Checked);
   table_->disableProhibitedComponents(row);
 }
 
