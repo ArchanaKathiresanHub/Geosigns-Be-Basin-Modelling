@@ -15,6 +15,9 @@ public:
 
   void updateTable(const QVector<const Well *> wells);
 
+  void selectAllWells();
+  void clearWellSelection();
+
 signals:
   void checkBoxChanged(int, int);
 

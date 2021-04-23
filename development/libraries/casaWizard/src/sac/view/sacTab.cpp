@@ -28,7 +28,9 @@ SACtab::SACtab(QWidget* parent) :
   calibrationTargetTable_{new CalibrationTargetTable(this)},
   lithofractionTable_{new LithofractionTable(this)},
   objectiveFunctionTable_{new ObjectiveFunctionTable(this)},  
-  pushSelectCalibration_{new QPushButton("Select", this)},
+  pushSelectCalibration_{new QPushButton("Select input file", this)},
+  pushSelectAllWells_{new QPushButton("Select all", this)},
+  pushClearSelection_{new QPushButton("Deselect all", this)},
   comboBoxApplication_{new QComboBox(this)},
   comboBoxCluster_{new QComboBox(this)},
   pushButtonSACrunCASA_{new EmphasisButton("Run 1D optimization", this)},
@@ -45,8 +47,11 @@ SACtab::SACtab(QWidget* parent) :
 
   lineEditProject3D_->setReadOnly(true);
 
-  QHBoxLayout* layoutCalibrationFile = new QHBoxLayout();
-  layoutCalibrationFile->addWidget(pushSelectCalibration_);
+  QHBoxLayout* layoutCalibrationOptions = new QHBoxLayout();
+  layoutCalibrationOptions->addWidget(pushSelectCalibration_);
+  layoutCalibrationOptions->addWidget(pushSelectAllWells_);
+  layoutCalibrationOptions->addWidget(pushClearSelection_);
+  layoutCalibrationOptions->setStretch(0,4);
 
   QWidget* runOptions = new QWidget(this);
   QGridLayout* layoutOption = new QGridLayout(runOptions);
@@ -71,7 +76,7 @@ SACtab::SACtab(QWidget* parent) :
 
   QVBoxLayout* calibrationTargetTableLayout = new QVBoxLayout();
   calibrationTargetTableLayout->addWidget(new CustomTitle("Calibration Targets"));
-  calibrationTargetTableLayout->addLayout(layoutCalibrationFile);
+  calibrationTargetTableLayout->addLayout(layoutCalibrationOptions);
   calibrationTargetTableLayout->addWidget(calibrationTargetTable_);
 
   layoutTablesAndOptions->addLayout(calibrationTargetTableLayout, 1,0);
@@ -127,6 +132,16 @@ QComboBox* SACtab::comboBoxCluster() const
 const QPushButton* SACtab::pushSelectCalibration() const
 {
   return pushSelectCalibration_;
+}
+
+const QPushButton*SACtab::pushSelectAllWells() const
+{
+  return pushSelectAllWells_;
+}
+
+const QPushButton*SACtab::pushClearSelection() const
+{
+  return pushClearSelection_;
 }
 
 const QPushButton* SACtab::pushButtonSACrunCASA() const

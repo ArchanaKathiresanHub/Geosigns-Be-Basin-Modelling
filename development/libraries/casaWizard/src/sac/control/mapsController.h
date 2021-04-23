@@ -13,7 +13,6 @@
 namespace casaWizard
 {
 
-class MapReader;
 class ScriptRunController;
 
 namespace sac

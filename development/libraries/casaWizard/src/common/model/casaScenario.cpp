@@ -174,7 +174,7 @@ void CasaScenario::readFromFile(const ScenarioReader& reader)
   runLocation_ = reader.readString("runLocation");
   expertUser_ = reader.readBool("expertUser");
   numberCPUs_ = reader.readInt("numberCPUs");
-  calibrationTargetManager_.readFromFile(reader);    
+  calibrationTargetManager_.readFromFile(reader);
 }
 
 void CasaScenario::clear()

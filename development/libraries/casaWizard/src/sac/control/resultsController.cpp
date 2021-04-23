@@ -12,7 +12,7 @@
 #include "control/scriptRunController.h"
 #include "model/case3DTrajectoryConvertor.h"
 #include "model/input/case3DTrajectoryReader.h"
-#include "model/input/mapreader.h"
+#include "model/input/cmbMapReader.h"
 #include "model/logger.h"
 #include "model/sacScenario.h"
 #include "model/script/cauldronScript.h"
@@ -87,7 +87,7 @@ void ResultsController::setDomainBirdsView()
                                  yMin * Utilities::Maths::MeterToKilometer,
                                  yMax * Utilities::Maths::MeterToKilometer);
 
-  MapReader mapReader;
+  CMBMapReader mapReader;
   mapReader.load(scenario_.project3dPath().toStdString());
   VectorVectorMap depthMap = mapReader.getMapData(scenario_.projectReader().getDepthGridName(0).toStdString());
   std::vector<std::vector<double>> values = depthMap.getData();

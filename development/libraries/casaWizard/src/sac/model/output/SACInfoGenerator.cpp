@@ -10,7 +10,7 @@
 
 #include "model/sacScenario.h"
 #include "model/input/projectReader.h"
-#include "model/input/mapreader.h"
+#include "model/input/cmbMapReader.h"
 #include "model/objectiveFunctionValue.h"
 
 #include <iomanip>

@@ -11,6 +11,7 @@
 
 namespace casaWizard
 {
+
 class CalibrationTargetManager : public Writable
 {
 public:
@@ -46,6 +47,7 @@ public:
 
   QVector<const CalibrationTarget*> activeCalibrationTargets() const;
   QStringList activeProperties() const;
+  void disableInvalidWells(const std::string& projectFileName, const std::string& depthGridName);
 
 private:
   CalibrationTargetManager(const CalibrationTargetManager&) = delete;

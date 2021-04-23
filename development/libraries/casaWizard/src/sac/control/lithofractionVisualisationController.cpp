@@ -8,7 +8,8 @@
 
 #include "lithofractionVisualisationController.h"
 
-#include "../common/model/input/mapreader.h"
+
+#include "../common/model/input/cmbMapReader.h"
 #include "../common/model/vectorvectormap.h"
 #include "model/casaScenario.h"
 #include "model/sacScenario.h"
@@ -54,7 +55,7 @@ void LithofractionVisualisationController::connectToolTipSlots()
 void LithofractionVisualisationController::slotUpdatePlots(const QString& layerName)
 {
   activeLayer_ = layerName;
-  MapReader mapReader;
+  CMBMapReader mapReader;
   const int layerID = scenario_.projectReader().getLayerID(layerName.toStdString());
 
   if (!openMaps(mapReader, layerID))
@@ -107,7 +108,7 @@ void LithofractionVisualisationController::toolTipCreated(const QPointF& point, 
   lithofractionVisualisation_->lithoFractionPlots()[plotID]->lithoPercent2DView()->correctToolTipPositioning();
 }
 
-bool LithofractionVisualisationController::openMaps(MapReader& mapReader, const int layerID)
+bool LithofractionVisualisationController::openMaps(CMBMapReader& mapReader, const int layerID) const
 {
   QDir threeDFromOneD = scenario_.calibrationDirectory() + "/ThreeDFromOneD/";
   if (scenario_.project3dFilename() == "" || !threeDFromOneD.exists())
@@ -124,7 +125,7 @@ bool LithofractionVisualisationController::openMaps(MapReader& mapReader, const 
   return true;
 }
 
-std::vector<VectorVectorMap> LithofractionVisualisationController::obtainLithologyMaps(const MapReader& mapReader, int layerID)
+std::vector<VectorVectorMap> LithofractionVisualisationController::obtainLithologyMaps(const CMBMapReader& mapReader, int layerID) const
 {
   std::vector<VectorVectorMap> lithologyMaps;
   lithologyMaps.push_back(mapReader.getMapData(std::to_string(layerID) + "_percent_1"));
@@ -143,7 +144,7 @@ std::vector<VectorVectorMap> LithofractionVisualisationController::obtainLitholo
   return lithologyMaps;
 }
 
-QStringList LithofractionVisualisationController::obtainAvailableLayers()
+QStringList LithofractionVisualisationController::obtainAvailableLayers() const
 {
   QDir threeDFromOneD = scenario_.calibrationDirectory() + "/ThreeDFromOneD/";
   if (scenario_.project3dFilename() == "" || !threeDFromOneD.exists())
@@ -151,7 +152,7 @@ QStringList LithofractionVisualisationController::obtainAvailableLayers()
     return {};
   }
 
-  MapReader mapreader;
+  CMBMapReader mapreader;
   mapreader.load((scenario_.calibrationDirectory() + "/ThreeDFromOneD/" + scenario_.project3dFilename()).toStdString());
 
   QStringList availableLayers;
@@ -168,7 +169,7 @@ QStringList LithofractionVisualisationController::obtainAvailableLayers()
   return availableLayers;
 }
 
-QStringList LithofractionVisualisationController::obtainLithologyTypes(const int layerID)
+QStringList LithofractionVisualisationController::obtainLithologyTypes(const int layerID) const
 {
   QStringList lithologyTypes = scenario_.projectReader().lithologyTypesForLayer(layerID);
   return lithologyTypes;

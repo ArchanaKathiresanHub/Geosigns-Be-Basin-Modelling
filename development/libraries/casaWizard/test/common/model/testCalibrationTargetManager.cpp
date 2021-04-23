@@ -24,8 +24,10 @@ TEST(CalibrationTargetManagerTest, testWriteToFile)
   EXPECT_EQ(expectedIDWell0, actualIDWell0);
   EXPECT_EQ(expectedIDWell1, actualIDWell1);
 
-  manager.setWellIsActive(true, 0);
-  manager.setWellIsActive(false, 1);
+  manager.setWellIsActive(false, 0);
+  manager.setWellIsExcluded(false, 0);
+  manager.setWellIsActive(true, 1);
+  manager.setWellIsExcluded(true, 1);
 
   casaWizard::ScenarioWriter writer{"calibrationTargetManagerActual.dat"};
   manager.writeToFile(writer);
@@ -61,12 +63,23 @@ TEST(CalibrationTargetManagerTest, testReadFromFile)
   EXPECT_EQ(expectedNameWell0, actualNameWell0);
   EXPECT_EQ(expectedNameWell1, actualNameWell1);
 
-  const bool expectedIsActiveWell0 = true;
-  const bool expectedIsActiveWell1 = false;
+  const bool expectedIsActiveWell0 = false;
+  const bool expectedIsActiveWell1 = true;
   const bool actualIsActiveWell0 = well0.isActive();
   const bool actualIsActiveWell1 = well1.isActive();
   EXPECT_EQ(expectedIsActiveWell0, actualIsActiveWell0);
   EXPECT_EQ(expectedIsActiveWell1, actualIsActiveWell1);
+
+  const bool expectedIsExcludedWell0 = false;
+  const bool expectedIsExcludedWell1 = true;
+  const bool actualIsExcludedWell0 = well0.isExcluded();
+  const bool actualIsExcludedWell1 = well1.isExcluded();
+  EXPECT_EQ(expectedIsExcludedWell0, actualIsExcludedWell0);
+  EXPECT_EQ(expectedIsExcludedWell1, actualIsExcludedWell1);
+
+  const bool expectedIsOutOfBasinWell0 = false;
+  const bool actualIsIsOutOfBasinWell0 = well0.isOutOfBasin();
+  EXPECT_EQ(expectedIsOutOfBasinWell0, actualIsIsOutOfBasinWell0);
 
   const double expectedCoordinateXWell0 = 0.0;
   const double expectedCoordinateYWell0 = 1.0;

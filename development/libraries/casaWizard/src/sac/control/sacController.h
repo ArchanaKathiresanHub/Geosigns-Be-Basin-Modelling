@@ -52,6 +52,8 @@ private slots:
 
   void slotExtractData();
   void slotUpdateTabGUI(int tabID);
+  void slotPushSelectAllWellsClicked();
+  void slotPushClearSelectionClicked();
 
   void slotRunOriginal1D();
   void slotRunOriginal3D();

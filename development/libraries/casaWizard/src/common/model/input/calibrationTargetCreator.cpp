@@ -53,6 +53,7 @@ void createFromExcel(CasaScenario& casaScenario, const QString& excelFilename)
       nTotalTargets += nTargetsPerVariable[iVariable];
     }
   }
+
   calibrationTargetManager.updateObjectiveFunctionFromTargets();
 }
 

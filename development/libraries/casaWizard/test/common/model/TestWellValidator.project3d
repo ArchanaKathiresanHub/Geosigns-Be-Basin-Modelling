@@ -1,0 +1,3796 @@
+;
+; START - C:\windows\TEMP\tmp8582.tmp Tue Dec  8 08:05:11 2020
+;
+;
+; ProjectIoTbl
+;
+[ProjectIoTbl]
+;v100
+ProjectName Description ProjectStartDate ProgramVersion ModellingMode XCoord YCoord NumberX NumberY DeltaX DeltaY ScaleX ScaleY OffsetX OffsetY WindowXMin WindowXMax WindowYMin WindowYMax
+  ()   ()   ()   ()   ()  (m)  (m)   ()   ()  (m)  (m)   ()   ()   ()   ()   ()   ()   ()   ()
+"Ameland_Time_Depth_Conversion_Demo_LK28062020" "Testing last TZ Ameland in BPA2" "2020-06-28T15:03:09.000Z" "142ebfa2eb3206b3a1bc890c0c6d0719466aaf7e" "3d" 179000 603500 107 61 250 250 1 1 0 0 0 106 0 60
+[End]
+;
+;
+; RelatedProjectsIoTbl
+;
+[RelatedProjectsIoTbl]
+;v100
+Filename
+  ()
+[End]
+;
+;
+; BPANameMapping
+;
+[BPANameMapping]
+;v100
+TblIoMappingEncode BPAColumnName BPAColumnValue
+  ()   ()   ()
+"GridMapIoTbl:StratIoTbl:MAP-27103" "NAME" "Surface_Zero_for_voxet_Z_LK08022018"
+"GridMapIoTbl:StratIoTbl:MAP-27126" "NAME" "[Water_Bottom][01_Sand_typical_hybrid_BPA2_Min_Phi_10_LK16122017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:StratIoTbl:MAP-27127" "NAME" "[Water_Bottom][08_Mudstone_60%_clay_hybrid_min_phi_5%_BPA2_LK07072017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27104" "NAME" "Surface_Zero_for_voxet_T_LK08022018"
+"GridMapIoTbl:StratIoTbl:MAP-27105" "NAME" "[Base_Breda_Clay][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27106" "NAME" "FWS59_#620.291_nr_Top_Rupel_Top_E_Oligo_LtOligoHiatus20Ma_LK22042016"
+"GridMapIoTbl:StratIoTbl:MAP-27105" "NAME" "[Base_Breda_Clay][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:StratIoTbl:MAP-27128" "NAME" "[Top_Rupel][01_Sand_typical_hybrid_BPA2_Min_Phi_10_LK16122017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:StratIoTbl:MAP-27129" "NAME" "[Top_Rupel][08_Mudstone_60%_clay_hybrid_min_phi_5%_BPA2_LK07072017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27106" "NAME" "FWS59_#620.291_nr_Top_Rupel_Top_E_Oligo_LtOligoHiatus20Ma_LK22042016"
+"GridMapIoTbl:StratIoTbl:MAP-27107" "NAME" "[Top_Ieper][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:StratIoTbl:MAP-27130" "NAME" "[Top_Ieper][01_Sand_typical_hybrid_BPA2_Min_Phi_10_LK16122017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:StratIoTbl:MAP-27131" "NAME" "[Top_Ieper][08_Mudstone_60%_clay_hybrid_min_phi_5%_BPA2_LK07072017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27108" "NAME" "FWS48_#568.775_nr_Top_Ieper_Top_Lr_Eocene_LK22042016"
+"GridMapIoTbl:StratIoTbl:MAP-27109" "NAME" "[Top_Chalk_nr_20_NS_B][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:StratIoTbl:MAP-27132" "NAME" "[Top_Chalk_nr_20_NS_B][10_Chalk_hybrid_BPA2_min_phi_3%_LK23022018][SAC_TWT2Depth43092]"
+"GridMapIoTbl:StratIoTbl:MAP-27133" "NAME" "[Top_Chalk_nr_20_NS_B][05_Silt_typical_hybrid_BPA2_Min_Phi_8_LK12122017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27110" "NAME" "FWS39_#493.631._nr_Top_Chalk_Cret_LK22042016"
+"GridMapIoTbl:StratIoTbl:MAP-27111" "NAME" "[Top_Lower_Ommeland_Chalk][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:StratIoTbl:MAP-27134" "NAME" "[Top_Lower_Ommeland_Chalk][10_Chalk_hybrid_BPA2_min_phi_3%_LK23022018][SAC_TWT2Depth43092]"
+"GridMapIoTbl:StratIoTbl:MAP-27135" "NAME" "[Top_Lower_Ommeland_Chalk][05_Silt_typical_hybrid_BPA2_Min_Phi_8_LK12122017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27112" "NAME" "FWS34_#441.480_Intra-Undiff_Chalk_Gp_FW_6_26042016"
+"GridMapIoTbl:StratIoTbl:MAP-27113" "NAME" "[Top_Texel_nr_30_CK_B][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:StratIoTbl:MAP-27136" "NAME" "[Top_Texel_nr_30_CK_B][10_Chalk_hybrid_BPA2_min_phi_3%_LK23022018][SAC_TWT2Depth43092]"
+"GridMapIoTbl:StratIoTbl:MAP-27137" "NAME" "[Top_Texel_nr_30_CK_B][05_Silt_typical_hybrid_BPA2_Min_Phi_8_LK12122017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27114" "NAME" "FWS28_#377.074_nr_Top_Texel_Ceno_LK11022016"
+"GridMapIoTbl:StratIoTbl:MAP-27115" "NAME" "[Base_Cretaceous_Hiatus_Unconformity][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27116" "NAME" "FWS18_#334.179_Top_Trias_Roer_6_244-136_hiatus_Base_LCret_LK12022016"
+"GridMapIoTbl:StratIoTbl:MAP-27115" "NAME" "[Base_Cretaceous_Hiatus_Unconformity][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:StratIoTbl:MAP-27138" "NAME" "[Eroded_top_Roer_nr_45_TR_T][01_Sand_typical_hybrid_BPA2_Min_Phi_10_LK16122017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:StratIoTbl:MAP-27139" "NAME" "[Eroded_top_Roer_nr_45_TR_T][08_Mudstone_60%_clay_hybrid_min_phi_5%_BPA2_LK07072017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27116" "NAME" "FWS18_#334.179_Top_Trias_Roer_6_244-136_hiatus_Base_LCret_LK12022016"
+"GridMapIoTbl:StratIoTbl:MAP-27117" "NAME" "[Eroded_top_Buntsandstein][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:StratIoTbl:MAP-27140" "NAME" "[Eroded_top_Buntsandstein][01_Sand_typical_hybrid_BPA2_Min_Phi_10_LK16122017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:StratIoTbl:MAP-27141" "NAME" "[Eroded_top_Buntsandstein][08_Mudstone_60%_clay_hybrid_min_phi_5%_BPA2_LK07072017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27118" "NAME" "FWS12_#321.555_Nr_Top_Bunter_LK12042016"
+"GridMapIoTbl:StratIoTbl:MAP-27119" "NAME" "[Base_Bunter_on_hiatus_nr_50_ZE_T][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27120" "NAME" "FWS05_Nr_Top_Zechstein_260_Base_Bunter_254_Henk_Hake_LK12042016"
+"GridMapIoTbl:StratIoTbl:MAP-27119" "NAME" "[Base_Bunter_on_hiatus_nr_50_ZE_T][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27120" "NAME" "FWS05_Nr_Top_Zechstein_260_Base_Bunter_254_Henk_Hake_LK12042016"
+"GridMapIoTbl:StratIoTbl:MAP-27121" "NAME" "[Top_Z2_nr_59_ZEZ2A_T][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:StratIoTbl:MAP-27144" "NAME" "[Top_Z2_nr_59_ZEZ2A_T][10_Chalk_hybrid_BPA2_min_phi_3%_LK23022018][SAC_TWT2Depth43092]"
+"GridMapIoTbl:StratIoTbl:MAP-27145" "NAME" "[Top_Z2_nr_59_ZEZ2A_T][Mixed_Carbonate_Anhydrite_no_poro_LK21022018][SAC_TWT2Depth43092]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27122" "NAME" "FWS04_HH_TopZ2_T_LK12042016"
+"GridMapIoTbl:StratIoTbl:MAP-27123" "NAME" "[Nr_Top_Rotliegend][TWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:StratIoTbl:MAP-27146" "NAME" "[Nr_Top_Rotliegend][01_Sand_typical_hybrid_BPA2_Min_Phi_10_LK16122017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:StratIoTbl:MAP-27147" "NAME" "[Nr_Top_Rotliegend][08_Mudstone_60%_clay_hybrid_min_phi_5%_BPA2_LK07072017][SAC_TWT2Depth43092]"
+"GridMapIoTbl:TwoWayTimeIoTbl:MAP-27124" "NAME" "FWS03_Well_tie_Top_Rotliegende_T_LK10022016_LKv2"
+"GridMapIoTbl:StratIoTbl:MAP-27125" "NAME" "[Nr_Base_Rotliegend][isoTWT2Depth_43092_2019_05_04_21h_27min]"
+"GridMapIoTbl:SurfaceDepthIoTbl:MAP-27103" "NAME" "Surface_Zero_for_voxet_Z_LK08022018"
+[End]
+;
+;
+; RunOptionsIoTbl
+;
+[RunOptionsIoTbl]
+;v100
+VreAlgorithm VelAlgorithm Optimisation_Level Temperature_Gradient AdvancedMigration HydrodynamicCapillaryPressure ReservoirDetection PaleoSeeps Legacy StepsPerSegment TempDiffBasedStepping PrefReconstep OptimalTotalPresDiff OptimalTotalTempDiff OptimalSourceRockTempDiff MaxTimeStepIncreaseFactor MinTimeStepDecreaseFactor BrickHeightSediment BrickHeightCrust BrickHeightMantle MaxNumberOfRunOverpressure FracturePressureFunction FractureType FractureModel WorkflowType CoupledMode ChemicalCompaction ChemicalCompactionAlgorithm ConvectiveTerm NonGeometricLoop AllochthonousModelling ApplyOtgcToDarcy DarcyMaxTimeStep PTCouplingMode
+  ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   () (Ma) (MPa) (DegreesCelcius) (DegreesCelcius) () (Ma) (m) (m) (m) () () () () () () () () () ()   ()   () (Ma)   ()
+"Burnham & Sweeney" "Kennan's Velocity-Porosity" "Level 1" 30 0 0 0 0 0 1 0 0.1 0.1 4 4 1.5 0.5 200 4000 20000 3 "Nigeria West" "FunctionOfDepthBelowSedimentSurface" 1 "StandardCauldron" 1 1 "Walderhaug" 0 0 0 1 0.001 "ItCoupled"
+[End]
+;
+;
+; UserDefinedSnapshotIoTbl
+;
+[UserDefinedSnapshotIoTbl]
+;v100
+Time
+(Ma)
+[End]
+;
+;
+; SnapshotIoTbl
+;
+[SnapshotIoTbl]
+;v100
+Time IsMinorSnapshot UseInResQ TypeOfSnapshot SnapshotFileName
+(Ma)   ()   ()   ()   ()
+[End]
+;
+;
+; FilterTimeIoTbl
+;
+[FilterTimeIoTbl]
+;v100
+PropertyName ModellingMode OutputOption ResultOption
+  ()   ()   ()   ()
+"SbearingHCsExpelledCumulative" "3d" "None" "Simple"
+"HydroStaticPressure" "3d" "SedimentsOnly" "Simple"
+"Ves" "3d" "SedimentsOnly" "Simple"
+"KerogenConversionRatio" "3d" "None" "Simple"
+"DryGasExpelledCumulative" "3d" "None" "Simple"
+"DryGasExpelledRate" "3d" "None" "Simple"
+"DryGasGeneratedCumulative" "3d" "None" "Simple"
+"HcGasExpelledCumulative" "3d" "None" "Simple"
+"OilGeneratedRate" "3d" "None" "Simple"
+"WetGasExpelledRate" "3d" "None" "Simple"
+"CumulativeExpulsionApi" "3d" "None" "Simple"
+"CumulativeExpulsionAromaticity" "3d" "None" "Simple"
+"ALCSmContCrustThickness" "3d" "SedimentsPlusBasement" "Simple"
+"ALCMaxAsthenoMantleDepth" "3d" "SedimentsPlusBasement" "Simple"
+"ALCStepBasaltThickness" "3d" "SedimentsPlusBasement" "Simple"
+"SourceRockEndMember2" "3d" "SourceRockOnly" "Simple"
+"FracturePressure" "3d" "SedimentsOnly" "Simple"
+"BrineViscosity" "3d" "SedimentsOnly" "Simple"
+"SbearingHCsGeneratedCumulative" "3d" "None" "Simple"
+"LithoStaticPressure" "3d" "SedimentsOnly" "Simple"
+"Thickness" "3d" "SedimentsOnly" "Simple"
+"DryGasGeneratedRate" "3d" "None" "Simple"
+"OilGeneratedCumulative" "3d" "None" "Simple"
+"CumulativeExpulsionGasOilRatio" "3d" "None" "Simple"
+"InstantaneousExpulsionApi" "3d" "None" "Simple"
+"ALCSmMohoDepth" "3d" "SedimentsPlusBasement" "Simple"
+"ALCStepContCrustThickness" "3d" "SedimentsPlusBasement" "Simple"
+"TwoWayTime" "3d" "SedimentsOnly" "Simple"
+"TwoWayTimeResidual" "3d" "SedimentsOnly" "Simple"
+"HcGasGeneratedCumulative" "3d" "None" "Simple"
+"WetGasGeneratedCumulative" "3d" "None" "Simple"
+"WetGasGeneratedRate" "3d" "None" "Simple"
+"CumulativeExpulsionCondensateGasRatio" "3d" "None" "Simple"
+"OilExpelledCumulative" "3d" "None" "Simple"
+"OilExpelledRate" "3d" "None" "Simple"
+"WetGasExpelledCumulative" "3d" "None" "Simple"
+"CumulativeExpulsionGasWetness" "3d" "None" "Simple"
+"ALCSmTopBasaltDepth" "3d" "SedimentsPlusBasement" "Simple"
+"Depth" "3d" "SedimentsPlusBasement" "Simple"
+"Temperature" "3d" "SedimentsOnly" "Simple"
+"OverPressure" "3d" "SedimentsOnly" "Simple"
+"HcGasExpelledRate" "3d" "None" "Simple"
+"InstantaneousExpulsionGasOilRatio" "3d" "None" "Simple"
+"ALCSmBasaltThickness" "3d" "SedimentsPlusBasement" "Simple"
+"ALCOrigLithMantleDepth" "3d" "SedimentsPlusBasement" "Simple"
+"SourceRockEndMember1" "3d" "SourceRockOnly" "Simple"
+"BrineDensity" "3d" "SedimentsOnly" "Simple"
+"SbearingHCsGeneratedRate" "3d" "None" "Simple"
+"HcGasGeneratedRate" "3d" "None" "Simple"
+"InstantaneousExpulsionCondensateGasRatio" "3d" "None" "Simple"
+"TOC" "3d" "SourceRockOnly" "Simple"
+"SbearingHCsExpelledRate" "3d" "None" "Simple"
+"Pressure" "3d" "SedimentsOnly" "Simple"
+"InstantaneousExpulsionGasWetness" "3d" "None" "Simple"
+"InstantaneousExpulsionAromaticity" "3d" "None" "Simple"
+"PermeabilityHVec" "3d" "SedimentsOnly" "Simple"
+"FaultElements" "3d" "SedimentsOnly" "Simple"
+"BulkDensityVec" "3d" "SedimentsPlusBasement" "Simple"
+"DiffusivityVec" "3d" "None" "Simple"
+"PermeabilityVec" "3d" "SedimentsOnly" "Simple"
+"PorosityVec" "3d" "SedimentsOnly" "Simple"
+"ReflectivityVec" "3d" "None" "Simple"
+"SonicVec" "3d" "None" "Simple"
+"PorosityLossFromPyroBitumen" "3d" "SourceRockOnly" "Simple"
+"H2SRisk" "3d" "SourceRockOnly" "Simple"
+"asphaltenesExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"asphaltenesExpelledCumulativeSR" "3d" "None" "Simple"
+"resinsExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"resinsExpelledCumulativeSR" "3d" "None" "Simple"
+"C15+AroExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C15+AroExpelledCumulativeSR" "3d" "None" "Simple"
+"C15+SatExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C15+SatExpelledCumulativeSR" "3d" "None" "Simple"
+"C6-14AroExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C6-14AroExpelledCumulativeSR" "3d" "None" "Simple"
+"C6-14SatExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C6-14SatExpelledCumulativeSR" "3d" "None" "Simple"
+"C5ExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C5ExpelledCumulativeSR" "3d" "None" "Simple"
+"C4ExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C4ExpelledCumulativeSR" "3d" "None" "Simple"
+"C3ExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C3ExpelledCumulativeSR" "3d" "None" "Simple"
+"C2ExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C2ExpelledCumulativeSR" "3d" "None" "Simple"
+"C1ExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C1ExpelledCumulativeSR" "3d" "None" "Simple"
+"COxExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"COxExpelledCumulativeSR" "3d" "None" "Simple"
+"N2ExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"N2ExpelledCumulativeSR" "3d" "None" "Simple"
+"H2SExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"H2SExpelledCumulativeSR" "3d" "None" "Simple"
+"LSCExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"LSCExpelledCumulativeSR" "3d" "None" "Simple"
+"C15+ATExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C15+ATExpelledCumulativeSR" "3d" "None" "Simple"
+"C6-14BTExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C6-14BTExpelledCumulativeSR" "3d" "None" "Simple"
+"C6-14DBTExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C6-14DBTExpelledCumulativeSR" "3d" "None" "Simple"
+"C6-14BPExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C6-14BPExpelledCumulativeSR" "3d" "None" "Simple"
+"C15+AroSExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C15+AroSExpelledCumulativeSR" "3d" "None" "Simple"
+"C15+SatSExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C15+SatSExpelledCumulativeSR" "3d" "None" "Simple"
+"C6-14SatSExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C6-14SatSExpelledCumulativeSR" "3d" "None" "Simple"
+"C6-14AroSExpelledCumulative" "3d" "SourceRockOnly" "Simple"
+"C6-14AroSExpelledCumulativeSR" "3d" "None" "Simple"
+"asphaltenesRetained" "3d" "None" "Simple"
+"resinsRetained" "3d" "None" "Simple"
+"C15+AroRetained" "3d" "None" "Simple"
+"C15+SatRetained" "3d" "None" "Simple"
+"C6-14AroRetained" "3d" "None" "Simple"
+"C6-14SatRetained" "3d" "None" "Simple"
+"C5Retained" "3d" "None" "Simple"
+"C4Retained" "3d" "None" "Simple"
+"C3Retained" "3d" "None" "Simple"
+"C2Retained" "3d" "None" "Simple"
+"C1Retained" "3d" "None" "Simple"
+"C1Adsorped" "3d" "SourceRockOnly" "Simple"
+"COxRetained" "3d" "None" "Simple"
+"N2Retained" "3d" "None" "Simple"
+"H2SRetained" "3d" "None" "Simple"
+"LSCRetained" "3d" "None" "Simple"
+"C15+ATRetained" "3d" "None" "Simple"
+"C6-14BTRetained" "3d" "None" "Simple"
+"C6-14DBTRetained" "3d" "None" "Simple"
+"C6-14BPRetained" "3d" "None" "Simple"
+"C15+AroSRetained" "3d" "None" "Simple"
+"C15+SatSRetained" "3d" "None" "Simple"
+"C6-14SatSRetained" "3d" "None" "Simple"
+"C6-14AroSRetained" "3d" "None" "Simple"
+"AdsorptionCapacity" "3d" "SourceRockOnly" "Simple"
+"FractionOfAdsorptionCap" "3d" "SourceRockOnly" "Simple"
+"GasExpansionRatio_Bg" "3d" "SourceRockOnly" "Simple"
+"HcLiquidSat" "3d" "SourceRockOnly" "Simple"
+"HcSaturation" "3d" "SourceRockOnly" "Simple"
+"HcVapourSat" "3d" "SourceRockOnly" "Simple"
+"ImmobileWaterSat" "3d" "SourceRockOnly" "Simple"
+"Oil2GasGeneratedCumulative" "3d" "SourceRockOnly" "Simple"
+"OverChargeFactor" "3d" "SourceRockOnly" "Simple"
+"RetainedCondensateApiSR" "3d" "SourceRockOnly" "Simple"
+"RetainedCgrSR" "3d" "SourceRockOnly" "Simple"
+"RetainedGasVolumeST" "3d" "SourceRockOnly" "Simple"
+"RetainedGorSR" "3d" "SourceRockOnly" "Simple"
+"RetainedOilApiSR" "3d" "SourceRockOnly" "Simple"
+"RetainedOilVolumeST" "3d" "SourceRockOnly" "Simple"
+"TotalGasGeneratedCumulative" "3d" "SourceRockOnly" "Simple"
+"ALCStepMohoDepth" "3d" "SedimentsPlusBasement" "Simple"
+"ALCStepTopBasaltDepth" "3d" "SedimentsPlusBasement" "Simple"
+"ErosionFactor" "3d" "SedimentsOnly" "Simple"
+"FluidVelocityX" "3d" "None" "Simple"
+"FluidVelocityY" "3d" "None" "Simple"
+"FluidVelocityZ" "3d" "None" "Simple"
+"HeatFlowX" "3d" "None" "Simple"
+"HeatFlowY" "3d" "None" "Simple"
+"HeatFlowZ" "3d" "None" "Simple"
+"MaxVesVec" "3d" "SedimentsOnly" "Simple"
+"ThCondVec" "3d" "SedimentsPlusBasement" "Simple"
+"VrVec" "3d" "SedimentsOnly" "Simple"
+"VelocityVec" "3d" "None" "Simple"
+"ThicknessError" "3d" "SedimentsOnly" "Simple"
+"FCTCorrection" "3d" "SedimentsOnly" "Simple"
+"GammaRay" "3d" "None" "Simple"
+"LithoType1Percentage" "3d" "None" "Simple"
+"LithoType2Percentage" "3d" "None" "Simple"
+"LayerIndex" "3d" "None" "Simple"
+[End]
+;
+;
+; WellLocIoTbl
+;
+[WellLocIoTbl]
+;v100
+WellName XCoord YCoord Longitude Latitude Datum WellElevation DerFloorElev Waterdepth
+  ()  (m)  (m) (degs,minutes) (degs,minutes) () (m) (m) (m)
+[End]
+;
+;
+; GridMapIoTbl
+;
+[GridMapIoTbl]
+;v100
+ReferredBy MapName MapType MapFileName MapSeqNbr
+  ()   ()   ()   ()   ()
+"StratIoTbl" "MAP-27103" "HDF5" "Inputs.HDF" 27103
+"StratIoTbl" "MAP-27126" "HDF5" "Inputs.HDF" 27126
+"StratIoTbl" "MAP-27127" "HDF5" "Inputs.HDF" 27127
+"TwoWayTimeIoTbl" "MAP-27104" "HDF5" "Inputs.HDF" 27104
+"StratIoTbl" "MAP-27105" "HDF5" "Inputs.HDF" 27105
+"TwoWayTimeIoTbl" "MAP-27106" "HDF5" "Inputs.HDF" 27106
+"StratIoTbl" "MAP-27128" "HDF5" "Inputs.HDF" 27128
+"StratIoTbl" "MAP-27129" "HDF5" "Inputs.HDF" 27129
+"StratIoTbl" "MAP-27107" "HDF5" "Inputs.HDF" 27107
+"StratIoTbl" "MAP-27130" "HDF5" "Inputs.HDF" 27130
+"StratIoTbl" "MAP-27131" "HDF5" "Inputs.HDF" 27131
+"TwoWayTimeIoTbl" "MAP-27108" "HDF5" "Inputs.HDF" 27108
+"StratIoTbl" "MAP-27109" "HDF5" "Inputs.HDF" 27109
+"StratIoTbl" "MAP-27132" "HDF5" "Inputs.HDF" 27132
+"StratIoTbl" "MAP-27133" "HDF5" "Inputs.HDF" 27133
+"TwoWayTimeIoTbl" "MAP-27110" "HDF5" "Inputs.HDF" 27110
+"StratIoTbl" "MAP-27111" "HDF5" "Inputs.HDF" 27111
+"StratIoTbl" "MAP-27134" "HDF5" "Inputs.HDF" 27134
+"StratIoTbl" "MAP-27135" "HDF5" "Inputs.HDF" 27135
+"TwoWayTimeIoTbl" "MAP-27112" "HDF5" "Inputs.HDF" 27112
+"StratIoTbl" "MAP-27113" "HDF5" "Inputs.HDF" 27113
+"StratIoTbl" "MAP-27136" "HDF5" "Inputs.HDF" 27136
+"StratIoTbl" "MAP-27137" "HDF5" "Inputs.HDF" 27137
+"TwoWayTimeIoTbl" "MAP-27114" "HDF5" "Inputs.HDF" 27114
+"StratIoTbl" "MAP-27115" "HDF5" "Inputs.HDF" 27115
+"TwoWayTimeIoTbl" "MAP-27116" "HDF5" "Inputs.HDF" 27116
+"StratIoTbl" "MAP-27138" "HDF5" "Inputs.HDF" 27138
+"StratIoTbl" "MAP-27139" "HDF5" "Inputs.HDF" 27139
+"StratIoTbl" "MAP-27117" "HDF5" "Inputs.HDF" 27117
+"StratIoTbl" "MAP-27140" "HDF5" "Inputs.HDF" 27140
+"StratIoTbl" "MAP-27141" "HDF5" "Inputs.HDF" 27141
+"TwoWayTimeIoTbl" "MAP-27118" "HDF5" "Inputs.HDF" 27118
+"StratIoTbl" "MAP-27119" "HDF5" "Inputs.HDF" 27119
+"TwoWayTimeIoTbl" "MAP-27120" "HDF5" "Inputs.HDF" 27120
+"StratIoTbl" "MAP-27121" "HDF5" "Inputs.HDF" 27121
+"StratIoTbl" "MAP-27144" "HDF5" "Inputs.HDF" 27144
+"StratIoTbl" "MAP-27145" "HDF5" "Inputs.HDF" 27145
+"TwoWayTimeIoTbl" "MAP-27122" "HDF5" "Inputs.HDF" 27122
+"StratIoTbl" "MAP-27123" "HDF5" "Inputs.HDF" 27123
+"StratIoTbl" "MAP-27146" "HDF5" "Inputs.HDF" 27146
+"StratIoTbl" "MAP-27147" "HDF5" "Inputs.HDF" 27147
+"TwoWayTimeIoTbl" "MAP-27124" "HDF5" "Inputs.HDF" 27124
+"StratIoTbl" "MAP-27125" "HDF5" "Inputs.HDF" 27125
+"SurfaceDepthIoTbl" "MAP-27103" "HDF5" "Inputs.HDF" 27103
+[End]
+;
+;
+; StratIoTbl
+;
+[StratIoTbl]
+;v100
+SurfaceName DepoAge Depth DepthGrid LayerName DepoSequence Thickness ThicknessGrid Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 Percent3 MixModel LayeringIndex Fluidtype SourceRock MobileLayer HasAllochthonLitho IsIgneousIntrusion IgneousIntrusionAge HydroSand ChemicalCompaction EnableSourceRockMixing SourceRockType1 SourceRockType2 SourceRockMixingHI SourceRockMixingHIGrid SourceRockMixingHC SourceRockMixingHCGrid ElementRefinementZ IncludeInDarcy
+  () (Ma)  (m)  (m)   ()   ()  (m)  (m)   () (volume%) (volume%) () (volume%) (volume%) () (volume%) () () () () () () () (Ma) () () ()  ()   () (kg/tonne) () (kg/tonne) () () ()
+"Water_Bottom" 0 -9999 "MAP-27103" "Upper_North_Sea_Group_SL" 14 -9999 "" "01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" -9999 "MAP-27126" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -9999 "MAP-27127" "10 Chalk hybrid BPA2 min phi 3% LK23022018" -9999 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Base_Breda_Clay" 22 -9999 "MAP-27105" "Breda_on_Rupel_Lt_Oligo_hiatus" 13 -9999 "" "01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 65 "" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 30 "" "10 Chalk hybrid BPA2 min phi 3% LK23022018" 5 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Top_Rupel" 29 -9999 "MAP-27105" "Middle_North_Sea_Group_SL" 12 -9999 "" "01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" -9999 "MAP-27128" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -9999 "MAP-27129" "10 Chalk hybrid BPA2 min phi 3% LK23022018" -9999 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Top_Ieper" 48 -9999 "MAP-27107" "Lower_North_Sea_Group_SL" 11 -9999 "" "01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" -9999 "MAP-27130" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -9999 "MAP-27131" "10 Chalk hybrid BPA2 min phi 3% LK23022018" -9999 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Top_Chalk_nr_20_NS_B" 62 -9999 "MAP-27109" "Upper_Ommeland_Chalk_Group" 10 -9999 "" "10 Chalk hybrid BPA2 min phi 3% LK23022018" -9999 "MAP-27132" "05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" -9999 "MAP-27133" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -9999 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Top_Lower_Ommeland_Chalk" 78.7 -9999 "MAP-27111" "Lower_Ommeland_Chalk_Group" 9 -9999 "" "10 Chalk hybrid BPA2 min phi 3% LK23022018" -9999 "MAP-27134" "05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" -9999 "MAP-27135" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -9999 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Top_Texel_nr_30_CK_B" 94 -9999 "MAP-27113" "Texel_Lr_Cret_undiff" 8 -9999 "" "10 Chalk hybrid BPA2 min phi 3% LK23022018" -9999 "MAP-27136" "05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" -9999 "MAP-27137" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -9999 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Base_Cretaceous_Hiatus_Unconformity" 136 -9999 "MAP-27115" "Base_Cret_on_Trias_hiatus" 7 -9999 "" "10 Chalk hybrid BPA2 min phi 3% LK23022018" 70 "" "05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 20 "" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 10 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Eroded_top_Roer_nr_45_TR_T" 244 -9999 "MAP-27115" "Roer" 6 -9999 "" "01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" -9999 "MAP-27138" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -9999 "MAP-27139" "10 Chalk hybrid BPA2 min phi 3% LK23022018" -9999 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Eroded_top_Buntsandstein" 247 -9999 "MAP-27117" "Bunter" 5 -9999 "" "01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" -9999 "MAP-27140" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -9999 "MAP-27141" "10 Chalk hybrid BPA2 min phi 3% LK23022018" -9999 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Base_Bunter_on_hiatus_nr_50_ZE_T" 254 -9999 "MAP-27119" "Zechstein_Bunter_hiatus" 4 -9999 "" "01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 70 "" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 15 "" "10 Chalk hybrid BPA2 min phi 3% LK23022018" 15 "Homogeneous" -9999 "Std. Sea Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Top_Zechstein_under_hiatus_nr_50_ZE_T" 260 -9999 "MAP-27119" "Upper_Zechstein" 3 -9999 "" "Halite_BPA2_10^-4_LK10082020" 100 "" "Potash-Sylvite" 0 "" "Anhydrite-Carbonate high-density stringer" 0 "Homogeneous" -9999 "Std. Hyper Saline Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Top_Z2_nr_59_ZEZ2A_T" 262 -9999 "MAP-27121" "Lowest_Zechstein" 2 -9999 "" "10 Chalk hybrid BPA2 min phi 3% LK23022018" -9999 "MAP-27144" "Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" -9999 "MAP-27145" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -9999 "Homogeneous" -9999 "Std. Hyper Saline Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Nr_Top_Rotliegend" 264 -9999 "MAP-27123" "Rotliegend" 1 -9999 "" "01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" -9999 "MAP-27146" "08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -9999 "MAP-27147" "10 Chalk hybrid BPA2 min phi 3% LK23022018" -9999 "Homogeneous" -9999 "Std. Marine Water" 0 0 0 0 -9999 0 1 0 "" "" -9999 "" 0 "" 1 0
+"Nr_Base_Rotliegend" 299 -9999 "MAP-27125" "" -9999 -9999 "" "" -9999 "" "" -9999 "" "" -9999 "" -9999 "" 0 0 0  0 -9999   0    0    0   ""   "" -9999  ""    0   "" -9999   0
+[End]
+;
+;
+; MobLayThicknIoTbl
+;
+[MobLayThicknIoTbl]
+;v100
+LayerName Age Thickness ThicknessGrid
+  () (Ma)  (m)  (m)
+[End]
+;
+;
+; AllochthonLithoIoTbl
+;
+[AllochthonLithoIoTbl]
+;v100
+LayerName Lithotype
+  ()   ()
+[End]
+;
+;
+; AllochthonLithoDistribIoTbl
+;
+[AllochthonLithoDistribIoTbl]
+;v100
+LayerName DistributionGrid Age
+  ()   () (Ma)
+[End]
+;
+;
+; AllochthonLithoInterpIoTbl
+;
+[AllochthonLithoInterpIoTbl]
+;v100
+LayerName InterpFileName NumberOfPoints PolynomialDegree InterpGroupName StartAge EndAge
+  ()   ()   ()   ()   () (Ma) (Ma)
+[End]
+;
+;
+; CrustIoTbl
+;
+[CrustIoTbl]
+;v100
+ Age Thickness ThicknessGrid
+(Ma)  (m)  (m)
+[End]
+;
+;
+; ContCrustalThicknessIoTbl
+;
+[ContCrustalThicknessIoTbl]
+;v100
+ Age Thickness ThicknessGrid
+(Ma)  (m)  (m)
+   0 30000  ""
+ 100 30000  ""
+ 299 30000  ""
+[End]
+;
+;
+; OceaCrustalThicknessIoTbl
+;
+[OceaCrustalThicknessIoTbl]
+;v0
+ Age Thickness ThicknessGrid
+(Ma)  (m)  (m)
+   0    0   ""
+  22    0   ""
+  29    0   ""
+  48    0   ""
+  62    0   ""
+78.7    0   ""
+  94    0   ""
+ 100    0   ""
+ 136    0   ""
+ 244    0   ""
+ 247    0   ""
+ 254    0   ""
+ 260    0   ""
+ 262    0   ""
+ 264    0   ""
+ 299    0   ""
+[End]
+;
+;
+; BasaltThicknessIoTbl
+;
+[BasaltThicknessIoTbl]
+;v100
+BasaltThickness BasaltThicknessGrid CrustThicknessMeltOnset CrustThicknessMeltOnsetGrid
+ (m)   ()  (m)   ()
+[End]
+;
+;
+; SourceRockLithoIoTbl
+;
+[SourceRockLithoIoTbl]
+;v100
+LayerName SourceRockType BaseSourceRockType TocIni TocIniGrid HcVRe05 ScVRe05 PreAsphaltStartAct AsphalteneDiffusionEnergy ResinDiffusionEnergy C15AroDiffusionEnergy C15SatDiffusionEnergy VREoptimization VREthreshold VESLimitIndicator VESLimit ApplyAdsorption AdsorptionTOCDependent ComputeOTGC AdsorptionCapacityFunctionName WhichAdsorptionSimulator
+  ()   ()   () (weight) () (kg/tonne) (kg/tonne) (kJ/mol) (kJ) (kJ) (kJ) (kJ) () () () (MPa) () () () () ()
+[End]
+;
+;
+; CTCIoTbl
+;
+[CTCIoTbl]
+;v100
+SurfaceName TRIni TRIniGrid HCuIni HCuIniGrid HLMuIni HLMuIniGrid DeltaSL DeltaSLGrid HBu HBuGrid FilterHalfWidth UpperLowerContinentalCrustRatio UpperLowerOceanicCrustRatio
+  () (Ma)   ()  (m)   ()  (m)   ()  (m)   ()  (m)   ()   ()   ()   ()
+[End]
+;
+;
+; CTCRiftingHistoryIoTbl
+;
+[CTCRiftingHistoryIoTbl]
+;v0
+ Age TectonicFlag DeltaSL DeltaSLGrid HBu HBuGrid
+(Ma)   ()  (m)   ()  (m)   ()
+[End]
+;
+;
+; GeologicalBoundaryIoTbl
+;
+[GeologicalBoundaryIoTbl]
+;v100
+GeologicalObjectName GeologicalObjectType TypeOfProperty FirstIndexInPropertyIoTbl NumberOfProperties
+  ()   ()   ()   ()   ()
+[End]
+;
+;
+; PropertyBoundaryIoTbl
+;
+[PropertyBoundaryIoTbl]
+;v100
+NameOfProperty FirstIndexInPropertyBoundaryValuesIoTbl NumberOfTimeIntervals
+  ()   ()   ()
+[End]
+;
+;
+; BoundaryValuesIoTbl
+;
+[BoundaryValuesIoTbl]
+;v100
+BeginTimeValues EndTimeValues PropertyValueGrid PropertyValue
+  ()   ()   ()   ()
+[End]
+;
+;
+; SurfaceTempIoTbl
+;
+[SurfaceTempIoTbl]
+;v100
+ Age Temperature TemperatureGrid
+(Ma)  (C)  (C)
+   0   10   ""
+[End]
+;
+;
+; PermafrostIoTbl
+;
+[PermafrostIoTbl]
+;v100
+PermafrostInd PressureTerm SalinityTerm
+  ()   ()   ()
+[End]
+;
+;
+; SurfaceDepthIoTbl
+;
+[SurfaceDepthIoTbl]
+;v100
+ Age Depth DepthGrid
+(Ma)  (m)  (m)
+   0 -9999 "MAP-27103"
+[End]
+;
+;
+; MntlHeatFlowIoTbl
+;
+[MntlHeatFlowIoTbl]
+;v100
+ Age HeatFlow HeatFlowGrid
+(Ma) (mW/m2) (mW/m2)
+[End]
+;
+;
+; BasementIoTbl
+;
+[BasementIoTbl]
+;v100
+BottomBoundaryModel TopAsthenoTemp TopCrustHeatProd TopCrustHeatProdGrid CrustHeatPDecayConst LithoMantleThickness InitialLthMntThickns FixedCrustThickness InitialLithosphericMantleThickness CrustPropertyModel MantlePropertyModel CrustLithoName MantleLithoName EquilibriumOceanicLithosphereThickness MaxNumberMantleElements
+  ()  (C) (uW/m3) (uW/m3) (m) (m) (m) (m) (m)  ()   ()   ()   ()   ()   ()
+"Improved Lithosphere Calculator Linear Element Mode" 1333 2.5 "" 10000 0 0 0 80000 "Standard Conductivity Crust" "High Conductivity Mantle" "Crust" "Mantle" 92500 100
+[End]
+;
+;
+; BiomarkerKinIoTbl
+;
+[BiomarkerKinIoTbl]
+;v100
+HopIsoActEnergy SteIsoActEnergy SteAroActEnergy HopIsoFreqFactor SteIsoFreqFactor SteAroFreqFactor HopIsoGamma SteIsoGamma
+(J/mol) (J/mol) (J/mol) (sec-1) (sec-1) (sec-1) () ()
+168000 169000 181400 810000000 486000000 48500000000 1.564 1.174
+[End]
+;
+;
+; SmectiteIlliteKinIoTbl
+;
+[SmectiteIlliteKinIoTbl]
+;v0
+ActEnergy1 FreqFactor1 ActEnergy2 FreqFactor2 InitIlliteFraction
+  ()   ()   ()   ()   ()
+55800 3422900 13700 1  0
+[End]
+;
+;
+; FtGrainIoTbl
+;
+[FtGrainIoTbl]
+;v100
+FtSampleId FtGrainId FtSpontTrackNo FtInducedTrackNo FtClWeightPerc FtGrainAge
+  ()   ()   ()   ()  (%) (Ma)
+[End]
+;
+;
+; FtLengthIoTbl
+;
+[FtLengthIoTbl]
+;v100
+FtSampleId FtGrainId FtLength
+  ()   () (microns)
+[End]
+;
+;
+; FtSampleIoTbl
+;
+[FtSampleIoTbl]
+;v100
+FtSampleId DepthIndex FtZeta FtUstglTrackDensity FtPredictedAge FtPooledAge FtPooledAgeErr FtAgeChi2 FtDegreeOfFreedom FtPAgeChi2 FtCorrCoeff FtVarianceSqrtNs FtVarianceSqrtNi FtNsDivNi FtNsDivNiErr FtMeanRatio FtMeanRatioErr FtCentralAge FtCentralAgeErr FtMeanAge FtMeanAgeErr FtLengthChi2 FtApatiteYield
+  ()  (m)   () (cm-2) (Ma) (Ma) (Ma) ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()
+[End]
+;
+;
+; FtPredLengthCountsHistIoTbl
+;
+[FtPredLengthCountsHistIoTbl]
+;v100
+FtPredLengthHistId FtSampleId FtClWeightPerc FtPredLengthBinStart FtPredLengthBinWidth FtPredLengthBinNum
+  ()   ()  (%)   ()   ()   ()
+[End]
+;
+;
+; FtPredLengthCountsHistDataIoTbl
+;
+[FtPredLengthCountsHistDataIoTbl]
+;v100
+FtPredLengthHistId FtPredLengthBinIndex FtPredLengthBinCount
+  ()   ()   ()
+[End]
+;
+;
+; FtClWeightPercBinsIoTbl
+;
+[FtClWeightPercBinsIoTbl]
+;v100
+FtClWeightBinStart FtClWeightBinWidth
+  ()   ()
+[End]
+;
+;
+; ReservoirIoTbl
+;
+[ReservoirIoTbl]
+;v100
+ReservoirName DetectedReservoir FormationName TrapCapacity ActivityMode ActivityStart NetToGross NetToGrossGrid BioDegradInd OilToGasCrackingInd DiffusionInd MinOilColumnHeight MinGasColumnHeight BlockingInd BlockingPermeability BlockingPorosity
+  ()   ()   () (m3)   () (Ma) (percent) (percent) () () () (m) (m) () (mD)  (%)
+[End]
+;
+;
+; ReservoirOptionsIoTbl
+;
+[ReservoirOptionsIoTbl]
+;v101
+TrapCapacity BioDegradInd OilToGasCrackingInd DiffusionInd MinOilColumnHeight MinGasColumnHeight BlockingInd BlockingPermeability BlockingPorosity
+(m3)   ()   ()   ()  (m)  (m)   () (mD)  (%)
+500000  0    1    0    1    1    0 1e-09   0
+[End]
+;
+;
+; BioDegradIoTbl
+;
+[BioDegradIoTbl]
+;v100
+MaxBioTemp TempConstant TimeConstant BioRate PasteurizationInd C1_BioFactor C2_BioFactor C3_BioFactor C4_BioFactor C5_BioFactor N2_BioFactor COx_BioFactor C6_14Aro_BioFactor C6_14Sat_BioFactor C15Aro_BioFactor C15Sat_BioFactor resins_BioFactor asphaltenes_BioFactor
+ (C) (1/C) (1/Ma) (m/Ma) () ()  ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()
+  65   70  0.2  0.3    0 0.0008 0.0005 0.0003 0.0008 0.001 0.001 1 0.007 0.009 0.05 0.011 0.061 0.1
+[End]
+;
+;
+; DiffusionIoTbl
+;
+[DiffusionIoTbl]
+;v100
+DiffusionModel SealThicknessModel MaximumSealThickness DiffSalinity ActEnergy C1_DiffFactor C2_DiffFactor C3_DiffFactor C4_DiffFactor C5_DiffFactor C1_ConcFactor C2_ConcFactor C3_ConcFactor C4_ConcFactor C5_ConcFactor
+  ()   ()  (m) (kg/kg) (J) ()   ()   ()   ()   ()   ()   ()   ()   ()   ()
+"Transient" "FullOverburden" 0 0.2 18360 3.047e-06 2.484e-06 2.266e-06 2.036e-06 1.908e-06 1 0.222 0.089 0.02 0.0067
+[End]
+;
+;
+; PalinspasticIoTbl
+;
+[PalinspasticIoTbl]
+;v100
+DepthGrid FaultcutsMap SurfaceName BottomFormationName Age Depth MapSeqNbr
+ (m)  (m)   ()   () (Ma)  (m)   ()
+[End]
+;
+;
+; FaultcutIoTbl
+;
+[FaultcutIoTbl]
+;v100
+SurfaceName FaultName FaultcutStatus Age
+  ()   ()   () (Ma)
+[End]
+;
+;
+; PressureFaultcutIoTbl
+;
+[PressureFaultcutIoTbl]
+;v100
+FaultcutsMap FaultName StartAge FaultLithology UsedInOverpressure
+ (m)   () (Ma)   ()   ()
+[End]
+;
+;
+; PressureFuncIoTbl
+;
+[PressureFuncIoTbl]
+;v100
+PresFuncName CoefA CoefB CoefC CoefD Selected UserDefined
+  () (MPa) (MPa/m) (MPa/m^2) (MPa/m^3) () ()
+"Nigeria West" 0.101 0.0099531 2.3749e-06 0 1 0
+[End]
+;
+;
+; TrapIoTbl
+;
+[TrapIoTbl]
+;v100
+ReservoirName Age TrapID XCoord YCoord TrapCapacity Depth SpillDepth SpillPointXCoord SpillPointYCoord WCSurface Temperature Pressure Permeability SealPermeability NetToGross CEPGas CEPOil CriticalTemperatureGas CriticalTemperatureOil InterfacialTensionGas InterfacialTensionOil FractSealStrength FracturePressure GOC OWC VolumeGas VolumeOil MassC1 MassC2 MassC3 MassC4 MassC5 MassN2 MassCOx MassH2S MassC6_14Aro MassC6_14Sat MassC15Aro MassC15Sat MassLSC MassC15AT MassC15AroS MassC15SatS MassC6_14BT MassC6_14DBT MassC6_14BP MassC6_14SatS MassC6_14AroS Massresins Massasphaltenes
+  () (Ma)   ()  (m)  (m) (m3)  (m)  (m)  (m)  (m) (m2)  (C) (MPa) (mD) (mD) (percent) (MPa) (MPa) (C) (C) (mN/m) (mN/m) (MPa) (MPa) (m) (m) (m3) (m3) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg)
+[End]
+;
+;
+; TrapperIoTbl
+;
+[TrapperIoTbl]
+;v100
+PersistentTrapID ReservoirName Age TrapID XCoord YCoord TrapCapacity Depth SpillDepth SpillPointXCoord SpillPointYCoord Pressure Temperature Permeability SealPermeability Porosity NetToGross InterfacialTensionVapour CriticalTemperatureVapour CEPVapour MassVapour VolumeVapour ViscosityVapour DensityVapour InterfacialTensionLiquid CriticalTemperatureLiquid CEPLiquid MassLiquid VolumeLiquid ViscosityLiquid DensityLiquid OilAPI CGR GOR FracturePressure Buoyancy WCSurface GOC OWC FreeGasMass FreeGasVolume FreeGasDensity FreeGasViscosity FreeGasMassC1 FreeGasMassC2 FreeGasMassC3 FreeGasMassC4 FreeGasMassC5 FreeGasMassN2 FreeGasMassCOx FreeGasMassH2S FreeGasMassC6_14Aro FreeGasMassC6_14Sat FreeGasMassC15Aro FreeGasMassC15Sat FreeGasMassLSC FreeGasMassC15AT FreeGasMassC15AroS FreeGasMassC15SatS FreeGasMassC6_14BT FreeGasMassC6_14DBT FreeGasMassC6_14BP FreeGasMassC6_14SatS FreeGasMassC6_14AroS FreeGasMassresins FreeGasMassasphaltenes CondensateMass CondensateVolume CondensateDensity CondensateViscosity CondensateMassC1 CondensateMassC2 CondensateMassC3 CondensateMassC4 CondensateMassC5 CondensateMassN2 CondensateMassCOx CondensateMassH2S CondensateMassC6_14Aro CondensateMassC6_14Sat CondensateMassC15Aro CondensateMassC15Sat CondensateMassresins CondensateMassasphaltenes CondensateMassLSC CondensateMassC15AT CondensateMassC15AroS CondensateMassC15SatS CondensateMassC6_14BT CondensateMassC6_14DBT CondensateMassC6_14BP CondensateMassC6_14SatS CondensateMassC6_14AroS SolutionGasMass SolutionGasVolume SolutionGasDensity SolutionGasViscosity SolutionGasMassC1 SolutionGasMassC2 SolutionGasMassC3 SolutionGasMassC4 SolutionGasMassC5 SolutionGasMassN2 SolutionGasMassCOx SolutionGasMassH2S SolutionGasMassC6_14Aro SolutionGasMassC6_14Sat SolutionGasMassC15Aro SolutionGasMassC15Sat SolutionGasMassresins SolutionGasMassasphaltenes SolutionGasMassLSC SolutionGasMassC15AT SolutionGasMassC15AroS SolutionGasMassC15SatS SolutionGasMassC6_14BT SolutionGasMassC6_14DBT SolutionGasMassC6_14BP SolutionGasMassC6_14SatS SolutionGasMassC6_14AroS StockTankOilMass StockTankOilVolume StockTankOilDensity StockTankOilViscosity StockTankOilMassC1 StockTankOilMassC2 StockTankOilMassC3 StockTankOilMassC4 StockTankOilMassC5 StockTankOilMassN2 StockTankOilMassCOx StockTankOilMassH2S StockTankOilMassC6_14Aro StockTankOilMassC6_14Sat StockTankOilMassC15Aro StockTankOilMassC15Sat StockTankOilMassresins StockTankOilMassasphaltenes StockTankOilMassLSC StockTankOilMassC15AT StockTankOilMassC15AroS StockTankOilMassC15SatS StockTankOilMassC6_14BT StockTankOilMassC6_14DBT StockTankOilMassC6_14BP StockTankOilMassC6_14SatS StockTankOilMassC6_14AroS
+  ()   () (Ma)   ()  (m)  (m) (m3)  (m)  (m)  (m)  (m) (MPa) (C) (mD) (mD) (volume%) (percent) (mN/m) (C) (MPa) (kg) (m^3) (Pa*s) (kg/m^3) (mN/m) (C) (MPa) (kg) (m^3) (Pa*s) (kg/m^3) (degreesAPI) (m^3/m^3) (m^3/m^3) (MPa) (MPa) (m2) (m) (m) (kg) (m^3) (kg/m^3) (Pa*s) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (m^3) (kg/m^3) (Pa*s) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (m^3) (kg/m^3) (Pa*s) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (m^3) (kg/m^3) (Pa*s) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg)
+[End]
+;
+;
+; DataMiningIoTbl
+;
+[DataMiningIoTbl]
+;v100
+BPAKey Time XCoord YCoord ZCoord ReservoirName FormationName SurfaceName PropertyName PropertyUnit Value
+  () (Ma)  (m)  (m)  (m)   ()   ()   ()   ()   ()   ()
+[End]
+;
+;
+; MigrationIoTbl
+;
+[MigrationIoTbl]
+;v100
+MigrationProcess SourceAge SourceRockName SourceReservoirName SourceTrapID SourcePointX SourcePointY DestinationAge DestinationReservoirName DestinationTrapID DestinationPointX DestinationPointY MassC1 MassC2 MassC3 MassC4 MassC5 MassN2 MassCOx MassH2S MassC6_14Aro MassC6_14Sat MassC15Aro MassC15Sat MassLSC MassC15AT MassC15AroS MassC15SatS MassC6_14BT MassC6_14DBT MassC6_14BP MassC6_14SatS MassC6_14AroS Massresins Massasphaltenes
+  () (Ma)   ()   ()   ()   ()   () (Ma)   ()   ()   ()   () (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg)
+[End]
+;
+;
+; LithotypeIoTbl
+;
+[LithotypeIoTbl]
+;v100
+Lithotype Description DefinedBy UserDefined DefinitionDate LastChangedBy LastChangedDate FgColour BgColour Pixmap Density HeatProd SurfacePorosity CompacCoefES CompacCoefESA CompacCoefESB CompacRatioES StpThCond ThCondAnisotropy DepoPerm PermDecrStressCoef PermIncrRelaxCoef PermAnisotropy PermMixModel SeisVelocity SeisVelocityExponent CapC1 CapC2 PcKrModel LambdaPc LambdaKr LambdaPc_LW LambdaPc_VL N_W N_V N_L KrwMax KrvMax KrlMax Swi Svr Slr Porosity_Model Compaction_Coefficient_SM Number_Of_Data_Points Multipoint_Porosity Multipoint_Permeability HydraulicFracturingPercent ReferenceSolidViscosity ActivationEnergy MinimumPorosity IgneousIntrusionTemperature QuartzGrainSize QuartzFraction ClayCoatingFactor
+  ()   ()   ()   ()   ()   ()   ()   ()   ()   () (kg/m3) (uW/m3) (%) (10-8Pa-1) (10-8Pa-1) (10-8Pa-1) () (W/mK) ((ratio)) (mD) () () ((ratio)) () (m/s) () ((unknown)) ((unknown)) ((unknown)) ((unknown)) ((unknown)) ((unknown)) ((unknown)) ((unknown)) ((unknown)) ((unknown)) (frac) (frac) (frac) (frac) (frac) (frac) () () () () () (%) () () (%) (DegreesCelcius) (cm) (fraction) (fraction)
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" "Intermediate properties between well and poorly sorted. Not pure quartz (reflected in lower seismic velocity). Will have min poro of 10% (BPA2 only).\n\nEdit to allow chem. cement.( Based on BPA Std. Sandstone)" "Sandstone, typical" 1 "2020-06-28T15:03:46.000Z" "EUROPE\Lorcan.Kennan" "2020-08-10T15:31:13.000Z" "#000000" "#ffee00" "46103.svg" 2650 0.8 40 3.25 0 0 0.5 3.95 1.15 0 0 0 1 "Multipoint" 5850 0.45 0.33 0.2611 "Brooks_Corey" 1 1 1 -9999 1 -9999 -9999 1 1 1 -9999 -9999 -9999 "Exponential" 0 2 "5 60" "0.3 8.6" 100 1e+17 0 10 -9999 0.006 0 0
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" "Simplified poroperm compared to multipoint 60% clay SM lithology (mixing tends to reduce advantage of more than two point trends).( Based on BPA Std. Shale)" "Mudstone, 60% clay" 1 "2020-06-28T15:03:46.000Z" "EUROPE\Lorcan.Kennan" "2020-08-10T15:31:14.000Z" "#000000" "#b2b9b5" "46108.svg" 2670 2.2 60 7.2 0 0 0.5 1.8 1.6 0 0 0 1 "Multipoint" 4500 -0.6 0.33 0.2611 "Brooks_Corey" 1 1 1 -9999 1 -9999 -9999 1 1 1 -9999 -9999 -9999 "Exponential" 0 2 "5 60" "-6.2 -2.9" 100 1e+17 0 0.1 -9999 0.006 0 0
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" "Min phi and adj Schneider cement settings\n\nStandard Chalk\nSM type permeability model with 50% clay fraction. See also shale experiments. Some tests (eg NNS) suggest tighter chalk, similar to 60% clay SM mudstone.( Based on BPA Std. Chalk)" "Chalk, white" 1 "2020-06-28T15:03:46.000Z" "EUROPE\Lorcan.Kennan" "2020-08-10T15:31:14.000Z" "#000000" "#d4f5fc" "46105.svg" 2680 0.6 60 6.5 0 0 0.5 2.9 1 0 0 0 1 "Multipoint" 6000 0.25 0.33 0.2611 "Brooks_Corey" 1 1 1 -9999 1 -9999 -9999 1 1 1 -9999 -9999 -9999 "Exponential" 0 2 "5 60" "-6.1 -1.7" 100 1e+17 0 3 -9999 0.006 0 0
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" "Based on std siltstone URSA perm (Dutta). Note lower surface poro, high comp coeff. Low solid VP and low SVE, mix to make poorly-mixed or \"softer\" sand. Modified after SAC.( Based on BPA Std. Siltstone)" "Siltstone, 20% clay" 1 "2020-06-28T15:03:46.000Z" "EUROPE\Lorcan.Kennan" "2020-08-10T15:31:14.000Z" "#000000" "#b1cfb5" "422205a.svg" 2650 0.91 35 5.5 0 0 0.5 2.05 1.5 0 0 0 1 "Multipoint" 5950 -0.15 0.33 0.2611 "Brooks_Corey" 1 1 1 -9999 1 -9999 -9999 1 1 1 -9999 -9999 -9999 "Exponential" 0 2 "5 60" "-4.2 0.55" 100 1e+17 0 8 -9999 0.006 0 0
+"Halite_BPA2_10^-4_LK10082020" "As halite, higher permeability" "Halite" 1 "2020-08-10T15:31:14.000Z" "" "" "#000000" "#88ced9" "46110.svg" 2163 0.012 0.1 0 0 0 0.5 6.5 1 0 0 0 1 "Multipoint" 4500 0 0.33 0.2611 "Brooks_Corey" 1 1 1 -9999 1 -9999 -9999 1 1 1 -9999 -9999 -9999 "Exponential" 0 2 "5 60" "-4 -4" 100 1e+17 0 0.1 -9999 0.006 0 0
+"Potash-Sylvite" "Potassium 'squeezing' salt,  low density and velocity evaporite. Impermeable." "Potash-Sylvite" 0 "2019-11-28T21:00:00.000Z" "" "" "#000000" "#88ced9" "42504.svg" 1987 6 0.1 0 0 0 0.5 6.7 1 0 0 0 1 "Multipoint" 3925 0 0.33 0.2611 "Brooks_Corey" 1 5 0.10874 0.10874 6.01738 1.99564 1.99564 1 1 1 0.60174 0.05786 0.05786 "Exponential" 0 2 "5 60" "-6 -6" 100 1e+17 0 0.1 -9999 0.006 0 0
+"Anhydrite-Carbonate high-density stringer" "Anhydrite-Limestone mix,  very high density and velocity evaporite. Impermeable." "Anhydrite-Carbonate high-density stringer" 0 "2019-11-28T21:00:00.000Z" "" "" "#000000" "#f2a1c5" "428201.svg" 2850 0.25 0.1 0 0 0 0.5 4.7 1 0 0 0 1 "Multipoint" 6350 0 0.33 0.2611 "Brooks_Corey" 1 5 0.109 0.109 6.01738 1.99564 1.99564 1 1 1 0.60174 0.05786 0.05786 "Exponential" 0 2 "5 60" "-6 -6" 100 1e+17 0 0.1 -9999 0.006 0 0
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" "Mixed anhydrite, compacted carbonate to pull out stringers in Zechstein.( Based on BPA Std. Anhydrite)" "Anhydrite" 1 "2020-06-28T15:03:46.000Z" "EUROPE\Lorcan.Kennan" "2020-08-10T15:31:14.000Z" "#000000" "#f2a1c5" "46111.svg" 2850 0.25 0.1 1 0 0 0.5 4 1 0 0 0 0 "Multipoint" 6500 1 0.33 0.2611 "Brooks_Corey" 1 1 1 -9999 1 -9999 -9999 1 1 1 -9999 -9999 -9999 "Exponential" 0 2 "5 60" "-7 -7" 100 1e+17 0 0.1 -9999 0.006 0 0
+"Crust" "Typical continental crust for use  in stratigraphy if needed." "Crust" 0 "2019-11-28T21:00:00.000Z" "" "" "#000000" "#f09977" "42902.svg" 2850 1 0.1 0 0 0 0.5 4.1 1 0 0 0 1 "Multipoint" 6500 0 0.33 0.2611 "Brooks_Corey" 1.5 4 1.544 1.544 2.28695 2.378275 2.378275 1 1 1 0.228675 0.02915 0.02915 "Exponential" 0 2 "5 60" "-4 -4" 100 1e+17 0 0.1 -9999 0.006 0 0
+"Mantle" "Typical mantle peridotite for use  in stratigraphy if needed." "Mantle" 0 "2019-11-28T21:00:00.000Z" "" "" "#000000" "#e4181f" "429022.svg" 3350 0.1 0.1 0 0 0 0.5 5.5 1 0 0 0 1 "Multipoint" 8000 0 0.33 0.2611 "Brooks_Corey" 1.5 4 1.544 1.544 2.28695 2.378275 2.378275 1 1 1 0.228675 0.02915 0.02915 "Exponential" 0 2 "5 60" "-4 -4" 100 1e+17 0 0.1 -9999 0.006 0 0
+[End]
+;
+;
+; LitThCondIoTbl
+;
+[LitThCondIoTbl]
+;v100
+Lithotype TempIndex ThCond
+  ()  (C) (W/mK)
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" -20 4.97
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 0 4.72
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 20 4.5
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 100 3.86
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 200 3.36
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 300 3.03
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 400 2.81
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 500 2.64
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 600 2.51
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 700 2.4
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 800 2.32
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 900 2.25
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 1000 2.19
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 1100 2.14
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 1200 2.1
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 1300 2.06
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 1400 2.03
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -20 2.23
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 0 2.16
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 20 2.1
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 100 1.93
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 200 1.8
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 300 1.71
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 400 1.65
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 500 1.6
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 600 1.57
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 700 1.54
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 800 1.52
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 900 1.5
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 1000 1.48
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 1100 1.47
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 1200 1.46
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 1300 1.45
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 1400 1.44
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" -20 3.96
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 0 3.71
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 20 3.5
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 100 2.88
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 200 2.4
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 300 2.08
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 400 1.86
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 500 1.7
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 600 1.57
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 700 1.47
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 800 1.39
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 900 1.32
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 1000 1.27
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 1100 1.22
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 1200 1.18
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 1300 1.14
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 1400 1.11
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" -20 3.24
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 0 3.11
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 20 3
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 100 2.68
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 200 2.43
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 300 2.27
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 400 2.15
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 500 2.07
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 600 2
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 700 1.95
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 800 1.91
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 900 1.87
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 1000 1.85
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 1100 1.82
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 1200 1.8
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 1300 1.78
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 1400 1.76
+"Halite_BPA2_10^-4_LK10082020" -20 7.31
+"Halite_BPA2_10^-4_LK10082020" 0 6.87
+"Halite_BPA2_10^-4_LK10082020" 20 6.5
+"Halite_BPA2_10^-4_LK10082020" 100 5.41
+"Halite_BPA2_10^-4_LK10082020" 200 4.56
+"Halite_BPA2_10^-4_LK10082020" 300 4.01
+"Halite_BPA2_10^-4_LK10082020" 400 3.62
+"Halite_BPA2_10^-4_LK10082020" 500 3.33
+"Halite_BPA2_10^-4_LK10082020" 600 3.11
+"Halite_BPA2_10^-4_LK10082020" 700 2.94
+"Halite_BPA2_10^-4_LK10082020" 800 2.79
+"Halite_BPA2_10^-4_LK10082020" 900 2.67
+"Halite_BPA2_10^-4_LK10082020" 1000 2.57
+"Halite_BPA2_10^-4_LK10082020" 1100 2.49
+"Halite_BPA2_10^-4_LK10082020" 1200 2.41
+"Halite_BPA2_10^-4_LK10082020" 1300 2.35
+"Halite_BPA2_10^-4_LK10082020" 1400 2.29
+"Potash-Sylvite" -20 7.55
+"Potash-Sylvite" 0 7.1
+"Potash-Sylvite" 20 6.7
+"Potash-Sylvite" 100 5.54
+"Potash-Sylvite" 200 4.65
+"Potash-Sylvite" 300 4.06
+"Potash-Sylvite" 400 3.65
+"Potash-Sylvite" 500 3.35
+"Potash-Sylvite" 600 3.11
+"Potash-Sylvite" 700 2.93
+"Potash-Sylvite" 800 2.78
+"Potash-Sylvite" 900 2.65
+"Potash-Sylvite" 1000 2.54
+"Potash-Sylvite" 1100 2.45
+"Potash-Sylvite" 1200 2.37
+"Potash-Sylvite" 1300 2.31
+"Potash-Sylvite" 1400 2.25
+"Anhydrite-Carbonate high-density stringer" -20 5.32
+"Anhydrite-Carbonate high-density stringer" 0 4.98
+"Anhydrite-Carbonate high-density stringer" 20 4.7
+"Anhydrite-Carbonate high-density stringer" 100 3.86
+"Anhydrite-Carbonate high-density stringer" 200 3.2
+"Anhydrite-Carbonate high-density stringer" 300 2.78
+"Anhydrite-Carbonate high-density stringer" 400 2.48
+"Anhydrite-Carbonate high-density stringer" 500 2.26
+"Anhydrite-Carbonate high-density stringer" 600 2.09
+"Anhydrite-Carbonate high-density stringer" 700 1.96
+"Anhydrite-Carbonate high-density stringer" 800 1.85
+"Anhydrite-Carbonate high-density stringer" 900 1.75
+"Anhydrite-Carbonate high-density stringer" 1000 1.68
+"Anhydrite-Carbonate high-density stringer" 1100 1.61
+"Anhydrite-Carbonate high-density stringer" 1200 1.55
+"Anhydrite-Carbonate high-density stringer" 1300 1.51
+"Anhydrite-Carbonate high-density stringer" 1400 1.46
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" -20 7.11
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 0 6.67
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 20 6.3
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 100 5.21
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 200 4.36
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 300 3.81
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 400 3.42
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 500 3.13
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 600 2.91
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 700 2.74
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 800 2.59
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 900 2.47
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 1000 2.37
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 1100 2.29
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 1200 2.21
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 1300 2.15
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 1400 2.09
+"Crust" -20 4.55
+"Crust" 0 4.31
+"Crust" 20 4.1
+"Crust" 100 3.49
+"Crust" 200 3.02
+"Crust" 300 2.71
+"Crust" 400 2.49
+"Crust" 500 2.33
+"Crust" 600 2.21
+"Crust" 700 2.11
+"Crust" 800 2.03
+"Crust" 900 1.96
+"Crust" 1000 1.91
+"Crust" 1100 1.86
+"Crust" 1200 1.82
+"Crust" 1300 1.78
+"Crust" 1400 1.75
+"Mantle" -20 6.13
+"Mantle" 0 5.79
+"Mantle" 20 5.5
+"Mantle" 100 4.64
+"Mantle" 200 3.98
+"Mantle" 300 3.55
+"Mantle" 400 3.24
+"Mantle" 500 3.02
+"Mantle" 600 2.84
+"Mantle" 700 2.7
+"Mantle" 800 2.59
+"Mantle" 900 2.5
+"Mantle" 1000 2.42
+"Mantle" 1100 2.35
+"Mantle" 1200 2.3
+"Mantle" 1300 2.25
+"Mantle" 1400 2.2
+[End]
+;
+;
+; LitHeatCapIoTbl
+;
+[LitHeatCapIoTbl]
+;v100
+Lithotype TempIndex HeatCapacity
+  ()  (C) (J/kgK)
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" -20 729.57
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 0 775
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 20 814.23
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 100 929.09
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 200 1018.05
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 300 1075.97
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 400 1116.68
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 500 1146.86
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 600 1170.12
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 700 1188.61
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 800 1203.64
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 900 1216.12
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 1000 1226.64
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 1100 1235.62
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 1200 1243.38
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 1300 1250.16
+"01 Sand typical hybrid BPA2 Min Phi 10 LK16122017" 1400 1256.13
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" -20 702.6
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 0 750
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 20 790.93
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 100 910.79
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 200 1003.62
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 300 1064.05
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 400 1106.53
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 500 1138.02
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 600 1162.3
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 700 1181.59
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 800 1197.28
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 900 1210.3
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 1000 1221.27
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 1100 1230.65
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 1200 1238.75
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 1300 1245.82
+"08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017" 1400 1252.05
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" -20 729.57
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 0 775
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 20 814.23
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 100 929.09
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 200 1018.05
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 300 1075.97
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 400 1116.68
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 500 1146.86
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 600 1170.12
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 700 1188.61
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 800 1203.64
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 900 1216.12
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 1000 1226.64
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 1100 1235.62
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 1200 1243.38
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 1300 1250.16
+"10 Chalk hybrid BPA2 min phi 3% LK23022018" 1400 1256.13
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" -20 763.39
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 0 810
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 20 850.25
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 100 968.11
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 200 1059.39
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 300 1118.82
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 400 1160.59
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 500 1191.56
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 600 1215.43
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 700 1234.4
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 800 1249.83
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 900 1262.63
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 1000 1273.42
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 1100 1282.64
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 1200 1290.6
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 1300 1297.56
+"05 Silt typical hybrid BPA2 Min Phi 8 LK12122017" 1400 1303.39
+"Halite_BPA2_10^-4_LK10082020" -20 884.2
+"Halite_BPA2_10^-4_LK10082020" 0 900
+"Halite_BPA2_10^-4_LK10082020" 20 913.64
+"Halite_BPA2_10^-4_LK10082020" 100 953.6
+"Halite_BPA2_10^-4_LK10082020" 200 984.54
+"Halite_BPA2_10^-4_LK10082020" 300 1004.68
+"Halite_BPA2_10^-4_LK10082020" 400 1018.84
+"Halite_BPA2_10^-4_LK10082020" 500 1029.34
+"Halite_BPA2_10^-4_LK10082020" 600 1037.43
+"Halite_BPA2_10^-4_LK10082020" 700 1043.86
+"Halite_BPA2_10^-4_LK10082020" 800 1049.09
+"Halite_BPA2_10^-4_LK10082020" 900 1053.43
+"Halite_BPA2_10^-4_LK10082020" 1000 1057.09
+"Halite_BPA2_10^-4_LK10082020" 1100 1060.22
+"Halite_BPA2_10^-4_LK10082020" 1200 1062.92
+"Halite_BPA2_10^-4_LK10082020" 1300 1065.27
+"Halite_BPA2_10^-4_LK10082020" 1400 1067.35
+"Potash-Sylvite" -20 934.2
+"Potash-Sylvite" 0 950
+"Potash-Sylvite" 20 963.64
+"Potash-Sylvite" 100 1003.6
+"Potash-Sylvite" 200 1034.54
+"Potash-Sylvite" 300 1054.68
+"Potash-Sylvite" 400 1068.84
+"Potash-Sylvite" 500 1079.34
+"Potash-Sylvite" 600 1087.43
+"Potash-Sylvite" 700 1093.86
+"Potash-Sylvite" 800 1099.09
+"Potash-Sylvite" 900 1103.43
+"Potash-Sylvite" 1000 1107.09
+"Potash-Sylvite" 1100 1110.22
+"Potash-Sylvite" 1200 1112.92
+"Potash-Sylvite" 1300 1115.27
+"Potash-Sylvite" 1400 1117.35
+"Anhydrite-Carbonate high-density stringer" -20 656.89
+"Anhydrite-Carbonate high-density stringer" 0 687.5
+"Anhydrite-Carbonate high-density stringer" 20 713.94
+"Anhydrite-Carbonate high-density stringer" 100 791.35
+"Anhydrite-Carbonate high-density stringer" 200 851.3
+"Anhydrite-Carbonate high-density stringer" 300 851.3
+"Anhydrite-Carbonate high-density stringer" 400 917.76
+"Anhydrite-Carbonate high-density stringer" 500 938.1
+"Anhydrite-Carbonate high-density stringer" 600 953.78
+"Anhydrite-Carbonate high-density stringer" 700 966.23
+"Anhydrite-Carbonate high-density stringer" 800 976.37
+"Anhydrite-Carbonate high-density stringer" 900 984.78
+"Anhydrite-Carbonate high-density stringer" 1000 991.86
+"Anhydrite-Carbonate high-density stringer" 1100 997.92
+"Anhydrite-Carbonate high-density stringer" 1200 1003.15
+"Anhydrite-Carbonate high-density stringer" 1300 1007.72
+"Anhydrite-Carbonate high-density stringer" 1400 1011.74
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" -20 584.2
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 0 600
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 20 613.64
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 100 653.6
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 200 684.54
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 300 704.68
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 400 718.84
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 500 729.34
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 600 737.43
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 700 743.86
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 800 749.09
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 900 753.43
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 1000 757.09
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 1100 760.22
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 1200 762.92
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 1300 765.27
+"Mixed_Carbonate_Anhydrite_no_poro_10^-7_perm_LK21022018" 1400 767.35
+"Crust" -20 639.3
+"Crust" 0  695
+"Crust" 20 743.1
+"Crust" 100 883.93
+"Crust" 200 993
+"Crust" 300 1064.01
+"Crust" 400 1113.93
+"Crust" 500 1150.93
+"Crust" 600 1179.45
+"Crust" 700 1202.12
+"Crust" 800 1220.56
+"Crust" 900 1235.85
+"Crust" 1000 1248.74
+"Crust" 1100 1259.76
+"Crust" 1200 1269.28
+"Crust" 1300 1277.59
+"Crust" 1400 1284.91
+"Mantle" -20 712.46
+"Mantle" 0 765
+"Mantle" 20 810.37
+"Mantle" 100 943.21
+"Mantle" 200 1046.09
+"Mantle" 300 1113.08
+"Mantle" 400 1160.16
+"Mantle" 500 1195.06
+"Mantle" 600 1221.97
+"Mantle" 700 1243.34
+"Mantle" 800 1260.74
+"Mantle" 900 1275.16
+"Mantle" 1000 1287.33
+"Mantle" 1100 1297.72
+"Mantle" 1200 1306.7
+"Mantle" 1300 1314.53
+"Mantle" 1400 1321.44
+[End]
+;
+;
+; FluidtypeIoTbl
+;
+[FluidtypeIoTbl]
+;v100
+Fluidtype Description DefinedBy UserDefined DefinitionDate LastChangedDate LastChangedBy Density DensModel SeisVelocity SeisVelocityModel Salinity HeatCaptype ThermCondtype
+  ()   ()   ()   ()   ()   ()   () (kg/m3) () (m/s) () (ppm)  ()   ()
+"Std. Sea Water" "Standard Sea Water" "System" 0 "2017-04-25T21:00:00.000Z" "" "" 0 "Calculated" 0 "Calculated" 0.035 "Std. Sea Water" "Std. Sea Water"
+"Std. Hyper Saline Water" "Standard Ultra Marine Water" "System" 0 "2017-04-25T21:00:00.000Z" "" "" 0 "Calculated" 0 "Calculated" 0.22 "Std. Hyper Saline Water" "Std. Hyper Saline Water"
+"Std. Marine Water" "Deprecated Marine Water" "EUROPE\Lorcan.Kennan" 1 "2020-06-28T15:03:46.000Z" "" "" 0 "Calculated" 0 "Calculated" 0.13 "Std. Water" "Std. Water"
+"Std. Water" "Standard Water" "System" 1 "2020-06-28T15:03:46.000Z" "" "" 0 "Calculated" 0 "Calculated" 0.13 "Std. Water" "Std. Water"
+[End]
+;
+;
+; FltThCondIoTbl
+;
+[FltThCondIoTbl]
+;v100
+Fluidtype TempIndex Pressure ThCond
+  ()  (C) (MPa) (W/mK)
+"Std. Sea Water" 0 0.1 0.56
+"Std. Sea Water" 25 0.1 0.61
+"Std. Sea Water" 50 0.1 0.64
+"Std. Sea Water" 75 0.1 0.66
+"Std. Sea Water" 100 0.1 0.02
+"Std. Sea Water" 125 0.1 0.03
+"Std. Sea Water" 150 0.1 0.03
+"Std. Sea Water" 200 0.1 0.03
+"Std. Sea Water" 250 0.1 0.04
+"Std. Sea Water" 300 0.1 0.04
+"Std. Sea Water" 350 0.1 0.05
+"Std. Sea Water" 375 0.1 0.05
+"Std. Sea Water" 400 0.1 0.05
+"Std. Sea Water" 425 0.1 0.06
+"Std. Sea Water" 450 0.1 0.06
+"Std. Sea Water" 475 0.1 0.06
+"Std. Sea Water" 500 0.1 0.07
+"Std. Sea Water" 550 0.1 0.07
+"Std. Sea Water" 600 0.1 0.08
+"Std. Sea Water" 650 0.1 0.09
+"Std. Sea Water" 700 0.1 0.09
+"Std. Sea Water" 750 0.1 0.1
+"Std. Sea Water" 800 0.1 0.11
+"Std. Sea Water" 0 0.5 0.56
+"Std. Sea Water" 25 0.5 0.61
+"Std. Sea Water" 50 0.5 0.64
+"Std. Sea Water" 75 0.5 0.66
+"Std. Sea Water" 100 0.5 0.68
+"Std. Sea Water" 125 0.5 0.68
+"Std. Sea Water" 150 0.5 0.68
+"Std. Sea Water" 200 0.5 0.03
+"Std. Sea Water" 250 0.5 0.04
+"Std. Sea Water" 300 0.5 0.04
+"Std. Sea Water" 350 0.5 0.05
+"Std. Sea Water" 375 0.5 0.05
+"Std. Sea Water" 400 0.5 0.06
+"Std. Sea Water" 425 0.5 0.06
+"Std. Sea Water" 450 0.5 0.06
+"Std. Sea Water" 475 0.5 0.06
+"Std. Sea Water" 500 0.5 0.07
+"Std. Sea Water" 550 0.5 0.07
+"Std. Sea Water" 600 0.5 0.08
+"Std. Sea Water" 650 0.5 0.09
+"Std. Sea Water" 700 0.5 0.09
+"Std. Sea Water" 750 0.5 0.1
+"Std. Sea Water" 800 0.5 0.11
+"Std. Sea Water" 0 1 0.56
+"Std. Sea Water" 25 1 0.61
+"Std. Sea Water" 50 1 0.64
+"Std. Sea Water" 75 1 0.66
+"Std. Sea Water" 100 1 0.68
+"Std. Sea Water" 125 1 0.68
+"Std. Sea Water" 150 1 0.68
+"Std. Sea Water" 200 1 0.04
+"Std. Sea Water" 250 1 0.04
+"Std. Sea Water" 300 1 0.04
+"Std. Sea Water" 350 1 0.05
+"Std. Sea Water" 375 1 0.05
+"Std. Sea Water" 400 1 0.06
+"Std. Sea Water" 425 1 0.06
+"Std. Sea Water" 450 1 0.06
+"Std. Sea Water" 475 1 0.06
+"Std. Sea Water" 500 1 0.07
+"Std. Sea Water" 550 1 0.07
+"Std. Sea Water" 600 1 0.08
+"Std. Sea Water" 650 1 0.09
+"Std. Sea Water" 700 1 0.09
+"Std. Sea Water" 750 1 0.1
+"Std. Sea Water" 800 1 0.11
+"Std. Sea Water" 0 2.5 0.56
+"Std. Sea Water" 25 2.5 0.61
+"Std. Sea Water" 50 2.5 0.64
+"Std. Sea Water" 75 2.5 0.66
+"Std. Sea Water" 100 2.5 0.68
+"Std. Sea Water" 125 2.5 0.69
+"Std. Sea Water" 150 2.5 0.69
+"Std. Sea Water" 200 2.5 0.67
+"Std. Sea Water" 250 2.5 0.04
+"Std. Sea Water" 300 2.5 0.05
+"Std. Sea Water" 350 2.5 0.05
+"Std. Sea Water" 375 2.5 0.05
+"Std. Sea Water" 400 2.5 0.06
+"Std. Sea Water" 425 2.5 0.06
+"Std. Sea Water" 450 2.5 0.06
+"Std. Sea Water" 475 2.5 0.07
+"Std. Sea Water" 500 2.5 0.07
+"Std. Sea Water" 550 2.5 0.07
+"Std. Sea Water" 600 2.5 0.08
+"Std. Sea Water" 650 2.5 0.09
+"Std. Sea Water" 700 2.5 0.09
+"Std. Sea Water" 750 2.5 0.1
+"Std. Sea Water" 800 2.5 0.11
+"Std. Sea Water" 0 5 0.56
+"Std. Sea Water" 25 5 0.61
+"Std. Sea Water" 50 5 0.64
+"Std. Sea Water" 75 5 0.67
+"Std. Sea Water" 100 5 0.68
+"Std. Sea Water" 125 5 0.69
+"Std. Sea Water" 150 5 0.69
+"Std. Sea Water" 200 5 0.67
+"Std. Sea Water" 250 5 0.62
+"Std. Sea Water" 300 5 0.05
+"Std. Sea Water" 350 5 0.06
+"Std. Sea Water" 375 5 0.06
+"Std. Sea Water" 400 5 0.06
+"Std. Sea Water" 425 5 0.06
+"Std. Sea Water" 450 5 0.06
+"Std. Sea Water" 475 5 0.07
+"Std. Sea Water" 500 5 0.07
+"Std. Sea Water" 550 5 0.08
+"Std. Sea Water" 600 5 0.08
+"Std. Sea Water" 650 5 0.09
+"Std. Sea Water" 700 5 0.1
+"Std. Sea Water" 750 5 0.1
+"Std. Sea Water" 800 5 0.11
+"Std. Sea Water" 0 7.5 0.57
+"Std. Sea Water" 25 7.5 0.61
+"Std. Sea Water" 50 7.5 0.64
+"Std. Sea Water" 75 7.5 0.67
+"Std. Sea Water" 100 7.5 0.68
+"Std. Sea Water" 125 7.5 0.69
+"Std. Sea Water" 150 7.5 0.69
+"Std. Sea Water" 200 7.5 0.67
+"Std. Sea Water" 250 7.5 0.62
+"Std. Sea Water" 300 7.5 0.06
+"Std. Sea Water" 350 7.5 0.06
+"Std. Sea Water" 375 7.5 0.06
+"Std. Sea Water" 400 7.5 0.06
+"Std. Sea Water" 425 7.5 0.07
+"Std. Sea Water" 450 7.5 0.07
+"Std. Sea Water" 475 7.5 0.07
+"Std. Sea Water" 500 7.5 0.07
+"Std. Sea Water" 550 7.5 0.08
+"Std. Sea Water" 600 7.5 0.08
+"Std. Sea Water" 650 7.5 0.09
+"Std. Sea Water" 700 7.5 0.1
+"Std. Sea Water" 750 7.5 0.1
+"Std. Sea Water" 800 7.5 0.11
+"Std. Sea Water" 0 10 0.57
+"Std. Sea Water" 25 10 0.61
+"Std. Sea Water" 50 10 0.65
+"Std. Sea Water" 75 10 0.67
+"Std. Sea Water" 100 10 0.68
+"Std. Sea Water" 125 10 0.69
+"Std. Sea Water" 150 10 0.69
+"Std. Sea Water" 200 10 0.67
+"Std. Sea Water" 250 10 0.63
+"Std. Sea Water" 300 10 0.55
+"Std. Sea Water" 350 10 0.07
+"Std. Sea Water" 375 10 0.07
+"Std. Sea Water" 400 10 0.07
+"Std. Sea Water" 425 10 0.07
+"Std. Sea Water" 450 10 0.07
+"Std. Sea Water" 475 10 0.07
+"Std. Sea Water" 500 10 0.08
+"Std. Sea Water" 550 10 0.08
+"Std. Sea Water" 600 10 0.09
+"Std. Sea Water" 650 10 0.09
+"Std. Sea Water" 700 10 0.1
+"Std. Sea Water" 750 10 0.11
+"Std. Sea Water" 800 10 0.11
+"Std. Sea Water" 0 12.5 0.56
+"Std. Sea Water" 25 12.5 0.61
+"Std. Sea Water" 50 12.5 0.65
+"Std. Sea Water" 75 12.5 0.67
+"Std. Sea Water" 100 12.5 0.68
+"Std. Sea Water" 125 12.5 0.69
+"Std. Sea Water" 150 12.5 0.69
+"Std. Sea Water" 200 12.5 0.67
+"Std. Sea Water" 250 12.5 0.63
+"Std. Sea Water" 300 12.5 0.55
+"Std. Sea Water" 350 12.5 0.08
+"Std. Sea Water" 375 12.5 0.07
+"Std. Sea Water" 400 12.5 0.07
+"Std. Sea Water" 425 12.5 0.07
+"Std. Sea Water" 450 12.5 0.07
+"Std. Sea Water" 475 12.5 0.08
+"Std. Sea Water" 500 12.5 0.08
+"Std. Sea Water" 550 12.5 0.08
+"Std. Sea Water" 600 12.5 0.09
+"Std. Sea Water" 650 12.5 0.09
+"Std. Sea Water" 700 12.5 0.1
+"Std. Sea Water" 750 12.5 0.11
+"Std. Sea Water" 800 12.5 0.11
+"Std. Sea Water" 0 15 0.57
+"Std. Sea Water" 25 15 0.62
+"Std. Sea Water" 50 15 0.65
+"Std. Sea Water" 75 15 0.67
+"Std. Sea Water" 100 15 0.69
+"Std. Sea Water" 125 15 0.69
+"Std. Sea Water" 150 15 0.69
+"Std. Sea Water" 200 15 0.67
+"Std. Sea Water" 250 15 0.63
+"Std. Sea Water" 300 15 0.56
+"Std. Sea Water" 350 15 0.1
+"Std. Sea Water" 375 15 0.08
+"Std. Sea Water" 400 15 0.08
+"Std. Sea Water" 425 15 0.08
+"Std. Sea Water" 450 15 0.08
+"Std. Sea Water" 475 15 0.08
+"Std. Sea Water" 500 15 0.08
+"Std. Sea Water" 550 15 0.09
+"Std. Sea Water" 600 15 0.09
+"Std. Sea Water" 650 15 0.1
+"Std. Sea Water" 700 15 0.1
+"Std. Sea Water" 750 15 0.11
+"Std. Sea Water" 800 15 0.12
+"Std. Sea Water" 0 17.5 0.57
+"Std. Sea Water" 25 17.5 0.62
+"Std. Sea Water" 50 17.5 0.65
+"Std. Sea Water" 75 17.5 0.67
+"Std. Sea Water" 100 17.5 0.69
+"Std. Sea Water" 125 17.5 0.69
+"Std. Sea Water" 150 17.5 0.69
+"Std. Sea Water" 200 17.5 0.67
+"Std. Sea Water" 250 17.5 0.63
+"Std. Sea Water" 300 17.5 0.56
+"Std. Sea Water" 350 17.5 0.44
+"Std. Sea Water" 375 17.5 0.1
+"Std. Sea Water" 400 17.5 0.09
+"Std. Sea Water" 425 17.5 0.09
+"Std. Sea Water" 450 17.5 0.08
+"Std. Sea Water" 475 17.5 0.08
+"Std. Sea Water" 500 17.5 0.09
+"Std. Sea Water" 550 17.5 0.09
+"Std. Sea Water" 600 17.5 0.09
+"Std. Sea Water" 650 17.5 0.1
+"Std. Sea Water" 700 17.5 0.11
+"Std. Sea Water" 750 17.5 0.11
+"Std. Sea Water" 800 17.5 0.12
+"Std. Sea Water" 0 20 0.57
+"Std. Sea Water" 25 20 0.62
+"Std. Sea Water" 50 20 0.65
+"Std. Sea Water" 75 20 0.67
+"Std. Sea Water" 100 20 0.69
+"Std. Sea Water" 125 20 0.7
+"Std. Sea Water" 150 20 0.7
+"Std. Sea Water" 200 20 0.67
+"Std. Sea Water" 250 20 0.64
+"Std. Sea Water" 300 20 0.57
+"Std. Sea Water" 350 20 0.45
+"Std. Sea Water" 375 20 0.15
+"Std. Sea Water" 400 20 0.1
+"Std. Sea Water" 425 20 0.09
+"Std. Sea Water" 450 20 0.09
+"Std. Sea Water" 475 20 0.09
+"Std. Sea Water" 500 20 0.09
+"Std. Sea Water" 550 20 0.09
+"Std. Sea Water" 600 20 0.1
+"Std. Sea Water" 650 20 0.1
+"Std. Sea Water" 700 20 0.11
+"Std. Sea Water" 750 20 0.11
+"Std. Sea Water" 800 20 0.12
+"Std. Sea Water" 0 22.5 0.57
+"Std. Sea Water" 25 22.5 0.62
+"Std. Sea Water" 50 22.5 0.65
+"Std. Sea Water" 75 22.5 0.68
+"Std. Sea Water" 100 22.5 0.69
+"Std. Sea Water" 125 22.5 0.7
+"Std. Sea Water" 150 22.5 0.7
+"Std. Sea Water" 200 22.5 0.68
+"Std. Sea Water" 250 22.5 0.64
+"Std. Sea Water" 300 22.5 0.57
+"Std. Sea Water" 350 22.5 0.46
+"Std. Sea Water" 375 22.5 0.5
+"Std. Sea Water" 400 22.5 0.12
+"Std. Sea Water" 425 22.5 0.1
+"Std. Sea Water" 450 22.5 0.1
+"Std. Sea Water" 475 22.5 0.09
+"Std. Sea Water" 500 22.5 0.09
+"Std. Sea Water" 550 22.5 0.1
+"Std. Sea Water" 600 22.5 0.1
+"Std. Sea Water" 650 22.5 0.1
+"Std. Sea Water" 700 22.5 0.11
+"Std. Sea Water" 750 22.5 0.12
+"Std. Sea Water" 800 22.5 0.12
+"Std. Sea Water" 0 25 0.58
+"Std. Sea Water" 25 25 0.62
+"Std. Sea Water" 50 25 0.65
+"Std. Sea Water" 75 25 0.68
+"Std. Sea Water" 100 25 0.69
+"Std. Sea Water" 125 25 0.7
+"Std. Sea Water" 150 25 0.7
+"Std. Sea Water" 200 25 0.68
+"Std. Sea Water" 250 25 0.64
+"Std. Sea Water" 300 25 0.58
+"Std. Sea Water" 350 25 0.47
+"Std. Sea Water" 375 25 0.39
+"Std. Sea Water" 400 25 0.16
+"Std. Sea Water" 425 25 0.12
+"Std. Sea Water" 450 25 0.11
+"Std. Sea Water" 475 25 0.1
+"Std. Sea Water" 500 25 0.1
+"Std. Sea Water" 550 25 0.1
+"Std. Sea Water" 600 25 0.1
+"Std. Sea Water" 650 25 0.11
+"Std. Sea Water" 700 25 0.11
+"Std. Sea Water" 750 25 0.12
+"Std. Sea Water" 800 25 0.12
+"Std. Sea Water" 0 27.5 0.58
+"Std. Sea Water" 25 27.5 0.62
+"Std. Sea Water" 50 27.5 0.65
+"Std. Sea Water" 75 27.5 0.68
+"Std. Sea Water" 100 27.5 0.69
+"Std. Sea Water" 125 27.5 0.7
+"Std. Sea Water" 150 27.5 0.7
+"Std. Sea Water" 200 27.5 0.69
+"Std. Sea Water" 250 27.5 0.65
+"Std. Sea Water" 300 27.5 0.58
+"Std. Sea Water" 350 27.5 0.48
+"Std. Sea Water" 375 27.5 0.41
+"Std. Sea Water" 400 27.5 0.23
+"Std. Sea Water" 425 27.5 0.14
+"Std. Sea Water" 450 27.5 0.12
+"Std. Sea Water" 475 27.5 0.11
+"Std. Sea Water" 500 27.5 0.11
+"Std. Sea Water" 550 27.5 0.1
+"Std. Sea Water" 600 27.5 0.11
+"Std. Sea Water" 650 27.5 0.11
+"Std. Sea Water" 700 27.5 0.11
+"Std. Sea Water" 750 27.5 0.12
+"Std. Sea Water" 800 27.5 0.12
+"Std. Sea Water" 0 30 0.58
+"Std. Sea Water" 25 30 0.62
+"Std. Sea Water" 50 30 0.66
+"Std. Sea Water" 75 30 0.68
+"Std. Sea Water" 100 30 0.69
+"Std. Sea Water" 125 30 0.7
+"Std. Sea Water" 150 30 0.7
+"Std. Sea Water" 200 30 0.69
+"Std. Sea Water" 250 30 0.65
+"Std. Sea Water" 300 30 0.59
+"Std. Sea Water" 350 30 0.49
+"Std. Sea Water" 375 30 0.42
+"Std. Sea Water" 400 30 0.33
+"Std. Sea Water" 425 30 0.17
+"Std. Sea Water" 450 30 0.13
+"Std. Sea Water" 475 30 0.12
+"Std. Sea Water" 500 30 0.11
+"Std. Sea Water" 550 30 0.11
+"Std. Sea Water" 600 30 0.11
+"Std. Sea Water" 650 30 0.11
+"Std. Sea Water" 700 30 0.12
+"Std. Sea Water" 750 30 0.12
+"Std. Sea Water" 800 30 0.13
+"Std. Sea Water" 0 35 0.58
+"Std. Sea Water" 25 35 0.63
+"Std. Sea Water" 50 35 0.66
+"Std. Sea Water" 75 35 0.68
+"Std. Sea Water" 100 35 0.7
+"Std. Sea Water" 125 35 0.71
+"Std. Sea Water" 150 35 0.71
+"Std. Sea Water" 200 35 0.69
+"Std. Sea Water" 250 35 0.65
+"Std. Sea Water" 300 35 0.59
+"Std. Sea Water" 350 35 0.5
+"Std. Sea Water" 375 35 0.44
+"Std. Sea Water" 400 35 0.37
+"Std. Sea Water" 425 35 0.25
+"Std. Sea Water" 450 35 0.17
+"Std. Sea Water" 475 35 0.14
+"Std. Sea Water" 500 35 0.13
+"Std. Sea Water" 550 35 0.12
+"Std. Sea Water" 600 35 0.12
+"Std. Sea Water" 650 35 0.12
+"Std. Sea Water" 700 35 0.12
+"Std. Sea Water" 750 35 0.13
+"Std. Sea Water" 800 35 0.13
+"Std. Sea Water" 0 40 0.58
+"Std. Sea Water" 25 40 0.63
+"Std. Sea Water" 50 40 0.66
+"Std. Sea Water" 75 40 0.68
+"Std. Sea Water" 100 40 0.7
+"Std. Sea Water" 125 40 0.71
+"Std. Sea Water" 150 40 0.71
+"Std. Sea Water" 200 40 0.69
+"Std. Sea Water" 250 40 0.66
+"Std. Sea Water" 300 40 0.6
+"Std. Sea Water" 350 40 0.52
+"Std. Sea Water" 375 40 0.46
+"Std. Sea Water" 400 40 0.4
+"Std. Sea Water" 425 40 0.32
+"Std. Sea Water" 450 40 0.23
+"Std. Sea Water" 475 40 0.17
+"Std. Sea Water" 500 40 0.15
+"Std. Sea Water" 550 40 0.13
+"Std. Sea Water" 600 40 0.13
+"Std. Sea Water" 650 40 0.13
+"Std. Sea Water" 700 40 0.13
+"Std. Sea Water" 750 40 0.13
+"Std. Sea Water" 800 40 0.14
+"Std. Sea Water" 0 45 0.59
+"Std. Sea Water" 25 45 0.63
+"Std. Sea Water" 50 45 0.66
+"Std. Sea Water" 75 45 0.69
+"Std. Sea Water" 100 45 0.7
+"Std. Sea Water" 125 45 0.71
+"Std. Sea Water" 150 45 0.71
+"Std. Sea Water" 200 45 0.7
+"Std. Sea Water" 250 45 0.66
+"Std. Sea Water" 300 45 0.61
+"Std. Sea Water" 350 45 0.53
+"Std. Sea Water" 375 45 0.48
+"Std. Sea Water" 400 45 0.42
+"Std. Sea Water" 425 45 0.35
+"Std. Sea Water" 450 45 0.28
+"Std. Sea Water" 475 45 0.21
+"Std. Sea Water" 500 45 0.18
+"Std. Sea Water" 550 45 0.15
+"Std. Sea Water" 600 45 0.14
+"Std. Sea Water" 650 45 0.13
+"Std. Sea Water" 700 45 0.13
+"Std. Sea Water" 750 45 0.14
+"Std. Sea Water" 800 45 0.14
+"Std. Sea Water" 0 50 0.59
+"Std. Sea Water" 25 50 0.63
+"Std. Sea Water" 50 50 0.67
+"Std. Sea Water" 75 50 0.69
+"Std. Sea Water" 100 50 0.7
+"Std. Sea Water" 125 50 0.71
+"Std. Sea Water" 150 50 0.71
+"Std. Sea Water" 200 50 0.7
+"Std. Sea Water" 250 50 0.67
+"Std. Sea Water" 300 50 0.61
+"Std. Sea Water" 350 50 0.54
+"Std. Sea Water" 375 50 0.49
+"Std. Sea Water" 400 50 0.44
+"Std. Sea Water" 425 50 0.38
+"Std. Sea Water" 450 50 0.32
+"Std. Sea Water" 475 50 0.25
+"Std. Sea Water" 500 50 0.21
+"Std. Sea Water" 550 50 0.16
+"Std. Sea Water" 600 50 0.15
+"Std. Sea Water" 650 50 0.14
+"Std. Sea Water" 700 50 0.14
+"Std. Sea Water" 750 50 0.14
+"Std. Sea Water" 800 50 0.15
+"Std. Sea Water" 0 55 0.59
+"Std. Sea Water" 25 55 0.64
+"Std. Sea Water" 50 55 0.67
+"Std. Sea Water" 75 55 0.69
+"Std. Sea Water" 100 55 0.71
+"Std. Sea Water" 125 55 0.72
+"Std. Sea Water" 150 55 0.72
+"Std. Sea Water" 200 55 0.71
+"Std. Sea Water" 250 55 0.67
+"Std. Sea Water" 300 55 0.62
+"Std. Sea Water" 350 55 0.55
+"Std. Sea Water" 375 55 0.5
+"Std. Sea Water" 400 55 0.45
+"Std. Sea Water" 425 55 0.4
+"Std. Sea Water" 450 55 0.34
+"Std. Sea Water" 475 55 0.29
+"Std. Sea Water" 500 55 0.24
+"Std. Sea Water" 550 55 0.18
+"Std. Sea Water" 600 55 0.16
+"Std. Sea Water" 650 55 0.15
+"Std. Sea Water" 700 55 0.15
+"Std. Sea Water" 750 55 0.15
+"Std. Sea Water" 800 55 0.15
+"Std. Sea Water" 0 60 0.6
+"Std. Sea Water" 25 60 0.64
+"Std. Sea Water" 50 60 0.67
+"Std. Sea Water" 75 60 0.69
+"Std. Sea Water" 100 60 0.71
+"Std. Sea Water" 125 60 0.72
+"Std. Sea Water" 150 60 0.72
+"Std. Sea Water" 200 60 0.71
+"Std. Sea Water" 250 60 0.68
+"Std. Sea Water" 300 60 0.63
+"Std. Sea Water" 350 60 0.56
+"Std. Sea Water" 375 60 0.52
+"Std. Sea Water" 400 60 0.47
+"Std. Sea Water" 425 60 0.42
+"Std. Sea Water" 450 60 0.37
+"Std. Sea Water" 475 60 0.31
+"Std. Sea Water" 500 60 0.26
+"Std. Sea Water" 550 60 0.2
+"Std. Sea Water" 600 60 0.17
+"Std. Sea Water" 650 60 0.16
+"Std. Sea Water" 700 60 0.16
+"Std. Sea Water" 750 60 0.16
+"Std. Sea Water" 800 60 0.16
+"Std. Sea Water" 0 65 0.6
+"Std. Sea Water" 25 65 0.64
+"Std. Sea Water" 50 65 0.67
+"Std. Sea Water" 75 65 0.7
+"Std. Sea Water" 100 65 0.71
+"Std. Sea Water" 125 65 0.72
+"Std. Sea Water" 150 65 0.72
+"Std. Sea Water" 200 65 0.71
+"Std. Sea Water" 250 65 0.68
+"Std. Sea Water" 300 65 0.63
+"Std. Sea Water" 350 65 0.57
+"Std. Sea Water" 375 65 0.53
+"Std. Sea Water" 400 65 0.48
+"Std. Sea Water" 425 65 0.43
+"Std. Sea Water" 450 65 0.38
+"Std. Sea Water" 475 65 0.34
+"Std. Sea Water" 500 65 0.29
+"Std. Sea Water" 550 65 0.22
+"Std. Sea Water" 600 65 0.19
+"Std. Sea Water" 650 65 0.17
+"Std. Sea Water" 700 65 0.17
+"Std. Sea Water" 750 65 0.16
+"Std. Sea Water" 800 65 0.16
+"Std. Sea Water" 0 70 0.6
+"Std. Sea Water" 25 70 0.64
+"Std. Sea Water" 50 70 0.67
+"Std. Sea Water" 75 70 0.7
+"Std. Sea Water" 100 70 0.71
+"Std. Sea Water" 125 70 0.72
+"Std. Sea Water" 150 70 0.73
+"Std. Sea Water" 200 70 0.72
+"Std. Sea Water" 250 70 0.69
+"Std. Sea Water" 300 70 0.64
+"Std. Sea Water" 350 70 0.57
+"Std. Sea Water" 375 70 0.53
+"Std. Sea Water" 400 70 0.49
+"Std. Sea Water" 425 70 0.45
+"Std. Sea Water" 450 70 0.4
+"Std. Sea Water" 475 70 0.36
+"Std. Sea Water" 500 70 0.31
+"Std. Sea Water" 550 70 0.24
+"Std. Sea Water" 600 70 0.2
+"Std. Sea Water" 650 70 0.18
+"Std. Sea Water" 700 70 0.17
+"Std. Sea Water" 750 70 0.17
+"Std. Sea Water" 800 70 0.17
+"Std. Sea Water" 0 75 0.6
+"Std. Sea Water" 25 75 0.65
+"Std. Sea Water" 50 75 0.68
+"Std. Sea Water" 75 75 0.7
+"Std. Sea Water" 100 75 0.72
+"Std. Sea Water" 125 75 0.73
+"Std. Sea Water" 150 75 0.73
+"Std. Sea Water" 200 75 0.72
+"Std. Sea Water" 250 75 0.69
+"Std. Sea Water" 300 75 0.64
+"Std. Sea Water" 350 75 0.58
+"Std. Sea Water" 375 75 0.54
+"Std. Sea Water" 400 75 0.5
+"Std. Sea Water" 425 75 0.46
+"Std. Sea Water" 450 75 0.42
+"Std. Sea Water" 475 75 0.37
+"Std. Sea Water" 500 75 0.33
+"Std. Sea Water" 550 75 0.26
+"Std. Sea Water" 600 75 0.22
+"Std. Sea Water" 650 75 0.2
+"Std. Sea Water" 700 75 0.18
+"Std. Sea Water" 750 75 0.18
+"Std. Sea Water" 800 75 0.18
+"Std. Sea Water" 0 80 0.61
+"Std. Sea Water" 25 80 0.65
+"Std. Sea Water" 50 80 0.68
+"Std. Sea Water" 75 80 0.7
+"Std. Sea Water" 100 80 0.72
+"Std. Sea Water" 125 80 0.73
+"Std. Sea Water" 150 80 0.73
+"Std. Sea Water" 200 80 0.72
+"Std. Sea Water" 250 80 0.69
+"Std. Sea Water" 300 80 0.65
+"Std. Sea Water" 350 80 0.59
+"Std. Sea Water" 375 80 0.55
+"Std. Sea Water" 400 80 0.51
+"Std. Sea Water" 425 80 0.47
+"Std. Sea Water" 450 80 0.43
+"Std. Sea Water" 475 80 0.39
+"Std. Sea Water" 500 80 0.35
+"Std. Sea Water" 550 80 0.28
+"Std. Sea Water" 600 80 0.23
+"Std. Sea Water" 650 80 0.21
+"Std. Sea Water" 700 80 0.19
+"Std. Sea Water" 750 80 0.19
+"Std. Sea Water" 800 80 0.18
+"Std. Sea Water" 0 85 0.61
+"Std. Sea Water" 25 85 0.65
+"Std. Sea Water" 50 85 0.68
+"Std. Sea Water" 75 85 0.7
+"Std. Sea Water" 100 85 0.72
+"Std. Sea Water" 125 85 0.73
+"Std. Sea Water" 150 85 0.73
+"Std. Sea Water" 200 85 0.72
+"Std. Sea Water" 250 85 0.7
+"Std. Sea Water" 300 85 0.65
+"Std. Sea Water" 350 85 0.59
+"Std. Sea Water" 375 85 0.56
+"Std. Sea Water" 400 85 0.52
+"Std. Sea Water" 425 85 0.48
+"Std. Sea Water" 450 85 0.44
+"Std. Sea Water" 475 85 0.4
+"Std. Sea Water" 500 85 0.36
+"Std. Sea Water" 550 85 0.3
+"Std. Sea Water" 600 85 0.25
+"Std. Sea Water" 650 85 0.22
+"Std. Sea Water" 700 85 0.2
+"Std. Sea Water" 750 85 0.2
+"Std. Sea Water" 800 85 0.19
+"Std. Sea Water" 0 90 0.61
+"Std. Sea Water" 25 90 0.65
+"Std. Sea Water" 50 90 0.68
+"Std. Sea Water" 75 90 0.71
+"Std. Sea Water" 100 90 0.72
+"Std. Sea Water" 125 90 0.73
+"Std. Sea Water" 150 90 0.74
+"Std. Sea Water" 200 90 0.73
+"Std. Sea Water" 250 90 0.7
+"Std. Sea Water" 300 90 0.66
+"Std. Sea Water" 350 90 0.6
+"Std. Sea Water" 375 90 0.57
+"Std. Sea Water" 400 90 0.53
+"Std. Sea Water" 425 90 0.5
+"Std. Sea Water" 450 90 0.46
+"Std. Sea Water" 475 90 0.42
+"Std. Sea Water" 500 90 0.38
+"Std. Sea Water" 550 90 0.31
+"Std. Sea Water" 600 90 0.26
+"Std. Sea Water" 650 90 0.23
+"Std. Sea Water" 700 90 0.21
+"Std. Sea Water" 750 90 0.2
+"Std. Sea Water" 800 90 0.2
+"Std. Sea Water" 0 95 0.61
+"Std. Sea Water" 25 95 0.65
+"Std. Sea Water" 50 95 0.69
+"Std. Sea Water" 75 95 0.71
+"Std. Sea Water" 100 95 0.73
+"Std. Sea Water" 125 95 0.74
+"Std. Sea Water" 150 95 0.74
+"Std. Sea Water" 200 95 0.73
+"Std. Sea Water" 250 95 0.7
+"Std. Sea Water" 300 95 0.66
+"Std. Sea Water" 350 95 0.61
+"Std. Sea Water" 375 95 0.57
+"Std. Sea Water" 400 95 0.54
+"Std. Sea Water" 425 95 0.5
+"Std. Sea Water" 450 95 0.47
+"Std. Sea Water" 475 95 0.43
+"Std. Sea Water" 500 95 0.39
+"Std. Sea Water" 550 95 0.33
+"Std. Sea Water" 600 95 0.28
+"Std. Sea Water" 650 95 0.25
+"Std. Sea Water" 700 95 0.23
+"Std. Sea Water" 750 95 0.21
+"Std. Sea Water" 800 95 0.21
+"Std. Sea Water" 0 100 0.62
+"Std. Sea Water" 25 100 0.66
+"Std. Sea Water" 50 100 0.69
+"Std. Sea Water" 75 100 0.71
+"Std. Sea Water" 100 100 0.73
+"Std. Sea Water" 125 100 0.74
+"Std. Sea Water" 150 100 0.74
+"Std. Sea Water" 200 100 0.73
+"Std. Sea Water" 250 100 0.71
+"Std. Sea Water" 300 100 0.67
+"Std. Sea Water" 350 100 0.61
+"Std. Sea Water" 375 100 0.58
+"Std. Sea Water" 400 100 0.55
+"Std. Sea Water" 425 100 0.51
+"Std. Sea Water" 450 100 0.48
+"Std. Sea Water" 475 100 0.44
+"Std. Sea Water" 500 100 0.4
+"Std. Sea Water" 550 100 0.34
+"Std. Sea Water" 600 100 0.29
+"Std. Sea Water" 650 100 0.26
+"Std. Sea Water" 700 100 0.24
+"Std. Sea Water" 750 100 0.22
+"Std. Sea Water" 800 100 0.21
+"Std. Hyper Saline Water" 0 0.1 0.56
+"Std. Hyper Saline Water" 25 0.1 0.61
+"Std. Hyper Saline Water" 50 0.1 0.64
+"Std. Hyper Saline Water" 75 0.1 0.66
+"Std. Hyper Saline Water" 100 0.1 0.02
+"Std. Hyper Saline Water" 125 0.1 0.03
+"Std. Hyper Saline Water" 150 0.1 0.03
+"Std. Hyper Saline Water" 200 0.1 0.03
+"Std. Hyper Saline Water" 250 0.1 0.04
+"Std. Hyper Saline Water" 300 0.1 0.04
+"Std. Hyper Saline Water" 350 0.1 0.05
+"Std. Hyper Saline Water" 375 0.1 0.05
+"Std. Hyper Saline Water" 400 0.1 0.05
+"Std. Hyper Saline Water" 425 0.1 0.06
+"Std. Hyper Saline Water" 450 0.1 0.06
+"Std. Hyper Saline Water" 475 0.1 0.06
+"Std. Hyper Saline Water" 500 0.1 0.07
+"Std. Hyper Saline Water" 550 0.1 0.07
+"Std. Hyper Saline Water" 600 0.1 0.08
+"Std. Hyper Saline Water" 650 0.1 0.09
+"Std. Hyper Saline Water" 700 0.1 0.09
+"Std. Hyper Saline Water" 750 0.1 0.1
+"Std. Hyper Saline Water" 800 0.1 0.11
+"Std. Hyper Saline Water" 0 0.5 0.56
+"Std. Hyper Saline Water" 25 0.5 0.61
+"Std. Hyper Saline Water" 50 0.5 0.64
+"Std. Hyper Saline Water" 75 0.5 0.66
+"Std. Hyper Saline Water" 100 0.5 0.68
+"Std. Hyper Saline Water" 125 0.5 0.68
+"Std. Hyper Saline Water" 150 0.5 0.68
+"Std. Hyper Saline Water" 200 0.5 0.03
+"Std. Hyper Saline Water" 250 0.5 0.04
+"Std. Hyper Saline Water" 300 0.5 0.04
+"Std. Hyper Saline Water" 350 0.5 0.05
+"Std. Hyper Saline Water" 375 0.5 0.05
+"Std. Hyper Saline Water" 400 0.5 0.06
+"Std. Hyper Saline Water" 425 0.5 0.06
+"Std. Hyper Saline Water" 450 0.5 0.06
+"Std. Hyper Saline Water" 475 0.5 0.06
+"Std. Hyper Saline Water" 500 0.5 0.07
+"Std. Hyper Saline Water" 550 0.5 0.07
+"Std. Hyper Saline Water" 600 0.5 0.08
+"Std. Hyper Saline Water" 650 0.5 0.09
+"Std. Hyper Saline Water" 700 0.5 0.09
+"Std. Hyper Saline Water" 750 0.5 0.1
+"Std. Hyper Saline Water" 800 0.5 0.11
+"Std. Hyper Saline Water" 0 1 0.56
+"Std. Hyper Saline Water" 25 1 0.61
+"Std. Hyper Saline Water" 50 1 0.64
+"Std. Hyper Saline Water" 75 1 0.66
+"Std. Hyper Saline Water" 100 1 0.68
+"Std. Hyper Saline Water" 125 1 0.68
+"Std. Hyper Saline Water" 150 1 0.68
+"Std. Hyper Saline Water" 200 1 0.04
+"Std. Hyper Saline Water" 250 1 0.04
+"Std. Hyper Saline Water" 300 1 0.04
+"Std. Hyper Saline Water" 350 1 0.05
+"Std. Hyper Saline Water" 375 1 0.05
+"Std. Hyper Saline Water" 400 1 0.06
+"Std. Hyper Saline Water" 425 1 0.06
+"Std. Hyper Saline Water" 450 1 0.06
+"Std. Hyper Saline Water" 475 1 0.06
+"Std. Hyper Saline Water" 500 1 0.07
+"Std. Hyper Saline Water" 550 1 0.07
+"Std. Hyper Saline Water" 600 1 0.08
+"Std. Hyper Saline Water" 650 1 0.09
+"Std. Hyper Saline Water" 700 1 0.09
+"Std. Hyper Saline Water" 750 1 0.1
+"Std. Hyper Saline Water" 800 1 0.11
+"Std. Hyper Saline Water" 0 2.5 0.56
+"Std. Hyper Saline Water" 25 2.5 0.61
+"Std. Hyper Saline Water" 50 2.5 0.64
+"Std. Hyper Saline Water" 75 2.5 0.66
+"Std. Hyper Saline Water" 100 2.5 0.68
+"Std. Hyper Saline Water" 125 2.5 0.69
+"Std. Hyper Saline Water" 150 2.5 0.69
+"Std. Hyper Saline Water" 200 2.5 0.67
+"Std. Hyper Saline Water" 250 2.5 0.04
+"Std. Hyper Saline Water" 300 2.5 0.05
+"Std. Hyper Saline Water" 350 2.5 0.05
+"Std. Hyper Saline Water" 375 2.5 0.05
+"Std. Hyper Saline Water" 400 2.5 0.06
+"Std. Hyper Saline Water" 425 2.5 0.06
+"Std. Hyper Saline Water" 450 2.5 0.06
+"Std. Hyper Saline Water" 475 2.5 0.07
+"Std. Hyper Saline Water" 500 2.5 0.07
+"Std. Hyper Saline Water" 550 2.5 0.07
+"Std. Hyper Saline Water" 600 2.5 0.08
+"Std. Hyper Saline Water" 650 2.5 0.09
+"Std. Hyper Saline Water" 700 2.5 0.09
+"Std. Hyper Saline Water" 750 2.5 0.1
+"Std. Hyper Saline Water" 800 2.5 0.11
+"Std. Hyper Saline Water" 0 5 0.56
+"Std. Hyper Saline Water" 25 5 0.61
+"Std. Hyper Saline Water" 50 5 0.64
+"Std. Hyper Saline Water" 75 5 0.67
+"Std. Hyper Saline Water" 100 5 0.68
+"Std. Hyper Saline Water" 125 5 0.69
+"Std. Hyper Saline Water" 150 5 0.69
+"Std. Hyper Saline Water" 200 5 0.67
+"Std. Hyper Saline Water" 250 5 0.62
+"Std. Hyper Saline Water" 300 5 0.05
+"Std. Hyper Saline Water" 350 5 0.06
+"Std. Hyper Saline Water" 375 5 0.06
+"Std. Hyper Saline Water" 400 5 0.06
+"Std. Hyper Saline Water" 425 5 0.06
+"Std. Hyper Saline Water" 450 5 0.06
+"Std. Hyper Saline Water" 475 5 0.07
+"Std. Hyper Saline Water" 500 5 0.07
+"Std. Hyper Saline Water" 550 5 0.08
+"Std. Hyper Saline Water" 600 5 0.08
+"Std. Hyper Saline Water" 650 5 0.09
+"Std. Hyper Saline Water" 700 5 0.1
+"Std. Hyper Saline Water" 750 5 0.1
+"Std. Hyper Saline Water" 800 5 0.11
+"Std. Hyper Saline Water" 0 7.5 0.57
+"Std. Hyper Saline Water" 25 7.5 0.61
+"Std. Hyper Saline Water" 50 7.5 0.64
+"Std. Hyper Saline Water" 75 7.5 0.67
+"Std. Hyper Saline Water" 100 7.5 0.68
+"Std. Hyper Saline Water" 125 7.5 0.69
+"Std. Hyper Saline Water" 150 7.5 0.69
+"Std. Hyper Saline Water" 200 7.5 0.67
+"Std. Hyper Saline Water" 250 7.5 0.62
+"Std. Hyper Saline Water" 300 7.5 0.06
+"Std. Hyper Saline Water" 350 7.5 0.06
+"Std. Hyper Saline Water" 375 7.5 0.06
+"Std. Hyper Saline Water" 400 7.5 0.06
+"Std. Hyper Saline Water" 425 7.5 0.07
+"Std. Hyper Saline Water" 450 7.5 0.07
+"Std. Hyper Saline Water" 475 7.5 0.07
+"Std. Hyper Saline Water" 500 7.5 0.07
+"Std. Hyper Saline Water" 550 7.5 0.08
+"Std. Hyper Saline Water" 600 7.5 0.08
+"Std. Hyper Saline Water" 650 7.5 0.09
+"Std. Hyper Saline Water" 700 7.5 0.1
+"Std. Hyper Saline Water" 750 7.5 0.1
+"Std. Hyper Saline Water" 800 7.5 0.11
+"Std. Hyper Saline Water" 0 10 0.57
+"Std. Hyper Saline Water" 25 10 0.61
+"Std. Hyper Saline Water" 50 10 0.65
+"Std. Hyper Saline Water" 75 10 0.67
+"Std. Hyper Saline Water" 100 10 0.68
+"Std. Hyper Saline Water" 125 10 0.69
+"Std. Hyper Saline Water" 150 10 0.69
+"Std. Hyper Saline Water" 200 10 0.67
+"Std. Hyper Saline Water" 250 10 0.63
+"Std. Hyper Saline Water" 300 10 0.55
+"Std. Hyper Saline Water" 350 10 0.07
+"Std. Hyper Saline Water" 375 10 0.07
+"Std. Hyper Saline Water" 400 10 0.07
+"Std. Hyper Saline Water" 425 10 0.07
+"Std. Hyper Saline Water" 450 10 0.07
+"Std. Hyper Saline Water" 475 10 0.07
+"Std. Hyper Saline Water" 500 10 0.08
+"Std. Hyper Saline Water" 550 10 0.08
+"Std. Hyper Saline Water" 600 10 0.09
+"Std. Hyper Saline Water" 650 10 0.09
+"Std. Hyper Saline Water" 700 10 0.1
+"Std. Hyper Saline Water" 750 10 0.11
+"Std. Hyper Saline Water" 800 10 0.11
+"Std. Hyper Saline Water" 0 12.5 0.56
+"Std. Hyper Saline Water" 25 12.5 0.61
+"Std. Hyper Saline Water" 50 12.5 0.65
+"Std. Hyper Saline Water" 75 12.5 0.67
+"Std. Hyper Saline Water" 100 12.5 0.68
+"Std. Hyper Saline Water" 125 12.5 0.69
+"Std. Hyper Saline Water" 150 12.5 0.69
+"Std. Hyper Saline Water" 200 12.5 0.67
+"Std. Hyper Saline Water" 250 12.5 0.63
+"Std. Hyper Saline Water" 300 12.5 0.55
+"Std. Hyper Saline Water" 350 12.5 0.08
+"Std. Hyper Saline Water" 375 12.5 0.07
+"Std. Hyper Saline Water" 400 12.5 0.07
+"Std. Hyper Saline Water" 425 12.5 0.07
+"Std. Hyper Saline Water" 450 12.5 0.07
+"Std. Hyper Saline Water" 475 12.5 0.08
+"Std. Hyper Saline Water" 500 12.5 0.08
+"Std. Hyper Saline Water" 550 12.5 0.08
+"Std. Hyper Saline Water" 600 12.5 0.09
+"Std. Hyper Saline Water" 650 12.5 0.09
+"Std. Hyper Saline Water" 700 12.5 0.1
+"Std. Hyper Saline Water" 750 12.5 0.11
+"Std. Hyper Saline Water" 800 12.5 0.11
+"Std. Hyper Saline Water" 0 15 0.57
+"Std. Hyper Saline Water" 25 15 0.62
+"Std. Hyper Saline Water" 50 15 0.65
+"Std. Hyper Saline Water" 75 15 0.67
+"Std. Hyper Saline Water" 100 15 0.69
+"Std. Hyper Saline Water" 125 15 0.69
+"Std. Hyper Saline Water" 150 15 0.69
+"Std. Hyper Saline Water" 200 15 0.67
+"Std. Hyper Saline Water" 250 15 0.63
+"Std. Hyper Saline Water" 300 15 0.56
+"Std. Hyper Saline Water" 350 15 0.1
+"Std. Hyper Saline Water" 375 15 0.08
+"Std. Hyper Saline Water" 400 15 0.08
+"Std. Hyper Saline Water" 425 15 0.08
+"Std. Hyper Saline Water" 450 15 0.08
+"Std. Hyper Saline Water" 475 15 0.08
+"Std. Hyper Saline Water" 500 15 0.08
+"Std. Hyper Saline Water" 550 15 0.09
+"Std. Hyper Saline Water" 600 15 0.09
+"Std. Hyper Saline Water" 650 15 0.1
+"Std. Hyper Saline Water" 700 15 0.1
+"Std. Hyper Saline Water" 750 15 0.11
+"Std. Hyper Saline Water" 800 15 0.12
+"Std. Hyper Saline Water" 0 17.5 0.57
+"Std. Hyper Saline Water" 25 17.5 0.62
+"Std. Hyper Saline Water" 50 17.5 0.65
+"Std. Hyper Saline Water" 75 17.5 0.67
+"Std. Hyper Saline Water" 100 17.5 0.69
+"Std. Hyper Saline Water" 125 17.5 0.69
+"Std. Hyper Saline Water" 150 17.5 0.69
+"Std. Hyper Saline Water" 200 17.5 0.67
+"Std. Hyper Saline Water" 250 17.5 0.63
+"Std. Hyper Saline Water" 300 17.5 0.56
+"Std. Hyper Saline Water" 350 17.5 0.44
+"Std. Hyper Saline Water" 375 17.5 0.1
+"Std. Hyper Saline Water" 400 17.5 0.09
+"Std. Hyper Saline Water" 425 17.5 0.09
+"Std. Hyper Saline Water" 450 17.5 0.08
+"Std. Hyper Saline Water" 475 17.5 0.08
+"Std. Hyper Saline Water" 500 17.5 0.09
+"Std. Hyper Saline Water" 550 17.5 0.09
+"Std. Hyper Saline Water" 600 17.5 0.09
+"Std. Hyper Saline Water" 650 17.5 0.1
+"Std. Hyper Saline Water" 700 17.5 0.11
+"Std. Hyper Saline Water" 750 17.5 0.11
+"Std. Hyper Saline Water" 800 17.5 0.12
+"Std. Hyper Saline Water" 0 20 0.57
+"Std. Hyper Saline Water" 25 20 0.62
+"Std. Hyper Saline Water" 50 20 0.65
+"Std. Hyper Saline Water" 75 20 0.67
+"Std. Hyper Saline Water" 100 20 0.69
+"Std. Hyper Saline Water" 125 20 0.7
+"Std. Hyper Saline Water" 150 20 0.7
+"Std. Hyper Saline Water" 200 20 0.67
+"Std. Hyper Saline Water" 250 20 0.64
+"Std. Hyper Saline Water" 300 20 0.57
+"Std. Hyper Saline Water" 350 20 0.45
+"Std. Hyper Saline Water" 375 20 0.15
+"Std. Hyper Saline Water" 400 20 0.1
+"Std. Hyper Saline Water" 425 20 0.09
+"Std. Hyper Saline Water" 450 20 0.09
+"Std. Hyper Saline Water" 475 20 0.09
+"Std. Hyper Saline Water" 500 20 0.09
+"Std. Hyper Saline Water" 550 20 0.09
+"Std. Hyper Saline Water" 600 20 0.1
+"Std. Hyper Saline Water" 650 20 0.1
+"Std. Hyper Saline Water" 700 20 0.11
+"Std. Hyper Saline Water" 750 20 0.11
+"Std. Hyper Saline Water" 800 20 0.12
+"Std. Hyper Saline Water" 0 22.5 0.57
+"Std. Hyper Saline Water" 25 22.5 0.62
+"Std. Hyper Saline Water" 50 22.5 0.65
+"Std. Hyper Saline Water" 75 22.5 0.68
+"Std. Hyper Saline Water" 100 22.5 0.69
+"Std. Hyper Saline Water" 125 22.5 0.7
+"Std. Hyper Saline Water" 150 22.5 0.7
+"Std. Hyper Saline Water" 200 22.5 0.68
+"Std. Hyper Saline Water" 250 22.5 0.64
+"Std. Hyper Saline Water" 300 22.5 0.57
+"Std. Hyper Saline Water" 350 22.5 0.46
+"Std. Hyper Saline Water" 375 22.5 0.5
+"Std. Hyper Saline Water" 400 22.5 0.12
+"Std. Hyper Saline Water" 425 22.5 0.1
+"Std. Hyper Saline Water" 450 22.5 0.1
+"Std. Hyper Saline Water" 475 22.5 0.09
+"Std. Hyper Saline Water" 500 22.5 0.09
+"Std. Hyper Saline Water" 550 22.5 0.1
+"Std. Hyper Saline Water" 600 22.5 0.1
+"Std. Hyper Saline Water" 650 22.5 0.1
+"Std. Hyper Saline Water" 700 22.5 0.11
+"Std. Hyper Saline Water" 750 22.5 0.12
+"Std. Hyper Saline Water" 800 22.5 0.12
+"Std. Hyper Saline Water" 0 25 0.58
+"Std. Hyper Saline Water" 25 25 0.62
+"Std. Hyper Saline Water" 50 25 0.65
+"Std. Hyper Saline Water" 75 25 0.68
+"Std. Hyper Saline Water" 100 25 0.69
+"Std. Hyper Saline Water" 125 25 0.7
+"Std. Hyper Saline Water" 150 25 0.7
+"Std. Hyper Saline Water" 200 25 0.68
+"Std. Hyper Saline Water" 250 25 0.64
+"Std. Hyper Saline Water" 300 25 0.58
+"Std. Hyper Saline Water" 350 25 0.47
+"Std. Hyper Saline Water" 375 25 0.39
+"Std. Hyper Saline Water" 400 25 0.16
+"Std. Hyper Saline Water" 425 25 0.12
+"Std. Hyper Saline Water" 450 25 0.11
+"Std. Hyper Saline Water" 475 25 0.1
+"Std. Hyper Saline Water" 500 25 0.1
+"Std. Hyper Saline Water" 550 25 0.1
+"Std. Hyper Saline Water" 600 25 0.1
+"Std. Hyper Saline Water" 650 25 0.11
+"Std. Hyper Saline Water" 700 25 0.11
+"Std. Hyper Saline Water" 750 25 0.12
+"Std. Hyper Saline Water" 800 25 0.12
+"Std. Hyper Saline Water" 0 27.5 0.58
+"Std. Hyper Saline Water" 25 27.5 0.62
+"Std. Hyper Saline Water" 50 27.5 0.65
+"Std. Hyper Saline Water" 75 27.5 0.68
+"Std. Hyper Saline Water" 100 27.5 0.69
+"Std. Hyper Saline Water" 125 27.5 0.7
+"Std. Hyper Saline Water" 150 27.5 0.7
+"Std. Hyper Saline Water" 200 27.5 0.69
+"Std. Hyper Saline Water" 250 27.5 0.65
+"Std. Hyper Saline Water" 300 27.5 0.58
+"Std. Hyper Saline Water" 350 27.5 0.48
+"Std. Hyper Saline Water" 375 27.5 0.41
+"Std. Hyper Saline Water" 400 27.5 0.23
+"Std. Hyper Saline Water" 425 27.5 0.14
+"Std. Hyper Saline Water" 450 27.5 0.12
+"Std. Hyper Saline Water" 475 27.5 0.11
+"Std. Hyper Saline Water" 500 27.5 0.11
+"Std. Hyper Saline Water" 550 27.5 0.1
+"Std. Hyper Saline Water" 600 27.5 0.11
+"Std. Hyper Saline Water" 650 27.5 0.11
+"Std. Hyper Saline Water" 700 27.5 0.11
+"Std. Hyper Saline Water" 750 27.5 0.12
+"Std. Hyper Saline Water" 800 27.5 0.12
+"Std. Hyper Saline Water" 0 30 0.58
+"Std. Hyper Saline Water" 25 30 0.62
+"Std. Hyper Saline Water" 50 30 0.66
+"Std. Hyper Saline Water" 75 30 0.68
+"Std. Hyper Saline Water" 100 30 0.69
+"Std. Hyper Saline Water" 125 30 0.7
+"Std. Hyper Saline Water" 150 30 0.7
+"Std. Hyper Saline Water" 200 30 0.69
+"Std. Hyper Saline Water" 250 30 0.65
+"Std. Hyper Saline Water" 300 30 0.59
+"Std. Hyper Saline Water" 350 30 0.49
+"Std. Hyper Saline Water" 375 30 0.42
+"Std. Hyper Saline Water" 400 30 0.33
+"Std. Hyper Saline Water" 425 30 0.17
+"Std. Hyper Saline Water" 450 30 0.13
+"Std. Hyper Saline Water" 475 30 0.12
+"Std. Hyper Saline Water" 500 30 0.11
+"Std. Hyper Saline Water" 550 30 0.11
+"Std. Hyper Saline Water" 600 30 0.11
+"Std. Hyper Saline Water" 650 30 0.11
+"Std. Hyper Saline Water" 700 30 0.12
+"Std. Hyper Saline Water" 750 30 0.12
+"Std. Hyper Saline Water" 800 30 0.13
+"Std. Hyper Saline Water" 0 35 0.58
+"Std. Hyper Saline Water" 25 35 0.63
+"Std. Hyper Saline Water" 50 35 0.66
+"Std. Hyper Saline Water" 75 35 0.68
+"Std. Hyper Saline Water" 100 35 0.7
+"Std. Hyper Saline Water" 125 35 0.71
+"Std. Hyper Saline Water" 150 35 0.71
+"Std. Hyper Saline Water" 200 35 0.69
+"Std. Hyper Saline Water" 250 35 0.65
+"Std. Hyper Saline Water" 300 35 0.59
+"Std. Hyper Saline Water" 350 35 0.5
+"Std. Hyper Saline Water" 375 35 0.44
+"Std. Hyper Saline Water" 400 35 0.37
+"Std. Hyper Saline Water" 425 35 0.25
+"Std. Hyper Saline Water" 450 35 0.17
+"Std. Hyper Saline Water" 475 35 0.14
+"Std. Hyper Saline Water" 500 35 0.13
+"Std. Hyper Saline Water" 550 35 0.12
+"Std. Hyper Saline Water" 600 35 0.12
+"Std. Hyper Saline Water" 650 35 0.12
+"Std. Hyper Saline Water" 700 35 0.12
+"Std. Hyper Saline Water" 750 35 0.13
+"Std. Hyper Saline Water" 800 35 0.13
+"Std. Hyper Saline Water" 0 40 0.58
+"Std. Hyper Saline Water" 25 40 0.63
+"Std. Hyper Saline Water" 50 40 0.66
+"Std. Hyper Saline Water" 75 40 0.68
+"Std. Hyper Saline Water" 100 40 0.7
+"Std. Hyper Saline Water" 125 40 0.71
+"Std. Hyper Saline Water" 150 40 0.71
+"Std. Hyper Saline Water" 200 40 0.69
+"Std. Hyper Saline Water" 250 40 0.66
+"Std. Hyper Saline Water" 300 40 0.6
+"Std. Hyper Saline Water" 350 40 0.52
+"Std. Hyper Saline Water" 375 40 0.46
+"Std. Hyper Saline Water" 400 40 0.4
+"Std. Hyper Saline Water" 425 40 0.32
+"Std. Hyper Saline Water" 450 40 0.23
+"Std. Hyper Saline Water" 475 40 0.17
+"Std. Hyper Saline Water" 500 40 0.15
+"Std. Hyper Saline Water" 550 40 0.13
+"Std. Hyper Saline Water" 600 40 0.13
+"Std. Hyper Saline Water" 650 40 0.13
+"Std. Hyper Saline Water" 700 40 0.13
+"Std. Hyper Saline Water" 750 40 0.13
+"Std. Hyper Saline Water" 800 40 0.14
+"Std. Hyper Saline Water" 0 45 0.59
+"Std. Hyper Saline Water" 25 45 0.63
+"Std. Hyper Saline Water" 50 45 0.66
+"Std. Hyper Saline Water" 75 45 0.69
+"Std. Hyper Saline Water" 100 45 0.7
+"Std. Hyper Saline Water" 125 45 0.71
+"Std. Hyper Saline Water" 150 45 0.71
+"Std. Hyper Saline Water" 200 45 0.7
+"Std. Hyper Saline Water" 250 45 0.66
+"Std. Hyper Saline Water" 300 45 0.61
+"Std. Hyper Saline Water" 350 45 0.53
+"Std. Hyper Saline Water" 375 45 0.48
+"Std. Hyper Saline Water" 400 45 0.42
+"Std. Hyper Saline Water" 425 45 0.35
+"Std. Hyper Saline Water" 450 45 0.28
+"Std. Hyper Saline Water" 475 45 0.21
+"Std. Hyper Saline Water" 500 45 0.18
+"Std. Hyper Saline Water" 550 45 0.15
+"Std. Hyper Saline Water" 600 45 0.14
+"Std. Hyper Saline Water" 650 45 0.13
+"Std. Hyper Saline Water" 700 45 0.13
+"Std. Hyper Saline Water" 750 45 0.14
+"Std. Hyper Saline Water" 800 45 0.14
+"Std. Hyper Saline Water" 0 50 0.59
+"Std. Hyper Saline Water" 25 50 0.63
+"Std. Hyper Saline Water" 50 50 0.67
+"Std. Hyper Saline Water" 75 50 0.69
+"Std. Hyper Saline Water" 100 50 0.7
+"Std. Hyper Saline Water" 125 50 0.71
+"Std. Hyper Saline Water" 150 50 0.71
+"Std. Hyper Saline Water" 200 50 0.7
+"Std. Hyper Saline Water" 250 50 0.67
+"Std. Hyper Saline Water" 300 50 0.61
+"Std. Hyper Saline Water" 350 50 0.54
+"Std. Hyper Saline Water" 375 50 0.49
+"Std. Hyper Saline Water" 400 50 0.44
+"Std. Hyper Saline Water" 425 50 0.38
+"Std. Hyper Saline Water" 450 50 0.32
+"Std. Hyper Saline Water" 475 50 0.25
+"Std. Hyper Saline Water" 500 50 0.21
+"Std. Hyper Saline Water" 550 50 0.16
+"Std. Hyper Saline Water" 600 50 0.15
+"Std. Hyper Saline Water" 650 50 0.14
+"Std. Hyper Saline Water" 700 50 0.14
+"Std. Hyper Saline Water" 750 50 0.14
+"Std. Hyper Saline Water" 800 50 0.15
+"Std. Hyper Saline Water" 0 55 0.59
+"Std. Hyper Saline Water" 25 55 0.64
+"Std. Hyper Saline Water" 50 55 0.67
+"Std. Hyper Saline Water" 75 55 0.69
+"Std. Hyper Saline Water" 100 55 0.71
+"Std. Hyper Saline Water" 125 55 0.72
+"Std. Hyper Saline Water" 150 55 0.72
+"Std. Hyper Saline Water" 200 55 0.71
+"Std. Hyper Saline Water" 250 55 0.67
+"Std. Hyper Saline Water" 300 55 0.62
+"Std. Hyper Saline Water" 350 55 0.55
+"Std. Hyper Saline Water" 375 55 0.5
+"Std. Hyper Saline Water" 400 55 0.45
+"Std. Hyper Saline Water" 425 55 0.4
+"Std. Hyper Saline Water" 450 55 0.34
+"Std. Hyper Saline Water" 475 55 0.29
+"Std. Hyper Saline Water" 500 55 0.24
+"Std. Hyper Saline Water" 550 55 0.18
+"Std. Hyper Saline Water" 600 55 0.16
+"Std. Hyper Saline Water" 650 55 0.15
+"Std. Hyper Saline Water" 700 55 0.15
+"Std. Hyper Saline Water" 750 55 0.15
+"Std. Hyper Saline Water" 800 55 0.15
+"Std. Hyper Saline Water" 0 60 0.6
+"Std. Hyper Saline Water" 25 60 0.64
+"Std. Hyper Saline Water" 50 60 0.67
+"Std. Hyper Saline Water" 75 60 0.69
+"Std. Hyper Saline Water" 100 60 0.71
+"Std. Hyper Saline Water" 125 60 0.72
+"Std. Hyper Saline Water" 150 60 0.72
+"Std. Hyper Saline Water" 200 60 0.71
+"Std. Hyper Saline Water" 250 60 0.68
+"Std. Hyper Saline Water" 300 60 0.63
+"Std. Hyper Saline Water" 350 60 0.56
+"Std. Hyper Saline Water" 375 60 0.52
+"Std. Hyper Saline Water" 400 60 0.47
+"Std. Hyper Saline Water" 425 60 0.42
+"Std. Hyper Saline Water" 450 60 0.37
+"Std. Hyper Saline Water" 475 60 0.31
+"Std. Hyper Saline Water" 500 60 0.26
+"Std. Hyper Saline Water" 550 60 0.2
+"Std. Hyper Saline Water" 600 60 0.17
+"Std. Hyper Saline Water" 650 60 0.16
+"Std. Hyper Saline Water" 700 60 0.16
+"Std. Hyper Saline Water" 750 60 0.16
+"Std. Hyper Saline Water" 800 60 0.16
+"Std. Hyper Saline Water" 0 65 0.6
+"Std. Hyper Saline Water" 25 65 0.64
+"Std. Hyper Saline Water" 50 65 0.67
+"Std. Hyper Saline Water" 75 65 0.7
+"Std. Hyper Saline Water" 100 65 0.71
+"Std. Hyper Saline Water" 125 65 0.72
+"Std. Hyper Saline Water" 150 65 0.72
+"Std. Hyper Saline Water" 200 65 0.71
+"Std. Hyper Saline Water" 250 65 0.68
+"Std. Hyper Saline Water" 300 65 0.63
+"Std. Hyper Saline Water" 350 65 0.57
+"Std. Hyper Saline Water" 375 65 0.53
+"Std. Hyper Saline Water" 400 65 0.48
+"Std. Hyper Saline Water" 425 65 0.43
+"Std. Hyper Saline Water" 450 65 0.38
+"Std. Hyper Saline Water" 475 65 0.34
+"Std. Hyper Saline Water" 500 65 0.29
+"Std. Hyper Saline Water" 550 65 0.22
+"Std. Hyper Saline Water" 600 65 0.19
+"Std. Hyper Saline Water" 650 65 0.17
+"Std. Hyper Saline Water" 700 65 0.17
+"Std. Hyper Saline Water" 750 65 0.16
+"Std. Hyper Saline Water" 800 65 0.16
+"Std. Hyper Saline Water" 0 70 0.6
+"Std. Hyper Saline Water" 25 70 0.64
+"Std. Hyper Saline Water" 50 70 0.67
+"Std. Hyper Saline Water" 75 70 0.7
+"Std. Hyper Saline Water" 100 70 0.71
+"Std. Hyper Saline Water" 125 70 0.72
+"Std. Hyper Saline Water" 150 70 0.73
+"Std. Hyper Saline Water" 200 70 0.72
+"Std. Hyper Saline Water" 250 70 0.69
+"Std. Hyper Saline Water" 300 70 0.64
+"Std. Hyper Saline Water" 350 70 0.57
+"Std. Hyper Saline Water" 375 70 0.53
+"Std. Hyper Saline Water" 400 70 0.49
+"Std. Hyper Saline Water" 425 70 0.45
+"Std. Hyper Saline Water" 450 70 0.4
+"Std. Hyper Saline Water" 475 70 0.36
+"Std. Hyper Saline Water" 500 70 0.31
+"Std. Hyper Saline Water" 550 70 0.24
+"Std. Hyper Saline Water" 600 70 0.2
+"Std. Hyper Saline Water" 650 70 0.18
+"Std. Hyper Saline Water" 700 70 0.17
+"Std. Hyper Saline Water" 750 70 0.17
+"Std. Hyper Saline Water" 800 70 0.17
+"Std. Hyper Saline Water" 0 75 0.6
+"Std. Hyper Saline Water" 25 75 0.65
+"Std. Hyper Saline Water" 50 75 0.68
+"Std. Hyper Saline Water" 75 75 0.7
+"Std. Hyper Saline Water" 100 75 0.72
+"Std. Hyper Saline Water" 125 75 0.73
+"Std. Hyper Saline Water" 150 75 0.73
+"Std. Hyper Saline Water" 200 75 0.72
+"Std. Hyper Saline Water" 250 75 0.69
+"Std. Hyper Saline Water" 300 75 0.64
+"Std. Hyper Saline Water" 350 75 0.58
+"Std. Hyper Saline Water" 375 75 0.54
+"Std. Hyper Saline Water" 400 75 0.5
+"Std. Hyper Saline Water" 425 75 0.46
+"Std. Hyper Saline Water" 450 75 0.42
+"Std. Hyper Saline Water" 475 75 0.37
+"Std. Hyper Saline Water" 500 75 0.33
+"Std. Hyper Saline Water" 550 75 0.26
+"Std. Hyper Saline Water" 600 75 0.22
+"Std. Hyper Saline Water" 650 75 0.2
+"Std. Hyper Saline Water" 700 75 0.18
+"Std. Hyper Saline Water" 750 75 0.18
+"Std. Hyper Saline Water" 800 75 0.18
+"Std. Hyper Saline Water" 0 80 0.61
+"Std. Hyper Saline Water" 25 80 0.65
+"Std. Hyper Saline Water" 50 80 0.68
+"Std. Hyper Saline Water" 75 80 0.7
+"Std. Hyper Saline Water" 100 80 0.72
+"Std. Hyper Saline Water" 125 80 0.73
+"Std. Hyper Saline Water" 150 80 0.73
+"Std. Hyper Saline Water" 200 80 0.72
+"Std. Hyper Saline Water" 250 80 0.69
+"Std. Hyper Saline Water" 300 80 0.65
+"Std. Hyper Saline Water" 350 80 0.59
+"Std. Hyper Saline Water" 375 80 0.55
+"Std. Hyper Saline Water" 400 80 0.51
+"Std. Hyper Saline Water" 425 80 0.47
+"Std. Hyper Saline Water" 450 80 0.43
+"Std. Hyper Saline Water" 475 80 0.39
+"Std. Hyper Saline Water" 500 80 0.35
+"Std. Hyper Saline Water" 550 80 0.28
+"Std. Hyper Saline Water" 600 80 0.23
+"Std. Hyper Saline Water" 650 80 0.21
+"Std. Hyper Saline Water" 700 80 0.19
+"Std. Hyper Saline Water" 750 80 0.19
+"Std. Hyper Saline Water" 800 80 0.18
+"Std. Hyper Saline Water" 0 85 0.61
+"Std. Hyper Saline Water" 25 85 0.65
+"Std. Hyper Saline Water" 50 85 0.68
+"Std. Hyper Saline Water" 75 85 0.7
+"Std. Hyper Saline Water" 100 85 0.72
+"Std. Hyper Saline Water" 125 85 0.73
+"Std. Hyper Saline Water" 150 85 0.73
+"Std. Hyper Saline Water" 200 85 0.72
+"Std. Hyper Saline Water" 250 85 0.7
+"Std. Hyper Saline Water" 300 85 0.65
+"Std. Hyper Saline Water" 350 85 0.59
+"Std. Hyper Saline Water" 375 85 0.56
+"Std. Hyper Saline Water" 400 85 0.52
+"Std. Hyper Saline Water" 425 85 0.48
+"Std. Hyper Saline Water" 450 85 0.44
+"Std. Hyper Saline Water" 475 85 0.4
+"Std. Hyper Saline Water" 500 85 0.36
+"Std. Hyper Saline Water" 550 85 0.3
+"Std. Hyper Saline Water" 600 85 0.25
+"Std. Hyper Saline Water" 650 85 0.22
+"Std. Hyper Saline Water" 700 85 0.2
+"Std. Hyper Saline Water" 750 85 0.2
+"Std. Hyper Saline Water" 800 85 0.19
+"Std. Hyper Saline Water" 0 90 0.61
+"Std. Hyper Saline Water" 25 90 0.65
+"Std. Hyper Saline Water" 50 90 0.68
+"Std. Hyper Saline Water" 75 90 0.71
+"Std. Hyper Saline Water" 100 90 0.72
+"Std. Hyper Saline Water" 125 90 0.73
+"Std. Hyper Saline Water" 150 90 0.74
+"Std. Hyper Saline Water" 200 90 0.73
+"Std. Hyper Saline Water" 250 90 0.7
+"Std. Hyper Saline Water" 300 90 0.66
+"Std. Hyper Saline Water" 350 90 0.6
+"Std. Hyper Saline Water" 375 90 0.57
+"Std. Hyper Saline Water" 400 90 0.53
+"Std. Hyper Saline Water" 425 90 0.5
+"Std. Hyper Saline Water" 450 90 0.46
+"Std. Hyper Saline Water" 475 90 0.42
+"Std. Hyper Saline Water" 500 90 0.38
+"Std. Hyper Saline Water" 550 90 0.31
+"Std. Hyper Saline Water" 600 90 0.26
+"Std. Hyper Saline Water" 650 90 0.23
+"Std. Hyper Saline Water" 700 90 0.21
+"Std. Hyper Saline Water" 750 90 0.2
+"Std. Hyper Saline Water" 800 90 0.2
+"Std. Hyper Saline Water" 0 95 0.61
+"Std. Hyper Saline Water" 25 95 0.65
+"Std. Hyper Saline Water" 50 95 0.69
+"Std. Hyper Saline Water" 75 95 0.71
+"Std. Hyper Saline Water" 100 95 0.73
+"Std. Hyper Saline Water" 125 95 0.74
+"Std. Hyper Saline Water" 150 95 0.74
+"Std. Hyper Saline Water" 200 95 0.73
+"Std. Hyper Saline Water" 250 95 0.7
+"Std. Hyper Saline Water" 300 95 0.66
+"Std. Hyper Saline Water" 350 95 0.61
+"Std. Hyper Saline Water" 375 95 0.57
+"Std. Hyper Saline Water" 400 95 0.54
+"Std. Hyper Saline Water" 425 95 0.5
+"Std. Hyper Saline Water" 450 95 0.47
+"Std. Hyper Saline Water" 475 95 0.43
+"Std. Hyper Saline Water" 500 95 0.39
+"Std. Hyper Saline Water" 550 95 0.33
+"Std. Hyper Saline Water" 600 95 0.28
+"Std. Hyper Saline Water" 650 95 0.25
+"Std. Hyper Saline Water" 700 95 0.23
+"Std. Hyper Saline Water" 750 95 0.21
+"Std. Hyper Saline Water" 800 95 0.21
+"Std. Hyper Saline Water" 0 100 0.62
+"Std. Hyper Saline Water" 25 100 0.66
+"Std. Hyper Saline Water" 50 100 0.69
+"Std. Hyper Saline Water" 75 100 0.71
+"Std. Hyper Saline Water" 100 100 0.73
+"Std. Hyper Saline Water" 125 100 0.74
+"Std. Hyper Saline Water" 150 100 0.74
+"Std. Hyper Saline Water" 200 100 0.73
+"Std. Hyper Saline Water" 250 100 0.71
+"Std. Hyper Saline Water" 300 100 0.67
+"Std. Hyper Saline Water" 350 100 0.61
+"Std. Hyper Saline Water" 375 100 0.58
+"Std. Hyper Saline Water" 400 100 0.55
+"Std. Hyper Saline Water" 425 100 0.51
+"Std. Hyper Saline Water" 450 100 0.48
+"Std. Hyper Saline Water" 475 100 0.44
+"Std. Hyper Saline Water" 500 100 0.4
+"Std. Hyper Saline Water" 550 100 0.34
+"Std. Hyper Saline Water" 600 100 0.29
+"Std. Hyper Saline Water" 650 100 0.26
+"Std. Hyper Saline Water" 700 100 0.24
+"Std. Hyper Saline Water" 750 100 0.22
+"Std. Hyper Saline Water" 800 100 0.21
+"Std. Water" 0 0.1 0.56
+"Std. Water" 25 0.1 0.61
+"Std. Water" 50 0.1 0.64
+"Std. Water" 75 0.1 0.66
+"Std. Water" 100 0.1 0.02
+"Std. Water" 125 0.1 0.03
+"Std. Water" 150 0.1 0.03
+"Std. Water" 200 0.1 0.03
+"Std. Water" 250 0.1 0.04
+"Std. Water" 300 0.1 0.04
+"Std. Water" 350 0.1 0.05
+"Std. Water" 375 0.1 0.05
+"Std. Water" 400 0.1 0.05
+"Std. Water" 425 0.1 0.06
+"Std. Water" 450 0.1 0.06
+"Std. Water" 475 0.1 0.06
+"Std. Water" 500 0.1 0.07
+"Std. Water" 550 0.1 0.07
+"Std. Water" 600 0.1 0.08
+"Std. Water" 650 0.1 0.09
+"Std. Water" 700 0.1 0.09
+"Std. Water" 750 0.1 0.1
+"Std. Water" 800 0.1 0.11
+"Std. Water" 0 0.5 0.56
+"Std. Water" 25 0.5 0.61
+"Std. Water" 50 0.5 0.64
+"Std. Water" 75 0.5 0.66
+"Std. Water" 100 0.5 0.68
+"Std. Water" 125 0.5 0.68
+"Std. Water" 150 0.5 0.68
+"Std. Water" 200 0.5 0.03
+"Std. Water" 250 0.5 0.04
+"Std. Water" 300 0.5 0.04
+"Std. Water" 350 0.5 0.05
+"Std. Water" 375 0.5 0.05
+"Std. Water" 400 0.5 0.06
+"Std. Water" 425 0.5 0.06
+"Std. Water" 450 0.5 0.06
+"Std. Water" 475 0.5 0.06
+"Std. Water" 500 0.5 0.07
+"Std. Water" 550 0.5 0.07
+"Std. Water" 600 0.5 0.08
+"Std. Water" 650 0.5 0.09
+"Std. Water" 700 0.5 0.09
+"Std. Water" 750 0.5 0.1
+"Std. Water" 800 0.5 0.11
+"Std. Water" 0 1 0.56
+"Std. Water" 25 1 0.61
+"Std. Water" 50 1 0.64
+"Std. Water" 75 1 0.66
+"Std. Water" 100 1 0.68
+"Std. Water" 125 1 0.68
+"Std. Water" 150 1 0.68
+"Std. Water" 200 1 0.04
+"Std. Water" 250 1 0.04
+"Std. Water" 300 1 0.04
+"Std. Water" 350 1 0.05
+"Std. Water" 375 1 0.05
+"Std. Water" 400 1 0.06
+"Std. Water" 425 1 0.06
+"Std. Water" 450 1 0.06
+"Std. Water" 475 1 0.06
+"Std. Water" 500 1 0.07
+"Std. Water" 550 1 0.07
+"Std. Water" 600 1 0.08
+"Std. Water" 650 1 0.09
+"Std. Water" 700 1 0.09
+"Std. Water" 750 1 0.1
+"Std. Water" 800 1 0.11
+"Std. Water" 0 2.5 0.56
+"Std. Water" 25 2.5 0.61
+"Std. Water" 50 2.5 0.64
+"Std. Water" 75 2.5 0.66
+"Std. Water" 100 2.5 0.68
+"Std. Water" 125 2.5 0.69
+"Std. Water" 150 2.5 0.69
+"Std. Water" 200 2.5 0.67
+"Std. Water" 250 2.5 0.04
+"Std. Water" 300 2.5 0.05
+"Std. Water" 350 2.5 0.05
+"Std. Water" 375 2.5 0.05
+"Std. Water" 400 2.5 0.06
+"Std. Water" 425 2.5 0.06
+"Std. Water" 450 2.5 0.06
+"Std. Water" 475 2.5 0.07
+"Std. Water" 500 2.5 0.07
+"Std. Water" 550 2.5 0.07
+"Std. Water" 600 2.5 0.08
+"Std. Water" 650 2.5 0.09
+"Std. Water" 700 2.5 0.09
+"Std. Water" 750 2.5 0.1
+"Std. Water" 800 2.5 0.11
+"Std. Water" 0 5 0.56
+"Std. Water" 25 5 0.61
+"Std. Water" 50 5 0.64
+"Std. Water" 75 5 0.67
+"Std. Water" 100 5 0.68
+"Std. Water" 125 5 0.69
+"Std. Water" 150 5 0.69
+"Std. Water" 200 5 0.67
+"Std. Water" 250 5 0.62
+"Std. Water" 300 5 0.05
+"Std. Water" 350 5 0.06
+"Std. Water" 375 5 0.06
+"Std. Water" 400 5 0.06
+"Std. Water" 425 5 0.06
+"Std. Water" 450 5 0.06
+"Std. Water" 475 5 0.07
+"Std. Water" 500 5 0.07
+"Std. Water" 550 5 0.08
+"Std. Water" 600 5 0.08
+"Std. Water" 650 5 0.09
+"Std. Water" 700 5 0.1
+"Std. Water" 750 5 0.1
+"Std. Water" 800 5 0.11
+"Std. Water" 0 7.5 0.57
+"Std. Water" 25 7.5 0.61
+"Std. Water" 50 7.5 0.64
+"Std. Water" 75 7.5 0.67
+"Std. Water" 100 7.5 0.68
+"Std. Water" 125 7.5 0.69
+"Std. Water" 150 7.5 0.69
+"Std. Water" 200 7.5 0.67
+"Std. Water" 250 7.5 0.62
+"Std. Water" 300 7.5 0.06
+"Std. Water" 350 7.5 0.06
+"Std. Water" 375 7.5 0.06
+"Std. Water" 400 7.5 0.06
+"Std. Water" 425 7.5 0.07
+"Std. Water" 450 7.5 0.07
+"Std. Water" 475 7.5 0.07
+"Std. Water" 500 7.5 0.07
+"Std. Water" 550 7.5 0.08
+"Std. Water" 600 7.5 0.08
+"Std. Water" 650 7.5 0.09
+"Std. Water" 700 7.5 0.1
+"Std. Water" 750 7.5 0.1
+"Std. Water" 800 7.5 0.11
+"Std. Water" 0 10 0.57
+"Std. Water" 25 10 0.61
+"Std. Water" 50 10 0.65
+"Std. Water" 75 10 0.67
+"Std. Water" 100 10 0.68
+"Std. Water" 125 10 0.69
+"Std. Water" 150 10 0.69
+"Std. Water" 200 10 0.67
+"Std. Water" 250 10 0.63
+"Std. Water" 300 10 0.55
+"Std. Water" 350 10 0.07
+"Std. Water" 375 10 0.07
+"Std. Water" 400 10 0.07
+"Std. Water" 425 10 0.07
+"Std. Water" 450 10 0.07
+"Std. Water" 475 10 0.07
+"Std. Water" 500 10 0.08
+"Std. Water" 550 10 0.08
+"Std. Water" 600 10 0.09
+"Std. Water" 650 10 0.09
+"Std. Water" 700 10 0.1
+"Std. Water" 750 10 0.11
+"Std. Water" 800 10 0.11
+"Std. Water" 0 12.5 0.56
+"Std. Water" 25 12.5 0.61
+"Std. Water" 50 12.5 0.65
+"Std. Water" 75 12.5 0.67
+"Std. Water" 100 12.5 0.68
+"Std. Water" 125 12.5 0.69
+"Std. Water" 150 12.5 0.69
+"Std. Water" 200 12.5 0.67
+"Std. Water" 250 12.5 0.63
+"Std. Water" 300 12.5 0.55
+"Std. Water" 350 12.5 0.08
+"Std. Water" 375 12.5 0.07
+"Std. Water" 400 12.5 0.07
+"Std. Water" 425 12.5 0.07
+"Std. Water" 450 12.5 0.07
+"Std. Water" 475 12.5 0.08
+"Std. Water" 500 12.5 0.08
+"Std. Water" 550 12.5 0.08
+"Std. Water" 600 12.5 0.09
+"Std. Water" 650 12.5 0.09
+"Std. Water" 700 12.5 0.1
+"Std. Water" 750 12.5 0.11
+"Std. Water" 800 12.5 0.11
+"Std. Water" 0 15 0.57
+"Std. Water" 25 15 0.62
+"Std. Water" 50 15 0.65
+"Std. Water" 75 15 0.67
+"Std. Water" 100 15 0.69
+"Std. Water" 125 15 0.69
+"Std. Water" 150 15 0.69
+"Std. Water" 200 15 0.67
+"Std. Water" 250 15 0.63
+"Std. Water" 300 15 0.56
+"Std. Water" 350 15 0.1
+"Std. Water" 375 15 0.08
+"Std. Water" 400 15 0.08
+"Std. Water" 425 15 0.08
+"Std. Water" 450 15 0.08
+"Std. Water" 475 15 0.08
+"Std. Water" 500 15 0.08
+"Std. Water" 550 15 0.09
+"Std. Water" 600 15 0.09
+"Std. Water" 650 15 0.1
+"Std. Water" 700 15 0.1
+"Std. Water" 750 15 0.11
+"Std. Water" 800 15 0.12
+"Std. Water" 0 17.5 0.57
+"Std. Water" 25 17.5 0.62
+"Std. Water" 50 17.5 0.65
+"Std. Water" 75 17.5 0.67
+"Std. Water" 100 17.5 0.69
+"Std. Water" 125 17.5 0.69
+"Std. Water" 150 17.5 0.69
+"Std. Water" 200 17.5 0.67
+"Std. Water" 250 17.5 0.63
+"Std. Water" 300 17.5 0.56
+"Std. Water" 350 17.5 0.44
+"Std. Water" 375 17.5 0.1
+"Std. Water" 400 17.5 0.09
+"Std. Water" 425 17.5 0.09
+"Std. Water" 450 17.5 0.08
+"Std. Water" 475 17.5 0.08
+"Std. Water" 500 17.5 0.09
+"Std. Water" 550 17.5 0.09
+"Std. Water" 600 17.5 0.09
+"Std. Water" 650 17.5 0.1
+"Std. Water" 700 17.5 0.11
+"Std. Water" 750 17.5 0.11
+"Std. Water" 800 17.5 0.12
+"Std. Water" 0 20 0.57
+"Std. Water" 25 20 0.62
+"Std. Water" 50 20 0.65
+"Std. Water" 75 20 0.67
+"Std. Water" 100 20 0.69
+"Std. Water" 125 20 0.7
+"Std. Water" 150 20 0.7
+"Std. Water" 200 20 0.67
+"Std. Water" 250 20 0.64
+"Std. Water" 300 20 0.57
+"Std. Water" 350 20 0.45
+"Std. Water" 375 20 0.15
+"Std. Water" 400 20 0.1
+"Std. Water" 425 20 0.09
+"Std. Water" 450 20 0.09
+"Std. Water" 475 20 0.09
+"Std. Water" 500 20 0.09
+"Std. Water" 550 20 0.09
+"Std. Water" 600 20 0.1
+"Std. Water" 650 20 0.1
+"Std. Water" 700 20 0.11
+"Std. Water" 750 20 0.11
+"Std. Water" 800 20 0.12
+"Std. Water" 0 22.5 0.57
+"Std. Water" 25 22.5 0.62
+"Std. Water" 50 22.5 0.65
+"Std. Water" 75 22.5 0.68
+"Std. Water" 100 22.5 0.69
+"Std. Water" 125 22.5 0.7
+"Std. Water" 150 22.5 0.7
+"Std. Water" 200 22.5 0.68
+"Std. Water" 250 22.5 0.64
+"Std. Water" 300 22.5 0.57
+"Std. Water" 350 22.5 0.46
+"Std. Water" 375 22.5 0.5
+"Std. Water" 400 22.5 0.12
+"Std. Water" 425 22.5 0.1
+"Std. Water" 450 22.5 0.1
+"Std. Water" 475 22.5 0.09
+"Std. Water" 500 22.5 0.09
+"Std. Water" 550 22.5 0.1
+"Std. Water" 600 22.5 0.1
+"Std. Water" 650 22.5 0.1
+"Std. Water" 700 22.5 0.11
+"Std. Water" 750 22.5 0.12
+"Std. Water" 800 22.5 0.12
+"Std. Water" 0 25 0.58
+"Std. Water" 25 25 0.62
+"Std. Water" 50 25 0.65
+"Std. Water" 75 25 0.68
+"Std. Water" 100 25 0.69
+"Std. Water" 125 25 0.7
+"Std. Water" 150 25 0.7
+"Std. Water" 200 25 0.68
+"Std. Water" 250 25 0.64
+"Std. Water" 300 25 0.58
+"Std. Water" 350 25 0.47
+"Std. Water" 375 25 0.39
+"Std. Water" 400 25 0.16
+"Std. Water" 425 25 0.12
+"Std. Water" 450 25 0.11
+"Std. Water" 475 25 0.1
+"Std. Water" 500 25 0.1
+"Std. Water" 550 25 0.1
+"Std. Water" 600 25 0.1
+"Std. Water" 650 25 0.11
+"Std. Water" 700 25 0.11
+"Std. Water" 750 25 0.12
+"Std. Water" 800 25 0.12
+"Std. Water" 0 27.5 0.58
+"Std. Water" 25 27.5 0.62
+"Std. Water" 50 27.5 0.65
+"Std. Water" 75 27.5 0.68
+"Std. Water" 100 27.5 0.69
+"Std. Water" 125 27.5 0.7
+"Std. Water" 150 27.5 0.7
+"Std. Water" 200 27.5 0.69
+"Std. Water" 250 27.5 0.65
+"Std. Water" 300 27.5 0.58
+"Std. Water" 350 27.5 0.48
+"Std. Water" 375 27.5 0.41
+"Std. Water" 400 27.5 0.23
+"Std. Water" 425 27.5 0.14
+"Std. Water" 450 27.5 0.12
+"Std. Water" 475 27.5 0.11
+"Std. Water" 500 27.5 0.11
+"Std. Water" 550 27.5 0.1
+"Std. Water" 600 27.5 0.11
+"Std. Water" 650 27.5 0.11
+"Std. Water" 700 27.5 0.11
+"Std. Water" 750 27.5 0.12
+"Std. Water" 800 27.5 0.12
+"Std. Water" 0 30 0.58
+"Std. Water" 25 30 0.62
+"Std. Water" 50 30 0.66
+"Std. Water" 75 30 0.68
+"Std. Water" 100 30 0.69
+"Std. Water" 125 30 0.7
+"Std. Water" 150 30 0.7
+"Std. Water" 200 30 0.69
+"Std. Water" 250 30 0.65
+"Std. Water" 300 30 0.59
+"Std. Water" 350 30 0.49
+"Std. Water" 375 30 0.42
+"Std. Water" 400 30 0.33
+"Std. Water" 425 30 0.17
+"Std. Water" 450 30 0.13
+"Std. Water" 475 30 0.12
+"Std. Water" 500 30 0.11
+"Std. Water" 550 30 0.11
+"Std. Water" 600 30 0.11
+"Std. Water" 650 30 0.11
+"Std. Water" 700 30 0.12
+"Std. Water" 750 30 0.12
+"Std. Water" 800 30 0.13
+"Std. Water" 0 35 0.58
+"Std. Water" 25 35 0.63
+"Std. Water" 50 35 0.66
+"Std. Water" 75 35 0.68
+"Std. Water" 100 35 0.7
+"Std. Water" 125 35 0.71
+"Std. Water" 150 35 0.71
+"Std. Water" 200 35 0.69
+"Std. Water" 250 35 0.65
+"Std. Water" 300 35 0.59
+"Std. Water" 350 35 0.5
+"Std. Water" 375 35 0.44
+"Std. Water" 400 35 0.37
+"Std. Water" 425 35 0.25
+"Std. Water" 450 35 0.17
+"Std. Water" 475 35 0.14
+"Std. Water" 500 35 0.13
+"Std. Water" 550 35 0.12
+"Std. Water" 600 35 0.12
+"Std. Water" 650 35 0.12
+"Std. Water" 700 35 0.12
+"Std. Water" 750 35 0.13
+"Std. Water" 800 35 0.13
+"Std. Water" 0 40 0.58
+"Std. Water" 25 40 0.63
+"Std. Water" 50 40 0.66
+"Std. Water" 75 40 0.68
+"Std. Water" 100 40 0.7
+"Std. Water" 125 40 0.71
+"Std. Water" 150 40 0.71
+"Std. Water" 200 40 0.69
+"Std. Water" 250 40 0.66
+"Std. Water" 300 40 0.6
+"Std. Water" 350 40 0.52
+"Std. Water" 375 40 0.46
+"Std. Water" 400 40 0.4
+"Std. Water" 425 40 0.32
+"Std. Water" 450 40 0.23
+"Std. Water" 475 40 0.17
+"Std. Water" 500 40 0.15
+"Std. Water" 550 40 0.13
+"Std. Water" 600 40 0.13
+"Std. Water" 650 40 0.13
+"Std. Water" 700 40 0.13
+"Std. Water" 750 40 0.13
+"Std. Water" 800 40 0.14
+"Std. Water" 0 45 0.59
+"Std. Water" 25 45 0.63
+"Std. Water" 50 45 0.66
+"Std. Water" 75 45 0.69
+"Std. Water" 100 45 0.7
+"Std. Water" 125 45 0.71
+"Std. Water" 150 45 0.71
+"Std. Water" 200 45 0.7
+"Std. Water" 250 45 0.66
+"Std. Water" 300 45 0.61
+"Std. Water" 350 45 0.53
+"Std. Water" 375 45 0.48
+"Std. Water" 400 45 0.42
+"Std. Water" 425 45 0.35
+"Std. Water" 450 45 0.28
+"Std. Water" 475 45 0.21
+"Std. Water" 500 45 0.18
+"Std. Water" 550 45 0.15
+"Std. Water" 600 45 0.14
+"Std. Water" 650 45 0.13
+"Std. Water" 700 45 0.13
+"Std. Water" 750 45 0.14
+"Std. Water" 800 45 0.14
+"Std. Water" 0 50 0.59
+"Std. Water" 25 50 0.63
+"Std. Water" 50 50 0.67
+"Std. Water" 75 50 0.69
+"Std. Water" 100 50 0.7
+"Std. Water" 125 50 0.71
+"Std. Water" 150 50 0.71
+"Std. Water" 200 50 0.7
+"Std. Water" 250 50 0.67
+"Std. Water" 300 50 0.61
+"Std. Water" 350 50 0.54
+"Std. Water" 375 50 0.49
+"Std. Water" 400 50 0.44
+"Std. Water" 425 50 0.38
+"Std. Water" 450 50 0.32
+"Std. Water" 475 50 0.25
+"Std. Water" 500 50 0.21
+"Std. Water" 550 50 0.16
+"Std. Water" 600 50 0.15
+"Std. Water" 650 50 0.14
+"Std. Water" 700 50 0.14
+"Std. Water" 750 50 0.14
+"Std. Water" 800 50 0.15
+"Std. Water" 0 55 0.59
+"Std. Water" 25 55 0.64
+"Std. Water" 50 55 0.67
+"Std. Water" 75 55 0.69
+"Std. Water" 100 55 0.71
+"Std. Water" 125 55 0.72
+"Std. Water" 150 55 0.72
+"Std. Water" 200 55 0.71
+"Std. Water" 250 55 0.67
+"Std. Water" 300 55 0.62
+"Std. Water" 350 55 0.55
+"Std. Water" 375 55 0.5
+"Std. Water" 400 55 0.45
+"Std. Water" 425 55 0.4
+"Std. Water" 450 55 0.34
+"Std. Water" 475 55 0.29
+"Std. Water" 500 55 0.24
+"Std. Water" 550 55 0.18
+"Std. Water" 600 55 0.16
+"Std. Water" 650 55 0.15
+"Std. Water" 700 55 0.15
+"Std. Water" 750 55 0.15
+"Std. Water" 800 55 0.15
+"Std. Water" 0 60 0.6
+"Std. Water" 25 60 0.64
+"Std. Water" 50 60 0.67
+"Std. Water" 75 60 0.69
+"Std. Water" 100 60 0.71
+"Std. Water" 125 60 0.72
+"Std. Water" 150 60 0.72
+"Std. Water" 200 60 0.71
+"Std. Water" 250 60 0.68
+"Std. Water" 300 60 0.63
+"Std. Water" 350 60 0.56
+"Std. Water" 375 60 0.52
+"Std. Water" 400 60 0.47
+"Std. Water" 425 60 0.42
+"Std. Water" 450 60 0.37
+"Std. Water" 475 60 0.31
+"Std. Water" 500 60 0.26
+"Std. Water" 550 60 0.2
+"Std. Water" 600 60 0.17
+"Std. Water" 650 60 0.16
+"Std. Water" 700 60 0.16
+"Std. Water" 750 60 0.16
+"Std. Water" 800 60 0.16
+"Std. Water" 0 65 0.6
+"Std. Water" 25 65 0.64
+"Std. Water" 50 65 0.67
+"Std. Water" 75 65 0.7
+"Std. Water" 100 65 0.71
+"Std. Water" 125 65 0.72
+"Std. Water" 150 65 0.72
+"Std. Water" 200 65 0.71
+"Std. Water" 250 65 0.68
+"Std. Water" 300 65 0.63
+"Std. Water" 350 65 0.57
+"Std. Water" 375 65 0.53
+"Std. Water" 400 65 0.48
+"Std. Water" 425 65 0.43
+"Std. Water" 450 65 0.38
+"Std. Water" 475 65 0.34
+"Std. Water" 500 65 0.29
+"Std. Water" 550 65 0.22
+"Std. Water" 600 65 0.19
+"Std. Water" 650 65 0.17
+"Std. Water" 700 65 0.17
+"Std. Water" 750 65 0.16
+"Std. Water" 800 65 0.16
+"Std. Water" 0 70 0.6
+"Std. Water" 25 70 0.64
+"Std. Water" 50 70 0.67
+"Std. Water" 75 70 0.7
+"Std. Water" 100 70 0.71
+"Std. Water" 125 70 0.72
+"Std. Water" 150 70 0.73
+"Std. Water" 200 70 0.72
+"Std. Water" 250 70 0.69
+"Std. Water" 300 70 0.64
+"Std. Water" 350 70 0.57
+"Std. Water" 375 70 0.53
+"Std. Water" 400 70 0.49
+"Std. Water" 425 70 0.45
+"Std. Water" 450 70 0.4
+"Std. Water" 475 70 0.36
+"Std. Water" 500 70 0.31
+"Std. Water" 550 70 0.24
+"Std. Water" 600 70 0.2
+"Std. Water" 650 70 0.18
+"Std. Water" 700 70 0.17
+"Std. Water" 750 70 0.17
+"Std. Water" 800 70 0.17
+"Std. Water" 0 75 0.6
+"Std. Water" 25 75 0.65
+"Std. Water" 50 75 0.68
+"Std. Water" 75 75 0.7
+"Std. Water" 100 75 0.72
+"Std. Water" 125 75 0.73
+"Std. Water" 150 75 0.73
+"Std. Water" 200 75 0.72
+"Std. Water" 250 75 0.69
+"Std. Water" 300 75 0.64
+"Std. Water" 350 75 0.58
+"Std. Water" 375 75 0.54
+"Std. Water" 400 75 0.5
+"Std. Water" 425 75 0.46
+"Std. Water" 450 75 0.42
+"Std. Water" 475 75 0.37
+"Std. Water" 500 75 0.33
+"Std. Water" 550 75 0.26
+"Std. Water" 600 75 0.22
+"Std. Water" 650 75 0.2
+"Std. Water" 700 75 0.18
+"Std. Water" 750 75 0.18
+"Std. Water" 800 75 0.18
+"Std. Water" 0 80 0.61
+"Std. Water" 25 80 0.65
+"Std. Water" 50 80 0.68
+"Std. Water" 75 80 0.7
+"Std. Water" 100 80 0.72
+"Std. Water" 125 80 0.73
+"Std. Water" 150 80 0.73
+"Std. Water" 200 80 0.72
+"Std. Water" 250 80 0.69
+"Std. Water" 300 80 0.65
+"Std. Water" 350 80 0.59
+"Std. Water" 375 80 0.55
+"Std. Water" 400 80 0.51
+"Std. Water" 425 80 0.47
+"Std. Water" 450 80 0.43
+"Std. Water" 475 80 0.39
+"Std. Water" 500 80 0.35
+"Std. Water" 550 80 0.28
+"Std. Water" 600 80 0.23
+"Std. Water" 650 80 0.21
+"Std. Water" 700 80 0.19
+"Std. Water" 750 80 0.19
+"Std. Water" 800 80 0.18
+"Std. Water" 0 85 0.61
+"Std. Water" 25 85 0.65
+"Std. Water" 50 85 0.68
+"Std. Water" 75 85 0.7
+"Std. Water" 100 85 0.72
+"Std. Water" 125 85 0.73
+"Std. Water" 150 85 0.73
+"Std. Water" 200 85 0.72
+"Std. Water" 250 85 0.7
+"Std. Water" 300 85 0.65
+"Std. Water" 350 85 0.59
+"Std. Water" 375 85 0.56
+"Std. Water" 400 85 0.52
+"Std. Water" 425 85 0.48
+"Std. Water" 450 85 0.44
+"Std. Water" 475 85 0.4
+"Std. Water" 500 85 0.36
+"Std. Water" 550 85 0.3
+"Std. Water" 600 85 0.25
+"Std. Water" 650 85 0.22
+"Std. Water" 700 85 0.2
+"Std. Water" 750 85 0.2
+"Std. Water" 800 85 0.19
+"Std. Water" 0 90 0.61
+"Std. Water" 25 90 0.65
+"Std. Water" 50 90 0.68
+"Std. Water" 75 90 0.71
+"Std. Water" 100 90 0.72
+"Std. Water" 125 90 0.73
+"Std. Water" 150 90 0.74
+"Std. Water" 200 90 0.73
+"Std. Water" 250 90 0.7
+"Std. Water" 300 90 0.66
+"Std. Water" 350 90 0.6
+"Std. Water" 375 90 0.57
+"Std. Water" 400 90 0.53
+"Std. Water" 425 90 0.5
+"Std. Water" 450 90 0.46
+"Std. Water" 475 90 0.42
+"Std. Water" 500 90 0.38
+"Std. Water" 550 90 0.31
+"Std. Water" 600 90 0.26
+"Std. Water" 650 90 0.23
+"Std. Water" 700 90 0.21
+"Std. Water" 750 90 0.2
+"Std. Water" 800 90 0.2
+"Std. Water" 0 95 0.61
+"Std. Water" 25 95 0.65
+"Std. Water" 50 95 0.69
+"Std. Water" 75 95 0.71
+"Std. Water" 100 95 0.73
+"Std. Water" 125 95 0.74
+"Std. Water" 150 95 0.74
+"Std. Water" 200 95 0.73
+"Std. Water" 250 95 0.7
+"Std. Water" 300 95 0.66
+"Std. Water" 350 95 0.61
+"Std. Water" 375 95 0.57
+"Std. Water" 400 95 0.54
+"Std. Water" 425 95 0.5
+"Std. Water" 450 95 0.47
+"Std. Water" 475 95 0.43
+"Std. Water" 500 95 0.39
+"Std. Water" 550 95 0.33
+"Std. Water" 600 95 0.28
+"Std. Water" 650 95 0.25
+"Std. Water" 700 95 0.23
+"Std. Water" 750 95 0.21
+"Std. Water" 800 95 0.21
+"Std. Water" 0 100 0.62
+"Std. Water" 25 100 0.66
+"Std. Water" 50 100 0.69
+"Std. Water" 75 100 0.71
+"Std. Water" 100 100 0.73
+"Std. Water" 125 100 0.74
+"Std. Water" 150 100 0.74
+"Std. Water" 200 100 0.73
+"Std. Water" 250 100 0.71
+"Std. Water" 300 100 0.67
+"Std. Water" 350 100 0.61
+"Std. Water" 375 100 0.58
+"Std. Water" 400 100 0.55
+"Std. Water" 425 100 0.51
+"Std. Water" 450 100 0.48
+"Std. Water" 475 100 0.44
+"Std. Water" 500 100 0.4
+"Std. Water" 550 100 0.34
+"Std. Water" 600 100 0.29
+"Std. Water" 650 100 0.26
+"Std. Water" 700 100 0.24
+"Std. Water" 750 100 0.22
+"Std. Water" 800 100 0.21
+[End]
+;
+;
+; FltHeatCapIoTbl
+;
+[FltHeatCapIoTbl]
+;v100
+Fluidtype TempIndex Pressure HeatCapacity
+  ()  (C) (MPa) (J/kgK)
+"Std. Sea Water" 0 0.1 4250
+"Std. Sea Water" 50 0.1 4190
+"Std. Sea Water" 100 0.1 4200
+"Std. Sea Water" 150 0.1 4200
+"Std. Sea Water" 200 0.1 4200
+"Std. Sea Water" 250 0.1 4200
+"Std. Sea Water" 300 0.1 4200
+"Std. Sea Water" 350 0.1 4200
+"Std. Sea Water" 400 0.1 4200
+"Std. Sea Water" 450 0.1 4200
+"Std. Sea Water" 500 0.1 4200
+"Std. Sea Water" 550 0.1 4200
+"Std. Sea Water" 600 0.1 4200
+"Std. Sea Water" 0 40.1 4060
+"Std. Sea Water" 50 40.1 4090
+"Std. Sea Water" 100 40.1 4120
+"Std. Sea Water" 150 40.1 4120
+"Std. Sea Water" 200 40.1 4120
+"Std. Sea Water" 250 40.1 4120
+"Std. Sea Water" 300 40.1 4120
+"Std. Sea Water" 350 40.1 4120
+"Std. Sea Water" 400 40.1 4120
+"Std. Sea Water" 450 40.1 4120
+"Std. Sea Water" 500 40.1 4120
+"Std. Sea Water" 550 40.1 4120
+"Std. Sea Water" 600 40.1 4120
+"Std. Sea Water" 0 80.1 4030
+"Std. Sea Water" 50 80.1 4030
+"Std. Sea Water" 100 80.1 4060
+"Std. Sea Water" 150 80.1 4120
+"Std. Sea Water" 200 80.1 4190
+"Std. Sea Water" 250 80.1 4190
+"Std. Sea Water" 300 80.1 4190
+"Std. Sea Water" 350 80.1 4190
+"Std. Sea Water" 400 80.1 4190
+"Std. Sea Water" 450 80.1 4190
+"Std. Sea Water" 500 80.1 4190
+"Std. Sea Water" 550 80.1 4190
+"Std. Sea Water" 600 80.1 4190
+"Std. Sea Water" 0 120.1 4000
+"Std. Sea Water" 50 120.1 4000
+"Std. Sea Water" 100 120.1 4000
+"Std. Sea Water" 150 120.1 4030
+"Std. Sea Water" 200 120.1 4090
+"Std. Sea Water" 250 120.1 4090
+"Std. Sea Water" 300 120.1 4090
+"Std. Sea Water" 350 120.1 4090
+"Std. Sea Water" 400 120.1 4090
+"Std. Sea Water" 450 120.1 4090
+"Std. Sea Water" 500 120.1 4090
+"Std. Sea Water" 550 120.1 4090
+"Std. Sea Water" 600 120.1 4090
+"Std. Sea Water" 0 160.1 3970
+"Std. Sea Water" 50 160.1 3970
+"Std. Sea Water" 100 160.1 3970
+"Std. Sea Water" 150 160.1 4000
+"Std. Sea Water" 200 160.1 4030
+"Std. Sea Water" 250 160.1 4080
+"Std. Sea Water" 300 160.1 4080
+"Std. Sea Water" 350 160.1 4080
+"Std. Sea Water" 400 160.1 4080
+"Std. Sea Water" 450 160.1 4080
+"Std. Sea Water" 500 160.1 4080
+"Std. Sea Water" 550 160.1 4080
+"Std. Sea Water" 600 160.1 4080
+"Std. Sea Water" 0 200.1 3910
+"Std. Sea Water" 50 200.1 3910
+"Std. Sea Water" 100 200.1 3910
+"Std. Sea Water" 150 200.1 3910
+"Std. Sea Water" 200 200.1 3940
+"Std. Sea Water" 250 200.1 4000
+"Std. Sea Water" 300 200.1 4060
+"Std. Sea Water" 350 200.1 4060
+"Std. Sea Water" 400 200.1 4060
+"Std. Sea Water" 450 200.1 4060
+"Std. Sea Water" 500 200.1 4060
+"Std. Sea Water" 550 200.1 4060
+"Std. Sea Water" 600 200.1 4060
+"Std. Sea Water" 0 240.1 3880
+"Std. Sea Water" 50 240.1 3880
+"Std. Sea Water" 100 240.1 3880
+"Std. Sea Water" 150 240.1 3880
+"Std. Sea Water" 200 240.1 3910
+"Std. Sea Water" 250 240.1 3960
+"Std. Sea Water" 300 240.1 4000
+"Std. Sea Water" 350 240.1 4060
+"Std. Sea Water" 400 240.1 4060
+"Std. Sea Water" 450 240.1 4060
+"Std. Sea Water" 500 240.1 4060
+"Std. Sea Water" 550 240.1 4060
+"Std. Sea Water" 600 240.1 4060
+"Std. Sea Water" 0 280.1 3870
+"Std. Sea Water" 50 280.1 3870
+"Std. Sea Water" 100 280.1 3870
+"Std. Sea Water" 150 280.1 3870
+"Std. Sea Water" 200 280.1 3870
+"Std. Sea Water" 250 280.1 3910
+"Std. Sea Water" 300 280.1 3930
+"Std. Sea Water" 350 280.1 3970
+"Std. Sea Water" 400 280.1 4030
+"Std. Sea Water" 450 280.1 4030
+"Std. Sea Water" 500 280.1 4030
+"Std. Sea Water" 550 280.1 4030
+"Std. Sea Water" 600 280.1 4030
+"Std. Sea Water" 0 320.1 3860
+"Std. Sea Water" 50 320.1 3860
+"Std. Sea Water" 100 320.1 3860
+"Std. Sea Water" 150 320.1 3860
+"Std. Sea Water" 200 320.1 3860
+"Std. Sea Water" 250 320.1 3860
+"Std. Sea Water" 300 320.1 3870
+"Std. Sea Water" 350 320.1 3900
+"Std. Sea Water" 400 320.1 3940
+"Std. Sea Water" 450 320.1 3980
+"Std. Sea Water" 500 320.1 3980
+"Std. Sea Water" 550 320.1 3980
+"Std. Sea Water" 600 320.1 3980
+"Std. Sea Water" 0 360.1 3840
+"Std. Sea Water" 50 360.1 3840
+"Std. Sea Water" 100 360.1 3840
+"Std. Sea Water" 150 360.1 3840
+"Std. Sea Water" 200 360.1 3840
+"Std. Sea Water" 250 360.1 3840
+"Std. Sea Water" 300 360.1 3850
+"Std. Sea Water" 350 360.1 3860
+"Std. Sea Water" 400 360.1 3890
+"Std. Sea Water" 450 360.1 3930
+"Std. Sea Water" 500 360.1 3940
+"Std. Sea Water" 550 360.1 3940
+"Std. Sea Water" 600 360.1 3940
+"Std. Sea Water" 0 400.1 3800
+"Std. Sea Water" 50 400.1 3800
+"Std. Sea Water" 100 400.1 3800
+"Std. Sea Water" 150 400.1 3800
+"Std. Sea Water" 200 400.1 3800
+"Std. Sea Water" 250 400.1 3800
+"Std. Sea Water" 300 400.1 3800
+"Std. Sea Water" 350 400.1 3810
+"Std. Sea Water" 400 400.1 3830
+"Std. Sea Water" 450 400.1 3850
+"Std. Sea Water" 500 400.1 3860
+"Std. Sea Water" 550 400.1 3850
+"Std. Sea Water" 600 400.1 3840
+"Std. Sea Water" 0 440.1 3770
+"Std. Sea Water" 50 440.1 3770
+"Std. Sea Water" 100 440.1 3770
+"Std. Sea Water" 150 440.1 3770
+"Std. Sea Water" 200 440.1 3770
+"Std. Sea Water" 250 440.1 3770
+"Std. Sea Water" 300 440.1 3770
+"Std. Sea Water" 350 440.1 3780
+"Std. Sea Water" 400 440.1 3800
+"Std. Sea Water" 450 440.1 3810
+"Std. Sea Water" 500 440.1 3820
+"Std. Sea Water" 550 440.1 3820
+"Std. Sea Water" 600 440.1 3800
+"Std. Hyper Saline Water" 0 0.1 4250
+"Std. Hyper Saline Water" 50 0.1 4190
+"Std. Hyper Saline Water" 100 0.1 4200
+"Std. Hyper Saline Water" 150 0.1 4200
+"Std. Hyper Saline Water" 200 0.1 4200
+"Std. Hyper Saline Water" 250 0.1 4200
+"Std. Hyper Saline Water" 300 0.1 4200
+"Std. Hyper Saline Water" 350 0.1 4200
+"Std. Hyper Saline Water" 400 0.1 4200
+"Std. Hyper Saline Water" 450 0.1 4200
+"Std. Hyper Saline Water" 500 0.1 4200
+"Std. Hyper Saline Water" 550 0.1 4200
+"Std. Hyper Saline Water" 600 0.1 4200
+"Std. Hyper Saline Water" 0 40.1 4060
+"Std. Hyper Saline Water" 50 40.1 4090
+"Std. Hyper Saline Water" 100 40.1 4120
+"Std. Hyper Saline Water" 150 40.1 4120
+"Std. Hyper Saline Water" 200 40.1 4120
+"Std. Hyper Saline Water" 250 40.1 4120
+"Std. Hyper Saline Water" 300 40.1 4120
+"Std. Hyper Saline Water" 350 40.1 4120
+"Std. Hyper Saline Water" 400 40.1 4120
+"Std. Hyper Saline Water" 450 40.1 4120
+"Std. Hyper Saline Water" 500 40.1 4120
+"Std. Hyper Saline Water" 550 40.1 4120
+"Std. Hyper Saline Water" 600 40.1 4120
+"Std. Hyper Saline Water" 0 80.1 4030
+"Std. Hyper Saline Water" 50 80.1 4030
+"Std. Hyper Saline Water" 100 80.1 4060
+"Std. Hyper Saline Water" 150 80.1 4120
+"Std. Hyper Saline Water" 200 80.1 4190
+"Std. Hyper Saline Water" 250 80.1 4190
+"Std. Hyper Saline Water" 300 80.1 4190
+"Std. Hyper Saline Water" 350 80.1 4190
+"Std. Hyper Saline Water" 400 80.1 4190
+"Std. Hyper Saline Water" 450 80.1 4190
+"Std. Hyper Saline Water" 500 80.1 4190
+"Std. Hyper Saline Water" 550 80.1 4190
+"Std. Hyper Saline Water" 600 80.1 4190
+"Std. Hyper Saline Water" 0 120.1 4000
+"Std. Hyper Saline Water" 50 120.1 4000
+"Std. Hyper Saline Water" 100 120.1 4000
+"Std. Hyper Saline Water" 150 120.1 4030
+"Std. Hyper Saline Water" 200 120.1 4090
+"Std. Hyper Saline Water" 250 120.1 4090
+"Std. Hyper Saline Water" 300 120.1 4090
+"Std. Hyper Saline Water" 350 120.1 4090
+"Std. Hyper Saline Water" 400 120.1 4090
+"Std. Hyper Saline Water" 450 120.1 4090
+"Std. Hyper Saline Water" 500 120.1 4090
+"Std. Hyper Saline Water" 550 120.1 4090
+"Std. Hyper Saline Water" 600 120.1 4090
+"Std. Hyper Saline Water" 0 160.1 3970
+"Std. Hyper Saline Water" 50 160.1 3970
+"Std. Hyper Saline Water" 100 160.1 3970
+"Std. Hyper Saline Water" 150 160.1 4000
+"Std. Hyper Saline Water" 200 160.1 4030
+"Std. Hyper Saline Water" 250 160.1 4080
+"Std. Hyper Saline Water" 300 160.1 4080
+"Std. Hyper Saline Water" 350 160.1 4080
+"Std. Hyper Saline Water" 400 160.1 4080
+"Std. Hyper Saline Water" 450 160.1 4080
+"Std. Hyper Saline Water" 500 160.1 4080
+"Std. Hyper Saline Water" 550 160.1 4080
+"Std. Hyper Saline Water" 600 160.1 4080
+"Std. Hyper Saline Water" 0 200.1 3910
+"Std. Hyper Saline Water" 50 200.1 3910
+"Std. Hyper Saline Water" 100 200.1 3910
+"Std. Hyper Saline Water" 150 200.1 3910
+"Std. Hyper Saline Water" 200 200.1 3940
+"Std. Hyper Saline Water" 250 200.1 4000
+"Std. Hyper Saline Water" 300 200.1 4060
+"Std. Hyper Saline Water" 350 200.1 4060
+"Std. Hyper Saline Water" 400 200.1 4060
+"Std. Hyper Saline Water" 450 200.1 4060
+"Std. Hyper Saline Water" 500 200.1 4060
+"Std. Hyper Saline Water" 550 200.1 4060
+"Std. Hyper Saline Water" 600 200.1 4060
+"Std. Hyper Saline Water" 0 240.1 3880
+"Std. Hyper Saline Water" 50 240.1 3880
+"Std. Hyper Saline Water" 100 240.1 3880
+"Std. Hyper Saline Water" 150 240.1 3880
+"Std. Hyper Saline Water" 200 240.1 3910
+"Std. Hyper Saline Water" 250 240.1 3960
+"Std. Hyper Saline Water" 300 240.1 4000
+"Std. Hyper Saline Water" 350 240.1 4060
+"Std. Hyper Saline Water" 400 240.1 4060
+"Std. Hyper Saline Water" 450 240.1 4060
+"Std. Hyper Saline Water" 500 240.1 4060
+"Std. Hyper Saline Water" 550 240.1 4060
+"Std. Hyper Saline Water" 600 240.1 4060
+"Std. Hyper Saline Water" 0 280.1 3870
+"Std. Hyper Saline Water" 50 280.1 3870
+"Std. Hyper Saline Water" 100 280.1 3870
+"Std. Hyper Saline Water" 150 280.1 3870
+"Std. Hyper Saline Water" 200 280.1 3870
+"Std. Hyper Saline Water" 250 280.1 3910
+"Std. Hyper Saline Water" 300 280.1 3930
+"Std. Hyper Saline Water" 350 280.1 3970
+"Std. Hyper Saline Water" 400 280.1 4030
+"Std. Hyper Saline Water" 450 280.1 4030
+"Std. Hyper Saline Water" 500 280.1 4030
+"Std. Hyper Saline Water" 550 280.1 4030
+"Std. Hyper Saline Water" 600 280.1 4030
+"Std. Hyper Saline Water" 0 320.1 3860
+"Std. Hyper Saline Water" 50 320.1 3860
+"Std. Hyper Saline Water" 100 320.1 3860
+"Std. Hyper Saline Water" 150 320.1 3860
+"Std. Hyper Saline Water" 200 320.1 3860
+"Std. Hyper Saline Water" 250 320.1 3860
+"Std. Hyper Saline Water" 300 320.1 3870
+"Std. Hyper Saline Water" 350 320.1 3900
+"Std. Hyper Saline Water" 400 320.1 3940
+"Std. Hyper Saline Water" 450 320.1 3980
+"Std. Hyper Saline Water" 500 320.1 3980
+"Std. Hyper Saline Water" 550 320.1 3980
+"Std. Hyper Saline Water" 600 320.1 3980
+"Std. Hyper Saline Water" 0 360.1 3840
+"Std. Hyper Saline Water" 50 360.1 3840
+"Std. Hyper Saline Water" 100 360.1 3840
+"Std. Hyper Saline Water" 150 360.1 3840
+"Std. Hyper Saline Water" 200 360.1 3840
+"Std. Hyper Saline Water" 250 360.1 3840
+"Std. Hyper Saline Water" 300 360.1 3850
+"Std. Hyper Saline Water" 350 360.1 3860
+"Std. Hyper Saline Water" 400 360.1 3890
+"Std. Hyper Saline Water" 450 360.1 3930
+"Std. Hyper Saline Water" 500 360.1 3940
+"Std. Hyper Saline Water" 550 360.1 3940
+"Std. Hyper Saline Water" 600 360.1 3940
+"Std. Hyper Saline Water" 0 400.1 3800
+"Std. Hyper Saline Water" 50 400.1 3800
+"Std. Hyper Saline Water" 100 400.1 3800
+"Std. Hyper Saline Water" 150 400.1 3800
+"Std. Hyper Saline Water" 200 400.1 3800
+"Std. Hyper Saline Water" 250 400.1 3800
+"Std. Hyper Saline Water" 300 400.1 3800
+"Std. Hyper Saline Water" 350 400.1 3810
+"Std. Hyper Saline Water" 400 400.1 3830
+"Std. Hyper Saline Water" 450 400.1 3850
+"Std. Hyper Saline Water" 500 400.1 3860
+"Std. Hyper Saline Water" 550 400.1 3850
+"Std. Hyper Saline Water" 600 400.1 3840
+"Std. Hyper Saline Water" 0 440.1 3770
+"Std. Hyper Saline Water" 50 440.1 3770
+"Std. Hyper Saline Water" 100 440.1 3770
+"Std. Hyper Saline Water" 150 440.1 3770
+"Std. Hyper Saline Water" 200 440.1 3770
+"Std. Hyper Saline Water" 250 440.1 3770
+"Std. Hyper Saline Water" 300 440.1 3770
+"Std. Hyper Saline Water" 350 440.1 3780
+"Std. Hyper Saline Water" 400 440.1 3800
+"Std. Hyper Saline Water" 450 440.1 3810
+"Std. Hyper Saline Water" 500 440.1 3820
+"Std. Hyper Saline Water" 550 440.1 3820
+"Std. Hyper Saline Water" 600 440.1 3800
+"Std. Water" 0 0.1 4250
+"Std. Water" 50 0.1 4190
+"Std. Water" 100 0.1 4200
+"Std. Water" 150 0.1 4200
+"Std. Water" 200 0.1 4200
+"Std. Water" 250 0.1 4200
+"Std. Water" 300 0.1 4200
+"Std. Water" 350 0.1 4200
+"Std. Water" 400 0.1 4200
+"Std. Water" 450 0.1 4200
+"Std. Water" 500 0.1 4200
+"Std. Water" 550 0.1 4200
+"Std. Water" 600 0.1 4200
+"Std. Water" 0 40.1 4060
+"Std. Water" 50 40.1 4090
+"Std. Water" 100 40.1 4120
+"Std. Water" 150 40.1 4120
+"Std. Water" 200 40.1 4120
+"Std. Water" 250 40.1 4120
+"Std. Water" 300 40.1 4120
+"Std. Water" 350 40.1 4120
+"Std. Water" 400 40.1 4120
+"Std. Water" 450 40.1 4120
+"Std. Water" 500 40.1 4120
+"Std. Water" 550 40.1 4120
+"Std. Water" 600 40.1 4120
+"Std. Water" 0 80.1 4030
+"Std. Water" 50 80.1 4030
+"Std. Water" 100 80.1 4060
+"Std. Water" 150 80.1 4120
+"Std. Water" 200 80.1 4190
+"Std. Water" 250 80.1 4190
+"Std. Water" 300 80.1 4190
+"Std. Water" 350 80.1 4190
+"Std. Water" 400 80.1 4190
+"Std. Water" 450 80.1 4190
+"Std. Water" 500 80.1 4190
+"Std. Water" 550 80.1 4190
+"Std. Water" 600 80.1 4190
+"Std. Water" 0 120.1 4000
+"Std. Water" 50 120.1 4000
+"Std. Water" 100 120.1 4000
+"Std. Water" 150 120.1 4030
+"Std. Water" 200 120.1 4090
+"Std. Water" 250 120.1 4090
+"Std. Water" 300 120.1 4090
+"Std. Water" 350 120.1 4090
+"Std. Water" 400 120.1 4090
+"Std. Water" 450 120.1 4090
+"Std. Water" 500 120.1 4090
+"Std. Water" 550 120.1 4090
+"Std. Water" 600 120.1 4090
+"Std. Water" 0 160.1 3970
+"Std. Water" 50 160.1 3970
+"Std. Water" 100 160.1 3970
+"Std. Water" 150 160.1 4000
+"Std. Water" 200 160.1 4030
+"Std. Water" 250 160.1 4080
+"Std. Water" 300 160.1 4080
+"Std. Water" 350 160.1 4080
+"Std. Water" 400 160.1 4080
+"Std. Water" 450 160.1 4080
+"Std. Water" 500 160.1 4080
+"Std. Water" 550 160.1 4080
+"Std. Water" 600 160.1 4080
+"Std. Water" 0 200.1 3910
+"Std. Water" 50 200.1 3910
+"Std. Water" 100 200.1 3910
+"Std. Water" 150 200.1 3910
+"Std. Water" 200 200.1 3940
+"Std. Water" 250 200.1 4000
+"Std. Water" 300 200.1 4060
+"Std. Water" 350 200.1 4060
+"Std. Water" 400 200.1 4060
+"Std. Water" 450 200.1 4060
+"Std. Water" 500 200.1 4060
+"Std. Water" 550 200.1 4060
+"Std. Water" 600 200.1 4060
+"Std. Water" 0 240.1 3880
+"Std. Water" 50 240.1 3880
+"Std. Water" 100 240.1 3880
+"Std. Water" 150 240.1 3880
+"Std. Water" 200 240.1 3910
+"Std. Water" 250 240.1 3960
+"Std. Water" 300 240.1 4000
+"Std. Water" 350 240.1 4060
+"Std. Water" 400 240.1 4060
+"Std. Water" 450 240.1 4060
+"Std. Water" 500 240.1 4060
+"Std. Water" 550 240.1 4060
+"Std. Water" 600 240.1 4060
+"Std. Water" 0 280.1 3870
+"Std. Water" 50 280.1 3870
+"Std. Water" 100 280.1 3870
+"Std. Water" 150 280.1 3870
+"Std. Water" 200 280.1 3870
+"Std. Water" 250 280.1 3910
+"Std. Water" 300 280.1 3930
+"Std. Water" 350 280.1 3970
+"Std. Water" 400 280.1 4030
+"Std. Water" 450 280.1 4030
+"Std. Water" 500 280.1 4030
+"Std. Water" 550 280.1 4030
+"Std. Water" 600 280.1 4030
+"Std. Water" 0 320.1 3860
+"Std. Water" 50 320.1 3860
+"Std. Water" 100 320.1 3860
+"Std. Water" 150 320.1 3860
+"Std. Water" 200 320.1 3860
+"Std. Water" 250 320.1 3860
+"Std. Water" 300 320.1 3870
+"Std. Water" 350 320.1 3900
+"Std. Water" 400 320.1 3940
+"Std. Water" 450 320.1 3980
+"Std. Water" 500 320.1 3980
+"Std. Water" 550 320.1 3980
+"Std. Water" 600 320.1 3980
+"Std. Water" 0 360.1 3840
+"Std. Water" 50 360.1 3840
+"Std. Water" 100 360.1 3840
+"Std. Water" 150 360.1 3840
+"Std. Water" 200 360.1 3840
+"Std. Water" 250 360.1 3840
+"Std. Water" 300 360.1 3850
+"Std. Water" 350 360.1 3860
+"Std. Water" 400 360.1 3890
+"Std. Water" 450 360.1 3930
+"Std. Water" 500 360.1 3940
+"Std. Water" 550 360.1 3940
+"Std. Water" 600 360.1 3940
+"Std. Water" 0 400.1 3800
+"Std. Water" 50 400.1 3800
+"Std. Water" 100 400.1 3800
+"Std. Water" 150 400.1 3800
+"Std. Water" 200 400.1 3800
+"Std. Water" 250 400.1 3800
+"Std. Water" 300 400.1 3800
+"Std. Water" 350 400.1 3810
+"Std. Water" 400 400.1 3830
+"Std. Water" 450 400.1 3850
+"Std. Water" 500 400.1 3860
+"Std. Water" 550 400.1 3850
+"Std. Water" 600 400.1 3840
+"Std. Water" 0 440.1 3770
+"Std. Water" 50 440.1 3770
+"Std. Water" 100 440.1 3770
+"Std. Water" 150 440.1 3770
+"Std. Water" 200 440.1 3770
+"Std. Water" 250 440.1 3770
+"Std. Water" 300 440.1 3770
+"Std. Water" 350 440.1 3780
+"Std. Water" 400 440.1 3800
+"Std. Water" 450 440.1 3810
+"Std. Water" 500 440.1 3820
+"Std. Water" 550 440.1 3820
+"Std. Water" 600 440.1 3800
+[End]
+;
+;
+; DisplayContourIoTbl
+;
+[DisplayContourIoTbl]
+;v100
+PropertyName ContourValue ContourColour
+  ()   ()   ()
+[End]
+;
+;
+; TimeIoTbl
+;
+[TimeIoTbl]
+;v100
+PropertyName Time SurfaceName FormationName MapFileName Average Minimum Maximum Sum Sum2 NP PropertyGrid
+  () (Ma)   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()
+[End]
+;
+;
+; 3DTimeIoTbl
+;
+[3DTimeIoTbl]
+;v100
+Time PropertyName FormationName MapFileName GroupName DataSetName NumberX NumberY NumberZ Average Minimum Maximum Sum Sum2 NP
+(Ma)   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()   ()
+[End]
+;
+;
+; 1DTimeIoTbl
+;
+[1DTimeIoTbl]
+;v100
+Time PropertyName FormationName NodeIndex SurfaceName Value
+(Ma)   ()   ()   ()   ()   ()
+[End]
+;
+;
+; TemperatureIsoIoTbl
+;
+[TemperatureIsoIoTbl]
+;v100
+ Age ContourValue Sum NP
+(Ma)   ()   ()   ()
+[End]
+;
+;
+; VrIsoIoTbl
+;
+[VrIsoIoTbl]
+;v100
+ Age ContourValue Sum NP
+(Ma)   ()   ()   ()
+[End]
+;
+;
+; TwoWayTimeIoTbl
+;
+[TwoWayTimeIoTbl]
+;v100
+SurfaceName TwoWayTimeGrid TwoWayTime
+  () (ms) (ms)
+"Water_Bottom" "MAP-27104" -9999
+"Base_Breda_Clay" "MAP-27106" -9999
+"Top_Rupel" "MAP-27106" -9999
+"Top_Ieper" "MAP-27108" -9999
+"Top_Chalk_nr_20_NS_B" "MAP-27110" -9999
+"Top_Lower_Ommeland_Chalk" "MAP-27112" -9999
+"Top_Texel_nr_30_CK_B" "MAP-27114" -9999
+"Base_Cretaceous_Hiatus_Unconformity" "MAP-27116" -9999
+"Eroded_top_Roer_nr_45_TR_T" "MAP-27116" -9999
+"Eroded_top_Buntsandstein" "MAP-27118" -9999
+"Base_Bunter_on_hiatus_nr_50_ZE_T" "MAP-27120" -9999
+"Top_Zechstein_under_hiatus_nr_50_ZE_T" "MAP-27120" -9999
+"Top_Z2_nr_59_ZEZ2A_T" "MAP-27122" -9999
+"Nr_Top_Rotliegend" "MAP-27124" -9999
+[End]
+;
+;
+; GenexHistoryLocationIoTbl
+;
+[GenexHistoryLocationIoTbl]
+;v100
+FormationName WellName XPlanePosition YPlanePosition Filename
+  ()   ()  (m)  (m)   ()
+[End]
+;
+;
+; LangmuirAdsorptionCapacityIsothermSetIoTbl
+;
+[LangmuirAdsorptionCapacityIsothermSetIoTbl]
+;v100
+LangmuirName LangmuirTemperature LangmuirPressure LangmuirVolume
+  ()  (C) (MPa) (cc)
+[End]
+;
+;
+; LangmuirAdsorptionCapacityTOCFunctionIoTbl
+;
+[LangmuirAdsorptionCapacityTOCFunctionIoTbl]
+;v100
+LangmuirName ReferenceTemperature VLCoeffA VLCoeffB VLTemperatureGradient LangmuirPressure
+  ()  (C)   ()   () (cc/g/C) (MPa)
+[End]
+;
+;
+; AdsorptionHistoryIoTbl
+;
+[AdsorptionHistoryIoTbl]
+;v100
+AdsorptionFormationName XPlanePosition YPlanePosition
+  ()  (m)  (m)
+[End]
+;
+;
+; IrreducibleWaterSaturationIoTbl
+;
+[IrreducibleWaterSaturationIoTbl]
+;v100
+CoefficientA CoefficientB
+  ()   ()
+-0.13 0.7
+[End]
+;
+;
+; SGDensityIoTbl
+;
+[SGDensityIoTbl]
+;v100
+SGMeanBulkDensity
+  ()
+2300
+[End]
+;
+;
+; SimulationDetailsIoTbl
+;
+[SimulationDetailsIoTbl]
+;v100
+SimulationSequenceNumber SimulatorName SimulatorMode NumberOfCores SimulatorCommandLineParameters
+  ()   ()   ()   ()   ()
+[End]
+;
+;
+; OutputTablesFileIoTbl
+;
+[OutputTablesFileIoTbl]
+;v100
+Filename
+  ()
+"Output.iotables3d"
+[End]
+;
+;
+; OutputTablesIoTbl
+;
+[OutputTablesIoTbl]
+;v100
+TableName
+  ()
+"TimeIoTbl"
+"3DTimeIoTbl"
+"SnapshotIoTbl"
+"1DTimeIoTbl"
+"SimulationDetailsIoTbl"
+[End]
+;

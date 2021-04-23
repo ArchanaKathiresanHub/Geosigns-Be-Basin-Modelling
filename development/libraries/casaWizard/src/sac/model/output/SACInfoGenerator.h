@@ -14,7 +14,7 @@ namespace casaWizard
 {
 
 class ProjectReader;
-class MapReader;
+class CMBMapReader;
 class Well;
 
 namespace sac

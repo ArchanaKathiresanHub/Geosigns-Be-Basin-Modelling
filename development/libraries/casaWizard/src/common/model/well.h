@@ -37,6 +37,9 @@ public:
   bool isExcluded() const;
   void setIsExcluded(const bool isExcluded);
 
+  bool isOutOfBasin() const;
+  void setIsOutOfBasin(const bool isOutOfBasin);
+
   QVector<const CalibrationTarget*> calibrationTargets() const;
   void setCalibrationTargets(const QVector<CalibrationTarget>& calibrationTargets);
   void addCalibrationTarget(const QString& name, const QString& property, const double z, const double value);
@@ -50,6 +53,7 @@ private:
   double y_;
   bool isActive_;
   bool isExcluded_;
+  bool isOutOfBasin_;
   QVector<CalibrationTarget> calibrationTargets_;
 };
 

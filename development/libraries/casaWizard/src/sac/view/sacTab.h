@@ -38,6 +38,8 @@ public:
   QComboBox* comboBoxApplication() const;
   QComboBox* comboBoxCluster() const;    
   const QPushButton* pushSelectCalibration() const;
+  const QPushButton* pushSelectAllWells() const;
+  const QPushButton* pushClearSelection() const;
   const QPushButton* pushButtonSACrunCASA() const;
   const QPushButton* buttonRunOriginal1D() const;
   const QPushButton* buttonRunOriginal3D() const;
@@ -51,6 +53,9 @@ private:
   ObjectiveFunctionTable* objectiveFunctionTable_;
 
   QPushButton* pushSelectCalibration_;
+  QPushButton* pushSelectAllWells_;
+  QPushButton* pushClearSelection_;
+
   QComboBox* comboBoxApplication_;
   QComboBox* comboBoxCluster_;
 

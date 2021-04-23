@@ -8,11 +8,12 @@
 
 #pragma once
 
+#include "model/vectorvectormap.h"
+
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
-#include "../vectorvectormap.h"
 namespace mbapi
 {
   class Model;
@@ -21,15 +22,16 @@ namespace mbapi
 namespace casaWizard
 {
 
-class MapReader
+class CMBMapReader
 {
 public:
-  MapReader();
-  ~MapReader();
+  CMBMapReader();
+  ~CMBMapReader();
 
   VectorVectorMap getMapData(const std::string& mapName) const;
   void load(const std::string& projectFile);
   bool mapExists(const std::string& mapName) const;
+  double getValue(const double x, const double y, const std::string& mapName) const;
 
 private:
   std::vector<std::vector<double> > resizeData(const std::vector<double>& out, const int numI, const int numJ) const;

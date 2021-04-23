@@ -37,7 +37,6 @@ target_link_libraries(
    DataModel
    DataAccess
    SerialDataAccess
-   DataAccess
    TableIO
    FileSystem
    VisualizationIO

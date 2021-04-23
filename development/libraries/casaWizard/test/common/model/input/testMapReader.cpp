@@ -6,15 +6,16 @@
 // Do not distribute without written permission from Shell.
 //
 
+#include "model/input/cmbMapReader.h"
+
 #include <gtest/gtest.h>
-#include "model/input/mapreader.h"
 
 using namespace casaWizard;
 
 class MapReaderTest : public ::testing::Test
 {
 public:
-  MapReader reader_{};
+  CMBMapReader reader_{};
   MapReaderTest()
   {
     reader_.load("MapReaderTest.project3d");
@@ -39,6 +40,11 @@ TEST_F(MapReaderTest, testMapDoesNotExist)
 TEST_F(MapReaderTest, testMapExists)
 {
   EXPECT_TRUE(reader_.mapExists("MAP-27103"));
+}
+
+TEST_F(MapReaderTest, testGetValue)
+{
+  EXPECT_DOUBLE_EQ(reader_.getValue(179000 + 93 * 250, 603500 + 2 * 250, "MAP-27109"), 1564.73046875);
 }
 
 

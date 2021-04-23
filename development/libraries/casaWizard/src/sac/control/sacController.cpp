@@ -17,6 +17,7 @@
 #include "control/run3dCaseController.h"
 #include "control/scriptRunController.h"
 #include "model/input/calibrationTargetCreator.h"
+#include "model/input/cmbMapReader.h"
 #include "model/logger.h"
 #include "model/output/cmbProjectWriter.h"
 #include "model/output/wellTrajectoryWriter.h"
@@ -67,15 +68,19 @@ SACcontroller::SACcontroller(SACtab* sacTab,
 
   connect( parent, SIGNAL(signalReload1Ddata()), this, SLOT(slotExtractData()));
 
-  connect(sacTab_->pushButtonSACrunCASA(),  SIGNAL(clicked()),                   this, SLOT(slotPushButtonSACrunCasaClicked()));
-  connect(sacTab_->pushSelectProject3D(),   SIGNAL(clicked()),                   this, SLOT(slotPushSelectProject3dClicked()));
-  connect(sacTab_->pushSelectCalibration(), SIGNAL(clicked()),                   this, SLOT(slotPushSelectCalibrationClicked()));
+  connect(sacTab_->pushButtonSACrunCASA(),  SIGNAL(clicked()),    this, SLOT(slotPushButtonSACrunCasaClicked()));
+  connect(sacTab_->pushSelectProject3D(),   SIGNAL(clicked()),    this, SLOT(slotPushSelectProject3dClicked()));
+  connect(sacTab_->pushSelectCalibration(), SIGNAL(clicked()),    this, SLOT(slotPushSelectCalibrationClicked()));
+  connect(sacTab_->pushSelectAllWells(), SIGNAL(clicked()),       this, SLOT(slotPushSelectAllWellsClicked()));
+  connect(sacTab_->pushClearSelection(), SIGNAL(clicked()),       this, SLOT(slotPushClearSelectionClicked()));
 
   connect(sacTab_->buttonRunOriginal1D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal1D()));
   connect(sacTab_->buttonRunOriginal3D(),     SIGNAL(clicked()), this, SLOT(slotRunOriginal3D()));
 
   connect(sacTab_->comboBoxCluster(),       SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
   connect(sacTab_->comboBoxApplication(),   SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxApplicationChanged(QString)));
+
+
 }
 
 void SACcontroller::refreshGUI()
@@ -96,6 +101,16 @@ void SACcontroller::slotUpdateTabGUI(int tabID)
   }
 
   refreshGUI();
+}
+
+void SACcontroller::slotPushSelectAllWellsClicked()
+{
+  calibrationTargetController_->selectAllWells();
+}
+
+void SACcontroller::slotPushClearSelectionClicked()
+{
+  calibrationTargetController_->clearWellSelection();
 }
 
 void SACcontroller::slotExtractData()
@@ -311,7 +326,7 @@ void SACcontroller::slotPushSelectCalibrationClicked()
   calibrationTargetCreator::createFromExcel(casaScenario_, fileName);
   WellTrajectoryManager& wtManager = casaScenario_.wellTrajectoryManager();
   wtManager.updateWellTrajectories(casaScenario_.calibrationTargetManager());
-
+  casaScenario_.calibrationTargetManager().disableInvalidWells(casaScenario_.project3dPath().toStdString(), casaScenario_.projectReader().getDepthGridName(0).toStdString());
   CMBProjectWriter projectWriter(casaScenario_.project3dPath());
   casaScenario_.updateRelevantProperties(projectWriter);
 

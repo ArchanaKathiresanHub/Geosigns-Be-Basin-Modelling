@@ -1,9 +1,11 @@
 #include "calibrationTargetManager.h"
 
+#include "logger.h"
 #include "scenarioReader.h"
 #include "scenarioWriter.h"
 #include "targetParameterMapCreator.h"
-
+#include "wellValidator.h"
+#include "model/input/cmbMapReader.h"
 #include <QSet>
 
 #include <algorithm>
@@ -140,7 +142,7 @@ void CalibrationTargetManager::readFromFile(const ScenarioReader& reader)
     Well newWell;
     newWell.readFromFile(reader, wellIndex);
     wells_.push_back(newWell);
-  }
+  }  
 }
 
 QVector<const CalibrationTarget*> CalibrationTargetManager::activeCalibrationTargets() const
@@ -167,6 +169,22 @@ QStringList CalibrationTargetManager::activeProperties() const
     }
   }
   return properties;
+}
+
+void CalibrationTargetManager::disableInvalidWells(const std::string& projectFileName, const std::string& depthGridName)
+{
+  CMBMapReader mapReader;
+  mapReader.load(projectFileName);
+  WellValidator validator(mapReader);
+  for (Well& well : wells_)
+  {
+    if (!validator.isValid(well, depthGridName))
+    {
+      well.setIsActive(false);
+      well.setIsOutOfBasin(true);
+      Logger::log() << "Well " << well.name() << " is outside of the AOI and is therefore disabled." << Logger::endl();
+    }
+  }
 }
 
 QVector<QVector<CalibrationTarget>> CalibrationTargetManager::extractWellTargets(QStringList& properties, const int wellIndex) const

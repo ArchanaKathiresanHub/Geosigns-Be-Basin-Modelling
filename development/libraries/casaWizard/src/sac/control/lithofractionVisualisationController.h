@@ -14,7 +14,7 @@ namespace casaWizard
 {
 
 class CalibrationTargetManager;
-class MapReader;
+class CMBMapReader;
 class VectorVectorMap;
 
 namespace sac
@@ -45,10 +45,10 @@ private:
 
   void connectToolTipSlots();  
   QVector<OptimizedLithofraction> getOptimizedLithoFractionsInActiveLayer(const casaWizard::CalibrationTargetManager& ctManager);
-  QStringList obtainAvailableLayers();
-  std::vector<VectorVectorMap> obtainLithologyMaps(const MapReader& mapReader, int layerID);
-  QStringList obtainLithologyTypes(const int layerID);
-  bool openMaps(MapReader& mapReader, const int layerID);
+  QStringList obtainAvailableLayers() const;
+  std::vector<VectorVectorMap> obtainLithologyMaps(const CMBMapReader& mapReader, int layerID) const;
+  QStringList obtainLithologyTypes(const int layerID) const;
+  bool openMaps(CMBMapReader& mapReader, const int layerID) const;
 
 private slots:
   void slotUpdatePlots(const QString& layerName);
