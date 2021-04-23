@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-23  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added functionality to forcefully disable wells which lie outside of the AOI
+	* Related work items: #417173
+
+	================== COMMIT-END ========================
+	Commit-ID:<d8508a619edba33ef71c8e808e80ee06da960543>	  (refs/heads/master)
+
+++
 2021-04-22  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Run 1d original cases.
