@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-28  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fix for the memory overflow in the SAC wizard when creating many 1D cases
+	* Related work items: #420061
+	Commit-ID:<6eda83d0879c32ff3cca2baf8ea265e83bcbcb04>	  (refs/heads/master)
+
+++
 2021-04-28  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Fix LM optimization for missing observable data.
