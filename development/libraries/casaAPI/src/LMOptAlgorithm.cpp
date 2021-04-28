@@ -825,20 +825,20 @@ void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
       {
          if ( !m_optimObsMask[i][k] ) continue;
 
-         // if the oservation is undefined or invalid at this stage after the filtering of the invalid observations in the base case we should exit the LM optimization
-         if ( IsValueUndefined(obv[k]) )
-         {
-            LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid observation value: " << obs->name()[k] << " with simulated value " << obv[k] << ", stopping...";
-            throw ErrorHandler::Exception(ErrorHandler::UnknownError) << "Invalid observation value, stopping...";
-         }
-
          if ( sigma[k] <= 0 )
          {
             LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid standard deviation value: " << obs->name()[k] << " with standard deviation " << sigma[k] << ", stopping...";
             throw ErrorHandler::Exception(ErrorHandler::UnknownError) << "Invalid standard deviation value, stopping...";
          }
 
-         double dif = std::sqrt(uaWeight) * std::abs(obv[k] - refVal[k]) / sigma[k];
+         double dif = std::sqrt(uaWeight) * std::fabs(obv[k] - refVal[k]) / sigma[k];
+
+         // If the observation is undefined or invalid at this stage after the filtering of the invalid observations in the base case
+         // we should push the algorithm back to a defined value by giving a large offset (10 sigma)
+         if ( IsValueUndefined(obv[k]) )
+         {
+            dif = std::sqrt(uaWeight) * 10.0;
+         }
 
 #ifndef ACCUMULATE_MIN_FUNCTION
          fvec[mi] = dif;
