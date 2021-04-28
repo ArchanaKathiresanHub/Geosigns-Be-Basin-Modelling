@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-28  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix LM optimization for missing observable data.
+	* Fix LM when during the optimization observables are out of the domain
+
+	================== COMMIT-END ========================
+	Commit-ID:<c73b2298147c158e7e3b3142f5e126ccdc157178>	  (refs/heads/master)
+
+++
 2021-04-23  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Added functionality to forcefully disable wells which lie outside of the AOI
