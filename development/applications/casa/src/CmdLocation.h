@@ -20,7 +20,7 @@ public:
    /// @param cmdPrms list of command parameters as set of strings
    CmdLocation( CasaCommander & parent, const std::vector< std::string > & cmdPrms );
 
-   virtual ~CmdLocation() { ; }
+   virtual ~CmdLocation() {}
 
    /// @brief Run command
    virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
@@ -34,8 +34,10 @@ public:
 
 protected:
    std::string m_locPath;
+
    bool m_appendCases = false;
    bool m_noOptimization = false;
+   bool m_removeModelFromMemory = false;
 };
 
 #endif // CASA_CMD_LOCATION_H

@@ -1,11 +1,12 @@
 #include "calibrationTargetManager.h"
 
 #include "logger.h"
+#include "model/input/cmbMapReader.h"
 #include "scenarioReader.h"
 #include "scenarioWriter.h"
 #include "targetParameterMapCreator.h"
 #include "wellValidator.h"
-#include "model/input/cmbMapReader.h"
+
 #include <QSet>
 
 #include <algorithm>
@@ -182,7 +183,7 @@ void CalibrationTargetManager::disableInvalidWells(const std::string& projectFil
     {
       well.setIsActive(false);
       well.setIsOutOfBasin(true);
-      Logger::log() << "Well " << well.name() << " is outside of the AOI and is therefore disabled." << Logger::endl();
+      Logger::log() << "Well " << well.name() << " is outside of the basin model and is therefore disabled." << Logger::endl();
     }
   }
 }

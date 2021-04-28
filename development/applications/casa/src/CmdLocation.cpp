@@ -28,6 +28,7 @@ CmdLocation::CmdLocation( CasaCommander & parent, const std::vector< std::string
    {
      if ( m_prms[i] == "append" ) m_appendCases = true;
      if ( m_prms[i] == "noOptimization" ) m_noOptimization = true;
+     if ( m_prms[i] == "removeModel" ) m_removeModelFromMemory = true;
    }
 }
 
@@ -35,7 +36,7 @@ void CmdLocation::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    LogHandler( LogHandler::INFO_SEVERITY ) << "Generating the set of cases in folder: " << m_locPath << "...";
    if ( ErrorHandler::NoError != sa->setScenarioLocation( m_locPath.c_str(), m_appendCases ) ||
-        ErrorHandler::NoError != sa->applyMutations(      sa->doeCaseSet() , m_appendCases )
+        ErrorHandler::NoError != sa->applyMutations(      sa->doeCaseSet() , m_appendCases, !m_removeModelFromMemory )
       )
    {
       throw ErrorHandler::Exception(sa->errorCode()) << sa->errorMessage();

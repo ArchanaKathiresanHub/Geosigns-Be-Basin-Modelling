@@ -85,7 +85,7 @@ namespace casa
    }
 
    // Mutate case to given project file
-   void RunCaseImpl::mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName )
+   void RunCaseImpl::mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName, const bool saveMemberModel )
    {
       if ( !newProjectName || !strlen( newProjectName ) )
       {
@@ -99,8 +99,8 @@ namespace casa
       }
 
       // create the new one
-      m_model.reset( new mbapi::Model() );
-      if ( ErrorHandler::NoError != m_model->loadModelFromProjectFile( newProjectName ) )
+      mbapi::Model* model = new mbapi::Model();
+      if ( ErrorHandler::NoError != model->loadModelFromProjectFile( newProjectName ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can't read mutated project: " << newProjectName;
       }
@@ -111,25 +111,35 @@ namespace casa
       // apply mutations
       for ( size_t i = 0; i < m_prmsSet.size(); ++i )
       {         
-         if ( ErrorHandler::NoError != m_prmsSet[i]->setInModel( *m_model, id() ) )
+         if ( ErrorHandler::NoError != m_prmsSet[i]->setInModel( *model, id() ) )
          {
-            throw ErrorHandler::Exception( m_model->errorCode() ) << m_model->errorMessage();
+            throw ErrorHandler::Exception( model->errorCode() ) << model->errorMessage();
          }
       }
 
       // clean duplicated lithologies
       if ( m_cleanDupLith )
       {
-         m_model->lithologyManager().cleanDuplicatedLithologies();
+         model->lithologyManager().cleanDuplicatedLithologies();
       }
 
       // write mutated project to the file
-      if ( ErrorHandler::NoError != m_model->saveModelToProjectFile( newProjectName ) )
+      if ( ErrorHandler::NoError != model->saveModelToProjectFile( newProjectName ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can't write mutated project: " << newProjectName;
       }      
 
       setRunStatus( NotSubmitted );
+
+      if (saveMemberModel)
+      {
+        m_model.reset(model);
+      }
+      else
+      {
+        delete model;
+      }
+
    }
 
    // Do checking, are all influential parameters case value in their ranges

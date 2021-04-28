@@ -22,6 +22,8 @@ public slots:
 
 private slots:
   void slotPushClearLogClicked();
+  void slotPushShowLogClicked();
+  void slotPushHideLogClicked();
 
 private:
   LogDisplay* logDisplay_;

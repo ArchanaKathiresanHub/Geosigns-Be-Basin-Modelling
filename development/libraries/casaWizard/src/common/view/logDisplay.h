@@ -18,14 +18,22 @@ public:
 
   void addLog(const QString& logMessage);
   void clearLog();
+  void showLess();
+  void showMore();
 
   QPushButton* pushClearLog() const;
+  QPushButton* pushHideLog() const;
+  QPushButton* pushShowLog() const;
   QTextEdit* lineEditLog() const;
 
 private:
+  void updateDisplayState();
   QPushButton* pushClearLog_;
+  QPushButton* pushHideLog_;
+  QPushButton* pushShowLog_;
   QTextEdit* lineEditLog_;
 
+  int displayState_ = 1;
 };
 
 } // namespace casaWizard

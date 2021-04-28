@@ -23,6 +23,7 @@ TEST(WellValidatorTest, testInvalidWell)
   invalidWells.push_back(Well(0, "Name", 179125, 603500));
   invalidWells.push_back(Well(0, "Name", 179000, 603625));
   invalidWells.push_back(Well(0, "Name", 179125, 603625));
+  invalidWells.push_back(Well(0, "Name", 1, 1));
 
   for (const Well& well : invalidWells)
   {

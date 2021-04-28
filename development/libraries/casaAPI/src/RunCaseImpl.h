@@ -59,7 +59,7 @@ namespace casa
       virtual void addObsValue(const ObsValue* obs );
 
       // Mutate give case to the given project file
-      virtual void mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName );
+      virtual void mutateCaseTo(mbapi::Model & baseCase, const char * newProjectName , const bool saveMemberModel = true);
 
       // Do checking, are all influential parameters case value in their ranges
       // if validation is OK, return empty string. otherwise - the list of validation

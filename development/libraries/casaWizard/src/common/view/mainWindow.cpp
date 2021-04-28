@@ -31,8 +31,8 @@ MainWindow::MainWindow(QWidget* parent) :
   setSizePolicy(sizePolicyNew);
 
   QVBoxLayout* layout = new QVBoxLayout(centralWidget);
-  layout->addWidget(tabWidget_,3);
-  layout->addWidget(logDisplay_,1);
+  layout->addWidget(tabWidget_);
+  layout->addWidget(logDisplay_);
 }
 
 MainWindow::~MainWindow()

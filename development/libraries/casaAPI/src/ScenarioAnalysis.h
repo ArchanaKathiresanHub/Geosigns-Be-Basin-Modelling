@@ -144,7 +144,7 @@ namespace casa
       /// @param cs casa::RunCaseSet object
       /// @param append bool Flag to only create newly added cases
       /// @return ErrorHandler::NoError
-      ErrorHandler::ReturnCode applyMutations( RunCaseSet & cs, const bool append = false );
+      ErrorHandler::ReturnCode applyMutations(RunCaseSet & cs, const bool append = false , const bool keepModelAvailable = true);
 
       /// @brief Get scenario iteration number. Iteration number is used to avoid overalpping projects folder.
       ///        Each new projects generation is performed under the new "Iteration_<ItNum>" folder

@@ -71,7 +71,7 @@ namespace casa
       /// @brief Mutate case to given project file
       /// @param baseCase base case of the scenario which will be mutated to a new case
       /// @param newProjectName the name of the mutated project
-      virtual void mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName ) = 0;
+      virtual void mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName, const bool saveMemberModel = true ) = 0;
 
       /// @brief Do checking, are all influential parameters case value in their ranges
       /// @return if validation is OK, empty string, otherwise - the list of validation

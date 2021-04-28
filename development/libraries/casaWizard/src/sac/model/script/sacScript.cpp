@@ -80,7 +80,7 @@ void SACScript::writeScriptContents(QFile& file) const
   }
 
   out << QString("generateMulti1D \"Default\" \"none\" 0.01\n");
-  out << writeLocation(scenario_.runLocation(), false, !doOptimization_);
+  out << writeLocation(scenario_.runLocation(), false, !doOptimization_, true);
   out << writeRun(scenario_.clusterName());
   out << writeSaveState(scenario_.stateFileNameSAC());
 }

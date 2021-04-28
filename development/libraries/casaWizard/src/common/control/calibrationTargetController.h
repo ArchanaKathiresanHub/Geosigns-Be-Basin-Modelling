@@ -20,17 +20,15 @@ public:
                               CasaScenario& casaScenario,
                               QObject* parent);
 
-  void validateWells();
   void selectAllWells();
   void clearWellSelection();
+  void validateWells();
 
 private slots:
   void slotCalibrationTargetCheckBoxStateChanged(int state, int wellIndex);
-
   void slotRefresh();
 
 private:
-
   CalibrationTargetTable* calibrationTable_;
   CasaScenario& casaScenario_;
 };

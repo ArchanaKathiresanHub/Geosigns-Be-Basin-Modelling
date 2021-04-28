@@ -128,9 +128,11 @@ QString CasaScript::writeBaseProject(const QString& project3dPath) const
   return QString("base_project \"" + project3dPath + "\"\n");
 }
 
-QString CasaScript::writeLocation(const QString& location, const bool append, const bool noOptimization) const
+QString CasaScript::writeLocation(const QString& location, const bool append, const bool noOptimization, const bool removeModelFromMemory) const
 {
-  return QString("location \"" + location + "\"" + ((append)?" \"append\"":"") + ((noOptimization)?" \"noOptimization\"":"") + "\n");
+  return QString("location \"" + location + "\"" + ((append)?" \"append\"":"") +
+                                                   ((noOptimization)?" \"noOptimization\"":"") +
+                                                   ((removeModelFromMemory)?" \"removeModel\"":"") + "\n");
 }
 
 QString CasaScript::writeRun(const QString& clusterName) const

@@ -19,6 +19,7 @@
 #include "DoEGeneratorImpl.h"
 #include "MonteCarloSolverImpl.h"
 #include "LMOptAlgorithm.h"
+#include "LogHandler.h"
 #include "ObsSpaceImpl.h"
 #include "ObsGridPropertyXYZ.h"
 #include "ObsGridPropertyWell.h"
@@ -36,7 +37,6 @@
 #include "VarSpaceImpl.h"
 #include "PrmWindow.h"
 #include "PrmLithoFraction.h"
-
 // Utilities lib
 #include <NumericFunctions.h>
 
@@ -110,7 +110,7 @@ public:
    RunCaseSet & doeCaseSet() { return *m_doeCases; }
 
    // Create copy of the base case model and set all influential parameters value defined for each case
-   void applyMutations( RunCaseSet & cs, const bool append );
+   void applyMutations(RunCaseSet & cs, const bool append , const bool keepModelAvailable);
 
    // @brief Get scenario iteration number. Iteration number is used to avoid overlapping projects folder.
    size_t scenarioIteration() const { return m_iterationNum; }
@@ -329,9 +329,9 @@ DoEGenerator & ScenarioAnalysis::doeGenerator()
 
 
 // Apply mutations and generate project files for the set of cases from DoE
-ErrorHandler::ReturnCode ScenarioAnalysis::applyMutations(RunCaseSet & cs , const bool append)
+ErrorHandler::ReturnCode ScenarioAnalysis::applyMutations(RunCaseSet & cs , const bool append, const bool keepModelAvailable)
 {
-   try { m_pimpl->applyMutations( cs, append ); }
+   try { m_pimpl->applyMutations( cs, append, keepModelAvailable ); }
    catch ( Exception & ex           ) { return reportError( ex.errorCode(), ex.what()  ); }
    catch ( ibs::PathException & pex ) { return reportError( IoError,        pex.what() ); }
    catch ( ...                      ) { return reportError( UnknownError,   "Unknown error" ); }
@@ -619,7 +619,7 @@ DoEGenerator * ScenarioAnalysis::ScenarioAnalysisImpl::doeGenerator()
 }
 
 
-void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations(RunCaseSet & rcs , const bool append)
+void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations(RunCaseSet & rcs , const bool append, const bool keepModelAvailable)
 {
    // construct case set path like pathToScenario/Iteration_XX
    ibs::FolderPath caseSetPath( m_caseSetPath );
@@ -681,7 +681,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations(RunCaseSet & rcs , c
       {
          casePath.create();
          casePath << projectFileName;
-         runCase->mutateCaseTo( baseCase(), casePath.path().c_str() );
+         runCase->mutateCaseTo( baseCase(), casePath.path().c_str(), keepModelAvailable);
          m_caseNum++;
       }
    }
@@ -751,10 +751,10 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
       // for other influential parameters, set the values read from the model
       for ( size_t par = 0; par < var.size(); ++par )
       {
-         const casa::VarParameter * vprm = var.parameter( par );
-         // get the parameter value at the specific x, y location (bottom left corner)
-         SharedParameterPtr prm( vprm->newParameterFromModel( mdl, wellCoord ) );
-         newCase->addParameter( prm );
+        const casa::VarParameter * vprm = var.parameter( par );
+        // get the parameter value at the specific x, y location (bottom left corner)
+        SharedParameterPtr prm( vprm->newParameterFromModel( mdl, wellCoord ) );
+        newCase->addParameter( prm );
       }
 
       // push back the new case in the experiment set

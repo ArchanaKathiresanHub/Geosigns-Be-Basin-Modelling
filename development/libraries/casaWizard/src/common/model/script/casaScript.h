@@ -29,7 +29,7 @@ protected:
   QString writeBaseProject(const QString& project3dPath) const;
   QString writeRun(const QString& clusterName) const;
   QString writeRunDataDigger() const;
-  QString writeLocation(const QString& doe, const bool append = false, const bool noOptimization = false) const;
+  QString writeLocation(const QString& doe, const bool append = false, const bool noOptimization = false, const bool removeModelFromMemory = false) const;
   QString writeSaveState(const QString& stateFilename) const;
   QString writeLoadState(const QString& stateFilename) const;
   QString writeDoeTextList(const QStringList& doeList) const;

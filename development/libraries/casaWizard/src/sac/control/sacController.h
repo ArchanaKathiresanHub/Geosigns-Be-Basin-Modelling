@@ -57,6 +57,7 @@ private slots:
 
   void slotRunOriginal1D();
   void slotRunOriginal3D();
+
 signals:
   void signalRefreshChildWidgets();
 

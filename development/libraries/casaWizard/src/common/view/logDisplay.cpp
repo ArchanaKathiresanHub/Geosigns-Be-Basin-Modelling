@@ -11,6 +11,8 @@ namespace casaWizard
 LogDisplay::LogDisplay(QWidget* parent) :
   QWidget(parent),
   pushClearLog_{new QPushButton("Clear log", this)},
+  pushHideLog_{new QPushButton("Show less", this)},
+  pushShowLog_{new QPushButton("Show more", this)},
   lineEditLog_{new QTextEdit(this)}
 {
   lineEditLog_->setEnabled(true);
@@ -18,10 +20,13 @@ LogDisplay::LogDisplay(QWidget* parent) :
   QHBoxLayout* buttonLayout = new QHBoxLayout();
   buttonLayout->addWidget(pushClearLog_);
   buttonLayout->addWidget(new QWidget(this), 1);
+  buttonLayout->addWidget(pushShowLog_);
+  buttonLayout->addWidget(pushHideLog_);
 
   QVBoxLayout* layout = new QVBoxLayout();
   layout->addLayout(buttonLayout);
   layout->addWidget(lineEditLog_);
+  lineEditLog_->setFixedHeight(200);
 
   setLayout(layout);
 }
@@ -36,14 +41,60 @@ void LogDisplay::clearLog()
   lineEditLog_->setText("");
 }
 
+void LogDisplay::showLess()
+{
+  if (displayState_ > 0)
+  {
+    displayState_--;
+    updateDisplayState();
+  }
+}
+
+void LogDisplay::showMore()
+{
+  if (displayState_ < 2)
+  {
+    displayState_++;
+    updateDisplayState();
+  }
+}
+
 QPushButton* LogDisplay::pushClearLog() const
 {
   return pushClearLog_;
 }
 
+QPushButton*LogDisplay::pushHideLog() const
+{
+  return pushHideLog_;
+}
+
+QPushButton*LogDisplay::pushShowLog() const
+{
+  return pushShowLog_;
+}
+
 QTextEdit* LogDisplay::lineEditLog() const
 {
   return lineEditLog_;
+}
+
+void LogDisplay::updateDisplayState()
+{
+  switch (displayState_)
+  {
+    case 0:
+      lineEditLog_->hide();
+      break;
+    case 1:
+      lineEditLog_->show();
+      lineEditLog_->setFixedHeight(200);
+      break;
+    case 2:
+      lineEditLog_->show();
+      lineEditLog_->setFixedHeight(400);
+      break;
+  }
 }
 
 } // namespace casaWizard
