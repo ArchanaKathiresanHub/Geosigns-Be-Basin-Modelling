@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-29  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Cauldron2Voxet Basin Depth Calculations for BPA2 Outputs.
+	 * The default values of the number of nodes in the depth direction populated in spec file is calculated
+	 * Some other minor changes
+
+	Related work items: #423263
+	================== COMMIT-END ========================
+	Commit-ID:<06c5c8b1df4c55e62291ab1ad599714491bbd261>	  (HEAD -> master, origin/master)
+
+++
 2021-04-28  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fix for the memory overflow in the SAC wizard when creating many 1D cases
