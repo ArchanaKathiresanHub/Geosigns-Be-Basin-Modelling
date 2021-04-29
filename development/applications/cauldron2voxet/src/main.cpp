@@ -15,49 +15,71 @@ bool verbose = false;
 bool singlePropertyHeader = false;
 bool debug = false;
 
+static char * argv0 = nullptr;
+
+namespace
+{
+    double originX = MAXDOUBLE;
+    double originY = MAXDOUBLE;
+    double originZ = MAXDOUBLE;
+
+    double deltaX = MAXDOUBLE;
+    double deltaY = MAXDOUBLE;
+    double deltaZ = MAXDOUBLE;
+
+    double countX = MAXDOUBLE;
+    double countY = MAXDOUBLE;
+    double countZ = MAXDOUBLE;
+}
+
+
+/// Print to stdout a default voxet file based on the cauldron project file that has been input.
+void createVoxetProjectFile (const DataAccess::Interface::ProjectHandle &cauldronProject,
+                              DerivedProperties::DerivedPropertyManager& propertyManager,
+                              ostream & outputStream, const DataAccess::Interface::Snapshot * snapshot );
 
 static void showUsage(const char* message)
 {
-	cerr << endl;
-	if (message)
-	{
-		cerr << argv0 << ": " << message << endl;
-	}
+    cerr << endl;
+    if (message)
+    {
+        cerr << argv0 << ": " << message << endl;
+    }
 
-	cerr << "Usage (Options may be abbreviated): " << endl
-		<< argv0 << "    -project <cauldron-project-file>" << endl
-		<< "                  [-spec <spec-file>]" << endl
-		<< "                  [-snapshot <age>]" << endl
-		<< "                  [-origin <originX>,<originY>,<originZ>]" << endl
-		<< "                  [-delta <deltaX>,<deltaY>,<deltaZ>]" << endl
-		<< "                  [-count <countX>,<countY>,<countZ>]" << endl
-		<< "                  [-output <output-file-name>]" << endl
-		<< "                  [-create-spec <spec-file>]" << endl
-		<< "                  [-nullvaluereplace <PropertyName,Value> [<PropertyName,Value>] [...]]" << endl
-		<< "                  [-nobasement]" << endl
-		<< "                  [-propertyHeader]" << endl
-		<< "                  [-verbose]" << endl
-		<< "                  [-help]" << endl
-		<< "                  [-?]" << endl
-		<< "                  [-usage]" << endl
-		<< endl
-		<< "    -project              The cauldron project file." << endl
-		<< "    -spec                 Use the specified spec file. Use a standard spec file if missing." << endl
-		<< "    -snapshot             Use the specified snapshot age. Not valid in conjunction with '-spec'," << endl
-		<< "    -origin               Use the specified coordinates as the origin of the sample cube" << endl
-		<< "    -delta                Use the specified values as the sampling distance in the x, y and z direction" << endl
-		<< "    -count                Use the specified values as the number of samples in the x, y and z direction" << endl
-		<< "    -output               Output voxet file-name, MUST NOT contain the .vo extension, this will be added." << endl
-		<< "    -create-spec          Write a standard spec file into the specified file name," << endl
-		<< "                          the cauldron project file must also be specified." << endl
-		<< "    -nullvaluereplace     Replace null values of the property by a given value." << endl
-		<< "    -nobasement           Ignore basement layers." << endl
-		<< "    -singlepropertyheader Writes one header file for each property. (additional to the multiple property header-file)" << endl
-		<< "    -verbose              Generate some extra output." << endl
-		<< "    -help                 Print this message." << endl
-		<< "    -?                    Print this message." << endl
-		<< "    -usage                Print this message." << endl << endl;
-	exit(-1);
+    cerr << "Usage (Options may be abbreviated): " << endl
+        << argv0 << "    -project <cauldron-project-file>" << endl
+        << "                  [-spec <spec-file>]" << endl
+        << "                  [-snapshot <age>]" << endl
+        << "                  [-origin <originX>,<originY>,<originZ>]" << endl
+        << "                  [-delta <deltaX>,<deltaY>,<deltaZ>]" << endl
+        << "                  [-count <countX>,<countY>,<countZ>]" << endl
+        << "                  [-output <output-file-name>]" << endl
+        << "                  [-create-spec <spec-file>]" << endl
+        << "                  [-nullvaluereplace <PropertyName,Value> [<PropertyName,Value>] [...]]" << endl
+        << "                  [-nobasement]" << endl
+        << "                  [-propertyHeader]" << endl
+        << "                  [-verbose]" << endl
+        << "                  [-help]" << endl
+        << "                  [-?]" << endl
+        << "                  [-usage]" << endl
+        << endl
+        << "    -project              The cauldron project file." << endl
+        << "    -spec                 Use the specified spec file. Use a standard spec file if missing." << endl
+        << "    -snapshot             Use the specified snapshot age. Not valid in conjunction with '-spec'," << endl
+        << "    -origin               Use the specified coordinates as the origin of the sample cube" << endl
+        << "    -delta                Use the specified values as the sampling distance in the x, y and z direction" << endl
+        << "    -count                Use the specified values as the number of samples in the x, y and z direction" << endl
+        << "    -output               Output voxet file-name, MUST NOT contain the .vo extension, this will be added." << endl
+        << "    -create-spec          Write a standard spec file into the specified file name," << endl
+        << "                          the cauldron project file must also be specified." << endl
+        << "    -nullvaluereplace     Replace null values of the property by a given value." << endl
+        << "    -nobasement           Ignore basement layers." << endl
+        << "    -singlepropertyheader Writes one header file for each property. (additional to the multiple property header-file)" << endl
+        << "    -verbose              Generate some extra output." << endl
+        << "    -help                 Print this message." << endl
+        << "    -?                    Print this message." << endl
+        << "    -usage                Print this message." << endl << endl;
+    exit(-1);
 }
 
 
@@ -132,7 +154,7 @@ int main (int argc, char ** argv)
          char * c_originY;
          char * c_originZ;
 
-         splitString (c_origins, ',', c_originX, c_originY, c_originZ);
+         VoxetUtils::splitString (c_origins, ',', c_originX, c_originY, c_originZ);
 
          if (c_originX) originX = atof (c_originX);
          if (c_originY) originY = atof (c_originY);
@@ -150,7 +172,7 @@ int main (int argc, char ** argv)
           char * c_deltaY;
           char * c_deltaZ;
 
-          splitString (c_deltas, ',', c_deltaX, c_deltaY, c_deltaZ);
+          VoxetUtils::splitString (c_deltas, ',', c_deltaX, c_deltaY, c_deltaZ);
 
           if (c_deltaX) deltaX = atof (c_deltaX);
           if (c_deltaY) deltaY = atof (c_deltaY);
@@ -168,7 +190,7 @@ int main (int argc, char ** argv)
           char * c_countY;
           char * c_countZ;
 
-          splitString (c_counts, ',', c_countX, c_countY, c_countZ);
+          VoxetUtils::splitString (c_counts, ',', c_countX, c_countY, c_countZ);
 
           if (c_countX) countX = atof (c_countX);
           if (c_countY) countY = atof (c_countY);
@@ -187,7 +209,7 @@ int main (int argc, char ** argv)
               char * nullValueReplaceName;
               char * nullValueReplaceValue;
               char * tmp;
-              splitString (c_nullValueReplaceOption,',',nullValueReplaceName,nullValueReplaceValue,tmp);
+              VoxetUtils::splitString (c_nullValueReplaceOption,',',nullValueReplaceName,nullValueReplaceValue,tmp);
               if(!nullValueReplaceName || !nullValueReplaceValue)
               {
                   showUsage ("Argument for '-nullvalueeplace' wrong format");
@@ -250,8 +272,6 @@ int main (int argc, char ** argv)
       outputFileName = projectFileName.substr (0, dotPos);
    }
 
-
-
    GeoPhysics::ObjectFactory factory;
    std::unique_ptr<GeoPhysics::ProjectHandle> projectHandle( dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, &factory ) ) );
    DerivedProperties::DerivedPropertyManager propertyManager ( *projectHandle );
@@ -264,7 +284,7 @@ int main (int argc, char ** argv)
       return 1;
    }
 
-   const Interface::SimulationDetails* simulationDetails = projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+   const DataAccess::Interface::SimulationDetails* simulationDetails = projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
    std::string simulationMode_fastCauldron;
 
    if ( simulationDetails != nullptr )
@@ -300,7 +320,7 @@ int main (int argc, char ** argv)
    }
 
 
-   const Snapshot *snapshot = projectHandle->findSnapshot (snapshotTime);
+   const DataAccess::Interface::Snapshot *snapshot = projectHandle->findSnapshot (snapshotTime);
 
    if (!snapshot)
    {
@@ -381,7 +401,7 @@ int main (int argc, char ** argv)
       LogHandler(LogHandler::INFO_SEVERITY, LogHandler::DEFAULT) << "Using snapshot " << setprecision (10) << snapshot->getTime ();
    }
 
-   const Property *depthProperty = projectHandle->findProperty ("Depth");
+   const DataAccess::Interface::Property *depthProperty = projectHandle->findProperty ("Depth");
 
    if (!depthProperty)
    {
@@ -406,14 +426,14 @@ int main (int argc, char ** argv)
 
    asciiOutputFile.flags (ios::fixed);
 
-   writeVOheader(asciiOutputFile, gridDescription, outputFileName);
+   VoxetUtils::writeVOheader(asciiOutputFile, gridDescription, outputFileName);
 
    std::string propertyName;
 
    CauldronPropertyList::iterator cauldronPropIter;
    for (cauldronPropIter = voxetProject->cauldronPropertyBegin (); cauldronPropIter != voxetProject->cauldronPropertyEnd (); ++cauldronPropIter)
    {
-      const Property *property = (*cauldronPropIter)->getProperty ();
+      const DataAccess::Interface::Property *property = (*cauldronPropIter)->getProperty ();
       if (!property)
       {
          LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Unknown property: " << (*cauldronPropIter)->getCauldronName ();
@@ -425,8 +445,18 @@ int main (int argc, char ** argv)
       if (simulationMode_fastCauldron == "HydrostaticDecompaction" && (propertyName == "TwoWayTime")) continue;
 
 
+
+      /// The below piece of code was disabled for BPA2 scenarios as with the code being active, it calculates only the properties
+      /// which are listed in 3DTimeIoTbl. In BPA-2, only the fundamental properties are written to the table instead of
+      /// all the properties as in BPA-legacy. So, for compability with BPA-2, this check had to be removed to enable the computations
+      /// of the all properties specified in the spec file.
 #if 0
-      // Check if the property has values (only for 2016.11 release. Remove this check to enable DerivedProperty calculation) -- removed using #if #endif
+      /// Check if the property has values (only for 2016.11 release. Remove this check to enable DerivedProperty calculation)
+      /// This check was introduced in BPA-legacy to disable the calculations of properties which are not listed in 3DTimeIoTbl of
+      /// the project3d file. User defined properties with user specifying the equations to calculate such properties which are
+      /// based on other properties are one such example. The functionality was disabled in the git commit 72d1d9f4f4778c61e1a6b19b9ceee98536bdb4cb
+      /// leading to this check. Refer SpecFileVersion.h file in the build for details.
+
       const PropertyValueList *propertyValueListAvailable = projectHandle->getPropertyValues (FORMATION, property, snapshot, nullptr, nullptr, nullptr, VOLUME);
       unsigned int propertiesSize = propertyValueListAvailable->size ();
       delete propertyValueListAvailable;
@@ -437,9 +467,10 @@ int main (int argc, char ** argv)
 #endif
 
       vc.useBasement() = useBasement;
+      // Check if the property is computable at basement
       if (useBasement)
       {
-          vc.useBasement() = isBasementProperty(property->getName());
+          vc.useBasement() = VoxetUtils::isBasementProperty(property->getName());
       }
 
       AbstractDerivedProperties::FormationPropertyList propertyValueList ( propertyManager.getFormationProperties ( property, snapshot, vc.useBasement() ));
@@ -470,11 +501,11 @@ int main (int argc, char ** argv)
 
          std::string propertyFileName = binaryFileName + "_" + (*cauldronPropIter)->getCauldronName () + "@@";
 
-         writeVOproperty(asciiOutputFile, propertyCount, *cauldronPropIter, propertyFileName, vc.getNullValue(property) );
+         VoxetUtils::writeVOproperty(asciiOutputFile, propertyCount, *cauldronPropIter, propertyFileName, vc.getNullValue(property) );
 
          vc.computeProperty (*cauldronPropIter, interpolatedProperty, verbose);
-         correctEndian (interpolatedProperty);
-         write (propertyFileName, interpolatedProperty);
+         VoxetUtils::correctEndian (interpolatedProperty);
+         VoxetUtils::write (propertyFileName, interpolatedProperty);
          ++propertyCount;
 
          if ( verbose )
@@ -496,11 +527,11 @@ int main (int argc, char ** argv)
             }
             asciiHeaderOutputFile.flags (std::ios::fixed);
 
-            writeVOheader(asciiHeaderOutputFile, gridDescription, outputFileName);
+            VoxetUtils::writeVOheader(asciiHeaderOutputFile, gridDescription, outputFileName);
 
-            writeVOproperty(asciiHeaderOutputFile, 1, *cauldronPropIter, propertyFileName, vc.getNullValue(property) );
+            VoxetUtils::writeVOproperty(asciiHeaderOutputFile, 1, *cauldronPropIter, propertyFileName, vc.getNullValue(property) );
 
-            writeVOtail(asciiHeaderOutputFile);
+            VoxetUtils::writeVOtail(asciiHeaderOutputFile);
 
             asciiHeaderOutputFile.close ();
          }
@@ -508,11 +539,300 @@ int main (int argc, char ** argv)
       }
    }
 
-   writeVOtail(asciiOutputFile);
+   VoxetUtils::writeVOtail(asciiOutputFile);
    asciiOutputFile.close ();
 
    if (debug)
       LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "Project closed";
 
    return 0;
+}
+
+
+void createVoxetProjectFile(const DataAccess::Interface::ProjectHandle& cauldronProject,
+    DerivedProperties::DerivedPropertyManager& propertyManager,
+    ostream& outputStream, const DataAccess::Interface::Snapshot* snapshot)
+{
+    char* propertyNames[] =
+    {
+       "Depth",
+       "Pressure", "OverPressure", "HydroStaticPressure", "LithoStaticPressure",
+       "Temperature", "Vr",
+       "Ves", "MaxVes",
+       "Porosity", "Permeability", "BulkDensity",
+       "Velocity", "TwoWayTime",
+       ""
+    };
+
+    char* units[] =
+    {
+       "m",
+       "MPa", "MPa", "MPa", "MPa",
+       "degC", "percent",
+       "Pa", "Pa",
+       "percent", "mD", "kg/m^3",
+       "m/s", "ms",
+       ""
+    };
+
+    double conversions[] =
+    {
+       1,
+       1, 1, 1, 1,
+       1, 1,
+       1, 1,
+       1, 1, 1,
+       1, 1,
+       0
+    };
+
+    char* outputPropertyNames[] =
+    {
+       "BPA2_Depth",
+       "BPA2_Pressure", "BPA2_OverPressure", "BPA2_HydrostaticPressure", "BPA2_LithoStaticPressure",
+       "BPA2_Temperature", "BPA_2Vr",
+       "BPA2_Ves", "BPA2_MaxVes",
+       "BPA2_Porosity", "BPA2_Permeability", "BPA2_BulkDensity",
+       "BPA2_Velocity", "BPA2_TwoWayTime",
+       ""
+    };
+
+    const database::DataSchema* voxetSchema = database::createVoxetSchema();
+    database::Database* database = database::Database::CreateFromSchema(*voxetSchema);
+    database::Table* table;
+    database::Record* record;
+    const DataAccess::Interface::Grid* grid;
+
+    //------------------------------------------------------------//
+
+    table = database->getTable("CauldronPropertyIoTbl");
+    int p;
+    for (p = 0; strlen(propertyNames[p]) != 0; ++p)
+    {
+        const DataAccess::Interface::Property* property = cauldronProject.findProperty(propertyNames[p]);
+        if (property)
+        {
+            record = table->createRecord();
+            database::setCauldronPropertyName(record, propertyNames[p]);
+            database::setVoxetPropertyName(record, outputPropertyNames[p]);
+            database::setOutputPropertyUnits(record, units[p]);
+            database::setConversionFactor(record, conversions[p]);
+            database::setVoxetOutput(record, 1);
+        }
+    }
+
+    //------------------------------------------------------------//
+
+    table = database->getTable("SnapshotTimeIoTbl");
+
+    record = table->createRecord();
+    database::setSnapshotTime(record, snapshot->getTime());
+
+    //------------------------------------------------------------//
+
+    const DataAccess::Interface::Property* depthProperty = cauldronProject.findProperty("Depth");
+
+    if (!depthProperty)
+    {
+        LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << "Could not find the Depth property in the project file. "
+            << "Are you sure the project file contains output data?";
+        return;
+    }
+
+    /// Basin's Total Depth Computations for BPA-2 Scenarios
+    /// for calculating the voxet grid parameters in depth direction
+
+    DataAccess::Interface::SurfaceList* surfaces = cauldronProject.getSurfaces();
+    const DataAccess::Interface::Surface* bottomSurface = surfaces->back();
+
+    AbstractDerivedProperties::SurfacePropertyPtr abstractBottomDepthPropertyValue = propertyManager.getSurfaceProperty(depthProperty, snapshot, bottomSurface);
+    auto bottomDepthPropertyValue = dynamic_pointer_cast<const AbstractDerivedProperties::FormationPropertyAtSurface>(abstractBottomDepthPropertyValue);
+
+    if (bottomDepthPropertyValue == nullptr)
+    {
+        LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for bottom surface " << bottomSurface->getName()
+            << " at snapshot " << snapshot->getTime() << " is not available.";
+        return;
+    }
+
+    const DataModel::AbstractGrid* bottomDepthGrid = abstractBottomDepthPropertyValue->getGrid();
+    if (bottomDepthGrid == nullptr)
+    {
+        LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for bottom surface " << bottomSurface->getName()
+            << " at snapshot " << snapshot->getTime() << " is not available.";
+        return;
+    }
+    int minI = bottomDepthGrid->firstI(0);
+    int maxI = bottomDepthGrid->lastI(0);
+    int minJ = bottomDepthGrid->firstJ(0);
+    int maxJ = bottomDepthGrid->lastJ(0);
+
+    // Computing the maximum value of depth for the bottom formation grid
+    double minDepthValInGrid = std::numeric_limits< double >::max();
+    double maxDepthValInGrid = -std::numeric_limits< double >::max();
+
+    for (int i = minI; i <= maxI; ++i)
+    {
+        for (int j = minJ; j <= maxJ; ++j)
+        {
+            double value = bottomDepthPropertyValue->get(i, j);
+            if (value != UNDEFINED_VALUE_AT_GRID)
+            {
+                if (value > maxDepthValInGrid) maxDepthValInGrid = value;
+            }
+        }
+    }
+    // Maximum depth of the basin is returned by the maximum depth of the bottom formation
+    double maxBasinDepth = maxDepthValInGrid;
+
+    const DataModel::AbstractGrid* topDepthGrid = nullptr;
+
+    std::shared_ptr<const AbstractDerivedProperties::FormationPropertyAtSurface> topDepthPropertyValue = nullptr;
+
+
+    DataAccess::Interface::SurfaceList::iterator surfaceIter;
+    for (surfaceIter = surfaces->begin(); topDepthGrid == nullptr && surfaceIter != surfaces->end(); ++surfaceIter)
+    {
+        const DataAccess::Interface::Surface* topSurface = *surfaceIter;
+
+        AbstractDerivedProperties::SurfacePropertyPtr abstractTopDepthPropertyValue = propertyManager.getSurfaceProperty(depthProperty, snapshot, topSurface);
+        topDepthPropertyValue = dynamic_pointer_cast<const AbstractDerivedProperties::FormationPropertyAtSurface>(abstractTopDepthPropertyValue);
+
+        if (topDepthPropertyValue == nullptr)
+        {
+            LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for top surface " << topSurface->getName()
+                << " at snapshot " << snapshot->getTime() << " is not available.";
+            continue;
+        }
+        topDepthGrid = abstractTopDepthPropertyValue->getGrid();
+        break;
+    }
+
+    if (topDepthGrid == nullptr)
+    {
+        LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for top surface" << " is not available.";
+        return;
+    }
+
+    minI = topDepthGrid->firstI(0);
+    maxI = topDepthGrid->lastI(0);
+    minJ = topDepthGrid->firstJ(0);
+    maxJ = topDepthGrid->lastJ(0);
+
+    // Computing the minimum value of depth for the basin
+    for (int i = minI; i <= maxI; ++i)
+    {
+        for (int j = minJ; j <= maxJ; ++j)
+        {
+            double value = topDepthPropertyValue->get(i, j);
+            if (value != UNDEFINED_VALUE_AT_GRID)
+            {
+                if (value < minDepthValInGrid) minDepthValInGrid = value;
+            }
+        }
+    }
+
+    // Minimum depth of the basin is the minimum depth of the top formation
+    double minBasinDepth = minDepthValInGrid;
+    // Low resolution grid is the actual simulation obtained after subsampling
+    grid = cauldronProject.getLowResolutionOutputGrid();
+    table = database->getTable("VoxetGridIoTbl");
+
+    const double deltaK = 100;
+
+    record = table->createRecord();
+    database::setVoxetOriginX(record, VoxetUtils::selectDefined(MAXDOUBLE, originX, grid->minI()));
+    database::setVoxetOriginY(record, VoxetUtils::selectDefined(MAXDOUBLE, originY, grid->minJ()));
+    database::setVoxetOriginZ(record, VoxetUtils::selectDefined(MAXDOUBLE, originZ, VoxetUtils::roundoff((minBasinDepth - 100),3)));
+    database::setVoxetDeltaX(record, VoxetUtils::selectDefined(MAXDOUBLE, deltaX, grid->deltaI()));
+    database::setVoxetDeltaY(record, VoxetUtils::selectDefined(MAXDOUBLE, deltaY, grid->deltaJ()));
+    database::setVoxetDeltaZ(record, VoxetUtils::selectDefined(MAXDOUBLE, deltaZ, deltaK));
+    database::setNumberOfVoxetNodesX(record, (int)VoxetUtils::selectDefined(MAXDOUBLE, countX, (double)grid->numI()));
+    database::setNumberOfVoxetNodesY(record, (int)VoxetUtils::selectDefined(MAXDOUBLE, countY, (double)grid->numJ()));
+    database::setNumberOfVoxetNodesZ(record, (int)VoxetUtils::selectDefined(MAXDOUBLE, countZ, ((maxBasinDepth - minBasinDepth) / deltaK) + 3));
+
+
+    // The below piece of code was used to compute the total depth of the basin in BPA-legacy scenarios.
+    // With updations in Cauldron libraries for BPA-2 scenarios, it is replaced with the code above for compatablity with BPA-2 scenarios
+#if 0
+    Interface::SurfaceList* surfaces = cauldronProject.getSurfaces();
+    const Interface::Surface* bottomSurface = surfaces->back();
+
+    AbstractDerivedProperties::SurfacePropertyPtr abstractBottomDepthPropertyValue = propertyManager.getSurfaceProperty(depthProperty, snapshot, bottomSurface);
+    auto bottomDepthPropertyValue = dynamic_pointer_cast<const DerivedProperties::PrimarySurfaceProperty>(abstractBottomDepthPropertyValue);
+
+    if (bottomDepthPropertyValue == nullptr)
+    {
+        LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for bottom surface " << bottomSurface->getName()
+            << " at snapshot " << snapshot->getTime() << " is not available.";
+        return;
+    }
+
+    const GridMap* bottomDepthGridMap = nullptr;
+    const GridMap* topDepthGridMap = nullptr;
+
+    bottomDepthGridMap = bottomDepthPropertyValue.get()->getGridMap();
+
+    if (bottomDepthGridMap == nullptr)
+    {
+        LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for bottom surface " << bottomSurface->getName()
+            << " at snapshot " << snapshot->getTime() << " is not available.";
+        return;
+    }
+
+    Interface::SurfaceList::iterator surfaceIter;
+    for (surfaceIter = surfaces->begin(); topDepthGridMap == nullptr && surfaceIter != surfaces->end(); ++surfaceIter)
+    {
+        const Interface::Surface* topSurface = *surfaceIter;
+
+        AbstractDerivedProperties::SurfacePropertyPtr abstractTopDepthPropertyValue = propertyManager.getSurfaceProperty(depthProperty, snapshot, topSurface);
+        auto topDepthPropertyValue = dynamic_pointer_cast<const DerivedProperties::PrimarySurfaceProperty>(abstractTopDepthPropertyValue);
+
+        if (topDepthPropertyValue == nullptr)
+        {
+            LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for top surface " << topSurface->getName()
+                << " at snapshot " << snapshot->getTime() << " is not available.";
+            continue;
+        }
+        topDepthGridMap = topDepthPropertyValue.get()->getGridMap();
+        break;
+    }
+
+    if (topDepthGridMap == nullptr)
+    {
+        LogHandler(LogHandler::ERROR_SEVERITY, LogHandler::DEFAULT) << " Depth property for top surface" << " is not available.";
+        return;
+    }
+
+    double minimumDepth;
+    double maximumDepth;
+    double dummyDepth;
+
+    topDepthGridMap->getMinMaxValue(minimumDepth, dummyDepth);
+    bottomDepthGridMap->getMinMaxValue(dummyDepth, maximumDepth);
+
+    //------------------------------------------------------------//
+
+    grid = cauldronProject.getLowResolutionOutputGrid();
+    table = database->getTable("VoxetGridIoTbl");
+
+    const double deltaK = 100;
+
+    record = table->createRecord();
+    database::setVoxetOriginX(record, selectDefined(MAXDOUBLE, originX, grid->minI()));
+    database::setVoxetOriginY(record, selectDefined(MAXDOUBLE, originY, grid->minJ()));
+    database::setVoxetOriginZ(record, selectDefined(MAXDOUBLE, originZ, minimumDepth - 100));
+    database::setVoxetDeltaX(record, selectDefined(MAXDOUBLE, deltaX, grid->deltaI()));
+    database::setVoxetDeltaY(record, selectDefined(MAXDOUBLE, deltaY, grid->deltaJ()));
+    database::setVoxetDeltaZ(record, selectDefined(MAXDOUBLE, deltaZ, deltaK));
+    database::setNumberOfVoxetNodesX(record, (int)selectDefined(MAXDOUBLE, countX, (double)grid->numI()));
+    database::setNumberOfVoxetNodesY(record, (int)selectDefined(MAXDOUBLE, countY, (double)grid->numJ()));
+    database::setNumberOfVoxetNodesZ(record, (int)selectDefined(MAXDOUBLE, countZ, ((maximumDepth - minimumDepth) / deltaK) + 3));
+
+#endif
+
+    //------------------------------------------------------------//
+
+    // Now write the stream to stdout.
+    database->saveToStream(outputStream);
 }
