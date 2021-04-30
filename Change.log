@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-30  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
+
+	fix: usr: dev: CTC output scenario is updated with the newly calculated crustal maps assigned at correct ages and removes old crustal maps
+	 * fastctc output scenario contains newly calculated crustal maps at the calculation ages.
+	 * fastctc clears predefined crustal maps at non-calculation ages, if any.
+	 * Crustal  thickness map from any active/flexural age is reused at the start of the passive event preceding it (if any)
+
+	Related work items: #420614
+	================== COMMIT-END ========================
+	Commit-ID:<0364d8218b9d0ac2d5b83513b96550e4ed519e09>	  (refs/heads/master)
+
+++
 2021-04-29  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Cauldron2Voxet Basin Depth Calculations for BPA2 Outputs.
