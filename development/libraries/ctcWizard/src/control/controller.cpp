@@ -25,43 +25,46 @@ Controller::Controller() : QObject(),
   createConnections();
 
   subControllers_.append(new CTCcontroller(ui_.ctcTab(), ctcScenario_, this));
-  
-  ui_.show();
+}
+
+// Starting the CTC-UI
+void Controller::showUI() {
+    ui_.show();
 }
 
 void Controller::createConnections() const
 {
-  connect(ui_.actionExit(),     SIGNAL(triggered()), this, SLOT(slotActionExitTriggered()));
-  connect(ui_.pushClearLog(),   SIGNAL(clicked()),   this, SLOT(slotPushClearLogClicked()));
+    connect(ui_.actionExit(),     SIGNAL(triggered()), this, SLOT(slotActionExitTriggered()));
+    connect(ui_.pushClearLog(),   SIGNAL(clicked()),   this, SLOT(slotPushClearLogClicked()));
 }
 
-void Controller::slotActionExitTriggered()
-{
-  ui_.close();
+// Closing the CTC-UI
+void Controller::slotActionExitTriggered() {
+    ui_.close();
 }
 
 void Controller::slotActionOpenFileTriggered()
 {
-  ctcScenario_.setCtcFilePathCTC(QFileDialog::getOpenFileName(ui_.centralWidget(),
-                                                                "Load CTC file",
-                                                                ctcScenario_.ctcFilePathCTC(),
-                                                                "CTC (*.ctc)"));
+    ctcScenario_.setCtcFilePathCTC(QFileDialog::getOpenFileName(ui_.centralWidget(),
+        "Load CTC file",
+        ctcScenario_.ctcFilePathCTC(),
+        "CTC (*.ctc)"));
 
-  QFile file(ctcScenario_.ctcFilePathCTC());
-  if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
-  {
-    log("Failed loading CTC file");
-    return;
-  }
+    QFile file(ctcScenario_.ctcFilePathCTC());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        log("Failed loading CTC file");
+        return;
+    }
 
-  QTextStream in(&file);
-  QString logText;
-  while(!in.atEnd())
-  {
-    logText.append(in.readLine() + "\n");
-  }
+    QTextStream in(&file);
+    QString logText;
+    while (!in.atEnd())
+    {
+        logText.append(in.readLine() + "\n");
+    }
 
-  log(logText);
+    log(logText);
 }
 
 QTextStream& qStdOut()
@@ -78,84 +81,92 @@ static QString AddDoubleQuotes(QString value)
 {
 	return "\"" + value + "\"";
 }
+
 void Controller::executeFastcauldronScript(const QString& filePath, const QString& fastcldrnRunMode, const QString numProc) const
 {
-  log("- Start running Cauldron");
-  QTimer timer;
-  timer.start(100);
-  while(timer.remainingTime()>0)
-  {
-    qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
-  }
+    log("- Start running Cauldron");
+    QTimer timer;
+    timer.start(100);
+    while (timer.remainingTime() > 0)
+    {
+        qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
+    }
 
-  QString cldrnRunMode;
-  if(fastcldrnRunMode.contains("Decompaction"))
-  {
-      cldrnRunMode = "-decompaction -allproperties";
-  }
-  else if(fastcldrnRunMode.contains("Hydrostatic"))
-  {
-      cldrnRunMode = "-temperature";
-  }
-  else if(fastcldrnRunMode.contains("Iteratively Coupled"))
-  {
-      cldrnRunMode = "-itcoupled";
-  }
+    QString cldrnRunMode;
+    if (fastcldrnRunMode.contains("Decompaction"))
+    {
+        cldrnRunMode = "-decompaction -allproperties";
+    }
+    else if (fastcldrnRunMode.contains("Hydrostatic"))
+    {
+        cldrnRunMode = "-temperature";
+    }
+    else if (fastcldrnRunMode.contains("Iteratively Coupled"))
+    {
+        cldrnRunMode = "-itcoupled";
+    }
 
-  QProcess process;
-  connect(&process,&QProcess::readyReadStandardOutput,[&](){log(QString(process.readAllStandardOutput()));});
+    QProcess process;
+    connect(&process, &QProcess::readyReadStandardOutput, [&]() {log(QString(process.readAllStandardOutput())); });
 
-  QFileInfo info(filePath);
-  process.setWorkingDirectory(info.absoluteDir().path());
-  //
-  QStringList strLst = info.fileName().simplified().split(".");
-  QDir dir(info.dir().absolutePath() + "/" + strLst[0] + "_CauldronOutputDir");
-  if (dir.exists())
-  {
-      log("BE WARNED YOUR PREVIOUS PRESSURE CALCULATION RUNS WILL BE DELETED!");
-	  dir.removeRecursively();
-  }
+    QFileInfo info(filePath);
+    process.setWorkingDirectory(info.absoluteDir().path());
+    //
+    QStringList strLst = info.fileName().simplified().split(".");
+    QDir dir(info.dir().absolutePath() + "/" + strLst[0] + "_CauldronOutputDir");
+    if (dir.exists())
+    {
+        log("BE WARNED YOUR PREVIOUS PRESSURE CALCULATION RUNS WILL BE DELETED!");
+        dir.removeRecursively();
+    }
+
+    // Removing the fastcauldron log files of the previous run from the CTC-workspace
+    log("Fastcauldron log files of the previous run will be deleted (if present)!!!");
+    QDir delLog(info.dir().absolutePath(), { "*.log" });
+    for (const QString& filename : delLog.entryList()) {
+        delLog.remove(filename);
+    }
 
 #ifdef Q_OS_WIN
 
-  /// Define the Usual environment Variables in the VS project and also add the following the the PATH of fastcaulron.exe
-  QString CLDRN_BIN = getenv("CLDRN_BIN") + QString("\\fastcauldron.exe");
-  // This path is added during MSMPI installation
-  QString MPI_BIN = getenv("MSMPI_BIN") + QString("mpiexec.exe");
-  auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::AUTO);
+    /// Define the Usual environment Variables in the VS project and also add the following the the PATH of fastcaulron.exe
+    QString CLDRN_BIN = getenv("CLDRN_BIN") + QString("\\fastcauldron.exe");
+    // This path is added during MSMPI installation
+    QString MPI_BIN = getenv("MSMPI_BIN") + QString("mpiexec.exe");
+    auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::AUTO);
 
 #else
 
-  //v2021.*nightly --- is the dafault version in /apps/sssdev/ibs as on 6th March 2021
-  QString CLDRN_BIN = "/apps/sssdev/share/fastcauldron";
-  QString MPI_BIN = "mpirun";
-  auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::AUTO);
+    //v2021.*nightly --- is the dafault version in /apps/sssdev/ibs as on 6th March 2021
+    QString CLDRN_BIN = "/apps/sssdev/share/fastcauldron";
+    QString MPI_BIN = "mpirun";
+    auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::AUTO);
 
 #endif // WIN32
 
-  QString runPT = QString::fromStdString
-  (
-        wlm->JobSubmissionCommand( "cldrn","default.q", "0:30", "ctcPressureJob", "",
-            "err.log", numProc.toStdString(),"","", process.workingDirectory().toStdString(),false,true,
+    QString runPT = QString::fromStdString
+    (
+        wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "",
+            "err.log", numProc.toStdString(), "", "", process.workingDirectory().toStdString(), false, true,
             (AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
-                                    numProc.toStdString() + ' ' + AddDoubleQuotes(CLDRN_BIN).toStdString() + 
-                                    " -project " + AddDoubleQuotes(filePath).toStdString() + " " + cldrnRunMode.toStdString())
-                                 )
-  );
+                numProc.toStdString() + ' ' + AddDoubleQuotes(CLDRN_BIN).toStdString() +
+                " -project " + AddDoubleQuotes(filePath).toStdString() + " " + cldrnRunMode.toStdString())
+        )
+    );
 
-  log("- The CWD is: " + process.workingDirectory());
-  // does not work, because i/o redirection is handled by a shell, not by QProcess or the external exe
+    log("- The CWD is: " + process.workingDirectory());
+    // does not work, because i/o redirection is handled by a shell, not by QProcess or the external exe
 #ifdef Q_OS_WIN
-  auto isOk = processCommand(process, runPT);
+    auto isOk = processCommand(process, runPT);
 #else
-  auto isOk = processShCommand(process, runPT); //bsub <myJobs.sh
+    auto isOk = processShCommand(process, runPT); //bsub <myJobs.sh
 #endif
-  if(isOk)
-      log("- Finished running Cauldron successfully!");
-  else
-      log("- Cauldron was unsuccessful!");
+    if (isOk)
+        log("- Finished running Cauldron successfully!");
+    else
+        log("- Cauldron was unsuccessful!");
 
-  //if (wlm) delete wlm;
+    //if (wlm) delete wlm;
 }
 
 void Controller::executeCtcScript(const QString& ctcFilenameWithPath, const QString numProc) const
@@ -324,11 +335,11 @@ QString Controller::createCTCscenarioFolder(const QString& filePath) const
   return scenarioFolderPath;
 }
 
-void Controller::deleteAllCTCscenarios(const QString& scenarioFolder)
+// This function will delete the CTC scenario folder from which scenario for ALC has been created
+void Controller::deleteCTCscenario(const QString& scenarioFolder)
 {
     QTimer timer;
     timer.start(100);
-    int iMaxFldrCnt = 100;
     while(timer.remainingTime()>0)
     {
       qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
@@ -339,22 +350,20 @@ void Controller::deleteAllCTCscenarios(const QString& scenarioFolder)
 
 
     QDir baseDir(scenarioFolder);
-    baseDir.cdUp();
+    if (baseDir.exists()) {
+        bool isOk = baseDir.removeRecursively();
 
-    for(int i=0; i<iMaxFldrCnt; ++i)
-    {
-        QString fldrName = "/" + QString::number(i+1);
-        QString ctcScenarioFolderPath = baseDir.path().append(fldrName);
-        QDir newFldr(ctcScenarioFolderPath);
-
-        if (newFldr.exists()) newFldr.removeRecursively();
-        else break;
+        if (isOk) {
+            log("- The CTC scenario folder \"" + scenarioFolder + "\" has been successfully deleted!!!");
+        }
+        else {
+            log("- ERROR in deleting the CTC scenario folder \"" + scenarioFolder + "\"!!!");
+        }
     }
 }
 
 void Controller::createScenarioForALC(const QString& scenarioFolder)
 {
-
     QDateTime UTC(QDateTime::currentDateTimeUtc());
     QString folderNameForALCscenario = "ALC_Scenario_" + UTC.toString("dd.MM.yyyy.hh.mm.ss");
     log("- folderNameForALCscenario: " + folderNameForALCscenario);
@@ -430,7 +439,6 @@ void Controller::createScenarioForALC(const QString& scenarioFolder)
    else {
        log("- Scenario for ALC workflow \"" + folderNameForALCscenario + ".zip\" not created, something went wrong!");
    }
-
 }
 
 void Controller::launchCauldronMapsTool(const QString& filePath)
@@ -481,13 +489,12 @@ void Controller::mapOutputCtcScript(const QString& filePath) const
       else {
           destDir.removeRecursively();
           QString name = destDir.absolutePath();
-          log("deleted " + name);
           makeDirSymLinks(sourceDir, destDir);
       }
       log("- CTC Scenario: " + info.absoluteDir().path());
       log("- Successfully Completed!!!");
       log("- To visualize CTC output use the button: View CTC Output Maps");
-      log("- And select project3d file: " + strList[0] + "_ctc_out.project3d from the newly created scenario folder to view CTC output maps");
+      log("- And select project3d file: \"" + strList[0] + "_ctc_out.project3d\" from \"" + info.absoluteDir().path() + "\" to view CTC output maps");
   }
   else
       log("- CTC run not Successfully Completed!!!");

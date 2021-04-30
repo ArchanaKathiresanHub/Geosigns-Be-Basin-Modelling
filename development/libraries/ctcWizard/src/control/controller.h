@@ -26,7 +26,8 @@ public:
   void launchCauldronMapsTool(const QString& filePath);
   void log(const QString& text)const;
   void createScenarioForALC(const QString& folderPath);
-  void deleteAllCTCscenarios(const QString& folderPath);
+  void deleteCTCscenario(const QString& folderPath);
+  void showUI();
 
 private slots:
   void slotActionExitTriggered();

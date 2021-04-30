@@ -19,6 +19,9 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QDesktopWidget>
+#include <QDir>
+#include <QCloseEvent>
+#include <QMessageBox>
 
 namespace ctcWizard
 {
@@ -26,6 +29,49 @@ namespace ctcWizard
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
 {
 	setupUi(); resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
+}
+
+// Clearing the CTC-workspace when the CTC-UI is closed
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    // The following ifdef-part is kept for future reference
+    // This part invokes a confirmation pop-up on closing CTC-UI
+#ifdef DEBUG_CTC
+    QMessageBox::StandardButton resBtn = QMessageBox::question(this,
+        "CTC Wizard" + QString(CTCUI_VERSION),
+        tr("Do you want to clear the CTC working directory and exit?\n"),
+        QMessageBox::No | QMessageBox::Yes,
+        QMessageBox::Yes
+    );
+
+    if (resBtn != QMessageBox::Yes) {
+        event->ignore();
+    }
+    else 
+#endif
+    {
+    // Notifying the user about the workspace clean-up in the terminal since 
+    // it is not visible in the log once the application is closed
+        qDebug("\n CTC workspace is being cleared.\n");
+
+        QDir dir;
+        QString cwd = dir.absolutePath();
+        QDir baseDir(cwd);
+        dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
+
+        // Removing all the log files from the CTC-workspace
+        QDir delLog(cwd, { "*.log" });
+        for (const QString& filename : delLog.entryList()) {
+            delLog.remove(filename);
+        }
+        
+        // Removing all the directories from the CTC-workspace
+        for (const QString& filename : dir.entryList()) {
+            QString cldrnOutputFolderPath = baseDir.path().append("/" + filename);
+            QDir delFolder(cldrnOutputFolderPath);
+            delFolder.removeRecursively();
+        }
+    }    
 }
 
 void MainWindow::setupUi()

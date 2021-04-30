@@ -39,6 +39,7 @@ private:
   QTabWidget* tabWidget_;
 
   CTCtab* ctcTab_;
+  void closeEvent(QCloseEvent* event);
 };
 
 } // namespace ctcWizard

@@ -342,29 +342,6 @@ void CTCcontroller::upateProject3dfileToStoreOutputs(const QString& project3dFil
             }
         }
 
-        /*//[OutputTablesFileIoTbl]
-        if(line.contains("[OutputTablesFileIoTbl]",Qt::CaseSensitive)){
-            line = oldStream.readLine();
-            newStream << line << endl;
-            line = oldStream.readLine();
-            newStream << line << endl;
-            line = oldStream.readLine();
-            newStream << line << endl;
-            newStream << "[End]" << endl;
-
-            newStream << ";" << endl;
-            newStream << ";" << endl;
-            newStream << "; OutputTablesIoTbl" << endl;
-            newStream << ";" << endl;
-            newStream << "[OutputTablesIoTbl]" << endl;
-            newStream << ";v100" << endl;
-            newStream << "TableName" << endl;
-            newStream << "  ()" << endl;
-            newStream << "[End]" << endl;
-            newStream << ";" << endl;
-            break;
-        } */
-
         //OutputTablesIoTbl
         if(line.contains("[OutputTablesIoTbl]",Qt::CaseSensitive)){
             line = oldStream.readLine();
@@ -579,34 +556,33 @@ void CTCcontroller::slotpushButtonRunFastCauldronClicked()
 
 void CTCcontroller::slotpushButtonExportCTCoutputMapsClicked()
 {
-
     QString scenarioFolder = QFileDialog::getExistingDirectory(ctcTab_,"Select CTC Scenario Folder which contains CTC output maps",
                                                                ctcScenario_.project3dPath());
     mainController_->log("");
     mainController_->log("Selected CTC Scenario: " + scenarioFolder);
 
     QDir scenarioDirec(scenarioFolder);
-    QStringList fileList = scenarioDirec.entryList(QStringList() << "*.CTC" , QDir::Files);
+    QStringList fileList = scenarioDirec.entryList(QStringList() << "*_ctc_out.project3d" , QDir::Files);
     if(fileList.empty())
     {
         mainController_->log("");
-        mainController_->log("- Selected Scenario folder doesn't contain CTC output maps!!!");
+        mainController_->log("- Selected Scenario folder doesn't contain CTC output project file!!!");
         mainController_->log("- Please select valid CTC Scenario folder!!!");
     }
     else
     {
         QStringList strLst = fileList[0].split(".");
 #ifdef Q_OS_WIN
-    QDir ctcOutputDir(scenarioFolder + "/" + strLst[0] + "_ctc_out_CauldronOutputDir" + ".lnk");
+    QDir ctcOutputDir(scenarioFolder + "/" + strLst[0] + "_CauldronOutputDir" + ".lnk");
 #endif
 #ifdef Q_OS_LINUX
-    QDir ctcOutputDir(scenarioFolder + "/" + strLst[0] + "_ctc_out_CauldronOutputDir");
+    QDir ctcOutputDir(scenarioFolder + "/" + strLst[0] + "_CauldronOutputDir");
 #endif   
         if(!ctcOutputDir.exists())
         {
             //
             mainController_->log("");
-            mainController_->log("- Selected Scenario folder doesn't contain CTC output maps!!!");
+            mainController_->log("- Selected Scenario folder doesn't contain CTC output directory!!!");
             mainController_->log("- Please select valid CTC Scenario folder!!!");
         }
         else
@@ -614,12 +590,9 @@ void CTCcontroller::slotpushButtonExportCTCoutputMapsClicked()
             mainController_->log("");
             mainController_->log("This CTC Scenario is used to create Scenario for ALC Work-flow: ");
             mainController_->createScenarioForALC(scenarioFolder);
-            //mainController_->deleteAllCTCscenarios(scenarioFolder);
+            mainController_->deleteCTCscenario(scenarioFolder);
         }
     }
-
-
-
 }
 
 void CTCcontroller::slotPushSelectProject3dClicked()

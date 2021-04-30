@@ -9,6 +9,7 @@ int main(int argc, char* argv[])
 {
   QApplication a(argc, argv);
   ctcWizard::Controller controller;
+  controller.showUI();
 
   try
   {
