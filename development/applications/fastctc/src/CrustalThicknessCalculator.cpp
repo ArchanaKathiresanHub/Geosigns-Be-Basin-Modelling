@@ -103,7 +103,12 @@ void CrustalThicknessCalculator::initialiseCTC() {
    m_inputData->loadSnapshots();
    m_inputData->loadSurfaceDepthHistoryMask( this );
    // loads configuration file, CTCIoTbl and CTCRiftingHistoryIoTbl
-   m_inputData->loadInputData();
+   m_inputData->loadInputData( );
+
+   //clean old crustal histories, if defined at non calculation ages
+   LogHandler(LogHandler::DEBUG_SEVERITY, LogHandler::COMPUTATION_STEP) << "Clear input data from crustal History Tables, if defined at non-calculation ages of CTC";
+   m_inputData->cleanOldCrustalHistoriesAtNonCalculationAges(this, "ContCrustalThicknessIoTbl");
+   m_inputData->cleanOldCrustalHistoriesAtNonCalculationAges(this, "OceaCrustalThicknessIoTbl");
 
    ///4. Load smoothing radius
    m_applySmoothing = (m_inputData->getSmoothRadius() > 0);
@@ -553,10 +558,12 @@ bool CrustalThicknessCalculator::sortCTCOuputTabl()
                         i++;
                     }          
                 }
-                if (age2 == startOfFlexuralEvent && isFlexuralOtherThan_0Ma == true)
+                if (age1 == startOfFlexuralEvent && isFlexuralOtherThan_0Ma == true)
                 {
-                    database::setThickness(record1, thickness2);
-                    database::setThicknessGrid(record1, thicknessGrid2);
+                    database::Record* newRecord1 = ctcIoTbl->createRecord(true);
+                    database::setAge(newRecord1, 0);
+                    database::setThickness(newRecord1, thickness1);
+                    database::setThicknessGrid(newRecord1, thicknessGrid1);
                 }            
             }
         }

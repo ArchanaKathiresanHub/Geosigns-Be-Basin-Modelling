@@ -124,7 +124,7 @@ public:
    double getOceanicCrustRatio()     const { return m_oceanicCrustRatio;     };
 
    AbstractDerivedProperties::SurfacePropertyPtr getPressureBasement            () const { return m_pressureBasement;           }
-   AbstractDerivedProperties::SurfacePropertyPtr getPressureBasementAtPresentDay() const { return m_pressureBasementPresentDay; }
+   AbstractDerivedProperties::SurfacePropertyPtr getPressureBasementAtPresentDay() const { return m_pressureBasementPresentDay; } 
    AbstractDerivedProperties::SurfacePropertyPtr getPressureWaterBottom         () const { return m_pressureWaterBottom;        }
    AbstractDerivedProperties::SurfacePropertyPtr getPressureMantle              () const { return m_pressureMantle;             }
    AbstractDerivedProperties::SurfacePropertyPtr getPressureMantleAtPresentDay  () const { return m_pressureMantleAtPresentDay; }
@@ -162,6 +162,10 @@ public:
 
    std::vector<double> copySnapshots() const { return m_snapshots; }
 
+   //It is required to clean the pre-defined crustal histories, if specified at non-calculation ages of CTC, before calculating the new crustal histories by fastCTC (#BUG 420614). 
+   //For calculation ages, the old crust histories will be overwrtitten by the newly calculated maps anyways.
+   void cleanOldCrustalHistoriesAtNonCalculationAges(GeoPhysics::ProjectHandle* projectHandle, const std::string tableName);
+
 protected:
 
    /// @defgroup Loaders
@@ -173,6 +177,7 @@ protected:
       /// @{
       /// @brief Loads and analyzes user input data from the project file CTCRiftingHistoryIoTbl
       void loadCTCRiftingHistoryIoTblData();
+      
       /// @brief Load the rifting events for all the loaded snapshots
       /// @details After this their tectonic flag and maximum oceanic crustal thicknesses are set
       /// @throw std::runtime_error if one of there are more event than snapshots or vice versa

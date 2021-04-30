@@ -344,6 +344,8 @@
                      Age                Thickness            ThicknessGrid
                     (Ma)                      (m)                      (m)
                        0                    35000                       ""
+					  50					65000						""
+					 100					31000						""			
 [End]
 ;
 ;
@@ -354,6 +356,8 @@
                      Age                Thickness            ThicknessGrid
                     (Ma)                      (m)                      (m)
                        0                        0                       ""
+					  50						0						""
+					 100						0						""	
 [End]
 ;
 ;

@@ -166,10 +166,11 @@ bool InterfaceOutput::mergeOutputMapsToInputs(DataAccess::Interface::ProjectHand
 
 
     //to get the latest Maps Sequence Number from GridMapIoTbl
-    mapsSequenceNbr = InterfaceOutput::getMapsSequenceNbr(pHandle);
+    mapsSequenceNbr = InterfaceOutput::getMapsSequenceNbr(pHandle);  
 
     for (int i = 0; i < mapsToMerge.size(); ++i) {
        auto ii =  mapsToMerge[i];
+       
        if (m_outputMapsMask[ii] != 0 && m_outputMaps[ii] != 0) {
           mapsSequenceNbr++; // increment by 1
 

@@ -116,6 +116,49 @@ void InterfaceInput::loadInputData() {
    ///3. Load history input data
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading user input data from CTC Rifting History Table";
    loadCTCRiftingHistoryIoTblData();
+   
+}
+void InterfaceInput::cleanOldCrustalHistoriesAtNonCalculationAges(GeoPhysics::ProjectHandle* projectHandle, const std::string tableName)
+{
+    std::vector<double>  ctcCalculationAges, ageFromOriginalCrustInputs, agesToRemove;
+    for (int i = (m_snapshots.size()-1); i >= 0 ; i--)
+    {
+        const double age1 = m_snapshots[i];
+        const std::shared_ptr<CrustalThickness::RiftingEvent> event = m_riftingEvents[age1];
+        bool isCalculationAge = (event->getCalculationMask() == true);
+        if (isCalculationAge)
+        {
+            ctcCalculationAges.push_back(age1);
+        }
+        
+    }
+    database::Table* crustThckIoTbl = projectHandle->getTable(tableName); 
+    for (int j = 0; j < crustThckIoTbl->size(); j++)
+    {
+        database::Record* crustThckIoTblRecord = crustThckIoTbl->getRecord(j);
+        double recordAge = crustThckIoTblRecord->getValue<double>("Age");
+        ageFromOriginalCrustInputs.push_back(recordAge);
+    }
+    std::set_symmetric_difference(ctcCalculationAges.begin(), ctcCalculationAges.end(),
+        ageFromOriginalCrustInputs.begin(), ageFromOriginalCrustInputs.end(),
+        std::back_inserter(agesToRemove));
+
+    for (int k = 0; k < agesToRemove.size(); k++)
+    {
+        double ageToBeRemoved = agesToRemove[k];
+        for (int j = 0; j < crustThckIoTbl->size(); j++)
+        {
+            database::Record* crustThckIoTblRecord = crustThckIoTbl->getRecord(j);
+            double ageFromOriginalCrustInputs = crustThckIoTblRecord->getValue<double>("Age");
+            if (ageFromOriginalCrustInputs == ageToBeRemoved)
+            {
+                crustThckIoTbl->eraseRecord(crustThckIoTblRecord);
+                j--;
+                break;
+            }
+        }
+            
+    }
 }
 
 //------------------------------------------------------------//
