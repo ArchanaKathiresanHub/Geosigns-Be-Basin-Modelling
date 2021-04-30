@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-04-30  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
+
+	new: dev: usr: Improvements in the CTC-wizard by cleaning up the CTC-workspace
+	 * Delete CTC scenario directory once that particular scenario is zipped for export.
+	 * A complete clean-up of the CTC-wizard workspace once the CTC-UI is closed retaining only the base scenario and the ALC*.zip files.
+
+	Related work item: #421692
+	================== COMMIT-END ========================
+	Commit-ID:<0e2b88485c5d24f4b5ff23f42b22792588f92710>	  (refs/heads/master)
+
+++
 2021-04-30  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
 
 	fix: usr: dev: CTC output scenario is updated with the newly calculated crustal maps assigned at correct ages and removes old crustal maps
