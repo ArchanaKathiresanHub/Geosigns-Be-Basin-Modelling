@@ -25,6 +25,7 @@
 
 // utilities library
 #include "FormattingException.h"
+#include "System.h"
 
 namespace mbapi {
    class MapsManager;
@@ -50,6 +51,7 @@ namespace GeoPhysics
 }
 class InterfaceInput;
 
+
 /// @class InterfaceOutput The CTC output interface
 class InterfaceOutput : public AbstractInterfaceOutput {
 
@@ -74,8 +76,9 @@ public:
    /// @defgroup SaveMaps
    /// @{
    /// @brief Add newly added CTC output map record in GridMapIoTbl
-   bool addRecordsInGridMapIoTbl(DataAccess::Interface::ProjectHandle* pHandle, 
-                                 int mapsSequenceNbr, int mapsToMerge);
+   bool addRecordsInGridMapIoTbl(DataAccess::Interface::ProjectHandle* pHandle,
+	   const DataAccess::Interface::Snapshot* theSnapshot,
+	   int mapsSequenceNbr, int mapsToMerge);
    
       /// @brief Save output maps to XYZ file
    bool saveXYZOutputMaps         ( DataAccess::Interface::ProjectHandle * pHandle );
@@ -183,12 +186,20 @@ public:
    static const char* s_contCrustalThicknessTableName;	// ContCrustalThicknessIoTbl name
    static const char* s_SurfaceDepthTableName;	// SurfaceDepthIoTbl name
    static const char* s_ContOceaCrustalThicknessAgeFieldName;		// column name for continental crust Age value in ContCrustalThicknessIoTbl
-
-   protected:
+   
+   /// <summary>
+   /// 
+   /// </summary>
+   /// <param name="mapType"></param>
+   /// <param name="age"></param>
+   /// <returns></returns>
+   std::string name_a_map(int mapType, std::string & age) const;
+   
+protected:
        /// @defgroup SaveMaps
    /// @{
    /// @brief get latest maps sequence number from GridMapIoTbl
-       int getMapsSequenceNbr(DataAccess::Interface::ProjectHandle* pHandle);
+       int getMapsSequenceNbr(DataAccess::Interface::ProjectHandle* pHandle) const;
 
        /// @defgroup SaveMaps
    /// @{
@@ -219,9 +230,10 @@ private:
    static const char * s_SurfaceDepthIoTblDepthFieldName;	// column name for oceanic crustal thickness value in SurfaceDepthIoTbl
    static const char * s_SurfaceDepthIoTblDepthGridFieldName;	// column name for continental crustal thickness grid map in SurfaceDepthIoTbl
 
-
    /// @brief Clean all the members of the class
    void clean();
+
+   static const std::vector<std::pair<int, std::string>> m_mapsToMerge;
 };
 
 //------------------------------------------------------------//

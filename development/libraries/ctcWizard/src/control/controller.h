@@ -6,6 +6,8 @@
 #include <QObject>
 #include <QDir>
 
+#define WAITTIME 500
+
 class QProcess;
 class QString;
 class QTableWidgetItem;

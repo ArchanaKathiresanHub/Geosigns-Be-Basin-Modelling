@@ -44,6 +44,8 @@ using namespace DataAccess::Interface;
 // utilitites
 #include "LogHandler.h"
 
+#include <iomanip>
+#include <sstream>
 //------------------------------------------------------------//
 
 string CrustalThicknessCalculator::m_projectFileName;
@@ -62,7 +64,7 @@ CrustalThicknessCalculator::CrustalThicknessCalculator(const database::ProjectFi
      m_previousRiftTTS                    (nullptr),
      m_previousContinentalCrustalThickness(nullptr),
      m_previousOceanicCrustalThickness    (nullptr),
-     m_meregHDF                           (false  )
+     m_mergeHDF                           (false  )
 {}
 
 //------------------------------------------------------------//
@@ -114,7 +116,7 @@ void CrustalThicknessCalculator::initialiseCTC() {
    m_applySmoothing = (m_inputData->getSmoothRadius() > 0);
    setAdditionalOptionsFromCommandLine();
 
-   ///5. Initialise InterfaceOutput
+   ///5. Initialize InterfaceOutput
    setRequestedOutputProperties( m_outputData );
    if (m_debug) {
       m_outputData.setAllMapsToOutput( true );
@@ -211,6 +213,8 @@ bool CrustalThicknessCalculator::deleteCTCPropertyValues()
 
 void CrustalThicknessCalculator::run() {
 
+    CleanGridMapIoTbl();
+
    Interface::IdentityFunctor identity;
    std::shared_ptr<GridMap> presentDayTTS;
    std::vector< double > snapshotForLoop = m_inputData->copySnapshots();
@@ -241,7 +245,7 @@ void CrustalThicknessCalculator::run() {
          updateValidNodes( age );
          const Snapshot * theSnapshot = findSnapshot( age );
 
-         /// 1. Load P/T data fot this snapshot
+         /// 1. Load P/T data for this snapshot
          m_inputData->loadTopAndBottomOfSediments( this, age, m_inputData->getBaseRiftSurfaceName() );
          const DataModel::AbstractProperty* depthProperty = m_inputData->loadDepthProperty();
          m_inputData->loadDepthData( this, depthProperty, age );
@@ -308,18 +312,19 @@ void CrustalThicknessCalculator::run() {
 
          restoreData();
 
-         m_outputData.saveOutput( this, m_debug, m_outputOptions, theSnapshot, m_meregHDF );
+         // 9. This is where all BC files from ctc are merged into Inputs.HDF for importing to BPA2-Basin
+         m_outputData.saveOutput( this, m_debug, m_outputOptions, theSnapshot, m_mergeHDF );
 
          // Save properties to disk.
          continueActivity();
       }
    }
    
-   // 9. This is where all BC files from ctc are merged into Input.HDF for importing to BPA2-Basin
-
-   if (m_meregHDF)
+   LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP) << "CTC calculations done!";
+   bool success = false;
+   if (m_mergeHDF)
    {
-       auto success = sortCTCOuputTabl();
+       success = sortCTCOuputTbl();
        if (!success)
        {
            throw (std::invalid_argument("sorting CTC Table gone wrong!"));
@@ -327,6 +332,8 @@ void CrustalThicknessCalculator::run() {
        // to write the reference in project3d file in GridMapIoTbl for the CTC output maps which are merged in Inputs.HDF file
        // done in CrustalThicknessCalculator::finalise
    }
+
+   success = UpdateBPANameMappingTbl();
 }
 
 //------------------------------------------------------------//
@@ -393,7 +400,7 @@ bool CrustalThicknessCalculator::parseCommandLine() {
 
    PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-merge", &isDefined);
    if (isDefined) {
-       m_meregHDF = true;
+       m_mergeHDF = true;
    }
    return true;
 }
@@ -469,14 +476,17 @@ void CrustalThicknessCalculator::restoreData(){
 //---------------------------------------------------
 
 //----------------------------------------------------
-bool CrustalThicknessCalculator::sortCTCOuputTabl()
+bool CrustalThicknessCalculator::sortCTCOuputTbl()
 {
-    bool success = false;
-    string s_tblName, ctcRiftingHistoryTable;
+    bool success = true;
+    string ctcRiftingHistoryTable;
     ctcRiftingHistoryTable = "CTCRiftingHistoryIoTbl";
-    int i_numberOfTblToSort = 3;
     bool isFlexuralOtherThan_0Ma = false;
     double startOfFlexuralEvent = 0.;
+
+    std::vector<std::string> listOfIoTbls { InterfaceOutput::s_SurfaceDepthTableName , InterfaceOutput::s_oceaCrustalThicknessTableName,
+    InterfaceOutput::s_contCrustalThicknessTableName
+    };
 
     // To add the crustal thickness at the start of passive events and to add the map calculated for a Flexural event at an age older than 0Ma to be used for 0 Ma
     database::Table* ctcRiftingHistoryIoTbl = this->getTable(ctcRiftingHistoryTable);
@@ -503,59 +513,49 @@ bool CrustalThicknessCalculator::sortCTCOuputTabl()
     }
 
     //sort table with respect to current age to older age
-    for (int i = 0; i < i_numberOfTblToSort; ++i)
+    int i = 0;
+    for (const auto &s_tblName : listOfIoTbls)
     {
-        if (i == 0)
-            s_tblName = InterfaceOutput::s_SurfaceDepthTableName;
-        else if (i == 1)
-            s_tblName = InterfaceOutput::s_oceaCrustalThicknessTableName;
-        else
-            s_tblName = InterfaceOutput::s_contCrustalThicknessTableName;
-
         database::Table* ctcIoTbl = this->getTable(s_tblName);
-
-        size_t ictcTblSize = ctcIoTbl->size();
         if (i != 0)//To create new records to specify the crustal thicknesses at the start of the passive events
         {
-
-            for (int temp = 0; temp < passiveRiftEventStartAges.size(); temp++)
+            for (const auto & newAge : passiveRiftEventStartAges)
             {
-                double newAge = passiveRiftEventStartAges[temp];
                 database::Record* newRecord = ctcIoTbl->createRecord(true);
                 database::setAge(newRecord, newAge);
-                database::setThickness(newRecord, DataAccess::Interface::DefaultUndefinedScalarValue); //initilize thickness with default value. This will be updated below
-                database::setThicknessGrid(newRecord, DataAccess::Interface::NullString); //initilize thicknessGrid with default value. This will be updated below
+                database::setThickness(newRecord, DataAccess::Interface::DefaultUndefinedScalarValue); //initialize thickness with default value. This will be updated below
+                database::setThicknessGrid(newRecord, DataAccess::Interface::NullString); //initialize thicknessGrid with default value. This will be updated below
             }
             //Sort ctcIoTbl w.r.t age
             ctcIoTbl->sort([](database::Record* recordL, database::Record* recordR)
                 {  bool isLess = database::getAge(recordL) < database::getAge(recordR);
                    return isLess;
                 });
-           
-            for (int i = 0; i < (ctcIoTbl->size() - 1); i++)
+
+            for (int ii = 0; ii < (ctcIoTbl->size() - 1); ii++)
             {
-                database::Record* record1 = ctcIoTbl->getRecord(i);
+                database::Record* record1 = ctcIoTbl->getRecord(ii);
                 double age1 = record1->getValue<double>("Age");
                 double thickness1 = record1->getValue<double>("Thickness");
                 std::string thicknessGrid1 = record1->getValue<std::string>("ThicknessGrid");
 
-                database::Record* record2 = ctcIoTbl->getRecord(i + 1);
+                database::Record* record2 = ctcIoTbl->getRecord(ii + 1);
                 double age2 = record2->getValue<double>("Age");
                 double thickness2 = record2->getValue<double>("Thickness");
                 std::string thicknessGrid2 = record2->getValue<std::string>("ThicknessGrid");
 
-                if ((NumericFunctions::isEqual(thickness2, DataAccess::Interface::DefaultUndefinedScalarValue, 1e-5) && thicknessGrid2 == ""))
+                if (NumericFunctions::isEqual(thickness2, DataAccess::Interface::DefaultUndefinedScalarValue, 1e-5) && thicknessGrid2 == "")
                 {
                     if (age1 == age2)
                     {
                         ctcIoTbl->removeRecord(record1);
-                        i = i-2;                 
+                        ii = ii-2;                 
                     }
                     else
                     {
                         database::setThickness(record2, thickness1);
                         database::setThicknessGrid(record2, thicknessGrid1);
-                        i++;
+                        ii++;
                     }          
                 }
                 if (age1 == startOfFlexuralEvent && isFlexuralOtherThan_0Ma == true)
@@ -567,7 +567,7 @@ bool CrustalThicknessCalculator::sortCTCOuputTabl()
                 }            
             }
         }
-        ictcTblSize = ctcIoTbl->size();
+        auto ictcTblSize = ctcIoTbl->size();
         for (int j = 0; j < (ictcTblSize - 1); ++j)
         {
             database::Record* record = ctcIoTbl->getRecord(j);
@@ -576,7 +576,6 @@ bool CrustalThicknessCalculator::sortCTCOuputTabl()
             for (int k = (j + 1); k < ictcTblSize; ++k)
             {
                 const database::Record* recordNext = ctcIoTbl->getRecord(k);
-                // * Kumaran why we need two variable for same char literal "Age" ?
                 if (record->getValue<double>(InterfaceOutput::s_ContOceaCrustalThicknessAgeFieldName) > 
                     recordNext->getValue<double>(InterfaceOutput::s_ContOceaCrustalThicknessAgeFieldName))
                 {
@@ -589,9 +588,194 @@ bool CrustalThicknessCalculator::sortCTCOuputTabl()
                 success = ctcIoTbl->moveRecord( ctcIoTbl->getRecord(i_getIndex) , (record) );
             }
         }
+        ++i;
+    }
+    
+    return success;
+}
+
+bool CrustalThicknessCalculator::UpdateBPANameMappingTbl() const
+{
+	std::vector<outputMaps> mapsToRename        =  { isostaticBathymetry, thicknessBasaltMap, thicknessCrustMap };
+	std::vector<std::string> ctcTblsToChange    =  { "SurfaceDepthIoTbl","OceaCrustalThicknessIoTbl","ContCrustalThicknessIoTbl" };
+    std::vector<std::string> GripMapColmnNm     =  { "DepthGrid", "ThicknessGrid" ,"ThicknessGrid" };
+
+    database::Table* BPANameMappingIoTbl    = this->getTable("BPANameMapping");
+    auto rcdNM                              = BPANameMappingIoTbl->begin();
+    
+    /// <summary>
+    /// First, clean the BPANameMapping Table of old entries
+    /// </summary>
+    /// <returns></returns>
+    while (rcdNM != BPANameMappingIoTbl->end())
+    {
+        auto val = (*rcdNM)->getValue<std::string>("TblIoMappingEncode");
+		if (    val.find(ctcTblsToChange[0]) != std::string::npos  ||
+                val.find(ctcTblsToChange[1]) != std::string::npos  ||
+                val.find(ctcTblsToChange[2]) != std::string::npos
+            ) 
+        {
+            LogHandler(LogHandler::DEBUG_SEVERITY) << "found old entry" << val << '\n';
+            rcdNM = BPANameMappingIoTbl->removeRecord(rcdNM);
+		}
+        else
+        {
+            ++rcdNM;
+        }
+        
+    }
+    
+    /// <summary>
+    /// Make the map names in BPA2 for the CTC tbls, human readable in BPANameMapping
+    /// </summary>
+    /// <returns></returns>
+    int i = 0;
+    
+	for (const auto& atbl : ctcTblsToChange)
+    {
+        database::Table* fastctcTbl = this->getTable(atbl);
+        // the table might not exist
+        if (fastctcTbl==0)
+            continue;
+        auto rcdCT = fastctcTbl->begin();
+        // some p3 file in the RT suite has BasaltThicknessIoTbl not OceaCrustalThicknessIoTbl 
+	    auto stop = fastctcTbl->end();
+        if (rcdCT == stop)
+            continue;// skip this table
+
+	    --stop;// Go upto one less than end() since we check the next entry as well in each loop cycle
+        bool isReused=false;
+	    while (rcdCT != stop )
+	    {
+            isReused = false;
+	        auto entry = (*rcdCT)->getValue<std::string>(GripMapColmnNm[i]);
+	        if (entry.compare("")) {
+	            //found a map
+                LogHandler(LogHandler::DEBUG_SEVERITY) << "found map" << entry << '\n';
+	            //construct the string to print
+	            std::string toPrint("GridMapIoTbl:" + atbl +":" + entry);
+	            std::string newMapName; 
+                std::stringstream stream;
+                // just retain 2 decimal places
+                stream << std::fixed << std::setprecision(2) << (*rcdCT)->getValue<double>(InterfaceOutput::s_ContOceaCrustalThicknessAgeFieldName);
+                std::string age1 = stream.str() + "Ma";
+                // Check if the map was reused at the preceding age too
+                if (!(*(rcdCT+1))->getValue<std::string>(GripMapColmnNm[i]).compare(entry)) {
+	                //match
+                    // clear the stream or error state, 
+                    stream.clear();
+                    stream.str("");// assign null string, otherwise it appends to the existing
+                    stream << std::fixed << std::setprecision(2) << (*(rcdCT+1))->getValue<double>(InterfaceOutput::s_ContOceaCrustalThicknessAgeFieldName);
+                    std::string age2 = stream.str();
+                    LogHandler(LogHandler::DEBUG_SEVERITY) << "found map that's reused at age" << age2 << '\t' << entry << '\n';
+                    std::string age = age1 + '_' + age2 + "Ma";
+                    newMapName = m_outputData.name_a_map(mapsToRename[i], age);
+                    // skip the next entry too
+                    ++rcdCT;
+                    isReused = true;
+	            }
+	            else
+	            {
+                    newMapName = m_outputData.name_a_map(mapsToRename[i], age1);
+	            }
+	            // Add the newly created record with new map names in BPANameMapping Tbl
+	            database::Record* newRecord = BPANameMappingIoTbl->createRecord();
+                database::setTblIoMappingEncode(newRecord, toPrint);
+                database::setBPAColumnName(newRecord,"NAME");
+                database::setBPAColumnValue(newRecord, newMapName);                    
+	        }         
+	        ++rcdCT;
+            if (rcdCT == fastctcTbl->end()) 
+                break;
+	    }
+
+		// take care of the last entry
+		auto lastEntry = fastctcTbl->begin() + fastctcTbl->size() - 1;
+		auto entry = (*lastEntry)->getValue<std::string>(GripMapColmnNm[i]);
+		if (entry.compare("") || !isReused) {
+			//found a map
+			LogHandler(LogHandler::DEBUG_SEVERITY) << "found map" << entry << '\n';
+			//construct the string to print
+			std::string toPrint("GridMapIoTbl:" + atbl + ":" + entry);
+			std::stringstream stream;
+			// just retain 2 decimal places
+			stream << std::fixed << std::setprecision(2) << (*lastEntry)->getValue<double>(InterfaceOutput::s_ContOceaCrustalThicknessAgeFieldName);
+			std::string age = stream.str() + "Ma";
+			std::string newMapName = m_outputData.name_a_map(mapsToRename[i], age);
+			// Add the newly created record with new map names in BPANameMapping Tbl
+			database::Record* newRecord = BPANameMappingIoTbl->createRecord();
+			database::setTblIoMappingEncode(newRecord, toPrint);
+			database::setBPAColumnName(newRecord, "NAME");
+			database::setBPAColumnValue(newRecord, newMapName);
+		}
+        ++i;
     }
 
-    return success;
+    // if it reached this point; all is fine
+    return true;
+}
+
+bool CrustalThicknessCalculator::CleanGridMapIoTbl() const
+{
+	/// <summary>
+	/// Note: Since we are clearing the GridMapIoTbl w.r.t CtC tbls, before any calculations, the map sq no. 
+	/// may clash with previous entries already present in the base scenario in these tbls
+	/// </summary>
+	/// <returns></returns>
+	std::vector<std::string> ctcTblsToChange = { "SurfaceDepthIoTbl","OceaCrustalThicknessIoTbl","ContCrustalThicknessIoTbl" };
+    std::vector<std::string> StratIoTblMaps;
+	database::Table* GridMapIoTblIoTbl = this->getTable("GridMapIoTbl");
+
+   
+	auto rcdNM = GridMapIoTblIoTbl->begin();
+    // need to retain the pwd at  0 Ma since its the same as depth of youngest layer from StratIoTbl
+    while (rcdNM != GridMapIoTblIoTbl->end())
+    {
+		auto val = (*rcdNM)->getValue<std::string>("ReferredBy");
+		if (val.find("StratIoTbl") != std::string::npos)
+			StratIoTblMaps.push_back((*rcdNM)->getValue<std::string>("MapName"));
+        rcdNM++;
+    }
+    rcdNM = GridMapIoTblIoTbl->begin();
+	while (rcdNM != GridMapIoTblIoTbl->end())
+	{
+        auto val = (*rcdNM)->getValue<std::string>("ReferredBy");
+
+		if (val.find(ctcTblsToChange[0]) != std::string::npos ||
+            val.find(ctcTblsToChange[1]) != std::string::npos ||
+			val.find(ctcTblsToChange[2]) != std::string::npos
+			)
+		{
+			
+            if ( !val.compare(ctcTblsToChange[0]) )
+            {
+                LogHandler(LogHandler::DEBUG_SEVERITY) << "to remove " << val << '\n';
+                auto key = (*rcdNM)->getValue<std::string>("MapName");
+                auto mapNotFound = (std::find(StratIoTblMaps.begin(), StratIoTblMaps.end(), key) == StratIoTblMaps.end());
+                if (mapNotFound) {// => that this map is not present in StratIo, only the 0Ma map is common to both tbls
+                    rcdNM = GridMapIoTblIoTbl->removeRecord(rcdNM);
+                }
+                else
+                {
+                    ++rcdNM;
+                }
+            }
+            else
+            {
+                // remove all entries associated with Ocean & CrustThickness
+				LogHandler(LogHandler::DEBUG_SEVERITY) << "to remove " << val << '\n';
+				rcdNM = GridMapIoTblIoTbl->removeRecord(rcdNM);
+            }
+            
+		}
+		else
+		{
+			++rcdNM;
+		}
+
+	}
+    // if it reached this point; all is fine
+    return true;
 }
 
 

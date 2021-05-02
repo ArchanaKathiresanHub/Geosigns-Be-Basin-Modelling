@@ -69,14 +69,14 @@ public :
    /// @brief Delete property values associated with crustal thickness calculator
    bool deleteCTCPropertyValues();
 
-   /// @brief Merge output files if nessecary
+   /// @brief Merge output files if necessary
    /// @details Must be called at end of calculation.
    bool mergeOutputFiles();
 private :
 
    static string m_projectFileName;     ///< The input project file name, and output project file name by default
    static string m_outputFileName;      ///< The output project file name, specified via command line under -save
-   bool m_meregHDF;              ///< The output CTC hdfs will be mereged to Inputs.HDF -merge
+   bool m_mergeHDF;              ///< The output CTC hdfs will be merged to Inputs.HDF -merge
 
    int    m_outputOptions;              ///< The output option is the combination the output options defined in the command line (xyz, sur, hdf)
    bool   m_debug;                      ///< Run the CTC in debug mode
@@ -115,15 +115,18 @@ private :
    void restoreData();
    
    /**
-    * Sort the rows of three tabes in acending order of age
+    * Sort the rows of three tabs in ascending order of age
     * SurfaceDepthTbl, OceaCrustalThicknessIoTbl, ContCrustalThicknessIoTbl
     * in a project 3d file
     *
     * @param[in] None
     * @return success or failure
-    * @throw no Exception Handeling
+    * @throw no Exception Handling
  */
-   bool sortCTCOuputTabl();
+   bool sortCTCOuputTbl();
+
+   bool UpdateBPANameMappingTbl() const;
+   bool CleanGridMapIoTbl() const;
 };
 
 //------------------------------------------------------------//

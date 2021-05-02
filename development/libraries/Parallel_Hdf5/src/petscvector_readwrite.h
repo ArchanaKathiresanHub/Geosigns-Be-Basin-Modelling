@@ -99,7 +99,7 @@ public:
 
       // read data from the dataset
       if ( allocateBuffer ) {
-	*buffer = new Type [size];
+	    *buffer = new Type [size];
       }
      
       return h5File->readDataset (dataId, *buffer, pList,
@@ -136,6 +136,7 @@ public:
 
       // create dataset
       hid_t dataId = h5File->addDataset (dataset, locId, dataType, *(dataSpace.first), dataSpace.second);
+      
 
       if ( dataId > -1 )
       {
@@ -143,7 +144,7 @@ public:
           status = h5File->writeDataset (dataId, buffer, pList, 
                                          (dataSpace.first)->space_id(), 
                                          (dataSpace.second)->space_id());
-	  H5Dclose (dataId);
+          H5Dclose (dataId);
       }
  
       delete dataSpace.first;
@@ -173,7 +174,7 @@ public:
                                        (dataSpace.first)->space_id(), 
                                        (dataSpace.second)->space_id());
 
-	H5Dclose (dataId);
+	    H5Dclose (dataId);
         delete dataSpace.first;
         delete dataSpace.second;
 

@@ -111,7 +111,7 @@ add_gtest( NAME "Fasctc::CrustalThicknessCalculator"
                 CrustalThickness
 
     ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
-    ##WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data
     FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 

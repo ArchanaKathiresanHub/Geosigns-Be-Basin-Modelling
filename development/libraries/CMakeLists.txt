@@ -51,6 +51,7 @@ add_subdirectory(FastDepthConversion)
 add_subdirectory(FastCauldron)
 add_subdirectory(ctcWizard)
 add_subdirectory(WorkLoadManagers)
+add_subdirectory(QT_Utils)
 
 if(UNIX)
    # Libraries that can only be built on Unix at the moment.

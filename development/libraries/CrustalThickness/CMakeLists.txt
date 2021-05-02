@@ -35,6 +35,7 @@ create_bm_library( TARGET ${LIB_NAME}
                              Utilities_Petsc
                              ${HDF5_LIBRARIES}
                              ${PETSC_LIBRARIES}
+                             ${Boost_LIBRARIES}
                    INSTALLTARGET )
 
 ################################################################

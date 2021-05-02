@@ -2,7 +2,7 @@
 #include "DistributedGrid.h"
 #include "DistributedGridMap.h"
 #include "h5_parallel_file_types.h"
-
+#include "LogHandler.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctime>
@@ -45,6 +45,13 @@ DistributedMapWriter::DistributedMapWriter (void)
    m_writer = 0;
 }
 
+herr_t print_msg(void* cldata)
+{
+	const char* msg = (const char*)cldata;
+	printf("**%p:%s**\n", cldata, msg);
+	return 0;
+}
+
 bool DistributedMapWriter::open (const string & fileName, bool append)
 {
 #ifdef _WIN32
@@ -72,12 +79,15 @@ bool DistributedMapWriter::open (const string & fileName, bool append)
 
    // open in parallel mode
    H5_Parallel_PropertyList pList;
-
+   
    bool opened = m_outFile->open (fileName.c_str (), &pList);
-
-   // switch off hdf5 errors
+   
+   //const char* msg = "an error has occurred\n";
+   //H5Eset_auto (H5E_DEFAULT, (H5E_auto2_t)print_msg, (void*)msg);
+   // 
+   // 
+   // switch off hdf5 errors -- I think we will have to pass relevant params here for HDF to provide info in case of failure!!
    H5Eset_auto (NULL, NULL, NULL);
-
    // set up writer for parallel and serial
    m_writer = new PetscVector_ReadWrite<float> ();
 
@@ -215,8 +225,10 @@ bool DistributedMapWriter::writeMapToHDF (DM & da, Vec & vec, float time, double
 
 bool DistributedMapWriter::writeInputMap( GridMap * gridMap, int mapSeqNumber )
 {
-   string dataSetName = std::string( LAYER_DATASET_PREFIX ) + ( mapSeqNumber < 10 ? "0" : "" ) + std::to_string( mapSeqNumber );
-
+   // The below code is changed to the code in the next line in order to make the mapSeqNumber consistent in GridMapIoTbl of Project3d file and the mapSeqNumber in HDF file
+   LogHandler(LogHandler::DEBUG_SEVERITY) << "==========DistributedMapWriter::writeInputMap========" ;
+   //string dataSetName = std::string(LAYER_DATASET_PREFIX) + (mapSeqNumber < 10 ? "0" : "") + std::to_string(mapSeqNumber);
+   string dataSetName = std::string(LAYER_DATASET_PREFIX) + std::to_string(mapSeqNumber);
    // get map info
    DM & da = dynamic_cast<DistributedGridMap*>( gridMap )->getDA();
    int start[2];
@@ -249,6 +261,13 @@ bool DistributedMapWriter::writeInputMap( GridMap * gridMap, int mapSeqNumber )
    localVecInfo.dim = 2;
 
    bool ok = m_writer->writeRawData( m_outFile, m_outFile->fileId(), dataSetName.c_str(), H5T_NATIVE_FLOAT, localVecInfo, data );
+   
+   if (!ok) {
+       LogHandler(LogHandler::DEBUG_SEVERITY) << "DistributedMapWriter::writeInputMap() could not write maps... Somethinh wrong!\n";
+       LogHandler(LogHandler::DEBUG_SEVERITY) << "this is the locId-" << m_outFile->fileId();
+       return false;
+   }
+
    delete [] data;
 
    if ( ok && mapSeqNumber == 0 ) // if this is a first map - write a description

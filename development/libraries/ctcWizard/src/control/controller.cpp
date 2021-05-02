@@ -14,6 +14,7 @@
 #include <QDateTime>
 #include <QDebug>
 
+#include "Qt_Utils.h"					 
 namespace ctcWizard
 {
 
@@ -67,20 +68,6 @@ void Controller::slotActionOpenFileTriggered()
     log(logText);
 }
 
-QTextStream& qStdOut()
-{
-	static QTextStream ts(stdout);
-	return ts;
-}
-/// <summary>
-	/// Put a string between double quotes.
-	/// </summary>
-	/// <param name="value">Value to be put between double quotes ex: foo</param>
-	/// <returns>double quoted string ex: "foo"</returns>
-static QString AddDoubleQuotes(QString value)
-{
-	return "\"" + value + "\"";
-}
 
 void Controller::executeFastcauldronScript(const QString& filePath, const QString& fastcldrnRunMode, const QString numProc) const
 {
@@ -148,9 +135,9 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
     (
         wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "",
             "err.log", numProc.toStdString(), "", "", process.workingDirectory().toStdString(), false, true,
-            (AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
-                numProc.toStdString() + ' ' + AddDoubleQuotes(CLDRN_BIN).toStdString() +
-                " -project " + AddDoubleQuotes(filePath).toStdString() + " " + cldrnRunMode.toStdString())
+            (qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
+                numProc.toStdString() + ' ' + qtutils::AddDoubleQuotes(CLDRN_BIN).toStdString() +
+                " -project " + qtutils::AddDoubleQuotes(filePath).toStdString() + " " + cldrnRunMode.toStdString())
         )
     );
 
@@ -163,10 +150,11 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
 #endif
     if (isOk)
         log("- Finished running Cauldron successfully!");
-    else
+    else {
         log("- Cauldron was unsuccessful!");
+        exit(-1);
+    }
 
-    //if (wlm) delete wlm;
 }
 
 void Controller::executeCtcScript(const QString& ctcFilenameWithPath, const QString numProc) const
@@ -243,23 +231,24 @@ void Controller::executeCtcScript(const QString& ctcFilenameWithPath, const QStr
   QString CTC_BIN = getenv("CTC_BIN") + QString("\\fastctc.exe");
   // This path is added during MSMPI installation
   QString MPI_BIN = getenv("MSMPI_BIN") + QString("mpiexec.exe");
-
+	std::string fpp = "";
   auto wlm = workloadmanagers::WorkLoadManager::Create(cwd.toStdString() + "/ctc.sh", workloadmanagers::WorkLoadManagerType::AUTO);
 #else
   //v2021.*nightly --- is the dafault version in /apps/sssdev/ibs as on 6th March 2021
   QString CTC_BIN = "/apps/sssdev/share/fastctc";
   QString MPI_BIN = "mpirun";
   auto wlm = workloadmanagers::WorkLoadManager::Create(cwd.toStdString() + "/ctc.sh", workloadmanagers::WorkLoadManagerType::AUTO);
+				std::string fpp = "-noofpp";			  
 #endif // WIN32
-  auto saveP3 = AddDoubleQuotes(
+  auto saveP3 = qtutils::AddDoubleQuotes(
 	  info.absoluteDir().path() + "/" + strList[0] + "_ctc_out.project3d").toStdString();
   QString runCTC = QString::fromStdString
   (
       wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcCalcJob", "",
 		  "err.log", numProc.toStdString(), "", "", process.workingDirectory().toStdString(), false, true,
-		  (AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
-			  numProc.toStdString() + ' ' + AddDoubleQuotes(CTC_BIN).toStdString() +
-			  " -merge -project " + AddDoubleQuotes(ctcFilenameWithPath).toStdString() + (" -save ") + saveP3))
+		  (qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
+			  numProc.toStdString() + ' ' + qtutils::AddDoubleQuotes(CTC_BIN).toStdString() +
+			  " -merge " + fpp + " -project " + qtutils::AddDoubleQuotes(ctcFilenameWithPath).toStdString() + (" -save ") + saveP3))
   );
 
   log("- The CWD is: " + process.workingDirectory());
@@ -276,8 +265,9 @@ void Controller::executeCtcScript(const QString& ctcFilenameWithPath, const QStr
   else
   {
       log("- ctc was unsuccessful! ");
+      exit(-1);
   }
-  //if (wlm) delete wlm;
+
 }
 
 QString Controller::createCTCscenarioFolder(const QString& filePath) const
@@ -364,8 +354,8 @@ void Controller::deleteCTCscenario(const QString& scenarioFolder)
 
 void Controller::createScenarioForALC(const QString& scenarioFolder)
 {
-    QDateTime UTC(QDateTime::currentDateTimeUtc());
-    QString folderNameForALCscenario = "ALC_Scenario_" + UTC.toString("dd.MM.yyyy.hh.mm.ss");
+    QString prefix_ = "CTCv2-";
+    QString folderNameForALCscenario = "ALC_Scenario_" + qtutils::getTimeStamp(prefix_);
     log("- folderNameForALCscenario: " + folderNameForALCscenario);
 
     QTimer timer;
@@ -406,39 +396,39 @@ void Controller::createScenarioForALC(const QString& scenarioFolder)
     process.setWorkingDirectory(cwd);
     
     QStringList fileList2 = cpyScenarioDirec.entryList(QStringList() << "*.*" , QDir::Files);
-    foreach (QString file, fileList2) {
-        processCommand(process, QString("zip -u " + folderNameForALCscenario + ".zip " + file));
-    }
+    
+    bool success = false;
+	 
 
 #ifdef Q_OS_WIN
-    bool isOk = false;
-    // ------------- THIS PART IS BROKEN --------------//
+	foreach(QString file, fileList2) {
+        success = processCommand(process, QString("zip " + folderNameForALCscenario + ".zip " + file));
+	}
+#else
+	foreach(QString file, fileList2) {
+        success = processCommand(process, QString("zip -u " + folderNameForALCscenario + ".zip " + file));
+	}
+#endif
+    
+    // ------------- Fixed --------------//
     QStringList fileList3 = cpyScenarioDirec.entryList(QStringList() << "*.zip", QDir::Files);
 
 	for (int i = 0; i < fileList3.count(); i++)
 	{
-        auto origPath = cwd + "/" + folderNameForALCscenario + ".zip ";
-        QFile myDir(origPath);
-        if (myDir.exists()) {
-            auto renamed = myDir.rename(origPath, folderNameForALCscenario + ".zip ");
-
-            if (!renamed)
-            {
-                qDebug() << "Can not rename!";
-            }
-        }
+        auto origPath = cwd + "/" + fileList3[i];
+        auto destPath = scenarioFolder + "/../" + fileList3[i];
+        success = QFile::rename(origPath, destPath);
+     
 	}
-#else
-   bool isOk = processCommand(process, QString("mv " + folderNameForALCscenario + ".zip ../../."));
-#endif
-   if (isOk)
-   {
+    
+    if (success) {
 
        log("- Scenario for ALC workflow \"" + folderNameForALCscenario + ".zip\" successfully created!!!");
-   }
-   else {
+    }
+    else {
        log("- Scenario for ALC workflow \"" + folderNameForALCscenario + ".zip\" not created, something went wrong!");
-   }
+       exit(-1);
+    }
 }
 
 void Controller::launchCauldronMapsTool(const QString& filePath)
@@ -489,6 +479,7 @@ void Controller::mapOutputCtcScript(const QString& filePath) const
       else {
           destDir.removeRecursively();
           QString name = destDir.absolutePath();
+			log("deleted " + name);					 
           makeDirSymLinks(sourceDir, destDir);
       }
       log("- CTC Scenario: " + info.absoluteDir().path());
@@ -511,9 +502,8 @@ bool Controller::processCommand(QProcess& process, const QString& command) const
         log("- Process stopped, did not start within 30 seconds");
         return false;
     }
-    /// This is for updating the log every 10 secs
-    int waitTime = 10; // sec
-    while (!process.waitForFinished(waitTime))
+    ///Warning: Calling this function from the main (GUI) thread might cause your user interface to freeze.
+    while (!process.waitForFinished(WAITTIME))
     {
         qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
     }
@@ -530,9 +520,8 @@ bool ctcWizard::Controller::processShCommand(QProcess& process, const QString& c
 		log("- Process stopped, did not start within 30 seconds");
         return false;
 	}
-    /// This is for updating the log every 10 secs
-	int waitTime = 10; // sec
-	while (!process.waitForFinished(waitTime))
+    ///Warning: Calling this function from the main (GUI) thread might cause your user interface to freeze.
+	while (!process.waitForFinished(WAITTIME))
 	{
 		qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
 	}

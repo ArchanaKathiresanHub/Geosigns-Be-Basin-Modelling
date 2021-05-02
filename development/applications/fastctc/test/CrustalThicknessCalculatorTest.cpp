@@ -74,7 +74,8 @@ TEST_F(TestCrustalThicknessCalculatorMerging, mockTest) {
     ASSERT_EQ( crustalThicknessCalculator->parseCommandLine(), true);
     ASSERT_EQ( crustalThicknessCalculator->deleteCTCPropertyValues(), false);
 
-    //During the initialization process of CTC, crust thicknessess defined at the non-calculation ages of CTC (if any) is cleared from the ContCrustalThicknessIoTbl and OceaCrustalThicknessIoTbl.
+    //During the initialization process of CTC, crust thicknessess defined at the non-calculation ages of CTC (if any) is 
+    // cleared from the ContCrustalThicknessIoTbl and OceaCrustalThicknessIoTbl.
     //In the test Project3d file, originally three thicknessess are specified out of which 2 are defined at non-calculation ages
     crustalThicknessCalculator->initialiseCTC();  
     //Testing whether expected maps are retained correctly or not after the initialization process

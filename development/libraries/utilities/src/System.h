@@ -1,5 +1,6 @@
 #ifndef _SYSTEM_H_
 #define _SYSTEM_H_
+#include <string>
 
 namespace Utilities 
 {
@@ -12,7 +13,7 @@ namespace Utilities
 
 		int getProcPID();
 
-		/// \brief Returns the number of cores that are online.
+		/// \brief Returns the number of cores that are on-line.
 		long getNumberOfCoresOnline();
 
 		/// \brief Returns the number of bytes in a page.
@@ -31,6 +32,10 @@ namespace Utilities
 
 		/// \brief Get the values from the /proc/self/statm file.
 		void getStatM(StatM& statm);
+	}
+
+	namespace times {
+		const std::string timeStamp();
 	}
 }
 #endif

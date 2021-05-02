@@ -31,7 +31,7 @@
 #include "InterfaceInput.h" 
 #include "CTCPropertyValue.h"
 
-// utilitites
+// utilities
 #include "LogHandler.h"
 #include "ConstantsNames.h"
 # include "ConstantsNumerical.h"
@@ -42,7 +42,7 @@
 #include "BottomBoundaryManager.h"
 
 #include <algorithm>
-
+#include "boost/filesystem.hpp"
 using namespace mbapi;
 
 using namespace DataAccess;
@@ -73,6 +73,27 @@ InterfaceOutput::InterfaceOutput() {
 //------------------------------------------------------------//
 InterfaceOutput::~InterfaceOutput() {
   clean();
+}
+
+const std::vector<std::pair<int, std::string>> InterfaceOutput::m_mapsToMerge = {
+    {isostaticBathymetry, s_SurfaceDepthTableName},
+    {thicknessCrustMap, s_contCrustalThicknessTableName},
+    {thicknessBasaltMap, s_oceaCrustalThicknessTableName}
+};
+
+std::string InterfaceOutput::name_a_map(int mapType, std::string& age) const
+{
+    std::string prefix;
+	if (mapType == isostaticBathymetry)
+		prefix = "PWD_";
+	else if (mapType == thicknessCrustMap )
+        prefix = "ContCrust_";
+	else if (mapType == thicknessBasaltMap)
+        prefix = "OceaCrust_";
+	else
+        prefix = "unknown_";
+
+    return prefix + (age) + '_' + Utilities::times::timeStamp();
 }
 
 //------------------------------------------------------------//
@@ -149,49 +170,60 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
 bool InterfaceOutput::mergeOutputMapsToInputs(DataAccess::Interface::ProjectHandle* pHandle, const DataAccess::Interface::Snapshot* theSnapshot)
 {
     bool success = false;
-    LogHandler(LogHandler::DEBUG_SEVERITY) << "saveOutputMaps: My rank is " << pHandle->getRank();
+    LogHandler( LogHandler::DEBUG_SEVERITY ) << "mergeOutputMapsToInputs: My rank is " << pHandle->getRank();
 
     std::vector<outputMaps> mapsToMerge = { isostaticBathymetry, thicknessBasaltMap, thicknessCrustMap };
-    int mapsSequenceNbr = 0;
-    string outputFileName = "Inputs.HDF";
-    std::fstream file;
 
-    Interface::MapWriter* mapWriter = pHandle->getFactory()->produceMapWriter();
-    file.open(outputFileName);
-    if (!file)
-       success = mapWriter->open(outputFileName, false);
-    else
-       success = mapWriter->open(outputFileName, true);
-    file.close();
+    // Getting full path to Inputs.HDF
+    boost::filesystem::path full_path(boost::filesystem::current_path());
+    string outputFileName = full_path.generic_string() + "/Inputs.HDF";
 
-
+    LogHandler(LogHandler::DEBUG_SEVERITY) << "output file name:"<<outputFileName << ";\tfull path:" << full_path;
+    
+    auto exists = boost::filesystem::exists(outputFileName);
+    
     //to get the latest Maps Sequence Number from GridMapIoTbl
-    mapsSequenceNbr = InterfaceOutput::getMapsSequenceNbr(pHandle);  
+    int mapsSequenceNbr = 0;
+    mapsSequenceNbr = InterfaceOutput::getMapsSequenceNbr(pHandle);
 
-    for (int i = 0; i < mapsToMerge.size(); ++i) {
+    //Create a mapwriter
+    Interface::MapWriter* mapWriter = pHandle->getFactory()->produceMapWriter();
+
+    for (int i = 0; i < mapsToMerge.size(); ++i) 
+    {
        auto ii =  mapsToMerge[i];
-       
-       if (m_outputMapsMask[ii] != 0 && m_outputMaps[ii] != 0) {
+       if (m_outputMapsMask[ii] != 0 && m_outputMaps[ii] != 0) 
+       {
           mapsSequenceNbr++; // increment by 1
 
+          success = mapWriter->open(outputFileName, exists);// if the Inputs.HDF does not exists then create it; if the Inputs.HDF exists then append to it
+
+		  if (!success) {
+			  LogHandler(LogHandler::FATAL_SEVERITY) << "failed to " << exists << " (" << success << ")" << ", file named-" << outputFileName;
+			  return false;
+		  }
+          if(!exists)
+              mapWriter->saveDescription(pHandle->getActivityOutputGrid());
           // to write ctc maps in Inputs.HDF file
           success = mapWriter->writeInputMap(m_outputMaps[ii], mapsSequenceNbr);
           LogHandler(LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Map " << outputMapsNames[ii] << " saved into " << outputFileName << ".";
-
-          // append newly added ctc map references in GridMapIoTbl record
-          success = InterfaceOutput::addRecordsInGridMapIoTbl(pHandle, mapsSequenceNbr, mapsToMerge[i]);
           
-          // Here we update the projectHandle with new record, right? the actual writing happens in saveToFile( m_projectFileName )
-          success = InterfaceOutput::addCTCoutputMapRecordsInProject3dIoTbl(pHandle, theSnapshot, mapsSequenceNbr, mapsToMerge[i]);
-        }
+          // append newly added ctc map references in GridMapIoTbl record
+          success = InterfaceOutput::addRecordsInGridMapIoTbl(pHandle, theSnapshot, mapsSequenceNbr, mapsToMerge[i]) && success;
+          // Here we update the projectHandle with new record, the actual writing happens in saveToFile( m_projectFileName )
+          success = InterfaceOutput::addCTCoutputMapRecordsInProject3dIoTbl(pHandle, theSnapshot, mapsSequenceNbr, mapsToMerge[i]) && success;
+          success = mapWriter->close() && success;
+
+       }
     }
 
-    success = mapWriter->close();
+    
     delete mapWriter;
+    
     return success;
 }
 
-int InterfaceOutput::getMapsSequenceNbr(DataAccess::Interface::ProjectHandle* pHandle)
+int InterfaceOutput::getMapsSequenceNbr(DataAccess::Interface::ProjectHandle* pHandle) const
 {
     int nextMapSeqVal, mapsSequenceNbr = 0;
     database::Table::iterator tblIter;
@@ -215,10 +247,10 @@ int InterfaceOutput::getMapsSequenceNbr(DataAccess::Interface::ProjectHandle* pH
 //------------------------------------------------------------//
 bool InterfaceOutput::addCTCoutputMapRecordsInProject3dIoTbl(DataAccess::Interface::ProjectHandle* pHandle, const DataAccess::Interface::Snapshot* theSnapshot, int mapsSequenceNbr, int mapsToMerge)
 {
-    bool success = false;
+    bool success = true;
     string s_tblName;
     database::Table::iterator tblIter;
-    database::Record* crustThckIoTblRecord;
+    database::Record* crustThckIoTblRecord = nullptr;
     if (mapsToMerge == isostaticBathymetry)
         s_tblName = s_SurfaceDepthTableName;
     else if (mapsToMerge == thicknessBasaltMap)
@@ -239,12 +271,15 @@ bool InterfaceOutput::addCTCoutputMapRecordsInProject3dIoTbl(DataAccess::Interfa
         crustThckIoTblRecord->setValue<double>(s_SurfaceDepthioTblAgeFieldName, theSnapshot->getTime());
         crustThckIoTblRecord->setValue<double>(s_SurfaceDepthIoTblDepthFieldName, -9999);
         crustThckIoTblRecord->setValue<std::string>(s_SurfaceDepthIoTblDepthGridFieldName, "MAP-" + std::to_string(mapsSequenceNbr));
+        //crustThckIoTblRecord->setValue<std::string>(s_SurfaceDepthIoTblDepthGridFieldName, name_a_map(mapsToMerge, std::to_string(theSnapshot->getTime())));
     }
     else
     {
+        // both ContiCrust & OceaCrust have the same field names
         crustThckIoTblRecord->setValue<double>(s_ContOceaCrustalThicknessAgeFieldName, theSnapshot->getTime());
         crustThckIoTblRecord->setValue<double>(s_ContOceaCrustalThicknessFieldName, -9999);
         crustThckIoTblRecord->setValue<std::string>(s_ContOceaCrustalThicknessGridFieldName, "MAP-" + std::to_string(mapsSequenceNbr));
+        //crustThckIoTblRecord->setValue<std::string>(s_ContOceaCrustalThicknessGridFieldName, name_a_map(mapsToMerge, std::to_string(theSnapshot->getTime())));
     }
 
     //delete old records of same age
@@ -262,15 +297,17 @@ bool InterfaceOutput::addCTCoutputMapRecordsInProject3dIoTbl(DataAccess::Interfa
 }
 
 
-bool InterfaceOutput::addRecordsInGridMapIoTbl(DataAccess::Interface::ProjectHandle* pHandle, int mapsSequenceNbr, int mapsToMerge)
+bool InterfaceOutput::addRecordsInGridMapIoTbl(DataAccess::Interface::ProjectHandle* pHandle,
+	const DataAccess::Interface::Snapshot* theSnapshot,
+	int mapsSequenceNbr, int mapsToMerge)
 {
-   bool success = false;
+   bool success = true;
    database::Table* gridMapTbl = pHandle->getTable(s_GridMapIoTblName);
-   database::Record * gridMapRecord;
+   database::Record * gridMapRecord=nullptr;
    string outputFileName = "Inputs.HDF";
 
-   gridMapTbl->createRecord();
-   gridMapRecord = gridMapTbl->getRecord((int)gridMapTbl->size() - 1);
+   gridMapRecord = gridMapTbl->createRecord();
+   //   gridMapRecord = gridMapTbl->getRecord((int)gridMapTbl->size() - 1);
 
    if (mapsToMerge == isostaticBathymetry)
       gridMapRecord->setValue<std::string>(s_GridMapRefByFieldName, s_SurfaceDepthTableName);
@@ -279,7 +316,7 @@ bool InterfaceOutput::addRecordsInGridMapIoTbl(DataAccess::Interface::ProjectHan
    else
       gridMapRecord->setValue<std::string>(s_GridMapRefByFieldName, s_contCrustalThicknessTableName);
 
-   gridMapRecord->setValue<std::string>(s_GridMapMapNameFieldName, "MAP-" + std::to_string(mapsSequenceNbr));
+   gridMapRecord->setValue<std::string>(s_GridMapMapNameFieldName, /*name_a_map(mapsToMerge, std::to_string( theSnapshot->getTime()))*/"MAP-" + std::to_string(mapsSequenceNbr));
    gridMapRecord->setValue<std::string>(s_GridMapMapTypeFieldName, "HDF5");
    gridMapRecord->setValue<std::string>(s_GridMapMapFileNameFieldName, outputFileName);
    gridMapRecord->setValue(s_GridMapMapSeqNbrFieldName, mapsSequenceNbr);
@@ -399,7 +436,7 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( const outputMaps id,
                                                        const bool debug ) {
    
    bool toBeOutput = true;
-   // The McKenzie general properties are only ouput when we have an SDH at the end of a rifting event
+   // The McKenzie general properties are only output when we have an SDH at the end of a rifting event
    if (  id == RDAadjustedMap
       or id == thicknessCrustMap
       or id == thicknessBasaltMap
@@ -412,7 +449,7 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( const outputMaps id,
       }
    }
 
-   // The TTS and Incremental TS properties are only ouput when we have an SDH
+   // The TTS and Incremental TS properties are only output when we have an SDH
    else if ( id == WLSMap
           or id == WLSadjustedMap
           or id == incTectonicSubsidence) {
@@ -436,7 +473,7 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( const outputMaps id,
    }
 
    // The debug outputs
-   // The McKenzie debug properties are only ouput when we have an SDH at the end of a rifting event and in debug mode
+   // The McKenzie debug properties are only output when we have an SDH at the end of a rifting event and in debug mode
    else if ( id == estimatedCrustDensityMap
       or id == basaltDensityMap
       or id == PTaMap
@@ -459,7 +496,7 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( const outputMaps id,
          toBeOutput = false;
       }
    }
-   // The response factor is only output in debug mode exept for present day
+   // The response factor is only output in debug mode except for present day
    else if (id == ResponseFactor) {
       if (not debug or theSnapshot->getTime() == 0.0){
          toBeOutput = false;
@@ -485,7 +522,7 @@ void InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHan
                                                 const Interface::Surface *theSurface,
                                                 const bool debug ) {
    
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snaphot output maps @ snapshot " << theSnapshot->asString();
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snapshot output maps @ snapshot " << theSnapshot->asString();
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       outputMaps id = (outputMaps)i;
       updatePossibleOutputsAtSnapshot( id, pHandle, interfaceInput, theSnapshot, debug );

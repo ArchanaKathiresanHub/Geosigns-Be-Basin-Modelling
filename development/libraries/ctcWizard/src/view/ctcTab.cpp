@@ -69,7 +69,7 @@ CTCtab::CTCtab(QWidget* parent) :
   QGridLayout* fastCauldronGridLayout = new QGridLayout();
   fastCauldronGridLayout->setSpacing(6);
   QLabel *numProc = new QLabel("Number of Processors (for HPC jobs):", this);
-  const QSize numProcSize = QSize(215, 30);
+  const QSize numProcSize = QSize(225, 30);
   numProc->setFixedSize(numProcSize);
   numProc->setLayoutDirection(Qt::LeftToRight);
   fastCauldronGridLayout->addWidget(numProc,0,0);
@@ -77,7 +77,7 @@ CTCtab::CTCtab(QWidget* parent) :
   lineEditNumProc_->setFixedWidth(35);
   fastCauldronGridLayout->addWidget(lineEditNumProc_,0,1);
   QLabel *runMode = new QLabel("Cauldron Mode:", this);
-  const QSize runModeSize = QSize(90, 30);
+  const QSize runModeSize = QSize(100, 30);
   runMode->setFixedSize(runModeSize);
   runMode->setLayoutDirection(Qt::RightToLeft);
   fastCauldronGridLayout->addWidget(runMode,1,0);
