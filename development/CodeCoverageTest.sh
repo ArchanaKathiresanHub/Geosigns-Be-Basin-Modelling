@@ -82,6 +82,7 @@ then
 fi 
 
 # Load necessary modules
+source setupEnv.sh
 module load git
 
 # Save the list of files which are changed with respect to master into a text file in the build directory
