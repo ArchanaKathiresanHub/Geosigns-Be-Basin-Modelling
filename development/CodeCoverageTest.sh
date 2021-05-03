@@ -10,6 +10,9 @@
 # If you want to create a new code coverage build directory, do this using this script by specifying
 # the name of your new directory, but do not create an empty directory manually before running this script.
 
+#Define branch location
+BRANCH_LOCATION=$(pwd)
+
 # Define functions
 printHelp()
 {
@@ -82,11 +85,11 @@ then
 fi 
 
 # Load necessary modules
+cd $BRANCH_LOCATION
 source setupEnv.sh
 module load git
 
 # Save the list of files which are changed with respect to master into a text file in the build directory
-BRANCH_LOCATION=$(pwd)
 LOCALBRANCH_NAME=$(git branch --show-current)
 
 if [[ $LOCALBRANCH_NAME == "master" ]]
