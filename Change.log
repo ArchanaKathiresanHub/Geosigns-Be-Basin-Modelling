@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-03  Richard Faasse  <Richard.Faasse@shell.com>
+
+	new: Added script to test the code coverage of the dev-branch against master
+	================== COMMIT-END ========================
+	Commit-ID:<a8173dbc3749bf59ddeb2ac23d1dcc811fa3c8fb>	  (refs/heads/master)
+
+++
 2021-04-30  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
 
 	new: dev: usr: Improvements in the CTC-wizard by cleaning up the CTC-workspace
