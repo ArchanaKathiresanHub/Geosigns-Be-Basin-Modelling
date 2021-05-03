@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2018-2018 Shell International Exploration & Production.
+// Copyright (C) 2018-2021 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by CGI India Pvt. Ltd.
@@ -75,15 +75,24 @@ TEST_F(TestCrustalThicknessCalculatorMerging, mockTest) {
     ASSERT_EQ( crustalThicknessCalculator->deleteCTCPropertyValues(), false);
 
     //During the initialization process of CTC, crust thicknessess defined at the non-calculation ages of CTC (if any) is 
-    // cleared from the ContCrustalThicknessIoTbl and OceaCrustalThicknessIoTbl.
-    //In the test Project3d file, originally three thicknessess are specified out of which 2 are defined at non-calculation ages
-    crustalThicknessCalculator->initialiseCTC();  
+    //cleared from the ContCrustalThicknessIoTbl and OceaCrustalThicknessIoTbl. The basement age crust thicknesses must have to be retained , if defined, in the input p3d file 
+    //In the test Project3d file, originally 3 thicknessess are specified out of which 2 are defined at non-calculation ages and 1 in the basement age
+    crustalThicknessCalculator->initialiseCTC();
     //Testing whether expected maps are retained correctly or not after the initialization process
     database::Table* contCrustTableAfterCleaning = crustalThicknessCalculator->getTable("ContCrustalThicknessIoTbl");
     database::Table* oceaCrustTableAfterCleaning = crustalThicknessCalculator->getTable("OceaCrustalThicknessIoTbl");
-    EXPECT_EQ(1, contCrustTableAfterCleaning->size());
-    EXPECT_EQ(1, oceaCrustTableAfterCleaning->size());
+    EXPECT_EQ(2, contCrustTableAfterCleaning->size());
+    EXPECT_EQ(2, oceaCrustTableAfterCleaning->size());
     EXPECT_EQ(contCrustTableAfterCleaning->size(), oceaCrustTableAfterCleaning->size());
+    //Check whether the crust thicknesses at basement age are retained, which should always be the case
+    database::Record* lastRecordContCrust = contCrustTableAfterCleaning->getRecord(contCrustTableAfterCleaning->size() - 1);
+    double lastRecordAgeContCrust = lastRecordContCrust->getValue<double>("Age");
+    EXPECT_EQ(300, lastRecordAgeContCrust);//Last age is always be the basement age
+    database::Record* lastRecordOceaCrust = oceaCrustTableAfterCleaning->getRecord(oceaCrustTableAfterCleaning->size() - 1);
+    double lastRecordAgeOceaCrust = lastRecordOceaCrust->getValue<double>("Age");
+    EXPECT_EQ(lastRecordAgeOceaCrust, lastRecordAgeContCrust);//Last age should be same for both contCrust and OceaCrust
+    double lastRecordThicknessOceaCrust = lastRecordOceaCrust->getValue<double>("Thickness");
+    EXPECT_EQ(0, lastRecordThicknessOceaCrust);//The ocea thickness is 0 at basement age which is always the last record of OceaThicknessIotbl
 
     //Generating CTC output
     crustalThicknessCalculator->run();
@@ -103,11 +112,11 @@ TEST_F(TestCrustalThicknessCalculatorMerging, mockTest) {
         FAIL() << "Unexpected exception caught";
     }
     //// Checking the updated continental crustal history from the fastCTC output p3d file 
-    database::Table* contCrustalHistoryIoTbl = ph->getTable("ContCrustalThicknessIoTbl"); 
+    database::Table* contCrustalHistoryIoTbl = ph->getTable("ContCrustalThicknessIoTbl");
     if (contCrustalHistoryIoTbl == nullptr) FAIL();
-    EXPECT_EQ(contCrustalHistoryIoTbl->size(), 2);
+    EXPECT_EQ(contCrustalHistoryIoTbl->size(), 3);
     database::Record* rec1 = contCrustalHistoryIoTbl->getRecord(0);
-    double age1= rec1->getValue<double>("Age");
+    double age1 = rec1->getValue<double>("Age");
     double thickness1 = rec1->getValue<double>("Thickness");
     std::string thicknessGrid1 = rec1->getValue<std::string>("ThicknessGrid");
     EXPECT_EQ(age1, 0);
@@ -122,7 +131,7 @@ TEST_F(TestCrustalThicknessCalculatorMerging, mockTest) {
     //// Checking the updated oceanic crustal history from the fastCTC output p3d file 
     database::Table* oceaCrustalHistoryIoTbl = ph->getTable("OceaCrustalThicknessIoTbl");
     if (oceaCrustalHistoryIoTbl == nullptr) FAIL();
-    EXPECT_EQ(oceaCrustalHistoryIoTbl->size(), 2);
+    EXPECT_EQ(oceaCrustalHistoryIoTbl->size(), 3);
     EXPECT_EQ(oceaCrustalHistoryIoTbl->size(), contCrustalHistoryIoTbl->size());
     rec1 = oceaCrustalHistoryIoTbl->getRecord(0);
     age1 = rec1->getValue<double>("Age");
@@ -136,7 +145,7 @@ TEST_F(TestCrustalThicknessCalculatorMerging, mockTest) {
     EXPECT_EQ(age2, 155);
     EXPECT_EQ(thickness1, thickness2);
     EXPECT_EQ(thicknessGrid1, thicknessGrid2);//Depending upon the RiftingHistory provided for the scenario used for testing
-            
+
 }
 
 

@@ -133,6 +133,7 @@ void InterfaceInput::cleanOldCrustalHistoriesAtNonCalculationAges(GeoPhysics::Pr
         
     }
     database::Table* crustThckIoTbl = projectHandle->getTable(tableName); 
+    //Note that the crustThckIoTbl is always sorted w.r.t increasing ages while loading into the projecthandle [ "DataAccess::loadCrustThinningHistory( void )" ] 
     for (int j = 0; j < crustThckIoTbl->size(); j++)
     {
         database::Record* crustThckIoTblRecord = crustThckIoTbl->getRecord(j);
@@ -143,14 +144,20 @@ void InterfaceInput::cleanOldCrustalHistoriesAtNonCalculationAges(GeoPhysics::Pr
         ageFromOriginalCrustInputs.begin(), ageFromOriginalCrustInputs.end(),
         std::back_inserter(agesToRemove));
 
+    //Crust thicknessess needs to be cleared if the ages from crustThckIoTbl matches with the age from agesToRemove which contains the nonCalculation ages of CTC from the input p3d file.
+    //The exception is the basement age which needs to be retained if defined in the input p3d file
+    double basementAge = projectHandle->getCrustFormation()->getTopSurface()->getSnapshot()->getTime();//Collected the basement age of the scenario for comparison
     for (int k = 0; k < agesToRemove.size(); k++)
     {
         double ageToBeRemoved = agesToRemove[k];
+        //if the crust history is specified at the basement age, then retain it
+        if (abs(basementAge - ageToBeRemoved) < 1e-6)
+            continue;
         for (int j = 0; j < crustThckIoTbl->size(); j++)
         {
             database::Record* crustThckIoTblRecord = crustThckIoTbl->getRecord(j);
             double ageFromOriginalCrustInputs = crustThckIoTblRecord->getValue<double>("Age");
-            if (ageFromOriginalCrustInputs == ageToBeRemoved)
+            if (abs(ageFromOriginalCrustInputs- ageToBeRemoved) < 1e-6 )
             {
                 crustThckIoTbl->eraseRecord(crustThckIoTblRecord);
                 j--;

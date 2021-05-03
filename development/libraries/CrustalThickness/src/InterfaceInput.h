@@ -164,6 +164,7 @@ public:
 
    //It is required to clean the pre-defined crustal histories, if specified at non-calculation ages of CTC, before calculating the new crustal histories by fastCTC (#BUG 420614). 
    //For calculation ages, the old crust histories will be overwrtitten by the newly calculated maps anyways.
+   //Note that, basement age crust thicknesses will always be fed from the CTCWizard which needs to be retained
    void cleanOldCrustalHistoriesAtNonCalculationAges(GeoPhysics::ProjectHandle* projectHandle, const std::string tableName);
 
 protected:
