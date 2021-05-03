@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-03  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
+
+	chg: dev: usr: Improvements of the CTC-wizard by closing out gaps in the implementation logic
+	 * The CTC-UI workspace is set from the location of the selected project3d file. When the CTC-UI is closed, the workspace is cleared irrespective of the location from where the CTC-wizard has been fired up.
+	 * Correction in the Cauldron CWD path.
+
+	================== COMMIT-END ========================
+	Commit-ID:<cef0fd6d2f7562a03dd32d108099f601c23bb5ba>	  (refs/heads/master)
+
+++
 2021-05-03  Richard Faasse  <Richard.Faasse@shell.com>
 
 	Merged PR 13236: fix: Minor fix in setting up the branch location.
