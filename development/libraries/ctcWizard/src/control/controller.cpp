@@ -127,7 +127,8 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
     //v2021.*nightly --- is the dafault version in /apps/sssdev/ibs as on 6th March 2021
     QString CLDRN_BIN = "/apps/sssdev/share/fastcauldron";
     QString MPI_BIN = "mpirun";
-    auto wlm = workloadmanagers::WorkLoadManager::Create("cldrn.sh", workloadmanagers::WorkLoadManagerType::AUTO);
+    auto cwd = process.workingDirectory();
+    auto wlm = workloadmanagers::WorkLoadManager::Create(cwd.toStdString() + "/cldrn.sh", workloadmanagers::WorkLoadManagerType::AUTO);
 
 #endif // WIN32
 
@@ -513,6 +514,7 @@ bool Controller::processCommand(QProcess& process, const QString& command) const
 
 bool ctcWizard::Controller::processShCommand(QProcess& process, const QString& command) const
 {
+    log("- Executing: " + command);
     process.start("sh", QStringList() << "-c" << command);
 	if (!process.waitForStarted()) //default wait time 30 sec
 	{

@@ -10,37 +10,40 @@ class QPushButton;
 namespace ctcWizard
 {
 	constexpr const char* CTCUI_VERSION = " 1.5";
-class CTCtab;
+	class CTCtab;
 
-class MainWindow : public QMainWindow
-{
-  Q_OBJECT
+	class MainWindow : public QMainWindow
+	{
+		Q_OBJECT
 
-public:
-  MainWindow(QWidget* parent = 0);
+	public:
+		MainWindow(QWidget* parent = 0);
 
-  void setupUi();
+		void setupUi();
 
-  const QAction* actionExit() const;
-  const QAction* actionOpenFile() const;
+		const QAction* actionExit() const;
+		const QAction* actionOpenFile() const;
 
-  const QPushButton* pushClearLog() const;
-  QTextEdit* lineEditLog() const;
-  const QTabWidget* tabWidget() const;
+		const QPushButton* pushClearLog() const;
+		QTextEdit* lineEditLog() const;
+		const QTabWidget* tabWidget() const;
 
-  CTCtab* ctcTab() const;
+		CTCtab* ctcTab() const;
 
-private:
-  QAction* actionExit_;
-  QAction* actionOpenFile_;
+	private slots:
+		void slotLineEditProject3dTextChanged(const QString& project3dPath);
 
-  QPushButton* pushClearLog_;
-  QTextEdit* lineEditLog_;
-  QTabWidget* tabWidget_;
+	private:
+		QString project3dPath_;
+		QAction* actionExit_;
+		QAction* actionOpenFile_;
 
-  CTCtab* ctcTab_;
-  void closeEvent(QCloseEvent* event);
-};
+		QPushButton* pushClearLog_;
+		QTextEdit* lineEditLog_;
+		QTabWidget* tabWidget_;
+
+		CTCtab* ctcTab_;
+		void closeEvent(QCloseEvent* event);
+	};
 
 } // namespace ctcWizard
-
