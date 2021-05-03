@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-03  Richard Faasse  <Richard.Faasse@shell.com>
+
+	Merged PR 13236: fix: Minor fix in setting up the branch location.
+	================== COMMIT-END ========================
+	Commit-ID:<cc1f289e06e41ff270dfcfc34a60beaa2d68438b>	  (refs/heads/master)
+
+++
 2021-05-03  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
 
 	fix: usr: dev: Crust Thickness at basement age is specified in fastCTC output, if defined in the input file
