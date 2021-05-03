@@ -69,6 +69,8 @@ module load HpcSoftwareStack/PRODUCTION
 module purge
 module load intel/2019a
 module load CMake/3.9.6
+## load Qt for the LiTs
+module load Qt5/5.10.1-intel-2019a
 
 which cmake
 which ctest
