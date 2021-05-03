@@ -38,6 +38,12 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-05-03  Richard Faasse  <Richard.Faasse@shell.com>
 
+	fix: Minor fix in the code coverage script.
+	Commit-ID:<c758c71dabdc5c08391c39d2ac5c352db12d3dd1>	  (refs/heads/master)
+
+++
+2021-05-03  Richard Faasse  <Richard.Faasse@shell.com>
+
 	new: Added script to test the code coverage of the dev-branch against master
 	================== COMMIT-END ========================
 	Commit-ID:<a8173dbc3749bf59ddeb2ac23d1dcc811fa3c8fb>	  (refs/heads/master)
