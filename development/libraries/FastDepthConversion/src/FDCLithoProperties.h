@@ -14,15 +14,16 @@
 namespace fastDepthConversion
 {
 
+class FDCProjectManager;
+
 class FDCLithoProperties
 {
 public:
-  explicit FDCLithoProperties(mbapi::StratigraphyManager & stMgrLocal, mbapi::LithologyManager & litMgrLocal);
+  explicit FDCLithoProperties(FDCProjectManager& fdcProjectManager);
 
   void setlayerLithologiesListForCurrentLayer();
   void setLithoSurfaces(const mbapi::StratigraphyManager::SurfaceID currentSurface);
   double getMaxSeismicVelocityForCurrentLayer() const;
-  std::vector<mbapi::StratigraphyManager::SurfaceID> surfacesIDs() const;
 
   mbapi::StratigraphyManager::SurfaceID nextSurface() const;
   mbapi::StratigraphyManager::LayerID currentLayer() const;
@@ -30,12 +31,10 @@ public:
   std::string nextTopName() const;
   std::string currentLayerName() const;
   std::string surfaceNameCurrentLayer() const;
-  std::string surfaceNameNextLayer() const;
-  void setManagers(mbapi::StratigraphyManager & stMgrLocal, mbapi::LithologyManager & litMgrLocal);
+  std::string surfaceNameNextLayer() const;  
 
-private:
-  mbapi::StratigraphyManager * m_stMgrLocal;
-  mbapi::LithologyManager *    m_litMgrLocal;
+private:    
+  FDCProjectManager& m_fdcProjectManager;
 
   mbapi::StratigraphyManager::SurfaceID m_nextSurface;
   mbapi::StratigraphyManager::LayerID   m_currentLayer;

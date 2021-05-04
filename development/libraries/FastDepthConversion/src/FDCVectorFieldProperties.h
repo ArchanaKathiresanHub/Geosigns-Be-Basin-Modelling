@@ -15,15 +15,16 @@
 namespace fastDepthConversion
 {
 
+class FDCProjectManager;
+
 class FDCVectorFieldProperties
 {
 public:
-  explicit FDCVectorFieldProperties(std::shared_ptr<mbapi::Model> & mdl, const mbapi::StratigraphyManager::SurfaceID referenceSurface);
+  explicit FDCVectorFieldProperties(FDCProjectManager& fdcProjectManager, const mbapi::StratigraphyManager::SurfaceID referenceSurface);
 
   void setTopSurfaceProperties(const mbapi::StratigraphyManager::SurfaceID surfaceID, const mbapi::StratigraphyManager::SurfaceID referenceSurface, const std::string & twtMapNames);
-  std::vector<double> setMeasuredTwtAtSpecifiedSurface(const mbapi::StratigraphyManager::SurfaceID surface, const std::string & twtMapNames) const;
-  std::vector<double> calculateIncreasedDepthsIncludingPreservedErosion(const mbapi::StratigraphyManager::SurfaceID currentSurface, const double maxSeisVel) const;
-  std::vector<double> getSurfaceDepthFromGridMapValues(const mbapi::StratigraphyManager::SurfaceID surfID) const;
+  std::vector<double> getMeasuredTwtAtSpecifiedSurface(const mbapi::StratigraphyManager::SurfaceID surface, const std::string & twtMapNames) const;
+  std::vector<double> calculateIncreasedDepthsIncludingPreservedErosion(const mbapi::StratigraphyManager::SurfaceID currentSurface, const double maxSeisVel) const;  
 
   std::vector<double> refDepths() const;
   std::vector<double> newDepths() const;
@@ -34,15 +35,14 @@ public:
   std::vector<double> preservedErosion() const;
   void setPreservedErosion(const std::vector<double> & values);
 
-  double twtconvFactor() const;
-  void setModel(std::shared_ptr<mbapi::Model> & mdl);
+  double twtconvFactor() const;  
 
 private:
   void calculateTopMostSurfaceIncreasedDepth(std::vector<double> & increasedDepths, const int nRefDepths, const double maxSeisVel) const;
   void calculateSurfaceIncreasedDepth(std::vector<double> & increasedDepths, const int nRefDepths, const double maxSeisVel) const;
   void retrievePropertiesWhenAtReferenceSurface(const mbapi::StratigraphyManager::SurfaceID currentSurface, const string & twtMapNames);
 
-  std::shared_ptr<mbapi::Model> m_mdl;
+  FDCProjectManager&    m_fdcProjectManager;
   std::vector<double>   m_refDepths;
   std::vector<double>   m_newDepths;
   std::vector<double>   m_refTwts;

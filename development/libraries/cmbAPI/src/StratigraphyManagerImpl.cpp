@@ -178,7 +178,7 @@ StratigraphyManagerImpl::LayerID StratigraphyManagerImpl::layerID( const std::st
 // Get surface name for the given ID
 std::string StratigraphyManagerImpl::surfaceName( StratigraphyManager::LayerID id )
 {
-   std::string sfName;
+   std::string surfaceName;
    if ( errorCode() != NoError ) resetError();
 
    try
@@ -194,11 +194,37 @@ std::string StratigraphyManagerImpl::surfaceName( StratigraphyManager::LayerID i
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
-      sfName = rec->getValue<std::string>( s_surfaceNameFieldName );
+      surfaceName = rec->getValue<std::string>( s_surfaceNameFieldName );
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return sfName;
+   return surfaceName;
+}
+
+// Get depth grid name for the given ID
+std::string StratigraphyManagerImpl::depthGridName( StratigraphyManager::LayerID id )
+{
+   std::string depthGridName;
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_stratIoTbl )
+      {
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
+      }
+      depthGridName = rec->getValue<std::string>( s_depthGridFiledName );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return depthGridName;
 }
 
 double StratigraphyManagerImpl::eldestLayerAge()

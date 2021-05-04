@@ -91,8 +91,6 @@ public:
    ModelImpl();
    ~ModelImpl();
 
-   ModelImpl & operator = ( const ModelImpl & otherModel );
-
    // methods
 
    // compare tables in project file
@@ -264,12 +262,6 @@ private:
 Model::Model() { m_pimpl.reset( new ModelImpl() ); }
 Model::Model( const Model & /*otherModel*/ ) { assert(0); }
 Model::~Model() { m_pimpl.reset( 0 ); }
-
-Model & Model::operator = ( const Model & otherModel )
-{
-   *(m_pimpl.get()) = *(otherModel.m_pimpl.get());
-   return *this;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Generic Table IO interface
@@ -1373,16 +1365,6 @@ void Model::ModelImpl::tableSort( const std::string & tblName, const std::vector
 
    table->stable_sort( colsName );
 }
-
-
-// Load model from the project file
-Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & /*otherModel*/ )
-{
-   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented yet";
-
-   return *this;
-}
-
 
 void Model::ModelImpl::loadModelFromProjectFile( const std::string& projectFileName )
 {

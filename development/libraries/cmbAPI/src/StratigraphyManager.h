@@ -74,6 +74,11 @@ namespace mbapi {
       /// @return surface name on success, or empty string otherwise
       virtual std::string surfaceName( LayerID id ) = 0;
 
+      /// @brief Get depth grid name for the given ID
+      /// @param id surface ID
+      /// @return depth grid name on success, or empty string otherwise
+      virtual std::string depthGridName(StratigraphyManager::LayerID id) = 0;
+
       /// @brief Get age of the eldest layer in stratigraphy
       /// @return age of the eldest (first) layer, UndefinedDoubleValue if no any layer is defined
       virtual double eldestLayerAge() = 0;

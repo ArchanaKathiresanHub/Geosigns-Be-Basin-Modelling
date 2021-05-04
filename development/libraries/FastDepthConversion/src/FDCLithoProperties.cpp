@@ -8,12 +8,13 @@
 
 #include "FDCLithoProperties.h"
 
+#include "FDCProjectManager.h"
+
 namespace fastDepthConversion
 {
 
-FDCLithoProperties::FDCLithoProperties(mbapi::StratigraphyManager & stMgrLocal, mbapi::LithologyManager & litMgrLocal) :
-  m_stMgrLocal{&stMgrLocal},
-  m_litMgrLocal{&litMgrLocal},
+FDCLithoProperties::FDCLithoProperties(FDCProjectManager& fdcProjectManager) :
+  m_fdcProjectManager{fdcProjectManager},
   m_nextSurface{0},
   m_currentLayer{0},
   m_nextLayer{0},
@@ -28,9 +29,10 @@ FDCLithoProperties::FDCLithoProperties(mbapi::StratigraphyManager & stMgrLocal, 
 
 void FDCLithoProperties::setlayerLithologiesListForCurrentLayer()
 {
-  if (ErrorHandler::ReturnCode::NoError != m_stMgrLocal->layerLithologiesList(m_currentLayer, m_lithoList, m_lithoPercent, m_lithoPercMap))
+  mbapi::StratigraphyManager& stratManager = m_fdcProjectManager.getStratManager();
+  if (ErrorHandler::ReturnCode::NoError != stratManager.layerLithologiesList(m_currentLayer, m_lithoList, m_lithoPercent, m_lithoPercMap))
   {
-    throw ErrorHandler::Exception(m_stMgrLocal->errorCode()) << "Cannot read the lithologies for the current layer: " << m_stMgrLocal->errorMessage();
+    throw ErrorHandler::Exception(stratManager.errorCode()) << "Cannot read the lithologies for the current layer: " << stratManager.errorMessage();
   }
 }
 
@@ -40,42 +42,39 @@ void FDCLithoProperties::setLithoSurfaces(const mbapi::StratigraphyManager::Surf
   m_currentLayer = currentSurface;
   m_nextLayer = m_nextSurface;
 
-  m_currentTopName = m_stMgrLocal->surfaceName(m_currentLayer);
-  m_nextTopName = m_stMgrLocal->surfaceName(m_nextLayer);
-  m_currentLayerName = m_stMgrLocal->layerName(m_currentLayer);
+  mbapi::StratigraphyManager& stratManager = m_fdcProjectManager.getStratManager();
+  m_currentTopName = stratManager.surfaceName(m_currentLayer);
+  m_nextTopName = stratManager.surfaceName(m_nextLayer);
+  m_currentLayerName = stratManager.layerName(m_currentLayer);
 }
 
 double FDCLithoProperties::getMaxSeismicVelocityForCurrentLayer() const
 {
+  mbapi::LithologyManager& lithoManager = m_fdcProjectManager.getLithoManager();
+
   double maxSeisVel = 0.0;
   for (const std::string& lith : m_lithoList)
   {
     if ( lith.empty() ) { continue; }
 
-    const mbapi::LithologyManager::LithologyID lithID = m_litMgrLocal->findID(lith);
+    const mbapi::LithologyManager::LithologyID lithID = lithoManager.findID(lith);
     if ( IsValueUndefined( lithID ) )
     {
-      throw ErrorHandler::Exception(m_litMgrLocal->errorCode()) << "Cannot find the id for the lithology " << lith
-                                                                << ", " << m_litMgrLocal->errorMessage();
+      throw ErrorHandler::Exception(lithoManager.errorCode()) << "Cannot find the id for the lithology " << lith
+                                                                << ", " << lithoManager.errorMessage();
     }
 
-    const double seisVel = m_litMgrLocal->seisVelocity(lithID);
+    const double seisVel = lithoManager.seisVelocity(lithID);
     if ( IsValueUndefined( seisVel ) )
     {
-      throw ErrorHandler::Exception(m_litMgrLocal->errorCode()) << "Cannot find the seismic velocity for the lithology "
-                                                                << lith << ", " << m_litMgrLocal->errorMessage();
+      throw ErrorHandler::Exception(lithoManager.errorCode()) << "Cannot find the seismic velocity for the lithology "
+                                                                << lith << ", " << lithoManager.errorMessage();
     }
 
     if (maxSeisVel < seisVel) { maxSeisVel = seisVel; }
   }
 
   return maxSeisVel;
-}
-
-
-std::vector<mbapi::StratigraphyManager::SurfaceID> FDCLithoProperties::surfacesIDs() const
-{
-  return m_stMgrLocal->surfacesIDs();
 }
 
 mbapi::StratigraphyManager::SurfaceID FDCLithoProperties::nextSurface() const
@@ -101,12 +100,6 @@ std::string FDCLithoProperties::nextTopName() const
 std::string FDCLithoProperties::currentLayerName() const
 {
   return m_currentLayerName;
-}
-
-void FDCLithoProperties::setManagers(mbapi::StratigraphyManager & stMgrLocal, mbapi::LithologyManager & litMgrLocal)
-{
-  m_stMgrLocal = &stMgrLocal;
-  m_litMgrLocal = &litMgrLocal;
 }
 
 } // namespace fastDepthConversion

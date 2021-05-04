@@ -8,11 +8,13 @@
 
 #include "FDCVectorFieldProperties.h"
 
+#include "FDCProjectManager.h"
+
 namespace fastDepthConversion
 {
 
-FDCVectorFieldProperties::FDCVectorFieldProperties(std::shared_ptr<mbapi::Model> & mdl, const mbapi::StratigraphyManager::SurfaceID referenceSurface) :
-  m_mdl{mdl},
+FDCVectorFieldProperties::FDCVectorFieldProperties(FDCProjectManager& fdcProjectManager, const mbapi::StratigraphyManager::SurfaceID referenceSurface) :
+  m_fdcProjectManager{fdcProjectManager},
   m_refDepths{},
   m_newDepths{},
   m_refTwts{},
@@ -20,7 +22,7 @@ FDCVectorFieldProperties::FDCVectorFieldProperties(std::shared_ptr<mbapi::Model>
   m_preservedErosion{},
   m_twtconvFactor{1.e-3}
 {
-  m_refDepths = getSurfaceDepthFromGridMapValues(referenceSurface);
+  m_refDepths = m_fdcProjectManager.getGridMapDepthValues(referenceSurface);
   m_refTwts.resize(m_refDepths.size(), 0.0);
   m_tarTwts = m_refTwts;
 }
@@ -39,10 +41,10 @@ void FDCVectorFieldProperties::setTopSurfaceProperties(const mbapi::Stratigraphy
   retrievePropertiesWhenAtReferenceSurface(surfaceID, twtMapNames);
 }
 
-std::vector<double> FDCVectorFieldProperties::setMeasuredTwtAtSpecifiedSurface(const mbapi::StratigraphyManager::SurfaceID surface, const std::string & twtMapNames) const
+std::vector<double> FDCVectorFieldProperties::getMeasuredTwtAtSpecifiedSurface(const mbapi::StratigraphyManager::SurfaceID surface, const std::string & twtMapNames) const
 {
   std::vector<double> tarTwts;
-  mbapi::MapsManager & mapsMgrLocal = m_mdl->mapsManager();
+  mbapi::MapsManager& mapsMgrLocal = m_fdcProjectManager.getMapsManager();
 
   mbapi::MapsManager::MapID twtMapID = mapsMgrLocal.findID(twtMapNames);
   if (ErrorHandler::NoError != mapsMgrLocal.mapGetValues(twtMapID, tarTwts))
@@ -67,20 +69,6 @@ std::vector<double> FDCVectorFieldProperties::calculateIncreasedDepthsIncludingP
     calculateSurfaceIncreasedDepth(increasedDepths, nRefDepths, maxSeisVel);
   }
   return increasedDepths;
-}
-
-std::vector<double> FDCVectorFieldProperties::getSurfaceDepthFromGridMapValues(const mbapi::StratigraphyManager::SurfaceID surfID) const
-{
-  mbapi::MapsManager & mapsMgrLocal = m_mdl->mapsManager();
-
-  std::vector<double> depths;
-  if (!m_mdl->getGridMapDepthValues(surfID, depths))
-  {
-    throw ErrorHandler::Exception(mapsMgrLocal.errorCode()) << " Cannot get the depth map for the current surface " << surfID
-                                                            << ", message: " << mapsMgrLocal.errorMessage();
-  }
-
-  return depths;
 }
 
 void FDCVectorFieldProperties::calculateTopMostSurfaceIncreasedDepth(std::vector<double> & increasedDepths, const int nRefDepths, const double maxSeisVel) const
@@ -118,11 +106,11 @@ void FDCVectorFieldProperties::calculateSurfaceIncreasedDepth(std::vector<double
 
 void FDCVectorFieldProperties::retrievePropertiesWhenAtReferenceSurface(const mbapi::StratigraphyManager::SurfaceID currentSurface, const std::string & twtMapNames)
 {
-  m_refDepths = getSurfaceDepthFromGridMapValues(currentSurface);
+  m_refDepths = m_fdcProjectManager.getGridMapDepthValues(currentSurface);
   m_newDepths.resize(m_refDepths.size());
   m_preservedErosion.resize(m_refDepths.size(),0.0);
 
-  m_refTwts = setMeasuredTwtAtSpecifiedSurface(currentSurface, twtMapNames);
+  m_refTwts = getMeasuredTwtAtSpecifiedSurface(currentSurface, twtMapNames);
 }
 
 double FDCVectorFieldProperties::twtconvFactor() const
@@ -169,12 +157,5 @@ void FDCVectorFieldProperties::setPreservedErosion(const std::vector<double> & v
 {
   m_preservedErosion = values;
 }
-
-void FDCVectorFieldProperties::setModel(std::shared_ptr<mbapi::Model> & mdl)
-{
-  m_mdl.reset();
-  m_mdl = mdl;
-}
-
 
 } // namespace fastDepthConversion

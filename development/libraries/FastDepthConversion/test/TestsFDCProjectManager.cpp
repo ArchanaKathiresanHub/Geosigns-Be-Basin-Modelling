@@ -23,8 +23,7 @@ const std::string TestFDCProjectManager::projectFileName = "Project.project3d";
 
 TEST_F( TestFDCProjectManager, TestModel )
 {
-  EXPECT_NO_THROW(fdcPM->reloadModel("./Project.project3d"));
-  EXPECT_TRUE(fdcPM->getModel() != nullptr);
+  EXPECT_NO_THROW(fdcPM->reloadModel("./Project.project3d"));  
 }
 
 TEST_F( TestFDCProjectManager, TestPrepareProject )
@@ -38,8 +37,6 @@ TEST_F( TestFDCProjectManager, TestModifyTables )
   std::map<const mbapi::StratigraphyManager::SurfaceID, std::string> correctedMapsNames;
   std::map<const mbapi::StratigraphyManager::SurfaceID, int> correctedMapsSequenceNbr;
   const std::vector<int> addedTwtmapsequenceNbr = {};
-  const std::vector<mbapi::StratigraphyManager::SurfaceID> surfaceIDs =
-  {0, 1, 2, 3, 4, 5, 6,};
 
   for (mbapi::StratigraphyManager::SurfaceID s = 2; s <= 4; ++s)
   {
@@ -53,7 +50,7 @@ TEST_F( TestFDCProjectManager, TestModifyTables )
 
   const mbapi::StratigraphyManager::SurfaceID surfaceID = 4;
   EXPECT_NO_THROW(fdcPM->modifyTables(surfaceID, hiatus, correctedMapsNames, correctedMapsSequenceNbr, addedTwtmapsequenceNbr,
-                                      resultsMapFileName, surfaceIDs, false));
+                                      resultsMapFileName, false));
 }
 
 TEST_F( TestFDCProjectManager, TestGenerateMapInGridMapIoTbl )

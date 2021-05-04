@@ -99,7 +99,7 @@ private:
                    const double convFact );
 
    // Here we could handle erosion before starting the calibration loop. Another m_erosionMaps data member should be created and filled up.
-   std::vector<double> calculateErosion(const mbapi::StratigraphyManager::SurfaceID surfID) const;
+   std::vector<double> calculateErosion(const mbapi::StratigraphyManager::SurfaceID surfID);
 
    void prepareModelToRunAutomaticDepthConversion();
    bool checkForHiatus(const mbapi::StratigraphyManager::SurfaceID currentSurface);
@@ -115,8 +115,7 @@ private:
    int                                         m_rank;
    std::vector<double>                         m_depthsEndSurface;
 
-   FDCProjectManager             m_fdcProjectManager;
-   std::shared_ptr<mbapi::Model> m_mdl;
+   FDCProjectManager             m_fdcProjectManager;   
    FDCMapFieldProperties         m_fdcMapFieldProperties;
    CaseStorageManager            m_caseStorageManager;
 

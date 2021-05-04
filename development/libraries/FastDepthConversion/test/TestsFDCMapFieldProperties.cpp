@@ -1,5 +1,7 @@
 #include "FDCMapFieldProperties.h"
 
+#include "FDCProjectManager.h"
+
 #include <gtest/gtest.h>
 
 class TestFDCMapFieldProperties : public ::testing::Test
@@ -7,15 +9,15 @@ class TestFDCMapFieldProperties : public ::testing::Test
 protected:
   void SetUp() final
   {
-    mdl.reset(new mbapi::Model());
-    ASSERT_EQ(ErrorHandler::NoError, mdl->loadModelFromProjectFile(projectFileName));
+    projectManager = std::unique_ptr<fastDepthConversion::FDCProjectManager>(
+                       new fastDepthConversion::FDCProjectManager(projectFileName));
 
     fdcMFP = std::unique_ptr<fastDepthConversion::FDCMapFieldProperties>(
-          new fastDepthConversion::FDCMapFieldProperties(mdl, referenceSurface, endSurface));
+          new fastDepthConversion::FDCMapFieldProperties(*projectManager, referenceSurface, endSurface));
   }
 
+  std::unique_ptr<fastDepthConversion::FDCProjectManager> projectManager;
   std::unique_ptr<fastDepthConversion::FDCMapFieldProperties> fdcMFP;
-  std::shared_ptr<mbapi::Model> mdl;
   static const std::string resultsMapFileName;
   static const std::string projectFileName;
   static const mbapi::StratigraphyManager::SurfaceID referenceSurface;

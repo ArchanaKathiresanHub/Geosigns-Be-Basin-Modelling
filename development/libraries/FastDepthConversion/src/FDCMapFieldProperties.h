@@ -17,10 +17,12 @@
 namespace fastDepthConversion
 {
 
+class FDCProjectManager;
+
 class FDCMapFieldProperties
 {
 public:
-  explicit FDCMapFieldProperties(std::shared_ptr<mbapi::Model> & mdl, const mbapi::StratigraphyManager::SurfaceID referenceSurface, const mbapi::StratigraphyManager::SurfaceID endSurface);
+  explicit FDCMapFieldProperties(FDCProjectManager& fdcProjectManager, const mbapi::StratigraphyManager::SurfaceID referenceSurface, const mbapi::StratigraphyManager::SurfaceID endSurface);
 
   void calculateInitialMaps(const std::string & masterResultsFilePathName, const bool preserveErosionFlag);
 
@@ -49,28 +51,23 @@ public:
                               const std::vector<double> & refTwts);
 
   std::map<const mbapi::StratigraphyManager::LayerID, std::vector<double> > refDepthsHistory() const;
-  std::map<const mbapi::StratigraphyManager::LayerID, std::vector<double> > refTwtHistory() const;
-  void setModel(std::shared_ptr<mbapi::Model> & mdl);
+  std::map<const mbapi::StratigraphyManager::LayerID, std::vector<double> > refTwtHistory() const;  
 
 private:
   void initializeAllMaps();
   void setHiatus(const mbapi::StratigraphyManager::SurfaceID ID, const int value);
   void setTwtMaps(const mbapi::StratigraphyManager::SurfaceID ID, const string& value);
   void setTwtMapsForAllSurfaces();
-  void calculateIsoPackThicknessForSurfacesBelowEndSurface(const bool preserveErosionFlag);
-  std::vector<double> getGridMapDepthValuesForCurrentSurface(const mbapi::StratigraphyManager::SurfaceID & currentSurface) const;
+  void calculateIsoPackThicknessForSurfacesBelowEndSurface(const bool preserveErosionFlag);  
   void initializeMapWriterOnMasterResultsFile(const string & masterResultsFilePathName) const;
   std::string getTwtGridName(const mbapi::StratigraphyManager::SurfaceID surface, mbapi::StratigraphyManager& stMgr);
-  void detectHiatusForAllSurfaces();
-  std::vector<double> getCurrentDepth(const mbapi::StratigraphyManager::SurfaceID surfID) const;
-  mbapi::StratigraphyManager::SurfaceID getIDofFirstNonMissingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID) const;
-  std::vector<double> getReferenceDepth(const mbapi::StratigraphyManager::SurfaceID s) const;
+  void detectHiatusForAllSurfaces();  
+  mbapi::StratigraphyManager::SurfaceID getIDofFirstNonMissingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID) const;  
   std::vector<double> getReferenceTwt(const mbapi::StratigraphyManager::SurfaceID s) const;
-  std::vector<double> getNextTwt(const mbapi::StratigraphyManager::SurfaceID s) const;
-  std::vector<double> getNextDepth(const mbapi::StratigraphyManager::SurfaceID s) const;
+  std::vector<double> getNextTwt(const mbapi::StratigraphyManager::SurfaceID s) const;  
   bool getIDofLastExistingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID, mbapi::StratigraphyManager::SurfaceID & surface) const;
 
-  std::shared_ptr<mbapi::Model> m_mdl;
+  FDCProjectManager& m_fdcProjectManager;
   const mbapi::StratigraphyManager::SurfaceID m_referenceSurface;
   const mbapi::StratigraphyManager::SurfaceID m_endSurface;
 

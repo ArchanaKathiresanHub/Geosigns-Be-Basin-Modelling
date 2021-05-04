@@ -6,8 +6,9 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "FDCMapFieldProperties.h"
 #include "CommonDefinitions.h"
+#include "FDCMapFieldProperties.h"
+#include "FDCProjectManager.h"
 
 #include "ErrorHandler.h"
 
@@ -62,13 +63,13 @@ void calculateMissingTwt(std::vector<double> & Twt, const std::vector<double> & 
 
 void throwMapsManagerError(const std::string & message, const mbapi::StratigraphyManager::SurfaceID surfID, const mbapi::MapsManager & mapsMgrLocal)
 {
-  throw ErrorHandler::Exception(mapsMgrLocal.errorCode()) << message << surfID << ", message: " << mapsMgrLocal.errorMessage();
+  throw ErrorHandler::Exception(mapsMgrLocal.errorCode()) << message << surfID << ", message: " << mapsMgrLocal.errorMessage();  
 }
 
 } // namespace
 
-FDCMapFieldProperties::FDCMapFieldProperties(std::shared_ptr<mbapi::Model> & mdl, const mbapi::StratigraphyManager::SurfaceID referenceSurface, const mbapi::StratigraphyManager::SurfaceID endSurface) :
-  m_mdl{mdl},
+FDCMapFieldProperties::FDCMapFieldProperties(FDCProjectManager& fdcProjectManager, const mbapi::StratigraphyManager::SurfaceID referenceSurface, const mbapi::StratigraphyManager::SurfaceID endSurface) :
+  m_fdcProjectManager{fdcProjectManager},
   m_referenceSurface{referenceSurface},
   m_endSurface{endSurface},
   m_correctedMapsNames{},
@@ -106,7 +107,7 @@ void FDCMapFieldProperties::calculateInitialMaps(const string & masterResultsFil
 
 void FDCMapFieldProperties::setTwtMapsForAllSurfaces()
 {
-  mbapi::StratigraphyManager & stMgr = m_mdl->stratigraphyManager();
+  mbapi::StratigraphyManager& stMgr = m_fdcProjectManager.getStratManager();
   for (mbapi::StratigraphyManager::SurfaceID surface = m_referenceSurface; surface <= m_endSurface; ++surface)
   {
     const std::string twtGridName = stMgr.twtGridName(surface);
@@ -121,15 +122,15 @@ void FDCMapFieldProperties::setTwtMapsForAllSurfaces()
 
 void FDCMapFieldProperties::detectHiatusForAllSurfaces()
 {
-  mbapi::StratigraphyManager & stMgr = m_mdl->stratigraphyManager();
+  mbapi::StratigraphyManager& stMgr = m_fdcProjectManager.getStratManager();
   for (mbapi::StratigraphyManager::SurfaceID currentSurface = m_referenceSurface; currentSurface <= m_endSurface; ++currentSurface)
-  {
-    const std::string depthMapS = m_mdl->tableValueAsString( "StratIoTbl", currentSurface, "DepthGrid" );
+  {    
+    const std::string depthMapS = stMgr.depthGridName(currentSurface);
     if ( IsValueUndefined(depthMapS) ) { continue; }
 
     for (mbapi::StratigraphyManager::SurfaceID it = m_referenceSurface; it < currentSurface; ++it)
     {
-      const std::string depthMap = m_mdl->tableValueAsString( "StratIoTbl", it, "DepthGrid" );
+      const std::string depthMap = stMgr.depthGridName(it);
       if (twtMaps(currentSurface) ==  twtMaps(it) && !IsValueUndefined(depthMap) && depthMap == depthMapS)
       {
         LogHandler(LogHandler::WARNING_SEVERITY) << "Hiatus detected: "<< stMgr.surfaceName(currentSurface) << "on Surface" << stMgr.surfaceName(it);
@@ -150,7 +151,7 @@ std::string FDCMapFieldProperties::getTwtGridName(const mbapi::StratigraphyManag
 
 void FDCMapFieldProperties::initializeMapWriterOnMasterResultsFile(const string & masterResultsFilePathName) const
 {
-  mbapi::MapsManager & mapMgr = m_mdl->mapsManager();
+  mbapi::MapsManager& mapMgr = m_fdcProjectManager.getMapsManager();
   if (ErrorHandler::NoError != mapMgr.initializeMapWriter(masterResultsFilePathName, false))
   { throw T2Zexception() << "Cannot initialize the map writer"; }
 
@@ -158,21 +159,12 @@ void FDCMapFieldProperties::initializeMapWriterOnMasterResultsFile(const string 
   { throw T2Zexception() << "Cannot finalize the map writer"; }
 }
 
-std::vector<double> FDCMapFieldProperties::getGridMapDepthValuesForCurrentSurface(const mbapi::StratigraphyManager::SurfaceID & currentSurface) const
-{
-  std::vector<double> bottomDepth;
-  if (!m_mdl->getGridMapDepthValues(currentSurface, bottomDepth))
-  { throw T2Zexception() << " Cannot get the depth map for the surface " << currentSurface << ", " << m_mdl->errorMessage(); }
-  return bottomDepth;
-}
-
 void FDCMapFieldProperties::calculateIsoPackThicknessForSurfacesBelowEndSurface(const bool preserveErosionFlag)
-{
-  mbapi::StratigraphyManager & stMgr = m_mdl->stratigraphyManager();
-  const std::vector<double> depthEndSurface = getGridMapDepthValuesForCurrentSurface(m_endSurface);
-  for (mbapi::StratigraphyManager::SurfaceID s = m_endSurface + 1; s < stMgr.surfacesIDs().size(); ++s)
+{  
+  const std::vector<double> depthEndSurface = m_fdcProjectManager.getGridMapDepthValues(m_endSurface);
+  for (mbapi::StratigraphyManager::SurfaceID s = m_endSurface + 1; s < m_fdcProjectManager.surfacesIDs().size(); ++s)
   {
-    std::vector<double> bottomDepth = getGridMapDepthValuesForCurrentSurface(s);
+    std::vector<double> bottomDepth = m_fdcProjectManager.getGridMapDepthValues(s);
 
     for (size_t i = 0; i != bottomDepth.size(); ++i)
     {
@@ -181,15 +173,6 @@ void FDCMapFieldProperties::calculateIsoPackThicknessForSurfacesBelowEndSurface(
     }
     m_isoPacks[s] = bottomDepth;
   }
-}
-
-std::vector<double> FDCMapFieldProperties::getCurrentDepth(const mbapi::StratigraphyManager::SurfaceID surfID) const
-{
-  const mbapi::MapsManager& mapsMgrLocal = m_mdl->mapsManager();
-  std::vector<double> currentDepth;
-  if (!m_mdl->getGridMapDepthValues(surfID, currentDepth))
-  { throwMapsManagerError(" Cannot get the current depth for the surface ", surfID, mapsMgrLocal); }
-  return currentDepth;
 }
 
 mbapi::StratigraphyManager::SurfaceID FDCMapFieldProperties::getIDofFirstNonMissingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID) const
@@ -205,18 +188,9 @@ mbapi::StratigraphyManager::SurfaceID FDCMapFieldProperties::getIDofFirstNonMiss
   return s;
 }
 
-std::vector<double> FDCMapFieldProperties::getReferenceDepth(const mbapi::StratigraphyManager::SurfaceID s) const
-{
-  const mbapi::MapsManager& mapsMgrLocal = m_mdl->mapsManager();
-  std::vector<double> refDepth;
-  if (!m_mdl->getGridMapDepthValues(s, refDepth))
-  { throwMapsManagerError(" Cannot get the depth map for the current surface ", s, mapsMgrLocal); }
-  return refDepth;
-}
-
 std::vector<double> FDCMapFieldProperties::getReferenceTwt(const mbapi::StratigraphyManager::SurfaceID s) const
 {
-  mbapi::MapsManager& mapsMgrLocal = m_mdl->mapsManager();
+  mbapi::MapsManager& mapsMgrLocal = m_fdcProjectManager.getMapsManager();
   std::vector<double> refTwt;
   mbapi::MapsManager::MapID refTwtID = mapsMgrLocal.findID(twtMaps(s));
   if (ErrorHandler::NoError != mapsMgrLocal.mapGetValues(refTwtID, refTwt))
@@ -239,7 +213,7 @@ bool FDCMapFieldProperties::getIDofLastExistingTwtSurface(const mbapi::Stratigra
 
 std::vector<double> FDCMapFieldProperties::getNextTwt(const mbapi::StratigraphyManager::SurfaceID s) const
 {
-  mbapi::MapsManager& mapsMgrLocal = m_mdl->mapsManager();
+  mbapi::MapsManager& mapsMgrLocal = m_fdcProjectManager.getMapsManager();
   std::vector<double> nextTwt;
   mbapi::MapsManager::MapID nextTwtID = mapsMgrLocal.findID(twtMaps(s));
   if (ErrorHandler::NoError != mapsMgrLocal.mapGetValues(nextTwtID, nextTwt))
@@ -247,27 +221,18 @@ std::vector<double> FDCMapFieldProperties::getNextTwt(const mbapi::StratigraphyM
   return nextTwt;
 }
 
-std::vector<double> FDCMapFieldProperties::getNextDepth(const mbapi::StratigraphyManager::SurfaceID s) const
-{
-  const mbapi::MapsManager& mapsMgrLocal = m_mdl->mapsManager();
-  std::vector<double> nextDepth;
-  if (!m_mdl->getGridMapDepthValues(s, nextDepth))
-  { throwMapsManagerError(" Cannot get the depth map for the current surface ", s, mapsMgrLocal); }
-  return nextDepth;
-}
-
 void FDCMapFieldProperties::setMissingTwtForSurface(const mbapi::StratigraphyManager::SurfaceID surfID)
 {
-  const std::vector<double> currentDepth = getCurrentDepth(surfID);
+  const std::vector<double> currentDepth = m_fdcProjectManager.getGridMapDepthValues(surfID);
   const mbapi::StratigraphyManager::SurfaceID sRef = getIDofFirstNonMissingTwtSurface(surfID);
   const std::vector<double> refTwt = getReferenceTwt(sRef);
-  const std::vector<double> refDepth = getReferenceDepth(sRef);
+  const std::vector<double> refDepth = m_fdcProjectManager.getGridMapDepthValues(sRef);
 
   mbapi::StratigraphyManager::SurfaceID sNext;
   if (!getIDofLastExistingTwtSurface(surfID, sNext))
   { throw T2Zexception() << "Cannot find an existing surface with valid TwoWayTime values." << "\n"; }
   const std::vector<double> nextTwt = getNextTwt(sNext);
-  const std::vector<double> nextDepth = getNextDepth(sNext);
+  const std::vector<double> nextDepth = m_fdcProjectManager.getGridMapDepthValues(sNext);
 
   std::vector<double> Twt(refTwt.size());
   calculateMissingTwt(Twt, refDepth, refTwt, nextDepth, nextTwt, currentDepth);
@@ -370,12 +335,6 @@ int FDCMapFieldProperties::hiatusID(const mbapi::StratigraphyManager::SurfaceID 
 void FDCMapFieldProperties::setHiatus(const mbapi::StratigraphyManager::SurfaceID ID, const int value)
 {
   m_hiatus[ID] = value;
-}
-
-void FDCMapFieldProperties::setModel(std::shared_ptr<mbapi::Model> & mdl)
-{
-  m_mdl.reset();
-  m_mdl = mdl;
 }
 
 } // namespace fastDepthConversion

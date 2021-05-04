@@ -1,5 +1,7 @@
 #include "FDCLithoProperties.h"
 
+#include "FDCProjectManager.h"
+
 #include <gtest/gtest.h>
 
 namespace
@@ -14,15 +16,15 @@ class TestsFDCLithoProperties : public ::testing::Test
 protected:
   void SetUp() final
   {
-    mdl.reset(new mbapi::Model());
-    ASSERT_EQ(ErrorHandler::NoError, mdl->loadModelFromProjectFile(projectFileName));
+    projectManager = std::unique_ptr<fastDepthConversion::FDCProjectManager>(
+                       new fastDepthConversion::FDCProjectManager(projectFileName));
 
     fdcLP = std::unique_ptr<fastDepthConversion::FDCLithoProperties>(
-          new fastDepthConversion::FDCLithoProperties(mdl->stratigraphyManager(), mdl->lithologyManager()));
+          new fastDepthConversion::FDCLithoProperties(*projectManager));
   }
 
+  std::unique_ptr<fastDepthConversion::FDCProjectManager> projectManager;
   std::unique_ptr<fastDepthConversion::FDCLithoProperties> fdcLP;
-  std::shared_ptr<mbapi::Model> mdl;
   static const std::string projectFileName;
 };
 const std::string TestsFDCLithoProperties::projectFileName = "Project.project3d";
@@ -32,7 +34,7 @@ TEST_F( TestsFDCLithoProperties, TestSetLithoSurfaces )
   mbapi::StratigraphyManager::SurfaceID currentSurface = 3;
   fdcLP->setLithoSurfaces(currentSurface);
 
-  mbapi::StratigraphyManager & stMgrLocal = mdl->stratigraphyManager();
+  mbapi::StratigraphyManager & stMgrLocal = projectManager->getStratManager();
   mbapi::StratigraphyManager::SurfaceID nextSurfaceExpected = currentSurface + 1;
   mbapi::StratigraphyManager::LayerID currentLayerExpected = currentSurface;
   mbapi::StratigraphyManager::LayerID nextLayerExpected = nextSurfaceExpected;

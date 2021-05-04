@@ -227,6 +227,11 @@ namespace mbapi {
       /// return the twt map name for the layer on success, empty string otherwise
       virtual std::string twtGridName( LayerID id );
 
+      /// Get the map name of the depth grid
+      /// id layer id
+      /// return the depth grid name for the layer on success, empty string otherwise
+      virtual std::string depthGridName(StratigraphyManager::LayerID id);
+
       /// Get the value of the measured twt at the top surface
       /// id layer id
       /// the measured twt value on success, UndefinedDoubleValue otherwise

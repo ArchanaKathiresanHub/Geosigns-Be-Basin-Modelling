@@ -57,12 +57,11 @@ FastDepthConversion::FastDepthConversion(char* projectFileName, int referenceSur
   m_argv(argv),
   m_rank(rank),
   m_depthsEndSurface(),
-  m_fdcProjectManager(projectFileName),
-  m_mdl(m_fdcProjectManager.getModel()),
-  m_fdcMapFieldProperties(m_mdl, m_referenceSurface, m_endSurface),
-  m_caseStorageManager(m_mdl, rank),
-  m_fdcVectorFieldProperties(m_mdl, referenceSurface),
-  m_fdcLithoProperties(m_mdl->stratigraphyManager(), m_mdl->lithologyManager())
+  m_fdcProjectManager(projectFileName),  
+  m_fdcMapFieldProperties(m_fdcProjectManager, m_referenceSurface, m_endSurface),
+  m_caseStorageManager(m_fdcProjectManager, projectFileName, rank),
+  m_fdcVectorFieldProperties(m_fdcProjectManager, referenceSurface),
+  m_fdcLithoProperties(m_fdcProjectManager)
 {
   checkReferenceAndEndSurfaceBoundsAreValid();
   LogHandler(LogHandler::INFO_SEVERITY) << "options: referenceSurface : " << m_referenceSurface << ", endSurface: " << m_endSurface
@@ -73,18 +72,16 @@ FastDepthConversion::FastDepthConversion(char* projectFileName, int referenceSur
 FastDepthConversion::~FastDepthConversion() {}
 
 void FastDepthConversion::run()
-{
-  reloadModel();
+{ 
   m_fdcMapFieldProperties.calculateInitialMaps(m_caseStorageManager.masterResultsFilePath(), m_preserveErosionFlag);
   calibrateDepths();
-  FinalCaseManager finalCaseManager(m_fdcProjectManager, m_fdcMapFieldProperties, m_caseStorageManager);
-  finalCaseManager.writeFinalProject(m_endSurface, m_depthsEndSurface, m_fdcLithoProperties.surfacesIDs(), m_noCalculatedTWToutput);
+  FinalCaseManager finalCaseManager(m_fdcProjectManager, m_fdcMapFieldProperties, m_caseStorageManager, m_rank);
+  finalCaseManager.writeFinalProject(m_endSurface, m_depthsEndSurface, m_noCalculatedTWToutput);
 }
 
 void FastDepthConversion::checkReferenceAndEndSurfaceBoundsAreValid() const
-{
-  const std::vector<mbapi::StratigraphyManager::SurfaceID> & surfacesIDs = m_fdcLithoProperties.surfacesIDs();
-  const int nSurfacesIDs = surfacesIDs.size();
+{  
+  const int nSurfacesIDs = m_fdcProjectManager.surfacesIDs().size();
 
   if (m_referenceSurface >= nSurfacesIDs)
   { throw T2Zexception() << " The parameter value of -referenceSurface is invalid: " << m_referenceSurface; }
@@ -96,14 +93,8 @@ void FastDepthConversion::checkReferenceAndEndSurfaceBoundsAreValid() const
 void FastDepthConversion::reloadModel()
 {
   try
-  {
-    m_fdcProjectManager.reloadModel(m_caseStorageManager.caseProjectFilePath());
-    m_mdl.reset();
-    m_mdl = m_fdcProjectManager.getModel();
-    m_fdcMapFieldProperties.setModel(m_mdl);
-    m_fdcVectorFieldProperties.setModel(m_mdl);
-    m_caseStorageManager.setModel(m_mdl);
-    m_fdcLithoProperties.setManagers(m_mdl->stratigraphyManager(), m_mdl->lithologyManager());
+  {    
+    m_fdcProjectManager.reloadModel(m_caseStorageManager.caseProjectFilePath());        
   }
   catch (const T2Zexception & ex)
   {
@@ -190,18 +181,16 @@ void FastDepthConversion::runFastCauldronAndCalculateNewDpeths()
 }
 
 void FastDepthConversion::writeNewDepthAndCorrectedMapstoCaseFileInMasterDirectory(const std::string & mapName)
-{
-  m_caseStorageManager.changeToMasterDirectoryPath();
+{  
   size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
-  m_fdcProjectManager.generateMapInGridMapIoTbl(mapName, m_fdcVectorFieldProperties.newDepths(), mapsSequenceNbr, m_caseStorageManager.resultsMapFileName(), m_fdcLithoProperties.nextSurface());
-  MPI_Barrier(PETSC_COMM_WORLD);
+  m_fdcProjectManager.generateMapInGridMapIoTbl(mapName, m_fdcVectorFieldProperties.newDepths(), mapsSequenceNbr, m_caseStorageManager.resultsMapFileName(), m_fdcLithoProperties.nextSurface());  
 }
 
 void FastDepthConversion::calibrateDepths()
 {  
   for (mbapi::StratigraphyManager::SurfaceID currentSurface = m_referenceSurface; currentSurface < m_endSurface; ++currentSurface)
   {
-    m_caseStorageManager.setOriginalCaseProjectFilePath();
+    m_caseStorageManager.setOriginalMasterPath();
 
     // Note: reset and reload model in each loop, so that only one copy of the database is present
     reloadModel();
@@ -226,7 +215,7 @@ void FastDepthConversion::calibrateDepths()
     bool generated_Twt = setTwtMapsIfMissingInBottomSurface();
     if (!generated_Twt)
     {
-      const std::vector<double> tarTwts = m_fdcVectorFieldProperties.setMeasuredTwtAtSpecifiedSurface(nextSurface, m_fdcMapFieldProperties.twtMaps(nextSurface));
+      const std::vector<double> tarTwts = m_fdcVectorFieldProperties.getMeasuredTwtAtSpecifiedSurface(nextSurface, m_fdcMapFieldProperties.twtMaps(nextSurface));
       m_fdcVectorFieldProperties.setTarTwts(tarTwts);
     }
 
@@ -242,7 +231,7 @@ void FastDepthConversion::calibrateDepths()
     {
       m_fdcProjectManager.modifyTables(nextSurface, m_fdcMapFieldProperties.hiatusAll(), m_fdcMapFieldProperties.correctedMapsNames(),
                                        m_fdcMapFieldProperties.correctedMapsSequenceNbr(), m_fdcMapFieldProperties.addedTwtmapsequenceNbr(),
-                                       m_caseStorageManager.resultsMapFileName(), m_fdcLithoProperties.surfacesIDs(), m_noCalculatedTWToutput);
+                                       m_caseStorageManager.resultsMapFileName(), m_noCalculatedTWToutput);
     }
     catch (const T2Zexception & ex)
     {
@@ -265,19 +254,20 @@ void FastDepthConversion::calibrateDepths()
     std::string mapName;
     setDepthAndTwtMapsForNextSurfaceInTables(mapName, generated_Twt, increasedDepths);
     m_caseStorageManager.saveModelToCaseProjectFile();
-    m_caseStorageManager.changeToTemporaryCaseDirectoryPath();
 
+    m_caseStorageManager.changeToTemporaryCaseDirectoryPath();
     runFastCauldronAndCalculateNewDpeths();
+    m_caseStorageManager.changeToMasterDirectoryPath();
 
     writeNewDepthAndCorrectedMapstoCaseFileInMasterDirectory(mapName);
-    m_caseStorageManager.CopyTemporaryToMasterHDFMaps();
+    m_caseStorageManager.copyTemporaryToMasterHDFMaps();
   }
 
   // save a copy of the depths of the bottom most surface to append the isopacks later
   m_depthsEndSurface.resize(m_fdcVectorFieldProperties.newDepths().size());
   m_depthsEndSurface = m_fdcVectorFieldProperties.newDepths();
 
-  m_caseStorageManager.setOriginalCaseProjectFilePath();
+  m_caseStorageManager.setOriginalMasterPath();
   reloadModel();
 }
 
@@ -426,7 +416,7 @@ void FastDepthConversion::fillArray( const DataAccess::Interface::GridMap * grid
   grid->restoreData( );
 }
 
-std::vector<double> FastDepthConversion::calculateErosion(const mbapi::StratigraphyManager::SurfaceID surfID) const
+std::vector<double> FastDepthConversion::calculateErosion(const mbapi::StratigraphyManager::SurfaceID surfID)
 {
   std::vector<double> erosion;
   //LogHandler(LogHandler::INFO_SEVERITY) << "Running FastDepthConversion::calculateErosion for surfID " << surfID << "";
@@ -443,7 +433,7 @@ std::vector<double> FastDepthConversion::calculateErosion(const mbapi::Stratigra
     }
     tarTwt = m_fdcMapFieldProperties.missingTwtMaps(surfID);
   }
-  const std::vector<double> tarDepth = m_fdcVectorFieldProperties.getSurfaceDepthFromGridMapValues(surfID);
+  const std::vector<double> tarDepth = m_fdcProjectManager.getGridMapDepthValues(surfID);
 
   std::vector<double> checkTwt;
   erosion.resize(tarDepth.size(), 0.0);
@@ -451,7 +441,7 @@ std::vector<double> FastDepthConversion::calculateErosion(const mbapi::Stratigra
   {
     if( !m_fdcMapFieldProperties.twtMaps(checkSurface).empty())
     {
-      checkTwt = m_fdcVectorFieldProperties.setMeasuredTwtAtSpecifiedSurface(checkSurface, m_fdcMapFieldProperties.twtMaps(checkSurface));
+      checkTwt = m_fdcVectorFieldProperties.getMeasuredTwtAtSpecifiedSurface(checkSurface, m_fdcMapFieldProperties.twtMaps(checkSurface));
     }
     else
     {
@@ -462,7 +452,7 @@ std::vector<double> FastDepthConversion::calculateErosion(const mbapi::Stratigra
       checkTwt = m_fdcMapFieldProperties.missingTwtMaps(checkSurface);
     }
 
-    std::vector<double> checkDepth = m_fdcVectorFieldProperties.getSurfaceDepthFromGridMapValues(checkSurface);
+    std::vector<double> checkDepth = m_fdcProjectManager.getGridMapDepthValues(checkSurface);
     for (size_t i = 0; i != erosion.size(); ++i)
     {
       if (isNotErosion(tarDepth[i], tarTwt[i], checkDepth[i], checkTwt[i], erosion[i]))

@@ -1,5 +1,7 @@
 #include "FDCVectorFieldProperties.h"
 
+#include "FDCProjectManager.h"
+
 #include <gtest/gtest.h>
 
 namespace
@@ -14,30 +16,30 @@ class TestFDCVectorFieldProperties : public ::testing::Test
 protected:
   void SetUp() final
   {
-    mdl.reset(new mbapi::Model());
-    ASSERT_EQ(ErrorHandler::NoError, mdl->loadModelFromProjectFile(projectFileName));
+    projectManager = std::unique_ptr<fastDepthConversion::FDCProjectManager>(
+                       new fastDepthConversion::FDCProjectManager(projectFileName));
 
     fdcVFP = std::unique_ptr<fastDepthConversion::FDCVectorFieldProperties>(
-          new fastDepthConversion::FDCVectorFieldProperties(mdl, referenceSurface));
+          new fastDepthConversion::FDCVectorFieldProperties(*projectManager, referenceSurface));
   }
 
-  std::unique_ptr<fastDepthConversion::FDCVectorFieldProperties> fdcVFP;
-  std::shared_ptr<mbapi::Model> mdl;
+  std::unique_ptr<fastDepthConversion::FDCProjectManager> projectManager;
+  std::unique_ptr<fastDepthConversion::FDCVectorFieldProperties> fdcVFP;  
   static const std::string projectFileName;
   static const mbapi::StratigraphyManager::SurfaceID referenceSurface;
 };
 const std::string TestFDCVectorFieldProperties::projectFileName = "Project.project3d";
 const mbapi::StratigraphyManager::SurfaceID TestFDCVectorFieldProperties::referenceSurface = 2;
 
-TEST_F( TestFDCVectorFieldProperties, TestSetMeasuredTwtAtSpecifiedSurface )
+TEST_F( TestFDCVectorFieldProperties, TestGetMeasuredTwtAtSpecifiedSurface )
 {
 
   std::vector<double> tarTwtsExpected;
   mbapi::StratigraphyManager::SurfaceID surfaceID = 3;
   const std::string twtMapNames = "MAP-1520799820-4";
-  std::vector<double> tarTwtsActual = fdcVFP->setMeasuredTwtAtSpecifiedSurface(surfaceID, twtMapNames);
+  std::vector<double> tarTwtsActual = fdcVFP->getMeasuredTwtAtSpecifiedSurface(surfaceID, twtMapNames);
 
-  mbapi::MapsManager & mapsMgrLocal = mdl->mapsManager();
+  mbapi::MapsManager & mapsMgrLocal = projectManager->getMapsManager();
   mbapi::MapsManager::MapID twtMapID = mapsMgrLocal.findID(twtMapNames);
   EXPECT_NO_THROW(mapsMgrLocal.mapGetValues(twtMapID, tarTwtsExpected));
 
@@ -56,10 +58,9 @@ TEST_F( TestFDCVectorFieldProperties, TestSetTopSurfaceProperties )
   const std::string twtMapNames = "MAP-1520799820-4";
 
   EXPECT_NO_THROW(fdcVFP->setTopSurfaceProperties(surfaceID, 2, twtMapNames));
-  std::vector<double> refDepthsExpected;
-  std::vector<double> refTwtsExpected;
-  EXPECT_NO_THROW(mdl->getGridMapDepthValues(surfaceID, refDepthsExpected));
-  mbapi::MapsManager & mapsMgrLocal = mdl->mapsManager();
+  std::vector<double> refDepthsExpected = projectManager->getGridMapDepthValues(surfaceID);
+  std::vector<double> refTwtsExpected;  
+  mbapi::MapsManager & mapsMgrLocal = projectManager->getMapsManager();
   mbapi::MapsManager::MapID twtMapID = mapsMgrLocal.findID(twtMapNames);
   EXPECT_NO_THROW(mapsMgrLocal.mapGetValues(twtMapID, refTwtsExpected));
 
@@ -108,15 +109,14 @@ TEST_F( TestFDCVectorFieldProperties, TestCalculateIncreasedDepthsIncludingPrese
   const std::string twtMapNames = "MAP-1520799820-4";
 
   EXPECT_NO_THROW(fdcVFP->setTopSurfaceProperties(surfaceID, 2, twtMapNames));
-  std::vector<double> refDepthsExpected;
-  std::vector<double> refTwtsExpected;
-  EXPECT_NO_THROW(mdl->getGridMapDepthValues(surfaceID, refDepthsExpected));
-  mbapi::MapsManager & mapsMgrLocal = mdl->mapsManager();
+  std::vector<double> refDepthsExpected = projectManager->getGridMapDepthValues(surfaceID);
+  std::vector<double> refTwtsExpected;  
+  mbapi::MapsManager & mapsMgrLocal = projectManager->getMapsManager();
   mbapi::MapsManager::MapID twtMapID = mapsMgrLocal.findID(twtMapNames);
   EXPECT_NO_THROW(mapsMgrLocal.mapGetValues(twtMapID, refTwtsExpected));
 
   const std::string twtMapNamesNextSurface = "MAP-1520799824-4";
-  const std::vector<double> tarTwts = fdcVFP->setMeasuredTwtAtSpecifiedSurface(nextSurface, twtMapNamesNextSurface);
+  const std::vector<double> tarTwts = fdcVFP->getMeasuredTwtAtSpecifiedSurface(nextSurface, twtMapNamesNextSurface);
   fdcVFP->setTarTwts(tarTwts);
 
   std::ifstream ifs;

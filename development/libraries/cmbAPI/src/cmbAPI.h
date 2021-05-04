@@ -145,10 +145,6 @@ namespace mbapi {
                               , size_t                                          & cpRecNum ///< copied recrords num from the given project
                               );
 
-      /// @brief Copy model, creates a deep copy of the model
-      /// @param[in] otherModel - model to copy
-      Model & operator = ( const Model & otherModel );
-
       /// @brief Sort record in the table
       /// @param tblName table name to sort
       /// @param colsName list of columns to use in sort

@@ -23,32 +23,25 @@ namespace fastDepthConversion
 
 FinalCaseManager::FinalCaseManager(FDCProjectManager  & fdcProjectManager,
                                    FDCMapFieldProperties & fdcMapFieldProperties,
-                                   CaseStorageManager & caseStorageManager) :
+                                   CaseStorageManager & caseStorageManager,
+                                   int rank) :
   m_fdcProjectManager{fdcProjectManager},
   m_fdcMapFieldProperties{fdcMapFieldProperties},
   m_caseStorageManager{caseStorageManager},
-  m_rank{0}
-{
-  MPI_Comm_rank( PETSC_COMM_WORLD, &m_rank );
+  m_rank{rank}
+{  
 }
 
 FinalCaseManager::~FinalCaseManager()
 {}
 
-std::vector<mbapi::StratigraphyManager::SurfaceID> FinalCaseManager::getSurfacesID() const
-{
-  std::shared_ptr<mbapi::Model> mdl = m_fdcProjectManager.getModel();
-  const mbapi::StratigraphyManager & strMgrMaster = mdl->stratigraphyManager();
-  return strMgrMaster.surfacesIDs();
-}
-
-void FinalCaseManager::runModifyTables(const bool noCalculatedTWToutput, const std::vector<mbapi::StratigraphyManager::SurfaceID> & surfacesIDs)
+void FinalCaseManager::runModifyTables(const bool noCalculatedTWToutput)
 {
   try
   {
-    m_fdcProjectManager.modifyTables(getSurfacesID().size() - 1, m_fdcMapFieldProperties.hiatusAll(), m_fdcMapFieldProperties.correctedMapsNames(),
+    m_fdcProjectManager.modifyTables(m_fdcProjectManager.surfacesIDs().size() - 1, m_fdcMapFieldProperties.hiatusAll(), m_fdcMapFieldProperties.correctedMapsNames(),
                                      m_fdcMapFieldProperties.correctedMapsSequenceNbr(), m_fdcMapFieldProperties.addedTwtmapsequenceNbr(),
-                                     m_caseStorageManager.resultsMapFileName(), surfacesIDs, noCalculatedTWToutput);
+                                     m_caseStorageManager.resultsMapFileName(), noCalculatedTWToutput);
   }
   catch (const T2Zexception & ex)
   { throw T2Zexception() << "Tables could not be modified for the final project, error code: " << ex.what(); }
@@ -73,8 +66,10 @@ void FinalCaseManager::appendCurrentSurfaceIsoPacks(const mbapi::StratigraphyMan
   m_fdcMapFieldProperties.setIsoPacks(s, isoPacks);
 }
 
-void FinalCaseManager::updateIsoPackMapsInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID s, const std::string & mapName, mbapi::MapsManager & mapsMgrFinal)
+void FinalCaseManager::updateIsoPackMapsInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID s, const std::string & mapName)
 {
+  mbapi::MapsManager & mapsMgrFinal = m_fdcProjectManager.getMapsManager();
+
   size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
   if (IsValueUndefined(mapsMgrFinal.generateMap("StratIoTbl", mapName, m_fdcMapFieldProperties.isoPacks()[s], mapsSequenceNbr, m_caseStorageManager.resultsMapFileName())))
   { throw T2Zexception() << " Cannot generate the map for the iso surface " << s; }
@@ -82,11 +77,9 @@ void FinalCaseManager::updateIsoPackMapsInStratIoTbl(const mbapi::StratigraphyMa
 }
 
 void FinalCaseManager::appendIsopacks(const mbapi::StratigraphyManager::SurfaceID endSurface, const std::vector<double> & depthsEndSurface)
-{
-  std::shared_ptr<mbapi::Model> mdl = m_fdcProjectManager.getModel();
-  mbapi::MapsManager         & mapsMgrFinal = mdl->mapsManager();
-  mbapi::StratigraphyManager & strMgrFinal  = mdl->stratigraphyManager();
-  for (mbapi::StratigraphyManager::SurfaceID s = endSurface + 1; s < getSurfacesID().size(); ++s)
+{  
+  mbapi::StratigraphyManager & strMgrFinal  = m_fdcProjectManager.getStratManager();
+  for (mbapi::StratigraphyManager::SurfaceID s = endSurface + 1; s < m_fdcProjectManager.surfacesIDs().size(); ++s)
   {
     const std::string surfaceName = strMgrFinal.surfaceName(s);
     const std::string & mapName = m_fdcProjectManager.t2ZIsoPackMapName(surfaceName);
@@ -95,29 +88,34 @@ void FinalCaseManager::appendIsopacks(const mbapi::StratigraphyManager::SurfaceI
     if (m_rank == 0) { LogHandler(LogHandler::INFO_SEVERITY) << " Appending isopack for surface " << surfaceName; }
 
     appendCurrentSurfaceIsoPacks(s, depthsEndSurface);
-    updateIsoPackMapsInStratIoTbl(s, mapName, mapsMgrFinal);
+    updateIsoPackMapsInStratIoTbl(s, mapName);
     m_fdcProjectManager.setCurrentSurfaceMapNameInStratIoTbl(s, mapName);
   }
 }
 
 void FinalCaseManager::saveProjectAndFinalize()
-{
-  std::shared_ptr<mbapi::Model> mdl = m_fdcProjectManager.getModel();
+{    
   if (m_rank == 0)
-  {
-    mdl->saveModelToProjectFile(m_caseStorageManager.finalProjectFilePath().c_str(), true);
+  {    
+    m_fdcProjectManager.saveModelToProjectFile(m_caseStorageManager.caseProjectFilePath(), true);
     m_caseStorageManager.removeFinalProjectCauldronOutputDir();
     m_caseStorageManager.removeMasterResultsFile();
   }
 }
 
-void FinalCaseManager::writeFinalProject(const mbapi::StratigraphyManager::SurfaceID endSurface, const std::vector<double> & depthsEndSurface, const std::vector<mbapi::StratigraphyManager::SurfaceID> & surfacesIDs, const bool noCalculatedTWToutput)
+void FinalCaseManager::writeFinalProject(const mbapi::StratigraphyManager::SurfaceID endSurface, const std::vector<double> & depthsEndSurface, const bool noCalculatedTWToutput)
 {
-  runModifyTables(noCalculatedTWToutput, surfacesIDs);
+  MPI_Barrier(PETSC_COMM_WORLD);
+  runModifyTables(noCalculatedTWToutput);
+  MPI_Barrier(PETSC_COMM_WORLD);
   fcmCreateFinalCase();
+  MPI_Barrier(PETSC_COMM_WORLD);
   m_fdcProjectManager.reloadModel(m_caseStorageManager.caseProjectFilePath());
+  MPI_Barrier(PETSC_COMM_WORLD);
   appendIsopacks(endSurface, depthsEndSurface);
+  MPI_Barrier(PETSC_COMM_WORLD);
   saveProjectAndFinalize();
+  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 } // fastDepthConversion

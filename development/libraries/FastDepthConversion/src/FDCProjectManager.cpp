@@ -40,11 +40,11 @@ void FDCProjectManager::setSubSamplingWindow()
   m_mdl->hiresGridArealSize(dimI, dimJ);
   m_mdl->window(winMinI, winMaxI, winMinJ, winMaxJ);
 
-  if (winMinI > 1 || winMinJ > 1 || winMaxI < dimI - 1 || winMaxJ < dimJ - 1)
+  if (winMinI != 0 || winMinJ != 0 || winMaxI != dimI - 1 || winMaxJ != dimJ - 1)
   {
     LogHandler(LogHandler::WARNING_SEVERITY) << "The project is windowed. For the depth conversion the entire domain is required."
                                              << " Changing WindowX and WindowY in to run the simulation over the entire domain";
-    if (ErrorHandler::NoError != m_mdl->setWindow(1, dimI - 1, 1, dimJ - 1)) { throw T2Zexception() << "Cannot set window"; }
+    if (ErrorHandler::NoError != m_mdl->setWindow(0, dimI - 1, 0, dimJ - 1)) { throw T2Zexception() << "Cannot set window"; }
   }
 }
 
@@ -89,10 +89,15 @@ void FDCProjectManager::setDepoSequenceOfCurrentSurfaceToUndefined(const mbapi::
   if (ErrorHandler::NoError != m_mdl->setTableValue("StratIoTbl", surface, "DepoSequence", (long)DataAccess::Interface::DefaultUndefinedScalarIntValue)) { throw T2Zexception() << "Cannot set DepoSequence "; }
 }
 
-void FDCProjectManager::removeFromStratIoTblSurfaceRecordsBelowCurrentSurface(const mbapi::StratigraphyManager::SurfaceID surface, const std::vector<mbapi::StratigraphyManager::SurfaceID> & surfacesIDs)
+void FDCProjectManager::removeFromStratIoTblSurfaceRecordsBelowCurrentSurface(const mbapi::StratigraphyManager::SurfaceID surface)
 {
-  for (mbapi::StratigraphyManager::SurfaceID s = surface + 1; s < surfacesIDs.size(); ++s)
-  { if (ErrorHandler::NoError != m_mdl->removeRecordFromTable("StratIoTbl", surface + 1)) { throw T2Zexception() << "Cannot remove records from the StratIoTbl "; } }
+  for (mbapi::StratigraphyManager::SurfaceID s = surfacesIDs().size() - 1; s > surface; --s)
+  {
+    if (ErrorHandler::NoError != m_mdl->removeRecordFromTable("StratIoTbl", s))
+    {
+      throw T2Zexception() << "Cannot remove records from the StratIoTbl ";
+    }
+  }
 }
 
 void FDCProjectManager::appendCorrectedMapNamesInStratIoTbl(const std::map<const mbapi::StratigraphyManager::SurfaceID, std::string> & correctedMapsNames)
@@ -185,12 +190,11 @@ void FDCProjectManager::modifyTables(const mbapi::StratigraphyManager::SurfaceID
                                      const std::map<const mbapi::StratigraphyManager::SurfaceID, int> & correctedMapsSequenceNbr,
                                      const std::vector<int> & addedTwtmapsequenceNbr,
                                      const std::string & resultsMapFileName,
-                                     const std::vector<mbapi::StratigraphyManager::SurfaceID> & surfaceIDs,
                                      const bool noCalculatedTWToutput)
 {
   reverseDepoSequenceInStratIoTblFromTopSurfaceToBeforeCurrentSurface(surfaceID);
   setDepoSequenceOfCurrentSurfaceToUndefined(surfaceID);
-  removeFromStratIoTblSurfaceRecordsBelowCurrentSurface(surfaceID, surfaceIDs);
+  removeFromStratIoTblSurfaceRecordsBelowCurrentSurface(surfaceID);
   appendCorrectedMapNames(correctedMapsNames, correctedMapsSequenceNbr, resultsMapFileName);
   appendAddedTwtMapNamesToTablesIfNoCalculatedTWToutput(noCalculatedTWToutput, addedTwtmapsequenceNbr, resultsMapFileName);
   replaceValueInStratIoTblIfIsHiatusAndPreviousErosion(surfaceID, hiatus);
@@ -202,21 +206,11 @@ void FDCProjectManager::setMapNameInStratIoTbl(const mbapi::StratigraphyManager:
   { throw T2Zexception() << "Cannot set the map " << newMapName << " as the new depth map of surface " << surfaceID << " in the StratIoTbl"; }
 }
 
-std::shared_ptr<mbapi::Model> FDCProjectManager::getModel() const
-{
-  return m_mdl;
-}
-
 void FDCProjectManager::reloadModel(const std::string & caseProjectFilePath)
 {  
   m_mdl.reset(new mbapi::Model());
   if (ErrorHandler::NoError != m_mdl->loadModelFromProjectFile(caseProjectFilePath))
   { throw T2Zexception() << "Cannot load model from " << caseProjectFilePath << ", " << m_mdl->errorMessage(); }  
-}
-
-std::string FDCProjectManager::bpaNameMapping(const size_t row) const
-{
-  return m_mdl->tableValueAsString("BPANameMapping", row, "BPAColumnValue");
 }
 
 void FDCProjectManager::setCurrentSurfaceMapNameInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID s, const std::string & mapName)
@@ -289,6 +283,41 @@ std::string FDCProjectManager::t2ZTemporaryMapName(const std::string & topName) 
 std::string FDCProjectManager::t2ZIsoPackMapName(const std::string & surfaceName) const
 {
   return "T2ZIsoSurf[" + surfaceName + "]";
+}
+
+mbapi::StratigraphyManager& FDCProjectManager::getStratManager()
+{
+  return m_mdl->stratigraphyManager();
+}
+
+mbapi::LithologyManager&FDCProjectManager::getLithoManager()
+{
+  return m_mdl->lithologyManager();
+}
+
+mbapi::MapsManager&FDCProjectManager::getMapsManager()
+{
+  return m_mdl->mapsManager();
+}
+
+std::vector<double> FDCProjectManager::getGridMapDepthValues(const mbapi::StratigraphyManager::SurfaceID s)
+{
+  std::vector<double> values;
+  if (!m_mdl->getGridMapDepthValues( s, values ))
+  {
+    throw T2Zexception() << " Cannot get the depth map for the surface " << s << ", " << m_mdl->errorMessage();
+  }
+  return values;
+}
+
+ErrorHandler::ReturnCode FDCProjectManager::saveModelToProjectFile(const string& projectFileName, bool copyFiles)
+{
+  return m_mdl->saveModelToProjectFile( projectFileName, copyFiles );
+}
+
+std::vector<mbapi::StratigraphyManager::SurfaceID> FDCProjectManager::surfacesIDs() const
+{
+  return m_mdl->stratigraphyManager().surfacesIDs();
 }
 
 } // namespace fastDepthConversion

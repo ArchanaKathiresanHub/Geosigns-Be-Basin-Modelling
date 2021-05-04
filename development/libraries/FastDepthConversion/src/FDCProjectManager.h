@@ -33,8 +33,7 @@ public:
                     const std::map<const mbapi::StratigraphyManager::SurfaceID, std::string> & correctedMapsNames,
                     const std::map<const mbapi::StratigraphyManager::SurfaceID, int> & correctedMapsSequenceNbr,
                     const std::vector<int> & addedTwtmapsequenceNbr,
-                    const std::string & resultsMapFileName,
-                    const std::vector<mbapi::StratigraphyManager::SurfaceID> & surfaceIDs,
+                    const std::string & resultsMapFileName,                    
                     const bool noCalculatedTWToutput);
 
   void setMapNameInStratIoTbl(const mbapi::StratigraphyManager::SurfaceID surfaceID, const std::string& newMapName);
@@ -47,7 +46,6 @@ public:
                                                          size_t& mapsSequenceNbr,
                                                          const std::string & resultsMapFileName);
 
-  std::shared_ptr<mbapi::Model> getModel() const;
   void reloadModel(const string& caseProjectFilePath);
 
   long yScalingFactor() const;
@@ -61,13 +59,23 @@ public:
   std::string t2ZTemporaryMapName(const std::string & topName) const;
   std::string t2ZIsoPackMapName(const std::string & surfaceName) const;
 
+  mbapi::StratigraphyManager& getStratManager();
+  mbapi::LithologyManager& getLithoManager();
+  mbapi::MapsManager& getMapsManager();
+
+  std::vector<double> getGridMapDepthValues(const mbapi::StratigraphyManager::SurfaceID s);
+
+  mbapi::Model::ReturnCode saveModelToProjectFile(const std::string&  projectFileName, bool copyFiles);
+
+  std::vector<mbapi::StratigraphyManager::SurfaceID> surfacesIDs() const;
+
 private:
   void setSubSamplingWindow();
   void clearTables();
   void setDepthAndTwtPropertiesInFilterTimeIoTbl();
   void reverseDepoSequenceInStratIoTblFromTopSurfaceToBeforeCurrentSurface(const mbapi::StratigraphyManager::SurfaceID surface);
   void setDepoSequenceOfCurrentSurfaceToUndefined(const mbapi::StratigraphyManager::SurfaceID surface);
-  void removeFromStratIoTblSurfaceRecordsBelowCurrentSurface(const mbapi::StratigraphyManager::SurfaceID surface, const std::vector<mbapi::StratigraphyManager::SurfaceID> & surfacesIDs);
+  void removeFromStratIoTblSurfaceRecordsBelowCurrentSurface(const mbapi::StratigraphyManager::SurfaceID surface);
   void setCurrentMapDataInGridMapIoTbl(const std::string & correctedMapsName, const std::string & resultsMapFileName, const long correctedMapSequenceNbr);
   void appendCorrectedMapNamesInStratIoTbl(const std::map<const mbapi::StratigraphyManager::SurfaceID, std::string> & correctedMapsNames);
   void appendCorrectedMapNamesInGridMapIoTbl(const std::map<const mbapi::StratigraphyManager::SurfaceID, std::string> & correctedMapsNames,
@@ -82,9 +90,8 @@ private:
                                                              const std::vector<int> & addedTwtmapsequenceNbr,
                                                              const std::string & resultsMapFileName);
   void replaceValueInStratIoTblIfIsHiatusAndPreviousErosion(const mbapi::StratigraphyManager::SurfaceID surfaceID, const std::map<const mbapi::StratigraphyManager::SurfaceID, int> & hiatus);
-  std::string bpaNameMapping(const size_t row) const;
 
-  std::shared_ptr<mbapi::Model> m_mdl;
+  std::unique_ptr<mbapi::Model> m_mdl;
   long                          m_XScalingFactor;
   long                          m_YScalingFactor;
 

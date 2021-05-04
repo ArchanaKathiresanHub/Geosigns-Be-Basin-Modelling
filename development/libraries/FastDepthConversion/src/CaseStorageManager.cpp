@@ -7,6 +7,7 @@
 //
 #include "CaseStorageManager.h"
 #include "CommonDefinitions.h"
+#include "FDCProjectManager.h"
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/filesystem.hpp"
@@ -25,63 +26,66 @@ namespace
 
 static const std::string s_finalResultsFolder = "T2Zcal_";
 static const std::string s_masterResultsFile = "MasterInputs.HDF";
+static const std::string s_resultsMapFile = "CalibratedInputs.HDF";
 
 } // namespace
 
-CaseStorageManager::CaseStorageManager(std::shared_ptr<mbapi::Model> & mdl, const int rank) :
-  m_resultsMapFileName("CalibratedInputs.HDF"),
-  m_rank(rank),
-  m_date(""),
-  m_mdl(mdl),
-  m_projectFileName(m_mdl->projectFileName()),
+CaseStorageManager::CaseStorageManager(FDCProjectManager& fdcProjectManager, const std::string& projectFileName, const int rank) :
+  m_rank(rank),  
+  m_fdcProjectManager(fdcProjectManager),
+  m_projectFileName(projectFileName),
   m_fullMasterDirPath(FolderPath( "." ).fullPath()),
   m_masterResultsFilePath(FolderPath( "." ).fullPath( ) << s_masterResultsFile),
-  m_casePath(""),
-  m_casePathResultsHDFFile(""),
-  m_caseProjectFilePath("")
-{
-  setOriginalCaseProjectFilePath();
-  removeMasterResultsFile();
+  m_casePath(m_fullMasterDirPath)
+{  
+  MPI_Barrier(PETSC_COMM_WORLD);
+  if ( m_rank == 0)
+  {
+    removeMasterResultsFile();
+  }
+  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
-void CaseStorageManager::setOriginalCaseProjectFilePath()
+void CaseStorageManager::setOriginalMasterPath()
 {
-  m_caseProjectFilePath = ibs::FolderPath(m_fullMasterDirPath) << m_projectFileName;
+  m_casePath = m_fullMasterDirPath;
 }
 
 std::string CaseStorageManager::resultsMapFileName() const
 {
-  return m_resultsMapFileName;
+  return s_resultsMapFile;
 }
 
 void CaseStorageManager::removeMasterResultsFile()
-{
-  if ( m_rank == 0 && m_masterResultsFilePath.exists() )
+{  
+  assert( m_rank == 0 );
+
+  if ( m_masterResultsFilePath.exists() )
   {
     LogHandler( LogHandler::WARNING_SEVERITY ) << "Removing existing " << m_masterResultsFilePath.fileName();
     m_masterResultsFilePath.remove();
-  }
+  }  
 }
 
 // create a case folder with the input files
-void CaseStorageManager::createCase(ibs::FilePath & casePathResults)
+void CaseStorageManager::createCase()
 {
-  int exception_rank0 = createAndSetupCase(casePathResults);
+  const ibs::FilePath casePathResults = casePathResultsMapFile();
+
+  MPI_Barrier(PETSC_COMM_WORLD);
+  int exception_rank0 = (m_rank == 0) ? createAndSetupCase(casePathResults) : 0;
 
   MPI_Bcast(&exception_rank0, 1, MPI_INT, 0, PETSC_COMM_WORLD);  
 
-  if (exception_rank0 == 1) { throw ErrorHandler::Exception(m_mdl->errorCode()) << m_mdl->errorMessage(); }
+  if (exception_rank0 == 1) { throw T2Zexception() << "Failed to save project to: " <<  caseProjectFilePath() ; }
   else if (exception_rank0 == 2) { throw T2Zexception() << "Failed to copy file: " << casePathResults.path(); }
 
   MPI_Barrier(PETSC_COMM_WORLD);
 }
 
-int CaseStorageManager::createAndSetupCase(ibs::FilePath & casePathResults)
+int CaseStorageManager::createAndSetupCase(const ibs::FilePath& casePathResults)
 {
-  if (m_rank != 0)
-  {
-    return 0;
-  }
+  assert(m_rank == 0); // Only rank 0 can do this operation
 
   if (m_casePath.exists())
   {
@@ -90,33 +94,25 @@ int CaseStorageManager::createAndSetupCase(ibs::FilePath & casePathResults)
   }
   m_casePath.create();
 
-  if (ErrorHandler::NoError != m_mdl->saveModelToProjectFile(m_caseProjectFilePath.path().c_str(), true)) { return 1; }
+  if (ErrorHandler::NoError != m_fdcProjectManager.saveModelToProjectFile(caseProjectFilePath(), true)) { return 1; }
   if (!casePathResults.exists() && !m_masterResultsFilePath.copyFile(casePathResults)) { return 2; }
   return 0;
 }
 
-std::string CaseStorageManager::projectFileName() const
+std::string CaseStorageManager::caseProjectFilePath() const
 {
-  return m_projectFileName;
-}
-
-std::string CaseStorageManager::finalProjectFilePath() const
-{
-  return m_caseProjectFilePath.path();
+  return (ibs::FilePath(m_casePath) << m_projectFileName).path();
 }
 
 void CaseStorageManager::createTemporaryCase(const mbapi::StratigraphyManager::SurfaceID surface)
-{
-  std::string mapNamePath = "Surface_" + std::to_string(surface);
-  m_casePath = ibs::FilePath(".") << mapNamePath;
-  m_caseProjectFilePath = ibs::FilePath(m_casePath) << m_projectFileName;
-  m_casePathResultsHDFFile = ibs::FilePath(m_casePath) << m_resultsMapFileName;
-  createCase(m_casePathResultsHDFFile);
+{  
+  m_casePath = ibs::FilePath(".") << "Surface_" + std::to_string(surface);
+  createCase();
 }
 
-void CaseStorageManager::setDate()
+std::string CaseStorageManager::getDate() const
 {
-  m_date.clear();
+  std::string date;
   std::vector<char> buffer(200);
   if ( m_rank == 0)
   {
@@ -136,57 +132,55 @@ void CaseStorageManager::setDate()
   int i = 0;
   while (buffer[i])
   {
-    m_date += buffer[i];
+    date += buffer[i];
     ++i;
   }
+
+  std::replace_if(date.begin(), date.end(), ::ispunct, '_');
+  std::replace_if(date.begin(), date.end(), ::isspace, '_');
+
+  return date;
+}
+
+FilePath CaseStorageManager::casePathResultsMapFile() const
+{
+  return ibs::FilePath(m_casePath) << s_resultsMapFile;
 }
 
 void CaseStorageManager::createFinalCase()
-{
-  setDate();
-
-  std::string correct_myDate = m_date;
-  std::replace_if(correct_myDate.begin(), correct_myDate.end(), ::ispunct, '_');
-  std::replace_if(correct_myDate.begin(), correct_myDate.end(), ::isspace, '_');
-  m_casePath = std::string("./") + s_finalResultsFolder + correct_myDate;
-  m_caseProjectFilePath = ibs::FilePath(m_casePath) << m_projectFileName;
-  ibs::FilePath finalResultsFilePath(m_casePath.path() + "/" + m_resultsMapFileName);
-  createCase(finalResultsFilePath);
+{  
+  m_casePath = std::string("./") + s_finalResultsFolder + getDate();
+  createCase();
 }
 
 void CaseStorageManager::removeFinalProjectCauldronOutputDir()
 {
-  if (m_rank == 0)
-  {
-    ibs::FolderPath finalProjectCauldronOutputDir = ibs::FolderPath(m_casePath.path() + "/" + m_caseProjectFilePath.fileNameNoExtension() + mbapi::Model::s_ResultsFolderSuffix);
-    finalProjectCauldronOutputDir.remove();
-  }
+  assert( m_rank == 0);
+
+  ibs::FolderPath finalProjectCauldronOutputDir = ibs::FolderPath(m_casePath.path() + "/" + ibs::FilePath(caseProjectFilePath()).fileNameNoExtension() + mbapi::Model::s_ResultsFolderSuffix);
+  finalProjectCauldronOutputDir.remove();
 }
 
 void CaseStorageManager::changeToTemporaryCaseDirectoryPath()
-{
+{  
   if (!m_casePath.setPath())
   {
     throw T2Zexception() << "Cannot change to the case directory " << m_casePath.fullPath().path();
   }
 }
 
-void CaseStorageManager::CopyTemporaryToMasterHDFMaps()
+void CaseStorageManager::copyTemporaryToMasterHDFMaps()
 {
+  MPI_Barrier(PETSC_COMM_WORLD);
   int exception_rank0 = 0;
   if (m_rank == 0)
   {
     m_masterResultsFilePath.remove();
-    if (!m_casePathResultsHDFFile.copyFile(m_masterResultsFilePath))
+    if (!casePathResultsMapFile().copyFile(m_masterResultsFilePath))
     {
       exception_rank0 == 1;
     }
     m_casePath.remove();
-    if (!m_fullMasterDirPath.setPath())
-    {
-      exception_rank0 == 2;
-    }
-    setOriginalCaseProjectFilePath();
   }
 
   MPI_Bcast(&exception_rank0, 1, MPI_INT, 0, PETSC_COMM_WORLD);
@@ -195,17 +189,15 @@ void CaseStorageManager::CopyTemporaryToMasterHDFMaps()
   {
     throw T2Zexception() << "Cannot copy the result file to " << m_masterResultsFilePath.fullPath().path();
   }
-  if(exception_rank0 == 2)
-  {
-    throw T2Zexception() << " Cannot change to the master directory " << m_fullMasterDirPath.path();
-  }
+  MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 void CaseStorageManager::saveModelToCaseProjectFile()
 {
+  MPI_Barrier(PETSC_COMM_WORLD);
   if (m_rank == 0)
   {
-    m_mdl->saveModelToProjectFile(caseProjectFilePath().c_str(), true);
+    m_fdcProjectManager.saveModelToProjectFile(caseProjectFilePath(), true);
   }
   MPI_Barrier(PETSC_COMM_WORLD);
 }
@@ -221,22 +213,6 @@ void CaseStorageManager::changeToMasterDirectoryPath()
 std::string CaseStorageManager::masterResultsFilePath() const
 {
   return m_masterResultsFilePath.path();
-}
-
-std::string CaseStorageManager::caseProjectFilePath() const
-{
-  return m_caseProjectFilePath.path();
-}
-
-std::string CaseStorageManager::date() const
-{
-  return m_date;
-}
-
-void CaseStorageManager::setModel(std::shared_ptr<mbapi::Model> & mdl)
-{
-  m_mdl.reset();
-  m_mdl = mdl;
 }
 
 } // namespace fastDepthConversion
