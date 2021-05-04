@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-04  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Refactor fastdepthconversion.
+	* Refactor of fastdepthconversion
+
+	================== COMMIT-END ========================
+	Commit-ID:<58ae058c04b4144d43ba10ae38c0dd5a8f423fb5>	  (refs/heads/master)
+
+++
 2021-05-03  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
 
 	chg: dev: usr: Improvements of the CTC-wizard by closing out gaps in the implementation logic
