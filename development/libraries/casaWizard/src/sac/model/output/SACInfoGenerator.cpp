@@ -160,13 +160,9 @@ void SACInfoGenerator::addWellsSection()
 void SACInfoGenerator::addWellInfo(const casaWizard::Well* well)
 {
   std::string optionValue = "";
-  if (well->isActive())
+  if (well->isActive() && !well->isExcluded())
   {
-    optionValue += "INCLUDED for CALIBRATION";
-    if (!well->isExcluded())
-    {
-      optionValue += " & MAP GENERATION";
-    }
+    optionValue += "INCLUDED";
   }
   else
   {

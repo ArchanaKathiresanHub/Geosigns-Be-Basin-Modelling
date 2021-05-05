@@ -3,6 +3,8 @@
 
 #include "model/script/runScript.h"
 
+#include <QString>
+
 class QFile;
 
 namespace casaWizard
@@ -20,10 +22,13 @@ public:
 
 private:
   bool generateCommands() override;
+  QString getDepthConversionCommand() const;
   void writeScriptContents(QFile& file) const;
+  bool runLocally() const;
 
   const SACScenario& scenario_;
   QString scriptFilename_;
+
 };
 
 } // namespace sac

@@ -87,7 +87,16 @@ void SACcontroller::refreshGUI()
 {
   sacTab_->lineEditProject3D()->setText(casaScenario_.project3dPath());  
   sacTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
-  sacTab_->comboBoxApplication()->setCurrentText(casaScenario_.applicationName());
+
+  if (casaScenario_.applicationName() == "fastcauldron \"-itcoupled\"")
+  {
+    sacTab_->comboBoxApplication()->setCurrentText("Iteratively Coupled");
+  }
+  else if (casaScenario_.applicationName() == "fastcauldron \"-temperature\"")
+  {
+    sacTab_->comboBoxApplication()->setCurrentText("Hydrostatic");
+  }
+
   lithofractionController_->updateLithofractionTable();
 
   emit signalRefreshChildWidgets();

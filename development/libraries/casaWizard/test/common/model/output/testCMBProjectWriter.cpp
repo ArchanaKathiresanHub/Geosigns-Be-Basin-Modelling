@@ -106,14 +106,14 @@ TEST( CMBProjectWriterTest, testGenerateOutputProject )
   mbapi::MapsManager& mapsManager = cmbModel.mapsManager();
   int mapId = 35;
   for ( const std::string& mapName : {
-        "0_percent_1_TimeStamp",
-        "0_percent_2_TimeStamp",
-        "2_percent_1_TimeStamp",
-        "2_percent_2_TimeStamp",
-        "3_percent_1_TimeStamp",
-        "3_percent_2_TimeStamp",
-        "4_percent_1_TimeStamp",
-        "4_percent_2_TimeStamp" })
+        "Upper_North_Sea_Group_SL_01 Sand typical hybrid BPA2 Min Phi 10 LK16122017_TimeStamp",
+        "Upper_North_Sea_Group_SL_08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017_TimeStamp",
+        "Middle_North_Sea_Group_SL_01 Sand typical hybrid BPA2 Min Phi 10 LK16122017_TimeStamp",
+        "Middle_North_Sea_Group_SL_08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017_TimeStamp",
+        "Lower_North_Sea_Group_SL_01 Sand typical hybrid BPA2 Min Phi 10 LK16122017_TimeStamp",
+        "Lower_North_Sea_Group_SL_08 Mudstone 60% clay hybrid min phi 5% BPA2 LK07072017_TimeStamp",
+        "Upper_Ommeland_Chalk_Group_10 Chalk hybrid BPA2 min phi 3% LK23022018_TimeStamp",
+        "Upper_Ommeland_Chalk_Group_05 Silt typical hybrid BPA2 Min Phi 8 LK12122017_TimeStamp" })
   {
       mapId++;
       EXPECT_EQ(mapsManager.findID(mapName), mapId);

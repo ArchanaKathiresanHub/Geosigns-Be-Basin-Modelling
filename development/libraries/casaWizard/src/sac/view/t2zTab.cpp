@@ -39,6 +39,7 @@ T2Ztab::T2Ztab(QWidget* parent) :
   layout->addWidget(new QLabel("Number of CPUs", this), 5, 0);
   layout->addWidget(spinBoxNumberOfCPUs_, 5, 1);
   spinBoxNumberOfCPUs_->setMinimum(1);
+  spinBoxNumberOfCPUs_->setMaximum(1024);
   layout->addWidget(new QLabel("Cluster", this), 6, 0);
   layout->addWidget(comboBoxClusterSelection_, 6, 1);
   comboBoxClusterSelection_->addItems({"LOCAL", "CLUSTER"});

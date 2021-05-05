@@ -16,13 +16,20 @@ TEST(DepthConversionScriptTest, testGenerateCommandsLocal)
   scenario.setClusterName("LOCAL");
   scenario.setProject3dFilePath("./Project.project3d");
   scenario.setT2zNumberCPUs(10);
+  scenario.setApplicationName("fastcauldron \"-temperature\"");
   std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2"));
 
   script->generateCommands();
-
-  std::string expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -temperature -onlyat 0 -referenceSurface 0 -endSurface 10";
+  std::string expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -temperature -onlyat 0 -referenceSurface 0 -endSurface 10 -noofpp -preserveErosion";
 
   EXPECT_EQ(script->commands()[0].command.toStdString(), expectedCommand);
+
+  scenario.setApplicationName("fastcauldron \"-itcoupled\"");
+  script->generateCommands();
+
+  expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -itcoupled -onlyat 0 -referenceSurface 0 -endSurface 10 -noofpp -preserveErosion";
+  EXPECT_EQ(script->commands()[1].command.toStdString(), expectedCommand);
+
 }
 
 TEST(DepthConversionScriptTest, testGenerateCommandsCluster)
@@ -32,6 +39,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsCluster)
   scenario.setWorkingDirectory(".");
   scenario.setClusterName("Cluster");
   scenario.setProject3dFilePath("./Project.project3d");
+  scenario.setApplicationName("fastcauldron \"-temperature\"");
   std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2"));
 
   script->generateCommands();

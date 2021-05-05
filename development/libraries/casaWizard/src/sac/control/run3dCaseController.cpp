@@ -40,7 +40,7 @@ Run3dCaseController::Run3dCaseController(SACScenario& scenario,
 bool Run3dCaseController::run3dCase(const QString& directory, const bool isOptimized)
 {
   bool ok = true;
-  const int cores = QInputDialog::getInt(nullptr, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 48, 1, &ok);
+  const int cores = QInputDialog::getInt(nullptr, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 1024, 1, &ok);
   if (!ok)
   {
     return false;

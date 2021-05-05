@@ -162,6 +162,7 @@ void FastDepthConversion::runFastCauldronAndCalculateNewDpeths()
 
   try
   {
+    MPI_Barrier(PETSC_COMM_WORLD);
     FDCFastCauldronManager fdcFastCauldronManager(m_argc, m_argv, m_fdcProjectManager.xScalingFactor(), m_fdcProjectManager.yScalingFactor(), m_noExtrapolationFlag);
     fdcFastCauldronManager.prepareAndRunFastCauldron();
     DataAccess::Interface::GridMap * twtGridMap = fdcFastCauldronManager.getPropertyGridMap("TwoWayTime", m_fdcLithoProperties.currentLayerName());
@@ -461,6 +462,8 @@ std::vector<double> FastDepthConversion::calculateErosion(const mbapi::Stratigra
       }
       erosion[i] = tarDepth[i] - checkDepth[i];
     }
+
+    if (checkSurface == 0) break;
   }
 
   MPI_Barrier(PETSC_COMM_WORLD);

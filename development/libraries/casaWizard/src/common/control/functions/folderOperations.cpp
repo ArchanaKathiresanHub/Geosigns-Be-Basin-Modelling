@@ -161,14 +161,14 @@ void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory,
   projectTextFile.replace(QString("project3d"), QString("txt"));
   QFile::copy(workingDirectory + "/" + projectTextFile, tmpdir.absolutePath() + "/" + projectTextFile);
 
+  infoGenerator.setFileName((targetDir.absolutePath() + "/" + timeStamp + "_info.txt").toStdString());
+  infoGenerator.loadProjectReader(tmpdir.absolutePath().toStdString());
+  infoGenerator.generateInfoTextFile();
+
   CMBProjectWriter writer(tmpdir.absolutePath() + "/" + projectFile);
   writer.generateOutputProject(timeStamp);
   ProjectTXTManipulator manipulator(tmpdir.absolutePath() + "/" + projectTextFile);
   manipulator.appendStampToScenarioName(timeStamp);
-
-  infoGenerator.setFileName((targetDir.absolutePath() + "/" + timeStamp + "_info.txt").toStdString());
-  infoGenerator.loadProjectReader(tmpdir.absolutePath().toStdString());
-  infoGenerator.generateInfoTextFile();
 
   cleanFolder(tmpdir, projectFile);
 

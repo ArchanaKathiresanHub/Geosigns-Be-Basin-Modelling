@@ -23,12 +23,9 @@ DepthConversionScript::DepthConversionScript(const SACScenario& scenario, const 
 
 bool DepthConversionScript::generateCommands()
 {
-  if (scenario_.clusterName().toLower() == "local")
+  if (runLocally())
   {
-    addCommand("mpirun_wrap.sh -n " + QString::number(scenario_.t2zNumberCPUs()) + " fastdepthconversion"
-               " -project " + QFileInfo(scenario_.project3dPath()).fileName() + " -temperature -onlyat 0"
-               " -referenceSurface " + QString::number(scenario_.t2zReferenceSurface()) +
-               " -endSurface " + QString::number(scenario_.t2zLastSurface()));
+    addCommand(getDepthConversionCommand());
   }
   else
   {
@@ -51,6 +48,11 @@ bool DepthConversionScript::generateCommands()
     addCommand(scriptFilename_);
   }
   return true;
+}
+
+bool DepthConversionScript::runLocally() const
+{
+  return scenario_.clusterName().toLower() == "local";
 }
 
 void DepthConversionScript::writeScriptContents(QFile& file) const
@@ -76,15 +78,22 @@ void DepthConversionScript::writeScriptContents(QFile& file) const
 
   out << QString("export PATH=" + QString::fromStdString(applicationPath) + ":$PATH\n" +
                  "source setupEnv.sh\n");
-  out << QString("mpirun_wrap.sh -n " + QString::number(scenario_.t2zNumberCPUs()) +
-                 " -outfile-pattern 'fastdepthconversion-output-rank-%r.log'" +
-                 " fastdepthconversion" +
-                 " -project " + scenario_.project3dFilename() + " -temperature -onlyat 0" +
-                 " -referenceSurface " + QString::number(scenario_.t2zReferenceSurface()) +
-                 " -endSurface " + QString::number(scenario_.t2zLastSurface()) +
-                 " -noofpp\n" +
-                 "EOF\n\n");
+  out << getDepthConversionCommand() + "\n";
+  out << QString("EOF\n\n");
   out << QString("bsub -K < runt2zCluster.sh\n");
+}
+
+QString DepthConversionScript::getDepthConversionCommand() const
+{
+  const QString runMode = scenario_.applicationName().split(QString("\""))[1];
+  return QString("mpirun_wrap.sh -n " + QString::number(scenario_.t2zNumberCPUs()) +
+                   (runLocally() ? "" : " -outfile-pattern 'fastdepthconversion-output-rank-%r.log'") +
+                   " fastdepthconversion" +
+                   " -project " + scenario_.project3dFilename() + " " + runMode + " -onlyat 0" +
+                   " -referenceSurface " + QString::number(scenario_.t2zReferenceSurface()) +
+                   " -endSurface " + QString::number(scenario_.t2zLastSurface()) +
+                   " -noofpp" +
+                   " -preserveErosion");
 }
 
 } // namespace sac

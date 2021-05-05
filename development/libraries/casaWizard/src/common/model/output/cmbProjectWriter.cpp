@@ -42,15 +42,17 @@ void CMBProjectWriter::appendTimeStampToCalibratedLithoMaps(const QString& timeS
     std::vector<std::string> lithoPercMap;
     stratManager.layerLithologiesList( lid, lithoList, lithoPercent, lithoPercMap );
     bool foundSACpercentMap = false;
+    unsigned int id = 0;
     for ( std::string& map : lithoPercMap )
     {
       if (map.find("_percent_") != std::string::npos)
       {
-        const std::string newMapName = map + "_" + timeStamp.toStdString();
+        const std::string newMapName = stratManager.layerName(lid) + "_" + lithoList[id] + "_" + timeStamp.toStdString();
         cmbModel_->setTableValue("GridMapIoTbl", mapsManager.findID(map), "MapName", newMapName);
         map = newMapName;
         foundSACpercentMap = true;
       }
+      id++;
     }
     if (foundSACpercentMap)
     {

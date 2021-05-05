@@ -33,6 +33,6 @@ Smoothing: Gaussian, Radius = 5000
 Wells
 ---------------------------------------------------
 10_AML2_AV, 184550.00, 608300.00: EXCLUDED
-11_AMN1_AV, 192000.00, 615000.00: INCLUDED for CALIBRATION
-12_AMN2_AV, 191500.00, 615750.00: INCLUDED for CALIBRATION & MAP GENERATION
+11_AMN1_AV, 192000.00, 615000.00: EXCLUDED
+12_AMN2_AV, 191500.00, 615750.00: INCLUDED
 ###################################################

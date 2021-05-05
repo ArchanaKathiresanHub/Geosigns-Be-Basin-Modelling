@@ -18,10 +18,10 @@ namespace casaWizard
 namespace sac
 {
 
-const double minPercentage{0.01};
-const double maxPercentage{99.99};
-const double minFraction{0.001};
-const double maxFraction{0.999};
+const double minPercentage{0.0};
+const double maxPercentage{100.0};
+const double minFraction{0.0};
+const double maxFraction{1.0};
 
 LithofractionManager::LithofractionManager() :
   lithofractions_{},
