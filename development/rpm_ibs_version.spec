@@ -1,5 +1,6 @@
 #### 	Modified by			Date				Reason
 ####	Arijit Khan 		27th March 2021		Indroduction	
+####	Arijit Khan 		29th April 2021		parameterize intall package name	
 #============================================================	
 #	From rpmbuild command pass
 # 		1. _version
@@ -9,6 +10,7 @@
 #		5. _builddir  =%{_installpath}/ibs
 #		6. _bldnum
 #		7. _archi
+#		8. _Sversion = source version to package
 #============================================================
 %global __os_install_post %{nil}
 %define _sssname ibs
@@ -82,7 +84,7 @@ rm -rf %{buildroot}
 # DVersion is the destination version directory
 # SVersion and DVersion can differ. Please check carefully!!!
 # This can be: %{_vvers} or %{_version} or v%{_version}
-%define SVersion v%{_version}
+%define SVersion v%{_Sversion}
 ## The VERSION name remanes same as in /sssden/ibs : exact name as in <install dir>
 %define DVersion v%{_version}
 %define target %{buildroot}%{_installpath}/%{_sssname}/%{DVersion}

@@ -2,7 +2,16 @@
 set -e
 set -f
 CLDRN_VERSION=$1;
+SOURCE_CLDRN_VERSION=$6;
 Build_BinariesDirectory=$2;
+
+if [ -z "${SOURCE_CLDRN_VERSION}" ]
+then
+      echo "\$SOURCE_CLDRN_VERSION is empty, searching by the same name as set in TARGET vesrion!"
+	  SOURCE_CLDRN_VERSION=${CLDRN_VERSION};
+else
+      echo "\$SOURCE_CLDRN_VERSION is NOT empty, using the name provided!"
+fi
 
 # /apps/sss
 instapath=$3;
@@ -28,7 +37,7 @@ else
 	#convert to linuxrhel_79ws-x86_64
 	SUF=$(printf '%s' "${array[0]}" | tr -d '0123456789')
 	rpm_version=$SUF"_"${array[3]};
-	specPath="./Basin-Modelling/development/my_ibs_version.spec "
+	specPath="./Basin-Modelling/development/rpm_ibs_version.spec "
 fi
 
 echo "The OS is ${archi} and rpm_version is ${rpm_version}"
@@ -40,6 +49,7 @@ rpmbuild -bb -v  --buildroot=${Build_BinariesDirectory}/rpmbuild \
 				 --define "_tmppath %{_topdir}/tmp" \
 				 --define "_builddir ${Build_BinariesDirectory}" \
 				 --define "_version ${CLDRN_VERSION}" \
+				 --define "_Sversion ${SOURCE_CLDRN_VERSION}" \
 				 --define "_bldnum ${Build_BuildNumber}" \
 				 --define "_archi ${archi}" \
 				 --define "_rpm_version ${rpm_version}" \
