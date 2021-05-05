@@ -36,6 +36,19 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-05  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: fixes on SAC wizard based on feedback.
+	* This includes:
+	* Lithopercentages ranges between 0 and 100 instead of 0.01 and 99.99
+	* Optimized lithomap names are changed per user request
+	* Maximum number of cores is increased
+	* Infogenerator now only says INCLUDED for wells which are used in map generation
+	* T2Z can be run in both hydrostatic and itcoupled mode
+	================== COMMIT-END ========================
+	Commit-ID:<3675b2e16aa3d545d2bf03857ab7cbf544da9563>	  (refs/heads/master)
+
+++
 2021-05-04  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Refactor fastdepthconversion.
