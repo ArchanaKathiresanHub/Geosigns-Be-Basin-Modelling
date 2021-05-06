@@ -138,7 +138,7 @@ std::string workloadmanagers::WorkLoadManager::JobSubmissionCommand(const std::s
 
 	if (cwd.empty() && isSuccess)
 	{
-			isSuccess = writeCWDSpecification(workloadmanagers::GetCurrentWorkingDir());
+			isSuccess = writeCWDSpecification("\""+workloadmanagers::GetCurrentWorkingDir()+"\"");
 	}
 	else if (isSuccess)
 	{
@@ -151,7 +151,7 @@ std::string workloadmanagers::WorkLoadManager::JobSubmissionCommand(const std::s
 
 	JobSubmissionScriptStream->close();
 	// Should check if the file was created with the contents ?
-	return theSchedulerJobSubmissionCommand() + JobSubmissionScriptName;
+	return theSchedulerJobSubmissionCommand() + "\"" + JobSubmissionScriptName + "\"";
 }
 
 

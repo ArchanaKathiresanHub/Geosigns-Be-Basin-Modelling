@@ -39,7 +39,7 @@ namespace workloadmanagers{
 		"#BSUB\t -J ctcPressureJob",
 		"#BSUB\t -o out.log",
 		"#BSUB\t -e err.log",
-		"#BSUB\t -cwd " + boost::filesystem::current_path().string(),
+		"#BSUB\t -cwd \"" + boost::filesystem::current_path().string() + "\"",
 		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
 	};
 
@@ -53,7 +53,7 @@ namespace workloadmanagers{
 		"#BSUB\t -W 0:30",
 		"#BSUB\t -J ctcPressureJob",+
 		"#BSUB\t -e err.log",
-		"#BSUB\t -cwd " + boost::filesystem::current_path().string(),
+		"#BSUB\t -cwd \"" + boost::filesystem::current_path().string() + "\"",
 		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
 	};
 
@@ -68,7 +68,7 @@ namespace workloadmanagers{
 		"#SBATCH\t --job-name ctcPressureJob",
 		"#SBATCH\t -o out.log",
 		"#SBATCH\t -e err.log",
-		"#SBATCH\t -cwd " + boost::filesystem::current_path().string(),
+		"#SBATCH\t -cwd \"" + boost::filesystem::current_path().string() + "\"",
 		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
 	};
 
@@ -82,7 +82,7 @@ namespace workloadmanagers{
 		"#SBATCH\t -t 0:30",
 		"#SBATCH\t --job-name ctcPressureJob",
 		"#SBATCH\t -e err.log",
-		"#SBATCH\t -cwd " + boost::filesystem::current_path().string(),
+		"#SBATCH\t -cwd \"" + boost::filesystem::current_path().string() + "\"",
 		"MPI_BIN -n 4 CLDRN_BIN -project filePath cldrnRunMode"
 	};
 

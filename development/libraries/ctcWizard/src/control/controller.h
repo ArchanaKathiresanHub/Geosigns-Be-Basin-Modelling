@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QDir>
 
-#define WAITTIME 500
+#define WAITTIME 5000
 
 class QProcess;
 class QString;
