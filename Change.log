@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-06  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
+
+	chg: fix: dev: Minor changes and fixing the CTC-UI to handle spaces in the directory/filename
+	 * Even if the directory/filename contains space, the CTC-UI performs correctly.
+	 * Minor cosmetic improvements.
+
+	================== COMMIT-END ========================
+	Commit-ID:<4b5b77eb20529a5cbffc76d356296bd0984b2fb1>	  (refs/heads/master)
+
+++
 2021-05-05  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: fixes on SAC wizard based on feedback.
