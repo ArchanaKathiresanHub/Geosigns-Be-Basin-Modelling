@@ -57,7 +57,7 @@ static void showUsage(const char* message)
         << "                  [-create-spec <spec-file>]" << endl
         << "                  [-nullvaluereplace <PropertyName,Value> [<PropertyName,Value>] [...]]" << endl
         << "                  [-nobasement]" << endl
-        << "                  [-propertyHeader]" << endl
+        << "                  [-singlepropertyheader]" << endl
         << "                  [-verbose]" << endl
         << "                  [-help]" << endl
         << "                  [-?]" << endl
