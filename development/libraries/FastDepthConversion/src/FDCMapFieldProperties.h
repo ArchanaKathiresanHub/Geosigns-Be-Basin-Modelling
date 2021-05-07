@@ -24,6 +24,8 @@ class FDCMapFieldProperties
 public:
   explicit FDCMapFieldProperties(FDCProjectManager& fdcProjectManager, const mbapi::StratigraphyManager::SurfaceID referenceSurface, const mbapi::StratigraphyManager::SurfaceID endSurface);
 
+  void setEndSurface(const mbapi::StratigraphyManager::SurfaceID endSurface);
+
   void calculateInitialMaps(const std::string & masterResultsFilePathName, const bool preserveErosionFlag);
 
   /// @brief Create the missing TWT map from existing maps and depth maps.
@@ -55,7 +57,7 @@ public:
 
 private:
   void initializeAllMaps();
-  void setHiatus(const mbapi::StratigraphyManager::SurfaceID ID, const int value);
+  void setHiatus(const mbapi::StratigraphyManager::SurfaceID ID, const int value);  
   void setTwtMaps(const mbapi::StratigraphyManager::SurfaceID ID, const string& value);
   void setTwtMapsForAllSurfaces();
   void calculateIsoPackThicknessForSurfacesBelowEndSurface(const bool preserveErosionFlag);  
@@ -69,7 +71,7 @@ private:
 
   FDCProjectManager& m_fdcProjectManager;
   const mbapi::StratigraphyManager::SurfaceID m_referenceSurface;
-  const mbapi::StratigraphyManager::SurfaceID m_endSurface;
+  mbapi::StratigraphyManager::SurfaceID m_endSurface;
 
   // Data structures for the calibrated maps
   std::map<const mbapi::StratigraphyManager::SurfaceID, std::string>         m_correctedMapsNames;

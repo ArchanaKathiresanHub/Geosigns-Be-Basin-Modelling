@@ -43,8 +43,7 @@ public:
                                  const std::string & resultsMapFileName,
                                  const mbapi::StratigraphyManager::SurfaceID surfaceID);
   mbapi::MapsManager::MapID generateMapInTwoWayTimeIoTbl(const std::vector<double> & tarTwts,
-                                                         size_t& mapsSequenceNbr,
-                                                         const std::string & resultsMapFileName);
+                                                         size_t& mapsSequenceNbr, const std::string & resultsMapFileName);
 
   void reloadModel(const string& caseProjectFilePath);
 
@@ -86,7 +85,7 @@ private:
                                const std::string & resultsMapFileName);
   void appendAddedTwtMapNamesInGridMapIoTbl(const std::vector<int> & addedTwtmapsequenceNbr, const std::string & resultsMapFileName);
   void appendAddedTwtMapNamesInTwoWayTimeIoTbl(const int twtMapsSize);
-  void appendAddedTwtMapNamesToTablesIfNoCalculatedTWToutput(const bool noCalculatedTWToutput,
+  void appendAddedTwtMapNamesToTablesIfCalculatedTWToutput(const bool noCalculatedTWToutput,
                                                              const std::vector<int> & addedTwtmapsequenceNbr,
                                                              const std::string & resultsMapFileName);
   void replaceValueInStratIoTblIfIsHiatusAndPreviousErosion(const mbapi::StratigraphyManager::SurfaceID surfaceID, const std::map<const mbapi::StratigraphyManager::SurfaceID, int> & hiatus);

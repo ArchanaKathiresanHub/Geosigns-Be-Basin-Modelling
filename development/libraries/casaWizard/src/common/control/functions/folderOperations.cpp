@@ -156,10 +156,21 @@ void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory,
   tmpdir.removeRecursively();
   tmpdir.mkdir(workingDirectory + "/tmpDirectory");
 
-  const bool filesCopied = functions::copyCaseFolder(sourceDir, tmpdir);
+  if (!functions::copyCaseFolder(sourceDir, tmpdir))
+  {
+    Logger::log() << "Failed exporting, no files were copied" << Logger::endl();
+    tmpdir.removeRecursively();
+    return;
+  }
+
   QString projectTextFile = projectFile;
   projectTextFile.replace(QString("project3d"), QString("txt"));
-  QFile::copy(workingDirectory + "/" + projectTextFile, tmpdir.absolutePath() + "/" + projectTextFile);
+  if (!QFile::copy(workingDirectory + "/" + projectTextFile, tmpdir.absolutePath() + "/" + projectTextFile))
+  {
+    Logger::log() << "Project.txt does not exist, please add it to working directory: " << workingDirectory << Logger::endl();
+    tmpdir.removeRecursively();
+    return;
+  }
 
   infoGenerator.setFileName((targetDir.absolutePath() + "/" + timeStamp + "_info.txt").toStdString());
   infoGenerator.loadProjectReader(tmpdir.absolutePath().toStdString());
@@ -173,10 +184,10 @@ void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory,
   cleanFolder(tmpdir, projectFile);
 
   zipFolderContent(tmpdir, targetDir.absolutePath(), timeStamp);
+
   tmpdir.removeRecursively();
 
-  Logger::log() << (filesCopied ? "Finished exporting the scenario to .zip" :
-                                  "Failed exporting, no files were copied") << Logger::endl();
+  Logger::log() << "Finished exporting the scenario to .zip" << Logger::endl();
 }
 
 void cleanFolder(const QDir& folder, const QString& projectFile)

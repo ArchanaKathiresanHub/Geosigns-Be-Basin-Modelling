@@ -58,12 +58,14 @@ FastDepthConversion::FastDepthConversion(char* projectFileName, int referenceSur
   m_rank(rank),
   m_depthsEndSurface(),
   m_fdcProjectManager(projectFileName),  
-  m_fdcMapFieldProperties(m_fdcProjectManager, m_referenceSurface, m_endSurface),
+  m_fdcMapFieldProperties(m_fdcProjectManager, referenceSurface, endSurface),
   m_caseStorageManager(m_fdcProjectManager, projectFileName, rank),
   m_fdcVectorFieldProperties(m_fdcProjectManager, referenceSurface),
   m_fdcLithoProperties(m_fdcProjectManager)
 {
   checkReferenceAndEndSurfaceBoundsAreValid();
+  checkMissingReferenceAndEndTWTmaps();
+
   LogHandler(LogHandler::INFO_SEVERITY) << "options: referenceSurface : " << m_referenceSurface << ", endSurface: " << m_endSurface
                                         << ", NoCalculatedTWToutput: " << m_noCalculatedTWToutput << ", preserveErosion: " << m_preserveErosionFlag
                                         << ", NoExtrapolation: " << m_noExtrapolationFlag;
@@ -87,7 +89,24 @@ void FastDepthConversion::checkReferenceAndEndSurfaceBoundsAreValid() const
   { throw T2Zexception() << " The parameter value of -referenceSurface is invalid: " << m_referenceSurface; }
 
   if (m_endSurface <= m_referenceSurface || m_endSurface >= nSurfacesIDs)
-  { throw T2Zexception() << " The parameter value of -endSurface is invalid: " << m_endSurface; }
+  { throw T2Zexception() << " The parameter value of -endSurface is invalid: " << m_endSurface; }    
+}
+
+void FastDepthConversion::checkMissingReferenceAndEndTWTmaps()
+{
+  mbapi::StratigraphyManager& stMgr = m_fdcProjectManager.getStratManager();
+
+  if (stMgr.twtGridName(m_referenceSurface).empty())
+  {
+    throw T2Zexception() << " No twt map was found for the reference surface " << m_referenceSurface;
+  }
+
+  while (stMgr.twtGridName(m_endSurface).empty() && m_endSurface > m_referenceSurface)
+  {
+    LogHandler(LogHandler::WARNING_SEVERITY) << " No twt map was found for the end surface " << m_endSurface << ", isopack will be added and the new end surface will be " << m_endSurface - 1;
+    m_endSurface--;
+    m_fdcMapFieldProperties.setEndSurface(m_endSurface);
+  }
 }
 
 void FastDepthConversion::reloadModel()
@@ -156,7 +175,7 @@ void FastDepthConversion::setDepthAndTwtMapsForNextSurfaceInTables(std::string &
   m_fdcMapFieldProperties.setAddedTwtmapsequenceNbr(mapsSequenceNbr);
 }
 
-void FastDepthConversion::runFastCauldronAndCalculateNewDpeths()
+void FastDepthConversion::runFastCauldronAndCalculateNewDepths()
 {
   if (m_rank == 0) { LogHandler(LogHandler::INFO_SEVERITY) << "Running Fastcauldron to adjust the surface: " << m_fdcLithoProperties.nextTopName(); }
 
@@ -257,7 +276,7 @@ void FastDepthConversion::calibrateDepths()
     m_caseStorageManager.saveModelToCaseProjectFile();
 
     m_caseStorageManager.changeToTemporaryCaseDirectoryPath();
-    runFastCauldronAndCalculateNewDpeths();
+    runFastCauldronAndCalculateNewDepths();
     m_caseStorageManager.changeToMasterDirectoryPath();
 
     writeNewDepthAndCorrectedMapstoCaseFileInMasterDirectory(mapName);

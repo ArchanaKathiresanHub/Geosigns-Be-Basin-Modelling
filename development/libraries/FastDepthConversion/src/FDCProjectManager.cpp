@@ -112,6 +112,7 @@ void FDCProjectManager::appendCorrectedMapNamesInStratIoTbl(const std::map<const
 
 void FDCProjectManager::setCurrentMapDataInGridMapIoTbl(const std::string & correctedMapsName, const std::string & resultsMapFileName, const long correctedMapSequenceNbr)
 {
+  if (ErrorHandler::NoError != m_mdl->addRowToTable("GridMapIoTbl")) { throw T2Zexception() << "Cannot add a new row in GridMapIoTbl"; }
   size_t row = m_mdl->tableSize("GridMapIoTbl") - 1;
 
   if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "ReferredBy", "StratIoTbl")) { throw T2Zexception() << "Cannot set ReferredBy in GridMapIoTbl "; }
@@ -128,8 +129,7 @@ void FDCProjectManager::appendCorrectedMapNamesInGridMapIoTbl(const std::map<con
   for (auto it = correctedMapsNames.begin(); it != correctedMapsNames.end(); ++it)
   {
     const string correctedMapName = it->second;
-    if (correctedMapName.empty()) { continue; }
-    if (ErrorHandler::NoError != m_mdl->addRowToTable("GridMapIoTbl")) { throw T2Zexception() << "Cannot add a new row in GridMapIoTbl"; }
+    if (correctedMapName.empty()) { continue; }    
     setCurrentMapDataInGridMapIoTbl(correctedMapName, resultsMapFileName, (long)correctedMapsSequenceNbr.at(it->first));
   }
 }
@@ -146,8 +146,7 @@ void FDCProjectManager::appendAddedTwtMapNamesInGridMapIoTbl(const std::vector<i
 {
   int index = 0;
   for (auto it : addedTwtmapsequenceNbr)
-  {
-    if (ErrorHandler::NoError != m_mdl->addRowToTable("GridMapIoTbl")) { throw T2Zexception() << "Cannot add a new row in GridMapIoTbl"; }
+  {    
     setCurrentMapDataInGridMapIoTbl(m_addedTwtMapNames[index], resultsMapFileName, (long)it);
     ++index;
   }
@@ -165,7 +164,7 @@ void FDCProjectManager::appendAddedTwtMapNamesInTwoWayTimeIoTbl(const int twtMap
   }
 }
 
-void FDCProjectManager::appendAddedTwtMapNamesToTablesIfNoCalculatedTWToutput(const bool noCalculatedTWToutput,
+void FDCProjectManager::appendAddedTwtMapNamesToTablesIfCalculatedTWToutput(const bool noCalculatedTWToutput,
                                                                               const std::vector<int> & addedTwtmapsequenceNbr,
                                                                               const std::string & resultsMapFileName)
 {
@@ -196,7 +195,7 @@ void FDCProjectManager::modifyTables(const mbapi::StratigraphyManager::SurfaceID
   setDepoSequenceOfCurrentSurfaceToUndefined(surfaceID);
   removeFromStratIoTblSurfaceRecordsBelowCurrentSurface(surfaceID);
   appendCorrectedMapNames(correctedMapsNames, correctedMapsSequenceNbr, resultsMapFileName);
-  appendAddedTwtMapNamesToTablesIfNoCalculatedTWToutput(noCalculatedTWToutput, addedTwtmapsequenceNbr, resultsMapFileName);
+  appendAddedTwtMapNamesToTablesIfCalculatedTWToutput(noCalculatedTWToutput, addedTwtmapsequenceNbr, resultsMapFileName);
   replaceValueInStratIoTblIfIsHiatusAndPreviousErosion(surfaceID, hiatus);
 }
 

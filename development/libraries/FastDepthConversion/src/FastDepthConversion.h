@@ -78,7 +78,7 @@ private:
 
    void setDepthAndTwtMapsForNextSurfaceInTables(std::string & mapName, const bool generated_Twt, const std::vector<double> & increasedDepths);
 
-   void runFastCauldronAndCalculateNewDpeths();
+   void runFastCauldronAndCalculateNewDepths();
 
    void writeNewDepthAndCorrectedMapstoCaseFileInMasterDirectory(const string & mapName);
 
@@ -103,10 +103,11 @@ private:
 
    void prepareModelToRunAutomaticDepthConversion();
    bool checkForHiatus(const mbapi::StratigraphyManager::SurfaceID currentSurface);
+   void checkMissingReferenceAndEndTWTmaps();
    bool setTwtMapsIfMissingInBottomSurface();
 
    const mbapi::StratigraphyManager::SurfaceID m_referenceSurface;
-   const mbapi::StratigraphyManager::SurfaceID m_endSurface;
+   mbapi::StratigraphyManager::SurfaceID       m_endSurface;
    const bool                                  m_noCalculatedTWToutput;
    const bool                                  m_preserveErosionFlag;
    const bool                                  m_noExtrapolationFlag;

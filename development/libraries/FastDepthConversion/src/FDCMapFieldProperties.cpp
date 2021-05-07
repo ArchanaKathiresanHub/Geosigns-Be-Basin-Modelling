@@ -23,7 +23,7 @@ namespace
 static const double s_thickness_threshold = 1.e-3;
 static const double s_twt_threshold = 1.e-1;
 
-bool checkMissingTwtRefAndNextSurfacePointValuesAreValid(const double refDepthI, const double refTwtI, const double nextDepthI, const double nextTwtI, const double currentDepthI)
+bool missingTwtRefOrNextSurfacePointValuesAreInvalid(const double refDepthI, const double refTwtI, const double nextDepthI, const double nextTwtI, const double currentDepthI)
 {
   return (refDepthI == DataAccess::Interface::DefaultUndefinedMapValue ||
           refTwtI == DataAccess::Interface::DefaultUndefinedMapValue ||
@@ -51,7 +51,7 @@ void calculateMissingTwt(std::vector<double> & Twt, const std::vector<double> & 
 {
   for (size_t i = 0; i != Twt.size(); ++i)
   {
-    if(!checkMissingTwtRefAndNextSurfacePointValuesAreValid(refDepth[i], refTwt[i], nextDepth[i], nextTwt[i], currentDepth[i]))
+    if(missingTwtRefOrNextSurfacePointValuesAreInvalid(refDepth[i], refTwt[i], nextDepth[i], nextTwt[i], currentDepth[i]))
     {
       Twt[i] = DataAccess::Interface::DefaultUndefinedMapValue;
       continue;
@@ -81,8 +81,12 @@ FDCMapFieldProperties::FDCMapFieldProperties(FDCProjectManager& fdcProjectManage
   m_refDepthsHistory{},
   m_refTwtHistory{},
   m_addedTwtmapsequenceNbr{}
+{  
+}
+
+void FDCMapFieldProperties::setEndSurface(const mbapi::StratigraphyManager::SurfaceID endSurface)
 {
-  initializeAllMaps();
+  m_endSurface = endSurface;
 }
 
 void FDCMapFieldProperties::initializeAllMaps()
@@ -99,6 +103,7 @@ void FDCMapFieldProperties::initializeAllMaps()
 
 void FDCMapFieldProperties::calculateInitialMaps(const string & masterResultsFilePathName, const bool preserveErosionFlag)
 {
+  initializeAllMaps();
   setTwtMapsForAllSurfaces();
   detectHiatusForAllSurfaces();
   calculateIsoPackThicknessForSurfacesBelowEndSurface(preserveErosionFlag);
@@ -108,12 +113,13 @@ void FDCMapFieldProperties::calculateInitialMaps(const string & masterResultsFil
 void FDCMapFieldProperties::setTwtMapsForAllSurfaces()
 {
   mbapi::StratigraphyManager& stMgr = m_fdcProjectManager.getStratManager();
+
   for (mbapi::StratigraphyManager::SurfaceID surface = m_referenceSurface; surface <= m_endSurface; ++surface)
   {
     const std::string twtGridName = stMgr.twtGridName(surface);
     if (twtGridName.empty())
     {
-      throw T2Zexception() << " No twt map was found for the " << (surface == m_referenceSurface ? "reference" : "end") << " surface  " << surface;
+      LogHandler(LogHandler::WARNING_SEVERITY) << "No twt map was found for the surface " << surface << " and will be calculated";
     }
 
     setTwtMaps(surface, twtGridName);

@@ -192,7 +192,7 @@ void LithofractionManager::readFromFile(const ScenarioReader& reader)
   const int version = reader.readInt("LithofractionManagerVersion");
   lithofractions_ = reader.readVector<Lithofraction>("lithofractions");
   optimizedLithofractions_ = reader.readVector<OptimizedLithofraction>("optimizedLithofractions");
-  if (version<1)
+  if (version<1 && optimizedLithofractions_.size() == lithofractions_.size())
   {
     int indexOptimized = 0;
     for (int index = 0; index < lithofractions_.size(); index++ )
