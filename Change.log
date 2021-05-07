@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-07  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Add calculated TWT map when map is missing.
+	* Add missing TWT maps
+
+	* Related work items: #339461
+
+	================== COMMIT-END ========================
+	Commit-ID:<fd34575e8abb2b8c5dbd50e236721a1b68fa1671>	  (refs/heads/master)
+
+++
 2021-05-06  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
 
 	chg: fix: dev: Minor changes and fixing the CTC-UI to handle spaces in the directory/filename
