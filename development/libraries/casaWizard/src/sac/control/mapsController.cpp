@@ -59,8 +59,7 @@ MapsController::MapsController(MapsTab* mapsTab,
   connect(mapsTab_->interpolationType(), SIGNAL(currentIndexChanged(int)), this, SLOT(slotInterpolationTypeCurrentIndexChanged(int)));
   connect(mapsTab_->pValue(),            SIGNAL(valueChanged(int)),        this, SLOT(slotPvalueChanged(int)));
   connect(mapsTab_->smoothingType(),     SIGNAL(currentIndexChanged(int)), this, SLOT(slotSmoothingTypeCurrentIndexChanged(int)));
-  connect(mapsTab_->smoothingRadius(),   SIGNAL(valueChanged(int)),        this, SLOT(slotSmoothingRadiusValueChanged(int)));
-  connect(mapsTab_->threads(),           SIGNAL(valueChanged(int)),        this, SLOT(slotThreadsValueChanged(int)));
+  connect(mapsTab_->smoothingRadius(),   SIGNAL(valueChanged(int)),        this, SLOT(slotSmoothingRadiusValueChanged(int)));  
   connect(mapsTab_->createGridsButton(), SIGNAL(clicked()),                this, SLOT(slotGenerateLithoMaps()));
 
   connect(mapsTab_->activeWellsTable(), SIGNAL(itemSelectionChanged()), this, SLOT(slotUpdateBirdView()));
@@ -87,18 +86,12 @@ void MapsController::slotSmoothingRadiusValueChanged(int smoothingRadius)
   scenario_.setRadiusSmoothing(smoothingRadius);
 }
 
-void MapsController::slotThreadsValueChanged(int threads)
-{
-  scenario_.setThreadsSmoothing(threads);
-}
-
 void MapsController::refreshGUI()
 {
   mapsTab_->interpolationType()->setCurrentIndex(scenario_.interpolationMethod());
   mapsTab_->pValue()->setValue(scenario_.pIDW());
   mapsTab_->smoothingType()->setCurrentIndex(scenario_.smoothingOption());
-  mapsTab_->smoothingRadius()->setValue(scenario_.radiusSmoothing());
-  mapsTab_->threads()->setValue(scenario_.threadsSmoothing());
+  mapsTab_->smoothingRadius()->setValue(scenario_.radiusSmoothing());  
   mapsTab_->updateSelectedWells({});
 
   emit signalRefreshChildWidgets();

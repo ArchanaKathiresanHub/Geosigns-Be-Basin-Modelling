@@ -45,8 +45,7 @@ public:
   LithofractionVisualisation* lithofractionVisualisation() const;
   QSpinBox* pValue() const;
   QSpinBox* smoothingRadius() const;
-  QComboBox* smoothingType() const;
-  QSpinBox* threads() const;
+  QComboBox* smoothingType() const;  
   ActiveWellsTable* activeWellsTable() const;
 
   void updateSelectedWells(const QVector<int> selectedWells);
@@ -74,8 +73,7 @@ private:
   QSpinBox* pValue_;
   QWidget* smoothingOptions_;
   QSpinBox* smoothingRadius_;
-  QComboBox* smoothingType_;
-  QSpinBox* threads_;
+  QComboBox* smoothingType_;  
 };
 
 } // namespace sac

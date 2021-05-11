@@ -2,4 +2,4 @@ loadstate "CaseSet/Iteration_1/casaStateSAC.txt" "txt"
 runDataDigger
 importOneDResults
 setFilterOneDResults smartLithoFractionGridding
-generateThreeDFromOneD NN MovingAverage 3500 5
+generateThreeDFromOneD NN MovingAverage 3500 12

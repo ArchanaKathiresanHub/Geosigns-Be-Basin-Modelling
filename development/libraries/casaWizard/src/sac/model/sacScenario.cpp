@@ -26,8 +26,7 @@ SACScenario::SACScenario(ProjectReader* projectReader) :
   wellTrajectoryManager_{},
   interpolationMethod_{0},
   smoothingOption_{0},
-  pIDW_{1},
-  threadsSmoothing_{1},
+  pIDW_{3},
   radiusSmoothing_{1000},
   t2zLastSurface_{projectReader->lowestSurfaceWithTWTData()},
   t2zReferenceSurface_{defaultReferenceSurface},
@@ -73,16 +72,6 @@ int SACScenario::pIDW() const
 void SACScenario::setPIDW(int pIDW)
 {
   pIDW_ = pIDW;
-}
-
-int SACScenario::threadsSmoothing() const
-{
-  return threadsSmoothing_;
-}
-
-void SACScenario::setThreadsSmoothing(int threadsSmoothing)
-{
-  threadsSmoothing_ = threadsSmoothing;
 }
 
 int SACScenario::radiusSmoothing() const
@@ -177,8 +166,7 @@ void SACScenario::writeToFile(ScenarioWriter& writer) const
 
   writer.writeValue("interpolationMethod", interpolationMethod_);
   writer.writeValue("smoothingOption",smoothingOption_);
-  writer.writeValue("pIDW",pIDW_);
-  writer.writeValue("threadsSmoothing",threadsSmoothing_);
+  writer.writeValue("pIDW",pIDW_);  
   writer.writeValue("radiusSmoothing",radiusSmoothing_);
 
   writer.writeValue("referenceSurface", t2zReferenceSurface_);
@@ -200,8 +188,7 @@ void SACScenario::readFromFile(const ScenarioReader& reader)
   {
     interpolationMethod_ = reader.readInt("interpolationMethod");
     smoothingOption_ = reader.readInt("smoothingOption");
-    pIDW_ = reader.readInt("pIDW");
-    threadsSmoothing_ = reader.readInt("threadsSmoothing");
+    pIDW_ = reader.readInt("pIDW");    
     radiusSmoothing_ = reader.readInt("radiusSmoothing");
   }
 

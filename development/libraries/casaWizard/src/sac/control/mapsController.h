@@ -39,8 +39,7 @@ private slots:
   void slotInterpolationTypeCurrentIndexChanged(int interpolationType);
   void slotPvalueChanged(int pIDW);
   void slotSmoothingTypeCurrentIndexChanged(int smoothingType);
-  void slotSmoothingRadiusValueChanged(int smoothingRadius);
-  void slotThreadsValueChanged(int threads);
+  void slotSmoothingRadiusValueChanged(int smoothingRadius);  
   void slotUpdateBirdView();
   void slotUpdateTabGUI(int tabID);
   void slotUpdateWell(const QString& name);

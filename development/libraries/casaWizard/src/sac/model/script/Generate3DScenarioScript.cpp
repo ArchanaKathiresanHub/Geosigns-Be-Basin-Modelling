@@ -57,12 +57,12 @@ QString Generate3DScenarioScript::generateThreeDFromOneD() const
   {
     case 1:
     {
-      command += " Gaussian " + QString::number(scenario_.radiusSmoothing()) + " " + QString::number(scenario_.threadsSmoothing());
+      command += " Gaussian " + QString::number(scenario_.radiusSmoothing()) + " 12";
       break;
     }
     case 2:
     {
-      command += " MovingAverage " + QString::number(scenario_.radiusSmoothing()) + " " + QString::number(scenario_.threadsSmoothing());
+      command += " MovingAverage " + QString::number(scenario_.radiusSmoothing()) + " 12";
       break;
     }
   }

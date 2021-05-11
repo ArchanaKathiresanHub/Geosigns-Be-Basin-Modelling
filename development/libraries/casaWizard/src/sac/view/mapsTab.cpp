@@ -42,8 +42,7 @@ MapsTab::MapsTab(QWidget* parent) :
   pValue_{new QSpinBox(this)},
   smoothingOptions_{new QWidget(this)},
   smoothingRadius_{new QSpinBox(this)},
-  smoothingType_{new QComboBox(this)},
-  threads_{new QSpinBox(this)}
+  smoothingType_{new QComboBox(this)}
 {
   setTotalLayout();
   connectSignalsAndSlots();
@@ -105,12 +104,7 @@ void MapsTab::setSmoothingOptionsLayout()
   radiusOptionLayout->addWidget(new QLabel(" Radius[m]: ", this));
   radiusOptionLayout->addWidget(smoothingRadius_);
 
-  QHBoxLayout* threadsOptionLayout = new QHBoxLayout();
-  threadsOptionLayout->addWidget(new QLabel(" Threads: ", this));
-  threadsOptionLayout->addWidget(threads_);
-
-  smoothingOptionsLayout->addLayout(radiusOptionLayout);
-  smoothingOptionsLayout->addLayout(threadsOptionLayout);
+  smoothingOptionsLayout->addLayout(radiusOptionLayout);  
 
   smoothingOptionsLayout->setMargin(0);
 }
@@ -132,9 +126,6 @@ void MapsTab::setDefaultGridGenerationOptions()
 
   pValue_->setMinimum(1);
   pValue_->setMaximum(100);
-
-  threads_->setMinimum(1);
-  threads_->setMaximum(1000);
 
   smoothingRadius_->setMinimum(0);
   smoothingRadius_->setSingleStep(100);
@@ -192,11 +183,6 @@ QSpinBox* MapsTab::smoothingRadius() const
 QPushButton*MapsTab::createGridsButton() const
 {
   return createGridsButton_;
-}
-
-QSpinBox* MapsTab::threads() const
-{
-  return threads_;
 }
 
 QSpinBox* MapsTab::pValue() const

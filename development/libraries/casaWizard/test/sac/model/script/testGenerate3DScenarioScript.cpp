@@ -67,7 +67,6 @@ TEST(Generate3DScenarioScriptTest, testWriteScriptNNMovingAverage)
   scenario.setWorkingDirectory(".");
   scenario.setSmoothingOption(2);
   scenario.setRadiusSmoothing(3500);
-  scenario.setThreadsSmoothing(5);
   scenario.setInterpolationMethod(1);
 
   const std::string expectedFile{"generate3DScenarioScript_NN_MovingAverageExpected.casa"};

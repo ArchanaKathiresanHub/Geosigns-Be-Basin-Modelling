@@ -29,9 +29,6 @@ public:
   int pIDW() const;
   void setPIDW(int pIDW);
 
-  int threadsSmoothing() const;
-  void setThreadsSmoothing(int threadsSmoothing);
-
   int radiusSmoothing() const;
   void setRadiusSmoothing(int radiusSmoothing);
 
@@ -73,8 +70,7 @@ private:
 
   int interpolationMethod_;
   int smoothingOption_;
-  int pIDW_;
-  int threadsSmoothing_;
+  int pIDW_;  
   int radiusSmoothing_; //[m]
   int t2zLastSurface_;
   int t2zReferenceSurface_;
