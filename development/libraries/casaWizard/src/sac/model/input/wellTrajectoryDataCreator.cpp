@@ -41,7 +41,7 @@ void WellTrajectoryDataCreator::readCase(const int wellIndex, const int caseInde
 
 WellTrajectoryDataCreator::WellData WellTrajectoryDataCreator::readSingleTrajectory(const WellTrajectory& trajectory, const QString& dataFolder, const QString& projectName)
 {
-  const QString dataFilename = dataFolder + "/wellTrajectory-" + projectName + "-" + trajectory.property() + ".csv";
+  const QString dataFilename = dataFolder + "/wellTrajectory-" + projectName + "-" + trajectory.propertyUserName() + ".csv";
   QFile file{dataFilename};
 
   if( !file.exists())

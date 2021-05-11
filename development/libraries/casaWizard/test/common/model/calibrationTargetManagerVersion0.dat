@@ -20,7 +20,7 @@ well1isActive|bool|1
 well1isExcluded|bool|1
 well1isOutOfBasin|bool|0
 well1targets|vector|1
-well1targets|0|Target2|VRe|6|7|1|1
+well1targets|0|Target2|VReUserName|6|7|1|1
 wellIndices|vector|2
 wellIndices|0
 wellIndices|1

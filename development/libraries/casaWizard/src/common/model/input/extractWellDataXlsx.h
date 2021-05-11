@@ -22,7 +22,8 @@ public:
   double yCoord() const;
   QVector<double> depth() const;
   std::size_t nCalibrationTargetVars() const;
-  QVector<QString> calibrationTargetVars() const;
+  QVector<QString> calibrationTargetVarsUserName() const;
+  QVector<QString> calibrationTargetVarsCauldronName() const;
   QVector<std::size_t> nDataPerTargetVar() const;
   QVector<double> calibrationTargetValues() const;
   QVector<double> calibrationTargetStdDeviation() const;

@@ -13,9 +13,9 @@ TEST(WellTrajectoryManagerTest, testAddTrajectory)
 {
   casasac::WellTrajectoryManager mgr{};
 
-  const QString property{"Temperature"};
+  const QString propertyUserName{"Temp"};
   const int wellIndex{15};
-  mgr.addWellTrajectory(wellIndex, property);
+  mgr.addWellTrajectory(wellIndex, propertyUserName);
 
   const QVector<casasac::WellTrajectory> baseRunWells = mgr.trajectoriesType(casasac::TrajectoryType::Original1D);
   const QVector<casasac::WellTrajectory> bestMatchWells = mgr.trajectoriesType(casasac::TrajectoryType::Optimized1D);
@@ -23,19 +23,19 @@ TEST(WellTrajectoryManagerTest, testAddTrajectory)
   const QVector<casasac::WellTrajectory> optimized3dWells = mgr.trajectoriesType(casasac::TrajectoryType::Optimized3D);
 
   ASSERT_EQ( 1, baseRunWells.size());
-  EXPECT_EQ( baseRunWells[0].property(), property);
+  EXPECT_EQ( baseRunWells[0].propertyUserName(), propertyUserName);
   EXPECT_EQ( baseRunWells[0].wellIndex(), wellIndex);
 
   ASSERT_EQ( 1, bestMatchWells.size());
-  EXPECT_EQ( bestMatchWells[0].property(), property);
+  EXPECT_EQ( bestMatchWells[0].propertyUserName(), propertyUserName);
   EXPECT_EQ( bestMatchWells[0].wellIndex(), wellIndex);
 
   ASSERT_EQ( 1, base3dWells.size());
-  EXPECT_EQ( base3dWells[0].property(), property);
+  EXPECT_EQ( base3dWells[0].propertyUserName(), propertyUserName);
   EXPECT_EQ( base3dWells[0].wellIndex(), wellIndex);
 
   ASSERT_EQ( 1, optimized3dWells.size());
-  EXPECT_EQ( optimized3dWells[0].property(), property);
+  EXPECT_EQ( optimized3dWells[0].propertyUserName(), propertyUserName);
   EXPECT_EQ( optimized3dWells[0].wellIndex(), wellIndex);
 }
 
@@ -54,8 +54,6 @@ TEST(WellTrajectoryManagerTest, testSelectFromWell)
 
   EXPECT_EQ( baseRunInWell[0].wellIndex(), 0);
   EXPECT_EQ( baseRunInWell[1].wellIndex(), 0);
-  EXPECT_EQ( baseRunInWell[0].property(), "Temperature");
-  EXPECT_EQ( baseRunInWell[1].property(), "VRe");
 }
 
 TEST(WellTrajectoryManagerTest, testSelectMultiWell)
@@ -73,8 +71,8 @@ TEST(WellTrajectoryManagerTest, testSelectMultiWell)
 
   EXPECT_EQ(0, baseRunInWell[0].wellIndex());
   EXPECT_EQ(2, baseRunInWell[1].wellIndex());
-  EXPECT_EQ("Temperature", baseRunInWell[0].property());
-  EXPECT_EQ("SonicSlowness", baseRunInWell[1].property());
+  EXPECT_EQ("Temperature", baseRunInWell[0].propertyUserName());
+  EXPECT_EQ("SonicSlowness", baseRunInWell[1].propertyUserName());
 }
 
 
@@ -82,12 +80,12 @@ TEST(WellTrajectoryManagerTest, testWriteToFile)
 {
   casasac::WellTrajectoryManager mgr{};
 
-  const QString property{"Temperature"};
+  const QString propertyUserName{"TemperatureUserName"};
   const int wellIndex1{15};
-  mgr.addWellTrajectory(wellIndex1, property);
+  mgr.addWellTrajectory(wellIndex1, propertyUserName);
 
   const int wellIndex2{16};
-  mgr.addWellTrajectory(wellIndex2, property);
+  mgr.addWellTrajectory(wellIndex2, propertyUserName);
 
   mgr.setTrajectoryData(casasac::Original1D,      0, {1, 2, 3}, {4, 5, 6});
   mgr.setTrajectoryData(casasac::Optimized1D, 0, {1, 2, 3}, {7, 8, 9});
@@ -99,24 +97,24 @@ TEST(WellTrajectoryManagerTest, testWriteToFile)
   mgr.writeToFile(writer);
   writer.close();
 
-  expectFileEq("wellTrajectoryManagerActual.dat", "wellTrajectoryManager.dat");
+  expectFileEq("wellTrajectoryManagerActual.dat", "wellTrajectoryManagerVersion0.dat");
 }
 
-TEST(WellTrajectoryManagerTest, testReadFromFile)
+void testRead(const QString& fileName)
 {
   casasac::WellTrajectoryManager mgr{};
-  casaWizard::ScenarioReader reader{"wellTrajectoryManager.dat"};
+  casaWizard::ScenarioReader reader{fileName};
 
   mgr.readFromFile(reader);
 
-  const QVector<QVector<casasac::WellTrajectory>> trajectoriesInWell = mgr.trajectoriesInWell({15}, {"Temperature"});
+  const QVector<QVector<casasac::WellTrajectory>> trajectoriesInWell = mgr.trajectoriesInWell({15}, {"TemperatureUserName"});
 
   const casasac::WellTrajectory baseRunWell = trajectoriesInWell[casasac::TrajectoryType::Original1D][0];
   const casasac::WellTrajectory bestMatchWell = trajectoriesInWell[casasac::TrajectoryType::Optimized1D][0];
   const casasac::WellTrajectory base3dWell = trajectoriesInWell[casasac::TrajectoryType::Original3D][0];
   const casasac::WellTrajectory optimized3dWell = trajectoriesInWell[casasac::TrajectoryType::Optimized3D][0];
 
-  EXPECT_EQ(baseRunWell.property().toStdString(), "Temperature");
+  EXPECT_EQ(baseRunWell.propertyUserName().toStdString(), "TemperatureUserName");
   EXPECT_EQ(baseRunWell.wellIndex(), 15);
   EXPECT_EQ(baseRunWell.trajectoryIndex(), 0);
   QVector<double> depth = {1, 2, 3};
@@ -138,10 +136,16 @@ TEST(WellTrajectoryManagerTest, testReadFromFile)
   }
 }
 
+TEST(WellTrajectoryManagerTest, testReadVersion0FromFile)
+{
+  const QString fileName = "wellTrajectoryManagerVersion0.dat";
+  testRead(fileName);
+}
+
 TEST(WellTrajectoryManagerTest, testWriteReadEmptyResults)
 {
   casasac::WellTrajectoryManager managerWrite{};
-  managerWrite.addWellTrajectory(1, "Temperature");
+  managerWrite.addWellTrajectory(1, "TemperatureUserName");
   casaWizard::ScenarioWriter writer{"wellTrajectoryManagerEmpty.dat"};
   managerWrite.writeToFile(writer);
   writer.close();
@@ -150,7 +154,7 @@ TEST(WellTrajectoryManagerTest, testWriteReadEmptyResults)
   casaWizard::ScenarioReader reader{"wellTrajectoryManagerEmpty.dat"};
   managerRead.readFromFile(reader);
 
-  const QVector<QVector<casasac::WellTrajectory>> trajectoriesInWell = managerRead.trajectoriesInWell({1}, {"Temperature"});
+  const QVector<QVector<casasac::WellTrajectory>> trajectoriesInWell = managerRead.trajectoriesInWell({1}, {"TemperatureUserName"});
   const casasac::WellTrajectory baseRunWell   = trajectoriesInWell[casasac::Original1D][0];
   const casasac::WellTrajectory bestMatchWell = trajectoriesInWell[casasac::Optimized1D][0];
 

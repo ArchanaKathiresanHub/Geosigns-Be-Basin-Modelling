@@ -80,11 +80,13 @@ TEST( CasaScenarioTest, testWriteToFile )
   defineScenario(writeScenario);
 
   casaWizard::CalibrationTargetManager& ctManagerWriter = writeScenario.calibrationTargetManager();
+  ctManagerWriter.addToMapping("Temperature", "Temperature");
+  ctManagerWriter.addToMapping("Vre", "VRe");
   ctManagerWriter.addWell("Test1", 10, 10);
   ctManagerWriter.addWell("Test2", 3, 4);
   ctManagerWriter.addCalibrationTarget("Target1", "Temperature", 1, 2, 3);
-  ctManagerWriter.addCalibrationTarget("Target2", "VRe", 1, 6, 7);
-  ctManagerWriter.setObjectiveFunctionVariables({"Temperature","VRe"});
+  ctManagerWriter.addCalibrationTarget("Target2", "Vre", 1, 6, 7);
+  ctManagerWriter.setObjectiveFunctionVariables({"Temperature","Vre"});
   ctManagerWriter.setObjectiveFunction(0, 0, 1);
   ctManagerWriter.setObjectiveFunction(0, 1, 2);
   ctManagerWriter.setObjectiveFunction(0, 2, 3);
@@ -109,6 +111,12 @@ TEST( CasaScenarioTest, testWriteToFile )
   EXPECT_EQ(writeScenario.applicationName().toStdString(), readScenario.applicationName().toStdString());
   EXPECT_EQ(writeScenario.clusterName().toStdString(), readScenario.clusterName().toStdString());
   EXPECT_EQ(writeScenario.runLocation().toStdString(), readScenario.runLocation().toStdString());
+  EXPECT_EQ(ctManagerWriter.getCauldronPropertyName("Temperature"),
+            ctManagerReader.getCauldronPropertyName("Temperature"));
+  EXPECT_EQ(ctManagerWriter.getCauldronPropertyName("Vre"),
+            ctManagerReader.getCauldronPropertyName("Vre"));
+  EXPECT_EQ(ctManagerWriter.getCauldronPropertyName("NoProperty"),
+            ctManagerReader.getCauldronPropertyName("NoProperty"));
 
   const QVector<const casaWizard::Well*>& wells1 = ctManagerWriter.wells();
   const QVector<const casaWizard::Well*>& wells2 = ctManagerReader.wells();
@@ -129,20 +137,21 @@ TEST( CasaScenarioTest, testWriteToFile )
   ASSERT_EQ(targets.size(), 2);
 
   EXPECT_EQ(targets[0]->name().toStdString(), "Target1");
-  EXPECT_EQ(targets[0]->property().toStdString(), "Temperature");
+  EXPECT_EQ(targets[0]->propertyUserName().toStdString(), "Temperature");
   EXPECT_DOUBLE_EQ(targets[0]->z(), 2);
   EXPECT_DOUBLE_EQ(targets[0]->value(), 3);
 
   EXPECT_EQ(targets[1]->name().toStdString(), "Target2");
-  EXPECT_EQ(targets[1]->property().toStdString(), "VRe");
+  EXPECT_EQ(targets[1]->propertyUserName().toStdString(), "Vre");
   EXPECT_DOUBLE_EQ(targets[1]->z(), 6);
   EXPECT_DOUBLE_EQ(targets[1]->value(), 7);
 
   const casaWizard::ObjectiveFunctionManager& objectiveFunctionRead = ctManagerRead.objectiveFunctionManager();
-  QStringList variables{objectiveFunctionRead.variables()};
+  QStringList variables{objectiveFunctionRead.variablesCauldronNames()};
   ASSERT_EQ(variables.size(), 2);
   EXPECT_EQ(variables[0].toStdString(), "Temperature");
   EXPECT_EQ(variables[1].toStdString(), "VRe");
+
 
   EXPECT_DOUBLE_EQ(objectiveFunctionRead.absoluteError(0), 1);
   EXPECT_DOUBLE_EQ(objectiveFunctionRead.relativeError(0), 2);

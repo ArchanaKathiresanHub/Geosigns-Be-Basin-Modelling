@@ -14,7 +14,9 @@ TEST(Case3DTrajectoryConvertorTest, testConvert)
   reader.read();
 
   casaWizard::sac::SACScenario scenario(new casaWizard::StubProjectReader());
-
+  scenario.calibrationTargetManager().addToMapping("TwoWayTime", "TwoWayTime");
+  scenario.calibrationTargetManager().addToMapping("BulkDensity", "BulkDensity");
+  scenario.calibrationTargetManager().addToMapping("SonicSlowness", "SonicSlowness");
 
   casaWizard::CalibrationTargetManager& calibrationTargetManager = scenario.calibrationTargetManager();
 

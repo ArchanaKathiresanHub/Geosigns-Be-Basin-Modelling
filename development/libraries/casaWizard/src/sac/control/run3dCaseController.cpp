@@ -71,12 +71,17 @@ bool Run3dCaseController::import3dWellData(const QString& baseDirectory, const b
     xCoordinates.push_back(well->x());
     yCoordinates.push_back(well->y());
   }
-  QStringList properties = scenario_.calibrationTargetManager().activeProperties();
+  QStringList propertyUserNames = calibrationTargetManager.activePropertyUserNames();
+  QStringList propertyCauldronNames;
+  for (const QString& propertyUserName : propertyUserNames)
+  {
+    propertyCauldronNames.push_back(calibrationTargetManager.getCauldronPropertyName(propertyUserName));
+  }
 
   Track1DAllWellScript import{baseDirectory,
                               xCoordinates,
                               yCoordinates,
-                              properties,
+                              propertyCauldronNames,
                               scenario_.project3dFilename()};
   if (!scriptRunController_.runScript(import))
   {

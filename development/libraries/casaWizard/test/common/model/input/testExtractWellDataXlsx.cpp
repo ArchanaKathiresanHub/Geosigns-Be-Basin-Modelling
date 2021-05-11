@@ -36,7 +36,7 @@ TEST( ExtractWellDataXlsxTest, testWellDataConsistency )
     {
       WellTargetVariables wellVars;
       wellVars.nData = wellDataExtract.nDataPerTargetVar()[i];
-      wellVars.variable_ = wellDataExtract.calibrationTargetVars()[i];
+      wellVars.variable_ = wellDataExtract.calibrationTargetVarsCauldronName()[i];
       extractedWellTargetVariables_.push_back(wellVars);
 
       for (std::size_t j = iDataTargetPrevious; j < wellDataExtract.nDataPerTargetVar()[i] + iDataTargetPrevious; ++j)
@@ -81,7 +81,7 @@ TEST( ExtractWellDataXlsxTest, testWellDataConsistency )
 
   for (std::size_t iVar = 0; iVar < nTargetVariables; ++iVar)
   {
-    EXPECT_EQ(expectedTargetVariables[iVar], extractedWellTargetVariables_[iVar].variable_)
+    EXPECT_EQ(expectedTargetVariables[iVar].toStdString(), extractedWellTargetVariables_[iVar].variable_.toStdString())
         << "Mismatching calibration target variable names at index" << iVar << "\n";
 
     EXPECT_EQ(expectedNDataPerTargetVariable[iVar], extractedWellTargetVariables_[iVar].nData)

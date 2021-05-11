@@ -43,7 +43,7 @@ private:
   void writeScriptContents(QFile& file) const override;
   bool validateScenario() const override;
 
-  QString writeWellTrajectory(const WellTrajectory& trajectory, const QString& wellName) const;
+  QString writeWellTrajectory(const QString& wellName, const int wellIndex, const QString& propertyUserName) const;
   QString writeLithofraction(const Lithofraction& lithofraction) const;
 };
 

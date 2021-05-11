@@ -30,7 +30,7 @@ void ObjectiveFunctionTable::updateTable(const ObjectiveFunctionManager& objecti
   QSignalBlocker blocker(this);
   clearContents();
 
-  const QStringList variables= objectiveFunction.variables();
+  const QStringList variables= objectiveFunction.variablesCauldronNames();
   const int rowCount = variables.size();
 
   setRowCount(rowCount);

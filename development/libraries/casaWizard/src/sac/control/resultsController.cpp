@@ -282,16 +282,16 @@ void ResultsController::updateWellPlot()
     }
     return;
   }
-  QStringList properties;
+  QStringList propertyUserNames;
   const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
-  QVector<QVector<CalibrationTarget>> targetsInWell = calibrationManager.extractWellTargets(properties, selectedWellsIDs_);
+  QVector<QVector<CalibrationTarget>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
 
   const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
-  const QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, properties);
+  const QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, propertyUserNames);
   QVector<bool> activePlots{scenario_.activePlots()};
 
   resultsTab_->updateWellPlot(targetsInWell,
-                              properties,
+                              propertyUserNames,
                               allTrajectories,
                               activePlots);
 }
@@ -299,16 +299,17 @@ void ResultsController::updateWellPlot()
 void ResultsController::updateCorrelationPlot()
 {
   QSignalBlocker blocker(resultsTab_->plotOptions());
-  QStringList properties;  
+
+  QStringList propertyUserNames;
   const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
-  QVector<QVector<CalibrationTarget>> targetsInWell = calibrationManager.extractWellTargets(properties, selectedWellsIDs_);
+  QVector<QVector<CalibrationTarget>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
 
   const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
-  QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, properties);
+  QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, propertyUserNames);
   QVector<bool> activePlots{scenario_.activePlots()};
 
   resultsTab_->updateCorrelationPlot(targetsInWell,
-                                     properties,
+                                     propertyUserNames,
                                      allTrajectories,
                                      activePlots,
                                      activeProperty_);

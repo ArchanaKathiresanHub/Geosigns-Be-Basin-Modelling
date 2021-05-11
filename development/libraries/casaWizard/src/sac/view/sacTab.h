@@ -14,7 +14,7 @@ namespace casaWizard
 
 class CalibrationTargetTable;
 class InfluentialParameterTable;
-class ObjectiveFunctionTable;
+class ObjectiveFunctionTableSAC;
 class PredictionTargetTable;
 
 namespace sac
@@ -31,7 +31,7 @@ public:
 
   CalibrationTargetTable* calibrationTargetTable() const;
   LithofractionTable* lithofractionTable() const;
-  ObjectiveFunctionTable* objectiveFunctionTable() const;
+  ObjectiveFunctionTableSAC* objectiveFunctionTable() const;
 
   QLineEdit* lineEditProject3D() const;
   const QPushButton* pushSelectProject3D() const;  
@@ -50,7 +50,7 @@ private:
 
   CalibrationTargetTable* calibrationTargetTable_;
   LithofractionTable* lithofractionTable_;
-  ObjectiveFunctionTable* objectiveFunctionTable_;
+  ObjectiveFunctionTableSAC* objectiveFunctionTable_;
 
   QPushButton* pushSelectCalibration_;
   QPushButton* pushSelectAllWells_;

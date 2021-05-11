@@ -35,11 +35,11 @@ TEST( CalibrationTargetCreatorTest, testCreateFromExcel )
   }
 
   QVector<casaWizard::CalibrationTarget> targetsExpected{};
-  targetsExpected.append(casaWizard::CalibrationTarget("TwoWayTime(1234568.0,987654.1,0.0)",    "TwoWayTime", 0,   0, 0, 1.0/3.0));
-  targetsExpected.append(casaWizard::CalibrationTarget("TwoWayTime(1234568.0,987654.1,100.0)",  "TwoWayTime", 100, 1000.3234, 0, 1.0/3.0));
-  targetsExpected.append(casaWizard::CalibrationTarget("TwoWayTime(1234568.0,987654.1,200.0)",  "TwoWayTime", 200, 5000.652, 0, 1.0/3.0));
-  targetsExpected.append(casaWizard::CalibrationTarget("BulkDensity(1234568.0,987654.1,123.0)", "BulkDensity", 123, 2200, 0, 1.0/3.0));
-  targetsExpected.append(casaWizard::CalibrationTarget("BulkDensity(1234568.0,987654.1,456.0)", "BulkDensity", 456, 2553.1278, 0, 1.0/3.0));
+  targetsExpected.append(casaWizard::CalibrationTarget("TwoWayTime(1234568.0,987654.1,0.0)",    "Two way time", 0,   0, 0, 1.0/3.0));
+  targetsExpected.append(casaWizard::CalibrationTarget("TwoWayTime(1234568.0,987654.1,100.0)",  "Two way time", 100, 1000.3234, 0, 1.0/3.0));
+  targetsExpected.append(casaWizard::CalibrationTarget("TwoWayTime(1234568.0,987654.1,200.0)",  "Two way time", 200, 5000.652, 0, 1.0/3.0));
+  targetsExpected.append(casaWizard::CalibrationTarget("BulkDensity(1234568.0,987654.1,123.0)", "Density", 123, 2200, 0, 1.0/3.0));
+  targetsExpected.append(casaWizard::CalibrationTarget("BulkDensity(1234568.0,987654.1,456.0)", "Density", 456, 2553.1278, 0, 1.0/3.0));
 
   targetsExpected.append(casaWizard::CalibrationTarget("Temperature(123.6,987.1,50.6)",   "Temperature", 50.6, 0, 0, 1.0/3.0));
   targetsExpected.append(casaWizard::CalibrationTarget("Temperature(123.6,987.1,223.4)",  "Temperature", 223.4, 49, 0, 1.0/3.0));
@@ -51,7 +51,7 @@ TEST( CalibrationTargetCreatorTest, testCreateFromExcel )
   for (int i  = 0; i<nTargets; ++i)
   {
     EXPECT_EQ(targetsExpected[i].name().toStdString(),     targetsActual[i]->name().toStdString())     << " Mismatch at index " << i;
-    EXPECT_EQ(targetsExpected[i].property().toStdString(), targetsActual[i]->property().toStdString()) << " Mismatch at index " << i;
+    EXPECT_EQ(targetsExpected[i].propertyUserName().toStdString(), targetsActual[i]->propertyUserName().toStdString()) << " Mismatch at index " << i;
 
     EXPECT_DOUBLE_EQ(targetsExpected[i].z(),                 targetsActual[i]->z()) << " Mismatch at index " << i;
     EXPECT_DOUBLE_EQ(targetsExpected[i].value(),             targetsActual[i]->value()) << " Mismatch at index " << i;

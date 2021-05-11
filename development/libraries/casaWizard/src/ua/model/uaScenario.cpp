@@ -43,9 +43,9 @@ UAScenario::UAScenario(ProjectReader* projectReader) :
   runCaseSetFileManager_{}
 {
   calibrationTargetManager().setObjectiveFunctionVariables(predictionTargetManager_.predictionTargetOptions());
-  calibrationTargetManager().setObjectiveFunction(0, 0, 5);
-  calibrationTargetManager().setObjectiveFunction(0, 1, 0.05);
-  calibrationTargetManager().setObjectiveFunction(1, 0, 0.1);
+  calibrationTargetManager().setObjectiveFunction(0, 1, 5);
+  calibrationTargetManager().setObjectiveFunction(0, 2, 0.05);
+  calibrationTargetManager().setObjectiveFunction(1, 1, 0.1);
 }
 
 UAScenario::~UAScenario()

@@ -44,7 +44,7 @@ void WellTrajectoryExtractor::updateCaseScript(const int wellIndex, const QStrin
   {
     if (trajectory.wellIndex() == well.id())
     {
-      script_.addWell(well.x(), well.y(), trajectory.property(), relativeDataFolder);
+      script_.addWell(well.x(), well.y(), ctManager.getCauldronPropertyName(trajectory.propertyUserName()), trajectory.propertyUserName(), relativeDataFolder);
     }
   }
 }

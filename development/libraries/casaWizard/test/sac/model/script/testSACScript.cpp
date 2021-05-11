@@ -26,11 +26,26 @@ TEST(SACScriptTest, testWriteScript)
   casaWizard::CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
 
   const int wellIndex1 = ctManager.addWell("Well1", 0, 0);
-  wellTrajectoryManager.addWellTrajectory(wellIndex1, "TwoWayTime");
-  wellTrajectoryManager.addWellTrajectory(wellIndex1, "Temperature");
+  wellTrajectoryManager.addWellTrajectory(wellIndex1, "TWTT");
+  ctManager.addCalibrationTarget("TargetName", "TWTT", wellIndex1, 200.0, 0.7);
+  wellTrajectoryManager.addWellTrajectory(wellIndex1, "Temp");
+  ctManager.addCalibrationTarget("TargetName", "Temp", wellIndex1, 300.0, 17.4);
 
   const int wellIndex2 = ctManager.addWell("Well2", 1, 2);
-  wellTrajectoryManager.addWellTrajectory(wellIndex2, "TwoWayTime");
+  wellTrajectoryManager.addWellTrajectory(wellIndex2, "TWTT");
+  ctManager.addCalibrationTarget("TargetName", "TWTT", wellIndex2, 200.0, 0.5);
+
+  // This well should not be written to the script, since the enabled state is set to false
+  const int wellIndex3 = ctManager.addWell("Well2", 1, 2);
+  wellTrajectoryManager.addWellTrajectory(wellIndex3, "DT");
+  ctManager.addCalibrationTarget("TargetName", "DT", wellIndex3, 200.0, 0.5);
+  ctManager.updateObjectiveFunctionFromTargets();
+  ctManager.setObjectiveFunctionEnabledState(false, ctManager.objectiveFunctionManager().indexOf("DT"));
+  wellTrajectoryManager.updateWellTrajectories(ctManager);
+
+  scenario.calibrationTargetManager().addToMapping("TWTT", "TwoWayTime");
+  scenario.calibrationTargetManager().addToMapping("Temp", "Temperature");
+  scenario.calibrationTargetManager().addToMapping("DT", "SonicSlowness");
 
   const std::string expectedFile{"SACScriptExpected.casa"};
   const std::string actualFile{"sacScript.casa"};

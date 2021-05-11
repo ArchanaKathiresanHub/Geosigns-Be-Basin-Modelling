@@ -138,13 +138,13 @@ void Well::setCalibrationTargets(const QVector<CalibrationTarget>& calibrationTa
   calibrationTargets_ = calibrationTargets;
 }
 
-void Well::addCalibrationTarget(const QString& name, const QString& property,
+void Well::addCalibrationTarget(const QString& name, const QString& propertyUserName,
                                 const double z, const double value)
 {
   const double standardDeviation = 1;
   const double uaWeight = 1;
 
-  CalibrationTarget newTarget{name, property, z, value, standardDeviation, uaWeight};
+  CalibrationTarget newTarget{name, propertyUserName, z, value, standardDeviation, uaWeight};
   calibrationTargets_.append(newTarget);
 }
 
@@ -152,7 +152,7 @@ void Well::applyObjectiveFunction(const ObjectiveFunctionManager& objectiveFunct
 {
   for (CalibrationTarget& target : calibrationTargets_)
   {
-    const int index = objectiveFunction.indexOf(target.property());
+    const int index = objectiveFunction.indexOf(target.propertyUserName());
     if (index>-1)
     {
       double standardDeviation = objectiveFunction.absoluteError(index) +

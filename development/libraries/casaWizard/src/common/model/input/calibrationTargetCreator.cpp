@@ -23,11 +23,18 @@ void createFromExcel(CasaScenario& casaScenario, const QString& excelFilename)
     wellData.extractWellData(wellName);
     const int wellIndex = calibrationTargetManager.addWell(wellName, wellData.xCoord(), wellData.yCoord());
 
-    const QVector<QString> variableNames = wellData.calibrationTargetVars();
+    const QVector<QString> variableUserNames = wellData.calibrationTargetVarsUserName();
+    const QVector<QString> variableCauldronNames = wellData.calibrationTargetVarsCauldronName();
+
+    for (int i = 0; i < variableUserNames.size(); i++)
+    {
+      calibrationTargetManager.addToMapping(variableUserNames[i], variableCauldronNames[i]);
+    }
+
     const QVector<std::size_t> nTargetsPerVariable = wellData.nDataPerTargetVar();
 
     unsigned int nTotalTargets = 0;
-    for (int iVariable = 0; iVariable < variableNames.size(); ++iVariable)
+    for (int iVariable = 0; iVariable < variableUserNames.size(); ++iVariable)
     {
       const QVector<double> z = wellData.depth();
       const QVector<double> value = wellData.calibrationTargetValues();
@@ -43,11 +50,11 @@ void createFromExcel(CasaScenario& casaScenario, const QString& excelFilename)
       // In wellData, the targets for different variables in the same well are stored in a contiguous array
       for (unsigned int iTarget = nTotalTargets; iTarget < nTotalTargets + nTargetsPerVariable[iVariable]; ++iTarget)
       {
-        const QString targetName(variableNames[iVariable] + "(" +
+        const QString targetName(variableCauldronNames[iVariable] + "(" +
                                  QString::number(wellData.xCoord(),'f',1) + "," +
                                  QString::number(wellData.yCoord(),'f',1) + "," +
                                  QString::number(z[iTarget],'f',1) + ")");
-        calibrationTargetManager.addCalibrationTarget(targetName, variableNames[iVariable],
+        calibrationTargetManager.addCalibrationTarget(targetName, variableUserNames[iVariable],
                                                       wellIndex, z[iTarget], value[iTarget]);
       }
       nTotalTargets += nTargetsPerVariable[iVariable];

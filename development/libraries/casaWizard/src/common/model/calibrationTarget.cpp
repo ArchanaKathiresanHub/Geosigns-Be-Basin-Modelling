@@ -3,9 +3,10 @@
 namespace casaWizard
 {
 
-CalibrationTarget::CalibrationTarget(const QString& name, const QString& property, const double z, const double value, const double standardDeviation, const double uaWeight) :
+CalibrationTarget::CalibrationTarget(const QString& name, const QString& propertyUserName,
+                                     const double z, const double value, const double standardDeviation, const double uaWeight) :
   name_{name},
-  property_{property},
+  propertyUserName_{propertyUserName},
   z_{z},
   value_{value},
   standardDeviation_{standardDeviation},
@@ -40,7 +41,7 @@ QStringList CalibrationTarget::write() const
 {
   QStringList out;
   out << name_
-      << property_
+      << propertyUserName_
       << QString::number(z_)
       << QString::number(value_)
       << QString::number(standardDeviation_)
@@ -52,19 +53,9 @@ QString CalibrationTarget::name() const
   return name_;
 }
 
-void CalibrationTarget::setName(const QString& name)
+QString CalibrationTarget::propertyUserName() const
 {
-  name_ = name;
-}
-
-QString CalibrationTarget::property() const
-{
-  return property_;
-}
-
-void CalibrationTarget::setProperty(const QString& property)
-{
-  property_ = property;
+  return propertyUserName_;
 }
 
 double CalibrationTarget::z() const
@@ -72,19 +63,9 @@ double CalibrationTarget::z() const
   return z_;
 }
 
-void CalibrationTarget::setZ(double z)
-{
-  z_ = z;
-}
-
 double CalibrationTarget::value() const
 {
   return value_;
-}
-
-void CalibrationTarget::setValue(double value)
-{
-  value_ = value;
 }
 
 double CalibrationTarget::standardDeviation() const

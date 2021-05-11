@@ -10,8 +10,9 @@
 namespace casaWizard
 {
 
-ObjectiveFunctionManager::ObjectiveFunctionManager() :
-  values_{}
+ObjectiveFunctionManager::ObjectiveFunctionManager(const QMap<QString, QString>& mapping) :
+  values_{},
+  userNameToCauldronNameMapping_{mapping}
 {
 }
 
@@ -24,7 +25,7 @@ void ObjectiveFunctionManager::setVariables(const QStringList& variables)
     auto it = values_.begin();
     while (it != values_.end())
     {
-      const QString currentVariable = (*it).variable();
+      const QString currentVariable = (*it).variableUserName();
       if (!variables.contains(currentVariable))
       {
         it = values_.erase(it);
@@ -58,6 +59,11 @@ void ObjectiveFunctionManager::setVariables(const QStringList& variables)
   }
 }
 
+void ObjectiveFunctionManager::setEnabledState(const bool state, const int row)
+{
+  values_[row].setEnabled(state);
+}
+
 double ObjectiveFunctionManager::absoluteError(const int index) const
 {
   return values_[index].absoluteError();
@@ -71,6 +77,11 @@ double ObjectiveFunctionManager::relativeError(const int index) const
 double ObjectiveFunctionManager::weight(const int index) const
 {
   return values_[index].weight();
+}
+
+bool ObjectiveFunctionManager::enabled(const int index) const
+{
+  return values_[index].enabled();
 }
 
 void ObjectiveFunctionManager::setValue(const int row, const int col, const double value)
@@ -100,7 +111,7 @@ int ObjectiveFunctionManager::indexOf(const QString& variable) const
   int i = 0;
   for (const ObjectiveFunctionValue& val : values_)
   {
-    if (val.variable() == variable)
+    if (val.variableUserName() == variable)
     {
       return i;
     }
@@ -109,12 +120,22 @@ int ObjectiveFunctionManager::indexOf(const QString& variable) const
   return -1;
 }
 
-QStringList ObjectiveFunctionManager::variables() const
+QStringList ObjectiveFunctionManager::variablesCauldronNames() const
 {
   QStringList vars;
   for (const ObjectiveFunctionValue& val : values_)
   {
-    vars << val.variable();
+    vars << userNameToCauldronNameMapping_.value(val.variableUserName(), "Unknown");
+  }
+  return vars;
+}
+
+QStringList ObjectiveFunctionManager::variablesUserNames() const
+{
+  QStringList vars;
+  for (const ObjectiveFunctionValue& val : values_)
+  {
+    vars << val.variableUserName();
   }
   return vars;
 }
@@ -140,23 +161,31 @@ const QVector<ObjectiveFunctionValue>& ObjectiveFunctionManager::values() const
   return values_;
 }
 
-ObjectiveFunctionValue ObjectiveFunctionManager::createObjectiveFunctionValue(const QString &variable) const
+ObjectiveFunctionValue ObjectiveFunctionManager::createObjectiveFunctionValue(const QString& variableUserName) const
 {
   QMap<QString, QPair<double, double>> defaultValueMap;
-  defaultValueMap.insert(QString("TwoWayTime"), {50.0, 0.0});
-  defaultValueMap.insert(QString("BulkDensity"), {20.0, 0.0});
-  defaultValueMap.insert(QString("SonicSlowness"), {1.0, 0.05});
+  defaultValueMap.insert(QString("TwoWayTime"), {20.0, 0.0});
+  defaultValueMap.insert(QString("GammaRay"), {0.0, 0.1});
+  defaultValueMap.insert(QString("BulkDensity"), {50.0, 0.0});
+  defaultValueMap.insert(QString("SonicSlowness"), {0.0, 0.05});
+  defaultValueMap.insert(QString("Pressure"), {0.0, 0.01});
+  defaultValueMap.insert(QString("Temperature"), {10.0, 0.0});
+  defaultValueMap.insert(QString("VRe"), {0.1, 0.0});
+  defaultValueMap.insert(QString("Velocity"), {0.0, 0.1});
 
-  if (defaultValueMap.contains(variable) == 0)
+  const QString variableCauldronName = userNameToCauldronNameMapping_.value(variableUserName, "Unknown");
+
+  if (defaultValueMap.contains(variableCauldronName) == 0)
   {
-    return ObjectiveFunctionValue(variable);
+    return ObjectiveFunctionValue(variableCauldronName, variableUserName);
   }
 
-  const QPair<double, double>& p = defaultValueMap[variable];
+  const QPair<double, double>& p = defaultValueMap[variableCauldronName];
   const double defaultAbsoluteError = p.first;
   const double defaultRelativeError = p.second;
+  const bool defaultEnabledState = variableCauldronName != "Velocity" && variableCauldronName != "GammaRay";
 
-  return ObjectiveFunctionValue(variable, defaultAbsoluteError, defaultRelativeError);
+  return ObjectiveFunctionValue(variableCauldronName, variableUserName, defaultAbsoluteError, defaultRelativeError, 0.0, defaultEnabledState);
 }
 
 } // namespace casaWizard

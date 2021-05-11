@@ -31,8 +31,8 @@ TEST(SACScenarioTest, testWriteRead)
   lithofractionManagerWrite.addOptimizedLithofraction(optim);
 
   casaWizard::sac::WellTrajectoryManager& wellTrajectoryManagerWrite = writeScenario.wellTrajectoryManager();
-  wellTrajectoryManagerWrite.addWellTrajectory(15, "Temperature");
-  wellTrajectoryManagerWrite.addWellTrajectory(16, "Temperature");
+  wellTrajectoryManagerWrite.addWellTrajectory(15, "TemperatureUserName");
+  wellTrajectoryManagerWrite.addWellTrajectory(16, "TemperatureUserName");
   wellTrajectoryManagerWrite.setTrajectoryData(casaWizard::sac::TrajectoryType::Original1D, 0, {1, 2, 3}, {4, 5, 6});
   wellTrajectoryManagerWrite.setTrajectoryData(casaWizard::sac::TrajectoryType::Optimized1D, 0, {1, 2, 3},  {7, 8, 9});
 
@@ -80,11 +80,12 @@ TEST(SACScenarioTest, testWriteRead)
 
   const casaWizard::sac::WellTrajectoryManager& wellTrajectoryManagerRead = readScenario.wellTrajectoryManager();
 
-  const QVector<QVector<casaWizard::sac::WellTrajectory>> trajectoriesInWell = wellTrajectoryManagerRead.trajectoriesInWell({15}, {"Temperature"});
+  const QVector<QVector<casaWizard::sac::WellTrajectory>> trajectoriesInWell = wellTrajectoryManagerRead.trajectoriesInWell({15}, {"TemperatureUserName"});
   const casaWizard::sac::WellTrajectory baseRunWell = trajectoriesInWell[casaWizard::sac::TrajectoryType::Original1D][0];
   const casaWizard::sac::WellTrajectory bestMatchWell = trajectoriesInWell[casaWizard::sac::TrajectoryType::Optimized1D][0];
 
-  EXPECT_EQ(baseRunWell.property().toStdString(), "Temperature");
+  EXPECT_EQ(baseRunWell.propertyUserName().toStdString(), "TemperatureUserName");
+
   EXPECT_EQ(baseRunWell.wellIndex(), 15);
   EXPECT_EQ(baseRunWell.trajectoryIndex(), 0);
   QVector<double> depth = {1, 2, 3};

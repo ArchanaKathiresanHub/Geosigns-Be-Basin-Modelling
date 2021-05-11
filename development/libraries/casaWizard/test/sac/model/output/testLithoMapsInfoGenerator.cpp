@@ -22,6 +22,11 @@ TEST( LithoMapsInfoGenerator, testInfoGenerator )
   casaWizard::ProjectReader* lithoMapsProjectReader = new casaWizard::CMBProjectReader();
   lithoMapsProjectReader->load("LithoMapsProject.project3d");
   SACScenario scenario(lithoMapsProjectReader);
+  scenario.calibrationTargetManager().addToMapping("TWTT", "TwoWayTime");
+  scenario.calibrationTargetManager().addToMapping("DT", "SonicSlowness");
+  scenario.calibrationTargetManager().addToMapping("GR", "GammaRay");
+  scenario.calibrationTargetManager().addToMapping("Density", "BulkDensity");
+  scenario.calibrationTargetManager().addToMapping("Velocity", "Velocity");
 
   scenario.setPIDW(3);
   scenario.setSmoothingOption(1);
@@ -35,15 +40,21 @@ TEST( LithoMapsInfoGenerator, testInfoGenerator )
   scenario.calibrationTargetManager().setWellIsExcluded(true, 1);
 
   // Set Objective Function
-  scenario.calibrationTargetManager().addCalibrationTarget("Name1", "SonicSlowness", 0, 25.0, 20.0);
-  scenario.calibrationTargetManager().addCalibrationTarget("Name1", "SonicSlowness", 1, 30.0, 20.0);
-  scenario.calibrationTargetManager().addCalibrationTarget("Name2", "TwoWayTime", 0, 25.0, 20.0);
-  scenario.calibrationTargetManager().addCalibrationTarget("Name2", "TwoWayTime", 1, 30.0, 20.0);
-  scenario.calibrationTargetManager().setObjectiveFunction(0,0, 50);
-  scenario.calibrationTargetManager().setObjectiveFunction(0,1, 0);
-  scenario.calibrationTargetManager().setObjectiveFunction(1,0, 1);
-  scenario.calibrationTargetManager().setObjectiveFunction(1,1, 0.05);
+  scenario.calibrationTargetManager().addCalibrationTarget("Name1", "TWTT", 0, 25.0, 20.0);
+  scenario.calibrationTargetManager().addCalibrationTarget("Name1", "TWTT", 1, 30.0, 20.0);
+  scenario.calibrationTargetManager().addCalibrationTarget("Name2", "DT", 0, 25.0, 20.0);
+  scenario.calibrationTargetManager().addCalibrationTarget("Name2", "DT", 1, 30.0, 20.0);
+
+  // These targets should not show up in the info.txt since they are disabled by default, or manually
+  // disabled
+  scenario.calibrationTargetManager().addCalibrationTarget("Name2", "GR", 0, 25.0, 20.0);
+  scenario.calibrationTargetManager().addCalibrationTarget("Name2", "GR", 1, 30.0, 20.0);
+  scenario.calibrationTargetManager().addCalibrationTarget("Name2", "Velocity", 0, 25.0, 20.0);
+  scenario.calibrationTargetManager().addCalibrationTarget("Name2", "Velocity", 1, 30.0, 20.0);
+  scenario.calibrationTargetManager().addCalibrationTarget("Name2", "Density", 0, 25.0, 20.0);
+  scenario.calibrationTargetManager().addCalibrationTarget("Name2", "Density", 1, 30.0, 20.0);
   scenario.calibrationTargetManager().updateObjectiveFunctionFromTargets();
+  scenario.calibrationTargetManager().setObjectiveFunctionEnabledState(false, scenario.calibrationTargetManager().objectiveFunctionManager().indexOf("Density"));
 
   // When
   LithoMapsInfoGenerator generator(scenario, *lithoMapsProjectReader);

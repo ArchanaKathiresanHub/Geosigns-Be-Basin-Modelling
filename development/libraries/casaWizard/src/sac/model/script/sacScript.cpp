@@ -69,13 +69,17 @@ void SACScript::writeScriptContents(QFile& file) const
 
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
   const QVector<const Well*>& wells = ctManager.wells();
-  const WellTrajectoryManager& mgr = scenario_.wellTrajectoryManager();
-  for (const WellTrajectory& wellTrajectory: mgr.trajectoriesType(TrajectoryType::Original1D))
+  for (const Well* well : wells)
   {
-    const Well* well = wells[wellTrajectory.wellIndex()];
-    if ( well->isActive() )
+    if ( well->isActive())
     {
-      out << writeWellTrajectory(wellTrajectory, well->name());
+      for (const QString& propertyUserName : ctManager.getPropertyUserNamesForWell(well->id()))
+      {
+        if (ctManager.propertyIsActive(propertyUserName))
+        {
+          out << writeWellTrajectory(well->name(), well->id(), propertyUserName);
+        }
+      }
     }
   }
 
@@ -85,11 +89,12 @@ void SACScript::writeScriptContents(QFile& file) const
   out << writeSaveState(scenario_.stateFileNameSAC());
 }
 
-QString SACScript::writeWellTrajectory(const WellTrajectory& trajectory, const QString& wellName) const
+QString SACScript::writeWellTrajectory(const QString& wellName, const int wellIndex, const QString& propertyUserName) const
 {
+  const QString& propertyCauldronName = scenario_.calibrationTargetManager().getCauldronPropertyName(propertyUserName);
   const QString folder{scenario_.workingDirectory() + "/wells"};
-  const QString filename{folder + "/" + wellName + "_" + trajectory.property() + ".in"};
-  return QString("target \"" + trajectory.name() + "\" WellTraj \"" + filename + "\" \"" + trajectory.property() + "\" 0 0.0 1.0 1.0\n");
+  const QString filename{folder + "/" + wellName + "_" + propertyUserName + "_" + propertyCauldronName + ".in"};
+  return QString("target \"" + QString::number(wellIndex) + "_" + propertyCauldronName + "\" WellTraj \"" + filename + "\" \"" + propertyCauldronName + "\" 0 0.0 1.0 1.0\n");
 }
 
 QString SACScript::writeLithofraction(const Lithofraction& lithofraction) const

@@ -9,8 +9,8 @@ TEST(Track1dScriptTest, testGenerateCommands)
   casaWizard::sac::Track1DScript script("baseDirectory", "Project");
 
   // When
-  script.addWell(0.0, 1.1, "Density", "CaseSet");
-  script.addWell(2.2, 3.3, "SonicSlowness", "RunLocation");
+  script.addWell(0.0, 1.1, "Density", "Density", "CaseSet");
+  script.addWell(2.2, 3.3, "SonicSlowness", "SonicSlowness", "RunLocation");
 
   script.generateCommands();
   QStringList expectedCommands;

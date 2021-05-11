@@ -42,7 +42,7 @@ public:
 
   QVector<const CalibrationTarget*> calibrationTargets() const;
   void setCalibrationTargets(const QVector<CalibrationTarget>& calibrationTargets);
-  void addCalibrationTarget(const QString& name, const QString& property, const double z, const double value);
+  void addCalibrationTarget(const QString& name, const QString& propertyUserName, const double z, const double value);
 
   void applyObjectiveFunction(const ObjectiveFunctionManager& objectiveFunction);
 

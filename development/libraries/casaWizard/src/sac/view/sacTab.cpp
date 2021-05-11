@@ -1,7 +1,7 @@
 #include "sacTab.h"
 
 #include "view/calibrationTargetTable.h"
-#include "view/objectiveFunctionTable.h"
+#include "view/objectiveFunctionTableSAC.h"
 #include "view/lithofractionTable.h"
 #include "../common/view/components/customtitle.h"
 #include "../common/view/components/emphasisbutton.h"
@@ -27,7 +27,7 @@ SACtab::SACtab(QWidget* parent) :
   lineEditProject3D_{new QLineEdit(this)},
   calibrationTargetTable_{new CalibrationTargetTable(this)},
   lithofractionTable_{new LithofractionTable(this)},
-  objectiveFunctionTable_{new ObjectiveFunctionTable(this)},  
+  objectiveFunctionTable_{new ObjectiveFunctionTableSAC(this)},
   pushSelectCalibration_{new QPushButton("Select input file", this)},
   pushSelectAllWells_{new QPushButton("Select all", this)},
   pushClearSelection_{new QPushButton("Deselect all", this)},
@@ -83,7 +83,7 @@ SACtab::SACtab(QWidget* parent) :
 
   QVBoxLayout* objectiveFunctionLayout = new QVBoxLayout();
 
-  objectiveFunctionLayout->addWidget(new CustomTitle("Objective Function"));
+  objectiveFunctionLayout->addWidget(new CustomTitle("Data series and uncertainty ranges"));
   objectiveFunctionLayout->addWidget(objectiveFunctionTable_);
 
   layoutTablesAndOptions->addLayout(objectiveFunctionLayout,1,1);
@@ -104,7 +104,7 @@ LithofractionTable* SACtab::lithofractionTable() const
   return lithofractionTable_;
 }
 
-ObjectiveFunctionTable* SACtab::objectiveFunctionTable() const
+ObjectiveFunctionTableSAC* SACtab::objectiveFunctionTable() const
 {
   return objectiveFunctionTable_;
 }

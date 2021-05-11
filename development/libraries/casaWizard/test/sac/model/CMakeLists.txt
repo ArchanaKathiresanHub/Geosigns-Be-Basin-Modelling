@@ -6,7 +6,7 @@ add_casawizard_sac_gtest( NAME Case3DTrajectoryConvertor SOURCES testCase3DTraje
 configure_file( lithofractionManager.dat lithofractionManager.dat )
 configure_file( lithofractionManagerVersion0.dat lithofractionManagerVersion0.dat )
 
-configure_file( wellTrajectoryManager.dat wellTrajectoryManager.dat )
+configure_file( wellTrajectoryManagerVersion0.dat wellTrajectoryManagerVersion0.dat )
 
 add_subdirectory( input )
 add_subdirectory( output )

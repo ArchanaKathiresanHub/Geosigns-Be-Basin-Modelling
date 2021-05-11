@@ -71,7 +71,7 @@ void WellCorrelationPlot::setData(const QVector<QVector<CalibrationTarget>>& tar
     QVector<double> allValuesSimulated;
     for (int i = 0; i < nTrajectories; ++i)
     {
-      if (allTrajectories[j][i].property() != property ||
+      if (allTrajectories[j][i].propertyUserName() != property ||
           allTrajectories[j][i].depth().empty())
       {
         continue;
@@ -81,7 +81,6 @@ void WellCorrelationPlot::setData(const QVector<QVector<CalibrationTarget>>& tar
       QVector<double> valueMeasured;
       for (const CalibrationTarget& target : targets[i])
       {
-        assert(target.property() == property);
         depthMeasured.push_back(target.z());
         valueMeasured.push_back(target.value());
       }

@@ -16,6 +16,8 @@ namespace casaWizard
 {
 
 CalibrationTargetManager::CalibrationTargetManager() :
+  objectiveFunctionManager_{userNameToCauldronNameMapping_},
+  userNameToCauldronNameMapping_{},
   wells_{}
 {
 }
@@ -33,15 +35,15 @@ QVector<const CalibrationTarget*> CalibrationTargetManager::calibrationTargets()
   return targets;
 }
 
-void CalibrationTargetManager::addCalibrationTarget(const QString& name, const QString& property, const int wellIndex,
-                                                    const double z, const double value)
+void CalibrationTargetManager::addCalibrationTarget(const QString& name, const QString& propertyUserName,
+                                                    const int wellIndex, const double z, const double value)
 {
   if (wellIndex >= wells_.size())
   {
     return;
   }
 
-  wells_[wellIndex].addCalibrationTarget(name, property, z, value);
+  wells_[wellIndex].addCalibrationTarget(name, propertyUserName, z, value);
 }
 
 int CalibrationTargetManager::addWell(const QString& wellName, double x, double y)
@@ -114,12 +116,13 @@ int CalibrationTargetManager::amountOfActiveCalibrationTargets() const
 void CalibrationTargetManager::clear()
 {
   objectiveFunctionManager_.clear();
+  userNameToCauldronNameMapping_.clear();
   wells_.clear();
 }
 
 void CalibrationTargetManager::writeToFile(ScenarioWriter& writer) const
 {
-  writer.writeValue("CalibrationTargetManagerVersion", 0);
+  writer.writeValue("CalibrationTargetManagerVersion", 1);
   objectiveFunctionManager_.writeToFile(writer);
   QVector<int> wellIds;
   for (const Well& well : wells_)
@@ -128,6 +131,13 @@ void CalibrationTargetManager::writeToFile(ScenarioWriter& writer) const
     wellIds.push_back(well.id());
   }
   writer.writeValue("wellIndices", wellIds);
+
+  int counter = 0;
+  for (const QString& key: userNameToCauldronNameMapping_.keys())
+  {
+    writer.writeValue("MappingEntry_" + QString::number(counter), key + "," + userNameToCauldronNameMapping_.value(key));
+    counter++;
+  }
 }
 
 void CalibrationTargetManager::readFromFile(const ScenarioReader& reader)
@@ -143,7 +153,26 @@ void CalibrationTargetManager::readFromFile(const ScenarioReader& reader)
     Well newWell;
     newWell.readFromFile(reader, wellIndex);
     wells_.push_back(newWell);
-  }  
+  }
+
+  if (version > 0)
+  {
+    int i = 0;
+    while (reader.readString("MappingEntry_" + QString::number(i)) != "")
+    {
+      QStringList entries = reader.readString("MappingEntry_" + QString::number(i)).split(",");
+      addToMapping(entries[0], entries[1]);
+      i++;
+    }
+  }
+
+  for (const auto& val : objectiveFunctionManager_.values())
+  {
+    if (userNameToCauldronNameMapping_.value(val.variableUserName(), "Unknown") == "Unknown")
+    {
+      addToMapping(val.variableUserName(), val.variableUserName());
+    }
+  }
 }
 
 QVector<const CalibrationTarget*> CalibrationTargetManager::activeCalibrationTargets() const
@@ -159,14 +188,14 @@ QVector<const CalibrationTarget*> CalibrationTargetManager::activeCalibrationTar
   return targets;
 }
 
-QStringList CalibrationTargetManager::activeProperties() const
+QStringList CalibrationTargetManager::activePropertyUserNames() const
 {
   QStringList properties;
   for (const CalibrationTarget* target : activeCalibrationTargets())
   {
-    if (!properties.contains(target->property()))
+    if (!properties.contains(target->propertyUserName()))
     {
-      properties.append(target->property());
+      properties.append(target->propertyUserName());
     }
   }
   return properties;
@@ -188,22 +217,22 @@ void CalibrationTargetManager::disableInvalidWells(const std::string& projectFil
   }
 }
 
-QVector<QVector<CalibrationTarget>> CalibrationTargetManager::extractWellTargets(QStringList& properties, const int wellIndex) const
+QVector<QVector<CalibrationTarget>> CalibrationTargetManager::extractWellTargets(QStringList& propertyUserNames, const int wellIndex) const
 {
+
   if (wellIndex >= wells_.size() || wellIndex < 0)
   {
     return {};
   }
-
-  properties.clear();
   QVector<QVector<CalibrationTarget>> targetsInWell;
+  propertyUserNames.clear();
 
   for (const CalibrationTarget* target : wells_[wellIndex].calibrationTargets())
   {
-    const int propertyIndex = properties.indexOf(target->property());
+    const int propertyIndex = propertyUserNames.indexOf(target->propertyUserName());
     if (propertyIndex == -1)
     {
-      properties.append(target->property());
+      propertyUserNames.append(target->propertyUserName());
       QVector<CalibrationTarget> newVector{*target};
       targetsInWell.append(newVector);
     }
@@ -212,10 +241,32 @@ QVector<QVector<CalibrationTarget>> CalibrationTargetManager::extractWellTargets
       targetsInWell[propertyIndex].append(*target);
     }
   }
+
   return targetsInWell;
 }
 
-QVector<QVector<CalibrationTarget> > CalibrationTargetManager::extractWellTargets(QStringList& properties, const QVector<int> wellIndices) const
+QStringList CalibrationTargetManager::getPropertyUserNamesForWell(const int wellIndex) const
+{
+  if (wellIndex >= wells_.size() || wellIndex < 0)
+  {
+    return {};
+  }
+
+  QStringList propertyUserNames;
+  for (const CalibrationTarget* target : wells_[wellIndex].calibrationTargets())
+  {
+    const int propertyIndex = propertyUserNames.indexOf(target->propertyUserName());
+    if (propertyIndex == -1)
+    {
+      propertyUserNames.append(target->propertyUserName());
+    }
+  }
+
+  return propertyUserNames;
+}
+
+
+QVector<QVector<CalibrationTarget> > CalibrationTargetManager::extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const
 {
   QVector<QVector<CalibrationTarget>> targetsInWells;
   if (wellIndices.size()==0)
@@ -230,13 +281,13 @@ QVector<QVector<CalibrationTarget> > CalibrationTargetManager::extractWellTarget
     {
       targetsInWells.append(targets);
     }
-    properties.append(wellProperties);
+    propertyUserNames.append(wellProperties);
   }
 
   // Remove duplicate properties
-  QSet<QString> setProperties = QSet<QString>::fromList(properties);
-  properties = QStringList::fromSet(setProperties);
-  std::sort(properties.begin(), properties.end());
+  QSet<QString> setProperties = propertyUserNames.toSet();
+  propertyUserNames = setProperties.toList();
+  std::sort(propertyUserNames.begin(), propertyUserNames.end());
   return targetsInWells;
 }
 
@@ -247,12 +298,12 @@ const ObjectiveFunctionManager& CalibrationTargetManager::objectiveFunctionManag
 
 void CalibrationTargetManager::updateObjectiveFunctionFromTargets()
 {
-  QSet<QString> targetVariables;
+  QSet<QString> targetVariableUserNames;
   for (const CalibrationTarget *const target : calibrationTargets())
   {
-    targetVariables.insert(target->property());
+    targetVariableUserNames.insert(target->propertyUserName());
   }
-  objectiveFunctionManager_.setVariables(targetVariables.toList());
+  objectiveFunctionManager_.setVariables(targetVariableUserNames.toList());
   applyObjectiveFunctionOnCalibrationTargets();
 }
 
@@ -274,5 +325,26 @@ void CalibrationTargetManager::setObjectiveFunctionVariables(const QStringList& 
 {
   objectiveFunctionManager_.setVariables(variables);
 }
+
+void CalibrationTargetManager::setObjectiveFunctionEnabledState(const bool state, const int row)
+{
+  objectiveFunctionManager_.setEnabledState(state, row);
+}
+
+bool CalibrationTargetManager::propertyIsActive(const QString& property) const
+{
+  return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOf(property));
+}
+
+void CalibrationTargetManager::addToMapping(const QString& userName, const QString& cauldronName)
+{
+  userNameToCauldronNameMapping_[userName] = cauldronName;
+}
+
+QString CalibrationTargetManager::getCauldronPropertyName(const QString& userPropertyName) const
+{
+  return userNameToCauldronNameMapping_.value(userPropertyName, "Unknown");
+}
+
 
 } // namespace casaWizard

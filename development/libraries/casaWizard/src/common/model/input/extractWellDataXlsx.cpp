@@ -60,7 +60,7 @@ void ExtractWellDataXlsx::extractWellData(const QString& wellName)
     {
       if (!cell->value().toString().isEmpty())
       {
-        wellData_->calibrationTargetVars_.push_back(cell->value().toString());
+        wellData_->calibrationTargetVarsUserName_.push_back(cell->value().toString());
         wellData_->nCalibrationTargetVars_++;
       }
     }
@@ -136,9 +136,9 @@ void ExtractWellDataXlsx::setCalibrationTargetVariableMaps()
 
 void ExtractWellDataXlsx::mapTargetVarNames()
 {
-  for (QString& calTargetVar : wellData_->calibrationTargetVars_)
+  for (QString& calTargetVar : wellData_->calibrationTargetVarsUserName_)
   {
-    calTargetVar = calibrationTargetVariableMaps_.value(calTargetVar, QString("Not-recognized"));
+    wellData_->calibrationTargetVarsCauldronName_.push_back(calibrationTargetVariableMaps_.value(calTargetVar, QString("Not-recognized")));
   }
 }
 
@@ -175,9 +175,14 @@ std::size_t ExtractWellDataXlsx::nCalibrationTargetVars() const
   return wellData_->nCalibrationTargetVars_;
 }
 
-QVector<QString> ExtractWellDataXlsx::calibrationTargetVars() const
+QVector<QString> ExtractWellDataXlsx::calibrationTargetVarsUserName() const
 {
-  return wellData_->calibrationTargetVars_;
+  return wellData_->calibrationTargetVarsUserName_;
+}
+
+QVector<QString> ExtractWellDataXlsx::calibrationTargetVarsCauldronName() const
+{
+  return wellData_->calibrationTargetVarsCauldronName_;
 }
 
 QVector<std::size_t> ExtractWellDataXlsx::nDataPerTargetVar() const

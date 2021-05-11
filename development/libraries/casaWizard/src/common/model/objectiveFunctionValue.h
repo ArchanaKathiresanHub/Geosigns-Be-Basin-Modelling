@@ -10,16 +10,19 @@ class ObjectiveFunctionValue
 {
 public:
   ObjectiveFunctionValue() = default;
-  explicit ObjectiveFunctionValue(const QString& var, const double absErr = 0.0, const double relErr = 0.1, const double w = 0.0);
+  explicit ObjectiveFunctionValue(const QString& variableCauldronName, const QString& variableUserName, const double absErr = 0.0, const double relErr = 0.1, const double w = 0.0, const bool enabled = true);
   static ObjectiveFunctionValue read(const int version, const QStringList& p);
   int version() const;
   QStringList write() const;
 
-  QString variable() const;
-  void setVariable(const QString& variable);
+  QString variableCauldronName() const;
+  QString variableUserName() const;
 
   double absoluteError() const;
   void setAbsoluteError(double absoluteError);
+
+  bool enabled() const;
+  void setEnabled(const bool enabled);
 
   double relativeError() const;
   void setRelativeError(double relativeError);
@@ -28,9 +31,11 @@ public:
   void setWeight(double weight);
 
 private:
-  QString variable_;
   double absoluteError_;
   double relativeError_;
+  bool enabled_;
+  QString variableCauldronName_;
+  QString variableUserName_;
   double weight_;
 };
 

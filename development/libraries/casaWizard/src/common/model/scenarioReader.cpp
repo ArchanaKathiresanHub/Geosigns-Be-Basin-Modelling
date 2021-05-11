@@ -74,7 +74,7 @@ ScenarioReader::ScenarioReader(const QString& filename) :
 
 QString ScenarioReader::readString(const QString& key) const
 {
-  return strings_[key];
+  return strings_.value(key, "");
 }
 
 bool ScenarioReader::readBool(const QString& key) const

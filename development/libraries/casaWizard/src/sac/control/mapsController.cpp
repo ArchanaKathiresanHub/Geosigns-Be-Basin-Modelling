@@ -134,12 +134,14 @@ void MapsController::slotGenerateLithoMaps()
 {
   Logger::log() << "Start saving optimized case" << Logger::endl();
 
+  scenarioBackup::backup(scenario_);
   Generate3DScenarioScript saveOptimized{scenario_};
   if (!casaScriptWriter::writeCasaScript(saveOptimized) ||
       !scriptRunController_.runScript(saveOptimized))
   {
     return;
   }
+  scenarioBackup::backup(scenario_);
 
   refreshGUI();
 }

@@ -96,13 +96,16 @@ void SACInfoGenerator::addObjectiveFunction()
 
   std::sort(objectiveFunctionValues.begin(), objectiveFunctionValues.end(), [](const ObjectiveFunctionValue& a, const ObjectiveFunctionValue& b)
   {
-    return a.variable().toStdString() < b.variable().toStdString();
+    return a.variableUserName().toStdString() < b.variableUserName().toStdString();
   });
 
   for (const ObjectiveFunctionValue& value : objectiveFunctionValues)
   {
     std::string optionValue = "Absolute error = " + doubleToFormattedString(value.absoluteError()) + ", Relative error = " + doubleToFormattedString(value.relativeError());
-    addOption(value.variable().toStdString(), optionValue);
+    if (value.enabled())
+    {
+      addOption(value.variableUserName().toStdString(), optionValue);
+    }
   }
 }
 

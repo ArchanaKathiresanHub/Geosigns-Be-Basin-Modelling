@@ -9,7 +9,7 @@ class CalibrationTarget
 {
 public:
   explicit CalibrationTarget(const QString& name = "",
-                             const QString& property = "",
+                             const QString& propertyUserName = "",
                              const double z = 0.0,
                              const double value = 0.0,
                              const double standardDeviation = 0.0,
@@ -19,16 +19,9 @@ public:
   QStringList write() const;
 
   QString name() const;
-  void setName(const QString& name);
-
-  QString property() const;
-  void setProperty(const QString& property);
-
+  QString propertyUserName() const;
   double z() const;
-  void setZ(double z);
-
   double value() const;
-  void setValue(double value);
 
   double standardDeviation() const;
   void setStandardDeviation(double standardDeviation);
@@ -38,7 +31,7 @@ public:
 
 private:
   QString name_;
-  QString property_;
+  QString propertyUserName_;
   double z_;
   double value_;
   double standardDeviation_;

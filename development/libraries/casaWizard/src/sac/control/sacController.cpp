@@ -13,7 +13,7 @@
 #include "control/dataExtractionController.h"
 #include "control/functions/folderOperations.h"
 #include "control/lithofractionController.h"
-#include "control/objectiveFunctionController.h"
+#include "control/objectiveFunctionControllerSAC.h"
 #include "control/run3dCaseController.h"
 #include "control/scriptRunController.h"
 #include "model/input/calibrationTargetCreator.h"
@@ -61,7 +61,7 @@ SACcontroller::SACcontroller(SACtab* sacTab,
   calibrationTargetController_{new CalibrationTargetController(sacTab->calibrationTargetTable(), casaScenario_, this)},
   dataExtractionController_{new DataExtractionController(casaScenario_, scriptRunController_, this)},
   lithofractionController_{new LithofractionController(sacTab->lithofractionTable() , casaScenario_, this)},
-  objectiveFunctionController_{new ObjectiveFunctionController(sacTab->objectiveFunctionTable(), casaScenario_.calibrationTargetManager(), this)}
+  objectiveFunctionController_{new ObjectiveFunctionControllerSAC(sacTab->objectiveFunctionTable(), casaScenario_.calibrationTargetManager(), casaScenario, this)}
 {
   sacTab_->lineEditProject3D()->setText("");
   sacTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
@@ -79,8 +79,6 @@ SACcontroller::SACcontroller(SACtab* sacTab,
 
   connect(sacTab_->comboBoxCluster(),       SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxClusterCurrentTextChanged(QString)));
   connect(sacTab_->comboBoxApplication(),   SIGNAL(currentTextChanged(QString)), this, SLOT(slotComboBoxApplicationChanged(QString)));
-
-
 }
 
 void SACcontroller::refreshGUI()
@@ -333,9 +331,19 @@ void SACcontroller::slotPushSelectCalibrationClicked()
                                                   "Spreadsheet (*.xlsx)");
 
   calibrationTargetCreator::createFromExcel(casaScenario_, fileName);
+  if (casaScenario_.calibrationTargetManager().objectiveFunctionManager().indexOf("Velocity") != -1)
+  {
+    QMessageBox velocityDisabled(QMessageBox::Icon::Information,
+                          "Velocity calibration data disabled",
+                          "It is not possible to optimize using velocity calibration data. If you want to use the velocity data, first convert to SonicSlowness (DT)",
+                          QMessageBox::Ok);
+    velocityDisabled.exec();
+  }
+
   WellTrajectoryManager& wtManager = casaScenario_.wellTrajectoryManager();
   wtManager.updateWellTrajectories(casaScenario_.calibrationTargetManager());
   casaScenario_.calibrationTargetManager().disableInvalidWells(casaScenario_.project3dPath().toStdString(), casaScenario_.projectReader().getDepthGridName(0).toStdString());
+
   CMBProjectWriter projectWriter(casaScenario_.project3dPath());
   casaScenario_.updateRelevantProperties(projectWriter);
 

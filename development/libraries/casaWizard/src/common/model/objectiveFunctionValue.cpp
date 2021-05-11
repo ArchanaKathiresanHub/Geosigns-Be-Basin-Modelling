@@ -8,54 +8,96 @@ namespace casaWizard
 {
 
 
-ObjectiveFunctionValue::ObjectiveFunctionValue(const QString& var, const double absErr, const double relErr, const double w) :
-  variable_{var},
+ObjectiveFunctionValue::ObjectiveFunctionValue(const QString& variableCauldronName, const QString& variableUserName, const double absErr, const double relErr, const double w, const bool enabled) :
   absoluteError_{absErr},
   relativeError_{relErr},
+  enabled_{enabled},
+  variableCauldronName_{variableCauldronName},
+  variableUserName_{variableUserName},
   weight_{w}
 {
 }
 
-ObjectiveFunctionValue ObjectiveFunctionValue::read(const int /*version*/, const QStringList& p)
+ObjectiveFunctionValue ObjectiveFunctionValue::read(const int version, const QStringList& p)
 {
-  if (p.size() != 4)
+  if (version > 1)
   {
-    return ObjectiveFunctionValue{"ReadError"};
-  }
+    if (p.size() != 6)
+    {
+      return ObjectiveFunctionValue{"ReadError", "ReadError"};
+    }
 
-  return ObjectiveFunctionValue
+    return ObjectiveFunctionValue
+    {
+      p[0],
+      p[1],
+      p[2].toDouble(),
+      p[3].toDouble(),
+      p[4].toDouble(),
+      p[5] == "1"
+    };
+  }
+  else if (version > 0)
   {
-    p[0],
-    p[1].toDouble(),
-    p[2].toDouble(),
-    p[3].toDouble()
-  };
+    if (p.size() != 5)
+    {
+      return ObjectiveFunctionValue{"ReadError", "ReadError"};
+    }
+
+    return ObjectiveFunctionValue
+    {
+      p[0],
+      p[0],
+      p[1].toDouble(),
+      p[2].toDouble(),
+      p[3].toDouble(),
+      p[4] == "1"
+    };
+  }
+  else
+  {
+    if (p.size() != 4)
+    {
+      return ObjectiveFunctionValue{"ReadError", "ReadError"};
+    }
+
+    return ObjectiveFunctionValue
+    {
+      p[0],
+      p[0],
+      p[1].toDouble(),
+      p[2].toDouble(),
+      p[3].toDouble()
+    };
+  }
 }
 
 int ObjectiveFunctionValue::version() const
 {
-  return 0;
+  return 2;
 }
 
 
 QStringList ObjectiveFunctionValue::write() const
 {
   QStringList out;
-  out << variable_
+  out << variableCauldronName_
+      << variableUserName_
       << scenarioIO::doubleToQString(absoluteError_)
       << scenarioIO::doubleToQString(relativeError_)
-      << scenarioIO::doubleToQString(weight_);
+      << scenarioIO::doubleToQString(weight_)
+      << QString::number(enabled_);
   return out;
 }
 
-QString ObjectiveFunctionValue::variable() const
+QString ObjectiveFunctionValue::variableCauldronName() const
 {
-  return variable_;
+  return variableCauldronName_;
 }
 
-void ObjectiveFunctionValue::setVariable(const QString& variable)
+QString ObjectiveFunctionValue::variableUserName() const
 {
-  variable_ = variable;
+  return variableUserName_;
 }
 
 double ObjectiveFunctionValue::absoluteError() const
@@ -66,6 +108,16 @@ double ObjectiveFunctionValue::absoluteError() const
 void ObjectiveFunctionValue::setAbsoluteError(double absoluteError)
 {
   absoluteError_ = absoluteError;
+}
+
+bool ObjectiveFunctionValue::enabled() const
+{
+  return enabled_;
+}
+
+void ObjectiveFunctionValue::setEnabled(const bool enabled)
+{
+  enabled_ = enabled;
 }
 
 double ObjectiveFunctionValue::relativeError() const

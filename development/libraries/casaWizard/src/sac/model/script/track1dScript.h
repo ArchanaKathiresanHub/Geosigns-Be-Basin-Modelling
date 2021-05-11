@@ -19,14 +19,15 @@ class Track1DScript : public RunScript
 public:
   explicit Track1DScript(const QString& baseDirectory, const QString& projectName);
   bool generateCommands() override;
-  void addWell(const double x, const double y, const QString& properties, const QString& runFolder);
+  void addWell(const double x, const double y, const QString& propertyCauldronName, const QString& propertiesUserName, const QString& runFolder);
 
 private:
   void addCommandProject(const int call, const QString& projectName );
 
   QVector<double> xCoordinate_;
   QVector<double> yCoordinate_;
-  QStringList properties_;
+  QStringList propertiesCauldronName_;
+  QStringList propertiesUserName_;
   QStringList runFolders_;
   const QString projectName_;
 };

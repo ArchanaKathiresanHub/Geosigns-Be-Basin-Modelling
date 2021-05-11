@@ -15,17 +15,20 @@ Track1DScript::Track1DScript(const QString& baseDirectory, const QString& projec
   RunScript(baseDirectory),
   xCoordinate_{},
   yCoordinate_{},
-  properties_{},
+  propertiesCauldronName_{},
+  propertiesUserName_{},
   runFolders_{},
   projectName_{projectName}
 {
 }
 
-void Track1DScript::addWell(const double x, const double y, const QString& properties, const QString& runFolder)
+void Track1DScript::addWell(const double x, const double y, const QString& propertyCauldronName, const QString& propertiesUserName,
+                            const QString& runFolder)
 {
   xCoordinate_.append(x);
   yCoordinate_.append(y);
-  properties_.append(properties);
+  propertiesCauldronName_.append(propertyCauldronName);
+  propertiesUserName_.append(propertiesUserName);
   runFolders_.append(runFolder);
 }
 
@@ -33,10 +36,10 @@ void Track1DScript::addCommandProject(const int call, const QString& projectName
 {
   addCommand("track1d -coordinates " + QString::number(xCoordinate_[call], 'f') +
              "," + QString::number(yCoordinate_[call],'f') +
-             " -properties " + properties_[call] +
+             " -properties " + propertiesCauldronName_[call] +
              " -age 0" +
              " -project " + projectName + ".project3d" +
-             " -save wellTrajectory-" + projectName + "-" + properties_[call] + ".csv" +
+             " -save wellTrajectory-" + projectName + "-" + propertiesUserName_[call] + ".csv" +
              " -lean",
              runFolders_[call]);
 }

@@ -21,15 +21,14 @@ const bool defaultExpertUser{false};
 const int defaultNumberCPUs{1};
 
 CasaScenario::CasaScenario(ProjectReader* projectReader) :
-  projectReader_(projectReader),
-  workingDirectory_(""),  
-  clusterName_(defaultClusterName),
   applicationName_(defaultApplication),
-  project3dFilename_(""),
-  runLocation_(defaultRunLocation),
+  clusterName_(defaultClusterName),
   expertUser_(defaultExpertUser),
   numberCPUs_(defaultNumberCPUs),
-  calibrationTargetManager_{}
+  project3dFilename_(""),
+  projectReader_(projectReader),
+  runLocation_(defaultRunLocation),
+  workingDirectory_("")
 {
 }
 
@@ -85,8 +84,14 @@ void CasaScenario::loadProject3dFile() const
 
 void CasaScenario::updateRelevantProperties(ProjectWriter& projectWriter)
 {
-  QStringList activeProperties = calibrationTargetManager().activeProperties();
-  projectWriter.setRelevantOutputParameters(activeProperties);
+  QStringList activePropertyUserNames = calibrationTargetManager().activePropertyUserNames();
+  QStringList activePropertyCauldronNames;
+  for (const QString& activePropertyUserName: activePropertyUserNames)
+  {
+    activePropertyCauldronNames.push_back(calibrationTargetManager_.getCauldronPropertyName(activePropertyUserName));
+  }
+
+  projectWriter.setRelevantOutputParameters(activePropertyCauldronNames);
 }
 
 void CasaScenario::setWorkingDirectory(const QString& workingDirectory)
@@ -174,6 +179,7 @@ void CasaScenario::readFromFile(const ScenarioReader& reader)
   runLocation_ = reader.readString("runLocation");
   expertUser_ = reader.readBool("expertUser");
   numberCPUs_ = reader.readInt("numberCPUs");
+
   calibrationTargetManager_.readFromFile(reader);
 }
 
@@ -185,7 +191,7 @@ void CasaScenario::clear()
   runLocation_ = defaultRunLocation;
   expertUser_ = defaultExpertUser;
   numberCPUs_ = defaultNumberCPUs;
-  workingDirectory_ = "";  
+  workingDirectory_ = "";
 
   calibrationTargetManager_.clear();
 }

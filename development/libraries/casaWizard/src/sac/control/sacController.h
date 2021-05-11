@@ -20,7 +20,7 @@ namespace casaWizard
 
 class CalibrationTargetController;
 class ScriptRunController;
-class ObjectiveFunctionController;
+class ObjectiveFunctionControllerSAC;
 
 
 namespace sac
@@ -71,7 +71,7 @@ private:
   CalibrationTargetController* calibrationTargetController_;
   DataExtractionController* dataExtractionController_;
   LithofractionController* lithofractionController_;
-  ObjectiveFunctionController* objectiveFunctionController_;
+  ObjectiveFunctionControllerSAC* objectiveFunctionController_;
 };
 
 } // namespace sac

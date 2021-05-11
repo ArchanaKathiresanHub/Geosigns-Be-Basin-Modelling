@@ -92,7 +92,7 @@ void readTargetQCs(UAScenario& scenario)
   for (const CalibrationTarget* calibrationTarget : calibrationTargetManager.activeCalibrationTargets())
   {
     TargetQC targetQC(targetIndex,
-                      calibrationTarget->property(),
+                      calibrationTargetManager.getCauldronPropertyName(calibrationTarget->propertyUserName()),
                       calibrationTarget->name(),
                       true, // is calibration
                       calibrationTarget->value(),

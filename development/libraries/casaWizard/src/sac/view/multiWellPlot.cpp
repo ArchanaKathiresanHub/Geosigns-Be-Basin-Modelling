@@ -50,7 +50,7 @@ void MultiWellPlot::updatePlots(const QVector<QVector<CalibrationTarget>> target
     }
 
     plot->setData(targets[iPlot], plotTrajectories, activePlots);
-    plot->setXLabel(properties[iPlot]);
+    plot->setXLabel(allTrajectories[0][iPlot].propertyUserName());
     plots_.push_back(plot);
     total->addWidget(plot, 0, iPlot);
   }  

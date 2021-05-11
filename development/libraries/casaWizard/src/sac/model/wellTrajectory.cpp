@@ -10,12 +10,12 @@ namespace sac
 
 WellTrajectory::WellTrajectory(const int trajectoryIndex,
                                const int wellIndex,
-                               const QString& property,
+                               const QString& propertyUserName,
                                const QVector<double>& depth ,
                                const QVector<double>& value) :
   trajectoryIndex_{trajectoryIndex},
   wellIndex_{wellIndex},
-  property_{property},
+  propertyUserName_{propertyUserName},
   depth_{depth},
   value_{value}
 {
@@ -42,17 +42,12 @@ WellTrajectory WellTrajectory::read(const int /*version*/, const QStringList& p)
   };
 }
 
-QString WellTrajectory::name() const
-{
-  return QString::number(wellIndex_) + "_" + property_;
-}
-
 QStringList WellTrajectory::write() const
 {
   QStringList out;
   out << QString::number(trajectoryIndex_)
       << QString::number(wellIndex_)
-      << property_
+      << propertyUserName_
       << scenarioIO::vectorToWrite(depth_)
       << scenarioIO::vectorToWrite(value_);
 
@@ -68,9 +63,9 @@ int WellTrajectory::wellIndex() const
   return wellIndex_;
 }
 
-QString WellTrajectory::property() const
+QString WellTrajectory::propertyUserName() const
 {
-  return property_;
+  return propertyUserName_;
 }
 
 QVector<double> WellTrajectory::depth() const

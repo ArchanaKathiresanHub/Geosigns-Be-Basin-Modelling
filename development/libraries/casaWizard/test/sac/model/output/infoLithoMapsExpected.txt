@@ -20,8 +20,8 @@ Formation Extrusive_Basalt_SDR: EXCLUDED
 ---------------------------------------------------
 Objective Function
 ---------------------------------------------------
-SonicSlowness: Absolute error = 1.00, Relative error = 0.05
-TwoWayTime: Absolute error = 50.00, Relative error = 0.00
+DT: Absolute error = 0.00, Relative error = 0.05
+TWTT: Absolute error = 20.00, Relative error = 0.00
 ###################################################
 ---------------------------------------------------
 Map Generation

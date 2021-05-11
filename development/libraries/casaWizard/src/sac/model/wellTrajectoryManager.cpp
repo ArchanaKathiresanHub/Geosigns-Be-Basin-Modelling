@@ -45,20 +45,20 @@ void WellTrajectoryManager::updateWellTrajectories(const CalibrationTargetManage
   clear();
   for (const Well* well : calibrationTargetManager.wells())
   {
-    QStringList properties;
-    calibrationTargetManager.extractWellTargets(properties, well->id());
-    for(const QString& property : properties)
+    QStringList propertyUserNames;
+    calibrationTargetManager.extractWellTargets(propertyUserNames, well->id());
+    for(const QString& propertyUserName : propertyUserNames)
     {
-      addWellTrajectory(well->id(), property);
+      addWellTrajectory(well->id(), propertyUserName);
     }
   }
 }
 
-void WellTrajectoryManager::addWellTrajectory(const int wellIndex, const QString& property)
+void WellTrajectoryManager::addWellTrajectory(const int wellIndex, const QString& propertyCauldronName)
 {
   for (int i = 0; i < trajectories_.size(); ++i)
   {
-    trajectories_[i].append(WellTrajectory{trajectories_[i].size(), wellIndex, property, {}, {}});
+    trajectories_[i].append(WellTrajectory{trajectories_[i].size(), wellIndex, propertyCauldronName, {}, {}});
   }
 }
 
@@ -80,7 +80,7 @@ QVector<WellTrajectory> WellTrajectoryManager::selectFromWell(const QVector<Well
   {
     if (wellIndices.contains(trajectory.wellIndex()))
     {
-      const int propertyIndex = properties.indexOf(trajectory.property());
+      const int propertyIndex = properties.indexOf(trajectory.propertyUserName());
       if (propertyIndex > -1)
       {
         trajectoryForWell.append(trajectory);

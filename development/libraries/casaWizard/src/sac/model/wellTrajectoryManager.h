@@ -26,13 +26,13 @@ public:
   QVector<QVector<WellTrajectory>> trajectoriesInWell(const QVector<int> wellIndices, const QStringList properties) const;
 
   void updateWellTrajectories(const CalibrationTargetManager& calibrationTargetManager);
-  void addWellTrajectory(const int wellIndex, const QString& property);
   void setTrajectoryData(const TrajectoryType type, const int trajectoryIndex, const QVector<double> depth, const QVector<double> value);
 
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;
   void clear() override;
 
+  void addWellTrajectory(const int wellIndex, const QString& propertyCauldronName);
 private:
   WellTrajectoryManager(const WellTrajectoryManager&) = delete;
   WellTrajectoryManager& operator=(WellTrajectoryManager) = delete;

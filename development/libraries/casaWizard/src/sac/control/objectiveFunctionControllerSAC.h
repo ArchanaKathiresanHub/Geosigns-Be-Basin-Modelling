@@ -16,26 +16,27 @@ class QTableWidgetItem;
 namespace casaWizard
 {
 
-class ObjectiveFunctionTable;
+class ObjectiveFunctionTableSAC;
 class CalibrationTargetManager;
+class CasaScenario;
 
-class ObjectiveFunctionController : public QObject
+class ObjectiveFunctionControllerSAC : public QObject
 {
   Q_OBJECT
 
 public:
-  ObjectiveFunctionController(ObjectiveFunctionTable* objFunTable,
-                              CalibrationTargetManager& casaScenario,
-                              QObject* parent);
-
+  ObjectiveFunctionControllerSAC(ObjectiveFunctionTableSAC* objectiveFunctionTableSAC, CalibrationTargetManager& calibrationTargetManager,
+                                 casaWizard::CasaScenario& scenario, QObject* parent);
 private slots:
   void slotTableObjectiveFunctionChanged(QTableWidgetItem* item);
-
+  void slotEnabledStateChanged(int state, int row);
+  void slotSelectedPropertyChanged(const QString& propertyCauldronName, const QString& propertyUserName);
   void slotRefresh();
 
 private:
-  ObjectiveFunctionTable* objectiveFunctionTable_;
+  ObjectiveFunctionTableSAC* objectiveFunctionTableSAC_;
   CalibrationTargetManager& calibrationTargetManager_;
+  casaWizard::CasaScenario& scenario_;
 };
 
 }  // namespace casaWizard

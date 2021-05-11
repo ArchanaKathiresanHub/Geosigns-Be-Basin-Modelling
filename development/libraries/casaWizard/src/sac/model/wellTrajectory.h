@@ -14,16 +14,16 @@ class WellTrajectory
 {
 public:
   WellTrajectory() = default;
-  explicit WellTrajectory(const int trajectoryIndex, const int wellIndex, const QString& property, const QVector<double>& depth, const QVector<double>& value);
+  explicit WellTrajectory(const int trajectoryIndex, const int wellIndex,
+                          const QString& propertyUserName, const QVector<double>& depth, const QVector<double>& value);
   int version() const;
   static WellTrajectory read(const int version, const QStringList& p);
 
-  QString name() const;
   QStringList write() const;
 
   int trajectoryIndex() const;
   int wellIndex() const;
-  QString property() const;
+  QString propertyUserName() const;
 
   QVector<double> depth() const;
   void setDepth(const QVector<double>& depth);
@@ -34,7 +34,7 @@ public:
 private:
   int trajectoryIndex_;
   int wellIndex_;
-  QString property_;
+  QString propertyUserName_;
   QVector<double> depth_;
   QVector<double> value_;
 };

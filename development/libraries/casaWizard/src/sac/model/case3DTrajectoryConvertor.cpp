@@ -65,7 +65,7 @@ void convertToScenario(const Case3DTrajectoryReader& reader, SACScenario& scenar
       iEnd = size-1;
     }
 
-    const QVector<double> propValue = reader.readProperty(traj.property());
+    const QVector<double> propValue = reader.readProperty(scenario.calibrationTargetManager().getCauldronPropertyName(traj.propertyUserName()));
     QVector<double> d(iEnd - iStart + 1, 0);
     QVector<double> v(iEnd - iStart + 1, 0);
     for (int j = iStart; j <= iEnd; ++j)

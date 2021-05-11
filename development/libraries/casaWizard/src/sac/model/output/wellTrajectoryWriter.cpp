@@ -38,13 +38,13 @@ void writeTrajectories(SACScenario& scenario)
 
   for (const Well* well : wells)
   {
-    QStringList properties;
-    const QVector<QVector<CalibrationTarget>> targetsInWell = manager.extractWellTargets(properties, well->id());
+    QStringList propertyUserNames;
+    const QVector<QVector<CalibrationTarget>> targetsInWell = manager.extractWellTargets(propertyUserNames, well->id());
 
-    for(const QString& property : properties)
+    for(const QString& propertyUserName : propertyUserNames)
     {
-      const int propertyIndex = properties.indexOf(property);
-      const QString filename{folder + "/" + well->name() + "_" + property + ".in"};
+      const int propertyIndex = propertyUserNames.indexOf(propertyUserName);
+      const QString filename{folder + "/" + well->name() + "_" + propertyUserName + "_" + manager.getCauldronPropertyName(propertyUserName) + ".in"};
       QFile file{filename};
       if( !file.open(QIODevice::WriteOnly | QIODevice::Text))
       {

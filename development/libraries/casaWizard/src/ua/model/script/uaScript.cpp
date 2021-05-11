@@ -172,7 +172,7 @@ QString UAScript::writeCalibrationTarget(const CalibrationTarget& target, const 
   double ageCalibrationTarget = 0.0; // The measurments are only current day.
   double SAWeightCalibrationTarget = 1.0;
 
-  return QString("target XYZPoint \"" + mapWizardToCasaName(target.property()) + "\" "
+  return QString("target XYZPoint \"" + mapWizardToCasaName(scenario_.calibrationTargetManager().getCauldronPropertyName(target.propertyUserName())) + "\" "
                  + doubleToQString(well->x()) + " "
                  + doubleToQString(well->y()) + " "
                  + doubleToQString(target.z()) + " "

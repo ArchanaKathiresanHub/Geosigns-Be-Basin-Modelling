@@ -18,7 +18,8 @@ public:
   CalibrationTargetManager();
 
   QVector<const CalibrationTarget*> calibrationTargets() const;
-  void addCalibrationTarget(const QString& name, const QString& property, const int wellIndex, const double z, const double value);
+  void addCalibrationTarget(const QString& name, const QString& propertyUserName,
+                            const int wellIndex, const double z, const double value);
   void setCalibrationTargetStandardDeviation(int index, double value);
   void setCalibrationTargetUAWeight(int index, double value);
 
@@ -31,8 +32,8 @@ public:
   int addWell(const QString& wellName, double x, double y);
 
   int amountOfActiveCalibrationTargets() const;
-  QVector<QVector<CalibrationTarget>> extractWellTargets(QStringList& properties, const int wellIndex) const;
-  QVector<QVector<CalibrationTarget>> extractWellTargets(QStringList& properties, const QVector<int> wellIndices) const;
+  QVector<QVector<CalibrationTarget>> extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const;
+  QVector<QVector<CalibrationTarget> > extractWellTargets(QStringList& propertyUserNames, const int wellIndex) const;
 
   const ObjectiveFunctionManager& objectiveFunctionManager() const;
 
@@ -40,21 +41,29 @@ public:
   void applyObjectiveFunctionOnCalibrationTargets();
   void setObjectiveFunction(int row, int col, double value);
   void setObjectiveFunctionVariables(const QStringList& variables);
+  void setObjectiveFunctionEnabledState(const bool state, const int row);
+  bool propertyIsActive(const QString& property) const;
+
+  void addToMapping(const QString& userName, const QString& cauldronName);
+  QString getCauldronPropertyName(const QString& userPropertyName) const;
 
   void clear() override;
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;
 
   QVector<const CalibrationTarget*> activeCalibrationTargets() const;
-  QStringList activeProperties() const;
+  QStringList activePropertyUserNames() const;
   void disableInvalidWells(const std::string& projectFileName, const std::string& depthGridName);
 
+  QStringList getPropertyUserNamesForWell(const int wellIndex) const;
 private:
   CalibrationTargetManager(const CalibrationTargetManager&) = delete;
   CalibrationTargetManager& operator=(CalibrationTargetManager) = delete;
 
-  QVector<Well> wells_;
   ObjectiveFunctionManager objectiveFunctionManager_;
+  QMap<QString, QString> userNameToCauldronNameMapping_;
+  QVector<Well> wells_;
+
 };
 
 } // namespace casaWizard

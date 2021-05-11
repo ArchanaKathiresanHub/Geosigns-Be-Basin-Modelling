@@ -63,19 +63,16 @@ public:
   void loadProject3dFile() const;
 
 private:
-
-  std::unique_ptr<ProjectReader> projectReader_;
-  QString workingDirectory_;
-  QString timeStamp_;
-  QString clusterName_;
   QString applicationName_;
-  QString project3dFilename_;
-  QString runLocation_;
-  bool expertUser_;
-
-  int numberCPUs_;
-
   CalibrationTargetManager calibrationTargetManager_;
+  QString clusterName_;
+  bool expertUser_;
+  int numberCPUs_;
+  QString project3dFilename_;
+  std::unique_ptr<ProjectReader> projectReader_;
+  QString runLocation_;
+  QString timeStamp_;
+  QString workingDirectory_;
 };
 
 } // namespace casaWizard

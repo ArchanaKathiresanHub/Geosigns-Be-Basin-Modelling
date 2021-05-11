@@ -58,14 +58,14 @@ void WellPlot::setData(const QVector<CalibrationTarget>& targets,
   QVector<double> z;
   QVector<double> values;
 
-  const QString property = targets[0].property();
+  const QString property = targets[0].propertyUserName();
 
   QVector<QVector<double>> xCoordsHorizontalErrorBars;
   QVector<double> yCoordsHorizontalErrorBars;
 
   for (const CalibrationTarget& target : targets)
   {
-    if (target.property() == property)
+    if (target.propertyUserName() == property)
     {
       const double depth = -target.z();
       const double value = target.value();

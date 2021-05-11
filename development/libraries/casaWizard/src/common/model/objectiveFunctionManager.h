@@ -13,17 +13,20 @@ namespace casaWizard
 class ObjectiveFunctionManager : public Writable
 {
 public:
-  ObjectiveFunctionManager();
+  explicit ObjectiveFunctionManager(const QMap<QString, QString>& mapping);
 
   void setValue(const int row, const int col, const double value);
   void setVariables(const QStringList& variables);
+  void setEnabledState(const bool state, const int row);
 
   double absoluteError(const int index) const;
   double relativeError(const int index) const;
   double weight(const int index) const;
+  bool enabled(const int index) const;
 
   int indexOf(const QString& variable) const;
-  QStringList variables() const;
+  QStringList variablesCauldronNames() const;
+  QStringList variablesUserNames() const;
 
   void writeToFile(ScenarioWriter& writer) const override;
   void readFromFile(const ScenarioReader& reader) override;
@@ -34,9 +37,10 @@ public:
 private:
   ObjectiveFunctionManager(const ObjectiveFunctionManager&) = delete;
   ObjectiveFunctionManager& operator=(ObjectiveFunctionManager) = delete;
-  ObjectiveFunctionValue createObjectiveFunctionValue(const QString& variable) const;
+  ObjectiveFunctionValue createObjectiveFunctionValue(const QString& variableUserName) const;
 
   QVector<ObjectiveFunctionValue> values_;
+  const QMap<QString, QString>& userNameToCauldronNameMapping_;
 };
 
 } // namespace casaWizard
