@@ -35,6 +35,8 @@ namespace Utilities
       const std::string NoDataStringValue = "undef";
       /// \brief No valid value for integer type numbers
       constexpr int     NoDataIntValue    = std::numeric_limits<int>::max();
+      /// \brief Default numerical tolerance used for comparing 2 double values.
+      constexpr double DefaultNumericalTolerance = 1e-6;
    }
 }
 #endif

@@ -58,6 +58,7 @@ using DataAccess::Interface::MINOR;
 using DataAccess::Interface::MAJOR;
 
 const string InterfaceInput::s_ctcConfigurationFile = "InterfaceData.cfg";
+using Utilities::Numerical::DefaultNumericalTolerance;
 
 //------------------------------------------------------------//
 InterfaceInput::InterfaceInput( const std::shared_ptr< const CrustalThicknessData>                            crustalThicknessData,
@@ -86,18 +87,18 @@ InterfaceInput::InterfaceInput( const std::shared_ptr< const CrustalThicknessDat
    m_baseRiftSurfaceName       ("")
 {
    if (m_crustalThicknessData == nullptr){
-      throw std::invalid_argument( "Basin_Error: No crustal thickness data provided to the CTC" );
+       throw std::invalid_argument( "Basin_Error: No crustal thickness data provided to the CTC" );
    }
    else if (m_crustalThicknessRiftingHistoryData.empty()){
-      throw std::invalid_argument( "Basin_Error: No crustal thickness rifting history data provided to the CTC" );
+       throw std::invalid_argument("Basin_Error: No crustal thickness rifting history data provided to the CTC");
    }
-   else{
-      for (std::size_t i = 0; i < m_crustalThicknessRiftingHistoryData.size(); i++){
-         if (m_crustalThicknessRiftingHistoryData[i] == nullptr){
-            throw std::invalid_argument( "Basin_Error: The crustal thickness rifting event data number " +
-               std::to_string(i) + " provided to the CTC is corrupted" );
-         }
-      }
+   else {
+   for (std::size_t i = 0; i < m_crustalThicknessRiftingHistoryData.size(); i++) {
+       if (m_crustalThicknessRiftingHistoryData[i] == nullptr) {
+           throw std::invalid_argument("Basin_Error: The crustal thickness rifting event data number " +
+               std::to_string(i) + " provided to the CTC is corrupted");
+       }
+   }
    }
 }
 
@@ -107,21 +108,22 @@ InterfaceInput::~InterfaceInput() {
 
 //------------------------------------------------------------//
 void InterfaceInput::loadInputData() {
-   ///1. Load configuration file
-   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading CTC configuration file";
-   m_constants.loadConfigurationFileCtc( s_ctcConfigurationFile );
-   ///2. Load parameters input data
-   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading user input data from CTC Parameters Table";
-   loadCTCIoTblData();
-   ///3. Load history input data
-   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading user input data from CTC Rifting History Table";
-   loadCTCRiftingHistoryIoTblData();
-   
+    ///1. Load configuration file
+    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading CTC configuration file";
+    m_constants.loadConfigurationFileCtc( s_ctcConfigurationFile );
+    ///2. Load parameters input data
+    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading user input data from CTC Parameters Table";
+    loadCTCIoTblData(); 
+    ///3. Load history input data
+    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading user input data from CTC Rifting History Table";
+    loadCTCRiftingHistoryIoTblData();
+
 }
 void InterfaceInput::cleanOldCrustalHistoriesAtNonCalculationAges(GeoPhysics::ProjectHandle* projectHandle, const std::string tableName)
 {
+    LogHandler( LogHandler::DEBUG_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "Cleaning all input crust thickness maps if defined at non-calculation ages";
     std::vector<double>  ctcCalculationAges, ageFromOriginalCrustInputs, agesToRemove;
-    for (int i = (m_snapshots.size()-1); i >= 0 ; i--)
+    for (int i = (m_snapshots.size() - 1); i >= 0; i--)
     {
         const double age1 = m_snapshots[i];
         const std::shared_ptr<CrustalThickness::RiftingEvent> event = m_riftingEvents[age1];
@@ -130,9 +132,9 @@ void InterfaceInput::cleanOldCrustalHistoriesAtNonCalculationAges(GeoPhysics::Pr
         {
             ctcCalculationAges.push_back(age1);
         }
-        
+
     }
-    database::Table* crustThckIoTbl = projectHandle->getTable(tableName); 
+    database::Table* crustThckIoTbl = projectHandle->getTable(tableName);
     //Note that the crustThckIoTbl is always sorted w.r.t increasing ages while loading into the projecthandle [ "DataAccess::loadCrustThinningHistory( void )" ] 
     for (int j = 0; j < crustThckIoTbl->size(); j++)
     {
@@ -151,20 +153,46 @@ void InterfaceInput::cleanOldCrustalHistoriesAtNonCalculationAges(GeoPhysics::Pr
     {
         double ageToBeRemoved = agesToRemove[k];
         //if the crust history is specified at the basement age, then retain it
-        if (abs(basementAge - ageToBeRemoved) < 1e-6)
+        if (abs(basementAge - ageToBeRemoved) < DefaultNumericalTolerance)
             continue;
         for (int j = 0; j < crustThckIoTbl->size(); j++)
         {
             database::Record* crustThckIoTblRecord = crustThckIoTbl->getRecord(j);
             double ageFromOriginalCrustInputs = crustThckIoTblRecord->getValue<double>("Age");
-            if (abs(ageFromOriginalCrustInputs- ageToBeRemoved) < 1e-6 )
+            if (abs(ageFromOriginalCrustInputs - ageToBeRemoved) < DefaultNumericalTolerance)
             {
                 crustThckIoTbl->eraseRecord(crustThckIoTblRecord);
                 j--;
                 break;
             }
         }
-            
+
+    }
+}
+
+void InterfaceInput::cleanAllInputPWDMapsExceptPresentDay(GeoPhysics::ProjectHandle* projectHandle, const std::string tableName)
+{
+   /* database::Table* stratIoTbl = projectHandle->getTable("StratIoTbl");
+    std::vector<double> stratigraphicAges{}, pwdAges{};
+    for (int j = 0; j < stratIoTbl->size(); j++)
+    {
+        database::Record* stratIoTblRecord = stratIoTbl->getRecord(j);
+        double recordDepoAge = stratIoTblRecord->getValue<double>("DepoAge");
+        stratigraphicAges.push_back(recordDepoAge);
+    }*/
+    LogHandler(LogHandler::DEBUG_SEVERITY, LogHandler::COMPUTATION_SUBSTEP) << "Cleaning all input PWD maps except 0 Ma as PWD is not an output at 0Ma, it is equal to the water depth of the present day stratigraphy";
+    database::Table* surfaceDepthIoTbl = projectHandle->getTable(tableName);
+    double presentDayAge = 0.;
+    for (int i = 0; i < surfaceDepthIoTbl->size(); i++)
+    {
+        database::Record* pwdRecord = surfaceDepthIoTbl->getRecord(i);
+        double pwd_Age = pwdRecord->getValue<double>("Age");
+        
+        if (abs(pwd_Age - presentDayAge) > DefaultNumericalTolerance)
+        {
+            surfaceDepthIoTbl->eraseRecord(pwdRecord);
+            i--;
+        }
     }
 }
 

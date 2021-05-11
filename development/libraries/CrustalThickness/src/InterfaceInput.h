@@ -167,6 +167,9 @@ public:
    //Note that, basement age crust thicknesses will always be fed from the CTCWizard which needs to be retained
    void cleanOldCrustalHistoriesAtNonCalculationAges(GeoPhysics::ProjectHandle* projectHandle, const std::string tableName);
 
+   //Old PWD map inputs are cleared before CTC calculation at all the ages except 0Ma. Because, PWD is not an output at 0Ma, it is equal to the water depth of the present day stratigraphy 
+   void cleanAllInputPWDMapsExceptPresentDay(GeoPhysics::ProjectHandle* projectHandle, const std::string tableName);
+
 protected:
 
    /// @defgroup Loaders
