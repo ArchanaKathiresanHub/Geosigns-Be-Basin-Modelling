@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-11  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Improve objective function workflow SAC wizard.
+	* Related work items: #411434
+	================== COMMIT-END ========================
+	Commit-ID:<4270f2cf4d8fa3f71f7e22ffb2f92f9865c7bc94>	  (refs/heads/master)
+
+++
 2021-05-11  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
 
 	new: dev: usr: Clearing old maps from the CTC output scenario.
