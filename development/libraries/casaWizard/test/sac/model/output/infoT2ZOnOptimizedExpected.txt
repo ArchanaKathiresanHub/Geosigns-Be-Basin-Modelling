@@ -24,7 +24,7 @@ Objective Function
 ---------------------------------------------------
 Map Generation
 ---------------------------------------------------
-Interpolation: Inverse Distance Weighting, P = 1
+Interpolation: Inverse Distance Weighting, P = 3
 Smoothing: None
 ###################################################
 ---------------------------------------------------

@@ -2,4 +2,4 @@ loadstate "CaseSet/Iteration_1/casaStateSAC.txt" "txt"
 runDataDigger
 importOneDResults
 setFilterOneDResults smartLithoFractionGridding 0 2
-generateThreeDFromOneD IDW 1
+generateThreeDFromOneD IDW 3
