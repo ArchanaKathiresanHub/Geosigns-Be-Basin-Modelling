@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-11  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix loop issue, 0 is valid surface.
+	* Fix loop issue, 0 is valid surface
+
+	================== COMMIT-END ========================
+	Commit-ID:<80c852a1bd7667fd557d8536d6bf702ef0dae09e>	  (refs/heads/master)
+
+++
 2021-05-07  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Add calculated TWT map when map is missing.
