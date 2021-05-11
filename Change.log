@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-11  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix Unit tests on thread values.
+	* Fix unit tests
+
+	================== COMMIT-END ========================
+	Commit-ID:<c54e13049536bb44b61a7e5a7fea1ae5682e2f1d>	  (refs/heads/master)
+
+++
 2021-05-11  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Improve objective function workflow SAC wizard.
