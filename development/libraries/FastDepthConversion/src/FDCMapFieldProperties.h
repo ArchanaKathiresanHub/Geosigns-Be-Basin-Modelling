@@ -64,10 +64,10 @@ private:
   void initializeMapWriterOnMasterResultsFile(const string & masterResultsFilePathName) const;
   std::string getTwtGridName(const mbapi::StratigraphyManager::SurfaceID surface, mbapi::StratigraphyManager& stMgr);
   void detectHiatusForAllSurfaces();  
-  mbapi::StratigraphyManager::SurfaceID getIDofFirstNonMissingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID) const;  
   std::vector<double> getReferenceTwt(const mbapi::StratigraphyManager::SurfaceID s) const;
   std::vector<double> getNextTwt(const mbapi::StratigraphyManager::SurfaceID s) const;  
-  bool getIDofLastExistingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID, mbapi::StratigraphyManager::SurfaceID & surface) const;
+  mbapi::StratigraphyManager::SurfaceID getIDofFirstNonMissingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID) const;
+  mbapi::StratigraphyManager::SurfaceID getIDofLastExistingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID) const;
 
   FDCProjectManager& m_fdcProjectManager;
   const mbapi::StratigraphyManager::SurfaceID m_referenceSurface;

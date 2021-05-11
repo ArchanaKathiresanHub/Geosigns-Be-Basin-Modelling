@@ -183,15 +183,16 @@ void FDCMapFieldProperties::calculateIsoPackThicknessForSurfacesBelowEndSurface(
 
 mbapi::StratigraphyManager::SurfaceID FDCMapFieldProperties::getIDofFirstNonMissingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID) const
 {
-  mbapi::StratigraphyManager::SurfaceID s = surfID-1;
-  while (s)
+  for (mbapi::StratigraphyManager::SurfaceID s = surfID-1; ; --s)
   {
-    if (!twtMaps(s).empty()) { break; }
-    --s;
+    if (!twtMaps(s).empty())
+    {
+      return s;
+    }
+    if (s==0) break;
   }
 
-  if (s == 0) { throw T2Zexception() << "Failed to get the reference TWT map!" << "\n"; }
-  return s;
+  throw T2Zexception() << "Failed to get the reference TWT map!" << "\n";
 }
 
 std::vector<double> FDCMapFieldProperties::getReferenceTwt(const mbapi::StratigraphyManager::SurfaceID s) const
@@ -204,17 +205,16 @@ std::vector<double> FDCMapFieldProperties::getReferenceTwt(const mbapi::Stratigr
   return refTwt;
 }
 
-bool FDCMapFieldProperties::getIDofLastExistingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID, mbapi::StratigraphyManager::SurfaceID & surface) const
+mbapi::StratigraphyManager::SurfaceID FDCMapFieldProperties::getIDofLastExistingTwtSurface(const mbapi::StratigraphyManager::SurfaceID surfID) const
 {
   for (mbapi::StratigraphyManager::SurfaceID s = surfID+1; s <= m_endSurface; ++s)
   {
     if(!twtMaps(s).empty())
     {
-      surface = s;
-      return true;
+      return s;
     }
   }
-  return false;
+  throw T2Zexception() << "Cannot find an existing surface with valid TwoWayTime values." << "\n";
 }
 
 std::vector<double> FDCMapFieldProperties::getNextTwt(const mbapi::StratigraphyManager::SurfaceID s) const
@@ -234,9 +234,7 @@ void FDCMapFieldProperties::setMissingTwtForSurface(const mbapi::StratigraphyMan
   const std::vector<double> refTwt = getReferenceTwt(sRef);
   const std::vector<double> refDepth = m_fdcProjectManager.getGridMapDepthValues(sRef);
 
-  mbapi::StratigraphyManager::SurfaceID sNext;
-  if (!getIDofLastExistingTwtSurface(surfID, sNext))
-  { throw T2Zexception() << "Cannot find an existing surface with valid TwoWayTime values." << "\n"; }
+  const mbapi::StratigraphyManager::SurfaceID sNext = getIDofLastExistingTwtSurface(surfID);
   const std::vector<double> nextTwt = getNextTwt(sNext);
   const std::vector<double> nextDepth = m_fdcProjectManager.getGridMapDepthValues(sNext);
 
