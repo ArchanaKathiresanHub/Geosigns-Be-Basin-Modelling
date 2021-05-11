@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-11  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
+
+	new: dev: usr: Clearing old maps from the CTC output scenario.
+	 * CTC output PWD maps are available only at the stratigraphic ages.
+	 * Map name of PWD map @ 0Ma is not updated as per the CTC output maps naming conventions
+
+	Related work items: #421667
+	================== COMMIT-END ========================
+	Commit-ID:<a138e1276abe8a6c644f9f9b7899d406072be0d6>	  (refs/heads/master)
+
+++
 2021-05-11  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Fix loop issue, 0 is valid surface.
