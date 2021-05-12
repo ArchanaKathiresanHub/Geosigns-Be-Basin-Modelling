@@ -24,7 +24,8 @@ public:
   double weight(const int index) const;
   bool enabled(const int index) const;
 
-  int indexOf(const QString& variable) const;
+  int indexOfUserName(const QString& variable) const;
+  int indexOfCauldronName(const QString& variable) const;
   QStringList variablesCauldronNames() const;
   QStringList variablesUserNames() const;
 

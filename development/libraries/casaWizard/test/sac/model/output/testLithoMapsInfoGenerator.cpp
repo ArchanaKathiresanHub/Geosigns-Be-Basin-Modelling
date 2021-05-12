@@ -54,7 +54,7 @@ TEST( LithoMapsInfoGenerator, testInfoGenerator )
   scenario.calibrationTargetManager().addCalibrationTarget("Name2", "Density", 0, 25.0, 20.0);
   scenario.calibrationTargetManager().addCalibrationTarget("Name2", "Density", 1, 30.0, 20.0);
   scenario.calibrationTargetManager().updateObjectiveFunctionFromTargets();
-  scenario.calibrationTargetManager().setObjectiveFunctionEnabledState(false, scenario.calibrationTargetManager().objectiveFunctionManager().indexOf("Density"));
+  scenario.calibrationTargetManager().setObjectiveFunctionEnabledState(false, scenario.calibrationTargetManager().objectiveFunctionManager().indexOfUserName("Density"));
 
   // When
   LithoMapsInfoGenerator generator(scenario, *lithoMapsProjectReader);

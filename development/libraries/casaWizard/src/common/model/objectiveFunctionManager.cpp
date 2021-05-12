@@ -106,12 +106,26 @@ void ObjectiveFunctionManager::setValue(const int row, const int col, const doub
   }
 }
 
-int ObjectiveFunctionManager::indexOf(const QString& variable) const
+int ObjectiveFunctionManager::indexOfUserName(const QString& variable) const
 {
   int i = 0;
   for (const ObjectiveFunctionValue& val : values_)
   {
     if (val.variableUserName() == variable)
+    {
+      return i;
+    }
+    ++i;
+  }
+  return -1;
+}
+
+int ObjectiveFunctionManager::indexOfCauldronName(const QString& variable) const
+{
+  int i = 0;
+  for (const ObjectiveFunctionValue& val : values_)
+  {
+    if (val.variableCauldronName() == variable)
     {
       return i;
     }

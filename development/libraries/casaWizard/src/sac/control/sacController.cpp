@@ -331,7 +331,8 @@ void SACcontroller::slotPushSelectCalibrationClicked()
                                                   "Spreadsheet (*.xlsx)");
 
   calibrationTargetCreator::createFromExcel(casaScenario_, fileName);
-  if (casaScenario_.calibrationTargetManager().objectiveFunctionManager().indexOf("Velocity") != -1)
+  CalibrationTargetManager& ctManager = casaScenario_.calibrationTargetManager();
+  if (ctManager.objectiveFunctionManager().indexOfCauldronName("Velocity") != -1)
   {
     QMessageBox velocityDisabled(QMessageBox::Icon::Information,
                           "Velocity calibration data disabled",
@@ -341,8 +342,8 @@ void SACcontroller::slotPushSelectCalibrationClicked()
   }
 
   WellTrajectoryManager& wtManager = casaScenario_.wellTrajectoryManager();
-  wtManager.updateWellTrajectories(casaScenario_.calibrationTargetManager());
-  casaScenario_.calibrationTargetManager().disableInvalidWells(casaScenario_.project3dPath().toStdString(), casaScenario_.projectReader().getDepthGridName(0).toStdString());
+  wtManager.updateWellTrajectories(ctManager);
+  ctManager.disableInvalidWells(casaScenario_.project3dPath().toStdString(), casaScenario_.projectReader().getDepthGridName(0).toStdString());
 
   CMBProjectWriter projectWriter(casaScenario_.project3dPath());
   casaScenario_.updateRelevantProperties(projectWriter);

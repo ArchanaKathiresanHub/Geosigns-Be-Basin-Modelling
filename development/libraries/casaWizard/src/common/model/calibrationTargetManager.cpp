@@ -333,7 +333,7 @@ void CalibrationTargetManager::setObjectiveFunctionEnabledState(const bool state
 
 bool CalibrationTargetManager::propertyIsActive(const QString& property) const
 {
-  return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOf(property));
+  return objectiveFunctionManager_.enabled(objectiveFunctionManager_.indexOfUserName(property));
 }
 
 void CalibrationTargetManager::addToMapping(const QString& userName, const QString& cauldronName)

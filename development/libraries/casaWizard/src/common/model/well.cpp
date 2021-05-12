@@ -152,7 +152,7 @@ void Well::applyObjectiveFunction(const ObjectiveFunctionManager& objectiveFunct
 {
   for (CalibrationTarget& target : calibrationTargets_)
   {
-    const int index = objectiveFunction.indexOf(target.propertyUserName());
+    const int index = objectiveFunction.indexOfUserName(target.propertyUserName());
     if (index>-1)
     {
       double standardDeviation = objectiveFunction.absoluteError(index) +

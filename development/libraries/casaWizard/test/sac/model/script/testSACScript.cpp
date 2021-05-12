@@ -40,7 +40,7 @@ TEST(SACScriptTest, testWriteScript)
   wellTrajectoryManager.addWellTrajectory(wellIndex3, "DT");
   ctManager.addCalibrationTarget("TargetName", "DT", wellIndex3, 200.0, 0.5);
   ctManager.updateObjectiveFunctionFromTargets();
-  ctManager.setObjectiveFunctionEnabledState(false, ctManager.objectiveFunctionManager().indexOf("DT"));
+  ctManager.setObjectiveFunctionEnabledState(false, ctManager.objectiveFunctionManager().indexOfUserName("DT"));
   wellTrajectoryManager.updateWellTrajectories(ctManager);
 
   scenario.calibrationTargetManager().addToMapping("TWTT", "TwoWayTime");
