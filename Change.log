@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-12  arijit.khan Khan  <arijit.khan@shell.com>
+
+	dev: chg: CTC UI minor bug fixes and cosmetic improvements for R2021.2 !minor
+	 * Dangerous use of QString::contains is replaced with QString::compare
+	 * Fixed scaler value reuse after de-selecting maps in Rifting history section of ctcwizard
+	 * GridmapIoTbl has reference to maps used in CTCRiftingHistoryIoTbl
+
+	Related work items: #419985
+	================== COMMIT-END ========================
+	Commit-ID:<51c7553306c9c28cc621099aad8c0d7e97510de1>	  (refs/heads/master)
+
+++
 2021-05-12  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fixed velocity popup !minor.
