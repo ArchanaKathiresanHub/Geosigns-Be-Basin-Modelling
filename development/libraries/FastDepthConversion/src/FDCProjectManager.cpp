@@ -110,12 +110,12 @@ void FDCProjectManager::appendCorrectedMapNamesInStratIoTbl(const std::map<const
   }
 }
 
-void FDCProjectManager::setCurrentMapDataInGridMapIoTbl(const std::string & correctedMapsName, const std::string & resultsMapFileName, const long correctedMapSequenceNbr)
+void FDCProjectManager::setCurrentMapDataInGridMapIoTbl(const std::string& refferedBy, const std::string & correctedMapsName, const std::string & resultsMapFileName, const long correctedMapSequenceNbr)
 {
   if (ErrorHandler::NoError != m_mdl->addRowToTable("GridMapIoTbl")) { throw T2Zexception() << "Cannot add a new row in GridMapIoTbl"; }
   size_t row = m_mdl->tableSize("GridMapIoTbl") - 1;
 
-  if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "ReferredBy", "StratIoTbl")) { throw T2Zexception() << "Cannot set ReferredBy in GridMapIoTbl "; }
+  if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "ReferredBy", refferedBy)) { throw T2Zexception() << "Cannot set ReferredBy in GridMapIoTbl "; }
   if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapName", correctedMapsName)) { throw T2Zexception() << "Cannot set MapName in GridMapIoTbl "; }
   if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapType", "HDF5")) { throw T2Zexception() << "Cannot set MapType in GridMapIoTbl "; }
   if (ErrorHandler::NoError != m_mdl->setTableValue("GridMapIoTbl", row, "MapFileName", resultsMapFileName)) { throw T2Zexception() << "Cannot set MapFileName in GridMapIoTbl "; }
@@ -130,7 +130,7 @@ void FDCProjectManager::appendCorrectedMapNamesInGridMapIoTbl(const std::map<con
   {
     const string correctedMapName = it->second;
     if (correctedMapName.empty()) { continue; }    
-    setCurrentMapDataInGridMapIoTbl(correctedMapName, resultsMapFileName, (long)correctedMapsSequenceNbr.at(it->first));
+    setCurrentMapDataInGridMapIoTbl("StratIoTbl", correctedMapName, resultsMapFileName, (long)correctedMapsSequenceNbr.at(it->first));
   }
 }
 
@@ -147,7 +147,7 @@ void FDCProjectManager::appendAddedTwtMapNamesInGridMapIoTbl(const std::vector<i
   int index = 0;
   for (auto it : addedTwtmapsequenceNbr)
   {    
-    setCurrentMapDataInGridMapIoTbl(m_addedTwtMapNames[index], resultsMapFileName, (long)it);
+    setCurrentMapDataInGridMapIoTbl("TwoWayTimeIoTbl", m_addedTwtMapNames[index], resultsMapFileName, (long)it);
     ++index;
   }
 }

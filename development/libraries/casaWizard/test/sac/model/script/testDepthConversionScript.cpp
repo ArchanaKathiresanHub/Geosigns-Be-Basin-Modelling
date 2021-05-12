@@ -47,7 +47,7 @@ TEST(DepthConversionScriptTest, testGenerateCommandsCluster)
   QString expectedCommand = scenario.workingDirectory() + "/T2Z_step2/runt2z.sh";
   EXPECT_EQ(script->commands()[0].command, expectedCommand);
 #ifndef _WIN32
-  system("sed -i '10d' ./T2Z_step2/runt2z.sh");
+  system("sed -i '9d' ./T2Z_step2/runt2z.sh");
   expectFileEq("./T2Z_step2/runt2z.sh", "./T2Z_step2/runt2zExpected.sh");
 #endif
 }

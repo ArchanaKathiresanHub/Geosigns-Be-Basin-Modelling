@@ -62,11 +62,10 @@ void DepthConversionScript::writeScriptContents(QFile& file) const
   out << QString("#!/bin/bash -lx\n");
   out << QString("cat > runt2zCluster.sh << EOF\n");
   out << QString("#BSUB -P cldrn\n");
-  out << QString("#BSUB -W 0:30\n");
+  out << QString("#BSUB -We 3:00\n");
   out << QString("#BSUB -J \"Fastcauldron T2Z conversion run\"\n");
   out << QString("#BSUB -n " + QString::number(scenario_.t2zNumberCPUs()) + "\n");
   out << QString("#BSUB -o output.log\n");
-  out << QString("#BSUB -x\n");
   out << QString("#BSUB -cwd " + baseDirectory() + "\n");
 
   std::string applicationPath = QCoreApplication::applicationDirPath().toStdString();
