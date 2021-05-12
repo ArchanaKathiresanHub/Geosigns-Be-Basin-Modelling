@@ -2615,47 +2615,53 @@ void Basin_Modelling::FEM_Grid::logMaxDeltaOverPressureLocations( const std::vec
 
   if (rank == 0)
   {
-    const StratigraphicColumn& column = m_pressureComputationalDomain.getStratigraphicColumn ();
-
-    LogHandler( LogHandler::WARNING_SEVERITY ) << " -----------------------------------------------------------------------------------------------------------";
     LogHandler( LogHandler::WARNING_SEVERITY ) << " Newton solve for pressure equation has not converged, maximum number of iterations (" <<
                  maximumNumberOfNonlinearIterations <<  ") reached.";
-    LogHandler( LogHandler::WARNING_SEVERITY ) << " These are the nodes with the maximum overpressure difference in the last iteration, per rank: ";
-
-    std::vector<int> location(locationMaxValue);
-    double maximumDoverpressure = maxDoverpressure;
-    for ( int printRank = 0; printRank < size; ++printRank )
-    {
-      if ( printRank != 0)
-      {
-        MPI_Status recvStatus;
-        MPI_Recv( location.data(), 4, MPI_INT, printRank, 0, PETSC_COMM_WORLD, &recvStatus );
-        MPI_Recv( &maximumDoverpressure, 1, MPI_DOUBLE, printRank, 0, PETSC_COMM_WORLD, &recvStatus );
-      }
-
-      if (location[0] < 0)
-      {
-        LogHandler( LogHandler::WARNING_SEVERITY ) << "rank " << printRank << ": This processor does not cover any valid part of the computational domain";
-      }
-      else
-      {
-        const ComputationalDomain::FormationGeneralElementGrid* formationGrid =
-            m_pressureComputationalDomain.getFormationGrid ( column.getLayer ( location[3] ));
-
-        const DataAccess::Interface::Grid* grid = FastcauldronSimulator::getInstance().getActivityOutputGrid();
-
-        LogHandler( LogHandler::WARNING_SEVERITY ) << "rank " << printRank << ", The maximum overpressure difference [Pa]: " << maximumDoverpressure << " is at location i: " << location[0] << ", j: " << location[1]
-                  << ", k: " << location[2] <<  ", Formation: " << formationGrid->getFormation().getName()
-                  << ", x[m]: " << grid->minI() + grid->deltaI()*location[0]
-                  << ", y[m]: " << grid->minJ() + grid->deltaJ()*location[1];
-      }
-    }
-    LogHandler( LogHandler::WARNING_SEVERITY ) << " -----------------------------------------------------------------------------------------------------------";
   }
-  else
+  if ( basinModel -> debug1 )
   {
-    MPI_Send( locationMaxValue.data(), 4, MPI_INT, 0, 0, PETSC_COMM_WORLD );
-    MPI_Send( &maxDoverpressure, 1, MPI_DOUBLE, 0, 0, PETSC_COMM_WORLD );
+    if (rank == 0)
+    {
+      LogHandler( LogHandler::WARNING_SEVERITY ) << " -----------------------------------------------------------------------------------------------------------";
+      LogHandler( LogHandler::WARNING_SEVERITY ) << " These are the nodes with the maximum overpressure difference in the last iteration, per rank: ";
+
+      const StratigraphicColumn& column = m_pressureComputationalDomain.getStratigraphicColumn ();
+
+      std::vector<int> location(locationMaxValue);
+      double maximumDoverpressure = maxDoverpressure;
+      for ( int printRank = 0; printRank < size; ++printRank )
+      {
+        if ( printRank != 0)
+        {
+          MPI_Status recvStatus;
+          MPI_Recv( location.data(), 4, MPI_INT, printRank, 0, PETSC_COMM_WORLD, &recvStatus );
+          MPI_Recv( &maximumDoverpressure, 1, MPI_DOUBLE, printRank, 0, PETSC_COMM_WORLD, &recvStatus );
+        }
+
+        if (location[0] < 0)
+        {
+          LogHandler( LogHandler::WARNING_SEVERITY ) << "rank " << printRank << ": This processor does not cover any valid part of the computational domain";
+        }
+        else
+        {
+          const ComputationalDomain::FormationGeneralElementGrid* formationGrid =
+              m_pressureComputationalDomain.getFormationGrid ( column.getLayer ( location[3] ));
+
+          const DataAccess::Interface::Grid* grid = FastcauldronSimulator::getInstance().getActivityOutputGrid();
+
+          LogHandler( LogHandler::WARNING_SEVERITY ) << "rank " << printRank << ", The maximum overpressure difference [Pa]: " << maximumDoverpressure << " is at location i: " << location[0] << ", j: " << location[1]
+                    << ", k: " << location[2] <<  ", Formation: " << formationGrid->getFormation().getName()
+                    << ", x[m]: " << grid->minI() + grid->deltaI()*location[0]
+                    << ", y[m]: " << grid->minJ() + grid->deltaJ()*location[1];
+        }
+      }
+      LogHandler( LogHandler::WARNING_SEVERITY ) << " -----------------------------------------------------------------------------------------------------------";
+    }
+    else
+    {
+      MPI_Send( locationMaxValue.data(), 4, MPI_INT, 0, 0, PETSC_COMM_WORLD );
+      MPI_Send( &maxDoverpressure, 1, MPI_DOUBLE, 0, 0, PETSC_COMM_WORLD );
+    }
   }
   MPI_Barrier(PETSC_COMM_WORLD);
 }
