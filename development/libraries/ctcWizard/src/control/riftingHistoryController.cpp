@@ -17,8 +17,8 @@ RiftingHistoryController::RiftingHistoryController(RiftingHistoryTable* table,
   table_(table),
   ctcScenario_(ctcScenario)
 {
-  connect(table_->tableWidgetRiftingHistory(),  SIGNAL(itemChanged(QTableWidgetItem*)),
-          this,                                    SLOT(slotTableWidgetRiftingHistoryItemChanged(QTableWidgetItem*)));
+  connect(table_->tableWidgetRiftingHistory(),      SIGNAL(itemChanged(QTableWidgetItem*)),
+          this,                                     SLOT(slotTableWidgetRiftingHistoryItemChanged(QTableWidgetItem*)));
 
   updateRiftingHistoryTable();
 }

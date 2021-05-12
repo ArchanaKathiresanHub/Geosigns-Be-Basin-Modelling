@@ -17,7 +17,7 @@
 #include <QString>
 #include <QTableWidgetItem>
 #include <QVector>
-#include <QTextStream>
+
 #include <QTabWidget>
 #include <QApplication>
 #include "Qt_Utils.h"
@@ -60,13 +60,59 @@ CTCcontroller::CTCcontroller(CTCtab* ctcTab,
 }
 
 
+
+int ctcWizard::CTCcontroller::findLastMapSqNumber(const QString& scenarioFolderPath) const
+{
+	QString oldProject3dFile = ctcTab_->lineEditProject3D()->text();
+    QFile oldFile(oldProject3dFile);
+    oldFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    
+    QTextStream oldStream(&oldFile); 
+    QString line = oldStream.readLine();
+    int LastmapSqNo = -1;
+
+    while (!line.isNull()) {
+        
+        if (!line.compare("[GridMapIoTbl]", Qt::CaseSensitive)) {
+
+            while (!line.contains("[End]", Qt::CaseSensitive)) {
+                QStringList theLines = line.split(QRegExp("\\s+"), QString::SkipEmptyParts); 
+                if (theLines.size() > 4)
+                {
+                    auto mapSqNo = (theLines[4]).toInt();
+                    LastmapSqNo = mapSqNo > LastmapSqNo ? mapSqNo : LastmapSqNo;
+                }
+                line = oldStream.readLine();
+            }
+        }
+        line = oldStream.readLine();
+    }
+
+    oldFile.close();
+    return LastmapSqNo < 0 ? 0 : LastmapSqNo;
+}
+
+
 QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFolderPath)
 {
+    /*std::string inFileName(inFile ? inFile : "Project.project3d");
+	// load project
+	mbapi::Model cldProject;
+	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::SUBSECTION) << "Reading project file: " << inFileName;
+	if (ErrorHandler::NoError != cldProject.loadModelFromProjectFile(inFileName))
+	{
+		LogHandler(LogHandler::ERROR_SEVERITY) << std::string("Failing to load project file: ") + inFileName;
+		return -1;
+	}*/
+
+    int startingMapSqNo = findLastMapSqNumber(scenarioFolderPath);
+    startingMapSqNo++;
 
 	QString oldProject3dFile = ctcTab_->lineEditProject3D()->text();
 	QFileInfo info1(oldProject3dFile);
 	QStringList strList = info1.fileName().simplified().split("/");
 	QString newProject3dFile = scenarioFolderPath + "/" + strList[0] + ".CTC";
+
 	//mainController_->log("- New Project3d file created with CTC inputs under the newly created scenario folder");
 
 	QFile oldFile(oldProject3dFile);
@@ -83,6 +129,15 @@ QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFol
 	QString line = oldStream.readLine();
 	newStream << line << endl;
 	QString BasementAge = "0";
+    
+    std::vector<QString> Basalt_map_names;
+    std::vector<QString> RDA_map_names;
+
+	std::vector<QString> RDAMapsUsed;
+	std::vector<QString> BasaltMapsUsed;
+    CreateRifthingHistoryBasaltMapUsedList(BasaltMapsUsed);
+    CreateRifthingHistoryRDAMapList(RDAMapsUsed);
+
 	while (!line.isNull()) {
 		line = oldStream.readLine();
 		newStream << line << endl;
@@ -102,26 +157,41 @@ QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFol
 				newStream << line << endl;
 				line = oldStream.readLine();
 			}
-			int iCnt = 14301;
-			foreach(QString RDA_Map, ctcScenario_.riftingHistoryRDAMaps_)
-			{
-				if ((iCnt == 0) || (RDA_Map == "Inputs.HDF") || (RDA_Map == "Input.HDF") || (RDA_Map == " "))
-				{
-					// do nothing
-				}
-				else
-				{
-					newStream << "\"" << "CTCRiftingHistoryIoTbl" << "\"" << " "
-						<< "\"" << "MAP-" + QString::number(iCnt) << "\"" << " "
-						<< "\"" << "HDF5" << "\"" << " "
-						<< "\"" << RDA_Map << "\"" << " "
-						//<< QString::number(iCnt)
-						<< "0"
-						<< endl;
-				}
-				iCnt++;
-			}
+            // Search for the CTCRiftingHistoryIoTbl maps selected and then write ...	           
+            for (const auto& aBasaltMap : BasaltMapsUsed)
+            {
+                if (aBasaltMap.compare(" ")) {
+                    Basalt_map_names.push_back("RiftMAPBasalt-" + QString::number(startingMapSqNo));
+                    newStream << "\"" << "CTCRiftingHistoryIoTbl" << "\"" << " "
+                        << "\"" << Basalt_map_names.back()  // MapName
+                        << "\"" << " "
+                        << "\"" << "HDF5" << "\"" << " "
+                        << "\"" << aBasaltMap << "\"" << " "
+                        << "0" // a new map has zero SqNo.
+                        << endl;
+                    ++startingMapSqNo;
+                }
+                else
+                    Basalt_map_names.push_back("");
+            }
 
+			for (const auto& aRDAMap : RDAMapsUsed)
+			{
+                if (aRDAMap.compare(" ")) {
+                    RDA_map_names.push_back("RiftMAPRDA-" + QString::number(startingMapSqNo));
+                    newStream << "\"" << "CTCRiftingHistoryIoTbl" << "\"" << " "
+                        << "\"" << RDA_map_names.back() // MapName
+                        << "\"" << " "
+                        << "\"" << "HDF5" << "\"" << " "
+                        << "\"" << aRDAMap << "\"" << " "
+                        << "0" // a new map has zero SqNo.
+                        << endl;
+                    ++startingMapSqNo;
+                }
+                else
+                    RDA_map_names.push_back("");
+			}
+            
 			newStream << line << endl;
 		}
 
@@ -274,38 +344,42 @@ QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFol
 			while (!line.contains("[End]", Qt::CaseSensitive)) {
 				line = oldStream.readLine();
 			}
+
 			//insert CTCRiftingHistoryIoTbl inputs
 			int iRow = 0;
+            int bastCnt = 0;
+            int rdaCnt = 0;
 			for (const RiftingHistory& riftingHistory : ctcScenario_.riftingHistory())
 			{
 				QString RDAMap = "";
 				QString RDAScalar = ctcScenario_.riftingHistory()[iRow].RDA;
-				int iCnt = 14301;
+
 				foreach(QString RDA_Map, ctcScenario_.riftingHistoryRDAMaps_)
 				{
 					if (RDA_Map == ctcScenario_.riftingHistory()[iRow].RDA_Map)
 					{
-						RDAMap = "MAP-" + QString::number(iCnt);
+                        RDAMap = RDA_map_names[rdaCnt];
+                        ++rdaCnt;
 						//RDAScalar = "-9999";
 						break;
 					}
-					iCnt++;
 				}
 				QString BasaltMap = "";
 				QString BasaltScalar = ctcScenario_.riftingHistory()[iRow].Basalt_Thickness;
-				iCnt = 14301;
+
 				foreach(QString Basalt_Thck_Map, ctcScenario_.riftingHistoryBasaltMaps_)
 				{
 					if (Basalt_Thck_Map == ctcScenario_.riftingHistory()[iRow].Basalt_Thickness_Map)
 					{
-						BasaltMap = "MAP-" + QString::number(iCnt);
+						BasaltMap = Basalt_map_names[bastCnt];
+                        ++bastCnt;
 						//BasaltScalar = "-9999";
 						break;
 					}
-					iCnt++;
 				}
 
-				newStream << QString::number(ctcScenario_.riftingHistory()[iRow].Age.toDouble()).rightJustified(6, ' ') << " \"" << ctcScenario_.riftingHistory()[iRow].TectonicFlag
+				newStream << QString::number(ctcScenario_.riftingHistory()[iRow].Age.toDouble()).rightJustified(6, ' ') << " \"" 
+                    << ctcScenario_.riftingHistory()[iRow].TectonicFlag
 					<< "\" " << RDAScalar << " \"" << RDAMap
 					<< "\" " << BasaltScalar << " \"" << BasaltMap << "\"" << endl;
 
@@ -323,11 +397,46 @@ QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFol
 	return newProject3dFile;
 }
 
+
+
+void ctcWizard::CTCcontroller::CreateRifthingHistoryBasaltMapUsedList(std::vector<QString>& BasaltMapsUsed)
+{
+	int iRow = 0;
+	for (const RiftingHistory& riftingHistory : ctcScenario_.riftingHistory())
+	{
+		foreach(QString Basalt_Thck_Map, ctcScenario_.riftingHistoryBasaltMaps_)
+		{
+			if (Basalt_Thck_Map == ctcScenario_.riftingHistory()[iRow].Basalt_Thickness_Map)
+			{
+                BasaltMapsUsed.push_back(Basalt_Thck_Map);
+			}
+		}
+		++iRow;
+	}
+}
+
+void ctcWizard::CTCcontroller::CreateRifthingHistoryRDAMapList(std::vector<QString>& RDAMapsUsed)
+{
+	int iRow = 0;
+	for (const RiftingHistory& riftingHistory : ctcScenario_.riftingHistory())
+	{
+		foreach(QString RDA_Map, ctcScenario_.riftingHistoryRDAMaps_)
+		{
+            if (RDA_Map == ctcScenario_.riftingHistory()[iRow].RDA_Map)
+            {
+                RDAMapsUsed.push_back(RDA_Map);
+            }
+		}
+		++iRow;
+	}
+}
+
 void CTCcontroller::updateProjectTxtFile(const QString& scenarioFolderPath)
 {
 
     QString oldProjectTxtFile = scenarioFolderPath + "/Project.txt";
     QString newProjectTxtFile = scenarioFolderPath + "/Project.txt_1";
+
     //mainController_->log("- New Project3d file created with CTC inputs under the newly created scenario folder");
 
     QFile oldFile(oldProjectTxtFile);
@@ -390,7 +499,7 @@ void GetTableFromProject3d(QString& fileName, QVector<QString>& TblVector, QStri
     QString line = stream.readLine();
     while(!line.isNull()){
         line = stream.readLine();
-        if(line.contains(tblName,Qt::CaseSensitive)){
+        if(!line.compare(tblName,Qt::CaseSensitive)){
             //skip 3 lines
             line = stream.readLine();
             line = stream.readLine();
@@ -486,6 +595,7 @@ void CTCcontroller::upateProject3dfileToStoreOutputs(const QString& project3dFil
     bool success = oldFile.remove();
     success = newFile.rename(project3dFilePath);
 }
+
 
 
 bool CTCcontroller::validateCTCinputFields()
@@ -725,7 +835,7 @@ void CTCcontroller::slotpushButtonExportCTCoutputMapsClicked()
         else
         {
             mainController_->log("");
-            mainController_->log("This CTC Scenario is used to create Scenario for ALC Work-flow: ");
+            mainController_->log("This CTC Scenario will be used to Create scenario for BPA2-Basin: ");
             mainController_->createScenarioForALC(scenarioFolder);
 #ifndef DEBUG_CTC
             mainController_->deleteCTCscenario(scenarioFolder);
@@ -848,7 +958,7 @@ void CTCcontroller::slotPushSelectProject3dClicked()
 
             for(int j = 0; j < strVectHasPWD.size(); ++j)
             {
-                if(strVectHasPWD[j].contains(strLst[0]))
+                if (!strVectHasPWD[j].compare(strLst[0], Qt::CaseInsensitive))
                 {
                     strHasPWD = "Y";
                     break;
@@ -885,7 +995,7 @@ void CTCcontroller::slotPushSelectProject3dClicked()
 
             for(int j = 0; j < strVectHasPWD.size(); ++j)
             {
-                if(strVectHasPWD[j].contains(strAge))
+                if(!strVectHasPWD[j].compare(strAge, Qt::CaseInsensitive))
                 {
                     strHasPWD = "Y";
                     break;
@@ -904,15 +1014,21 @@ void CTCcontroller::slotPushSelectProject3dClicked()
     QFileInfo info(ctcScenario_.project3dPath());
     QDir dir(info.absoluteDir().path());
     QStringList filters;
-    filters << "*.HDF";
+    filters << "*.hdf" << "*.hdf5" << "*.h5"; // case doesn't matter
 
     ctcScenario_.riftingHistoryBasaltMaps_ = QStringList() << " ";
     ctcScenario_.riftingHistoryRDAMaps_ = QStringList() << " ";
 
     foreach (QString file, dir.entryList(filters, QDir::Files))
     {
-        ctcScenario_.riftingHistoryRDAMaps_ << file;
-        ctcScenario_.riftingHistoryBasaltMaps_ << file;
+        // This arbitrarily assigns all Hdf files to these variable,
+        // a hack to have the list in the drop-down menu of the fields
+        if (file.compare("Inputs.HDF"))// Exclude Inputs.HDF from this list
+		{
+			ctcScenario_.riftingHistoryRDAMaps_ << file;
+			ctcScenario_.riftingHistoryBasaltMaps_ << file;
+        }
+        
     }
 
     LithosphereParameterController(ctcTab_->lithosphereParameterTable(), ctcScenario_, mainController_);

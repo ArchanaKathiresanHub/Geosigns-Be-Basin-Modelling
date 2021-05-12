@@ -26,7 +26,7 @@ CTCtab::CTCtab(QWidget* parent) :
   riftingHistoryTable_{new RiftingHistoryTable(this)},
   pushButtonCTCrunCTC_{new QPushButton("Run CTC", this)},
   pushButtonCTCoutputMaps_{new QPushButton("View CTC Output Maps", this)},
-  pushButtonExportCTCoutputMaps_{new QPushButton("Create Scenario for ALC", this)}
+  pushButtonExportCTCoutputMaps_{new QPushButton("Create scenario for BPA2-Basin", this)}
 {
 
   QHBoxLayout* horizontalLayoutProject3D = new QHBoxLayout();
@@ -50,7 +50,7 @@ CTCtab::CTCtab(QWidget* parent) :
   CTCrunGridLayout->addWidget(pushButtonCTCoutputMaps_,0,1);
 
   //Export CTC Output Maps
-  const QSize exportCTCmapsBtnSize = QSize(170, 30);
+  const QSize exportCTCmapsBtnSize = QSize(200, 30);
   pushButtonExportCTCoutputMaps_->setFixedSize(exportCTCmapsBtnSize);
   pushButtonExportCTCoutputMaps_->setLayoutDirection(Qt::LeftToRight);
   CTCrunGridLayout->addWidget(pushButtonExportCTCoutputMaps_,0,2);

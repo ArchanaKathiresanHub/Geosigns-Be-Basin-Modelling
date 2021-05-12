@@ -53,7 +53,7 @@ namespace ctcWizard
         );
 
         if (resBtn != QMessageBox::Yes) {
-            event->ignore();
+            event->accept();
         }
         else
     #endif

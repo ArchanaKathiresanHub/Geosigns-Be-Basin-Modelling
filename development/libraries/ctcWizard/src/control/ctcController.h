@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QVector>
+class QTextStream;
 #include <map>
 class QString;
 class QTableWidgetItem;
@@ -43,6 +44,8 @@ private slots:
 
 private:
     QString createProject3dwithCTCUIinputs(const QString& scenarioFolderPath);
+    void CreateRifthingHistoryBasaltMapUsedList(std::vector<QString>& BasaltMapsUsed);
+    void CreateRifthingHistoryRDAMapList(std::vector<QString>& RDAMapsUsed);
     void updateProjectTxtFile(const QString& scenarioFolderPath);
     /// <summary>
     /// this checks for the FastCAuldron result type
@@ -62,6 +65,8 @@ private:
     CtcScenario& ctcScenario_;
     Controller* mainController_;
     QVector<QObject*> subControllers_;
+    int findLastMapSqNumber(const QString& scenarioFolderPath)const;
+
 };
 
 } // namespace ctcWizard
