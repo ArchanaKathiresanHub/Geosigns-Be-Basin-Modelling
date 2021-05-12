@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-12  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed velocity popup !minor.
+	* Fixed velocity popup
+
+	================== COMMIT-END ========================
+	Commit-ID:<75ae447b5d970622a434f7231c7096fd428abc2d>	  (refs/heads/master)
+
+++
 2021-05-12  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	chg: Hide detailed Newton log.
