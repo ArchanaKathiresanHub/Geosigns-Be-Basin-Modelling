@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-12  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Hide detailed Newton log.
+	* Hide detailed Newton log
+
+	================== COMMIT-END ========================
+	Commit-ID:<dc7a2a028f21061245f69e562d92da1caed3f14a>	  (refs/heads/master)
+
+++
 2021-05-11  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Fix Unit tests on thread values.
