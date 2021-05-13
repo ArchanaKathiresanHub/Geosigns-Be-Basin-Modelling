@@ -819,12 +819,8 @@ void CTCcontroller::slotpushButtonExportCTCoutputMapsClicked()
     else
     {
         QStringList strLst = fileList[0].split(".");
-#ifdef Q_OS_WIN
-    QDir ctcOutputDir(scenarioFolder + "/" + strLst[0] + "_CauldronOutputDir" + ".lnk");
-#endif
-#ifdef Q_OS_LINUX
-    QDir ctcOutputDir(scenarioFolder + "/" + strLst[0] + "_CauldronOutputDir");
-#endif   
+        QDir ctcOutputDir(scenarioFolder + "/" + strLst[0] + "_CauldronOutputDir");
+
         if(!ctcOutputDir.exists())
         {
             //

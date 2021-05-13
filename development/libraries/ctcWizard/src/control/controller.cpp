@@ -629,7 +629,7 @@ bool ctcWizard::Controller::makeDirSymLinks(const QDir& src, const QDir& desti) 
 #endif
 
 #ifdef Q_OS_WIN
-	QFile::link(src.absolutePath(), desti.absolutePath().append(".lnk"));
+    boost::filesystem::create_directory_symlink(src.absolutePath().toStdString(), desti.absolutePath().toStdString());
 #endif
     return false;
 }

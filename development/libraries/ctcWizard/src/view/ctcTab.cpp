@@ -153,6 +153,7 @@ const QComboBox* CTCtab::fastcldrnRunModeComboBox() const
   return fastcldrnRunModeComboBox_;
 }
 
+// This function disables the selection of the Project3d file
 void CTCtab::disableProject3dSelection() {
 	pushSelectProject3D_->setEnabled(false);
 	lineEditProject3D_->setEnabled(false);

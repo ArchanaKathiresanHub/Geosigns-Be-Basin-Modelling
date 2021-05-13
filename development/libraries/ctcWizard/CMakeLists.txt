@@ -9,5 +9,6 @@ if ( Qt5_FOUND )
    set( CMAKE_AUTOMOC ON )
 
    add_subdirectory( src )
+   add_subdirectory( test )
 
 endif()
