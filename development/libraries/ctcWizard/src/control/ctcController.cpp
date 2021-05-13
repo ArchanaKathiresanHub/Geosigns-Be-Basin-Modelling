@@ -222,7 +222,7 @@ QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFol
         if (BasementAge == "") {
             mainController_->log("Something not right with the Project 3d file, StratIoTbl"); exit(-1);
         }
-		// Always adding the basement entry fro Initial Crustal Thickness
+		// Always adding the basement entry for Initial Crustal Thickness
 		if (line.contains("[ContCrustalThicknessIoTbl]", Qt::CaseSensitive)) {
 			line = oldStream.readLine();//fetch this line -> ;v100
 			newStream << line << endl;
@@ -490,7 +490,7 @@ void CTCcontroller::updateProjectTxtFile(const QString& scenarioFolderPath)
     newFile.rename(oldProjectTxtFile);
 }
 
-void GetTableFromProject3d(QString& fileName, QVector<QString>& TblVector, QString& tblName)
+void ctcWizard::CTCcontroller::GetTableFromProject3d(QString& fileName, QVector<QString>& TblVector, QString& tblName)
 {
     QFile file(fileName);
     file.open(QIODevice::ReadOnly | QIODevice::Text);

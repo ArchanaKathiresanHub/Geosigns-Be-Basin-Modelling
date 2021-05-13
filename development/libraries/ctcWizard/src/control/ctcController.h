@@ -1,9 +1,9 @@
 #pragma once
-
+#include <map>
 #include <QObject>
 #include <QVector>
 class QTextStream;
-#include <map>
+
 class QString;
 class QTableWidgetItem;
 
@@ -66,7 +66,9 @@ private:
     Controller* mainController_;
     QVector<QObject*> subControllers_;
     int findLastMapSqNumber(const QString& scenarioFolderPath)const;
-
+    static void GetTableFromProject3d(QString& fileName, QVector<QString>& TblVector, QString& tblName);
 };
 
 } // namespace ctcWizard
+
+

@@ -323,6 +323,96 @@ QString Controller::createCTCscenarioFolder(const QString& filePath) const
     return scenarioFolderPath;
 }
 
+void ctcWizard::Controller::FinalizeProject3dFile(const QString& oldp3file, const QString& newp3file)const
+{
+	QFile oldFile(oldp3file);
+	QFile newFile(newp3file);
+
+	QFileInfo info(newp3file);
+	if (info.exists()) newFile.remove();
+
+	oldFile.open(QIODevice::ReadOnly | QIODevice::Text);
+	newFile.open(QIODevice::ReadWrite | QIODevice::Text);
+
+	QTextStream oldStream(&oldFile);
+	QTextStream newStream(&newFile);
+	QString line = oldStream.readLine();
+	newStream << line << endl;
+
+
+    while (!line.isNull()) {
+        line = oldStream.readLine();
+        newStream << line << endl;
+        //        
+        //[GridMapIoTbl]
+        if (line.contains("[GridMapIoTbl]", Qt::CaseSensitive)) {
+            line = oldStream.readLine();
+            newStream << line << endl;
+            line = oldStream.readLine();
+            newStream << line << endl;
+            line = oldStream.readLine();
+            newStream << line << endl;
+
+            line = oldStream.readLine();                
+            newStream << line << endl;
+            while (!line.contains("[End]", Qt::CaseSensitive)) {
+                line = oldStream.readLine();
+                QStringList theLines = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+                if (theLines[0].compare("\"CTCRiftingHistoryIoTbl\""))
+                    newStream << line << endl;
+            }
+        }
+
+		//[CTCRiftingHistoryIoTbl]
+		if (line.contains("[CTCRiftingHistoryIoTbl]", Qt::CaseSensitive)) {
+			line = oldStream.readLine();
+			newStream << line << endl;
+			line = oldStream.readLine();
+			newStream << line << endl;
+			line = oldStream.readLine();
+			newStream << line << endl;
+
+			line = oldStream.readLine();
+			newStream << line << endl;
+			while (!line.contains("[End]", Qt::CaseSensitive)) {
+				line = oldStream.readLine();
+				//QStringList theLines = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+
+
+				QRegExp re("\"([A-Za-z0-9_\\./\\-\\s]*)\"");
+
+				QStringList list;
+				int pos = 0;
+
+				while ((pos = re.indexIn(line, pos)) != -1) {
+					list << re.cap(1);
+					pos += re.matchedLength();
+				}
+
+                if (list.size()>1)
+                {
+	                if (list[1].compare("")) {
+	                    line.replace(list[1], QString("")); // replace text in string
+#ifdef DEBUG_CTC
+	                    qDebug() << line;
+#endif
+	                }
+	                if (list[2].compare(""))
+	                {
+	                    line.replace(list[2], QString("")); // replace text in string
+#ifdef DEBUG_CTC
+	                    qDebug() << line;
+#endif
+	                }
+                }
+                newStream << line << endl;
+			}
+		}
+    }
+	oldFile.close();
+	newFile.close();
+}
+
 // This function will delete the CTC scenario folder from which scenario for ALC has been created
 void Controller::deleteCTCscenario(const QString& scenarioFolder)
 {
@@ -356,6 +446,9 @@ void Controller::createScenarioForALC(const QString& scenarioFolder)
     QString folderNameForALCscenario = "ALC_Scenario_" + qtutils::getTimeStamp(prefix_);
     log("- folderNameForALCscenario: " + folderNameForALCscenario);
 
+	QDir newDir(scenarioFolder);
+	newDir.mkdir(folderNameForALCscenario);
+
     QTimer timer;
     timer.start(100);
     while(timer.remainingTime()>0)
@@ -369,24 +462,25 @@ void Controller::createScenarioForALC(const QString& scenarioFolder)
 
     QDir scenarioDirec(scenarioFolder);
     QStringList fileList1 = scenarioDirec.entryList(QStringList() << "*.*" , QDir::Files);
-    foreach (QString file, fileList1) {
-        QFileInfo fileInfo(file);
-        if(!((fileInfo.completeSuffix().contains("log")) || (fileInfo.completeSuffix().contains("project3d.CTC"))))
-        {
-            QDir newDir(scenarioFolder);
-            newDir.mkdir(folderNameForALCscenario);
-            if(fileInfo.completeSuffix().contains("project3d"))
-            {
-                QStringList strLst = file.split("_");
-                QFile::copy(scenarioFolder + "/" + file, scenarioFolder + "/" + folderNameForALCscenario + "/" + strLst[0] + ".project3d");
-            }
-            else
-            {
-                QFile::copy(scenarioFolder + "/" + file, scenarioFolder + "/" + folderNameForALCscenario + "/" + file);
-            }
+    
+	foreach(QString file, fileList1) {
+		QFileInfo fileInfo(file);
 
-        }
-    }
+		if (!fileInfo.completeSuffix().compare("project3d", Qt::CaseInsensitive))
+		{
+			QStringList strLst = file.split("_");
+            QString source = scenarioFolder + "/" + file;
+            QString target = scenarioFolder + "/" + folderNameForALCscenario + "/" + strLst[0] + ".project3d";
+            //QFile::copy(source, target);
+            FinalizeProject3dFile(source, target);
+		}
+		else if (!file.compare("Inputs.HDF", Qt::CaseInsensitive)
+			|| !fileInfo.completeSuffix().compare("txt", Qt::CaseInsensitive)
+			|| !fileInfo.completeSuffix().compare("FLT", Qt::CaseInsensitive))
+		{
+			QFile::copy(scenarioFolder + "/" + file, scenarioFolder + "/" + folderNameForALCscenario + "/" + file);
+		}
+	}
     
     QDir cpyScenarioDirec(scenarioFolder + "/" + folderNameForALCscenario);
 

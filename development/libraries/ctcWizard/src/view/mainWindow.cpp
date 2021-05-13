@@ -34,9 +34,9 @@ namespace ctcWizard
 
     void MainWindow::slotLineEditProject3dTextChanged(const QString& project3dPath) {
         project3dPath_ = project3dPath;
-    #ifdef DEBUG_CTC
+#ifdef DEBUG_CTC
         ctcTab_->disableProject3dSelection();
-    #endif
+#endif
     }
 
     // Clearing the CTC-Workspace when the CTC-UI is closed
@@ -44,7 +44,7 @@ namespace ctcWizard
     {
         // The following ifdef-part is kept for future reference
         // This part invokes a confirmation pop-up on closing CTC-UI
-    #ifdef DEBUG_CTC
+#ifdef DEBUG_CTC
         QMessageBox::StandardButton resBtn = QMessageBox::question(this,
             "CTC Wizard" + QString(CTCUI_VERSION),
             tr("Do you want to clear the CTC working directory and exit?\n"),
@@ -56,7 +56,7 @@ namespace ctcWizard
             event->accept();
         }
         else
-    #endif
+#endif
         {
             // Checking whether the user has selected a project3d file or not
             if (project3dPath_.isEmpty()) {

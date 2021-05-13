@@ -28,6 +28,7 @@ public:
   void launchCauldronMapsTool(const QString& filePath);
   void log(const QString& text)const;
   void createScenarioForALC(const QString& folderPath);
+  void FinalizeProject3dFile(const QString& oldFile, const QString& newFile)const;
   void deleteCTCscenario(const QString& folderPath);
   void showUI();
 
@@ -43,6 +44,8 @@ private:
   bool makeDirSymLinks(const QDir& src, const QDir& desti) const;
   MainWindow ui_;
   CtcScenario ctcScenario_;
+
+  // This is a new CTCcontroller
   QVector<QObject*> subControllers_;
 };
 
