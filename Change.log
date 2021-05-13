@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-13  arijit.khan Khan  <arijit.khan@shell.com>
+
+	fix: dev: usr: exclude RDA and Basalt maps when creating ALC scenario from ctcwizard !minor
+	 * Ignores any *.hdf files other that Inputs.HDf to package as zip for import back to BPA2-Basin
+	 * Removes any references to these maps from the project3d file
+
+	Related work items: #419985
+	================== COMMIT-END ========================
+	Commit-ID:<1f4a2003a060b628d16258546b3b2a59f520d540>	  (refs/heads/master)
+
+++
 2021-05-12  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Validation problems fixed.
