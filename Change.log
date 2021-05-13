@@ -13,7 +13,7 @@
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Version				Date of update
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-Cauldron-v2.6.0		2021-04-09 09:27:35 +0000
+Cauldron-v2.7.0		2021-05-13 17:09:48 +0000
 =============================================================
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Third-party Software 		version
@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-13  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
+
+	new: dev: Added Unit Tests for CTC-UI code.
+	 * Unit test framework has been developed for the CTC-UI code
+	 * A few unit tests have been added
+
+	Related work items: #417718
+	================== COMMIT-END ========================
+	Commit-ID:<7dd3474d1f081c5ec883525f085971e91c8a702a>	  (tag: refs/tags/v2.7.0, refs/heads/master)
+
+++
 2021-05-13  arijit.khan Khan  <arijit.khan@shell.com>
 
 	fix: dev: usr: exclude RDA and Basalt maps when creating ALC scenario from ctcwizard !minor
