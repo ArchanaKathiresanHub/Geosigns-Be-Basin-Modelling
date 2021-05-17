@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-05-17  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: SAC depth conversion - Added the new flag to code and tests !minor.
+	================== COMMIT-END ========================
+	Commit-ID:<5d88955ce43c8e3135d74e04e06aa719008440b7>	  (refs/heads/master)
+
+++
 2021-05-13  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
 
 	new: dev: Added Unit Tests for CTC-UI code.
