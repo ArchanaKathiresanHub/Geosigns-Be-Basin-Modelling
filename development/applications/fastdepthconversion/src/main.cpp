@@ -57,7 +57,7 @@ int main(int argc, char** argv)
       return -1;
     }
 
-    ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-NoCalculatedTWToutput", &tmp_bool); CHKERRQ( ierr );
+    ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-noCalculatedTWToutput", &tmp_bool); CHKERRQ( ierr );
     bool optionNoCalculatedTWToutput = (tmp_bool==PETSC_TRUE);
 
     ierr = PetscOptionsHasName(PETSC_IGNORE, PETSC_IGNORE, "-preserveErosion", &tmp_bool); CHKERRQ( ierr );
@@ -112,7 +112,7 @@ void showUsage ()
                                           << "\t-endSurface k              The integer k is the last surface of the depth conversion. The numbering is the order of formations in the StratIoTbl, starting with 0.\n"
                                           << "\t-<<run mode>>              A cauldron run mode must be specified for the calculations. Like the fastcauldron run mode, e.g., -temperature or -itcoupled\n"
                                           << "\t[-preserveErosion]         If this flag is set the tool will preserve erosion in the base project file. The tool will only identify erosions which also have zero TWT difference at the erosion location! (wrong/unwanted micro erosions might still disappear)\n"
-                                          << "\t[-NoCalculatedTWToutput]   If this flag is set the caluclated time maps which are generated for missing TWT maps in the inputs are NOT written to the resulting project file. The default setting is, that these TWT maps will be written in the output file (marked as calculated TWT maps)\n"
+                                          << "\t[-noCalculatedTWToutput]   If this flag is set the caluclated time maps which are generated for missing TWT maps in the inputs are NOT written to the resulting project file. The default setting is, that these TWT maps will be written in the output file (marked as calculated TWT maps)\n"
                                           << "\t[-NoExtrapolation]         If this flag is set there will be no extrapolation of data at the edge of the domain (only in subsampled mode, the result is a blocky looking AOI)\n"
                                           << "\t[-help]                    Shows this help message and exit.\n";
 }

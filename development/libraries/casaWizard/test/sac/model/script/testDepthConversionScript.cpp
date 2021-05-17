@@ -20,14 +20,14 @@ TEST(DepthConversionScriptTest, testGenerateCommandsLocal)
   std::unique_ptr<casaWizard::RunScript> script(new casaWizard::sac::DepthConversionScript(scenario, scenario.workingDirectory() + "/T2Z_step2"));
 
   script->generateCommands();
-  std::string expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -temperature -onlyat 0 -referenceSurface 0 -endSurface 10 -noofpp -preserveErosion";
+  std::string expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -temperature -onlyat 0 -referenceSurface 0 -endSurface 10 -noofpp -preserveErosion -noCalculatedTWToutput";
 
   EXPECT_EQ(script->commands()[0].command.toStdString(), expectedCommand);
 
   scenario.setApplicationName("fastcauldron \"-itcoupled\"");
   script->generateCommands();
 
-  expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -itcoupled -onlyat 0 -referenceSurface 0 -endSurface 10 -noofpp -preserveErosion";
+  expectedCommand = "mpirun_wrap.sh -n 10 fastdepthconversion -project Project.project3d -itcoupled -onlyat 0 -referenceSurface 0 -endSurface 10 -noofpp -preserveErosion -noCalculatedTWToutput";
   EXPECT_EQ(script->commands()[1].command.toStdString(), expectedCommand);
 
 }

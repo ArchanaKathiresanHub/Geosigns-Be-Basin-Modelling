@@ -7,7 +7,7 @@ cat > runt2zCluster.sh << EOF
 #BSUB -o output.log
 #BSUB -cwd ./T2Z_step2
 source setupEnv.sh
-mpirun_wrap.sh -n 1 -outfile-pattern 'fastdepthconversion-output-rank-%r.log' fastdepthconversion -project Project.project3d -temperature -onlyat 0 -referenceSurface 0 -endSurface 10 -noofpp -preserveErosion
+mpirun_wrap.sh -n 1 -outfile-pattern 'fastdepthconversion-output-rank-%r.log' fastdepthconversion -project Project.project3d -temperature -onlyat 0 -referenceSurface 0 -endSurface 10 -noofpp -preserveErosion -noCalculatedTWToutput
 EOF
 
 bsub -K < runt2zCluster.sh

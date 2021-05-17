@@ -92,7 +92,8 @@ QString DepthConversionScript::getDepthConversionCommand() const
                    " -referenceSurface " + QString::number(scenario_.t2zReferenceSurface()) +
                    " -endSurface " + QString::number(scenario_.t2zLastSurface()) +
                    " -noofpp" +
-                   " -preserveErosion");
+                   " -preserveErosion" +
+                   " -noCalculatedTWToutput");
 }
 
 } // namespace sac
