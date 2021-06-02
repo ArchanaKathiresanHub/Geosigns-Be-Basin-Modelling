@@ -23,7 +23,7 @@ namespace mbapi
    {
    public:
       /// @brief Destructor
-      virtual ~PropertyManager() { ; }
+      virtual ~PropertyManager() {}
 
       /// @brief Check if properties table has given property in active state. If given property\n
       /// doesn't exist in table it adds corresponded record, if property isn't active - makes it active

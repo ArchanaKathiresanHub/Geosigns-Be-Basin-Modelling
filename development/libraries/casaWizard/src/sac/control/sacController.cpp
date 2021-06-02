@@ -162,10 +162,13 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
     calDir.mkpath(".");
   }
 
-  const bool filesCopied = functions::copyCaseFolder(workingDir, calibrationDir);
+  const bool filesCopied = functions::copyCaseFolder(QDir(workingDir), QDir(calibrationDir));
 
   Logger::log() << (filesCopied ? "Finished copying case to " + calibrationDir :
                                   "Failed copying case, no files were copied") << Logger::endl();
+
+  CMBProjectWriter projectWriter(calibrationDir + "/" + casaScenario_.project3dFilename());
+  casaScenario_.updateRelevantProperties(projectWriter);
 
   scenarioBackup::backup(casaScenario_);
   SACScript sac{casaScenario_, calibrationDir};
@@ -215,10 +218,13 @@ void SACcontroller::slotRunOriginal1D()
     calDir.mkpath(".");
   }
 
-  const bool filesCopied = functions::copyCaseFolder(workingDir, original1dDir);
+  const bool filesCopied = functions::copyCaseFolder(QDir(workingDir), QDir(original1dDir));
 
   Logger::log() << (filesCopied ? "Finished copying case to " + original1dDir :
                                   "Failed copying case, no files were copied") << Logger::endl();
+
+  CMBProjectWriter projectWriter(original1dDir + "/" + casaScenario_.project3dFilename());
+  casaScenario_.updateRelevantProperties(projectWriter);
 
   scenarioBackup::backup(casaScenario_);
   SACScript sac(casaScenario_, original1dDir, false);
@@ -260,7 +266,7 @@ void SACcontroller::slotRunOriginal3D()
   {
     Logger::log() << "Source directory " + sourceDir.absolutePath() + " not found" << Logger::endl();
     return;
-  }
+  } 
 
   const bool filesCopied = functions::copyCaseFolder(sourceDir, targetDir);
   if (!filesCopied)
@@ -269,6 +275,8 @@ void SACcontroller::slotRunOriginal3D()
                   << "\nThe original is not run" << Logger::endl();
     return;
   }
+  CMBProjectWriter projectWriter(runDirectory + "/" + casaScenario_.project3dFilename());
+  casaScenario_.updateRelevantProperties(projectWriter);
 
   Run3dCaseController run3dCaseController(casaScenario_, scriptRunController_);
   if (run3dCaseController.run3dCase(runDirectory, false))
@@ -344,9 +352,6 @@ void SACcontroller::slotPushSelectCalibrationClicked()
   WellTrajectoryManager& wtManager = casaScenario_.wellTrajectoryManager();
   wtManager.updateWellTrajectories(ctManager);
   ctManager.disableInvalidWells(casaScenario_.project3dPath().toStdString(), casaScenario_.projectReader().getDepthGridName(0).toStdString());
-
-  CMBProjectWriter projectWriter(casaScenario_.project3dPath());
-  casaScenario_.updateRelevantProperties(projectWriter);
 
   scenarioBackup::backup(casaScenario_);
   refreshGUI();

@@ -20,7 +20,7 @@ public:
   ProjectWriter() = default;
   virtual ~ProjectWriter() = default;
 
-  virtual void generateOutputProject(const QString& timeStamp) = 0;
+  virtual void generateOutputProject(const QString& timeStamp, const QString& originalProject) = 0;
   virtual void setRelevantOutputParameters(const QStringList& activeProperties) = 0;
   virtual void setScaling(int scaleX, int scaleY) = 0;
 };

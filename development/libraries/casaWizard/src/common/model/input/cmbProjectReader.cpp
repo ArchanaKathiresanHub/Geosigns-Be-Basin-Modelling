@@ -145,11 +145,11 @@ void CMBProjectReader::domainRange(double& xMin, double& xMax, double& yMin, dou
   if (!loaded_)
   {
     return;
-  }
+  }  
 
-  cmbModel_->origin(xMin, yMin);
+  cmbModel_->highResOrigin(xMin, yMin);
   double xDim, yDim;
-  cmbModel_->arealSize(xDim, yDim);
+  cmbModel_->highResAreaSize(xDim, yDim);
   xMax = xMin + xDim;
   yMax = yMin + yDim;
 }

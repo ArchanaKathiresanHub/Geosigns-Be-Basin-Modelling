@@ -176,8 +176,8 @@ void exportScenarioToZip(const QDir& sourceDir, const QString& workingDirectory,
   infoGenerator.loadProjectReader(tmpdir.absolutePath().toStdString());
   infoGenerator.generateInfoTextFile();
 
-  CMBProjectWriter writer(tmpdir.absolutePath() + "/" + projectFile);
-  writer.generateOutputProject(timeStamp);
+  CMBProjectWriter writer(tmpdir.absolutePath() + "/" + projectFile);  
+  writer.generateOutputProject(timeStamp, workingDirectory + "/" + projectFile);
   ProjectTXTManipulator manipulator(tmpdir.absolutePath() + "/" + projectTextFile);
   manipulator.appendStampToScenarioName(timeStamp);
 

@@ -121,11 +121,12 @@ void CMBProjectWriter::deleteOutputTables()
   cmbModel_->clearTable("OutputTablesIoTbl");
 }
 
-void CMBProjectWriter::generateOutputProject(const QString& timeStamp)
+void CMBProjectWriter::generateOutputProject(const QString& timeStamp, const QString& originalProject)
 {
   appendTimeStampToCalibratedLithoMaps(timeStamp);
   appendTimeStampToT2ZMaps(timeStamp);
   deleteOutputTables();
+  copyFilterTimeIoTbl(originalProject);
 
   // Finally save the model from memory to file
   cmbModel_->saveModelToProjectFile(cmbModel_->projectFileName());
@@ -133,11 +134,7 @@ void CMBProjectWriter::generateOutputProject(const QString& timeStamp)
 
 void CMBProjectWriter::setRelevantOutputParameters(const QStringList& activeProperties)
 {
-  int tableSize = cmbModel_->tableSize("FilterTimeIoTbl");
-  for (size_t i = 0; i < tableSize; i++)
-  {
-    cmbModel_->setTableValue("FilterTimeIoTbl", i, "OutputOption", "None");
-  }
+  cmbModel_->clearTable("FilterTimeIoTbl");
 
   for (int i = 0; i < activeProperties.size(); i++)
   {
@@ -168,6 +165,30 @@ void CMBProjectWriter::setRelevantOutputParameters(const QStringList& activeProp
   cmbModel_->propertyManager().requestPropertyInSnapshots("Depth", "SedimentsPlusBasement");
 
   cmbModel_->saveModelToProjectFile(cmbModel_->projectFileName());
+}
+
+void CMBProjectWriter::copyFilterTimeIoTbl(const QString& projectFile)
+{
+  const std::string filterTimeIoTbl = "FilterTimeIoTbl";
+
+  mbapi::Model refModel;
+  refModel.loadModelFromProjectFile(projectFile.toStdString());
+  cmbModel_->clearTable(filterTimeIoTbl);
+
+  std::vector<datatype::DataType> colDataTypes;
+  const std::vector<std::string> columnsList = refModel.tableColumnsList( filterTimeIoTbl, colDataTypes );
+  for ( size_t row = 0; row < refModel.tableSize(filterTimeIoTbl); ++row )
+  {    
+    cmbModel_->addRowToTable(filterTimeIoTbl);
+    for ( int col = 0; col < colDataTypes.size(); ++col )
+    {
+      assert(colDataTypes[col] == datatype::String); // Only string data type columns in FilterTimeIoTbl
+      if (colDataTypes[col] == datatype::String)
+      {
+        cmbModel_->setTableValue(filterTimeIoTbl, row, columnsList[col], refModel.tableValueAsString(filterTimeIoTbl, row, columnsList[col]));
+      }
+    }
+  }
 }
 
 void CMBProjectWriter::setScaling(int scaleX, int scaleY)

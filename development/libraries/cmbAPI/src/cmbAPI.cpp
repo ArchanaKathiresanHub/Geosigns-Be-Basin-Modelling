@@ -164,7 +164,14 @@ public:
    // window size
    void windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc );
 
+   // high resolution number of nodes
    void hiresGridArealSize( long & sizeI, long & sizeJ );
+
+   // high resolution model origin
+   void highResOrigin( double & x, double & y );
+
+   // high resolution area size
+   void highResAreaSize( double & sizeI, double & sizeJ );
 
    void interpolateLithoFractionsNN( const std::vector<double> & xin
                                    , const std::vector<double> & yin
@@ -509,6 +516,28 @@ Model::ReturnCode Model::origin( double & x, double & y )
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->origin( x, y ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+Model::ReturnCode Model::highResOrigin( double & x, double & y )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->highResOrigin( x, y ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+Model::ReturnCode Model::highResAreaSize( double & x, double & y )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->highResAreaSize( x, y ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
@@ -1433,6 +1462,20 @@ void Model::ModelImpl::origin( double & x, double & y )
    y = pd->getYOrigin() + pd->getDeltaY() * pd->getWindowYMin();
 }
 
+// model origin
+void Model::ModelImpl::highResOrigin( double & x, double & y )
+{
+   if ( !m_projHandle.get() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::higResOrigin(): no project was loaded";
+   }
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   x = pd->getXOrigin();
+   y = pd->getYOrigin();
+}
+
 void Model::ModelImpl::window( long & minWinI, long & maxWinI, long & minWinJ, long & maxWinJ )
 {
    if ( !m_projHandle.get() )
@@ -1539,6 +1582,16 @@ void Model::ModelImpl::hiresGridArealSize( long & sizeI, long & sizeJ )
 
    sizeI = pd->getNumberOfXNodes();
    sizeJ = pd->getNumberOfYNodes();
+}
+
+void Model::ModelImpl::highResAreaSize( double & sizeI, double & sizeJ )
+{
+   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::highResAreaSize(): no project was loaded"; }
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   sizeI = (pd->getNumberOfXNodes() - 1) * pd->getDeltaX();
+   sizeJ = (pd->getNumberOfYNodes() - 1) * pd->getDeltaY();
 }
 
 // transform the lithofractions and interpolate the results

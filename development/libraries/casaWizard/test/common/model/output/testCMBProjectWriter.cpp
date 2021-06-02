@@ -98,7 +98,7 @@ TEST( CMBProjectWriterTest, testGenerateOutputProject )
   // Given
   casaWizard::CMBProjectWriter writer(projectFile);
 
-  writer.generateOutputProject(QString("TimeStamp"));
+  writer.generateOutputProject(QString("TimeStamp"), projectFile);
 
   mbapi::Model cmbModel;
   cmbModel.loadModelFromProjectFile(projectFile.toStdString());

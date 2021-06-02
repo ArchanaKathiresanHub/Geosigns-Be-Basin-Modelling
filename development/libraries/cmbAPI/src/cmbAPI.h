@@ -322,13 +322,25 @@ namespace mbapi {
 	 SgsManager& sgsManager();
 
 
-      // Request some project porperties
+      // Request some project properties
 
       /// @brief Get basin model origin areal position
       /// @param[out] x x coordinate [m] for the project origin
       /// @param[out] y y coordinate [m] for the project origin
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode origin( double & x, double & y );
+
+      /// @brief Get basin high res origin areal position
+      /// @param[out] x x coordinate [m] for the project origin
+      /// @param[out] y y coordinate [m] for the project origin
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode highResOrigin( double & x, double & y );
+
+      /// @brief Get basin high res origin areal position
+      /// @param[out] x x coordinate [m] for the project origin
+      /// @param[out] y y coordinate [m] for the project origin
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode highResAreaSize( double & x, double & y );
 
       /// @brief Get dimensions of hi resolution grid
       /// @param[out] sizeI grid dimension in I direction

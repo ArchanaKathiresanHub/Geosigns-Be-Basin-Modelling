@@ -29,13 +29,14 @@ public:
   explicit CMBProjectWriter(const QString& projectFile);
   ~CMBProjectWriter() override;
 
-  void generateOutputProject(const QString& timeStamp) override;
+  void generateOutputProject(const QString& timeStamp, const QString& originalProject) override;
   void setRelevantOutputParameters(const QStringList& activeProperties) override;
   void setScaling(int scaleX, int scaleY) override;
 
 private:
   std::unique_ptr<mbapi::Model> cmbModel_;
 
+  void copyFilterTimeIoTbl(const QString& projectFile);
   void appendTimeStampToCalibratedLithoMaps(const QString& timeStamp);
   void appendTimeStampToT2ZMaps(const QString& timeStamp);
   void deleteOutputTables();
