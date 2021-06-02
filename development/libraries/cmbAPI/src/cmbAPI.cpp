@@ -1555,8 +1555,9 @@ void Model::ModelImpl::interpolateLithoFractionsNN( const std::vector<double> & 
 {
   const double shift                = 100.0;
   const int    convexHullEdgePoints = 25;
+  const int    nrOfWellsToAverageEdgePoints = 5;
 
-  const size_t nin                  = lf1.size();
+  const size_t nin                  = lf1.size();  
 
   // for all wells calculate rp, r12
   std::vector<double> rp;
@@ -1577,82 +1578,103 @@ void Model::ModelImpl::interpolateLithoFractionsNN( const std::vector<double> & 
   const int    numI   = pd->getNumberOfXNodes();
   const int    numJ   = pd->getNumberOfYNodes();
 
-  const double xmax   = xmin + numI * deltaX;
-  const double ymax   = ymin + numJ * deltaY;
-
-  // all wells are considered to calculate the mean values to use at the edges. this could be refined later on to use only the closest wells
-  double sumLf1hat = 0.0;
-  double sumLf2hat = 0.0;
-  double sumLf3hat = 0.0;
-
-  for ( size_t i = 0; i < nin; ++i )
-  {
-    sumLf1hat += lf1[i] + shift;
-    sumLf2hat += lf2[i] + shift;
-    sumLf3hat += lf3[i] + shift;
-  }
-
-  double meanLf1hat = sumLf1hat / nin;
-  double meanLf2hat = sumLf2hat / nin;
-  double meanLf3hat = sumLf3hat / nin;
-
-  double rpmean  = ( meanLf1hat + meanLf3hat ) / meanLf2hat;
-  double r13mean =   meanLf1hat / meanLf3hat;
+  const double xmax   = xmin + (numI - 1) * deltaX;
+  const double ymax   = ymin + (numJ - 1) * deltaY;
 
   const double deltaXConvexHull = ( xmax - xmin ) / convexHullEdgePoints;
   const double deltaYConvexHull = ( ymax - ymin ) / convexHullEdgePoints;
 
-  // first add the points at the edges in CCW order
-  for ( int i = 0; i <= convexHullEdgePoints; ++i )
-  {
-    x.push_back( xmin + deltaXConvexHull * i );
-    y.push_back( ymin );
-    rp.push_back( rpmean );
-    r13.push_back( r13mean );
-  }
-
-  for ( int i = 1; i < convexHullEdgePoints; ++i )
-  {
-    x.push_back( xmax );
-    y.push_back( ymin + i * deltaYConvexHull );
-    rp.push_back( rpmean );
-    r13.push_back( r13mean );
-  }
-
-  for ( int i = convexHullEdgePoints; i >= 0; --i )
-  {
-    x.push_back( xmin + deltaXConvexHull * i );
-    y.push_back( ymax );
-    rp.push_back( rpmean );
-    r13.push_back( r13mean );
-  }
-
-  for ( int i = convexHullEdgePoints - 1; i >= 1; --i )
-  {
-    x.push_back( xmin );
-    y.push_back( ymin + i * deltaYConvexHull );
-    rp.push_back( rpmean );
-    r13.push_back( r13mean );
-  }
-
-  // add well points only after the convex hull has been defined
   for ( size_t i = 0; i < nin; ++i )
   {
-    double lf1hat = lf1[i] + shift;
-    double lf2hat = lf2[i] + shift;
-    double lf3hat = lf3[i] + shift;
+    const double lf1hat = lf1[i] + shift;
+    const double lf2hat = lf2[i] + shift;
+    const double lf3hat = lf3[i] + shift;
     x.push_back( xin[i] );
     y.push_back( yin[i] );
     rp.push_back( ( lf1hat + lf3hat ) / lf2hat );
     r13.push_back(  lf1hat / lf3hat );
   }
 
+  for ( int i = 0; i <= convexHullEdgePoints; ++i )
+  {
+    x.push_back( xmin + deltaXConvexHull * i );
+    y.push_back( ymin );
+  }
+  for ( int i = 1; i < convexHullEdgePoints; ++i )
+  {
+    x.push_back( xmax );
+    y.push_back( ymin + i * deltaYConvexHull );
+  }
+  for ( int i = convexHullEdgePoints; i >= 0; --i )
+  {
+    x.push_back( xmin + deltaXConvexHull * i );
+    y.push_back( ymax );
+  }
+  for ( int i = convexHullEdgePoints - 1; i >= 1; --i )
+  {
+    x.push_back( xmin );
+    y.push_back( ymin + i * deltaYConvexHull );
+  }
+
+  auto getClosestWells = [=](double x, double y)
+  {
+    std::vector<int> closestWells;
+    std::vector<double> closestDistances;
+    for (int i = 0; i<nin; ++i)
+    {
+      const double dx = x - xin[i];
+      const double dy = y - yin[i];
+      const double distance2 = dx*dx + dy*dy;
+
+      if (closestWells.size()<nrOfWellsToAverageEdgePoints)
+      {
+        closestWells.push_back(i);
+        closestDistances.push_back(distance2);
+      }
+      else
+      {
+        int largest = -1;
+        double largestDistance = distance2;
+        for (int j = 0; j<nrOfWellsToAverageEdgePoints; ++j)
+        {
+          if (closestDistances[j] > largestDistance)
+          {
+            largestDistance = closestDistances[j];
+            largest = j;
+          }
+        }
+        if (largest > -1)
+        {
+          closestWells[largest] = i;
+          closestDistances[largest] = distance2;
+        }
+      }
+    }
+
+    return closestWells;
+  };
+
+  for ( size_t i = nin; i<x.size(); ++i )
+  {
+    double rpmean = 0.0;
+    double r13mean = 0.0;
+    const std::vector<int> closestWells = getClosestWells(x[i],y[i]);
+    for (int j : closestWells)
+    {
+      rpmean += rp[j];
+      r13mean += r13[j];
+    }
+
+    rp.push_back( rpmean / closestWells.size() );
+    r13.push_back( r13mean / closestWells.size() );
+  }
+
   // interpolate
   if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, rp
-                                                         , xmin + deltaX * 0.5
-                                                         , xmax - deltaX * 0.5
-                                                         , ymin + deltaY * 0.5
-                                                         , ymax - deltaY * 0.5
+                                                         , xmin
+                                                         , xmax
+                                                         , ymin
+                                                         , ymax
                                                          , numI, numJ, xInt, yInt, rpInt
                                                          ) )
   {
@@ -1660,10 +1682,10 @@ void Model::ModelImpl::interpolateLithoFractionsNN( const std::vector<double> & 
   }
 
   if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, r13
-                                                         , xmin + deltaX * 0.5
-                                                         , xmax - deltaX * 0.5
-                                                         , ymin + deltaY * 0.5
-                                                         , ymax - deltaY * 0.5
+                                                         , xmin
+                                                         , xmax
+                                                         , ymin
+                                                         , ymax
                                                          , numI, numJ, xInt, yInt, r13Int
                                                          ) )
   {

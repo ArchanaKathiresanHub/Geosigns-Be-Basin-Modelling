@@ -724,24 +724,42 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( const std::vector<doub
 {
    if ( errorCode() != NoError ) resetError();
    try
-   {
-      const size_t  nin = xin.size();
-      auto * pin = static_cast<point*>(malloc(nin * sizeof( point)));
+   {      
+      std::vector<point> pin;
       point * pout = nullptr;
       int     nout;
-      const double  wmin = 0;
+      const double wmin = -1.e-4;
+      const double tolerance = 1.e-10;
 
-      for ( size_t i = 0; i != nin; ++i )
+      size_t j = 0;
+      for ( size_t i = 0; i < xin.size(); ++i )
       {
-         pin[i].x = xin[i];
-         pin[i].y = yin[i];
-         pin[i].z = vin[i];
+         bool noDuplicate = true;
+         for ( size_t k = 0; k < j; ++k)
+         {
+            if (std::fabs(xin[i] - pin[k].x) < tolerance && std::fabs(yin[i] - pin[k].y) < tolerance)
+            {
+               pin[k].z = (pin[k].z + vin[i]) * 0.5;
+               noDuplicate = false;
+               break;
+            }
+         }
+         if (noDuplicate)
+         {
+             point p;
+             p.x = xin[i];
+             p.y = yin[i];
+             p.z = vin[i];
+             pin.push_back(p);
+             j++;
+         }
       }
+      const int nin = pin.size();
 
       // generate the points, interpolate with NNlib
-      points_getrange( static_cast<int>( nin ), pin, 1, &xmin, &xmax, &ymin, &ymax );
+      points_getrange( nin, pin.data(), 1, &xmin, &xmax, &ymin, &ymax );
       points_generate( xmin, xmax, ymin, ymax, numI, numJ, &nout, &pout );
-      nnpi_interpolate_points( static_cast<int>( nin ), pin, wmin, nout, pout );
+      nnpi_interpolate_points( nin, pin.data(), wmin, nout, pout );
 
       xout.resize( nout );
       yout.resize( nout );
@@ -754,7 +772,6 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( const std::vector<doub
          vout[i] = pout[i].z;
       }
 
-      free( pin );
       free( pout );
    }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
