@@ -211,8 +211,21 @@ namespace casa
       }
       std::string firstReplacedMap, secondReplacedMap;
       strMgr.setLayerLithologiesPercentageMaps( lid, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage, firstReplacedMap, secondReplacedMap );
-      mapsMgr.removeMapReferenceFromGridMapIOTbl(firstReplacedMap, "StratIoTbl");
-      mapsMgr.removeMapReferenceFromGridMapIOTbl(secondReplacedMap, "StratIoTbl");
+
+      // Check if other layer uses same maps, before deleting it
+      std::vector<std::string> lithoList;
+      std::vector<double> lithoPercent ;
+      std::vector<std::string> lithoPercentGrid;
+      for ( const mbapi::StratigraphyManager::LayerID layerId : strMgr.layersIDs() )
+      {
+        if (layerId == lid) continue;
+        strMgr.layerLithologiesList(layerId, lithoList, lithoPercent, lithoPercentGrid);
+        if ( lithoPercentGrid[0] == firstReplacedMap || lithoPercentGrid[1] == firstReplacedMap ) firstReplacedMap = "";
+        if ( lithoPercentGrid[0] == secondReplacedMap || lithoPercentGrid[1] == secondReplacedMap ) secondReplacedMap = "";
+      }
+
+      if (!firstReplacedMap.empty()) mapsMgr.removeMapReferenceFromGridMapIOTbl(firstReplacedMap, "StratIoTbl");
+      if (!secondReplacedMap.empty()) mapsMgr.removeMapReferenceFromGridMapIOTbl(secondReplacedMap, "StratIoTbl");
 
       // both maps are provided, no scalar values is needed
       return SharedParameterPtr( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, std::vector<double>(),
