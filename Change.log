@@ -36,6 +36,23 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-06-07  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Add check if map is not used by other layer.
+	* Add check if map is not used by other layer
+
+	================== COMMIT-END ========================
+	Commit-ID:<0d7b702c9a1f0b161d8c715d3d3f2bd08286d706>	  (refs/heads/master)
+
+2021-06-02  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix output selection.
+	* Fix output selection for the export of SAC wizard
+
+	================== COMMIT-END ========================
+	Commit-ID:<635c7edf90ecdee22bc137caaa175285c86310e0>	  (refs/heads/Developers/Erik.vdBoogaard/NewMapSet)
+
+++
 2021-05-17  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: SAC depth conversion - Added the new flag to code and tests !minor.
