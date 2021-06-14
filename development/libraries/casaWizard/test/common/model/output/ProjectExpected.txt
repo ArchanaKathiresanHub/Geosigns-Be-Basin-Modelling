@@ -1,4 +1,4 @@
-Project: Ameland_Time_Depth_Conversion_Demo_LK28062020
+Project: Ameland_Time_Depth_Conversion_Demo_LK28062020_SAC_SomeDate-SomeTime
 Coord Ref System: Amersfoort / RD New [28992]
 Transform: Amersfoort to WGS 84 (2) [1672]
 Is Projected CRS: Yes

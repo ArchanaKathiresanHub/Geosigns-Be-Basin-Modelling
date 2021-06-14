@@ -36,10 +36,11 @@ void ProjectTXTManipulator::appendStampToScenarioName(const QString& stamp) cons
   while (!in.atEnd())
   {
     QString line = in.readLine();
-    if (line.left(9) == QString("Scenario:"))
+    if (line.left(9) == QString("Scenario:") || line.left(8) == QString("Project:"))
     {
       line += "_" + stamp;
     }
+
     out << line << endl;
   }
 
