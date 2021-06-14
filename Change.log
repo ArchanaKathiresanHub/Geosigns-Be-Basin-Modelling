@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-06-14  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix tolerances for back transform.
+	* Fix tolerances on back transform
+	* BPA2 does not allow for any tolerance and the project can not be uploaded
+
+	================== COMMIT-END ========================
+	Commit-ID:<c72fef22a196e3e92ca555fe9f16c9f4ee3ee366>	  (refs/heads/master)
+
+++
 2021-06-14  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Append SAC stamp to project name to enforce new mapset in BPA2 map catalog
