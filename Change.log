@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-06-14  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Append SAC stamp to project name to enforce new mapset in BPA2 map catalog
+	* The projectTxtManipulator was adjusted to append the SAC stamp to the project name in the Project.txt
+	* Related work items: #428226
+
+	================== COMMIT-END ========================
+	Commit-ID:<e6ba99ca859b3810a72059adb29fb73bbf75d677>	  (refs/heads/master)
+
+++
 2021-06-07  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Add check if map is not used by other layer.
