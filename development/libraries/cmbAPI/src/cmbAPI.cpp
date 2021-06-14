@@ -1878,8 +1878,8 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
                                                   , const bool emptyMap2
                                                   , const bool emptyMap3
    )
-{
-   const double eps      = 1e-4;
+{   
+   const double eps      = 1.e-10;
    const double shift    = 100.0;
    const double sumLfInt = 100.0 + 3.0 * shift;
 
@@ -1892,69 +1892,79 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
    {
       double lf2Int =   sumLfInt            / ( rpInt[i]  + 1.0 );
       double lf3Int = ( sumLfInt - lf2Int ) / ( r13Int[i] + 1.0 );
-      double lf1Int =   sumLfInt - lf2Int   -   lf3Int;
-      lf1Int -= shift;
       lf2Int -= shift;
       lf3Int -= shift;
+
+      double lf1Int = 100.0 - lf2Int - lf3Int;
 
       if (emptyMap1)
       {
         lf2Int += lf1Int * 0.5;
-        lf3Int += lf1Int * 0.5;
+        lf3Int = 100.0 - lf2Int;
         lf1Int = 0.0;
       }
       if (emptyMap2)
       {
         lf1Int += lf2Int * 0.5;
-        lf3Int += lf2Int * 0.5;
+        lf3Int = 100.0 - lf1Int;
         lf2Int = 0.0;
       }
       if (emptyMap3)
       {
         lf1Int += lf3Int * 0.5;
-        lf2Int += lf3Int * 0.5;
+        lf2Int = 100.0 - lf1Int;
         lf3Int = 0.0;
       }
 
       // correct lithofractions if something got wrong
-      if ( ( lf1Int + lf2Int ) > 100.0 || lf1Int < 0.0 || lf2Int < 0.0 || lf3Int < 0.0 )
+
+      if ( lf1Int + lf2Int > 100.0 )
       {
-         if ( ( lf1Int + lf2Int ) > 100.0 && ( lf1Int + lf2Int ) < 100.0 + eps )
+         const double res = lf1Int + lf2Int - 100.0;
+         lf1Int -= res * 0.5;
+         lf2Int -= res * 0.5;
+         lf3Int = 100.0 - lf1Int - lf2Int;
+      }
+      if ( lf1Int < 0 ) // correct lf1Int
+      {
+         if ( lf2Int > std::fabs( lf1Int ) )
          {
-            double res = lf1Int + lf2Int - 100;
-            if ( lf1Int > 2.0 * eps ) { lf1Int -= res * 0.51; }
-            if ( lf2Int > 2.0 * eps ) { lf2Int -= res * 0.51; }
-            lf3Int = 100.0 - lf1Int - lf2Int;
-         }
-         else if ( lf1Int < 0 && lf1Int > -eps ) // correct lf1Int
-         {
-            if ( lf2Int > abs( lf1Int ) ) { lf2Int -= lf1Int; }
-            else                          { lf3Int -= lf1Int; }
-            lf1Int = 0.0;
-         }
-         else if ( lf2Int < 0 && lf2Int > -eps ) // correct lf2Int
-         {
-            if ( lf1Int > abs( lf2Int ) ) { lf1Int -= lf2Int; }
-            else                          { lf3Int -= lf2Int; }
-            lf2Int = 0.0;
-         }
-         else if ( lf3Int < 0 && lf3Int > -eps ) // correct lf3Int
-         {
-            if ( lf1Int > abs( lf3Int ) ) { lf1Int -= lf3Int; }
-            else                          { lf2Int -= lf3Int; }
-            lf3Int = 0;
+           lf2Int -= lf1Int;
          }
          else
          {
-            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Negative interpolated lithofractions: lf1Int " << lf1Int <<
-                                                                                                                   " lf2Int " << lf2Int <<
-                                                                                                                   " lf3Int " << lf3Int;
+           lf3Int -= lf1Int;
          }
+         lf1Int = 0.0;
       }
-      if ( ( lf1Int + lf2Int + lf3Int ) > 100 + eps )
+      if ( lf2Int < 0 ) // correct lf2Int
+      {
+         if ( lf1Int > std::fabs( lf2Int ) )
+         {
+           lf1Int -= lf2Int;
+         }
+         else
+         {
+           lf3Int -= lf2Int;
+         }
+         lf2Int = 0.0;
+      }
+      if ( lf3Int < 0 ) // correct lf3Int
+      {
+         if ( lf1Int > std::fabs( lf3Int ) )
+         {
+           lf1Int -= lf3Int;
+         }
+         else
+         {
+           lf2Int -= lf3Int;
+         }
+         lf3Int = 0.0;
+      }
+      if ( lf1Int + lf2Int + lf3Int > 100.0 + eps )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<
-                                      "The sum of the interpolated lithofractions is greater than 100.0001: " << lf1Int + lf2Int + lf3Int;
+                                      "The sum of the interpolated lithofractions is greater than 100: " << lf1Int + lf2Int + lf3Int;
       }
       lf1CorrInt[i] = lf1Int;
       lf2CorrInt[i] = lf2Int;
