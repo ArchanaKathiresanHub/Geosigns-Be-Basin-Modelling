@@ -35,7 +35,9 @@ LithofractionVisualisation::LithofractionVisualisation(QWidget *parent) :
   layerSelection_{new QComboBox(this)},
   plotOptions_{new QWidget(this)},
   stretched_{new CustomCheckbox(this)},
-  wellsVisible_{new CustomCheckbox(this)}
+  wellsVisible_{new CustomCheckbox(this)},
+  singleMapLayout_{new CustomCheckbox(this)},
+  plotsAndOptions_{new QGridLayout(this)}
 {
   initializeLithoFractionPlots();
   setPlotOptionsLayout();
@@ -54,10 +56,10 @@ void LithofractionVisualisation::initializeLithoFractionPlots()
 
 void LithofractionVisualisation::setPlotOptionsLayout()
 {
-
   colorMapSelection_->insertItems(0, {"Viridis", "Gray scale", "Rainbow"});
   wellsVisible_->setCheckState(Qt::CheckState::Checked);
   stretched_->setCheckState(Qt::CheckState::Unchecked);
+  singleMapLayout_->setCheckState(Qt::CheckState::Unchecked);
 
   percentageRange_->insertItems(0, {"Variable", "Fixed between 0 and 100", "Fixed between global min and max"});
 
@@ -76,21 +78,19 @@ void LithofractionVisualisation::setPlotOptionsLayout()
   plotOptionsLayout->addWidget(new QLabel(" Stretched: ", this), 4, 0);
   plotOptionsLayout->addWidget(stretched_, 4, 1);
 
-  plotOptionsLayout->addWidget(new QLabel(" Percentage range: ", this), 5, 0);
-  plotOptionsLayout->addWidget(percentageRange_, 5, 1);
+  plotOptionsLayout->addWidget(new QLabel(" Single map layout: ", this), 5, 0);
+  plotOptionsLayout->addWidget(singleMapLayout_, 5, 1);
+
+  plotOptionsLayout->addWidget(new QLabel(" Percentage range: ", this), 6, 0);
+  plotOptionsLayout->addWidget(percentageRange_, 6, 1);
 
   plotOptions_->setMaximumWidth(400);
-  plotOptions_->setMaximumHeight(150);
+  plotOptions_->setMaximumHeight(165);
 }
 
 void LithofractionVisualisation::setTotalLayout()
 {
-  QGridLayout* plotsAndOptions = new QGridLayout(this);
-  plotsAndOptions->addWidget(lithoFractionPlots_[0], 0, 0);
-  plotsAndOptions->addWidget(lithoFractionPlots_[1], 0, 1);
-  plotsAndOptions->addWidget(lithoFractionPlots_[2], 1, 0);
-  plotsAndOptions->addWidget(plotOptions_, 1, 1, Qt::Alignment(Qt::AlignmentFlag::AlignTop));
-  plotsAndOptions->setMargin(0);
+  setThreePlotLayout();
 
   QSizePolicy retainSize = sizePolicy();
   retainSize.setRetainSizeWhenHidden(true);
@@ -102,6 +102,18 @@ void LithofractionVisualisation::setTotalLayout()
   setPalette(pal);
 }
 
+void LithofractionVisualisation::setThreePlotLayout()
+{
+  delete plotsAndOptions_;
+  plotsAndOptions_ = new QGridLayout(this);
+
+  plotsAndOptions_->addWidget(lithoFractionPlots_[0], 0, 0);
+  plotsAndOptions_->addWidget(lithoFractionPlots_[1], 0, 1);
+  plotsAndOptions_->addWidget(lithoFractionPlots_[2], 1, 0);
+  plotsAndOptions_->addWidget(plotOptions_, 1, 1, Qt::Alignment(Qt::AlignmentFlag::AlignTop));
+
+  plotsAndOptions_->setMargin(0);
+}
 
 void LithofractionVisualisation::connectSignalsAndSlots()
 {
@@ -179,6 +191,55 @@ void LithofractionVisualisation::slotUpdatePercentageRanges(const QString& perce
   }
 }
 
+void LithofractionVisualisation::updateMapLayout(const bool singleMapLayout)
+{
+  if (singleMapLayout)
+  {
+    setOnePlotLayout();
+  }
+  else
+  {
+    setThreePlotLayout();
+
+    lithoFractionPlots_[1]->setVisible(true);
+    lithoFractionPlots_[2]->setVisible(true);
+  }
+
+  hideAllTooltips();
+}
+
+void LithofractionVisualisation::refreshCurrentPercentageRange()
+{
+  slotUpdatePercentageRanges(percentageRange_->currentText());
+}
+
+void LithofractionVisualisation::hideAllTooltips()
+{
+  for (const Grid2DPlot* lithoFractionPlot : lithoFractionPlots())
+  {
+    lithoFractionPlot->lithoPercent2DView()->setToolTipVisible(false);
+  }
+}
+
+void LithofractionVisualisation::finalizeTooltip(const std::vector<double>& lithofractionsAtPoint, const QString& wellName, const int plotID)
+{
+  lithoFractionPlots()[plotID]->lithoPercent2DView()->finalizeTooltip(lithofractionsAtPoint, wellName, plotID);
+}
+
+void LithofractionVisualisation::setOnePlotLayout()
+{
+  delete plotsAndOptions_;
+  plotsAndOptions_ = new QGridLayout(this);
+
+  plotsAndOptions_->addWidget(lithoFractionPlots_[0], 0, 0);
+  plotsAndOptions_->addWidget(plotOptions_, 0, 1, Qt::Alignment(Qt::AlignmentFlag::AlignTop));
+
+  lithoFractionPlots_[1]->setVisible(false);
+  lithoFractionPlots_[2]->setVisible(false);
+
+  plotsAndOptions_->setMargin(0);
+}
+
 std::pair<double, double> LithofractionVisualisation::getGlobalRange()
 {
   std::pair<double, double> globalRange = lithoFractionPlots_[0]->lithoPercent2DView()->getValueRange();
@@ -200,6 +261,7 @@ std::vector<Grid2DPlot*> LithofractionVisualisation::lithoFractionPlots() const
 
 void LithofractionVisualisation::updateLayerOptions(QStringList availableLayers)
 {
+  QSignalBlocker blocker(this);
   layerSelection_->clear();
   for (QString availableLayer: availableLayers)
   {
@@ -210,6 +272,11 @@ void LithofractionVisualisation::updateLayerOptions(QStringList availableLayers)
 const QComboBox* LithofractionVisualisation::layerSelection() const
 {
   return layerSelection_;
+}
+
+CustomCheckbox* LithofractionVisualisation::singleMapLayout() const
+{
+  return singleMapLayout_;
 }
 
 QComboBox* LithofractionVisualisation::colorMapSelection() const

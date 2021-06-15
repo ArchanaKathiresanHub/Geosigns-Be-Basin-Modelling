@@ -14,11 +14,13 @@
 #include "model/casaScenario.h"
 #include "model/sacScenario.h"
 
+#include "view/components/customcheckbox.h"
 #include "view/grid2dplot.h"
 #include "view/lithofractionVisualisation.h"
 #include "view/plot/lithoPercent2Dview.h"
 
 #include "ConstantsMathematics.h"
+#include "ConstantsNumerical.h"
 
 #include <QDir>
 #include <QComboBox>
@@ -33,10 +35,12 @@ LithofractionVisualisationController::LithofractionVisualisationController(Litho
                                                                            SACScenario& casaScenario,
                                                                            QObject* parent) :
   QObject{parent},
+  singleMapLayout_{false},
   lithofractionVisualisation_{lithofractionVisualisation},
   scenario_{casaScenario}
 {
   connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
+  connect(lithofractionVisualisation_->singleMapLayout(), SIGNAL(stateChanged(int)), this, SLOT(slotUpdateSingleMapLayout(int)));
 
   connect(lithofractionVisualisation_->layerSelection(), SIGNAL(currentTextChanged(const QString&)), this, SLOT(slotUpdatePlots(const QString&)));
   connectToolTipSlots();
@@ -54,34 +58,59 @@ void LithofractionVisualisationController::connectToolTipSlots()
 
 void LithofractionVisualisationController::slotUpdatePlots(const QString& layerName)
 {
-  activeLayer_ = layerName;
-  CMBMapReader mapReader;
-  const int layerID = scenario_.projectReader().getLayerID(layerName.toStdString());
-
-  if (!openMaps(mapReader, layerID))
+  if (layerName == "")
   {
-    lithofractionVisualisation_->clearPlots();
     return;
   }
 
+  activeLayer_ = layerName;
+  const int layerID = scenario_.projectReader().getLayerID(layerName.toStdString());
+
+  CMBMapReader mapReader;
+  const bool optimizedLithomapsAvailable = openMaps(mapReader, layerID);
+
   double xMin = 0; double xMax = 1; double yMin = 0; double yMax = 1;
   scenario_.projectReader().domainRange(xMin, xMax, yMin, yMax);
-  const std::vector<VectorVectorMap> lithologyMaps = obtainLithologyMaps(mapReader, layerID);
+  std::vector<VectorVectorMap> lithologyMaps;
+
+  if (optimizedLithomapsAvailable)
+  {
+    lithologyMaps = obtainLithologyMaps(mapReader, layerID);
+  }
+  else
+  {
+    mapReader.load(scenario_.project3dPath().toStdString());
+  }
 
   VectorVectorMap depthMap = mapReader.getMapData(scenario_.projectReader().getDepthGridName(0).toStdString());
-
   const QStringList lithologyTypes = obtainLithologyTypes(layerID);
 
   int counter = 0;
   for (Grid2DPlot* lithoPlot : lithofractionVisualisation_->lithoFractionPlots())
   {
-    lithoPlot->setVisible(lithologyTypes[counter] != "");    
+    lithoPlot->setVisible(lithologyTypes[counter] != "" && !(counter>0 && singleMapLayout_));
 
-    lithoPlot->lithoPercent2DView()->updatePlots(lithologyMaps[counter].getData(), depthMap.getData());
+    std::vector<std::vector<double>> values;
+    if (optimizedLithomapsAvailable)
+    {
+      lithoPlot->lithoPercent2DView()->setSingleValue(false);
+      values = lithologyMaps[counter].getData();
+      lithoPlot->showColorBar();
+      lithofractionVisualisation_->refreshCurrentPercentageRange();
+    }
+    else
+    {
+      values = depthMap.getData();
+      lithoPlot->lithoPercent2DView()->setSingleValue(true);
+      lithoPlot->lithoPercent2DView()->setFixedValueRange({0,1});
+      lithoPlot->hideColorBar();
+    }
+
+    lithoPlot->lithoPercent2DView()->updatePlots(values, depthMap.getData());
     lithoPlot->lithoPercent2DView()->updateRange(xMin * Utilities::Maths::MeterToKilometer,
-                                         xMax * Utilities::Maths::MeterToKilometer,
-                                         yMin * Utilities::Maths::MeterToKilometer,
-                                         yMax * Utilities::Maths::MeterToKilometer);
+                                                 xMax * Utilities::Maths::MeterToKilometer,
+                                                 yMin * Utilities::Maths::MeterToKilometer,
+                                                 yMax * Utilities::Maths::MeterToKilometer);
     lithoPlot->updateColorBar();
     lithoPlot->setTitle(lithologyTypes[counter], counter);
     lithoPlot->lithoPercent2DView()->setToolTipVisible(false);
@@ -90,22 +119,99 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
     counter++;
   }
 
+
   updateBirdsView();
 }
 
-void LithofractionVisualisationController::toolTipCreated(const QPointF& point, const int plotID)
+std::vector<double> LithofractionVisualisationController::getLithopercentagesAtLocation(const QPointF& point) const
 {
   std::vector<double> lithofractionsAtPoint;
-
   for (const Grid2DPlot* lithoFractionPlot : lithofractionVisualisation_->lithoFractionPlots())
   {
     lithofractionsAtPoint.push_back(lithoFractionPlot->lithoPercent2DView()->getValue(point));
-    lithoFractionPlot->lithoPercent2DView()->setToolTipVisible(false);
   }
 
-  lithofractionVisualisation_->lithoFractionPlots()[plotID]->lithoPercent2DView()->setToolTipVisible(true);
-  lithofractionVisualisation_->lithoFractionPlots()[plotID]->lithoPercent2DView()->setToolTipData(lithofractionsAtPoint, plotID);
-  lithofractionVisualisation_->lithoFractionPlots()[plotID]->lithoPercent2DView()->correctToolTipPositioning();
+  return lithofractionsAtPoint;
+ }
+
+void LithofractionVisualisationController::toolTipCreated(const QPointF& point, const int plotID)
+{
+  lithofractionVisualisation_->hideAllTooltips();
+
+  std::vector<double> lithofractionsAtPoint;
+  int closestWellID = -1;
+  if (lithofractionVisualisation_->wellsVisible()->checkState() == Qt::CheckState::Checked)
+  {
+    lithofractionsAtPoint = getLithopercentagesOfClosestWell(point, closestWellID);
+  }
+  else if (!lithofractionVisualisation_->lithoFractionPlots()[0]->lithoPercent2DView()->singleValue())
+  {
+    lithofractionsAtPoint = getLithopercentagesAtLocation(point);
+  }
+
+  if (!lithofractionsAtPoint.empty() && lithofractionIsValid(lithofractionsAtPoint[0]))
+  {
+    QString wellName = "";
+    if (closestWellID != -1)
+    {
+      const Well& closestWell = scenario_.calibrationTargetManager().well(closestWellID);
+      wellName = closestWell.name();
+      lithofractionVisualisation_->lithoFractionPlots()[plotID]->lithoPercent2DView()->moveTooltipToDomainLocation(QPointF(closestWell.x() * Utilities::Maths::MeterToKilometer,
+                                                                                                                           closestWell.y() * Utilities::Maths::MeterToKilometer));
+    }
+
+    lithofractionVisualisation_->finalizeTooltip(lithofractionsAtPoint, wellName, plotID);
+  }
+}
+
+std::vector<double> LithofractionVisualisationController::getLithopercentagesOfClosestWell(const QPointF& point, int& closestWellID) const
+{
+  std::vector<double> lithofractionsAtPoint;
+
+  double xMin = 0; double xMax = 1; double yMin = 0; double yMax = 1;
+  scenario_.projectReader().domainRange(xMin, xMax, yMin, yMax);
+  double smallestDistance2 = ((xMax - xMin) / 30)*((xMax - xMin) / 30);
+
+  int closestLithofractionIndex = -1;
+  int currentLithofractionIndex = 0;
+
+  const CalibrationTargetManager& calibrationTargetManager = scenario_.calibrationTargetManager();
+  const QVector<OptimizedLithofraction>& lithofractionsInLayer = getOptimizedLithoFractionsInLayer(activeLayer_);
+  for (const auto& optimizedLithofraction : lithofractionsInLayer)
+  {
+    const int wellId = optimizedLithofraction.wellId();
+    const auto& currentWell = calibrationTargetManager.well(wellId);
+    const double distance2 = (currentWell.x()-point.x() * Utilities::Maths::KilometerToMeter) * (currentWell.x()-point.x() * Utilities::Maths::KilometerToMeter) +
+                             (currentWell.y()-point.y() * Utilities::Maths::KilometerToMeter) * (currentWell.y()-point.y() * Utilities::Maths::KilometerToMeter);
+    const bool isCloser = distance2 < smallestDistance2;
+    if (isCloser)
+    {
+      smallestDistance2 = distance2;
+      closestLithofractionIndex = currentLithofractionIndex;
+      closestWellID = wellId;
+    }
+    currentLithofractionIndex++;
+  }
+
+  if (closestLithofractionIndex!= -1)
+  {
+    lithofractionsAtPoint.push_back(lithofractionsInLayer[closestLithofractionIndex].optimizedPercentageFirstComponent());
+    lithofractionsAtPoint.push_back(lithofractionsInLayer[closestLithofractionIndex].optimizedPercentageSecondComponent());
+    lithofractionsAtPoint.push_back(lithofractionsInLayer[closestLithofractionIndex].optimizedPercentageThirdComponent());
+  }
+
+  return lithofractionsAtPoint;
+}
+
+bool LithofractionVisualisationController::lithofractionIsValid(const double lithofractionAtPoint) const
+{
+  return std::fabs(lithofractionAtPoint - Utilities::Numerical::CauldronNoDataValue) > 1e-5;
+}
+
+void LithofractionVisualisationController::slotUpdateSingleMapLayout(int state)
+{
+  singleMapLayout_ = state == Qt::CheckState::Checked;
+  lithofractionVisualisation_->updateMapLayout(singleMapLayout_);
 }
 
 bool LithofractionVisualisationController::openMaps(CMBMapReader& mapReader, const int layerID) const
@@ -146,21 +252,16 @@ std::vector<VectorVectorMap> LithofractionVisualisationController::obtainLitholo
 
 QStringList LithofractionVisualisationController::obtainAvailableLayers() const
 {
-  QDir threeDFromOneD = scenario_.calibrationDirectory() + "/ThreeDFromOneD/";
-  if (scenario_.project3dFilename() == "" || !threeDFromOneD.exists())
-  {
-    return {};
-  }
-
   CMBMapReader mapreader;
   mapreader.load((scenario_.calibrationDirectory() + "/ThreeDFromOneD/" + scenario_.project3dFilename()).toStdString());
 
   QStringList availableLayers;
   QStringList layers = scenario_.projectReader().layerNames();
+
   for (const QString& layer: layers)
   {
     int layerID = scenario_.projectReader().getLayerID(layer.toStdString());
-    if (mapreader.mapExists(std::to_string(layerID) + "_percent_1"))
+    if ( !getOptimizedLithoFractionsInLayer(layer).empty() || mapreader.mapExists(std::to_string(layerID) + "_percent_1"))
     {
       availableLayers.push_back(layer);
     }
@@ -188,16 +289,15 @@ void LithofractionVisualisationController::updateAvailableLayers()
   {
     activeLayer_ = availableLayers[0];
     lithofractionVisualisation_->updateLayerOptions(availableLayers);
-    lithofractionVisualisation_->setVisible(true);    
+    lithofractionVisualisation_->setVisible(true);
     lithofractionVisualisation_->update();
   }
 }
 
 void LithofractionVisualisationController::updateBirdsView()
 {
+  const QVector<OptimizedLithofraction> optimizedLithoFractions = getOptimizedLithoFractionsInLayer(activeLayer_);
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  QVector<OptimizedLithofraction> optimizedLithoFractions = getOptimizedLithoFractionsInActiveLayer(ctManager);
-
   lithofractionVisualisation_->updateBirdsView(ctManager.activeAndIncludedWells(), optimizedLithoFractions);
 }
 
@@ -207,10 +307,11 @@ void LithofractionVisualisationController::slotRefresh()
   updateBirdsView();
 }
 
-QVector<OptimizedLithofraction> LithofractionVisualisationController::getOptimizedLithoFractionsInActiveLayer(const CalibrationTargetManager& ctManager)
+QVector<OptimizedLithofraction> LithofractionVisualisationController::getOptimizedLithoFractionsInLayer(const QString& layer) const
 {
   const LithofractionManager& lithoManager = scenario_.lithofractionManager();
   const QVector<Lithofraction>& lithofractions = lithoManager.lithofractions();
+  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
 
   QVector<OptimizedLithofraction> optimizedLithoFractions;
   for (const Well* well : ctManager.activeAndIncludedWells())
@@ -218,7 +319,7 @@ QVector<OptimizedLithofraction> LithofractionVisualisationController::getOptimiz
     QVector<OptimizedLithofraction> tmp = lithoManager.optimizedInWell(well->id());
     for (OptimizedLithofraction lithofraction : tmp)
     {
-      if (lithofractions[lithofraction.lithofractionId()].layerName() == activeLayer_)
+      if (lithofractions[lithofraction.lithofractionId()].layerName() == layer)
       {
         optimizedLithoFractions.push_back(lithofraction);
       }

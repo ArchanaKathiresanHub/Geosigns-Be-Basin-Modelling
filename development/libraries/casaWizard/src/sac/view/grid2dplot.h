@@ -30,6 +30,8 @@ public:
   LithoPercent2DView* lithoPercent2DView() const;
   void setTitle(const QString& lithoType, int id);
   void updateColorBar();
+  void hideColorBar();
+  void showColorBar();
 
 private:
   ColorBar* colorBar_;

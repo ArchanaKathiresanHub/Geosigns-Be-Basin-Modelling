@@ -42,6 +42,19 @@ void LithoPercent2DView::setWellsVisible(const bool wellsVisible)
   update();
 }
 
+void LithoPercent2DView::moveTooltipToDomainLocation(const QPointF& domainLocation)
+{
+  lithoMapsToolTip_->setDomainPosition(domainLocation);
+  lithoMapsToolTip_->move(valToPoint(domainLocation.x(),domainLocation.y()).toPoint());
+}
+
+void LithoPercent2DView::finalizeTooltip(const std::vector<double>& lithofractionsAtPoint, const QString& wellName, const int plotID)
+{
+  setToolTipVisible(true);
+  setToolTipData(lithofractionsAtPoint, wellName, plotID);
+  correctToolTipPositioning();
+}
+
 void LithoPercent2DView::drawData(QPainter& painter)
 {
   Grid2DView::drawData(painter);
@@ -133,9 +146,9 @@ void LithoPercent2DView::initializeToolTip(const QPoint& mousePosition)
   emit toolTipCreated(domainPosition);
 }
 
-void LithoPercent2DView::setToolTipData(const std::vector<double>& lithofractionsAtPoint, const int activePlot)
+void LithoPercent2DView::setToolTipData(const std::vector<double>& lithofractionsAtPoint, const QString& wellName, const int activePlot)
 {
-  lithoMapsToolTip_->setLithofractions(lithofractionsAtPoint, activePlot);
+  lithoMapsToolTip_->setLithofractions(lithofractionsAtPoint, wellName, activePlot);
 }
 
 void LithoPercent2DView::correctToolTipPositioning()

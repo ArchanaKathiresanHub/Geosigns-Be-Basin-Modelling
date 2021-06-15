@@ -50,7 +50,7 @@ class LithoMapsToolTip : public QWidget
   Q_OBJECT
 public:
   explicit LithoMapsToolTip(QWidget *parent = nullptr);
-  void setLithofractions(const std::vector<double>& lithofractions, const int activePlot);
+  void setLithofractions(const std::vector<double>& lithofractions, const QString& wellName, const int activePlot);
   void setDomainPosition(const QPointF& domainPosition);
   void setCorner(const bool movedX, const bool movedY);
   void setLithoNames(const QStringList& lithoNames);
@@ -61,6 +61,7 @@ private:
 
   QLabel* header_;
   QLabel* valueLabel_;
+  QLabel* wellName_;
   LithoMapsToolTipOverlay* overlay_;
   QtCharts::QChart* pieChart_;
   QtCharts::QChartView* chartView_;
@@ -73,6 +74,7 @@ private:
   void initializeHeader();
   void initializePieChart();
   void initializeValueLabel();
+  void initializeWellLabel();
   void updatePieSliceColors();
 };
 

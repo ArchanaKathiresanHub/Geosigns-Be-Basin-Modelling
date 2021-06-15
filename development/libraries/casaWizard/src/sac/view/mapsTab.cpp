@@ -10,6 +10,7 @@
 
 #include "../common/view/components/customtitle.h"
 #include "../common/view/components/emphasisbutton.h"
+#include "../common/view/components/helpLabel.h"
 
 #include "model/well.h"
 #include "view/activeWellsTable.h"
@@ -35,7 +36,7 @@ MapsTab::MapsTab(QWidget* parent) :
   lithofractionVisualisation_{new LithofractionVisualisation(this)},
   createGridsButton_{new EmphasisButton("Create 2D lithofraction grids", this)},
   buttonExportOptimized_{new QPushButton("Export optimized", this)},
-  buttonRunOptimized_{new QPushButton("Run optimized", this)},  
+  buttonRunOptimized_{new QPushButton("Run optimized 3D", this)},
   interpolationType_{new QComboBox(this)},
   iwdOptions_{new QWidget(this)},
   gridGenerationOptions_{new QWidget(this)},
@@ -65,17 +66,37 @@ QVBoxLayout* MapsTab::setWellsAndOptionsLayout()
   label1->setFixedHeight(15);
   CustomTitle* label2 = new CustomTitle("Gridding options", this);
   label2->setFixedHeight(15);
+  QHBoxLayout* griddingOptions = new QHBoxLayout();
+  griddingOptions->addWidget(label2);
+  HelpLabel* helpGriddingOptions = new HelpLabel(this, "The gridding options determine how the optimized lithofractions at the well locations "
+                                                       "are interpolated to result in complete lithology maps. <br><br>The maps can be tweaked by adjusting: <br>"
+                                                       " - The interpolation algorithm <br>"
+                                                       " - The smoothing options <br>");
+  griddingOptions->addWidget(helpGriddingOptions);
+
   CustomTitle* label3 = new CustomTitle("3D model", this);
   label3->setFixedHeight(15);
 
   QVBoxLayout* wellsAndOptions = new QVBoxLayout();
   wellsAndOptions->addWidget(label1);
   wellsAndOptions->addWidget(activeWellsTable_);
-  wellsAndOptions->addWidget(label2);
+  wellsAndOptions->addLayout(griddingOptions);
   wellsAndOptions->addWidget(gridGenerationOptions_);
   wellsAndOptions->addWidget(label3);
-  wellsAndOptions->addWidget(buttonExportOptimized_);
-  wellsAndOptions->addWidget(buttonRunOptimized_);  
+  QHBoxLayout* exportOptimized = new QHBoxLayout();
+  exportOptimized->addWidget(buttonExportOptimized_);
+  HelpLabel* helpLabelExport = new HelpLabel(this, "Create a zip-file for import into BPA2-Basin");
+  exportOptimized->addWidget(helpLabelExport);
+  wellsAndOptions->addLayout(exportOptimized);
+
+  QHBoxLayout* runOptimized = new QHBoxLayout();
+  runOptimized->addWidget(buttonRunOptimized_);
+  HelpLabel* helpLabelRun = new HelpLabel(this, "For plotting and QC purposes under 'Well log plots and Results' tab");
+
+
+  runOptimized->addWidget(helpLabelRun);
+
+  wellsAndOptions->addLayout(runOptimized);
 
   return wellsAndOptions;
 }
@@ -114,6 +135,8 @@ void MapsTab::setIdwOptionsLayout()
   QHBoxLayout* idwOptionsLayout = new QHBoxLayout(iwdOptions_);
   idwOptionsLayout->addWidget(new QLabel(" P: ", this));
   idwOptionsLayout->addWidget(pValue_);
+  HelpLabel* helpLabelRun = new HelpLabel(this, "<img src= ':/IDWExplanation.png'>");
+  idwOptionsLayout->addWidget(helpLabelRun);
   idwOptionsLayout->setStretch(0,1);
   idwOptionsLayout->setStretch(1,4);
   idwOptionsLayout->setMargin(0);

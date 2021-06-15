@@ -29,7 +29,8 @@ Grid2DView::Grid2DView(const ColorMap& colormap, QWidget* parent) :
   range_{new std::pair<double, double>(0, 100)},
   values_{},
   fixedRange_{false},
-  stretched_{false}
+  stretched_{false},
+  singleValue_{false}
 {
 }
 
@@ -40,6 +41,10 @@ void Grid2DView::updatePlots(const std::vector<std::vector<double>>& values, con
   {
     for (int j = 0; j<values[0].size(); ++j)
     {
+      if (singleValue_)
+      {
+        values_[i][j] = 1.0;
+      }
       if (depthMap[i][j] == CMBDataAccess::DefaultUndefinedMapValue)
       {
         values_[i][j] = CMBDataAccess::DefaultUndefinedMapValue;
@@ -157,7 +162,7 @@ void Grid2DView::drawData(QPainter& painter)
       }
       else
       {
-        pen.setColor(colorMap_.getColor(value, range_->first, range_->second));
+        pen.setColor(singleValue_ ? Qt::white : colorMap_.getColor(value, range_->first, range_->second));
         p.setPen(pen);
       }
 
@@ -172,6 +177,16 @@ void Grid2DView::drawData(QPainter& painter)
 
 void Grid2DView::updateMinMaxData()
 {
+}
+
+void Grid2DView::setSingleValue(const bool singleValue)
+{
+  singleValue_ = singleValue;
+}
+
+bool Grid2DView::singleValue() const
+{
+  return singleValue_;
 }
 
 double Grid2DView::getValue(const QPointF& point) const

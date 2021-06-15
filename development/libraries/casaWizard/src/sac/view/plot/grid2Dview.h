@@ -40,7 +40,10 @@ public:
 
   void clearData() override;
   void drawData(QPainter& painter) override;
-  void updateMinMaxData() override;  
+  void updateMinMaxData() override;
+
+  void setSingleValue(const bool singleValue);
+  bool singleValue() const;
 
 private:
   const ColorMap& colorMap_;
@@ -49,6 +52,7 @@ private:
 
   bool fixedRange_;
   bool stretched_;
+  bool singleValue_;
 
   void determineRange();  
   void stretch();

@@ -19,6 +19,7 @@
 #include "model/script/cauldronScript.h"
 #include "model/script/Generate3DScenarioScript.h"
 #include "model/script/track1dAllWellScript.h"
+#include "model/output/cmbProjectWriter.h"
 
 #include <QFileDialog>
 #include <QInputDialog>
@@ -39,12 +40,20 @@ Run3dCaseController::Run3dCaseController(SACScenario& scenario,
 
 bool Run3dCaseController::run3dCase(const QString& directory, const bool isOptimized)
 {
-  bool ok = true;
-  const int cores = QInputDialog::getInt(nullptr, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 1024, 1, &ok);
-  if (!ok)
+  bool getCores = false;
+  const int cores = QInputDialog::getInt(nullptr, "Number of cores", "Cores", scenario_.numberCPUs(), 1, 1024, 1, &getCores);
+
+  bool getSubSampling = false;
+  const int subSampling = QInputDialog::getInt(nullptr, "Subsampling", "", 1, 1, 1024, 1, &getSubSampling);
+
+  if (!getCores || !getSubSampling)
   {
     return false;
   }
+
+  const QString projectFilename{QDir::separator() + QFileInfo(scenario_.project3dPath()).fileName()};
+  CMBProjectWriter writer(directory + projectFilename);
+  writer.setScaling(subSampling, subSampling);
 
   scenario_.setNumberCPUs(cores);  
   CauldronScript cauldron{scenario_, directory};

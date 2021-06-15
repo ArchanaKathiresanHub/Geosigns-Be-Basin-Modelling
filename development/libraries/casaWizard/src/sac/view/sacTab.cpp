@@ -5,6 +5,7 @@
 #include "view/lithofractionTable.h"
 #include "../common/view/components/customtitle.h"
 #include "../common/view/components/emphasisbutton.h"
+#include "../common/view/components/helpLabel.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -62,10 +63,21 @@ SACtab::SACtab(QWidget* parent) :
   layoutOption->addWidget(comboBoxCluster_, 2, 1);
 
   layoutOption->addWidget(pushButtonSACrunCASA_, 3, 0, 1, 2);
-  layoutOption->addWidget(buttonRunOriginal1D_, 4, 0, 1, 2);
-  layoutOption->addWidget(buttonRunOriginal3D_, 5, 0, 1, 2);
-  runOptions->setMaximumHeight(160);
+
+  QHBoxLayout* run1D = new QHBoxLayout();
+  run1D->addWidget(buttonRunOriginal1D_);
+  HelpLabel* helpLabelRun1D = new HelpLabel(this, "For plotting and QC purposes under 'Well log plots and Results' tab");
+  run1D->addWidget(helpLabelRun1D);
+  layoutOption->addLayout(run1D, 4, 0, 1, 2);
+
+  QHBoxLayout* run3D = new QHBoxLayout();
+  run3D->addWidget(buttonRunOriginal3D_);
+  HelpLabel* helpLabelRun3D = new HelpLabel(this, "For plotting and QC purposes under 'Well log plots and Results' tab");
+  run3D->addWidget(helpLabelRun3D);
+  layoutOption->addLayout(run3D, 5, 0, 1, 2);
   layoutOption->setMargin(0);
+
+  runOptions->setMaximumHeight(160);
 
   QGridLayout* layoutTablesAndOptions = new QGridLayout();
 

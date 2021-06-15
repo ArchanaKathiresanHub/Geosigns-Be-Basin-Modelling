@@ -33,10 +33,12 @@ public:
   void correctToolTipPositioning();
   void setOptimizedLithofractions(const QVector<OptimizedLithofraction>& optimizedLithofractions);
 
-  void setToolTipData(const std::vector<double>& lithofractionsAtPoint, const int activePlot);
+  void setToolTipData(const std::vector<double>& lithofractionsAtPoint, const QString& wellName, const int activePlot);
   void setToolTipVisible(const bool visible);
   void setToolTipLithotypes(const QStringList& lithotypes);
   void setWellsVisible(const bool wellsVisible);  
+  void moveTooltipToDomainLocation(const QPointF& domainLocation);
+  void finalizeTooltip(const std::vector<double>& lithofractionsAtPoint, const QString& wellName, const int plotID);
 
   void drawData(QPainter &painter) override;  
   void mousePressEvent(QMouseEvent* event) override;

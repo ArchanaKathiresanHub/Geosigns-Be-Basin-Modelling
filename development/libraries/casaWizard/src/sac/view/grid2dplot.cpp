@@ -64,6 +64,16 @@ void Grid2DPlot::updateColorBar()
   colorBar_->setRange(lithoPercent2dView_->getValueRange());
 }
 
+void Grid2DPlot::hideColorBar()
+{
+  colorBar_->hide();
+}
+
+void Grid2DPlot::showColorBar()
+{
+  colorBar_->show();
+}
+
 void Grid2DPlot::setTitle(const QString& lithoType, int id)
 {
   title_->setText("Lithotype " + QString::number(id + 1) + ": " + lithoType);

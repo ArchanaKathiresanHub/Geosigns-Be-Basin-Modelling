@@ -40,11 +40,15 @@ private slots:
 
 private:
   QString activeLayer_;
+  bool singleMapLayout_;
   LithofractionVisualisation* lithofractionVisualisation_;
   SACScenario& scenario_;
 
   void connectToolTipSlots();  
-  QVector<OptimizedLithofraction> getOptimizedLithoFractionsInActiveLayer(const casaWizard::CalibrationTargetManager& ctManager);
+  QVector<OptimizedLithofraction> getOptimizedLithoFractionsInLayer(const QString& layer) const;
+  std::vector<double> getLithopercentagesOfClosestWell(const QPointF& point, int& closestWellID) const;
+  std::vector<double> getLithopercentagesAtLocation(const QPointF& point) const;
+  bool lithofractionIsValid(const double lithofractionAtPoint) const;
   QStringList obtainAvailableLayers() const;
   std::vector<VectorVectorMap> obtainLithologyMaps(const CMBMapReader& mapReader, int layerID) const;
   QStringList obtainLithologyTypes(const int layerID) const;
@@ -53,6 +57,7 @@ private:
 private slots:
   void slotUpdatePlots(const QString& layerName);
   void toolTipCreated(const QPointF& point, const int plotID);
+  void slotUpdateSingleMapLayout(int state);
 };
 
 } // namespace sac

@@ -32,6 +32,8 @@ Window::Window(QWidget* parent) :
   tabWidget()->addTab(mapsTab_, "Maps");
   tabWidget()->addTab(t2zTab_, "T2Z");
 
+  setStyleSheet("QToolTip{ color: #ffffff; background-color: #323232; border: 0px; }");
+
   assert(tabWidget()->count() == static_cast<int>(TabID::Count));
 }
 
