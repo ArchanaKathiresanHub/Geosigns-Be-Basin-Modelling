@@ -36,6 +36,22 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-06-15  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Improvements on the SAC Maps tab.
+	* Including:
+	* Single map layout
+	* Improved well visualization
+	* Basin outline shown with wells when lithofraction maps
+	not yet created
+	* Subsampling for 3D runs
+
+	* Related work items: #424212
+
+	================== COMMIT-END ========================
+	Commit-ID:<df325f6cce7a36c6c81767367dd33ebca4d4b390>	  (refs/heads/master)
+
+++
 2021-06-14  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Fix tolerances for back transform.
