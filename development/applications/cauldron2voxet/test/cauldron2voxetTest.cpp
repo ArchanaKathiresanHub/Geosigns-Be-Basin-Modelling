@@ -34,5 +34,15 @@ TEST(cauldron2voxet, voxetUtils)
     EXPECT_EQ(VoxetUtils::roundoff(6.89663,5), VoxetUtils::roundoff(VoxetUtils::correctEndian(6.0f)*1e41,5));
     EXPECT_EQ(VoxetUtils::roundoff(7.4706,4), VoxetUtils::roundoff(VoxetUtils::correctEndian(6.5f)*1e41,4));
 
+    string properties = "Depth,Temperature,OverPressure,TwoWayTime,HydroStaticPressure,MaxVes,Porosity";
+    std::vector<string> propertyList;
+    VoxetUtils::fetchPropertyList(properties, propertyList);
+    EXPECT_EQ("Depth",propertyList[0]);
+    EXPECT_EQ("Temperature",propertyList[1]);
+    EXPECT_EQ("OverPressure",propertyList[2]);
+    EXPECT_EQ("TwoWayTime",propertyList[3]);
+    EXPECT_EQ("HydroStaticPressure",propertyList[4]);
+    EXPECT_EQ("MaxVes",propertyList[5]);
+    EXPECT_EQ("Porosity",propertyList[6]);
 }
 

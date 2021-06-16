@@ -79,8 +79,6 @@
 #define Max(a,b)        (a > b ? a : b)
 #define Min(a,b)        (a < b ? a : b)
 
-#define UNDEFINED_VALUE_AT_GRID 99999
-
 namespace VoxetUtils
 {
     /// Write the values to the specified file.
@@ -119,6 +117,9 @@ namespace VoxetUtils
 
     /// Roundoff a decimal number to certain decimal places
     double roundoff(double number, int decimalPlaces);
+
+    /// Fetch the list of properties provided in command line arguments in a vector
+    void fetchPropertyList(const string& properties, std::vector<string>& propertyList);
 }
 
 #endif

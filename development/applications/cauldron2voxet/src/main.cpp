@@ -36,7 +36,7 @@ namespace
 /// Print to stdout a default voxet file based on the cauldron project file that has been input.
 void createVoxetProjectFile (const DataAccess::Interface::ProjectHandle &cauldronProject,
                               DerivedProperties::DerivedPropertyManager& propertyManager,
-                              ostream & outputStream, const DataAccess::Interface::Snapshot * snapshot );
+                              ostream & outputStream, const DataAccess::Interface::Snapshot * snapshot, const std::vector<string>& propertyList );
 
 static void showUsage(const char* message)
 {
@@ -54,10 +54,12 @@ static void showUsage(const char* message)
         << "                  [-delta <deltaX>,<deltaY>,<deltaZ>]" << endl
         << "                  [-count <countX>,<countY>,<countZ>]" << endl
         << "                  [-output <output-file-name>]" << endl
+        << "                  [-time <time-stamp>]" << endl
         << "                  [-create-spec <spec-file>]" << endl
         << "                  [-nullvaluereplace <PropertyName,Value> [<PropertyName,Value>] [...]]" << endl
         << "                  [-nobasement]" << endl
         << "                  [-singlepropertyheader]" << endl
+        << "                  [-properties]" << endl
         << "                  [-verbose]" << endl
         << "                  [-help]" << endl
         << "                  [-?]" << endl
@@ -70,11 +72,13 @@ static void showUsage(const char* message)
         << "    -delta                Use the specified values as the sampling distance in the x, y and z direction" << endl
         << "    -count                Use the specified values as the number of samples in the x, y and z direction" << endl
         << "    -output               Output voxet file-name, MUST NOT contain the .vo extension, this will be added." << endl
+        << "    -time                 Time stamp to be appended with the output file name, if provided." << endl
         << "    -create-spec          Write a standard spec file into the specified file name," << endl
         << "                          the cauldron project file must also be specified." << endl
         << "    -nullvaluereplace     Replace null values of the property by a given value." << endl
         << "    -nobasement           Ignore basement layers." << endl
         << "    -singlepropertyheader Writes one header file for each property. (additional to the multiple property header-file)" << endl
+        << "    -properties           List of cauldron properties for which voxet files are to be generated" << endl
         << "    -verbose              Generate some extra output." << endl
         << "    -help                 Print this message." << endl
         << "    -?                    Print this message." << endl
@@ -89,6 +93,9 @@ int main (int argc, char ** argv)
    string voxetFileName;
    string createVoxetFileName;
    string outputFileName;
+   string timeStamp = "";
+   string properties = "";
+   std::vector<string> propertyList;
 
    std::map<std::string, double > propertyNullValueReplaceLookup = std::map<std::string, double >();
 
@@ -114,6 +121,27 @@ int main (int argc, char ** argv)
             return -1;
          }
          outputFileName = argv[++arg];
+      }
+      else if (strncmp(argv[arg], "-time", Max(2, strlen(argv[arg]))) == 0)
+      {
+          if (arg + 1 >= argc)
+          {
+              showUsage("Argument for '-time' is missing");
+              return -1;
+          }
+          timeStamp = argv[++arg];
+          // "_" is appended here to avoid a condition on existence of timeStamp at later part of the code
+          timeStamp = "_" + timeStamp;
+      }
+      else if (strncmp(argv[arg], "-properties", Max(2, strlen(argv[arg]))) == 0)
+      {
+          if (arg + 1 >= argc)
+          {
+              showUsage("Argument for '-properties' is missing");
+              return -1;
+          }
+          properties = argv[++arg];
+          VoxetUtils::fetchPropertyList(properties, propertyList);
       }
       else if (strncmp (argv[arg], "-project", Max (2, strlen (argv[arg]))) == 0)
       {
@@ -339,7 +367,7 @@ int main (int argc, char ** argv)
          return -1;
       }
 
-      createVoxetProjectFile (*projectHandle, propertyManager, voxetProjectFileStream, snapshot);
+      createVoxetProjectFile (*projectHandle, propertyManager, voxetProjectFileStream, snapshot, propertyList);
       return 0;
    }
 
@@ -360,7 +388,7 @@ int main (int argc, char ** argv)
          return -1;
       }
 
-      createVoxetProjectFile (*projectHandle, propertyManager, voxetProjectFileStream, snapshot);
+      createVoxetProjectFile (*projectHandle, propertyManager, voxetProjectFileStream, snapshot, propertyList);
       voxetProjectFileStream.close ();
 
       voxetProject = new VoxetProjectHandle (tmpVoxetFileName, *projectHandle);
@@ -373,10 +401,13 @@ int main (int argc, char ** argv)
 
    snapshot = projectHandle->findSnapshot (voxetProject->getSnapshotTime ());
 
-   string asciiFileName = outputFileName + ".vo";
+   // timeStamp was already appended with "_" in its assignment to avoid a condition here on its existence
+   string asciiFileName = "BPA2_" + outputFileName + timeStamp + ".vo";
+
    if(singlePropertyHeader)
    {
-      asciiFileName = outputFileName + "_all.vo";
+      // timeStamp was already appended with "_" in its assignment to avoid a condition here on its existence
+      asciiFileName = "BPA2_" + outputFileName + "_all" + timeStamp + ".vo";
    }
    string binaryFileName = outputFileName;
 
@@ -499,7 +530,8 @@ int main (int argc, char ** argv)
             return -1;
          }
 
-         std::string propertyFileName = binaryFileName + "_" + (*cauldronPropIter)->getCauldronName () + "@@";
+         // timeStamp was already appended with "_" in its assignment to avoid a condition here on its existence
+         std::string propertyFileName = "BPA2_" + binaryFileName + "_" + (*cauldronPropIter)->getCauldronName () + timeStamp + "@@";
 
          VoxetUtils::writeVOproperty(asciiOutputFile, propertyCount, *cauldronPropIter, propertyFileName, vc.getNullValue(property) );
 
@@ -516,7 +548,7 @@ int main (int argc, char ** argv)
          if(singlePropertyHeader)
          {
             std::ofstream asciiHeaderOutputFile;
-            std::string asciiHeaderFileName=outputFileName + "_" + (*cauldronPropIter)->getCauldronName ()+".vo";
+            std::string asciiHeaderFileName = "BPA2_" + outputFileName + "_" + (*cauldronPropIter)->getCauldronName () + timeStamp +".vo";
 
             asciiHeaderOutputFile.open (asciiHeaderFileName.c_str ());
 
@@ -551,7 +583,7 @@ int main (int argc, char ** argv)
 
 void createVoxetProjectFile(const DataAccess::Interface::ProjectHandle& cauldronProject,
     DerivedProperties::DerivedPropertyManager& propertyManager,
-    ostream& outputStream, const DataAccess::Interface::Snapshot* snapshot)
+    ostream& outputStream, const DataAccess::Interface::Snapshot* snapshot, const std::vector<string>& propertyList)
 {
     char* propertyNames[] =
     {
@@ -588,12 +620,12 @@ void createVoxetProjectFile(const DataAccess::Interface::ProjectHandle& cauldron
 
     char* outputPropertyNames[] =
     {
-       "BPA2_Depth",
-       "BPA2_Pressure", "BPA2_OverPressure", "BPA2_HydrostaticPressure", "BPA2_LithoStaticPressure",
-       "BPA2_Temperature", "BPA_2Vr",
-       "BPA2_Ves", "BPA2_MaxVes",
-       "BPA2_Porosity", "BPA2_Permeability", "BPA2_BulkDensity",
-       "BPA2_Velocity", "BPA2_TwoWayTime",
+       "Depth ",
+       "Pressure", "Pressure: Overpressure", "Pressure: Hydrostatic", "Pressure: Lithostatic",
+       "Temperature", "Vr",
+       "Ves", "Max Ves",
+       "Porosity", "Permeability", "Bulk Density",
+       "Velocity", "Two Way Time",
        ""
     };
 
@@ -606,18 +638,33 @@ void createVoxetProjectFile(const DataAccess::Interface::ProjectHandle& cauldron
     //------------------------------------------------------------//
 
     table = database->getTable("CauldronPropertyIoTbl");
-    int p;
-    for (p = 0; strlen(propertyNames[p]) != 0; ++p)
+    for (int p = 0; strlen(propertyNames[p]) != 0; ++p)
     {
         const DataAccess::Interface::Property* property = cauldronProject.findProperty(propertyNames[p]);
         if (property)
         {
-            record = table->createRecord();
-            database::setCauldronPropertyName(record, propertyNames[p]);
-            database::setVoxetPropertyName(record, outputPropertyNames[p]);
-            database::setOutputPropertyUnits(record, units[p]);
-            database::setConversionFactor(record, conversions[p]);
-            database::setVoxetOutput(record, 1);
+            if (propertyList.empty())
+            {
+                record = table->createRecord();
+                database::setCauldronPropertyName(record, propertyNames[p]);
+                database::setVoxetPropertyName(record, outputPropertyNames[p]);
+                database::setOutputPropertyUnits(record, units[p]);
+                database::setConversionFactor(record, conversions[p]);
+                database::setVoxetOutput(record, 1);
+            }
+            else
+            {
+                auto it = std::find(propertyList.begin(), propertyList.end(), propertyNames[p]);
+                if (it != propertyList.end())
+                {
+                    record = table->createRecord();
+                    database::setCauldronPropertyName(record, propertyNames[p]);
+                    database::setVoxetPropertyName(record, outputPropertyNames[p]);
+                    database::setOutputPropertyUnits(record, units[p]);
+                    database::setConversionFactor(record, conversions[p]);
+                    database::setVoxetOutput(record, 1);
+                }
+            }
         }
     }
 
@@ -676,10 +723,9 @@ void createVoxetProjectFile(const DataAccess::Interface::ProjectHandle& cauldron
         for (int j = minJ; j <= maxJ; ++j)
         {
             double value = bottomDepthPropertyValue->get(i, j);
-            if (value != UNDEFINED_VALUE_AT_GRID)
-            {
-                if (value > maxDepthValInGrid) maxDepthValInGrid = value;
-            }
+            // Ignoring Undefined Value = 99999 at nodes
+            if ((value != 99999) && (value > maxDepthValInGrid))
+                maxDepthValInGrid = value;
         }
     }
     // Maximum depth of the basin is returned by the maximum depth of the bottom formation
@@ -725,10 +771,10 @@ void createVoxetProjectFile(const DataAccess::Interface::ProjectHandle& cauldron
         for (int j = minJ; j <= maxJ; ++j)
         {
             double value = topDepthPropertyValue->get(i, j);
-            if (value != UNDEFINED_VALUE_AT_GRID)
-            {
-                if (value < minDepthValInGrid) minDepthValInGrid = value;
-            }
+            // Ignoring Undefined Value = 99999 at nodes
+            if ((value != 99999) && (value < minDepthValInGrid))
+                minDepthValInGrid = value;
+
         }
     }
 

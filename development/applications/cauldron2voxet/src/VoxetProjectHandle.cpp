@@ -23,7 +23,7 @@ VoxetProjectHandle::VoxetProjectHandle ( const std::string& voxetProjectFileName
 
 void VoxetProjectHandle::loadCauldronProperties () {
 
-   database::Table* propTable = m_database->getTable ( "CauldronPropertyIoTbl" );
+   database::Table* const propTable = m_database->getTable ( "CauldronPropertyIoTbl" );
 
    assert ( propTable != nullptr );
    if ( propTable == nullptr ) {

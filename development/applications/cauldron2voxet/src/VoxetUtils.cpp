@@ -22,7 +22,7 @@ void VoxetUtils::write(const std::string& name,
 float VoxetUtils::correctEndian(const float x)
 {
     float number = x;
-    char* tempArrayOfBytes = reinterpret_cast<char*>(&number);
+    const char* tempArrayOfBytes = reinterpret_cast<char*>(&number);
 
     const int size = sizeof(float);
     char tempInvertedArrayOfBytes[size];
@@ -153,35 +153,19 @@ void VoxetUtils::writeVOproperty(ofstream& file,
     const int& propertyCount,
     const CauldronProperty* cauldronProperty,
     const string& propertyFileName,
-    const float& nullValue) {
+    const float& nullValue)
+{
     file << "PROPERTY " << propertyCount << "  \"" << cauldronProperty->getVoxetName() << '"' << endl;
     file << "PROPERTY_KIND " << propertyCount << "  \"" << cauldronProperty->getVoxetName() << '"' << endl;
     file << "PROPERTY_CLASS " << propertyCount << " \"" << cauldronProperty->getVoxetName() << '"' << endl;
     file << "PROPERTY_CLASS_HEADER " << propertyCount << " \"" << cauldronProperty->getVoxetName() << "\" {" << endl;
     file << "name:" << cauldronProperty->getVoxetName() << endl << "}" << endl;
-
-    if (cauldronProperty->getCauldronName() == "Depth")
-    {
-        file << "PROPERTY_SUBCLASS " << propertyCount << " " << "LINEARFUNCTION Float -1 0" << endl;
-    }
-    else
-    {
-        file << "PROPERTY_SUBCLASS " << propertyCount << " " << "QUANTITY Float" << endl;
-    }
-
+    file << "PROPERTY_SUBCLASS " << propertyCount << " " << "QUANTITY Float" << endl;
     file << "PROP_ORIGINAL_UNIT " << propertyCount << " " << cauldronProperty->getUnits() << endl;
     file << "PROP_UNIT " << propertyCount << " " << cauldronProperty->getUnits() << endl;
     file << "PROP_ESIZE " << propertyCount << " " << sizeof(float) << endl;
     file << "PROP_ETYPE " << propertyCount << " IEEE " << endl;
-
-    if (cauldronProperty->getCauldronName() == "Depth")
-    {
-        file << "PROP_NO_DATA_VALUE " << propertyCount << " " << -1*nullValue << endl;
-    }
-    else
-    {
-        file << "PROP_NO_DATA_VALUE " << propertyCount << " " << nullValue << endl;
-    }
+    file << "PROP_NO_DATA_VALUE " << propertyCount << " " << nullValue << endl;
     file << "PROP_FILE " << propertyCount << " " << propertyFileName << endl;
     file << endl;
 }
@@ -207,4 +191,21 @@ double VoxetUtils::roundoff(double number, int decimalPlaces)
 {
     const double factor = std::pow(10.0,decimalPlaces);
     return std::round(number*factor)/factor;
+}
+
+//------------------------------------------------------------//
+void VoxetUtils::fetchPropertyList(const string& properties, std::vector<string>& propertyList)
+{
+    string tempString;
+    for (int i = 0; i < properties.length(); ++i)
+    {
+        if (properties[i] != ',')
+            tempString.push_back(properties[i]);
+
+        if ((properties[i] == ',') || (i == properties.length() - 1))
+        {
+            propertyList.push_back(tempString);
+            tempString = "";
+        }
+    }
 }
