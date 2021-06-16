@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-06-16  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Selection of Properties from cmd line of cauldron2voxet.
+	 * Now properties can be selected for voxet generation from the command line arguments
+	 * New arguments implemented for naming convention of files
+	 * Link-https://sede-pt-ssw.visualstudio.com/Basin-Evaluation/_workitems/edit/417636
+	================== COMMIT-END ========================
+	Commit-ID:<47a9d69bfd1279806e9f38c40bb01b3471a44d29>	  (HEAD -> master, origin/master)
+
+++
 2021-06-15  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Improvements on the SAC Maps tab.
