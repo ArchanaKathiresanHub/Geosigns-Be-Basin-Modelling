@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-06-21  arijit.khan Khan  <arijit.khan@shell.com>
+
+	dev: usr: chg: Using estimated runtime -We option !minor.
+	 * Using estimated runtime -We option instead of the -W option in WLM's LSF command !minor
+
+	Related work items: #428534
+	================== COMMIT-END ========================
+	Commit-ID:<62c1eaa871fd90f0d42ea5e21f986568c832470d>	  (refs/heads/master)
+
+++
 2021-06-16  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Selection of Properties from cmd line of cauldron2voxet.
