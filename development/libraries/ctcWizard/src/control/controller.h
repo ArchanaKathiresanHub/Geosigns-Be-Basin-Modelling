@@ -40,7 +40,9 @@ private slots:
 private:
   void createConnections() const;
   bool processCommand(QProcess& process, const QString& command) const;
+#ifdef DEBUG_CTC
   bool processShCommand(QProcess& process, const QString& command) const;
+#endif
   bool makeDirSymLinks(const QDir& src, const QDir& desti) const;
   MainWindow ui_;
   CtcScenario ctcScenario_;

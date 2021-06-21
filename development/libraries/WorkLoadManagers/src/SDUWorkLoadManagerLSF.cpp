@@ -38,10 +38,13 @@ bool workloadmanagers::WorkLoadManagerForLSF::writeProjectNameSpecification(cons
     return false;
 }
 
+// use estimated runtime time -We instead of the runtime limit, 
+// -W which will kill job after the elapsed time
+// 
 bool workloadmanagers::WorkLoadManagerForLSF::writeWaitTimeSpecification(const std::string& theJobSubmissionWaitTimeSpec)
 {
 	if ((*getTheFileStream()).is_open()) { // check for successful opening
-		(*getTheFileStream()) << theSchedulerDirective() << "\t -W " << theJobSubmissionWaitTimeSpec << '\n';
+		(*getTheFileStream()) << theSchedulerDirective() << "\t -We " << theJobSubmissionWaitTimeSpec << '\n';
 		return true;
 	}
     return false;

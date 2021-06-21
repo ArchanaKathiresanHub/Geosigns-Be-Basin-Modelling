@@ -95,7 +95,13 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
 
     QProcess process;
     connect(&process, &QProcess::readyReadStandardOutput, [&]() {log(QString(process.readAllStandardOutput())); });
-
+	/*bool errorOccured = false;
+	QProcess::ProcessError procError;
+	QObject::connect(&process, &QProcess::errorOccurred, [&](QProcess::ProcessError error)
+	{
+            procError = error;
+            errorOccured = true;
+	});*/
     QFileInfo info(filePath);
     process.setWorkingDirectory(info.absoluteDir().path());
     //
@@ -142,13 +148,15 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
         )
     );
 
-    log("- The CWD is: " + process.workingDirectory());
-    // does not work, because i/o redirection is handled by a shell, not by QProcess or the external exe
-#ifdef Q_OS_WIN
-    auto isOk = processCommand(process, runPT);
+    log("- The CWD is: " + process.workingDirectory());    
+
+#ifdef DEBUG_CTC
+	// processCommand does not work for //bsub <myJobs.sh, because i/o redirection is handled by a shell, not by QProcess or the external exe
+    auto isOk = processShCommand(process, runPT); 
 #else
-    auto isOk = processShCommand(process, runPT); //bsub <myJobs.sh
+    auto isOk = processCommand(process, runPT);
 #endif
+
     if (isOk)
         log("- Finished running Cauldron successfully!");
     else {
@@ -251,10 +259,12 @@ void Controller::executeCtcScript(const QString& ctcFilenameWithPath, const QStr
     );
 
     log("- The CWD is: " + process.workingDirectory());
-#ifdef Q_OS_WIN
-    auto isOk = processCommand(process, runCTC);
+    
+#ifdef DEBUG_CTC
+    // processCommand does not work for //bsub <myJobs.sh, because i/o redirection is handled by a shell, not by QProcess or the external exe
+    auto isOk = processShCommand(process, runCTC); 
 #else
-    auto isOk = processShCommand(process, runCTC); //bsub <myJobs.sh
+    auto isOk = processCommand(process, runCTC);
 #endif
 
     if (isOk)
@@ -304,9 +314,7 @@ QString Controller::createCTCscenarioFolder(const QString& filePath) const
         qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
     }
 
-    //QProcess process;
-    //connect(&process,&QProcess::readyReadStandardOutput,[&](){log(QString(process.readAllStandardOutput()));});
-
+ 
     QDir ctcDir(scenarioFolderPath);
     if (ctcDir.exists())//not absolutely needed 
     {
@@ -317,8 +325,6 @@ QString Controller::createCTCscenarioFolder(const QString& filePath) const
         //create it
         ctcDir.mkpath(scenarioFolderPath);
     }
-    //QDir().mkdir("scenarioFolderPath");
-    //processCommand(process, QString("mkdir " + scenarioFolderPath));
 
     return scenarioFolderPath;
 }
@@ -587,7 +593,11 @@ void Controller::mapOutputCtcScript(const QString& filePath) const
 bool Controller::processCommand(QProcess& process, const QString& command) const
 {
     log("- Executing: " + command);
+#ifdef Q_OS_WIN
     process.start(command);
+#else
+    process.start("sh", QStringList() << "-c" << command);
+#endif // Q_OS_WIN
     if (!process.waitForStarted()) //default wait time 30 sec
     {
         process.kill();
@@ -599,10 +609,13 @@ bool Controller::processCommand(QProcess& process, const QString& command) const
     {
         qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
     }
-
-    return true;
+	auto exitStatus = process.exitStatus();
+    auto exitCode = process.exitCode();
+    qDebug() << "Exit code:" << exitCode<<' '<< exitStatus;
+    return !exitCode;
 }
 
+#ifdef DEBUG_CTC
 bool ctcWizard::Controller::processShCommand(QProcess& process, const QString& command) const
 {
     log("- Executing: " + command);
@@ -618,17 +631,16 @@ bool ctcWizard::Controller::processShCommand(QProcess& process, const QString& c
 	{
 		qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
 	}
-
+    auto exitStatus = process.exitCode();
+    log("Exited with code:" + QString(exitStatus));
     return true;
 }
-
+#endif
 bool ctcWizard::Controller::makeDirSymLinks(const QDir& src, const QDir& desti) const
 {
 #ifdef Q_OS_UNIX
 	QFile::link(src.absolutePath(), desti.absolutePath());
-#endif
-
-#ifdef Q_OS_WIN
+#else
     boost::filesystem::create_directory_symlink(src.absolutePath().toStdString(), desti.absolutePath().toStdString());
 #endif
     return false;

@@ -35,7 +35,7 @@ namespace workloadmanagers{
 		"#BSUB\t -P cldrn",
 		"#BSUB\t -q default.q",
 		"#BSUB\t -n 4",
-		"#BSUB\t -W 0:30",
+		"#BSUB\t -We 0:30",
 		"#BSUB\t -J ctcPressureJob",
 		"#BSUB\t -o out.log",
 		"#BSUB\t -e err.log",
@@ -50,7 +50,7 @@ namespace workloadmanagers{
 		"#BSUB\t -P cldrn",
 		"#BSUB\t -q default.q",
 		"#BSUB\t -n 4",
-		"#BSUB\t -W 0:30",
+		"#BSUB\t -We 0:30",
 		"#BSUB\t -J ctcPressureJob",+
 		"#BSUB\t -e err.log",
 		"#BSUB\t -cwd \"" + boost::filesystem::current_path().string() + "\"",
