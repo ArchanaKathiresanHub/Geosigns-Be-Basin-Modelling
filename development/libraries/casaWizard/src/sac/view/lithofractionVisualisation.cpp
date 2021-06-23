@@ -156,7 +156,7 @@ void LithofractionVisualisation::slotUpdateWellsVisibility(int state)
 
 void LithofractionVisualisation::slotUpdateActivePlot(int activePlot)
 {
-  if (singleMapLayout_->checkState() == Qt::CheckState::Checked)
+  if (singleMapLayout_->checkState() == Qt::CheckState::Checked && !(activePlot<0))
   {
     setOnePlotLayout(activePlot);
     hideAllTooltips();
