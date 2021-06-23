@@ -18,6 +18,7 @@ class QPushButton;
 class QComboBox;
 class QCheckBox;
 class QGridLayout;
+class QLabel;
 
 namespace casaWizard
 {
@@ -41,6 +42,7 @@ public:
   std::vector<Grid2DPlot*> lithoFractionPlots() const;
 
   const QComboBox* layerSelection() const;
+  QComboBox* lithotypeSelection() const;
   CustomCheckbox* singleMapLayout() const;
   QComboBox* colorMapSelection() const;
   QCheckBox* wellsVisible() const;
@@ -59,12 +61,14 @@ private:
   std::unique_ptr<ColorMap> colormap_;
   QComboBox* colorMapSelection_;
   QComboBox* layerSelection_;
+  QComboBox* lithotypeSelection_;
   std::vector<Grid2DPlot*> lithoFractionPlots_;
   QWidget* plotOptions_;
   CustomCheckbox* stretched_;
   CustomCheckbox* wellsVisible_;
   CustomCheckbox* singleMapLayout_;
   QGridLayout* plotsAndOptions_;
+  QLabel* lithoSelectionLabel_;
 
   void setPlotOptionsLayout();
   void setTotalLayout();
@@ -73,7 +77,7 @@ private:
 
   std::pair<double, double> getGlobalRange();
   void setThreePlotLayout();
-  void setOnePlotLayout();
+  void setOnePlotLayout(const int activePlot);
 
 signals:
   void updateAvailableLayers();
@@ -86,6 +90,7 @@ private slots:
   void slotUpdateAspectRatio(int state);
   void slotUpdateColorMaps(const QString& colormapType);
   void slotUpdateWellsVisibility(int state);
+  void slotUpdateActivePlot(int activePlot);
 };
 
 }

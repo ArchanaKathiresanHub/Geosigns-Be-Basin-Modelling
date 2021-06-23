@@ -85,6 +85,9 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
   VectorVectorMap depthMap = mapReader.getMapData(scenario_.projectReader().getDepthGridName(0).toStdString());
   const QStringList lithologyTypes = obtainLithologyTypes(layerID);
 
+  lithofractionVisualisation_->lithotypeSelection()->clear();
+  lithofractionVisualisation_->lithotypeSelection()->addItems(lithologyTypes);
+
   int counter = 0;
   for (Grid2DPlot* lithoPlot : lithofractionVisualisation_->lithoFractionPlots())
   {
