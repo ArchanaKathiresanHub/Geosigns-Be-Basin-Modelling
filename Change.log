@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-06-23  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added lithotype selection and changed naming of stretched option !minor
+	* Related work items: #424212
+	================== COMMIT-END ========================
+	Commit-ID:<9ce2743d8d5b9115be23f1b81e052ddc6d4e6ddb>	  (refs/heads/master)
+
+++
 2021-06-21  arijit.khan Khan  <arijit.khan@shell.com>
 
 	dev: usr: chg: Using estimated runtime -We option !minor.
