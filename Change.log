@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-06-25  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: SAC improvements on the Results tab.
+	* Related work items: #424214
+	================== COMMIT-END ========================
+	Commit-ID:<d05e8e42bcdb3729d32f5b6abe764bea0eff602d>	  (refs/heads/master)
+
+++
 2021-06-23  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Added lithotype selection and changed naming of stretched option !minor
