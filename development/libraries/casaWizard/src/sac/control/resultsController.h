@@ -17,10 +17,10 @@ namespace casaWizard
 {
 
 class ScriptRunController;
-
 namespace sac
 {
 
+class WellTrajectory;
 class SACScenario;
 class ResultsTab;
 
@@ -44,6 +44,9 @@ private slots:
   void selectedWellFromCorrelation(const int wellIndex);
   void slotUpdateTabGUI(int tabID);
 
+  void slotUpdateSurfaceLines(const bool showSurfaceLines);
+  void slotUpdateFitRangeToData(const bool fitRangeToData);
+  void slotUpdateIsExpanded(int state, int plotID);
 private:
   void refreshGUI();
   void refreshPlot();
@@ -64,6 +67,8 @@ private:
   void setActiveWells();
   void setDomainBirdsView();
   void setDefaultWellSelection();
+  QMap<QString, double> getSurfaceValues();
+  QStringList getUnitsForProperties(const QVector<QVector<WellTrajectory>>& allTrajectories);
 };
 
 } // namespace sac

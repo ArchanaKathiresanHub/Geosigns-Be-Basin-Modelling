@@ -94,6 +94,17 @@ QString CMBProjectReader::getDepthGridName(int surfaceID) const
   return QString::fromStdString(cmbModel_->tableValueAsString("StratIoTbl", surfaceID, "DepthGrid"));
 }
 
+QString CMBProjectReader::getUnit(const QString& cauldronName) const
+{
+  if (!loaded_)
+  {
+    return QString();
+  }
+  std::string unit = "";
+  cmbModel_->getUnit(cauldronName.toStdString(), unit);
+  return QString::fromStdString(unit);
+}
+
 bool CMBProjectReader::basementSurfaceHasTWT() const
 {
   if (!loaded_)

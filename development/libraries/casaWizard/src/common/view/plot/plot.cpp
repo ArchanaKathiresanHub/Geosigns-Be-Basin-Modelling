@@ -11,26 +11,13 @@
 namespace casaWizard
 {
 
-namespace
-{
-
-const int markerSize = 3;
-const int lineWidth = 3;
-const int lineWidthErrorBar = 1;
-const int lineWidthSymbol = 2;
-
-const QVector<QColor> lineColors = {QColor(222,24,31),  QColor(0, 96, 174), QColor(34,140,34),
-                                    QColor(24,222,215), QColor(174,78,0),   QColor(140, 34, 140)};
-const int nLineColors = lineColors.size();
-
-} // namespace
-
 Plot::Plot(QWidget* parent) :
   PlotBase(parent),
   plotData_{},
   label_{new QLabel("", this)},
   minZvalue_{0.0},
-  maxZvalue_{1.0}
+  maxZvalue_{1.0},
+  separateLegend_{false}
 {
   label_->setVisible(false);
   label_->setBackgroundRole(QPalette::Base);
@@ -57,18 +44,19 @@ int Plot::amountPerLineType(LineType type) const
   return amount;
 }
 
-void Plot::addLine(const QVector<double>& xValues, const QVector<double>& yValues, int colorIndex)
+void Plot::addLine(const QVector<double>& xValues, const QVector<double>& yValues, int colorIndex, const QString& seriesName)
 {
   PlotData data;
   data.lineType = LineType::line;
   data.xValues = xValues;
   data.yValues = yValues;
+  data.seriesName = seriesName;
   if (colorIndex < 0)
   {
     colorIndex = amountPerLineType(LineType::line);
   }
-  colorIndex = colorIndex%nLineColors;
-  data.color = lineColors[colorIndex];
+  colorIndex = colorIndex%plotSettings_.nLineColors;
+  data.color = plotSettings_.lineColors[colorIndex];
 
   plotData_.append(data);
 
@@ -128,8 +116,8 @@ void Plot::addXYscatter(const QVector<double>& xValues, const QVector<double>& y
   {
     colorIndex = amountPerLineType(LineType::xyScatter);
   }
-  colorIndex = colorIndex%nLineColors;
-  addXYscatter(xValues, yValues, lineColors[colorIndex]);
+  colorIndex = colorIndex%plotSettings_.nLineColors;
+  addXYscatter(xValues, yValues, plotSettings_.lineColors[colorIndex]);
 }
 
 void Plot::addXYscatter(const QVector<double>& xValues, const QVector<double>& yValues, const SymbolType symbolType, int colorIndex)
@@ -138,16 +126,41 @@ void Plot::addXYscatter(const QVector<double>& xValues, const QVector<double>& y
   {
     colorIndex = amountPerLineType(LineType::xyScatter);
   }
-  colorIndex = colorIndex%nLineColors;
+  colorIndex = colorIndex%plotSettings_.nLineColors;
   PlotData data;
   data.lineType = LineType::xyScatter;
   data.symbolType = symbolType;
   data.xValues = xValues;
   data.yValues = yValues;
   data.zValues = {};
-  data.color = lineColors[colorIndex];
+  data.color = plotSettings_.lineColors[colorIndex];
   plotData_.append(data);
   dataChanged();
+}
+
+void Plot::addHorizontalLine(const QString& seriesName, const double yValue)
+{
+  addLine(QVector<double>{xAxisMinValue(), xAxisMaxValue()}, QVector<double>{yValue, yValue}, 6, seriesName);
+}
+
+void Plot::setSeparateLegend(const bool separateLegend)
+{
+  separateLegend_ = separateLegend;
+}
+
+const PlotSettings& Plot::plotSettings() const
+{
+  return plotSettings_;
+}
+
+const QVector<PlotData>& Plot::plotDataForLegend() const
+{
+  return plotData_;
+}
+
+const QStringList& Plot::legend() const
+{
+  return legend_;
 }
 
 void Plot::setMinMaxZvalues(const double minValue, const double maxValue)
@@ -217,7 +230,7 @@ void Plot::drawData(QPainter& painter)
     {
       case LineType::line:
       {
-        pen.setWidth(lineWidth);
+        pen.setWidth(plotSettings_.lineWidth);
         pen.setColor(lineData.color);
         painter.setPen(pen);
         bool first = true;
@@ -239,7 +252,7 @@ void Plot::drawData(QPainter& painter)
       case LineType::errorBarHorizontal:
       {
         QPointF edgeErrorBar(0.0, 2.0);
-        pen.setWidth(lineWidthErrorBar);
+        pen.setWidth(plotSettings_.lineWidthErrorBar);
         pen.setColor(lineData.color);
         painter.setPen(pen);
         bool first = true;
@@ -273,7 +286,7 @@ void Plot::drawData(QPainter& painter)
           }
           painter.setPen(pen);
           QPointF point = valToPoint(lineData.xValues[i], lineData.yValues[i]);
-          plotSymbol(painter, point, lineData.symbolType);
+          plotSymbol(painter, point, plotSettings_.lineWidthSymbol, plotSettings_.markerSize, lineData.symbolType);
         }
         break;
       }
@@ -282,10 +295,13 @@ void Plot::drawData(QPainter& painter)
     painter.restore();
   }
 
-  drawLegend(painter);
+  if (!separateLegend_)
+  {
+    drawLegend(painter);
+  }
 }
 
-void Plot::plotSymbol(QPainter& painter, const QPointF& point, const SymbolType symbolType)
+void Plot::plotSymbol(QPainter& painter, const QPointF& point, const int lineWidthSymbol, const int markerSize, const SymbolType symbolType)
 {
   painter.save();
   QPen pen = painter.pen();
@@ -326,7 +342,7 @@ void Plot::drawLegend(QPainter& painter)
 
   painter.save();
   QPen pen = painter.pen();
-  pen.setWidth(lineWidth);
+  pen.setWidth(plotSettings_.lineWidth);
 
   QFontMetrics fm(painter.font());
   double maxLegendWidth = 0;
@@ -346,7 +362,7 @@ void Plot::drawLegend(QPainter& painter)
   int iEntry = 0;
   for (const PlotData& data : plotData_)
   {
-    if (data.lineType == LineType::errorBarHorizontal)
+    if (data.lineType == LineType::errorBarHorizontal || data.seriesName != "")
     {
       continue;
     }
@@ -367,7 +383,7 @@ void Plot::drawLegend(QPainter& painter)
         painter.drawLine(y-2*h, y);
         break;
       case LineType::xyScatter:
-        plotSymbol(painter, y-h, data.symbolType);
+        plotSymbol(painter, y-h, plotSettings_.lineWidthSymbol, plotSettings_.markerSize, data.symbolType);
         break;
     }
     ++iEntry;
@@ -423,8 +439,8 @@ void Plot::mousePressEvent(QMouseEvent* event)
       for (int i = 0; i < plotData.xValues.size(); ++i)
       {
         QPointF p = valToPoint(plotData.xValues[i], plotData.yValues[i]);
-        if (x < p.x() + markerSize && x > p.x() - markerSize &&
-            y < p.y() + markerSize && y > p.y() - markerSize)
+        if (x < p.x() + plotSettings_.markerSize && x > p.x() - plotSettings_.markerSize &&
+            y < p.y() + plotSettings_.markerSize && y > p.y() - plotSettings_.markerSize)
         {
           label_->setText(QString("x: " + QString::number(plotData.xValues[i]) + "\ny: " + QString::number(plotData.yValues[i])));
           mousePosition.setX(std::max(0, std::min(x, width() - label_->width())));
@@ -437,6 +453,40 @@ void Plot::mousePressEvent(QMouseEvent* event)
         }
       }
     }
+  }
+}
+
+void Plot::mouseMoveEvent(QMouseEvent* event)
+{
+  label_->setVisible(false);
+
+  QPoint mousePosition = event->pos();
+  const int x = mousePosition.x();
+  const int y = mousePosition.y();
+
+  int iPlot = 0;
+  QString labelText = "";
+  for (const PlotData& plotData : plotData_)
+  {
+    iPlot++;
+    if (plotData.lineType == LineType::line && plotData.seriesName != "")
+    {
+      QPointF p = valToPoint(plotData.xValues[0], plotData.yValues[0]);
+      if (y < p.y() + plotSettings_.markerSize && y > p.y() - plotSettings_.markerSize)
+      {
+        labelText += labelText != "" ? "\n" : "";
+        labelText += plotData.seriesName;
+      }
+    }
+  }
+  if (labelText!="")
+  {
+    label_->setText(labelText);
+    mousePosition.setX(std::max(0, std::min(x, width() - label_->width())));
+    mousePosition.setY(std::max(0, std::min(y, height() - label_->height())));
+
+    label_->move(mousePosition);
+    label_->setVisible(true);
   }
 }
 

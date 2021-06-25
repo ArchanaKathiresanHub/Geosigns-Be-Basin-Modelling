@@ -33,7 +33,9 @@ SACScenario::SACScenario(ProjectReader* projectReader) :
   t2zSubSampling_{1},
   t2zRunOnOriginalProject_{false},
   t2zNumberCPUs_{defaultt2zNumberCPUs},
-  activePlots_(4, true)
+  activePlots_(4, true),
+  showSurfaceLines_{true},
+  fitRangeToData_{false}
 {
   activePlots_[2] = false;
   activePlots_[3] = false;
@@ -137,6 +139,26 @@ bool SACScenario::t2zRunOnOriginalProject() const
 void SACScenario::setT2zRunOnOriginalProject(bool t2zRunOnOriginalProject)
 {
   t2zRunOnOriginalProject_ = t2zRunOnOriginalProject;
+}
+
+bool SACScenario::showSurfaceLines() const
+{
+  return showSurfaceLines_;
+}
+
+void SACScenario::setShowSurfaceLines(const bool showSurfaceLines)
+{
+  showSurfaceLines_ = showSurfaceLines;
+}
+
+bool SACScenario::fitRangeToData() const
+{
+  return fitRangeToData_;
+}
+
+void SACScenario::setFitRangeToData(const bool fitRangeToData)
+{
+  fitRangeToData_ = fitRangeToData;
 }
 
 LithofractionManager& SACScenario::lithofractionManager()

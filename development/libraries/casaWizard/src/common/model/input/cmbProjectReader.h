@@ -46,6 +46,8 @@ public:
   double equilibriumOceanicLithosphereThickness() const override;
   bool hasTWTData(int surfaceID) const override;
   QString getDepthGridName(int surfaceID) const override;
+  QString getUnit(const QString& cauldronName) const override;
+
   int lowestSurfaceWithTWTData() const override;
   bool basementSurfaceHasTWT() const override;  
 

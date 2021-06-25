@@ -37,6 +37,7 @@
 #include "ObjectFactory.h"
 #include "Surface.h"
 #include "GridMap.h"
+#include "Property.h"
 
 // TableIO library
 #include "cauldronschemafuncs.h"
@@ -217,6 +218,8 @@ public:
 
    // get the depth values of one specific surface
    bool getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s, std::vector<double> & v );
+
+   void getUnit(const string& propertyName, string& unit);
 
    LithologyManager    & lithologyManager()    { return m_lithMgr;  } // Lithology
    StratigraphyManager & stratigraphyManager() { return m_stratMgr; } // Stratigraphy
@@ -752,6 +755,19 @@ bool Model::getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s
    catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
 
    return false;
+}
+
+Model::ReturnCode Model::getUnit(const string& propertyName, string& unit)
+{
+  {
+     if ( errorCode() != NoError ) resetError();
+
+     try { m_pimpl->getUnit(propertyName, unit); }
+     catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+     catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+     return NoError;
+  }
 }
 
 
@@ -2188,4 +2204,16 @@ bool Model::ModelImpl::getGridMapDepthValues( const mbapi::StratigraphyManager::
    return true;
 }
 
+void Model::ModelImpl::getUnit(const string& propertyName, string& unit)
+{
+  const DataAccess::Interface::PropertyList* propertyList = m_projHandle->getProperties(true);
+  for (const DataAccess::Interface::Property* property : *propertyList)
+  {
+    if (property->getName() == propertyName)
+    {
+      unit = property->getUnit();
+      break;
+    }
+  }
+}
 }

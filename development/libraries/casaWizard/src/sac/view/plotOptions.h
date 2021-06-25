@@ -34,20 +34,27 @@ public:
   void setActivePlots(const QVector<bool> activePlots);
 
   void setProperties(const QStringList& properties, const int activeIndex);
+  bool showSurfaceLines() const;
 
 signals:
   void activeChanged();
   void plotTypeChange(int currentIndex);
   void propertyChanged(QString property);
+  void showSurfaceLinesChanged(bool showSurfaceLines);
+  void fitRangeToDataChanged(bool fitRangeToData);
 
 private slots:
   void plotTypeButtonToggle(int index, bool checked);
+  void slotShowSurfaceLinesChanged(int state);
+  void slotFitRangeToDataChanged(int state);
 
 private:
   QCheckBox* original1d_;
   QCheckBox* optimized1d_;
   QCheckBox* original3d_;
   QCheckBox* optimized3d_;
+  QCheckBox* showSurfaceLines_;
+  QCheckBox* fitRangeToData_;
   QComboBox* properties_;
 
   QButtonGroup* plotType_;

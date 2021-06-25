@@ -24,8 +24,19 @@ public:
                const QVector<WellTrajectory>& trajectories,
                const QVector<bool> activePlots);
 
+  void drawSurfaceLine(const QString& surfaceName, const double surfaceDepth);
+
+  void updateMinMaxData() override;
+
+  void setFitRangeToWellData(bool fitRangeToWellData);
+
+
 private:
   QStringList completeLegend_;
+  bool fitRangeToWellData_;
+  std::pair<double, double> valueDataRange_;
+  std::pair<double, double> zDataRange_;
+
 };
 
 } // namespace sac

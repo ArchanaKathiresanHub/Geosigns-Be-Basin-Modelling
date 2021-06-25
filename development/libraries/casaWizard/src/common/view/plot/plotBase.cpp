@@ -26,6 +26,7 @@ PlotBase::PlotBasePrivate::PlotBasePrivate() :
   aspectRatioPlotArea_{0.0},
   plotRangeTopLeft_{},
   plotRangeBottomRight_{},
+  invertYAxisLabel_{false},
   font_{"Sans",10}
 {
 }
@@ -135,6 +136,16 @@ void PlotBase::PlotBasePrivate::setYAxisMaxValue(double yAxisMaxValue)
   yAxisMaxValue_ = yAxisMaxValue;
 }
 
+bool PlotBase::PlotBasePrivate::invertYAxis() const
+{
+  return invertYAxisLabel_;
+}
+
+void PlotBase::PlotBasePrivate::setInvertYAxis(bool invertYAxis)
+{
+  invertYAxisLabel_ = invertYAxis;
+}
+
 void PlotBase::PlotBasePrivate::updatePlotRange(const int width, const int height)
 {
   calculateTicks();
@@ -205,24 +216,30 @@ void PlotBase::PlotBasePrivate::drawTicks(QPainter& painter)
 {
   painter.save();
 
-  QFontMetrics fm(painter.font());
+  const QFontMetrics fm(painter.font());
   QString text;
+  double rightSideOFPreviousTick = -1.0;
+  const double margin = 3;
   for (const double& xTick : majorXticks_)
   {
     const QPointF p1 = valToPoint(xTick, yAxisMinValue_);
     const QPointF p2 = p1 + QPointF(0.0, majorTickLength);
-    painter.drawLine(p1, p2);
 
     text = QString::number(xTick, 'g', 4);
-    painter.drawText(p2 + QPointF(-fm.width(text)/2, fm.height() + textSpacing), text);
+    const double halfTextWidth = fm.width(text)/2;
+    if (rightSideOFPreviousTick < 0 || p1.x() - halfTextWidth - rightSideOFPreviousTick >= margin)
+    {
+      painter.drawLine(p1, p2);
+      painter.drawText(p2 + QPointF(-fm.width(text)/2, fm.height() + textSpacing), text);
+      rightSideOFPreviousTick = p1.x() + halfTextWidth;
+    }
   }
   for (const double& yTick : majorYticks_)
   {
     const QPointF p1 = valToPoint(xAxisMinValue_, yTick);
     const QPointF p2 = p1 - QPointF(majorTickLength, 0.0);
     painter.drawLine(p1, p2);
-
-    text = QString::number(yTick,'g',4);
+    text = invertYAxisLabel_ ? QString::number(-yTick,'g',4) : QString::number(yTick,'g',4) ;
     painter.drawText(p2 + QPointF(-(fm.width(text) + textSpacing), fm.height()/4.0), text);
   }
   painter.restore();
@@ -257,12 +274,12 @@ void PlotBase::PlotBasePrivate::calculateTicks()
 
   if (majorXticks_.size() <= 1)
   {
-    addExtraTicks(majorXticks_, xAxisMinValue_, xAxisMaxValue_, xTickSeparation / 2);
+    addExtraTicks(majorXticks_, xAxisMinValue_, xAxisMaxValue_, xTickSeparation / 5);
   }
 
   if (majorYticks_.size() <= 1)
   {
-    addExtraTicks(majorYticks_, yAxisMinValue_, yAxisMaxValue_, yTickSeparation / 2);
+    addExtraTicks(majorYticks_, yAxisMinValue_, yAxisMaxValue_, yTickSeparation / 5);
   }
 }
 
@@ -374,6 +391,11 @@ bool PlotBase::validPosition(double px, double py) const
 void PlotBase::dataChanged()
 {
   updateMinMaxData();
+}
+
+void PlotBase::setInvertYAxis(bool invertYAxis)
+{
+  plotBasePrivate_->setInvertYAxis(invertYAxis);
 }
 
 void PlotBase::setMinMaxValues(double xMin, double xMax, double yMin, double yMax)

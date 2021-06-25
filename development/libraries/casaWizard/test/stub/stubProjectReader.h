@@ -104,6 +104,11 @@ public:
     return {};
   }
 
+  QString getUnit(const QString &cauldronName) const override
+  {
+    return "";
+  }
+
 };
 
 } // namespace casaWizard

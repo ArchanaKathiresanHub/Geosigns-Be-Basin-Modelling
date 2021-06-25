@@ -42,6 +42,9 @@ public:
   double yAxisMaxValue() const;
   void setYAxisMaxValue(double yAxisMaxValue);
 
+  bool invertYAxis() const;
+  void setInvertYAxis(bool invertYAxis);
+
   void setXLabel(const QString& xLabel);
   void setYLabel(const QString& yLabel);
   void setAspectRatio(const double aspectRatio);
@@ -72,6 +75,7 @@ private:
 
   QPointF plotRangeTopLeft_;
   QPointF plotRangeBottomRight_;
+  bool invertYAxisLabel_;
 
   QFont font_;
   void addBaseTicks(const double xBase, const double yBase);

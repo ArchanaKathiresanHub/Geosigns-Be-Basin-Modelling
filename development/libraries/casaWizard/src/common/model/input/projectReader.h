@@ -32,6 +32,7 @@ public:
   virtual bool basementSurfaceHasTWT() const = 0;
   virtual bool hasTWTData(int surfaceID) const = 0;
   virtual QString getDepthGridName(int surfaceID) const = 0;
+  virtual QString getUnit(const QString& cauldronName) const = 0;
 
   virtual QStringList mapNamesT2Z() const = 0;
 

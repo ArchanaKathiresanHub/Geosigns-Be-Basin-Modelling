@@ -28,7 +28,10 @@ QVector<double> reflect(QVector<double> in)
 
 WellPlot::WellPlot(QWidget* parent) :
   Plot(parent),
-  completeLegend_{}
+  completeLegend_{},
+  fitRangeToWellData_{false},
+  valueDataRange_{},
+  zDataRange_{}
 {
   QVector<QString> legend(5, "");
   legend[0] = "Measurement";
@@ -39,6 +42,10 @@ WellPlot::WellPlot(QWidget* parent) :
   completeLegend_ = legend.toList();
   setLegend(completeLegend_);
   setYLabel("Depth [m]");
+  setInvertYAxis(true);
+  setSeparateLegend(true);
+
+  setMouseTracking(true);
 
   setMinimumWidth(300);
 }
@@ -63,6 +70,7 @@ void WellPlot::setData(const QVector<CalibrationTarget>& targets,
   QVector<QVector<double>> xCoordsHorizontalErrorBars;
   QVector<double> yCoordsHorizontalErrorBars;
 
+  bool first = true;
   for (const CalibrationTarget& target : targets)
   {
     if (target.propertyUserName() == property)
@@ -72,10 +80,23 @@ void WellPlot::setData(const QVector<CalibrationTarget>& targets,
       z.push_back(depth);
       values.push_back(value);
 
+      if (first)
+      {
+        valueDataRange_ = {value, value};
+        zDataRange_ = {depth, depth};
+        first = false;
+      }
+
+      valueDataRange_.first = value < valueDataRange_.first ? value : valueDataRange_.first;
+      valueDataRange_.second = value > valueDataRange_.second ? value : valueDataRange_.second;
+      zDataRange_.first = depth < zDataRange_.first ? depth : zDataRange_.first;
+      zDataRange_.second = depth > zDataRange_.second ? depth : zDataRange_.second;
+
       xCoordsHorizontalErrorBars.push_back({value - target.standardDeviation()*2, value + target.standardDeviation()*2});
       yCoordsHorizontalErrorBars.push_back(depth);
     }
   }
+
 
   addErrorBarHorizontal(xCoordsHorizontalErrorBars, yCoordsHorizontalErrorBars);
 
@@ -94,6 +115,34 @@ void WellPlot::setData(const QVector<CalibrationTarget>& targets,
 
   setLegend(newLegend);
 }
+
+void WellPlot::drawSurfaceLine(const QString& surfaceName, const double surfaceDepth)
+{
+  addHorizontalLine(surfaceName, surfaceDepth);
+}
+
+void WellPlot::updateMinMaxData()
+{
+  if (fitRangeToWellData_)
+  {
+    const double valueMargin = 0.05*(valueDataRange_.second-valueDataRange_.first);
+    const double zMargin = 0.05*(zDataRange_.second-zDataRange_.first);
+    setMinMaxValues(valueDataRange_.first - valueMargin,
+                    valueDataRange_.second + valueMargin,
+                    zDataRange_.first - zMargin,
+                    zDataRange_.second + zMargin);
+  }
+  else
+  {
+    Plot::updateMinMaxData();
+  }
+}
+
+void WellPlot::setFitRangeToWellData(bool fitRangeToWellData)
+{
+  fitRangeToWellData_ = fitRangeToWellData;
+}
+
 
 } // namespace sac
 

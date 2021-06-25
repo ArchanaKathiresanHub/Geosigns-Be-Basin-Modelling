@@ -471,6 +471,11 @@ namespace mbapi {
       /// @return true is the grid values could be retrived, false otherwise
       bool getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s, std::vector<double> & v );
 
+
+      /// @brief get the units of a property with propertyName
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      Model::ReturnCode getUnit(const string& propertyName, std::string& unit);
+
    private:
       /// @{
       /// Implementation part

@@ -46,6 +46,12 @@ public:
   bool t2zRunOnOriginalProject() const;
   void setT2zRunOnOriginalProject(bool t2zRunOnOriginalProject);
 
+  bool showSurfaceLines() const;
+  void setShowSurfaceLines(const bool showSurfaceLines);
+
+  bool fitRangeToData() const;
+  void setFitRangeToData(const bool fitRangeToData);
+
   LithofractionManager& lithofractionManager();
   const LithofractionManager& lithofractionManager() const;
 
@@ -79,6 +85,8 @@ private:
   int t2zNumberCPUs_;
 
   QVector<bool> activePlots_;
+  bool showSurfaceLines_;
+  bool fitRangeToData_;
 };
 
 } // namespace sac

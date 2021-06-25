@@ -34,6 +34,7 @@ public:
   void setXLabel(const QString& label);
   void setYLabel(const QString& label);
   void setAspectRatio(const double aspectRatio);
+  void setInvertYAxis(bool invertYAxis);
   void setFontStyle(FontStyle font);
 
 protected:

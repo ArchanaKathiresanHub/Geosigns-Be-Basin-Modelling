@@ -43,12 +43,14 @@ public:
   PlotOptions* plotOptions() const;
   WellBirdsView* wellBirdsView() const;
   WellCorrelationPlot* wellCorrelationPlot() const;
+  MultiWellPlot* multiWellPlot() const;
 
   void updateWellList(const QVector<const Well*> wells);
   void updateWellPlot(const QVector<QVector<CalibrationTarget>> targets,
-                      const QStringList properties,
+                      const QStringList units,
                       const QVector<QVector<WellTrajectory>> allTrajectories,
-                      const QVector<bool>& activePlots);
+                      const QVector<bool>& activePlots,
+                      const QMap<QString, double>& surfaceLines, const bool fitRangeToData);
   void updateCorrelationPlot(const QVector<QVector<CalibrationTarget>> targets,
                          const QStringList properties,
                          const QVector<QVector<WellTrajectory>> allTrajectories,

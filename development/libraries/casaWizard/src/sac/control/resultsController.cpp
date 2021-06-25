@@ -20,6 +20,7 @@
 #include "model/script/track1dAllWellScript.h"
 #include "view/plot/wellBirdsView.h"
 #include "view/plot/wellCorrelationPlot.h"
+#include "view/multiWellPlot.h"
 #include "view/plotOptions.h"
 #include "view/resultsTab.h"
 #include "view/sacTabIDs.h"
@@ -52,11 +53,14 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
   connect(resultsTab_->plotOptions(), SIGNAL(activeChanged()), this, SLOT(activeChanged()));
   connect(resultsTab_->plotOptions(), SIGNAL(plotTypeChange(int)), this, SLOT(togglePlotType(int)));
   connect(resultsTab_->plotOptions(), SIGNAL(propertyChanged(QString)), this, SLOT(updateProperty(QString)));
+  connect(resultsTab_->plotOptions(), SIGNAL(showSurfaceLinesChanged(bool)), this, SLOT(slotUpdateSurfaceLines(bool)));
+  connect(resultsTab_->plotOptions(), SIGNAL(fitRangeToDataChanged(bool)), this, SLOT(slotUpdateFitRangeToData(bool)));
 
   connect(resultsTab_->wellsList(), SIGNAL(itemSelectionChanged()), this, SLOT(updateWell()));
   connect(resultsTab_->wellBirdsView(), SIGNAL(pointSelectEvent(int,int)), this, SLOT(updateWellFromBirdView(int, int)));
 
-  connect(resultsTab_->wellCorrelationPlot(), SIGNAL(selectedWell(int)), this, SLOT(selectedWellFromCorrelation(int)));  
+  connect(resultsTab_->wellCorrelationPlot(), SIGNAL(selectedWell(int)), this, SLOT(selectedWellFromCorrelation(int)));
+  connect(resultsTab_->multiWellPlot(), SIGNAL(isExpandedChanged(int, int)), this, SLOT(slotUpdateIsExpanded(int, int)));
 }
 
 void ResultsController::refreshGUI()
@@ -170,6 +174,28 @@ void ResultsController::activeChanged()
   refreshPlot();
 }
 
+void ResultsController::slotUpdateSurfaceLines(const bool showSurfaceLines)
+{
+  scenario_.setShowSurfaceLines(showSurfaceLines);
+
+  refreshPlot();
+}
+
+void ResultsController::slotUpdateFitRangeToData(const bool fitRangeToData)
+{
+  scenario_.setFitRangeToData(fitRangeToData);
+
+  refreshPlot();
+}
+
+void ResultsController::slotUpdateIsExpanded(int state, int plotID)
+{
+  resultsTab_->multiWellPlot()->setExpanded(state == Qt::CheckState::Checked, plotID);
+
+  refreshPlot();
+}
+
+
 void ResultsController::refreshPlot()
 {
   updateOptimizedTable();
@@ -278,22 +304,62 @@ void ResultsController::updateWellPlot()
   {
     if (selectedWellsIDs_.empty())
     {
-      resultsTab_->updateWellPlot({},{},{},{});
+      resultsTab_->updateWellPlot({},{},{},{},{}, false);
     }
     return;
   }
+
   QStringList propertyUserNames;
   const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
-  QVector<QVector<CalibrationTarget>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
+  const QVector<QVector<CalibrationTarget>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
 
   const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
   const QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, propertyUserNames);
-  QVector<bool> activePlots{scenario_.activePlots()};
+
+  const QVector<bool> activePlots{scenario_.activePlots()};
+  const QMap<QString, double> surfaceValues = getSurfaceValues();
+  const QStringList units = getUnitsForProperties(allTrajectories);
 
   resultsTab_->updateWellPlot(targetsInWell,
-                              propertyUserNames,
+                              units,
                               allTrajectories,
-                              activePlots);
+                              activePlots,
+                              surfaceValues,
+                              scenario_.fitRangeToData());
+}
+
+QMap<QString, double> ResultsController::getSurfaceValues()
+{
+  QMap<QString, double> surfaceValues;
+  if (scenario_.showSurfaceLines())
+  {
+    const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
+    const casaWizard::Well& well = calibrationManager.well(selectedWellsIDs_[0]);
+    CMBMapReader mapReader;
+    mapReader.load(scenario_.project3dPath().toStdString());
+    QStringList surfaceNames = scenario_.projectReader().surfaceNames();
+    for (int i = 0; i < surfaceNames.size(); i++)
+    {
+      QString depthGridName = scenario_.projectReader().getDepthGridName(i);
+      const double depth = -1.0*mapReader.getValue(well.x(), well.y(), depthGridName.toStdString());
+      surfaceValues.insert(surfaceNames[i], depth);
+    }
+  }
+
+  return surfaceValues;
+}
+
+QStringList ResultsController::getUnitsForProperties(const QVector<QVector<WellTrajectory>>& allTrajectories)
+{
+  const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
+  QStringList units;
+  for (int i = 0; i < allTrajectories[0].size(); i++)
+  {
+    QString cauldronName = calibrationManager.getCauldronPropertyName(allTrajectories[0][i].propertyUserName());
+    units.push_back(scenario_.projectReader().getUnit(cauldronName));
+  }
+
+  return units;
 }
 
 void ResultsController::updateCorrelationPlot()
