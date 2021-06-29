@@ -47,8 +47,11 @@ public:
   QSpinBox* smoothingRadius() const;
   QComboBox* smoothingType() const;  
   ActiveWellsTable* activeWellsTable() const;
+  int numberOfActiveWells() const;
 
+  void disableWellAtIndex(const int index);
   void updateSelectedWells(const QVector<int> selectedWells);
+
 private slots:
   void slotInterpolationTypeChange(int interpolationType);
   void slotSmoothingTypeChange(int smoothingType);

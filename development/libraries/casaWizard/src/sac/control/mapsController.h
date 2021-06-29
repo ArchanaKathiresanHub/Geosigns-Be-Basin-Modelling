@@ -42,7 +42,7 @@ private slots:
   void slotSmoothingRadiusValueChanged(int smoothingRadius);  
   void slotUpdateBirdView();
   void slotUpdateTabGUI(int tabID);
-  void slotUpdateWell(const QString& name);
+  void slotUpdateWellSelection();
 
   void slotExportOptimized();
   void slotRunOptimized();  
@@ -51,12 +51,14 @@ signals:
   void signalRefreshChildWidgets();
 
 private:  
-  void refreshGUI();  
-
   QVector<int> getExcludedWells();
   QVector<int> getSelectedWellIndices();
   QVector<int> selectedWells();
   QVector<int> transformToActiveAndIncluded(const QVector<int>& wellIndices, const QVector<int>& excludedWells);
+  bool hasOptimizedSuccessfully(const int index) const;
+
+  void refreshGUI();
+  void validateWellsHaveOptimized();
 
   MapsTab* mapsTab_;
   SACScenario& scenario_;
@@ -64,7 +66,6 @@ private:
   ActiveWellsController* activeWellsController_;
   LithofractionVisualisationController* lithofractionVisualisationController_;
 
-  int selectedWell_;
 };
 
 } // namespace sac

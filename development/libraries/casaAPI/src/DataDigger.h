@@ -20,6 +20,8 @@
 #include "Observable.h"
 #include "ObsSpace.h"
 
+#include <set>
+
 /// @page CASA_DataDiggerPage Data Digger
 ///
 /// Data digger requests and collects observable values from the simulation results.
@@ -66,8 +68,9 @@ namespace casa
       /// Observables must be requested after case mutation.
       /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will request data using datadriller table
       /// @param rcs casa::RunCaseSet object which keeps list of run cases
+      /// @param excludeSet The indices of runcases which are skipped
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode requestObservables( ObsSpace & obs, RunCaseSet & rcs ) = 0;
+     virtual ErrorHandler::ReturnCode requestObservables( ObsSpace & obs, RunCaseSet & rcs, const std::set<int>& excludedSet = {} ) = 0;
 
       /// @brief Insert into project file request for observables values using datadriller cauldron app and data mining interface.
       /// Observables must be requested after case mutation.
@@ -86,8 +89,9 @@ namespace casa
       /// @brief Collect observables value from simulation results for the given case set
       /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will create ObsValue object for each run case
       /// @param rcs casa::RunCaseSet object which keeps a set of casa::RunCase objects 
+      /// @param excludeSet The indices of runcases which are skipped
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode collectRunResults( ObsSpace & obs, RunCaseSet & rcs ) = 0;
+      virtual ErrorHandler::ReturnCode collectRunResults(ObsSpace & obs, RunCaseSet & rcs , const std::set<int>& excludedSet ={}) = 0;
 
       /// @brief Collect observables value from simulation results for the given case
       /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will create ObsValue object 

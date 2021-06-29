@@ -28,7 +28,7 @@ public:
 
 signals:
   void checkBoxChanged(int, int);
-  void selectedWell(const QString&);
+  void checkBoxSelectionChanged();
 
 };
 

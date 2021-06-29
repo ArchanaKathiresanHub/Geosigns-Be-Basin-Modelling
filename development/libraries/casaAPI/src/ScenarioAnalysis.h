@@ -120,7 +120,7 @@ namespace casa
 
       /// @brief Set the filter algorithm
       /// @param filterAlgorithm the name of the filtering algorithm to use
-      /// @param excludeSet set of excluded observables
+      /// @param excludeSet set of excluded runcases
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
       ErrorHandler::ReturnCode setFilterOneDResults(const std::string & filterAlgorithm , const std::set<int>& excludeSet);
 
@@ -138,6 +138,23 @@ namespace casa
                                                        const int smoothingMethod,
                                                        const double smoothingRadius,
                                                        const int nrOfThreads );
+
+      /// @brief Requests the data digger observables
+      /// @param rcs Runcase set
+      /// @return ErrorHandler::NoError in case of success, or error code otherwise
+      ErrorHandler::ReturnCode requestDataDiggerObservables( RunCaseSet & rcs );
+
+      /// @brief Collects the data digger results
+      /// @param rcs Runcase set
+      /// @return ErrorHandler::NoError in case of success, or error code otherwise
+      ErrorHandler::ReturnCode collectDataDiggerRunResults(RunCaseSet & rcs );
+
+      /// @brief Returns if a runcase with runCaseID is excluded (returns via the
+      /// bool& isExcluded)
+      /// @param runCaseID Runcase ID
+      /// @param isExcluded returns the function outcome
+      /// @return ErrorHandler::NoError in case of success, or error code otherwise
+      ErrorHandler::ReturnCode runCaseIsExcluded(const int runCaseID, bool& isExcluded);
 
       /// @brief Create copy of the base case model and set all influential parameters value defined for each case. Each call of
       ///        this function increase scenario iteration number.

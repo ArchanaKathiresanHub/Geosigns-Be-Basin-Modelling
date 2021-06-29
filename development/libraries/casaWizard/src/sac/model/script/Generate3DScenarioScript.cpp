@@ -1,5 +1,6 @@
 #include "Generate3DScenarioScript.h"
 
+#include "model/functions/sortedByXWellIndices.h"
 #include "model/sacScenario.h"
 
 #include <QFile>
@@ -75,20 +76,16 @@ QString Generate3DScenarioScript::setFilterOneDResults() const
   QString command("setFilterOneDResults smartLithoFractionGridding");
 
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  const QVector<const Well*>& wells = ctManager.wells();
-  const WellTrajectoryManager& mgr = scenario_.wellTrajectoryManager();
+
   int i = 0;
-  for (const WellTrajectory& wellTrajectory: mgr.trajectoriesType(TrajectoryType::Original1D))
+  const QVector<int> sortedIndices = casaWizard::functions::sortedByXWellIndices(ctManager.activeWells());
+  for (const Well* well: ctManager.activeWells())
   {
-    const Well* well = wells[wellTrajectory.wellIndex()];
-    if ( well->isActive() )
+    if (well->isExcluded())
     {
-      if (well->isExcluded())
-      {
-        command += QString(" ") + QString::number(i);
-      }
-      ++i;
+      command += QString(" ") + QString::number(sortedIndices[i]);
     }
+    ++i;
   }
   command += "\n";
   return command;
@@ -99,9 +96,9 @@ void Generate3DScenarioScript::writeScriptContents(QFile& file) const
   QTextStream out(&file);
 
   out << writeLoadState(scenario_.runLocation() + "/" + scenario_.iterationDirName() + "/" + scenario_.stateFileNameSAC());
+  out << setFilterOneDResults();
   out << writeRunDataDigger();
   out << QString("importOneDResults\n");
-  out << setFilterOneDResults();
   out << generateThreeDFromOneD();
 }
 

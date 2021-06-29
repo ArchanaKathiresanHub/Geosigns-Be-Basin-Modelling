@@ -19,13 +19,13 @@ TEST(Generate3DScenarioScriptTest, testWriteScript)
   scenario.setWorkingDirectory(".");
 
   CalibrationTargetManager& ctManager = scenario.calibrationTargetManager();
-  ctManager.addWell("Well 1", 1.0, 1.0);
-  ctManager.addWell("Well 2", 2.0, 16.2);
-  ctManager.addWell("Well 3", 1.0, 6.2);
-  ctManager.addWell("Well 4", 1.0, 6.2);
+  ctManager.addWell("Well 1", 1.0, 1.0); // sorted index = 0 and disabled
+  ctManager.addWell("Well 2", 2.0, 16.2); // sorted index = 2 and disabled
+  ctManager.addWell("Well 3", 1.0, 6.2); // sorted index = 1 and enabled
+  ctManager.addWell("Well 4", 1.0, 6.2); // sorted index = NA, since this well is disabled.
 
   ctManager.setWellIsExcluded(true, 0);
-  ctManager.setWellIsExcluded(true, 2);
+  ctManager.setWellIsExcluded(true, 1);
   ctManager.setWellIsExcluded(true, 3);
   ctManager.setWellIsActive(false, 3);
 

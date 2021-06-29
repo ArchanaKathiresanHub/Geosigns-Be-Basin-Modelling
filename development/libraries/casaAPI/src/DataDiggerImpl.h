@@ -17,6 +17,8 @@
 #include "CasaDeserializer.h"
 #include "DataDigger.h"
 
+#include <set>
+
 namespace casa
 {
    // Data digger implementation
@@ -31,8 +33,9 @@ namespace casa
       /// Observables must be requested after case mutation.
       /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will request data using datadriller table
       /// @param rcs casa::RunCaseSet object which keeps list of cases
+      /// @param excludeSet The indices of runcases which are skipped
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode requestObservables( ObsSpace & obs, RunCaseSet & rcs );
+      virtual ErrorHandler::ReturnCode requestObservables(ObsSpace & obs, RunCaseSet & rcs , const std::set<int>& excludeSet);
 
       /// @brief Insert into project file requests for observables value using datadriller cauldron app and data mining interface.
       /// Observables must be requested after case mutation.
@@ -52,11 +55,12 @@ namespace casa
       // obs - set of observables
       // rcs - RunCaseSet object which keeps a set of cases
       // return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode collectRunResults( ObsSpace & obs, RunCaseSet & rcs );
+      virtual ErrorHandler::ReturnCode collectRunResults(ObsSpace & obs, RunCaseSet & rcs , const std::set<int>& excludedSet);
 
       // Collect observables value from simulation results for the given case
       // obs - casaObsSpace object which keeps list of observables. For each observable, data digger will create ObsValue object
       // rcs - casa::RunCase object which keeps list of observables and reference to Cauldron model
+      // excludeSet - The indices of runcases which are skipped
       // return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode collectRunResults( ObsSpace & obs, RunCase * rcs );
 

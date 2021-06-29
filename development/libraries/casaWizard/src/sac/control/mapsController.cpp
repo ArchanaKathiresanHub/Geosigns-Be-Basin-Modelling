@@ -15,6 +15,7 @@
 #include "control/run3dCaseController.h"
 #include "control/scriptRunController.h"
 
+#include "model/functions/sortedByXWellIndices.h"
 #include "model/input/cmbProjectReader.h"
 #include "model/logger.h"
 #include "model/output/LithoMapsInfoGenerator.h"
@@ -50,8 +51,7 @@ MapsController::MapsController(MapsTab* mapsTab,
   scenario_{scenario},
   scriptRunController_{scriptRunController},
   activeWellsController_{new ActiveWellsController(mapsTab->activeWellsTable(), scenario_, this)},
-  lithofractionVisualisationController_{new LithofractionVisualisationController(mapsTab->lithofractionVisualisation(), scenario_, this)},
-  selectedWell_{0}
+  lithofractionVisualisationController_{new LithofractionVisualisationController(mapsTab->lithofractionVisualisation(), scenario_, this)}
 {
   connect(mapsTab_->buttonExportOptimized(), SIGNAL(clicked()), this, SLOT(slotExportOptimized()));
   connect(mapsTab_->buttonRunOptimized(),    SIGNAL(clicked()), this, SLOT(slotRunOptimized()));  
@@ -63,7 +63,7 @@ MapsController::MapsController(MapsTab* mapsTab,
   connect(mapsTab_->createGridsButton(), SIGNAL(clicked()),                this, SLOT(slotGenerateLithoMaps()));
 
   connect(mapsTab_->activeWellsTable(), SIGNAL(itemSelectionChanged()), this, SLOT(slotUpdateBirdView()));
-  connect(mapsTab_->activeWellsTable(), SIGNAL(selectedWell(const QString&)), this, SLOT(slotUpdateWell(const QString&)));
+  connect(mapsTab_->activeWellsTable(), SIGNAL(checkBoxSelectionChanged()), this, SLOT(slotUpdateWellSelection()));
 }
 
 void MapsController::slotInterpolationTypeCurrentIndexChanged(int interpolationType)
@@ -86,17 +86,6 @@ void MapsController::slotSmoothingRadiusValueChanged(int smoothingRadius)
   scenario_.setRadiusSmoothing(smoothingRadius);
 }
 
-void MapsController::refreshGUI()
-{
-  mapsTab_->interpolationType()->setCurrentIndex(scenario_.interpolationMethod());
-  mapsTab_->pValue()->setValue(scenario_.pIDW());
-  mapsTab_->smoothingType()->setCurrentIndex(scenario_.smoothingOption());
-  mapsTab_->smoothingRadius()->setValue(scenario_.radiusSmoothing());  
-  mapsTab_->updateSelectedWells({});
-
-  emit signalRefreshChildWidgets();
-}
-
 void MapsController::slotUpdateTabGUI(int tabID)
 {
   if (tabID != static_cast<int>(TabID::Maps))
@@ -107,20 +96,43 @@ void MapsController::slotUpdateTabGUI(int tabID)
   refreshGUI();  
 }
 
-void MapsController::slotUpdateWell(const QString& name)
+void MapsController::validateWellsHaveOptimized()
 {
-  selectedWell_ = -1;
-  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  for (const Well* well : ctManager.activeWells())
+  for (int i = 0; i < mapsTab_->numberOfActiveWells(); i++)
   {
-    if (well->name() == name)
+    if (!hasOptimizedSuccessfully(i))
     {
-      selectedWell_ = well->id();
-      break;
+      mapsTab_->disableWellAtIndex(i);
     }
   }
+}
 
-  refreshGUI();  
+bool MapsController::hasOptimizedSuccessfully(const int index) const
+{
+  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
+  const QVector<int> sortedIndices = casaWizard::functions::sortedByXWellIndices(ctManager.activeWells());
+
+  QFile successFile(scenario_.calibrationDirectory() + "/" + scenario_.runLocation() + "/" + scenario_.iterationDirName() + "/Case_" + QString::number(sortedIndices[index] + 1) + "/Stage_0.sh.success");
+
+  return successFile.exists();
+}
+
+void MapsController::refreshGUI()
+{
+  mapsTab_->interpolationType()->setCurrentIndex(scenario_.interpolationMethod());
+  mapsTab_->pValue()->setValue(scenario_.pIDW());
+  mapsTab_->smoothingType()->setCurrentIndex(scenario_.smoothingOption());
+  mapsTab_->smoothingRadius()->setValue(scenario_.radiusSmoothing());
+  mapsTab_->updateSelectedWells({});
+
+  emit signalRefreshChildWidgets();
+  validateWellsHaveOptimized();
+}
+
+
+void MapsController::slotUpdateWellSelection()
+{
+  lithofractionVisualisationController_->updateBirdsView();
 }
 
 void MapsController::slotGenerateLithoMaps()

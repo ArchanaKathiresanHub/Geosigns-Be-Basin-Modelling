@@ -55,7 +55,7 @@ void ActiveWellsTable::updateTable(const QVector<const Well*> wells)
     layoutCheckBox->setContentsMargins(0,0,0,0);
 
     connect(itemCheckBox, &CustomCheckbox::stateChanged, [=](int state){emit checkBoxChanged(state, well->id());});
-    connect(itemCheckBox, &CustomCheckbox::clicked, [=](){emit selectedWell(well->name());});
+    connect(itemCheckBox, &CustomCheckbox::stateChanged, [=](){emit checkBoxSelectionChanged();});
 
     setRowCount(row + 1);
 

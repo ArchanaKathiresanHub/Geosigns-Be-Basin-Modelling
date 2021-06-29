@@ -17,6 +17,7 @@
 #include "RunCase.h"
 #include "RunCaseSet.h"
 
+
 #include "cmbAPI.h"
 
 #include <cassert>
@@ -29,13 +30,17 @@ namespace casa
    DataDiggerImpl::DataDiggerImpl() {}
    DataDiggerImpl::~DataDiggerImpl() {}
 
-   ErrorHandler::ReturnCode DataDiggerImpl::requestObservables( ObsSpace & obs, RunCaseSet & rcs )
+   ErrorHandler::ReturnCode DataDiggerImpl::requestObservables(ObsSpace & obs, RunCaseSet & rcs, const std::set<int>& excludeSet )
    {
       try
       {
          // go through all run cases and request observables
          for ( size_t rc = 0; rc < rcs.size(); ++rc )
          {
+           if (excludeSet.find(rc) != excludeSet.end())
+           {
+             continue;
+           }
             if ( NoError != requestObservables( obs, rcs[rc].get() ) ) throw Exception( errorCode() ) << errorMessage();
          }
       }
@@ -87,13 +92,18 @@ namespace casa
    }
 
    // Collect observables for all cases in the given case set
-   ErrorHandler::ReturnCode DataDiggerImpl::collectRunResults( ObsSpace & obs, RunCaseSet & runCaseSet )
+   ErrorHandler::ReturnCode DataDiggerImpl::collectRunResults( ObsSpace & obs, RunCaseSet & runCaseSet, const std::set<int>& excludedSet )
    {
-      runCaseSet.filterByExperimentName( "" );
-      for ( size_t c = 0; c < runCaseSet.size(); ++c )
-      {
-         if ( NoError != collectRunResults( obs, runCaseSet[c].get() ) ) return errorCode();
+     runCaseSet.filterByExperimentName( "" );
+     for ( size_t c = 0; c < runCaseSet.size(); ++c )
+     {
+       if (excludedSet.find(c) != excludedSet.end())
+       {
+         continue;
+       }
+        if ( NoError != collectRunResults( obs, runCaseSet[c].get() ) ) return errorCode();
       }
+
       return NoError;
    }
 

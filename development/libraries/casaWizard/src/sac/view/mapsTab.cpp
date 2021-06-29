@@ -8,6 +8,7 @@
 
 #include "mapsTab.h"
 
+#include "../common/view/components/customcheckbox.h"
 #include "../common/view/components/customtitle.h"
 #include "../common/view/components/emphasisbutton.h"
 #include "../common/view/components/helpLabel.h"
@@ -55,6 +56,17 @@ MapsTab::MapsTab(QWidget* parent) :
 void MapsTab::updateSelectedWells(const QVector<int> selectedWells)
 {
   lithofractionVisualisation_->updateSelectedWells(selectedWells);
+}
+
+void MapsTab::disableWellAtIndex(const int index)
+{
+  CustomCheckbox* itemCheckBox = static_cast<CustomCheckbox*>(activeWellsTable_->cellWidget(index, 0)->children()[1]);
+  itemCheckBox->setCheckState(Qt::CheckState::Unchecked);
+  itemCheckBox->enable(false);
+
+  QTableWidgetItem* toDisable = activeWellsTable_->item(index, 1);
+  toDisable->setTextColor(Qt::red);
+  toDisable->setFlags(toDisable->flags().setFlag(Qt::ItemIsEnabled, false));
 }
 
 QVBoxLayout* MapsTab::setWellsAndOptionsLayout()
@@ -181,6 +193,11 @@ QPushButton* MapsTab::buttonRunOptimized() const
 ActiveWellsTable* MapsTab::activeWellsTable() const
 {
   return activeWellsTable_;
+}
+
+int MapsTab::numberOfActiveWells() const
+{
+  return activeWellsTable_->rowCount();
 }
 
 void MapsTab::slotInterpolationTypeChange(int interpolationType)

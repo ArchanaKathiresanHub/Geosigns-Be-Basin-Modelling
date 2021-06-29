@@ -131,6 +131,15 @@ public:
    void generateThreeDFromOneD( const std::string & expLabel, const int interpolationMethod, const double IDWpower,
                                 const int smoothingMethod, const double smoothingRadius, const int nrOfThreads );
 
+   // Request the observables from the datadigger
+   void requestDataDiggerObservables( RunCaseSet & rcs );
+
+   // Collect the run results from the datadigger
+   void collectDataDiggerRunResults(RunCaseSet& rcs);
+
+   // Returns if a runcase with index i is excluded
+   void runCaseIsExcluded(const int i, bool& isExcluded);
+
    // Validate Cauldron model for consistency and valid parameters range. This function should be
    // called after ScenarioAnalysis::applyMutation()
    void validateCaseSet( RunCaseSet & cs );
@@ -381,7 +390,37 @@ ErrorHandler::ReturnCode ScenarioAnalysis::generateThreeDFromOneD( const std::st
    catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
    catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
-   return NoError;
+  return NoError;
+}
+
+ErrorHandler::ReturnCode ScenarioAnalysis::requestDataDiggerObservables(RunCaseSet& rcs)
+{
+  try { m_pimpl->requestDataDiggerObservables( rcs ); }
+  catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+  catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
+  catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+  return NoError;
+}
+
+ErrorHandler::ReturnCode ScenarioAnalysis::collectDataDiggerRunResults(RunCaseSet& rcs)
+{
+  try { m_pimpl->collectDataDiggerRunResults( rcs ); }
+  catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+  catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
+  catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+  return NoError;
+}
+
+ErrorHandler::ReturnCode ScenarioAnalysis::runCaseIsExcluded(const int runCaseID, bool& isExcluded)
+{
+  try { m_pimpl->runCaseIsExcluded( runCaseID, isExcluded ); }
+  catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+  catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
+  catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+  return NoError;
 }
 
 ErrorHandler::ReturnCode ScenarioAnalysis::validateCaseSet( RunCaseSet & cs )
@@ -784,6 +823,11 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       ibs::FilePath stateFile( ibs::FilePath( rcs[c]->projectPath() ).filePath() );
       stateFile << "casa_state.bin";
 
+      if (m_excludeSet.find(c) != m_excludeSet.end())
+      {
+        continue;
+      }
+
       // load scenario from file (deserialization)
       std::unique_ptr<ScenarioAnalysis> oneDscenario( casa::ScenarioAnalysis::loadScenario( stateFile.cpath(), "bin" ) );
 
@@ -867,11 +911,6 @@ bool ScenarioAnalysis::ScenarioAnalysisImpl::parameterFilter( Parameter * prm, R
       size_t numObservables = rc->observablesNumber( );
       for ( size_t ob = 0; ob < numObservables; ++ob )
       {
-         if (m_excludeSet.find(ob) != m_excludeSet.end())
-         {
-           continue;
-         }
-
          const Observable * obsv = rc->obsValue( ob )->parent( );
          const casa::ObsGridPropertyWell * wellObs = dynamic_cast<const casa::ObsGridPropertyWell *>( obsv );
          if ( wellObs )
@@ -948,9 +987,13 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::
 
             for ( size_t c = 0; c < rcs.size(); ++c )
             {
+              if (!rcs[c])
+              {
+                continue;
+              }
                SharedParameterPtr nprm = rcs[c]->parameter( par );
-               // add only valid parameters
-               if ( parameterFilter( nprm.get(), baseOneDCases[c].get() ) )
+
+               if (parameterFilter( nprm.get(), baseOneDCases[c].get() ) )
                {
                   prmVec.push_back( nprm );
                   xcoordOneD.push_back( m_xcoordOneD[c]);
@@ -1017,6 +1060,21 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::
    std::vector<std::shared_ptr<RunCase>> bestMatchedCase;
    bestMatchedCase.push_back( brc );
    rcs.addNewCases( bestMatchedCase, threeDFromOneD );
+}
+
+void ScenarioAnalysis::ScenarioAnalysisImpl::requestDataDiggerObservables(RunCaseSet& rcs)
+{
+  dataDigger().requestObservables(obsSpace(), rcs, m_excludeSet);
+}
+
+void ScenarioAnalysis::ScenarioAnalysisImpl::collectDataDiggerRunResults(RunCaseSet& rcs)
+{
+  dataDigger().collectRunResults(obsSpace(), rcs, m_excludeSet);
+}
+
+void ScenarioAnalysis::ScenarioAnalysisImpl::runCaseIsExcluded(const int i, bool& isExcluded)
+{
+  isExcluded = m_excludeSet.find(i) != m_excludeSet.end();
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & rcs )

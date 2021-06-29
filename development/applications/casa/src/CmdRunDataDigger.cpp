@@ -72,7 +72,7 @@ void CmdRunDataDigger::execute( std::unique_ptr<casa::ScenarioAnalysis> & scenar
    }
 
    LogHandler( LogHandler::INFO_SEVERITY ) << "Data digger requesting observables...";
-   if ( ErrorHandler::NoError != scenarioAnalysis->dataDigger().requestObservables(scenarioAnalysis->obsSpace(), runCaseSet ) )
+   if ( ErrorHandler::NoError != scenarioAnalysis->requestDataDiggerObservables(runCaseSet ) )
    {
       throw ErrorHandler::Exception( scenarioAnalysis->dataDigger().errorCode() ) << scenarioAnalysis->dataDigger().errorMessage();
    }
@@ -80,8 +80,10 @@ void CmdRunDataDigger::execute( std::unique_ptr<casa::ScenarioAnalysis> & scenar
    // Submit jobs
    for ( size_t i = 0; i < runCaseSet.size(); ++i )
    {
+      bool isExcluded;
+      scenarioAnalysis->runCaseIsExcluded(i, isExcluded);
       casa::RunCase* runCase = runCaseSet.runCase(i);
-      if (runCase->runStatus() == casa::RunCase::Failed)
+      if (runCase->runStatus() == casa::RunCase::Failed || isExcluded)
       {
         LogHandler( LogHandler::WARNING_SEVERITY ) << "  Run case " << i << " failed, hence no data digging case is sceduled";
         continue;
@@ -103,7 +105,7 @@ void CmdRunDataDigger::execute( std::unique_ptr<casa::ScenarioAnalysis> & scenar
    }
 
    // Collect observable values
-   if ( ErrorHandler::NoError != scenarioAnalysis->dataDigger().collectRunResults( scenarioAnalysis->obsSpace(), runCaseSet ) )
+   if ( ErrorHandler::NoError != scenarioAnalysis->collectDataDiggerRunResults(runCaseSet) )
    {
       throw ErrorHandler::Exception( runManager.errorCode() ) << runManager.errorMessage();
    }

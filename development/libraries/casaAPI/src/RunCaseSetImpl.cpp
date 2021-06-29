@@ -42,10 +42,17 @@ namespace casa
    {
       if ( !m_filter.empty() )
       {
-         return i < m_expIndSet.size() ? m_caseSet[m_expIndSet[i]] : NULL;
+        if (i < m_expIndSet.size() && m_expIndSet[i] < m_caseSet.size())
+        {
+          return m_caseSet[m_expIndSet[i]];
+        }
+        else
+        {
+          return nullptr;
+        }
       }
 
-      return i < m_caseSet.size() ? m_caseSet[i] : NULL;
+      return i < m_caseSet.size() ? m_caseSet[i] : nullptr;
    }
 
 
@@ -135,6 +142,11 @@ namespace casa
             // add cases with unique parameters set only
             for ( size_t i = 0; i < newCases.size(); ++i ) // go over all new cases
             {
+              if (!newCases[i])
+              {
+                newIndSet[i] = Utilities::Numerical::NoDataIDValue;
+                continue;
+              }
                bool found = false;
                 for ( size_t j = 0; j < pos && !found; ++j ) // check only cases which were in set before
                 {
