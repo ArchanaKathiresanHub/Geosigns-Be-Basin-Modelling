@@ -70,7 +70,8 @@ set( mainSources
 	src/VoxetDomainInterpolator.cpp
 	src/VoxetProjectHandle.cpp
 	src/VoxetPropertyGrid.cpp
-    src/VoxetUtils.cpp
+    src/SimulationOutputConverters.cpp
+	src/Cauldron2VoxetConverter.cpp
     )
 
 add_executable( ${TARGET_NAME}
