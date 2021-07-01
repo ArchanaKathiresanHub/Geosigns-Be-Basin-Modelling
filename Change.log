@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-07-01  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Refactoring of cauldron2voxet code.
+	 * Encapsulation of loose functions in main.cpp into class
+	 * Related work items: #427035, #428031
+	================== COMMIT-END ========================
+	Commit-ID:<bbf3ee14414b7f6b44742093196c5cacdd65e6c7>	  (HEAD -> master, origin/master)
+
+++
 2021-06-29  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg:  Changed gridding in casa to allow gridding when one of more wells failed to optimize
