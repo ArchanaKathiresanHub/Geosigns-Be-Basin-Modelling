@@ -16,7 +16,6 @@ using namespace std;
 #include "../src/GenexSourceRock.h"
 #include "../../TableIO/src/ProjectFileHandler.h"
 
-
 TEST(checkTargetHCValues, validateHCValue)
 {
 	using namespace database;
@@ -48,4 +47,3 @@ TEST(checkTargetHCValues, validateHCValue)
 	EXPECT_NEAR(maxValue, 0.11499,0.0001);
 
 }
-

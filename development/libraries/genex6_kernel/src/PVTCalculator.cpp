@@ -284,6 +284,9 @@ double Genex6::PVTCalc::computeGorm ( const PVTComponents& vapour,
       vapourMass += vapour ( ComponentId ( i )) + liquid ( ComponentId ( i ));
    }
 
+   // Add H2S mass to normally vapour components
+   vapourMass += vapour (ComponentId(ComponentId::H2S)) + liquid(ComponentId(ComponentId::H2S));
+
    // Mass of normally liquid components.
    for ( i = ComponentId::ASPHALTENE; i <= ComponentId::C6_MINUS_14SAT; ++i ) {
       liquidMass += vapour ( ComponentId ( i )) + liquid ( ComponentId ( i ));

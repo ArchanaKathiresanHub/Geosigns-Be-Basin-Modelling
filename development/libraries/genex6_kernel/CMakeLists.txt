@@ -47,3 +47,9 @@ add_gtest ( NAME GENEX6_KERNEL::convertHItoHC
    LIBRARIES genex6 genex6_kernel DataAccess SerialDataAccess
    FOLDER "${BASE_FOLDER}/${LIB_NAME}"
  )
+  add_gtest ( NAME GENEX6_KERNEL::GORMcalcTest
+   SOURCES test/GORMCalcTest.cpp
+   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+   LIBRARIES genex6 genex6_kernel DataAccess SerialDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+ )
