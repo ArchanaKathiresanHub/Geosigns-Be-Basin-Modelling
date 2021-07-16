@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-07-16  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Updated ConfigurationFlags.cmake for CodeCoverage.
+	 * Updated compiler optimization flags in ConfigurationFlags.cmake for CodeCoverage
+	================== COMMIT-END ========================
+	Commit-ID:<d8faa0351f57312bb56bbfba685555c5ddb24ff0>	  (HEAD -> master, origin/master)
+
+++
 2021-07-13  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Correct equation gorm calculation implemented.
