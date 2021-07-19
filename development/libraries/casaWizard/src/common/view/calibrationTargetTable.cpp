@@ -58,7 +58,7 @@ void CalibrationTargetTable::updateTable(const QVector<const Well*> wells)
     setItem(row, 2, new QTableWidgetItem(QString::number(well->x(), 'g', 12)));
     setItem(row, 3, new QTableWidgetItem(QString::number(well->y(), 'g', 12)));
 
-    if (well->isOutOfBasin())
+    if (well->isInvalid())
     {
       itemCheckBox->enable(false);
       for (int column = 1; column < 4; column++)

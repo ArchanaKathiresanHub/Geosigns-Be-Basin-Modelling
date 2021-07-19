@@ -1,3 +1,11 @@
+//
+// Copyright (C) 2021 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Data container for information about a well
 #pragma once
 
@@ -37,8 +45,8 @@ public:
   bool isExcluded() const;
   void setIsExcluded(const bool isExcluded);
 
-  bool isOutOfBasin() const;
-  void setIsOutOfBasin(const bool isOutOfBasin);
+  bool isInvalid() const;
+  void setIsInvalid(const bool isInvalid);
 
   QVector<const CalibrationTarget*> calibrationTargets() const;
   void setCalibrationTargets(const QVector<CalibrationTarget>& calibrationTargets);
@@ -53,7 +61,7 @@ private:
   double y_;
   bool isActive_;
   bool isExcluded_;
-  bool isOutOfBasin_;
+  bool isInvalid_;
   QVector<CalibrationTarget> calibrationTargets_;
 };
 

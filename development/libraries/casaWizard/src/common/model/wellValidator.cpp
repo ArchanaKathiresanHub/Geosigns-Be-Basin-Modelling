@@ -26,10 +26,20 @@ WellValidator::~WellValidator()
 {
 }
 
-bool WellValidator::isValid(const casaWizard::Well& well, const std::string& depthGridName) const
+WellState WellValidator::wellState(const casaWizard::Well& well, const std::string& depthGridName) const
 {
   const double valueAtWellLocation = mapReader_.getValue(well.x(), well.y(), depthGridName);
-  return std::fabs(valueAtWellLocation - Utilities::Numerical::CauldronNoDataValue) > 1e-5;
+
+  if (std::fabs(valueAtWellLocation - Utilities::Numerical::CauldronNoDataValue) <= 1e-5 )
+  {
+    return invalidLocation;
+  }
+  else if (well.calibrationTargets().size() == 0)
+  {
+    return invalidData;
+  }
+
+  return valid;
 }
 
 } // namespace casaWizard

@@ -80,9 +80,9 @@ void testReading(const QString& testFile, const int version)
   EXPECT_EQ(expectedIsExcludedWell0, actualIsExcludedWell0);
   EXPECT_EQ(expectedIsExcludedWell1, actualIsExcludedWell1);
 
-  const bool expectedIsOutOfBasinWell0 = false;
-  const bool actualIsIsOutOfBasinWell0 = well0.isOutOfBasin();
-  EXPECT_EQ(expectedIsOutOfBasinWell0, actualIsIsOutOfBasinWell0);
+  const bool expectedIsInvalidWell0 = false;
+  const bool actualIsIsInvalidWell0 = well0.isInvalid();
+  EXPECT_EQ(expectedIsInvalidWell0, actualIsIsInvalidWell0);
 
   const double expectedCoordinateXWell0 = 0.0;
   const double expectedCoordinateYWell0 = 1.0;

@@ -208,11 +208,24 @@ void CalibrationTargetManager::disableInvalidWells(const std::string& projectFil
   WellValidator validator(mapReader);
   for (Well& well : wells_)
   {
-    if (!validator.isValid(well, depthGridName))
+    const WellState wellState = validator.wellState(well, depthGridName);
+
+    switch (wellState)
     {
-      well.setIsActive(false);
-      well.setIsOutOfBasin(true);
-      Logger::log() << "Well " << well.name() << " is outside of the basin model and is therefore disabled." << Logger::endl();
+      case WellState::invalidData:
+        well.setIsActive(false);
+        well.setIsInvalid(true);
+        Logger::log() << "Well " << well.name() << " does not have calibration data and is therefore disabled. Check if the input file is valid." << Logger::endl();
+        break;
+
+      case WellState::invalidLocation:
+        well.setIsActive(false);
+        well.setIsInvalid(true);
+        Logger::log() << "Well " << well.name() << " is outside of the basin model and is therefore disabled." << Logger::endl();
+        break;
+
+      case WellState::valid:
+        break;
     }
   }
 }

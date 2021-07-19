@@ -16,14 +16,14 @@ Well::Well(const int id, const QString& name, const double x, const double y, co
   y_{y},
   isActive_{isActive},
   isExcluded_{isExcluded},
-  isOutOfBasin_{false},
+  isInvalid_{false},
   calibrationTargets_{calibrationTargets}
 {
 }
 
 int Well::version() const
 {
-  return 1;
+  return 2;
 }
 
 void Well::writeToFile(ScenarioWriter& writer) const
@@ -36,7 +36,7 @@ void Well::writeToFile(ScenarioWriter& writer) const
   writer.writeValue(wellName + "y", y_);
   writer.writeValue(wellName + "isActive", isActive_);
   writer.writeValue(wellName + "isExcluded", isExcluded_);
-  writer.writeValue(wellName + "isOutOfBasin", isOutOfBasin_);
+  writer.writeValue(wellName + "isInvalid", isInvalid_);
   writer.writeValue(wellName + "targets", calibrationTargets_);
 }
 
@@ -52,13 +52,17 @@ void Well::readFromFile(const ScenarioReader& reader)
   calibrationTargets_ = reader.readVector<CalibrationTarget>(wellName + "targets");
 
   const int version = reader.readInt(wellName + "version");
-  if (version > 0)
+  if (version > 1)
   {
-    isOutOfBasin_ = reader.readBool(wellName + "isOutOfBasin");
+    isInvalid_ = reader.readBool(wellName + "isInvalid");
+  }
+  else if (version > 0)
+  {
+    isInvalid_ = reader.readBool(wellName + "isOutOfBasin");
   }
   else
   {
-    isOutOfBasin_ = false;
+    isInvalid_ = false;
   }
 }
 
@@ -113,14 +117,14 @@ void Well::setIsExcluded(const bool isExcluded)
   isExcluded_ = isExcluded;
 }
 
-bool Well::isOutOfBasin() const
+bool Well::isInvalid() const
 {
-  return isOutOfBasin_;
+  return isInvalid_;
 }
 
-void Well::setIsOutOfBasin(const bool isOutOfAOI)
+void Well::setIsInvalid(const bool isInvalid)
 {
-  isOutOfBasin_ = isOutOfAOI;
+  isInvalid_ = isInvalid;
 }
 
 QVector<const CalibrationTarget*> Well::calibrationTargets() const

@@ -6,7 +6,7 @@
 
 using namespace casaWizard;
 
-TEST(WellValidatorTest, testInvalidWell)
+TEST(WellValidatorTest, testInvalidLocationWell)
 {
   CMBMapReader mapReader;
   mapReader.load("TestWellValidator.project3d");
@@ -19,16 +19,29 @@ TEST(WellValidatorTest, testInvalidWell)
   // (179000, 603750)             (179250, 603750)
   //        O                            O
   std::vector<Well> invalidWells;
-  invalidWells.push_back(Well(0, "Name", 179000, 603500));
-  invalidWells.push_back(Well(0, "Name", 179125, 603500));
-  invalidWells.push_back(Well(0, "Name", 179000, 603625));
-  invalidWells.push_back(Well(0, "Name", 179125, 603625));
-  invalidWells.push_back(Well(0, "Name", 1, 1));
+  CalibrationTarget target;
+  invalidWells.push_back(Well(0, "Name", 179000, 603500, true, false, {target}));
+  invalidWells.push_back(Well(0, "Name", 179125, 603500, true, false, {target}));
+  invalidWells.push_back(Well(0, "Name", 179000, 603625, true, false, {target}));
+  invalidWells.push_back(Well(0, "Name", 179125, 603625, true, false, {target}));
+  invalidWells.push_back(Well(0, "Name", 1, 1, true, false, {target}));
 
   for (const Well& well : invalidWells)
   {
-    EXPECT_FALSE(validator.isValid(well, "MAP-27105"));
+    EXPECT_EQ(validator.wellState(well, "MAP-27105"), WellState::invalidLocation);
   }
+}
+
+TEST(WellValidatorTest, testInvalidDataWell)
+{
+  CMBMapReader mapReader;
+  mapReader.load("TestWellValidator.project3d");
+  WellValidator validator(mapReader);
+
+  std::vector<Well> invalidWells;
+  CalibrationTarget target;
+  Well well(0, "Name", 179250, 603750, true, false);
+  EXPECT_EQ(validator.wellState(well, "MAP-27105"), WellState::invalidData);
 }
 
 TEST(WellValidatorTest, testValidWell)
@@ -43,7 +56,7 @@ TEST(WellValidatorTest, testValidWell)
   //
   // (179000, 603750)             (179250, 603750)
   //        O                            O
-  const Well validWell(0, "Name", 179250, 603750);
+  const Well validWell(0, "Name", 179250, 603750, true, false, {CalibrationTarget()});
 
-  EXPECT_TRUE(validator.isValid(validWell, "MAP-27105"));
+  EXPECT_EQ(validator.wellState(validWell, "MAP-27105"), WellState::valid);
 }

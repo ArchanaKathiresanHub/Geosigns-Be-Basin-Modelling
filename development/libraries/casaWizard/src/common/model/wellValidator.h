@@ -13,6 +13,13 @@
 namespace casaWizard
 {
 
+enum WellState
+{
+  valid,
+  invalidLocation,
+  invalidData
+};
+
 class Well;
 class CMBMapReader;
 class WellValidator
@@ -21,7 +28,7 @@ public:
   WellValidator(CMBMapReader& mapReader);
   ~WellValidator();
 
-  bool isValid(const Well& well, const std::string& depthGridName) const;
+  WellState wellState(const Well& well, const std::string& depthGridName) const;
 
   CMBMapReader& mapReader_;
 };
