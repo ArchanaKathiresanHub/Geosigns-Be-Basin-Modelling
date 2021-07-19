@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-07-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	chg: Improve depth plots.
+	* Improve depth plots
+
+	================== COMMIT-END ========================
+	Commit-ID:<0ed7548150733be5a204fb8271e6b13ba1b21a32>	  (refs/heads/master)
+
+++
 2021-07-16  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Updated ConfigurationFlags.cmake for CodeCoverage.
