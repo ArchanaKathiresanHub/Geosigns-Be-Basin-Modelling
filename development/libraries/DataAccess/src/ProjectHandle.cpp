@@ -3007,11 +3007,6 @@ GridMap * ProjectHandle::loadOutputMap( const Parent * parent, unsigned int chil
    }
 }
 
-//static float GetUndefinedValue (hid_t fileId);
-
-
-const char* NULL_VALUE_NAME = "/null value";
-
 #ifdef UNUSED
 const char* DELTA_I_DATASET_NAME  = "/delta in I dimension";
 const char* DELTA_J_DATASET_NAME  = "/delta in J dimension";
@@ -3020,46 +3015,6 @@ const char* NR_J_DATASET_NAME     = "/number in J dimension";
 const char* ORIGIN_I_DATASET_NAME = "/origin in I dimension";
 const char* ORIGIN_J_DATASET_NAME = "/origin in J dimension";
 #endif
-
-
-/// Retrieve the undefined value from a HDF5 file
-float ProjectHandle::GetUndefinedValue( hid_t fileId )
-{
-   float undefinedValue = static_cast<float>( DefaultUndefinedMapValue );
-
-   hid_t dataSetId = -1;
-   hid_t dataTypeId = -1;
-   hid_t dataSpaceId = -1;
-   if ( ( dataSetId = H5Dopen( fileId, NULL_VALUE_NAME, H5P_DEFAULT ) ) >= 0 )
-   {
-      dataTypeId = H5Tcopy( H5T_NATIVE_FLOAT );
-      H5T_class_t storageTypeId = H5Tget_class( dataTypeId );
-
-      assert( storageTypeId == H5T_FLOAT );
-
-      if ( ( dataSpaceId = H5Dget_space( dataSetId ) ) >= 0 )
-      {
-         int rank = H5Sget_simple_extent_ndims( dataSpaceId );
-
-         assert( rank == 1 );
-
-         hsize_t hdimension;
-
-         rank = H5Sget_simple_extent_dims( dataSpaceId, &hdimension, 0 );
-         assert( rank == 1 );
-         assert( hdimension == 1 );
-
-         H5Dread( dataSetId, dataTypeId, H5S_ALL, H5S_ALL, H5P_DEFAULT, &undefinedValue );
-
-         H5Sclose( dataSpaceId );
-      }
-      H5Tclose( dataTypeId );
-      H5Dclose( dataSetId );
-   }
-
-   return undefinedValue;
-}
-
 
 Interface::SnapshotList * ProjectHandle::getSnapshots( int type ) const
 {

@@ -994,15 +994,6 @@ double const * const * const * DistributedGridMap::getValues (void) const
    return m_values;
 }
 
-// Added by V.R. Ambati (13/07/2011):
-// saveHDF5 (.....) is an abstract function and its implementation is missing
-// for the distributed version. This implementation is now added which simply
-// throws an error when called.
-bool DistributedGridMap::saveHDF5 (const std::string & fileName) const
-{
-   throw formattingexception::GeneralException() << __FUNCTION__ << " is not implemented in " << __FILE__;
-}
-
 void DistributedGridMap::printOn (std::ostream & ostr) const
 {
    unsigned int depth = getDepth ();

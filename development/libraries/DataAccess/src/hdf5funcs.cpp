@@ -3,8 +3,7 @@
 #include <cassert>
 
 #include "hdf5funcs.h"
-
-using namespace std;
+#include "h5_file_types.h"
 
 bool HDF5::writeData1D (hid_t fileHandle, long size, const char * datasetName, hid_t dataType, const void * data)
 {
@@ -70,7 +69,7 @@ bool HDF5::writeData2D( hid_t fileHandle, long sizeI, long sizeJ, const char * d
    int rank = 2;
 
    hid_t dataspace = H5Screate_simple (rank, dims, 0);
-   
+
    herr_t status = 0;
    hid_t dataset = 0;
 
@@ -86,9 +85,9 @@ bool HDF5::writeData2D( hid_t fileHandle, long sizeI, long sizeJ, const char * d
          H5P_DEFAULT,
          H5P_DEFAULT,
          H5P_DEFAULT );
-      
+
       newDataset = true;
-   } 
+   }
    else
    {
       dataset = H5Dopen( fileHandle, datasetName, H5P_DEFAULT );
@@ -114,7 +113,7 @@ bool HDF5::writeData2D( hid_t fileHandle, long sizeI, long sizeJ, const char * d
 }
 
 bool HDF5::writeAttribute(hid_t fileHandle,
-      const char* datasetName, const char* attributeName, const hid_t attributeType, 
+      const char* datasetName, const char* attributeName, const hid_t attributeType,
       const hsize_t dims, void* data)
 {
    // get the dataset from the file
@@ -162,56 +161,29 @@ bool HDF5::writeAttribute(hid_t fileHandle,
    return (writeStatus <= 0);
 }
 
-int HDF5::readData (hid_t fileHandle, const char * datasetName, hsize_t * dimensions, void * data)
+/// Find the name of the DataSet with the given layerIndex
+string HDF5::findLayerName(const string & filePathName, int layerIndex, H5_PropertyList* plist)
 {
-   // get the dataset from the file
-   hid_t dataset = H5Dopen (fileHandle, datasetName , H5P_DEFAULT);
+  LayerInfo layerInfo;
+  layerInfo.index = layerIndex;
+  layerInfo.name = "";
 
-   if (dataset < 0)
-   {
-      return 0;
-   }
+  H5_ReadOnly_File gridMapFile;
+  if (!gridMapFile.open (filePathName.c_str (), plist))
+  {
+     cerr << "ERROR in HDF5::findLayerName (): Could not open " << filePathName << endl;
+  }
+  else
+  {
+     H5Giterate (gridMapFile.fileId (), "/", NULL, (H5G_iterate_t) checkForLayerName, &layerInfo);
+     gridMapFile.close ();
+  }
 
-   hid_t datatype = H5Dget_type (dataset); // datatype identifier
-
-   if (datatype < 0)
-   {
-      return 0;
-   }
-
-   hid_t dataspace = H5Dget_space (dataset); // dataspace identifier
-
-   if (dataspace < 0)
-   {
-      cerr << "Failed to get Dataspace for Dataset " << datasetName << endl;
-      return 0;
-   }
-
-   int rank = H5Sget_simple_extent_ndims (dataspace);
-   if (rank < 0) return 0;
-
-   int status_n = H5Sget_simple_extent_dims (dataspace, dimensions, 0);
-   if (status_n < 0) return 0;
-
-   // read the data
-   H5Dread (dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
-
-   // clean up the dataset and dataspace
-   if (dataset != 0)
-   {
-      H5Dclose (dataset);
-   }
-   if (dataspace != 0)
-   {
-      H5Sclose (dataspace);
-   }
-
-   return rank;
-//return 0;
+  return layerInfo.name;
 }
 
 /// Function used to iterate through a HDF5 file to find the name of the DataSet with the given layerIndex
-herr_t HDF5::checkForLayerName (hid_t , const char * layerName, HDF5::LayerInfo * layerInfo)
+herr_t HDF5::checkForLayerName (hid_t , const char * layerName, LayerInfo * layerInfo)
 {
    if (strncmp (layerName, "Layer=", 6) == 0)
    {
@@ -219,8 +191,8 @@ herr_t HDF5::checkForLayerName (hid_t , const char * layerName, HDF5::LayerInfo 
       sscanf (layerName, "Layer=%d", &layerIndex);
       if (layerIndex == layerInfo->index)
       {
-	 layerInfo->name = layerName;
-	 return 1;
+         layerInfo->name = layerName;
+         return 1;
       }
    }
    return 0;

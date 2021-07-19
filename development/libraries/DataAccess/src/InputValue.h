@@ -58,11 +58,14 @@ namespace DataAccess
 				 /// return a string description of this PropertyValue
 				 virtual void asString (string &) const;
 
-          /// Get the sequence number of the map.
-          virtual int getMapSequenceNumber () const;
+         /// Get the sequence number of the map.
+         virtual int getMapSequenceNumber () const;
 
-			/// Get information about the hdf filename and datasetname for this inputmap
-			void getHDFinfo(string& fileName, string& dataSetName) const;
+				 /// Get information about the hdf filename and datasetname for this inputmap when called from rank 0 only
+				 void getHDFinfoSingleCore(string& fileName, string& dataSetName) const;
+
+				 /// Get information about the hdf filename and datasetname for this inputmap
+				 void getHDFinfo(string& fileName, string& dataSetName) const;
 
 			 inline void setIndex(unsigned int index);
 				 inline unsigned int getIndex (void);

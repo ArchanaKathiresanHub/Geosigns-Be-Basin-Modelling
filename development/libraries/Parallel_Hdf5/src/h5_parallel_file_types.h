@@ -11,9 +11,11 @@ public:
    H5_PropertyList* clone() const
    { return new H5_Parallel_PropertyList(*this); }
 
-   virtual hid_t createFilePropertyList( const bool readOnly ) const ;
+   virtual hid_t createFilePropertyList( ) const ;
 
-   virtual hid_t createDatasetPropertyList( const bool readOnly ) const;
+   virtual hid_t createCreateDatasetPropertyList( ) const;
+   virtual hid_t createAccessDatasetPropertyList( ) const;
+   virtual hid_t createRawTransferDatasetPropertyList( ) const;
          
    static bool setOneFilePerProcessOption( const bool createDir =  true ) ;
 
@@ -36,7 +38,7 @@ public:
 
    static void setOneFileLustre ( bool oneFileLustre )
    {  s_oneFileLustre = oneFileLustre; }
- 
+
    static void setPrimaryPod ( bool oneFilePerProcess )
    {  s_primaryPod = oneFilePerProcess; }
    

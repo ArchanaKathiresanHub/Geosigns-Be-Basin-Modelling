@@ -19,14 +19,14 @@
 #include "SerialApplicationGlobalOperations.h"
 #include "FilePath.h"
 
+#include "h5_file_types.h"
+
 #include "array.h"
 
 using namespace DataAccess;
 using namespace Interface;
 using namespace std;
 using namespace ibs;
-
-//float GetUndefinedValue (hid_t fileId);
 
 const double DefaultUndefinedValue = 99999;
 
@@ -50,9 +50,12 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    hid_t dataTypeId = -1;
    hid_t dataSpaceId = -1;
 
-   if ((fileId = H5Fopen(filePathName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT)) >= 0)
+   H5_ReadOnly_File gridMapFile;
+   H5_PropertyList pList;
+
+   if ((fileId = gridMapFile.open(filePathName.c_str(), &pList)) >= 0)
    {
-       if ((dataSetId = H5Dopen(fileId, dataSetName.c_str(), H5P_DEFAULT)) >= 0)
+       if ((dataSetId = gridMapFile.openDataset( dataSetName.c_str())) >= 0)
        {
            dataTypeId = H5Tcopy(H5T_NATIVE_FLOAT);
            H5T_class_t HDFclass = H5Tget_class(dataTypeId);
@@ -73,7 +76,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
                }
                else
                {
-                   undefinedValue = GetUndefinedValue(fileId);
+                   undefinedValue = gridMapFile.GetUndefinedValue();
                }
 
                const Grid *grid = findGrid(dimensions[0], dimensions[1]);
@@ -125,14 +128,14 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
                }
            }
            H5Tclose(dataTypeId);
-           H5Dclose(dataSetId);
+           gridMapFile.closeDataset(dataSetId);
        }
        else
        {
            cerr << "ERROR: Could not open dataset " << dataSetName
                << " in file " << filePathName << endl;
        }
-       H5Fclose(fileId);
+       gridMapFile.close();
    }
    else
    {

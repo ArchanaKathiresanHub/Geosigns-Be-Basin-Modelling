@@ -140,7 +140,7 @@ const std::vector < std::shared_ptr<CauldronIO::HDFinfo> >& CauldronIO::MapProje
 	else if (m_inputVal != nullptr)
 	{
 		std::shared_ptr <CauldronIO::HDFinfo > info(new CauldronIO::HDFinfo());
-		m_inputVal->getHDFinfo(info->filepathName, info->dataSetName);
+		m_inputVal->getHDFinfoSingleCore(info->filepathName, info->dataSetName);
 		info->parent = this;
 		info->indexSub = -1;
 		info->setData(nullptr);

@@ -118,9 +118,6 @@ namespace DataAccess
          /// Return the array of values managed by this GridMap
          double const * const * const * getValues() const final;
 
-         /// Save this gridmap in the HDF5 format
-         bool saveHDF5(const std::string & fileName) const final;
-
          /// Print the attributes and map values of this GridMap
               // May not work if user application is compiled under IRIX with CC -lang:std
          void printOn(std::ostream &) const final;

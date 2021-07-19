@@ -82,7 +82,7 @@ int main(int argc, char ** argv)
 			<< "  -verbose                                : output debugging information" << endl
 			<< "  -outputDir <directory>                  : output to this directory instead of input directory" << endl;
 
-		return 1;
+		return -1;
 	}
 
 	string mode = argv[1];
@@ -117,7 +117,7 @@ int main(int argc, char ** argv)
 			if (i == argc - 1)
 			{
 				cerr << "Missing xml-file location" << endl;
-				exit(1);
+				return -1;
 			}
 			else
 			{
@@ -127,7 +127,7 @@ int main(int argc, char ** argv)
 				if (!boost::filesystem::exists(boost::filesystem::path(extendXMLfile)))
 				{
 					cerr << "extending with xml-file " << extendXMLfile << " not possible since it can't be found" << endl;
-					exit(1);
+					return -1;
 				}
 				cout << "Extending xml-project " << extendXMLfile << endl;
 			}
@@ -137,7 +137,7 @@ int main(int argc, char ** argv)
 			if (i == argc - 1)
 			{
 				cerr << "Missing output directory location" << endl;
-				exit(1);
+				return -1;
 			}
 			else
 			{
@@ -149,7 +149,7 @@ int main(int argc, char ** argv)
 		else
 		{
 			std::cerr << "Unrecognized option: " << argv[i] << std::endl;
-			exit(1);
+			return -1;
 		}
 	}
 
@@ -160,7 +160,7 @@ int main(int argc, char ** argv)
             if (argc < 3)
             {
                 cerr << "Please specify xml indexing file name" << endl;
-                return 1;
+                return -1;
             }
 
             string xmlName = argv[2];
@@ -224,7 +224,7 @@ int main(int argc, char ** argv)
             if (argc < 3)
             {
                 cerr << "Please specify project3D filename" << endl;
-                return 1;
+                return -1;
             }
 
             string projectFileName = argv[2];
@@ -238,7 +238,7 @@ int main(int argc, char ** argv)
 						if (!projectHandle)
 						{
 								cerr << "Could not open the project3D file" << endl;
-								return 0;
+								return -1;
 						}
 						timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
 			std::cout << "Finished opening project3D file in " << timeInSeconds << " seconds " << endl;
@@ -285,7 +285,7 @@ int main(int argc, char ** argv)
 					if (!(*project == *projectExisting))
 					{
 						std::cerr << "Cannot extend project since projects are not matching" << std::endl;
-						exit(1);
+						return -1;
 					}
 				}
 
@@ -309,7 +309,7 @@ int main(int argc, char ** argv)
         }
 
         cerr << "Unknown command line parameter. Exiting..." << endl;
-        return 1;
+        return -1;
     }
     catch (CauldronIO::CauldronIOException& except)
     {
@@ -320,6 +320,6 @@ int main(int argc, char ** argv)
        cerr << "Unknown exception happend" << endl;
     }
 
-    return 1;
+    return -1;
 }
 

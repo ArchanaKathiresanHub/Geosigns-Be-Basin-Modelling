@@ -20,6 +20,7 @@ using namespace database;
 #include "FilePath.h"
 
 #include "hdf5funcs.h"
+#include "h5_file_types.h"
 
 #define HDFFILENAME	"InputMap%d.HDF"
 
@@ -389,6 +390,24 @@ unsigned int InputValue::applyIndex (unsigned int newIndex)
 int InputValue::getMapSequenceNumber () const {
    return getMapSeqNbr (m_record);
 }
+
+void InputValue::getHDFinfoSingleCore(string& fileName, string& dataSetName) const
+{
+	 assert(m_record);
+	if (getMapType() == "HDF5")
+	{
+		ibs::FilePath mapFileName(getProjectHandle().getProjectPath());
+		mapFileName << getMapFileName(m_record);
+		fileName = mapFileName.path();
+		H5_PropertyList plist;
+		dataSetName = HDF5::findLayerName(mapFileName.path(), getMapSeqNbr(m_record), &plist);
+	}
+	else
+	{
+		fileName.clear();
+	}
+}
+
 
 void InputValue::getHDFinfo(string& fileName, string& dataSetName) const
 {

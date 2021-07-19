@@ -20,7 +20,7 @@ std::string H5_Parallel_PropertyList :: s_temporaryDirName;
 MPI_Info    H5_Parallel_PropertyList :: s_mpiInfo = MPI_INFO_NULL;
 
 
-hid_t H5_Parallel_PropertyList :: createFilePropertyList( const bool readOnly ) const
+hid_t H5_Parallel_PropertyList :: createFilePropertyList( ) const
 {
    hid_t plist = H5Pcreate (H5P_FILE_ACCESS);
 
@@ -34,7 +34,6 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList( const bool readOnly ) 
    }
    else
    {
-      if( not readOnly ) {
          H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);
 
          if( s_primaryPod or s_oneFileLustre ) {
@@ -55,7 +54,7 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList( const bool readOnly ) 
             mdc_config.decr_mode = H5C_decr__off;
             H5Pset_mdc_config(plist, &mdc_config);
          }
-      }
+
    }
 
 
@@ -65,12 +64,40 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList( const bool readOnly ) 
    return plist;
 }
 
-hid_t H5_Parallel_PropertyList :: createDatasetPropertyList( const bool readOnly ) const
+hid_t H5_Parallel_PropertyList :: createCreateDatasetPropertyList() const
 {
    // set parallel read/write on file
    hid_t pList = H5P_DEFAULT;
 
-   if( not s_oneFilePerProcess and not readOnly )
+   if( not s_oneFilePerProcess)
+   {
+      pList = H5Pcreate (H5P_DATASET_CREATE);
+      H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
+   }
+
+   return pList;
+}
+
+hid_t H5_Parallel_PropertyList :: createAccessDatasetPropertyList() const
+{
+   // set parallel read/write on file
+   hid_t pList = H5P_DEFAULT;
+
+   if( not s_oneFilePerProcess)
+   {
+      pList = H5Pcreate (H5P_DATASET_ACCESS);
+      H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
+   }
+
+   return pList;
+}
+
+hid_t H5_Parallel_PropertyList :: createRawTransferDatasetPropertyList() const
+{
+   // set parallel read/write on file
+   hid_t pList = H5P_DEFAULT;
+
+   if( not s_oneFilePerProcess)
    {
       pList = H5Pcreate (H5P_DATASET_XFER);
       H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);

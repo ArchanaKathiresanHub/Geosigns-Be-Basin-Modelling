@@ -305,7 +305,7 @@ bool DistributedMapWriter::writeVolumeToHDF (DM & da, Vec & vec, const string & 
    {
       delete petscD;
       return false;
-   }
+   }   
 
    bool status;
    // write data 

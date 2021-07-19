@@ -25,10 +25,6 @@
 //utilities
 #include "array.h"
 
-// DataAccess
-#include "hdf5funcs.h"
-#include "hdf5.h"
-
 using namespace DataAccess;
 using namespace Interface;
 using namespace ibs;
@@ -561,67 +557,6 @@ double const * const * const * SerialGridMap::getValues () const
    }
 
    return m_values;
-}
-
-bool SerialGridMap::saveHDF5 (const std::string & fileName) const
-{
-   const hid_t fileHandle = H5Fcreate (fileName.c_str (), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-
-   if (fileHandle < 0)
-      return false;
-
-   int version = 0;
-   HDF5::writeData1D (fileHandle, 1, "/gioHDFfile version", H5T_NATIVE_INT, &version);
-
-   int numI = getGrid ()->numI ();
-   int numJ = getGrid ()->numJ ();
-   HDF5::writeData1D (fileHandle, 1, "/number in I dimension", H5T_NATIVE_INT, &numI);
-   HDF5::writeData1D (fileHandle, 1, "/number in J dimension", H5T_NATIVE_INT, &numJ);
-
-   auto origI = static_cast<float>( getGrid()->minI() );
-   auto origJ = static_cast<float>( getGrid()->minJ() );
-   HDF5::writeData1D (fileHandle, 1, "/origin in I dimension", H5T_NATIVE_FLOAT, &origI);
-   HDF5::writeData1D (fileHandle, 1, "/origin in J dimension", H5T_NATIVE_FLOAT, &origJ);
-
-   auto deltaI = static_cast<float>( getGrid ()->deltaI () );
-   auto deltaJ = static_cast<float>( getGrid ()->deltaJ () );
-   HDF5::writeData1D (fileHandle, 1, "/delta in I dimension", H5T_NATIVE_FLOAT, &deltaI);
-   HDF5::writeData1D (fileHandle, 1, "/delta in J dimension", H5T_NATIVE_FLOAT, &deltaJ);
-
-   auto nullValue = static_cast<float>( getUndefinedValue () );
-   HDF5::writeData1D (fileHandle, 1, "/null value", H5T_NATIVE_FLOAT, &nullValue);
-
-   int maxKsize = 1;
-   HDF5::writeData1D (fileHandle, 1, "maxKsize", H5T_NATIVE_INT, &maxKsize);
-
-   auto * dataArray = new float[getGrid ()->numI () * getGrid ()->numJ ()];
-
-   for (unsigned int i = 0; i < static_cast<unsigned int>(numI); ++i)
-   {
-      for (unsigned int j = 0; j < static_cast<unsigned int>(numJ); ++j)
-      {
-         dataArray[i * numJ + j] = static_cast<float>( getValue (i, j, static_cast<unsigned int>(0)) );
-      }
-   }
-
-   bool newDataset = true;
-   HDF5::writeData2D( fileHandle, numI, numJ, "/Layer=0", H5T_NATIVE_FLOAT, dataArray, newDataset );
-
-   float age = 0;
-   if ( newDataset )
-   {
-      HDF5::writeAttribute( fileHandle, "/Layer=0", "PropertyName", H5T_C_S1, 3, (void*)("RD0") );
-      HDF5::writeAttribute( fileHandle, "/Layer=0", "GridName", H5T_C_S1, 5, (void*)("RD0_1") );
-      HDF5::writeAttribute( fileHandle, "/Layer=0", "CLASS", H5T_C_S1, 5, (void*)("IMAGE") );
-      HDF5::writeAttribute( fileHandle, "/Layer=0", "StratTopProp", H5T_C_S1, 3, (void*)("DEP") );
-      HDF5::writeAttribute( fileHandle, "/Layer=0", "StratTopName", H5T_C_S1, 12, (void*)("Water bottom") );
-      HDF5::writeAttribute( fileHandle, "/Layer=0", "StratTopAge", H5T_NATIVE_FLOAT, 1, &age );
-   }
-
-   HDF5::writeData1D( fileHandle, 1, "/StratTopAge", H5T_NATIVE_FLOAT, &age );
-
-   H5Fclose( fileHandle );
-   return true;
 }
 
 void SerialGridMap::printOn (std::ostream & ostr) const

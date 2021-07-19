@@ -52,6 +52,7 @@ struct MapFileCache {
     double rank;
     int numI, numJ;
     int depth;
+    bool isDoubleType;
 };
 
 void ProjectHandle::mapFileCacheConstructor (void)
@@ -136,18 +137,11 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
 {
    H5Eset_auto (NULL, NULL, NULL);
 
-   hid_t dataSetId = -1;
-   hid_t dataSpaceId = -1;
-
-   int numI;
-   int numJ;
-
    struct MapFileCache * mapFileCachePtr = 0;
 
    if (filePathName.find ("HighResDecompaction_Results") != string::npos)
    {
       mapFileCachePtr = &  static_cast<struct MapFileCache * > (m_mapFileCache) [hrdecompaction];
-
    }
    else if (filePathName.find ("Genex5_Results") != string::npos ||
     filePathName.find ("Genex6_Results") != string::npos)
@@ -158,61 +152,58 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    {
       mapFileCachePtr = & static_cast<struct MapFileCache * > (m_mapFileCache) [fastcauldron];
    }
-   else
+   else // i.e. 3D
    {
       mapFileCachePtr = & static_cast<struct MapFileCache * > (m_mapFileCache) [auxiliary];
    }
 
    struct MapFileCache & mapFileCache = * mapFileCachePtr;
 
+   H5_ReadOnly_File & gridMapFile = mapFileCache.gridMapFile;
 
    if (mapFileCache.fileName != filePathName)
    {
       mapFileCache.rank = -1;   // needs to be invalidated
       if (mapFileCache.fileName != "")
       {
-         mapFileCache.gridMapFile.close ();
+         gridMapFile.close ();
          mapFileCache.fileName = "";
-      }
+      }      
 
-      H5_Parallel_PropertyList propertyList;
+      // In case of OFPP use the parallel property list, otherwise use default property list
+      // It would be better to use a parallel mpio property list for read only NOOFPP also (same as write), but it drops performance for some cases
+      // on non-parallel file system (but works fine)
+      H5_Parallel_PropertyList parPropertyList;
+      H5_PropertyList propertyList;
+      H5_PropertyList* propertyListPointer = H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ? &parPropertyList : &propertyList;
 
-      if (!mapFileCache.gridMapFile.open (filePathName.c_str (), &propertyList))
+      if (!gridMapFile.open (filePathName.c_str (), propertyListPointer))
       {
          cerr << "ERROR in ProjectHandle::loadGridMap (): Could not open " << filePathName << endl;
-         return 0;
+         return nullptr;
       }
 
       mapFileCache.fileName = filePathName;
-   }
-
-   H5_ReadOnly_File & gridMapFile = mapFileCache.gridMapFile;
-   hid_t fileId = gridMapFile.fileId ();
-
-   double undefinedValue = -1;
-
-   unsigned int depth = 0;
+      mapFileCache.undefinedValue = gridMapFile.GetUndefinedValue(); // value is in the file.
+   }   
 
    if (mapFileCache.rank != 2)
    {
       // at least dimensions[2] is out of date.
 
-      dataSetId = H5Dopen (fileId, dataSetName.c_str (), H5P_DEFAULT);
+      hid_t dataSetId = gridMapFile.openDataset(dataSetName.c_str());
 
       if (dataSetId < 0)
       {
-         return 0;
+         return nullptr;
       }
 
-      dataSpaceId = H5Dget_space (dataSetId);
+      hid_t dataSpaceId = H5Dget_space (dataSetId);
       assert (dataSpaceId >= 0);
 
       hsize_t dimensions[3];
 
-      mapFileCache.rank = H5Sget_simple_extent_dims (dataSpaceId, dimensions, 0);
-
-      H5Sclose (dataSpaceId);
-      H5Dclose (dataSetId);
+      mapFileCache.rank = H5Sget_simple_extent_dims (dataSpaceId, dimensions, 0);      
 
       mapFileCache.numI = dimensions[0];
       mapFileCache.numJ = dimensions[1];
@@ -225,15 +216,20 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
          mapFileCache.depth = dimensions[2];
       }
 
+      // determine the dataset storage type
+      hid_t dtype       = H5Dget_type( dataSetId );
+      ssize_t dataSize  = H5Tget_size(dtype);
+      mapFileCache.isDoubleType = ( dataSize == H5_SIZEOF_DOUBLE );
 
-      undefinedValue = mapFileCache.undefinedValue = GetUndefinedValue (fileId); // value is in the file.
+      H5Sclose (dataSpaceId);
+      gridMapFile.closeDataset(dataSetId);
    }
 
-   numI = mapFileCache.numI;
-   numJ = mapFileCache.numJ;
-   depth = mapFileCache.depth;
-   undefinedValue = mapFileCache.undefinedValue;
-
+   const int numI = mapFileCache.numI;
+   const int numJ = mapFileCache.numJ;
+   unsigned int depth = mapFileCache.depth;
+   const double undefinedValue = mapFileCache.undefinedValue;
+   const bool isDoubleType = mapFileCache.isDoubleType;
 
    // create petsc type
    PetscDimensions *petscD;
@@ -263,24 +259,14 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
       gridMap = dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (parent, childIndex, grid, undefinedValue, depth));
    } else {
       gridMap = dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (0, 0, grid, undefinedValue, depth));
-   }
-   //read
-   // determine the dataset storage type
-   hid_t dataId = gridMapFile.openDataset ( dataSetName.c_str (), fileId );
-   if ( dataId <  0 ) return 0;
-   hid_t dtype       = H5Dget_type( dataId );
-   ssize_t dataSize  = H5Tget_size(dtype);
-   bool isDoubleType = ( dataSize == H5_SIZEOF_DOUBLE );
-
-   H5Dclose (dataId);
-   H5Tclose( dtype );
+   }      
 
    if( isDoubleType ) {
       PetscVector_ReadWrite < double >reader;
-      reader.read (&gridMapFile, fileId, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
+      reader.read (&gridMapFile, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
    } else {
       PetscVector_ReadWrite < float >reader;
-      reader.read (&gridMapFile, fileId, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
+      reader.read (&gridMapFile, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
    }
 
    if( not equalGrids ) {

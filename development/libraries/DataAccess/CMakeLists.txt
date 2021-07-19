@@ -20,6 +20,7 @@ create_bm_library( TARGET ${LIB_NAME}
                    LIBRARIES
    ${Boost_LIBRARIES}
    ${HDF5_LIBRARIES}
+   Serial_Hdf5
    DataModel   
    TableIO
    EosPack

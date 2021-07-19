@@ -211,7 +211,6 @@ namespace DataAccess
       /// Return the array of values managed by this GridMap
       virtual double const * const * const * getValues (void) const;
 
-      virtual bool saveHDF5 (const std::string & fileName) const;
       virtual void printOn (std::ostream &) const;
       virtual void printOn (MPI_Comm comm) const;
 
