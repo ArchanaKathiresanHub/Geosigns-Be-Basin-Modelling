@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-07-19  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added invalidation check for wells without any calibrationTargets.
+	* Wells which do not have any calibration data (e.g. due to faulty input data) are automatically disabled and the user is warned
+	* Related work items: #428220
+	================== COMMIT-END ========================
+	Commit-ID:<60805235782f2f34d8acaee05d73b06df0684cd0>	  (refs/heads/master)
+
+++
 2021-07-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Cluster fix for fastdepthconversion.
