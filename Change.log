@@ -38,6 +38,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-07-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
+	fix: Cluster fix for fastdepthconversion.
+	* Fix the problems we face with fastdepthconversion on the cluster
+	* Finding the layer name gave some issues while running noofpp and fastdepthconversion on cluster
+
+	* Related work items: #426724
+	================== COMMIT-END ========================
+	Commit-ID:<aa3fe04fac6ec540796b20fe97145f3a3a77c6bc>	  (refs/heads/master)
+
+++
+2021-07-19  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
 	chg: Improve depth plots.
 	* Improve depth plots
 
