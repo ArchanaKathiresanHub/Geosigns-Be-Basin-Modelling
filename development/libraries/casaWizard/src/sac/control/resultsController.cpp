@@ -53,20 +53,22 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
   connect(resultsTab_->plotOptions(), SIGNAL(activeChanged()), this, SLOT(activeChanged()));
   connect(resultsTab_->plotOptions(), SIGNAL(plotTypeChange(int)), this, SLOT(togglePlotType(int)));
   connect(resultsTab_->plotOptions(), SIGNAL(propertyChanged(QString)), this, SLOT(updateProperty(QString)));
-  connect(resultsTab_->plotOptions(), SIGNAL(showSurfaceLinesChanged(bool)), this, SLOT(slotUpdateSurfaceLines(bool)));
-  connect(resultsTab_->plotOptions(), SIGNAL(fitRangeToDataChanged(bool)), this, SLOT(slotUpdateFitRangeToData(bool)));
 
   connect(resultsTab_->wellsList(), SIGNAL(itemSelectionChanged()), this, SLOT(updateWell()));
   connect(resultsTab_->wellBirdsView(), SIGNAL(pointSelectEvent(int,int)), this, SLOT(updateWellFromBirdView(int, int)));
 
   connect(resultsTab_->wellCorrelationPlot(), SIGNAL(selectedWell(int)), this, SLOT(selectedWellFromCorrelation(int)));
   connect(resultsTab_->multiWellPlot(), SIGNAL(isExpandedChanged(int, int)), this, SLOT(slotUpdateIsExpanded(int, int)));
+  connect(resultsTab_->multiWellPlot(), SIGNAL(showSurfaceLinesChanged(bool)), this, SLOT(slotUpdateSurfaceLines(bool)));
+  connect(resultsTab_->multiWellPlot(), SIGNAL(fitRangeToDataChanged(bool)), this, SLOT(slotUpdateFitRangeToData(bool)));
 }
 
 void ResultsController::refreshGUI()
 {
   setActiveWells();
-  setActivePlots();
+  setActivePropertiesToWells();
+
+  setGuiOptionsInPlots();
   setDomainBirdsView();  
 }
 
@@ -77,9 +79,17 @@ void ResultsController::setActiveWells()
   resultsTab_->updateBirdsView(ctManager.activeWells());
 }
 
-void ResultsController::setActivePlots()
+void ResultsController::setActivePropertiesToWells()
+{
+  const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
+  resultsTab_->updateActivePropertyUserNames(ctManager.activePropertyUserNames());
+}
+
+void ResultsController::setGuiOptionsInPlots()
 {
   resultsTab_->plotOptions()->setActivePlots(scenario_.activePlots());
+  resultsTab_->multiWellPlot()->setShowSurfaceLines(scenario_.showSurfaceLines());
+  resultsTab_->multiWellPlot()->setFitRangeToData(scenario_.fitRangeToData());
 }
 
 void ResultsController::setDomainBirdsView()
@@ -311,20 +321,16 @@ void ResultsController::updateWellPlot()
 
   QStringList propertyUserNames;
   const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
-  const QVector<QVector<CalibrationTarget>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
+  const QVector<QVector<const CalibrationTarget*>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
 
   const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
-  const QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, propertyUserNames);
-
-  const QVector<bool> activePlots{scenario_.activePlots()};
-  const QMap<QString, double> surfaceValues = getSurfaceValues();
-  const QStringList units = getUnitsForProperties(allTrajectories);
+  const QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, propertyUserNames);  
 
   resultsTab_->updateWellPlot(targetsInWell,
-                              units,
+                              getUnitsForProperties(allTrajectories),
                               allTrajectories,
-                              activePlots,
-                              surfaceValues,
+                              scenario_.activePlots(),
+                              getSurfaceValues(),
                               scenario_.fitRangeToData());
 }
 
@@ -368,7 +374,7 @@ void ResultsController::updateCorrelationPlot()
 
   QStringList propertyUserNames;
   const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
-  QVector<QVector<CalibrationTarget>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
+  QVector<QVector<const CalibrationTarget*>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
 
   const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
   QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, propertyUserNames);

@@ -46,12 +46,12 @@ public:
   MultiWellPlot* multiWellPlot() const;
 
   void updateWellList(const QVector<const Well*> wells);
-  void updateWellPlot(const QVector<QVector<CalibrationTarget>> targets,
+  void updateWellPlot(const QVector<QVector<const CalibrationTarget*> > targets,
                       const QStringList units,
                       const QVector<QVector<WellTrajectory>> allTrajectories,
                       const QVector<bool>& activePlots,
                       const QMap<QString, double>& surfaceLines, const bool fitRangeToData);
-  void updateCorrelationPlot(const QVector<QVector<CalibrationTarget>> targets,
+  void updateCorrelationPlot(const QVector<QVector<const CalibrationTarget*>> targets,
                          const QStringList properties,
                          const QVector<QVector<WellTrajectory>> allTrajectories,
                          const QVector<bool> activePlots,
@@ -62,6 +62,7 @@ public:
                                  const QVector<QVector<double> >& optimizedValuesVector);
   void updateBirdsView(const QVector<const Well*> wells);
   void updateSelectedWells();
+  void updateActivePropertyUserNames(const QStringList& activePropertyUserNames);
 
   void setPlotType(const int currentIndex);
 

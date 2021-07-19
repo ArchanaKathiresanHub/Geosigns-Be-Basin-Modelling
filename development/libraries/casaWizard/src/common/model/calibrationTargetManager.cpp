@@ -217,14 +217,14 @@ void CalibrationTargetManager::disableInvalidWells(const std::string& projectFil
   }
 }
 
-QVector<QVector<CalibrationTarget>> CalibrationTargetManager::extractWellTargets(QStringList& propertyUserNames, const int wellIndex) const
+QVector<QVector<const CalibrationTarget*>> CalibrationTargetManager::extractWellTargets(QStringList& propertyUserNames, const int wellIndex) const
 {
 
   if (wellIndex >= wells_.size() || wellIndex < 0)
   {
     return {};
   }
-  QVector<QVector<CalibrationTarget>> targetsInWell;
+  QVector<QVector<const CalibrationTarget*>> targetsInWell;
   propertyUserNames.clear();
 
   for (const CalibrationTarget* target : wells_[wellIndex].calibrationTargets())
@@ -233,12 +233,12 @@ QVector<QVector<CalibrationTarget>> CalibrationTargetManager::extractWellTargets
     if (propertyIndex == -1)
     {
       propertyUserNames.append(target->propertyUserName());
-      QVector<CalibrationTarget> newVector{*target};
+      QVector<const CalibrationTarget*> newVector{target};
       targetsInWell.append(newVector);
     }
     else
     {
-      targetsInWell[propertyIndex].append(*target);
+      targetsInWell[propertyIndex].append(target);
     }
   }
 
@@ -266,9 +266,9 @@ QStringList CalibrationTargetManager::getPropertyUserNamesForWell(const int well
 }
 
 
-QVector<QVector<CalibrationTarget> > CalibrationTargetManager::extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const
+QVector<QVector<const CalibrationTarget*> > CalibrationTargetManager::extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const
 {
-  QVector<QVector<CalibrationTarget>> targetsInWells;
+  QVector<QVector<const CalibrationTarget*>> targetsInWells;
   if (wellIndices.size()==0)
   {
     return {};
@@ -277,7 +277,7 @@ QVector<QVector<CalibrationTarget> > CalibrationTargetManager::extractWellTarget
   for (const int wellIndex : wellIndices)
   {
     QStringList wellProperties;
-    for (const QVector<CalibrationTarget>& targets : extractWellTargets(wellProperties, wellIndex))
+    for (const QVector<const CalibrationTarget*>& targets : extractWellTargets(wellProperties, wellIndex))
     {
       targetsInWells.append(targets);
     }

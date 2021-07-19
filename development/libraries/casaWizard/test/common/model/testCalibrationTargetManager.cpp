@@ -164,16 +164,16 @@ TEST(CalibrationTargetManagerTest, testExtractWells)
   QStringList propertiesExpected{"Temperature", "TWTT"};
   QStringList propertiesActual;
 
-  QVector<QVector<casaWizard::CalibrationTarget>> targetsInWell = manager.extractWellTargets(propertiesActual, 0);
+  QVector<QVector<const casaWizard::CalibrationTarget*>> targetsInWell = manager.extractWellTargets(propertiesActual, 0);
 
   for (int i = 1; i < propertiesExpected.size(); ++i )
   {
     EXPECT_EQ(propertiesActual[i].toStdString(), propertiesExpected[i].toStdString());
   }
 
-  const double valueT1Actual = targetsInWell[0][0].value();
-  const double valueT2Actual = targetsInWell[0][1].value();
-  const double valueTWTActual = targetsInWell[1][0].value();
+  const double valueT1Actual = targetsInWell[0][0]->value();
+  const double valueT2Actual = targetsInWell[0][1]->value();
+  const double valueTWTActual = targetsInWell[1][0]->value();
 
   EXPECT_EQ(valueT1Actual, valueT1Expected);
   EXPECT_EQ(valueT2Actual, valueT2Expected);

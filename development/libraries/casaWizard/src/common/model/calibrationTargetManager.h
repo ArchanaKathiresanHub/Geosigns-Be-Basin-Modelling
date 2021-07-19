@@ -32,8 +32,8 @@ public:
   int addWell(const QString& wellName, double x, double y);
 
   int amountOfActiveCalibrationTargets() const;
-  QVector<QVector<CalibrationTarget>> extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const;
-  QVector<QVector<CalibrationTarget> > extractWellTargets(QStringList& propertyUserNames, const int wellIndex) const;
+  QVector<QVector<const CalibrationTarget*>> extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const;
+  QVector<QVector<const CalibrationTarget*>> extractWellTargets(QStringList& propertyUserNames, const int wellIndex) const;
 
   const ObjectiveFunctionManager& objectiveFunctionManager() const;
 

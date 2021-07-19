@@ -17,7 +17,6 @@ CustomCheckbox::CustomCheckbox(const QString& text, QWidget *parent) :
   initialize();
 }
 
-
 CustomCheckbox::CustomCheckbox(QWidget *parent) :
     QCheckBox(parent)
 {

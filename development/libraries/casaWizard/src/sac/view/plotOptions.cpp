@@ -31,8 +31,6 @@ PlotOptions::PlotOptions(QWidget* parent) :
   optimized1d_{new CustomCheckbox("Optimized 1d", this)},
   original3d_{new CustomCheckbox("Original 3d", this)},
   optimized3d_{new CustomCheckbox("Optimized 3d", this)},
-  showSurfaceLines_{new CustomCheckbox("Show surface lines", this)},
-  fitRangeToData_{new CustomCheckbox("Fit range to well data", this)},
   properties_{new QComboBox(this)},
   plotType_{new QButtonGroup(this)},
   table_{new CustomRadioButton("Table", this)},
@@ -53,10 +51,6 @@ PlotOptions::PlotOptions(QWidget* parent) :
   layout->addWidget(depthPlot_, 3, 0);
   layout->addWidget(correlationPlot_, 4, 0);
   layout->addWidget(table_, 5, 0);
-  layout->addWidget(showSurfaceLines_, 6, 0);
-  showSurfaceLines_->setChecked(true);
-  layout->addWidget(  fitRangeToData_, 7, 0);
-  fitRangeToData_->setChecked(false);
 
   properties_->setVisible(false);
   layout->addWidget(properties_, 4, 1, 1, 1);
@@ -66,9 +60,6 @@ PlotOptions::PlotOptions(QWidget* parent) :
   connect(original3d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
   connect(optimized1d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
   connect(optimized3d_, SIGNAL(released()), this, SIGNAL(activeChanged()));
-
-  connect(showSurfaceLines_, SIGNAL(stateChanged(int)), this, SLOT(slotShowSurfaceLinesChanged(int)));
-  connect(fitRangeToData_, SIGNAL(stateChanged(int)), this, SLOT(slotFitRangeToDataChanged(int)));
 
   connect(plotType_, SIGNAL(buttonToggled(int,bool)), this, SLOT(plotTypeButtonToggle(int,bool)));
   connect(properties_, SIGNAL(currentIndexChanged(QString)), this, SIGNAL(propertyChanged(QString)));
@@ -83,30 +74,14 @@ void PlotOptions::plotTypeButtonToggle(int index, bool checked)
     {
       case 0:
         properties_->setVisible(false);
-        showSurfaceLines_->setVisible(true);
-        fitRangeToData_->setVisible(true);
         break;
       case 1:
         properties_->setVisible(true);
-        showSurfaceLines_->setVisible(false);
-        fitRangeToData_->setVisible(false);
         break;
       default:
         properties_->setVisible(false);
-        showSurfaceLines_->setVisible(false);
-        fitRangeToData_->setVisible(false);
     }
   }
-}
-
-void PlotOptions::slotShowSurfaceLinesChanged(int state)
-{
-  emit showSurfaceLinesChanged(state == Qt::CheckState::Checked);
-}
-
-void PlotOptions::slotFitRangeToDataChanged(int state)
-{
-  emit fitRangeToDataChanged(state == Qt::CheckState::Checked);
 }
 
 QVector<bool> PlotOptions::activePlots() const
@@ -134,11 +109,6 @@ void PlotOptions::setProperties(const QStringList& properties, const int activeI
   properties_->clear();
   properties_->insertItems(0, properties);
   properties_->setCurrentIndex(activeIndex);
-}
-
-bool PlotOptions::showSurfaceLines() const
-{
-  return showSurfaceLines_->isChecked();
 }
 
 }  // namespace sac

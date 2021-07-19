@@ -43,7 +43,7 @@ WellCorrelationPlot::WellCorrelationPlot(QWidget* parent) :
   connect(this, SIGNAL(pointSelectEvent(int,int)), this, SLOT(selectedPoint(int,int)));
 }
 
-void WellCorrelationPlot::setData(const QVector<QVector<CalibrationTarget>>& targets,
+void WellCorrelationPlot::setData(const QVector<QVector<const CalibrationTarget*>>& targets,
                               const QVector<QVector<WellTrajectory>>& allTrajectories,
                               const QString property,
                               const QVector<bool> activePlots)
@@ -79,10 +79,10 @@ void WellCorrelationPlot::setData(const QVector<QVector<CalibrationTarget>>& tar
 
       QVector<double> depthMeasured;
       QVector<double> valueMeasured;
-      for (const CalibrationTarget& target : targets[i])
+      for (const CalibrationTarget* target : targets[i])
       {
-        depthMeasured.push_back(target.z());
-        valueMeasured.push_back(target.value());
+        depthMeasured.push_back(target->z());
+        valueMeasured.push_back(target->value());
       }
 
       QVector<double> valueSimulated = functions::interpolateVector(allTrajectories[j][i].depth(), allTrajectories[j][i].value(), depthMeasured);

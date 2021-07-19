@@ -63,8 +63,9 @@ private:
   QString activeProperty_;
 
   void initializeWellSelection();
-  void setActivePlots();
+  void setGuiOptionsInPlots();
   void setActiveWells();
+  void setActivePropertiesToWells();
   void setDomainBirdsView();
   void setDefaultWellSelection();
   QMap<QString, double> getSurfaceValues();

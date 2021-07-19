@@ -141,7 +141,12 @@ void ResultsTab::updateWellList(const QVector<const Well*> wells)
   wellsList_->setMinimumWidth(wellsList_->sizeHintForColumn(0));
 }
 
-void ResultsTab::updateWellPlot(const QVector<QVector<CalibrationTarget> > targets, const QStringList units,
+void ResultsTab::updateActivePropertyUserNames(const QStringList& activePropertyUserNames)
+{
+  multiWellPlot_->setActivePropertyUserNames(activePropertyUserNames);
+}
+
+void ResultsTab::updateWellPlot(const QVector<QVector<const CalibrationTarget*> > targets, const QStringList units,
                                 const QVector<QVector<WellTrajectory> > allTrajectories, const QVector<bool>& activePlots,
                                 const QMap<QString, double>& surfaceLines, const bool fitRangeToData)
 {
@@ -154,7 +159,7 @@ void ResultsTab::updateWellPlot(const QVector<QVector<CalibrationTarget> > targe
                               fitRangeToData);
 }
 
-void ResultsTab::updateCorrelationPlot(const QVector<QVector<CalibrationTarget>> targets,
+void ResultsTab::updateCorrelationPlot(const QVector<QVector<const CalibrationTarget*>> targets,
                                        const QStringList properties,
                                        const QVector<QVector<WellTrajectory>> allTrajectories,
                                        const QVector<bool> activePlots,

@@ -29,7 +29,7 @@ class WellCorrelationPlot : public Plot
 public:
   explicit WellCorrelationPlot(QWidget* parent = nullptr);
 
-  void setData(const QVector<QVector<CalibrationTarget> >& targets,
+  void setData(const QVector<QVector<const CalibrationTarget*> >& targets,
                const QVector<QVector<WellTrajectory>>& allTrajectories,
                const QString property,
                const QVector<bool> activePlots);

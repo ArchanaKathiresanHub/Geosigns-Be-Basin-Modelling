@@ -39,7 +39,7 @@ void writeTrajectories(SACScenario& scenario)
   for (const Well* well : wells)
   {
     QStringList propertyUserNames;
-    const QVector<QVector<CalibrationTarget>> targetsInWell = manager.extractWellTargets(propertyUserNames, well->id());
+    const QVector<QVector<const CalibrationTarget*>> targetsInWell = manager.extractWellTargets(propertyUserNames, well->id());
 
     for(const QString& propertyUserName : propertyUserNames)
     {
@@ -52,13 +52,13 @@ void writeTrajectories(SACScenario& scenario)
       }
       QTextStream out{&file};
 
-      for (const CalibrationTarget& target : targetsInWell[propertyIndex])
+      for (const CalibrationTarget* target : targetsInWell[propertyIndex])
       {
         out << QString::number(well->x(),'f') << " "
             << QString::number(well->y(),'f') << " "
-            << QString::number(target.z()) << " "
-            << QString::number(target.value()) << " "
-            << QString::number(target.standardDeviation()) << "\n";
+            << QString::number(target->z()) << " "
+            << QString::number(target->value()) << " "
+            << QString::number(target->standardDeviation()) << "\n";
       }
 
       file.close();

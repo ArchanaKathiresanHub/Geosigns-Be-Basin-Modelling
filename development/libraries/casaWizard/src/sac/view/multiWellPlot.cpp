@@ -25,49 +25,121 @@ MultiWellPlot::MultiWellPlot(QWidget* parent) :
   plots_{},
   expandedPlots_{},
   isExpandedCheckboxes_{},
-  plotSelection_{new QWidget(this)}
-{
-  QGridLayout* layout = new QGridLayout();
-  setLayout(layout);
+  plotSelection_{new QWidget(this)},
+  legend_{},
+  showSurfaceLines_{new CustomCheckbox("Show surface lines", this)},
+  fitRangeToData_{new CustomCheckbox("Fit range to well data", this)}
+{  
+  setLayout(new QGridLayout());
+
+  connect(showSurfaceLines_, SIGNAL(stateChanged(int)), this, SLOT(slotShowSurfaceLinesChanged(int)));
+  connect(fitRangeToData_, SIGNAL(stateChanged(int)), this, SLOT(slotFitRangeToDataChanged(int)));
 }
 
-void MultiWellPlot::setTotalLayout(QHBoxLayout* plotSelectionAndLegendLayout)
+void MultiWellPlot::slotShowSurfaceLinesChanged(int state)
 {
-  QGridLayout* total = static_cast<QGridLayout*>(layout());
+  emit showSurfaceLinesChanged(state == Qt::CheckState::Checked);
+}
+
+void MultiWellPlot::slotFitRangeToDataChanged(int state)
+{
+  emit fitRangeToDataChanged(state == Qt::CheckState::Checked);
+}
+
+void MultiWellPlot::setActivePropertyUserNames(const QStringList& activePropertyUserNames)
+{
+  activePropertyUserNames_ = activePropertyUserNames;
+
+  const int nProperties = activePropertyUserNames.size();
+
+  // Reset the selection if the size has changed, default of 4 plots maximum
+  if (expandedPlots_.size() != nProperties)
+  {
+    expandedPlots_ = QVector<bool>(nProperties, true);
+    for (int i = 4; i< nProperties; ++i)
+    {
+      expandedPlots_[i] = false;
+    }
+  }
+
+  createPlotSelectionHeader();
+}
+
+void MultiWellPlot::createPlotSelectionHeader()
+{
+  QSignalBlocker blocker(this);
+
+  delete plotSelection_;
+  isExpandedCheckboxes_.clear();
+
+  plotSelection_ = new QWidget(this);
+  QGridLayout* plotSelectionLayout = new QGridLayout(plotSelection_);
+  plotSelectionLayout->addWidget(new QLabel("Plot selection: ", plotSelection_), 0, 0);
+
+  const int maxPerRow = 5;
+  int row = 0;
+  int col = 1;
+  for (int i = 0; i < activePropertyUserNames_.size(); i++)
+  {
+    CustomCheckbox* isExpandedCheckbox = new CustomCheckbox(activePropertyUserNames_[i]);
+    isExpandedCheckbox->setChecked(expandedPlots_[i]);
+    connect(isExpandedCheckbox, &CustomCheckbox::stateChanged, [=](int state){emit isExpandedChanged(state, i);});
+
+    plotSelectionLayout->addWidget(isExpandedCheckbox, row, col);
+    if (col == maxPerRow)
+    {
+      col = 0;
+      row++;
+    }
+    col++;
+
+    isExpandedCheckboxes_.push_back(isExpandedCheckbox);
+  }
+}
+
+void MultiWellPlot::setShowSurfaceLines(const bool checked)
+{
+  showSurfaceLines_->setChecked(checked);
+}
+
+void MultiWellPlot::setFitRangeToData(const bool checked)
+{
+  fitRangeToData_->setChecked(checked);
+}
+
+void MultiWellPlot::setTotalLayout()
+{
+  QGridLayout* total = static_cast<QGridLayout*>(layout());  
+  total->addLayout(createPlotOptionsAndLegendLayout(), 0, 0, 1, plots_.size());
+  total->addWidget(plotSelection_, 1, 0, 1, plots_.size(), Qt::AlignLeft);
+
   for (int i = 0; i < plots_.size(); i++)
   {
-    total->addWidget(plots_[i],1, i, 1,1);
+    total->addWidget(plots_[i], 2, i, 1, 1);
     total->setMargin(0);
     total->setSpacing(0);
   }
-  total->addLayout(plotSelectionAndLegendLayout, 0,0, 1, plots_.size());
-  total->setRowStretch(1,1);
+
   total->setRowStretch(0,0);
+  total->setRowStretch(1,0);
+  total->setRowStretch(2,1);
 }
 
-void MultiWellPlot::updatePlots(const QVector<QVector<CalibrationTarget>>& targets,
+void MultiWellPlot::updatePlots(const QVector<QVector<const CalibrationTarget*>>& targets,
                                 const QStringList& units,
                                 const QVector<QVector<WellTrajectory>>& allTrajectories,
                                 const QVector<bool>& activePlots,
                                 const QMap<QString, double>& surfaceLines, const bool fitRangeToData)
 {
-  clearState();
-
-  const int nProperties = targets.size();
-  initializePlotSelection(nProperties, allTrajectories);
-  drawPlots(targets, units, allTrajectories, activePlots, surfaceLines, fitRangeToData, nProperties);
-
-  QHBoxLayout* plotSelectionAndLegendLayout = obtainPlotSelectionAndLegendLayout();
-  setTotalLayout(plotSelectionAndLegendLayout);
+  clearState();  
+  drawPlots(targets, units, allTrajectories, activePlots, surfaceLines, fitRangeToData);  
+  setTotalLayout();
 }
 
 void MultiWellPlot::clearState()
 {
-  clearPlots();
-  clearCheckBoxes();
-  clearLegend();
-
-  delete plotSelection_;
+  clearPlots();  
+  clearLegend();  
 }
 
 void MultiWellPlot::clearPlots()
@@ -79,15 +151,6 @@ void MultiWellPlot::clearPlots()
   plots_.clear();
 }
 
-void MultiWellPlot::clearCheckBoxes()
-{
-  for (const auto* checkbox : isExpandedCheckboxes_)
-  {
-    delete checkbox;
-  }
-  isExpandedCheckboxes_.clear();
-}
-
 void MultiWellPlot::clearLegend()
 {
   if (legend_)
@@ -97,79 +160,97 @@ void MultiWellPlot::clearLegend()
   }
 }
 
-void MultiWellPlot::initializePlotSelection(const int nProperties, const QVector<QVector<WellTrajectory>>& allTrajectories)
-{
-  if (nProperties != expandedPlots_.size())
-  {
-    expandedPlots_ = QVector<bool>(nProperties, true);
-  }
-
-  plotSelection_ = new QWidget(this);
-
-  QHBoxLayout* plotSelectionLayout = new QHBoxLayout(plotSelection_);
-  plotSelectionLayout->addWidget(new QLabel("Plot selection: ", plotSelection_));
-  for (int i = 0; i < nProperties; i++)
-  {
-    QSignalBlocker blocker(this);
-    isExpandedCheckboxes_.push_back(new CustomCheckbox(allTrajectories[0][i].propertyUserName()));
-    isExpandedCheckboxes_[i]->setChecked(expandedPlots_[i]);
-    plotSelectionLayout->addWidget(isExpandedCheckboxes_[i]);
-    connect(isExpandedCheckboxes_[i], &CustomCheckbox::stateChanged, [=](int state){emit isExpandedChanged(state, i);});
-  }
-}
-
-void MultiWellPlot::drawPlots(const QVector<QVector<CalibrationTarget>>& targets,
+void MultiWellPlot::drawPlots(const QVector<QVector<const CalibrationTarget*>>& targets,
                                     const QStringList& units,
                                     const QVector<QVector<WellTrajectory>>& allTrajectories,
                                     const QVector<bool>& activePlots,
-                                    const QMap<QString, double>& surfaceLines, const bool fitRangeToData,
-                                    const int nProperties)
+                                    const QMap<QString, double>& surfaceLines, const bool fitRangeToData)
 {
   const int nTypes = allTrajectories.size();
-  for (int iProperty = 0; iProperty < nProperties; ++iProperty)
+
+  std::pair<double, double> zTotalRange;
+
+  for ( int iProperty = 0 ; iProperty<activePropertyUserNames_.size(); ++iProperty)
   {
     if (!expandedPlots_[iProperty])
     {
       continue;
     }
     WellPlot* plot = new WellPlot(this);
-    QVector<WellTrajectory> plotTrajectories(nTypes, {});
-    for (int i = 0; i < nTypes; i++)
-    {
-      plotTrajectories[i] = allTrajectories[i][iProperty];
-    }
+    plots_.push_back(plot);
 
     plot->setFitRangeToWellData(fitRangeToData);
-    plot->setData(targets[iProperty], plotTrajectories, activePlots);
-    plot->setXLabel(allTrajectories[0][iProperty].propertyUserName() + " [" + units[iProperty] + "]" );
     for (const QString& surfaceLine : surfaceLines.keys())
     {
       plot->drawSurfaceLine(surfaceLine, surfaceLines[surfaceLine]);
     }
-    plots_.push_back(plot);
+    const QString activePropertyName = activePropertyUserNames_[iProperty];
+    plot->setXLabel(activePropertyName);
+
+    int iTargetProperty = 0;
+    for (const QVector<const CalibrationTarget*>& target : targets)
+    {
+      if (target[0]->propertyUserName() == activePropertyName)
+      {
+        QVector<WellTrajectory> plotTrajectories(nTypes, {});
+        for (int i = 0; i < nTypes; i++)
+        {
+          plotTrajectories[i] = allTrajectories[i][iTargetProperty];
+        }
+
+        plot->setData(target, plotTrajectories, activePlots);
+        for (const QString& surfaceLine : surfaceLines.keys())
+        {
+          plot->drawSurfaceLine(surfaceLine, surfaceLines[surfaceLine]);
+        }
+        plot->setXLabel(activePropertyName + " [" + units[iTargetProperty] + "]" );
+
+        std::pair<double, double> zDataRange = plot->zDataRange();
+        if (iProperty == 0)
+        {
+          zTotalRange = zDataRange;
+        }
+        else
+        {
+          if (zDataRange.first < zTotalRange.first) zTotalRange.first = zDataRange.first;
+          if (zDataRange.second < zTotalRange.second) zTotalRange.second = zDataRange.second;
+        }
+        break;
+      }
+      iTargetProperty++;
+    }
+  }
+
+  for (WellPlot* plot : plots_)
+  {
+    plot->setZDataRange(zTotalRange);
+    plot->updateMinMaxData();
   }
 }
 
-QHBoxLayout* MultiWellPlot::obtainPlotSelectionAndLegendLayout()
+QHBoxLayout* MultiWellPlot::createPlotOptionsAndLegendLayout()
 {
-  QHBoxLayout* plotSelectionAndLegendLayout = new QHBoxLayout();
-  plotSelectionAndLegendLayout->addWidget(plotSelection_, Qt::AlignLeft);
+  QVBoxLayout* plotOptions = new QVBoxLayout();
+  plotOptions->addWidget(showSurfaceLines_);
+  plotOptions->addWidget(fitRangeToData_);
+
+  QHBoxLayout* plotOptionsAndLegendLayout = new QHBoxLayout();
+  plotOptionsAndLegendLayout->addLayout(plotOptions, 0);
   if (plots_.size() > 0)
   {
     legend_ = new Legend(plots_[0]->plotSettings(), plots_[0]->plotDataForLegend(), plots_[0]->legend(), this);
-    plotSelectionAndLegendLayout->addWidget(legend_);
-    plotSelectionAndLegendLayout->setStretch(1,1);
+    plotOptionsAndLegendLayout->addWidget(legend_);
+    plotOptionsAndLegendLayout->setStretch(1,1);
   }
   else
   {
-    plotSelectionAndLegendLayout->addSpacerItem(new QSpacerItem(0,0));
-    plotSelectionAndLegendLayout->setStretch(1,1);
+    plotOptionsAndLegendLayout->addSpacerItem(new QSpacerItem(0,0));
+    plotOptionsAndLegendLayout->setStretch(1,1);
   }
-  plotSelectionAndLegendLayout->setStretch(0,0);
+  plotOptionsAndLegendLayout->setStretch(0,0);
 
-  return plotSelectionAndLegendLayout;
+  return plotOptionsAndLegendLayout;
 }
-
 
 void MultiWellPlot::setExpanded(const bool isExpanded, const int plotID)
 {

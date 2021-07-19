@@ -50,7 +50,7 @@ WellPlot::WellPlot(QWidget* parent) :
   setMinimumWidth(300);
 }
 
-void WellPlot::setData(const QVector<CalibrationTarget>& targets,
+void WellPlot::setData(const QVector<const CalibrationTarget*>& targets,
                        const QVector<WellTrajectory>& trajectories,
                        const QVector<bool> activePlots)
 {
@@ -65,18 +65,18 @@ void WellPlot::setData(const QVector<CalibrationTarget>& targets,
   QVector<double> z;
   QVector<double> values;
 
-  const QString property = targets[0].propertyUserName();
+  const QString property = targets[0]->propertyUserName();
 
   QVector<QVector<double>> xCoordsHorizontalErrorBars;
   QVector<double> yCoordsHorizontalErrorBars;
 
   bool first = true;
-  for (const CalibrationTarget& target : targets)
+  for (const CalibrationTarget* target : targets)
   {
-    if (target.propertyUserName() == property)
+    if (target->propertyUserName() == property)
     {
-      const double depth = -target.z();
-      const double value = target.value();
+      const double depth = -target->z();
+      const double value = target->value();
       z.push_back(depth);
       values.push_back(value);
 
@@ -92,7 +92,7 @@ void WellPlot::setData(const QVector<CalibrationTarget>& targets,
       zDataRange_.first = depth < zDataRange_.first ? depth : zDataRange_.first;
       zDataRange_.second = depth > zDataRange_.second ? depth : zDataRange_.second;
 
-      xCoordsHorizontalErrorBars.push_back({value - target.standardDeviation()*2, value + target.standardDeviation()*2});
+      xCoordsHorizontalErrorBars.push_back({value - target->standardDeviation()*2, value + target->standardDeviation()*2});
       yCoordsHorizontalErrorBars.push_back(depth);
     }
   }
@@ -141,6 +141,16 @@ void WellPlot::updateMinMaxData()
 void WellPlot::setFitRangeToWellData(bool fitRangeToWellData)
 {
   fitRangeToWellData_ = fitRangeToWellData;
+}
+
+std::pair<double, double> WellPlot::zDataRange() const
+{
+  return zDataRange_;
+}
+
+void WellPlot::setZDataRange(const std::pair<double, double>& zDataRange)
+{
+  zDataRange_ = zDataRange;
 }
 
 
