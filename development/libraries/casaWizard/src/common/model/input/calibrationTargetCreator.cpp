@@ -50,6 +50,12 @@ void createFromExcel(CasaScenario& casaScenario, const QString& excelFilename)
       // In wellData, the targets for different variables in the same well are stored in a contiguous array
       for (unsigned int iTarget = nTotalTargets; iTarget < nTotalTargets + nTargetsPerVariable[iVariable]; ++iTarget)
       {
+        // If two way time is defined at the sea surface, this value should be skipped, since the domain starts
+        // at the mudline.
+        if (variableCauldronNames[iVariable] == "TwoWayTime" && z[iTarget] == 0.0 && value[iTarget] == 0.0)
+        {
+          continue;
+        }
         const QString targetName(variableCauldronNames[iVariable] + "(" +
                                  QString::number(wellData.xCoord(),'f',1) + "," +
                                  QString::number(wellData.yCoord(),'f',1) + "," +

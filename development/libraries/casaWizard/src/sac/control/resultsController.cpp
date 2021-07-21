@@ -11,6 +11,7 @@
 #include "control/casaScriptWriter.h"
 #include "control/scriptRunController.h"
 #include "model/case3DTrajectoryConvertor.h"
+#include "model/functions/interpolateVector.h"
 #include "model/input/case3DTrajectoryReader.h"
 #include "model/input/cmbMapReader.h"
 #include "model/logger.h"
@@ -24,7 +25,7 @@
 #include "view/plotOptions.h"
 #include "view/resultsTab.h"
 #include "view/sacTabIDs.h"
-
+#include "view/wellCorrelationPlotLayout.h"
 
 #include "ConstantsMathematics.h"
 
@@ -32,6 +33,8 @@
 #include <QInputDialog>
 #include <QListWidget>
 #include <QPushButton>
+
+#include <assert.h>
 
 namespace casaWizard
 {
@@ -50,14 +53,13 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
   selectedWellsIDs_{},
   activeProperty_{""}
 {
-  connect(resultsTab_->plotOptions(), SIGNAL(activeChanged()), this, SLOT(activeChanged()));
-  connect(resultsTab_->plotOptions(), SIGNAL(plotTypeChange(int)), this, SLOT(togglePlotType(int)));
-  connect(resultsTab_->plotOptions(), SIGNAL(propertyChanged(QString)), this, SLOT(updateProperty(QString)));
+  connect(resultsTab_->plotOptions(), SIGNAL(slotActiveChanged()), this, SLOT(slotActiveChanged()));
+  connect(resultsTab_->plotOptions(), SIGNAL(plotTypeChange(int)), this, SLOT(slotTogglePlotType(int)));
+  connect(resultsTab_->wellCorrelationPlotLayout(), SIGNAL(propertyChanged(QString)), this, SLOT(slotUpdateProperty(QString)));
 
-  connect(resultsTab_->wellsList(), SIGNAL(itemSelectionChanged()), this, SLOT(updateWell()));
-  connect(resultsTab_->wellBirdsView(), SIGNAL(pointSelectEvent(int,int)), this, SLOT(updateWellFromBirdView(int, int)));
-
-  connect(resultsTab_->wellCorrelationPlot(), SIGNAL(selectedWell(int)), this, SLOT(selectedWellFromCorrelation(int)));
+  connect(resultsTab_->wellsList(), SIGNAL(itemSelectionChanged()), this, SLOT(slotUpdateWell()));
+  connect(resultsTab_->wellBirdsView(), SIGNAL(pointSelectEvent(int,int)), this, SLOT(slotUpdateWellFromBirdView(int, int)));
+  connect(resultsTab_->wellCorrelationPlot(), SIGNAL(selectedWell(int)), this, SLOT(slotSelectedWellFromCorrelation(int)));
   connect(resultsTab_->multiWellPlot(), SIGNAL(isExpandedChanged(int, int)), this, SLOT(slotUpdateIsExpanded(int, int)));
   connect(resultsTab_->multiWellPlot(), SIGNAL(showSurfaceLinesChanged(bool)), this, SLOT(slotUpdateSurfaceLines(bool)));
   connect(resultsTab_->multiWellPlot(), SIGNAL(fitRangeToDataChanged(bool)), this, SLOT(slotUpdateFitRangeToData(bool)));
@@ -134,7 +136,7 @@ void ResultsController::initializeWellSelection()
   if (wellsList->count() == 0)
   {
     wellsList->setCurrentRow(-1);
-    updateWell(); // Manual update, as the itemSelectionChanged() signal is not sent when the list is empty
+    slotUpdateWell(); // Manual update, as the itemSelectionChanged() signal is not sent when the list is empty
   }
   else if (selectedWellsIDs_.empty())
   {
@@ -163,7 +165,7 @@ void ResultsController::initializeWellSelection()
   }
 }
 
-void ResultsController::updateWell()
+void ResultsController::slotUpdateWell()
 {
   selectedWellsIDs_ = selectedWellsIDs();
   if (selectedWellsIDs_.size() == 1)
@@ -176,7 +178,7 @@ void ResultsController::updateWell()
   refreshPlot();
 }
 
-void ResultsController::activeChanged()
+void ResultsController::slotActiveChanged()
 {
   const QVector<bool> activePlots = resultsTab_->plotOptions()->activePlots();
   scenario_.setActivePlots(activePlots);
@@ -213,7 +215,7 @@ void ResultsController::refreshPlot()
   updateCorrelationPlot();
 }
 
-void ResultsController::togglePlotType(const int currentIndex)
+void ResultsController::slotTogglePlotType(const int currentIndex)
 {
   if (currentIndex!=1 && selectedWellsIDs_.size()>1)
   {
@@ -279,13 +281,13 @@ void ResultsController::updateOptimizedTable()
   resultsTab_->updateOptimizedLithoTable(layerNameList, lithoNamesVector, originalValuesVector, optimizedValuesVector);
 }
 
-void ResultsController::updateProperty(const QString property)
+void ResultsController::slotUpdateProperty(QString property)
 {
   activeProperty_ = property;
   updateCorrelationPlot();
 }
 
-void ResultsController::updateWellFromBirdView(const int lineIndex, const int pointIndex)
+void ResultsController::slotUpdateWellFromBirdView(const int lineIndex, const int pointIndex)
 {  
   if (lineIndex != 1)
   {
@@ -296,10 +298,10 @@ void ResultsController::updateWellFromBirdView(const int lineIndex, const int po
   item->setSelected(!item->isSelected());
 }
 
-void ResultsController::selectedWellFromCorrelation(const int wellIndex)
+void ResultsController::slotSelectedWellFromCorrelation(const int wellIndex)
 {
   const CalibrationTargetManager& mgr = scenario_.calibrationTargetManager();
-  const QVector<const Well*> wells = mgr.activeWells();
+  const QVector<const Well*> wells = mgr.wells();
   if (wellIndex>=wells.size())
   {
     return;
@@ -370,21 +372,113 @@ QStringList ResultsController::getUnitsForProperties(const QVector<QVector<WellT
 
 void ResultsController::updateCorrelationPlot()
 {
-  QSignalBlocker blocker(resultsTab_->plotOptions());
+  QSignalBlocker blocker(resultsTab_->wellCorrelationPlotLayout());
 
   QStringList propertyUserNames;
   const CalibrationTargetManager& calibrationManager = scenario_.calibrationTargetManager();
   QVector<QVector<const CalibrationTarget*>> targetsInWell = calibrationManager.extractWellTargets(propertyUserNames, selectedWellsIDs_);
 
+  if (propertyUserNames.empty())
+  {
+    return;
+  }
+
+  int iProperty = 0;
+  for (const QString& property: propertyUserNames)
+  {
+    if (iProperty != 0 && calibrationManager.getCauldronPropertyName(property) == "TwoWayTime")
+    {
+      propertyUserNames.move(iProperty, 0);
+    }
+    iProperty++;
+  }
+
   const WellTrajectoryManager& wellTrajectoryManager = scenario_.wellTrajectoryManager();
   QVector<QVector<WellTrajectory>> allTrajectories = wellTrajectoryManager.trajectoriesInWell(selectedWellsIDs_, propertyUserNames);
-  QVector<bool> activePlots{scenario_.activePlots()};
 
-  resultsTab_->updateCorrelationPlot(targetsInWell,
-                                     propertyUserNames,
-                                     allTrajectories,
-                                     activePlots,
-                                     activeProperty_);
+  assert(targetsInWell.size() ==  allTrajectories[0].size());
+  int activePropertyIndex = propertyUserNames.indexOf(activeProperty_);
+  if (activePropertyIndex == -1)
+  {
+    activePropertyIndex = 0;
+    activeProperty_ = propertyUserNames[activePropertyIndex];
+  }
+  resultsTab_->wellCorrelationPlotLayout()->setProperties(propertyUserNames, activePropertyIndex);
+
+  assert(allTrajectories.size() == 4);
+
+  const int nTrajectories = targetsInWell.size();
+
+  double minValue = 0.0;
+  double maxValue = 1.0;
+  bool first = true;
+
+  QVector<int> wellIndices;
+  QVector<QVector<double>> measuredValueTrajectories;
+  QVector<QVector<double>> simulatedValueTrajectories;
+  QVector<bool> activePlots{};
+
+  for (int j = 0; j < allTrajectories.size(); ++j)
+  {
+    const bool wellIndicesSet = wellIndices.size()>0;
+    if (!scenario_.activePlots()[j])
+    {
+      continue;
+    }
+
+    QVector<double> allValuesMeasured;
+    QVector<double> allValuesSimulated;
+    for (int i = 0; i < nTrajectories; ++i)
+    {
+      if (allTrajectories[j][i].propertyUserName() != activeProperty_ ||
+          allTrajectories[j][i].depth().empty())
+      {
+        continue;
+      }
+
+      QVector<double> depthMeasured;
+      QVector<double> valueMeasured;
+      for (const CalibrationTarget* target : targetsInWell[i])
+      {
+        depthMeasured.push_back(target->z());
+        valueMeasured.push_back(target->value());
+      }
+
+      QVector<double> valueSimulated = functions::interpolateVector(allTrajectories[j][i].depth(), allTrajectories[j][i].value(), depthMeasured);
+
+      for (int k = 0; k < valueSimulated.size(); k++)
+      {
+        allValuesMeasured.append(valueMeasured[k]);
+        allValuesSimulated.append(valueSimulated[k]);
+        if (!wellIndicesSet)
+        {
+          wellIndices.append(allTrajectories[j][i].wellIndex());
+        }
+
+        if (first)
+        {
+            minValue = valueMeasured[k];
+            maxValue = valueMeasured[k];
+            first = false;
+        }
+
+        if (minValue > valueMeasured[k])  minValue = valueMeasured[k];
+        if (minValue > valueSimulated[k]) minValue = valueSimulated[k];
+        if (maxValue < valueMeasured[k])  maxValue = valueMeasured[k];
+        if (maxValue < valueSimulated[k]) maxValue = valueSimulated[k];
+      }
+    }
+    measuredValueTrajectories.append(allValuesMeasured);
+    simulatedValueTrajectories.append(allValuesSimulated);
+  }
+
+  resultsTab_->updateCorrelationPlot(measuredValueTrajectories,
+                                     simulatedValueTrajectories,
+                                     activeProperty_,
+                                     scenario_.activePlots(),
+                                     minValue,
+                                     maxValue,
+                                     wellIndices);
 }
 
 void ResultsController::updateBirdView()

@@ -35,7 +35,6 @@ TEST( CalibrationTargetCreatorTest, testCreateFromExcel )
   }
 
   QVector<casaWizard::CalibrationTarget> targetsExpected{};
-  targetsExpected.append(casaWizard::CalibrationTarget("TwoWayTime(1234568.0,987654.1,0.0)",    "Two way time", 0,   0, 0, 1.0/3.0));
   targetsExpected.append(casaWizard::CalibrationTarget("TwoWayTime(1234568.0,987654.1,100.0)",  "Two way time", 100, 1000.3234, 0, 1.0/3.0));
   targetsExpected.append(casaWizard::CalibrationTarget("TwoWayTime(1234568.0,987654.1,200.0)",  "Two way time", 200, 5000.652, 0, 1.0/3.0));
   targetsExpected.append(casaWizard::CalibrationTarget("BulkDensity(1234568.0,987654.1,123.0)", "Density", 123, 2200, 0, 1.0/3.0));

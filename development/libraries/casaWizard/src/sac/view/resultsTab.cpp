@@ -1,10 +1,11 @@
 #include "resultsTab.h"
 
+#include "colormap.h"
 #include "multiWellPlot.h"
 #include "plot/wellBirdsView.h"
 #include "plot/wellCorrelationPlot.h"
 #include "plotOptions.h"
-#include "colormap.h"
+#include "wellCorrelationPlotLayout.h"
 
 #include "model/calibrationTarget.h"
 #include "model/input/projectReader.h"
@@ -14,7 +15,7 @@
 #include "model/well.h"
 #include "model/wellTrajectory.h"
 
-#include "../common/view/components/customtitle.h"
+#include "view/components/customtitle.h"
 
 #include <QHeaderView>
 #include <QLabel>
@@ -41,11 +42,11 @@ ResultsTab::ResultsTab(QWidget* parent) :
   wellsList_{new QListWidget(this)},
   optimizedLithoTable_{new QTableWidget(this)},
   multiWellPlot_{new MultiWellPlot(this)},
-  wellCorrelationPlot_{new WellCorrelationPlot(this)},
   plotOptions_{new PlotOptions(this)},
   layoutStackedPlots_{new QStackedLayout{}},
   colorMap_{new ColorMap()},
-  wellBirdsView_{new WellBirdsView(*colorMap_, this)}
+  wellBirdsView_{new WellBirdsView(*colorMap_, this)},
+  wellCorrelationPlotLayout_{new WellCorrelationPlotLayout(this)}
 {
   colorMap_->setColorMapType("Gray scale");
 
@@ -82,7 +83,7 @@ ResultsTab::ResultsTab(QWidget* parent) :
   }
 
   layoutStackedPlots_->addWidget(multiWellPlot_);
-  layoutStackedPlots_->addWidget(wellCorrelationPlot_);
+  layoutStackedPlots_->addWidget(wellCorrelationPlotLayout_);
   layoutStackedPlots_->addWidget(optimizedLithoTable_);
 
   QHBoxLayout* total = new QHBoxLayout();
@@ -122,7 +123,12 @@ WellBirdsView* ResultsTab::wellBirdsView() const
 
 WellCorrelationPlot* ResultsTab::wellCorrelationPlot() const
 {
-  return wellCorrelationPlot_;
+  return wellCorrelationPlotLayout_->wellCorrelationPlot();
+}
+
+WellCorrelationPlotLayout* ResultsTab::wellCorrelationPlotLayout() const
+{
+  return wellCorrelationPlotLayout_;
 }
 
 MultiWellPlot* ResultsTab::multiWellPlot() const
@@ -159,29 +165,21 @@ void ResultsTab::updateWellPlot(const QVector<QVector<const CalibrationTarget*> 
                               fitRangeToData);
 }
 
-void ResultsTab::updateCorrelationPlot(const QVector<QVector<const CalibrationTarget*>> targets,
-                                       const QStringList properties,
-                                       const QVector<QVector<WellTrajectory>> allTrajectories,
+void ResultsTab::updateCorrelationPlot(const QVector<QVector<double>>& measuredValueTrajectories,
+                                       const QVector<QVector<double>>& simulatedValueTrajectories,
+                                       const QString activeProperty,
                                        const QVector<bool> activePlots,
-                                       const QString activeProperty)
+                                       const double minValue,
+                                       const double maxValue,
+                                       const QVector<int>& wellIndices)
 {
-  if(properties.size()==0)
-  {
-    wellCorrelationPlot_->clear();
-    return;
-  }
-  assert(targets.size() ==  allTrajectories[0].size());
-  int activePropertyIndex = properties.indexOf(activeProperty);
-  if (activePropertyIndex == -1)
-  {
-    activePropertyIndex = 0;
-  }
-  plotOptions_->setProperties(properties, activePropertyIndex);
-
-  wellCorrelationPlot_->setData(targets,
-                            allTrajectories,
-                            properties[activePropertyIndex],
-                            activePlots);
+  wellCorrelationPlotLayout_->updateCorrelationPlot(measuredValueTrajectories,
+                                                    simulatedValueTrajectories,
+                                                    activeProperty,
+                                                    activePlots,
+                                                    minValue,
+                                                    maxValue,
+                                                    wellIndices);
 }
 
 void ResultsTab::updateOptimizedLithoTable(const QStringList& layerNameList,
@@ -268,15 +266,11 @@ void ResultsTab::setPlotType(const int currentIndex)
 {  
   selectClear_->setVisible(false);
   selectAll_->setVisible(false);
-  optimizedLithoTable_->setEnabled(false);
-  multiWellPlot_->setEnabled(false);
-  wellCorrelationPlot_->setEnabled(false);
   wellsList_->setSelectionMode(QAbstractItemView::SingleSelection);
   switch(currentIndex)
   {
     case 0:
     {
-      multiWellPlot_->setEnabled(true);
       layoutStackedPlots_->setCurrentWidget(multiWellPlot_);
       break;
     }
@@ -284,14 +278,12 @@ void ResultsTab::setPlotType(const int currentIndex)
     {
       selectClear_->setVisible(true);
       selectAll_->setVisible(true);
-      wellCorrelationPlot_->setEnabled(true);
       wellsList_->setSelectionMode(QAbstractItemView::ExtendedSelection);
-      layoutStackedPlots_->setCurrentWidget(wellCorrelationPlot_);
+      layoutStackedPlots_->setCurrentWidget(wellCorrelationPlotLayout_);
       break;
     }
     case 2:
     {
-      optimizedLithoTable_->setEnabled(true);
       layoutStackedPlots_->setCurrentWidget(optimizedLithoTable_);
       break;
     }

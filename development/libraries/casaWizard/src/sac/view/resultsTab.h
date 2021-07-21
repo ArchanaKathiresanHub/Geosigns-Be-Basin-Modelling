@@ -27,7 +27,7 @@ class MultiWellPlot;
 class PlotOptions;
 class WellBirdsView;
 class WellCorrelationPlot;
-
+class WellCorrelationPlotLayout;
 struct Lithofraction;
 struct OptimizedLithofraction;
 struct WellTrajectory;
@@ -43,6 +43,7 @@ public:
   PlotOptions* plotOptions() const;
   WellBirdsView* wellBirdsView() const;
   WellCorrelationPlot* wellCorrelationPlot() const;
+  WellCorrelationPlotLayout* wellCorrelationPlotLayout() const;
   MultiWellPlot* multiWellPlot() const;
 
   void updateWellList(const QVector<const Well*> wells);
@@ -51,11 +52,10 @@ public:
                       const QVector<QVector<WellTrajectory>> allTrajectories,
                       const QVector<bool>& activePlots,
                       const QMap<QString, double>& surfaceLines, const bool fitRangeToData);
-  void updateCorrelationPlot(const QVector<QVector<const CalibrationTarget*>> targets,
-                         const QStringList properties,
-                         const QVector<QVector<WellTrajectory>> allTrajectories,
-                         const QVector<bool> activePlots,
-                         const QString activeProperty);
+  void updateCorrelationPlot(const QVector<QVector<double> >& measuredValueTrajectories,
+                         const QVector<QVector<double> >& simulatedValueTrajectories,
+                         const QString activeProperty,
+                         const QVector<bool> activePlots, const double minValue, const double maxValue, const QVector<int>& wellIndices);
   void updateOptimizedLithoTable(const QStringList& layerNameList,
                                  const QVector<QStringList>& lithoNamesVector,
                                  const QVector<QVector<double> >& originalValuesVector,
@@ -77,12 +77,12 @@ private:
   QListWidget* wellsList_;
   QTableWidget* optimizedLithoTable_;
   MultiWellPlot* multiWellPlot_;
-  WellCorrelationPlot* wellCorrelationPlot_;
   PlotOptions* plotOptions_;
   QStackedLayout* layoutStackedPlots_;
   CustomTitle* tableLable_;
   ColorMap* colorMap_;
   WellBirdsView* wellBirdsView_;
+  WellCorrelationPlotLayout* wellCorrelationPlotLayout_;
 };
 
 } // namespace sac

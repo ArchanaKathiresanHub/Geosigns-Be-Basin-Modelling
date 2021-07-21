@@ -36,17 +36,18 @@ public:
   void updateTab();
 
 private slots:
-  void updateWell();
-  void activeChanged();
-  void togglePlotType(const int currentIndex);
-  void updateProperty(const QString property);
-  void updateWellFromBirdView(const int lineIndex, const int pointIndex);
-  void selectedWellFromCorrelation(const int wellIndex);
+  void slotUpdateWell();
+  void slotActiveChanged();
+  void slotTogglePlotType(const int currentIndex);
+  void slotUpdateProperty(QString property);
+  void slotUpdateWellFromBirdView(const int lineIndex, const int pointIndex);
+  void slotSelectedWellFromCorrelation(const int wellIndex);
   void slotUpdateTabGUI(int tabID);
 
   void slotUpdateSurfaceLines(const bool showSurfaceLines);
   void slotUpdateFitRangeToData(const bool fitRangeToData);
   void slotUpdateIsExpanded(int state, int plotID);
+
 private:
   void refreshGUI();
   void refreshPlot();

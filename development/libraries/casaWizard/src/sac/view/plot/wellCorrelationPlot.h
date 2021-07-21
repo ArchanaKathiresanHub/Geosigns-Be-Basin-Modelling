@@ -29,11 +29,11 @@ class WellCorrelationPlot : public Plot
 public:
   explicit WellCorrelationPlot(QWidget* parent = nullptr);
 
-  void setData(const QVector<QVector<const CalibrationTarget*> >& targets,
-               const QVector<QVector<WellTrajectory>>& allTrajectories,
-               const QString property,
-               const QVector<bool> activePlots);
   void clear();
+  void setAbsoluteErrorMargin(double absoluteErrorMargin);
+  void setRelativeErrorMargin(double relativeErrorMargin);
+
+  void setData(const QVector<QVector<double> >& measuredValueTrajectories, const QVector<QVector<double> >& simulatedValueTrajectories, const QString activeProperty, const QVector<bool> activePlots, const double minValue, const double maxValue, const QVector<int>& wellIndices);
 signals:
   void selectedWell(int wellIndex);
 
@@ -50,6 +50,11 @@ private:
   QVector<int> wellIndices_;
   double minValue_;
   double maxValue_;
+  double absoluteErrorMargin_;
+  double relativeErrorMargin_;
+  void drawAbsoluteErrorMargin(const double minValue, const double maxValue);
+  void drawRelativeErrorMargin(const double minValue, const double maxValue);
+  void drawDiagonal(const double minValue, const double maxValue);
 };
 
 }  // namespace sac

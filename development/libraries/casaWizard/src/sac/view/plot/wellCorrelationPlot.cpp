@@ -8,9 +8,6 @@
 
 #include "wellCorrelationPlot.h"
 
-#include "model/calibrationTarget.h"
-#include "model/functions/interpolateVector.h"
-#include "model/trajectoryType.h"
 #include "model/wellTrajectory.h"
 
 #include <QPainter>
@@ -28,7 +25,9 @@ WellCorrelationPlot::WellCorrelationPlot(QWidget* parent) :
   completeLegend_{},
   wellIndices_{},
   minValue_{0.0},
-  maxValue_{1.0}
+  maxValue_{1.0},
+  absoluteErrorMargin_{0.0},
+  relativeErrorMargin_{0.1}
 {
   QVector<QString> legend(4, "");
   legend[TrajectoryType::Original1D] = "Original 1d case";
@@ -39,82 +38,41 @@ WellCorrelationPlot::WellCorrelationPlot(QWidget* parent) :
   setLegend(completeLegend_);
   setXLabel("Measurement");
   setYLabel("Simulation");
+  setSeparateLegend(true);
 
   connect(this, SIGNAL(pointSelectEvent(int,int)), this, SLOT(selectedPoint(int,int)));
 }
 
-void WellCorrelationPlot::setData(const QVector<QVector<const CalibrationTarget*>>& targets,
-                              const QVector<QVector<WellTrajectory>>& allTrajectories,
-                              const QString property,
-                              const QVector<bool> activePlots)
+void WellCorrelationPlot::setData( const QVector<QVector<double>>& measuredValueTrajectories,
+                                   const QVector<QVector<double>>& simulatedValueTrajectories,
+                                   const QString activeProperty,
+                                   const QVector<bool> activePlots,
+                                   const double minValue,
+                                   const double maxValue,
+                                   const QVector<int>& wellIndices)
 {
-  assert(allTrajectories.size() == 4);
   wellIndices_.clear();
   clearData();
   QStringList activeLegend;
-  const int nTrajectories = targets.size();
+  wellIndices_ = wellIndices;
 
-  minValue_ = 0.0;
-  maxValue_ = 1.0;
-  bool first = true;
-
-  for (int j = 0; j < allTrajectories.size(); ++j)
+  int counter = 0;
+  for (int i = 0; i < activePlots.size(); i++)
   {
-    const bool wellIndicesSet = wellIndices_.size()>0;
-    if (!activePlots[j])
+    if (activePlots[i])
     {
-      continue;
+      activeLegend.append(completeLegend_[i]);
+      addXYscatter(measuredValueTrajectories[counter], simulatedValueTrajectories[counter], i);
+      counter++;
     }
-    activeLegend.append(completeLegend_[j]);
-
-    QVector<double> allValuesMeasured;
-    QVector<double> allValuesSimulated;
-    for (int i = 0; i < nTrajectories; ++i)
-    {
-      if (allTrajectories[j][i].propertyUserName() != property ||
-          allTrajectories[j][i].depth().empty())
-      {
-        continue;
-      }
-
-      QVector<double> depthMeasured;
-      QVector<double> valueMeasured;
-      for (const CalibrationTarget* target : targets[i])
-      {
-        depthMeasured.push_back(target->z());
-        valueMeasured.push_back(target->value());
-      }
-
-      QVector<double> valueSimulated = functions::interpolateVector(allTrajectories[j][i].depth(), allTrajectories[j][i].value(), depthMeasured);
-
-      for (int k = 0; k < valueSimulated.size(); k++)
-      {
-        allValuesMeasured.append(valueMeasured[k]);
-        allValuesSimulated.append(valueSimulated[k]);
-        if (!wellIndicesSet)
-        {
-          wellIndices_.append(allTrajectories[j][i].wellIndex());
-        }
-
-        if (first)
-        {
-            minValue_ = valueMeasured[k];
-            maxValue_ = valueMeasured[k];
-            first = false;
-        }
-
-        if (minValue_ > valueMeasured[k])  minValue_ = valueMeasured[k];
-        if (minValue_ > valueSimulated[k]) minValue_ = valueSimulated[k];
-        if (maxValue_ < valueMeasured[k])  maxValue_ = valueMeasured[k];
-        if (maxValue_ < valueSimulated[k]) maxValue_ = valueSimulated[k];
-      }
-    }
-    addXYscatter(allValuesMeasured, allValuesSimulated, j);
   }
 
-  setXLabel("Measured " + property);
-  setYLabel("Simulated " + property);
+  minValue_ = minValue;
+  maxValue_ = maxValue;
+  setXLabel("Measured " + activeProperty);
+  setYLabel("Simulated " + activeProperty);
   setLegend(activeLegend);
+  updateMinMaxData();
   update();
 }
 
@@ -122,6 +80,16 @@ void WellCorrelationPlot::clear()
 {
   clearData();
   update();
+}
+
+void WellCorrelationPlot::setAbsoluteErrorMargin(double absoluteErrorMargin)
+{
+  absoluteErrorMargin_ = absoluteErrorMargin;
+}
+
+void WellCorrelationPlot::setRelativeErrorMargin(double relativeErrorMargin)
+{
+  relativeErrorMargin_ = relativeErrorMargin;
 }
 
 void WellCorrelationPlot::updateMinMaxData()
@@ -150,13 +118,58 @@ void WellCorrelationPlot::paintEvent(QPaintEvent* event)
 {
   Plot::paintEvent(event);
 
-  QPainter painter(this);
-  const double minV = yAxisMinValue();
-  const double maxV = yAxisMaxValue();
+  const double minValue = yAxisMinValue();
+  const double maxValue = yAxisMaxValue();
 
-  painter.setPen(Qt::black);
-  painter.setPen(Qt::DashDotLine);
-  painter.drawLine(valToPoint(minV, minV), valToPoint(maxV, maxV));
+  drawDiagonal(minValue, maxValue);
+  drawAbsoluteErrorMargin(minValue, maxValue);
+  drawRelativeErrorMargin(minValue, maxValue);
+}
+
+void WellCorrelationPlot::drawDiagonal(const double minValue, const double maxValue)
+{
+  QPainter painter(this);
+  QPen pen(Qt::black);
+  pen.setStyle(Qt::DashDotLine);
+  pen.setWidth(1);
+  painter.setPen(pen);
+  painter.drawLine(valToPoint(minValue, minValue), valToPoint(maxValue, maxValue));
+}
+
+void WellCorrelationPlot::drawAbsoluteErrorMargin(const double minValue, const double maxValue)
+{
+  if (absoluteErrorMargin_ > 0)
+  {
+    QPainter painter(this);
+    QPen pen = painter.pen();
+    pen.setStyle(Qt::DashDotLine);
+    pen.setWidth(2);
+    pen.setColor(QColor(255, 213, 0));
+    painter.setPen(pen);
+
+    painter.drawLine(valToPoint(minValue, minValue + absoluteErrorMargin_),
+                     valToPoint(maxValue - absoluteErrorMargin_, maxValue));
+    painter.drawLine(valToPoint(minValue + absoluteErrorMargin_, minValue ),
+                     valToPoint(maxValue, maxValue - absoluteErrorMargin_));
+  }
+}
+
+void WellCorrelationPlot::drawRelativeErrorMargin(const double minValue, const double maxValue)
+{
+  if (relativeErrorMargin_ > 0)
+  {
+    QPainter painter(this);
+    QPen pen = painter.pen();
+    pen.setStyle(Qt::DashDotLine);
+    pen.setWidth(2);
+    pen.setColor(QColor(255,165,0));
+    painter.setPen(pen);
+
+    painter.drawLine(valToPoint(minValue, minValue + relativeErrorMargin_*minValue),
+                     valToPoint(maxValue, maxValue + relativeErrorMargin_*maxValue));
+    painter.drawLine(valToPoint(minValue / (1-relativeErrorMargin_) , minValue),
+                     valToPoint(maxValue, maxValue - relativeErrorMargin_*maxValue));
+  }
 }
 
 }  // namespace sac

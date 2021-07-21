@@ -33,12 +33,9 @@ public:
   QVector<bool> activePlots() const;
   void setActivePlots(const QVector<bool> activePlots);
 
-  void setProperties(const QStringList& properties, const int activeIndex);  
-
 signals:
   void activeChanged();
   void plotTypeChange(int currentIndex);
-  void propertyChanged(QString property);
 
 private slots:
   void plotTypeButtonToggle(int index, bool checked);
@@ -48,7 +45,6 @@ private:
   QCheckBox* optimized1d_;
   QCheckBox* original3d_;
   QCheckBox* optimized3d_;
-  QComboBox* properties_;
 
   QButtonGroup* plotType_;
   CustomRadioButton* table_;
