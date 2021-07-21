@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-07-21  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Improvements on the correlation plot in the SAC wizard.
+	* Related work items: #424215
+	================== COMMIT-END ========================
+	Commit-ID:<65c23946806afb011402667195c862e41a7182a6>	  (refs/heads/master)
+
+++
 2021-07-21  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: Fix bug by shifting wells if they are at the same location.
