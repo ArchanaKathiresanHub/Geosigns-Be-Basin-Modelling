@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-07-21  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Fix bug by shifting wells if they are at the same location.
+	* Fix bug by shifting wells if they are at the same location
+
+	* Related work items: #430750
+
+	================== COMMIT-END ========================
+	Commit-ID:<fd2a779d9078f3f02c6fe8b1010a70c59f160b74>	  (refs/heads/master)
+
+++
 2021-07-19  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Added invalidation check for wells without any calibrationTargets.
