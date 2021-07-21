@@ -10,6 +10,7 @@
 #include <QSet>
 
 #include <algorithm>
+#include <cmath>
 #include <assert.h>
 
 namespace casaWizard
@@ -47,8 +48,23 @@ void CalibrationTargetManager::addCalibrationTarget(const QString& name, const Q
 }
 
 int CalibrationTargetManager::addWell(const QString& wellName, double x, double y)
-{
+{    
+  int i = 0;
+  while (i<wells_.size())
+  {
+    if (std::fabs(wells_[i].x() - x) < 1.0 && std::fabs(wells_[i].y() -  y) < 1.0)
+    {
+      Logger::log() << "Shifting well " << wellName << " by 1m in x to not overlap with well: " << wells_[i].name() << Logger::endl();
+      x += 1.0; // Shift 1m so CASA will not see it as the same well
+      i = 0;    // Start again, as we might have overlapped with an other well now
+    }
+    else
+    {
+      ++i;
+    }
+  }
   const int newId = wells_.size();
+
   Well newWell(newId, wellName, x, y);
   wells_.append(newWell);
   return newId;

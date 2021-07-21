@@ -237,10 +237,17 @@ QHBoxLayout* MultiWellPlot::createPlotOptionsAndLegendLayout()
   QHBoxLayout* plotOptionsAndLegendLayout = new QHBoxLayout();
   plotOptionsAndLegendLayout->addLayout(plotOptions, 0);
   if (plots_.size() > 0)
-  {
-    legend_ = new Legend(plots_[0]->plotSettings(), plots_[0]->plotDataForLegend(), plots_[0]->legend(), this);
-    plotOptionsAndLegendLayout->addWidget(legend_);
-    plotOptionsAndLegendLayout->setStretch(1,1);
+  {    
+    for ( WellPlot* wellPlot : plots_ )
+    {
+      if (wellPlot->containsData()) // Some plots might not have any data as the property is not calibrated for this well
+      {
+        legend_ = new Legend(wellPlot->plotSettings(), wellPlot->plotDataForLegend(), wellPlot->legend(), this);
+        plotOptionsAndLegendLayout->addWidget(legend_);
+        plotOptionsAndLegendLayout->setStretch(1,1);
+        break;
+      }
+    }
   }
   else
   {

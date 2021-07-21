@@ -31,7 +31,8 @@ WellPlot::WellPlot(QWidget* parent) :
   completeLegend_{},
   fitRangeToWellData_{false},
   valueDataRange_{},
-  zDataRange_{}
+  zDataRange_{},
+  containsData_{false}
 {
   QVector<QString> legend(5, "");
   legend[0] = "Measurement";
@@ -79,6 +80,7 @@ void WellPlot::setData(const QVector<const CalibrationTarget*>& targets,
       const double value = target->value();
       z.push_back(depth);
       values.push_back(value);
+      containsData_ = true;
 
       if (first)
       {
@@ -151,6 +153,17 @@ std::pair<double, double> WellPlot::zDataRange() const
 void WellPlot::setZDataRange(const std::pair<double, double>& zDataRange)
 {
   zDataRange_ = zDataRange;
+}
+
+bool WellPlot::containsData() const
+{
+  return containsData_;
+}
+
+void WellPlot::clearData()
+{
+  Plot::clearData();
+  containsData_ = false;
 }
 
 

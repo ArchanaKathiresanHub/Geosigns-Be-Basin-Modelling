@@ -20,6 +20,7 @@ class WellPlot : public Plot
 public:
   explicit WellPlot(QWidget* parent = 0);
 
+  void clearData() override;
   void setData(const QVector<const CalibrationTarget*>& targets,
                const QVector<WellTrajectory>& trajectories,
                const QVector<bool> activePlots);
@@ -33,11 +34,14 @@ public:
   std::pair<double, double> zDataRange() const;
   void setZDataRange(const std::pair<double, double>& zDataRange);
 
+  bool containsData() const;
+
 private:
   QStringList completeLegend_;
   bool fitRangeToWellData_;
   std::pair<double, double> valueDataRange_;
   std::pair<double, double> zDataRange_;
+  bool containsData_;
 
 };
 
