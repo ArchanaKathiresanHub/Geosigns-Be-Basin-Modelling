@@ -136,6 +136,11 @@ MultiWellPlot* ResultsTab::multiWellPlot() const
   return multiWellPlot_;
 }
 
+void ResultsTab::clearWellCorrelationPlot()
+{
+  wellCorrelationPlotLayout_->wellCorrelationPlot()->clear();
+}
+
 void ResultsTab::updateWellList(const QVector<const Well*> wells)
 {
   QSignalBlocker blocker(wellsList_);

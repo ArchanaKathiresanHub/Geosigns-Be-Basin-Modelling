@@ -53,7 +53,7 @@ ResultsController::ResultsController(ResultsTab* resultsTab,
   selectedWellsIDs_{},
   activeProperty_{""}
 {
-  connect(resultsTab_->plotOptions(), SIGNAL(slotActiveChanged()), this, SLOT(slotActiveChanged()));
+  connect(resultsTab_->plotOptions(), SIGNAL(activeChanged()), this, SLOT(slotActiveChanged()));
   connect(resultsTab_->plotOptions(), SIGNAL(plotTypeChange(int)), this, SLOT(slotTogglePlotType(int)));
   connect(resultsTab_->wellCorrelationPlotLayout(), SIGNAL(propertyChanged(QString)), this, SLOT(slotUpdateProperty(QString)));
 
@@ -380,6 +380,7 @@ void ResultsController::updateCorrelationPlot()
 
   if (propertyUserNames.empty())
   {
+    resultsTab_->clearWellCorrelationPlot();
     return;
   }
 

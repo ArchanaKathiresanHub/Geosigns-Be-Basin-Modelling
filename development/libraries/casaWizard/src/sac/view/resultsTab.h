@@ -46,6 +46,8 @@ public:
   WellCorrelationPlotLayout* wellCorrelationPlotLayout() const;
   MultiWellPlot* multiWellPlot() const;
 
+  void clearWellCorrelationPlot();
+
   void updateWellList(const QVector<const Well*> wells);
   void updateWellPlot(const QVector<QVector<const CalibrationTarget*> > targets,
                       const QStringList units,
