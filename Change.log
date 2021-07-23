@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-07-23  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fix for wrong name change and clear of plot missed in refactoring.
+	* Fix for wrong name change and clear of plot missed in refactoring
+
+	* Related work items: #424215
+
+	================== COMMIT-END ========================
+	Commit-ID:<b0638bf088da0ea757acaf8da3a72196f456bedf>	  (refs/heads/master)
+
+++
 2021-07-21  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Improvements on the correlation plot in the SAC wizard.
