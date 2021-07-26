@@ -42,7 +42,8 @@ private slots:
   void slotSpinBoxNumberOfCPUsValueChanged(int numberOfCPUs);
   void slotUpdateTabGUI(int tabID);
   void slotComboBoxClusterSelectionTextChanged(const QString& clusterName);
-  void slotExportT2ZScenarioClicked();
+  void slotExportT2ZScenarioClicked();  
+  void slotOutputFile();
 
 private:
   bool noProjectAvailable() const;
@@ -59,6 +60,7 @@ private:
   ScriptRunController& scriptRunController_;
   QString t2zDir_;
   QString sourceDir_;
+  int lineNr_;
 };
 
 } // namespace sac

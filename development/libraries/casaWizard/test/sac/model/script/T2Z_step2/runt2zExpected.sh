@@ -10,4 +10,4 @@ source setupEnv.sh
 mpirun_wrap.sh -n 1 -outfile-pattern 'fastdepthconversion-output-rank-%r.log' fastdepthconversion -project Project.project3d -temperature -onlyat 0 -referenceSurface 0 -endSurface 10 -noofpp -preserveErosion -noCalculatedTWToutput
 EOF
 
-bsub -K < runt2zCluster.sh
+bsub -Is < runt2zCluster.sh

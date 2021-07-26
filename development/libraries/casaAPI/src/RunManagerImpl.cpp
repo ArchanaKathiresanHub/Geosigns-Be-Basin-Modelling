@@ -474,6 +474,7 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( int updateStateTimeI
 
          collectStatistics( prevFinished, prevPending, prevRunning, prevToBeSubmitted );
          m_jobSched->sleep( updateStateTimeInterval ); // wait a bit till go to the next loop
+         std::cout << std::flush;
 
       } while ( !isAllDone() ); // loop till all will be finished
    }

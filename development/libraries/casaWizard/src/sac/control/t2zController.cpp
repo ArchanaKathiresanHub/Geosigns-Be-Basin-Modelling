@@ -28,10 +28,13 @@
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QDir>
+#include <QFile>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QString>
+#include <QTextStream>
+#include <QTimer>
 
 namespace casaWizard
 {
@@ -48,7 +51,8 @@ T2Zcontroller::T2Zcontroller(T2Ztab* t2zTab,
     casaScenario_{casaScenario},
     scriptRunController_{scriptRunController},
     t2zDir_{""},
-    sourceDir_{""}
+    sourceDir_{""},
+    lineNr_{0}
 {
   connect(t2zTab_->pushButtonSACrunT2Z(),      SIGNAL(clicked()),                 this,   SLOT(slotPushButtonSACrunT2ZClicked()));
   connect(t2zTab_->exportT2ZScenario(),        SIGNAL(clicked()),                 this,   SLOT(slotExportT2ZScenarioClicked()));
@@ -149,10 +153,41 @@ void T2Zcontroller::setSubSampling()
 
 void T2Zcontroller::runDepthConversion()
 {
-  DepthConversionScript depthConversion{casaScenario_, t2zDir_};
-  if (scriptRunController_.runScript(depthConversion))
+  DepthConversionScript depthConversion{casaScenario_, t2zDir_}; 
+
+  const char* slot = nullptr;
+  if (casaScenario_.clusterName() != "LOCAL")
   {
+    lineNr_ = 0;
+    slot = SLOT(slotOutputFile());
+  }
+
+  if (scriptRunController_.runScript(depthConversion, this, slot))
+  {    
+    Logger::log() << "Done!" << Logger::endl();
     scenarioBackup::backup(casaScenario_);
+  }
+}
+
+void T2Zcontroller::slotOutputFile()
+{
+  QFile file(t2zDir_ + "/fastdepthconversion-output-rank-0.log");
+  if (file.exists())
+  {
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    int i = 1;
+    QTextStream stream(&file);
+    while (!stream.atEnd())
+    {
+      QString line = stream.readLine();
+      if (i > lineNr_)
+      {
+        lineNr_ = i;
+        Logger::log() << line << Logger::endl();
+      }
+      ++i;
+    }
+    file.close();
   }
 }
 

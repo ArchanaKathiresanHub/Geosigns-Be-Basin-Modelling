@@ -112,6 +112,7 @@ bool Run3dCaseController::import3dWellData(const QString& baseDirectory, const b
   case3DTrajectoryConvertor::convertToScenario(reader, scenario_, isOptimized);
 
   Logger::log() << "Finished extracting data from the 3D case" << Logger::endl();
+  Logger::log() << "Done!" << Logger::endl();
   return true;
 }
 

@@ -25,13 +25,12 @@ QString CasaScript::relativeDirectory() const
 
 bool CasaScript::generateCommands()
 {
-  Logger::log() << "- Start running casa scenario file" << Logger::endl();
+  Logger::log() << "- Running CASA scenario file" << Logger::endl();
 
   removeStopExecFile();
   addCommand("which casa.exe");
   addCommand("casa.exe " + workingDirectory() + "/" + scriptFilename(), relativeDirectory());
 
-  Logger::log() << "- Finished running casa scenario file" << Logger::endl();
   return true;
 }
 

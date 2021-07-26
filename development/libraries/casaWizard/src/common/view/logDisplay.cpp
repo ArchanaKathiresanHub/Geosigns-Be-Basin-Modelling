@@ -34,11 +34,13 @@ LogDisplay::LogDisplay(QWidget* parent) :
 void LogDisplay::addLog(const QString &logMessage)
 {
   lineEditLog_->append(logMessage);
+  lineEditLog_->update();
 }
 
 void LogDisplay::clearLog()
 {
   lineEditLog_->setText("");
+  lineEditLog_->update();
 }
 
 void LogDisplay::showLess()

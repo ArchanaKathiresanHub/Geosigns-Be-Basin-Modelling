@@ -3,7 +3,7 @@
 
 #include <QByteArray>
 #include <QObject>
-#include <QProgressDialog>
+#include <QMessageBox>
 #include <QString>
 
 class QProcess;
@@ -19,9 +19,9 @@ class ScriptRunController : public QObject
   Q_OBJECT
 
 public:
-  ScriptRunController(QObject* parent = 0);
+  ScriptRunController(QObject* parent);
 
-  bool runScript(RunScript& script);
+  bool runScript(RunScript& script, QObject* receiver = nullptr, const char* slot = nullptr, int timeout = 5000);
   QByteArray readAllStandardOutput();
 
 signals:
@@ -34,7 +34,7 @@ private:
   bool processCommand(const RunCommand& command);
 
   bool processCancelled_;
-  QProgressDialog dialog_;
+  QMessageBox dialog_;
   QProcess* process_;
   QString baseDirectory_;
   RunScript* script_;

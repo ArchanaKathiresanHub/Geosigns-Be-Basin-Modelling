@@ -79,7 +79,7 @@ void DepthConversionScript::writeScriptContents(QFile& file) const
                  "source setupEnv.sh\n");
   out << getDepthConversionCommand() + "\n";
   out << QString("EOF\n\n");
-  out << QString("bsub -K < runt2zCluster.sh\n");
+  out << QString("bsub -Is < runt2zCluster.sh\n");
 }
 
 QString DepthConversionScript::getDepthConversionCommand() const

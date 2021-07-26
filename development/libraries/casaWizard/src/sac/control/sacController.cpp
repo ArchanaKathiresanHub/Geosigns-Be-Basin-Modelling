@@ -186,12 +186,13 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
     {
       QFile file (casaScenario_.calibrationDirectory() + "/" + casaScenario_.stateFileNameSAC());
       file.remove();
+      Logger::log() << "Done!" << Logger::endl();
     }
     else
     {
       Logger::log() << "- An error occurred while moving the state file to the last iteration folder." << Logger::endl();
     }
-    scenarioBackup::backup(casaScenario_);
+    scenarioBackup::backup(casaScenario_);    
   }
 }
 
@@ -242,6 +243,7 @@ void SACcontroller::slotRunOriginal1D()
     {
       QFile file (casaScenario_.original1dDirectory() + "/" + casaScenario_.stateFileNameSAC());
       file.remove();
+      Logger::log() << "Done!" << Logger::endl();
     }
     else
     {

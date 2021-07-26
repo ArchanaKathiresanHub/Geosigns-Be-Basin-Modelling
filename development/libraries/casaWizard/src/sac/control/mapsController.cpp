@@ -146,6 +146,7 @@ void MapsController::slotGenerateLithoMaps()
   {
     return;
   }
+  Logger::log() << "Done!" << Logger::endl();
   scenarioBackup::backup(scenario_);
 
   refreshGUI();
