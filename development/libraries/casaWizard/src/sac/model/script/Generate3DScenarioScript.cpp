@@ -83,7 +83,14 @@ QString Generate3DScenarioScript::setFilterOneDResults() const
   {
     if (well->isExcluded())
     {
-      command += QString(" ") + QString::number(sortedIndices[i]);
+      for (int j = 0; j < sortedIndices.size(); j++)
+      {
+        if (sortedIndices[j] == i)
+        {
+          command += QString(" ") + QString::number(j);
+          break;
+        }
+      }
     }
     ++i;
   }
