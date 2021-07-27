@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-07-27  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fix for order in maps tab SAC.
+	* Fix for order in maps tab SAC
+	================== COMMIT-END ========================
+	Commit-ID:<87f7604140765e8059073e53e4161eb96f2164c5>	  (refs/heads/master)
+
+++
 2021-07-26  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
 
 	fix: SAC and T2Z progress logging.
