@@ -728,7 +728,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( const std::vector<doub
       std::vector<point> pin;
       point * pout = nullptr;
       int     nout;
-      const double wmin = -1.e-4;
+      const double wmin = -1.e-3;
       const double tolerance = 1.e-10;
 
       size_t j = 0;

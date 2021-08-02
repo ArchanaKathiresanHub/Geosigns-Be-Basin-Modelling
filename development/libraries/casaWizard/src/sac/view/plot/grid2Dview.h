@@ -42,9 +42,6 @@ public:
   void drawData(QPainter& painter) override;
   void updateMinMaxData() override;
 
-  void setSingleValue(const bool singleValue);
-  bool singleValue() const;
-
 private:
   const ColorMap& colorMap_;
   std::unique_ptr<std::pair<double, double>> range_;
@@ -52,7 +49,6 @@ private:
 
   bool fixedRange_;
   bool stretched_;
-  bool singleValue_;
 
   void determineRange();  
   void stretch();

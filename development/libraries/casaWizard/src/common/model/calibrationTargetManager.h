@@ -30,6 +30,7 @@ public:
   void setWellIsActive(bool active, int wellIndex);
   void setWellIsExcluded(bool excluded, int wellIndex);
   int addWell(const QString& wellName, double x, double y);
+  void setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer);
 
   int amountOfActiveCalibrationTargets() const;
   QVector<QVector<const CalibrationTarget*>> extractWellTargets(QStringList& propertyUserNames, const QVector<int> wellIndices) const;

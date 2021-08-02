@@ -34,7 +34,7 @@ LithoMapsToolTip::LithoMapsToolTip(QWidget *parent) :
   pieChart_{new QChart()},
   chartView_{new QChartView(pieChart_, this)},
   series_{new QPieSeries(this)},
-  wellName_{new QLabel(this)},
+  infoLabel_{new QLabel(this)},
   lithoNames_{}
 {
   initializeChart();
@@ -84,16 +84,16 @@ void LithoMapsToolTip::initializeValueLabel()
 
 void LithoMapsToolTip::initializeWellLabel()
 {
-  wellName_->setStyleSheet("QLabel { color : rgb(0,0,0) ; font-weight : bold; font-size : 11px}");
-  wellName_->setAlignment(Qt::AlignCenter);
-  wellName_->setFixedHeight(15);
+  infoLabel_->setStyleSheet("QLabel { color : rgb(0,0,0) ; font-weight : bold; font-size : 11px}");
+  infoLabel_->setAlignment(Qt::AlignCenter);
+  infoLabel_->setFixedHeight(15);
 }
 
 void LithoMapsToolTip::setTotalLayout()
 {
   QVBoxLayout* totalLayout = new QVBoxLayout(this);
   totalLayout->addWidget(header_);
-  totalLayout->addWidget(wellName_);
+  totalLayout->addWidget(infoLabel_);
   totalLayout->addWidget(chartView_);
   totalLayout->addWidget(valueLabel_);
   totalLayout->setMargin(0);
@@ -113,14 +113,13 @@ void LithoMapsToolTip::setLithofractions(const std::vector<double>& lithofractio
   header_->setText("(" + QString::number(domainPosition_.x(),'f', 1) + ", " + QString::number(domainPosition_.y(),'f', 1) + ")");
   if (wellName == "")
   {
-    wellName_->hide();
-    wellName_->update();
+    infoLabel_->setText("Map Value");
+    infoLabel_->update();
   }
   else
   {
-    wellName_->show();
-    wellName_->setText(wellName);
-    wellName_->update();
+    infoLabel_->setText(wellName);
+    infoLabel_->update();
   }
   valueLabel_->setText("Value: " + QString::number(lithofractions[activePlot], 'f', 1) + "%");
   series_->clear();

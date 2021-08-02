@@ -70,6 +70,11 @@ int CalibrationTargetManager::addWell(const QString& wellName, double x, double 
   return newId;
 }
 
+void CalibrationTargetManager::setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer)
+{
+  wells_[wellIndex].setHasDataInLayer(hasDataInLayer);
+}
+
 const QVector<const Well*> CalibrationTargetManager::wells() const
 {
   QVector<const Well*> wells;

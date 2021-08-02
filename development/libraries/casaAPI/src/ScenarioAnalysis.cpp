@@ -882,11 +882,16 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::setFilterOneDResults(const std::string & filterAlgorithm , const std::set<int>& excludeSet)
 {
-   // Just set the filtering algorithm
+  m_excludeSet = excludeSet;
+
+  // Just set the filtering algorithm
    if ( filterAlgorithm == "smartLithoFractionGridding")
    {
       m_filteringAlgorithm = 1;
-      m_excludeSet = excludeSet;
+   }
+   else if ( filterAlgorithm == "none")
+   {
+     m_filteringAlgorithm = 0;
    }
    // for other cases add an else if
    else

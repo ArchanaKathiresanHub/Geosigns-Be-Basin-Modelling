@@ -32,9 +32,11 @@ public:
   void load(const std::string& projectFile);
   bool mapExists(const std::string& mapName) const;
   double getValue(const double x, const double y, const std::string& mapName) const;
-
+  std::vector<VectorVectorMap> getInputLithoMapsInLayer(const int layerIndex) const;
+  bool checkIfPointIsInLayer(const double x, const double y, const double z, const std::string& layerName) const;
 private:
   std::vector<std::vector<double> > resizeData(const std::vector<double>& out, const int numI, const int numJ) const;
+  VectorVectorMap createConstantMap(const double value) const;
 
   std::unique_ptr<mbapi::Model> cmbModel_;
   bool loaded_;

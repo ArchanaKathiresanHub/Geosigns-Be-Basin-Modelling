@@ -22,6 +22,7 @@ class EmphasisButton;
 namespace casaWizard
 {
 
+class CustomCheckbox;
 class Well;
 
 namespace sac
@@ -46,11 +47,12 @@ public:
   QSpinBox* pValue() const;
   QSpinBox* smoothingRadius() const;
   QComboBox* smoothingType() const;  
+  CustomCheckbox* smartGridding() const;
   ActiveWellsTable* activeWellsTable() const;
   int numberOfActiveWells() const;
 
+  void highlightWell(const QString& wellName);
   void disableWellAtIndex(const int index);
-  void updateSelectedWells(const QVector<int> selectedWells);
 
 private slots:
   void slotInterpolationTypeChange(int interpolationType);
@@ -77,6 +79,7 @@ private:
   QWidget* smoothingOptions_;
   QSpinBox* smoothingRadius_;
   QComboBox* smoothingType_;  
+  CustomCheckbox* smartGridding_;
 };
 
 } // namespace sac

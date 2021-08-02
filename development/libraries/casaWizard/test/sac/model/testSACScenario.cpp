@@ -35,6 +35,7 @@ TEST(SACScenarioTest, testWriteRead)
   wellTrajectoryManagerWrite.addWellTrajectory(16, "TemperatureUserName");
   wellTrajectoryManagerWrite.setTrajectoryData(casaWizard::sac::TrajectoryType::Original1D, 0, {1, 2, 3}, {4, 5, 6});
   wellTrajectoryManagerWrite.setTrajectoryData(casaWizard::sac::TrajectoryType::Optimized1D, 0, {1, 2, 3},  {7, 8, 9});
+  writeScenario.setSmartGridding(false);
 
   casaWizard::ScenarioWriter writer{"scenario.dat"};
   writeScenario.writeToFile(writer);
@@ -52,6 +53,7 @@ TEST(SACScenarioTest, testWriteRead)
   EXPECT_EQ(writeScenario.t2zNumberCPUs(), 12);
   EXPECT_EQ(writeScenario.t2zSubSampling(), 3);
   EXPECT_EQ(writeScenario.t2zSubSampling(), readScenario.t2zSubSampling());
+  EXPECT_EQ(writeScenario.smartGridding(), readScenario.smartGridding());
 
   EXPECT_FALSE(writeScenario.t2zRunOnOriginalProject());
   writeScenario.setT2zRunOnOriginalProject(true);

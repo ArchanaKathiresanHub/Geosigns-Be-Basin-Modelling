@@ -13,6 +13,7 @@
 #include "control/dataExtractionController.h"
 #include "control/functions/folderOperations.h"
 #include "control/lithofractionController.h"
+#include "control/loadTargetsThread.h"
 #include "control/objectiveFunctionControllerSAC.h"
 #include "control/run3dCaseController.h"
 #include "control/scriptRunController.h"
@@ -41,6 +42,7 @@
 #include <QString>
 #include <QTableWidgetItem>
 #include <QVector>
+#include <QThread>
 
 
 
@@ -61,8 +63,13 @@ SACcontroller::SACcontroller(SACtab* sacTab,
   calibrationTargetController_{new CalibrationTargetController(sacTab->calibrationTargetTable(), casaScenario_, this)},
   dataExtractionController_{new DataExtractionController(casaScenario_, scriptRunController_, this)},
   lithofractionController_{new LithofractionController(sacTab->lithofractionTable() , casaScenario_, this)},
-  objectiveFunctionController_{new ObjectiveFunctionControllerSAC(sacTab->objectiveFunctionTable(), casaScenario_.calibrationTargetManager(), casaScenario, this)}
+  objectiveFunctionController_{new ObjectiveFunctionControllerSAC(sacTab->objectiveFunctionTable(), casaScenario_.calibrationTargetManager(), casaScenario, this)},
+  importing_{}
 {
+  importing_.setIcon(QMessageBox::Icon::Information);
+  importing_.setWindowTitle("Importing");
+  importing_.setText("Please wait while the wells are imported and validated.");
+  importing_.setStandardButtons(nullptr);
   sacTab_->lineEditProject3D()->setText("");
   sacTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
 
@@ -287,6 +294,11 @@ void SACcontroller::slotRunOriginal3D()
   }
 }
 
+void SACcontroller::slotCloseWaitingDialog()
+{
+  importing_.done(0);
+}
+
 void SACcontroller::slotPushSelectProject3dClicked()
 {
   QString fileName = QFileDialog::getOpenFileName(sacTab_,
@@ -339,8 +351,12 @@ void SACcontroller::slotPushSelectCalibrationClicked()
                                                   "Select calibration targets",
                                                   "",
                                                   "Spreadsheet (*.xlsx)");
+  LoadTargetsThread* loadTargetsThread = new LoadTargetsThread(casaScenario_, fileName, this);
+  loadTargetsThread->start();
+  connect (loadTargetsThread, &LoadTargetsThread::finished, this, &SACcontroller::slotCloseWaitingDialog);
+  connect (loadTargetsThread, &LoadTargetsThread::finished, loadTargetsThread, &QObject::deleteLater);
+  importing_.exec();
 
-  calibrationTargetCreator::createFromExcel(casaScenario_, fileName);
   CalibrationTargetManager& ctManager = casaScenario_.calibrationTargetManager();
   if (ctManager.objectiveFunctionManager().indexOfCauldronName("Velocity") != -1)
   {

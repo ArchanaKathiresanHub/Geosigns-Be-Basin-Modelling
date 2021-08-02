@@ -43,6 +43,8 @@ private slots:
   void slotUpdateBirdView();
   void slotUpdateTabGUI(int tabID);
   void slotUpdateWellSelection();
+  void slotSmartGriddingChanged(int state);
+  void slotWellClicked(const QString& wellName);
 
   void slotExportOptimized();
   void slotRunOptimized();  

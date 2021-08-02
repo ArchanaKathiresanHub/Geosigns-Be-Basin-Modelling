@@ -44,6 +44,7 @@ private:
   void addObjectiveFunction();
   void addRunMode();
   void addSmoothing();
+  void addSmartGridding();
   void addWellInfo(const casaWizard::Well* well);
 
   std::string doubleToFormattedString(const double inputDouble);

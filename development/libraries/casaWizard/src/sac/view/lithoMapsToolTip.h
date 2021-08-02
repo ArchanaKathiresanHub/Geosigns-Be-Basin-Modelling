@@ -61,7 +61,7 @@ private:
 
   QLabel* header_;
   QLabel* valueLabel_;
-  QLabel* wellName_;
+  QLabel* infoLabel_;
   LithoMapsToolTipOverlay* overlay_;
   QtCharts::QChart* pieChart_;
   QtCharts::QChartView* chartView_;

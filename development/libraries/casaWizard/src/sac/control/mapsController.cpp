@@ -23,6 +23,7 @@
 #include "model/scenarioBackup.h"
 #include "model/script/Generate3DScenarioScript.h"
 
+#include "view/components/customcheckbox.h"
 #include "view/activeWellsTable.h"
 #include "view/lithofractionVisualisation.h"
 #include "view/mapsTab.h"
@@ -60,10 +61,15 @@ MapsController::MapsController(MapsTab* mapsTab,
   connect(mapsTab_->pValue(),            SIGNAL(valueChanged(int)),        this, SLOT(slotPvalueChanged(int)));
   connect(mapsTab_->smoothingType(),     SIGNAL(currentIndexChanged(int)), this, SLOT(slotSmoothingTypeCurrentIndexChanged(int)));
   connect(mapsTab_->smoothingRadius(),   SIGNAL(valueChanged(int)),        this, SLOT(slotSmoothingRadiusValueChanged(int)));  
+  connect(mapsTab_->smartGridding(),     SIGNAL(stateChanged(int)),        this, SLOT(slotSmartGriddingChanged(int)));
   connect(mapsTab_->createGridsButton(), SIGNAL(clicked()),                this, SLOT(slotGenerateLithoMaps()));
 
   connect(mapsTab_->activeWellsTable(), SIGNAL(itemSelectionChanged()), this, SLOT(slotUpdateBirdView()));
   connect(mapsTab_->activeWellsTable(), SIGNAL(checkBoxSelectionChanged()), this, SLOT(slotUpdateWellSelection()));
+
+  connect(lithofractionVisualisationController_, SIGNAL(wellClicked(const QString&)), this, SLOT(slotWellClicked(const QString&)));
+  connect(lithofractionVisualisationController_, SIGNAL(clearWellListHighlightSelection()), activeWellsController_, SLOT(slotClearWellListHighlightSelection()));
+
 }
 
 void MapsController::slotInterpolationTypeCurrentIndexChanged(int interpolationType)
@@ -123,7 +129,8 @@ void MapsController::refreshGUI()
   mapsTab_->pValue()->setValue(scenario_.pIDW());
   mapsTab_->smoothingType()->setCurrentIndex(scenario_.smoothingOption());
   mapsTab_->smoothingRadius()->setValue(scenario_.radiusSmoothing());
-  mapsTab_->updateSelectedWells({});
+  lithofractionVisualisationController_->updateSelectedWells({});
+  mapsTab_->smartGridding()->setCheckState(scenario_.smartGridding() ? Qt::Checked : Qt::Unchecked);
 
   emit signalRefreshChildWidgets();
   validateWellsHaveOptimized();
@@ -133,6 +140,19 @@ void MapsController::refreshGUI()
 void MapsController::slotUpdateWellSelection()
 {
   lithofractionVisualisationController_->updateBirdsView();
+}
+
+void MapsController::slotSmartGriddingChanged(int state)
+{
+  scenario_.setSmartGridding(state == Qt::Checked);
+  lithofractionVisualisationController_->hideAllTooltips();
+  activeWellsController_->slotClearWellListHighlightSelection();
+  lithofractionVisualisationController_->updateBirdsView();
+}
+
+void MapsController::slotWellClicked(const QString& wellName)
+{
+  mapsTab_->highlightWell(wellName);
 }
 
 void MapsController::slotGenerateLithoMaps()
@@ -185,7 +205,7 @@ void MapsController::slotRunOptimized()
 
 void MapsController::slotUpdateBirdView()
 {
-  mapsTab_->updateSelectedWells(selectedWells());
+  lithofractionVisualisationController_->updateSelectedWells(selectedWells());
 }
 
 QVector<int> MapsController::selectedWells()

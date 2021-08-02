@@ -31,6 +31,7 @@ TEST( LithoMapsInfoGenerator, testInfoGenerator )
   scenario.setPIDW(3);
   scenario.setSmoothingOption(1);
   scenario.setRadiusSmoothing(5000);
+  scenario.setSmartGridding(false);
 
   // Set Wells
   scenario.calibrationTargetManager().addWell("10_AML2_AV", 184550.00, 608300.00);

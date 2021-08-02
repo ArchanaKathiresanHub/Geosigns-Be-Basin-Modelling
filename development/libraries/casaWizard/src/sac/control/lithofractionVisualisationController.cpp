@@ -13,6 +13,7 @@
 #include "../common/model/vectorvectormap.h"
 #include "model/casaScenario.h"
 #include "model/sacScenario.h"
+#include "model/well.h"
 
 #include "view/components/customcheckbox.h"
 #include "view/grid2dplot.h"
@@ -80,6 +81,7 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
   else
   {
     mapReader.load(scenario_.project3dPath().toStdString());
+    lithologyMaps = obtainInputLithologyMaps(mapReader, layerID);
   }
 
   VectorVectorMap depthMap = mapReader.getMapData(scenario_.projectReader().getDepthGridName(0).toStdString());
@@ -94,20 +96,10 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
     lithoPlot->setVisible(lithologyTypes[counter] != "" && !(counter>0 && singleMapLayout_));
 
     std::vector<std::vector<double>> values;
-    if (optimizedLithomapsAvailable)
-    {
-      lithoPlot->lithoPercent2DView()->setSingleValue(false);
-      values = lithologyMaps[counter].getData();
-      lithoPlot->showColorBar();
-      lithofractionVisualisation_->refreshCurrentPercentageRange();
-    }
-    else
-    {
-      values = depthMap.getData();
-      lithoPlot->lithoPercent2DView()->setSingleValue(true);
-      lithoPlot->lithoPercent2DView()->setFixedValueRange({0,1});
-      lithoPlot->hideColorBar();
-    }
+
+    values = lithologyMaps[counter].getData();
+    lithoPlot->showColorBar();
+    lithofractionVisualisation_->refreshCurrentPercentageRange();
 
     lithoPlot->lithoPercent2DView()->updatePlots(values, depthMap.getData());
     lithoPlot->lithoPercent2DView()->updateRange(xMin * Utilities::Maths::MeterToKilometer,
@@ -115,13 +107,12 @@ void LithofractionVisualisationController::slotUpdatePlots(const QString& layerN
                                                  yMin * Utilities::Maths::MeterToKilometer,
                                                  yMax * Utilities::Maths::MeterToKilometer);
     lithoPlot->updateColorBar();
-    lithoPlot->setTitle(lithologyTypes[counter], counter);
+    lithoPlot->setTitle(lithologyTypes[counter], counter, !optimizedLithomapsAvailable);
     lithoPlot->lithoPercent2DView()->setToolTipVisible(false);
     lithoPlot->lithoPercent2DView()->setToolTipLithotypes(lithologyTypes);
 
     counter++;
   }
-
 
   updateBirdsView();
 }
@@ -140,6 +131,7 @@ std::vector<double> LithofractionVisualisationController::getLithopercentagesAtL
 void LithofractionVisualisationController::toolTipCreated(const QPointF& point, const int plotID)
 {
   lithofractionVisualisation_->hideAllTooltips();
+  emit clearWellListHighlightSelection();
 
   std::vector<double> lithofractionsAtPoint;
   int closestWellID = -1;
@@ -147,7 +139,7 @@ void LithofractionVisualisationController::toolTipCreated(const QPointF& point, 
   {
     lithofractionsAtPoint = getLithopercentagesOfClosestWell(point, closestWellID);
   }
-  else if (!lithofractionVisualisation_->lithoFractionPlots()[0]->lithoPercent2DView()->singleValue())
+  else
   {
     lithofractionsAtPoint = getLithopercentagesAtLocation(point);
   }
@@ -161,6 +153,7 @@ void LithofractionVisualisationController::toolTipCreated(const QPointF& point, 
       wellName = closestWell.name();
       lithofractionVisualisation_->lithoFractionPlots()[plotID]->lithoPercent2DView()->moveTooltipToDomainLocation(QPointF(closestWell.x() * Utilities::Maths::MeterToKilometer,
                                                                                                                            closestWell.y() * Utilities::Maths::MeterToKilometer));
+      emit wellClicked(wellName);
     }
 
     lithofractionVisualisation_->finalizeTooltip(lithofractionsAtPoint, wellName, plotID);
@@ -234,6 +227,61 @@ bool LithofractionVisualisationController::openMaps(CMBMapReader& mapReader, con
   return true;
 }
 
+void LithofractionVisualisationController::updateSelectedWells(QVector<int> selectedWells)
+{
+  QVector<int> highlightedWells;
+  if (scenario_.smartGridding())
+  {
+    // Shift the selected wells to account for wells which are not plotted, since they do
+    // not have data in the active layer
+    for (int wellIndex : selectedWells)
+    {
+      int exclusionShift = 0;
+      bool excluded = false;
+      int excludedWellIndex = 0;
+      for (const Well* well : scenario_.calibrationTargetManager().activeAndIncludedWells())
+      {
+        if(excludedWellIndex == wellIndex && !wellHasDataInActiveLayer(well))
+        {
+          excluded = true;
+          break;
+        }
+        if(wellIndex > excludedWellIndex && !wellHasDataInActiveLayer(well)) exclusionShift++;
+
+        excludedWellIndex++;
+      }
+
+      if (!excluded)
+      {
+        highlightedWells.push_back(wellIndex - exclusionShift);
+      }
+    }
+  }
+  else
+  {
+    highlightedWells = selectedWells;
+  }
+
+  lithofractionVisualisation_->updateSelectedWells(highlightedWells);
+}
+
+void LithofractionVisualisationController::hideAllTooltips()
+{
+  lithofractionVisualisation_->hideAllTooltips();
+}
+
+bool LithofractionVisualisationController::wellHasDataInActiveLayer(const Well* well) const
+{
+  // If the well has no data (meaning the wells were imported before the changes to the calibrationTargetCreator)
+  // just always show all wells
+  if (well->hasDataInLayer().empty())
+  {
+    return true;
+  }
+
+  return well->hasDataInLayer()[scenario_.projectReader().getLayerID(activeLayer_.toStdString())];
+}
+
 std::vector<VectorVectorMap> LithofractionVisualisationController::obtainLithologyMaps(const CMBMapReader& mapReader, int layerID) const
 {
   std::vector<VectorVectorMap> lithologyMaps;
@@ -253,24 +301,14 @@ std::vector<VectorVectorMap> LithofractionVisualisationController::obtainLitholo
   return lithologyMaps;
 }
 
+std::vector<VectorVectorMap> LithofractionVisualisationController::obtainInputLithologyMaps(const CMBMapReader& mapReader, int layerID) const
+{
+  return mapReader.getInputLithoMapsInLayer(layerID);
+}
+
 QStringList LithofractionVisualisationController::obtainAvailableLayers() const
 {
-  CMBMapReader mapreader;
-  mapreader.load((scenario_.calibrationDirectory() + "/ThreeDFromOneD/" + scenario_.project3dFilename()).toStdString());
-
-  QStringList availableLayers;
-  QStringList layers = scenario_.projectReader().layerNames();
-
-  for (const QString& layer: layers)
-  {
-    int layerID = scenario_.projectReader().getLayerID(layer.toStdString());
-    if ( !getOptimizedLithoFractionsInLayer(layer).empty() || mapreader.mapExists(std::to_string(layerID) + "_percent_1"))
-    {
-      availableLayers.push_back(layer);
-    }
-  }
-
-  return availableLayers;
+  return scenario_.projectReader().layerNames();
 }
 
 QStringList LithofractionVisualisationController::obtainLithologyTypes(const int layerID) const
@@ -299,9 +337,29 @@ void LithofractionVisualisationController::updateAvailableLayers()
 
 void LithofractionVisualisationController::updateBirdsView()
 {
-  const QVector<OptimizedLithofraction> optimizedLithoFractions = getOptimizedLithoFractionsInLayer(activeLayer_);
+  QVector<OptimizedLithofraction> optimizedLithoFractions = getOptimizedLithoFractionsInLayer(activeLayer_);
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  lithofractionVisualisation_->updateBirdsView(ctManager.activeAndIncludedWells(), optimizedLithoFractions);
+  QVector<const Well*> activeAndIncludedWells = ctManager.activeAndIncludedWells();
+
+  if (optimizedLithoFractions.size() != activeAndIncludedWells.size())
+  {
+    lithofractionVisualisation_->updateBirdsView({}, {});
+    return; // In this layer the wells have not been optimized
+  }
+
+  if (scenario_.smartGridding())
+  {
+    for (int i = activeAndIncludedWells.size() - 1 ; i >= 0; i--)
+    {
+      if (!wellHasDataInActiveLayer(activeAndIncludedWells[i]))
+      {
+        optimizedLithoFractions.remove(i);
+        activeAndIncludedWells.remove(i);
+      }
+    }
+  }
+
+  lithofractionVisualisation_->updateBirdsView(activeAndIncludedWells, optimizedLithoFractions);
 }
 
 void LithofractionVisualisationController::slotRefresh()

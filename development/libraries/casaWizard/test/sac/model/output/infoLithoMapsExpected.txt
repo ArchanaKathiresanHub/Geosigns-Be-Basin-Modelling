@@ -28,6 +28,7 @@ Map Generation
 ---------------------------------------------------
 Interpolation: Inverse Distance Weighting, P = 3
 Smoothing: Gaussian, Radius = 5000
+Smart gridding: Disabled
 ###################################################
 ---------------------------------------------------
 Wells

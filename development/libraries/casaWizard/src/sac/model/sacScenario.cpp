@@ -28,6 +28,7 @@ SACScenario::SACScenario(ProjectReader* projectReader) :
   smoothingOption_{0},
   pIDW_{3},
   radiusSmoothing_{1000},
+  smartGridding_{true},
   t2zLastSurface_{projectReader->lowestSurfaceWithTWTData()},
   t2zReferenceSurface_{defaultReferenceSurface},
   t2zSubSampling_{1},
@@ -84,6 +85,16 @@ int SACScenario::radiusSmoothing() const
 void SACScenario::setRadiusSmoothing(int radiusSmoothing)
 {
   radiusSmoothing_ = radiusSmoothing;
+}
+
+bool SACScenario::smartGridding() const
+{
+  return smartGridding_;
+}
+
+void SACScenario::setSmartGridding(bool smartGridding)
+{
+  smartGridding_ = smartGridding;
 }
 
 QString SACScenario::calibrationDirectory() const
@@ -184,12 +195,13 @@ const WellTrajectoryManager& SACScenario::wellTrajectoryManager() const
 void SACScenario::writeToFile(ScenarioWriter& writer) const
 {
   CasaScenario::writeToFile(writer);
-  writer.writeValue("SACScenarioVersion", 2);
+  writer.writeValue("SACScenarioVersion", 3);
 
   writer.writeValue("interpolationMethod", interpolationMethod_);
   writer.writeValue("smoothingOption",smoothingOption_);
   writer.writeValue("pIDW",pIDW_);  
   writer.writeValue("radiusSmoothing",radiusSmoothing_);
+  writer.writeValue("smartGridding", smartGridding_);
 
   writer.writeValue("referenceSurface", t2zReferenceSurface_);
   writer.writeValue("t2zSubSampling", t2zSubSampling_);
@@ -219,6 +231,10 @@ void SACScenario::readFromFile(const ScenarioReader& reader)
     t2zSubSampling_ = reader.readInt("t2zSubSampling") > 0 ? reader.readInt("t2zSubSampling") : t2zSubSampling_;
     t2zRunOnOriginalProject_ = reader.readBool("t2zRunOnOriginalProject");
     t2zNumberCPUs_ = reader.readInt("t2zNumberOfCPUs");
+  }
+  if (sacScenarioVersion > 2)
+  {
+    smartGridding_ = reader.readBool("smartGridding");
   }
 
   t2zLastSurface_ = projectReader().lowestSurfaceWithTWTData();

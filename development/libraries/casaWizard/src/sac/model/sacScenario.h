@@ -32,6 +32,9 @@ public:
   int radiusSmoothing() const;
   void setRadiusSmoothing(int radiusSmoothing);
 
+  bool smartGridding() const;
+  void setSmartGridding(bool smartGridding);
+
   int t2zReferenceSurface() const;
   void setT2zReferenceSurface(int t2zReferenceSurface);
 
@@ -78,6 +81,7 @@ private:
   int smoothingOption_;
   int pIDW_;  
   int radiusSmoothing_; //[m]
+  bool smartGridding_;
   int t2zLastSurface_;
   int t2zReferenceSurface_;
   int t2zSubSampling_;

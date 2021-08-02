@@ -55,6 +55,8 @@ TEST(Generate3DScenarioScriptTest, testWriteScriptIDWGaussian)
   const std::string expectedFile{"generate3DScenarioScript_IDW_GaussianExpected.casa"};
   const std::string actualFile{"generate3DScenarioScript.casa"};
 
+  scenario.setSmartGridding(false);
+
   casaWizard::sac::Generate3DScenarioScript script(scenario);
   script.writeScript();
 

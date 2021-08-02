@@ -48,6 +48,9 @@ public:
   bool isInvalid() const;
   void setIsInvalid(const bool isInvalid);
 
+  QVector<bool> hasDataInLayer() const;
+  void setHasDataInLayer(QVector<bool> hasDataInLayer);
+
   QVector<const CalibrationTarget*> calibrationTargets() const;
   void setCalibrationTargets(const QVector<CalibrationTarget>& calibrationTargets);
   void addCalibrationTarget(const QString& name, const QString& propertyUserName, const double z, const double value);
@@ -63,6 +66,7 @@ private:
   bool isExcluded_;
   bool isInvalid_;
   QVector<CalibrationTarget> calibrationTargets_;
+  QVector<bool> hasDataInLayer_;
 };
 
 

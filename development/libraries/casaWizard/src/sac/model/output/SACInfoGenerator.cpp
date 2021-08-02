@@ -115,6 +115,7 @@ void SACInfoGenerator::addMapsGenerationSection()
   addHeader("Map Generation");
   addInterpolation();
   addSmoothing();
+  addSmartGridding();
 }
 
 void SACInfoGenerator::addInterpolation()
@@ -147,6 +148,11 @@ void SACInfoGenerator::addSmoothing()
       break;
   }
   addOption("Smoothing", smoothingOption);
+}
+
+void SACInfoGenerator::addSmartGridding()
+{
+  addOption("Smart gridding", scenario_.smartGridding() ? "Enabled" : "Disabled");
 }
 
 void SACInfoGenerator::addWellsSection()

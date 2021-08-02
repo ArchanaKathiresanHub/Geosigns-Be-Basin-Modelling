@@ -10,6 +10,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <QMessageBox>
 
 class QString;
 class QTableWidgetItem;
@@ -58,6 +59,8 @@ private slots:
   void slotRunOriginal1D();
   void slotRunOriginal3D();
 
+  void slotCloseWaitingDialog();
+
 signals:
   void signalRefreshChildWidgets();
 
@@ -67,6 +70,7 @@ private:
   SACtab* sacTab_;
   SACScenario& casaScenario_;
   ScriptRunController& scriptRunController_;
+  QMessageBox importing_;
 
   CalibrationTargetController* calibrationTargetController_;
   DataExtractionController* dataExtractionController_;

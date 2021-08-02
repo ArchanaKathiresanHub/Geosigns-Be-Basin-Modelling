@@ -26,6 +26,7 @@ Map Generation
 ---------------------------------------------------
 Interpolation: Inverse Distance Weighting, P = 3
 Smoothing: None
+Smart gridding: Enabled
 ###################################################
 ---------------------------------------------------
 Wells

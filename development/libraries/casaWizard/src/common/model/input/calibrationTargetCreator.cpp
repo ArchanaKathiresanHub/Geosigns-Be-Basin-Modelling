@@ -2,20 +2,27 @@
 
 #include "extractWellDataXlsx.h"
 #include "model/casaScenario.h"
+#include "../common/model/input/cmbMapReader.h"
 
 #include <QString>
 
 namespace casaWizard
 {
 
-namespace calibrationTargetCreator
+
+CalibrationTargetCreator::CalibrationTargetCreator(CasaScenario& casaScenario) :
+  casaScenario_{casaScenario}
 {
 
-void createFromExcel(CasaScenario& casaScenario, const QString& excelFilename)
-{
-  ExtractWellDataXlsx wellData{excelFilename};
+}
 
-  CalibrationTargetManager& calibrationTargetManager = casaScenario.calibrationTargetManager();
+void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
+{
+  ExtractWellDataXlsx wellData{excelFileName};
+
+  CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
+  CMBMapReader mapReader;
+  mapReader.load(casaScenario_.project3dPath().toStdString());
 
   const QVector<QString> wellNames = wellData.wellNames();
   for (const QString& wellName : wellNames)
@@ -62,14 +69,37 @@ void createFromExcel(CasaScenario& casaScenario, const QString& excelFilename)
                                  QString::number(z[iTarget],'f',1) + ")");
         calibrationTargetManager.addCalibrationTarget(targetName, variableUserNames[iVariable],
                                                       wellIndex, z[iTarget], value[iTarget]);
+
       }
       nTotalTargets += nTargetsPerVariable[iVariable];
     }
+    setWellHasDataInLayer(wellIndex, mapReader);
   }
 
   calibrationTargetManager.updateObjectiveFunctionFromTargets();
 }
 
-} // namespace calibrationTargetCreator
+void CalibrationTargetCreator::setWellHasDataInLayer(const int wellIndex, const CMBMapReader& mapReader)
+{
+  CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
+
+  QVector<bool> hasDataInLayer;
+  auto& well = calibrationTargetManager.well(wellIndex);
+  for (const QString& layer : casaScenario_.projectReader().layerNames())
+  {
+    bool hasDataInCurrentLayer = false;
+    for (const CalibrationTarget* target : well.calibrationTargets())
+    {
+      if (mapReader.checkIfPointIsInLayer(well.x(), well.y(), target->z(), layer.toStdString()))
+      {
+        hasDataInCurrentLayer = true;
+        break;
+      }
+    }
+    hasDataInLayer.push_back(hasDataInCurrentLayer);
+  }
+
+  calibrationTargetManager.setHasDataInLayer(wellIndex, hasDataInLayer);
+}
 
 } // namespace casaWizard

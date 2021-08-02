@@ -44,18 +44,14 @@ MapsTab::MapsTab(QWidget* parent) :
   pValue_{new QSpinBox(this)},
   smoothingOptions_{new QWidget(this)},
   smoothingRadius_{new QSpinBox(this)},
-  smoothingType_{new QComboBox(this)}
+  smoothingType_{new QComboBox(this)},
+  smartGridding_{new CustomCheckbox(this)}
 {
   setTotalLayout();
   connectSignalsAndSlots();
 
   slotInterpolationTypeChange(0);
   slotSmoothingTypeChange(0);
-}
-
-void MapsTab::updateSelectedWells(const QVector<int> selectedWells)
-{
-  lithofractionVisualisation_->updateSelectedWells(selectedWells);
 }
 
 void MapsTab::disableWellAtIndex(const int index)
@@ -105,7 +101,6 @@ QVBoxLayout* MapsTab::setWellsAndOptionsLayout()
   runOptimized->addWidget(buttonRunOptimized_);
   HelpLabel* helpLabelRun = new HelpLabel(this, "For plotting and QC purposes under 'Well log plots and Results' tab");
 
-
   runOptimized->addWidget(helpLabelRun);
 
   wellsAndOptions->addLayout(runOptimized);
@@ -125,7 +120,16 @@ void MapsTab::setGridGenerationOptionsLayout()
   optimizationOptionsLayout->addWidget(new QLabel("Smoothing: ", this),2,0);
   optimizationOptionsLayout->addWidget(smoothingType_,2,1);
   optimizationOptionsLayout->addWidget(smoothingOptions_,3,1);
-  optimizationOptionsLayout->addWidget(createGridsButton_,4,0,1,2);
+  optimizationOptionsLayout->addWidget(new QLabel("Smart Gridding: ", this),4,0);
+  QHBoxLayout* smartGriddingLayout = new QHBoxLayout();
+  smartGriddingLayout->addWidget(smartGridding_);
+  smartGriddingLayout->addWidget(new HelpLabel(this, "When checked, selected wells are only included and visualized \nfor gridding in formations where data is present"));
+  smartGriddingLayout->setStretch(0,1);
+  smartGriddingLayout->setStretch(1,0);
+  optimizationOptionsLayout->addLayout(smartGriddingLayout,4,1);
+
+  smartGridding_->setCheckState(Qt::CheckState::Checked);
+  optimizationOptionsLayout->addWidget(createGridsButton_,5,0,1,2);
   optimizationOptionsLayout->setMargin(0);
 }
 
@@ -200,6 +204,21 @@ int MapsTab::numberOfActiveWells() const
   return activeWellsTable_->rowCount();
 }
 
+void MapsTab::highlightWell(const QString& wellName)
+{
+  int wellIndex = -1;
+  for (int i = 0; i < activeWellsTable_->rowCount(); i++)
+  {
+    if (activeWellsTable_->item(i, 1)->text() == wellName)
+    {
+      wellIndex = i;
+      break;
+    }
+  }
+
+  activeWellsTable_->selectRow(wellIndex);
+}
+
 void MapsTab::slotInterpolationTypeChange(int interpolationType)
 {
   iwdOptions_->setVisible(interpolationType == 0);
@@ -233,6 +252,11 @@ QSpinBox* MapsTab::pValue() const
 QComboBox* MapsTab::smoothingType() const
 {
   return smoothingType_;
+}
+
+CustomCheckbox* MapsTab::smartGridding() const
+{
+  return smartGridding_;
 }
 
 QComboBox* MapsTab::interpolationType() const

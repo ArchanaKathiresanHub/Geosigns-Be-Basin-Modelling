@@ -14,7 +14,8 @@ TEST( CalibrationTargetCreatorTest, testCreateFromExcel )
   casaWizard::StubCasaScenario scenario{};
   casaWizard::CalibrationTargetManager& manager{scenario.calibrationTargetManager()};
 
-  casaWizard::calibrationTargetCreator::createFromExcel(scenario, excelFilename);
+  casaWizard::CalibrationTargetCreator targetCreator(scenario);
+  targetCreator.createFromExcel(excelFilename);
 
   const QVector<const casaWizard::Well*> wellsActual = manager.wells();
   const QVector<const casaWizard::CalibrationTarget*> targetsActual = manager.calibrationTargets();
@@ -32,6 +33,8 @@ TEST( CalibrationTargetCreatorTest, testCreateFromExcel )
     EXPECT_DOUBLE_EQ(wellsActual[iWell]->x(),                  wellsExpected[iWell].x())                  << " Mismatch at index " << iWell;
     EXPECT_DOUBLE_EQ(wellsActual[iWell]->y(),                  wellsExpected[iWell].y())                  << " Mismatch at index " << iWell;
     EXPECT_EQ       (wellsActual[iWell]->isActive(),           wellsExpected[iWell].isActive())           << " Mismatch at index " << iWell;
+    ASSERT_EQ(wellsActual[iWell]->hasDataInLayer().size(), 1);
+    EXPECT_FALSE(wellsActual[iWell]->hasDataInLayer()[0]);
   }
 
   QVector<casaWizard::CalibrationTarget> targetsExpected{};
@@ -64,7 +67,8 @@ TEST( CalibrationTargetCreator, testCreateFromExcelWithDeletes )
   casaWizard::StubCasaScenario scenario{};
   casaWizard::CalibrationTargetManager& manager{scenario.calibrationTargetManager()};
 
-  casaWizard::calibrationTargetCreator::createFromExcel(scenario, excelFilename);
+  casaWizard::CalibrationTargetCreator targetCreator(scenario);
+  targetCreator.createFromExcel(excelFilename);
 
   const QVector<const casaWizard::CalibrationTarget*> targetsActual = manager.calibrationTargets();
   const int nActualTargets{targetsActual.size()};

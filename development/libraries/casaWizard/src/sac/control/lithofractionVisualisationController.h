@@ -16,6 +16,7 @@ namespace casaWizard
 class CalibrationTargetManager;
 class CMBMapReader;
 class VectorVectorMap;
+class Well;
 
 namespace sac
 {
@@ -34,6 +35,12 @@ public:
 
   void updateAvailableLayers();
   void updateBirdsView();
+  void updateSelectedWells(QVector<int> selectedWells);
+  void hideAllTooltips();
+
+signals:
+  void wellClicked(const QString&);
+  void clearWellListHighlightSelection();
 
 private slots:
   void slotRefresh();
@@ -51,8 +58,11 @@ private:
   bool lithofractionIsValid(const double lithofractionAtPoint) const;
   QStringList obtainAvailableLayers() const;
   std::vector<VectorVectorMap> obtainLithologyMaps(const CMBMapReader& mapReader, int layerID) const;
+  std::vector<VectorVectorMap> obtainInputLithologyMaps(const CMBMapReader& mapReader, int layerID) const;
   QStringList obtainLithologyTypes(const int layerID) const;
   bool openMaps(CMBMapReader& mapReader, const int layerID) const;
+
+  bool wellHasDataInActiveLayer(const Well* well) const;
 
 private slots:
   void slotUpdatePlots(const QString& layerName);

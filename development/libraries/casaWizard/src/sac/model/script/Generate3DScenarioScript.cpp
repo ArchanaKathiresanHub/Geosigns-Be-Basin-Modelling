@@ -73,7 +73,9 @@ QString Generate3DScenarioScript::generateThreeDFromOneD() const
 
 QString Generate3DScenarioScript::setFilterOneDResults() const
 {
-  QString command("setFilterOneDResults smartLithoFractionGridding");
+  QString command("setFilterOneDResults ");
+
+  command += scenario_.smartGridding() ? "smartLithoFractionGridding" : "none";
 
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
 

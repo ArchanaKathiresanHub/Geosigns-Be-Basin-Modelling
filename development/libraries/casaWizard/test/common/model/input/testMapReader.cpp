@@ -47,5 +47,14 @@ TEST_F(MapReaderTest, testGetValue)
   EXPECT_DOUBLE_EQ(reader_.getValue(179000 + 93 * 250, 603500 + 2 * 250, "MAP-27109"), 1564.73046875);
 }
 
+TEST_F(MapReaderTest, testCheckIfPointIsInLayer)
+{
+  EXPECT_TRUE(reader_.checkIfPointIsInLayer(179000 + 2 * 250, 603500 + 2 * 250, 528, "Middle_North_Sea_Group_SL"));
+
+  EXPECT_FALSE(reader_.checkIfPointIsInLayer(179000 + 2 * 250, 603500 + 2 * 250, 527, "Middle_North_Sea_Group_SL"));
+  EXPECT_FALSE(reader_.checkIfPointIsInLayer(179000 + 2 * 250, 603500 + 2 * 250, 528, "Lower_North_Sea_Group_SL"));
+
+}
+
 
 

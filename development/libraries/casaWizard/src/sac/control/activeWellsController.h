@@ -32,6 +32,9 @@ public:
                         CasaScenario& casaScenario,
                         QObject* parent);
 
+public slots:
+  void slotClearWellListHighlightSelection();
+
 private slots:
   void slotWellCheckBoxStateChanged(int state, int wellIndex);
   void slotRefresh();

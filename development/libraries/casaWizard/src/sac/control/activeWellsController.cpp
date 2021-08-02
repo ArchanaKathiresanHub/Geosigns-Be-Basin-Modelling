@@ -33,6 +33,11 @@ ActiveWellsController::ActiveWellsController(ActiveWellsTable* activeWellsTable,
   connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 }
 
+void ActiveWellsController::slotClearWellListHighlightSelection()
+{
+  activeWellsTable_->clearSelection();
+}
+
 void ActiveWellsController::slotRefresh()
 {
   const CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();

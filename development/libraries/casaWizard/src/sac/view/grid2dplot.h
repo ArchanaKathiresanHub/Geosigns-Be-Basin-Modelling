@@ -28,7 +28,7 @@ class Grid2DPlot : public QWidget
 public:
   explicit Grid2DPlot(const ColorMap& colormap, QWidget *parent = nullptr);
   LithoPercent2DView* lithoPercent2DView() const;
-  void setTitle(const QString& lithoType, int id);
+  void setTitle(const QString& lithoType, int id, bool inputMap);
   void updateColorBar();
   void hideColorBar();
   void showColorBar();

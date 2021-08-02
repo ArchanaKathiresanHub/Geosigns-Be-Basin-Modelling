@@ -17,13 +17,14 @@ Well::Well(const int id, const QString& name, const double x, const double y, co
   isActive_{isActive},
   isExcluded_{isExcluded},
   isInvalid_{false},
-  calibrationTargets_{calibrationTargets}
+  calibrationTargets_{calibrationTargets},
+  hasDataInLayer_{}
 {
 }
 
 int Well::version() const
 {
-  return 2;
+  return 3;
 }
 
 void Well::writeToFile(ScenarioWriter& writer) const
@@ -38,6 +39,7 @@ void Well::writeToFile(ScenarioWriter& writer) const
   writer.writeValue(wellName + "isExcluded", isExcluded_);
   writer.writeValue(wellName + "isInvalid", isInvalid_);
   writer.writeValue(wellName + "targets", calibrationTargets_);
+  writer.writeValue(wellName + "hasDataInLayer", hasDataInLayer_);
 }
 
 void Well::readFromFile(const ScenarioReader& reader)
@@ -52,6 +54,10 @@ void Well::readFromFile(const ScenarioReader& reader)
   calibrationTargets_ = reader.readVector<CalibrationTarget>(wellName + "targets");
 
   const int version = reader.readInt(wellName + "version");
+  if (version > 2)
+  {
+    hasDataInLayer_ = reader.readVector<bool>(wellName + "hasDataInLayer");
+  }
   if (version > 1)
   {
     isInvalid_ = reader.readBool(wellName + "isInvalid");
@@ -125,6 +131,16 @@ bool Well::isInvalid() const
 void Well::setIsInvalid(const bool isInvalid)
 {
   isInvalid_ = isInvalid;
+}
+
+QVector<bool> Well::hasDataInLayer() const
+{
+  return hasDataInLayer_;
+}
+
+void Well::setHasDataInLayer(QVector<bool> hasDataInLayer)
+{
+  hasDataInLayer_ = hasDataInLayer;
 }
 
 QVector<const CalibrationTarget*> Well::calibrationTargets() const

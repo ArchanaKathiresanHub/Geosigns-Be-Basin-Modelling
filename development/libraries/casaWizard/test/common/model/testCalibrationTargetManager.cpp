@@ -22,8 +22,10 @@ TEST(CalibrationTargetManagerTest, testWriteToFile)
   const int expectedIDWell1 = 1;
   const int actualIDWell0 = manager.addWell("testWell0", 0.0, 1.0);
   manager.addCalibrationTarget("Target1", "Temperature", actualIDWell0, 2.0, 3.0);
+  manager.setHasDataInLayer(0, {false, true});
   const int actualIDWell1 = manager.addWell("testWell1", 4.0, 5.0);
   manager.addCalibrationTarget("Target2", "VReUserName", actualIDWell1, 6.0, 7.0);
+  manager.setHasDataInLayer(1, {true, false});
   EXPECT_EQ(expectedIDWell0, actualIDWell0);
   EXPECT_EQ(expectedIDWell1, actualIDWell1);
 
@@ -31,6 +33,9 @@ TEST(CalibrationTargetManagerTest, testWriteToFile)
   manager.setWellIsExcluded(false, 0);
   manager.setWellIsActive(true, 1);
   manager.setWellIsExcluded(true, 1);
+
+  manager.setHasDataInLayer(0, {false, true});
+  manager.setHasDataInLayer(1, {true, false});
 
   casaWizard::ScenarioWriter writer{"calibrationTargetManagerActual.dat"};
   manager.writeToFile(writer);
@@ -102,6 +107,14 @@ void testReading(const QString& testFile, const int version)
   EXPECT_EQ(expectedAmountOfActiveWells, actualAmountOfActiveWells);
 
   const QVector<const casaWizard::CalibrationTarget*> targets = manager.calibrationTargets();
+
+  if (version > 0)
+  {
+    EXPECT_FALSE(manager.well(0).hasDataInLayer()[0]);
+    EXPECT_TRUE(manager.well(0).hasDataInLayer()[1]);
+    EXPECT_TRUE(manager.well(1).hasDataInLayer()[0]);
+    EXPECT_FALSE(manager.well(1).hasDataInLayer()[1]);
+  }
 
   ASSERT_EQ(targets.size(), 2);
 
