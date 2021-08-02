@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-08-02  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added smart gridding option to the SAC wizard.
+	* Smart gridding added in casa runs and SAC wizard visualization
+	* Bugfix for related bug in the NN algorithm
+	* Related work items: #424211, #431217 ================== COMMIT-END ========================
+	Commit-ID:<f9f130b3925165c252bc315156152d7b384349cd>	  (refs/heads/master)
+
+++
 2021-08-02  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
 
 	fix: usr: dev: All Traps Leaking at 0 Ma in Advanced mode with Automatic Reservoir Detection enabled
