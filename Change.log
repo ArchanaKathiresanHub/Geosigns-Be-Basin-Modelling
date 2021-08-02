@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-08-02  Borgohain, Preetirekha SOMLOG-SOMLOGr  <P.Borgohain@shell.com>
+
+	fix: usr: dev: All Traps Leaking at 0 Ma in Advanced mode with Automatic Reservoir Detection enabled
+	 * Removed computeDepthOffsets() functionality in the ARD workFlow
+	 * Use of undefined Map value, 99999, has corrected to use a tolerance rather than direct equality comparisons.
+	 * Added a new ARD scenario in the RT suite
+
+	Related work items: #428440
+	================== COMMIT-END ========================
+	Commit-ID:<1b55ee9f604e5ceebd7615fff2782fa1d88447a8>	  (refs/heads/master)
+
+++
 2021-07-27  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fix for order in maps tab SAC.
