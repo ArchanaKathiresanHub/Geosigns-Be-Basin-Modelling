@@ -76,6 +76,10 @@ using namespace migration;
 #ifndef _MSC_VER
 #include "h5merge.h"
 #endif
+//utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::DefaultNumericalTolerance;
+#include "NumericFunctions.h"
 
 using namespace DataAccess;
 
@@ -384,9 +388,9 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
       assert (formation);
       if (!formation->isActive (snapshot)) continue;
 
-      bool lowResEqualsHighRes = ((*(m_projectHandle->getLowResolutionOutputGrid ())) == (*(m_projectHandle->getHighResolutionOutputGrid ())));
+      bool islowResEqualsHighRes = ((*(m_projectHandle->getLowResolutionOutputGrid ())) == (*(m_projectHandle->getHighResolutionOutputGrid ())));
 
-      formation->computePropertyMaps (topDepthGridMap, snapshot, lowResEqualsHighRes, isOverPressureRun, m_projectHandle->getRunParameters ()->getNonGeometricLoop (),
+      formation->computePropertyMaps (topDepthGridMap, snapshot, islowResEqualsHighRes, isOverPressureRun, m_projectHandle->getRunParameters ()->getNonGeometricLoop (),
                                       m_projectHandle->getRunParameters ()->getChemicalCompaction ()); // allowed to fail
 
       formation->computeHCDensityMaps (snapshot);
@@ -411,13 +415,14 @@ bool Migrator::getSeaBottomDepths (Interface::GridMap * topDepthGridMap, const I
       {
          double seaBottomDepth = m_projectHandle->getSeaBottomDepth (i, j, snapshot->getTime ());
 
-         if (seaBottomDepth == Interface::DefaultUndefinedMapValue or seaBottomDepth == Interface::DefaultUndefinedScalarValue)
+         if ( NumericFunctions::isEqual(seaBottomDepth, Interface::DefaultUndefinedMapValue, DefaultNumericalTolerance) or
+              NumericFunctions::isEqual(seaBottomDepth, Interface::DefaultUndefinedScalarValue, DefaultNumericalTolerance))
          {
             topDepthGridMap->setValue (i, j, Interface::DefaultUndefinedMapValue);
          }
          else
          {
-            topDepthGridMap->setValue (i, j, m_projectHandle->getSeaBottomDepth (i, j, snapshot->getTime ()));
+             topDepthGridMap->setValue(i, j, seaBottomDepth);
          }
       }
    }
@@ -513,6 +518,9 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
 /// compute the positions of the reservoirs within the formations
 bool Migrator::computeDepthOffsets () const
 {
+   if (m_reservoirDetection)
+    return true;
+
    for ( const Interface::Reservoir * reservoir : *getReservoirs ())
    {
       const MigrationReservoir * migrationReservoir = dynamic_cast<const MigrationReservoir*>( reservoir );
@@ -797,8 +805,8 @@ bool Migrator::flagTopNodes(const Interface::Snapshot * end, const bool overPres
 	MigrationFormation *reservoirFormation;
 	bool topSealFormationReached = false;
 	for (reservoirFormation = bottomFormation, sealFormation = (MigrationFormation *)reservoirFormation->getTopFormation();
-				sealFormation != 0 and !topSealFormationReached;
-				reservoirFormation = sealFormation, sealFormation = (MigrationFormation *)sealFormation->getTopFormation())
+		 sealFormation != 0 and !topSealFormationReached;
+		 reservoirFormation = sealFormation, sealFormation = (MigrationFormation *)sealFormation->getTopFormation())
 	{
 			//check if top seal formation is reached
 		 topSealFormationReached = (sealFormation == topSealFormation);
@@ -893,7 +901,7 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
    }
    else
    {
-      if (m_paleoSeeps or end->getTime () == 0.0)
+      if (m_paleoSeeps or NumericFunctions::isEqual(end->getTime(), 0.0, DefaultNumericalTolerance))
       {
          MigrationFormation * topActiveFormation = getTopActiveFormation (end);
          if (!topActiveFormation) return false;

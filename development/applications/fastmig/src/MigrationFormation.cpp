@@ -53,6 +53,9 @@ using namespace std;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::CelciusToKelvin;
 using Utilities::Maths::MegaPaToPa;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::DefaultNumericalTolerance;
+#include "NumericFunctions.h"
 
 using namespace CBMGenerics;
 using namespace DataAccess;
@@ -246,8 +249,8 @@ namespace migration
 
                // If any of those quantities is undefined, the node is undefined,
                // so do not assign any value and continue with the next node.
-               if (temperature == Interface::DefaultUndefinedMapValue or
-                  pressure == Interface::DefaultUndefinedMapValue)
+               if ( NumericFunctions::isEqual(temperature, Interface::DefaultUndefinedMapValue, DefaultNumericalTolerance) or
+                    NumericFunctions::isEqual(pressure, Interface::DefaultUndefinedMapValue, DefaultNumericalTolerance) )
                   continue;
 
                // Brine density may depend on pressure and temperature so needs to be calculated separately for every node.
@@ -299,7 +302,8 @@ namespace migration
                   }
                }
 
-               if (capillaryEntryPressureLiquid == Interface::DefaultUndefinedMapValue or capillaryEntryPressureVapour == Interface::DefaultUndefinedMapValue)
+               if ( NumericFunctions::isEqual(capillaryEntryPressureLiquid, Interface::DefaultUndefinedMapValue, DefaultNumericalTolerance) or 
+                    NumericFunctions::isEqual(capillaryEntryPressureVapour, Interface::DefaultUndefinedMapValue, DefaultNumericalTolerance) ) 
                {
                   ptrVapourPcE->set (i, j, (unsigned int)k, 0.0);
                   ptrLiquidPcE->set (i, j, (unsigned int)k, 0.0);
@@ -463,7 +467,7 @@ namespace migration
       {
          double depth = getDepth (i + NodeCornerOffsets[oi][0], j + NodeCornerOffsets[oi][1], k + NodeCornerOffsets[oi][2]);
          depthValues[oi] = depth;
-         if (depth == Interface::DefaultUndefinedMapValue) returnValue = false;
+         if ( NumericFunctions::isEqual(depth, Interface::DefaultUndefinedMapValue, DefaultNumericalTolerance) ) returnValue = false;
       }
 
       setFiniteElementDepths (i, j, k, depthValues);
@@ -1156,9 +1160,9 @@ namespace migration
                   if (m_migrator->performAdvancedMigration ())
                   {
                      gridMapValue =
-                        100 * node->getAdjacentFormationNodeGridOffset (2) +     // K
-                        10 * node->getAdjacentFormationNodeGridOffset (1) +     // J
-                        1 * node->getAdjacentFormationNodeGridOffset (0);      // I
+                        100 * static_cast<double>(node->getAdjacentFormationNodeGridOffset (2)) +     // K
+                        10 * static_cast<double>(node->getAdjacentFormationNodeGridOffset (1)) +     // J
+                        1 * static_cast<double>(node->getAdjacentFormationNodeGridOffset (0));      // I
                   }
                   else
                   {
@@ -1419,9 +1423,6 @@ namespace migration
          //add a record to the reservoir list
          database::Record * record = m_migrator->addDetectedReservoirRecord (this, start);
          MigrationReservoir* reservoir = dynamic_cast<MigrationReservoir*>(getProjectHandle().addDetectedReservoirs (record, this));
-         // Offsets and net to gross
-         reservoir->computeDepthOffsets (m_projectHandle.findSnapshot (0.));
-         reservoir->computeNetToGross ();
          m_detectedReservoir = true;
       }
    }
@@ -1622,7 +1623,7 @@ namespace migration
             FaultStatus fs;
 
             double gmValue = gridMap->getValue (i, j, gridMapDepth - 1);
-            if (gmValue == gridMap->getUndefinedValue ())
+            if ( NumericFunctions::isEqual(gmValue, gridMap->getUndefinedValue(), DefaultNumericalTolerance) )
             {
                fs = NOFAULT;
             }
@@ -2217,7 +2218,7 @@ namespace migration
 
          if (m_genexData == 0)
          {
-            m_genexData = getProjectHandle().getFactory ()->produceGridMap (0, 0, getProjectHandle().getActivityOutputGrid (), 99999.0, ComponentId::NUMBER_OF_SPECIES);
+            m_genexData = getProjectHandle().getFactory ()->produceGridMap (0, 0, getProjectHandle().getActivityOutputGrid (), Interface::DefaultUndefinedMapValue, ComponentId::NUMBER_OF_SPECIES);
          }
          const GeoPhysics::GeoPhysicsSourceRock * sourceRock = dynamic_cast<const GeoPhysics::GeoPhysicsSourceRock *>(getSourceRock1 ());
          GeoPhysics::GeoPhysicsSourceRock * sourceRock1 = const_cast<GeoPhysics::GeoPhysicsSourceRock *>(sourceRock);

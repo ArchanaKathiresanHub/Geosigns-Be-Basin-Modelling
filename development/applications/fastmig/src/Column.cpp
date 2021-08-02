@@ -225,6 +225,7 @@ namespace migration
    LocalColumn::LocalColumn (unsigned int i, unsigned int j, MigrationReservoir * reservoir) : Column (i, j, reservoir)
    {
       m_bottomDepthOffset = 0;
+      m_netToGross = 1; /// default net_to_gross is set to one if not defined for a reservoir. And for ARD its always 1
 
       m_composition = 0;
       m_compositionToBeMigrated = 0;

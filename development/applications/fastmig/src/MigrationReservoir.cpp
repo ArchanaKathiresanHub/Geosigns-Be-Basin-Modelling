@@ -68,6 +68,9 @@ extern ostringstream cerrstrstr;
 using Utilities::Physics::AccelerationDueToGravity;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::PaToMegaPa;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::DefaultNumericalTolerance;
+#include "NumericFunctions.h"
 
 using namespace CBMGenerics;
 using namespace DataAccess;
@@ -1144,7 +1147,7 @@ namespace migration
             FaultStatus fs;
 
             double gmValue = gridMap->getValue (i, j, depth - 1);
-            if (gmValue == gridMap->getUndefinedValue ())
+            if ( NumericFunctions::isEqual(gmValue, gridMap->getUndefinedValue(), DefaultNumericalTolerance) )
             {
                fs = NOFAULT;
             }
@@ -2221,8 +2224,8 @@ namespace migration
             const double formationTopDepth = formationTopDepthMap->get (i, j);
             const double formationBottomDepth = formationBottomDepthMap->get (i, j);
 
-            if (formationTopDepth == formationTopDepthMap->getUndefinedValue () ||
-                formationBottomDepth == formationBottomDepthMap->getUndefinedValue ())
+            if( NumericFunctions::isEqual(formationTopDepth, formationTopDepthMap->getUndefinedValue(), DefaultNumericalTolerance) ||
+                NumericFunctions::isEqual(formationBottomDepth, formationBottomDepthMap->getUndefinedValue(), DefaultNumericalTolerance) )
             {
                // use default values 0, 0
                continue;
@@ -2235,7 +2238,7 @@ namespace migration
             if (thicknessMap)
             {
                thickness = thicknessMap->getValue (i, j);
-               if (thickness == thicknessMap->getUndefinedValue ())
+               if ( NumericFunctions::isEqual(thickness, thicknessMap->getUndefinedValue(), DefaultNumericalTolerance) )
                {
                   thickness = formationThickness;
                }
@@ -2288,7 +2291,7 @@ namespace migration
             if (netToGrossMap != nullptr)
             {
                netToGross = netToGrossMap->getValue (i, j);
-               if (netToGross == netToGrossMap->getUndefinedValue ())
+               if ( NumericFunctions::isEqual(netToGross, netToGrossMap->getUndefinedValue(), DefaultNumericalTolerance) )
                {
                   netToGross = 100.0;
                }
