@@ -135,12 +135,19 @@ jobtype_resource_usage()
 # 
 jobtype_submit_command()
 {
-    command="srun --job-name=${GEMPIS_PROJECTNAME}:${GEMPIS_EXEC} $GEMPIS_SUBMIT --ntasks=$GEMPIS_NUMCPUS --ntasks-per-core=1 $GEMPIS_EXEDIR/gempis_mpiwrapper $GEMPIS_SLURM_DEBUG"
+	######### Right now srun does not work with PTSOM Slurm HPC #########
+    #command="srun --job-name=${GEMPIS_PROJECTNAME}:${GEMPIS_EXEC} $GEMPIS_SUBMIT --ntasks=$GEMPIS_NUMCPUS --ntasks-per-core=1 $GEMPIS_EXEDIR/gempis_mpiwrapper $GEMPIS_SLURM_DEBUG"
+	command="sbatch -n$GEMPIS_NUMCPUS $GEMPIS_SUBMIT --job-name=${GEMPIS_PROJECTNAME}:${GEMPIS_EXEC} -o log --wait --wrap="\"$GEMPIS_APPWRAPPATH\"" $GEMPIS_SLURM_DEBUG"
     verbose "The job submission command is [$command]."
 
     # executed command and determine the result
-    srun --job-name=${GEMPIS_PROJECTNAME}:${GEMPIS_EXEC} $GEMPIS_SUBMIT --ntasks=$GEMPIS_NUMCPUS --ntasks-per-core=1 $GEMPIS_EXEDIR/gempis_mpiwrapper $GEMPIS_SLURM_DEBUG
-    result=$?
+    ##srun --job-name=${GEMPIS_PROJECTNAME}:${GEMPIS_EXEC} $GEMPIS_SUBMIT --ntasks=$GEMPIS_NUMCPUS --ntasks-per-core=1 $GEMPIS_EXEDIR/gempis_mpiwrapper $GEMPIS_SLURM_DEBUG
+	##-W, --wait
+    ##          Do not exit until the submitted job terminates.  The exit code of the sbatch command will be the same as the  exit  code  of
+    ##          the  submitted job. If the job terminated due to a signal rather than a normal exit, the exit code will be set to 1.  In the
+    ##          case of a job array, the exit code recorded will be the highest value for any task in the job array.
+    sbatch -n$GEMPIS_NUMCPUS $GEMPIS_SUBMIT --job-name=${GEMPIS_PROJECTNAME}:${GEMPIS_EXEC} -o log --wait --wrap="\"$GEMPIS_APPWRAPPATH\"" $GEMPIS_SLURM_DEBUG
+	result=$?
     verbose "SLURM srun returned [$result]."
 
     # if the result was good check with SLURM if that is correct

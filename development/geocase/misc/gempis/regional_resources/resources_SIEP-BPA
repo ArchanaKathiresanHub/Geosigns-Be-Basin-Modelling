@@ -50,14 +50,14 @@ res_submit[12]="-q epdtw_hou_cauldron"
 #res_cluster[12]=""
 
 #
-# Undefined resource 14
+# Slurm resource 14
 #
-#res_name[14]=""
-#res_jobtype[14]=""
-#res_mpiref[14]=""
-#res_remote[14]=""
-#res_request[14]=""
-#res_submit[14]=""
+res_name[14]="HOUMCTST-SLURM"
+res_jobtype[14]="SLURM"
+res_mpiref[14]="INTELMPI"
+res_remote[14]="housky-n-sv0100.americas.shell.com"
+res_request[14]="Cauldron-slrm"
+res_submit[14]="-A cldrn -C RHEL7 -p pt"
 #res_prepath[14]=""
 #res_cluster[14]=""
 

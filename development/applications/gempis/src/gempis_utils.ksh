@@ -706,7 +706,7 @@ define_resource()
     if [ "$GEMPIS_RESOURCE" = "Darwin" ]; then
        export GEMPIS_SUBMIT="${res_submit[$GEMPIS_RES_INDEX]}"
     else
-       export GEMPIS_SUBMIT="${res_submit[$GEMPIS_RES_INDEX]} -We ${GEMPIS_TIME:-01:00}"
+       export GEMPIS_SUBMIT="${res_submit[$GEMPIS_RES_INDEX]}"
     fi
     export GEMPIS_PREPATH="${res_prepath[$GEMPIS_RES_INDEX]}"
     export GEMPIS_CLUSTER="${res_cluster[$GEMPIS_RES_INDEX]}"

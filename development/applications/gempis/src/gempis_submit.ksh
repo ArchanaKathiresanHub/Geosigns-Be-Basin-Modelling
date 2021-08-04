@@ -471,7 +471,7 @@ case "$1" in
 *:*) runtimefound="true";shift;;
 esac
 
-if [ "${runtimefound}" = "" -a "$GEMPIS_RESOURCE" != "Darwin" ]; then
+if [ "${runtimefound}" = "" -a "$GEMPIS_RESOURCE" != "Darwin" -a ["$GEMPIS_JOBTYPE" = "LSFHPC" -o "$GEMPIS_JOBTYPE" = "LSF"] ]; then
    echo ""
    echo "****"
    echo "**** Run time estimate is missing, please specify one next time."
@@ -480,6 +480,9 @@ if [ "${runtimefound}" = "" -a "$GEMPIS_RESOURCE" != "Darwin" ]; then
    echo "**** Only required for v2012.10 and later releases."
    echo "****"
    echo ""
+    verbose "Command to Submit before the change is [$GEMPIS_SUBMIT] [$GEMPIS_TIME]."
+	export GEMPIS_SUBMIT="${GEMPIS_SUBMIT} -We ${GEMPIS_TIME:-01:00}"
+	verbose "Command to Submit after change is [$GEMPIS_SUBMIT] [$GEMPIS_TIME]."
 fi
 
 # parse command, extracting executable, options and mpi options
