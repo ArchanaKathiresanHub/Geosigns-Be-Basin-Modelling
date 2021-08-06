@@ -16,9 +16,11 @@
 #include "control/scriptRunController.h"
 
 #include "model/functions/sortedByXWellIndices.h"
+#include "model/input/cmbMapReader.h"
 #include "model/input/cmbProjectReader.h"
 #include "model/logger.h"
 #include "model/output/LithoMapsInfoGenerator.h"
+#include "model/output/zycorWriter.h"
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"
 #include "model/script/Generate3DScenarioScript.h"
@@ -55,7 +57,8 @@ MapsController::MapsController(MapsTab* mapsTab,
   lithofractionVisualisationController_{new LithofractionVisualisationController(mapsTab->lithofractionVisualisation(), scenario_, this)}
 {
   connect(mapsTab_->buttonExportOptimized(), SIGNAL(clicked()), this, SLOT(slotExportOptimized()));
-  connect(mapsTab_->buttonRunOptimized(),    SIGNAL(clicked()), this, SLOT(slotRunOptimized()));  
+  connect(mapsTab_->buttonRunOptimized(),    SIGNAL(clicked()), this, SLOT(slotRunOptimized()));
+  connect(mapsTab_->buttonExportOptimizedToZycor(), SIGNAL(clicked()), this, SLOT(slotExportOptimizedToZycor()));
 
   connect(mapsTab_->interpolationType(), SIGNAL(currentIndexChanged(int)), this, SLOT(slotInterpolationTypeCurrentIndexChanged(int)));
   connect(mapsTab_->pValue(),            SIGNAL(valueChanged(int)),        this, SLOT(slotPvalueChanged(int)));
@@ -185,6 +188,63 @@ void MapsController::slotExportOptimized()
   LithoMapsInfoGenerator lithoMapsInfoGenerator(scenario_, projectReader);
 
   functions::exportScenarioToZip(sourceDir, scenario_.workingDirectory(), scenario_.project3dFilename(), lithoMapsInfoGenerator);
+}
+
+void MapsController::slotExportOptimizedToZycor()
+{
+  QDir sourceDir(scenario_.calibrationDirectory() + "/ThreeDFromOneD");
+  if (!sourceDir.exists())
+  {
+    Logger::log() << "No optimized project is available for export" << Logger::endl();
+    return;
+  }
+
+  QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported zycor maps", scenario_.workingDirectory(),
+                                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+  QDir targetDir(targetPath);
+  if (!targetDir.exists() || targetPath == "")
+  {
+    Logger::log() << "Target directory is not set" << Logger::endl();
+    return;
+  }
+
+  ZycorWriter writer;
+
+  CMBMapReader mapReader;
+  mapReader.load((sourceDir.path() + "/" + scenario_.project3dFilename()).toStdString());
+
+  double xMin = 0.0;
+  double xMax = 0.0;
+  double yMin = 0.0;
+  double yMax = 0.0;
+  long numI = 0;
+  long numJ = 0;
+  mapReader.getMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
+  const casaWizard::MapMetaData metaData(xMin, xMax, yMin, yMax, numI, numJ);
+
+  for (int i = 0; i < scenario_.projectReader().layerNames().size(); i++)
+  {
+    if (!mapReader.mapExists(std::to_string(i) + "_percent_1"))
+    {
+      continue;
+    }
+    std::vector<VectorVectorMap> lithoMaps = lithofractionVisualisationController_->obtainLithologyMaps(mapReader, i);
+    QStringList lithoNames = scenario_.projectReader().lithologyTypesForLayer(i);
+    int iLithoName = 0;
+    for (const VectorVectorMap& lithoMap : lithoMaps)
+    {
+      writer.writeToFile(targetPath.toStdString() + "/" +
+                         scenario_.projectReader().layerNames()[i].toStdString() + "_" +
+                         lithoNames[iLithoName].toStdString() + ".zyc",
+                         lithoMap.getData(),
+                         metaData);
+
+      iLithoName++;
+    }
+  }
+
+  Logger::log() << "Optimized lithofraction maps are exported to Zycor" << Logger::endl();
 }
 
 void MapsController::slotRunOptimized()

@@ -7,6 +7,9 @@ add_casawizard_common_gtest( NAME CMBProjectWriter
 add_casawizard_common_gtest( NAME ProjectTXTManipulator
                              SOURCES testProjectTXTManipulator.cpp )
 
+add_casawizard_common_gtest( NAME ZycorWriter
+                             SOURCES testZycorWriter.cpp )
+
 configure_file( infoExpected.txt infoExpected.txt COPYONLY)
 configure_file( ProjectExpected.txt ProjectExpected.txt COPYONLY)
 configure_file( Project.txt Project.txt COPYONLY)
@@ -23,3 +26,6 @@ configure_file( Inputs.HDF Inputs.HDF COPYONLY )
 configure_file( export/Project.project3d export/Project.project3d COPYONLY )
 configure_file( export/Inputs.HDF export/Inputs.HDF COPYONLY )
 configure_file( export/CalibratedInputs.HDF export/CalibratedInputs.HDF COPYONLY )
+
+configure_file( testZycorWriter.zyc testZycorWriter.zyc COPYONLY )
+configure_file( testZycorWriterLongNumbers.zyc testZycorWriterLongNumbers.zyc COPYONLY )

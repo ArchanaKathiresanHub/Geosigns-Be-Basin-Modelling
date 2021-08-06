@@ -34,6 +34,8 @@ public:
   double getValue(const double x, const double y, const std::string& mapName) const;
   std::vector<VectorVectorMap> getInputLithoMapsInLayer(const int layerIndex) const;
   bool checkIfPointIsInLayer(const double x, const double y, const double z, const std::string& layerName) const;
+  void getMapDimensions(double& xMin, double& xMax, double& yMin, double& yMax, long& numI, long& numJ);
+
 private:
   std::vector<std::vector<double> > resizeData(const std::vector<double>& out, const int numI, const int numJ) const;
   VectorVectorMap createConstantMap(const double value) const;

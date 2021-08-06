@@ -37,6 +37,7 @@ MapsTab::MapsTab(QWidget* parent) :
   lithofractionVisualisation_{new LithofractionVisualisation(this)},
   createGridsButton_{new EmphasisButton("Create 2D lithofraction grids", this)},
   buttonExportOptimized_{new QPushButton("Export optimized", this)},
+  buttonExportOptimizedToZycor_{new QPushButton("Export to Zycor", this)},
   buttonRunOptimized_{new QPushButton("Run optimized 3D", this)},
   interpolationType_{new QComboBox(this)},
   iwdOptions_{new QWidget(this)},
@@ -96,6 +97,11 @@ QVBoxLayout* MapsTab::setWellsAndOptionsLayout()
   HelpLabel* helpLabelExport = new HelpLabel(this, "Create a zip-file for import into BPA2-Basin");
   exportOptimized->addWidget(helpLabelExport);
   wellsAndOptions->addLayout(exportOptimized);
+  QHBoxLayout* exportOptimizedToZycor = new QHBoxLayout();
+  exportOptimizedToZycor->addWidget(buttonExportOptimizedToZycor_);
+  HelpLabel* helpLabelExportToZycor = new HelpLabel(this, "Export the optimized lithofraction maps to the zycor format");
+  exportOptimizedToZycor->addWidget(helpLabelExportToZycor);
+  wellsAndOptions->addLayout(exportOptimizedToZycor);
 
   QHBoxLayout* runOptimized = new QHBoxLayout();
   runOptimized->addWidget(buttonRunOptimized_);
@@ -187,6 +193,11 @@ void MapsTab::connectSignalsAndSlots() const
 QPushButton* MapsTab::buttonExportOptimized() const
 {
   return buttonExportOptimized_;
+}
+
+QPushButton*MapsTab::buttonExportOptimizedToZycor() const
+{
+  return buttonExportOptimizedToZycor_;
 }
 
 QPushButton* MapsTab::buttonRunOptimized() const

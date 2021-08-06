@@ -9,21 +9,24 @@
 #include "t2zController.h"
 
 #include "control/casaScriptWriter.h"
+#include "control/functions/folderOperations.h"
 #include "control/scriptRunController.h"
+
 #include "model/input/calibrationTargetCreator.h"
+#include "model/input/cmbMapReader.h"
 #include "model/input/cmbProjectReader.h"
 #include "model/logger.h"
 #include "model/output/cmbProjectWriter.h"
 #include "model/output/T2ZInfoGenerator.h"
+#include "model/output/workspaceGenerator.h"
+#include "model/output/zycorWriter.h"
 #include "model/sacScenario.h"
 #include "model/scenarioBackup.h"
 #include "model/script/depthConversionScript.h"
 #include "model/script/sacScript.h"
+
 #include "view/sacTabIDs.h"
 #include "view/t2zTab.h"
-
-#include "../../common/model/output/workspaceGenerator.h"
-#include "../../common/control/functions/folderOperations.h"
 
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -35,6 +38,7 @@
 #include <QString>
 #include <QTextStream>
 #include <QTimer>
+#include <QFileDialog>
 
 namespace casaWizard
 {
@@ -56,6 +60,7 @@ T2Zcontroller::T2Zcontroller(T2Ztab* t2zTab,
 {
   connect(t2zTab_->pushButtonSACrunT2Z(),      SIGNAL(clicked()),                 this,   SLOT(slotPushButtonSACrunT2ZClicked()));
   connect(t2zTab_->exportT2ZScenario(),        SIGNAL(clicked()),                 this,   SLOT(slotExportT2ZScenarioClicked()));
+  connect(t2zTab_->exportT2ZMapsToZycor(),     SIGNAL(clicked()),                 this,   SLOT(slotExportT2ZMapsToZycorClicked()));
   connect(t2zTab_->comboBoxReferenceSurface(), SIGNAL(currentIndexChanged(int)),  this,   SLOT(slotComboBoxReferenceSurfaceValueChanged(int)));
   connect(t2zTab_->spinBoxSubSampling(),       SIGNAL(valueChanged(int)),         this,   SLOT(slotSpinBoxSubSamplingValueChanged(int)));
   connect(t2zTab_->spinBoxNumberOfCPUs(),       SIGNAL(valueChanged(int)),         this,   SLOT(slotSpinBoxNumberOfCPUsValueChanged(int)));
@@ -230,6 +235,52 @@ void T2Zcontroller::slotExportT2ZScenarioClicked()
   CMBProjectReader projectReader;
   T2ZInfoGenerator t2zInfoGenerator(casaScenario_, projectReader);
   functions::exportScenarioToZip(sourceDir, casaScenario_.workingDirectory(), casaScenario_.project3dFilename(), t2zInfoGenerator);
+}
+
+void T2Zcontroller::slotExportT2ZMapsToZycorClicked()
+{
+  getSourceAndT2zDir();
+  const QStringList iterations = QDir(t2zDir_).entryList({"T2Zcal_*"}, QDir::Filter::Dirs, QDir::Time | QDir::Reversed);
+  if (iterations.empty())
+  {
+    Logger::log() << "No T2Z results are available for export.\n" << Logger::endl();
+    return;
+  }
+
+  QDir sourceDir(t2zDir_ + "/" + iterations.last());
+
+  QString targetPath = QFileDialog::getExistingDirectory(nullptr, "Choose a location for the exported scenario", casaScenario_.workingDirectory(),
+                                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+  QDir targetDir(targetPath);
+  if (!targetDir.exists() || targetPath == "")
+  {
+    Logger::log() << "Target directory is not set" << Logger::endl();
+    return;
+  }
+
+  CMBProjectReader projectReader;
+  projectReader.load(sourceDir.path() + "/" + casaScenario_.project3dFilename());
+
+  CMBMapReader mapReader;
+  mapReader.load((sourceDir.path() + "/" + casaScenario_.project3dFilename()).toStdString());
+  double xMin = 0.0;
+  double xMax = 0.0;
+  double yMin = 0.0;
+  double yMax = 0.0;
+  long numI = 0;
+  long numJ = 0;
+  mapReader.getMapDimensions(xMin, xMax, yMin, yMax, numI, numJ);
+  const casaWizard::MapMetaData metaData(xMin, xMax, yMin, yMax, numI, numJ);
+
+  ZycorWriter writer;
+  for (const QString& mapName : projectReader.mapNamesT2Z())
+  {
+    const VectorVectorMap map = mapReader.getMapData(mapName.toStdString());
+    writer.writeToFile(targetDir.path().toStdString()+"/" + mapName.toStdString() + ".zyc", map.getData(), metaData);
+  }
+
+  Logger::log() << "Converted depth maps are exported to Zycor" << Logger::endl();
 }
 
 void T2Zcontroller::slotUpdateTabGUI(int tabID)

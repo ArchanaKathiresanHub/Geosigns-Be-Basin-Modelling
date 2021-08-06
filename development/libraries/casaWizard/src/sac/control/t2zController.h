@@ -43,6 +43,7 @@ private slots:
   void slotUpdateTabGUI(int tabID);
   void slotComboBoxClusterSelectionTextChanged(const QString& clusterName);
   void slotExportT2ZScenarioClicked();  
+  void slotExportT2ZMapsToZycorClicked();
   void slotOutputFile();
 
 private:

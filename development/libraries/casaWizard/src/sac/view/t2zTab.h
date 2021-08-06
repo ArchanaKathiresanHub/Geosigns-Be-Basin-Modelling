@@ -22,6 +22,7 @@ public:
 
   const QPushButton* pushButtonSACrunT2Z() const;
   const QPushButton* exportT2ZScenario() const;
+  const QPushButton* exportT2ZMapsToZycor() const;
   QComboBox* comboBoxProjectSelection() const;
   QComboBox* comboBoxReferenceSurface() const;
   QSpinBox* spinBoxSubSampling() const;
@@ -40,6 +41,7 @@ private:
   QSpinBox* spinBoxNumberOfCPUs_;
   QComboBox* comboBoxClusterSelection_;
   QPushButton* exportT2ZScenario_;
+  QPushButton* exportT2ZMapsToZycor_;
 };
 
 } // namespace sac

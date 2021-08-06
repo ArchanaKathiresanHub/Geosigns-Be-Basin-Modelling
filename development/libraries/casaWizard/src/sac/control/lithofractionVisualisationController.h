@@ -37,6 +37,7 @@ public:
   void updateBirdsView();
   void updateSelectedWells(QVector<int> selectedWells);
   void hideAllTooltips();
+  std::vector<VectorVectorMap> obtainLithologyMaps(const CMBMapReader& mapReader, int layerID) const;
 
 signals:
   void wellClicked(const QString&);
@@ -57,7 +58,6 @@ private:
   std::vector<double> getLithopercentagesAtLocation(const QPointF& point) const;
   bool lithofractionIsValid(const double lithofractionAtPoint) const;
   QStringList obtainAvailableLayers() const;
-  std::vector<VectorVectorMap> obtainLithologyMaps(const CMBMapReader& mapReader, int layerID) const;
   std::vector<VectorVectorMap> obtainInputLithologyMaps(const CMBMapReader& mapReader, int layerID) const;
   QStringList obtainLithologyTypes(const int layerID) const;
   bool openMaps(CMBMapReader& mapReader, const int layerID) const;

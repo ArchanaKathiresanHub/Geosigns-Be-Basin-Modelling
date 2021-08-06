@@ -47,6 +47,7 @@ private slots:
   void slotWellClicked(const QString& wellName);
 
   void slotExportOptimized();
+  void slotExportOptimizedToZycor();
   void slotRunOptimized();  
 
 signals:

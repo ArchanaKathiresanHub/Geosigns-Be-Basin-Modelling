@@ -23,7 +23,8 @@ T2Ztab::T2Ztab(QWidget* parent) :
   spinBoxSubSampling_{new QSpinBox(this)},
   spinBoxNumberOfCPUs_{new QSpinBox(this)},
   comboBoxClusterSelection_{new QComboBox(this)},
-  exportT2ZScenario_{new QPushButton("Export T2Z Scenario")}
+  exportT2ZScenario_{new QPushButton("Export T2Z Scenario")},
+  exportT2ZMapsToZycor_{new QPushButton("Export T2Z maps to Zycor")}
 {
   QGridLayout* layout = new QGridLayout();
   layout->addWidget(new CustomTitle("Project Settings"), 0, 0);
@@ -45,9 +46,10 @@ T2Ztab::T2Ztab(QWidget* parent) :
   comboBoxClusterSelection_->addItems({"LOCAL", "CLUSTER"});
   layout->addWidget(pushButtonSACrunT2Z_, 7, 1);
   layout->addWidget(exportT2ZScenario_, 8, 1);
+  layout->addWidget(exportT2ZMapsToZycor_, 9, 1);
 
-  layout->addWidget(new QWidget(this), 9, 2);
-  layout->setRowStretch(9,1);
+  layout->addWidget(new QWidget(this), 10, 2);
+  layout->setRowStretch(10,1);
   layout->setColumnStretch(2,1);
 
   setLayout(layout);
@@ -61,6 +63,11 @@ const QPushButton* T2Ztab::pushButtonSACrunT2Z() const
 const QPushButton *T2Ztab::exportT2ZScenario() const
 {
   return exportT2ZScenario_;
+}
+
+const QPushButton*T2Ztab::exportT2ZMapsToZycor() const
+{
+  return exportT2ZMapsToZycor_;
 }
 
 QComboBox* T2Ztab::comboBoxProjectSelection() const
