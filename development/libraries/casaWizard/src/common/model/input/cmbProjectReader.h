@@ -50,6 +50,7 @@ public:
 
   int lowestSurfaceWithTWTData() const override;
   bool basementSurfaceHasTWT() const override;  
+  bool hasDepthDefinedInAllLayers() const override;
 
 private:
   std::unique_ptr<mbapi::Model> cmbModel_;

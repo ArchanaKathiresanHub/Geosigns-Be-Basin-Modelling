@@ -11,8 +11,6 @@
 namespace casaWizard
 {
 
-const QString stopExecFilename{"stop_exec_scenario"};
-
 CasaScript::CasaScript(const QString& baseDirectory) :
   RunScript(baseDirectory)
 {
@@ -34,6 +32,10 @@ bool CasaScript::generateCommands()
   return true;
 }
 
+bool CasaScript::killAsync() const
+{  
+  return createStopExecFile();
+}
 
 bool CasaScript::writeScript() const
 {
@@ -71,16 +73,21 @@ bool CasaScript::writeScript() const
 }
 
 bool CasaScript::createStopExecFile() const
-{
-  QFile stopExecFile{baseDirectory() + QDir::separator() + stopExecFilename};
+{  
+  QFile stopExecFile{baseDirectory() + QDir::separator() + stopExecFilename_};
   const bool success = stopExecFile.open(QFile::OpenModeFlag::WriteOnly);
   stopExecFile.close();
 
-  if (!success)
+  if (success)
   {
-    Logger::log() << "Failed to create " << stopExecFilename << " in folder " << baseDirectory()
+    Logger::log() << "Created " << stopExecFilename_ << " in folder " << baseDirectory() << Logger::endl();
+  }
+  else
+  {
+    Logger::log() << "Failed to create " << stopExecFilename_ << " in folder " << baseDirectory()
                   << "\n RunManager will not clean up running jobs" << Logger::endl();
   }
+
   return success;
 }
 
@@ -110,7 +117,7 @@ bool CasaScript::validateBaseScenario() const
 
 void CasaScript::removeStopExecFile() const
 {
-  QFile stopExecFile{baseDirectory() + QDir::separator() + stopExecFilename};
+  QFile stopExecFile{baseDirectory() + QDir::separator() + stopExecFilename_};
   if (stopExecFile.exists())
   {
     stopExecFile.remove();

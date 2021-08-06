@@ -12,8 +12,7 @@ namespace ua
 class AddCasesScript : public UAScript
 {
 public:
-  explicit AddCasesScript(const UAScenario& scenario);
-  bool prepareKill() const override;
+  explicit AddCasesScript(const UAScenario& scenario); 
 
 private:
   void writeScriptContents(QFile& file) const override;

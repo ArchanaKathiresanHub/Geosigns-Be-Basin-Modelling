@@ -28,7 +28,7 @@ QString CauldronScript::workingDirectory() const
   return QString(scenario_.workingDirectory());
 }
 
-const CasaScenario&CauldronScript::scenario() const
+const CasaScenario& CauldronScript::scenario() const
 {
   return scenario_;
 }

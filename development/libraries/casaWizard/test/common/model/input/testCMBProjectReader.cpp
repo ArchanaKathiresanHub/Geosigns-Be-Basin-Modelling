@@ -261,6 +261,7 @@ TEST_F( CMBProjectReaderTest, testNotLoadedReader)
   EXPECT_EQ(notLoadedReader.agesFromMajorSnapshots(), QVector<double>());
   EXPECT_EQ(notLoadedReader.lowestSurfaceWithTWTData(), DataAccess::Interface::DefaultUndefinedScalarIntValue);
   EXPECT_EQ(notLoadedReader.basementSurfaceHasTWT(), false);
+  EXPECT_EQ(notLoadedReader.hasDepthDefinedInAllLayers(), false);
   EXPECT_EQ(notLoadedReader.getLayerID("Test"), NoDataIDValue);
   EXPECT_DOUBLE_EQ(notLoadedReader.heatProductionRate(), 0.0);
 }
@@ -286,6 +287,11 @@ TEST_F( CMBProjectReaderTest, testMapNamesT2Z)
   QStringList mapNamesExpected = {"T2Z[50_ZE_T_TDinput_SD]"};
 
   EXPECT_EQ(mapNamesExpected, reader_.mapNamesT2Z());
+}
+
+TEST_F( CMBProjectReaderTest, testDepthDefinedInAllLayers)
+{
+  EXPECT_TRUE(reader_.hasDepthDefinedInAllLayers());
 }
 
 

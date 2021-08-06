@@ -18,11 +18,6 @@ DoEScript::DoEScript(const UAScenario& scenario) :
 {
 }
 
-bool DoEScript::prepareKill() const
-{
-  return createStopExecFile();
-}
-
 bool DoEScript::validateScenario() const
 {
   return true;

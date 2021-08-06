@@ -16,7 +16,7 @@ public:
   virtual ~RunScript() = default;
 
   virtual bool generateCommands() = 0;
-  virtual bool prepareKill() const;
+  virtual bool killAsync() const;
 
   void addCommand(const QString& command, const QString& relativeDirectory = "");
   QVector<RunCommand> commands() const;

@@ -1,5 +1,7 @@
 #include "runScript.h"
 
+#include <QDir>
+
 namespace casaWizard
 {
 
@@ -8,9 +10,9 @@ RunScript::RunScript(const QString& baseDirectory) :
 {
 }
 
-bool RunScript::prepareKill() const
+bool RunScript::killAsync() const
 {
-  return true;
+  return false;
 }
 
 void RunScript::addCommand(const QString& command, const QString& relativeDirectory)

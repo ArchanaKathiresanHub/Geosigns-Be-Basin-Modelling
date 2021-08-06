@@ -16,11 +16,6 @@ AddCasesScript::AddCasesScript(const UAScenario& scenario) :
 {
 }
 
-bool AddCasesScript::prepareKill() const
-{
-  return createStopExecFile();
-}
-
 void AddCasesScript::writeScriptContents(QFile& file) const
 {
   const QString stateFileNameDoE = uaScenario().runLocation() + "/" + uaScenario().iterationDirName() + "/" + uaScenario().stateFileNameDoE();

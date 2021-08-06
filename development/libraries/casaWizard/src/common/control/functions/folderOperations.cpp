@@ -122,7 +122,9 @@ bool overwriteIfDirectoryExists(const QString& directory)
   {
     QMessageBox doesExist(QMessageBox::Icon::Question,
                           "Directory exists.",
-                          "Overwrite files in directory: " + directory + " ?",
+                          "This will overwrite the existing directory " + directory + ".\n" +
+                          "If you wish to keep that directory, you must rename it first before proceeding.\n" +
+                          "Do you want to continue anyway?",
                           QMessageBox::Yes | QMessageBox::No);
     if (doesExist.exec() != QMessageBox::Yes)
     {

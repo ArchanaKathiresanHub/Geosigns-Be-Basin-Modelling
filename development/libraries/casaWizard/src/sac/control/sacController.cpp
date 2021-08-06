@@ -19,6 +19,7 @@
 #include "control/scriptRunController.h"
 #include "model/input/calibrationTargetCreator.h"
 #include "model/input/cmbMapReader.h"
+#include "model/input/cmbProjectReader.h"
 #include "model/logger.h"
 #include "model/output/cmbProjectWriter.h"
 #include "model/output/wellTrajectoryWriter.h"
@@ -144,7 +145,7 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
   wellTrajectoryWriter::writeTrajectories(casaScenario_);
 
   const QString workingDir = casaScenario_.workingDirectory();
-  const QString calibrationDir{casaScenario_.calibrationDirectory()};
+  const QString calibrationDir = casaScenario_.calibrationDirectory();
 
   if (workingDir.isEmpty())
   {
@@ -184,23 +185,26 @@ void SACcontroller::slotPushButtonSACrunCasaClicked()
     return;
   }
 
-  if (scriptRunController_.runScript(sac))
+  if (!scriptRunController_.runScript(sac))
   {
-    dataExtractionController_->readOptimizedResults();
-
-    if (QFile::copy(casaScenario_.calibrationDirectory() + "/" + casaScenario_.stateFileNameSAC() ,
-                    casaScenario_.calibrationDirectory() + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameSAC()))
-    {
-      QFile file (casaScenario_.calibrationDirectory() + "/" + casaScenario_.stateFileNameSAC());
-      file.remove();
-      Logger::log() << "Done!" << Logger::endl();
-    }
-    else
-    {
-      Logger::log() << "- An error occurred while moving the state file to the last iteration folder." << Logger::endl();
-    }
-    scenarioBackup::backup(casaScenario_);    
+    QDir(calibrationDir + "/" + casaScenario_.runLocation()).removeRecursively();
+    return;
   }
+
+  dataExtractionController_->readOptimizedResults();
+
+  if (QFile::copy(calibrationDir + "/" + casaScenario_.stateFileNameSAC() ,
+                  calibrationDir + "/" + casaScenario_.runLocation() + "/" + casaScenario_.iterationDirName() + "/" + casaScenario_.stateFileNameSAC()))
+  {
+    QFile file (calibrationDir + "/" + casaScenario_.stateFileNameSAC());
+    file.remove();
+    Logger::log() << "Done!" << Logger::endl();
+  }
+  else
+  {
+    Logger::log() << "- An error occurred while moving the state file to the last iteration folder." << Logger::endl();
+  }
+  scenarioBackup::backup(casaScenario_);
 }
 
 void SACcontroller::slotRunOriginal1D()
@@ -241,23 +245,26 @@ void SACcontroller::slotRunOriginal1D()
     return;
   }
 
-  if (scriptRunController_.runScript(sac))
+  if (!scriptRunController_.runScript(sac))
   {
-    dataExtractionController_->readOriginalResults();
-
-    if (QFile::copy(casaScenario_.original1dDirectory() + "/" + casaScenario_.stateFileNameSAC() ,
-                    casaScenario_.original1dDirectory() + "/" + casaScenario_.runLocation() + "/Iteration_1/" + casaScenario_.stateFileNameSAC()))
-    {
-      QFile file (casaScenario_.original1dDirectory() + "/" + casaScenario_.stateFileNameSAC());
-      file.remove();
-      Logger::log() << "Done!" << Logger::endl();
-    }
-    else
-    {
-      Logger::log() << "- An error occurred while moving the state file to the iteration folder." << Logger::endl();
-    }
-    scenarioBackup::backup(casaScenario_);
+    QDir(original1dDir).removeRecursively();
+    return;
   }
+
+  dataExtractionController_->readOriginalResults();
+
+  if (QFile::copy(casaScenario_.original1dDirectory() + "/" + casaScenario_.stateFileNameSAC() ,
+                  casaScenario_.original1dDirectory() + "/" + casaScenario_.runLocation() + "/Iteration_1/" + casaScenario_.stateFileNameSAC()))
+  {
+    QFile file (casaScenario_.original1dDirectory() + "/" + casaScenario_.stateFileNameSAC());
+    file.remove();
+    Logger::log() << "Done!" << Logger::endl();
+  }
+  else
+  {
+    Logger::log() << "- An error occurred while moving the state file to the iteration folder." << Logger::endl();
+  }
+  scenarioBackup::backup(casaScenario_);
 }
 
 void SACcontroller::slotRunOriginal3D()
@@ -313,6 +320,17 @@ void SACcontroller::slotPushSelectProject3dClicked()
   const QDir fileNamePath = QFileInfo(fileName).absoluteDir();
   const QString originalWorkspaceLocation = fileNamePath.absolutePath();
 
+  CMBProjectReader tempProjectReader;
+  tempProjectReader.load(fileName);
+  if (!tempProjectReader.hasDepthDefinedInAllLayers())
+  {
+    QMessageBox box(QMessageBox::Critical, "Project file not accepted!",
+                    "Thickness defined layers are not supported in the SAC workflow, please convert to depth maps prior to input",
+                    QMessageBox::Ok);
+    box.exec();
+    return;
+  }
+
   WorkspaceDialog popupWorkspace{originalWorkspaceLocation, casaWizard::workspaceGenerator::getSuggestedWorkspace(fileName)};
   if (popupWorkspace.exec() != QDialog::Accepted)
   {
@@ -335,7 +353,7 @@ void SACcontroller::slotPushSelectProject3dClicked()
   casaScenario_.setWorkingDirectory(workingDirectory);  
   casaScenario_.setProject3dFilePath(fileName);  
   casaScenario_.updateT2zLastSurface();
-  lithofractionController_->loadLayersFromProject();
+  lithofractionController_->loadLayersFromProject();  
 
   scenarioBackup::backup(casaScenario_);
   refreshGUI();

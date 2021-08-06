@@ -99,6 +99,11 @@ public:
     return "";
   }
 
+  bool hasDepthDefinedInAllLayers() const override
+  {
+    return true;
+  }
+
   QStringList mapNamesT2Z() const override
   {
     return {};

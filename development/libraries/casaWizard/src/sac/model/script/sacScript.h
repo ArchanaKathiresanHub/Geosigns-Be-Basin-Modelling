@@ -31,10 +31,12 @@ public:
   explicit SACScript(const SACScenario& scenario, const QString& baseDirectory, bool doOptimization = true);
   virtual ~SACScript() override = default;
 
-  const CasaScenario& scenario() const override;
-  bool prepareKill() const override;
+  const CasaScenario& scenario() const override;  
   QString scriptFilename() const override;
   QString workingDirectory() const override;
+
+protected:  
+  bool createStopExecFile() const override;
 
 private:
   const SACScenario& scenario_;

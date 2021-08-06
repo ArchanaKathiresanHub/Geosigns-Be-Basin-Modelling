@@ -21,10 +21,11 @@ public:
   virtual QString workingDirectory() const = 0;
   virtual QString relativeDirectory() const;
   bool generateCommands() override;
+  bool killAsync() const override;
   bool writeScript() const;
 
-protected:
-  bool createStopExecFile() const;
+protected:  
+  virtual bool createStopExecFile() const;
   QString writeApp(int numberOfCPUs, const QString& applicationName) const;
   QString writeBaseProject(const QString& project3dPath) const;
   QString writeRun(const QString& clusterName) const;
@@ -36,11 +37,14 @@ protected:
 
   QString mapWizardToCasaName(const QString& wizardName) const;
 
+  const QString stopExecFilename_{"stop_exec_scenario"};
+
 private:
   virtual void writeScriptContents(QFile& file) const = 0;
   virtual bool validateScenario() const = 0;
-  bool validateBaseScenario() const;
+  bool validateBaseScenario() const;  
   void removeStopExecFile() const;
+
 };
 
 } // namespace casaWizard

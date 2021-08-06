@@ -167,11 +167,13 @@ void T2Zcontroller::runDepthConversion()
     slot = SLOT(slotOutputFile());
   }
 
-  if (scriptRunController_.runScript(depthConversion, this, slot))
-  {    
-    Logger::log() << "Done!" << Logger::endl();
-    scenarioBackup::backup(casaScenario_);
+  if (!scriptRunController_.runScript(depthConversion, this, slot))
+  {
+    QDir(t2zDir_).removeRecursively();
+    return;
   }
+  Logger::log() << "Done!" << Logger::endl();
+  scenarioBackup::backup(casaScenario_);
 }
 
 void T2Zcontroller::slotOutputFile()

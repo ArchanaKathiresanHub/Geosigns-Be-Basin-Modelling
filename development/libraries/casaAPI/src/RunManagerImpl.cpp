@@ -385,6 +385,11 @@ bool RunManagerImpl::isAllDone() const
    return allDone;
 }
 
+bool RunManagerImpl::stopExecution() const
+{
+  return ibs::FilePath( std::string( "./" ) + RunManager::s_scenarioExecStopFileName ).exists();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Execute all scheduled cases. Very loooong cycle
 ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( int updateStateTimeInterval )
@@ -398,15 +403,16 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( int updateStateTimeI
 
       do
       {
-         if ( ibs::FilePath( std::string( "./" ) + RunManager::s_scenarioExecStopFileName ).exists() ) { return stopAllSubmittedJobs(); }
+         if ( stopExecution() ) { return stopAllSubmittedJobs(); }
 
          // loop over all cases
          for ( size_t i = 0; i < m_jobs.size(); ++i )
          {
+            if (stopExecution()) break;
             bool contAppPipeline = true;
 
             for ( size_t j = 0; j < m_jobs[i].size() && contAppPipeline; ++j )
-            {
+            {               
                JobScheduler::JobID job = m_jobs[i][j];
                JobScheduler::JobState jobState = m_jobSched->jobState( job );
 
@@ -517,9 +523,7 @@ ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterNam
 
 // in case of scenario execution aborted - kill all submitted not finished jobs
 ErrorHandler::ReturnCode RunManagerImpl::stopAllSubmittedJobs()
-{
-   ReturnCode ret = NoError;
-
+{   
    // loop over all cases
    for (    size_t i = 0; i < m_jobs.size(); ++i )
    {
@@ -539,8 +543,7 @@ ErrorHandler::ReturnCode RunManagerImpl::stopAllSubmittedJobs()
                case JobScheduler::JobPending:
                case JobScheduler::JobRunning:
                   m_jobSched->stopJob( m_jobs[i][j] );         // kill the job
-                  m_cases[i]->setRunStatus( RunCase::Failed ); // invalidate case
-                  ret = RunManagerAborted;
+                  m_cases[i]->setRunStatus( RunCase::Failed ); // invalidate case                  
                   break;
 
                default: break;
@@ -552,6 +555,10 @@ ErrorHandler::ReturnCode RunManagerImpl::stopAllSubmittedJobs()
          }
       }
    }
+
+   ReturnCode ret = RunManagerAborted;
+   reportError(ret, "CASA run manager aborted!");
+
    return ret;
 }
 

@@ -9,7 +9,9 @@
 #include "sacScript.h"
 
 #include "model/sacScenario.h"
+#include "model/logger.h"
 
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
@@ -42,14 +44,36 @@ QString SACScript::workingDirectory() const
   return QString(scenario_.workingDirectory());
 }
 
-bool SACScript::prepareKill() const
-{
-  return createStopExecFile();
-}
-
 bool SACScript::validateScenario() const
 {
   return true;
+}
+
+bool SACScript::createStopExecFile() const
+{
+  bool success = CasaScript::createStopExecFile();
+  if (success)
+  {
+    QDir dir(scenario_.calibrationDirectory() + QDir::separator() + scenario_.runLocation() + QDir::separator() + scenario_.iterationDirName());
+
+    for ( const QString& caseDir : dir.entryList(QDir::Filter::Dirs))
+    {
+      if (caseDir.left(4) != QString("Case"))
+      {
+        continue;
+      }
+
+      QFile stopExecFile{dir.path() + QDir::separator() + caseDir + QDir::separator() + stopExecFilename_};
+      if (!stopExecFile.open(QFile::OpenModeFlag::WriteOnly))
+      {
+        success = false;
+        Logger::log() << "Failed to create " << stopExecFilename_ << " in folder " << caseDir
+                      << "\n RunManager will not clean up running jobs" << Logger::endl();
+      }
+      stopExecFile.close();
+    }
+  }
+  return success;
 }
 
 void SACScript::writeScriptContents(QFile& file) const

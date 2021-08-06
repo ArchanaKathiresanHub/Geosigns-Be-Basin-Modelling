@@ -57,6 +57,9 @@ bool ScriptRunController::processCommand(const RunCommand& command)
 
 bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const char* slot, int timeout)
 {
+  script_ = &script;
+  processCancelled_ = false;
+
   QTimer timer;
   if (slot != nullptr)
   {
@@ -64,8 +67,6 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
     timer.start(timeout);
   }
 
-  processCancelled_ = false;
-  script_ = &script;
 
   if (!script.generateCommands())
   {
@@ -98,26 +99,26 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
     }
   }
   if (processCancelled_)
-  {
-    dialog_.reject();
+  {    
     Logger::log() << "Command pipeline interrupted" << Logger::endl();
   }
   else
   {
     dialog_.accept();
-    if (slot != nullptr)
-    {
-      timer.stop();
-      QMetaObject::invokeMethod(receiver, slot);
-    }
-
-    int elapsed = time.elapsed();
-    const int hours = elapsed/3600000; elapsed = elapsed % 3600000;
-    const int minutes = elapsed/60000; elapsed = elapsed % 60000;
-    const int seconds = elapsed/1000; elapsed = elapsed % 1000;
-    Logger::log() << "Elapsed time: " << hours <<"h:" << minutes <<"m:" << seconds <<"s:" << elapsed <<"ms" << Logger::endl();
-    Logger::log() << "Finished processing: " << time.currentTime().toString() << Logger::endl();
   }
+
+  if (slot != nullptr)
+  {
+    timer.stop();
+    QMetaObject::invokeMethod(receiver, slot);
+  }
+
+  int elapsed = time.elapsed();
+  const int hours = elapsed/3600000; elapsed = elapsed % 3600000;
+  const int minutes = elapsed/60000; elapsed = elapsed % 60000;
+  const int seconds = elapsed/1000; elapsed = elapsed % 1000;
+  Logger::log() << "Elapsed time: " << hours <<"h:" << minutes <<"m:" << seconds <<"s:" << elapsed <<"ms" << Logger::endl();
+  Logger::log() << "Finished processing: " << time.currentTime().toString() << Logger::endl();
 
   return !processCancelled_;
 }
@@ -131,10 +132,14 @@ void ScriptRunController::killProcess()
 {
   processCancelled_ = true;
   Logger::log() << "Preparing interruption ... "  << Logger::endl();
-  if (script_->prepareKill())
+  if (script_->killAsync())
+  {
+    Logger::log() << "Interrupting running process" << Logger::endl();
+  }
+  else
   {
     process_->terminate();
-    Logger::log() << "Interrupting running process" << Logger::endl();
+    Logger::log() << "Killed running process" << Logger::endl();
   }
 }
 

@@ -60,6 +60,7 @@ bool Run3dCaseController::run3dCase(const QString& directory, const bool isOptim
   if (!casaScriptWriter::writeCasaScript(cauldron) ||
       !scriptRunController_.runScript(cauldron))
   {
+    QDir(directory).removeRecursively();
     return false;
   }
 

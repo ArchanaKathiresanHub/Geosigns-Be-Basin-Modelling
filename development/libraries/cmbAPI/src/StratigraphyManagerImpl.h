@@ -232,6 +232,11 @@ namespace mbapi {
       /// return the depth grid name for the layer on success, empty string otherwise
       virtual std::string depthGridName(StratigraphyManager::LayerID id);
 
+      /// Get the scalar value of the depth grid
+      /// id layer id
+      /// return the depth scalar value for the layer on success, undefined otherwise
+      virtual double depthScalarValue(StratigraphyManager::LayerID id);
+
       /// Get the value of the measured twt at the top surface
       /// id layer id
       /// the measured twt value on success, UndefinedDoubleValue otherwise
@@ -241,7 +246,7 @@ namespace mbapi {
 	  /// @param[in] id Stratigraphic layer ID
 	  /// @param[out] DepoAge depositional age of the specified stratigraphic layer ID
 	  /// @return NoError on success or NonexistingID on error
-	  virtual ReturnCode getDepoAge(const LayerID id, double & DepoAge);
+	  virtual ReturnCode getDepoAge(const LayerID id, double & DepoAge);			
 
    private:
       static const char * s_stratigraphyTableName;
@@ -274,6 +279,7 @@ namespace mbapi {
       static const char * s_twoWayTimeFiledName;
       static const char * s_surfaceNameFieldName;
       static const char * s_depthGridFiledName;
+      static const char * s_depthScalarFiledName;
 
 
       database::ProjectFileHandlerPtr m_db;         // cauldron project database

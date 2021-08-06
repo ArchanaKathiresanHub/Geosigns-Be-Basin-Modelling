@@ -139,7 +139,8 @@ namespace casa
                            , ibs::FilePath       & scriptFile
                            , const int             iAppList
                            , JobScheduler::JobID & id
-                           );
+                            );
+      bool stopExecution() const;
    };
 }
 

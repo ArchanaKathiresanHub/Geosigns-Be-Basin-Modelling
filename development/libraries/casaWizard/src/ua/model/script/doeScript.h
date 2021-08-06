@@ -19,7 +19,6 @@ class DoEScript : public UAScript
 {
 public:
   explicit DoEScript(const UAScenario& scenario);
-  bool prepareKill() const override;
 
 private:
   void writeScriptContents(QFile& file) const override;

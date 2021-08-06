@@ -57,6 +57,7 @@ const char * StratigraphyManagerImpl::s_twoWayTimeTableName             = "TwoWa
 const char * StratigraphyManagerImpl::s_twoWayTimeGridFiledName         = "TwoWayTimeGrid";
 const char * StratigraphyManagerImpl::s_twoWayTimeFiledName             = "TwoWayTime";
 const char * StratigraphyManagerImpl::s_depthGridFiledName              = "DepthGrid";
+const char * StratigraphyManagerImpl::s_depthScalarFiledName            = "Depth";
 
 // Constructor
 StratigraphyManagerImpl::StratigraphyManagerImpl()
@@ -225,6 +226,32 @@ std::string StratigraphyManagerImpl::depthGridName( StratigraphyManager::LayerID
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
    return depthGridName;
+}
+
+// Get depth value for the given ID
+double StratigraphyManagerImpl::depthScalarValue( StratigraphyManager::LayerID id )
+{
+   double depthValue = Utilities::Numerical::IbsNoDataValue;
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_stratIoTbl )
+      {
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
+      }
+      depthValue = rec->getValue<double>( s_depthScalarFiledName );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return depthValue;
 }
 
 double StratigraphyManagerImpl::eldestLayerAge()

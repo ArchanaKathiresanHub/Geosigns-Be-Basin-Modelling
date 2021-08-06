@@ -31,6 +31,7 @@ public:
   virtual int lowestSurfaceWithTWTData() const = 0;
   virtual bool basementSurfaceHasTWT() const = 0;
   virtual bool hasTWTData(int surfaceID) const = 0;
+  virtual bool hasDepthDefinedInAllLayers() const = 0;
   virtual QString getDepthGridName(int surfaceID) const = 0;
   virtual QString getUnit(const QString& cauldronName) const = 0;
 

@@ -56,17 +56,15 @@ int CMBProjectReader::lowestSurfaceWithTWTData() const
     return DataAccess::Interface::DefaultUndefinedScalarIntValue;
   }
 
-  QStringList layers = layerNames();
-  std::vector<std::string> layerNames;
   mbapi::StratigraphyManager& stratigraphyManager = cmbModel_->stratigraphyManager();
-  const std::vector<mbapi::StratigraphyManager::SurfaceID> ids = stratigraphyManager.surfacesIDs();
+  const int nrSurfaces = stratigraphyManager.surfacesIDs().size();
 
-  // For-loop in opposite direction to start with lowest layer
-  for (int i = layers.size() - 1; i >= 0; i--)
+  // For-loop in opposite direction to start with lowest surface
+  for (int i = nrSurfaces - 1; i >= 0; i--)
   {
-    if ( hasTWTData(ids[i]) )
+    if ( hasTWTData(i) )
     {
-      return ids[i];
+      return i;
     }
   }
 
@@ -114,6 +112,24 @@ bool CMBProjectReader::basementSurfaceHasTWT() const
 
   const int basementSurfaceID = cmbModel_->stratigraphyManager().surfacesIDs().back();
   return lowestSurfaceWithTWTData() == basementSurfaceID;
+}
+
+bool CMBProjectReader::hasDepthDefinedInAllLayers() const
+{
+  if (!loaded_)
+  {
+    return false;
+  }
+
+  mbapi::StratigraphyManager& stratigraphyManager = cmbModel_->stratigraphyManager();
+  for (const mbapi::StratigraphyManager::LayerID id : stratigraphyManager.layersIDs() )
+  {
+    if (stratigraphyManager.depthGridName(id).empty() && IsValueUndefined(stratigraphyManager.depthScalarValue(id)))
+    {
+      return false;
+    }
+  }
+  return true;
 }
 
 QStringList CMBProjectReader::layerNames() const
