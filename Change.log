@@ -36,6 +36,13 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-08-06  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Implemented zycor export for optimized lithofraction and t2z maps.
+	================== COMMIT-END ========================
+	Commit-ID:<f52901b35b4c363e141aa48cd6379a544ea8de6e>	  (refs/heads/master)
+
+++
 2021-08-04  arijit.khan Khan  <arijit.khan@shell.com>
 
 	new: dev: usr: Gempis with SLURM and other improvements  !major.
