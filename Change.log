@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-08-06  Erik.vandenBoogaard  <Erik.vandenBoogaard@shell.com>
+
+	fix: Output and log fixes.
+	* Output and log fixes
+
+	* Related work items: #424209
+
+	================== COMMIT-END ========================
+	Commit-ID:<77baf62e5169933cd8616cb24f9e01c73fdd5bbf>	  (refs/heads/master)
+
+++
 2021-08-06  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Implemented zycor export for optimized lithofraction and t2z maps.
