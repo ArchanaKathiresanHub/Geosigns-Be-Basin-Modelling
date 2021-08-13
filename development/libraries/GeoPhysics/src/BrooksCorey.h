@@ -70,6 +70,7 @@ namespace GeoPhysics
 
       //HC relative permeability as function of brine saturation
       double kro(double Sw, double lambda);
+      static constexpr double defaultWaterSaturation = 0.3;
    };
 
 }

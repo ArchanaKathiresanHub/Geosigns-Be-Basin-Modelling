@@ -39,7 +39,7 @@ namespace migration
       void distribute (const Composition& gas, const Composition& oil, const double& T_K,
                        Composition& remainingGas, Composition& remainingOil, Composition& leakedGas,
                        Composition& wastedGas, Composition& spilledGas, Composition& leakedOil, Composition& spilledOil,
-                       double& finalGasLevel, double& finalHCLevel, const double brinePressure) const;
+                       double& finalGasLevel, double& finalHCLevel, const double brinePressure, const bool performAdvancedMigration) const override;
 
       bool leaking () const { return true; }
       bool wasting () const { return false; }

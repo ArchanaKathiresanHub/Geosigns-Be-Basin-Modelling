@@ -40,7 +40,7 @@
 // utilities library
 #include "ConstantsPhysics.h"
 #include "ConstantsMathematics.h"
-
+#include "ConstantsNumerical.h"
 #include "LogHandler.h"
 
 using namespace FiniteElementMethod;
@@ -449,7 +449,8 @@ namespace migration
 
    bool LocalFormationNode::isValid (void)
    {
-      return m_depth != Interface::DefaultUndefinedMapValue;
+       
+      return !NumericFunctions::isEqual(m_depth, Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance);
    }
 
    void LocalFormationNode::clearReservoirProperties (void)
@@ -540,7 +541,7 @@ namespace migration
       m_waterDensity = fluid->density (m_temperature, m_pressure);
    }
 
-   bool LocalFormationNode::performAdvancedMigration (void)
+   bool LocalFormationNode::performAdvancedMigration (void) const
    {
       return getFormation ()->performAdvancedMigration ();
    }
@@ -895,24 +896,27 @@ namespace migration
    //
    // Calculate the pressure contrast between the seal and the reservoir formation, including the capillary pressure and the overpressure
    //
-   double LocalFormationNode::getPressureContrast( const LocalFormationNode * topNode, const PhaseId phase, const bool pressureRun ) const
+   double LocalFormationNode::getPressureContrast( const LocalFormationNode * topNode, const PhaseId phase, const bool pressureRun) const
    {
       double capillaryPressureContrast;
       // correction factor for capillary pressure in the reservoir: assume 30% water saturation
       double lambdaPC = m_formation->getCompoundLithology( getI( ), getJ( ) )->LambdaPc( );
-      // If the project file does not contain values for Lambda_Pc assign an 'avarage' value of 1.
-      if ( lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue )
-         lambdaPC = 1.0;
+      // If the project file does not contain values for Lambda_Pc assign an 'average' value of 1.
+      if (NumericFunctions::isEqual(lambdaPC, Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance) or
+          NumericFunctions::isEqual(lambdaPC, Interface::DefaultUndefinedScalarValue, Utilities::Numerical::DefaultNumericalTolerance)
+          ) {
+          lambdaPC = 1.0;
+      }
 
       GeoPhysics::BrooksCorey brooksCorey;
-      double resCorr = brooksCorey.computeBrooksCoreyCorrection( 0.3, lambdaPC );
-
-      // calculate overpressure difference
-      double dOverPressure;
-      if ( pressureRun )
-         dOverPressure = (topNode->m_overPressure - m_overPressure) * Utilities::Maths::MegaPaToPa;
-      else
-         dOverPressure = 0.0;
+      double resCorr = 0.0;
+	  // calculate overpressure difference
+      double dOverPressure = 0.0;
+      if (performAdvancedMigration()) {		  
+		  resCorr = brooksCorey.computeBrooksCoreyCorrection(GeoPhysics::BrooksCorey::defaultWaterSaturation, lambdaPC);
+		  if (pressureRun)
+			  dOverPressure = (topNode->m_overPressure - m_overPressure) * Utilities::Maths::MegaPaToPa;
+      }
 
       if ( phase == GAS )
       {
@@ -921,7 +925,7 @@ namespace migration
          double capillaryEntryPressureVapour = ( getK() == (getFormation()->getMaximumNumberOfElements() - 1) ) ?
             m_capillaryEntryPressureVapour[1] : m_topFormationNode->m_capillaryEntryPressureVapour[0];
 
-         // calculate actual capillary sealing pressure for vapour
+         // calculate actual capillary sealing pressure for vapor
          capillaryPressureContrast = topNode->m_capillaryEntryPressureVapour[0] - capillaryEntryPressureVapour * resCorr;
       }
       else
@@ -1128,8 +1132,10 @@ namespace migration
 #else
       capPressureGrad = getFiniteElementGrad (CAPILLARYENTRYPRESSURELIQUIDPROPERTY);
 #endif
-
-      if (!performHDynamicAndCapillary () or capPressureGrad (1) == Interface::DefaultUndefinedMapValue)
+      
+      if (!performHDynamicAndCapillary () or 
+          NumericFunctions::isEqual(capPressureGrad(1), Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance)
+          )
       {
          ThreeVector vertical;
 
@@ -1386,8 +1392,9 @@ namespace migration
             // Can also be seen as the vertex/edge or face of the neighbour
             // of the neighbour if we keep on moving in the same direction.
             double neighbourNeighbourDepth = m_formation->getFiniteElementValue (iNeighbour, jNeighbour, kNeighbour, iQP, jQP, kQP, DEPTHPROPERTY);
-            if (neighbourNeighbourDepth == Interface::DefaultUndefinedMapValue) continue;
-
+            if (NumericFunctions::isEqual(neighbourNeighbourDepth, Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance)) 
+                continue;
+            
             // diagonals are not always diagonals
             double diagonalSquared = (Abs (NeighbourOffsets3D[di][0]) * dxSquare +
                Abs (NeighbourOffsets3D[di][1]) * dySquare + Square (neighbourDepth - myDepth));
@@ -2027,7 +2034,11 @@ namespace migration
 
       for (oi = 0; oi < NumberOfNodeCorners; ++oi)
       {
-         if (m_finiteElementsDepths[oi] == Interface::DefaultUndefinedMapValue) returnValue = false;
+          
+          if (NumericFunctions::isEqual(m_finiteElementsDepths[oi], Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance)) {
+              returnValue = false;
+          }
+
          finiteElement.setGeometryPoint (oi + 1, NodeCornerOffsets[oi][0] * dx, NodeCornerOffsets[oi][1] * dy, m_finiteElementsDepths[oi]);
       }
       finiteElement.setQuadraturePoint (0.0, 0.0, 0.0, computeJacobianInverse, computeGradBasis);
@@ -2058,8 +2069,8 @@ namespace migration
       for (oi = 0; oi < NumberOfNodeCorners; ++oi)
       {
          double propertyValue = m_formation->getPropertyValue (propertyIndex, getI () + NodeCornerOffsets[oi][0], getJ () + NodeCornerOffsets[oi][1], getK () + NodeCornerOffsets[oi][2]);
-
-         if (propertyValue == Interface::DefaultUndefinedMapValue)
+         
+         if (NumericFunctions::isEqual(propertyValue, Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance))
          {
             // undefined node
             return Interface::DefaultUndefinedMapValue;
@@ -2084,7 +2095,7 @@ namespace migration
             getI () + NodeCornerOffsets[oi][0],
             getJ () + NodeCornerOffsets[oi][1],
             getK () + NodeCornerOffsets[oi][2]);
-         if (propertyValue == Interface::DefaultUndefinedMapValue)
+         if (NumericFunctions::isEqual(propertyValue, Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance))
          {
             // undefined node
             ThreeVector res;

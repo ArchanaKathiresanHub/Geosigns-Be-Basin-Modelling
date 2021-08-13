@@ -200,7 +200,7 @@ namespace migration
       virtual bool isValid (void);
 
       /// @brief Whether to use the advanced mode of the BPA2 engine
-      bool performAdvancedMigration (void);
+      bool performAdvancedMigration (void) const;
       /// @brief Whether to account for pore-pressure and capillary-pressure gradients in flow-pathy calculation
       bool performHDynamicAndCapillary (void);
       /// @return The value of blocking porosity

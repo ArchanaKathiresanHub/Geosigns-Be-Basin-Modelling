@@ -97,10 +97,11 @@ namespace migration
       setLevelToVolume (0);
    }
 
+   // called from Trap::distributeCharges
    void LeakWasteAndSpillDistributor::distribute (const Composition& gas, const Composition& oil, const double& T_K,
                                                   Composition& remainingGas, Composition& remainingOil, Composition& leakedGas,
                                                   Composition& wastedGas, Composition& spilledGas, Composition& leakedOil, Composition& spilledOil,
-                                                  double& finalGasLevel, double& finalHCLevel, const double brinePressure) const
+                                                  double& finalGasLevel, double& finalHCLevel, const double brinePressure, const bool performAdvancedMigration) const
    {
       assert (gas.getWeight () >= 0.0);
       assert (oil.getWeight () >= 0.0);
@@ -120,7 +121,7 @@ namespace migration
       trapComposition[1] = oil;
 
       if (leaking() && (gasVolume > 0.0 or oilVolume > 0.0))
-         m_capSealStrength.compute(trapComposition, gorm, T_K, brinePressure, capSealStrength_H2O_Gas, capSealStrength_H2O_Oil);
+         m_capSealStrength.compute(trapComposition, gorm, T_K, brinePressure, capSealStrength_H2O_Gas, capSealStrength_H2O_Oil, performAdvancedMigration);
 
       double gasVolumeLeaked = 0.0;
       double gasVolumeSpilled = 0.0;

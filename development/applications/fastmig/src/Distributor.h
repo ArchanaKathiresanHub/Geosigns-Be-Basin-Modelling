@@ -34,7 +34,7 @@ namespace migration {
                               Composition& leakedGas, Composition& wastedGas, Composition& spilledGas, 
                               Composition& leakedOil, Composition& spilledOil,
                               double& finalGasLevel, double& finalHCLevel,
-                              const double brinePressure) const = 0;
+                              const double brinePressure, const bool performAdvancedMigration) const = 0;
 
       virtual bool leaking() const = 0;
       virtual bool wasting() const = 0;

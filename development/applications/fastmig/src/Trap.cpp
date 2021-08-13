@@ -36,6 +36,8 @@
 #include "LeakAllGasAndOilDistributor.h"
 #include "SpillAllGasAndOilDistributor.h"
 #include "utils.h"
+#include "ConstantsNumerical.h"
+#include "NumericFunctions.h"
 
 // std library
 #include <assert.h>
@@ -122,7 +124,7 @@ namespace migration
       m_spilling = false;
 
 #ifdef DETAILED_MASS_BALANCE
-      string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle()->getName());
+      string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle().getName());
       filename += "_MassBalance";
       ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
@@ -134,7 +136,7 @@ namespace migration
 #endif
 
 #ifdef DETAILED_VOLUME_BALANCE
-      string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle()->getName());
+      string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle().getName());
       filename += "_VolumeBalance";
       ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
@@ -1629,19 +1631,19 @@ namespace migration
             bool validBaseDepth = (*d).base().valid();
             double compTopDepth = 0.0;
             if (validTopDepth)
-               compTopDepth = (*d).top()[functions::tuple(i,j)];
+               compTopDepth = (*d).top()[functions::Tuple2<unsigned int>(i,j)];
             double compBaseDepth = 0.0;
             if (validBaseDepth)
-               compBaseDepth = (*d).base()[functions::tuple(i,j)];
+               compBaseDepth = (*d).base()[functions::Tuple2<unsigned int>(i,j)];
 
             bool validTopPorosity = (*p).top().valid();
             bool validBasePorosity = (*p).base().valid();
             double compTopPorosity = 0.0;
             if (validTopPorosity)
-               compTopPorosity = (*p).top()[functions::tuple(i,j)];
+               compTopPorosity = (*p).top()[functions::Tuple2<unsigned int>(i,j)];
             double compBasePorosity = 0.0;
             if (validBasePorosity)
-               compBasePorosity = (*p).base()[functions::tuple(i,j)];
+               compBasePorosity = (*p).base()[functions::Tuple2<unsigned int>(i,j)];
 
             double snapshotAge = snapshot->getTime();
 #endif
@@ -1799,7 +1801,7 @@ namespace migration
       vector<DiffusionLeak*> diffusionLeaks;
       diffusionLeaks.reserve (size);
 
-      ///Retrive a pointer to the m_penetrationDistances vector from the previous snapshot
+      ///Retrieve a pointer to the m_penetrationDistances vector from the previous snapshot
       const double * oldPenetrationDistance = getCrestColumn ()->getPenetrationDistances ();
 
       setDiffusionStartTime (diffusionStartTime);
@@ -1864,7 +1866,7 @@ namespace migration
       m_massBalance->subtractFromBalance("diffusion leaked", m_diffusionLeaked[GAS].getWeight());
 #endif
 
-#ifdef DETAILED_MASS_BALANCE
+#ifdef DETAILED_VOLUME_BALANCE
       m_volumeBalance->subtractFromBalance("diffusion leaked", m_diffusionLeaked[GAS].getVolume());
 #endif
       // delete diffusionLeak objects pointed in diffusionLeaks vector
@@ -1877,7 +1879,7 @@ namespace migration
                                              const Snapshot* snapshot)
    {
       delete m_distributor;
-      m_distributor = 0;
+      m_distributor = nullptr;
 
       // Calculate the following overburden parameters:
       bool sealPresent;
@@ -1909,7 +1911,7 @@ namespace migration
             // The fracture seal strength is provided by the fracturePressure minus the pressure:
             double porePressure = getPressure ();
             double fracSealStrength = fracPressure - porePressure / PaToMegaPa;
-#if 0
+#ifdef DEBUG_TRAP2
             cerr << "trap = " << this << endl;
             cerr << "porePressure = " << porePressure / PaToMegaPa << endl;
             cerr << "fracPressure = " << fracPressure << endl;
@@ -1917,7 +1919,7 @@ namespace migration
 #endif
             if (fracSealStrength < 0) fracSealStrength = 0;
 
-#ifdef DEBUG
+#ifdef DEBUG_TRAP2
             if (GetRank () == 0)
             {
                cerr << "fracPressure = " << fracPressure <<
@@ -1934,7 +1936,7 @@ namespace migration
             strstream2 << "seal fluid density: " << sealFluidDensity << endl;
             m_massBalance->addComment(strstream2.str());
             ostringstream strstream3;
-            strstream2 << "permeability: " << permeability << endl;
+            strstream2 << "permeability: " << permeability[0] << endl;
             m_massBalance->addComment(strstream3.str());
 #endif
 
@@ -1946,7 +1948,7 @@ namespace migration
             strstream2 << "seal fluid density: " << sealFluidDensity << endl;
             m_volumeBalance->addComment(strstream2.str());
             ostringstream strstream3;
-            strstream2 << "permeability: " << permeability << endl;
+            strstream2 << "permeability: " << permeability[0] << endl;
             m_volumeBalance->addComment(strstream3.str());
 #endif
 
@@ -1957,16 +1959,18 @@ namespace migration
             // object the parameters which we already do know. The MigrationCapillarySealStrength then calculates
             // the capillary seal strength at the moment the missing data becomes available.
 
-            // to compute leakage you need to compute the Brooks Corey correction. Retrive the lambda at the crest location and pass it to the distributor
+            // to compute leakage you need to compute the Brooks Corey correction. Retrieve the lambda at the crest location and pass it to the distributor
             double lambdaPC = Interface::DefaultUndefinedScalarValue;
 
             const MigrationFormation * formation = dynamic_cast<const MigrationFormation *> ( getReservoir( )->getFormation( ) );
             const GeoPhysics::CompoundLithology* compoundLithology = formation->getCompoundLithology( getCrestColumn( )->getI( ), getCrestColumn( )->getJ( ) );
             if ( compoundLithology ) lambdaPC = compoundLithology->LambdaPc( );
-
-            // If the project file does not contain values for Lambda_Pc assign an 'avarage' value of 1.
-            if ( lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue )
-               lambdaPC = 1.0;
+			// If the project file does not contain values for Lambda_Pc assign an 'average' value of 1.
+			if (NumericFunctions::isEqual(lambdaPC, Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance) or
+				NumericFunctions::isEqual(lambdaPC, Interface::DefaultUndefinedScalarValue, Utilities::Numerical::DefaultNumericalTolerance)
+				) {
+				lambdaPC = 1.0;
+			}
 
             double overPressureContrast = 0.0;
             bool overpressuredLeakage = m_reservoir->getMigrator()->isOverpressuredLeakageOn();
@@ -2110,11 +2114,11 @@ namespace migration
             double compTopFormationDepth = 0.0;
 
             if (validTop)
-               compTopFormationDepth = (*d).top ()[functions::tuple (i, j)];
+               compTopFormationDepth = (*d).top ()[functions::Tuple2<unsigned int> (i, j)];
             double compBaseFormationDepth = 0.0;
 
             if (validBase)
-               compBaseFormationDepth = (*d).base ()[functions::tuple (i, j)];
+               compBaseFormationDepth = (*d).base ()[functions::Tuple2<unsigned int> (i, j)];
             double compTopDepth = getTopDepth ();
             string name = (*f)->getName ();
             double snapshotAge = snapshot->getTime ();
@@ -2259,7 +2263,7 @@ namespace migration
       return true;
    }
 
-   bool Trap::distributeCharges (void)
+   bool Trap::distributeCharges (const bool performAdvancedMigration)
    {
       // requiresDistribution () won't work as it also looks at the crest column,
       // which is not required/advisable as it is not used further on.
@@ -2278,7 +2282,7 @@ namespace migration
 
       assert (m_distributor);
 
-#if 0
+#ifdef DEBUG_TRAP2
       cerrstrstr << GetRankString () << ": " << this << "::distributeCharges ("
                  << m_toBeDistributed[GAS].getWeight () << ", " << m_toBeDistributed[OIL].getWeight () << ")" << endl;
 #endif
@@ -2310,9 +2314,9 @@ namespace migration
 
       m_distributor->distribute (m_toBeDistributed[GAS], m_toBeDistributed[OIL],
                                  getTemperature () + CelciusToKelvin, m_distributed[GAS], m_distributed[OIL], gasLeaked, gasWasted,
-                                 gasSpilled, oilLeaked, oilSpilledOrWasted, finalGasLevel, finalHCLevel, crestPressure);
+                                 gasSpilled, oilLeaked, oilSpilledOrWasted, finalGasLevel, finalHCLevel, crestPressure, performAdvancedMigration);
 
-      // If after distribution the weights of the vapour and the liquid phases are equal to the input weights
+      // If after distribution the weights of the vapor and the liquid phases are equal to the input weights
       // down to a billionth, then whatever processes took place are insignificant, and are ignored. In this way,
       // the possibility for hangs in fillAndSpill due to minute amounts of leakage, spillage and wasting
       // being calculated is eliminated.
@@ -2337,9 +2341,14 @@ namespace migration
       m_massBalance->subtractFromBalance("gas remaining", m_distributed[GAS].getWeight());
       m_massBalance->subtractFromBalance("oil remaining", m_distributed[OIL].getWeight());
 
-      m_massBalance->printBalance();
+      
 
-      assert(fabs(m_massBalance->balance()) < 10.0);
+      if (!(fabs(m_massBalance->balance()) < 10.0)) {
+		  ostringstream strstream2; strstream2 << "BALANCE is Non-Zero: \t MassBalance::m_massBalance = " << m_massBalance->balance() << endl;
+		  m_massBalance->addComment(strstream2.str());
+      }
+          
+      m_massBalance->printBalance();
 #endif
 
 #ifdef DETAILED_VOLUME_BALANCE
@@ -3146,7 +3155,7 @@ namespace migration
       }
    }
 
-   void Trap::collectProperties (TrapPropertiesRequest & tpRequest)
+   void Trap::collectProperties (TrapPropertiesRequest & tpRequest, const bool performAdvancedMigration)
    {
       tpRequest.i = getI ();
       tpRequest.j = getJ ();
@@ -3210,7 +3219,7 @@ namespace migration
          if (leakDistributor && m_distributed[phase].getWeight () > 0.0)
          {
             leakDistributor->capillarySealStrength().compute(trapComposition, gorm, getTemperature() + CelciusToKelvin, crestPressure,
-                                                             capSealStrength_H2O_Gas, capSealStrength_H2O_Oil);
+                                                             capSealStrength_H2O_Gas, capSealStrength_H2O_Oil, performAdvancedMigration);
 
             if ( phase == GAS && capSealStrength_H2O_Gas != numeric_limits<double>::max ())
                tpRequest.cep[phase] = PaToMegaPa * capSealStrength_H2O_Gas;
@@ -3233,7 +3242,7 @@ namespace migration
    }
 
    /// not used
-   bool Trap::saveProperties (void)
+   bool Trap::saveProperties (const bool performAdvancedMigration)
    {
       if (isUndersized ())
       {
@@ -3250,7 +3259,7 @@ namespace migration
          TrapPropertiesRequest tpRequest;
 
          tpRequest.valueSpec = SAVETRAPPROPERTIES;
-         collectProperties (tpRequest);
+         collectProperties (tpRequest, performAdvancedMigration);
 
          RequestHandling::SendRequest (tpRequest);
 

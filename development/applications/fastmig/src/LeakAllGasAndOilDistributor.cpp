@@ -22,7 +22,7 @@ namespace migration
    void LeakAllGasAndOilDistributor::distribute (const Composition& gas, const Composition& oil, const double& T_K,
                                                  Composition& remainingGas, Composition& remainingOil, Composition& leakedGas,
                                                  Composition& wastedGas, Composition& spilledGas, Composition& leakedOil, Composition& spilledOil,
-                                                 double& finalGasLevel, double& finalHCLevel, const double brinePressure) const
+                                                 double& finalGasLevel, double& finalHCLevel, const double brinePressure, const bool performAdvancedMigration) const
    {
       // Copy the volumes to the output Compositions:
       remainingGas = gas; leakedGas = gas; wastedGas = gas; spilledGas = gas;

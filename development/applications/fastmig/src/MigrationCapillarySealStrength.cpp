@@ -31,13 +31,13 @@ namespace migration {
       m_lambdaPC( lamdaPC )
    {}
 
-   //compute corrected capillary pressure for gas
+   //compute corrected capillary pressure for gas 
+   // call from LeakWasteAndSpillDistributor::distribute or SpillAllGasAndOilDistributor::distributr or LeakAllGasAndOilDistributor::distribute
    void MigrationCapillarySealStrength::compute(const std::vector<Composition> & composition, const double gorm, const double T_K, const double brinePressure,
-                                       double& capSealStrength_H2O_Gas, double& capSealStrength_H2O_Oil) const
+                                       double& capSealStrength_H2O_Gas, double& capSealStrength_H2O_Oil, const bool performAdvancedMigration) const
    {
       capSealStrength_H2O_Gas = 0.0;
       capSealStrength_H2O_Oil = 0.0;
-
 
       if ( m_permeability.size() == 2 ) //both reservoir and seal formations are defined
       {
@@ -47,8 +47,11 @@ namespace migration {
          double capSealStrength_gas_seal = 0.0;
 
          // compute the Brooks Corey correction in the reservoir
+		 double resCorr = 0.0;
          GeoPhysics::BrooksCorey brooksCorey;
-         double resCorr = brooksCorey.computeBrooksCoreyCorrection(0.3, m_lambdaPC);
+		 if (performAdvancedMigration) {
+			 resCorr = brooksCorey.computeBrooksCoreyCorrection(GeoPhysics::BrooksCorey::defaultWaterSaturation, m_lambdaPC);
+		 }
 
          if ( composition[1].getWeight() > 0.0 ) // oil is present?-> oil is the wetting phase for gas
          {

@@ -83,7 +83,7 @@ int main(int argc, char** argv)
    }
    catch ( ... )
    {
-      LogHandler( LogHandler::FATAL_SEVERITY ) << "Unknown exception occured.\n";
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "Unknown exception occurred.\n";
       return 1;
    }
 

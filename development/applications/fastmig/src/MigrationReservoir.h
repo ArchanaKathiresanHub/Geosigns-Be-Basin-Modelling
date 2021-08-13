@@ -11,9 +11,6 @@
 #ifndef _MIGRATION_RESERVOIR_H_
 #define _MIGRATION_RESERVOIR_H_
 
-// Use this to expose 'large' but unfilled trap
-// structures that would otherwise be obscured.
-#define MERGEUNDERSIZEDTRAPSAPRIORI 1
 
 #include "RequestDefs.h"
 #include "migration.h"
@@ -312,12 +309,12 @@ namespace migration
       /// Reservoir Charge
 
       bool distributionHasFinished (void);
-      bool distributeCharges (bool always = false);
+      bool distributeCharges (const bool performAdvancedMigration, bool alwaysDistribute = false);
       void reportLeakages (void);
       bool computeDistributionParameters (void);
       double biodegradeCharges (void);
 
-      // Pasteurization functions. They must be exectuted in the following order:
+      // Pasteurization functions. They must be executed in the following order:
       bool computeHydrocarbonWaterContactDepth (void);
       bool computeHydrocarbonWaterTemperature (void);
       bool needToComputePasteurizationStatusFromScratch(void);

@@ -2773,8 +2773,8 @@ namespace migration
       do
       {
          collectAndSplitCharges ();
-         distributeCharges ();
-
+         distributeCharges (m_migrator->performAdvancedMigration());
+         
          mergeSpillingTraps ();
          processMigrationRequests ();
 
@@ -2816,7 +2816,7 @@ namespace migration
          do
          {
             collectAndSplitCharges (flashCharges);
-            distributeCharges (flashCharges);
+            distributeCharges (m_migrator->performAdvancedMigration(), flashCharges);
 
             mergeSpillingTraps ();
             processMigrationRequests ();
@@ -3086,7 +3086,7 @@ namespace migration
       return true;
    }
 
-   bool MigrationReservoir::distributeCharges (bool always)
+   bool MigrationReservoir::distributeCharges (bool isAdvanceMigration, bool always)
    {
       bool distributionFinished = true;
       RequestHandling::StartRequestHandling (m_migrator, "distributeCharges");
@@ -3096,7 +3096,7 @@ namespace migration
          if (always and !(*trapIter)->biodegradationOccurred () and !(*trapIter)->diffusionLeakageOccurred ())
             continue;
          else
-            distributionFinished &= (*trapIter)->distributeCharges ();
+            distributionFinished &= (*trapIter)->distributeCharges (isAdvanceMigration);
       }
       RequestHandling::FinishRequestHandling ();
 
@@ -3621,7 +3621,7 @@ namespace migration
       {
          assert (i < maxNumberOfRequests);
          Trap * trap = *trapIter;
-         trap->collectProperties (tpRequests[i]);
+         trap->collectProperties (tpRequests[i], m_migrator->performAdvancedMigration());
          ++i;
       }
 

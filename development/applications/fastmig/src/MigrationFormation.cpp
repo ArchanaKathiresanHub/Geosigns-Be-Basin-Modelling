@@ -381,11 +381,13 @@ namespace migration
    // DELETE WHEN CERTAIN IT'S NOT NEEDED ANYMORE
    bool MigrationFormation::removeComputedPropertyMaps (void)
    {
-      /*for (unsigned int i = 0; i < NUMBEROFPROPERTYINDICES; ++i)
+#if 0
+      for (unsigned int i = 0; i < NUMBEROFPROPERTYINDICES; ++i)
       {
       delete m_gridMaps[i];
       m_gridMaps[i] = 0;
-      }*/
+      }
+#endif
       return true;
    }
 
@@ -441,9 +443,10 @@ namespace migration
             {
                double temperature = m_formationPropertyPtr[TEMPERATUREPROPERTY]->get (i, j, k);
                double pressure = m_formationPropertyPtr[PRESSUREPROPERTY]->get (i, j, k);
-
-               if (temperature != Interface::DefaultUndefinedMapValue and
-                  pressure != Interface::DefaultUndefinedMapValue)
+               
+               if (NumericFunctions::isEqual(temperature, Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance) and
+                   NumericFunctions::isEqual(pressure, Interface::DefaultUndefinedMapValue, Utilities::Numerical::DefaultNumericalTolerance)
+                   )
                {
                   bool flashSuccess = pvtFlash::EosPack::getInstance ().computeWithLumping (temperature + CelciusToKelvin, pressure * MegaPaToPa,
                                                                                             compMasses, phaseCompMasses, phaseDensity, phaseViscosity);
@@ -601,9 +604,11 @@ namespace migration
          // Array has first value at the bottom and second at the top of the formation
          overPressures[0] = m_formationPropertyPtr[OVERPRESSUREPROPERTY]->get (i, j, 0);
          overPressures[1] = m_formationPropertyPtr[OVERPRESSUREPROPERTY]->get (i, j, k);
-
-         if (overPressures[0] == m_formationPropertyPtr[OVERPRESSUREPROPERTY]->getUndefinedValue() or
-             overPressures[1] == m_formationPropertyPtr[OVERPRESSUREPROPERTY]->getUndefinedValue())
+         
+         if (NumericFunctions::isEqual(overPressures[0], m_formationPropertyPtr[OVERPRESSUREPROPERTY]->getUndefinedValue(), Utilities::Numerical::DefaultNumericalTolerance)
+             or
+             NumericFunctions::isEqual(overPressures[1], m_formationPropertyPtr[OVERPRESSUREPROPERTY]->getUndefinedValue(), Utilities::Numerical::DefaultNumericalTolerance)
+             )
          {
             overPressures[0] = 0.0;
             overPressures[1] = 0.0;
@@ -650,11 +655,14 @@ namespace migration
    {
       const double nodeDepth = getPropertyValue (DEPTHPROPERTY, formationNode->getI (), formationNode->getJ (), formationNode->getK () + 1);
       const double neighbourDepth = getPropertyValue (DEPTHPROPERTY, neighbourI, neighbourJ, formationNode->getK () + 1);
-
-      if (neighbourDepth == m_formationPropertyPtr[DEPTHPROPERTY]->getUndefinedValue() or neighbourDepth < nodeDepth)
+      
+      if (NumericFunctions::isEqual(neighbourDepth, m_formationPropertyPtr[DEPTHPROPERTY]->getUndefinedValue(), Utilities::Numerical::DefaultNumericalTolerance)
+          or
+          neighbourDepth < nodeDepth
+          )
          return false;
-
-      if (neighbourDepth == nodeDepth)
+      
+      if (NumericFunctions::isEqual(neighbourDepth, nodeDepth, Utilities::Numerical::DefaultNumericalTolerance))
       {
          if (formationNode->getI () + formationNode->getJ () > neighbourI + neighbourJ) return true;
          if (formationNode->getI () + formationNode->getJ () < neighbourI + neighbourJ) return false;

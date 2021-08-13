@@ -26,8 +26,11 @@ set_target_properties( ${APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${APP_NAME}
 
 create_application_run_script( ${APP_NAME} )
 
+## uncomment the next line if you want more Dugug info for a Debug Build ##
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDETAILED_MASS_BALANCE -DDEBUG_TRAP -DDEBUG_LEAKWASTEANDSPILLDISTRIBUTOR")
+
 application_env_var( TARGET ${APP_NAME} VARS
-     "GENEXDIR"    "$MISCDIR/genex40"
+     "GENEX6DIR"    "$MISCDIR/genex60"
      "GENEX5DIR"   "$MISCDIR/genex50"
      "OTGCDIR"     "$MISCDIR/OTGC"
      "CTCDIR"      "$MISCDIR"
@@ -35,6 +38,9 @@ application_env_var( TARGET ${APP_NAME} VARS
 )
 
 add_definitions(-DUSEOTGC)
+# Use this to expose 'large' but unfilled trap
+# structures that would otherwise be obscured.
+add_definitions(-DMERGEUNDERSIZEDTRAPSAPRIORI)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/libraries
@@ -103,6 +109,13 @@ add_gtest( NAME "Fastmig::Biodegrade"
 
 add_gtest( NAME "Fastmig::CapillarySealStrength"
    SOURCES test/CapillarySealStrength.cpp src/MigrationCapillarySealStrength.cpp src/Composition.cpp src/Biodegrade.cpp src/DiffusionLeak.cpp src/DiffusionCoefficient.cpp
+   LIBRARIES DataAccess DistributedDataAccess CBMGenerics EosPack GeoPhysics functions DerivedProperties
+   ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
+)
+
+add_gtest( NAME "Fastmig::CapillarySealStrengthBasicMode"
+   SOURCES test/CapillarySealStrengthBasicMode.cpp src/MigrationCapillarySealStrength.cpp src/Composition.cpp src/Biodegrade.cpp src/DiffusionLeak.cpp src/DiffusionCoefficient.cpp
    LIBRARIES DataAccess DistributedDataAccess CBMGenerics EosPack GeoPhysics functions DerivedProperties
    ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
    FOLDER "${BASE_FOLDER}/${APP_NAME}"

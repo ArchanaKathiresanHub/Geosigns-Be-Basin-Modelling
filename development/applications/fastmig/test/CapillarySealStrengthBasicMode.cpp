@@ -16,9 +16,11 @@
 
 using namespace migration;
 
+constexpr bool IsAdvancedMode = false;
+
 // This test makes sure that for a wide range of seal permeabilities (always smaller than in the reservoir),
 // the resulting capillary strength (i.e. \Delta P_c) is positive, for a simplistic composition and some
-// standard choices for values of tempreature and pressure.
+// standard choices for values of temperature and pressure.
 TEST(CapillarySealStrength, PositiveStrength)
 {
    // Litho properties
@@ -59,7 +61,7 @@ TEST(CapillarySealStrength, PositiveStrength)
    {
       // Permeabilities
       double permeability_res  = 1.0;
-      // Permeability: [1e-9,1e-3]
+      // Permeability: [1e-9,1e-3], very tight Seal
       double permeability_seal = 1e-9 * (double) i * (double) i * (double) i;
 
       std::vector<double> permeabilities;
@@ -75,7 +77,7 @@ TEST(CapillarySealStrength, PositiveStrength)
       // Put all the above parameters together
       MigrationCapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
-      // Create the vapour and liquid compositions
+      // Create the vapor and liquid compositions
       Composition vapourComposition;
       Composition liquidComposition;
 
@@ -96,110 +98,32 @@ TEST(CapillarySealStrength, PositiveStrength)
       double temperature = 100.0 + Utilities::Maths::CelciusToKelvin;
       double pressure    = 20.0; // MPa
 
-      // CapillarySealStrength for vapour and liquid
+      // CapillarySealStrength for vapor and liquid
       double CapSealStrengthVapour, CapSealStrengthLiquid;
 
       // 1st round k_seal = 10^-9 mD
 
       // Where the magic happens
-      capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, true);
-
+      capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, IsAdvancedMode);
+      
       EXPECT_GT(CapSealStrengthVapour, 0.0);
       EXPECT_GT(CapSealStrengthLiquid, 0.0);
-}
-}
 
-
-// This test complements the first one, by setting relatively high permeability values in the seal.
-// As a result the capSealStrength calculation returns negative values which are then set to 0 by default.
-TEST(CapillarySealStrength, ZeroStrength)
-{
-   // Litho properties
-   CBMGenerics::capillarySealStrength::LithoProp lithoProp_res1  (1.0, 0.33, 0.2611);
-   CBMGenerics::capillarySealStrength::LithoProp lithoProp_seal1 (1e-5, 0.33, 0.2611);
-
-   std::vector<translateProps::CreateCapillaryLithoProp::output> lithoProp_res;
-   lithoProp_res.push_back(lithoProp_res1);
-   std::vector<translateProps::CreateCapillaryLithoProp::output> lithoProp_seal;
-   lithoProp_seal.push_back(lithoProp_seal1);
-
-   std::vector< std::vector<translateProps::CreateCapillaryLithoProp::output> > lithoProps;
-   lithoProps.push_back(lithoProp_res);
-   lithoProps.push_back(lithoProp_seal);
-
-   // Litho fractions
-   double lithFrac_res1  = 1.0;
-   double lithFrac_seal1 = 1.0;
-
-   std::vector<double> lithFrac_res;
-   lithFrac_res.push_back(lithFrac_res1);
-   std::vector<double> lithFrac_seal;
-   lithFrac_seal.push_back(lithFrac_seal1);
-
-   std::vector< std::vector<double> > lithFracs;
-   lithFracs.push_back(lithFrac_res);
-   lithFracs.push_back(lithFrac_seal);
-
-   // Mix models
-   CBMGenerics::capillarySealStrength::MixModel mixModel_res  = CBMGenerics::capillarySealStrength::Homogeneous;
-   CBMGenerics::capillarySealStrength::MixModel mixModel_seal = CBMGenerics::capillarySealStrength::Homogeneous;
-
-   std::vector<CBMGenerics::capillarySealStrength::MixModel> mixModels;
-   mixModels.push_back(mixModel_res);
-   mixModels.push_back(mixModel_seal);
-
-   for (int i = 1; i < 100; ++i)
-   {
-      // Permeabilities
-      double permeability_res  = 1.0;
-      double permeability_seal = 1e-2 * (double) i;
-
-      std::vector<double> permeabilities;
-      permeabilities.push_back(permeability_res);
-      permeabilities.push_back(permeability_seal);
-
-      // Seal fluid density
-      double sealFluidDensity = 1000.0;
-   
-      // Lambda correction in the reservoir
-      double lambdaPc = 2.0;
-
-      // Put all the above parameters together
-      MigrationCapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
-
-      // Create the vapour and liquid compositions
-      Composition vapourComposition;
-      Composition liquidComposition;
-
-      for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
-      {
-         vapourComposition.add ((ComponentId)componentId, 1.0);
-         liquidComposition.add ((ComponentId)componentId, 1.0);
-      }
-
-      std::vector<Composition> composition;
-      composition.push_back(vapourComposition);
-      composition.push_back(liquidComposition);
-
-      // GOR follows from the compositions
-      double gorm = computeGorm (vapourComposition, liquidComposition);
-
-      // Some typical values for temperature and pressure
-      double temperature = 100.0 + Utilities::Maths::CelciusToKelvin;
-      double pressure    = 20.0; // MPa
-
-      // CapillarySealStrength for vapour and liquid
-      double CapSealStrengthVapour, CapSealStrengthLiquid;
-
-      capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, true);
-
-      EXPECT_EQ(CapSealStrengthVapour, 0.0);
-      EXPECT_EQ(CapSealStrengthLiquid, 0.0);
+      // Set a relative high Permeability of seal, even then the SealStrength is never zero.
+      permeability_seal = 1e-2 * (double)i;
+      permeabilities[1] = permeability_seal;
+	  // Put all the above parameters together
+	  MigrationCapillarySealStrength capSealStrength2(lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
+      capSealStrength2.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, IsAdvancedMode);
+      
+	  EXPECT_GT(CapSealStrengthVapour, 0.0);
+	  EXPECT_GT(CapSealStrengthLiquid, 0.0);
    }
 }
 
+#ifdef ACTIVE
 
-// This tests makes sure that the capillary seal strength for vapour is higher when there is liquid
+// This tests makes sure that the capillary seal strength for vapor is higher when there is liquid
 // HCs present in the trap, due to the wetting order: brine > liquid > vapour
 TEST(CapillarySealStrength, VapourStrengthDependsOnOil)
 {
@@ -261,7 +185,7 @@ TEST(CapillarySealStrength, VapourStrengthDependsOnOil)
             // Put all the above parameters together
             MigrationCapillarySealStrength capSealStrength (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
-            // Create the vapour and liquid compositions
+            // Create the vapor and liquid compositions
             Composition vapourComposition;
             Composition liquidComposition;
 
@@ -297,10 +221,10 @@ TEST(CapillarySealStrength, VapourStrengthDependsOnOil)
             double temperature = 10.0 * (double)j + Utilities::Maths::CelciusToKelvin;
             double pressure    = 0.1 + 5.0 * (double) k ; // MPa
 
-            // CapillarySealStrength for vapour and liquid
+            // CapillarySealStrength for vapor and liquid
             double CapSealStrengthVapour, CapSealStrengthLiquid;
 
-            capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, true);
+            capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, IsAdvancedMode);
 
             double vapourStrengthWithLiquid = CapSealStrengthVapour;
 
@@ -334,7 +258,7 @@ TEST(CapillarySealStrength, VapourStrengthDependsOnOil)
             double gorm2 = computeGorm (vapourComposition2, liquidComposition2);
 
             double CapSealStrengthVapour2, CapSealStrengthLiquid2;
-            capSealStrength.compute(composition2, gorm2, temperature, pressure, CapSealStrengthVapour2, CapSealStrengthLiquid2, true);
+            capSealStrength.compute(composition2, gorm2, temperature, pressure, CapSealStrengthVapour2, CapSealStrengthLiquid2, IsAdvancedMode);
 
             double vapourStrengthWithOutLiquid = CapSealStrengthVapour2;
 
@@ -425,7 +349,7 @@ TEST(CapillarySealStrength, LambdaInfluenceLiquid)
    // CapillarySealStrength for vapour and liquid
    double CapSealStrengthVapour, CapSealStrengthLiquid;
 
-   capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, true);
+   capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, IsAdvancedMode);
 
    EXPECT_GT(CapSealStrengthLiquid, 0.0);
 
@@ -437,7 +361,7 @@ TEST(CapillarySealStrength, LambdaInfluenceLiquid)
 
    MigrationCapillarySealStrength capSealStrength2 (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
-   capSealStrength2.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, true);
+   capSealStrength2.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, IsAdvancedMode);
 
    EXPECT_EQ(CapSealStrengthLiquid, 0.0);
 }
@@ -534,7 +458,7 @@ TEST(CapillarySealStrength, LambdaInfluenceVapour)
    // CapillarySealStrength for vapor and liquid
    double CapSealStrengthVapour, CapSealStrengthLiquid;
 
-   capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, true);
+   capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, IsAdvancedMode);
 
    EXPECT_GT(CapSealStrengthVapour, 0.0);
 
@@ -546,11 +470,11 @@ TEST(CapillarySealStrength, LambdaInfluenceVapour)
 
    MigrationCapillarySealStrength capSealStrength2 (lithoProps, lithFracs, mixModels, permeabilities, sealFluidDensity, lambdaPc);
 
-   capSealStrength2.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, true);
+   capSealStrength2.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, IsAdvancedMode);
 
    EXPECT_EQ(CapSealStrengthVapour, 0.0);
 }
-
+#endif
 
 // This test make sure that empty compositions result in zero strength.
 TEST(CapillarySealStrength, EmptyCompositions)
@@ -623,10 +547,10 @@ TEST(CapillarySealStrength, EmptyCompositions)
    double temperature = 100.0 + Utilities::Maths::CelciusToKelvin;
    double pressure    = 20.0; // MPa
 
-   // CapillarySealStrength for vapour and liquid
+   // CapillarySealStrength for vapor and liquid
    double CapSealStrengthVapour, CapSealStrengthLiquid;
 
-   capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, true);
+   capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, IsAdvancedMode);
 
    EXPECT_EQ(CapSealStrengthVapour, 0.0);
    EXPECT_EQ(CapSealStrengthLiquid, 0.0);
@@ -657,9 +581,11 @@ TEST(CapillarySealStrength, EmptyCompositions)
    // GOR follows from the compositions
    gorm = computeGorm (vapourComposition, liquidComposition);
 
-   capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, true);
+   capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, IsAdvancedMode);
 
-   EXPECT_EQ(CapSealStrengthLiquid, 0.0);
+   EXPECT_EQ(CapSealStrengthLiquid, 0.0); 
+   // since the composition is not empty this will have non-zero strength
+   EXPECT_DOUBLE_EQ(CapSealStrengthVapour, 160484646.29178822);
 
    for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
    {
@@ -688,7 +614,10 @@ TEST(CapillarySealStrength, EmptyCompositions)
    // GOR follows from the compositions
    gorm = computeGorm (vapourComposition, liquidComposition);
 
-   capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, true);
+   capSealStrength.compute(composition, gorm, temperature, pressure, CapSealStrengthVapour, CapSealStrengthLiquid, IsAdvancedMode);
 
    EXPECT_EQ(CapSealStrengthVapour, 0.0);
+   // since the composition is not empty this will have non-zero strength
+   EXPECT_DOUBLE_EQ(CapSealStrengthLiquid, 459022305.9461832);
 }
+

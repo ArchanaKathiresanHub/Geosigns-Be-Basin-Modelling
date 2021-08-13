@@ -39,7 +39,7 @@ namespace migration {
                              const double lambdaPC );
       
       void compute(const std::vector<Composition> & composition, const double gorm, const double T_K,
-                   const double brinePressure, double & capSealStrength_H2O_Gas, double & capSealStrength_H2O_Oil) const;
+                   const double brinePressure, double & capSealStrength_H2O_Gas, double & capSealStrength_H2O_Oil, const bool performAdvancedMigration) const;
       double criticalTemperature(const Composition& composition, const double gorm) const;
       double interfacialTension(const Composition& composition, const double gorm, const double T_K) const;
    };

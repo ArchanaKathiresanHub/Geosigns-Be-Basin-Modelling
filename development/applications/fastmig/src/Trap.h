@@ -405,7 +405,7 @@ namespace migration
       bool computeForFunctionOfLithostaticPressure (const SurfaceGridMapContainer& fullOverburden,
          const MigrationFormation* formation, const vector<double>& lithFracs, double& fracPressure) const;
 
-      bool distributeCharges (void);
+      bool distributeCharges (const bool performAdvancedMigration);
 
       void incrementChargeDistributionCount (void);
 
@@ -495,8 +495,8 @@ namespace migration
 
       void reportLeakage ();
 
-      void collectProperties (TrapPropertiesRequest & tpRequest);
-      bool saveProperties (void);
+      void collectProperties (TrapPropertiesRequest & tpRequest, const bool performAdvancedMigration);
+      bool saveProperties (const bool performAdvancedMigration);
 
    protected:
       MigrationReservoir * m_reservoir;
@@ -567,7 +567,7 @@ namespace migration
       MassBalance<ofstream>* m_massBalance;
 #endif
 
-#ifdef DETAILED_MASS_BALANCE
+#ifdef DETAILED_VOLUME_BALANCE
       ofstream m_volumeBalanceFile;
       MassBalance<ofstream>* m_volumeBalance;
 #endif
