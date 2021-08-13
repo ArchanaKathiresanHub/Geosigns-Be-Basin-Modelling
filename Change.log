@@ -36,10 +36,21 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-08-13  arijit.khan Khan  <arijit.khan@shell.com>
+
+	dev: chg: Updated Master with Release 2021.2 !minor.
+	 * Updated Master with Release 2021.2
+
+	Related work items: #425058, #430660
+	================== COMMIT-END ========================
+	Commit-ID:<22899e3e0ab322a6943318126b6ff44d4a02b43c>	  (refs/heads/master)
+
+++
 2021-08-09  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fixed typo for zycor export !minor.
-	Fixed typo for zycor export
+	 * Fixed typo for zycor export
+	================== COMMIT-END ========================
 	Commit-ID:<c699dcc7322058c5a9b36193f40e41ece3e0811b>	  (refs/heads/master)
 
 ++
