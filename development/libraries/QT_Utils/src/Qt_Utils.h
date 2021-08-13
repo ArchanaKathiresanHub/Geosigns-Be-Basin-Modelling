@@ -13,5 +13,6 @@ namespace qtutils {
 	/// <param name="value">Value to be put between double quotes ex: foo</param>
 	/// <returns>double quoted string ex: "foo"</returns>
 	QString AddDoubleQuotes(QString value);
+	QString ExportApplicationPath(void);
 }
 

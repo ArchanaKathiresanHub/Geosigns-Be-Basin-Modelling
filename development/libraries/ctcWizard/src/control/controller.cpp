@@ -95,13 +95,7 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
 
     QProcess process;
     connect(&process, &QProcess::readyReadStandardOutput, [&]() {log(QString(process.readAllStandardOutput())); });
-	/*bool errorOccured = false;
-	QProcess::ProcessError procError;
-	QObject::connect(&process, &QProcess::errorOccurred, [&](QProcess::ProcessError error)
-	{
-            procError = error;
-            errorOccured = true;
-	});*/
+
     QFileInfo info(filePath);
     process.setWorkingDirectory(info.absoluteDir().path());
     //
@@ -123,16 +117,23 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
 #ifdef Q_OS_WIN
 
     /// Define the Usual environment Variables in the VS project and also add the following the the PATH of fastcaulron.exe
-    QString CLDRN_BIN = getenv("CLDRN_BIN") + QString("\\fastcauldron.exe");
+    QString CLDRN_BIN = getenv("CLDRN_BIN");
+    if (CLDRN_BIN.isEmpty()) {
+        std::cerr << "no CLDRN_BIN defined!" << std::endl;
+    }
+    else
+    {
+        CLDRN_BIN += QString("\\fastcauldron.exe");
+    }
     // This path is added during MSMPI installation
     QString MPI_BIN = getenv("MSMPI_BIN") + QString("mpiexec.exe");
-
+    std::string fpp = "";
 #else
 
-    //v2021.*nightly --- is the dafault version in /apps/sssdev/ibs as on 6th March 2021
-    QString CLDRN_BIN = "/apps/sssdev/share/fastcauldron";
+    //The following will now call whatever is loaded in the OS PATH variable
+    QString CLDRN_BIN = qtutils::ExportApplicationPath() + '/' + "fastcauldron";
     QString MPI_BIN = "mpirun";
-
+    std::string fpp = " -noofpp";
 #endif // WIN32
 
     auto cwd = process.workingDirectory();
@@ -143,7 +144,7 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
         wlm->JobSubmissionCommand("cldrn", "default.q", "0:30", "ctcPressureJob", "",
             "err.log", numProc.toStdString(), "", "", qtutils::AddDoubleQuotes(process.workingDirectory()).toStdString(), false, true,
             (qtutils::AddDoubleQuotes(MPI_BIN).toStdString() + " -n " +
-                numProc.toStdString() + ' ' + qtutils::AddDoubleQuotes(CLDRN_BIN).toStdString() +
+                numProc.toStdString() + ' ' + qtutils::AddDoubleQuotes(CLDRN_BIN).toStdString() + fpp +
                 " -project " + qtutils::AddDoubleQuotes(filePath).toStdString() + " " + cldrnRunMode.toStdString())
         )
     );
@@ -167,80 +168,87 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
 
 void Controller::executeCtcScript(const QString& ctcFilenameWithPath, const QString numProc) const
 {
-  log("- Start running ctc");
-  QTimer timer;
-  timer.start(100);
-  while(timer.remainingTime()>0)
-  {
-    qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
-  }
+    log("- Start running ctc");
+    QTimer timer;
+    timer.start(100);
+    while (timer.remainingTime() > 0)
+    {
+        qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
+    }
 
-  QProcess process;
-  connect(&process,&QProcess::readyReadStandardOutput,[&](){log(QString(process.readAllStandardOutput()));});
+    QProcess process;
+    connect(&process, &QProcess::readyReadStandardOutput, [&]() {log(QString(process.readAllStandardOutput())); });
 
-  QFileInfo info(ctcFilenameWithPath);
-  QDir baseDir(info.absoluteDir().path());
-  if(info.exists())
-  {
-      baseDir.cdUp();
-  }
-  QDir scenarioDirec(info.absoluteDir().path());
+    QFileInfo info(ctcFilenameWithPath);
+    QDir baseDir(info.absoluteDir().path());
+    if (info.exists())
+    {
+        baseDir.cdUp();
+    }
+    QDir scenarioDirec(info.absoluteDir().path());
 
-  process.setWorkingDirectory(scenarioDirec.path());
+    process.setWorkingDirectory(scenarioDirec.path());
 
-  QStringList fileList = baseDir.entryList(QStringList() << "*.*" , QDir::Files);
-  foreach (QString file, fileList) 
-  {
-      QFileInfo fileInfo(file);
-      if(!((fileInfo.completeSuffix().contains("log")) || 
-          (fileInfo.completeSuffix().contains("zip"))  || 
-          (fileInfo.completeSuffix().contains("sh"))   ||
-          (fileInfo.completeSuffix().contains("project3d"))))
-      {
-          QFile::copy(baseDir.path() + "/" + file, scenarioDirec.path() + "/" + file);
-      }
-  }
-  QStringList strList = info.fileName().simplified().split(".");
+    QStringList fileList = baseDir.entryList(QStringList() << "*.*", QDir::Files);
+    foreach(QString file, fileList)
+    {
+        QFileInfo fileInfo(file);
+        if (!((fileInfo.completeSuffix().contains("log")) ||
+            (fileInfo.completeSuffix().contains("zip")) ||
+            (fileInfo.completeSuffix().contains("sh")) ||
+            (fileInfo.completeSuffix().contains("project3d"))))
+        {
+            QFile::copy(baseDir.path() + "/" + file, scenarioDirec.path() + "/" + file);
+        }
+    }
+    QStringList strList = info.fileName().simplified().split(".");
 
 
-  //Create Project_CauldronOutputDir in the CTC scenario working dir to copy the fastcauldron output files
-  QString fastCtcOutputDirPath = scenarioDirec.path() + "/" + strList[0] + "_CauldronOutputDir";
-  QDir fastCtcOutputDir(fastCtcOutputDirPath);
-  if (fastCtcOutputDir.exists())//not absolutely needed 
-  {
-      //remove it
-      fastCtcOutputDir.removeRecursively();
-  }
-  else {
-      //create it
-      fastCtcOutputDir.mkpath(fastCtcOutputDirPath);
-  }
-  //Copy the fastcauldron output dir (Project_CauldronOutputDir) content to the CTC scenario working dir
-  QString fastcauldronOutputDirPath = baseDir.path() + "/" + strList[0] + "_CauldronOutputDir";
-  QDir fastcauldronOutputDir(fastcauldronOutputDirPath);
-  
-  QStringList fastcbmOutputDirFileList = fastcauldronOutputDir.entryList(QStringList() << "*.*", QDir::Files);
-  foreach(QString file1, fastcbmOutputDirFileList)
-  {
-      if (fastcauldronOutputDir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries).count() != 0)
-      {
-          QFileInfo fileInfo(file1);
-          QFile::copy(fastcauldronOutputDirPath + "/" + file1, fastCtcOutputDirPath + "/" + file1);
-      }
-      else {
-          log("- fastcauldron output dir is empty");
-      }
-  }
+    //Create Project_CauldronOutputDir in the CTC scenario working dir to copy the fastcauldron output files
+    QString fastCtcOutputDirPath = scenarioDirec.path() + "/" + strList[0] + "_CauldronOutputDir";
+    QDir fastCtcOutputDir(fastCtcOutputDirPath);
+    if (fastCtcOutputDir.exists())//not absolutely needed 
+    {
+        //remove it
+        fastCtcOutputDir.removeRecursively();
+    }
+    else {
+        //create it
+        fastCtcOutputDir.mkpath(fastCtcOutputDirPath);
+    }
+    //Copy the fastcauldron output dir (Project_CauldronOutputDir) content to the CTC scenario working dir
+    QString fastcauldronOutputDirPath = baseDir.path() + "/" + strList[0] + "_CauldronOutputDir";
+    QDir fastcauldronOutputDir(fastcauldronOutputDirPath);
+
+    QStringList fastcbmOutputDirFileList = fastcauldronOutputDir.entryList(QStringList() << "*.*", QDir::Files);
+    foreach(QString file1, fastcbmOutputDirFileList)
+    {
+        if (fastcauldronOutputDir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries).count() != 0)
+        {
+            QFileInfo fileInfo(file1);
+            QFile::copy(fastcauldronOutputDirPath + "/" + file1, fastCtcOutputDirPath + "/" + file1);
+        }
+        else {
+            log("- fastcauldron output dir is empty");
+        }
+    }
 
 #ifdef Q_OS_WIN
     /// Define the Usual environment Variables in the VS project and also add the following the the PATH of fastctc.exe
-    QString CTC_BIN = getenv("CTC_BIN") + QString("\\fastctc.exe");
+    QString CTC_BIN = getenv("CTC_BIN");
+    if (CTC_BIN.isEmpty()) {
+        std::cerr << "no CTC_BIN defined!" << std::endl;
+    }
+    else
+    {
+        CTC_BIN += QString("\\fastctc.exe");
+    }
     // This path is added during MSMPI installation
     QString MPI_BIN = getenv("MSMPI_BIN") + QString("mpiexec.exe");
 	std::string fpp = "";
 #else
-    //v2021.*nightly --- is the dafault version in /apps/sssdev/ibs as on 6th March 2021
-    QString CTC_BIN = "/apps/sssdev/share/fastctc";
+    //The following will now call whatever is loaded in the OS PATH variable
+    QString CTC_BIN = qtutils::ExportApplicationPath() + '/' + "fastctc";
     QString MPI_BIN = "mpirun";
 	std::string fpp = "-noofpp";			  
 #endif // WIN32
@@ -545,8 +553,10 @@ void Controller::launchCauldronMapsTool(const QString& filePath)
     QProcess process;
     connect(&process,&QProcess::readyReadStandardOutput,[&](){log(QString(process.readAllStandardOutput()));});
     process.setWorkingDirectory(info.absoluteDir().path());
-
-    processCommand(process, QString("/apps/sssdev/share/cauldronmaps"));
+#ifdef Q_OS_UNIX
+    processCommand(process, "which cauldronmaps");
+#endif
+    processCommand(process, QString("cauldronmaps"));
 }
 
 
@@ -609,9 +619,12 @@ bool Controller::processCommand(QProcess& process, const QString& command) const
     {
         qApp->processEvents(QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents);
     }
-	auto exitStatus = process.exitStatus();
+	
     auto exitCode = process.exitCode();
+#ifdef DEBUG_CTC
+    auto exitStatus = process.exitStatus();
     qDebug() << "Exit code:" << exitCode<<' '<< exitStatus;
+#endif
     return !exitCode;
 }
 
