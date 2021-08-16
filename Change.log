@@ -38,6 +38,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-08-13  arijit.khan Khan  <arijit.khan@shell.com>
 
+	dev: usr: chg: Remove Capillary Seal Strength Correction Factor in BPA2-Basin Secondary Migration Basic Mode !major
+	 * Placing BrooksCoreyCorrection for MigrationCapillarySealStrength & PessureGadient methods behind Advanced Migration mode for fastmig !major
+	 
+	 ================== COMMIT-END ========================
+	Commit-ID:<ece26a6940b6a798cb5742c5b569fe4befd9caf8>	  (refs/heads/master)
+
+++
+2021-08-13  arijit.khan Khan  <arijit.khan@shell.com>
+
 	dev: chg: Updated Master with Release 2021.2 !minor.
 	 * Updated Master with Release 2021.2
 
