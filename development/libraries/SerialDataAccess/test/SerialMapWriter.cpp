@@ -139,18 +139,32 @@ TEST_F( TestWriter, AppendInvalid )
 }
 
 
-TEST_F( TestWriter, AppendInvalidPermission )
+TEST_F(TestWriter, AppendInvalidPermission)
 {
-   EXPECT_TRUE( open(fName) );
-   EXPECT_TRUE( close() );
+    EXPECT_TRUE(open(fName));
+    EXPECT_TRUE(close());
 
-   const boost::filesystem::path path( fName );
-   const boost::filesystem::perms oldPerm = boost::filesystem::status( path ).permissions();
-   boost::filesystem::permissions( path, boost::filesystem::owner_read );
-   EXPECT_FALSE( open(fName) );
-   EXPECT_FALSE( open(fName, true) );
+    const boost::filesystem::path path(fName);
+    const boost::filesystem::perms oldPerm = boost::filesystem::status(path).permissions();
+    boost::filesystem::permissions(path, boost::filesystem::owner_read);
+    // This test keeps failing on /glb/ams/pt.sgs/data/bpa2dev/CldrnDev/  
+    // thats because that disk has restricted user group to change any file permissions
+    // the most feasible thing to do is to check if the permission indeed changed ?
+    const boost::filesystem::perms newPerm = boost::filesystem::status(path).permissions();
+    if (oldPerm != newPerm) {
+        // if it did change then perform the TESTS
+        EXPECT_FALSE(open(fName));
+        EXPECT_FALSE(open(fName, true));
+        // reset to Old permissions
+        boost::filesystem::permissions(path, oldPerm);
+    }
+    else
+    {
+        // I am going to FAIL this test anyway to let you know whats going on
+        EXPECT_TRUE(false) << "diagnostic message: The permission to this path, " << path 
+            << ", could not be changed! \n the permissions were; " << oldPerm;
+    }
 
-   boost::filesystem::permissions( path, oldPerm );
 }
 
 
