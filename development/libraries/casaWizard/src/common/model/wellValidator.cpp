@@ -26,7 +26,7 @@ WellValidator::~WellValidator()
 {
 }
 
-WellState WellValidator::wellState(const casaWizard::Well& well, const std::string& depthGridName) const
+WellState WellValidator::wellState(const casaWizard::Well& well, const std::string& depthGridName, const QStringList& usedWellNames) const
 {
   const double valueAtWellLocation = mapReader_.getValue(well.x(), well.y(), depthGridName);
 
@@ -37,6 +37,10 @@ WellState WellValidator::wellState(const casaWizard::Well& well, const std::stri
   else if (well.calibrationTargets().size() == 0)
   {
     return invalidData;
+  }
+  else if (usedWellNames.contains(well.name()))
+  {
+    return invalidDuplicateName;
   }
 
   return valid;

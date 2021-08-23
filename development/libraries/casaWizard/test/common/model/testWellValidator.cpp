@@ -28,7 +28,7 @@ TEST(WellValidatorTest, testInvalidLocationWell)
 
   for (const Well& well : invalidWells)
   {
-    EXPECT_EQ(validator.wellState(well, "MAP-27105"), WellState::invalidLocation);
+    EXPECT_EQ(validator.wellState(well, "MAP-27105", {}), WellState::invalidLocation);
   }
 }
 
@@ -41,7 +41,24 @@ TEST(WellValidatorTest, testInvalidDataWell)
   std::vector<Well> invalidWells;
   CalibrationTarget target;
   Well well(0, "Name", 179250, 603750, true, false);
-  EXPECT_EQ(validator.wellState(well, "MAP-27105"), WellState::invalidData);
+  EXPECT_EQ(validator.wellState(well, "MAP-27105", {}), WellState::invalidData);
+}
+
+TEST(WellValidatorTest, testInvalidDuplicateNameWell)
+{
+  CMBMapReader mapReader;
+  mapReader.load("TestWellValidator.project3d");
+  WellValidator validator(mapReader);
+
+  // Nodes (X = invalid, O = valid):
+  // (179000, 603500)             (179250, 603500)
+  //        X                            O
+  //
+  // (179000, 603750)             (179250, 603750)
+  //        O                            O
+  const Well invalidWell(0, "Name1", 179250, 603750, true, false, {CalibrationTarget()});
+
+  EXPECT_EQ(validator.wellState(invalidWell, "MAP-27105", {"Name", "Name1"}), WellState::invalidDuplicateName);
 }
 
 TEST(WellValidatorTest, testValidWell)
@@ -58,5 +75,5 @@ TEST(WellValidatorTest, testValidWell)
   //        O                            O
   const Well validWell(0, "Name", 179250, 603750, true, false, {CalibrationTarget()});
 
-  EXPECT_EQ(validator.wellState(validWell, "MAP-27105"), WellState::valid);
+  EXPECT_EQ(validator.wellState(validWell, "MAP-27105", {}), WellState::valid);
 }

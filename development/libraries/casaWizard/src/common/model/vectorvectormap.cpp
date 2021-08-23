@@ -1,5 +1,9 @@
 #include "vectorvectormap.h"
 
+#include "ConstantsNumerical.h"
+
+#include <cmath>
+
 namespace casaWizard
 {
 
@@ -28,7 +32,7 @@ VectorVectorMap VectorVectorMap::operator+(const VectorVectorMap& lithoMap) cons
     std::vector<double> resultRow;
     for (int j = 0; j < mapData_[0].size(); j++)
     {
-      resultRow.push_back(mapData_[i][j] + rhsData[i][j]);
+      resultRow.push_back(sum(mapData_[i][j], rhsData[i][j]));
     }
     resultData.push_back(resultRow);
   }
@@ -44,7 +48,7 @@ VectorVectorMap VectorVectorMap::operator+(const double rhs) const
     std::vector<double> resultRow;
     for (int j = 0; j < mapData_[0].size(); j++)
     {
-      resultRow.push_back(mapData_[i][j] + rhs);
+      resultRow.push_back(sum(mapData_[i][j], rhs));
     }
     resultData.push_back(resultRow);
   }
@@ -60,12 +64,35 @@ VectorVectorMap VectorVectorMap::operator*(const double rhs) const
     std::vector<double> resultRow;
     for (int j = 0; j < mapData_[0].size(); j++)
     {
-      resultRow.push_back(mapData_[i][j] * rhs);
+      resultRow.push_back(multiplication(mapData_[i][j], rhs));
     }
     resultData.push_back(resultRow);
   }
 
   return VectorVectorMap(resultData);
+}
+
+double VectorVectorMap::sum(const double input1, const double input2) const
+{
+  if (isUndefined(input1) || isUndefined(input2))
+  {
+    return Utilities::Numerical::CauldronNoDataValue;
+  }
+  return input1 + input2;
+}
+
+double VectorVectorMap::multiplication(const double input1, const double input2) const
+{
+  if (isUndefined(input1) || isUndefined(input2))
+  {
+    return Utilities::Numerical::CauldronNoDataValue;
+  }
+  return input1 * input2;
+}
+
+bool VectorVectorMap::isUndefined(const double input) const
+{
+  return (std::fabs(input - Utilities::Numerical::CauldronNoDataValue) < 1e-5);
 }
 
 } // namespace casaWizard

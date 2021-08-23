@@ -227,9 +227,11 @@ void CalibrationTargetManager::disableInvalidWells(const std::string& projectFil
   CMBMapReader mapReader;
   mapReader.load(projectFileName);
   WellValidator validator(mapReader);
+  QStringList usedWellNames;
   for (Well& well : wells_)
   {
-    const WellState wellState = validator.wellState(well, depthGridName);
+    const WellState wellState = validator.wellState(well, depthGridName, usedWellNames);
+    usedWellNames.push_back(well.name());
 
     switch (wellState)
     {
@@ -238,13 +240,16 @@ void CalibrationTargetManager::disableInvalidWells(const std::string& projectFil
         well.setIsInvalid(true);
         Logger::log() << "Well " << well.name() << " does not have calibration data and is therefore disabled. Check if the input file is valid." << Logger::endl();
         break;
-
       case WellState::invalidLocation:
         well.setIsActive(false);
         well.setIsInvalid(true);
         Logger::log() << "Well " << well.name() << " is outside of the basin model and is therefore disabled." << Logger::endl();
         break;
-
+      case WellState::invalidDuplicateName:
+        well.setIsActive(false);
+        well.setIsInvalid(true);
+        Logger::log() << "Well " << well.name() << " has a duplicate name and is therefore disabled." << Logger::endl();
+        break;
       case WellState::valid:
         break;
     }

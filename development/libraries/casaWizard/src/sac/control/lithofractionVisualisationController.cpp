@@ -337,6 +337,8 @@ void LithofractionVisualisationController::updateAvailableLayers()
 
 void LithofractionVisualisationController::updateBirdsView()
 {
+  lithofractionVisualisation_->hideAllTooltips();
+  emit clearWellListHighlightSelection();
   QVector<OptimizedLithofraction> optimizedLithoFractions = getOptimizedLithoFractionsInLayer(activeLayer_);
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
   QVector<const Well*> activeAndIncludedWells = ctManager.activeAndIncludedWells();

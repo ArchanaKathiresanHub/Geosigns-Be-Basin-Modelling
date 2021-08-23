@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include "ConstantsNumerical.h"
 
 std::vector<std::vector<double>> createConstantMap(const double constantMapValue, const int dimI, const int dimJ)
 {
@@ -30,7 +31,9 @@ TEST(LithofractionMapTest, TestInitialisation)
 TEST(LithofractionMapTest, TestAdditionOperation)
 {
   std::vector<std::vector<double>> mapData = createConstantMap(7.5, 5, 10);
+  mapData[0][0] = Utilities::Numerical::CauldronNoDataValue;
   std::vector<std::vector<double>> mapData2 = createConstantMap(16.4, 5, 10);
+  mapData2[1][1] = Utilities::Numerical::CauldronNoDataValue;
 
   casaWizard::VectorVectorMap lithoMap1(mapData);
   casaWizard::VectorVectorMap lithoMap2(mapData2);
@@ -39,10 +42,16 @@ TEST(LithofractionMapTest, TestAdditionOperation)
 
   for (int i = 0; i < lithoMap1.getData().size(); i++)
   {
-    std::vector<double> mapRow;
     for (int j = 0; j < lithoMap1.getData()[0].size(); j++)
     {
-      EXPECT_EQ(lithoMap1.getData()[i][j] + lithoMap2.getData()[i][j], resultMap.getData()[i][j]);
+      if ((i == 0 && j == 0) || (i == 1 && j == 1)) // check the undefined regions
+      {
+        EXPECT_EQ(resultMap.getData()[i][j], Utilities::Numerical::CauldronNoDataValue);
+      }
+      else
+      {
+        EXPECT_EQ(lithoMap1.getData()[i][j] + lithoMap2.getData()[i][j], resultMap.getData()[i][j]);
+      }
     }
   }
 }
@@ -50,16 +59,23 @@ TEST(LithofractionMapTest, TestAdditionOperation)
 TEST(LithofractionMapTest, TestMultiplicationScalarOperation)
 {
   std::vector<std::vector<double>> mapData = createConstantMap(7.5, 5, 10);
+  mapData[0][0] = Utilities::Numerical::CauldronNoDataValue;
 
   casaWizard::VectorVectorMap lithoMap1(mapData);
   casaWizard::VectorVectorMap resultMap = lithoMap1 * -1.0;
 
   for (int i = 0; i < lithoMap1.getData().size(); i++)
   {
-    std::vector<double> mapRow;
     for (int j = 0; j < lithoMap1.getData()[0].size(); j++)
     {
-      EXPECT_EQ(lithoMap1.getData()[i][j] * -1.0, resultMap.getData()[i][j]);
+      if (i == 0 && j == 0)
+      {
+        EXPECT_EQ(lithoMap1.getData()[i][j], Utilities::Numerical::CauldronNoDataValue);
+      }
+      else
+      {
+        EXPECT_EQ(lithoMap1.getData()[i][j] * -1.0, resultMap.getData()[i][j]);
+      }
     }
   }
 }

@@ -244,7 +244,7 @@ void MapsController::slotExportOptimizedToZycor()
     }
   }
 
-  Logger::log() << "Optimized lithofraction maps are exported to Zycor" << Logger::endl();
+  Logger::log() << "Finished exporting optimized lithofraction maps to Zycor" << Logger::endl();
 }
 
 void MapsController::slotRunOptimized()

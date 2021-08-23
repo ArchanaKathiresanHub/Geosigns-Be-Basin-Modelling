@@ -15,6 +15,7 @@
 #define UTILITIES_CONSTANTSNUMERICAL_H
 
 #include <limits>
+#include <string>
 
 namespace Utilities
 {

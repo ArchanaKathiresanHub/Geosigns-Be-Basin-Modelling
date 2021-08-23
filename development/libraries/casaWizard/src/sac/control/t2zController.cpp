@@ -282,7 +282,7 @@ void T2Zcontroller::slotExportT2ZMapsToZycorClicked()
     writer.writeToFile(targetDir.path().toStdString()+"/" + mapName.toStdString() + ".zyc", map.getData(), metaData);
   }
 
-  Logger::log() << "Converted depth maps are exported to Zycor" << Logger::endl();
+  Logger::log() << "Finished exporting converted depth maps to Zycor" << Logger::endl();
 }
 
 void T2Zcontroller::slotUpdateTabGUI(int tabID)

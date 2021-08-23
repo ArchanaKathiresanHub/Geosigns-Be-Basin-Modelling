@@ -10,6 +10,8 @@
 
 #include <string>
 
+class QStringList;
+
 namespace casaWizard
 {
 
@@ -17,7 +19,8 @@ enum WellState
 {
   valid,
   invalidLocation,
-  invalidData
+  invalidData,
+  invalidDuplicateName
 };
 
 class Well;
@@ -28,8 +31,9 @@ public:
   WellValidator(CMBMapReader& mapReader);
   ~WellValidator();
 
-  WellState wellState(const Well& well, const std::string& depthGridName) const;
+  WellState wellState(const casaWizard::Well& well, const std::string& depthGridName, const QStringList& usedWellNames) const;
 
+private:
   CMBMapReader& mapReader_;
 };
 
