@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-08-23  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Small SAC wizard fixes after user feedback.
+	* Fixed addition and multiplication with maps containing undefined values
+	* Force disabled wells with a duplicate name
+	* Make sure the pie chart selection and tooltip are reset after changing well selection
+	* Clarified zycor export message
+	* Related work items: #428220
+	================== COMMIT-END ========================
+	Commit-ID:<75e49bb8602640a6015a87ac5249d19e9c612d0e>	  (refs/heads/master, refs/heads/Developers/Richard.Faasse/UpdateChangeLog)
+
+++
 2021-08-13  arijit.khan Khan  <arijit.khan@shell.com>
 
 	dev: usr: chg: Remove Capillary Seal Strength Correction Factor in BPA2-Basin Secondary Migration Basic Mode !major
