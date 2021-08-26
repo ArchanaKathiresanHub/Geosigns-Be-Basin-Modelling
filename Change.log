@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-08-26  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Added pop-up for when not enough TWT data is available for depth conversion
+	* Minor change
+	* Related work items: #424209
+	Commit-ID:<76211e3e0bbd63d868f7a78c8ebce838318b8784>	  (refs/heads/master, refs/heads/Developers/Richard.Faasse/UpdateChangeLog)
+
+++
 2021-08-23  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Small SAC wizard fixes after user feedback.
