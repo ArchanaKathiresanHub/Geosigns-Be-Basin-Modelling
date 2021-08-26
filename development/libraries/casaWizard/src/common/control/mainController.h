@@ -32,11 +32,11 @@ private slots:
   void slotSave();
   void slotExit();
   void slotExpertUser(bool);
+  void slotLockTabs();
+  void slotUnlockTabs();
 
   void logMessage();
   void slotTabSwitch(int tabIndex);
-
-
 signals:
   void signalUpdateTabGUI(int tabIndex);
   void signalResetToStartingStage();

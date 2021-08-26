@@ -60,6 +60,8 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
   script_ = &script;
   processCancelled_ = false;
 
+  emit runStarted();
+
   QTimer timer;
   if (slot != nullptr)
   {
@@ -70,11 +72,13 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
 
   if (!script.generateCommands())
   {
+    emit runEnded();
     return false;
   }
 
   if (script.commands().empty())
   {
+    emit runEnded();
     return false;
   }
   QTime time;
@@ -99,7 +103,7 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
     }
   }
   if (processCancelled_)
-  {    
+  {
     Logger::log() << "Command pipeline interrupted" << Logger::endl();
   }
   else
@@ -119,6 +123,8 @@ bool ScriptRunController::runScript(RunScript& script, QObject * receiver, const
   const int seconds = elapsed/1000; elapsed = elapsed % 1000;
   Logger::log() << "Elapsed time: " << hours <<"h:" << minutes <<"m:" << seconds <<"s:" << elapsed <<"ms" << Logger::endl();
   Logger::log() << "Finished processing: " << time.currentTime().toString() << Logger::endl();
+
+  emit runEnded();
 
   return !processCancelled_;
 }

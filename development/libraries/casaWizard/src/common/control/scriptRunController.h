@@ -26,6 +26,8 @@ public:
 
 signals:
   void readyReadStandardOutput();
+  void runStarted();
+  void runEnded();
 
 private slots:
   void killProcess();

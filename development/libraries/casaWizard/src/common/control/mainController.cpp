@@ -29,6 +29,8 @@ void MainController::constructWindow(LogReceiver* logReceiver)
 
   connect(&Logger::log(), SIGNAL(logSignal(const QString&)), logReceiver_, SLOT(log(const QString&)));
   connect(scriptRunController_,  SIGNAL(readyReadStandardOutput()), this, SLOT(logMessage()));
+  connect(scriptRunController_, SIGNAL(runStarted()), this, SLOT(slotLockTabs()));
+  connect(scriptRunController_, SIGNAL(runEnded()), this, SLOT(slotUnlockTabs()));
   connect(mainWindow().tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(slotTabSwitch(int)));
 
   connect(mainWindow().menu()->actionNew(),  SIGNAL(triggered()), this, SLOT(slotNew()));
@@ -107,6 +109,18 @@ void MainController::slotExit()
 void MainController::slotExpertUser(bool isExpertUser)
 {
   scenario().setExpertUser(isExpertUser);
+}
+
+void MainController::slotLockTabs()
+{
+  mainWindow().tabWidget()->setDisabled(true);
+  mainWindow().menu()->setDisabled(true);
+}
+
+void MainController::slotUnlockTabs()
+{
+  mainWindow().tabWidget()->setEnabled(true);
+  mainWindow().menu()->setEnabled(true);
 }
 
 void MainController::refreshGUI()
