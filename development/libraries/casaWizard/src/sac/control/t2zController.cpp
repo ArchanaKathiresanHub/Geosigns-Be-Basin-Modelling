@@ -73,7 +73,7 @@ T2Zcontroller::T2Zcontroller(T2Ztab* t2zTab,
 
 void T2Zcontroller::slotPushButtonSACrunT2ZClicked()
 {
-  if (noProjectAvailable() || userCancelsRun())
+  if (noProjectAvailable() || runCanceled())
   {
     return;
   }
@@ -101,8 +101,18 @@ bool T2Zcontroller::noProjectAvailable() const
   return t2zTab_->noProjectAvailable();
 }
 
-bool T2Zcontroller::userCancelsRun() const
+bool T2Zcontroller::runCanceled() const
 {
+  if (referenceSurfaceHasNoTWTData() || projectHasNoTWTDataBelowReferenceSurface())
+  {
+    QMessageBox abortTimeDepth(QMessageBox::Icon::Warning,
+                          "Not enough TWT data available for depth conversion",
+                          "The reference surface and at least one surface below the reference surface need to have TWT data.",
+                          QMessageBox::Ok);
+    abortTimeDepth.exec();
+    return true;
+  }
+
   if (!casaScenario_.projectReader().basementSurfaceHasTWT())
   {
     QMessageBox continueAnyway(QMessageBox::Icon::Warning,
@@ -116,6 +126,16 @@ bool T2Zcontroller::userCancelsRun() const
   }
 
   return false;
+}
+
+bool T2Zcontroller::referenceSurfaceHasNoTWTData() const
+{
+  return !casaScenario_.projectReader().hasTWTData(casaScenario_.t2zReferenceSurface());
+}
+
+bool T2Zcontroller::projectHasNoTWTDataBelowReferenceSurface() const
+{
+  return casaScenario_.projectReader().lowestSurfaceWithTWTData() <= casaScenario_.t2zReferenceSurface();
 }
 
 bool T2Zcontroller::prepareT2ZWorkSpace()

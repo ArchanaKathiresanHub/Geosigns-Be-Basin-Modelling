@@ -48,7 +48,9 @@ private slots:
 
 private:
   bool noProjectAvailable() const;
-  bool userCancelsRun() const;
+  bool projectHasNoTWTDataBelowReferenceSurface() const;
+  bool referenceSurfaceHasNoTWTData() const;
+  bool runCanceled() const;
   bool prepareT2ZWorkSpace();
   void getSourceAndT2zDir();
   void setSubSampling();
