@@ -38,6 +38,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 +
 2021-08-26  Richard Faasse  <Richard.Faasse@shell.com>
 
+	fix: Added blocking of part of SAC wizard while running a simulation.
+	* Updating the master branch with the latest release changes
+	* The following issue is fixed with this PR: #437146
+	* In summary, the tabs in the SAC need to be locked while a simulation is running, to prevent instabilities in the workflow.
+	* In order to do this, the mainController class will lock/unlock the tabs when the scriptRunController starts/stops running a simulation
+	* Related work items: #437146, #437150
+	================== COMMIT-END ========================
+	Commit-ID:<e143d82597c7ed08dde2d2b7d20648142ba9019f>	  (refs/heads/master, refs/heads/Developers/Richard.Faasse/UpdateChangeLog)
+
+++
+2021-08-26  Richard Faasse  <Richard.Faasse@shell.com>
+
 	chg: Added pop-up for when not enough TWT data is available for depth conversion
 	* Minor change
 	* Related work items: #424209
