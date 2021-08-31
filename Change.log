@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-08-31  arijit.khan Khan  <arijit.khan@shell.com>
+
+	 fix: usr: dev: Removed the exit(-1) condition !rmf.
+	 * the exit(-1) condition was removed from ctcwizard's controller.cpp
+	 * Additional warning logs added for missing Project.txt
+	 * Error logs for invalid no. of processors
+
+	Related work items: #437146, #437150
+	================== COMMIT-END ========================
+	Commit-ID:<a961a8adb037fb9ebcda22ab5c10ef71bbdfb1ec>	  (HEAD -> Developers/sumant.kalra/ChangeLog_Update, origin/master, origin/Developers/sumant.kalra/ChangeLog_Update, origin/Developers/sumant.kalra/ChangeLogUpdate, master)
+
+++
 2021-08-31  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	fix: dev: Security Risk in Basin-Modelling.
