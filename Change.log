@@ -36,6 +36,15 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-08-31  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	fix: dev: Security Risk in Basin-Modelling.
+	 * C style string changed to C++ std::string object
+	 * Related work items: #432105
+	================== COMMIT-END ========================
+	Commit-ID:<434b9ed76c4fda8972fc57522fcef30ba1630c24>	  (HEAD -> Developers/sumant.kalra/changeLogUpdate, origin/master, origin/Developers/sumant.kalra/changeLogUpdate, master)
+
+++
 2021-08-26  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Added blocking of part of SAC wizard while running a simulation.
