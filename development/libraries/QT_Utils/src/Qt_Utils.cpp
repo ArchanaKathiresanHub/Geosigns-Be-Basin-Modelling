@@ -45,3 +45,14 @@ QString qtutils::ExportApplicationPath(void)
 	return QString::fromStdString(applicationPath);
 }
 
+QString qtutils::IsValidNoOfProcs(QString noOfProcs)
+{
+	bool validate;
+	auto value = noOfProcs.toInt(&validate);
+	QString ErrMsg = "Ok";
+	ErrMsg = !validate ? " no. of Processors should be an Integer!" : ErrMsg ;
+	ErrMsg = value < 0  ? " no. of Processors should be a positive Integer!" : ErrMsg;
+	ErrMsg = value > MAX_PROCS ? " no. of Processors should be < " + QString::number(MAX_PROCS) + "!" : ErrMsg;
+
+	return ErrMsg;
+}

@@ -151,7 +151,7 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
 
     log("- The CWD is: " + process.workingDirectory());    
 
-#ifdef DEBUG_CTC
+#ifdef DEBUG_CTC_OTHERS
 	// processCommand does not work for //bsub <myJobs.sh, because i/o redirection is handled by a shell, not by QProcess or the external exe
     auto isOk = processShCommand(process, runPT); 
 #else
@@ -162,7 +162,6 @@ void Controller::executeFastcauldronScript(const QString& filePath, const QStrin
         log("- Finished running Cauldron successfully!");
     else {
         log("- Cauldron was unsuccessful!");
-        exit(-1);
     }
 }
 
@@ -268,7 +267,7 @@ void Controller::executeCtcScript(const QString& ctcFilenameWithPath, const QStr
 
     log("- The CWD is: " + process.workingDirectory());
     
-#ifdef DEBUG_CTC
+#ifdef DEBUG_CTC_OTHERS
     // processCommand does not work for //bsub <myJobs.sh, because i/o redirection is handled by a shell, not by QProcess or the external exe
     auto isOk = processShCommand(process, runCTC); 
 #else
@@ -282,7 +281,6 @@ void Controller::executeCtcScript(const QString& ctcFilenameWithPath, const QStr
     else
     {
         log("- ctc was unsuccessful! ");
-        exit(-1);
     }
 }
 
@@ -390,8 +388,6 @@ void ctcWizard::Controller::FinalizeProject3dFile(const QString& oldp3file, cons
 			newStream << line << endl;
 			while (!line.contains("[End]", Qt::CaseSensitive)) {
 				line = oldStream.readLine();
-				//QStringList theLines = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-
 
 				QRegExp re("\"([A-Za-z0-9_\\./\\-\\s]*)\"");
 
@@ -485,7 +481,7 @@ void Controller::createScenarioForALC(const QString& scenarioFolder)
 			QStringList strLst = file.split("_");
             QString source = scenarioFolder + "/" + file;
             QString target = scenarioFolder + "/" + folderNameForALCscenario + "/" + strLst[0] + ".project3d";
-            //QFile::copy(source, target);
+            
             FinalizeProject3dFile(source, target);
 		}
 		else if (!file.compare("Inputs.HDF", Qt::CaseInsensitive)
@@ -533,7 +529,6 @@ void Controller::createScenarioForALC(const QString& scenarioFolder)
     }
     else {
        log("- Scenario for ALC workflow \"" + folderNameForALCscenario + ".zip\" not created, something went wrong!");
-       exit(-1);
     }
 }
 
@@ -628,7 +623,7 @@ bool Controller::processCommand(QProcess& process, const QString& command) const
     return !exitCode;
 }
 
-#ifdef DEBUG_CTC
+#ifdef DEBUG_CTC_OTHERS
 bool ctcWizard::Controller::processShCommand(QProcess& process, const QString& command) const
 {
     log("- Executing: " + command);

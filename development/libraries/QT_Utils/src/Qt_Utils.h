@@ -4,7 +4,7 @@
 #include <QTextStream>
 
 namespace qtutils {
-
+	constexpr int MAX_PROCS = 1000;
 	QString getTimeStamp(const QString& prefix);
 	QTextStream& qStdOut();
 	/// <summary>
@@ -14,5 +14,7 @@ namespace qtutils {
 	/// <returns>double quoted string ex: "foo"</returns>
 	QString AddDoubleQuotes(QString value);
 	QString ExportApplicationPath(void);
+
+	QString IsValidNoOfProcs(QString noOfProcs);
 }
 

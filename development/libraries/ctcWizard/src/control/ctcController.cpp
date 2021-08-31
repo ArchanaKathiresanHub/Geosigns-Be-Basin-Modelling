@@ -95,16 +95,18 @@ int ctcWizard::CTCcontroller::findLastMapSqNumber(const QString& scenarioFolderP
 
 QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFolderPath)
 {
-    /*std::string inFileName(inFile ? inFile : "Project.project3d");
-	// load project
+#ifdef FOR_FUTURE_USE
+    std::string inFileName(inFile ? inFile : "Project.project3d");
+	 load project
 	mbapi::Model cldProject;
 	LogHandler(LogHandler::INFO_SEVERITY, LogHandler::SUBSECTION) << "Reading project file: " << inFileName;
 	if (ErrorHandler::NoError != cldProject.loadModelFromProjectFile(inFileName))
 	{
 		LogHandler(LogHandler::ERROR_SEVERITY) << std::string("Failing to load project file: ") + inFileName;
 		return -1;
-	}*/
+	}
 
+#endif
     int startingMapSqNo = findLastMapSqNumber(scenarioFolderPath);
     startingMapSqNo++;
 
@@ -220,7 +222,7 @@ QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFol
 			newStream << line << endl;
 		}
         if (BasementAge == "") {
-            mainController_->log("Something not right with the Project 3d file, StratIoTbl"); exit(-1);
+            mainController_->log("Something not right with the Project 3d file, StratIoTbl, BasementAge may be missing!");
         }
 		// Always adding the basement entry for Initial Crustal Thickness
 		if (line.contains("[ContCrustalThicknessIoTbl]", Qt::CaseSensitive)) {
@@ -240,19 +242,25 @@ QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFol
 			}
 			// Split the last line into its constituent parts
 			int lastlineIndx = count - 2;
+			// here, if count is < 2, would imply the Table has no entries/rows (some old p3 files indeed have it)
+           if ( count < 2 ){
+                lastlineIndx = 0;
+                // we will add a line for present day with default BPA2 thickness values in the CTC copy
+                theLines.insert(theLines.begin(), "\t\t0\t\t35000\t\t\"\"");
+            }
 			QStringList LastLinelist = theLines[lastlineIndx].split(QRegExp("\\s+"), QString::SkipEmptyParts);
 			// change the middle entry to the value set in the UI
 			if (!LastLinelist[0].compare(BasementAge))
 			{
 				//found basement age
-				theLines[lastlineIndx] = "\t\t" + LastLinelist[0] + "\t\t" + ctcScenario_.lithosphereParameters()[0].value + "\t\t" + QString("\"\"") + '\n';
+				theLines[lastlineIndx] = "\t\t" + LastLinelist[0] + "\t\t" + ctcScenario_.lithosphereParameters()[0].value + "\t\t" + QString("\"\"") /*+ '\n'*/;
 			}
 			else if (!line.compare("[End]")) {
                 // if penultimate line
                 auto penulLine = lastlineIndx + 1;
 				theLines.insert(theLines.begin() + penulLine, theLines.front());
-				LastLinelist = theLines[penulLine].split(QRegExp("\\s+"), QString::SkipEmptyParts);
-				theLines[penulLine] = "\t\t" + BasementAge + "\t\t" + ctcScenario_.lithosphereParameters()[0].value + "\t\t" + QString("\"\"") + '\n';
+				//LastLinelist = theLines[penulLine].split(QRegExp("\\s+"), QString::SkipEmptyParts);
+				theLines[penulLine] = "\t\t" + BasementAge + "\t\t" + ctcScenario_.lithosphereParameters()[0].value + "\t\t" + QString("\"\"") /*+ '\n'*/;
 			}
 			//
 			// write the entire table with the change
@@ -280,19 +288,25 @@ QString CTCcontroller::createProject3dwithCTCUIinputs(const QString& scenarioFol
 			}
 			// Split the last line into its constituent parts; its assumed that the oldest age is the last entry
 			int lastlineIndx = count - 2;
+            // here, if count is < 2, would imply the Table has no entries/rows (some old p3 files indeed have it)
+			if (count < 2) {
+				lastlineIndx = 0;
+				// we will add a line for present day with default BPA2 thickness values in the CTC copy
+				theLines.insert(theLines.begin(), "\t\t0\t\t0\t\t\"\"");
+			}
 			QStringList LastLinelist = theLines[lastlineIndx].split(QRegExp("\\s+"), QString::SkipEmptyParts);
 			// change the middle entry to the value set in the UI
 			if (!LastLinelist[0].compare(BasementAge))
 			{
 				//found basement age
-				theLines[lastlineIndx] = "\t\t" + LastLinelist[0] + "\t\t" + QString("0") + "\t\t" + QString("\"\"") + '\n';
+				theLines[lastlineIndx] = "\t\t" + LastLinelist[0] + "\t\t" + QString("0") + "\t\t" + QString("\"\"") /*+ '\n'*/;
 			}
 			else if (!line.compare("[End]")) {
 				// if penultimate line
                 auto penulLine = lastlineIndx + 1;
 				theLines.insert(theLines.begin() + penulLine, theLines.front());
-				LastLinelist = theLines[penulLine].split(QRegExp("\\s+"), QString::SkipEmptyParts);
-				theLines[penulLine] = "\t\t" + BasementAge + "\t\t" + QString("0") + "\t\t" + QString("\"\"") + '\n';
+				//LastLinelist = theLines[penulLine].split(QRegExp("\\s+"), QString::SkipEmptyParts);
+				theLines[penulLine] = "\t\t" + BasementAge + "\t\t" + QString("0") + "\t\t" + QString("\"\"") /*+ '\n'*/;
 			}
 			//
 			// write the entire table with the change
@@ -443,51 +457,63 @@ void CTCcontroller::updateProjectTxtFile(const QString& scenarioFolderPath)
     QFile newFile(newProjectTxtFile);
 
     QFileInfo info(newProjectTxtFile);
-    if(info.exists()) newFile.remove();
+    
+    if(info.exists()) 
+        newFile.remove();
 
-    oldFile.open(QIODevice::ReadWrite | QIODevice::Text);
-    newFile.open(QIODevice::ReadWrite | QIODevice::Text);
+    bool hasOpened = oldFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (hasOpened)
+    {
+        newFile.open(QIODevice::ReadWrite | QIODevice::Text);
 
-    QTextStream oldStream(&oldFile);
-    QTextStream newStream(&newFile);
-    QString line = oldStream.readLine();
-	
-	
-    while(!line.isNull()){
-        //Scenario
-        QStringList strList = line.simplified().split(":");
-        QString prefix_="CTCv2-";
-        if(!strList[0].compare("Scenario",Qt::CaseSensitive)){
-            
-            newStream << "Scenario: " << strList[1] << '-'<< qtutils::getTimeStamp(prefix_)<< endl;
-        }
-        //Project
-		else if (!strList[0].compare("Project", Qt::CaseSensitive)) {
-			newStream << "Project: " << strList[1] << '-'<< qtutils::getTimeStamp(prefix_) << endl;
-		}
-        //Top Boundary Conditions
-        else if (strList[0].contains("Top Boundary Conditions",Qt::CaseSensitive)){
-            newStream << "Top Boundary Conditions: Updated by CTC Outputs " << endl;
+        QTextStream oldStream(&oldFile);
+        QTextStream newStream(&newFile);
+        QString line = oldStream.readLine();
+
+
+        while (!line.isNull()) {
+            //Scenario
+            QStringList strList = line.simplified().split(":");
+            QString prefix_ = "CTCv2-";
+            if (!strList[0].compare("Scenario", Qt::CaseSensitive)) {
+
+                newStream << "Scenario: " << strList[1] << '-' << qtutils::getTimeStamp(prefix_) << endl;
+            }
+            //Project
+            else if (!strList[0].compare("Project", Qt::CaseSensitive)) {
+                newStream << "Project: " << strList[1] << '-' << qtutils::getTimeStamp(prefix_) << endl;
+            }
+            //Top Boundary Conditions
+            else if (strList[0].contains("Top Boundary Conditions", Qt::CaseSensitive)) {
+                newStream << "Top Boundary Conditions: Updated by CTC Outputs " << endl;
+            }
+
+            //Bottom Boundary Conditions
+            else if (strList[0].contains("Bottom Boundary Conditions", Qt::CaseSensitive)) {
+                newStream << "Bottom Boundary Conditions: Updated by CTC Outputs " << endl;
+            }
+            //Description
+            else if (strList[0].contains("Description", Qt::CaseSensitive)) {
+                newStream << "Description: " << strList[1] << " " << qtutils::getTimeStamp(prefix_) << endl;
+            }
+            else
+                newStream << line << endl;
+            line = oldStream.readLine();
         }
 
-        //Bottom Boundary Conditions
-        else if(strList[0].contains("Bottom Boundary Conditions",Qt::CaseSensitive)){
-            newStream << "Bottom Boundary Conditions: Updated by CTC Outputs " << endl;
-        }
-		//Description
-		else if (strList[0].contains("Description", Qt::CaseSensitive)) {
-			newStream << "Description: " << strList[1] << " " << qtutils::getTimeStamp(prefix_) << endl;
-		}
-        else
-            newStream << line << endl;
-        line = oldStream.readLine();
+        oldFile.close();
+        newFile.close();
+
+
+        oldFile.remove();
+        newFile.rename(oldProjectTxtFile);
     }
-
-    oldFile.close();
-    newFile.close();
-
-    oldFile.remove();
-    newFile.rename(oldProjectTxtFile);
+    else {
+        mainController_->log("**************************************** BASIN WARNING ****************************************");
+        mainController_->log("*********************************** Invalid/Missing Project.txt ***************************************");
+        mainController_->log("*************************** This scenario can not be imported to BPA2 Basin! ******************************");
+        mainController_->log("*********************************************************************************************");
+    }
 }
 
 void ctcWizard::CTCcontroller::GetTableFromProject3d(QString& fileName, QVector<QString>& TblVector, QString& tblName)
@@ -513,8 +539,7 @@ void ctcWizard::CTCcontroller::GetTableFromProject3d(QString& fileName, QVector<
             line = stream.readLine();
             break;
         }
-
-    };
+    }
     file.close();
 }
 
@@ -666,6 +691,16 @@ void CTCcontroller::slotPushButtonCTCrunCtcClicked()
             fastcldrnRunMode = "Decompaction";
         else
             fastcldrnRunMode = ctcScenario_.runMode();
+
+		auto check = qtutils::IsValidNoOfProcs(ctcScenario_.numProc());
+
+		if (check.compare("Ok"))
+		{
+			mainController_->log("- Invalid Input for: Number of Processors (CTC)...");
+			mainController_->log(check);
+			isValidFieldValues = false;
+		}
+
         if(isValidFieldValues)
         {
             auto isResultsAvailable = isFastCauldronResultsAvailable(&fastcldrnRunMode);
@@ -756,31 +791,21 @@ void CTCcontroller::slotpushButtonRunFastCauldronClicked()
         mainController_->log("- Please select project3d file");
     else
     {
-        bool validate;
-        double value;
-        bool isValidFieldValues;
-        int iMaxNumProc = 1000;
+        bool isValidFieldValues = true;
         QString fastcldrnRunMode;
-        value = ctcScenario_.numProc().toInt(&validate);
 
         if(ctcScenario_.runMode().isEmpty())
             fastcldrnRunMode = "Decompaction";
         else
             fastcldrnRunMode = ctcScenario_.runMode();
 
-        if(!validate)
+        auto check = qtutils::IsValidNoOfProcs(ctcScenario_.numProc());
+
+        if(check.compare("Ok"))
         {
-            mainController_->log("- Invalid Input for: Number of Processors (Cauldron)");
+            mainController_->log("- Invalid Input for: Number of Processors (Cauldron)...");
+            mainController_->log(check);
             isValidFieldValues = false;
-        }
-        else if(value > iMaxNumProc)
-        {
-            mainController_->log("- Invalid Input for: Number of Processors (Cauldron)");
-            mainController_->log("- Number of Processors for Cauldron run should not exceed 1000");
-            isValidFieldValues = false;
-        }
-        else {
-            isValidFieldValues = true;
         }
 		
 		if(isValidFieldValues)
@@ -794,7 +819,7 @@ void CTCcontroller::slotpushButtonRunFastCauldronClicked()
             }
             else
             {
-                mainController_->log("- Cauldron results already exists for Cauldron mode:" + fastcldrnRunMode);
+                mainController_->log("- Cauldron results already exists for Cauldron mode: " + fastcldrnRunMode);
             }
         }
     }
@@ -931,7 +956,6 @@ void CTCcontroller::slotPushSelectProject3dClicked()
     {
         for(int i = 0; i < riftHistTblVector.size(); ++i)
         {
-            //QString &str = riftHistTblVector[i];
             strHasPWD = "N";
             QStringList strLst = riftHistTblVector[i].simplified().split(" ");
             QString strTectonicFlg, strRDAMap, strBasaltMap;
