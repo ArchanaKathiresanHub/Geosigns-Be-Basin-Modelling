@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-03  Sumant.Kalra  <Sumant.Kalra@shell.com>
+
+	chg: dev: Cauldron2Voxet Technical Debt and Enhancements.
+	 * Intermediate datatypes converted from float to double, final property values as float
+	 * Exit condition removed
+	 * Unreferenced Variables removed
+
+	Related work items: #432105
+	================== COMMIT-END ========================
+	Commit-ID:<6115cecff9278cf6eb547c32ea30f94a8a5f0067>	  (HEAD -> Developers/sumant.kalra/updateChangeLog, origin/master, origin/Developers/sumant.kalra/updateChangeLog, master)
+
+++
 2021-08-31  arijit.khan Khan  <arijit.khan@shell.com>
 
 	 fix: usr: dev: Removed the exit(-1) condition !rmf.
