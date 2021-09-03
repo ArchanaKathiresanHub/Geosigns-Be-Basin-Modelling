@@ -21,12 +21,12 @@ public :
    void setMaximumNumberOfSamples ( const int size );
 
    /// Set the limits of the oned-domain.
-   void setInterval ( const float top,
-                      const float bottom );
+   void setInterval ( const double top,
+                      const double bottom );
 
    /// Add a sample to the interplator.
-   void addSample ( const float z,
-                    const float value );
+   void addSample ( const double z,
+                    const double value );
 
    /// Freeze the interpolator, i.e. compute the interpolator polynomials.
    void freeze ();
@@ -35,31 +35,31 @@ public :
    void clear ();
 
    /// The top end of the interval.
-   float topOfInterval () const;
+   double topOfInterval () const;
 
    /// The bottom end of the interval.
-   float bottomOfInterval () const;
+   double bottomOfInterval () const;
 
    /// Is the depth within this interval.
-   bool containsDepth ( const float z ) const;
+   bool containsDepth ( const double z ) const;
 
    /// Interpolator for the depth.
-   float operator ()( const float z ) const;
+   double operator ()( const double z ) const;
 
    /// Print the interpolator to the stream.
    void print ( std::ostream& o ) const;
-   
+
 
 private :
 
    static const float IBSNULLVALUE;
 
-   int findPanel ( const float depth ) const;
+   int findPanel ( const double depth ) const;
 
    mutable int m_lastPanel;
 
-   float m_top;
-   float m_bottom;
+   double m_top;
+   double m_bottom;
 
    FloatArray m_depths;
    FloatArray m_propertyValues;

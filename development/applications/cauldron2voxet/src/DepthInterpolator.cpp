@@ -48,11 +48,11 @@ LayerInterpolator& DepthInterpolator::operator ()( const std::string& layerName 
 
 }
 
-float DepthInterpolator::topOfInterval () const {
+double DepthInterpolator::topOfInterval () const {
    return m_interpolators [ 0 ].topOfInterval ();
 }
 
-float DepthInterpolator::bottomOfInterval () const {
+double DepthInterpolator::bottomOfInterval () const {
    return m_interpolators [ m_interpolators.size () - 1 ].bottomOfInterval ();
 }
 
@@ -71,7 +71,7 @@ const LayerInterpolator* DepthInterpolator::getInterpolator ( const float z ) co
 }
 #endif
 
-float DepthInterpolator::operator ()( const float z ) const {
+double DepthInterpolator::operator ()( const double z ) const {
 
    if ( m_isNull ) {
       return m_nullValue;
@@ -89,7 +89,7 @@ float DepthInterpolator::operator ()( const float z ) const {
 
 }
 
-int DepthInterpolator::findLayer ( const float z ) const {
+int DepthInterpolator::findLayer ( const double z ) const {
 
    if ( m_isNull ) {
       return -1;
@@ -107,7 +107,7 @@ int DepthInterpolator::findLayer ( const float z ) const {
          m_lastLayer = i;
          return i;
       }
-      
+
    }
 
    m_lastLayer = -1;

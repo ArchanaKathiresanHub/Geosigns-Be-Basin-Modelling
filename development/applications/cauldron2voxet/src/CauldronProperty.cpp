@@ -25,7 +25,7 @@ bool CauldronProperty::getVoxetOutput () const {
    return database::getVoxetOutput ( m_record );
 }
 
-float CauldronProperty::getConversionFactor () const {
+double CauldronProperty::getConversionFactor () const {
    return database::getConversionFactor ( m_record );
 }
 

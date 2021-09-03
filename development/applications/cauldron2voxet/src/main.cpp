@@ -80,13 +80,16 @@ int main (int argc, char ** argv)
     arguments.verbose = cauldron_to_voxet::readBoolFlagsFromCmdLine(argList, "-verbose");
     arguments.singlePropertyHeader = cauldron_to_voxet::readBoolFlagsFromCmdLine(argList, "-singlepropertyheader");
 
+    // Making the cauldron2voxet behaviour consistent with the other LINUX utilities like fastcauldron
+    // The application should not terminate when an illegal argument is passed as argument
+#if 0
     if (argList.size() > 1)
     {
         std::string message = "Illegal Argument: " + argList.at(1);
         cauldron_to_voxet::Cauldron2VoxetConverter::showUsage(message.c_str(), (argList.at(0)).c_str());
         exit(-1);
     }
-
+#endif
     if (arguments.projectFileName == "")
     {
         cauldron_to_voxet::Cauldron2VoxetConverter::showUsage("No project file specified", arguments.argv0);

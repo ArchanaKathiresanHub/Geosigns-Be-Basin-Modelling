@@ -36,7 +36,7 @@ public :
    bool getVoxetOutput () const;
 
    /// What is the conversion factor for this property.
-   float getConversionFactor () const;
+   double getConversionFactor () const;
 
    /// What are the units of this property.
    const std::string& getUnits () const;

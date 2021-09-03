@@ -77,15 +77,15 @@ GridDescription::~GridDescription()
 }
 
 
-float GridDescription::getVoxetGridOrigin ( const unsigned int axes ) const {
+double GridDescription::getVoxetGridOrigin ( const unsigned int axes ) const {
    return m_voxetOrigin [ axes ];
 }
 
-float GridDescription::getVoxetGridMaximum ( const unsigned int axes ) const {
+double GridDescription::getVoxetGridMaximum ( const unsigned int axes ) const {
    return m_voxetMaxima [ axes ];
 }
 
-float GridDescription::getVoxetGridDelta ( const unsigned int axes ) const {
+double GridDescription::getVoxetGridDelta ( const unsigned int axes ) const {
    return m_voxetDelta [ axes ];
 }
 
@@ -97,17 +97,17 @@ int GridDescription::getVoxetNodeCount () const {
    return m_voxetNodeCount [ 0 ] * m_voxetNodeCount [ 1 ] * m_voxetNodeCount [ 2 ];
 }
 
-float GridDescription::getCauldronGridOrigin ( const unsigned int axes,
+double GridDescription::getCauldronGridOrigin ( const unsigned int axes,
                                                const bool         windowArea ) const {
    return m_cauldronOrigin [ axes ][windowArea ? 0 : 1];
 }
 
-float GridDescription::getCauldronGridMaximum ( const unsigned int axes,
+double GridDescription::getCauldronGridMaximum ( const unsigned int axes,
                                                 const bool         windowArea ) const {
    return m_cauldronMaxima [ axes ][windowArea ? 0 : 1];
 }
 
-float GridDescription::getCauldronGridDelta ( const unsigned int axes ) const {
+double GridDescription::getCauldronGridDelta ( const unsigned int axes ) const {
    return m_cauldronDelta [ axes ];
 }
 

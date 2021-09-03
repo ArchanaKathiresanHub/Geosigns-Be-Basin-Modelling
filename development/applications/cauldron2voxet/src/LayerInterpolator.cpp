@@ -25,8 +25,8 @@ void LayerInterpolator::setMaximumNumberOfSamples ( const int size ) {
 }
 
 
-void LayerInterpolator::setInterval ( const float top,
-                                      const float bottom ) {
+void LayerInterpolator::setInterval ( const double top,
+                                      const double bottom ) {
 
    assert ( top <= bottom );
 
@@ -35,8 +35,8 @@ void LayerInterpolator::setInterval ( const float top,
 }
 
 
-void LayerInterpolator::addSample ( const float z,
-                                    const float value ) {
+void LayerInterpolator::addSample ( const double z,
+                                    const double value ) {
 
    m_depths.push_back ( z );
    m_propertyValues.push_back ( value );
@@ -48,40 +48,40 @@ void LayerInterpolator::freeze () {
    //
    const double tolerance = 1.0e-3;
 
-   // 
-   // 
+   //
+   //
    //             ( x - a )            ( b - x )
    //     P(x) =  --------- * f(b)  +  --------- * f (a)
    //             ( b - a )            ( b - a )
-   // 
-   // 
+   //
+   //
    //             x * ( f(b) - f(a))    b * f (a)    a * f (b)
    //          =  ------------------ +  --------  -  ---------
    //                  ( b - a )        ( b - a )    ( b - a )
-   // 
+   //
    //          = A + B x
-   // 
-   // 
+   //
+   //
    //        b * f (a)     a * f (b)
    //   A =  ---------  -  ---------
    //        ( b - a )     ( b - a )
-   // 
-   // 
-   //        ( f(b) - f(a))    
+   //
+   //
+   //        ( f(b) - f(a))
    //   B  =  --------------
    //           ( b - a )
-   // 
-   // 
-   // 
+   //
+   //
+   //
    //  Rearranging the calculation like this reduces the flop count
    //  considerably, from 6 (including a division) to 2, per evaluation.
-   // 
-   // 
+   //
+   //
 
    assert ( m_depths.size () > 1 );
 
    int i;
-   float divisor;
+   double divisor;
 
    m_coeffsA.reserve ( m_depths.size ());
    m_coeffsB.reserve ( m_depths.size ());
@@ -115,26 +115,26 @@ void LayerInterpolator::clear () {
    m_lastPanel = 0;
 }
 
-float LayerInterpolator::topOfInterval () const {
+double LayerInterpolator::topOfInterval () const {
    return m_top;
 }
 
-float LayerInterpolator::bottomOfInterval () const {
+double LayerInterpolator::bottomOfInterval () const {
    return m_bottom;
 }
 
-bool LayerInterpolator::containsDepth ( const float z ) const {
+bool LayerInterpolator::containsDepth ( const double z ) const {
    return m_top <= z and z <= m_bottom;
 }
 
-float LayerInterpolator::operator ()( const float z ) const {
+double LayerInterpolator::operator ()( const double z ) const {
 
    int panel = findPanel ( z );
 
    return m_coeffsA [ panel ] + m_coeffsB [ panel ] * z;
 }
 
-int LayerInterpolator::findPanel ( const float z ) const {
+int LayerInterpolator::findPanel ( const double z ) const {
 
    if ( m_depths [ m_lastPanel ] <= z and z <= m_depths [ m_lastPanel + 1 ]) {
       return m_lastPanel;
@@ -148,7 +148,7 @@ int LayerInterpolator::findPanel ( const float z ) const {
          m_lastPanel = i;
          return i;
       }
-      
+
    }
 
    // Should this be an error?

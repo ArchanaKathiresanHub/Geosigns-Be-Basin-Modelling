@@ -14,9 +14,9 @@ public :
    ~VoxetDomainInterpolator ();
 
    /// Compute the interpolator at the position defined.
-   float operator ()( const unsigned int i,
+   double operator ()( const unsigned int i,
                       const unsigned int j,
-                      const float        depth ) const;
+                      const double        depth ) const;
 
    /// Return the depth-interpolator at the map-location.
    const DepthInterpolator& operator ()( const unsigned int i,

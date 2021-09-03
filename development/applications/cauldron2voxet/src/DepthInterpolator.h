@@ -42,10 +42,10 @@ public :
    LayerInterpolator& operator ()( const std::string& layerName );
 
    // Return the top-most depth of the interpolator.
-   float topOfInterval () const;
+   double topOfInterval () const;
 
    // Return the bottom-most depth of the interpolator.
-   float bottomOfInterval () const;
+   double bottomOfInterval () const;
 
    /// \brief Return whether or not the depth is a part of the water-column.
    bool isPartOfWaterColumn ( const double depth ) const;
@@ -57,7 +57,7 @@ public :
 #endif
 
    /// Evaluate the depth-interpolator for the particular depth.
-   float operator ()( const float z ) const;
+   double operator ()( const double z ) const;
 
    /// What was the layer number of the last interpolation.
    int lastLayerNumber () const;
@@ -66,7 +66,7 @@ public :
    void print ( std::ostream& o ) const;
 
    /// Find the layer-number for the particular depth.
-   int findLayer ( const float z ) const;
+   int findLayer ( const double z ) const;
 
 private :
 

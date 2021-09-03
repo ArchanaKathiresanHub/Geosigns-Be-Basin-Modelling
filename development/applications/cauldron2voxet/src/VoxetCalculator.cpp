@@ -184,8 +184,6 @@ void VoxetCalculator::initialiseInterpolators ( const AbstractDerivedProperties:
    int numberOfLayerDepthNodes;
    int i;
    int j;
-   int k;
-   int interp;
    unsigned int cauldronI;
    unsigned int cauldronJ;
 
@@ -366,17 +364,16 @@ void VoxetCalculator::calculatorInterpolatorValues ( const AbstractDerivedProper
 {
    int i;
    int j;
-   int k;
    int l;
    int formationCount;
 
    double cauldronI;
    double cauldronJ;
 
-   float xValue;
-   float yValue;
-   float property;
-   float depth;
+   double xValue;
+   double yValue;
+   double property;
+   double depth;
 
    string formationName;
 
@@ -415,23 +412,23 @@ void VoxetCalculator::calculatorInterpolatorValues ( const AbstractDerivedProper
                     depthPropertyIter != depthPropertyValueList.end (); ++depthPropertyIter, ++formationCount)
                {
 
-			if (verbose && i == 0 && j == 0)
-			{
-				 cout << "formation count: " << formationCount << endl << flush;
-			}
+            if (verbose && i == 0 && j == 0)
+            {
+                 cout << "formation count: " << formationCount << endl << flush;
+            }
 
-									depthPropertyValue = *depthPropertyIter;
+                                    depthPropertyValue = *depthPropertyIter;
 
-			if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const DataAccess::Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == DataAccess::Interface::BASEMENT_FORMATION )) {
-				 continue;
-			}
+            if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && dynamic_cast<const DataAccess::Interface::Formation*>(depthPropertyValue->getFormation ())->kind () == DataAccess::Interface::BASEMENT_FORMATION )) {
+                 continue;
+            }
 
-			if (verbose && i == 0 && j == 0)
-			{
-				 cout << " computing formation: " << depthPropertyValue->getFormation ()->getName () << endl << flush;
-			}
+            if (verbose && i == 0 && j == 0)
+            {
+                 cout << " computing formation: " << depthPropertyValue->getFormation ()->getName () << endl << flush;
+            }
 
-									const AbstractDerivedProperties::FormationPropertyPtr propertyValue = propertyIter->second->getDerivedProperty (formationCount);
+                                    const AbstractDerivedProperties::FormationPropertyPtr propertyValue = propertyIter->second->getDerivedProperty (formationCount);
 
                   if (!propertyValue)
                   {
@@ -442,13 +439,13 @@ void VoxetCalculator::calculatorInterpolatorValues ( const AbstractDerivedProper
                      continue;
                   }
 
-			if (verbose && i == 0 && j == 0)
-			{
-				 cout << " found property value for property " << propertyValue->getProperty()->getName() <<
-			" for formation: " << propertyValue->getFormation ()->getName () << endl << flush;
-			}
+            if (verbose && i == 0 && j == 0)
+            {
+                 cout << " found property value for property " << propertyValue->getProperty()->getName() <<
+            " for formation: " << propertyValue->getFormation ()->getName () << endl << flush;
+            }
 
-									formationName = depthPropertyValue->getFormation ()->getName ();
+                                    formationName = depthPropertyValue->getFormation ()->getName ();
 
                   // For each property-layer-interpolator set the layer top and bottom depths.
                   if (!interpolator (i, j).isNullInterpolator ())
@@ -494,7 +491,6 @@ void VoxetCalculator::print ( std::ostream& o ) const {
 
    PropertyInterpolatorMap::const_iterator propertyIter;
    int count;
-   int i;
    int j;
    int k;
 
@@ -532,10 +528,8 @@ void VoxetCalculator::computeProperty ( const CauldronProperty*  property,
    int outputDotNumber = m_gridDescription.getVoxetNodeCount () / 20;
    int count;
 
-   float x;
-   float y;
-   float z;
-   const float conversionFactor = property->getConversionFactor ();
+   double z;
+   const double conversionFactor = property->getConversionFactor ();
 
    PropertyInterpolatorMap::iterator propertyIter = m_propertyInterpolators.find ( property->getProperty ());
 

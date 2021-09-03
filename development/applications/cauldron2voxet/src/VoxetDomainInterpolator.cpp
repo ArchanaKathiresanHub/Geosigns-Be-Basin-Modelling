@@ -29,9 +29,9 @@ DepthInterpolator& VoxetDomainInterpolator::operator ()( const unsigned int i,
 }
 
 
-float VoxetDomainInterpolator::operator ()( const unsigned int i,
+double VoxetDomainInterpolator::operator ()( const unsigned int i,
                                             const unsigned int j,
-                                            const float        depth ) const {
+                                            const double        depth ) const {
    return m_interpolators [ i ][ j ]( depth );
 }
 
