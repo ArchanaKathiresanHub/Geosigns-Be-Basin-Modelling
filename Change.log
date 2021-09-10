@@ -36,6 +36,17 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-10  Richard Faasse  <Richard.Faasse@shell.com>
+
+	chg: Implemented import pop-up in SAC wizard as preparation for WellPrep tool.
+	* In this commit, an import pop-up is implemented to separate the property selection from the objective function in the SAC wizard. This is done to prepare for the well-preparation tab, where the pop-up will get more functionality, depending on the input file.
+	* 2 issues were fixed, regarding duplicate wells and incorrectly sorted wells when they had the same X-location.
+	* Related work items: #417585
+
+	================== COMMIT-END ========================
+	Commit-ID:<c4fe648a6e6e76c7087307354210694364164d8c>	  (refs/heads/master, refs/heads/Developers/Richard.Faasse/UpdateChangeLog)
+
+++
 2021-09-03  Sumant.Kalra  <Sumant.Kalra@shell.com>
 
 	chg: dev: Cauldron2Voxet Technical Debt and Enhancements.
