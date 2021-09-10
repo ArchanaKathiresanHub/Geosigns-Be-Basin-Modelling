@@ -88,6 +88,11 @@ int Well::id() const
   return id_;
 }
 
+void Well::setId(const int id)
+{
+  id_ = id;
+}
+
 QString Well::name() const
 {
   return name_;
@@ -179,6 +184,22 @@ void Well::applyObjectiveFunction(const ObjectiveFunctionManager& objectiveFunct
                                  objectiveFunction.relativeError(index)*target.value();
       target.setStandardDeviation(standardDeviation);
       target.setUaWeight(objectiveFunction.weight(index));
+    }
+  }
+}
+
+void Well::shift(const double xShift)
+{
+  x_+=xShift;
+}
+
+void Well::renameUserPropertyName(const QString& oldName, const QString& newName)
+{
+  for (CalibrationTarget& target : calibrationTargets_)
+  {
+    if (target.propertyUserName() == oldName)
+    {
+      target.setPropertyUserName(newName);
     }
   }
 }

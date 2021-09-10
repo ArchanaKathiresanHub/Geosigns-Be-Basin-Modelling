@@ -7,17 +7,19 @@ namespace casaWizard
 {
 
 class CasaScenario;
+class CalibrationTargetManager;
 class CMBMapReader;
 
 class CalibrationTargetCreator
 {
 public:
-  CalibrationTargetCreator(CasaScenario& casaScenario);
+  CalibrationTargetCreator(CasaScenario& casaScenario, casaWizard::CalibrationTargetManager& calibrationTargetManager);
   void createFromExcel(const QString& excelFilename);
 
 private:
   void setWellHasDataInLayer(const int wellIndex, const CMBMapReader& mapReader);
 
+  CalibrationTargetManager& calibrationTargetManager_;
   CasaScenario& casaScenario_;
 };
 

@@ -32,7 +32,7 @@ void CaseExtractor::extract()
 {
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
   const QVector<const Well*>& wells = ctManager.wells();
-  QVector<int> sortedIndices = casaWizard::functions::sortedByXWellIndices(wells);
+  QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(wells);
   int caseIndex{0};
 
   for (const int wellIndex : sortedIndices)

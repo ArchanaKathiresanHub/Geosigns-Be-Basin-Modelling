@@ -19,7 +19,7 @@ CaseDataCreator::CaseDataCreator(const CalibrationTargetManager& calibrationTarg
 void CaseDataCreator::read()
 {
   int caseIndex{0};
-  const QVector<int> sortedIndices = casaWizard::functions::sortedByXWellIndices(calibrationTargetManager_.wells());
+  const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(calibrationTargetManager_.wells());
   for (const int wellIndex : sortedIndices)
   {
     if (calibrationTargetManager_.well(wellIndex).isActive())

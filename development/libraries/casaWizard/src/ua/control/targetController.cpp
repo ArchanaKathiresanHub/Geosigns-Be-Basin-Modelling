@@ -81,7 +81,7 @@ void TargetController::slotLineEditCalibrationTextChanged(const QString& calibra
 {
   scenario_.clearWellsAndCalibrationTargets();
 
-  CalibrationTargetCreator targetCreator(scenario_);
+  CalibrationTargetCreator targetCreator(scenario_, scenario_.calibrationTargetManager());
   targetCreator.createFromExcel(calibrationTargetsFilename);
 
   emit signalRefreshChildWidgets();

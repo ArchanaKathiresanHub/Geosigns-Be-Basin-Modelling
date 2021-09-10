@@ -63,30 +63,18 @@ void ObjectiveFunctionTableSAC::updateTable(const ObjectiveFunctionManager& obje
 
     setItem(row, 1, new QTableWidgetItem(QString::number(objectiveFunction.absoluteError(row))));
     setItem(row, 2, new QTableWidgetItem(QString::number(objectiveFunction.relativeError(row))));
+    QTableWidgetItem* cauldronPropertyName = new QTableWidgetItem(objectiveFunction.variablesCauldronNames()[row]);
+    cauldronPropertyName->setFlags(cauldronPropertyName->flags() & ~Qt::ItemIsEditable);
+    setItem(row, 3, cauldronPropertyName);
 
-    QComboBox* propertySelector = new QComboBox(this);
-    propertySelector->addItems({"TwoWayTime", "GammaRay", "BulkDensity", "SonicSlowness",
-                                "Pressure", "Temperature", "VRe", "Unknown"});
-    QString propertyUserName = objectiveFunction.values()[row].variableUserName();
-    connect(propertySelector, &QComboBox::currentTextChanged, [=](const QString& propertyCauldronName){emit selectedPropertyChanged(propertyCauldronName, propertyUserName);});
-
-    if (objectiveFunction.values()[row].variableCauldronName() == "Velocity")
-    {
-      propertySelector->addItem("Velocity");
-    }
-    propertySelector->setCurrentText(objectiveFunction.variablesCauldronNames()[row]);
-
-    setCellWidget(row, 3, propertySelector);
-
-    if (objectiveFunction.values()[row].variableCauldronName() == "Velocity" && !objectiveFunction.values()[row].enabled())
+    if (cauldronPropertyName->text() == "Velocity" && !objectiveFunction.values()[row].enabled())
     {
       dynamic_cast<CustomCheckbox*>(checkboxWidget->children()[0])->enable(false);
-      for (int column = 1; column < 3; column++)
+      for (int column = 1; column < 4; column++)
       {
         QTableWidgetItem* toDisable = item(row, column);
         toDisable->setFlags(toDisable->flags().setFlag(Qt::ItemIsEnabled, false));
       }
-      propertySelector->setDisabled(true);
     }
   }
 }

@@ -2,25 +2,23 @@
 
 #include "extractWellDataXlsx.h"
 #include "model/casaScenario.h"
-#include "../common/model/input/cmbMapReader.h"
+#include "model/input/cmbMapReader.h"
 
 #include <QString>
 
 namespace casaWizard
 {
 
-
-CalibrationTargetCreator::CalibrationTargetCreator(CasaScenario& casaScenario) :
+CalibrationTargetCreator::CalibrationTargetCreator(CasaScenario& casaScenario, CalibrationTargetManager& calibrationTargetManager) :
+  calibrationTargetManager_{calibrationTargetManager},
   casaScenario_{casaScenario}
 {
-
 }
 
 void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
 {
   ExtractWellDataXlsx wellData{excelFileName};
 
-  CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
   CMBMapReader mapReader;
   mapReader.load(casaScenario_.project3dPath().toStdString());
 
@@ -28,14 +26,14 @@ void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
   for (const QString& wellName : wellNames)
   {
     wellData.extractWellData(wellName);
-    const int wellIndex = calibrationTargetManager.addWell(wellName, wellData.xCoord(), wellData.yCoord());
+    const int wellIndex = calibrationTargetManager_.addWell(wellName, wellData.xCoord(), wellData.yCoord());
 
     const QVector<QString> variableUserNames = wellData.calibrationTargetVarsUserName();
     const QVector<QString> variableCauldronNames = wellData.calibrationTargetVarsCauldronName();
 
     for (int i = 0; i < variableUserNames.size(); i++)
     {
-      calibrationTargetManager.addToMapping(variableUserNames[i], variableCauldronNames[i]);
+      calibrationTargetManager_.addToMapping(variableUserNames[i], variableCauldronNames[i]);
     }
 
     const QVector<std::size_t> nTargetsPerVariable = wellData.nDataPerTargetVar();
@@ -67,7 +65,7 @@ void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
                                  QString::number(wellData.xCoord(),'f',1) + "," +
                                  QString::number(wellData.yCoord(),'f',1) + "," +
                                  QString::number(z[iTarget],'f',1) + ")");
-        calibrationTargetManager.addCalibrationTarget(targetName, variableUserNames[iVariable],
+        calibrationTargetManager_.addCalibrationTarget(targetName, variableUserNames[iVariable],
                                                       wellIndex, z[iTarget], value[iTarget]);
 
       }
@@ -76,15 +74,13 @@ void CalibrationTargetCreator::createFromExcel(const QString& excelFileName)
     setWellHasDataInLayer(wellIndex, mapReader);
   }
 
-  calibrationTargetManager.updateObjectiveFunctionFromTargets();
+  calibrationTargetManager_.updateObjectiveFunctionFromTargets();
 }
 
 void CalibrationTargetCreator::setWellHasDataInLayer(const int wellIndex, const CMBMapReader& mapReader)
 {
-  CalibrationTargetManager& calibrationTargetManager = casaScenario_.calibrationTargetManager();
-
   QVector<bool> hasDataInLayer;
-  auto& well = calibrationTargetManager.well(wellIndex);
+  auto& well = calibrationTargetManager_.well(wellIndex);
   for (const QString& layer : casaScenario_.projectReader().layerNames())
   {
     bool hasDataInCurrentLayer = false;
@@ -99,7 +95,7 @@ void CalibrationTargetCreator::setWellHasDataInLayer(const int wellIndex, const 
     hasDataInLayer.push_back(hasDataInCurrentLayer);
   }
 
-  calibrationTargetManager.setHasDataInLayer(wellIndex, hasDataInLayer);
+  calibrationTargetManager_.setHasDataInLayer(wellIndex, hasDataInLayer);
 }
 
 } // namespace casaWizard

@@ -58,6 +58,11 @@ QString CalibrationTarget::propertyUserName() const
   return propertyUserName_;
 }
 
+void CalibrationTarget::setPropertyUserName(const QString& propertyUserName)
+{
+  propertyUserName_ = propertyUserName;
+}
+
 double CalibrationTarget::z() const
 {
   return z_;

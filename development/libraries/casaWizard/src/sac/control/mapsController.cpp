@@ -119,7 +119,7 @@ void MapsController::validateWellsHaveOptimized()
 bool MapsController::hasOptimizedSuccessfully(const int index) const
 {
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
-  const QVector<int> sortedIndices = casaWizard::functions::sortedByXWellIndices(ctManager.activeWells());
+  const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(ctManager.activeWells());
 
   QFile successFile(scenario_.calibrationDirectory() + "/" + scenario_.runLocation() + "/" + scenario_.iterationDirName() + "/Case_" + QString::number(sortedIndices[index] + 1) + "/Stage_0.sh.success");
 

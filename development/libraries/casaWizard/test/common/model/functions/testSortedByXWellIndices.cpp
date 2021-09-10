@@ -18,7 +18,7 @@ TEST( SortedByXWellIndices, testSorting )
   wells.append(&well3);
 
   QVector<int> orderExpected{0, 2, 1};
-  QVector<int> orderActual{ casaWizard::functions::sortedByXWellIndices(wells) };
+  QVector<int> orderActual{ casaWizard::functions::sortedByXYWellIndices(wells) };
 
   ASSERT_EQ( orderExpected.size(), orderActual.size());
   for (int i = 0; i < orderExpected.size(); ++i)

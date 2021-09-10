@@ -269,3 +269,79 @@ TEST(CalibrationTargetManagerTest, testActiveProperties)
     EXPECT_EQ(activePropertiesExpected[i], activePropertiesActual[i]);
   }
 }
+
+TEST(CalibrationTargetManagerTest, testCopyMappingFrom)
+{
+  casaWizard::CalibrationTargetManager manager;
+  manager.addToMapping("key1", "value1");
+  manager.addToMapping("key2", "value2");
+  manager.addToMapping("key3", "value3");
+
+  casaWizard::CalibrationTargetManager newManager;
+  newManager.addToMapping("key1", "someOtherValue");
+  newManager.addToMapping("key4", "value4");
+  EXPECT_EQ(newManager.getCauldronPropertyName("key1"), "someOtherValue");
+
+  newManager.copyMappingFrom(manager);
+
+  EXPECT_EQ(newManager.getCauldronPropertyName("key1"), "value1");
+  EXPECT_EQ(newManager.getCauldronPropertyName("key2"), "value2");
+  EXPECT_EQ(newManager.getCauldronPropertyName("key3"), "value3");
+  EXPECT_EQ(newManager.getCauldronPropertyName("key4"), "value4");
+}
+
+TEST(CalibrationTargetManagerTest, testAppendWellsFrom)
+{
+  casaWizard::CalibrationTargetManager manager1;
+  manager1.addWell("Well1", 100, 200);
+  manager1.addWell("Well2", 200, 100);
+  manager1.addToMapping("key1", "value1");
+
+  casaWizard::CalibrationTargetManager manager2;
+  manager2.addWell("Well1-manager2", 300, 200);
+  manager2.addWell("Well2-manager2", 400, 100);
+
+  manager2.appendFrom(manager1);
+
+  EXPECT_EQ(manager2.wells().size(), 4);
+  EXPECT_EQ(manager2.getCauldronPropertyName("key1"), "value1");
+
+  int counter = 0;
+  for (const casaWizard::Well* well : manager2.wells())
+  {
+    EXPECT_EQ(well->id(), counter);
+    counter++;
+  }
+}
+
+TEST(CalibrationTargetManagerTest, testRenamePropertyUserName)
+{
+  casaWizard::CalibrationTargetManager manager;
+  manager.addWell("Well1", 100, 200);
+  manager.addCalibrationTarget("Calibrationtarget1", "oldPropertyUserName", 0, 1.03, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget2", "oldPropertyUserName", 0, 1.03, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget3", "oldPropertyUserName", 0, 1.03, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget4", "oldPropertyUserName", 0, 1.03, 4.0);
+
+  manager.addWell("Well2", 200, 100);
+  manager.addCalibrationTarget("Calibrationtarget1", "oldPropertyUserName", 1, 1.03, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget2", "oldPropertyUserName", 1, 1.03, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget3", "oldPropertyUserName", 1, 1.03, 4.0);
+  manager.addCalibrationTarget("Calibrationtarget4", "oldPropertyUserName", 1, 1.03, 4.0);
+
+  manager.addToMapping("oldPropertyUserName", "someCauldronName");
+
+  for (const auto& calibrationTarget : manager.calibrationTargets())
+  {
+    EXPECT_EQ(calibrationTarget->propertyUserName().toStdString(), "oldPropertyUserName");
+  }
+  EXPECT_EQ(manager.getCauldronPropertyName("newPropertyUserName").toStdString(), "Unknown");
+
+  manager.renameUserPropertyName("oldPropertyUserName", "newPropertyUserName");
+
+  for (const auto& calibrationTarget : manager.calibrationTargets())
+  {
+    EXPECT_EQ(calibrationTarget->propertyUserName().toStdString(), "newPropertyUserName");
+  }
+  EXPECT_EQ(manager.getCauldronPropertyName("newPropertyUserName").toStdString(), "someCauldronName");
+}

@@ -17,16 +17,17 @@ namespace casaWizard
 namespace sac
 {
 
-LoadTargetsThread::LoadTargetsThread(SACScenario& casaScenario, const QString& fileName, QObject* parent) :
+LoadTargetsThread::LoadTargetsThread(SACScenario& casaScenario, CalibrationTargetManager& calibrationTargetManager, const QString& fileName, QObject* parent) :
   QThread(parent),
   casaScenario_{casaScenario},
-  fileName_{fileName}
+  fileName_{fileName},
+  calibrationTargetManager_{calibrationTargetManager}
 {
 }
 
 void LoadTargetsThread::run()
 {
-  CalibrationTargetCreator targetCreator(casaScenario_);
+  CalibrationTargetCreator targetCreator(casaScenario_, calibrationTargetManager_);
   targetCreator.createFromExcel(fileName_);
 }
 

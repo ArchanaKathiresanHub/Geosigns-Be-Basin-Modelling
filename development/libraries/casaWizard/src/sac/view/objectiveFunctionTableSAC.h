@@ -29,7 +29,6 @@ private:
 
 signals:
   void enabledStateChanged(int, int);
-  void selectedPropertyChanged(const QString&, const QString&);
 };
 
 }  // namespace casaWizard

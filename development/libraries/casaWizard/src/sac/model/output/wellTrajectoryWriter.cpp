@@ -46,6 +46,13 @@ void writeTrajectories(SACScenario& scenario)
       const int propertyIndex = propertyUserNames.indexOf(propertyUserName);
       const QString filename{folder + "/" + well->name() + "_" + propertyUserName + "_" + manager.getCauldronPropertyName(propertyUserName) + ".in"};
       QFile file{filename};
+
+      // Don't write data for wells with a duplicate name
+      if (file.exists())
+      {
+        continue;
+      }
+
       if( !file.open(QIODevice::WriteOnly | QIODevice::Text))
       {
         throw std::exception();

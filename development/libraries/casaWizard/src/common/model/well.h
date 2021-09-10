@@ -37,6 +37,7 @@ public:
   void clear() override;
 
   int id() const;
+  void setId(const int id);
   QString name() const;
   double x() const;
   double y() const;
@@ -56,6 +57,10 @@ public:
   void addCalibrationTarget(const QString& name, const QString& propertyUserName, const double z, const double value);
 
   void applyObjectiveFunction(const ObjectiveFunctionManager& objectiveFunction);
+
+  void shift(const double xShift);
+
+  void renameUserPropertyName(const QString& oldName, const QString& newName);
 
 private:
   int id_;

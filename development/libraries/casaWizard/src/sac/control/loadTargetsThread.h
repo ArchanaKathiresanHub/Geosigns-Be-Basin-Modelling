@@ -15,6 +15,8 @@ class QString;
 namespace casaWizard
 {
 
+class CalibrationTargetManager;
+
 namespace sac
 {
 
@@ -24,12 +26,13 @@ class LoadTargetsThread : public QThread
 {
   Q_OBJECT
 public:
-  LoadTargetsThread(SACScenario& casaScenario, const QString& fileName, QObject* parent = nullptr);
+  LoadTargetsThread(SACScenario& casaScenario, casaWizard::CalibrationTargetManager& calibrationTargetManager, const QString& fileName, QObject* parent = nullptr);
   void run() override;
 
 private:
   SACScenario& casaScenario_;
   const QString& fileName_;
+  CalibrationTargetManager& calibrationTargetManager_;
 
 };
 

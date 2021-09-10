@@ -12,6 +12,7 @@
 #include "control/casaScriptWriter.h"
 #include "control/dataExtractionController.h"
 #include "control/functions/folderOperations.h"
+#include "control/importWellPopupController.h"
 #include "control/lithofractionController.h"
 #include "control/loadTargetsThread.h"
 #include "control/objectiveFunctionControllerSAC.h"
@@ -45,8 +46,6 @@
 #include <QVector>
 #include <QThread>
 
-
-
 namespace casaWizard
 {
 
@@ -61,16 +60,17 @@ SACcontroller::SACcontroller(SACtab* sacTab,
   sacTab_{sacTab},
   casaScenario_{casaScenario},
   scriptRunController_{scriptRunController},
+  importingPopup_{},
   calibrationTargetController_{new CalibrationTargetController(sacTab->calibrationTargetTable(), casaScenario_, this)},
   dataExtractionController_{new DataExtractionController(casaScenario_, scriptRunController_, this)},
   lithofractionController_{new LithofractionController(sacTab->lithofractionTable() , casaScenario_, this)},
   objectiveFunctionController_{new ObjectiveFunctionControllerSAC(sacTab->objectiveFunctionTable(), casaScenario_.calibrationTargetManager(), casaScenario, this)},
-  importing_{}
+  importWellPopupController_{new ImportWellPopupController(sacTab->importWellPopup(), this)}
 {
-  importing_.setIcon(QMessageBox::Icon::Information);
-  importing_.setWindowTitle("Importing");
-  importing_.setText("Please wait while the wells are imported and validated.");
-  importing_.setStandardButtons(nullptr);
+  importingPopup_.setIcon(QMessageBox::Icon::Information);
+  importingPopup_.setWindowTitle("Importing");
+  importingPopup_.setText("Please wait while the wells are imported and validated.");
+  importingPopup_.setStandardButtons(nullptr);
   sacTab_->lineEditProject3D()->setText("");
   sacTab_->comboBoxCluster()->setCurrentText(casaScenario_.clusterName());
 
@@ -303,7 +303,7 @@ void SACcontroller::slotRunOriginal3D()
 
 void SACcontroller::slotCloseWaitingDialog()
 {
-  importing_.done(0);
+  importingPopup_.done(0);
 }
 
 void SACcontroller::slotPushSelectProject3dClicked()
@@ -369,13 +369,28 @@ void SACcontroller::slotPushSelectCalibrationClicked()
                                                   "Select calibration targets",
                                                   "",
                                                   "Spreadsheet (*.xlsx)");
-  LoadTargetsThread* loadTargetsThread = new LoadTargetsThread(casaScenario_, fileName, this);
-  loadTargetsThread->start();
-  connect (loadTargetsThread, &LoadTargetsThread::finished, this, &SACcontroller::slotCloseWaitingDialog);
-  connect (loadTargetsThread, &LoadTargetsThread::finished, loadTargetsThread, &QObject::deleteLater);
-  importing_.exec();
+  if (fileName == "")
+  {
+    return;
+  }
+
+  CalibrationTargetManager& temporaryImportCalibrationTargetManager = importWellPopupController_->importCalibrationTargetManager();
+  temporaryImportCalibrationTargetManager.clear();
+
+  importOnSeparateThread(temporaryImportCalibrationTargetManager, fileName);
+  importingPopup_.exec();
 
   CalibrationTargetManager& ctManager = casaScenario_.calibrationTargetManager();
+  temporaryImportCalibrationTargetManager.copyMappingFrom(ctManager);
+
+  if (importWellPopupController_->executeImportWellPopup() != QDialog::Accepted)
+  {
+    return;
+  }
+
+  ctManager.appendFrom(temporaryImportCalibrationTargetManager);
+  ctManager.updateObjectiveFunctionFromTargets();
+
   if (ctManager.objectiveFunctionManager().indexOfCauldronName("Velocity") != -1)
   {
     QMessageBox velocityDisabled(QMessageBox::Icon::Information,
@@ -391,6 +406,14 @@ void SACcontroller::slotPushSelectCalibrationClicked()
 
   scenarioBackup::backup(casaScenario_);
   refreshGUI();
+}
+
+void SACcontroller::importOnSeparateThread(CalibrationTargetManager& temporaryImportCalibrationTargetManager, const QString& fileName)
+{
+  LoadTargetsThread* loadTargetsThread = new LoadTargetsThread(casaScenario_, temporaryImportCalibrationTargetManager, fileName, this);
+  loadTargetsThread->start();
+  connect (loadTargetsThread, &LoadTargetsThread::finished, this, &SACcontroller::slotCloseWaitingDialog);
+  connect (loadTargetsThread, &LoadTargetsThread::finished, loadTargetsThread, &QObject::deleteLater);
 }
 
 void SACcontroller::slotComboBoxClusterCurrentTextChanged(QString clusterName)

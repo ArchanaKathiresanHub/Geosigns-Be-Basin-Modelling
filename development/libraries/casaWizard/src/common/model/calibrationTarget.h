@@ -19,9 +19,11 @@ public:
   QStringList write() const;
 
   QString name() const;
-  QString propertyUserName() const;
   double z() const;
   double value() const;
+
+  QString propertyUserName() const;
+  void setPropertyUserName(const QString& propertyUserName);
 
   double standardDeviation() const;
   void setStandardDeviation(double standardDeviation);

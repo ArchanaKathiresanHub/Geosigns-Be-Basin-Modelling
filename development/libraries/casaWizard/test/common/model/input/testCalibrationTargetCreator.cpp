@@ -14,7 +14,7 @@ TEST( CalibrationTargetCreatorTest, testCreateFromExcel )
   casaWizard::StubCasaScenario scenario{};
   casaWizard::CalibrationTargetManager& manager{scenario.calibrationTargetManager()};
 
-  casaWizard::CalibrationTargetCreator targetCreator(scenario);
+  casaWizard::CalibrationTargetCreator targetCreator(scenario, scenario.calibrationTargetManager());
   targetCreator.createFromExcel(excelFilename);
 
   const QVector<const casaWizard::Well*> wellsActual = manager.wells();
@@ -67,7 +67,7 @@ TEST( CalibrationTargetCreator, testCreateFromExcelWithDeletes )
   casaWizard::StubCasaScenario scenario{};
   casaWizard::CalibrationTargetManager& manager{scenario.calibrationTargetManager()};
 
-  casaWizard::CalibrationTargetCreator targetCreator(scenario);
+  casaWizard::CalibrationTargetCreator targetCreator(scenario, scenario.calibrationTargetManager());
   targetCreator.createFromExcel(excelFilename);
 
   const QVector<const casaWizard::CalibrationTarget*> targetsActual = manager.calibrationTargets();

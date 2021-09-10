@@ -23,6 +23,11 @@ public:
   void setCalibrationTargetStandardDeviation(int index, double value);
   void setCalibrationTargetUAWeight(int index, double value);
 
+  void appendFrom(const CalibrationTargetManager& calibrationTargetManager);
+  void copyMappingFrom(const CalibrationTargetManager& calibrationTargetManager);
+  void renameUserPropertyName(const QString& oldName, const QString& newName);
+  QMap<QString, QString> userNameToCauldronNameMapping() const;
+
   const QVector<const Well*> wells() const;
   const QVector<const Well*> activeWells() const;
   const QVector<const Well*> activeAndIncludedWells() const;
@@ -60,11 +65,12 @@ public:
 private:
   CalibrationTargetManager(const CalibrationTargetManager&) = delete;
   CalibrationTargetManager& operator=(CalibrationTargetManager) = delete;
+  int addWell(Well well);
 
   ObjectiveFunctionManager objectiveFunctionManager_;
   QMap<QString, QString> userNameToCauldronNameMapping_;
   QVector<Well> wells_;
-
+  double getShiftToAvoidOverlap(const QString& wellName, const double x, const double y);
 };
 
 } // namespace casaWizard

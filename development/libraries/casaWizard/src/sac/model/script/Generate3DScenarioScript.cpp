@@ -80,7 +80,7 @@ QString Generate3DScenarioScript::setFilterOneDResults() const
   const CalibrationTargetManager& ctManager = scenario_.calibrationTargetManager();
 
   int i = 0;
-  const QVector<int> sortedIndices = casaWizard::functions::sortedByXWellIndices(ctManager.activeWells());
+  const QVector<int> sortedIndices = casaWizard::functions::sortedByXYWellIndices(ctManager.activeWells());
   for (const Well* well: ctManager.activeWells())
   {
     if (well->isExcluded())

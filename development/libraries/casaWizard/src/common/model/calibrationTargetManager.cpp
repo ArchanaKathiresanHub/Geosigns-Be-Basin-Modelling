@@ -47,15 +47,69 @@ void CalibrationTargetManager::addCalibrationTarget(const QString& name, const Q
   wells_[wellIndex].addCalibrationTarget(name, propertyUserName, z, value);
 }
 
+void CalibrationTargetManager::appendFrom(const CalibrationTargetManager& calibrationTargetManager)
+{
+  userNameToCauldronNameMapping_ = calibrationTargetManager.userNameToCauldronNameMapping_;
+  for (const Well& well : calibrationTargetManager.wells_)
+  {
+    addWell(well);
+  }
+}
+
+void CalibrationTargetManager::copyMappingFrom(const CalibrationTargetManager& calibrationTargetManager)
+{
+  for (const QString& key : calibrationTargetManager.userNameToCauldronNameMapping().keys())
+  {
+    addToMapping(key, calibrationTargetManager.getCauldronPropertyName(key));
+  }
+}
+
+void CalibrationTargetManager::renameUserPropertyName(const QString& oldName, const QString& newName)
+{
+  for (Well& well : wells_)
+  {
+    well.renameUserPropertyName(oldName, newName);
+  }
+  addToMapping(newName, getCauldronPropertyName(oldName));
+}
+
+
+QMap<QString, QString> CalibrationTargetManager::userNameToCauldronNameMapping() const
+{
+  return userNameToCauldronNameMapping_;
+}
+
 int CalibrationTargetManager::addWell(const QString& wellName, double x, double y)
 {    
+  double xShift = getShiftToAvoidOverlap(wellName, x, y);
+  const int newId = wells_.size();
+
+  Well newWell(newId, wellName, x + xShift, y);
+  wells_.append(newWell);
+  return newId;
+}
+
+int CalibrationTargetManager::addWell(Well well)
+{
+  double xShift = getShiftToAvoidOverlap(well.name(), well.x(), well.y());
+  well.shift(xShift);
+
+  const int newId = wells_.size();
+  well.setId(newId);
+  wells_.append(well);
+  return newId;
+}
+
+double CalibrationTargetManager::getShiftToAvoidOverlap(const QString& wellName, const double x, const double y)
+{
   int i = 0;
+  double xShift = 0.0;
   while (i<wells_.size())
   {
-    if (std::fabs(wells_[i].x() - x) < 1.0 && std::fabs(wells_[i].y() -  y) < 1.0)
+    if (std::fabs(wells_[i].x() + xShift - x) < 1.0 && std::fabs(wells_[i].y() -  y) < 1.0)
     {
       Logger::log() << "Shifting well " << wellName << " by 1m in x to not overlap with well: " << wells_[i].name() << Logger::endl();
-      x += 1.0; // Shift 1m so CASA will not see it as the same well
+      xShift += 1.0; // Shift 1m so CASA will not see it as the same well
       i = 0;    // Start again, as we might have overlapped with an other well now
     }
     else
@@ -63,11 +117,8 @@ int CalibrationTargetManager::addWell(const QString& wellName, double x, double 
       ++i;
     }
   }
-  const int newId = wells_.size();
 
-  Well newWell(newId, wellName, x, y);
-  wells_.append(newWell);
-  return newId;
+  return xShift;
 }
 
 void CalibrationTargetManager::setHasDataInLayer(const int wellIndex, QVector<bool> hasDataInLayer)
@@ -348,7 +399,7 @@ void CalibrationTargetManager::updateObjectiveFunctionFromTargets()
 
 void CalibrationTargetManager::applyObjectiveFunctionOnCalibrationTargets()
 {
-  for(Well& well : wells_)
+  for (Well& well : wells_)
   {
     well.applyObjectiveFunction(objectiveFunctionManager_);
   }
@@ -384,6 +435,5 @@ QString CalibrationTargetManager::getCauldronPropertyName(const QString& userPro
 {
   return userNameToCauldronNameMapping_.value(userPropertyName, "Unknown");
 }
-
 
 } // namespace casaWizard

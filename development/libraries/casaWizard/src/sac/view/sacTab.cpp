@@ -3,9 +3,10 @@
 #include "view/calibrationTargetTable.h"
 #include "view/objectiveFunctionTableSAC.h"
 #include "view/lithofractionTable.h"
-#include "../common/view/components/customtitle.h"
-#include "../common/view/components/emphasisbutton.h"
-#include "../common/view/components/helpLabel.h"
+#include "view/components/customtitle.h"
+#include "view/components/emphasisbutton.h"
+#include "view/components/helpLabel.h"
+#include "view/importWellPopup.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -36,7 +37,8 @@ SACtab::SACtab(QWidget* parent) :
   comboBoxCluster_{new QComboBox(this)},
   pushButtonSACrunCASA_{new EmphasisButton("Run 1D optimization", this)},
   buttonRunOriginal1D_{new QPushButton("Run original 1D", this)},
-  buttonRunOriginal3D_{new QPushButton("Run original 3D", this)}
+  buttonRunOriginal3D_{new QPushButton("Run original 3D", this)},
+  importWellPopup_{new ImportWellPopup()}
 {
   comboBoxApplication_->insertItems(0, {"Iteratively Coupled", "Hydrostatic"});
   comboBoxCluster_->insertItems(0, {"LOCAL", "CLUSTER"});
@@ -169,6 +171,11 @@ const QPushButton* SACtab::buttonRunOriginal1D() const
 const QPushButton* SACtab::buttonRunOriginal3D() const
 {
   return buttonRunOriginal3D_;
+}
+
+ImportWellPopup* SACtab::importWellPopup() const
+{
+  return importWellPopup_;
 }
 
 } // namespace sac

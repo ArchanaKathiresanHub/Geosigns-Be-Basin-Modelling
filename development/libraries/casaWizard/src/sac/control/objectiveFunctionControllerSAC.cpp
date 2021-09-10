@@ -29,8 +29,6 @@ ObjectiveFunctionControllerSAC::ObjectiveFunctionControllerSAC(ObjectiveFunction
           this,                    SLOT(slotTableObjectiveFunctionChanged(QTableWidgetItem*)));
   connect(objectiveFunctionTableSAC_, SIGNAL(enabledStateChanged(int, int)),
           this,                    SLOT(slotEnabledStateChanged(int, int)));
-  connect(objectiveFunctionTableSAC_, SIGNAL(selectedPropertyChanged(const QString&, const QString&)),
-          this,                    SLOT(slotSelectedPropertyChanged(const QString&, const QString&)));
   connect(parent, SIGNAL(signalRefreshChildWidgets()), this, SLOT(slotRefresh()));
 }
 
@@ -49,11 +47,6 @@ void ObjectiveFunctionControllerSAC::slotTableObjectiveFunctionChanged(QTableWid
 void ObjectiveFunctionControllerSAC::slotEnabledStateChanged(int state, int row)
 {
   calibrationTargetManager_.setObjectiveFunctionEnabledState(state == Qt::CheckState::Checked, row);
-}
-
-void ObjectiveFunctionControllerSAC::slotSelectedPropertyChanged(const QString& propertyCauldronName, const QString& propertyUserName)
-{
-  scenario_.calibrationTargetManager().addToMapping(propertyUserName, propertyCauldronName);
 }
 
 }  // namespace casaWizard

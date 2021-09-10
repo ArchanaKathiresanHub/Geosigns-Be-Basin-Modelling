@@ -30,7 +30,6 @@ public:
 private slots:
   void slotTableObjectiveFunctionChanged(QTableWidgetItem* item);
   void slotEnabledStateChanged(int state, int row);
-  void slotSelectedPropertyChanged(const QString& propertyCauldronName, const QString& propertyUserName);
   void slotRefresh();
 
 private:

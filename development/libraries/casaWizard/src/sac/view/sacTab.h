@@ -16,6 +16,7 @@ class CalibrationTargetTable;
 class InfluentialParameterTable;
 class ObjectiveFunctionTableSAC;
 class PredictionTargetTable;
+class ImportWellPopup;
 
 namespace sac
 {
@@ -44,6 +45,8 @@ public:
   const QPushButton* buttonRunOriginal1D() const;
   const QPushButton* buttonRunOriginal3D() const;
 
+  ImportWellPopup* importWellPopup() const;
+
 private:
   QPushButton* pushSelectProject3D_;
   QLineEdit* lineEditProject3D_;
@@ -62,6 +65,8 @@ private:
   EmphasisButton* pushButtonSACrunCASA_;
   QPushButton* buttonRunOriginal1D_;
   QPushButton* buttonRunOriginal3D_;
+
+  ImportWellPopup* importWellPopup_;
 };
 
 } // namespace sac

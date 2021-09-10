@@ -20,9 +20,10 @@ namespace casaWizard
 {
 
 class CalibrationTargetController;
+class CalibrationTargetManager;
 class ScriptRunController;
 class ObjectiveFunctionControllerSAC;
-
+class ImportWellPopupController;
 
 namespace sac
 {
@@ -66,16 +67,18 @@ signals:
 
 private:
   void refreshGUI();
+  void importOnSeparateThread(casaWizard::CalibrationTargetManager& temporaryImportCalibrationTargetManager, const QString& fileName);
 
   SACtab* sacTab_;
   SACScenario& casaScenario_;
   ScriptRunController& scriptRunController_;
-  QMessageBox importing_;
+  QMessageBox importingPopup_;
 
   CalibrationTargetController* calibrationTargetController_;
   DataExtractionController* dataExtractionController_;
   LithofractionController* lithofractionController_;
   ObjectiveFunctionControllerSAC* objectiveFunctionController_;
+  ImportWellPopupController* importWellPopupController_;
 };
 
 } // namespace sac
