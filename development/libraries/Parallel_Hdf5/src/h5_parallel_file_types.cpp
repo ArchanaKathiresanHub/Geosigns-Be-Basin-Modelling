@@ -25,6 +25,7 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList( ) const
    hid_t plist = H5Pcreate (H5P_FILE_ACCESS);
 
 #ifndef _MSC_VER
+#ifdef _ACTIVATE_OFPP_MODE
    if( s_oneFilePerProcess )
    {
       ibs::FilePath fileName( s_temporaryDirName );
@@ -33,6 +34,7 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList( ) const
       H5Pset_fapl_ofpp (plist, PETSC_COMM_WORLD, fileName.cpath(), 0);
    }
    else
+#endif
    {
          H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);
 
@@ -108,13 +110,17 @@ hid_t H5_Parallel_PropertyList :: createRawTransferDatasetPropertyList() const
 
 bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool createDir )
 {
-   PetscBool noOfpp     = PETSC_FALSE;
+   PetscBool noOfpp     = PETSC_TRUE;
    PetscBool primaryPod = PETSC_FALSE;
    PetscBool ofLustre   = PETSC_FALSE;
 
 #ifndef _MSC_VER
    PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-noofpp", &noOfpp );
    PetscOptionsHasName (PETSC_IGNORE, PETSC_IGNORE, "-lustre", &ofLustre );
+
+   // noOfpp is set to true here in order to Disable OFPP and make NOOFPP as the default and only option 
+   // for CauldronV2 after the HDF5 library is upgraded to version 1.12.0
+   noOfpp = PETSC_TRUE;
 
    if( !noOfpp and !ofLustre ) {
 

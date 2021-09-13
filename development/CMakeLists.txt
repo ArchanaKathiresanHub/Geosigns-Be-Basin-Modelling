@@ -25,9 +25,9 @@ else(UNIX)
 endif()
 
 if (UNIX)
-   set(HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version") # 1.8.17 doesn't have H5FDmpiposix.c
+   set(HDF5_VERSION  "1.12.0" CACHE STRING "HDF5 version") # 1.8.17 doesn't have H5FDmpiposix.c
 else(UNIX)
-   set(HDF5_VERSION  "1.8.17" CACHE STRING "HDF5 version")
+   set(HDF5_VERSION  "1.12.0" CACHE STRING "HDF5 version")
 endif()
 
 #

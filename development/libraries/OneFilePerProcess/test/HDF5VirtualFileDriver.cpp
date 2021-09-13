@@ -40,6 +40,7 @@
 //     4) FILE-SIZE-RANK doesn't exist, and also FILE doesn't
 //
 
+#ifdef _ACTIVATE_OFPP_MODE
 
 namespace
 {
@@ -555,3 +556,5 @@ TEST( HDF5VirtualFileDriverTest, TruncateFile4 )
     EXPECT_EQ( 24, File(name, false).open( File::Truncate, false, 24));
   EXPECT_EQ( 25, File(name, false).open( File::Truncate, true, 25) );
 }
+
+#endif

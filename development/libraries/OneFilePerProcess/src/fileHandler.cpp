@@ -120,7 +120,9 @@ bool FileHandler::mergeFiles( const bool appendRank ) {
     tmpName << m_tempDirName << "/{NAME}";
   }
 
+#ifdef _ACTIVATE_OFPP_MODE
   H5Pset_fapl_ofpp ( fileAccessPList, m_comm, tmpName.str().c_str(), 0 );
+#endif
 
   openLocalFile( fileAccessPList );
 

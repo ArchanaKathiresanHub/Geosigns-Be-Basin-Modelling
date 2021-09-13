@@ -20,6 +20,8 @@
 // it sets the MPI communicator in the MPIPOSIX driver to MPI_COMM_SELF, so that
 // that I/O becomes a sequential.
 
+#ifdef _ACTIVATE_OFPP_MODE
+
 #define _GNU_SOURCE
 
 #include <stdlib.h>
@@ -400,3 +402,4 @@ static herr_t OFPP_closeFile(H5FD_t * file)
    return status;
 }
 
+#endif

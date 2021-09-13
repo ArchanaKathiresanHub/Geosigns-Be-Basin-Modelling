@@ -50,7 +50,7 @@ class TestCrustalThicknessCalculatorMerging : public TestCrustalThicknessCalcula
     void SetUp() final
     {
         //argv[0], is the program's name.
-        std::vector<std::string> argvList = {"fastctc.exe","-project","Project.project3d","-save","Project_out.project3d","-merge"};
+        std::vector<std::string> argvList = {"fastctc","-project","Project.project3d","-save","Project_out.project3d","-merge"};
         //while passing three arguments, argc is 4
         argc = argvList.size();
         argv = new char* [argvList.size()];
