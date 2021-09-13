@@ -36,6 +36,18 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-13  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
+
+	new: dev: Cauldron V2 is updated to have HDF5 version 1.12.0.
+	 * OFPP functionality is hidden behind a pre-process compiler flag "_ACTIVATE_OFPP_MODE".
+	 * NOOFPP is currently the default and the only available option for Cauldron V2.
+	 * Added a new environment variable "HDF5_USE_FILE_LOCKING" and is set to "FALSE" to disable the file-locking mechanism of HDF5.
+
+	Related work items: #434085
+	================== COMMIT-END ========================
+	Commit-ID:<929147452f75e6a2eb7b06959f0580a09e6bb78c>	  (refs/heads/master)
+
+++
 2021-09-10  Richard Faasse  <Richard.Faasse@shell.com>
 
 	chg: Implemented import pop-up in SAC wizard as preparation for WellPrep tool.
