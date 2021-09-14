@@ -36,6 +36,16 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-14  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Fixed issue with wrong information pop-up when importing wells in the SAC wizard !minor
+	* Fix for mapping being updated prematurely
+	* Fix issue with unnecessary pop-up
+	* Related work items: #417585
+	================== COMMIT-END ========================
+	Commit-ID:<bf2dcd2ea722883e86ee972f4f3203ab75eb545b>	  (refs/heads/master, refs/heads/Developers/Richard.Faasse/UpdateChangeLog)
+
+++
 2021-09-13  Subhra-Sankar.Kalita  <Subhra-Sankar.Kalita@shell.com>
 
 	new: dev: Cauldron V2 is updated to have HDF5 version 1.12.0.
