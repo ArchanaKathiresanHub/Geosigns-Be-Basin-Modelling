@@ -31,11 +31,12 @@ public:
 
 private slots:
   void slotAcceptedClicked();
-  void slotPropertyNameChanged(QTableWidgetItem* changedItem);
 
 private:
   bool mappingContainsUnknowns(const QMap<QString, QString>& mapping) const;
   QVector<QString> overwrittenMappingKeys(const QMap<QString, QString>& newMapping) const;
+  QString getRenamedUserPropertyName(const int rowNumber);
+  void renameUserPropertyNames();
 
   CalibrationTargetManager importCalibrationTargetManager_;
   ImportWellPopup* importWellPopup_;

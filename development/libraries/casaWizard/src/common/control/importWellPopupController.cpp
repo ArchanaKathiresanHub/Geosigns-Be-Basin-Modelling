@@ -26,8 +26,6 @@ ImportWellPopupController::ImportWellPopupController(ImportWellPopup* importwell
   importWellPopup_{importwellPopup},
   targetVariableUserNames_{}
 {
-  connect(importWellPopup_->propertyMappingTable(), SIGNAL(itemChanged(QTableWidgetItem*)),
-          this,                                     SLOT(slotPropertyNameChanged(QTableWidgetItem*)));
   connect(importWellPopup_,                         SIGNAL(acceptedClicked()),
           this,                                     SLOT(slotAcceptedClicked()));
 }
@@ -51,10 +49,6 @@ int ImportWellPopupController::executeImportWellPopup()
   return importWellPopup_->exec();
 }
 
-void ImportWellPopupController::slotPropertyNameChanged(QTableWidgetItem* changedItem)
-{
-  importCalibrationTargetManager_.renameUserPropertyName(targetVariableUserNames_.toList()[changedItem->row()], changedItem->text());
-}
 
 void ImportWellPopupController::slotAcceptedClicked()
 {
@@ -91,10 +85,14 @@ void ImportWellPopupController::slotAcceptedClicked()
     }
   }
 
+  int counter = 0;
   for (const QString& key : newMapping.keys())
   {
     importCalibrationTargetManager_.addToMapping(key, newMapping[key]);
+    counter++;
   }
+
+  renameUserPropertyNames();
 
   targetVariableUserNames_.clear();
   importWellPopup_->accept();
@@ -112,7 +110,6 @@ bool ImportWellPopupController::mappingContainsUnknowns(const QMap<QString, QStr
   return false;
 }
 
-
 QVector<QString> ImportWellPopupController::overwrittenMappingKeys(const QMap<QString, QString>& newMapping) const
 {
   const QMap<QString, QString> originalMapping = importCalibrationTargetManager_.userNameToCauldronNameMapping();
@@ -127,6 +124,19 @@ QVector<QString> ImportWellPopupController::overwrittenMappingKeys(const QMap<QS
   }
 
   return overwrittenKeys;
+}
+
+void ImportWellPopupController::renameUserPropertyNames()
+{
+  for (int i = 0; i < targetVariableUserNames_.size(); i++)
+  {
+    importCalibrationTargetManager_.renameUserPropertyNameInWells(targetVariableUserNames_.toList()[i], getRenamedUserPropertyName(i));
+  }
+}
+
+QString ImportWellPopupController::getRenamedUserPropertyName(const int rowNumber)
+{
+ return importWellPopup_->propertyMappingTable()->item(rowNumber, 0)->text();
 }
 
 CalibrationTargetManager& ImportWellPopupController::importCalibrationTargetManager()

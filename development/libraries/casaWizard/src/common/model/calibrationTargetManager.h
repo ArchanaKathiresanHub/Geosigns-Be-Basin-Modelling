@@ -25,7 +25,7 @@ public:
 
   void appendFrom(const CalibrationTargetManager& calibrationTargetManager);
   void copyMappingFrom(const CalibrationTargetManager& calibrationTargetManager);
-  void renameUserPropertyName(const QString& oldName, const QString& newName);
+  void renameUserPropertyNameInWells(const QString& oldName, const QString& newName);
   QMap<QString, QString> userNameToCauldronNameMapping() const;
 
   const QVector<const Well*> wells() const;

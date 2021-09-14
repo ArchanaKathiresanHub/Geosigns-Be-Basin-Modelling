@@ -64,13 +64,17 @@ void CalibrationTargetManager::copyMappingFrom(const CalibrationTargetManager& c
   }
 }
 
-void CalibrationTargetManager::renameUserPropertyName(const QString& oldName, const QString& newName)
+void CalibrationTargetManager::renameUserPropertyNameInWells(const QString& oldName, const QString& newName)
 {
+  if (oldName == newName)
+  {
+    return;
+  }
+
   for (Well& well : wells_)
   {
     well.renameUserPropertyName(oldName, newName);
   }
-  addToMapping(newName, getCauldronPropertyName(oldName));
 }
 
 

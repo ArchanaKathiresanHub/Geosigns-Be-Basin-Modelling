@@ -335,13 +335,11 @@ TEST(CalibrationTargetManagerTest, testRenamePropertyUserName)
   {
     EXPECT_EQ(calibrationTarget->propertyUserName().toStdString(), "oldPropertyUserName");
   }
-  EXPECT_EQ(manager.getCauldronPropertyName("newPropertyUserName").toStdString(), "Unknown");
 
-  manager.renameUserPropertyName("oldPropertyUserName", "newPropertyUserName");
+  manager.renameUserPropertyNameInWells("oldPropertyUserName", "newPropertyUserName");
 
   for (const auto& calibrationTarget : manager.calibrationTargets())
   {
     EXPECT_EQ(calibrationTarget->propertyUserName().toStdString(), "newPropertyUserName");
   }
-  EXPECT_EQ(manager.getCauldronPropertyName("newPropertyUserName").toStdString(), "someCauldronName");
 }
