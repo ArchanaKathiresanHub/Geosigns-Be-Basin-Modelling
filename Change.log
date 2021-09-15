@@ -36,6 +36,14 @@ Microsoft Windows 	  toolset = Visual Studio 2019 (v142)
 // to ++ and then edit rows as you wish
 //
 +
+2021-09-15  Richard Faasse  <Richard.Faasse@shell.com>
+
+	fix: Moved title to window title of well import pop-up SAC wizard !minor
+	* Related work items: #417585
+	================== COMMIT-END ========================
+	Commit-ID:<14d801f8172543fe3f302fb0b3d0e08b661824fb>	  (refs/heads/master)
+
+++
 2021-09-14  Richard Faasse  <Richard.Faasse@shell.com>
 
 	fix: Fixed issue with wrong information pop-up when importing wells in the SAC wizard !minor
