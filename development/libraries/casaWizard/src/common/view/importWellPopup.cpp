@@ -22,6 +22,7 @@ ImportWellPopup::ImportWellPopup(QWidget *parent) :
   QDialog(parent),
   propertyMappingTable_{new ImportWellPropertyTable(this)}
 {
+  setWindowTitle("Import options");
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
 
   setFixedWidth(400);
@@ -30,8 +31,6 @@ ImportWellPopup::ImportWellPopup(QWidget *parent) :
   connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
 
   QVBoxLayout* layout = new QVBoxLayout(this);
-  CustomTitle* title = new CustomTitle("Import options", this);
-  layout->addWidget(title);
   layout->addWidget(propertyMappingTable_);
   layout->addWidget(buttons);
 }
